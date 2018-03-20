@@ -1,12 +1,12 @@
 FROM php:7.2.3-cli-alpine
 
-RUN apk add --no-cache --virtual .my-deps g++ make autoconf &&\
-    apk add --no-cache git bash openssh-client &&\
-    pecl install xdebug && \
+RUN apk update &&\
+    apk add --no-cache make autoconf automake g++ nasm zlib zlib-dev git bash openssh-client nodejs-npm &&\
+    npm install npm@5.7.1 n -g && n 9.8.0 &&\
+    pecl install xdebug &&\
     docker-php-ext-enable xdebug && \
     curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/bin --filename=composer && \
-    apk del .my-deps &&\
-    mkdir /.composer && chmod 777 /.composer
+    mkdir /.composer /.npm /.config && chmod 777 /.composer /.npm /.config
 
 COPY php.ini /usr/local/etc/php/conf.d
 

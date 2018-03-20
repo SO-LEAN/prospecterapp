@@ -1,12 +1,17 @@
-all: build-env
+all: build-dev
 
-build-env:
+build-dev:
 	@echo "Generate environment..."
 	@docker-compose build
 
-build-assets:
-	@echo "Building..."
+build: composer npm
+
+composer:
+	@echo "Composer/Building..."
 	@docker-compose run --rm build composer install
+npm:
+	@echo "Npm/Building..."
+	@docker-compose run --rm build npm install
 run:
 	@docker-compose up -d
 stop:
