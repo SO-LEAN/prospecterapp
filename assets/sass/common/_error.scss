@@ -1,0 +1,11 @@
+.alert-fixed-top {
+  z-index: 1500;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+
+  .alert {
+    margin: 0 auto;
+  }
+}

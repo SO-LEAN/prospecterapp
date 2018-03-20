@@ -1,0 +1,12 @@
+@import "common/_customs";
+
+@import "~bootstrap/scss/bootstrap";
+@import "~font-awesome/scss/font-awesome";
+
+/** Customs component**/
+@import "common/_banner-header";
+@import "common/_footer";
+@import "common/_error";
+@import "common/_misc";
+@import "page/_home";
+@import "page/_contact";

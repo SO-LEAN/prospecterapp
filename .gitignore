@@ -10,4 +10,8 @@
 ###< symfony/phpunit-bridge ###
 /.idea/
 /node_modules/
-/public/statics/
+###> symfony/webpack-encore-pack ###
+/node_modules/
+/public/static/build/*
+!/public/static/build/.gitkeep
+###< symfony/webpack-encore-pack ###

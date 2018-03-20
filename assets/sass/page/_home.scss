@@ -1,0 +1,13 @@
+.home {
+  .slide1, .slide3 {
+    min-height: 10rem;
+    background: transparent;
+    padding-top: $spacer;
+    padding-bottom: $spacer;
+    margin-bottom: $spacer;
+
+    .container {
+      background-color: white;
+    }
+  }
+}

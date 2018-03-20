@@ -4,14 +4,24 @@ build-dev:
 	@echo "Generate environment..."
 	@docker-compose build
 
-build: composer npm
+build: composer yarn
 
 composer:
 	@echo "Composer/Building..."
 	@docker-compose run --rm build composer install
-npm:
-	@echo "Npm/Building..."
-	@docker-compose run --rm build npm install
+yarn:
+	@echo "Yarn/Building..."
+	@docker-compose run --rm build yarn install
+assets:
+	@echo "Assets/Building..."
+	@docker-compose run --rm build yarn run encore dev
+watch:
+	@echo "Assets/Watching..."
+	@docker-compose run --rm build yarn run encore dev --watch
+assets-prod:
+	@echo "Assets/Watching..."
+	@docker-compose run --rm build yarn run encore production
+
 run:
 	@docker-compose up -d
 stop:
@@ -25,4 +35,4 @@ test-coverage:
 	@docker-compose run --rm build bin/phpunit --coverage-html ./reports
 
 
-.PHONY: all build-env test test-coverage cs
+.PHONY: all build-dev build composer assets watch assets-prod run stop logs test test-coverage
