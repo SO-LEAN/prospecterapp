@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta http-equiv="x-ua-compatible" content="ie=edge">
+    <title>{% block title %}Page Title{% endblock %} - SoLean IT</title>
+    <link rel="icon" type="image/x-icon" href="">
+    <link rel="stylesheet" href="{{ asset('build/css/app.css') }}">
+</head>
+<body data-page="{{ js_ctrl|default('none') }}" class="{{ page|default('') }}">
+    <nav class="navbar navbar-expand navbar-light navbar-main">
+        <div class="container-fluid">
+            {{ knp_menu_render('main') }}
+            <a class="navbar-brand" href="{{ path('dashboard_display') }}" title="Dashboard">
+                <img src="" height="50" width="185" alt="PROSPECTER">
+            </a>
+        </div><!-- /.container -->
+    </nav><!-- /.navbar -->
+    {# Flash messages #}
+    {% block body %}
+    {% endblock %}
+    <footer class="bg-dark text-muted">
+        <div class="container">
+            <div class="row">
+                <div class="col-sm-3">
+                    <h2>Informations</h2>
+                    <ul class="list-unstyled">
+                        <li><a href="https://github.com/SO-LEAN" target="_blank">SOLEAN IT GitHub account</a></li>
+                        <li><a href="https://fr.linkedin.com/in/michel-maier-a8b19187" target="_blank">My Linkedin page</a></li>
+                    </ul>
+                </div>
+                <div class="col-sm-3 offset-sm-6">
+                    <h2>Location</h2>
+                    <address>
+                        <strong>Solean IT</strong> <br>
+                        20 avenue du Neuhof<br>
+                        F-67100 Strasbourg <br>
+
+                        France <br><br>
+                        <a href="mailto:opensource@solean-it.com" aria-label="email address"><i class="fa fa-envelope-o" aria-hidden="true"></i> opensource@solean-it.com</a><br>
+                    </address>
+                </div>
+            </div>
+        </div>
+        <hr>
+        <div class="container">
+            <div class="row">
+                <div class="col-sm-7">
+                    © So Lean SARL | 2016 - {{ 'now'|date('Y') }}
+                </div>
+                <div class="col-sm-5">
+                    N°SIRET 821 323 557 00016 <br>
+                    APE 6202A / Conseil en systèmes et logiciels informatiques
+                </div>
+            </div>
+        </div>
+    </footer>
+{% block javascripts %}
+    <script src="{{ asset('build/js/app.js') }}"></script>
+{% endblock %}
+</body>
+</html>

@@ -5,8 +5,7 @@ require('bootstrap');
 // preload modules
 var modules = {
     common: require('./common'),
-    home: require('./pages/home'),
-    contact: require('./pages/contact')
+    dashboard: require('./pages/Dashboard')
 };
 
 $(document).ready(function() {
@@ -15,7 +14,7 @@ $(document).ready(function() {
 
     var page = $('body').data('page');
     if('none' !== page ){
-        var Module =  modules[page];//
+        var Module =  modules[page];
         new Module().run();
     }
 });

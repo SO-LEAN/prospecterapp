@@ -1,0 +1,26 @@
+{% macro getClass(type) %}
+    {% set alertClasses = {
+        'warning': 'alert-warning',
+        'error': 'alert-danger',
+        'danger': 'alert-danger',
+        'success': 'alert-success',
+        'notice' : 'alert-primary',
+        'info': 'alert-info'
+    } %}
+
+    {{ alertClasses[type]|default('alert-info') }}
+{% endmacro %}
+
+{% import _self as flashMacro %}
+{% if app.request.hasPreviousSession %}
+    {% for type, messages in app.session.flashBag.all %}
+        {% for message in messages %}
+            <div class="alert-fixed-top alert {{ flashMacro.getClass(type) }} text-sm-center">
+                <button type="button" class="close" data-dismiss="alert">
+                    <span>×</span><span class="sr-only">Fermer la fenêtre de notification</span>
+                </button>
+                {{ message }}
+            </div>
+        {% endfor %}
+    {% endfor %}
+{% endif %}

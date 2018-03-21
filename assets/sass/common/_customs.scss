@@ -3,22 +3,10 @@
 // Copy variables from `_variables.scss` to this file to override default values
 // without modifying source files.
 
-$gray-dark:                 #373a3c !default;
-$gray:                      #55595c !default;
-$gray-light:                #818a91 !default;
+$dark:                 #373a3c !default;
+$gray:                 #55595c !default;
 
-$brand-primary:             #3b5998 !default;
-
-// Breadcrumbs
-
-$breadcrumb-padding-y:          0rem !default;
-$breadcrumb-padding-x:          0rem !default;
-$breadcrumb-item-padding:       .5rem !default;
-
-$breadcrumb-bg:                 inherit !default;
-$breadcrumb-divider-color:      $gray-light !default;
-$breadcrumb-active-color:       $gray-light !default;
-$breadcrumb-divider:            ">" !default;
+$primary:              #3b5998 !default;
 
 // Font sizes
 
@@ -26,3 +14,4 @@ $font-size-h1: 1.4rem !default;
 
 // New variables
 $highLight-color: white;
+$navBar-height : 3.9rem;

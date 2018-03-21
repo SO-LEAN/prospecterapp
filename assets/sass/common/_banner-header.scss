@@ -1,5 +1,5 @@
 .body-main_navbar-offset {
-  padding-top: 3.9rem;
+  padding-top: $navBar-height;
 }
 
 .navbar-main{
@@ -7,14 +7,15 @@
   text-transform: uppercase;
   font-weight: bold;
   background-color: white;
-  border-bottom: 2px solid $gray-100;
+  border-bottom: 2px solid $light;
   opacity: 0.8;
   padding: 0;
+  z-index: 500
 }
 
 .second-banner{
   padding-top: ($spacer / 2);
   background-color: whitesmoke;
-  border-bottom: 1px solid $gray-100;
+  border-bottom: 1px solid $light;
   margin-bottom: ($spacer / 2);
 }
