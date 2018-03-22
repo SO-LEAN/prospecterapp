@@ -1,7 +1,10 @@
 <?php
-namespace Solean\CleanProspecter;
+
+declare( strict_types = 1 );
+
+namespace Solean\CleanProspecter\UseCase;
 
 interface Presenter
 {
-    public function present($response) : array;
+    public function present($response) : object;
 }
