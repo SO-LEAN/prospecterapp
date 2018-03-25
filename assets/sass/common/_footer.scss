@@ -1,0 +1,15 @@
+footer {
+  font-size: 0.9rem;
+  min-height: 17rem;
+  padding-top: $spacer;
+  z-index: 1000;
+
+  h2 {
+    text-transform: uppercase;
+    font-size: 1rem;
+  }
+
+  address{
+    color: $highLight-color;
+  }
+}
