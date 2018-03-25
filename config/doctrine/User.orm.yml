@@ -1,0 +1,15 @@
+Solean\CleanProspecter\Entity\User:
+  type: entity
+  fields:
+    roles:
+      type: array
+    password:
+      type: string
+      length: 32
+      nullable: false
+    userName:
+      type: string
+      length: 50
+    salt:
+      type: string
+      length: 32

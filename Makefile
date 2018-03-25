@@ -4,11 +4,17 @@ build-dev:
 	@echo "Generate environment..."
 	@docker-compose build
 
-build: composer yarn
+build: composer yarn assets
 
+fixtures:
+	@echo "Fixtures/Running..."
+	@docker-compose run --rm build bin/console doctrine:fixtures:load
 composer:
 	@echo "Composer/Building..."
 	@docker-compose run --rm build composer install
+updatelib:
+	@echo "Composer/updating cleanprospecter..."
+	@docker-compose run --rm build composer update so-lean/cleanprospecter
 yarn:
 	@echo "Yarn/Building..."
 	@docker-compose run --rm build yarn install
@@ -28,6 +34,8 @@ stop:
 	@docker-compose stop
 logs:
 	@docker-compose logs
+ps:
+	@docker-compose ps
 
 test:
 	@docker-compose run --rm build bin/phpunit

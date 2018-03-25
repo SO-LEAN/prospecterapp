@@ -2,7 +2,7 @@
 # https://symfony.com/doc/current/best_practices/configuration.html#application-related-configuration
 parameters:
     knp_menu.renderer.twig.options:
-        currentClass: active
+        currentClass: 'active'
 services:
     # default configuration for services in *this* file
     _defaults:
@@ -27,9 +27,41 @@ services:
     # add more service definitions when explicit configuration is needed
     # please note that last definitions always *replace* previous ones
 
+    #Security
+    App\Security\ProspecterAuthenticator:
+        arguments:
+            - '@Symfony\Component\Security\Csrf\CsrfTokenManagerInterface'
+            - '@Symfony\Component\Form\FormFactoryInterface'
+            - '@Symfony\Component\HttpFoundation\Session\SessionInterface'
+            - '@Solean\CleanProspecter\UseCase\UseCasesFacade'
+            - '@Symfony\Component\Routing\Generator\UrlGeneratorInterface'
+            - 'login'
+            - 'dashboard_display'
+            - 'prospecter_provider'
+    App\Security\ProspecterUserProvider:
+        arguments: ['@Solean\CleanProspecter\UseCase\UseCasesFacade']
     #Menu
-    app.menu_builder:
-        class: App\Menu\MenuBuilder
+    App\Menu\MenuBuilder:
         arguments: ["@knp_menu.factory"]
         tags:
-            - { name: knp_menu.menu_builder, method: createMainMenu, alias: main }
+            - { name: 'knp_menu.menu_builder', method: 'createMainMenu', alias: 'main' }
+
+
+    #Uses Cases
+    Solean\CleanProspecter\UseCase\UseCasesFacade: ~
+    Solean\CleanProspecter\UseCase\Login\Login:
+        tags: ['use_case']
+        arguments:
+            - '@App\Gateway\Database\UserGatewayAdapter'
+            - '@App\Presenter\LoginPresenter'
+    Solean\CleanProspecter\UseCase\FindByUserName\FindByUserName:
+        tags: ['use_case']
+        arguments:
+            - '@App\Gateway\Database\UserGatewayAdapter'
+            - '@App\Presenter\FindByUserNamePresenter'
+    #Database Gateway
+    App\Gateway\Database\UserGatewayAdapter: ~
+    #Presenter
+    App\Presenter\FindByUserNamePresenter: ~
+    App\Presenter\LoginPresenter: ~
+
