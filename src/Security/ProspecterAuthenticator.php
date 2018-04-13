@@ -2,9 +2,7 @@
 
 namespace App\Security;
 
-
 use App\Form\LoginForm;
-
 use App\Presenter\LoginPresenter;
 use Symfony\Component\Security\Core\Security;
 use Solean\CleanProspecter\Exception\UseCase\BadCredentialException;
@@ -93,6 +91,7 @@ class ProspecterAuthenticator extends AbstractFormLoginAuthenticator
     /**
      * @param Request                      $request
      * @param AuthenticationException|null $authException
+     *
      * @return Response|null
      */
     public function start(Request $request, AuthenticationException $authException = null)
@@ -104,6 +103,7 @@ class ProspecterAuthenticator extends AbstractFormLoginAuthenticator
 
     /**
      * @param Request $request
+     *
      * @return LoginRequest
      */
     public function getCredentials(Request $request)
@@ -116,7 +116,7 @@ class ProspecterAuthenticator extends AbstractFormLoginAuthenticator
             throw new InvalidCsrfTokenException('Invalid CSRF token.');
         }
 
-        $data =  $form->getData();
+        $data = $form->getData();
 
         $request->getSession()->set(Security::LAST_USERNAME, $data['userName']);
 
@@ -127,6 +127,7 @@ class ProspecterAuthenticator extends AbstractFormLoginAuthenticator
      * @param Request        $request
      * @param TokenInterface $token
      * @param string         $providerKey
+     *
      * @return RedirectResponse
      */
     public function onAuthenticationSuccess(Request $request, TokenInterface $token, $providerKey)
@@ -134,15 +135,16 @@ class ProspecterAuthenticator extends AbstractFormLoginAuthenticator
         $path = $this->getTargetPath($this->session, $this->providerKey);
 
         if (!$path || $this->loginUrl === $path) {
-           $path = $this->getDefaultSuccessRedirectUrl();
+            $path = $this->getDefaultSuccessRedirectUrl();
         }
 
         return new RedirectResponse($path);
     }
 
     /**
-     * @param mixed $credentials
+     * @param mixed                 $credentials
      * @param UserProviderInterface $userProvider
+     *
      * @return UserInterface
      */
     public function getUser($credentials, UserProviderInterface $userProvider)
@@ -151,15 +153,16 @@ class ProspecterAuthenticator extends AbstractFormLoginAuthenticator
     }
 
     /**
-     * @param mixed $credentials
+     * @param mixed         $credentials
      * @param UserInterface $user
+     *
      * @return bool
      */
     public function checkCredentials($credentials, UserInterface $user)
     {
         try {
             $this->useCasesFacade->login(new LoginRequest($credentials['userName'], $credentials['password']), new LoginPresenter());
-        } catch(BadCredentialException $e) {
+        } catch (BadCredentialException $e) {
             throw new AuthenticationException(['Bad credentials']);
         }
 
@@ -168,6 +171,7 @@ class ProspecterAuthenticator extends AbstractFormLoginAuthenticator
 
     /**
      * @param Request $request
+     *
      * @return bool
      */
     public function supports(Request $request)
@@ -193,8 +197,8 @@ class ProspecterAuthenticator extends AbstractFormLoginAuthenticator
 
     /**
      * @param SessionInterface $session
-     * @param string $providerKey
-     * @param string $url
+     * @param string           $providerKey
+     * @param string           $url
      */
     private function saveTargetPath(SessionInterface $session, $providerKey, $url)
     {
@@ -203,7 +207,8 @@ class ProspecterAuthenticator extends AbstractFormLoginAuthenticator
 
     /**
      * @param SessionInterface $session
-     * @param string $providerKey
+     * @param string           $providerKey
+     *
      * @return mixed|string
      */
     private function getTargetPath(SessionInterface $session, $providerKey)

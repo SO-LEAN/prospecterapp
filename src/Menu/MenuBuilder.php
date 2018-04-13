@@ -1,4 +1,5 @@
 <?php
+
 namespace App\Menu;
 
 use Knp\Menu\FactoryInterface;
@@ -6,8 +7,7 @@ use Knp\Menu\ItemInterface;
 use Symfony\Component\Security\Core\Authorization\AuthorizationCheckerInterface;
 
 /**
- * Class MenuBuilder
- * @package App\Menu
+ * Class MenuBuilder.
  */
 class MenuBuilder
 {
@@ -19,6 +19,7 @@ class MenuBuilder
      * @var AuthorizationCheckerInterface
      */
     protected $authorizationChecker;
+
     /**
      * @param FactoryInterface $factory
      */
@@ -27,8 +28,8 @@ class MenuBuilder
         $this->factory = $factory;
         $this->authorizationChecker = $authorizationChecker;
     }
+
     /**
-     *
      * @return ItemInterface
      */
     public function createMainMenu()
@@ -37,11 +38,11 @@ class MenuBuilder
             'childrenAttributes' => ['class' => 'nav navbar-nav'],
         ]);
 
-        $commonAttributes =  ['currentClass' => 'active', 'attributes' =>  ['class' => 'nav-item'], 'linkAttributes' => ['class' => 'nav-link']];
+        $commonAttributes = ['currentClass' => 'active', 'attributes' => ['class' => 'nav-item'], 'linkAttributes' => ['class' => 'nav-link']];
 
         if ($this->authorizationChecker->isGranted('ROLE_PROSPECTOR')) {
-            $menu->addChild('Dashboard', ['route' => 'dashboard_display']  + $commonAttributes);
-            $menu->addChild('Prospects', ['route' => 'prospect_add']  + $commonAttributes);
+            $menu->addChild('Dashboard', ['route' => 'dashboard_display'] + $commonAttributes);
+            $menu->addChild('Prospects', ['route' => 'prospect_add'] + $commonAttributes);
         }
         if (!$this->authorizationChecker->isGranted('IS_AUTHENTICATED_FULLY')) {
             $menu->addChild('Login', ['route' => 'login'] + $commonAttributes);

@@ -1,6 +1,6 @@
 <?php
-namespace App\DependencyInjection;
 
+namespace App\DependencyInjection;
 
 use Solean\CleanProspecter\UseCase\UseCasesFacade;
 use Symfony\Component\DependencyInjection\Reference;
@@ -12,7 +12,7 @@ class UseCasePass implements CompilerPassInterface
     /**
      * @param ContainerBuilder $container
      */
-    public function process(ContainerBuilder $container) : void
+    public function process(ContainerBuilder $container): void
     {
         $facadeDefinition = $container->getDefinition(UseCasesFacade::class);
 

@@ -1,4 +1,5 @@
 <?php
+
 namespace App\DataFixtures;
 
 use Solean\CleanProspecter\Entity\User;
@@ -6,8 +7,7 @@ use Doctrine\Bundle\FixturesBundle\Fixture;
 use Doctrine\Common\Persistence\ObjectManager;
 
 /**
- * Class AppFixtures
- * @package App\DataFixtures
+ * Class AppFixtures.
  */
 class AppFixtures extends Fixture
 {
@@ -16,7 +16,7 @@ class AppFixtures extends Fixture
      */
     public function load(ObjectManager $manager)
     {
-      $this->createProspector($manager);
+        $this->createProspector($manager);
     }
 
     /**

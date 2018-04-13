@@ -2,14 +2,13 @@
 
 namespace App\Gateway\Entity;
 
-
 use Doctrine\ORM\EntityManagerInterface;
 use Solean\CleanProspecter\Entity\User;
 use Solean\CleanProspecter\Exception\Gateway\NotFoundException;
 use Solean\CleanProspecter\Gateway\Entity\UserGateway;
 
 /**
- * Class UserGatewayAdapter
+ * Class UserGatewayAdapter.
  */
 class UserGatewayAdapter implements UserGateway
 {
@@ -34,6 +33,7 @@ class UserGatewayAdapter implements UserGateway
 
     /**
      * @param $id
+     *
      * @return User
      */
     public function getUser($id): User
@@ -50,7 +50,9 @@ class UserGatewayAdapter implements UserGateway
 
     /**
      * @param User $user
+     *
      * @return User
+     *
      * @throws \Doctrine\ORM\ORMException
      */
     public function createUser(User $user): User
@@ -62,7 +64,9 @@ class UserGatewayAdapter implements UserGateway
 
     /**
      * @param User $user
+     *
      * @return User
+     *
      * @throws \Doctrine\ORM\ORMException
      */
     public function saveUser(User $user): User
@@ -75,6 +79,7 @@ class UserGatewayAdapter implements UserGateway
 
     /**
      * @param array $criteria
+     *
      * @return null|User
      */
     public function findOneBy(array $criteria): ?User
@@ -85,6 +90,7 @@ class UserGatewayAdapter implements UserGateway
 
     /**
      * @param array $criteria
+     *
      * @return array
      */
     public function findBy(array $criteria): array
@@ -92,9 +98,6 @@ class UserGatewayAdapter implements UserGateway
         return $this->repository->findBy($criteria);
     }
 
-    /**
-     * @return void
-     */
     private function flushIfNeeded(): void
     {
         if ($this->isTransactionActive()) {

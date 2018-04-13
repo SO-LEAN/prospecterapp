@@ -3,13 +3,11 @@
 namespace App\Controller;
 
 use App\Form\LoginForm;
-
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Symfony\Component\Routing\Annotation\Route;
 
 /**
- * Class SecurityController
- * @package App\Controller
+ * Class SecurityController.
  */
 class SecurityController extends Controller
 {
@@ -21,10 +19,11 @@ class SecurityController extends Controller
         $authenticationUtils = $this->get('security.authentication_utils');
 
         return $this->render('page/login.html.twig', [
-            'form' => $this->createForm(LoginForm::class, ['userName' => $authenticationUtils->getLastUsername()?: '' ])->createView(),
+            'form' => $this->createForm(LoginForm::class, ['userName' => $authenticationUtils->getLastUsername() ?: ''])->createView(),
             'error' => $authenticationUtils->getLastAuthenticationError(),
         ]);
     }
+
     /**
      * @Route("/logout", name="logout")
      */

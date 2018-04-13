@@ -7,8 +7,8 @@ use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Symfony\Component\Routing\Annotation\Route;
 
 /**
- * Class ProspectController
- * @package App\Controller
+ * Class ProspectController.
+ *
  * @Security("has_role('ROLE_PROSPECTOR')")
  */
 class ProspectController extends Controller
@@ -21,6 +21,7 @@ class ProspectController extends Controller
     {
         return $this->render('page/dashboard.html.twig');
     }
+
     /**
      * @Route("/prospect/add", name="prospect_add")
      */

@@ -8,10 +8,11 @@
 .phpunit
 /phpunit.xml
 ###< symfony/phpunit-bridge ###
-/.idea/
-/node_modules/
 ###> symfony/webpack-encore-pack ###
 /node_modules/
 /public/static/build/*
 !/public/static/build/.gitkeep
 ###< symfony/webpack-encore-pack ###
+/.idea/
+/node_modules/
+.php_cs.cache

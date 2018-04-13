@@ -45,5 +45,10 @@ test:
 test-coverage:
 	@docker-compose run --rm build bin/phpunit --coverage-html ./reports
 
+cs:
+	@docker-compose run --rm build php-cs-fixer fix ./src --dry-run --verbose --rules=@Symfony
+cs-fix:
+	@docker-compose run --rm build php-cs-fixer fix ./src --verbose --rules=@Symfony
+
 
 .PHONY: all build-dev build composer assets watch assets-prod run stop logs test test-coverage

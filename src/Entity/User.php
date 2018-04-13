@@ -6,8 +6,7 @@ use Solean\CleanProspecter\UseCase\FindByUserName\FindByUserNameResponse;
 use Symfony\Component\Security\Core\User\UserInterface;
 
 /**
- * Class User
- * @package App\Entity
+ * Class User.
  */
 final class User implements UserInterface
 {
@@ -53,9 +52,6 @@ final class User implements UserInterface
         return $this->loginResponse->getUserName();
     }
 
-    /**
-     *
-     */
     public function eraseCredentials()
     {
         return;
