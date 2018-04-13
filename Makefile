@@ -12,6 +12,9 @@ fixtures:
 composer:
 	@echo "Composer/Building..."
 	@docker-compose run --rm build composer install
+composer-update:
+	@echo "Composer/Updating..."
+	@docker-compose run --rm build composer install
 updatelib:
 	@echo "Composer/updating cleanprospecter..."
 	@docker-compose run --rm build composer update so-lean/cleanprospecter

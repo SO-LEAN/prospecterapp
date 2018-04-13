@@ -46,22 +46,16 @@ services:
         tags:
             - { name: 'knp_menu.menu_builder', method: 'createMainMenu', alias: 'main' }
 
-
     #Uses Cases
     Solean\CleanProspecter\UseCase\UseCasesFacade: ~
-    Solean\CleanProspecter\UseCase\Login\Login:
+    Solean\CleanProspecter\UseCase\Login\LoginImpl:
         tags: ['use_case']
         arguments:
-            - '@App\Gateway\Database\UserGatewayAdapter'
-            - '@App\Presenter\LoginPresenter'
-    Solean\CleanProspecter\UseCase\FindByUserName\FindByUserName:
+            - '@App\Gateway\Entity\UserGatewayAdapter'
+    Solean\CleanProspecter\UseCase\FindByUserName\FindByUserNameImpl:
         tags: ['use_case']
         arguments:
-            - '@App\Gateway\Database\UserGatewayAdapter'
-            - '@App\Presenter\FindByUserNamePresenter'
+            - '@App\Gateway\Entity\UserGatewayAdapter'
     #Database Gateway
-    App\Gateway\Database\UserGatewayAdapter: ~
-    #Presenter
-    App\Presenter\FindByUserNamePresenter: ~
-    App\Presenter\LoginPresenter: ~
+    App\Gateway\Entity\UserGatewayAdapter: ~
 

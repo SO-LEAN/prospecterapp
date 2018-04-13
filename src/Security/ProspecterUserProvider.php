@@ -4,6 +4,7 @@ namespace App\Security;
 
 
 use App\Entity\User;
+use App\Presenter\FindByUserNamePresenter;
 use Solean\CleanProspecter\UseCase\FindByUserName\FindByUserNameRequest;
 use Solean\CleanProspecter\UseCase\UseCasesFacade;
 use Symfony\Component\Security\Core\Exception\UnsupportedUserException;
@@ -32,7 +33,7 @@ class ProspecterUserProvider implements UserProviderInterface
      */
     public function loadUserByUsername($username)
     {
-        if ($response = $this->useCasesFacade->findByUserName(new FindByUserNameRequest($username, ''))) {;
+        if ($response = $this->useCasesFacade->findByUserName(new FindByUserNameRequest($username, ''), new FindByUserNamePresenter())) {;
             return new User($response);
         }
 
