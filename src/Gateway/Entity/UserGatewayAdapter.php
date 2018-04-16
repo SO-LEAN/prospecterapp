@@ -57,20 +57,21 @@ class UserGatewayAdapter implements UserGateway
      */
     public function createUser(User $user): User
     {
-        $this->saveUser($user);
+        $this->entityManager->persist($user);
+        $this->flushIfNeeded();
 
         return $user;
     }
 
     /**
+     * @param $id
      * @param User $user
      *
      * @return User
-     *
-     * @throws \Doctrine\ORM\ORMException
      */
-    public function saveUser(User $user): User
+    public function saveUser($id, User $user): User
     {
+        $user->setId($id);
         $this->entityManager->persist($user);
         $this->flushIfNeeded();
 

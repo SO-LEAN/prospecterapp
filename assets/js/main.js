@@ -1,5 +1,8 @@
 "use strict";
 
+// http://aerendir.me/2018/04/06/managin-static-images-webpack-encore/
+require('../images');
+
 var $ = require('jquery');
 require('bootstrap');
 // preload modules

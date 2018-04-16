@@ -1,0 +1,25 @@
+Solean\CleanProspecter\Entity\Organization:
+  type: entity
+  manyToOne:
+    holdBy:
+      targetEntity: Organization
+      inversedBy: subsidiaries
+    ownedBy:
+      targetEntity: Organization
+  oneToMany:
+    subsidiaries:
+      targetEntity: Organization
+      mappedBy: holdBy
+    ownedProspectedOrganizations:
+      targetEntity: Organization
+      mappedBy: ownedBy
+    ownedProspects:
+      targetEntity: Prospect
+      mappedBy: ownedBy
+fields:
+    corporateName:
+      type: string
+      length: 150
+    form:
+      type: string
+      length: 50

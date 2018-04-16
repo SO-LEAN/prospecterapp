@@ -1584,12 +1584,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/SO-LEAN/cleanprospecter.git",
-                "reference": "d976980ebcedc36c13a2d679dc8141b900e6af97"
+                "reference": "b5324f08a41e84ee06024a0b1ef981a3e819d96c"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/SO-LEAN/cleanprospecter/zipball/d976980ebcedc36c13a2d679dc8141b900e6af97",
-                "reference": "d976980ebcedc36c13a2d679dc8141b900e6af97",
+                "url": "https://api.github.com/repos/SO-LEAN/cleanprospecter/zipball/b5324f08a41e84ee06024a0b1ef981a3e819d96c",
+                "reference": "b5324f08a41e84ee06024a0b1ef981a3e819d96c",
                 "shasum": ""
             },
             "require-dev": {
@@ -1621,7 +1621,7 @@
                 "source": "https://github.com/SO-LEAN/cleanprospecter/tree/develop",
                 "issues": "https://github.com/SO-LEAN/cleanprospecter/issues"
             },
-            "time": "2018-04-13T09:24:21+00:00"
+            "time": "2018-04-16T06:56:34+00:00"
         },
         {
             "name": "symfony/asset",

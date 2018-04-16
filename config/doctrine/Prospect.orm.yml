@@ -1,0 +1,14 @@
+Solean\CleanProspecter\Entity\Prospect:
+  type: entity
+  manyToOne:
+    createdBy:
+      targetEntity: User
+    ownedBy:
+      targetEntity: Organization
+  fields:
+    firstName:
+      type: string
+      length: 100
+    lastName:
+      type: string
+      length: 100

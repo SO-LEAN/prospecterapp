@@ -31,3 +31,4 @@ framework:
     assets:
         base_path: ~
         base_urls: ['%env(STATIC_HOST)%']
+        json_manifest_path: '%kernel.root_dir%/../public/static/build/manifest.json'

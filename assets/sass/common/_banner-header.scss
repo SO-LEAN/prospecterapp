@@ -2,15 +2,14 @@
   padding-top: $navBar-height;
 }
 
-.navbar-main{
+.navbar-main {
   line-height: 3rem;
   text-transform: uppercase;
   font-weight: bold;
-  background-color: white;
+  background: rgba(255, 255, 255, 0.5);
   border-bottom: 2px solid $light;
-  opacity: 0.8;
   padding: 0;
-  z-index: 500
+  z-index: 500;
 }
 
 .second-banner{

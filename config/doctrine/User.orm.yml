@@ -1,5 +1,9 @@
 Solean\CleanProspecter\Entity\User:
   type: entity
+  manyToOne:
+    organization:
+      targetEntity: Organization
+      inversedBy: applicationUsers
   fields:
     roles:
       type: array
@@ -13,3 +17,9 @@ Solean\CleanProspecter\Entity\User:
     salt:
       type: string
       length: 32
+    firstName:
+      type: string
+      length: 100
+    lastName:
+      type: string
+      length: 100

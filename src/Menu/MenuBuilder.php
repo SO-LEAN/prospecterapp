@@ -46,8 +46,6 @@ class MenuBuilder
         }
         if (!$this->authorizationChecker->isGranted('IS_AUTHENTICATED_FULLY')) {
             $menu->addChild('Login', ['route' => 'login'] + $commonAttributes);
-        } else {
-            $menu->addChild('Logout', ['route' => 'logout'] + $commonAttributes);
         }
 
         return $menu;
