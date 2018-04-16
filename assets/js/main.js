@@ -8,7 +8,8 @@ require('bootstrap');
 // preload modules
 var modules = {
     common: require('./common'),
-    dashboard: require('./pages/Dashboard')
+    dashboard: require('./pages/Dashboard'),
+    prospect: require('./pages/Prospect')
 };
 
 $(document).ready(function() {
