@@ -163,7 +163,7 @@ class ProspecterAuthenticator extends AbstractFormLoginAuthenticator
         try {
             $this->useCasesFacade->login(new LoginRequest($credentials['userName'], $credentials['password']), new LoginPresenter());
         } catch (BadCredentialException $e) {
-            throw new AuthenticationException(['Bad credentials']);
+            throw new AuthenticationException('Bad credentials');
         }
 
         return true;

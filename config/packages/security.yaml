@@ -12,7 +12,7 @@ security:
             anonymous: ~
             logout:
                 path: /logout
-                target: /
+                target: /login
             guard:
                 authenticators:
                     - App\Security\ProspecterAuthenticator

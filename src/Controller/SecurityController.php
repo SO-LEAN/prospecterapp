@@ -26,6 +26,7 @@ class SecurityController extends Controller
 
     /**
      * @Route("/logout", name="logout")
+     * @codeCoverageIgnore
      */
     public function logoutDashboard()
     {

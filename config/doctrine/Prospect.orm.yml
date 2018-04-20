@@ -5,6 +5,7 @@ Solean\CleanProspecter\Entity\Prospect:
       targetEntity: User
     ownedBy:
       targetEntity: Organization
+      inversedBy: ownedProspects
   fields:
     firstName:
       type: string

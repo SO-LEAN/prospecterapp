@@ -42,6 +42,8 @@ ps:
 
 test:
 	@docker-compose run --rm build bin/phpunit
+testdox:
+	@docker-compose run --rm build bin/phpunit --testdox
 test-coverage:
 	@docker-compose run --rm build bin/phpunit --coverage-html ./reports
 

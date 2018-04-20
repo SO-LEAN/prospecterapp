@@ -36,7 +36,7 @@ class UserGatewayAdapter implements UserGateway
      *
      * @return User
      */
-    public function getUser($id): User
+    public function get($id): User
     {
         /** @var User $user */
         $user = $this->repository->findOneBy(['id' => $id]);
@@ -55,7 +55,7 @@ class UserGatewayAdapter implements UserGateway
      *
      * @throws \Doctrine\ORM\ORMException
      */
-    public function createUser(User $user): User
+    public function create(User $user): User
     {
         $this->entityManager->persist($user);
         $this->flushIfNeeded();
@@ -69,7 +69,7 @@ class UserGatewayAdapter implements UserGateway
      *
      * @return User
      */
-    public function saveUser($id, User $user): User
+    public function save($id, User $user): User
     {
         $user->setId($id);
         $this->entityManager->persist($user);
@@ -101,7 +101,7 @@ class UserGatewayAdapter implements UserGateway
 
     private function flushIfNeeded(): void
     {
-        if ($this->isTransactionActive()) {
+        if (!$this->isTransactionActive()) {
             $this->entityManager->flush();
         }
     }

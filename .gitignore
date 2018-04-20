@@ -5,7 +5,7 @@
 /vendor/
 ###< symfony/framework-bundle ###
 ###> symfony/phpunit-bridge ###
-.phpunit
+/bin/.phpunit
 /phpunit.xml
 ###< symfony/phpunit-bridge ###
 ###> symfony/webpack-encore-pack ###
@@ -13,6 +13,10 @@
 /public/static/build/*
 !/public/static/build/.gitkeep
 ###< symfony/webpack-encore-pack ###
+###> lexik/jwt-authentication-bundle ###
+/config/jwt/*.pem
+###< lexik/jwt-authentication-bundle ###
 /.idea/
 /node_modules/
 .php_cs.cache
+/reports/

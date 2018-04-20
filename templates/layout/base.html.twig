@@ -15,7 +15,7 @@
             <div class="navbar-brand">
                 {% if app.user %}
                     <a href="{{ path('logout') }}" title="logout"><i class="fa fa-power-off" aria-hidden="true"></i></a>
-                    <small>{{ app.user.username }}</small>
+                    <small id="func-logged-user">{{ app.user.username }}</small>
                 {% endif %}
                 <a href="{{ path('dashboard_display') }}" title="Dashboard"><img src="{{ asset('build/assets/images/solean.png') }}" height="50" width="50" alt="PROSPECTER" class="rounded-circle"></a>
             </div>

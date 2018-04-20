@@ -6,6 +6,7 @@ Solean\CleanProspecter\Entity\Organization:
       inversedBy: subsidiaries
     ownedBy:
       targetEntity: Organization
+      inversedBy: ownedProspectedOrganizations
   oneToMany:
     subsidiaries:
       targetEntity: Organization
@@ -16,6 +17,9 @@ Solean\CleanProspecter\Entity\Organization:
     ownedProspects:
       targetEntity: Prospect
       mappedBy: ownedBy
+    applicationUsers:
+      targetEntity: User
+      mappedBy: organization
 fields:
     corporateName:
       type: string

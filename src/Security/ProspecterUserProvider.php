@@ -33,7 +33,7 @@ class ProspecterUserProvider implements UserProviderInterface
      */
     public function loadUserByUsername($username)
     {
-        if ($response = $this->useCasesFacade->findByUserName(new FindByUserNameRequest($username, ''), new FindByUserNamePresenter())) {
+        if ($response = $this->useCasesFacade->findByUserName(new FindByUserNameRequest($username), new FindByUserNamePresenter())) {
             return new User($response);
         }
 
