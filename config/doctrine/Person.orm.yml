@@ -8,8 +8,10 @@ Solean\CleanProspecter\Entity\Person:
   fields:
     email:
       type: string
-    country:
+      nullable: true
+    language:
       type: string
+      nullable: true
   uniqueConstraints:
     search_idx:
       columns: [ email ]

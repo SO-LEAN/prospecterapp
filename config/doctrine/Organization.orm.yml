@@ -20,10 +20,15 @@ Solean\CleanProspecter\Entity\Organization:
     applicationUsers:
       targetEntity: User
       mappedBy: organization
-fields:
+  fields:
+    hasAddress:
+      type: boolean
     corporateName:
       type: string
       length: 150
     form:
       type: string
       length: 50
+  embedded:
+    address:
+      class: Address

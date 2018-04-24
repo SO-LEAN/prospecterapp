@@ -31,7 +31,7 @@ class AppFixtures extends Fixture
         $org->setEmail('org@solean-it.io');
         $org->setCorporateName('SOLEAN IT');
         $org->setForm('SARL');
-        $org->setCountry('FR');
+        $org->setLanguage('FR');
 
         $manager->persist($org);
         $manager->flush();
@@ -51,7 +51,7 @@ class AppFixtures extends Fixture
         $org = $this->getReference(('user-organization'));
 
         $user->setEmail('prospector@solean-it.io');
-        $user->setCountry($org->getCountry());
+        $user->setLanguage($org->getLanguage());
         $user->setUserName('prospector');
         $user->setPassword('password');
         $user->setSalt('salt');

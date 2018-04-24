@@ -3,7 +3,7 @@
 namespace App\Form;
 
 use Symfony\Component\Form\AbstractType;
-use Symfony\Component\Form\Extension\Core\Type\EmailType;
+use Symfony\Component\Form\Extension\Core\Type;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 
@@ -17,7 +17,13 @@ class CreateOrganizationForm extends AbstractType
     {
         $builder
             ->add('corporateName')
-            ->add('email', EmailType::class)
+            ->add('form')
+            ->add('language', Type\CountryType::class, ['preferred_choices' => ['GB', 'FR', 'DE'], 'required' => false])
+            ->add('email', Type\EmailType::class)
+            ->add('street')
+            ->add('postalCode')
+            ->add('city')
+            ->add('country', Type\CountryType::class, ['preferred_choices' => ['BE', 'EN', 'FR', 'GB'], 'required' => false])
         ;
     }
 

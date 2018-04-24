@@ -1,0 +1,11 @@
+Solean\CleanProspecter\Entity\Address:
+  type: embeddable
+  fields:
+    street:
+      type: string
+    postalCode:
+      type: string
+    city:
+      type: string
+    country:
+      type: string

@@ -9,7 +9,8 @@ require('bootstrap');
 var modules = {
     common: require('./common'),
     dashboard: require('./pages/Dashboard'),
-    prospect: require('./pages/Prospect')
+    prospect: require('./pages/Prospect'),
+    addOrganization: require('./pages/AddOrganization')
 };
 
 $(document).ready(function() {

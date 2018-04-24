@@ -55,7 +55,7 @@ class ProspectController
             if ($form->isSubmitted() && $form->isValid()) {
                 $data = $form->getData();
                 $response = $this->getUseCases()->createOrganization(
-                    new CreateOrganizationRequest($data['email'], 'FR', $data['corporateName'], 'SARL', null),
+                    new CreateOrganizationRequest($data['email'], $data['country'], $data['corporateName'], $data['form'], $data['street'], $data['postalCode'], $data['city'], $data['country'], null),
                     new CreateOrganizationPresenter()
                 );
 
@@ -65,7 +65,11 @@ class ProspectController
             }
         } catch (UseCaseException $e) {
             foreach ($e->getRequestErrors() as $key => $msg) {
-                $form->get($key)->addError(new FormError($msg));
+                if ('*' === $key) {
+                    $form->addError(new FormError($msg));
+                } else {
+                    $form->get($key)->addError(new FormError($msg));
+                }
             }
         }
 

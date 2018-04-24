@@ -5,9 +5,12 @@ build-dev:
 	@docker-compose build
 
 build: composer yarn assets
-database:
+db:
 	@echo "Database/Running..."
 	@docker-compose run --rm build bin/console doctrine:schema:create
+dropdb:
+	@echo "Database/dropping..."
+	@docker-compose run --rm build bin/console doctrine:schema:drop --force
 fixtures:
 	@echo "Fixtures/Running..."
 	@docker-compose run --rm build bin/console doctrine:fixtures:load
