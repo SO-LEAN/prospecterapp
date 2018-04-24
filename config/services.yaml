@@ -27,6 +27,15 @@ services:
     # add more service definitions when explicit configuration is needed
     # please note that last definitions always *replace* previous ones
 
+    #controller
+    App\Controller\ProspectController:
+        tags: ['controller.service_arguments']
+        calls:
+            - [setFormFactory, ['@form.factory']]
+            - [setTwig, ['@twig']]
+            - [setRouter, ['@router']]
+            - [setUseCases, ['@Solean\CleanProspecter\UseCase\UseCasesFacade']]
+
     #Security
     App\Security\ProspecterAuthenticator:
         arguments:
@@ -45,17 +54,28 @@ services:
         arguments: ["@knp_menu.factory"]
         tags:
             - { name: 'knp_menu.menu_builder', method: 'createMainMenu', alias: 'main' }
+            - { name: 'knp_menu.menu_builder', method: 'createSecondaryMenu', alias: 'secondary' }
 
     #Uses Cases
     Solean\CleanProspecter\UseCase\UseCasesFacade: ~
     Solean\CleanProspecter\UseCase\Login\LoginImpl:
         tags: ['use_case']
         arguments:
-            - '@App\Gateway\Entity\UserGatewayAdapter'
+            - '@App\Gateway\Entity\UserRepositoryAdapter'
     Solean\CleanProspecter\UseCase\FindByUserName\FindByUserNameImpl:
         tags: ['use_case']
         arguments:
-            - '@App\Gateway\Entity\UserGatewayAdapter'
+            - '@App\Gateway\Entity\UserRepositoryAdapter'
+    Solean\CleanProspecter\UseCase\CreateOrganization\CreateOrganizationImpl:
+        tags: ['use_case']
+        arguments:
+            - '@App\Gateway\Entity\OrganizationRepositoryAdapter'
     #Database Gateway
-    App\Gateway\Entity\UserGatewayAdapter: ~
-
+    App\Gateway\Entity\UserRepositoryAdapter:
+        arguments:
+            - '@doctrine.orm.entity_manager'
+            - 'Solean\CleanProspecter\Entity\User'
+    App\Gateway\Entity\OrganizationRepositoryAdapter:
+        arguments:
+            - '@doctrine.orm.entity_manager'
+            - 'Solean\CleanProspecter\Entity\Organization'

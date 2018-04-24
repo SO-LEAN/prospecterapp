@@ -2,7 +2,6 @@
 
 namespace App\Gateway\Entity;
 
-use Doctrine\ORM\EntityManagerInterface;
 use Solean\CleanProspecter\Entity\User;
 use Solean\CleanProspecter\Exception\Gateway\NotFoundException;
 use Solean\CleanProspecter\Gateway\Entity\UserGateway;
@@ -10,27 +9,8 @@ use Solean\CleanProspecter\Gateway\Entity\UserGateway;
 /**
  * Class UserGatewayAdapter.
  */
-class UserGatewayAdapter implements UserGateway
+class UserRepositoryAdapter extends RepositoryAdapter implements UserGateway
 {
-    /**
-     * @var \Doctrine\Common\Persistence\ObjectRepository|\Doctrine\ORM\EntityRepository
-     */
-    private $repository;
-
-    /**
-     * @var EntityManagerInterface
-     */
-    private $entityManager;
-
-    /**
-     * @param EntityManagerInterface $entityManager
-     */
-    public function __construct(EntityManagerInterface $entityManager)
-    {
-        $this->repository = $entityManager->getRepository(User::class);
-        $this->entityManager = $entityManager;
-    }
-
     /**
      * @param $id
      *
@@ -57,8 +37,7 @@ class UserGatewayAdapter implements UserGateway
      */
     public function create(User $user): User
     {
-        $this->entityManager->persist($user);
-        $this->flushIfNeeded();
+        $this->save($user);
 
         return $user;
     }
@@ -69,11 +48,10 @@ class UserGatewayAdapter implements UserGateway
      *
      * @return User
      */
-    public function save($id, User $user): User
+    public function update($id, User $user): User
     {
         $user->setId($id);
-        $this->entityManager->persist($user);
-        $this->flushIfNeeded();
+        $this->save($user);
 
         return $user;
     }
@@ -97,20 +75,5 @@ class UserGatewayAdapter implements UserGateway
     public function findBy(array $criteria): array
     {
         return $this->repository->findBy($criteria);
-    }
-
-    private function flushIfNeeded(): void
-    {
-        if (!$this->isTransactionActive()) {
-            $this->entityManager->flush();
-        }
-    }
-
-    /**
-     * @return bool
-     */
-    private function isTransactionActive(): bool
-    {
-        return $this->entityManager->getConnection()->isTransactionActive();
     }
 }

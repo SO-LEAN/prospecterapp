@@ -10,3 +10,6 @@ Solean\CleanProspecter\Entity\Person:
       type: string
     country:
       type: string
+  uniqueConstraints:
+    search_idx:
+      columns: [ email ]

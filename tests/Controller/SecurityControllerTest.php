@@ -2,7 +2,7 @@
 
 namespace Tests\App\Controller;
 
-use App\Tests\Base\ControllerTest;
+use Tests\App\Base\ControllerTest;
 
 class SecurityControllerTest extends ControllerTest
 {

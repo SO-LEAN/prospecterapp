@@ -2,10 +2,9 @@
 
 declare( strict_types = 1 );
 
-namespace App\Tests\Base;
+namespace Tests\App\Base;
 
 use stdClass;
-use Exception;
 use ReflectionClass;
 use PHPUnit\Framework\TestCase as PhpUnitTestCase;
 

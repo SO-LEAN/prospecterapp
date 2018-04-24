@@ -2,7 +2,7 @@
 
 namespace Tests\App\Controller;
 
-use App\Tests\Base\ControllerTest;
+use Tests\App\Base\ControllerTest;
 
 class ProspectControllerTest extends ControllerTest
 {
@@ -35,7 +35,17 @@ class ProspectControllerTest extends ControllerTest
         return [
             '/dashboard/view' => ['/dashboard/view'],
             '/prospect/add' => ['/prospect/add'],
+            '/organization/add' => ['/organization/add'],
         ];
     }
 
+    public function testSubmitCreateOrganizationRequest() : void
+    {
+
+        $form['create_organization_form[corporateName]'] = 'corporate name';
+        $form['create_organization_form[email]'] = 'email@test.com';
+
+        $this->submitForm($form, '/organization/add', 'create');
+        $this->assertRegExp('#/organization/view$#', $this->client->getResponse()->headers->get('location'));
+    }
 }

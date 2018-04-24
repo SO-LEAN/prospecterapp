@@ -41,7 +41,6 @@ class AppFixtures extends Fixture
 
     /**
      * @param ObjectManager $manager
-     * @param Organization  $organization
      */
     private function createProspector(ObjectManager $manager)
     {

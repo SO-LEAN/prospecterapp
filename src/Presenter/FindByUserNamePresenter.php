@@ -3,6 +3,7 @@
 namespace App\Presenter;
 
 use Solean\CleanProspecter\UseCase\Presenter;
+use Solean\CleanProspecter\UseCase\FindByUserName\FindByUserNameResponse;
 
 /**
  * Class FindByUserNamePresenter.
@@ -10,11 +11,11 @@ use Solean\CleanProspecter\UseCase\Presenter;
 class FindByUserNamePresenter implements Presenter
 {
     /**
-     * @param $response
+     * @param FindByUserNameResponse $response
      *
-     * @return object
+     * @return FindByUserNameResponse
      */
-    public function present($response): object
+    public function present($response): FindByUserNameResponse
     {
         return $response;
     }

@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Tests\Base;
+namespace Tests\App\Base;
 
 use App\Entity\User;
 use App\DataFixtures\AppFixtures;
@@ -48,8 +48,21 @@ abstract class ControllerTest extends WebTestCase
      *
      * @return string
      */
-    protected function grab(Crawler $crawler, $name) : string
+    protected function grab(Crawler $crawler, string $name) : string
     {
         return trim($crawler->filter(sprintf('#func-%s', $name))->eq(0)->text());
+    }
+
+    /**
+     * @param array $form
+     * @param string $page
+     * @param string $button
+     */
+    protected function submitForm(array $form, string $page, string $button) : void
+    {
+        $crawler = $this->client->request('GET', $page);
+        $form += $crawler->selectButton($button)->form();
+
+        $this->client->submit($form);
     }
 }

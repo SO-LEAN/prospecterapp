@@ -3,16 +3,16 @@
 namespace Tests\App\Gateway\Entity;
 
 use Doctrine\DBAL\Connection;
-use App\Tests\Base\TestCase;
+use Tests\App\Base\TestCase;
 use Doctrine\ORM\EntityManager;
 use Solean\CleanProspecter\Entity\User;
-use App\Gateway\Entity\UserGatewayAdapter;
+use App\Gateway\Entity\UserRepositoryAdapter;
 use Doctrine\Common\Persistence\ObjectRepository;
 use Solean\CleanProspecter\Exception\Gateway\NotFoundException;
 
-class UserGatewayAdapterTest extends TestCase
+class UserRepositoryAdapterTest extends TestCase
 {
-    public function target() : UserGatewayAdapter
+    public function target() : UserRepositoryAdapter
     {
         return parent::target();
     }
@@ -72,7 +72,7 @@ class UserGatewayAdapterTest extends TestCase
      *
      * @dataProvider provideUser
      */
-    public function testSaveUser(bool $transactionActive, int $flushCalledTimes) : void
+    public function testUpdateUser(bool $transactionActive, int $flushCalledTimes) : void
     {
         $id = 'user_id';
         $user = new User;
@@ -84,7 +84,7 @@ class UserGatewayAdapterTest extends TestCase
         $this->prophesy(EntityManager::class)->persist($user)->shouldBeCalled()->willReturn($user);
         $this->prophesy(EntityManager::class)->flush()->shouldBeCalledTimes($flushCalledTimes);
 
-        $this->assertEquals($expected, $this->target()->save($id, $user));
+        $this->assertEquals($expected, $this->target()->update($id, $user));
     }
 
     /**
@@ -97,7 +97,6 @@ class UserGatewayAdapterTest extends TestCase
             'out of transaction' => [false, 1],
         ];
     }
-
 
     public function testFindUserBy() : void
     {

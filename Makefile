@@ -5,7 +5,9 @@ build-dev:
 	@docker-compose build
 
 build: composer yarn assets
-
+database:
+	@echo "Database/Running..."
+	@docker-compose run --rm build bin/console doctrine:schema:create
 fixtures:
 	@echo "Fixtures/Running..."
 	@docker-compose run --rm build bin/console doctrine:fixtures:load
@@ -52,5 +54,7 @@ cs:
 cs-fix:
 	@docker-compose run --rm build php-cs-fixer fix ./src --verbose --rules=@Symfony
 
+exec:
+	@docker-compose run --rm build /bin/bash
 
 .PHONY: all build-dev build composer assets watch assets-prod run stop logs test test-coverage

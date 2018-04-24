@@ -3,15 +3,16 @@
 namespace App\Presenter;
 
 use Solean\CleanProspecter\UseCase\Presenter;
+use Solean\CleanProspecter\UseCase\Login\LoginResponse;
 
 class LoginPresenter implements Presenter
 {
     /**
-     * @param $response
+     * @param LoginResponse $response
      *
-     * @return object
+     * @return LoginResponse
      */
-    public function present($response): object
+    public function present($response): LoginResponse
     {
         return $response;
     }
