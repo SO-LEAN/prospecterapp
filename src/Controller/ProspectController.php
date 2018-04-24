@@ -73,9 +73,9 @@ class ProspectController
     }
 
     /**
-     * @Route("/organization/view", name="organization_view")
+     * @Route("/organization/view/{id}", name="organization_view")
      */
-    public function viewOrganization()
+    public function viewOrganization($id)
     {
         return $this->render('page/prospect-add.html.twig');
     }

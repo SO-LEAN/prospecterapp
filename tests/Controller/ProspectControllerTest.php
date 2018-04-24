@@ -41,11 +41,12 @@ class ProspectControllerTest extends ControllerTest
 
     public function testSubmitCreateOrganizationRequest() : void
     {
+        $this->login();
 
         $form['create_organization_form[corporateName]'] = 'corporate name';
         $form['create_organization_form[email]'] = 'email@test.com';
 
-        $this->submitForm($form, '/organization/add', 'create');
-        $this->assertRegExp('#/organization/view$#', $this->client->getResponse()->headers->get('location'));
+        $this->submitForm($form, '/organization/add', 'Create');
+        $this->assertRegExp('#/organization/view/[0-9]+$#', $this->client->getResponse()->headers->get('location'));
     }
 }

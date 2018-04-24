@@ -61,8 +61,13 @@ abstract class ControllerTest extends WebTestCase
     protected function submitForm(array $form, string $page, string $button) : void
     {
         $crawler = $this->client->request('GET', $page);
-        $form += $crawler->selectButton($button)->form();
+        $formCrawler = $crawler->selectButton($button)->form();
 
-        $this->client->submit($form);
+        foreach($form as $name => $field)
+        {
+            $formCrawler[$name] = $field;
+        }
+
+        $this->client->submit($formCrawler);
     }
 }
