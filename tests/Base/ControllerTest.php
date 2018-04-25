@@ -36,7 +36,7 @@ abstract class ControllerTest extends WebTestCase
     {
         $entity = $this->fixtures->getReference($userName);
 
-        $user = new User(new FindByUserNameResponse($entity->getRoles(), $entity->getUserName(), $entity->getPassword()));
+        $user = new User(new FindByUserNameResponse($entity->getRoles(), $entity->getUserName(), $entity->getPassword(), $entity->getOrganization()->getId()));
         $this->loginAs($user, $firewall);
 
         $this->client = $this->makeClient();

@@ -2,15 +2,13 @@
 
 namespace App\Controller;
 
+use App\Entity\User;
 use App\Traits\ControllerTrait;
-use App\Form\CreateOrganizationForm;
-use App\Presenter\CreateOrganizationPresenter;
+use Symfony\Component\HttpFoundation;
+use Symfony\Component\Security\Core\User\UserInterface;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Security;
-use Solean\CleanProspecter\Exception\UseCase\UseCaseException;
-use Solean\CleanProspecter\UseCase\CreateOrganization\CreateOrganizationRequest;
-use Symfony\Component\Form\FormError;
-use Symfony\Component\HttpFoundation;
+
 
 /**
  * Class ProspectController.
@@ -41,39 +39,16 @@ class ProspectController
 
     /**
      * @param HttpFoundation\Request $request
+     * @param UserInterface $user
      *
      * @return HttpFoundation\RedirectResponse|HttpFoundation\Response
      *
      * @Route("organization/add", name="organization_create")
      */
-    public function createOrganization(HttpFoundation\Request $request)
+    public function createOrganization(HttpFoundation\Request $request, UserInterface $user)
     {
-        $form = $this->createForm(CreateOrganizationForm::class);
-
-        $form->handleRequest($request);
-        try {
-            if ($form->isSubmitted() && $form->isValid()) {
-                $data = $form->getData();
-                $response = $this->getUseCases()->createOrganization(
-                    new CreateOrganizationRequest($data['email'], $data['country'], $data['corporateName'], $data['form'], $data['street'], $data['postalCode'], $data['city'], $data['country'], null),
-                    new CreateOrganizationPresenter()
-                );
-
-                return $this->redirectToRoute('organization_view', [
-                    'id' => $response->getId(),
-                ]);
-            }
-        } catch (UseCaseException $e) {
-            foreach ($e->getRequestErrors() as $key => $msg) {
-                if ('*' === $key) {
-                    $form->addError(new FormError($msg));
-                } else {
-                    $form->get($key)->addError(new FormError($msg));
-                }
-            }
-        }
-
-        return $this->render('page/organization-add.html.twig', ['form' => $form->createView()]);
+        /** @var User $user */
+        return $this->handleForm([], $request, $user);
     }
 
     /**
@@ -83,4 +58,5 @@ class ProspectController
     {
         return $this->render('page/prospect-add.html.twig');
     }
+
 }

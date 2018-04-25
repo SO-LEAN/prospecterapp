@@ -56,4 +56,9 @@ final class User implements UserInterface
     {
         return;
     }
+
+    public function getOrganizationId()
+    {
+        return $this->loginResponse->getOrganizationId();
+    }
 }
