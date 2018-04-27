@@ -4,7 +4,7 @@ namespace App\Entity;
 
 use Solean\CleanProspecter\UseCase\UseCaseConsumer;
 use Symfony\Component\Security\Core\User\UserInterface;
-use Solean\CleanProspecter\UseCase\FindByUserName\FindByUserNameResponse;
+use Solean\CleanProspecter\UseCase\RefreshUser\RefreshUserResponse;
 
 /**
  * Class User.
@@ -12,14 +12,14 @@ use Solean\CleanProspecter\UseCase\FindByUserName\FindByUserNameResponse;
 final class User implements UserInterface, UseCaseConsumer
 {
     /**
-     * @var FindByUserNameResponse
+     * @var RefreshUserResponse
      */
     private $loginResponse;
 
     /**
-     * @param FindByUserNameResponse|null $loginResponse
+     * @param RefreshUserResponse|null $loginResponse
      */
-    public function __construct(FindByUserNameResponse $loginResponse = null)
+    public function __construct(RefreshUserResponse $loginResponse = null)
     {
         $this->loginResponse = $loginResponse;
     }

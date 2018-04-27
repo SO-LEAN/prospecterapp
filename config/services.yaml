@@ -64,7 +64,7 @@ services:
         tags: ['use_case']
         arguments:
             - '@App\Gateway\Entity\UserRepositoryAdapter'
-    Solean\CleanProspecter\UseCase\FindByUserName\FindByUserNameImpl:
+    Solean\CleanProspecter\UseCase\RefreshUser\RefreshUserImpl:
         lazy:  true
         tags: ['use_case']
         arguments:

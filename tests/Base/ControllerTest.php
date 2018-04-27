@@ -4,11 +4,11 @@ namespace Tests\App\Base;
 
 use App\Entity\User;
 use App\DataFixtures\AppFixtures;
+use Symfony\Component\DomCrawler\Crawler;
 use Symfony\Bundle\FrameworkBundle\Client;
 use Liip\FunctionalTestBundle\Test\WebTestCase;
 use Doctrine\Common\DataFixtures\ReferenceRepository;
-use Symfony\Component\DomCrawler\Crawler;
-use Solean\CleanProspecter\UseCase\FindByUserName\FindByUserNameResponse;
+use Solean\CleanProspecter\UseCase\RefreshUser\RefreshUserResponse;
 
 abstract class ControllerTest extends WebTestCase
 {
@@ -36,7 +36,7 @@ abstract class ControllerTest extends WebTestCase
     {
         $entity = $this->fixtures->getReference($userName);
 
-        $user = new User(new FindByUserNameResponse($entity->getId(), $entity->getRoles(), $entity->getUserName(), $entity->getPassword(), $entity->getOrganization()->getId()));
+        $user = new User(new RefreshUserResponse($entity->getId(), $entity->getRoles(), $entity->getUserName(), $entity->getPassword(), $entity->getOrganization()->getId()));
         $this->loginAs($user, $firewall);
 
         $this->client = $this->makeClient();

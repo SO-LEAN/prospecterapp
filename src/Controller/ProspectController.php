@@ -3,12 +3,13 @@
 namespace App\Controller;
 
 use App\Entity\User;
-use App\Presenter\GetOrganizationPresenter;
 use App\Traits\ControllerTrait;
-use Solean\CleanProspecter\UseCase\GetOrganization\GetOrganizationRequest;
 use Symfony\Component\HttpFoundation;
+use App\Presenter\GetOrganizationPresenter;
 use Symfony\Component\Security\Core\User\UserInterface;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
+use Sensio\Bundle\FrameworkExtraBundle\Configuration\Security;
+use Solean\CleanProspecter\UseCase\GetOrganization\GetOrganizationRequest;
 
 /**
  * Class ProspectController.
@@ -22,6 +23,8 @@ class ProspectController
     /**
      * @Route("/", name="index")
      * @Route("/dashboard/view", name="dashboard_display")
+     *
+     * @Security("has_role('ROLE_PROSPECTOR')")
      */
     public function displayDashboard()
     {

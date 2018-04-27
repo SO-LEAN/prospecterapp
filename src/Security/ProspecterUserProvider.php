@@ -3,8 +3,8 @@
 namespace App\Security;
 
 use App\Entity\User;
-use App\Presenter\FindByUserNamePresenter;
-use Solean\CleanProspecter\UseCase\FindByUserName\FindByUserNameRequest;
+use App\Presenter\RefreshUserPresenter;
+use Solean\CleanProspecter\UseCase\RefreshUser\RefreshUserRequest;
 use Solean\CleanProspecter\UseCase\UseCasesFacade;
 use Symfony\Component\Security\Core\Exception\UnsupportedUserException;
 use Symfony\Component\Security\Core\Exception\UsernameNotFoundException;
@@ -33,7 +33,7 @@ class ProspecterUserProvider implements UserProviderInterface
      */
     public function loadUserByUsername($username)
     {
-        if ($response = $this->useCasesFacade->findByUserName(new FindByUserNameRequest($username), new FindByUserNamePresenter())) {
+        if ($response = $this->useCasesFacade->refreshUser(new RefreshUserRequest($username), new RefreshUserPresenter())) {
             return new User($response);
         }
 
