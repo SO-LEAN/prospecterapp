@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Service\FormCommand;
+namespace App\Service\RequestHandler;
 
 use stdClass;
 use Exception;
@@ -42,7 +42,8 @@ class DefaultFormHandlingCommand implements FormHandlingCommand
 
         $response = $this->getUseCases()->$method(
             $useCaseRequest,
-            $presenter
+            $presenter,
+            $user
         );
 
         return $this->redirectToRoute($this->deduceTargetRoute($request), [

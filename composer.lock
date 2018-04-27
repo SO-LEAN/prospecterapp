@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "18358b3fab3c496bdbeb8795fe6317cc",
+    "content-hash": "ee188028f3b129b1904138038a3b7a22",
     "packages": [
         {
             "name": "composer/ca-bundle",
@@ -1743,12 +1743,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/SO-LEAN/cleanprospecter.git",
-                "reference": "1359476da1f538481149b5a2a84e96a39b231627"
+                "reference": "04abbfdf9d27bca0e41e290f0f1333c3f108f13b"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/SO-LEAN/cleanprospecter/zipball/1359476da1f538481149b5a2a84e96a39b231627",
-                "reference": "1359476da1f538481149b5a2a84e96a39b231627",
+                "url": "https://api.github.com/repos/SO-LEAN/cleanprospecter/zipball/04abbfdf9d27bca0e41e290f0f1333c3f108f13b",
+                "reference": "04abbfdf9d27bca0e41e290f0f1333c3f108f13b",
                 "shasum": ""
             },
             "require-dev": {
@@ -1780,7 +1780,7 @@
                 "source": "https://github.com/SO-LEAN/cleanprospecter/tree/develop",
                 "issues": "https://github.com/SO-LEAN/cleanprospecter/issues"
             },
-            "time": "2018-04-25T11:00:02+00:00"
+            "time": "2018-04-27T09:40:59+00:00"
         },
         {
             "name": "symfony/asset",

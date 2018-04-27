@@ -1,0 +1,11 @@
+{% extends 'layout/page.html.twig' %}
+{% block title %}Organization{% endblock %}
+{% block header %}Organization{% endblock %}
+{% set js_ctrl, page  = 'addOrganization', 'organization'  %}
+{% block page_body %}
+    <h2>{{ page_title }}</h2>
+    <p>
+        {{ table|json_encode }}
+    </p>
+
+{% endblock %}

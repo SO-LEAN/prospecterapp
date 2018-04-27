@@ -2,7 +2,7 @@
 
 namespace App\DependencyInjection;
 
-use App\Service\FormHandler;
+use App\Service\RequestHandler;
 use Solean\CleanProspecter\UseCase\UseCasesFacade;
 use Symfony\Component\DependencyInjection\Reference;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
@@ -21,7 +21,7 @@ class UseCasePass implements CompilerPassInterface
             $facadeDefinition->addMethodCall('addUseCase', [new Reference($id)]);
         }
 
-        $facadeDefinition = $container->getDefinition(FormHandler::class);
+        $facadeDefinition = $container->getDefinition(RequestHandler::class);
 
         foreach ($container->findTaggedServiceIds('form_cmd') as $id => $tags) {
             $tag = array_shift($tags);

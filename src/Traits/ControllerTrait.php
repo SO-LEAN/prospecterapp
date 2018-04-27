@@ -2,7 +2,7 @@
 
 namespace App\Traits;
 use App\Entity\User;
-use App\Service\FormHandler;
+use App\Service\RequestHandler;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 
@@ -14,25 +14,26 @@ trait ControllerTrait
 {
     use HelperTrait;
 
-    public function setFormHandler(FormHandler $formHandler)
+    public function setFormHandler(RequestHandler $formHandler)
     {
         $this->add('form-handler', $formHandler);
     }
 
-    protected function getFormHandler(): FormHandler
+    protected function getFormHandler(): RequestHandler
     {
         return $this->get('form-handler');
     }
 
     /**
-     * @param array $parameters
+     *
      * @param Request $request
      * @param User $user
+     * @param array $parameters
      *
      * @return Response
      */
-    protected function handleForm(array $parameters, Request $request, User $user): Response
+    protected function handleForm(Request $request, User $user, array $parameters = []): Response
     {
-        return $this->getFormHandler()->execute($parameters, $request, $user);
+        return $this->getFormHandler()->execute($request, $user, $parameters);
     }
 }

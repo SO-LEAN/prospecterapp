@@ -35,7 +35,7 @@ services:
             - [setTwig, ['@twig']]
             - [setRouter, ['@router']]
             - [setUseCases, ['@Solean\CleanProspecter\UseCase\UseCasesFacade']]
-            - [setFormHandler, ['@App\Service\FormHandler']]
+            - [setFormHandler, ['@App\Service\RequestHandler']]
 
     #Security
     App\Security\ProspecterAuthenticator:
@@ -60,30 +60,41 @@ services:
     #Uses Cases
     Solean\CleanProspecter\UseCase\UseCasesFacade: ~
     Solean\CleanProspecter\UseCase\Login\LoginImpl:
+        lazy:  true
         tags: ['use_case']
         arguments:
             - '@App\Gateway\Entity\UserRepositoryAdapter'
     Solean\CleanProspecter\UseCase\FindByUserName\FindByUserNameImpl:
+        lazy:  true
         tags: ['use_case']
         arguments:
             - '@App\Gateway\Entity\UserRepositoryAdapter'
     Solean\CleanProspecter\UseCase\CreateOrganization\CreateOrganizationImpl:
+        lazy:  true
+        tags: ['use_case']
+        arguments:
+            - '@App\Gateway\Entity\OrganizationRepositoryAdapter'
+    Solean\CleanProspecter\UseCase\GetOrganization\GetOrganizationImpl:
+        lazy:  true
         tags: ['use_case']
         arguments:
             - '@App\Gateway\Entity\OrganizationRepositoryAdapter'
     #Database Gateway
     App\Gateway\Entity\UserRepositoryAdapter:
+        lazy:  true
         arguments:
             - '@doctrine.orm.entity_manager'
             - 'Solean\CleanProspecter\Entity\User'
     App\Gateway\Entity\OrganizationRepositoryAdapter:
+        lazy:  true
         arguments:
             - '@doctrine.orm.entity_manager'
             - 'Solean\CleanProspecter\Entity\Organization'
-    #Form handler
-    App\Service\FormHandler: ~
+    #Request handler
+    App\Service\RequestHandler: ~
     #Form command
-    App\Service\FormCommand\DefaultFormHandlingCommand:
+    App\Service\RequestHandler\DefaultFormHandlingCommand:
+        lazy:  true
         tags: [{name: 'form_cmd', id: 'default'}, {name: 'form_cmd2', id: 'default2'}]
         calls:
             - [setFormFactory, ['@form.factory']]

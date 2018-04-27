@@ -3,7 +3,9 @@
 namespace App\Controller;
 
 use App\Entity\User;
+use App\Presenter\GetOrganizationPresenter;
 use App\Traits\ControllerTrait;
+use Solean\CleanProspecter\UseCase\GetOrganization\GetOrganizationRequest;
 use Symfony\Component\HttpFoundation;
 use Symfony\Component\Security\Core\User\UserInterface;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
@@ -32,7 +34,7 @@ class ProspectController
     /**
      * @Route("/prospect/add", name="prospect_create")
      */
-    public function addProspect()
+    public function createProspect()
     {
         return $this->render('page/prospect-add.html.twig');
     }
@@ -48,15 +50,20 @@ class ProspectController
     public function createOrganization(HttpFoundation\Request $request, UserInterface $user)
     {
         /** @var User $user */
-        return $this->handleForm([], $request, $user);
+        return $this->handleForm($request, $user);
     }
 
     /**
+     * @param int $id
+     * @return HttpFoundation\Response
+     * @param UserInterface $user
      * @Route("/organization/view/{id}", name="organization_view")
      */
-    public function viewOrganization($id)
+    public function viewOrganization($id, UserInterface $user)
     {
-        return $this->render('page/prospect-add.html.twig');
+        /** @var User $user */
+        $data = $this->getUseCases()->getOrganization(new GetOrganizationRequest($id), new GetOrganizationPresenter(), $user);
+        return $this->render('page/organization-view.html.twig', $data);
     }
 
 }
