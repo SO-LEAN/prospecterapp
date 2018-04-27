@@ -17,15 +17,15 @@ class GetOrganizationPresenter implements Presenter
         $table = $this->presentTable($response);
 
         return [
-            'page_title' => sprintf('Organization : %s', $response->getCorporateName()?: $response->getEmail()),
+            'page_title' => sprintf('Organization : %s', $response->getCorporateName() ?: $response->getEmail()),
             'id' => $response->getId(),
             'table' => $table,
         ];
-
     }
 
     /**
      * @param GetOrganizationResponse $response
+     *
      * @return array
      */
     private function presentTable($response): array
@@ -36,7 +36,7 @@ class GetOrganizationPresenter implements Presenter
             ['Legal form' => $response->getForm()],
             ['Language' => $response->getLanguage()],
             ['Email' => $response->getEmail()],
-            ['city' => $response->getCity()]
+            ['city' => $response->getCity()],
         ];
 
         if ($response->getHoldBy()) {

@@ -24,7 +24,7 @@ class DefaultFormHandlingCommand implements FormHandlingCommand
     const USE_CASES_NAMESPACE = 'Solean\CleanProspecter\UseCase';
 
     /**
-     * @inheritdoc
+     * {@inheritdoc}
      */
     public function initializeForm(Request $request, User $user): FormInterface
     {
@@ -32,7 +32,7 @@ class DefaultFormHandlingCommand implements FormHandlingCommand
     }
 
     /**
-     * @inheritdoc
+     * {@inheritdoc}
      */
     public function onSucceed(array $data, Request $request, User $user): Response
     {
@@ -52,12 +52,11 @@ class DefaultFormHandlingCommand implements FormHandlingCommand
     }
 
     /**
-     * @inheritdoc
+     * {@inheritdoc}
      */
     public function onUseCaseException(Exception $e, FormInterface $form): void
     {
-        if ($e instanceof UseCaseException)
-        {
+        if ($e instanceof UseCaseException) {
             foreach ($e->getRequestErrors() as $key => $msg) {
                 if ('*' === $key) {
                     $form->addError(new FormError($msg));
@@ -71,7 +70,7 @@ class DefaultFormHandlingCommand implements FormHandlingCommand
     }
 
     /**
-     * @inheritdoc
+     * {@inheritdoc}
      */
     public function renderFormView(Request $request, array $viewParameters, ?Response $response = null): Response
     {
@@ -80,9 +79,11 @@ class DefaultFormHandlingCommand implements FormHandlingCommand
 
     /**
      * @param Request $request
-     * @param array $data
-     * @param User $user
+     * @param array   $data
+     * @param User    $user
+     *
      * @return stdClass
+     *
      * @throws \ReflectionException
      */
     private function buildUseCaseRequest(Request $request, array $data, User $user): object
@@ -94,22 +95,24 @@ class DefaultFormHandlingCommand implements FormHandlingCommand
 
         $objectReflection = new ReflectionClass($class);
         $object = $objectReflection->newInstanceArgs($args);
-        /** @var stdClass $object */
+        /* @var stdClass $object */
 
         return  $object;
     }
 
     /**
      * @param string $class
-     * @param array $data
+     * @param array  $data
+     *
      * @return \Generator
+     *
      * @throws \ReflectionException
      */
     private function constructArgs(string $class, array $data): \Generator
     {
         $reflection = new ReflectionClass($class);
 
-        foreach ($reflection->getConstructor()->getParameters() AS $param) {
+        foreach ($reflection->getConstructor()->getParameters() as $param) {
             (yield $param->name => isset($data[$param->name]) ? $data[$param->name] : null);
         }
     }
@@ -131,17 +134,19 @@ class DefaultFormHandlingCommand implements FormHandlingCommand
 
     /**
      * @param Request $request
+     *
      * @return Presenter
      */
     private function buildPresenter(Request $request): Presenter
     {
         $class = $this->deducePresenterFQCN($request);
 
-        return new $class;
+        return new $class();
     }
 
     /**
      * @param Request $request
+     *
      * @return string
      */
     private function deduceUseCaseName(Request $request): string
@@ -154,25 +159,29 @@ class DefaultFormHandlingCommand implements FormHandlingCommand
 
     /**
      * @param Request $request
+     *
      * @return string
      */
     private function deduceFormFQCN(Request $request): string
     {
-       return sprintf('%s\%sForm', $this::FORMS_NAMESPACE, ucfirst($this->deduceUseCaseName($request)));
+        return sprintf('%s\%sForm', $this::FORMS_NAMESPACE, ucfirst($this->deduceUseCaseName($request)));
     }
 
     /**
      * @param Request $request
+     *
      * @return string
      */
     private function deduceRequestFQCN(Request $request): string
     {
         $useCase = ucfirst($this->deduceUseCaseName($request));
+
         return sprintf('%s\%s\%sRequest', $this::USE_CASES_NAMESPACE, $useCase, $useCase);
     }
 
     /**
      * @param Request $request
+     *
      * @return string
      */
     private function deducePresenterFQCN(Request $request): string
@@ -182,6 +191,7 @@ class DefaultFormHandlingCommand implements FormHandlingCommand
 
     /**
      * @param Request $request
+     *
      * @return string
      */
     private function deduceTargetRoute(Request $request): string
@@ -194,6 +204,7 @@ class DefaultFormHandlingCommand implements FormHandlingCommand
 
     /**
      * @param Request $request
+     *
      * @return string
      */
     private function deduceTargetTemplate(Request $request): string

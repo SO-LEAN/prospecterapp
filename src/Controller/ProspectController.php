@@ -9,13 +9,10 @@ use Solean\CleanProspecter\UseCase\GetOrganization\GetOrganizationRequest;
 use Symfony\Component\HttpFoundation;
 use Symfony\Component\Security\Core\User\UserInterface;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
-use Sensio\Bundle\FrameworkExtraBundle\Configuration\Security;
-
 
 /**
  * Class ProspectController.
  *
- * @Security("has_role('ROLE_PROSPECTOR')")
  * @Route(service="App\Controller\ProspectController")
  */
 class ProspectController
@@ -41,7 +38,7 @@ class ProspectController
 
     /**
      * @param HttpFoundation\Request $request
-     * @param UserInterface $user
+     * @param UserInterface          $user
      *
      * @return HttpFoundation\RedirectResponse|HttpFoundation\Response
      *
@@ -49,13 +46,15 @@ class ProspectController
      */
     public function createOrganization(HttpFoundation\Request $request, UserInterface $user)
     {
-        /** @var User $user */
+        /* @var User $user */
         return $this->handleForm($request, $user);
     }
 
     /**
      * @param int $id
+     *
      * @return HttpFoundation\Response
+     *
      * @param UserInterface $user
      * @Route("/organization/view/{id}", name="organization_view")
      */
@@ -63,7 +62,7 @@ class ProspectController
     {
         /** @var User $user */
         $data = $this->getUseCases()->getOrganization(new GetOrganizationRequest($id), new GetOrganizationPresenter(), $user);
+
         return $this->render('page/organization-view.html.twig', $data);
     }
-
 }

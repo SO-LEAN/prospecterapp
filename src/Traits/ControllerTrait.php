@@ -1,6 +1,7 @@
 <?php
 
 namespace App\Traits;
+
 use App\Entity\User;
 use App\Service\RequestHandler;
 use Symfony\Component\HttpFoundation\Request;
@@ -25,10 +26,9 @@ trait ControllerTrait
     }
 
     /**
-     *
      * @param Request $request
-     * @param User $user
-     * @param array $parameters
+     * @param User    $user
+     * @param array   $parameters
      *
      * @return Response
      */

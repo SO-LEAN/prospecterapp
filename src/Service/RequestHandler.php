@@ -16,7 +16,7 @@ class RequestHandler
 
     /**
      * @param FormHandlingCommand $command
-     * @param string $id
+     * @param string              $id
      */
     public function addCommand(FormHandlingCommand $command, $id = 'default')
     {
@@ -24,9 +24,10 @@ class RequestHandler
     }
 
     /**
-     * @param array $parameters
+     * @param array   $parameters
      * @param Request $request
-     * @param User $user
+     * @param User    $user
+     *
      * @return Response
      */
     public function execute(Request $request, User $user, array $parameters = []): Response
@@ -36,6 +37,7 @@ class RequestHandler
 
     /**
      * @param string $id
+     *
      * @return bool
      */
     private function hasCommand(string $id): bool
@@ -45,12 +47,12 @@ class RequestHandler
 
     /**
      * @param Request $request
-     * @param User $user
-     * @param array $parameters
+     * @param User    $user
+     * @param array   $parameters
      *
      * @return Response
      */
-    private function handleCommand(Request $request, User $user, array $parameters = []) : Response
+    private function handleCommand(Request $request, User $user, array $parameters = []): Response
     {
         if ($this->isFormRequest($request)) {
             return $this->handleForm($request, $user, $parameters);
@@ -61,8 +63,9 @@ class RequestHandler
 
     /**
      * @param Request $request
-     * @param User $user
-     * @param array $parameters
+     * @param User    $user
+     * @param array   $parameters
+     *
      * @return Response
      */
     private function handleForm(Request $request, User $user, array $parameters): Response
@@ -78,7 +81,6 @@ class RequestHandler
             }
         } catch (\Exception $e) {
             $command->onUseCaseException($e, $form);
-
         }
 
         return $command->renderFormView($request, ['form' => $form->createView()] + $parameters);
@@ -86,6 +88,7 @@ class RequestHandler
 
     /**
      * @param Request $request
+     *
      * @return FormHandlingCommand
      */
     private function selectCommand(Request $request): FormHandlingCommand
@@ -99,6 +102,7 @@ class RequestHandler
 
     /**
      * @param string $id
+     *
      * @return FormHandlingCommand
      */
     private function getCommand(string $id): FormHandlingCommand
@@ -112,6 +116,7 @@ class RequestHandler
 
     /**
      * @param Request $request
+     *
      * @return bool
      */
     private function isFormRequest(Request $request): bool
@@ -121,6 +126,7 @@ class RequestHandler
 
     /**
      * @param Request $request
+     *
      * @return string
      */
     private function getRoutePrefix(Request $request): string
