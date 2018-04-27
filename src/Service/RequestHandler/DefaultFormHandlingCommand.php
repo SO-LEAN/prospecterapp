@@ -135,9 +135,9 @@ class DefaultFormHandlingCommand implements FormHandlingCommand
     /**
      * @param Request $request
      *
-     * @return Presenter
+     * @return mixed
      */
-    private function buildPresenter(Request $request): Presenter
+    private function buildPresenter(Request $request)
     {
         $class = $this->deducePresenterFQCN($request);
 
@@ -186,7 +186,7 @@ class DefaultFormHandlingCommand implements FormHandlingCommand
      */
     private function deducePresenterFQCN(Request $request): string
     {
-        return sprintf('%s\%sPresenter', $this::PRESENTER_NAMESPACE, ucfirst($this->deduceUseCaseName($request)));
+        return sprintf('%s\%sPresenterImpl', $this::PRESENTER_NAMESPACE, ucfirst($this->deduceUseCaseName($request)));
     }
 
     /**

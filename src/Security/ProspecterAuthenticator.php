@@ -3,7 +3,7 @@
 namespace App\Security;
 
 use App\Form\LoginForm;
-use App\Presenter\LoginPresenter;
+use App\Presenter\LoginPresenterImpl;
 use Symfony\Component\Security\Core\Security;
 use Solean\CleanProspecter\Exception\UseCase\BadCredentialException;
 use Solean\CleanProspecter\UseCase\Login\LoginRequest;
@@ -161,7 +161,7 @@ class ProspecterAuthenticator extends AbstractFormLoginAuthenticator
     public function checkCredentials($credentials, UserInterface $user)
     {
         try {
-            $this->useCasesFacade->login(new LoginRequest($credentials['userName'], $credentials['password']), new LoginPresenter());
+            $this->useCasesFacade->login(new LoginRequest($credentials['userName'], $credentials['password']), new LoginPresenterImpl());
         } catch (BadCredentialException $e) {
             throw new AuthenticationException('Bad credentials');
         }

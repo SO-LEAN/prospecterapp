@@ -2,10 +2,10 @@
 
 namespace App\Presenter;
 
-use Solean\CleanProspecter\UseCase\Presenter;
 use Solean\CleanProspecter\UseCase\Login\LoginResponse;
+use Solean\CleanProspecter\UseCase\Login\LoginPresenter;
 
-class LoginPresenter implements Presenter
+class LoginPresenterImpl implements LoginPresenter
 {
     /**
      * @param LoginResponse $response

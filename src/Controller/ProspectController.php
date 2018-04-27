@@ -3,9 +3,9 @@
 namespace App\Controller;
 
 use App\Entity\User;
+use App\Presenter\GetOrganizationPresenterImpl;
 use App\Traits\ControllerTrait;
 use Symfony\Component\HttpFoundation;
-use App\Presenter\GetOrganizationPresenter;
 use Symfony\Component\Security\Core\User\UserInterface;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Security;
@@ -64,7 +64,7 @@ class ProspectController
     public function viewOrganization($id, UserInterface $user)
     {
         /** @var User $user */
-        $data = $this->getUseCases()->getOrganization(new GetOrganizationRequest($id), new GetOrganizationPresenter(), $user);
+        $data = $this->getUseCases()->getOrganization(new GetOrganizationRequest($id), new GetOrganizationPresenterImpl(), $user);
 
         return $this->render('page/organization-view.html.twig', $data);
     }

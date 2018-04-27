@@ -3,7 +3,7 @@
 namespace App\Security;
 
 use App\Entity\User;
-use App\Presenter\RefreshUserPresenter;
+use App\Presenter\RefreshUserPresenterImpl;
 use Solean\CleanProspecter\UseCase\RefreshUser\RefreshUserRequest;
 use Solean\CleanProspecter\UseCase\UseCasesFacade;
 use Symfony\Component\Security\Core\Exception\UnsupportedUserException;
@@ -33,7 +33,7 @@ class ProspecterUserProvider implements UserProviderInterface
      */
     public function loadUserByUsername($username)
     {
-        if ($response = $this->useCasesFacade->refreshUser(new RefreshUserRequest($username), new RefreshUserPresenter())) {
+        if ($response = $this->useCasesFacade->refreshUser(new RefreshUserRequest($username), new RefreshUserPresenterImpl())) {
             return new User($response);
         }
 

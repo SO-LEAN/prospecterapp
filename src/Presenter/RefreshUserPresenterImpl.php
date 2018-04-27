@@ -2,13 +2,13 @@
 
 namespace App\Presenter;
 
-use Solean\CleanProspecter\UseCase\Presenter;
 use Solean\CleanProspecter\UseCase\RefreshUser\RefreshUserResponse;
+use Solean\CleanProspecter\UseCase\RefreshUser\RefreshUserPresenter;
 
 /**
  * Class RefreshUserPresenter.
  */
-class RefreshUserPresenter implements Presenter
+class RefreshUserPresenterImpl implements RefreshUserPresenter
 {
     /**
      * @param RefreshUserResponse $response

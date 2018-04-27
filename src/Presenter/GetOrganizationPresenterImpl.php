@@ -3,16 +3,16 @@
 namespace App\Presenter;
 
 use Solean\CleanProspecter\UseCase\GetOrganization\GetOrganizationResponse;
-use Solean\CleanProspecter\UseCase\Presenter;
+use Solean\CleanProspecter\UseCase\GetOrganization\GetOrganizationPresenter;
 
-class GetOrganizationPresenter implements Presenter
+class GetOrganizationPresenterImpl implements GetOrganizationPresenter
 {
     /**
      * @param GetOrganizationResponse $response
      *
-     * @return mixed
+     * @return array
      */
-    public function present($response)
+    public function present(GetOrganizationResponse $response): array
     {
         $table = $this->presentTable($response);
 
