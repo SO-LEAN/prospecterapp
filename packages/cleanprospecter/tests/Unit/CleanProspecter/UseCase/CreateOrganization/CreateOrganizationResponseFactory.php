@@ -27,7 +27,7 @@ class CreateOrganizationResponseFactory
             'EN',
             'observ.',
             null
-            );
+        );
     }
     /**
      * Default test organization
