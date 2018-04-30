@@ -65,7 +65,6 @@ class ProspectController
     {
         /** @var User $user */
         $data = $this->getUseCases()->getOrganization(new GetOrganizationRequest($id), new GetOrganizationPresenterImpl(), $user);
-
-        return $this->render('page/organization-view.html.twig', $data);
+        return $this->render('page/organization-view.html.twig', ['data' => $data]);
     }
 }

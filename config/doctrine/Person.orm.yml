@@ -9,7 +9,13 @@ Solean\CleanProspecter\Entity\Person:
     email:
       type: string
       nullable: true
+    phoneNumber:
+      type: string
+      nullable: true
     language:
+      type: string
+      nullable: true
+    observations:
       type: string
       nullable: true
   uniqueConstraints:

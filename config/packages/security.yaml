@@ -16,6 +16,8 @@ security:
             guard:
                 authenticators:
                     - App\Security\ProspecterAuthenticator
+    access_control:
+        - { path: ^/(?!login), roles: ROLE_PROSPECTOR}
 
             # activate different ways to authenticate
 
