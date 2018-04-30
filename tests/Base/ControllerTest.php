@@ -22,17 +22,31 @@ abstract class ControllerTest extends WebTestCase
      */
     protected $fixtures;
 
-    public function setUp() : void
+    public function setUp(): void
     {
         $this->fixtures = $this->loadFixtures([AppFixtures::class])->getReferenceRepository();
         $this->client = $this->createClient();
     }
 
     /**
+     * @param string $uri
+     * @dataProvider provideUri
+     */
+    public function testRouteIsReachedIfAuthenticatedAsProspector(string $uri): void
+    {
+        $this->login();
+
+        $crawler = $this->client->request('GET', $uri);
+
+        $this->assertEquals(200, $this->client->getResponse()->getStatusCode());
+        $this->assertEquals('prospector', $this->grab($crawler, 'logged-user'));
+    }
+
+    /**
      * @param string $userName
      * @param string $firewall
      */
-    protected function login(string $userName = 'prospector-user', string $firewall = 'main') : void
+    protected function login(string $userName = 'prospector-user', string $firewall = 'main'): void
     {
         $entity = $this->fixtures->getReference($userName);
 
@@ -48,7 +62,7 @@ abstract class ControllerTest extends WebTestCase
      *
      * @return string
      */
-    protected function grab(Crawler $crawler, string $name) : string
+    protected function grab(Crawler $crawler, string $name): string
     {
         return trim($crawler->filter(sprintf('#func-%s', $name))->eq(0)->text());
     }
@@ -58,7 +72,7 @@ abstract class ControllerTest extends WebTestCase
      * @param string $page
      * @param string $button
      */
-    protected function submitForm(array $form, string $page, string $button) : void
+    protected function submitForm(array $form, string $page, string $button): void
     {
         $crawler = $this->client->request('GET', $page);
         $formCrawler = $crawler->selectButton($button)->form();
@@ -70,4 +84,9 @@ abstract class ControllerTest extends WebTestCase
 
         $this->client->submit($formCrawler);
     }
+
+    /**
+     * @return array
+     */
+    abstract public function provideUri(): array;
 }

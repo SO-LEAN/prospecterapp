@@ -35,18 +35,6 @@ class ProspectControllerTest extends ControllerTest
         return [
             '/dashboard/view' => ['/dashboard/view'],
             '/prospect/add' => ['/prospect/add'],
-            '/organization/add' => ['/organization/add'],
         ];
-    }
-
-    public function testSubmitCreateOrganizationRequest() : void
-    {
-        $this->login();
-
-        $form['create_organization_form[corporateName]'] = 'corporate name';
-        $form['create_organization_form[email]'] = 'email@test.com';
-
-        $this->submitForm($form, '/organization/add', 'Create');
-        $this->assertRegExp('#/organization/view/[0-9]+$#', $this->client->getResponse()->headers->get('location'));
     }
 }

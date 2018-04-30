@@ -10,10 +10,10 @@ class GetOrganizationPresenterImpl implements GetOrganizationPresenter
     /**
      * @param GetOrganizationResponse $response
      *
-     * @return array
+     * @return GetOrganizationResponse
      */
     public function present(GetOrganizationResponse $response): GetOrganizationResponse
     {
-      return $response;
+        return $response;
     }
 }

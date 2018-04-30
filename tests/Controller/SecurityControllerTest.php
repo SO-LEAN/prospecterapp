@@ -6,6 +6,10 @@ use Tests\App\Base\ControllerTest;
 
 class SecurityControllerTest extends ControllerTest
 {
+    public function provideUri(): array
+    {
+        return [];
+    }
     /**
      * @param string $message
      * @param string $userName

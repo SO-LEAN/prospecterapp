@@ -36,6 +36,14 @@ services:
             - [setRouter, ['@router']]
             - [setUseCases, ['@Solean\CleanProspecter\UseCase\UseCasesFacade']]
             - [setFormHandler, ['@App\Service\RequestHandler']]
+    App\Controller\OrganizationController:
+        tags: ['controller.service_arguments']
+        calls:
+            - [setFormFactory, ['@form.factory']]
+            - [setTwig, ['@twig']]
+            - [setRouter, ['@router']]
+            - [setUseCases, ['@Solean\CleanProspecter\UseCase\UseCasesFacade']]
+            - [setFormHandler, ['@App\Service\RequestHandler']]
 
     #Security
     App\Security\ProspecterAuthenticator:
@@ -74,12 +82,14 @@ services:
         tags: ['use_case']
         arguments:
             - '@App\Gateway\Entity\OrganizationRepositoryAdapter'
+            - '@App\Gateway\UserNotifierSymfonyAdapter'
     Solean\CleanProspecter\UseCase\GetOrganization\GetOrganizationImpl:
         lazy:  true
         tags: ['use_case']
         arguments:
             - '@App\Gateway\Entity\OrganizationRepositoryAdapter'
-    #Database Gateway
+    #Gateway
+      #Database Gateway
     App\Gateway\Entity\UserRepositoryAdapter:
         lazy:  true
         arguments:
@@ -90,6 +100,11 @@ services:
         arguments:
             - '@doctrine.orm.entity_manager'
             - 'Solean\CleanProspecter\Entity\Organization'
+      #User Notifier
+    App\Gateway\UserNotifierSymfonyAdapter:
+        arguments:
+            - '@session'
+
     #Request handler
     App\Service\RequestHandler: ~
     #Form command
