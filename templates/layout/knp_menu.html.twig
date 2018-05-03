@@ -1,8 +1,8 @@
 {% extends 'knp_menu.html.twig' %}
 
 {% block icon %}
- {% if item.labelAttribute('icon') is not empty  %}
-     <span class="{{ item.labelAttribute('icon') }}"></span>
+ {% if item.extra('icon') is not empty  %}
+     <span class="{{ item.extra('icon') }}"></span>
  {% endif %}
 {% endblock %}
 

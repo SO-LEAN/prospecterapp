@@ -42,6 +42,7 @@ class MenuBuilder
 
         if ($this->authorizationChecker->isGranted('ROLE_PROSPECTOR')) {
             $menu->addChild('Dashboard', ['route' => 'dashboard_display'] + $commonAttributes);
+            $menu->addChild('Organization', ['route' => 'organization_create'] + $commonAttributes);
             $menu->addChild('Prospects', ['route' => 'prospect_create'] + $commonAttributes);
         }
         if (!$this->authorizationChecker->isGranted('IS_AUTHENTICATED_FULLY')) {
@@ -62,9 +63,20 @@ class MenuBuilder
 
         $commonAttributes = ['currentClass' => 'nav-link active', 'attributes' => ['class' => 'nav-item'], 'linkAttributes' => ['class' => 'nav-link']];
 
-        $menu->addChild('Add Organization', ['route' => 'organization_create', 'icon' => 'fa fa-user-plus'] + $commonAttributes);
-        $menu->addChild('Add Prospect', ['route' => 'prospect_create', 'icon' => 'fa fa-industry'] + $commonAttributes);
+        $menu->addChild('Add Organization', ['route' => 'organization_create',  'extras' => $this->configureIcon('fa fa-user-plus')] + $commonAttributes);
+        $menu->addChild('Add Prospect', ['route' => 'prospect_create', 'extras' => $this->configureIcon('fa fa-industry')] + $commonAttributes);
 
         return $menu;
+    }
+
+    /**
+     * @param string $icon
+     * @return array
+     */
+    public function configureIcon(string $icon)
+    {
+        return [
+            'icon' => $icon,
+        ];
     }
 }

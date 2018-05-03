@@ -4,7 +4,7 @@
 {% block title %}<i class="fa fa-industry"></i> Organization : {{ data.corporateName|default(data.email) }}{% endblock %}
 {% block page_body %}
     <div class="row">
-        <div class="card ml-4 mb-5 col-sm-8">
+        <div class="card m-2 p-4 mb-5 col-sm-10">
             <div class="row">
                 <address class="card-body col-sm-8 mb-5">
                     <strong class="mb-2 text-secondary">Organization</strong>
@@ -15,7 +15,7 @@
                         {{ data.street }}<br>
                         {{ data.postalCode }} {{ data.city }}<br>
                         {{ data.country }}<br>
-                        {% if data.email %}<a href="{{ data.email }}" aria-label="email address"><i class="fa fa-envelope-o" aria-hidden="true"></i> {{ data.email }}</a><br>{% endif %}
+                        {% if data.email %}<a href="mailto:{{ data.email }}" aria-label="email address"><i class="fa fa-envelope-o" aria-hidden="true"></i> {{ data.email }}</a><br>{% endif %}
                         {% if data.phoneNumber %}<i class="fa fa-phone-square" aria-hidden="true"></i> {{ data.phoneNumber }}<br>{% endif %}
                     </p>
                     {% if data.holdBy %}<p class="card-text"><small class="text-muted">Hold by {{ data.holdBy }}</small></p>{% endif %}
@@ -36,4 +36,14 @@
             {% endif %}
         </div>
     </div>
+{% endblock %}
+{% block right %}
+    <ul class="nav flex-column">
+        <li class="nav-item">
+            <a href="#" class="nav-link"> <span class="fa fa-edit"></span> Edit</a>
+        </li>
+        <li class="nav-item">
+            <a href="#" class="nav-link"> <span class="fa fa-user-plus"></span> Add prospect</a>
+        </li>
+    </ul>
 {% endblock %}
