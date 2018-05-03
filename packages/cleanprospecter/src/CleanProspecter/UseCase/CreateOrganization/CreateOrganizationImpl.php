@@ -61,9 +61,14 @@ final class CreateOrganizationImpl extends AbstractUseCase implements CreateOrga
 
     private function validateRequest(CreateOrganizationRequest $request): void
     {
+        if (!$request->getOwnedBy()) {
+            $msg = 'Owner is missing';
+            throw new UseCaseException('Owner is missing', 412, null, ['*' => $msg]);
+        }
+
         if (!$request->getCorporateName() && !$request->getEmail()) {
             $msg = 'At least one is mandatory : corporate name or email';
-            throw new UseCaseException('At least one is mandatory : corporate name or email', 412, null, ['*' => $msg]);
+            throw new UseCaseException($msg, 412, null, ['*' => $msg]);
         }
     }
 
