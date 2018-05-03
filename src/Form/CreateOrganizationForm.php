@@ -27,7 +27,7 @@ class CreateOrganizationForm extends AbstractType
             ->add('country', Type\CountryType::class, ['preferred_choices' => ['BE', 'EN', 'FR', 'GB'], 'required' => false])
             ->add('city')
             ->add('observations', Type\TextareaType::class)
-
+            ->add('logo', Type\FileType::class)
         ;
     }
 

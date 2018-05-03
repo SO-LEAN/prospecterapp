@@ -11,6 +11,7 @@
 ###> symfony/webpack-encore-pack ###
 /node_modules/
 /public/static/build/*
+/public/static/storage/*
 !/public/static/build/.gitkeep
 ###< symfony/webpack-encore-pack ###
 ###> lexik/jwt-authentication-bundle ###

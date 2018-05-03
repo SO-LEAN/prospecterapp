@@ -6,9 +6,12 @@ build-dev:
 
 build: composer yarn assets
 db:
-	@echo "Database/Running..."
+	@echo "Database/creating..."
 	@docker-compose run --rm build bin/console doctrine:schema:create
-dropdb:
+dbup:
+	@echo "Database/Updating..."
+	@docker-compose run --rm build bin/console doctrine:schema:update --force
+dbdrop:
 	@echo "Database/dropping..."
 	@docker-compose run --rm build bin/console doctrine:schema:drop --force
 fixtures:
@@ -17,10 +20,10 @@ fixtures:
 composer:
 	@echo "Composer/Building..."
 	@docker-compose run --rm build composer install
-composer-update:
+composerup:
 	@echo "Composer/Updating..."
 	@docker-compose run --rm build composer install
-updatelib:
+libup:
 	@echo "Composer/updating cleanprospecter..."
 	@docker-compose run --rm build composer update so-lean/cleanprospecter
 yarn:

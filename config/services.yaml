@@ -82,6 +82,7 @@ services:
         tags: ['use_case']
         arguments:
             - '@App\Gateway\Entity\OrganizationRepositoryAdapter'
+            - '@App\Gateway\StorageLocalAdapter'
             - '@App\Gateway\UserNotifierSymfonyAdapter'
     Solean\CleanProspecter\UseCase\GetOrganization\GetOrganizationImpl:
         lazy:  true
@@ -104,7 +105,10 @@ services:
     App\Gateway\UserNotifierSymfonyAdapter:
         arguments:
             - '@session'
-
+      #Storage
+    App\Gateway\StorageLocalAdapter:
+        arguments:
+            - '@App\Service\LocalStorageService'
     #Request handler
     App\Service\RequestHandler: ~
     #Form command
@@ -116,4 +120,8 @@ services:
             - [setTwig, ['@twig']]
             - [setRouter, ['@router']]
             - [setUseCases, ['@Solean\CleanProspecter\UseCase\UseCasesFacade']]
-
+    #Local storage service
+    App\Service\LocalStorageService:
+        arguments:
+            - '%env(resolve:STORAGE_PATH)%'
+            - '%env(STORAGE_URL)%'

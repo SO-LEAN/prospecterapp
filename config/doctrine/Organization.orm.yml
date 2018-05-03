@@ -23,6 +23,8 @@ Solean\CleanProspecter\Entity\Organization:
   fields:
     hasAddress:
       type: boolean
+    hasLogo:
+      type: boolean
     corporateName:
       type: string
       length: 150
@@ -32,3 +34,5 @@ Solean\CleanProspecter\Entity\Organization:
   embedded:
     address:
       class: Address
+    logo:
+      class: File
