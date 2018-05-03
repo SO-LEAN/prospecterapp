@@ -1,0 +1,15 @@
+{% use 'bootstrap_4_layout.html.twig' %}
+
+{# Errors #}
+{# fix in rootform#}
+{% block form_errors -%}
+    {%- if errors|length > 0 -%}
+    {% if form is not rootform %}<span class="invalid-feedback d-block">{% else %}<div class="alert alert-danger">{% endif %}
+        {%- for error in errors -%}
+            <span class="mb-0 d-block">
+                <span class="initialism form-error-icon badge badge-danger">{{ 'Error'|trans({}, 'validators') }}</span> <span class="form-error-message">{{ error.message }}</span>
+            </span>
+        {%- endfor -%}
+    {% if form is not rootform %}</span>{% else %}</div>{% endif %}
+    {%- endif %}
+{%- endblock form_errors %}
