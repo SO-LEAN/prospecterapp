@@ -60,10 +60,11 @@ services:
         arguments: ['@Solean\CleanProspecter\UseCase\UseCasesFacade']
     #Menu
     App\Menu\MenuBuilder:
-        arguments: ["@knp_menu.factory"]
+        arguments: ["@knp_menu.factory", "@security.authorization_checker", "@=service('request_stack').getCurrentRequest()"]
         tags:
             - { name: 'knp_menu.menu_builder', method: 'createMainMenu', alias: 'main' }
-            - { name: 'knp_menu.menu_builder', method: 'createSecondaryMenu', alias: 'secondary' }
+            - { name: 'knp_menu.menu_builder', method: 'createLeftMenu', alias: 'left' }
+            - { name: 'knp_menu.menu_builder', method: 'createRightMenu', alias: 'right' }
 
     #Uses Cases
     Solean\CleanProspecter\UseCase\UseCasesFacade: ~
@@ -78,6 +79,13 @@ services:
         arguments:
             - '@App\Gateway\Entity\UserRepositoryAdapter'
     Solean\CleanProspecter\UseCase\CreateOrganization\CreateOrganizationImpl:
+        lazy:  true
+        tags: ['use_case']
+        arguments:
+            - '@App\Gateway\Entity\OrganizationRepositoryAdapter'
+            - '@App\Gateway\StorageLocalAdapter'
+            - '@App\Gateway\UserNotifierSymfonyAdapter'
+    Solean\CleanProspecter\UseCase\UpdateOrganization\UpdateOrganizationImpl:
         lazy:  true
         tags: ['use_case']
         arguments:
@@ -112,14 +120,29 @@ services:
     #Request handler
     App\Service\RequestHandler: ~
     #Form command
-    App\Service\RequestHandler\DefaultFormHandlingCommand:
-        lazy:  true
-        tags: [{name: 'form_cmd', id: 'default'}, {name: 'form_cmd2', id: 'default2'}]
+    App\Service\RequestHandler\AbstractFormHandlingCommand:
+        abstract: true
         calls:
             - [setFormFactory, ['@form.factory']]
             - [setTwig, ['@twig']]
             - [setRouter, ['@router']]
             - [setUseCases, ['@Solean\CleanProspecter\UseCase\UseCasesFacade']]
+
+    App\Service\RequestHandler\CreateFormHandlingCommand:
+        autoconfigure: false
+        autowire: false
+        public: false
+        parent: App\Service\RequestHandler\AbstractFormHandlingCommand
+        lazy:  true
+        tags: [{name: 'form_cmd', id: 'create'}]
+    App\Service\RequestHandler\UpdateFormHandlingCommand:
+        autoconfigure: false
+        autowire: false
+        public: false
+        parent: App\Service\RequestHandler\AbstractFormHandlingCommand
+        lazy:  true
+        tags: [{name: 'form_cmd', id: 'update'}]
+
     #Local storage service
     App\Service\LocalStorageService:
         arguments:

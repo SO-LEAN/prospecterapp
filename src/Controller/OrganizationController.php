@@ -34,6 +34,20 @@ class OrganizationController
     }
 
     /**
+     * @param HttpFoundation\Request $request
+     * @param UserInterface          $user
+     *
+     * @return HttpFoundation\RedirectResponse|HttpFoundation\Response
+     *
+     * @Route("organization/update/{id}", name="organization_update")
+     */
+    public function updateOrganization(HttpFoundation\Request $request, UserInterface $user)
+    {
+        /* @var User $user */
+        return $this->handleForm($request, $user);
+    }
+
+    /**
      * @param int $id
      *
      * @return HttpFoundation\Response
@@ -46,6 +60,6 @@ class OrganizationController
         /** @var User $user */
         $data = $this->getUseCases()->getOrganization(new GetOrganizationRequest($id), new GetOrganizationPresenterImpl(), $user);
 
-        return $this->render('page/organization-view.html.twig', ['data' => $data]);
+        return $this->render('page/organization/view.html.twig', ['data' => $data]);
     }
 }

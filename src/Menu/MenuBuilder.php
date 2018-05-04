@@ -4,6 +4,7 @@ namespace App\Menu;
 
 use Knp\Menu\FactoryInterface;
 use Knp\Menu\ItemInterface;
+use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Security\Core\Authorization\AuthorizationCheckerInterface;
 
 /**
@@ -19,14 +20,21 @@ class MenuBuilder
      * @var AuthorizationCheckerInterface
      */
     protected $authorizationChecker;
+    /**
+     * @var Request
+     */
+    protected $currentRequest;
 
     /**
      * @param FactoryInterface $factory
+     * @param AuthorizationCheckerInterface $authorizationChecker
+     * @param Request $currentRequest
      */
-    public function __construct(FactoryInterface $factory, AuthorizationCheckerInterface $authorizationChecker)
+    public function __construct(FactoryInterface $factory, AuthorizationCheckerInterface $authorizationChecker, Request $currentRequest)
     {
         $this->factory = $factory;
         $this->authorizationChecker = $authorizationChecker;
+        $this->currentRequest = $currentRequest;
     }
 
     /**
@@ -55,7 +63,7 @@ class MenuBuilder
     /**
      * @return ItemInterface
      */
-    public function createSecondaryMenu()
+    public function createLeftMenu()
     {
         $menu = $this->factory->createItem('root', [
             'childrenAttributes' => ['class' => 'nav flex-column'],
@@ -63,8 +71,24 @@ class MenuBuilder
 
         $commonAttributes = ['currentClass' => 'nav-link active', 'attributes' => ['class' => 'nav-item'], 'linkAttributes' => ['class' => 'nav-link']];
 
-        $menu->addChild('Add Organization', ['route' => 'organization_create',  'extras' => $this->configureIcon('fa fa-user-plus')] + $commonAttributes);
-        $menu->addChild('Add Prospect', ['route' => 'prospect_create', 'extras' => $this->configureIcon('fa fa-industry')] + $commonAttributes);
+        $menu->addChild('Add', ['route' => 'organization_create',  'extras' => $this->configureIcon('fa fa-industry')] + $commonAttributes);
+        $menu->addChild('List', ['route' => 'prospect_create', 'extras' => $this->configureIcon('fa fa-industry')] + $commonAttributes);
+
+        return $menu;
+    }
+
+    /**
+     * @return ItemInterface
+     */
+    public function createRightMenu()
+    {
+        $menu = $this->factory->createItem('root', [
+            'childrenAttributes' => ['class' => 'nav flex-column'],
+        ]);
+
+        $commonAttributes = ['currentClass' => 'nav-link active', 'attributes' => ['class' => 'nav-item'], 'linkAttributes' => ['class' => 'nav-link']];
+
+        $this->createOrganizationViewMenu($menu, $commonAttributes);
 
         return $menu;
     }
@@ -73,10 +97,23 @@ class MenuBuilder
      * @param string $icon
      * @return array
      */
-    public function configureIcon(string $icon)
+    private function configureIcon(string $icon)
     {
         return [
             'icon' => $icon,
         ];
+    }
+
+    /**
+     * @param $menu
+     * @param $commonAttributes
+     */
+    private function createOrganizationViewMenu(ItemInterface $menu, array $commonAttributes): void
+    {
+        if (preg_match('/^organization_view/', $this->currentRequest->get('_route'))) {
+            $id = $this->currentRequest->get('id');
+            $menu->addChild('Edit', ['route' => 'organization_update',  'routeParameters' => ['id' => $id], 'extras' => $this->configureIcon('fa fa-edit')] + $commonAttributes);
+            $menu->addChild('Add Prospect', ['route' => 'prospect_create', 'extras' => $this->configureIcon('fa fa-user-plus')] + $commonAttributes);
+        }
     }
 }

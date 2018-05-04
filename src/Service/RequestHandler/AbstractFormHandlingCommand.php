@@ -2,19 +2,19 @@
 
 namespace App\Service\RequestHandler;
 
+
 use stdClass;
 use Exception;
 use ReflectionClass;
 use App\Entity\User;
 use App\Traits\HelperTrait;
-use App\Service\FormHandlingCommand;
 use Symfony\Component\Form\FormError;
 use Symfony\Component\Form\FormInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Solean\CleanProspecter\Exception\UseCase\UseCaseException;
 
-class DefaultFormHandlingCommand implements FormHandlingCommand
+abstract class AbstractFormHandlingCommand
 {
     use HelperTrait;
 
@@ -25,18 +25,10 @@ class DefaultFormHandlingCommand implements FormHandlingCommand
     /**
      * {@inheritdoc}
      */
-    public function initializeForm(Request $request, User $user): FormInterface
-    {
-        return $this->getFormFactory()->create($this->deduceFormFQCN($request));
-    }
-
-    /**
-     * {@inheritdoc}
-     */
     public function onSucceed(array $data, Request $request, User $user): Response
     {
         $method = $this->deduceUseCaseName($request);
-        $useCaseRequest = $this->buildUseCaseRequest($request, $data, $user);
+        $useCaseRequest = $this->buildUseCaseRequest($this->deduceRequestFQCN($request), $data, $user);
         $presenter = $this->buildPresenter($request);
 
         $response = $this->getUseCases()->$method(
@@ -69,15 +61,7 @@ class DefaultFormHandlingCommand implements FormHandlingCommand
     }
 
     /**
-     * {@inheritdoc}
-     */
-    public function renderFormView(Request $request, array $viewParameters, ?Response $response = null): Response
-    {
-        return $this->render($this->deduceTargetTemplate($request), $viewParameters, $response);
-    }
-
-    /**
-     * @param Request $request
+     * @param string $useCaseClass
      * @param array   $data
      * @param User    $user
      *
@@ -85,14 +69,12 @@ class DefaultFormHandlingCommand implements FormHandlingCommand
      *
      * @throws \ReflectionException
      */
-    private function buildUseCaseRequest(Request $request, array $data, User $user): object
+    protected function buildUseCaseRequest(string $useCaseClass, array $data, User $user): object
     {
-        $class = $this->deduceRequestFQCN($request);
-
-        $args = iterator_to_array($this->constructArgs($class, $data));
+        $args = iterator_to_array($this->constructArgs($useCaseClass, $data));
         $args = $this->fillUserData($user, $args);
 
-        $objectReflection = new ReflectionClass($class);
+        $objectReflection = new ReflectionClass($useCaseClass);
         $object = $objectReflection->newInstanceArgs($args);
         /* @var stdClass $object */
 
@@ -107,7 +89,7 @@ class DefaultFormHandlingCommand implements FormHandlingCommand
      *
      * @throws \ReflectionException
      */
-    private function constructArgs(string $class, array $data): \Generator
+    protected function constructArgs(string $class, array $data): \Generator
     {
         $reflection = new ReflectionClass($class);
 
@@ -117,12 +99,34 @@ class DefaultFormHandlingCommand implements FormHandlingCommand
     }
 
     /**
+     * @param Request $request
+     *
+     * @return string
+     */
+    protected function deduceFormFQCN(Request $request): string
+    {
+        return sprintf('%s\%sForm', $this::FORMS_NAMESPACE, ucfirst($this->deduceUseCaseName($request)));
+    }
+
+    /**
+     * @param Request $request
+     *
+     * @return string
+     */
+    protected function deduceRequestFQCN(Request $request): string
+    {
+        $useCase = ucfirst($this->deduceUseCaseName($request));
+
+        return sprintf('%s\%s\%sRequest', $this::USE_CASES_NAMESPACE, $useCase, $useCase);
+    }
+
+    /**
      * @param User $user
      * @param $params
      *
      * @return array
      */
-    private function fillUserData(User $user, $params): array
+    protected function fillUserData(User $user, $params): array
     {
         if (array_key_exists('ownedBy', $params)) {
             $params['ownedBy'] = $user->getOrganizationId();
@@ -161,28 +165,6 @@ class DefaultFormHandlingCommand implements FormHandlingCommand
      *
      * @return string
      */
-    private function deduceFormFQCN(Request $request): string
-    {
-        return sprintf('%s\%sForm', $this::FORMS_NAMESPACE, ucfirst($this->deduceUseCaseName($request)));
-    }
-
-    /**
-     * @param Request $request
-     *
-     * @return string
-     */
-    private function deduceRequestFQCN(Request $request): string
-    {
-        $useCase = ucfirst($this->deduceUseCaseName($request));
-
-        return sprintf('%s\%s\%sRequest', $this::USE_CASES_NAMESPACE, $useCase, $useCase);
-    }
-
-    /**
-     * @param Request $request
-     *
-     * @return string
-     */
     private function deducePresenterFQCN(Request $request): string
     {
         return sprintf('%s\%sPresenterImpl', $this::PRESENTER_NAMESPACE, ucfirst($this->deduceUseCaseName($request)));
@@ -199,23 +181,5 @@ class DefaultFormHandlingCommand implements FormHandlingCommand
         $parts[1] = 'view';
 
         return implode('_', $parts);
-    }
-
-    /**
-     * @param Request $request
-     *
-     * @return string
-     */
-    private function deduceTargetTemplate(Request $request): string
-    {
-        $parts = explode('_', $request->get('_route'), 2);
-
-        if ('create' === $parts[1]) {
-            $parts[1] = 'add';
-        } else {
-            $parts[1] = 'update';
-        }
-
-        return sprintf('page/%s.html.twig', implode('-', $parts));
     }
 }

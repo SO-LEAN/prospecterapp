@@ -54,10 +54,6 @@ class RequestHandler
      */
     private function handleCommand(Request $request, User $user, array $parameters = []): Response
     {
-        if ($this->isFormRequest($request)) {
-            return $this->handleForm($request, $user, $parameters);
-        }
-
         return $this->handleForm($request, $user, $parameters);
     }
 
@@ -72,7 +68,6 @@ class RequestHandler
     {
         $command = $this->selectCommand($request);
         $form = $command->initializeForm($request, $user);
-
         $form->handleRequest($request);
 
         try {
@@ -83,7 +78,7 @@ class RequestHandler
             $command->onUseCaseException($e, $form);
         }
 
-        return $command->renderFormView($request, ['form' => $form->createView()] + $parameters);
+        return $command->renderFormView($request, ['form' => $form->createView()] + ['data' => $form->getData()] + $parameters);
     }
 
     /**
@@ -97,7 +92,7 @@ class RequestHandler
             return $this->getCommand($request->get('_route'));
         }
 
-        return $this->getCommand('default');
+        return $this->getCommand($this->getRouteSuffix($request));
     }
 
     /**
@@ -117,19 +112,9 @@ class RequestHandler
     /**
      * @param Request $request
      *
-     * @return bool
-     */
-    private function isFormRequest(Request $request): bool
-    {
-        return in_array($this->getRoutePrefix($request), ['create', 'update']);
-    }
-
-    /**
-     * @param Request $request
-     *
      * @return string
      */
-    private function getRoutePrefix(Request $request): string
+    private function getRouteSuffix(Request $request): string
     {
         return explode('_', $request->get('_route'), 2)[1];
     }
