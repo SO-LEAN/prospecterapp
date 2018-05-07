@@ -23,6 +23,8 @@ Solean\CleanProspecter\Entity\Organization:
   fields:
     hasAddress:
       type: boolean
+    hasGeoPoint:
+      type: boolean
     hasLogo:
       type: boolean
     corporateName:
@@ -34,5 +36,7 @@ Solean\CleanProspecter\Entity\Organization:
   embedded:
     address:
       class: Address
+    geoPoint:
+      class: GeoPoint
     logo:
       class: File

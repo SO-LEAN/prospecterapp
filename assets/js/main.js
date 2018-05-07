@@ -10,7 +10,8 @@ var modules = {
     common: require('./common'),
     dashboard: require('./pages/Dashboard'),
     prospect: require('./pages/Prospect'),
-    addOrganization: require('./pages/AddOrganization')
+    addOrganization: require('./pages/AddOrganization'),
+    getOrganization: require('./pages/GetOrganization')
 };
 
 $(document).ready(function() {

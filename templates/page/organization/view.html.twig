@@ -1,12 +1,12 @@
 {% extends 'layout/page.html.twig' %}
 {% block header %}View Organization{% endblock %}
-{% set js_ctrl, page  = 'addOrganization', 'organization'  %}
+{% set js_ctrl, page, data_attributes  = 'getOrganization', 'organization', {'google-api-key': google_api_key, 'longitude': data.longitude, 'latitude': data.latitude}  %}
 {% block title %}<i class="fa fa-industry"></i> Organization : {{ data.corporateName|default(data.email) }}{% endblock %}
 {% block page_body %}
     <div class="row">
         <div class="card m-2 p-4 mb-5 col-sm-10">
             <div class="row">
-                <address class="card-body col-sm-8 mb-5">
+                <address class="card-body col-sm-8 mb-2">
                     <strong class="mb-2 text-secondary">Organization</strong>
                     <h4 class="mb-0">
                         <a class="text-dark" href="#">{{ data.corporateName }} {{ data.form }}</a>
@@ -28,11 +28,18 @@
                     {% endif %}
                 </div>
             </div>
+            {% if data.latitude and data.longitude %}
+            <div class="row">
+                <div id="map" style="height: 350px" class="col-sm-12 mb-2"></div>
+            </div>
+            {% endif %}
             {% if data.observations %}
-                <div class="bg-light p-3 mb-2">
+            <div class="row">
+                <div class="col-sm-12 bg-light p-3">
                     <p class="text-muted">Observations :</p>
                     {{ data.observations|nl2br }}
                 </div>
+            </div>
             {% endif %}
         </div>
     </div>

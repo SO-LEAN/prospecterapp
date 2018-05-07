@@ -8,7 +8,7 @@
     <link rel="icon" type="image/x-icon" href="{{ asset('build/assets/images/favicon.ico') }}">
     <link rel="stylesheet" href="{{ asset('build/css/app.css') }}">
 </head>
-<body data-page="{{ js_ctrl|default('none') }}" class="{{ page|default('') }}">
+<body class="{{ page|default('') }}" data-page="{{ js_ctrl|default('none') }}" {% for key,value in data_attributes|default({}) %}data-{{ key }}="{{ value }}" {% endfor %}>
     <nav class="navbar navbar-expand navbar-light navbar-main">
         <div class="container-fluid">
             {{ knp_menu_render('main') }}

@@ -1,6 +1,7 @@
 # Put parameters here that don't need to change on each machine where the app is deployed
 # https://symfony.com/doc/current/best_practices/configuration.html#application-related-configuration
 parameters:
+    google_api_url : 'https://maps.googleapis.com/maps/api/geocode/json'
     knp_menu.renderer.twig.options:
         currentClass: 'active'
 services:
@@ -85,6 +86,7 @@ services:
             - '@App\Gateway\Entity\OrganizationRepositoryAdapter'
             - '@App\Gateway\StorageLocalAdapter'
             - '@App\Gateway\UserNotifierSymfonyAdapter'
+            - '@App\Gateway\GeoLocatorAdapter'
     Solean\CleanProspecter\UseCase\UpdateOrganization\UpdateOrganizationImpl:
         lazy:  true
         tags: ['use_case']
@@ -92,13 +94,14 @@ services:
             - '@App\Gateway\Entity\OrganizationRepositoryAdapter'
             - '@App\Gateway\StorageLocalAdapter'
             - '@App\Gateway\UserNotifierSymfonyAdapter'
+            - '@App\Gateway\GeoLocatorAdapter'
     Solean\CleanProspecter\UseCase\GetOrganization\GetOrganizationImpl:
         lazy:  true
         tags: ['use_case']
         arguments:
             - '@App\Gateway\Entity\OrganizationRepositoryAdapter'
     #Gateway
-      #Database Gateway
+      #Database
     App\Gateway\Entity\UserRepositoryAdapter:
         lazy:  true
         arguments:
@@ -117,9 +120,24 @@ services:
     App\Gateway\StorageLocalAdapter:
         arguments:
             - '@App\Service\LocalStorageService'
-    #Request handler
+      #GeoLocation
+    App\Gateway\GeoLocationAdapter:
+        arguments:
+            - '@App\Service\GoogleMapGeoLocator'
+    #Service
+      #Local storage
+    App\Service\LocalStorageService:
+        arguments:
+            - '%env(resolve:STORAGE_PATH)%'
+            - '%env(STORAGE_URL)%'
+      #Google Map geo locator
+    App\Service\GoogleMapGeoLocator:
+        arguments:
+            - '%google_api_url%'
+            - '%env(GOOGLE_API_KEY)%'
+      #Request handler
     App\Service\RequestHandler: ~
-    #Form command
+      #Form Request handler command
     App\Service\RequestHandler\AbstractFormHandlingCommand:
         abstract: true
         calls:
@@ -143,8 +161,3 @@ services:
         lazy:  true
         tags: [{name: 'form_cmd', id: 'update'}]
 
-    #Local storage service
-    App\Service\LocalStorageService:
-        arguments:
-            - '%env(resolve:STORAGE_PATH)%'
-            - '%env(STORAGE_URL)%'

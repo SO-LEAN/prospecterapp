@@ -19,6 +19,7 @@
         <env name="STORAGE_URL" value="http://static.prospecter.io/storage" />
         <env name="STORAGE_PATH" value="%kernel.project_dir%/public/static/storage/test" />
         <env name="DATABASE_URL" value="sqlite:///%kernel.project_dir%/var/data-test.db" />
+        <env name="GOOGLE_API_KEY" value="0000" />
     </php>
 
     <testsuites>

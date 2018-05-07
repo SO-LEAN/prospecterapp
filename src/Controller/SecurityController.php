@@ -14,7 +14,7 @@ class SecurityController extends Controller
     /**
      * @Route("/login", name="login")
      */
-    public function displayDashboard()
+    public function login()
     {
         $authenticationUtils = $this->get('security.authentication_utils');
 
@@ -28,7 +28,7 @@ class SecurityController extends Controller
      * @Route("/logout", name="logout")
      * @codeCoverageIgnore
      */
-    public function logoutDashboard()
+    public function logout()
     {
     }
 }
