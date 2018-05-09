@@ -1,9 +1,9 @@
 {% extends 'layout/base.html.twig' %}
 {% block body %}
     {% include 'layout/partial/_flashes.html.twig' %}
-    <div class="container-fluid">
+    <div class="container-fluid mh-75 h-75">
         <div class="row">
-            <nav class="col-sm-2 bg-light sidebar">
+            <nav class="col-lg-2 bg-light sidebar">
                 <div class="sidebar-sticky">
                     {{ knp_menu_render('left') }}
                     {% block left %}
@@ -11,13 +11,15 @@
                     {% endblock %}
                 </div>
             </nav>
-            <div class="col-sm-8">
-                <h2 class="m-2 mb-5 text-primary">{% block title %}Title{% endblock %}</h2>
+            <div class="col-sm-12 col-lg-8">
+                {% block full_title %}
+                    <h2 class="m-2 mb-5 text-primary">{% block title %}Title{% endblock %}</h2>
+                {% endblock %}
                 {% block page_body %}
 
                 {% endblock %}
             </div>
-            <div class="col-sm-2 bg-light sidebar">
+            <div class="col-lg-2 bg-light sidebar">
                 {{ knp_menu_render('right') }}
                 {% block right %}
 

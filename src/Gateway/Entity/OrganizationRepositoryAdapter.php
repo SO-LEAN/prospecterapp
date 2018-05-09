@@ -2,9 +2,11 @@
 
 namespace App\Gateway\Entity;
 
+use Doctrine\ORM\Tools\Pagination\Paginator;
 use Solean\CleanProspecter\Entity\Organization;
 use Solean\CleanProspecter\Exception\Gateway\NotFoundException;
 use Solean\CleanProspecter\Gateway\Entity\OrganizationGateway;
+use Solean\CleanProspecter\Gateway\Entity\Page;
 
 /**
  * Class OrganizationGatewayAdapter.
@@ -75,5 +77,23 @@ class OrganizationRepositoryAdapter extends RepositoryAdapter implements Organiz
     public function findBy(array $criteria): array
     {
         return $this->repository->findBy($criteria);
+    }
+
+    /**
+     * @param int $page
+     * @param string $query
+     * @param int $max
+     * @return Page
+     */
+    public function findPageByQuery(int $page, string $query = 'michel', $max = 20): Page
+    {
+        $dql = "SELECT o FROM Solean\CleanProspecter\Entity\Organization o WHERE (o.corporateName LIKE :query OR o.email LIKE :query) ORDER BY o.id DESC";
+        $query = $this->entityManager->createQuery($dql)
+            ->setParameter('query', sprintf('%%%s%%', $query))
+            ->setFirstResult(($page - 1) * $max)
+            ->setMaxResults($max);
+
+        $pg = new Paginator($query);
+        return new Page($page, (int) floor($pg->count() / $max) + 1, $pg->getIterator()->getArrayCopy());
     }
 }

@@ -3,7 +3,7 @@
 {% set js_ctrl, page  = 'updateOrganization', 'update-organization'  %}
 {% block title %}<i class="fa fa-industry"></i> Update {{ data.corporateName|default(data.email) }}{% endblock %}
 {% block page_body %}
-    {{ form_start(form, {"attr":{"class": "mb-4"}}) }}
+    {{ form_start(form) }}
     {{ form_widget(form) }}
     {% if data.logoUrl %}
     <figure>

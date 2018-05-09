@@ -71,8 +71,8 @@ class MenuBuilder
 
         $commonAttributes = ['currentClass' => 'nav-link active', 'attributes' => ['class' => 'nav-item'], 'linkAttributes' => ['class' => 'nav-link']];
 
-        $menu->addChild('Add', ['route' => 'organization_create',  'extras' => $this->configureIcon('fa fa-industry')] + $commonAttributes);
-        $menu->addChild('List', ['route' => 'prospect_create', 'extras' => $this->configureIcon('fa fa-industry')] + $commonAttributes);
+        $menu->addChild('Add organization', ['route' => 'organization_create',  'extras' => $this->configureIcon('fa fa-industry')] + $commonAttributes);
+        $menu->addChild('Find organization', ['route' => 'organization_find', 'extras' => $this->configureIcon('fa fa-industry')] + $commonAttributes);
 
         return $menu;
     }
@@ -112,7 +112,7 @@ class MenuBuilder
     {
         if (preg_match('/^organization_view/', $this->currentRequest->get('_route'))) {
             $id = $this->currentRequest->get('id');
-            $menu->addChild('Edit', ['route' => 'organization_update',  'routeParameters' => ['id' => $id], 'extras' => $this->configureIcon('fa fa-edit')] + $commonAttributes);
+            $menu->addChild('Edit organization', ['route' => 'organization_update',  'routeParameters' => ['id' => $id], 'extras' => $this->configureIcon('fa fa-edit')] + $commonAttributes);
             $menu->addChild('Add Prospect', ['route' => 'prospect_create', 'extras' => $this->configureIcon('fa fa-user-plus')] + $commonAttributes);
         }
     }

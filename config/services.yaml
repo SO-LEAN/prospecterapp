@@ -100,6 +100,11 @@ services:
         tags: ['use_case']
         arguments:
             - '@App\Gateway\Entity\OrganizationRepositoryAdapter'
+    Solean\CleanProspecter\UseCase\FindOrganization\FindOrganizationImpl:
+        lazy:  true
+        tags: ['use_case']
+        arguments:
+            - '@App\Gateway\Entity\OrganizationRepositoryAdapter'
     #Gateway
       #Database
     App\Gateway\Entity\UserRepositoryAdapter:
