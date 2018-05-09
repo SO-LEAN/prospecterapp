@@ -13,10 +13,13 @@ function GetOrganization() {
  *
  */
 GetOrganization.prototype.run = function() {
-  var $body = $( "body" );
+  var $body = $('body');
 
-  this.latitude = $body.data("latitude");
-  this.longitude = $body.data("longitude");
+  this.latitude = $body.data('latitude');
+  this.longitude = $body.data('longitude');
+  this.address = $body.data('address');
+
+  this.directionUrl = 'https://www.google.com/maps/dir/?api=1';
 
   this.initMap();
 };
@@ -31,10 +34,14 @@ GetOrganization.prototype.initMap = function () {
       zoom: 17
     });
     var marker = new google.maps.Marker({
-      position: organizationLocation,
+      position: organizationLocation
     });
 
     marker.setMap(map);
+
+    marker.addListener('click', function() {
+      window.open(that.directionUrl.concat('&destination=', encodeURIComponent(that.address)),'_blank');
+    });
   });
 };
 
