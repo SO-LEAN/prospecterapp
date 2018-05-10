@@ -1,21 +1,21 @@
-{% extends 'layout/page.html.twig' %}
+{% extends 'layout/page-2-col.html.twig' %}
 {% block header %}Find organizations{% endblock %}
 {% set js_ctrl, page = 'findOrganization', 'organization' %}
 {% import "macro/find.html.twig" as p %}
 {% block full_title %}
     <div class="clearfix">
-        <h2 class="mt-2 mb-5 text-primary float-lg-left"><i class="fa fa-industry"></i> Find organizations</h2>
+        <h2 class="mt-2 mb-5 text-primary float-lg-left"><i class="fa fa-search"></i> Organizations</h2>
         <div class="float-lg-right mt-2">
-            {{ p.searchForm('organization_find', 'name or emai') }}
+            {{ p.searchForm('organization_find', 'name or email') }}
         </div>
     </div>
 {% endblock %}
 {% block page_body %}
     {%  set pagination = p.paginate('organization_find', data.currentPage, data.total, {'q': app.request.get('q')}) %}
     {{ pagination }}
-    <div class="row">
+    <div class="row p-1">
     {% for organization in data.organizations %}
-        <div class="card ml-xl-2 p-2 mb-5 col-sm-12 col-md-3 col-xl-2">
+        <div class="card p-2 mb-5 col-xs-12 col-sm-4 col-lg-3">
             <div class="card-body m-auto">
                 {% if organization.logo %}
                     <img alt="{{ organization.fullName }}" src="{{ organization.logo }}" class="img-fluid">

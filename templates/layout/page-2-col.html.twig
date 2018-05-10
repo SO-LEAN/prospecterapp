@@ -1,0 +1,25 @@
+{% extends 'layout/base.html.twig' %}
+{% block body %}
+    {% include 'layout/partial/_flashes.html.twig' %}
+    <div class="container-fluid">
+        <div class="row">
+            <nav class="col-auto bg-light sidebar">
+                <div class="sidebar-sticky">
+                    {{ knp_menu_render('left') }}
+                    {% block left %}
+
+                    {% endblock %}
+                </div>
+            </nav>
+            <div class="col">
+                {% block full_title %}
+                    <h2 class="m-2 mb-5 text-primary">{% block title %}Title{% endblock %}</h2>
+                {% endblock %}
+                {% block page_body %}
+
+                {% endblock %}
+            </div>
+        </div>
+    </div>
+
+{% endblock %}

@@ -1,7 +1,7 @@
-{% extends 'layout/page.html.twig' %}
+{% extends 'layout/page-3-col.html.twig' %}
 {% block header %}Add Organization{% endblock %}
 {% set js_ctrl, page  = 'addOrganization', 'organization' %}
-{% block title %}<i class="fa fa-industry"></i> Add Organization{% endblock %}
+{% block title %}<i class="fa fa-address-card"></i> Add Organization{% endblock %}
 {% block page_body %}
     {{ form_start(form) }}
     {{ form_widget(form) }}

@@ -4,7 +4,9 @@
 require('../images');
 
 var $ = require('jquery');
+require('popper.js');
 require('bootstrap');
+
 // preload modules
 var modules = {
     common: require('./common'),

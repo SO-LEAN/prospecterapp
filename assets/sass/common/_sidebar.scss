@@ -5,6 +5,15 @@
   z-index: 100; /* Behind the navbar */
   padding: 0;
   box-shadow: inset -1px 0 0 rgba(0, 0, 0, .1);
+  .nav-item {
+    &.active a{
+      color: $primary;
+      font-weight: bold;
+    }
+    a {
+      color: $dark;
+    }
+  }
 }
 
 .sidebar-sticky {
@@ -18,3 +27,4 @@
   position: sticky;
   top: $navBar-height; /* Height of navbar */
 }
+

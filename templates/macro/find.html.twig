@@ -29,6 +29,6 @@
 {% macro searchForm(route, placeHolder) %}
     <form name="search_form" method="get" class="form-inline" action="{{ path(route) }}">
         <input type="text" id="search_form_q" name="q" class="form-control" placeholder="{{ placeHolder }}">
-        <button type="submit" class="btn btn-outline-primary ml-2 my-2">Search</button>
+        <button type="submit" class="btn btn-outline-primary ml-0 ml-sm-2 my-2">Search</button>
     </form>
 {% endmacro %}

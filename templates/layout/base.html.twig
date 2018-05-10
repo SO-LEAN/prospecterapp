@@ -9,15 +9,21 @@
     <link rel="stylesheet" href="{{ asset('build/css/app.css') }}">
 </head>
 <body class="{{ page|default('') }}" data-page="{{ js_ctrl|default('none') }}" {% for key,value in data_attributes|default({}) %}data-{{ key }}="{{ value }}" {% endfor %}>
-    <nav class="navbar navbar-expand navbar-light navbar-main">
+    <nav class="navbar navbar-expand-md navbar-light navbar-main bg-light text-muted">
         <div class="container-fluid">
-            {{ knp_menu_render('main') }}
-            <div class="navbar-brand">
-                {% if app.user %}
-                    <a href="{{ path('logout') }}" title="logout"><i class="fa fa-power-off" aria-hidden="true"></i></a>
-                    <small id="func-logged-user">{{ app.user.username }}</small>
-                {% endif %}
+            <div class="navbar-brand" id="js-identity">
                 <a href="{{ path('dashboard_display') }}" title="Dashboard"><img src="{{ asset('build/assets/images/solean.png') }}" height="50" width="50" alt="PROSPECTER" class="rounded-circle"></a>
+                {% if app.user %}
+                    <small id="func-logged-user">{{ app.user.username }}</small>
+                    <a href="{{ path('logout') }}" title="logout"><i class="fa fa-power-off" aria-hidden="true"></i></a>
+                {% endif %}
+            </div>
+            <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#js-main-menu" aria-controls="js-main-menu" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="js-main-menu">
+                {% set main_menu = knp_menu_get('main', options={'root_class': 'nav navbar-nav', 'child_attributes':{'attributes': {'class': 'nav-item'}, 'linkAttributes': {'class': 'nav-link'}}}) %}
+                {{ knp_menu_render(main_menu,  { 'currentClass': 'active'}) }}
             </div>
         </div><!-- /.container -->
     </nav><!-- /.navbar -->
@@ -30,8 +36,8 @@
                 <div class="col-sm-3">
                     <h2>Informations</h2>
                     <ul class="list-unstyled">
-                        <li><a href="https://github.com/SO-LEAN" target="_blank">SOLEAN IT GitHub account</a></li>
-                        <li><a href="https://fr.linkedin.com/in/michel-maier-a8b19187" target="_blank">My Linkedin page</a></li>
+                        <li><a href="https://github.com/SO-LEAN" target="_blank"><i class="fa fa-github-square" aria-hidden="true"></i> SOLEAN IT GitHub account</a></li>
+                        <li><a href="https://fr.linkedin.com/in/michel-maier-a8b19187" target="_blank"><i class="fa fa-linkedin-square" aria-hidden="true"></i>  My Linkedin page</a></li>
                     </ul>
                 </div>
                 <div class="col-sm-3 offset-sm-6">

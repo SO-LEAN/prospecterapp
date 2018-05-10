@@ -1,10 +1,10 @@
-{% extends 'layout/page.html.twig' %}
+{% extends 'layout/page-3-col.html.twig' %}
 {% block header %}View Organization{% endblock %}
 {% set js_ctrl, page, data_attributes  = 'getOrganization', 'organization', {'google-api-key': google_api_key, 'longitude': data.longitude, 'latitude': data.latitude, 'address': '%s, %s %s %s'|format(data.street, data.postalCode, data.city, data.country)} %}
 {% block title %}<i class="fa fa-industry"></i> Organization : {{ data.corporateName|default(data.email) }}{% endblock %}
 {% block page_body %}
     <div class="row">
-        <div class="card m-2 p-4 mb-5 col-sm-10">
+        <div class="card m-2 p-4 mb-5 col">
             <div class="row">
                 <address class="card-body col-sm-8 mb-2">
                     <strong class="mb-2 text-secondary">Organization</strong>

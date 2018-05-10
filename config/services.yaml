@@ -60,6 +60,9 @@ services:
     App\Security\ProspecterUserProvider:
         arguments: ['@Solean\CleanProspecter\UseCase\UseCasesFacade']
     #Menu
+    App\Menu\Matcher\PathInfoRegexVoter:
+        arguments: ['@request_stack']
+        tags: ['knp_menu.voter']
     App\Menu\MenuBuilder:
         arguments: ["@knp_menu.factory", "@security.authorization_checker", "@=service('request_stack').getCurrentRequest()"]
         tags:

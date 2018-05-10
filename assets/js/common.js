@@ -8,6 +8,8 @@ function Common() {
   this.$_body = $('body');
   this.$_navBar = $('.navbar-main');
   this.$_sidebarSticky = $('.sidebar-sticky', this.$_sidebar);
+  this.$_mainMenu = $('#js-main-menu');
+  this.$_identity = $('#js-identity');
 
   this.navBarHeight = this.$_navBar.height();
 

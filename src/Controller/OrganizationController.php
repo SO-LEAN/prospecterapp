@@ -41,7 +41,7 @@ class OrganizationController
      *
      * @return HttpFoundation\RedirectResponse|HttpFoundation\Response
      *
-     * @Route("organizations/update/{id}", name="organization_update")
+     * @Route("organizations/{id}/update", name="organization_update")
      */
     public function updateOrganization(HttpFoundation\Request $request, UserInterface $user)
     {
@@ -55,7 +55,7 @@ class OrganizationController
      *
      * @return HttpFoundation\Response
      *
-     * @Route("/organizations/view/{id}", name="organization_view")
+     * @Route("/organizations/{id}/view", name="organization_view")
      */
     public function viewOrganization($id, UserInterface $user)
     {
