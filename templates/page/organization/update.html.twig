@@ -1,7 +1,7 @@
 {% extends 'layout/page-3-col.html.twig' %}
 {% block header %}Update Organization{% endblock %}
 {% set js_ctrl, page  = 'updateOrganization', 'update-organization'  %}
-{% block title %}<i class="fa fa-industry"></i> Update {{ data.corporateName|default(data.email) }}{% endblock %}
+{% block title %}<i class="fa fa-industry"></i> Edit "{{ data.corporateName|default(data.email) }}"{% endblock %}
 {% block page_body %}
     {{ form_start(form) }}
     {{ form_widget(form) }}

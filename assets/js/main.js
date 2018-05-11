@@ -13,7 +13,8 @@ var modules = {
     dashboard: require('./pages/Dashboard'),
     prospect: require('./pages/Prospect'),
     addOrganization: require('./pages/AddOrganization'),
-    getOrganization: require('./pages/GetOrganization')
+    getOrganization: require('./pages/GetOrganization'),
+    findOrganization: require('./pages/FindOrganization')
 };
 
 $(document).ready(function() {

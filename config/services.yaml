@@ -69,6 +69,7 @@ services:
             - { name: 'knp_menu.menu_builder', method: 'createMainMenu', alias: 'main' }
             - { name: 'knp_menu.menu_builder', method: 'createLeftMenu', alias: 'left' }
             - { name: 'knp_menu.menu_builder', method: 'createRightMenu', alias: 'right' }
+            - { name: 'knp_menu.menu_builder', method: 'createBreadcrumb', alias: 'breadcrumb' }
 
     #Uses Cases
     Solean\CleanProspecter\UseCase\UseCasesFacade: ~

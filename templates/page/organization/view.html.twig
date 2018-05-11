@@ -1,7 +1,7 @@
 {% extends 'layout/page-3-col.html.twig' %}
 {% block header %}View Organization{% endblock %}
-{% set js_ctrl, page, data_attributes  = 'getOrganization', 'organization', {'google-api-key': google_api_key, 'longitude': data.longitude, 'latitude': data.latitude, 'address': '%s, %s %s %s'|format(data.street, data.postalCode, data.city, data.country)} %}
-{% block title %}<i class="fa fa-industry"></i> Organization : {{ data.corporateName|default(data.email) }}{% endblock %}
+{% set js_ctrl, page, data_attributes  = 'getOrganization', 'get-organization', {'google-api-key': google_api_key, 'longitude': data.longitude, 'latitude': data.latitude, 'address': '%s, %s %s %s'|format(data.street, data.postalCode, data.city, data.country)} %}
+{% block title %}<i class="fa fa-industry"></i> Organization "{{ data.corporateName|default(data.email) }}"{% endblock %}
 {% block page_body %}
     <div class="row">
         <div class="card m-2 p-4 mb-5 col">
@@ -35,7 +35,7 @@
             {% endif %}
             {% if data.observations %}
             <div class="row">
-                <div class="col-sm-12 bg-light p-3">
+                <div class="alert alert-warning col-sm-12 p-3">
                     <p class="text-muted">Observations :</p>
                     {{ data.observations|nl2br }}
                 </div>

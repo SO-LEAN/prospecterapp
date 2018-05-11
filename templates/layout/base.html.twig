@@ -9,24 +9,24 @@
     <link rel="stylesheet" href="{{ asset('build/css/app.css') }}">
 </head>
 <body class="{{ page|default('') }}" data-page="{{ js_ctrl|default('none') }}" {% for key,value in data_attributes|default({}) %}data-{{ key }}="{{ value }}" {% endfor %}>
-    <nav class="navbar navbar-expand-md navbar-light navbar-main bg-light text-muted">
+    <header class="navbar navbar-expand-md navbar-light navbar-main bg-light text-muted">
         <div class="container-fluid">
-            <div class="navbar-brand" id="js-identity">
+            <div class="navbar-brand ml-2 ml-md-0" id="js-identity">
                 <a href="{{ path('dashboard_display') }}" title="Dashboard"><img src="{{ asset('build/assets/images/solean.png') }}" height="50" width="50" alt="PROSPECTER" class="rounded-circle"></a>
                 {% if app.user %}
-                    <small id="func-logged-user">{{ app.user.username }}</small>
+                    <small id="func-logged-user" class="font-italic">{{ app.user.username }}</small>
                     <a href="{{ path('logout') }}" title="logout"><i class="fa fa-power-off" aria-hidden="true"></i></a>
                 {% endif %}
             </div>
-            <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#js-main-menu" aria-controls="js-main-menu" aria-expanded="false" aria-label="Toggle navigation">
+            <button class="navbar-toggler mr-2" type="button" data-toggle="collapse" data-target="#js-main-menu" aria-controls="js-main-menu" aria-expanded="false" aria-label="Toggle navigation">
                 <span class="navbar-toggler-icon"></span>
             </button>
-            <div class="collapse navbar-collapse" id="js-main-menu">
+            <div class="collapse navbar-collapse ml-2" id="js-main-menu">
                 {% set main_menu = knp_menu_get('main', options={'root_class': 'nav navbar-nav', 'child_attributes':{'attributes': {'class': 'nav-item'}, 'linkAttributes': {'class': 'nav-link'}}}) %}
                 {{ knp_menu_render(main_menu,  { 'currentClass': 'active'}) }}
             </div>
         </div><!-- /.container -->
-    </nav><!-- /.navbar -->
+    </header><!-- /.navbar -->
     {# Flash messages #}
     {% block body %}
     {% endblock %}

@@ -3,15 +3,18 @@
     {% include 'layout/partial/_flashes.html.twig' %}
     <div class="container-fluid">
         <div class="row">
-            <nav class="col-auto bg-light sidebar">
+            <nav class="col-auto bg-light sidebar s-left">
                 <div class="sidebar-sticky">
-                    {{ knp_menu_render('left') }}
+                    {% set left_menu = knp_menu_get('left', options={'root_class': 'nav flex-column', 'child_attributes':{'currentClass': 'nav-link active', 'attributes': {'class': 'nav-item'}, 'linkAttributes': {'class': 'nav-link'}}, 'extras': {'wrap_label': 'd-none d-xl-inline'}}) %}
+                    {{ knp_menu_render(left_menu,  { 'currentClass': 'active'}) }}
                     {% block left %}
 
                     {% endblock %}
                 </div>
             </nav>
             <div class="col">
+                {% set breadcrumb = knp_menu_get('breadcrumb', options={'root_class': 'breadcrumb mt-2', 'child_attributes': {'currentClass': 'nav-link active', 'attributes': {'class': 'breadcrumb-item'}}}) %}
+                {{ knp_menu_render(breadcrumb, { 'currentClass': 'active'}) }}
                 {% block full_title %}
                     <h2 class="m-2 mb-5 text-primary">{% block title %}Title{% endblock %}</h2>
                 {% endblock %}
@@ -19,9 +22,10 @@
 
                 {% endblock %}
             </div>
-            <div class="col-auto bg-light sidebar">
+            <div class="col-auto bg-light sidebar s-right">
                 <div class="sidebar-sticky">
-                    {{ knp_menu_render('right') }}
+                    {% set right_menu = knp_menu_get('right', options={'root_class': 'nav flex-column', 'child_attributes':{'currentClass': 'nav-link active', 'attributes': {'class': 'nav-item'}, 'linkAttributes': {'class': 'nav-link'}}, 'extras': {'wrap_label': 'd-none d-xl-inline'}}) %}
+                    {{ knp_menu_render(right_menu,  { 'currentClass': 'active'}) }}
                     {% block right %}
 
                     {% endblock %}

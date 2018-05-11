@@ -52,7 +52,7 @@ class MenuBuilder
 
         if ($this->authorizationChecker->isGranted('ROLE_PROSPECTOR')) {
             $menu->addChild('Dashboard', $commonAttributes + ['route' => 'dashboard_display', 'extras' => ['current_regex' => '#^(/$)|(/dashboard)#']]);
-            $menu->addChild('Organization', $commonAttributes + ['route' => 'organization_create', 'extras' => ['current_regex' => '#^/organizations#']] + $commonAttributes);
+            $menu->addChild('Organizations', $commonAttributes + ['route' => 'organization_find', 'extras' => ['current_regex' => '#^/organizations#']] + $commonAttributes);
             $menu->addChild('Prospects', $commonAttributes + ['route' => 'prospect_create', 'extras' => ['current_regex' => '#^/protects#']] + $commonAttributes);
         }
         if (!$this->authorizationChecker->isGranted('IS_AUTHENTICATED_FULLY')) {
@@ -68,52 +68,67 @@ class MenuBuilder
     public function createBreadcrumb()
     {
         $menu = $this->factory->createItem('root', [
-            'childrenAttributes' => ['class' => 'nav navbar-nav'],
+            'childrenAttributes' => ['class' => 'breadcrumb mt-2'],
         ]);
 
-        $commonAttributes = ['currentClass' => 'active ', 'attributes' => ['class' => 'nav-item'], 'linkAttributes' => ['class' => 'nav-link']];
+        $commonAttributes = ['currentClass' => 'active ', 'attributes' => ['class' => 'breadcrumb-item']];
 
-        if ($this->authorizationChecker->isGranted('ROLE_PROSPECTOR')) {
-            $menu->addChild('Dashboard', ['route' => 'dashboard_display'] + $commonAttributes);
-            $menu->addChild('Organization', ['route' => 'organization_create'] + $commonAttributes);
-            $menu->addChild('Prospects', ['route' => 'prospect_create'] + $commonAttributes);
+        $menu->addChild('', ['route' => 'dashboard_display', 'extras' => $this->configureIcon('fa fa-home')] + $commonAttributes);
+
+        if (preg_match('#^/organizations$#', $this->currentRequest->getPathInfo())) {
+            $menu->addChild('Organizations', ['attributes' => ['class' => 'breadcrumb-item active']]);
+        } elseif (preg_match('#^/organizations#', $this->currentRequest->getPathInfo())) {
+            $menu->addChild('Organizations', ['route' => 'organization_find'] + $commonAttributes);
         }
-        if (!$this->authorizationChecker->isGranted('IS_AUTHENTICATED_FULLY')) {
-            $menu->addChild('Login', ['route' => 'login'] + $commonAttributes);
+
+        if (preg_match('#^/organizations/[0-9]+/view#', $this->currentRequest->getPathInfo())) {
+            $menu->addChild('Detail', ['attributes' => ['class' => 'breadcrumb-item active']]);
+        }
+
+        if (preg_match('#^/organizations/[0-9]+/update#', $this->currentRequest->getPathInfo())) {
+            $menu->addChild('Detail', ['route' => 'organization_view', 'routeParameters' => ['id' => $this->currentRequest->get('id')]] + $commonAttributes);
+            $menu->addChild('Edit',  ['attributes' => ['class' => 'breadcrumb-item active']]);
+
         }
 
         return $menu;
     }
 
     /**
+     * @param array $options
      * @return ItemInterface
      */
-    public function createLeftMenu()
+    public function createLeftMenu(array $options)
     {
         $menu = $this->factory->createItem('root', [
-            'childrenAttributes' => ['class' => 'nav flex-column'],
+            'childrenAttributes' => [
+                'class' => $options['root_class'] ?? null,
+            ],
         ]);
 
-        $commonAttributes = ['currentClass' => 'nav-link active', 'attributes' => ['class' => 'nav-item'], 'linkAttributes' => ['class' => 'nav-link']];
-        $extras = ['wrap_label' => 'd-none d-xl-inline'];
+        $commonAttributes = $options['child_attributes'] ?? [];
+        $extras = $options['extras'] ?? [];
 
-        $menu->addChild('Add organization', ['route' => 'organization_create',  'extras' => $this->configureIcon('fa fa-address-card') + $extras] + $commonAttributes);
         $menu->addChild('Find organization', ['route' => 'organization_find', 'extras' => $this->configureIcon('fa fa-search') + $extras] + $commonAttributes);
+        $menu->addChild('Add organization', ['route' => 'organization_create', 'extras' => $this->configureIcon('fa fa-address-card') + $extras] + $commonAttributes);
 
         return $menu;
     }
 
     /**
+     * @param array $options
      * @return ItemInterface
      */
-    public function createRightMenu()
+    public function createRightMenu(array $options)
     {
         $menu = $this->factory->createItem('root', [
-            'childrenAttributes' => ['class' => 'nav flex-column'],
+            'childrenAttributes' => [
+                'class' => $options['root_class'] ?? null,
+            ],
         ]);
 
-        $commonAttributes = ['currentClass' => 'nav-link active', 'attributes' => ['class' => 'nav-item'], 'linkAttributes' => ['class' => 'nav-link']];
-        $extras = ['wrap_label' => 'd-none d-xl-inline'];
+        $commonAttributes = $options['child_attributes'] ?? [];
+        $extras = $options['extras'] ?? [];
 
         $this->createOrganizationViewMenu($menu, $commonAttributes, $extras);
 
