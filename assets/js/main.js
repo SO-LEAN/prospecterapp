@@ -11,10 +11,8 @@ require('bootstrap');
 var modules = {
     common: require('./common'),
     dashboard: require('./pages/Dashboard'),
-    prospect: require('./pages/Prospect'),
-    addOrganization: require('./pages/AddOrganization'),
-    getOrganization: require('./pages/GetOrganization'),
-    findOrganization: require('./pages/FindOrganization')
+    getOrganization: require('./pages/GetOrganization')
+
 };
 
 $(document).ready(function() {
@@ -22,8 +20,8 @@ $(document).ready(function() {
     new modules['common']().run();
 
     var page = $('body').data('page');
-    if('none' !== page ){
-        var Module =  modules[page];
+    if('none' !== page && modules.hasOwnProperty(page) ){
+        var Module = modules[page];
         new Module().run();
     }
 });

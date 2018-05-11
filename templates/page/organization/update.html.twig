@@ -1,9 +1,9 @@
-{% extends 'layout/page-3-col.html.twig' %}
+{% extends 'layout/page-2-col.html.twig' %}
 {% block header %}Update Organization{% endblock %}
 {% set js_ctrl, page  = 'updateOrganization', 'update-organization'  %}
 {% block title %}<i class="fa fa-industry"></i> Edit "{{ data.corporateName|default(data.email) }}"{% endblock %}
 {% block page_body %}
-    {{ form_start(form) }}
+    {{ form_start(form ) }}
     {{ form_widget(form) }}
     {% if data.logoUrl %}
     <figure>
@@ -11,6 +11,8 @@
         <figcaption>logo {{ (data.logoSize)|number_format(0, ',', ' ')}} octets</figcaption>
     </figure>
     {% endif %}
+    <div class="clearfix">
         <input type="submit" class="btn btn-default pull-right" value="Update" />
+    </div>
     {{ form_end(form) }}
 {% endblock %}

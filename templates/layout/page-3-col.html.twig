@@ -12,7 +12,7 @@
                     {% endblock %}
                 </div>
             </nav>
-            <div class="col">
+            <div class="col mb-4">
                 {% set breadcrumb = knp_menu_get('breadcrumb', options={'root_class': 'breadcrumb mt-2', 'child_attributes': {'currentClass': 'nav-link active', 'attributes': {'class': 'breadcrumb-item'}}}) %}
                 {{ knp_menu_render(breadcrumb, { 'currentClass': 'active'}) }}
                 {% block full_title %}
