@@ -2,7 +2,7 @@
 
 {% block icon %}
  {% if item.extra('icon') is not empty  %}
-     <span class="{{ item.extra('icon') }}"></span>
+     <span class="{{ item.extra('icon') }}" aria-hidden="true"></span>
  {% endif %}
 {% endblock %}
 

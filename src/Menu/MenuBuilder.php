@@ -51,9 +51,18 @@ class MenuBuilder
         $commonAttributes = $options['child_attributes'] ?? [];
 
         if ($this->authorizationChecker->isGranted('ROLE_PROSPECTOR')) {
-            $menu->addChild('Dashboard', $commonAttributes + ['route' => 'dashboard_display', 'extras' => ['current_regex' => '#^(/$)|(/dashboard)#']]);
-            $menu->addChild('Organizations', $commonAttributes + ['route' => 'organization_find', 'extras' => ['current_regex' => '#^/organizations#']] + $commonAttributes);
-            $menu->addChild('Prospects', $commonAttributes + ['route' => 'prospect_create', 'extras' => ['current_regex' => '#^/protects#']] + $commonAttributes);
+            $menu->addChild(
+                'Dashboard',
+                $commonAttributes + ['route' => 'dashboard_display', 'extras' => ['current_regex' => '#^(/$)|(/dashboard)#']]
+            );
+            $menu->addChild(
+                'Organizations',
+                $commonAttributes + ['route' => 'organization_find', 'extras' => ['current_regex' => '#^/organizations#']] + $commonAttributes
+            );
+            $menu->addChild(
+                'Prospects',
+                $commonAttributes + ['route' => 'prospect_create', 'extras' => ['current_regex' => '#^/protects#']] + $commonAttributes
+            );
         }
         if (!$this->authorizationChecker->isGranted('IS_AUTHENTICATED_FULLY')) {
             $menu->addChild('Login', ['route' => 'login'] + $commonAttributes);
@@ -63,32 +72,46 @@ class MenuBuilder
     }
 
     /**
+     * @param array $options
      * @return ItemInterface
      */
-    public function createBreadcrumb()
+    public function createBreadcrumb(array $options)
     {
         $menu = $this->factory->createItem('root', [
-            'childrenAttributes' => ['class' => 'breadcrumb mt-2'],
+            'childrenAttributes' => [
+                'class' => $options['root_class'] ?? null,
+            ],
         ]);
 
-        $commonAttributes = ['currentClass' => 'active ', 'attributes' => ['class' => 'breadcrumb-item']];
+        $commonAttributes = $options['child_attributes'] ?? [];
+        $extras = $options['extras'] ?? [];
+        $active = ['class' => 'breadcrumb-item active'];
+        $menu->addChild(
+            'Dashboard',
+            ['route' => 'dashboard_display', 'extras' => ['wrap_label' => 'd-none'] + $this->getIcon('fa fa-home')] + $commonAttributes
+        );
 
-        $menu->addChild('', ['route' => 'dashboard_display', 'extras' => $this->configureIcon('fa fa-home')] + $commonAttributes);
-
-        if (preg_match('#^/organizations$#', $this->currentRequest->getPathInfo())) {
-            $menu->addChild('Organizations', ['attributes' => ['class' => 'breadcrumb-item active']]);
-        } elseif (preg_match('#^/organizations#', $this->currentRequest->getPathInfo())) {
-            $menu->addChild('Organizations', ['route' => 'organization_find'] + $commonAttributes);
+        if ($this->isMatchedRequest('#^/organizations$#')) {
+           $menu->addChild('Organizations', ['attributes' => $active, 'extras' => $extras + $this->getIcon('fa fa-search d-md-none')]);
+        } elseif ($this->isMatchedRequest('#^/organizations#')) {
+            $menu->addChild('Organizations', ['route' => 'organization_find', 'extras' => $extras + $this->getIcon('fa fa-search d-md-none')] + $commonAttributes);
         }
 
-        if (preg_match('#^/organizations/[0-9]+/view#', $this->currentRequest->getPathInfo())) {
-            $menu->addChild('Detail', ['attributes' => ['class' => 'breadcrumb-item active']]);
+        if ($this->isMatchedRequest('#^/organizations/[0-9]+/view#')) {
+            $menu->addChild('Detail', ['attributes' => $active, 'extras' => $extras + $this->getIcon('fa fa-building-o d-md-none')]);
         }
 
-        if (preg_match('#^/organizations/[0-9]+/update#', $this->currentRequest->getPathInfo())) {
-            $menu->addChild('Detail', ['route' => 'organization_view', 'routeParameters' => ['id' => $this->currentRequest->get('id')]] + $commonAttributes);
-            $menu->addChild('Edit',  ['attributes' => ['class' => 'breadcrumb-item active']]);
+        if ($this->isMatchedRequest('#^/organizations/[0-9]+/update#')) {
+            $menu->addChild(
+                'Detail',
+                ['route' => 'organization_view', 'routeParameters' => ['id' => $this->currentRequest->get('id')], 'extras' => $extras + $this->getIcon('fa fa-building-o d-md-none')] + $commonAttributes
+            );
+            $menu->addChild('Edit',  ['attributes' => $active, 'extras' => $extras + $this->getIcon('fa fa-edit d-md-none')]);
 
+        }
+
+        if ($this->isMatchedRequest('#^/organizations/add#')) {
+            $menu->addChild('Add',  ['attributes' => $active, 'extras' => $extras + $this->getIcon('fa fa-address-card d-md-none')]);
         }
 
         return $menu;
@@ -109,8 +132,14 @@ class MenuBuilder
         $commonAttributes = $options['child_attributes'] ?? [];
         $extras = $options['extras'] ?? [];
 
-        $menu->addChild('Find organization', ['route' => 'organization_find', 'extras' => $this->configureIcon('fa fa-search') + $extras] + $commonAttributes);
-        $menu->addChild('Add organization', ['route' => 'organization_create', 'extras' => $this->configureIcon('fa fa-address-card') + $extras] + $commonAttributes);
+        $menu->addChild(
+            'Find organization',
+            ['route' => 'organization_find', 'extras' =>  $extras + $this->getIcon('fa fa-search')] + $commonAttributes
+        );
+        $menu->addChild(
+            'Add organization',
+            ['route' => 'organization_create', 'extras' => $extras + $this->getIcon('fa fa-address-card')] + $commonAttributes
+        );
 
         return $menu;
     }
@@ -139,11 +168,20 @@ class MenuBuilder
      * @param string $icon
      * @return array
      */
-    private function configureIcon(string $icon)
+    private function getIcon(string $icon)
     {
         return [
             'icon' => $icon,
         ];
+    }
+
+    /**
+     * @param string $pattern
+     * @return bool
+     */
+    private function isMatchedRequest(string $pattern)
+    {
+        return (bool) preg_match($pattern, $this->currentRequest->getPathInfo());
     }
 
     /**
@@ -155,8 +193,19 @@ class MenuBuilder
     {
         if (preg_match('/^organization_view/', $this->currentRequest->get('_route'))) {
             $id = $this->currentRequest->get('id');
-            $menu->addChild('Edit organization', ['route' => 'organization_update',  'routeParameters' => ['id' => $id], 'extras' => $this->configureIcon('fa fa-edit') + $extras] + $commonAttributes);
-            $menu->addChild('Add Prospect', ['route' => 'prospect_create', 'extras' => $this->configureIcon('fa fa-user-plus') + $extras] + $commonAttributes);
+            $menu->addChild(
+                'Edit organization',
+                [
+                    'route' => 'organization_update',
+                    'routeParameters' => ['id' => $id],
+                    'extras' => $this->getIcon('fa fa-edit') + $extras] + $commonAttributes
+            );
+            $menu->addChild(
+                'Add Prospect',
+                [
+                    'route' => 'prospect_create',
+                    'extras' => $this->getIcon('fa fa-user-plus') + $extras] + $commonAttributes
+            );
         }
     }
 }

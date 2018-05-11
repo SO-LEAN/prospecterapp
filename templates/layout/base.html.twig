@@ -22,8 +22,8 @@
                 <span class="navbar-toggler-icon"></span>
             </button>
             <div class="collapse navbar-collapse ml-2" id="js-main-menu">
-                {% set main_menu = knp_menu_get('main', options={'root_class': 'nav navbar-nav', 'child_attributes':{'attributes': {'class': 'nav-item'}, 'linkAttributes': {'class': 'nav-link'}}}) %}
-                {{ knp_menu_render(main_menu,  { 'currentClass': 'active'}) }}
+                {%- import "macro/menu.html.twig" as menu -%}
+                {{ menu.main() }}
             </div>
         </div><!-- /.container -->
     </header><!-- /.navbar -->

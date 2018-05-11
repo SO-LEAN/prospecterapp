@@ -1,0 +1,16 @@
+{% macro main() %}
+    {% set main_menu = knp_menu_get('main', options={'root_class': 'nav navbar-nav', 'child_attributes':{'attributes': {'class': 'nav-item'}, 'linkAttributes': {'class': 'nav-link'}}}) %}
+    {{ knp_menu_render(main_menu,  { 'currentClass': 'active'}) }}
+{% endmacro %}
+{% macro breadcrumb() %}
+    {% set breadcrumb = knp_menu_get('breadcrumb', options={'root_class': 'breadcrumb mt-2', 'child_attributes': {'attributes': {'class': 'breadcrumb-item'}}, 'extras': {'wrap_label': 'd-none d-md-inline'}}) %}
+    {{ knp_menu_render(breadcrumb, { 'currentClass': 'active'}) }}
+{% endmacro %}
+{% macro left() %}
+    {% set left_menu = knp_menu_get('left', options={'root_class': 'nav flex-column', 'child_attributes':{'attributes': {'class': 'nav-item'}, 'linkAttributes': {'class': 'nav-link'}}, 'extras': {'wrap_label': 'd-none d-xl-inline'}}) %}
+    {{ knp_menu_render(left_menu,  { 'currentClass': 'active'}) }}
+{% endmacro %}
+{% macro right() %}
+    {% set right_menu = knp_menu_get('right', options={'root_class': 'nav flex-column', 'child_attributes':{'attributes': {'class': 'nav-item'}, 'linkAttributes': {'class': 'nav-link'}}, 'extras': {'wrap_label': 'd-none d-xl-inline'}}) %}
+    {{ knp_menu_render(right_menu,  { 'currentClass': 'active'}) }}
+{% endmacro %}
