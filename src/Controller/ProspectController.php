@@ -27,7 +27,7 @@ class ProspectController
     }
 
     /**
-     * @Route("/prospect/add", name="prospect_create")
+     * @Route("/prospects/add", name="prospect_create")
      */
     public function createProspect()
     {

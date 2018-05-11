@@ -10,8 +10,8 @@ class OrganizationControllerTest extends ControllerTest
     public function provideUri(): array
     {
         return [
-            '/organization/add' => ['/organization/add'],
-            '/organization/view' => ['/organization/view/1'],
+            '/organizations/add' => ['/organizations/add'],
+            '/organizations/{id}/view' => ['/organizations/1/view'],
         ];
     }
 
@@ -22,7 +22,7 @@ class OrganizationControllerTest extends ControllerTest
         $form['create_organization_form[corporateName]'] = 'corporate name';
         $form['create_organization_form[email]'] = 'email@test.com';
 
-        $this->submitForm($form, '/organization/add', 'Create');
-        $this->assertRegExp('#/organization/view/[0-9]+$#', $this->client->getResponse()->headers->get('location'));
+        $this->submitForm($form, '/organizations/add', 'Create');
+        $this->assertRegExp('#/organizations/[0-9]+/view$#', $this->client->getResponse()->headers->get('location'));
     }
 }

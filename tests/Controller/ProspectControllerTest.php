@@ -34,7 +34,7 @@ class ProspectControllerTest extends ControllerTest
     {
         return [
             '/dashboard/view' => ['/dashboard/view'],
-            '/prospect/add' => ['/prospect/add'],
+            '/prospects/add' => ['/prospects/add'],
         ];
     }
 }
