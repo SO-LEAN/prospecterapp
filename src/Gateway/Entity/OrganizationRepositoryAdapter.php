@@ -94,6 +94,7 @@ class OrganizationRepositoryAdapter extends RepositoryAdapter implements Organiz
             ->setMaxResults($max);
 
         $pg = new Paginator($query);
-        return new Page($page, (int) floor($pg->count() / $max) + 1, $pg->getIterator()->getArrayCopy());
+
+        return new Page($page, $pg->count(), intdiv($pg->count(), $max) + 1, $pg->getIterator()->getArrayCopy());
     }
 }
