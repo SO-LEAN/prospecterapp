@@ -105,7 +105,7 @@ abstract class AbstractFormHandlingCommand
      */
     protected function deduceFormFQCN(Request $request): string
     {
-        return sprintf('%s\%sForm', $this::FORMS_NAMESPACE, ucfirst($this->deduceUseCaseName($request)));
+        return sprintf('%s\%sType', $this::FORMS_NAMESPACE, ucfirst($this->deduceUseCaseName($request)));
     }
 
     /**

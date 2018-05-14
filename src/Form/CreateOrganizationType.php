@@ -7,7 +7,7 @@ use Symfony\Component\Form\Extension\Core\Type;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 
-class UpdateOrganizationForm extends AbstractType
+class CreateOrganizationType extends AbstractType
 {
     /**
      * @param FormBuilderInterface $builder

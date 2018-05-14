@@ -7,7 +7,7 @@ use Symfony\Component\Form\Extension\Core\Type\PasswordType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 
-class LoginForm extends AbstractType
+class LoginType extends AbstractType
 {
     /**
      * @param FormBuilderInterface $builder

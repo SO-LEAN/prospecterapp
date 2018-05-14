@@ -2,7 +2,7 @@
 
 namespace App\Controller;
 
-use App\Form\LoginForm;
+use App\Form\LoginType;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 
@@ -19,7 +19,7 @@ class SecurityController extends Controller
         $authenticationUtils = $this->get('security.authentication_utils');
 
         return $this->render('page/login.html.twig', [
-            'form' => $this->createForm(LoginForm::class, ['userName' => $authenticationUtils->getLastUsername() ?: ''])->createView(),
+            'form' => $this->createForm(LoginType::class, ['userName' => $authenticationUtils->getLastUsername() ?: ''])->createView(),
             'error' => $authenticationUtils->getLastAuthenticationError(),
         ]);
     }

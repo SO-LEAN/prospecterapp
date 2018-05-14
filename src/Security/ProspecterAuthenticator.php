@@ -2,7 +2,7 @@
 
 namespace App\Security;
 
-use App\Form\LoginForm;
+use App\Form\LoginType;
 use App\Presenter\LoginPresenterImpl;
 use Symfony\Component\Security\Core\Security;
 use Solean\CleanProspecter\Exception\UseCase\BadCredentialException;
@@ -108,7 +108,7 @@ class ProspecterAuthenticator extends AbstractFormLoginAuthenticator
      */
     public function getCredentials(Request $request)
     {
-        $form = $this->formFactory->create(LoginForm::class);
+        $form = $this->formFactory->create(LoginType::class);
         $form->handleRequest($request);
         $csrfToken = $request->get($form->getName())['_token'];
 
