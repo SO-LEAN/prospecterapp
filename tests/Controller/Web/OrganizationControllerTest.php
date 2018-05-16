@@ -1,6 +1,6 @@
 <?php
 
-namespace Tests\App\Controller;
+namespace Tests\App\Controller\Web;
 
 use Tests\App\Base\ControllerTest;
 
@@ -19,8 +19,8 @@ class OrganizationControllerTest extends ControllerTest
     {
         $this->login();
 
-        $form['create_organization_form[corporateName]'] = 'corporate name';
-        $form['create_organization_form[email]'] = 'email@test.com';
+        $form['create_organization[corporateName]'] = 'corporate name';
+        $form['create_organization[email]'] = 'email@test.com';
 
         $this->submitForm($form, '/organizations/add', 'Create');
         $this->assertRegExp('#/organizations/[0-9]+/view$#', $this->client->getResponse()->headers->get('location'));

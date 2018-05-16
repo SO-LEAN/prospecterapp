@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Controller;
+namespace App\Controller\Web;
 
 use App\Traits\ControllerTrait;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
@@ -9,7 +9,7 @@ use Sensio\Bundle\FrameworkExtraBundle\Configuration\Security;
 /**
  * Class ProspectController.
  *
- * @Route(service="App\Controller\ProspectController")
+ * @Route(service="App\Controller\Web\ProspectController")
  */
 class ProspectController
 {

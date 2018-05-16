@@ -40,6 +40,7 @@ class UpdateFormHandlingCommand extends AbstractFormHandlingCommand implements F
 
     /**
      * @param Request $request
+     *
      * @return stdClass
      */
     private function buildGetUseCasePresenter(Request $request): object
@@ -61,6 +62,7 @@ class UpdateFormHandlingCommand extends AbstractFormHandlingCommand implements F
 
     /**
      * @param Request $request
+     *
      * @return stdClass
      */
     private function buildGetUseCaseRequest(Request $request): object

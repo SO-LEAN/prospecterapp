@@ -1,10 +1,13 @@
 "use strict";
 
-var $ = require('jquery');
-var jsonp = require('./jsonp');
+let $ = require('jquery');
+let jsonp = require('./jsonp');
 
-var gapiurl = "https://maps.googleapis.com/maps/api/js?key=" + $( "body" ).data( "googleApiKey") + "&callback=__googleMapsApiOnLoadCallback";
+let $body = $('body');
+let gapiurl = "https://maps.googleapis.com/maps/api/js?key=" + $body.data( "googleApiKey") + "&callback=__googleMapsApiOnLoadCallback";
 
 exports.load = function (done) {
-    jsonp(gapiurl, '__googleMapsApiOnLoadCallback', done);
+    if (0 !== $body.data('latitude').length || 0 !== $body.data('longitude').length) {
+      jsonp(gapiurl, '__googleMapsApiOnLoadCallback', done);
+    }
 };

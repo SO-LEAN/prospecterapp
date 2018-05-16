@@ -26,9 +26,9 @@ class MenuBuilder
     protected $currentRequest;
 
     /**
-     * @param FactoryInterface $factory
+     * @param FactoryInterface              $factory
      * @param AuthorizationCheckerInterface $authorizationChecker
-     * @param Request $currentRequest
+     * @param Request                       $currentRequest
      */
     public function __construct(FactoryInterface $factory, AuthorizationCheckerInterface $authorizationChecker, Request $currentRequest)
     {
@@ -39,6 +39,7 @@ class MenuBuilder
 
     /**
      * @param array $options
+     *
      * @return ItemInterface
      */
     public function createMainMenu(array $options)
@@ -73,6 +74,7 @@ class MenuBuilder
 
     /**
      * @param array $options
+     *
      * @return ItemInterface
      */
     public function createBreadcrumb(array $options)
@@ -92,7 +94,7 @@ class MenuBuilder
         );
 
         if ($this->isMatchedRequest('#^/organizations$#')) {
-           $menu->addChild('Organizations', ['attributes' => $active, 'extras' => $extras + $this->getIcon('fa fa-search d-md-none')]);
+            $menu->addChild('Organizations', ['attributes' => $active, 'extras' => $extras + $this->getIcon('fa fa-search d-md-none')]);
         } elseif ($this->isMatchedRequest('#^/organizations#')) {
             $menu->addChild('Organizations', ['route' => 'organization_find', 'extras' => $extras + $this->getIcon('fa fa-search d-md-none')] + $commonAttributes);
         }
@@ -106,12 +108,11 @@ class MenuBuilder
                 'Detail',
                 ['route' => 'organization_view', 'routeParameters' => ['id' => $this->currentRequest->get('id')], 'extras' => $extras + $this->getIcon('fa fa-building-o d-md-none')] + $commonAttributes
             );
-            $menu->addChild('Edit',  ['attributes' => $active, 'extras' => $extras + $this->getIcon('fa fa-edit d-md-none')]);
-
+            $menu->addChild('Edit', ['attributes' => $active, 'extras' => $extras + $this->getIcon('fa fa-edit d-md-none')]);
         }
 
         if ($this->isMatchedRequest('#^/organizations/add#')) {
-            $menu->addChild('Add',  ['attributes' => $active, 'extras' => $extras + $this->getIcon('fa fa-address-card d-md-none')]);
+            $menu->addChild('Add', ['attributes' => $active, 'extras' => $extras + $this->getIcon('fa fa-address-card d-md-none')]);
         }
 
         return $menu;
@@ -119,6 +120,7 @@ class MenuBuilder
 
     /**
      * @param array $options
+     *
      * @return ItemInterface
      */
     public function createLeftMenu(array $options)
@@ -134,7 +136,7 @@ class MenuBuilder
 
         $menu->addChild(
             'Find organization',
-            ['route' => 'organization_find', 'extras' =>  $extras + $this->getIcon('fa fa-search')] + $commonAttributes
+            ['route' => 'organization_find', 'extras' => $extras + $this->getIcon('fa fa-search')] + $commonAttributes
         );
         $menu->addChild(
             'Add organization',
@@ -146,6 +148,7 @@ class MenuBuilder
 
     /**
      * @param array $options
+     *
      * @return ItemInterface
      */
     public function createRightMenu(array $options)
@@ -166,6 +169,7 @@ class MenuBuilder
 
     /**
      * @param string $icon
+     *
      * @return array
      */
     private function getIcon(string $icon)
@@ -177,6 +181,7 @@ class MenuBuilder
 
     /**
      * @param string $pattern
+     *
      * @return bool
      */
     private function isMatchedRequest(string $pattern)
@@ -198,13 +203,13 @@ class MenuBuilder
                 [
                     'route' => 'organization_update',
                     'routeParameters' => ['id' => $id],
-                    'extras' => $this->getIcon('fa fa-edit') + $extras] + $commonAttributes
+                    'extras' => $this->getIcon('fa fa-edit') + $extras, ] + $commonAttributes
             );
             $menu->addChild(
                 'Add Prospect',
                 [
                     'route' => 'prospect_create',
-                    'extras' => $this->getIcon('fa fa-user-plus') + $extras] + $commonAttributes
+                    'extras' => $this->getIcon('fa fa-user-plus') + $extras, ] + $commonAttributes
             );
         }
     }

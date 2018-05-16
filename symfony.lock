@@ -71,6 +71,9 @@
     "doctrine/orm": {
         "version": "v2.6.1"
     },
+    "imagine/imagine": {
+        "version": "v0.7.1"
+    },
     "jdorn/sql-formatter": {
         "version": "v1.2.17"
     },

@@ -2,7 +2,6 @@
 
 namespace App\Service\RequestHandler;
 
-
 use stdClass;
 use Exception;
 use ReflectionClass;
@@ -62,8 +61,8 @@ abstract class AbstractFormHandlingCommand
 
     /**
      * @param string $useCaseClass
-     * @param array   $data
-     * @param User    $user
+     * @param array  $data
+     * @param User   $user
      *
      * @return stdClass
      *

@@ -7,7 +7,7 @@
     {{ form_widget(form) }}
     {% if data.logoUrl %}
     <figure>
-        <img alt="{{ data.corporateName }}" src="{{ data.logoUrl }}" width="200">
+        <img alt="{{ data.corporateName }}" src="{{ data.logoUrl|image_operation('resize', 200, 0) }}" width="200">
         <figcaption>logo {{ (data.logoSize)|number_format(0, ',', ' ')}} octets</figcaption>
     </figure>
     {% endif %}

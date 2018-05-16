@@ -8,8 +8,14 @@ use Symfony\Component\HttpFoundation\File\Stream;
 
 class LocalStorageService
 {
+    /**
+     * @var string
+     */
     private $path;
 
+    /**
+     * @var string
+     */
     private $url;
 
     /**
@@ -29,7 +35,9 @@ class LocalStorageService
      */
     public function add(File $file): File
     {
-        return $file->move(sprintf('%s/%s', $this->path, $this->applyPathStrategy($file)), sprintf('%s.%s', md5(uniqid()), $file->guessExtension()));
+        $fileName = md5(uniqid());
+
+        return $file->move(sprintf('%s/%s', $this->path, $this->applyPathStrategy($fileName)), sprintf('%s.%s', $fileName, $file->guessExtension()));
     }
 
     /**
@@ -61,11 +69,11 @@ class LocalStorageService
     /**
      * @param $url
      *
-     * @return File
+     * @return Stream
      */
-    public function getFromUrl($url): File
+    public function getFromUrl($url): Stream
     {
-        return new File($this->urlToLocalPath($url));
+        return new Stream($this->urlToLocalPath($url));
     }
 
     /**
@@ -73,7 +81,7 @@ class LocalStorageService
      *
      * @return string
      */
-    public function getUrl(File $file)
+    public function getUrl(File $file): string
     {
         $length = strlen($this->path);
 
@@ -85,13 +93,13 @@ class LocalStorageService
     }
 
     /**
-     * @param File $file
+     * @param string $fileName
      *
      * @return string
      */
-    private function applyPathStrategy(File $file)
+    private function applyPathStrategy(string $fileName): string
     {
-        return sprintf('%d/%d', date('Y'), date('m'));
+        return sprintf('%d/%d/%s/', date('Y'), date('m'), $fileName);
     }
 
     /**
@@ -99,8 +107,8 @@ class LocalStorageService
      *
      * @return string
      */
-    private function urlToLocalPath($url)
+    private function urlToLocalPath($url): string
     {
-        return sprintf('%s/%s', substr_replace($url, $this->path, 0, strlen($this->url)));
+        return substr_replace($url, $this->path, 0, strlen($this->url));
     }
 }

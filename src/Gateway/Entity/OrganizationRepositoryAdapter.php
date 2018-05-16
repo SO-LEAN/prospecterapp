@@ -80,9 +80,10 @@ class OrganizationRepositoryAdapter extends RepositoryAdapter implements Organiz
     }
 
     /**
-     * @param int $page
+     * @param int    $page
      * @param string $query
-     * @param int $max
+     * @param int    $max
+     *
      * @return Page
      */
     public function findPageByQuery(int $page, string $query = 'michel', $max = 20): Page

@@ -15,22 +15,22 @@ class GetOrganizationForUpdatePresenter implements GetOrganizationPresenter
     public function present(GetOrganizationResponse $response)
     {
         return [
-            'id'=> $response->getId(),
-            'ownedBy'=> $response->getOwnedBy(),
-            'phoneNumber'=> $response->getPhoneNumber(),
-            'email'=> $response->getEmail(),
-            'language'=> $response->getLanguage(),
-            'corporateName'=> $response->getCorporateName(),
-            'form'=> $response->getForm(),
-            'street'=> $response->getStreet(),
-            'postalCode'=> $response->getPostalCode(),
-            'city'=> $response->getCity(),
-            'country'=> $response->getCountry(),
-            'observations'=> $response->getObservations(),
-            'logoUrl'=> $response->getLogoUrl(),
-            'logoExtension'=> $response->getLogoExtension(),
-            'logoSize'=> $response->getLogoSize(),
-            'holdBy'=> $response->getHoldBy(),
+            'id' => $response->getId(),
+            'ownedBy' => $response->getOwnedBy(),
+            'phoneNumber' => $response->getPhoneNumber(),
+            'email' => $response->getEmail(),
+            'language' => $response->getLanguage(),
+            'corporateName' => $response->getCorporateName(),
+            'form' => $response->getForm(),
+            'street' => $response->getStreet(),
+            'postalCode' => $response->getPostalCode(),
+            'city' => $response->getCity(),
+            'country' => $response->getCountry(),
+            'observations' => $response->getObservations(),
+            'logoUrl' => $response->getLogoUrl(),
+            'logoExtension' => $response->getLogoExtension(),
+            'logoSize' => $response->getLogoSize(),
+            'holdBy' => $response->getHoldBy(),
         ];
     }
 }

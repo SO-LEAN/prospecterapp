@@ -4,6 +4,7 @@
     "require": {
         "php": "^7.2.3",
         "ext-iconv": "*",
+        "imagine/imagine": "^0.7.1",
         "knplabs/knp-menu-bundle": "^2.0",
         "lexik/jwt-authentication-bundle": "^2.4",
         "ocramius/proxy-manager": "^2.2",

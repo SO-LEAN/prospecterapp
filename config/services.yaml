@@ -27,9 +27,13 @@ services:
 
     # add more service definitions when explicit configuration is needed
     # please note that last definitions always *replace* previous ones
-
+    #Twig
+    App\Twig\AppTwigExtension:
+        arguments: ['@App\Service\ImageService']
+        tags:
+            - { name: twig.extension }
     #controller
-    App\Controller\ProspectController:
+    App\Controller\Web\ProspectController:
         tags: ['controller.service_arguments']
         calls:
             - [setFormFactory, ['@form.factory']]
@@ -37,7 +41,7 @@ services:
             - [setRouter, ['@router']]
             - [setUseCases, ['@Solean\CleanProspecter\UseCase\UseCasesFacade']]
             - [setFormHandler, ['@App\Service\RequestHandler']]
-    App\Controller\OrganizationController:
+    App\Controller\Web\OrganizationController:
         tags: ['controller.service_arguments']
         calls:
             - [setFormFactory, ['@form.factory']]
@@ -136,14 +140,20 @@ services:
     #Service
       #Local storage
     App\Service\LocalStorageService:
+        public: true
         arguments:
-            - '%env(resolve:STORAGE_PATH)%'
-            - '%env(STORAGE_URL)%'
+            - '%env(resolve:APP_STORAGE_PATH)%'
+            - '%env(APP_STORAGE_URL)%'
+    App\Service\ImageService:
+        public: true;
+    App\Service\Image\SecretCipherHandler:
+        arguments:
+           - '%env(APP_SECRET)%'
       #Google Map geo locator
     App\Service\GoogleMapGeoLocator:
         arguments:
             - '%google_api_url%'
-            - '%env(GOOGLE_API_KEY)%'
+            - '%env(APP_GOOGLE_API_KEY)%'
       #Request handler
     App\Service\RequestHandler: ~
       #Form Request handler command

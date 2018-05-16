@@ -1,6 +1,6 @@
 <?php
 
-namespace Tests\App\Controller;
+namespace Tests\App\Controller\Web;
 
 use Tests\App\Base\ControllerTest;
 
@@ -8,8 +8,6 @@ class ProspectControllerTest extends ControllerTest
 {
     public function testRedirectToLoginPageWhenDisplayDashboardIfNotAuthenticated() : void
     {
-        $this->client = $this->createClient();
-
         $this->client->request('GET', '/dashboard/view');
 
         $this->assertStatusCode(302, $this->client);

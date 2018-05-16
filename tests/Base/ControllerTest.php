@@ -18,14 +18,22 @@ abstract class ControllerTest extends WebTestCase
     protected $client;
 
     /**
+     * @var array
+     */
+    protected $serverHeader;
+
+    /**
      * @var ReferenceRepository
      */
     protected $fixtures;
 
+
     public function setUp(): void
     {
         $this->fixtures = $this->loadFixtures([AppFixtures::class])->getReferenceRepository();
-        $this->client = $this->createClient();
+        $this->serverHeader = ['HTTP_HOST' => 'test.prospecter.io'];
+
+        $this->client = $this->createClient([], $this->serverHeader);
     }
 
     /**
@@ -53,7 +61,7 @@ abstract class ControllerTest extends WebTestCase
         $user = new User(new RefreshUserResponse($entity->getId(), $entity->getRoles(), $entity->getUserName(), $entity->getPassword(), $entity->getOrganization()->getId()));
         $this->loginAs($user, $firewall);
 
-        $this->client = $this->makeClient();
+        $this->client = $this->makeClient(false, $this->serverHeader);
     }
 
     /**

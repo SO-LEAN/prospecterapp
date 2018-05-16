@@ -1,0 +1,76 @@
+<?php
+
+namespace App\Service\Image;
+
+use Imagine\Image\Box;
+use InvalidArgumentException;
+use Imagine\Image\ImagineInterface;
+use Symfony\Component\HttpFoundation\File\File;
+
+class ResizeOperator implements Operator
+{
+    /**
+     * @var ImagineInterface
+     */
+    private $imagine;
+
+    public function setDriver(ImagineInterface $imagine): void
+    {
+        $this->imagine = $imagine;
+    }
+
+    /**
+     * @param File  $origin
+     * @param array $args
+     *
+     * @return File
+     */
+    public function execute(File $origin, array $args): File
+    {
+        list($width, $height) = $args;
+        $target = sprintf('%s/%s', sys_get_temp_dir(), md5(uniqid()));
+        if (0 === $width && 0 === $height) {
+            throw new InvalidArgumentException();
+        }
+
+        if (0 === $width || 0 === $height) {
+            $this->ratioResizing($origin, $args, $target);
+        } else {
+            $this->standardResizing($origin, $args, $target);
+        }
+
+        return new File($target);
+    }
+
+    /**
+     * @param File  $origin
+     * @param array $args
+     * @param $target
+     */
+    private function ratioResizing(File $origin, array $args, $target): void
+    {
+        $image = $this->imagine->open($origin->getRealPath());
+        $size = $image->getSize();
+
+        if (0 === $args[0]) {
+            $image->resize($size->heighten($args[1]));
+        } elseif (0 === $args[1]) {
+            $image->resize($size->widen($args[0]));
+        }
+
+        $image->save($target);
+    }
+
+    /**
+     * @param File  $origin
+     * @param array $args
+     * @param $target
+     */
+    private function standardResizing(File $origin, array $args, $target): void
+    {
+        $box = new Box($args[0], $args[1]);
+        $this->imagine->open($origin->getPath())
+            ->resize($box)
+            ->save($target);
+    }
+}

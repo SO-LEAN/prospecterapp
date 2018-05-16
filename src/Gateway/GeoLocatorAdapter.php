@@ -5,7 +5,7 @@ namespace App\Gateway;
 use App\Service\GeoLocator;
 use Solean\CleanProspecter\Gateway as Solean;
 
-class GeoLocatorAdapter implements  Solean\GeoLocation
+class GeoLocatorAdapter implements Solean\GeoLocation
 {
     /**
      * @var GeoLocator
@@ -19,6 +19,7 @@ class GeoLocatorAdapter implements  Solean\GeoLocation
 
     /**
      * @param string $address
+     *
      * @return Solean\GeoLocation\GeoPointResponse
      */
     public function find(string $address): Solean\GeoLocation\GeoPointResponse

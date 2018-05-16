@@ -15,11 +15,14 @@
         <env name="APP_SECRET" value="s$cretf0rt3st" />
         <env name="SHELL_VERBOSITY" value="-1" />
         <!-- define your env variables for the test env here -->
-        <env name="STATIC_HOST" value="http://static.prospecter.io" />
-        <env name="STORAGE_URL" value="http://static.prospecter.io/storage" />
-        <env name="STORAGE_PATH" value="%kernel.project_dir%/public/static/storage/test" />
+        <env name="APP_STATIC_PROTOCOL" value="http" />
+        <env name="APP_APPLICATION_HOST" value="test.prospecter.io" />
+        <env name="APP_STATIC_HOST" value="test.static.prospecter.io" />
+        <env name="APP_STORAGE_URL" value="http://test.static.prospecter.io/storage" />
+        <env name="APP_STORAGE_PATH" value="%kernel.project_dir%/public/static/storage/test" />
+        <env name="APP_APPLICATION_REGEX_FIREWALL" value="^test\.prospecter\.io$" />
         <env name="DATABASE_URL" value="sqlite:///%kernel.project_dir%/var/data-test.db" />
-        <env name="GOOGLE_API_KEY" value="0000" />
+        <env name="APP_GOOGLE_API_KEY" value="0000" />
     </php>
 
     <testsuites>

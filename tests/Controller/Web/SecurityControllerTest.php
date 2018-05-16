@@ -1,6 +1,6 @@
 <?php
 
-namespace Tests\App\Controller;
+namespace Tests\App\Controller\Web;
 
 use Tests\App\Base\ControllerTest;
 
@@ -52,7 +52,7 @@ class SecurityControllerTest extends ControllerTest
         $this->client->request('GET', '/logout');
 
         $this->assertStatusCode(302, $this->client);
-        $this->assertEquals('http://localhost/login', $this->client->getResponse()->headers->get('location'));
+        $this->assertEquals('http://test.prospecter.io/login', $this->client->getResponse()->headers->get('location'));
     }
 
     /**
@@ -65,11 +65,11 @@ class SecurityControllerTest extends ControllerTest
         $crawler = $this->client->request('GET', '/login');
         $form = $crawler->selectButton('Login')->form();
 
-        $form['login_form[userName]'] = $username;
-        $form['login_form[password]'] = $password;
+        $form['login[userName]'] = $username;
+        $form['login[password]'] = $password;
 
         if ($csrf) {
-            $form['login_form[_token]'] = $csrf;
+            $form['login[_token]'] = $csrf;
         }
 
         $this->client->submit($form);

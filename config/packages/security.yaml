@@ -9,6 +9,8 @@ security:
             pattern: ^/(_(profiler|wdt)|css|images|js)/
             security: false
         main:
+            host: '%env(APP_APPLICATION_REGEX_FIREWALL)%'
+            pattern: ^(?!/build|/storage)
             anonymous: ~
             logout:
                 path: /logout

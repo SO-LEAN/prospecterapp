@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Controller;
+namespace App\Controller\Web;
 
 use App\Entity\User;
 use App\Traits\ControllerTrait;
@@ -15,7 +15,7 @@ use Solean\CleanProspecter\UseCase\FindOrganization\FindOrganizationRequest;
 /**
  * Class ProspectController.
  *
- * @Route(service="App\Controller\OrganizationController")
+ * @Route(service="App\Controller\Web\OrganizationController")
  */
 class OrganizationController
 {

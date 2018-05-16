@@ -18,6 +18,7 @@ class GoogleMapGeoLocator implements GeoLocator
 
     /**
      * GeoLocationGoogleMapAdapter constructor.
+     *
      * @param $apiUrl
      * @param $apiKey
      */
@@ -29,6 +30,7 @@ class GoogleMapGeoLocator implements GeoLocator
 
     /**
      * @param string $address
+     *
      * @return GeoPointResponse
      */
     public function find(string $address): GeoPointResponse
@@ -47,11 +49,11 @@ class GoogleMapGeoLocator implements GeoLocator
         $location = $response->results[0]->geometry->location;
 
         return new GeoPointResponse($formattedAddress, $location->lng, $location->lat);
-
     }
 
     /**
      * @param string $address
+     *
      * @return GeoPointResponse
      */
     private function buildUnSucceededResponse(string $address): GeoPointResponse

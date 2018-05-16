@@ -1,7 +1,7 @@
 "use strict";
 
-var $ = require('jquery');
-var gapi = require('../misc/gapi');
+let $ = require('jquery');
+let gapi = require('../misc/gapi');
 
 /**
  *
@@ -13,7 +13,7 @@ function GetOrganization() {
  *
  */
 GetOrganization.prototype.run = function() {
-  var $body = $('body');
+  let $body = $('body');
 
   this.latitude = $body.data('latitude');
   this.longitude = $body.data('longitude');
@@ -25,15 +25,19 @@ GetOrganization.prototype.run = function() {
 };
 
 GetOrganization.prototype.initMap = function () {
-  var that = this;
+  if (undefined === gapi) {
+    return;
+  }
+
+  let that = this;
   gapi.load(function () {
-    var organizationLocation = {lat: that.latitude, lng: that.longitude};
-    var map = new google.maps.Map(document.getElementById('map'), {
+    let organizationLocation = {lat: that.latitude, lng: that.longitude};
+    let map = new google.maps.Map(document.getElementById('map'), {
       center: organizationLocation,
       scrollwheel: false,
       zoom: 17
     });
-    var marker = new google.maps.Marker({
+    let marker = new google.maps.Marker({
       position: organizationLocation
     });
 

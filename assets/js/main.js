@@ -3,12 +3,12 @@
 // http://aerendir.me/2018/04/06/managin-static-images-webpack-encore/
 require('../images');
 
-var $ = require('jquery');
+let $ = require('jquery');
 require('popper.js');
 require('bootstrap');
 
 // preload modules
-var modules = {
+let modules = {
     common: require('./common'),
     dashboard: require('./pages/Dashboard'),
     getOrganization: require('./pages/GetOrganization')
@@ -19,9 +19,9 @@ $(document).ready(function() {
 
     new modules['common']().run();
 
-    var page = $('body').data('page');
+    let page = $('body').data('page');
     if('none' !== page && modules.hasOwnProperty(page) ){
-        var Module = modules[page];
+        let Module = modules[page];
         new Module().run();
     }
 });
