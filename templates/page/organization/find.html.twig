@@ -18,8 +18,8 @@
         <div class="card p-2 mb-5 col-xs-12 col-sm-4 col-lg-3">
             <div class="text-right tex-">
                 <ul class="list-inline">
-                    <li class="list-inline-item"><a href="{{ path('organization_update', {id: organization.id}) }}" title="Edit {{ organization.fullName }}"><i class="fa fa-edit" aria-hidden="true"></i></a></li>
-                    <li class="list-inline-item"><a href="{{ path('organization_view', {id: organization.id}) }}" title="Detail {{ organization.fullName }}"><i class="fa fa-eye" aria-hidden="true"></i></a></li>
+                    <li class="list-inline-item"><a href="{{ path('organization_view', {id: organization.id}) }}" title="Detail {{ organization.fullName }}" class="btn btn-secondary"><i class="fa fa-eye" aria-hidden="true"></i></a></li>
+                    <li class="list-inline-item"><a href="{{ path('organization_update', {id: organization.id}) }}" title="Edit {{ organization.fullName }}" class="btn btn-secondary"><i class="fa fa-edit" aria-hidden="true"></i></a></li>
                 </ul>
             </div>
             <div class="card-body m-auto">
