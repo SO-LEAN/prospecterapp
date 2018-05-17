@@ -12,7 +12,7 @@
     <header class="navbar navbar-expand-md navbar-light navbar-main bg-light text-muted">
         <div class="container-fluid">
             <div class="navbar-brand ml-2 ml-md-0" id="js-identity">
-                <a href="{{ path('dashboard_display') }}" title="Dashboard"><img src="{{ asset('build/assets/images/solean.png') }}" height="50" width="50" alt="PROSPECTER" class="rounded-circle"></a>
+                <a href="{{ path('dashboard_display') }}" title="Dashboard"><img src="{{ asset('build/assets/images/solean.png') }}" height="50" width="50" alt="PROSPECTER" class="rounded-circle border border-dark"></a>
                 {% if app.user %}
                     <small id="func-logged-user" class="font-italic">{{ app.user.username }}</small>
                     <a href="{{ path('logout') }}" title="logout"><i class="fa fa-power-off" aria-hidden="true"></i></a>
