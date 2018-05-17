@@ -2,7 +2,6 @@
 
 namespace App\Traits;
 
-
 trait Base64Urlize
 {
     /**

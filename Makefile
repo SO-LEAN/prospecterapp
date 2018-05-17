@@ -60,6 +60,8 @@ cs:
 cs-fix:
 	@docker-compose run --rm build php-cs-fixer fix ./src --verbose --rules=@Symfony
 
+usecases:
+	@docker-compose run --rm build bin/console app:use-cases
 exec:
 	@docker-compose run --rm build /bin/bash
 
