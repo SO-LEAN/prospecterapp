@@ -5,6 +5,9 @@ namespace Tests\App\Service\Image;
 use Tests\App\Base\TestCase;
 use App\Service\Image\SecretCipherHandler;
 
+/**
+ * @group unit
+ */
 class SecretCipherHandlerTest extends TestCase
 {
     public function target() : SecretCipherHandler

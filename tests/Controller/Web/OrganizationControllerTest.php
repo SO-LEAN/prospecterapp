@@ -5,8 +5,7 @@ namespace Tests\App\Controller\Web;
 use Tests\App\Base\ControllerTest;
 
 /**
- * Class OrganizationControllerTest
- * @package Tests\App\Controller\Web
+ * @group web
  */
 class OrganizationControllerTest extends ControllerTest
 {

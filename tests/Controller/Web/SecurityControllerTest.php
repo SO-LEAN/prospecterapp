@@ -4,6 +4,9 @@ namespace Tests\App\Controller\Web;
 
 use Tests\App\Base\ControllerTest;
 
+/**
+ * @group web
+ */
 class SecurityControllerTest extends ControllerTest
 {
     public function provideUri(): array

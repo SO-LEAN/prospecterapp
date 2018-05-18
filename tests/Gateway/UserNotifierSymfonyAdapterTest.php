@@ -8,6 +8,9 @@ use Tests\App\Base\TestCase;
 use App\Gateway\UserNotifierSymfonyAdapter;
 use Symfony\Component\HttpFoundation\Session\Session;
 
+/**
+ * @group unit
+ */
 class UserNotifierSymfonyAdapterTest extends TestCase
 {
     public function target() : UserNotifierSymfonyAdapter

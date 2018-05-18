@@ -6,6 +6,9 @@ namespace Tests\App\Stub;
 
 use Solean\CleanProspecter\UseCase\AbstractUseCase;
 
+/**
+ * @group unit
+ */
 class StubPublicUseCaseImpl extends AbstractUseCase
 {
     private $roles;

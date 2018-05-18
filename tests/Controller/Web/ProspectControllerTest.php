@@ -4,6 +4,9 @@ namespace Tests\App\Controller\Web;
 
 use Tests\App\Base\ControllerTest;
 
+/**
+ * @group web
+ */
 class ProspectControllerTest extends ControllerTest
 {
     public function testRedirectToLoginPageWhenDisplayDashboardIfNotAuthenticated() : void

@@ -7,6 +7,9 @@ namespace Tests\App\Stub;
 use Solean\CleanProspecter\UseCase\Presenter;
 use Solean\CleanProspecter\UseCase\AbstractUseCase;
 
+/**
+ * @group unit
+ */
 class StubNeedsRoleUseCaseImpl extends AbstractUseCase
 {
     public function canBeExecutedBy(): array

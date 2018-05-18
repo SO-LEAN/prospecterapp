@@ -6,6 +6,9 @@ use Tests\App\Base\GatewayEntityTest;
 use Solean\CleanProspecter\Entity\Organization;
 use App\Gateway\Entity\OrganizationRepositoryAdapter;
 
+/**
+ * @group unit
+ */
 class OrganizationRepositoryAdapterTest extends GatewayEntityTest
 {
     public function target() : OrganizationRepositoryAdapter

@@ -6,6 +6,9 @@ use Solean\CleanProspecter\Entity\User;
 use Tests\App\Base\GatewayEntityTest;
 use App\Gateway\Entity\UserRepositoryAdapter;
 
+/**
+ * @group unit
+ */
 class UserRepositoryAdapterTest extends GatewayEntityTest
 {
     public function target() : UserRepositoryAdapter

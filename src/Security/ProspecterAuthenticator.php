@@ -2,7 +2,7 @@
 
 namespace App\Security;
 
-use App\Form\LoginType;
+use App\Form\UseCaseType\LoginType;
 use App\Presenter\LoginPresenterImpl;
 use Symfony\Component\Security\Core\Security;
 use Solean\CleanProspecter\Exception\UseCase\BadCredentialException;

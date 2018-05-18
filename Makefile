@@ -50,6 +50,10 @@ ps:
 
 test:
 	@docker-compose run --rm build bin/phpunit
+test-web:
+	@docker-compose run --rm build bin/phpunit --group web
+test-unit:
+	@docker-compose run --rm build bin/phpunit --group unit
 testdox:
 	@docker-compose run --rm build bin/phpunit --testdox
 test-coverage:

@@ -10,6 +10,9 @@ use Solean\CleanProspecter\UseCase\UseCasesFacade;
 use Symfony\Bundle\FrameworkBundle\Console\Application;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 
+/**
+ * @group unit
+ */
 class ListUseCasesCommandTest extends KernelTestCase
 {
     public function testExecute()
