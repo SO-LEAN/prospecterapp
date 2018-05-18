@@ -2,10 +2,11 @@
 
 namespace App\Twig;
 
-use App\Service\ImageService;
+use \Exception;
 use Twig_Extension;
 use Twig_Environment;
 use Twig_SimpleFilter;
+use App\Service\ImageService;
 use Twig_Extension_InitRuntimeInterface;
 
 class AppTwigExtension extends Twig_Extension implements Twig_Extension_InitRuntimeInterface
@@ -62,7 +63,11 @@ class AppTwigExtension extends Twig_Extension implements Twig_Extension_InitRunt
      */
     public function buildOperationUrl(string $url, string $operation = 'rsz', ...$args)
     {
-        $test = $this->imageService->buildOperationUrl($url, $operation, $args);
+        try {
+            $test = $this->imageService->buildOperationUrl($url, $operation, $args);
+        } catch(Exception $e) {
+            return '';
+        }
 
         return $test;
     }

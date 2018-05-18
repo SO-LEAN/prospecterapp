@@ -1,7 +1,8 @@
 <?php
 
-namespace App\Form;
+namespace App\Form\UseCaseType;
 
+use App\Form\EasyImportFileType;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type;
 use Symfony\Component\Form\FormBuilderInterface;
@@ -27,7 +28,7 @@ class CreateOrganizationType extends AbstractType
             ->add('country', Type\CountryType::class, ['preferred_choices' => ['BE', 'EN', 'FR', 'GB'], 'required' => false])
             ->add('city')
             ->add('observations', Type\TextareaType::class)
-            ->add('logo', Type\FileType::class)
+            ->add('logo', EasyImportFileType::class)
         ;
     }
 

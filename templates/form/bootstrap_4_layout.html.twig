@@ -13,3 +13,8 @@
     {% if form is not rootform %}</span>{% else %}</div>{% endif %}
     {%- endif %}
 {%- endblock form_errors %}
+
+{# Custom type#}
+{%- block easy_file -%}
+    {{- block('form_rows') -}}
+{%- endblock easy_file -%}

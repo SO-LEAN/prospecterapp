@@ -37,7 +37,7 @@ class LocalStorageService
     {
         $fileName = md5(uniqid());
 
-        return $file->move(sprintf('%s/%s', $this->path, $this->applyPathStrategy($fileName)), sprintf('%s.%s', $fileName, $file->guessExtension()));
+        return $file->move(sprintf('%s/%s', $this->path, $this->applyPathStrategy($fileName)), sprintf('%s.%s', $fileName, $this->deduceExtension($file)));
     }
 
     /**
@@ -110,5 +110,23 @@ class LocalStorageService
     private function urlToLocalPath($url): string
     {
         return substr_replace($url, $this->path, 0, strlen($this->url));
+    }
+
+    /**
+     * @param File $file
+     *
+     * @return string
+     */
+    private function deduceExtension(File $file): string
+    {
+        $extension = $file->guessExtension();
+
+        if (null === $extension) {
+            if ('image/svg+xml' === mime_content_type($file->getPathname())) {
+                $extension = 'svg';
+            }
+        }
+
+        return $extension;
     }
 }

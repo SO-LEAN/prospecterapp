@@ -4,6 +4,10 @@ namespace Tests\App\Controller\Web;
 
 use Tests\App\Base\ControllerTest;
 
+/**
+ * Class OrganizationControllerTest
+ * @package Tests\App\Controller\Web
+ */
 class OrganizationControllerTest extends ControllerTest
 {
 

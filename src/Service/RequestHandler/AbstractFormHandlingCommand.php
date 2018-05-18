@@ -17,7 +17,7 @@ abstract class AbstractFormHandlingCommand
 {
     use HelperTrait;
 
-    const FORMS_NAMESPACE = 'App\Form';
+    const FORMS_NAMESPACE = 'App\Form\UseCaseType';
     const PRESENTER_NAMESPACE = 'App\Presenter';
     const USE_CASES_NAMESPACE = 'Solean\CleanProspecter\UseCase';
 
