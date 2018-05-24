@@ -29,7 +29,7 @@ class OrganizationController
      *
      * @Route("organizations/add", name="organization_create")
      */
-    public function createOrganization(HttpFoundation\Request $request, UserInterface $user)
+    public function create(HttpFoundation\Request $request, UserInterface $user)
     {
         /* @var User $user */
         return $this->handleForm($request, $user);
@@ -43,7 +43,7 @@ class OrganizationController
      *
      * @Route("organizations/{id}/update", name="organization_update")
      */
-    public function updateOrganization(HttpFoundation\Request $request, UserInterface $user)
+    public function update(HttpFoundation\Request $request, UserInterface $user)
     {
         /* @var User $user */
         return $this->handleForm($request, $user);
@@ -57,7 +57,7 @@ class OrganizationController
      *
      * @Route("/organizations/{id}/view", name="organization_view")
      */
-    public function viewOrganization($id, UserInterface $user)
+    public function view($id, UserInterface $user)
     {
         /** @var User $user */
         $data = $this->getUseCases()->getOrganization(new GetOrganizationRequest($id), new GetOrganizationPresenterImpl(), $user);
@@ -74,10 +74,13 @@ class OrganizationController
      *
      * @Route("/organizations/{page}", name="organization_find", requirements={"page"="\d+"})
      */
-    public function findOrganization($page = 1, HttpFoundation\Request $request, UserInterface $user)
+    public function find($page = 1, HttpFoundation\Request $request, UserInterface $user)
     {
         /** @var User $user */
-        $data = $this->getUseCases()->findOrganization(new FindOrganizationRequest($page, $request->get('q', '')), new FindOrganizationPresenterImpl(), $user);
+        $data = $this->getUseCases()->findOrganization(
+            new FindOrganizationRequest($page, $request->get('q', '')),
+            new FindOrganizationPresenterImpl(), $user
+        );
 
         return $this->render('page/organization/find.html.twig', ['data' => $data]);
     }

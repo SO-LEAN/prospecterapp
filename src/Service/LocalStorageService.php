@@ -77,6 +77,16 @@ class LocalStorageService
     }
 
     /**
+     * @param $url
+     *
+     * @return string
+     */
+    public function getPathFromUrl($url): string
+    {
+        return $this->urlToLocalPath($url);
+    }
+
+    /**
      * @param File $file
      *
      * @return string

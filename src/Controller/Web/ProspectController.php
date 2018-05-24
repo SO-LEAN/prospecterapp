@@ -29,7 +29,7 @@ class ProspectController
     /**
      * @Route("/prospects/add", name="prospect_create")
      */
-    public function createProspect()
+    public function create()
     {
         return $this->render('page/prospect-add.html.twig');
     }

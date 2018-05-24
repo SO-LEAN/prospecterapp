@@ -61,7 +61,7 @@ class AppTwigExtension extends Twig_Extension implements Twig_Extension_InitRunt
      *
      * @return string
      */
-    public function buildOperationUrl(string $url, string $operation = 'rsz', ...$args)
+    public function buildOperationUrl(string $url, string $operation, ...$args)
     {
         try {
             $test = $this->imageService->buildOperationUrl($url, $operation, $args);

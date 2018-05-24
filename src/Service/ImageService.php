@@ -54,27 +54,40 @@ class ImageService
     }
 
     /**
+     * @param string $uri
+     * @return string
+     */
+    public function handleOperationUrl(string $uri): string
+    {
+        $target = $this->buildUrlImageInfo($uri);
+        $newFile = $this->applyOperation($target);
+
+        $dirName = dirname($this->localStorageService->getPathFromUrl($target->getParentUrl()));
+
+        return $newFile->move($dirName, $target->getTargetName());
+    }
+
+    /**
+     * @param UrlImageInfo $info
+     *
+     * @return File
+     */
+    public function applyOperation(UrlImageInfo $info): File
+    {
+        $parent = $info->getParent();
+        $operator = $this->imagineFactory->createOperator($info->getOperationName(), 'Imagick');
+        $file = $this->localStorageService->getFromUrl($parent->getTargetUrl());
+
+        return $operator->execute($file, $info->getOperationArguments());
+    }
+
+    /**
      * @param string $url
      *
      * @return UrlImageInfo
      */
-    public function buildUrlImageInfo(string $url): UrlImageInfo
+    private function buildUrlImageInfo(string $url): UrlImageInfo
     {
         return new UrlImageInfo($url, $this->cipherHandler);
-    }
-
-    /**
-     * @param UrlImageInfo $fileInfo
-     * @param string       $operation
-     * @param mixed        ...$args
-     *
-     * @return File
-     */
-    public function applyOperation(UrlImageInfo $fileInfo, $operation, array $args): File
-    {
-        $operator = $this->imagineFactory->createOperator($operation, 'Imagick');
-        $file = $this->localStorageService->getFromUrl($fileInfo->getTargetUrl());
-
-        return $operator->execute($file, $args);
     }
 }

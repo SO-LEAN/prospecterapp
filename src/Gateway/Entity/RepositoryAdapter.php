@@ -2,6 +2,7 @@
 
 namespace App\Gateway\Entity;
 
+use App\Service\PaginatorFactory;
 use stdClass;
 use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\DBAL\Exception\UniqueConstraintViolationException;
@@ -19,10 +20,16 @@ abstract class RepositoryAdapter
      */
     protected $entityManager;
 
-    public function __construct(EntityManagerInterface $entityManager, $entityClass)
+    /**
+     * @var PaginatorFactory
+     */
+    protected $paginatorFactory;
+
+    public function __construct(EntityManagerInterface $entityManager, $entityClass, PaginatorFactory $paginatorFactory)
     {
         $this->repository = $entityManager->getRepository($entityClass);
         $this->entityManager = $entityManager;
+        $this->paginatorFactory = $paginatorFactory;
     }
 
     /**

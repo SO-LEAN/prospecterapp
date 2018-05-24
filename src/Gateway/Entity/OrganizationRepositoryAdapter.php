@@ -86,16 +86,16 @@ class OrganizationRepositoryAdapter extends RepositoryAdapter implements Organiz
      *
      * @return Page
      */
-    public function findPageByQuery(int $page, string $query = 'michel', $max = 20): Page
+    public function findPageByQuery(int $page, string $query = '', $max = 20): Page
     {
-        $dql = "SELECT o FROM Solean\CleanProspecter\Entity\Organization o WHERE (o.corporateName LIKE :query OR o.email LIKE :query) ORDER BY o.id DESC";
+        $dql = 'SELECT o FROM Solean\CleanProspecter\Entity\Organization o WHERE (o.corporateName LIKE :query OR o.email LIKE :query) ORDER BY o.id DESC';
         $query = $this->entityManager->createQuery($dql)
             ->setParameter('query', sprintf('%%%s%%', $query))
             ->setFirstResult(($page - 1) * $max)
             ->setMaxResults($max);
 
-        $pg = new Paginator($query);
+        $pg = $this->paginatorFactory->create($query);
 
-        return new Page($page, $pg->count(), intdiv($pg->count(), $max) + 1, $pg->getIterator()->getArrayCopy());
+        return new Page($page, $pg->count(), intdiv($pg->count() - 1, $max) + 1, $pg->getIterator()->getArrayCopy());
     }
 }

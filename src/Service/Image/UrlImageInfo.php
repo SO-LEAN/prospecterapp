@@ -89,6 +89,9 @@ class UrlImageInfo
         return $this->parentName;
     }
 
+    /**
+     * @return UrlImageInfo
+     */
     public function getParent(): self
     {
         $parent = clone $this;
@@ -119,6 +122,14 @@ class UrlImageInfo
             $this->path,
             $this->getTargetName()
         );
+    }
+
+    /**
+     * @return string
+     */
+    public function getParentUrl(): string
+    {
+       return $this->getParent()->getTargetUrl();
     }
 
     /**

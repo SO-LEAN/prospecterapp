@@ -4,6 +4,7 @@ namespace Tests\App\Base;
 
 use Doctrine\DBAL\Connection;
 use Doctrine\ORM\EntityManager;
+use App\Service\PaginatorFactory;
 use Doctrine\Common\Persistence\ObjectRepository;
 use Solean\CleanProspecter\Exception\Gateway\NotFoundException;
 
@@ -16,6 +17,7 @@ abstract class GatewayEntityTest extends TestCase
         return [
             $this->prophesy(EntityManager::class)->reveal(),
             $this->getEntityClass(),
+            $this->prophesy(PaginatorFactory::class)->reveal(),
         ];
     }
 
@@ -89,6 +91,16 @@ abstract class GatewayEntityTest extends TestCase
             'in transaction'     => [true, 0],
             'out of transaction' => [false, 1],
         ];
+    }
+
+    public function testFindOneBy() : void
+    {
+        $criteria = ['criteria1' => 2];
+        $returned = $this->getNewEntity();
+        $returned->setId(123);
+        $this->prophesy(ObjectRepository::class)->findOneBy($criteria)->shouldBeCalled()->willReturn($returned);
+
+        $this->assertEquals($returned, $this->target()->findOneBy(['criteria1' => 2]));
     }
 
     public function testFindBy() : void

@@ -14,16 +14,16 @@ class ResizeOperator implements Operator
      */
     private $imagine;
 
+    /**
+     * {@inheritdoc}
+     */
     public function setDriver(ImagineInterface $imagine): void
     {
         $this->imagine = $imagine;
     }
 
     /**
-     * @param File  $origin
-     * @param array $args
-     *
-     * @return File
+     * {@inheritdoc}
      */
     public function execute(File $origin, array $args): File
     {

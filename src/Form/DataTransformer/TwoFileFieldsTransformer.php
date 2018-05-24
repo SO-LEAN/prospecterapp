@@ -2,14 +2,18 @@
 
 namespace App\Form\DataTransformer;
 
+use App\Service\System\FileSystemAdapter;
 use \Exception;
 use Symfony\Component\Form\DataTransformerInterface;
-use Symfony\Component\Form\Exception\TransformationFailedException;
-use Symfony\Component\HttpFoundation\File\File;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
+use Symfony\Component\Form\Exception\TransformationFailedException;
 
 class TwoFileFieldsTransformer implements DataTransformerInterface
 {
+    /**
+     * @var FileSystemAdapter
+     */
+    private $fileSystemAdapter;
     /**
      * @var string
      */
@@ -21,11 +25,13 @@ class TwoFileFieldsTransformer implements DataTransformerInterface
     private $url;
 
     /**
+     * @param FileSystemAdapter $fileSystemAdapter
      * @param string $manual
      * @param string $url
      */
-    public function __construct(string $manual, string $url)
+    public function __construct(FileSystemAdapter $fileSystemAdapter, string $manual, string $url)
     {
+        $this->fileSystemAdapter = $fileSystemAdapter;
         $this->manual = $manual;
         $this->url = $url;
     }
@@ -35,9 +41,7 @@ class TwoFileFieldsTransformer implements DataTransformerInterface
      */
     public function transform($value)
     {
-       return [
-           $this->url =>  $value,
-       ];
+       return $value;
     }
 
     /**
@@ -59,11 +63,11 @@ class TwoFileFieldsTransformer implements DataTransformerInterface
         }
 
         $opts = stream_context_create(['http' => ['method'=>"GET"]]);
-        $file = tempnam(sys_get_temp_dir(), 'down');
+        $file = $this->fileSystemAdapter->tempnam(sys_get_temp_dir(), 'down');
         $originalName = array_reverse(explode('/', $value[$this->url]))[0];
 
         try {
-            $isDownloaded = copy($value[$this->url], $file, $opts);
+            $isDownloaded = $this->fileSystemAdapter->copy($value[$this->url], $file, $opts);
         } catch (Exception $e) {
             $isDownloaded = false;
         }

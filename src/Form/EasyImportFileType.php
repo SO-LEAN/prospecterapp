@@ -2,17 +2,31 @@
 
 namespace App\Form;
 
-use Symfony\Component\Validator\Constraint;
-use App\Form\DataTransformer\TwoFileFieldsTransformer;
+use App\Service\System\FileSystemAdapter;
+use App\Service\System\PhpFileSystemAdapter;
 use Symfony\Component\Form\AbstractType;
-use Symfony\Component\Form\Extension\Core\Type\FileType;
-use Symfony\Component\Form\Extension\Core\Type\UrlType;
 use Symfony\Component\Form\FormBuilderInterface;
-use Symfony\Component\OptionsResolver\OptionsResolver;
 use Symfony\Component\Validator\Constraints\Image;
+use Symfony\Component\OptionsResolver\OptionsResolver;
+use App\Form\DataTransformer\TwoFileFieldsTransformer;
+use Symfony\Component\Form\Extension\Core\Type\UrlType;
+use Symfony\Component\Form\Extension\Core\Type\FileType;
 
 class EasyImportFileType extends AbstractType
 {
+    /**
+     * @var FileSystemAdapter
+     */
+    private $fileSystemAdapter;
+
+    /**
+     * @param FileSystemAdapter $fileSystemAdapter
+     */
+    public function __construct(FileSystemAdapter $fileSystemAdapter = null)
+    {
+        $this->fileSystemAdapter = $fileSystemAdapter ?? new PhpFileSystemAdapter();
+    }
+
     /**
      * {@inheritdoc}
      */
@@ -26,7 +40,7 @@ class EasyImportFileType extends AbstractType
         }
 
         $builder
-            ->addModelTransformer(new TwoFileFieldsTransformer($options['upload_name'], $options['url_name']))
+            ->addModelTransformer(new TwoFileFieldsTransformer($this->fileSystemAdapter, $options['upload_name'], $options['url_name']))
             ->add($options['upload_name'], FileType::class, array_merge($options['options'], $options['manual_options']))
             ->add($options['url_name'], UrlType::class, array_merge($options['options'], $options['url_options']))
         ;

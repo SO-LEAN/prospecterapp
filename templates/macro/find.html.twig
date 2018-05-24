@@ -1,7 +1,7 @@
 {% macro paginate(route, currentPage, total, extraArgs) %}
     {% set extraArgs = extraArgs|default({}) %}
     {% set is_first, is_last = 1 == currentPage, total == currentPage  %}
-    {% if total != 1 %}
+    {% if total > 1 %}
         <div class="clearfix">
             <nav class="float-md-right my-sm-2">
                 <ul class="pagination">
