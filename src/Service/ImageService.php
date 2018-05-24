@@ -55,6 +55,7 @@ class ImageService
 
     /**
      * @param string $uri
+     *
      * @return string
      */
     public function handleOperationUrl(string $uri): string

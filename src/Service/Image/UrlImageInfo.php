@@ -129,7 +129,7 @@ class UrlImageInfo
      */
     public function getParentUrl(): string
     {
-       return $this->getParent()->getTargetUrl();
+        return $this->getParent()->getTargetUrl();
     }
 
     /**

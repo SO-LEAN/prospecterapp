@@ -3,11 +3,8 @@
 namespace App\Controller\Statics;
 
 use App\Service\ImageService;
-use App\Service\LocalStorageService;
 use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\HttpFoundation\File\File;
 use Symfony\Component\HttpFoundation\BinaryFileResponse;
-use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use  Sensio\Bundle\FrameworkExtraBundle\Configuration\Cache;
 
@@ -20,6 +17,7 @@ class StorageController
 
     /**
      * StorageController constructor.
+     *
      * @param ImageService $imageService
      */
     public function __construct(ImageService $imageService)

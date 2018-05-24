@@ -2,7 +2,7 @@ all: build-dev composer yarn assets fixtures
 
 build-dev:
 	@echo "Generate environment..."
-	@docker-compose --no-cache build
+	@docker-compose build --no-cache
 
 build: composer yarn assets
 db:

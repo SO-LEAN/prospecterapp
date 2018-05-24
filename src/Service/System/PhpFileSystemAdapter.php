@@ -2,19 +2,18 @@
 
 namespace App\Service\System;
 
-
 class PhpFileSystemAdapter implements FileSystemAdapter
 {
     /**
-     * @inheritDoc
+     * {@inheritdoc}
      */
-    function tempnam($dir, $prefix)
+    public function tempnam($dir, $prefix)
     {
         return tempnam($dir, $prefix);
     }
 
     /**
-     * @inheritDoc
+     * {@inheritdoc}
      */
     public function copy($source, $dest, $context = null)
     {
@@ -22,7 +21,7 @@ class PhpFileSystemAdapter implements FileSystemAdapter
     }
 
     /**
-     * @inheritDoc
+     * {@inheritdoc}
      */
     public function fileGetContents($filename, $use_include_path = false, $context = null, $offset = 0, $maxlen = null)
     {

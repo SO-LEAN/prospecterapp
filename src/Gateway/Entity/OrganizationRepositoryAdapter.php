@@ -2,7 +2,6 @@
 
 namespace App\Gateway\Entity;
 
-use Doctrine\ORM\Tools\Pagination\Paginator;
 use Solean\CleanProspecter\Entity\Organization;
 use Solean\CleanProspecter\Exception\Gateway\NotFoundException;
 use Solean\CleanProspecter\Gateway\Entity\OrganizationGateway;

@@ -21,7 +21,10 @@ GetOrganization.prototype.run = function() {
 
   this.directionUrl = 'https://www.google.com/maps/dir/?api=1';
 
-  this.initMap();
+  if (this.latitude || this.longitude)
+  {
+    this.initMap();
+  }
 };
 
 GetOrganization.prototype.initMap = function () {

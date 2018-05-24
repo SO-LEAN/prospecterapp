@@ -2,7 +2,7 @@
 
 namespace App\Twig;
 
-use \Exception;
+use Exception;
 use Twig_Extension;
 use Twig_Environment;
 use Twig_SimpleFilter;
@@ -65,7 +65,7 @@ class AppTwigExtension extends Twig_Extension implements Twig_Extension_InitRunt
     {
         try {
             $test = $this->imageService->buildOperationUrl($url, $operation, $args);
-        } catch(Exception $e) {
+        } catch (Exception $e) {
             return '';
         }
 

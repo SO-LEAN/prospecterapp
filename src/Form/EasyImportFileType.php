@@ -54,7 +54,7 @@ class EasyImportFileType extends AbstractType
         $resolver->setDefaults([
             'options' => [],
             'manual_options' => [
-                'constraints' => [new  Image(['mimeTypes' => ['image/jpeg', 'image/jpg', 'image/png'], 'maxSize' => '2M'])]
+                'constraints' => [new  Image(['mimeTypes' => ['image/jpeg', 'image/jpg', 'image/png'], 'maxSize' => '2M'])],
                 ],
             'url_options' => [],
             'error_bubbling' => false,

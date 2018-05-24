@@ -21,6 +21,8 @@ Solean\CleanProspecter\Entity\Organization:
       targetEntity: User
       mappedBy: organization
   fields:
+    stats:
+      type: array
     hasAddress:
       type: boolean
     hasGeoPoint:
