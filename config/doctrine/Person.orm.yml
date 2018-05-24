@@ -3,7 +3,7 @@ Solean\CleanProspecter\Entity\Person:
   table: null
   inheritanceType: SINGLE_TABLE
   discriminatorColumn:
-    name: type
+    name: discriminator
     type: string
   fields:
     email:

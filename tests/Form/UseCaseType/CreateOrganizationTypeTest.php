@@ -58,6 +58,7 @@ class CreateOrganizationTypeTest extends TypeTestCase
         $common = [
             'corporateName' => 'corporate name',
             'form'          => 'GMBH',
+            'type'          => 'ESN',
             'language'      => 'FR',
             'email'         => 'EMAIL',
             'phoneNumber'   => '0388888888',

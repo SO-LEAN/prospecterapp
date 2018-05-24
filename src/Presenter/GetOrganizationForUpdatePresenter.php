@@ -22,6 +22,7 @@ class GetOrganizationForUpdatePresenter implements GetOrganizationPresenter
             'language' => $response->getLanguage(),
             'corporateName' => $response->getCorporateName(),
             'form' => $response->getForm(),
+            'type' => $response->getType(),
             'street' => $response->getStreet(),
             'postalCode' => $response->getPostalCode(),
             'city' => $response->getCity(),

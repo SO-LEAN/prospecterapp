@@ -19,6 +19,7 @@ class UpdateOrganizationType extends AbstractType
         $builder
             ->add('corporateName')
             ->add('form')
+            ->add('type')
             ->add('language', Type\CountryType::class, ['preferred_choices' => ['GB', 'FR', 'DE'], 'required' => false])
             ->add('email', Type\EmailType::class)
             ->add('phoneNumber', Type\TelType::class)

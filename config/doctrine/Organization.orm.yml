@@ -35,6 +35,9 @@ Solean\CleanProspecter\Entity\Organization:
     form:
       type: string
       length: 50
+    type:
+      type: string
+      length: 50
   embedded:
     address:
       class: Address

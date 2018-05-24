@@ -1,4 +1,4 @@
-all: build-dev composer yarn assets fixtures
+all: build-dev composer yarn assets db fixtures
 
 build-dev:
 	@echo "Generate environment..."

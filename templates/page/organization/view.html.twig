@@ -7,7 +7,7 @@
         <div class="card m-2 p-4 mb-5 col">
             <div class="row">
                 <address class="card-body col-sm-8 mb-2">
-                    <strong class="mb-2 text-secondary">Organization</strong>
+                    <strong class="mb-2 text-secondary">Organization {% if data.type is not empty %}<i>#{{ data.type|lower }}</i>{% endif %}</strong>
                     <h4 class="mb-0 text-dark">
                         {{ data.corporateName }} {{ data.form }}
                     </h4>

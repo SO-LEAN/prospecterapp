@@ -59,7 +59,8 @@ class UpdateOrganizationTypeTest extends TypeTestCase
         $input = [
             'id'            => 'id',
             'corporateName' => 'old name',
-            'form'          => 'old form',
+            'form'          => 'GMBH',
+            'type'          => 'Consulting',
             'language'      => 'DE',
             'email'         => 'old email',
             'phoneNumber'   => 'old 0388888888',
@@ -73,6 +74,7 @@ class UpdateOrganizationTypeTest extends TypeTestCase
         $common = [
             'corporateName' => 'corporate name',
             'form'          => 'GMBH',
+            'type'          => 'Consulting',
             'language'      => 'FR',
             'email'         => 'EMAIL',
             'phoneNumber'   => '0388888888',
