@@ -9,6 +9,7 @@ use Symfony\Component\HttpFoundation\File\File;
 
 class ImageService
 {
+    const OPERATION_RESIZING = 'resize';
     /**
      * @var CipherHandler
      */

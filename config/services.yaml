@@ -34,6 +34,15 @@ services:
         tags:
             - { name: twig.extension }
     #controller
+    App\Controller\Web\DashboardController:
+          tags: ['controller.service_arguments']
+          calls:
+              - [setPresenterFactory, ['@App\Service\PresenterFactory']]
+              - [setFormFactory, ['@form.factory']]
+              - [setTwig, ['@twig']]
+              - [setRouter, ['@router']]
+              - [setUseCases, ['@Solean\CleanProspecter\UseCase\UseCasesFacade']]
+              - [setFormHandler, ['@App\Service\RequestHandler']]
     App\Controller\Web\ProspectController:
         tags: ['controller.service_arguments']
         calls:
@@ -165,7 +174,6 @@ services:
             - [setTwig, ['@twig']]
             - [setRouter, ['@router']]
             - [setUseCases, ['@Solean\CleanProspecter\UseCase\UseCasesFacade']]
-
     App\Service\RequestHandler\CreateFormHandlingCommand:
         autoconfigure: false
         autowire: false

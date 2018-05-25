@@ -1,12 +1,12 @@
 {% extends 'layout/base.html.twig' %}
 {% block header %}Dashboard{% endblock %}
-{% set js_ctrl, page, data_attributes  = 'dashboard', 'dashboard',  {'google-api-key': google_api_key} %}
+{% set js_ctrl, page  = 'dashboard', 'dashboard' %}
 {% block body %}
     <div class="container-fluid">
        <div class="row">
             <div class="col-sm-6 p-4">
-                <div id="map" style="height: 500px;" class="mb-4">
-                </div>
+                {# map #}
+                {{ render(controller('App\\Controller\\Web\\DashboardController::map')) }}
                 <div class="card">
                     <div class="card-body mb-4">
                         <h2 class="card-title">Card title</h2>
@@ -18,17 +18,8 @@
             </div>
            <div class="col-sm-6 p-4">
                <div class="card mb-4">
-                   <div class="card-body">
-                       <h2 class="card-title text-muted">"{{ data.corporateName }}" quick stats</h2>
-                       <p class="card-text">
-                           <a href="{{ path('organization_find') }}" class="btn btn-success ">
-                               <span class="badge badge-light">{{ data.stats.activeOrganizations }}</span> Active organization(s)
-                           </a>
-                           <a href="#" class="btn btn-primary">
-                               <span class="badge badge-light">12</span> Prospects (todo)
-                           </a>
-                       </p>
-                   </div>
+                   {# statistics #}
+                   {{ render(controller('App\\Controller\\Web\\DashboardController::statistics')) }}
                </div>
                <div class="card mb-4">
                    <div class="card-body">

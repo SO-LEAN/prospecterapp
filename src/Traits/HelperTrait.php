@@ -2,6 +2,7 @@
 
 namespace App\Traits;
 
+use App\Service\PresenterFactory;
 use Twig;
 use Symfony\Component\Form\FormFactory;
 use Symfony\Component\Form\FormInterface;
@@ -33,6 +34,11 @@ trait HelperTrait
     public function setUseCases(UseCasesFacade $facade)
     {
         $this->add('use-cases', $facade);
+    }
+
+    public function setPresenterFactory(PresenterFactory $presenterFactory)
+    {
+        $this->add('presenters', $presenterFactory);
     }
 
     /**
@@ -123,5 +129,10 @@ trait HelperTrait
     protected function getFormFactory(): FormFactory
     {
         return $this->get('form-factory');
+    }
+
+    protected function getPresenterFactory(): PresenterFactory
+    {
+        return $this->get('presenters');
     }
 }

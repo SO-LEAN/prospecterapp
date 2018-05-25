@@ -8,19 +8,17 @@ let gapi = require('../misc/gapi');
  * @constructor
  */
 function GetOrganization() {
-}
-/**
- *
- */
-GetOrganization.prototype.run = function() {
   let $body = $('body');
 
   this.latitude = $body.data('latitude');
   this.longitude = $body.data('longitude');
   this.address = $body.data('address');
-
   this.directionUrl = 'https://www.google.com/maps/dir/?api=1';
-
+}
+/**
+ *
+ */
+GetOrganization.prototype.run = function() {
   if (this.latitude || this.longitude)
   {
     this.initMap();
