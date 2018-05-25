@@ -9,6 +9,9 @@
             {{ p.searchForm('organization_find', 'name or email') }}
         </div>
     </div>
+    {% if app.request.get('q') %}
+        <h2 class="h4">Result for query : <i>"{{ app.request.get('q') }}"</i></h2>
+    {% endif %}
 {% endblock %}
 {% block page_body %}
     {%  set pagination = p.paginate('organization_find', data.currentPage, data.totalPages, {'q': app.request.get('q')}) %}
@@ -41,7 +44,7 @@
             </address>
         </div>
     {% else %}
-        <p class="m-2 bg-light mb-5">No result.</p>
+        <p>No result.</p>
     {% endfor %}
     </div>
     {{ pagination }}

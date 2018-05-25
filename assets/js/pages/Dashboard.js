@@ -27,7 +27,7 @@ function Dashboard() {
     }
 
     let location = {lat: organization.coordinates.latitude, lng: organization.coordinates.longitude};
-    console.log(map);
+
     let marker = new google.maps.Marker({
       position: location,
       title: organization.fullName,
