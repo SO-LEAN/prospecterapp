@@ -49,7 +49,7 @@ class FindOrganizationForDashboardMapPresenter implements FindOrganizationPresen
         foreach ($response->getOrganizations() as $organization) {
             $hasCoordinates = null !== $organization->getLatitude() && null !== $organization->getLongitude();
             yield [
-                'link' => $this->router->generate('organization_view', ['id' => $organization->getId()]),
+                'link' => $this->router->generate('organization_view', ['id' => $organization->getId()], RouterInterface::ABSOLUTE_URL),
                 'fullName' => $organization->getFullName(),
                 'logo' => $organization->getLogo() ? $this->imageService->buildOperationUrl($organization->getLogo(), ImageService::OPERATION_RESIZING, [32, 0]) : null,
             ] + ($hasCoordinates ? ['coordinates' => ['latitude' => $organization->getLatitude(), 'longitude' => $organization->getLongitude()]] : []);

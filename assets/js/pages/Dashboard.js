@@ -36,7 +36,7 @@ function Dashboard() {
     });
 
     marker.addListener('click', function () {
-      location.href = organization.link;
+      window.location.href = organization.link;
     });
   };
 }
