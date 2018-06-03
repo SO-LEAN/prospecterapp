@@ -1,0 +1,25 @@
+{% extends 'layout/page-2-col.html.twig' %}
+{% block header %}Update account information{% endblock %}
+{% set js_ctrl, page  = 'updateUserAccountInformation', 'update-user-account-information'  %}
+{% block title %}<i class="fa fa-user-circle-o"></i> Edit account{% endblock %}
+{% block page_body %}
+    {{ form_start(form ) }}
+    {{ form_widget(form) }}
+    {% if data.pictureUrl %}
+        <figure>
+            <img alt="User" src="{{ data.pictureUrl|image_operation('resize', 200, 0) }}" width="200">
+            <figcaption>picture {{ (data.pictureUrl)|number_format(0, ',', ' ')}} octets</figcaption>
+        </figure>
+    {% endif %}
+    {% if data.organizationLogoUrl %}
+    <figure>
+        <img alt="{{ data.corporateName }}" src="{{ data.organizationLogoUrl|image_operation('resize', 200, 0) }}" width="200">
+        <figcaption>logo {{ (data.organizationLogoUrl)|number_format(0, ',', ' ')}} octets</figcaption>
+    </figure>
+    {% endif %}
+
+    <div class="clearfix">
+        <input type="submit" class="btn btn-default pull-right" value="Update" />
+    </div>
+    {{ form_end(form) }}
+{% endblock %}
