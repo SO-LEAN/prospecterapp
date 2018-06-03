@@ -59,6 +59,14 @@ services:
             - [setRouter, ['@router']]
             - [setUseCases, ['@Solean\CleanProspecter\UseCase\UseCasesFacade']]
             - [setFormHandler, ['@App\Service\RequestHandler']]
+    App\Controller\Web\UserAccountController:
+        tags: ['controller.service_arguments']
+        calls:
+            - [setFormFactory, ['@form.factory']]
+            - [setTwig, ['@twig']]
+            - [setRouter, ['@router']]
+            - [setUseCases, ['@Solean\CleanProspecter\UseCase\UseCasesFacade']]
+            - [setFormHandler, ['@App\Service\RequestHandler']]
 
     #Security
     App\Security\ProspecterAuthenticator:
@@ -123,6 +131,21 @@ services:
         tags: ['use_case']
         arguments:
             - '@App\Gateway\Entity\OrganizationRepositoryAdapter'
+    Solean\CleanProspecter\UseCase\GetMyAccountInformation\GetMyAccountInformationImpl:
+        lazy:  true
+        tags: ['use_case']
+        arguments:
+            - '@App\Gateway\Entity\UserRepositoryAdapter'
+            - '@App\Gateway\Entity\OrganizationRepositoryAdapter'
+    Solean\CleanProspecter\UseCase\UpdateMyAccountInformation\UpdateMyAccountInformationImpl:
+        lazy:  true
+        tags: ['use_case']
+        arguments:
+            - '@App\Gateway\Entity\OrganizationRepositoryAdapter'
+            - '@App\Gateway\Entity\UserRepositoryAdapter'
+            - '@App\Gateway\Entity\TransactionEntityManagerAdapter'
+            - '@App\Gateway\StorageLocalAdapter'
+            - '@App\Gateway\UserNotifierSymfonyAdapter'
     #Gateway
       #Database
     App\Gateway\Entity\UserRepositoryAdapter:

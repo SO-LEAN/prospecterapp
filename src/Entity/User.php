@@ -14,14 +14,14 @@ final class User implements UserInterface, UseCaseConsumer
     /**
      * @var RefreshUserResponse
      */
-    private $loginResponse;
+    private $refreshUser;
 
     /**
-     * @param RefreshUserResponse|null $loginResponse
+     * @param RefreshUserResponse|null $refreshUseronse
      */
-    public function __construct(RefreshUserResponse $loginResponse = null)
+    public function __construct(RefreshUserResponse $refreshUser = null)
     {
-        $this->loginResponse = $loginResponse;
+        $this->refreshUser = $refreshUser;
     }
 
     /**
@@ -29,7 +29,7 @@ final class User implements UserInterface, UseCaseConsumer
      */
     public function getRoles(): array
     {
-        return $this->loginResponse->getRoles();
+        return $this->refreshUser->getRoles();
     }
 
     /**
@@ -37,7 +37,7 @@ final class User implements UserInterface, UseCaseConsumer
      */
     public function getPassword()
     {
-        return $this->loginResponse->getPassword();
+        return $this->refreshUser->getPassword();
     }
 
     /**
@@ -53,7 +53,7 @@ final class User implements UserInterface, UseCaseConsumer
      */
     public function getUsername()
     {
-        return $this->loginResponse->getUserName();
+        return $this->refreshUser->getUserName();
     }
 
     public function eraseCredentials()
@@ -63,11 +63,16 @@ final class User implements UserInterface, UseCaseConsumer
 
     public function getOrganizationId()
     {
-        return $this->loginResponse->getOrganizationId();
+        return $this->refreshUser->getOrganizationId();
     }
 
     public function getUserId()
     {
-        return $this->loginResponse->getId();
+        return $this->refreshUser->getId();
+    }
+
+    public function getPictureUrl()
+    {
+        return $this->refreshUser->getPictureUrl();
     }
 }

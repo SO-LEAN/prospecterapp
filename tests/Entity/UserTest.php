@@ -21,7 +21,7 @@ class UserTest extends TestCase
 
     public function setupArgs() : array
     {
-        $this->response = new RefreshUserResponse(123, ['FAKE_ROLE'], 'user name', 'password', 777);
+        $this->response = new RefreshUserResponse(123, ['FAKE_ROLE'], 'user name', 'password', 'http://file.com/pic.jpb', 777);
         return [
             $this->response,
         ];
@@ -33,6 +33,7 @@ class UserTest extends TestCase
         $this->assertEquals($this->target()->getRoles(), $this->response->getRoles());
         $this->assertEquals($this->target()->getUsername(), $this->response->getUserName());
         $this->assertEquals($this->target()->getPassword(), $this->response->getPassword());
+        $this->assertEquals($this->target()->getPictureUrl(), $this->response->getPictureUrl());
         $this->assertEquals($this->target()->getOrganizationId(), $this->response->getOrganizationId());
     }
 }

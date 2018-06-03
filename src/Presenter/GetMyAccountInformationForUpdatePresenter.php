@@ -2,36 +2,33 @@
 
 namespace App\Presenter;
 
-use Solean\CleanProspecter\UseCase\GetOrganization\GetOrganizationResponse;
-use Solean\CleanProspecter\UseCase\GetOrganization\GetOrganizationPresenter;
+use Solean\CleanProspecter\UseCase\GetMyAccountInformation\GetMyAccountInformationResponse;
+use Solean\CleanProspecter\UseCase\GetMyAccountInformation\GetMyAccountInformationPresenter;
 
-class GetOrganizationForUpdatePresenter implements GetOrganizationPresenter
+class GetMyAccountInformationForUpdatePresenter implements GetMyAccountInformationPresenter
 {
     /**
-     * @param GetOrganizationResponse $response
+     * @param GetMyAccountInformationResponse $response
      *
      * @return array
      */
-    public function present(GetOrganizationResponse $response)
+    public function present(GetMyAccountInformationResponse $response)
     {
         return [
-            'id' => $response->getId(),
-            'ownedBy' => $response->getOwnedBy(),
-            'phoneNumber' => $response->getPhoneNumber(),
+            'userName' => $response->getUserName(),
+            'firstName' => $response->getFirstName(),
+            'lastName' => $response->getLastName(),
             'email' => $response->getEmail(),
+            'phoneNumber' => $response->getPhoneNumber(),
             'language' => $response->getLanguage(),
-            'corporateName' => $response->getCorporateName(),
-            'form' => $response->getForm(),
-            'type' => $response->getType(),
-            'street' => $response->getStreet(),
-            'postalCode' => $response->getPostalCode(),
-            'city' => $response->getCity(),
-            'country' => $response->getCountry(),
-            'observations' => $response->getObservations(),
-            'logoUrl' => $response->getLogoUrl(),
-            'logoExtension' => $response->getLogoExtension(),
-            'logoSize' => $response->getLogoSize(),
-            'holdBy' => $response->getHoldBy(),
+            'pictureUrl' => $response->getPictureUrl(),
+            'pictureExtension' => $response->getPictureExtension(),
+            'pictureSize' => $response->getPictureSize(),
+            'organizationCorporateName' => $response->getOrganizationCorporateName(),
+            'organizationForm' => $response->GetOrganizationForm(),
+            'organizationLogoUrl' => $response->getOrganizationLogoUrl(),
+            'organizationLogoExtension' => $response->getOrganizationLogoExtension(),
+            'organizationLogoSize' => $response->getOrganizationLogoSize(),
         ];
     }
 }

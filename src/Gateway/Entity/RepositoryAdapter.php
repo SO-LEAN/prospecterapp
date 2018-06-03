@@ -41,26 +41,11 @@ abstract class RepositoryAdapter
     {
         try {
             $this->entityManager->persist($entity);
-            $this->flushIfNeeded();
+            $this->entityManager->flush();
         } catch (UniqueConstraintViolationException $e) {
             throw new GatewayException\UniqueConstraintViolationException($e->getMessage(), $e->getCode(), $e);
         }
 
         return $entity;
-    }
-
-    protected function flushIfNeeded(): void
-    {
-        if (!$this->isTransactionActive()) {
-            $this->entityManager->flush();
-        }
-    }
-
-    /**
-     * @return bool
-     */
-    protected function isTransactionActive(): bool
-    {
-        return $this->entityManager->getConnection()->isTransactionActive();
     }
 }

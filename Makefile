@@ -22,7 +22,7 @@ composer:
 	@docker-compose run --rm build composer install
 composerup:
 	@echo "Composer/Updating..."
-	@docker-compose run --rm build composer install
+	@docker-compose run --rm build composer update
 libup:
 	@echo "Composer/updating cleanprospecter..."
 	@docker-compose run --rm build composer update so-lean/cleanprospecter

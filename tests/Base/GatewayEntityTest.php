@@ -41,56 +41,27 @@ abstract class GatewayEntityTest extends TestCase
         $this->target()->get($id);
     }
 
-    /**
-     * @param bool $transactionActive
-     * @param int $flushCalledTimes
-     * @throws \Doctrine\ORM\ORMException
-     *
-     * @dataProvider provideEntity
-     */
-    public function testCreate(bool $transactionActive, int $flushCalledTimes) : void
+    public function testCreate() : void
     {
         $entity = $this->getNewEntity();
 
-        $this->prophesy(Connection::class)->isTransactionActive()->shouldBeCalled()->willReturn($transactionActive);
-        $this->prophesy(EntityManager::class)->getConnection()->shouldBeCalled()->willReturn( $this->prophesy(Connection::class)->reveal());
         $this->prophesy(EntityManager::class)->persist($entity)->shouldBeCalled()->willReturn($entity);
-        $this->prophesy(EntityManager::class)->flush()->shouldBeCalledTimes($flushCalledTimes);
+        $this->prophesy(EntityManager::class)->flush()->shouldBeCalledTimes(1);
 
         $this->assertEquals($entity, $this->target()->create($entity));
     }
 
-    /**
-     * @param bool $transactionActive
-     * @param int $flushCalledTimes
-     * @throws \Doctrine\ORM\ORMException
-     *
-     * @dataProvider provideEntity
-     */
-    public function testUpdate(bool $transactionActive, int $flushCalledTimes) : void
+    public function testUpdate() : void
     {
         $id = 'entity_id';
         $entity = $this->getNewEntity();
         $expected = clone $entity;
         $expected->setId($id);
 
-        $this->prophesy(Connection::class)->isTransactionActive()->shouldBeCalled()->willReturn($transactionActive);
-        $this->prophesy(EntityManager::class)->getConnection()->shouldBeCalled()->willReturn( $this->prophesy(Connection::class)->reveal());
         $this->prophesy(EntityManager::class)->persist($entity)->shouldBeCalled()->willReturn($entity);
-        $this->prophesy(EntityManager::class)->flush()->shouldBeCalledTimes($flushCalledTimes);
+        $this->prophesy(EntityManager::class)->flush()->shouldBeCalled();
 
         $this->assertEquals($expected, $this->target()->update($id, $entity));
-    }
-
-    /**
-     * @return array
-     */
-    public function provideEntity() : array
-    {
-        return [
-            'in transaction'     => [true, 0],
-            'out of transaction' => [false, 1],
-        ];
     }
 
     public function testFindOneBy() : void

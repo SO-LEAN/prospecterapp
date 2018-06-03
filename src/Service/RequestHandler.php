@@ -116,6 +116,8 @@ class RequestHandler
      */
     private function getRouteSuffix(Request $request): string
     {
-        return explode('_', $request->get('_route'), 2)[1];
+        $exploded = explode('_', $request->get('_route'));
+
+        return end($exploded);
     }
 }

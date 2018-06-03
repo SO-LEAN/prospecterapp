@@ -33,9 +33,10 @@ class UpdateFormHandlingCommand extends AbstractFormHandlingCommand implements F
      */
     public function renderFormView(Request $request, array $viewParameters, ?Response $response = null): Response
     {
-        $parts = explode('_', $request->get('_route'), 2);
+        $parts = explode('_', $request->get('_route'));
+        array_pop($parts);
 
-        return $this->render(sprintf('page/%s/update.html.twig', $parts[0]), $viewParameters, $response);
+        return $this->render(sprintf('page/%s/update.html.twig', implode('-', $parts)), $viewParameters, $response);
     }
 
     /**
@@ -91,11 +92,11 @@ class UpdateFormHandlingCommand extends AbstractFormHandlingCommand implements F
      */
     private function deduceGetUseCaseName(Request $request): string
     {
-        $parts = explode('_', $request->get('_route'), 2);
+        $words = ucwords($request->get('_route'), '_');
+        $parts = explode('_', $words);
+        array_pop($parts);
+        array_unshift($parts, 'get');
 
-        $parts[0] = ucfirst($parts[0]);
-        $parts[1] = 'get';
-
-        return implode(array_reverse($parts));
+        return implode('', $parts);
     }
 }

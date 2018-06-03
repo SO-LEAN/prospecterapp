@@ -23,3 +23,8 @@ Solean\CleanProspecter\Entity\User:
     lastName:
       type: string
       length: 100
+    hasPicture:
+      type: boolean
+  embedded:
+    picture:
+      class: File

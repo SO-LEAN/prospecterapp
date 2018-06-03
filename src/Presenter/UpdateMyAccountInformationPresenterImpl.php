@@ -2,17 +2,17 @@
 
 namespace App\Presenter;
 
-use Solean\CleanProspecter\UseCase\UpdateOrganization\UpdateOrganizationPresenter;
-use Solean\CleanProspecter\UseCase\UpdateOrganization\UpdateOrganizationResponse;
+use Solean\CleanProspecter\UseCase\UpdateMyAccountInformation\UpdateMyAccountInformationResponse;
+use Solean\CleanProspecter\UseCase\UpdateMyAccountInformation\UpdateMyAccountInformationPresenter;
 
-class UpdateOrganizationPresenterImpl implements UpdateOrganizationPresenter
+class UpdateMyAccountInformationPresenterImpl implements UpdateMyAccountInformationPresenter
 {
     /**
-     * @param UpdateOrganizationResponse $response
+     * @param UpdateMyAccountInformationResponse $response
      *
-     * @return UpdateOrganizationResponse
+     * @return UpdateMyAccountInformationResponse
      */
-    public function present(UpdateOrganizationResponse $response): UpdateOrganizationResponse
+    public function present(UpdateMyAccountInformationResponse $response): UpdateMyAccountInformationResponse
     {
         return $response;
     }

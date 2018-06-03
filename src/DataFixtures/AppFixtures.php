@@ -55,8 +55,9 @@ class AppFixtures extends Fixture
         $user->setUserName('prospector');
         $user->setPassword('password');
         $user->setSalt('salt');
-        $user->setPassword(md5(sprintf('%s%s', $user->getPassword(), $user->getSalt())));
+        $user->encodePassword();
         $user->addRole('ROLE_PROSPECTOR');
+        $user->addRole('ROLE_USER');
         $user->setOrganization($org);
 
         $manager->persist($user);

@@ -29,7 +29,7 @@ interface FormHandlingCommand
      *
      * @return Response
      */
-    public function onSucceed(array $data, Request $request, User $user): Response;
+    public function onSucceed(array $data, Request $request, User $user): ?Response;
 
     /**
      * On Use case exception.

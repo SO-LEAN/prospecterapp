@@ -22,9 +22,15 @@ abstract class AbstractFormHandlingCommand
     const USE_CASES_NAMESPACE = 'Solean\CleanProspecter\UseCase';
 
     /**
-     * {@inheritdoc}
+     * @param array   $data
+     * @param Request $request
+     * @param User    $user
+     *
+     * @return Response|null
+     *
+     * @throws \ReflectionException
      */
-    public function onSucceed(array $data, Request $request, User $user): Response
+    public function onSucceed(array $data, Request $request, User $user): ?Response
     {
         $method = $this->deduceUseCaseName($request);
         $useCaseRequest = $this->buildUseCaseRequest($this->deduceRequestFQCN($request), $data, $user);
@@ -36,13 +42,20 @@ abstract class AbstractFormHandlingCommand
             $user
         );
 
+        if (!$this->getRouter()->getRouteCollection()->get($this->deduceTargetRoute($request))) {
+            return $this->redirectToRoute($request->get('_route'), $request->query->all());
+        }
+
         return $this->redirectToRoute($this->deduceTargetRoute($request), [
             'id' => $response->getId(),
         ]);
     }
 
     /**
-     * {@inheritdoc}
+     * @param Exception     $e
+     * @param FormInterface $form
+     *
+     * @throws Exception
      */
     public function onUseCaseException(Exception $e, FormInterface $form): void
     {
@@ -153,10 +166,13 @@ abstract class AbstractFormHandlingCommand
      */
     private function deduceUseCaseName(Request $request): string
     {
-        $parts = explode('_', $request->get('_route'), 2);
-        $parts[0] = ucfirst($parts[0]);
+        $words = ucwords($request->get('_route'), '_');
+        $parts = explode('_', $words);
 
-        return implode(array_reverse($parts));
+        $action = array_pop($parts);
+        array_unshift($parts, strtolower($action));
+
+        return implode('', $parts);
     }
 
     /**

@@ -1,15 +1,40 @@
 <?php
-/**
- * Created by PhpStorm.
- * User: michel
- * Date: 03/06/18
- * Time: 00:42
- */
 
 namespace App\Gateway\Entity;
 
+use Doctrine\ORM\EntityManagerInterface;
+use Solean\CleanProspecter\Gateway\Entity\Transaction;
 
-class Transaction
+/**
+ * Class TransactionEntityManagerAdapter.
+ */
+class TransactionEntityManagerAdapter implements Transaction
 {
+    /**
+     * @var EntityManagerInterface
+     */
+    private $entityManager;
 
+    /**
+     * @param EntityManagerInterface $entityManager
+     */
+    public function __construct(EntityManagerInterface $entityManager)
+    {
+        $this->entityManager = $entityManager;
+    }
+
+    public function begin(): void
+    {
+        $this->entityManager->beginTransaction();
+    }
+
+    public function commit(): void
+    {
+        $this->entityManager->commit();
+    }
+
+    public function rollback(): void
+    {
+        $this->entityManager->rollback();
+    }
 }
