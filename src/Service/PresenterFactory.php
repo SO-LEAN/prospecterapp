@@ -30,10 +30,10 @@ class PresenterFactory
     }
 
     /**
-     * @return Presenter\FindOrganizationForDashboardMapPresenter
+     * @return Presenter\FindMyOwnOrganizationsForDashboardMapPresenter
      */
-    public function createFindOrganizationForDashBoardMapPresenter(): Presenter\FindOrganizationForDashboardMapPresenter
+    public function createFindMyOwnOrganizationsForDashBoardMapPresenter(): Presenter\FindMyOwnOrganizationsForDashboardMapPresenter
     {
-        return new Presenter\FindOrganizationForDashboardMapPresenter($this->router, $this->imageService);
+        return new Presenter\FindMyOwnOrganizationsForDashboardMapPresenter($this->router, $this->imageService);
     }
 }

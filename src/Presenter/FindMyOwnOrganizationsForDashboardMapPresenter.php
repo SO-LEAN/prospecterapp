@@ -5,10 +5,10 @@ namespace App\Presenter;
 use Generator;
 use App\Service\ImageService;
 use Symfony\Component\Routing\RouterInterface;
-use Solean\CleanProspecter\UseCase\FindOrganization\FindOrganizationResponse;
-use Solean\CleanProspecter\UseCase\FindOrganization\FindOrganizationPresenter;
+use Solean\CleanProspecter\UseCase\FindMyOwnOrganizations\FindMyOwnOrganizationsResponse;
+use Solean\CleanProspecter\UseCase\FindMyOwnOrganizations\FindMyOwnOrganizationsPresenter;
 
-class FindOrganizationForDashboardMapPresenter implements FindOrganizationPresenter
+class FindMyOwnOrganizationsForDashboardMapPresenter implements FindMyOwnOrganizationsPresenter
 {
     /**
      * @var RouterInterface
@@ -30,21 +30,21 @@ class FindOrganizationForDashboardMapPresenter implements FindOrganizationPresen
     }
 
     /**
-     * @param FindOrganizationResponse $response
+     * @param FindMyOwnOrganizationsResponse $response
      *
      * @return array
      */
-    public function present(FindOrganizationResponse $response): array
+    public function present(FindMyOwnOrganizationsResponse $response): array
     {
         return iterator_to_array($this->organizationsToArray($response));
     }
 
     /**
-     * @param FindOrganizationResponse $response
+     * @param FindMyOwnOrganizationsResponse $response
      *
      * @return Generator
      */
-    private function organizationsToArray(FindOrganizationResponse $response): Generator
+    private function organizationsToArray(FindMyOwnOrganizationsResponse $response): Generator
     {
         foreach ($response->getOrganizations() as $organization) {
             $hasCoordinates = null !== $organization->getLatitude() && null !== $organization->getLongitude();

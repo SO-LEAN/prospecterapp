@@ -126,7 +126,7 @@ services:
         tags: ['use_case']
         arguments:
             - '@App\Gateway\Entity\OrganizationRepositoryAdapter'
-    Solean\CleanProspecter\UseCase\FindOrganization\FindOrganizationImpl:
+    Solean\CleanProspecter\UseCase\FindMyOwnOrganizations\FindMyOwnOrganizationsImpl:
         lazy:  true
         tags: ['use_case']
         arguments:

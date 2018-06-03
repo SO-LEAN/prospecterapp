@@ -4,12 +4,12 @@ namespace App\Controller\Web;
 
 use App\Entity\User;
 use App\Traits\ControllerTrait;
-use Solean\CleanProspecter\UseCase\FindOrganization\FindOrganizationRequest;
 use Symfony\Component\HttpFoundation;
 use App\Presenter\GetOrganizationPresenterImpl;
 use Symfony\Component\Security\Core\User\UserInterface;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Solean\CleanProspecter\UseCase\GetOrganization\GetOrganizationRequest;
+use Solean\CleanProspecter\UseCase\FindMyOwnOrganizations\FindMyOwnOrganizationsRequest;
 
 /**
  * Class DashboardController.
@@ -39,9 +39,9 @@ class DashboardController
     public function map(UserInterface $user)
     {
         /** @var User $user */
-        $data = $this->getUseCases()->findOrganization(
-            new FindOrganizationRequest(1, '', 1000),
-            $this->getPresenterFactory()->createFindOrganizationForDashBoardMapPresenter(),
+        $data = $this->getUseCases()->findMyOwnOrganizations(
+            new FindMyOwnOrganizationsRequest(1, '', 1000),
+            $this->getPresenterFactory()->createFindMyOwnOrganizationsForDashBoardMapPresenter(),
             $user
         );
 

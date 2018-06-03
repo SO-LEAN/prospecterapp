@@ -6,11 +6,11 @@ use App\Entity\User;
 use App\Traits\ControllerTrait;
 use Symfony\Component\HttpFoundation;
 use App\Presenter\GetOrganizationPresenterImpl;
-use App\Presenter\FindOrganizationPresenterImpl;
+use App\Presenter\FindMyOwnOrganizationsPresenterImpl;
 use Symfony\Component\Security\Core\User\UserInterface;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Solean\CleanProspecter\UseCase\GetOrganization\GetOrganizationRequest;
-use Solean\CleanProspecter\UseCase\FindOrganization\FindOrganizationRequest;
+use Solean\CleanProspecter\UseCase\FindMyOwnOrganizations\FindMyOwnOrganizationsRequest;
 
 /**
  * Class ProspectController.
@@ -77,9 +77,9 @@ class OrganizationController
     public function find($page = 1, HttpFoundation\Request $request, UserInterface $user)
     {
         /** @var User $user */
-        $data = $this->getUseCases()->findOrganization(
-            new FindOrganizationRequest($page, $request->get('q', '')),
-            new FindOrganizationPresenterImpl(), $user
+        $data = $this->getUseCases()->findMyOwnOrganizations(
+            new FindMyOwnOrganizationsRequest($page, $request->get('q', '')),
+            new FindMyOwnOrganizationsPresenterImpl(), $user
         );
 
         return $this->render('page/organization/find.html.twig', ['data' => $data]);

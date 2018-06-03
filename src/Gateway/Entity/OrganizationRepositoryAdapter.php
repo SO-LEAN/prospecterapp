@@ -2,10 +2,12 @@
 
 namespace App\Gateway\Entity;
 
+use Doctrine\ORM\Query;
 use Solean\CleanProspecter\Entity\Organization;
 use Solean\CleanProspecter\Exception\Gateway\NotFoundException;
 use Solean\CleanProspecter\Gateway\Entity\OrganizationGateway;
 use Solean\CleanProspecter\Gateway\Entity\Page;
+use Solean\CleanProspecter\Gateway\Entity\PageRequest;
 
 /**
  * Class OrganizationGatewayAdapter.
@@ -79,22 +81,64 @@ class OrganizationRepositoryAdapter extends RepositoryAdapter implements Organiz
     }
 
     /**
-     * @param int    $page
-     * @param string $query
-     * @param int    $max
+     * @param PageRequest $pageRequest
      *
      * @return Page
      */
-    public function findPageByQuery(int $page, string $query = '', $max = 20): Page
+    public function findPageByQuery(PageRequest $pageRequest): Page
     {
-        $dql = 'SELECT o FROM Solean\CleanProspecter\Entity\Organization o WHERE (o.corporateName LIKE :query OR o.email LIKE :query) ORDER BY o.id DESC';
+        $dql = $this->buildFindPageByQueryDql($pageRequest);
         $query = $this->entityManager->createQuery($dql)
-            ->setParameter('query', sprintf('%%%s%%', $query))
-            ->setFirstResult(($page - 1) * $max)
-            ->setMaxResults($max);
+            ->setParameter('query', sprintf('%%%s%%', $pageRequest->getQuery()))
+            ->setFirstResult(($pageRequest->getPage() - 1) * $pageRequest->getMaxByPage())
+            ->setMaxResults($pageRequest->getMaxByPage());
+
+        $this->ApplyFilterParameter($pageRequest, $query);
 
         $pg = $this->paginatorFactory->create($query);
 
-        return new Page($page, $pg->count(), intdiv($pg->count() - 1, $max) + 1, $pg->getIterator()->getArrayCopy());
+        return new Page($pageRequest->getPage(), $pg->count(), intdiv($pg->count() - 1, $pageRequest->getMaxByPage()) + 1, $pg->getIterator()->getArrayCopy());
+    }
+
+    /**
+     * @param PageRequest $pageRequest
+     *
+     * @return string
+     */
+    private function buildFindPageByQueryDql(PageRequest $pageRequest): string
+    {
+        $from = 'Solean\CleanProspecter\Entity\Organization o ';
+        $where = '(o.corporateName LIKE :query OR o.email LIKE :query)';
+        $where = $this->applyFilter($pageRequest, $where);
+        $orderBy = 'o.id DESC';
+        $dql = sprintf('SELECT o FROM %s WHERE %s ORDER BY %s', $from, $where, $orderBy);
+
+        return $dql;
+    }
+
+    /**
+     * @param PageRequest $pageRequest
+     * @param string      $where
+     *
+     * @return string
+     */
+    private function applyFilter(PageRequest $pageRequest, $where): string
+    {
+        foreach ($pageRequest->getFilter() as $field => $value) {
+            $where .= sprintf(' AND o.%s = :%s', $field, $field);
+        }
+
+        return $where;
+    }
+
+    /**
+     * @param PageRequest $pageRequest
+     * @param $query
+     */
+    private function ApplyFilterParameter(PageRequest $pageRequest, Query $query): void
+    {
+        foreach ($pageRequest->getFilter() as $field => $value) {
+            $query->setParameter($field, $value);
+        }
     }
 }
