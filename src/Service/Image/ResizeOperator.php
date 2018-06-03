@@ -69,7 +69,7 @@ class ResizeOperator implements Operator
     private function standardResizing(File $origin, array $args, $target): void
     {
         $box = new Box($args[0], $args[1]);
-        $this->imagine->open($origin->getPath())
+        $this->imagine->open($origin->getRealPath())
             ->resize($box)
             ->save($target);
     }
