@@ -19,9 +19,6 @@ class SecretCipherHandler implements CipherHandler
      */
     private $vi;
 
-    /**
-     * @param string $secret
-     */
     public function __construct(string $secret)
     {
         $this->secret = $secret;
@@ -42,6 +39,6 @@ class SecretCipherHandler implements CipherHandler
      */
     public function encode($input)
     {
-        return  $this->urlize(base64_encode(openssl_encrypt($input, self::CYPHER_METHOD, $this->secret, OPENSSL_RAW_DATA, $this->vi)));
+        return $this->urlize(base64_encode(openssl_encrypt($input, self::CYPHER_METHOD, $this->secret, OPENSSL_RAW_DATA, $this->vi)));
     }
 }

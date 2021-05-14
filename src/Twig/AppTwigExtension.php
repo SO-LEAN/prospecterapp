@@ -2,12 +2,12 @@
 
 namespace App\Twig;
 
-use Exception;
-use Twig_Extension;
-use Twig_Environment;
-use Twig_SimpleFilter;
 use App\Service\ImageService;
+use Exception;
+use Twig_Environment;
+use Twig_Extension;
 use Twig_Extension_InitRuntimeInterface;
+use Twig_SimpleFilter;
 
 class AppTwigExtension extends Twig_Extension implements Twig_Extension_InitRuntimeInterface
 {
@@ -20,9 +20,6 @@ class AppTwigExtension extends Twig_Extension implements Twig_Extension_InitRunt
      */
     private $imageService;
 
-    /**
-     * @param ImageService $imageService
-     */
     public function __construct(ImageService $imageService)
     {
         $this->imageService = $imageService;
@@ -36,9 +33,6 @@ class AppTwigExtension extends Twig_Extension implements Twig_Extension_InitRunt
         return 'app_extension';
     }
 
-    /**
-     * @param Twig_Environment $environment
-     */
     public function initRuntime(Twig_Environment $environment)
     {
         $this->environment = $environment;
@@ -55,9 +49,7 @@ class AppTwigExtension extends Twig_Extension implements Twig_Extension_InitRunt
     }
 
     /**
-     * @param string $url
-     * @param string $operation
-     * @param mixed  ...$args
+     * @param mixed ...$args
      *
      * @return string
      */

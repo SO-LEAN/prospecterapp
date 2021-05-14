@@ -18,21 +18,12 @@ class LocalStorageService
      */
     private $url;
 
-    /**
-     * @param string $path
-     * @param string $url
-     */
     public function __construct(string $path, string $url)
     {
         $this->path = $path;
         $this->url = $url;
     }
 
-    /**
-     * @param File $file
-     *
-     * @return File
-     */
     public function add(File $file): File
     {
         $fileName = md5(uniqid());
@@ -40,19 +31,11 @@ class LocalStorageService
         return $file->move(sprintf('%s/%s', $this->path, $this->applyPathStrategy($fileName)), sprintf('%s.%s', $fileName, $this->deduceExtension($file)));
     }
 
-    /**
-     * @param string $relativePath
-     *
-     * @return Stream
-     */
     public function get(string $relativePath): Stream
     {
         return new Stream(sprintf('%s/%s', $this->path, $relativePath), true);
     }
 
-    /**
-     * @param string $relativePath
-     */
     public function remove(string $relativePath): void
     {
         unlink($relativePath);
@@ -68,8 +51,6 @@ class LocalStorageService
 
     /**
      * @param $url
-     *
-     * @return Stream
      */
     public function getFromUrl($url): Stream
     {
@@ -78,19 +59,12 @@ class LocalStorageService
 
     /**
      * @param $url
-     *
-     * @return string
      */
     public function getPathFromUrl($url): string
     {
         return $this->urlToLocalPath($url);
     }
 
-    /**
-     * @param File $file
-     *
-     * @return string
-     */
     public function getUrl(File $file): string
     {
         $length = strlen($this->path);
@@ -102,11 +76,6 @@ class LocalStorageService
         return sprintf('%s/%s', $this->url, substr_replace($file->getRealPath(), '', 0, $length + 1));
     }
 
-    /**
-     * @param string $fileName
-     *
-     * @return string
-     */
     private function applyPathStrategy(string $fileName): string
     {
         return sprintf('%d/%d/%s/', date('Y'), date('m'), $fileName);
@@ -114,19 +83,12 @@ class LocalStorageService
 
     /**
      * @param $url
-     *
-     * @return string
      */
     private function urlToLocalPath($url): string
     {
         return substr_replace($url, $this->path, 0, strlen($this->url));
     }
 
-    /**
-     * @param File $file
-     *
-     * @return string
-     */
     private function deduceExtension(File $file): string
     {
         $extension = $file->guessExtension();

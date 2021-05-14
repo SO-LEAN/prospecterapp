@@ -7,6 +7,9 @@ use App\Entity\User;
 use Solean\CleanProspecter\UseCase\RefreshUser\RefreshUserResponse;
 use Tests\App\Base\TestCase;
 
+/**
+ * @group unit
+ */
 class UserTest extends TestCase
 {
     /**

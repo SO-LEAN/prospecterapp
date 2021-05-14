@@ -30,8 +30,6 @@ class OperatorFactory
 
     /**
      * @param string $driver
-     *
-     * @return ImagineInterface
      */
     private function getDriver($driver = 'Gd'): ImagineInterface
     {

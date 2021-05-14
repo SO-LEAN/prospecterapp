@@ -18,9 +18,6 @@ class ProspecterUserProvider implements UserProviderInterface
      */
     private $useCasesFacade;
 
-    /**
-     * @param UseCasesFacade $useCasesFacade
-     */
     public function __construct(UseCasesFacade $useCasesFacade)
     {
         $this->useCasesFacade = $useCasesFacade;
@@ -41,8 +38,6 @@ class ProspecterUserProvider implements UserProviderInterface
     }
 
     /**
-     * @param UserInterface $user
-     *
      * @return UserInterface
      */
     public function refreshUser(UserInterface $user)

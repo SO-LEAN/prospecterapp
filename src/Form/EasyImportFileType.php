@@ -2,15 +2,15 @@
 
 namespace App\Form;
 
+use App\Form\DataTransformer\TwoFileFieldsTransformer;
 use App\Service\System\FileSystemAdapter;
 use App\Service\System\PhpFileSystemAdapter;
 use Symfony\Component\Form\AbstractType;
-use Symfony\Component\Form\FormBuilderInterface;
-use Symfony\Component\Validator\Constraints\Image;
-use Symfony\Component\OptionsResolver\OptionsResolver;
-use App\Form\DataTransformer\TwoFileFieldsTransformer;
-use Symfony\Component\Form\Extension\Core\Type\UrlType;
 use Symfony\Component\Form\Extension\Core\Type\FileType;
+use Symfony\Component\Form\Extension\Core\Type\UrlType;
+use Symfony\Component\Form\FormBuilderInterface;
+use Symfony\Component\OptionsResolver\OptionsResolver;
+use Symfony\Component\Validator\Constraints\Image;
 
 class EasyImportFileType extends AbstractType
 {
@@ -54,7 +54,7 @@ class EasyImportFileType extends AbstractType
         $resolver->setDefaults([
             'options' => [],
             'manual_options' => [
-                'constraints' => [new  Image(['mimeTypes' => ['image/jpeg', 'image/jpg', 'image/png'], 'maxSize' => '2M'])],
+                'constraints' => [new Image(['mimeTypes' => ['image/jpeg', 'image/jpg', 'image/png'], 'maxSize' => '2M'])],
                 ],
             'url_options' => [],
             'error_bubbling' => false,

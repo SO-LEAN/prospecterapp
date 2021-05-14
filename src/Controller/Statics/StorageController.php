@@ -3,10 +3,10 @@
 namespace App\Controller\Statics;
 
 use App\Service\ImageService;
-use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\HttpFoundation\BinaryFileResponse;
+use Sensio\Bundle\FrameworkExtraBundle\Configuration\Cache;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
-use  Sensio\Bundle\FrameworkExtraBundle\Configuration\Cache;
+use Symfony\Component\HttpFoundation\BinaryFileResponse;
+use Symfony\Component\HttpFoundation\Request;
 
 class StorageController
 {
@@ -17,8 +17,6 @@ class StorageController
 
     /**
      * StorageController constructor.
-     *
-     * @param ImageService $imageService
      */
     public function __construct(ImageService $imageService)
     {
@@ -26,8 +24,6 @@ class StorageController
     }
 
     /**
-     * @param Request $request
-     *
      * @return BinaryFileResponse
      *
      * @Route("storage/{query}", name="storage_display", requirements={"query"=".+"})

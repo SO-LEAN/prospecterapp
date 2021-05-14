@@ -1,0 +1,39 @@
+dist: xenial
+os: linux
+language: minimal
+services:
+  - docker
+branches:
+  only:
+    - master
+    - develop
+    - travis-ci
+    - /^(?>features|fixes)\/{1}[[:alnum:]]+$/
+
+cache:
+  directories:
+    - node_modules
+    - vendor
+    - public/static/build
+
+install:
+  - make build-ci
+
+jobs:
+  include:
+    - stage: compile
+      script: make build
+    - stage: static-analysis
+      script: make cs
+    - stage: test
+      script: make test-unit
+    - script: make test-web
+    - stage: deploy
+      script: make package
+
+stages:
+  - compile
+  - test
+  - static-analysis
+  - name: deploy
+    if: branch = master

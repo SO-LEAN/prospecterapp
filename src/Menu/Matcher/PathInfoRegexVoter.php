@@ -13,9 +13,6 @@ class PathInfoRegexVoter implements VoterInterface
      */
     private $requestStack;
 
-    /**
-     * @param RequestStack $requestStack
-     */
     public function __construct(RequestStack $requestStack)
     {
         $this->requestStack = $requestStack;
@@ -32,6 +29,6 @@ class PathInfoRegexVoter implements VoterInterface
             return true;
         }
 
-        return;
+        return false;
     }
 }

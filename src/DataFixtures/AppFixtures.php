@@ -2,28 +2,22 @@
 
 namespace App\DataFixtures;
 
-use Solean\CleanProspecter\Entity\Organization;
-use Solean\CleanProspecter\Entity\User;
 use Doctrine\Bundle\FixturesBundle\Fixture;
 use Doctrine\Common\Persistence\ObjectManager;
+use Solean\CleanProspecter\Entity\Organization;
+use Solean\CleanProspecter\Entity\User;
 
 /**
  * Class AppFixtures.
  */
 class AppFixtures extends Fixture
 {
-    /**
-     * @param ObjectManager $manager
-     */
     public function load(ObjectManager $manager)
     {
         $this->createProspectorOrganization($manager);
         $this->createProspector($manager);
     }
 
-    /**
-     * @param ObjectManager $manager
-     */
     private function createProspectorOrganization(ObjectManager $manager)
     {
         $org = new Organization();
@@ -39,9 +33,6 @@ class AppFixtures extends Fixture
         $this->addReference('user-organization', $org);
     }
 
-    /**
-     * @param ObjectManager $manager
-     */
     private function createProspector(ObjectManager $manager)
     {
         $user = new User();

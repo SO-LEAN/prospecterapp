@@ -3,14 +3,14 @@
 namespace App\Traits;
 
 use App\Service\PresenterFactory;
-use Twig;
+use Solean\CleanProspecter\UseCase\UseCasesFacade;
 use Symfony\Component\Form\FormFactory;
 use Symfony\Component\Form\FormInterface;
-use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\Routing\RouterInterface;
-use Solean\CleanProspecter\UseCase\UseCasesFacade;
 use Symfony\Component\HttpFoundation\RedirectResponse;
+use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
+use Symfony\Component\Routing\RouterInterface;
+use Twig;
 
 trait HelperTrait
 {
@@ -48,7 +48,7 @@ trait HelperTrait
      *
      * @final
      */
-    protected function generateUrl(string $route, array $parameters = array(), int $referenceType = UrlGeneratorInterface::ABSOLUTE_PATH): string
+    protected function generateUrl(string $route, array $parameters = [], int $referenceType = UrlGeneratorInterface::ABSOLUTE_PATH): string
     {
         return $this->getRouter()->generate($route, $parameters, $referenceType);
     }
@@ -68,7 +68,7 @@ trait HelperTrait
      *
      * @final
      */
-    protected function redirectToRoute(string $route, array $parameters = array(), int $status = 302): RedirectResponse
+    protected function redirectToRoute(string $route, array $parameters = [], int $status = 302): RedirectResponse
     {
         return $this->redirect($this->generateUrl($route, $parameters), $status);
     }
@@ -78,7 +78,7 @@ trait HelperTrait
      *
      * @final
      */
-    protected function renderView(string $view, array $parameters = array()): string
+    protected function renderView(string $view, array $parameters = []): string
     {
         return $this->getTwig()->render($view, $parameters);
     }
@@ -88,7 +88,7 @@ trait HelperTrait
      *
      * @final
      */
-    protected function render(string $view, array $parameters = array(), Response $response = null): Response
+    protected function render(string $view, array $parameters = [], Response $response = null): Response
     {
         $content = $this->getTwig()->render($view, $parameters);
 
@@ -106,7 +106,7 @@ trait HelperTrait
      *
      * @final
      */
-    protected function createForm(string $type, $data = null, array $options = array()): FormInterface
+    protected function createForm(string $type, $data = null, array $options = []): FormInterface
     {
         return $this->getFormFactory()->create($type, $data, $options);
     }

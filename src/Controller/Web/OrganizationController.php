@@ -3,14 +3,14 @@
 namespace App\Controller\Web;
 
 use App\Entity\User;
-use App\Traits\ControllerTrait;
-use Symfony\Component\HttpFoundation;
-use App\Presenter\GetOrganizationPresenterImpl;
 use App\Presenter\FindMyOwnOrganizationsPresenterImpl;
-use Symfony\Component\Security\Core\User\UserInterface;
+use App\Presenter\GetOrganizationPresenterImpl;
+use App\Traits\ControllerTrait;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
-use Solean\CleanProspecter\UseCase\GetOrganization\GetOrganizationRequest;
 use Solean\CleanProspecter\UseCase\FindMyOwnOrganizations\FindMyOwnOrganizationsRequest;
+use Solean\CleanProspecter\UseCase\GetOrganization\GetOrganizationRequest;
+use Symfony\Component\HttpFoundation;
+use Symfony\Component\Security\Core\User\UserInterface;
 
 /**
  * Class ProspectController.
@@ -22,9 +22,6 @@ class OrganizationController
     use ControllerTrait;
 
     /**
-     * @param HttpFoundation\Request $request
-     * @param UserInterface          $user
-     *
      * @return HttpFoundation\RedirectResponse|HttpFoundation\Response
      *
      * @Route("organizations/add", name="organization_create")
@@ -36,9 +33,6 @@ class OrganizationController
     }
 
     /**
-     * @param HttpFoundation\Request $request
-     * @param UserInterface          $user
-     *
      * @return HttpFoundation\RedirectResponse|HttpFoundation\Response
      *
      * @Route("organizations/{id}/update", name="organization_update")
@@ -50,8 +44,7 @@ class OrganizationController
     }
 
     /**
-     * @param int           $id
-     * @param UserInterface $user
+     * @param int $id
      *
      * @return HttpFoundation\Response
      *
@@ -66,15 +59,13 @@ class OrganizationController
     }
 
     /**
-     * @param int                    $page
-     * @param HttpFoundation\Request $request
-     * @param UserInterface          $user
+     * @param int $page
      *
      * @return HttpFoundation\Response
      *
      * @Route("/organizations/{page}", name="organization_find", requirements={"page"="\d+"})
      */
-    public function find($page = 1, HttpFoundation\Request $request, UserInterface $user)
+    public function find(HttpFoundation\Request $request, UserInterface $user, int $page = 1)
     {
         /** @var User $user */
         $data = $this->getUseCases()->findMyOwnOrganizations(

@@ -3,8 +3,8 @@
 namespace App\Service\Image;
 
 use Imagine\Image\Box;
-use InvalidArgumentException;
 use Imagine\Image\ImagineInterface;
+use InvalidArgumentException;
 use Symfony\Component\HttpFoundation\File\File;
 
 class ResizeOperator implements Operator
@@ -43,8 +43,6 @@ class ResizeOperator implements Operator
     }
 
     /**
-     * @param File  $origin
-     * @param array $args
      * @param $target
      */
     private function ratioResizing(File $origin, array $args, $target): void
@@ -62,8 +60,6 @@ class ResizeOperator implements Operator
     }
 
     /**
-     * @param File  $origin
-     * @param array $args
      * @param $target
      */
     private function standardResizing(File $origin, array $args, $target): void

@@ -3,13 +3,13 @@
 namespace App\Controller\Web;
 
 use App\Entity\User;
-use App\Traits\ControllerTrait;
-use Symfony\Component\HttpFoundation;
 use App\Presenter\GetOrganizationPresenterImpl;
-use Symfony\Component\Security\Core\User\UserInterface;
+use App\Traits\ControllerTrait;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
-use Solean\CleanProspecter\UseCase\GetOrganization\GetOrganizationRequest;
 use Solean\CleanProspecter\UseCase\FindMyOwnOrganizations\FindMyOwnOrganizationsRequest;
+use Solean\CleanProspecter\UseCase\GetOrganization\GetOrganizationRequest;
+use Symfony\Component\HttpFoundation;
+use Symfony\Component\Security\Core\User\UserInterface;
 
 /**
  * Class DashboardController.
@@ -32,8 +32,6 @@ class DashboardController
     }
 
     /**
-     * @param UserInterface $user
-     *
      * @return HttpFoundation\Response
      */
     public function map(UserInterface $user)
@@ -51,8 +49,6 @@ class DashboardController
     }
 
     /**
-     * @param UserInterface $user
-     *
      * @return HttpFoundation\Response
      */
     public function statistics(UserInterface $user)

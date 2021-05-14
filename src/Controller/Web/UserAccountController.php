@@ -4,9 +4,9 @@ namespace App\Controller\Web;
 
 use App\Entity\User;
 use App\Traits\ControllerTrait;
+use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Symfony\Component\HttpFoundation;
 use Symfony\Component\Security\Core\User\UserInterface;
-use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 
 /**
  * Class UserController.
@@ -18,9 +18,6 @@ class UserAccountController
     use ControllerTrait;
 
     /**
-     * @param HttpFoundation\Request $request
-     * @param UserInterface          $user
-     *
      * @return HttpFoundation\RedirectResponse|HttpFoundation\Response
      *
      * @Route("user-account/update", name="my_account_information_update")

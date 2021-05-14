@@ -2,16 +2,16 @@
 
 namespace App\Service\RequestHandler;
 
-use stdClass;
-use Exception;
-use ReflectionClass;
 use App\Entity\User;
 use App\Traits\HelperTrait;
+use Exception;
+use ReflectionClass;
+use Solean\CleanProspecter\Exception\UseCase\UseCaseException;
+use stdClass;
 use Symfony\Component\Form\FormError;
 use Symfony\Component\Form\FormInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
-use Solean\CleanProspecter\Exception\UseCase\UseCaseException;
 
 abstract class AbstractFormHandlingCommand
 {
@@ -22,12 +22,6 @@ abstract class AbstractFormHandlingCommand
     const USE_CASES_NAMESPACE = 'Solean\CleanProspecter\UseCase';
 
     /**
-     * @param array   $data
-     * @param Request $request
-     * @param User    $user
-     *
-     * @return Response|null
-     *
      * @throws \ReflectionException
      */
     public function onSucceed(array $data, Request $request, User $user): ?Response
@@ -52,9 +46,6 @@ abstract class AbstractFormHandlingCommand
     }
 
     /**
-     * @param Exception     $e
-     * @param FormInterface $form
-     *
      * @throws Exception
      */
     public function onUseCaseException(Exception $e, FormInterface $form): void
@@ -73,10 +64,6 @@ abstract class AbstractFormHandlingCommand
     }
 
     /**
-     * @param string $useCaseClass
-     * @param array  $data
-     * @param User   $user
-     *
      * @return stdClass
      *
      * @throws \ReflectionException
@@ -90,15 +77,10 @@ abstract class AbstractFormHandlingCommand
         $object = $objectReflection->newInstanceArgs($args);
         /* @var stdClass $object */
 
-        return  $object;
+        return $object;
     }
 
     /**
-     * @param string $class
-     * @param array  $data
-     *
-     * @return \Generator
-     *
      * @throws \ReflectionException
      */
     protected function constructArgs(string $class, array $data): \Generator
@@ -110,21 +92,11 @@ abstract class AbstractFormHandlingCommand
         }
     }
 
-    /**
-     * @param Request $request
-     *
-     * @return string
-     */
     protected function deduceFormFQCN(Request $request): string
     {
         return sprintf('%s\%sType', $this::FORMS_NAMESPACE, ucfirst($this->deduceUseCaseName($request)));
     }
 
-    /**
-     * @param Request $request
-     *
-     * @return string
-     */
     protected function deduceRequestFQCN(Request $request): string
     {
         $useCase = ucfirst($this->deduceUseCaseName($request));
@@ -133,10 +105,7 @@ abstract class AbstractFormHandlingCommand
     }
 
     /**
-     * @param User $user
      * @param $params
-     *
-     * @return array
      */
     protected function fillUserData(User $user, $params): array
     {
@@ -148,8 +117,6 @@ abstract class AbstractFormHandlingCommand
     }
 
     /**
-     * @param Request $request
-     *
      * @return mixed
      */
     private function buildPresenter(Request $request)
@@ -159,11 +126,6 @@ abstract class AbstractFormHandlingCommand
         return new $class();
     }
 
-    /**
-     * @param Request $request
-     *
-     * @return string
-     */
     private function deduceUseCaseName(Request $request): string
     {
         $words = ucwords($request->get('_route'), '_');
@@ -175,21 +137,11 @@ abstract class AbstractFormHandlingCommand
         return implode('', $parts);
     }
 
-    /**
-     * @param Request $request
-     *
-     * @return string
-     */
     private function deducePresenterFQCN(Request $request): string
     {
         return sprintf('%s\%sPresenterImpl', $this::PRESENTER_NAMESPACE, ucfirst($this->deduceUseCaseName($request)));
     }
 
-    /**
-     * @param Request $request
-     *
-     * @return string
-     */
     private function deduceTargetRoute(Request $request): string
     {
         $parts = explode('_', $request->get('_route'), 2);

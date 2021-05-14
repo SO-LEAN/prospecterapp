@@ -7,11 +7,6 @@ use Solean\CleanProspecter\UseCase\UpdateOrganization\UpdateOrganizationResponse
 
 class UpdateOrganizationPresenterImpl implements UpdateOrganizationPresenter
 {
-    /**
-     * @param UpdateOrganizationResponse $response
-     *
-     * @return UpdateOrganizationResponse
-     */
     public function present(UpdateOrganizationResponse $response): UpdateOrganizationResponse
     {
         return $response;

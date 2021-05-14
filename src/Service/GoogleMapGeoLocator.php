@@ -2,8 +2,8 @@
 
 namespace App\Service;
 
-use Exception;
 use App\Service\GeoLocator\GeoPointResponse;
+use Exception;
 
 class GoogleMapGeoLocator implements GeoLocator
 {
@@ -28,11 +28,6 @@ class GoogleMapGeoLocator implements GeoLocator
         $this->apiKey = $apiKey;
     }
 
-    /**
-     * @param string $address
-     *
-     * @return GeoPointResponse
-     */
     public function find(string $address): GeoPointResponse
     {
         try {
@@ -51,11 +46,6 @@ class GoogleMapGeoLocator implements GeoLocator
         return new GeoPointResponse($formattedAddress, $location->lng, $location->lat);
     }
 
-    /**
-     * @param string $address
-     *
-     * @return GeoPointResponse
-     */
     private function buildUnSucceededResponse(string $address): GeoPointResponse
     {
         return new GeoPointResponse($address, 0, 0, false);

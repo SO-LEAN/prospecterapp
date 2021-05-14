@@ -2,14 +2,12 @@
 
 namespace App\Presenter;
 
-use Solean\CleanProspecter\UseCase\GetMyAccountInformation\GetMyAccountInformationResponse;
 use Solean\CleanProspecter\UseCase\GetMyAccountInformation\GetMyAccountInformationPresenter;
+use Solean\CleanProspecter\UseCase\GetMyAccountInformation\GetMyAccountInformationResponse;
 
 class GetMyAccountInformationForUpdatePresenter implements GetMyAccountInformationPresenter
 {
     /**
-     * @param GetMyAccountInformationResponse $response
-     *
      * @return array
      */
     public function present(GetMyAccountInformationResponse $response)

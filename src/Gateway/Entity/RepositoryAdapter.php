@@ -3,10 +3,10 @@
 namespace App\Gateway\Entity;
 
 use App\Service\PaginatorFactory;
-use stdClass;
-use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\DBAL\Exception\UniqueConstraintViolationException;
+use Doctrine\ORM\EntityManagerInterface;
 use Solean\CleanProspecter\Exception\Gateway as GatewayException;
+use stdClass;
 
 abstract class RepositoryAdapter
 {

@@ -2,9 +2,9 @@
 
 namespace App\Service;
 
-use App\Service\Image\UrlImageInfo;
 use App\Service\Image\CipherHandler;
 use App\Service\Image\OperatorFactory;
+use App\Service\Image\UrlImageInfo;
 use Symfony\Component\HttpFoundation\File\File;
 
 class ImageService
@@ -27,10 +27,6 @@ class ImageService
 
     /**
      * ImageService constructor.
-     *
-     * @param CipherHandler       $cipherHandler
-     * @param LocalStorageService $localStorageService
-     * @param OperatorFactory     $imagineFactory
      */
     public function __construct(CipherHandler $cipherHandler, LocalStorageService $localStorageService, OperatorFactory $imagineFactory)
     {
@@ -39,13 +35,6 @@ class ImageService
         $this->imagineFactory = $imagineFactory;
     }
 
-    /**
-     * @param string $url
-     * @param string $operation
-     * @param array  $args
-     *
-     * @return string
-     */
     public function buildOperationUrl(string $url, string $operation, array $args = []): string
     {
         $info = $this->buildUrlImageInfo($url);
@@ -54,11 +43,6 @@ class ImageService
         return $info->getTargetUrl();
     }
 
-    /**
-     * @param string $uri
-     *
-     * @return string
-     */
     public function handleOperationUrl(string $uri): string
     {
         $target = $this->buildUrlImageInfo($uri);
@@ -69,11 +53,6 @@ class ImageService
         return $newFile->move($dirName, $target->getTargetName());
     }
 
-    /**
-     * @param UrlImageInfo $info
-     *
-     * @return File
-     */
     public function applyOperation(UrlImageInfo $info): File
     {
         $parent = $info->getParent();
@@ -83,11 +62,6 @@ class ImageService
         return $operator->execute($file, $info->getOperationArguments());
     }
 
-    /**
-     * @param string $url
-     *
-     * @return UrlImageInfo
-     */
     private function buildUrlImageInfo(string $url): UrlImageInfo
     {
         return new UrlImageInfo($url, $this->cipherHandler);

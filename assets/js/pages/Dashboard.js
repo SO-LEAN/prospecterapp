@@ -15,6 +15,7 @@ function Dashboard() {
         scrollwheel: false,
         zoom: 5
       });
+      console.log(that.organizations);
       for (let i in that.organizations) {
         that.appendOrganization(map, that.organizations[i]);
       }
@@ -43,7 +44,7 @@ function Dashboard() {
 
 Dashboard.prototype.run = function () {
   let that = this;
-  if ('geolocation' in navigator) {
+  if (navigator && navigator.hasOwnProperty('geolocation')) {
     navigator.geolocation.getCurrentPosition(function (position) {
       that.loadMap(position.coords.latitude, position.coords.longitude);
     });

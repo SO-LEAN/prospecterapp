@@ -13,6 +13,9 @@ use App\Form\UseCaseType\CreateOrganizationType;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 use Symfony\Component\Form\Test\Traits\ValidatorExtensionTrait;
 
+/**
+ * @group unit
+ */
 class CreateOrganizationTypeTest extends TypeTestCase
 {
     use ValidatorExtensionTrait;
