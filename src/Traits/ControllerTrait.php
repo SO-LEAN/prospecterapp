@@ -25,13 +25,6 @@ trait ControllerTrait
         return $this->get('form-handler');
     }
 
-    /**
-     * @param Request $request
-     * @param User    $user
-     * @param array   $parameters
-     *
-     * @return Response
-     */
     protected function handleForm(Request $request, User $user, array $parameters = []): Response
     {
         return $this->getFormHandler()->execute($request, $user, $parameters);

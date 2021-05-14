@@ -15,9 +15,6 @@ class TransactionEntityManagerAdapter implements Transaction
      */
     private $entityManager;
 
-    /**
-     * @param EntityManagerInterface $entityManager
-     */
     public function __construct(EntityManagerInterface $entityManager)
     {
         $this->entityManager = $entityManager;

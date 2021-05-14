@@ -58,7 +58,7 @@ abstract class ControllerTest extends WebTestCase
     {
         $entity = $this->fixtures->getReference($userName);
 
-        $user = new User(new RefreshUserResponse($entity->getId(), $entity->getRoles(), $entity->getUserName(), $entity->getPassword(), $entity->getOrganization()->getId()));
+        $user = new User(new RefreshUserResponse($entity->getId(), $entity->getRoles(), $entity->getUserName(), $entity->getPassword(), $entity->getOrganization()->getId(), $entity->getPictureUrl()));
         $this->loginAs($user, $firewall);
 
         $this->client = $this->makeClient(false, $this->serverHeader);
@@ -66,7 +66,7 @@ abstract class ControllerTest extends WebTestCase
 
     /**
      * @param Crawler $crawler
-     * @param $name
+     * @param string $name
      *
      * @return string
      */

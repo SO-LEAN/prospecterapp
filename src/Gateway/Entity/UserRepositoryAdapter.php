@@ -13,8 +13,6 @@ class UserRepositoryAdapter extends RepositoryAdapter implements UserGateway
 {
     /**
      * @param $id
-     *
-     * @return User
      */
     public function get($id): User
     {
@@ -29,10 +27,6 @@ class UserRepositoryAdapter extends RepositoryAdapter implements UserGateway
     }
 
     /**
-     * @param User $user
-     *
-     * @return User
-     *
      * @throws \Doctrine\ORM\ORMException
      */
     public function create(User $user): User
@@ -44,9 +38,6 @@ class UserRepositoryAdapter extends RepositoryAdapter implements UserGateway
 
     /**
      * @param $id
-     * @param User $user
-     *
-     * @return User
      */
     public function update($id, User $user): User
     {
@@ -56,22 +47,12 @@ class UserRepositoryAdapter extends RepositoryAdapter implements UserGateway
         return $user;
     }
 
-    /**
-     * @param array $criteria
-     *
-     * @return null|User
-     */
     public function findOneBy(array $criteria): ?User
     {
         /* @noinspection PhpIncompatibleReturnTypeInspection */
         return $this->repository->findOneBy($criteria);
     }
 
-    /**
-     * @param array $criteria
-     *
-     * @return array
-     */
     public function findBy(array $criteria): array
     {
         return $this->repository->findBy($criteria);

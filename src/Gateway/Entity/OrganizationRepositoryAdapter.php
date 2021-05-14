@@ -16,8 +16,6 @@ class OrganizationRepositoryAdapter extends RepositoryAdapter implements Organiz
 {
     /**
      * @param $id
-     *
-     * @return Organization
      */
     public function get($id): Organization
     {
@@ -32,10 +30,6 @@ class OrganizationRepositoryAdapter extends RepositoryAdapter implements Organiz
     }
 
     /**
-     * @param Organization $Organization
-     *
-     * @return Organization
-     *
      * @throws \Doctrine\ORM\ORMException
      */
     public function create(Organization $Organization): Organization
@@ -47,9 +41,6 @@ class OrganizationRepositoryAdapter extends RepositoryAdapter implements Organiz
 
     /**
      * @param $id
-     * @param Organization $Organization
-     *
-     * @return Organization
      */
     public function update($id, Organization $Organization): Organization
     {
@@ -59,32 +50,17 @@ class OrganizationRepositoryAdapter extends RepositoryAdapter implements Organiz
         return $Organization;
     }
 
-    /**
-     * @param array $criteria
-     *
-     * @return null|Organization
-     */
     public function findOneBy(array $criteria): ?Organization
     {
         /* @noinspection PhpIncompatibleReturnTypeInspection */
         return $this->repository->findOneBy($criteria);
     }
 
-    /**
-     * @param array $criteria
-     *
-     * @return array
-     */
     public function findBy(array $criteria): array
     {
         return $this->repository->findBy($criteria);
     }
 
-    /**
-     * @param PageRequest $pageRequest
-     *
-     * @return Page
-     */
     public function findPageByQuery(PageRequest $pageRequest): Page
     {
         $dql = $this->buildFindPageByQueryDql($pageRequest);
@@ -100,11 +76,6 @@ class OrganizationRepositoryAdapter extends RepositoryAdapter implements Organiz
         return new Page($pageRequest->getPage(), $pg->count(), intdiv($pg->count() - 1, $pageRequest->getMaxByPage()) + 1, $pg->getIterator()->getArrayCopy());
     }
 
-    /**
-     * @param PageRequest $pageRequest
-     *
-     * @return string
-     */
     private function buildFindPageByQueryDql(PageRequest $pageRequest): string
     {
         $from = 'Solean\CleanProspecter\Entity\Organization o ';
@@ -117,10 +88,7 @@ class OrganizationRepositoryAdapter extends RepositoryAdapter implements Organiz
     }
 
     /**
-     * @param PageRequest $pageRequest
-     * @param string      $where
-     *
-     * @return string
+     * @param string $where
      */
     private function applyFilter(PageRequest $pageRequest, $where): string
     {
@@ -132,7 +100,6 @@ class OrganizationRepositoryAdapter extends RepositoryAdapter implements Organiz
     }
 
     /**
-     * @param PageRequest $pageRequest
      * @param $query
      */
     private function ApplyFilterParameter(PageRequest $pageRequest, Query $query): void

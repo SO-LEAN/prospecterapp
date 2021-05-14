@@ -14,9 +14,6 @@ class ListUseCasesCommand extends Command
      */
     private $useCasesFacade;
 
-    /**
-     * @param UseCasesFacade $useCasesFacade
-     */
     public function __construct(UseCasesFacade $useCasesFacade)
     {
         $this->useCasesFacade = $useCasesFacade;
@@ -32,10 +29,6 @@ class ListUseCasesCommand extends Command
             ->setHelp('This command allows you to list recorded use cases.');
     }
 
-    /**
-     * @param InputInterface  $input
-     * @param OutputInterface $output
-     */
     protected function execute(InputInterface $input, OutputInterface $output): void
     {
         $usesCases = $this->useCasesFacade->getUseCases();
@@ -51,8 +44,6 @@ class ListUseCasesCommand extends Command
 
     /**
      * @param string ...$text
-     *
-     * @return string
      */
     private function comment(string ...$text): string
     {
@@ -61,8 +52,6 @@ class ListUseCasesCommand extends Command
 
     /**
      * @param string ...$text
-     *
-     * @return string
      */
     private function inform(string ...$text): string
     {

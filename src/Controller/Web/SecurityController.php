@@ -3,8 +3,8 @@
 namespace App\Controller\Web;
 
 use App\Form\UseCaseType\LoginType;
-use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
+use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 
 /**
  * Class SecurityController.

@@ -2,11 +2,11 @@
 
 namespace App\Presenter;
 
-use Generator;
 use App\Service\ImageService;
-use Symfony\Component\Routing\RouterInterface;
-use Solean\CleanProspecter\UseCase\FindMyOwnOrganizations\FindMyOwnOrganizationsResponse;
+use Generator;
 use Solean\CleanProspecter\UseCase\FindMyOwnOrganizations\FindMyOwnOrganizationsPresenter;
+use Solean\CleanProspecter\UseCase\FindMyOwnOrganizations\FindMyOwnOrganizationsResponse;
+use Symfony\Component\Routing\RouterInterface;
 
 class FindMyOwnOrganizationsForDashboardMapPresenter implements FindMyOwnOrganizationsPresenter
 {
@@ -19,31 +19,17 @@ class FindMyOwnOrganizationsForDashboardMapPresenter implements FindMyOwnOrganiz
      */
     private $imageService;
 
-    /**
-     * @param RouterInterface $router
-     * @param ImageService    $imageService
-     */
     public function __construct(RouterInterface $router, ImageService $imageService)
     {
         $this->router = $router;
         $this->imageService = $imageService;
     }
 
-    /**
-     * @param FindMyOwnOrganizationsResponse $response
-     *
-     * @return array
-     */
     public function present(FindMyOwnOrganizationsResponse $response): array
     {
         return iterator_to_array($this->organizationsToArray($response));
     }
 
-    /**
-     * @param FindMyOwnOrganizationsResponse $response
-     *
-     * @return Generator
-     */
     private function organizationsToArray(FindMyOwnOrganizationsResponse $response): Generator
     {
         foreach ($response->getOrganizations() as $organization) {

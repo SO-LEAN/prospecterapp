@@ -21,6 +21,6 @@ trait Base64Urlize
      */
     protected function unurlize($data)
     {
-        return  strtr($data, '-_', '+/').str_repeat('=', 3 - (3 + strlen($data)) % 4);
+        return strtr($data, '-_', '+/').str_repeat('=', 3 - (3 + strlen($data)) % 4);
     }
 }
