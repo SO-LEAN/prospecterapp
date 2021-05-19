@@ -2,9 +2,9 @@
 
 namespace App\Entity;
 
+use Solean\CleanProspecter\UseCase\RefreshUser\RefreshUserResponse;
 use Solean\CleanProspecter\UseCase\UseCaseConsumer;
 use Symfony\Component\Security\Core\User\UserInterface;
-use Solean\CleanProspecter\UseCase\RefreshUser\RefreshUserResponse;
 
 /**
  * Class User.
@@ -24,9 +24,6 @@ final class User implements UserInterface, UseCaseConsumer
         $this->refreshUser = $refreshUser;
     }
 
-    /**
-     * @return array
-     */
     public function getRoles(): array
     {
         return $this->refreshUser->getRoles();

@@ -6,6 +6,9 @@ use App\Form\UseCaseType\LoginType;
 use Symfony\Component\Form\Test\TypeTestCase;
 use Symfony\Component\Form\Test\Traits\ValidatorExtensionTrait;
 
+/**
+ * @group unit
+ */
 class LoginTypeTest extends TypeTestCase
 {
     use ValidatorExtensionTrait;

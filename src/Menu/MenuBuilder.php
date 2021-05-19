@@ -25,11 +25,6 @@ class MenuBuilder
      */
     protected $currentRequest;
 
-    /**
-     * @param FactoryInterface              $factory
-     * @param AuthorizationCheckerInterface $authorizationChecker
-     * @param Request                       $currentRequest
-     */
     public function __construct(FactoryInterface $factory, AuthorizationCheckerInterface $authorizationChecker, Request $currentRequest)
     {
         $this->factory = $factory;
@@ -38,8 +33,6 @@ class MenuBuilder
     }
 
     /**
-     * @param array $options
-     *
      * @return ItemInterface
      */
     public function createMainMenu(array $options)
@@ -73,8 +66,6 @@ class MenuBuilder
     }
 
     /**
-     * @param array $options
-     *
      * @return ItemInterface
      */
     public function createBreadcrumb(array $options)
@@ -119,8 +110,6 @@ class MenuBuilder
     }
 
     /**
-     * @param array $options
-     *
      * @return ItemInterface
      */
     public function createLeftMenu(array $options)
@@ -147,8 +136,6 @@ class MenuBuilder
     }
 
     /**
-     * @param array $options
-     *
      * @return ItemInterface
      */
     public function createRightMenu(array $options)
@@ -168,8 +155,6 @@ class MenuBuilder
     }
 
     /**
-     * @param string $icon
-     *
      * @return array
      */
     private function getIcon(string $icon)
@@ -180,8 +165,6 @@ class MenuBuilder
     }
 
     /**
-     * @param string $pattern
-     *
      * @return bool
      */
     private function isMatchedRequest(string $pattern)
@@ -189,11 +172,6 @@ class MenuBuilder
         return (bool) preg_match($pattern, $this->currentRequest->getPathInfo());
     }
 
-    /**
-     * @param ItemInterface $menu
-     * @param array         $commonAttributes
-     * @param array         $extras
-     */
     private function createOrganizationViewMenu(ItemInterface $menu, array $commonAttributes, array $extras): void
     {
         if (preg_match('/^organization_view/', $this->currentRequest->get('_route'))) {

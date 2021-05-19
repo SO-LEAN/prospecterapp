@@ -17,11 +17,6 @@ class GeoLocatorAdapter implements Solean\GeoLocation
         $this->locator = $locator;
     }
 
-    /**
-     * @param string $address
-     *
-     * @return Solean\GeoLocation\GeoPointResponse
-     */
     public function find(string $address): Solean\GeoLocation\GeoPointResponse
     {
         $geoPoint = $this->locator->find($address);

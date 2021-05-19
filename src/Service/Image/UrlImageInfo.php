@@ -38,10 +38,6 @@ class UrlImageInfo
      */
     private $extension;
 
-    /**
-     * @param string        $url
-     * @param CipherHandler $cipherHandler
-     */
     public function __construct(string $url, CipherHandler $cipherHandler)
     {
         if (!preg_match('/^(?<protocol>http|https):\/\/(?<host>[[:alnum:]\.]+)\/(?<path>.+)\/(?<part1>[[:alnum:]]+)(&(?<operation>[[:alnum:]-_\=]+))?\.(?<ext>[[:alnum:]]+)$/', $url, $matches)) {
@@ -57,33 +53,21 @@ class UrlImageInfo
         $this->cipherHandler = $cipherHandler;
     }
 
-    /**
-     * @return string
-     */
     public function getProtocol(): string
     {
         return $this->protocol;
     }
 
-    /**
-     * @return string
-     */
     public function getHost(): string
     {
         return $this->host;
     }
 
-    /**
-     * @return string
-     */
     public function getPath(): string
     {
         return $this->path;
     }
 
-    /**
-     * @return string
-     */
     public function getParentName(): string
     {
         return $this->parentName;
@@ -100,9 +84,6 @@ class UrlImageInfo
         return $parent;
     }
 
-    /**
-     * @return string
-     */
     public function getTargetName(): string
     {
         $fileName = $this->hasOperation() ? sprintf('%s&%s', $this->parentName, $this->cipherHandler->encode($this->operation)) : $this->parentName;
@@ -110,9 +91,6 @@ class UrlImageInfo
         return sprintf('%s.%s', $fileName, $this->extension);
     }
 
-    /**
-     * @return string
-     */
     public function getTargetUrl(): string
     {
         return sprintf(
@@ -124,17 +102,11 @@ class UrlImageInfo
         );
     }
 
-    /**
-     * @return string
-     */
     public function getParentUrl(): string
     {
         return $this->getParent()->getTargetUrl();
     }
 
-    /**
-     * @param null|string $operation
-     */
     public function setOperation(?string $operation): void
     {
         $this->operation = $operation;
@@ -164,9 +136,6 @@ class UrlImageInfo
         return array_map('intval', explode(',', explode(':', $this->operation)[1]));
     }
 
-    /**
-     * @return bool
-     */
     public function hasOperation(): bool
     {
         return isset($this->operation);

@@ -2,14 +2,12 @@
 
 namespace App\Presenter;
 
-use Solean\CleanProspecter\UseCase\GetOrganization\GetOrganizationResponse;
 use Solean\CleanProspecter\UseCase\GetOrganization\GetOrganizationPresenter;
+use Solean\CleanProspecter\UseCase\GetOrganization\GetOrganizationResponse;
 
 class GetOrganizationForUpdatePresenter implements GetOrganizationPresenter
 {
     /**
-     * @param GetOrganizationResponse $response
-     *
      * @return array
      */
     public function present(GetOrganizationResponse $response)

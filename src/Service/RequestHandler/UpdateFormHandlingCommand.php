@@ -2,10 +2,10 @@
 
 namespace App\Service\RequestHandler;
 
-use stdClass;
 use App\Entity\User;
-use App\Traits\HelperTrait;
 use App\Service\FormHandlingCommand;
+use App\Traits\HelperTrait;
+use stdClass;
 use Symfony\Component\Form\FormInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -40,8 +40,6 @@ class UpdateFormHandlingCommand extends AbstractFormHandlingCommand implements F
     }
 
     /**
-     * @param Request $request
-     *
      * @return stdClass
      */
     private function buildGetUseCasePresenter(Request $request): object
@@ -51,19 +49,12 @@ class UpdateFormHandlingCommand extends AbstractFormHandlingCommand implements F
         return new $class();
     }
 
-    /**
-     * @param Request $request
-     *
-     * @return string
-     */
     private function deduceGetPresenterFQCN(Request $request): string
     {
         return sprintf('%s\%sForUpdatePresenter', $this::PRESENTER_NAMESPACE, ucfirst($this->deduceGetUseCaseName($request)));
     }
 
     /**
-     * @param Request $request
-     *
      * @return stdClass
      */
     private function buildGetUseCaseRequest(Request $request): object
@@ -73,11 +64,6 @@ class UpdateFormHandlingCommand extends AbstractFormHandlingCommand implements F
         return new $class($request->get('id'));
     }
 
-    /**
-     * @param Request $request
-     *
-     * @return string
-     */
     protected function deduceGetRequestFQCN(Request $request): string
     {
         $useCase = ucfirst($this->deduceGetUseCaseName($request));
@@ -85,11 +71,6 @@ class UpdateFormHandlingCommand extends AbstractFormHandlingCommand implements F
         return sprintf('%s\%s\%sRequest', $this::USE_CASES_NAMESPACE, $useCase, $useCase);
     }
 
-    /**
-     * @param Request $request
-     *
-     * @return string
-     */
     private function deduceGetUseCaseName(Request $request): string
     {
         $words = ucwords($request->get('_route'), '_');

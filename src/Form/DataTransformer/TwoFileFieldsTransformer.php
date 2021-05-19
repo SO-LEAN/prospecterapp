@@ -5,8 +5,8 @@ namespace App\Form\DataTransformer;
 use App\Service\System\FileSystemAdapter;
 use Exception;
 use Symfony\Component\Form\DataTransformerInterface;
-use Symfony\Component\HttpFoundation\File\UploadedFile;
 use Symfony\Component\Form\Exception\TransformationFailedException;
+use Symfony\Component\HttpFoundation\File\UploadedFile;
 
 class TwoFileFieldsTransformer implements DataTransformerInterface
 {
@@ -24,11 +24,6 @@ class TwoFileFieldsTransformer implements DataTransformerInterface
      */
     private $url;
 
-    /**
-     * @param FileSystemAdapter $fileSystemAdapter
-     * @param string            $manual
-     * @param string            $url
-     */
     public function __construct(FileSystemAdapter $fileSystemAdapter, string $manual, string $url)
     {
         $this->fileSystemAdapter = $fileSystemAdapter;
@@ -75,6 +70,6 @@ class TwoFileFieldsTransformer implements DataTransformerInterface
             throw new TransformationFailedException(sprintf('Cannot download file : "%s"', $value[$this->url]));
         }
 
-        return  new UploadedFile($file, $originalName);
+        return new UploadedFile($file, $originalName);
     }
 }

@@ -10,6 +10,9 @@ use Symfony\Component\HttpFoundation\File\File;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 use Tests\App\Base\TestCase;
 
+/**
+ * @group unit
+ */
 class TwoFileFieldsTransformerTest extends TestCase
 {
     /**
