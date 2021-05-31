@@ -1,0 +1,7 @@
+Solean\CleanProspecter\Entity\GeoPoint:
+  type: embeddable
+  fields:
+    longitude:
+      type: float
+    latitude:
+      type: float

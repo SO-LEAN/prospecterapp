@@ -1,16 +1,12 @@
 version: '2.3'
 services:
-  build:
-    build: docker/build
-    user: "${UID}:${GID}"
-    volumes:
-      - ./:/app
   php-fpm:
-    build: docker/php-fpm
+    build:
+      context: docker/php-fpm
+      args:
+        UID: ${UID}
+        GID: ${GID}
     init: true
-    environment:
-      UID: ${UID}
-      GID: ${GID}
     volumes:
       - ./:/var/www/src
     networks:
@@ -21,6 +17,7 @@ services:
     build: docker/nginx
     ports:
       - "127.0.0.1:80:80"
+      - "127.0.0.1:443:443"
     depends_on:
       - php-fpm
     volumes_from:
@@ -28,9 +25,11 @@ services:
     networks:
       - front
     environment:
-      - NGINX_HOST=prospecter.io
-      - NGINX_STATIC_HOST=static.prospecter.io
+      - NGINX_HOST=local.prospecter.io
+      - NGINX_STATIC_HOST=static.local.prospecter.io
     container_name: pro-nginx
+    volumes:
+      - ./docker/data/ssl/certs/:/etc/ssl/certs
 networks:
   front:
     driver: bridge

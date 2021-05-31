@@ -1,0 +1,35 @@
+{% extends 'layout/base.html.twig' %}
+{% import "macro/menu.html.twig" as menu %}
+{% block body %}
+    {% include 'layout/partial/_flashes.html.twig' %}
+    <div class="container-fluid">
+        <div class="row">
+            <nav class="col-auto bg-light sidebar s-left">
+                <div class="sidebar-sticky">
+                    {{ menu.left() }}
+                    {% block left %}
+
+                    {% endblock %}
+                </div>
+            </nav>
+            <div class="col mb-4">
+                {{ menu.breadcrumb() }}
+                {% block full_title %}
+                    <h2 class="m-2 mb-5 text-primary">{% block title %}Title{% endblock %}</h2>
+                {% endblock %}
+                {% block page_body %}
+
+                {% endblock %}
+            </div>
+            <div class="col-auto bg-light sidebar s-right">
+                <div class="sidebar-sticky">
+                    {{ menu.right() }}
+                    {% block right %}
+
+                    {% endblock %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+{% endblock %}

@@ -2,9 +2,9 @@
 
 namespace App\Security;
 
-
 use App\Entity\User;
-use Solean\CleanProspecter\UseCase\FindByUserName\FindByUserNameRequest;
+use App\Presenter\RefreshUserPresenterImpl;
+use Solean\CleanProspecter\UseCase\RefreshUser\RefreshUserRequest;
 use Solean\CleanProspecter\UseCase\UseCasesFacade;
 use Symfony\Component\Security\Core\Exception\UnsupportedUserException;
 use Symfony\Component\Security\Core\Exception\UsernameNotFoundException;
@@ -18,9 +18,6 @@ class ProspecterUserProvider implements UserProviderInterface
      */
     private $useCasesFacade;
 
-    /**
-     * @param UseCasesFacade $useCasesFacade
-     */
     public function __construct(UseCasesFacade $useCasesFacade)
     {
         $this->useCasesFacade = $useCasesFacade;
@@ -28,11 +25,12 @@ class ProspecterUserProvider implements UserProviderInterface
 
     /**
      * @param string $username
+     *
      * @return UserInterface|null
      */
     public function loadUserByUsername($username)
     {
-        if ($response = $this->useCasesFacade->findByUserName(new FindByUserNameRequest($username, ''))) {;
+        if ($response = $this->useCasesFacade->refreshUser(new RefreshUserRequest($username), new RefreshUserPresenterImpl())) {
             return new User($response);
         }
 
@@ -40,25 +38,24 @@ class ProspecterUserProvider implements UserProviderInterface
     }
 
     /**
-     * @param UserInterface $user
      * @return UserInterface
      */
     public function refreshUser(UserInterface $user)
     {
-       if(!$this->supportsClass(get_class($user))) {
-           throw new UnsupportedUserException();
-       }
+        if (!$this->supportsClass(get_class($user))) {
+            throw new UnsupportedUserException();
+        }
 
-       return $this->loadUserByUsername($user->getUsername());
+        return $this->loadUserByUsername($user->getUsername());
     }
 
     /**
      * @param string $class
+     *
      * @return bool
      */
     public function supportsClass($class)
     {
         return User::class === $class;
     }
-
 }

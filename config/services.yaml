@@ -1,6 +1,8 @@
 # Put parameters here that don't need to change on each machine where the app is deployed
 # https://symfony.com/doc/current/best_practices/configuration.html#application-related-configuration
 parameters:
+    locale : en
+    google_api_url : 'https://maps.googleapis.com/maps/api/geocode/json'
     knp_menu.renderer.twig.options:
         currentClass: 'active'
 services:
@@ -26,6 +28,45 @@ services:
 
     # add more service definitions when explicit configuration is needed
     # please note that last definitions always *replace* previous ones
+    #Twig
+    App\Twig\AppTwigExtension:
+        arguments: ['@App\Service\ImageService']
+        tags:
+            - { name: twig.extension }
+    #controller
+    App\Controller\Web\DashboardController:
+          tags: ['controller.service_arguments']
+          calls:
+              - [setPresenterFactory, ['@App\Service\PresenterFactory']]
+              - [setFormFactory, ['@form.factory']]
+              - [setTwig, ['@twig']]
+              - [setRouter, ['@router']]
+              - [setUseCases, ['@Solean\CleanProspecter\UseCase\UseCasesFacade']]
+              - [setFormHandler, ['@App\Service\RequestHandler']]
+    App\Controller\Web\ProspectController:
+        tags: ['controller.service_arguments']
+        calls:
+            - [setFormFactory, ['@form.factory']]
+            - [setTwig, ['@twig']]
+            - [setRouter, ['@router']]
+            - [setUseCases, ['@Solean\CleanProspecter\UseCase\UseCasesFacade']]
+            - [setFormHandler, ['@App\Service\RequestHandler']]
+    App\Controller\Web\OrganizationController:
+        tags: ['controller.service_arguments']
+        calls:
+            - [setFormFactory, ['@form.factory']]
+            - [setTwig, ['@twig']]
+            - [setRouter, ['@router']]
+            - [setUseCases, ['@Solean\CleanProspecter\UseCase\UseCasesFacade']]
+            - [setFormHandler, ['@App\Service\RequestHandler']]
+    App\Controller\Web\UserAccountController:
+        tags: ['controller.service_arguments']
+        calls:
+            - [setFormFactory, ['@form.factory']]
+            - [setTwig, ['@twig']]
+            - [setRouter, ['@router']]
+            - [setUseCases, ['@Solean\CleanProspecter\UseCase\UseCasesFacade']]
+            - [setFormHandler, ['@App\Service\RequestHandler']]
 
     #Security
     App\Security\ProspecterAuthenticator:
@@ -41,27 +82,133 @@ services:
     App\Security\ProspecterUserProvider:
         arguments: ['@Solean\CleanProspecter\UseCase\UseCasesFacade']
     #Menu
+    App\Menu\Matcher\PathInfoRegexVoter:
+        arguments: ['@request_stack']
+        tags: ['knp_menu.voter']
     App\Menu\MenuBuilder:
-        arguments: ["@knp_menu.factory"]
+        arguments: ["@knp_menu.factory", "@security.authorization_checker", "@=service('request_stack').getCurrentRequest()"]
         tags:
             - { name: 'knp_menu.menu_builder', method: 'createMainMenu', alias: 'main' }
-
+            - { name: 'knp_menu.menu_builder', method: 'createLeftMenu', alias: 'left' }
+            - { name: 'knp_menu.menu_builder', method: 'createRightMenu', alias: 'right' }
+            - { name: 'knp_menu.menu_builder', method: 'createBreadcrumb', alias: 'breadcrumb' }
 
     #Uses Cases
     Solean\CleanProspecter\UseCase\UseCasesFacade: ~
-    Solean\CleanProspecter\UseCase\Login\Login:
+    Solean\CleanProspecter\UseCase\Login\LoginImpl:
+        lazy:  true
         tags: ['use_case']
         arguments:
-            - '@App\Gateway\Database\UserGatewayAdapter'
-            - '@App\Presenter\LoginPresenter'
-    Solean\CleanProspecter\UseCase\FindByUserName\FindByUserName:
+            - '@App\Gateway\Entity\UserRepositoryAdapter'
+    Solean\CleanProspecter\UseCase\RefreshUser\RefreshUserImpl:
+        lazy:  true
         tags: ['use_case']
         arguments:
-            - '@App\Gateway\Database\UserGatewayAdapter'
-            - '@App\Presenter\FindByUserNamePresenter'
-    #Database Gateway
-    App\Gateway\Database\UserGatewayAdapter: ~
-    #Presenter
-    App\Presenter\FindByUserNamePresenter: ~
-    App\Presenter\LoginPresenter: ~
+            - '@App\Gateway\Entity\UserRepositoryAdapter'
+    Solean\CleanProspecter\UseCase\CreateOrganization\CreateOrganizationImpl:
+        lazy:  true
+        tags: ['use_case']
+        arguments:
+            - '@App\Gateway\Entity\OrganizationRepositoryAdapter'
+            - '@App\Gateway\StorageLocalAdapter'
+            - '@App\Gateway\UserNotifierSymfonyAdapter'
+            - '@App\Gateway\GeoLocatorAdapter'
+    Solean\CleanProspecter\UseCase\UpdateOrganization\UpdateOrganizationImpl:
+        lazy:  true
+        tags: ['use_case']
+        arguments:
+            - '@App\Gateway\Entity\OrganizationRepositoryAdapter'
+            - '@App\Gateway\StorageLocalAdapter'
+            - '@App\Gateway\UserNotifierSymfonyAdapter'
+            - '@App\Gateway\GeoLocatorAdapter'
+    Solean\CleanProspecter\UseCase\GetOrganization\GetOrganizationImpl:
+        lazy:  true
+        tags: ['use_case']
+        arguments:
+            - '@App\Gateway\Entity\OrganizationRepositoryAdapter'
+    Solean\CleanProspecter\UseCase\FindMyOwnOrganizations\FindMyOwnOrganizationsImpl:
+        lazy:  true
+        tags: ['use_case']
+        arguments:
+            - '@App\Gateway\Entity\OrganizationRepositoryAdapter'
+    Solean\CleanProspecter\UseCase\GetMyAccountInformation\GetMyAccountInformationImpl:
+        lazy:  true
+        tags: ['use_case']
+        arguments:
+            - '@App\Gateway\Entity\UserRepositoryAdapter'
+            - '@App\Gateway\Entity\OrganizationRepositoryAdapter'
+    Solean\CleanProspecter\UseCase\UpdateMyAccountInformation\UpdateMyAccountInformationImpl:
+        lazy:  true
+        tags: ['use_case']
+        arguments:
+            - '@App\Gateway\Entity\OrganizationRepositoryAdapter'
+            - '@App\Gateway\Entity\UserRepositoryAdapter'
+            - '@App\Gateway\Entity\TransactionEntityManagerAdapter'
+            - '@App\Gateway\StorageLocalAdapter'
+            - '@App\Gateway\UserNotifierSymfonyAdapter'
+    #Gateway
+      #Database
+    App\Gateway\Entity\UserRepositoryAdapter:
+        lazy:  true
+        arguments:
+            - '@doctrine.orm.entity_manager'
+            - 'Solean\CleanProspecter\Entity\User'
+    App\Gateway\Entity\OrganizationRepositoryAdapter:
+        lazy:  true
+        arguments:
+            - '@doctrine.orm.entity_manager'
+            - 'Solean\CleanProspecter\Entity\Organization'
+      #User Notifier
+    App\Gateway\UserNotifierSymfonyAdapter:
+        arguments:
+            - '@session'
+      #Storage
+    App\Gateway\StorageLocalAdapter:
+        arguments:
+            - '@App\Service\LocalStorageService'
+      #GeoLocation
+    App\Gateway\GeoLocationAdapter:
+        arguments:
+            - '@App\Service\GoogleMapGeoLocator'
+    #Service
+      #Local storage
+    App\Service\LocalStorageService:
+        public: true
+        arguments:
+            - '%env(resolve:APP_STORAGE_PATH)%'
+            - '%env(APP_STORAGE_URL)%'
+    App\Service\ImageService:
+        public: true;
+    App\Service\Image\SecretCipherHandler:
+        arguments:
+           - '%env(APP_SECRET)%'
+      #Google Map geo locator
+    App\Service\GoogleMapGeoLocator:
+        arguments:
+            - '%google_api_url%'
+            - '%env(APP_GOOGLE_API_KEY)%'
+      #Request handler
+    App\Service\RequestHandler: ~
+      #Form Request handler command
+    App\Service\RequestHandler\AbstractFormHandlingCommand:
+        abstract: true
+        calls:
+            - [setFormFactory, ['@form.factory']]
+            - [setTwig, ['@twig']]
+            - [setRouter, ['@router']]
+            - [setUseCases, ['@Solean\CleanProspecter\UseCase\UseCasesFacade']]
+    App\Service\RequestHandler\CreateFormHandlingCommand:
+        autoconfigure: false
+        autowire: false
+        public: false
+        parent: App\Service\RequestHandler\AbstractFormHandlingCommand
+        lazy:  true
+        tags: [{name: 'form_cmd', id: 'create'}]
+    App\Service\RequestHandler\UpdateFormHandlingCommand:
+        autoconfigure: false
+        autowire: false
+        public: false
+        parent: App\Service\RequestHandler\AbstractFormHandlingCommand
+        lazy:  true
+        tags: [{name: 'form_cmd', id: 'update'}]
 

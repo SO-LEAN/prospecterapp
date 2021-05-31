@@ -1,0 +1,10 @@
+{% extends 'layout/page-2-col.html.twig' %}
+{% block header %}Add Organization{% endblock %}
+{% set js_ctrl, page  = 'addOrganization', 'add-organization' %}
+{% block title %}<i class="fa fa-address-card"></i> Add Organization{% endblock %}
+{% block page_body %}
+    {{ form_start(form) }}
+    {{ form_widget(form) }}
+        <input type="submit" class="btn btn-default pull-right" value="Create" />
+    {{ form_end(form) }}
+{% endblock %}

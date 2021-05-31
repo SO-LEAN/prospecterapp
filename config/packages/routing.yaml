@@ -1,3 +1,7 @@
+parameters:
+    app_application_host: '%env(APP_PROJECT)%.%env(APP_APPLICATION_HOST)%'
+    app_static_host: '%env(APP_STATIC_HOST)%'
+
 framework:
     router:
         strict_requirements: ~

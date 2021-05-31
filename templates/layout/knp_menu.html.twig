@@ -1,8 +1,8 @@
 {% extends 'knp_menu.html.twig' %}
 
 {% block icon %}
- {% if item.labelAttribute('icon') is not empty  %}
-     <i class="{{ item.labelAttribute('icon') }}"></i>
+ {% if item.extra('icon') is not empty  %}
+     <span class="{{ item.extra('icon') }}" aria-hidden="true"></span>
  {% endif %}
 {% endblock %}
 
@@ -13,6 +13,6 @@
     {%- if translation_domain is not same as(false) -%}
         {%- set label = label|trans(item.extra('translation_params', {}), translation_domain) -%}
     {%- endif -%}
-    {%- if options.allow_safe_labels and item.extra('safe_label', false) %}{{ label|raw }}{% else %}{{ label }}{% endif -%}
-    {%- if matcher.isCurrent(item) %}<span class="sr-only"> (page actuelle)</span>{% endif -%}
+    {%- if options.allow_safe_labels and item.extra('safe_label', false) %}{{ label|raw }}{% elseif item.extra('wrap_label') is not empty %}<span class="{{ item.extra('wrap_label') }}">{{ label }}</span>{% else %}{{ label }}{% endif -%}
+    {%- if matcher.isCurrent(item) %}<span class="sr-only"> (current page)</span>{% endif -%}
 {%- endblock -%}

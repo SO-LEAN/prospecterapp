@@ -1,22 +1,33 @@
 <!DOCTYPE html>
-<html lang="fr">
+<html lang="en">
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
     <meta http-equiv="x-ua-compatible" content="ie=edge">
-    <title>{% block title %}Page Title{% endblock %} - SoLean IT</title>
-    <link rel="icon" type="image/x-icon" href="">
+    <title>{% block header %}Page Title{% endblock %} - SoLean IT</title>
+    <link rel="icon" type="image/x-icon" href="{{ asset('build/assets/images/favicon.ico') }}">
     <link rel="stylesheet" href="{{ asset('build/css/app.css') }}">
 </head>
-<body data-page="{{ js_ctrl|default('none') }}" class="{{ page|default('') }}">
-    <nav class="navbar navbar-expand navbar-light navbar-main">
+<body class="{{ page|default('') }}" data-page="{{ js_ctrl|default('none') }}" {% for key,value in data_attributes|default({}) %}data-{{ key }}="{{ value }}" {% endfor %}>
+    <header class="navbar navbar-expand-md navbar-light navbar-main bg-light text-muted">
         <div class="container-fluid">
-            {{ knp_menu_render('main') }}
-            <a class="navbar-brand" href="{{ path('dashboard_display') }}" title="Dashboard">
-                <img src="" height="50" width="185" alt="PROSPECTER">
-            </a>
+            <div class="navbar-brand ml-2 ml-md-0" id="js-identity">
+                {% set user_pic = app.user and app.user.pictureUrl ? app.user.pictureUrl|image_operation('resize', 50, 0) : asset('build/assets/images/solean.png') %}
+                <a href="{{ path('dashboard_display') }}" title="Dashboard"><img src="{{ user_pic }}" height="50" width="50" alt="PROSPECTER" class="rounded-circle border border-dark"></a>
+                {% if app.user %}
+                   <a href="{{ path('my_account_information_update') }}"><small id="func-logged-user" class="font-italic">{{ app.user.username }}</small></a>
+                    <a href="{{ path('logout') }}" title="logout"><i class="fa fa-power-off" aria-hidden="true"></i></a>
+                {% endif %}
+            </div>
+            <button class="navbar-toggler mr-2" type="button" data-toggle="collapse" data-target="#js-main-menu" aria-controls="js-main-menu" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse ml-2" id="js-main-menu">
+                {%- import "macro/menu.html.twig" as menu -%}
+                {{ menu.main() }}
+            </div>
         </div><!-- /.container -->
-    </nav><!-- /.navbar -->
+    </header><!-- /.navbar -->
     {# Flash messages #}
     {% block body %}
     {% endblock %}
@@ -26,8 +37,8 @@
                 <div class="col-sm-3">
                     <h2>Informations</h2>
                     <ul class="list-unstyled">
-                        <li><a href="https://github.com/SO-LEAN" target="_blank">SOLEAN IT GitHub account</a></li>
-                        <li><a href="https://fr.linkedin.com/in/michel-maier-a8b19187" target="_blank">My Linkedin page</a></li>
+                        <li><a href="https://github.com/SO-LEAN" target="_blank"><i class="fa fa-github-square" aria-hidden="true"></i> SOLEAN IT GitHub account</a></li>
+                        <li><a href="https://fr.linkedin.com/in/michel-maier-a8b19187" target="_blank"><i class="fa fa-linkedin-square" aria-hidden="true"></i>  My Linkedin page</a></li>
                     </ul>
                 </div>
                 <div class="col-sm-3 offset-sm-6">

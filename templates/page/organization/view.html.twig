@@ -1,0 +1,46 @@
+{% extends 'layout/page-3-col.html.twig' %}
+{% block header %}View Organization{% endblock %}
+{% set js_ctrl, page, data_attributes  = 'getOrganization', 'get-organization', {'longitude': data.longitude, 'latitude': data.latitude, 'address': '%s, %s %s %s'|format(data.street, data.postalCode, data.city, data.country)} %}
+{% block title %}<i class="fa fa-building-o"></i>  "{{ data.corporateName|default(data.email) }}"{% endblock %}
+{% block page_body %}
+    <div class="row">
+        <div class="card m-2 p-4 mb-5 col">
+            <div class="row">
+                <address class="card-body col-sm-8 mb-2">
+                    <strong class="mb-2 text-secondary">Organization {% if data.type is not empty %}<i>#{{ data.type|lower }}</i>{% endif %}</strong>
+                    <h4 class="mb-0 text-dark">
+                        {{ data.corporateName }} {{ data.form }}
+                    </h4>
+                    <p class="card-text mb-auto">
+                        {{ data.street }}<br>
+                        {{ data.postalCode }} {{ data.city }}<br>
+                        {{ data.country }}<br>
+                        {% if data.email %}<a href="mailto:{{ data.email }}" aria-label="email address"><i class="fa fa-envelope-o" aria-hidden="true"></i> {{ data.email }}</a><br>{% endif %}
+                        {% if data.phoneNumber %}<i class="fa fa-phone-square" aria-hidden="true"></i> {{ data.phoneNumber }}<br>{% endif %}
+                    </p>
+                    {% if data.holdBy %}<p class="card-text"><small class="text-muted">Hold by {{ data.holdBy }}</small></p>{% endif %}
+                </address>
+                <div class="col-sm-4 pt-2 pb-2">
+                    {% if data.logoUrl %}
+                        <img alt="{{ data.corporateName }}" src="{{ data.logoUrl|image_operation('resize', 500, 0) }}" class="img-fluid">
+                    {% else %}
+                        <img alt="{{ data.corporateName }}" src="data:image/svg+xml;charset=UTF-8,%3Csvg%20width%3D%22200%22%20height%3D%22250%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%20200%20250%22%20preserveAspectRatio%3D%22none%22%3E%3Cdefs%3E%3Cstyle%20type%3D%22text%2Fcss%22%3E%23holder_163093ab250%20text%20%7B%20fill%3A%23eceeef%3Bfont-weight%3Abold%3Bfont-family%3AArial%2C%20Helvetica%2C%20Open%20Sans%2C%20sans-serif%2C%20monospace%3Bfont-size%3A13pt%20%7D%20%3C%2Fstyle%3E%3C%2Fdefs%3E%3Cg%20id%3D%22holder_163093ab250%22%3E%3Crect%20width%3D%22200%22%20height%3D%22250%22%20fill%3D%22%2355595c%22%3E%3C%2Frect%3E%3Cg%3E%3Ctext%20x%3D%2255.609375%22%20y%3D%22131%22%3EOrganization%3C%2Ftext%3E%3C%2Fg%3E%3C%2Fg%3E%3C%2Fsvg%3E">
+                    {% endif %}
+                </div>
+            </div>
+            {% if data.latitude and data.longitude %}
+            <div class="row google" data-google-api-key="{{ google_api_key }}">
+                <div id="map" style="height: 350px" class="col-sm-12 mb-2"></div>
+            </div>
+            {% endif %}
+            {% if data.observations %}
+            <div class="row">
+                <div class="alert alert-warning col-sm-12 p-3">
+                    <p class="text-muted">Observations :</p>
+                    {{ data.observations|nl2br }}
+                </div>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+{% endblock %}

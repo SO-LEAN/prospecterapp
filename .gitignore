@@ -5,13 +5,18 @@
 /vendor/
 ###< symfony/framework-bundle ###
 ###> symfony/phpunit-bridge ###
-.phpunit
+/bin/.phpunit
 /phpunit.xml
 ###< symfony/phpunit-bridge ###
-/.idea/
-/node_modules/
 ###> symfony/webpack-encore-pack ###
 /node_modules/
 /public/static/build/*
+/public/static/storage/*
 !/public/static/build/.gitkeep
 ###< symfony/webpack-encore-pack ###
+/.idea/
+.php_cs.cache
+/reports/
+/docker/data/*
+build.tar.gz
+/reports

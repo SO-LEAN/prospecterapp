@@ -1,0 +1,23 @@
+Solean\CleanProspecter\Entity\Person:
+  type: entity
+  table: null
+  inheritanceType: SINGLE_TABLE
+  discriminatorColumn:
+    name: discriminator
+    type: string
+  fields:
+    email:
+      type: string
+      nullable: true
+    phoneNumber:
+      type: string
+      nullable: true
+    language:
+      type: string
+      nullable: true
+    observations:
+      type: string
+      nullable: true
+  uniqueConstraints:
+    search_idx:
+      columns: [ email ]

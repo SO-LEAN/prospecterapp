@@ -9,27 +9,18 @@ security:
             pattern: ^/(_(profiler|wdt)|css|images|js)/
             security: false
         main:
+            host: '%app_application_host%'
+            pattern: ^(?!/build|/storage)
             anonymous: ~
             logout:
                 path: /logout
-                target: /
+                target: /login
             guard:
                 authenticators:
                     - App\Security\ProspecterAuthenticator
+        static:
+            host: '%app_static_host%'
+            security: false
 
-            # activate different ways to authenticate
-
-            # http_basic: true
-            # https://symfony.com/doc/current/security.html#a-configuring-how-your-users-will-authenticate
-
-            # form_login: true
-            # https://symfony.com/doc/current/security/form_login_setup.html
-
-    # Easy way to control access for large sections of your site
-    # Note: Only the *first* access control that matches will be used
-#    access_control:
-        # - { path: ^/admin, roles: ROLE_ADMIN }
-        # - { path: ^/profile, roles: ROLE_USER }
-#    role_hierarchy:
-#        ROLE_ADMIN:       ROLE_PROSPECTOR
-#        ROLE_SUPER_ADMIN: [ROLE_ADMIN, ROLE_ALLOWED_TO_SWITCH]
+    access_control:
+        - { host: '%app_application_host%', path: ^/(?!login), roles: ROLE_PROSPECTOR}

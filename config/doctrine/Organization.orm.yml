@@ -1,0 +1,47 @@
+Solean\CleanProspecter\Entity\Organization:
+  type: entity
+  manyToOne:
+    holdBy:
+      targetEntity: Organization
+      inversedBy: subsidiaries
+    ownedBy:
+      targetEntity: Organization
+      inversedBy: ownedProspectedOrganizations
+  oneToMany:
+    subsidiaries:
+      targetEntity: Organization
+      mappedBy: holdBy
+    ownedProspectedOrganizations:
+      targetEntity: Organization
+      mappedBy: ownedBy
+    ownedProspects:
+      targetEntity: Prospect
+      mappedBy: ownedBy
+    applicationUsers:
+      targetEntity: User
+      mappedBy: organization
+  fields:
+    stats:
+      type: array
+    hasAddress:
+      type: boolean
+    hasGeoPoint:
+      type: boolean
+    hasLogo:
+      type: boolean
+    corporateName:
+      type: string
+      length: 150
+    form:
+      type: string
+      length: 50
+    type:
+      type: string
+      length: 50
+  embedded:
+    address:
+      class: Address
+    geoPoint:
+      class: GeoPoint
+    logo:
+      class: File

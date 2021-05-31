@@ -1,39 +1,20 @@
-{% use 'bootstrap_3_layout.html.twig' %}
-
-{# Rows #}
-
-{% block form_row -%}
-    <div class="form-group{% if (not compound or force_error|default(false)) and not valid %} has-danger{% endif %}">
-        {{- form_label(form) -}}
-        {{- form_widget(form) -}}
-        {{- form_errors(form) -}}
-    </div>
-{%- endblock form_row %}
-
-{% block checkbox_row -%}
-    <div class="form-group{% if not valid %} has-danger{% endif %}">
-        {{- form_widget(form) -}}
-        {{- form_errors(form) -}}
-    </div>
-{%- endblock checkbox_row %}
-
-{% block radio_row -%}
-    <div class="form-group{% if not valid %} has-danger{% endif %}">
-        {{- form_widget(form) -}}
-        {{- form_errors(form) -}}
-    </div>
-{%- endblock radio_row %}
+{% use 'bootstrap_4_layout.html.twig' %}
 
 {# Errors #}
-
+{# fix in rootform#}
 {% block form_errors -%}
-    {% if errors|length > 0 -%}
-        {% if form.parent %}<span class="help-block">{% else %}<div class="alert alert-danger">{% endif %}
-        <ul class="list-unstyled form-control-feedback">
-            {%- for error in errors -%}
-                <li><span class="fa fa-exclamation-circle" aria-hidden="true" aria-label="Erreur de saisie"></span> {{ error.message }}</li>
-            {%- endfor -%}
-        </ul>
-        {% if form.parent %}</span>{% else %}</div>{% endif %}
+    {%- if errors|length > 0 -%}
+    {% if form is not rootform %}<span class="invalid-feedback d-block">{% else %}<div class="alert alert-danger">{% endif %}
+        {%- for error in errors -%}
+            <span class="mb-0 d-block">
+                <span class="initialism form-error-icon badge badge-danger">{{ 'Error'|trans({}, 'validators') }}</span> <span class="form-error-message">{{ error.message }}</span>
+            </span>
+        {%- endfor -%}
+    {% if form is not rootform %}</span>{% else %}</div>{% endif %}
     {%- endif %}
 {%- endblock form_errors %}
+
+{# Custom type#}
+{%- block easy_file -%}
+    {{- block('form_rows') -}}
+{%- endblock easy_file -%}

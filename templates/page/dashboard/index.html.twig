@@ -1,0 +1,43 @@
+{% extends 'layout/base.html.twig' %}
+{% block header %}Dashboard{% endblock %}
+{% set js_ctrl, page  = 'dashboard', 'dashboard' %}
+{% block body %}
+    <div class="container-fluid">
+       <div class="row">
+            <div class="col-sm-6 p-4">
+                {# map #}
+                {{ render(controller('App\\Controller\\Web\\DashboardController::map')) }}
+                <div class="card">
+                    <div class="card-body mb-4">
+                        <h2 class="card-title">Card title</h2>
+                        <h3 class="card-subtitle mb-2 text-muted">Card subtitle</h3>
+                        <p class="card-text">...
+                        </p>
+                    </div>
+                </div>
+            </div>
+           <div class="col-sm-6 p-4">
+               <div class="card mb-4">
+                   {# statistics #}
+                   {{ render(controller('App\\Controller\\Web\\DashboardController::statistics')) }}
+               </div>
+               <div class="card mb-4">
+                   <div class="card-body">
+                       <h2 class="card-title">Card title</h2>
+                       <h3 class="card-subtitle mb-2 text-muted">Card subtitle</h3>
+                       <p class="card-text">Lorem ipsum dolor sit amet, consectetur adipiscing elit. Proin hendrerit libero tortor, sit amet sagittis tellus tristique vel. Aenean lectus ante, mattis id consectetur viverra, condimentum eget nunc. Maecenas sed congue augue, eu suscipit eros. Mauris sodales arcu ligula, quis sagittis arcu posuere sed. Pellentesque et mauris sed lacus lacinia ultricies ac id lacus. Vivamus commodo ultrices mi, et auctor neque tristique sodales. Mauris aliquet laoreet diam eu dapibus. Aenean convallis convallis leo, sit amet luctus magna maximus ac. Nam egestas, mauris lobortis dapibus laoreet, lacus lorem lobortis est, ac fermentum turpis libero vitae odio.
+                       </p>
+                   </div>
+               </div>
+               <div class="card mb-4">
+                   <div class="card-body">
+                       <h2 class="card-title">Card title</h2>
+                       <h3 class="card-subtitle mb-2 text-muted">Card subtitle</h3>
+                       <p class="card-text">Lorem ipsum dolor sit amet, consectetur adipiscing elit. Proin hendrerit libero tortor, sit amet sagittis tellus tristique vel. Aenean lectus ante, mattis id consectetur viverra, condimentum eget nunc. Maecenas sed congue augue, eu suscipit eros. Mauris sodales arcu ligula, quis sagittis arcu posuere sed. Pellentesque et mauris sed lacus lacinia ultricies ac id lacus. Vivamus commodo ultrices mi, et auctor neque tristique sodales. Mauris aliquet laoreet diam eu dapibus. Aenean convallis convallis leo, sit amet luctus magna maximus ac. Nam egestas, mauris lobortis dapibus laoreet, lacus lorem lobortis est, ac fermentum turpis libero vitae odio.
+                       </p>
+                   </div>
+               </div>
+           </div>
+       </div>
+    </div>
+{% endblock %}

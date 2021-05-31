@@ -2,31 +2,31 @@
 
 namespace App\Entity;
 
-use Solean\CleanProspecter\UseCase\FindByUserName\FindByUserNameResponse;
+use Solean\CleanProspecter\UseCase\RefreshUser\RefreshUserResponse;
+use Solean\CleanProspecter\UseCase\UseCaseConsumer;
 use Symfony\Component\Security\Core\User\UserInterface;
 
 /**
- * Class User
- * @package App\Entity
+ * Class User.
  */
-final class User implements UserInterface
+final class User implements UserInterface, UseCaseConsumer
 {
     /**
-     * @var FindByUserNameResponse
+     * @var RefreshUserResponse
      */
-    private $loginResponse;
-
-    public function __construct(FindByUserNameResponse $loginResponse = null)
-    {
-        $this->loginResponse = $loginResponse;
-    }
+    private $refreshUser;
 
     /**
-     * @return array
+     * @param RefreshUserResponse|null $refreshUseronse
      */
-    public function getRoles()
+    public function __construct(RefreshUserResponse $refreshUser = null)
     {
-        return $this->loginResponse->getRoles();
+        $this->refreshUser = $refreshUser;
+    }
+
+    public function getRoles(): array
+    {
+        return $this->refreshUser->getRoles();
     }
 
     /**
@@ -34,7 +34,7 @@ final class User implements UserInterface
      */
     public function getPassword()
     {
-        return $this->loginResponse->getPassword();
+        return $this->refreshUser->getPassword();
     }
 
     /**
@@ -50,14 +50,26 @@ final class User implements UserInterface
      */
     public function getUsername()
     {
-        return $this->loginResponse->getUserName();
+        return $this->refreshUser->getUserName();
     }
 
-    /**
-     *
-     */
     public function eraseCredentials()
     {
         return;
+    }
+
+    public function getOrganizationId()
+    {
+        return $this->refreshUser->getOrganizationId();
+    }
+
+    public function getUserId()
+    {
+        return $this->refreshUser->getId();
+    }
+
+    public function getPictureUrl()
+    {
+        return $this->refreshUser->getPictureUrl();
     }
 }

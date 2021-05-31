@@ -1,3 +1,8 @@
-controllers:
-    resource: ../../src/Controller/
+statics:
+    resource: ../../src/Controller/Statics/
     type: annotation
+    host: '%app_static_host%'
+web:
+    resource: ../../src/Controller/Web/
+    type: annotation
+    host: '%app_application_host%'

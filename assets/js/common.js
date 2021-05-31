@@ -1,9 +1,9 @@
 "use strict";
 
-var $ = require('jquery');
+let $ = require('jquery');
 
 function Common() {
-  var that = this;
+  let that = this;
 
   this.$_body = $('body');
   this.$_navBar = $('.navbar-main');

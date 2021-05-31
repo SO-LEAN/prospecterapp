@@ -1,0 +1,9 @@
+Solean\CleanProspecter\Entity\File:
+  type: embeddable
+  fields:
+    url:
+      type: string
+    extension:
+      type: string
+    size:
+      type: integer
