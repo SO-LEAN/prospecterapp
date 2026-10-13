@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "c571e997deaaa0abee21e0ecbdd1252b",
+    "content-hash": "70d8e80a2549e540eab0326149730093",
     "packages": [
         {
             "name": "components/font-awesome",
@@ -1607,7 +1607,7 @@
             "dist": {
                 "type": "path",
                 "url": "../packages/cleanprospecter",
-                "reference": "e8954475a584a8d6b5286cf4908520e0d0b44eb2"
+                "reference": "212aadaad7747d6352bbfc614ddfb0130502e87c"
             },
             "require": {
                 "php": ">=8.5"
@@ -1646,7 +1646,6 @@
             ],
             "description": "P.O.C. of clean architecture (unclebob)",
             "transport-options": {
-                "symlink": true,
                 "relative": true
             }
         },
