@@ -4,7 +4,7 @@ namespace App\Api\Input;
 
 use Symfony\Component\Validator\Constraints as Assert;
 
-final class OrganizationListQuery
+final readonly class OrganizationListQuery
 {
     public function __construct(
         #[Assert\Positive]

@@ -3,9 +3,27 @@ nelmio_api_doc:
         info:
             title: Prospecter API
             description: |
-                Exposes the use cases of `prospecter/core`. Errors use RFC 9457 problem details
-                (`application/problem+json`), validation errors list the fields in `violations`.
+                Exposes the use cases of `prospecter/core`.
+
+                Authentication: OAuth 2 authorization code with PKCE (public client `prospecter-front`),
+                then `Authorization: Bearer <access token>` on every call.
+
+                Errors use RFC 9457 problem details (`application/problem+json`);
+                validation errors list the invalid fields in `violations`.
             version: 1.0.0
+        components:
+            securitySchemes:
+                oauth2:
+                    type: oauth2
+                    flows:
+                        authorizationCode:
+                            authorizationUrl: /authorize
+                            tokenUrl: /token
+                            refreshUrl: /token
+                            scopes:
+                                api: Use the API on behalf of the signed-in user
+        security:
+            - oauth2: [api]
     areas:
         path_patterns:
             - ^/api(?!/doc)

@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Controller\Api;
+namespace App\Controller\Api\Dashboard;
 
 use App\Api\Resource\DashboardResource;
 use App\Api\Resource\OrganizationPageResource;
@@ -20,7 +20,7 @@ use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Security\Http\Attribute\CurrentUser;
 
 #[OA\Tag('Dashboard')]
-final class DashboardController extends AbstractController
+final class ShowDashboard extends AbstractController
 {
     private const int MAX_MARKERS = 1000;
 

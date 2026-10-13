@@ -3,6 +3,7 @@
 namespace Tests\App\Base;
 
 use App\DataFixtures\AppFixtures;
+use App\DataFixtures\OAuthClientFixtures;
 use App\Entity\User;
 use Doctrine\Common\DataFixtures\Executor\ORMExecutor;
 use Doctrine\Common\DataFixtures\Loader;
@@ -66,6 +67,7 @@ abstract class ControllerTestCase extends WebTestCase
 
         $loader = new Loader();
         $loader->addFixture(new AppFixtures());
+        $loader->addFixture(static::getContainer()->get(OAuthClientFixtures::class));
 
         $executor = new ORMExecutor($entityManager, new ORMPurger($entityManager));
         $executor->execute($loader->getFixtures());

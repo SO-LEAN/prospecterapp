@@ -2,7 +2,7 @@
     "openapi": "3.0.0",
     "info": {
         "title": "Prospecter API",
-        "description": "Exposes the use cases of `prospecter/core`. Errors use RFC 9457 problem details\n(`application/problem+json`), validation errors list the fields in `violations`.\n",
+        "description": "Exposes the use cases of `prospecter/core`.\n\nAuthentication: OAuth 2 authorization code with PKCE (public client `prospecter-front`),\nthen `Authorization: Bearer <access token>` on every call.\n\nErrors use RFC 9457 problem details (`application/problem+json`);\nvalidation errors list the invalid fields in `violations`.\n",
         "version": "1.0.0"
     },
     "paths": {
@@ -56,6 +56,9 @@
                             }
                         }
                     },
+                    "401": {
+                        "description": "Missing or invalid access token"
+                    },
                     "422": {
                         "description": "Invalid account",
                         "content": {
@@ -65,58 +68,6 @@
                                 }
                             }
                         }
-                    },
-                    "401": {
-                        "description": "Missing or invalid access token"
-                    }
-                }
-            }
-        },
-        "/api/me/picture": {
-            "post": {
-                "tags": [
-                    "My account"
-                ],
-                "summary": "Upload my picture (multipart, field \"file\")",
-                "operationId": "post_api_me_upload_picture",
-                "requestBody": {
-                    "content": {
-                        "multipart/form-data": {
-                            "schema": {
-                                "properties": {
-                                    "file": {
-                                        "type": "string",
-                                        "format": "binary"
-                                    }
-                                },
-                                "type": "object"
-                            }
-                        }
-                    }
-                },
-                "responses": {
-                    "200": {
-                        "description": "My account with its new picture",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/AccountResource"
-                                }
-                            }
-                        }
-                    },
-                    "422": {
-                        "description": "Invalid image",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/ProblemResource"
-                                }
-                            }
-                        }
-                    },
-                    "401": {
-                        "description": "Missing or invalid access token"
                     }
                 }
             }
@@ -154,6 +105,9 @@
                             }
                         }
                     },
+                    "401": {
+                        "description": "Missing or invalid access token"
+                    },
                     "422": {
                         "description": "Invalid image",
                         "content": {
@@ -163,9 +117,55 @@
                                 }
                             }
                         }
+                    }
+                }
+            }
+        },
+        "/api/me/picture": {
+            "post": {
+                "tags": [
+                    "My account"
+                ],
+                "summary": "Upload my picture (multipart, field \"file\")",
+                "operationId": "post_api_me_upload_picture",
+                "requestBody": {
+                    "content": {
+                        "multipart/form-data": {
+                            "schema": {
+                                "properties": {
+                                    "file": {
+                                        "type": "string",
+                                        "format": "binary"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "My account with its new picture",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/AccountResource"
+                                }
+                            }
+                        }
                     },
                     "401": {
                         "description": "Missing or invalid access token"
+                    },
+                    "422": {
+                        "description": "Invalid image",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ProblemResource"
+                                }
+                            }
+                        }
                     }
                 }
             }
@@ -267,113 +267,8 @@
                             }
                         }
                     },
-                    "422": {
-                        "description": "Invalid organization",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/ProblemResource"
-                                }
-                            }
-                        }
-                    },
                     "401": {
                         "description": "Missing or invalid access token"
-                    }
-                }
-            }
-        },
-        "/api/organizations/{id}": {
-            "get": {
-                "tags": [
-                    "Organizations"
-                ],
-                "summary": "Get an organization",
-                "operationId": "get_api_organizations_show",
-                "parameters": [
-                    {
-                        "name": "id",
-                        "in": "path",
-                        "required": true,
-                        "schema": {
-                            "type": "string",
-                            "pattern": "\\d+"
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "The organization",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/OrganizationResource"
-                                }
-                            }
-                        }
-                    },
-                    "404": {
-                        "description": "Unknown organization",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/ProblemResource"
-                                }
-                            }
-                        }
-                    },
-                    "401": {
-                        "description": "Missing or invalid access token"
-                    }
-                }
-            },
-            "put": {
-                "tags": [
-                    "Organizations"
-                ],
-                "summary": "Replace an organization (fields left out are cleared, the logo is kept)",
-                "operationId": "put_api_organizations_replace",
-                "parameters": [
-                    {
-                        "name": "id",
-                        "in": "path",
-                        "required": true,
-                        "schema": {
-                            "type": "string",
-                            "pattern": "\\d+"
-                        }
-                    }
-                ],
-                "requestBody": {
-                    "required": true,
-                    "content": {
-                        "application/json": {
-                            "schema": {
-                                "$ref": "#/components/schemas/OrganizationInput"
-                            }
-                        }
-                    }
-                },
-                "responses": {
-                    "200": {
-                        "description": "The updated organization",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/OrganizationResource"
-                                }
-                            }
-                        }
-                    },
-                    "404": {
-                        "description": "Unknown organization",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/ProblemResource"
-                                }
-                            }
-                        }
                     },
                     "422": {
                         "description": "Invalid organization",
@@ -384,9 +279,6 @@
                                 }
                             }
                         }
-                    },
-                    "401": {
-                        "description": "Missing or invalid access token"
                     }
                 }
             }
@@ -435,6 +327,9 @@
                             }
                         }
                     },
+                    "401": {
+                        "description": "Missing or invalid access token"
+                    },
                     "404": {
                         "description": "Unknown organization",
                         "content": {
@@ -454,9 +349,6 @@
                                 }
                             }
                         }
-                    },
-                    "401": {
-                        "description": "Missing or invalid access token"
                     }
                 }
             },
@@ -488,6 +380,107 @@
                             }
                         }
                     },
+                    "401": {
+                        "description": "Missing or invalid access token"
+                    },
+                    "404": {
+                        "description": "Unknown organization",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ProblemResource"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/organizations/{id}": {
+            "get": {
+                "tags": [
+                    "Organizations"
+                ],
+                "summary": "Get an organization",
+                "operationId": "get_api_organizations_show",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "pattern": "\\d+"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "The organization",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/OrganizationResource"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Missing or invalid access token"
+                    },
+                    "404": {
+                        "description": "Unknown organization",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ProblemResource"
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "put": {
+                "tags": [
+                    "Organizations"
+                ],
+                "summary": "Replace an organization (fields left out are cleared, the logo is kept)",
+                "operationId": "put_api_organizations_replace",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "pattern": "\\d+"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/OrganizationInput"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "The updated organization",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/OrganizationResource"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Missing or invalid access token"
+                    },
                     "404": {
                         "description": "Unknown organization",
                         "content": {
@@ -498,8 +491,15 @@
                             }
                         }
                     },
-                    "401": {
-                        "description": "Missing or invalid access token"
+                    "422": {
+                        "description": "Invalid organization",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ProblemResource"
+                                }
+                            }
+                        }
                     }
                 }
             }
@@ -561,22 +561,6 @@
                         "nullable": true,
                         "default": null,
                         "maxLength": 50
-                    }
-                },
-                "type": "object"
-            },
-            "OrganizationListQuery": {
-                "properties": {
-                    "page": {
-                        "type": "integer",
-                        "default": 1,
-                        "minimum": 0,
-                        "exclusiveMinimum": true
-                    },
-                    "q": {
-                        "type": "string",
-                        "default": "",
-                        "maxLength": 100
                     }
                 },
                 "type": "object"
@@ -653,6 +637,22 @@
                         "default": null,
                         "minimum": 0,
                         "exclusiveMinimum": true
+                    }
+                },
+                "type": "object"
+            },
+            "OrganizationListQuery": {
+                "properties": {
+                    "page": {
+                        "type": "integer",
+                        "default": 1,
+                        "minimum": 0,
+                        "exclusiveMinimum": true
+                    },
+                    "q": {
+                        "type": "string",
+                        "default": "",
+                        "maxLength": 100
                     }
                 },
                 "type": "object"
@@ -980,8 +980,30 @@
                 },
                 "type": "object"
             }
+        },
+        "securitySchemes": {
+            "oauth2": {
+                "type": "oauth2",
+                "flows": {
+                    "authorizationCode": {
+                        "authorizationUrl": "/authorize",
+                        "tokenUrl": "/token",
+                        "refreshUrl": "/token",
+                        "scopes": {
+                            "api": "Use the API on behalf of the signed-in user"
+                        }
+                    }
+                }
+            }
         }
     },
+    "security": [
+        {
+            "oauth2": [
+                "api"
+            ]
+        }
+    ],
     "tags": [
         {
             "name": "My account"

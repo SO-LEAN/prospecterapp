@@ -8,7 +8,7 @@ use Symfony\Component\Validator\Constraints as Assert;
  * Full representation of an organization sent on create and replace (PUT).
  * At least a corporate name or an email is required (checked by the use case).
  */
-final class OrganizationInput
+final readonly class OrganizationInput
 {
     public function __construct(
         #[Assert\Length(max: 150)]

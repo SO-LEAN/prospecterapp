@@ -1,0 +1,36 @@
+<?php
+
+namespace App\Controller\Api\Organization;
+
+use App\Api\Resource\OrganizationResource;
+use App\Api\Resource\ProblemResource;
+use App\Entity\User;
+use App\Presenter\OrganizationResourcePresenter;
+use Nelmio\ApiDocBundle\Attribute\Model;
+use OpenApi\Attributes as OA;
+use Prospecter\Core\UseCase\GetOrganization\GetOrganizationRequest;
+use Prospecter\Core\UseCase\UseCasesFacade;
+use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\HttpFoundation\JsonResponse;
+use Symfony\Component\Routing\Attribute\Route;
+use Symfony\Component\Security\Http\Attribute\CurrentUser;
+
+#[OA\Tag('Organizations')]
+final class ShowOrganization extends AbstractController
+{
+    public function __construct(
+        private readonly UseCasesFacade $useCases,
+        private readonly OrganizationResourcePresenter $presenter,
+    ) {
+    }
+
+    #[Route('/api/organizations/{id}', name: 'api_organizations_show', requirements: ['id' => '\\d+'], methods: ['GET'])]
+    #[OA\Get(summary: 'Get an organization')]
+    #[OA\Response(response: 200, description: 'The organization', content: new Model(type: OrganizationResource::class))]
+    #[OA\Response(response: 401, description: 'Missing or invalid access token')]
+    #[OA\Response(response: 404, description: 'Unknown organization', content: new Model(type: ProblemResource::class))]
+    public function __invoke(int $id, #[CurrentUser] User $user): JsonResponse
+    {
+        return $this->json($this->useCases->getOrganization(new GetOrganizationRequest($id), $this->presenter, $user));
+    }
+}

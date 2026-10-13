@@ -2,10 +2,60 @@
 
 namespace Tests\App\Base;
 
+use App\DataFixtures\OAuthClientFixtures;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 
 abstract class ApiTestCase extends ControllerTestCase
 {
+    /**
+     * Signs in like the SPA does: session login, authorization code with PKCE, then a bearer token on every request.
+     */
+    protected function login(string $reference = 'prospector-user'): void
+    {
+        parent::login($reference);
+
+        $this->client->setServerParameter('HTTP_AUTHORIZATION', 'Bearer '.$this->obtainTokens()['access_token']);
+    }
+
+    /**
+     * @return array{access_token: string, refresh_token: string, expires_in: int, token_type: string}
+     */
+    protected function obtainTokens(): array
+    {
+        $verifier = bin2hex(random_bytes(32));
+        $challenge = rtrim(strtr(base64_encode(hash('sha256', $verifier, true)), '+/', '-_'), '=');
+
+        $this->client->request('GET', '/authorize?'.http_build_query([
+            'response_type' => 'code',
+            'client_id' => OAuthClientFixtures::FRONT_CLIENT_ID,
+            'redirect_uri' => $this->redirectUri(),
+            'scope' => 'api',
+            'state' => 'test-state',
+            'code_challenge' => $challenge,
+            'code_challenge_method' => 'S256',
+        ]));
+
+        $location = (string) $this->client->getResponse()->headers->get('Location');
+        parse_str((string) parse_url($location, PHP_URL_QUERY), $query);
+        $this->assertSame('test-state', $query['state'] ?? null, 'authorization failed: '.$location);
+
+        $this->client->request('POST', '/token', [
+            'grant_type' => 'authorization_code',
+            'client_id' => OAuthClientFixtures::FRONT_CLIENT_ID,
+            'redirect_uri' => $this->redirectUri(),
+            'code' => $query['code'],
+            'code_verifier' => $verifier,
+        ]);
+        $this->assertResponseIsSuccessful();
+
+        return $this->responseData();
+    }
+
+    protected function redirectUri(): string
+    {
+        return $_ENV['FRONT_URL'].OAuthClientFixtures::CALLBACK_PATH;
+    }
+
     /**
      * @param array<string, mixed>|null $payload
      *

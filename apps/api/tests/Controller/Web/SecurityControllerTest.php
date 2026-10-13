@@ -42,7 +42,7 @@ class SecurityControllerTest extends ControllerTestCase
 
         $this->client->request('GET', '/logout');
 
-        $this->assertResponseRedirects('http://api.test.prospecter.io/login');
+        $this->assertResponseRedirects('http://test.prospecter.io');
     }
 
     private function submitCredentials(string $username, string $password, ?string $csrf = null): void

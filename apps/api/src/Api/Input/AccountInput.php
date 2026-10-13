@@ -7,7 +7,7 @@ use Symfony\Component\Validator\Constraints as Assert;
 /**
  * Full representation of the current user's account (PUT). A null password keeps the current one.
  */
-final class AccountInput
+final readonly class AccountInput
 {
     public function __construct(
         #[Assert\NotBlank]

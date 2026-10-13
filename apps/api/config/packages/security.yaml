@@ -10,6 +10,22 @@ security:
         static:
             host: '%app_static_host%'
             security: false
+        api_doc:
+            pattern: ^/api/doc
+            security: false
+        # resource server: every API call carries an OAuth 2 access token
+        api:
+            host: '%app_api_host%'
+            pattern: ^/api/
+            stateless: true
+            provider: prospecter_provider
+            oauth2: true
+            entry_point: App\Security\ApiAuthenticationEntryPoint
+        # authorization server: the token endpoint authenticates clients itself
+        oauth_token:
+            pattern: ^/token$
+            security: false
+        # the user signs in here (session) before /authorize issues a code to the SPA
         main:
             host: '%app_api_host%'
             lazy: true
@@ -19,8 +35,8 @@ security:
             entry_point: App\Security\ProspecterAuthenticator
             logout:
                 path: logout
-                target: login
 
     access_control:
-        - { host: '%app_api_host%', path: ^/login, roles: PUBLIC_ACCESS }
-        - { host: '%app_api_host%', path: ^/, roles: ROLE_PROSPECTOR }
+        - { path: ^/api/, roles: ROLE_USER }
+        - { path: ^/login, roles: PUBLIC_ACCESS }
+        - { path: ^/authorize, roles: ROLE_USER }
