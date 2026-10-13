@@ -1,9 +1,8 @@
-[![PR CI](https://github.com/SO-LEAN/cleanprospecter/actions/workflows/on-pr.yml/badge.svg)](https://github.com/SO-LEAN/cleanprospecter/actions/workflows/on-pr.yml)
-![maintanibility](https://api.codeclimate.com/v1/badges/b61cae7437cba2d564fb/maintainability)
-![coverage](https://api.codeclimate.com/v1/badges/b61cae7437cba2d564fb/test_coverage)
 # Cleanprospecter
 
-**Cleanprospecter** is a php 7.2 business prospect application designed according to Robert C. Martin [recommendations for clean architecture](https://8thlight.com/blog/uncle-bob/2012/08/13/the-clean-architecture.html).
+**Cleanprospecter** is a PHP 8.5 business prospect application designed according to Robert C. Martin [recommendations for clean architecture](https://8thlight.com/blog/uncle-bob/2012/08/13/the-clean-architecture.html).
+
+> This repository is a read-only split of the [prospecterapp monorepo](https://github.com/SO-LEAN/prospecterapp) (`packages/cleanprospecter`). Open issues and pull requests there.
 
 Add cleanprospecter in your project with [composer](https://getcomposer.org).
 
@@ -11,7 +10,7 @@ Add cleanprospecter in your project with [composer](https://getcomposer.org).
  $ composer require so-lean/cleanprospecter
 ```
 
-A **symfony 4.1** implementation can be found on github [here](https://github.com/SO-LEAN/prospecterapp)
+A **Symfony 8.1** implementation lives next to it in the [monorepo](https://github.com/SO-LEAN/prospecterapp) (`webapp/`).
 ## Progress
 
 Consider that scope as the **minimal viable product**.

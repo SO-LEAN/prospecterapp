@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "ad435181669b17ff8438317daf80c148",
+    "content-hash": "c571e997deaaa0abee21e0ecbdd1252b",
     "packages": [
         {
             "name": "components/font-awesome",
@@ -1606,7 +1606,7 @@
             "version": "dev-main",
             "dist": {
                 "type": "path",
-                "url": "packages/cleanprospecter",
+                "url": "../packages/cleanprospecter",
                 "reference": "e8954475a584a8d6b5286cf4908520e0d0b44eb2"
             },
             "require": {
