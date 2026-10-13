@@ -5,10 +5,10 @@ declare(strict_types=1);
 namespace Tests\Unit\Solean\CleanProspecter\Entity;
 
 use InvalidArgumentException;
-use Tests\Unit\Solean\Base\EntityTest;
+use Tests\Unit\Solean\Base\EntityTestCase;
 use Solean\CleanProspecter\Entity\Organization;
 
-class OrganizationTest extends EntityTest
+class OrganizationTest extends EntityTestCase
 {
     public function target() : Organization
     {

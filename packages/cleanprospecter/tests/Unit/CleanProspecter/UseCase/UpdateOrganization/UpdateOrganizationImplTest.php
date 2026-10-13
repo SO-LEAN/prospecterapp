@@ -4,9 +4,10 @@ declare( strict_types = 1 );
 
 namespace Tests\Unit\Solean\CleanProspecter\UseCase\UpdateOrganization;
 
+use PHPUnit\Framework\Attributes\DataProvider;
 use SplFileInfo;
 use Prophecy\Argument;
-use Tests\Unit\Solean\Base\UseCaseTest;
+use Tests\Unit\Solean\Base\UseCaseTestCase;
 use Solean\CleanProspecter\Entity\GeoPoint;
 use Solean\CleanProspecter\Gateway\GeoLocation;
 use Solean\CleanProspecter\UseCase\UpdateOrganization\UpdateOrganizationRequest;
@@ -24,7 +25,7 @@ use function Tests\Unit\Solean\Base\anAddress;
 use function Tests\Unit\Solean\Base\aGeoPoint;
 use function Tests\Unit\Solean\Base\aFile;
 
-class UpdateOrganizationImplTest extends UseCaseTest
+class UpdateOrganizationImplTest extends UseCaseTestCase
 {
     public function target() : UpdateOrganizationImpl
     {
@@ -43,12 +44,10 @@ class UpdateOrganizationImplTest extends UseCaseTest
 
     public function testProspectorCanUpdateOrganization()
     {
-        $this->assertArraySubset(['ROLE_PROSPECTOR'], $this->target()->canBeExecutedBy());
+        $this->assertContains('ROLE_PROSPECTOR', $this->target()->canBeExecutedBy());
     }
 
-    /**
-     * @dataProvider provideExecute
-     */
+        #[DataProvider('provideExecute')]
     public function testExecute($expectedResponse, $request, $initial, $updated)
     {
         $this->mock($initial, $updated);
@@ -61,7 +60,7 @@ class UpdateOrganizationImplTest extends UseCaseTest
         $this->assertEquals($expectedResponse, $response);
     }
 
-    public function provideExecute()
+    public static function provideExecute()
     {
         $req  = aRequest();
         $org  = anOrganization();

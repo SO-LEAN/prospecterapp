@@ -1,8 +1,0 @@
-/.idea/*
-/bin/*
-/vendor/*
-/build/*
-/reports/*
-/phpunit.xml
-composer.lock
-.cc-test-reporter

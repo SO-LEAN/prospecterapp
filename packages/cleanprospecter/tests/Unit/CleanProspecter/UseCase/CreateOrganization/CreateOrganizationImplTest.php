@@ -6,7 +6,7 @@ namespace Tests\Unit\Solean\CleanProspecter\UseCase\CreateOrganization;
 
 use SplFileInfo;
 use Prophecy\Argument;
-use Tests\Unit\Solean\Base\UseCaseTest;
+use Tests\Unit\Solean\Base\UseCaseTestCase;
 use Solean\CleanProspecter\Entity\GeoPoint;
 use Solean\CleanProspecter\Gateway\Storage;
 use Solean\CleanProspecter\Exception\Gateway;
@@ -24,7 +24,7 @@ use function Tests\Unit\Solean\Base\aGeoPoint;
 use function Tests\Unit\Solean\Base\anAddress;
 use function Tests\Unit\Solean\Base\aFile;
 
-class CreateOrganizationImplTest extends UseCaseTest
+class CreateOrganizationImplTest extends UseCaseTestCase
 {
     public function target() : CreateOrganizationImpl
     {
@@ -43,7 +43,7 @@ class CreateOrganizationImplTest extends UseCaseTest
 
     public function testProspectorCanCreateOrganization()
     {
-        $this->assertArraySubset(['ROLE_PROSPECTOR'], $this->target()->canBeExecutedBy());
+        $this->assertContains('ROLE_PROSPECTOR', $this->target()->canBeExecutedBy());
     }
 
     public function testExecuteOnRegularWithCreator()

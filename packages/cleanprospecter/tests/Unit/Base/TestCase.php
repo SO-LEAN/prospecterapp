@@ -8,9 +8,12 @@ use stdClass;
 use Exception;
 use ReflectionClass;
 use PHPUnit\Framework\TestCase as PhpUnitTestCase;
+use Prophecy\PhpUnit\ProphecyTrait;
 
 abstract class TestCase extends PhpUnitTestCase
 {
+    use ProphecyTrait;
+
     /**
      * @var array
      */

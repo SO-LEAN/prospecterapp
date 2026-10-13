@@ -4,11 +4,12 @@ declare( strict_types = 1 );
 
 namespace Tests\Unit\Solean\CleanProspecter\UseCase\FindMyOwnOrganizations;
 
+use PHPUnit\Framework\Attributes\DataProvider;
 use Solean\CleanProspecter\Gateway\Entity\Page;
 use Solean\CleanProspecter\Gateway\Entity\PageRequest;
 use Solean\CleanProspecter\UseCase\FindMyOwnOrganizations\FindMyOwnOrganizationsResponse;
 use Solean\CleanProspecter\UseCase\UseCaseConsumer;
-use Tests\Unit\Solean\Base\UseCaseTest;
+use Tests\Unit\Solean\Base\UseCaseTestCase;
 use Solean\CleanProspecter\Gateway\Entity\OrganizationGateway;
 use Solean\CleanProspecter\UseCase\FindMyOwnOrganizations\FindMyOwnOrganizationsImpl;
 use Tests\Unit\Solean\CleanProspecter\UseCase\FindMyOwnOrganizations\FindMyOwnOrganizationsResponse\OrganizationBuilder;
@@ -19,7 +20,7 @@ use function Tests\Unit\Solean\Base\aGeoPoint;
 use function Tests\Unit\Solean\Base\anAddress;
 use function Tests\Unit\Solean\Base\anOrganization;
 
-class FindMyOwnOrganizationsImplTest extends UseCaseTest
+class FindMyOwnOrganizationsImplTest extends UseCaseTestCase
 {
     public function target() : FindMyOwnOrganizationsImpl
     {
@@ -35,15 +36,10 @@ class FindMyOwnOrganizationsImplTest extends UseCaseTest
 
     public function testProspectorCanGetOrganization()
     {
-        $this->assertArraySubset(['ROLE_PROSPECTOR'], $this->target()->canBeExecutedBy());
+        $this->assertContains('ROLE_PROSPECTOR', $this->target()->canBeExecutedBy());
     }
 
-    /**
-     * @param FindMyOwnOrganizationsResponse $expectedResponse
-     * @param Page $expectedPage
-     *
-     * @dataProvider provideExecute
-     */
+        #[DataProvider('provideExecute')]
     public function testExecute(FindMyOwnOrganizationsResponse $expectedResponse, Page $expectedPage)
     {
         $request = aRequest()
@@ -65,7 +61,7 @@ class FindMyOwnOrganizationsImplTest extends UseCaseTest
         $this->assertEquals($expectedResponse, $result);
     }
 
-    public function provideExecute()
+    public static function provideExecute()
     {
         $resp = aResponse();
         $page = aPage();

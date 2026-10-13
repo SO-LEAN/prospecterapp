@@ -2,14 +2,13 @@
 
 namespace Tests\Unit\Solean\CleanProspecter\UseCase;
 
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Tests\Unit\Solean\CleanProspecter\UseCase\Stub\StubPublicUseCaseImpl;
 
 class AbstractUserCaseTest extends TestCase
 {
-    /**
-     * @dataProvider provideUseCases
-     */
+        #[DataProvider('provideUseCases')]
     public function testUseCaseAsString(string $expected, array $roles)
     {
         $useCase = new StubPublicUseCaseImpl($roles);
@@ -17,7 +16,7 @@ class AbstractUserCaseTest extends TestCase
         $this->assertEquals($expected, (string) $useCase);
     }
 
-    public function provideUseCases()
+    public static function provideUseCases()
     {
         (yield 'anonymous' => ['As anonymous, I want to stub public use case', []]);
         (yield 'one role' => ['As developer, I want to stub public use case', ['ROLE_DEVELOPER']]);

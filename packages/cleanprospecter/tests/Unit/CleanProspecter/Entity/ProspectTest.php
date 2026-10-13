@@ -4,10 +4,10 @@ declare(strict_types=1);
 
 namespace Tests\Unit\Solean\CleanProspecter\Entity;
 
-use Tests\Unit\Solean\Base\EntityTest;
+use Tests\Unit\Solean\Base\EntityTestCase;
 use Solean\CleanProspecter\Entity\Prospect;
 
-class ProspectTest extends EntityTest
+class ProspectTest extends EntityTestCase
 {
     public function target() : Prospect
     {

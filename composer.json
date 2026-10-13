@@ -13,7 +13,7 @@
         "doctrine/orm": "^3.7",
         "imagine/imagine": "^1.5",
         "knplabs/knp-menu-bundle": "^3.8",
-        "so-lean/cleanprospecter": "dev-develop",
+        "so-lean/cleanprospecter": "^1.0@dev",
         "symfony/asset": "8.1.*",
         "symfony/asset-mapper": "8.1.*",
         "symfony/console": "8.1.*",
@@ -37,9 +37,11 @@
     },
     "repositories": [
         {
-            "type": "vcs",
-            "url": "https://github.com/SO-LEAN/cleanprospecter.git",
-            "no-api": true
+            "type": "path",
+            "url": "packages/*",
+            "options": {
+                "symlink": true
+            }
         }
     ],
     "config": {
@@ -58,8 +60,12 @@
         }
     },
     "autoload-dev": {
+        "files": [
+            "packages/cleanprospecter/tests/Unit/Base/functions.php"
+        ],
         "psr-4": {
-            "Tests\\App\\": "tests/"
+            "Tests\\App\\": "tests/",
+            "Tests\\Unit\\Solean\\": "packages/cleanprospecter/tests/Unit"
         }
     },
     "replace": {

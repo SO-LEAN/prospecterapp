@@ -8,14 +8,14 @@ use Solean\CleanProspecter\Exception\UseCase\UseCaseException;
 use Solean\CleanProspecter\Gateway\Storage;
 use Solean\CleanProspecter\Gateway\UserNotifier;
 use Solean\CleanProspecter\UseCase\UseCaseConsumer;
-use Tests\Unit\Solean\Base\UseCaseTest;
+use Tests\Unit\Solean\Base\UseCaseTestCase;
 use Solean\CleanProspecter\Gateway\Entity\OrganizationGateway;
 use Solean\CleanProspecter\UseCase\RemoveOrganizationLogo\RemoveOrganizationLogoImpl;
 
 use function Tests\Unit\Solean\Base\anOrganization;
 use function Tests\Unit\Solean\Base\aFile;
 
-class RemoveOrganizationLogoImplTest extends UseCaseTest
+class RemoveOrganizationLogoImplTest extends UseCaseTestCase
 {
     public function target() : RemoveOrganizationLogoImpl
     {
@@ -33,7 +33,7 @@ class RemoveOrganizationLogoImplTest extends UseCaseTest
 
     public function testProspectorCanRemoveOrganizationLogo()
     {
-        $this->assertArraySubset(['ROLE_PROSPECTOR'], $this->target()->canBeExecutedBy());
+        $this->assertContains('ROLE_PROSPECTOR', $this->target()->canBeExecutedBy());
     }
 
     public function testExecute()

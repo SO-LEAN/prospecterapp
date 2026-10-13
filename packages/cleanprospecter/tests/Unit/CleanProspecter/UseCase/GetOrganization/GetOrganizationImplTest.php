@@ -4,7 +4,7 @@ declare( strict_types = 1 );
 
 namespace Tests\Unit\Solean\CleanProspecter\UseCase\GetOrganization;
 
-use Tests\Unit\Solean\Base\UseCaseTest;
+use Tests\Unit\Solean\Base\UseCaseTestCase;
 use Solean\CleanProspecter\Exception\Gateway;
 use Solean\CleanProspecter\Exception\UseCase;
 use Solean\CleanProspecter\Entity\Organization;
@@ -17,7 +17,7 @@ use function Tests\Unit\Solean\Base\anAddress;
 use function Tests\Unit\Solean\Base\aGeoPoint;
 use function Tests\Unit\Solean\Base\aFile;
 
-class GetOrganizationImplTest extends UseCaseTest
+class GetOrganizationImplTest extends UseCaseTestCase
 {
     public function target() : GetOrganizationImpl
     {
@@ -33,7 +33,7 @@ class GetOrganizationImplTest extends UseCaseTest
 
     public function testProspectorCanGetOrganization()
     {
-        $this->assertArraySubset(['ROLE_PROSPECTOR'], $this->target()->canBeExecutedBy());
+        $this->assertContains('ROLE_PROSPECTOR', $this->target()->canBeExecutedBy());
     }
 
     public function testExecuteOnRegular()

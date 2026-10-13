@@ -6,7 +6,7 @@ namespace Tests\Unit\Solean\Base;
 
 use ReflectionClass;
 
-abstract class EntityTest extends TestCase
+abstract class EntityTestCase extends TestCase
 {
     public function testSetterGetter()
     {

@@ -4,10 +4,10 @@ declare(strict_types=1);
 
 namespace Tests\Unit\Solean\CleanProspecter\Entity;
 
-use Tests\Unit\Solean\Base\EntityTest;
+use Tests\Unit\Solean\Base\EntityTestCase;
 use Solean\CleanProspecter\Entity\Email;
 
-class EmailTest extends EntityTest
+class EmailTest extends EntityTestCase
 {
     public function target() : Email
     {

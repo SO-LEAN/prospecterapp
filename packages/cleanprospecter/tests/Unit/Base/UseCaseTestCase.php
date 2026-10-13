@@ -6,7 +6,7 @@ namespace Tests\Unit\Solean\Base;
 
 use Prophecy\Argument;
 
-abstract class UseCaseTest extends TestCase
+abstract class UseCaseTestCase extends TestCase
 {
     protected function getMockedPresenter($expected = null)
     {

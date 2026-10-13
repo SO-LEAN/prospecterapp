@@ -4,7 +4,7 @@ declare( strict_types = 1 );
 
 namespace Tests\Unit\Solean\CleanProspecter\UseCase\RefreshUser;
 
-use Tests\Unit\Solean\Base\UseCaseTest;
+use Tests\Unit\Solean\Base\UseCaseTestCase;
 use Solean\CleanProspecter\Gateway\Entity\UserGateway;
 use Solean\CleanProspecter\UseCase\RefreshUser\RefreshUserImpl;
 use Solean\CleanProspecter\UseCase\RefreshUser\RefreshUserResponse;
@@ -12,7 +12,7 @@ use Solean\CleanProspecter\UseCase\RefreshUser\RefreshUserResponse;
 use function Tests\Unit\Solean\Base\aUser;
 use function Tests\Unit\Solean\Base\anOrganization;
 
-class RefreshUserImplTest extends UseCaseTest
+class RefreshUserImplTest extends UseCaseTestCase
 {
     public function target() : RefreshUserImpl
     {

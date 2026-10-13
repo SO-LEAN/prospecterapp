@@ -4,7 +4,7 @@ declare( strict_types = 1 );
 
 namespace Tests\Unit\Solean\CleanProspecter\UseCase\Login;
 
-use Tests\Unit\Solean\Base\UseCaseTest;
+use Tests\Unit\Solean\Base\UseCaseTestCase;
 use Solean\CleanProspecter\UseCase\Login\LoginImpl;
 use Solean\CleanProspecter\Gateway\Entity\UserGateway;
 use Solean\CleanProspecter\UseCase\Login\LoginResponse;
@@ -12,7 +12,7 @@ use Solean\CleanProspecter\Exception\UseCase\BadCredentialException;
 
 use function Tests\Unit\Solean\Base\aUser;
 
-class LoginImplTest extends UseCaseTest
+class LoginImplTest extends UseCaseTestCase
 {
     public function target() : LoginImpl
     {

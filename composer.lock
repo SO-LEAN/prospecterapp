@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "cd5abb56ba78ff82e9c2a3c33de35397",
+    "content-hash": "ad435181669b17ff8438317daf80c148",
     "packages": [
         {
             "name": "components/font-awesome",
@@ -1603,24 +1603,25 @@
         },
         {
             "name": "so-lean/cleanprospecter",
-            "version": "dev-develop",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/SO-LEAN/cleanprospecter.git",
-                "reference": "ae61883ab0743be031f92f01bd17002e28fc89ba"
-            },
+            "version": "dev-main",
             "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/SO-LEAN/cleanprospecter/zipball/ae61883ab0743be031f92f01bd17002e28fc89ba",
-                "reference": "ae61883ab0743be031f92f01bd17002e28fc89ba",
-                "shasum": ""
+                "type": "path",
+                "url": "packages/cleanprospecter",
+                "reference": "e8954475a584a8d6b5286cf4908520e0d0b44eb2"
+            },
+            "require": {
+                "php": ">=8.5"
             },
             "require-dev": {
-                "phpunit/phpunit": "^7.0",
-                "squizlabs/php_codesniffer": "^3.2"
+                "phpspec/prophecy-phpunit": "^2.5",
+                "phpunit/phpunit": "^13.4"
             },
-            "default-branch": true,
-            "type": "project",
+            "type": "library",
+            "extra": {
+                "branch-alias": {
+                    "dev-main": "1.x-dev"
+                }
+            },
             "autoload": {
                 "psr-4": {
                     "Solean\\CleanProspecter\\": "src/CleanProspecter"
@@ -1644,11 +1645,10 @@
                 }
             ],
             "description": "P.O.C. of clean architecture (unclebob)",
-            "support": {
-                "source": "https://github.com/SO-LEAN/cleanprospecter/tree/develop",
-                "issues": "https://github.com/SO-LEAN/cleanprospecter/issues"
-            },
-            "time": "2021-06-22T18:24:00+00:00"
+            "transport-options": {
+                "symlink": true,
+                "relative": true
+            }
         },
         {
             "name": "symfony/asset",

@@ -5,7 +5,7 @@ declare( strict_types = 1 );
 namespace Tests\Unit\Solean\CleanProspecter\UseCase\GetMyAccountInformation;
 
 use Solean\CleanProspecter\Entity\User;
-use Tests\Unit\Solean\Base\UseCaseTest;
+use Tests\Unit\Solean\Base\UseCaseTestCase;
 use Solean\CleanProspecter\Exception\Gateway;
 use Solean\CleanProspecter\Exception\UseCase;
 use Solean\CleanProspecter\Entity\Organization;
@@ -20,7 +20,7 @@ use function Tests\Unit\Solean\Base\anOrganization;
 use function Tests\Unit\Solean\Base\aUser;
 use function Tests\Unit\Solean\Base\aFile;
 
-class GetMyAccountInformationImplTest extends UseCaseTest
+class GetMyAccountInformationImplTest extends UseCaseTestCase
 {
     public function target() : GetMyAccountInformationImpl
     {
@@ -37,7 +37,7 @@ class GetMyAccountInformationImplTest extends UseCaseTest
 
     public function testUserCanGetMyAccountInformation()
     {
-        $this->assertArraySubset(['ROLE_USER'], $this->target()->canBeExecutedBy());
+        $this->assertContains('ROLE_USER', $this->target()->canBeExecutedBy());
     }
 
     public function testExecuteOnRegular()

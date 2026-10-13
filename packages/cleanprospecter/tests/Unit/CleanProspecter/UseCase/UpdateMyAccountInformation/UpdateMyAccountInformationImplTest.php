@@ -6,7 +6,7 @@ namespace Tests\Unit\Solean\CleanProspecter\UseCase\UpdateMyAccountInformation;
 
 use SplFileInfo;
 use Solean\CleanProspecter\Entity\User;
-use Tests\Unit\Solean\Base\UseCaseTest;
+use Tests\Unit\Solean\Base\UseCaseTestCase;
 use Solean\CleanProspecter\Gateway\Storage;
 use Solean\CleanProspecter\Exception\Gateway;
 use Solean\CleanProspecter\Exception\UseCase;
@@ -23,7 +23,7 @@ use function Tests\Unit\Solean\Base\aUser;
 use function Tests\Unit\Solean\Base\aFile;
 use function Tests\Unit\Solean\Base\anOrganization;
 
-class UpdateMyAccountInformationImplTest extends UseCaseTest
+class UpdateMyAccountInformationImplTest extends UseCaseTestCase
 {
     public function target() : UpdateMyAccountInformationImpl
     {
@@ -43,7 +43,7 @@ class UpdateMyAccountInformationImplTest extends UseCaseTest
 
     public function testUserCanUpdateOrganization()
     {
-        $this->assertArraySubset(['ROLE_USER'], $this->target()->canBeExecutedBy());
+        $this->assertContains('ROLE_USER', $this->target()->canBeExecutedBy());
     }
 
     public function testExecute()
@@ -231,7 +231,7 @@ class UpdateMyAccountInformationImplTest extends UseCaseTest
         $this->prophesy(Transaction::class)->rollback()->shouldNotBeCalled();
         $this->prophesy(Transaction::class)->commit()->shouldBeCalled();
     }
-    private function mock(Organization $persistedOrganization, User $persistedUser, Organization $alteredOrganization = null, User $alteredUser = null): void
+    private function mock(Organization $persistedOrganization, User $persistedUser, ?Organization $alteredOrganization = null, ?User $alteredUser = null): void
     {
         $this->prophesy(UseCaseConsumer::class)
             ->getOrganizationId()

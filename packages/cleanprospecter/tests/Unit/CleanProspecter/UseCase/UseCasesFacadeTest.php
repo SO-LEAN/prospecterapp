@@ -4,6 +4,7 @@ declare( strict_types = 1 );
 
 namespace Tests\Unit\Solean\CleanProspecter\UseCase;
 
+use PHPUnit\Framework\Attributes\DataProvider;
 use BadFunctionCallException;
 use Solean\CleanProspecter\Exception\UseCase\UnauthorizedException;
 use Solean\CleanProspecter\UseCase\AbstractUseCase;
@@ -45,7 +46,7 @@ class UseCasesFacadeTest extends TestCase
 
     public function testMethodFromUseCaseIsCorrectlyCalled() : void
     {
-        $response = $this->target()->stubPublicUseCase(new StubUseCaseRequest(), $this->prophesy(Presenter::class)->reveal());
+        $response = $this->target()->stubPublicUseCase(new StubUseCaseRequest(), new \stdClass());
         $this->assertEquals('executed', $response->action);
     }
 
@@ -54,7 +55,7 @@ class UseCasesFacadeTest extends TestCase
         $this->expectException(BadFunctionCallException::class);
         $this->expectExceptionMessage('Solean\CleanProspecter\UseCase\UseCasesFacade::unknownUseCase()');
 
-        $this->target()->unknownUseCase(new StubUseCaseRequest(), $this->prophesy(Presenter::class)->reveal());
+        $this->target()->unknownUseCase(new StubUseCaseRequest(), new \stdClass());
     }
 
     public function testThrowUnauthorizedExceptionWhenConsumerHasNotAppropriateRole()
@@ -64,21 +65,19 @@ class UseCasesFacadeTest extends TestCase
 
         $this->expectException(UnauthorizedException::class);
 
-        $this->target()->stubNeedsRoleUseCase(new StubUseCaseRequest(), $this->prophesy(Presenter::class)->reveal(), $this->prophesy(UseCaseConsumer::class)->reveal());
+        $this->target()->stubNeedsRoleUseCase(new StubUseCaseRequest(), new \stdClass(), $this->prophesy(UseCaseConsumer::class)->reveal());
     }
 
-    /**
-     * @dataProvider provideBadTypeParameters
-     */
+        #[DataProvider('provideBadTypeParameters')]
     public function testThrowBadFunctionCallWhenBadThirdParameterProvided($msg, $consumer)
     {
         $this->expectException(BadFunctionCallException::class);
         $this->expectExceptionMessage($msg);
 
-        $this->target()->stubPublicUseCase(new StubUseCaseRequest(), $this->prophesy(Presenter::class)->reveal(), $consumer);
+        $this->target()->stubPublicUseCase(new StubUseCaseRequest(), new \stdClass(), $consumer);
     }
 
-    public function provideBadTypeParameters()
+    public static function provideBadTypeParameters()
     {
         return [
             ' - Bad class object' => ['Argument 3 passed to stubPublicUseCase must be an instance of Solean\CleanProspecter\UseCase\UseCaseConsumer, instance of stdClass given', new \stdClass()],

@@ -14,7 +14,7 @@ class UseCaseException extends RuntimeException
      */
     private $requestErrors;
 
-    public function __construct(string $message = "", int $code = 0, Throwable $previous = null, array $requestErrors = [])
+    public function __construct(string $message = "", int $code = 0, ?Throwable $previous = null, array $requestErrors = [])
     {
         parent::__construct($message, $code, $previous);
         $this->requestErrors = $requestErrors;
