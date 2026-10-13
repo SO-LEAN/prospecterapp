@@ -40,7 +40,7 @@ Dead endpoints broke fresh installs, not the code:
 - `symfonycasts_sass` options are a fixed list (no `silence_deprecation`); `quiet_deps` hides vendor Sass deprecations.
 - AssetMapper resolves CSS `url()` against the real source path: `$fa-font-path` points to `vendor/components/font-awesome/fonts`, which is also an asset path.
 - PHP 7.3+ uses PCRE2: `[[:alnum:]-_]` is an invalid range (image URLs were silently broken). `sprintf('%')` throws `ValueError` in PHP 8.
-- PHP 8 no longer hides the library's "read the size of a moved file" bug that the stat cache used to mask.
+- PHP 8 no longer hides the library's "read the size of a moved file" bug that the stat cache used to mask. Fixed in the library (`StoreFileTrait` reads the metadata before `Storage::add()`).
 - Rector `typeDeclarations` turns docblocks into native types: a wrong `@var stdClass` produced a broken property type. Review its output and run the tests.
 - PHPStan level 6 requires iterable value docblocks everywhere, which conflicts with the "no type comments" rule; level 5 is used.
 - PHPUnit 13: annotations are ignored (use attributes), data providers must be static, abstract classes named `*Test` trigger warnings, `TypeTestCase` mocks need `#[AllowMockObjectsWithoutExpectations]`.

@@ -50,7 +50,3 @@ For `*_update` the form is prefilled with the `get<Subject>` use case and `Get<S
 - `tests/Base/TestCase` instantiates the class under test from the test class name and offers `prophesy()` (Prophecy via `phpspec/prophecy-phpunit`).
 - Web tests extend `Base/ControllerTestCase`: schema and fixtures are recreated for each test, `login()` uses `loginUser()`, host `test.prospecter.io`. Test environment variables are in `.env.test`.
 - PHPUnit 13: attributes only (`#[DataProvider]`, `#[Group]`), static data providers, abstract base classes named `*TestCase`.
-
-## Known issue
-
-`CreateOrganization`/`UpdateMyAccountInformation` in the library read the uploaded file size after `Storage::add()` moved it. `StorageLocalAdapter::add()` stores a copy as a workaround; fix it in the library, then store by moving again.

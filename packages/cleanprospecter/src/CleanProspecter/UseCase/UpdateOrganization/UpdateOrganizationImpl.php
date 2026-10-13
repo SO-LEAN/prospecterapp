@@ -4,13 +4,13 @@ declare( strict_types = 1 );
 
 namespace Solean\CleanProspecter\UseCase\UpdateOrganization;
 
-use Solean\CleanProspecter\Entity\File;
 use Solean\CleanProspecter\Entity\Address;
 use Solean\CleanProspecter\Gateway\Storage;
 use Solean\CleanProspecter\Exception\Gateway;
 use Solean\CleanProspecter\Entity\Organization;
 use Solean\CleanProspecter\Gateway\GeoLocation;
 use Solean\CleanProspecter\Gateway\UserNotifier;
+use Solean\CleanProspecter\Traits\UseCase\StoreFileTrait;
 use Solean\CleanProspecter\Traits\UseCase\UserNotifierTrait;
 use Solean\CleanProspecter\UseCase\AbstractUseCase;
 use Solean\CleanProspecter\Traits\UseCase\GeoLocalizeTrait;
@@ -23,6 +23,7 @@ use Solean\CleanProspecter\Exception\UseCase\UniqueConstraintViolationException;
 final class UpdateOrganizationImpl extends AbstractUseCase implements UpdateOrganization
 {
     use GeoLocalizeTrait;
+    use StoreFileTrait;
     use UserNotifierTrait;
     /**
      * @var OrganizationGateway
@@ -89,7 +90,7 @@ final class UpdateOrganizationImpl extends AbstractUseCase implements UpdateOrga
         }
 
         if ($request->getLogo()) {
-            $organization->setLogo(File::fromValues($this->storage->add($request->getLogo()), $request->getLogo()->getExtension(), $request->getLogo()->getSize()));
+            $organization->setLogo($this->storeFile($request->getLogo()));
         }
 
         return $organization;

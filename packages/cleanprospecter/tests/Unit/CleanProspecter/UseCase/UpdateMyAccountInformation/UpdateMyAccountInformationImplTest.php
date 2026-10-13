@@ -126,8 +126,7 @@ class UpdateMyAccountInformationImplTest extends UseCaseTestCase
             ->withPicture()
             ->build();
 
-        $file = $this->mockFile($alteredUser, 'picture');
-        $this->mockStorage($file, $alteredUser, 'picture');
+        $file = $this->mockUploadedFile($alteredUser->getPicture()->getSize(), $alteredUser->getPicture()->getExtension(), $alteredUser->getPicture()->getUrl());
 
         $request = aRequest()
             ->withPicture($file)
@@ -167,8 +166,7 @@ class UpdateMyAccountInformationImplTest extends UseCaseTestCase
             ->withOrganizationLogo()
             ->build();
 
-        $file = $this->mockFile($alteredOrganization, 'logo');
-        $this->mockStorage($file, $alteredOrganization, 'logo');
+        $file = $this->mockUploadedFile($alteredOrganization->getLogo()->getSize(), $alteredOrganization->getLogo()->getExtension(), $alteredOrganization->getLogo()->getUrl());
 
         $request = aRequest()
             ->withOrganizationLogo($file)
@@ -261,21 +259,7 @@ class UpdateMyAccountInformationImplTest extends UseCaseTestCase
             ->shouldBeCalled();
     }
 
-    private function mockFile($entity, $property): SplFileInfo
-    {
-        $getter = sprintf('get%s', ucfirst($property));
 
-        $this->prophesy(SplFileInfo::class)->getSize()->shouldBeCalled()->willReturn($entity->$getter()->getSize());
-        $this->prophesy(SplFileInfo::class)->getExtension()->shouldBeCalled()->willReturn($entity->$getter()->getExtension());
-
-        return $this->prophesy(SplFileInfo::class)->reveal();
-    }
-
-    private function mockStorage($file, $entity, $property): void
-    {
-        $getter = sprintf('get%s', ucfirst($property));
-        $this->prophesy(Storage::class)->add($file)->shouldBeCalled()->willReturn($entity->$getter()->getUrl());
-    }
 }
 
 function aRequest()

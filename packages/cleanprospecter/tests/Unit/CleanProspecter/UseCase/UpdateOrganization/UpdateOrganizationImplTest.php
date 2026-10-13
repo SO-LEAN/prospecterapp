@@ -186,7 +186,7 @@ class UpdateOrganizationImplTest extends UseCaseTestCase
         $get     = $organizationBuilder->build();
         $updated =  $organizationBuilder->withId()->with('logo', aFile()->withImageData())->build();
 
-        $file = $this->mockFile($updated);
+        $file = $this->mockUploadedFile($updated->getLogo()->getSize(), $updated->getLogo()->getExtension(), $updated->getLogo()->getUrl());
 
         $request = aRequest()
             ->withLogo($file)
@@ -198,7 +198,6 @@ class UpdateOrganizationImplTest extends UseCaseTestCase
             ->build();
 
         $this->mock($get, $updated);
-        $this->mockStorage($file, $updated);
 
         /**
          * @var UpdateOrganizationResponse $response
@@ -297,18 +296,7 @@ class UpdateOrganizationImplTest extends UseCaseTestCase
         $this->prophesy(OrganizationGateway::class)->get($request->getHoldBy())->shouldBeCalled()->willReturn(anOrganization()->withHoldingData()->build());
     }
 
-    private function mockFile(Organization $updated): SplFileInfo
-    {
-        $this->prophesy(SplFileInfo::class)->getSize()->shouldBeCalled()->willReturn($updated->getLogo()->getSize());
-        $this->prophesy(SplFileInfo::class)->getExtension()->shouldBeCalled()->willReturn($updated->getLogo()->getExtension());
 
-        return $this->prophesy(SplFileInfo::class)->reveal();
-    }
-
-    private function mockStorage($file, Organization $updated): void
-    {
-        $this->prophesy(Storage::class)->add($file)->shouldBeCalled()->willReturn($updated->getLogo()->getUrl());
-    }
 
     private function mockGeoLocation(GeoPoint $expectedPoint, $found = true): void
     {

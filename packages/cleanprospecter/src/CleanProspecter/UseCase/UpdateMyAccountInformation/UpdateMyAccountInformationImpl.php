@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace Solean\CleanProspecter\UseCase\UpdateMyAccountInformation;
 
 use Exception;
-use Solean\CleanProspecter\Entity\File;
 use Solean\CleanProspecter\Entity\User;
 use Solean\CleanProspecter\Gateway\Storage;
 use Solean\CleanProspecter\Exception\Gateway;
@@ -15,12 +14,14 @@ use Solean\CleanProspecter\UseCase\AbstractUseCase;
 use Solean\CleanProspecter\UseCase\UseCaseConsumer;
 use Solean\CleanProspecter\Gateway\Entity\Transaction;
 use Solean\CleanProspecter\Gateway\Entity\UserGateway;
+use Solean\CleanProspecter\Traits\UseCase\StoreFileTrait;
 use Solean\CleanProspecter\Traits\UseCase\UserNotifierTrait;
 use Solean\CleanProspecter\Gateway\Entity\OrganizationGateway;
 use Solean\CleanProspecter\Exception\UseCase\UniqueConstraintViolationException;
 
 final class UpdateMyAccountInformationImpl extends AbstractUseCase implements UpdateMyAccountInformation
 {
+    use StoreFileTrait;
     use UserNotifierTrait;
     /**
      * @var OrganizationGateway
@@ -95,7 +96,7 @@ final class UpdateMyAccountInformationImpl extends AbstractUseCase implements Up
         }
 
         if ($request->getPicture()) {
-            $user->setPicture(File::fromValues($this->storage->add($request->getPicture()), $request->getPicture()->getExtension(), $request->getPicture()->getSize()));
+            $user->setPicture($this->storeFile($request->getPicture()));
         }
 
         return $user;
@@ -108,7 +109,7 @@ final class UpdateMyAccountInformationImpl extends AbstractUseCase implements Up
         $organization->setForm($request->getOrganizationForm());
 
         if ($request->getOrganizationLogo()) {
-            $organization->setLogo(File::fromValues($this->storage->add($request->getOrganizationLogo()), $request->getOrganizationLogo()->getExtension(), $request->getOrganizationLogo()->getSize()));
+            $organization->setLogo($this->storeFile($request->getOrganizationLogo()));
         }
 
         return $organization;

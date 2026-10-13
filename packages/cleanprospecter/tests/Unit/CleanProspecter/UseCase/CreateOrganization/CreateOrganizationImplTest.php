@@ -111,7 +111,7 @@ class CreateOrganizationImplTest extends UseCaseTestCase
         $notPersisted = $organizationBuilder->build();
         $persisted =  $organizationBuilder->withId()->build();
 
-        $file = $this->mockFile($notPersisted);
+        $file = $this->mockUploadedFile($notPersisted->getLogo()->getSize(), $notPersisted->getLogo()->getExtension(), $notPersisted->getLogo()->getUrl());
 
         $request = aRequest()
             ->ownedByCreator()
@@ -123,7 +123,6 @@ class CreateOrganizationImplTest extends UseCaseTestCase
             ->build();
 
         $this->mock($notPersisted, $persisted);
-        $this->mockStorage($file, $notPersisted);
 
         /**
          * @var CreateOrganizationResponse $response
@@ -232,18 +231,7 @@ class CreateOrganizationImplTest extends UseCaseTestCase
         $this->prophesy(OrganizationGateway::class)->get(777)->shouldBeCalled()->willReturn(anOrganization()->withCreatorData()->build());
     }
 
-    private function mockFile(Organization $notPersisted): SplFileInfo
-    {
-        $this->prophesy(SplFileInfo::class)->getSize()->shouldBeCalled()->willReturn($notPersisted->getLogo()->getSize());
-        $this->prophesy(SplFileInfo::class)->getExtension()->shouldBeCalled()->willReturn($notPersisted->getLogo()->getExtension());
 
-        return $this->prophesy(SplFileInfo::class)->reveal();
-    }
-
-    private function mockStorage($file, Organization $notPersisted): void
-    {
-        $this->prophesy(Storage::class)->add($file)->shouldBeCalled()->willReturn($notPersisted->getLogo()->getUrl());
-    }
 
     private function mockGetHolding(CreateOrganizationRequest $request): void
     {
