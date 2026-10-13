@@ -8,20 +8,11 @@ use Symfony\Component\HttpFoundation\RequestStack;
 
 class PathInfoRegexVoter implements VoterInterface
 {
-    /**
-     * @var RequestStack
-     */
-    private $requestStack;
-
-    public function __construct(RequestStack $requestStack)
+    public function __construct(private readonly RequestStack $requestStack)
     {
-        $this->requestStack = $requestStack;
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function matchItem(ItemInterface $item)
+    public function matchItem(ItemInterface $item): ?bool
     {
         $regex = $item->getExtra('current_regex');
 

@@ -1,26 +1,26 @@
 security:
-    # https://symfony.com/doc/current/security.html#where-do-users-come-from-user-providers
     providers:
-         prospecter_provider:
-             id: App\Security\ProspecterUserProvider
+        prospecter_provider:
+            id: App\Security\ProspecterUserProvider
 
     firewalls:
         dev:
-            pattern: ^/(_(profiler|wdt)|css|images|js)/
+            pattern: ^/(_profiler|_wdt|assets)/
             security: false
-        main:
-            host: '%app_application_host%'
-            pattern: ^(?!/build|/storage)
-            anonymous: ~
-            logout:
-                path: /logout
-                target: /login
-            guard:
-                authenticators:
-                    - App\Security\ProspecterAuthenticator
         static:
             host: '%app_static_host%'
             security: false
+        main:
+            host: '%app_application_host%'
+            lazy: true
+            provider: prospecter_provider
+            custom_authenticators:
+                - App\Security\ProspecterAuthenticator
+            entry_point: App\Security\ProspecterAuthenticator
+            logout:
+                path: logout
+                target: login
 
     access_control:
-        - { host: '%app_application_host%', path: ^/(?!login), roles: ROLE_PROSPECTOR}
+        - { host: '%app_application_host%', path: ^/login, roles: PUBLIC_ACCESS }
+        - { host: '%app_application_host%', path: ^/, roles: ROLE_PROSPECTOR }

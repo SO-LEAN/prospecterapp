@@ -2,12 +2,11 @@
 
 namespace Tests\App\Service\Image;
 
+use PHPUnit\Framework\Attributes\Group;
 use Tests\App\Base\TestCase;
 use App\Service\Image\SecretCipherHandler;
 
-/**
- * @group unit
- */
+#[Group('unit')]
 class SecretCipherHandlerTest extends TestCase
 {
     public function target() : SecretCipherHandler

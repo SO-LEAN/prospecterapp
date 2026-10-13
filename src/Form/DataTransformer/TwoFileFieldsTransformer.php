@@ -31,18 +31,12 @@ class TwoFileFieldsTransformer implements DataTransformerInterface
         $this->url = $url;
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function transform($value)
+    public function transform(mixed $value): mixed
     {
         return $value;
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function reverseTransform($value)
+    public function reverseTransform(mixed $value): mixed
     {
         if (!is_array($value)) {
             throw new TransformationFailedException('Expected an array.');

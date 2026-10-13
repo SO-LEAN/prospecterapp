@@ -1,7 +1,5 @@
-"use strict";
-
-let $ = require('jquery');
-let gapi = require('../misc/gapi');
+import $ from 'jquery';
+import * as gapi from '../misc/gapi.js';
 
 /**
  *
@@ -50,4 +48,4 @@ GetOrganization.prototype.initMap = function () {
   });
 };
 
-module.exports = GetOrganization;
+export default GetOrganization;

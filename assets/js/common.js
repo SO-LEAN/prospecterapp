@@ -1,6 +1,4 @@
-"use strict";
-
-let $ = require('jquery');
+import $ from 'jquery';
 
 function Common() {
   let that = this;
@@ -33,4 +31,4 @@ Common.prototype.run = function () {
   this.initMainNavBarScrolling();
 };
 
-module.exports = Common;
+export default Common;

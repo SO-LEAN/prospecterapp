@@ -1,0 +1,15 @@
+@import "common/customs";
+
+// Sources installed by Composer (twbs/bootstrap, components/font-awesome), see config/packages/symfonycasts_sass.yaml
+$fa-font-path: "../../vendor/components/font-awesome/fonts";
+@import "bootstrap";
+@import "font-awesome";
+
+/** Customs component**/
+@import "common/banner-header";
+@import "common/footer";
+@import "common/error";
+@import "common/misc";
+@import "common/sidebar";
+@import "page/home";
+@import "page/contact";

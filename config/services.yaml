@@ -1,195 +1,92 @@
-# Put parameters here that don't need to change on each machine where the app is deployed
-# https://symfony.com/doc/current/best_practices/configuration.html#application-related-configuration
 parameters:
-    locale : en
-    google_api_url : 'https://maps.googleapis.com/maps/api/geocode/json'
+    google_api_url: 'https://maps.googleapis.com/maps/api/geocode/json'
     knp_menu.renderer.twig.options:
         currentClass: 'active'
+
 services:
-    # default configuration for services in *this* file
     _defaults:
-        autowire: true      # Automatically injects dependencies in your services.
-        autoconfigure: true # Automatically registers your services as commands, event subscribers, etc.
-        public: false       # Allows optimizing the container by removing unused services; this also means
-                            # fetching services directly from the container via $container->get() won't work.
-                            # The best practice is to be explicit about your dependencies anyway.
+        autowire: true
+        autoconfigure: true
 
-    # makes classes in src/ available to be used as services
-    # this creates a service per class whose id is the fully-qualified class name
+    _instanceof:
+        Solean\CleanProspecter\UseCase\AbstractUseCase:
+            tags: ['use_case']
+            lazy: true
+
     App\:
-        resource: '../src/*'
-        exclude: '../src/{Entity,Migrations,Tests,Kernel.php}'
+        resource: '../src/'
+        exclude:
+            - '../src/DependencyInjection/'
+            - '../src/Entity/'
+            - '../src/Kernel.php'
+            - '../src/Presenter/'
+            - '../src/Service/Image/UrlImageInfo.php'
+            - '../src/Service/RequestHandler/'
 
-    # controllers are imported separately to make sure services can be injected
-    # as action arguments even if you don't extend any base controller class
-    App\Controller\:
-        resource: '../src/Controller'
-        tags: ['controller.service_arguments']
+    # Use cases (clean architecture library)
+    Solean\CleanProspecter\UseCase\UseCasesFacade: ~
+    Solean\CleanProspecter\UseCase\:
+        resource: '../vendor/so-lean/cleanprospecter/src/CleanProspecter/UseCase/*/*Impl.php'
 
-    # add more service definitions when explicit configuration is needed
-    # please note that last definitions always *replace* previous ones
-    #Twig
-    App\Twig\AppTwigExtension:
-        arguments: ['@App\Service\ImageService']
-        tags:
-            - { name: twig.extension }
-    #controller
-    App\Controller\Web\DashboardController:
-          tags: ['controller.service_arguments']
-          calls:
-              - [setPresenterFactory, ['@App\Service\PresenterFactory']]
-              - [setFormFactory, ['@form.factory']]
-              - [setTwig, ['@twig']]
-              - [setRouter, ['@router']]
-              - [setUseCases, ['@Solean\CleanProspecter\UseCase\UseCasesFacade']]
-              - [setFormHandler, ['@App\Service\RequestHandler']]
-    App\Controller\Web\ProspectController:
+    # Gateways: library interfaces implemented by the application
+    Solean\CleanProspecter\Gateway\Entity\UserGateway: '@App\Gateway\Entity\UserRepositoryAdapter'
+    Solean\CleanProspecter\Gateway\Entity\OrganizationGateway: '@App\Gateway\Entity\OrganizationRepositoryAdapter'
+    Solean\CleanProspecter\Gateway\Entity\Transaction: '@App\Gateway\Entity\TransactionEntityManagerAdapter'
+    Solean\CleanProspecter\Gateway\Storage: '@App\Gateway\StorageLocalAdapter'
+    Solean\CleanProspecter\Gateway\UserNotifier: '@App\Gateway\UserNotifierSymfonyAdapter'
+    Solean\CleanProspecter\Gateway\GeoLocation: '@App\Gateway\GeoLocatorAdapter'
+
+    App\Gateway\Entity\UserRepositoryAdapter:
+        lazy: true
+        arguments:
+            $entityClass: 'Solean\CleanProspecter\Entity\User'
+    App\Gateway\Entity\OrganizationRepositoryAdapter:
+        lazy: true
+        arguments:
+            $entityClass: 'Solean\CleanProspecter\Entity\Organization'
+
+    # Controllers do not depend on the container: their collaborators are injected by setters
+    App\Controller\Web\:
+        resource: '../src/Controller/Web/'
+        exclude: '../src/Controller/Web/SecurityController.php'
         tags: ['controller.service_arguments']
         calls:
-            - [setFormFactory, ['@form.factory']]
-            - [setTwig, ['@twig']]
-            - [setRouter, ['@router']]
-            - [setUseCases, ['@Solean\CleanProspecter\UseCase\UseCasesFacade']]
-            - [setFormHandler, ['@App\Service\RequestHandler']]
-    App\Controller\Web\OrganizationController:
-        tags: ['controller.service_arguments']
-        calls:
-            - [setFormFactory, ['@form.factory']]
-            - [setTwig, ['@twig']]
-            - [setRouter, ['@router']]
-            - [setUseCases, ['@Solean\CleanProspecter\UseCase\UseCasesFacade']]
-            - [setFormHandler, ['@App\Service\RequestHandler']]
-    App\Controller\Web\UserAccountController:
-        tags: ['controller.service_arguments']
-        calls:
+            - [setPresenterFactory, ['@App\Service\PresenterFactory']]
             - [setFormFactory, ['@form.factory']]
             - [setTwig, ['@twig']]
             - [setRouter, ['@router']]
             - [setUseCases, ['@Solean\CleanProspecter\UseCase\UseCasesFacade']]
             - [setFormHandler, ['@App\Service\RequestHandler']]
 
-    #Security
+    # Security
     App\Security\ProspecterAuthenticator:
         arguments:
-            - '@Symfony\Component\Security\Csrf\CsrfTokenManagerInterface'
-            - '@Symfony\Component\Form\FormFactoryInterface'
-            - '@Symfony\Component\HttpFoundation\Session\SessionInterface'
-            - '@Solean\CleanProspecter\UseCase\UseCasesFacade'
-            - '@Symfony\Component\Routing\Generator\UrlGeneratorInterface'
-            - 'login'
-            - 'dashboard_display'
-            - 'prospecter_provider'
-    App\Security\ProspecterUserProvider:
-        arguments: ['@Solean\CleanProspecter\UseCase\UseCasesFacade']
-    #Menu
-    App\Menu\Matcher\PathInfoRegexVoter:
-        arguments: ['@request_stack']
-        tags: ['knp_menu.voter']
+            $loginRoute: 'login'
+            $defaultSuccessRedirectRoute: 'dashboard_display'
+
+    # Menu
     App\Menu\MenuBuilder:
-        arguments: ["@knp_menu.factory", "@security.authorization_checker", "@=service('request_stack').getCurrentRequest()"]
         tags:
             - { name: 'knp_menu.menu_builder', method: 'createMainMenu', alias: 'main' }
             - { name: 'knp_menu.menu_builder', method: 'createLeftMenu', alias: 'left' }
             - { name: 'knp_menu.menu_builder', method: 'createRightMenu', alias: 'right' }
             - { name: 'knp_menu.menu_builder', method: 'createBreadcrumb', alias: 'breadcrumb' }
 
-    #Uses Cases
-    Solean\CleanProspecter\UseCase\UseCasesFacade: ~
-    Solean\CleanProspecter\UseCase\Login\LoginImpl:
-        lazy:  true
-        tags: ['use_case']
-        arguments:
-            - '@App\Gateway\Entity\UserRepositoryAdapter'
-    Solean\CleanProspecter\UseCase\RefreshUser\RefreshUserImpl:
-        lazy:  true
-        tags: ['use_case']
-        arguments:
-            - '@App\Gateway\Entity\UserRepositoryAdapter'
-    Solean\CleanProspecter\UseCase\CreateOrganization\CreateOrganizationImpl:
-        lazy:  true
-        tags: ['use_case']
-        arguments:
-            - '@App\Gateway\Entity\OrganizationRepositoryAdapter'
-            - '@App\Gateway\StorageLocalAdapter'
-            - '@App\Gateway\UserNotifierSymfonyAdapter'
-            - '@App\Gateway\GeoLocatorAdapter'
-    Solean\CleanProspecter\UseCase\UpdateOrganization\UpdateOrganizationImpl:
-        lazy:  true
-        tags: ['use_case']
-        arguments:
-            - '@App\Gateway\Entity\OrganizationRepositoryAdapter'
-            - '@App\Gateway\StorageLocalAdapter'
-            - '@App\Gateway\UserNotifierSymfonyAdapter'
-            - '@App\Gateway\GeoLocatorAdapter'
-    Solean\CleanProspecter\UseCase\GetOrganization\GetOrganizationImpl:
-        lazy:  true
-        tags: ['use_case']
-        arguments:
-            - '@App\Gateway\Entity\OrganizationRepositoryAdapter'
-    Solean\CleanProspecter\UseCase\FindMyOwnOrganizations\FindMyOwnOrganizationsImpl:
-        lazy:  true
-        tags: ['use_case']
-        arguments:
-            - '@App\Gateway\Entity\OrganizationRepositoryAdapter'
-    Solean\CleanProspecter\UseCase\GetMyAccountInformation\GetMyAccountInformationImpl:
-        lazy:  true
-        tags: ['use_case']
-        arguments:
-            - '@App\Gateway\Entity\UserRepositoryAdapter'
-            - '@App\Gateway\Entity\OrganizationRepositoryAdapter'
-    Solean\CleanProspecter\UseCase\UpdateMyAccountInformation\UpdateMyAccountInformationImpl:
-        lazy:  true
-        tags: ['use_case']
-        arguments:
-            - '@App\Gateway\Entity\OrganizationRepositoryAdapter'
-            - '@App\Gateway\Entity\UserRepositoryAdapter'
-            - '@App\Gateway\Entity\TransactionEntityManagerAdapter'
-            - '@App\Gateway\StorageLocalAdapter'
-            - '@App\Gateway\UserNotifierSymfonyAdapter'
-    #Gateway
-      #Database
-    App\Gateway\Entity\UserRepositoryAdapter:
-        lazy:  true
-        arguments:
-            - '@doctrine.orm.entity_manager'
-            - 'Solean\CleanProspecter\Entity\User'
-    App\Gateway\Entity\OrganizationRepositoryAdapter:
-        lazy:  true
-        arguments:
-            - '@doctrine.orm.entity_manager'
-            - 'Solean\CleanProspecter\Entity\Organization'
-      #User Notifier
-    App\Gateway\UserNotifierSymfonyAdapter:
-        arguments:
-            - '@session'
-      #Storage
-    App\Gateway\StorageLocalAdapter:
-        arguments:
-            - '@App\Service\LocalStorageService'
-      #GeoLocation
-    App\Gateway\GeoLocationAdapter:
-        arguments:
-            - '@App\Service\GoogleMapGeoLocator'
-    #Service
-      #Local storage
+    # Services
     App\Service\LocalStorageService:
-        public: true
         arguments:
-            - '%env(resolve:APP_STORAGE_PATH)%'
-            - '%env(APP_STORAGE_URL)%'
-    App\Service\ImageService:
-        public: true;
+            $path: '%env(resolve:APP_STORAGE_PATH)%'
+            $url: '%env(APP_STORAGE_URL)%'
     App\Service\Image\SecretCipherHandler:
         arguments:
-           - '%env(APP_SECRET)%'
-      #Google Map geo locator
+            $secret: '%env(APP_SECRET)%'
+    App\Service\GeoLocator: '@App\Service\GoogleMapGeoLocator'
     App\Service\GoogleMapGeoLocator:
         arguments:
-            - '%google_api_url%'
-            - '%env(APP_GOOGLE_API_KEY)%'
-      #Request handler
-    App\Service\RequestHandler: ~
-      #Form Request handler command
+            $apiUrl: '%google_api_url%'
+            $apiKey: '%env(APP_GOOGLE_API_KEY)%'
+
+    # Form handling commands, selected by RequestHandler from the route suffix
     App\Service\RequestHandler\AbstractFormHandlingCommand:
         abstract: true
         calls:
@@ -198,17 +95,14 @@ services:
             - [setRouter, ['@router']]
             - [setUseCases, ['@Solean\CleanProspecter\UseCase\UseCasesFacade']]
     App\Service\RequestHandler\CreateFormHandlingCommand:
-        autoconfigure: false
-        autowire: false
-        public: false
         parent: App\Service\RequestHandler\AbstractFormHandlingCommand
-        lazy:  true
-        tags: [{name: 'form_cmd', id: 'create'}]
+        autowire: false
+        autoconfigure: false
+        lazy: true
+        tags: [{ name: 'form_cmd', id: 'create' }]
     App\Service\RequestHandler\UpdateFormHandlingCommand:
-        autoconfigure: false
-        autowire: false
-        public: false
         parent: App\Service\RequestHandler\AbstractFormHandlingCommand
-        lazy:  true
-        tags: [{name: 'form_cmd', id: 'update'}]
-
+        autowire: false
+        autoconfigure: false
+        lazy: true
+        tags: [{ name: 'form_cmd', id: 'update' }]

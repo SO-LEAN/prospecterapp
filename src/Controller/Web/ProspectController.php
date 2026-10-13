@@ -3,21 +3,15 @@
 namespace App\Controller\Web;
 
 use App\Traits\ControllerTrait;
-use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
+use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\Routing\Attribute\Route;
 
-/**
- * Class ProspectController.
- *
- * @Route(service="App\Controller\Web\ProspectController")
- */
 class ProspectController
 {
     use ControllerTrait;
 
-    /**
-     * @Route("/prospects/add", name="prospect_create")
-     */
-    public function create()
+    #[Route('/prospects/add', name: 'prospect_create')]
+    public function create(): Response
     {
         return $this->render('page/prospect-add.html.twig');
     }

@@ -2,8 +2,12 @@
 
 namespace Tests\App\Form\UseCaseType;
 
+use PHPUnit\Framework\Attributes\AllowMockObjectsWithoutExpectations;
+use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\Group;
 use SplFileInfo;
 use Prophecy\Argument;
+use Prophecy\PhpUnit\ProphecyTrait;
 use Prophecy\Prophecy\ObjectProphecy;
 use App\Form\EasyImportFileType;
 use App\Service\System\PhpFileSystemAdapter;
@@ -11,29 +15,22 @@ use Symfony\Component\Form\PreloadedExtension;
 use Symfony\Component\Form\Test\TypeTestCase;
 use App\Form\UseCaseType\UpdateOrganizationType;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
-use Symfony\Component\Form\Test\Traits\ValidatorExtensionTrait;
+use Symfony\Component\Form\Extension\Validator\ValidatorExtension;
+use Symfony\Component\Validator\Validation;
 
-/**
- * @group unit
- */
+#[Group('unit')]
+#[AllowMockObjectsWithoutExpectations]
 class UpdateOrganizationTypeTest extends TypeTestCase
 {
-    use ValidatorExtensionTrait;
+    use ProphecyTrait;
 
     /**
      * @var ObjectProphecy
      */
     private $fileSystemAdapter;
 
-    /**
-     * @param array $expected
-     * @param array $formData
-     * @param array $old
-     * @param UploadedFile|null $link
-     *
-     * @dataProvider provideSubmitValidData
-     */
-    public function testSubmitValidData(array $expected, array $formData, array $old, UploadedFile $link = null)
+    #[DataProvider('provideSubmitValidData')]
+    public function testSubmitValidData(array $expected, array $formData, array $old, ?UploadedFile $link = null): void
     {
 
         $this->mockFileSystem($link);
@@ -54,7 +51,7 @@ class UpdateOrganizationTypeTest extends TypeTestCase
     /**
      * @return array
      */
-    public function provideSubmitValidData()
+    public static function provideSubmitValidData()
     {
         $file = new UploadedFile(realpath(__dir__ . '/../../Stub/file.jpg'), 'file.jpg');
         $linkFile = new UploadedFile(realpath(__dir__ . '/../../Stub/link.jpg'), 'link.jpg');
@@ -90,7 +87,7 @@ class UpdateOrganizationTypeTest extends TypeTestCase
 
         return [
             '0 - without logo' => [$common + ['id'   => 'id'], $common, $input, null],
-            '1 - regular file' => [$common + ['logo' => $this->buildImageData($file), 'id' => 'id'], $common+ ['logo' => ['url' => '', 'image' => $this->buildImageData($file)]], $input, null],
+            '1 - regular file' => [$common + ['logo' => self::buildImageData($file), 'id' => 'id'], $common+ ['logo' => ['url' => '', 'image' => self::buildImageData($file)]], $input, null],
             '2 - file link'    => [$common + ['logo' => $linkFile, 'id' => 'id'], $common + ['logo' => ['orUrl' => 'http://fakelink.fr/link.jpg', 'image' => '']], $input, $linkFile],
         ];
     }
@@ -98,19 +95,19 @@ class UpdateOrganizationTypeTest extends TypeTestCase
     /**
      * @return array
      */
-    protected function getExtensions()
+    protected function getExtensions(): array
     {
         $this->fileSystemAdapter = $this->prophesize(PhpFileSystemAdapter::class);
         $childType = new EasyImportFileType($this->fileSystemAdapter->reveal());
 
-        return array_merge(parent::getExtensions(), [new PreloadedExtension([EasyImportFileType::class => $childType], [])]);
+        return array_merge(parent::getExtensions(), [new ValidatorExtension(Validation::createValidator()), new PreloadedExtension([EasyImportFileType::class => $childType], [])]);
     }
 
     /**
      * @param SplFileInfo $file
      * @return array
      */
-    private function buildImageData(SplFileInfo $file)
+    private static function buildImageData(SplFileInfo $file)
     {
         return [
             'name'     => $file->getFilename(),
@@ -124,7 +121,7 @@ class UpdateOrganizationTypeTest extends TypeTestCase
     /**
      * @param UploadedFile $link
      */
-    private function mockFileSystem(UploadedFile $link = null): void
+    private function mockFileSystem(?UploadedFile $link = null): void
     {
         $this->fileSystemAdapter->tempnam(Argument::any(), Argument::any())->willReturn($link ? $link->getPathname() : $link);
         $this->fileSystemAdapter->copy(Argument::any(), Argument::any(), Argument::any())->willReturn(true);

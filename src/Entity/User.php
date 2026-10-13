@@ -7,21 +7,12 @@ use Solean\CleanProspecter\UseCase\UseCaseConsumer;
 use Symfony\Component\Security\Core\User\UserInterface;
 
 /**
- * Class User.
+ * Security user built from the RefreshUser use case response.
  */
 final class User implements UserInterface, UseCaseConsumer
 {
-    /**
-     * @var RefreshUserResponse
-     */
-    private $refreshUser;
-
-    /**
-     * @param RefreshUserResponse|null $refreshUseronse
-     */
-    public function __construct(RefreshUserResponse $refreshUser = null)
+    public function __construct(private readonly RefreshUserResponse $refreshUser)
     {
-        $this->refreshUser = $refreshUser;
     }
 
     public function getRoles(): array
@@ -29,33 +20,19 @@ final class User implements UserInterface, UseCaseConsumer
         return $this->refreshUser->getRoles();
     }
 
-    /**
-     * @return string
-     */
-    public function getPassword()
+    public function getPassword(): string
     {
         return $this->refreshUser->getPassword();
     }
 
-    /**
-     * @return string
-     */
-    public function getSalt()
-    {
-        return '';
-    }
-
-    /**
-     * @return string
-     */
-    public function getUsername()
+    public function getUserIdentifier(): string
     {
         return $this->refreshUser->getUserName();
     }
 
-    public function eraseCredentials()
+    public function getUsername(): string
     {
-        return;
+        return $this->getUserIdentifier();
     }
 
     public function getOrganizationId()

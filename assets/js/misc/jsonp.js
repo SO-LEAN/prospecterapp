@@ -1,6 +1,4 @@
-"use strict";
-
-module.exports = function (url, callbackname, done) {
+export default function jsonp(url, callbackname, done) {
     let script = document.createElement('script');
     script.type = 'text/javascript';
     script.src = url;
@@ -8,4 +6,4 @@ module.exports = function (url, callbackname, done) {
     s.parentNode.insertBefore(script, s);
 
     window[callbackname] = done;
-};
+}

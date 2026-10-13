@@ -37,7 +37,7 @@ abstract class AbstractFormHandlingCommand
         );
 
         if (!$this->getRouter()->getRouteCollection()->get($this->deduceTargetRoute($request))) {
-            return $this->redirectToRoute($request->get('_route'), $request->query->all());
+            return $this->redirectToRoute($request->attributes->get('_route'), $request->query->all());
         }
 
         return $this->redirectToRoute($this->deduceTargetRoute($request), [
@@ -128,7 +128,7 @@ abstract class AbstractFormHandlingCommand
 
     private function deduceUseCaseName(Request $request): string
     {
-        $words = ucwords($request->get('_route'), '_');
+        $words = ucwords($request->attributes->get('_route'), '_');
         $parts = explode('_', $words);
 
         $action = array_pop($parts);
@@ -144,7 +144,7 @@ abstract class AbstractFormHandlingCommand
 
     private function deduceTargetRoute(Request $request): string
     {
-        $parts = explode('_', $request->get('_route'), 2);
+        $parts = explode('_', $request->attributes->get('_route'), 2);
         $parts[1] = 'view';
 
         return implode('_', $parts);

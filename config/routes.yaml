@@ -1,3 +1,12 @@
-#index:
-#    path: /
-#    controller: App\Controller\DefaultController::index
+# Routes are declared with #[Route] attributes on controllers.
+# To list all registered routes, run: bin/console debug:router
+
+statics:
+    resource: ../src/Controller/Statics/
+    type: attribute
+    host: '%app_static_host%'
+
+web:
+    resource: ../src/Controller/Web/
+    type: attribute
+    host: '%app_application_host%'

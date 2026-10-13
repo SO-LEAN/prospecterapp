@@ -2,6 +2,7 @@
 
 namespace Tests\App\Command;
 
+use PHPUnit\Framework\Attributes\Group;
 use App\Command\ListUseCasesCommand;
 use Symfony\Component\Console\Tester\CommandTester;
 use Tests\App\Stub\StubPublicUseCaseImpl;
@@ -9,13 +10,14 @@ use Tests\App\Stub\StubNeedsRoleUseCaseImpl;
 use Solean\CleanProspecter\UseCase\UseCasesFacade;
 use Symfony\Bundle\FrameworkBundle\Console\Application;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
+use Prophecy\PhpUnit\ProphecyTrait;
 
-/**
- * @group unit
- */
+#[Group('unit')]
 class ListUseCasesCommandTest extends KernelTestCase
 {
-    public function testExecute()
+    use ProphecyTrait;
+
+    public function testExecute(): void
     {
         $kernel = self::bootKernel();
         $application = new Application($kernel);
@@ -27,7 +29,7 @@ class ListUseCasesCommandTest extends KernelTestCase
             ->shouldbeCalled()
             ->willReturn([new StubNeedsRoleUseCaseImpl(), new StubPublicUseCaseImpl()]);
 
-        $application->add(new ListUseCasesCommand($facade->reveal()));
+        $application->addCommand(new ListUseCasesCommand($facade->reveal()));
         $command = $application->find('app:use-cases');
         $commandTester = new CommandTester($command);
 

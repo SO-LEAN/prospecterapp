@@ -3,7 +3,7 @@
 namespace App\DataFixtures;
 
 use Doctrine\Bundle\FixturesBundle\Fixture;
-use Doctrine\Common\Persistence\ObjectManager;
+use Doctrine\Persistence\ObjectManager;
 use Solean\CleanProspecter\Entity\Organization;
 use Solean\CleanProspecter\Entity\User;
 
@@ -12,13 +12,13 @@ use Solean\CleanProspecter\Entity\User;
  */
 class AppFixtures extends Fixture
 {
-    public function load(ObjectManager $manager)
+    public function load(ObjectManager $manager): void
     {
         $this->createProspectorOrganization($manager);
         $this->createProspector($manager);
     }
 
-    private function createProspectorOrganization(ObjectManager $manager)
+    private function createProspectorOrganization(ObjectManager $manager): void
     {
         $org = new Organization();
 
@@ -33,13 +33,10 @@ class AppFixtures extends Fixture
         $this->addReference('user-organization', $org);
     }
 
-    private function createProspector(ObjectManager $manager)
+    private function createProspector(ObjectManager $manager): void
     {
         $user = new User();
-        /**
-         * @var Organization
-         */
-        $org = $this->getReference(('user-organization'));
+        $org = $this->getReference('user-organization', Organization::class);
 
         $user->setEmail('prospector@solean-it.io');
         $user->setLanguage($org->getLanguage());

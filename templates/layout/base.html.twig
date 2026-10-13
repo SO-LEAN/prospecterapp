@@ -5,17 +5,17 @@
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
     <meta http-equiv="x-ua-compatible" content="ie=edge">
     <title>{% block header %}Page Title{% endblock %} - SoLean IT</title>
-    <link rel="icon" type="image/x-icon" href="{{ asset('build/assets/images/favicon.ico') }}">
-    <link rel="stylesheet" href="{{ asset('build/css/app.css') }}">
+    <link rel="icon" type="image/x-icon" href="{{ asset('images/favicon.ico') }}">
+    {% block importmap %}{{ importmap('app') }}{% endblock %}
 </head>
 <body class="{{ page|default('') }}" data-page="{{ js_ctrl|default('none') }}" {% for key,value in data_attributes|default({}) %}data-{{ key }}="{{ value }}" {% endfor %}>
     <header class="navbar navbar-expand-md navbar-light navbar-main bg-light text-muted">
         <div class="container-fluid">
             <div class="navbar-brand ml-2 ml-md-0" id="js-identity">
-                {% set user_pic = app.user and app.user.pictureUrl ? app.user.pictureUrl|image_operation('resize', 50, 0) : asset('build/assets/images/solean.png') %}
+                {% set user_pic = app.user and app.user.pictureUrl ? app.user.pictureUrl|image_operation('resize', 50, 0) : asset('images/solean.png') %}
                 <a href="{{ path('dashboard_display') }}" title="Dashboard"><img src="{{ user_pic }}" height="50" width="50" alt="PROSPECTER" class="rounded-circle border border-dark"></a>
                 {% if app.user %}
-                   <a href="{{ path('my_account_information_update') }}"><small id="func-logged-user" class="font-italic">{{ app.user.username }}</small></a>
+                   <a href="{{ path('my_account_information_update') }}"><small id="func-logged-user" class="font-italic">{{ app.user.userIdentifier }}</small></a>
                     <a href="{{ path('logout') }}" title="logout"><i class="fa fa-power-off" aria-hidden="true"></i></a>
                 {% endif %}
             </div>
@@ -67,8 +67,6 @@
             </div>
         </div>
     </footer>
-{% block javascripts %}
-    <script src="{{ asset('build/js/app.js') }}"></script>
-{% endblock %}
+{% block javascripts %}{% endblock %}
 </body>
 </html>

@@ -1,100 +1,63 @@
-SYMFONY_MAX_DEPRECATED ?= 500
 export UID := $(shell id -u)
 export GID := $(shell id -g)
 
-install: build-dev build-ci composer yarn assets fixtures
+DC  = docker compose
+PHP = $(DC) run --rm php
 
-build-dev:
-	@echo "Generate environment..."
-	@docker compose build --no-cache
-	@cp .env.dist .env
-build-ci:
-	@echo "Ci build image..."
-	@cd docker/build && docker build --no-cache -t buildci .
-build: composer yarn assets fixtures
+.PHONY: install build vendor db assets watch start stop logs ps test cs cs-fix stan usecases exec
+
+## Setup
+install: build vendor db assets
+
+build:
+	@echo "Docker/Building images..."
+	@$(DC) build
+
+vendor:
+	@echo "Composer/Installing..."
+	@$(PHP) composer install
+
 db:
-	@echo "Database/creating..."
-	@docker run -v ${PWD}:/app --rm --user="$(shell id -u):$(shell id -g)" buildci bin/console doctrine:schema:create
-dbup:
-	@echo "Database/Updating..."
-	@docker run -v ${PWD}:/app --rm --user="$(shell id -u):$(shell id -g)" buildci bin/console doctrine:schema:update --force
-dbdrop:
-	@echo "Database/dropping..."
-	@docker run -v ${PWD}:/app --rm --user="$(shell id -u):$(shell id -g)" buildci bin/console doctrine:schema:drop --force
-fixtures: dbdrop db
-	@echo "Fixtures/Running..."
-	@docker run -v ${PWD}:/app --rm --user="$(shell id -u):$(shell id -g)" buildci bin/console doctrine:fixtures:load  --no-interaction
-composer:
-	@echo "Composer/Building..."
-	@docker run -v ${PWD}:/app --rm --user="$(shell id -u):$(shell id -g)" buildci composer install
-composerup:
-	@echo "Composer/Updating..."
-	@docker run -v ${PWD}:/app --rm --user="$(shell id -u):$(shell id -g)" buildci composer update
-libup:
-	@echo "Composer/updating cleanprospecter..."
-	@docker run -v ${PWD}:/app --rm --user="$(shell id -u):$(shell id -g)" buildci composer update so-lean/cleanprospecter
-yarn:
-	@echo "Yarn/Building..."
-	@docker run -v ${PWD}:/app  --rm --user="$(shell id -u):$(shell id -g)" buildci yarn install
+	@echo "Database/Creating and loading fixtures..."
+	@$(PHP) sh -c 'bin/console doctrine:schema:drop --force --full-database && bin/console doctrine:schema:create && bin/console doctrine:fixtures:load --no-interaction'
+
 assets:
 	@echo "Assets/Building..."
-	@docker run -v ${PWD}:/app --rm --user="$(shell id -u):$(shell id -g)" buildci yarn run encore dev
+	@$(PHP) sh -c 'bin/console importmap:install && bin/console sass:build'
+
 watch:
-	@echo "Assets/Watching..."
-	@docker run -v ${PWD}:/app --rm --user="$(shell id -u):$(shell id -g)" buildci yarn run encore dev --watch
-assets-prod:
-	@echo "Assets/Watching..."
-	@docker run -v ${PWD}:/app --rm --user="$(shell id -u):$(shell id -g)" buildci yarn run encore production
+	@$(PHP) bin/console sass:build --watch
 
+## Stack
 start:
-	@docker compose up -d
-	@xdg-open https://local.prospecter.io
-stop:
-	@docker compose stop
-logs:
-	@docker compose logs
-ps:
-	@docker compose ps
+	@$(DC) up -d
+	@xdg-open https://local.prospecter.io >/dev/null 2>&1 || true
 
+stop:
+	@$(DC) stop
+
+logs:
+	@$(DC) logs -f
+
+ps:
+	@$(DC) ps
+
+## Quality
 test:
-	@docker run -v ${PWD}:/app --rm -e SYMFONY_DEPRECATIONS_HELPER=max[total]=$(SYMFONY_MAX_DEPRECATED) buildci bin/phpunit
-test-web:
-	@docker run -v ${PWD}:/app --rm -e SYMFONY_DEPRECATIONS_HELPER=max[total]=$(SYMFONY_MAX_DEPRECATED) buildci bin/phpunit --group web
-test-unit:
-	@docker run -v ${PWD}:/app --rm -e SYMFONY_DEPRECATIONS_HELPER=max[total]=$(SYMFONY_MAX_DEPRECATED) buildci bin/phpunit --group unit
-testdox:
-	@docker run -v ${PWD}:/app --rm buildci bin/phpunit --testdox
-test-coverage:
-	@docker run -v ${PWD}:/app --rm --user="$(shell id -u):$(shell id -g)" buildci bin/phpunit --coverage-html ./reports/coverage
+	@$(PHP) bin/phpunit
 
 cs:
-	@docker run -v ${PWD}:/app --rm buildci php-cs-fixer fix ./src --dry-run --verbose --rules=@Symfony
-cs-fix:
-	@docker run -v ${PWD}:/app --rm --user="$(shell id -u):$(shell id -g)" buildci php-cs-fixer fix ./src --verbose --rules=@Symfony
+	@$(PHP) vendor/bin/php-cs-fixer fix --dry-run --diff
 
-lint:
-	@docker run -v ${PWD}:/app --rm --user="$(shell id -u):$(shell id -g)" buildci find -L src -name '*.php' -print0 | xargs -0 -n 1 -P 4 php -l
+cs-fix:
+	@$(PHP) vendor/bin/php-cs-fixer fix
 
 stan:
-	@docker run -v ${PWD}:/app --rm --user="$(shell id -u):$(shell id -g)" buildci vendor/bin/phpstan analyse -l 0 src
+	@$(PHP) vendor/bin/phpstan analyse
 
-phpcpd:
-	@docker run -v ${PWD}:/app --rm --user="$(shell id -u):$(shell id -g)" buildci vendor/bin/phpcpd --regexps-exclude="#(var/)|(vendor/).+#" ./
-
-phpmd-text:
-	@mkdir -p reports/phpmd/
-	@docker run -v ${PWD}:/app --rm --user="$(shell id -u):$(shell id -g)" buildci vendor/bin/phpmd ./src html cleancode,codesize,design,naming,unusedcode > reports/phpmd/report.html
-
-phpmd-ci:
-	@docker run -v ${PWD}:/app --rm --user="$(shell id -u):$(shell id -g)" buildci vendor/bin/phpmd ./src github cleancode,codesize,design,naming,unusedcode
-
-package:
-	@docker run -v ${PWD}:/app --rm --user="$(shell id -u):$(shell id -g)" buildci tar --exclude-from='package-excludes.lst' -czvf build.tar.gz ./
-
+## Tools
 usecases:
-	@docker run -v ${PWD}:/app --rm buildci bin/console app:use-cases
+	@$(PHP) bin/console app:use-cases
 
 exec:
-	@docker run -v ${PWD}:/app --user="$(shell id -u):$(shell id -g)" -it --rm buildci /bin/sh
-
-.PHONY: all build-dev build composer assets watch assets-prod run stop logs test test-coverage
+	@$(PHP) bash

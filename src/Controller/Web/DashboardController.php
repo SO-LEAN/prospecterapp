@@ -5,36 +5,24 @@ namespace App\Controller\Web;
 use App\Entity\User;
 use App\Presenter\GetOrganizationPresenterImpl;
 use App\Traits\ControllerTrait;
-use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Solean\CleanProspecter\UseCase\FindMyOwnOrganizations\FindMyOwnOrganizationsRequest;
 use Solean\CleanProspecter\UseCase\GetOrganization\GetOrganizationRequest;
 use Symfony\Component\HttpFoundation;
+use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Security\Core\User\UserInterface;
 
-/**
- * Class DashboardController.
- *
- * @Route(service="App\Controller\Web\DashboardController")
- */
 class DashboardController
 {
     use ControllerTrait;
 
-    /**
-     * @return HttpFoundation\Response
-     *
-     * @Route("/", name="index")
-     * @Route("/dashboard/view", name="dashboard_display")
-     */
-    public function view()
+    #[Route('/', name: 'index')]
+    #[Route('/dashboard/view', name: 'dashboard_display')]
+    public function view(): HttpFoundation\Response
     {
         return $this->render('page/dashboard/index.html.twig');
     }
 
-    /**
-     * @return HttpFoundation\Response
-     */
-    public function map(UserInterface $user)
+    public function map(UserInterface $user): HttpFoundation\Response
     {
         /** @var User $user */
         $data = $this->getUseCases()->findMyOwnOrganizations(
@@ -48,10 +36,7 @@ class DashboardController
         ]);
     }
 
-    /**
-     * @return HttpFoundation\Response
-     */
-    public function statistics(UserInterface $user)
+    public function statistics(UserInterface $user): HttpFoundation\Response
     {
         /** @var User $user */
         $data = $this->getUseCases()->getOrganization(new GetOrganizationRequest($user->getOrganizationId()), new GetOrganizationPresenterImpl(), $user);

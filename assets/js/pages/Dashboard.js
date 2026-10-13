@@ -1,7 +1,5 @@
-"use strict";
-
-let $ = require('jquery');
-let gapi = require('../misc/gapi');
+import $ from 'jquery';
+import * as gapi from '../misc/gapi.js';
 
 function Dashboard() {
   this.$map = $('#map');
@@ -53,4 +51,4 @@ Dashboard.prototype.run = function () {
   }
 };
 
-module.exports = Dashboard;
+export default Dashboard;

@@ -15,7 +15,7 @@ trait ControllerTrait
 {
     use HelperTrait;
 
-    public function setFormHandler(RequestHandler $formHandler)
+    public function setFormHandler(RequestHandler $formHandler): void
     {
         $this->add('form-handler', $formHandler);
     }

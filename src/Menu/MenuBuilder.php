@@ -5,6 +5,7 @@ namespace App\Menu;
 use Knp\Menu\FactoryInterface;
 use Knp\Menu\ItemInterface;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\Security\Core\Authorization\AuthorizationCheckerInterface;
 
 /**
@@ -12,24 +13,11 @@ use Symfony\Component\Security\Core\Authorization\AuthorizationCheckerInterface;
  */
 class MenuBuilder
 {
-    /**
-     * @var FactoryInterface
-     */
-    protected $factory;
-    /**
-     * @var AuthorizationCheckerInterface
-     */
-    protected $authorizationChecker;
-    /**
-     * @var Request
-     */
-    protected $currentRequest;
-
-    public function __construct(FactoryInterface $factory, AuthorizationCheckerInterface $authorizationChecker, Request $currentRequest)
-    {
-        $this->factory = $factory;
-        $this->authorizationChecker = $authorizationChecker;
-        $this->currentRequest = $currentRequest;
+    public function __construct(
+        protected readonly FactoryInterface $factory,
+        protected readonly AuthorizationCheckerInterface $authorizationChecker,
+        protected readonly RequestStack $requestStack,
+    ) {
     }
 
     /**
@@ -97,7 +85,7 @@ class MenuBuilder
         if ($this->isMatchedRequest('#^/organizations/[0-9]+/update#')) {
             $menu->addChild(
                 'Detail',
-                ['route' => 'organization_view', 'routeParameters' => ['id' => $this->currentRequest->get('id')], 'extras' => $extras + $this->getIcon('fa fa-building-o d-md-none')] + $commonAttributes
+                ['route' => 'organization_view', 'routeParameters' => ['id' => $this->getCurrentRequest()->attributes->get('id')], 'extras' => $extras + $this->getIcon('fa fa-building-o d-md-none')] + $commonAttributes
             );
             $menu->addChild('Edit', ['attributes' => $active, 'extras' => $extras + $this->getIcon('fa fa-edit d-md-none')]);
         }
@@ -169,13 +157,18 @@ class MenuBuilder
      */
     private function isMatchedRequest(string $pattern)
     {
-        return (bool) preg_match($pattern, $this->currentRequest->getPathInfo());
+        return (bool) preg_match($pattern, $this->getCurrentRequest()->getPathInfo());
+    }
+
+    private function getCurrentRequest(): Request
+    {
+        return $this->requestStack->getCurrentRequest();
     }
 
     private function createOrganizationViewMenu(ItemInterface $menu, array $commonAttributes, array $extras): void
     {
-        if (preg_match('/^organization_view/', $this->currentRequest->get('_route'))) {
-            $id = $this->currentRequest->get('id');
+        if (preg_match('/^organization_view/', (string) $this->getCurrentRequest()->attributes->get('_route'))) {
+            $id = $this->getCurrentRequest()->attributes->get('id');
             $menu->addChild(
                 'Edit organization',
                 [

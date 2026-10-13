@@ -10,14 +10,11 @@ use Symfony\Component\HttpFoundation\Response;
 class RequestHandler
 {
     /**
-     * @var FormHandlingCommand[]
+     * @var array<string, FormHandlingCommand>
      */
-    private $commands;
+    private array $commands = [];
 
-    /**
-     * @param string $id
-     */
-    public function addCommand(FormHandlingCommand $command, $id = 'default')
+    public function addCommand(FormHandlingCommand $command, string $id = 'default'): void
     {
         $this->commands[$id] = $command;
     }
@@ -56,8 +53,8 @@ class RequestHandler
 
     private function selectCommand(Request $request): FormHandlingCommand
     {
-        if ($this->hasCommand($request->get('_route'))) {
-            return $this->getCommand($request->get('_route'));
+        if ($this->hasCommand($request->attributes->get('_route'))) {
+            return $this->getCommand($request->attributes->get('_route'));
         }
 
         return $this->getCommand($this->getRouteSuffix($request));
@@ -74,7 +71,7 @@ class RequestHandler
 
     private function getRouteSuffix(Request $request): string
     {
-        $exploded = explode('_', $request->get('_route'));
+        $exploded = explode('_', $request->attributes->get('_route'));
 
         return end($exploded);
     }

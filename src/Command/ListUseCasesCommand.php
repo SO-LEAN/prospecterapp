@@ -3,43 +3,32 @@
 namespace App\Command;
 
 use Solean\CleanProspecter\UseCase\UseCasesFacade;
+use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 
+#[AsCommand(name: 'app:use-cases', description: 'List use cases', help: 'This command allows you to list recorded use cases.')]
 class ListUseCasesCommand extends Command
 {
-    /**
-     * @var UseCasesFacade
-     */
-    private $useCasesFacade;
-
-    public function __construct(UseCasesFacade $useCasesFacade)
+    public function __construct(private readonly UseCasesFacade $useCasesFacade)
     {
-        $this->useCasesFacade = $useCasesFacade;
-
         parent::__construct();
     }
 
-    protected function configure(): void
-    {
-        $this
-            ->setName('app:use-cases')
-            ->setDescription('List use cases')
-            ->setHelp('This command allows you to list recorded use cases.');
-    }
-
-    protected function execute(InputInterface $input, OutputInterface $output): void
+    protected function execute(InputInterface $input, OutputInterface $output): int
     {
         $usesCases = $this->useCasesFacade->getUseCases();
         sort($usesCases, SORT_NATURAL);
         $count = count($usesCases);
 
-        $output->writeln($this->comment($count, ' use case(s) registered'));
+        $output->writeln($this->comment((string) $count, ' use case(s) registered'));
 
         foreach ($usesCases as $key => $useCase) {
-            $output->writeln($this->inform($key + 1, '/', $count, ' : ', $useCase));
+            $output->writeln($this->inform((string) ($key + 1), '/', (string) $count, ' : ', (string) $useCase));
         }
+
+        return Command::SUCCESS;
     }
 
     /**

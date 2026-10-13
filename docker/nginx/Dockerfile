@@ -1,13 +1,8 @@
-FROM nginx:1.15.7-alpine
+FROM nginx:1.30-alpine
 
-ENV NGINX_ERROR_LOG=/dev/fd/2 \
-    NGINX_ACCESS_LOG=/dev/null \
-    CONTAINER_NAME=php-fpm
+RUN apk add --no-cache openssl \
+    && rm /etc/nginx/conf.d/default.conf
 
-RUN rm /etc/nginx/conf.d/default.conf && \
-    apk add --update --no-cache openssl
-
-COPY ["nginx.conf", "project.conf", "static.conf", "/etc/nginx/templates/"]
-COPY "run.sh" "/"
-
-CMD "/run.sh"
+COPY conf.d/ /etc/nginx/conf.d/
+COPY templates/ /etc/nginx/templates/
+COPY 05-generate-certificate.sh /docker-entrypoint.d/

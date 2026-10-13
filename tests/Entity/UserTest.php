@@ -2,14 +2,13 @@
 
 namespace Tests\App\Entity;
 
+use PHPUnit\Framework\Attributes\Group;
 
 use App\Entity\User;
 use Solean\CleanProspecter\UseCase\RefreshUser\RefreshUserResponse;
 use Tests\App\Base\TestCase;
 
-/**
- * @group unit
- */
+#[Group('unit')]
 class UserTest extends TestCase
 {
     /**

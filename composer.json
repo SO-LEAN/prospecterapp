@@ -1,56 +1,55 @@
 {
+    "name": "so-lean/prospecterapp",
     "type": "project",
     "license": "proprietary",
+    "minimum-stability": "stable",
+    "prefer-stable": true,
     "require": {
-        "php": "^7.2.3",
+        "php": ">=8.5",
+        "ext-ctype": "*",
         "ext-iconv": "*",
-        "composer/package-versions-deprecated": "1.11.99.1",
-        "doctrine/common": "^2",
-        "doctrine/doctrine-bundle": "^2",
-        "doctrine/doctrine-migrations-bundle": "^2",
-        "doctrine/orm": "^2",
-        "imagine/imagine": "^0.7.1",
-        "knplabs/knp-menu-bundle": "^2.0",
-        "ocramius/proxy-manager": "^2.2",
-        "sensio/framework-extra-bundle": "^5.1",
+        "components/font-awesome": "^4.7",
+        "doctrine/doctrine-bundle": "^3.3",
+        "doctrine/orm": "^3.7",
+        "imagine/imagine": "^1.5",
+        "knplabs/knp-menu-bundle": "^3.8",
         "so-lean/cleanprospecter": "dev-develop",
-        "symfony/asset": "^4.4",
-        "symfony/console": "^4.4",
-        "symfony/expression-language": "^4.4",
-        "symfony/flex": "^1.21",
-        "symfony/form": "^4.4",
-        "symfony/framework-bundle": "^4.4",
-        "symfony/security-bundle": "^4.4",
-        "symfony/translation": "^4.4",
-        "symfony/twig-bundle": "^4.4",
-        "symfony/validator": "^4.4",
-        "symfony/yaml": "^4.4"
-    },
-    "require-dev": {
-        "doctrine/doctrine-fixtures-bundle": "^3.0",
-        "liip/functional-test-bundle": "~2.0@alpha",
-        "phpmd/phpmd": "^2.10",
-        "phpstan/phpstan": "^0.12.88",
-        "sebastian/phpcpd": "^4.1",
-        "symfony/browser-kit": "^4.4",
-        "symfony/css-selector": "^4.4",
-        "symfony/dotenv": "^4.4",
-        "symfony/phpunit-bridge": "^4.4",
-        "symfony/stopwatch": "^4.4",
-        "symfony/web-profiler-bundle": "^4.4"
+        "symfony/asset": "8.1.*",
+        "symfony/asset-mapper": "8.1.*",
+        "symfony/console": "8.1.*",
+        "symfony/dotenv": "8.1.*",
+        "symfony/expression-language": "8.1.*",
+        "symfony/flex": "^2.11",
+        "symfony/form": "8.1.*",
+        "symfony/framework-bundle": "8.1.*",
+        "symfony/intl": "8.1.*",
+        "symfony/mime": "8.1.*",
+        "symfony/monolog-bundle": "^4.1",
+        "symfony/runtime": "8.1.*",
+        "symfony/security-bundle": "8.1.*",
+        "symfony/translation": "8.1.*",
+        "symfony/twig-bundle": "8.1.*",
+        "symfony/validator": "8.1.*",
+        "symfony/yaml": "8.1.*",
+        "symfonycasts/sass-bundle": "^0.10.0",
+        "twbs/bootstrap": "^4.6",
+        "twig/extra-bundle": "^3.29"
     },
     "repositories": [
-        {"type": "vcs", "url": "git@github.com:SO-LEAN/cleanprospecter.git"}
+        {
+            "type": "vcs",
+            "url": "https://github.com/SO-LEAN/cleanprospecter.git",
+            "no-api": true
+        }
     ],
     "config": {
-        "preferred-install": {
-            "*": "dist"
-        },
-        "sort-packages": true,
         "allow-plugins": {
+            "php-http/discovery": true,
             "symfony/flex": true,
-            "composer/package-versions-deprecated": true
-        }
+            "symfony/runtime": true
+        },
+        "bump-after-update": true,
+        "sort-packages": true
     },
     "autoload": {
         "psr-4": {
@@ -63,16 +62,23 @@
         }
     },
     "replace": {
+        "symfony/polyfill-ctype": "*",
         "symfony/polyfill-iconv": "*",
-        "symfony/polyfill-php71": "*",
-        "symfony/polyfill-php70": "*",
-        "symfony/polyfill-php56": "*"
+        "symfony/polyfill-php72": "*",
+        "symfony/polyfill-php73": "*",
+        "symfony/polyfill-php74": "*",
+        "symfony/polyfill-php80": "*",
+        "symfony/polyfill-php81": "*",
+        "symfony/polyfill-php82": "*",
+        "symfony/polyfill-php83": "*",
+        "symfony/polyfill-php84": "*",
+        "symfony/polyfill-php85": "*"
     },
     "scripts": {
         "auto-scripts": {
             "cache:clear": "symfony-cmd",
-            "assets:install --symlink --relative %PUBLIC_DIR%": "symfony-cmd",
-            "assets:install %PUBLIC_DIR%": "symfony-cmd"
+            "assets:install %PUBLIC_DIR%": "symfony-cmd",
+            "importmap:install": "symfony-cmd"
         },
         "post-install-cmd": [
             "@auto-scripts"
@@ -86,8 +92,20 @@
     },
     "extra": {
         "symfony": {
-            "id": "01C8W8EW1QGS57MDPXBJ7ARQTR",
-            "allow-contrib": false
+            "allow-contrib": true,
+            "require": "8.1.*"
         }
+    },
+    "require-dev": {
+        "doctrine/doctrine-fixtures-bundle": "^4.3",
+        "friendsofphp/php-cs-fixer": "^3.95",
+        "phpspec/prophecy-phpunit": "^2.5",
+        "phpstan/phpstan": "^2.3",
+        "phpunit/phpunit": "^13.4",
+        "symfony/browser-kit": "8.1.*",
+        "symfony/css-selector": "8.1.*",
+        "symfony/debug-bundle": "8.1.*",
+        "symfony/stopwatch": "8.1.*",
+        "symfony/web-profiler-bundle": "8.1.*"
     }
 }

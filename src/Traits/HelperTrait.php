@@ -4,7 +4,7 @@ namespace App\Traits;
 
 use App\Service\PresenterFactory;
 use Solean\CleanProspecter\UseCase\UseCasesFacade;
-use Symfony\Component\Form\FormFactory;
+use Symfony\Component\Form\FormFactoryInterface;
 use Symfony\Component\Form\FormInterface;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Response;
@@ -16,27 +16,27 @@ trait HelperTrait
 {
     use ServiceTrait;
 
-    public function setFormFactory(FormFactory $formFactory)
+    public function setFormFactory(FormFactoryInterface $formFactory): void
     {
         $this->add('form-factory', $formFactory);
     }
 
-    public function setTwig(Twig\Environment $twig)
+    public function setTwig(Twig\Environment $twig): void
     {
         $this->add('twig', $twig);
     }
 
-    public function setRouter(RouterInterface $router)
+    public function setRouter(RouterInterface $router): void
     {
         $this->add('router', $router);
     }
 
-    public function setUseCases(UseCasesFacade $facade)
+    public function setUseCases(UseCasesFacade $facade): void
     {
         $this->add('use-cases', $facade);
     }
 
-    public function setPresenterFactory(PresenterFactory $presenterFactory)
+    public function setPresenterFactory(PresenterFactory $presenterFactory): void
     {
         $this->add('presenters', $presenterFactory);
     }
@@ -88,7 +88,7 @@ trait HelperTrait
      *
      * @final
      */
-    protected function render(string $view, array $parameters = [], Response $response = null): Response
+    protected function render(string $view, array $parameters = [], ?Response $response = null): Response
     {
         $content = $this->getTwig()->render($view, $parameters);
 
@@ -126,7 +126,7 @@ trait HelperTrait
         return $this->get('twig');
     }
 
-    protected function getFormFactory(): FormFactory
+    protected function getFormFactory(): FormFactoryInterface
     {
         return $this->get('form-factory');
     }

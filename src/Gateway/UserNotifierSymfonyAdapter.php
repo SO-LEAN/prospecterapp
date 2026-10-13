@@ -3,37 +3,41 @@
 namespace App\Gateway;
 
 use Solean\CleanProspecter\Gateway\UserNotifier;
-use Symfony\Component\HttpFoundation\Session\Session;
+use Symfony\Component\HttpFoundation\RequestStack;
+use Symfony\Component\HttpFoundation\Session\FlashBagAwareSessionInterface;
 
 class UserNotifierSymfonyAdapter implements UserNotifier
 {
-    /**
-     * @var Session
-     */
-    private $session;
-
-    public function __construct(Session $session)
+    public function __construct(private readonly RequestStack $requestStack)
     {
-        $this->session = $session;
     }
 
     public function addSuccess(string $message): void
     {
-        $this->session->getFlashBag()->add('success', $message);
+        $this->add('success', $message);
     }
 
     public function addWarning(string $message): void
     {
-        $this->session->getFlashBag()->add('warning', $message);
+        $this->add('warning', $message);
     }
 
     public function addError(string $message): void
     {
-        $this->session->getFlashBag()->add('error', $message);
+        $this->add('error', $message);
     }
 
     public function addInfo(string $message): void
     {
-        $this->session->getFlashBag()->add('info', $message);
+        $this->add('info', $message);
+    }
+
+    private function add(string $type, string $message): void
+    {
+        $session = $this->requestStack->getSession();
+
+        if ($session instanceof FlashBagAwareSessionInterface) {
+            $session->getFlashBag()->add($type, $message);
+        }
     }
 }

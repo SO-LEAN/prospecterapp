@@ -40,8 +40,8 @@ class UrlImageInfo
 
     public function __construct(string $url, CipherHandler $cipherHandler)
     {
-        if (!preg_match('/^(?<protocol>http|https):\/\/(?<host>[[:alnum:]\.]+)\/(?<path>.+)\/(?<part1>[[:alnum:]]+)(&(?<operation>[[:alnum:]-_\=]+))?\.(?<ext>[[:alnum:]]+)$/', $url, $matches)) {
-            throw new NotFoundException(sprintf('Url for static operation "%" is malformed', $url));
+        if (!preg_match('/^(?<protocol>http|https):\/\/(?<host>[[:alnum:]\.]+)\/(?<path>.+)\/(?<part1>[[:alnum:]]+)(&(?<operation>[[:alnum:]_=-]+))?\.(?<ext>[[:alnum:]]+)$/', $url, $matches)) {
+            throw new NotFoundException(sprintf('Url for static operation "%s" is malformed', $url));
         }
 
         $this->protocol = $matches['protocol'];

@@ -21,9 +21,13 @@ class StorageLocalAdapter implements Storage
 
     public function add(SplFileInfo $file): string
     {
-        $file = $this->localStorageService->add(new File($file->getPathName()));
+        // Store a copy: use cases still read the original file (size, extension) after adding it
+        $copy = tempnam(sys_get_temp_dir(), 'storage');
+        copy($file->getPathname(), $copy);
 
-        return $this->localStorageService->getUrl($file);
+        $stored = $this->localStorageService->add(new File($copy));
+
+        return $this->localStorageService->getUrl($stored);
     }
 
     public function remove(string $url)

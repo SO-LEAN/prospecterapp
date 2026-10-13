@@ -1,8 +1,0 @@
-Solean\CleanProspecter\Entity\Base:
-  type: mappedSuperclass
-  fields:
-    id:
-      type: integer
-      id: true
-      generator:
-        strategy: AUTO

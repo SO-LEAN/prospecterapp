@@ -2,14 +2,13 @@
 
 namespace Tests\App\Gateway\Entity;
 
+use PHPUnit\Framework\Attributes\Group;
 use Solean\CleanProspecter\Entity\User;
-use Tests\App\Base\GatewayEntityTest;
+use Tests\App\Base\GatewayEntityTestCase;
 use App\Gateway\Entity\UserRepositoryAdapter;
 
-/**
- * @group unit
- */
-class UserRepositoryAdapterTest extends GatewayEntityTest
+#[Group('unit')]
+class UserRepositoryAdapterTest extends GatewayEntityTestCase
 {
     public function target() : UserRepositoryAdapter
     {

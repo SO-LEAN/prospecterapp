@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<doctrine-mapping xmlns="http://doctrine-project.org/schemas/orm/doctrine-mapping"
+                  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                  xsi:schemaLocation="http://doctrine-project.org/schemas/orm/doctrine-mapping https://www.doctrine-project.org/schemas/orm/doctrine-mapping.xsd">
+    <entity name="Solean\CleanProspecter\Entity\Prospect">
+        <field name="firstName" type="string" length="100" nullable="true"/>
+        <field name="lastName" type="string" length="100" nullable="true"/>
+        <many-to-one field="createdBy" target-entity="Solean\CleanProspecter\Entity\User"/>
+        <many-to-one field="ownedBy" target-entity="Solean\CleanProspecter\Entity\Organization" inversed-by="ownedProspects"/>
+    </entity>
+</doctrine-mapping>

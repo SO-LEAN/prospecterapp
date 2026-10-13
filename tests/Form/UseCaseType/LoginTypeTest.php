@@ -2,16 +2,17 @@
 
 namespace Tests\App\Form\UseCaseType;
 
+use PHPUnit\Framework\Attributes\AllowMockObjectsWithoutExpectations;
+use PHPUnit\Framework\Attributes\Group;
 use App\Form\UseCaseType\LoginType;
 use Symfony\Component\Form\Test\TypeTestCase;
-use Symfony\Component\Form\Test\Traits\ValidatorExtensionTrait;
+use Symfony\Component\Form\Extension\Validator\ValidatorExtension;
+use Symfony\Component\Validator\Validation;
 
-/**
- * @group unit
- */
+#[Group('unit')]
+#[AllowMockObjectsWithoutExpectations]
 class LoginTypeTest extends TypeTestCase
 {
-    use ValidatorExtensionTrait;
 
     /**
      *
@@ -35,5 +36,10 @@ class LoginTypeTest extends TypeTestCase
         foreach (array_keys($formData) as $key) {
             $this->assertArrayHasKey($key, $children);
         }
+    }
+
+    protected function getExtensions(): array
+    {
+        return [new ValidatorExtension(Validation::createValidator())];
     }
 }

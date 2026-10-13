@@ -1,8 +1,9 @@
 twig:
-    paths: ['%kernel.project_dir%/templates']
-    debug: '%kernel.debug%'
-    strict_variables: '%kernel.debug%'
+    file_name_pattern: '*.twig'
+    form_themes: ['form/bootstrap_4_layout.html.twig']
     globals:
         google_api_key: '%env(APP_GOOGLE_API_KEY)%'
-    form_themes:
-        - 'form/bootstrap_4_layout.html.twig'
+
+when@test:
+    twig:
+        strict_variables: true

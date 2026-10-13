@@ -4,63 +4,28 @@ namespace App\Twig;
 
 use App\Service\ImageService;
 use Exception;
-use Twig_Environment;
-use Twig_Extension;
-use Twig_Extension_InitRuntimeInterface;
-use Twig_SimpleFilter;
+use Twig\Extension\AbstractExtension;
+use Twig\TwigFilter;
 
-class AppTwigExtension extends Twig_Extension implements Twig_Extension_InitRuntimeInterface
+class AppTwigExtension extends AbstractExtension
 {
-    /**
-     * @var Twig_Environment
-     */
-    private $environment;
-    /**
-     * @var ImageService
-     */
-    private $imageService;
-
-    public function __construct(ImageService $imageService)
+    public function __construct(private readonly ImageService $imageService)
     {
-        $this->imageService = $imageService;
     }
 
-    /**
-     * @return string
-     */
-    public function getName()
-    {
-        return 'app_extension';
-    }
-
-    public function initRuntime(Twig_Environment $environment)
-    {
-        $this->environment = $environment;
-    }
-
-    /**
-     * @return array
-     */
-    public function getFilters()
+    public function getFilters(): array
     {
         return [
-            new Twig_SimpleFilter('image_operation', [$this, 'buildOperationUrl']),
+            new TwigFilter('image_operation', $this->buildOperationUrl(...)),
         ];
     }
 
-    /**
-     * @param mixed ...$args
-     *
-     * @return string
-     */
-    public function buildOperationUrl(string $url, string $operation, ...$args)
+    public function buildOperationUrl(string $url, string $operation, mixed ...$args): string
     {
         try {
-            $test = $this->imageService->buildOperationUrl($url, $operation, $args);
-        } catch (Exception $e) {
+            return $this->imageService->buildOperationUrl($url, $operation, $args);
+        } catch (Exception) {
             return '';
         }
-
-        return $test;
     }
 }

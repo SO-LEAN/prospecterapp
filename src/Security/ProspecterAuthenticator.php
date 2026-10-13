@@ -7,192 +7,76 @@ use App\Presenter\LoginPresenterImpl;
 use Solean\CleanProspecter\Exception\UseCase\BadCredentialException;
 use Solean\CleanProspecter\UseCase\Login\LoginRequest;
 use Solean\CleanProspecter\UseCase\UseCasesFacade;
-use Symfony\Component\Form\FormFactory;
 use Symfony\Component\Form\FormFactoryInterface;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\HttpFoundation\Session\SessionInterface;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
-use Symfony\Component\Security\Core\Exception\AuthenticationException;
-use Symfony\Component\Security\Core\Exception\InvalidCsrfTokenException;
-use Symfony\Component\Security\Core\Security;
-use Symfony\Component\Security\Core\User\UserInterface;
-use Symfony\Component\Security\Core\User\UserProviderInterface;
-use Symfony\Component\Security\Csrf\CsrfToken;
-use Symfony\Component\Security\Csrf\CsrfTokenManagerInterface;
-use Symfony\Component\Security\Guard\Authenticator\AbstractFormLoginAuthenticator;
+use Symfony\Component\Security\Core\Exception\BadCredentialsException;
+use Symfony\Component\Security\Http\Authenticator\AbstractLoginFormAuthenticator;
+use Symfony\Component\Security\Http\Authenticator\Passport\Badge\CsrfTokenBadge;
+use Symfony\Component\Security\Http\Authenticator\Passport\Badge\UserBadge;
+use Symfony\Component\Security\Http\Authenticator\Passport\Credentials\CustomCredentials;
+use Symfony\Component\Security\Http\Authenticator\Passport\Passport;
+use Symfony\Component\Security\Http\SecurityRequestAttributes;
 use Symfony\Component\Security\Http\Util\TargetPathTrait;
 
-class ProspecterAuthenticator extends AbstractFormLoginAuthenticator
+class ProspecterAuthenticator extends AbstractLoginFormAuthenticator
 {
     use TargetPathTrait;
 
-    /**
-     * @var CsrfTokenManagerInterface
-     */
-    private $csrfTokenManager;
-    /**
-     * @var FormFactory
-     */
-    private $formFactory;
-    /**
-     * @var SessionInterface
-     */
-    private $session;
-    /**
-     * @var UseCasesFacade
-     */
-    private $useCasesFacade;
-    /**
-     * @var string
-     */
-    private $loginUrl;
-    /**
-     * @var string
-     */
-    private $defaultSuccessRedirectUrl;
-    /**
-     * @var string
-     */
-    private $providerKey;
-
-    /**
-     * @param UrlGeneratorInterface $urlGenerator,
-     */
     public function __construct(
-        CsrfTokenManagerInterface $csrfTokenManager,
-        FormFactoryInterface $formFactory,
-        SessionInterface $session,
-        UseCasesFacade $useCasesFacade,
-        UrlGeneratorInterface $urlGenerator,
-        string $loginRoute,
-        string $defaultSuccessRedirectRoute,
-        string $providerKey)
-    {
-        $this->csrfTokenManager = $csrfTokenManager;
-        $this->formFactory = $formFactory;
-        $this->session = $session;
-        $this->useCasesFacade = $useCasesFacade;
-        $this->loginUrl = $urlGenerator->generate($loginRoute);
-        $this->defaultSuccessRedirectUrl = $urlGenerator->generate($defaultSuccessRedirectRoute);
-        $this->providerKey = $providerKey;
-        $this->session = $session;
+        private readonly FormFactoryInterface $formFactory,
+        private readonly UseCasesFacade $useCasesFacade,
+        private readonly UrlGeneratorInterface $urlGenerator,
+        private readonly string $loginRoute,
+        private readonly string $defaultSuccessRedirectRoute,
+    ) {
     }
 
-    /**
-     * @return Response|null
-     */
-    public function start(Request $request, AuthenticationException $authException = null)
+    public function authenticate(Request $request): Passport
     {
-        $this->saveTargetPath($this->session, $this->providerKey, $request->getUri());
-
-        return parent::start($request, $authException);
-    }
-
-    /**
-     * @return LoginRequest
-     */
-    public function getCredentials(Request $request)
-    {
-        $form = $this->formFactory->create(LoginType::class);
+        $form = $this->formFactory->create(LoginType::class, null, ['csrf_protection' => false]);
         $form->handleRequest($request);
-        $csrfToken = $request->get($form->getName())['_token'];
+        $data = $form->getData() ?? [];
+        $userName = (string) ($data['userName'] ?? '');
+        $password = (string) ($data['password'] ?? '');
+        $csrfToken = (string) ($request->request->all($form->getName())['_token'] ?? '');
 
-        if (false === $this->csrfTokenManager->isTokenValid(new CsrfToken('authenticate', $csrfToken))) {
-            throw new InvalidCsrfTokenException('Invalid CSRF token.');
-        }
+        $request->getSession()->set(SecurityRequestAttributes::LAST_USERNAME, $userName);
 
-        $data = $form->getData();
-
-        $request->getSession()->set(Security::LAST_USERNAME, $data['userName']);
-
-        return $data;
+        return new Passport(
+            new UserBadge($userName),
+            new CustomCredentials(fn (): bool => $this->checkCredentials($userName, $password), null),
+            [new CsrfTokenBadge('authenticate', $csrfToken)]
+        );
     }
 
-    /**
-     * @param string $providerKey
-     *
-     * @return RedirectResponse
-     */
-    public function onAuthenticationSuccess(Request $request, TokenInterface $token, $providerKey)
+    public function onAuthenticationSuccess(Request $request, TokenInterface $token, string $firewallName): ?Response
     {
-        $path = $this->getTargetPath($this->session, $this->providerKey);
+        $path = $this->getTargetPath($request->getSession(), $firewallName);
 
-        if (!$path || $this->loginUrl === $path) {
-            $path = $this->getDefaultSuccessRedirectUrl();
+        if (!$path || $this->getLoginUrl($request) === $path) {
+            $path = $this->urlGenerator->generate($this->defaultSuccessRedirectRoute);
         }
 
         return new RedirectResponse($path);
     }
 
-    /**
-     * @param mixed $credentials
-     *
-     * @return UserInterface
-     */
-    public function getUser($credentials, UserProviderInterface $userProvider)
+    protected function getLoginUrl(Request $request): string
     {
-        return $userProvider->loadUserByUsername($credentials['userName']);
+        return $this->urlGenerator->generate($this->loginRoute);
     }
 
-    /**
-     * @param mixed $credentials
-     *
-     * @return bool
-     */
-    public function checkCredentials($credentials, UserInterface $user)
+    private function checkCredentials(string $userName, string $password): bool
     {
         try {
-            $this->useCasesFacade->login(new LoginRequest($credentials['userName'], $credentials['password']), new LoginPresenterImpl());
-        } catch (BadCredentialException $e) {
-            throw new AuthenticationException('Bad credentials');
+            $this->useCasesFacade->login(new LoginRequest($userName, $password), new LoginPresenterImpl());
+        } catch (BadCredentialException) {
+            throw new BadCredentialsException('Bad credentials');
         }
 
         return true;
-    }
-
-    /**
-     * @return bool
-     */
-    public function supports(Request $request)
-    {
-        return $request->getPathInfo() === $this->getLoginUrl() && $request->isMethod('POST');
-    }
-
-    /**
-     * @return string
-     */
-    protected function getLoginUrl()
-    {
-        return $this->loginUrl;
-    }
-
-    /**
-     * @return string
-     */
-    protected function getDefaultSuccessRedirectUrl()
-    {
-        return $this->defaultSuccessRedirectUrl;
-    }
-
-    /**
-     * @param string $providerKey
-     * @param string $url
-     */
-    private function saveTargetPath(SessionInterface $session, $providerKey, $url)
-    {
-        $session->set('_security.'.$providerKey.'.target_path', $url);
-    }
-
-    /**
-     * @param string $providerKey
-     *
-     * @return mixed|string
-     */
-    private function getTargetPath(SessionInterface $session, $providerKey)
-    {
-        return $session->get('_security.'.$providerKey.'.target_path');
     }
 }

@@ -14,23 +14,14 @@ use Symfony\Component\Validator\Constraints\Image;
 
 class EasyImportFileType extends AbstractType
 {
-    /**
-     * @var FileSystemAdapter
-     */
-    private $fileSystemAdapter;
+    private readonly FileSystemAdapter $fileSystemAdapter;
 
-    /**
-     * @param FileSystemAdapter $fileSystemAdapter
-     */
-    public function __construct(FileSystemAdapter $fileSystemAdapter = null)
+    public function __construct(?FileSystemAdapter $fileSystemAdapter = null)
     {
         $this->fileSystemAdapter = $fileSystemAdapter ?? new PhpFileSystemAdapter();
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function buildForm(FormBuilderInterface $builder, array $options)
+    public function buildForm(FormBuilderInterface $builder, array $options): void
     {
         $options['manual_options']['required'] = $options['required'];
         $options['url_options']['required'] = $options['required'];
@@ -46,15 +37,12 @@ class EasyImportFileType extends AbstractType
         ;
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function configureOptions(OptionsResolver $resolver)
+    public function configureOptions(OptionsResolver $resolver): void
     {
         $resolver->setDefaults([
             'options' => [],
             'manual_options' => [
-                'constraints' => [new Image(['mimeTypes' => ['image/jpeg', 'image/jpg', 'image/png'], 'maxSize' => '2M'])],
+                'constraints' => [new Image(mimeTypes: ['image/jpeg', 'image/jpg', 'image/png'], maxSize: '2M')],
                 ],
             'url_options' => [],
             'error_bubbling' => false,
@@ -69,10 +57,7 @@ class EasyImportFileType extends AbstractType
         $resolver->setAllowedTypes('url_name', 'string');
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function getBlockPrefix()
+    public function getBlockPrefix(): string
     {
         return 'easy_file';
     }

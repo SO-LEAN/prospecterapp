@@ -17,7 +17,8 @@ class PhpFileSystemAdapter implements FileSystemAdapter
      */
     public function copy($source, $dest, $context = null)
     {
-        return copy($source, $dest, $context);
+        // false on failure, as documented by FileSystemAdapter::copy()
+        return @copy($source, $dest, $context);
     }
 
     /**

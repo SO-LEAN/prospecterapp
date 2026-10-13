@@ -23,7 +23,7 @@ class CreateFormHandlingCommand extends AbstractFormHandlingCommand implements F
      */
     public function renderFormView(Request $request, array $viewParameters, ?Response $response = null): Response
     {
-        $parts = explode('_', $request->get('_route'), 2);
+        $parts = explode('_', $request->attributes->get('_route'), 2);
 
         return $this->render(sprintf('page/%s/add.html.twig', $parts[0]), $viewParameters, $response);
     }

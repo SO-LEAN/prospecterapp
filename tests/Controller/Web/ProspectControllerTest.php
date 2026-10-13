@@ -2,36 +2,35 @@
 
 namespace Tests\App\Controller\Web;
 
-use Tests\App\Base\ControllerTest;
+use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\Group;
+use Tests\App\Base\ControllerTestCase;
 
-/**
- * @group web
- */
-class ProspectControllerTest extends ControllerTest
+#[Group('web')]
+class ProspectControllerTest extends ControllerTestCase
 {
-    public function testRedirectToLoginPageWhenDisplayDashboardIfNotAuthenticated() : void
+    public function testRedirectToLoginPageWhenDisplayDashboardIfNotAuthenticated(): void
     {
         $this->client->request('GET', '/dashboard/view');
 
-        $this->assertStatusCode(302, $this->client);
-        $this->assertEquals('/login', $this->client->getResponse()->headers->get('location'));
+        $this->assertResponseRedirects('http://test.prospecter.io/login');
     }
 
-    /**
-     * @param string $uri
-     * @dataProvider provideUri
-     */
-    public function testRouteIsReachedIfAuthenticatedAsProspector(string $uri) : void
+    #[DataProvider('provideUri')]
+    public function testRouteIsReachedIfAuthenticatedAsProspector(string $uri): void
     {
         $this->login();
 
         $crawler = $this->client->request('GET', $uri);
 
-        $this->assertEquals(200, $this->client->getResponse()->getStatusCode());
-        $this->assertEquals('prospector', $this->grab($crawler, 'logged-user'));
+        $this->assertResponseIsSuccessful();
+        $this->assertSame('prospector', $this->grab($crawler, 'logged-user'));
     }
 
-    public function provideUri(): array
+    /**
+     * @return array<string, array{string}>
+     */
+    public static function provideUri(): array
     {
         return [
             '/dashboard/view' => ['/dashboard/view'],

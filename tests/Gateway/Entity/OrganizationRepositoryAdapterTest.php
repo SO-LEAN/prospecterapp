@@ -2,18 +2,17 @@
 
 namespace Tests\App\Gateway\Entity;
 
-use Doctrine\ORM\EntityManager;
-use Tests\App\Base\GatewayEntityTest;
+use PHPUnit\Framework\Attributes\Group;
+use Doctrine\ORM\EntityManagerInterface;
+use Tests\App\Base\GatewayEntityTestCase;
 use Solean\CleanProspecter\Entity\Organization;
 use App\Gateway\Entity\OrganizationRepositoryAdapter;
 use Doctrine\DBAL\Exception\UniqueConstraintViolationException;
 use Solean\CleanProspecter\Exception\Gateway as GatewayException;
 
 
-/**
- * @group unit
- */
-class OrganizationRepositoryAdapterTest extends GatewayEntityTest
+#[Group('unit')]
+class OrganizationRepositoryAdapterTest extends GatewayEntityTestCase
 {
     public function target() : OrganizationRepositoryAdapter
     {
@@ -24,7 +23,7 @@ class OrganizationRepositoryAdapterTest extends GatewayEntityTest
     {
         $entity = $this->getNewEntity();
 
-        $this->prophesy(EntityManager::class)->persist($entity)->shouldBeCalled()->willThrow(UniqueConstraintViolationException::class);
+        $this->prophesy(EntityManagerInterface::class)->persist($entity)->shouldBeCalled()->willThrow(UniqueConstraintViolationException::class);
         $this->expectExceptionObject(new GatewayException\UniqueConstraintViolationException());
 
         $this->target()->create($entity);

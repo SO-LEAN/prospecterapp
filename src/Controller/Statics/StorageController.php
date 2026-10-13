@@ -3,33 +3,20 @@
 namespace App\Controller\Statics;
 
 use App\Service\ImageService;
-use Sensio\Bundle\FrameworkExtraBundle\Configuration\Cache;
-use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Symfony\Component\HttpFoundation\BinaryFileResponse;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpKernel\Attribute\Cache;
+use Symfony\Component\Routing\Attribute\Route;
 
 class StorageController
 {
-    /**
-     * @var ImageService
-     */
-    private $imageService;
-
-    /**
-     * StorageController constructor.
-     */
-    public function __construct(ImageService $imageService)
+    public function __construct(private readonly ImageService $imageService)
     {
-        $this->imageService = $imageService;
     }
 
-    /**
-     * @return BinaryFileResponse
-     *
-     * @Route("storage/{query}", name="storage_display", requirements={"query"=".+"})
-     * @Cache(expires="+1 year", public=true, maxage="31536000", smaxage="31536000")
-     */
-    public function display(Request $request)
+    #[Route('storage/{query}', name: 'storage_display', requirements: ['query' => '.+'])]
+    #[Cache(expires: '+1 year', maxage: 31536000, smaxage: 31536000, public: true)]
+    public function display(Request $request): BinaryFileResponse
     {
         return new BinaryFileResponse($this->imageService->handleOperationUrl($request->getUri()));
     }

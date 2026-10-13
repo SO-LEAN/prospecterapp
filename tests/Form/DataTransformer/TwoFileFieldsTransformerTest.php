@@ -2,6 +2,8 @@
 
 namespace Tests\App\Form\DataTransformer;
 
+use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\Group;
 
 use App\Form\DataTransformer\TwoFileFieldsTransformer;
 use App\Service\System\PhpFileSystemAdapter;
@@ -10,18 +12,10 @@ use Symfony\Component\HttpFoundation\File\File;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 use Tests\App\Base\TestCase;
 
-/**
- * @group unit
- */
+#[Group('unit')]
 class TwoFileFieldsTransformerTest extends TestCase
 {
-    /**
-     * @var array
-     */
-    private $fields =  [
-        'property',
-        'alternativeProperty',
-    ];
+    private const array FIELDS = ['property', 'alternativeProperty'];
 
     public function target() : TwoFileFieldsTransformer
     {
@@ -30,7 +24,7 @@ class TwoFileFieldsTransformerTest extends TestCase
 
     public function setupArgs() : array
     {
-        return array_merge([new PhpFileSystemAdapter()], $this->fields);
+        return array_merge([new PhpFileSystemAdapter()], self::FIELDS);
     }
 
     public function testTransform()
@@ -39,12 +33,7 @@ class TwoFileFieldsTransformerTest extends TestCase
         $this->assertEquals($this->target()->transform($value), $value);
     }
 
-    /**
-     * @param $expected
-     * @param $value
-     *
-     * @dataProvider provideReverseTransform
-     */
+    #[DataProvider('provideReverseTransform')]
     public function testReverseTransform($expected, $value)
     {
         $this->assertEquals($expected, $this->target()->reverseTransform($value));
@@ -53,16 +42,16 @@ class TwoFileFieldsTransformerTest extends TestCase
     /**
      * @return array
      */
-    public function provideReverseTransform(): array
+    public static function provideReverseTransform(): array
     {
         $file = new UploadedFile(__dir__ . '/../../Stub/file.jpg', 'file.jpg');
         $link = __dir__ . '/../../Stub/link.jpg';
 
         return [
-            '0 - nothing then nothing'   => [null, $this->buildValue(null, null)],
-            '1 - File then nothing'      => [$file, $this->buildValue($file, null)],
-            '2 - nothing then link' =>      [new UploadedFile($link, 'link.jpg'), $this->buildValue(null, $link)],
-            '3 - File then link'    =>      [$file, $this->buildValue($file, $link)],
+            '0 - nothing then nothing'   => [null, self::buildValue(null, null)],
+            '1 - File then nothing'      => [$file, self::buildValue($file, null)],
+            '2 - nothing then link' =>      [new UploadedFile($link, 'link.jpg'), self::buildValue(null, $link)],
+            '3 - File then link'    =>      [$file, self::buildValue($file, $link)],
         ];
     }
 
@@ -75,7 +64,7 @@ class TwoFileFieldsTransformerTest extends TestCase
     public function testTransformationFailedExceptionIsThrownWhenBadUrlProvidedOnReverseTransform()
     {
         $this->expectExceptionObject(new TransformationFailedException('Cannot download file : "bad/url/provided"'));
-        $this->target()->reverseTransform($this->buildValue(null, 'bad/url/provided'));
+        $this->target()->reverseTransform(self::buildValue(null, 'bad/url/provided'));
     }
 
     /**
@@ -83,11 +72,11 @@ class TwoFileFieldsTransformerTest extends TestCase
      * @param $second
      * @return array
      */
-    private function buildValue($first, $second): array
+    private static function buildValue($first, $second): array
     {
         return [
-            $this->fields[0] => $first,
-            $this->fields[1] => $second,
+            self::FIELDS[0] => $first,
+            self::FIELDS[1] => $second,
         ];
     }
 }

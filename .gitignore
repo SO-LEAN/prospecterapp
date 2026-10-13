@@ -1,22 +1,30 @@
 ###> symfony/framework-bundle ###
-.env
+/.env.local
+/.env.local.php
+/.env.*.local
 /public/bundles/
 /var/
 /vendor/
 ###< symfony/framework-bundle ###
-###> symfony/phpunit-bridge ###
-/bin/.phpunit
-/phpunit.xml
-###< symfony/phpunit-bridge ###
-###> symfony/webpack-encore-pack ###
-/node_modules/
-/public/static/build/*
 /public/static/storage/*
-!/public/static/build/.gitkeep
-###< symfony/webpack-encore-pack ###
 /.idea/
-.php_cs.cache
-/reports/
 /docker/data/*
-build.tar.gz
-/reports
+###> symfony/asset-mapper ###
+/public/assets/
+/assets/vendor/
+###< symfony/asset-mapper ###
+
+
+###> friendsofphp/php-cs-fixer ###
+/.php-cs-fixer.php
+/.php-cs-fixer.cache
+###< friendsofphp/php-cs-fixer ###
+
+###> phpstan/phpstan ###
+phpstan.neon
+###< phpstan/phpstan ###
+
+###> phpunit/phpunit ###
+/phpunit.xml
+/.phpunit.cache/
+###< phpunit/phpunit ###

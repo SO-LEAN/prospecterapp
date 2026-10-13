@@ -33,7 +33,7 @@ class UpdateFormHandlingCommand extends AbstractFormHandlingCommand implements F
      */
     public function renderFormView(Request $request, array $viewParameters, ?Response $response = null): Response
     {
-        $parts = explode('_', $request->get('_route'));
+        $parts = explode('_', $request->attributes->get('_route'));
         array_pop($parts);
 
         return $this->render(sprintf('page/%s/update.html.twig', implode('-', $parts)), $viewParameters, $response);
@@ -61,7 +61,7 @@ class UpdateFormHandlingCommand extends AbstractFormHandlingCommand implements F
     {
         $class = $this->deduceGetRequestFQCN($request);
 
-        return new $class($request->get('id'));
+        return new $class($request->attributes->get('id'));
     }
 
     protected function deduceGetRequestFQCN(Request $request): string
@@ -73,7 +73,7 @@ class UpdateFormHandlingCommand extends AbstractFormHandlingCommand implements F
 
     private function deduceGetUseCaseName(Request $request): string
     {
-        $words = ucwords($request->get('_route'), '_');
+        $words = ucwords($request->attributes->get('_route'), '_');
         $parts = explode('_', $words);
         array_pop($parts);
         array_unshift($parts, 'get');
