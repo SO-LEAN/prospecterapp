@@ -4,7 +4,7 @@ export GID := $(shell id -g)
 DC  = docker compose
 PHP = $(DC) run --rm php
 
-.PHONY: install build vendor db assets watch start stop logs ps test cs cs-fix stan usecases exec
+.PHONY: install build vendor db assets watch start stop logs ps test cs cs-fix stan rector usecases exec
 
 ## Setup
 install: build vendor db assets
@@ -54,6 +54,9 @@ cs-fix:
 
 stan:
 	@$(PHP) vendor/bin/phpstan analyse
+
+rector:
+	@$(PHP) vendor/bin/rector process --dry-run
 
 ## Tools
 usecases:

@@ -2,24 +2,23 @@
 
 namespace Tests\App\Gateway;
 
+use App\Gateway\UserNotifierSymfonyAdapter;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Group;
-
-use Symfony\Component\HttpFoundation\Session\Flash\FlashBag;
-use Tests\App\Base\TestCase;
-use App\Gateway\UserNotifierSymfonyAdapter;
 use Symfony\Component\HttpFoundation\RequestStack;
+use Symfony\Component\HttpFoundation\Session\Flash\FlashBag;
 use Symfony\Component\HttpFoundation\Session\Session;
+use Tests\App\Base\TestCase;
 
 #[Group('unit')]
 class UserNotifierSymfonyAdapterTest extends TestCase
 {
-    public function target() : UserNotifierSymfonyAdapter
+    public function target(): UserNotifierSymfonyAdapter
     {
         return parent::target();
     }
 
-    public function setupArgs() : array
+    public function setupArgs(): array
     {
         $this->prophesy(Session::class)->getFlashBag()->willReturn($this->prophesy(FlashBag::class)->reveal());
         $this->prophesy(RequestStack::class)->getSession()->willReturn($this->prophesy(Session::class)->reveal());
@@ -30,16 +29,16 @@ class UserNotifierSymfonyAdapterTest extends TestCase
     }
 
     #[DataProvider('providerAdd')]
-    public function testAdd($type, $method, $msg)
+    public function testAdd(string $type, string $method, string $msg): void
     {
         $this->prophesy(FlashBag::class)->add($type, $msg)->shouldBeCalled();
         $this->target()->$method($msg);
     }
 
     /**
-     * @return array
+     * @return array<string, string[]>
      */
-    public static function providerAdd()
+    public static function providerAdd(): array
     {
         return [
             '- success' => ['success', 'addSuccess', 'action ok'],

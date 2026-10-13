@@ -31,19 +31,13 @@ class ListUseCasesCommand extends Command
         return Command::SUCCESS;
     }
 
-    /**
-     * @param string ...$text
-     */
     private function comment(string ...$text): string
     {
-        return sprintf('<comment>%s</comment>', implode($text));
+        return sprintf('<comment>%s</comment>', implode('', $text));
     }
 
-    /**
-     * @param string ...$text
-     */
     private function inform(string ...$text): string
     {
-        return sprintf('<info>%s</info>', implode($text));
+        return sprintf('<info>%s</info>', implode('', $text));
     }
 }

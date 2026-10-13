@@ -2,22 +2,18 @@
 
 namespace Tests\App\Form\UseCaseType;
 
+use App\Form\UseCaseType\LoginType;
 use PHPUnit\Framework\Attributes\AllowMockObjectsWithoutExpectations;
 use PHPUnit\Framework\Attributes\Group;
-use App\Form\UseCaseType\LoginType;
-use Symfony\Component\Form\Test\TypeTestCase;
 use Symfony\Component\Form\Extension\Validator\ValidatorExtension;
+use Symfony\Component\Form\Test\TypeTestCase;
 use Symfony\Component\Validator\Validation;
 
 #[Group('unit')]
 #[AllowMockObjectsWithoutExpectations]
 class LoginTypeTest extends TypeTestCase
 {
-
-    /**
-     *
-     */
-    public function testSubmitValidData()
+    public function testSubmitValidData(): void
     {
         $expected = $formData = [
             'userName' => 'login',

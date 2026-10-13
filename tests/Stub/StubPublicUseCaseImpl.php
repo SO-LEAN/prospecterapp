@@ -1,6 +1,6 @@
 <?php
 
-declare( strict_types = 1 );
+declare(strict_types=1);
 
 namespace Tests\App\Stub;
 
@@ -8,28 +8,25 @@ use Solean\CleanProspecter\UseCase\AbstractUseCase;
 
 class StubPublicUseCaseImpl extends AbstractUseCase
 {
-    private $roles;
-
     /**
      * StubPublicUseCaseImpl constructor.
-     * @param $roles
      */
-    public function __construct($roles = [])
+    public function __construct(private $roles = [])
     {
-        $this->roles = $roles;
     }
 
     /**
-     * empty mean everybody
+     * empty mean everybody.
      */
     public function canBeExecutedBy(): array
     {
         return $this->roles;
     }
 
-    public function execute(StubUseCaseRequest $request, $presenter) : object
+    public function execute(StubUseCaseRequest $request, $presenter): object
     {
         unset($request, $presenter);
-        return (object)['action' => 'executed'];
+
+        return (object) ['action' => 'executed'];
     }
 }

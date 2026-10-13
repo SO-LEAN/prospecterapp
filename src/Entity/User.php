@@ -9,9 +9,9 @@ use Symfony\Component\Security\Core\User\UserInterface;
 /**
  * Security user built from the RefreshUser use case response.
  */
-final class User implements UserInterface, UseCaseConsumer
+final readonly class User implements UserInterface, UseCaseConsumer
 {
-    public function __construct(private readonly RefreshUserResponse $refreshUser)
+    public function __construct(private RefreshUserResponse $refreshUser)
     {
     }
 
@@ -35,17 +35,17 @@ final class User implements UserInterface, UseCaseConsumer
         return $this->getUserIdentifier();
     }
 
-    public function getOrganizationId()
+    public function getOrganizationId(): mixed
     {
         return $this->refreshUser->getOrganizationId();
     }
 
-    public function getUserId()
+    public function getUserId(): mixed
     {
         return $this->refreshUser->getId();
     }
 
-    public function getPictureUrl()
+    public function getPictureUrl(): ?string
     {
         return $this->refreshUser->getPictureUrl();
     }

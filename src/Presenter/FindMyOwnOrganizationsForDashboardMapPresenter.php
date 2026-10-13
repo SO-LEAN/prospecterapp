@@ -3,26 +3,14 @@
 namespace App\Presenter;
 
 use App\Service\ImageService;
-use Generator;
 use Solean\CleanProspecter\UseCase\FindMyOwnOrganizations\FindMyOwnOrganizationsPresenter;
 use Solean\CleanProspecter\UseCase\FindMyOwnOrganizations\FindMyOwnOrganizationsResponse;
 use Symfony\Component\Routing\RouterInterface;
 
 class FindMyOwnOrganizationsForDashboardMapPresenter implements FindMyOwnOrganizationsPresenter
 {
-    /**
-     * @var RouterInterface
-     */
-    private $router;
-    /**
-     * @var ImageService
-     */
-    private $imageService;
-
-    public function __construct(RouterInterface $router, ImageService $imageService)
+    public function __construct(private readonly RouterInterface $router, private readonly ImageService $imageService)
     {
-        $this->router = $router;
-        $this->imageService = $imageService;
     }
 
     public function present(FindMyOwnOrganizationsResponse $response): array
@@ -30,7 +18,7 @@ class FindMyOwnOrganizationsForDashboardMapPresenter implements FindMyOwnOrganiz
         return iterator_to_array($this->organizationsToArray($response));
     }
 
-    private function organizationsToArray(FindMyOwnOrganizationsResponse $response): Generator
+    private function organizationsToArray(FindMyOwnOrganizationsResponse $response): \Generator
     {
         foreach ($response->getOrganizations() as $organization) {
             $hasCoordinates = null !== $organization->getLatitude() && null !== $organization->getLongitude();

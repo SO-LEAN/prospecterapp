@@ -1,10 +1,9 @@
 <?php
 
-declare( strict_types = 1 );
+declare(strict_types=1);
 
 namespace Tests\App\Stub;
 
-use Solean\CleanProspecter\UseCase\Presenter;
 use Solean\CleanProspecter\UseCase\AbstractUseCase;
 
 class StubNeedsRoleUseCaseImpl extends AbstractUseCase
@@ -14,9 +13,10 @@ class StubNeedsRoleUseCaseImpl extends AbstractUseCase
         return ['SPECIFIC_ROLE'];
     }
 
-    public function execute(StubUseCaseRequest $request, $presenter) : object
+    public function execute(StubUseCaseRequest $request, $presenter): object
     {
         unset($request, $presenter);
-        return (object)['action' => 'executed'];
+
+        return (object) ['action' => 'executed'];
     }
 }

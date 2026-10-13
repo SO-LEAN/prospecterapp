@@ -8,9 +8,9 @@ use Solean\CleanProspecter\UseCase\GetMyAccountInformation\GetMyAccountInformati
 class GetMyAccountInformationForUpdatePresenter implements GetMyAccountInformationPresenter
 {
     /**
-     * @return array
+     * @return array<string, mixed>
      */
-    public function present(GetMyAccountInformationResponse $response)
+    public function present(GetMyAccountInformationResponse $response): array
     {
         return [
             'userName' => $response->getUserName(),

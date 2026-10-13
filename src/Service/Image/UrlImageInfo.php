@@ -4,41 +4,19 @@ namespace App\Service\Image;
 
 class UrlImageInfo
 {
-    /**
-     * @var CipherHandler
-     */
-    private $cipherHandler;
-    /**
-     * @var string
-     */
-    private $protocol;
+    private string $protocol;
 
-    /**
-     * @var string
-     */
-    private $host;
+    private string $host;
 
-    /**
-     * @var string
-     */
-    private $path;
+    private string $path;
 
-    /**
-     * @var string
-     */
-    private $parentName;
+    private string $parentName;
 
-    /**
-     * @var string
-     */
-    private $operation;
+    private ?string $operation;
 
-    /**
-     * @var string
-     */
-    private $extension;
+    private string $extension;
 
-    public function __construct(string $url, CipherHandler $cipherHandler)
+    public function __construct(string $url, private readonly CipherHandler $cipherHandler)
     {
         if (!preg_match('/^(?<protocol>http|https):\/\/(?<host>[[:alnum:]\.]+)\/(?<path>.+)\/(?<part1>[[:alnum:]]+)(&(?<operation>[[:alnum:]_=-]+))?\.(?<ext>[[:alnum:]]+)$/', $url, $matches)) {
             throw new NotFoundException(sprintf('Url for static operation "%s" is malformed', $url));
@@ -50,7 +28,6 @@ class UrlImageInfo
         $this->parentName = $matches['part1'];
         $this->operation = empty($matches['operation']) ? null : $cipherHandler->decode($matches['operation']);
         $this->extension = $matches['ext'];
-        $this->cipherHandler = $cipherHandler;
     }
 
     public function getProtocol(): string
@@ -73,9 +50,6 @@ class UrlImageInfo
         return $this->parentName;
     }
 
-    /**
-     * @return UrlImageInfo
-     */
     public function getParent(): self
     {
         $parent = clone $this;
@@ -112,28 +86,22 @@ class UrlImageInfo
         $this->operation = $operation;
     }
 
-    /**
-     * @return string
-     */
     public function getOperation(): ?string
     {
         return $this->operation;
     }
 
-    /**
-     * @return string
-     */
     public function getOperationName(): ?string
     {
         return explode(':', $this->operation)[0];
     }
 
     /**
-     * @return array
+     * @return list<int>
      */
-    public function getOperationArguments(): ?array
+    public function getOperationArguments(): array
     {
-        return array_map('intval', explode(',', explode(':', $this->operation)[1]));
+        return array_map(intval(...), explode(',', explode(':', $this->operation)[1]));
     }
 
     public function hasOperation(): bool

@@ -4,7 +4,10 @@ namespace App\Form\UseCaseType;
 
 use App\Form\EasyImportFileType;
 use Symfony\Component\Form\AbstractType;
-use Symfony\Component\Form\Extension\Core\Type;
+use Symfony\Component\Form\Extension\Core\Type\CountryType;
+use Symfony\Component\Form\Extension\Core\Type\EmailType;
+use Symfony\Component\Form\Extension\Core\Type\PasswordType;
+use Symfony\Component\Form\Extension\Core\Type\TelType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 
@@ -14,12 +17,12 @@ class UpdateMyAccountInformationType extends AbstractType
     {
         $builder
             ->add('userName')
-            ->add('password', Type\PasswordType::class)
+            ->add('password', PasswordType::class)
             ->add('firstName')
             ->add('lastName')
-            ->add('email', Type\EmailType::class)
-            ->add('phoneNumber', Type\TelType::class)
-            ->add('language', Type\CountryType::class, ['preferred_choices' => ['GB', 'FR', 'DE'], 'required' => false])
+            ->add('email', EmailType::class)
+            ->add('phoneNumber', TelType::class)
+            ->add('language', CountryType::class, ['preferred_choices' => ['GB', 'FR', 'DE'], 'required' => false])
             ->add('organizationCorporateName')
             ->add('organizationForm')
             ->add('picture', EasyImportFileType::class)

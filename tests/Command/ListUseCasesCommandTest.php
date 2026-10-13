@@ -2,15 +2,15 @@
 
 namespace Tests\App\Command;
 
-use PHPUnit\Framework\Attributes\Group;
 use App\Command\ListUseCasesCommand;
-use Symfony\Component\Console\Tester\CommandTester;
-use Tests\App\Stub\StubPublicUseCaseImpl;
-use Tests\App\Stub\StubNeedsRoleUseCaseImpl;
+use PHPUnit\Framework\Attributes\Group;
+use Prophecy\PhpUnit\ProphecyTrait;
 use Solean\CleanProspecter\UseCase\UseCasesFacade;
 use Symfony\Bundle\FrameworkBundle\Console\Application;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
-use Prophecy\PhpUnit\ProphecyTrait;
+use Symfony\Component\Console\Tester\CommandTester;
+use Tests\App\Stub\StubNeedsRoleUseCaseImpl;
+use Tests\App\Stub\StubPublicUseCaseImpl;
 
 #[Group('unit')]
 class ListUseCasesCommandTest extends KernelTestCase
@@ -33,12 +33,11 @@ class ListUseCasesCommandTest extends KernelTestCase
         $command = $application->find('app:use-cases');
         $commandTester = new CommandTester($command);
 
-        $commandTester->execute(['command'  => $command->getName()]);
+        $commandTester->execute(['command' => $command->getName()]);
         $lines = explode("\n", $commandTester->getDisplay());
 
         $this->assertEquals('2 use case(s) registered', $lines[0]);
         $this->assertEquals('1/2 : As anonymous, I want to stub public use case', $lines[1]);
         $this->assertEquals('2/2 : As specific_role, I want to stub needs role use case', $lines[2]);
-
     }
 }

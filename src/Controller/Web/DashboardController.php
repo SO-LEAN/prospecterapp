@@ -7,9 +7,9 @@ use App\Presenter\GetOrganizationPresenterImpl;
 use App\Traits\ControllerTrait;
 use Solean\CleanProspecter\UseCase\FindMyOwnOrganizations\FindMyOwnOrganizationsRequest;
 use Solean\CleanProspecter\UseCase\GetOrganization\GetOrganizationRequest;
-use Symfony\Component\HttpFoundation;
+use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
-use Symfony\Component\Security\Core\User\UserInterface;
+use Symfony\Component\Security\Http\Attribute\CurrentUser;
 
 class DashboardController
 {
@@ -17,14 +17,13 @@ class DashboardController
 
     #[Route('/', name: 'index')]
     #[Route('/dashboard/view', name: 'dashboard_display')]
-    public function view(): HttpFoundation\Response
+    public function view(): Response
     {
         return $this->render('page/dashboard/index.html.twig');
     }
 
-    public function map(UserInterface $user): HttpFoundation\Response
+    public function map(#[CurrentUser] User $user): Response
     {
-        /** @var User $user */
         $data = $this->getUseCases()->findMyOwnOrganizations(
             new FindMyOwnOrganizationsRequest(1, '', 1000),
             $this->getPresenterFactory()->createFindMyOwnOrganizationsForDashBoardMapPresenter(),
@@ -36,9 +35,8 @@ class DashboardController
         ]);
     }
 
-    public function statistics(UserInterface $user): HttpFoundation\Response
+    public function statistics(#[CurrentUser] User $user): Response
     {
-        /** @var User $user */
         $data = $this->getUseCases()->getOrganization(new GetOrganizationRequest($user->getOrganizationId()), new GetOrganizationPresenterImpl(), $user);
 
         return $this->render('page/dashboard/_stats.html.twig', [

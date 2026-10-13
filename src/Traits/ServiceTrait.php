@@ -2,29 +2,27 @@
 
 namespace App\Traits;
 
-use InvalidArgumentException;
-
 trait ServiceTrait
 {
     /**
-     * @var array
+     * @var array<string, object>
      */
-    private $services = [];
+    private array $services = [];
 
-    private function add(string $name, $service)
+    private function add(string $name, object $service): void
     {
         $this->services[$name] = $service;
     }
 
-    private function has(string $name)
+    private function has(string $name): bool
     {
         return isset($this->services[$name]);
     }
 
-    private function get(string $name)
+    private function get(string $name): object
     {
         if (!$this->has($name)) {
-            throw new InvalidArgumentException(sprintf('Request unknown service : "%s"', $name));
+            throw new \InvalidArgumentException(sprintf('Request unknown service : "%s"', $name));
         }
 
         return $this->services[$name];

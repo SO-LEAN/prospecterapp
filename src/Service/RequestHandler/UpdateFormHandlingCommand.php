@@ -5,7 +5,6 @@ namespace App\Service\RequestHandler;
 use App\Entity\User;
 use App\Service\FormHandlingCommand;
 use App\Traits\HelperTrait;
-use stdClass;
 use Symfony\Component\Form\FormInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -14,9 +13,6 @@ class UpdateFormHandlingCommand extends AbstractFormHandlingCommand implements F
 {
     use HelperTrait;
 
-    /**
-     * {@inheritdoc}
-     */
     public function initializeForm(Request $request, User $user): FormInterface
     {
         $method = $this->deduceGetUseCaseName($request);
@@ -28,9 +24,6 @@ class UpdateFormHandlingCommand extends AbstractFormHandlingCommand implements F
         return $this->getFormFactory()->create($this->deduceFormFQCN($request), $data);
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function renderFormView(Request $request, array $viewParameters, ?Response $response = null): Response
     {
         $parts = explode('_', $request->attributes->get('_route'));
@@ -39,9 +32,6 @@ class UpdateFormHandlingCommand extends AbstractFormHandlingCommand implements F
         return $this->render(sprintf('page/%s/update.html.twig', implode('-', $parts)), $viewParameters, $response);
     }
 
-    /**
-     * @return stdClass
-     */
     private function buildGetUseCasePresenter(Request $request): object
     {
         $class = $this->deduceGetPresenterFQCN($request);
@@ -54,9 +44,6 @@ class UpdateFormHandlingCommand extends AbstractFormHandlingCommand implements F
         return sprintf('%s\%sForUpdatePresenter', $this::PRESENTER_NAMESPACE, ucfirst($this->deduceGetUseCaseName($request)));
     }
 
-    /**
-     * @return stdClass
-     */
     private function buildGetUseCaseRequest(Request $request): object
     {
         $class = $this->deduceGetRequestFQCN($request);

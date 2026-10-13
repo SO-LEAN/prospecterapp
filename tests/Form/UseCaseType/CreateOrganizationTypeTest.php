@@ -2,20 +2,19 @@
 
 namespace Tests\App\Form\UseCaseType;
 
+use App\Form\EasyImportFileType;
+use App\Form\UseCaseType\CreateOrganizationType;
+use App\Service\System\PhpFileSystemAdapter;
 use PHPUnit\Framework\Attributes\AllowMockObjectsWithoutExpectations;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Group;
-use SplFileInfo;
 use Prophecy\Argument;
 use Prophecy\PhpUnit\ProphecyTrait;
-use App\Form\EasyImportFileType;
 use Prophecy\Prophecy\ObjectProphecy;
-use App\Service\System\PhpFileSystemAdapter;
+use Symfony\Component\Form\Extension\Validator\ValidatorExtension;
 use Symfony\Component\Form\PreloadedExtension;
 use Symfony\Component\Form\Test\TypeTestCase;
-use App\Form\UseCaseType\CreateOrganizationType;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
-use Symfony\Component\Form\Extension\Validator\ValidatorExtension;
 use Symfony\Component\Validator\Validation;
 
 #[Group('unit')]
@@ -24,15 +23,11 @@ class CreateOrganizationTypeTest extends TypeTestCase
 {
     use ProphecyTrait;
 
-    /**
-     * @var ObjectProphecy
-     */
-    private $fileSystemAdapter;
+    private ?ObjectProphecy $fileSystemAdapter = null;
 
     #[DataProvider('provideSubmitValidData')]
     public function testSubmitValidData(array $expected, array $formData, ?UploadedFile $link = null): void
     {
-
         $this->mockFileSystem($link);
         $form = $this->factory->create(CreateOrganizationType::class);
 
@@ -49,37 +44,34 @@ class CreateOrganizationTypeTest extends TypeTestCase
     }
 
     /**
-     * @return array
+     * @return array<string, array<string, string|mixed[]|null>[]|null[]|UploadedFile[]|array<string, UploadedFile|string|array<string, string>>[]>
      */
-    public static function provideSubmitValidData()
+    public static function provideSubmitValidData(): array
     {
-        $file = new UploadedFile(realpath(__dir__ . '/../../Stub/file.jpg'), 'file.jpg');
-        $linkFile = new UploadedFile(realpath(__dir__ . '/../../Stub/link.jpg'), 'link.jpg');
+        $file = new UploadedFile(realpath(__DIR__.'/../../Stub/file.jpg'), 'file.jpg');
+        $linkFile = new UploadedFile(realpath(__DIR__.'/../../Stub/link.jpg'), 'link.jpg');
 
         $common = [
             'corporateName' => 'corporate name',
-            'form'          => 'GMBH',
-            'type'          => 'ESN',
-            'language'      => 'FR',
-            'email'         => 'EMAIL',
-            'phoneNumber'   => '0388888888',
-            'street'        => 'fighter street',
-            'postalCode'    => '97220',
-            'city'          => 'Trinité',
-            'country'       => 'MQ',
-            'observations'  => 'obs.',
+            'form' => 'GMBH',
+            'type' => 'ESN',
+            'language' => 'FR',
+            'email' => 'EMAIL',
+            'phoneNumber' => '0388888888',
+            'street' => 'fighter street',
+            'postalCode' => '97220',
+            'city' => 'Trinité',
+            'country' => 'MQ',
+            'observations' => 'obs.',
         ];
 
         return [
             '0 - without logo' => [$common + ['logo' => null], $common, null],
-            '1 - regular file' => [$common + ['logo' => self::buildImageData($file)], $common+ ['logo' => ['url' => '', 'image' => self::buildImageData($file)]], null],
-            '2 - file link'    => [$common + ['logo' => $linkFile], $common + ['logo' => ['orUrl' => 'http://fakelink.fr/link.jpg', 'image' => '']], $linkFile],
+            '1 - regular file' => [$common + ['logo' => self::buildImageData($file)], $common + ['logo' => ['url' => '', 'image' => self::buildImageData($file)]], null],
+            '2 - file link' => [$common + ['logo' => $linkFile], $common + ['logo' => ['orUrl' => 'http://fakelink.fr/link.jpg', 'image' => '']], $linkFile],
         ];
     }
 
-    /**
-     * @return array
-     */
     protected function getExtensions(): array
     {
         $this->fileSystemAdapter = $this->prophesize(PhpFileSystemAdapter::class);
@@ -89,23 +81,19 @@ class CreateOrganizationTypeTest extends TypeTestCase
     }
 
     /**
-     * @param SplFileInfo $file
-     * @return array
+     * @return array<string, string|int|bool>
      */
-    private static function buildImageData(SplFileInfo $file)
+    private static function buildImageData(\SplFileInfo $file): array
     {
         return [
-            'name'     => $file->getFilename(),
-            'type'     => 'image/fake',
-            'size'     => $file->getSize(),
+            'name' => $file->getFilename(),
+            'type' => 'image/fake',
+            'size' => $file->getSize(),
             'tmp_name' => '/fake/tmp/name',
-            'error'    => UPLOAD_ERR_OK,
+            'error' => UPLOAD_ERR_OK,
         ];
     }
 
-    /**
-     * @param UploadedFile $link
-     */
     private function mockFileSystem(?UploadedFile $link = null): void
     {
         $this->fileSystemAdapter->tempnam(Argument::any(), Argument::any())->willReturn($link ? $link->getPathname() : $link);

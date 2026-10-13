@@ -7,9 +7,6 @@ use Doctrine\Persistence\ObjectManager;
 use Solean\CleanProspecter\Entity\Organization;
 use Solean\CleanProspecter\Entity\User;
 
-/**
- * Class AppFixtures.
- */
 class AppFixtures extends Fixture
 {
     public function load(ObjectManager $manager): void

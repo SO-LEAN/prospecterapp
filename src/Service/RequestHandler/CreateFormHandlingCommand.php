@@ -10,17 +10,11 @@ use Symfony\Component\HttpFoundation\Response;
 
 class CreateFormHandlingCommand extends AbstractFormHandlingCommand implements FormHandlingCommand
 {
-    /**
-     * {@inheritdoc}
-     */
     public function initializeForm(Request $request, User $user): FormInterface
     {
         return $this->getFormFactory()->create($this->deduceFormFQCN($request));
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function renderFormView(Request $request, array $viewParameters, ?Response $response = null): Response
     {
         $parts = explode('_', $request->attributes->get('_route'), 2);

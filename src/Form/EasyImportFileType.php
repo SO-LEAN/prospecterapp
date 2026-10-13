@@ -26,9 +26,7 @@ class EasyImportFileType extends AbstractType
         $options['manual_options']['required'] = $options['required'];
         $options['url_options']['required'] = $options['required'];
 
-        if (!isset($options['options']['error_bubbling'])) {
-            $options['options']['error_bubbling'] = $options['error_bubbling'];
-        }
+        $options['options']['error_bubbling'] ??= $options['error_bubbling'];
 
         $builder
             ->addModelTransformer(new TwoFileFieldsTransformer($this->fileSystemAdapter, $options['upload_name'], $options['url_name']))
@@ -43,7 +41,7 @@ class EasyImportFileType extends AbstractType
             'options' => [],
             'manual_options' => [
                 'constraints' => [new Image(mimeTypes: ['image/jpeg', 'image/jpg', 'image/png'], maxSize: '2M')],
-                ],
+            ],
             'url_options' => [],
             'error_bubbling' => false,
             'upload_name' => 'image',

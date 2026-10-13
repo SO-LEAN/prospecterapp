@@ -6,29 +6,13 @@ use Solean\CleanProspecter\Entity\User;
 use Solean\CleanProspecter\Exception\Gateway\NotFoundException;
 use Solean\CleanProspecter\Gateway\Entity\UserGateway;
 
-/**
- * Class UserGatewayAdapter.
- */
 class UserRepositoryAdapter extends RepositoryAdapter implements UserGateway
 {
-    /**
-     * @param $id
-     */
-    public function get($id): User
+    public function get(mixed $id): User
     {
-        /** @var User $user */
-        $user = $this->repository->findOneBy(['id' => $id]);
-
-        if (null === $user) {
-            throw new NotFoundException();
-        }
-
-        return $user;
+        return $this->findOneBy(['id' => $id]) ?? throw new NotFoundException();
     }
 
-    /**
-     * @throws \Doctrine\ORM\ORMException
-     */
     public function create(User $user): User
     {
         $this->save($user);
@@ -36,10 +20,7 @@ class UserRepositoryAdapter extends RepositoryAdapter implements UserGateway
         return $user;
     }
 
-    /**
-     * @param $id
-     */
-    public function update($id, User $user): User
+    public function update(mixed $id, User $user): User
     {
         $user->setId($id);
         $this->save($user);
@@ -49,7 +30,6 @@ class UserRepositoryAdapter extends RepositoryAdapter implements UserGateway
 
     public function findOneBy(array $criteria): ?User
     {
-        /* @noinspection PhpIncompatibleReturnTypeInspection */
         return $this->repository->findOneBy($criteria);
     }
 

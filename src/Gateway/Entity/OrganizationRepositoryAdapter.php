@@ -9,50 +9,30 @@ use Solean\CleanProspecter\Gateway\Entity\OrganizationGateway;
 use Solean\CleanProspecter\Gateway\Entity\Page;
 use Solean\CleanProspecter\Gateway\Entity\PageRequest;
 
-/**
- * Class OrganizationGatewayAdapter.
- */
 class OrganizationRepositoryAdapter extends RepositoryAdapter implements OrganizationGateway
 {
-    /**
-     * @param $id
-     */
-    public function get($id): Organization
+    public function get(mixed $id): Organization
     {
-        /** @var Organization $Organization */
-        $Organization = $this->repository->findOneBy(['id' => $id]);
-
-        if (null === $Organization) {
-            throw new NotFoundException();
-        }
-
-        return $Organization;
+        return $this->findOneBy(['id' => $id]) ?? throw new NotFoundException();
     }
 
-    /**
-     * @throws \Doctrine\ORM\ORMException
-     */
-    public function create(Organization $Organization): Organization
+    public function create(Organization $organization): Organization
     {
-        $this->save($Organization);
+        $this->save($organization);
 
-        return $Organization;
+        return $organization;
     }
 
-    /**
-     * @param $id
-     */
-    public function update($id, Organization $Organization): Organization
+    public function update(mixed $id, Organization $organization): Organization
     {
-        $Organization->setId($id);
-        $this->save($Organization);
+        $organization->setId($id);
+        $this->save($organization);
 
-        return $Organization;
+        return $organization;
     }
 
     public function findOneBy(array $criteria): ?Organization
     {
-        /* @noinspection PhpIncompatibleReturnTypeInspection */
         return $this->repository->findOneBy($criteria);
     }
 
@@ -63,46 +43,31 @@ class OrganizationRepositoryAdapter extends RepositoryAdapter implements Organiz
 
     public function findPageByQuery(PageRequest $pageRequest): Page
     {
-        $dql = $this->buildFindPageByQueryDql($pageRequest);
-        $query = $this->entityManager->createQuery($dql)
+        $query = $this->entityManager->createQuery($this->buildFindPageByQueryDql($pageRequest))
             ->setParameter('query', sprintf('%%%s%%', $pageRequest->getQuery()))
             ->setFirstResult(($pageRequest->getPage() - 1) * $pageRequest->getMaxByPage())
             ->setMaxResults($pageRequest->getMaxByPage());
 
-        $this->ApplyFilterParameter($pageRequest, $query);
+        $this->applyFilterParameters($pageRequest, $query);
 
-        $pg = $this->paginatorFactory->create($query);
+        $paginator = $this->paginatorFactory->create($query);
+        $total = $paginator->count();
 
-        return new Page($pageRequest->getPage(), $pg->count(), intdiv($pg->count() - 1, $pageRequest->getMaxByPage()) + 1, $pg->getIterator()->getArrayCopy());
+        return new Page($pageRequest->getPage(), $total, intdiv($total - 1, $pageRequest->getMaxByPage()) + 1, iterator_to_array($paginator));
     }
 
     private function buildFindPageByQueryDql(PageRequest $pageRequest): string
     {
-        $from = 'Solean\CleanProspecter\Entity\Organization o ';
         $where = '(o.corporateName LIKE :query OR o.email LIKE :query)';
-        $where = $this->applyFilter($pageRequest, $where);
-        $orderBy = 'o.id DESC';
-        $dql = sprintf('SELECT o FROM %s WHERE %s ORDER BY %s', $from, $where, $orderBy);
 
-        return $dql;
-    }
-
-    /**
-     * @param string $where
-     */
-    private function applyFilter(PageRequest $pageRequest, $where): string
-    {
-        foreach ($pageRequest->getFilter() as $field => $value) {
+        foreach (array_keys($pageRequest->getFilter()) as $field) {
             $where .= sprintf(' AND o.%s = :%s', $field, $field);
         }
 
-        return $where;
+        return sprintf('SELECT o FROM %s o WHERE %s ORDER BY o.id DESC', Organization::class, $where);
     }
 
-    /**
-     * @param $query
-     */
-    private function ApplyFilterParameter(PageRequest $pageRequest, Query $query): void
+    private function applyFilterParameters(PageRequest $pageRequest, Query $query): void
     {
         foreach ($pageRequest->getFilter() as $field => $value) {
             $query->setParameter($field, $value);

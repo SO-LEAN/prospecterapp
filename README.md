@@ -1,25 +1,45 @@
 # prospecterapp
 
-# Requirements
+Prospecting application built on the [cleanprospecter](https://github.com/SO-LEAN/cleanprospecter) use cases library.
 
-docker          : 20+ with the compose plugin (`docker compose`)
-make
+PHP 8.5, Symfony 8.1, Doctrine ORM 3 (SQLite), AssetMapper with Sass. Everything runs in Docker: no PHP or Node needed on the host.
 
-Add in your /etc/hosts :
+## Requirements
 
-127.0.0.1 local.prospecter.io
-127.0.0.1 static.local.prospecter.io
+- Docker with the compose plugin (`docker compose`)
+- make
 
-# Build env (images, composer, yarn, assets, database + fixtures)
-make install
+Add to your `/etc/hosts`:
 
-# Launch the stack
-make start
+    127.0.0.1 local.prospecter.io
+    127.0.0.1 static.local.prospecter.io
 
-Then open https://local.prospecter.io (self-signed certificate) and log in with `prospector` / `password`.
+## Install
 
-# Stop the stack
-make stop
+    make install
 
-# Tests
-make test
+Builds the images, installs Composer dependencies, creates the database with fixtures and compiles the assets.
+
+## Run
+
+    make start
+
+Open https://local.prospecter.io and log in with `prospector` / `password`.
+
+The certificate is self-signed: accept the browser warning once for https://local.prospecter.io **and** https://static.local.prospecter.io (assets are served from the static host).
+
+    make stop
+
+## Develop
+
+| Command         | Purpose                                        |
+|-----------------|------------------------------------------------|
+| `make watch`    | Recompile Sass on change                       |
+| `make db`       | Reset the database and reload the fixtures     |
+| `make test`     | Run the test suite                             |
+| `make stan`     | Static analysis (PHPStan)                      |
+| `make cs`       | Check coding standards (`make cs-fix` to fix)  |
+| `make exec`     | Shell in the PHP container                     |
+| `make usecases` | List the registered use cases                  |
+
+Local configuration overrides go in `.env.local` (not committed), e.g. a real `APP_GOOGLE_API_KEY` for maps and geolocation.

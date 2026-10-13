@@ -7,14 +7,8 @@ use Solean\CleanProspecter\Gateway as Solean;
 
 class GeoLocatorAdapter implements Solean\GeoLocation
 {
-    /**
-     * @var GeoLocator
-     */
-    private $locator;
-
-    public function __construct(GeoLocator $locator)
+    public function __construct(private readonly GeoLocator $locator)
     {
-        $this->locator = $locator;
     }
 
     public function find(string $address): Solean\GeoLocation\GeoPointResponse

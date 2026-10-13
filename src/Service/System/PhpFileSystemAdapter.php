@@ -4,28 +4,19 @@ namespace App\Service\System;
 
 class PhpFileSystemAdapter implements FileSystemAdapter
 {
-    /**
-     * {@inheritdoc}
-     */
-    public function tempnam($dir, $prefix)
+    public function tempnam(string $directory, string $prefix): string|false
     {
-        return tempnam($dir, $prefix);
+        return tempnam($directory, $prefix);
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function copy($source, $dest, $context = null)
+    public function copy(string $source, string $destination, $context = null): bool
     {
-        // false on failure, as documented by FileSystemAdapter::copy()
-        return @copy($source, $dest, $context);
+        // a failed copy is reported by the return value, not by a warning
+        return @copy($source, $destination, $context);
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function fileGetContents($filename, $use_include_path = false, $context = null, $offset = 0, $maxlen = null)
+    public function fileGetContents(string $filename, bool $useIncludePath = false, $context = null, int $offset = 0, ?int $length = null): string|false
     {
-        return file_get_contents($filename, $use_include_path, $context, $offset, $maxlen);
+        return file_get_contents($filename, $useIncludePath, $context, $offset, $length);
     }
 }

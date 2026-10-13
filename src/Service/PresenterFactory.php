@@ -2,31 +2,17 @@
 
 namespace App\Service;
 
-use App\Presenter;
+use App\Presenter\FindMyOwnOrganizationsForDashboardMapPresenter;
 use Symfony\Component\Routing\RouterInterface;
 
-/**
- * Class PresenterFactory.
- */
 class PresenterFactory
 {
-    /**
-     * @var RouterInterface
-     */
-    private $router;
-    /**
-     * @var ImageService
-     */
-    private $imageService;
-
-    public function __construct(RouterInterface $router, ImageService $imageService)
+    public function __construct(private readonly RouterInterface $router, private readonly ImageService $imageService)
     {
-        $this->router = $router;
-        $this->imageService = $imageService;
     }
 
-    public function createFindMyOwnOrganizationsForDashBoardMapPresenter(): Presenter\FindMyOwnOrganizationsForDashboardMapPresenter
+    public function createFindMyOwnOrganizationsForDashBoardMapPresenter(): FindMyOwnOrganizationsForDashboardMapPresenter
     {
-        return new Presenter\FindMyOwnOrganizationsForDashboardMapPresenter($this->router, $this->imageService);
+        return new FindMyOwnOrganizationsForDashboardMapPresenter($this->router, $this->imageService);
     }
 }

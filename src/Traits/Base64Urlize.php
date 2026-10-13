@@ -4,22 +4,12 @@ namespace App\Traits;
 
 trait Base64Urlize
 {
-    /**
-     * @param $data
-     *
-     * @return string
-     */
-    protected function urlize($data)
+    protected function urlize(string $data): string
     {
         return rtrim(strtr($data, '+/', '-_'), '=');
     }
 
-    /**
-     * @param $data
-     *
-     * @return bool|string
-     */
-    protected function unurlize($data)
+    protected function unurlize(string $data): string
     {
         return strtr($data, '-_', '+/').str_repeat('=', 3 - (3 + strlen($data)) % 4);
     }

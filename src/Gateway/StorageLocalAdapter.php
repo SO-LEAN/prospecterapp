@@ -4,22 +4,15 @@ namespace App\Gateway;
 
 use App\Service\LocalStorageService;
 use Solean\CleanProspecter\Gateway\Storage;
-use SplFileInfo;
 use Symfony\Component\HttpFoundation\File\File;
 
 class StorageLocalAdapter implements Storage
 {
-    /**
-     * @var LocalStorageService
-     */
-    private $localStorageService;
-
-    public function __construct(LocalStorageService $localStorageService)
+    public function __construct(private readonly LocalStorageService $localStorageService)
     {
-        $this->localStorageService = $localStorageService;
     }
 
-    public function add(SplFileInfo $file): string
+    public function add(\SplFileInfo $file): string
     {
         // Store a copy: use cases still read the original file (size, extension) after adding it
         $copy = tempnam(sys_get_temp_dir(), 'storage');
@@ -30,7 +23,7 @@ class StorageLocalAdapter implements Storage
         return $this->localStorageService->getUrl($stored);
     }
 
-    public function remove(string $url)
+    public function remove(string $url): void
     {
         $this->localStorageService->remove($url);
     }

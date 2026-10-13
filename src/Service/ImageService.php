@@ -9,30 +9,10 @@ use Symfony\Component\HttpFoundation\File\File;
 
 class ImageService
 {
-    const OPERATION_RESIZING = 'resize';
-    /**
-     * @var CipherHandler
-     */
-    private $cipherHandler;
+    public const OPERATION_RESIZING = 'resize';
 
-    /**
-     * @var LocalStorageService
-     */
-    private $localStorageService;
-
-    /**
-     * @var OperatorFactory
-     */
-    private $imagineFactory;
-
-    /**
-     * ImageService constructor.
-     */
-    public function __construct(CipherHandler $cipherHandler, LocalStorageService $localStorageService, OperatorFactory $imagineFactory)
+    public function __construct(private readonly CipherHandler $cipherHandler, private readonly LocalStorageService $localStorageService, private readonly OperatorFactory $imagineFactory)
     {
-        $this->cipherHandler = $cipherHandler;
-        $this->localStorageService = $localStorageService;
-        $this->imagineFactory = $imagineFactory;
     }
 
     public function buildOperationUrl(string $url, string $operation, array $args = []): string

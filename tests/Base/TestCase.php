@@ -1,11 +1,9 @@
 <?php
 
-declare( strict_types = 1 );
+declare(strict_types=1);
 
 namespace Tests\App\Base;
 
-use stdClass;
-use ReflectionClass;
 use PHPUnit\Framework\TestCase as PhpUnitTestCase;
 use Prophecy\PhpUnit\ProphecyTrait;
 
@@ -13,17 +11,11 @@ abstract class TestCase extends PhpUnitTestCase
 {
     use ProphecyTrait;
 
-    /**
-     * @var array
-     */
-    private $prophecies = [];
+    private array $prophecies = [];
 
-    /**
-     * @var stdClass
-     */
-    private $object;
+    private object $object;
 
-    protected function setup() : void
+    protected function setup(): void
     {
         $this->object = $this->buildTarget();
         $this->initialize();
@@ -35,33 +27,30 @@ abstract class TestCase extends PhpUnitTestCase
     }
 
     /**
-     * Arguments injected in object to be tested
+     * Arguments injected in object to be tested.
      */
-    protected function setupArgs() : array
+    protected function setupArgs(): array
     {
         return [];
     }
 
     /**
-     * More stuff on target ($this->target())
+     * More stuff on target ($this->target()).
      */
-    protected function initialize() : void
+    protected function initialize(): void
     {
-        return ;
     }
 
     protected function prophesy(string $class)
     {
-        if (!isset($this->prophecies[$class])) {
-            $this->prophecies[$class] = $this->prophesize($class);
-        }
+        $this->prophecies[$class] ??= $this->prophesize($class);
 
         return $this->prophecies[$class];
     }
 
-    protected function getTargetClassName() : string
+    protected function getTargetClassName(): string
     {
-        return preg_replace('/(^Tests\\\)|(Test$)/', '', get_class($this));
+        return preg_replace('/(^Tests\\\)|(Test$)/', '', static::class);
     }
 
     private function buildTarget()
@@ -71,13 +60,13 @@ abstract class TestCase extends PhpUnitTestCase
         return $this->instantiateTarget($class);
     }
 
-    private function instantiateTarget($class)
+    private function instantiateTarget(string $class)
     {
         if (0 === count($this->setupArgs())) {
-            return new $class;
+            return new $class();
         }
 
-        $r = new ReflectionClass($class);
+        $r = new \ReflectionClass($class);
 
         return $r->newInstanceArgs($this->setupArgs());
     }

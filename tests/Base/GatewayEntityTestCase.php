@@ -2,15 +2,14 @@
 
 namespace Tests\App\Base;
 
-use Doctrine\DBAL\Connection;
-use Doctrine\ORM\EntityManagerInterface;
 use App\Service\PaginatorFactory;
+use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\EntityRepository as ObjectRepository;
 use Solean\CleanProspecter\Exception\Gateway\NotFoundException;
 
 abstract class GatewayEntityTestCase extends TestCase
 {
-    public function setupArgs() : array
+    public function setupArgs(): array
     {
         $this->prophesy(EntityManagerInterface::class)->getRepository($this->getEntityClass())->shouldBeCalled()->willReturn($this->prophesy(ObjectRepository::class)->reveal());
 
@@ -21,7 +20,7 @@ abstract class GatewayEntityTestCase extends TestCase
         ];
     }
 
-    public function testGet() : void
+    public function testGet(): void
     {
         $id = 'id';
         $entity = $this->getNewEntity();
@@ -31,7 +30,7 @@ abstract class GatewayEntityTestCase extends TestCase
         $this->assertEquals($entity, $this->target()->get($id));
     }
 
-    public function testThrowNotFoundExceptionWhenNotFoundInRepository() : void
+    public function testThrowNotFoundExceptionWhenNotFoundInRepository(): void
     {
         $id = 'unknown_id';
 
@@ -41,7 +40,7 @@ abstract class GatewayEntityTestCase extends TestCase
         $this->target()->get($id);
     }
 
-    public function testCreate() : void
+    public function testCreate(): void
     {
         $entity = $this->getNewEntity();
 
@@ -51,7 +50,7 @@ abstract class GatewayEntityTestCase extends TestCase
         $this->assertEquals($entity, $this->target()->create($entity));
     }
 
-    public function testUpdate() : void
+    public function testUpdate(): void
     {
         $id = 'entity_id';
         $entity = $this->getNewEntity();
@@ -64,7 +63,7 @@ abstract class GatewayEntityTestCase extends TestCase
         $this->assertEquals($expected, $this->target()->update($id, $entity));
     }
 
-    public function testFindOneBy() : void
+    public function testFindOneBy(): void
     {
         $criteria = ['criteria1' => 2];
         $returned = $this->getNewEntity();
@@ -74,7 +73,7 @@ abstract class GatewayEntityTestCase extends TestCase
         $this->assertEquals($returned, $this->target()->findOneBy(['criteria1' => 2]));
     }
 
-    public function testFindBy() : void
+    public function testFindBy(): void
     {
         $criteria = ['criteria1' => 1];
         $this->prophesy(ObjectRepository::class)->findBy($criteria)->shouldBeCalled()->willReturn([]);
@@ -82,17 +81,12 @@ abstract class GatewayEntityTestCase extends TestCase
         $this->target()->findBy(['criteria1' => 1]);
     }
 
-    /**
-     * @return object
-     */
     protected function getNewEntity(): object
     {
         $entity = $this->getEntityClass();
-        return new $entity;
+
+        return new $entity();
     }
 
-    /**
-     * @return string
-     */
     abstract protected function getEntityClass(): string;
 }

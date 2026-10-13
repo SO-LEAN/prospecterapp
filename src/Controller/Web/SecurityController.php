@@ -3,7 +3,6 @@
 namespace App\Controller\Web;
 
 use App\Form\UseCaseType\LoginType;
-use LogicException;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
@@ -26,6 +25,6 @@ class SecurityController extends AbstractController
     #[Route('/logout', name: 'logout')]
     public function logout(): never
     {
-        throw new LogicException('This method is intercepted by the logout key of the firewall.');
+        throw new \LogicException('This method is intercepted by the logout key of the firewall.');
     }
 }

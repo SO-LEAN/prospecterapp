@@ -5,39 +5,28 @@ namespace App\Gateway\Entity;
 use App\Service\PaginatorFactory;
 use Doctrine\DBAL\Exception\UniqueConstraintViolationException;
 use Doctrine\ORM\EntityManagerInterface;
+use Doctrine\ORM\EntityRepository;
 use Solean\CleanProspecter\Exception\Gateway as GatewayException;
-use stdClass;
 
 abstract class RepositoryAdapter
 {
     /**
-     * @var \Doctrine\Common\Persistence\ObjectRepository|\Doctrine\ORM\EntityRepository
+     * @var EntityRepository<object>
      */
-    protected $repository;
+    protected readonly EntityRepository $repository;
 
     /**
-     * @var EntityManagerInterface
+     * @param class-string $entityClass
      */
-    protected $entityManager;
-
-    /**
-     * @var PaginatorFactory
-     */
-    protected $paginatorFactory;
-
-    public function __construct(EntityManagerInterface $entityManager, $entityClass, PaginatorFactory $paginatorFactory)
-    {
+    public function __construct(
+        protected readonly EntityManagerInterface $entityManager,
+        string $entityClass,
+        protected readonly PaginatorFactory $paginatorFactory,
+    ) {
         $this->repository = $entityManager->getRepository($entityClass);
-        $this->entityManager = $entityManager;
-        $this->paginatorFactory = $paginatorFactory;
     }
 
-    /**
-     * @param $entity
-     *
-     * @return stdClass
-     */
-    protected function save($entity): object
+    protected function save(object $entity): object
     {
         try {
             $this->entityManager->persist($entity);

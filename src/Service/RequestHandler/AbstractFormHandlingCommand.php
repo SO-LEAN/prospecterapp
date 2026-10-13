@@ -4,10 +4,7 @@ namespace App\Service\RequestHandler;
 
 use App\Entity\User;
 use App\Traits\HelperTrait;
-use Exception;
-use ReflectionClass;
 use Solean\CleanProspecter\Exception\UseCase\UseCaseException;
-use stdClass;
 use Symfony\Component\Form\FormError;
 use Symfony\Component\Form\FormInterface;
 use Symfony\Component\HttpFoundation\Request;
@@ -17,13 +14,10 @@ abstract class AbstractFormHandlingCommand
 {
     use HelperTrait;
 
-    const FORMS_NAMESPACE = 'App\Form\UseCaseType';
-    const PRESENTER_NAMESPACE = 'App\Presenter';
-    const USE_CASES_NAMESPACE = 'Solean\CleanProspecter\UseCase';
+    public const FORMS_NAMESPACE = 'App\Form\UseCaseType';
+    public const PRESENTER_NAMESPACE = 'App\Presenter';
+    public const USE_CASES_NAMESPACE = 'Solean\CleanProspecter\UseCase';
 
-    /**
-     * @throws \ReflectionException
-     */
     public function onSucceed(array $data, Request $request, User $user): ?Response
     {
         $method = $this->deduceUseCaseName($request);
@@ -46,9 +40,9 @@ abstract class AbstractFormHandlingCommand
     }
 
     /**
-     * @throws Exception
+     * @throws \Exception
      */
-    public function onUseCaseException(Exception $e, FormInterface $form): void
+    public function onUseCaseException(\Exception $e, FormInterface $form): void
     {
         if ($e instanceof UseCaseException) {
             foreach ($e->getRequestErrors() as $key => $msg) {
@@ -63,32 +57,25 @@ abstract class AbstractFormHandlingCommand
         }
     }
 
-    /**
-     * @return stdClass
-     *
-     * @throws \ReflectionException
-     */
     protected function buildUseCaseRequest(string $useCaseClass, array $data, User $user): object
     {
         $args = iterator_to_array($this->constructArgs($useCaseClass, $data));
         $args = $this->fillUserData($user, $args);
 
-        $objectReflection = new ReflectionClass($useCaseClass);
-        $object = $objectReflection->newInstanceArgs($args);
-        /* @var stdClass $object */
+        $objectReflection = new \ReflectionClass($useCaseClass);
 
-        return $object;
+        return $objectReflection->newInstanceArgs($args);
     }
 
     /**
-     * @throws \ReflectionException
+     * @param array<string, mixed> $data
      */
     protected function constructArgs(string $class, array $data): \Generator
     {
-        $reflection = new ReflectionClass($class);
+        $reflection = new \ReflectionClass($class);
 
         foreach ($reflection->getConstructor()->getParameters() as $param) {
-            (yield $param->name => isset($data[$param->name]) ? $data[$param->name] : null);
+            yield $param->name => $data[$param->name] ?? null;
         }
     }
 
@@ -105,9 +92,9 @@ abstract class AbstractFormHandlingCommand
     }
 
     /**
-     * @param $params
+     * @param array<string, mixed> $params
      */
-    protected function fillUserData(User $user, $params): array
+    protected function fillUserData(User $user, array $params): array
     {
         if (array_key_exists('ownedBy', $params)) {
             $params['ownedBy'] = $user->getOrganizationId();
@@ -116,10 +103,7 @@ abstract class AbstractFormHandlingCommand
         return $params;
     }
 
-    /**
-     * @return mixed
-     */
-    private function buildPresenter(Request $request)
+    private function buildPresenter(Request $request): object
     {
         $class = $this->deducePresenterFQCN($request);
 

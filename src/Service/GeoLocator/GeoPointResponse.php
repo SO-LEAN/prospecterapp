@@ -4,29 +4,12 @@ namespace App\Service\GeoLocator;
 
 class GeoPointResponse
 {
-    /**
-     * @var string
-     */
-    private $address;
-    /**
-     * @var float
-     */
-    private $longitude;
-    /**
-     * @var float
-     */
-    private $latitude;
-    /**
-     * @var bool
-     */
-    private $succeeded;
-
-    public function __construct(string $address, float $longitude, float $latitude, $succeeded = true)
-    {
-        $this->address = $address;
-        $this->longitude = $longitude;
-        $this->latitude = $latitude;
-        $this->succeeded = $succeeded;
+    public function __construct(
+        private readonly string $address,
+        private readonly float $longitude,
+        private readonly float $latitude,
+        private readonly bool $succeeded = true,
+    ) {
     }
 
     public function getAddress(): string

@@ -8,9 +8,9 @@ use Solean\CleanProspecter\UseCase\GetOrganization\GetOrganizationResponse;
 class GetOrganizationForUpdatePresenter implements GetOrganizationPresenter
 {
     /**
-     * @return array
+     * @return array<string, mixed>
      */
-    public function present(GetOrganizationResponse $response)
+    public function present(GetOrganizationResponse $response): array
     {
         return [
             'id' => $response->getId(),

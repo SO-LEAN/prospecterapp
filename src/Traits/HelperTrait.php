@@ -10,7 +10,7 @@ use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use Symfony\Component\Routing\RouterInterface;
-use Twig;
+use Twig\Environment;
 
 trait HelperTrait
 {
@@ -21,7 +21,7 @@ trait HelperTrait
         $this->add('form-factory', $formFactory);
     }
 
-    public function setTwig(Twig\Environment $twig): void
+    public function setTwig(Environment $twig): void
     {
         $this->add('twig', $twig);
     }
@@ -41,72 +41,38 @@ trait HelperTrait
         $this->add('presenters', $presenterFactory);
     }
 
-    /**
-     * Generates a URL from the given parameters.
-     *
-     * @see UrlGeneratorInterface
-     *
-     * @final
-     */
     protected function generateUrl(string $route, array $parameters = [], int $referenceType = UrlGeneratorInterface::ABSOLUTE_PATH): string
     {
         return $this->getRouter()->generate($route, $parameters, $referenceType);
     }
 
-    /**
-     * Returns a RedirectResponse to the given URL.
-     *
-     * @final
-     */
     protected function redirect(string $url, int $status = 302): RedirectResponse
     {
         return new RedirectResponse($url, $status);
     }
 
-    /**
-     * Returns a RedirectResponse to the given route with the given parameters.
-     *
-     * @final
-     */
     protected function redirectToRoute(string $route, array $parameters = [], int $status = 302): RedirectResponse
     {
         return $this->redirect($this->generateUrl($route, $parameters), $status);
     }
 
-    /**
-     * Returns a rendered view.
-     *
-     * @final
-     */
     protected function renderView(string $view, array $parameters = []): string
     {
         return $this->getTwig()->render($view, $parameters);
     }
 
-    /**
-     * Renders a view.
-     *
-     * @final
-     */
     protected function render(string $view, array $parameters = [], ?Response $response = null): Response
     {
         $content = $this->getTwig()->render($view, $parameters);
 
-        if (null === $response) {
-            $response = new Response();
-        }
+        $response ??= new Response();
 
         $response->setContent($content);
 
         return $response;
     }
 
-    /**
-     * Creates and returns a Form instance from the type of the form.
-     *
-     * @final
-     */
-    protected function createForm(string $type, $data = null, array $options = []): FormInterface
+    protected function createForm(string $type, mixed $data = null, array $options = []): FormInterface
     {
         return $this->getFormFactory()->create($type, $data, $options);
     }
@@ -121,7 +87,7 @@ trait HelperTrait
         return $this->get('use-cases');
     }
 
-    protected function getTwig(): Twig\Environment
+    protected function getTwig(): Environment
     {
         return $this->get('twig');
     }

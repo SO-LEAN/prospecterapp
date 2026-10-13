@@ -7,6 +7,7 @@ use Symfony\Component\HttpFoundation\BinaryFileResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpKernel\Attribute\Cache;
 use Symfony\Component\Routing\Attribute\Route;
+use Symfony\Component\Routing\Requirement\Requirement;
 
 class StorageController
 {
@@ -14,7 +15,7 @@ class StorageController
     {
     }
 
-    #[Route('storage/{query}', name: 'storage_display', requirements: ['query' => '.+'])]
+    #[Route('storage/{query}', name: 'storage_display', requirements: ['query' => Requirement::CATCH_ALL])]
     #[Cache(expires: '+1 year', maxage: 31536000, smaxage: 31536000, public: true)]
     public function display(Request $request): BinaryFileResponse
     {

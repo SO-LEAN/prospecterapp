@@ -4,31 +4,15 @@ namespace App\Service\System;
 
 interface FileSystemAdapter
 {
-    /**
-     * @param $dir
-     * @param $prefix
-     *
-     * @return bool|string the new temporary filename, or false on
-     */
-    public function tempnam($dir, $prefix);
+    public function tempnam(string $directory, string $prefix): string|false;
 
     /**
-     * @param $source
-     * @param $dest
-     * @param null $context
-     *
-     * @return bool true on success or false on failure
+     * @param resource|null $context
      */
-    public function copy($source, $dest, $context = null);
+    public function copy(string $source, string $destination, $context = null): bool;
 
     /**
-     * @param $filename
-     * @param bool $use_include_path
-     * @param null $context
-     * @param int  $offset
-     * @param null $maxlen
-     *
-     * @return string|bool the function returns the read data or false on failure
+     * @param resource|null $context
      */
-    public function fileGetContents($filename, $use_include_path = false, $context = null, $offset = 0, $maxlen = null);
+    public function fileGetContents(string $filename, bool $useIncludePath = false, $context = null, int $offset = 0, ?int $length = null): string|false;
 }

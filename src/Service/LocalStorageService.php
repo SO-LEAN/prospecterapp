@@ -2,26 +2,13 @@
 
 namespace App\Service;
 
-use RuntimeException;
 use Symfony\Component\HttpFoundation\File\File;
 use Symfony\Component\HttpFoundation\File\Stream;
 
 class LocalStorageService
 {
-    /**
-     * @var string
-     */
-    private $path;
-
-    /**
-     * @var string
-     */
-    private $url;
-
-    public function __construct(string $path, string $url)
+    public function __construct(private readonly string $path, private readonly string $url)
     {
-        $this->path = $path;
-        $this->url = $url;
     }
 
     public function add(File $file): File
@@ -41,26 +28,17 @@ class LocalStorageService
         unlink($relativePath);
     }
 
-    /**
-     * @param $url
-     */
-    public function removeFromUrl($url): void
+    public function removeFromUrl(string $url): void
     {
         $this->remove($this->urlToLocalPath($url));
     }
 
-    /**
-     * @param $url
-     */
-    public function getFromUrl($url): Stream
+    public function getFromUrl(string $url): Stream
     {
         return new Stream($this->urlToLocalPath($url));
     }
 
-    /**
-     * @param $url
-     */
-    public function getPathFromUrl($url): string
+    public function getPathFromUrl(string $url): string
     {
         return $this->urlToLocalPath($url);
     }
@@ -70,7 +48,7 @@ class LocalStorageService
         $length = strlen($this->path);
 
         if (substr($file->getRealPath(), 0, $length) !== $this->path) {
-            throw new RuntimeException(sprintf('File %s cannot be reached', $file->getRealPath()));
+            throw new \RuntimeException(sprintf('File %s cannot be reached', $file->getRealPath()));
         }
 
         return sprintf('%s/%s', $this->url, substr_replace($file->getRealPath(), '', 0, $length + 1));
@@ -81,10 +59,7 @@ class LocalStorageService
         return sprintf('%d/%d/%s/', date('Y'), date('m'), $fileName);
     }
 
-    /**
-     * @param $url
-     */
-    private function urlToLocalPath($url): string
+    private function urlToLocalPath(string $url): string
     {
         return substr_replace($url, $this->path, 0, strlen($this->url));
     }

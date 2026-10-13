@@ -8,9 +8,6 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\Security\Core\Authorization\AuthorizationCheckerInterface;
 
-/**
- * Class MenuBuilder.
- */
 class MenuBuilder
 {
     public function __construct(
@@ -21,14 +18,14 @@ class MenuBuilder
     }
 
     /**
-     * @return ItemInterface
+     * @param array<string, mixed> $options
      */
-    public function createMainMenu(array $options)
+    public function createMainMenu(array $options): ItemInterface
     {
         $menu = $this->factory->createItem('root', [
             'childrenAttributes' => [
                 'class' => $options['root_class'] ?? null,
-                ],
+            ],
         ]);
         $commonAttributes = $options['child_attributes'] ?? [];
 
@@ -54,9 +51,9 @@ class MenuBuilder
     }
 
     /**
-     * @return ItemInterface
+     * @param array<string, mixed> $options
      */
-    public function createBreadcrumb(array $options)
+    public function createBreadcrumb(array $options): ItemInterface
     {
         $menu = $this->factory->createItem('root', [
             'childrenAttributes' => [
@@ -98,9 +95,9 @@ class MenuBuilder
     }
 
     /**
-     * @return ItemInterface
+     * @param array<string, mixed> $options
      */
-    public function createLeftMenu(array $options)
+    public function createLeftMenu(array $options): ItemInterface
     {
         $menu = $this->factory->createItem('root', [
             'childrenAttributes' => [
@@ -124,9 +121,9 @@ class MenuBuilder
     }
 
     /**
-     * @return ItemInterface
+     * @param array<string, mixed> $options
      */
-    public function createRightMenu(array $options)
+    public function createRightMenu(array $options): ItemInterface
     {
         $menu = $this->factory->createItem('root', [
             'childrenAttributes' => [
@@ -143,19 +140,16 @@ class MenuBuilder
     }
 
     /**
-     * @return array
+     * @return array<string, string>
      */
-    private function getIcon(string $icon)
+    private function getIcon(string $icon): array
     {
         return [
             'icon' => $icon,
         ];
     }
 
-    /**
-     * @return bool
-     */
-    private function isMatchedRequest(string $pattern)
+    private function isMatchedRequest(string $pattern): bool
     {
         return (bool) preg_match($pattern, $this->getCurrentRequest()->getPathInfo());
     }
