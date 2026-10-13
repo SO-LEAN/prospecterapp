@@ -6,9 +6,6 @@ framework:
     # Note that the session will be started ONLY if you read or write from it.
     session: true
 
-    assets:
-        base_urls: ['%env(APP_STATIC_PROTOCOL)%://%env(APP_STATIC_HOST)%']
-
 when@test:
     framework:
         test: true

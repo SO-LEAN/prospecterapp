@@ -1,8 +1,5 @@
 twig:
     file_name_pattern: '*.twig'
-    form_themes: ['form/bootstrap_4_layout.html.twig']
-    globals:
-        google_api_key: '%env(APP_GOOGLE_API_KEY)%'
 
 when@test:
     twig:

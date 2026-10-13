@@ -6,8 +6,8 @@ statics:
     type: attribute
     host: '%app_static_host%'
 
-web:
-    resource: ../src/Controller/Web/
+auth:
+    resource: ../src/Controller/Auth/
     type: attribute
     host: '%app_api_host%'
 

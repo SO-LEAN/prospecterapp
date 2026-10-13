@@ -2,8 +2,6 @@
 
 namespace App\Service\Image;
 
-use App\Traits\Base64Urlize;
-
 class SecretCipherHandler implements CipherHandler
 {
     use Base64Urlize;

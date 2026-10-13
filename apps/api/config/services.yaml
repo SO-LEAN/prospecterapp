@@ -1,7 +1,5 @@
 parameters:
     google_api_url: 'https://maps.googleapis.com/maps/api/geocode/json'
-    knp_menu.renderer.twig.options:
-        currentClass: 'active'
 
 services:
     _defaults:
@@ -22,7 +20,6 @@ services:
             - '../src/Entity/'
             - '../src/Kernel.php'
             - '../src/Service/Image/UrlImageInfo.php'
-            - '../src/Service/RequestHandler/'
 
     # Use cases (clean architecture library)
     Prospecter\Core\UseCase\UseCasesFacade: ~
@@ -46,32 +43,11 @@ services:
         arguments:
             $entityClass: 'Prospecter\Core\Entity\Organization'
 
-    # Controllers do not depend on the container: their collaborators are injected by setters
-    App\Controller\Web\:
-        resource: '../src/Controller/Web/'
-        exclude: '../src/Controller/Web/SecurityController.php'
-        tags: ['controller.service_arguments']
-        calls:
-            - [setPresenterFactory, ['@App\Service\PresenterFactory']]
-            - [setFormFactory, ['@form.factory']]
-            - [setTwig, ['@twig']]
-            - [setRouter, ['@router']]
-            - [setUseCases, ['@Prospecter\Core\UseCase\UseCasesFacade']]
-            - [setFormHandler, ['@App\Service\RequestHandler']]
-
     # Security
     App\Security\ProspecterAuthenticator:
         arguments:
             $loginRoute: 'login'
-            $defaultSuccessRedirectRoute: 'dashboard_display'
-
-    # Menu
-    App\Menu\MenuBuilder:
-        tags:
-            - { name: 'knp_menu.menu_builder', method: 'createMainMenu', alias: 'main' }
-            - { name: 'knp_menu.menu_builder', method: 'createLeftMenu', alias: 'left' }
-            - { name: 'knp_menu.menu_builder', method: 'createRightMenu', alias: 'right' }
-            - { name: 'knp_menu.menu_builder', method: 'createBreadcrumb', alias: 'breadcrumb' }
+            $defaultSuccessUrl: '%env(FRONT_URL)%'
 
     # Services
     App\Service\LocalStorageService:
@@ -86,24 +62,3 @@ services:
         arguments:
             $apiUrl: '%google_api_url%'
             $apiKey: '%env(APP_GOOGLE_API_KEY)%'
-
-    # Form handling commands, selected by RequestHandler from the route suffix
-    App\Service\RequestHandler\AbstractFormHandlingCommand:
-        abstract: true
-        calls:
-            - [setFormFactory, ['@form.factory']]
-            - [setTwig, ['@twig']]
-            - [setRouter, ['@router']]
-            - [setUseCases, ['@Prospecter\Core\UseCase\UseCasesFacade']]
-    App\Service\RequestHandler\CreateFormHandlingCommand:
-        parent: App\Service\RequestHandler\AbstractFormHandlingCommand
-        autowire: false
-        autoconfigure: false
-        lazy: true
-        tags: [{ name: 'form_cmd', id: 'create' }]
-    App\Service\RequestHandler\UpdateFormHandlingCommand:
-        parent: App\Service\RequestHandler\AbstractFormHandlingCommand
-        autowire: false
-        autoconfigure: false
-        lazy: true
-        tags: [{ name: 'form_cmd', id: 'update' }]

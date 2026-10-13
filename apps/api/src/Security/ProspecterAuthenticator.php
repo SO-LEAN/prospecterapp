@@ -2,7 +2,7 @@
 
 namespace App\Security;
 
-use App\Form\UseCaseType\LoginType;
+use App\Form\LoginType;
 use App\Presenter\LoginPresenterImpl;
 use Prospecter\Core\Exception\UseCase\BadCredentialException;
 use Prospecter\Core\UseCase\Login\LoginRequest;
@@ -31,7 +31,7 @@ class ProspecterAuthenticator extends AbstractLoginFormAuthenticator
         private readonly UseCasesFacade $useCasesFacade,
         private readonly UrlGeneratorInterface $urlGenerator,
         private readonly string $loginRoute,
-        private readonly string $defaultSuccessRedirectRoute,
+        private readonly string $defaultSuccessUrl,
     ) {
     }
 
@@ -58,7 +58,7 @@ class ProspecterAuthenticator extends AbstractLoginFormAuthenticator
         $path = $this->getTargetPath($request->getSession(), $firewallName);
 
         if (!$path || $this->getLoginUrl($request) === $path) {
-            $path = $this->urlGenerator->generate($this->defaultSuccessRedirectRoute);
+            $path = $this->defaultSuccessUrl;
         }
 
         return new RedirectResponse($path);

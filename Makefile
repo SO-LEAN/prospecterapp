@@ -4,10 +4,10 @@ export GID := $(shell id -g)
 DC  = docker compose
 PHP = $(DC) run --rm php
 
-.PHONY: install build vendor db assets watch start stop logs ps test cs cs-fix stan rector usecases exec
+.PHONY: install build vendor keys db start stop logs ps test cs cs-fix stan rector usecases exec
 
 ## Setup
-install: build vendor db assets
+install: build vendor keys db
 
 build:
 	@echo "Docker/Building images..."
@@ -21,12 +21,9 @@ db:
 	@echo "Database/Creating and loading fixtures..."
 	@$(PHP) sh -c 'bin/console doctrine:schema:drop --force --full-database && bin/console doctrine:schema:create && bin/console doctrine:fixtures:load --no-interaction'
 
-assets:
-	@echo "Assets/Building..."
-	@$(PHP) sh -c 'bin/console importmap:install && bin/console sass:build'
-
-watch:
-	@$(PHP) bin/console sass:build --watch
+keys:
+	@echo "OAuth/Generating the key pair..."
+	@$(PHP) sh -c 'test -f config/jwt/private.pem || bin/console league:oauth2-server:generate-keypair'
 
 ## Stack
 start:

@@ -16,7 +16,7 @@ class UploadedFileInfoTest extends TestCase
     {
         // like PHP uploads: a temporary file without extension
         $this->temporaryPath = tempnam(sys_get_temp_dir(), 'php');
-        copy(__DIR__.'/../../assets/images/solean.png', $this->temporaryPath);
+        copy(__DIR__.'/../Fixtures/logo.png', $this->temporaryPath);
     }
 
     protected function tearDown(): void

@@ -1,9 +1,0 @@
-symfonycasts_sass:
-    root_sass:
-        - '%kernel.project_dir%/assets/styles/app.scss'
-    sass_options:
-        load_path:
-            - '%kernel.project_dir%/vendor/twbs/bootstrap/scss'
-            - '%kernel.project_dir%/vendor/components/font-awesome/scss'
-        # Bootstrap 4 and Font Awesome 4 use legacy Sass features: hide their deprecation warnings
-        quiet_deps: true

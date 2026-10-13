@@ -74,7 +74,7 @@ abstract class ApiTestCase extends ControllerTestCase
     protected function uploadImage(string $uri): array
     {
         $path = tempnam(sys_get_temp_dir(), 'upload');
-        copy(__DIR__.'/../../assets/images/solean.png', $path);
+        copy(__DIR__.'/../Fixtures/logo.png', $path);
 
         $this->client->request('POST', $uri, files: ['file' => new UploadedFile($path, 'logo.png', 'image/png', test: true)], server: ['HTTP_ACCEPT' => 'application/json']);
 
