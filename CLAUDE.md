@@ -1,6 +1,6 @@
 # prospecterapp
 
-Monorepo: a Symfony app (`webapp/`) built on a clean architecture library (`packages/cleanprospecter/`, Composer package `so-lean/cleanprospecter`, internal, not published). More context in `webapp/CLAUDE.md`, `packages/cleanprospecter/CLAUDE.md` and `docs/`.
+Monorepo: a Symfony app (`apps/api/`) built on a clean architecture library (`packages/core/`, Composer package `prospecter/core`, internal, not published). More context in `apps/api/CLAUDE.md`, `packages/core/CLAUDE.md` and `docs/`.
 
 ## Commands
 
@@ -8,11 +8,11 @@ Everything runs in Docker; there is no PHP, Composer or Node on the host. Use th
 
 - `make install` builds images, installs dependencies, creates the database, compiles assets
 - `make start` / `make stop` run the stack at https://local.prospecter.io (login `prospector` / `password`)
-- `make test` runs the webapp and the library suites (PHPUnit 13)
+- `make test` runs the API and the library suites (PHPUnit 13)
 - `make stan`, `make cs`, `make cs-fix`, `make rector` (dry run) for quality
 - `make db` drops and recreates the dev database with fixtures (destroys local data)
 
-Any other command: `docker compose run --rm php <cmd>`. The container mounts the whole repository and its working directory is `webapp/` (e.g. `docker compose run --rm php bin/console debug:router`).
+Any other command: `docker compose run --rm php <cmd>`. The container mounts the whole repository and its working directory is `apps/api/` (e.g. `docker compose run --rm php bin/console debug:router`).
 
 Before declaring work done: `make test`, `make stan` and `make cs` must pass.
 
@@ -34,7 +34,7 @@ PHP 8.5, Symfony 8.1, Doctrine ORM 3 on SQLite, AssetMapper + symfonycasts/sass-
 
 ## Gotchas
 
-- Composer: the library comes from a `path` repository (`../packages/*`). Locally `webapp/vendor/so-lean/cleanprospecter` is a symlink. Never add `"symlink": true` to that repository: it would stop `COMPOSER_MIRROR_PATH_REPOS=1` from copying the package in production builds (see `docs/monorepo.md`).
+- Composer: the library comes from a `path` repository (`../../packages/*`). Locally `apps/api/vendor/prospecter/core` is a symlink. Never add `"symlink": true` to that repository: it would stop `COMPOSER_MIRROR_PATH_REPOS=1` from copying the package in production builds (see `docs/monorepo.md`).
 - Flex recipes edit files you did not ask for (one added a PostgreSQL service to `docker-compose.yml`). Review `git status` after every `composer require`.
 - Browser: assets are served by `static.local.prospecter.io`. If pages render without CSS, the self-signed certificate was accepted for the app host but not for the static host (Chrome reports the asset requests as 503). Open a static URL once and accept it.
 - Files created in containers run as the host user (UID/GID exported by the Makefile). Root-owned leftovers can be removed with `docker run --rm -v $PWD:/app alpine rm -rf /app/<path>`.

@@ -4,7 +4,7 @@ server {
     ssl_certificate /etc/ssl/certs/project.crt;
     ssl_certificate_key /etc/ssl/certs/project.key;
     server_name static.${NGINX_HOST};
-    root /var/www/src/webapp/public;
+    root /var/www/src/apps/api/public;
 
     fastcgi_hide_header Set-Cookie;
     access_log off;

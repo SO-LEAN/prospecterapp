@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<doctrine-mapping xmlns="http://doctrine-project.org/schemas/orm/doctrine-mapping"
+                  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                  xsi:schemaLocation="http://doctrine-project.org/schemas/orm/doctrine-mapping https://www.doctrine-project.org/schemas/orm/doctrine-mapping.xsd">
+    <entity name="Prospecter\Core\Entity\Organization">
+        <field name="stats" type="json" nullable="true"/>
+        <field name="hasAddress" type="boolean" nullable="true"/>
+        <field name="hasGeoPoint" type="boolean" nullable="true"/>
+        <field name="hasLogo" type="boolean" nullable="true"/>
+        <field name="corporateName" type="string" length="150" nullable="true"/>
+        <field name="form" type="string" length="50" nullable="true"/>
+        <field name="type" type="string" length="50" nullable="true"/>
+        <embedded name="address" class="Prospecter\Core\Entity\Address"/>
+        <embedded name="geoPoint" class="Prospecter\Core\Entity\GeoPoint"/>
+        <embedded name="logo" class="Prospecter\Core\Entity\File"/>
+        <many-to-one field="holdBy" target-entity="Prospecter\Core\Entity\Organization" inversed-by="subsidiaries"/>
+        <many-to-one field="ownedBy" target-entity="Prospecter\Core\Entity\Organization" inversed-by="ownedProspectedOrganizations"/>
+        <one-to-many field="subsidiaries" target-entity="Prospecter\Core\Entity\Organization" mapped-by="holdBy"/>
+        <one-to-many field="ownedProspectedOrganizations" target-entity="Prospecter\Core\Entity\Organization" mapped-by="ownedBy"/>
+        <one-to-many field="ownedProspects" target-entity="Prospecter\Core\Entity\Prospect" mapped-by="ownedBy"/>
+        <one-to-many field="applicationUsers" target-entity="Prospecter\Core\Entity\User" mapped-by="organization"/>
+    </entity>
+</doctrine-mapping>

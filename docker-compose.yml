@@ -5,11 +5,11 @@ services:
       args:
         UID: ${UID:-1000}
         GID: ${GID:-1000}
-    # the whole monorepo is mounted: webapp/vendor links to packages/
+    # the whole monorepo is mounted: apps/api/vendor links to packages/
     volumes:
       - ./:/var/www/src
       - composer-cache:/home/developer/.cache/composer
-    working_dir: /var/www/src/webapp
+    working_dir: /var/www/src/apps/api
     extra_hosts:
       - host.docker.internal:host-gateway
     container_name: pro-php

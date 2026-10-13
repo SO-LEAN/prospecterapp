@@ -4,8 +4,8 @@ Monorepo of the Prospecter application and of its clean architecture use cases l
 
 | Directory                   | Content                                                                 |
 |-----------------------------|-------------------------------------------------------------------------|
-| `webapp/`                   | Symfony 8.1 application (Doctrine ORM 3 on SQLite, AssetMapper + Sass)  |
-| `packages/cleanprospecter/` | `so-lean/cleanprospecter` library: entities, use cases, gateways        |
+| `apps/api/`                   | Symfony 8.1 application (Doctrine ORM 3 on SQLite, AssetMapper + Sass)  |
+| `packages/core/` | `prospecter/core` library: entities, use cases, gateways        |
 | `docker/`                   | PHP 8.5 and nginx images                                                |
 
 Everything runs in Docker: no PHP or Node needed on the host.
@@ -50,8 +50,8 @@ The certificate is self-signed: accept the browser warning once for https://loca
 | `make exec`     | Shell in the PHP container                     |
 | `make usecases` | List the registered use cases                  |
 
-Local configuration overrides go in `webapp/.env.local` (not committed), e.g. a real `APP_GOOGLE_API_KEY` for maps and geolocation.
+Local configuration overrides go in `apps/api/.env.local` (not committed), e.g. a real `APP_GOOGLE_API_KEY` for maps and geolocation.
 
-## The cleanprospecter library
+## The core library
 
-The webapp requires `so-lean/cleanprospecter` through a Composer `path` repository: `webapp/vendor/so-lean/cleanprospecter` is a symlink to `packages/cleanprospecter`, so changes to the library are picked up immediately. Its tests run with the webapp suite (`make test`). The library is internal to this repository and is not published.
+The API requires `prospecter/core` through a Composer `path` repository: `apps/api/vendor/prospecter/core` is a symlink to `packages/core`, so changes to the library are picked up immediately. Its tests run with the API suite (`make test`). The library is internal to this repository and is not published.

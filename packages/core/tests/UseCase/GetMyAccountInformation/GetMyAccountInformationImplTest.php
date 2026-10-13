@@ -1,0 +1,165 @@
+<?php
+
+declare( strict_types = 1 );
+
+namespace Tests\Core\UseCase\GetMyAccountInformation;
+
+use Prospecter\Core\Entity\User;
+use Tests\Core\Base\UseCaseTestCase;
+use Prospecter\Core\Exception\Gateway;
+use Prospecter\Core\Exception\UseCase;
+use Prospecter\Core\Entity\Organization;
+use Prospecter\Core\UseCase\UseCaseConsumer;
+use Prospecter\Core\Gateway\Entity\UserGateway;
+use Prospecter\Core\Gateway\Entity\OrganizationGateway;
+use Prospecter\Core\UseCase\GetMyAccountInformation\GetMyAccountInformationImpl;
+use Prospecter\Core\UseCase\GetMyAccountInformation\GetMyAccountInformationRequest;
+use Prospecter\Core\UseCase\GetMyAccountInformation\GetMyAccountInformationResponse;
+
+use function Tests\Core\Base\anOrganization;
+use function Tests\Core\Base\aUser;
+use function Tests\Core\Base\aFile;
+
+class GetMyAccountInformationImplTest extends UseCaseTestCase
+{
+    public function target() : GetMyAccountInformationImpl
+    {
+        return parent::target();
+    }
+
+    public function setupArgs() : array
+    {
+        return [
+            $this->prophesy(UserGateway::class)->reveal(),
+            $this->prophesy(OrganizationGateway::class)->reveal(),
+        ];
+    }
+
+    public function testUserCanGetMyAccountInformation()
+    {
+        $this->assertContains('ROLE_USER', $this->target()->canBeExecutedBy());
+    }
+
+    public function testExecuteOnRegular()
+    {
+        $request = new GetMyAccountInformationRequest();
+        $user = aUser()
+            ->withId()
+            ->build();
+        $organization = anOrganization()
+            ->withId()
+            ->build();
+        $expectedResponse = aResponse()->build();
+
+        $this->mockUseCaseConsumer();
+        $this->mockOrganization($organization);
+        $this->mockUser($user);
+
+        /**
+         * @var GetMyAccountInformationResponse $response
+         */
+        $response = $this->target()->execute($request, $this->getMockedPresenter($expectedResponse), $this->prophesy(UseCaseConsumer::class)->reveal());
+
+        $this->assertEquals($expectedResponse, $response);
+    }
+
+    public function testExecuteOnRegularWithOrganizationLogo()
+    {
+        $request = new GetMyAccountInformationRequest();
+        $user = aUser()
+            ->withId()
+            ->build();
+        $organization = anOrganization()
+            ->withId()
+            ->with('logo', aFile()->withImageData())
+            ->build();
+
+        $expectedResponse = aResponse()
+            ->withOrganizationLogo()
+            ->build();
+
+        $this->mockUseCaseConsumer();
+        $this->mockOrganization($organization);
+        $this->mockUser($user);
+
+        /**
+         * @var GetMyAccountInformationResponse $response
+         */
+        $response = $this->target()->execute($request, $this->getMockedPresenter($expectedResponse), $this->prophesy(UseCaseConsumer::class)->reveal());
+
+        $this->assertEquals($expectedResponse, $response);
+    }
+
+    public function testExecuteOnRegularWithUserPicture()
+    {
+        $request = new GetMyAccountInformationRequest();
+        $user = aUser()
+            ->withId()
+            ->with('picture', aFile()->withImageData())
+            ->build();
+        $organization = anOrganization()
+            ->withId()
+            ->build();
+
+        $expectedResponse = aResponse()
+            ->withPicture()
+            ->build();
+
+        $this->mockUseCaseConsumer();
+        $this->mockOrganization($organization);
+        $this->mockUser($user);
+
+        /**
+         * @var GetMyAccountInformationResponse $response
+         */
+        $response = $this->target()->execute($request, $this->getMockedPresenter($expectedResponse), $this->prophesy(UseCaseConsumer::class)->reveal());
+
+        $this->assertEquals($expectedResponse, $response);
+    }
+
+    public function testThrowAnUseCaseNotFoundExceptionIfOrganizationNotFoundInGateway()
+    {
+        $request = new GetMyAccountInformationRequest();
+        $gatewayException = new Gateway\NotFoundException();
+
+        $this->mockUser(aUser()->build());
+        $this->mockUseCaseConsumer();
+        $this->prophesy(OrganizationGateway::class)->get(2)->shouldBeCalled()->willThrow($gatewayException);
+        $this->expectExceptionObject(new UseCase\NotFoundException(sprintf('Organization with #ID %d not found', 2), 404, $gatewayException));
+
+        $this->target()->execute($request, $this->getMockedPresenter(), $this->prophesy(UseCaseConsumer::class)->reveal());
+    }
+
+    public function testThrowAnUseCaseNotFoundExceptionIfUserNotFoundInGateway()
+    {
+        $request = new GetMyAccountInformationRequest();
+        $gatewayException = new Gateway\NotFoundException();
+
+        $this->mockUseCaseConsumer();
+        $this->prophesy(UserGateway::class)->get(1)->shouldBeCalled()->willThrow($gatewayException);
+        $this->expectExceptionObject(new UseCase\NotFoundException(sprintf('User with #ID %d not found', 1), 404, $gatewayException));
+
+        $this->target()->execute($request, $this->getMockedPresenter(), $this->prophesy(UseCaseConsumer::class)->reveal());
+    }
+
+    private function mockUseCaseConsumer(): void
+    {
+        $this->prophesy(UseCaseConsumer::class)->getUserId()->willReturn(1);
+        $this->prophesy(UseCaseConsumer::class)->getOrganizationId()->willReturn(2);
+    }
+
+    private function mockOrganization(Organization $organization): void
+    {
+        $this->prophesy(OrganizationGateway::class)->get(2)->shouldBeCalled()->willReturn($organization);
+    }
+
+    private function mockUser(User $user): void
+    {
+        $this->prophesy(UserGateway::class)->get(1)->shouldBeCalled()->willReturn($user);
+    }
+}
+
+function aResponse()
+{
+    return new GetMyAccountInformationResponseBuilder();
+}

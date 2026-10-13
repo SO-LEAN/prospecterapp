@@ -1,0 +1,29 @@
+<?php
+
+declare( strict_types = 1 );
+
+namespace Prospecter\Core\Entity;
+
+abstract class Base
+{
+    /**
+     * @var mixed
+     */
+    private $id;
+
+    /**
+     * @return mixed
+     */
+    public function getId()
+    {
+        return $this->id;
+    }
+
+    /**
+     * @param mixed $id
+     */
+    public function setId($id): void
+    {
+        $this->id = $id;
+    }
+}

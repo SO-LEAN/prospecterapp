@@ -1,0 +1,20 @@
+{
+    "name": "prospecter/core",
+    "description": "Prospecter business core: entities, use cases and gateway interfaces (clean architecture)",
+    "type": "library",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Michel MAIER",
+            "email": "opensource@solean-it.com"
+        }
+    ],
+    "require": {
+        "php": ">=8.5"
+    },
+    "autoload": {
+        "psr-4": {
+            "Prospecter\\Core\\": "src/"
+        }
+    }
+}
