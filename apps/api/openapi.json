@@ -1,0 +1,996 @@
+{
+    "openapi": "3.0.0",
+    "info": {
+        "title": "Prospecter API",
+        "description": "Exposes the use cases of `prospecter/core`. Errors use RFC 9457 problem details\n(`application/problem+json`), validation errors list the fields in `violations`.\n",
+        "version": "1.0.0"
+    },
+    "paths": {
+        "/api/me": {
+            "get": {
+                "tags": [
+                    "My account"
+                ],
+                "summary": "Get my account and my organization",
+                "operationId": "get_api_me_show",
+                "responses": {
+                    "200": {
+                        "description": "My account",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/AccountResource"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Missing or invalid access token"
+                    }
+                }
+            },
+            "put": {
+                "tags": [
+                    "My account"
+                ],
+                "summary": "Replace my account information (a null password keeps the current one; changing the user name ends the session)",
+                "operationId": "put_api_me_replace",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/AccountInput"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "My updated account",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/AccountResource"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Invalid account",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ProblemResource"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Missing or invalid access token"
+                    }
+                }
+            }
+        },
+        "/api/me/picture": {
+            "post": {
+                "tags": [
+                    "My account"
+                ],
+                "summary": "Upload my picture (multipart, field \"file\")",
+                "operationId": "post_api_me_upload_picture",
+                "requestBody": {
+                    "content": {
+                        "multipart/form-data": {
+                            "schema": {
+                                "properties": {
+                                    "file": {
+                                        "type": "string",
+                                        "format": "binary"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "My account with its new picture",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/AccountResource"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Invalid image",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ProblemResource"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Missing or invalid access token"
+                    }
+                }
+            }
+        },
+        "/api/me/organization-logo": {
+            "post": {
+                "tags": [
+                    "My account"
+                ],
+                "summary": "Upload the logo of my organization (multipart, field \"file\")",
+                "operationId": "post_api_me_upload_organization_logo",
+                "requestBody": {
+                    "content": {
+                        "multipart/form-data": {
+                            "schema": {
+                                "properties": {
+                                    "file": {
+                                        "type": "string",
+                                        "format": "binary"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "My account with the new logo of my organization",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/AccountResource"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Invalid image",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ProblemResource"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Missing or invalid access token"
+                    }
+                }
+            }
+        },
+        "/api/dashboard": {
+            "get": {
+                "tags": [
+                    "Dashboard"
+                ],
+                "summary": "Statistics of my organization and the organizations to place on a map",
+                "operationId": "get_api_dashboard",
+                "responses": {
+                    "200": {
+                        "description": "My dashboard",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/DashboardResource"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Missing or invalid access token"
+                    }
+                }
+            }
+        },
+        "/api/organizations": {
+            "get": {
+                "tags": [
+                    "Organizations"
+                ],
+                "summary": "Find the organizations owned by my organization, by name or email",
+                "operationId": "get_api_organizations_list",
+                "parameters": [
+                    {
+                        "name": "page",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "integer",
+                            "default": 1,
+                            "minimum": 0,
+                            "exclusiveMinimum": true
+                        }
+                    },
+                    {
+                        "name": "q",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "string",
+                            "default": "",
+                            "maxLength": 100
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "A page of organizations, most recent first",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/OrganizationPageResource"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Missing or invalid access token"
+                    }
+                }
+            },
+            "post": {
+                "tags": [
+                    "Organizations"
+                ],
+                "summary": "Create an organization owned by my organization",
+                "operationId": "post_api_organizations_create",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/OrganizationInput"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "The created organization",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/OrganizationResource"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Invalid organization",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ProblemResource"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Missing or invalid access token"
+                    }
+                }
+            }
+        },
+        "/api/organizations/{id}": {
+            "get": {
+                "tags": [
+                    "Organizations"
+                ],
+                "summary": "Get an organization",
+                "operationId": "get_api_organizations_show",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "pattern": "\\d+"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "The organization",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/OrganizationResource"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Unknown organization",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ProblemResource"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Missing or invalid access token"
+                    }
+                }
+            },
+            "put": {
+                "tags": [
+                    "Organizations"
+                ],
+                "summary": "Replace an organization (fields left out are cleared, the logo is kept)",
+                "operationId": "put_api_organizations_replace",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "pattern": "\\d+"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/OrganizationInput"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "The updated organization",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/OrganizationResource"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Unknown organization",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ProblemResource"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Invalid organization",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ProblemResource"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Missing or invalid access token"
+                    }
+                }
+            }
+        },
+        "/api/organizations/{id}/logo": {
+            "post": {
+                "tags": [
+                    "Organizations"
+                ],
+                "summary": "Upload the logo of an organization (multipart, field \"file\")",
+                "operationId": "post_api_organizations_upload_logo",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "pattern": "\\d+"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "content": {
+                        "multipart/form-data": {
+                            "schema": {
+                                "properties": {
+                                    "file": {
+                                        "type": "string",
+                                        "format": "binary"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "The organization with its new logo",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/OrganizationResource"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Unknown organization",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ProblemResource"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Invalid image",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ProblemResource"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Missing or invalid access token"
+                    }
+                }
+            },
+            "delete": {
+                "tags": [
+                    "Organizations"
+                ],
+                "summary": "Remove the logo of an organization",
+                "operationId": "delete_api_organizations_delete_logo",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "pattern": "\\d+"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "The organization without logo",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/OrganizationResource"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Unknown organization",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ProblemResource"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Missing or invalid access token"
+                    }
+                }
+            }
+        }
+    },
+    "components": {
+        "schemas": {
+            "AccountInput": {
+                "properties": {
+                    "userName": {
+                        "type": "string",
+                        "default": "",
+                        "maxLength": 50
+                    },
+                    "password": {
+                        "type": "string",
+                        "nullable": true,
+                        "default": null,
+                        "maxLength": 4096,
+                        "minLength": 8
+                    },
+                    "firstName": {
+                        "type": "string",
+                        "nullable": true,
+                        "default": null,
+                        "maxLength": 100
+                    },
+                    "lastName": {
+                        "type": "string",
+                        "nullable": true,
+                        "default": null,
+                        "maxLength": 100
+                    },
+                    "email": {
+                        "type": "string",
+                        "nullable": true,
+                        "default": null,
+                        "maxLength": 255
+                    },
+                    "phoneNumber": {
+                        "type": "string",
+                        "nullable": true,
+                        "default": null,
+                        "maxLength": 255
+                    },
+                    "language": {
+                        "type": "string",
+                        "nullable": true,
+                        "default": null
+                    },
+                    "organizationCorporateName": {
+                        "type": "string",
+                        "nullable": true,
+                        "default": null,
+                        "maxLength": 150
+                    },
+                    "organizationForm": {
+                        "type": "string",
+                        "nullable": true,
+                        "default": null,
+                        "maxLength": 50
+                    }
+                },
+                "type": "object"
+            },
+            "OrganizationListQuery": {
+                "properties": {
+                    "page": {
+                        "type": "integer",
+                        "default": 1,
+                        "minimum": 0,
+                        "exclusiveMinimum": true
+                    },
+                    "q": {
+                        "type": "string",
+                        "default": "",
+                        "maxLength": 100
+                    }
+                },
+                "type": "object"
+            },
+            "OrganizationInput": {
+                "properties": {
+                    "corporateName": {
+                        "type": "string",
+                        "nullable": true,
+                        "default": null,
+                        "maxLength": 150
+                    },
+                    "form": {
+                        "type": "string",
+                        "nullable": true,
+                        "default": null,
+                        "maxLength": 50
+                    },
+                    "type": {
+                        "type": "string",
+                        "nullable": true,
+                        "default": null,
+                        "maxLength": 50
+                    },
+                    "email": {
+                        "type": "string",
+                        "nullable": true,
+                        "default": null,
+                        "maxLength": 255
+                    },
+                    "phoneNumber": {
+                        "type": "string",
+                        "nullable": true,
+                        "default": null,
+                        "maxLength": 255
+                    },
+                    "language": {
+                        "type": "string",
+                        "nullable": true,
+                        "default": null
+                    },
+                    "street": {
+                        "type": "string",
+                        "nullable": true,
+                        "default": null,
+                        "maxLength": 255
+                    },
+                    "postalCode": {
+                        "type": "string",
+                        "nullable": true,
+                        "default": null,
+                        "maxLength": 255
+                    },
+                    "city": {
+                        "type": "string",
+                        "nullable": true,
+                        "default": null,
+                        "maxLength": 255
+                    },
+                    "country": {
+                        "type": "string",
+                        "nullable": true,
+                        "default": null
+                    },
+                    "observations": {
+                        "type": "string",
+                        "nullable": true,
+                        "default": null,
+                        "maxLength": 255
+                    },
+                    "holdBy": {
+                        "type": "integer",
+                        "nullable": true,
+                        "default": null,
+                        "minimum": 0,
+                        "exclusiveMinimum": true
+                    }
+                },
+                "type": "object"
+            },
+            "ImageResource": {
+                "required": [
+                    "url",
+                    "thumbnailUrl"
+                ],
+                "properties": {
+                    "url": {
+                        "type": "string"
+                    },
+                    "thumbnailUrl": {
+                        "type": "string"
+                    }
+                },
+                "type": "object"
+            },
+            "AccountOrganizationResource": {
+                "properties": {
+                    "corporateName": {
+                        "type": "string",
+                        "nullable": true
+                    },
+                    "form": {
+                        "type": "string",
+                        "nullable": true
+                    },
+                    "logo": {
+                        "nullable": true,
+                        "oneOf": [
+                            {
+                                "$ref": "#/components/schemas/ImageResource"
+                            }
+                        ]
+                    }
+                },
+                "type": "object"
+            },
+            "AccountResource": {
+                "required": [
+                    "userName",
+                    "organization"
+                ],
+                "properties": {
+                    "userName": {
+                        "type": "string"
+                    },
+                    "firstName": {
+                        "type": "string",
+                        "nullable": true
+                    },
+                    "lastName": {
+                        "type": "string",
+                        "nullable": true
+                    },
+                    "email": {
+                        "type": "string",
+                        "nullable": true
+                    },
+                    "phoneNumber": {
+                        "type": "string",
+                        "nullable": true
+                    },
+                    "language": {
+                        "type": "string",
+                        "nullable": true
+                    },
+                    "picture": {
+                        "nullable": true,
+                        "oneOf": [
+                            {
+                                "$ref": "#/components/schemas/ImageResource"
+                            }
+                        ]
+                    },
+                    "organization": {
+                        "$ref": "#/components/schemas/AccountOrganizationResource"
+                    }
+                },
+                "type": "object"
+            },
+            "ViolationResource": {
+                "required": [
+                    "propertyPath",
+                    "title"
+                ],
+                "properties": {
+                    "propertyPath": {
+                        "type": "string"
+                    },
+                    "title": {
+                        "type": "string"
+                    }
+                },
+                "type": "object"
+            },
+            "ProblemResource": {
+                "required": [
+                    "title",
+                    "status",
+                    "detail"
+                ],
+                "properties": {
+                    "title": {
+                        "type": "string"
+                    },
+                    "status": {
+                        "type": "integer"
+                    },
+                    "detail": {
+                        "type": "string"
+                    },
+                    "violations": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/ViolationResource"
+                        },
+                        "default": []
+                    },
+                    "type": {
+                        "type": "string",
+                        "default": "about:blank"
+                    }
+                },
+                "type": "object"
+            },
+            "LocationResource": {
+                "required": [
+                    "latitude",
+                    "longitude"
+                ],
+                "properties": {
+                    "latitude": {
+                        "type": "number",
+                        "format": "float"
+                    },
+                    "longitude": {
+                        "type": "number",
+                        "format": "float"
+                    }
+                },
+                "type": "object"
+            },
+            "OrganizationSummaryResource": {
+                "required": [
+                    "id",
+                    "name"
+                ],
+                "properties": {
+                    "id": {
+                        "type": "integer"
+                    },
+                    "name": {
+                        "type": "string"
+                    },
+                    "postalCode": {
+                        "type": "string",
+                        "nullable": true
+                    },
+                    "city": {
+                        "type": "string",
+                        "nullable": true
+                    },
+                    "country": {
+                        "type": "string",
+                        "nullable": true
+                    },
+                    "location": {
+                        "nullable": true,
+                        "oneOf": [
+                            {
+                                "$ref": "#/components/schemas/LocationResource"
+                            }
+                        ]
+                    },
+                    "logo": {
+                        "nullable": true,
+                        "oneOf": [
+                            {
+                                "$ref": "#/components/schemas/ImageResource"
+                            }
+                        ]
+                    }
+                },
+                "type": "object"
+            },
+            "DashboardResource": {
+                "required": [
+                    "organizationName",
+                    "stats",
+                    "markers"
+                ],
+                "properties": {
+                    "organizationName": {
+                        "type": "string"
+                    },
+                    "stats": {
+                        "type": "object",
+                        "additionalProperties": {
+                            "type": "integer"
+                        }
+                    },
+                    "markers": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/OrganizationSummaryResource"
+                        }
+                    }
+                },
+                "type": "object"
+            },
+            "OrganizationPageResource": {
+                "required": [
+                    "items",
+                    "page",
+                    "totalPages",
+                    "totalItems"
+                ],
+                "properties": {
+                    "items": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/OrganizationSummaryResource"
+                        }
+                    },
+                    "page": {
+                        "type": "integer"
+                    },
+                    "totalPages": {
+                        "type": "integer"
+                    },
+                    "totalItems": {
+                        "type": "integer"
+                    }
+                },
+                "type": "object"
+            },
+            "AddressResource": {
+                "properties": {
+                    "street": {
+                        "type": "string",
+                        "nullable": true
+                    },
+                    "postalCode": {
+                        "type": "string",
+                        "nullable": true
+                    },
+                    "city": {
+                        "type": "string",
+                        "nullable": true
+                    },
+                    "country": {
+                        "type": "string",
+                        "nullable": true
+                    }
+                },
+                "type": "object"
+            },
+            "OrganizationResource": {
+                "required": [
+                    "id"
+                ],
+                "properties": {
+                    "id": {
+                        "type": "integer"
+                    },
+                    "corporateName": {
+                        "type": "string",
+                        "nullable": true
+                    },
+                    "form": {
+                        "type": "string",
+                        "nullable": true
+                    },
+                    "type": {
+                        "type": "string",
+                        "nullable": true
+                    },
+                    "email": {
+                        "type": "string",
+                        "nullable": true
+                    },
+                    "phoneNumber": {
+                        "type": "string",
+                        "nullable": true
+                    },
+                    "language": {
+                        "type": "string",
+                        "nullable": true
+                    },
+                    "address": {
+                        "nullable": true,
+                        "oneOf": [
+                            {
+                                "$ref": "#/components/schemas/AddressResource"
+                            }
+                        ]
+                    },
+                    "location": {
+                        "nullable": true,
+                        "oneOf": [
+                            {
+                                "$ref": "#/components/schemas/LocationResource"
+                            }
+                        ]
+                    },
+                    "observations": {
+                        "type": "string",
+                        "nullable": true
+                    },
+                    "logo": {
+                        "nullable": true,
+                        "oneOf": [
+                            {
+                                "$ref": "#/components/schemas/ImageResource"
+                            }
+                        ]
+                    },
+                    "holdBy": {
+                        "type": "integer",
+                        "nullable": true
+                    }
+                },
+                "type": "object"
+            }
+        }
+    },
+    "tags": [
+        {
+            "name": "My account"
+        },
+        {
+            "name": "Dashboard"
+        },
+        {
+            "name": "Organizations"
+        }
+    ]
+}

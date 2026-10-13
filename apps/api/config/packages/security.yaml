@@ -11,7 +11,7 @@ security:
             host: '%app_static_host%'
             security: false
         main:
-            host: '%app_application_host%'
+            host: '%app_api_host%'
             lazy: true
             provider: prospecter_provider
             custom_authenticators:
@@ -22,5 +22,5 @@ security:
                 target: login
 
     access_control:
-        - { host: '%app_application_host%', path: ^/login, roles: PUBLIC_ACCESS }
-        - { host: '%app_application_host%', path: ^/, roles: ROLE_PROSPECTOR }
+        - { host: '%app_api_host%', path: ^/login, roles: PUBLIC_ACCESS }
+        - { host: '%app_api_host%', path: ^/, roles: ROLE_PROSPECTOR }

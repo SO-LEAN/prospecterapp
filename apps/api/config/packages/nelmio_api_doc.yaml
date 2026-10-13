@@ -1,0 +1,11 @@
+nelmio_api_doc:
+    documentation:
+        info:
+            title: Prospecter API
+            description: |
+                Exposes the use cases of `prospecter/core`. Errors use RFC 9457 problem details
+                (`application/problem+json`), validation errors list the fields in `violations`.
+            version: 1.0.0
+    areas:
+        path_patterns:
+            - ^/api(?!/doc)

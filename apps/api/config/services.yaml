@@ -16,10 +16,11 @@ services:
     App\:
         resource: '../src/'
         exclude:
+            - '../src/Api/Input/'
+            - '../src/Api/Resource/'
             - '../src/DependencyInjection/'
             - '../src/Entity/'
             - '../src/Kernel.php'
-            - '../src/Presenter/'
             - '../src/Service/Image/UrlImageInfo.php'
             - '../src/Service/RequestHandler/'
 

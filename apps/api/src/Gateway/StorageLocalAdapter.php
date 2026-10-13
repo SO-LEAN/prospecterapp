@@ -21,6 +21,6 @@ class StorageLocalAdapter implements Storage
 
     public function remove(string $url): void
     {
-        $this->localStorageService->remove($url);
+        $this->localStorageService->removeFromUrl($url);
     }
 }

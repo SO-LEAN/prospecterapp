@@ -23,7 +23,7 @@ abstract class ControllerTestCase extends WebTestCase
 
     protected function setUp(): void
     {
-        $this->client = static::createClient([], ['HTTP_HOST' => 'test.prospecter.io']);
+        $this->client = static::createClient([], ['HTTP_HOST' => 'api.test.prospecter.io']);
         $this->fixtures = $this->loadFixtures();
     }
 

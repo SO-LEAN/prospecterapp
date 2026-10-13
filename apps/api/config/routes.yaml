@@ -9,4 +9,10 @@ statics:
 web:
     resource: ../src/Controller/Web/
     type: attribute
-    host: '%app_application_host%'
+    host: '%app_api_host%'
+
+api:
+    resource: ../src/Controller/Api/
+    type: attribute
+    host: '%app_api_host%'
+    defaults: { _format: json }

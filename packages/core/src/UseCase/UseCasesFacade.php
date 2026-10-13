@@ -12,10 +12,11 @@ use Prospecter\Core\Exception\UseCase\UnauthorizedException;
  * @method login(UseCase\Login\LoginRequest $request, UseCase\Login\LoginPresenter $presenter)
  * @method refreshUser(UseCase\RefreshUser\RefreshUserRequest $request, UseCase\RefreshUser\RefreshUserPresenter $presenter)
  *
- * @method createOrganization(UseCase\CreateOrganization\CreateOrganizationRequest $request, UseCase\CreateOrganization\CreateOrganization $presenter, ?UseCaseConsumer $consumer)
+ * @method createOrganization(UseCase\CreateOrganization\CreateOrganizationRequest $request, UseCase\CreateOrganization\CreateOrganizationPresenter $presenter, ?UseCaseConsumer $consumer)
  * @method getOrganization(UseCase\GetOrganization\GetOrganizationRequest $request, UseCase\GetOrganization\GetOrganizationPresenter $presenter, ?UseCaseConsumer $consumer)
  * @method findMyOwnOrganizations(UseCase\FindMyOwnOrganizations\FindMyOwnOrganizationsRequest $request, UseCase\FindMyOwnOrganizations\FindMyOwnOrganizationsPresenter $presenter, UseCaseConsumer $consumer)
  * @method updateOrganization(UseCase\UpdateOrganization\UpdateOrganizationRequest $request, UseCase\UpdateOrganization\UpdateOrganizationPresenter $presenter, ?UseCaseConsumer $consumer)
+ * @method removeOrganizationLogo(UseCase\RemoveOrganizationLogo\RemoveOrganizationLogoRequest $request, UseCase\RemoveOrganizationLogo\RemoveOrganizationLogoPresenter $presenter, UseCaseConsumer $consumer)
  *
  * @method updateMyAccountInformation(UseCase\UpdateMyAccountInformation\UpdateMyAccountInformationRequest $request, UseCase\UpdateMyAccountInformation\UpdateMyAccountInformationPresenter $presenter, ?UseCaseConsumer $consumer)
  * @method getMyAccountInformation(UseCase\GetMyAccountInformation\GetMyAccountInformationRequest $request, UseCase\GetMyAccountInformation\GetMyAccountInformationPresenter $presenter, ?UseCaseConsumer $consumer)
