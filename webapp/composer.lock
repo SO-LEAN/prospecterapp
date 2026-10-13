@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "70d8e80a2549e540eab0326149730093",
+    "content-hash": "9e7b3914c23d48241f3cf0cf37e94a82",
     "packages": [
         {
             "name": "components/font-awesome",
@@ -1607,32 +1607,15 @@
             "dist": {
                 "type": "path",
                 "url": "../packages/cleanprospecter",
-                "reference": "212aadaad7747d6352bbfc614ddfb0130502e87c"
+                "reference": "70e8caa8ec5ab7647ec6430d0dd0905caa637e5e"
             },
             "require": {
                 "php": ">=8.5"
             },
-            "require-dev": {
-                "phpspec/prophecy-phpunit": "^2.5",
-                "phpunit/phpunit": "^13.4"
-            },
             "type": "library",
-            "extra": {
-                "branch-alias": {
-                    "dev-main": "1.x-dev"
-                }
-            },
             "autoload": {
                 "psr-4": {
                     "Solean\\CleanProspecter\\": "src/CleanProspecter"
-                }
-            },
-            "autoload-dev": {
-                "files": [
-                    "tests/Unit/Base/functions.php"
-                ],
-                "psr-4": {
-                    "Tests\\Unit\\Solean\\": "tests/Unit"
                 }
             },
             "license": [

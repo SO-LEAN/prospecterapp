@@ -1,6 +1,6 @@
 # prospecterapp
 
-Monorepo: a Symfony app (`webapp/`) built on a clean architecture library (`packages/cleanprospecter/`, published as `so-lean/cleanprospecter`). More context in `webapp/CLAUDE.md`, `packages/cleanprospecter/CLAUDE.md` and `docs/`.
+Monorepo: a Symfony app (`webapp/`) built on a clean architecture library (`packages/cleanprospecter/`, Composer package `so-lean/cleanprospecter`, internal, not published). More context in `webapp/CLAUDE.md`, `packages/cleanprospecter/CLAUDE.md` and `docs/`.
 
 ## Commands
 

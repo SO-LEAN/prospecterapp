@@ -13,7 +13,7 @@
         "doctrine/orm": "^3.7",
         "imagine/imagine": "^1.5",
         "knplabs/knp-menu-bundle": "^3.8",
-        "so-lean/cleanprospecter": "^1.0@dev",
+        "so-lean/cleanprospecter": "*@dev",
         "symfony/asset": "8.1.*",
         "symfony/asset-mapper": "8.1.*",
         "symfony/console": "8.1.*",

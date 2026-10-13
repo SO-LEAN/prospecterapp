@@ -2,15 +2,8 @@
 
 **Cleanprospecter** is a PHP 8.5 business prospect application designed according to Robert C. Martin [recommendations for clean architecture](https://8thlight.com/blog/uncle-bob/2012/08/13/the-clean-architecture.html).
 
-> This repository is a read-only split of the [prospecterapp monorepo](https://github.com/SO-LEAN/prospecterapp) (`packages/cleanprospecter`). Open issues and pull requests there.
+Part of the prospecterapp monorepo: the Symfony 8.1 implementation lives in `webapp/`.
 
-Add cleanprospecter in your project with [composer](https://getcomposer.org).
-
-```console
- $ composer require so-lean/cleanprospecter
-```
-
-A **Symfony 8.1** implementation lives next to it in the [monorepo](https://github.com/SO-LEAN/prospecterapp) (`webapp/`).
 ## Progress
 
 Consider that scope as the **minimal viable product**.

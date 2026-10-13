@@ -1,13 +1,13 @@
 # so-lean/cleanprospecter
 
-The hexagon of the application: entities, use cases and gateway interfaces (ports). Published on Packagist from the read-only split repository `SO-LEAN/cleanprospecter` (see `docs/monorepo.md` at the repository root).
+The hexagon of the application: entities, use cases and gateway interfaces (ports). Internal Composer package of the monorepo, not published (see `docs/monorepo.md` at the repository root).
 
 ## Rules
 
 - Pure PHP. `composer.json` requires only `php`: never add a framework or infrastructure dependency (Symfony, Doctrine, HTTP clients...). Infrastructure is reached through the interfaces in `src/CleanProspecter/Gateway` and implemented in `webapp/src/Gateway`.
 - Entities are mapped by the webapp (`webapp/config/doctrine/*.orm.xml`): adding, renaming or retyping an entity property requires updating that mapping.
 - A use case is `UseCase/<Name>/<Name>Impl.php` (extends `AbstractUseCase`, `execute(<Name>Request, <Name>Presenter, ?UseCaseConsumer)`, roles in `canBeExecutedBy()`), with its `<Name>Request`, `<Name>Response` and `<Name>Presenter`. The webapp registers every `*Impl` automatically and calls it as `$facade-><name>()` (lcfirst). Request constructor parameter names must match the webapp form field names.
-- Changing a public signature is a breaking change for anyone installing the package from Packagist: keep it compatible or plan a new major version (`extra.branch-alias` in `composer.json`).
+- Only the webapp consumes it: change its API and the webapp adapters in the same commit.
 - Same code conventions as the rest of the repository (root `CLAUDE.md`).
 
 ## Tests

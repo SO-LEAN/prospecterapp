@@ -5,7 +5,7 @@ The project had not been touched since 2021 (PHP 7.2, Symfony 4.4, webpack-encor
 ## History cleanup
 
 - Branches `master`, `develop`, `travis-ci` and merge commits were replaced by a single linear `main`. `develop` already contained everything; an empty commit was dropped.
-- CI was removed (Travis is dead); only the Packagist split workflow exists now.
+- CI was removed (Travis is dead).
 
 ## Making the 2021 stack run again (before upgrading)
 

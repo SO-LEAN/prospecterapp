@@ -10,7 +10,7 @@ Monorepo of the Prospecter application and of its clean architecture use cases l
 
 Everything runs in Docker: no PHP or Node needed on the host.
 
-Further reading: [monorepo and publishing](docs/monorepo.md), [2026 upgrade notes](docs/upgrade-2026.md). Instructions for AI coding assistants are in the `CLAUDE.md` files.
+Further reading: [monorepo](docs/monorepo.md), [2026 upgrade notes](docs/upgrade-2026.md). Instructions for AI coding assistants are in the `CLAUDE.md` files.
 
 ## Requirements
 
@@ -54,13 +54,4 @@ Local configuration overrides go in `webapp/.env.local` (not committed), e.g. a 
 
 ## The cleanprospecter library
 
-The webapp requires `so-lean/cleanprospecter` through a Composer `path` repository: `webapp/vendor/so-lean/cleanprospecter` is a symlink to `packages/cleanprospecter`, so changes to the library are picked up immediately. Its tests run with the webapp suite (`make test`).
-
-### Publishing
-
-The library is published on [Packagist](https://packagist.org/packages/so-lean/cleanprospecter) from the read-only repository [SO-LEAN/cleanprospecter](https://github.com/SO-LEAN/cleanprospecter). The `Split packages` workflow (`.github/workflows/split.yml`) copies `packages/cleanprospecter` and its history there:
-
-- on every push to `main` → branch `main` (`1.x-dev` on Packagist)
-- on every `v*` tag → the same tag, e.g. `git tag v1.0.0 && git push origin v1.0.0` publishes version `1.0.0`
-
-The workflow needs the `SPLIT_ACCESS_TOKEN` repository secret: a GitHub token with write access to `SO-LEAN/cleanprospecter`.
+The webapp requires `so-lean/cleanprospecter` through a Composer `path` repository: `webapp/vendor/so-lean/cleanprospecter` is a symlink to `packages/cleanprospecter`, so changes to the library are picked up immediately. Its tests run with the webapp suite (`make test`). The library is internal to this repository and is not published.
