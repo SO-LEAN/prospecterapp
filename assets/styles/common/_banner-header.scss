@@ -3,14 +3,45 @@
 }
 
 .navbar-main {
-  line-height: 3rem;
-  font-weight: bold;
-  box-shadow: inset 0 -1px 0 rgba(0, 0, 0, .1);
-  padding: 0;
+  min-height: $navBar-height;
+  padding-top: .25rem;
+  padding-bottom: .25rem;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, .15);
   z-index: 500;
+
+  .navbar-brand {
+    font-weight: bold;
+    letter-spacing: .03em;
+  }
+
+  .navbar-nav .nav-link {
+    color: rgba($white, .85);
+    padding: .5rem .9rem;
+    border-radius: $border-radius;
+    transition: background-color .15s ease-in-out;
+
+    &:hover {
+      background-color: rgba($white, .1);
+    }
+  }
+
+  .navbar-nav .active > .nav-link {
+    color: $white;
+    background-color: rgba($white, .18);
+  }
+
+  .navbar-user .nav-link {
+    padding-top: .25rem;
+    padding-bottom: .25rem;
+  }
+
+  .navbar-user .dropdown-menu {
+    line-height: 1.5;
+    box-shadow: 0 .5rem 1rem rgba(0, 0, 0, .15);
+  }
 }
 
-.second-banner{
+.second-banner {
   padding-top: calc($spacer / 2);
   background-color: whitesmoke;
   border-bottom: 1px solid $light;

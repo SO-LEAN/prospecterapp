@@ -32,19 +32,19 @@ class MenuBuilder
         if ($this->authorizationChecker->isGranted('ROLE_PROSPECTOR')) {
             $menu->addChild(
                 'Dashboard',
-                $commonAttributes + ['route' => 'dashboard_display', 'extras' => ['current_regex' => '#^(/$)|(/dashboard)#']]
+                $commonAttributes + ['route' => 'dashboard_display', 'extras' => ['current_regex' => '#^(/$)|(/dashboard)#'] + $this->getIcon('fa fa-fw fa-tachometer')]
             );
             $menu->addChild(
                 'Organizations',
-                $commonAttributes + ['route' => 'organization_find', 'extras' => ['current_regex' => '#^/organizations#']] + $commonAttributes
+                $commonAttributes + ['route' => 'organization_find', 'extras' => ['current_regex' => '#^/organizations#'] + $this->getIcon('fa fa-fw fa-building')]
             );
             $menu->addChild(
                 'Prospects',
-                $commonAttributes + ['route' => 'prospect_create', 'extras' => ['current_regex' => '#^/protects#']] + $commonAttributes
+                $commonAttributes + ['route' => 'prospect_create', 'extras' => ['current_regex' => '#^/prospects#'] + $this->getIcon('fa fa-fw fa-users')]
             );
         }
         if (!$this->authorizationChecker->isGranted('IS_AUTHENTICATED_FULLY')) {
-            $menu->addChild('Login', ['route' => 'login'] + $commonAttributes);
+            $menu->addChild('Login', ['route' => 'login', 'extras' => $this->getIcon('fa fa-fw fa-sign-in')] + $commonAttributes);
         }
 
         return $menu;

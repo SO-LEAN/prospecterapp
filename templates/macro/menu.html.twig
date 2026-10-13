@@ -1,5 +1,5 @@
 {% macro main() %}
-    {% set main_menu = knp_menu_get('main', options={'root_class': 'nav navbar-nav', 'child_attributes':{'attributes': {'class': 'nav-item'}, 'linkAttributes': {'class': 'nav-link'}}}) %}
+    {% set main_menu = knp_menu_get('main', options={'root_class': 'navbar-nav', 'child_attributes':{'attributes': {'class': 'nav-item'}, 'linkAttributes': {'class': 'nav-link'}}}) %}
     {{ knp_menu_render(main_menu,  { 'currentClass': 'active'}) }}
 {% endmacro %}
 {% macro breadcrumb() %}
