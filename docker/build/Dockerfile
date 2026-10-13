@@ -7,7 +7,7 @@ RUN apk add --no-cache --virtual .my-deps g++ make autoconf &&\
     pecl install xdebug-2.9.8 zip &&\
     docker-php-ext-enable xdebug zip &&\
     curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/bin --filename=composer &&\
-    curl -L http://cs.sensiolabs.org/download/php-cs-fixer-v2.phar -o /usr/bin/php-cs-fixer && chmod +x /usr/bin/php-cs-fixer &&\
+    curl -fL https://github.com/FriendsOfPHP/PHP-CS-Fixer/releases/download/v2.19.3/php-cs-fixer.phar -o /usr/bin/php-cs-fixer && chmod +x /usr/bin/php-cs-fixer &&\
     mkdir /.composer /.npm /.config /.cache && touch /.yarnrc && chmod 777 /.composer /.npm /.config /.cache /.yarnrc
 
 COPY php.ini /usr/local/etc/php/conf.d

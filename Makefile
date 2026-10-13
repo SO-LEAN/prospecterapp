@@ -1,10 +1,12 @@
 SYMFONY_MAX_DEPRECATED ?= 500
+export UID := $(shell id -u)
+export GID := $(shell id -g)
 
 install: build-dev build-ci composer yarn assets fixtures
 
 build-dev:
 	@echo "Generate environment..."
-	@docker-compose build --no-cache
+	@docker compose build --no-cache
 	@cp .env.dist .env
 build-ci:
 	@echo "Ci build image..."
@@ -45,14 +47,14 @@ assets-prod:
 	@docker run -v ${PWD}:/app --rm --user="$(shell id -u):$(shell id -g)" buildci yarn run encore production
 
 start:
-	@docker-compose up -d
+	@docker compose up -d
 	@xdg-open https://local.prospecter.io
 stop:
-	@docker-compose stop
+	@docker compose stop
 logs:
-	@docker-compose logs
+	@docker compose logs
 ps:
-	@docker-compose ps
+	@docker compose ps
 
 test:
 	@docker run -v ${PWD}:/app --rm -e SYMFONY_DEPRECATIONS_HELPER=max[total]=$(SYMFONY_MAX_DEPRECATED) buildci bin/phpunit
