@@ -33,6 +33,7 @@ Doctrine mapping of the library entities is in `config/doctrine/*.orm.xml` (XML 
 Create/update pages are driven by the route name `<subject>_<action>` through `Service\RequestHandler` and the `form_cmd` tagged commands. For `organization_create`:
 
 - use case `createOrganization`, request `UseCase\CreateOrganization\CreateOrganizationRequest` built from the form data by constructor parameter names
+- uploaded files reach the use case as `Service\UploadedFileInfo` (an `SplFileInfo` whose extension is guessed from the content, since PHP temporary upload files have none)
 - form `App\Form\UseCaseType\CreateOrganizationType`, presenter `App\Presenter\CreateOrganizationPresenterImpl`
 - template `page/organization/add.html.twig`; on success redirect to `organization_view` if that route exists
 

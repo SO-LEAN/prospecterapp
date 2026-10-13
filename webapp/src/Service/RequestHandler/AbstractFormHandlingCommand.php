@@ -3,10 +3,12 @@
 namespace App\Service\RequestHandler;
 
 use App\Entity\User;
+use App\Service\UploadedFileInfo;
 use App\Traits\HelperTrait;
 use Solean\CleanProspecter\Exception\UseCase\UseCaseException;
 use Symfony\Component\Form\FormError;
 use Symfony\Component\Form\FormInterface;
+use Symfony\Component\HttpFoundation\File\UploadedFile;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 
@@ -75,7 +77,9 @@ abstract class AbstractFormHandlingCommand
         $reflection = new \ReflectionClass($class);
 
         foreach ($reflection->getConstructor()->getParameters() as $param) {
-            yield $param->name => $data[$param->name] ?? null;
+            $value = $data[$param->name] ?? null;
+
+            yield $param->name => $value instanceof UploadedFile ? new UploadedFileInfo($value) : $value;
         }
     }
 
