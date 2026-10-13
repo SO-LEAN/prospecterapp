@@ -10,6 +10,8 @@ Monorepo of the Prospecter application and of its clean architecture use cases l
 
 Everything runs in Docker: no PHP or Node needed on the host.
 
+Further reading: [monorepo and publishing](docs/monorepo.md), [2026 upgrade notes](docs/upgrade-2026.md). Instructions for AI coding assistants are in the `CLAUDE.md` files.
+
 ## Requirements
 
 - Docker with the compose plugin (`docker compose`)
