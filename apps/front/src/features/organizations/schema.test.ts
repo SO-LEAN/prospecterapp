@@ -14,13 +14,13 @@ describe('organization schema', () => {
   })
 
   it('sends empty fields as null', () => {
-    const input = toInput({ ...toFormValues(), corporateName: 'ACME', country: 'FR' })
+    const values = toFormValues()
+    const input = toInput({ ...values, corporateName: 'ACME', address: { ...values.address, country: 'FR' } })
 
     expect(input).toMatchObject({
       corporateName: 'ACME',
-      country: 'FR',
       email: null,
-      city: null,
+      address: { street: null, postalCode: null, city: null, country: 'FR' },
       holdBy: null,
     })
   })

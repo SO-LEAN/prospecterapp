@@ -25,7 +25,11 @@ describe('OrganizationForm', () => {
     await user.click(screen.getByRole('button', { name: 'Créer' }))
 
     expect(onSubmit).toHaveBeenCalledWith(
-      expect.objectContaining({ corporateName: 'ACME', city: 'Paris', email: null }),
+      expect.objectContaining({
+        corporateName: 'ACME',
+        email: null,
+        address: expect.objectContaining({ city: 'Paris' }),
+      }),
     )
   })
 
@@ -49,6 +53,7 @@ describe('OrganizationForm', () => {
         detail: 'Invalid',
         violations: [
           { propertyPath: 'email', title: 'Cet e-mail est déjà utilisé.' },
+          { propertyPath: 'address.city', title: 'Ville trop longue.' },
           { propertyPath: '', title: 'Organisation refusée.' },
         ],
       }),
@@ -59,6 +64,7 @@ describe('OrganizationForm', () => {
 
     expect(await screen.findByText('Cet e-mail est déjà utilisé.')).toBeInTheDocument()
     expect(screen.getByLabelText('E-mail')).toHaveAttribute('aria-invalid', 'true')
+    expect(screen.getByLabelText('Ville')).toHaveAttribute('aria-invalid', 'true')
     expect(screen.getByRole('alert')).toHaveTextContent('Organisation refusée.')
   })
 })

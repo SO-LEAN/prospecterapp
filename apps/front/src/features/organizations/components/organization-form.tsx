@@ -11,7 +11,13 @@ import { Field } from '@/shared/ui/form/field'
 import { Input } from '@/shared/ui/input'
 import { Textarea } from '@/shared/ui/textarea'
 import type { OrganizationInput } from '../queries'
-import { type OrganizationFormValues, organizationFields, organizationSchema, toInput } from '../schema'
+import {
+  type OrganizationField,
+  type OrganizationFormValues,
+  organizationFields,
+  organizationSchema,
+  toInput,
+} from '../schema'
 
 type Props = {
   defaultValues: OrganizationFormValues
@@ -23,13 +29,10 @@ type Props = {
 export function OrganizationForm({ defaultValues, submitLabel, onSubmit, onCancel }: Props) {
   const { t } = useTranslation()
   const [globalErrors, setGlobalErrors] = useState<string[]>([])
-  const {
-    register,
-    control,
-    handleSubmit,
-    setError,
-    formState: { errors, isSubmitting, isDirty },
-  } = useForm<OrganizationFormValues>({ resolver: zodResolver(organizationSchema), defaultValues })
+  const { register, control, handleSubmit, setError, getFieldState, formState } =
+    useForm<OrganizationFormValues>({ resolver: zodResolver(organizationSchema), defaultValues })
+
+  const { isSubmitting, isDirty } = formState
 
   const submit = handleSubmit(async (values) => {
     setGlobalErrors([])
@@ -40,9 +43,9 @@ export function OrganizationForm({ defaultValues, submitLabel, onSubmit, onCance
     }
   })
 
-  const field = (name: keyof OrganizationFormValues) => ({
+  const field = (name: OrganizationField) => ({
     label: t(`organizations.fields.${name}`),
-    error: errors[name]?.message,
+    error: getFieldState(name, formState).error?.message,
   })
 
   return (
@@ -82,19 +85,19 @@ export function OrganizationForm({ defaultValues, submitLabel, onSubmit, onCance
       </Section>
 
       <Section title={t('organizations.sections.address')}>
-        <Field {...field('street')} className="sm:col-span-2">
-          <Input autoComplete="off" {...register('street')} />
+        <Field {...field('address.street')} className="sm:col-span-2">
+          <Input autoComplete="off" {...register('address.street')} />
         </Field>
-        <Field {...field('postalCode')}>
-          <Input {...register('postalCode')} />
+        <Field {...field('address.postalCode')}>
+          <Input {...register('address.postalCode')} />
         </Field>
-        <Field {...field('city')}>
-          <Input {...register('city')} />
+        <Field {...field('address.city')}>
+          <Input {...register('address.city')} />
         </Field>
-        <Field {...field('country')}>
+        <Field {...field('address.country')}>
           <Controller
             control={control}
-            name="country"
+            name="address.country"
             render={({ field: { value, onChange } }) => <CountrySelect value={value} onChange={onChange} />}
           />
         </Field>

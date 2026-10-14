@@ -14,7 +14,14 @@ import { Field } from '@/shared/ui/form/field'
 import { ImageUpload } from '@/shared/ui/form/image-upload'
 import { Input } from '@/shared/ui/input'
 import { type Account, useReplaceAccount, useUploadOrganizationLogo, useUploadPicture } from '../mutations'
-import { type AccountFormValues, accountFields, accountSchema, toFormValues, toInput } from '../schema'
+import {
+  type AccountField,
+  type AccountFormValues,
+  accountFields,
+  accountSchema,
+  toFormValues,
+  toInput,
+} from '../schema'
 
 export function AccountForm({ account }: { account: Account }) {
   const { t } = useTranslation()
@@ -23,18 +30,14 @@ export function AccountForm({ account }: { account: Account }) {
   const uploadPicture = useUploadPicture()
   const uploadLogo = useUploadOrganizationLogo()
   const [globalErrors, setGlobalErrors] = useState<string[]>([])
-  const {
-    register,
-    control,
-    handleSubmit,
-    setError,
-    reset,
-    formState: { errors, isSubmitting, isDirty },
-  } = useForm<AccountFormValues>({
-    resolver: zodResolver(accountSchema),
-    values: toFormValues(account),
-    resetOptions: { keepDirtyValues: true },
-  })
+  const { register, control, handleSubmit, setError, getFieldState, reset, formState } =
+    useForm<AccountFormValues>({
+      resolver: zodResolver(accountSchema),
+      values: toFormValues(account),
+      resetOptions: { keepDirtyValues: true },
+    })
+
+  const { errors, isSubmitting, isDirty } = formState
 
   const submit = handleSubmit(async (values) => {
     setGlobalErrors([])
@@ -54,9 +57,9 @@ export function AccountForm({ account }: { account: Account }) {
     }
   })
 
-  const field = (name: keyof AccountFormValues) => ({
+  const field = (name: AccountField) => ({
     label: t(`account.fields.${name}`),
-    error: errors[name]?.message,
+    error: getFieldState(name, formState).error?.message,
   })
   const fullName = [account.firstName, account.lastName].filter(Boolean).join(' ') || account.userName
 
@@ -129,11 +132,11 @@ export function AccountForm({ account }: { account: Account }) {
             }
           />
           <div className="grid gap-5 sm:grid-cols-2">
-            <Field {...field('organizationCorporateName')}>
-              <Input {...register('organizationCorporateName')} />
+            <Field {...field('organization.corporateName')}>
+              <Input {...register('organization.corporateName')} />
             </Field>
-            <Field {...field('organizationForm')} optional={t('common.optional')}>
-              <Input {...register('organizationForm')} />
+            <Field {...field('organization.form')} optional={t('common.optional')}>
+              <Input {...register('organization.form')} />
             </Field>
           </div>
         </CardContent>

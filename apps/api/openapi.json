@@ -507,6 +507,23 @@
     },
     "components": {
         "schemas": {
+            "AccountOrganizationInput": {
+                "properties": {
+                    "corporateName": {
+                        "type": "string",
+                        "nullable": true,
+                        "default": null,
+                        "maxLength": 150
+                    },
+                    "form": {
+                        "type": "string",
+                        "nullable": true,
+                        "default": null,
+                        "maxLength": 50
+                    }
+                },
+                "type": "object"
+            },
             "AccountInput": {
                 "properties": {
                     "userName": {
@@ -550,17 +567,42 @@
                         "nullable": true,
                         "default": null
                     },
-                    "organizationCorporateName": {
+                    "organization": {
+                        "nullable": true,
+                        "oneOf": [
+                            {
+                                "$ref": "#/components/schemas/AccountOrganizationInput"
+                            }
+                        ],
+                        "default": null
+                    }
+                },
+                "type": "object"
+            },
+            "AddressInput": {
+                "properties": {
+                    "street": {
                         "type": "string",
                         "nullable": true,
                         "default": null,
-                        "maxLength": 150
+                        "maxLength": 255
                     },
-                    "organizationForm": {
+                    "postalCode": {
                         "type": "string",
                         "nullable": true,
                         "default": null,
-                        "maxLength": 50
+                        "maxLength": 255
+                    },
+                    "city": {
+                        "type": "string",
+                        "nullable": true,
+                        "default": null,
+                        "maxLength": 255
+                    },
+                    "country": {
+                        "type": "string",
+                        "nullable": true,
+                        "default": null
                     }
                 },
                 "type": "object"
@@ -602,27 +644,13 @@
                         "nullable": true,
                         "default": null
                     },
-                    "street": {
-                        "type": "string",
+                    "address": {
                         "nullable": true,
-                        "default": null,
-                        "maxLength": 255
-                    },
-                    "postalCode": {
-                        "type": "string",
-                        "nullable": true,
-                        "default": null,
-                        "maxLength": 255
-                    },
-                    "city": {
-                        "type": "string",
-                        "nullable": true,
-                        "default": null,
-                        "maxLength": 255
-                    },
-                    "country": {
-                        "type": "string",
-                        "nullable": true,
+                        "oneOf": [
+                            {
+                                "$ref": "#/components/schemas/AddressInput"
+                            }
+                        ],
                         "default": null
                     },
                     "observations": {

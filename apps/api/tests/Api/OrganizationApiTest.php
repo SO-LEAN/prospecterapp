@@ -12,10 +12,7 @@ class OrganizationApiTest extends ApiTestCase
         'corporateName' => 'ACME',
         'form' => 'SAS',
         'email' => 'contact@acme.test',
-        'street' => '1 rue de la Paix',
-        'postalCode' => '75002',
-        'city' => 'Paris',
-        'country' => 'FR',
+        'address' => ['street' => '1 rue de la Paix', 'postalCode' => '75002', 'city' => 'Paris', 'country' => 'FR'],
     ];
 
     protected function setUp(): void
@@ -31,7 +28,7 @@ class OrganizationApiTest extends ApiTestCase
         $this->assertResponseStatusCodeSame(201);
         $this->assertResponseHeaderSame('Location', '/api/organizations/'.$created['id']);
         $this->assertSame('ACME', $created['corporateName']);
-        $this->assertSame(['street' => '1 rue de la Paix', 'postalCode' => '75002', 'city' => 'Paris', 'country' => 'FR'], $created['address']);
+        $this->assertSame(self::ACME['address'], $created['address'], 'the address is read in the shape it is written');
         $this->assertNull($created['logo']);
 
         $this->assertSame($created, $this->requestJson('GET', '/api/organizations/'.$created['id']));
@@ -86,15 +83,26 @@ class OrganizationApiTest extends ApiTestCase
 
     public function testInvalidPayloadIsRejectedWithViolations(): void
     {
-        $problem = $this->requestJson('POST', '/api/organizations', ['corporateName' => 'ACME', 'email' => 'not an email', 'country' => 'XX']);
+        $problem = $this->requestJson('POST', '/api/organizations', ['corporateName' => 'ACME', 'email' => 'not an email', 'address' => ['country' => 'XX']]);
 
         $this->assertResponseStatusCodeSame(422);
-        $this->assertSame(['email', 'country'], $this->violatedFields($problem));
+        $this->assertSame(['email', 'address.country'], $this->violatedFields($problem));
+    }
+
+    public function testUnknownFieldsAreRejectedInsteadOfIgnored(): void
+    {
+        $created = $this->requestJson('POST', '/api/organizations', self::ACME);
+
+        $problem = $this->requestJson('PUT', '/api/organizations/'.$created['id'], ['corporateName' => 'ACME', 'street' => '2 rue de la Paix', 'city' => 'Paris']);
+
+        $this->assertResponseStatusCodeSame(422);
+        $this->assertSame(['street', 'city'], $this->violatedFields($problem));
+        $this->assertSame(self::ACME['address'], $this->requestJson('GET', '/api/organizations/'.$created['id'])['address'], 'nothing was cleared');
     }
 
     public function testBusinessRuleViolationIsRejected(): void
     {
-        $problem = $this->requestJson('POST', '/api/organizations', ['city' => 'Paris']);
+        $problem = $this->requestJson('POST', '/api/organizations', ['address' => ['city' => 'Paris']]);
 
         $this->assertResponseStatusCodeSame(422);
         $this->assertResponseHeaderSame('Content-Type', 'application/problem+json');

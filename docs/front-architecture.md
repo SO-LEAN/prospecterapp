@@ -75,6 +75,7 @@ Never copy server data into Zustand or `useState`: read it from the query, the c
 - `pnpm api:types` (or `make api-doc` from the root) regenerates `shared/api/schema.d.ts` from `apps/api/openapi.json`.
 - `api.queryOptions('get', '/api/organizations/{id}', { params })` / `api.useMutation('put', ...)`: path, params, body and response are typed.
 - The fetch middleware adds `Authorization: Bearer`; on a 401 it renews the token once with the refresh token, otherwise it sends the user to sign in.
+- Form values have the shape of the API input (`address.city`, `organization.corporateName`), so the `propertyPath` of each API violation is the form field name.
 - Errors are RFC 9457 problem details (`shared/api/problem.ts`): `applyViolations()` puts the server validation errors on the form fields; other mutation errors raise a toast (`query-client.ts`), unless the mutation sets `meta: { silentValidation: true }` and handles 422 in its form.
 - Uploads are separate multipart endpoints (`shared/api/upload.ts`).
 

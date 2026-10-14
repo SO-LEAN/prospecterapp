@@ -1,3 +1,4 @@
+import type { Path } from 'react-hook-form'
 import { z } from 'zod'
 import { i18n } from '@/shared/i18n'
 import type { Account, AccountInput } from './mutations'
@@ -22,13 +23,28 @@ export const accountSchema = z.object({
       .min(8, { error: () => i18n.t('validation.min', { min: 8 }) })
       .max(4096),
   ]),
-  organizationCorporateName: text(150),
-  organizationForm: text(50),
+  organization: z.object({
+    corporateName: text(150),
+    form: text(50),
+  }),
 })
 
 export type AccountFormValues = z.infer<typeof accountSchema>
 
-export const accountFields = Object.keys(accountSchema.shape) as (keyof AccountFormValues)[]
+/** Field paths, as the API reports them in its violations. */
+export const accountFields = [
+  'userName',
+  'firstName',
+  'lastName',
+  'email',
+  'phoneNumber',
+  'language',
+  'password',
+  'organization.corporateName',
+  'organization.form',
+] as const satisfies readonly Path<AccountFormValues>[]
+
+export type AccountField = (typeof accountFields)[number]
 
 export function toFormValues(account: Account): AccountFormValues {
   return {
@@ -39,8 +55,10 @@ export function toFormValues(account: Account): AccountFormValues {
     phoneNumber: account.phoneNumber ?? '',
     language: account.language ?? null,
     password: '',
-    organizationCorporateName: account.organization.corporateName ?? '',
-    organizationForm: account.organization.form ?? '',
+    organization: {
+      corporateName: account.organization.corporateName ?? '',
+      form: account.organization.form ?? '',
+    },
   }
 }
 
@@ -55,7 +73,9 @@ export function toInput(values: AccountFormValues): AccountInput {
     phoneNumber: orNull(values.phoneNumber),
     language: values.language,
     password: orNull(values.password),
-    organizationCorporateName: orNull(values.organizationCorporateName),
-    organizationForm: orNull(values.organizationForm),
+    organization: {
+      corporateName: orNull(values.organization.corporateName),
+      form: orNull(values.organization.form),
+    },
   }
 }

@@ -30,7 +30,7 @@ class AccountApiTest extends ApiTestCase
             'firstName' => 'Ada',
             'lastName' => 'Lovelace',
             'email' => 'ada@solean-it.io',
-            'organizationCorporateName' => 'SOLEAN',
+            'organization' => ['corporateName' => 'SOLEAN'],
         ]);
 
         $this->assertResponseIsSuccessful();

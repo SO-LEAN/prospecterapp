@@ -5,7 +5,7 @@ namespace App\Api\Input;
 use Symfony\Component\Validator\Constraints as Assert;
 
 /**
- * Full representation of the current user's account (PUT). A null password keeps the current one.
+ * Writable part of the current user's account (same shape as AccountResource), sent on replace (PUT). A null password keeps the current one.
  */
 final readonly class AccountInput
 {
@@ -26,10 +26,8 @@ final readonly class AccountInput
         public ?string $phoneNumber = null,
         #[Assert\Country]
         public ?string $language = null,
-        #[Assert\Length(max: 150)]
-        public ?string $organizationCorporateName = null,
-        #[Assert\Length(max: 50)]
-        public ?string $organizationForm = null,
+        #[Assert\Valid]
+        public ?AccountOrganizationInput $organization = null,
     ) {
     }
 }

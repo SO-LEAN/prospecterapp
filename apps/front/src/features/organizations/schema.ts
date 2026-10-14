@@ -1,3 +1,4 @@
+import type { Path } from 'react-hook-form'
 import { z } from 'zod'
 import { i18n } from '@/shared/i18n'
 import type { Organization, OrganizationInput } from './queries'
@@ -8,7 +9,7 @@ const text = (max: number) =>
     .trim()
     .max(max, { error: () => i18n.t('validation.max', { max }) })
 
-/** Same constraints as the API (OrganizationInput) so most errors are caught before sending. */
+/** Same shape and constraints as the API (OrganizationInput) so most errors are caught before sending. */
 export const organizationSchema = z
   .object({
     corporateName: text(150),
@@ -17,10 +18,12 @@ export const organizationSchema = z
     email: z.union([z.literal(''), z.email({ error: () => i18n.t('validation.email') })]),
     phoneNumber: text(255),
     language: z.string().nullable(),
-    street: text(255),
-    postalCode: text(255),
-    city: text(255),
-    country: z.string().nullable(),
+    address: z.object({
+      street: text(255),
+      postalCode: text(255),
+      city: text(255),
+      country: z.string().nullable(),
+    }),
     observations: text(255),
   })
   .refine((values) => values.corporateName !== '' || values.email !== '', {
@@ -30,7 +33,22 @@ export const organizationSchema = z
 
 export type OrganizationFormValues = z.infer<typeof organizationSchema>
 
-export const organizationFields = Object.keys(organizationSchema.shape) as (keyof OrganizationFormValues)[]
+/** Field paths, as the API reports them in its violations. */
+export const organizationFields = [
+  'corporateName',
+  'form',
+  'type',
+  'email',
+  'phoneNumber',
+  'language',
+  'address.street',
+  'address.postalCode',
+  'address.city',
+  'address.country',
+  'observations',
+] as const satisfies readonly Path<OrganizationFormValues>[]
+
+export type OrganizationField = (typeof organizationFields)[number]
 
 export function toFormValues(organization?: Organization): OrganizationFormValues {
   return {
@@ -40,10 +58,12 @@ export function toFormValues(organization?: Organization): OrganizationFormValue
     email: organization?.email ?? '',
     phoneNumber: organization?.phoneNumber ?? '',
     language: organization?.language ?? null,
-    street: organization?.address?.street ?? '',
-    postalCode: organization?.address?.postalCode ?? '',
-    city: organization?.address?.city ?? '',
-    country: organization?.address?.country ?? null,
+    address: {
+      street: organization?.address?.street ?? '',
+      postalCode: organization?.address?.postalCode ?? '',
+      city: organization?.address?.city ?? '',
+      country: organization?.address?.country ?? null,
+    },
     observations: organization?.observations ?? '',
   }
 }
@@ -59,10 +79,12 @@ export function toInput(values: OrganizationFormValues, holdBy?: number | null):
     email: orNull(values.email),
     phoneNumber: orNull(values.phoneNumber),
     language: values.language,
-    street: orNull(values.street),
-    postalCode: orNull(values.postalCode),
-    city: orNull(values.city),
-    country: values.country,
+    address: {
+      street: orNull(values.address.street),
+      postalCode: orNull(values.address.postalCode),
+      city: orNull(values.address.city),
+      country: values.address.country,
+    },
     observations: orNull(values.observations),
     holdBy: holdBy ?? null,
   }

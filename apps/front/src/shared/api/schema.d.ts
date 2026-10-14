@@ -131,6 +131,12 @@ export interface paths {
 export type webhooks = Record<string, never>;
 export interface components {
     schemas: {
+        AccountOrganizationInput: {
+            /** @default null */
+            corporateName: string | null;
+            /** @default null */
+            form: string | null;
+        };
         AccountInput: {
             /** @default  */
             userName: string;
@@ -147,9 +153,17 @@ export interface components {
             /** @default null */
             language: string | null;
             /** @default null */
-            organizationCorporateName: string | null;
+            organization: components["schemas"]["AccountOrganizationInput"] | null;
+        };
+        AddressInput: {
             /** @default null */
-            organizationForm: string | null;
+            street: string | null;
+            /** @default null */
+            postalCode: string | null;
+            /** @default null */
+            city: string | null;
+            /** @default null */
+            country: string | null;
         };
         OrganizationInput: {
             /** @default null */
@@ -165,13 +179,7 @@ export interface components {
             /** @default null */
             language: string | null;
             /** @default null */
-            street: string | null;
-            /** @default null */
-            postalCode: string | null;
-            /** @default null */
-            city: string | null;
-            /** @default null */
-            country: string | null;
+            address: components["schemas"]["AddressInput"] | null;
             /** @default null */
             observations: string | null;
             /** @default null */

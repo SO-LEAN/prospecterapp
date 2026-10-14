@@ -44,8 +44,8 @@ final class ReplaceAccount extends AbstractController
             phoneNumber: $input->phoneNumber,
             email: $input->email,
             language: $input->language,
-            organizationCorporateName: $input->organizationCorporateName,
-            organizationForm: $input->organizationForm,
+            organizationCorporateName: $input->organization?->corporateName,
+            organizationForm: $input->organization?->form,
             organizationLogo: null,
         ), new UpdateMyAccountInformationPresenterImpl(), $user);
 
