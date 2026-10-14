@@ -13,6 +13,14 @@ services:
     extra_hosts:
       - host.docker.internal:host-gateway
     container_name: pro-php
+  node:
+    build: docker/node
+    user: "${UID:-1000}:${GID:-1000}"
+    volumes:
+      - ./:/var/www/src
+      - pnpm-store:/pnpm-store
+    command: pnpm dev
+    container_name: pro-node
   nginx:
     build: docker/nginx
     ports:
@@ -20,13 +28,16 @@ services:
       - "127.0.0.1:443:443"
     depends_on:
       - php
+      - node
     volumes:
       - ./:/var/www/src:ro
       - ./docker/data/ssl/certs/:/etc/ssl/certs
     environment:
       NGINX_HOST: local.prospecter.io
       PHP_FPM_HOST: php
+      FRONT_HOST: node
     container_name: pro-nginx
 
 volumes:
   composer-cache:
+  pnpm-store:

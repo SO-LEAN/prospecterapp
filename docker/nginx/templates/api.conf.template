@@ -3,7 +3,7 @@ server {
     http2 on;
     ssl_certificate /etc/ssl/certs/project.crt;
     ssl_certificate_key /etc/ssl/certs/project.key;
-    server_name ${NGINX_HOST};
+    server_name api.${NGINX_HOST};
     root /var/www/src/apps/api/public;
 
     location / {
