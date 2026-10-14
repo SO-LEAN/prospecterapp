@@ -1,17 +1,20 @@
 # Monorepo
 
 ```
-apps/api/                    Symfony application
-packages/core/  prospecter/core library
-docker/  docker-compose.yml  Makefile
+apps/front/      React SPA (pnpm, its own package.json)
+apps/api/        Symfony API (Composer)
+packages/core/   prospecter/core library (Composer)
+docker/  docker-compose.yml  Makefile  docs/
 ```
+
+The two apps are independent projects with their own package manager; they only share the HTTP contract (`apps/api/openapi.json`, from which the front generates its types) and the root tooling (Docker, Makefile).
 
 ## How the API uses the library
 
 `apps/api/composer.json`:
 
 ```json
-"repositories": [{ "type": "path", "url": "../../../packages/*" }],
+"repositories": [{ "type": "path", "url": "../../packages/*" }],
 "require": { "prospecter/core": "*@dev" }
 ```
 
@@ -22,16 +25,18 @@ docker/  docker-compose.yml  Makefile
 
 ## Production builds
 
-A symlink to `../packages` cannot be shipped. Build from the repository root (so `packages/` is in the build context) with:
+A symlink to `../../packages` cannot be shipped. Build from the repository root (so `packages/` is in the build context) with:
 
 ```bash
-cd api
+cd apps/api
 COMPOSER_MIRROR_PATH_REPOS=1 composer install --no-dev --classmap-authoritative
 ```
 
 Composer then copies the current content of `packages/core` into `vendor/` (even if `composer.lock` is behind), and `apps/api/` becomes self-contained: deploy only `apps/api/`. This only works because the path repository does not force `"symlink": true`; keep it that way.
 
 The copy includes the library `tests/`; remove `vendor/prospecter/core/tests` in the image if wanted.
+
+The front builds to static files (`pnpm build` → `apps/front/dist/`), served by any web server with a fallback to `index.html`; its API URL, app URL and OAuth client id are `VITE_*` variables set at build time.
 
 ## Why not a separate package for the domain or the adapters
 

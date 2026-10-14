@@ -46,3 +46,23 @@ Dead endpoints broke fresh installs, not the code:
 - PHPUnit 13: annotations are ignored (use attributes), data providers must be static, abstract classes named `*Test` trigger warnings, `TypeTestCase` mocks need `#[AllowMockObjectsWithoutExpectations]`.
 - Flex recipes may add unwanted files or services (a PostgreSQL service in `docker-compose.yml`, `compose.override.yaml`): review after each `composer require`.
 - Composer path repository with `"symlink": true` ignores `COMPOSER_MIRROR_PATH_REPOS`: never force it.
+
+# 2026-10-14: from server-rendered pages to SPA + API
+
+The Symfony pages were replaced by a React SPA (`apps/front`) and a JSON API (`apps/api`) with an OAuth 2 server. Choices are explained in `docs/front-architecture.md`, `docs/design-system.md` and `docs/auth.md`.
+
+## Traps
+
+- PHP does not parse `multipart/form-data` on `PUT`/`PATCH`: file uploads are separate `POST .../logo` sub-resources, data endpoints stay JSON.
+- The update use cases overwrite every field: `PUT` (full replacement) is the honest verb, and file uploads send back the current values with the file.
+- PHP does not allow `new` in class constants (only in parameter defaults and attribute arguments).
+- Symfony refuses to redirect to another host after logout (falls back to `/`): `LogoutListener` sets the response explicitly.
+- `KernelBrowser` reboots the kernel between requests: the OAuth bundle's in-memory persistence loses the authorization code; tests use Doctrine persistence.
+- NelmioApiDocBundle documents `{id}` path parameters as strings: the front converts ids with `String(id)`.
+- Two existing bugs surfaced by the API tests: removing a logo passed its URL to `unlink()` (nothing was deleted), and a failed geocoding was stored as 0,0 (the adapter dropped the "succeeded" flag).
+- TypeScript 7 is native and has no JavaScript compiler API: `openapi-typescript` runs with `pnpm dlx` and TypeScript 5.
+- pnpm 12 ignores the `pnpm` field of `package.json` (settings live in `pnpm-workspace.yaml`) and ignores `PNPM_STORE_DIR` (use `npm_config_store_dir`); otherwise the store lands at the root of the mounted repository.
+- `@vitejs/plugin-react` 6: React Compiler through `@rolldown/plugin-babel` + `reactCompilerPreset()` (the Rust compiler option is still experimental).
+- TanStack Router: calling `router.invalidate()` before `RouterProvider` has received its context runs the guards with an undefined context; and right after the OAuth callback, the `useAuth()` state lags, so the guard reads `userManager.getUser()`.
+- shadcn's generator wrote `import { cn } from "cn"` with a custom `utils` alias, and its sonner wrapper imports `next-themes`.
+- Playwright in Docker reaches the stack with `--network host` (nginx listens on 127.0.0.1 only) and `--add-host` for the three local hosts.

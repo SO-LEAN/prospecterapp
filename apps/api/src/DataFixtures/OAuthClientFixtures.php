@@ -21,7 +21,7 @@ final class OAuthClientFixtures extends Fixture
 
     public function __construct(
         private readonly ClientManagerInterface $clientManager,
-        #[Autowire('%env(FRONT_URL)%')]
+        #[Autowire(env: 'FRONT_URL')]
         private readonly string $frontUrl,
     ) {
     }

@@ -1,57 +1,45 @@
 # prospecterapp
 
-Monorepo of the Prospecter application and of its clean architecture use cases library.
+Prospecting application built with clean architecture: a React single page application, a Symfony API that exposes the business use cases, and the use cases library itself.
 
-| Directory                   | Content                                                                 |
-|-----------------------------|-------------------------------------------------------------------------|
-| `apps/api/`                   | Symfony 8.1 application (Doctrine ORM 3 on SQLite, AssetMapper + Sass)  |
-| `packages/core/` | `prospecter/core` library: entities, use cases, gateways        |
-| `docker/`                   | PHP 8.5 and nginx images                                                |
+| Path | Content |
+|---|---|
+| `apps/front/` | React 19 SPA: TypeScript, Vite, TanStack Router and Query, shadcn/ui + Tailwind CSS, MapLibre |
+| `apps/api/` | Symfony 8.1 JSON API documented with NelmioApiDocBundle, OAuth 2 authorization server, Doctrine ORM 3 on SQLite |
+| `packages/core/` | `prospecter/core`: entities, use cases and gateway interfaces, pure PHP |
+| `docker/` | PHP 8.5, Node 24 and nginx images |
 
-Everything runs in Docker: no PHP or Node needed on the host.
+Everything runs in Docker: only Docker (with the compose plugin) and make are needed on the host.
 
-Further reading: [monorepo](docs/monorepo.md), [2026 upgrade notes](docs/upgrade-2026.md). Instructions for AI coding assistants are in the `CLAUDE.md` files.
+Documentation: [front architecture](docs/front-architecture.md), [design system](docs/design-system.md), [authentication](docs/auth.md), [monorepo](docs/monorepo.md), [2026 upgrade notes](docs/upgrade-2026.md). Instructions for AI coding assistants are in the `CLAUDE.md` files.
 
-## Requirements
+## Setup
 
-- Docker with the compose plugin (`docker compose`)
-- make
+Add to `/etc/hosts`:
 
-Add to your `/etc/hosts`:
+    127.0.0.1 local.prospecter.io api.local.prospecter.io static.local.prospecter.io
 
-    127.0.0.1 local.prospecter.io
-    127.0.0.1 static.local.prospecter.io
-
-## Install
+Then:
 
     make install
-
-Builds the images, installs Composer dependencies, creates the database with fixtures and compiles the assets.
-
-## Run
-
     make start
 
-Open https://local.prospecter.io and log in with `prospector` / `password`.
+- Application: https://local.prospecter.io, sign in with `prospector` / `password`
+- API documentation: https://api.local.prospecter.io/api/doc
 
-The certificate is self-signed: accept the browser warning once for https://local.prospecter.io **and** https://static.local.prospecter.io (assets are served from the static host).
-
-    make stop
+The certificate is self-signed: accept the browser warning once for each host (`local.`, `api.local.` and `static.local.prospecter.io`).
 
 ## Develop
 
-| Command         | Purpose                                        |
-|-----------------|------------------------------------------------|
-| `make watch`    | Recompile Sass on change                       |
-| `make db`       | Reset the database and reload the fixtures     |
-| `make test`     | Run the test suite                             |
-| `make stan`     | Static analysis (PHPStan)                      |
-| `make cs`       | Check coding standards (`make cs-fix` to fix)  |
-| `make exec`     | Shell in the PHP container                     |
-| `make usecases` | List the registered use cases                  |
+| Command | Purpose |
+|---|---|
+| `make start` / `make stop` / `make logs` | Run the stack (the front reloads on save) |
+| `make test` | API, core and front unit tests |
+| `make e2e` | Playwright journeys against the running stack |
+| `make lint` / `make fix` | PHPStan, php-cs-fixer, Rector, Biome, TypeScript |
+| `make api-doc` | Regenerate the OpenAPI contract and the front API types after an API change |
+| `make db` | Reset the database and reload the fixtures |
+| `make exec-api` / `make exec-front` | Shell in the PHP or Node container |
+| `make usecases` | List the registered use cases |
 
-Local configuration overrides go in `apps/api/.env.local` (not committed), e.g. a real `APP_GOOGLE_API_KEY` for maps and geolocation.
-
-## The core library
-
-The API requires `prospecter/core` through a Composer `path` repository: `apps/api/vendor/prospecter/core` is a symlink to `packages/core`, so changes to the library are picked up immediately. Its tests run with the API suite (`make test`). The library is internal to this repository and is not published.
+Local overrides go in `apps/api/.env.local` (e.g. a real `APP_GOOGLE_API_KEY` to geocode addresses) and `apps/front/.env.local`.

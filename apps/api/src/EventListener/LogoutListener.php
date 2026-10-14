@@ -14,7 +14,7 @@ use Symfony\Component\Security\Http\Event\LogoutEvent;
 #[AsEventListener]
 final readonly class LogoutListener
 {
-    public function __construct(#[Autowire('%env(FRONT_URL)%')] private string $frontUrl)
+    public function __construct(#[Autowire(env: 'FRONT_URL')] private string $frontUrl)
     {
     }
 

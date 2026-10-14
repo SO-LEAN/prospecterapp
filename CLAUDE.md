@@ -1,40 +1,45 @@
 # prospecterapp
 
-Monorepo: a Symfony app (`apps/api/`) built on a clean architecture library (`packages/core/`, Composer package `prospecter/core`, internal, not published). More context in `apps/api/CLAUDE.md`, `packages/core/CLAUDE.md` and `docs/`.
+Monorepo of a prospecting application built with clean architecture:
+
+| Path | What | Instructions |
+|---|---|---|
+| `apps/front/` | React 19 SPA (TypeScript, Vite, TanStack Router/Query, shadcn/ui) | `apps/front/CLAUDE.md` |
+| `apps/api/` | Symfony 8.1 JSON API + OAuth 2 server, documented with NelmioApiDocBundle | `apps/api/CLAUDE.md` |
+| `packages/core/` | `prospecter/core`: entities, use cases, gateway interfaces (pure PHP) | `packages/core/CLAUDE.md` |
+
+Docs: `docs/front-architecture.md`, `docs/design-system.md`, `docs/auth.md`, `docs/monorepo.md`, `docs/upgrade-2026.md`.
 
 ## Commands
 
-Everything runs in Docker; there is no PHP, Composer or Node on the host. Use the Makefile from the repository root:
+Everything runs in Docker (PHP 8.5, Node 24, nginx); nothing but Docker and make on the host. From the repository root:
 
-- `make install` builds images, installs dependencies, creates the database, compiles assets
-- `make start` / `make stop` run the stack at https://local.prospecter.io (login `prospector` / `password`)
-- `make test` runs the API and the library suites (PHPUnit 13)
-- `make stan`, `make cs`, `make cs-fix`, `make rector` (dry run) for quality
-- `make db` drops and recreates the dev database with fixtures (destroys local data)
+- `make install`: images, Composer and pnpm dependencies, OAuth keys, database with fixtures (OAuth client included)
+- `make start` / `make stop`: https://local.prospecter.io (SPA, sign in `prospector` / `password`), https://api.local.prospecter.io/api/doc (API doc)
+- `make test` (API + core + front unit tests), `make e2e` (Playwright on the running stack), `make lint`, `make fix`
+- `make api-doc`: after changing an endpoint, regenerate `apps/api/openapi.json` and the front API types
+- `make db`: recreate the dev database (destroys local data)
 
-Any other command: `docker compose run --rm php <cmd>`. The container mounts the whole repository and its working directory is `apps/api/` (e.g. `docker compose run --rm php bin/console debug:router`).
+Other commands: `docker compose run --rm --no-deps php <cmd>` (working dir `apps/api`) or `docker compose run --rm --no-deps node <cmd>` (working dir `apps/front`).
 
-Before declaring work done: `make test`, `make stan` and `make cs` must pass.
-
-## Stack
-
-PHP 8.5, Symfony 8.1, Doctrine ORM 3 on SQLite, AssetMapper + symfonycasts/sass-bundle (no Node), Bootstrap 4 and Font Awesome 4 SCSS sources installed by Composer, nginx 1.30 with a self-signed certificate.
+Before declaring work done: `make test` and `make lint` pass; `make e2e` for changes to a main journey.
 
 ## Code conventions
 
-- Clean code: native types everywhere (typed and promoted readonly properties, return types). No docblock that repeats a native type; docblocks only for what PHP cannot express (`array<string, mixed>`, `list<int>`, `class-string`, generics, `@implements`).
+- Clean code: native types everywhere; no comment that repeats a type or a name; docblocks only for what the language cannot express (generics, array shapes). PHP: readonly DTOs, constructor promotion. TypeScript: strict, no `any`.
 - Do not trust existing docblocks blindly: some were wrong (a `@var stdClass` led Rector to produce a broken type).
-- Follow the `@Symfony` php-cs-fixer ruleset; PHPStan level 5.
+- Business rules belong to `packages/core`; the API only adapts (HTTP, Doctrine, storage); the front only presents.
+- One invokable controller per API endpoint, grouped by resource; resource-oriented URLs that do not mirror use case names (they will be renamed to business intents).
 
 ## Git
 
-- Single branch `main`, linear history (fast-forward or rebase, no merge commits). Use a short-lived branch for big work, then fast-forward `main`.
-- Conventional commit messages (`feat:`, `fix:`, `refactor:`, `chore:`), body explaining why.
+- Single branch `main`, linear history: work on a short-lived branch, then fast-forward `main`. No merge commits.
+- Conventional commits (`feat:`, `fix:`, `refactor:`, `chore:`, `docs:`) explaining why.
 - Commit or push only when asked.
 
 ## Gotchas
 
-- Composer: the library comes from a `path` repository (`../../packages/*`). Locally `apps/api/vendor/prospecter/core` is a symlink. Never add `"symlink": true` to that repository: it would stop `COMPOSER_MIRROR_PATH_REPOS=1` from copying the package in production builds (see `docs/monorepo.md`).
-- Flex recipes edit files you did not ask for (one added a PostgreSQL service to `docker-compose.yml`). Review `git status` after every `composer require`.
-- Browser: assets are served by `static.local.prospecter.io`. If pages render without CSS, the self-signed certificate was accepted for the app host but not for the static host (Chrome reports the asset requests as 503). Open a static URL once and accept it.
-- Files created in containers run as the host user (UID/GID exported by the Makefile). Root-owned leftovers can be removed with `docker run --rm -v $PWD:/app alpine rm -rf /app/<path>`.
+- Hosts: `/etc/hosts` needs `local.prospecter.io`, `api.local.prospecter.io` and `static.local.prospecter.io` on 127.0.0.1. The self-signed certificate (generated by nginx in `docker/data/ssl`) must be accepted once per host in the browser; Chrome reports requests to a non-accepted host as failed (503 in the network panel).
+- The core library is installed by a Composer `path` repository: `apps/api/vendor/prospecter/core` is a symlink to `packages/core`; production builds copy it with `COMPOSER_MIRROR_PATH_REPOS=1` (`docs/monorepo.md`). Never set `"symlink": true` on that repository.
+- Flex recipes and shadcn's generator edit files you did not ask for (a PostgreSQL service in `docker-compose.yml`, broken imports): review `git status` after installing anything.
+- Files created in containers belong to the host user (UID/GID exported by the Makefile). Root-owned leftovers: `docker run --rm -v $PWD:/app alpine rm -rf /app/<path>`.
