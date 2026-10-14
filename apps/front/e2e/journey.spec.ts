@@ -34,7 +34,7 @@ test('sign in, create an organization, find it and sign out', async ({ page }) =
   await expect(page).toHaveURL(new RegExp(`q=${encodeURIComponent(name).replace(/%20/g, '\\+|%20')}`))
   await expect(page.getByRole('link', { name: new RegExp(name) })).toBeVisible()
 
-  await page.getByRole('button', { name: /prospector|Prospector/ }).click()
+  await page.getByRole('button', { name: /menu du compte/ }).click()
   await page.getByRole('menuitem', { name: 'Se déconnecter' }).click()
   await expect(page).toHaveURL(/api\.local\.prospecter\.io\/login/)
 })

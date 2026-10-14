@@ -1,4 +1,6 @@
 import 'maplibre-gl/dist/maplibre-gl.css'
+import { setWorkerUrl } from 'maplibre-gl'
+import workerUrl from 'maplibre-gl/dist/maplibre-gl-worker.mjs?url'
 import { useMemo } from 'react'
 import MapGL, { Marker, NavigationControl } from 'react-map-gl/maplibre'
 import { useResolvedTheme } from '@/shared/stores/preferences'
@@ -9,6 +11,9 @@ const styles = {
   light: 'https://tiles.openfreemap.org/styles/positron',
   dark: 'https://tiles.openfreemap.org/styles/dark',
 }
+
+// MapLibre looks for its worker next to its own file, which the Vite bundling moves: give its real URL
+setWorkerUrl(workerUrl)
 
 type Props = { markers: MapMarker[]; zoom?: number; onSelect?: (marker: MapMarker) => void }
 

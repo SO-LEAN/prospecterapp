@@ -48,7 +48,10 @@ export function UserMenu() {
 
   return (
     <DropdownMenu>
-      <DropdownMenuTrigger className="flex items-center gap-2.5 rounded-full p-0.5 pr-2 outline-none transition-colors hover:bg-accent focus-visible:ring-2 focus-visible:ring-ring">
+      <DropdownMenuTrigger
+        aria-label={t('nav.userMenu', { name: fullName })}
+        className="flex items-center gap-2.5 rounded-full p-0.5 pr-2 outline-none transition-colors hover:bg-accent focus-visible:ring-2 focus-visible:ring-ring"
+      >
         <Avatar className="size-8">
           {account?.picture && <AvatarImage src={account.picture.thumbnailUrl} alt="" />}
           <AvatarFallback className="bg-primary/10 font-medium text-primary text-xs">

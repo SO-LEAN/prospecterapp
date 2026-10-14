@@ -9,6 +9,7 @@ export const fr = {
     collapse: 'Réduire le menu',
     expand: 'Ouvrir le menu',
     mainNavigation: 'Navigation principale',
+    userMenu: '{{name}}, menu du compte',
   },
   theme: { label: 'Thème', light: 'Clair', dark: 'Sombre', system: 'Système' },
   auth: {
