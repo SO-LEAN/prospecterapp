@@ -42,7 +42,7 @@ See `docs/auth.md` at the repository root.
 | `Entity\Transaction` | `Entity\TransactionEntityManagerAdapter` |
 | `Storage` | `StorageLocalAdapter` (files under `public/static/storage`) |
 | `UserNotifier` | `UserNotifierSymfonyAdapter` (flash messages, unused by the API) |
-| `GeoLocation` | `GeoLocatorAdapter` → `Service\GoogleMapGeoLocator` (`APP_GOOGLE_API_KEY` in `.env.local`) |
+| `GeoLocation` | `GeoLocatorAdapter` → `Service\GeoplateformeGeoLocator` (French State geocoder, IGN Géoplateforme: no key, France only, `APP_GEOCODER_URL`; tests get no answer from the mocked `http_client`) |
 
 Ports are aliased to adapters in `config/services.yaml`. Every `*Impl` use case of the library is registered automatically (lazy, tagged `use_case`) and added to `UseCasesFacade` by `DependencyInjection\UseCasePass`.
 

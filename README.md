@@ -42,4 +42,4 @@ The certificate is self-signed: accept the browser warning once for each host (`
 | `make exec-api` / `make exec-front` | Shell in the PHP or Node container |
 | `make usecases` | List the registered use cases |
 
-Local overrides go in `apps/api/.env.local` (e.g. a real `APP_GOOGLE_API_KEY` to geocode addresses) and `apps/front/.env.local`.
+Local overrides go in `apps/api/.env.local` and `apps/front/.env.local`. Addresses are geocoded by the French State service (IGN Géoplateforme): free, no key, addresses in France only.
