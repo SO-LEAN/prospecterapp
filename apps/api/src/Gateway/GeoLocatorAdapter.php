@@ -15,6 +15,6 @@ class GeoLocatorAdapter implements Core\GeoLocation
     {
         $geoPoint = $this->locator->find($address);
 
-        return new Core\GeoLocation\GeoPointResponse($geoPoint->getAddress(), $geoPoint->getLongitude(), $geoPoint->getLatitude());
+        return new Core\GeoLocation\GeoPointResponse($geoPoint->getAddress(), $geoPoint->getLongitude(), $geoPoint->getLatitude(), $geoPoint->isSucceeded());
     }
 }
