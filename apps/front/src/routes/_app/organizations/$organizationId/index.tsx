@@ -1,11 +1,12 @@
 import { useSuspenseQuery } from '@tanstack/react-query'
 import { createFileRoute, Link } from '@tanstack/react-router'
-import { ArrowLeft, Pencil } from 'lucide-react'
+import { Pencil } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import { OrganizationDetails } from '@/features/organizations/components/organization-details'
 import { OrganizationLogo } from '@/features/organizations/components/organization-logo'
 import { organizationQuery } from '@/features/organizations/queries'
 import { organizationIdParams } from '@/features/organizations/route-params'
+import { BackButton } from '@/shared/ui/back-button'
 import { Badge } from '@/shared/ui/badge'
 import { Button } from '@/shared/ui/button'
 import { ErrorState } from '@/shared/ui/feedback/error-state'
@@ -28,11 +29,7 @@ function OrganizationPage() {
 
   return (
     <div className="space-y-8">
-      <Button variant="ghost" size="sm" className="-ml-2 text-muted-foreground" asChild>
-        <Link to="/organizations">
-          <ArrowLeft /> {t('organizations.title')}
-        </Link>
-      </Button>
+      <BackButton fallback="/organizations" />
 
       <PageHeader
         title={organization.corporateName ?? organization.email}

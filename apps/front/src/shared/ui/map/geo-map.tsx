@@ -1,4 +1,4 @@
-import { lazy, Suspense } from 'react'
+import { lazy, type ReactNode, Suspense } from 'react'
 import { cn } from '@/shared/lib/utils'
 import { Skeleton } from '@/shared/ui/skeleton'
 
@@ -16,7 +16,8 @@ const MapView = lazy(() => import('./map-view'))
 type Props = {
   markers: MapMarker[]
   zoom?: number
-  onSelect?: (marker: MapMarker) => void
+  /** Content of the popup opened by a click on a marker; without it markers are not clickable. */
+  renderPopup?: (marker: MapMarker) => ReactNode
   className?: string
 }
 

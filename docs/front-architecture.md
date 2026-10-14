@@ -70,6 +70,12 @@ Never copy server data into Zustand or `useState`: read it from the query, the c
 - Mutations put the returned resource directly in the cache (`setQueryData`), then invalidate only the lists that may change; invalidated queries refetch only if displayed.
 - Code splitting: one chunk per route (router plugin), MapLibre loaded with `lazy()` only on pages with a map.
 
+## Navigation
+
+- "Retour" behaves like the browser back button (`shared/ui/back-button.tsx`): from the dashboard map it returns to the dashboard, from a filtered list to that list with its search. Opened from a bookmark, it falls back to a link.
+- Forms are left with `useGoBack` (cancel and save), and a creation replaces its form with the new page (`replace: true`): the history never holds a form already done with.
+- Map markers open a quick look (`features/organizations/components/organization-preview.tsx`, rendered by `GeoMap`'s `renderPopup`), which loads the organization into the cache: its page then opens instantly.
+
 ## API access
 
 - `pnpm api:types` (or `make api-doc` from the root) regenerates `shared/api/schema.d.ts` from `apps/api/openapi.json`.

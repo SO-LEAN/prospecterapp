@@ -6,6 +6,7 @@ import { useReplaceOrganization } from '@/features/organizations/mutations'
 import { organizationQuery } from '@/features/organizations/queries'
 import { organizationIdParams } from '@/features/organizations/route-params'
 import { toFormValues } from '@/features/organizations/schema'
+import { useGoBack } from '@/shared/hooks/use-go-back'
 import { ErrorState } from '@/shared/ui/feedback/error-state'
 import { PageHeader } from '@/shared/ui/page-header'
 import { PageSkeleton } from '@/shared/ui/page-skeleton'
@@ -25,7 +26,9 @@ function EditOrganization() {
   const { organizationId } = Route.useParams()
   const { data: organization } = useSuspenseQuery(organizationQuery(organizationId))
   const replace = useReplaceOrganization()
-  const back = () => navigate({ to: '/organizations/$organizationId', params: { organizationId } })
+  const back = useGoBack(() =>
+    navigate({ to: '/organizations/$organizationId', params: { organizationId }, replace: true }),
+  )
 
   return (
     <div className="mx-auto max-w-3xl space-y-6">
@@ -37,13 +40,13 @@ function EditOrganization() {
       <OrganizationForm
         defaultValues={toFormValues(organization)}
         submitLabel={t('common.save')}
-        onCancel={() => void back()}
+        onCancel={back}
         onSubmit={async (input) => {
           await replace.mutateAsync({
             params: { path: { id: String(organizationId) } },
             body: { ...input, holdBy: organization.holdBy ?? null },
           })
-          await back()
+          back()
         }}
       />
     </div>

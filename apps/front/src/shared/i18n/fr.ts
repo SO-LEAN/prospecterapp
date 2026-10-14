@@ -70,6 +70,7 @@ export const fr = {
       noLocation: 'Adresse non géolocalisée.',
       directions: 'Itinéraire',
     },
+    preview: { open: 'Voir la fiche' },
     create: { title: 'Nouvelle organisation', submit: 'Créer l’organisation', success: 'Organisation créée' },
     edit: { title: 'Modifier {{name}}', success: 'Organisation mise à jour' },
     logo: {

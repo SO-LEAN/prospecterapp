@@ -1,8 +1,8 @@
 import 'maplibre-gl/dist/maplibre-gl.css'
 import { setWorkerUrl } from 'maplibre-gl'
 import workerUrl from 'maplibre-gl/dist/maplibre-gl-worker.mjs?url'
-import { useMemo } from 'react'
-import MapGL, { Marker, NavigationControl } from 'react-map-gl/maplibre'
+import { type ReactNode, useMemo, useRef, useState } from 'react'
+import MapGL, { type MapRef, Marker, NavigationControl, Popup } from 'react-map-gl/maplibre'
 import { useResolvedTheme } from '@/shared/stores/preferences'
 import type { MapMarker } from './geo-map'
 
@@ -15,10 +15,27 @@ const styles = {
 // MapLibre looks for its worker next to its own file, which the Vite bundling moves: give its real URL
 setWorkerUrl(workerUrl)
 
-type Props = { markers: MapMarker[]; zoom?: number; onSelect?: (marker: MapMarker) => void }
+const MARKER_HEIGHT = 48
 
-export default function MapView({ markers, zoom = 13, onSelect }: Props) {
+type Props = { markers: MapMarker[]; zoom?: number; renderPopup?: (marker: MapMarker) => ReactNode }
+
+export default function MapView({ markers, zoom = 13, renderPopup }: Props) {
   const theme = useResolvedTheme()
+  const [selected, setSelected] = useState<MapMarker | null>(null)
+  const mapRef = useRef<MapRef>(null)
+
+  const select = (marker: MapMarker) => {
+    setSelected(marker)
+    // bring the marker to the bottom of the map: the popup above it then fits in the frame
+    const map = mapRef.current
+    if (map) {
+      map.easeTo({
+        center: [marker.longitude, marker.latitude],
+        offset: [0, map.getContainer().clientHeight / 2 - MARKER_HEIGHT],
+        duration: 400,
+      })
+    }
+  }
 
   const initialViewState = useMemo(() => {
     if (markers.length <= 1) {
@@ -42,6 +59,7 @@ export default function MapView({ markers, zoom = 13, onSelect }: Props) {
 
   return (
     <MapGL
+      ref={mapRef}
       initialViewState={initialViewState}
       mapStyle={styles[theme]}
       style={{ width: '100%', height: '100%' }}
@@ -50,11 +68,24 @@ export default function MapView({ markers, zoom = 13, onSelect }: Props) {
     >
       <NavigationControl position="top-right" showCompass={false} />
       {markers.map((marker) => (
-        <Marker key={marker.id} longitude={marker.longitude} latitude={marker.latitude} anchor="bottom">
+        <Marker
+          key={marker.id}
+          longitude={marker.longitude}
+          latitude={marker.latitude}
+          anchor="bottom"
+          onClick={(event) => {
+            // the click would reach the map, which closes the popup it just opened
+            event.originalEvent.stopPropagation()
+            if (renderPopup) {
+              select(marker)
+            }
+          }}
+        >
           <button
             type="button"
-            onClick={() => onSelect?.(marker)}
             title={marker.label}
+            aria-label={marker.label}
+            disabled={!renderPopup}
             className="group grid place-items-center outline-none"
           >
             <span className="grid size-9 place-items-center overflow-hidden rounded-full border-2 border-background bg-primary font-semibold text-primary-foreground text-xs shadow-lg ring-primary/30 transition group-hover:scale-110 group-focus-visible:ring-4">
@@ -68,6 +99,18 @@ export default function MapView({ markers, zoom = 13, onSelect }: Props) {
           </button>
         </Marker>
       ))}
+      {selected && renderPopup && (
+        <Popup
+          longitude={selected.longitude}
+          latitude={selected.latitude}
+          anchor="bottom"
+          offset={MARKER_HEIGHT}
+          maxWidth="none"
+          onClose={() => setSelected(null)}
+        >
+          {renderPopup(selected)}
+        </Popup>
+      )}
     </MapGL>
   )
 }

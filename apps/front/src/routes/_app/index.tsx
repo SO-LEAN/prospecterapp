@@ -1,11 +1,12 @@
 import { useSuspenseQuery } from '@tanstack/react-query'
-import { createFileRoute, Link, useNavigate } from '@tanstack/react-router'
+import { createFileRoute, Link } from '@tanstack/react-router'
 import { ArrowRight, Building2, MapPinned } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import { accountQuery } from '@/features/account/queries'
 import { StatCard } from '@/features/dashboard/components/stat-card'
 import { dashboardQuery } from '@/features/dashboard/queries'
 import { OrganizationCard } from '@/features/organizations/components/organization-card'
+import { OrganizationPreview } from '@/features/organizations/components/organization-preview'
 import { organizationsQuery } from '@/features/organizations/queries'
 import { Button } from '@/shared/ui/button'
 import { Card, CardAction, CardContent, CardHeader, CardTitle } from '@/shared/ui/card'
@@ -32,7 +33,6 @@ export const Route = createFileRoute('/_app/')({
 
 function Dashboard() {
   const { t } = useTranslation()
-  const navigate = useNavigate()
   const { data: dashboard } = useSuspenseQuery(dashboardQuery())
   const { data: account } = useSuspenseQuery(accountQuery())
   const { data: recent } = useSuspenseQuery(recentQuery())
@@ -76,12 +76,9 @@ function Dashboard() {
               <GeoMap
                 className="h-96"
                 markers={markers}
-                onSelect={(marker) =>
-                  void navigate({
-                    to: '/organizations/$organizationId',
-                    params: { organizationId: marker.id },
-                  })
-                }
+                renderPopup={(marker) => (
+                  <OrganizationPreview id={marker.id} name={marker.label} logoUrl={marker.imageUrl} />
+                )}
               />
             ) : (
               <p className="grid h-96 place-items-center rounded-xl border border-dashed text-muted-foreground text-sm">

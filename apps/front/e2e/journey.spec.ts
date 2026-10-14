@@ -34,6 +34,25 @@ test('sign in, create an organization, find it and sign out', async ({ page }) =
   await expect(page).toHaveURL(new RegExp(`q=${encodeURIComponent(name).replace(/%20/g, '\\+|%20')}`))
   await expect(page.getByRole('link', { name: new RegExp(name) })).toBeVisible()
 
+  // back from an organization returns to where it was opened: the filtered list...
+  await page.getByRole('link', { name: new RegExp(name) }).click()
+  await expect(page.getByRole('heading', { name })).toBeVisible()
+  await page.getByRole('button', { name: 'Retour' }).click()
+  await expect(page.getByRole('searchbox')).toHaveValue(name)
+
+  // ...or the dashboard, where a map marker opens a quick look first
+  await page.getByRole('link', { name: 'Tableau de bord' }).first().click()
+  // markers of the same city overlap: dispatch the click to the one of this organization
+  await page.getByRole('button', { name, exact: true }).dispatchEvent('click')
+  await page.getByRole('link', { name: 'Voir la fiche' }).click()
+  await expect(page.getByRole('heading', { name })).toBeVisible()
+  // leaving the edit form does not stack the organization page again
+  await page.getByRole('link', { name: 'Modifier' }).click()
+  await page.getByRole('button', { name: 'Annuler' }).click()
+  await expect(page.getByRole('heading', { name })).toBeVisible()
+  await page.getByRole('button', { name: 'Retour' }).click()
+  await expect(page.getByRole('heading', { name: /Bonjour/ })).toBeVisible()
+
   await page.getByRole('button', { name: /menu du compte/ }).click()
   await page.getByRole('menuitem', { name: 'Se déconnecter' }).click()
   await expect(page).toHaveURL(/api\.local\.prospecter\.io\/login/)

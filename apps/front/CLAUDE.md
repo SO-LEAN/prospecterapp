@@ -19,6 +19,7 @@ Before declaring work done: `pnpm typecheck`, `pnpm lint`, `pnpm test`, and `mak
 - After an API change: `make api-doc` (regenerates `src/shared/api/schema.d.ts`, never edited by hand) and fix the type errors.
 - Forms: react-hook-form + zod schema mirroring the API constraints; show server violations with `applyViolations`.
 - UI: compose `shared/ui` components and semantic tokens (`bg-card`, `text-muted-foreground`…), no raw colors, no inline styles. Every text through `t()` with a key added to `shared/i18n/fr.ts` (keys are typed).
+- Navigation: "Retour" goes back in history (`shared/ui/back-button.tsx`, fallback link when opened directly), forms are left with `useGoBack` and a creation replaces its form (`replace: true`), so going back never lands on a form already submitted or cancelled.
 - Accessibility: every control labelled (`Field`), icons `aria-hidden` next to text, keyboard reachable.
 - Style: Biome (single quotes, no semicolons, 110 columns), `import type` for types, `@/` alias for `src/`.
 
