@@ -1,7 +1,7 @@
 # 0007. Plain Symfony controllers, one per endpoint, resource-oriented URLs
 
 - Date: 2026-10-14
-- Status: Accepted
+- Status: Superseded by [0025](0025-one-business-intent-per-use-case-and-endpoint.md)
 - Implemented by: aa0ba05; `apps/api/CLAUDE.md`
 
 ## Context

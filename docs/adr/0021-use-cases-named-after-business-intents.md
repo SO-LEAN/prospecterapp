@@ -1,7 +1,7 @@
 # 0021. Use cases named after business intents
 
 - Date: 2026-10-14
-- Status: Proposed
+- Status: Superseded by [0025](0025-one-business-intent-per-use-case-and-endpoint.md)
 - Implemented by: not yet; prepared by 0007 (URLs independent of use case names)
 
 ## Context

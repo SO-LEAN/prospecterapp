@@ -17,14 +17,14 @@ A JSON API that exposes the use cases of `packages/core`, plus the OAuth 2 autho
 
 ## Writing an endpoint
 
-- One invokable controller per endpoint, grouped by resource: `src/Controller/Api/<Resource>/<Action>.php` (e.g. `Organization/UploadLogo`). Extend `AbstractController`, inject `UseCasesFacade` and the presenter by constructor.
-- URLs are resource-oriented (`/api/organizations/{id}`), never named after use cases: the use cases will be renamed to business intents later and only the controllers should change.
-- Input: `#[MapRequestPayload]` / `#[MapQueryString]` with a `final readonly` DTO in `src/Api/Input` (constraints as attributes, `#[Assert\Valid]` on nested DTOs). An input has the shape of its resource minus the read-only fields (`OrganizationInput.address` like `OrganizationResource.address`): a client can send back what it read. Unknown fields are rejected with a 422 violation each (`serializer.default_context` in `config/packages/framework.yaml`), never ignored: on a `PUT` an ignored field would silently clear the value.
-- Files: `#[MapUploadedFile]` then `new UploadedFileInfo($file)` (an `SplFileInfo` whose extension is guessed from the content).
-- Output: a `final readonly` resource in `src/Api/Resource`, built by a presenter in `src/Presenter` that implements the use case presenter interface (images via `Api\ImageResourceFactory`, which adds a thumbnail URL). Mutations return the fresh resource by calling the `get*` use case afterwards.
-- `PUT` replaces the whole resource (the update use cases overwrite every field); files are separate `POST .../logo` multipart sub-resources that send back the current values with the file.
-- Document every endpoint: `#[OA\Tag]`, `#[OA\Get|Post|...]`(summary), one `#[OA\Response]` per status with `new Model(type: ...)`. Then run `make api-doc` to regenerate `openapi.json` and the front types; `tests/Api/OpenApiContractTest` fails `make test` while the committed `openapi.json` differs from the code.
-- Errors: business exceptions (`UseCaseException` and subclasses) become RFC 9457 `application/problem+json` in `EventListener\UseCaseExceptionListener` (422 with `violations`, 404, 403); missing tokens get the same format (`Security\ApiAuthenticationEntryPoint`).
+- One business intent per endpoint (ADR 0025), one invokable controller per endpoint, grouped by resource: `src/Controller/Api/<Resource>/<Intent>.php` (`Organization/Relocate`). Extend `AbstractController`, inject `UseCasesFacade` and the presenter by constructor.
+- URLs are resource-oriented. `POST` creates a resource or adds an entity to an aggregate (`POST /api/organizations`, `POST .../logo`), `PATCH` changes one part of a resource exposed as a sub-resource (`PATCH /api/organizations/{id}/address`), `DELETE` removes one. No `PUT`. Ids are UUIDs: routes declare `requirements: ['id' => Requirement::UUID]`.
+- Input: `#[MapRequestPayload]` / `#[MapQueryString]` with a `final readonly` DTO in `src/Api/Input` (constraints as attributes, `#[Assert\Valid]` on nested DTOs), shaped like the matching part of the resource (`AddressInput` like `AddressResource`) and converting itself to the core value object (`toAddress()`). Unknown fields are rejected with a 422 violation each (`serializer.default_context` in `config/packages/framework.yaml`), never ignored.
+- Files: `#[MapUploadedFile]` then `new UploadedFileInfo($file)` (an `SplFileInfo` whose extension is guessed from the content), always on `POST` (PHP does not parse multipart bodies on `PATCH`).
+- Output: every intent returns the fresh resource (`OrganizationResource`, `AccountResource`), a `final readonly` class of `src/Api/Resource` built by a presenter of `src/Presenter` implementing the presenter of the core (images via `Api\ImageResourceFactory`, which adds a thumbnail URL).
+- Document every endpoint: `#[OA\Tag]`, `#[OA\Get|Post|Patch|Delete]`(summary), one `#[OA\Response]` per status with `new Model(type: ...)`. Then run `make api-doc` to regenerate `openapi.json` and the front types; `tests/Api/OpenApiContractTest` fails `make test` while the committed `openapi.json` differs from the code.
+- Errors: refusals of the core (`UseCaseException` and subclasses, `BusinessRuleViolation` of an aggregate) become RFC 9457 `application/problem+json` in `EventListener\UseCaseExceptionListener` (422 with `violations`, 404, 403); missing tokens get the same format (`Security\ApiAuthenticationEntryPoint`).
+- CORS (`config/packages/nelmio_cors.yaml`) lists the allowed methods: a new verb must be added there, or the browser's preflight fails.
 
 ## Authentication
 
@@ -32,22 +32,20 @@ See `docs/auth.md` at the repository root.
 
 - `league/oauth2-server-bundle`: `/authorize` + `/token`, authorization code with PKCE for the public client `prospecter-front` (created by `DataFixtures\OAuthClientFixtures`), JWT access tokens 15 min, rotated refresh tokens 30 days. Keys in `config/jwt` (`make keys`, not committed).
 - Firewalls (`config/packages/security.yaml`): `api` (`^/api/`, stateless, `oauth2: true`), `main` (session, `/login` with `Security\ProspecterAuthenticator`, which checks the password with `Auth\Passwords`), `/token` handled by the bundle. Consent is auto-approved (`EventListener\AuthorizationRequestListener`), logout redirects to `FRONT_URL` (`EventListener\LogoutListener`).
-- The token subject is the user name: `Security\ProspecterUserProvider` loads the core user through the `UserGateway` adapter and builds `App\Entity\User`, received as `#[CurrentUser] User $user` and passed to use cases as the `UseCaseConsumer`.
-- Authentication is not a use case. `src/Auth` keeps the passwords apart from the core (`Credentials`, table `credentials`, one row per user id; `Passwords` hashes with the `auto` hasher and upgrades old hashes at sign-in) so that it can move to a dedicated authorization server. `PUT /api/me` sets a new password through it; `bin/console app:user:set-password <userName>` does it by hand.
+- The token subject is the user name: `Security\ProspecterUserProvider` loads the core user through `UserRepository::ofUserName()` and builds `App\Entity\User`, received as `#[CurrentUser] User $user` and passed to use cases as the `UseCaseConsumer`.
+- Authentication is not a use case. `src/Auth` keeps the passwords apart from the core (`Credentials`, table `credentials`, one row per user UUID; `Passwords` hashes with the `auto` hasher and upgrades old hashes at sign-in) so that it can move to a dedicated authorization server. `PATCH /api/me/password` (`Controller/Api/Account/ChangeMyPassword`) sets a new password through it; `bin/console app:user:set-password <userName>` does it by hand.
 
 ## Architecture
 
-| Library port (`Prospecter\Core\Gateway\...`) | Adapter (`src/Gateway/...`) |
+| Port of the core | Adapter |
 |---|---|
-| `Entity\UserGateway`, `Entity\OrganizationGateway` | `Entity\UserRepositoryAdapter`, `Entity\OrganizationRepositoryAdapter` (Doctrine) |
-| `Entity\Transaction` | `Entity\TransactionEntityManagerAdapter` |
-| `Storage` | `StorageLocalAdapter` (files under `public/static/storage`) |
-| `UserNotifier` | `UserNotifierSymfonyAdapter` (flash messages, unused by the API) |
-| `GeoLocation` | `GeoplateformeGeoLocation` (French State geocoder, IGN Géoplateforme: no key, France only, `APP_GEOCODER_URL`; tests get no answer from the mocked `http_client`) |
+| `Domain\Organization\OrganizationRepository`, `Domain\User\UserRepository` | `Repository\DoctrineOrganizationRepository`, `Repository\DoctrineUserRepository` (`nextIdentity()` in `Uuid::v7()`, unique email among organizations and users through `Repository\UniqueEmails`) |
+| `Application\Port\Storage` | `Gateway\LocalStorage` (files under `public/static/storage`) |
+| `Application\Port\GeoLocation` | `Gateway\GeoplateformeGeoLocation` (French State geocoder, IGN Géoplateforme: no key, France only, `APP_GEOCODER_URL`; tests get no answer from the mocked `http_client`) |
 
-Ports are aliased to adapters in `config/services.yaml`. Every `*Impl` use case of the library is registered automatically (lazy, tagged `use_case`) and added to `UseCasesFacade` by `DependencyInjection\UseCasePass`.
+Ports are aliased to adapters in `config/services.yaml`. Every class extending `Prospecter\Core\Application\UseCase` is registered automatically (lazy, tagged `use_case`) and added to `UseCasesFacade` by `DependencyInjection\UseCasePass`.
 
-Doctrine mapping of the library entities is in `config/doctrine/*.orm.xml`. `Person` is single table inheritance with an explicit discriminator map (`organization`, `prospect`, `user`); `roles` and `stats` are `json`. Value objects are not embeddables (Doctrine cannot make them null): their fields are plain columns of the entity (`address_city`, `logo_url`...). The `credentials` table belongs to `src/Auth` (attribute mapping), the OAuth tables to the bundle.
+Doctrine mapping of the aggregates is in `config/doctrine/<Aggregate>/*.orm.xml` (tables `organizations` and `users`, `guid` ids assigned by the domain). Value objects are not embeddables (Doctrine cannot make them null): their fields are plain columns of the aggregate (`address_city`, `logo_url`...); references to other aggregates are id columns (`owner_id`, `holding_id`, `organization_id`). The `credentials` table belongs to `src/Auth` (attribute mapping), the OAuth tables to the bundle.
 
 ## Hosts
 

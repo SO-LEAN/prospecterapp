@@ -54,7 +54,7 @@ Dependency rule: `shared` depends on nothing of the app; a `feature` depends onl
 | Server data | TanStack Query cache | organizations, my account, dashboard |
 | URL | Router search params, validated by zod | `?q=acme&page=2` on the organizations list |
 | UI preferences | Zustand, persisted in localStorage | theme, collapsed sidebar |
-| Form | react-hook-form | the organization being edited |
+| Form | react-hook-form | the section being edited |
 | Session | oidc-client-ts (sessionStorage) | access and refresh tokens |
 | Local UI | `useState` | a dialog being open |
 
@@ -73,17 +73,20 @@ Never copy server data into Zustand or `useState`: read it from the query, the c
 ## Navigation
 
 - "Retour" behaves like the browser back button (`shared/ui/back-button.tsx`): from the dashboard map it returns to the dashboard, from a filtered list to that list with its search. Opened from a bookmark, it falls back to a link.
-- Forms are left with `useGoBack` (cancel and save), and a creation replaces its form with the new page (`replace: true`): the history never holds a form already done with.
+- A resource page is made of sections (`shared/ui/editable-section.tsx`): each shows one part of the resource and changes it in place through its own small form (`shared/forms/section-form.tsx`), one API intent each (ADR 0025); only the creation has a full form.
+- A creation form is left with `useGoBack` (cancel), and replaces itself with the new page with the new page (`replace: true`): the history never holds a form already done with.
 - Map markers open a quick look (`features/organizations/components/organization-preview.tsx`, rendered by `GeoMap`'s `renderPopup`), which loads the organization into the cache: its page then opens instantly.
 
 ## API access
 
 - `pnpm api:types` (or `make api-doc` from the root) regenerates `shared/api/schema.d.ts` from `apps/api/openapi.json`.
-- `api.queryOptions('get', '/api/organizations/{id}', { params })` / `api.useMutation('put', ...)`: path, params, body and response are typed.
+- `api.queryOptions('get', '/api/organizations/{id}', { params })` / `api.useMutation('patch', ...)`: path, params, body and response are typed.
 - The fetch middleware adds `Authorization: Bearer`; on a 401 it renews the token once with the refresh token, otherwise it sends the user to sign in.
-- Form values have the shape of the API input (`address.city`, `organization.corporateName`), so the `propertyPath` of each API violation is the form field name.
+- Form values have the shape of the API input (`street` in the address section, `address.street` in the creation form), so the `propertyPath` of each API violation is the form field name. Groups of fields shared by several forms live in `shared/forms` (`AddressFields`, `ContactDetailsFields`, `LegalIdentityFields`, with their zod schema and conversions); their `path` option nests them in a bigger form.
+- A field shows its error through `FormField`, which subscribes to it (`useFormState`): the React Compiler memoizes components receiving the same `form`, so a group of fields would not render a new error by itself.
 - Errors are RFC 9457 problem details (`shared/api/problem.ts`): `applyViolations()` puts the server validation errors on the form fields; other mutation errors raise a toast (`query-client.ts`), unless the mutation sets `meta: { silentValidation: true }` and handles 422 in its form.
 - Uploads are separate multipart endpoints (`shared/api/upload.ts`).
+- Ids are UUIDs: a route param that is not one is a 404 before any request (`features/organizations/route-params.ts`), and an API 404 in a loader becomes the same not found page.
 
 ## Authentication
 

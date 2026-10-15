@@ -10,7 +10,7 @@ Why the project is shaped the way it is: one file per decision in `docs/adr/`, i
 | [0004](0004-php-8-5-and-symfony-8-1.md) | PHP 8.5 and Symfony 8.1, native types, PHPStan level 5 | Accepted | 2026-10-13 |
 | [0005](0005-clean-architecture-with-the-core-as-hexagon.md) | Clean architecture: the core is the hexagon, the API adapts, the front presents | Accepted | 2026-10-13 |
 | [0006](0006-react-spa-and-json-api.md) | A React SPA and a JSON API replace the server-rendered application | Accepted | 2026-10-14 |
-| [0007](0007-plain-symfony-controllers-one-per-endpoint.md) | Plain Symfony controllers, one per endpoint, resource-oriented URLs | Accepted | 2026-10-14 |
+| [0007](0007-plain-symfony-controllers-one-per-endpoint.md) | Plain Symfony controllers, one per endpoint, resource-oriented URLs | Superseded by 0025 | 2026-10-14 |
 | [0008](0008-committed-openapi-contract.md) | The OpenAPI contract is generated, committed, checked and typed in the front | Accepted | 2026-10-14 |
 | [0009](0009-api-inputs-and-errors.md) | Inputs have the shape of resources, unknown fields are rejected, errors are problem details | Accepted | 2026-10-14 |
 | [0010](0010-oauth-2-authorization-code-with-pkce.md) | OAuth 2 authorization code with PKCE for the SPA | Accepted | 2026-10-14 |
@@ -21,8 +21,11 @@ Why the project is shaped the way it is: one file per decision in `docs/adr/`, i
 | [0015](0015-local-stack-in-docker.md) | The whole stack runs locally in Docker, driven by make | Accepted | 2026-10-14 |
 | [0016](0016-sqlite-without-migrations.md) | SQLite, schema generated from the mapping, no migrations | Accepted | 2026-10-13 |
 | [0017](0017-gherkin-acceptance-tests-on-the-core.md) | Gherkin acceptance tests on the core, only ports doubled | Accepted | 2026-10-15 |
-| [0018](0018-readonly-core-model.md) | Readonly requests, responses and value objects; flat entity columns | Accepted | 2026-10-15 |
+| [0018](0018-readonly-core-model.md) | Readonly requests, responses and value objects; flat entity columns | Superseded by 0023 | 2026-10-15 |
 | [0019](0019-organizations-reachable-only-by-their-prospector.md) | An organization is reachable only by the organization prospecting it | Accepted | 2026-10-15 |
 | [0020](0020-command-bus-instead-of-the-facade.md) | Use cases as commands on a command bus, no query bus | Proposed | 2026-10-15 |
-| [0021](0021-use-cases-named-after-business-intents.md) | Use cases named after business intents | Proposed | 2026-10-14 |
+| [0021](0021-use-cases-named-after-business-intents.md) | Use cases named after business intents | Superseded by 0025 | 2026-10-14 |
 | [0022](0022-clean-code-conventions.md) | Clean code as taught by Robert C. Martin, rules in `docs/clean-code.md` | Accepted | 2026-10-13 |
+| [0023](0023-tactical-ddd-in-the-core.md) | Tactical DDD in the core: aggregates, value objects, repositories | Accepted | 2026-10-15 |
+| [0024](0024-uuid-v7-identities-given-by-the-repository.md) | Identities are UUID v7 given by the repository | Accepted | 2026-10-15 |
+| [0025](0025-one-business-intent-per-use-case-and-endpoint.md) | One business intent per use case and per endpoint; edition by section | Accepted | 2026-10-15 |

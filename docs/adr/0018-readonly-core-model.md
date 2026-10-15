@@ -1,7 +1,7 @@
 # 0018. Readonly requests, responses and value objects; flat entity columns
 
 - Date: 2026-10-15
-- Status: Accepted
+- Status: Superseded by [0023](0023-tactical-ddd-in-the-core.md)
 - Implemented by: 58eb5b5; `packages/core/src`
 
 ## Context
