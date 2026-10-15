@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Prospecter\Core\Prospecting\Application\Published\IsProspectedBy;
+namespace Prospecter\Core\Prospecting\Contract\Service\IsProspectedBy;
 
 /**
  * Published to the other contexts (ADR 0045): whether an organization is one the account prospects.

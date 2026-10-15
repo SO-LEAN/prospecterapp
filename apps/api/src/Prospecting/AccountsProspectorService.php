@@ -2,8 +2,8 @@
 
 namespace App\Prospecting;
 
-use Prospecter\Core\Accounts\Application\Published\ConsultMember\ConsultMember;
-use Prospecter\Core\Accounts\Application\Published\ConsultMember\MemberResponse;
+use Prospecter\Core\Accounts\Contract\Service\ConsultMember\ConsultMember;
+use Prospecter\Core\Accounts\Contract\Service\ConsultMember\MemberResponse;
 use Prospecter\Core\Prospecting\Domain\Exception\UnknownProspector;
 use Prospecter\Core\Prospecting\Domain\Prospector;
 use Prospecter\Core\Prospecting\Domain\ProspectorService;

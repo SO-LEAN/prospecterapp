@@ -2,7 +2,7 @@
 
 namespace App\Prospecting;
 
-use Prospecter\Core\PersonalData\Application\Published\IsAContactOf\IsAContactOf;
+use Prospecter\Core\PersonalData\Contract\Service\IsAContactOf\IsAContactOf;
 use Prospecter\Core\Prospecting\Domain\KnownContacts;
 use Prospecter\Core\SharedKernel\Application\Exception\UseCaseRefused;
 use Prospecter\Core\SharedKernel\Application\RefusalTranslatingHandler;

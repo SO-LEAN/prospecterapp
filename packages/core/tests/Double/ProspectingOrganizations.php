@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Tests\Core\Double;
 
 use Prospecter\Core\PersonalData\Domain\ProspectedOrganizations;
-use Prospecter\Core\Prospecting\Application\Published\IsProspectedBy\IsProspectedBy;
+use Prospecter\Core\Prospecting\Contract\Service\IsProspectedBy\IsProspectedBy;
 use Prospecter\Core\SharedKernel\Application\Exception\UseCaseRefused;
 use Prospecter\Core\SharedKernel\Application\RefusalTranslatingHandler;
 use Prospecter\Core\SharedKernel\Domain\AccountId;

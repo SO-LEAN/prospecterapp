@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Prospecter\Core\Accounts\Application\Published\ConsultMember;
+namespace Prospecter\Core\Accounts\Contract\Service\ConsultMember;
 
 /**
  * Published to the other contexts (ADR 0045): who a member is, for the context that needs to know who acts.

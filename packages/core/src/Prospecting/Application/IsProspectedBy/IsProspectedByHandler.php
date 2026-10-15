@@ -2,8 +2,9 @@
 
 declare(strict_types=1);
 
-namespace Prospecter\Core\Prospecting\Application\Published\IsProspectedBy;
+namespace Prospecter\Core\Prospecting\Application\IsProspectedBy;
 
+use Prospecter\Core\Prospecting\Contract\Service\IsProspectedBy\IsProspectedBy;
 use Prospecter\Core\Prospecting\Domain\OrganizationRepository;
 use Prospecter\Core\SharedKernel\Application\QueryHandler;
 use Prospecter\Core\SharedKernel\Domain\AccountId;

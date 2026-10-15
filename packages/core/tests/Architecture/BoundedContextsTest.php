@@ -10,12 +10,13 @@ use PHPUnit\Framework\TestCase;
 /**
  * A bounded context speaks only to the shared kernel; the shared kernel speaks to nobody (ADR 0030). A
  * context asks another one through a port of its own, implemented outside the core by an anticorruption
- * layer that sees only what the other context publishes (ADR 0045), its doubles too; it reacts to the
- * integration events the other context publishes, never to its domain events (ADR 0046).
+ * layer that sees only the Contract of the other context (ADR 0045, 0047), its doubles too; it reacts to the
+ * integration events of that Contract, never to the domain events of the other context (ADR 0046).
  */
 class BoundedContextsTest extends TestCase
 {
-    private const string PUBLISHED_EVENTS = 'Application\\Published\\Event\\';
+    private const string CONTRACT = 'Contract\\';
+    private const string CONTRACT_EVENTS = 'Contract\\Event\\';
 
     /**
      * An import of the core, aliased or not: its context, then the rest of its name.
@@ -62,7 +63,7 @@ class BoundedContextsTest extends TestCase
             preg_match_all(self::IMPORT, (string) file_get_contents($file->getPathname()), $uses, PREG_SET_ORDER);
 
             foreach ($uses as [, $usedContext, $class]) {
-                if (in_array($usedContext, self::FORBIDDEN[$context], true) && !str_starts_with($class, self::PUBLISHED_EVENTS)) {
+                if (in_array($usedContext, self::FORBIDDEN[$context], true) && !str_starts_with($class, self::CONTRACT_EVENTS)) {
                     $forbidden[] = sprintf('%s: %s\\%s', substr($file->getPathname(), strlen($root)), $usedContext, $class);
                 }
             }
@@ -89,7 +90,7 @@ class BoundedContextsTest extends TestCase
             preg_match_all(self::IMPORT, $source, $uses, PREG_SET_ORDER);
 
             foreach ($uses as [, $usedContext, $class]) {
-                if (in_array($usedContext, self::FORBIDDEN[$port], true) && !str_starts_with($class, 'Application\\Published\\')) {
+                if (in_array($usedContext, self::FORBIDDEN[$port], true) && !str_starts_with($class, self::CONTRACT)) {
                     $forbidden[] = sprintf('%s: %s\\%s', basename($file), $usedContext, $class);
                 }
             }

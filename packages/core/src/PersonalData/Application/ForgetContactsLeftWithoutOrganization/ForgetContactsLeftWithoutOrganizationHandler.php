@@ -6,7 +6,7 @@ namespace Prospecter\Core\PersonalData\Application\ForgetContactsLeftWithoutOrga
 
 use Prospecter\Core\PersonalData\Domain\PersonRepository;
 use Prospecter\Core\PersonalData\Domain\ReaderService;
-use Prospecter\Core\Prospecting\Application\Published\Event\ContactsLeftWithoutOrganization;
+use Prospecter\Core\Prospecting\Contract\Event\ContactsLeftWithoutOrganization;
 use Prospecter\Core\SharedKernel\Application\EventHandler;
 use Prospecter\Core\SharedKernel\Application\Port\Events;
 use Prospecter\Core\SharedKernel\Application\PublishesEvents;

@@ -29,7 +29,7 @@ services:
     # Handlers of the core: commands go through the command bus, queries are called by the controllers, the
     # published queries by the anticorruption layers of the other contexts (ADR 0045)
     Prospecter\Core\:
-        resource: '../vendor/prospecter/core/src/{Accounts,PersonalData,Prospecting}/Application/{*,Published/*}/*Handler.php'
+        resource: '../vendor/prospecter/core/src/{Accounts,PersonalData,Prospecting}/Application/*/*Handler.php'
 
     # Services of the hexagon, injected in its handlers (ADR 0044)
     Prospecter\Core\SharedKernel\Application\FileStore: ~

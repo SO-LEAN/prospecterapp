@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Prospecter\Core\PersonalData\Application\Published\IsAContactOf;
+namespace Prospecter\Core\PersonalData\Contract\Service\IsAContactOf;
 
 /**
  * Published to the other contexts (ADR 0045): whether a person is a contact the account prospects.

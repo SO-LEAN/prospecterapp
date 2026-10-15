@@ -2,8 +2,9 @@
 
 declare(strict_types=1);
 
-namespace Prospecter\Core\PersonalData\Application\Published\IsAContactOf;
+namespace Prospecter\Core\PersonalData\Application\IsAContactOf;
 
+use Prospecter\Core\PersonalData\Contract\Service\IsAContactOf\IsAContactOf;
 use Prospecter\Core\PersonalData\Domain\PersonRepository;
 use Prospecter\Core\SharedKernel\Application\QueryHandler;
 use Prospecter\Core\SharedKernel\Domain\AccountId;

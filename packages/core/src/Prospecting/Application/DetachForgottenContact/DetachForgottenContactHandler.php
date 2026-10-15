@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Prospecter\Core\Prospecting\Application\DetachForgottenContact;
 
-use Prospecter\Core\PersonalData\Application\Published\Event\ContactForgotten;
+use Prospecter\Core\PersonalData\Contract\Event\ContactForgotten;
 use Prospecter\Core\Prospecting\Domain\OrganizationRepository;
 use Prospecter\Core\Prospecting\Domain\OrphanContacts;
 use Prospecter\Core\Prospecting\Domain\ProspectorService;

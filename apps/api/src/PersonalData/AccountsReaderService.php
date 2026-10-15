@@ -2,8 +2,8 @@
 
 namespace App\PersonalData;
 
-use Prospecter\Core\Accounts\Application\Published\ConsultMember\ConsultMember;
-use Prospecter\Core\Accounts\Application\Published\ConsultMember\MemberResponse;
+use Prospecter\Core\Accounts\Contract\Service\ConsultMember\ConsultMember;
+use Prospecter\Core\Accounts\Contract\Service\ConsultMember\MemberResponse;
 use Prospecter\Core\PersonalData\Domain\Exception\UnknownReader;
 use Prospecter\Core\PersonalData\Domain\Reader;
 use Prospecter\Core\PersonalData\Domain\ReaderService;

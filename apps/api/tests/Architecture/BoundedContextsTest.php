@@ -22,9 +22,10 @@ class BoundedContextsTest extends TestCase
     ];
 
     /**
-     * What a context publishes to the others (ADR 0045): the only part of it its anticorruption layers see.
+     * What a context publishes to the others, its Contract (ADR 0045, 0047): the only part of it its
+     * anticorruption layers see.
      */
-    private const string PUBLISHED = '\\Application\\Published\\';
+    private const string CONTRACT = '\\Contract\\';
 
     #[DataProvider('contexts')]
     public function testAContextDoesNotUseAnotherOne(string $context): void
@@ -56,7 +57,7 @@ class BoundedContextsTest extends TestCase
 
             foreach ($uses[1] as $class) {
                 foreach (self::FORBIDDEN[$context] as $prefix) {
-                    if (str_starts_with($class, $prefix) && !$this->isPublished($class, $prefix)) {
+                    if (str_starts_with($class, $prefix) && !$this->isAContract($class, $prefix)) {
                         $forbidden[] = sprintf('%s: %s', $path, $class);
                     }
                 }
@@ -66,8 +67,8 @@ class BoundedContextsTest extends TestCase
         return $forbidden;
     }
 
-    private function isPublished(string $class, string $prefix): bool
+    private function isAContract(string $class, string $prefix): bool
     {
-        return str_starts_with($class, 'Prospecter\\Core\\') && str_starts_with(substr($class, strlen($prefix) - 1), self::PUBLISHED);
+        return str_starts_with($class, 'Prospecter\\Core\\') && str_starts_with(substr($class, strlen($prefix) - 1), self::CONTRACT);
     }
 }

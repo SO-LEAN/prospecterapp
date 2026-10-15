@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Prospecter\Core\Prospecting\Application\AttachCollectedContact;
 
-use Prospecter\Core\PersonalData\Application\Published\Event\ContactCollected;
+use Prospecter\Core\PersonalData\Contract\Event\ContactCollected;
 use Prospecter\Core\Prospecting\Domain\OrganizationRepository;
 use Prospecter\Core\Prospecting\Domain\ProspectorService;
 use Prospecter\Core\SharedKernel\Application\EventHandler;

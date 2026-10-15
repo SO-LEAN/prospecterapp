@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Prospecter\Core\PersonalData\Application\PublishContactForgotten;
 
-use Prospecter\Core\PersonalData\Application\Published\Event as Published;
+use Prospecter\Core\PersonalData\Contract\Event as Published;
 use Prospecter\Core\PersonalData\Domain\Event\ContactForgotten;
 use Prospecter\Core\SharedKernel\Application\EventHandler;
 use Prospecter\Core\SharedKernel\Application\Port\Events;
@@ -20,6 +20,6 @@ final readonly class PublishContactForgottenHandler implements EventHandler
 
     public function __invoke(ContactForgotten $event): void
     {
-        $this->events->publish(Published\ContactForgotten::of($event));
+        $this->events->publish(new Published\ContactForgotten((string) $event->accountId, (string) $event->by, (string) $event->person, $event->occurredAt));
     }
 }
