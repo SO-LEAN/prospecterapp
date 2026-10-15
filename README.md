@@ -5,7 +5,7 @@ Prospecting application built with clean architecture: a React single page appli
 | Path | Content |
 |---|---|
 | `apps/front/` | React 19 SPA: TypeScript, Vite, TanStack Router and Query, shadcn/ui + Tailwind CSS, MapLibre |
-| `apps/api/` | Symfony 8.1 JSON API, an OAuth 2 resource server documented with NelmioApiDocBundle, Doctrine ORM 3 on SQLite |
+| `apps/api/` | Symfony 8.1 JSON API, an OAuth 2 resource server documented with NelmioApiDocBundle, Doctrine ORM 3, one SQLite database per bounded context |
 | `apps/auth/` | Symfony 8.1 authorization server: sign-in, OAuth 2 tokens (authorization code + PKCE), login email and password |
 | `apps/storage/` | Symfony 8.1 app keeping the uploaded files and serving the images in named sizes |
 | `packages/core/` | `prospecter/core`: the bounded contexts Accounts, PersonalData and Prospecting, pure PHP, described by Gherkin scenarios |
