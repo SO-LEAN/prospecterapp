@@ -1,7 +1,7 @@
 # 0030. Bounded contexts Accounts and Prospecting, a shared kernel, code grouped by context
 
 - Date: 2026-10-15
-- Status: Accepted
+- Status: Accepted, port names superseded by [0045](0045-published-language-between-contexts.md)
 - Supersedes: the point of [0026](0026-roles-in-the-api-ownership-and-state-in-the-aggregate.md) letting an organization be managed by its own users
 - Implemented by: `packages/core/src/{Accounts,Prospecting,SharedKernel}`, `apps/api/src/{Accounts,Prospecting,Dashboard,Shared}`, `tests/Architecture/BoundedContextsTest` (core and API)
 

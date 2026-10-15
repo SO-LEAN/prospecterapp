@@ -44,7 +44,7 @@ keys: ## Generate the key pair the auth signs the access tokens with (kept if it
 db: ## Recreate the databases of the API (one per context) and of the auth, with fixtures (destroys local data)
 	@echo "API/Creating the database of each bounded context with fixtures..."
 	@$(PHP) sh -c 'bin/console cache:clear >/dev/null && for context in $(API_CONTEXTS); do bin/console doctrine:schema:drop --force --full-database --em=$$context && bin/console doctrine:schema:create --em=$$context || exit 1; done && bin/console doctrine:fixtures:load --no-interaction --append'
-	@echo "Auth/Creating the database with fixtures (OAuth client, credentials of the prospector)..."
+	@echo "Auth/Creating the database with fixtures (OAuth client, credentials of the fixture members)..."
 	@$(AUTH) sh -c 'bin/console cache:clear >/dev/null && bin/console doctrine:schema:drop --force --full-database && bin/console doctrine:schema:create && bin/console doctrine:fixtures:load --no-interaction'
 
 front-install: ## Install the pnpm dependencies of the front

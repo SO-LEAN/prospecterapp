@@ -83,12 +83,12 @@ Never copy server data into Zustand or `useState`: read it from the query, the c
 - `pnpm api:types` (or `make api-doc` from the root) regenerates `shared/api/schema.d.ts` from `apps/api/openapi.json` and `shared/api/auth-schema.d.ts` from `apps/auth/openapi.json`; `api` calls the API, `authApi` what a member signs in with (`/auth/me`), with the same access token.
 - `api.queryOptions('get', '/api/organizations/{id}', { params })` / `api.useMutation('patch', ...)`: path, params, body and response are typed.
 - The fetch middleware adds `Authorization: Bearer`; on a 401 it renews the token once with the refresh token, otherwise it sends the user to sign in.
-- Form values have the shape of the API input (`street` in the address section, `address.street` in the creation form), so the `propertyPath` of each API violation is the form field name. Groups of fields shared by several forms live in `shared/forms` (`AddressFields`, `ContactDetailsFields`, `LegalIdentityFields`, with their zod schema and conversions); their `path` option nests them in a bigger form.
+- Form values have the shape of the API input (`street` in the address section, `address.street` in the creation form), so the `propertyPath` of each API violation is the form field name. Groups of fields shared by several forms live in `shared/forms` (`AddressFields`, `ContactDetailsFields`, `LegalIdentityFields`, `PersonNameFields`, with their zod schema and conversions); their `path` option nests them in a bigger form.
 - A field shows its error through `FormField`, which subscribes to it (`useFormState`): the React Compiler memoizes components receiving the same `form`, so a group of fields would not render a new error by itself.
 - Errors are RFC 9457 problem details (`shared/api/problem.ts`): `applyViolations()` puts the server validation errors on the form fields; other mutation errors raise a toast (`query-client.ts`), unless the mutation sets `meta: { silentValidation: true }` and handles 422 in its form.
 - Uploads are separate multipart endpoints (`shared/api/upload.ts`).
 - An image comes in sizes (`smallUrl` 96 px, `mediumUrl` 256 px, `url` the original): show the smallest that covers the displayed size twice (high density screens): `smallUrl` for avatars, markers and cards, `mediumUrl` for an image section.
-- Ids are UUIDs: a route param that is not one is a 404 before any request (`features/organizations/route-params.ts`), and an API 404 in a loader becomes the same not found page.
+- Ids are UUIDs: a route param that is not one is a 404 before any request (`shared/lib/route-params.ts`), and an API 404 in a loader becomes the same not found page.
 
 ## Authentication
 

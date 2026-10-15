@@ -2,7 +2,7 @@
 
 @AGENTS.md
 
-The generic Symfony guidance above is overridden by the project rules below when they differ.
+The generic Symfony guidance above is overridden by the project rules below when they differ. No Symfony CLI: run commands through `docker compose run --rm php ...` (see the root `CLAUDE.md`).
 
 ## Role
 

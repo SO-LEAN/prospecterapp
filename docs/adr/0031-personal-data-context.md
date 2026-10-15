@@ -1,7 +1,7 @@
 # 0031. A PersonalData context keeps the personal data of natural persons, and decides who reads them
 
 - Date: 2026-10-15
-- Status: Accepted
+- Status: Accepted, port names superseded by [0045](0045-published-language-between-contexts.md)
 - Implemented by: `packages/core/src/PersonalData`, `apps/api/src/PersonalData`, `apps/api/src/Me`
 
 ## Context

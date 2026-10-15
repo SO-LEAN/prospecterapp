@@ -9,12 +9,12 @@
 Three bounded contexts and a small shared kernel (ADR 0030):
 
 - **Accounts**: the organizations using Prospecter and their members; consult my account, revise the identity of my organization, change its logo.
-- **PersonalData**: the personal data of natural persons, read in clear or masked depending on who reads (ADR 0031); consult one person or many, rename, change the contact details or the picture.
-- **Prospecting**: the organizations an account prospects, shared by its team; start prospecting, consult, search, revise the identity, change the contact details, relocate (geocoded), write observations, attach to or detach from a holding, change or remove the logo.
+- **PersonalData**: the personal data of natural persons, read in clear or masked depending on who reads (ADR 0031); consult one person or many, rename, change the contact details or the picture; the contacts an account prospects: collect a contact for its organizations, change its job title, search them, forget one (ADR 0041, 0042).
+- **Prospecting**: the organizations an account prospects, shared by its team; start prospecting, consult, search, revise the identity, change the contact details, relocate (geocoded), write observations, attach to or detach from a holding, change or remove the logo, add or remove a contact, stop prospecting.
 
 Every use case is described by a French Gherkin feature in `features/` (`demenager.feature` for `Relocate`).
 
-Next: the contacts of the prospected organizations, then the GDPR rights (anonymization, access export), then the prospecting events (calls, appointments, emails).
+Next: the GDPR rights (anonymization, access export), then the prospecting events (calls, appointments, emails).
 
 ## How it is shaped
 
@@ -25,10 +25,10 @@ Next: the contacts of the prospected organizations, then the GDPR rights (anonym
 
 ## Using it
 
-The delivery implements the ports (repositories, `Prospectors`, `Readers`, `GeoLocation`, `Storage`), then:
+The delivery implements the ports (repositories, `ProspectorService`, `ReaderService`, `KnownContacts`, `ProspectedOrganizations`, `Events`, `GeoLocation`, `Storage`), builds the services of the hexagon (`GeoLocalizer`, `FileStore`, `EmailUniqueness`, `OrphanContacts`) and injects them in the handlers (ADR 0044), then:
 
 ```php
-$relocate = new RefusalTranslatingHandler(new RelocateHandler($organizations, $prospectors, $geoLocation));
+$relocate = new RefusalTranslatingHandler(new RelocateHandler($organizations, $prospectorService, $events, $geoLocalizer));
 $relocate(new Relocate(
     prospectorId: $memberId,
     id: $organizationId,
@@ -36,7 +36,7 @@ $relocate(new Relocate(
     executedAt: $clock->now(),
 ));
 
-$organization = new RefusalTranslatingHandler(new ConsultOrganizationHandler($organizations, $prospectors))(
+$organization = new RefusalTranslatingHandler(new ConsultOrganizationHandler($organizations, $prospectorService))(
     new ConsultOrganization($memberId, $organizationId),
 );
 ```

@@ -31,8 +31,9 @@ tests/Acceptance/Expect         assertions (PHPUnit's need its runner to describ
 tests/Double/                   the ports' test implementations
 tests/Domain/                   PHPUnit: value objects rich in edge cases, intents refused exactly when not offered
 tests/Application/              PHPUnit: the translation of the refusals of the domain (UseCaseRefused, RefusalTranslatingHandler)
-tests/Architecture/             PHPUnit: no bounded context uses another one, no domain class in a request or a response,
-                                every handler a CommandHandler or a QueryHandler
+tests/Architecture/             PHPUnit: no bounded context uses another one but its Contract, a Contract imports nothing,
+                                no domain class in a request or a response, every handler a CommandHandler, a
+                                QueryHandler or an EventHandler, every event handler subscribed in the scenarios
 ```
 
 The scenarios do not know the command bus of the API: `Application::dispatch()` sends a command to its handler, and a query is called directly, both through `RefusalTranslatingHandler` like the API. Every event handler of the core, the translators publishing the integration events included (ADR 0046), reacts in the scenarios as in the API (`Application::eventHandlers()`; `tests/Architecture/EventHandlersSubscribedTest` fails when one is missing): a scenario checks the side effects of a gesture in the other contexts, never the events themselves; the intents tests check that an accepted intention records its event. The published queries of the contexts (ADR 0045, `Contract/Service`) are asked through `Application::askPublished()`, as the anticorruption layers ask them, in `features/langage-publie.feature`. `Application` plays the client: it gives the identities of what is created (`newIdentity()`, time ordered UUIDs from `TimeOrderedUuids`) and the moment of the commands (`now()`, set by `nous sommes le "2026-10-20 14:00"`); a refusal is the `UseCaseRefused` of the last call (`refusal()`).
