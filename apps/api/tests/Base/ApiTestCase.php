@@ -2,58 +2,58 @@
 
 namespace Tests\App\Base;
 
-use App\DataFixtures\OAuthClientFixtures;
+use App\DataFixtures\AppFixtures;
+use Doctrine\Common\DataFixtures\Executor\ORMExecutor;
+use Doctrine\Common\DataFixtures\Loader;
+use Doctrine\Common\DataFixtures\Purger\ORMPurger;
+use Doctrine\Common\DataFixtures\ReferenceRepository;
+use Doctrine\ORM\EntityManagerInterface;
+use Doctrine\ORM\Tools\SchemaTool;
+use Lcobucci\JWT\Encoding\ChainedFormatter;
+use Lcobucci\JWT\Encoding\JoseEncoder;
+use Lcobucci\JWT\Signer\Key\InMemory;
+use Lcobucci\JWT\Signer\Rsa\Sha256;
+use Lcobucci\JWT\Token\Builder;
+use Prospecter\Core\Accounts\Domain\Member;
+use Symfony\Bundle\FrameworkBundle\KernelBrowser;
+use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 
-abstract class ApiTestCase extends ControllerTestCase
+/**
+ * The API as the SPA uses it, on a database recreated for each test with the fixtures. A member calls it with
+ * an access token signed like the authorization server signs them (the test key pair of tests/bootstrap.php).
+ */
+abstract class ApiTestCase extends WebTestCase
 {
-    /**
-     * Signs in like the SPA does: session login, authorization code with PKCE, then a bearer token on every request.
-     */
+    protected KernelBrowser $client;
+    protected ReferenceRepository $fixtures;
+
+    protected function setUp(): void
+    {
+        $this->client = static::createClient([], ['HTTP_HOST' => 'api.test.prospecter.io']);
+        $this->fixtures = $this->loadFixtures();
+    }
+
     protected function login(string $reference = 'prospector-user'): void
     {
-        parent::login($reference);
-
-        $this->client->setServerParameter('HTTP_AUTHORIZATION', 'Bearer '.$this->obtainTokens()['access_token']);
+        $memberId = $this->fixtures->getReference($reference, Member::class)->id()->value;
+        $this->forgetTheLoadedAggregates(self::getContainer()->get(EntityManagerInterface::class));
+        $this->client->setServerParameter('HTTP_AUTHORIZATION', 'Bearer '.$this->accessTokenOf($memberId));
     }
 
-    /**
-     * @return array{access_token: string, refresh_token: string, expires_in: int, token_type: string}
-     */
-    protected function obtainTokens(): array
+    protected function accessTokenOf(string $memberId, string $audience = 'prospecter-front', string $expiresIn = '+15 minutes'): string
     {
-        $verifier = bin2hex(random_bytes(32));
-        $challenge = rtrim(strtr(base64_encode(hash('sha256', $verifier, true)), '+/', '-_'), '=');
+        $now = new \DateTimeImmutable();
 
-        $this->client->request('GET', '/authorize?'.http_build_query([
-            'response_type' => 'code',
-            'client_id' => OAuthClientFixtures::FRONT_CLIENT_ID,
-            'redirect_uri' => $this->redirectUri(),
-            'scope' => 'api',
-            'state' => 'test-state',
-            'code_challenge' => $challenge,
-            'code_challenge_method' => 'S256',
-        ]));
-
-        $location = (string) $this->client->getResponse()->headers->get('Location');
-        parse_str((string) parse_url($location, PHP_URL_QUERY), $query);
-        $this->assertSame('test-state', $query['state'] ?? null, 'authorization failed: '.$location);
-
-        $this->client->request('POST', '/token', [
-            'grant_type' => 'authorization_code',
-            'client_id' => OAuthClientFixtures::FRONT_CLIENT_ID,
-            'redirect_uri' => $this->redirectUri(),
-            'code' => $query['code'],
-            'code_verifier' => $verifier,
-        ]);
-        $this->assertResponseIsSuccessful();
-
-        return $this->responseData();
-    }
-
-    protected function redirectUri(): string
-    {
-        return $_ENV['FRONT_URL'].OAuthClientFixtures::CALLBACK_PATH;
+        return new Builder(new JoseEncoder(), ChainedFormatter::default())
+            ->issuedBy('test')
+            ->permittedFor($audience)
+            ->relatedTo($memberId)
+            ->issuedAt($now)
+            ->canOnlyBeUsedAfter($now)
+            ->expiresAt($now->modify($expiresIn))
+            ->getToken(new Sha256(), InMemory::file(dirname(__DIR__, 2).'/var/test-jwt/private.pem'))
+            ->toString();
     }
 
     /**
@@ -99,5 +99,31 @@ abstract class ApiTestCase extends ControllerTestCase
     protected function violatedFields(array $problem): array
     {
         return array_map(static fn (array $violation): string => $violation['propertyPath'], $problem['violations'] ?? []);
+    }
+
+    private function loadFixtures(): ReferenceRepository
+    {
+        $entityManager = static::getContainer()->get(EntityManagerInterface::class);
+        $schemaTool = new SchemaTool($entityManager);
+        $schemaTool->dropDatabase();
+        $schemaTool->createSchema($entityManager->getMetadataFactory()->getAllMetadata());
+
+        $loader = new Loader();
+        $loader->addFixture(static::getContainer()->get(AppFixtures::class));
+        $executor = new ORMExecutor($entityManager, new ORMPurger($entityManager));
+        $executor->execute($loader->getFixtures());
+        $this->forgetTheLoadedAggregates($entityManager);
+
+        return $executor->getReferenceRepository();
+    }
+
+    /**
+     * A fixture reference is a lazy proxy kept in the identity map: initializing it would overwrite its
+     * readonly identity with an equal but new value object, which Doctrine refuses. The requests load the
+     * aggregates again.
+     */
+    private function forgetTheLoadedAggregates(EntityManagerInterface $entityManager): void
+    {
+        $entityManager->clear();
     }
 }

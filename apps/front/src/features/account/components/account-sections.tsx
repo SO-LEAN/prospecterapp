@@ -1,6 +1,5 @@
+import { useSuspenseQuery } from '@tanstack/react-query'
 import { useTranslation } from 'react-i18next'
-import { useAuth } from 'react-oidc-context'
-import { toast } from 'sonner'
 import { z } from 'zod'
 import {
   ContactDetailsFields,
@@ -37,6 +36,7 @@ import {
   useChangeMyPicture,
   useReviseMyOrganizationIdentity,
 } from '../mutations'
+import { signInQuery } from '../queries'
 
 const nameSchema = z.object({ firstName: text(100), lastName: text(100) })
 const loginEmailSchema = z.object({ email: z.email({ error: () => i18n.t('validation.email') }) })
@@ -48,7 +48,9 @@ const passwordSchema = z.object({
 })
 
 export const fullNameOf = (account: Account) =>
-  [account.name.firstName, account.name.lastName].filter(Boolean).join(' ') || account.loginEmail
+  [account.name.firstName, account.name.lastName].filter(Boolean).join(' ') ||
+  account.contactDetails.email ||
+  ''
 
 export function PictureSection({ account }: { account: Account }) {
   const { t } = useTranslation()
@@ -117,32 +119,21 @@ export function NameSection({ account }: { account: Account }) {
   )
 }
 
-export function LoginEmailSection({ account }: { account: Account }) {
+export function LoginEmailSection() {
   const { t } = useTranslation()
-  const auth = useAuth()
+  const { data: signIn } = useSuspenseQuery(signInQuery())
   const change = useChangeMyLoginEmail()
-
-  const signInAgainSinceTheTokenIsBoundToTheLoginEmail = async () => {
-    toast.info(t('account.loginEmailChanged'))
-    await auth.removeUser()
-    await auth.signinRedirect()
-  }
 
   return (
     <EditableSection
       title={t('account.sections.loginEmail')}
-      editable={Boolean(account._links.changeMyLoginEmail)}
+      editable={Boolean(signIn._links.changeMyLoginEmail)}
       editor={(close) => (
         <SectionForm
           schema={loginEmailSchema}
-          defaultValues={{ email: account.loginEmail }}
+          defaultValues={{ email: signIn.loginEmail }}
           fields={['email']}
-          save={async (values) => {
-            const changed = await change.mutateAsync({ body: values })
-            if (changed.loginEmail !== account.loginEmail) {
-              await signInAgainSinceTheTokenIsBoundToTheLoginEmail()
-            }
-          }}
+          save={(values) => change.mutateAsync({ body: values })}
           onDone={close}
         >
           {(form) => (
@@ -153,7 +144,7 @@ export function LoginEmailSection({ account }: { account: Account }) {
         </SectionForm>
       )}
     >
-      <Detail label={t('fields.loginEmail')}>{account.loginEmail}</Detail>
+      <Detail label={t('fields.loginEmail')}>{signIn.loginEmail}</Detail>
     </EditableSection>
   )
 }
@@ -186,14 +177,15 @@ export function ContactDetailsSection({ account }: { account: Account }) {
   )
 }
 
-export function PasswordSection({ account }: { account: Account }) {
+export function PasswordSection() {
   const { t } = useTranslation()
+  const { data: signIn } = useSuspenseQuery(signInQuery())
   const change = useChangeMyPassword()
 
   return (
     <EditableSection
       title={t('account.sections.password')}
-      editable={Boolean(account._links.changeMyPassword)}
+      editable={Boolean(signIn._links.changeMyPassword)}
       editor={(close) => (
         <SectionForm
           schema={passwordSchema}

@@ -111,7 +111,6 @@ export const fr = {
       organizationIdentity: 'Mon organisation',
       organizationLogo: 'Logo de mon organisation',
     },
-    loginEmailChanged: 'Votre e-mail de connexion a changé : reconnectez-vous.',
     changePicture: 'Changer la photo',
     changeLogo: 'Changer le logo',
   },

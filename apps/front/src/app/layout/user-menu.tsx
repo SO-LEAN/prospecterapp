@@ -38,7 +38,9 @@ export function UserMenu() {
   }
 
   const fullName =
-    [account?.name.firstName, account?.name.lastName].filter(Boolean).join(' ') || account?.loginEmail || ''
+    [account?.name.firstName, account?.name.lastName].filter(Boolean).join(' ') ||
+    account?.contactDetails.email ||
+    ''
 
   const signOut = async () => {
     queryClient.clear()

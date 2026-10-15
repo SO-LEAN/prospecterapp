@@ -10,13 +10,17 @@ import {
   PasswordSection,
   PictureSection,
 } from '@/features/account/components/account-sections'
-import { accountQuery } from '@/features/account/queries'
+import { accountQuery, signInQuery } from '@/features/account/queries'
 import { ErrorState } from '@/shared/ui/feedback/error-state'
 import { PageHeader } from '@/shared/ui/page-header'
 import { PageSkeleton } from '@/shared/ui/page-skeleton'
 
 export const Route = createFileRoute('/_app/account')({
-  loader: ({ context }) => context.queryClient.ensureQueryData(accountQuery()),
+  loader: ({ context }) =>
+    Promise.all([
+      context.queryClient.ensureQueryData(accountQuery()),
+      context.queryClient.ensureQueryData(signInQuery()),
+    ]),
   pendingComponent: () => <PageSkeleton />,
   errorComponent: ({ error, reset }) => <ErrorState error={error} reset={reset} />,
   component: AccountPage,
@@ -36,8 +40,8 @@ function AccountPage() {
           <ContactDetailsSection account={account} />
         </div>
         <div className="space-y-6">
-          <LoginEmailSection account={account} />
-          <PasswordSection account={account} />
+          <LoginEmailSection />
+          <PasswordSection />
           <MyOrganizationIdentitySection account={account} />
           <MyOrganizationLogoSection account={account} />
         </div>

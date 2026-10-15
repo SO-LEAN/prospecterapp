@@ -1,11 +1,6 @@
 # Routes are declared with #[Route] attributes on controllers.
 # To list all registered routes, run: bin/console debug:router
 
-auth:
-    resource: ../src/Controller/Auth/
-    type: attribute
-    host: '%app_api_host%'
-
 # the JSON API, one folder of controllers per bounded context (ADR 0030)
 me:
     resource: ../src/Me/Controller/

@@ -14,8 +14,8 @@ use Prospecter\Core\Accounts\Application\AccountResponse;
 use Prospecter\Core\PersonalData\Application\PersonResponse;
 
 /**
- * My account composed of my membership (Accounts), my profile (PersonalData) and my login email
- * (authentication), with a link per intention they offer me.
+ * My account composed of my membership (Accounts) and my profile (PersonalData), with a link per intention
+ * they offer me. What I sign in with lives on the authorization server (`/auth/me`).
  */
 final readonly class AccountResourcePresenter
 {
@@ -34,10 +34,9 @@ final readonly class AccountResourcePresenter
     {
     }
 
-    public function present(AccountResponse $account, PersonResponse $me, string $loginEmail): AccountResource
+    public function present(AccountResponse $account, PersonResponse $me): AccountResource
     {
         return new AccountResource(
-            loginEmail: $loginEmail,
             name: new PersonNameResource($me->firstName, $me->lastName),
             contactDetails: new ContactDetailsResource($me->email, $me->phoneNumber, $me->language),
             picture: $this->images->create($me->picture?->url),
@@ -49,10 +48,6 @@ final readonly class AccountResourcePresenter
         );
     }
 
-    /**
-     * Signing in is not the business of the core (ADR 0011): a member may always change their login email
-     * and their password.
-     */
     private function linksOf(AccountResponse $account, PersonResponse $me): AccountLinksResource
     {
         $possible = [];
@@ -63,7 +58,7 @@ final readonly class AccountResourcePresenter
             $possible[$name] = $this->links->to($route);
         }
 
-        return new AccountLinksResource($this->links->to('api_me_show'), $this->links->to('api_me_change_password'), $this->links->to('api_me_change_login_email'), ...$possible);
+        return new AccountLinksResource($this->links->to('api_me_show'), ...$possible);
     }
 
     /**

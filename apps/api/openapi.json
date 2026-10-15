@@ -60,60 +60,6 @@
                 }
             }
         },
-        "/api/me/login-email": {
-            "patch": {
-                "tags": [
-                    "My account"
-                ],
-                "summary": "Change the email I sign in with, unique on the platform (the access token is bound to it: sign in again)",
-                "operationId": "patch_api_me_change_login_email",
-                "requestBody": {
-                    "required": true,
-                    "content": {
-                        "application/json": {
-                            "schema": {
-                                "$ref": "#/components/schemas/LoginEmailInput"
-                            }
-                        }
-                    }
-                },
-                "responses": {
-                    "200": {
-                        "description": "My account",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/AccountResource"
-                                }
-                            }
-                        }
-                    },
-                    "401": {
-                        "description": "Missing or invalid access token"
-                    },
-                    "403": {
-                        "description": "The signed-in user is not a user",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/ProblemResource"
-                                }
-                            }
-                        }
-                    },
-                    "422": {
-                        "description": "Missing or invalid email, or one another member signs in with",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/ProblemResource"
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-        },
         "/api/me/name": {
             "patch": {
                 "tags": [
@@ -216,53 +162,6 @@
                     },
                     "422": {
                         "description": "Invalid image",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/ProblemResource"
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-        },
-        "/api/me/password": {
-            "patch": {
-                "tags": [
-                    "My account"
-                ],
-                "summary": "Change my password (a credential of the authentication module, not of the core)",
-                "operationId": "patch_api_me_change_password",
-                "requestBody": {
-                    "required": true,
-                    "content": {
-                        "application/json": {
-                            "schema": {
-                                "$ref": "#/components/schemas/PasswordInput"
-                            }
-                        }
-                    }
-                },
-                "responses": {
-                    "204": {
-                        "description": "Password changed"
-                    },
-                    "401": {
-                        "description": "Missing or invalid access token"
-                    },
-                    "403": {
-                        "description": "The signed-in user is not a user",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/ProblemResource"
-                                }
-                            }
-                        }
-                    },
-                    "422": {
-                        "description": "Password too short",
                         "content": {
                             "application/json": {
                                 "schema": {
@@ -1235,16 +1134,6 @@
                 },
                 "type": "object"
             },
-            "LoginEmailInput": {
-                "properties": {
-                    "email": {
-                        "type": "string",
-                        "default": "",
-                        "maxLength": 255
-                    }
-                },
-                "type": "object"
-            },
             "PersonNameInput": {
                 "properties": {
                     "firstName": {
@@ -1258,17 +1147,6 @@
                         "nullable": true,
                         "default": null,
                         "maxLength": 100
-                    }
-                },
-                "type": "object"
-            },
-            "PasswordInput": {
-                "properties": {
-                    "password": {
-                        "type": "string",
-                        "default": "",
-                        "maxLength": 4096,
-                        "minLength": 8
                     }
                 },
                 "type": "object"
@@ -1493,18 +1371,10 @@
             },
             "AccountLinksResource": {
                 "required": [
-                    "self",
-                    "changeMyPassword",
-                    "changeMyLoginEmail"
+                    "self"
                 ],
                 "properties": {
                     "self": {
-                        "$ref": "#/components/schemas/LinkResource"
-                    },
-                    "changeMyPassword": {
-                        "$ref": "#/components/schemas/LinkResource"
-                    },
-                    "changeMyLoginEmail": {
                         "$ref": "#/components/schemas/LinkResource"
                     },
                     "changeMyName": {
@@ -1527,16 +1397,12 @@
             },
             "AccountResource": {
                 "required": [
-                    "loginEmail",
                     "name",
                     "contactDetails",
                     "organization",
                     "_links"
                 ],
                 "properties": {
-                    "loginEmail": {
-                        "type": "string"
-                    },
                     "name": {
                         "$ref": "#/components/schemas/PersonNameResource"
                     },

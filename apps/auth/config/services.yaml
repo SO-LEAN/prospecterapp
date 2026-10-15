@@ -1,0 +1,16 @@
+services:
+    _defaults:
+        autowire: true
+        autoconfigure: true
+
+    App\:
+        resource: '../src/'
+        exclude:
+            - '../src/Kernel.php'
+            - '../src/Input/'
+            - '../src/Resource/'
+
+    App\Security\SignInAuthenticator:
+        arguments:
+            $loginRoute: 'login'
+            $defaultSuccessUrl: '%env(FRONT_URL)%'

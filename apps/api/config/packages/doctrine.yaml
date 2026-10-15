@@ -39,13 +39,6 @@ doctrine:
                 is_bundle: false
                 dir: '%kernel.project_dir%/config/doctrine/SharedKernel'
                 prefix: 'Prospecter\Core\SharedKernel\Domain'
-            # authentication, kept apart from the core (future authorization server)
-            Auth:
-                type: attribute
-                is_bundle: false
-                dir: '%kernel.project_dir%/src/Auth'
-                prefix: 'App\Auth'
-                alias: Auth
 
 when@prod:
     doctrine:

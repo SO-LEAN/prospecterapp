@@ -31,12 +31,6 @@ services:
     Prospecter\Core\Prospecting\Application\Port\GeoLocation: '@App\Prospecting\GeoplateformeGeoLocation'
     Prospecter\Core\SharedKernel\Application\Port\Storage: '@App\Shared\StorageClient'
 
-    # Security
-    App\Security\ProspecterAuthenticator:
-        arguments:
-            $loginRoute: 'login'
-            $defaultSuccessUrl: '%env(FRONT_URL)%'
-
 when@test:
     services:
         # no network in tests: every outgoing request gets an empty answer (a geocoding finds nothing)

@@ -21,6 +21,7 @@ phpstan.neon
 /.phpunit.cache/
 ###< phpunit/phpunit ###
 
-###> league/oauth2-server-bundle ###
-/config/jwt/*.pem
-###< league/oauth2-server-bundle ###
+###> auth keys ###
+# the former keys of the authorization server, now in apps/auth: never committed
+/config/jwt/
+###< auth keys ###

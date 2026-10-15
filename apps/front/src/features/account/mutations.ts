@@ -1,11 +1,11 @@
 import { type QueryClient, useMutation, useQueryClient } from '@tanstack/react-query'
 import { useTranslation } from 'react-i18next'
 import { toast } from 'sonner'
-import { api, fetchClient } from '@/shared/api/client'
+import { api, authApi, fetchClient } from '@/shared/api/client'
 import { queryKeys } from '@/shared/api/keys'
 import type { components } from '@/shared/api/schema'
 import { fileBody } from '@/shared/api/upload'
-import { accountQuery } from './queries'
+import { accountQuery, signInQuery } from './queries'
 
 export type Account = components['schemas']['AccountResource']
 
@@ -33,7 +33,16 @@ export function useChangeMyName() {
 }
 
 export function useChangeMyLoginEmail() {
-  return api.useMutation('patch', '/api/me/login-email', { ...formIntention, onSuccess: useStoreAccount() })
+  const queryClient = useQueryClient()
+  const { t } = useTranslation()
+
+  return authApi.useMutation('patch', '/auth/me/login-email', {
+    ...formIntention,
+    onSuccess: (signIn) => {
+      queryClient.setQueryData(signInQuery().queryKey, signIn)
+      toast.success(t('common.saved'))
+    },
+  })
 }
 
 export function useChangeMyContactDetails() {
@@ -53,7 +62,7 @@ export function useReviseMyOrganizationIdentity() {
 export function useChangeMyPassword() {
   const { t } = useTranslation()
 
-  return api.useMutation('patch', '/api/me/password', {
+  return authApi.useMutation('patch', '/auth/me/password', {
     ...formIntention,
     onSuccess: () => toast.success(t('common.saved')),
   })

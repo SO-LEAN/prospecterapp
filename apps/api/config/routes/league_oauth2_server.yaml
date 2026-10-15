@@ -1,4 +1,0 @@
-league_oauth2_server:
-    resource: '@LeagueOAuth2ServerBundle/config/routes.php'
-    type: php
-    host: '%app_api_host%'

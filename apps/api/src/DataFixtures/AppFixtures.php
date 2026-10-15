@@ -2,8 +2,6 @@
 
 namespace App\DataFixtures;
 
-use App\Auth\LoginEmails;
-use App\Auth\Passwords;
 use Doctrine\Bundle\FixturesBundle\Fixture;
 use Doctrine\Persistence\ObjectManager;
 use Prospecter\Core\Accounts\Domain\Account;
@@ -17,15 +15,20 @@ use Prospecter\Core\PersonalData\Domain\Purpose;
 use Prospecter\Core\SharedKernel\Domain\ContactDetails;
 use Prospecter\Core\SharedKernel\Domain\Email;
 use Prospecter\Core\SharedKernel\Domain\LegalIdentity;
+use Prospecter\Core\SharedKernel\Domain\MemberId;
 
+/**
+ * SOLEAN IT and its prospector. The prospector signs in on the authorization server (apps/auth), whose
+ * fixtures give the same member id: the two apps share it, nothing else.
+ */
 class AppFixtures extends Fixture
 {
+    public const string PROSPECTOR = '01900000-0000-7000-8000-000000000001';
+
     public function __construct(
         private readonly AccountRepository $accounts,
         private readonly MemberRepository $members,
         private readonly PersonRepository $persons,
-        private readonly LoginEmails $loginEmails,
-        private readonly Passwords $passwords,
     ) {
     }
 
@@ -41,10 +44,8 @@ class AppFixtures extends Fixture
     {
         $profile = Person::collect($this->persons->nextIdentity(), $account->id(), Purpose::Membership, contactDetails: new ContactDetails(new Email('prospector@solean-it.io'), language: 'FR'));
         $this->persons->save($profile);
-        $prospector = Member::register($this->members->nextIdentity(), $account->id(), $profile->id(), Role::User, Role::Prospector, Role::PersonalData);
+        $prospector = Member::register(new MemberId(self::PROSPECTOR), $account->id(), $profile->id(), Role::User, Role::Prospector, Role::PersonalData);
         $this->members->save($prospector);
-        $this->loginEmails->assign($prospector->id(), new Email('prospector@solean-it.io'));
-        $this->passwords->set($prospector->id(), 'password');
         $this->addReference('prospector-user', $prospector);
     }
 }

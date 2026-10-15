@@ -12,8 +12,6 @@ final readonly class AccountLinksResource
 {
     public function __construct(
         public LinkResource $self,
-        public LinkResource $changeMyPassword,
-        public LinkResource $changeMyLoginEmail,
         #[OA\Property(nullable: false)]
         public ?LinkResource $changeMyName = null,
         #[OA\Property(nullable: false)]

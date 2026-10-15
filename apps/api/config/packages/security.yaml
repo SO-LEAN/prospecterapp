@@ -3,12 +3,9 @@ security:
     role_hierarchy:
         ROLE_ADMIN: [ROLE_PROSPECTOR, ROLE_USER]
 
-    password_hashers:
-        App\Auth\Credentials: auto
-
     providers:
-        prospecter_provider:
-            id: App\Security\ProspecterUserProvider
+        members:
+            id: App\Security\MemberProvider
 
     firewalls:
         dev:
@@ -17,41 +14,15 @@ security:
         api_doc:
             pattern: ^/api/doc
             security: false
-        # resource server: every API call carries an OAuth 2 access token
+        # resource server: every API call carries an access token of the authorization server (apps/auth)
         api:
-            host: '%app_api_host%'
             pattern: ^/api/
             stateless: true
-            provider: prospecter_provider
-            oauth2: true
+            provider: members
+            access_token:
+                token_handler: App\Security\AccessTokenHandler
             entry_point: App\Security\ApiAuthenticationEntryPoint
             access_denied_handler: App\Security\ApiAccessDeniedHandler
-        # authorization server: the token endpoint authenticates clients itself
-        oauth_token:
-            pattern: ^/token$
-            security: false
-        # the user signs in here (session) before /authorize issues a code to the SPA
-        main:
-            host: '%app_api_host%'
-            lazy: true
-            provider: prospecter_provider
-            custom_authenticators:
-                - App\Security\ProspecterAuthenticator
-            entry_point: App\Security\ProspecterAuthenticator
-            logout:
-                path: logout
 
     access_control:
         - { path: ^/api/, roles: ROLE_USER }
-        - { path: ^/login, roles: PUBLIC_ACCESS }
-        - { path: ^/authorize, roles: ROLE_USER }
-
-when@test:
-    security:
-        password_hashers:
-            # hashing is slow on purpose: keep the tests fast
-            App\Auth\Credentials:
-                algorithm: auto
-                cost: 4
-                time_cost: 3
-                memory_cost: 10
