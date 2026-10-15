@@ -1,8 +1,9 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Tests\Core\Double;
 
-use LogicException;
 use Prospecter\Core\UseCase\CreateOrganization\CreateOrganizationPresenter;
 use Prospecter\Core\UseCase\FindMyOwnOrganizations\FindMyOwnOrganizationsPresenter;
 use Prospecter\Core\UseCase\GetMyAccountInformation\GetMyAccountInformationPresenter;
@@ -32,6 +33,6 @@ final class LastResponsePresenter implements CreateOrganizationPresenter, FindMy
      */
     public function response(string $class): object
     {
-        return $this->response instanceof $class ? $this->response : throw new LogicException(sprintf('Expected a %s to be presented, got %s', $class, get_debug_type($this->response)));
+        return $this->response instanceof $class ? $this->response : throw new \LogicException(sprintf('Expected a %s to be presented, got %s', $class, get_debug_type($this->response)));
     }
 }

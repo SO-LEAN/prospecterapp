@@ -6,6 +6,6 @@
         <field name="firstName" type="string" length="100" nullable="true"/>
         <field name="lastName" type="string" length="100" nullable="true"/>
         <many-to-one field="createdBy" target-entity="Prospecter\Core\Entity\User"/>
-        <many-to-one field="ownedBy" target-entity="Prospecter\Core\Entity\Organization" inversed-by="ownedProspects"/>
+        <many-to-one field="ownedBy" target-entity="Prospecter\Core\Entity\Organization"/>
     </entity>
 </doctrine-mapping>

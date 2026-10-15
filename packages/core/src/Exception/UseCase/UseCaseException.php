@@ -1,29 +1,26 @@
 <?php
 
-declare( strict_types = 1 );
+declare(strict_types=1);
 
 namespace Prospecter\Core\Exception\UseCase;
 
-use \Throwable;
-use RuntimeException;
-
-class UseCaseException extends RuntimeException
+/**
+ * A request the business refuses.
+ */
+class UseCaseException extends \RuntimeException
 {
     /**
-     * @var array
+     * @param array<string, string> $requestErrors message by request field, "*" for the request as a whole
      */
-    private $requestErrors;
-
-    public function __construct(string $message = "", int $code = 0, ?Throwable $previous = null, array $requestErrors = [])
+    public function __construct(string $message = '', private readonly array $requestErrors = [], ?\Throwable $previous = null)
     {
-        parent::__construct($message, $code, $previous);
-        $this->requestErrors = $requestErrors;
+        parent::__construct($message, 0, $previous);
     }
 
     /**
-     * @return array
+     * @return array<string, string>
      */
-    public function getRequestErrors() : array
+    public function getRequestErrors(): array
     {
         return $this->requestErrors;
     }

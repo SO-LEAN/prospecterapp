@@ -17,21 +17,19 @@ final readonly class OrganizationResourcePresenter implements GetOrganizationPre
 
     public function present(GetOrganizationResponse $response): OrganizationResource
     {
-        $hasAddress = null !== $response->getStreet() || null !== $response->getPostalCode() || null !== $response->getCity() || null !== $response->getCountry();
-
         return new OrganizationResource(
-            id: (int) $response->getId(),
-            corporateName: $response->getCorporateName(),
-            form: $response->getForm(),
-            type: $response->getType(),
-            email: $response->getEmail(),
-            phoneNumber: $response->getPhoneNumber(),
-            language: $response->getLanguage(),
-            address: $hasAddress ? new AddressResource($response->getStreet(), $response->getPostalCode(), $response->getCity(), $response->getCountry()) : null,
-            location: LocationResource::fromCoordinates($response->getLatitude(), $response->getLongitude()),
-            observations: $response->getObservations(),
-            logo: $this->images->create($response->getLogoUrl()),
-            holdBy: null === $response->getHoldBy() ? null : (int) $response->getHoldBy(),
+            id: $response->id,
+            corporateName: $response->corporateName,
+            form: $response->form,
+            type: $response->type,
+            email: $response->email,
+            phoneNumber: $response->phoneNumber,
+            language: $response->language,
+            address: AddressResource::from($response->address),
+            location: LocationResource::from($response->geoPoint),
+            observations: $response->observations,
+            logo: $this->images->create($response->logo?->url),
+            holdBy: $response->holdBy,
         );
     }
 }

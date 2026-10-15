@@ -29,7 +29,7 @@ services:
     Prospecter\Core\Gateway\Entity\Transaction: '@App\Gateway\Entity\TransactionEntityManagerAdapter'
     Prospecter\Core\Gateway\Storage: '@App\Gateway\StorageLocalAdapter'
     Prospecter\Core\Gateway\UserNotifier: '@App\Gateway\UserNotifierSymfonyAdapter'
-    Prospecter\Core\Gateway\GeoLocation: '@App\Gateway\GeoLocatorAdapter'
+    Prospecter\Core\Gateway\GeoLocation: '@App\Gateway\GeoplateformeGeoLocation'
 
     App\Gateway\Entity\UserRepositoryAdapter:
         lazy: true

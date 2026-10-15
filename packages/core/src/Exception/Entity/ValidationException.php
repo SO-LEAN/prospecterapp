@@ -1,23 +1,14 @@
 <?php
 
-declare( strict_types = 1 );
+declare(strict_types=1);
 
 namespace Prospecter\Core\Exception\Entity;
 
-use \Throwable;
-use RuntimeException;
-
-class ValidationException extends RuntimeException
+final class ValidationException extends \RuntimeException
 {
-    /**
-     * @var string
-     */
-    private $field;
-
-    public function __construct(string $message = "", int $code = 0, ?Throwable $previous = null, string $field = "")
+    public function __construct(string $message, private readonly string $field)
     {
-        parent::__construct($message, $code, $previous);
-        $this->field = $field;
+        parent::__construct($message);
     }
 
     public function getField(): string

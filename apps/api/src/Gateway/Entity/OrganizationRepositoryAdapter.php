@@ -11,7 +11,7 @@ use Prospecter\Core\Gateway\Entity\PageRequest;
 
 class OrganizationRepositoryAdapter extends RepositoryAdapter implements OrganizationGateway
 {
-    public function get(mixed $id): Organization
+    public function get(int $id): Organization
     {
         return $this->findOneBy(['id' => $id]) ?? throw new NotFoundException();
     }
@@ -23,7 +23,7 @@ class OrganizationRepositoryAdapter extends RepositoryAdapter implements Organiz
         return $organization;
     }
 
-    public function update(mixed $id, Organization $organization): Organization
+    public function update(int $id, Organization $organization): Organization
     {
         $organization->setId($id);
         $this->save($organization);
@@ -44,23 +44,23 @@ class OrganizationRepositoryAdapter extends RepositoryAdapter implements Organiz
     public function findPageByQuery(PageRequest $pageRequest): Page
     {
         $query = $this->entityManager->createQuery($this->buildFindPageByQueryDql($pageRequest))
-            ->setParameter('query', sprintf('%%%s%%', $pageRequest->getQuery()))
-            ->setFirstResult(($pageRequest->getPage() - 1) * $pageRequest->getMaxByPage())
-            ->setMaxResults($pageRequest->getMaxByPage());
+            ->setParameter('query', sprintf('%%%s%%', $pageRequest->query))
+            ->setFirstResult(($pageRequest->page - 1) * $pageRequest->maxByPage)
+            ->setMaxResults($pageRequest->maxByPage);
 
         $this->applyFilterParameters($pageRequest, $query);
 
         $paginator = $this->paginatorFactory->create($query);
         $total = $paginator->count();
 
-        return new Page($pageRequest->getPage(), $total, intdiv($total - 1, $pageRequest->getMaxByPage()) + 1, iterator_to_array($paginator));
+        return new Page($pageRequest->page, $total, intdiv($total - 1, $pageRequest->maxByPage) + 1, iterator_to_array($paginator, false));
     }
 
     private function buildFindPageByQueryDql(PageRequest $pageRequest): string
     {
         $where = '(o.corporateName LIKE :query OR o.email LIKE :query)';
 
-        foreach (array_keys($pageRequest->getFilter()) as $field) {
+        foreach (array_keys($pageRequest->filter) as $field) {
             $where .= sprintf(' AND o.%s = :%s', $field, $field);
         }
 
@@ -69,7 +69,7 @@ class OrganizationRepositoryAdapter extends RepositoryAdapter implements Organiz
 
     private function applyFilterParameters(PageRequest $pageRequest, Query $query): void
     {
-        foreach ($pageRequest->getFilter() as $field => $value) {
+        foreach ($pageRequest->filter as $field => $value) {
             $query->setParameter($field, $value);
         }
     }

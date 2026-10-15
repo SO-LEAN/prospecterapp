@@ -68,10 +68,12 @@ e2e:
 	@docker run --rm --init --ipc=host --network host $(E2E_HOSTS) -u $(UID):$(GID) -e HOME=/tmp -v $(CURDIR)/apps/front:/work -w /work mcr.microsoft.com/playwright:v1.64.0-noble npx playwright test
 
 lint:
+	@$(CORE) sh -c 'vendor/bin/phpstan analyse --no-progress && vendor/bin/php-cs-fixer fix --dry-run --diff && vendor/bin/rector process --dry-run'
 	@$(PHP) sh -c 'vendor/bin/phpstan analyse --no-progress && vendor/bin/php-cs-fixer fix --dry-run --diff && vendor/bin/rector process --dry-run'
 	@$(NODE) sh -c 'pnpm lint && pnpm typecheck'
 
 fix:
+	@$(CORE) vendor/bin/php-cs-fixer fix
 	@$(PHP) vendor/bin/php-cs-fixer fix
 	@$(NODE) pnpm format
 

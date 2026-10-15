@@ -1,53 +1,19 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Prospecter\Core\Gateway\Entity;
 
-class PageRequest
+final readonly class PageRequest
 {
     /**
-     * @var int
+     * @param array<string, mixed> $filter field => value the results must have
      */
-    private $page;
-
-    /**
-     * @var string
-     */
-    private $query;
-
-    /**
-     * @var int
-     */
-    private $maxByPage;
-    /**
-     * @var array
-     */
-    private $filter;
-
-    public function __construct(int $page, string $query, int $maxByPage, array $filter = [])
-    {
-        $this->page = $page;
-        $this->query = $query;
-        $this->maxByPage = $maxByPage;
-        $this->filter = $filter;
-    }
-
-    public function getPage(): int
-    {
-        return $this->page;
-    }
-
-    public function getQuery(): string
-    {
-        return $this->query;
-    }
-
-    public function getMaxByPage(): int
-    {
-        return $this->maxByPage;
-    }
-
-    public function getFilter(): array
-    {
-        return $this->filter;
+    public function __construct(
+        public int $page,
+        public string $query,
+        public int $maxByPage,
+        public array $filter = [],
+    ) {
     }
 }

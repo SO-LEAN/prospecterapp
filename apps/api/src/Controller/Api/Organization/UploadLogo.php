@@ -40,27 +40,28 @@ final class UploadLogo extends AbstractController
     #[OA\Response(response: 422, description: 'Invalid image', content: new Model(type: ProblemResource::class))]
     public function __invoke(int $id, #[MapUploadedFile([new Assert\Image(maxSize: '2M', mimeTypes: ['image/jpeg', 'image/png', 'image/webp'])])] UploadedFile $file, #[CurrentUser] User $user): JsonResponse
     {
+        $this->replaceLogoKeepingTheOtherDetails($id, $file, $user);
+
+        return $this->json($this->useCases->getOrganization(new GetOrganizationRequest($id), $this->presenter, $user));
+    }
+
+    private function replaceLogoKeepingTheOtherDetails(int $id, UploadedFile $file, User $user): void
+    {
         /** @var GetOrganizationResponse $current */
         $current = $this->useCases->getOrganization(new GetOrganizationRequest($id), new GetOrganizationPresenterImpl(), $user);
 
-        // the use case replaces every field: send back the current values with the new logo
         $this->useCases->updateOrganization(new UpdateOrganizationRequest(
             id: $id,
-            phoneNumber: $current->getPhoneNumber(),
-            email: $current->getEmail(),
-            language: $current->getLanguage(),
-            corporateName: $current->getCorporateName(),
-            form: $current->getForm(),
-            type: $current->getType(),
-            street: $current->getStreet(),
-            postalCode: $current->getPostalCode(),
-            city: $current->getCity(),
-            country: $current->getCountry(),
-            observations: $current->getObservations(),
+            phoneNumber: $current->phoneNumber,
+            email: $current->email,
+            language: $current->language,
+            corporateName: $current->corporateName,
+            form: $current->form,
+            type: $current->type,
+            address: $current->address,
+            observations: $current->observations,
             logo: new UploadedFileInfo($file),
-            holdBy: $current->getHoldBy(),
+            holdBy: $current->holdBy,
         ), new UpdateOrganizationPresenterImpl(), $user);
-
-        return $this->json($this->useCases->getOrganization(new GetOrganizationRequest($id), $this->presenter, $user));
     }
 }

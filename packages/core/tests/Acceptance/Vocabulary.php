@@ -1,10 +1,12 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Tests\Core\Acceptance;
 
-use InvalidArgumentException;
 use PHPUnit\Framework\Assert;
 use Prospecter\Core\Entity\File;
+use Prospecter\Core\Entity\GeoPoint;
 use Prospecter\Core\Entity\Organization;
 use Prospecter\Core\Entity\User;
 
@@ -48,8 +50,8 @@ final class Vocabulary
     /**
      * Request parameters from a table of labels; labels left out are absent (null), an empty cell too.
      *
-     * @param array<string, string>  $table
-     * @param array<string, string>  $labels
+     * @param array<string, string> $table
+     * @param array<string, string> $labels
      *
      * @return array<string, string|null>
      */
@@ -58,7 +60,7 @@ final class Vocabulary
         $parameters = array_fill_keys(array_values($labels), null);
 
         foreach ($table as $label => $value) {
-            $parameter = $labels[$label] ?? throw new InvalidArgumentException(sprintf('Unknown label "%s", expected one of: %s', $label, implode(', ', array_keys($labels))));
+            $parameter = $labels[$label] ?? throw new \InvalidArgumentException(sprintf('Unknown label "%s", expected one of: %s', $label, implode(', ', array_keys($labels))));
             $parameters[$parameter] = '' === $value ? null : $value;
         }
 
@@ -82,12 +84,12 @@ final class Vocabulary
             'e-mail' => (string) $organization->getEmail(),
             'téléphone' => (string) $organization->getPhoneNumber(),
             'langue' => (string) $organization->getLanguage(),
-            'rue' => (string) $address?->getStreet(),
-            'code postal' => (string) $address?->getPostalCode(),
-            'ville' => (string) $address?->getCity(),
-            'pays' => (string) $address?->getCountry(),
+            'rue' => (string) $address?->street,
+            'code postal' => (string) $address?->postalCode,
+            'ville' => (string) $address?->city,
+            'pays' => (string) $address?->country,
             'observations' => (string) $organization->getObservations(),
-            'position' => $geoPoint ? sprintf('%s, %s', $geoPoint->getLongitude(), $geoPoint->getLatitude()) : 'aucune',
+            'position' => self::describeGeoPoint($geoPoint),
             'logo' => self::describeFile($organization->getLogo()),
             'holding' => (string) $organization->getHoldBy()?->getCorporateName(),
             'propriétaire' => (string) $organization->getOwnedBy()?->getCorporateName(),
@@ -114,12 +116,17 @@ final class Vocabulary
         ];
     }
 
+    public static function describeGeoPoint(?GeoPoint $geoPoint): string
+    {
+        return $geoPoint ? sprintf('%s, %s', $geoPoint->longitude, $geoPoint->latitude) : 'aucune';
+    }
+
     /**
      * A stored file as the scenarios name it: "acme.png (png, 2048 octets)", or "aucun".
      */
     public static function describeFile(?File $file): string
     {
-        return $file ? sprintf('%s (%s, %d octets)', basename($file->getUrl()), $file->getExtension(), $file->getSize()) : 'aucun';
+        return $file ? sprintf('%s (%s, %d octets)', basename($file->url), $file->extension, $file->size) : 'aucun';
     }
 
     /**
@@ -137,13 +144,5 @@ final class Vocabulary
         ksort($expected);
         ksort($described);
         Assert::assertSame($expected, $described);
-    }
-
-    /**
-     * Reads a value of a use case response, whether it is exposed as a property or a getter.
-     */
-    public static function read(object $response, string $field): mixed
-    {
-        return array_key_exists($field, get_object_vars($response)) ? $response->{$field} : $response->{'get'.ucfirst($field)}();
     }
 }

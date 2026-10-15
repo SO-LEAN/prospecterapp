@@ -1,11 +1,11 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Tests\Core\Acceptance\Context;
 
 use Behat\Behat\Context\Context;
-use Behat\Behat\Hook\Scope\BeforeScenarioScope;
 use Behat\Gherkin\Node\TableNode;
-use Behat\Hook\BeforeScenario;
 use Behat\Step\Given;
 use Behat\Step\Then;
 use Behat\Step\When;
@@ -13,21 +13,13 @@ use PHPUnit\Framework\Assert;
 use Prospecter\Core\Entity\Organization;
 use Prospecter\Core\UseCase\GetMyAccountInformation\GetMyAccountInformationResponse;
 use Prospecter\Core\UseCase\UpdateMyAccountInformation\UpdateMyAccountInformationRequest;
-use Tests\Core\Acceptance\Application;
 use Tests\Core\Acceptance\Vocabulary;
 
 final class AccountContext implements Context
 {
-    private ScenarioContext $scenario;
-    private Application $application;
-    private ?GetMyAccountInformationResponse $account = null;
+    use SharesTheScenario;
 
-    #[BeforeScenario]
-    public function gatherScenario(BeforeScenarioScope $scope): void
-    {
-        $this->scenario = $scope->getEnvironment()->getContext(ScenarioContext::class);
-        $this->application = $this->scenario->application;
-    }
+    private ?GetMyAccountInformationResponse $account = null;
 
     #[Given('mon profil est :')]
     public function myProfileIs(TableNode $table): void
@@ -75,12 +67,12 @@ final class AccountContext implements Context
         $expected = $table->getRowsHash();
 
         Vocabulary::assertDescribes($expected, [
-            'identifiant' => Vocabulary::read($this->account, 'userName'),
-            'prénom' => (string) Vocabulary::read($this->account, 'firstName'),
-            'nom' => (string) Vocabulary::read($this->account, 'lastName'),
-            'e-mail' => (string) Vocabulary::read($this->account, 'email'),
-            'raison sociale de mon organisation' => (string) Vocabulary::read($this->account, 'organizationCorporateName'),
-            'forme juridique de mon organisation' => (string) Vocabulary::read($this->account, 'organizationForm'),
+            'identifiant' => $this->account->userName,
+            'prénom' => (string) $this->account->firstName,
+            'nom' => (string) $this->account->lastName,
+            'e-mail' => (string) $this->account->email,
+            'raison sociale de mon organisation' => (string) $this->account->organizationCorporateName,
+            'forme juridique de mon organisation' => (string) $this->account->organizationForm,
         ]);
     }
 

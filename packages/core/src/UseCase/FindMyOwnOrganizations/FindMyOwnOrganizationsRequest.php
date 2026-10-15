@@ -1,45 +1,15 @@
 <?php
 
-declare(strict_types = 1);
+declare(strict_types=1);
 
 namespace Prospecter\Core\UseCase\FindMyOwnOrganizations;
 
-final class FindMyOwnOrganizationsRequest
+final readonly class FindMyOwnOrganizationsRequest
 {
-    /**
-     * @var int
-     */
-    private $page;
-
-    /**
-     * @var string
-     */
-    private $query;
-
-    /**
-     * @var int
-     */
-    private $maxByPage;
-
-    public function __construct(int $page, string $query, int $maxByPage = 20)
-    {
-        $this->page = $page;
-        $this->query = $query;
-        $this->maxByPage = $maxByPage;
-    }
-
-    public function getPage(): int
-    {
-        return $this->page;
-    }
-
-    public function getQuery(): string
-    {
-        return $this->query;
-    }
-
-    public function getMaxByPage(): int
-    {
-        return $this->maxByPage;
+    public function __construct(
+        public int $page,
+        public string $query,
+        public int $maxByPage = 20,
+    ) {
     }
 }

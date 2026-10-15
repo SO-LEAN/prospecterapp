@@ -4,58 +4,31 @@ declare(strict_types=1);
 
 namespace Prospecter\Core\UseCase\UpdateMyAccountInformation;
 
-use Exception;
-use Prospecter\Core\Entity\User;
-use Prospecter\Core\Gateway\Storage;
-use Prospecter\Core\Exception\Gateway;
 use Prospecter\Core\Entity\Organization;
-use Prospecter\Core\Gateway\UserNotifier;
-use Prospecter\Core\UseCase\AbstractUseCase;
-use Prospecter\Core\UseCase\UseCaseConsumer;
+use Prospecter\Core\Entity\User;
+use Prospecter\Core\Exception\Gateway;
+use Prospecter\Core\Exception\UseCase\UniqueConstraintViolationException;
+use Prospecter\Core\Gateway\Entity\OrganizationGateway;
 use Prospecter\Core\Gateway\Entity\Transaction;
 use Prospecter\Core\Gateway\Entity\UserGateway;
-use Prospecter\Core\Traits\UseCase\StoreFileTrait;
-use Prospecter\Core\Traits\UseCase\UserNotifierTrait;
-use Prospecter\Core\Gateway\Entity\OrganizationGateway;
-use Prospecter\Core\Exception\UseCase\UniqueConstraintViolationException;
+use Prospecter\Core\Gateway\Storage;
+use Prospecter\Core\Gateway\UserNotifier;
+use Prospecter\Core\Service\FileStore;
+use Prospecter\Core\UseCase\AbstractUseCase;
+use Prospecter\Core\UseCase\UseCaseConsumer;
 
 final class UpdateMyAccountInformationImpl extends AbstractUseCase implements UpdateMyAccountInformation
 {
-    use StoreFileTrait;
-    use UserNotifierTrait;
-    /**
-     * @var OrganizationGateway
-     */
-    private $organizationGateway;
-    /**
-     * @var UserGateway
-     */
-    private $userGateway;
-    /**
-     * @var Transaction
-     */
-    private $transaction;
-    /**
-     * @var Storage
-     */
-    private $storage;
-    /**
-     * @var UserNotifier
-     */
-    private $userNotifier;
+    private readonly FileStore $files;
 
     public function __construct(
-        OrganizationGateway $organizationGateway,
-        UserGateway $userGateway,
-        Transaction $transaction,
+        private readonly OrganizationGateway $organizations,
+        private readonly UserGateway $users,
+        private readonly Transaction $transaction,
         Storage $storage,
-        UserNotifier $userNotifier
+        private readonly UserNotifier $userNotifier,
     ) {
-        $this->organizationGateway = $organizationGateway;
-        $this->userGateway = $userGateway;
-        $this->transaction = $transaction;
-        $this->storage = $storage;
-        $this->userNotifier = $userNotifier;
+        $this->files = new FileStore($storage);
     }
 
     public function canBeExecutedBy(): array
@@ -63,97 +36,80 @@ final class UpdateMyAccountInformationImpl extends AbstractUseCase implements Up
         return ['ROLE_USER'];
     }
 
-    public function execute(UpdateMyAccountInformationRequest $request, UpdateMyAccountInformationPresenter $presenter, UseCaseConsumer $consumer): ?object
+    public function execute(UpdateMyAccountInformationRequest $request, UpdateMyAccountInformationPresenter $presenter, UseCaseConsumer $consumer): mixed
     {
-
         $this->transaction->begin();
+        $user = $this->users->get($consumer->getUserId());
+        $organization = $this->organizations->get($consumer->getOrganizationId());
 
-        $user = $this->userGateway->get($consumer->getUserId());
-        $organization = $this->organizationGateway->get($consumer->getOrganizationId());
+        $this->replaceProfile($user, $request);
+        $this->replaceOrganizationDetails($organization, $request);
+        $this->saveTogether($user, $organization);
+        $this->userNotifier->addSuccess('User account information updated !');
 
-        $this->alterUser($request, $user);
-        $this->alterOrganization($request, $organization);
-        $this->handleTransaction($request, $user, $organization);
-        $this->notifySuccess('User account information updated !');
-
-        $response = $this->buildResponse($organization, $user);
-
-        return $presenter->present($response);
+        return $presenter->present($this->buildResponse($user, $organization));
     }
 
-    private function alterUser(UpdateMyAccountInformationRequest $request, User $user): User
+    private function replaceProfile(User $user, UpdateMyAccountInformationRequest $request): void
     {
-        $user->setPhoneNumber($request->getPhoneNumber());
-        $user->setEmail($request->getEmail());
-        $user->setLanguage($request->getLanguage());
-        $user->setUserName($request->getUserName());
-        $user->setFirstName($request->getFirstName());
-        $user->setLastName($request->getLastName());
+        $user->setPhoneNumber($request->phoneNumber);
+        $user->setEmail($request->email);
+        $user->setLanguage($request->language);
+        $user->setUserName($request->userName);
+        $user->setFirstName($request->firstName);
+        $user->setLastName($request->lastName);
 
-        if ($request->getPicture()) {
-            $user->setPicture($this->storeFile($request->getPicture()));
+        if ($request->picture) {
+            $user->setPicture($this->files->store($request->picture));
         }
-
-        return $user;
     }
 
-    private function alterOrganization(UpdateMyAccountInformationRequest $request, Organization $organization): Organization
+    private function replaceOrganizationDetails(Organization $organization, UpdateMyAccountInformationRequest $request): void
     {
-        $organization->setLanguage($request->getLanguage());
-        $organization->setCorporateName($request->getOrganizationCorporateName());
-        $organization->setForm($request->getOrganizationForm());
+        $organization->setLanguage($request->language);
+        $organization->setCorporateName($request->organizationCorporateName);
+        $organization->setForm($request->organizationForm);
 
-        if ($request->getOrganizationLogo()) {
-            $organization->setLogo($this->storeFile($request->getOrganizationLogo()));
+        if ($request->organizationLogo) {
+            $organization->setLogo($this->files->store($request->organizationLogo));
         }
-
-        return $organization;
     }
 
-    private function handleTransaction(UpdateMyAccountInformationRequest $request, User $user, Organization $organization): void
+    private function saveTogether(User $user, Organization $organization): void
     {
         try {
-            $this->updateUser($user);
-            $this->updateOrganization($organization);
-
+            $this->saveUser($user);
+            $this->organizations->update((int) $organization->getId(), $organization);
             $this->transaction->commit();
-        } catch (Exception $e) {
+        } catch (\Throwable $e) {
             $this->transaction->rollback();
-            throw $e;
-        };
-    }
 
-    private function updateUser(User $user): User
-    {
-        try {
-            return $this->userGateway->update($user->getId(), $user);
-        } catch (Gateway\UniqueConstraintViolationException $e) {
-            throw new UniqueConstraintViolationException('Email already used', 412, $e, ['email' => sprintf('Email "%s" already used', $user->getEmail())]);
+            throw $e;
         }
     }
 
-    private function updateOrganization(Organization $organization): Organization
+    private function saveUser(User $user): void
     {
-        return $this->organizationGateway->update($organization->getId(), $organization);
+        try {
+            $this->users->update((int) $user->getId(), $user);
+        } catch (Gateway\UniqueConstraintViolationException $e) {
+            throw new UniqueConstraintViolationException('Email already used', ['email' => sprintf('Email "%s" already used', $user->getEmail())], $e);
+        }
     }
 
-    private function buildResponse(Organization $organization, User $user): UpdateMyAccountInformationResponse
+    private function buildResponse(User $user, Organization $organization): UpdateMyAccountInformationResponse
     {
         return new UpdateMyAccountInformationResponse(
-            $user->getUserName(),
-            $user->getFirstName(),
-            $user->getLastName(),
-            $user->getPicture() ? $user->getPicture()->getUrl() : null,
-            $user->getPicture() ? $user->getPicture()->getExtension() : null,
-            $user->getPicture() ? $user->getPicture()->getSize() : null,
-            $user->getPhoneNumber(),
-            $user->getEmail(),
-            $user->getLanguage(),
-            $organization->getCorporateName(),
-            $organization->getForm(),
-            $organization->getLogo() ? $organization->getLogo()->getUrl() : null,
-            $organization->getLogo() ? $organization->getLogo()->getExtension() : null,
-            $organization->getLogo() ? $organization->getLogo()->getSize() : null
+            userName: $user->getUserName(),
+            firstName: $user->getFirstName(),
+            lastName: $user->getLastName(),
+            picture: $user->getPicture(),
+            phoneNumber: $user->getPhoneNumber(),
+            email: $user->getEmail(),
+            language: $user->getLanguage(),
+            organizationCorporateName: $organization->getCorporateName(),
+            organizationForm: $organization->getForm(),
+            organizationLogo: $organization->getLogo(),
         );
     }
 }

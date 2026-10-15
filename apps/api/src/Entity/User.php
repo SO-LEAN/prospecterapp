@@ -24,7 +24,7 @@ final readonly class User implements UserInterface, UseCaseConsumer
 
     public static function from(CoreUser $user): self
     {
-        return new self($user->getId(), $user->getUserName(), $user->getOrganization()->getId(), array_values($user->getRoles()));
+        return new self((int) $user->getId(), $user->getUserName(), (int) $user->getOrganization()->getId(), $user->getRoles());
     }
 
     public function getRoles(): array

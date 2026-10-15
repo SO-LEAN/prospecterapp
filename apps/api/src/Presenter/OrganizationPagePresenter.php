@@ -19,23 +19,23 @@ final readonly class OrganizationPagePresenter implements FindMyOwnOrganizations
     public function present(FindMyOwnOrganizationsResponse $response): OrganizationPageResource
     {
         return new OrganizationPageResource(
-            items: array_values(array_map($this->summarize(...), $response->getOrganizations())),
-            page: $response->getCurrentPage(),
-            totalPages: $response->getTotalPages(),
-            totalItems: $response->getTotal(),
+            items: array_map($this->summarize(...), $response->organizations),
+            page: $response->currentPage,
+            totalPages: $response->totalPages,
+            totalItems: $response->total,
         );
     }
 
     private function summarize(Organization $organization): OrganizationSummaryResource
     {
         return new OrganizationSummaryResource(
-            id: (int) $organization->getId(),
-            name: $organization->getFullName(),
-            postalCode: $organization->getPostalCode(),
-            city: $organization->getCity(),
-            country: $organization->getCountry(),
-            location: LocationResource::fromCoordinates($organization->getLatitude(), $organization->getLongitude()),
-            logo: $this->images->create($organization->getLogo()),
+            id: $organization->id,
+            name: $organization->fullName,
+            postalCode: $organization->address?->postalCode,
+            city: $organization->address?->city,
+            country: $organization->address?->country,
+            location: LocationResource::from($organization->geoPoint),
+            logo: $this->images->create($organization->logo?->url),
         );
     }
 }

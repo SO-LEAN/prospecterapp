@@ -7,8 +7,9 @@
         <field name="userName" type="string" length="50" nullable="true"/>
         <field name="firstName" type="string" length="100" nullable="true"/>
         <field name="lastName" type="string" length="100" nullable="true"/>
-        <field name="hasPicture" type="boolean" nullable="true"/>
-        <embedded name="picture" class="Prospecter\Core\Entity\File"/>
-        <many-to-one field="organization" target-entity="Prospecter\Core\Entity\Organization" inversed-by="applicationUsers"/>
+        <field name="pictureUrl" type="string" length="255" nullable="true"/>
+        <field name="pictureExtension" type="string" length="255" nullable="true"/>
+        <field name="pictureSize" type="integer" nullable="true"/>
+        <many-to-one field="organization" target-entity="Prospecter\Core\Entity\Organization"/>
     </entity>
 </doctrine-mapping>

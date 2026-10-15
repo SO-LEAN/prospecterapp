@@ -1,30 +1,12 @@
 <?php
 
-declare( strict_types = 1 );
+declare(strict_types=1);
 
 namespace Prospecter\Core\UseCase\GetOrganization;
 
-final class GetOrganizationRequest
+final readonly class GetOrganizationRequest
 {
-    /**
-     * @var mixed
-     */
-    private $id;
-
-    /**
-     * GetOrganizationRequest constructor.
-     * @param mixed $id
-     */
-    public function __construct($id)
+    public function __construct(public int $id)
     {
-        $this->id = $id;
-    }
-
-    /**
-     * @return mixed
-     */
-    public function getId()
-    {
-        return $this->id;
     }
 }

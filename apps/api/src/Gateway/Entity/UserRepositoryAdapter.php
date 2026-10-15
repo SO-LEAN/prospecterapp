@@ -8,7 +8,7 @@ use Prospecter\Core\Gateway\Entity\UserGateway;
 
 class UserRepositoryAdapter extends RepositoryAdapter implements UserGateway
 {
-    public function get(mixed $id): User
+    public function get(int $id): User
     {
         return $this->findOneBy(['id' => $id]) ?? throw new NotFoundException();
     }
@@ -20,7 +20,7 @@ class UserRepositoryAdapter extends RepositoryAdapter implements UserGateway
         return $user;
     }
 
-    public function update(mixed $id, User $user): User
+    public function update(int $id, User $user): User
     {
         $user->setId($id);
         $this->save($user);

@@ -1,26 +1,12 @@
 <?php
 
-declare( strict_types = 1 );
+declare(strict_types=1);
 
 namespace Prospecter\Core\UseCase\RemoveOrganizationLogo;
 
-final class RemoveOrganizationLogoRequest
+final readonly class RemoveOrganizationLogoRequest
 {
-    /**
-     * @var mixed
-     */
-    private $organizationId;
-
-    public function __construct($organizationId)
+    public function __construct(public int $organizationId)
     {
-        $this->organizationId = $organizationId;
-    }
-
-    /**
-     * @return mixed
-     */
-    public function getOrganizationId()
-    {
-        return $this->organizationId;
     }
 }

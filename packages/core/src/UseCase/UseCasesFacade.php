@@ -1,43 +1,50 @@
 <?php
 
-declare( strict_types = 1 );
+declare(strict_types=1);
 
 namespace Prospecter\Core\UseCase;
 
-use BadFunctionCallException;
-use Prospecter\Core\UseCase;
 use Prospecter\Core\Exception\UseCase\UnauthorizedException;
+use Prospecter\Core\UseCase\CreateOrganization\CreateOrganizationPresenter;
+use Prospecter\Core\UseCase\CreateOrganization\CreateOrganizationRequest;
+use Prospecter\Core\UseCase\FindMyOwnOrganizations\FindMyOwnOrganizationsPresenter;
+use Prospecter\Core\UseCase\FindMyOwnOrganizations\FindMyOwnOrganizationsRequest;
+use Prospecter\Core\UseCase\GetMyAccountInformation\GetMyAccountInformationPresenter;
+use Prospecter\Core\UseCase\GetMyAccountInformation\GetMyAccountInformationRequest;
+use Prospecter\Core\UseCase\GetOrganization\GetOrganizationPresenter;
+use Prospecter\Core\UseCase\GetOrganization\GetOrganizationRequest;
+use Prospecter\Core\UseCase\RemoveOrganizationLogo\RemoveOrganizationLogoPresenter;
+use Prospecter\Core\UseCase\RemoveOrganizationLogo\RemoveOrganizationLogoRequest;
+use Prospecter\Core\UseCase\UpdateMyAccountInformation\UpdateMyAccountInformationPresenter;
+use Prospecter\Core\UseCase\UpdateMyAccountInformation\UpdateMyAccountInformationRequest;
+use Prospecter\Core\UseCase\UpdateOrganization\UpdateOrganizationPresenter;
+use Prospecter\Core\UseCase\UpdateOrganization\UpdateOrganizationRequest;
 
 /**
+ * Calls a use case by its name (lcfirst of the class without "Impl") after checking the roles of the consumer.
  *
- * @method createOrganization(UseCase\CreateOrganization\CreateOrganizationRequest $request, UseCase\CreateOrganization\CreateOrganizationPresenter $presenter, ?UseCaseConsumer $consumer)
- * @method getOrganization(UseCase\GetOrganization\GetOrganizationRequest $request, UseCase\GetOrganization\GetOrganizationPresenter $presenter, ?UseCaseConsumer $consumer)
- * @method findMyOwnOrganizations(UseCase\FindMyOwnOrganizations\FindMyOwnOrganizationsRequest $request, UseCase\FindMyOwnOrganizations\FindMyOwnOrganizationsPresenter $presenter, UseCaseConsumer $consumer)
- * @method updateOrganization(UseCase\UpdateOrganization\UpdateOrganizationRequest $request, UseCase\UpdateOrganization\UpdateOrganizationPresenter $presenter, ?UseCaseConsumer $consumer)
- * @method removeOrganizationLogo(UseCase\RemoveOrganizationLogo\RemoveOrganizationLogoRequest $request, UseCase\RemoveOrganizationLogo\RemoveOrganizationLogoPresenter $presenter, UseCaseConsumer $consumer)
- *
- * @method updateMyAccountInformation(UseCase\UpdateMyAccountInformation\UpdateMyAccountInformationRequest $request, UseCase\UpdateMyAccountInformation\UpdateMyAccountInformationPresenter $presenter, ?UseCaseConsumer $consumer)
- * @method getMyAccountInformation(UseCase\GetMyAccountInformation\GetMyAccountInformationRequest $request, UseCase\GetMyAccountInformation\GetMyAccountInformationPresenter $presenter, ?UseCaseConsumer $consumer)
+ * @method mixed createOrganization(CreateOrganizationRequest $request, CreateOrganizationPresenter $presenter, UseCaseConsumer $consumer)
+ * @method mixed getOrganization(GetOrganizationRequest $request, GetOrganizationPresenter $presenter, UseCaseConsumer $consumer)
+ * @method mixed findMyOwnOrganizations(FindMyOwnOrganizationsRequest $request, FindMyOwnOrganizationsPresenter $presenter, UseCaseConsumer $consumer)
+ * @method mixed updateOrganization(UpdateOrganizationRequest $request, UpdateOrganizationPresenter $presenter, UseCaseConsumer $consumer)
+ * @method mixed removeOrganizationLogo(RemoveOrganizationLogoRequest $request, RemoveOrganizationLogoPresenter $presenter, UseCaseConsumer $consumer)
+ * @method mixed updateMyAccountInformation(UpdateMyAccountInformationRequest $request, UpdateMyAccountInformationPresenter $presenter, UseCaseConsumer $consumer)
+ * @method mixed getMyAccountInformation(GetMyAccountInformationRequest $request, GetMyAccountInformationPresenter $presenter, UseCaseConsumer $consumer)
  */
 class UseCasesFacade
 {
-    /**
-     * @var AbstractUseCase[]
-     */
-    private $useCases;
+    private const string ADMIN = 'ROLE_ADMIN';
 
-    public function __construct()
-    {
-        $this->useCases = [];
-    }
+    /** @var array<string, AbstractUseCase> */
+    private array $useCases = [];
 
     public function addUseCase(AbstractUseCase $useCase): void
     {
-        $this->useCases[lcfirst($this->getShortClassName($useCase))] = $useCase;
+        $this->useCases[$this->nameOf($useCase)] = $useCase;
     }
 
     /**
-     * @return AbstractUseCase[]
+     * @return array<string, AbstractUseCase>
      */
     public function getUseCases(): array
     {
@@ -46,61 +53,49 @@ class UseCasesFacade
 
     public function hasUseCase(string $name): bool
     {
-        return array_key_exists($name, $this->useCases);
+        return isset($this->useCases[$name]);
     }
 
-    public function __call(string $name, array $arguments)
+    /**
+     * @param list<mixed> $arguments request, presenter and, for a protected use case, the consumer
+     */
+    public function __call(string $name, array $arguments): mixed
     {
-        $this->checkCalledMethod($name, $arguments);
-        $this->checkAccess($arguments, $name);
+        $useCase = $this->useCases[$name] ?? throw new \BadFunctionCallException(sprintf('Call to undefined method %s::%s()', self::class, $name));
+        $consumer = $this->consumerFrom($name, $arguments);
+        $this->assertCanBeExecutedBy($useCase, $consumer);
 
-        return call_user_func_array([$this->useCases[$name], 'execute'], $arguments);
+        return [$useCase, 'execute'](...$arguments);
     }
 
-    private function getShortClassName(object $useCase): string
+    private function nameOf(AbstractUseCase $useCase): string
     {
-        $shortName = explode('\\', preg_replace('/(Impl$)/', '', get_class($useCase)));
-
-        return end($shortName);
+        return lcfirst((string) preg_replace(['/^.*\\\\/', '/Impl$/'], '', $useCase::class));
     }
 
-    private function checkCalledMethod(string $name, array $arguments): void
+    /**
+     * @param list<mixed> $arguments
+     */
+    private function consumerFrom(string $name, array $arguments): ?UseCaseConsumer
     {
-        if (!$this->hasUseCase($name)) {
-            throw new BadFunctionCallException(sprintf('Call to undefined method %s::%s()', get_class($this), $name));
+        $consumer = $arguments[2] ?? null;
+
+        if (null !== $consumer && !$consumer instanceof UseCaseConsumer) {
+            throw new \BadFunctionCallException(sprintf('Argument 3 passed to %s must be an instance of %s, instance of %s given', $name, UseCaseConsumer::class, get_debug_type($consumer)));
         }
 
-        if (isset($arguments[2]) && !($arguments[2] instanceof UseCaseConsumer)) {
-            $type = is_object($arguments[2]) ? get_class($arguments[2]) : getType($arguments[2]);
-
-            throw new BadFunctionCallException(sprintf('Argument 3 passed to %s must be an instance of %s, instance of %s given', $name, UseCaseConsumer::class, $type));
-        }
+        return $consumer;
     }
 
-    private function checkAccess(array $arguments, string $name): void
+    private function assertCanBeExecutedBy(AbstractUseCase $useCase, ?UseCaseConsumer $consumer): void
     {
-        $useCase = $this->useCases[$name];
-        $consumerRoles = $this->getConsumerRoles($arguments);
+        $allowedRoles = $useCase->canBeExecutedBy();
+        $roles = $consumer?->getRoles() ?? [];
 
-        $isAdmin = in_array('ROLE_ADMIN', $consumerRoles);
-        $hasAppropriateRole = !empty(array_intersect($consumerRoles, $useCase->canBeExecutedBy()));
-        $isPublicUseCase = empty($useCase->canBeExecutedBy());
-
-        if ($isAdmin || $hasAppropriateRole || $isPublicUseCase) {
+        if ([] === $allowedRoles || in_array(self::ADMIN, $roles, true) || [] !== array_intersect($roles, $allowedRoles)) {
             return;
         }
 
         throw new UnauthorizedException();
-    }
-
-    private function getConsumerRoles(array $arguments): array
-    {
-        if (isset($arguments[2])) {
-            $roles = $arguments[2]->getRoles();
-        } else {
-            $roles = [];
-        }
-
-        return $roles;
     }
 }

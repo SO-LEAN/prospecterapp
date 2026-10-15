@@ -1,33 +1,24 @@
 <?php
 
-declare( strict_types = 1 );
+declare(strict_types=1);
 
 namespace Prospecter\Core\UseCase\GetMyAccountInformation;
 
+use Prospecter\Core\Entity\Organization;
 use Prospecter\Core\Entity\User;
 use Prospecter\Core\Exception\Gateway;
-use Prospecter\Core\Entity\Organization;
+use Prospecter\Core\Exception\UseCase\NotFoundException;
+use Prospecter\Core\Gateway\Entity\OrganizationGateway;
 use Prospecter\Core\Gateway\Entity\UserGateway;
 use Prospecter\Core\UseCase\AbstractUseCase;
-use Prospecter\Core\Gateway\Entity\OrganizationGateway;
-use Prospecter\Core\Exception\UseCase\NotFoundException;
 use Prospecter\Core\UseCase\UseCaseConsumer;
 
 final class GetMyAccountInformationImpl extends AbstractUseCase implements GetMyAccountInformation
 {
-    /**
-     * @var UserGateway
-     */
-    private $userGateway;
-    /**
-     * @var OrganizationGateway
-     */
-    private $organizationGateway;
-
-    public function __construct(UserGateway $userGateway, OrganizationGateway $organizationGateway)
-    {
-        $this->userGateway = $userGateway;
-        $this->organizationGateway = $organizationGateway;
+    public function __construct(
+        private readonly UserGateway $users,
+        private readonly OrganizationGateway $organizations,
+    ) {
     }
 
     public function canBeExecutedBy(): array
@@ -35,49 +26,42 @@ final class GetMyAccountInformationImpl extends AbstractUseCase implements GetMy
         return ['ROLE_USER'];
     }
 
-    public function execute(GetMyAccountInformationRequest $request, GetMyAccountInformationPresenter $presenter, UseCaseConsumer $consumer)
+    public function execute(GetMyAccountInformationRequest $request, GetMyAccountInformationPresenter $presenter, UseCaseConsumer $consumer): mixed
     {
-        $user = $this->getUser($consumer->getUserId());
-        $organization = $this->getOrganization($consumer->getOrganizationId());
-
-        return $presenter->present($this->buildResponse($user, $organization));
+        return $presenter->present($this->buildResponse($this->user($consumer->getUserId()), $this->organization($consumer->getOrganizationId())));
     }
 
-    private function getOrganization($id): Organization
+    private function user(int $id): User
     {
         try {
-            return $this->organizationGateway->get($id);
+            return $this->users->get($id);
         } catch (Gateway\NotFoundException $e) {
-            throw new NotFoundException(sprintf('Organization with #ID %d not found', $id), 404, $e, ['id' => 'Organization not found']);
+            throw new NotFoundException(sprintf('User with #ID %d not found', $id), ['id' => 'User not found'], $e);
         }
     }
 
-    private function getUser($id): User
+    private function organization(int $id): Organization
     {
         try {
-            return $this->userGateway->get($id);
+            return $this->organizations->get($id);
         } catch (Gateway\NotFoundException $e) {
-            throw new NotFoundException(sprintf('User with #ID %d not found', $id), 404, $e, ['id' => 'User not found']);
+            throw new NotFoundException(sprintf('Organization with #ID %d not found', $id), ['id' => 'Organization not found'], $e);
         }
     }
 
-    private function buildResponse(User $user, Organization $organization) : GetMyAccountInformationResponse
+    private function buildResponse(User $user, Organization $organization): GetMyAccountInformationResponse
     {
         return new GetMyAccountInformationResponse(
-            $user->getUserName(),
-            $user->getFirstName(),
-            $user->getLastName(),
-            $user->getPicture() ? $user->getPicture()->getUrl(): null,
-            $user->getPicture() ? $user->getPicture()->getExtension(): null,
-            $user->getPicture() ? $user->getPicture()->getSize(): null,
-            $user->getPhoneNumber(),
-            $user->getEmail(),
-            $user->getLanguage(),
-            $organization->getCorporateName(),
-            $organization->getForm(),
-            $organization->getLogo() ? $organization->getLogo()->getUrl() : null,
-            $organization->getLogo() ? $organization->getLogo()->getExtension() : null,
-            $organization->getLogo() ? $organization->getLogo()->getSize() : null
+            userName: $user->getUserName(),
+            firstName: $user->getFirstName(),
+            lastName: $user->getLastName(),
+            picture: $user->getPicture(),
+            phoneNumber: $user->getPhoneNumber(),
+            email: $user->getEmail(),
+            language: $user->getLanguage(),
+            organizationCorporateName: $organization->getCorporateName(),
+            organizationForm: $organization->getForm(),
+            organizationLogo: $organization->getLogo(),
         );
     }
 }

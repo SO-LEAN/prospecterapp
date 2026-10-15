@@ -1,35 +1,27 @@
 <?php
 
-declare( strict_types = 1 );
+declare(strict_types=1);
 
 namespace Tests\Core\UseCase\Stub;
 
 use Prospecter\Core\UseCase\AbstractUseCase;
 
-class StubPublicUseCaseImpl extends AbstractUseCase
+final class StubPublicUseCaseImpl extends AbstractUseCase
 {
-    private $roles;
-
     /**
-     * StubPublicUseCaseImpl constructor.
-     * @param $roles
+     * @param list<string> $roles
      */
-    public function __construct($roles = [])
+    public function __construct(private readonly array $roles = [])
     {
-        $this->roles = $roles;
     }
 
-    /**
-     * empty mean everybody
-     */
     public function canBeExecutedBy(): array
     {
         return $this->roles;
     }
 
-    public function execute(StubUseCaseRequest $request, $presenter) : object
+    public function execute(StubUseCaseRequest $request, object $presenter): \stdClass
     {
-        unset($request, $presenter);
-        return (object)['action' => 'executed'];
+        return (object) ['action' => 'executed'];
     }
 }

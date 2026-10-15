@@ -1,12 +1,15 @@
 <?php
 
-declare( strict_types = 1 );
+declare(strict_types=1);
 
 namespace Prospecter\Core\Gateway;
 
-use Prospecter\Core\Gateway\GeoLocation\GeoPointResponse;
+use Prospecter\Core\Entity\GeoPoint;
 
 interface GeoLocation
 {
-    public function find(string $address): GeoPointResponse;
+    /**
+     * The position of the address, null when it cannot be found.
+     */
+    public function find(string $address): ?GeoPoint;
 }

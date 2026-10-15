@@ -1,13 +1,13 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Tests\Core\UseCase;
 
-use BadFunctionCallException;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Prospecter\Core\Exception\UseCase\UnauthorizedException;
 use Prospecter\Core\UseCase\UseCasesFacade;
-use stdClass;
 use Tests\Core\Double\SignedInUser;
 use Tests\Core\UseCase\Stub\StubNeedsRoleUseCaseImpl;
 use Tests\Core\UseCase\Stub\StubPublicUseCaseImpl;
@@ -31,51 +31,51 @@ class UseCasesFacadeTest extends TestCase
     {
         $this->assertTrue($this->facade->hasUseCase('stubPublicUseCase'));
         $this->assertCount(2, $this->facade->getUseCases());
-        $this->assertSame('executed', $this->facade->stubPublicUseCase(new StubUseCaseRequest(), new stdClass())->action);
+        $this->assertSame('executed', $this->facade->stubPublicUseCase(new StubUseCaseRequest(), new \stdClass())->action);
     }
 
     public function testAnUnknownUseCaseCannotBeCalled(): void
     {
-        $this->expectExceptionObject(new BadFunctionCallException('Call to undefined method Prospecter\Core\UseCase\UseCasesFacade::unknownUseCase()'));
+        $this->expectExceptionObject(new \BadFunctionCallException('Call to undefined method Prospecter\Core\UseCase\UseCasesFacade::unknownUseCase()'));
 
-        $this->facade->unknownUseCase(new StubUseCaseRequest(), new stdClass());
+        $this->facade->unknownUseCase(new StubUseCaseRequest(), new \stdClass());
     }
 
     public function testAPublicUseCaseIsOpenToAnonymousUsers(): void
     {
-        $this->assertSame('executed', $this->facade->stubPublicUseCase(new StubUseCaseRequest(), new stdClass())->action);
+        $this->assertSame('executed', $this->facade->stubPublicUseCase(new StubUseCaseRequest(), new \stdClass())->action);
     }
 
     public function testAProtectedUseCaseIsRefusedToAnonymousUsers(): void
     {
         $this->expectException(UnauthorizedException::class);
 
-        $this->facade->stubNeedsRoleUseCase(new StubUseCaseRequest(), new stdClass());
+        $this->facade->stubNeedsRoleUseCase(new StubUseCaseRequest(), new \stdClass());
     }
 
     public function testAProtectedUseCaseIsRefusedWithoutItsRole(): void
     {
         $this->expectException(UnauthorizedException::class);
 
-        $this->facade->stubNeedsRoleUseCase(new StubUseCaseRequest(), new stdClass(), $this->userWith(['ROLE_USER']));
+        $this->facade->stubNeedsRoleUseCase(new StubUseCaseRequest(), new \stdClass(), $this->userWith(['ROLE_USER']));
     }
 
     public function testAProtectedUseCaseIsOpenWithItsRole(): void
     {
-        $this->assertSame('executed', $this->facade->stubNeedsRoleUseCase(new StubUseCaseRequest(), new stdClass(), $this->userWith(['SPECIFIC_ROLE']))->action);
+        $this->assertSame('executed', $this->facade->stubNeedsRoleUseCase(new StubUseCaseRequest(), new \stdClass(), $this->userWith(['SPECIFIC_ROLE']))->action);
     }
 
     public function testAnAdministratorCanCallEveryUseCase(): void
     {
-        $this->assertSame('executed', $this->facade->stubNeedsRoleUseCase(new StubUseCaseRequest(), new stdClass(), $this->userWith(['ROLE_ADMIN']))->action);
+        $this->assertSame('executed', $this->facade->stubNeedsRoleUseCase(new StubUseCaseRequest(), new \stdClass(), $this->userWith(['ROLE_ADMIN']))->action);
     }
 
     #[DataProvider('notAConsumer')]
     public function testTheThirdArgumentMustBeTheConsumer(string $message, mixed $consumer): void
     {
-        $this->expectExceptionObject(new BadFunctionCallException($message));
+        $this->expectExceptionObject(new \BadFunctionCallException($message));
 
-        $this->facade->stubPublicUseCase(new StubUseCaseRequest(), new stdClass(), $consumer);
+        $this->facade->stubPublicUseCase(new StubUseCaseRequest(), new \stdClass(), $consumer);
     }
 
     /**
@@ -85,7 +85,7 @@ class UseCasesFacadeTest extends TestCase
     {
         $expected = 'Argument 3 passed to stubPublicUseCase must be an instance of Prospecter\Core\UseCase\UseCaseConsumer, instance of %s given';
 
-        yield 'another object' => [sprintf($expected, 'stdClass'), new stdClass()];
+        yield 'another object' => [sprintf($expected, 'stdClass'), new \stdClass()];
         yield 'an array' => [sprintf($expected, 'array'), []];
         yield 'a string' => [sprintf($expected, 'string'), 'string'];
     }

@@ -17,17 +17,17 @@ final readonly class AccountResourcePresenter implements GetMyAccountInformation
     public function present(GetMyAccountInformationResponse $response): AccountResource
     {
         return new AccountResource(
-            userName: $response->getUserName(),
-            firstName: $response->getFirstName(),
-            lastName: $response->getLastName(),
-            email: $response->getEmail(),
-            phoneNumber: $response->getPhoneNumber(),
-            language: $response->getLanguage(),
-            picture: $this->images->create($response->getPictureUrl()),
+            userName: $response->userName,
+            firstName: $response->firstName,
+            lastName: $response->lastName,
+            email: $response->email,
+            phoneNumber: $response->phoneNumber,
+            language: $response->language,
+            picture: $this->images->create($response->picture?->url),
             organization: new AccountOrganizationResource(
-                $response->getOrganizationCorporateName(),
-                $response->getOrganizationForm(),
-                $this->images->create($response->getOrganizationLogoUrl()),
+                $response->organizationCorporateName,
+                $response->organizationForm,
+                $this->images->create($response->organizationLogo?->url),
             ),
         );
     }

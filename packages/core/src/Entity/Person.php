@@ -1,29 +1,17 @@
 <?php
 
-declare( strict_types = 1 );
+declare(strict_types=1);
 
 namespace Prospecter\Core\Entity;
 
-use InvalidArgumentException;
-
 abstract class Person extends Base
 {
-    /**
-     * @var string
-     */
-    private $email;
-    /**
-     * @var string
-     */
-    private $phoneNumber;
-    /**
-     * @var string
-     */
-    private $language;
-    /**
-     * @var string
-     */
-    private $observations;
+    private ?string $email = null;
+    private ?string $phoneNumber = null;
+    private ?string $language = null;
+    private ?string $observations = null;
+
+    abstract public function getFullName(): string;
 
     public function getEmail(): ?string
     {
@@ -32,10 +20,21 @@ abstract class Person extends Base
 
     public function setEmail(?string $email): void
     {
-        if ($email && !filter_var($email, FILTER_VALIDATE_EMAIL)) {
-            throw new InvalidArgumentException(sprintf('Email "%s" is not valid', $email));
+        if (null !== $email && !filter_var($email, FILTER_VALIDATE_EMAIL)) {
+            throw new \InvalidArgumentException(sprintf('Email "%s" is not valid', $email));
         }
+
         $this->email = $email;
+    }
+
+    public function getPhoneNumber(): ?string
+    {
+        return $this->phoneNumber;
+    }
+
+    public function setPhoneNumber(?string $phoneNumber): void
+    {
+        $this->phoneNumber = $phoneNumber;
     }
 
     public function getLanguage(): ?string
@@ -57,16 +56,4 @@ abstract class Person extends Base
     {
         $this->observations = $observations;
     }
-
-    public function getPhoneNumber(): ?string
-    {
-        return $this->phoneNumber;
-    }
-
-    public function setPhoneNumber(?string $phoneNumber): void
-    {
-        $this->phoneNumber = $phoneNumber;
-    }
-
-    abstract public function getFullName(): string;
 }

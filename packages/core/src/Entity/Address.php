@@ -1,69 +1,26 @@
 <?php
 
-declare( strict_types = 1 );
+declare(strict_types=1);
 
 namespace Prospecter\Core\Entity;
 
-final class Address
+final readonly class Address implements \Stringable
 {
-    /**
-     * @var string
-     */
-    private $street;
-    /**
-     * @var string
-     */
-    private $postalCode;
-    /**
-     * @var string
-     */
-    private $city;
-    /**
-     * @var string
-     */
-    private $country;
-
-    private function __construct()
-    {
+    public function __construct(
+        public ?string $street = null,
+        public ?string $postalCode = null,
+        public ?string $city = null,
+        public ?string $country = null,
+    ) {
     }
 
-    public static function fromValues(?string $street, ?string $postalCode, ?string $city, ?string $country)
+    public function isEmpty(): bool
     {
-        $address = new Address();
-        $address->street = $street;
-        $address->postalCode = $postalCode;
-        $address->city = $city;
-        $address->country = $country;
-
-        return $address;
+        return null === $this->street && null === $this->postalCode && null === $this->city && null === $this->country;
     }
 
-    /**
-     * @return string
-     */
-    public function getStreet(): ?string
+    public function __toString(): string
     {
-        return $this->street;
-    }
-
-    /**
-     * @return string
-     */
-    public function getPostalCode(): ?string
-    {
-        return $this->postalCode;
-    }
-
-    /**
-     * @return string
-     */
-    public function getCity(): ?string
-    {
-        return $this->city;
-    }
-
-    public function getCountry(): ?string
-    {
-        return $this->country;
+        return implode(' ', array_filter([$this->street, $this->postalCode, $this->city, $this->country], static fn (?string $part): bool => null !== $part));
     }
 }

@@ -1,45 +1,36 @@
 <?php
 
-declare( strict_types = 1 );
+declare(strict_types=1);
 
 namespace Prospecter\Core\UseCase\UpdateOrganization;
 
-use Prospecter\Core\Entity\Address;
-use Prospecter\Core\Gateway\Storage;
-use Prospecter\Core\Exception\Gateway;
 use Prospecter\Core\Entity\Organization;
-use Prospecter\Core\Gateway\GeoLocation;
-use Prospecter\Core\Gateway\UserNotifier;
-use Prospecter\Core\Traits\UseCase\StoreFileTrait;
-use Prospecter\Core\Traits\UseCase\UserNotifierTrait;
-use Prospecter\Core\UseCase\AbstractUseCase;
-use Prospecter\Core\Traits\UseCase\GeoLocalizeTrait;
+use Prospecter\Core\Exception\Entity\ValidationException;
+use Prospecter\Core\Exception\Gateway;
+use Prospecter\Core\Exception\UseCase\NotFoundException;
+use Prospecter\Core\Exception\UseCase\UniqueConstraintViolationException;
 use Prospecter\Core\Exception\UseCase\UseCaseException;
 use Prospecter\Core\Gateway\Entity\OrganizationGateway;
-use Prospecter\Core\Exception\UseCase\NotFoundException;
-use Prospecter\Core\Exception\Entity\ValidationException;
-use Prospecter\Core\Exception\UseCase\UniqueConstraintViolationException;
+use Prospecter\Core\Gateway\GeoLocation;
+use Prospecter\Core\Gateway\Storage;
+use Prospecter\Core\Gateway\UserNotifier;
+use Prospecter\Core\Service\FileStore;
+use Prospecter\Core\Service\GeoLocalizer;
+use Prospecter\Core\UseCase\AbstractUseCase;
 
 final class UpdateOrganizationImpl extends AbstractUseCase implements UpdateOrganization
 {
-    use GeoLocalizeTrait;
-    use StoreFileTrait;
-    use UserNotifierTrait;
-    /**
-     * @var OrganizationGateway
-     */
-    private $organizationGateway;
-    /**
-     * @var Storage
-     */
-    private $storage;
+    private readonly FileStore $files;
+    private readonly GeoLocalizer $geoLocalizer;
 
-    public function __construct(OrganizationGateway $organizationGateway, Storage $storage, UserNotifier $userNotifier, GeoLocation $geoLocation)
-    {
-        $this->organizationGateway = $organizationGateway;
-        $this->storage = $storage;
-        $this->userNotifier = $userNotifier;
-        $this->geoLocation = $geoLocation;
+    public function __construct(
+        private readonly OrganizationGateway $organizations,
+        Storage $storage,
+        private readonly UserNotifier $userNotifier,
+        GeoLocation $geoLocation,
+    ) {
+        $this->files = new FileStore($storage);
+        $this->geoLocalizer = new GeoLocalizer($geoLocation);
     }
 
     public function canBeExecutedBy(): array
@@ -47,20 +38,47 @@ final class UpdateOrganizationImpl extends AbstractUseCase implements UpdateOrga
         return ['ROLE_PROSPECTOR'];
     }
 
-    public function execute(UpdateOrganizationRequest $request, UpdateOrganizationPresenter $presenter): ?object
+    public function execute(UpdateOrganizationRequest $request, UpdateOrganizationPresenter $presenter): mixed
     {
-
-        $organization = $this->alterOrganization($request, $this->organizationGateway->get($request->getId()));
-        $this->joinToHoldingIfNeeded($request, $organization);
-        $this->geolocalize($organization);
-
+        $organization = $this->organizations->get($request->id);
+        $this->replaceDetails($organization, $request);
+        $organization->setHoldBy($this->holding($request));
+        $this->geoLocalizer->locate($organization);
         $this->validate($organization);
-        $persisted = $this->update($organization);
-        $response = $this->buildResponse($persisted);
 
-        $this->notifySuccess('Organization updated !');
+        $updated = $this->update($organization);
+        $this->userNotifier->addSuccess('Organization updated !');
 
-        return $presenter->present($response);
+        return $presenter->present($this->buildResponse($updated));
+    }
+
+    private function replaceDetails(Organization $organization, UpdateOrganizationRequest $request): void
+    {
+        $organization->setLanguage($request->language);
+        $organization->setPhoneNumber($request->phoneNumber);
+        $organization->setObservations($request->observations);
+        $organization->setEmail($request->email);
+        $organization->setCorporateName($request->corporateName);
+        $organization->setForm($request->form);
+        $organization->setType($request->type);
+        $organization->setAddress($request->address);
+
+        if ($request->logo) {
+            $organization->setLogo($this->files->store($request->logo));
+        }
+    }
+
+    private function holding(UpdateOrganizationRequest $request): ?Organization
+    {
+        if (null === $request->holdBy) {
+            return null;
+        }
+
+        try {
+            return $this->organizations->get($request->holdBy);
+        } catch (Gateway\NotFoundException $e) {
+            throw new NotFoundException(sprintf('Holding with #ID %d not found', $request->holdBy), ['holdBy' => 'Holding not found'], $e);
+        }
     }
 
     private function validate(Organization $organization): void
@@ -68,81 +86,34 @@ final class UpdateOrganizationImpl extends AbstractUseCase implements UpdateOrga
         try {
             $organization->validate();
         } catch (ValidationException $e) {
-            throw new UseCaseException($e->getMessage(), 412, $e, [$e->getField() => $e->getMessage()]);
-        }
-    }
-
-    private function alterOrganization(UpdateOrganizationRequest $request, Organization $organization): Organization
-    {
-
-        $organization->setLanguage($request->getLanguage());
-        $organization->setPhoneNumber($request->getPhoneNumber());
-        $organization->setObservations($request->getObservations());
-        $organization->setEmail($request->getEmail());
-        $organization->setCorporateName($request->getCorporateName());
-        $organization->setForm($request->getForm());
-        $organization->setType($request->getType());
-
-        if ($request->hasAddress()) {
-            $organization->setAddress(Address::fromValues($request->getStreet(), $request->getPostalCode(), $request->getCity(), $request->getCountry()));
-        } else {
-            $organization->setAddress(null);
-        }
-
-        if ($request->getLogo()) {
-            $organization->setLogo($this->storeFile($request->getLogo()));
-        }
-
-        return $organization;
-    }
-
-    private function joinToHoldingIfNeeded(UpdateOrganizationRequest $request, Organization $organization): void
-    {
-        if ($request->getHoldBy()) {
-            try {
-                $organization->setHoldBy($this->organizationGateway->get($request->getHoldBy()));
-            } catch (Gateway\NotFoundException $e) {
-                throw new NotFoundException(sprintf('Holding with #ID %d not found', $request->getHoldBy()), 404, $e, ['holdBy' => 'Holding not found']);
-            }
-        } else {
-            $organization->setHoldBy(null);
+            throw new UseCaseException($e->getMessage(), [$e->getField() => $e->getMessage()], $e);
         }
     }
 
     private function update(Organization $organization): Organization
     {
         try {
-            $persisted = $this->organizationGateway->update($organization->getId(), $organization);
+            return $this->organizations->update((int) $organization->getId(), $organization);
         } catch (Gateway\UniqueConstraintViolationException $e) {
-            throw new UniqueConstraintViolationException('Email already used', 412, $e, ['email' => sprintf('Email "%s" already used', $organization->getEmail())]);
+            throw new UniqueConstraintViolationException('Email already used', ['email' => sprintf('Email "%s" already used', $organization->getEmail())], $e);
         }
-
-        return $persisted;
     }
 
-    private function buildResponse(Organization $persisted): UpdateOrganizationResponse
+    private function buildResponse(Organization $organization): UpdateOrganizationResponse
     {
-        $response = new UpdateOrganizationResponse(
-            $persisted->getId(),
-            $persisted->getPhoneNumber(),
-            $persisted->getEmail(),
-            $persisted->getLanguage(),
-            $persisted->getCorporateName(),
-            $persisted->getForm(),
-            $persisted->getType(),
-            $persisted->getAddress() ? $persisted->getAddress()->getStreet() : null,
-            $persisted->getAddress() ? $persisted->getAddress()->getPostalCode() : null,
-            $persisted->getAddress() ? $persisted->getAddress()->getCity() : null,
-            $persisted->getAddress() ? $persisted->getAddress()->getCountry() : null,
-            $persisted->getGeoPoint() ? $persisted->getGeoPoint()->getLongitude() : null,
-            $persisted->getGeoPoint() ? $persisted->getGeoPoint()->getLatitude() : null,
-            $persisted->getObservations(),
-            $persisted->getLogo() ? $persisted->getLogo()->getUrl() : null,
-            $persisted->getLogo() ? $persisted->getLogo()->getExtension() : null,
-            $persisted->getLogo() ? $persisted->getLogo()->getSize() : null,
-            $persisted->getHoldBy() ? $persisted->getHoldBy()->getId() : null
+        return new UpdateOrganizationResponse(
+            id: (int) $organization->getId(),
+            phoneNumber: $organization->getPhoneNumber(),
+            email: $organization->getEmail(),
+            language: $organization->getLanguage(),
+            corporateName: $organization->getCorporateName(),
+            form: $organization->getForm(),
+            type: $organization->getType(),
+            address: $organization->getAddress(),
+            geoPoint: $organization->getGeoPoint(),
+            observations: $organization->getObservations(),
+            logo: $organization->getLogo(),
+            holdBy: $organization->getHoldBy()?->getId(),
         );
-
-        return $response;
     }
 }

@@ -1,14 +1,15 @@
 <?php
 
-namespace Tests\App\Service;
+namespace Tests\App\Gateway;
 
-use App\Service\GeoplateformeGeoLocator;
+use App\Gateway\GeoplateformeGeoLocation;
 use PHPUnit\Framework\TestCase;
+use Prospecter\Core\Entity\GeoPoint;
 use Symfony\Component\HttpClient\MockHttpClient;
 use Symfony\Component\HttpClient\Response\JsonMockResponse;
 use Symfony\Component\HttpClient\Response\MockResponse;
 
-class GeoplateformeGeoLocatorTest extends TestCase
+class GeoplateformeGeoLocationTest extends TestCase
 {
     private const string URL = 'https://geocoder.test/search';
 
@@ -21,34 +22,24 @@ class GeoplateformeGeoLocatorTest extends TestCase
             return new JsonMockResponse($this->featureCollection(0.96));
         });
 
-        $response = new GeoplateformeGeoLocator($client, self::URL)->find('1 rue de la Paix 75002 Paris');
+        $geoPoint = new GeoplateformeGeoLocation($client, self::URL)->find('1 rue de la Paix 75002 Paris');
 
-        $this->assertTrue($response->isSucceeded());
-        $this->assertSame(2.33031, $response->getLongitude());
-        $this->assertSame(48.868546, $response->getLatitude());
-        $this->assertSame('1 Rue de la Paix 75002 Paris', $response->getAddress());
+        $this->assertEquals(new GeoPoint(2.33031, 48.868546), $geoPoint);
     }
 
     public function testAnUnlikelyMatchIsNotAPosition(): void
     {
-        $response = new GeoplateformeGeoLocator(new MockHttpClient(new JsonMockResponse($this->featureCollection(0.3))), self::URL)->find('Alexanderplatz Berlin DE');
-
-        $this->assertFalse($response->isSucceeded());
+        $this->assertNull(new GeoplateformeGeoLocation(new MockHttpClient(new JsonMockResponse($this->featureCollection(0.3))), self::URL)->find('Alexanderplatz Berlin DE'));
     }
 
     public function testAnAddressOutsideFranceIsNotFound(): void
     {
-        $response = new GeoplateformeGeoLocator(new MockHttpClient(new JsonMockResponse(['type' => 'FeatureCollection', 'features' => []])), self::URL)->find('10 Downing Street London GB');
-
-        $this->assertFalse($response->isSucceeded());
-        $this->assertSame('10 Downing Street London GB', $response->getAddress());
+        $this->assertNull(new GeoplateformeGeoLocation(new MockHttpClient(new JsonMockResponse(['type' => 'FeatureCollection', 'features' => []])), self::URL)->find('10 Downing Street London GB'));
     }
 
     public function testAnUnavailableServiceDoesNotBreakTheSave(): void
     {
-        $response = new GeoplateformeGeoLocator(new MockHttpClient(new MockResponse('', ['http_code' => 503])), self::URL)->find('1 rue de la Paix 75002 Paris');
-
-        $this->assertFalse($response->isSucceeded());
+        $this->assertNull(new GeoplateformeGeoLocation(new MockHttpClient(new MockResponse('', ['http_code' => 503])), self::URL)->find('1 rue de la Paix 75002 Paris'));
     }
 
     /**

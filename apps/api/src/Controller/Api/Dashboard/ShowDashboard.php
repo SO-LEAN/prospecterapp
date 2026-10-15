@@ -42,8 +42,8 @@ final class ShowDashboard extends AbstractController
         $page = $this->useCases->findMyOwnOrganizations(new FindMyOwnOrganizationsRequest(1, '', self::MAX_MARKERS), $this->pagePresenter, $user);
 
         return $this->json(new DashboardResource(
-            organizationName: (string) $organization->getCorporateName(),
-            stats: array_map(intval(...), $organization->getStats()),
+            organizationName: (string) $organization->corporateName,
+            stats: $organization->stats,
             markers: array_values(array_filter($page->items, static fn (OrganizationSummaryResource $item): bool => null !== $item->location)),
         ));
     }

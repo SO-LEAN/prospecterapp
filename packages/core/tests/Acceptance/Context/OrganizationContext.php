@@ -1,11 +1,11 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Tests\Core\Acceptance\Context;
 
 use Behat\Behat\Context\Context;
-use Behat\Behat\Hook\Scope\BeforeScenarioScope;
 use Behat\Gherkin\Node\TableNode;
-use Behat\Hook\BeforeScenario;
 use Behat\Step\Given;
 use Behat\Step\Then;
 use Behat\Step\When;
@@ -16,26 +16,19 @@ use Prospecter\Core\Entity\Organization;
 use Prospecter\Core\UseCase\CreateOrganization\CreateOrganizationRequest;
 use Prospecter\Core\UseCase\FindMyOwnOrganizations\FindMyOwnOrganizationsRequest;
 use Prospecter\Core\UseCase\FindMyOwnOrganizations\FindMyOwnOrganizationsResponse;
+use Prospecter\Core\UseCase\FindMyOwnOrganizations\FindMyOwnOrganizationsResponse\Organization as FoundOrganization;
 use Prospecter\Core\UseCase\GetOrganization\GetOrganizationRequest;
 use Prospecter\Core\UseCase\GetOrganization\GetOrganizationResponse;
 use Prospecter\Core\UseCase\RemoveOrganizationLogo\RemoveOrganizationLogoRequest;
 use Prospecter\Core\UseCase\UpdateOrganization\UpdateOrganizationRequest;
-use Tests\Core\Acceptance\Application;
 use Tests\Core\Acceptance\Vocabulary;
 
 final class OrganizationContext implements Context
 {
-    private ScenarioContext $scenario;
-    private Application $application;
+    use SharesTheScenario;
+
     private ?GetOrganizationResponse $consulted = null;
     private ?FindMyOwnOrganizationsResponse $found = null;
-
-    #[BeforeScenario]
-    public function gatherScenario(BeforeScenarioScope $scope): void
-    {
-        $this->scenario = $scope->getEnvironment()->getContext(ScenarioContext::class);
-        $this->application = $this->scenario->application;
-    }
 
     #[Given('l\'organisation :name fait partie de mes organisations')]
     public function anOrganizationOfMine(string $name): Organization
@@ -143,17 +136,16 @@ final class OrganizationContext implements Context
     public function iSeeTheOrganization(TableNode $table): void
     {
         Assert::assertNotNull($this->consulted, sprintf('the organization was expected, got: %s', $this->application->refusal()?->getMessage()));
-        $response = $this->consulted;
-        $longitude = Vocabulary::read($response, 'longitude');
+        $organization = $this->consulted;
 
         Vocabulary::assertDescribes($table->getRowsHash(), [
-            'raison sociale' => (string) Vocabulary::read($response, 'corporateName'),
-            'forme juridique' => (string) Vocabulary::read($response, 'form'),
-            'e-mail' => (string) Vocabulary::read($response, 'email'),
-            'ville' => (string) Vocabulary::read($response, 'city'),
-            'position' => null === $longitude ? 'aucune' : sprintf('%s, %s', $longitude, Vocabulary::read($response, 'latitude')),
-            'logo' => basename((string) Vocabulary::read($response, 'logoUrl')) ?: 'aucun',
-            'organisations actives' => (string) (Vocabulary::read($response, 'stats')['activeOrganizations'] ?? 0),
+            'raison sociale' => (string) $organization->corporateName,
+            'forme juridique' => (string) $organization->form,
+            'e-mail' => (string) $organization->email,
+            'ville' => (string) $organization->address?->city,
+            'position' => Vocabulary::describeGeoPoint($organization->geoPoint),
+            'logo' => null === $organization->logo ? 'aucun' : basename($organization->logo->url),
+            'organisations actives' => (string) ($organization->stats['activeOrganizations'] ?? 0),
         ]);
     }
 
@@ -161,18 +153,18 @@ final class OrganizationContext implements Context
     public function iFindOrganizationsOnPages(int $total, int $pages): void
     {
         Assert::assertNotNull($this->found);
-        Assert::assertSame($total, Vocabulary::read($this->found, 'total'));
-        Assert::assertSame($pages, Vocabulary::read($this->found, 'totalPages'));
+        Assert::assertSame($total, $this->found->total);
+        Assert::assertSame($pages, $this->found->totalPages);
     }
 
     #[Then('la liste affiche :')]
     public function theListShows(TableNode $table): void
     {
         Assert::assertNotNull($this->found);
-        $shown = array_map(static fn (object $organization): array => [
-            'nom' => Vocabulary::read($organization, 'fullName'),
-            'ville' => (string) Vocabulary::read($organization, 'city'),
-        ], Vocabulary::read($this->found, 'organizations'));
+        $shown = array_map(static fn (FoundOrganization $organization): array => [
+            'nom' => $organization->fullName,
+            'ville' => (string) $organization->address?->city,
+        ], $this->found->organizations);
 
         Assert::assertSame($table->getColumnsHash(), array_map(
             static fn (array $row): array => array_intersect_key($row, array_flip(array_keys($table->getColumnsHash()[0] ?? []))),
@@ -200,12 +192,12 @@ final class OrganizationContext implements Context
         $organization->setEmail($details['e-mail'] ?? null);
         $organization->setForm($details['forme juridique'] ?? null);
         if (isset($details['ville'])) {
-            $organization->setAddress(Address::fromValues(null, $details['code postal'] ?? null, $details['ville'], $details['pays'] ?? null));
+            $organization->setAddress(new Address(postalCode: $details['code postal'] ?? null, city: $details['ville'], country: $details['pays'] ?? null));
         }
         if (isset($details['logo'])) {
             $this->scenario->iHaveAnImage($details['logo'], 1024);
             $logo = $this->scenario->upload($details['logo']);
-            $organization->setLogo(File::fromValues($this->application->storage->add($logo), 'png', 1024));
+            $organization->setLogo(new File($this->application->storage->add($logo), 'png', 1024));
         }
     }
 
@@ -220,9 +212,14 @@ final class OrganizationContext implements Context
     private function requestParameters(TableNode $table): array
     {
         $parameters = Vocabulary::parameters($table->getRowsHash(), Vocabulary::ORGANIZATION);
-        $parameters['logo'] = $this->scenario->upload($parameters['logo']);
-        $parameters['holdBy'] = null === $parameters['holdBy'] ? null : $this->scenario->idOf($parameters['holdBy']);
+        $address = new Address($parameters['street'], $parameters['postalCode'], $parameters['city'], $parameters['country']);
+        unset($parameters['street'], $parameters['postalCode'], $parameters['city'], $parameters['country']);
 
-        return $parameters;
+        return [
+            ...$parameters,
+            'address' => $address->isEmpty() ? null : $address,
+            'logo' => $this->scenario->upload($parameters['logo']),
+            'holdBy' => null === $parameters['holdBy'] ? null : $this->scenario->idOf($parameters['holdBy']),
+        ];
     }
 }

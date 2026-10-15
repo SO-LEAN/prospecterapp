@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Tests\Core\Double;
 
 use Prospecter\Core\Entity\User;
@@ -12,7 +14,7 @@ final readonly class InMemoryUserGateway implements UserGateway
     {
     }
 
-    public function get($id): User
+    public function get(int $id): User
     {
         $user = $this->database->find($id);
 
@@ -26,7 +28,7 @@ final readonly class InMemoryUserGateway implements UserGateway
         return $user;
     }
 
-    public function update($id, User $user): User
+    public function update(int $id, User $user): User
     {
         $this->database->replace($id, $user);
 

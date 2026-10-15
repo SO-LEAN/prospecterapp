@@ -44,16 +44,13 @@ final class CreateOrganization extends AbstractController
             corporateName: $input->corporateName,
             type: $input->type,
             form: $input->form,
-            street: $input->address?->street,
-            postalCode: $input->address?->postalCode,
-            city: $input->address?->city,
-            country: $input->address?->country,
+            address: $input->address?->toAddress(),
             observations: $input->observations,
             logo: null,
             holdBy: $input->holdBy,
         ), new CreateOrganizationPresenterImpl(), $user);
 
-        $id = (int) $created->getId();
+        $id = $created->id;
 
         return $this->json(
             $this->useCases->getOrganization(new GetOrganizationRequest($id), $this->presenter, $user),

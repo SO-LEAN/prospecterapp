@@ -1,21 +1,20 @@
 <?php
 
-declare( strict_types = 1 );
+declare(strict_types=1);
 
 namespace Tests\Core\UseCase\Stub;
 
 use Prospecter\Core\UseCase\AbstractUseCase;
 
-class StubNeedsRoleUseCaseImpl extends AbstractUseCase
+final class StubNeedsRoleUseCaseImpl extends AbstractUseCase
 {
     public function canBeExecutedBy(): array
     {
         return ['SPECIFIC_ROLE'];
     }
 
-    public function execute(StubUseCaseRequest $request, $presenter) : object
+    public function execute(StubUseCaseRequest $request, object $presenter): \stdClass
     {
-        unset($request, $presenter);
-        return (object)['action' => 'executed'];
+        return (object) ['action' => 'executed'];
     }
 }

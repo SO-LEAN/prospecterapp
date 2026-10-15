@@ -1,8 +1,9 @@
 <?php
 
-namespace App\Service;
+namespace App\Gateway;
 
-use App\Service\GeoLocator\GeoPointResponse;
+use Prospecter\Core\Entity\GeoPoint;
+use Prospecter\Core\Gateway\GeoLocation;
 use Symfony\Component\DependencyInjection\Attribute\Autowire;
 use Symfony\Contracts\HttpClient\Exception\ExceptionInterface;
 use Symfony\Contracts\HttpClient\HttpClientInterface;
@@ -12,7 +13,7 @@ use Symfony\Contracts\HttpClient\HttpClientInterface;
  *
  * @see https://geoservices.ign.fr/documentation/services/services-geoplateforme/geocodage
  */
-final readonly class GeoplateformeGeoLocator implements GeoLocator
+final readonly class GeoplateformeGeoLocation implements GeoLocation
 {
     /** Below this relevance the best match is another place (the service always answers with its closest address). */
     private const float MIN_SCORE = 0.5;
@@ -24,25 +25,31 @@ final readonly class GeoplateformeGeoLocator implements GeoLocator
     ) {
     }
 
-    public function find(string $address): GeoPointResponse
+    public function find(string $address): ?GeoPoint
+    {
+        $bestMatch = $this->bestMatch($address);
+
+        if (null === $bestMatch || ($bestMatch['properties']['score'] ?? 0) < self::MIN_SCORE) {
+            return null;
+        }
+
+        [$longitude, $latitude] = $bestMatch['geometry']['coordinates'];
+
+        return new GeoPoint((float) $longitude, (float) $latitude);
+    }
+
+    /**
+     * @return array{geometry: array{coordinates: array{float, float}}, properties: array{score?: float}}|null
+     */
+    private function bestMatch(string $address): ?array
     {
         try {
-            $features = $this->httpClient->request('GET', $this->searchUrl, [
+            return $this->httpClient->request('GET', $this->searchUrl, [
                 'query' => ['q' => $address, 'limit' => 1],
                 'timeout' => 5,
-            ])->toArray()['features'] ?? [];
+            ])->toArray()['features'][0] ?? null;
         } catch (ExceptionInterface) {
-            return new GeoPointResponse($address, 0, 0, false);
+            return null;
         }
-
-        $best = $features[0] ?? null;
-
-        if (null === $best || ($best['properties']['score'] ?? 0) < self::MIN_SCORE) {
-            return new GeoPointResponse($address, 0, 0, false);
-        }
-
-        [$longitude, $latitude] = $best['geometry']['coordinates'];
-
-        return new GeoPointResponse($best['properties']['label'] ?? $address, (float) $longitude, (float) $latitude);
     }
 }

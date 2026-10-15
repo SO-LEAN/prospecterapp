@@ -1,34 +1,24 @@
 <?php
 
-declare( strict_types = 1 );
+declare(strict_types=1);
 
 namespace Prospecter\Core\UseCase\RemoveOrganizationLogo;
 
+use Prospecter\Core\Entity\Organization;
 use Prospecter\Core\Exception\UseCase\UseCaseException;
+use Prospecter\Core\Gateway\Entity\OrganizationGateway;
 use Prospecter\Core\Gateway\Storage;
 use Prospecter\Core\Gateway\UserNotifier;
-use Prospecter\Core\Traits\UseCase\UserNotifierTrait;
 use Prospecter\Core\UseCase\AbstractUseCase;
-use Prospecter\Core\Gateway\Entity\OrganizationGateway;
 use Prospecter\Core\UseCase\UseCaseConsumer;
 
 final class RemoveOrganizationLogoImpl extends AbstractUseCase implements RemoveOrganizationLogo
 {
-    use UserNotifierTrait;
-    /**
-     * @var OrganizationGateway
-     */
-    private $organizationGateway;
-    /**
-     * @var Storage
-     */
-    private $storage;
-
-    public function __construct(OrganizationGateway $organizationGateway, Storage $storage, UserNotifier $userNotifier)
-    {
-        $this->organizationGateway = $organizationGateway;
-        $this->storage = $storage;
-        $this->userNotifier = $userNotifier;
+    public function __construct(
+        private readonly OrganizationGateway $organizations,
+        private readonly Storage $storage,
+        private readonly UserNotifier $userNotifier,
+    ) {
     }
 
     public function canBeExecutedBy(): array
@@ -36,19 +26,23 @@ final class RemoveOrganizationLogoImpl extends AbstractUseCase implements Remove
         return ['ROLE_PROSPECTOR'];
     }
 
-    public function execute(RemoveOrganizationLogoRequest $request, RemoveOrganizationLogoPresenter $presenter, UseCaseConsumer $consumer)
+    public function execute(RemoveOrganizationLogoRequest $request, RemoveOrganizationLogoPresenter $presenter, UseCaseConsumer $consumer): mixed
     {
-        $organization = $this->organizationGateway->get($request->getOrganizationId());
-        $fileUrl = $organization->getLogo()->getUrl();
-
-        if ($consumer->getOrganizationId() !== $organization->getOwnedBy()->getId()) {
-            throw new UseCaseException(sprintf('Organization "%s" does not belong to your organization.', $organization->getOwnedBy()->getFullName()));
-        }
+        $organization = $this->organizations->get($request->organizationId);
+        $logoUrl = $organization->getLogo()?->url;
+        $this->assertBelongsTo($organization, $consumer);
 
         $organization->removeLogo();
-        $this->storage->remove($fileUrl);
-        $this->notifySuccess('Organization logo was removed !');
+        $this->storage->remove((string) $logoUrl);
+        $this->userNotifier->addSuccess('Organization logo was removed !');
 
-        return $presenter->present(new RemoveOrganizationLogoResponse($request->getOrganizationId()));
+        return $presenter->present(new RemoveOrganizationLogoResponse($request->organizationId));
+    }
+
+    private function assertBelongsTo(Organization $organization, UseCaseConsumer $consumer): void
+    {
+        if ($consumer->getOrganizationId() !== $organization->getOwnedBy()?->getId()) {
+            throw new UseCaseException(sprintf('Organization "%s" does not belong to your organization.', $organization->getOwnedBy()?->getFullName()));
+        }
     }
 }

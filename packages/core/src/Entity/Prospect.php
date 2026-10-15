@@ -1,54 +1,42 @@
 <?php
 
-declare( strict_types = 1 );
+declare(strict_types=1);
 
 namespace Prospecter\Core\Entity;
 
 class Prospect extends Person
 {
-    /**
-     * @var string
-     */
-    private $firstName;
-    /**
-     * @var string
-     */
-    private $lastName;
-    /**
-     * @var User
-     */
-    private $createdBy;
-    /**
-     * @var Organization
-     */
-    private $ownedBy;
+    private ?string $firstName = null;
+    private ?string $lastName = null;
+    private ?User $createdBy = null;
+    private ?Organization $ownedBy = null;
 
-    public function getFirstName(): string
+    public function getFirstName(): ?string
     {
         return $this->firstName;
     }
 
-    public function setFirstName(string $firstName): void
+    public function setFirstName(?string $firstName): void
     {
         $this->firstName = $firstName;
     }
 
-    public function getLastName(): string
+    public function getLastName(): ?string
     {
         return $this->lastName;
     }
 
-    public function setLastName(string $lastName): void
+    public function setLastName(?string $lastName): void
     {
         $this->lastName = $lastName;
     }
 
     public function getFullName(): string
     {
-        return sprintf('%s %s', $this->firstName, $this->lastName);
+        return trim(sprintf('%s %s', $this->firstName, $this->lastName));
     }
 
-    public function getCreatedBy(): User
+    public function getCreatedBy(): ?User
     {
         return $this->createdBy;
     }
@@ -58,7 +46,7 @@ class Prospect extends Person
         $this->createdBy = $createdBy;
     }
 
-    public function getOwnedBy(): Organization
+    public function getOwnedBy(): ?Organization
     {
         return $this->ownedBy;
     }

@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Tests\Core\Double;
 
 use Prospecter\Core\Entity\Organization;
@@ -14,7 +16,7 @@ final readonly class InMemoryOrganizationGateway implements OrganizationGateway
     {
     }
 
-    public function get($id): Organization
+    public function get(int $id): Organization
     {
         $organization = $this->database->find($id);
 
@@ -28,7 +30,7 @@ final readonly class InMemoryOrganizationGateway implements OrganizationGateway
         return $organization;
     }
 
-    public function update($id, Organization $organization): Organization
+    public function update(int $id, Organization $organization): Organization
     {
         $this->database->replace($id, $organization);
 
@@ -57,10 +59,10 @@ final readonly class InMemoryOrganizationGateway implements OrganizationGateway
      */
     public function findPageByQuery(PageRequest $pageRequest): Page
     {
-        $query = mb_strtolower($pageRequest->getQuery());
+        $query = mb_strtolower($pageRequest->query);
         $matching = array_filter(
             $this->database->all(Organization::class),
-            static fn (Organization $organization): bool => Criteria::match($organization, $pageRequest->getFilter())
+            static fn (Organization $organization): bool => Criteria::match($organization, $pageRequest->filter)
                 && ('' === $query
                     || str_contains(mb_strtolower((string) $organization->getCorporateName()), $query)
                     || str_contains(mb_strtolower((string) $organization->getEmail()), $query)),
@@ -68,9 +70,9 @@ final readonly class InMemoryOrganizationGateway implements OrganizationGateway
         usort($matching, static fn (Organization $a, Organization $b): int => $b->getId() <=> $a->getId());
 
         $total = count($matching);
-        $maxByPage = $pageRequest->getMaxByPage();
-        $content = array_slice($matching, ($pageRequest->getPage() - 1) * $maxByPage, $maxByPage);
+        $maxByPage = $pageRequest->maxByPage;
+        $content = array_slice($matching, ($pageRequest->page - 1) * $maxByPage, $maxByPage);
 
-        return new Page($pageRequest->getPage(), $total, intdiv($total - 1, $maxByPage) + 1, $content);
+        return new Page($pageRequest->page, $total, intdiv($total - 1, $maxByPage) + 1, $content);
     }
 }

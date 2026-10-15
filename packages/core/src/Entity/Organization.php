@@ -1,6 +1,6 @@
 <?php
 
-declare( strict_types = 1 );
+declare(strict_types=1);
 
 namespace Prospecter\Core\Entity;
 
@@ -8,89 +8,24 @@ use Prospecter\Core\Exception\Entity\ValidationException;
 
 class Organization extends Person implements GeoLocatable
 {
-    /**
-     * @var string
-     */
-    private $corporateName;
-    /**
-     * @var string
-     */
-    private $form;
-    /**
-     * @var string
-     */
-    private $type;
-    /**
-     * @var Address
-     */
-    private $address;
-    /**
-     * @var bool
-     */
-    private $hasAddress;
-    /**
-     * @var GeoPoint
-     */
-    private $geoPoint;
-    /**
-     * @var bool
-     */
-    private $hasGeoPoint;
-    /**
-     * @var Organization
-     */
-    private $holdBy;
-    /**
-     * @var Organization
-     */
-    private $ownedBy;
-    /**
-     * @var File
-     */
-    private $logo;
-    /**
-     * @var bool
-     */
-    private $hasLogo;
-    /**
-     * @var Organization[]
-     */
-    private $subsidiaries;
-    /**
-     * @var User[]
-     */
-    private $applicationUsers;
-    /**
-     * @var Organization[]
-     */
-    private $ownedProspectedOrganizations;
-    /**
-     * @var Prospect[]
-     */
-    private $ownedProspects;
-    /**
-     * @var Customer[]
-     */
-    private $ownedCustomers;
-    /**
-     * @var array
-     */
-    private $stats;
+    private const string ACTIVE_ORGANIZATIONS = 'activeOrganizations';
 
-    public function __construct()
-    {
-        $this->hasAddress = false;
-        $this->hasGeoPoint = false;
-        $this->hasLogo = false;
-        $this->subsidiaries = [];
-        $this->applicationUsers = [];
-        $this->ownedProspectedOrganizations = [];
-        $this->ownedProspects = [];
-        $this->ownedCustomers = [];
-        $this->stats = [
-            'activeOrganizations' => 0,
-        ];
-    }
+    private ?string $corporateName = null;
+    private ?string $form = null;
+    private ?string $type = null;
+    private ?string $addressStreet = null;
+    private ?string $addressPostalCode = null;
+    private ?string $addressCity = null;
+    private ?string $addressCountry = null;
+    private ?float $geoPointLongitude = null;
+    private ?float $geoPointLatitude = null;
+    private ?string $logoUrl = null;
+    private ?string $logoExtension = null;
+    private ?int $logoSize = null;
+    private ?Organization $holdBy = null;
+    private ?Organization $ownedBy = null;
+    /** @var array<string, int> */
+    private array $stats = [self::ACTIVE_ORGANIZATIONS => 0];
 
     public function getCorporateName(): ?string
     {
@@ -107,6 +42,11 @@ class Organization extends Person implements GeoLocatable
         return $this->form;
     }
 
+    public function setForm(?string $form): void
+    {
+        $this->form = $form;
+    }
+
     public function getType(): ?string
     {
         return $this->type;
@@ -117,31 +57,56 @@ class Organization extends Person implements GeoLocatable
         $this->type = $type;
     }
 
-    public function setForm(?string $form): void
+    public function getFullName(): string
     {
-        $this->form = $form;
+        return trim(sprintf('%s %s', $this->corporateName, $this->form));
     }
 
     public function getAddress(): ?Address
     {
-        return $this->hasAddress ? $this->address : null;
+        $address = new Address($this->addressStreet, $this->addressPostalCode, $this->addressCity, $this->addressCountry);
+
+        return $address->isEmpty() ? null : $address;
     }
 
     public function setAddress(?Address $address): void
     {
-        $this->address = $address;
-        $this->hasAddress = $address ? true : false;
+        $this->addressStreet = $address?->street;
+        $this->addressPostalCode = $address?->postalCode;
+        $this->addressCity = $address?->city;
+        $this->addressCountry = $address?->country;
     }
 
     public function getGeoPoint(): ?GeoPoint
     {
-        return $this->hasGeoPoint ? $this->geoPoint : null;
+        if (null === $this->geoPointLongitude || null === $this->geoPointLatitude) {
+            return null;
+        }
+
+        return new GeoPoint($this->geoPointLongitude, $this->geoPointLatitude);
     }
 
     public function setGeoPoint(?GeoPoint $geoPoint): void
     {
-        $this->geoPoint = $geoPoint;
-        $this->hasGeoPoint = $geoPoint ? true : false;
+        $this->geoPointLongitude = $geoPoint?->longitude;
+        $this->geoPointLatitude = $geoPoint?->latitude;
+    }
+
+    public function getLogo(): ?File
+    {
+        return null === $this->logoUrl ? null : new File($this->logoUrl, (string) $this->logoExtension, (int) $this->logoSize);
+    }
+
+    public function setLogo(?File $logo): void
+    {
+        $this->logoUrl = $logo?->url;
+        $this->logoExtension = $logo?->extension;
+        $this->logoSize = $logo?->size;
+    }
+
+    public function removeLogo(): void
+    {
+        $this->setLogo(null);
     }
 
     public function getHoldBy(): ?Organization
@@ -159,142 +124,39 @@ class Organization extends Person implements GeoLocatable
         return $this->ownedBy;
     }
 
-    public function setOwnedBy(Organization $ownedBy): void
+    public function setOwnedBy(Organization $owner): void
     {
-        $this->ownedBy = $ownedBy;
-        $ownedBy->incrementStat('activeOrganizations');
+        $this->ownedBy = $owner;
+        $owner->countOneMoreActiveOrganization();
     }
 
-    public function getLogo(): ?File
-    {
-        return $this->hasLogo ? $this->logo : null;
-    }
-
-    public function setLogo(?File $logo): void
-    {
-        $this->logo = $logo;
-        $this->hasLogo = $logo ? true : false;
-    }
-
-    public function removeLogo(): void
-    {
-        $this->setLogo(null);
-    }
-
-    public function getFullName(): string
-    {
-        return trim(sprintf('%s %s', $this->corporateName, $this->form));
-    }
-
-    public function getSubsidiaries(): array
-    {
-        return $this->subsidiaries;
-    }
-
-    public function setSubsidiaries(array $subsidiaries): void
-    {
-        $this->subsidiaries = $subsidiaries;
-    }
-
-    public function addSubsidiary(Organization $subsidiary): void
-    {
-        $this->subsidiaries[] = $subsidiary;
-        $subsidiary->setHoldBy($this);
-    }
-
-    public function getApplicationUsers(): array
-    {
-        return $this->applicationUsers;
-    }
-
-    public function setApplicationUsers(array $applicationUsers): void
-    {
-        $this->applicationUsers = $applicationUsers;
-    }
-
-    public function addApplicationUsers(User $user): void
-    {
-        $this->applicationUsers[] = $user;
-        $user->setOrganization($this);
-    }
-
-    public function getOwnedProspectedOrganizations(): array
-    {
-        return $this->ownedProspectedOrganizations;
-    }
-
-    public function setOwnedProspectedOrganizations(array $ownedProspectedOrganizations): void
-    {
-        $this->ownedProspectedOrganizations = $ownedProspectedOrganizations;
-    }
-
-    public function addOwnedProspectedOrganizations(Organization $ownedOrganization): void
-    {
-        $this->ownedProspectedOrganizations[] = $ownedOrganization;
-        $ownedOrganization->setOwnedBy($this);
-    }
-
-    public function getOwnedProspects(): array
-    {
-        return $this->ownedProspects;
-    }
-
-    public function setOwnedProspects(array $ownedProspects): void
-    {
-        $this->ownedProspects = $ownedProspects;
-    }
-
-    public function addOwnedProspects(Prospect $ownedProspect): void
-    {
-        $this->ownedProspects[] = $ownedProspect;
-        $ownedProspect->setOwnedBy($this);
-    }
-
-    public function getOwnedCustomers(): array
-    {
-        return $this->ownedCustomers;
-    }
-
-
-    public function setOwnedCustomers(array $ownedCustomers): void
-    {
-        $this->ownedCustomers = $ownedCustomers;
-    }
-
-    public function addOwnedCustomers(Customer $ownedCustomer): void
-    {
-        $this->ownedProspects[] = $ownedCustomer;
-        $ownedCustomer->setOwnedBy($this);
-    }
-
-    public function setStats(array $stats): void
-    {
-        $this->stats = $stats;
-    }
-
+    /**
+     * @return array<string, int>
+     */
     public function getStats(): array
     {
         return $this->stats;
     }
 
-    public function getStat($name)
+    public function getStat(string $name): int
     {
         return $this->stats[$name] ?? 0;
     }
 
-    public function incrementStat($name): void
+    public function validate(): void
     {
-        $this->stats[$name]++;
+        if ($this->ownedBy instanceof Organization && !$this->hasCorporateNameOrEmail()) {
+            throw new ValidationException('At least one is mandatory : corporate name or email', '*');
+        }
     }
 
-    public function validate()
+    private function hasCorporateNameOrEmail(): bool
     {
-        if (!$this->getOwnedBy()) {
-            return;
-        }
+        return !in_array($this->corporateName, [null, ''], true) || !in_array($this->getEmail(), [null, ''], true);
+    }
 
-        if (!$this->getCorporateName() && !$this->getEmail()) {
-            throw new ValidationException('At least one is mandatory : corporate name or email', 412, null, '*');
-        }
+    private function countOneMoreActiveOrganization(): void
+    {
+        $this->stats[self::ACTIVE_ORGANIZATIONS] = $this->getStat(self::ACTIVE_ORGANIZATIONS) + 1;
     }
 }

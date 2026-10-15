@@ -2,6 +2,8 @@
 
 namespace App\Api\Resource;
 
+use Prospecter\Core\Entity\Address;
+
 final readonly class AddressResource
 {
     public function __construct(
@@ -10,5 +12,10 @@ final readonly class AddressResource
         public ?string $city,
         public ?string $country,
     ) {
+    }
+
+    public static function from(?Address $address): ?self
+    {
+        return null === $address ? null : new self($address->street, $address->postalCode, $address->city, $address->country);
     }
 }

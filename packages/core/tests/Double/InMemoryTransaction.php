@@ -1,8 +1,10 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Tests\Core\Double;
 
-use LogicException;
+use Prospecter\Core\Entity\Person;
 use Prospecter\Core\Gateway\Entity\Transaction;
 
 /**
@@ -10,7 +12,7 @@ use Prospecter\Core\Gateway\Entity\Transaction;
  */
 final class InMemoryTransaction implements Transaction
 {
-    /** @var array{array<int, \Prospecter\Core\Entity\Person>, int}|null */
+    /** @var array{array<int, Person>, int}|null */
     private ?array $snapshot = null;
 
     public function __construct(private readonly InMemoryDatabase $database)
@@ -24,13 +26,13 @@ final class InMemoryTransaction implements Transaction
 
     public function commit(): void
     {
-        $this->snapshot ?? throw new LogicException('No transaction to commit');
+        $this->snapshot ?? throw new \LogicException('No transaction to commit');
         $this->snapshot = null;
     }
 
     public function rollback(): void
     {
-        $this->database->restore($this->snapshot ?? throw new LogicException('No transaction to roll back'));
+        $this->database->restore($this->snapshot ?? throw new \LogicException('No transaction to roll back'));
         $this->snapshot = null;
     }
 }

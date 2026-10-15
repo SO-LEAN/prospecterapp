@@ -1,64 +1,43 @@
 <?php
 
-declare( strict_types = 1 );
+declare(strict_types=1);
 
 namespace Prospecter\Core\Entity;
 
 class User extends Person
 {
-    /**
-     * @var array
-     */
-    private $roles;
-    /**
-     * @var string
-     */
-    private $userName;
-    /**
-     * @var string
-     */
-    private $firstName;
-    /**
-     * @var string
-     */
-    private $lastName;
-    /**
-     * @var File
-     */
-    private $picture;
-    /**
-     * @var bool
-     */
-    private $hasPicture;
-    /**
-     * @var Organization
-     */
-    private $organization;
+    /** @var list<string> */
+    private array $roles = [];
+    private string $userName = '';
+    private ?string $firstName = null;
+    private ?string $lastName = null;
+    private ?string $pictureUrl = null;
+    private ?string $pictureExtension = null;
+    private ?int $pictureSize = null;
+    private ?Organization $organization = null;
 
-    public function __construct()
-    {
-        $this->roles = [];
-        $this->hasPicture = false;
-    }
-
-    public function getRoles() : array
+    /**
+     * @return list<string>
+     */
+    public function getRoles(): array
     {
         return $this->roles;
     }
 
+    /**
+     * @param list<string> $roles
+     */
     public function setRoles(array $roles): void
     {
         $this->roles = $roles;
     }
 
-    public function addRole(string $role) : void
+    public function addRole(string $role): void
     {
         $this->roles[] = $role;
     }
 
-
-
-    public function getUserName() : string
+    public function getUserName(): string
     {
         return $this->userName;
     }
@@ -67,8 +46,6 @@ class User extends Person
     {
         $this->userName = $userName;
     }
-
-
 
     public function getFirstName(): ?string
     {
@@ -90,39 +67,30 @@ class User extends Person
         $this->lastName = $lastName;
     }
 
+    public function getFullName(): string
+    {
+        return trim(sprintf('%s %s', $this->firstName, $this->lastName));
+    }
+
     public function getPicture(): ?File
     {
-        return $this->hasPicture ? $this->picture : null;
+        return null === $this->pictureUrl ? null : new File($this->pictureUrl, (string) $this->pictureExtension, (int) $this->pictureSize);
     }
 
-    public function setPicture(File $picture): void
+    public function setPicture(?File $picture): void
     {
-        $this->picture = $picture;
-        $this->hasPicture = $picture ? true : false;
-    }
-
-    public function getPictureUrl(): ?string
-    {
-        if ($this->hasPicture) {
-            return $this->picture->getUrl();
-        }
-
-        return null;
+        $this->pictureUrl = $picture?->url;
+        $this->pictureExtension = $picture?->extension;
+        $this->pictureSize = $picture?->size;
     }
 
     public function getOrganization(): Organization
     {
-        return $this->organization;
+        return $this->organization ?? throw new \LogicException(sprintf('User "%s" has no organization', $this->userName));
     }
 
     public function setOrganization(Organization $organization): void
     {
         $this->organization = $organization;
     }
-
-    public function getFullName(): string
-    {
-        return sprintf('%s %s', $this->firstName, $this->lastName);
-    }
-
 }

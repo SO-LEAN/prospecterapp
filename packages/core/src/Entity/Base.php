@@ -1,28 +1,19 @@
 <?php
 
-declare( strict_types = 1 );
+declare(strict_types=1);
 
 namespace Prospecter\Core\Entity;
 
 abstract class Base
 {
-    /**
-     * @var mixed
-     */
-    private $id;
+    private ?int $id = null;
 
-    /**
-     * @return mixed
-     */
-    public function getId()
+    public function getId(): ?int
     {
         return $this->id;
     }
 
-    /**
-     * @param mixed $id
-     */
-    public function setId($id): void
+    public function setId(?int $id): void
     {
         $this->id = $id;
     }

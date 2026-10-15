@@ -1,8 +1,9 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Tests\Core\Acceptance;
 
-use LogicException;
 use Prospecter\Core\Exception\UseCase\UseCaseException;
 use Prospecter\Core\UseCase\CreateOrganization\CreateOrganizationImpl;
 use Prospecter\Core\UseCase\CreateOrganization\CreateOrganizationRequest;
@@ -71,56 +72,56 @@ final class Application
 
     public function signedIn(): SignedInUser
     {
-        return $this->signedIn ?? throw new LogicException('Nobody is signed in: add "je suis connecté..." to the scenario');
+        return $this->signedIn ?? throw new \LogicException('Nobody is signed in: add "je suis connecté..." to the scenario');
     }
 
     public function createOrganization(CreateOrganizationRequest $request): ?CreateOrganizationResponse
     {
         $useCase = new CreateOrganizationImpl($this->organizations, $this->storage, $this->notifications, $this->geoLocation);
 
-        return $this->attempt(fn (LastResponsePresenter $presenter) => $useCase->execute($request, $presenter), CreateOrganizationResponse::class);
+        return $this->attempt(fn (LastResponsePresenter $presenter): mixed => $useCase->execute($request, $presenter), CreateOrganizationResponse::class);
     }
 
     public function getOrganization(GetOrganizationRequest $request): ?GetOrganizationResponse
     {
         $useCase = new GetOrganizationImpl($this->organizations);
 
-        return $this->attempt(fn (LastResponsePresenter $presenter) => $useCase->execute($request, $presenter), GetOrganizationResponse::class);
+        return $this->attempt(fn (LastResponsePresenter $presenter): mixed => $useCase->execute($request, $presenter), GetOrganizationResponse::class);
     }
 
     public function findMyOwnOrganizations(FindMyOwnOrganizationsRequest $request): ?FindMyOwnOrganizationsResponse
     {
         $useCase = new FindMyOwnOrganizationsImpl($this->organizations);
 
-        return $this->attempt(fn (LastResponsePresenter $presenter) => $useCase->execute($request, $presenter, $this->signedIn()), FindMyOwnOrganizationsResponse::class);
+        return $this->attempt(fn (LastResponsePresenter $presenter): mixed => $useCase->execute($request, $presenter, $this->signedIn()), FindMyOwnOrganizationsResponse::class);
     }
 
     public function updateOrganization(UpdateOrganizationRequest $request): ?UpdateOrganizationResponse
     {
         $useCase = new UpdateOrganizationImpl($this->organizations, $this->storage, $this->notifications, $this->geoLocation);
 
-        return $this->attempt(fn (LastResponsePresenter $presenter) => $useCase->execute($request, $presenter), UpdateOrganizationResponse::class);
+        return $this->attempt(fn (LastResponsePresenter $presenter): mixed => $useCase->execute($request, $presenter), UpdateOrganizationResponse::class);
     }
 
     public function removeOrganizationLogo(RemoveOrganizationLogoRequest $request): ?RemoveOrganizationLogoResponse
     {
         $useCase = new RemoveOrganizationLogoImpl($this->organizations, $this->storage, $this->notifications);
 
-        return $this->attempt(fn (LastResponsePresenter $presenter) => $useCase->execute($request, $presenter, $this->signedIn()), RemoveOrganizationLogoResponse::class);
+        return $this->attempt(fn (LastResponsePresenter $presenter): mixed => $useCase->execute($request, $presenter, $this->signedIn()), RemoveOrganizationLogoResponse::class);
     }
 
     public function getMyAccountInformation(): ?GetMyAccountInformationResponse
     {
         $useCase = new GetMyAccountInformationImpl($this->users, $this->organizations);
 
-        return $this->attempt(fn (LastResponsePresenter $presenter) => $useCase->execute(new GetMyAccountInformationRequest(), $presenter, $this->signedIn()), GetMyAccountInformationResponse::class);
+        return $this->attempt(fn (LastResponsePresenter $presenter): mixed => $useCase->execute(new GetMyAccountInformationRequest(), $presenter, $this->signedIn()), GetMyAccountInformationResponse::class);
     }
 
     public function updateMyAccountInformation(UpdateMyAccountInformationRequest $request): ?UpdateMyAccountInformationResponse
     {
         $useCase = new UpdateMyAccountInformationImpl($this->organizations, $this->users, $this->transaction, $this->storage, $this->notifications);
 
-        return $this->attempt(fn (LastResponsePresenter $presenter) => $useCase->execute($request, $presenter, $this->signedIn()), UpdateMyAccountInformationResponse::class);
+        return $this->attempt(fn (LastResponsePresenter $presenter): mixed => $useCase->execute($request, $presenter, $this->signedIn()), UpdateMyAccountInformationResponse::class);
     }
 
     /**
@@ -135,7 +136,7 @@ final class Application
      * @template T of object
      *
      * @param callable(LastResponsePresenter): mixed $execute
-     * @param class-string<T>                       $responseClass
+     * @param class-string<T>                        $responseClass
      *
      * @return T|null
      */

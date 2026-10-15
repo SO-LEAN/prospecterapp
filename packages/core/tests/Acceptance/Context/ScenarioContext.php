@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Tests\Core\Acceptance\Context;
 
 use Behat\Behat\Context\Context;
@@ -10,7 +12,6 @@ use PHPUnit\Framework\Assert;
 use Prospecter\Core\Entity\Organization;
 use Prospecter\Core\Entity\User;
 use Prospecter\Core\Exception\UseCase\NotFoundException;
-use SplFileInfo;
 use Tests\Core\Acceptance\Application;
 use Tests\Core\Double\SignedInUser;
 
@@ -18,10 +19,10 @@ use Tests\Core\Double\SignedInUser;
  * The state of a scenario, shared by the other contexts: the application, the people and
  * organizations it knows by name, and the files the user is about to upload.
  */
-final class ScenarioContext implements Context
+final readonly class ScenarioContext implements Context
 {
-    public readonly Application $application;
-    private readonly string $uploads;
+    public Application $application;
+    private string $uploads;
 
     public function __construct()
     {
@@ -118,8 +119,8 @@ final class ScenarioContext implements Context
         return $this->application->users->get($this->application->signedIn()->getUserId());
     }
 
-    public function upload(?string $fileName): ?SplFileInfo
+    public function upload(?string $fileName): ?\SplFileInfo
     {
-        return null === $fileName ? null : new SplFileInfo($this->uploads.'/'.$fileName);
+        return null === $fileName ? null : new \SplFileInfo($this->uploads.'/'.$fileName);
     }
 }

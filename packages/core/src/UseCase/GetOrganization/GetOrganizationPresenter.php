@@ -1,10 +1,10 @@
 <?php
 
-declare( strict_types = 1 );
+declare(strict_types=1);
 
 namespace Prospecter\Core\UseCase\GetOrganization;
 
 interface GetOrganizationPresenter
 {
-    public function present(GetOrganizationResponse $response);
+    public function present(GetOrganizationResponse $response): mixed;
 }

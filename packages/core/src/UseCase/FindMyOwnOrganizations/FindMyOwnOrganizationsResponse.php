@@ -1,59 +1,21 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Prospecter\Core\UseCase\FindMyOwnOrganizations;
 
 use Prospecter\Core\UseCase\FindMyOwnOrganizations\FindMyOwnOrganizationsResponse\Organization;
 
-final class FindMyOwnOrganizationsResponse
+final readonly class FindMyOwnOrganizationsResponse
 {
     /**
-     * @var int
+     * @param list<Organization> $organizations
      */
-    private $currentPage;
-
-    /**
-     * @var int
-     */
-    private $total;
-
-    /**
-     * @var int
-     */
-    private $totalPages;
-
-    /**
-     * @var Organization[]
-     */
-    private $organizations;
-
-    public function __construct(int $currentPage, int $total, int $totalPages, array $organizations)
-    {
-        $this->currentPage = $currentPage;
-        $this->total = $total;
-        $this->totalPages = $totalPages;
-        $this->organizations = $organizations;
-    }
-
-    public function getCurrentPage(): int
-    {
-        return $this->currentPage;
-    }
-
-    public function getTotal(): int
-    {
-        return $this->total;
-    }
-
-    public function getTotalPages(): int
-    {
-        return $this->totalPages;
-    }
-
-    /**
-     * @return Organization[]
-     */
-    public function getOrganizations(): array
-    {
-        return $this->organizations;
+    public function __construct(
+        public int $currentPage,
+        public int $total,
+        public int $totalPages,
+        public array $organizations,
+    ) {
     }
 }

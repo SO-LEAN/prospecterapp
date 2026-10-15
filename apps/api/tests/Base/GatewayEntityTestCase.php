@@ -22,7 +22,7 @@ abstract class GatewayEntityTestCase extends TestCase
 
     public function testGet(): void
     {
-        $id = 'id';
+        $id = 42;
         $entity = $this->getNewEntity();
 
         $this->prophesy(ObjectRepository::class)->findOneBy(['id' => $id])->shouldBeCalled()->willReturn($entity);
@@ -32,7 +32,7 @@ abstract class GatewayEntityTestCase extends TestCase
 
     public function testThrowNotFoundExceptionWhenNotFoundInRepository(): void
     {
-        $id = 'unknown_id';
+        $id = 404;
 
         $this->prophesy(ObjectRepository::class)->findOneBy(['id' => $id])->shouldBeCalled()->willReturn(null);
 
@@ -52,7 +52,7 @@ abstract class GatewayEntityTestCase extends TestCase
 
     public function testUpdate(): void
     {
-        $id = 'entity_id';
+        $id = 7;
         $entity = $this->getNewEntity();
         $expected = clone $entity;
         $expected->setId($id);
