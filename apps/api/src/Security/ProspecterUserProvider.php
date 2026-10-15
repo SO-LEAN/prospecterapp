@@ -3,8 +3,8 @@
 namespace App\Security;
 
 use App\Entity\User;
-use Prospecter\Core\Domain\User\User as CoreUser;
-use Prospecter\Core\Domain\User\UserRepository;
+use Prospecter\Core\Accounts\Domain\Member as CoreUser;
+use Prospecter\Core\Accounts\Domain\MemberRepository;
 use Symfony\Component\Security\Core\Exception\UnsupportedUserException;
 use Symfony\Component\Security\Core\Exception\UserNotFoundException;
 use Symfony\Component\Security\Core\User\UserInterface;
@@ -18,7 +18,7 @@ use Symfony\Component\Security\Core\User\UserProviderInterface;
  */
 final readonly class ProspecterUserProvider implements UserProviderInterface
 {
-    public function __construct(private UserRepository $users)
+    public function __construct(private MemberRepository $members)
     {
     }
 
@@ -43,6 +43,6 @@ final readonly class ProspecterUserProvider implements UserProviderInterface
 
     public function find(string $userName): CoreUser
     {
-        return $this->users->ofUserName($userName) ?? throw new UserNotFoundException('Bad credentials');
+        return $this->members->ofUserName($userName) ?? throw new UserNotFoundException('Bad credentials');
     }
 }

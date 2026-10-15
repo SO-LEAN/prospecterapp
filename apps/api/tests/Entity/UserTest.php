@@ -5,23 +5,23 @@ namespace Tests\App\Entity;
 use App\Entity\User;
 use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
-use Prospecter\Core\Domain\Organization\OrganizationId;
-use Prospecter\Core\Domain\User\Role;
-use Prospecter\Core\Domain\User\User as CoreUser;
-use Prospecter\Core\Domain\User\UserId;
+use Prospecter\Core\Accounts\Domain\Member as CoreUser;
+use Prospecter\Core\Accounts\Domain\Role;
+use Prospecter\Core\SharedKernel\Domain\AccountId;
+use Prospecter\Core\SharedKernel\Domain\MemberId;
 
 #[Group('unit')]
 class UserTest extends TestCase
 {
-    public function testTheSignedInUserIsTheUseCaseConsumer(): void
+    public function testTheSignedInUserCarriesTheIdentitiesOfTheMemberAndItsAccount(): void
     {
-        $userId = new UserId('0190a1c0-0000-7000-8000-000000000001');
-        $organizationId = new OrganizationId('0190a1c0-0000-7000-8000-000000000002');
+        $userId = new MemberId('0190a1c0-0000-7000-8000-000000000001');
+        $accountId = new AccountId('0190a1c0-0000-7000-8000-000000000002');
 
-        $signedIn = User::from(CoreUser::register($userId, $organizationId, 'ada', Role::User, Role::Prospector));
+        $signedIn = User::from(CoreUser::register($userId, $accountId, 'ada', Role::User, Role::Prospector));
 
-        $this->assertEquals($userId, $signedIn->getUserId());
-        $this->assertEquals($organizationId, $signedIn->getOrganizationId());
+        $this->assertEquals($userId, $signedIn->memberId());
+        $this->assertEquals($accountId, $signedIn->accountId());
         $this->assertSame('ada', $signedIn->getUserIdentifier());
         $this->assertSame(['ROLE_USER', 'ROLE_PROSPECTOR'], $signedIn->getRoles());
     }

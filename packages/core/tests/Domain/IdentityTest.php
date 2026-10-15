@@ -5,8 +5,8 @@ declare(strict_types=1);
 namespace Tests\Core\Domain;
 
 use PHPUnit\Framework\TestCase;
-use Prospecter\Core\Domain\Organization\OrganizationId;
-use Prospecter\Core\Domain\User\UserId;
+use Prospecter\Core\Prospecting\Domain\OrganizationId;
+use Prospecter\Core\SharedKernel\Domain\MemberId;
 
 class IdentityTest extends TestCase
 {
@@ -27,6 +27,6 @@ class IdentityTest extends TestCase
     public function testTwoIdentitiesOfTheSameKindAndValueAreEqual(): void
     {
         $this->assertTrue(new OrganizationId(self::UUID)->equals(new OrganizationId(self::UUID)));
-        $this->assertFalse(new OrganizationId(self::UUID)->equals(new UserId(self::UUID)), 'an organization is not a user');
+        $this->assertFalse(new OrganizationId(self::UUID)->equals(new MemberId(self::UUID)), 'an organization is not a user');
     }
 }

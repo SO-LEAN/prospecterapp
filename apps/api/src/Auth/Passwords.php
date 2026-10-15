@@ -3,7 +3,7 @@
 namespace App\Auth;
 
 use Doctrine\ORM\EntityManagerInterface;
-use Prospecter\Core\Domain\User\UserId;
+use Prospecter\Core\SharedKernel\Domain\MemberId;
 use Symfony\Component\PasswordHasher\Hasher\PasswordHasherFactoryInterface;
 use Symfony\Component\PasswordHasher\PasswordHasherInterface;
 
@@ -18,7 +18,7 @@ final readonly class Passwords
     ) {
     }
 
-    public function set(UserId $userId, string $password): void
+    public function set(MemberId $userId, string $password): void
     {
         $hash = $this->hasher()->hash($password);
         $credentials = $this->entityManager->find(Credentials::class, $userId->value);
@@ -32,7 +32,7 @@ final readonly class Passwords
         $this->entityManager->flush();
     }
 
-    public function verify(UserId $userId, string $password): bool
+    public function verify(MemberId $userId, string $password): bool
     {
         $credentials = $this->entityManager->find(Credentials::class, $userId->value);
 
@@ -48,7 +48,7 @@ final readonly class Passwords
     private function upgradeHashIfOutdated(Credentials $credentials, string $password): void
     {
         if ($this->hasher()->needsRehash($credentials->passwordHash())) {
-            $this->set(new UserId($credentials->userId()), $password);
+            $this->set(new MemberId($credentials->userId()), $password);
         }
     }
 

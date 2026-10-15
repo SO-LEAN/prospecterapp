@@ -2,10 +2,10 @@
 
 namespace App\Entity;
 
-use Prospecter\Core\Domain\Organization\OrganizationId;
-use Prospecter\Core\Domain\User\Role;
-use Prospecter\Core\Domain\User\User as CoreUser;
-use Prospecter\Core\Domain\User\UserId;
+use Prospecter\Core\Accounts\Domain\Member as CoreUser;
+use Prospecter\Core\Accounts\Domain\Role;
+use Prospecter\Core\SharedKernel\Domain\AccountId;
+use Prospecter\Core\SharedKernel\Domain\MemberId;
 use Symfony\Component\Security\Core\User\UserInterface;
 
 /**
@@ -19,7 +19,7 @@ final readonly class User implements UserInterface
     public function __construct(
         private string $id,
         private string $userName,
-        private string $organizationId,
+        private string $accountId,
         private array $roles,
     ) {
     }
@@ -29,7 +29,7 @@ final readonly class User implements UserInterface
         return new self(
             $user->id()->value,
             $user->userName(),
-            $user->organizationId()->value,
+            $user->accountId()->value,
             array_map(static fn (Role $role): string => $role->value, $user->roles()),
         );
     }
@@ -44,13 +44,13 @@ final readonly class User implements UserInterface
         return $this->userName;
     }
 
-    public function getUserId(): UserId
+    public function memberId(): MemberId
     {
-        return new UserId($this->id);
+        return new MemberId($this->id);
     }
 
-    public function getOrganizationId(): OrganizationId
+    public function accountId(): AccountId
     {
-        return new OrganizationId($this->organizationId);
+        return new AccountId($this->accountId);
     }
 }

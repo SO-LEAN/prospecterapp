@@ -8,12 +8,16 @@ use Behat\Behat\Context\Context;
 use Behat\Hook\AfterScenario;
 use Behat\Step\Given;
 use Behat\Step\Then;
-use Prospecter\Core\Domain\Organization\LegalIdentity;
-use Prospecter\Core\Domain\Organization\Organization;
-use Prospecter\Core\Domain\Organization\OrganizationId;
-use Prospecter\Core\Domain\Shared\NotFound;
-use Prospecter\Core\Domain\User\Role;
-use Prospecter\Core\Domain\User\User;
+use Prospecter\Core\Accounts\Domain\Account;
+use Prospecter\Core\Accounts\Domain\Member;
+use Prospecter\Core\Accounts\Domain\Role;
+use Prospecter\Core\Prospecting\Domain\Organization;
+use Prospecter\Core\Prospecting\Domain\OrganizationId;
+use Prospecter\Core\Prospecting\Domain\Prospector;
+use Prospecter\Core\SharedKernel\Domain\AccountId;
+use Prospecter\Core\SharedKernel\Domain\LegalIdentity;
+use Prospecter\Core\SharedKernel\Domain\NotFound;
+use Prospecter\Core\SharedKernel\Domain\Uuid;
 use Tests\Core\Acceptance\Application;
 use Tests\Core\Acceptance\Expect;
 
@@ -25,6 +29,8 @@ final class ScenarioContext implements Context
 {
     public readonly Application $application;
     private readonly string $uploads;
+    /** @var array<string, AccountId> */
+    private array $accountIds = [];
     /** @var array<string, OrganizationId> */
     private array $organizationIds = [];
 
@@ -45,16 +51,15 @@ final class ScenarioContext implements Context
     #[Given('l\'organisation :name qui utilise Prospecter')]
     public function anOrganizationUsingProspecter(string $name): void
     {
-        $organization = Organization::usingProspecter($this->application->organizations->nextIdentity(), new LegalIdentity($name));
-        $this->save($name, $organization);
+        $this->openAccount($name, Account::open($this->application->accounts->nextIdentity(), new LegalIdentity($name)));
     }
 
     #[Given('je suis connecté en tant que prospecteur de :organization')]
-    public function iAmSignedInAsProspectorOf(string $organization): void
+    public function iAmSignedInAsProspectorOf(string $account): void
     {
-        $user = User::register($this->application->users->nextIdentity(), $this->idOf($organization), 'prospector', Role::User, Role::Prospector);
-        $this->application->users->save($user);
-        $this->application->signIn($user->id());
+        $member = Member::register($this->application->members->nextIdentity(), $this->accountIdOf($account), 'prospector', Role::User, Role::Prospector);
+        $this->application->members->save($member);
+        $this->application->signIn($member->id());
     }
 
     #[Given('le géocodeur situe :place en :longitude, :latitude')]
@@ -103,23 +108,36 @@ final class ScenarioContext implements Context
         }
     }
 
+    public function openAccount(string $name, Account $account): void
+    {
+        $this->application->accounts->save($account);
+        $this->accountIds[$name] = $account->id();
+    }
+
     /**
-     * The identity a request would carry for this name; an unknown name gets an identity nobody has.
+     * The organization identity a request would carry for this name: the one of a prospected organization,
+     * the one of an account (which is no prospected organization), or one nobody has.
      */
     public function idOf(string $name): OrganizationId
     {
-        return $this->organizationIds[$name] ?? $this->application->organizations->nextIdentity();
+        return $this->organizationIds[$name]
+            ?? (isset($this->accountIds[$name]) ? new OrganizationId($this->accountIds[$name]->value) : $this->application->organizations->nextIdentity());
     }
 
-    public function nameOf(OrganizationId $id): string
+    public function accountIdOf(string $name): AccountId
     {
-        foreach ($this->organizationIds as $name => $knownId) {
+        return $this->accountIds[$name] ?? throw new \LogicException(sprintf('No account "%s" in the scenario', $name));
+    }
+
+    public function nameOf(Uuid $id): string
+    {
+        foreach ([...$this->accountIds, ...$this->organizationIds] as $name => $knownId) {
             if ($knownId->equals($id)) {
                 return $name;
             }
         }
 
-        throw new \LogicException(sprintf('No organization named %s in the scenario', $id));
+        throw new \LogicException(sprintf('Nothing named %s in the scenario', $id));
     }
 
     public function organizationNamed(string $name): Organization
@@ -127,23 +145,35 @@ final class ScenarioContext implements Context
         return $this->application->organizations->get($this->organizationIds[$name] ?? throw new \LogicException(sprintf('No organization "%s" in the scenario', $name)));
     }
 
-    public function me(): User
+    public function me(): Member
     {
-        return $this->application->users->get($this->application->signedIn());
+        return $this->application->members->get($this->application->signedIn());
+    }
+
+    public function meAsProspector(): Prospector
+    {
+        return $this->application->prospectors->get($this->application->signedIn());
     }
 
     /**
-     * Someone of the organization that manages this one (its prospector, or one of its own users), to
-     * arrange its state the way the business allows.
+     * A prospector of the account owning this organization, to arrange its state the way the business allows.
      */
-    public function managerOf(Organization $organization): User
+    public function managerOf(Organization $organization): Prospector
     {
-        return $this->someoneOf($organization->ownerId() ?? $organization->id());
+        return $this->prospectorOf($organization->ownerId());
     }
 
-    public function someoneOf(OrganizationId $organizationId): User
+    public function prospectorOf(AccountId $accountId): Prospector
     {
-        return User::register($this->application->users->nextIdentity(), $organizationId, 'someone', Role::Prospector);
+        return new Prospector($this->application->members->nextIdentity(), $accountId);
+    }
+
+    /**
+     * A member of this account, to arrange its state the way the business allows.
+     */
+    public function memberOf(Account $account): Member
+    {
+        return Member::register($this->application->members->nextIdentity(), $account->id(), 'someone', Role::User);
     }
 
     public function upload(string $fileName): \SplFileInfo

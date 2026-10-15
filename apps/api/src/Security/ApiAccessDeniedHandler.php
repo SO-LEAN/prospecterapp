@@ -2,7 +2,7 @@
 
 namespace App\Security;
 
-use App\Api\Resource\ProblemResource;
+use App\Shared\Resource\ProblemResource;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;

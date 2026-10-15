@@ -4,7 +4,7 @@ namespace Tests\App\Api;
 
 use App\Auth\Passwords;
 use PHPUnit\Framework\Attributes\Group;
-use Prospecter\Core\Domain\User\User;
+use Prospecter\Core\Accounts\Domain\Member;
 use Tests\App\Base\ApiTestCase;
 
 #[Group('api')]
@@ -77,7 +77,7 @@ class AccountApiTest extends ApiTestCase
 
         $this->assertResponseStatusCodeSame(204);
         $passwords = self::getContainer()->get(Passwords::class);
-        $me = $this->fixtures->getReference('prospector-user', User::class);
+        $me = $this->fixtures->getReference('prospector-user', Member::class);
         $this->assertTrue($passwords->verify($me->id(), 'a new password'));
         $this->assertFalse($passwords->verify($me->id(), 'password'), 'the old password no longer signs in');
     }

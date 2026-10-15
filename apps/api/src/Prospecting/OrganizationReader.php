@@ -1,0 +1,28 @@
+<?php
+
+namespace App\Prospecting;
+
+use App\Prospecting\Presenter\OrganizationResourcePresenter;
+use App\Prospecting\Resource\OrganizationResource;
+use Prospecter\Core\Prospecting\Application\ConsultOrganization\ConsultOrganization;
+use Prospecter\Core\Prospecting\Application\ConsultOrganization\ConsultOrganizationHandler;
+use Prospecter\Core\Prospecting\Domain\OrganizationId;
+use Prospecter\Core\SharedKernel\Domain\MemberId;
+
+/**
+ * An organization as the API shows it: read by the query of the core, then presented. A controller calls
+ * it after a command, which returns nothing, to answer with the fresh resource.
+ */
+final readonly class OrganizationReader
+{
+    public function __construct(
+        private ConsultOrganizationHandler $consultOrganization,
+        private OrganizationResourcePresenter $presenter,
+    ) {
+    }
+
+    public function read(MemberId $reader, OrganizationId $id): OrganizationResource
+    {
+        return $this->presenter->present(($this->consultOrganization)(new ConsultOrganization($reader, $id)));
+    }
+}

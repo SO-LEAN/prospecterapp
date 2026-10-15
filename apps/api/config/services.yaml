@@ -5,27 +5,30 @@ services:
 
     _instanceof:
         # every command handler of the core is registered on the command bus
-        Prospecter\Core\Application\CommandHandler:
+        Prospecter\Core\SharedKernel\Application\CommandHandler:
             tags: [{ name: messenger.message_handler, bus: command.bus }]
 
     App\:
         resource: '../src/'
         exclude:
-            - '../src/Api/Input/'
-            - '../src/Api/Resource/'
+            - '../src/*/Input/'
+            - '../src/*/Resource/'
+            - '../src/Dashboard/DashboardResource.php'
             - '../src/Entity/'
             - '../src/Kernel.php'
             - '../src/Service/Image/UrlImageInfo.php'
 
     # Handlers of the core: commands go through the command bus, queries are called by the controllers
-    Prospecter\Core\Application\:
-        resource: '../vendor/prospecter/core/src/Application/{Organization,Account}/*/*Handler.php'
+    Prospecter\Core\:
+        resource: '../vendor/prospecter/core/src/{Accounts,Prospecting}/Application/*/*Handler.php'
 
     # Ports of the core, implemented by the application
-    Prospecter\Core\Domain\Organization\OrganizationRepository: '@App\Repository\DoctrineOrganizationRepository'
-    Prospecter\Core\Domain\User\UserRepository: '@App\Repository\DoctrineUserRepository'
-    Prospecter\Core\Application\Port\Storage: '@App\Gateway\LocalStorage'
-    Prospecter\Core\Application\Port\GeoLocation: '@App\Gateway\GeoplateformeGeoLocation'
+    Prospecter\Core\Accounts\Domain\AccountRepository: '@App\Accounts\Persistence\DoctrineAccountRepository'
+    Prospecter\Core\Accounts\Domain\MemberRepository: '@App\Accounts\Persistence\DoctrineMemberRepository'
+    Prospecter\Core\Prospecting\Domain\OrganizationRepository: '@App\Prospecting\Persistence\DoctrineOrganizationRepository'
+    Prospecter\Core\Prospecting\Domain\Prospectors: '@App\Prospecting\AccountsProspectors'
+    Prospecter\Core\Prospecting\Application\Port\GeoLocation: '@App\Prospecting\GeoplateformeGeoLocation'
+    Prospecter\Core\SharedKernel\Application\Port\Storage: '@App\Shared\LocalStorage'
 
     # Security
     App\Security\ProspecterAuthenticator:

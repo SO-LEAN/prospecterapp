@@ -421,40 +421,6 @@
                 }
             }
         },
-        "/api/dashboard": {
-            "get": {
-                "tags": [
-                    "Dashboard"
-                ],
-                "summary": "Statistics of my organization and the organizations to place on a map",
-                "operationId": "get_api_dashboard",
-                "responses": {
-                    "200": {
-                        "description": "My dashboard",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/DashboardResource"
-                                }
-                            }
-                        }
-                    },
-                    "401": {
-                        "description": "Missing or invalid access token"
-                    },
-                    "403": {
-                        "description": "The signed-in user is not a prospector",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/ProblemResource"
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-        },
         "/api/organizations/{id}/holding": {
             "delete": {
                 "tags": [
@@ -1209,6 +1175,40 @@
                     }
                 }
             }
+        },
+        "/api/dashboard": {
+            "get": {
+                "tags": [
+                    "Dashboard"
+                ],
+                "summary": "Statistics of my organization and the organizations to place on a map",
+                "operationId": "get_api_dashboard",
+                "responses": {
+                    "200": {
+                        "description": "My dashboard",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/DashboardResource"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Missing or invalid access token"
+                    },
+                    "403": {
+                        "description": "The signed-in user is not a prospector",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ProblemResource"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
         }
     },
     "components": {
@@ -1600,91 +1600,6 @@
                 },
                 "type": "object"
             },
-            "LocationResource": {
-                "required": [
-                    "latitude",
-                    "longitude"
-                ],
-                "properties": {
-                    "latitude": {
-                        "type": "number",
-                        "format": "float"
-                    },
-                    "longitude": {
-                        "type": "number",
-                        "format": "float"
-                    }
-                },
-                "type": "object"
-            },
-            "OrganizationSummaryResource": {
-                "required": [
-                    "id",
-                    "name"
-                ],
-                "properties": {
-                    "id": {
-                        "type": "string"
-                    },
-                    "name": {
-                        "type": "string"
-                    },
-                    "postalCode": {
-                        "type": "string",
-                        "nullable": true
-                    },
-                    "city": {
-                        "type": "string",
-                        "nullable": true
-                    },
-                    "country": {
-                        "type": "string",
-                        "nullable": true
-                    },
-                    "location": {
-                        "nullable": true,
-                        "oneOf": [
-                            {
-                                "$ref": "#/components/schemas/LocationResource"
-                            }
-                        ]
-                    },
-                    "logo": {
-                        "nullable": true,
-                        "oneOf": [
-                            {
-                                "$ref": "#/components/schemas/ImageResource"
-                            }
-                        ]
-                    }
-                },
-                "type": "object"
-            },
-            "DashboardResource": {
-                "required": [
-                    "organizationName",
-                    "stats",
-                    "markers"
-                ],
-                "properties": {
-                    "organizationName": {
-                        "type": "string"
-                    },
-                    "stats": {
-                        "type": "object",
-                        "additionalProperties": {
-                            "type": "integer"
-                        }
-                    },
-                    "markers": {
-                        "type": "array",
-                        "items": {
-                            "$ref": "#/components/schemas/OrganizationSummaryResource"
-                        }
-                    }
-                },
-                "type": "object"
-            },
             "AddressResource": {
                 "properties": {
                     "street": {
@@ -1702,6 +1617,23 @@
                     "country": {
                         "type": "string",
                         "nullable": true
+                    }
+                },
+                "type": "object"
+            },
+            "LocationResource": {
+                "required": [
+                    "latitude",
+                    "longitude"
+                ],
+                "properties": {
+                    "latitude": {
+                        "type": "number",
+                        "format": "float"
+                    },
+                    "longitude": {
+                        "type": "number",
+                        "format": "float"
                     }
                 },
                 "type": "object"
@@ -1747,7 +1679,6 @@
                     "name",
                     "legalIdentity",
                     "contactDetails",
-                    "activeOrganizations",
                     "_links"
                 ],
                 "properties": {
@@ -1795,11 +1726,51 @@
                         "type": "string",
                         "nullable": true
                     },
-                    "activeOrganizations": {
-                        "type": "integer"
-                    },
                     "_links": {
                         "$ref": "#/components/schemas/OrganizationLinksResource"
+                    }
+                },
+                "type": "object"
+            },
+            "OrganizationSummaryResource": {
+                "required": [
+                    "id",
+                    "name"
+                ],
+                "properties": {
+                    "id": {
+                        "type": "string"
+                    },
+                    "name": {
+                        "type": "string"
+                    },
+                    "postalCode": {
+                        "type": "string",
+                        "nullable": true
+                    },
+                    "city": {
+                        "type": "string",
+                        "nullable": true
+                    },
+                    "country": {
+                        "type": "string",
+                        "nullable": true
+                    },
+                    "location": {
+                        "nullable": true,
+                        "oneOf": [
+                            {
+                                "$ref": "#/components/schemas/LocationResource"
+                            }
+                        ]
+                    },
+                    "logo": {
+                        "nullable": true,
+                        "oneOf": [
+                            {
+                                "$ref": "#/components/schemas/ImageResource"
+                            }
+                        ]
                     }
                 },
                 "type": "object"
@@ -1826,6 +1797,31 @@
                     },
                     "totalItems": {
                         "type": "integer"
+                    }
+                },
+                "type": "object"
+            },
+            "DashboardResource": {
+                "required": [
+                    "organizationName",
+                    "stats",
+                    "markers"
+                ],
+                "properties": {
+                    "organizationName": {
+                        "type": "string"
+                    },
+                    "stats": {
+                        "type": "object",
+                        "additionalProperties": {
+                            "type": "integer"
+                        }
+                    },
+                    "markers": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/OrganizationSummaryResource"
+                        }
                     }
                 },
                 "type": "object"
@@ -1859,10 +1855,10 @@
             "name": "My account"
         },
         {
-            "name": "Dashboard"
+            "name": "Organizations"
         },
         {
-            "name": "Organizations"
+            "name": "Dashboard"
         }
     ]
 }

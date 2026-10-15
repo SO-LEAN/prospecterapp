@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Tests\Core\Double;
 
-use Prospecter\Core\Application\Port\Storage;
+use Prospecter\Core\SharedKernel\Application\Port\Storage;
 
 /**
  * Keeps the stored files by URL. Like the real storage, adding a file moves it away from where it

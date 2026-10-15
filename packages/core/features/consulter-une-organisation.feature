@@ -24,13 +24,9 @@ Fonctionnalité: Consulter une organisation
       | position        | 7.75, 48.58       |
       | logo            | acme.png          |
 
-  Scénario: Je consulte ma propre organisation et son nombre d'organisations actives
-    Soit l'organisation "ACME" fait partie de mes organisations
-    Et l'organisation "Globex" fait partie de mes organisations
+  Scénario: Mon organisation n'est pas une organisation que je prospecte
     Quand je consulte l'organisation "SOLEAN IT"
-    Alors je vois l'organisation :
-      | raison sociale        | SOLEAN IT |
-      | organisations actives | 2         |
+    Alors c'est introuvable
 
   Scénario: Une organisation inconnue est introuvable
     Quand je consulte l'organisation "Inconnue"
@@ -73,13 +69,3 @@ Fonctionnalité: Consulter une organisation
       | détacher de la holding  |
       | changer le logo         |
       | retirer le logo         |
-
-  Scénario: Je gère ma propre organisation comme celles que je prospecte
-    Quand je consulte l'organisation "SOLEAN IT"
-    Alors je peux :
-      | réviser l'identité      |
-      | changer les coordonnées |
-      | déménager               |
-      | écrire des observations |
-      | rattacher à une holding |
-      | changer le logo         |

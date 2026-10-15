@@ -6,18 +6,18 @@ namespace Tests\Core\Domain;
 
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
-use Prospecter\Core\Domain\Organization\Address;
-use Prospecter\Core\Domain\Organization\LegalIdentity;
-use Prospecter\Core\Domain\Organization\Organization;
-use Prospecter\Core\Domain\Organization\OrganizationId;
-use Prospecter\Core\Domain\Organization\OrganizationIntent;
-use Prospecter\Core\Domain\Shared\BusinessRuleViolation;
-use Prospecter\Core\Domain\Shared\ContactDetails;
-use Prospecter\Core\Domain\Shared\File;
-use Prospecter\Core\Domain\Shared\NotFound;
-use Prospecter\Core\Domain\User\Role;
-use Prospecter\Core\Domain\User\User;
-use Prospecter\Core\Domain\User\UserId;
+use Prospecter\Core\Prospecting\Domain\Address;
+use Prospecter\Core\Prospecting\Domain\Organization;
+use Prospecter\Core\Prospecting\Domain\OrganizationId;
+use Prospecter\Core\Prospecting\Domain\OrganizationIntent;
+use Prospecter\Core\Prospecting\Domain\Prospector;
+use Prospecter\Core\SharedKernel\Domain\AccountId;
+use Prospecter\Core\SharedKernel\Domain\BusinessRuleViolation;
+use Prospecter\Core\SharedKernel\Domain\ContactDetails;
+use Prospecter\Core\SharedKernel\Domain\File;
+use Prospecter\Core\SharedKernel\Domain\LegalIdentity;
+use Prospecter\Core\SharedKernel\Domain\MemberId;
+use Prospecter\Core\SharedKernel\Domain\NotFound;
 
 /**
  * The front shows an action when its link is there, the API refuses a call when it is not: an intention
@@ -31,9 +31,9 @@ class OrganizationIntentsTest extends TestCase
     private const string HOLDING = '0190a1c0-0000-7000-8000-000000000004';
 
     #[DataProvider('situations')]
-    public function testAnIntentionIsRefusedExactlyWhenItIsNotOffered(OrganizationIntent $intent, string $state, string $userOrganization): void
+    public function testAnIntentionIsRefusedExactlyWhenItIsNotOffered(OrganizationIntent $intent, string $state, string $userAccount): void
     {
-        $user = $this->someoneOf($userOrganization);
+        $user = $this->someoneOf($userAccount);
         $organization = $this->prospect($state);
         $offered = in_array($intent, $organization->possibleIntentsOf($user), true);
 
@@ -54,7 +54,7 @@ class OrganizationIntentsTest extends TestCase
         }
     }
 
-    private function isAccepted(OrganizationIntent $intent, Organization $organization, User $by): bool
+    private function isAccepted(OrganizationIntent $intent, Organization $organization, Prospector $by): bool
     {
         try {
             $this->carryOut($intent, $organization, $by);
@@ -65,7 +65,7 @@ class OrganizationIntentsTest extends TestCase
         return true;
     }
 
-    private function carryOut(OrganizationIntent $intent, Organization $organization, User $by): void
+    private function carryOut(OrganizationIntent $intent, Organization $organization, Prospector $by): void
     {
         match ($intent) {
             OrganizationIntent::ReviseLegalIdentity => $organization->reviseLegalIdentity(new LegalIdentity('ACME SAS'), $by),
@@ -102,8 +102,8 @@ class OrganizationIntentsTest extends TestCase
         return new File('https://storage.test/acme.png', 'png', 1024);
     }
 
-    private function someoneOf(string $organization): User
+    private function someoneOf(string $account): Prospector
     {
-        return User::register(new UserId('0190a1c0-0000-7000-8000-0000000000aa'), new OrganizationId($organization), 'someone', Role::Prospector);
+        return new Prospector(new MemberId('0190a1c0-0000-7000-8000-0000000000aa'), new AccountId($account));
     }
 }

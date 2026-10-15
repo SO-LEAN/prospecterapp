@@ -9,27 +9,27 @@ use Behat\Gherkin\Node\TableNode;
 use Behat\Step\Given;
 use Behat\Step\Then;
 use Behat\Step\When;
-use Prospecter\Core\Application\Organization\AttachToHolding\AttachToHolding;
-use Prospecter\Core\Application\Organization\ChangeContactDetails\ChangeContactDetails;
-use Prospecter\Core\Application\Organization\ChangeLogo\ChangeLogo;
-use Prospecter\Core\Application\Organization\ConsultOrganization\ConsultOrganization;
-use Prospecter\Core\Application\Organization\DetachFromHolding\DetachFromHolding;
-use Prospecter\Core\Application\Organization\OrganizationResponse;
-use Prospecter\Core\Application\Organization\Relocate\Relocate;
-use Prospecter\Core\Application\Organization\RemoveLogo\RemoveLogo;
-use Prospecter\Core\Application\Organization\ReviseLegalIdentity\ReviseLegalIdentity;
-use Prospecter\Core\Application\Organization\SearchProspectedOrganizations\FoundOrganization;
-use Prospecter\Core\Application\Organization\SearchProspectedOrganizations\SearchProspectedOrganizations;
-use Prospecter\Core\Application\Organization\SearchProspectedOrganizations\SearchProspectedOrganizationsResponse;
-use Prospecter\Core\Application\Organization\StartProspecting\StartProspecting;
-use Prospecter\Core\Application\Organization\WriteObservations\WriteObservations;
-use Prospecter\Core\Domain\Organization\LegalIdentity;
-use Prospecter\Core\Domain\Organization\Organization;
-use Prospecter\Core\Domain\Organization\OrganizationId;
-use Prospecter\Core\Domain\Shared\ContactDetails;
-use Prospecter\Core\Domain\Shared\Email;
-use Prospecter\Core\Domain\Shared\File;
-use Prospecter\Core\Domain\User\UserId;
+use Prospecter\Core\Prospecting\Application\AttachToHolding\AttachToHolding;
+use Prospecter\Core\Prospecting\Application\ChangeContactDetails\ChangeContactDetails;
+use Prospecter\Core\Prospecting\Application\ChangeLogo\ChangeLogo;
+use Prospecter\Core\Prospecting\Application\ConsultOrganization\ConsultOrganization;
+use Prospecter\Core\Prospecting\Application\DetachFromHolding\DetachFromHolding;
+use Prospecter\Core\Prospecting\Application\OrganizationResponse;
+use Prospecter\Core\Prospecting\Application\Relocate\Relocate;
+use Prospecter\Core\Prospecting\Application\RemoveLogo\RemoveLogo;
+use Prospecter\Core\Prospecting\Application\ReviseLegalIdentity\ReviseLegalIdentity;
+use Prospecter\Core\Prospecting\Application\SearchProspectedOrganizations\FoundOrganization;
+use Prospecter\Core\Prospecting\Application\SearchProspectedOrganizations\SearchProspectedOrganizations;
+use Prospecter\Core\Prospecting\Application\SearchProspectedOrganizations\SearchProspectedOrganizationsResponse;
+use Prospecter\Core\Prospecting\Application\StartProspecting\StartProspecting;
+use Prospecter\Core\Prospecting\Application\WriteObservations\WriteObservations;
+use Prospecter\Core\Prospecting\Domain\Organization;
+use Prospecter\Core\Prospecting\Domain\OrganizationId;
+use Prospecter\Core\SharedKernel\Domain\ContactDetails;
+use Prospecter\Core\SharedKernel\Domain\Email;
+use Prospecter\Core\SharedKernel\Domain\File;
+use Prospecter\Core\SharedKernel\Domain\LegalIdentity;
+use Prospecter\Core\SharedKernel\Domain\MemberId;
 use Tests\Core\Acceptance\Expect;
 use Tests\Core\Acceptance\Vocabulary;
 use Tests\Core\Double\InMemoryStorage;
@@ -44,7 +44,7 @@ final class OrganizationContext implements Context
     #[Given('l\'organisation :name fait partie de mes organisations')]
     public function anOrganizationOfMine(string $name): Organization
     {
-        return $this->anOrganizationProspectedBy($name, $this->myOrganizationName());
+        return $this->anOrganizationProspectedBy($name, $this->myAccountName());
     }
 
     #[Given('l\'organisation :name fait partie de mes organisations avec :')]
@@ -56,14 +56,14 @@ final class OrganizationContext implements Context
     #[Given('l\'organisation sans raison sociale :email fait partie de mes organisations')]
     public function anOrganizationOfMineWithoutCorporateName(string $email): void
     {
-        $organization = Organization::prospectedBy($this->scenario->me(), $this->application->organizations->nextIdentity(), new LegalIdentity(), new ContactDetails(new Email($email)));
+        $organization = Organization::prospectedBy($this->scenario->meAsProspector(), $this->application->organizations->nextIdentity(), new LegalIdentity(), new ContactDetails(new Email($email)));
         $this->scenario->save($email, $organization);
     }
 
     #[Given('l\'organisation :name appartient à :owner')]
     public function anOrganizationProspectedBy(string $name, string $owner): Organization
     {
-        $organization = Organization::prospectedBy($this->scenario->someoneOf($this->scenario->idOf($owner)), $this->application->organizations->nextIdentity(), new LegalIdentity($name), new ContactDetails());
+        $organization = Organization::prospectedBy($this->scenario->prospectorOf($this->scenario->accountIdOf($owner)), $this->application->organizations->nextIdentity(), new LegalIdentity($name), new ContactDetails());
 
         return $this->scenario->save($name, $organization);
     }
@@ -208,7 +208,7 @@ final class OrganizationContext implements Context
     #[Then('l\'organisation :name compte :count organisation(s) active(s)')]
     public function theOrganizationCountsActiveOrganizations(string $name, int $count): void
     {
-        Expect::same($count, $this->application->organizations->countProspectedBy($this->scenario->idOf($name)));
+        Expect::same($count, $this->application->organizations->pageProspectedBy($this->scenario->accountIdOf($name), '', 1, 1)->total);
     }
 
     #[Then('je vois l\'organisation :')]
@@ -224,7 +224,6 @@ final class OrganizationContext implements Context
             'ville' => (string) $organization->address?->city,
             'position' => Vocabulary::describeGeoPoint($organization->geoPoint),
             'logo' => null === $organization->logo ? 'aucun' : basename($organization->logo->url),
-            'organisations actives' => (string) $organization->activeOrganizations,
         ]);
     }
 
@@ -267,14 +266,14 @@ final class OrganizationContext implements Context
         Expect::that(!$this->application->storage->has(InMemoryStorage::urlOf($fileName)), sprintf('"%s" is still stored', $fileName));
     }
 
-    private function me(): UserId
+    private function me(): MemberId
     {
         return $this->application->signedIn();
     }
 
-    private function myOrganizationName(): string
+    private function myAccountName(): string
     {
-        return $this->scenario->nameOf($this->scenario->me()->organizationId());
+        return $this->scenario->nameOf($this->scenario->me()->accountId());
     }
 
     private function rememberIfAccepted(?string $name, OrganizationId $id): void

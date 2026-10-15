@@ -11,8 +11,8 @@ use Doctrine\Common\DataFixtures\Purger\ORMPurger;
 use Doctrine\Common\DataFixtures\ReferenceRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\Tools\SchemaTool;
-use Prospecter\Core\Domain\User\User as UserEntity;
-use Prospecter\Core\Domain\User\UserRepository;
+use Prospecter\Core\Accounts\Domain\Member as UserEntity;
+use Prospecter\Core\Accounts\Domain\MemberRepository;
 use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 use Symfony\Component\DomCrawler\Crawler;
@@ -42,7 +42,7 @@ abstract class ControllerTestCase extends WebTestCase
         $id = $this->fixtures->getReference($reference, UserEntity::class)->id();
         self::getContainer()->get(EntityManagerInterface::class)->clear();
 
-        return self::getContainer()->get(UserRepository::class)->get($id);
+        return self::getContainer()->get(MemberRepository::class)->get($id);
     }
 
     protected function grab(Crawler $crawler, string $name): string

@@ -4,33 +4,35 @@ doctrine:
         profiling_collect_backtrace: '%kernel.debug%'
         # value objects of the core: the aggregates keep them, the mapping adapts
         types:
-            organization_id: App\Doctrine\Type\OrganizationIdType
-            user_id: App\Doctrine\Type\UserIdType
-            email: App\Doctrine\Type\EmailType
-            address: App\Doctrine\Type\AddressType
-            geo_point: App\Doctrine\Type\GeoPointType
-            file: App\Doctrine\Type\FileType
-            roles: App\Doctrine\Type\RolesType
+            account_id: App\Shared\Persistence\AccountIdType
+            member_id: App\Shared\Persistence\MemberIdType
+            organization_id: App\Prospecting\Persistence\OrganizationIdType
+            email: App\Shared\Persistence\EmailType
+            address: App\Prospecting\Persistence\AddressType
+            geo_point: App\Prospecting\Persistence\GeoPointType
+            file: App\Shared\Persistence\FileType
+            roles: App\Accounts\Persistence\RolesType
     orm:
         validate_xml_mapping: true
         naming_strategy: doctrine.orm.naming_strategy.underscore_number_aware
         auto_mapping: false
         mappings:
-            Organization:
+            # one mapping per bounded context of the core (ADR 0030)
+            Accounts:
                 type: xml
                 is_bundle: false
-                dir: '%kernel.project_dir%/config/doctrine/Organization'
-                prefix: 'Prospecter\Core\Domain\Organization'
-            Shared:
+                dir: '%kernel.project_dir%/config/doctrine/Accounts'
+                prefix: 'Prospecter\Core\Accounts\Domain'
+            Prospecting:
                 type: xml
                 is_bundle: false
-                dir: '%kernel.project_dir%/config/doctrine/Shared'
-                prefix: 'Prospecter\Core\Domain\Shared'
-            User:
+                dir: '%kernel.project_dir%/config/doctrine/Prospecting'
+                prefix: 'Prospecter\Core\Prospecting\Domain'
+            SharedKernel:
                 type: xml
                 is_bundle: false
-                dir: '%kernel.project_dir%/config/doctrine/User'
-                prefix: 'Prospecter\Core\Domain\User'
+                dir: '%kernel.project_dir%/config/doctrine/SharedKernel'
+                prefix: 'Prospecter\Core\SharedKernel\Domain'
             # authentication, kept apart from the core (future authorization server)
             Auth:
                 type: attribute

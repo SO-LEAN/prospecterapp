@@ -28,9 +28,5 @@ Fonctionnalité: Consulter mon compte
       | changer mes coordonnées |
       | changer ma photo        |
     Et je peux sur mon organisation :
-      | réviser l'identité      |
-      | changer les coordonnées |
-      | déménager               |
-      | écrire des observations |
-      | rattacher à une holding |
-      | changer le logo         |
+      | réviser l'identité |
+      | changer le logo    |

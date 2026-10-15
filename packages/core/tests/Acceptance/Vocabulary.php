@@ -4,18 +4,20 @@ declare(strict_types=1);
 
 namespace Tests\Core\Acceptance;
 
-use Prospecter\Core\Domain\Organization\Address;
-use Prospecter\Core\Domain\Organization\GeoPoint;
-use Prospecter\Core\Domain\Organization\LegalIdentity;
-use Prospecter\Core\Domain\Organization\Organization;
-use Prospecter\Core\Domain\Organization\OrganizationId;
-use Prospecter\Core\Domain\Organization\OrganizationIntent;
-use Prospecter\Core\Domain\Shared\ContactDetails;
-use Prospecter\Core\Domain\Shared\Email;
-use Prospecter\Core\Domain\Shared\File;
-use Prospecter\Core\Domain\User\PersonName;
-use Prospecter\Core\Domain\User\User;
-use Prospecter\Core\Domain\User\UserIntent;
+use Prospecter\Core\Accounts\Domain\Account;
+use Prospecter\Core\Accounts\Domain\AccountIntent;
+use Prospecter\Core\Accounts\Domain\Member;
+use Prospecter\Core\Accounts\Domain\MemberIntent;
+use Prospecter\Core\Accounts\Domain\PersonName;
+use Prospecter\Core\Prospecting\Domain\Address;
+use Prospecter\Core\Prospecting\Domain\GeoPoint;
+use Prospecter\Core\Prospecting\Domain\Organization;
+use Prospecter\Core\Prospecting\Domain\OrganizationIntent;
+use Prospecter\Core\SharedKernel\Domain\ContactDetails;
+use Prospecter\Core\SharedKernel\Domain\Email;
+use Prospecter\Core\SharedKernel\Domain\File;
+use Prospecter\Core\SharedKernel\Domain\LegalIdentity;
+use Prospecter\Core\SharedKernel\Domain\Uuid;
 
 /**
  * The words of the scenarios: French labels of the Gherkin tables, how they become value objects and how
@@ -34,7 +36,12 @@ final class Vocabulary
         'RemoveLogo' => 'retirer le logo',
     ];
 
-    private const array USER_INTENTS = [
+    private const array ACCOUNT_INTENTS = [
+        'ReviseLegalIdentity' => 'réviser l\'identité',
+        'ChangeLogo' => 'changer le logo',
+    ];
+
+    private const array MEMBER_INTENTS = [
         'Rename' => 'changer mon nom',
         'ChangeUserName' => 'changer mon identifiant',
         'ChangeContactDetails' => 'changer mes coordonnées',
@@ -63,14 +70,18 @@ final class Vocabulary
     }
 
     /**
-     * @param list<OrganizationIntent|UserIntent> $intents
+     * @param list<OrganizationIntent|AccountIntent|MemberIntent> $intents
      *
      * @return list<string>
      */
     public static function describeIntents(array $intents): array
     {
         return array_map(
-            static fn (OrganizationIntent|UserIntent $intent): string => $intent instanceof OrganizationIntent ? self::ORGANIZATION_INTENTS[$intent->name] : self::USER_INTENTS[$intent->name],
+            static fn (OrganizationIntent|AccountIntent|MemberIntent $intent): string => match (true) {
+                $intent instanceof OrganizationIntent => self::ORGANIZATION_INTENTS[$intent->name],
+                $intent instanceof AccountIntent => self::ACCOUNT_INTENTS[$intent->name],
+                $intent instanceof MemberIntent => self::MEMBER_INTENTS[$intent->name],
+            },
             $intents,
         );
     }
@@ -112,7 +123,7 @@ final class Vocabulary
     /**
      * What a scenario can say about a stored organization, by label.
      *
-     * @param \Closure(OrganizationId): string $nameOf
+     * @param \Closure(Uuid): string $nameOf
      *
      * @return array<string, string>
      */
@@ -137,27 +148,27 @@ final class Vocabulary
             'position' => self::describeGeoPoint($organization->geoPoint()),
             'logo' => self::describeFile($organization->logo()),
             'holding' => null === $organization->holdingId() ? '' : $nameOf($organization->holdingId()),
-            'propriétaire' => null === $organization->ownerId() ? '' : $nameOf($organization->ownerId()),
+            'propriétaire' => $nameOf($organization->ownerId()),
         ];
     }
 
     /**
      * @return array<string, string>
      */
-    public static function describeAccount(User $user, Organization $organization): array
+    public static function describeAccount(Member $me, Account $account): array
     {
         return [
-            'identifiant' => $user->userName(),
-            'prénom' => (string) $user->name()->firstName,
-            'nom' => (string) $user->name()->lastName,
-            'e-mail' => (string) $user->contactDetails()->email,
-            'téléphone' => (string) $user->contactDetails()->phoneNumber,
-            'langue' => (string) $user->contactDetails()->language,
-            'photo' => self::describeFile($user->picture()),
-            'raison sociale de mon organisation' => (string) $organization->legalIdentity()->corporateName,
-            'forme juridique de mon organisation' => (string) $organization->legalIdentity()->form,
-            'langue de mon organisation' => (string) $organization->contactDetails()->language,
-            'logo de mon organisation' => self::describeFile($organization->logo()),
+            'identifiant' => $me->userName(),
+            'prénom' => (string) $me->name()->firstName,
+            'nom' => (string) $me->name()->lastName,
+            'e-mail' => (string) $me->contactDetails()->email,
+            'téléphone' => (string) $me->contactDetails()->phoneNumber,
+            'langue' => (string) $me->contactDetails()->language,
+            'photo' => self::describeFile($me->picture()),
+            'raison sociale de mon organisation' => (string) $account->legalIdentity()->corporateName,
+            'forme juridique de mon organisation' => (string) $account->legalIdentity()->form,
+            'langue de mon organisation' => (string) $account->contactDetails()->language,
+            'logo de mon organisation' => self::describeFile($account->logo()),
         ];
     }
 

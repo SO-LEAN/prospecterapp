@@ -4,11 +4,12 @@ declare(strict_types=1);
 
 namespace Tests\Core\Double;
 
-use Prospecter\Core\Domain\Organization\Organization;
-use Prospecter\Core\Domain\Organization\OrganizationId;
-use Prospecter\Core\Domain\Organization\OrganizationRepository;
-use Prospecter\Core\Domain\Organization\UnknownOrganization;
-use Prospecter\Core\Domain\Shared\Page;
+use Prospecter\Core\Prospecting\Domain\Organization;
+use Prospecter\Core\Prospecting\Domain\OrganizationId;
+use Prospecter\Core\Prospecting\Domain\OrganizationRepository;
+use Prospecter\Core\Prospecting\Domain\UnknownOrganization;
+use Prospecter\Core\SharedKernel\Domain\AccountId;
+use Prospecter\Core\SharedKernel\Domain\Page;
 
 final readonly class InMemoryOrganizationRepository implements OrganizationRepository
 {
@@ -31,12 +32,7 @@ final readonly class InMemoryOrganizationRepository implements OrganizationRepos
         $this->database->storeOrganization($organization);
     }
 
-    public function countProspectedBy(OrganizationId $ownerId): int
-    {
-        return count($this->prospectedBy($ownerId));
-    }
-
-    public function pageProspectedBy(OrganizationId $ownerId, string $query, int $page, int $maxByPage): Page
+    public function pageProspectedBy(AccountId $ownerId, string $query, int $page, int $maxByPage): Page
     {
         $matching = array_values(array_filter($this->prospectedBy($ownerId), static fn (Organization $organization): bool => self::matches($organization, mb_strtolower($query))));
         usort($matching, static fn (Organization $a, Organization $b): int => strcmp((string) $b->id(), (string) $a->id()));
@@ -48,7 +44,7 @@ final readonly class InMemoryOrganizationRepository implements OrganizationRepos
     /**
      * @return list<Organization>
      */
-    private function prospectedBy(OrganizationId $ownerId): array
+    private function prospectedBy(AccountId $ownerId): array
     {
         return array_values(array_filter($this->database->organizations(), static fn (Organization $organization): bool => $organization->isProspectedBy($ownerId)));
     }

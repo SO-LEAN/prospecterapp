@@ -9,17 +9,17 @@ use Behat\Gherkin\Node\TableNode;
 use Behat\Step\Given;
 use Behat\Step\Then;
 use Behat\Step\When;
-use Prospecter\Core\Application\Account\AccountResponse;
-use Prospecter\Core\Application\Account\ChangeMyContactDetails\ChangeMyContactDetails;
-use Prospecter\Core\Application\Account\ChangeMyName\ChangeMyName;
-use Prospecter\Core\Application\Account\ChangeMyOrganizationLogo\ChangeMyOrganizationLogo;
-use Prospecter\Core\Application\Account\ChangeMyPicture\ChangeMyPicture;
-use Prospecter\Core\Application\Account\ChangeMyUserName\ChangeMyUserName;
-use Prospecter\Core\Application\Account\ReviseMyOrganizationIdentity\ReviseMyOrganizationIdentity;
-use Prospecter\Core\Domain\Organization\LegalIdentity;
-use Prospecter\Core\Domain\Organization\Organization;
-use Prospecter\Core\Domain\Shared\ContactDetails;
-use Prospecter\Core\Domain\Shared\Email;
+use Prospecter\Core\Accounts\Application\AccountResponse;
+use Prospecter\Core\Accounts\Application\ChangeMyContactDetails\ChangeMyContactDetails;
+use Prospecter\Core\Accounts\Application\ChangeMyName\ChangeMyName;
+use Prospecter\Core\Accounts\Application\ChangeMyOrganizationLogo\ChangeMyOrganizationLogo;
+use Prospecter\Core\Accounts\Application\ChangeMyPicture\ChangeMyPicture;
+use Prospecter\Core\Accounts\Application\ChangeMyUserName\ChangeMyUserName;
+use Prospecter\Core\Accounts\Application\ReviseMyOrganizationIdentity\ReviseMyOrganizationIdentity;
+use Prospecter\Core\Accounts\Domain\Account;
+use Prospecter\Core\SharedKernel\Domain\ContactDetails;
+use Prospecter\Core\SharedKernel\Domain\Email;
+use Prospecter\Core\SharedKernel\Domain\LegalIdentity;
 use Tests\Core\Acceptance\Expect;
 use Tests\Core\Acceptance\Vocabulary;
 
@@ -36,15 +36,13 @@ final class AccountContext implements Context
         $me = $this->scenario->me();
         $me->rename(Vocabulary::personName($values));
         $me->changeContactDetails(Vocabulary::contactDetails($values));
-        $this->application->users->save($me);
+        $this->application->members->save($me);
     }
 
     #[Given('l\'organisation :name a l\'adresse e-mail :email')]
     public function anOrganizationHasTheEmail(string $name, string $email): void
     {
-        $organization = Organization::usingProspecter($this->application->organizations->nextIdentity(), new LegalIdentity($name));
-        $organization->changeContactDetails(new ContactDetails(new Email($email)), by: $this->scenario->managerOf($organization));
-        $this->scenario->save($name, $organization);
+        $this->scenario->openAccount($name, Account::open($this->application->accounts->nextIdentity(), new LegalIdentity($name), new ContactDetails(new Email($email))));
     }
 
     #[When('je consulte mon compte')]
@@ -116,7 +114,7 @@ final class AccountContext implements Context
     public function iMayOnMyOrganization(TableNode $table): void
     {
         Expect::that(null !== $this->account, 'My account was expected');
-        Expect::same($table->getColumn(0), Vocabulary::describeIntents($this->account->organizationIntents));
+        Expect::same($table->getColumn(0), Vocabulary::describeIntents($this->account->accountIntents));
     }
 
     #[Then('mon compte est enregistré avec :')]
@@ -124,6 +122,6 @@ final class AccountContext implements Context
     {
         $me = $this->scenario->me();
 
-        Expect::describes($table->getRowsHash(), Vocabulary::describeAccount($me, $this->application->organizations->get($me->organizationId())));
+        Expect::describes($table->getRowsHash(), Vocabulary::describeAccount($me, $this->application->accounts->get($me->accountId())));
     }
 }

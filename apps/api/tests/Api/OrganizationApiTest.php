@@ -3,13 +3,16 @@
 namespace Tests\App\Api;
 
 use PHPUnit\Framework\Attributes\Group;
-use Prospecter\Core\Domain\Organization\LegalIdentity;
-use Prospecter\Core\Domain\Organization\Organization;
-use Prospecter\Core\Domain\Organization\OrganizationRepository;
-use Prospecter\Core\Domain\Shared\ContactDetails;
-use Prospecter\Core\Domain\User\Role;
-use Prospecter\Core\Domain\User\User;
-use Prospecter\Core\Domain\User\UserRepository;
+use Prospecter\Core\Accounts\Domain\Account;
+use Prospecter\Core\Accounts\Domain\AccountRepository;
+use Prospecter\Core\Accounts\Domain\Member;
+use Prospecter\Core\Accounts\Domain\MemberRepository;
+use Prospecter\Core\Accounts\Domain\Role;
+use Prospecter\Core\Prospecting\Domain\Organization;
+use Prospecter\Core\Prospecting\Domain\OrganizationRepository;
+use Prospecter\Core\Prospecting\Domain\Prospector;
+use Prospecter\Core\SharedKernel\Domain\ContactDetails;
+use Prospecter\Core\SharedKernel\Domain\LegalIdentity;
 use Tests\App\Base\ApiTestCase;
 
 #[Group('api')]
@@ -172,6 +175,15 @@ class OrganizationApiTest extends ApiTestCase
         }
     }
 
+    public function testMyOwnOrganizationIsNotAProspectedOne(): void
+    {
+        $myAccount = $this->fixtures->getReference('solean-it-account', Account::class)->id();
+
+        $this->requestJson('GET', '/api/organizations/'.$myAccount->value);
+
+        $this->assertResponseStatusCodeSame(404);
+    }
+
     public function testAnIdThatIsNotAUuidIsNotFound(): void
     {
         $this->requestJson('GET', '/api/organizations/42');
@@ -181,11 +193,12 @@ class OrganizationApiTest extends ApiTestCase
 
     private function anOrganizationOfAnotherOrganization(): string
     {
+        $accounts = self::getContainer()->get(AccountRepository::class);
         $organizations = self::getContainer()->get(OrganizationRepository::class);
-        $competitor = Organization::usingProspecter($organizations->nextIdentity(), new LegalIdentity('Competitor'));
-        $theirProspector = User::register(self::getContainer()->get(UserRepository::class)->nextIdentity(), $competitor->id(), 'competitor', Role::Prospector);
+        $competitor = Account::open($accounts->nextIdentity(), new LegalIdentity('Competitor'));
+        $accounts->save($competitor);
+        $theirProspector = new Prospector(self::getContainer()->get(MemberRepository::class)->nextIdentity(), $competitor->id());
         $prospect = Organization::prospectedBy($theirProspector, $organizations->nextIdentity(), new LegalIdentity('Their prospect'), new ContactDetails());
-        $organizations->save($competitor);
         $organizations->save($prospect);
 
         return $prospect->id()->value;
@@ -193,9 +206,9 @@ class OrganizationApiTest extends ApiTestCase
 
     private function aUserWhoIsNotAProspector(): string
     {
-        $users = self::getContainer()->get(UserRepository::class);
-        $assistant = User::register($users->nextIdentity(), $this->fixtures->getReference('user-organization', Organization::class)->id(), 'assistant', Role::User);
-        $users->save($assistant);
+        $members = self::getContainer()->get(MemberRepository::class);
+        $assistant = Member::register($members->nextIdentity(), $this->fixtures->getReference('solean-it-account', Account::class)->id(), 'assistant', Role::User);
+        $members->save($assistant);
         $this->fixtures->setReference('assistant', $assistant);
 
         return 'assistant';
