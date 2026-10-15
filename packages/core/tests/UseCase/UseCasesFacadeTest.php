@@ -1,89 +1,100 @@
 <?php
 
-declare( strict_types = 1 );
-
 namespace Tests\Core\UseCase;
 
-use PHPUnit\Framework\Attributes\DataProvider;
 use BadFunctionCallException;
+use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\TestCase;
 use Prospecter\Core\Exception\UseCase\UnauthorizedException;
-use Prospecter\Core\UseCase\AbstractUseCase;
-use Prospecter\Core\UseCase\UseCaseConsumer;
-use Tests\Core\Base\TestCase;
 use Prospecter\Core\UseCase\UseCasesFacade;
+use stdClass;
+use Tests\Core\Double\SignedInUser;
 use Tests\Core\UseCase\Stub\StubNeedsRoleUseCaseImpl;
 use Tests\Core\UseCase\Stub\StubPublicUseCaseImpl;
 use Tests\Core\UseCase\Stub\StubUseCaseRequest;
 
+/**
+ * The facade is how the API calls the use cases today, and where the roles of a use case are enforced.
+ */
 class UseCasesFacadeTest extends TestCase
 {
-    public function target() : UseCasesFacade
+    private UseCasesFacade $facade;
+
+    protected function setUp(): void
     {
-        return parent::target();
+        $this->facade = new UseCasesFacade();
+        $this->facade->addUseCase(new StubPublicUseCaseImpl());
+        $this->facade->addUseCase(new StubNeedsRoleUseCaseImpl());
     }
 
-    public function initialize(): void
+    public function testUseCasesAreCalledByTheirNameWithoutImplSuffix(): void
     {
-        $this->target()->addUseCase(new StubPublicUseCaseImpl());
-        $this->target()->addUseCase(new StubNeedsRoleUseCaseImpl());
+        $this->assertTrue($this->facade->hasUseCase('stubPublicUseCase'));
+        $this->assertCount(2, $this->facade->getUseCases());
+        $this->assertSame('executed', $this->facade->stubPublicUseCase(new StubUseCaseRequest(), new stdClass())->action);
     }
 
-    public function testUseCaseCanBeAdded() : void
+    public function testAnUnknownUseCaseCannotBeCalled(): void
     {
-        $this->assertTrue($this->target()->hasUseCase('stubPublicUseCase'));
+        $this->expectExceptionObject(new BadFunctionCallException('Call to undefined method Prospecter\Core\UseCase\UseCasesFacade::unknownUseCase()'));
+
+        $this->facade->unknownUseCase(new StubUseCaseRequest(), new stdClass());
     }
 
-    public function testGetUseCases() : void
+    public function testAPublicUseCaseIsOpenToAnonymousUsers(): void
     {
-        $useCases = $this->target()->getUseCases();
-
-        $this->assertCount(2, $useCases);
-
-        while ($useCase = array_pop($useCases)) {
-            $this->assertInstanceOf(AbstractUseCase::class, $useCase);
-        }
+        $this->assertSame('executed', $this->facade->stubPublicUseCase(new StubUseCaseRequest(), new stdClass())->action);
     }
 
-    public function testMethodFromUseCaseIsCorrectlyCalled() : void
+    public function testAProtectedUseCaseIsRefusedToAnonymousUsers(): void
     {
-        $response = $this->target()->stubPublicUseCase(new StubUseCaseRequest(), new \stdClass());
-        $this->assertEquals('executed', $response->action);
-    }
-
-    public function testMethodCalledOnUnknownUseCaseThrowsABadFunctionCallException() : void
-    {
-        $this->expectException(BadFunctionCallException::class);
-        $this->expectExceptionMessage('Prospecter\Core\UseCase\UseCasesFacade::unknownUseCase()');
-
-        $this->target()->unknownUseCase(new StubUseCaseRequest(), new \stdClass());
-    }
-
-    public function testThrowUnauthorizedExceptionWhenConsumerHasNotAppropriateRole()
-    {
-        $roles = ['BAD_ROLE'];
-        $this->prophesy(UseCaseConsumer::class)->getRoles()->shouldBeCalled()->willReturn($roles);
-
         $this->expectException(UnauthorizedException::class);
 
-        $this->target()->stubNeedsRoleUseCase(new StubUseCaseRequest(), new \stdClass(), $this->prophesy(UseCaseConsumer::class)->reveal());
+        $this->facade->stubNeedsRoleUseCase(new StubUseCaseRequest(), new stdClass());
     }
 
-        #[DataProvider('provideBadTypeParameters')]
-    public function testThrowBadFunctionCallWhenBadThirdParameterProvided($msg, $consumer)
+    public function testAProtectedUseCaseIsRefusedWithoutItsRole(): void
     {
-        $this->expectException(BadFunctionCallException::class);
-        $this->expectExceptionMessage($msg);
+        $this->expectException(UnauthorizedException::class);
 
-        $this->target()->stubPublicUseCase(new StubUseCaseRequest(), new \stdClass(), $consumer);
+        $this->facade->stubNeedsRoleUseCase(new StubUseCaseRequest(), new stdClass(), $this->userWith(['ROLE_USER']));
     }
 
-    public static function provideBadTypeParameters()
+    public function testAProtectedUseCaseIsOpenWithItsRole(): void
     {
-        return [
-            ' - Bad class object' => ['Argument 3 passed to stubPublicUseCase must be an instance of Prospecter\Core\UseCase\UseCaseConsumer, instance of stdClass given', new \stdClass()],
-            ' - Array' => ['Argument 3 passed to stubPublicUseCase must be an instance of Prospecter\Core\UseCase\UseCaseConsumer, instance of array given', []],
-            ' - Boolean' => ['Argument 3 passed to stubPublicUseCase must be an instance of Prospecter\Core\UseCase\UseCaseConsumer, instance of boolean given', false],
-            ' - String' => ['Argument 3 passed to stubPublicUseCase must be an instance of Prospecter\Core\UseCase\UseCaseConsumer, instance of string given', 'string'],
-        ];
+        $this->assertSame('executed', $this->facade->stubNeedsRoleUseCase(new StubUseCaseRequest(), new stdClass(), $this->userWith(['SPECIFIC_ROLE']))->action);
+    }
+
+    public function testAnAdministratorCanCallEveryUseCase(): void
+    {
+        $this->assertSame('executed', $this->facade->stubNeedsRoleUseCase(new StubUseCaseRequest(), new stdClass(), $this->userWith(['ROLE_ADMIN']))->action);
+    }
+
+    #[DataProvider('notAConsumer')]
+    public function testTheThirdArgumentMustBeTheConsumer(string $message, mixed $consumer): void
+    {
+        $this->expectExceptionObject(new BadFunctionCallException($message));
+
+        $this->facade->stubPublicUseCase(new StubUseCaseRequest(), new stdClass(), $consumer);
+    }
+
+    /**
+     * @return iterable<string, array{string, mixed}>
+     */
+    public static function notAConsumer(): iterable
+    {
+        $expected = 'Argument 3 passed to stubPublicUseCase must be an instance of Prospecter\Core\UseCase\UseCaseConsumer, instance of %s given';
+
+        yield 'another object' => [sprintf($expected, 'stdClass'), new stdClass()];
+        yield 'an array' => [sprintf($expected, 'array'), []];
+        yield 'a string' => [sprintf($expected, 'string'), 'string'];
+    }
+
+    /**
+     * @param list<string> $roles
+     */
+    private function userWith(array $roles): SignedInUser
+    {
+        return new SignedInUser(1, 1, $roles);
     }
 }

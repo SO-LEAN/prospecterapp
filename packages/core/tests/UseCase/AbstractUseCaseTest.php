@@ -6,9 +6,9 @@ use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Tests\Core\UseCase\Stub\StubPublicUseCaseImpl;
 
-class AbstractUserCaseTest extends TestCase
+class AbstractUseCaseTest extends TestCase
 {
-        #[DataProvider('provideUseCases')]
+    #[DataProvider('provideUseCases')]
     public function testUseCaseAsString(string $expected, array $roles)
     {
         $useCase = new StubPublicUseCaseImpl($roles);
