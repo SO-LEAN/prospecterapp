@@ -6,6 +6,7 @@ apps/api/        Symfony API, resource server (Composer), the only user of the c
 apps/auth/       Symfony authorization server (Composer)
 apps/storage/    Symfony file storage (Composer)
 packages/core/   prospecter/core library (Composer)
+tools/phpstan/   PHPStan rules shared by the four PHP codebases (autoload-dev of each, ADR 0044)
 docker/  docker-compose.yml  Makefile  docs/
 ```
 

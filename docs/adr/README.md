@@ -47,3 +47,4 @@ Why the project is shaped the way it is: one file per decision in `docs/adr/`, i
 | [0041](0041-contacts-of-prospected-organizations.md) | Contacts: the persons in PersonalData, their identities in the organization, two separate gestures | Accepted, gestures and erasure superseded by 0042 | 2026-10-15 |
 | [0042](0042-contacts-never-alone-domain-events.md) | A contact is never alone; domain events recorded by the aggregates, on a synchronous event bus | Accepted | 2026-10-15 |
 | [0043](0043-a-domain-event-per-intention-and-an-activity-journal.md) | Every intention records a domain event; an activity journal keeps them all | Accepted | 2026-10-15 |
+| [0044](0044-dependencies-are-injected.md) | Dependencies are injected, never built; a PHPStan rule checks it | Accepted | 2026-10-15 |

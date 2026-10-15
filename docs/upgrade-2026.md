@@ -74,7 +74,7 @@ The Symfony pages were replaced by a React SPA (`apps/front`) and a JSON API (`a
 - Doctrine refuses to initialize a lazy proxy whose identity is a readonly value object (hydration would replace it with an equal but new one): no association, no `getReference()`; API tests empty the entity manager after loading the fixtures.
 - SQLite keeps no time zone, not even with `datetimetz_immutable`: a moment read back lands in the time zone of the server. The `moment` Doctrine type writes and reads in UTC.
 - Without `symfony/monolog-bundle`, Symfony's default logger writes errors to stderr, so expected errors pollute the test output.
-- Messenger routes a message by the type of the argument of `__invoke()`: a generic decorator taking `object` needs the `handles` attribute of its tag (`RefusalTranslatingCommandHandlersPass`).
+- Messenger routes a message by the type of the argument of `__invoke()`: a generic decorator taking `object` needs the `handles` attribute of its tag (`RefusalTranslatingHandlersPass`).
 - Rector and PHPStan can disagree (`?->` before `??`, `$handler->__invoke(...)` on a marker interface): write the code so that both accept it rather than ignoring one.
 - The generated front types of a second contract must be excluded from Biome like the first one.
 - A Symfony array cache is cleared between two requests of a functional test (services are reset): the sign-in throttling cannot count attempts in it. The tests keep the default cache and sign in from an address of their own.
