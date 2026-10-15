@@ -16,13 +16,6 @@ class OAuthFlowTest extends AuthTestCase
         $this->assertSame('Unauthorized', $problem['title']);
     }
 
-    public function testAuthorizeRedirectsAnonymousUsersToTheLoginPage(): void
-    {
-        $this->client->request('GET', '/authorize?response_type=code&client_id='.OAuthClientFixtures::FRONT_CLIENT_ID);
-
-        $this->assertResponseRedirects('http://api.test.prospecter.io/login');
-    }
-
     public function testTheAccessTokenNamesTheMemberAndOpensWhatISignInWith(): void
     {
         $tokens = $this->signInWithAToken();

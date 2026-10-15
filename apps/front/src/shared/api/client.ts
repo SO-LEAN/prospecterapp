@@ -48,3 +48,12 @@ export const authFetchClient = createFetchClient<authPaths>({ baseUrl: env.apiUr
 authFetchClient.use(authentication)
 
 export const authApi = createQueryClient(authFetchClient)
+
+/**
+ * Signing in sends the credentials to the authorization server, which keeps the member signed in with its
+ * session cookie (ADR 0037): the cookie goes with the request, no access token exists yet, and a 401 means
+ * wrong credentials, not an expired token.
+ */
+export const signInFetchClient = createFetchClient<authPaths>({ baseUrl: env.apiUrl, credentials: 'include' })
+
+export const signInApi = createQueryClient(signInFetchClient)

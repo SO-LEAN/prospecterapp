@@ -2,7 +2,7 @@
     "openapi": "3.0.0",
     "info": {
         "title": "Prospecter sign-in",
-        "description": "What a member signs in with (login email, password), on the authorization server.\n`Authorization: Bearer <access token>` of the SPA on every call; errors are RFC 9457 problem details.\n",
+        "description": "Signing in, and what a member signs in with (login email, password), on the authorization server.\n`Authorization: Bearer <access token>` of the SPA on every call but the sign-in; errors are RFC 9457 problem details.\n",
         "version": "1.0.0"
     },
     "paths": {
@@ -109,6 +109,67 @@
                         "description": "Missing or invalid access token"
                     }
                 }
+            }
+        },
+        "/login": {
+            "post": {
+                "tags": [
+                    "Sign-in"
+                ],
+                "summary": "Sign in with my login email and password, from the SPA only (session cookie of the authorization server)",
+                "operationId": "post_sign_in",
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/SignInInput"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Signed in: open the interrupted authorization request again",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/SignInResource"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Wrong login email or password",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ProblemResource"
+                                }
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "Not sent by the SPA",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ProblemResource"
+                                }
+                            }
+                        }
+                    },
+                    "429": {
+                        "description": "Too many failed attempts: wait a minute",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ProblemResource"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": []
             }
         }
     },
@@ -225,6 +286,32 @@
                     "type": {
                         "type": "string",
                         "default": "about:blank"
+                    }
+                },
+                "type": "object"
+            },
+            "SignInInput": {
+                "properties": {
+                    "email": {
+                        "type": "string",
+                        "default": ""
+                    },
+                    "password": {
+                        "type": "string",
+                        "default": ""
+                    }
+                },
+                "type": "object"
+            },
+            "SignInResource": {
+                "required": [
+                    "resume"
+                ],
+                "properties": {
+                    "resume": {
+                        "description": "The authorization request the sign-in interrupted, to open again; null when the SPA has to start one",
+                        "type": "string",
+                        "nullable": true
                     }
                 },
                 "type": "object"

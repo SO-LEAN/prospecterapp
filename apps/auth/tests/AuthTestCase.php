@@ -12,7 +12,6 @@ use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\Tools\SchemaTool;
 use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
-use Symfony\Component\DomCrawler\Crawler;
 
 /**
  * The authorization server as the SPA uses it, on a database recreated for each test with the OAuth client and
@@ -106,11 +105,6 @@ abstract class AuthTestCase extends WebTestCase
         $content = (string) $this->client->getResponse()->getContent();
 
         return '' === $content ? [] : json_decode($content, true, flags: JSON_THROW_ON_ERROR);
-    }
-
-    protected function grab(Crawler $crawler, string $name): string
-    {
-        return trim($crawler->filter(sprintf('#func-%s', $name))->eq(0)->text());
     }
 
     private function loadFixtures(): void

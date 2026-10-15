@@ -12,6 +12,18 @@ export const fr = {
     userMenu: '{{name}}, menu du compte',
   },
   theme: { label: 'Thème', light: 'Clair', dark: 'Sombre', system: 'Système' },
+  signIn: {
+    title: 'Connexion',
+    subtitle: 'Accédez à votre espace de prospection.',
+    email: 'E-mail',
+    password: 'Mot de passe',
+    submit: 'Se connecter',
+    submitting: 'Connexion…',
+    wrongCredentials: 'E-mail ou mot de passe incorrect.',
+    tooManyAttempts: 'Trop de tentatives échouées : réessayez dans une minute.',
+    failed: 'La connexion a échoué, réessayez.',
+    copyright: '© SoLean IT {{year}}',
+  },
   auth: {
     redirecting: 'Redirection vers la connexion…',
     signingIn: 'Connexion en cours…',

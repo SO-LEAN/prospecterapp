@@ -3,8 +3,8 @@ nelmio_api_doc:
         info:
             title: Prospecter sign-in
             description: |
-                What a member signs in with (login email, password), on the authorization server.
-                `Authorization: Bearer <access token>` of the SPA on every call; errors are RFC 9457 problem details.
+                Signing in, and what a member signs in with (login email, password), on the authorization server.
+                `Authorization: Bearer <access token>` of the SPA on every call but the sign-in; errors are RFC 9457 problem details.
             version: 1.0.0
         components:
             securitySchemes:
@@ -16,4 +16,4 @@ nelmio_api_doc:
             - bearer: []
     areas:
         default:
-            path_patterns: ['^/auth/me']
+            path_patterns: ['^/auth/me', '^/login$']

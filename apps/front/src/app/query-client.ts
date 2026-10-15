@@ -9,8 +9,13 @@ const shouldRetry = (failureCount: number, error: unknown) => !isClientError(err
 
 const stillShowsCachedData = (query: Query<unknown, unknown>) => query.state.data !== undefined
 
-const isShownByItsForm = (error: unknown, mutation: Mutation<unknown, unknown, unknown, unknown>) =>
-  mutation.options.meta?.silentValidation === true && isProblem(error) && error.status === 422
+const isShownByItsForm = (error: unknown, mutation: Mutation<unknown, unknown, unknown, unknown>) => {
+  const meta = mutation.options.meta
+  return (
+    (meta?.silentValidation === true && isProblem(error) && error.status === 422) ||
+    (meta?.silentClientErrors === true && isClientError(error))
+  )
+}
 
 /**
  * Server state cache. Defaults favour a snappy UI: data is fresh for 30 s (no refetch on every
@@ -43,6 +48,6 @@ export const queryClient = new QueryClient({
 
 declare module '@tanstack/react-query' {
   interface Register {
-    mutationMeta: { silentValidation?: boolean }
+    mutationMeta: { silentValidation?: boolean; silentClientErrors?: boolean }
   }
 }

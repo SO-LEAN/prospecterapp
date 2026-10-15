@@ -2,77 +2,108 @@
 
 namespace App\Security;
 
-use App\Form\LoginType;
 use App\Passwords;
-use Symfony\Component\Form\FormFactoryInterface;
+use App\Resource\ProblemResource;
+use App\Resource\SignInResource;
+use Symfony\Component\DependencyInjection\Attribute\Autowire;
+use Symfony\Component\HttpFoundation\Exception\JsonException;
+use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
+use Symfony\Component\Security\Core\Exception\AuthenticationException;
 use Symfony\Component\Security\Core\Exception\BadCredentialsException;
+use Symfony\Component\Security\Core\Exception\TooManyLoginAttemptsAuthenticationException;
 use Symfony\Component\Security\Core\Exception\UserNotFoundException;
-use Symfony\Component\Security\Http\Authenticator\AbstractLoginFormAuthenticator;
-use Symfony\Component\Security\Http\Authenticator\Passport\Badge\CsrfTokenBadge;
+use Symfony\Component\Security\Http\Authenticator\AbstractAuthenticator;
 use Symfony\Component\Security\Http\Authenticator\Passport\Badge\UserBadge;
 use Symfony\Component\Security\Http\Authenticator\Passport\Credentials\CustomCredentials;
 use Symfony\Component\Security\Http\Authenticator\Passport\Passport;
-use Symfony\Component\Security\Http\SecurityRequestAttributes;
+use Symfony\Component\Security\Http\EntryPoint\AuthenticationEntryPointInterface;
 use Symfony\Component\Security\Http\Util\TargetPathTrait;
+use Symfony\Component\Serializer\Normalizer\NormalizerInterface;
 
 /**
- * The sign-in page of the authorization server: a member signs in with their login email and password, then
- * the pending /authorize issues a code to the SPA.
+ * The SPA signs a member in with a JSON POST of their login email and password (ADR 0037): the authorization
+ * server keeps them signed in with its session cookie, and answers the authorization request the sign-in
+ * interrupted, which the SPA opens again to get its code. An anonymous authorization request is sent to the
+ * sign-in screen of the SPA.
  */
-class SignInAuthenticator extends AbstractLoginFormAuthenticator
+final class SignInAuthenticator extends AbstractAuthenticator implements AuthenticationEntryPointInterface
 {
     use TargetPathTrait;
 
+    public const string SIGN_IN_SCREEN = '/auth/sign-in';
+    private const string SIGN_IN_PATH = '/login';
+
     public function __construct(
-        private readonly FormFactoryInterface $formFactory,
         private readonly MemberProvider $members,
         private readonly Passwords $passwords,
-        private readonly UrlGeneratorInterface $urlGenerator,
-        private readonly string $loginRoute,
-        private readonly string $defaultSuccessUrl,
+        private readonly NormalizerInterface $normalizer,
+        #[Autowire(env: 'FRONT_URL')]
+        private readonly string $frontUrl,
     ) {
+    }
+
+    public function start(Request $request, ?AuthenticationException $authException = null): RedirectResponse
+    {
+        return new RedirectResponse($this->frontUrl.self::SIGN_IN_SCREEN);
+    }
+
+    public function supports(Request $request): bool
+    {
+        return self::SIGN_IN_PATH === $request->getPathInfo() && $request->isMethod('POST');
     }
 
     public function authenticate(Request $request): Passport
     {
-        $form = $this->formFactory->create(LoginType::class, null, ['csrf_protection' => false]);
-        $form->handleRequest($request);
-        $data = $form->getData() ?? [];
-        $loginEmail = (string) ($data['email'] ?? '');
-        $password = (string) ($data['password'] ?? '');
-        $csrfToken = (string) ($request->request->all($form->getName())['_token'] ?? '');
-
-        $request->getSession()->set(SecurityRequestAttributes::LAST_USERNAME, $loginEmail);
+        $this->ensureSentByTheApplication($request);
+        [$loginEmail, $password] = $this->credentialsOf($request);
 
         return new Passport(
             new UserBadge($loginEmail, $this->members->byLoginEmail(...)),
-            new CustomCredentials(fn (): bool => $this->checkCredentials($loginEmail, $password), null),
-            [new CsrfTokenBadge('authenticate', $csrfToken)]
+            new CustomCredentials(fn (): bool => $this->checkPassword($loginEmail, $password), null),
         );
     }
 
-    public function onAuthenticationSuccess(Request $request, TokenInterface $token, string $firewallName): ?Response
+    public function onAuthenticationSuccess(Request $request, TokenInterface $token, string $firewallName): JsonResponse
     {
-        $path = $this->getTargetPath($request->getSession(), $firewallName);
+        $resume = $this->getTargetPath($request->getSession(), $firewallName);
+        $this->removeTargetPath($request->getSession(), $firewallName);
 
-        if (!$path || $this->getLoginUrl($request) === $path) {
-            $path = $this->defaultSuccessUrl;
+        return new JsonResponse($this->normalizer->normalize(new SignInResource($resume)));
+    }
+
+    public function onAuthenticationFailure(Request $request, AuthenticationException $exception): JsonResponse
+    {
+        $problem = $this->problemOf($exception);
+
+        return new JsonResponse($this->normalizer->normalize($problem), $problem->status, ['Content-Type' => 'application/problem+json']);
+    }
+
+    private function ensureSentByTheApplication(Request $request): void
+    {
+        if ($this->frontUrl !== $request->headers->get('Origin')) {
+            throw new NotFromTheApplication();
+        }
+    }
+
+    /**
+     * @return array{string, string}
+     */
+    private function credentialsOf(Request $request): array
+    {
+        try {
+            $body = $request->toArray();
+        } catch (JsonException) {
+            throw new BadCredentialsException('The credentials are a JSON object');
         }
 
-        return new RedirectResponse($path);
+        return [(string) ($body['email'] ?? ''), (string) ($body['password'] ?? '')];
     }
 
-    protected function getLoginUrl(Request $request): string
-    {
-        return $this->urlGenerator->generate($this->loginRoute);
-    }
-
-    private function checkCredentials(string $loginEmail, string $password): bool
+    private function checkPassword(string $loginEmail, string $password): bool
     {
         if (!$this->isPasswordOf($loginEmail, $password)) {
             throw new BadCredentialsException('Bad credentials');
@@ -88,5 +119,14 @@ class SignInAuthenticator extends AbstractLoginFormAuthenticator
         } catch (UserNotFoundException) {
             return false;
         }
+    }
+
+    private function problemOf(AuthenticationException $exception): ProblemResource
+    {
+        return match (true) {
+            $exception instanceof NotFromTheApplication => new ProblemResource('Forbidden', Response::HTTP_FORBIDDEN, $exception->getMessageKey()),
+            $exception instanceof TooManyLoginAttemptsAuthenticationException => new ProblemResource('Too Many Requests', Response::HTTP_TOO_MANY_REQUESTS, 'Too many failed sign-in attempts: wait a minute.'),
+            default => new ProblemResource('Unauthorized', Response::HTTP_UNAUTHORIZED, 'Wrong login email or password.'),
+        };
     }
 }

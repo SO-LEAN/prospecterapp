@@ -13,6 +13,7 @@ import { Route as AppRouteImport } from './../routes/_app'
 import { Route as AppIndexRouteImport } from './../routes/_app/index'
 import { Route as AppAccountRouteImport } from './../routes/_app/account'
 import { Route as AuthCallbackRouteImport } from './../routes/auth/callback'
+import { Route as AuthSignInRouteImport } from './../routes/auth/sign-in'
 import { Route as AppOrganizationsIndexRouteImport } from './../routes/_app/organizations/index'
 import { Route as AppOrganizationsNewRouteImport } from './../routes/_app/organizations/new'
 import { Route as AppOrganizationsOrganizationIdIndexRouteImport } from './../routes/_app/organizations/$organizationId/index'
@@ -36,6 +37,11 @@ const AuthCallbackRoute = AuthCallbackRouteImport.update({
   path: '/auth/callback',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AuthSignInRoute = AuthSignInRouteImport.update({
+  id: '/auth/sign-in',
+  path: '/auth/sign-in',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const AppOrganizationsIndexRoute = AppOrganizationsIndexRouteImport.update({
   id: '/organizations/',
   path: '/organizations/',
@@ -57,6 +63,7 @@ export interface FileRoutesByFullPath {
   '/': typeof AppIndexRoute
   '/account': typeof AppAccountRoute
   '/auth/callback': typeof AuthCallbackRoute
+  '/auth/sign-in': typeof AuthSignInRoute
   '/organizations/new': typeof AppOrganizationsNewRoute
   '/organizations/': typeof AppOrganizationsIndexRoute
   '/organizations/$organizationId/': typeof AppOrganizationsOrganizationIdIndexRoute
@@ -64,6 +71,7 @@ export interface FileRoutesByFullPath {
 export interface FileRoutesByTo {
   '/account': typeof AppAccountRoute
   '/auth/callback': typeof AuthCallbackRoute
+  '/auth/sign-in': typeof AuthSignInRoute
   '/': typeof AppIndexRoute
   '/organizations/new': typeof AppOrganizationsNewRoute
   '/organizations': typeof AppOrganizationsIndexRoute
@@ -74,6 +82,7 @@ export interface FileRoutesById {
   '/_app': typeof AppRouteWithChildren
   '/_app/account': typeof AppAccountRoute
   '/auth/callback': typeof AuthCallbackRoute
+  '/auth/sign-in': typeof AuthSignInRoute
   '/_app/': typeof AppIndexRoute
   '/_app/organizations/new': typeof AppOrganizationsNewRoute
   '/_app/organizations/': typeof AppOrganizationsIndexRoute
@@ -85,6 +94,7 @@ export interface FileRouteTypes {
     | '/'
     | '/account'
     | '/auth/callback'
+    | '/auth/sign-in'
     | '/organizations/new'
     | '/organizations/'
     | '/organizations/$organizationId/'
@@ -92,6 +102,7 @@ export interface FileRouteTypes {
   to:
     | '/account'
     | '/auth/callback'
+    | '/auth/sign-in'
     | '/'
     | '/organizations/new'
     | '/organizations'
@@ -101,6 +112,7 @@ export interface FileRouteTypes {
     | '/_app'
     | '/_app/account'
     | '/auth/callback'
+    | '/auth/sign-in'
     | '/_app/'
     | '/_app/organizations/new'
     | '/_app/organizations/'
@@ -110,6 +122,7 @@ export interface FileRouteTypes {
 export interface RootRouteChildren {
   AppRoute: typeof AppRouteWithChildren
   AuthCallbackRoute: typeof AuthCallbackRoute
+  AuthSignInRoute: typeof AuthSignInRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -140,6 +153,13 @@ declare module '@tanstack/react-router' {
       path: '/auth/callback'
       fullPath: '/auth/callback'
       preLoaderRoute: typeof AuthCallbackRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/auth/sign-in': {
+      id: '/auth/sign-in'
+      path: '/auth/sign-in'
+      fullPath: '/auth/sign-in'
+      preLoaderRoute: typeof AuthSignInRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/_app/organizations/': {
@@ -188,6 +208,7 @@ const AppRouteWithChildren = AppRoute._addFileChildren(AppRouteChildren)
 const rootRouteChildren: RootRouteChildren = {
   AppRoute: AppRouteWithChildren,
   AuthCallbackRoute: AuthCallbackRoute,
+  AuthSignInRoute: AuthSignInRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

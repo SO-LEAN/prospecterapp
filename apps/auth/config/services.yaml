@@ -10,7 +10,3 @@ services:
             - '../src/Input/'
             - '../src/Resource/'
 
-    App\Security\SignInAuthenticator:
-        arguments:
-            $loginRoute: 'login'
-            $defaultSuccessUrl: '%env(FRONT_URL)%'

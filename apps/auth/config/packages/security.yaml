@@ -10,9 +10,6 @@ security:
         dev:
             pattern: ^/(_profiler|_wdt)/
             security: false
-        auth_doc:
-            pattern: ^/auth/doc
-            security: false
         # the token endpoint authenticates the clients itself
         oauth_token:
             pattern: ^/token$
@@ -25,13 +22,16 @@ security:
             oauth2: true
             entry_point: App\Security\ApiAuthenticationEntryPoint
             access_denied_handler: App\Security\ApiAccessDeniedHandler
-        # the member signs in here (session) before /authorize issues a code to the SPA
+        # the SPA signs the member in here (session cookie) before /authorize issues it a code (ADR 0037)
         main:
             lazy: true
             provider: members
             custom_authenticators:
                 - App\Security\SignInAuthenticator
             entry_point: App\Security\SignInAuthenticator
+            login_throttling:
+                max_attempts: 5
+                interval: '1 minute'
             logout:
                 path: logout
 

@@ -1,8 +1,8 @@
 import { expect, type Page, test } from '@playwright/test'
 
-const SIGN_IN_PAGE = /api\.local\.prospecter\.io\/login/
+const SIGN_IN_PAGE = /local\.prospecter\.io\/auth\/sign-in/
 
-async function signInOnTheAuthorizationServer(page: Page) {
+async function signInOnTheSignInScreen(page: Page) {
   await page.goto('/')
   await expect(page).toHaveURL(SIGN_IN_PAGE)
   await page.getByLabel('E-mail').fill('prospector@solean-it.io')
@@ -18,7 +18,7 @@ test('sign in, start prospecting an organization, change it section by section, 
   const organizationPage = page.getByRole('heading', { name })
 
   await test.step('sign in', async () => {
-    await signInOnTheAuthorizationServer(page)
+    await signInOnTheSignInScreen(page)
     await expect(page).toHaveURL('https://local.prospecter.io/')
   })
 
