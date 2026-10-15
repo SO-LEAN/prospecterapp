@@ -33,6 +33,8 @@ The certificate is self-signed: accept the browser warning once for each host (`
 
 ## Develop
 
+`make` (or `make help`) lists every command.
+
 | Command | Purpose |
 |---|---|
 | `make start` / `make stop` / `make logs` | Run the stack (the front reloads on save) |

@@ -20,7 +20,7 @@ The index below is loaded in every session; open a record before working on its 
 
 ## Commands
 
-Everything runs in Docker (PHP 8.5, Node 24, nginx); nothing but Docker and make on the host. From the repository root:
+Everything runs in Docker (PHP 8.5, Node 24, nginx); nothing but Docker and make on the host. From the repository root (`make` alone lists the commands; a new target gets a `## description` on its line):
 
 - `make install`: images, Composer and pnpm dependencies, OAuth keys (auth), databases with fixtures (API, auth with the OAuth client)
 - `make start` / `make stop`: https://local.prospecter.io (SPA, sign in `prospector@solean-it.io` / `password`), https://api.local.prospecter.io/api/doc (API doc)
