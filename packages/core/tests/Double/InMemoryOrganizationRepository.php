@@ -32,9 +32,9 @@ final readonly class InMemoryOrganizationRepository implements OrganizationRepos
         $this->database->storeOrganization($organization);
     }
 
-    public function pageProspectedBy(AccountId $ownerId, string $query, int $page, int $maxByPage): Page
+    public function pageProspectedBy(AccountId $accountId, string $query, int $page, int $maxByPage): Page
     {
-        $matching = array_values(array_filter($this->prospectedBy($ownerId), static fn (Organization $organization): bool => self::matches($organization, mb_strtolower($query))));
+        $matching = array_values(array_filter($this->prospectedBy($accountId), static fn (Organization $organization): bool => self::matches($organization, mb_strtolower($query))));
         usort($matching, static fn (Organization $a, Organization $b): int => strcmp((string) $b->id(), (string) $a->id()));
         $total = count($matching);
 
@@ -44,9 +44,9 @@ final readonly class InMemoryOrganizationRepository implements OrganizationRepos
     /**
      * @return list<Organization>
      */
-    private function prospectedBy(AccountId $ownerId): array
+    private function prospectedBy(AccountId $accountId): array
     {
-        return array_values(array_filter($this->database->organizations(), static fn (Organization $organization): bool => $organization->isProspectedBy($ownerId)));
+        return array_values(array_filter($this->database->organizations(), static fn (Organization $organization): bool => $organization->isProspectedBy($accountId)));
     }
 
     private static function matches(Organization $organization, string $query): bool

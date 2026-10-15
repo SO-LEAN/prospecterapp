@@ -24,7 +24,8 @@ Fonctionnalité: Commencer à prospecter une organisation
       | téléphone       | 03 88 00 00 00     |
       | langue          | FR                 |
       | observations    | Rencontré au salon |
-      | propriétaire    | SOLEAN IT          |
+      | compte          | SOLEAN IT          |
+      | saisie par      | moi                |
     Et l'organisation "SOLEAN IT" compte 1 organisation active
 
   Scénario: Une raison sociale suffit

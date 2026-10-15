@@ -39,11 +39,11 @@ final readonly class DoctrineOrganizationRepository implements OrganizationRepos
         $this->entityManager->flush();
     }
 
-    public function pageProspectedBy(AccountId $ownerId, string $query, int $page, int $maxByPage): Page
+    public function pageProspectedBy(AccountId $accountId, string $query, int $page, int $maxByPage): Page
     {
-        $dql = sprintf('SELECT o FROM %s o WHERE o.ownerId = :owner AND (o.legalIdentity.corporateName LIKE :query OR o.contactDetails.email LIKE :query) ORDER BY o.id DESC', Organization::class);
+        $dql = sprintf('SELECT o FROM %s o WHERE o.accountId = :account AND (o.legalIdentity.corporateName LIKE :query OR o.contactDetails.email LIKE :query) ORDER BY o.id DESC', Organization::class);
         $paginator = $this->paginatorFactory->create($this->entityManager->createQuery($dql)
-            ->setParameter('owner', $ownerId, 'account_id')
+            ->setParameter('account', $accountId, 'account_id')
             ->setParameter('query', sprintf('%%%s%%', $query))
             ->setFirstResult(($page - 1) * $maxByPage)
             ->setMaxResults($maxByPage));

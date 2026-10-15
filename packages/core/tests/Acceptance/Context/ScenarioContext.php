@@ -160,7 +160,7 @@ final class ScenarioContext implements Context
      */
     public function managerOf(Organization $organization): Prospector
     {
-        return $this->prospectorOf($organization->ownerId());
+        return $this->prospectorOf($organization->accountId());
     }
 
     public function prospectorOf(AccountId $accountId): Prospector

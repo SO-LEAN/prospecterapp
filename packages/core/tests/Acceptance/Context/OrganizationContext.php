@@ -202,7 +202,7 @@ final class OrganizationContext implements Context
     #[Then('l\'organisation :name est enregistrée avec :')]
     public function theOrganizationIsStoredWith(string $name, TableNode $table): void
     {
-        Expect::describes($table->getRowsHash(), Vocabulary::describeOrganization($this->scenario->organizationNamed($name), $this->scenario->nameOf(...)));
+        Expect::describes($table->getRowsHash(), Vocabulary::describeOrganization($this->scenario->organizationNamed($name), $this->scenario->nameOf(...), $this->application->signedIn()));
     }
 
     #[Then('l\'organisation :name compte :count organisation(s) active(s)')]

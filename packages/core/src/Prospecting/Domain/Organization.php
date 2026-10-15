@@ -9,10 +9,11 @@ use Prospecter\Core\SharedKernel\Domain\BusinessRuleViolation;
 use Prospecter\Core\SharedKernel\Domain\ContactDetails;
 use Prospecter\Core\SharedKernel\Domain\File;
 use Prospecter\Core\SharedKernel\Domain\LegalIdentity;
+use Prospecter\Core\SharedKernel\Domain\MemberId;
 use Prospecter\Core\SharedKernel\Domain\NotPossibleInItsState;
 
 /**
- * Aggregate root: an organization an account prospects, its owner.
+ * Aggregate root: an organization an account prospects; the whole team of the account shares it.
  */
 class Organization
 {
@@ -24,7 +25,8 @@ class Organization
 
     private function __construct(
         private readonly OrganizationId $id,
-        private readonly AccountId $ownerId,
+        private readonly AccountId $accountId,
+        private readonly MemberId $createdBy,
         private LegalIdentity $legalIdentity,
         private ContactDetails $contactDetails,
     ) {
@@ -34,7 +36,7 @@ class Organization
     {
         self::ensureItCanBeNamed($legalIdentity, $contactDetails);
 
-        return new self($id, $prospector->accountId, $legalIdentity, $contactDetails);
+        return new self($id, $prospector->accountId, $prospector->id, $legalIdentity, $contactDetails);
     }
 
     public function id(): OrganizationId
@@ -42,9 +44,20 @@ class Organization
         return $this->id;
     }
 
-    public function ownerId(): AccountId
+    /**
+     * The account whose prospecting base it belongs to.
+     */
+    public function accountId(): AccountId
     {
-        return $this->ownerId;
+        return $this->accountId;
+    }
+
+    /**
+     * Who entered it, for the record: every prospector of the account manages it alike.
+     */
+    public function createdBy(): MemberId
+    {
+        return $this->createdBy;
     }
 
     public function holdingId(): ?OrganizationId
@@ -89,7 +102,7 @@ class Organization
 
     public function isProspectedBy(AccountId $accountId): bool
     {
-        return $this->ownerId->equals($accountId);
+        return $this->accountId->equals($accountId);
     }
 
     /**

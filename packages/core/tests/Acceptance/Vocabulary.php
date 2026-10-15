@@ -17,6 +17,7 @@ use Prospecter\Core\SharedKernel\Domain\ContactDetails;
 use Prospecter\Core\SharedKernel\Domain\Email;
 use Prospecter\Core\SharedKernel\Domain\File;
 use Prospecter\Core\SharedKernel\Domain\LegalIdentity;
+use Prospecter\Core\SharedKernel\Domain\MemberId;
 use Prospecter\Core\SharedKernel\Domain\Uuid;
 
 /**
@@ -127,7 +128,7 @@ final class Vocabulary
      *
      * @return array<string, string>
      */
-    public static function describeOrganization(Organization $organization, \Closure $nameOf): array
+    public static function describeOrganization(Organization $organization, \Closure $nameOf, MemberId $me): array
     {
         $identity = $organization->legalIdentity();
         $contact = $organization->contactDetails();
@@ -148,7 +149,8 @@ final class Vocabulary
             'position' => self::describeGeoPoint($organization->geoPoint()),
             'logo' => self::describeFile($organization->logo()),
             'holding' => null === $organization->holdingId() ? '' : $nameOf($organization->holdingId()),
-            'propriétaire' => $nameOf($organization->ownerId()),
+            'compte' => $nameOf($organization->accountId()),
+            'saisie par' => $organization->createdBy()->equals($me) ? 'moi' : 'un autre membre',
         ];
     }
 

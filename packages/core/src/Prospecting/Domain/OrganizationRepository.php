@@ -27,5 +27,5 @@ interface OrganizationRepository
      *
      * @return Page<Organization>
      */
-    public function pageProspectedBy(AccountId $ownerId, string $query, int $page, int $maxByPage): Page;
+    public function pageProspectedBy(AccountId $accountId, string $query, int $page, int $maxByPage): Page;
 }

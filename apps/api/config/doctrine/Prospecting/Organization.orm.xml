@@ -4,13 +4,14 @@
                   xsi:schemaLocation="http://doctrine-project.org/schemas/orm/doctrine-mapping https://www.doctrine-project.org/schemas/orm/doctrine-mapping.xsd">
     <entity name="Prospecter\Core\Prospecting\Domain\Organization" table="organizations">
         <indexes>
-            <index columns="owner_id"/>
+            <index columns="account_id"/>
             <index columns="email"/>
         </indexes>
         <id name="id" type="organization_id">
             <generator strategy="NONE"/>
         </id>
-        <field name="ownerId" type="account_id"/>
+        <field name="accountId" type="account_id"/>
+        <field name="createdBy" type="member_id"/>
         <field name="holdingId" type="organization_id" nullable="true"/>
         <embedded name="legalIdentity" class="Prospecter\Core\SharedKernel\Domain\LegalIdentity" use-column-prefix="false"/>
         <embedded name="contactDetails" class="Prospecter\Core\SharedKernel\Domain\ContactDetails" use-column-prefix="false"/>

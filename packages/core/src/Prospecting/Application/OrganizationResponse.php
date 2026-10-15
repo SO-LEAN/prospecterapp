@@ -14,6 +14,7 @@ use Prospecter\Core\SharedKernel\Domain\AccountId;
 use Prospecter\Core\SharedKernel\Domain\ContactDetails;
 use Prospecter\Core\SharedKernel\Domain\File;
 use Prospecter\Core\SharedKernel\Domain\LegalIdentity;
+use Prospecter\Core\SharedKernel\Domain\MemberId;
 
 /**
  * An organization as every use case on organizations presents it, with what the user may do with it now.
@@ -25,7 +26,8 @@ final readonly class OrganizationResponse
      */
     public function __construct(
         public OrganizationId $id,
-        public AccountId $ownerId,
+        public AccountId $accountId,
+        public MemberId $createdBy,
         public LegalIdentity $legalIdentity,
         public string $fullName,
         public ContactDetails $contactDetails,
@@ -42,7 +44,8 @@ final readonly class OrganizationResponse
     {
         return new self(
             id: $organization->id(),
-            ownerId: $organization->ownerId(),
+            accountId: $organization->accountId(),
+            createdBy: $organization->createdBy(),
             legalIdentity: $organization->legalIdentity(),
             fullName: $organization->fullName(),
             contactDetails: $organization->contactDetails(),
