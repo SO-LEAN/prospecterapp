@@ -29,7 +29,8 @@ Why the project is shaped the way it is: one file per decision in `docs/adr/`, i
 | [0023](0023-tactical-ddd-in-the-core.md) | Tactical DDD in the core: aggregates, value objects, repositories | Accepted, persistence superseded by 0028 | 2026-10-15 |
 | [0024](0024-uuid-v7-identities-given-by-the-repository.md) | Identities are UUID v7 given by the repository | Accepted | 2026-10-15 |
 | [0025](0025-one-business-intent-per-use-case-and-endpoint.md) | One business intent per use case and per endpoint; edition by section | Accepted | 2026-10-15 |
-| [0026](0026-roles-in-the-api-ownership-and-state-in-the-aggregate.md) | Roles are checked by the API, ownership and state are decided by the aggregate | Accepted | 2026-10-15 |
+| [0026](0026-roles-in-the-api-ownership-and-state-in-the-aggregate.md) | Roles are checked by the API, ownership and state are decided by the aggregate | Accepted, ownership by own users superseded by 0030 | 2026-10-15 |
 | [0027](0027-hypermedia-links-from-the-possible-intents.md) | Resources carry hypermedia links built from the possible intents of the core | Accepted | 2026-10-15 |
 | [0028](0028-aggregates-keep-their-value-objects.md) | Aggregates keep their value objects; the Doctrine mapping adapts to them | Accepted | 2026-10-15 |
 | [0029](0029-cqrs-with-a-synchronous-messenger-command-bus.md) | CQRS: commands on a synchronous Messenger bus return nothing, only queries return data | Accepted | 2026-10-15 |
+| [0030](0030-bounded-contexts-accounts-prospecting.md) | Bounded contexts Accounts and Prospecting, a shared kernel, code grouped by context | Accepted | 2026-10-15 |

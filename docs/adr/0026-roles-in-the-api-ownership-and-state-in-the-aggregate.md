@@ -1,7 +1,7 @@
 # 0026. Roles are checked by the API, ownership and state are decided by the aggregate
 
 - Date: 2026-10-15
-- Status: Accepted
+- Status: Accepted; ownership by its own users superseded by [0030](0030-bounded-contexts-accounts-prospecting.md)
 - Supersedes: [0019](0019-organizations-reachable-only-by-their-prospector.md)
 - Implemented by: `packages/core/src/Domain/Organization/Organization.php`, `apps/api/src/Controller/Api` (`#[IsGranted]`), `apps/api/src/Security/ApiAccessDeniedHandler.php`
 

@@ -50,7 +50,7 @@ This guide is alive: rules get added and sharpened as the code is improved, iter
 
 - **Objects hide their data and expose behaviour; data structures expose data and have no behaviour.** Do not mix both halves in one class.
 - **Tell, don't ask**: ask an object to do something rather than reading its state to decide for it (`$organization->removeLogo()` refuses when there is no logo).
-- **Law of Demeter**: a method talks to its own fields, its parameters and the objects it creates, not to objects returned by them. No train wrecks: `$user->getOrganization()->getId()` became `$user->organizationId()` (aggregates reference each other by identity, ADR 0023).
+- **Law of Demeter**: a method talks to its own fields, its parameters and the objects it creates, not to objects returned by them. No train wrecks: `$user->getOrganization()->getId()` became `$member->accountId()` (aggregates reference each other by identity, ADR 0023).
 - **Requests, responses and value objects are data structures**: `final readonly` with public properties, no behaviour except their invariants (`File` validates its URL).
 - **Prefer immutability**: `readonly` classes and properties; a change produces a new value object.
 
@@ -100,7 +100,7 @@ This guide is alive: rules get added and sharpened as the code is improved, iter
 - **Boundaries cross with simple data**: requests and responses are plain data structures, never entities or framework objects.
 - **Component cohesion**: classes released together are reused together (REP), change together (CCP), and nobody depends on what they do not use (CRP).
 - **Component coupling**: no cycle between packages (ADP); depend in the direction of stability (SDP): the front and the API depend on the stable core; the more stable a component, the more abstract it is (SAP): the core exposes ports.
-- **Screaming architecture**: the folders say what the application does (`Application/Organization/StartProspecting`, `features/organizations`), not which framework it uses.
+- **Screaming architecture**: the folders say what the application does (`Prospecting/Application/StartProspecting`, `Accounts/Domain/Account`, `features/organizations`): grouped by bounded context first, by layer inside (ADR 0030), not which framework it uses.
 - **Keep options open**: decisions on frameworks, databases and delivery are deferred and isolated behind boundaries (ADR 0012, 0016, 0020).
 
 ## 12. Simplicity

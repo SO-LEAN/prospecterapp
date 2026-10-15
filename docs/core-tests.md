@@ -7,11 +7,12 @@ Two loops, as in *Growing Object-Oriented Software*:
 
 ## Nothing inside the hexagon is doubled
 
-Aggregates, value objects, use cases and the services of `src/Application/Service` are the real classes. Only the ports, the interfaces towards the outside, get test implementations, in `tests/Double`. They are working implementations, not mocks; no mocking library is used.
+Aggregates, value objects, handlers and services (`FileStore`, `GeoLocalizer`) are the real classes. Only the ports, the interfaces towards the outside, get test implementations, in `tests/Double`. They are working implementations, not mocks; no mocking library is used.
 
 | Port | Double | Behaves like |
 |---|---|---|
-| `OrganizationRepository`, `UserRepository` | `InMemoryOrganizationRepository`, `InMemoryUserRepository` over `InMemoryDatabase` | the Doctrine repositories: time ordered UUID identities (`TimeOrderedUuids`), email unique among organizations and users, copies stored and returned (a change not saved is lost), search and pagination newest first |
+| `AccountRepository`, `MemberRepository`, `OrganizationRepository` | `InMemoryAccountRepository`, `InMemoryMemberRepository`, `InMemoryOrganizationRepository` over `InMemoryDatabase` | the Doctrine repositories: time ordered UUID identities (`TimeOrderedUuids`), email unique among accounts, members and organizations, copies stored and returned (a change not saved is lost), search and pagination newest first |
+| `Prospectors` (Prospecting) | `MembersAsProspectors` | the anticorruption adapter of the API: a prospector is a member of Accounts, seen with its account |
 | `Storage` | `InMemoryStorage` | stores by URL `https://storage.test/<file name>` and deletes the uploaded file, like the real storage moves it |
 | `GeoLocation` | `KnownPlacesGeoLocation` | finds an address that mentions a place declared by the scenario |
 | presenters | `LastResponsePresenter` | keeps the presented response |
@@ -25,7 +26,8 @@ tests/Acceptance/Context/       step definitions (ScenarioContext shares the sta
 tests/Acceptance/Vocabulary     French labels of the tables, how they read entities and value objects
 tests/Acceptance/Expect         assertions (PHPUnit's need its runner to describe a failure)
 tests/Double/                   the ports' test implementations
-tests/Domain/                   PHPUnit: value objects rich in edge cases
+tests/Domain/                   PHPUnit: value objects rich in edge cases, intents refused exactly when not offered
+tests/Architecture/             PHPUnit: no bounded context uses another one
 tests/UseCase/                  PHPUnit: roles and the facade
 ```
 
