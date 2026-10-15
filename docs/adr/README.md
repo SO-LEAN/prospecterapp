@@ -48,5 +48,6 @@ Why the project is shaped the way it is: one file per decision in `docs/adr/`, i
 | [0042](0042-contacts-never-alone-domain-events.md) | A contact is never alone; domain events recorded by the aggregates, on a synchronous event bus | Accepted, shared events superseded by 0046 | 2026-10-15 |
 | [0043](0043-a-domain-event-per-intention-and-an-activity-journal.md) | Every intention records a domain event; an activity journal keeps them all | Accepted, shared events superseded by 0046 | 2026-10-15 |
 | [0044](0044-dependencies-are-injected.md) | Dependencies are injected, never built; a PHPStan rule checks it | Accepted | 2026-10-15 |
-| [0045](0045-published-language-between-contexts.md) | Each context publishes the questions the others ask; their anticorruption layers see nothing else | Accepted | 2026-10-16 |
-| [0046](0046-integration-events-between-contexts.md) | Contexts exchange published integration events; domain events stay in their context | Accepted | 2026-10-16 |
+| [0045](0045-published-language-between-contexts.md) | Each context publishes the questions the others ask; their anticorruption layers see nothing else | Accepted, location superseded by 0047 | 2026-10-16 |
+| [0046](0046-integration-events-between-contexts.md) | Contexts exchange published integration events; domain events stay in their context | Accepted, location superseded by 0047 | 2026-10-16 |
+| [0047](0047-a-contract-per-context.md) | Each context keeps what it publishes in a Contract of plain data | Accepted | 2026-10-16 |

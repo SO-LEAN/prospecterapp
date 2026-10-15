@@ -1,7 +1,7 @@
 # 0046. Contexts exchange published integration events; domain events stay in their context
 
 - Date: 2026-10-16
-- Status: Accepted
+- Status: Accepted, location superseded by [0047](0047-a-contract-per-context.md)
 - Supersedes: the events shared in `SharedKernel\Domain\Event` of [0042](0042-contacts-never-alone-domain-events.md) and [0043](0043-a-domain-event-per-intention-and-an-activity-journal.md)
 - Implemented by: `packages/core/src/*/Application/Published/Event`, `PersonalData\Application\{PublishContactCollected,PublishContactForgotten}`, `Prospecting\Application\PublishContactsLeftWithoutOrganization`, `packages/core/tests/Architecture/BoundedContextsTest.php`
 

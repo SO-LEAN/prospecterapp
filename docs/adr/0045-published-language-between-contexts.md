@@ -1,7 +1,7 @@
 # 0045. Each context publishes the questions the others ask; their anticorruption layers see nothing else
 
 - Date: 2026-10-16
-- Status: Accepted
+- Status: Accepted, location superseded by [0047](0047-a-contract-per-context.md)
 - Implemented by: `packages/core/src/*/Application/Published`, `apps/api/src/Prospecting/{AccountsProspectorService,PersonalDataKnownContacts}.php`, `apps/api/src/PersonalData/{AccountsReaderService,ProspectingOrganizations}.php`, `packages/core/features/langage-publie.feature`, the `BoundedContextsTest` of the core and of the API
 
 ## Context
