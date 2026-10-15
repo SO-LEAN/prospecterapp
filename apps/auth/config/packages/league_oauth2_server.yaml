@@ -6,9 +6,14 @@ league_oauth2_server:
         access_token_ttl: PT15M
         refresh_token_ttl: P30D
         auth_code_ttl: PT1M
-        # the SPA uses the authorization code grant with PKCE (OAuth 2.1); legacy grants stay off
+        # the SPA uses the authorization code grant with PKCE and the refresh token grant (OAuth 2.1); every
+        # other grant is off, even those the bundle enables by default: no client needs them
+        enable_auth_code_grant: true
+        enable_refresh_token_grant: true
+        enable_client_credentials_grant: false
         enable_password_grant: false
         enable_implicit_grant: false
+        enable_device_code_grant: false
         require_code_challenge_for_public_clients: true
     resource_server:
         public_key: '%env(resolve:OAUTH_PUBLIC_KEY)%'
