@@ -1,6 +1,6 @@
 import { createFileRoute, Outlet } from '@tanstack/react-router'
-import { type SigninState, userManager } from '@/app/auth'
 import { AppShell } from '@/app/layout/app-shell'
+import { type SigninState, userManager } from '@/shared/auth/user-manager'
 
 /**
  * Every page below requires a signed-in user: anonymous visitors go through the OAuth flow and come back.

@@ -103,9 +103,6 @@ This guide is alive: rules get added and sharpened as the code is improved, iter
 - **Screaming architecture**: the folders say what the application does (`Prospecting/Application/StartProspecting`, `Accounts/Domain/Account`, `features/organizations`): grouped by bounded context first, by layer inside (ADR 0030), not which framework it uses.
 - **Keep options open**: decisions on frameworks, databases and delivery are deferred and isolated behind boundaries (ADR 0016, 0029, 0034).
 
-**Known debt**
-- `apps/front/src/shared/api/client.ts` imports the OAuth session and the environment from `app/`: `shared` should depend on nothing of the app (move them to `shared/`).
-
 ## 12. Simplicity
 
 - **Kent Beck's simple design**, in order: passes all the tests, reveals intention, no duplication, fewest elements.

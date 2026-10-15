@@ -1,10 +1,10 @@
 import { createFileRoute } from '@tanstack/react-router'
 import { useTranslation } from 'react-i18next'
-import { userManager } from '@/app/auth'
 import { BrandMark } from '@/app/layout/brand'
 import { SignInForm } from '@/features/sign-in/components/sign-in-form'
 import { useSignIn } from '@/features/sign-in/mutations'
 import type { SignInValues } from '@/features/sign-in/schema'
+import { userManager } from '@/shared/auth/user-manager'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/shared/ui/card'
 
 /**

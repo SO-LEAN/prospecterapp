@@ -1,7 +1,7 @@
 import createFetchClient, { type Middleware } from 'openapi-fetch'
 import createQueryClient from 'openapi-react-query'
-import { userManager } from '@/app/auth'
-import { env } from '@/app/env'
+import { userManager } from '@/shared/auth/user-manager'
+import { env } from '@/shared/config/env'
 import type { paths as authPaths } from './auth-schema'
 import type { paths } from './schema'
 

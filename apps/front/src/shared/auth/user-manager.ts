@@ -1,5 +1,5 @@
 import { UserManager, type UserManagerSettings, WebStorageStateStore } from 'oidc-client-ts'
-import { env } from './env'
+import { env } from '@/shared/config/env'
 
 /**
  * OAuth 2 authorization code flow with PKCE against the API (public client, no secret).
