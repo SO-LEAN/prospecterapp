@@ -23,7 +23,9 @@ A JSON API that exposes the use cases of `packages/core`, plus the OAuth 2 autho
 - Files: `#[MapUploadedFile]` then `new UploadedFileInfo($file)` (an `SplFileInfo` whose extension is guessed from the content), always on `POST` (PHP does not parse multipart bodies on `PATCH`).
 - Output: every intent returns the fresh resource (`OrganizationResource`, `AccountResource`), a `final readonly` class of `src/Api/Resource` built by a presenter of `src/Presenter` implementing the presenter of the core (images via `Api\ImageResourceFactory`, which adds a thumbnail URL).
 - Document every endpoint: `#[OA\Tag]`, `#[OA\Get|Post|Patch|Delete]`(summary), one `#[OA\Response]` per status with `new Model(type: ...)`. Then run `make api-doc` to regenerate `openapi.json` and the front types; `tests/Api/OpenApiContractTest` fails `make test` while the committed `openapi.json` differs from the code.
-- Errors: refusals of the core (`UseCaseException` and subclasses, `BusinessRuleViolation` of an aggregate) become RFC 9457 `application/problem+json` in `EventListener\UseCaseExceptionListener` (422 with `violations`, 404, 403); missing tokens get the same format (`Security\ApiAuthenticationEntryPoint`).
+- Roles: one `#[IsGranted('ROLE_PROSPECTOR')]` or `#[IsGranted('ROLE_USER')]` per controller (`ROLE_ADMIN` inherits both); the core does not check roles.
+- Links: a resource carries `_links` (HAL, plus `method`), built by its presenter from the possible intents of the core response (`Api\Links`): a link is null when the intention is not possible now, and the call then fails. Document a new intention as a new link.
+- Errors: refusals of the core become RFC 9457 `application/problem+json` in `EventListener\UseCaseExceptionListener`: `NotFound` 404, `NotPossibleInItsState` 409 (the link is missing), other `BusinessRuleViolation` 422 with `violations`; missing tokens 401 (`Security\ApiAuthenticationEntryPoint`), missing role 403 (`Security\ApiAccessDeniedHandler`).
 - CORS (`config/packages/nelmio_cors.yaml`) lists the allowed methods: a new verb must be added there, or the browser's preflight fails.
 
 ## Authentication
@@ -32,7 +34,7 @@ See `docs/auth.md` at the repository root.
 
 - `league/oauth2-server-bundle`: `/authorize` + `/token`, authorization code with PKCE for the public client `prospecter-front` (created by `DataFixtures\OAuthClientFixtures`), JWT access tokens 15 min, rotated refresh tokens 30 days. Keys in `config/jwt` (`make keys`, not committed).
 - Firewalls (`config/packages/security.yaml`): `api` (`^/api/`, stateless, `oauth2: true`), `main` (session, `/login` with `Security\ProspecterAuthenticator`, which checks the password with `Auth\Passwords`), `/token` handled by the bundle. Consent is auto-approved (`EventListener\AuthorizationRequestListener`), logout redirects to `FRONT_URL` (`EventListener\LogoutListener`).
-- The token subject is the user name: `Security\ProspecterUserProvider` loads the core user through `UserRepository::ofUserName()` and builds `App\Entity\User`, received as `#[CurrentUser] User $user` and passed to use cases as the `UseCaseConsumer`.
+- The token subject is the user name: `Security\ProspecterUserProvider` loads the core user through `UserRepository::ofUserName()` and builds `App\Entity\User`, received as `#[CurrentUser] User $user`; its id goes into every request to the core (`$user->getUserId()`), which decides ownership in the aggregates (ADR 0026).
 - Authentication is not a use case. `src/Auth` keeps the passwords apart from the core (`Credentials`, table `credentials`, one row per user UUID; `Passwords` hashes with the `auto` hasher and upgrades old hashes at sign-in) so that it can move to a dedicated authorization server. `PATCH /api/me/password` (`Controller/Api/Account/ChangeMyPassword`) sets a new password through it; `bin/console app:user:set-password <userName>` does it by hand.
 
 ## Architecture

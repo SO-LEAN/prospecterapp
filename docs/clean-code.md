@@ -6,7 +6,7 @@ This guide is alive: rules get added and sharpened as the code is improved, iter
 
 ## 1. Names
 
-- **Reveal the intention.** A name says why it exists and how it is used; if it needs a comment, it is the wrong name. `ProspectedOrganizations::visibleTo()`, `makeRoomForThePopupAbove()`.
+- **Reveal the intention.** A name says why it exists and how it is used; if it needs a comment, it is the wrong name. `Organization::possibleIntentsOf()`, `makeRoomForThePopupAbove()`.
 - **Make meaningful distinctions.** No number series (`$organization2`), no noise words (`Data`, `Info`, `Manager`, `Object`). The type does not belong in the name: `$customers`, not `$customerList`.
 - **Pronounceable and searchable.** No abbreviations (`$org`, `$req`), no single letters except tiny loop counters and closure parameters read on the same line.
 - **No encodings.** No Hungarian notation, no `m_` or `$str` prefixes, no `I` prefix nor `Interface` suffix on interfaces, no `Impl` on classes: the interface says the role (`OrganizationRepository`), an implementation its technology (`DoctrineOrganizationRepository`, `InMemoryOrganizationRepository`). PHP types carry the type.
@@ -55,7 +55,7 @@ This guide is alive: rules get added and sharpened as the code is improved, iter
 - **Prefer immutability**: `readonly` classes and properties; a change produces a new value object.
 
 **Known debt**
-- Use cases ask who the signed-in user is and decide whether they may run an intention (`OrganizationUseCase`, `AccountUseCase`, `UseCaseConsumer`, `ProspectedOrganizations`): the aggregate should decide, given the user's id carried by the request.
+- Aggregates keep the fields of their value objects in plain properties and rebuild them in their accessors (`assignLegalIdentity()`...), because Doctrine cannot map a nullable embeddable: a persistence limit leaking into the domain. The mapping should adapt instead (embeddables, custom types).
 
 ## 6. Error handling
 
@@ -84,7 +84,7 @@ This guide is alive: rules get added and sharpened as the code is improved, iter
 ## 9. Classes
 
 - **Small**, measured in responsibilities, not lines. A class described with "and", "or", "but" has more than one.
-- **Cohesive**: most methods use most fields. When a subset of fields serves a subset of methods, it is another class waiting to be extracted (`ProspectedOrganizations` came out of the use cases).
+- **Cohesive**: most methods use most fields. When a subset of fields serves a subset of methods, it is another class waiting to be extracted (`FileStore` and `GeoLocalizer` came out of the use cases).
 - **Organized for change**: adding a feature adds a class rather than editing many.
 
 ## 10. SOLID

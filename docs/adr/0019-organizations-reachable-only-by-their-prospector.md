@@ -1,7 +1,7 @@
 # 0019. An organization is reachable only by the organization prospecting it
 
 - Date: 2026-10-15
-- Status: Accepted
+- Status: Superseded by [0026](0026-roles-in-the-api-ownership-and-state-in-the-aggregate.md)
 - Implemented by: ec09c80; `packages/core/src/Service/ProspectedOrganizations.php`
 
 ## Context

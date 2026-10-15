@@ -25,7 +25,7 @@ SPA (local.prospecter.io)                 API (api.local.prospecter.io)
 
 ## Credentials, outside the hexagon
 
-Signing in is infrastructure, not a business rule: the use cases receive an already authenticated user (`UseCaseConsumer`) and only decide what this user may do. The core therefore knows no password.
+Signing in is infrastructure, not a business rule: a request to the core carries the id of the already authenticated user, the API checks the role of an endpoint (`#[IsGranted]`, 403 problem+json from `Security\ApiAccessDeniedHandler`), and the aggregate decides whether this user may change it (ADR 0026). The core therefore knows no password.
 
 - `apps/api/src/Auth`: `Credentials` (Doctrine entity, table `credentials`: the user id and the password hash) and `Passwords` (set, verify, upgrade an outdated hash at sign-in). The hashing algorithm is `auto` (`security.yaml`, cheaper settings in tests).
 - `PATCH /api/me/password` sets it (204). Changing one's user name (`PATCH /api/me/user-name`) invalidates the token subject: the SPA signs in again. `bin/console app:user:set-password <userName>` sets it by hand; the fixtures give `prospector` the password `password`.

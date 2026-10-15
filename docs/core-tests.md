@@ -3,7 +3,7 @@
 Two loops, as in *Growing Object-Oriented Software*:
 
 - **Acceptance (outer loop)**: a Gherkin scenario, in French, states a business rule at the entrance of the hexagon. It is written first and stays red until the rule works. It knows requests, responses and the state of the outside world, never how a use case does its job, so refactoring does not touch it.
-- **Unit (inner loop)**: PHPUnit for what a scenario cannot reach or would express clumsily (the roles checked by `UseCase`, the facade) and for pure logic rich in edge cases (`tests/Domain`: `Email`, identities). A unit test checks a behaviour, never a structure (no getter and setter tests).
+- **Unit (inner loop)**: PHPUnit for what a scenario cannot reach or would express clumsily (the facade) and for pure logic rich in edge cases (`tests/Domain`: `Email`, identities, and `OrganizationIntentsTest`: every intention is refused exactly when the organization does not offer it, i.e. when its API link is missing). A unit test checks a behaviour, never a structure (no getter and setter tests).
 
 ## Nothing inside the hexagon is doubled
 
@@ -15,7 +15,6 @@ Aggregates, value objects, use cases and the services of `src/Application/Servic
 | `Storage` | `InMemoryStorage` | stores by URL `https://storage.test/<file name>` and deletes the uploaded file, like the real storage moves it |
 | `GeoLocation` | `KnownPlacesGeoLocation` | finds an address that mentions a place declared by the scenario |
 | presenters | `LastResponsePresenter` | keeps the presented response |
-| `UseCaseConsumer` | `SignedInUser` | the authenticated user of the scenario |
 
 ## Layout
 

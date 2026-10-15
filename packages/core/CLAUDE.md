@@ -13,8 +13,8 @@ Run from the repository root (the core has its own `vendor/`, installed by `make
 ## Layout
 
 - `src/Domain/{Shared,Organization,User}`: the aggregates `Organization` and `User`, their identities (`OrganizationId`, `UserId`), value objects (`Email`, `ContactDetails`, `LegalIdentity`, `PersonName`, `Address`, `GeoPoint`, `File`, `Page`, `Role`), repository interfaces and domain exceptions (`BusinessRuleViolation` names the faulty field).
-- `src/Application/{Organization,Account}`: one use case per intent (`Relocate`) with its `RelocateRequest`; responses and presenters shared by the intents of a resource (`OrganizationResponse`, `OrganizationPresenter`). Bases `OrganizationUseCase` (prospector role, ownership) and `AccountUseCase` (user role, the signed-in user).
-- `src/Application/Port` (`Storage`, `GeoLocation`), `Service` (`FileStore`, `GeoLocalizer`, `ProspectedOrganizations`), `Exception` (`NotFoundException`, `UseCaseException`...), and `UseCase`, `UseCaseConsumer`, `UseCasesFacade`.
+- `src/Application/{Organization,Account}`: one use case per intent (`Relocate`) with its `RelocateRequest`; responses and presenters shared by the intents of a resource (`OrganizationResponse`, `OrganizationPresenter`). No base class: a use case loads the acting user (the request carries its id), the aggregate, calls the intention with `by: $user`, saves and presents.
+- `src/Application/Port` (`Storage`, `GeoLocation`), `Service` (`FileStore`, `GeoLocalizer`), `UseCase`, `UseCasesFacade`.
 
 ## Rules
 
@@ -24,7 +24,8 @@ Run from the repository root (the core has its own `vendor/`, installed by `make
 - Business rules live in the aggregates: named constructors (`Organization::prospectedBy`, `User::register`), intention methods (`relocateTo`, `removeLogo`), no setters; an invariant is checked before the change. Aggregates reference each other by identity, never by object.
 - Identities come from the repository (`nextIdentity()`), UUID v7 in the API. A unique email (users and organizations together) is enforced by `save()`.
 - Requests, responses and value objects are `final readonly` with public promoted properties; responses carry value objects. Aggregates keep the fields of their value objects in plain properties (`addressCity`, `logoUrl`...) and build them in their accessors, because Doctrine cannot map a nullable embeddable: a property change requires a change of `apps/api/config/doctrine/<Aggregate>/*.orm.xml`.
-- Authentication is not the business of the core: a use case receives an already authenticated `UseCaseConsumer` (roles in `canBeExecutedBy()`, ownership with `ProspectedOrganizations`). There is no password here.
+- Authentication and roles are not the business of the core: the delivery authenticates and checks roles, a request carries the id of the acting user. The aggregate decides the rest (ADR 0026): an organization is managed by its own users and by those of the organization prospecting it, anybody else gets `UnknownOrganization` (not found).
+- An aggregate offers its possible intents (`Organization::possibleIntentsOf($user)`, `User::possibleIntents()`), which the API turns into links (ADR 0027); every intention method starts with the same check (`ensurePossible`) and throws `NotPossibleInItsState` for what is not offered. A new intention gets a case in the intent enum, a check, and a line in `OrganizationIntentsTest`.
 - Services of `src/Application/Service` are real classes of the hexagon, built by the use cases, never doubled.
 - The API calls the use cases through `UseCasesFacade` (`$facade-><name>()`, which checks the roles) and builds requests with named arguments: renaming a request property breaks it (PHPStan and the API tests catch it), so change the core and the API in the same commit.
 - The facade is meant to give way to a command bus (ADR 0020): scenarios never depend on it (`tests/Acceptance/Application` is the only place that knows how a use case is called).

@@ -73,7 +73,7 @@ Never copy server data into Zustand or `useState`: read it from the query, the c
 ## Navigation
 
 - "Retour" behaves like the browser back button (`shared/ui/back-button.tsx`): from the dashboard map it returns to the dashboard, from a filtered list to that list with its search. Opened from a bookmark, it falls back to a link.
-- A resource page is made of sections (`shared/ui/editable-section.tsx`): each shows one part of the resource and changes it in place through its own small form (`shared/forms/section-form.tsx`), one API intent each (ADR 0025); only the creation has a full form.
+- A resource page is made of sections (`shared/ui/editable-section.tsx`): each shows one part of the resource and changes it in place through its own small form (`shared/forms/section-form.tsx`), one API intent each (ADR 0025); only the creation has a full form. A section is editable (`editable`), an image changeable (`onUpload`), a button shown only when the resource carries the link of that intention (`organization._links.relocate`): the API decides what is possible (ADR 0027), the front never re-implements it.
 - A creation form is left with `useGoBack` (cancel), and replaces itself with the new page with the new page (`replace: true`): the history never holds a form already done with.
 - Map markers open a quick look (`features/organizations/components/organization-preview.tsx`, rendered by `GeoMap`'s `renderPopup`), which loads the organization into the cache: its page then opens instantly.
 
