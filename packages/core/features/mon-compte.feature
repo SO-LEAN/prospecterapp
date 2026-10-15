@@ -66,3 +66,12 @@ Fonctionnalité: Mon compte
       | prénom                             | Ada                |
       | e-mail                             | ada@solean-it.test |
       | raison sociale de mon organisation | SOLEAN IT          |
+
+  Scénario: La raison sociale de mon organisation peut être effacée
+    Quand je mets à jour mon compte avec :
+      | prénom | Ada |
+    Alors mon compte est enregistré avec :
+      | raison sociale de mon organisation | |
+    Quand je consulte mon compte
+    Alors je vois mon compte :
+      | raison sociale de mon organisation | |

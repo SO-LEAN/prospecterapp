@@ -119,7 +119,7 @@ final class UpdateMyAccountInformationRequest
         return $this->picture;
     }
 
-    public function getOrganizationCorporateName(): string
+    public function getOrganizationCorporateName(): ?string
     {
         return $this->organizationCorporateName;
     }

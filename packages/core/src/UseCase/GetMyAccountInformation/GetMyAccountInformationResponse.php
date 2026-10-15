@@ -138,7 +138,7 @@ final class GetMyAccountInformationResponse
         return $this->pictureSize;
     }
 
-    public function getOrganizationCorporateName(): string
+    public function getOrganizationCorporateName(): ?string
     {
         return $this->organizationCorporateName;
     }
