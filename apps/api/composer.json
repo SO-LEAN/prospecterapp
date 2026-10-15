@@ -58,12 +58,8 @@
         }
     },
     "autoload-dev": {
-        "files": [
-            "../../packages/core/tests/Base/functions.php"
-        ],
         "psr-4": {
-            "Tests\\App\\": "tests/",
-            "Tests\\Core\\": "../../packages/core/tests"
+            "Tests\\App\\": "tests/"
         }
     },
     "replace": {

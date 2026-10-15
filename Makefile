@@ -4,8 +4,10 @@ export GID := $(shell id -g)
 DC   = docker compose
 PHP  = $(DC) run --rm --no-deps php
 NODE = $(DC) run --rm --no-deps node
+# the core has its own tooling (Behat, PHPUnit), run from its directory
+CORE = $(DC) run --rm --no-deps -w /var/www/src/packages/core php
 
-.PHONY: install build vendor keys db front-install start stop logs ps test test-api test-front e2e lint fix api-doc usecases exec-api exec-front
+.PHONY: install build vendor keys db front-install start stop logs ps test test-api test-front e2e test-core lint fix api-doc usecases exec-api exec-front
 
 ## Setup
 install: build vendor keys db front-install
@@ -17,6 +19,8 @@ build:
 vendor:
 	@echo "API/Installing Composer dependencies..."
 	@$(PHP) composer install
+	@echo "Core/Installing Composer dependencies..."
+	@$(CORE) composer install
 
 keys:
 	@echo "OAuth/Generating the key pair..."
@@ -45,7 +49,11 @@ ps:
 	@$(DC) ps
 
 ## Quality
-test: test-api test-front
+test: test-core test-api test-front
+
+# business rules (Gherkin scenarios on the use cases, in-memory ports) then the unit tests
+test-core:
+	@$(CORE) sh -c 'vendor/bin/behat --strict -f progress && vendor/bin/phpunit'
 
 test-api:
 	@$(PHP) bin/phpunit

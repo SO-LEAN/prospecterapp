@@ -20,15 +20,11 @@
         <testsuite name="app">
             <directory>tests</directory>
         </testsuite>
-        <testsuite name="core">
-            <directory>../../packages/core/tests</directory>
-        </testsuite>
     </testsuites>
 
     <source ignoreSuppressionOfDeprecations="true" ignoreIndirectDeprecations="true" restrictNotices="true" restrictWarnings="true">
         <include>
             <directory>src</directory>
-            <directory>../../packages/core/src</directory>
         </include>
     </source>
 

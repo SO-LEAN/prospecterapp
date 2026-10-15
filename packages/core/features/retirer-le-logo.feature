@@ -1,0 +1,25 @@
+# language: fr
+Fonctionnalité: Retirer le logo d'une organisation
+  En tant que prospecteur
+  Je veux retirer un logo qui n'est plus le bon
+  Afin que la fiche n'affiche pas une image erronée
+
+  Contexte:
+    Soit l'organisation "SOLEAN IT" qui utilise Prospecter
+    Et je suis connecté en tant que prospecteur de "SOLEAN IT"
+
+  Scénario: Le logo est retiré de la fiche et du stockage
+    Soit l'organisation "ACME" fait partie de mes organisations avec :
+      | logo | acme.png |
+    Quand je retire le logo de "ACME"
+    Alors l'organisation "ACME" est enregistrée avec :
+      | logo | aucun |
+    Et le stockage ne contient plus "acme.png"
+    Et je suis informé que "Organization logo was removed !"
+
+  Scénario: Je ne peux pas retirer le logo d'une organisation qui n'est pas à moi
+    Soit l'organisation "Concurrent" qui utilise Prospecter
+    Et l'organisation "Initech" appartient à "Concurrent" avec :
+      | logo | initech.png |
+    Quand je retire le logo de "Initech"
+    Alors c'est refusé : "Organization "Concurrent" does not belong to your organization."

@@ -12,9 +12,34 @@
     "require": {
         "php": ">=8.5"
     },
+    "require-dev": {
+        "behat/behat": "^4.0",
+        "friendsofphp/php-cs-fixer": "^3.95",
+        "phpspec/prophecy-phpunit": "^2.5",
+        "phpstan/phpstan": "^2.3",
+        "phpunit/phpunit": "^13.4",
+        "rector/rector": "^2.7"
+    },
     "autoload": {
         "psr-4": {
             "Prospecter\\Core\\": "src/"
         }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "Tests\\Core\\": "tests/"
+        },
+        "files": [
+            "tests/Base/functions.php"
+        ]
+    },
+    "config": {
+        "sort-packages": true
+    },
+    "scripts": {
+        "test": [
+            "behat --colors",
+            "phpunit"
+        ]
     }
 }
