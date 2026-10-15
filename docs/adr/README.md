@@ -44,4 +44,5 @@ Why the project is shaped the way it is: one file per decision in `docs/adr/`, i
 | [0038](0038-one-database-per-bounded-context.md) | One database per bounded context | Accepted | 2026-10-15 |
 | [0039](0039-set-rules-in-domain-services-indexes-as-safety-net.md) | A rule on a set of aggregates is a domain service; a unique index is its safety net | Accepted | 2026-10-15 |
 | [0040](0040-security-reads-the-caller-with-consult-my-account.md) | The security of the API reads who calls with ConsultMyAccount | Accepted | 2026-10-15 |
-| [0041](0041-contacts-of-prospected-organizations.md) | Contacts: the persons in PersonalData, their identities in the organization, two separate gestures | Accepted | 2026-10-15 |
+| [0041](0041-contacts-of-prospected-organizations.md) | Contacts: the persons in PersonalData, their identities in the organization, two separate gestures | Accepted, gestures and erasure superseded by 0042 | 2026-10-15 |
+| [0042](0042-contacts-never-alone-domain-events.md) | A contact is never alone; domain events recorded by the aggregates, on a synchronous event bus | Accepted | 2026-10-15 |

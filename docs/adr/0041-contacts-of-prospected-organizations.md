@@ -1,7 +1,7 @@
 # 0041. Contacts: the persons in PersonalData, their identities in the organization, two separate gestures
 
 - Date: 2026-10-15
-- Status: Accepted
+- Status: Accepted; the two separate gestures and the erasure leaving names behind superseded by [0042](0042-contacts-never-alone-domain-events.md)
 - Implemented by: `packages/core/src/PersonalData/Application/{CollectContact,ChangeJobTitle,ForgetContact,SearchContacts}`, `packages/core/src/Prospecting/Application/{AddContact,RemoveContact}`, `Prospecting\Domain\KnownContacts`, `apps/api/src/OrganizationContacts`, `apps/front/src/features/contacts`
 
 ## Context
