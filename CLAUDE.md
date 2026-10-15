@@ -17,7 +17,7 @@ Everything runs in Docker (PHP 8.5, Node 24, nginx); nothing but Docker and make
 - `make install`: images, Composer and pnpm dependencies, OAuth keys, database with fixtures (OAuth client included)
 - `make start` / `make stop`: https://local.prospecter.io (SPA, sign in `prospector` / `password`), https://api.local.prospecter.io/api/doc (API doc)
 - `make test` (API + core + front unit tests), `make e2e` (Playwright on the running stack), `make lint`, `make fix`
-- `make api-doc`: after changing an endpoint, regenerate `apps/api/openapi.json` and the front API types
+- `make api-doc`: after changing an endpoint, regenerate `apps/api/openapi.json` and the front API types (`make test` fails while the committed contract differs from the code)
 - `make db`: recreate the dev database (destroys local data)
 
 Other commands: `docker compose run --rm --no-deps php <cmd>` (working dir `apps/api`) or `docker compose run --rm --no-deps node <cmd>` (working dir `apps/front`).

@@ -23,7 +23,7 @@ A JSON API that exposes the use cases of `packages/core`, plus the OAuth 2 autho
 - Files: `#[MapUploadedFile]` then `new UploadedFileInfo($file)` (an `SplFileInfo` whose extension is guessed from the content).
 - Output: a `final readonly` resource in `src/Api/Resource`, built by a presenter in `src/Presenter` that implements the use case presenter interface (images via `Api\ImageResourceFactory`, which adds a thumbnail URL). Mutations return the fresh resource by calling the `get*` use case afterwards.
 - `PUT` replaces the whole resource (the update use cases overwrite every field); files are separate `POST .../logo` multipart sub-resources that send back the current values with the file.
-- Document every endpoint: `#[OA\Tag]`, `#[OA\Get|Post|...]`(summary), one `#[OA\Response]` per status with `new Model(type: ...)`. Then run `make api-doc` to regenerate `openapi.json` and the front types.
+- Document every endpoint: `#[OA\Tag]`, `#[OA\Get|Post|...]`(summary), one `#[OA\Response]` per status with `new Model(type: ...)`. Then run `make api-doc` to regenerate `openapi.json` and the front types; `tests/Api/OpenApiContractTest` fails `make test` while the committed `openapi.json` differs from the code.
 - Errors: business exceptions (`UseCaseException` and subclasses) become RFC 9457 `application/problem+json` in `EventListener\UseCaseExceptionListener` (422 with `violations`, 404, 403); missing tokens get the same format (`Security\ApiAuthenticationEntryPoint`).
 
 ## Authentication
