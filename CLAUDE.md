@@ -8,7 +8,7 @@ Monorepo of a prospecting application built with clean architecture:
 | `apps/api/` | Symfony 8.1 JSON API + OAuth 2 server, documented with NelmioApiDocBundle | `apps/api/CLAUDE.md` |
 | `packages/core/` | `prospecter/core`: entities, use cases, ports (pure PHP), tested by Behat scenarios | `packages/core/CLAUDE.md` |
 
-Docs: `docs/front-architecture.md`, `docs/design-system.md`, `docs/auth.md`, `docs/core-tests.md`, `docs/monorepo.md`, `docs/upgrade-2026.md`.
+Docs: `docs/clean-code.md`, `docs/front-architecture.md`, `docs/design-system.md`, `docs/auth.md`, `docs/core-tests.md`, `docs/monorepo.md`, `docs/upgrade-2026.md`.
 
 ## Architecture decisions
 
@@ -32,7 +32,7 @@ Before declaring work done: `make test` and `make lint` pass; `make e2e` for cha
 
 ## Code conventions
 
-- Clean code: native types everywhere; no comment that repeats a type or explains the code: give the intention a name (extract a function, a constant); short methods with one level of abstraction; docblocks only for what the language cannot express (generics, array shapes). PHP: readonly DTOs, constructor promotion. TypeScript: strict, no `any`.
+- Clean code as taught by Robert C. Martin: read `docs/clean-code.md` before writing or reviewing code, and leave the code cleaner than you found it. In short: native types everywhere; no comment that repeats a type or explains the code: give the intention a name (extract a function, a constant); short methods with one level of abstraction; command-query separation; docblocks only for what the language cannot express (generics, array shapes). PHP: readonly DTOs, constructor promotion. TypeScript: strict, no `any`. The guide's **Known debt** lists are the backlog of the improvement iterations.
 - Do not trust existing docblocks blindly: some were wrong (a `@var stdClass` led Rector to produce a broken type).
 - Business rules belong to `packages/core`, described by its Gherkin scenarios (`docs/core-tests.md`); the API only adapts (HTTP, Doctrine, storage, authentication); the front only presents.
 - One invokable controller per API endpoint, grouped by resource; resource-oriented URLs that do not mirror use case names (they will be renamed to business intents).

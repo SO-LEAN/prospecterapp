@@ -25,4 +25,4 @@ Why the project is shaped the way it is: one file per decision in `docs/adr/`, i
 | [0019](0019-organizations-reachable-only-by-their-prospector.md) | An organization is reachable only by the organization prospecting it | Accepted | 2026-10-15 |
 | [0020](0020-command-bus-instead-of-the-facade.md) | Use cases as commands on a command bus, no query bus | Proposed | 2026-10-15 |
 | [0021](0021-use-cases-named-after-business-intents.md) | Use cases named after business intents | Proposed | 2026-10-14 |
-| [0022](0022-clean-code-conventions.md) | Clean code: names instead of comments, native types | Accepted | 2026-10-13 |
+| [0022](0022-clean-code-conventions.md) | Clean code as taught by Robert C. Martin, rules in `docs/clean-code.md` | Accepted | 2026-10-13 |
