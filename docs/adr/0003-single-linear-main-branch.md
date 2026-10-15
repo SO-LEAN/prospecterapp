@@ -1,0 +1,30 @@
+# 0003. A single linear `main`, short-lived branches, fast-forward only
+
+- Date: 2026-10-13
+- Status: Accepted
+- Implemented by: history rewritten on 2026-10-13; root `CLAUDE.md`
+
+## Context
+
+The history had `master`, `develop`, `travis-ci` and merge commits, with `develop` containing everything. A single maintainer works on the project, often with Claude Code.
+
+## Decision
+
+- One branch, `main` (renamed from `master`), with a linear history and no merge commits.
+- Work happens on a short-lived branch, then `main` is fast-forwarded to it and the branch deleted.
+- Conventional commits (`feat:`, `fix:`, `refactor:`, `test:`, `docs:`, `chore:`) whose message explains why.
+- Committing and pushing happen only when asked.
+
+## Consequences
+
+- `git log` reads as a story; each commit can be reviewed alone and reverted.
+- A long-running branch would need rebasing before the fast-forward.
+
+## Alternatives considered
+
+- Git flow (`develop` + `master`): no release process justifies it.
+- Merge commits or squash merges of pull requests: merge commits break the linear story, squashing loses the steps.
+
+## Revisit when
+
+Several people contribute in parallel, or releases need maintenance branches.
