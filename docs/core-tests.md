@@ -12,10 +12,10 @@ Aggregates, value objects, handlers, services (`FileStore`, `GeoLocalizer`, `Ema
 | Port | Double | Behaves like |
 |---|---|---|
 | `AccountRepository`, `MemberRepository`, `OrganizationRepository` | `InMemoryAccountRepository`, `InMemoryMemberRepository`, `InMemoryOrganizationRepository` over `InMemoryDatabase` | the Doctrine repositories: copies stored and returned (a change not saved is lost, the recorded events are not stored), the answer to `isEmailUsed()` among the organizations of an account (the rule itself is `EmailUniqueness`), search and pagination newest first |
-| `Prospectors` (Prospecting) | `MembersAsProspectors` | the anticorruption adapter of the API: a prospector is a member of Accounts, seen with its account |
-| `PersonRepository`, `Readers` (PersonalData) | `InMemoryPersonRepository`, `MembersAsReaders` | the answer to `isEmailUsed()` among the persons of an account for a purpose, the search newest first; a reader is a member, with its person and its right to read personal data |
-| `KnownContacts` (Prospecting) | `PersonsAsKnownContacts` | the anticorruption adapter of the API: a contact is a person the account keeps for prospecting |
-| `ProspectedOrganizations` (PersonalData) | `OrganizationsAsProspectedOrganizations` | the anticorruption adapter of the API: an organization the account prospects |
+| `ProspectorService` (Prospecting) | `AccountsProspectorService` | the anticorruption adapter of the API, same code: a prospector is the member the published query `ConsultMember` of Accounts answers |
+| `PersonRepository`, `ReaderService` (PersonalData) | `InMemoryPersonRepository`, `AccountsReaderService` | the answer to `isEmailUsed()` among the persons of an account for a purpose, the search newest first; a reader is the member `ConsultMember` answers, with its person and its right to read personal data |
+| `KnownContacts` (Prospecting) | `PersonalDataKnownContacts` | the anticorruption adapter of the API, same code: the published query `IsAContactOf` of PersonalData |
+| `ProspectedOrganizations` (PersonalData) | `ProspectingOrganizations` | the anticorruption adapter of the API, same code: the published query `IsProspectedBy` of Prospecting |
 | `Events` | `SynchronousEvents` | the event bus of the API: each event delivered at once to the real event handlers `Application` subscribed |
 | `Storage` | `InMemoryStorage` | stores by URL `https://storage.test/<file name>` and deletes the uploaded file, like the real storage moves it |
 | `GeoLocation` | `KnownPlacesGeoLocation` | finds an address that mentions a place declared by the scenario |
@@ -35,7 +35,7 @@ tests/Architecture/             PHPUnit: no bounded context uses another one, no
                                 every handler a CommandHandler or a QueryHandler
 ```
 
-The scenarios do not know the command bus of the API: `Application::dispatch()` sends a command to its handler, and a query is called directly, both through `RefusalTranslatingHandler` like the API. Every event handler of the core reacts in the scenarios as in the API (`Application::eventHandlers()`; `tests/Architecture/EventHandlersSubscribedTest` fails when one is missing): a scenario checks the side effects of a gesture in the other contexts, never the events themselves; the intents tests check that an accepted intention records its event. `Application` plays the client: it gives the identities of what is created (`newIdentity()`, time ordered UUIDs from `TimeOrderedUuids`) and the moment of the commands (`now()`, set by `nous sommes le "2026-10-20 14:00"`); a refusal is the `UseCaseRefused` of the last call (`refusal()`).
+The scenarios do not know the command bus of the API: `Application::dispatch()` sends a command to its handler, and a query is called directly, both through `RefusalTranslatingHandler` like the API. Every event handler of the core reacts in the scenarios as in the API (`Application::eventHandlers()`; `tests/Architecture/EventHandlersSubscribedTest` fails when one is missing): a scenario checks the side effects of a gesture in the other contexts, never the events themselves; the intents tests check that an accepted intention records its event. The published queries of the contexts (ADR 0045) are asked through `Application::askPublished()`, as the anticorruption layers ask them, in `features/langage-publie.feature`. `Application` plays the client: it gives the identities of what is created (`newIdentity()`, time ordered UUIDs from `TimeOrderedUuids`) and the moment of the commands (`now()`, set by `nous sommes le "2026-10-20 14:00"`); a refusal is the `UseCaseRefused` of the last call (`refusal()`).
 
 ## Adding or changing a rule
 
