@@ -45,7 +45,8 @@ Why the project is shaped the way it is: one file per decision in `docs/adr/`, i
 | [0039](0039-set-rules-in-domain-services-indexes-as-safety-net.md) | A rule on a set of aggregates is a domain service; a unique index is its safety net | Accepted | 2026-10-15 |
 | [0040](0040-security-reads-the-caller-with-consult-my-account.md) | The security of the API reads who calls with ConsultMyAccount | Accepted | 2026-10-15 |
 | [0041](0041-contacts-of-prospected-organizations.md) | Contacts: the persons in PersonalData, their identities in the organization, two separate gestures | Accepted, gestures and erasure superseded by 0042 | 2026-10-15 |
-| [0042](0042-contacts-never-alone-domain-events.md) | A contact is never alone; domain events recorded by the aggregates, on a synchronous event bus | Accepted | 2026-10-15 |
-| [0043](0043-a-domain-event-per-intention-and-an-activity-journal.md) | Every intention records a domain event; an activity journal keeps them all | Accepted | 2026-10-15 |
+| [0042](0042-contacts-never-alone-domain-events.md) | A contact is never alone; domain events recorded by the aggregates, on a synchronous event bus | Accepted, shared events superseded by 0046 | 2026-10-15 |
+| [0043](0043-a-domain-event-per-intention-and-an-activity-journal.md) | Every intention records a domain event; an activity journal keeps them all | Accepted, shared events superseded by 0046 | 2026-10-15 |
 | [0044](0044-dependencies-are-injected.md) | Dependencies are injected, never built; a PHPStan rule checks it | Accepted | 2026-10-15 |
 | [0045](0045-published-language-between-contexts.md) | Each context publishes the questions the others ask; their anticorruption layers see nothing else | Accepted | 2026-10-16 |
+| [0046](0046-integration-events-between-contexts.md) | Contexts exchange published integration events; domain events stay in their context | Accepted | 2026-10-16 |

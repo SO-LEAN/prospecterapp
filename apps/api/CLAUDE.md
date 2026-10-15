@@ -46,7 +46,7 @@ See `docs/auth.md` at the repository root. The API is a resource server only: si
 | `Prospecting\Domain\ProspectorService` | `Prospecting\AccountsProspectorService`: anticorruption layer from the published query `ConsultMember` of Accounts (with the right to manage personal data) |
 | `Prospecting\Domain\KnownContacts` | `Prospecting\PersonalDataKnownContacts`: anticorruption layer from the published query `IsAContactOf` of PersonalData |
 | `PersonalData\Domain\ProspectedOrganizations` | `PersonalData\ProspectingOrganizations`: anticorruption layer from the published query `IsProspectedBy` of Prospecting |
-| `SharedKernel\Application\Port\Events` | `Shared\MessengerEvents`: the domain events on the synchronous `event.bus`, a refusal of a handler thrown back as it was; `Shared\Persistence\Journal\ActivityJournal` keeps them all in a `journal` table of the database of their subject's context (ADR 0043) |
+| `SharedKernel\Application\Port\Events` | `Shared\MessengerEvents`: the domain events and the integration events (ADR 0046) on the synchronous `event.bus`, a refusal of a handler thrown back as it was; `Shared\Persistence\Journal\ActivityJournal` keeps them all in a `journal` table of the database of their subject's context (ADR 0043) |
 | `Prospecting\Application\Port\GeoLocation` | `Prospecting\GeoplateformeGeoLocation` (French State geocoder, IGN Géoplateforme: no key, France only, `APP_GEOCODER_URL`; tests get no answer from the mocked `http_client`) |
 | `SharedKernel\Application\Port\Storage` | `Shared\StorageClient`: sends the files to the storage app on its internal server (`STORAGE_INTERNAL_URL`, token `STORAGE_TOKEN`) and keeps their public URL; `Tests\App\Double\InMemoryStorage` in the tests |
 

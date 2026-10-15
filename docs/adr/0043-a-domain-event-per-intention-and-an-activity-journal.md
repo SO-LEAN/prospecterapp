@@ -1,7 +1,7 @@
 # 0043. Every intention records a domain event; an activity journal keeps them all
 
 - Date: 2026-10-15
-- Status: Accepted
+- Status: Accepted, shared events superseded by [0046](0046-integration-events-between-contexts.md)
 - Implemented by: `packages/core/src/SharedKernel/Domain/{ReleasesEvents.php,RecordsEvents.php,Event}`, `packages/core/src/*/Domain/Event`, `SharedKernel\Application\PublishesEvents`, `apps/api/src/Shared/Persistence/Journal`, `packages/core/tests/Architecture/EventHandlersSubscribedTest.php`
 
 ## Context

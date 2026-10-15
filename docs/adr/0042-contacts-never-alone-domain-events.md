@@ -1,7 +1,7 @@
 # 0042. A contact is never alone; domain events recorded by the aggregates, on a synchronous event bus
 
 - Date: 2026-10-15
-- Status: Accepted
+- Status: Accepted, shared events superseded by [0046](0046-integration-events-between-contexts.md)
 - Supersedes: the two separate gestures and the erasure of [0041](0041-contacts-of-prospected-organizations.md)
 - Implemented by: `packages/core/src/SharedKernel/Domain/{RecordsEvents.php,Event}`, `SharedKernel\Application\{EventHandler,Port\Events}`, `Prospecting\Domain\OrphanContacts`, `Prospecting\Application\StopProspecting`, `apps/api/src/Shared/MessengerEvents.php`, `apps/api/config/packages/messenger.yaml`
 
