@@ -15,7 +15,7 @@ Why the project is shaped the way it is: one file per decision in `docs/adr/`, i
 | [0009](0009-api-inputs-and-errors.md) | Inputs have the shape of resources, unknown fields are rejected, errors are problem details | Accepted | 2026-10-14 |
 | [0010](0010-oauth-2-authorization-code-with-pkce.md) | OAuth 2 authorization code with PKCE for the SPA | Accepted | 2026-10-14 |
 | [0011](0011-authentication-outside-the-hexagon.md) | Authentication is infrastructure, outside the hexagon | Accepted | 2026-10-15 |
-| [0012](0012-dedicated-authorization-server.md) | Delegate authentication to a dedicated authorization server | Proposed | 2026-10-15 |
+| [0012](0012-dedicated-authorization-server.md) | Delegate authentication to a dedicated authorization server | Superseded by 0034 | 2026-10-15 |
 | [0013](0013-front-stack.md) | Front stack: React, TanStack, typed client, shadcn/ui | Accepted | 2026-10-14 |
 | [0014](0014-open-maps-and-state-geocoding.md) | Open maps (MapLibre, OpenFreeMap) and the French State geocoder | Accepted | 2026-10-14 |
 | [0015](0015-local-stack-in-docker.md) | The whole stack runs locally in Docker, driven by make | Accepted | 2026-10-14 |
@@ -37,3 +37,4 @@ Why the project is shaped the way it is: one file per decision in `docs/adr/`, i
 | [0031](0031-personal-data-context.md) | A PersonalData context keeps the personal data of natural persons, and decides who reads them | Accepted | 2026-10-15 |
 | [0032](0032-login-email-kept-by-authentication.md) | Members sign in with an email kept by authentication | Accepted | 2026-10-15 |
 | [0033](0033-storage-app.md) | A storage app keeps the files and serves the images in named sizes | Accepted | 2026-10-15 |
+| [0034](0034-authorization-server-app.md) | An auth app is the authorization server; the API is a resource server | Accepted | 2026-10-15 |

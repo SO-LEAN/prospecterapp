@@ -30,12 +30,10 @@ A JSON API that exposes the use cases of `packages/core`, plus the OAuth 2 autho
 
 ## Authentication
 
-See `docs/auth.md` at the repository root.
+See `docs/auth.md` at the repository root. The API is a resource server only: signing in, the OAuth 2 tokens and the credentials belong to `apps/auth` (ADR 0034).
 
-- `league/oauth2-server-bundle`: `/authorize` + `/token`, authorization code with PKCE for the public client `prospecter-front` (created by `DataFixtures\OAuthClientFixtures`), JWT access tokens 15 min, rotated refresh tokens 30 days. Keys in `config/jwt` (`make keys`, not committed).
-- Firewalls (`config/packages/security.yaml`): `api` (`^/api/`, stateless, `oauth2: true`), `main` (session, `/login` with `Security\ProspecterAuthenticator`, which checks the password with `Auth\Passwords`), `/token` handled by the bundle. Consent is auto-approved (`EventListener\AuthorizationRequestListener`), logout redirects to `FRONT_URL` (`EventListener\LogoutListener`).
-- The token subject is the login email: `Security\ProspecterUserProvider` finds the member signing in with it (`Auth\LoginEmails`), loads it from Accounts and builds `App\Entity\User`, received as `#[CurrentUser] User $user`; its id goes into every command and query (`$user->memberId()`), and the aggregates decide ownership (ADR 0026).
-- Authentication is not a use case. `src/Auth` keeps what a member signs in with apart from the core (`Credentials`, table `credentials`, one row per member: the login email, unique on the platform, and the password hash; `LoginEmails`; `Passwords` hashes with the `auto` hasher and upgrades old hashes at sign-in) so that it can move to a dedicated authorization server. `PATCH /api/me/password` (`Me/Controller/ChangeMyPassword`) sets a new password through it; `PATCH /api/me/login-email` changes the login email; `bin/console app:user:set-password <login email>` sets a password by hand.
+- Firewall `api` (`^/api/`, stateless, `access_token` with `Security\AccessTokenHandler`): the JWT is checked with the public key of the authorization server (`AUTH_PUBLIC_KEY`), its expiry and its client (`AUTH_CLIENT_ID`); its subject is the member id, loaded by `Security\MemberProvider` into `App\Entity\User`, received as `#[CurrentUser] User $user`; its ids go into every command and query, and the aggregates decide ownership (ADR 0026).
+- The prospector of the fixtures has the member id `AppFixtures::PROSPECTOR`, the one the auth fixtures give its credentials.
 
 ## Architecture
 
@@ -55,16 +53,15 @@ Ports are aliased to adapters in `config/services.yaml`. Every `*Handler` of `{A
 
 Doctrine mapping of the aggregates is in `config/doctrine/<Context>/*.orm.xml` (`Accounts`, `PersonalData`, `Prospecting`, `SharedKernel`; tables `accounts`, `members`, `persons`, `organizations`). The aggregates keep their value objects and the mapping adapts to them (ADR 0028): the value objects always present are embeddables without column prefix (`LegalIdentity`, `ContactDetails`, `PersonName`: columns `corporate_name`, `email`...), the others are custom types of `src/<Context>/Persistence` and `src/Shared/Persistence` registered in `doctrine.yaml` (identities as `guid`, `Email` as a string, `Address`, `GeoPoint`, `File` and the roles as JSON, since Doctrine cannot make an embeddable null). DQL reaches embedded fields by path (`o.contactDetails.email`) and passes identities with their type (`setParameter('account', $id, 'account_id')`).
 
-Doctrine refuses to initialize a lazy proxy of an aggregate: hydration would replace its readonly identity with an equal but new value object. The code never creates one (no association, no `getReference()`); tests load a fixture user again instead of using its reference (`ControllerTestCase::loadedUser()`). The `credentials` table belongs to `src/Auth` (attribute mapping), the OAuth tables to the bundle.
+Doctrine refuses to initialize a lazy proxy of an aggregate: hydration would replace its readonly identity with an equal but new value object. The code never creates one (no association, no `getReference()`); `ApiTestCase` empties the entity manager after loading the fixtures and after reading a reference, so that the requests load the aggregates again.
 
 ## Hosts
 
-- API and authorization server: `APP_API_HOST` (`api.local.prospecter.io`), routes in `src/{Me,Prospecting}/Controller`, `src/Dashboard` and `src/Controller/Auth` (`config/routes.yaml`).
+- `APP_API_HOST` (`api.local.prospecter.io`), routes in `src/{Me,Prospecting}/Controller` and `src/Dashboard` (`config/routes.yaml`); nginx gives the sign-in paths of the same host to `apps/auth`.
 - Files are not the API's business: the storage app (`apps/storage`, `static.local.prospecter.io`) keeps and serves them, and `Shared\ImageResourceFactory` names their sizes by its convention (`<public url>/<size>/<path>`, ADR 0033).
-- `FRONT_URL` is the SPA origin (CORS, OAuth redirect URI, logout target).
 
 ## Tests
 
-- `tests/Api`: functional tests through `Base/ApiTestCase`, whose `login()` runs the real PKCE flow and sends the bearer token. Schema and fixtures are recreated for each test; host `api.test.prospecter.io`; variables in `.env.test`.
+- `tests/Api`: functional tests through `Base/ApiTestCase`, whose `login()` signs an access token for a fixture member with the test key pair (`tests/bootstrap.php`, in `var/test-jwt`, never committed). Schema and fixtures are recreated for each test; host `api.test.prospecter.io`; variables in `.env.test`.
 - `tests/Base/TestCase` instantiates the class under test from the test class name and offers `prophesy()` (Prophecy).
 - PHPUnit 13: attributes only (`#[DataProvider]`, `#[Group]`), static data providers, abstract base classes named `*TestCase`.

@@ -1,7 +1,7 @@
 # 0012. Delegate authentication to a dedicated authorization server
 
 - Date: 2026-10-15
-- Status: Proposed
+- Status: Superseded by [0034](0034-authorization-server-app.md)
 - Implemented by: not yet; prepared by 0011
 
 ## Context
