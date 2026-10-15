@@ -2,14 +2,12 @@
 
 namespace App\Controller\Api\Account;
 
+use App\Api\AccountReader;
 use App\Api\Resource\AccountResource;
 use App\Api\Resource\ProblemResource;
 use App\Entity\User;
-use App\Presenter\AccountResourcePresenter;
 use Nelmio\ApiDocBundle\Attribute\Model;
 use OpenApi\Attributes as OA;
-use Prospecter\Core\Application\Account\ConsultMyAccount\ConsultMyAccountRequest;
-use Prospecter\Core\Application\UseCasesFacade;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\Routing\Attribute\Route;
@@ -21,8 +19,7 @@ use Symfony\Component\Security\Http\Attribute\IsGranted;
 final class ShowAccount extends AbstractController
 {
     public function __construct(
-        private readonly UseCasesFacade $useCases,
-        private readonly AccountResourcePresenter $presenter,
+        private readonly AccountReader $account,
     ) {
     }
 
@@ -33,6 +30,6 @@ final class ShowAccount extends AbstractController
     #[OA\Response(response: 403, description: 'The signed-in user is not a user', content: new Model(type: ProblemResource::class))]
     public function __invoke(#[CurrentUser] User $user): JsonResponse
     {
-        return $this->json($this->useCases->consultMyAccount(new ConsultMyAccountRequest($user->getUserId()), $this->presenter));
+        return $this->json($this->account->read($user->getUserId()));
     }
 }

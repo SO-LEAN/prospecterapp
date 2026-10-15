@@ -10,12 +10,12 @@ use Behat\Step\Given;
 use Behat\Step\Then;
 use Behat\Step\When;
 use Prospecter\Core\Application\Account\AccountResponse;
-use Prospecter\Core\Application\Account\ChangeMyContactDetails\ChangeMyContactDetailsRequest;
-use Prospecter\Core\Application\Account\ChangeMyName\ChangeMyNameRequest;
-use Prospecter\Core\Application\Account\ChangeMyOrganizationLogo\ChangeMyOrganizationLogoRequest;
-use Prospecter\Core\Application\Account\ChangeMyPicture\ChangeMyPictureRequest;
-use Prospecter\Core\Application\Account\ChangeMyUserName\ChangeMyUserNameRequest;
-use Prospecter\Core\Application\Account\ReviseMyOrganizationIdentity\ReviseMyOrganizationIdentityRequest;
+use Prospecter\Core\Application\Account\ChangeMyContactDetails\ChangeMyContactDetails;
+use Prospecter\Core\Application\Account\ChangeMyName\ChangeMyName;
+use Prospecter\Core\Application\Account\ChangeMyOrganizationLogo\ChangeMyOrganizationLogo;
+use Prospecter\Core\Application\Account\ChangeMyPicture\ChangeMyPicture;
+use Prospecter\Core\Application\Account\ChangeMyUserName\ChangeMyUserName;
+use Prospecter\Core\Application\Account\ReviseMyOrganizationIdentity\ReviseMyOrganizationIdentity;
 use Prospecter\Core\Domain\Organization\LegalIdentity;
 use Prospecter\Core\Domain\Organization\Organization;
 use Prospecter\Core\Domain\Shared\ContactDetails;
@@ -56,37 +56,37 @@ final class AccountContext implements Context
     #[When('je change mon nom :')]
     public function iChangeMyName(TableNode $table): void
     {
-        $this->application->changeMyName(new ChangeMyNameRequest($this->application->signedIn(), Vocabulary::personName(Vocabulary::values($table->getRowsHash()))));
+        $this->application->dispatch(new ChangeMyName($this->application->signedIn(), Vocabulary::personName(Vocabulary::values($table->getRowsHash()))));
     }
 
     #[When('je change mon identifiant en :userName')]
     public function iChangeMyUserName(string $userName): void
     {
-        $this->application->changeMyUserName(new ChangeMyUserNameRequest($this->application->signedIn(), $userName));
+        $this->application->dispatch(new ChangeMyUserName($this->application->signedIn(), $userName));
     }
 
     #[When('je change mes coordonnées :')]
     public function iChangeMyContactDetails(TableNode $table): void
     {
-        $this->application->changeMyContactDetails(new ChangeMyContactDetailsRequest($this->application->signedIn(), Vocabulary::contactDetails(Vocabulary::values($table->getRowsHash()))));
+        $this->application->dispatch(new ChangeMyContactDetails($this->application->signedIn(), Vocabulary::contactDetails(Vocabulary::values($table->getRowsHash()))));
     }
 
     #[When('je change ma photo avec :fileName')]
     public function iChangeMyPicture(string $fileName): void
     {
-        $this->application->changeMyPicture(new ChangeMyPictureRequest($this->application->signedIn(), $this->scenario->upload($fileName)));
+        $this->application->dispatch(new ChangeMyPicture($this->application->signedIn(), $this->scenario->upload($fileName)));
     }
 
     #[When('je révise l\'identité de mon organisation :')]
     public function iReviseMyOrganizationIdentity(TableNode $table): void
     {
-        $this->application->reviseMyOrganizationIdentity(new ReviseMyOrganizationIdentityRequest($this->application->signedIn(), Vocabulary::legalIdentity(Vocabulary::values($table->getRowsHash()))));
+        $this->application->dispatch(new ReviseMyOrganizationIdentity($this->application->signedIn(), Vocabulary::legalIdentity(Vocabulary::values($table->getRowsHash()))));
     }
 
     #[When('je change le logo de mon organisation avec :fileName')]
     public function iChangeMyOrganizationLogo(string $fileName): void
     {
-        $this->application->changeMyOrganizationLogo(new ChangeMyOrganizationLogoRequest($this->application->signedIn(), $this->scenario->upload($fileName)));
+        $this->application->dispatch(new ChangeMyOrganizationLogo($this->application->signedIn(), $this->scenario->upload($fileName)));
     }
 
     #[Then('je vois mon compte :')]

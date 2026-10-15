@@ -3,14 +3,14 @@
 namespace App\Controller\Api\Organization;
 
 use App\Api\Input\AddressInput;
+use App\Api\OrganizationReader;
 use App\Api\Resource\OrganizationResource;
 use App\Api\Resource\ProblemResource;
 use App\Entity\User;
-use App\Presenter\OrganizationResourcePresenter;
+use App\Messenger\CommandBus;
 use Nelmio\ApiDocBundle\Attribute\Model;
 use OpenApi\Attributes as OA;
-use Prospecter\Core\Application\Organization\Relocate\RelocateRequest;
-use Prospecter\Core\Application\UseCasesFacade;
+use Prospecter\Core\Application\Organization\Relocate\Relocate as RelocateCommand;
 use Prospecter\Core\Domain\Organization\OrganizationId;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -25,8 +25,8 @@ use Symfony\Component\Security\Http\Attribute\IsGranted;
 final class Relocate extends AbstractController
 {
     public function __construct(
-        private readonly UseCasesFacade $useCases,
-        private readonly OrganizationResourcePresenter $presenter,
+        private readonly CommandBus $commands,
+        private readonly OrganizationReader $organizations,
     ) {
     }
 
@@ -39,6 +39,8 @@ final class Relocate extends AbstractController
     #[OA\Response(response: 422, description: 'Invalid address', content: new Model(type: ProblemResource::class))]
     public function __invoke(string $id, #[MapRequestPayload] AddressInput $input, #[CurrentUser] User $user): JsonResponse
     {
-        return $this->json($this->useCases->relocate(new RelocateRequest($user->getUserId(), new OrganizationId($id), $input->toAddress()), $this->presenter));
+        $this->commands->dispatch(new RelocateCommand($user->getUserId(), new OrganizationId($id), $input->toAddress()));
+
+        return $this->json($this->organizations->read($user->getUserId(), new OrganizationId($id)));
     }
 }

@@ -23,7 +23,7 @@ Why the project is shaped the way it is: one file per decision in `docs/adr/`, i
 | [0017](0017-gherkin-acceptance-tests-on-the-core.md) | Gherkin acceptance tests on the core, only ports doubled | Accepted | 2026-10-15 |
 | [0018](0018-readonly-core-model.md) | Readonly requests, responses and value objects; flat entity columns | Superseded by 0023 | 2026-10-15 |
 | [0019](0019-organizations-reachable-only-by-their-prospector.md) | An organization is reachable only by the organization prospecting it | Superseded by 0026 | 2026-10-15 |
-| [0020](0020-command-bus-instead-of-the-facade.md) | Use cases as commands on a command bus, no query bus | Proposed | 2026-10-15 |
+| [0020](0020-command-bus-instead-of-the-facade.md) | Use cases as commands on a command bus, no query bus | Superseded by 0029 | 2026-10-15 |
 | [0021](0021-use-cases-named-after-business-intents.md) | Use cases named after business intents | Superseded by 0025 | 2026-10-14 |
 | [0022](0022-clean-code-conventions.md) | Clean code as taught by Robert C. Martin, rules in `docs/clean-code.md` | Accepted | 2026-10-13 |
 | [0023](0023-tactical-ddd-in-the-core.md) | Tactical DDD in the core: aggregates, value objects, repositories | Accepted, persistence superseded by 0028 | 2026-10-15 |
@@ -32,3 +32,4 @@ Why the project is shaped the way it is: one file per decision in `docs/adr/`, i
 | [0026](0026-roles-in-the-api-ownership-and-state-in-the-aggregate.md) | Roles are checked by the API, ownership and state are decided by the aggregate | Accepted | 2026-10-15 |
 | [0027](0027-hypermedia-links-from-the-possible-intents.md) | Resources carry hypermedia links built from the possible intents of the core | Accepted | 2026-10-15 |
 | [0028](0028-aggregates-keep-their-value-objects.md) | Aggregates keep their value objects; the Doctrine mapping adapts to them | Accepted | 2026-10-15 |
+| [0029](0029-cqrs-with-a-synchronous-messenger-command-bus.md) | CQRS: commands on a synchronous Messenger bus return nothing, only queries return data | Accepted | 2026-10-15 |

@@ -4,27 +4,12 @@ declare(strict_types=1);
 
 namespace Prospecter\Core\Application\Account\ChangeMyName;
 
-use Prospecter\Core\Application\Account\AccountPresenter;
-use Prospecter\Core\Application\Account\AccountResponses;
-use Prospecter\Core\Application\UseCase;
-use Prospecter\Core\Domain\Organization\OrganizationRepository;
-use Prospecter\Core\Domain\User\UserRepository;
+use Prospecter\Core\Domain\User\PersonName;
+use Prospecter\Core\Domain\User\UserId;
 
-final class ChangeMyName extends UseCase
+final readonly class ChangeMyName
 {
-    private readonly AccountResponses $responses;
-
-    public function __construct(private readonly UserRepository $users, OrganizationRepository $organizations)
+    public function __construct(public UserId $userId, public PersonName $name)
     {
-        $this->responses = new AccountResponses($organizations);
-    }
-
-    public function execute(ChangeMyNameRequest $request, AccountPresenter $presenter): mixed
-    {
-        $me = $this->users->get($request->userId);
-        $me->rename($request->name);
-        $this->users->save($me);
-
-        return $presenter->present($this->responses->of($me));
     }
 }

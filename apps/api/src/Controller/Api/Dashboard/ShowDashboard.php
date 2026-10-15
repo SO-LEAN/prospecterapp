@@ -2,19 +2,16 @@
 
 namespace App\Controller\Api\Dashboard;
 
+use App\Api\OrganizationReader;
 use App\Api\Resource\DashboardResource;
-use App\Api\Resource\OrganizationPageResource;
-use App\Api\Resource\OrganizationResource;
 use App\Api\Resource\OrganizationSummaryResource;
 use App\Api\Resource\ProblemResource;
 use App\Entity\User;
 use App\Presenter\OrganizationPagePresenter;
-use App\Presenter\OrganizationResourcePresenter;
 use Nelmio\ApiDocBundle\Attribute\Model;
 use OpenApi\Attributes as OA;
-use Prospecter\Core\Application\Organization\ConsultOrganization\ConsultOrganizationRequest;
-use Prospecter\Core\Application\Organization\SearchProspectedOrganizations\SearchProspectedOrganizationsRequest;
-use Prospecter\Core\Application\UseCasesFacade;
+use Prospecter\Core\Application\Organization\SearchProspectedOrganizations\SearchProspectedOrganizations;
+use Prospecter\Core\Application\Organization\SearchProspectedOrganizations\SearchProspectedOrganizationsHandler;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\Routing\Attribute\Route;
@@ -28,9 +25,9 @@ final class ShowDashboard extends AbstractController
     private const int MAX_MARKERS = 1000;
 
     public function __construct(
-        private readonly UseCasesFacade $useCases,
+        private readonly OrganizationReader $organizations,
+        private readonly SearchProspectedOrganizationsHandler $searchProspectedOrganizations,
         private readonly OrganizationPagePresenter $pagePresenter,
-        private readonly OrganizationResourcePresenter $organizationPresenter,
     ) {
     }
 
@@ -41,10 +38,8 @@ final class ShowDashboard extends AbstractController
     #[OA\Response(response: 403, description: 'The signed-in user is not a prospector', content: new Model(type: ProblemResource::class))]
     public function __invoke(#[CurrentUser] User $user): JsonResponse
     {
-        /** @var OrganizationResource $myOrganization */
-        $myOrganization = $this->useCases->consultOrganization(new ConsultOrganizationRequest($user->getUserId(), $user->getOrganizationId()), $this->organizationPresenter);
-        /** @var OrganizationPageResource $page */
-        $page = $this->useCases->searchProspectedOrganizations(new SearchProspectedOrganizationsRequest($user->getUserId(), 1, '', self::MAX_MARKERS), $this->pagePresenter);
+        $myOrganization = $this->organizations->read($user->getUserId(), $user->getOrganizationId());
+        $page = $this->pagePresenter->present(($this->searchProspectedOrganizations)(new SearchProspectedOrganizations($user->getUserId(), 1, '', self::MAX_MARKERS)));
 
         return $this->json(new DashboardResource(
             organizationName: (string) $myOrganization->legalIdentity->corporateName,

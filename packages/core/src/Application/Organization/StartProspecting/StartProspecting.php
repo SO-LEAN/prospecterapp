@@ -4,39 +4,22 @@ declare(strict_types=1);
 
 namespace Prospecter\Core\Application\Organization\StartProspecting;
 
-use Prospecter\Core\Application\Organization\OrganizationPresenter;
-use Prospecter\Core\Application\Organization\OrganizationResponses;
-use Prospecter\Core\Application\Port\GeoLocation;
-use Prospecter\Core\Application\Service\GeoLocalizer;
-use Prospecter\Core\Application\UseCase;
-use Prospecter\Core\Domain\Organization\Organization;
-use Prospecter\Core\Domain\Organization\OrganizationRepository;
-use Prospecter\Core\Domain\User\UserRepository;
+use Prospecter\Core\Domain\Organization\Address;
+use Prospecter\Core\Domain\Organization\LegalIdentity;
+use Prospecter\Core\Domain\Organization\OrganizationId;
+use Prospecter\Core\Domain\Shared\ContactDetails;
+use Prospecter\Core\Domain\User\UserId;
 
-final class StartProspecting extends UseCase
+final readonly class StartProspecting
 {
-    private readonly OrganizationResponses $responses;
-    private readonly GeoLocalizer $geoLocalizer;
-
-    public function __construct(private readonly OrganizationRepository $organizations, private readonly UserRepository $users, GeoLocation $geoLocation)
-    {
-        $this->responses = new OrganizationResponses($organizations);
-        $this->geoLocalizer = new GeoLocalizer($geoLocation);
-    }
-
-    public function execute(StartProspectingRequest $request, OrganizationPresenter $presenter): mixed
-    {
-        $prospector = $this->users->get($request->prospectorId);
-        $organization = Organization::prospectedBy($prospector, $this->organizations->nextIdentity(), $request->legalIdentity, $request->contactDetails);
-        $organization->relocateTo($request->address, $this->geoLocalizer->locate($request->address), by: $prospector);
-        $organization->writeObservations($request->observations, by: $prospector);
-
-        if (null !== $request->holdingId) {
-            $organization->attachToHolding($this->organizations->get($request->holdingId), by: $prospector);
-        }
-
-        $this->organizations->save($organization);
-
-        return $presenter->present($this->responses->of($organization, $prospector));
+    public function __construct(
+        public UserId $prospectorId,
+        public OrganizationId $id,
+        public LegalIdentity $legalIdentity,
+        public ContactDetails $contactDetails,
+        public ?Address $address = null,
+        public ?string $observations = null,
+        public ?OrganizationId $holdingId = null,
+    ) {
     }
 }

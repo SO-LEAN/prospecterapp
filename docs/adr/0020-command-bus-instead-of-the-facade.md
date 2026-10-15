@@ -1,7 +1,7 @@
 # 0020. Use cases as commands on a command bus, no query bus
 
 - Date: 2026-10-15
-- Status: Proposed
+- Status: Superseded by [0029](0029-cqrs-with-a-synchronous-messenger-command-bus.md)
 - Implemented by: not yet; scenarios already independent of the facade (0017)
 
 ## Context

@@ -20,7 +20,7 @@ This guide is alive: rules get added and sharpened as the code is improved, iter
 
 - **Small**, then smaller. A function rarely needs more than a few lines; blocks inside `if`, `else`, `while`, `try` are one line, a call to a well-named function.
 - **Do one thing**: if a part can be extracted with a name that is not a restatement, the function did more than one thing. *Extract till you drop.*
-- **One level of abstraction per function**, and read top-down: each function is followed by those it calls (*stepdown rule*). `StartProspecting::execute()` reads as a list of steps.
+- **One level of abstraction per function**, and read top-down: each function is followed by those it calls (*stepdown rule*). `StartProspectingHandler::__invoke()` reads as a list of steps.
 - **Few arguments**: zero, one, two; three is suspicious; more needs an *argument object*. PHP named arguments make long lists readable at the call site, they do not make them acceptable.
 - **No flag arguments**: a `bool` parameter means the function does two things; write two functions, or pass an `enum` when it is a real variant.
 - **No output arguments**: return a value, never modify a parameter to give a result back.

@@ -3,8 +3,3 @@ parameters:
     paths:
         - src/
         - tests/
-    ignoreErrors:
-        -
-            identifier: method.notFound
-            message: '#UseCasesFacade::stub\w+\(\)|UseCasesFacade::unknownUseCase\(\)#'
-            path: tests/UseCase/UseCasesFacadeTest.php

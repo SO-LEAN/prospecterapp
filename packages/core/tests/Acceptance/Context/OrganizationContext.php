@@ -9,22 +9,23 @@ use Behat\Gherkin\Node\TableNode;
 use Behat\Step\Given;
 use Behat\Step\Then;
 use Behat\Step\When;
-use Prospecter\Core\Application\Organization\AttachToHolding\AttachToHoldingRequest;
-use Prospecter\Core\Application\Organization\ChangeContactDetails\ChangeContactDetailsRequest;
-use Prospecter\Core\Application\Organization\ChangeLogo\ChangeLogoRequest;
-use Prospecter\Core\Application\Organization\ConsultOrganization\ConsultOrganizationRequest;
-use Prospecter\Core\Application\Organization\DetachFromHolding\DetachFromHoldingRequest;
+use Prospecter\Core\Application\Organization\AttachToHolding\AttachToHolding;
+use Prospecter\Core\Application\Organization\ChangeContactDetails\ChangeContactDetails;
+use Prospecter\Core\Application\Organization\ChangeLogo\ChangeLogo;
+use Prospecter\Core\Application\Organization\ConsultOrganization\ConsultOrganization;
+use Prospecter\Core\Application\Organization\DetachFromHolding\DetachFromHolding;
 use Prospecter\Core\Application\Organization\OrganizationResponse;
-use Prospecter\Core\Application\Organization\Relocate\RelocateRequest;
-use Prospecter\Core\Application\Organization\RemoveLogo\RemoveLogoRequest;
-use Prospecter\Core\Application\Organization\ReviseLegalIdentity\ReviseLegalIdentityRequest;
+use Prospecter\Core\Application\Organization\Relocate\Relocate;
+use Prospecter\Core\Application\Organization\RemoveLogo\RemoveLogo;
+use Prospecter\Core\Application\Organization\ReviseLegalIdentity\ReviseLegalIdentity;
 use Prospecter\Core\Application\Organization\SearchProspectedOrganizations\FoundOrganization;
-use Prospecter\Core\Application\Organization\SearchProspectedOrganizations\SearchProspectedOrganizationsRequest;
+use Prospecter\Core\Application\Organization\SearchProspectedOrganizations\SearchProspectedOrganizations;
 use Prospecter\Core\Application\Organization\SearchProspectedOrganizations\SearchProspectedOrganizationsResponse;
-use Prospecter\Core\Application\Organization\StartProspecting\StartProspectingRequest;
-use Prospecter\Core\Application\Organization\WriteObservations\WriteObservationsRequest;
+use Prospecter\Core\Application\Organization\StartProspecting\StartProspecting;
+use Prospecter\Core\Application\Organization\WriteObservations\WriteObservations;
 use Prospecter\Core\Domain\Organization\LegalIdentity;
 use Prospecter\Core\Domain\Organization\Organization;
+use Prospecter\Core\Domain\Organization\OrganizationId;
 use Prospecter\Core\Domain\Shared\ContactDetails;
 use Prospecter\Core\Domain\Shared\Email;
 use Prospecter\Core\Domain\Shared\File;
@@ -99,100 +100,103 @@ final class OrganizationContext implements Context
     public function iStartProspecting(TableNode $table): void
     {
         $values = Vocabulary::values($table->getRowsHash());
-        $response = $this->application->startProspecting(new StartProspectingRequest(
+        $id = $this->application->organizations->nextIdentity();
+        $this->application->dispatch(new StartProspecting(
             prospectorId: $this->me(),
+            id: $id,
             legalIdentity: Vocabulary::legalIdentity($values),
             contactDetails: Vocabulary::contactDetails($values),
             address: Vocabulary::address($values),
             observations: $values['observations'],
             holdingId: null === $values['holding'] ? null : $this->scenario->idOf($values['holding']),
         ));
-        $this->rememberNameOf($response);
+        $this->rememberIfAccepted($values['raison sociale'], $id);
     }
 
     #[When('je révise l\'identité de :name :')]
     public function iReviseTheLegalIdentity(string $name, TableNode $table): void
     {
-        $response = $this->application->reviseLegalIdentity(new ReviseLegalIdentityRequest($this->me(), $this->scenario->idOf($name), Vocabulary::legalIdentity(Vocabulary::values($table->getRowsHash()))));
-        $this->rememberNameOf($response);
+        $identity = Vocabulary::legalIdentity(Vocabulary::values($table->getRowsHash()));
+        $this->application->dispatch(new ReviseLegalIdentity($this->me(), $this->scenario->idOf($name), $identity));
+        $this->rememberIfAccepted($identity->corporateName, $this->scenario->idOf($name));
     }
 
     #[When('je change les coordonnées de :name :')]
     public function iChangeTheContactDetails(string $name, TableNode $table): void
     {
-        $this->application->changeContactDetails(new ChangeContactDetailsRequest($this->me(), $this->scenario->idOf($name), Vocabulary::contactDetails(Vocabulary::values($table->getRowsHash()))));
+        $this->application->dispatch(new ChangeContactDetails($this->me(), $this->scenario->idOf($name), Vocabulary::contactDetails(Vocabulary::values($table->getRowsHash()))));
     }
 
     #[When('je déménage :name à l\'adresse :')]
     public function iRelocate(string $name, TableNode $table): void
     {
-        $this->application->relocate(new RelocateRequest($this->me(), $this->scenario->idOf($name), Vocabulary::address(Vocabulary::values($table->getRowsHash()))));
+        $this->application->dispatch(new Relocate($this->me(), $this->scenario->idOf($name), Vocabulary::address(Vocabulary::values($table->getRowsHash()))));
     }
 
     #[When('j\'efface l\'adresse de :name')]
     public function iEraseTheAddress(string $name): void
     {
-        $this->application->relocate(new RelocateRequest($this->me(), $this->scenario->idOf($name), null));
+        $this->application->dispatch(new Relocate($this->me(), $this->scenario->idOf($name), null));
     }
 
     #[When('j\'écris les observations de :name : :observations')]
     public function iWriteObservations(string $name, string $observations): void
     {
-        $this->application->writeObservations(new WriteObservationsRequest($this->me(), $this->scenario->idOf($name), $observations));
+        $this->application->dispatch(new WriteObservations($this->me(), $this->scenario->idOf($name), $observations));
     }
 
     #[When('j\'efface les observations de :name')]
     public function iEraseTheObservations(string $name): void
     {
-        $this->application->writeObservations(new WriteObservationsRequest($this->me(), $this->scenario->idOf($name), null));
+        $this->application->dispatch(new WriteObservations($this->me(), $this->scenario->idOf($name), null));
     }
 
     #[When('je rattache :name à la holding :holding')]
     public function iAttachToHolding(string $name, string $holding): void
     {
-        $this->application->attachToHolding(new AttachToHoldingRequest($this->me(), $this->scenario->idOf($name), $this->scenario->idOf($holding)));
+        $this->application->dispatch(new AttachToHolding($this->me(), $this->scenario->idOf($name), $this->scenario->idOf($holding)));
     }
 
     #[When('je détache :name de sa holding')]
     public function iDetachFromHolding(string $name): void
     {
-        $this->application->detachFromHolding(new DetachFromHoldingRequest($this->me(), $this->scenario->idOf($name)));
+        $this->application->dispatch(new DetachFromHolding($this->me(), $this->scenario->idOf($name)));
     }
 
     #[When('je change le logo de :name avec :fileName')]
     public function iChangeTheLogo(string $name, string $fileName): void
     {
-        $this->application->changeLogo(new ChangeLogoRequest($this->me(), $this->scenario->idOf($name), $this->scenario->upload($fileName)));
+        $this->application->dispatch(new ChangeLogo($this->me(), $this->scenario->idOf($name), $this->scenario->upload($fileName)));
     }
 
     #[When('je retire le logo de :name')]
     public function iRemoveTheLogo(string $name): void
     {
-        $this->application->removeLogo(new RemoveLogoRequest($this->me(), $this->scenario->idOf($name)));
+        $this->application->dispatch(new RemoveLogo($this->me(), $this->scenario->idOf($name)));
     }
 
     #[When('je consulte l\'organisation :name')]
     public function iConsultTheOrganization(string $name): void
     {
-        $this->consulted = $this->application->consultOrganization(new ConsultOrganizationRequest($this->me(), $this->scenario->idOf($name)));
+        $this->consulted = $this->application->consultOrganization(new ConsultOrganization($this->me(), $this->scenario->idOf($name)));
     }
 
     #[When('je liste mes organisations')]
     public function iListMyOrganizations(): void
     {
-        $this->found = $this->application->searchProspectedOrganizations(new SearchProspectedOrganizationsRequest($this->me()));
+        $this->found = $this->application->searchProspectedOrganizations(new SearchProspectedOrganizations($this->me()));
     }
 
     #[When('je cherche :query dans mes organisations')]
     public function iSearchMyOrganizations(string $query): void
     {
-        $this->found = $this->application->searchProspectedOrganizations(new SearchProspectedOrganizationsRequest($this->me(), query: $query));
+        $this->found = $this->application->searchProspectedOrganizations(new SearchProspectedOrganizations($this->me(), query: $query));
     }
 
     #[When('je liste la page :page de mes organisations, :maxByPage par page')]
     public function iListAPageOfMyOrganizations(int $page, int $maxByPage): void
     {
-        $this->found = $this->application->searchProspectedOrganizations(new SearchProspectedOrganizationsRequest($this->me(), $page, '', $maxByPage));
+        $this->found = $this->application->searchProspectedOrganizations(new SearchProspectedOrganizations($this->me(), $page, '', $maxByPage));
     }
 
     #[Then('l\'organisation :name est enregistrée avec :')]
@@ -273,10 +277,10 @@ final class OrganizationContext implements Context
         return $this->scenario->nameOf($this->scenario->me()->organizationId());
     }
 
-    private function rememberNameOf(?OrganizationResponse $response): void
+    private function rememberIfAccepted(?string $name, OrganizationId $id): void
     {
-        if (null !== $response) {
-            $this->scenario->remember($response->legalIdentity->corporateName, $response->id);
+        if (null === $this->application->refusal()) {
+            $this->scenario->remember($name, $id);
         }
     }
 

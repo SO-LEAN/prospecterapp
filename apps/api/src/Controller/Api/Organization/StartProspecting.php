@@ -3,15 +3,16 @@
 namespace App\Controller\Api\Organization;
 
 use App\Api\Input\StartProspectingInput;
+use App\Api\OrganizationReader;
 use App\Api\Resource\OrganizationResource;
 use App\Api\Resource\ProblemResource;
 use App\Entity\User;
-use App\Presenter\OrganizationResourcePresenter;
+use App\Messenger\CommandBus;
 use Nelmio\ApiDocBundle\Attribute\Model;
 use OpenApi\Attributes as OA;
-use Prospecter\Core\Application\Organization\StartProspecting\StartProspectingRequest;
-use Prospecter\Core\Application\UseCasesFacade;
+use Prospecter\Core\Application\Organization\StartProspecting\StartProspecting as StartProspectingCommand;
 use Prospecter\Core\Domain\Organization\OrganizationId;
+use Prospecter\Core\Domain\Organization\OrganizationRepository;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Response;
@@ -25,8 +26,9 @@ use Symfony\Component\Security\Http\Attribute\IsGranted;
 final class StartProspecting extends AbstractController
 {
     public function __construct(
-        private readonly UseCasesFacade $useCases,
-        private readonly OrganizationResourcePresenter $presenter,
+        private readonly CommandBus $commands,
+        private readonly OrganizationRepository $organizations,
+        private readonly OrganizationReader $reader,
     ) {
     }
 
@@ -39,16 +41,17 @@ final class StartProspecting extends AbstractController
     #[OA\Response(response: 422, description: 'Invalid organization, email already used, or neither corporate name nor email', content: new Model(type: ProblemResource::class))]
     public function __invoke(#[MapRequestPayload] StartProspectingInput $input, #[CurrentUser] User $user): JsonResponse
     {
-        /** @var OrganizationResource $organization */
-        $organization = $this->useCases->startProspecting(new StartProspectingRequest(
+        $id = $this->organizations->nextIdentity();
+        $this->commands->dispatch(new StartProspectingCommand(
             prospectorId: $user->getUserId(),
+            id: $id,
             legalIdentity: $input->legalIdentity->toLegalIdentity(),
             contactDetails: $input->contactDetails->toContactDetails(),
             address: $input->address?->toAddress(),
             observations: $input->observations,
             holdingId: null === $input->holdingId ? null : new OrganizationId($input->holdingId),
-        ), $this->presenter);
+        ));
 
-        return $this->json($organization, Response::HTTP_CREATED, ['Location' => $this->generateUrl('api_organizations_show', ['id' => $organization->id])]);
+        return $this->json($this->reader->read($user->getUserId(), $id), Response::HTTP_CREATED, ['Location' => $this->generateUrl('api_organizations_show', ['id' => $id->value])]);
     }
 }

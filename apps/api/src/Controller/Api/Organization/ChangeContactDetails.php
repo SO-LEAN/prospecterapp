@@ -3,14 +3,14 @@
 namespace App\Controller\Api\Organization;
 
 use App\Api\Input\ContactDetailsInput;
+use App\Api\OrganizationReader;
 use App\Api\Resource\OrganizationResource;
 use App\Api\Resource\ProblemResource;
 use App\Entity\User;
-use App\Presenter\OrganizationResourcePresenter;
+use App\Messenger\CommandBus;
 use Nelmio\ApiDocBundle\Attribute\Model;
 use OpenApi\Attributes as OA;
-use Prospecter\Core\Application\Organization\ChangeContactDetails\ChangeContactDetailsRequest;
-use Prospecter\Core\Application\UseCasesFacade;
+use Prospecter\Core\Application\Organization\ChangeContactDetails\ChangeContactDetails as ChangeContactDetailsCommand;
 use Prospecter\Core\Domain\Organization\OrganizationId;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -25,8 +25,8 @@ use Symfony\Component\Security\Http\Attribute\IsGranted;
 final class ChangeContactDetails extends AbstractController
 {
     public function __construct(
-        private readonly UseCasesFacade $useCases,
-        private readonly OrganizationResourcePresenter $presenter,
+        private readonly CommandBus $commands,
+        private readonly OrganizationReader $organizations,
     ) {
     }
 
@@ -39,6 +39,8 @@ final class ChangeContactDetails extends AbstractController
     #[OA\Response(response: 422, description: 'Invalid contact details, email already used, or neither corporate name nor email left', content: new Model(type: ProblemResource::class))]
     public function __invoke(string $id, #[MapRequestPayload] ContactDetailsInput $input, #[CurrentUser] User $user): JsonResponse
     {
-        return $this->json($this->useCases->changeContactDetails(new ChangeContactDetailsRequest($user->getUserId(), new OrganizationId($id), $input->toContactDetails()), $this->presenter));
+        $this->commands->dispatch(new ChangeContactDetailsCommand($user->getUserId(), new OrganizationId($id), $input->toContactDetails()));
+
+        return $this->json($this->organizations->read($user->getUserId(), new OrganizationId($id)));
     }
 }

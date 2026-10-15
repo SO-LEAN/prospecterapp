@@ -5,44 +5,30 @@ declare(strict_types=1);
 namespace Tests\Core\Acceptance;
 
 use Prospecter\Core\Application\Account\AccountResponse;
-use Prospecter\Core\Application\Account\ChangeMyContactDetails\ChangeMyContactDetails;
-use Prospecter\Core\Application\Account\ChangeMyContactDetails\ChangeMyContactDetailsRequest;
-use Prospecter\Core\Application\Account\ChangeMyName\ChangeMyName;
-use Prospecter\Core\Application\Account\ChangeMyName\ChangeMyNameRequest;
-use Prospecter\Core\Application\Account\ChangeMyOrganizationLogo\ChangeMyOrganizationLogo;
-use Prospecter\Core\Application\Account\ChangeMyOrganizationLogo\ChangeMyOrganizationLogoRequest;
-use Prospecter\Core\Application\Account\ChangeMyPicture\ChangeMyPicture;
-use Prospecter\Core\Application\Account\ChangeMyPicture\ChangeMyPictureRequest;
-use Prospecter\Core\Application\Account\ChangeMyUserName\ChangeMyUserName;
-use Prospecter\Core\Application\Account\ChangeMyUserName\ChangeMyUserNameRequest;
+use Prospecter\Core\Application\Account\ChangeMyContactDetails\ChangeMyContactDetailsHandler;
+use Prospecter\Core\Application\Account\ChangeMyName\ChangeMyNameHandler;
+use Prospecter\Core\Application\Account\ChangeMyOrganizationLogo\ChangeMyOrganizationLogoHandler;
+use Prospecter\Core\Application\Account\ChangeMyPicture\ChangeMyPictureHandler;
+use Prospecter\Core\Application\Account\ChangeMyUserName\ChangeMyUserNameHandler;
 use Prospecter\Core\Application\Account\ConsultMyAccount\ConsultMyAccount;
-use Prospecter\Core\Application\Account\ConsultMyAccount\ConsultMyAccountRequest;
-use Prospecter\Core\Application\Account\ReviseMyOrganizationIdentity\ReviseMyOrganizationIdentity;
-use Prospecter\Core\Application\Account\ReviseMyOrganizationIdentity\ReviseMyOrganizationIdentityRequest;
-use Prospecter\Core\Application\Organization\AttachToHolding\AttachToHolding;
-use Prospecter\Core\Application\Organization\AttachToHolding\AttachToHoldingRequest;
-use Prospecter\Core\Application\Organization\ChangeContactDetails\ChangeContactDetails;
-use Prospecter\Core\Application\Organization\ChangeContactDetails\ChangeContactDetailsRequest;
-use Prospecter\Core\Application\Organization\ChangeLogo\ChangeLogo;
-use Prospecter\Core\Application\Organization\ChangeLogo\ChangeLogoRequest;
+use Prospecter\Core\Application\Account\ConsultMyAccount\ConsultMyAccountHandler;
+use Prospecter\Core\Application\Account\ReviseMyOrganizationIdentity\ReviseMyOrganizationIdentityHandler;
+use Prospecter\Core\Application\CommandHandler;
+use Prospecter\Core\Application\Organization\AttachToHolding\AttachToHoldingHandler;
+use Prospecter\Core\Application\Organization\ChangeContactDetails\ChangeContactDetailsHandler;
+use Prospecter\Core\Application\Organization\ChangeLogo\ChangeLogoHandler;
 use Prospecter\Core\Application\Organization\ConsultOrganization\ConsultOrganization;
-use Prospecter\Core\Application\Organization\ConsultOrganization\ConsultOrganizationRequest;
-use Prospecter\Core\Application\Organization\DetachFromHolding\DetachFromHolding;
-use Prospecter\Core\Application\Organization\DetachFromHolding\DetachFromHoldingRequest;
+use Prospecter\Core\Application\Organization\ConsultOrganization\ConsultOrganizationHandler;
+use Prospecter\Core\Application\Organization\DetachFromHolding\DetachFromHoldingHandler;
 use Prospecter\Core\Application\Organization\OrganizationResponse;
-use Prospecter\Core\Application\Organization\Relocate\Relocate;
-use Prospecter\Core\Application\Organization\Relocate\RelocateRequest;
-use Prospecter\Core\Application\Organization\RemoveLogo\RemoveLogo;
-use Prospecter\Core\Application\Organization\RemoveLogo\RemoveLogoRequest;
-use Prospecter\Core\Application\Organization\ReviseLegalIdentity\ReviseLegalIdentity;
-use Prospecter\Core\Application\Organization\ReviseLegalIdentity\ReviseLegalIdentityRequest;
+use Prospecter\Core\Application\Organization\Relocate\RelocateHandler;
+use Prospecter\Core\Application\Organization\RemoveLogo\RemoveLogoHandler;
+use Prospecter\Core\Application\Organization\ReviseLegalIdentity\ReviseLegalIdentityHandler;
 use Prospecter\Core\Application\Organization\SearchProspectedOrganizations\SearchProspectedOrganizations;
-use Prospecter\Core\Application\Organization\SearchProspectedOrganizations\SearchProspectedOrganizationsRequest;
+use Prospecter\Core\Application\Organization\SearchProspectedOrganizations\SearchProspectedOrganizationsHandler;
 use Prospecter\Core\Application\Organization\SearchProspectedOrganizations\SearchProspectedOrganizationsResponse;
-use Prospecter\Core\Application\Organization\StartProspecting\StartProspecting;
-use Prospecter\Core\Application\Organization\StartProspecting\StartProspectingRequest;
-use Prospecter\Core\Application\Organization\WriteObservations\WriteObservations;
-use Prospecter\Core\Application\Organization\WriteObservations\WriteObservationsRequest;
+use Prospecter\Core\Application\Organization\StartProspecting\StartProspectingHandler;
+use Prospecter\Core\Application\Organization\WriteObservations\WriteObservationsHandler;
 use Prospecter\Core\Domain\Shared\BusinessRuleViolation;
 use Prospecter\Core\Domain\Shared\NotFound;
 use Prospecter\Core\Domain\User\UserId;
@@ -51,12 +37,11 @@ use Tests\Core\Double\InMemoryOrganizationRepository;
 use Tests\Core\Double\InMemoryStorage;
 use Tests\Core\Double\InMemoryUserRepository;
 use Tests\Core\Double\KnownPlacesGeoLocation;
-use Tests\Core\Double\LastResponsePresenter;
 
 /**
- * The hexagon as the scenarios use it: the real use cases, wired to in-memory implementations of their
- * ports, called the way a delivery calls them. It is the only place that knows how a use case is invoked
- * (today execute(), tomorrow a command sent to a bus).
+ * The hexagon as the scenarios use it: the real handlers, wired to in-memory implementations of their
+ * ports, called the way a delivery calls them: a command is sent to its handler (a command bus in the
+ * API) and returns nothing, a query returns what it reads.
  */
 final class Application
 {
@@ -65,6 +50,8 @@ final class Application
     public readonly InMemoryStorage $storage;
     public readonly KnownPlacesGeoLocation $geoLocation;
 
+    /** @var array<class-string, CommandHandler> */
+    private array $handlers = [];
     private ?UserId $signedIn = null;
     private NotFound|BusinessRuleViolation|null $refusal = null;
 
@@ -75,6 +62,10 @@ final class Application
         $this->users = new InMemoryUserRepository($database);
         $this->storage = new InMemoryStorage();
         $this->geoLocation = new KnownPlacesGeoLocation();
+
+        foreach ($this->commandHandlers() as $handler) {
+            $this->handlers[$this->commandOf($handler)] = $handler;
+        }
     }
 
     public function signIn(UserId $user): void
@@ -87,134 +78,89 @@ final class Application
         return $this->signedIn ?? throw new \LogicException('Nobody is signed in: add "je suis connecté..." to the scenario');
     }
 
-    public function startProspecting(StartProspectingRequest $request): ?OrganizationResponse
+    public function dispatch(object $command): void
     {
-        return $this->organizationIntent(new StartProspecting($this->organizations, $this->users, $this->geoLocation), $request);
+        $handler = $this->handlers[$command::class] ?? throw new \LogicException(sprintf('No handler for %s', $command::class));
+        $this->attempt(static fn () => $handler($command));
     }
 
-    public function reviseLegalIdentity(ReviseLegalIdentityRequest $request): ?OrganizationResponse
+    public function consultOrganization(ConsultOrganization $query): ?OrganizationResponse
     {
-        return $this->organizationIntent(new ReviseLegalIdentity($this->organizations, $this->users), $request);
+        return $this->attempt(fn (): OrganizationResponse => new ConsultOrganizationHandler($this->organizations, $this->users)($query));
     }
 
-    public function changeContactDetails(ChangeContactDetailsRequest $request): ?OrganizationResponse
+    public function searchProspectedOrganizations(SearchProspectedOrganizations $query): ?SearchProspectedOrganizationsResponse
     {
-        return $this->organizationIntent(new ChangeContactDetails($this->organizations, $this->users), $request);
-    }
-
-    public function relocate(RelocateRequest $request): ?OrganizationResponse
-    {
-        return $this->organizationIntent(new Relocate($this->organizations, $this->users, $this->geoLocation), $request);
-    }
-
-    public function writeObservations(WriteObservationsRequest $request): ?OrganizationResponse
-    {
-        return $this->organizationIntent(new WriteObservations($this->organizations, $this->users), $request);
-    }
-
-    public function attachToHolding(AttachToHoldingRequest $request): ?OrganizationResponse
-    {
-        return $this->organizationIntent(new AttachToHolding($this->organizations, $this->users), $request);
-    }
-
-    public function detachFromHolding(DetachFromHoldingRequest $request): ?OrganizationResponse
-    {
-        return $this->organizationIntent(new DetachFromHolding($this->organizations, $this->users), $request);
-    }
-
-    public function changeLogo(ChangeLogoRequest $request): ?OrganizationResponse
-    {
-        return $this->organizationIntent(new ChangeLogo($this->organizations, $this->users, $this->storage), $request);
-    }
-
-    public function removeLogo(RemoveLogoRequest $request): ?OrganizationResponse
-    {
-        return $this->organizationIntent(new RemoveLogo($this->organizations, $this->users, $this->storage), $request);
-    }
-
-    public function consultOrganization(ConsultOrganizationRequest $request): ?OrganizationResponse
-    {
-        return $this->organizationIntent(new ConsultOrganization($this->organizations, $this->users), $request);
-    }
-
-    public function searchProspectedOrganizations(SearchProspectedOrganizationsRequest $request): ?SearchProspectedOrganizationsResponse
-    {
-        return $this->attempt(new SearchProspectedOrganizations($this->organizations, $this->users), $request, SearchProspectedOrganizationsResponse::class);
+        return $this->attempt(fn (): SearchProspectedOrganizationsResponse => new SearchProspectedOrganizationsHandler($this->organizations, $this->users)($query));
     }
 
     public function consultMyAccount(): ?AccountResponse
     {
-        return $this->accountIntent(new ConsultMyAccount($this->users, $this->organizations), new ConsultMyAccountRequest($this->signedIn()));
-    }
-
-    public function changeMyName(ChangeMyNameRequest $request): ?AccountResponse
-    {
-        return $this->accountIntent(new ChangeMyName($this->users, $this->organizations), $request);
-    }
-
-    public function changeMyUserName(ChangeMyUserNameRequest $request): ?AccountResponse
-    {
-        return $this->accountIntent(new ChangeMyUserName($this->users, $this->organizations), $request);
-    }
-
-    public function changeMyContactDetails(ChangeMyContactDetailsRequest $request): ?AccountResponse
-    {
-        return $this->accountIntent(new ChangeMyContactDetails($this->users, $this->organizations), $request);
-    }
-
-    public function changeMyPicture(ChangeMyPictureRequest $request): ?AccountResponse
-    {
-        return $this->accountIntent(new ChangeMyPicture($this->users, $this->organizations, $this->storage), $request);
-    }
-
-    public function reviseMyOrganizationIdentity(ReviseMyOrganizationIdentityRequest $request): ?AccountResponse
-    {
-        return $this->accountIntent(new ReviseMyOrganizationIdentity($this->users, $this->organizations), $request);
-    }
-
-    public function changeMyOrganizationLogo(ChangeMyOrganizationLogoRequest $request): ?AccountResponse
-    {
-        return $this->accountIntent(new ChangeMyOrganizationLogo($this->users, $this->organizations, $this->storage), $request);
+        return $this->attempt(fn (): AccountResponse => new ConsultMyAccountHandler($this->users, $this->organizations)(new ConsultMyAccount($this->signedIn())));
     }
 
     /**
-     * The business refusal of the last use case, null when it succeeded.
+     * The business refusal of the last command or query, null when it succeeded.
      */
     public function refusal(): NotFound|BusinessRuleViolation|null
     {
         return $this->refusal;
     }
 
-    private function organizationIntent(object $useCase, object $request): ?OrganizationResponse
+    /**
+     * @return list<CommandHandler>
+     */
+    private function commandHandlers(): array
     {
-        return $this->attempt($useCase, $request, OrganizationResponse::class);
-    }
-
-    private function accountIntent(object $useCase, object $request): ?AccountResponse
-    {
-        return $this->attempt($useCase, $request, AccountResponse::class);
+        return [
+            new StartProspectingHandler($this->organizations, $this->users, $this->geoLocation),
+            new ReviseLegalIdentityHandler($this->organizations, $this->users),
+            new ChangeContactDetailsHandler($this->organizations, $this->users),
+            new RelocateHandler($this->organizations, $this->users, $this->geoLocation),
+            new WriteObservationsHandler($this->organizations, $this->users),
+            new AttachToHoldingHandler($this->organizations, $this->users),
+            new DetachFromHoldingHandler($this->organizations, $this->users),
+            new ChangeLogoHandler($this->organizations, $this->users, $this->storage),
+            new RemoveLogoHandler($this->organizations, $this->users, $this->storage),
+            new ChangeMyNameHandler($this->users),
+            new ChangeMyUserNameHandler($this->users),
+            new ChangeMyContactDetailsHandler($this->users),
+            new ChangeMyPictureHandler($this->users, $this->storage),
+            new ReviseMyOrganizationIdentityHandler($this->organizations, $this->users),
+            new ChangeMyOrganizationLogoHandler($this->organizations, $this->users, $this->storage),
+        ];
     }
 
     /**
-     * @template T of object
+     * The command a handler carries out, found the way the command bus of the API finds it: the type of
+     * the argument of __invoke().
      *
-     * @param class-string<T> $responseClass
+     * @return class-string
+     */
+    private function commandOf(CommandHandler $handler): string
+    {
+        $type = new \ReflectionMethod($handler, '__invoke')->getParameters()[0]->getType();
+
+        return $type instanceof \ReflectionNamedType ? $type->getName() : throw new \LogicException(sprintf('%s::__invoke() must take one command', $handler::class));
+    }
+
+    /**
+     * @template T
+     *
+     * @param \Closure(): T $call
      *
      * @return T|null
      */
-    private function attempt(object $useCase, object $request, string $responseClass): ?object
+    private function attempt(\Closure $call): mixed
     {
         $this->refusal = null;
-        $presenter = new LastResponsePresenter();
 
         try {
-            [$useCase, 'execute']($request, $presenter);
+            return $call();
         } catch (NotFound|BusinessRuleViolation $refusal) {
             $this->refusal = $refusal;
 
             return null;
         }
-
-        return $presenter->response($responseClass);
     }
 }

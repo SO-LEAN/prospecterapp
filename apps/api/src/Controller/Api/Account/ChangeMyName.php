@@ -2,15 +2,15 @@
 
 namespace App\Controller\Api\Account;
 
+use App\Api\AccountReader;
 use App\Api\Input\PersonNameInput;
 use App\Api\Resource\AccountResource;
 use App\Api\Resource\ProblemResource;
 use App\Entity\User;
-use App\Presenter\AccountResourcePresenter;
+use App\Messenger\CommandBus;
 use Nelmio\ApiDocBundle\Attribute\Model;
 use OpenApi\Attributes as OA;
-use Prospecter\Core\Application\Account\ChangeMyName\ChangeMyNameRequest;
-use Prospecter\Core\Application\UseCasesFacade;
+use Prospecter\Core\Application\Account\ChangeMyName\ChangeMyName as ChangeMyNameCommand;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpKernel\Attribute\MapRequestPayload;
@@ -23,8 +23,8 @@ use Symfony\Component\Security\Http\Attribute\IsGranted;
 final class ChangeMyName extends AbstractController
 {
     public function __construct(
-        private readonly UseCasesFacade $useCases,
-        private readonly AccountResourcePresenter $presenter,
+        private readonly CommandBus $commands,
+        private readonly AccountReader $account,
     ) {
     }
 
@@ -36,6 +36,8 @@ final class ChangeMyName extends AbstractController
     #[OA\Response(response: 422, description: 'Invalid name', content: new Model(type: ProblemResource::class))]
     public function __invoke(#[MapRequestPayload] PersonNameInput $input, #[CurrentUser] User $user): JsonResponse
     {
-        return $this->json($this->useCases->changeMyName(new ChangeMyNameRequest($user->getUserId(), $input->toPersonName()), $this->presenter));
+        $this->commands->dispatch(new ChangeMyNameCommand($user->getUserId(), $input->toPersonName()));
+
+        return $this->json($this->account->read($user->getUserId()));
     }
 }

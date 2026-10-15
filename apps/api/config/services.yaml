@@ -4,25 +4,22 @@ services:
         autoconfigure: true
 
     _instanceof:
-        Prospecter\Core\Application\UseCase:
-            tags: ['use_case']
-            lazy: true
+        # every command handler of the core is registered on the command bus
+        Prospecter\Core\Application\CommandHandler:
+            tags: [{ name: messenger.message_handler, bus: command.bus }]
 
     App\:
         resource: '../src/'
         exclude:
             - '../src/Api/Input/'
             - '../src/Api/Resource/'
-            - '../src/DependencyInjection/'
             - '../src/Entity/'
             - '../src/Kernel.php'
             - '../src/Service/Image/UrlImageInfo.php'
 
-    # Use cases of the core: every intention, called through the facade
-    Prospecter\Core\Application\UseCasesFacade: ~
+    # Handlers of the core: commands go through the command bus, queries are called by the controllers
     Prospecter\Core\Application\:
-        resource: '../vendor/prospecter/core/src/Application/{Organization,Account}/*/*.php'
-        exclude: '../vendor/prospecter/core/src/Application/{Organization,Account}/*/{*Request,*Response,*Presenter,FoundOrganization}.php'
+        resource: '../vendor/prospecter/core/src/Application/{Organization,Account}/*/*Handler.php'
 
     # Ports of the core, implemented by the application
     Prospecter\Core\Domain\Organization\OrganizationRepository: '@App\Repository\DoctrineOrganizationRepository'

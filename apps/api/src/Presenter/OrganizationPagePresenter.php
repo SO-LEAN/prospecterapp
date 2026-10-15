@@ -7,10 +7,9 @@ use App\Api\Resource\LocationResource;
 use App\Api\Resource\OrganizationPageResource;
 use App\Api\Resource\OrganizationSummaryResource;
 use Prospecter\Core\Application\Organization\SearchProspectedOrganizations\FoundOrganization;
-use Prospecter\Core\Application\Organization\SearchProspectedOrganizations\SearchProspectedOrganizationsPresenter;
 use Prospecter\Core\Application\Organization\SearchProspectedOrganizations\SearchProspectedOrganizationsResponse;
 
-final readonly class OrganizationPagePresenter implements SearchProspectedOrganizationsPresenter
+final readonly class OrganizationPagePresenter
 {
     public function __construct(private ImageResourceFactory $images)
     {

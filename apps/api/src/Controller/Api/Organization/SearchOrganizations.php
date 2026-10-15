@@ -9,8 +9,8 @@ use App\Entity\User;
 use App\Presenter\OrganizationPagePresenter;
 use Nelmio\ApiDocBundle\Attribute\Model;
 use OpenApi\Attributes as OA;
-use Prospecter\Core\Application\Organization\SearchProspectedOrganizations\SearchProspectedOrganizationsRequest;
-use Prospecter\Core\Application\UseCasesFacade;
+use Prospecter\Core\Application\Organization\SearchProspectedOrganizations\SearchProspectedOrganizations;
+use Prospecter\Core\Application\Organization\SearchProspectedOrganizations\SearchProspectedOrganizationsHandler;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpKernel\Attribute\MapQueryString;
@@ -23,7 +23,7 @@ use Symfony\Component\Security\Http\Attribute\IsGranted;
 final class SearchOrganizations extends AbstractController
 {
     public function __construct(
-        private readonly UseCasesFacade $useCases,
+        private readonly SearchProspectedOrganizationsHandler $searchProspectedOrganizations,
         private readonly OrganizationPagePresenter $presenter,
     ) {
     }
@@ -35,6 +35,6 @@ final class SearchOrganizations extends AbstractController
     #[OA\Response(response: 403, description: 'The signed-in user is not a prospector', content: new Model(type: ProblemResource::class))]
     public function __invoke(#[CurrentUser] User $user, #[MapQueryString] OrganizationListQuery $query = new OrganizationListQuery()): JsonResponse
     {
-        return $this->json($this->useCases->searchProspectedOrganizations(new SearchProspectedOrganizationsRequest($user->getUserId(), $query->page, $query->q), $this->presenter));
+        return $this->json($this->presenter->present(($this->searchProspectedOrganizations)(new SearchProspectedOrganizations($user->getUserId(), $query->page, $query->q))));
     }
 }

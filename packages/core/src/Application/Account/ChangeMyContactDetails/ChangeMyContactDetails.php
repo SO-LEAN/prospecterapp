@@ -4,27 +4,12 @@ declare(strict_types=1);
 
 namespace Prospecter\Core\Application\Account\ChangeMyContactDetails;
 
-use Prospecter\Core\Application\Account\AccountPresenter;
-use Prospecter\Core\Application\Account\AccountResponses;
-use Prospecter\Core\Application\UseCase;
-use Prospecter\Core\Domain\Organization\OrganizationRepository;
-use Prospecter\Core\Domain\User\UserRepository;
+use Prospecter\Core\Domain\Shared\ContactDetails;
+use Prospecter\Core\Domain\User\UserId;
 
-final class ChangeMyContactDetails extends UseCase
+final readonly class ChangeMyContactDetails
 {
-    private readonly AccountResponses $responses;
-
-    public function __construct(private readonly UserRepository $users, OrganizationRepository $organizations)
+    public function __construct(public UserId $userId, public ContactDetails $contactDetails)
     {
-        $this->responses = new AccountResponses($organizations);
-    }
-
-    public function execute(ChangeMyContactDetailsRequest $request, AccountPresenter $presenter): mixed
-    {
-        $me = $this->users->get($request->userId);
-        $me->changeContactDetails($request->contactDetails);
-        $this->users->save($me);
-
-        return $presenter->present($this->responses->of($me));
     }
 }

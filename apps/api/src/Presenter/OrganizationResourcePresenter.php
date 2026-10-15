@@ -10,10 +10,9 @@ use App\Api\Resource\LegalIdentityResource;
 use App\Api\Resource\LocationResource;
 use App\Api\Resource\OrganizationLinksResource;
 use App\Api\Resource\OrganizationResource;
-use Prospecter\Core\Application\Organization\OrganizationPresenter;
 use Prospecter\Core\Application\Organization\OrganizationResponse;
 
-final readonly class OrganizationResourcePresenter implements OrganizationPresenter
+final readonly class OrganizationResourcePresenter
 {
     private const array ROUTES = [
         'reviseLegalIdentity' => 'api_organizations_revise_legal_identity',

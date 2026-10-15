@@ -1,0 +1,7 @@
+framework:
+    messenger:
+        # No transport: a command is handled synchronously, within the request, so the controller can read
+        # the result back with a query right after (ADR 0029).
+        default_bus: command.bus
+        buses:
+            command.bus: ~

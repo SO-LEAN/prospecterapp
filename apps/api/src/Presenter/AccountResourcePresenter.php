@@ -10,10 +10,9 @@ use App\Api\Resource\AccountResource;
 use App\Api\Resource\ContactDetailsResource;
 use App\Api\Resource\LegalIdentityResource;
 use App\Api\Resource\PersonNameResource;
-use Prospecter\Core\Application\Account\AccountPresenter;
 use Prospecter\Core\Application\Account\AccountResponse;
 
-final readonly class AccountResourcePresenter implements AccountPresenter
+final readonly class AccountResourcePresenter
 {
     private const array MY_ACCOUNT_ROUTES = [
         'Rename' => ['changeMyName', 'api_me_change_name'],

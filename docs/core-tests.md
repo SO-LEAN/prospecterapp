@@ -3,7 +3,7 @@
 Two loops, as in *Growing Object-Oriented Software*:
 
 - **Acceptance (outer loop)**: a Gherkin scenario, in French, states a business rule at the entrance of the hexagon. It is written first and stays red until the rule works. It knows requests, responses and the state of the outside world, never how a use case does its job, so refactoring does not touch it.
-- **Unit (inner loop)**: PHPUnit for what a scenario cannot reach or would express clumsily (the facade) and for pure logic rich in edge cases (`tests/Domain`: `Email`, identities, and `OrganizationIntentsTest`: every intention is refused exactly when the organization does not offer it, i.e. when its API link is missing). A unit test checks a behaviour, never a structure (no getter and setter tests).
+- **Unit (inner loop)**: PHPUnit for what a scenario cannot reach or would express clumsily for pure logic rich in edge cases (`tests/Domain`: `Email`, identities, and `OrganizationIntentsTest`: every intention is refused exactly when the organization does not offer it, i.e. when its API link is missing). A unit test checks a behaviour, never a structure (no getter and setter tests).
 
 ## Nothing inside the hexagon is doubled
 
@@ -20,7 +20,7 @@ Aggregates, value objects, use cases and the services of `src/Application/Servic
 
 ```
 features/*.feature              the business rules, French Gherkin (# language: fr)
-tests/Acceptance/Application    the hexagon wired to the doubles; the only place that calls execute()
+tests/Acceptance/Application    the hexagon wired to the doubles; the only place that calls a handler
 tests/Acceptance/Context/       step definitions (ScenarioContext shares the state, SharesTheScenario gathers it)
 tests/Acceptance/Vocabulary     French labels of the tables, how they read entities and value objects
 tests/Acceptance/Expect         assertions (PHPUnit's need its runner to describe a failure)
@@ -29,7 +29,7 @@ tests/Domain/                   PHPUnit: value objects rich in edge cases
 tests/UseCase/                  PHPUnit: roles and the facade
 ```
 
-The scenarios do not use `UseCasesFacade`: when the use cases are sent as commands to a bus, only `Application` changes.
+The scenarios do not know the command bus of the API: `Application::dispatch()` sends a command to its handler, and a query is called directly.
 
 ## Adding or changing a rule
 
