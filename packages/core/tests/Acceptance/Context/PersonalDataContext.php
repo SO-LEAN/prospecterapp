@@ -36,8 +36,8 @@ final class PersonalDataContext implements Context
         $values = Vocabulary::values($table->getRowsHash());
         $person = $this->application->persons->get($member->personId());
         $theColleague = $this->application->readers->get($member->id());
-        $person->rename(Vocabulary::personName($values), by: $theColleague);
-        $person->changeContactDetails(Vocabulary::contactDetails($values), by: $theColleague);
+        $person->rename(Vocabulary::personName($values), by: $theColleague, at: $this->application->now());
+        $person->changeContactDetails(Vocabulary::contactDetails($values), by: $theColleague, at: $this->application->now());
         $this->application->persons->save($person);
     }
 
@@ -57,7 +57,8 @@ final class PersonalDataContext implements Context
     #[When('je change le nom de :name :')]
     public function iRename(string $name, TableNode $table): void
     {
-        $this->application->dispatch(new RenamePerson($this->application->signedIn(), $this->scenario->personIdOf($name), Vocabulary::personName(Vocabulary::values($table->getRowsHash()))));
+        $values = Vocabulary::values($table->getRowsHash());
+        $this->application->dispatch(new RenamePerson($this->application->signedIn(), $this->scenario->personIdOf($name), $values['prénom'], $values['nom'], $this->application->now()));
     }
 
     #[Then('je vois la fiche :')]
@@ -97,6 +98,7 @@ final class PersonalDataContext implements Context
             'téléphone' => (string) $person->phoneNumber,
             'photo' => null === $person->picture ? 'aucune' : basename($person->picture->url),
             'masquée' => $person->masked ? 'oui' : 'non',
+            'modifiée le' => Vocabulary::describeMoment($person->modifiedAt),
         ];
     }
 }

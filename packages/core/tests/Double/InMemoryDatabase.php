@@ -8,7 +8,7 @@ use Prospecter\Core\Accounts\Domain\Account;
 use Prospecter\Core\Accounts\Domain\Member;
 use Prospecter\Core\PersonalData\Domain\Person;
 use Prospecter\Core\Prospecting\Domain\Organization;
-use Prospecter\Core\SharedKernel\Domain\EmailAlreadyUsed;
+use Prospecter\Core\SharedKernel\Domain\Exception\EmailAlreadyUsed;
 
 /**
  * The tables behind the in-memory repositories, with the constraints of the real ones: an email unique among
@@ -17,7 +17,6 @@ use Prospecter\Core\SharedKernel\Domain\EmailAlreadyUsed;
  */
 final class InMemoryDatabase
 {
-    public readonly TimeOrderedUuids $uuids;
     /** @var array<string, Account> */
     private array $accounts = [];
     /** @var array<string, Member> */
@@ -26,11 +25,6 @@ final class InMemoryDatabase
     private array $persons = [];
     /** @var array<string, Organization> */
     private array $organizations = [];
-
-    public function __construct()
-    {
-        $this->uuids = new TimeOrderedUuids();
-    }
 
     public function storeAccount(Account $account): void
     {
@@ -48,7 +42,7 @@ final class InMemoryDatabase
 
         foreach ($this->persons as $id => $other) {
             if (null !== $email && $id !== $person->id()->value && $other->accountId()->equals($person->accountId()) && $other->purpose() === $person->purpose() && $other->contactDetails()->email?->value === $email->value) {
-                throw new EmailAlreadyUsed();
+                throw EmailAlreadyUsed::byAnother();
             }
         }
 
@@ -61,7 +55,7 @@ final class InMemoryDatabase
 
         foreach ($this->organizations as $id => $other) {
             if (null !== $email && $id !== $organization->id()->value && $other->accountId()->equals($organization->accountId()) && $other->contactDetails()->email?->value === $email->value) {
-                throw new EmailAlreadyUsed();
+                throw EmailAlreadyUsed::byAnother();
             }
         }
 

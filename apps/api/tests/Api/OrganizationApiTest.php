@@ -12,10 +12,14 @@ use Prospecter\Core\PersonalData\Domain\Person;
 use Prospecter\Core\PersonalData\Domain\PersonRepository;
 use Prospecter\Core\PersonalData\Domain\Purpose;
 use Prospecter\Core\Prospecting\Domain\Organization;
+use Prospecter\Core\Prospecting\Domain\OrganizationId;
 use Prospecter\Core\Prospecting\Domain\OrganizationRepository;
 use Prospecter\Core\Prospecting\Domain\Prospector;
+use Prospecter\Core\SharedKernel\Domain\AccountId;
 use Prospecter\Core\SharedKernel\Domain\ContactDetails;
 use Prospecter\Core\SharedKernel\Domain\LegalIdentity;
+use Prospecter\Core\SharedKernel\Domain\MemberId;
+use Prospecter\Core\SharedKernel\Domain\PersonId;
 use Tests\App\Base\ApiTestCase;
 use Tests\App\Double\InMemoryStorage;
 
@@ -46,6 +50,15 @@ class OrganizationApiTest extends ApiTestCase
         $this->assertSame(self::ACME['contactDetails'], $started['contactDetails']);
         $this->assertSame(self::ACME['address'], $started['address']);
         $this->assertSame($started, $this->requestJson('GET', '/api/organizations/'.$started['id']));
+    }
+
+    public function testTheOrganizationKeepsWhenItWasCreatedAndLastChanged(): void
+    {
+        $id = $this->requestJson('POST', '/api/organizations', self::ACME)['id'];
+        $relocated = $this->requestJson('PATCH', '/api/organizations/'.$id.'/address', ['city' => 'Colmar']);
+
+        $this->assertSame('2026-10-15T09:00:00+00:00', $relocated['createdAt']);
+        $this->assertSame('2026-10-15T09:00:00+00:00', $relocated['modifiedAt'], 'the moment of the command, given by the clock of the API');
     }
 
     public function testSearchIsPaginatedAndMatchesNames(): void
@@ -198,10 +211,10 @@ class OrganizationApiTest extends ApiTestCase
     {
         $accounts = self::getContainer()->get(AccountRepository::class);
         $organizations = self::getContainer()->get(OrganizationRepository::class);
-        $competitor = Account::open($accounts->nextIdentity(), new LegalIdentity('Competitor'));
+        $competitor = Account::open(new AccountId(self::newIdentity()), new LegalIdentity('Competitor'), new \DateTimeImmutable());
         $accounts->save($competitor);
-        $theirProspector = new Prospector(self::getContainer()->get(MemberRepository::class)->nextIdentity(), $competitor->id());
-        $prospect = Organization::prospectedBy($theirProspector, $organizations->nextIdentity(), new LegalIdentity('Their prospect'), new ContactDetails());
+        $theirProspector = new Prospector(new MemberId(self::newIdentity()), $competitor->id());
+        $prospect = Organization::prospectedBy($theirProspector, new OrganizationId(self::newIdentity()), new LegalIdentity('Their prospect'), new ContactDetails(), new \DateTimeImmutable());
         $organizations->save($prospect);
 
         return $prospect->id()->value;
@@ -212,9 +225,9 @@ class OrganizationApiTest extends ApiTestCase
         $members = self::getContainer()->get(MemberRepository::class);
         $persons = self::getContainer()->get(PersonRepository::class);
         $account = $this->fixtures->getReference('solean-it-account', Account::class)->id();
-        $profile = Person::collect($persons->nextIdentity(), $account, Purpose::Membership);
+        $profile = Person::collect(new PersonId(self::newIdentity()), $account, Purpose::Membership, new \DateTimeImmutable());
         $persons->save($profile);
-        $assistant = Member::register($members->nextIdentity(), $account, $profile->id(), Role::User);
+        $assistant = Member::register(new MemberId(self::newIdentity()), $account, $profile->id(), Role::User);
         $members->save($assistant);
         $this->fixtures->setReference('assistant', $assistant);
 

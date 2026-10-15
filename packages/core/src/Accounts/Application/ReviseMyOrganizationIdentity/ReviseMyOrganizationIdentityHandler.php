@@ -7,6 +7,8 @@ namespace Prospecter\Core\Accounts\Application\ReviseMyOrganizationIdentity;
 use Prospecter\Core\Accounts\Domain\AccountRepository;
 use Prospecter\Core\Accounts\Domain\MemberRepository;
 use Prospecter\Core\SharedKernel\Application\CommandHandler;
+use Prospecter\Core\SharedKernel\Domain\LegalIdentity;
+use Prospecter\Core\SharedKernel\Domain\MemberId;
 
 final readonly class ReviseMyOrganizationIdentityHandler implements CommandHandler
 {
@@ -16,9 +18,9 @@ final readonly class ReviseMyOrganizationIdentityHandler implements CommandHandl
 
     public function __invoke(ReviseMyOrganizationIdentity $command): void
     {
-        $me = $this->members->get($command->userId);
+        $me = $this->members->get(new MemberId($command->memberId));
         $myAccount = $this->accounts->get($me->accountId());
-        $myAccount->reviseLegalIdentity($command->legalIdentity, by: $me);
+        $myAccount->reviseLegalIdentity(new LegalIdentity($command->corporateName, $command->form, $command->type), by: $me, at: $command->executedAt);
         $this->accounts->save($myAccount);
     }
 }

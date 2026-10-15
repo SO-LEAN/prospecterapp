@@ -3,12 +3,11 @@
 namespace App\PersonalData\Persistence;
 
 use Doctrine\ORM\EntityManagerInterface;
+use Prospecter\Core\PersonalData\Domain\Exception\UnknownPerson;
 use Prospecter\Core\PersonalData\Domain\Person;
 use Prospecter\Core\PersonalData\Domain\PersonRepository;
-use Prospecter\Core\PersonalData\Domain\UnknownPerson;
-use Prospecter\Core\SharedKernel\Domain\EmailAlreadyUsed;
+use Prospecter\Core\SharedKernel\Domain\Exception\EmailAlreadyUsed;
 use Prospecter\Core\SharedKernel\Domain\PersonId;
-use Symfony\Component\Uid\Uuid;
 
 final readonly class DoctrinePersonRepository implements PersonRepository
 {
@@ -16,14 +15,9 @@ final readonly class DoctrinePersonRepository implements PersonRepository
     {
     }
 
-    public function nextIdentity(): PersonId
-    {
-        return new PersonId(Uuid::v7()->toRfc4122());
-    }
-
     public function get(PersonId $id): Person
     {
-        return $this->entityManager->find(Person::class, $id->value) ?? throw new UnknownPerson($id);
+        return $this->entityManager->find(Person::class, $id->value) ?? throw UnknownPerson::identifiedBy($id);
     }
 
     /**
@@ -68,7 +62,7 @@ final readonly class DoctrinePersonRepository implements PersonRepository
             ->getSingleScalarResult();
 
         if ($taken > 0) {
-            throw new EmailAlreadyUsed();
+            throw EmailAlreadyUsed::byAnother();
         }
     }
 }

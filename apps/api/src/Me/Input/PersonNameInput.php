@@ -2,7 +2,6 @@
 
 namespace App\Me\Input;
 
-use Prospecter\Core\PersonalData\Domain\PersonName;
 use Symfony\Component\Validator\Constraints as Assert;
 
 final readonly class PersonNameInput
@@ -13,10 +12,5 @@ final readonly class PersonNameInput
         #[Assert\Length(max: 100)]
         public ?string $lastName = null,
     ) {
-    }
-
-    public function toPersonName(): PersonName
-    {
-        return new PersonName($this->firstName, $this->lastName);
     }
 }

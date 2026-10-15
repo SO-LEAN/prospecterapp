@@ -4,12 +4,14 @@ declare(strict_types=1);
 
 namespace Prospecter\Core\SharedKernel\Domain;
 
+use Prospecter\Core\SharedKernel\Domain\Exception\BusinessRuleViolation;
+
 final readonly class Email implements \Stringable
 {
     public function __construct(public string $value)
     {
         if (!filter_var($value, FILTER_VALIDATE_EMAIL)) {
-            throw new BusinessRuleViolation(sprintf('Email "%s" is not valid', $value), 'email');
+            throw BusinessRuleViolation::because(sprintf('Email "%s" is not valid', $value), 'email');
         }
     }
 

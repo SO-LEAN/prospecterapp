@@ -11,6 +11,7 @@ use Nelmio\ApiDocBundle\Attribute\Model;
 use OpenApi\Attributes as OA;
 use Prospecter\Core\Prospecting\Application\SearchProspectedOrganizations\SearchProspectedOrganizations;
 use Prospecter\Core\Prospecting\Application\SearchProspectedOrganizations\SearchProspectedOrganizationsHandler;
+use Prospecter\Core\SharedKernel\Application\RefusalTranslatingHandler;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\Routing\Attribute\Route;
@@ -23,11 +24,14 @@ final class ShowDashboard extends AbstractController
 {
     private const int MAX_MARKERS = 1000;
 
+    private readonly RefusalTranslatingHandler $searchProspectedOrganizations;
+
     public function __construct(
         private readonly MyAccountReader $account,
-        private readonly SearchProspectedOrganizationsHandler $searchProspectedOrganizations,
+        SearchProspectedOrganizationsHandler $searchProspectedOrganizations,
         private readonly OrganizationPagePresenter $pagePresenter,
     ) {
+        $this->searchProspectedOrganizations = new RefusalTranslatingHandler($searchProspectedOrganizations);
     }
 
     #[Route('/api/dashboard', name: 'api_dashboard', methods: ['GET'])]

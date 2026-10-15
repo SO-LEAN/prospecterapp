@@ -4,13 +4,12 @@ declare(strict_types=1);
 
 namespace Prospecter\Core\Accounts\Domain;
 
-use Prospecter\Core\SharedKernel\Domain\EmailAlreadyUsed;
+use Prospecter\Core\Accounts\Domain\Exception\UnknownMember;
+use Prospecter\Core\SharedKernel\Domain\Exception\EmailAlreadyUsed;
 use Prospecter\Core\SharedKernel\Domain\MemberId;
 
 interface MemberRepository
 {
-    public function nextIdentity(): MemberId;
-
     /**
      * @throws UnknownMember
      */

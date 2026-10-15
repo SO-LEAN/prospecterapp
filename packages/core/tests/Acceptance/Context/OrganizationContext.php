@@ -29,7 +29,6 @@ use Prospecter\Core\SharedKernel\Domain\ContactDetails;
 use Prospecter\Core\SharedKernel\Domain\Email;
 use Prospecter\Core\SharedKernel\Domain\File;
 use Prospecter\Core\SharedKernel\Domain\LegalIdentity;
-use Prospecter\Core\SharedKernel\Domain\MemberId;
 use Tests\Core\Acceptance\Expect;
 use Tests\Core\Acceptance\Vocabulary;
 use Tests\Core\Double\InMemoryStorage;
@@ -56,14 +55,14 @@ final class OrganizationContext implements Context
     #[Given('l\'organisation sans raison sociale :email fait partie de mes organisations')]
     public function anOrganizationOfMineWithoutCorporateName(string $email): void
     {
-        $organization = Organization::prospectedBy($this->scenario->meAsProspector(), $this->application->organizations->nextIdentity(), new LegalIdentity(), new ContactDetails(new Email($email)));
+        $organization = Organization::prospectedBy($this->scenario->meAsProspector(), new OrganizationId($this->application->newIdentity()), new LegalIdentity(), new ContactDetails(new Email($email)), $this->application->now());
         $this->scenario->save($email, $organization);
     }
 
     #[Given('l\'organisation :name appartient à :owner')]
     public function anOrganizationProspectedBy(string $name, string $owner): Organization
     {
-        $organization = Organization::prospectedBy($this->scenario->prospectorOf($this->scenario->accountIdOf($owner)), $this->application->organizations->nextIdentity(), new LegalIdentity($name), new ContactDetails());
+        $organization = Organization::prospectedBy($this->scenario->prospectorOf($this->scenario->accountIdOf($owner)), new OrganizationId($this->application->newIdentity()), new LegalIdentity($name), new ContactDetails(), $this->application->now());
 
         return $this->scenario->save($name, $organization);
     }
@@ -86,7 +85,7 @@ final class OrganizationContext implements Context
     public function anOrganizationIsAttachedTo(string $name, string $holding): void
     {
         $organization = $this->scenario->organizationNamed($name);
-        $organization->attachToHolding($this->scenario->organizationNamed($holding), by: $this->scenario->managerOf($organization));
+        $organization->attachToHolding($this->scenario->organizationNamed($holding), by: $this->scenario->managerOf($organization), at: $this->application->now());
         $this->application->organizations->save($organization);
     }
 
@@ -100,15 +99,23 @@ final class OrganizationContext implements Context
     public function iStartProspecting(TableNode $table): void
     {
         $values = Vocabulary::values($table->getRowsHash());
-        $id = $this->application->organizations->nextIdentity();
+        $id = $this->application->newIdentity();
         $this->application->dispatch(new StartProspecting(
             prospectorId: $this->me(),
             id: $id,
-            legalIdentity: Vocabulary::legalIdentity($values),
-            contactDetails: Vocabulary::contactDetails($values),
-            address: Vocabulary::address($values),
+            corporateName: $values['raison sociale'],
+            form: $values['forme juridique'],
+            type: $values['type'],
+            email: $values['e-mail'],
+            phoneNumber: $values['téléphone'],
+            language: $values['langue'],
+            street: $values['rue'],
+            postalCode: $values['code postal'],
+            city: $values['ville'],
+            country: $values['pays'],
             observations: $values['observations'],
             holdingId: null === $values['holding'] ? null : $this->scenario->idOf($values['holding']),
+            executedAt: $this->application->now(),
         ));
         $this->rememberIfAccepted($values['raison sociale'], $id);
     }
@@ -116,63 +123,65 @@ final class OrganizationContext implements Context
     #[When('je révise l\'identité de :name :')]
     public function iReviseTheLegalIdentity(string $name, TableNode $table): void
     {
-        $identity = Vocabulary::legalIdentity(Vocabulary::values($table->getRowsHash()));
-        $this->application->dispatch(new ReviseLegalIdentity($this->me(), $this->scenario->idOf($name), $identity));
-        $this->rememberIfAccepted($identity->corporateName, $this->scenario->idOf($name));
+        $values = Vocabulary::values($table->getRowsHash());
+        $this->application->dispatch(new ReviseLegalIdentity($this->me(), $this->scenario->idOf($name), $values['raison sociale'], $values['forme juridique'], $values['type'], $this->application->now()));
+        $this->rememberIfAccepted($values['raison sociale'], $this->scenario->idOf($name));
     }
 
     #[When('je change les coordonnées de :name :')]
     public function iChangeTheContactDetails(string $name, TableNode $table): void
     {
-        $this->application->dispatch(new ChangeContactDetails($this->me(), $this->scenario->idOf($name), Vocabulary::contactDetails(Vocabulary::values($table->getRowsHash()))));
+        $values = Vocabulary::values($table->getRowsHash());
+        $this->application->dispatch(new ChangeContactDetails($this->me(), $this->scenario->idOf($name), $values['e-mail'], $values['téléphone'], $values['langue'], $this->application->now()));
     }
 
     #[When('je déménage :name à l\'adresse :')]
     public function iRelocate(string $name, TableNode $table): void
     {
-        $this->application->dispatch(new Relocate($this->me(), $this->scenario->idOf($name), Vocabulary::address(Vocabulary::values($table->getRowsHash()))));
+        $values = Vocabulary::values($table->getRowsHash());
+        $this->application->dispatch(new Relocate($this->me(), $this->scenario->idOf($name), $values['rue'], $values['code postal'], $values['ville'], $values['pays'], $this->application->now()));
     }
 
     #[When('j\'efface l\'adresse de :name')]
     public function iEraseTheAddress(string $name): void
     {
-        $this->application->dispatch(new Relocate($this->me(), $this->scenario->idOf($name), null));
+        $this->application->dispatch(new Relocate($this->me(), $this->scenario->idOf($name), null, null, null, null, $this->application->now()));
     }
 
     #[When('j\'écris les observations de :name : :observations')]
     public function iWriteObservations(string $name, string $observations): void
     {
-        $this->application->dispatch(new WriteObservations($this->me(), $this->scenario->idOf($name), $observations));
+        $this->application->dispatch(new WriteObservations($this->me(), $this->scenario->idOf($name), $observations, $this->application->now()));
     }
 
     #[When('j\'efface les observations de :name')]
     public function iEraseTheObservations(string $name): void
     {
-        $this->application->dispatch(new WriteObservations($this->me(), $this->scenario->idOf($name), null));
+        $this->application->dispatch(new WriteObservations($this->me(), $this->scenario->idOf($name), null, $this->application->now()));
     }
 
     #[When('je rattache :name à la holding :holding')]
     public function iAttachToHolding(string $name, string $holding): void
     {
-        $this->application->dispatch(new AttachToHolding($this->me(), $this->scenario->idOf($name), $this->scenario->idOf($holding)));
+        $this->application->dispatch(new AttachToHolding($this->me(), $this->scenario->idOf($name), $this->scenario->idOf($holding), $this->application->now()));
     }
 
     #[When('je détache :name de sa holding')]
     public function iDetachFromHolding(string $name): void
     {
-        $this->application->dispatch(new DetachFromHolding($this->me(), $this->scenario->idOf($name)));
+        $this->application->dispatch(new DetachFromHolding($this->me(), $this->scenario->idOf($name), $this->application->now()));
     }
 
     #[When('je change le logo de :name avec :fileName')]
     public function iChangeTheLogo(string $name, string $fileName): void
     {
-        $this->application->dispatch(new ChangeLogo($this->me(), $this->scenario->idOf($name), $this->scenario->upload($fileName)));
+        $this->application->dispatch(new ChangeLogo($this->me(), $this->scenario->idOf($name), $this->scenario->upload($fileName), $this->application->now()));
     }
 
     #[When('je retire le logo de :name')]
     public function iRemoveTheLogo(string $name): void
     {
-        $this->application->dispatch(new RemoveLogo($this->me(), $this->scenario->idOf($name)));
+        $this->application->dispatch(new RemoveLogo($this->me(), $this->scenario->idOf($name), $this->application->now()));
     }
 
     #[When('je consulte l\'organisation :name')]
@@ -202,7 +211,7 @@ final class OrganizationContext implements Context
     #[Then('l\'organisation :name est enregistrée avec :')]
     public function theOrganizationIsStoredWith(string $name, TableNode $table): void
     {
-        Expect::describes($table->getRowsHash(), Vocabulary::describeOrganization($this->scenario->organizationNamed($name), $this->scenario->nameOf(...), $this->application->signedIn()));
+        Expect::describes($table->getRowsHash(), Vocabulary::describeOrganization($this->scenario->organizationNamed($name), $this->scenario->nameOf(...), $this->scenario->me()->id()));
     }
 
     #[Then('l\'organisation :name compte :count organisation(s) active(s)')]
@@ -218,11 +227,11 @@ final class OrganizationContext implements Context
         $organization = $this->consulted;
 
         Expect::describes($table->getRowsHash(), [
-            'raison sociale' => (string) $organization->legalIdentity->corporateName,
-            'forme juridique' => (string) $organization->legalIdentity->form,
-            'e-mail' => (string) $organization->contactDetails->email,
-            'ville' => (string) $organization->address?->city,
-            'position' => Vocabulary::describeGeoPoint($organization->geoPoint),
+            'raison sociale' => (string) $organization->corporateName,
+            'forme juridique' => (string) $organization->form,
+            'e-mail' => (string) $organization->email,
+            'ville' => (string) $organization->city,
+            'position' => Vocabulary::describePosition($organization->longitude, $organization->latitude),
             'logo' => null === $organization->logo ? 'aucun' : basename($organization->logo->url),
         ]);
     }
@@ -248,7 +257,7 @@ final class OrganizationContext implements Context
         $columns = array_flip(array_keys($table->getColumnsHash()[0] ?? []));
         $shown = array_map(static fn (FoundOrganization $organization): array => array_intersect_key([
             'nom' => $organization->fullName,
-            'ville' => (string) $organization->address?->city,
+            'ville' => (string) $organization->city,
         ], $columns), $this->found->organizations);
 
         Expect::same($table->getColumnsHash(), $shown);
@@ -266,7 +275,7 @@ final class OrganizationContext implements Context
         Expect::that(!$this->application->storage->has(InMemoryStorage::urlOf($fileName)), sprintf('"%s" is still stored', $fileName));
     }
 
-    private function me(): MemberId
+    private function me(): string
     {
         return $this->application->signedIn();
     }
@@ -276,7 +285,7 @@ final class OrganizationContext implements Context
         return $this->scenario->nameOf($this->scenario->me()->accountId());
     }
 
-    private function rememberIfAccepted(?string $name, OrganizationId $id): void
+    private function rememberIfAccepted(?string $name, string $id): void
     {
         if (null === $this->application->refusal()) {
             $this->scenario->remember($name, $id);
@@ -290,13 +299,13 @@ final class OrganizationContext implements Context
     {
         $values = Vocabulary::values(array_diff_key($details, ['logo' => true]));
         $manager = $this->scenario->managerOf($organization);
-        $organization->reviseLegalIdentity(new LegalIdentity($organization->legalIdentity()->corporateName, $values['forme juridique']), by: $manager);
-        $organization->changeContactDetails(Vocabulary::contactDetails($values), by: $manager);
+        $organization->reviseLegalIdentity(new LegalIdentity($organization->legalIdentity()->corporateName, $values['forme juridique']), by: $manager, at: $this->application->now());
+        $organization->changeContactDetails(Vocabulary::contactDetails($values), by: $manager, at: $this->application->now());
         $address = Vocabulary::address($values);
-        $organization->relocateTo($address, null === $address ? null : $this->application->geoLocation->find((string) $address), by: $manager);
+        $organization->relocateTo($address, null === $address ? null : $this->application->geoLocation->find((string) $address), by: $manager, at: $this->application->now());
 
         if (isset($details['logo'])) {
-            $organization->changeLogo($this->storedImage($details['logo']), by: $manager);
+            $organization->changeLogo($this->storedImage($details['logo']), by: $manager, at: $this->application->now());
         }
 
         $this->application->organizations->save($organization);

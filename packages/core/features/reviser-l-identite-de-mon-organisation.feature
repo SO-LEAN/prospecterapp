@@ -27,3 +27,10 @@ Fonctionnalité: Réviser l'identité de mon organisation
     Quand je consulte mon compte
     Alors je vois mon compte :
       | raison sociale de mon organisation | |
+
+  Scénario: Mon organisation garde le moment de sa dernière modification
+    Soit nous sommes le "2026-10-20 14:00"
+    Quand je révise l'identité de mon organisation :
+      | raison sociale | SO-LEAN |
+    Alors mon compte est enregistré avec :
+      | mon organisation modifiée le | 2026-10-20 14:00 |

@@ -32,25 +32,27 @@ final readonly class OrganizationResourcePresenter
     public function present(OrganizationResponse $response): OrganizationResource
     {
         return new OrganizationResource(
-            id: $response->id->value,
+            id: $response->id,
             name: $response->fullName,
-            legalIdentity: LegalIdentityResource::from($response->legalIdentity),
-            contactDetails: ContactDetailsResource::from($response->contactDetails),
-            address: AddressResource::from($response->address),
-            location: LocationResource::from($response->geoPoint),
+            legalIdentity: new LegalIdentityResource($response->corporateName, $response->form, $response->type),
+            contactDetails: new ContactDetailsResource($response->email, $response->phoneNumber, $response->language),
+            address: AddressResource::orNone($response->street, $response->postalCode, $response->city, $response->country),
+            location: LocationResource::orNone($response->latitude, $response->longitude),
             observations: $response->observations,
             logo: $this->images->create($response->logo?->url),
-            holdingId: $response->holdingId?->value,
+            holdingId: $response->holdingId,
+            createdAt: $response->createdAt,
+            modifiedAt: $response->modifiedAt,
             links: $this->linksOf($response),
         );
     }
 
     private function linksOf(OrganizationResponse $response): OrganizationLinksResource
     {
-        $id = ['id' => $response->id->value];
+        $id = ['id' => $response->id];
         $possible = [];
         foreach ($response->possibleIntents as $intent) {
-            $name = lcfirst($intent->name);
+            $name = lcfirst($intent);
             $possible[$name] = $this->links->to(self::ROUTES[$name], $id);
         }
 

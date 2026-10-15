@@ -4,10 +4,11 @@ declare(strict_types=1);
 
 namespace Prospecter\Core\PersonalData\Domain;
 
+use Prospecter\Core\PersonalData\Domain\Exception\UnknownPerson;
 use Prospecter\Core\SharedKernel\Domain\AccountId;
 use Prospecter\Core\SharedKernel\Domain\ContactDetails;
+use Prospecter\Core\SharedKernel\Domain\Exception\NotAllowed;
 use Prospecter\Core\SharedKernel\Domain\File;
-use Prospecter\Core\SharedKernel\Domain\NotAllowed;
 use Prospecter\Core\SharedKernel\Domain\PersonId;
 
 /**
@@ -17,6 +18,7 @@ use Prospecter\Core\SharedKernel\Domain\PersonId;
 class Person
 {
     private ?File $picture = null;
+    private \DateTimeImmutable $modifiedAt;
 
     private function __construct(
         private readonly PersonId $id,
@@ -24,12 +26,14 @@ class Person
         private readonly Purpose $purpose,
         private PersonName $name,
         private ContactDetails $contactDetails,
+        private readonly \DateTimeImmutable $createdAt,
     ) {
+        $this->modifiedAt = $createdAt;
     }
 
-    public static function collect(PersonId $id, AccountId $accountId, Purpose $purpose, PersonName $name = new PersonName(), ContactDetails $contactDetails = new ContactDetails()): self
+    public static function collect(PersonId $id, AccountId $accountId, Purpose $purpose, \DateTimeImmutable $at, PersonName $name = new PersonName(), ContactDetails $contactDetails = new ContactDetails()): self
     {
-        return new self($id, $accountId, $purpose, $name, $contactDetails);
+        return new self($id, $accountId, $purpose, $name, $contactDetails, $at);
     }
 
     public function id(): PersonId
@@ -62,6 +66,19 @@ class Person
         return $this->picture;
     }
 
+    public function createdAt(): \DateTimeImmutable
+    {
+        return $this->createdAt;
+    }
+
+    /**
+     * When an intention last changed it: its creation, then every change.
+     */
+    public function modifiedAt(): \DateTimeImmutable
+    {
+        return $this->modifiedAt;
+    }
+
     /**
      * In clear for the person themself and for a member of the account with the right to read personal data,
      * masked for the other members of the account.
@@ -86,22 +103,25 @@ class Person
         return $this->belongsTo($reader) && $this->mayBeChangedBy($reader) ? PersonIntent::cases() : [];
     }
 
-    public function rename(PersonName $name, Reader $by): void
+    public function rename(PersonName $name, Reader $by, \DateTimeImmutable $at): void
     {
         $this->ensurePossible($by);
         $this->name = $name;
+        $this->modifiedAt = $at;
     }
 
-    public function changeContactDetails(ContactDetails $contactDetails, Reader $by): void
+    public function changeContactDetails(ContactDetails $contactDetails, Reader $by, \DateTimeImmutable $at): void
     {
         $this->ensurePossible($by);
         $this->contactDetails = $contactDetails;
+        $this->modifiedAt = $at;
     }
 
-    public function changePicture(File $picture, Reader $by): void
+    public function changePicture(File $picture, Reader $by, \DateTimeImmutable $at): void
     {
         $this->ensurePossible($by);
         $this->picture = $picture;
+        $this->modifiedAt = $at;
     }
 
     private function belongsTo(Reader $reader): bool
@@ -122,7 +142,7 @@ class Person
     private function ensureReachableBy(Reader $reader): void
     {
         if (!$this->belongsTo($reader)) {
-            throw new UnknownPerson($this->id);
+            throw UnknownPerson::identifiedBy($this->id);
         }
     }
 
@@ -131,7 +151,7 @@ class Person
         $this->ensureReachableBy($by);
 
         if (!$this->mayBeChangedBy($by)) {
-            throw new NotAllowed('Only the person or a member allowed to manage personal data may change them');
+            throw NotAllowed::because('Only the person or a member allowed to manage personal data may change them');
         }
     }
 }

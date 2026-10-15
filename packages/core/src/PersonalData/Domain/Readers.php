@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Prospecter\Core\PersonalData\Domain;
 
+use Prospecter\Core\PersonalData\Domain\Exception\UnknownReader;
 use Prospecter\Core\SharedKernel\Domain\MemberId;
 
 /**

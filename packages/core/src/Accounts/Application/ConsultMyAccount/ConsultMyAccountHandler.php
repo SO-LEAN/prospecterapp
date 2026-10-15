@@ -5,21 +5,21 @@ declare(strict_types=1);
 namespace Prospecter\Core\Accounts\Application\ConsultMyAccount;
 
 use Prospecter\Core\Accounts\Application\AccountResponse;
-use Prospecter\Core\Accounts\Application\AccountResponses;
 use Prospecter\Core\Accounts\Domain\AccountRepository;
 use Prospecter\Core\Accounts\Domain\MemberRepository;
+use Prospecter\Core\SharedKernel\Application\QueryHandler;
+use Prospecter\Core\SharedKernel\Domain\MemberId;
 
-final readonly class ConsultMyAccountHandler
+final readonly class ConsultMyAccountHandler implements QueryHandler
 {
-    private AccountResponses $responses;
-
-    public function __construct(private MemberRepository $members, AccountRepository $accounts)
+    public function __construct(private MemberRepository $members, private AccountRepository $accounts)
     {
-        $this->responses = new AccountResponses($accounts);
     }
 
     public function __invoke(ConsultMyAccount $query): AccountResponse
     {
-        return $this->responses->of($this->members->get($query->userId));
+        $me = $this->members->get(new MemberId($query->memberId));
+
+        return AccountResponse::of($this->accounts->get($me->accountId()), $me);
     }
 }

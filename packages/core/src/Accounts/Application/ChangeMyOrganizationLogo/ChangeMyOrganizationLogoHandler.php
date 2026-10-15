@@ -9,6 +9,7 @@ use Prospecter\Core\Accounts\Domain\MemberRepository;
 use Prospecter\Core\SharedKernel\Application\CommandHandler;
 use Prospecter\Core\SharedKernel\Application\FileStore;
 use Prospecter\Core\SharedKernel\Application\Port\Storage;
+use Prospecter\Core\SharedKernel\Domain\MemberId;
 
 final readonly class ChangeMyOrganizationLogoHandler implements CommandHandler
 {
@@ -21,9 +22,9 @@ final readonly class ChangeMyOrganizationLogoHandler implements CommandHandler
 
     public function __invoke(ChangeMyOrganizationLogo $command): void
     {
-        $me = $this->members->get($command->userId);
+        $me = $this->members->get(new MemberId($command->memberId));
         $myAccount = $this->accounts->get($me->accountId());
-        $myAccount->changeLogo($this->files->store($command->logo), by: $me);
+        $myAccount->changeLogo($this->files->store($command->logo), by: $me, at: $command->executedAt);
         $this->accounts->save($myAccount);
     }
 }

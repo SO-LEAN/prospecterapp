@@ -2,7 +2,6 @@
 
 namespace App\Prospecting\Input;
 
-use Prospecter\Core\Prospecting\Domain\Address;
 use Symfony\Component\Validator\Constraints as Assert;
 
 final readonly class AddressInput
@@ -17,12 +16,5 @@ final readonly class AddressInput
         #[Assert\Country]
         public ?string $country = null,
     ) {
-    }
-
-    public function toAddress(): ?Address
-    {
-        $address = new Address($this->street, $this->postalCode, $this->city, $this->country);
-
-        return $address->isEmpty() ? null : $address;
     }
 }

@@ -6,8 +6,8 @@ namespace Tests\Core\Domain;
 
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
-use Prospecter\Core\SharedKernel\Domain\BusinessRuleViolation;
 use Prospecter\Core\SharedKernel\Domain\Email;
+use Prospecter\Core\SharedKernel\Domain\Exception\BusinessRuleViolation;
 
 class EmailTest extends TestCase
 {
@@ -19,7 +19,7 @@ class EmailTest extends TestCase
     #[DataProvider('notEmails')]
     public function testAnInvalidAddressIsRefusedOnTheEmailField(string $notAnEmail): void
     {
-        $this->expectExceptionObject(new BusinessRuleViolation(sprintf('Email "%s" is not valid', $notAnEmail), 'email'));
+        $this->expectExceptionObject(BusinessRuleViolation::because(sprintf('Email "%s" is not valid', $notAnEmail), 'email'));
 
         new Email($notAnEmail);
     }

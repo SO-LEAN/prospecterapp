@@ -4,22 +4,27 @@ declare(strict_types=1);
 
 namespace Prospecter\Core\Prospecting\Application\StartProspecting;
 
-use Prospecter\Core\Prospecting\Domain\Address;
-use Prospecter\Core\Prospecting\Domain\OrganizationId;
-use Prospecter\Core\SharedKernel\Domain\ContactDetails;
-use Prospecter\Core\SharedKernel\Domain\LegalIdentity;
-use Prospecter\Core\SharedKernel\Domain\MemberId;
-
+/**
+ * Enters an organization in the prospecting base of the account, under the identity the client gives it.
+ */
 final readonly class StartProspecting
 {
     public function __construct(
-        public MemberId $prospectorId,
-        public OrganizationId $id,
-        public LegalIdentity $legalIdentity,
-        public ContactDetails $contactDetails,
-        public ?Address $address = null,
-        public ?string $observations = null,
-        public ?OrganizationId $holdingId = null,
+        public string $prospectorId,
+        public string $id,
+        public ?string $corporateName,
+        public ?string $form,
+        public ?string $type,
+        public ?string $email,
+        public ?string $phoneNumber,
+        public ?string $language,
+        public ?string $street,
+        public ?string $postalCode,
+        public ?string $city,
+        public ?string $country,
+        public ?string $observations,
+        public ?string $holdingId,
+        public \DateTimeImmutable $executedAt,
     ) {
     }
 }

@@ -14,5 +14,7 @@
         <embedded name="name" class="Prospecter\Core\PersonalData\Domain\PersonName" use-column-prefix="false"/>
         <embedded name="contactDetails" class="Prospecter\Core\SharedKernel\Domain\ContactDetails" use-column-prefix="false"/>
         <field name="picture" type="file" nullable="true"/>
+        <field name="createdAt" column="created_at" type="moment"/>
+        <field name="modifiedAt" column="modified_at" type="moment"/>
     </entity>
 </doctrine-mapping>

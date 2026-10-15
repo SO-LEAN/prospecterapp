@@ -12,11 +12,11 @@ use Prospecter\Core\PersonalData\Domain\PersonName;
 use Prospecter\Core\PersonalData\Domain\Purpose;
 use Prospecter\Core\PersonalData\Domain\Reader;
 use Prospecter\Core\SharedKernel\Domain\AccountId;
-use Prospecter\Core\SharedKernel\Domain\BusinessRuleViolation;
 use Prospecter\Core\SharedKernel\Domain\ContactDetails;
+use Prospecter\Core\SharedKernel\Domain\Exception\BusinessRuleViolation;
+use Prospecter\Core\SharedKernel\Domain\Exception\NotFound;
 use Prospecter\Core\SharedKernel\Domain\File;
 use Prospecter\Core\SharedKernel\Domain\MemberId;
-use Prospecter\Core\SharedKernel\Domain\NotFound;
 use Prospecter\Core\SharedKernel\Domain\PersonId;
 
 /**
@@ -33,7 +33,7 @@ class PersonIntentsTest extends TestCase
     #[DataProvider('situations')]
     public function testAnIntentionIsRefusedExactlyWhenItIsNotOffered(PersonIntent $intent, Purpose $purpose, Reader $reader): void
     {
-        $person = Person::collect(new PersonId(self::PERSON), new AccountId(self::ACCOUNT), $purpose);
+        $person = Person::collect(new PersonId(self::PERSON), new AccountId(self::ACCOUNT), $purpose, new \DateTimeImmutable());
         $offered = in_array($intent, $person->possibleIntentsOf($reader), true);
 
         $this->assertSame($offered, $this->isAccepted($intent, $person, $reader));
@@ -64,8 +64,8 @@ class PersonIntentsTest extends TestCase
     {
         $withTheRight = new Reader(self::member(), new AccountId(self::ACCOUNT), new PersonId(self::COLLEAGUE), true);
 
-        $this->assertSame(PersonIntent::cases(), Person::collect(new PersonId(self::PERSON), new AccountId(self::ACCOUNT), Purpose::Prospecting)->possibleIntentsOf($withTheRight));
-        $this->assertSame([], Person::collect(new PersonId(self::PERSON), new AccountId(self::ACCOUNT), Purpose::Membership)->possibleIntentsOf($withTheRight));
+        $this->assertSame(PersonIntent::cases(), Person::collect(new PersonId(self::PERSON), new AccountId(self::ACCOUNT), Purpose::Prospecting, new \DateTimeImmutable())->possibleIntentsOf($withTheRight));
+        $this->assertSame([], Person::collect(new PersonId(self::PERSON), new AccountId(self::ACCOUNT), Purpose::Membership, new \DateTimeImmutable())->possibleIntentsOf($withTheRight));
     }
 
     private static function member(): MemberId
@@ -77,9 +77,9 @@ class PersonIntentsTest extends TestCase
     {
         try {
             match ($intent) {
-                PersonIntent::Rename => $person->rename(new PersonName('Ada'), $by),
-                PersonIntent::ChangeContactDetails => $person->changeContactDetails(new ContactDetails(phoneNumber: '0388000000'), $by),
-                PersonIntent::ChangePicture => $person->changePicture(new File('https://storage.test/ada.png', 'png', 1024), $by),
+                PersonIntent::Rename => $person->rename(new PersonName('Ada'), $by, new \DateTimeImmutable()),
+                PersonIntent::ChangeContactDetails => $person->changeContactDetails(new ContactDetails(phoneNumber: '0388000000'), $by, new \DateTimeImmutable()),
+                PersonIntent::ChangePicture => $person->changePicture(new File('https://storage.test/ada.png', 'png', 1024), $by, new \DateTimeImmutable()),
             };
         } catch (NotFound|BusinessRuleViolation) {
             return false;

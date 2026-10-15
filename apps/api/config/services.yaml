@@ -4,9 +4,10 @@ services:
         autoconfigure: true
 
     _instanceof:
-        # every command handler of the core is registered on the command bus
+        # every command handler of the core is registered on the command bus, through the translation of its
+        # refusals (App\Shared\DependencyInjection\RefusalTranslatingCommandHandlersPass)
         Prospecter\Core\SharedKernel\Application\CommandHandler:
-            tags: [{ name: messenger.message_handler, bus: command.bus }]
+            tags: [app.command_handler]
 
     App\:
         resource: '../src/'
@@ -40,3 +41,7 @@ when@test:
         Prospecter\Core\SharedKernel\Application\Port\Storage: '@Tests\App\Double\InMemoryStorage'
         Tests\App\Double\InMemoryStorage:
             public: true
+        # the moment the controllers give the commands: fixed, so that the tests can name it
+        clock:
+            class: Symfony\Component\Clock\MockClock
+            arguments: ['2026-10-15 09:00:00 UTC']

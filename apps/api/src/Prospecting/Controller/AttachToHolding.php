@@ -11,8 +11,8 @@ use App\Shared\Resource\ProblemResource;
 use Nelmio\ApiDocBundle\Attribute\Model;
 use OpenApi\Attributes as OA;
 use Prospecter\Core\Prospecting\Application\AttachToHolding\AttachToHolding as AttachToHoldingCommand;
-use Prospecter\Core\Prospecting\Domain\OrganizationId;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\Clock\ClockInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpKernel\Attribute\MapRequestPayload;
 use Symfony\Component\Routing\Attribute\Route;
@@ -26,6 +26,7 @@ final class AttachToHolding extends AbstractController
 {
     public function __construct(
         private readonly CommandBus $commands,
+        private readonly ClockInterface $clock,
         private readonly OrganizationReader $organizations,
     ) {
     }
@@ -39,8 +40,8 @@ final class AttachToHolding extends AbstractController
     #[OA\Response(response: 422, description: 'Invalid holding id', content: new Model(type: ProblemResource::class))]
     public function __invoke(string $id, #[MapRequestPayload] HoldingInput $input, #[CurrentUser] User $user): JsonResponse
     {
-        $this->commands->dispatch(new AttachToHoldingCommand($user->memberId(), new OrganizationId($id), new OrganizationId($input->holdingId)));
+        $this->commands->dispatch(new AttachToHoldingCommand($user->memberId(), $id, $input->holdingId, $this->clock->now()));
 
-        return $this->json($this->organizations->read($user->memberId(), new OrganizationId($id)));
+        return $this->json($this->organizations->read($user->memberId(), $id));
     }
 }

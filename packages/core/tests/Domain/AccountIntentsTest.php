@@ -11,10 +11,10 @@ use Prospecter\Core\Accounts\Domain\AccountIntent;
 use Prospecter\Core\Accounts\Domain\Member;
 use Prospecter\Core\Accounts\Domain\Role;
 use Prospecter\Core\SharedKernel\Domain\AccountId;
+use Prospecter\Core\SharedKernel\Domain\Exception\NotFound;
 use Prospecter\Core\SharedKernel\Domain\File;
 use Prospecter\Core\SharedKernel\Domain\LegalIdentity;
 use Prospecter\Core\SharedKernel\Domain\MemberId;
-use Prospecter\Core\SharedKernel\Domain\NotFound;
 use Prospecter\Core\SharedKernel\Domain\PersonId;
 
 /**
@@ -29,7 +29,7 @@ class AccountIntentsTest extends TestCase
     public function testAnIntentionIsRefusedExactlyWhenItIsNotOffered(AccountIntent $intent, string $memberAccount): void
     {
         $member = Member::register(new MemberId('0190a1c0-0000-7000-8000-0000000000aa'), new AccountId($memberAccount), new PersonId('0190a1c0-0000-7000-8000-0000000000bb'), Role::User);
-        $account = Account::open(new AccountId(self::MINE), new LegalIdentity('SOLEAN IT'));
+        $account = Account::open(new AccountId(self::MINE), new LegalIdentity('SOLEAN IT'), new \DateTimeImmutable());
         $offered = in_array($intent, $account->possibleIntentsOf($member), true);
 
         $this->assertSame($offered, $this->isAccepted($intent, $account, $member));
@@ -51,8 +51,8 @@ class AccountIntentsTest extends TestCase
     {
         try {
             match ($intent) {
-                AccountIntent::ReviseLegalIdentity => $account->reviseLegalIdentity(new LegalIdentity('SO-LEAN'), $by),
-                AccountIntent::ChangeLogo => $account->changeLogo(new File('https://storage.test/logo.png', 'png', 1024), $by),
+                AccountIntent::ReviseLegalIdentity => $account->reviseLegalIdentity(new LegalIdentity('SO-LEAN'), $by, new \DateTimeImmutable()),
+                AccountIntent::ChangeLogo => $account->changeLogo(new File('https://storage.test/logo.png', 'png', 1024), $by, new \DateTimeImmutable()),
             };
         } catch (NotFound) {
             return false;

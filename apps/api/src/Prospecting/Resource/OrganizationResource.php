@@ -24,6 +24,8 @@ final readonly class OrganizationResource
         public ?string $observations,
         public ?ImageResource $logo,
         public ?string $holdingId,
+        public \DateTimeImmutable $createdAt,
+        public \DateTimeImmutable $modifiedAt,
         #[SerializedName('_links')]
         #[Context([AbstractObjectNormalizer::SKIP_NULL_VALUES => true])]
         public OrganizationLinksResource $links,

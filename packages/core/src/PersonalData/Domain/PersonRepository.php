@@ -4,13 +4,12 @@ declare(strict_types=1);
 
 namespace Prospecter\Core\PersonalData\Domain;
 
-use Prospecter\Core\SharedKernel\Domain\EmailAlreadyUsed;
+use Prospecter\Core\PersonalData\Domain\Exception\UnknownPerson;
+use Prospecter\Core\SharedKernel\Domain\Exception\EmailAlreadyUsed;
 use Prospecter\Core\SharedKernel\Domain\PersonId;
 
 interface PersonRepository
 {
-    public function nextIdentity(): PersonId;
-
     /**
      * @throws UnknownPerson
      */

@@ -4,14 +4,13 @@ namespace App\Prospecting\Persistence;
 
 use App\Shared\PaginatorFactory;
 use Doctrine\ORM\EntityManagerInterface;
+use Prospecter\Core\Prospecting\Domain\Exception\UnknownOrganization;
 use Prospecter\Core\Prospecting\Domain\Organization;
 use Prospecter\Core\Prospecting\Domain\OrganizationId;
 use Prospecter\Core\Prospecting\Domain\OrganizationRepository;
-use Prospecter\Core\Prospecting\Domain\UnknownOrganization;
 use Prospecter\Core\SharedKernel\Domain\AccountId;
-use Prospecter\Core\SharedKernel\Domain\EmailAlreadyUsed;
+use Prospecter\Core\SharedKernel\Domain\Exception\EmailAlreadyUsed;
 use Prospecter\Core\SharedKernel\Domain\Page;
-use Symfony\Component\Uid\Uuid;
 
 final readonly class DoctrineOrganizationRepository implements OrganizationRepository
 {
@@ -21,14 +20,9 @@ final readonly class DoctrineOrganizationRepository implements OrganizationRepos
     ) {
     }
 
-    public function nextIdentity(): OrganizationId
-    {
-        return new OrganizationId(Uuid::v7()->toRfc4122());
-    }
-
     public function get(OrganizationId $id): Organization
     {
-        return $this->entityManager->find(Organization::class, $id->value) ?? throw new UnknownOrganization($id);
+        return $this->entityManager->find(Organization::class, $id->value) ?? throw UnknownOrganization::identifiedBy($id);
     }
 
     public function save(Organization $organization): void
@@ -69,7 +63,7 @@ final readonly class DoctrineOrganizationRepository implements OrganizationRepos
             ->getSingleScalarResult();
 
         if ($taken > 0) {
-            throw new EmailAlreadyUsed();
+            throw EmailAlreadyUsed::byAnother();
         }
     }
 }

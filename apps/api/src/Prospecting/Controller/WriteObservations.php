@@ -11,8 +11,8 @@ use App\Shared\Resource\ProblemResource;
 use Nelmio\ApiDocBundle\Attribute\Model;
 use OpenApi\Attributes as OA;
 use Prospecter\Core\Prospecting\Application\WriteObservations\WriteObservations as WriteObservationsCommand;
-use Prospecter\Core\Prospecting\Domain\OrganizationId;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\Clock\ClockInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpKernel\Attribute\MapRequestPayload;
 use Symfony\Component\Routing\Attribute\Route;
@@ -26,6 +26,7 @@ final class WriteObservations extends AbstractController
 {
     public function __construct(
         private readonly CommandBus $commands,
+        private readonly ClockInterface $clock,
         private readonly OrganizationReader $organizations,
     ) {
     }
@@ -39,8 +40,8 @@ final class WriteObservations extends AbstractController
     #[OA\Response(response: 422, description: 'Observations too long', content: new Model(type: ProblemResource::class))]
     public function __invoke(string $id, #[MapRequestPayload] ObservationsInput $input, #[CurrentUser] User $user): JsonResponse
     {
-        $this->commands->dispatch(new WriteObservationsCommand($user->memberId(), new OrganizationId($id), $input->observations));
+        $this->commands->dispatch(new WriteObservationsCommand($user->memberId(), $id, $input->observations, $this->clock->now()));
 
-        return $this->json($this->organizations->read($user->memberId(), new OrganizationId($id)));
+        return $this->json($this->organizations->read($user->memberId(), $id));
     }
 }

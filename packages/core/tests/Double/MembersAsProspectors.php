@@ -4,11 +4,11 @@ declare(strict_types=1);
 
 namespace Tests\Core\Double;
 
+use Prospecter\Core\Accounts\Domain\Exception\UnknownMember;
 use Prospecter\Core\Accounts\Domain\MemberRepository;
-use Prospecter\Core\Accounts\Domain\UnknownMember;
+use Prospecter\Core\Prospecting\Domain\Exception\UnknownProspector;
 use Prospecter\Core\Prospecting\Domain\Prospector;
 use Prospecter\Core\Prospecting\Domain\Prospectors;
-use Prospecter\Core\Prospecting\Domain\UnknownProspector;
 use Prospecter\Core\SharedKernel\Domain\MemberId;
 
 /**
@@ -25,7 +25,7 @@ final readonly class MembersAsProspectors implements Prospectors
         try {
             return new Prospector($id, $this->members->get($id)->accountId());
         } catch (UnknownMember) {
-            throw new UnknownProspector($id);
+            throw UnknownProspector::identifiedBy($id);
         }
     }
 }

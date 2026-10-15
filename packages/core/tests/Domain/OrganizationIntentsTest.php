@@ -12,12 +12,12 @@ use Prospecter\Core\Prospecting\Domain\OrganizationId;
 use Prospecter\Core\Prospecting\Domain\OrganizationIntent;
 use Prospecter\Core\Prospecting\Domain\Prospector;
 use Prospecter\Core\SharedKernel\Domain\AccountId;
-use Prospecter\Core\SharedKernel\Domain\BusinessRuleViolation;
 use Prospecter\Core\SharedKernel\Domain\ContactDetails;
+use Prospecter\Core\SharedKernel\Domain\Exception\BusinessRuleViolation;
+use Prospecter\Core\SharedKernel\Domain\Exception\NotFound;
 use Prospecter\Core\SharedKernel\Domain\File;
 use Prospecter\Core\SharedKernel\Domain\LegalIdentity;
 use Prospecter\Core\SharedKernel\Domain\MemberId;
-use Prospecter\Core\SharedKernel\Domain\NotFound;
 
 /**
  * The front shows an action when its link is there, the API refuses a call when it is not: an intention
@@ -68,25 +68,25 @@ class OrganizationIntentsTest extends TestCase
     private function carryOut(OrganizationIntent $intent, Organization $organization, Prospector $by): void
     {
         match ($intent) {
-            OrganizationIntent::ReviseLegalIdentity => $organization->reviseLegalIdentity(new LegalIdentity('ACME SAS'), $by),
-            OrganizationIntent::ChangeContactDetails => $organization->changeContactDetails(new ContactDetails(phoneNumber: '0388000000'), $by),
-            OrganizationIntent::Relocate => $organization->relocateTo(new Address(city: 'Colmar'), null, $by),
-            OrganizationIntent::WriteObservations => $organization->writeObservations('Rappeler lundi', $by),
-            OrganizationIntent::AttachToHolding => $organization->attachToHolding($this->holding(), $by),
-            OrganizationIntent::DetachFromHolding => $organization->detachFromHolding($by),
-            OrganizationIntent::ChangeLogo => $organization->changeLogo($this->logo(), $by),
-            OrganizationIntent::RemoveLogo => $organization->removeLogo($by),
+            OrganizationIntent::ReviseLegalIdentity => $organization->reviseLegalIdentity(new LegalIdentity('ACME SAS'), $by, new \DateTimeImmutable()),
+            OrganizationIntent::ChangeContactDetails => $organization->changeContactDetails(new ContactDetails(phoneNumber: '0388000000'), $by, new \DateTimeImmutable()),
+            OrganizationIntent::Relocate => $organization->relocateTo(new Address(city: 'Colmar'), null, $by, new \DateTimeImmutable()),
+            OrganizationIntent::WriteObservations => $organization->writeObservations('Rappeler lundi', $by, new \DateTimeImmutable()),
+            OrganizationIntent::AttachToHolding => $organization->attachToHolding($this->holding(), $by, new \DateTimeImmutable()),
+            OrganizationIntent::DetachFromHolding => $organization->detachFromHolding($by, new \DateTimeImmutable()),
+            OrganizationIntent::ChangeLogo => $organization->changeLogo($this->logo(), $by, new \DateTimeImmutable()),
+            OrganizationIntent::RemoveLogo => $organization->removeLogo($by, new \DateTimeImmutable()),
         };
     }
 
     private function prospect(string $state): Organization
     {
         $mine = $this->someoneOf(self::MINE);
-        $prospect = Organization::prospectedBy($mine, new OrganizationId(self::PROSPECT), new LegalIdentity('ACME'), new ContactDetails());
+        $prospect = Organization::prospectedBy($mine, new OrganizationId(self::PROSPECT), new LegalIdentity('ACME'), new ContactDetails(), new \DateTimeImmutable());
 
         if ('with logo and holding' === $state) {
-            $prospect->changeLogo($this->logo(), $mine);
-            $prospect->attachToHolding($this->holding(), $mine);
+            $prospect->changeLogo($this->logo(), $mine, new \DateTimeImmutable());
+            $prospect->attachToHolding($this->holding(), $mine, new \DateTimeImmutable());
         }
 
         return $prospect;
@@ -94,7 +94,7 @@ class OrganizationIntentsTest extends TestCase
 
     private function holding(): Organization
     {
-        return Organization::prospectedBy($this->someoneOf(self::MINE), new OrganizationId(self::HOLDING), new LegalIdentity('Groupe ACME'), new ContactDetails());
+        return Organization::prospectedBy($this->someoneOf(self::MINE), new OrganizationId(self::HOLDING), new LegalIdentity('Groupe ACME'), new ContactDetails(), new \DateTimeImmutable());
     }
 
     private function logo(): File

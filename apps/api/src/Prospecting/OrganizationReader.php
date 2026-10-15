@@ -6,8 +6,7 @@ use App\Prospecting\Presenter\OrganizationResourcePresenter;
 use App\Prospecting\Resource\OrganizationResource;
 use Prospecter\Core\Prospecting\Application\ConsultOrganization\ConsultOrganization;
 use Prospecter\Core\Prospecting\Application\ConsultOrganization\ConsultOrganizationHandler;
-use Prospecter\Core\Prospecting\Domain\OrganizationId;
-use Prospecter\Core\SharedKernel\Domain\MemberId;
+use Prospecter\Core\SharedKernel\Application\RefusalTranslatingHandler;
 
 /**
  * An organization as the API shows it: read by the query of the core, then presented. A controller calls
@@ -15,13 +14,16 @@ use Prospecter\Core\SharedKernel\Domain\MemberId;
  */
 final readonly class OrganizationReader
 {
+    private RefusalTranslatingHandler $consultOrganization;
+
     public function __construct(
-        private ConsultOrganizationHandler $consultOrganization,
+        ConsultOrganizationHandler $consultOrganization,
         private OrganizationResourcePresenter $presenter,
     ) {
+        $this->consultOrganization = new RefusalTranslatingHandler($consultOrganization);
     }
 
-    public function read(MemberId $reader, OrganizationId $id): OrganizationResource
+    public function read(string $reader, string $id): OrganizationResource
     {
         return $this->presenter->present(($this->consultOrganization)(new ConsultOrganization($reader, $id)));
     }

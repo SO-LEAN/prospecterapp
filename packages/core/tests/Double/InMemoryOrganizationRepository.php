@@ -4,10 +4,10 @@ declare(strict_types=1);
 
 namespace Tests\Core\Double;
 
+use Prospecter\Core\Prospecting\Domain\Exception\UnknownOrganization;
 use Prospecter\Core\Prospecting\Domain\Organization;
 use Prospecter\Core\Prospecting\Domain\OrganizationId;
 use Prospecter\Core\Prospecting\Domain\OrganizationRepository;
-use Prospecter\Core\Prospecting\Domain\UnknownOrganization;
 use Prospecter\Core\SharedKernel\Domain\AccountId;
 use Prospecter\Core\SharedKernel\Domain\Page;
 
@@ -17,14 +17,9 @@ final readonly class InMemoryOrganizationRepository implements OrganizationRepos
     {
     }
 
-    public function nextIdentity(): OrganizationId
-    {
-        return new OrganizationId($this->database->uuids->next());
-    }
-
     public function get(OrganizationId $id): Organization
     {
-        return $this->database->organization((string) $id) ?? throw new UnknownOrganization($id);
+        return $this->database->organization((string) $id) ?? throw UnknownOrganization::identifiedBy($id);
     }
 
     public function save(Organization $organization): void

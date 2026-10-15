@@ -12,6 +12,7 @@ use Nelmio\ApiDocBundle\Attribute\Model;
 use OpenApi\Attributes as OA;
 use Prospecter\Core\Accounts\Application\ReviseMyOrganizationIdentity\ReviseMyOrganizationIdentity as ReviseMyOrganizationIdentityCommand;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\Clock\ClockInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpKernel\Attribute\MapRequestPayload;
 use Symfony\Component\Routing\Attribute\Route;
@@ -24,6 +25,7 @@ final class ReviseMyOrganizationIdentity extends AbstractController
 {
     public function __construct(
         private readonly CommandBus $commands,
+        private readonly ClockInterface $clock,
         private readonly MyAccountReader $account,
     ) {
     }
@@ -36,7 +38,7 @@ final class ReviseMyOrganizationIdentity extends AbstractController
     #[OA\Response(response: 422, description: 'Invalid identity', content: new Model(type: ProblemResource::class))]
     public function __invoke(#[MapRequestPayload] LegalIdentityInput $input, #[CurrentUser] User $user): JsonResponse
     {
-        $this->commands->dispatch(new ReviseMyOrganizationIdentityCommand($user->memberId(), $input->toLegalIdentity()));
+        $this->commands->dispatch(new ReviseMyOrganizationIdentityCommand($user->memberId(), $input->corporateName, $input->form, $input->type, $this->clock->now()));
 
         return $this->json($this->account->read($user->memberId()));
     }

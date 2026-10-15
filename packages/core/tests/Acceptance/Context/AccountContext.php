@@ -18,6 +18,7 @@ use Prospecter\Core\PersonalData\Application\ChangePersonPicture\ChangePersonPic
 use Prospecter\Core\PersonalData\Application\ConsultPerson\ConsultPerson;
 use Prospecter\Core\PersonalData\Application\PersonResponse;
 use Prospecter\Core\PersonalData\Application\RenamePerson\RenamePerson;
+use Prospecter\Core\SharedKernel\Domain\AccountId;
 use Prospecter\Core\SharedKernel\Domain\ContactDetails;
 use Prospecter\Core\SharedKernel\Domain\Email;
 use Prospecter\Core\SharedKernel\Domain\LegalIdentity;
@@ -36,52 +37,55 @@ final class AccountContext implements Context
     {
         $values = Vocabulary::values($table->getRowsHash());
         $me = $this->scenario->myPerson();
-        $me->rename(Vocabulary::personName($values), by: $this->scenario->meAsReader());
-        $me->changeContactDetails(Vocabulary::contactDetails($values), by: $this->scenario->meAsReader());
+        $me->rename(Vocabulary::personName($values), by: $this->scenario->meAsReader(), at: $this->application->now());
+        $me->changeContactDetails(Vocabulary::contactDetails($values), by: $this->scenario->meAsReader(), at: $this->application->now());
         $this->application->persons->save($me);
     }
 
     #[Given('l\'organisation :name a l\'adresse e-mail :email')]
     public function anOrganizationHasTheEmail(string $name, string $email): void
     {
-        $this->scenario->openAccount($name, Account::open($this->application->accounts->nextIdentity(), new LegalIdentity($name), new ContactDetails(new Email($email))));
+        $this->scenario->openAccount($name, Account::open(new AccountId($this->application->newIdentity()), new LegalIdentity($name), $this->application->now(), new ContactDetails(new Email($email))));
     }
 
     #[When('je consulte mon compte')]
     public function iConsultMyAccount(): void
     {
         $this->account = $this->application->consultMyAccount();
-        $this->myPerson = $this->application->consultPerson(new ConsultPerson($this->application->signedIn(), $this->scenario->me()->personId()));
+        $this->myPerson = $this->application->consultPerson(new ConsultPerson($this->application->signedIn(), $this->scenario->me()->personId()->value));
     }
 
     #[When('je change mon nom :')]
     public function iChangeMyName(TableNode $table): void
     {
-        $this->application->dispatch(new RenamePerson($this->application->signedIn(), $this->scenario->me()->personId(), Vocabulary::personName(Vocabulary::values($table->getRowsHash()))));
+        $values = Vocabulary::values($table->getRowsHash());
+        $this->application->dispatch(new RenamePerson($this->application->signedIn(), $this->scenario->me()->personId()->value, $values['prénom'], $values['nom'], $this->application->now()));
     }
 
     #[When('je change mes coordonnées :')]
     public function iChangeMyContactDetails(TableNode $table): void
     {
-        $this->application->dispatch(new ChangePersonContactDetails($this->application->signedIn(), $this->scenario->me()->personId(), Vocabulary::contactDetails(Vocabulary::values($table->getRowsHash()))));
+        $values = Vocabulary::values($table->getRowsHash());
+        $this->application->dispatch(new ChangePersonContactDetails($this->application->signedIn(), $this->scenario->me()->personId()->value, $values['e-mail'], $values['téléphone'], $values['langue'], $this->application->now()));
     }
 
     #[When('je change ma photo avec :fileName')]
     public function iChangeMyPicture(string $fileName): void
     {
-        $this->application->dispatch(new ChangePersonPicture($this->application->signedIn(), $this->scenario->me()->personId(), $this->scenario->upload($fileName)));
+        $this->application->dispatch(new ChangePersonPicture($this->application->signedIn(), $this->scenario->me()->personId()->value, $this->scenario->upload($fileName), $this->application->now()));
     }
 
     #[When('je révise l\'identité de mon organisation :')]
     public function iReviseMyOrganizationIdentity(TableNode $table): void
     {
-        $this->application->dispatch(new ReviseMyOrganizationIdentity($this->application->signedIn(), Vocabulary::legalIdentity(Vocabulary::values($table->getRowsHash()))));
+        $values = Vocabulary::values($table->getRowsHash());
+        $this->application->dispatch(new ReviseMyOrganizationIdentity($this->application->signedIn(), $values['raison sociale'], $values['forme juridique'], $values['type'], $this->application->now()));
     }
 
     #[When('je change le logo de mon organisation avec :fileName')]
     public function iChangeMyOrganizationLogo(string $fileName): void
     {
-        $this->application->dispatch(new ChangeMyOrganizationLogo($this->application->signedIn(), $this->scenario->upload($fileName)));
+        $this->application->dispatch(new ChangeMyOrganizationLogo($this->application->signedIn(), $this->scenario->upload($fileName), $this->application->now()));
     }
 
     #[Then('je vois mon compte :')]
@@ -95,8 +99,8 @@ final class AccountContext implements Context
             'prénom' => (string) $me->firstName,
             'nom' => (string) $me->lastName,
             'e-mail' => (string) $me->email,
-            'raison sociale de mon organisation' => (string) $account->organizationIdentity->corporateName,
-            'forme juridique de mon organisation' => (string) $account->organizationIdentity->form,
+            'raison sociale de mon organisation' => (string) $account->organizationCorporateName,
+            'forme juridique de mon organisation' => (string) $account->organizationForm,
         ]);
     }
 

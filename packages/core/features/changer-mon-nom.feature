@@ -20,3 +20,10 @@ Fonctionnalité: Changer mon nom
       | prénom | Ada                |
       | nom    | King               |
       | e-mail | ada@solean-it.test |
+
+  Scénario: Mon profil garde le moment de sa dernière modification
+    Soit nous sommes le "2026-10-20 14:00"
+    Quand je change mon nom :
+      | prénom | Ada |
+    Alors mon compte est enregistré avec :
+      | mon profil modifié le | 2026-10-20 14:00 |

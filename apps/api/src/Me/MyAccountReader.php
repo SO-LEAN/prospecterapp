@@ -7,7 +7,7 @@ use Prospecter\Core\Accounts\Application\ConsultMyAccount\ConsultMyAccount;
 use Prospecter\Core\Accounts\Application\ConsultMyAccount\ConsultMyAccountHandler;
 use Prospecter\Core\PersonalData\Application\ConsultPerson\ConsultPerson;
 use Prospecter\Core\PersonalData\Application\ConsultPerson\ConsultPersonHandler;
-use Prospecter\Core\SharedKernel\Domain\MemberId;
+use Prospecter\Core\SharedKernel\Application\RefusalTranslatingHandler;
 
 /**
  * My account as the API shows it: my membership read in Accounts, my profile read in PersonalData under my
@@ -16,14 +16,19 @@ use Prospecter\Core\SharedKernel\Domain\MemberId;
  */
 final readonly class MyAccountReader
 {
+    private RefusalTranslatingHandler $consultMyAccount;
+    private RefusalTranslatingHandler $consultPerson;
+
     public function __construct(
-        private ConsultMyAccountHandler $consultMyAccount,
-        private ConsultPersonHandler $consultPerson,
+        ConsultMyAccountHandler $consultMyAccount,
+        ConsultPersonHandler $consultPerson,
         private AccountResourcePresenter $presenter,
     ) {
+        $this->consultMyAccount = new RefusalTranslatingHandler($consultMyAccount);
+        $this->consultPerson = new RefusalTranslatingHandler($consultPerson);
     }
 
-    public function read(MemberId $me): AccountResource
+    public function read(string $me): AccountResource
     {
         $account = ($this->consultMyAccount)(new ConsultMyAccount($me));
 

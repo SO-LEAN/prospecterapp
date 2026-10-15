@@ -41,7 +41,7 @@ final readonly class AccountResourcePresenter
             contactDetails: new ContactDetailsResource($me->email, $me->phoneNumber, $me->language),
             picture: $this->images->create($me->picture?->url),
             organization: new AccountOrganizationResource(
-                LegalIdentityResource::from($account->organizationIdentity),
+                new LegalIdentityResource($account->organizationCorporateName, $account->organizationForm, $account->organizationType),
                 $this->images->create($account->organizationLogo?->url),
             ),
             links: $this->linksOf($account, $me),
@@ -62,13 +62,13 @@ final readonly class AccountResourcePresenter
     }
 
     /**
-     * @param list<\UnitEnum>                      $intents
+     * @param list<string>                         $intents names of the possible intentions
      * @param array<string, array{string, string}> $routes  link name and route by intent
      *
      * @return list<array{string, string}>
      */
     private function linked(array $intents, array $routes): array
     {
-        return array_values(array_filter(array_map(static fn (\UnitEnum $intent): ?array => $routes[$intent->name] ?? null, $intents)));
+        return array_values(array_filter(array_map(static fn (string $intent): ?array => $routes[$intent] ?? null, $intents)));
     }
 }

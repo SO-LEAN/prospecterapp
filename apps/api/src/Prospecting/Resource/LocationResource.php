@@ -2,8 +2,6 @@
 
 namespace App\Prospecting\Resource;
 
-use Prospecter\Core\Prospecting\Domain\GeoPoint;
-
 final readonly class LocationResource
 {
     public function __construct(
@@ -12,8 +10,8 @@ final readonly class LocationResource
     ) {
     }
 
-    public static function from(?GeoPoint $geoPoint): ?self
+    public static function orNone(?float $latitude, ?float $longitude): ?self
     {
-        return null === $geoPoint ? null : new self($geoPoint->latitude, $geoPoint->longitude);
+        return null === $latitude || null === $longitude ? null : new self($latitude, $longitude);
     }
 }

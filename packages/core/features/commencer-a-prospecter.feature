@@ -115,3 +115,11 @@ Fonctionnalité: Commencer à prospecter une organisation
     Alors l'organisation "ACME" est enregistrée avec :
       | ville    |        |
       | position | aucune |
+
+  Scénario: L'organisation garde le moment où je l'ai enregistrée
+    Soit nous sommes le "2026-10-15 10:30"
+    Quand je commence à prospecter l'organisation :
+      | raison sociale | ACME |
+    Alors l'organisation "ACME" est enregistrée avec :
+      | créée le    | 2026-10-15 10:30 |
+      | modifiée le | 2026-10-15 10:30 |

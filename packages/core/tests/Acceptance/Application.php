@@ -33,9 +33,9 @@ use Prospecter\Core\Prospecting\Application\SearchProspectedOrganizations\Search
 use Prospecter\Core\Prospecting\Application\StartProspecting\StartProspectingHandler;
 use Prospecter\Core\Prospecting\Application\WriteObservations\WriteObservationsHandler;
 use Prospecter\Core\SharedKernel\Application\CommandHandler;
-use Prospecter\Core\SharedKernel\Domain\BusinessRuleViolation;
+use Prospecter\Core\SharedKernel\Application\Exception\UseCaseRefused;
+use Prospecter\Core\SharedKernel\Application\RefusalTranslatingHandler;
 use Prospecter\Core\SharedKernel\Domain\MemberId;
-use Prospecter\Core\SharedKernel\Domain\NotFound;
 use Tests\Core\Double\InMemoryAccountRepository;
 use Tests\Core\Double\InMemoryDatabase;
 use Tests\Core\Double\InMemoryMemberRepository;
@@ -45,14 +45,17 @@ use Tests\Core\Double\InMemoryStorage;
 use Tests\Core\Double\KnownPlacesGeoLocation;
 use Tests\Core\Double\MembersAsProspectors;
 use Tests\Core\Double\MembersAsReaders;
+use Tests\Core\Double\TimeOrderedUuids;
 
 /**
  * The hexagon as the scenarios use it: the real handlers, wired to in-memory implementations of their
- * ports, called the way a delivery calls them: a command is sent to its handler (a command bus in the
- * API) and returns nothing, a query returns what it reads.
+ * ports, called the way a delivery calls them: through a RefusalTranslatingHandler, a command is sent to
+ * its handler (a command bus in the API) and returns nothing, a query returns what it reads.
  */
 final class Application
 {
+    private const string FIRST_DAY = '2026-10-15 09:00';
+
     public readonly InMemoryOrganizationRepository $organizations;
     public readonly InMemoryAccountRepository $accounts;
     public readonly InMemoryMemberRepository $members;
@@ -64,12 +67,16 @@ final class Application
     public readonly MembersAsReaders $readers;
     /** @var array<class-string, CommandHandler> */
     private array $handlers = [];
-    private ?MemberId $signedIn = null;
-    private NotFound|BusinessRuleViolation|null $refusal = null;
+    private ?string $signedIn = null;
+    private ?UseCaseRefused $refusal = null;
+    private \DateTimeImmutable $now;
+    private readonly TimeOrderedUuids $uuids;
 
     public function __construct()
     {
         $database = new InMemoryDatabase();
+        $this->now = new \DateTimeImmutable(self::FIRST_DAY);
+        $this->uuids = new TimeOrderedUuids();
         $this->organizations = new InMemoryOrganizationRepository($database);
         $this->accounts = new InMemoryAccountRepository($database);
         $this->members = new InMemoryMemberRepository($database);
@@ -86,38 +93,59 @@ final class Application
 
     public function signIn(MemberId $user): void
     {
-        $this->signedIn = $user;
+        $this->signedIn = $user->value;
     }
 
-    public function signedIn(): MemberId
+    public function signedIn(): string
     {
         return $this->signedIn ?? throw new \LogicException('Nobody is signed in: add "je suis connecté..." to the scenario');
+    }
+
+    /**
+     * The time the client gives the commands it sends.
+     */
+    public function now(): \DateTimeImmutable
+    {
+        return $this->now;
+    }
+
+    public function itIs(\DateTimeImmutable $now): void
+    {
+        $this->now = $now;
+    }
+
+    /**
+     * An identity for what the client is about to create (UUID v7, as the API generates them).
+     */
+    public function newIdentity(): string
+    {
+        return $this->uuids->next();
     }
 
     public function dispatch(object $command): void
     {
         $handler = $this->handlers[$command::class] ?? throw new \LogicException(sprintf('No handler for %s', $command::class));
-        $this->attempt(static fn () => $handler($command));
+        $this->attempt(static fn (): mixed => new RefusalTranslatingHandler($handler)($command));
     }
 
     public function consultOrganization(ConsultOrganization $query): ?OrganizationResponse
     {
-        return $this->attempt(fn (): OrganizationResponse => new ConsultOrganizationHandler($this->organizations, $this->prospectors)($query));
+        return $this->attempt(fn (): OrganizationResponse => new RefusalTranslatingHandler(new ConsultOrganizationHandler($this->organizations, $this->prospectors))($query));
     }
 
     public function searchProspectedOrganizations(SearchProspectedOrganizations $query): ?SearchProspectedOrganizationsResponse
     {
-        return $this->attempt(fn (): SearchProspectedOrganizationsResponse => new SearchProspectedOrganizationsHandler($this->organizations, $this->prospectors)($query));
+        return $this->attempt(fn (): SearchProspectedOrganizationsResponse => new RefusalTranslatingHandler(new SearchProspectedOrganizationsHandler($this->organizations, $this->prospectors))($query));
     }
 
     public function consultMyAccount(): ?AccountResponse
     {
-        return $this->attempt(fn (): AccountResponse => new ConsultMyAccountHandler($this->members, $this->accounts)(new ConsultMyAccount($this->signedIn())));
+        return $this->attempt(fn (): AccountResponse => new RefusalTranslatingHandler(new ConsultMyAccountHandler($this->members, $this->accounts))(new ConsultMyAccount($this->signedIn())));
     }
 
     public function consultPerson(ConsultPerson $query): ?PersonResponse
     {
-        return $this->attempt(fn (): PersonResponse => new ConsultPersonHandler($this->persons, $this->readers)($query));
+        return $this->attempt(fn (): PersonResponse => new RefusalTranslatingHandler(new ConsultPersonHandler($this->persons, $this->readers))($query));
     }
 
     /**
@@ -125,13 +153,13 @@ final class Application
      */
     public function consultPersons(ConsultPersons $query): ?array
     {
-        return $this->attempt(fn (): array => new ConsultPersonsHandler($this->persons, $this->readers)($query));
+        return $this->attempt(fn (): array => new RefusalTranslatingHandler(new ConsultPersonsHandler($this->persons, $this->readers))($query));
     }
 
     /**
      * The business refusal of the last command or query, null when it succeeded.
      */
-    public function refusal(): NotFound|BusinessRuleViolation|null
+    public function refusal(): ?UseCaseRefused
     {
         return $this->refusal;
     }
@@ -185,7 +213,7 @@ final class Application
 
         try {
             return $call();
-        } catch (NotFound|BusinessRuleViolation $refusal) {
+        } catch (UseCaseRefused $refusal) {
             $this->refusal = $refusal;
 
             return null;

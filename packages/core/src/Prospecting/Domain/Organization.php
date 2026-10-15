@@ -4,13 +4,14 @@ declare(strict_types=1);
 
 namespace Prospecter\Core\Prospecting\Domain;
 
+use Prospecter\Core\Prospecting\Domain\Exception\UnknownOrganization;
 use Prospecter\Core\SharedKernel\Domain\AccountId;
-use Prospecter\Core\SharedKernel\Domain\BusinessRuleViolation;
 use Prospecter\Core\SharedKernel\Domain\ContactDetails;
+use Prospecter\Core\SharedKernel\Domain\Exception\BusinessRuleViolation;
+use Prospecter\Core\SharedKernel\Domain\Exception\NotPossibleInItsState;
 use Prospecter\Core\SharedKernel\Domain\File;
 use Prospecter\Core\SharedKernel\Domain\LegalIdentity;
 use Prospecter\Core\SharedKernel\Domain\MemberId;
-use Prospecter\Core\SharedKernel\Domain\NotPossibleInItsState;
 
 /**
  * Aggregate root: an organization an account prospects; the whole team of the account shares it.
@@ -22,6 +23,7 @@ class Organization
     private ?GeoPoint $geoPoint = null;
     private ?string $observations = null;
     private ?File $logo = null;
+    private \DateTimeImmutable $modifiedAt;
 
     private function __construct(
         private readonly OrganizationId $id,
@@ -29,14 +31,16 @@ class Organization
         private readonly MemberId $createdBy,
         private LegalIdentity $legalIdentity,
         private ContactDetails $contactDetails,
+        private readonly \DateTimeImmutable $createdAt,
     ) {
+        $this->modifiedAt = $createdAt;
     }
 
-    public static function prospectedBy(Prospector $prospector, OrganizationId $id, LegalIdentity $legalIdentity, ContactDetails $contactDetails): self
+    public static function prospectedBy(Prospector $prospector, OrganizationId $id, LegalIdentity $legalIdentity, ContactDetails $contactDetails, \DateTimeImmutable $at): self
     {
         self::ensureItCanBeNamed($legalIdentity, $contactDetails);
 
-        return new self($id, $prospector->accountId, $prospector->id, $legalIdentity, $contactDetails);
+        return new self($id, $prospector->accountId, $prospector->id, $legalIdentity, $contactDetails, $at);
     }
 
     public function id(): OrganizationId
@@ -100,6 +104,19 @@ class Organization
         return $this->logo;
     }
 
+    public function createdAt(): \DateTimeImmutable
+    {
+        return $this->createdAt;
+    }
+
+    /**
+     * When an intention last changed it: its creation, then every change.
+     */
+    public function modifiedAt(): \DateTimeImmutable
+    {
+        return $this->modifiedAt;
+    }
+
     public function isProspectedBy(AccountId $accountId): bool
     {
         return $this->accountId->equals($accountId);
@@ -126,61 +143,69 @@ class Organization
     public function ensureReachableBy(Prospector $prospector): void
     {
         if (!$this->isProspectedBy($prospector->accountId)) {
-            throw new UnknownOrganization($this->id);
+            throw UnknownOrganization::identifiedBy($this->id);
         }
     }
 
-    public function reviseLegalIdentity(LegalIdentity $legalIdentity, Prospector $by): void
+    public function reviseLegalIdentity(LegalIdentity $legalIdentity, Prospector $by, \DateTimeImmutable $at): void
     {
         $this->ensurePossible(OrganizationIntent::ReviseLegalIdentity, $by);
         self::ensureItCanBeNamed($legalIdentity, $this->contactDetails);
         $this->legalIdentity = $legalIdentity;
+        $this->modifiedAt = $at;
     }
 
-    public function changeContactDetails(ContactDetails $contactDetails, Prospector $by): void
+    public function changeContactDetails(ContactDetails $contactDetails, Prospector $by, \DateTimeImmutable $at): void
     {
         $this->ensurePossible(OrganizationIntent::ChangeContactDetails, $by);
         self::ensureItCanBeNamed($this->legalIdentity, $contactDetails);
         $this->contactDetails = $contactDetails;
+        $this->modifiedAt = $at;
     }
 
-    public function relocateTo(?Address $address, ?GeoPoint $geoPoint, Prospector $by): void
+    public function relocateTo(?Address $address, ?GeoPoint $geoPoint, Prospector $by, \DateTimeImmutable $at): void
     {
         $this->ensurePossible(OrganizationIntent::Relocate, $by);
         $this->address = null === $address || $address->isEmpty() ? null : $address;
         $this->geoPoint = $geoPoint;
+        $this->modifiedAt = $at;
     }
 
-    public function writeObservations(?string $observations, Prospector $by): void
+    public function writeObservations(?string $observations, Prospector $by, \DateTimeImmutable $at): void
     {
         $this->ensurePossible(OrganizationIntent::WriteObservations, $by);
         $this->observations = $observations;
+        $this->modifiedAt = $at;
     }
 
-    public function attachToHolding(self $holding, Prospector $by): void
+    public function attachToHolding(self $holding, Prospector $by, \DateTimeImmutable $at): void
     {
         $this->ensurePossible(OrganizationIntent::AttachToHolding, $by);
         $holding->ensureReachableBy($by);
         $this->holdingId = $holding->id();
+        $this->modifiedAt = $at;
     }
 
-    public function detachFromHolding(Prospector $by): void
+    public function detachFromHolding(Prospector $by, \DateTimeImmutable $at): void
     {
         $this->ensurePossible(OrganizationIntent::DetachFromHolding, $by);
         $this->holdingId = null;
+        $this->modifiedAt = $at;
     }
 
-    public function changeLogo(File $logo, Prospector $by): void
+    public function changeLogo(File $logo, Prospector $by, \DateTimeImmutable $at): void
     {
         $this->ensurePossible(OrganizationIntent::ChangeLogo, $by);
         $this->logo = $logo;
+        $this->modifiedAt = $at;
     }
 
-    public function removeLogo(Prospector $by): File
+    public function removeLogo(Prospector $by, \DateTimeImmutable $at): File
     {
         $this->ensurePossible(OrganizationIntent::RemoveLogo, $by);
         $removed = $this->logo;
         $this->logo = null;
+        $this->modifiedAt = $at;
 
         return $removed;
     }
@@ -206,16 +231,16 @@ class Organization
     private function notPossibleInItsState(OrganizationIntent $intent): NotPossibleInItsState
     {
         return match ($intent) {
-            OrganizationIntent::RemoveLogo => new NotPossibleInItsState('There is no logo to remove', 'logo'),
-            OrganizationIntent::DetachFromHolding => new NotPossibleInItsState('There is no holding to detach from', 'holdingId'),
-            default => new NotPossibleInItsState(sprintf('%s is not possible now', $intent->name)),
+            OrganizationIntent::RemoveLogo => NotPossibleInItsState::because('There is no logo to remove', 'logo'),
+            OrganizationIntent::DetachFromHolding => NotPossibleInItsState::because('There is no holding to detach from', 'holdingId'),
+            default => NotPossibleInItsState::because(sprintf('%s is not possible now', $intent->name)),
         };
     }
 
     private static function ensureItCanBeNamed(LegalIdentity $legalIdentity, ContactDetails $contactDetails): void
     {
         if (!$legalIdentity->hasCorporateName() && null === $contactDetails->email) {
-            throw new BusinessRuleViolation('At least one is mandatory : corporate name or email');
+            throw BusinessRuleViolation::because('At least one is mandatory : corporate name or email');
         }
     }
 }

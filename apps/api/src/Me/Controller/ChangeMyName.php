@@ -12,6 +12,7 @@ use Nelmio\ApiDocBundle\Attribute\Model;
 use OpenApi\Attributes as OA;
 use Prospecter\Core\PersonalData\Application\RenamePerson\RenamePerson;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\Clock\ClockInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpKernel\Attribute\MapRequestPayload;
 use Symfony\Component\Routing\Attribute\Route;
@@ -24,6 +25,7 @@ final class ChangeMyName extends AbstractController
 {
     public function __construct(
         private readonly CommandBus $commands,
+        private readonly ClockInterface $clock,
         private readonly MyAccountReader $account,
     ) {
     }
@@ -36,7 +38,7 @@ final class ChangeMyName extends AbstractController
     #[OA\Response(response: 422, description: 'Invalid name', content: new Model(type: ProblemResource::class))]
     public function __invoke(#[MapRequestPayload] PersonNameInput $input, #[CurrentUser] User $user): JsonResponse
     {
-        $this->commands->dispatch(new RenamePerson($user->memberId(), $user->personId(), $input->toPersonName()));
+        $this->commands->dispatch(new RenamePerson($user->memberId(), $user->personId(), $input->firstName, $input->lastName, $this->clock->now()));
 
         return $this->json($this->account->read($user->memberId()));
     }

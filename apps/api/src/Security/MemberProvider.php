@@ -2,14 +2,16 @@
 
 namespace App\Security;
 
-use Prospecter\Core\Accounts\Domain\MemberRepository;
-use Prospecter\Core\Accounts\Domain\UnknownMember;
-use Prospecter\Core\SharedKernel\Domain\MemberId;
-use Prospecter\Core\SharedKernel\Domain\Uuid;
+use Prospecter\Core\Accounts\Application\IdentifyMember\IdentifyMember;
+use Prospecter\Core\Accounts\Application\IdentifyMember\IdentifyMemberHandler;
+use Prospecter\Core\SharedKernel\Application\Exception\ErrorType;
+use Prospecter\Core\SharedKernel\Application\Exception\UseCaseRefused;
+use Prospecter\Core\SharedKernel\Application\RefusalTranslatingHandler;
 use Symfony\Component\Security\Core\Exception\UnsupportedUserException;
 use Symfony\Component\Security\Core\Exception\UserNotFoundException;
 use Symfony\Component\Security\Core\User\UserInterface;
 use Symfony\Component\Security\Core\User\UserProviderInterface;
+use Symfony\Component\Uid\Uuid;
 
 /**
  * The member an access token names (its subject is the member id), as Symfony security sees it.
@@ -18,8 +20,11 @@ use Symfony\Component\Security\Core\User\UserProviderInterface;
  */
 final readonly class MemberProvider implements UserProviderInterface
 {
-    public function __construct(private MemberRepository $members)
+    private RefusalTranslatingHandler $identifyMember;
+
+    public function __construct(IdentifyMemberHandler $identifyMember)
     {
+        $this->identifyMember = new RefusalTranslatingHandler($identifyMember);
     }
 
     public function loadUserByIdentifier(string $identifier): User
@@ -29,9 +34,9 @@ final readonly class MemberProvider implements UserProviderInterface
         }
 
         try {
-            return User::from($this->members->get(new MemberId($identifier)));
-        } catch (UnknownMember) {
-            throw new UserNotFoundException('Unknown member');
+            return User::from(($this->identifyMember)(new IdentifyMember($identifier)));
+        } catch (UseCaseRefused $refusal) {
+            throw ErrorType::NotFound === $refusal->type ? new UserNotFoundException('Unknown member', previous: $refusal) : $refusal;
         }
     }
 

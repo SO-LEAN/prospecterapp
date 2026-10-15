@@ -1550,6 +1550,8 @@
                     "name",
                     "legalIdentity",
                     "contactDetails",
+                    "createdAt",
+                    "modifiedAt",
                     "_links"
                 ],
                 "properties": {
@@ -1596,6 +1598,14 @@
                     "holdingId": {
                         "type": "string",
                         "nullable": true
+                    },
+                    "createdAt": {
+                        "type": "string",
+                        "format": "date-time"
+                    },
+                    "modifiedAt": {
+                        "type": "string",
+                        "format": "date-time"
                     },
                     "_links": {
                         "$ref": "#/components/schemas/OrganizationLinksResource"

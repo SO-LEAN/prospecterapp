@@ -2,11 +2,11 @@
 
 namespace App\PersonalData;
 
+use Prospecter\Core\Accounts\Domain\Exception\UnknownMember;
 use Prospecter\Core\Accounts\Domain\MemberRepository;
-use Prospecter\Core\Accounts\Domain\UnknownMember;
+use Prospecter\Core\PersonalData\Domain\Exception\UnknownReader;
 use Prospecter\Core\PersonalData\Domain\Reader;
 use Prospecter\Core\PersonalData\Domain\Readers;
-use Prospecter\Core\PersonalData\Domain\UnknownReader;
 use Prospecter\Core\SharedKernel\Domain\MemberId;
 
 /**
@@ -23,7 +23,7 @@ final readonly class AccountsReaders implements Readers
         try {
             $member = $this->members->get($id);
         } catch (UnknownMember) {
-            throw new UnknownReader($id);
+            throw UnknownReader::identifiedBy($id);
         }
 
         return new Reader($id, $member->accountId(), $member->personId(), $member->readsPersonalData());

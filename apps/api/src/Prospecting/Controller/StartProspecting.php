@@ -2,18 +2,19 @@
 
 namespace App\Prospecting\Controller;
 
+use App\Prospecting\Input\AddressInput;
 use App\Prospecting\Input\StartProspectingInput;
 use App\Prospecting\OrganizationReader;
 use App\Prospecting\Resource\OrganizationResource;
 use App\Security\User;
 use App\Shared\CommandBus;
+use App\Shared\Identities;
 use App\Shared\Resource\ProblemResource;
 use Nelmio\ApiDocBundle\Attribute\Model;
 use OpenApi\Attributes as OA;
 use Prospecter\Core\Prospecting\Application\StartProspecting\StartProspecting as StartProspectingCommand;
-use Prospecter\Core\Prospecting\Domain\OrganizationId;
-use Prospecter\Core\Prospecting\Domain\OrganizationRepository;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\Clock\ClockInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Attribute\MapRequestPayload;
@@ -27,7 +28,8 @@ final class StartProspecting extends AbstractController
 {
     public function __construct(
         private readonly CommandBus $commands,
-        private readonly OrganizationRepository $organizations,
+        private readonly Identities $identities,
+        private readonly ClockInterface $clock,
         private readonly OrganizationReader $reader,
     ) {
     }
@@ -41,17 +43,26 @@ final class StartProspecting extends AbstractController
     #[OA\Response(response: 422, description: 'Invalid organization, email already used, or neither corporate name nor email', content: new Model(type: ProblemResource::class))]
     public function __invoke(#[MapRequestPayload] StartProspectingInput $input, #[CurrentUser] User $user): JsonResponse
     {
-        $id = $this->organizations->nextIdentity();
+        $id = $this->identities->next();
+        $address = $input->address ?? new AddressInput();
         $this->commands->dispatch(new StartProspectingCommand(
             prospectorId: $user->memberId(),
             id: $id,
-            legalIdentity: $input->legalIdentity->toLegalIdentity(),
-            contactDetails: $input->contactDetails->toContactDetails(),
-            address: $input->address?->toAddress(),
+            corporateName: $input->legalIdentity->corporateName,
+            form: $input->legalIdentity->form,
+            type: $input->legalIdentity->type,
+            email: $input->contactDetails->email,
+            phoneNumber: $input->contactDetails->phoneNumber,
+            language: $input->contactDetails->language,
+            street: $address->street,
+            postalCode: $address->postalCode,
+            city: $address->city,
+            country: $address->country,
             observations: $input->observations,
-            holdingId: null === $input->holdingId ? null : new OrganizationId($input->holdingId),
+            holdingId: $input->holdingId,
+            executedAt: $this->clock->now(),
         ));
 
-        return $this->json($this->reader->read($user->memberId(), $id), Response::HTTP_CREATED, ['Location' => $this->generateUrl('api_organizations_show', ['id' => $id->value])]);
+        return $this->json($this->reader->read($user->memberId(), $id), Response::HTTP_CREATED, ['Location' => $this->generateUrl('api_organizations_show', ['id' => $id])]);
     }
 }

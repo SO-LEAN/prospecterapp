@@ -4,10 +4,8 @@ namespace App\Shared;
 
 use App\Shared\Resource\ProblemResource;
 use App\Shared\Resource\ViolationResource;
-use Prospecter\Core\SharedKernel\Domain\BusinessRuleViolation;
-use Prospecter\Core\SharedKernel\Domain\NotAllowed;
-use Prospecter\Core\SharedKernel\Domain\NotFound;
-use Prospecter\Core\SharedKernel\Domain\NotPossibleInItsState;
+use Prospecter\Core\SharedKernel\Application\Exception\ErrorType;
+use Prospecter\Core\SharedKernel\Application\Exception\UseCaseRefused;
 use Symfony\Component\EventDispatcher\Attribute\AsEventListener;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Response;
@@ -15,9 +13,9 @@ use Symfony\Component\HttpKernel\Event\ExceptionEvent;
 use Symfony\Component\Serializer\Normalizer\NormalizerInterface;
 
 /**
- * Translates the refusals of the core into problem+json responses: unknown (or not mine) is a 404, an
- * intention its state does not offer (no link) a 409, one the asker has no right to a 403, any other business
- * rule a 422.
+ * Translates the refusals of the use cases into problem+json responses, by their type: unknown (or not mine)
+ * is a 404, an intention its state does not offer (no link) a 409, one the asker has no right to a 403, any
+ * other business rule a 422. Any other exception is a failure, left to Symfony.
  */
 #[AsEventListener]
 final readonly class UseCaseExceptionListener
@@ -28,36 +26,33 @@ final readonly class UseCaseExceptionListener
 
     public function __invoke(ExceptionEvent $event): void
     {
-        $exception = $event->getThrowable();
+        $refusal = $event->getThrowable();
 
-        if (!$this->isARefusalOfTheCore($exception) || !str_starts_with($event->getRequest()->getPathInfo(), '/api/')) {
+        if (!$refusal instanceof UseCaseRefused || !str_starts_with($event->getRequest()->getPathInfo(), '/api/')) {
             return;
         }
 
-        $problem = $this->problem($exception);
+        $problem = $this->problem($refusal);
         $event->setResponse(new JsonResponse($this->normalizer->normalize($problem), $problem->status, ['Content-Type' => 'application/problem+json']));
     }
 
-    /**
-     * @phpstan-assert-if-true NotFound|BusinessRuleViolation $exception
-     */
-    private function isARefusalOfTheCore(\Throwable $exception): bool
+    private function problem(UseCaseRefused $refusal): ProblemResource
     {
-        return $exception instanceof NotFound || $exception instanceof BusinessRuleViolation;
-    }
-
-    private function problem(NotFound|BusinessRuleViolation $exception): ProblemResource
-    {
-        return match (true) {
-            $exception instanceof NotFound => new ProblemResource('Not Found', Response::HTTP_NOT_FOUND, $exception->getMessage()),
-            $exception instanceof NotAllowed => new ProblemResource('Forbidden', Response::HTTP_FORBIDDEN, $exception->getMessage(), [$this->violation($exception)]),
-            $exception instanceof NotPossibleInItsState => new ProblemResource('Conflict', Response::HTTP_CONFLICT, $exception->getMessage(), [$this->violation($exception)]),
-            $exception instanceof BusinessRuleViolation => new ProblemResource('Validation Failed', Response::HTTP_UNPROCESSABLE_ENTITY, $exception->getMessage(), [$this->violation($exception)]),
+        [$status, $title] = match ($refusal->type) {
+            ErrorType::NotFound => [Response::HTTP_NOT_FOUND, 'Not Found'],
+            ErrorType::NotAllowed => [Response::HTTP_FORBIDDEN, 'Forbidden'],
+            ErrorType::NotPossibleInItsState => [Response::HTTP_CONFLICT, 'Conflict'],
+            ErrorType::BusinessRuleViolated => [Response::HTTP_UNPROCESSABLE_ENTITY, 'Validation Failed'],
         };
+
+        return new ProblemResource($title, $status, $refusal->getMessage(), $this->violationsOf($refusal));
     }
 
-    private function violation(BusinessRuleViolation $exception): ViolationResource
+    /**
+     * @return list<ViolationResource>
+     */
+    private function violationsOf(UseCaseRefused $refusal): array
     {
-        return new ViolationResource('*' === $exception->field ? '' : $exception->field, $exception->getMessage());
+        return ErrorType::NotFound === $refusal->type ? [] : [new ViolationResource($refusal->field, $refusal->getMessage())];
     }
 }

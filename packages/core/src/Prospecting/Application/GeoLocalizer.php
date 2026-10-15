@@ -14,8 +14,8 @@ final readonly class GeoLocalizer
     {
     }
 
-    public function locate(?Address $address): ?GeoPoint
+    public function locate(Address $address): ?GeoPoint
     {
-        return null === $address ? null : $this->geoLocation->find((string) $address);
+        return $address->isEmpty() ? null : $this->geoLocation->find((string) $address);
     }
 }

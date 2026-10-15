@@ -9,6 +9,8 @@ use Prospecter\Core\PersonalData\Domain\Readers;
 use Prospecter\Core\SharedKernel\Application\CommandHandler;
 use Prospecter\Core\SharedKernel\Application\FileStore;
 use Prospecter\Core\SharedKernel\Application\Port\Storage;
+use Prospecter\Core\SharedKernel\Domain\MemberId;
+use Prospecter\Core\SharedKernel\Domain\PersonId;
 
 final readonly class ChangePersonPictureHandler implements CommandHandler
 {
@@ -21,8 +23,8 @@ final readonly class ChangePersonPictureHandler implements CommandHandler
 
     public function __invoke(ChangePersonPicture $command): void
     {
-        $person = $this->persons->get($command->id);
-        $person->changePicture($this->files->store($command->picture), by: $this->readers->get($command->readerId));
+        $person = $this->persons->get(new PersonId($command->id));
+        $person->changePicture($this->files->store($command->picture), by: $this->readers->get(new MemberId($command->readerId)), at: $command->executedAt);
         $this->persons->save($person);
     }
 }

@@ -11,8 +11,8 @@ use App\Shared\UploadedFileInfo;
 use Nelmio\ApiDocBundle\Attribute\Model;
 use OpenApi\Attributes as OA;
 use Prospecter\Core\Prospecting\Application\ChangeLogo\ChangeLogo as ChangeLogoCommand;
-use Prospecter\Core\Prospecting\Domain\OrganizationId;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\Clock\ClockInterface;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpKernel\Attribute\MapUploadedFile;
@@ -28,6 +28,7 @@ final class ChangeLogo extends AbstractController
 {
     public function __construct(
         private readonly CommandBus $commands,
+        private readonly ClockInterface $clock,
         private readonly OrganizationReader $organizations,
     ) {
     }
@@ -41,8 +42,8 @@ final class ChangeLogo extends AbstractController
     #[OA\Response(response: 422, description: 'Invalid image', content: new Model(type: ProblemResource::class))]
     public function __invoke(string $id, #[MapUploadedFile([new Assert\Image(maxSize: '2M', mimeTypes: ['image/jpeg', 'image/png', 'image/webp'])])] UploadedFile $file, #[CurrentUser] User $user): JsonResponse
     {
-        $this->commands->dispatch(new ChangeLogoCommand($user->memberId(), new OrganizationId($id), new UploadedFileInfo($file)));
+        $this->commands->dispatch(new ChangeLogoCommand($user->memberId(), $id, new UploadedFileInfo($file), $this->clock->now()));
 
-        return $this->json($this->organizations->read($user->memberId(), new OrganizationId($id)));
+        return $this->json($this->organizations->read($user->memberId(), $id));
     }
 }

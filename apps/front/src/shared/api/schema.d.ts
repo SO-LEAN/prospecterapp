@@ -410,6 +410,10 @@ export interface components {
             observations?: string | null;
             logo?: components["schemas"]["ImageResource"] | null;
             holdingId?: string | null;
+            /** Format: date-time */
+            createdAt: string;
+            /** Format: date-time */
+            modifiedAt: string;
             _links: components["schemas"]["OrganizationLinksResource"];
         };
         OrganizationSummaryResource: {

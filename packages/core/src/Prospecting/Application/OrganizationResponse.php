@@ -4,57 +4,75 @@ declare(strict_types=1);
 
 namespace Prospecter\Core\Prospecting\Application;
 
-use Prospecter\Core\Prospecting\Domain\Address;
-use Prospecter\Core\Prospecting\Domain\GeoPoint;
 use Prospecter\Core\Prospecting\Domain\Organization;
-use Prospecter\Core\Prospecting\Domain\OrganizationId;
 use Prospecter\Core\Prospecting\Domain\OrganizationIntent;
 use Prospecter\Core\Prospecting\Domain\Prospector;
-use Prospecter\Core\SharedKernel\Domain\AccountId;
-use Prospecter\Core\SharedKernel\Domain\ContactDetails;
-use Prospecter\Core\SharedKernel\Domain\File;
-use Prospecter\Core\SharedKernel\Domain\LegalIdentity;
-use Prospecter\Core\SharedKernel\Domain\MemberId;
+use Prospecter\Core\SharedKernel\Application\FileResponse;
 
 /**
- * An organization as every use case on organizations presents it, with what the user may do with it now.
+ * An organization as a prospector of its account sees it, with what they may do with it now.
  */
 final readonly class OrganizationResponse
 {
     /**
-     * @param list<OrganizationIntent> $possibleIntents
+     * @param list<string> $possibleIntents names of the intentions the prospector may carry out now: Relocate, RemoveLogo...
      */
-    public function __construct(
-        public OrganizationId $id,
-        public AccountId $accountId,
-        public MemberId $createdBy,
-        public LegalIdentity $legalIdentity,
+    private function __construct(
+        public string $id,
+        public string $accountId,
+        public string $createdBy,
+        public ?string $corporateName,
+        public ?string $form,
+        public ?string $type,
         public string $fullName,
-        public ContactDetails $contactDetails,
-        public ?Address $address,
-        public ?GeoPoint $geoPoint,
+        public ?string $email,
+        public ?string $phoneNumber,
+        public ?string $language,
+        public ?string $street,
+        public ?string $postalCode,
+        public ?string $city,
+        public ?string $country,
+        public ?float $longitude,
+        public ?float $latitude,
         public ?string $observations,
-        public ?File $logo,
-        public ?OrganizationId $holdingId,
+        public ?FileResponse $logo,
+        public ?string $holdingId,
         public array $possibleIntents,
+        public \DateTimeImmutable $createdAt,
+        public \DateTimeImmutable $modifiedAt,
     ) {
     }
 
     public static function of(Organization $organization, Prospector $viewer): self
     {
+        $identity = $organization->legalIdentity();
+        $contact = $organization->contactDetails();
+        $address = $organization->address();
+        $geoPoint = $organization->geoPoint();
+
         return new self(
-            id: $organization->id(),
-            accountId: $organization->accountId(),
-            createdBy: $organization->createdBy(),
-            legalIdentity: $organization->legalIdentity(),
+            id: $organization->id()->value,
+            accountId: $organization->accountId()->value,
+            createdBy: $organization->createdBy()->value,
+            corporateName: $identity->corporateName,
+            form: $identity->form,
+            type: $identity->type,
             fullName: $organization->fullName(),
-            contactDetails: $organization->contactDetails(),
-            address: $organization->address(),
-            geoPoint: $organization->geoPoint(),
+            email: $contact->email?->value,
+            phoneNumber: $contact->phoneNumber,
+            language: $contact->language,
+            street: $address?->street,
+            postalCode: $address?->postalCode,
+            city: $address?->city,
+            country: $address?->country,
+            longitude: $geoPoint?->longitude,
+            latitude: $geoPoint?->latitude,
             observations: $organization->observations(),
-            logo: $organization->logo(),
-            holdingId: $organization->holdingId(),
-            possibleIntents: $organization->possibleIntentsOf($viewer),
+            logo: FileResponse::orNone($organization->logo()),
+            holdingId: $organization->holdingId()?->value,
+            possibleIntents: array_map(static fn (OrganizationIntent $intent): string => $intent->name, $organization->possibleIntentsOf($viewer)),
+            createdAt: $organization->createdAt(),
+            modifiedAt: $organization->modifiedAt(),
         );
     }
 }

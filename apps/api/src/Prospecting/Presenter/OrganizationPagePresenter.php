@@ -28,12 +28,12 @@ final readonly class OrganizationPagePresenter
     private function summarize(FoundOrganization $organization): OrganizationSummaryResource
     {
         return new OrganizationSummaryResource(
-            id: $organization->id->value,
+            id: $organization->id,
             name: $organization->fullName,
-            postalCode: $organization->address?->postalCode,
-            city: $organization->address?->city,
-            country: $organization->address?->country,
-            location: LocationResource::from($organization->geoPoint),
+            postalCode: $organization->postalCode,
+            city: $organization->city,
+            country: $organization->country,
+            location: LocationResource::orNone($organization->latitude, $organization->longitude),
             logo: $this->images->create($organization->logo?->url),
         );
     }

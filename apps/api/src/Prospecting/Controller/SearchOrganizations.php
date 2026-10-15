@@ -11,6 +11,7 @@ use Nelmio\ApiDocBundle\Attribute\Model;
 use OpenApi\Attributes as OA;
 use Prospecter\Core\Prospecting\Application\SearchProspectedOrganizations\SearchProspectedOrganizations;
 use Prospecter\Core\Prospecting\Application\SearchProspectedOrganizations\SearchProspectedOrganizationsHandler;
+use Prospecter\Core\SharedKernel\Application\RefusalTranslatingHandler;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpKernel\Attribute\MapQueryString;
@@ -22,10 +23,13 @@ use Symfony\Component\Security\Http\Attribute\IsGranted;
 #[IsGranted('ROLE_PROSPECTOR')]
 final class SearchOrganizations extends AbstractController
 {
+    private readonly RefusalTranslatingHandler $searchProspectedOrganizations;
+
     public function __construct(
-        private readonly SearchProspectedOrganizationsHandler $searchProspectedOrganizations,
+        SearchProspectedOrganizationsHandler $searchProspectedOrganizations,
         private readonly OrganizationPagePresenter $presenter,
     ) {
+        $this->searchProspectedOrganizations = new RefusalTranslatingHandler($searchProspectedOrganizations);
     }
 
     #[Route('/api/organizations', name: 'api_organizations_search', methods: ['GET'])]

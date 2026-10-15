@@ -4,16 +4,16 @@ declare(strict_types=1);
 
 namespace Prospecter\Core\PersonalData\Application\ConsultPersons;
 
-use Prospecter\Core\SharedKernel\Domain\MemberId;
-use Prospecter\Core\SharedKernel\Domain\PersonId;
-
+/**
+ * The persons of a list at once, for a screen showing many of them: the unknown ones are left out.
+ */
 final readonly class ConsultPersons
 {
     /**
-     * @param list<PersonId> $ids
+     * @param list<string> $ids
      */
     public function __construct(
-        public MemberId $readerId,
+        public string $readerId,
         public array $ids,
     ) {
     }

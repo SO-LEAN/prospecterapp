@@ -2,8 +2,6 @@
 
 namespace App\Prospecting\Resource;
 
-use Prospecter\Core\Prospecting\Domain\Address;
-
 final readonly class AddressResource
 {
     public function __construct(
@@ -14,8 +12,8 @@ final readonly class AddressResource
     ) {
     }
 
-    public static function from(?Address $address): ?self
+    public static function orNone(?string $street, ?string $postalCode, ?string $city, ?string $country): ?self
     {
-        return null === $address ? null : new self($address->street, $address->postalCode, $address->city, $address->country);
+        return null === $street && null === $postalCode && null === $city && null === $country ? null : new self($street, $postalCode, $city, $country);
     }
 }

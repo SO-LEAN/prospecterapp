@@ -3,6 +3,7 @@
 namespace Tests\App\Base;
 
 use App\DataFixtures\AppFixtures;
+use App\Shared\Identities;
 use Doctrine\Common\DataFixtures\Executor\ORMExecutor;
 use Doctrine\Common\DataFixtures\Loader;
 use Doctrine\Common\DataFixtures\Purger\ORMPurger;
@@ -54,6 +55,14 @@ abstract class ApiTestCase extends WebTestCase
             ->expiresAt($now->modify($expiresIn))
             ->getToken(new Sha256(), InMemory::file(dirname(__DIR__, 2).'/var/test-jwt/private.pem'))
             ->toString();
+    }
+
+    /**
+     * An identity for what a test arranges, as the controllers generate them.
+     */
+    protected static function newIdentity(): string
+    {
+        return new Identities()->next();
     }
 
     /**

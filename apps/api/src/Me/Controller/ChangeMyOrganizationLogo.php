@@ -12,6 +12,7 @@ use Nelmio\ApiDocBundle\Attribute\Model;
 use OpenApi\Attributes as OA;
 use Prospecter\Core\Accounts\Application\ChangeMyOrganizationLogo\ChangeMyOrganizationLogo as ChangeMyOrganizationLogoCommand;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\Clock\ClockInterface;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpKernel\Attribute\MapUploadedFile;
@@ -26,6 +27,7 @@ final class ChangeMyOrganizationLogo extends AbstractController
 {
     public function __construct(
         private readonly CommandBus $commands,
+        private readonly ClockInterface $clock,
         private readonly MyAccountReader $account,
     ) {
     }
@@ -38,7 +40,7 @@ final class ChangeMyOrganizationLogo extends AbstractController
     #[OA\Response(response: 422, description: 'Invalid image', content: new Model(type: ProblemResource::class))]
     public function __invoke(#[MapUploadedFile([new Assert\Image(maxSize: '2M', mimeTypes: ['image/jpeg', 'image/png', 'image/webp'])])] UploadedFile $file, #[CurrentUser] User $user): JsonResponse
     {
-        $this->commands->dispatch(new ChangeMyOrganizationLogoCommand($user->memberId(), new UploadedFileInfo($file)));
+        $this->commands->dispatch(new ChangeMyOrganizationLogoCommand($user->memberId(), new UploadedFileInfo($file), $this->clock->now()));
 
         return $this->json($this->account->read($user->memberId()));
     }

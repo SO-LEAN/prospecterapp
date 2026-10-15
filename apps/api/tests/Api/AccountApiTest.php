@@ -4,13 +4,13 @@ namespace Tests\App\Api;
 
 use PHPUnit\Framework\Attributes\Group;
 use Prospecter\Core\Accounts\Domain\Account;
-use Prospecter\Core\Accounts\Domain\AccountRepository;
 use Prospecter\Core\PersonalData\Domain\Person;
 use Prospecter\Core\PersonalData\Domain\PersonRepository;
 use Prospecter\Core\PersonalData\Domain\Purpose;
 use Prospecter\Core\SharedKernel\Domain\AccountId;
 use Prospecter\Core\SharedKernel\Domain\ContactDetails;
 use Prospecter\Core\SharedKernel\Domain\Email;
+use Prospecter\Core\SharedKernel\Domain\PersonId;
 use Tests\App\Base\ApiTestCase;
 
 #[Group('api')]
@@ -59,7 +59,7 @@ class AccountApiTest extends ApiTestCase
     public function testMyEmailCannotBeTheOneOfAColleagueButMayBeTheOneOfAnotherAccount(): void
     {
         $this->aPersonWithTheEmail('grace@solean-it.io', $this->fixtures->getReference('solean-it-account', Account::class)->id());
-        $this->aPersonWithTheEmail('linus@competitor.io', self::getContainer()->get(AccountRepository::class)->nextIdentity());
+        $this->aPersonWithTheEmail('linus@competitor.io', new AccountId(self::newIdentity()));
 
         $problem = $this->requestJson('PATCH', '/api/me/contact-details', ['email' => 'grace@solean-it.io', 'phoneNumber' => null, 'language' => null]);
         $this->assertResponseStatusCodeSame(422);
@@ -78,6 +78,6 @@ class AccountApiTest extends ApiTestCase
     private function aPersonWithTheEmail(string $email, AccountId $account): void
     {
         $persons = self::getContainer()->get(PersonRepository::class);
-        $persons->save(Person::collect($persons->nextIdentity(), $account, Purpose::Membership, contactDetails: new ContactDetails(new Email($email))));
+        $persons->save(Person::collect(new PersonId(self::newIdentity()), $account, Purpose::Membership, new \DateTimeImmutable(), contactDetails: new ContactDetails(new Email($email))));
     }
 }

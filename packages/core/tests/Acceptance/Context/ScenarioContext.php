@@ -17,9 +17,10 @@ use Prospecter\Core\PersonalData\Domain\Reader;
 use Prospecter\Core\Prospecting\Domain\Organization;
 use Prospecter\Core\Prospecting\Domain\OrganizationId;
 use Prospecter\Core\Prospecting\Domain\Prospector;
+use Prospecter\Core\SharedKernel\Application\Exception\ErrorType;
 use Prospecter\Core\SharedKernel\Domain\AccountId;
 use Prospecter\Core\SharedKernel\Domain\LegalIdentity;
-use Prospecter\Core\SharedKernel\Domain\NotFound;
+use Prospecter\Core\SharedKernel\Domain\MemberId;
 use Prospecter\Core\SharedKernel\Domain\PersonId;
 use Prospecter\Core\SharedKernel\Domain\Uuid;
 use Tests\Core\Acceptance\Application;
@@ -57,7 +58,13 @@ final class ScenarioContext implements Context
     #[Given('l\'organisation :name qui utilise Prospecter')]
     public function anOrganizationUsingProspecter(string $name): void
     {
-        $this->openAccount($name, Account::open($this->application->accounts->nextIdentity(), new LegalIdentity($name)));
+        $this->openAccount($name, Account::open(new AccountId($this->application->newIdentity()), new LegalIdentity($name), $this->application->now()));
+    }
+
+    #[Given('nous sommes le :moment')]
+    public function itIs(string $moment): void
+    {
+        $this->application->itIs(new \DateTimeImmutable($moment));
     }
 
     #[Given('je suis connecté en tant que prospecteur de :organization')]
@@ -77,10 +84,10 @@ final class ScenarioContext implements Context
      */
     public function aMemberOf(string $name, string $account, Role ...$roles): Member
     {
-        $person = Person::collect($this->application->persons->nextIdentity(), $this->accountIdOf($account), Purpose::Membership);
+        $person = Person::collect(new PersonId($this->application->newIdentity()), $this->accountIdOf($account), Purpose::Membership, $this->application->now());
         $this->application->persons->save($person);
         $this->personIds[$name] = $person->id();
-        $member = Member::register($this->application->members->nextIdentity(), $this->accountIdOf($account), $person->id(), ...$roles);
+        $member = Member::register(new MemberId($this->application->newIdentity()), $this->accountIdOf($account), $person->id(), ...$roles);
         $this->application->members->save($member);
 
         return $member;
@@ -114,21 +121,21 @@ final class ScenarioContext implements Context
     #[Then('c\'est introuvable')]
     public function itIsNotFound(): void
     {
-        Expect::that($this->application->refusal() instanceof NotFound, sprintf('Not found was expected, got: %s', get_debug_type($this->application->refusal())));
+        Expect::that(ErrorType::NotFound === $this->application->refusal()?->type, sprintf('Not found was expected, got: %s', $this->application->refusal()?->type->name ?? 'no refusal'));
     }
 
     public function save(string $name, Organization $organization): Organization
     {
         $this->application->organizations->save($organization);
-        $this->remember($name, $organization->id());
+        $this->remember($name, $organization->id()->value);
 
         return $organization;
     }
 
-    public function remember(?string $name, OrganizationId $id): void
+    public function remember(?string $name, string $id): void
     {
         if (null !== $name) {
-            $this->organizationIds[$name] = $id;
+            $this->organizationIds[$name] = new OrganizationId($id);
         }
     }
 
@@ -142,10 +149,11 @@ final class ScenarioContext implements Context
      * The organization identity a request would carry for this name: the one of a prospected organization,
      * the one of an account (which is no prospected organization), or one nobody has.
      */
-    public function idOf(string $name): OrganizationId
+    public function idOf(string $name): string
     {
-        return $this->organizationIds[$name]
-            ?? (isset($this->accountIds[$name]) ? new OrganizationId($this->accountIds[$name]->value) : $this->application->organizations->nextIdentity());
+        $known = $this->organizationIds[$name] ?? $this->accountIds[$name] ?? null;
+
+        return $known instanceof Uuid ? $known->value : $this->application->newIdentity();
     }
 
     public function accountIdOf(string $name): AccountId
@@ -171,12 +179,12 @@ final class ScenarioContext implements Context
 
     public function me(): Member
     {
-        return $this->application->members->get($this->application->signedIn());
+        return $this->application->members->get(new MemberId($this->application->signedIn()));
     }
 
     public function meAsReader(): Reader
     {
-        return $this->application->readers->get($this->application->signedIn());
+        return $this->application->readers->get(new MemberId($this->application->signedIn()));
     }
 
     public function myPerson(): Person
@@ -187,14 +195,14 @@ final class ScenarioContext implements Context
     /**
      * The person a request would carry for this name; an unknown name gets an identity nobody has.
      */
-    public function personIdOf(string $name): PersonId
+    public function personIdOf(string $name): string
     {
-        return $this->personIds[$name] ?? $this->application->persons->nextIdentity();
+        return isset($this->personIds[$name]) ? $this->personIds[$name]->value : $this->application->newIdentity();
     }
 
     public function meAsProspector(): Prospector
     {
-        return $this->application->prospectors->get($this->application->signedIn());
+        return $this->application->prospectors->get(new MemberId($this->application->signedIn()));
     }
 
     /**
@@ -207,7 +215,7 @@ final class ScenarioContext implements Context
 
     public function prospectorOf(AccountId $accountId): Prospector
     {
-        return new Prospector($this->application->members->nextIdentity(), $accountId);
+        return new Prospector(new MemberId($this->application->newIdentity()), $accountId);
     }
 
     /**
@@ -215,7 +223,7 @@ final class ScenarioContext implements Context
      */
     public function memberOf(Account $account): Member
     {
-        return Member::register($this->application->members->nextIdentity(), $account->id(), $this->application->persons->nextIdentity(), Role::User);
+        return Member::register(new MemberId($this->application->newIdentity()), $account->id(), new PersonId($this->application->newIdentity()), Role::User);
     }
 
     public function upload(string $fileName): \SplFileInfo

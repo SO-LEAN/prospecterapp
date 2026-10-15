@@ -4,34 +4,34 @@ declare(strict_types=1);
 
 namespace Prospecter\Core\PersonalData\Application;
 
+use Prospecter\Core\PersonalData\Domain\Exception\UnknownPerson;
 use Prospecter\Core\PersonalData\Domain\Masking;
 use Prospecter\Core\PersonalData\Domain\Person;
 use Prospecter\Core\PersonalData\Domain\PersonIntent;
 use Prospecter\Core\PersonalData\Domain\Reader;
 use Prospecter\Core\PersonalData\Domain\Reading;
-use Prospecter\Core\PersonalData\Domain\UnknownPerson;
-use Prospecter\Core\SharedKernel\Domain\File;
-use Prospecter\Core\SharedKernel\Domain\PersonId;
+use Prospecter\Core\SharedKernel\Application\FileResponse;
 
 /**
- * A person as a reader may see them: in clear, or masked (no picture, M***r, m***@***), with what the reader
- * may change. Plain strings: a masked email is no email.
+ * A person as the reader may see them: in clear, or masked (then without picture).
  */
 final readonly class PersonResponse
 {
     /**
-     * @param list<PersonIntent> $possibleIntents
+     * @param list<string> $possibleIntents names of what the reader may change: Rename, ChangeContactDetails, ChangePicture
      */
-    public function __construct(
-        public PersonId $id,
+    private function __construct(
+        public string $id,
         public bool $masked,
         public ?string $firstName,
         public ?string $lastName,
         public ?string $email,
         public ?string $phoneNumber,
         public ?string $language,
-        public ?File $picture,
+        public ?FileResponse $picture,
         public array $possibleIntents,
+        public \DateTimeImmutable $createdAt,
+        public \DateTimeImmutable $modifiedAt,
     ) {
     }
 
@@ -40,13 +40,30 @@ final readonly class PersonResponse
      */
     public static function of(Person $person, Reader $reader): self
     {
+        return Reading::Masked === $person->readingFor($reader) ? self::masked($person, $reader) : self::inClear($person, $reader);
+    }
+
+    private static function inClear(Person $person, Reader $reader): self
+    {
         $name = $person->name();
         $contact = $person->contactDetails();
 
-        if (Reading::Masked === $person->readingFor($reader)) {
-            return new self($person->id(), true, Masking::name($name->firstName), Masking::name($name->lastName), Masking::email($contact->email?->value), Masking::phoneNumber($contact->phoneNumber), $contact->language, null, $person->possibleIntentsOf($reader));
-        }
+        return new self($person->id()->value, false, $name->firstName, $name->lastName, $contact->email?->value, $contact->phoneNumber, $contact->language, FileResponse::orNone($person->picture()), self::intentsOf($person, $reader), $person->createdAt(), $person->modifiedAt());
+    }
 
-        return new self($person->id(), false, $name->firstName, $name->lastName, $contact->email?->value, $contact->phoneNumber, $contact->language, $person->picture(), $person->possibleIntentsOf($reader));
+    private static function masked(Person $person, Reader $reader): self
+    {
+        $name = $person->name();
+        $contact = $person->contactDetails();
+
+        return new self($person->id()->value, true, Masking::name($name->firstName), Masking::name($name->lastName), Masking::email($contact->email?->value), Masking::phoneNumber($contact->phoneNumber), $contact->language, null, self::intentsOf($person, $reader), $person->createdAt(), $person->modifiedAt());
+    }
+
+    /**
+     * @return list<string>
+     */
+    private static function intentsOf(Person $person, Reader $reader): array
+    {
+        return array_map(static fn (PersonIntent $intent): string => $intent->name, $person->possibleIntentsOf($reader));
     }
 }

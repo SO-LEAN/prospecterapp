@@ -5,7 +5,8 @@ namespace Tests\App\Security;
 use App\Security\User;
 use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
-use Prospecter\Core\Accounts\Domain\Member as CoreUser;
+use Prospecter\Core\Accounts\Application\MemberResponse;
+use Prospecter\Core\Accounts\Domain\Member;
 use Prospecter\Core\Accounts\Domain\Role;
 use Prospecter\Core\SharedKernel\Domain\AccountId;
 use Prospecter\Core\SharedKernel\Domain\MemberId;
@@ -20,11 +21,11 @@ class UserTest extends TestCase
         $accountId = new AccountId('0190a1c0-0000-7000-8000-000000000002');
         $personId = new PersonId('0190a1c0-0000-7000-8000-000000000003');
 
-        $signedIn = User::from(CoreUser::register($userId, $accountId, $personId, Role::User, Role::Prospector));
+        $signedIn = User::from(MemberResponse::of(Member::register($userId, $accountId, $personId, Role::User, Role::Prospector)));
 
-        $this->assertEquals($userId, $signedIn->memberId());
-        $this->assertEquals($accountId, $signedIn->accountId());
-        $this->assertEquals($personId, $signedIn->personId());
+        $this->assertSame($userId->value, $signedIn->memberId());
+        $this->assertSame($accountId->value, $signedIn->accountId());
+        $this->assertSame($personId->value, $signedIn->personId());
         $this->assertSame($userId->value, $signedIn->getUserIdentifier(), 'the subject of the access token');
         $this->assertSame(['ROLE_USER', 'ROLE_PROSPECTOR'], $signedIn->getRoles());
     }

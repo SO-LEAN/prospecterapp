@@ -49,3 +49,11 @@ Fonctionnalité: Déménager une organisation
     Quand je déménage "Initech" à l'adresse :
       | ville | Strasbourg |
     Alors c'est introuvable
+
+  Scénario: Un déménagement date la dernière modification, pas la création
+    Soit nous sommes le "2026-10-20 14:00"
+    Quand je déménage "ACME" à l'adresse :
+      | ville | Colmar |
+    Alors l'organisation "ACME" est enregistrée avec :
+      | créée le    | 2026-10-15 09:00 |
+      | modifiée le | 2026-10-20 14:00 |

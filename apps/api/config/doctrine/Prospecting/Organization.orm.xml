@@ -19,5 +19,7 @@
         <field name="geoPoint" type="geo_point" nullable="true"/>
         <field name="observations" type="string" length="255" nullable="true"/>
         <field name="logo" type="file" nullable="true"/>
+        <field name="createdAt" column="created_at" type="moment"/>
+        <field name="modifiedAt" column="modified_at" type="moment"/>
     </entity>
 </doctrine-mapping>

@@ -8,7 +8,6 @@ use App\Security\User;
 use App\Shared\Resource\ProblemResource;
 use Nelmio\ApiDocBundle\Attribute\Model;
 use OpenApi\Attributes as OA;
-use Prospecter\Core\Prospecting\Domain\OrganizationId;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\Routing\Attribute\Route;
@@ -33,6 +32,6 @@ final class ShowOrganization extends AbstractController
     #[OA\Response(response: 404, description: 'Unknown organization, or one that is neither mine nor prospected by mine', content: new Model(type: ProblemResource::class))]
     public function __invoke(string $id, #[CurrentUser] User $user): JsonResponse
     {
-        return $this->json($this->organizations->read($user->memberId(), new OrganizationId($id)));
+        return $this->json($this->organizations->read($user->memberId(), $id));
     }
 }

@@ -4,9 +4,9 @@ declare(strict_types=1);
 
 namespace Tests\Core\Double;
 
+use Prospecter\Core\PersonalData\Domain\Exception\UnknownPerson;
 use Prospecter\Core\PersonalData\Domain\Person;
 use Prospecter\Core\PersonalData\Domain\PersonRepository;
-use Prospecter\Core\PersonalData\Domain\UnknownPerson;
 use Prospecter\Core\SharedKernel\Domain\PersonId;
 
 final readonly class InMemoryPersonRepository implements PersonRepository
@@ -15,14 +15,9 @@ final readonly class InMemoryPersonRepository implements PersonRepository
     {
     }
 
-    public function nextIdentity(): PersonId
-    {
-        return new PersonId($this->database->uuids->next());
-    }
-
     public function get(PersonId $id): Person
     {
-        return $this->database->person((string) $id) ?? throw new UnknownPerson($id);
+        return $this->database->person((string) $id) ?? throw UnknownPerson::identifiedBy($id);
     }
 
     /**

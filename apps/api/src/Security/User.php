@@ -2,11 +2,7 @@
 
 namespace App\Security;
 
-use Prospecter\Core\Accounts\Domain\Member as CoreUser;
-use Prospecter\Core\Accounts\Domain\Role;
-use Prospecter\Core\SharedKernel\Domain\AccountId;
-use Prospecter\Core\SharedKernel\Domain\MemberId;
-use Prospecter\Core\SharedKernel\Domain\PersonId;
+use Prospecter\Core\Accounts\Application\MemberResponse;
 use Symfony\Component\Security\Core\User\UserInterface;
 
 /**
@@ -26,14 +22,9 @@ final readonly class User implements UserInterface
     ) {
     }
 
-    public static function from(CoreUser $user): self
+    public static function from(MemberResponse $member): self
     {
-        return new self(
-            $user->id()->value,
-            $user->accountId()->value,
-            $user->personId()->value,
-            array_map(static fn (Role $role): string => $role->value, $user->roles()),
-        );
+        return new self($member->id, $member->accountId, $member->personId, $member->roles);
     }
 
     public function getRoles(): array
@@ -46,18 +37,18 @@ final readonly class User implements UserInterface
         return $this->id;
     }
 
-    public function memberId(): MemberId
+    public function memberId(): string
     {
-        return new MemberId($this->id);
+        return $this->id;
     }
 
-    public function accountId(): AccountId
+    public function accountId(): string
     {
-        return new AccountId($this->accountId);
+        return $this->accountId;
     }
 
-    public function personId(): PersonId
+    public function personId(): string
     {
-        return new PersonId($this->personId);
+        return $this->personId;
     }
 }

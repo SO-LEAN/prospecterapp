@@ -4,14 +4,13 @@ declare(strict_types=1);
 
 namespace Prospecter\Core\Prospecting\Domain;
 
+use Prospecter\Core\Prospecting\Domain\Exception\UnknownOrganization;
 use Prospecter\Core\SharedKernel\Domain\AccountId;
-use Prospecter\Core\SharedKernel\Domain\EmailAlreadyUsed;
+use Prospecter\Core\SharedKernel\Domain\Exception\EmailAlreadyUsed;
 use Prospecter\Core\SharedKernel\Domain\Page;
 
 interface OrganizationRepository
 {
-    public function nextIdentity(): OrganizationId;
-
     /**
      * @throws UnknownOrganization
      */

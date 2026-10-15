@@ -5,15 +5,12 @@ declare(strict_types=1);
 namespace Tests\Core\Acceptance;
 
 use Prospecter\Core\Accounts\Domain\Account;
-use Prospecter\Core\Accounts\Domain\AccountIntent;
 use Prospecter\Core\Accounts\Domain\Member;
 use Prospecter\Core\PersonalData\Domain\Person;
-use Prospecter\Core\PersonalData\Domain\PersonIntent;
 use Prospecter\Core\PersonalData\Domain\PersonName;
 use Prospecter\Core\Prospecting\Domain\Address;
 use Prospecter\Core\Prospecting\Domain\GeoPoint;
 use Prospecter\Core\Prospecting\Domain\Organization;
-use Prospecter\Core\Prospecting\Domain\OrganizationIntent;
 use Prospecter\Core\SharedKernel\Domain\ContactDetails;
 use Prospecter\Core\SharedKernel\Domain\Email;
 use Prospecter\Core\SharedKernel\Domain\File;
@@ -27,7 +24,8 @@ use Prospecter\Core\SharedKernel\Domain\Uuid;
  */
 final class Vocabulary
 {
-    private const array ORGANIZATION_INTENTS = [
+    /** The intentions by name, whatever the aggregate: the same intention has the same words everywhere. */
+    private const array INTENTS = [
         'ReviseLegalIdentity' => 'réviser l\'identité',
         'ChangeContactDetails' => 'changer les coordonnées',
         'Relocate' => 'déménager',
@@ -36,18 +34,11 @@ final class Vocabulary
         'DetachFromHolding' => 'détacher de la holding',
         'ChangeLogo' => 'changer le logo',
         'RemoveLogo' => 'retirer le logo',
-    ];
-
-    private const array ACCOUNT_INTENTS = [
-        'ReviseLegalIdentity' => 'réviser l\'identité',
-        'ChangeLogo' => 'changer le logo',
-    ];
-
-    private const array PERSON_INTENTS = [
         'Rename' => 'changer le nom',
-        'ChangeContactDetails' => 'changer les coordonnées',
         'ChangePicture' => 'changer la photo',
     ];
+
+    private const string MOMENT = 'Y-m-d H:i';
 
     private const array LABELS = [
         'raison sociale', 'forme juridique', 'type', 'e-mail', 'téléphone', 'langue',
@@ -71,20 +62,13 @@ final class Vocabulary
     }
 
     /**
-     * @param list<OrganizationIntent|AccountIntent|PersonIntent> $intents
+     * @param list<string> $intents names of the intentions, as the use cases answer them
      *
      * @return list<string>
      */
     public static function describeIntents(array $intents): array
     {
-        return array_map(
-            static fn (OrganizationIntent|AccountIntent|PersonIntent $intent): string => match (true) {
-                $intent instanceof OrganizationIntent => self::ORGANIZATION_INTENTS[$intent->name],
-                $intent instanceof AccountIntent => self::ACCOUNT_INTENTS[$intent->name],
-                $intent instanceof PersonIntent => self::PERSON_INTENTS[$intent->name],
-            },
-            $intents,
-        );
+        return array_map(static fn (string $intent): string => self::INTENTS[$intent], $intents);
     }
 
     /**
@@ -151,6 +135,8 @@ final class Vocabulary
             'holding' => null === $organization->holdingId() ? '' : $nameOf($organization->holdingId()),
             'compte' => $nameOf($organization->accountId()),
             'saisie par' => $organization->createdBy()->equals($me) ? 'moi' : 'un autre membre',
+            'créée le' => self::describeMoment($organization->createdAt()),
+            'modifiée le' => self::describeMoment($organization->modifiedAt()),
         ];
     }
 
@@ -170,12 +156,24 @@ final class Vocabulary
             'forme juridique de mon organisation' => (string) $account->legalIdentity()->form,
             'langue de mon organisation' => (string) $account->contactDetails()->language,
             'logo de mon organisation' => self::describeFile($account->logo()),
+            'mon profil modifié le' => self::describeMoment($myPerson->modifiedAt()),
+            'mon organisation modifiée le' => self::describeMoment($account->modifiedAt()),
         ];
     }
 
     public static function describeGeoPoint(?GeoPoint $geoPoint): string
     {
-        return $geoPoint ? sprintf('%s, %s', $geoPoint->longitude, $geoPoint->latitude) : 'aucune';
+        return self::describePosition($geoPoint?->longitude, $geoPoint?->latitude);
+    }
+
+    public static function describePosition(?float $longitude, ?float $latitude): string
+    {
+        return null === $longitude || null === $latitude ? 'aucune' : sprintf('%s, %s', $longitude, $latitude);
+    }
+
+    public static function describeMoment(\DateTimeImmutable $moment): string
+    {
+        return $moment->format(self::MOMENT);
     }
 
     /**
