@@ -393,18 +393,12 @@ export interface components {
         AccountLinksResource: {
             self: components["schemas"]["LinkResource"];
             changeMyPassword: components["schemas"]["LinkResource"];
-            /** @default null */
-            changeMyName: components["schemas"]["LinkResource"] | null;
-            /** @default null */
-            changeMyUserName: components["schemas"]["LinkResource"] | null;
-            /** @default null */
-            changeMyContactDetails: components["schemas"]["LinkResource"] | null;
-            /** @default null */
-            changeMyPicture: components["schemas"]["LinkResource"] | null;
-            /** @default null */
-            reviseMyOrganizationIdentity: components["schemas"]["LinkResource"] | null;
-            /** @default null */
-            changeMyOrganizationLogo: components["schemas"]["LinkResource"] | null;
+            changeMyName?: components["schemas"]["LinkResource"];
+            changeMyUserName?: components["schemas"]["LinkResource"];
+            changeMyContactDetails?: components["schemas"]["LinkResource"];
+            changeMyPicture?: components["schemas"]["LinkResource"];
+            reviseMyOrganizationIdentity?: components["schemas"]["LinkResource"];
+            changeMyOrganizationLogo?: components["schemas"]["LinkResource"];
         };
         AccountResource: {
             userName: string;
@@ -457,22 +451,14 @@ export interface components {
         };
         OrganizationLinksResource: {
             self: components["schemas"]["LinkResource"];
-            /** @default null */
-            reviseLegalIdentity: components["schemas"]["LinkResource"] | null;
-            /** @default null */
-            changeContactDetails: components["schemas"]["LinkResource"] | null;
-            /** @default null */
-            relocate: components["schemas"]["LinkResource"] | null;
-            /** @default null */
-            writeObservations: components["schemas"]["LinkResource"] | null;
-            /** @default null */
-            attachToHolding: components["schemas"]["LinkResource"] | null;
-            /** @default null */
-            detachFromHolding: components["schemas"]["LinkResource"] | null;
-            /** @default null */
-            changeLogo: components["schemas"]["LinkResource"] | null;
-            /** @default null */
-            removeLogo: components["schemas"]["LinkResource"] | null;
+            reviseLegalIdentity?: components["schemas"]["LinkResource"];
+            changeContactDetails?: components["schemas"]["LinkResource"];
+            relocate?: components["schemas"]["LinkResource"];
+            writeObservations?: components["schemas"]["LinkResource"];
+            attachToHolding?: components["schemas"]["LinkResource"];
+            detachFromHolding?: components["schemas"]["LinkResource"];
+            changeLogo?: components["schemas"]["LinkResource"];
+            removeLogo?: components["schemas"]["LinkResource"];
         };
         OrganizationResource: {
             id: string;

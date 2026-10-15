@@ -2,7 +2,9 @@
 
 namespace App\Api\Resource;
 
+use Symfony\Component\Serializer\Attribute\Context;
 use Symfony\Component\Serializer\Attribute\SerializedName;
+use Symfony\Component\Serializer\Normalizer\AbstractObjectNormalizer;
 
 /**
  * Each part is changed by its own intention: PATCH legal-identity, contact-details, address, observations, holding.
@@ -21,6 +23,7 @@ final readonly class OrganizationResource
         public ?string $holdingId,
         public int $activeOrganizations,
         #[SerializedName('_links')]
+        #[Context([AbstractObjectNormalizer::SKIP_NULL_VALUES => true])]
         public OrganizationLinksResource $links,
     ) {
     }

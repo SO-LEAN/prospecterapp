@@ -1500,58 +1500,22 @@
                         "$ref": "#/components/schemas/LinkResource"
                     },
                     "changeMyName": {
-                        "nullable": true,
-                        "oneOf": [
-                            {
-                                "$ref": "#/components/schemas/LinkResource"
-                            }
-                        ],
-                        "default": null
+                        "$ref": "#/components/schemas/LinkResource"
                     },
                     "changeMyUserName": {
-                        "nullable": true,
-                        "oneOf": [
-                            {
-                                "$ref": "#/components/schemas/LinkResource"
-                            }
-                        ],
-                        "default": null
+                        "$ref": "#/components/schemas/LinkResource"
                     },
                     "changeMyContactDetails": {
-                        "nullable": true,
-                        "oneOf": [
-                            {
-                                "$ref": "#/components/schemas/LinkResource"
-                            }
-                        ],
-                        "default": null
+                        "$ref": "#/components/schemas/LinkResource"
                     },
                     "changeMyPicture": {
-                        "nullable": true,
-                        "oneOf": [
-                            {
-                                "$ref": "#/components/schemas/LinkResource"
-                            }
-                        ],
-                        "default": null
+                        "$ref": "#/components/schemas/LinkResource"
                     },
                     "reviseMyOrganizationIdentity": {
-                        "nullable": true,
-                        "oneOf": [
-                            {
-                                "$ref": "#/components/schemas/LinkResource"
-                            }
-                        ],
-                        "default": null
+                        "$ref": "#/components/schemas/LinkResource"
                     },
                     "changeMyOrganizationLogo": {
-                        "nullable": true,
-                        "oneOf": [
-                            {
-                                "$ref": "#/components/schemas/LinkResource"
-                            }
-                        ],
-                        "default": null
+                        "$ref": "#/components/schemas/LinkResource"
                     }
                 },
                 "type": "object"
@@ -1751,76 +1715,28 @@
                         "$ref": "#/components/schemas/LinkResource"
                     },
                     "reviseLegalIdentity": {
-                        "nullable": true,
-                        "oneOf": [
-                            {
-                                "$ref": "#/components/schemas/LinkResource"
-                            }
-                        ],
-                        "default": null
+                        "$ref": "#/components/schemas/LinkResource"
                     },
                     "changeContactDetails": {
-                        "nullable": true,
-                        "oneOf": [
-                            {
-                                "$ref": "#/components/schemas/LinkResource"
-                            }
-                        ],
-                        "default": null
+                        "$ref": "#/components/schemas/LinkResource"
                     },
                     "relocate": {
-                        "nullable": true,
-                        "oneOf": [
-                            {
-                                "$ref": "#/components/schemas/LinkResource"
-                            }
-                        ],
-                        "default": null
+                        "$ref": "#/components/schemas/LinkResource"
                     },
                     "writeObservations": {
-                        "nullable": true,
-                        "oneOf": [
-                            {
-                                "$ref": "#/components/schemas/LinkResource"
-                            }
-                        ],
-                        "default": null
+                        "$ref": "#/components/schemas/LinkResource"
                     },
                     "attachToHolding": {
-                        "nullable": true,
-                        "oneOf": [
-                            {
-                                "$ref": "#/components/schemas/LinkResource"
-                            }
-                        ],
-                        "default": null
+                        "$ref": "#/components/schemas/LinkResource"
                     },
                     "detachFromHolding": {
-                        "nullable": true,
-                        "oneOf": [
-                            {
-                                "$ref": "#/components/schemas/LinkResource"
-                            }
-                        ],
-                        "default": null
+                        "$ref": "#/components/schemas/LinkResource"
                     },
                     "changeLogo": {
-                        "nullable": true,
-                        "oneOf": [
-                            {
-                                "$ref": "#/components/schemas/LinkResource"
-                            }
-                        ],
-                        "default": null
+                        "$ref": "#/components/schemas/LinkResource"
                     },
                     "removeLogo": {
-                        "nullable": true,
-                        "oneOf": [
-                            {
-                                "$ref": "#/components/schemas/LinkResource"
-                            }
-                        ],
-                        "default": null
+                        "$ref": "#/components/schemas/LinkResource"
                     }
                 },
                 "type": "object"

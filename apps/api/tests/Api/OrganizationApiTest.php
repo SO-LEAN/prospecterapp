@@ -106,8 +106,8 @@ class OrganizationApiTest extends ApiTestCase
         $this->assertSame(['href' => '/api/organizations/'.$id, 'method' => 'GET'], $started['_links']['self']);
         $this->assertSame(['href' => '/api/organizations/'.$id.'/address', 'method' => 'PATCH'], $started['_links']['relocate']);
         $this->assertSame(['href' => '/api/organizations/'.$id.'/logo', 'method' => 'POST'], $started['_links']['changeLogo']);
-        $this->assertNull($started['_links']['removeLogo'], 'no logo to remove');
-        $this->assertNull($started['_links']['detachFromHolding'], 'no holding to detach from');
+        $this->assertArrayNotHasKey('removeLogo', $started['_links'], 'no logo to remove');
+        $this->assertArrayNotHasKey('detachFromHolding', $started['_links'], 'no holding to detach from');
 
         $withLogo = $this->uploadImage('/api/organizations/'.$id.'/logo');
         $this->assertSame(['href' => '/api/organizations/'.$id.'/logo', 'method' => 'DELETE'], $withLogo['_links']['removeLogo']);
