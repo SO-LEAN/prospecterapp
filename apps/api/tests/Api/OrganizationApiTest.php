@@ -2,7 +2,9 @@
 
 namespace Tests\App\Api;
 
+use Doctrine\ORM\EntityManagerInterface;
 use PHPUnit\Framework\Attributes\Group;
+use Prospecter\Core\Entity\Organization;
 use Tests\App\Base\ApiTestCase;
 
 #[Group('api')]
@@ -109,11 +111,50 @@ class OrganizationApiTest extends ApiTestCase
         $this->assertSame([''], $this->violatedFields($problem));
     }
 
+    public function testAnOrganizationOfAnotherOrganizationIsNotFound(): void
+    {
+        $id = $this->anOrganizationOfAnotherOrganization();
+
+        $this->requestJson('GET', '/api/organizations/'.$id);
+        $this->assertResponseStatusCodeSame(404);
+
+        $this->requestJson('PUT', '/api/organizations/'.$id, ['corporateName' => 'Taken over']);
+        $this->assertResponseStatusCodeSame(404);
+
+        $this->requestJson('DELETE', '/api/organizations/'.$id.'/logo');
+        $this->assertResponseStatusCodeSame(404);
+    }
+
+    public function testRemovingAMissingLogoIsRefused(): void
+    {
+        $created = $this->requestJson('POST', '/api/organizations', self::ACME);
+
+        $problem = $this->requestJson('DELETE', '/api/organizations/'.$created['id'].'/logo');
+
+        $this->assertResponseStatusCodeSame(422);
+        $this->assertSame(['logo'], $this->violatedFields($problem));
+    }
+
     public function testUnknownOrganizationIsNotFound(): void
     {
         $this->requestJson('GET', '/api/organizations/999');
 
         $this->assertResponseStatusCodeSame(404);
+    }
+
+    private function anOrganizationOfAnotherOrganization(): int
+    {
+        $entityManager = self::getContainer()->get(EntityManagerInterface::class);
+        $competitor = new Organization();
+        $competitor->setCorporateName('Competitor');
+        $prospect = new Organization();
+        $prospect->setCorporateName('Their prospect');
+        $prospect->setOwnedBy($competitor);
+        $entityManager->persist($competitor);
+        $entityManager->persist($prospect);
+        $entityManager->flush();
+
+        return (int) $prospect->getId();
     }
 
     private function storagePath(string $url): string

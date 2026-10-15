@@ -32,7 +32,7 @@ final class ReplaceOrganization extends AbstractController
     #[OA\Put(summary: 'Replace an organization (fields left out are cleared, the logo is kept)')]
     #[OA\Response(response: 200, description: 'The updated organization', content: new Model(type: OrganizationResource::class))]
     #[OA\Response(response: 401, description: 'Missing or invalid access token')]
-    #[OA\Response(response: 404, description: 'Unknown organization', content: new Model(type: ProblemResource::class))]
+    #[OA\Response(response: 404, description: 'Unknown organization, or one that is not prospected by mine', content: new Model(type: ProblemResource::class))]
     #[OA\Response(response: 422, description: 'Invalid organization', content: new Model(type: ProblemResource::class))]
     public function __invoke(int $id, #[MapRequestPayload] OrganizationInput $input, #[CurrentUser] User $user): JsonResponse
     {

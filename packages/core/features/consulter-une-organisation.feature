@@ -34,3 +34,14 @@ Fonctionnalité: Consulter une organisation
   Scénario: Une organisation inconnue est introuvable
     Quand je consulte l'organisation "Inconnue"
     Alors c'est introuvable
+
+  Scénario: L'organisation d'une autre organisation est introuvable
+    Soit l'organisation "Concurrent" qui utilise Prospecter
+    Et l'organisation "Initech" appartient à "Concurrent"
+    Quand je consulte l'organisation "Initech"
+    Alors c'est introuvable
+
+  Scénario: Une autre organisation qui utilise Prospecter est introuvable
+    Soit l'organisation "Concurrent" qui utilise Prospecter
+    Quand je consulte l'organisation "Concurrent"
+    Alors c'est introuvable

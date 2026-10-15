@@ -5,15 +5,18 @@ declare(strict_types=1);
 namespace Prospecter\Core\UseCase\GetOrganization;
 
 use Prospecter\Core\Entity\Organization;
-use Prospecter\Core\Exception\Gateway;
-use Prospecter\Core\Exception\UseCase\NotFoundException;
 use Prospecter\Core\Gateway\Entity\OrganizationGateway;
+use Prospecter\Core\Service\ProspectedOrganizations;
 use Prospecter\Core\UseCase\AbstractUseCase;
+use Prospecter\Core\UseCase\UseCaseConsumer;
 
 final class GetOrganizationImpl extends AbstractUseCase implements GetOrganization
 {
-    public function __construct(private readonly OrganizationGateway $organizations)
+    private readonly ProspectedOrganizations $prospectedOrganizations;
+
+    public function __construct(OrganizationGateway $organizations)
     {
+        $this->prospectedOrganizations = new ProspectedOrganizations($organizations);
     }
 
     public function canBeExecutedBy(): array
@@ -21,18 +24,11 @@ final class GetOrganizationImpl extends AbstractUseCase implements GetOrganizati
         return ['ROLE_PROSPECTOR'];
     }
 
-    public function execute(GetOrganizationRequest $request, GetOrganizationPresenter $presenter): mixed
+    public function execute(GetOrganizationRequest $request, GetOrganizationPresenter $presenter, UseCaseConsumer $consumer): mixed
     {
-        return $presenter->present($this->buildResponse($this->organization($request->id)));
-    }
+        $organization = $this->prospectedOrganizations->visibleTo($consumer->getOrganizationId(), $request->id);
 
-    private function organization(int $id): Organization
-    {
-        try {
-            return $this->organizations->get($id);
-        } catch (Gateway\NotFoundException $e) {
-            throw new NotFoundException(sprintf('Organization with #ID %d not found', $id), ['id' => 'Organization not found'], $e);
-        }
+        return $presenter->present($this->buildResponse($organization));
     }
 
     private function buildResponse(Organization $organization): GetOrganizationResponse

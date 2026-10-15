@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Tests\Core\Acceptance;
 
-use PHPUnit\Framework\Assert;
 use Prospecter\Core\Entity\File;
 use Prospecter\Core\Entity\GeoPoint;
 use Prospecter\Core\Entity\Organization;
@@ -127,22 +126,5 @@ final class Vocabulary
     public static function describeFile(?File $file): string
     {
         return $file ? sprintf('%s (%s, %d octets)', basename($file->url), $file->extension, $file->size) : 'aucun';
-    }
-
-    /**
-     * The labels of the scenario table are described this way, whatever their order; an unknown label fails.
-     *
-     * @param array<string, string> $expected labels the scenario cares about
-     * @param array<string, string> $actual   everything that can be said
-     */
-    public static function assertDescribes(array $expected, array $actual): void
-    {
-        $unknown = array_diff_key($expected, $actual);
-        Assert::assertSame([], $unknown, 'unknown labels: '.implode(', ', array_keys($unknown)));
-
-        $described = array_intersect_key($actual, $expected);
-        ksort($expected);
-        ksort($described);
-        Assert::assertSame($expected, $described);
     }
 }

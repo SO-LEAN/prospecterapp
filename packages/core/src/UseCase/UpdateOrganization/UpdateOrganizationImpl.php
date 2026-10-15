@@ -7,7 +7,6 @@ namespace Prospecter\Core\UseCase\UpdateOrganization;
 use Prospecter\Core\Entity\Organization;
 use Prospecter\Core\Exception\Entity\ValidationException;
 use Prospecter\Core\Exception\Gateway;
-use Prospecter\Core\Exception\UseCase\NotFoundException;
 use Prospecter\Core\Exception\UseCase\UniqueConstraintViolationException;
 use Prospecter\Core\Exception\UseCase\UseCaseException;
 use Prospecter\Core\Gateway\Entity\OrganizationGateway;
@@ -16,12 +15,15 @@ use Prospecter\Core\Gateway\Storage;
 use Prospecter\Core\Gateway\UserNotifier;
 use Prospecter\Core\Service\FileStore;
 use Prospecter\Core\Service\GeoLocalizer;
+use Prospecter\Core\Service\ProspectedOrganizations;
 use Prospecter\Core\UseCase\AbstractUseCase;
+use Prospecter\Core\UseCase\UseCaseConsumer;
 
 final class UpdateOrganizationImpl extends AbstractUseCase implements UpdateOrganization
 {
     private readonly FileStore $files;
     private readonly GeoLocalizer $geoLocalizer;
+    private readonly ProspectedOrganizations $prospectedOrganizations;
 
     public function __construct(
         private readonly OrganizationGateway $organizations,
@@ -31,6 +33,7 @@ final class UpdateOrganizationImpl extends AbstractUseCase implements UpdateOrga
     ) {
         $this->files = new FileStore($storage);
         $this->geoLocalizer = new GeoLocalizer($geoLocation);
+        $this->prospectedOrganizations = new ProspectedOrganizations($organizations);
     }
 
     public function canBeExecutedBy(): array
@@ -38,11 +41,11 @@ final class UpdateOrganizationImpl extends AbstractUseCase implements UpdateOrga
         return ['ROLE_PROSPECTOR'];
     }
 
-    public function execute(UpdateOrganizationRequest $request, UpdateOrganizationPresenter $presenter): mixed
+    public function execute(UpdateOrganizationRequest $request, UpdateOrganizationPresenter $presenter, UseCaseConsumer $consumer): mixed
     {
-        $organization = $this->organizations->get($request->id);
+        $organization = $this->prospectedOrganizations->prospectedBy($consumer->getOrganizationId(), $request->id);
         $this->replaceDetails($organization, $request);
-        $organization->setHoldBy($this->holding($request));
+        $organization->setHoldBy($this->prospectedOrganizations->holdingProspectedBy($consumer->getOrganizationId(), $request->holdBy));
         $this->geoLocalizer->locate($organization);
         $this->validate($organization);
 
@@ -65,19 +68,6 @@ final class UpdateOrganizationImpl extends AbstractUseCase implements UpdateOrga
 
         if ($request->logo) {
             $organization->setLogo($this->files->store($request->logo));
-        }
-    }
-
-    private function holding(UpdateOrganizationRequest $request): ?Organization
-    {
-        if (null === $request->holdBy) {
-            return null;
-        }
-
-        try {
-            return $this->organizations->get($request->holdBy);
-        } catch (Gateway\NotFoundException $e) {
-            throw new NotFoundException(sprintf('Holding with #ID %d not found', $request->holdBy), ['holdBy' => 'Holding not found'], $e);
         }
     }
 

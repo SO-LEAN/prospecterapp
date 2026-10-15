@@ -9,10 +9,10 @@ use Behat\Gherkin\Node\TableNode;
 use Behat\Step\Given;
 use Behat\Step\Then;
 use Behat\Step\When;
-use PHPUnit\Framework\Assert;
 use Prospecter\Core\Entity\Organization;
 use Prospecter\Core\UseCase\GetMyAccountInformation\GetMyAccountInformationResponse;
 use Prospecter\Core\UseCase\UpdateMyAccountInformation\UpdateMyAccountInformationRequest;
+use Tests\Core\Acceptance\Expect;
 use Tests\Core\Acceptance\Vocabulary;
 
 final class AccountContext implements Context
@@ -32,6 +32,7 @@ final class AccountContext implements Context
         $me->setEmail($profile['e-mail'] ?? null);
         $me->setPhoneNumber($profile['téléphone'] ?? null);
         $me->setLanguage($profile['langue'] ?? null);
+        $this->application->users->update((int) $me->getId(), $me);
     }
 
     #[Given('l\'organisation :name a l\'adresse e-mail :email')]
@@ -63,10 +64,10 @@ final class AccountContext implements Context
     #[Then('je vois mon compte :')]
     public function iSeeMyAccount(TableNode $table): void
     {
-        Assert::assertNotNull($this->account, sprintf('my account was expected, got: %s', $this->application->refusal()?->getMessage()));
+        Expect::that(null !== $this->account, sprintf('My account was expected, got: %s', $this->application->refusal()?->getMessage()));
         $expected = $table->getRowsHash();
 
-        Vocabulary::assertDescribes($expected, [
+        Expect::describes($expected, [
             'identifiant' => $this->account->userName,
             'prénom' => (string) $this->account->firstName,
             'nom' => (string) $this->account->lastName,
@@ -82,7 +83,7 @@ final class AccountContext implements Context
         $me = $this->scenario->me();
         $expected = $table->getRowsHash();
 
-        Vocabulary::assertDescribes(
+        Expect::describes(
             $expected,
             Vocabulary::describeAccount($me, $this->application->organizations->get($this->application->signedIn()->getOrganizationId())),
         );

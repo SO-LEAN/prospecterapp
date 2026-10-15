@@ -86,7 +86,7 @@ final class Application
     {
         $useCase = new GetOrganizationImpl($this->organizations);
 
-        return $this->attempt(fn (LastResponsePresenter $presenter): mixed => $useCase->execute($request, $presenter), GetOrganizationResponse::class);
+        return $this->attempt(fn (LastResponsePresenter $presenter): mixed => $useCase->execute($request, $presenter, $this->signedIn()), GetOrganizationResponse::class);
     }
 
     public function findMyOwnOrganizations(FindMyOwnOrganizationsRequest $request): ?FindMyOwnOrganizationsResponse
@@ -100,7 +100,7 @@ final class Application
     {
         $useCase = new UpdateOrganizationImpl($this->organizations, $this->storage, $this->notifications, $this->geoLocation);
 
-        return $this->attempt(fn (LastResponsePresenter $presenter): mixed => $useCase->execute($request, $presenter), UpdateOrganizationResponse::class);
+        return $this->attempt(fn (LastResponsePresenter $presenter): mixed => $useCase->execute($request, $presenter, $this->signedIn()), UpdateOrganizationResponse::class);
     }
 
     public function removeOrganizationLogo(RemoveOrganizationLogoRequest $request): ?RemoveOrganizationLogoResponse

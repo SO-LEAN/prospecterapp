@@ -10,7 +10,8 @@ use Prospecter\Core\Exception\Gateway\UniqueConstraintViolationException;
 
 /**
  * The persons table shared by the in-memory gateways, with the constraints of the real one:
- * generated ids and an email unique among all persons (organizations and users alike).
+ * generated ids and an email unique among all persons (organizations and users alike). Like a database,
+ * it keeps copies: a change is stored only when it is saved.
  */
 final class InMemoryDatabase
 {
@@ -22,7 +23,7 @@ final class InMemoryDatabase
     {
         $this->assertEmailIsFree($person);
         $person->setId(++$this->lastId);
-        $this->persons[$person->getId()] = $person;
+        $this->persons[$this->lastId] = clone $person;
     }
 
     public function replace(int $id, Person $person): void
@@ -30,12 +31,12 @@ final class InMemoryDatabase
         $this->find($id) ?? throw new NotFoundException(sprintf('No person #%d', $id));
         $this->assertEmailIsFree($person);
         $person->setId($id);
-        $this->persons[$id] = $person;
+        $this->persons[$id] = clone $person;
     }
 
-    public function find(mixed $id): ?Person
+    public function find(int $id): ?Person
     {
-        return $this->persons[$id] ?? null;
+        return isset($this->persons[$id]) ? clone $this->persons[$id] : null;
     }
 
     /**
@@ -47,7 +48,10 @@ final class InMemoryDatabase
      */
     public function all(string $class): array
     {
-        return array_values(array_filter($this->persons, static fn (Person $person): bool => $person instanceof $class));
+        return array_values(array_map(
+            static fn (Person $person): Person => clone $person,
+            array_filter($this->persons, static fn (Person $person): bool => $person instanceof $class),
+        ));
     }
 
     /**

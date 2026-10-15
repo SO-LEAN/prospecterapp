@@ -9,7 +9,6 @@ use Behat\Gherkin\Node\TableNode;
 use Behat\Step\Given;
 use Behat\Step\Then;
 use Behat\Step\When;
-use PHPUnit\Framework\Assert;
 use Prospecter\Core\Entity\Address;
 use Prospecter\Core\Entity\File;
 use Prospecter\Core\Entity\Organization;
@@ -21,7 +20,9 @@ use Prospecter\Core\UseCase\GetOrganization\GetOrganizationRequest;
 use Prospecter\Core\UseCase\GetOrganization\GetOrganizationResponse;
 use Prospecter\Core\UseCase\RemoveOrganizationLogo\RemoveOrganizationLogoRequest;
 use Prospecter\Core\UseCase\UpdateOrganization\UpdateOrganizationRequest;
+use Tests\Core\Acceptance\Expect;
 use Tests\Core\Acceptance\Vocabulary;
+use Tests\Core\Double\InMemoryStorage;
 
 final class OrganizationContext implements Context
 {
@@ -51,9 +52,11 @@ final class OrganizationContext implements Context
     #[Given('l\'organisation :name appartient à :owner')]
     public function anOrganizationOwnedBy(string $name, string $owner): Organization
     {
+        $ownerOrganization = $this->scenario->organizationNamed($owner);
         $organization = new Organization();
         $organization->setCorporateName($name);
-        $organization->setOwnedBy($this->scenario->organizationNamed($owner));
+        $organization->setOwnedBy($ownerOrganization);
+        $this->application->organizations->update((int) $ownerOrganization->getId(), $ownerOrganization);
 
         return $this->application->organizations->create($organization);
     }
@@ -117,28 +120,28 @@ final class OrganizationContext implements Context
     #[Then('l\'organisation :name est enregistrée avec :')]
     public function theOrganizationIsStoredWith(string $name, TableNode $table): void
     {
-        Vocabulary::assertDescribes($table->getRowsHash(), Vocabulary::describeOrganization($this->scenario->organizationNamed($name)));
+        Expect::describes($table->getRowsHash(), Vocabulary::describeOrganization($this->scenario->organizationNamed($name)));
     }
 
     #[Then('aucune organisation :name n\'est enregistrée')]
     public function noOrganizationIsStored(string $name): void
     {
-        Assert::assertNull($this->application->organizations->findOneBy(['corporateName' => $name]));
+        Expect::that(null === $this->application->organizations->findOneBy(['corporateName' => $name]), sprintf('"%s" was stored', $name));
     }
 
     #[Then('l\'organisation :name compte :count organisation(s) active(s)')]
     public function theOrganizationCountsActiveOrganizations(string $name, int $count): void
     {
-        Assert::assertSame($count, $this->scenario->organizationNamed($name)->getStat('activeOrganizations'));
+        Expect::same($count, $this->scenario->organizationNamed($name)->getStat('activeOrganizations'));
     }
 
     #[Then('je vois l\'organisation :')]
     public function iSeeTheOrganization(TableNode $table): void
     {
-        Assert::assertNotNull($this->consulted, sprintf('the organization was expected, got: %s', $this->application->refusal()?->getMessage()));
+        Expect::that(null !== $this->consulted, sprintf('The organization was expected, got: %s', $this->application->refusal()?->getMessage()));
         $organization = $this->consulted;
 
-        Vocabulary::assertDescribes($table->getRowsHash(), [
+        Expect::describes($table->getRowsHash(), [
             'raison sociale' => (string) $organization->corporateName,
             'forme juridique' => (string) $organization->form,
             'e-mail' => (string) $organization->email,
@@ -152,21 +155,21 @@ final class OrganizationContext implements Context
     #[Then('je trouve :total organisation(s) sur :pages page(s)')]
     public function iFindOrganizationsOnPages(int $total, int $pages): void
     {
-        Assert::assertNotNull($this->found);
-        Assert::assertSame($total, $this->found->total);
-        Assert::assertSame($pages, $this->found->totalPages);
+        Expect::that(null !== $this->found, sprintf('Organizations were expected, got: %s', $this->application->refusal()?->getMessage()));
+        Expect::same($total, $this->found->total);
+        Expect::same($pages, $this->found->totalPages);
     }
 
     #[Then('la liste affiche :')]
     public function theListShows(TableNode $table): void
     {
-        Assert::assertNotNull($this->found);
+        Expect::that(null !== $this->found, sprintf('Organizations were expected, got: %s', $this->application->refusal()?->getMessage()));
         $shown = array_map(static fn (FoundOrganization $organization): array => [
             'nom' => $organization->fullName,
             'ville' => (string) $organization->address?->city,
         ], $this->found->organizations);
 
-        Assert::assertSame($table->getColumnsHash(), array_map(
+        Expect::same($table->getColumnsHash(), array_map(
             static fn (array $row): array => array_intersect_key($row, array_flip(array_keys($table->getColumnsHash()[0] ?? []))),
             $shown,
         ));
@@ -175,13 +178,13 @@ final class OrganizationContext implements Context
     #[Then('le stockage contient :fileName')]
     public function theStorageContains(string $fileName): void
     {
-        Assert::assertTrue($this->application->storage->has($this->application->storage::urlOf($fileName)));
+        Expect::that($this->application->storage->has(InMemoryStorage::urlOf($fileName)), sprintf('"%s" is not stored', $fileName));
     }
 
     #[Then('le stockage ne contient plus :fileName')]
     public function theStorageNoLongerContains(string $fileName): void
     {
-        Assert::assertFalse($this->application->storage->has($this->application->storage::urlOf($fileName)));
+        Expect::that(!$this->application->storage->has(InMemoryStorage::urlOf($fileName)), sprintf('"%s" is still stored', $fileName));
     }
 
     /**
@@ -199,6 +202,8 @@ final class OrganizationContext implements Context
             $logo = $this->scenario->upload($details['logo']);
             $organization->setLogo(new File($this->application->storage->add($logo), 'png', 1024));
         }
+
+        $this->application->organizations->update((int) $organization->getId(), $organization);
     }
 
     private function create(TableNode $table, ?int $ownedBy): void

@@ -564,7 +564,7 @@ export interface operations {
                 };
                 content?: never;
             };
-            /** @description Unknown organization */
+            /** @description Unknown organization, or one that is not prospected by mine */
             404: {
                 headers: {
                     [name: string]: unknown;
@@ -611,8 +611,17 @@ export interface operations {
                 };
                 content?: never;
             };
-            /** @description Unknown organization */
+            /** @description Unknown organization, or one that is not prospected by mine */
             404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ProblemResource"];
+                };
+            };
+            /** @description The organization has no logo */
+            422: {
                 headers: {
                     [name: string]: unknown;
                 };
@@ -649,7 +658,7 @@ export interface operations {
                 };
                 content?: never;
             };
-            /** @description Unknown organization */
+            /** @description Unknown organization, or one that is not prospected by mine */
             404: {
                 headers: {
                     [name: string]: unknown;
@@ -691,7 +700,7 @@ export interface operations {
                 };
                 content?: never;
             };
-            /** @description Unknown organization */
+            /** @description Unknown organization, or one that is not prospected by mine */
             404: {
                 headers: {
                     [name: string]: unknown;

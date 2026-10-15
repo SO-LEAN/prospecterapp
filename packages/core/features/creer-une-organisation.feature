@@ -112,3 +112,12 @@ Fonctionnalité: Créer une organisation à prospecter
     Alors l'organisation "ACME" est enregistrée avec :
       | logo | acme.png (png, 2048 octets) |
     Et le stockage contient "acme.png"
+
+  Scénario: La holding doit être une de mes organisations
+    Soit l'organisation "Concurrent" qui utilise Prospecter
+    Et l'organisation "Initech" appartient à "Concurrent"
+    Quand je crée l'organisation :
+      | raison sociale | ACME    |
+      | holding        | Initech |
+    Alors c'est introuvable
+    Et aucune organisation "ACME" n'est enregistrée

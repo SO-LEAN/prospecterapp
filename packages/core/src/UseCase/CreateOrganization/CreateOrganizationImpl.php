@@ -7,7 +7,6 @@ namespace Prospecter\Core\UseCase\CreateOrganization;
 use Prospecter\Core\Entity\Organization;
 use Prospecter\Core\Exception\Entity\ValidationException;
 use Prospecter\Core\Exception\Gateway;
-use Prospecter\Core\Exception\UseCase\NotFoundException;
 use Prospecter\Core\Exception\UseCase\UniqueConstraintViolationException;
 use Prospecter\Core\Exception\UseCase\UseCaseException;
 use Prospecter\Core\Gateway\Entity\OrganizationGateway;
@@ -16,12 +15,14 @@ use Prospecter\Core\Gateway\Storage;
 use Prospecter\Core\Gateway\UserNotifier;
 use Prospecter\Core\Service\FileStore;
 use Prospecter\Core\Service\GeoLocalizer;
+use Prospecter\Core\Service\ProspectedOrganizations;
 use Prospecter\Core\UseCase\AbstractUseCase;
 
 final class CreateOrganizationImpl extends AbstractUseCase implements CreateOrganization
 {
     private readonly FileStore $files;
     private readonly GeoLocalizer $geoLocalizer;
+    private readonly ProspectedOrganizations $prospectedOrganizations;
 
     public function __construct(
         private readonly OrganizationGateway $organizations,
@@ -31,6 +32,7 @@ final class CreateOrganizationImpl extends AbstractUseCase implements CreateOrga
     ) {
         $this->files = new FileStore($storage);
         $this->geoLocalizer = new GeoLocalizer($geoLocation);
+        $this->prospectedOrganizations = new ProspectedOrganizations($organizations);
     }
 
     public function canBeExecutedBy(): array
@@ -43,11 +45,12 @@ final class CreateOrganizationImpl extends AbstractUseCase implements CreateOrga
         $owner = $this->owner($request);
         $organization = $this->buildOrganization($request);
         $organization->setOwnedBy($owner);
-        $organization->setHoldBy($this->holding($request));
+        $organization->setHoldBy($this->prospectedOrganizations->holdingProspectedBy((int) $owner->getId(), $request->holdBy));
         $this->geoLocalizer->locate($organization);
         $this->validate($organization);
 
         $created = $this->create($organization);
+        $this->organizations->update((int) $owner->getId(), $owner);
         $this->userNotifier->addSuccess('Organization created !');
 
         return $presenter->present($this->buildResponse($created));
@@ -79,19 +82,6 @@ final class CreateOrganizationImpl extends AbstractUseCase implements CreateOrga
         }
 
         return $this->organizations->get($request->ownedBy);
-    }
-
-    private function holding(CreateOrganizationRequest $request): ?Organization
-    {
-        if (null === $request->holdBy) {
-            return null;
-        }
-
-        try {
-            return $this->organizations->get($request->holdBy);
-        } catch (Gateway\NotFoundException $e) {
-            throw new NotFoundException(sprintf('Holding with #ID %d not found', $request->holdBy), ['holdBy' => 'Holding not found'], $e);
-        }
     }
 
     private function validate(Organization $organization): void

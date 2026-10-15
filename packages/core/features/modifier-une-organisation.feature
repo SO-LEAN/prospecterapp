@@ -81,3 +81,19 @@ Fonctionnalité: Modifier une organisation
       | raison sociale | ACME                |
       | e-mail         | contact@globex.test |
     Alors c'est refusé : "Email already used"
+
+  Scénario: L'organisation d'une autre organisation est introuvable
+    Soit l'organisation "Concurrent" qui utilise Prospecter
+    Et l'organisation "Initech" appartient à "Concurrent"
+    Quand je modifie l'organisation "Initech" avec :
+      | raison sociale | Initech rachetée |
+    Alors c'est introuvable
+    Et aucune organisation "Initech rachetée" n'est enregistrée
+
+  Scénario: La holding doit être une de mes organisations
+    Soit l'organisation "Concurrent" qui utilise Prospecter
+    Et l'organisation "Initech" appartient à "Concurrent"
+    Quand je modifie l'organisation "ACME" avec :
+      | raison sociale | ACME    |
+      | holding        | Initech |
+    Alors c'est introuvable

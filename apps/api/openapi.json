@@ -331,7 +331,7 @@
                         "description": "Missing or invalid access token"
                     },
                     "404": {
-                        "description": "Unknown organization",
+                        "description": "Unknown organization, or one that is not prospected by mine",
                         "content": {
                             "application/json": {
                                 "schema": {
@@ -384,7 +384,17 @@
                         "description": "Missing or invalid access token"
                     },
                     "404": {
-                        "description": "Unknown organization",
+                        "description": "Unknown organization, or one that is not prospected by mine",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ProblemResource"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "The organization has no logo",
                         "content": {
                             "application/json": {
                                 "schema": {
@@ -429,7 +439,7 @@
                         "description": "Missing or invalid access token"
                     },
                     "404": {
-                        "description": "Unknown organization",
+                        "description": "Unknown organization, or one that is not prospected by mine",
                         "content": {
                             "application/json": {
                                 "schema": {
@@ -482,7 +492,7 @@
                         "description": "Missing or invalid access token"
                     },
                     "404": {
-                        "description": "Unknown organization",
+                        "description": "Unknown organization, or one that is not prospected by mine",
                         "content": {
                             "application/json": {
                                 "schema": {

@@ -8,11 +8,11 @@ use Behat\Behat\Context\Context;
 use Behat\Hook\AfterScenario;
 use Behat\Step\Given;
 use Behat\Step\Then;
-use PHPUnit\Framework\Assert;
 use Prospecter\Core\Entity\Organization;
 use Prospecter\Core\Entity\User;
 use Prospecter\Core\Exception\UseCase\NotFoundException;
 use Tests\Core\Acceptance\Application;
+use Tests\Core\Acceptance\Expect;
 use Tests\Core\Double\SignedInUser;
 
 /**
@@ -68,20 +68,20 @@ final readonly class ScenarioContext implements Context
     #[Then('/^c\'est refusé : "(?<message>.*)"$/')]
     public function itIsRefused(string $message): void
     {
-        Assert::assertNotNull($this->application->refusal(), 'the use case was expected to refuse');
-        Assert::assertSame($message, $this->application->refusal()->getMessage());
+        Expect::that(null !== $this->application->refusal(), 'The use case was expected to refuse');
+        Expect::same($message, $this->application->refusal()->getMessage());
     }
 
     #[Then('c\'est introuvable')]
     public function itIsNotFound(): void
     {
-        Assert::assertInstanceOf(NotFoundException::class, $this->application->refusal());
+        Expect::that($this->application->refusal() instanceof NotFoundException, sprintf('Not found was expected, got: %s', get_debug_type($this->application->refusal())));
     }
 
     #[Then('je suis informé que :message')]
     public function iAmNotifiedThat(string $message): void
     {
-        Assert::assertContains(['success', $message], $this->application->notifications->all());
+        Expect::that(in_array(['success', $message], $this->application->notifications->all(), true), sprintf('"%s" was not notified', $message));
     }
 
     /**

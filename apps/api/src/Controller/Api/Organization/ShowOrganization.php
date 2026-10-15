@@ -28,7 +28,7 @@ final class ShowOrganization extends AbstractController
     #[OA\Get(summary: 'Get an organization')]
     #[OA\Response(response: 200, description: 'The organization', content: new Model(type: OrganizationResource::class))]
     #[OA\Response(response: 401, description: 'Missing or invalid access token')]
-    #[OA\Response(response: 404, description: 'Unknown organization', content: new Model(type: ProblemResource::class))]
+    #[OA\Response(response: 404, description: 'Unknown organization, or one that is not prospected by mine', content: new Model(type: ProblemResource::class))]
     public function __invoke(int $id, #[CurrentUser] User $user): JsonResponse
     {
         return $this->json($this->useCases->getOrganization(new GetOrganizationRequest($id), $this->presenter, $user));
