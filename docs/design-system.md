@@ -24,7 +24,7 @@ Defined in `apps/front/src/app/styles.css` (`:root` and `.dark`) in OKLCH, expos
 | `sidebar*` | navigation panel |
 | `chart-1..5` | data visualisation |
 
-Radius: `--radius` 0.75 rem (`rounded-lg`), cards `rounded-xl`. Shadow: `shadow-card`. Font: Inter Variable (self-hosted, `@fontsource-variable/inter`), numbers in stats use `tabular-nums`.
+Radius: `--radius` 0.75 rem (`rounded-lg`), cards `rounded-xl`. Shadow: `shadow-sm` on cards (`shared/ui/card.tsx`), the softer `shadow-card` token on the organization cards of the lists. Font: Inter Variable (self-hosted, `@fontsource-variable/inter`), numbers in stats use `tabular-nums`.
 
 ## Theme
 

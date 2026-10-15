@@ -37,7 +37,7 @@ The scenarios do not know the command bus of the API: `Application::dispatch()` 
 ## Adding or changing a rule
 
 1. Write the scenario in the feature of the intent (one feature per use case, named after it in French: `demenager.feature` for `Relocate`), with the words already used (`Vocabulary` lists the table labels). Run `make test-core`: it must fail, and for the expected reason.
-2. Missing step: Behat prints a snippet; add it to the context of the domain (`OrganizationContext`, `AccountContext`) or to `ScenarioContext` for shared ones. Steps arrange data through the aggregates and repositories (and save what they change), act through `Application`, assert on responses or on the stored state.
+2. Missing step: Behat prints a snippet; add it to the context of the domain (`OrganizationContext`, `AccountContext`, `PersonalDataContext`) or to `ScenarioContext` for shared ones. Steps arrange data through the aggregates and repositories (and save what they change), act through `Application`, assert on responses or on the stored state.
 3. A new port gets a working double in `tests/Double`, behaving like its real adapter.
 4. Make it pass in `src`, then refactor with the scenarios green.
 5. `make test-core && make lint`, then `make test` (the API uses the core).

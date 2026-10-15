@@ -11,7 +11,7 @@ This guide is alive: rules get added and sharpened as the code is improved, iter
 - **Pronounceable and searchable.** No abbreviations (`$org`, `$req`), no single letters except tiny loop counters and closure parameters read on the same line.
 - **No encodings.** No Hungarian notation, no `m_` or `$str` prefixes, no `I` prefix nor `Interface` suffix on interfaces, no `Impl` on classes: the interface says the role (`OrganizationRepository`), an implementation its technology (`DoctrineOrganizationRepository`, `InMemoryOrganizationRepository`). PHP types carry the type.
 - **Named constants instead of magic values.** `MIN_SCORE = 0.5`, `MARKER_HEIGHT = 48`, `WHOLE_FRANCE`. A closed set of values is an `enum`, not strings or integers.
-- **Classes are nouns, methods are verbs** (`FileStore::store()`); boolean methods read as questions (`isEmpty()`, `hasCorporateNameOrEmail()`).
+- **Classes are nouns, methods are verbs** (`FileStore::store()`); boolean methods read as questions (`isEmpty()`, `hasCorporateName()`).
 - **One word per concept.** We say `find` for "may return nothing" and `get` for "throws when missing"; we do not mix `fetch`, `retrieve` and `get`.
 - **Length follows scope.** The wider the scope, the longer and more precise the name; private helpers can be shorter than public API.
 - **Use the business's words** (prospect, holding, owner), the solution's words (presenter, gateway, adapter) for technical code.
@@ -56,7 +56,7 @@ This guide is alive: rules get added and sharpened as the code is improved, iter
 
 ## 6. Error handling
 
-- **Exceptions, not return codes**, with the context needed to understand them: business refusals are domain exceptions (`Domain/Exception`: `NotFound`, `BusinessRuleViolation` naming its field, `NotPossibleInItsState`, with named constructors), translated into `UseCaseRefused` and its `ErrorType` by the decorator `RefusalTranslatingHandler` around every handler, the domain exception kept as previous (ADR 0035); infrastructure failures go through untouched. Error handling is one thing: it lives in that decorator, never in the handlers.
+- **Exceptions, not return codes**, with the context needed to understand them: business refusals are domain exceptions (`Domain/Exception`: `NotFound`, `BusinessRuleViolation` naming its field, `NotPossibleInItsState`, `NotAllowed`, `EmailAlreadyUsed`, with named constructors), translated into `UseCaseRefused` and its `ErrorType` by the decorator `RefusalTranslatingHandler` around every handler, the domain exception kept as previous (ADR 0035); infrastructure failures go through untouched. Error handling is one thing: it lives in that decorator, never in the handlers.
 - **Define exceptions by the caller's needs**: one type per way the caller reacts (not found, refused, conflict), not one per failure.
 - **Do not return `null`, do not pass `null`** when it can be avoided: throw, return an empty collection, or a special case object. `?Type` only when absence is a real, expected answer.
 - **Unchecked exceptions**: PHP has no checked exceptions; document `@throws` on ports, where implementers need it.
@@ -103,11 +103,14 @@ This guide is alive: rules get added and sharpened as the code is improved, iter
 - **Screaming architecture**: the folders say what the application does (`Prospecting/Application/StartProspecting`, `Accounts/Domain/Account`, `features/organizations`): grouped by bounded context first, by layer inside (ADR 0030), not which framework it uses.
 - **Keep options open**: decisions on frameworks, databases and delivery are deferred and isolated behind boundaries (ADR 0016, 0029, 0034).
 
+**Known debt**
+- `apps/front/src/shared/api/client.ts` imports the OAuth session and the environment from `app/`: `shared` should depend on nothing of the app (move them to `shared/`).
+
 ## 12. Simplicity
 
 - **Kent Beck's simple design**, in order: passes all the tests, reveals intention, no duplication, fewest elements.
 - **DRY, with judgement**: remove real duplication of knowledge; leave accidental duplication alone (two codes that look alike but change for different reasons, such as `OrganizationResponse` and `FoundOrganization`, an organization for its page and for a list).
-- **YAGNI**: no code for a need that does not exist yet; dead code is deleted (`Customer`, `Call`, `Email`, `Event` were).
+- **YAGNI**: no code for a need that does not exist yet; dead code is deleted (the old `Customer`, `Call`, `Email` and `Event` entities were).
 - **KISS**: the simplest design that passes the tests.
 
 ## 13. Discipline
@@ -118,5 +121,5 @@ This guide is alive: rules get added and sharpened as the code is improved, iter
 
 ## PHP and TypeScript specifics
 
-- PHP: native types everywhere, `readonly` classes and promoted properties, `enum` for closed sets, `match` instead of `switch`, first-class callables (`$this->found(...)`), `never` and `throw` expressions, strict types in the core, PHPStan level 5 (ADR 0004).
+- PHP: native types everywhere, `readonly` classes and promoted properties, `enum` for closed sets, `match` instead of `switch`, first-class callables (`$this->allowsInItsState(...)`, `FoundOrganization::of(...)`), `never` and `throw` expressions, strict types in the core, PHPStan level 5 (ADR 0004).
 - TypeScript: strict mode, no `any`, named functions for intentions (`isClientError`, `waitForTheBrowserToLeave`), no manual memoization (the React Compiler does it), components small and composed.

@@ -28,7 +28,7 @@ Dead endpoints broke fresh installs, not the code:
 | Bootstrap 4 / FA 4 SCSS | npm | Composer packages `twbs/bootstrap`, `components/font-awesome` | keep the exact look and variable overrides without Node |
 | Doctrine mapping | YAML | XML | ORM 3 removed YAML; entities belong to the library, so no attributes |
 | Auth | Guard authenticator | `AbstractLoginFormAuthenticator` + Passport, `CustomCredentials` calling the `login` use case | Guard removed in Symfony 6 |
-| Tests | PHPUnit 6, Liip | PHPUnit 13, Symfony `WebTestCase`, prophecy-phpunit | |
+| Tests | PHPUnit 6, Liip | PHPUnit 13, Symfony `WebTestCase`, prophecy-phpunit (since removed: hand-written doubles only) | |
 | Env files | `.env.dist` copied to `.env` | committed `.env`, `.env.dev`, `.env.test`, local `.env.local` | Symfony standard |
 
 ## Traps
@@ -58,7 +58,7 @@ The Symfony pages were replaced by a React SPA (`apps/front`) and a JSON API (`a
 - PHP does not allow `new` in class constants (only in parameter defaults and attribute arguments).
 - Symfony refuses to redirect to another host after logout (falls back to `/`): `LogoutListener` sets the response explicitly.
 - `KernelBrowser` reboots the kernel between requests: the OAuth bundle's in-memory persistence loses the authorization code; tests use Doctrine persistence.
-- NelmioApiDocBundle documents `{id}` path parameters as strings: the front converts ids with `String(id)`.
+- NelmioApiDocBundle documents `{id}` path parameters as strings: the front converted ids with `String(id)` (obsolete since the ids are UUID strings).
 - Two existing bugs surfaced by the API tests: removing a logo passed its URL to `unlink()` (nothing was deleted), and a failed geocoding was stored as 0,0 (the adapter dropped the "succeeded" flag).
 - TypeScript 7 is native and has no JavaScript compiler API: `openapi-typescript` runs with `pnpm dlx` and TypeScript 5.
 - pnpm 12 ignores the `pnpm` field of `package.json` (settings live in `pnpm-workspace.yaml`) and ignores `PNPM_STORE_DIR` (use `npm_config_store_dir`); otherwise the store lands at the root of the mounted repository.

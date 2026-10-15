@@ -40,12 +40,13 @@ src/
     api/                client.ts, schema.d.ts and auth-schema.d.ts (generated), problem.ts, keys.ts, upload.ts
     ui/                 design system components (shadcn) + form/, feedback/, map/
     i18n/               setup and fr.ts
+    forms/              section form, FormField, shared field groups (AddressFields, ContactDetailsFields, LegalIdentityFields)
     lib/ hooks/ stores/ utilities, hooks, Zustand stores
   test/setup.ts         Vitest setup
 e2e/                    Playwright journeys
 ```
 
-Dependency rule: `shared` depends on nothing of the app; a `feature` depends only on `shared`; `routes` and `app` compose features. Query key prefixes used by several features live in `shared/api/keys.ts`.
+Dependency rule: `shared` depends on nothing of the app, except `shared/api/client.ts`, which reads the OAuth session and the environment from `app/auth.ts` and `app/env.ts` (known debt); a `feature` depends only on `shared`; `routes` and `app` compose features. Query key prefixes used by several features live in `shared/api/keys.ts`.
 
 ## State: each kind in its place
 
@@ -64,7 +65,7 @@ Never copy server data into Zustand or `useState`: read it from the query, the c
 
 - Queries are declared once as options (`organizationQuery(id)` in `features/*/queries.ts`) and reused by route loaders and components.
 - Route loaders call `queryClient.ensureQueryData(...)`: the data is fetched before the page renders (no loading waterfall), and with `defaultPreload: 'intent'` hovering a link starts loading its code and data.
-- Pages read with `useSuspenseQuery`: no undefined checks, the route `pendingComponent` shows a skeleton when loading takes time.
+- Pages read with `useSuspenseQuery`: no undefined checks, the route `pendingComponent` shows a skeleton when loading takes time. Paginated lists are the exception: `useQuery` with `keepPreviousData` (below).
 - `staleTime` 30 s: navigating back and forth does not refetch; data refreshes in the background when the window regains focus.
 - Lists keep the previous page on screen while the next loads (`placeholderData: keepPreviousData`); the search input is debounced (300 ms) and written to the URL.
 - Mutations put the returned resource directly in the cache (`setQueryData`), then invalidate only the lists that may change; invalidated queries refetch only if displayed.
