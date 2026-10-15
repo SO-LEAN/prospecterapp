@@ -17,7 +17,7 @@ final class Login extends AbstractController
     public function __invoke(AuthenticationUtils $authenticationUtils): Response
     {
         return $this->render('auth/login.html.twig', [
-            'form' => $this->createForm(LoginType::class, ['userName' => $authenticationUtils->getLastUsername()]),
+            'form' => $this->createForm(LoginType::class, ['email' => $authenticationUtils->getLastUsername()]),
             'error' => $authenticationUtils->getLastAuthenticationError(),
         ]);
     }

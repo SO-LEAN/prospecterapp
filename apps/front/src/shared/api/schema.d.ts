@@ -21,6 +21,23 @@ export interface paths {
         patch: operations["patch_api_me_change_contact_details"];
         trace?: never;
     };
+    "/api/me/login-email": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        /** Change the email I sign in with, unique on the platform (the access token is bound to it: sign in again) */
+        patch: operations["patch_api_me_change_login_email"];
+        trace?: never;
+    };
     "/api/me/name": {
         parameters: {
             query?: never;
@@ -87,23 +104,6 @@ export interface paths {
         options?: never;
         head?: never;
         patch?: never;
-        trace?: never;
-    };
-    "/api/me/user-name": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        /** Change my user name (the access token is bound to it: sign in again) */
-        patch: operations["patch_api_me_change_user_name"];
         trace?: never;
     };
     "/api/me/organization/legal-identity": {
@@ -308,6 +308,10 @@ export interface components {
             /** @default null */
             language: string | null;
         };
+        LoginEmailInput: {
+            /** @default  */
+            email: string;
+        };
         PersonNameInput: {
             /** @default null */
             firstName: string | null;
@@ -317,10 +321,6 @@ export interface components {
         PasswordInput: {
             /** @default  */
             password: string;
-        };
-        UserNameInput: {
-            /** @default  */
-            userName: string;
         };
         LegalIdentityInput: {
             /** @default null */
@@ -394,15 +394,15 @@ export interface components {
         AccountLinksResource: {
             self: components["schemas"]["LinkResource"];
             changeMyPassword: components["schemas"]["LinkResource"];
+            changeMyLoginEmail: components["schemas"]["LinkResource"];
             changeMyName?: components["schemas"]["LinkResource"];
-            changeMyUserName?: components["schemas"]["LinkResource"];
             changeMyContactDetails?: components["schemas"]["LinkResource"];
             changeMyPicture?: components["schemas"]["LinkResource"];
             reviseMyOrganizationIdentity?: components["schemas"]["LinkResource"];
             changeMyOrganizationLogo?: components["schemas"]["LinkResource"];
         };
         AccountResource: {
-            userName: string;
+            loginEmail: string;
             name: components["schemas"]["PersonNameResource"];
             contactDetails: components["schemas"]["ContactDetailsResource"];
             picture?: components["schemas"]["ImageResource"] | null;
@@ -527,6 +527,55 @@ export interface operations {
                 };
             };
             /** @description Invalid contact details or email already used */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ProblemResource"];
+                };
+            };
+        };
+    };
+    patch_api_me_change_login_email: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["LoginEmailInput"];
+            };
+        };
+        responses: {
+            /** @description My account */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AccountResource"];
+                };
+            };
+            /** @description Missing or invalid access token */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description The signed-in user is not a user */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ProblemResource"];
+                };
+            };
+            /** @description Missing or invalid email, or one another member signs in with */
             422: {
                 headers: {
                     [name: string]: unknown;
@@ -727,55 +776,6 @@ export interface operations {
                 };
             };
             /** @description Invalid image */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ProblemResource"];
-                };
-            };
-        };
-    };
-    patch_api_me_change_user_name: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["UserNameInput"];
-            };
-        };
-        responses: {
-            /** @description My account */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["AccountResource"];
-                };
-            };
-            /** @description Missing or invalid access token */
-            401: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description The signed-in user is not a user */
-            403: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ProblemResource"];
-                };
-            };
-            /** @description Missing or invalid user name */
             422: {
                 headers: {
                     [name: string]: unknown;

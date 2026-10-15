@@ -23,14 +23,15 @@ final class SetPasswordCommand extends Command
     protected function configure(): void
     {
         $this
-            ->addArgument('userName', InputArgument::REQUIRED)
+            ->addArgument('email', InputArgument::REQUIRED, 'The login email of the member')
             ->addOption('password', null, InputOption::VALUE_REQUIRED, 'For scripts; asked without echo otherwise');
     }
 
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
         $io = new SymfonyStyle($input, $output);
-        $user = $this->users->find($input->getArgument('userName'));
+        $loginEmail = (string) $input->getArgument('email');
+        $member = $this->users->find($loginEmail);
         $password = $input->getOption('password') ?? $io->askHidden('New password');
 
         if (!is_string($password) || '' === $password) {
@@ -39,8 +40,8 @@ final class SetPasswordCommand extends Command
             return Command::INVALID;
         }
 
-        $this->passwords->set($user->id(), $password);
-        $io->success(sprintf('Password of "%s" set.', $user->userName()));
+        $this->passwords->set($member->id(), $password);
+        $io->success(sprintf('Password of "%s" set.', $loginEmail));
 
         return Command::SUCCESS;
     }

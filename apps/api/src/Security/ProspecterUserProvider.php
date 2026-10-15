@@ -2,29 +2,28 @@
 
 namespace App\Security;
 
+use App\Auth\LoginEmails;
 use App\Entity\User;
-use Prospecter\Core\Accounts\Domain\Member as CoreUser;
+use Prospecter\Core\Accounts\Domain\Member;
 use Prospecter\Core\Accounts\Domain\MemberRepository;
+use Prospecter\Core\Accounts\Domain\UnknownMember;
 use Symfony\Component\Security\Core\Exception\UnsupportedUserException;
 use Symfony\Component\Security\Core\Exception\UserNotFoundException;
 use Symfony\Component\Security\Core\User\UserInterface;
 use Symfony\Component\Security\Core\User\UserProviderInterface;
 
 /**
- * Loads the signed-in user from its user name (the subject of the access token) straight from the
- * repository: authentication is infrastructure, it does not go through a use case.
- *
  * @implements UserProviderInterface<User>
  */
 final readonly class ProspecterUserProvider implements UserProviderInterface
 {
-    public function __construct(private MemberRepository $members)
+    public function __construct(private LoginEmails $loginEmails, private MemberRepository $members)
     {
     }
 
     public function loadUserByIdentifier(string $identifier): UserInterface
     {
-        return User::from($this->find($identifier));
+        return User::from($this->find($identifier), $identifier);
     }
 
     public function refreshUser(UserInterface $user): UserInterface
@@ -41,8 +40,15 @@ final readonly class ProspecterUserProvider implements UserProviderInterface
         return User::class === $class;
     }
 
-    public function find(string $userName): CoreUser
+    /**
+     * The member signing in with this login email.
+     */
+    public function find(string $loginEmail): Member
     {
-        return $this->members->ofUserName($userName) ?? throw new UserNotFoundException('Bad credentials');
+        try {
+            return $this->members->get($this->loginEmails->memberOf($loginEmail) ?? throw new UserNotFoundException('Bad credentials'));
+        } catch (UnknownMember) {
+            throw new UserNotFoundException('Bad credentials');
+        }
     }
 }

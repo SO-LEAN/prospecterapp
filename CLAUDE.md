@@ -21,7 +21,7 @@ The index below is loaded in every session; open a record before working on its 
 Everything runs in Docker (PHP 8.5, Node 24, nginx); nothing but Docker and make on the host. From the repository root:
 
 - `make install`: images, Composer and pnpm dependencies, OAuth keys, database with fixtures (OAuth client included)
-- `make start` / `make stop`: https://local.prospecter.io (SPA, sign in `prospector` / `password`), https://api.local.prospecter.io/api/doc (API doc)
+- `make start` / `make stop`: https://local.prospecter.io (SPA, sign in `prospector@solean-it.io` / `password`), https://api.local.prospecter.io/api/doc (API doc)
 - `make test` (core scenarios and unit tests, API, front), `make test-core` (the business rules only), `make e2e` (Playwright on the running stack), `make lint`, `make fix`
 - `make api-doc`: after changing an endpoint, regenerate `apps/api/openapi.json` and the front API types (`make test` fails while the committed contract differs from the code)
 - `make db`: recreate the dev database (destroys local data)

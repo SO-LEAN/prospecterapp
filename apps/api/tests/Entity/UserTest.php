@@ -20,12 +20,12 @@ class UserTest extends TestCase
         $accountId = new AccountId('0190a1c0-0000-7000-8000-000000000002');
         $personId = new PersonId('0190a1c0-0000-7000-8000-000000000003');
 
-        $signedIn = User::from(CoreUser::register($userId, $accountId, $personId, 'ada', Role::User, Role::Prospector));
+        $signedIn = User::from(CoreUser::register($userId, $accountId, $personId, Role::User, Role::Prospector), 'ada@solean-it.io');
 
         $this->assertEquals($userId, $signedIn->memberId());
         $this->assertEquals($accountId, $signedIn->accountId());
         $this->assertEquals($personId, $signedIn->personId());
-        $this->assertSame('ada', $signedIn->getUserIdentifier());
+        $this->assertSame('ada@solean-it.io', $signedIn->getUserIdentifier());
         $this->assertSame(['ROLE_USER', 'ROLE_PROSPECTOR'], $signedIn->getRoles());
     }
 }

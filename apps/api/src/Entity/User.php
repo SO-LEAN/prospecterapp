@@ -10,7 +10,8 @@ use Prospecter\Core\SharedKernel\Domain\PersonId;
 use Symfony\Component\Security\Core\User\UserInterface;
 
 /**
- * The signed-in user as Symfony security sees it: its user name, its roles, and its id for the requests.
+ * The signed-in member as Symfony security sees it: its login email, its roles, and its identities for the
+ * commands and queries.
  */
 final readonly class User implements UserInterface
 {
@@ -19,18 +20,18 @@ final readonly class User implements UserInterface
      */
     public function __construct(
         private string $id,
-        private string $userName,
+        private string $email,
         private string $accountId,
         private string $personId,
         private array $roles,
     ) {
     }
 
-    public static function from(CoreUser $user): self
+    public static function from(CoreUser $user, string $loginEmail): self
     {
         return new self(
             $user->id()->value,
-            $user->userName(),
+            $loginEmail,
             $user->accountId()->value,
             $user->personId()->value,
             array_map(static fn (Role $role): string => $role->value, $user->roles()),
@@ -44,7 +45,7 @@ final readonly class User implements UserInterface
 
     public function getUserIdentifier(): string
     {
-        return $this->userName;
+        return $this->email;
     }
 
     public function memberId(): MemberId

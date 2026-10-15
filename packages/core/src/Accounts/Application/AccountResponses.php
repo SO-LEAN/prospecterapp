@@ -18,9 +18,7 @@ final readonly class AccountResponses
         $myAccount = $this->accounts->get($me->accountId());
 
         return new AccountResponse(
-            userName: $me->userName(),
             personId: $me->personId(),
-            possibleIntents: $me->possibleIntents(),
             organizationIdentity: $myAccount->legalIdentity(),
             organizationLogo: $myAccount->logo(),
             accountIntents: $myAccount->possibleIntentsOf($me),

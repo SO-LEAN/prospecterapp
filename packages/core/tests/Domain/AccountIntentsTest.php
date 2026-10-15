@@ -28,7 +28,7 @@ class AccountIntentsTest extends TestCase
     #[DataProvider('situations')]
     public function testAnIntentionIsRefusedExactlyWhenItIsNotOffered(AccountIntent $intent, string $memberAccount): void
     {
-        $member = Member::register(new MemberId('0190a1c0-0000-7000-8000-0000000000aa'), new AccountId($memberAccount), new PersonId('0190a1c0-0000-7000-8000-0000000000bb'), 'someone', Role::User);
+        $member = Member::register(new MemberId('0190a1c0-0000-7000-8000-0000000000aa'), new AccountId($memberAccount), new PersonId('0190a1c0-0000-7000-8000-0000000000bb'), Role::User);
         $account = Account::open(new AccountId(self::MINE), new LegalIdentity('SOLEAN IT'));
         $offered = in_array($intent, $account->possibleIntentsOf($member), true);
 

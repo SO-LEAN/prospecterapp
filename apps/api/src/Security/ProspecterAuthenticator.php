@@ -39,15 +39,15 @@ class ProspecterAuthenticator extends AbstractLoginFormAuthenticator
         $form = $this->formFactory->create(LoginType::class, null, ['csrf_protection' => false]);
         $form->handleRequest($request);
         $data = $form->getData() ?? [];
-        $userName = (string) ($data['userName'] ?? '');
+        $loginEmail = (string) ($data['email'] ?? '');
         $password = (string) ($data['password'] ?? '');
         $csrfToken = (string) ($request->request->all($form->getName())['_token'] ?? '');
 
-        $request->getSession()->set(SecurityRequestAttributes::LAST_USERNAME, $userName);
+        $request->getSession()->set(SecurityRequestAttributes::LAST_USERNAME, $loginEmail);
 
         return new Passport(
-            new UserBadge($userName),
-            new CustomCredentials(fn (): bool => $this->checkCredentials($userName, $password), null),
+            new UserBadge($loginEmail),
+            new CustomCredentials(fn (): bool => $this->checkCredentials($loginEmail, $password), null),
             [new CsrfTokenBadge('authenticate', $csrfToken)]
         );
     }
@@ -68,19 +68,19 @@ class ProspecterAuthenticator extends AbstractLoginFormAuthenticator
         return $this->urlGenerator->generate($this->loginRoute);
     }
 
-    private function checkCredentials(string $userName, string $password): bool
+    private function checkCredentials(string $loginEmail, string $password): bool
     {
-        if (!$this->isPasswordOf($userName, $password)) {
+        if (!$this->isPasswordOf($loginEmail, $password)) {
             throw new BadCredentialsException('Bad credentials');
         }
 
         return true;
     }
 
-    private function isPasswordOf(string $userName, string $password): bool
+    private function isPasswordOf(string $loginEmail, string $password): bool
     {
         try {
-            return $this->passwords->verify($this->users->find($userName)->id(), $password);
+            return $this->passwords->verify($this->users->find($loginEmail)->id(), $password);
         } catch (UserNotFoundException) {
             return false;
         }

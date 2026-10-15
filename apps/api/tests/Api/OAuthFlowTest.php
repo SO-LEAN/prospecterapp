@@ -37,7 +37,7 @@ class OAuthFlowTest extends ApiTestCase
         $account = $this->requestJson('GET', '/api/me');
 
         $this->assertResponseIsSuccessful();
-        $this->assertSame('prospector', $account['userName']);
+        $this->assertSame('prospector@solean-it.io', $account['loginEmail']);
     }
 
     public function testRefreshTokenIsRotated(): void

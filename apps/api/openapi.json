@@ -60,6 +60,60 @@
                 }
             }
         },
+        "/api/me/login-email": {
+            "patch": {
+                "tags": [
+                    "My account"
+                ],
+                "summary": "Change the email I sign in with, unique on the platform (the access token is bound to it: sign in again)",
+                "operationId": "patch_api_me_change_login_email",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/LoginEmailInput"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "My account",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/AccountResource"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Missing or invalid access token"
+                    },
+                    "403": {
+                        "description": "The signed-in user is not a user",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ProblemResource"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Missing or invalid email, or one another member signs in with",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ProblemResource"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
         "/api/me/name": {
             "patch": {
                 "tags": [
@@ -268,60 +322,6 @@
                     },
                     "422": {
                         "description": "Invalid image",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/ProblemResource"
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-        },
-        "/api/me/user-name": {
-            "patch": {
-                "tags": [
-                    "My account"
-                ],
-                "summary": "Change my user name (the access token is bound to it: sign in again)",
-                "operationId": "patch_api_me_change_user_name",
-                "requestBody": {
-                    "required": true,
-                    "content": {
-                        "application/json": {
-                            "schema": {
-                                "$ref": "#/components/schemas/UserNameInput"
-                            }
-                        }
-                    }
-                },
-                "responses": {
-                    "200": {
-                        "description": "My account",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/AccountResource"
-                                }
-                            }
-                        }
-                    },
-                    "401": {
-                        "description": "Missing or invalid access token"
-                    },
-                    "403": {
-                        "description": "The signed-in user is not a user",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/ProblemResource"
-                                }
-                            }
-                        }
-                    },
-                    "422": {
-                        "description": "Missing or invalid user name",
                         "content": {
                             "application/json": {
                                 "schema": {
@@ -1235,6 +1235,16 @@
                 },
                 "type": "object"
             },
+            "LoginEmailInput": {
+                "properties": {
+                    "email": {
+                        "type": "string",
+                        "default": "",
+                        "maxLength": 255
+                    }
+                },
+                "type": "object"
+            },
             "PersonNameInput": {
                 "properties": {
                     "firstName": {
@@ -1259,16 +1269,6 @@
                         "default": "",
                         "maxLength": 4096,
                         "minLength": 8
-                    }
-                },
-                "type": "object"
-            },
-            "UserNameInput": {
-                "properties": {
-                    "userName": {
-                        "type": "string",
-                        "default": "",
-                        "maxLength": 50
                     }
                 },
                 "type": "object"
@@ -1494,7 +1494,8 @@
             "AccountLinksResource": {
                 "required": [
                     "self",
-                    "changeMyPassword"
+                    "changeMyPassword",
+                    "changeMyLoginEmail"
                 ],
                 "properties": {
                     "self": {
@@ -1503,10 +1504,10 @@
                     "changeMyPassword": {
                         "$ref": "#/components/schemas/LinkResource"
                     },
-                    "changeMyName": {
+                    "changeMyLoginEmail": {
                         "$ref": "#/components/schemas/LinkResource"
                     },
-                    "changeMyUserName": {
+                    "changeMyName": {
                         "$ref": "#/components/schemas/LinkResource"
                     },
                     "changeMyContactDetails": {
@@ -1526,14 +1527,14 @@
             },
             "AccountResource": {
                 "required": [
-                    "userName",
+                    "loginEmail",
                     "name",
                     "contactDetails",
                     "organization",
                     "_links"
                 ],
                 "properties": {
-                    "userName": {
+                    "loginEmail": {
                         "type": "string"
                     },
                     "name": {

@@ -2,6 +2,7 @@
 
 namespace Tests\App\Api;
 
+use App\Auth\LoginEmails;
 use PHPUnit\Framework\Attributes\Group;
 use Prospecter\Core\Accounts\Domain\Account;
 use Prospecter\Core\Accounts\Domain\AccountRepository;
@@ -15,6 +16,7 @@ use Prospecter\Core\Prospecting\Domain\Organization;
 use Prospecter\Core\Prospecting\Domain\OrganizationRepository;
 use Prospecter\Core\Prospecting\Domain\Prospector;
 use Prospecter\Core\SharedKernel\Domain\ContactDetails;
+use Prospecter\Core\SharedKernel\Domain\Email;
 use Prospecter\Core\SharedKernel\Domain\LegalIdentity;
 use Tests\App\Base\ApiTestCase;
 
@@ -214,8 +216,9 @@ class OrganizationApiTest extends ApiTestCase
         $account = $this->fixtures->getReference('solean-it-account', Account::class)->id();
         $profile = Person::collect($persons->nextIdentity(), $account, Purpose::Membership);
         $persons->save($profile);
-        $assistant = Member::register($members->nextIdentity(), $account, $profile->id(), 'assistant', Role::User);
+        $assistant = Member::register($members->nextIdentity(), $account, $profile->id(), Role::User);
         $members->save($assistant);
+        self::getContainer()->get(LoginEmails::class)->assign($assistant->id(), new Email('assistant@solean-it.io'));
         $this->fixtures->setReference('assistant', $assistant);
 
         return 'assistant';

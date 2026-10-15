@@ -5,7 +5,7 @@ const SIGN_IN_PAGE = /api\.local\.prospecter\.io\/login/
 async function signInOnTheAuthorizationServer(page: Page) {
   await page.goto('/')
   await expect(page).toHaveURL(SIGN_IN_PAGE)
-  await page.getByLabel('Identifiant').fill('prospector')
+  await page.getByLabel('E-mail').fill('prospector@solean-it.io')
   await page.getByLabel('Mot de passe').fill('password')
   await page.getByRole('button', { name: 'Se connecter' }).click()
   await expect(page.getByRole('heading', { name: /Bonjour/ })).toBeVisible()
@@ -104,9 +104,9 @@ test('sign in, start prospecting an organization, change it section by section, 
 
 test('rejects a wrong password', async ({ page }) => {
   await page.goto('/')
-  await page.getByLabel('Identifiant').fill('prospector')
+  await page.getByLabel('E-mail').fill('prospector@solean-it.io')
   await page.getByLabel('Mot de passe').fill('wrong password')
   await page.getByRole('button', { name: 'Se connecter' }).click()
 
-  await expect(page.getByRole('alert')).toHaveText('Identifiant ou mot de passe incorrect.')
+  await expect(page.getByRole('alert')).toHaveText('E-mail ou mot de passe incorrect.')
 })

@@ -80,7 +80,7 @@ final class ScenarioContext implements Context
         $person = Person::collect($this->application->persons->nextIdentity(), $this->accountIdOf($account), Purpose::Membership);
         $this->application->persons->save($person);
         $this->personIds[$name] = $person->id();
-        $member = Member::register($this->application->members->nextIdentity(), $this->accountIdOf($account), $person->id(), 'moi' === $name ? 'prospector' : mb_strtolower($name), ...$roles);
+        $member = Member::register($this->application->members->nextIdentity(), $this->accountIdOf($account), $person->id(), ...$roles);
         $this->application->members->save($member);
 
         return $member;
@@ -215,7 +215,7 @@ final class ScenarioContext implements Context
      */
     public function memberOf(Account $account): Member
     {
-        return Member::register($this->application->members->nextIdentity(), $account->id(), $this->application->persons->nextIdentity(), 'someone', Role::User);
+        return Member::register($this->application->members->nextIdentity(), $account->id(), $this->application->persons->nextIdentity(), Role::User);
     }
 
     public function upload(string $fileName): \SplFileInfo

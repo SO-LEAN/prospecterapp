@@ -9,12 +9,13 @@ use Symfony\Component\Serializer\Attribute\SerializedName;
 use Symfony\Component\Serializer\Normalizer\AbstractObjectNormalizer;
 
 /**
- * Each part is changed by its own intention: PATCH name, user-name, contact-details, organization/legal-identity.
+ * Each part is changed by its own intention: PATCH name, contact-details, login-email, password,
+ * organization/legal-identity.
  */
 final readonly class AccountResource
 {
     public function __construct(
-        public string $userName,
+        public string $loginEmail,
         public PersonNameResource $name,
         public ContactDetailsResource $contactDetails,
         public ?ImageResource $picture,

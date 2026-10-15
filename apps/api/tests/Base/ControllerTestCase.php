@@ -2,6 +2,7 @@
 
 namespace Tests\App\Base;
 
+use App\Auth\LoginEmails;
 use App\DataFixtures\AppFixtures;
 use App\DataFixtures\OAuthClientFixtures;
 use App\Entity\User;
@@ -30,7 +31,8 @@ abstract class ControllerTestCase extends WebTestCase
 
     protected function login(string $reference = 'prospector-user'): void
     {
-        $this->client->loginUser(User::from($this->loadedUser($reference)), 'main');
+        $member = $this->loadedUser($reference);
+        $this->client->loginUser(User::from($member, self::getContainer()->get(LoginEmails::class)->of($member->id())), 'main');
     }
 
     /**

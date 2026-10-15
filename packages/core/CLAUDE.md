@@ -14,7 +14,7 @@ Run from the repository root (the core has its own `vendor/`, installed by `make
 
 Grouped by bounded context, then by layer (ADR 0030); `tests/Architecture/BoundedContextsTest` fails when a context uses another one.
 
-- `src/Accounts/{Domain,Application}`: an organization using Prospecter (`Account`) and its members (`Member`: account, person id, user name, `Role`); the account intents.
+- `src/Accounts/{Domain,Application}`: an organization using Prospecter (`Account`) and its members (`Member`: account, person id, `Role`; signing in, with a login email, belongs to authentication outside the core); the account intents.
 - `src/PersonalData/{Domain,Application}`: the personal data of natural persons (`Person`: account, `Purpose`, `PersonName`, contact details, picture), read in clear or masked (`Masking`) by a `Reader` obtained through the port `Readers`; queries `ConsultPerson` and `ConsultPersons` (batch), commands to change a person (ADR 0031). No other context keeps personal data, only a `PersonId`.
 - `src/Prospecting/{Domain,Application}`: the organizations an account prospects (`Organization`, `OrganizationId`, `Address`, `GeoPoint`), the `Prospector` who acts, read through the port `Prospectors` (implemented outside the core from the members of Accounts), the port `GeoLocation`.
 - `src/SharedKernel/{Domain,Application}`: what every context shares, kept small: the published identities `AccountId`, `MemberId` and `PersonId`, `Email`, `ContactDetails`, `LegalIdentity`, `File`, `Page`, `Uuid`, the exceptions (`NotFound`, `BusinessRuleViolation` naming the faulty field, `NotPossibleInItsState`, `NotAllowed`), `CommandHandler`, the port `Storage` and `FileStore`.

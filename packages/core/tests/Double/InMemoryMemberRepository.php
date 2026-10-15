@@ -25,17 +25,6 @@ final readonly class InMemoryMemberRepository implements MemberRepository
         return $this->database->member((string) $id) ?? throw new UnknownMember($id);
     }
 
-    public function ofUserName(string $userName): ?Member
-    {
-        foreach ($this->database->members() as $member) {
-            if ($member->userName() === $userName) {
-                return $member;
-            }
-        }
-
-        return null;
-    }
-
     public function save(Member $member): void
     {
         $this->database->storeMember($member);

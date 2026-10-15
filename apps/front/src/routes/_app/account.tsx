@@ -3,12 +3,12 @@ import { createFileRoute } from '@tanstack/react-router'
 import { useTranslation } from 'react-i18next'
 import {
   ContactDetailsSection,
+  LoginEmailSection,
   MyOrganizationIdentitySection,
   MyOrganizationLogoSection,
   NameSection,
   PasswordSection,
   PictureSection,
-  UserNameSection,
 } from '@/features/account/components/account-sections'
 import { accountQuery } from '@/features/account/queries'
 import { ErrorState } from '@/shared/ui/feedback/error-state'
@@ -36,7 +36,7 @@ function AccountPage() {
           <ContactDetailsSection account={account} />
         </div>
         <div className="space-y-6">
-          <UserNameSection account={account} />
+          <LoginEmailSection account={account} />
           <PasswordSection account={account} />
           <MyOrganizationIdentitySection account={account} />
           <MyOrganizationLogoSection account={account} />

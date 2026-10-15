@@ -30,16 +30,16 @@ import { Input } from '@/shared/ui/input'
 import {
   type Account,
   useChangeMyContactDetails,
+  useChangeMyLoginEmail,
   useChangeMyName,
   useChangeMyOrganizationLogo,
   useChangeMyPassword,
   useChangeMyPicture,
-  useChangeMyUserName,
   useReviseMyOrganizationIdentity,
 } from '../mutations'
 
 const nameSchema = z.object({ firstName: text(100), lastName: text(100) })
-const userNameSchema = z.object({ userName: text(50).min(1, { error: () => i18n.t('validation.required') }) })
+const loginEmailSchema = z.object({ email: z.email({ error: () => i18n.t('validation.email') }) })
 const passwordSchema = z.object({
   password: z
     .string()
@@ -48,7 +48,7 @@ const passwordSchema = z.object({
 })
 
 export const fullNameOf = (account: Account) =>
-  [account.name.firstName, account.name.lastName].filter(Boolean).join(' ') || account.userName
+  [account.name.firstName, account.name.lastName].filter(Boolean).join(' ') || account.loginEmail
 
 export function PictureSection({ account }: { account: Account }) {
   const { t } = useTranslation()
@@ -117,43 +117,43 @@ export function NameSection({ account }: { account: Account }) {
   )
 }
 
-export function UserNameSection({ account }: { account: Account }) {
+export function LoginEmailSection({ account }: { account: Account }) {
   const { t } = useTranslation()
   const auth = useAuth()
-  const change = useChangeMyUserName()
+  const change = useChangeMyLoginEmail()
 
-  const signInAgainSinceTheTokenIsBoundToTheUserName = async () => {
-    toast.info(t('account.userNameChanged'))
+  const signInAgainSinceTheTokenIsBoundToTheLoginEmail = async () => {
+    toast.info(t('account.loginEmailChanged'))
     await auth.removeUser()
     await auth.signinRedirect()
   }
 
   return (
     <EditableSection
-      title={t('account.sections.userName')}
-      editable={Boolean(account._links.changeMyUserName)}
+      title={t('account.sections.loginEmail')}
+      editable={Boolean(account._links.changeMyLoginEmail)}
       editor={(close) => (
         <SectionForm
-          schema={userNameSchema}
-          defaultValues={{ userName: account.userName }}
-          fields={['userName']}
+          schema={loginEmailSchema}
+          defaultValues={{ email: account.loginEmail }}
+          fields={['email']}
           save={async (values) => {
             const changed = await change.mutateAsync({ body: values })
-            if (changed.userName !== account.userName) {
-              await signInAgainSinceTheTokenIsBoundToTheUserName()
+            if (changed.loginEmail !== account.loginEmail) {
+              await signInAgainSinceTheTokenIsBoundToTheLoginEmail()
             }
           }}
           onDone={close}
         >
           {(form) => (
-            <FormField form={form} name={'userName'} label={t('fields.userName')}>
-              <Input autoComplete="username" {...form.register('userName')} />
+            <FormField form={form} name="email" label={t('fields.loginEmail')}>
+              <Input type="email" autoComplete="username" {...form.register('email')} />
             </FormField>
           )}
         </SectionForm>
       )}
     >
-      <Detail label={t('fields.userName')}>{account.userName}</Detail>
+      <Detail label={t('fields.loginEmail')}>{account.loginEmail}</Detail>
     </EditableSection>
   )
 }

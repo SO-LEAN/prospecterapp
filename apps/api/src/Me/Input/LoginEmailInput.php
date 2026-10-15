@@ -4,12 +4,13 @@ namespace App\Me\Input;
 
 use Symfony\Component\Validator\Constraints as Assert;
 
-final readonly class UserNameInput
+final readonly class LoginEmailInput
 {
     public function __construct(
         #[Assert\NotBlank]
-        #[Assert\Length(max: 50)]
-        public string $userName = '',
+        #[Assert\Email]
+        #[Assert\Length(max: 255)]
+        public string $email = '',
     ) {
     }
 }

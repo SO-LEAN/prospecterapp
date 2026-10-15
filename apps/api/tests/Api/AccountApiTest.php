@@ -2,11 +2,13 @@
 
 namespace Tests\App\Api;
 
+use App\Auth\LoginEmails;
 use App\Auth\Passwords;
 use PHPUnit\Framework\Attributes\Group;
 use Prospecter\Core\Accounts\Domain\Account;
 use Prospecter\Core\Accounts\Domain\AccountRepository;
 use Prospecter\Core\Accounts\Domain\Member;
+use Prospecter\Core\Accounts\Domain\MemberRepository;
 use Prospecter\Core\PersonalData\Domain\Person;
 use Prospecter\Core\PersonalData\Domain\PersonRepository;
 use Prospecter\Core\PersonalData\Domain\Purpose;
@@ -29,7 +31,7 @@ class AccountApiTest extends ApiTestCase
         $account = $this->requestJson('GET', '/api/me');
 
         $this->assertResponseIsSuccessful();
-        $this->assertSame('prospector', $account['userName']);
+        $this->assertSame('prospector@solean-it.io', $account['loginEmail']);
         $this->assertSame('prospector@solean-it.io', $account['contactDetails']['email']);
         $this->assertSame('SOLEAN IT', $account['organization']['legalIdentity']['corporateName']);
     }
@@ -73,17 +75,30 @@ class AccountApiTest extends ApiTestCase
         $this->assertResponseIsSuccessful();
     }
 
-    public function testChangeMyUserName(): void
+    public function testChangeMyLoginEmail(): void
     {
-        $this->assertSame('ada', $this->requestJson('PATCH', '/api/me/user-name', ['userName' => 'ada'])['userName']);
+        $account = $this->requestJson('PATCH', '/api/me/login-email', ['email' => 'ada@solean-it.io']);
+
+        $this->assertSame('ada@solean-it.io', $account['loginEmail']);
+        $this->assertSame('prospector@solean-it.io', $account['contactDetails']['email'], 'the contact email of my profile is another thing');
     }
 
-    public function testAUserNameIsRequired(): void
+    public function testALoginEmailIsAValidEmail(): void
     {
-        $problem = $this->requestJson('PATCH', '/api/me/user-name', ['userName' => '']);
+        $problem = $this->requestJson('PATCH', '/api/me/login-email', ['email' => 'not an email']);
 
         $this->assertResponseStatusCodeSame(422);
-        $this->assertSame(['userName'], $this->violatedFields($problem));
+        $this->assertSame(['email'], $this->violatedFields($problem));
+    }
+
+    public function testALoginEmailIsUniqueOnThePlatform(): void
+    {
+        self::getContainer()->get(LoginEmails::class)->assign(self::getContainer()->get(MemberRepository::class)->nextIdentity(), new Email('grace@competitor.io'));
+
+        $problem = $this->requestJson('PATCH', '/api/me/login-email', ['email' => 'grace@competitor.io']);
+
+        $this->assertResponseStatusCodeSame(422);
+        $this->assertSame(['email'], $this->violatedFields($problem));
     }
 
     public function testChangeMyPictureAndMyOrganizationLogo(): void

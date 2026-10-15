@@ -16,8 +16,6 @@ interface MemberRepository
      */
     public function get(MemberId $id): Member;
 
-    public function ofUserName(string $userName): ?Member;
-
     /**
      * @throws EmailAlreadyUsed
      */

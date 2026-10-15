@@ -26,11 +26,6 @@ final readonly class DoctrineMemberRepository implements MemberRepository
         return $this->entityManager->find(Member::class, $id->value) ?? throw new UnknownMember($id);
     }
 
-    public function ofUserName(string $userName): ?Member
-    {
-        return $this->entityManager->getRepository(Member::class)->findOneBy(['userName' => $userName]);
-    }
-
     public function save(Member $member): void
     {
         $this->entityManager->persist($member);

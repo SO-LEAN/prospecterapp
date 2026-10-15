@@ -11,7 +11,6 @@ use Behat\Step\Then;
 use Behat\Step\When;
 use Prospecter\Core\Accounts\Application\AccountResponse;
 use Prospecter\Core\Accounts\Application\ChangeMyOrganizationLogo\ChangeMyOrganizationLogo;
-use Prospecter\Core\Accounts\Application\ChangeMyUserName\ChangeMyUserName;
 use Prospecter\Core\Accounts\Application\ReviseMyOrganizationIdentity\ReviseMyOrganizationIdentity;
 use Prospecter\Core\Accounts\Domain\Account;
 use Prospecter\Core\PersonalData\Application\ChangePersonContactDetails\ChangePersonContactDetails;
@@ -61,12 +60,6 @@ final class AccountContext implements Context
         $this->application->dispatch(new RenamePerson($this->application->signedIn(), $this->scenario->me()->personId(), Vocabulary::personName(Vocabulary::values($table->getRowsHash()))));
     }
 
-    #[When('je change mon identifiant en :userName')]
-    public function iChangeMyUserName(string $userName): void
-    {
-        $this->application->dispatch(new ChangeMyUserName($this->application->signedIn(), $userName));
-    }
-
     #[When('je change mes coordonnées :')]
     public function iChangeMyContactDetails(TableNode $table): void
     {
@@ -99,20 +92,12 @@ final class AccountContext implements Context
         $me = $this->myPerson;
 
         Expect::describes($table->getRowsHash(), [
-            'identifiant' => $account->userName,
             'prénom' => (string) $me->firstName,
             'nom' => (string) $me->lastName,
             'e-mail' => (string) $me->email,
             'raison sociale de mon organisation' => (string) $account->organizationIdentity->corporateName,
             'forme juridique de mon organisation' => (string) $account->organizationIdentity->form,
         ]);
-    }
-
-    #[Then('je peux sur mon compte :')]
-    public function iMayOnMyAccount(TableNode $table): void
-    {
-        Expect::that(null !== $this->account, 'My account was expected');
-        Expect::same($table->getColumn(0), Vocabulary::describeIntents($this->account->possibleIntents));
     }
 
     #[Then('je peux sur mon profil :')]

@@ -6,7 +6,6 @@ namespace Tests\Core\Acceptance;
 
 use Prospecter\Core\Accounts\Application\AccountResponse;
 use Prospecter\Core\Accounts\Application\ChangeMyOrganizationLogo\ChangeMyOrganizationLogoHandler;
-use Prospecter\Core\Accounts\Application\ChangeMyUserName\ChangeMyUserNameHandler;
 use Prospecter\Core\Accounts\Application\ConsultMyAccount\ConsultMyAccount;
 use Prospecter\Core\Accounts\Application\ConsultMyAccount\ConsultMyAccountHandler;
 use Prospecter\Core\Accounts\Application\ReviseMyOrganizationIdentity\ReviseMyOrganizationIdentityHandler;
@@ -152,7 +151,6 @@ final class Application
             new DetachFromHoldingHandler($this->organizations, $this->prospectors),
             new ChangeLogoHandler($this->organizations, $this->prospectors, $this->storage),
             new RemoveLogoHandler($this->organizations, $this->prospectors, $this->storage),
-            new ChangeMyUserNameHandler($this->members),
             new RenamePersonHandler($this->persons, $this->readers),
             new ChangePersonContactDetailsHandler($this->persons, $this->readers),
             new ChangePersonPictureHandler($this->persons, $this->readers, $this->storage),

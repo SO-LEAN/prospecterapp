@@ -16,7 +16,7 @@ class LoginTypeTest extends TypeTestCase
     public function testSubmitValidData(): void
     {
         $expected = $formData = [
-            'userName' => 'login',
+            'email' => 'ada@solean-it.io',
             'password' => 'password',
         ];
 

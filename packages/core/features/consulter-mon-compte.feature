@@ -14,17 +14,14 @@ Fonctionnalité: Consulter mon compte
   Scénario: Je consulte mon compte
     Quand je consulte mon compte
     Alors je vois mon compte :
-      | identifiant                        | prospector         |
       | prénom                             | Ada                |
       | nom                                | Lovelace           |
       | e-mail                             | ada@solean-it.test |
       | raison sociale de mon organisation | SOLEAN IT          |
 
-  Scénario: Je vois ce que je peux changer de mon compte et de mon organisation
+  Scénario: Je vois ce que je peux changer de mon profil et de mon organisation
     Quand je consulte mon compte
-    Alors je peux sur mon compte :
-      | changer mon identifiant |
-    Et je peux sur mon profil :
+    Alors je peux sur mon profil :
       | changer le nom          |
       | changer les coordonnées |
       | changer la photo        |

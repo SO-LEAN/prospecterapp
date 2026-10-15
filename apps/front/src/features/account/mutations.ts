@@ -32,8 +32,8 @@ export function useChangeMyName() {
   return api.useMutation('patch', '/api/me/name', { ...formIntention, onSuccess: useStoreAccount() })
 }
 
-export function useChangeMyUserName() {
-  return api.useMutation('patch', '/api/me/user-name', { ...formIntention, onSuccess: useStoreAccount() })
+export function useChangeMyLoginEmail() {
+  return api.useMutation('patch', '/api/me/login-email', { ...formIntention, onSuccess: useStoreAccount() })
 }
 
 export function useChangeMyContactDetails() {

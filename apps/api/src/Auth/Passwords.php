@@ -18,25 +18,19 @@ final readonly class Passwords
     ) {
     }
 
-    public function set(MemberId $userId, string $password): void
+    public function set(MemberId $member, string $password): void
     {
-        $hash = $this->hasher()->hash($password);
-        $credentials = $this->entityManager->find(Credentials::class, $userId->value);
-
-        if ($credentials) {
-            $credentials->changePasswordHash($hash);
-        } else {
-            $this->entityManager->persist(new Credentials($userId->value, $hash));
-        }
-
+        $credentials = $this->entityManager->find(Credentials::class, $member->value) ?? throw new \LogicException(sprintf('Member %s has no login email: assign one first', $member));
+        $credentials->changePasswordHash($this->hasher()->hash($password));
         $this->entityManager->flush();
     }
 
-    public function verify(MemberId $userId, string $password): bool
+    public function verify(MemberId $member, string $password): bool
     {
-        $credentials = $this->entityManager->find(Credentials::class, $userId->value);
+        $credentials = $this->entityManager->find(Credentials::class, $member->value);
+        $hash = $credentials?->passwordHash();
 
-        if (!$credentials || !$this->hasher()->verify($credentials->passwordHash(), $password)) {
+        if (null === $credentials || null === $hash || !$this->hasher()->verify($hash, $password)) {
             return false;
         }
 
@@ -47,8 +41,8 @@ final readonly class Passwords
 
     private function upgradeHashIfOutdated(Credentials $credentials, string $password): void
     {
-        if ($this->hasher()->needsRehash($credentials->passwordHash())) {
-            $this->set(new MemberId($credentials->userId()), $password);
+        if ($this->hasher()->needsRehash((string) $credentials->passwordHash())) {
+            $this->set(new MemberId($credentials->memberId()), $password);
         }
     }
 

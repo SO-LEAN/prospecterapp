@@ -2,6 +2,7 @@
 
 namespace App\DataFixtures;
 
+use App\Auth\LoginEmails;
 use App\Auth\Passwords;
 use Doctrine\Bundle\FixturesBundle\Fixture;
 use Doctrine\Persistence\ObjectManager;
@@ -23,6 +24,7 @@ class AppFixtures extends Fixture
         private readonly AccountRepository $accounts,
         private readonly MemberRepository $members,
         private readonly PersonRepository $persons,
+        private readonly LoginEmails $loginEmails,
         private readonly Passwords $passwords,
     ) {
     }
@@ -39,8 +41,9 @@ class AppFixtures extends Fixture
     {
         $profile = Person::collect($this->persons->nextIdentity(), $account->id(), Purpose::Membership, contactDetails: new ContactDetails(new Email('prospector@solean-it.io'), language: 'FR'));
         $this->persons->save($profile);
-        $prospector = Member::register($this->members->nextIdentity(), $account->id(), $profile->id(), 'prospector', Role::User, Role::Prospector, Role::PersonalData);
+        $prospector = Member::register($this->members->nextIdentity(), $account->id(), $profile->id(), Role::User, Role::Prospector, Role::PersonalData);
         $this->members->save($prospector);
+        $this->loginEmails->assign($prospector->id(), new Email('prospector@solean-it.io'));
         $this->passwords->set($prospector->id(), 'password');
         $this->addReference('prospector-user', $prospector);
     }

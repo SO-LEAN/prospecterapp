@@ -14,15 +14,11 @@ use Prospecter\Core\Accounts\Application\AccountResponse;
 use Prospecter\Core\PersonalData\Application\PersonResponse;
 
 /**
- * My account composed of my membership (Accounts) and my profile (PersonalData), with a link per intention
- * the two contexts offer me.
+ * My account composed of my membership (Accounts), my profile (PersonalData) and my login email
+ * (authentication), with a link per intention they offer me.
  */
 final readonly class AccountResourcePresenter
 {
-    private const array MEMBERSHIP_ROUTES = [
-        'ChangeUserName' => ['changeMyUserName', 'api_me_change_user_name'],
-    ];
-
     private const array PROFILE_ROUTES = [
         'Rename' => ['changeMyName', 'api_me_change_name'],
         'ChangeContactDetails' => ['changeMyContactDetails', 'api_me_change_contact_details'],
@@ -38,10 +34,10 @@ final readonly class AccountResourcePresenter
     {
     }
 
-    public function present(AccountResponse $account, PersonResponse $me): AccountResource
+    public function present(AccountResponse $account, PersonResponse $me, string $loginEmail): AccountResource
     {
         return new AccountResource(
-            userName: $account->userName,
+            loginEmail: $loginEmail,
             name: new PersonNameResource($me->firstName, $me->lastName),
             contactDetails: new ContactDetailsResource($me->email, $me->phoneNumber, $me->language),
             picture: $this->images->create($me->picture?->url),
@@ -54,20 +50,20 @@ final readonly class AccountResourcePresenter
     }
 
     /**
-     * The password is not the business of the core (ADR 0011): a user may always change it.
+     * Signing in is not the business of the core (ADR 0011): a member may always change their login email
+     * and their password.
      */
     private function linksOf(AccountResponse $account, PersonResponse $me): AccountLinksResource
     {
         $possible = [];
         foreach ([
-            ...$this->linked($account->possibleIntents, self::MEMBERSHIP_ROUTES),
             ...$this->linked($me->possibleIntents, self::PROFILE_ROUTES),
             ...$this->linked($account->accountIntents, self::ORGANIZATION_ROUTES),
         ] as [$name, $route]) {
             $possible[$name] = $this->links->to($route);
         }
 
-        return new AccountLinksResource($this->links->to('api_me_show'), $this->links->to('api_me_change_password'), ...$possible);
+        return new AccountLinksResource($this->links->to('api_me_show'), $this->links->to('api_me_change_password'), $this->links->to('api_me_change_login_email'), ...$possible);
     }
 
     /**
