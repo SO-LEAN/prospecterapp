@@ -11,13 +11,13 @@ class BusinessRuleViolation extends BusinessException
 {
     public const string WHOLE = '*';
 
-    final protected function __construct(string $message, public readonly string $field)
+    final protected function __construct(string $message, public readonly string $field, ?\Throwable $previous)
     {
-        parent::__construct($message);
+        parent::__construct($message, previous: $previous);
     }
 
-    public static function because(string $message, string $field = self::WHOLE): static
+    public static function because(string $message, string $field = self::WHOLE, ?\Throwable $previous = null): static
     {
-        return new static($message, $field);
+        return new static($message, $field, $previous);
     }
 }

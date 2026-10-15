@@ -9,6 +9,7 @@ use Prospecter\Core\Prospecting\Domain\Organization;
 use Prospecter\Core\Prospecting\Domain\OrganizationId;
 use Prospecter\Core\Prospecting\Domain\OrganizationRepository;
 use Prospecter\Core\SharedKernel\Domain\AccountId;
+use Prospecter\Core\SharedKernel\Domain\Email;
 use Prospecter\Core\SharedKernel\Domain\Page;
 
 final readonly class InMemoryOrganizationRepository implements OrganizationRepository
@@ -20,6 +21,11 @@ final readonly class InMemoryOrganizationRepository implements OrganizationRepos
     public function get(OrganizationId $id): Organization
     {
         return $this->database->organization((string) $id) ?? throw UnknownOrganization::identifiedBy($id);
+    }
+
+    public function isEmailUsed(AccountId $accountId, Email $email, OrganizationId $except): bool
+    {
+        return array_any($this->prospectedBy($accountId), fn (Organization $organization): bool => !$organization->id()->equals($except) && $organization->contactDetails()->email?->value === $email->value);
     }
 
     public function save(Organization $organization): void

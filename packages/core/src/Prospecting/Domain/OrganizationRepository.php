@@ -6,6 +6,7 @@ namespace Prospecter\Core\Prospecting\Domain;
 
 use Prospecter\Core\Prospecting\Domain\Exception\UnknownOrganization;
 use Prospecter\Core\SharedKernel\Domain\AccountId;
+use Prospecter\Core\SharedKernel\Domain\Email;
 use Prospecter\Core\SharedKernel\Domain\Exception\EmailAlreadyUsed;
 use Prospecter\Core\SharedKernel\Domain\Page;
 
@@ -17,7 +18,12 @@ interface OrganizationRepository
     public function get(OrganizationId $id): Organization;
 
     /**
-     * @throws EmailAlreadyUsed
+     * Whether another organization of the prospecting base of the account has this email.
+     */
+    public function isEmailUsed(AccountId $accountId, Email $email, OrganizationId $except): bool;
+
+    /**
+     * @throws EmailAlreadyUsed when another organization took the email meanwhile (EmailUniqueness checked it before)
      */
     public function save(Organization $organization): void;
 

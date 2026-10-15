@@ -5,6 +5,8 @@ declare(strict_types=1);
 namespace Prospecter\Core\PersonalData\Domain;
 
 use Prospecter\Core\PersonalData\Domain\Exception\UnknownPerson;
+use Prospecter\Core\SharedKernel\Domain\AccountId;
+use Prospecter\Core\SharedKernel\Domain\Email;
 use Prospecter\Core\SharedKernel\Domain\Exception\EmailAlreadyUsed;
 use Prospecter\Core\SharedKernel\Domain\PersonId;
 
@@ -25,7 +27,12 @@ interface PersonRepository
     public function ofIds(array $ids): array;
 
     /**
-     * @throws EmailAlreadyUsed when another person of the same account, for the same purpose, has the email
+     * Whether another person of the account, kept for this purpose, has this email.
+     */
+    public function isEmailUsed(AccountId $accountId, Purpose $purpose, Email $email, PersonId $except): bool;
+
+    /**
+     * @throws EmailAlreadyUsed when another person took the email meanwhile (EmailUniqueness checked it before)
      */
     public function save(Person $person): void;
 }

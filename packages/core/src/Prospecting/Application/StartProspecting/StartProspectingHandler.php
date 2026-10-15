@@ -7,6 +7,7 @@ namespace Prospecter\Core\Prospecting\Application\StartProspecting;
 use Prospecter\Core\Prospecting\Application\GeoLocalizer;
 use Prospecter\Core\Prospecting\Application\Port\GeoLocation;
 use Prospecter\Core\Prospecting\Domain\Address;
+use Prospecter\Core\Prospecting\Domain\EmailUniqueness;
 use Prospecter\Core\Prospecting\Domain\Organization;
 use Prospecter\Core\Prospecting\Domain\OrganizationId;
 use Prospecter\Core\Prospecting\Domain\OrganizationRepository;
@@ -21,10 +22,12 @@ use Prospecter\Core\SharedKernel\Domain\MemberId;
 final readonly class StartProspectingHandler implements CommandHandler
 {
     private GeoLocalizer $geoLocalizer;
+    private EmailUniqueness $emails;
 
     public function __construct(private OrganizationRepository $organizations, private Prospectors $prospectors, GeoLocation $geoLocation)
     {
         $this->geoLocalizer = new GeoLocalizer($geoLocation);
+        $this->emails = new EmailUniqueness($organizations);
     }
 
     public function __invoke(StartProspecting $command): void
@@ -41,6 +44,7 @@ final readonly class StartProspectingHandler implements CommandHandler
         $organization->relocateTo($address, $this->geoLocalizer->locate($address), by: $prospector, at: $command->executedAt);
         $organization->writeObservations($command->observations, by: $prospector, at: $command->executedAt);
         $this->attachToTheHolding($organization, $command, $prospector);
+        $this->emails->ensureAvailableFor($organization);
         $this->organizations->save($organization);
     }
 

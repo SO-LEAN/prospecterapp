@@ -3,9 +3,10 @@
                   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
                   xsi:schemaLocation="http://doctrine-project.org/schemas/orm/doctrine-mapping https://www.doctrine-project.org/schemas/orm/doctrine-mapping.xsd">
     <entity name="Prospecter\Core\PersonalData\Domain\Person" table="persons">
-        <indexes>
-            <index columns="account_id,purpose,email"/>
-        </indexes>
+        <!-- the safety net of EmailUniqueness, when two requests take the same email at once -->
+        <unique-constraints>
+            <unique-constraint name="persons_email_by_account_and_purpose" columns="account_id,purpose,email"/>
+        </unique-constraints>
         <id name="id" type="person_id">
             <generator strategy="NONE"/>
         </id>

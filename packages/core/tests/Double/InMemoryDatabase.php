@@ -8,7 +8,6 @@ use Prospecter\Core\Accounts\Domain\Account;
 use Prospecter\Core\Accounts\Domain\Member;
 use Prospecter\Core\PersonalData\Domain\Person;
 use Prospecter\Core\Prospecting\Domain\Organization;
-use Prospecter\Core\SharedKernel\Domain\Exception\EmailAlreadyUsed;
 
 /**
  * The tables behind the in-memory repositories, with the constraints of the real ones: an email unique among
@@ -38,27 +37,11 @@ final class InMemoryDatabase
 
     public function storePerson(Person $person): void
     {
-        $email = $person->contactDetails()->email;
-
-        foreach ($this->persons as $id => $other) {
-            if (null !== $email && $id !== $person->id()->value && $other->accountId()->equals($person->accountId()) && $other->purpose() === $person->purpose() && $other->contactDetails()->email?->value === $email->value) {
-                throw EmailAlreadyUsed::byAnother();
-            }
-        }
-
         $this->persons[(string) $person->id()] = clone $person;
     }
 
     public function storeOrganization(Organization $organization): void
     {
-        $email = $organization->contactDetails()->email;
-
-        foreach ($this->organizations as $id => $other) {
-            if (null !== $email && $id !== $organization->id()->value && $other->accountId()->equals($organization->accountId()) && $other->contactDetails()->email?->value === $email->value) {
-                throw EmailAlreadyUsed::byAnother();
-            }
-        }
-
         $this->organizations[(string) $organization->id()] = clone $organization;
     }
 
@@ -88,6 +71,14 @@ final class InMemoryDatabase
     public function members(): array
     {
         return array_values(array_map(static fn (Member $member): Member => clone $member, $this->members));
+    }
+
+    /**
+     * @return list<Person>
+     */
+    public function persons(): array
+    {
+        return array_values(array_map(static fn (Person $person): Person => clone $person, $this->persons));
     }
 
     /**

@@ -5,8 +5,11 @@
     <entity name="Prospecter\Core\Prospecting\Domain\Organization" table="organizations">
         <indexes>
             <index columns="account_id"/>
-            <index columns="email"/>
         </indexes>
+        <!-- the safety net of EmailUniqueness, when two requests take the same email at once -->
+        <unique-constraints>
+            <unique-constraint name="organizations_email_by_account" columns="account_id,email"/>
+        </unique-constraints>
         <id name="id" type="organization_id">
             <generator strategy="NONE"/>
         </id>

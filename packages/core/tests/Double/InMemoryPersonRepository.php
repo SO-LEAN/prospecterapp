@@ -7,6 +7,9 @@ namespace Tests\Core\Double;
 use Prospecter\Core\PersonalData\Domain\Exception\UnknownPerson;
 use Prospecter\Core\PersonalData\Domain\Person;
 use Prospecter\Core\PersonalData\Domain\PersonRepository;
+use Prospecter\Core\PersonalData\Domain\Purpose;
+use Prospecter\Core\SharedKernel\Domain\AccountId;
+use Prospecter\Core\SharedKernel\Domain\Email;
 use Prospecter\Core\SharedKernel\Domain\PersonId;
 
 final readonly class InMemoryPersonRepository implements PersonRepository
@@ -28,6 +31,11 @@ final readonly class InMemoryPersonRepository implements PersonRepository
     public function ofIds(array $ids): array
     {
         return array_values(array_filter(array_map(fn (PersonId $id): ?Person => $this->database->person((string) $id), $ids)));
+    }
+
+    public function isEmailUsed(AccountId $accountId, Purpose $purpose, Email $email, PersonId $except): bool
+    {
+        return array_any($this->database->persons(), fn (Person $person): bool => !$person->id()->equals($except) && $person->accountId()->equals($accountId) && $person->purpose() === $purpose && $person->contactDetails()->email?->value === $email->value);
     }
 
     public function save(Person $person): void

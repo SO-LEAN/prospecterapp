@@ -2,10 +2,14 @@
 
 namespace App\PersonalData\Persistence;
 
+use Doctrine\DBAL\Exception\UniqueConstraintViolationException;
 use Doctrine\ORM\EntityManagerInterface;
 use Prospecter\Core\PersonalData\Domain\Exception\UnknownPerson;
 use Prospecter\Core\PersonalData\Domain\Person;
 use Prospecter\Core\PersonalData\Domain\PersonRepository;
+use Prospecter\Core\PersonalData\Domain\Purpose;
+use Prospecter\Core\SharedKernel\Domain\AccountId;
+use Prospecter\Core\SharedKernel\Domain\Email;
 use Prospecter\Core\SharedKernel\Domain\Exception\EmailAlreadyUsed;
 use Prospecter\Core\SharedKernel\Domain\PersonId;
 
@@ -36,33 +40,24 @@ final readonly class DoctrinePersonRepository implements PersonRepository
             ->getResult();
     }
 
-    public function save(Person $person): void
+    public function isEmailUsed(AccountId $accountId, Purpose $purpose, Email $email, PersonId $except): bool
     {
-        $this->ensureTheEmailIsFree($person);
-        $this->personalDataEntityManager->persist($person);
-        $this->personalDataEntityManager->flush();
+        return (int) $this->personalDataEntityManager->createQuery(sprintf('SELECT COUNT(p.id) FROM %s p WHERE p.accountId = :account AND p.purpose = :purpose AND p.contactDetails.email = :email AND p.id != :except', Person::class))
+            ->setParameter('account', $accountId, 'account_id')
+            ->setParameter('purpose', $purpose->value)
+            ->setParameter('email', $email, 'email')
+            ->setParameter('except', $except, 'person_id')
+            ->getSingleScalarResult() > 0;
     }
 
-    /**
-     * Two persons kept by the same account for the same purpose cannot share an email; other accounts may.
-     */
-    private function ensureTheEmailIsFree(Person $person): void
+    public function save(Person $person): void
     {
-        $email = $person->contactDetails()->email;
+        $this->personalDataEntityManager->persist($person);
 
-        if (null === $email) {
-            return;
-        }
-
-        $taken = (int) $this->personalDataEntityManager->createQuery(sprintf('SELECT COUNT(p.id) FROM %s p WHERE p.accountId = :account AND p.purpose = :purpose AND p.contactDetails.email = :email AND p.id != :id', Person::class))
-            ->setParameter('account', $person->accountId(), 'account_id')
-            ->setParameter('purpose', $person->purpose()->value)
-            ->setParameter('email', $email, 'email')
-            ->setParameter('id', $person->id(), 'person_id')
-            ->getSingleScalarResult();
-
-        if ($taken > 0) {
-            throw EmailAlreadyUsed::byAnother();
+        try {
+            $this->personalDataEntityManager->flush();
+        } catch (UniqueConstraintViolationException $takenMeanwhile) {
+            throw EmailAlreadyUsed::byAnother($takenMeanwhile);
         }
     }
 }
