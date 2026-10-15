@@ -11,13 +11,13 @@ use Prospecter\Core\SharedKernel\Domain\PersonId;
 
 final readonly class DoctrinePersonRepository implements PersonRepository
 {
-    public function __construct(private EntityManagerInterface $entityManager)
+    public function __construct(private EntityManagerInterface $personalDataEntityManager)
     {
     }
 
     public function get(PersonId $id): Person
     {
-        return $this->entityManager->find(Person::class, $id->value) ?? throw UnknownPerson::identifiedBy($id);
+        return $this->personalDataEntityManager->find(Person::class, $id->value) ?? throw UnknownPerson::identifiedBy($id);
     }
 
     /**
@@ -31,7 +31,7 @@ final readonly class DoctrinePersonRepository implements PersonRepository
             return [];
         }
 
-        return $this->entityManager->createQuery(sprintf('SELECT p FROM %s p WHERE p.id IN (:ids)', Person::class))
+        return $this->personalDataEntityManager->createQuery(sprintf('SELECT p FROM %s p WHERE p.id IN (:ids)', Person::class))
             ->setParameter('ids', array_map(static fn (PersonId $id): string => $id->value, $ids))
             ->getResult();
     }
@@ -39,8 +39,8 @@ final readonly class DoctrinePersonRepository implements PersonRepository
     public function save(Person $person): void
     {
         $this->ensureTheEmailIsFree($person);
-        $this->entityManager->persist($person);
-        $this->entityManager->flush();
+        $this->personalDataEntityManager->persist($person);
+        $this->personalDataEntityManager->flush();
     }
 
     /**
@@ -54,7 +54,7 @@ final readonly class DoctrinePersonRepository implements PersonRepository
             return;
         }
 
-        $taken = (int) $this->entityManager->createQuery(sprintf('SELECT COUNT(p.id) FROM %s p WHERE p.accountId = :account AND p.purpose = :purpose AND p.contactDetails.email = :email AND p.id != :id', Person::class))
+        $taken = (int) $this->personalDataEntityManager->createQuery(sprintf('SELECT COUNT(p.id) FROM %s p WHERE p.accountId = :account AND p.purpose = :purpose AND p.contactDetails.email = :email AND p.id != :id', Person::class))
             ->setParameter('account', $person->accountId(), 'account_id')
             ->setParameter('purpose', $person->purpose()->value)
             ->setParameter('email', $email, 'email')

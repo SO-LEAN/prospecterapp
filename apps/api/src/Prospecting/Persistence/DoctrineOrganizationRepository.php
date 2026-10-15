@@ -15,27 +15,27 @@ use Prospecter\Core\SharedKernel\Domain\Page;
 final readonly class DoctrineOrganizationRepository implements OrganizationRepository
 {
     public function __construct(
-        private EntityManagerInterface $entityManager,
+        private EntityManagerInterface $prospectingEntityManager,
         private PaginatorFactory $paginatorFactory,
     ) {
     }
 
     public function get(OrganizationId $id): Organization
     {
-        return $this->entityManager->find(Organization::class, $id->value) ?? throw UnknownOrganization::identifiedBy($id);
+        return $this->prospectingEntityManager->find(Organization::class, $id->value) ?? throw UnknownOrganization::identifiedBy($id);
     }
 
     public function save(Organization $organization): void
     {
         $this->ensureTheEmailIsFreeInTheBaseOf($organization);
-        $this->entityManager->persist($organization);
-        $this->entityManager->flush();
+        $this->prospectingEntityManager->persist($organization);
+        $this->prospectingEntityManager->flush();
     }
 
     public function pageProspectedBy(AccountId $accountId, string $query, int $page, int $maxByPage): Page
     {
         $dql = sprintf('SELECT o FROM %s o WHERE o.accountId = :account AND (o.legalIdentity.corporateName LIKE :query OR o.contactDetails.email LIKE :query) ORDER BY o.id DESC', Organization::class);
-        $paginator = $this->paginatorFactory->create($this->entityManager->createQuery($dql)
+        $paginator = $this->paginatorFactory->create($this->prospectingEntityManager->createQuery($dql)
             ->setParameter('account', $accountId, 'account_id')
             ->setParameter('query', sprintf('%%%s%%', $query))
             ->setFirstResult(($page - 1) * $maxByPage)
@@ -56,7 +56,7 @@ final readonly class DoctrineOrganizationRepository implements OrganizationRepos
             return;
         }
 
-        $taken = (int) $this->entityManager->createQuery(sprintf('SELECT COUNT(o.id) FROM %s o WHERE o.accountId = :account AND o.contactDetails.email = :email AND o.id != :id', Organization::class))
+        $taken = (int) $this->prospectingEntityManager->createQuery(sprintf('SELECT COUNT(o.id) FROM %s o WHERE o.accountId = :account AND o.contactDetails.email = :email AND o.id != :id', Organization::class))
             ->setParameter('account', $organization->accountId(), 'account_id')
             ->setParameter('email', $email, 'email')
             ->setParameter('id', $organization->id(), 'organization_id')

@@ -11,18 +11,18 @@ use Prospecter\Core\SharedKernel\Domain\MemberId;
 final readonly class DoctrineMemberRepository implements MemberRepository
 {
     public function __construct(
-        private EntityManagerInterface $entityManager,
+        private EntityManagerInterface $accountsEntityManager,
     ) {
     }
 
     public function get(MemberId $id): Member
     {
-        return $this->entityManager->find(Member::class, $id->value) ?? throw UnknownMember::identifiedBy($id);
+        return $this->accountsEntityManager->find(Member::class, $id->value) ?? throw UnknownMember::identifiedBy($id);
     }
 
     public function save(Member $member): void
     {
-        $this->entityManager->persist($member);
-        $this->entityManager->flush();
+        $this->accountsEntityManager->persist($member);
+        $this->accountsEntityManager->flush();
     }
 }

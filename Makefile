@@ -8,6 +8,8 @@ NODE = $(DC) run --rm --no-deps node
 CORE = $(DC) run --rm --no-deps -w /var/www/src/packages/core php
 # the storage app (stored files and their sizes)
 STORAGE = $(DC) run --rm --no-deps -w /var/www/src/apps/storage php
+# the entity managers of the API, one database per bounded context (ADR 0038)
+API_CONTEXTS = accounts personal_data prospecting
 # the authorization server (sign-in, OAuth 2, credentials)
 AUTH = $(DC) run --rm --no-deps -w /var/www/src/apps/auth php
 
@@ -35,8 +37,8 @@ keys:
 	@$(AUTH) sh -c 'test -f config/jwt/private.pem || bin/console league:oauth2-server:generate-keypair'
 
 db:
-	@echo "API/Creating the database with fixtures..."
-	@$(PHP) sh -c 'bin/console cache:clear >/dev/null && bin/console doctrine:schema:drop --force --full-database && bin/console doctrine:schema:create && bin/console doctrine:fixtures:load --no-interaction'
+	@echo "API/Creating the database of each bounded context with fixtures..."
+	@$(PHP) sh -c 'bin/console cache:clear >/dev/null && for context in $(API_CONTEXTS); do bin/console doctrine:schema:drop --force --full-database --em=$$context && bin/console doctrine:schema:create --em=$$context || exit 1; done && bin/console doctrine:fixtures:load --no-interaction --append'
 	@echo "Auth/Creating the database with fixtures (OAuth client, credentials of the prospector)..."
 	@$(AUTH) sh -c 'bin/console cache:clear >/dev/null && bin/console doctrine:schema:drop --force --full-database && bin/console doctrine:schema:create && bin/console doctrine:fixtures:load --no-interaction'
 

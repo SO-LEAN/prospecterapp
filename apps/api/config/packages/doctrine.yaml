@@ -1,8 +1,18 @@
+# One database per bounded context (ADR 0038): each context keeps its aggregates in its own database, through
+# its own connection and entity manager; nothing joins or spans two contexts.
 doctrine:
     dbal:
-        url: '%env(resolve:DATABASE_URL)%'
-        profiling_collect_backtrace: '%kernel.debug%'
-        # value objects of the core: the aggregates keep them, the mapping adapts
+        default_connection: accounts
+        connections:
+            accounts:
+                url: '%env(resolve:ACCOUNTS_DATABASE_URL)%'
+                profiling_collect_backtrace: '%kernel.debug%'
+            personal_data:
+                url: '%env(resolve:PERSONAL_DATA_DATABASE_URL)%'
+                profiling_collect_backtrace: '%kernel.debug%'
+            prospecting:
+                url: '%env(resolve:PROSPECTING_DATABASE_URL)%'
+                profiling_collect_backtrace: '%kernel.debug%'
         types:
             account_id: App\Shared\Persistence\AccountIdType
             member_id: App\Shared\Persistence\MemberIdType
@@ -15,41 +25,67 @@ doctrine:
             roles: App\Accounts\Persistence\RolesType
             moment: App\Shared\Persistence\MomentType
     orm:
-        validate_xml_mapping: true
-        naming_strategy: doctrine.orm.naming_strategy.underscore_number_aware
-        auto_mapping: false
-        mappings:
-            # one mapping per bounded context of the core (ADR 0030)
-            Accounts:
-                type: xml
-                is_bundle: false
-                dir: '%kernel.project_dir%/config/doctrine/Accounts'
-                prefix: 'Prospecter\Core\Accounts\Domain'
-            PersonalData:
-                type: xml
-                is_bundle: false
-                dir: '%kernel.project_dir%/config/doctrine/PersonalData'
-                prefix: 'Prospecter\Core\PersonalData\Domain'
-            Prospecting:
-                type: xml
-                is_bundle: false
-                dir: '%kernel.project_dir%/config/doctrine/Prospecting'
-                prefix: 'Prospecter\Core\Prospecting\Domain'
-            SharedKernel:
-                type: xml
-                is_bundle: false
-                dir: '%kernel.project_dir%/config/doctrine/SharedKernel'
-                prefix: 'Prospecter\Core\SharedKernel\Domain'
+        default_entity_manager: accounts
+        entity_managers:
+            accounts:
+                connection: accounts
+                validate_xml_mapping: true
+                naming_strategy: doctrine.orm.naming_strategy.underscore_number_aware
+                mappings:
+                    Accounts:
+                        type: xml
+                        is_bundle: false
+                        dir: '%kernel.project_dir%/config/doctrine/Accounts'
+                        prefix: 'Prospecter\Core\Accounts\Domain'
+                    SharedKernel:
+                        type: xml
+                        is_bundle: false
+                        dir: '%kernel.project_dir%/config/doctrine/SharedKernel'
+                        prefix: 'Prospecter\Core\SharedKernel\Domain'
+            personal_data:
+                connection: personal_data
+                validate_xml_mapping: true
+                naming_strategy: doctrine.orm.naming_strategy.underscore_number_aware
+                mappings:
+                    PersonalData:
+                        type: xml
+                        is_bundle: false
+                        dir: '%kernel.project_dir%/config/doctrine/PersonalData'
+                        prefix: 'Prospecter\Core\PersonalData\Domain'
+                    SharedKernel:
+                        type: xml
+                        is_bundle: false
+                        dir: '%kernel.project_dir%/config/doctrine/SharedKernel'
+                        prefix: 'Prospecter\Core\SharedKernel\Domain'
+            prospecting:
+                connection: prospecting
+                validate_xml_mapping: true
+                naming_strategy: doctrine.orm.naming_strategy.underscore_number_aware
+                mappings:
+                    Prospecting:
+                        type: xml
+                        is_bundle: false
+                        dir: '%kernel.project_dir%/config/doctrine/Prospecting'
+                        prefix: 'Prospecter\Core\Prospecting\Domain'
+                    SharedKernel:
+                        type: xml
+                        is_bundle: false
+                        dir: '%kernel.project_dir%/config/doctrine/SharedKernel'
+                        prefix: 'Prospecter\Core\SharedKernel\Domain'
 
 when@prod:
     doctrine:
         orm:
-            query_cache_driver:
-                type: pool
-                pool: doctrine.system_cache_pool
-            result_cache_driver:
-                type: pool
-                pool: doctrine.result_cache_pool
+            entity_managers:
+                accounts: &caches
+                    query_cache_driver:
+                        type: pool
+                        pool: doctrine.system_cache_pool
+                    result_cache_driver:
+                        type: pool
+                        pool: doctrine.result_cache_pool
+                personal_data: *caches
+                prospecting: *caches
 
     framework:
         cache:

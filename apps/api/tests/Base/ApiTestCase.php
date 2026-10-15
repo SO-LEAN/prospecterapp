@@ -6,7 +6,6 @@ use App\DataFixtures\AppFixtures;
 use App\Shared\Identities;
 use Doctrine\Common\DataFixtures\Executor\ORMExecutor;
 use Doctrine\Common\DataFixtures\Loader;
-use Doctrine\Common\DataFixtures\Purger\ORMPurger;
 use Doctrine\Common\DataFixtures\ReferenceRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\Tools\SchemaTool;
@@ -38,7 +37,7 @@ abstract class ApiTestCase extends WebTestCase
     protected function login(string $reference = 'prospector-user'): void
     {
         $memberId = $this->fixtures->getReference($reference, Member::class)->id()->value;
-        $this->forgetTheLoadedAggregates(self::getContainer()->get(EntityManagerInterface::class));
+        $this->forgetTheLoadedAggregates();
         $this->client->setServerParameter('HTTP_AUTHORIZATION', 'Bearer '.$this->accessTokenOf($memberId));
     }
 
@@ -110,20 +109,28 @@ abstract class ApiTestCase extends WebTestCase
         return array_map(static fn (array $violation): string => $violation['propertyPath'], $problem['violations'] ?? []);
     }
 
+    /**
+     * The fixtures are written by the repositories, each in the database of its context (ADR 0038); the
+     * references belong to Accounts, the context of the members the tests sign in.
+     */
     private function loadFixtures(): ReferenceRepository
     {
-        $entityManager = static::getContainer()->get(EntityManagerInterface::class);
-        $schemaTool = new SchemaTool($entityManager);
-        $schemaTool->dropDatabase();
-        $schemaTool->createSchema($entityManager->getMetadataFactory()->getAllMetadata());
+        array_map($this->recreateTheSchemaOf(...), $this->entityManagers());
 
         $loader = new Loader();
         $loader->addFixture(static::getContainer()->get(AppFixtures::class));
-        $executor = new ORMExecutor($entityManager, new ORMPurger($entityManager));
-        $executor->execute($loader->getFixtures());
-        $this->forgetTheLoadedAggregates($entityManager);
+        $executor = new ORMExecutor($this->entityManagers()['accounts']);
+        $executor->execute($loader->getFixtures(), append: true);
+        $this->forgetTheLoadedAggregates();
 
         return $executor->getReferenceRepository();
+    }
+
+    private function recreateTheSchemaOf(EntityManagerInterface $entityManager): void
+    {
+        $schemaTool = new SchemaTool($entityManager);
+        $schemaTool->dropDatabase();
+        $schemaTool->createSchema($entityManager->getMetadataFactory()->getAllMetadata());
     }
 
     /**
@@ -131,8 +138,18 @@ abstract class ApiTestCase extends WebTestCase
      * readonly identity with an equal but new value object, which Doctrine refuses. The requests load the
      * aggregates again.
      */
-    private function forgetTheLoadedAggregates(EntityManagerInterface $entityManager): void
+    private function forgetTheLoadedAggregates(): void
     {
-        $entityManager->clear();
+        foreach ($this->entityManagers() as $entityManager) {
+            $entityManager->clear();
+        }
+    }
+
+    /**
+     * @return array<string, EntityManagerInterface> by context
+     */
+    private function entityManagers(): array
+    {
+        return static::getContainer()->get('doctrine')->getManagers();
     }
 }
