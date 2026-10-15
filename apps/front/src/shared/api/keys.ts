@@ -5,6 +5,7 @@
 export const queryKeys = {
   dashboard: ['get', '/api/dashboard'],
   organizationList: ['get', '/api/organizations'],
+  organization: ['get', '/api/organizations/{id}'],
   organizationContacts: ['get', '/api/organizations/{id}/contacts'],
   contactList: ['get', '/api/contacts'],
 } as const

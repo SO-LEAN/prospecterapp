@@ -8,8 +8,8 @@ use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Prospecter\Core\Prospecting\Domain\Address;
 use Prospecter\Core\Prospecting\Domain\Organization;
-use Prospecter\Core\Prospecting\Domain\OrganizationId;
 use Prospecter\Core\Prospecting\Domain\OrganizationIntent;
+use Prospecter\Core\Prospecting\Domain\OrphanContacts;
 use Prospecter\Core\Prospecting\Domain\Prospector;
 use Prospecter\Core\SharedKernel\Domain\AccountId;
 use Prospecter\Core\SharedKernel\Domain\ContactDetails;
@@ -18,7 +18,10 @@ use Prospecter\Core\SharedKernel\Domain\Exception\NotFound;
 use Prospecter\Core\SharedKernel\Domain\File;
 use Prospecter\Core\SharedKernel\Domain\LegalIdentity;
 use Prospecter\Core\SharedKernel\Domain\MemberId;
+use Prospecter\Core\SharedKernel\Domain\OrganizationId;
 use Prospecter\Core\SharedKernel\Domain\PersonId;
+use Tests\Core\Double\InMemoryDatabase;
+use Tests\Core\Double\InMemoryOrganizationRepository;
 
 /**
  * The front shows an action when its link is there, the API refuses a call when it is not: an intention
@@ -86,7 +89,8 @@ class OrganizationIntentsTest extends TestCase
             OrganizationIntent::ChangeLogo => $organization->changeLogo($this->logo(), $by, new \DateTimeImmutable()),
             OrganizationIntent::RemoveLogo => $organization->removeLogo($by, new \DateTimeImmutable()),
             OrganizationIntent::AddContact => $organization->addContact(new PersonId(self::NEW_CONTACT), $by, new \DateTimeImmutable()),
-            OrganizationIntent::RemoveContact => $organization->removeContact(new PersonId(self::CONTACT), $by, new \DateTimeImmutable()),
+            OrganizationIntent::RemoveContact => $organization->removeContact(new PersonId(self::CONTACT), $by, new \DateTimeImmutable(), $this->orphans()),
+            OrganizationIntent::StopProspecting => $organization->stopBeingProspected($by, new \DateTimeImmutable(), $this->orphans()),
         };
     }
 
@@ -102,6 +106,14 @@ class OrganizationIntentsTest extends TestCase
         }
 
         return $prospect;
+    }
+
+    /**
+     * No other organization: every contact the organization lets go is left alone.
+     */
+    private function orphans(): OrphanContacts
+    {
+        return new OrphanContacts(new InMemoryOrganizationRepository(new InMemoryDatabase()));
     }
 
     private function holding(): Organization

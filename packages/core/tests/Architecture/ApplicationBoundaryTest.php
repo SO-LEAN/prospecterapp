@@ -7,6 +7,7 @@ namespace Tests\Core\Architecture;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Prospecter\Core\SharedKernel\Application\CommandHandler;
+use Prospecter\Core\SharedKernel\Application\EventHandler;
 use Prospecter\Core\SharedKernel\Application\QueryHandler;
 use Prospecter\Core\SharedKernel\Application\RefusalTranslatingHandler;
 
@@ -18,7 +19,7 @@ class ApplicationBoundaryTest extends TestCase
 {
     private const string NAMESPACE = 'Prospecter\Core\\';
 
-    #[DataProvider('handlers')]
+    #[DataProvider('handlersCalledByAClient')]
     public function testAHandlerTakesAndAnswersNoDomainClass(string $handler): void
     {
         $invoke = new \ReflectionMethod($handler, '__invoke');
@@ -29,7 +30,10 @@ class ApplicationBoundaryTest extends TestCase
     #[DataProvider('handlers')]
     public function testAHandlerIsCalledThroughTheRefusalTranslation(string $handler): void
     {
-        $this->assertTrue(is_a($handler, CommandHandler::class, true) || is_a($handler, QueryHandler::class, true), 'A handler implements CommandHandler or QueryHandler, so that RefusalTranslatingHandler decorates it');
+        $this->assertTrue(
+            is_a($handler, CommandHandler::class, true) || is_a($handler, QueryHandler::class, true) || is_a($handler, EventHandler::class, true),
+            'A handler implements CommandHandler or QueryHandler, so that RefusalTranslatingHandler decorates it, or EventHandler, called within a command decorated so',
+        );
     }
 
     #[DataProvider('dataStructures')]
@@ -48,6 +52,21 @@ class ApplicationBoundaryTest extends TestCase
         foreach (self::applicationClasses() as $class) {
             if (str_ends_with($class, 'Handler') && RefusalTranslatingHandler::class !== $class && !interface_exists($class)) {
                 yield $class => [$class];
+            }
+        }
+    }
+
+    /**
+     * The command and query handlers: an event handler reacts to a domain event within the core, no client
+     * calls it.
+     *
+     * @return iterable<string, array{class-string}>
+     */
+    public static function handlersCalledByAClient(): iterable
+    {
+        foreach (self::handlers() as $name => [$handler]) {
+            if (!is_a($handler, EventHandler::class, true)) {
+                yield $name => [$handler];
             }
         }
     }

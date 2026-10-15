@@ -7,7 +7,6 @@ namespace Tests\Core\Application;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Prospecter\Core\Prospecting\Domain\Exception\UnknownOrganization;
-use Prospecter\Core\Prospecting\Domain\OrganizationId;
 use Prospecter\Core\SharedKernel\Application\Exception\ErrorType;
 use Prospecter\Core\SharedKernel\Application\Exception\UseCaseRefused;
 use Prospecter\Core\SharedKernel\Domain\Exception\BusinessException;
@@ -15,6 +14,7 @@ use Prospecter\Core\SharedKernel\Domain\Exception\BusinessRuleViolation;
 use Prospecter\Core\SharedKernel\Domain\Exception\EmailAlreadyUsed;
 use Prospecter\Core\SharedKernel\Domain\Exception\NotAllowed;
 use Prospecter\Core\SharedKernel\Domain\Exception\NotPossibleInItsState;
+use Prospecter\Core\SharedKernel\Domain\OrganizationId;
 
 class UseCaseRefusedTest extends TestCase
 {

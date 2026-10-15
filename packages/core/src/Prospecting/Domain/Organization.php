@@ -7,19 +7,24 @@ namespace Prospecter\Core\Prospecting\Domain;
 use Prospecter\Core\Prospecting\Domain\Exception\UnknownOrganization;
 use Prospecter\Core\SharedKernel\Domain\AccountId;
 use Prospecter\Core\SharedKernel\Domain\ContactDetails;
+use Prospecter\Core\SharedKernel\Domain\Event\ContactsLeftWithoutOrganization;
 use Prospecter\Core\SharedKernel\Domain\Exception\BusinessRuleViolation;
 use Prospecter\Core\SharedKernel\Domain\Exception\NotAllowed;
 use Prospecter\Core\SharedKernel\Domain\Exception\NotPossibleInItsState;
 use Prospecter\Core\SharedKernel\Domain\File;
 use Prospecter\Core\SharedKernel\Domain\LegalIdentity;
 use Prospecter\Core\SharedKernel\Domain\MemberId;
+use Prospecter\Core\SharedKernel\Domain\OrganizationId;
 use Prospecter\Core\SharedKernel\Domain\PersonId;
+use Prospecter\Core\SharedKernel\Domain\RecordsEvents;
 
 /**
  * Aggregate root: an organization an account prospects; the whole team of the account shares it.
  */
 class Organization
 {
+    use RecordsEvents;
+
     private ?OrganizationId $holdingId = null;
     private ?Address $address = null;
     private ?GeoPoint $geoPoint = null;
@@ -240,9 +245,11 @@ class Organization
     }
 
     /**
+     * A contact no other organization names is left alone: it must not stay (ContactsLeftWithoutOrganization).
+     *
      * @throws NotPossibleInItsState when the person is no contact of the organization
      */
-    public function removeContact(PersonId $contact, Prospector $by, \DateTimeImmutable $at): void
+    public function removeContact(PersonId $contact, Prospector $by, \DateTimeImmutable $at, OrphanContacts $orphans): void
     {
         $this->ensurePossible(OrganizationIntent::RemoveContact, $by);
 
@@ -252,9 +259,32 @@ class Organization
 
         $this->contacts = array_values(array_filter($this->contacts, static fn (PersonId $attached): bool => !$attached->equals($contact)));
         $this->modifiedAt = $at;
+        $this->leaveAlone($orphans->among([$contact], $this->accountId, $this->id), $by, $at);
     }
 
-    private function hasContact(PersonId $contact): bool
+    /**
+     * Leaves the prospecting base: once the repository removed it, its contacts no other organization names
+     * are left alone (ContactsLeftWithoutOrganization).
+     *
+     * @throws UnknownOrganization|NotAllowed
+     */
+    public function stopBeingProspected(Prospector $by, \DateTimeImmutable $at, OrphanContacts $orphans): void
+    {
+        $this->ensurePossible(OrganizationIntent::StopProspecting, $by);
+        $this->leaveAlone($orphans->among($this->contacts, $this->accountId, $this->id), $by, $at);
+    }
+
+    /**
+     * @param list<PersonId> $contacts
+     */
+    private function leaveAlone(array $contacts, Prospector $by, \DateTimeImmutable $at): void
+    {
+        if ([] !== $contacts) {
+            $this->recordThat(new ContactsLeftWithoutOrganization($this->accountId, $by->id, $contacts, $at));
+        }
+    }
+
+    public function hasContact(PersonId $contact): bool
     {
         return array_any($this->contacts, static fn (PersonId $attached): bool => $attached->equals($contact));
     }
@@ -269,9 +299,22 @@ class Organization
         };
     }
 
+    /**
+     * The contacts are personal data: managing them, or stopping to prospect an organization that has some
+     * (they may be erased with it), needs the right to manage personal data.
+     */
     private function isAllowedTo(Prospector $prospector, OrganizationIntent $intent): bool
     {
-        return $prospector->managesPersonalData || !in_array($intent, [OrganizationIntent::AddContact, OrganizationIntent::RemoveContact], true);
+        return $prospector->managesPersonalData || !$this->touchesContacts($intent);
+    }
+
+    private function touchesContacts(OrganizationIntent $intent): bool
+    {
+        return match ($intent) {
+            OrganizationIntent::AddContact, OrganizationIntent::RemoveContact => true,
+            OrganizationIntent::StopProspecting => [] !== $this->contacts,
+            default => false,
+        };
     }
 
     private function ensurePossible(OrganizationIntent $intent, Prospector $by): void

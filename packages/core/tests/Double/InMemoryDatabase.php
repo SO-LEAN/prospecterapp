@@ -37,7 +37,7 @@ final class InMemoryDatabase
 
     public function storePerson(Person $person): void
     {
-        $this->persons[(string) $person->id()] = clone $person;
+        $this->persons[(string) $person->id()] = self::withoutItsEvents($person);
     }
 
     public function forgetPerson(string $id): void
@@ -45,9 +45,14 @@ final class InMemoryDatabase
         unset($this->persons[$id]);
     }
 
+    public function forgetOrganization(string $id): void
+    {
+        unset($this->organizations[$id]);
+    }
+
     public function storeOrganization(Organization $organization): void
     {
-        $this->organizations[(string) $organization->id()] = clone $organization;
+        $this->organizations[(string) $organization->id()] = self::withoutItsEvents($organization);
     }
 
     public function account(string $id): ?Account
@@ -92,5 +97,23 @@ final class InMemoryDatabase
     public function organizations(): array
     {
         return array_values(array_map(static fn (Organization $organization): Organization => clone $organization, $this->organizations));
+    }
+
+    /**
+     * Like the Doctrine mapping, a stored aggregate keeps its state, not the events it recorded: they belong to
+     * the use case that changed it.
+     *
+     * @template T of Person|Organization
+     *
+     * @param T $aggregate
+     *
+     * @return T
+     */
+    private static function withoutItsEvents(Person|Organization $aggregate): Person|Organization
+    {
+        $stored = clone $aggregate;
+        $stored->releaseEvents();
+
+        return $stored;
     }
 }

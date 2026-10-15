@@ -1,7 +1,7 @@
 import { keepPreviousData, useQuery } from '@tanstack/react-query'
 import { createFileRoute, Link, useNavigate } from '@tanstack/react-router'
 import { zodValidator } from '@tanstack/zod-adapter'
-import { ChevronLeft, ChevronRight, Plus, Search, SearchX, UsersRound } from 'lucide-react'
+import { ChevronLeft, ChevronRight, Search, SearchX, UsersRound } from 'lucide-react'
 import { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { z } from 'zod'
@@ -22,8 +22,9 @@ const searchSchema = z.object({
 })
 
 /**
- * The persons my organization prospects. The search and the page live in the URL; searching and collecting
- * are offered only with the right to manage personal data (the links of the page).
+ * The persons my organization prospects, with their organizations. The search and the page live in the URL;
+ * searching is offered only with the right to manage personal data (the links of the page). A contact is
+ * collected from an organization, never here.
  */
 export const Route = createFileRoute('/_app/contacts/')({
   validateSearch: zodValidator(searchSchema),
@@ -59,15 +60,6 @@ function Contacts() {
       <PageHeader
         title={t('contacts.title')}
         description={data && t('contacts.subtitle', { count: data.totalItems })}
-        actions={
-          data?._links.collect && (
-            <Button asChild>
-              <Link to="/contacts/new">
-                <Plus /> {t('contacts.new')}
-              </Link>
-            </Button>
-          )
-        }
       />
 
       {data?._links.search && (
@@ -99,15 +91,6 @@ function Contacts() {
             icon={UsersRound}
             title={t('contacts.empty.title')}
             description={t('contacts.empty.description')}
-            action={
-              data._links.collect && (
-                <Button asChild>
-                  <Link to="/contacts/new">
-                    <Plus /> {t('contacts.new')}
-                  </Link>
-                </Button>
-              )
-            }
           />
         )
       ) : (

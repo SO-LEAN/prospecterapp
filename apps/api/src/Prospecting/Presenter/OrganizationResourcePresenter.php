@@ -28,6 +28,7 @@ final readonly class OrganizationResourcePresenter
         'changeLogo' => 'api_organizations_change_logo',
         'removeLogo' => 'api_organizations_remove_logo',
         'addContact' => 'api_organizations_add_contact',
+        'stopProspecting' => 'api_organizations_stop_prospecting',
     ];
 
     public function __construct(private ImageResourceFactory $images, private Links $links)

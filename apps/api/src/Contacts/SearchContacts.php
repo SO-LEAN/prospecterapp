@@ -1,0 +1,86 @@
+<?php
+
+namespace App\Contacts;
+
+use App\Contacts\Resource\ContactInListResource;
+use App\Contacts\Resource\ContactListLinksResource;
+use App\Contacts\Resource\ContactListResource;
+use App\Contacts\Resource\OrganizationOfContactResource;
+use App\PersonalData\Input\ContactListQuery;
+use App\PersonalData\Resource\PersonNameResource;
+use App\Security\User;
+use App\Shared\Links;
+use App\Shared\Resource\ContactDetailsResource;
+use App\Shared\Resource\ProblemResource;
+use Nelmio\ApiDocBundle\Attribute\Model;
+use OpenApi\Attributes as OA;
+use Prospecter\Core\PersonalData\Application\PersonResponse;
+use Prospecter\Core\PersonalData\Application\SearchContacts\SearchContacts as SearchContactsQuery;
+use Prospecter\Core\PersonalData\Application\SearchContacts\SearchContactsHandler;
+use Prospecter\Core\PersonalData\Application\SearchContacts\SearchContactsResponse;
+use Prospecter\Core\SharedKernel\Application\RefusalTranslatingHandler;
+use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\HttpFoundation\JsonResponse;
+use Symfony\Component\HttpKernel\Attribute\MapQueryString;
+use Symfony\Component\Routing\Attribute\Route;
+use Symfony\Component\Security\Http\Attribute\CurrentUser;
+use Symfony\Component\Security\Http\Attribute\IsGranted;
+
+/**
+ * The contacts of my organization, composed of two contexts: PersonalData reads a page of persons, in clear or
+ * masked; Prospecting tells the organizations of each, in one batch.
+ */
+#[OA\Tag('Contacts')]
+#[IsGranted('ROLE_PROSPECTOR')]
+final class SearchContacts extends AbstractController
+{
+    private readonly RefusalTranslatingHandler $searchContacts;
+
+    public function __construct(SearchContactsHandler $searchContacts, private readonly OrganizationsOfContacts $organizations, private readonly Links $links)
+    {
+        $this->searchContacts = new RefusalTranslatingHandler($searchContacts);
+    }
+
+    #[Route('/api/contacts', name: 'api_contacts_search', methods: ['GET'])]
+    #[OA\Get(summary: 'Search the persons my organization prospects, by name or email, with their organizations; a search by text needs the right to manage personal data')]
+    #[OA\Response(response: 200, description: 'A page of contacts, most recent first', content: new Model(type: ContactListResource::class))]
+    #[OA\Response(response: 401, description: 'Missing or invalid access token')]
+    #[OA\Response(response: 403, description: 'Not a prospector, or a search by text without the right to manage personal data', content: new Model(type: ProblemResource::class))]
+    public function __invoke(#[CurrentUser] User $user, #[MapQueryString] ContactListQuery $query = new ContactListQuery()): JsonResponse
+    {
+        $page = ($this->searchContacts)(new SearchContactsQuery($user->memberId(), $query->page, $query->q));
+        $organizations = $this->organizations->read($user->memberId(), array_map(static fn (PersonResponse $contact): string => $contact->id, $page->contacts));
+
+        return $this->json(new ContactListResource(
+            array_map(fn (PersonResponse $contact): ContactInListResource => $this->present($contact, $organizations[$contact->id] ?? []), $page->contacts),
+            $page->currentPage,
+            $page->totalPages,
+            $page->total,
+            $this->linksOf($page),
+        ));
+    }
+
+    /**
+     * @param list<OrganizationOfContactResource> $organizations
+     */
+    private function present(PersonResponse $contact, array $organizations): ContactInListResource
+    {
+        return new ContactInListResource(
+            id: $contact->id,
+            name: new PersonNameResource($contact->firstName, $contact->lastName),
+            jobTitle: $contact->jobTitle,
+            contactDetails: new ContactDetailsResource($contact->email, $contact->phoneNumber, $contact->language),
+            masked: $contact->masked,
+            organizations: $organizations,
+            contact: $this->links->to('api_contacts_show', ['id' => $contact->id]),
+        );
+    }
+
+    private function linksOf(SearchContactsResponse $page): ContactListLinksResource
+    {
+        return new ContactListLinksResource(
+            $this->links->to('api_contacts_search'),
+            in_array('SearchByText', $page->possibleIntents, true) ? $this->links->to('api_contacts_search') : null,
+        );
+    }
+}

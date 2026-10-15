@@ -9,7 +9,6 @@ use Prospecter\Core\Prospecting\Application\Port\GeoLocation;
 use Prospecter\Core\Prospecting\Domain\Address;
 use Prospecter\Core\Prospecting\Domain\EmailUniqueness;
 use Prospecter\Core\Prospecting\Domain\Organization;
-use Prospecter\Core\Prospecting\Domain\OrganizationId;
 use Prospecter\Core\Prospecting\Domain\OrganizationRepository;
 use Prospecter\Core\Prospecting\Domain\Prospector;
 use Prospecter\Core\Prospecting\Domain\Prospectors;
@@ -18,6 +17,7 @@ use Prospecter\Core\SharedKernel\Domain\ContactDetails;
 use Prospecter\Core\SharedKernel\Domain\Email;
 use Prospecter\Core\SharedKernel\Domain\LegalIdentity;
 use Prospecter\Core\SharedKernel\Domain\MemberId;
+use Prospecter\Core\SharedKernel\Domain\OrganizationId;
 
 final readonly class StartProspectingHandler implements CommandHandler
 {

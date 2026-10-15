@@ -24,8 +24,7 @@ final readonly class Reader
     }
 
     /**
-     * Collecting contacts and searching them by text need the right to manage personal data; reading them
-     * masked does not.
+     * Searching contacts by text needs the right to manage personal data; reading them masked does not.
      *
      * @return list<ContactsIntent>
      */

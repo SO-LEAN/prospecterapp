@@ -24,13 +24,14 @@ use Prospecter\Core\Prospecting\Application\SearchProspectedOrganizations\FoundO
 use Prospecter\Core\Prospecting\Application\SearchProspectedOrganizations\SearchProspectedOrganizations;
 use Prospecter\Core\Prospecting\Application\SearchProspectedOrganizations\SearchProspectedOrganizationsResponse;
 use Prospecter\Core\Prospecting\Application\StartProspecting\StartProspecting;
+use Prospecter\Core\Prospecting\Application\StopProspecting\StopProspecting;
 use Prospecter\Core\Prospecting\Application\WriteObservations\WriteObservations;
 use Prospecter\Core\Prospecting\Domain\Organization;
-use Prospecter\Core\Prospecting\Domain\OrganizationId;
 use Prospecter\Core\SharedKernel\Domain\ContactDetails;
 use Prospecter\Core\SharedKernel\Domain\Email;
 use Prospecter\Core\SharedKernel\Domain\File;
 use Prospecter\Core\SharedKernel\Domain\LegalIdentity;
+use Prospecter\Core\SharedKernel\Domain\OrganizationId;
 use Tests\Core\Acceptance\Expect;
 use Tests\Core\Acceptance\Vocabulary;
 use Tests\Core\Double\InMemoryStorage;
@@ -206,10 +207,15 @@ final class OrganizationContext implements Context
         $this->application->dispatch(new RemoveContact($this->me(), $this->scenario->idOf($organization), $this->scenario->personIdOf($contact), $this->application->now()));
     }
 
+    #[When('j\'arrête de prospecter :name')]
+    public function iStopProspecting(string $name): void
+    {
+        $this->application->dispatch(new StopProspecting($this->me(), $this->scenario->idOf($name), $this->application->now()));
+    }
+
     #[Then('les contacts de :organization sont :')]
     public function theContactsOfTheOrganizationAre(string $organization, TableNode $table): void
     {
-        Expect::that(null === $this->application->refusal(), sprintf('Refused: %s', $this->application->refusal()?->getMessage()));
         Expect::same($table->getColumn(0), array_map($this->scenario->nameOfPerson(...), $this->scenario->organizationNamed($organization)->contacts()));
     }
 

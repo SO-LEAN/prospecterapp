@@ -34,11 +34,12 @@ final class CollectContact extends AbstractController
     }
 
     #[Route('/api/contacts', name: 'api_contacts_collect', methods: ['POST'])]
-    #[OA\Post(summary: 'Collect a person my organization prospects, to attach to the organizations they work for')]
+    #[OA\Post(summary: 'Collect a person my organization prospects, as a contact of the organizations they work for (at least one)')]
     #[OA\Response(response: 201, description: 'The contact', content: new Model(type: ContactResource::class))]
     #[OA\Response(response: 401, description: 'Missing or invalid access token')]
     #[OA\Response(response: 403, description: 'Not a prospector, or no right to manage personal data', content: new Model(type: ProblemResource::class))]
-    #[OA\Response(response: 422, description: 'Invalid contact, or email already used by another contact', content: new Model(type: ProblemResource::class))]
+    #[OA\Response(response: 404, description: 'Unknown organization, or one of another account', content: new Model(type: ProblemResource::class))]
+    #[OA\Response(response: 422, description: 'Invalid contact, no organization, or email already used by another contact', content: new Model(type: ProblemResource::class))]
     public function __invoke(#[MapRequestPayload] CollectContactInput $input, #[CurrentUser] User $user): JsonResponse
     {
         $id = $this->identities->next();
@@ -51,6 +52,7 @@ final class CollectContact extends AbstractController
             email: $input->contactDetails->email,
             phoneNumber: $input->contactDetails->phoneNumber,
             language: $input->contactDetails->language,
+            organizationIds: $input->organizationIds,
             executedAt: $this->clock->now(),
         ));
 

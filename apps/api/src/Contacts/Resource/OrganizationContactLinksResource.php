@@ -1,6 +1,6 @@
 <?php
 
-namespace App\OrganizationContacts\Resource;
+namespace App\Contacts\Resource;
 
 use App\Shared\Resource\LinkResource;
 use OpenApi\Attributes as OA;

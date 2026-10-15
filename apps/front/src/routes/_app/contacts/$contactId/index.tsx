@@ -5,6 +5,7 @@ import {
   ContactDetailsSection,
   JobTitleSection,
   NameSection,
+  OrganizationsSection,
 } from '@/features/contacts/components/contact-sections'
 import { ForgetContact } from '@/features/contacts/components/forget-contact'
 import { contactQuery, fullNameOf } from '@/features/contacts/queries'
@@ -56,6 +57,7 @@ function ContactPage() {
         <NameSection contact={contact} />
         <JobTitleSection contact={contact} />
         <ContactDetailsSection contact={contact} />
+        <OrganizationsSection contact={contact} />
       </div>
     </div>
   )

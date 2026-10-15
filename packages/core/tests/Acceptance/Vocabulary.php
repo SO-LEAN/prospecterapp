@@ -40,7 +40,7 @@ final class Vocabulary
         'Forget' => 'effacer la fiche',
         'AddContact' => 'rattacher un contact',
         'RemoveContact' => 'retirer un contact',
-        'Collect' => 'enregistrer un contact',
+        'StopProspecting' => 'arrêter de prospecter',
         'SearchByText' => 'chercher par texte',
     ];
 

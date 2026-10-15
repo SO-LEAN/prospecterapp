@@ -5,8 +5,8 @@ declare(strict_types=1);
 namespace Tests\Core\Domain;
 
 use PHPUnit\Framework\TestCase;
-use Prospecter\Core\Prospecting\Domain\OrganizationId;
 use Prospecter\Core\SharedKernel\Domain\MemberId;
+use Prospecter\Core\SharedKernel\Domain\OrganizationId;
 
 class IdentityTest extends TestCase
 {

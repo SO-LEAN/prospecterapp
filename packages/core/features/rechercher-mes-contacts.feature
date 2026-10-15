@@ -2,14 +2,16 @@
 Fonctionnalité: Rechercher mes contacts
   En tant que prospecteur
   Je veux retrouver les personnes que mon compte prospecte
-  Afin de les rattacher aux organisations et de les contacter
+  Afin de les rattacher à d'autres organisations et de les contacter
 
   Contexte:
     Soit l'organisation "SOLEAN IT" qui utilise Prospecter
-    Et le contact "Ada Lovelace" de "SOLEAN IT" a l'adresse e-mail "ada@acme.test"
-    Et le contact "Grace Hopper" de "SOLEAN IT" a l'adresse e-mail "grace@navy.test"
+    Et l'organisation "ACME" appartient à "SOLEAN IT"
+    Et le contact "Ada Lovelace" de "ACME" a l'adresse e-mail "ada@acme.test"
+    Et le contact "Grace Hopper" de "ACME" a l'adresse e-mail "grace@navy.test"
     Et l'organisation "Concurrent" qui utilise Prospecter
-    Et le contact "Linus Torvalds" de "Concurrent" a l'adresse e-mail "linus@kernel.test"
+    Et l'organisation "Initech" appartient à "Concurrent"
+    Et le contact "Linus Torvalds" de "Initech" a l'adresse e-mail "linus@kernel.test"
 
   Scénario: Je liste les contacts de mon compte, les plus récents d'abord
     Soit je suis connecté en tant que prospecteur de "SOLEAN IT"
@@ -19,8 +21,7 @@ Fonctionnalité: Rechercher mes contacts
       | Grace  | Hopper   | non     |
       | Ada    | Lovelace | non     |
     Et je peux sur mes contacts :
-      | enregistrer un contact |
-      | chercher par texte     |
+      | chercher par texte |
 
   Scénario: Je cherche dans le nom ou l'e-mail
     Soit je suis connecté en tant que prospecteur de "SOLEAN IT"

@@ -81,7 +81,7 @@ class PersonIntentsTest extends TestCase
                 PersonIntent::ChangeJobTitle => $person->changeJobTitle('Directrice commerciale', $by, new \DateTimeImmutable()),
                 PersonIntent::ChangeContactDetails => $person->changeContactDetails(new ContactDetails(phoneNumber: '0388000000'), $by, new \DateTimeImmutable()),
                 PersonIntent::ChangePicture => $person->changePicture(new File('https://storage.test/ada.png', 'png', 1024), $by, new \DateTimeImmutable()),
-                PersonIntent::Forget => $person->ensureMayBeForgottenBy($by),
+                PersonIntent::Forget => $person->forget($by, new \DateTimeImmutable()),
             };
         } catch (NotFound|BusinessRuleViolation) {
             return false;

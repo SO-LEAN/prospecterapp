@@ -33,10 +33,6 @@ function useStoreContact() {
 
 const formIntention = { meta: { silentValidation: true } }
 
-export function useCollectContact() {
-  return api.useMutation('post', '/api/contacts', { ...formIntention, onSuccess: useStoreContact() })
-}
-
 export function useRenameContact() {
   return api.useMutation('patch', '/api/contacts/{id}/name', {
     ...formIntention,
@@ -66,6 +62,7 @@ export function useForgetContact() {
     onSuccess: (_nothing, { params }) => {
       queryClient.removeQueries({ queryKey: contactQuery(params.path.id).queryKey })
       refreshTheLists()
+      void queryClient.invalidateQueries({ queryKey: queryKeys.organizationList })
     },
   })
 }

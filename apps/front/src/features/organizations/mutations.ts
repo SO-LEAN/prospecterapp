@@ -74,7 +74,7 @@ export function useRemoveLogo() {
   return api.useMutation('delete', '/api/organizations/{id}/logo', { onSuccess: useStoreOrganization() })
 }
 
-/** The organization changes, and so does the list of its contacts. */
+/** The organization changes, and so do the list of its contacts and the contacts (one may be erased). */
 function useStoreOrganizationAndItsContacts() {
   const queryClient = useQueryClient()
   const store = useStoreOrganization()
@@ -82,7 +82,38 @@ function useStoreOrganizationAndItsContacts() {
   return (organization: Organization | undefined) => {
     store(organization)
     void queryClient.invalidateQueries({ queryKey: queryKeys.organizationContacts })
+    void queryClient.invalidateQueries({ queryKey: queryKeys.contactList })
   }
+}
+
+/** A new contact names the organization: the organization and its contacts are read again. */
+export function useCollectContact() {
+  const queryClient = useQueryClient()
+  const { t } = useTranslation()
+
+  return api.useMutation('post', '/api/contacts', {
+    ...formIntention,
+    onSuccess: () => {
+      void queryClient.invalidateQueries({ queryKey: queryKeys.organization })
+      void queryClient.invalidateQueries({ queryKey: queryKeys.organizationContacts })
+      void queryClient.invalidateQueries({ queryKey: queryKeys.contactList })
+      toast.success(t('common.saved'))
+    },
+  })
+}
+
+/** The organization is gone; its contacts left alone are erased with it. */
+export function useStopProspecting() {
+  const queryClient = useQueryClient()
+
+  return api.useMutation('delete', '/api/organizations/{id}', {
+    onSuccess: (_nothing, { params }) => {
+      queryClient.removeQueries({ queryKey: organizationQuery(params.path.id).queryKey })
+      void queryClient.invalidateQueries({ queryKey: queryKeys.organizationList })
+      void queryClient.invalidateQueries({ queryKey: queryKeys.dashboard })
+      void queryClient.invalidateQueries({ queryKey: queryKeys.contactList })
+    },
+  })
 }
 
 export function useAddContact() {

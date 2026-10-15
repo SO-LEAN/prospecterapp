@@ -18,17 +18,20 @@ use Prospecter\Core\PersonalData\Application\ConsultPerson\ConsultPersonHandler;
 use Prospecter\Core\PersonalData\Application\ConsultPersons\ConsultPersons;
 use Prospecter\Core\PersonalData\Application\ConsultPersons\ConsultPersonsHandler;
 use Prospecter\Core\PersonalData\Application\ForgetContact\ForgetContactHandler;
+use Prospecter\Core\PersonalData\Application\ForgetContactsLeftWithoutOrganization\ForgetContactsLeftWithoutOrganizationHandler;
 use Prospecter\Core\PersonalData\Application\PersonResponse;
 use Prospecter\Core\PersonalData\Application\RenamePerson\RenamePersonHandler;
 use Prospecter\Core\PersonalData\Application\SearchContacts\SearchContacts;
 use Prospecter\Core\PersonalData\Application\SearchContacts\SearchContactsHandler;
 use Prospecter\Core\PersonalData\Application\SearchContacts\SearchContactsResponse;
 use Prospecter\Core\Prospecting\Application\AddContact\AddContactHandler;
+use Prospecter\Core\Prospecting\Application\AttachCollectedContact\AttachCollectedContactHandler;
 use Prospecter\Core\Prospecting\Application\AttachToHolding\AttachToHoldingHandler;
 use Prospecter\Core\Prospecting\Application\ChangeContactDetails\ChangeContactDetailsHandler;
 use Prospecter\Core\Prospecting\Application\ChangeLogo\ChangeLogoHandler;
 use Prospecter\Core\Prospecting\Application\ConsultOrganization\ConsultOrganization;
 use Prospecter\Core\Prospecting\Application\ConsultOrganization\ConsultOrganizationHandler;
+use Prospecter\Core\Prospecting\Application\DetachForgottenContact\DetachForgottenContactHandler;
 use Prospecter\Core\Prospecting\Application\DetachFromHolding\DetachFromHoldingHandler;
 use Prospecter\Core\Prospecting\Application\OrganizationResponse;
 use Prospecter\Core\Prospecting\Application\Relocate\RelocateHandler;
@@ -39,6 +42,7 @@ use Prospecter\Core\Prospecting\Application\SearchProspectedOrganizations\Search
 use Prospecter\Core\Prospecting\Application\SearchProspectedOrganizations\SearchProspectedOrganizationsHandler;
 use Prospecter\Core\Prospecting\Application\SearchProspectedOrganizations\SearchProspectedOrganizationsResponse;
 use Prospecter\Core\Prospecting\Application\StartProspecting\StartProspectingHandler;
+use Prospecter\Core\Prospecting\Application\StopProspecting\StopProspectingHandler;
 use Prospecter\Core\Prospecting\Application\WriteObservations\WriteObservationsHandler;
 use Prospecter\Core\SharedKernel\Application\CommandHandler;
 use Prospecter\Core\SharedKernel\Application\Exception\UseCaseRefused;
@@ -53,7 +57,9 @@ use Tests\Core\Double\InMemoryStorage;
 use Tests\Core\Double\KnownPlacesGeoLocation;
 use Tests\Core\Double\MembersAsProspectors;
 use Tests\Core\Double\MembersAsReaders;
+use Tests\Core\Double\OrganizationsAsProspectedOrganizations;
 use Tests\Core\Double\PersonsAsKnownContacts;
+use Tests\Core\Double\SynchronousEvents;
 use Tests\Core\Double\TimeOrderedUuids;
 
 /**
@@ -75,6 +81,8 @@ final class Application
     public readonly MembersAsProspectors $prospectors;
     public readonly MembersAsReaders $readers;
     public readonly PersonsAsKnownContacts $knownContacts;
+    public readonly OrganizationsAsProspectedOrganizations $prospectedOrganizations;
+    public readonly SynchronousEvents $events;
     /** @var array<class-string, CommandHandler> */
     private array $handlers = [];
     private ?string $signedIn = null;
@@ -94,6 +102,11 @@ final class Application
         $this->persons = new InMemoryPersonRepository($database);
         $this->readers = new MembersAsReaders($this->members);
         $this->knownContacts = new PersonsAsKnownContacts($this->persons);
+        $this->prospectedOrganizations = new OrganizationsAsProspectedOrganizations($this->organizations);
+        $this->events = new SynchronousEvents();
+        $this->events->subscribe(new AttachCollectedContactHandler($this->organizations, $this->prospectors));
+        $this->events->subscribe(new DetachForgottenContactHandler($this->organizations, $this->prospectors));
+        $this->events->subscribe(new ForgetContactsLeftWithoutOrganizationHandler($this->persons, $this->readers, $this->events));
         $this->storage = new InMemoryStorage();
         $this->geoLocation = new KnownPlacesGeoLocation();
 
@@ -200,11 +213,12 @@ final class Application
             new ChangePersonPictureHandler($this->persons, $this->readers, $this->storage),
             new ReviseMyOrganizationIdentityHandler($this->accounts, $this->members),
             new ChangeMyOrganizationLogoHandler($this->accounts, $this->members, $this->storage),
-            new CollectContactHandler($this->persons, $this->readers),
+            new CollectContactHandler($this->persons, $this->readers, $this->prospectedOrganizations, $this->events),
             new ChangeJobTitleHandler($this->persons, $this->readers),
-            new ForgetContactHandler($this->persons, $this->readers),
+            new ForgetContactHandler($this->persons, $this->readers, $this->events),
             new AddContactHandler($this->organizations, $this->prospectors, $this->knownContacts),
-            new RemoveContactHandler($this->organizations, $this->prospectors),
+            new RemoveContactHandler($this->organizations, $this->prospectors, $this->events),
+            new StopProspectingHandler($this->organizations, $this->prospectors, $this->events),
         ];
     }
 

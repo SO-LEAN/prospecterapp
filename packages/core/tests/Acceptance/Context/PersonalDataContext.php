@@ -52,32 +52,36 @@ final class PersonalDataContext implements Context
         $this->application->persons->save($person);
     }
 
-    #[Given('le contact :name de :account a l\'adresse e-mail :email')]
-    public function aContactOf(string $name, string $account, string $email): void
+    #[Given('le contact :name de :organization a l\'adresse e-mail :email')]
+    public function aContactOf(string $name, string $organization, string $email): void
     {
         [$firstName, $lastName] = array_pad(explode(' ', $name, 2), 2, null);
+        $prospect = $this->scenario->organizationNamed($organization);
         $contact = Person::collectAsContact(
-            $this->scenario->managerOfPersonalDataOf($this->scenario->accountIdOf($account)),
+            $this->scenario->managerOfPersonalDataOf($prospect->accountId()),
             new PersonId($this->application->newIdentity()),
             new PersonName($firstName, $lastName),
             null,
             new ContactDetails(new Email($email)),
+            [$prospect->id()],
             $this->application->now(),
         );
         $this->application->persons->save($contact);
+        $prospect->addContact($contact->id(), by: $this->scenario->managerOf($prospect), at: $this->application->now());
+        $this->application->organizations->save($prospect);
         $this->scenario->rememberPerson($name, $contact->id());
     }
 
-    #[When('j\'enregistre le contact :name :')]
-    public function iCollectAContact(string $name, TableNode $table): void
+    #[When('j\'enregistre le contact :name pour :organization :')]
+    public function iCollectAContactFor(string $name, string $organization, TableNode $table): void
     {
-        $values = Vocabulary::values($table->getRowsHash());
-        $id = $this->application->newIdentity();
-        $this->application->dispatch(new CollectContact($this->application->signedIn(), $id, $values['prénom'], $values['nom'], $values['fonction'], $values['e-mail'], $values['téléphone'], $values['langue'], $this->application->now()));
+        $this->collect($name, [$this->scenario->idOf($organization)], $table);
+    }
 
-        if (null === $this->application->refusal()) {
-            $this->scenario->rememberPerson($name, new PersonId($id));
-        }
+    #[When('j\'enregistre le contact :name sans organisation :')]
+    public function iCollectAContactAlone(string $name, TableNode $table): void
+    {
+        $this->collect($name, [], $table);
     }
 
     #[When('je liste mes contacts')]
@@ -171,6 +175,20 @@ final class PersonalDataContext implements Context
     {
         Expect::that(null !== $this->consulted, 'The person was expected');
         Expect::same($table->getColumn(0), Vocabulary::describeIntents($this->consulted->possibleIntents));
+    }
+
+    /**
+     * @param list<string> $organizationIds
+     */
+    private function collect(string $name, array $organizationIds, TableNode $table): void
+    {
+        $values = Vocabulary::values($table->getRowsHash());
+        $id = $this->application->newIdentity();
+        $this->application->dispatch(new CollectContact($this->application->signedIn(), $id, $values['prénom'], $values['nom'], $values['fonction'], $values['e-mail'], $values['téléphone'], $values['langue'], $organizationIds, $this->application->now()));
+
+        if (null === $this->application->refusal()) {
+            $this->scenario->rememberPerson($name, new PersonId($id));
+        }
     }
 
     /**

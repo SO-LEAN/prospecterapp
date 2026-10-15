@@ -1,15 +1,15 @@
 <?php
 
-namespace App\PersonalData\Resource;
+namespace App\Contacts\Resource;
 
 use Symfony\Component\Serializer\Attribute\Context;
 use Symfony\Component\Serializer\Attribute\SerializedName;
 use Symfony\Component\Serializer\Normalizer\AbstractObjectNormalizer;
 
-final readonly class ContactPageResource
+final readonly class ContactListResource
 {
     /**
-     * @param list<ContactResource> $items
+     * @param list<ContactInListResource> $items
      */
     public function __construct(
         public array $items,
@@ -18,7 +18,7 @@ final readonly class ContactPageResource
         public int $totalItems,
         #[SerializedName('_links')]
         #[Context([AbstractObjectNormalizer::SKIP_NULL_VALUES => true])]
-        public ContactPageLinksResource $links,
+        public ContactListLinksResource $links,
     ) {
     }
 }

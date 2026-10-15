@@ -1,3 +1,5 @@
+import { useQuery } from '@tanstack/react-query'
+import { Link } from '@tanstack/react-router'
 import { useTranslation } from 'react-i18next'
 import {
   ContactDetailsFields,
@@ -21,7 +23,7 @@ import { Detail } from '@/shared/ui/detail'
 import { EditableSection } from '@/shared/ui/editable-section'
 import { Input } from '@/shared/ui/input'
 import { useChangeContactDetailsOfContact, useChangeJobTitle, useRenameContact } from '../mutations'
-import type { Contact } from '../queries'
+import { type Contact, organizationsOfContactQuery } from '../queries'
 import { jobTitleSchema } from '../schema'
 
 export function NameSection({ contact }: { contact: Contact }) {
@@ -121,6 +123,30 @@ export function ContactDetailsSection({ contact }: { contact: Contact }) {
       </Detail>
       <Detail label={t('fields.phoneNumber')}>{details.phoneNumber}</Detail>
       <Detail label={t('fields.language')}>{countryName(details.language)}</Detail>
+    </EditableSection>
+  )
+}
+
+/** The organizations the contact works for; a contact is attached or removed from the organization. */
+export function OrganizationsSection({ contact }: { contact: Contact }) {
+  const { t } = useTranslation()
+  const organizations = useQuery(organizationsOfContactQuery(contact.id))
+
+  return (
+    <EditableSection title={t('contacts.sections.organizations')} editable={false} editor={() => null}>
+      <ul className="space-y-1">
+        {organizations.data?.items.map((organization) => (
+          <li key={organization.id}>
+            <Link
+              to="/organizations/$organizationId"
+              params={{ organizationId: organization.id }}
+              className="text-primary hover:underline"
+            >
+              {organization.name}
+            </Link>
+          </li>
+        ))}
+      </ul>
     </EditableSection>
   )
 }

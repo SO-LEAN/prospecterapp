@@ -257,7 +257,8 @@ export interface paths {
         get: operations["get_api_organizations_show"];
         put?: never;
         post?: never;
-        delete?: never;
+        /** Stop prospecting the organization: its subsidiaries lose their holding, its contacts that no other organization names are erased */
+        delete: operations["delete_api_organizations_stop_prospecting"];
         options?: never;
         head?: never;
         patch?: never;
@@ -338,10 +339,10 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        /** Search the persons my organization prospects, by name or email; a search by text needs the right to manage personal data */
+        /** Search the persons my organization prospects, by name or email, with their organizations; a search by text needs the right to manage personal data */
         get: operations["get_api_contacts_search"];
         put?: never;
-        /** Collect a person my organization prospects, to attach to the organizations they work for */
+        /** Collect a person my organization prospects, as a contact of the organizations they work for (at least one) */
         post: operations["post_api_contacts_collect"];
         delete?: never;
         options?: never;
@@ -382,6 +383,23 @@ export interface paths {
         head?: never;
         /** Change the first and last names of a contact, nothing else changes */
         patch: operations["patch_api_contacts_rename"];
+        trace?: never;
+    };
+    "/api/contacts/{id}/organizations": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** The organizations of my organization the contact works for */
+        get: operations["get_api_contacts_organizations"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
         trace?: never;
     };
 }
@@ -457,6 +475,8 @@ export interface components {
             /** @default null */
             jobTitle: string | null;
             contactDetails?: components["schemas"]["ContactDetailsInput"];
+            /** @default [] */
+            organizationIds: string[];
         };
         ContactListQuery: {
             /** @default 1 */
@@ -557,6 +577,7 @@ export interface components {
             changeLogo?: components["schemas"]["LinkResource"];
             removeLogo?: components["schemas"]["LinkResource"];
             addContact?: components["schemas"]["LinkResource"];
+            stopProspecting?: components["schemas"]["LinkResource"];
         };
         OrganizationResource: {
             id: string;
@@ -613,17 +634,33 @@ export interface components {
             masked: boolean;
             _links: components["schemas"]["ContactLinksResource"];
         };
-        ContactPageLinksResource: {
+        OrganizationOfContactResource: {
+            id: string;
+            name: string;
+            organization: components["schemas"]["LinkResource"];
+        };
+        ContactInListResource: {
+            id: string;
+            name: components["schemas"]["PersonNameResource"];
+            jobTitle?: string | null;
+            contactDetails: components["schemas"]["ContactDetailsResource"];
+            masked: boolean;
+            organizations: components["schemas"]["OrganizationOfContactResource"][];
+            contact: components["schemas"]["LinkResource"];
+        };
+        ContactListLinksResource: {
             self: components["schemas"]["LinkResource"];
-            collect?: components["schemas"]["LinkResource"];
             search?: components["schemas"]["LinkResource"];
         };
-        ContactPageResource: {
-            items: components["schemas"]["ContactResource"][];
+        ContactListResource: {
+            items: components["schemas"]["ContactInListResource"][];
             page: number;
             totalPages: number;
             totalItems: number;
-            _links: components["schemas"]["ContactPageLinksResource"];
+            _links: components["schemas"]["ContactListLinksResource"];
+        };
+        OrganizationsOfContactResource: {
+            items: components["schemas"]["OrganizationOfContactResource"][];
         };
     };
     responses: never;
@@ -1653,6 +1690,51 @@ export interface operations {
             };
         };
     };
+    delete_api_organizations_stop_prospecting: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description No longer prospected */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Missing or invalid access token */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Not a prospector, or no right to manage personal data while the organization has contacts */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ProblemResource"];
+                };
+            };
+            /** @description Unknown organization, or one of another account */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ProblemResource"];
+                };
+            };
+        };
+    };
     patch_api_organizations_write_observations: {
         parameters: {
             query?: never;
@@ -1887,7 +1969,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["ContactPageResource"];
+                    "application/json": components["schemas"]["ContactListResource"];
                 };
             };
             /** @description Missing or invalid access token */
@@ -1897,7 +1979,7 @@ export interface operations {
                 };
                 content?: never;
             };
-            /** @description Not a prospector, or no right to manage personal data */
+            /** @description Not a prospector, or a search by text without the right to manage personal data */
             403: {
                 headers: {
                     [name: string]: unknown;
@@ -1946,7 +2028,16 @@ export interface operations {
                     "application/json": components["schemas"]["ProblemResource"];
                 };
             };
-            /** @description Invalid contact, or email already used by another contact */
+            /** @description Unknown organization, or one of another account */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ProblemResource"];
+                };
+            };
+            /** @description Invalid contact, no organization, or email already used by another contact */
             422: {
                 headers: {
                     [name: string]: unknown;
@@ -2100,6 +2191,44 @@ export interface operations {
             };
             /** @description Invalid name */
             422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ProblemResource"];
+                };
+            };
+        };
+    };
+    get_api_contacts_organizations: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description The organizations of the contact */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["OrganizationsOfContactResource"];
+                };
+            };
+            /** @description Missing or invalid access token */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description The signed-in user is not a prospector */
+            403: {
                 headers: {
                     [name: string]: unknown;
                 };

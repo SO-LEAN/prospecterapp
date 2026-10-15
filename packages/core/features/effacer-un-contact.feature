@@ -6,12 +6,17 @@ Fonctionnalité: Effacer un contact
 
   Contexte:
     Soit l'organisation "SOLEAN IT" qui utilise Prospecter
-    Et le contact "Ada Lovelace" de "SOLEAN IT" a l'adresse e-mail "ada@acme.test"
+    Et l'organisation "ACME" appartient à "SOLEAN IT"
+    Et l'organisation "Groupe ACME" appartient à "SOLEAN IT"
+    Et le contact "Ada Lovelace" de "ACME" a l'adresse e-mail "ada@acme.test"
+    Et "Ada Lovelace" est un contact de "Groupe ACME"
 
-  Scénario: La fiche effacée n'existe plus
+  Scénario: La fiche effacée n'existe plus, et n'est plus le contact d'aucune organisation
     Soit je suis connecté en tant que prospecteur de "SOLEAN IT"
     Quand j'efface la fiche de "Ada Lovelace"
-    Et je consulte la fiche de "Ada Lovelace"
+    Alors "ACME" n'a pas de contact
+    Et "Groupe ACME" n'a pas de contact
+    Quand je consulte la fiche de "Ada Lovelace"
     Alors c'est introuvable
 
   Scénario: Sans le droit, je ne peux pas effacer un contact
@@ -28,7 +33,8 @@ Fonctionnalité: Effacer un contact
 
   Scénario: Le contact d'un autre compte est introuvable
     Soit l'organisation "Concurrent" qui utilise Prospecter
-    Et le contact "Linus Torvalds" de "Concurrent" a l'adresse e-mail "linus@kernel.test"
+    Et l'organisation "Initech" appartient à "Concurrent"
+    Et le contact "Linus Torvalds" de "Initech" a l'adresse e-mail "linus@kernel.test"
     Et je suis connecté en tant que prospecteur de "SOLEAN IT"
     Quand j'efface la fiche de "Linus Torvalds"
     Alors c'est introuvable

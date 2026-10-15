@@ -86,36 +86,39 @@ test('sign in, start prospecting an organization, change it section by section, 
     await page.goto('/')
   })
 
-  await test.step('a contact is collected, attached to the organization, removed from it, then erased', async () => {
+  await test.step('a contact is collected from the organization, listed with it, then removed and so erased', async () => {
     const lastName = `Lovelace ${Date.now()}`
     const contact = `Ada ${lastName}`
-    await page
-      .getByRole('navigation', { name: 'Navigation principale' })
-      .getByRole('link', { name: 'Contacts' })
-      .click()
-    await page.getByRole('link', { name: 'Nouveau contact' }).first().click()
+    await page.goto(organizationUrl)
+    await page.getByRole('button', { name: 'Modifier : Contacts' }).click()
     await page.getByLabel('Prénom').fill('Ada')
     await page.getByLabel('Nom', { exact: true }).fill(lastName)
     await page.getByLabel(/^Fonction/).fill('Directrice commerciale')
     await page.getByLabel('E-mail').fill(`ada.${Date.now()}@acme.test`)
     await page.getByRole('button', { name: 'Enregistrer le contact' }).click()
-    await expect(page.getByRole('heading', { name: contact })).toBeVisible()
-
-    await page.goto(organizationUrl)
-    await page.getByRole('button', { name: 'Modifier : Contacts' }).click()
-    await page.getByLabel('Rechercher un de mes contacts…').fill(lastName)
-    await page.getByRole('button', { name: new RegExp(lastName) }).click()
     await expect(page.getByRole('link', { name: contact })).toBeVisible()
 
-    await page.getByRole('button', { name: `Retirer ${contact} des contacts` }).click()
-    await expect(page.getByText('Aucun contact rattaché.')).toBeVisible()
+    await page
+      .getByRole('navigation', { name: 'Navigation principale' })
+      .getByRole('link', { name: 'Contacts' })
+      .click()
+    const listed = page.getByRole('listitem').filter({ hasText: lastName })
+    await expect(listed.getByRole('link', { name })).toBeVisible()
 
+    await page.goto(organizationUrl)
+    await page.getByRole('button', { name: `Retirer ${contact} des contacts` }).click()
+    await page.getByRole('button', { name: 'Retirer', exact: true }).click()
+    await expect(page.getByText('Aucun contact rattaché.')).toBeVisible()
     await page.goto('/contacts')
-    await page.getByRole('link', { name: new RegExp(lastName) }).click()
-    await page.getByRole('button', { name: 'Effacer la fiche' }).click()
-    await page.getByRole('button', { name: 'Effacer définitivement' }).click()
-    await expect(page.getByRole('heading', { name: 'Contacts' })).toBeVisible()
     await expect(page.getByRole('link', { name: new RegExp(lastName) })).toHaveCount(0)
+  })
+
+  await test.step('stopping to prospect the organization removes it', async () => {
+    await page.goto(organizationUrl)
+    await page.getByRole('button', { name: 'Arrêter de prospecter' }).click()
+    await page.getByRole('button', { name: 'Arrêter définitivement' }).click()
+    await expect(page.getByRole('heading', { name: 'Organisations' })).toBeVisible()
+    await expect(page.getByRole('link', { name })).toHaveCount(0)
     await page.goto('/')
   })
 

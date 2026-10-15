@@ -6,7 +6,8 @@ Fonctionnalité: Changer la fonction d'une personne
 
   Contexte:
     Soit l'organisation "SOLEAN IT" qui utilise Prospecter
-    Et le contact "Ada Lovelace" de "SOLEAN IT" a l'adresse e-mail "ada@acme.test"
+    Et l'organisation "ACME" appartient à "SOLEAN IT"
+    Et le contact "Ada Lovelace" de "ACME" a l'adresse e-mail "ada@acme.test"
 
   Scénario: La fonction change, le reste de la fiche ne bouge pas
     Soit je suis connecté en tant que prospecteur de "SOLEAN IT"

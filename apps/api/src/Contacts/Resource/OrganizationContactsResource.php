@@ -1,6 +1,6 @@
 <?php
 
-namespace App\OrganizationContacts\Resource;
+namespace App\Contacts\Resource;
 
 final readonly class OrganizationContactsResource
 {

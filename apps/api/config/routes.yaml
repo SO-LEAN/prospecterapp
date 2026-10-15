@@ -26,9 +26,9 @@ personal_data:
     host: '%app_api_host%'
     defaults: { _format: json }
 
-# composes Prospecting and PersonalData, like the dashboard
-organization_contacts:
-    resource: ../src/OrganizationContacts/
+# the contacts across Prospecting and PersonalData, composed like the dashboard
+contacts:
+    resource: ../src/Contacts/
     type: attribute
     host: '%app_api_host%'
     defaults: { _format: json }

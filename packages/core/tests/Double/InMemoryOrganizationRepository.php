@@ -6,10 +6,10 @@ namespace Tests\Core\Double;
 
 use Prospecter\Core\Prospecting\Domain\Exception\UnknownOrganization;
 use Prospecter\Core\Prospecting\Domain\Organization;
-use Prospecter\Core\Prospecting\Domain\OrganizationId;
 use Prospecter\Core\Prospecting\Domain\OrganizationRepository;
 use Prospecter\Core\SharedKernel\Domain\AccountId;
 use Prospecter\Core\SharedKernel\Domain\Email;
+use Prospecter\Core\SharedKernel\Domain\OrganizationId;
 use Prospecter\Core\SharedKernel\Domain\Page;
 
 final readonly class InMemoryOrganizationRepository implements OrganizationRepository
@@ -31,6 +31,21 @@ final readonly class InMemoryOrganizationRepository implements OrganizationRepos
     public function save(Organization $organization): void
     {
         $this->database->storeOrganization($organization);
+    }
+
+    public function remove(Organization $organization): void
+    {
+        $this->database->forgetOrganization((string) $organization->id());
+    }
+
+    public function subsidiariesOf(OrganizationId $holding): array
+    {
+        return array_values(array_filter($this->database->organizations(), static fn (Organization $organization): bool => $organization->holdingId()?->equals($holding) ?? false));
+    }
+
+    public function withContacts(array $contacts, AccountId $accountId): array
+    {
+        return array_values(array_filter($this->prospectedBy($accountId), static fn (Organization $organization): bool => array_any($contacts, $organization->hasContact(...))));
     }
 
     public function pageProspectedBy(AccountId $accountId, string $query, int $page, int $maxByPage): Page

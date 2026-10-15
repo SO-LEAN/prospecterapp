@@ -1,5 +1,5 @@
 import { useSuspenseQuery } from '@tanstack/react-query'
-import { createFileRoute } from '@tanstack/react-router'
+import { createFileRoute, useNavigate } from '@tanstack/react-router'
 import { AddressSection } from '@/features/organizations/components/address-section'
 import { ContactDetailsSection } from '@/features/organizations/components/contact-details-section'
 import { ContactsSection } from '@/features/organizations/components/contacts-section'
@@ -7,6 +7,7 @@ import { HoldingSection } from '@/features/organizations/components/holding-sect
 import { LegalIdentitySection } from '@/features/organizations/components/legal-identity-section'
 import { LogoSection } from '@/features/organizations/components/logo-section'
 import { ObservationsSection } from '@/features/organizations/components/observations-section'
+import { StopProspecting } from '@/features/organizations/components/stop-prospecting'
 import { organizationQuery } from '@/features/organizations/queries'
 import { notFoundWhenTheApiSaysSo, uuidParams } from '@/shared/lib/route-params'
 import { BackButton } from '@/shared/ui/back-button'
@@ -30,6 +31,7 @@ function OrganizationPage() {
   const { organizationId } = Route.useParams()
   const { data: organization } = useSuspenseQuery(organizationQuery(organizationId))
   const { form, type } = organization.legalIdentity
+  const navigate = useNavigate()
 
   return (
     <div className="space-y-8">
@@ -42,6 +44,14 @@ function OrganizationPage() {
             {form && <Badge variant="secondary">{form}</Badge>}
             {type && <Badge variant="outline">{type}</Badge>}
           </span>
+        }
+        actions={
+          organization._links.stopProspecting && (
+            <StopProspecting
+              organization={organization}
+              onStopped={() => void navigate({ to: '/organizations', replace: true })}
+            />
+          )
         }
       />
 

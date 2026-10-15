@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace Prospecter\Core\Prospecting\Domain\Exception;
 
-use Prospecter\Core\Prospecting\Domain\OrganizationId;
 use Prospecter\Core\SharedKernel\Domain\Exception\NotFound;
+use Prospecter\Core\SharedKernel\Domain\OrganizationId;
 
 final class UnknownOrganization extends NotFound
 {

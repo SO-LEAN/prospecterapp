@@ -4,6 +4,7 @@ import type { components } from '@/shared/api/schema'
 export type Organization = components['schemas']['OrganizationResource']
 export type OrganizationSummary = components['schemas']['OrganizationSummaryResource']
 export type StartProspectingInput = components['schemas']['StartProspectingInput']
+export type CollectContactInput = components['schemas']['CollectContactInput']
 
 export type OrganizationSearch = { page: number; q: string }
 

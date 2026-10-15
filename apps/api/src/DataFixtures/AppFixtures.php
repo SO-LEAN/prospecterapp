@@ -15,11 +15,15 @@ use Prospecter\Core\PersonalData\Domain\PersonName;
 use Prospecter\Core\PersonalData\Domain\PersonRepository;
 use Prospecter\Core\PersonalData\Domain\Purpose;
 use Prospecter\Core\PersonalData\Domain\Reader;
+use Prospecter\Core\Prospecting\Domain\Organization;
+use Prospecter\Core\Prospecting\Domain\OrganizationRepository;
+use Prospecter\Core\Prospecting\Domain\Prospector;
 use Prospecter\Core\SharedKernel\Domain\AccountId;
 use Prospecter\Core\SharedKernel\Domain\ContactDetails;
 use Prospecter\Core\SharedKernel\Domain\Email;
 use Prospecter\Core\SharedKernel\Domain\LegalIdentity;
 use Prospecter\Core\SharedKernel\Domain\MemberId;
+use Prospecter\Core\SharedKernel\Domain\OrganizationId;
 use Prospecter\Core\SharedKernel\Domain\PersonId;
 
 /**
@@ -37,6 +41,7 @@ class AppFixtures extends Fixture
         private readonly AccountRepository $accounts,
         private readonly MemberRepository $members,
         private readonly PersonRepository $persons,
+        private readonly OrganizationRepository $organizations,
         private readonly Identities $identities,
     ) {
     }
@@ -61,9 +66,18 @@ class AppFixtures extends Fixture
         return $member;
     }
 
+    /**
+     * An organization SOLEAN IT prospects, Babbage & Co, and its contact: a contact never comes alone (ADR 0042).
+     */
     private function aContact(Account $account): void
     {
-        $manager = new Reader(new MemberId(self::PROSPECTOR), $account->id(), new PersonId($this->identities->next()), true);
-        $this->persons->save(Person::collectAsContact($manager, new PersonId($this->identities->next()), new PersonName('Ada', 'Lovelace'), 'Directrice commerciale', new ContactDetails(new Email('ada@acme.test'), '03 88 00 00 42', 'FR'), new \DateTimeImmutable(self::OPENED_AT)));
+        $openedAt = new \DateTimeImmutable(self::OPENED_AT);
+        $prospector = new Prospector(new MemberId(self::PROSPECTOR), $account->id(), managesPersonalData: true);
+        $babbage = Organization::prospectedBy($prospector, new OrganizationId($this->identities->next()), new LegalIdentity('Babbage & Co', 'SAS'), new ContactDetails(new Email('contact@babbage.test')), $openedAt);
+        $manager = new Reader($prospector->id, $account->id(), new PersonId($this->identities->next()), true);
+        $ada = Person::collectAsContact($manager, new PersonId($this->identities->next()), new PersonName('Ada', 'Lovelace'), 'Directrice commerciale', new ContactDetails(new Email('ada@babbage.test'), '03 88 00 00 42', 'FR'), [$babbage->id()], $openedAt);
+        $this->persons->save($ada);
+        $babbage->addContact($ada->id(), by: $prospector, at: $openedAt);
+        $this->organizations->save($babbage);
     }
 }

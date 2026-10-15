@@ -7,11 +7,11 @@ use Doctrine\DBAL\Exception\UniqueConstraintViolationException;
 use Doctrine\ORM\EntityManagerInterface;
 use Prospecter\Core\Prospecting\Domain\Exception\UnknownOrganization;
 use Prospecter\Core\Prospecting\Domain\Organization;
-use Prospecter\Core\Prospecting\Domain\OrganizationId;
 use Prospecter\Core\Prospecting\Domain\OrganizationRepository;
 use Prospecter\Core\SharedKernel\Domain\AccountId;
 use Prospecter\Core\SharedKernel\Domain\Email;
 use Prospecter\Core\SharedKernel\Domain\Exception\EmailAlreadyUsed;
+use Prospecter\Core\SharedKernel\Domain\OrganizationId;
 use Prospecter\Core\SharedKernel\Domain\Page;
 
 final readonly class DoctrineOrganizationRepository implements OrganizationRepository
@@ -45,6 +45,42 @@ final readonly class DoctrineOrganizationRepository implements OrganizationRepos
         } catch (UniqueConstraintViolationException $takenMeanwhile) {
             throw EmailAlreadyUsed::byAnother($takenMeanwhile);
         }
+    }
+
+    public function remove(Organization $organization): void
+    {
+        $this->prospectingEntityManager->remove($organization);
+        $this->prospectingEntityManager->flush();
+    }
+
+    public function subsidiariesOf(OrganizationId $holding): array
+    {
+        return $this->prospectingEntityManager->createQuery(sprintf('SELECT o FROM %s o WHERE o.holdingId = :holding', Organization::class))
+            ->setParameter('holding', $holding, 'organization_id')
+            ->getResult();
+    }
+
+    /**
+     * The contacts are a JSON list of identities: an organization names a contact when the list holds its
+     * quoted identity.
+     */
+    public function withContacts(array $contacts, AccountId $accountId): array
+    {
+        if ([] === $contacts) {
+            return [];
+        }
+
+        $query = $this->prospectingEntityManager->createQueryBuilder()->select('o')->from(Organization::class, 'o')
+            ->where('o.accountId = :account')
+            ->setParameter('account', $accountId, 'account_id');
+        $namesAContact = $query->expr()->orX();
+
+        foreach ($contacts as $index => $contact) {
+            $namesAContact->add(sprintf('o.contacts LIKE :contact%d', $index));
+            $query->setParameter(sprintf('contact%d', $index), sprintf('%%"%s"%%', $contact->value), 'string');
+        }
+
+        return $query->andWhere($namesAContact)->getQuery()->getResult();
     }
 
     public function pageProspectedBy(AccountId $accountId, string $query, int $page, int $maxByPage): Page

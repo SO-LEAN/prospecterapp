@@ -1,10 +1,10 @@
 <?php
 
-namespace App\OrganizationContacts;
+namespace App\Contacts;
 
-use App\OrganizationContacts\Resource\OrganizationContactLinksResource;
-use App\OrganizationContacts\Resource\OrganizationContactResource;
-use App\OrganizationContacts\Resource\OrganizationContactsResource;
+use App\Contacts\Resource\OrganizationContactLinksResource;
+use App\Contacts\Resource\OrganizationContactResource;
+use App\Contacts\Resource\OrganizationContactsResource;
 use App\PersonalData\Resource\PersonNameResource;
 use App\Security\User;
 use App\Shared\Links;

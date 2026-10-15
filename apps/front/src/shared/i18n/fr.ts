@@ -111,7 +111,22 @@ export const fr = {
       masked: 'Masqué',
       remove: 'Retirer {{name}} des contacts',
       search: 'Rechercher un de mes contacts…',
-      collect: 'Enregistrer un nouveau contact',
+      add: 'Ajouter un contact',
+      addNew: 'Nouveau contact',
+      addExisting: 'Contact existant',
+      identity: 'Identité',
+      collectSubmit: 'Enregistrer le contact',
+      removeTitle: 'Retirer {{name}} de cette organisation ?',
+      removeDescription:
+        'Si ce contact n’est rattaché à aucune autre organisation, sa fiche et ses données personnelles seront effacées.',
+      removeConfirm: 'Retirer',
+    },
+    stop: {
+      action: 'Arrêter de prospecter',
+      title: 'Arrêter de prospecter {{name}} ?',
+      description:
+        'L’organisation sort de votre base de prospection, ses filiales n’ont plus de holding, et ses contacts rattachés à aucune autre organisation sont effacés.',
+      confirm: 'Arrêter définitivement',
     },
     address: { noLocation: 'Adresse non géolocalisée.', directions: 'Itinéraire' },
     holding: {
@@ -130,18 +145,23 @@ export const fr = {
     searchPlaceholder: 'Rechercher par nom ou e-mail…',
     empty: {
       title: 'Aucun contact',
-      description: 'Enregistrez les personnes que vous prospectez pour les rattacher à leurs organisations.',
+      description: 'Les contacts s’enregistrent depuis la fiche de l’organisation où ils travaillent.',
     },
     noResult: { title: 'Aucun résultat', description: 'Aucun contact ne correspond à « {{query}} ».' },
     unnamed: 'Contact sans nom',
     masked: 'Données masquées',
-    collect: { title: 'Enregistrer un contact', submit: 'Enregistrer le contact' },
-    sections: { identity: 'Identité', name: 'Nom', jobTitle: 'Fonction', contactDetails: 'Coordonnées' },
+    organizationsOf: 'Organisations de {{name}}',
+    sections: {
+      name: 'Nom',
+      jobTitle: 'Fonction',
+      contactDetails: 'Coordonnées',
+      organizations: 'Organisations',
+    },
     forget: {
       action: 'Effacer la fiche',
       title: 'Effacer la fiche de {{name}} ?',
       description:
-        'Ses données personnelles seront supprimées définitivement, et les organisations dont elle est le contact l’oublieront.',
+        'Ses données personnelles seront supprimées définitivement, et elle sera retirée de toutes ses organisations.',
       confirm: 'Effacer définitivement',
     },
   },

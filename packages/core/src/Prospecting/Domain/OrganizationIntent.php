@@ -18,4 +18,6 @@ enum OrganizationIntent
     case AddContact;
     /** Detach one of its contacts; needs the right to manage personal data. */
     case RemoveContact;
+    /** Remove it from the prospecting base; with contacts, needs the right to manage personal data. */
+    case StopProspecting;
 }

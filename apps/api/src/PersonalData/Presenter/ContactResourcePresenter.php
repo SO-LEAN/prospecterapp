@@ -3,14 +3,11 @@
 namespace App\PersonalData\Presenter;
 
 use App\PersonalData\Resource\ContactLinksResource;
-use App\PersonalData\Resource\ContactPageLinksResource;
-use App\PersonalData\Resource\ContactPageResource;
 use App\PersonalData\Resource\ContactResource;
 use App\PersonalData\Resource\PersonNameResource;
 use App\Shared\Links;
 use App\Shared\Resource\ContactDetailsResource;
 use Prospecter\Core\PersonalData\Application\PersonResponse;
-use Prospecter\Core\PersonalData\Application\SearchContacts\SearchContactsResponse;
 
 /**
  * A contact with a link per intention the reader may carry out on it.
@@ -22,11 +19,6 @@ final readonly class ContactResourcePresenter
         'ChangeJobTitle' => ['changeJobTitle', 'api_contacts_change_job_title'],
         'ChangeContactDetails' => ['changeContactDetails', 'api_contacts_change_contact_details'],
         'Forget' => ['forget', 'api_contacts_forget'],
-    ];
-
-    private const array PAGE_ROUTES = [
-        'Collect' => ['collect', 'api_contacts_collect'],
-        'SearchByText' => ['search', 'api_contacts_search'],
     ];
 
     public function __construct(private Links $links)
@@ -43,23 +35,6 @@ final readonly class ContactResourcePresenter
             masked: $contact->masked,
             links: $this->linksOf($contact),
         );
-    }
-
-    public function presentPage(SearchContactsResponse $page): ContactPageResource
-    {
-        return new ContactPageResource(array_map($this->present(...), $page->contacts), $page->currentPage, $page->totalPages, $page->total, $this->pageLinksOf($page));
-    }
-
-    private function pageLinksOf(SearchContactsResponse $page): ContactPageLinksResource
-    {
-        $possible = [];
-
-        foreach ($page->possibleIntents as $intent) {
-            [$name, $route] = self::PAGE_ROUTES[$intent];
-            $possible[$name] = $this->links->to($route);
-        }
-
-        return new ContactPageLinksResource($this->links->to('api_contacts_search'), ...$possible);
     }
 
     private function linksOf(PersonResponse $contact): ContactLinksResource

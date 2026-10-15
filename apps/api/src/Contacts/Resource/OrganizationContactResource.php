@@ -1,6 +1,6 @@
 <?php
 
-namespace App\OrganizationContacts\Resource;
+namespace App\Contacts\Resource;
 
 use App\PersonalData\Resource\PersonNameResource;
 use App\Shared\Resource\ContactDetailsResource;

@@ -9,23 +9,24 @@ import { PersonNameFields } from '@/shared/forms/person-name'
 import { under } from '@/shared/forms/section-form'
 import { Alert, AlertDescription } from '@/shared/ui/alert'
 import { Button } from '@/shared/ui/button'
-import { Card, CardContent, CardHeader, CardTitle } from '@/shared/ui/card'
 import { Input } from '@/shared/ui/input'
-import type { CollectContactInput } from '../queries'
 import {
   type CollectContactValues,
   collectContactFields,
   collectContactSchema,
   emptyCollectContact,
   toCollectContactInput,
-} from '../schema'
+} from '../contact-schema'
+import type { CollectContactInput } from '../queries'
 
 type Props = {
+  organizationId: string
   onSubmit: (input: CollectContactInput) => Promise<unknown>
   onCancel: () => void
 }
 
-export function CollectContactForm({ onSubmit, onCancel }: Props) {
+/** A new contact, collected for this organization. */
+export function CollectContactForm({ organizationId, onSubmit, onCancel }: Props) {
   const { t } = useTranslation()
   const [globalErrors, setGlobalErrors] = useState<string[]>([])
   const form = useForm<CollectContactValues>({
@@ -37,52 +38,44 @@ export function CollectContactForm({ onSubmit, onCancel }: Props) {
   const submit = form.handleSubmit(async (values) => {
     setGlobalErrors([])
     try {
-      await onSubmit(toCollectContactInput(values))
+      await onSubmit(toCollectContactInput(values, organizationId))
     } catch (error) {
       setGlobalErrors(applyViolations(error, form.setError, collectContactFields))
     }
   })
 
   return (
-    <form onSubmit={submit} noValidate className="space-y-6">
+    <form onSubmit={submit} noValidate className="space-y-4">
       {globalErrors.length > 0 && (
         <Alert variant="destructive">
           <AlertDescription>{globalErrors.join(' ')}</AlertDescription>
         </Alert>
       )}
 
-      <Card>
-        <CardHeader>
-          <CardTitle className="text-base">{t('contacts.sections.identity')}</CardTitle>
-        </CardHeader>
-        <CardContent className="grid gap-4 sm:grid-cols-2">
-          <PersonNameFields form={form} path={under<CollectContactValues>('name')} />
-          <FormField
-            form={form}
-            name="jobTitle"
-            label={t('fields.jobTitle')}
-            optional={t('common.optional')}
-            className="sm:col-span-2"
-          >
-            <Input autoComplete="organization-title" {...form.register('jobTitle')} />
-          </FormField>
-        </CardContent>
-      </Card>
-      <Card>
-        <CardHeader>
-          <CardTitle className="text-base">{t('contacts.sections.contactDetails')}</CardTitle>
-        </CardHeader>
-        <CardContent className="grid gap-4 sm:grid-cols-2">
-          <ContactDetailsFields form={form} path={under<CollectContactValues>('contactDetails')} />
-        </CardContent>
-      </Card>
+      <fieldset className="grid gap-4 sm:grid-cols-2">
+        <legend className="mb-2 font-medium text-sm">{t('organizations.contacts.identity')}</legend>
+        <PersonNameFields form={form} path={under<CollectContactValues>('name')} />
+        <FormField
+          form={form}
+          name="jobTitle"
+          label={t('fields.jobTitle')}
+          optional={t('common.optional')}
+          className="sm:col-span-2"
+        >
+          <Input autoComplete="organization-title" {...form.register('jobTitle')} />
+        </FormField>
+      </fieldset>
+      <fieldset className="grid gap-4 sm:grid-cols-2">
+        <legend className="mb-2 font-medium text-sm">{t('organizations.sections.contactDetails')}</legend>
+        <ContactDetailsFields form={form} path={under<CollectContactValues>('contactDetails')} />
+      </fieldset>
 
       <div className="flex justify-end gap-2">
         <Button type="button" variant="ghost" onClick={onCancel}>
           {t('common.cancel')}
         </Button>
         <Button type="submit" disabled={isSubmitting || !isDirty}>
-          {isSubmitting ? t('common.saving') : t('contacts.collect.submit')}
+          {isSubmitting ? t('common.saving') : t('organizations.contacts.collectSubmit')}
         </Button>
       </div>
     </form>

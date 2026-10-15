@@ -4,12 +4,12 @@ declare(strict_types=1);
 
 namespace Prospecter\Core\Prospecting\Application\ReviseLegalIdentity;
 
-use Prospecter\Core\Prospecting\Domain\OrganizationId;
 use Prospecter\Core\Prospecting\Domain\OrganizationRepository;
 use Prospecter\Core\Prospecting\Domain\Prospectors;
 use Prospecter\Core\SharedKernel\Application\CommandHandler;
 use Prospecter\Core\SharedKernel\Domain\LegalIdentity;
 use Prospecter\Core\SharedKernel\Domain\MemberId;
+use Prospecter\Core\SharedKernel\Domain\OrganizationId;
 
 final readonly class ReviseLegalIdentityHandler implements CommandHandler
 {

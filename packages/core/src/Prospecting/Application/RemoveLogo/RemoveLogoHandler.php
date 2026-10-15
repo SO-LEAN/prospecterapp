@@ -4,13 +4,13 @@ declare(strict_types=1);
 
 namespace Prospecter\Core\Prospecting\Application\RemoveLogo;
 
-use Prospecter\Core\Prospecting\Domain\OrganizationId;
 use Prospecter\Core\Prospecting\Domain\OrganizationRepository;
 use Prospecter\Core\Prospecting\Domain\Prospectors;
 use Prospecter\Core\SharedKernel\Application\CommandHandler;
 use Prospecter\Core\SharedKernel\Application\FileStore;
 use Prospecter\Core\SharedKernel\Application\Port\Storage;
 use Prospecter\Core\SharedKernel\Domain\MemberId;
+use Prospecter\Core\SharedKernel\Domain\OrganizationId;
 
 final readonly class RemoveLogoHandler implements CommandHandler
 {

@@ -4,12 +4,18 @@ import { describe, expect, it, vi } from 'vitest'
 import { CollectContactForm } from './collect-contact-form'
 
 function renderForm(onSubmit = vi.fn().mockResolvedValue(undefined)) {
-  render(<CollectContactForm onSubmit={onSubmit} onCancel={vi.fn()} />)
+  render(
+    <CollectContactForm
+      organizationId="0190a1c0-0000-7000-8000-000000000001"
+      onSubmit={onSubmit}
+      onCancel={vi.fn()}
+    />,
+  )
   return { onSubmit, user: userEvent.setup() }
 }
 
 describe('CollectContactForm', () => {
-  it('sends what is known, empty fields as null', async () => {
+  it('sends what is known, empty fields as null, for the organization', async () => {
     const { onSubmit, user } = renderForm()
 
     await user.type(screen.getByLabelText('Prénom'), 'Ada')
@@ -21,6 +27,7 @@ describe('CollectContactForm', () => {
       name: { firstName: 'Ada', lastName: 'Lovelace' },
       jobTitle: 'Directrice commerciale',
       contactDetails: { email: null, phoneNumber: null, language: null },
+      organizationIds: ['0190a1c0-0000-7000-8000-000000000001'],
     })
   })
 

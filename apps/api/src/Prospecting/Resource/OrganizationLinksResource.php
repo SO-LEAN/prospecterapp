@@ -30,6 +30,8 @@ final readonly class OrganizationLinksResource
         public ?LinkResource $removeLogo = null,
         #[OA\Property(nullable: false)]
         public ?LinkResource $addContact = null,
+        #[OA\Property(nullable: false)]
+        public ?LinkResource $stopProspecting = null,
     ) {
     }
 }

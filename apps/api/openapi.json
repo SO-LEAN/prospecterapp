@@ -1210,6 +1210,52 @@
                         }
                     }
                 }
+            },
+            "delete": {
+                "tags": [
+                    "Organizations"
+                ],
+                "summary": "Stop prospecting the organization: its subsidiaries lose their holding, its contacts that no other organization names are erased",
+                "operationId": "delete_api_organizations_stop_prospecting",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "pattern": "[0-9a-f]{8}-[0-9a-f]{4}-[13-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}"
+                        }
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "No longer prospected"
+                    },
+                    "401": {
+                        "description": "Missing or invalid access token"
+                    },
+                    "403": {
+                        "description": "Not a prospector, or no right to manage personal data while the organization has contacts",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ProblemResource"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Unknown organization, or one of another account",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ProblemResource"
+                                }
+                            }
+                        }
+                    }
+                }
             }
         },
         "/api/organizations/{id}/observations": {
@@ -1476,7 +1522,7 @@
                 "tags": [
                     "Contacts"
                 ],
-                "summary": "Search the persons my organization prospects, by name or email; a search by text needs the right to manage personal data",
+                "summary": "Search the persons my organization prospects, by name or email, with their organizations; a search by text needs the right to manage personal data",
                 "operationId": "get_api_contacts_search",
                 "parameters": [
                     {
@@ -1507,7 +1553,7 @@
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "$ref": "#/components/schemas/ContactPageResource"
+                                    "$ref": "#/components/schemas/ContactListResource"
                                 }
                             }
                         }
@@ -1516,7 +1562,7 @@
                         "description": "Missing or invalid access token"
                     },
                     "403": {
-                        "description": "Not a prospector, or no right to manage personal data",
+                        "description": "Not a prospector, or a search by text without the right to manage personal data",
                         "content": {
                             "application/json": {
                                 "schema": {
@@ -1531,7 +1577,7 @@
                 "tags": [
                     "Contacts"
                 ],
-                "summary": "Collect a person my organization prospects, to attach to the organizations they work for",
+                "summary": "Collect a person my organization prospects, as a contact of the organizations they work for (at least one)",
                 "operationId": "post_api_contacts_collect",
                 "requestBody": {
                     "required": true,
@@ -1567,8 +1613,18 @@
                             }
                         }
                     },
+                    "404": {
+                        "description": "Unknown organization, or one of another account",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ProblemResource"
+                                }
+                            }
+                        }
+                    },
                     "422": {
-                        "description": "Invalid contact, or email already used by another contact",
+                        "description": "Invalid contact, no organization, or email already used by another contact",
                         "content": {
                             "application/json": {
                                 "schema": {
@@ -1745,6 +1801,51 @@
                     },
                     "422": {
                         "description": "Invalid name",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ProblemResource"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/contacts/{id}/organizations": {
+            "get": {
+                "tags": [
+                    "Contacts"
+                ],
+                "summary": "The organizations of my organization the contact works for",
+                "operationId": "get_api_contacts_organizations",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "pattern": "[0-9a-f]{8}-[0-9a-f]{4}-[13-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "The organizations of the contact",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/OrganizationsOfContactResource"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Missing or invalid access token"
+                    },
+                    "403": {
+                        "description": "The signed-in user is not a prospector",
                         "content": {
                             "application/json": {
                                 "schema": {
@@ -1949,6 +2050,13 @@
                     },
                     "contactDetails": {
                         "$ref": "#/components/schemas/ContactDetailsInput"
+                    },
+                    "organizationIds": {
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        },
+                        "default": []
                     }
                 },
                 "type": "object"
@@ -2302,6 +2410,9 @@
                     },
                     "addContact": {
                         "$ref": "#/components/schemas/LinkResource"
+                    },
+                    "stopProspecting": {
+                        "$ref": "#/components/schemas/LinkResource"
                     }
                 },
                 "type": "object"
@@ -2531,15 +2642,69 @@
                 },
                 "type": "object"
             },
-            "ContactPageLinksResource": {
+            "OrganizationOfContactResource": {
+                "required": [
+                    "id",
+                    "name",
+                    "organization"
+                ],
+                "properties": {
+                    "id": {
+                        "type": "string"
+                    },
+                    "name": {
+                        "type": "string"
+                    },
+                    "organization": {
+                        "$ref": "#/components/schemas/LinkResource"
+                    }
+                },
+                "type": "object"
+            },
+            "ContactInListResource": {
+                "required": [
+                    "id",
+                    "name",
+                    "contactDetails",
+                    "masked",
+                    "organizations",
+                    "contact"
+                ],
+                "properties": {
+                    "id": {
+                        "type": "string"
+                    },
+                    "name": {
+                        "$ref": "#/components/schemas/PersonNameResource"
+                    },
+                    "jobTitle": {
+                        "type": "string",
+                        "nullable": true
+                    },
+                    "contactDetails": {
+                        "$ref": "#/components/schemas/ContactDetailsResource"
+                    },
+                    "masked": {
+                        "type": "boolean"
+                    },
+                    "organizations": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/OrganizationOfContactResource"
+                        }
+                    },
+                    "contact": {
+                        "$ref": "#/components/schemas/LinkResource"
+                    }
+                },
+                "type": "object"
+            },
+            "ContactListLinksResource": {
                 "required": [
                     "self"
                 ],
                 "properties": {
                     "self": {
-                        "$ref": "#/components/schemas/LinkResource"
-                    },
-                    "collect": {
                         "$ref": "#/components/schemas/LinkResource"
                     },
                     "search": {
@@ -2548,7 +2713,7 @@
                 },
                 "type": "object"
             },
-            "ContactPageResource": {
+            "ContactListResource": {
                 "required": [
                     "items",
                     "page",
@@ -2560,7 +2725,7 @@
                     "items": {
                         "type": "array",
                         "items": {
-                            "$ref": "#/components/schemas/ContactResource"
+                            "$ref": "#/components/schemas/ContactInListResource"
                         }
                     },
                     "page": {
@@ -2573,7 +2738,21 @@
                         "type": "integer"
                     },
                     "_links": {
-                        "$ref": "#/components/schemas/ContactPageLinksResource"
+                        "$ref": "#/components/schemas/ContactListLinksResource"
+                    }
+                },
+                "type": "object"
+            },
+            "OrganizationsOfContactResource": {
+                "required": [
+                    "items"
+                ],
+                "properties": {
+                    "items": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/OrganizationOfContactResource"
+                        }
                     }
                 },
                 "type": "object"

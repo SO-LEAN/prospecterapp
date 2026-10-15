@@ -7,9 +7,14 @@ namespace Prospecter\Core\PersonalData\Domain;
 use Prospecter\Core\PersonalData\Domain\Exception\UnknownPerson;
 use Prospecter\Core\SharedKernel\Domain\AccountId;
 use Prospecter\Core\SharedKernel\Domain\ContactDetails;
+use Prospecter\Core\SharedKernel\Domain\Event\ContactCollected;
+use Prospecter\Core\SharedKernel\Domain\Event\ContactForgotten;
+use Prospecter\Core\SharedKernel\Domain\Exception\BusinessRuleViolation;
 use Prospecter\Core\SharedKernel\Domain\Exception\NotAllowed;
 use Prospecter\Core\SharedKernel\Domain\File;
+use Prospecter\Core\SharedKernel\Domain\OrganizationId;
 use Prospecter\Core\SharedKernel\Domain\PersonId;
+use Prospecter\Core\SharedKernel\Domain\RecordsEvents;
 
 /**
  * Aggregate root: the personal data of a natural person, kept for one account and one purpose. The account
@@ -17,6 +22,8 @@ use Prospecter\Core\SharedKernel\Domain\PersonId;
  */
 class Person
 {
+    use RecordsEvents;
+
     private ?File $picture = null;
     private ?string $jobTitle = null;
     private \DateTimeImmutable $modifiedAt;
@@ -39,18 +46,26 @@ class Person
 
     /**
      * A person the account of the member prospects, collected by a member with the right to manage personal
-     * data (ADR 0041).
+     * data, for at least one of the organizations it prospects: a contact is never alone (ADR 0042).
      *
-     * @throws NotAllowed for a member without the right
+     * @param list<OrganizationId> $organizations where the person works, prospected by the account
+     *
+     * @throws NotAllowed            for a member without the right
+     * @throws BusinessRuleViolation without an organization
      */
-    public static function collectAsContact(Reader $by, PersonId $id, PersonName $name, ?string $jobTitle, ContactDetails $contactDetails, \DateTimeImmutable $at): self
+    public static function collectAsContact(Reader $by, PersonId $id, PersonName $name, ?string $jobTitle, ContactDetails $contactDetails, array $organizations, \DateTimeImmutable $at): self
     {
         if (!$by->readsPersonalData) {
             throw NotAllowed::because('Only a member allowed to manage personal data may collect a contact');
         }
 
+        if ([] === $organizations) {
+            throw BusinessRuleViolation::because('A contact belongs to at least one organization', 'organizationIds');
+        }
+
         $contact = new self($id, $by->accountId, Purpose::Prospecting, $name, $contactDetails, $at);
         $contact->jobTitle = $jobTitle;
+        $contact->recordThat(new ContactCollected($by->accountId, $by->id, $id, $organizations, $at));
 
         return $contact;
     }
@@ -160,13 +175,15 @@ class Person
     }
 
     /**
-     * Checks that this reader may erase the person; the repository then removes it.
+     * Erases a prospected person: once the repository removed it, no organization may name it any more
+     * (ContactForgotten).
      *
      * @throws UnknownPerson|NotAllowed
      */
-    public function ensureMayBeForgottenBy(Reader $by): void
+    public function forget(Reader $by, \DateTimeImmutable $at): void
     {
         $this->ensurePossible(PersonIntent::Forget, $by);
+        $this->recordThat(new ContactForgotten($this->accountId, $by->id, $this->id, $at));
     }
 
     private function belongsTo(Reader $reader): bool

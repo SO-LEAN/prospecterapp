@@ -25,6 +25,7 @@ class BoundedContextsTest extends TestCase
         'Prospecting/AccountsProspectors.php', // anticorruption layer: Prospecting reads its prospectors from Accounts
         'PersonalData/AccountsReaders.php', // anticorruption layer: PersonalData reads its readers from Accounts
         'Prospecting/PersonalDataKnownContacts.php', // anticorruption layer: Prospecting asks PersonalData about its contacts
+        'PersonalData/ProspectingOrganizations.php', // anticorruption layer: PersonalData asks Prospecting about the organizations of a contact
     ];
 
     #[DataProvider('contexts')]

@@ -5,13 +5,13 @@ declare(strict_types=1);
 namespace Prospecter\Core\Prospecting\Application\ChangeContactDetails;
 
 use Prospecter\Core\Prospecting\Domain\EmailUniqueness;
-use Prospecter\Core\Prospecting\Domain\OrganizationId;
 use Prospecter\Core\Prospecting\Domain\OrganizationRepository;
 use Prospecter\Core\Prospecting\Domain\Prospectors;
 use Prospecter\Core\SharedKernel\Application\CommandHandler;
 use Prospecter\Core\SharedKernel\Domain\ContactDetails;
 use Prospecter\Core\SharedKernel\Domain\Email;
 use Prospecter\Core\SharedKernel\Domain\MemberId;
+use Prospecter\Core\SharedKernel\Domain\OrganizationId;
 
 final readonly class ChangeContactDetailsHandler implements CommandHandler
 {
