@@ -21,4 +21,4 @@ From the repository root: `make test-auth`; `make lint`, `make fix`, `make api-d
 
 ## Tests
 
-`tests/AuthTestCase`: the database recreated for each test with the fixtures, `signIn()` (session) and `signInWithAToken()` (the real authorization code flow with PKCE, then the bearer token).
+`tests/AuthTestCase`: the database recreated for each test with the fixtures, `signIn()` (session) and `signInWithAToken()` (the real authorization code flow with PKCE, then the bearer token). `SignInTest` signs in like the SPA, each test from an address of its own (failed attempts are counted per address and login email).

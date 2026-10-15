@@ -32,7 +32,7 @@ SPA (local.prospecter.io)                         auth (api.local.prospecter.io,
 
 ## Resource server: `apps/api`
 
-- Firewall `api` (`^/api/`, stateless) with Symfony's `access_token` authenticator: `Security\AccessTokenHandler` checks the JWT (RS256 signature with `AUTH_PUBLIC_KEY`, expiry, audience `AUTH_CLIENT_ID`) without calling the authorization server; `Security\MemberProvider` loads the member named by the subject. Missing or invalid token: 401 `application/problem+json` with `WWW-Authenticate: Bearer`.
+- Firewall `api` (`^/api/`, stateless) with Symfony's `access_token` authenticator: `Security\AccessTokenHandler` checks the JWT (RS256 signature with `AUTH_PUBLIC_KEY`, expiry, audience `AUTH_CLIENT_ID`) without calling the authorization server; `Security\MemberProvider` reads the member named by the subject, its identities and roles, with the query `ConsultMyAccount` (ADR 0040). Missing or invalid token: 401 `application/problem+json` with `WWW-Authenticate: Bearer`.
 - A token stays valid until it expires (15 min) even if its refresh token is revoked: the price of not calling the authorization server on every request.
 - Roles are checked by `#[IsGranted]` (403 problem+json from `Security\ApiAccessDeniedHandler`), and the aggregate decides whether this member may change something (ADR 0026). The core knows no password.
 

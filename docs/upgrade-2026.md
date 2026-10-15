@@ -77,3 +77,6 @@ The Symfony pages were replaced by a React SPA (`apps/front`) and a JSON API (`a
 - Messenger routes a message by the type of the argument of `__invoke()`: a generic decorator taking `object` needs the `handles` attribute of its tag (`RefusalTranslatingCommandHandlersPass`).
 - Rector and PHPStan can disagree (`?->` before `??`, `$handler->__invoke(...)` on a marker interface): write the code so that both accept it rather than ignoring one.
 - The generated front types of a second contract must be excluded from Biome like the first one.
+- A Symfony array cache is cleared between two requests of a functional test (services are reset): the sign-in throttling cannot count attempts in it. The tests keep the default cache and sign in from an address of their own.
+- A lazy reference of the fixtures left in the entity manager breaks the next request that loads the same aggregate (its readonly identity): read the identity, then clear the entity managers (`ApiTestCase::accountOfTheFixtures()`).
+- The first target of a Makefile is its default: `install` ran on a bare `make` and recreated the databases while the e2e journeys ran. `help` is the default now.
