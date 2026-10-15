@@ -6,9 +6,9 @@ use App\Api\ImageResourceFactory;
 use App\Api\Resource\LocationResource;
 use App\Api\Resource\OrganizationPageResource;
 use App\Api\Resource\OrganizationSummaryResource;
-use Prospecter\Core\Application\Organization\FoundOrganization;
-use Prospecter\Core\Application\Organization\SearchProspectedOrganizationsPresenter;
-use Prospecter\Core\Application\Organization\SearchProspectedOrganizationsResponse;
+use Prospecter\Core\Application\Organization\SearchProspectedOrganizations\FoundOrganization;
+use Prospecter\Core\Application\Organization\SearchProspectedOrganizations\SearchProspectedOrganizationsPresenter;
+use Prospecter\Core\Application\Organization\SearchProspectedOrganizations\SearchProspectedOrganizationsResponse;
 
 final readonly class OrganizationPagePresenter implements SearchProspectedOrganizationsPresenter
 {

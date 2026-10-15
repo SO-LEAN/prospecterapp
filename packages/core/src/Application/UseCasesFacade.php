@@ -4,28 +4,48 @@ declare(strict_types=1);
 
 namespace Prospecter\Core\Application;
 
+use Prospecter\Core\Application\Account\ChangeMyContactDetails\ChangeMyContactDetailsRequest;
+use Prospecter\Core\Application\Account\ChangeMyName\ChangeMyNameRequest;
+use Prospecter\Core\Application\Account\ChangeMyOrganizationLogo\ChangeMyOrganizationLogoRequest;
+use Prospecter\Core\Application\Account\ChangeMyPicture\ChangeMyPictureRequest;
+use Prospecter\Core\Application\Account\ChangeMyUserName\ChangeMyUserNameRequest;
+use Prospecter\Core\Application\Account\ConsultMyAccount\ConsultMyAccountRequest;
+use Prospecter\Core\Application\Account\ReviseMyOrganizationIdentity\ReviseMyOrganizationIdentityRequest;
+use Prospecter\Core\Application\Organization\AttachToHolding\AttachToHoldingRequest;
+use Prospecter\Core\Application\Organization\ChangeContactDetails\ChangeContactDetailsRequest;
+use Prospecter\Core\Application\Organization\ChangeLogo\ChangeLogoRequest;
+use Prospecter\Core\Application\Organization\ConsultOrganization\ConsultOrganizationRequest;
+use Prospecter\Core\Application\Organization\DetachFromHolding\DetachFromHoldingRequest;
+use Prospecter\Core\Application\Organization\Relocate\RelocateRequest;
+use Prospecter\Core\Application\Organization\RemoveLogo\RemoveLogoRequest;
+use Prospecter\Core\Application\Organization\ReviseLegalIdentity\ReviseLegalIdentityRequest;
+use Prospecter\Core\Application\Organization\SearchProspectedOrganizations\SearchProspectedOrganizationsPresenter;
+use Prospecter\Core\Application\Organization\SearchProspectedOrganizations\SearchProspectedOrganizationsRequest;
+use Prospecter\Core\Application\Organization\StartProspecting\StartProspectingRequest;
+use Prospecter\Core\Application\Organization\WriteObservations\WriteObservationsRequest;
+
 /**
  * Calls a use case by its name (lcfirst of its class name).
  * To be replaced by a command bus (ADR 0020).
  *
- * @method mixed startProspecting(Organization\StartProspectingRequest $request, Organization\OrganizationPresenter $presenter)
- * @method mixed reviseLegalIdentity(Organization\ReviseLegalIdentityRequest $request, Organization\OrganizationPresenter $presenter)
- * @method mixed changeContactDetails(Organization\ChangeContactDetailsRequest $request, Organization\OrganizationPresenter $presenter)
- * @method mixed relocate(Organization\RelocateRequest $request, Organization\OrganizationPresenter $presenter)
- * @method mixed writeObservations(Organization\WriteObservationsRequest $request, Organization\OrganizationPresenter $presenter)
- * @method mixed attachToHolding(Organization\AttachToHoldingRequest $request, Organization\OrganizationPresenter $presenter)
- * @method mixed detachFromHolding(Organization\DetachFromHoldingRequest $request, Organization\OrganizationPresenter $presenter)
- * @method mixed changeLogo(Organization\ChangeLogoRequest $request, Organization\OrganizationPresenter $presenter)
- * @method mixed removeLogo(Organization\RemoveLogoRequest $request, Organization\OrganizationPresenter $presenter)
- * @method mixed consultOrganization(Organization\ConsultOrganizationRequest $request, Organization\OrganizationPresenter $presenter)
- * @method mixed searchProspectedOrganizations(Organization\SearchProspectedOrganizationsRequest $request, Organization\SearchProspectedOrganizationsPresenter $presenter)
- * @method mixed consultMyAccount(Account\ConsultMyAccountRequest $request, Account\AccountPresenter $presenter)
- * @method mixed changeMyName(Account\ChangeMyNameRequest $request, Account\AccountPresenter $presenter)
- * @method mixed changeMyUserName(Account\ChangeMyUserNameRequest $request, Account\AccountPresenter $presenter)
- * @method mixed changeMyContactDetails(Account\ChangeMyContactDetailsRequest $request, Account\AccountPresenter $presenter)
- * @method mixed changeMyPicture(Account\ChangeMyPictureRequest $request, Account\AccountPresenter $presenter)
- * @method mixed reviseMyOrganizationIdentity(Account\ReviseMyOrganizationIdentityRequest $request, Account\AccountPresenter $presenter)
- * @method mixed changeMyOrganizationLogo(Account\ChangeMyOrganizationLogoRequest $request, Account\AccountPresenter $presenter)
+ * @method mixed startProspecting(StartProspectingRequest $request, Organization\OrganizationPresenter $presenter)
+ * @method mixed reviseLegalIdentity(ReviseLegalIdentityRequest $request, Organization\OrganizationPresenter $presenter)
+ * @method mixed changeContactDetails(ChangeContactDetailsRequest $request, Organization\OrganizationPresenter $presenter)
+ * @method mixed relocate(RelocateRequest $request, Organization\OrganizationPresenter $presenter)
+ * @method mixed writeObservations(WriteObservationsRequest $request, Organization\OrganizationPresenter $presenter)
+ * @method mixed attachToHolding(AttachToHoldingRequest $request, Organization\OrganizationPresenter $presenter)
+ * @method mixed detachFromHolding(DetachFromHoldingRequest $request, Organization\OrganizationPresenter $presenter)
+ * @method mixed changeLogo(ChangeLogoRequest $request, Organization\OrganizationPresenter $presenter)
+ * @method mixed removeLogo(RemoveLogoRequest $request, Organization\OrganizationPresenter $presenter)
+ * @method mixed consultOrganization(ConsultOrganizationRequest $request, Organization\OrganizationPresenter $presenter)
+ * @method mixed searchProspectedOrganizations(SearchProspectedOrganizationsRequest $request, SearchProspectedOrganizationsPresenter $presenter)
+ * @method mixed consultMyAccount(ConsultMyAccountRequest $request, Account\AccountPresenter $presenter)
+ * @method mixed changeMyName(ChangeMyNameRequest $request, Account\AccountPresenter $presenter)
+ * @method mixed changeMyUserName(ChangeMyUserNameRequest $request, Account\AccountPresenter $presenter)
+ * @method mixed changeMyContactDetails(ChangeMyContactDetailsRequest $request, Account\AccountPresenter $presenter)
+ * @method mixed changeMyPicture(ChangeMyPictureRequest $request, Account\AccountPresenter $presenter)
+ * @method mixed reviseMyOrganizationIdentity(ReviseMyOrganizationIdentityRequest $request, Account\AccountPresenter $presenter)
+ * @method mixed changeMyOrganizationLogo(ChangeMyOrganizationLogoRequest $request, Account\AccountPresenter $presenter)
  */
 class UseCasesFacade
 {

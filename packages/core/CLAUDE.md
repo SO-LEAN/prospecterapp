@@ -13,7 +13,7 @@ Run from the repository root (the core has its own `vendor/`, installed by `make
 ## Layout
 
 - `src/Domain/{Shared,Organization,User}`: the aggregates `Organization` and `User`, their identities (`OrganizationId`, `UserId`), value objects (`Email`, `ContactDetails`, `LegalIdentity`, `PersonName`, `Address`, `GeoPoint`, `File`, `Page`, `Role`), repository interfaces and domain exceptions (`BusinessRuleViolation` names the faulty field).
-- `src/Application/{Organization,Account}`: one use case per intent (`Relocate`) with its `RelocateRequest`; responses and presenters shared by the intents of a resource (`OrganizationResponse`, `OrganizationPresenter`). No base class: a use case loads the acting user (the request carries its id), the aggregate, calls the intention with `by: $user`, saves and presents.
+- `src/Application/{Organization,Account}/<Intent>/`: one package per use case with what belongs to it alone (`Organization/Relocate/`: `Relocate`, `RelocateRequest`; `SearchProspectedOrganizations/` also its response, presenter and `FoundOrganization`); what the intents of a resource share stays one level up (`OrganizationResponse`, `OrganizationPresenter`, `OrganizationResponses`). No base class: a use case loads the acting user (the request carries its id), the aggregate, calls the intention with `by: $user`, saves and presents.
 - `src/Application/Port` (`Storage`, `GeoLocation`), `Service` (`FileStore`, `GeoLocalizer`), `UseCase`, `UseCasesFacade`.
 
 ## Rules

@@ -9,7 +9,7 @@ use App\Entity\User;
 use App\Presenter\AccountResourcePresenter;
 use Nelmio\ApiDocBundle\Attribute\Model;
 use OpenApi\Attributes as OA;
-use Prospecter\Core\Application\Account\ReviseMyOrganizationIdentityRequest;
+use Prospecter\Core\Application\Account\ReviseMyOrganizationIdentity\ReviseMyOrganizationIdentityRequest;
 use Prospecter\Core\Application\UseCasesFacade;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;

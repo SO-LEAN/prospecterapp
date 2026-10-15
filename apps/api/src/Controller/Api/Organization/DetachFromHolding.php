@@ -8,7 +8,7 @@ use App\Entity\User;
 use App\Presenter\OrganizationResourcePresenter;
 use Nelmio\ApiDocBundle\Attribute\Model;
 use OpenApi\Attributes as OA;
-use Prospecter\Core\Application\Organization\DetachFromHoldingRequest;
+use Prospecter\Core\Application\Organization\DetachFromHolding\DetachFromHoldingRequest;
 use Prospecter\Core\Application\UseCasesFacade;
 use Prospecter\Core\Domain\Organization\OrganizationId;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;

@@ -9,7 +9,7 @@ use App\Presenter\AccountResourcePresenter;
 use App\Service\UploadedFileInfo;
 use Nelmio\ApiDocBundle\Attribute\Model;
 use OpenApi\Attributes as OA;
-use Prospecter\Core\Application\Account\ChangeMyPictureRequest;
+use Prospecter\Core\Application\Account\ChangeMyPicture\ChangeMyPictureRequest;
 use Prospecter\Core\Application\UseCasesFacade;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\File\UploadedFile;

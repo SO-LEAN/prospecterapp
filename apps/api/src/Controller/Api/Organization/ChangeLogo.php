@@ -9,7 +9,7 @@ use App\Presenter\OrganizationResourcePresenter;
 use App\Service\UploadedFileInfo;
 use Nelmio\ApiDocBundle\Attribute\Model;
 use OpenApi\Attributes as OA;
-use Prospecter\Core\Application\Organization\ChangeLogoRequest;
+use Prospecter\Core\Application\Organization\ChangeLogo\ChangeLogoRequest;
 use Prospecter\Core\Application\UseCasesFacade;
 use Prospecter\Core\Domain\Organization\OrganizationId;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;

@@ -8,7 +8,7 @@ use App\Entity\User;
 use App\Presenter\AccountResourcePresenter;
 use Nelmio\ApiDocBundle\Attribute\Model;
 use OpenApi\Attributes as OA;
-use Prospecter\Core\Application\Account\ConsultMyAccountRequest;
+use Prospecter\Core\Application\Account\ConsultMyAccount\ConsultMyAccountRequest;
 use Prospecter\Core\Application\UseCasesFacade;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;

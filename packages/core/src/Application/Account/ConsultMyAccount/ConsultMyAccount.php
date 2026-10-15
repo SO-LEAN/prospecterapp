@@ -1,0 +1,28 @@
+<?php
+
+declare(strict_types=1);
+
+namespace Prospecter\Core\Application\Account\ConsultMyAccount;
+
+use Prospecter\Core\Application\Account\AccountPresenter;
+use Prospecter\Core\Application\Account\AccountResponses;
+use Prospecter\Core\Application\UseCase;
+use Prospecter\Core\Domain\Organization\OrganizationRepository;
+use Prospecter\Core\Domain\User\UserRepository;
+
+final class ConsultMyAccount extends UseCase
+{
+    private readonly AccountResponses $responses;
+
+    public function __construct(private readonly UserRepository $users, OrganizationRepository $organizations)
+    {
+        $this->responses = new AccountResponses($organizations);
+    }
+
+    public function execute(ConsultMyAccountRequest $request, AccountPresenter $presenter): mixed
+    {
+        $me = $this->users->get($request->userId);
+
+        return $presenter->present($this->responses->of($me));
+    }
+}

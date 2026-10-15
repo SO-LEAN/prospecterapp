@@ -6,7 +6,7 @@ namespace Tests\Core\Double;
 
 use Prospecter\Core\Application\Account\AccountPresenter;
 use Prospecter\Core\Application\Organization\OrganizationPresenter;
-use Prospecter\Core\Application\Organization\SearchProspectedOrganizationsPresenter;
+use Prospecter\Core\Application\Organization\SearchProspectedOrganizations\SearchProspectedOrganizationsPresenter;
 
 /**
  * The output port of every use case: keeps what the use case presented, as a delivery would.

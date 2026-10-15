@@ -21,8 +21,8 @@ services:
     # Use cases of the core: every intention, called through the facade
     Prospecter\Core\Application\UseCasesFacade: ~
     Prospecter\Core\Application\:
-        resource: '../vendor/prospecter/core/src/Application/{Organization,Account}/*.php'
-        exclude: '../vendor/prospecter/core/src/Application/{Organization,Account}/{*Request,*Response,*Responses,*Presenter,FoundOrganization}.php'
+        resource: '../vendor/prospecter/core/src/Application/{Organization,Account}/*/*.php'
+        exclude: '../vendor/prospecter/core/src/Application/{Organization,Account}/*/{*Request,*Response,*Presenter,FoundOrganization}.php'
 
     # Ports of the core, implemented by the application
     Prospecter\Core\Domain\Organization\OrganizationRepository: '@App\Repository\DoctrineOrganizationRepository'
