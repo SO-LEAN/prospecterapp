@@ -2,9 +2,9 @@
 
 namespace App\Me\Controller;
 
-use App\Entity\User;
 use App\Me\MyAccountReader;
 use App\Me\Resource\AccountResource;
+use App\Security\User;
 use App\Shared\CommandBus;
 use App\Shared\Input\ContactDetailsInput;
 use App\Shared\Resource\ProblemResource;

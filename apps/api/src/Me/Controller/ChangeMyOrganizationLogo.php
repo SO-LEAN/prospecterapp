@@ -2,12 +2,12 @@
 
 namespace App\Me\Controller;
 
-use App\Entity\User;
 use App\Me\MyAccountReader;
 use App\Me\Resource\AccountResource;
-use App\Service\UploadedFileInfo;
+use App\Security\User;
 use App\Shared\CommandBus;
 use App\Shared\Resource\ProblemResource;
+use App\Shared\UploadedFileInfo;
 use Nelmio\ApiDocBundle\Attribute\Model;
 use OpenApi\Attributes as OA;
 use Prospecter\Core\Accounts\Application\ChangeMyOrganizationLogo\ChangeMyOrganizationLogo as ChangeMyOrganizationLogoCommand;

@@ -2,12 +2,12 @@
 
 namespace App\Prospecting\Controller;
 
-use App\Entity\User;
 use App\Prospecting\OrganizationReader;
 use App\Prospecting\Resource\OrganizationResource;
-use App\Service\UploadedFileInfo;
+use App\Security\User;
 use App\Shared\CommandBus;
 use App\Shared\Resource\ProblemResource;
+use App\Shared\UploadedFileInfo;
 use Nelmio\ApiDocBundle\Attribute\Model;
 use OpenApi\Attributes as OA;
 use Prospecter\Core\Prospecting\Application\ChangeLogo\ChangeLogo as ChangeLogoCommand;

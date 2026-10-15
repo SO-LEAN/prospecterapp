@@ -2,7 +2,7 @@
 
 namespace App\Prospecting\Persistence;
 
-use App\Service\PaginatorFactory;
+use App\Shared\PaginatorFactory;
 use Doctrine\ORM\EntityManagerInterface;
 use Prospecter\Core\Prospecting\Domain\Organization;
 use Prospecter\Core\Prospecting\Domain\OrganizationId;

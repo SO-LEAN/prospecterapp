@@ -14,7 +14,7 @@ services:
             - '../src/*/Input/'
             - '../src/*/Resource/'
             - '../src/Dashboard/DashboardResource.php'
-            - '../src/Entity/'
+            - '../src/Security/User.php'
             - '../src/Kernel.php'
 
     # Handlers of the core: commands go through the command bus, queries are called by the controllers

@@ -2,10 +2,10 @@
 
 namespace App\Prospecting\Controller;
 
-use App\Entity\User;
 use App\Prospecting\Input\OrganizationListQuery;
 use App\Prospecting\Presenter\OrganizationPagePresenter;
 use App\Prospecting\Resource\OrganizationPageResource;
+use App\Security\User;
 use App\Shared\Resource\ProblemResource;
 use Nelmio\ApiDocBundle\Attribute\Model;
 use OpenApi\Attributes as OA;

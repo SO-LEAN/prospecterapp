@@ -1,6 +1,6 @@
 <?php
 
-namespace Tests\App\Gateway;
+namespace Tests\App\Prospecting;
 
 use App\Prospecting\GeoplateformeGeoLocation;
 use PHPUnit\Framework\TestCase;

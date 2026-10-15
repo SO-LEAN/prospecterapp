@@ -2,7 +2,6 @@
 
 namespace App\Security;
 
-use App\Entity\User;
 use Prospecter\Core\Accounts\Domain\MemberRepository;
 use Prospecter\Core\Accounts\Domain\UnknownMember;
 use Prospecter\Core\SharedKernel\Domain\MemberId;

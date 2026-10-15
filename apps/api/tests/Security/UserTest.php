@@ -1,8 +1,8 @@
 <?php
 
-namespace Tests\App\Entity;
+namespace Tests\App\Security;
 
-use App\Entity\User;
+use App\Security\User;
 use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
 use Prospecter\Core\Accounts\Domain\Member as CoreUser;

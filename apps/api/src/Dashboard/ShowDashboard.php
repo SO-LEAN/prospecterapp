@@ -2,10 +2,10 @@
 
 namespace App\Dashboard;
 
-use App\Entity\User;
 use App\Me\MyAccountReader;
 use App\Prospecting\Presenter\OrganizationPagePresenter;
 use App\Prospecting\Resource\OrganizationSummaryResource;
+use App\Security\User;
 use App\Shared\Resource\ProblemResource;
 use Nelmio\ApiDocBundle\Attribute\Model;
 use OpenApi\Attributes as OA;

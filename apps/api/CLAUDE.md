@@ -6,7 +6,7 @@ The generic Symfony guidance above is overridden by the project rules below when
 
 ## Role
 
-A JSON API that exposes the use cases of `packages/core`, plus the OAuth 2 authorization server used by the SPA (`apps/front`). No server-rendered pages except the sign-in page (`templates/auth/login.html.twig`). Full contract: `openapi.json` (generated, do not edit) and Swagger UI on `https://api.local.prospecter.io/api/doc`.
+A JSON API that exposes the use cases of `packages/core`, a resource server for the SPA (`apps/front`): the tokens come from `apps/auth`. No server-rendered page. Full contract: `openapi.json` (generated, do not edit) and Swagger UI on `https://api.local.prospecter.io/api/doc`.
 
 ## Project overrides
 
@@ -17,9 +17,9 @@ A JSON API that exposes the use cases of `packages/core`, plus the OAuth 2 autho
 
 ## Writing an endpoint
 
-- One business intent per endpoint (ADR 0025), one invokable controller per endpoint, in the folder of its bounded context: `src/<Context>/Controller/<Intent>.php` (`Prospecting/Controller/Relocate`); `src/Me` (the `/api/me` endpoints: membership, profile, password) and `src/Dashboard` compose contexts. Extend `AbstractController`. A change dispatches its command on `Shared\CommandBus` (synchronous, refusals of the core thrown back as is), then answers with the fresh resource read by a query (`Prospecting\OrganizationReader`, `Me\MyAccountReader`, which composes Accounts and PersonalData): commands return nothing (ADR 0029). A creation asks the repository for `nextIdentity()` and puts it in the command.
+- One business intent per endpoint (ADR 0025), one invokable controller per endpoint, in the folder of its bounded context: `src/<Context>/Controller/<Intent>.php` (`Prospecting/Controller/Relocate`); `src/Me` (the `/api/me` endpoints: membership, profile) and `src/Dashboard` compose contexts. Extend `AbstractController`. A change dispatches its command on `Shared\CommandBus` (synchronous, refusals of the core thrown back as is), then answers with the fresh resource read by a query (`Prospecting\OrganizationReader`, `Me\MyAccountReader`, which composes Accounts and PersonalData): commands return nothing (ADR 0029). A creation asks the repository for `nextIdentity()` and puts it in the command.
 - URLs are resource-oriented. `POST` creates a resource or adds an entity to an aggregate (`POST /api/organizations`, `POST .../logo`), `PATCH` changes one part of a resource exposed as a sub-resource (`PATCH /api/organizations/{id}/address`), `DELETE` removes one. No `PUT`. Ids are UUIDs: routes declare `requirements: ['id' => Requirement::UUID]`.
-- Input: `#[MapRequestPayload]` / `#[MapQueryString]` with a `final readonly` DTO in `src/Api/Input` (constraints as attributes, `#[Assert\Valid]` on nested DTOs), shaped like the matching part of the resource (`AddressInput` like `AddressResource`) and converting itself to the core value object (`toAddress()`). Unknown fields are rejected with a 422 violation each (`serializer.default_context` in `config/packages/framework.yaml`), never ignored.
+- Input: `#[MapRequestPayload]` / `#[MapQueryString]` with a `final readonly` DTO in `src/<Context>/Input` (constraints as attributes, `#[Assert\Valid]` on nested DTOs), shaped like the matching part of the resource (`AddressInput` like `AddressResource`) and converting itself to the core value object (`toAddress()`). Unknown fields are rejected with a 422 violation each (`serializer.default_context` in `config/packages/framework.yaml`), never ignored.
 - Files: `#[MapUploadedFile]` then `new UploadedFileInfo($file)` (an `SplFileInfo` whose extension is guessed from the content), always on `POST` (PHP does not parse multipart bodies on `PATCH`).
 - Output: every intent returns the fresh resource (`OrganizationResource`, `AccountResource`), a `final readonly` class of `src/<Context>/Resource` built by a presenter of `src/<Context>/Presenter` from the response of a query (images via `Shared\ImageResourceFactory`: `url`, `smallUrl` 96 px and `mediumUrl` 256 px wide, made on first request by the storage app, never enlarged; the front picks the size it displays). Inputs live in `src/<Context>/Input`; what both contexts use in `src/Shared/{Input,Resource}`.
 - Document every endpoint: `#[OA\Tag]`, `#[OA\Get|Post|Patch|Delete]`(summary), one `#[OA\Response]` per status with `new Model(type: ...)`. Then run `make api-doc` to regenerate `openapi.json` and the front types; `tests/Api/OpenApiContractTest` fails `make test` while the committed `openapi.json` differs from the code.
@@ -32,7 +32,7 @@ A JSON API that exposes the use cases of `packages/core`, plus the OAuth 2 autho
 
 See `docs/auth.md` at the repository root. The API is a resource server only: signing in, the OAuth 2 tokens and the credentials belong to `apps/auth` (ADR 0034).
 
-- Firewall `api` (`^/api/`, stateless, `access_token` with `Security\AccessTokenHandler`): the JWT is checked with the public key of the authorization server (`AUTH_PUBLIC_KEY`), its expiry and its client (`AUTH_CLIENT_ID`); its subject is the member id, loaded by `Security\MemberProvider` into `App\Entity\User`, received as `#[CurrentUser] User $user`; its ids go into every command and query, and the aggregates decide ownership (ADR 0026).
+- Firewall `api` (`^/api/`, stateless, `access_token` with `Security\AccessTokenHandler`): the JWT is checked with the public key of the authorization server (`AUTH_PUBLIC_KEY`), its expiry and its client (`AUTH_CLIENT_ID`); its subject is the member id, loaded by `Security\MemberProvider` into `App\Security\User`, received as `#[CurrentUser] User $user`; its ids go into every command and query, and the aggregates decide ownership (ADR 0026).
 - The prospector of the fixtures has the member id `AppFixtures::PROSPECTOR`, the one the auth fixtures give its credentials.
 
 ## Architecture
@@ -63,5 +63,5 @@ Doctrine refuses to initialize a lazy proxy of an aggregate: hydration would rep
 ## Tests
 
 - `tests/Api`: functional tests through `Base/ApiTestCase`, whose `login()` signs an access token for a fixture member with the test key pair (`tests/bootstrap.php`, in `var/test-jwt`, never committed). Schema and fixtures are recreated for each test; host `api.test.prospecter.io`; variables in `.env.test`.
-- `tests/Base/TestCase` instantiates the class under test from the test class name and offers `prophesy()` (Prophecy).
+- Unit tests extend PHPUnit's `TestCase` and use hand-written doubles (`tests/Double`), no mock library.
 - PHPUnit 13: attributes only (`#[DataProvider]`, `#[Group]`), static data providers, abstract base classes named `*TestCase`.

@@ -2,9 +2,9 @@
 
 namespace App\Prospecting\Controller;
 
-use App\Entity\User;
 use App\Prospecting\OrganizationReader;
 use App\Prospecting\Resource\OrganizationResource;
+use App\Security\User;
 use App\Shared\CommandBus;
 use App\Shared\Resource\ProblemResource;
 use Nelmio\ApiDocBundle\Attribute\Model;

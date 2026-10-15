@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Service;
+namespace App\Shared;
 
 use Doctrine\ORM\Query;
 use Doctrine\ORM\Tools\Pagination\Paginator;

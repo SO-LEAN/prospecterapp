@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Entity;
+namespace App\Security;
 
 use Prospecter\Core\Accounts\Domain\Member as CoreUser;
 use Prospecter\Core\Accounts\Domain\Role;

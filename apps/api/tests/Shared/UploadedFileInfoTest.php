@@ -1,8 +1,8 @@
 <?php
 
-namespace Tests\App\Service;
+namespace Tests\App\Shared;
 
-use App\Service\UploadedFileInfo;
+use App\Shared\UploadedFileInfo;
 use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
