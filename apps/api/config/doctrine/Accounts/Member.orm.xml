@@ -8,16 +8,13 @@
         </unique-constraints>
         <indexes>
             <index columns="account_id"/>
-            <index columns="email"/>
         </indexes>
         <id name="id" type="member_id">
             <generator strategy="NONE"/>
         </id>
         <field name="accountId" type="account_id"/>
+        <field name="personId" type="person_id"/>
         <field name="userName" type="string" length="50"/>
         <field name="roles" type="roles"/>
-        <embedded name="name" class="Prospecter\Core\Accounts\Domain\PersonName" use-column-prefix="false"/>
-        <embedded name="contactDetails" class="Prospecter\Core\SharedKernel\Domain\ContactDetails" use-column-prefix="false"/>
-        <field name="picture" type="file" nullable="true"/>
     </entity>
 </doctrine-mapping>

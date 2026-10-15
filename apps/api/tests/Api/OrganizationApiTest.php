@@ -8,6 +8,9 @@ use Prospecter\Core\Accounts\Domain\AccountRepository;
 use Prospecter\Core\Accounts\Domain\Member;
 use Prospecter\Core\Accounts\Domain\MemberRepository;
 use Prospecter\Core\Accounts\Domain\Role;
+use Prospecter\Core\PersonalData\Domain\Person;
+use Prospecter\Core\PersonalData\Domain\PersonRepository;
+use Prospecter\Core\PersonalData\Domain\Purpose;
 use Prospecter\Core\Prospecting\Domain\Organization;
 use Prospecter\Core\Prospecting\Domain\OrganizationRepository;
 use Prospecter\Core\Prospecting\Domain\Prospector;
@@ -207,7 +210,11 @@ class OrganizationApiTest extends ApiTestCase
     private function aUserWhoIsNotAProspector(): string
     {
         $members = self::getContainer()->get(MemberRepository::class);
-        $assistant = Member::register($members->nextIdentity(), $this->fixtures->getReference('solean-it-account', Account::class)->id(), 'assistant', Role::User);
+        $persons = self::getContainer()->get(PersonRepository::class);
+        $account = $this->fixtures->getReference('solean-it-account', Account::class)->id();
+        $profile = Person::collect($persons->nextIdentity(), $account, Purpose::Membership);
+        $persons->save($profile);
+        $assistant = Member::register($members->nextIdentity(), $account, $profile->id(), 'assistant', Role::User);
         $members->save($assistant);
         $this->fixtures->setReference('assistant', $assistant);
 

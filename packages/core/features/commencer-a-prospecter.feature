@@ -46,13 +46,22 @@ Fonctionnalité: Commencer à prospecter une organisation
     Alors c'est refusé : "At least one is mandatory : corporate name or email"
     Et l'organisation "SOLEAN IT" compte 0 organisation active
 
-  Scénario: L'e-mail ne peut pas être celui d'une autre organisation ou d'un utilisateur
+  Scénario: L'e-mail ne peut pas être celui d'une autre organisation de ma base
     Soit l'organisation "Globex" fait partie de mes organisations avec :
       | e-mail | contact@globex.test |
     Quand je commence à prospecter l'organisation :
       | raison sociale | ACME                |
       | e-mail         | contact@globex.test |
     Alors c'est refusé : "Email already used"
+
+  Scénario: L'e-mail peut être celui d'une organisation prospectée par un autre compte
+    Soit l'organisation "Concurrent" qui utilise Prospecter
+    Et l'organisation "Globex" appartient à "Concurrent" avec :
+      | e-mail | contact@globex.test |
+    Quand je commence à prospecter l'organisation :
+      | raison sociale | ACME                |
+      | e-mail         | contact@globex.test |
+    Alors ce n'est pas refusé
 
   Scénario: L'organisation peut faire partie d'une holding que je prospecte
     Soit l'organisation "Groupe ACME" fait partie de mes organisations

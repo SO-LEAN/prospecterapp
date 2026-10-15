@@ -11,12 +11,16 @@ use Behat\Step\Then;
 use Prospecter\Core\Accounts\Domain\Account;
 use Prospecter\Core\Accounts\Domain\Member;
 use Prospecter\Core\Accounts\Domain\Role;
+use Prospecter\Core\PersonalData\Domain\Person;
+use Prospecter\Core\PersonalData\Domain\Purpose;
+use Prospecter\Core\PersonalData\Domain\Reader;
 use Prospecter\Core\Prospecting\Domain\Organization;
 use Prospecter\Core\Prospecting\Domain\OrganizationId;
 use Prospecter\Core\Prospecting\Domain\Prospector;
 use Prospecter\Core\SharedKernel\Domain\AccountId;
 use Prospecter\Core\SharedKernel\Domain\LegalIdentity;
 use Prospecter\Core\SharedKernel\Domain\NotFound;
+use Prospecter\Core\SharedKernel\Domain\PersonId;
 use Prospecter\Core\SharedKernel\Domain\Uuid;
 use Tests\Core\Acceptance\Application;
 use Tests\Core\Acceptance\Expect;
@@ -33,6 +37,8 @@ final class ScenarioContext implements Context
     private array $accountIds = [];
     /** @var array<string, OrganizationId> */
     private array $organizationIds = [];
+    /** @var array<string, PersonId> */
+    private array $personIds = [];
 
     public function __construct()
     {
@@ -57,9 +63,27 @@ final class ScenarioContext implements Context
     #[Given('je suis connecté en tant que prospecteur de :organization')]
     public function iAmSignedInAsProspectorOf(string $account): void
     {
-        $member = Member::register($this->application->members->nextIdentity(), $this->accountIdOf($account), 'prospector', Role::User, Role::Prospector);
+        $this->application->signIn($this->aMemberOf('moi', $account, Role::User, Role::Prospector, Role::PersonalData)->id());
+    }
+
+    #[Given('je suis connecté en tant que prospecteur de :organization sans le droit aux données personnelles')]
+    public function iAmSignedInWithoutThePersonalDataRight(string $account): void
+    {
+        $this->application->signIn($this->aMemberOf('moi', $account, Role::User, Role::Prospector)->id());
+    }
+
+    /**
+     * A member of the account, with their person in PersonalData (membership), known by name in the scenario.
+     */
+    public function aMemberOf(string $name, string $account, Role ...$roles): Member
+    {
+        $person = Person::collect($this->application->persons->nextIdentity(), $this->accountIdOf($account), Purpose::Membership);
+        $this->application->persons->save($person);
+        $this->personIds[$name] = $person->id();
+        $member = Member::register($this->application->members->nextIdentity(), $this->accountIdOf($account), $person->id(), 'moi' === $name ? 'prospector' : mb_strtolower($name), ...$roles);
         $this->application->members->save($member);
-        $this->application->signIn($member->id());
+
+        return $member;
     }
 
     #[Given('le géocodeur situe :place en :longitude, :latitude')]
@@ -150,6 +174,24 @@ final class ScenarioContext implements Context
         return $this->application->members->get($this->application->signedIn());
     }
 
+    public function meAsReader(): Reader
+    {
+        return $this->application->readers->get($this->application->signedIn());
+    }
+
+    public function myPerson(): Person
+    {
+        return $this->application->persons->get($this->me()->personId());
+    }
+
+    /**
+     * The person a request would carry for this name; an unknown name gets an identity nobody has.
+     */
+    public function personIdOf(string $name): PersonId
+    {
+        return $this->personIds[$name] ?? $this->application->persons->nextIdentity();
+    }
+
     public function meAsProspector(): Prospector
     {
         return $this->application->prospectors->get($this->application->signedIn());
@@ -173,7 +215,7 @@ final class ScenarioContext implements Context
      */
     public function memberOf(Account $account): Member
     {
-        return Member::register($this->application->members->nextIdentity(), $account->id(), 'someone', Role::User);
+        return Member::register($this->application->members->nextIdentity(), $account->id(), $this->application->persons->nextIdentity(), 'someone', Role::User);
     }
 
     public function upload(string $fileName): \SplFileInfo

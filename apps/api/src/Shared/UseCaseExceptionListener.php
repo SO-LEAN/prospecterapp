@@ -5,6 +5,7 @@ namespace App\Shared;
 use App\Shared\Resource\ProblemResource;
 use App\Shared\Resource\ViolationResource;
 use Prospecter\Core\SharedKernel\Domain\BusinessRuleViolation;
+use Prospecter\Core\SharedKernel\Domain\NotAllowed;
 use Prospecter\Core\SharedKernel\Domain\NotFound;
 use Prospecter\Core\SharedKernel\Domain\NotPossibleInItsState;
 use Symfony\Component\EventDispatcher\Attribute\AsEventListener;
@@ -15,7 +16,8 @@ use Symfony\Component\Serializer\Normalizer\NormalizerInterface;
 
 /**
  * Translates the refusals of the core into problem+json responses: unknown (or not mine) is a 404, an
- * intention its state does not offer (no link) a 409, any other business rule a 422.
+ * intention its state does not offer (no link) a 409, one the asker has no right to a 403, any other business
+ * rule a 422.
  */
 #[AsEventListener]
 final readonly class UseCaseExceptionListener
@@ -48,6 +50,7 @@ final readonly class UseCaseExceptionListener
     {
         return match (true) {
             $exception instanceof NotFound => new ProblemResource('Not Found', Response::HTTP_NOT_FOUND, $exception->getMessage()),
+            $exception instanceof NotAllowed => new ProblemResource('Forbidden', Response::HTTP_FORBIDDEN, $exception->getMessage(), [$this->violation($exception)]),
             $exception instanceof NotPossibleInItsState => new ProblemResource('Conflict', Response::HTTP_CONFLICT, $exception->getMessage(), [$this->violation($exception)]),
             $exception instanceof BusinessRuleViolation => new ProblemResource('Validation Failed', Response::HTTP_UNPROCESSABLE_ENTITY, $exception->getMessage(), [$this->violation($exception)]),
         };

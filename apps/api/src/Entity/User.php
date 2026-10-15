@@ -6,6 +6,7 @@ use Prospecter\Core\Accounts\Domain\Member as CoreUser;
 use Prospecter\Core\Accounts\Domain\Role;
 use Prospecter\Core\SharedKernel\Domain\AccountId;
 use Prospecter\Core\SharedKernel\Domain\MemberId;
+use Prospecter\Core\SharedKernel\Domain\PersonId;
 use Symfony\Component\Security\Core\User\UserInterface;
 
 /**
@@ -20,6 +21,7 @@ final readonly class User implements UserInterface
         private string $id,
         private string $userName,
         private string $accountId,
+        private string $personId,
         private array $roles,
     ) {
     }
@@ -30,6 +32,7 @@ final readonly class User implements UserInterface
             $user->id()->value,
             $user->userName(),
             $user->accountId()->value,
+            $user->personId()->value,
             array_map(static fn (Role $role): string => $role->value, $user->roles()),
         );
     }
@@ -52,5 +55,10 @@ final readonly class User implements UserInterface
     public function accountId(): AccountId
     {
         return new AccountId($this->accountId);
+    }
+
+    public function personId(): PersonId
+    {
+        return new PersonId($this->personId);
     }
 }

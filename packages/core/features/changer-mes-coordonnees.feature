@@ -23,10 +23,19 @@ Fonctionnalité: Changer mes coordonnées
       | nom                        | Lovelace          |
       | langue de mon organisation |                   |
 
-  Scénario: L'e-mail ne peut pas être celui d'une organisation ou d'un autre utilisateur
-    Soit l'organisation "Globex" a l'adresse e-mail "contact@globex.test"
+  Scénario: L'e-mail ne peut pas être celui d'un collègue
+    Soit "Grace" est membre de "SOLEAN IT" avec le profil :
+      | e-mail | grace@solean-it.test |
     Quand je change mes coordonnées :
-      | e-mail | contact@globex.test |
+      | e-mail | grace@solean-it.test |
     Alors c'est refusé : "Email already used"
     Et mon compte est enregistré avec :
       | e-mail | ada@solean-it.test |
+
+  Scénario: L'e-mail peut être celui d'une personne d'un autre compte
+    Soit l'organisation "Concurrent" qui utilise Prospecter
+    Et "Linus" est membre de "Concurrent" avec le profil :
+      | e-mail | linus@concurrent.test |
+    Quand je change mes coordonnées :
+      | e-mail | linus@concurrent.test |
+    Alors ce n'est pas refusé

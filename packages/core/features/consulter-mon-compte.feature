@@ -23,10 +23,11 @@ Fonctionnalité: Consulter mon compte
   Scénario: Je vois ce que je peux changer de mon compte et de mon organisation
     Quand je consulte mon compte
     Alors je peux sur mon compte :
-      | changer mon nom         |
       | changer mon identifiant |
-      | changer mes coordonnées |
-      | changer ma photo        |
+    Et je peux sur mon profil :
+      | changer le nom          |
+      | changer les coordonnées |
+      | changer la photo        |
     Et je peux sur mon organisation :
       | réviser l'identité |
       | changer le logo    |

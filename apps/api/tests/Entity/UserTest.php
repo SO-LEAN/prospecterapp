@@ -9,6 +9,7 @@ use Prospecter\Core\Accounts\Domain\Member as CoreUser;
 use Prospecter\Core\Accounts\Domain\Role;
 use Prospecter\Core\SharedKernel\Domain\AccountId;
 use Prospecter\Core\SharedKernel\Domain\MemberId;
+use Prospecter\Core\SharedKernel\Domain\PersonId;
 
 #[Group('unit')]
 class UserTest extends TestCase
@@ -17,11 +18,13 @@ class UserTest extends TestCase
     {
         $userId = new MemberId('0190a1c0-0000-7000-8000-000000000001');
         $accountId = new AccountId('0190a1c0-0000-7000-8000-000000000002');
+        $personId = new PersonId('0190a1c0-0000-7000-8000-000000000003');
 
-        $signedIn = User::from(CoreUser::register($userId, $accountId, 'ada', Role::User, Role::Prospector));
+        $signedIn = User::from(CoreUser::register($userId, $accountId, $personId, 'ada', Role::User, Role::Prospector));
 
         $this->assertEquals($userId, $signedIn->memberId());
         $this->assertEquals($accountId, $signedIn->accountId());
+        $this->assertEquals($personId, $signedIn->personId());
         $this->assertSame('ada', $signedIn->getUserIdentifier());
         $this->assertSame(['ROLE_USER', 'ROLE_PROSPECTOR'], $signedIn->getRoles());
     }

@@ -14,9 +14,10 @@ use PHPUnit\Framework\TestCase;
 class BoundedContextsTest extends TestCase
 {
     private const array FORBIDDEN = [
-        'Accounts' => ['Prospecting'],
-        'Prospecting' => ['Accounts'],
-        'SharedKernel' => ['Accounts', 'Prospecting'],
+        'Accounts' => ['PersonalData', 'Prospecting'],
+        'PersonalData' => ['Accounts', 'Prospecting'],
+        'Prospecting' => ['Accounts', 'PersonalData'],
+        'SharedKernel' => ['Accounts', 'PersonalData', 'Prospecting'],
     ];
 
     #[DataProvider('contexts')]

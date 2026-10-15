@@ -6,13 +6,13 @@ namespace Prospecter\Core\Accounts\Application;
 
 use Prospecter\Core\Accounts\Domain\AccountIntent;
 use Prospecter\Core\Accounts\Domain\MemberIntent;
-use Prospecter\Core\Accounts\Domain\PersonName;
-use Prospecter\Core\SharedKernel\Domain\ContactDetails;
 use Prospecter\Core\SharedKernel\Domain\File;
 use Prospecter\Core\SharedKernel\Domain\LegalIdentity;
+use Prospecter\Core\SharedKernel\Domain\PersonId;
 
 /**
- * My account as every use case on it presents it: me and my organization.
+ * My membership as every use case on it presents it: who I am in the account (my personal data are read in
+ * PersonalData under my person id) and my organization.
  */
 final readonly class AccountResponse
 {
@@ -22,9 +22,7 @@ final readonly class AccountResponse
      */
     public function __construct(
         public string $userName,
-        public PersonName $name,
-        public ContactDetails $contactDetails,
-        public ?File $picture,
+        public PersonId $personId,
         public array $possibleIntents,
         public LegalIdentity $organizationIdentity,
         public ?File $organizationLogo,

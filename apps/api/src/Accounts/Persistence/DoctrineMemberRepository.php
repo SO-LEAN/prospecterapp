@@ -2,7 +2,6 @@
 
 namespace App\Accounts\Persistence;
 
-use App\Shared\Persistence\UniqueEmails;
 use Doctrine\ORM\EntityManagerInterface;
 use Prospecter\Core\Accounts\Domain\Member;
 use Prospecter\Core\Accounts\Domain\MemberRepository;
@@ -14,7 +13,6 @@ final readonly class DoctrineMemberRepository implements MemberRepository
 {
     public function __construct(
         private EntityManagerInterface $entityManager,
-        private UniqueEmails $uniqueEmails,
     ) {
     }
 
@@ -35,7 +33,6 @@ final readonly class DoctrineMemberRepository implements MemberRepository
 
     public function save(Member $member): void
     {
-        $this->uniqueEmails->assertFree($member->contactDetails()->email, $member->id());
         $this->entityManager->persist($member);
         $this->entityManager->flush();
     }

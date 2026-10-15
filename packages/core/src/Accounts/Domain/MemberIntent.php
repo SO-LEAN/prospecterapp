@@ -6,8 +6,5 @@ namespace Prospecter\Core\Accounts\Domain;
 
 enum MemberIntent
 {
-    case Rename;
     case ChangeUserName;
-    case ChangeContactDetails;
-    case ChangePicture;
 }

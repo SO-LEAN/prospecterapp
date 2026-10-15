@@ -12,8 +12,8 @@ auth:
     host: '%app_api_host%'
 
 # the JSON API, one folder of controllers per bounded context (ADR 0030)
-accounts:
-    resource: ../src/Accounts/Controller/
+me:
+    resource: ../src/Me/Controller/
     type: attribute
     host: '%app_api_host%'
     defaults: { _format: json }

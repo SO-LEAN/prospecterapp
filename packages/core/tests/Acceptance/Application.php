@@ -5,14 +5,19 @@ declare(strict_types=1);
 namespace Tests\Core\Acceptance;
 
 use Prospecter\Core\Accounts\Application\AccountResponse;
-use Prospecter\Core\Accounts\Application\ChangeMyContactDetails\ChangeMyContactDetailsHandler;
-use Prospecter\Core\Accounts\Application\ChangeMyName\ChangeMyNameHandler;
 use Prospecter\Core\Accounts\Application\ChangeMyOrganizationLogo\ChangeMyOrganizationLogoHandler;
-use Prospecter\Core\Accounts\Application\ChangeMyPicture\ChangeMyPictureHandler;
 use Prospecter\Core\Accounts\Application\ChangeMyUserName\ChangeMyUserNameHandler;
 use Prospecter\Core\Accounts\Application\ConsultMyAccount\ConsultMyAccount;
 use Prospecter\Core\Accounts\Application\ConsultMyAccount\ConsultMyAccountHandler;
 use Prospecter\Core\Accounts\Application\ReviseMyOrganizationIdentity\ReviseMyOrganizationIdentityHandler;
+use Prospecter\Core\PersonalData\Application\ChangePersonContactDetails\ChangePersonContactDetailsHandler;
+use Prospecter\Core\PersonalData\Application\ChangePersonPicture\ChangePersonPictureHandler;
+use Prospecter\Core\PersonalData\Application\ConsultPerson\ConsultPerson;
+use Prospecter\Core\PersonalData\Application\ConsultPerson\ConsultPersonHandler;
+use Prospecter\Core\PersonalData\Application\ConsultPersons\ConsultPersons;
+use Prospecter\Core\PersonalData\Application\ConsultPersons\ConsultPersonsHandler;
+use Prospecter\Core\PersonalData\Application\PersonResponse;
+use Prospecter\Core\PersonalData\Application\RenamePerson\RenamePersonHandler;
 use Prospecter\Core\Prospecting\Application\AttachToHolding\AttachToHoldingHandler;
 use Prospecter\Core\Prospecting\Application\ChangeContactDetails\ChangeContactDetailsHandler;
 use Prospecter\Core\Prospecting\Application\ChangeLogo\ChangeLogoHandler;
@@ -36,9 +41,11 @@ use Tests\Core\Double\InMemoryAccountRepository;
 use Tests\Core\Double\InMemoryDatabase;
 use Tests\Core\Double\InMemoryMemberRepository;
 use Tests\Core\Double\InMemoryOrganizationRepository;
+use Tests\Core\Double\InMemoryPersonRepository;
 use Tests\Core\Double\InMemoryStorage;
 use Tests\Core\Double\KnownPlacesGeoLocation;
 use Tests\Core\Double\MembersAsProspectors;
+use Tests\Core\Double\MembersAsReaders;
 
 /**
  * The hexagon as the scenarios use it: the real handlers, wired to in-memory implementations of their
@@ -50,10 +57,12 @@ final class Application
     public readonly InMemoryOrganizationRepository $organizations;
     public readonly InMemoryAccountRepository $accounts;
     public readonly InMemoryMemberRepository $members;
+    public readonly InMemoryPersonRepository $persons;
     public readonly InMemoryStorage $storage;
     public readonly KnownPlacesGeoLocation $geoLocation;
 
     public readonly MembersAsProspectors $prospectors;
+    public readonly MembersAsReaders $readers;
     /** @var array<class-string, CommandHandler> */
     private array $handlers = [];
     private ?MemberId $signedIn = null;
@@ -66,6 +75,8 @@ final class Application
         $this->accounts = new InMemoryAccountRepository($database);
         $this->members = new InMemoryMemberRepository($database);
         $this->prospectors = new MembersAsProspectors($this->members);
+        $this->persons = new InMemoryPersonRepository($database);
+        $this->readers = new MembersAsReaders($this->members);
         $this->storage = new InMemoryStorage();
         $this->geoLocation = new KnownPlacesGeoLocation();
 
@@ -105,6 +116,19 @@ final class Application
         return $this->attempt(fn (): AccountResponse => new ConsultMyAccountHandler($this->members, $this->accounts)(new ConsultMyAccount($this->signedIn())));
     }
 
+    public function consultPerson(ConsultPerson $query): ?PersonResponse
+    {
+        return $this->attempt(fn (): PersonResponse => new ConsultPersonHandler($this->persons, $this->readers)($query));
+    }
+
+    /**
+     * @return array<string, PersonResponse>|null
+     */
+    public function consultPersons(ConsultPersons $query): ?array
+    {
+        return $this->attempt(fn (): array => new ConsultPersonsHandler($this->persons, $this->readers)($query));
+    }
+
     /**
      * The business refusal of the last command or query, null when it succeeded.
      */
@@ -128,10 +152,10 @@ final class Application
             new DetachFromHoldingHandler($this->organizations, $this->prospectors),
             new ChangeLogoHandler($this->organizations, $this->prospectors, $this->storage),
             new RemoveLogoHandler($this->organizations, $this->prospectors, $this->storage),
-            new ChangeMyNameHandler($this->members),
             new ChangeMyUserNameHandler($this->members),
-            new ChangeMyContactDetailsHandler($this->members),
-            new ChangeMyPictureHandler($this->members, $this->storage),
+            new RenamePersonHandler($this->persons, $this->readers),
+            new ChangePersonContactDetailsHandler($this->persons, $this->readers),
+            new ChangePersonPictureHandler($this->persons, $this->readers, $this->storage),
             new ReviseMyOrganizationIdentityHandler($this->accounts, $this->members),
             new ChangeMyOrganizationLogoHandler($this->accounts, $this->members, $this->storage),
         ];

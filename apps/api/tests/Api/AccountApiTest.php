@@ -4,7 +4,15 @@ namespace Tests\App\Api;
 
 use App\Auth\Passwords;
 use PHPUnit\Framework\Attributes\Group;
+use Prospecter\Core\Accounts\Domain\Account;
+use Prospecter\Core\Accounts\Domain\AccountRepository;
 use Prospecter\Core\Accounts\Domain\Member;
+use Prospecter\Core\PersonalData\Domain\Person;
+use Prospecter\Core\PersonalData\Domain\PersonRepository;
+use Prospecter\Core\PersonalData\Domain\Purpose;
+use Prospecter\Core\SharedKernel\Domain\AccountId;
+use Prospecter\Core\SharedKernel\Domain\ContactDetails;
+use Prospecter\Core\SharedKernel\Domain\Email;
 use Tests\App\Base\ApiTestCase;
 
 #[Group('api')]
@@ -52,6 +60,19 @@ class AccountApiTest extends ApiTestCase
         $this->assertSame('SO-LEAN', $revised['organization']['legalIdentity']['corporateName']);
     }
 
+    public function testMyEmailCannotBeTheOneOfAColleagueButMayBeTheOneOfAnotherAccount(): void
+    {
+        $this->aPersonWithTheEmail('grace@solean-it.io', $this->fixtures->getReference('solean-it-account', Account::class)->id());
+        $this->aPersonWithTheEmail('linus@competitor.io', self::getContainer()->get(AccountRepository::class)->nextIdentity());
+
+        $problem = $this->requestJson('PATCH', '/api/me/contact-details', ['email' => 'grace@solean-it.io', 'phoneNumber' => null, 'language' => null]);
+        $this->assertResponseStatusCodeSame(422);
+        $this->assertSame(['email'], $this->violatedFields($problem));
+
+        $this->requestJson('PATCH', '/api/me/contact-details', ['email' => 'linus@competitor.io', 'phoneNumber' => null, 'language' => null]);
+        $this->assertResponseIsSuccessful();
+    }
+
     public function testChangeMyUserName(): void
     {
         $this->assertSame('ada', $this->requestJson('PATCH', '/api/me/user-name', ['userName' => 'ada'])['userName']);
@@ -87,5 +108,11 @@ class AccountApiTest extends ApiTestCase
         $this->requestJson('PATCH', '/api/me/password', ['password' => 'short']);
 
         $this->assertResponseStatusCodeSame(422);
+    }
+
+    private function aPersonWithTheEmail(string $email, AccountId $account): void
+    {
+        $persons = self::getContainer()->get(PersonRepository::class);
+        $persons->save(Person::collect($persons->nextIdentity(), $account, Purpose::Membership, contactDetails: new ContactDetails(new Email($email))));
     }
 }

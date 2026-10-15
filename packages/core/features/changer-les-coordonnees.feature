@@ -22,7 +22,7 @@ Fonctionnalité: Changer les coordonnées d'une organisation
       | langue          | DE              |
       | forme juridique | SAS             |
 
-  Scénario: L'e-mail ne peut pas être celui d'une autre organisation ou d'un utilisateur
+  Scénario: L'e-mail ne peut pas être celui d'une autre organisation de ma base
     Soit l'organisation "Globex" fait partie de mes organisations avec :
       | e-mail | contact@globex.test |
     Quand je change les coordonnées de "ACME" :

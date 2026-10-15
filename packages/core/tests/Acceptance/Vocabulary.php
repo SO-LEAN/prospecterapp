@@ -8,7 +8,9 @@ use Prospecter\Core\Accounts\Domain\Account;
 use Prospecter\Core\Accounts\Domain\AccountIntent;
 use Prospecter\Core\Accounts\Domain\Member;
 use Prospecter\Core\Accounts\Domain\MemberIntent;
-use Prospecter\Core\Accounts\Domain\PersonName;
+use Prospecter\Core\PersonalData\Domain\Person;
+use Prospecter\Core\PersonalData\Domain\PersonIntent;
+use Prospecter\Core\PersonalData\Domain\PersonName;
 use Prospecter\Core\Prospecting\Domain\Address;
 use Prospecter\Core\Prospecting\Domain\GeoPoint;
 use Prospecter\Core\Prospecting\Domain\Organization;
@@ -43,10 +45,13 @@ final class Vocabulary
     ];
 
     private const array MEMBER_INTENTS = [
-        'Rename' => 'changer mon nom',
         'ChangeUserName' => 'changer mon identifiant',
-        'ChangeContactDetails' => 'changer mes coordonnées',
-        'ChangePicture' => 'changer ma photo',
+    ];
+
+    private const array PERSON_INTENTS = [
+        'Rename' => 'changer le nom',
+        'ChangeContactDetails' => 'changer les coordonnées',
+        'ChangePicture' => 'changer la photo',
     ];
 
     private const array LABELS = [
@@ -71,17 +76,18 @@ final class Vocabulary
     }
 
     /**
-     * @param list<OrganizationIntent|AccountIntent|MemberIntent> $intents
+     * @param list<OrganizationIntent|AccountIntent|MemberIntent|PersonIntent> $intents
      *
      * @return list<string>
      */
     public static function describeIntents(array $intents): array
     {
         return array_map(
-            static fn (OrganizationIntent|AccountIntent|MemberIntent $intent): string => match (true) {
+            static fn (OrganizationIntent|AccountIntent|MemberIntent|PersonIntent $intent): string => match (true) {
                 $intent instanceof OrganizationIntent => self::ORGANIZATION_INTENTS[$intent->name],
                 $intent instanceof AccountIntent => self::ACCOUNT_INTENTS[$intent->name],
                 $intent instanceof MemberIntent => self::MEMBER_INTENTS[$intent->name],
+                $intent instanceof PersonIntent => self::PERSON_INTENTS[$intent->name],
             },
             $intents,
         );
@@ -157,16 +163,16 @@ final class Vocabulary
     /**
      * @return array<string, string>
      */
-    public static function describeAccount(Member $me, Account $account): array
+    public static function describeAccount(Member $me, Account $account, Person $myPerson): array
     {
         return [
             'identifiant' => $me->userName(),
-            'prénom' => (string) $me->name()->firstName,
-            'nom' => (string) $me->name()->lastName,
-            'e-mail' => (string) $me->contactDetails()->email,
-            'téléphone' => (string) $me->contactDetails()->phoneNumber,
-            'langue' => (string) $me->contactDetails()->language,
-            'photo' => self::describeFile($me->picture()),
+            'prénom' => (string) $myPerson->name()->firstName,
+            'nom' => (string) $myPerson->name()->lastName,
+            'e-mail' => (string) $myPerson->contactDetails()->email,
+            'téléphone' => (string) $myPerson->contactDetails()->phoneNumber,
+            'langue' => (string) $myPerson->contactDetails()->language,
+            'photo' => self::describeFile($myPerson->picture()),
             'raison sociale de mon organisation' => (string) $account->legalIdentity()->corporateName,
             'forme juridique de mon organisation' => (string) $account->legalIdentity()->form,
             'langue de mon organisation' => (string) $account->contactDetails()->language,

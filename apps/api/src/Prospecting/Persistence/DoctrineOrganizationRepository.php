@@ -3,13 +3,13 @@
 namespace App\Prospecting\Persistence;
 
 use App\Service\PaginatorFactory;
-use App\Shared\Persistence\UniqueEmails;
 use Doctrine\ORM\EntityManagerInterface;
 use Prospecter\Core\Prospecting\Domain\Organization;
 use Prospecter\Core\Prospecting\Domain\OrganizationId;
 use Prospecter\Core\Prospecting\Domain\OrganizationRepository;
 use Prospecter\Core\Prospecting\Domain\UnknownOrganization;
 use Prospecter\Core\SharedKernel\Domain\AccountId;
+use Prospecter\Core\SharedKernel\Domain\EmailAlreadyUsed;
 use Prospecter\Core\SharedKernel\Domain\Page;
 use Symfony\Component\Uid\Uuid;
 
@@ -17,7 +17,6 @@ final readonly class DoctrineOrganizationRepository implements OrganizationRepos
 {
     public function __construct(
         private EntityManagerInterface $entityManager,
-        private UniqueEmails $uniqueEmails,
         private PaginatorFactory $paginatorFactory,
     ) {
     }
@@ -34,7 +33,7 @@ final readonly class DoctrineOrganizationRepository implements OrganizationRepos
 
     public function save(Organization $organization): void
     {
-        $this->uniqueEmails->assertFree($organization->contactDetails()->email, $organization->id());
+        $this->ensureTheEmailIsFreeInTheBaseOf($organization);
         $this->entityManager->persist($organization);
         $this->entityManager->flush();
     }
@@ -50,5 +49,27 @@ final readonly class DoctrineOrganizationRepository implements OrganizationRepos
         $total = $paginator->count();
 
         return new Page($page, $total, intdiv($total - 1, $maxByPage) + 1, iterator_to_array($paginator, false));
+    }
+
+    /**
+     * Two organizations of the same prospecting base cannot share their general email; other accounts may.
+     */
+    private function ensureTheEmailIsFreeInTheBaseOf(Organization $organization): void
+    {
+        $email = $organization->contactDetails()->email;
+
+        if (null === $email) {
+            return;
+        }
+
+        $taken = (int) $this->entityManager->createQuery(sprintf('SELECT COUNT(o.id) FROM %s o WHERE o.accountId = :account AND o.contactDetails.email = :email AND o.id != :id', Organization::class))
+            ->setParameter('account', $organization->accountId(), 'account_id')
+            ->setParameter('email', $email, 'email')
+            ->setParameter('id', $organization->id(), 'organization_id')
+            ->getSingleScalarResult();
+
+        if ($taken > 0) {
+            throw new EmailAlreadyUsed();
+        }
     }
 }

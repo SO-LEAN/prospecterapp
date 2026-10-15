@@ -19,9 +19,7 @@ final readonly class AccountResponses
 
         return new AccountResponse(
             userName: $me->userName(),
-            name: $me->name(),
-            contactDetails: $me->contactDetails(),
-            picture: $me->picture(),
+            personId: $me->personId(),
             possibleIntents: $me->possibleIntents(),
             organizationIdentity: $myAccount->legalIdentity(),
             organizationLogo: $myAccount->logo(),

@@ -11,8 +11,9 @@ Aggregates, value objects, handlers and services (`FileStore`, `GeoLocalizer`) a
 
 | Port | Double | Behaves like |
 |---|---|---|
-| `AccountRepository`, `MemberRepository`, `OrganizationRepository` | `InMemoryAccountRepository`, `InMemoryMemberRepository`, `InMemoryOrganizationRepository` over `InMemoryDatabase` | the Doctrine repositories: time ordered UUID identities (`TimeOrderedUuids`), email unique among accounts, members and organizations, copies stored and returned (a change not saved is lost), search and pagination newest first |
+| `AccountRepository`, `MemberRepository`, `OrganizationRepository` | `InMemoryAccountRepository`, `InMemoryMemberRepository`, `InMemoryOrganizationRepository` over `InMemoryDatabase` | the Doctrine repositories: time ordered UUID identities (`TimeOrderedUuids`), email unique among the organizations of an account, copies stored and returned (a change not saved is lost), search and pagination newest first |
 | `Prospectors` (Prospecting) | `MembersAsProspectors` | the anticorruption adapter of the API: a prospector is a member of Accounts, seen with its account |
+| `PersonRepository`, `Readers` (PersonalData) | `InMemoryPersonRepository`, `MembersAsReaders` | email unique among the persons of an account for a purpose; a reader is a member, with its person and its right to read personal data |
 | `Storage` | `InMemoryStorage` | stores by URL `https://storage.test/<file name>` and deletes the uploaded file, like the real storage moves it |
 | `GeoLocation` | `KnownPlacesGeoLocation` | finds an address that mentions a place declared by the scenario |
 | presenters | `LastResponsePresenter` | keeps the presented response |

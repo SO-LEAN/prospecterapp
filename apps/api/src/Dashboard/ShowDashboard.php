@@ -2,8 +2,8 @@
 
 namespace App\Dashboard;
 
-use App\Accounts\AccountReader;
 use App\Entity\User;
+use App\Me\MyAccountReader;
 use App\Prospecting\Presenter\OrganizationPagePresenter;
 use App\Prospecting\Resource\OrganizationSummaryResource;
 use App\Shared\Resource\ProblemResource;
@@ -24,7 +24,7 @@ final class ShowDashboard extends AbstractController
     private const int MAX_MARKERS = 1000;
 
     public function __construct(
-        private readonly AccountReader $account,
+        private readonly MyAccountReader $account,
         private readonly SearchProspectedOrganizationsHandler $searchProspectedOrganizations,
         private readonly OrganizationPagePresenter $pagePresenter,
     ) {

@@ -34,3 +34,4 @@ Why the project is shaped the way it is: one file per decision in `docs/adr/`, i
 | [0028](0028-aggregates-keep-their-value-objects.md) | Aggregates keep their value objects; the Doctrine mapping adapts to them | Accepted | 2026-10-15 |
 | [0029](0029-cqrs-with-a-synchronous-messenger-command-bus.md) | CQRS: commands on a synchronous Messenger bus return nothing, only queries return data | Accepted | 2026-10-15 |
 | [0030](0030-bounded-contexts-accounts-prospecting.md) | Bounded contexts Accounts and Prospecting, a shared kernel, code grouped by context | Accepted | 2026-10-15 |
+| [0031](0031-personal-data-context.md) | A PersonalData context keeps the personal data of natural persons, and decides who reads them | Accepted | 2026-10-15 |

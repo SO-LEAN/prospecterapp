@@ -6,6 +6,7 @@ doctrine:
         types:
             account_id: App\Shared\Persistence\AccountIdType
             member_id: App\Shared\Persistence\MemberIdType
+            person_id: App\Shared\Persistence\PersonIdType
             organization_id: App\Prospecting\Persistence\OrganizationIdType
             email: App\Shared\Persistence\EmailType
             address: App\Prospecting\Persistence\AddressType
@@ -23,6 +24,11 @@ doctrine:
                 is_bundle: false
                 dir: '%kernel.project_dir%/config/doctrine/Accounts'
                 prefix: 'Prospecter\Core\Accounts\Domain'
+            PersonalData:
+                type: xml
+                is_bundle: false
+                dir: '%kernel.project_dir%/config/doctrine/PersonalData'
+                prefix: 'Prospecter\Core\PersonalData\Domain'
             Prospecting:
                 type: xml
                 is_bundle: false

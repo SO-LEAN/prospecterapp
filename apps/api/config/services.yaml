@@ -20,11 +20,13 @@ services:
 
     # Handlers of the core: commands go through the command bus, queries are called by the controllers
     Prospecter\Core\:
-        resource: '../vendor/prospecter/core/src/{Accounts,Prospecting}/Application/*/*Handler.php'
+        resource: '../vendor/prospecter/core/src/{Accounts,PersonalData,Prospecting}/Application/*/*Handler.php'
 
     # Ports of the core, implemented by the application
     Prospecter\Core\Accounts\Domain\AccountRepository: '@App\Accounts\Persistence\DoctrineAccountRepository'
     Prospecter\Core\Accounts\Domain\MemberRepository: '@App\Accounts\Persistence\DoctrineMemberRepository'
+    Prospecter\Core\PersonalData\Domain\PersonRepository: '@App\PersonalData\Persistence\DoctrinePersonRepository'
+    Prospecter\Core\PersonalData\Domain\Readers: '@App\PersonalData\AccountsReaders'
     Prospecter\Core\Prospecting\Domain\OrganizationRepository: '@App\Prospecting\Persistence\DoctrineOrganizationRepository'
     Prospecter\Core\Prospecting\Domain\Prospectors: '@App\Prospecting\AccountsProspectors'
     Prospecter\Core\Prospecting\Application\Port\GeoLocation: '@App\Prospecting\GeoplateformeGeoLocation'

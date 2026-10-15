@@ -15,6 +15,7 @@ use Prospecter\Core\SharedKernel\Domain\File;
 use Prospecter\Core\SharedKernel\Domain\LegalIdentity;
 use Prospecter\Core\SharedKernel\Domain\MemberId;
 use Prospecter\Core\SharedKernel\Domain\NotFound;
+use Prospecter\Core\SharedKernel\Domain\PersonId;
 
 /**
  * Like the organizations: the account refuses an intention exactly when it does not offer it.
@@ -27,7 +28,7 @@ class AccountIntentsTest extends TestCase
     #[DataProvider('situations')]
     public function testAnIntentionIsRefusedExactlyWhenItIsNotOffered(AccountIntent $intent, string $memberAccount): void
     {
-        $member = Member::register(new MemberId('0190a1c0-0000-7000-8000-0000000000aa'), new AccountId($memberAccount), 'someone', Role::User);
+        $member = Member::register(new MemberId('0190a1c0-0000-7000-8000-0000000000aa'), new AccountId($memberAccount), new PersonId('0190a1c0-0000-7000-8000-0000000000bb'), 'someone', Role::User);
         $account = Account::open(new AccountId(self::MINE), new LegalIdentity('SOLEAN IT'));
         $offered = in_array($intent, $account->possibleIntentsOf($member), true);
 

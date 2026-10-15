@@ -8,20 +8,22 @@ use PHPUnit\Framework\TestCase;
 
 /**
  * The API is grouped by bounded context like the core (ADR 0030): a context folder uses neither the other
- * context of the core nor its API folder. The exceptions cross the border on purpose.
+ * context of the core nor its API folder; `Me` and `Dashboard` compose contexts. The exceptions cross the
+ * border on purpose.
  */
 #[Group('unit')]
 class BoundedContextsTest extends TestCase
 {
     private const array FORBIDDEN = [
-        'Accounts' => ['Prospecter\Core\Prospecting\\', 'App\Prospecting\\'],
-        'Prospecting' => ['Prospecter\Core\Accounts\\', 'App\Accounts\\'],
-        'Shared' => ['Prospecter\Core\Accounts\\', 'Prospecter\Core\Prospecting\\', 'App\Accounts\\', 'App\Prospecting\\'],
+        'Accounts' => ['Prospecter\Core\PersonalData\\', 'Prospecter\Core\Prospecting\\', 'App\PersonalData\\', 'App\Prospecting\\'],
+        'PersonalData' => ['Prospecter\Core\Accounts\\', 'Prospecter\Core\Prospecting\\', 'App\Accounts\\', 'App\Prospecting\\'],
+        'Prospecting' => ['Prospecter\Core\Accounts\\', 'Prospecter\Core\PersonalData\\', 'App\Accounts\\', 'App\PersonalData\\'],
+        'Shared' => ['Prospecter\Core\Accounts\\', 'Prospecter\Core\PersonalData\\', 'Prospecter\Core\Prospecting\\', 'App\Accounts\\', 'App\PersonalData\\', 'App\Prospecting\\'],
     ];
 
     private const array CROSSING_ON_PURPOSE = [
         'Prospecting/AccountsProspectors.php', // anticorruption layer: Prospecting reads its prospectors from Accounts
-        'Shared/Persistence/UniqueEmails.php', // inherited rule across the contexts, until the personal data context
+        'PersonalData/AccountsReaders.php', // anticorruption layer: PersonalData reads its readers from Accounts
     ];
 
     #[DataProvider('contexts')]

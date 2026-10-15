@@ -6,36 +6,32 @@ namespace Prospecter\Core\Accounts\Domain;
 
 use Prospecter\Core\SharedKernel\Domain\AccountId;
 use Prospecter\Core\SharedKernel\Domain\BusinessRuleViolation;
-use Prospecter\Core\SharedKernel\Domain\ContactDetails;
-use Prospecter\Core\SharedKernel\Domain\File;
 use Prospecter\Core\SharedKernel\Domain\MemberId;
+use Prospecter\Core\SharedKernel\Domain\PersonId;
 
 /**
- * Aggregate root: a person using Prospecter for its account. Signing in is not its business (ADR 0011).
+ * Aggregate root: a person working in an account, with their roles. Their personal data live in PersonalData,
+ * under their person id (ADR 0031); signing in is not its business (ADR 0011).
  */
 class Member
 {
     /** @var list<Role> */
     private readonly array $roles;
-    private PersonName $name;
-    private ContactDetails $contactDetails;
-    private ?File $picture = null;
 
     private function __construct(
         private readonly MemberId $id,
         private readonly AccountId $accountId,
+        private readonly PersonId $personId,
         private string $userName,
         Role ...$roles,
     ) {
         self::ensureUserNameIsGiven($userName);
         $this->roles = array_values($roles);
-        $this->name = new PersonName();
-        $this->contactDetails = new ContactDetails();
     }
 
-    public static function register(MemberId $id, AccountId $accountId, string $userName, Role ...$roles): self
+    public static function register(MemberId $id, AccountId $accountId, PersonId $personId, string $userName, Role ...$roles): self
     {
-        return new self($id, $accountId, $userName, ...$roles);
+        return new self($id, $accountId, $personId, $userName, ...$roles);
     }
 
     public function id(): MemberId
@@ -46,6 +42,11 @@ class Member
     public function accountId(): AccountId
     {
         return $this->accountId;
+    }
+
+    public function personId(): PersonId
+    {
+        return $this->personId;
     }
 
     public function userName(): string
@@ -61,24 +62,12 @@ class Member
         return $this->roles;
     }
 
-    public function name(): PersonName
+    public function readsPersonalData(): bool
     {
-        return $this->name;
-    }
-
-    public function contactDetails(): ContactDetails
-    {
-        return $this->contactDetails;
-    }
-
-    public function picture(): ?File
-    {
-        return $this->picture;
+        return in_array(Role::PersonalData, $this->roles, true) || in_array(Role::Admin, $this->roles, true);
     }
 
     /**
-     * A user may change everything of their own account.
-     *
      * @return list<MemberIntent>
      */
     public function possibleIntents(): array
@@ -86,25 +75,10 @@ class Member
         return MemberIntent::cases();
     }
 
-    public function rename(PersonName $name): void
-    {
-        $this->name = $name;
-    }
-
     public function changeUserName(string $userName): void
     {
         self::ensureUserNameIsGiven($userName);
         $this->userName = $userName;
-    }
-
-    public function changeContactDetails(ContactDetails $contactDetails): void
-    {
-        $this->contactDetails = $contactDetails;
-    }
-
-    public function changePicture(File $picture): void
-    {
-        $this->picture = $picture;
     }
 
     private static function ensureUserNameIsGiven(string $userName): void
