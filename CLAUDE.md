@@ -10,7 +10,11 @@ Monorepo of a prospecting application built with clean architecture:
 
 Docs: `docs/front-architecture.md`, `docs/design-system.md`, `docs/auth.md`, `docs/core-tests.md`, `docs/monorepo.md`, `docs/upgrade-2026.md`.
 
-Architecture decisions: `docs/adr` (why the project is shaped this way). A decision that changes the structure, a protocol or a tool gets a new record there; an accepted record is never edited, a new one supersedes it.
+## Architecture decisions
+
+The index below is loaded in every session; open a record before working on its subject. A decision that changes the structure, a protocol or a tool gets a new record: follow `docs/adr/TEMPLATE.md` (an accepted record is never edited, a new one supersedes it; alternatives only if really weighed).
+
+@docs/adr/README.md
 
 ## Commands
 

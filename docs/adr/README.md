@@ -1,44 +1,6 @@
 # Architecture Decision Records
 
-Why the project is shaped the way it is. One file per decision, numbered in the order the decisions were made.
-
-The project is being refactored: these decisions are expected to change. Change them by writing a new record, not by editing an accepted one.
-
-## Lifecycle
-
-- `Proposed`: decided as a direction, not implemented yet.
-- `Accepted`: in force, implemented (the record names the commits or files).
-- `Superseded by NNNN`: replaced; only its status line is edited, with a link to the new record, which links back with `Supersedes NNNN`.
-- `Deprecated`: no longer applies, nothing replaces it.
-
-A decision is worth a record when it shapes the structure (where code lives, how parts talk to each other, which tool or protocol), is costly to reverse, or will surprise someone reading the code. Anything less belongs in a `CLAUDE.md` or `docs/`.
-
-## Template
-
-```markdown
-# NNNN. Title stated as the decision
-
-- Date: YYYY-MM-DD
-- Status: Proposed | Accepted | Superseded by [NNNN](NNNN-....md)
-- Implemented by: commits, files
-
-## Context
-The problem, the forces and constraints at the time.
-
-## Decision
-What was decided, in a few sentences.
-
-## Consequences
-What it makes easier, what it costs, the debt it leaves.
-
-## Alternatives considered
-Only the options that were really weighed, who weighed them and why they lost. If none were, say so: never fill this section with options nobody considered.
-
-## Revisit when
-The signal that should reopen this decision.
-```
-
-## Index
+Why the project is shaped the way it is: one file per decision in `docs/adr/`, in the order they were made. The project is being refactored and these decisions will change: a change is a new record superseding the old one ([TEMPLATE.md](TEMPLATE.md)). Read a record before working on its subject.
 
 | # | Decision | Status | Date |
 |---|---|---|---|
