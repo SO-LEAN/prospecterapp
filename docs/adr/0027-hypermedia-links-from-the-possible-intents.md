@@ -12,7 +12,7 @@ The front decided itself which buttons to show (the "Remove" button when a logo 
 
 - The aggregate states what a user may do with it now: `Organization::possibleIntentsOf($user)` (nothing if it is not theirs, `RemoveLogo` only with a logo, `DetachFromHolding` only with a holding), `User::possibleIntents()`. Responses of the core carry them (`OrganizationResponse::$possibleIntents`, `AccountResponse::$possibleIntents` and `$organizationIntents`).
 - Every intention method checks the same rule first and refuses what is not offered (`NotPossibleInItsState`, 409). `OrganizationIntentsTest` checks, intent by intent, state by state, that an intention is refused exactly when it is not offered.
-- The API turns them into `_links`, HAL with the HTTP method: `{"href": "/api/organizations/…/logo", "method": "DELETE"}`; `self` always, an intention's link null when it is not possible. The password link is always there: the password is not the business of the core (0011).
+- The API turns them into `_links`, HAL with the HTTP method: `{"href": "/api/organizations/…/logo", "method": "DELETE"}`; `self` always, the key of an intention's link absent when it is not possible (not a null link). The password link is always there: the password is not the business of the core (0011).
 - The front shows an action only when its link is there (`editable`, `onUpload`, `onRemove`), and keeps calling the typed client.
 
 ## Consequences
