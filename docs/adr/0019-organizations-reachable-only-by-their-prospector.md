@@ -21,9 +21,8 @@ Writing the scenarios (0017) showed that any prospector could read or replace an
 
 ## Alternatives considered
 
-- 403 for an existing organization of someone else: clearer for debugging, but reveals that the id exists.
-- Checking ownership in the API controllers: the rule would not be part of the business and other deliveries would skip it.
+- Describing the existing behaviour in the scenarios and listing the gaps for later: fixing first, then describing, was chosen.
 
 ## Revisit when
 
-Organizations are shared between prospecting organizations (partners, groups), or an administrator needs a cross-organization view.
+Organizations have to be shared between prospecting organizations.

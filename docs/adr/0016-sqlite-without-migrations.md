@@ -20,7 +20,7 @@ SQLite file database. The schema is created from the Doctrine mapping (`make db`
 
 ## Alternatives considered
 
-- PostgreSQL with Doctrine migrations from now on: right for production, overhead while the model is still moving.
+None were weighed: this is the state inherited from the upgrade, recorded so that it is revisited before production.
 
 ## Revisit when
 

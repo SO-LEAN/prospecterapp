@@ -22,8 +22,8 @@ The history had `master`, `develop`, `travis-ci` and merge commits, with `develo
 
 ## Alternatives considered
 
-- Git flow (`develop` + `master`): no release process justifies it.
-- Merge commits or squash merges of pull requests: merge commits break the linear story, squashing loses the steps.
+- Committing straight to `master` during the migration (`master` could be broken meanwhile) instead of a temporary branch fast-forwarded at the end: the branch was chosen.
+- For the CI cleanup: delete the old branches and `.travis.yml`, or the branches only: both were removed.
 
 ## Revisit when
 

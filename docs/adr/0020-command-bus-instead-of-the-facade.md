@@ -16,13 +16,12 @@ The API calls use cases through `UseCasesFacade`: a magic `__call` that finds th
 
 ## Consequences
 
-- To decide when implementing: the bus (Symfony Messenger or a small one in the core), where handlers live, how commands return what a presenter needs (or how reads follow a command), transactions in a middleware.
+- To decide when implementing: which bus, where handlers live, how commands return what a presenter needs (or how reads follow a command), transactions in a middleware.
 - `UseCasesFacade` and its `@method` list disappear; controllers send commands.
 
 ## Alternatives considered
 
-- Keep the facade: works, but magic calls hide types from analysis.
-- A query bus too: symmetry without benefit for direct reads.
+- A query bus as well: judged useless by the user; reads stay direct calls.
 
 ## Revisit when
 

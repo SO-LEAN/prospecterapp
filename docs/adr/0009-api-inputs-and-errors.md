@@ -22,9 +22,8 @@ The API read an address nested (`address.city`) and wrote it flat (`city`). A cl
 
 ## Alternatives considered
 
-- Accept and ignore unknown fields (Symfony's default): the bug above.
-- `PATCH` with partial updates: the use cases replace whole objects today.
+- Ignoring unknown fields, Symfony's default and the previous behaviour: it silently cleared the address (the bug that prompted this decision).
 
 ## Revisit when
 
-Partial updates are needed (`PATCH`, JSON Merge Patch).
+Partial updates are needed.

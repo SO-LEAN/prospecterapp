@@ -10,7 +10,7 @@ The API is both the resource server and the authorization server (0010), and kee
 
 ## Decision
 
-Authentication will move to a dedicated authorization server (in-house or a product such as Keycloak, Authentik, an identity provider); the API will only validate its tokens. The `Auth` module is kept isolated and depends on the core only through the user id and user name, so that it can be extracted.
+Authentication will move to a dedicated authorization server, outside the API; the API will only validate its tokens. The `Auth` module is kept isolated and depends on the core only through the user id and user name, so that it can be extracted.
 
 ## Consequences
 
@@ -19,7 +19,7 @@ Authentication will move to a dedicated authorization server (in-house or a prod
 
 ## Alternatives considered
 
-- Keep authentication in the API: simplest while there is one application.
+None were weighed yet: which server to use is still to be decided.
 
 ## Revisit when
 

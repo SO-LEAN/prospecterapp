@@ -6,7 +6,7 @@
 
 ## Context
 
-After the upgrade (0004), the application was still Twig pages with Bootstrap 4, KnpMenu, Symfony forms and AssetMapper. The goal was a modern interface, and the use cases had to be reachable by other clients than these pages.
+After the upgrade (0004), the application was still Twig pages with Bootstrap 4, KnpMenu, Symfony forms and AssetMapper. The user asked for a React SPA, with the Symfony application reduced to an API exposing the use cases.
 
 ## Decision
 
@@ -22,9 +22,8 @@ After the upgrade (0004), the application was still Twig pages with Bootstrap 4,
 
 ## Alternatives considered
 
-- Keep Twig and modernize the pages (Symfony UX, Turbo, Stimulus): less infrastructure, but the use cases stay tied to one delivery.
-- Server components frameworks (Next.js): a second backend next to Symfony.
+None were weighed: the user asked for a React SPA and an API exposing the use cases.
 
 ## Revisit when
 
-The SPA's complexity is not paying for itself (mostly static pages, SEO needs).
+The SPA's complexity is not paying for itself.

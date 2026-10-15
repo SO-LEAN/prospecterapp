@@ -23,9 +23,8 @@ The core dated from 2018: untyped properties with `@var` docblocks, a getter per
 
 ## Alternatives considered
 
-- Keep embeddables with nullable typed properties: value objects that may be half empty.
-- Doctrine custom types per value object: more infrastructure for three value objects.
+- Modernizing internally only (types, promotion, private readonly) while keeping the getters and public signatures, so that the API would not change: the full modernization, with the API following, was chosen.
 
 ## Revisit when
 
-Doctrine supports nullable embeddables, or the domain moves to a persistence-agnostic model with explicit mapping.
+Doctrine supports nullable embeddables.

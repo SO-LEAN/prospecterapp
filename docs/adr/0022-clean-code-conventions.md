@@ -6,7 +6,7 @@
 
 ## Context
 
-The 2018 code had docblocks repeating types, "Class Foo." comments, and comments explaining what a block of code did.
+The 2018 code had docblocks repeating types and "Class Foo." comments. Code written during the 2026 rewrite, by Claude Code, explained itself with inline comments; the user asked for names instead.
 
 ## Decision
 
@@ -22,7 +22,7 @@ The 2018 code had docblocks repeating types, "Class Foo." comments, and comments
 
 ## Alternatives considered
 
-- Explanatory comments where needed: they drift from the code.
+None were weighed: these are the user's rules for the code.
 
 ## Revisit when
 

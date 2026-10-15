@@ -10,15 +10,15 @@ The use cases are CRUD-shaped (`createOrganization`, `updateOrganization`, `upda
 
 ## Decision
 
-They will be renamed, and split where needed, after business intents (for instance "start prospecting an organization", "move an organization to another holding"). URLs stay resource-oriented, so only controllers follow; features (0017) are reorganized by intent.
+The user plans to rename them after business intents. URLs stay resource-oriented (0007), so that only controllers follow.
 
 ## Consequences
 
-- To decide when implementing: the list of intents, with the business. A full replacement `PUT` may become several commands (0020).
+- To decide when implementing: the list of intents.
 
 ## Alternatives considered
 
-- Keep CRUD names: simple, but the core says nothing about the business.
+None were weighed yet: the intents are still to be found with the business.
 
 ## Revisit when
 

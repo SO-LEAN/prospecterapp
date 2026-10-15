@@ -18,13 +18,15 @@ The project had not been touched since 2021 (PHP 7.2, Symfony 4.4, webpack-encor
 ## Consequences
 
 - The codebase uses current PHP (readonly classes, promotion, `match`, enums when needed).
-- Symfony 8.1 is supported until January 2027: the next upgrade has to be planned (8.4 LTS or later).
+- Symfony 8.1 is supported until January 2027: the next upgrade has to be planned.
 - Rector output must be reviewed: wrong docblocks became wrong native types.
 
 ## Alternatives considered
 
-- Step-by-step upgrade 4.4 → 5.4 → 6.4 → 7.4 → 8.1: safer for a large codebase, more expensive for this small one.
-- Symfony 7.4 LTS: longer support, but the project was being rewritten anyway.
+- PHP 8.4 + Symfony 7.4 LTS, supported until November 2029, was offered (and recommended); PHP 8.5 + Symfony 8.1 was chosen, accepting regular upgrades.
+- Upgrading through every major version (4.4 → 5.4 → 6.4 → 7.4 → 8.1) instead of fresh recipes: judged more expensive for this small codebase (`docs/upgrade-2026.md`).
+- PHPStan level 6: it requires iterable docblocks everywhere, against the rule of no type comments (0022).
+- For the assets, before the SPA replaced them: webpack-encore kept with Bootstrap 4, the same with Bootstrap 5, or AssetMapper without Node (chosen then, removed by 0006).
 
 ## Revisit when
 

@@ -6,7 +6,7 @@
 
 ## Context
 
-The project needs PHP 8.5, Node 24, pnpm and HTTPS on several hosts (OAuth redirects, CORS, the static host). Installing them on each machine drifts.
+The project already ran in Docker (PHP, nginx). The SPA added Node and pnpm, and the user asked for the whole stack to run locally; OAuth redirects, CORS and the static host need HTTPS on several hosts.
 
 ## Decision
 
@@ -22,7 +22,7 @@ The project needs PHP 8.5, Node 24, pnpm and HTTPS on several hosts (OAuth redir
 
 ## Alternatives considered
 
-- Symfony CLI and local Node: faster file access, but drifting versions and no shared HTTPS hosts.
+None were weighed: the stack already ran in Docker; it was extended to the front and the new hosts.
 
 ## Revisit when
 

@@ -25,9 +25,9 @@ A new SPA (0006), to be built with current practices: application state, API cal
 
 ## Alternatives considered
 
-- Redux for all state: duplicates the server cache.
-- React Router: less typed search params.
-- MUI or another component library: heavier and harder to restyle than owned components.
+- Interface language: French ready for i18n (chosen), English ready for i18n, or French only without an i18n layer.
+- Visual direction: modern SaaS light and dark (chosen), a strong SoLean identity around the pink of the logo, or a sober corporate style, light only.
+- The libraries themselves were not compared: the request was for the current best practices.
 
 ## Revisit when
 

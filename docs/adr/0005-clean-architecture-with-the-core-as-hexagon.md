@@ -19,11 +19,11 @@ The project started in 2018 as a clean architecture exercise: use cases with req
 
 - Rules can be tested without a framework or a database (0017).
 - Delivery and infrastructure can be replaced without touching rules (the SPA rewrite did not change the core's behaviour).
-- More types per feature (request, response, presenter, adapter) than a framework-centric design.
+- More types per feature: request, response, presenter, adapter.
 
 ## Alternatives considered
 
-- Symfony-centric application (entities with attributes, services calling Doctrine): less code, but rules coupled to the framework and only testable through it.
+None were weighed: the project has followed this architecture since 2018, and the rewrite kept it.
 
 ## Revisit when
 

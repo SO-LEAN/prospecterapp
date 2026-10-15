@@ -24,9 +24,9 @@ The core was tested from the API with PHPUnit and Prophecy: every collaborator m
 
 ## Alternatives considered
 
-- Keep mock-based unit tests per use case: brittle, coupled to the implementation.
-- Both scenarios and unit tests per use case: double maintenance for the same rules.
-- Gherkin in English: the business speaks French.
+- For the existing Prophecy tests of the use cases: replace them (chosen), convert them to the in-memory doubles, or keep them next to the scenarios.
+- After the double loop was explained: keeping use case unit tests besides the scenarios was turned down as redundant; testing entities' getters and setters was turned down as testing structure.
+- Gherkin in English, like the code and the commits: French was chosen, the business speaks French.
 
 ## Revisit when
 

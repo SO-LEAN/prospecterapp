@@ -23,9 +23,9 @@ The business library (`cleanprospecter`) lived in its own repository and was pub
 
 ## Alternatives considered
 
-- Keep two repositories and Packagist: release overhead for a library with a single consumer.
-- Git submodule: same versioning cost, worse tooling.
+- Renaming `cleanprospecter` to `core`, three scopes were offered: folder, package and namespace (chosen); folder and package only, keeping the `Solean\CleanProspecter` namespace; folder only.
+- Keeping the library on Packagist was not weighed: the user decided it was no longer needed.
 
 ## Revisit when
 
-The core gets a second consumer that must evolve at its own pace (another application, a published SDK).
+The core gets a second consumer that must evolve at its own pace.

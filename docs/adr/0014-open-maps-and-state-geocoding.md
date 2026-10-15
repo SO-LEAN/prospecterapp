@@ -21,8 +21,8 @@ Organizations are shown on a map. The 2018 application used Google Maps for both
 
 ## Alternatives considered
 
-- Google Maps and Geocoding: key, billing account, terms of use.
-- Nominatim (OpenStreetMap): worldwide but limited to about one request per second.
+- Keeping Google Maps for the map (needs a valid API key): MapLibre + OpenFreeMap was chosen.
+- For geocoding, OpenStreetMap's Nominatim was offered after Google proved unusable without a key; the user chose the French State service instead.
 
 ## Revisit when
 

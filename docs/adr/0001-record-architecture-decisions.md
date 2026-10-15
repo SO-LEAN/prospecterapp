@@ -20,7 +20,7 @@ Every structuring decision is recorded in `docs/adr`, in Michael Nygard's format
 
 ## Alternatives considered
 
-- Keep the reasons in commit messages and `docs/`: they stay, but they say what was done, not which options were weighed, and they are hard to review as a whole.
+None were weighed: the request was to record the decisions.
 
 ## Revisit when
 

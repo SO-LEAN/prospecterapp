@@ -6,7 +6,7 @@
 
 ## Context
 
-The core had `login` and `refreshUser` use cases and stored the password (md5 with a salt) in its `User` entity. A use case requiring a login cannot be reused from another channel (a worker, a command bus, another authorization server), and the hexagon carried a secret it has no business with.
+The core had `login` and `refreshUser` use cases and stored the password (md5 with a salt) in its `User` entity. The user considered that authentication is infrastructure, not a use case, and that keeping it in the hexagon would prevent reusing the use cases (through a command bus, with another authorization server); the hexagon also carried a secret it has no business with.
 
 ## Decision
 
@@ -23,8 +23,9 @@ The core had `login` and `refreshUser` use cases and stored the password (md5 wi
 
 ## Alternatives considered
 
-- Keep `login` as a use case: makes sense only with business rules on signing in (lockout, password policy decided by the business); there are none. If they come, they would be a domain policy called by the authenticator.
-- Keep the password in the core entity and hash it in the API: the hexagon would still carry the secret.
+- Keep `login` as a use case: only relevant with business rules on signing in (lockout, password policy decided by the business), which do not exist.
+- Take out only `login` and `refreshUser`, keeping the password fields in the core `User` with the hashing in the API: the hexagon would still carry a secret.
+- Keep the password change in the account use case, with a hashing port: credentials management is infrastructure.
 
 ## Revisit when
 

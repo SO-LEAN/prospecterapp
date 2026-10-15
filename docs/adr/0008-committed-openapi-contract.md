@@ -22,9 +22,8 @@ The SPA and the API are two applications (0006). A renamed field must not break 
 
 ## Alternatives considered
 
-- Contract-first (hand-written OpenAPI, code generated or checked against it): heavier while there is a single client in the same repository.
-- Front types written by hand: drift.
-- A shared `contracts/` folder: only worth it with several clients.
+- Writing the contract to `var/`, not committed and generated before each front build: the front could not build without the API, and contract changes would no longer show in the history.
+- Moving it to a shared `contracts/` folder at the root: only worth it with a second client, or if the contract were written before the code.
 
 ## Revisit when
 

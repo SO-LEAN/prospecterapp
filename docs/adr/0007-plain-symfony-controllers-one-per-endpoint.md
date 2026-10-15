@@ -24,8 +24,8 @@ The API must expose use cases, not database resources: rules are in the core (00
 
 ## Alternatives considered
 
-- API Platform: built for exposing entities and state providers, it fights a use-case-driven core.
-- One controller class per resource with several actions: grows large, mixes dependencies.
+- API Platform: judged unnecessary by the user.
+- One controller per resource with several action methods (the previous shape): the user asked for one controller per endpoint, grouped by resource.
 
 ## Revisit when
 

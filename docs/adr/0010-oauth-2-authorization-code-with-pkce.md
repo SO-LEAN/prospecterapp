@@ -24,10 +24,9 @@ The SPA is a public client (it cannot keep a secret) calling an API on another h
 
 ## Alternatives considered
 
-- Password grant: deprecated, teaches clients to handle passwords.
-- Session cookie shared between SPA and API: same-site constraints across hosts, CSRF handling.
-- Backend-for-frontend holding the tokens in an HttpOnly cookie: safer, more infrastructure.
-- Tokens in memory only: sign in again on every reload.
+- Password grant: deprecated, excluded from the start.
+- Tokens in memory only (the first plan): signing in again on every reload; `sessionStorage` was chosen while implementing.
+- A backend-for-frontend keeping the tokens in an HttpOnly cookie: safer, more infrastructure; recorded in `docs/auth.md` as the option if the security policy requires it.
 
 ## Revisit when
 

@@ -32,7 +32,7 @@ What was decided, in a few sentences.
 What it makes easier, what it costs, the debt it leaves.
 
 ## Alternatives considered
-Each option and why it was not chosen.
+Only the options that were really weighed, who weighed them and why they lost. If none were, say so: never fill this section with options nobody considered.
 
 ## Revisit when
 The signal that should reopen this decision.
