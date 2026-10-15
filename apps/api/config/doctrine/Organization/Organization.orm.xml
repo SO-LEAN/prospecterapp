@@ -7,26 +7,16 @@
             <index columns="owner_id"/>
             <index columns="email"/>
         </indexes>
-        <id name="id" type="guid">
+        <id name="id" type="organization_id">
             <generator strategy="NONE"/>
         </id>
-        <field name="ownerId" type="guid" nullable="true"/>
-        <field name="holdingId" type="guid" nullable="true"/>
-        <field name="corporateName" type="string" length="150" nullable="true"/>
-        <field name="form" type="string" length="50" nullable="true"/>
-        <field name="type" type="string" length="50" nullable="true"/>
-        <field name="email" type="string" length="255" nullable="true"/>
-        <field name="phoneNumber" type="string" length="255" nullable="true"/>
-        <field name="language" type="string" length="255" nullable="true"/>
-        <field name="addressStreet" type="string" length="255" nullable="true"/>
-        <field name="addressPostalCode" type="string" length="255" nullable="true"/>
-        <field name="addressCity" type="string" length="255" nullable="true"/>
-        <field name="addressCountry" type="string" length="255" nullable="true"/>
-        <field name="geoPointLongitude" type="float" nullable="true"/>
-        <field name="geoPointLatitude" type="float" nullable="true"/>
+        <field name="ownerId" type="organization_id" nullable="true"/>
+        <field name="holdingId" type="organization_id" nullable="true"/>
+        <embedded name="legalIdentity" class="Prospecter\Core\Domain\Organization\LegalIdentity" use-column-prefix="false"/>
+        <embedded name="contactDetails" class="Prospecter\Core\Domain\Shared\ContactDetails" use-column-prefix="false"/>
+        <field name="address" type="address" nullable="true"/>
+        <field name="geoPoint" type="geo_point" nullable="true"/>
         <field name="observations" type="string" length="255" nullable="true"/>
-        <field name="logoUrl" type="string" length="255" nullable="true"/>
-        <field name="logoExtension" type="string" length="255" nullable="true"/>
-        <field name="logoSize" type="integer" nullable="true"/>
+        <field name="logo" type="file" nullable="true"/>
     </entity>
 </doctrine-mapping>

@@ -2,6 +2,15 @@ doctrine:
     dbal:
         url: '%env(resolve:DATABASE_URL)%'
         profiling_collect_backtrace: '%kernel.debug%'
+        # value objects of the core: the aggregates keep them, the mapping adapts
+        types:
+            organization_id: App\Doctrine\Type\OrganizationIdType
+            user_id: App\Doctrine\Type\UserIdType
+            email: App\Doctrine\Type\EmailType
+            address: App\Doctrine\Type\AddressType
+            geo_point: App\Doctrine\Type\GeoPointType
+            file: App\Doctrine\Type\FileType
+            roles: App\Doctrine\Type\RolesType
     orm:
         validate_xml_mapping: true
         naming_strategy: doctrine.orm.naming_strategy.underscore_number_aware
@@ -12,6 +21,11 @@ doctrine:
                 is_bundle: false
                 dir: '%kernel.project_dir%/config/doctrine/Organization'
                 prefix: 'Prospecter\Core\Domain\Organization'
+            Shared:
+                type: xml
+                is_bundle: false
+                dir: '%kernel.project_dir%/config/doctrine/Shared'
+                prefix: 'Prospecter\Core\Domain\Shared'
             User:
                 type: xml
                 is_bundle: false

@@ -9,19 +9,14 @@
         <indexes>
             <index columns="email"/>
         </indexes>
-        <id name="id" type="guid">
+        <id name="id" type="user_id">
             <generator strategy="NONE"/>
         </id>
-        <field name="organizationId" type="guid"/>
+        <field name="organizationId" type="organization_id"/>
         <field name="userName" type="string" length="50"/>
-        <field name="roles" type="json"/>
-        <field name="firstName" type="string" length="100" nullable="true"/>
-        <field name="lastName" type="string" length="100" nullable="true"/>
-        <field name="email" type="string" length="255" nullable="true"/>
-        <field name="phoneNumber" type="string" length="255" nullable="true"/>
-        <field name="language" type="string" length="255" nullable="true"/>
-        <field name="pictureUrl" type="string" length="255" nullable="true"/>
-        <field name="pictureExtension" type="string" length="255" nullable="true"/>
-        <field name="pictureSize" type="integer" nullable="true"/>
+        <field name="roles" type="roles"/>
+        <embedded name="name" class="Prospecter\Core\Domain\User\PersonName" use-column-prefix="false"/>
+        <embedded name="contactDetails" class="Prospecter\Core\Domain\Shared\ContactDetails" use-column-prefix="false"/>
+        <field name="picture" type="file" nullable="true"/>
     </entity>
 </doctrine-mapping>

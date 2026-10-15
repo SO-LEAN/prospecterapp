@@ -7,7 +7,6 @@ namespace Prospecter\Core\Domain\User;
 use Prospecter\Core\Domain\Organization\OrganizationId;
 use Prospecter\Core\Domain\Shared\BusinessRuleViolation;
 use Prospecter\Core\Domain\Shared\ContactDetails;
-use Prospecter\Core\Domain\Shared\Email;
 use Prospecter\Core\Domain\Shared\File;
 
 /**
@@ -15,27 +14,22 @@ use Prospecter\Core\Domain\Shared\File;
  */
 class User
 {
-    private readonly string $id;
-    private readonly string $organizationId;
-    private string $userName;
-    /** @var list<string> */
+    /** @var list<Role> */
     private readonly array $roles;
-    private ?string $firstName = null;
-    private ?string $lastName = null;
-    private ?string $email = null;
-    private ?string $phoneNumber = null;
-    private ?string $language = null;
-    private ?string $pictureUrl = null;
-    private ?string $pictureExtension = null;
-    private ?int $pictureSize = null;
+    private PersonName $name;
+    private ContactDetails $contactDetails;
+    private ?File $picture = null;
 
-    private function __construct(UserId $id, OrganizationId $organizationId, string $userName, Role ...$roles)
-    {
+    private function __construct(
+        private readonly UserId $id,
+        private readonly OrganizationId $organizationId,
+        private string $userName,
+        Role ...$roles,
+    ) {
         self::ensureUserNameIsGiven($userName);
-        $this->id = $id->value;
-        $this->organizationId = $organizationId->value;
-        $this->userName = $userName;
-        $this->roles = array_map(static fn (Role $role): string => $role->value, $roles);
+        $this->roles = array_values($roles);
+        $this->name = new PersonName();
+        $this->contactDetails = new ContactDetails();
     }
 
     public static function register(UserId $id, OrganizationId $organizationId, string $userName, Role ...$roles): self
@@ -45,12 +39,12 @@ class User
 
     public function id(): UserId
     {
-        return new UserId($this->id);
+        return $this->id;
     }
 
     public function organizationId(): OrganizationId
     {
-        return new OrganizationId($this->organizationId);
+        return $this->organizationId;
     }
 
     public function userName(): string
@@ -63,22 +57,22 @@ class User
      */
     public function roles(): array
     {
-        return array_map(Role::from(...), $this->roles);
+        return $this->roles;
     }
 
     public function name(): PersonName
     {
-        return new PersonName($this->firstName, $this->lastName);
+        return $this->name;
     }
 
     public function contactDetails(): ContactDetails
     {
-        return new ContactDetails(Email::orNone($this->email), $this->phoneNumber, $this->language);
+        return $this->contactDetails;
     }
 
     public function picture(): ?File
     {
-        return null === $this->pictureUrl ? null : new File($this->pictureUrl, (string) $this->pictureExtension, (int) $this->pictureSize);
+        return $this->picture;
     }
 
     /**
@@ -93,8 +87,7 @@ class User
 
     public function rename(PersonName $name): void
     {
-        $this->firstName = $name->firstName;
-        $this->lastName = $name->lastName;
+        $this->name = $name;
     }
 
     public function changeUserName(string $userName): void
@@ -105,16 +98,12 @@ class User
 
     public function changeContactDetails(ContactDetails $contactDetails): void
     {
-        $this->email = $contactDetails->email?->value;
-        $this->phoneNumber = $contactDetails->phoneNumber;
-        $this->language = $contactDetails->language;
+        $this->contactDetails = $contactDetails;
     }
 
     public function changePicture(File $picture): void
     {
-        $this->pictureUrl = $picture->url;
-        $this->pictureExtension = $picture->extension;
-        $this->pictureSize = $picture->size;
+        $this->picture = $picture;
     }
 
     private static function ensureUserNameIsGiven(string $userName): void

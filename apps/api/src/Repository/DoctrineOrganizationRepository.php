@@ -32,7 +32,7 @@ final readonly class DoctrineOrganizationRepository implements OrganizationRepos
 
     public function save(Organization $organization): void
     {
-        $this->uniqueEmails->assertFree($organization->contactDetails()->email, $organization->id()->value);
+        $this->uniqueEmails->assertFree($organization->contactDetails()->email, $organization->id());
         $this->entityManager->persist($organization);
         $this->entityManager->flush();
     }
@@ -40,15 +40,16 @@ final readonly class DoctrineOrganizationRepository implements OrganizationRepos
     public function countProspectedBy(OrganizationId $ownerId): int
     {
         return (int) $this->entityManager->createQuery(sprintf('SELECT COUNT(o.id) FROM %s o WHERE o.ownerId = :owner', Organization::class))
-            ->setParameter('owner', $ownerId->value)
+            ->setParameter('owner', $ownerId, 'organization_id')
             ->getSingleScalarResult();
     }
 
     public function pageProspectedBy(OrganizationId $ownerId, string $query, int $page, int $maxByPage): Page
     {
-        $dql = sprintf('SELECT o FROM %s o WHERE o.ownerId = :owner AND (o.corporateName LIKE :query OR o.email LIKE :query) ORDER BY o.id DESC', Organization::class);
+        $dql = sprintf('SELECT o FROM %s o WHERE o.ownerId = :owner AND (o.legalIdentity.corporateName LIKE :query OR o.contactDetails.email LIKE :query) ORDER BY o.id DESC', Organization::class);
         $paginator = $this->paginatorFactory->create($this->entityManager->createQuery($dql)
-            ->setParameters(['owner' => $ownerId->value, 'query' => sprintf('%%%s%%', $query)])
+            ->setParameter('owner', $ownerId, 'organization_id')
+            ->setParameter('query', sprintf('%%%s%%', $query))
             ->setFirstResult(($page - 1) * $maxByPage)
             ->setMaxResults($maxByPage));
         $total = $paginator->count();

@@ -6,41 +6,26 @@ namespace Prospecter\Core\Domain\Organization;
 
 use Prospecter\Core\Domain\Shared\BusinessRuleViolation;
 use Prospecter\Core\Domain\Shared\ContactDetails;
-use Prospecter\Core\Domain\Shared\Email;
 use Prospecter\Core\Domain\Shared\File;
 use Prospecter\Core\Domain\Shared\NotPossibleInItsState;
 use Prospecter\Core\Domain\User\User;
 
 /**
  * Aggregate root. Either an organization using Prospecter, or one it prospects (it has an owner).
- * Its state is kept in plain fields, the columns Doctrine maps, and exposed as value objects.
  */
 class Organization
 {
-    private readonly string $id;
-    private ?string $ownerId = null;
-    private ?string $holdingId = null;
-    private ?string $corporateName;
-    private ?string $form;
-    private ?string $type;
-    private ?string $email = null;
-    private ?string $phoneNumber = null;
-    private ?string $language = null;
-    private ?string $addressStreet = null;
-    private ?string $addressPostalCode = null;
-    private ?string $addressCity = null;
-    private ?string $addressCountry = null;
-    private ?float $geoPointLongitude = null;
-    private ?float $geoPointLatitude = null;
+    private ?OrganizationId $ownerId = null;
+    private ?OrganizationId $holdingId = null;
+    private ContactDetails $contactDetails;
+    private ?Address $address = null;
+    private ?GeoPoint $geoPoint = null;
     private ?string $observations = null;
-    private ?string $logoUrl = null;
-    private ?string $logoExtension = null;
-    private ?int $logoSize = null;
+    private ?File $logo = null;
 
-    private function __construct(OrganizationId $id, LegalIdentity $legalIdentity)
+    private function __construct(private readonly OrganizationId $id, private LegalIdentity $legalIdentity)
     {
-        $this->id = $id->value;
-        $this->assignLegalIdentity($legalIdentity);
+        $this->contactDetails = new ContactDetails();
     }
 
     public static function usingProspecter(OrganizationId $id, LegalIdentity $legalIdentity): self
@@ -52,56 +37,50 @@ class Organization
     {
         self::ensureItCanBeNamed($legalIdentity, $contactDetails);
         $organization = new self($id, $legalIdentity);
-        $organization->ownerId = $prospector->organizationId()->value;
-        $organization->assignContactDetails($contactDetails);
+        $organization->ownerId = $prospector->organizationId();
+        $organization->contactDetails = $contactDetails;
 
         return $organization;
     }
 
     public function id(): OrganizationId
     {
-        return new OrganizationId($this->id);
+        return $this->id;
     }
 
     public function ownerId(): ?OrganizationId
     {
-        return null === $this->ownerId ? null : new OrganizationId($this->ownerId);
+        return $this->ownerId;
     }
 
     public function holdingId(): ?OrganizationId
     {
-        return null === $this->holdingId ? null : new OrganizationId($this->holdingId);
+        return $this->holdingId;
     }
 
     public function legalIdentity(): LegalIdentity
     {
-        return new LegalIdentity($this->corporateName, $this->form, $this->type);
+        return $this->legalIdentity;
     }
 
     public function fullName(): string
     {
-        return $this->legalIdentity()->fullName();
+        return $this->legalIdentity->fullName();
     }
 
     public function contactDetails(): ContactDetails
     {
-        return new ContactDetails(Email::orNone($this->email), $this->phoneNumber, $this->language);
+        return $this->contactDetails;
     }
 
     public function address(): ?Address
     {
-        $address = new Address($this->addressStreet, $this->addressPostalCode, $this->addressCity, $this->addressCountry);
-
-        return $address->isEmpty() ? null : $address;
+        return $this->address;
     }
 
     public function geoPoint(): ?GeoPoint
     {
-        if (null === $this->geoPointLongitude || null === $this->geoPointLatitude) {
-            return null;
-        }
-
-        return new GeoPoint($this->geoPointLongitude, $this->geoPointLatitude);
+        return $this->geoPoint;
     }
 
     public function observations(): ?string
@@ -111,12 +90,12 @@ class Organization
 
     public function logo(): ?File
     {
-        return null === $this->logoUrl ? null : new File($this->logoUrl, (string) $this->logoExtension, (int) $this->logoSize);
+        return $this->logo;
     }
 
     public function isProspectedBy(OrganizationId $organizationId): bool
     {
-        return $this->ownerId === $organizationId->value;
+        return null !== $this->ownerId && $this->ownerId->equals($organizationId);
     }
 
     /**
@@ -144,26 +123,22 @@ class Organization
     public function reviseLegalIdentity(LegalIdentity $legalIdentity, User $by): void
     {
         $this->ensurePossible(OrganizationIntent::ReviseLegalIdentity, $by);
-        $this->ensureAProspectCanBeNamed($legalIdentity, $this->contactDetails());
-        $this->assignLegalIdentity($legalIdentity);
+        $this->ensureAProspectCanBeNamed($legalIdentity, $this->contactDetails);
+        $this->legalIdentity = $legalIdentity;
     }
 
     public function changeContactDetails(ContactDetails $contactDetails, User $by): void
     {
         $this->ensurePossible(OrganizationIntent::ChangeContactDetails, $by);
-        $this->ensureAProspectCanBeNamed($this->legalIdentity(), $contactDetails);
-        $this->assignContactDetails($contactDetails);
+        $this->ensureAProspectCanBeNamed($this->legalIdentity, $contactDetails);
+        $this->contactDetails = $contactDetails;
     }
 
     public function relocateTo(?Address $address, ?GeoPoint $geoPoint, User $by): void
     {
         $this->ensurePossible(OrganizationIntent::Relocate, $by);
-        $this->addressStreet = $address?->street;
-        $this->addressPostalCode = $address?->postalCode;
-        $this->addressCity = $address?->city;
-        $this->addressCountry = $address?->country;
-        $this->geoPointLongitude = $geoPoint?->longitude;
-        $this->geoPointLatitude = $geoPoint?->latitude;
+        $this->address = null === $address || $address->isEmpty() ? null : $address;
+        $this->geoPoint = $geoPoint;
     }
 
     public function writeObservations(?string $observations, User $by): void
@@ -176,7 +151,7 @@ class Organization
     {
         $this->ensurePossible(OrganizationIntent::AttachToHolding, $by);
         $holding->ensureProspectedBy($by);
-        $this->holdingId = $holding->id;
+        $this->holdingId = $holding->id();
     }
 
     public function detachFromHolding(User $by): void
@@ -188,18 +163,14 @@ class Organization
     public function changeLogo(File $logo, User $by): void
     {
         $this->ensurePossible(OrganizationIntent::ChangeLogo, $by);
-        $this->logoUrl = $logo->url;
-        $this->logoExtension = $logo->extension;
-        $this->logoSize = $logo->size;
+        $this->logo = $logo;
     }
 
     public function removeLogo(User $by): File
     {
         $this->ensurePossible(OrganizationIntent::RemoveLogo, $by);
-        $removed = new File((string) $this->logoUrl, (string) $this->logoExtension, (int) $this->logoSize);
-        $this->logoUrl = null;
-        $this->logoExtension = null;
-        $this->logoSize = null;
+        $removed = $this->logo;
+        $this->logo = null;
 
         return $removed;
     }
@@ -210,13 +181,13 @@ class Organization
      */
     private function isManagedBy(User $user): bool
     {
-        return $this->id === $user->organizationId()->value || $this->isProspectedBy($user->organizationId());
+        return $this->id->equals($user->organizationId()) || $this->isProspectedBy($user->organizationId());
     }
 
     private function allowsInItsState(OrganizationIntent $intent): bool
     {
         return match ($intent) {
-            OrganizationIntent::RemoveLogo => null !== $this->logoUrl,
+            OrganizationIntent::RemoveLogo => null !== $this->logo,
             OrganizationIntent::DetachFromHolding => null !== $this->holdingId,
             default => true,
         };
@@ -245,20 +216,6 @@ class Organization
             OrganizationIntent::DetachFromHolding => new NotPossibleInItsState('There is no holding to detach from', 'holdingId'),
             default => new NotPossibleInItsState(sprintf('%s is not possible now', $intent->name)),
         };
-    }
-
-    private function assignLegalIdentity(LegalIdentity $legalIdentity): void
-    {
-        $this->corporateName = $legalIdentity->corporateName;
-        $this->form = $legalIdentity->form;
-        $this->type = $legalIdentity->type;
-    }
-
-    private function assignContactDetails(ContactDetails $contactDetails): void
-    {
-        $this->email = $contactDetails->email?->value;
-        $this->phoneNumber = $contactDetails->phoneNumber;
-        $this->language = $contactDetails->language;
     }
 
     private function ensureAProspectCanBeNamed(LegalIdentity $legalIdentity, ContactDetails $contactDetails): void

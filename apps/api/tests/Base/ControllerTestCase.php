@@ -12,6 +12,7 @@ use Doctrine\Common\DataFixtures\ReferenceRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\Tools\SchemaTool;
 use Prospecter\Core\Domain\User\User as UserEntity;
+use Prospecter\Core\Domain\User\UserRepository;
 use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 use Symfony\Component\DomCrawler\Crawler;
@@ -29,9 +30,19 @@ abstract class ControllerTestCase extends WebTestCase
 
     protected function login(string $reference = 'prospector-user'): void
     {
-        $entity = $this->fixtures->getReference($reference, UserEntity::class);
+        $this->client->loginUser(User::from($this->loadedUser($reference)), 'main');
+    }
 
-        $this->client->loginUser(User::from($entity), 'main');
+    /**
+     * A fixture reference is a lazy proxy: initializing it would overwrite its readonly identity with an
+     * equal but new value object, which Doctrine refuses. The aggregate is loaded again instead.
+     */
+    private function loadedUser(string $reference): UserEntity
+    {
+        $id = $this->fixtures->getReference($reference, UserEntity::class)->id();
+        self::getContainer()->get(EntityManagerInterface::class)->clear();
+
+        return self::getContainer()->get(UserRepository::class)->get($id);
     }
 
     protected function grab(Crawler $crawler, string $name): string

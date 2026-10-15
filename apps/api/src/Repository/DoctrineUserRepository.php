@@ -34,7 +34,7 @@ final readonly class DoctrineUserRepository implements UserRepository
 
     public function save(User $user): void
     {
-        $this->uniqueEmails->assertFree($user->contactDetails()->email, $user->id()->value);
+        $this->uniqueEmails->assertFree($user->contactDetails()->email, $user->id());
         $this->entityManager->persist($user);
         $this->entityManager->flush();
     }

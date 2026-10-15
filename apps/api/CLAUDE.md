@@ -47,7 +47,9 @@ See `docs/auth.md` at the repository root.
 
 Ports are aliased to adapters in `config/services.yaml`. Every class extending `Prospecter\Core\Application\UseCase` is registered automatically (lazy, tagged `use_case`) and added to `UseCasesFacade` by `DependencyInjection\UseCasePass`.
 
-Doctrine mapping of the aggregates is in `config/doctrine/<Aggregate>/*.orm.xml` (tables `organizations` and `users`, `guid` ids assigned by the domain). Value objects are not embeddables (Doctrine cannot make them null): their fields are plain columns of the aggregate (`address_city`, `logo_url`...); references to other aggregates are id columns (`owner_id`, `holding_id`, `organization_id`). The `credentials` table belongs to `src/Auth` (attribute mapping), the OAuth tables to the bundle.
+Doctrine mapping of the aggregates is in `config/doctrine/<Namespace>/*.orm.xml` (tables `organizations` and `users`). The aggregates keep their value objects and the mapping adapts to them (ADR 0028): the value objects always present are embeddables without column prefix (`LegalIdentity`, `ContactDetails`, `PersonName`: columns `corporate_name`, `email`...), the others are custom types of `src/Doctrine/Type` registered in `doctrine.yaml` (identities as `guid`, `Email` as a string, `Address`, `GeoPoint`, `File` and the roles as JSON, since Doctrine cannot make an embeddable null). DQL reaches embedded fields by path (`o.contactDetails.email`) and passes identities with their type (`setParameter('owner', $id, 'organization_id')`).
+
+Doctrine refuses to initialize a lazy proxy of an aggregate: hydration would replace its readonly identity with an equal but new value object. The code never creates one (no association, no `getReference()`); tests load a fixture user again instead of using its reference (`ControllerTestCase::loadedUser()`). The `credentials` table belongs to `src/Auth` (attribute mapping), the OAuth tables to the bundle.
 
 ## Hosts
 
