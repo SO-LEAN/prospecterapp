@@ -24,6 +24,7 @@ class BoundedContextsTest extends TestCase
     private const array CROSSING_ON_PURPOSE = [
         'Prospecting/AccountsProspectors.php', // anticorruption layer: Prospecting reads its prospectors from Accounts
         'PersonalData/AccountsReaders.php', // anticorruption layer: PersonalData reads its readers from Accounts
+        'Prospecting/PersonalDataKnownContacts.php', // anticorruption layer: Prospecting asks PersonalData about its contacts
     ];
 
     #[DataProvider('contexts')]

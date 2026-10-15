@@ -53,6 +53,7 @@ Fonctionnalité: Consulter une organisation
       | écrire des observations |
       | rattacher à une holding |
       | changer le logo         |
+      | rattacher un contact    |
 
   Scénario: Avec un logo et une holding, je peux aussi les retirer
     Soit l'organisation "Groupe ACME" fait partie de mes organisations
@@ -69,3 +70,4 @@ Fonctionnalité: Consulter une organisation
       | détacher de la holding  |
       | changer le logo         |
       | retirer le logo         |
+      | rattacher un contact    |

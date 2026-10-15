@@ -8,10 +8,12 @@ use Prospecter\Core\Prospecting\Domain\Exception\UnknownOrganization;
 use Prospecter\Core\SharedKernel\Domain\AccountId;
 use Prospecter\Core\SharedKernel\Domain\ContactDetails;
 use Prospecter\Core\SharedKernel\Domain\Exception\BusinessRuleViolation;
+use Prospecter\Core\SharedKernel\Domain\Exception\NotAllowed;
 use Prospecter\Core\SharedKernel\Domain\Exception\NotPossibleInItsState;
 use Prospecter\Core\SharedKernel\Domain\File;
 use Prospecter\Core\SharedKernel\Domain\LegalIdentity;
 use Prospecter\Core\SharedKernel\Domain\MemberId;
+use Prospecter\Core\SharedKernel\Domain\PersonId;
 
 /**
  * Aggregate root: an organization an account prospects; the whole team of the account shares it.
@@ -23,6 +25,8 @@ class Organization
     private ?GeoPoint $geoPoint = null;
     private ?string $observations = null;
     private ?File $logo = null;
+    /** @var list<PersonId> */
+    private array $contacts = [];
     private \DateTimeImmutable $modifiedAt;
 
     private function __construct(
@@ -104,6 +108,16 @@ class Organization
         return $this->logo;
     }
 
+    /**
+     * The persons prospected in the organization, kept by PersonalData (ADR 0041).
+     *
+     * @return list<PersonId>
+     */
+    public function contacts(): array
+    {
+        return $this->contacts;
+    }
+
     public function createdAt(): \DateTimeImmutable
     {
         return $this->createdAt;
@@ -134,7 +148,7 @@ class Organization
             return [];
         }
 
-        return array_values(array_filter(OrganizationIntent::cases(), $this->allowsInItsState(...)));
+        return array_values(array_filter(OrganizationIntent::cases(), fn (OrganizationIntent $intent): bool => $this->isAllowedTo($prospector, $intent) && $this->allowsInItsState($intent)));
     }
 
     /**
@@ -210,18 +224,63 @@ class Organization
         return $removed;
     }
 
+    /**
+     * @throws NotPossibleInItsState when the person is a contact already
+     */
+    public function addContact(PersonId $contact, Prospector $by, \DateTimeImmutable $at): void
+    {
+        $this->ensurePossible(OrganizationIntent::AddContact, $by);
+
+        if ($this->hasContact($contact)) {
+            throw NotPossibleInItsState::because('This person is a contact of the organization already', 'personId');
+        }
+
+        $this->contacts[] = $contact;
+        $this->modifiedAt = $at;
+    }
+
+    /**
+     * @throws NotPossibleInItsState when the person is no contact of the organization
+     */
+    public function removeContact(PersonId $contact, Prospector $by, \DateTimeImmutable $at): void
+    {
+        $this->ensurePossible(OrganizationIntent::RemoveContact, $by);
+
+        if (!$this->hasContact($contact)) {
+            throw NotPossibleInItsState::because('This person is no contact of the organization', 'personId');
+        }
+
+        $this->contacts = array_values(array_filter($this->contacts, static fn (PersonId $attached): bool => !$attached->equals($contact)));
+        $this->modifiedAt = $at;
+    }
+
+    private function hasContact(PersonId $contact): bool
+    {
+        return array_any($this->contacts, static fn (PersonId $attached): bool => $attached->equals($contact));
+    }
+
     private function allowsInItsState(OrganizationIntent $intent): bool
     {
         return match ($intent) {
             OrganizationIntent::RemoveLogo => null !== $this->logo,
             OrganizationIntent::DetachFromHolding => null !== $this->holdingId,
+            OrganizationIntent::RemoveContact => [] !== $this->contacts,
             default => true,
         };
+    }
+
+    private function isAllowedTo(Prospector $prospector, OrganizationIntent $intent): bool
+    {
+        return $prospector->managesPersonalData || !in_array($intent, [OrganizationIntent::AddContact, OrganizationIntent::RemoveContact], true);
     }
 
     private function ensurePossible(OrganizationIntent $intent, Prospector $by): void
     {
         $this->ensureReachableBy($by);
+
+        if (!$this->isAllowedTo($by, $intent)) {
+            throw NotAllowed::because('Only a prospector allowed to manage personal data may manage the contacts');
+        }
 
         if (!$this->allowsInItsState($intent)) {
             throw $this->notPossibleInItsState($intent);
@@ -233,6 +292,7 @@ class Organization
         return match ($intent) {
             OrganizationIntent::RemoveLogo => NotPossibleInItsState::because('There is no logo to remove', 'logo'),
             OrganizationIntent::DetachFromHolding => NotPossibleInItsState::because('There is no holding to detach from', 'holdingId'),
+            OrganizationIntent::RemoveContact => NotPossibleInItsState::because('There is no contact to remove', 'personId'),
             default => NotPossibleInItsState::because(sprintf('%s is not possible now', $intent->name)),
         };
     }

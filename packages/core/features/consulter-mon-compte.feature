@@ -24,6 +24,7 @@ Fonctionnalité: Consulter mon compte
     Quand je consulte mon compte
     Alors je peux sur mon profil :
       | changer le nom          |
+      | changer la fonction     |
       | changer les coordonnées |
       | changer la photo        |
     Et je peux sur mon organisation :

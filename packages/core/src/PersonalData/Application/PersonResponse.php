@@ -18,13 +18,14 @@ use Prospecter\Core\SharedKernel\Application\FileResponse;
 final readonly class PersonResponse
 {
     /**
-     * @param list<string> $possibleIntents names of what the reader may change: Rename, ChangeContactDetails, ChangePicture
+     * @param list<string> $possibleIntents names of what the reader may do: Rename, ChangeJobTitle, ChangeContactDetails, ChangePicture, Forget
      */
     private function __construct(
         public string $id,
         public bool $masked,
         public ?string $firstName,
         public ?string $lastName,
+        public ?string $jobTitle,
         public ?string $email,
         public ?string $phoneNumber,
         public ?string $language,
@@ -48,7 +49,7 @@ final readonly class PersonResponse
         $name = $person->name();
         $contact = $person->contactDetails();
 
-        return new self($person->id()->value, false, $name->firstName, $name->lastName, $contact->email?->value, $contact->phoneNumber, $contact->language, FileResponse::orNone($person->picture()), self::intentsOf($person, $reader), $person->createdAt(), $person->modifiedAt());
+        return new self($person->id()->value, false, $name->firstName, $name->lastName, $person->jobTitle(), $contact->email?->value, $contact->phoneNumber, $contact->language, FileResponse::orNone($person->picture()), self::intentsOf($person, $reader), $person->createdAt(), $person->modifiedAt());
     }
 
     private static function masked(Person $person, Reader $reader): self
@@ -56,7 +57,7 @@ final readonly class PersonResponse
         $name = $person->name();
         $contact = $person->contactDetails();
 
-        return new self($person->id()->value, true, Masking::name($name->firstName), Masking::name($name->lastName), Masking::email($contact->email?->value), Masking::phoneNumber($contact->phoneNumber), $contact->language, null, self::intentsOf($person, $reader), $person->createdAt(), $person->modifiedAt());
+        return new self($person->id()->value, true, Masking::name($name->firstName), Masking::name($name->lastName), Masking::jobTitle($person->jobTitle()), Masking::email($contact->email?->value), Masking::phoneNumber($contact->phoneNumber), $contact->language, null, self::intentsOf($person, $reader), $person->createdAt(), $person->modifiedAt());
     }
 
     /**

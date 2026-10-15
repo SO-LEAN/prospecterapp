@@ -40,6 +40,11 @@ final class InMemoryDatabase
         $this->persons[(string) $person->id()] = clone $person;
     }
 
+    public function forgetPerson(string $id): void
+    {
+        unset($this->persons[$id]);
+    }
+
     public function storeOrganization(Organization $organization): void
     {
         $this->organizations[(string) $organization->id()] = clone $organization;

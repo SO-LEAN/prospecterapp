@@ -18,6 +18,7 @@ use Prospecter\Core\SharedKernel\Domain\Exception\NotFound;
 use Prospecter\Core\SharedKernel\Domain\File;
 use Prospecter\Core\SharedKernel\Domain\LegalIdentity;
 use Prospecter\Core\SharedKernel\Domain\MemberId;
+use Prospecter\Core\SharedKernel\Domain\PersonId;
 
 /**
  * The front shows an action when its link is there, the API refuses a call when it is not: an intention
@@ -29,11 +30,19 @@ class OrganizationIntentsTest extends TestCase
     private const string THEIRS = '0190a1c0-0000-7000-8000-000000000002';
     private const string PROSPECT = '0190a1c0-0000-7000-8000-000000000003';
     private const string HOLDING = '0190a1c0-0000-7000-8000-000000000004';
+    private const string CONTACT = '0190a1c0-0000-7000-8000-000000000005';
+    private const string NEW_CONTACT = '0190a1c0-0000-7000-8000-000000000006';
+    private const string FULL = 'with logo, holding and a contact';
+    private const array USERS = [
+        'mine' => [self::MINE, true],
+        'mine without the right to manage personal data' => [self::MINE, false],
+        'theirs' => [self::THEIRS, true],
+    ];
 
     #[DataProvider('situations')]
-    public function testAnIntentionIsRefusedExactlyWhenItIsNotOffered(OrganizationIntent $intent, string $state, string $userAccount): void
+    public function testAnIntentionIsRefusedExactlyWhenItIsNotOffered(OrganizationIntent $intent, string $state, string $userAccount, bool $managesPersonalData): void
     {
-        $user = $this->someoneOf($userAccount);
+        $user = $this->someoneOf($userAccount, $managesPersonalData);
         $organization = $this->prospect($state);
         $offered = in_array($intent, $organization->possibleIntentsOf($user), true);
 
@@ -41,14 +50,14 @@ class OrganizationIntentsTest extends TestCase
     }
 
     /**
-     * @return iterable<string, array{OrganizationIntent, string, string}>
+     * @return iterable<string, array{OrganizationIntent, string, string, bool}>
      */
     public static function situations(): iterable
     {
         foreach (OrganizationIntent::cases() as $intent) {
-            foreach (['bare', 'with logo and holding'] as $state) {
-                foreach (['mine' => self::MINE, 'theirs' => self::THEIRS] as $user => $organization) {
-                    yield sprintf('%s, %s, by %s', $intent->name, $state, $user) => [$intent, $state, $organization];
+            foreach (['bare', self::FULL] as $state) {
+                foreach (self::USERS as $user => [$account, $managesPersonalData]) {
+                    yield sprintf('%s, %s, by %s', $intent->name, $state, $user) => [$intent, $state, $account, $managesPersonalData];
                 }
             }
         }
@@ -76,6 +85,8 @@ class OrganizationIntentsTest extends TestCase
             OrganizationIntent::DetachFromHolding => $organization->detachFromHolding($by, new \DateTimeImmutable()),
             OrganizationIntent::ChangeLogo => $organization->changeLogo($this->logo(), $by, new \DateTimeImmutable()),
             OrganizationIntent::RemoveLogo => $organization->removeLogo($by, new \DateTimeImmutable()),
+            OrganizationIntent::AddContact => $organization->addContact(new PersonId(self::NEW_CONTACT), $by, new \DateTimeImmutable()),
+            OrganizationIntent::RemoveContact => $organization->removeContact(new PersonId(self::CONTACT), $by, new \DateTimeImmutable()),
         };
     }
 
@@ -84,9 +95,10 @@ class OrganizationIntentsTest extends TestCase
         $mine = $this->someoneOf(self::MINE);
         $prospect = Organization::prospectedBy($mine, new OrganizationId(self::PROSPECT), new LegalIdentity('ACME'), new ContactDetails(), new \DateTimeImmutable());
 
-        if ('with logo and holding' === $state) {
+        if (self::FULL === $state) {
             $prospect->changeLogo($this->logo(), $mine, new \DateTimeImmutable());
             $prospect->attachToHolding($this->holding(), $mine, new \DateTimeImmutable());
+            $prospect->addContact(new PersonId(self::CONTACT), $mine, new \DateTimeImmutable());
         }
 
         return $prospect;
@@ -102,8 +114,8 @@ class OrganizationIntentsTest extends TestCase
         return new File('https://storage.test/acme.png', 'png', 1024);
     }
 
-    private function someoneOf(string $account): Prospector
+    private function someoneOf(string $account, bool $managesPersonalData = true): Prospector
     {
-        return new Prospector(new MemberId('0190a1c0-0000-7000-8000-0000000000aa'), new AccountId($account));
+        return new Prospector(new MemberId('0190a1c0-0000-7000-8000-0000000000aa'), new AccountId($account), $managesPersonalData);
     }
 }

@@ -24,6 +24,7 @@ doctrine:
             file: App\Shared\Persistence\FileType
             roles: App\Accounts\Persistence\RolesType
             moment: App\Shared\Persistence\MomentType
+            person_ids: App\Shared\Persistence\PersonIdsType
     orm:
         default_entity_manager: accounts
         entity_managers:

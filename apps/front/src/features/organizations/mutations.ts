@@ -74,6 +74,29 @@ export function useRemoveLogo() {
   return api.useMutation('delete', '/api/organizations/{id}/logo', { onSuccess: useStoreOrganization() })
 }
 
+/** The organization changes, and so does the list of its contacts. */
+function useStoreOrganizationAndItsContacts() {
+  const queryClient = useQueryClient()
+  const store = useStoreOrganization()
+
+  return (organization: Organization | undefined) => {
+    store(organization)
+    void queryClient.invalidateQueries({ queryKey: queryKeys.organizationContacts })
+  }
+}
+
+export function useAddContact() {
+  return api.useMutation('post', '/api/organizations/{id}/contacts', {
+    onSuccess: useStoreOrganizationAndItsContacts(),
+  })
+}
+
+export function useRemoveContact() {
+  return api.useMutation('delete', '/api/organizations/{id}/contacts/{personId}', {
+    onSuccess: useStoreOrganizationAndItsContacts(),
+  })
+}
+
 export function useChangeLogo(id: string) {
   const store = useStoreOrganization()
 

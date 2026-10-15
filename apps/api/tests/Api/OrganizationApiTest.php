@@ -5,12 +5,7 @@ namespace Tests\App\Api;
 use PHPUnit\Framework\Attributes\Group;
 use Prospecter\Core\Accounts\Domain\Account;
 use Prospecter\Core\Accounts\Domain\AccountRepository;
-use Prospecter\Core\Accounts\Domain\Member;
-use Prospecter\Core\Accounts\Domain\MemberRepository;
 use Prospecter\Core\Accounts\Domain\Role;
-use Prospecter\Core\PersonalData\Domain\Person;
-use Prospecter\Core\PersonalData\Domain\PersonRepository;
-use Prospecter\Core\PersonalData\Domain\Purpose;
 use Prospecter\Core\Prospecting\Domain\Organization;
 use Prospecter\Core\Prospecting\Domain\OrganizationId;
 use Prospecter\Core\Prospecting\Domain\OrganizationRepository;
@@ -19,7 +14,6 @@ use Prospecter\Core\SharedKernel\Domain\AccountId;
 use Prospecter\Core\SharedKernel\Domain\ContactDetails;
 use Prospecter\Core\SharedKernel\Domain\LegalIdentity;
 use Prospecter\Core\SharedKernel\Domain\MemberId;
-use Prospecter\Core\SharedKernel\Domain\PersonId;
 use Tests\App\Base\ApiTestCase;
 use Tests\App\Double\InMemoryStorage;
 
@@ -222,16 +216,7 @@ class OrganizationApiTest extends ApiTestCase
 
     private function aUserWhoIsNotAProspector(): string
     {
-        $members = self::getContainer()->get(MemberRepository::class);
-        $persons = self::getContainer()->get(PersonRepository::class);
-        $account = $this->accountOfTheFixtures();
-        $profile = Person::collect(new PersonId(self::newIdentity()), $account, Purpose::Membership, new \DateTimeImmutable());
-        $persons->save($profile);
-        $assistant = Member::register(new MemberId(self::newIdentity()), $account, $profile->id(), Role::User);
-        $members->save($assistant);
-        $this->fixtures->setReference('assistant', $assistant);
-
-        return 'assistant';
+        return $this->aMemberOfTheFixtures('assistant', Role::User);
     }
 
     private function storage(): InMemoryStorage

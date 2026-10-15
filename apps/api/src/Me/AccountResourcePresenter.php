@@ -5,7 +5,7 @@ namespace App\Me;
 use App\Me\Resource\AccountLinksResource;
 use App\Me\Resource\AccountOrganizationResource;
 use App\Me\Resource\AccountResource;
-use App\Me\Resource\PersonNameResource;
+use App\PersonalData\Resource\PersonNameResource;
 use App\Shared\ImageResourceFactory;
 use App\Shared\Links;
 use App\Shared\Resource\ContactDetailsResource;

@@ -14,4 +14,8 @@ enum OrganizationIntent
     case DetachFromHolding;
     case ChangeLogo;
     case RemoveLogo;
+    /** Attach a person the account prospects; needs the right to manage personal data. */
+    case AddContact;
+    /** Detach one of its contacts; needs the right to manage personal data. */
+    case RemoveContact;
 }

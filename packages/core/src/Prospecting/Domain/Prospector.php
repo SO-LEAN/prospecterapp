@@ -15,6 +15,7 @@ final readonly class Prospector
     public function __construct(
         public MemberId $id,
         public AccountId $accountId,
+        public bool $managesPersonalData = false,
     ) {
     }
 }

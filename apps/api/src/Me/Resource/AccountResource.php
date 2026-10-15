@@ -2,6 +2,7 @@
 
 namespace App\Me\Resource;
 
+use App\PersonalData\Resource\PersonNameResource;
 use App\Shared\Resource\ContactDetailsResource;
 use App\Shared\Resource\ImageResource;
 use Symfony\Component\Serializer\Attribute\Context;

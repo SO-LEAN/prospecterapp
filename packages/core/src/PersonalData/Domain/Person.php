@@ -18,6 +18,7 @@ use Prospecter\Core\SharedKernel\Domain\PersonId;
 class Person
 {
     private ?File $picture = null;
+    private ?string $jobTitle = null;
     private \DateTimeImmutable $modifiedAt;
 
     private function __construct(
@@ -34,6 +35,24 @@ class Person
     public static function collect(PersonId $id, AccountId $accountId, Purpose $purpose, \DateTimeImmutable $at, PersonName $name = new PersonName(), ContactDetails $contactDetails = new ContactDetails()): self
     {
         return new self($id, $accountId, $purpose, $name, $contactDetails, $at);
+    }
+
+    /**
+     * A person the account of the member prospects, collected by a member with the right to manage personal
+     * data (ADR 0041).
+     *
+     * @throws NotAllowed for a member without the right
+     */
+    public static function collectAsContact(Reader $by, PersonId $id, PersonName $name, ?string $jobTitle, ContactDetails $contactDetails, \DateTimeImmutable $at): self
+    {
+        if (!$by->readsPersonalData) {
+            throw NotAllowed::because('Only a member allowed to manage personal data may collect a contact');
+        }
+
+        $contact = new self($id, $by->accountId, Purpose::Prospecting, $name, $contactDetails, $at);
+        $contact->jobTitle = $jobTitle;
+
+        return $contact;
     }
 
     public function id(): PersonId
@@ -54,6 +73,14 @@ class Person
     public function name(): PersonName
     {
         return $this->name;
+    }
+
+    /**
+     * What the person does in the organization they work for.
+     */
+    public function jobTitle(): ?string
+    {
+        return $this->jobTitle;
     }
 
     public function contactDetails(): ContactDetails
@@ -94,34 +121,52 @@ class Person
 
     /**
      * A person changes their own data; a member with the right changes the persons their account prospects,
-     * not the profile of a colleague. Every intention refuses exactly what is missing here.
+     * not the profile of a colleague, and only a prospected person is forgotten. Every intention refuses
+     * exactly what is missing here.
      *
      * @return list<PersonIntent>
      */
     public function possibleIntentsOf(Reader $reader): array
     {
-        return $this->belongsTo($reader) && $this->mayBeChangedBy($reader) ? PersonIntent::cases() : [];
+        return array_values(array_filter(PersonIntent::cases(), fn (PersonIntent $intent): bool => $this->belongsTo($reader) && $this->allows($intent, $reader)));
     }
 
     public function rename(PersonName $name, Reader $by, \DateTimeImmutable $at): void
     {
-        $this->ensurePossible($by);
+        $this->ensurePossible(PersonIntent::Rename, $by);
         $this->name = $name;
+        $this->modifiedAt = $at;
+    }
+
+    public function changeJobTitle(?string $jobTitle, Reader $by, \DateTimeImmutable $at): void
+    {
+        $this->ensurePossible(PersonIntent::ChangeJobTitle, $by);
+        $this->jobTitle = $jobTitle;
         $this->modifiedAt = $at;
     }
 
     public function changeContactDetails(ContactDetails $contactDetails, Reader $by, \DateTimeImmutable $at): void
     {
-        $this->ensurePossible($by);
+        $this->ensurePossible(PersonIntent::ChangeContactDetails, $by);
         $this->contactDetails = $contactDetails;
         $this->modifiedAt = $at;
     }
 
     public function changePicture(File $picture, Reader $by, \DateTimeImmutable $at): void
     {
-        $this->ensurePossible($by);
+        $this->ensurePossible(PersonIntent::ChangePicture, $by);
         $this->picture = $picture;
         $this->modifiedAt = $at;
+    }
+
+    /**
+     * Checks that this reader may erase the person; the repository then removes it.
+     *
+     * @throws UnknownPerson|NotAllowed
+     */
+    public function ensureMayBeForgottenBy(Reader $by): void
+    {
+        $this->ensurePossible(PersonIntent::Forget, $by);
     }
 
     private function belongsTo(Reader $reader): bool
@@ -134,9 +179,14 @@ class Person
         return $this->id->equals($reader->personId);
     }
 
-    private function mayBeChangedBy(Reader $reader): bool
+    private function allows(PersonIntent $intent, Reader $reader): bool
     {
-        return $this->isThePersonOf($reader) || (Purpose::Prospecting === $this->purpose && $reader->readsPersonalData);
+        return PersonIntent::Forget === $intent ? $this->isAContactManagedBy($reader) : $this->isThePersonOf($reader) || $this->isAContactManagedBy($reader);
+    }
+
+    private function isAContactManagedBy(Reader $reader): bool
+    {
+        return Purpose::Prospecting === $this->purpose && $reader->readsPersonalData;
     }
 
     private function ensureReachableBy(Reader $reader): void
@@ -146,12 +196,12 @@ class Person
         }
     }
 
-    private function ensurePossible(Reader $by): void
+    private function ensurePossible(PersonIntent $intent, Reader $by): void
     {
         $this->ensureReachableBy($by);
 
-        if (!$this->mayBeChangedBy($by)) {
-            throw NotAllowed::because('Only the person or a member allowed to manage personal data may change them');
+        if (!$this->allows($intent, $by)) {
+            throw NotAllowed::because(PersonIntent::Forget === $intent ? 'Only a member allowed to manage personal data may forget a prospected person' : 'Only the person or a member allowed to manage personal data may change them');
         }
     }
 }

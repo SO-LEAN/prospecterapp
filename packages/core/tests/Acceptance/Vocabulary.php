@@ -36,13 +36,19 @@ final class Vocabulary
         'RemoveLogo' => 'retirer le logo',
         'Rename' => 'changer le nom',
         'ChangePicture' => 'changer la photo',
+        'ChangeJobTitle' => 'changer la fonction',
+        'Forget' => 'effacer la fiche',
+        'AddContact' => 'rattacher un contact',
+        'RemoveContact' => 'retirer un contact',
+        'Collect' => 'enregistrer un contact',
+        'SearchByText' => 'chercher par texte',
     ];
 
     private const string MOMENT = 'Y-m-d H:i';
 
     private const array LABELS = [
         'raison sociale', 'forme juridique', 'type', 'e-mail', 'téléphone', 'langue',
-        'rue', 'code postal', 'ville', 'pays', 'observations', 'holding', 'prénom', 'nom',
+        'rue', 'code postal', 'ville', 'pays', 'observations', 'holding', 'prénom', 'nom', 'fonction',
     ];
 
     /**

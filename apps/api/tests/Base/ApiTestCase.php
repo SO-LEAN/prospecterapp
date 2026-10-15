@@ -16,7 +16,14 @@ use Lcobucci\JWT\Signer\Rsa\Sha256;
 use Lcobucci\JWT\Token\Builder;
 use Prospecter\Core\Accounts\Domain\Account;
 use Prospecter\Core\Accounts\Domain\Member;
+use Prospecter\Core\Accounts\Domain\MemberRepository;
+use Prospecter\Core\Accounts\Domain\Role;
+use Prospecter\Core\PersonalData\Domain\Person;
+use Prospecter\Core\PersonalData\Domain\PersonRepository;
+use Prospecter\Core\PersonalData\Domain\Purpose;
 use Prospecter\Core\SharedKernel\Domain\AccountId;
+use Prospecter\Core\SharedKernel\Domain\MemberId;
+use Prospecter\Core\SharedKernel\Domain\PersonId;
 use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
@@ -53,6 +60,21 @@ abstract class ApiTestCase extends WebTestCase
         $this->forgetTheLoadedAggregates();
 
         return $accountId;
+    }
+
+    /**
+     * Another member of the account of the fixtures, with these roles, known under this reference.
+     */
+    protected function aMemberOfTheFixtures(string $reference, Role ...$roles): string
+    {
+        $account = $this->accountOfTheFixtures();
+        $profile = Person::collect(new PersonId(self::newIdentity()), $account, Purpose::Membership, new \DateTimeImmutable());
+        self::getContainer()->get(PersonRepository::class)->save($profile);
+        $member = Member::register(new MemberId(self::newIdentity()), $account, $profile->id(), ...$roles);
+        self::getContainer()->get(MemberRepository::class)->save($member);
+        $this->fixtures->setReference($reference, $member);
+
+        return $reference;
     }
 
     protected function accessTokenOf(string $memberId, string $audience = 'prospecter-front', string $expiresIn = '+15 minutes'): string

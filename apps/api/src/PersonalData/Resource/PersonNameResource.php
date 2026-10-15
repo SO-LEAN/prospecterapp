@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Me\Resource;
+namespace App\PersonalData\Resource;
 
 final readonly class PersonNameResource
 {

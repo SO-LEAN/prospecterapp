@@ -14,6 +14,7 @@ use Doctrine\Persistence\ObjectManager;
 class CredentialsFixtures extends Fixture
 {
     public const string PROSPECTOR = '01900000-0000-7000-8000-000000000001';
+    public const string ASSISTANT = '01900000-0000-7000-8000-000000000002';
 
     public function __construct(private readonly LoginEmails $loginEmails, private readonly Passwords $passwords)
     {
@@ -23,5 +24,7 @@ class CredentialsFixtures extends Fixture
     {
         $this->loginEmails->assign(self::PROSPECTOR, 'prospector@solean-it.io');
         $this->passwords->set(self::PROSPECTOR, 'password');
+        $this->loginEmails->assign(self::ASSISTANT, 'assistant@solean-it.io');
+        $this->passwords->set(self::ASSISTANT, 'password');
     }
 }

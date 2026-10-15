@@ -21,6 +21,11 @@ final class Masking
         return mb_strlen($name) <= 2 ? self::STARS : mb_substr($name, 0, 1).self::STARS.mb_substr($name, -1);
     }
 
+    public static function jobTitle(?string $jobTitle): ?string
+    {
+        return self::name($jobTitle);
+    }
+
     public static function email(?string $email): ?string
     {
         return null === $email ? null : mb_substr($email, 0, 1).self::STARS.'@'.self::STARS;

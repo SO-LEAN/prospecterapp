@@ -45,6 +45,7 @@ Fonctionnalité: Consulter les données personnelles d'une personne
       | masquée | non      |
     Et je peux sur sa fiche :
       | changer le nom          |
+      | changer la fonction     |
       | changer les coordonnées |
       | changer la photo        |
 

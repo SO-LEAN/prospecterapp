@@ -106,6 +106,24 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/organizations/{id}/contacts": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** The contacts of the organization, in clear or masked */
+        get: operations["get_api_organizations_contacts"];
+        put?: never;
+        /** Attach a person my organization prospects as a contact of the organization */
+        post: operations["post_api_organizations_add_contact"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/organizations/{id}/holding": {
         parameters: {
             query?: never;
@@ -174,6 +192,23 @@ export interface paths {
         head?: never;
         /** Move the organization to an address (located again); an empty address removes it */
         patch: operations["patch_api_organizations_relocate"];
+        trace?: never;
+    };
+    "/api/organizations/{id}/contacts/{personId}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        /** Detach a contact from the organization; the person stays among my contacts */
+        delete: operations["delete_api_organizations_remove_contact"];
+        options?: never;
+        head?: never;
+        patch?: never;
         trace?: never;
     };
     "/api/organizations/{id}/legal-identity": {
@@ -262,6 +297,93 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/contacts/{id}/contact-details": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        /** Change the email, phone number and language of a contact */
+        patch: operations["patch_api_contacts_change_contact_details"];
+        trace?: never;
+    };
+    "/api/contacts/{id}/job-title": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        /** Change what a contact does in their organization */
+        patch: operations["patch_api_contacts_change_job_title"];
+        trace?: never;
+    };
+    "/api/contacts": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Search the persons my organization prospects, by name or email; a search by text needs the right to manage personal data */
+        get: operations["get_api_contacts_search"];
+        put?: never;
+        /** Collect a person my organization prospects, to attach to the organizations they work for */
+        post: operations["post_api_contacts_collect"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/contacts/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Consult a person my organization keeps, in clear or masked */
+        get: operations["get_api_contacts_show"];
+        put?: never;
+        post?: never;
+        /** Erase a person my organization prospects; the organizations that named them forget them */
+        delete: operations["delete_api_contacts_forget"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/contacts/{id}/name": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        /** Change the first and last names of a contact, nothing else changes */
+        patch: operations["patch_api_contacts_rename"];
+        trace?: never;
+    };
 }
 export type webhooks = Record<string, never>;
 export interface components {
@@ -287,6 +409,10 @@ export interface components {
             form: string | null;
             /** @default null */
             type: string | null;
+        };
+        ContactInput: {
+            /** @default  */
+            personId: string;
         };
         HoldingInput: {
             /** @default  */
@@ -321,6 +447,22 @@ export interface components {
         ObservationsInput: {
             /** @default null */
             observations: string | null;
+        };
+        JobTitleInput: {
+            /** @default null */
+            jobTitle: string | null;
+        };
+        CollectContactInput: {
+            name?: components["schemas"]["PersonNameInput"];
+            /** @default null */
+            jobTitle: string | null;
+            contactDetails?: components["schemas"]["ContactDetailsInput"];
+        };
+        ContactListQuery: {
+            /** @default 1 */
+            page: number;
+            /** @default  */
+            q: string;
         };
         PersonNameResource: {
             firstName?: string | null;
@@ -377,6 +519,21 @@ export interface components {
             /** @default about:blank */
             type: string;
         };
+        OrganizationContactLinksResource: {
+            contact: components["schemas"]["LinkResource"];
+            removeFromOrganization?: components["schemas"]["LinkResource"];
+        };
+        OrganizationContactResource: {
+            id: string;
+            name: components["schemas"]["PersonNameResource"];
+            jobTitle?: string | null;
+            contactDetails: components["schemas"]["ContactDetailsResource"];
+            masked: boolean;
+            _links: components["schemas"]["OrganizationContactLinksResource"];
+        };
+        OrganizationContactsResource: {
+            items: components["schemas"]["OrganizationContactResource"][];
+        };
         AddressResource: {
             street?: string | null;
             postalCode?: string | null;
@@ -399,6 +556,7 @@ export interface components {
             detachFromHolding?: components["schemas"]["LinkResource"];
             changeLogo?: components["schemas"]["LinkResource"];
             removeLogo?: components["schemas"]["LinkResource"];
+            addContact?: components["schemas"]["LinkResource"];
         };
         OrganizationResource: {
             id: string;
@@ -410,6 +568,7 @@ export interface components {
             observations?: string | null;
             logo?: components["schemas"]["ImageResource"] | null;
             holdingId?: string | null;
+            contactIds: string[];
             /** Format: date-time */
             createdAt: string;
             /** Format: date-time */
@@ -437,6 +596,34 @@ export interface components {
                 [key: string]: number;
             };
             markers: components["schemas"]["OrganizationSummaryResource"][];
+        };
+        ContactLinksResource: {
+            self: components["schemas"]["LinkResource"];
+            rename?: components["schemas"]["LinkResource"];
+            changeJobTitle?: components["schemas"]["LinkResource"];
+            changeContactDetails?: components["schemas"]["LinkResource"];
+            forget?: components["schemas"]["LinkResource"];
+        };
+        ContactResource: {
+            id: string;
+            name: components["schemas"]["PersonNameResource"];
+            jobTitle?: string | null;
+            contactDetails: components["schemas"]["ContactDetailsResource"];
+            /** @description The data are masked: the reader has no right to read personal data in clear */
+            masked: boolean;
+            _links: components["schemas"]["ContactLinksResource"];
+        };
+        ContactPageLinksResource: {
+            self: components["schemas"]["LinkResource"];
+            collect?: components["schemas"]["LinkResource"];
+            search?: components["schemas"]["LinkResource"];
+        };
+        ContactPageResource: {
+            items: components["schemas"]["ContactResource"][];
+            page: number;
+            totalPages: number;
+            totalItems: number;
+            _links: components["schemas"]["ContactPageLinksResource"];
         };
     };
     responses: never;
@@ -725,6 +912,122 @@ export interface operations {
             };
             /** @description The signed-in user is not a user */
             403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ProblemResource"];
+                };
+            };
+        };
+    };
+    get_api_organizations_contacts: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description The contacts, in the order they were attached */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["OrganizationContactsResource"];
+                };
+            };
+            /** @description Missing or invalid access token */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description The signed-in user is not a prospector */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ProblemResource"];
+                };
+            };
+            /** @description Unknown organization, or one of another account */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ProblemResource"];
+                };
+            };
+        };
+    };
+    post_api_organizations_add_contact: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ContactInput"];
+            };
+        };
+        responses: {
+            /** @description The organization with its new contact */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["OrganizationResource"];
+                };
+            };
+            /** @description Missing or invalid access token */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Not a prospector, or no right to manage personal data */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ProblemResource"];
+                };
+            };
+            /** @description Unknown organization or contact, or one of another account */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ProblemResource"];
+                };
+            };
+            /** @description The person is a contact of the organization already */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ProblemResource"];
+                };
+            };
+            /** @description Invalid person id */
+            422: {
                 headers: {
                     [name: string]: unknown;
                 };
@@ -1089,6 +1392,63 @@ export interface operations {
             };
         };
     };
+    delete_api_organizations_remove_contact: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+                personId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description The organization without this contact */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["OrganizationResource"];
+                };
+            };
+            /** @description Missing or invalid access token */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Not a prospector, or no right to manage personal data */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ProblemResource"];
+                };
+            };
+            /** @description Unknown organization, or one of another account */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ProblemResource"];
+                };
+            };
+            /** @description The person is no contact of the organization */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ProblemResource"];
+                };
+            };
+        };
+    };
     patch_api_organizations_revise_legal_identity: {
         parameters: {
             query?: never;
@@ -1380,6 +1740,366 @@ export interface operations {
             };
             /** @description The signed-in user is not a prospector */
             403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ProblemResource"];
+                };
+            };
+        };
+    };
+    patch_api_contacts_change_contact_details: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ContactDetailsInput"];
+            };
+        };
+        responses: {
+            /** @description The contact */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ContactResource"];
+                };
+            };
+            /** @description Missing or invalid access token */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Not a prospector, or no right to manage personal data */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ProblemResource"];
+                };
+            };
+            /** @description Unknown contact, or one of another account */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ProblemResource"];
+                };
+            };
+            /** @description Invalid contact details, or email already used by another contact */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ProblemResource"];
+                };
+            };
+        };
+    };
+    patch_api_contacts_change_job_title: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["JobTitleInput"];
+            };
+        };
+        responses: {
+            /** @description The contact */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ContactResource"];
+                };
+            };
+            /** @description Missing or invalid access token */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Not a prospector, or no right to manage personal data */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ProblemResource"];
+                };
+            };
+            /** @description Unknown contact, or one of another account */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ProblemResource"];
+                };
+            };
+            /** @description Invalid job title */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ProblemResource"];
+                };
+            };
+        };
+    };
+    get_api_contacts_search: {
+        parameters: {
+            query?: {
+                page?: number;
+                q?: string;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description A page of contacts, most recent first */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ContactPageResource"];
+                };
+            };
+            /** @description Missing or invalid access token */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Not a prospector, or no right to manage personal data */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ProblemResource"];
+                };
+            };
+        };
+    };
+    post_api_contacts_collect: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CollectContactInput"];
+            };
+        };
+        responses: {
+            /** @description The contact */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ContactResource"];
+                };
+            };
+            /** @description Missing or invalid access token */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Not a prospector, or no right to manage personal data */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ProblemResource"];
+                };
+            };
+            /** @description Invalid contact, or email already used by another contact */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ProblemResource"];
+                };
+            };
+        };
+    };
+    get_api_contacts_show: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description The contact */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ContactResource"];
+                };
+            };
+            /** @description Missing or invalid access token */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description The signed-in user is not a prospector */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ProblemResource"];
+                };
+            };
+            /** @description Unknown contact, or one of another account */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ProblemResource"];
+                };
+            };
+        };
+    };
+    delete_api_contacts_forget: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Erased */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Missing or invalid access token */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Not a prospector, no right to manage personal data, or a member and not a contact */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ProblemResource"];
+                };
+            };
+            /** @description Unknown contact, or one of another account */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ProblemResource"];
+                };
+            };
+        };
+    };
+    patch_api_contacts_rename: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["PersonNameInput"];
+            };
+        };
+        responses: {
+            /** @description The contact */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ContactResource"];
+                };
+            };
+            /** @description Missing or invalid access token */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Not a prospector, or no right to manage personal data */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ProblemResource"];
+                };
+            };
+            /** @description Unknown contact, or one of another account */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ProblemResource"];
+                };
+            };
+            /** @description Invalid name */
+            422: {
                 headers: {
                     [name: string]: unknown;
                 };

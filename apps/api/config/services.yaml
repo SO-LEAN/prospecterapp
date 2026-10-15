@@ -29,6 +29,7 @@ services:
     Prospecter\Core\PersonalData\Domain\Readers: '@App\PersonalData\AccountsReaders'
     Prospecter\Core\Prospecting\Domain\OrganizationRepository: '@App\Prospecting\Persistence\DoctrineOrganizationRepository'
     Prospecter\Core\Prospecting\Domain\Prospectors: '@App\Prospecting\AccountsProspectors'
+    Prospecter\Core\Prospecting\Domain\KnownContacts: '@App\Prospecting\PersonalDataKnownContacts'
     Prospecter\Core\Prospecting\Application\Port\GeoLocation: '@App\Prospecting\GeoplateformeGeoLocation'
     Prospecter\Core\SharedKernel\Application\Port\Storage: '@App\Shared\StorageClient'
 

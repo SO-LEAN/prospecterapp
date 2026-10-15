@@ -14,8 +14,11 @@ import { Route as AppIndexRouteImport } from './../routes/_app/index'
 import { Route as AppAccountRouteImport } from './../routes/_app/account'
 import { Route as AuthCallbackRouteImport } from './../routes/auth/callback'
 import { Route as AuthSignInRouteImport } from './../routes/auth/sign-in'
+import { Route as AppContactsIndexRouteImport } from './../routes/_app/contacts/index'
+import { Route as AppContactsNewRouteImport } from './../routes/_app/contacts/new'
 import { Route as AppOrganizationsIndexRouteImport } from './../routes/_app/organizations/index'
 import { Route as AppOrganizationsNewRouteImport } from './../routes/_app/organizations/new'
+import { Route as AppContactsContactIdIndexRouteImport } from './../routes/_app/contacts/$contactId/index'
 import { Route as AppOrganizationsOrganizationIdIndexRouteImport } from './../routes/_app/organizations/$organizationId/index'
 
 const AppRoute = AppRouteImport.update({
@@ -42,6 +45,16 @@ const AuthSignInRoute = AuthSignInRouteImport.update({
   path: '/auth/sign-in',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AppContactsIndexRoute = AppContactsIndexRouteImport.update({
+  id: '/contacts/',
+  path: '/contacts/',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppContactsNewRoute = AppContactsNewRouteImport.update({
+  id: '/contacts/new',
+  path: '/contacts/new',
+  getParentRoute: () => AppRoute,
+} as any)
 const AppOrganizationsIndexRoute = AppOrganizationsIndexRouteImport.update({
   id: '/organizations/',
   path: '/organizations/',
@@ -52,6 +65,12 @@ const AppOrganizationsNewRoute = AppOrganizationsNewRouteImport.update({
   path: '/organizations/new',
   getParentRoute: () => AppRoute,
 } as any)
+const AppContactsContactIdIndexRoute =
+  AppContactsContactIdIndexRouteImport.update({
+    id: '/contacts/$contactId/',
+    path: '/contacts/$contactId/',
+    getParentRoute: () => AppRoute,
+  } as any)
 const AppOrganizationsOrganizationIdIndexRoute =
   AppOrganizationsOrganizationIdIndexRouteImport.update({
     id: '/organizations/$organizationId/',
@@ -64,8 +83,11 @@ export interface FileRoutesByFullPath {
   '/account': typeof AppAccountRoute
   '/auth/callback': typeof AuthCallbackRoute
   '/auth/sign-in': typeof AuthSignInRoute
+  '/contacts/new': typeof AppContactsNewRoute
   '/organizations/new': typeof AppOrganizationsNewRoute
+  '/contacts/': typeof AppContactsIndexRoute
   '/organizations/': typeof AppOrganizationsIndexRoute
+  '/contacts/$contactId/': typeof AppContactsContactIdIndexRoute
   '/organizations/$organizationId/': typeof AppOrganizationsOrganizationIdIndexRoute
 }
 export interface FileRoutesByTo {
@@ -73,8 +95,11 @@ export interface FileRoutesByTo {
   '/auth/callback': typeof AuthCallbackRoute
   '/auth/sign-in': typeof AuthSignInRoute
   '/': typeof AppIndexRoute
+  '/contacts/new': typeof AppContactsNewRoute
   '/organizations/new': typeof AppOrganizationsNewRoute
+  '/contacts': typeof AppContactsIndexRoute
   '/organizations': typeof AppOrganizationsIndexRoute
+  '/contacts/$contactId': typeof AppContactsContactIdIndexRoute
   '/organizations/$organizationId': typeof AppOrganizationsOrganizationIdIndexRoute
 }
 export interface FileRoutesById {
@@ -84,8 +109,11 @@ export interface FileRoutesById {
   '/auth/callback': typeof AuthCallbackRoute
   '/auth/sign-in': typeof AuthSignInRoute
   '/_app/': typeof AppIndexRoute
+  '/_app/contacts/new': typeof AppContactsNewRoute
   '/_app/organizations/new': typeof AppOrganizationsNewRoute
+  '/_app/contacts/': typeof AppContactsIndexRoute
   '/_app/organizations/': typeof AppOrganizationsIndexRoute
+  '/_app/contacts/$contactId/': typeof AppContactsContactIdIndexRoute
   '/_app/organizations/$organizationId/': typeof AppOrganizationsOrganizationIdIndexRoute
 }
 export interface FileRouteTypes {
@@ -95,8 +123,11 @@ export interface FileRouteTypes {
     | '/account'
     | '/auth/callback'
     | '/auth/sign-in'
+    | '/contacts/new'
     | '/organizations/new'
+    | '/contacts/'
     | '/organizations/'
+    | '/contacts/$contactId/'
     | '/organizations/$organizationId/'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -104,8 +135,11 @@ export interface FileRouteTypes {
     | '/auth/callback'
     | '/auth/sign-in'
     | '/'
+    | '/contacts/new'
     | '/organizations/new'
+    | '/contacts'
     | '/organizations'
+    | '/contacts/$contactId'
     | '/organizations/$organizationId'
   id:
     | '__root__'
@@ -114,8 +148,11 @@ export interface FileRouteTypes {
     | '/auth/callback'
     | '/auth/sign-in'
     | '/_app/'
+    | '/_app/contacts/new'
     | '/_app/organizations/new'
+    | '/_app/contacts/'
     | '/_app/organizations/'
+    | '/_app/contacts/$contactId/'
     | '/_app/organizations/$organizationId/'
   fileRoutesById: FileRoutesById
 }
@@ -162,6 +199,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthSignInRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/_app/contacts/': {
+      id: '/_app/contacts/'
+      path: '/contacts'
+      fullPath: '/contacts/'
+      preLoaderRoute: typeof AppContactsIndexRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/_app/contacts/new': {
+      id: '/_app/contacts/new'
+      path: '/contacts/new'
+      fullPath: '/contacts/new'
+      preLoaderRoute: typeof AppContactsNewRouteImport
+      parentRoute: typeof AppRoute
+    }
     '/_app/organizations/': {
       id: '/_app/organizations/'
       path: '/organizations'
@@ -174,6 +225,13 @@ declare module '@tanstack/react-router' {
       path: '/organizations/new'
       fullPath: '/organizations/new'
       preLoaderRoute: typeof AppOrganizationsNewRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/_app/contacts/$contactId/': {
+      id: '/_app/contacts/$contactId/'
+      path: '/contacts/$contactId'
+      fullPath: '/contacts/$contactId/'
+      preLoaderRoute: typeof AppContactsContactIdIndexRouteImport
       parentRoute: typeof AppRoute
     }
     '/_app/organizations/$organizationId/': {
@@ -189,16 +247,22 @@ declare module '@tanstack/react-router' {
 interface AppRouteChildren {
   AppAccountRoute: typeof AppAccountRoute
   AppIndexRoute: typeof AppIndexRoute
+  AppContactsNewRoute: typeof AppContactsNewRoute
   AppOrganizationsNewRoute: typeof AppOrganizationsNewRoute
+  AppContactsIndexRoute: typeof AppContactsIndexRoute
   AppOrganizationsIndexRoute: typeof AppOrganizationsIndexRoute
+  AppContactsContactIdIndexRoute: typeof AppContactsContactIdIndexRoute
   AppOrganizationsOrganizationIdIndexRoute: typeof AppOrganizationsOrganizationIdIndexRoute
 }
 
 const AppRouteChildren: AppRouteChildren = {
   AppAccountRoute: AppAccountRoute,
   AppIndexRoute: AppIndexRoute,
+  AppContactsNewRoute: AppContactsNewRoute,
   AppOrganizationsNewRoute: AppOrganizationsNewRoute,
+  AppContactsIndexRoute: AppContactsIndexRoute,
   AppOrganizationsIndexRoute: AppOrganizationsIndexRoute,
+  AppContactsContactIdIndexRoute: AppContactsContactIdIndexRoute,
   AppOrganizationsOrganizationIdIndexRoute:
     AppOrganizationsOrganizationIdIndexRoute,
 }

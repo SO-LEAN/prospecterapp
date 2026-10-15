@@ -78,8 +78,10 @@ class PersonIntentsTest extends TestCase
         try {
             match ($intent) {
                 PersonIntent::Rename => $person->rename(new PersonName('Ada'), $by, new \DateTimeImmutable()),
+                PersonIntent::ChangeJobTitle => $person->changeJobTitle('Directrice commerciale', $by, new \DateTimeImmutable()),
                 PersonIntent::ChangeContactDetails => $person->changeContactDetails(new ContactDetails(phoneNumber: '0388000000'), $by, new \DateTimeImmutable()),
                 PersonIntent::ChangePicture => $person->changePicture(new File('https://storage.test/ada.png', 'png', 1024), $by, new \DateTimeImmutable()),
+                PersonIntent::Forget => $person->ensureMayBeForgottenBy($by),
             };
         } catch (NotFound|BusinessRuleViolation) {
             return false;

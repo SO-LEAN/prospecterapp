@@ -8,6 +8,7 @@ use Prospecter\Core\Prospecting\Domain\Organization;
 use Prospecter\Core\Prospecting\Domain\OrganizationIntent;
 use Prospecter\Core\Prospecting\Domain\Prospector;
 use Prospecter\Core\SharedKernel\Application\FileResponse;
+use Prospecter\Core\SharedKernel\Domain\PersonId;
 
 /**
  * An organization as a prospector of its account sees it, with what they may do with it now.
@@ -15,6 +16,7 @@ use Prospecter\Core\SharedKernel\Application\FileResponse;
 final readonly class OrganizationResponse
 {
     /**
+     * @param list<string> $contactIds      the persons prospected in it, to read in PersonalData
      * @param list<string> $possibleIntents names of the intentions the prospector may carry out now: Relocate, RemoveLogo...
      */
     private function __construct(
@@ -37,6 +39,7 @@ final readonly class OrganizationResponse
         public ?string $observations,
         public ?FileResponse $logo,
         public ?string $holdingId,
+        public array $contactIds,
         public array $possibleIntents,
         public \DateTimeImmutable $createdAt,
         public \DateTimeImmutable $modifiedAt,
@@ -70,6 +73,7 @@ final readonly class OrganizationResponse
             observations: $organization->observations(),
             logo: FileResponse::orNone($organization->logo()),
             holdingId: $organization->holdingId()?->value,
+            contactIds: array_map(static fn (PersonId $contact): string => $contact->value, $organization->contacts()),
             possibleIntents: array_map(static fn (OrganizationIntent $intent): string => $intent->name, $organization->possibleIntentsOf($viewer)),
             createdAt: $organization->createdAt(),
             modifiedAt: $organization->modifiedAt(),

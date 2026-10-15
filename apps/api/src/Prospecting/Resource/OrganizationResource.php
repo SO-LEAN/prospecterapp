@@ -14,6 +14,9 @@ use Symfony\Component\Serializer\Normalizer\AbstractObjectNormalizer;
  */
 final readonly class OrganizationResource
 {
+    /**
+     * @param list<string> $contactIds the persons prospected in it, read with GET /api/organizations/{id}/contacts
+     */
     public function __construct(
         public string $id,
         public string $name,
@@ -24,6 +27,7 @@ final readonly class OrganizationResource
         public ?string $observations,
         public ?ImageResource $logo,
         public ?string $holdingId,
+        public array $contactIds,
         public \DateTimeImmutable $createdAt,
         public \DateTimeImmutable $modifiedAt,
         #[SerializedName('_links')]

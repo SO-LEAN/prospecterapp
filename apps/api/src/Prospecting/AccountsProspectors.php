@@ -22,9 +22,11 @@ final readonly class AccountsProspectors implements Prospectors
     public function get(MemberId $id): Prospector
     {
         try {
-            return new Prospector($id, $this->members->get($id)->accountId());
+            $member = $this->members->get($id);
         } catch (UnknownMember) {
             throw UnknownProspector::identifiedBy($id);
         }
+
+        return new Prospector($id, $member->accountId(), $member->readsPersonalData());
     }
 }

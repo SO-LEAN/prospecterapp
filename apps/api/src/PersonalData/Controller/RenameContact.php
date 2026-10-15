@@ -1,0 +1,47 @@
+<?php
+
+namespace App\PersonalData\Controller;
+
+use App\PersonalData\ContactReader;
+use App\PersonalData\Input\PersonNameInput;
+use App\PersonalData\Resource\ContactResource;
+use App\Security\User;
+use App\Shared\CommandBus;
+use App\Shared\Resource\ProblemResource;
+use Nelmio\ApiDocBundle\Attribute\Model;
+use OpenApi\Attributes as OA;
+use Prospecter\Core\PersonalData\Application\RenamePerson\RenamePerson;
+use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\Clock\ClockInterface;
+use Symfony\Component\HttpFoundation\JsonResponse;
+use Symfony\Component\HttpKernel\Attribute\MapRequestPayload;
+use Symfony\Component\Routing\Attribute\Route;
+use Symfony\Component\Routing\Requirement\Requirement;
+use Symfony\Component\Security\Http\Attribute\CurrentUser;
+use Symfony\Component\Security\Http\Attribute\IsGranted;
+
+#[OA\Tag('Contacts')]
+#[IsGranted('ROLE_PROSPECTOR')]
+final class RenameContact extends AbstractController
+{
+    public function __construct(
+        private readonly CommandBus $commands,
+        private readonly ClockInterface $clock,
+        private readonly ContactReader $contacts,
+    ) {
+    }
+
+    #[Route('/api/contacts/{id}/name', name: 'api_contacts_rename', requirements: ['id' => Requirement::UUID], methods: ['PATCH'])]
+    #[OA\Patch(summary: 'Change the first and last names of a contact, nothing else changes')]
+    #[OA\Response(response: 200, description: 'The contact', content: new Model(type: ContactResource::class))]
+    #[OA\Response(response: 401, description: 'Missing or invalid access token')]
+    #[OA\Response(response: 403, description: 'Not a prospector, or no right to manage personal data', content: new Model(type: ProblemResource::class))]
+    #[OA\Response(response: 404, description: 'Unknown contact, or one of another account', content: new Model(type: ProblemResource::class))]
+    #[OA\Response(response: 422, description: 'Invalid name', content: new Model(type: ProblemResource::class))]
+    public function __invoke(string $id, #[MapRequestPayload] PersonNameInput $input, #[CurrentUser] User $user): JsonResponse
+    {
+        $this->commands->dispatch(new RenamePerson($user->memberId(), $id, $input->firstName, $input->lastName, $this->clock->now()));
+
+        return $this->json($this->contacts->read($user->memberId(), $id));
+    }
+}

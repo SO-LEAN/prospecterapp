@@ -16,8 +16,14 @@ import {
   toLegalIdentity,
   toLegalIdentityValues,
 } from '@/shared/forms/legal-identity'
+import {
+  PersonNameFields,
+  personNameFields,
+  personNameSchema,
+  toPersonName,
+  toPersonNameValues,
+} from '@/shared/forms/person-name'
 import { SectionForm } from '@/shared/forms/section-form'
-import { orNull, text } from '@/shared/forms/text'
 import { i18n } from '@/shared/i18n'
 import { countryName } from '@/shared/lib/countries'
 import { initials } from '@/shared/lib/format'
@@ -38,7 +44,6 @@ import {
 } from '../mutations'
 import { signInQuery } from '../queries'
 
-const nameSchema = z.object({ firstName: text(100), lastName: text(100) })
 const loginEmailSchema = z.object({ email: z.email({ error: () => i18n.t('validation.email') }) })
 const passwordSchema = z.object({
   password: z
@@ -90,26 +95,13 @@ export function NameSection({ account }: { account: Account }) {
       editable={Boolean(account._links.changeMyName)}
       editor={(close) => (
         <SectionForm
-          schema={nameSchema}
-          defaultValues={{ firstName: account.name.firstName ?? '', lastName: account.name.lastName ?? '' }}
-          fields={['firstName', 'lastName']}
-          save={(values) =>
-            change.mutateAsync({
-              body: { firstName: orNull(values.firstName), lastName: orNull(values.lastName) },
-            })
-          }
+          schema={personNameSchema}
+          defaultValues={toPersonNameValues(account.name)}
+          fields={personNameFields}
+          save={(values) => change.mutateAsync({ body: toPersonName(values) })}
           onDone={close}
         >
-          {(form) => (
-            <>
-              <FormField form={form} name={'firstName'} label={t('fields.firstName')}>
-                <Input autoComplete="given-name" {...form.register('firstName')} />
-              </FormField>
-              <FormField form={form} name={'lastName'} label={t('fields.lastName')}>
-                <Input autoComplete="family-name" {...form.register('lastName')} />
-              </FormField>
-            </>
-          )}
+          {(form) => <PersonNameFields form={form} />}
         </SectionForm>
       )}
     >

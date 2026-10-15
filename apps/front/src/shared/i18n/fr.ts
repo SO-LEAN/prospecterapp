@@ -4,6 +4,7 @@ export const fr = {
   nav: {
     dashboard: 'Tableau de bord',
     organizations: 'Organisations',
+    contacts: 'Contacts',
     account: 'Mon compte',
     signOut: 'Se déconnecter',
     collapse: 'Réduire le menu',
@@ -65,6 +66,7 @@ export const fr = {
     recent: { title: 'Dernières organisations', viewAll: 'Tout voir', empty: 'Aucune organisation.' },
   },
   fields: {
+    jobTitle: 'Fonction',
     corporateName: 'Raison sociale',
     form: 'Forme juridique',
     type: 'Type',
@@ -101,6 +103,15 @@ export const fr = {
       observations: 'Observations',
       holding: 'Holding',
       logo: 'Logo',
+      contacts: 'Contacts',
+    },
+    contacts: {
+      none: 'Aucun contact rattaché.',
+      unnamed: 'Contact sans nom',
+      masked: 'Masqué',
+      remove: 'Retirer {{name}} des contacts',
+      search: 'Rechercher un de mes contacts…',
+      collect: 'Enregistrer un nouveau contact',
     },
     address: { noLocation: 'Adresse non géolocalisée.', directions: 'Itinéraire' },
     holding: {
@@ -110,6 +121,29 @@ export const fr = {
     },
     logo: { change: 'Changer le logo', add: 'Ajouter un logo', remove: 'Retirer le logo' },
     validation: { nameOrEmail: 'Renseignez au moins une raison sociale ou un e-mail.' },
+  },
+  contacts: {
+    title: 'Contacts',
+    subtitle: '{{count}} contact',
+    subtitle_other: '{{count}} contacts',
+    new: 'Nouveau contact',
+    searchPlaceholder: 'Rechercher par nom ou e-mail…',
+    empty: {
+      title: 'Aucun contact',
+      description: 'Enregistrez les personnes que vous prospectez pour les rattacher à leurs organisations.',
+    },
+    noResult: { title: 'Aucun résultat', description: 'Aucun contact ne correspond à « {{query}} ».' },
+    unnamed: 'Contact sans nom',
+    masked: 'Données masquées',
+    collect: { title: 'Enregistrer un contact', submit: 'Enregistrer le contact' },
+    sections: { identity: 'Identité', name: 'Nom', jobTitle: 'Fonction', contactDetails: 'Coordonnées' },
+    forget: {
+      action: 'Effacer la fiche',
+      title: 'Effacer la fiche de {{name}} ?',
+      description:
+        'Ses données personnelles seront supprimées définitivement, et les organisations dont elle est le contact l’oublieront.',
+      confirm: 'Effacer définitivement',
+    },
   },
   account: {
     title: 'Mon compte',

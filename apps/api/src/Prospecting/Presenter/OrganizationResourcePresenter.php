@@ -12,6 +12,10 @@ use App\Shared\Resource\ContactDetailsResource;
 use App\Shared\Resource\LegalIdentityResource;
 use Prospecter\Core\Prospecting\Application\OrganizationResponse;
 
+/**
+ * An organization with a link per intention it offers; removing a contact concerns one contact, so its link is
+ * on each contact of GET /api/organizations/{id}/contacts.
+ */
 final readonly class OrganizationResourcePresenter
 {
     private const array ROUTES = [
@@ -23,6 +27,7 @@ final readonly class OrganizationResourcePresenter
         'detachFromHolding' => 'api_organizations_detach_from_holding',
         'changeLogo' => 'api_organizations_change_logo',
         'removeLogo' => 'api_organizations_remove_logo',
+        'addContact' => 'api_organizations_add_contact',
     ];
 
     public function __construct(private ImageResourceFactory $images, private Links $links)
@@ -41,6 +46,7 @@ final readonly class OrganizationResourcePresenter
             observations: $response->observations,
             logo: $this->images->create($response->logo?->url),
             holdingId: $response->holdingId,
+            contactIds: $response->contactIds,
             createdAt: $response->createdAt,
             modifiedAt: $response->modifiedAt,
             links: $this->linksOf($response),
@@ -53,7 +59,10 @@ final readonly class OrganizationResourcePresenter
         $possible = [];
         foreach ($response->possibleIntents as $intent) {
             $name = lcfirst($intent);
-            $possible[$name] = $this->links->to(self::ROUTES[$name], $id);
+
+            if (isset(self::ROUTES[$name])) {
+                $possible[$name] = $this->links->to(self::ROUTES[$name], $id);
+            }
         }
 
         return new OrganizationLinksResource($this->links->to('api_organizations_show', $id), ...$possible);

@@ -15,6 +15,7 @@ class DomainBehindTheApplicationTest extends TestCase
 
     private const array ADAPTERS = [
         'Prospecting/AccountsProspectors.php',
+        'Prospecting/PersonalDataKnownContacts.php',
         'PersonalData/AccountsReaders.php',
         'Prospecting/GeoplateformeGeoLocation.php',
         'DataFixtures/AppFixtures.php',

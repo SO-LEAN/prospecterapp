@@ -6,6 +6,7 @@ import {
   PanelLeftClose,
   PanelLeftOpen,
   UserRound,
+  UsersRound,
 } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import { cn } from '@/shared/lib/utils'
@@ -14,8 +15,8 @@ import { Tooltip, TooltipContent, TooltipTrigger } from '@/shared/ui/tooltip'
 import { BrandMark } from './brand'
 
 type Item = {
-  to: '/' | '/organizations' | '/account'
-  label: 'nav.dashboard' | 'nav.organizations' | 'nav.account'
+  to: '/' | '/organizations' | '/contacts' | '/account'
+  label: 'nav.dashboard' | 'nav.organizations' | 'nav.contacts' | 'nav.account'
   icon: LucideIcon
   exact?: boolean
 }
@@ -23,6 +24,7 @@ type Item = {
 const items: Item[] = [
   { to: '/', label: 'nav.dashboard', icon: LayoutDashboard, exact: true },
   { to: '/organizations', label: 'nav.organizations', icon: Building2 },
+  { to: '/contacts', label: 'nav.contacts', icon: UsersRound },
   { to: '/account', label: 'nav.account', icon: UserRound },
 ]
 

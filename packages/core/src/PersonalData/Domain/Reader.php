@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Prospecter\Core\PersonalData\Domain;
 
 use Prospecter\Core\SharedKernel\Domain\AccountId;
+use Prospecter\Core\SharedKernel\Domain\Exception\NotAllowed;
 use Prospecter\Core\SharedKernel\Domain\MemberId;
 use Prospecter\Core\SharedKernel\Domain\PersonId;
 
@@ -20,5 +21,28 @@ final readonly class Reader
         public PersonId $personId,
         public bool $readsPersonalData,
     ) {
+    }
+
+    /**
+     * Collecting contacts and searching them by text need the right to manage personal data; reading them
+     * masked does not.
+     *
+     * @return list<ContactsIntent>
+     */
+    public function contactsIntents(): array
+    {
+        return $this->readsPersonalData ? ContactsIntent::cases() : [];
+    }
+
+    /**
+     * A reader of masked data could guess them by filtering on what they cannot read.
+     *
+     * @throws NotAllowed
+     */
+    public function ensureMaySearchByText(string $text): void
+    {
+        if ('' !== $text && !$this->readsPersonalData) {
+            throw NotAllowed::because('Only a member allowed to manage personal data may search persons by text', 'q');
+        }
     }
 }

@@ -9,14 +9,21 @@ use Prospecter\Core\Accounts\Application\ChangeMyOrganizationLogo\ChangeMyOrgani
 use Prospecter\Core\Accounts\Application\ConsultMyAccount\ConsultMyAccount;
 use Prospecter\Core\Accounts\Application\ConsultMyAccount\ConsultMyAccountHandler;
 use Prospecter\Core\Accounts\Application\ReviseMyOrganizationIdentity\ReviseMyOrganizationIdentityHandler;
+use Prospecter\Core\PersonalData\Application\ChangeJobTitle\ChangeJobTitleHandler;
 use Prospecter\Core\PersonalData\Application\ChangePersonContactDetails\ChangePersonContactDetailsHandler;
 use Prospecter\Core\PersonalData\Application\ChangePersonPicture\ChangePersonPictureHandler;
+use Prospecter\Core\PersonalData\Application\CollectContact\CollectContactHandler;
 use Prospecter\Core\PersonalData\Application\ConsultPerson\ConsultPerson;
 use Prospecter\Core\PersonalData\Application\ConsultPerson\ConsultPersonHandler;
 use Prospecter\Core\PersonalData\Application\ConsultPersons\ConsultPersons;
 use Prospecter\Core\PersonalData\Application\ConsultPersons\ConsultPersonsHandler;
+use Prospecter\Core\PersonalData\Application\ForgetContact\ForgetContactHandler;
 use Prospecter\Core\PersonalData\Application\PersonResponse;
 use Prospecter\Core\PersonalData\Application\RenamePerson\RenamePersonHandler;
+use Prospecter\Core\PersonalData\Application\SearchContacts\SearchContacts;
+use Prospecter\Core\PersonalData\Application\SearchContacts\SearchContactsHandler;
+use Prospecter\Core\PersonalData\Application\SearchContacts\SearchContactsResponse;
+use Prospecter\Core\Prospecting\Application\AddContact\AddContactHandler;
 use Prospecter\Core\Prospecting\Application\AttachToHolding\AttachToHoldingHandler;
 use Prospecter\Core\Prospecting\Application\ChangeContactDetails\ChangeContactDetailsHandler;
 use Prospecter\Core\Prospecting\Application\ChangeLogo\ChangeLogoHandler;
@@ -25,6 +32,7 @@ use Prospecter\Core\Prospecting\Application\ConsultOrganization\ConsultOrganizat
 use Prospecter\Core\Prospecting\Application\DetachFromHolding\DetachFromHoldingHandler;
 use Prospecter\Core\Prospecting\Application\OrganizationResponse;
 use Prospecter\Core\Prospecting\Application\Relocate\RelocateHandler;
+use Prospecter\Core\Prospecting\Application\RemoveContact\RemoveContactHandler;
 use Prospecter\Core\Prospecting\Application\RemoveLogo\RemoveLogoHandler;
 use Prospecter\Core\Prospecting\Application\ReviseLegalIdentity\ReviseLegalIdentityHandler;
 use Prospecter\Core\Prospecting\Application\SearchProspectedOrganizations\SearchProspectedOrganizations;
@@ -45,6 +53,7 @@ use Tests\Core\Double\InMemoryStorage;
 use Tests\Core\Double\KnownPlacesGeoLocation;
 use Tests\Core\Double\MembersAsProspectors;
 use Tests\Core\Double\MembersAsReaders;
+use Tests\Core\Double\PersonsAsKnownContacts;
 use Tests\Core\Double\TimeOrderedUuids;
 
 /**
@@ -65,6 +74,7 @@ final class Application
 
     public readonly MembersAsProspectors $prospectors;
     public readonly MembersAsReaders $readers;
+    public readonly PersonsAsKnownContacts $knownContacts;
     /** @var array<class-string, CommandHandler> */
     private array $handlers = [];
     private ?string $signedIn = null;
@@ -83,6 +93,7 @@ final class Application
         $this->prospectors = new MembersAsProspectors($this->members);
         $this->persons = new InMemoryPersonRepository($database);
         $this->readers = new MembersAsReaders($this->members);
+        $this->knownContacts = new PersonsAsKnownContacts($this->persons);
         $this->storage = new InMemoryStorage();
         $this->geoLocation = new KnownPlacesGeoLocation();
 
@@ -156,6 +167,11 @@ final class Application
         return $this->attempt(fn (): array => new RefusalTranslatingHandler(new ConsultPersonsHandler($this->persons, $this->readers))($query));
     }
 
+    public function searchContacts(SearchContacts $query): ?SearchContactsResponse
+    {
+        return $this->attempt(fn (): SearchContactsResponse => new RefusalTranslatingHandler(new SearchContactsHandler($this->persons, $this->readers))($query));
+    }
+
     /**
      * The business refusal of the last command or query, null when it succeeded.
      */
@@ -184,6 +200,11 @@ final class Application
             new ChangePersonPictureHandler($this->persons, $this->readers, $this->storage),
             new ReviseMyOrganizationIdentityHandler($this->accounts, $this->members),
             new ChangeMyOrganizationLogoHandler($this->accounts, $this->members, $this->storage),
+            new CollectContactHandler($this->persons, $this->readers),
+            new ChangeJobTitleHandler($this->persons, $this->readers),
+            new ForgetContactHandler($this->persons, $this->readers),
+            new AddContactHandler($this->organizations, $this->prospectors, $this->knownContacts),
+            new RemoveContactHandler($this->organizations, $this->prospectors),
         ];
     }
 

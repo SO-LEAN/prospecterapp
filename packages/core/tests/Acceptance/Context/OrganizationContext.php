@@ -9,6 +9,7 @@ use Behat\Gherkin\Node\TableNode;
 use Behat\Step\Given;
 use Behat\Step\Then;
 use Behat\Step\When;
+use Prospecter\Core\Prospecting\Application\AddContact\AddContact;
 use Prospecter\Core\Prospecting\Application\AttachToHolding\AttachToHolding;
 use Prospecter\Core\Prospecting\Application\ChangeContactDetails\ChangeContactDetails;
 use Prospecter\Core\Prospecting\Application\ChangeLogo\ChangeLogo;
@@ -16,6 +17,7 @@ use Prospecter\Core\Prospecting\Application\ConsultOrganization\ConsultOrganizat
 use Prospecter\Core\Prospecting\Application\DetachFromHolding\DetachFromHolding;
 use Prospecter\Core\Prospecting\Application\OrganizationResponse;
 use Prospecter\Core\Prospecting\Application\Relocate\Relocate;
+use Prospecter\Core\Prospecting\Application\RemoveContact\RemoveContact;
 use Prospecter\Core\Prospecting\Application\RemoveLogo\RemoveLogo;
 use Prospecter\Core\Prospecting\Application\ReviseLegalIdentity\ReviseLegalIdentity;
 use Prospecter\Core\Prospecting\Application\SearchProspectedOrganizations\FoundOrganization;
@@ -182,6 +184,39 @@ final class OrganizationContext implements Context
     public function iRemoveTheLogo(string $name): void
     {
         $this->application->dispatch(new RemoveLogo($this->me(), $this->scenario->idOf($name), $this->application->now()));
+    }
+
+    #[Given(':contact est un contact de :organization')]
+    public function aContactOfTheOrganization(string $contact, string $organization): void
+    {
+        $prospect = $this->scenario->organizationNamed($organization);
+        $prospect->addContact($this->scenario->personNamed($contact)->id(), by: $this->scenario->managerOf($prospect), at: $this->application->now());
+        $this->application->organizations->save($prospect);
+    }
+
+    #[When('je rattache le contact :contact à :organization')]
+    public function iAddAContact(string $contact, string $organization): void
+    {
+        $this->application->dispatch(new AddContact($this->me(), $this->scenario->idOf($organization), $this->scenario->personIdOf($contact), $this->application->now()));
+    }
+
+    #[When('je retire le contact :contact de :organization')]
+    public function iRemoveAContact(string $contact, string $organization): void
+    {
+        $this->application->dispatch(new RemoveContact($this->me(), $this->scenario->idOf($organization), $this->scenario->personIdOf($contact), $this->application->now()));
+    }
+
+    #[Then('les contacts de :organization sont :')]
+    public function theContactsOfTheOrganizationAre(string $organization, TableNode $table): void
+    {
+        Expect::that(null === $this->application->refusal(), sprintf('Refused: %s', $this->application->refusal()?->getMessage()));
+        Expect::same($table->getColumn(0), array_map($this->scenario->nameOfPerson(...), $this->scenario->organizationNamed($organization)->contacts()));
+    }
+
+    #[Then(':organization n\'a pas de contact')]
+    public function theOrganizationHasNoContact(string $organization): void
+    {
+        Expect::same([], $this->scenario->organizationNamed($organization)->contacts());
     }
 
     #[When('je consulte l\'organisation :name')]

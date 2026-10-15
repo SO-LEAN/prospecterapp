@@ -195,6 +195,32 @@ final class ScenarioContext implements Context
     /**
      * The person a request would carry for this name; an unknown name gets an identity nobody has.
      */
+    public function rememberPerson(string $name, PersonId $id): void
+    {
+        $this->personIds[$name] = $id;
+    }
+
+    public function personNamed(string $name): Person
+    {
+        return $this->application->persons->get($this->personIds[$name] ?? throw new \LogicException(sprintf('No person "%s" in the scenario', $name)));
+    }
+
+    public function nameOfPerson(PersonId $id): string
+    {
+        $name = array_search($id, $this->personIds, false);
+
+        return false === $name ? throw new \LogicException(sprintf('No person %s in the scenario', $id)) : $name;
+    }
+
+    /**
+     * A member of this account allowed to manage personal data, to arrange its persons the way the business
+     * allows.
+     */
+    public function managerOfPersonalDataOf(AccountId $accountId): Reader
+    {
+        return new Reader(new MemberId($this->application->newIdentity()), $accountId, new PersonId($this->application->newIdentity()), true);
+    }
+
     public function personIdOf(string $name): string
     {
         return isset($this->personIds[$name]) ? $this->personIds[$name]->value : $this->application->newIdentity();
@@ -215,7 +241,7 @@ final class ScenarioContext implements Context
 
     public function prospectorOf(AccountId $accountId): Prospector
     {
-        return new Prospector(new MemberId($this->application->newIdentity()), $accountId);
+        return new Prospector(new MemberId($this->application->newIdentity()), $accountId, managesPersonalData: true);
     }
 
     /**
