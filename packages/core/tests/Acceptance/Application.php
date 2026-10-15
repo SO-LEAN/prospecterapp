@@ -22,6 +22,8 @@ use Prospecter\Core\PersonalData\Application\ConsultPersons\ConsultPersonsHandle
 use Prospecter\Core\PersonalData\Application\ForgetContact\ForgetContactHandler;
 use Prospecter\Core\PersonalData\Application\ForgetContactsLeftWithoutOrganization\ForgetContactsLeftWithoutOrganizationHandler;
 use Prospecter\Core\PersonalData\Application\PersonResponse;
+use Prospecter\Core\PersonalData\Application\PublishContactCollected\PublishContactCollectedHandler;
+use Prospecter\Core\PersonalData\Application\PublishContactForgotten\PublishContactForgottenHandler;
 use Prospecter\Core\PersonalData\Application\Published\IsAContactOf\IsAContactOf;
 use Prospecter\Core\PersonalData\Application\Published\IsAContactOf\IsAContactOfHandler;
 use Prospecter\Core\PersonalData\Application\RenamePerson\RenamePersonHandler;
@@ -40,6 +42,7 @@ use Prospecter\Core\Prospecting\Application\DetachForgottenContact\DetachForgott
 use Prospecter\Core\Prospecting\Application\DetachFromHolding\DetachFromHoldingHandler;
 use Prospecter\Core\Prospecting\Application\GeoLocalizer;
 use Prospecter\Core\Prospecting\Application\OrganizationResponse;
+use Prospecter\Core\Prospecting\Application\PublishContactsLeftWithoutOrganization\PublishContactsLeftWithoutOrganizationHandler;
 use Prospecter\Core\Prospecting\Application\Published\IsProspectedBy\IsProspectedBy;
 use Prospecter\Core\Prospecting\Application\Published\IsProspectedBy\IsProspectedByHandler;
 use Prospecter\Core\Prospecting\Application\Relocate\RelocateHandler;
@@ -281,6 +284,9 @@ final class Application
             new AttachCollectedContactHandler($this->organizations, $this->prospectorService, $this->events),
             new DetachForgottenContactHandler($this->organizations, $this->prospectorService, $this->events, $this->orphans),
             new ForgetContactsLeftWithoutOrganizationHandler($this->persons, $this->readerService, $this->events),
+            new PublishContactCollectedHandler($this->events),
+            new PublishContactForgottenHandler($this->events),
+            new PublishContactsLeftWithoutOrganizationHandler($this->events),
         ];
     }
 

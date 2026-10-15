@@ -9,11 +9,19 @@ use PHPUnit\Framework\TestCase;
 
 /**
  * A bounded context speaks only to the shared kernel; the shared kernel speaks to nobody (ADR 0030). A
- * context reaches another one through a port of its own, implemented outside the core by an anticorruption
- * layer that sees only what the other context publishes (ADR 0045); its doubles too.
+ * context asks another one through a port of its own, implemented outside the core by an anticorruption
+ * layer that sees only what the other context publishes (ADR 0045), its doubles too; it reacts to the
+ * integration events the other context publishes, never to its domain events (ADR 0046).
  */
 class BoundedContextsTest extends TestCase
 {
+    private const string PUBLISHED_EVENTS = 'Application\\Published\\Event\\';
+
+    /**
+     * An import of the core, aliased or not: its context, then the rest of its name.
+     */
+    private const string IMPORT = '/^use Prospecter\\\\Core\\\\(\w+)\\\\([\w\\\\]+)(?: as \w+)?;/m';
+
     private const array FORBIDDEN = [
         'Accounts' => ['PersonalData', 'Prospecting'],
         'PersonalData' => ['Accounts', 'Prospecting'],
@@ -51,10 +59,10 @@ class BoundedContextsTest extends TestCase
         $forbidden = [];
 
         foreach (new \RecursiveIteratorIterator(new \RecursiveDirectoryIterator($root.$context, \FilesystemIterator::SKIP_DOTS)) as $file) {
-            preg_match_all('/^use Prospecter\\\\Core\\\\(\w+)\\\\([\w\\\\]+);/m', (string) file_get_contents($file->getPathname()), $uses, PREG_SET_ORDER);
+            preg_match_all(self::IMPORT, (string) file_get_contents($file->getPathname()), $uses, PREG_SET_ORDER);
 
             foreach ($uses as [, $usedContext, $class]) {
-                if (in_array($usedContext, self::FORBIDDEN[$context], true)) {
+                if (in_array($usedContext, self::FORBIDDEN[$context], true) && !str_starts_with($class, self::PUBLISHED_EVENTS)) {
                     $forbidden[] = sprintf('%s: %s\\%s', substr($file->getPathname(), strlen($root)), $usedContext, $class);
                 }
             }
@@ -78,7 +86,7 @@ class BoundedContextsTest extends TestCase
                 continue;
             }
 
-            preg_match_all('/^use Prospecter\\\\Core\\\\(\\w+)\\\\([\\w\\\\]+);/m', $source, $uses, PREG_SET_ORDER);
+            preg_match_all(self::IMPORT, $source, $uses, PREG_SET_ORDER);
 
             foreach ($uses as [, $usedContext, $class]) {
                 if (in_array($usedContext, self::FORBIDDEN[$port], true) && !str_starts_with($class, 'Application\\Published\\')) {

@@ -4,15 +4,19 @@ declare(strict_types=1);
 
 namespace Prospecter\Core\Prospecting\Application\AttachCollectedContact;
 
+use Prospecter\Core\PersonalData\Application\Published\Event\ContactCollected;
 use Prospecter\Core\Prospecting\Domain\OrganizationRepository;
 use Prospecter\Core\Prospecting\Domain\ProspectorService;
 use Prospecter\Core\SharedKernel\Application\EventHandler;
 use Prospecter\Core\SharedKernel\Application\Port\Events;
 use Prospecter\Core\SharedKernel\Application\PublishesEvents;
-use Prospecter\Core\SharedKernel\Domain\Event\ContactCollected;
+use Prospecter\Core\SharedKernel\Domain\MemberId;
+use Prospecter\Core\SharedKernel\Domain\OrganizationId;
+use Prospecter\Core\SharedKernel\Domain\PersonId;
 
 /**
- * A contact collected in PersonalData joins the organizations it was collected for, by its collector.
+ * A contact collected in PersonalData joins the organizations it was collected for, by its collector: the
+ * integration event PersonalData publishes, translated into the words of Prospecting (ADR 0046).
  */
 final readonly class AttachCollectedContactHandler implements EventHandler
 {
@@ -24,11 +28,11 @@ final readonly class AttachCollectedContactHandler implements EventHandler
 
     public function __invoke(ContactCollected $event): void
     {
-        $collector = $this->prospectorService->prospectorFrom($event->by);
+        $collector = $this->prospectorService->prospectorFrom(new MemberId($event->memberId));
 
-        foreach ($event->organizations as $organizationId) {
-            $organization = $this->organizations->get($organizationId);
-            $organization->addContact($event->person, by: $collector, at: $event->occurredAt);
+        foreach ($event->organizationIds as $organizationId) {
+            $organization = $this->organizations->get(new OrganizationId($organizationId));
+            $organization->addContact(new PersonId($event->personId), by: $collector, at: $event->occurredAt);
             $this->organizations->save($organization);
             $this->publishWhatHappenedTo($organization);
         }

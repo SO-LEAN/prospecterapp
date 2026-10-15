@@ -6,14 +6,17 @@ namespace Prospecter\Core\PersonalData\Application\ForgetContactsLeftWithoutOrga
 
 use Prospecter\Core\PersonalData\Domain\PersonRepository;
 use Prospecter\Core\PersonalData\Domain\ReaderService;
+use Prospecter\Core\Prospecting\Application\Published\Event\ContactsLeftWithoutOrganization;
 use Prospecter\Core\SharedKernel\Application\EventHandler;
 use Prospecter\Core\SharedKernel\Application\Port\Events;
 use Prospecter\Core\SharedKernel\Application\PublishesEvents;
-use Prospecter\Core\SharedKernel\Domain\Event\ContactsLeftWithoutOrganization;
+use Prospecter\Core\SharedKernel\Domain\MemberId;
+use Prospecter\Core\SharedKernel\Domain\PersonId;
 
 /**
  * A contact is never alone (ADR 0042): the persons no organization names any more are erased, by the member
- * whose gesture left them alone.
+ * whose gesture left them alone; the integration event Prospecting publishes, translated into the words of
+ * PersonalData (ADR 0046).
  */
 final readonly class ForgetContactsLeftWithoutOrganizationHandler implements EventHandler
 {
@@ -25,8 +28,8 @@ final readonly class ForgetContactsLeftWithoutOrganizationHandler implements Eve
 
     public function __invoke(ContactsLeftWithoutOrganization $event): void
     {
-        $reader = $this->readerService->readerFrom($event->by);
-        $alone = $this->persons->ofIds($event->contacts);
+        $reader = $this->readerService->readerFrom(new MemberId($event->memberId));
+        $alone = $this->persons->ofIds(array_map(static fn (string $contact): PersonId => new PersonId($contact), $event->contactIds));
 
         foreach ($alone as $contact) {
             $contact->forget(by: $reader, at: $event->occurredAt);

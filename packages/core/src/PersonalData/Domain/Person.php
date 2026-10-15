@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace Prospecter\Core\PersonalData\Domain;
 
+use Prospecter\Core\PersonalData\Domain\Event\ContactCollected;
+use Prospecter\Core\PersonalData\Domain\Event\ContactForgotten;
 use Prospecter\Core\PersonalData\Domain\Event\JobTitleChanged;
 use Prospecter\Core\PersonalData\Domain\Event\PersonContactDetailsChanged;
 use Prospecter\Core\PersonalData\Domain\Event\PersonPictureChanged;
@@ -11,8 +13,6 @@ use Prospecter\Core\PersonalData\Domain\Event\PersonRenamed;
 use Prospecter\Core\PersonalData\Domain\Exception\UnknownPerson;
 use Prospecter\Core\SharedKernel\Domain\AccountId;
 use Prospecter\Core\SharedKernel\Domain\ContactDetails;
-use Prospecter\Core\SharedKernel\Domain\Event\ContactCollected;
-use Prospecter\Core\SharedKernel\Domain\Event\ContactForgotten;
 use Prospecter\Core\SharedKernel\Domain\Exception\BusinessRuleViolation;
 use Prospecter\Core\SharedKernel\Domain\Exception\NotAllowed;
 use Prospecter\Core\SharedKernel\Domain\File;
