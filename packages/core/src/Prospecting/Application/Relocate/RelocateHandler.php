@@ -7,7 +7,7 @@ namespace Prospecter\Core\Prospecting\Application\Relocate;
 use Prospecter\Core\Prospecting\Application\GeoLocalizer;
 use Prospecter\Core\Prospecting\Domain\Address;
 use Prospecter\Core\Prospecting\Domain\OrganizationRepository;
-use Prospecter\Core\Prospecting\Domain\Prospectors;
+use Prospecter\Core\Prospecting\Domain\ProspectorService;
 use Prospecter\Core\SharedKernel\Application\CommandHandler;
 use Prospecter\Core\SharedKernel\Application\Port\Events;
 use Prospecter\Core\SharedKernel\Application\PublishesEvents;
@@ -20,7 +20,7 @@ final readonly class RelocateHandler implements CommandHandler
 
     public function __construct(
         private OrganizationRepository $organizations,
-        private Prospectors $prospectors,
+        private ProspectorService $prospectorService,
         private Events $events,
         private GeoLocalizer $geoLocalizer,
     ) {
@@ -28,7 +28,7 @@ final readonly class RelocateHandler implements CommandHandler
 
     public function __invoke(Relocate $command): void
     {
-        $prospector = $this->prospectors->get(new MemberId($command->prospectorId));
+        $prospector = $this->prospectorService->prospectorFrom(new MemberId($command->prospectorId));
         $organization = $this->organizations->get(new OrganizationId($command->id));
         $address = new Address($command->street, $command->postalCode, $command->city, $command->country);
         $organization->relocateTo($address, $this->geoLocalizer->locate($address), by: $prospector, at: $command->executedAt);

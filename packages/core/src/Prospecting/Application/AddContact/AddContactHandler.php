@@ -8,7 +8,7 @@ use Prospecter\Core\Prospecting\Domain\Exception\UnknownContact;
 use Prospecter\Core\Prospecting\Domain\KnownContacts;
 use Prospecter\Core\Prospecting\Domain\OrganizationRepository;
 use Prospecter\Core\Prospecting\Domain\Prospector;
-use Prospecter\Core\Prospecting\Domain\Prospectors;
+use Prospecter\Core\Prospecting\Domain\ProspectorService;
 use Prospecter\Core\SharedKernel\Application\CommandHandler;
 use Prospecter\Core\SharedKernel\Application\Port\Events;
 use Prospecter\Core\SharedKernel\Application\PublishesEvents;
@@ -20,13 +20,13 @@ final readonly class AddContactHandler implements CommandHandler
 {
     use PublishesEvents;
 
-    public function __construct(private OrganizationRepository $organizations, private Prospectors $prospectors, private KnownContacts $knownContacts, private Events $events)
+    public function __construct(private OrganizationRepository $organizations, private ProspectorService $prospectorService, private KnownContacts $knownContacts, private Events $events)
     {
     }
 
     public function __invoke(AddContact $command): void
     {
-        $prospector = $this->prospectors->get(new MemberId($command->prospectorId));
+        $prospector = $this->prospectorService->prospectorFrom(new MemberId($command->prospectorId));
         $contact = new PersonId($command->personId);
         $this->ensureKnown($contact, $prospector);
         $organization = $this->organizations->get(new OrganizationId($command->id));

@@ -8,7 +8,7 @@ use Prospecter\Core\Prospecting\Domain\Organization;
 use Prospecter\Core\Prospecting\Domain\OrganizationRepository;
 use Prospecter\Core\Prospecting\Domain\OrphanContacts;
 use Prospecter\Core\Prospecting\Domain\Prospector;
-use Prospecter\Core\Prospecting\Domain\Prospectors;
+use Prospecter\Core\Prospecting\Domain\ProspectorService;
 use Prospecter\Core\SharedKernel\Application\CommandHandler;
 use Prospecter\Core\SharedKernel\Application\Port\Events;
 use Prospecter\Core\SharedKernel\Application\PublishesEvents;
@@ -21,7 +21,7 @@ final readonly class StopProspectingHandler implements CommandHandler
 
     public function __construct(
         private OrganizationRepository $organizations,
-        private Prospectors $prospectors,
+        private ProspectorService $prospectorService,
         private Events $events,
         private OrphanContacts $orphans,
     ) {
@@ -29,7 +29,7 @@ final readonly class StopProspectingHandler implements CommandHandler
 
     public function __invoke(StopProspecting $command): void
     {
-        $prospector = $this->prospectors->get(new MemberId($command->prospectorId));
+        $prospector = $this->prospectorService->prospectorFrom(new MemberId($command->prospectorId));
         $organization = $this->organizations->get(new OrganizationId($command->id));
         $organization->stopBeingProspected(by: $prospector, at: $command->executedAt, orphans: $this->orphans);
         $this->detachTheSubsidiariesOf($organization, $prospector, $command->executedAt);

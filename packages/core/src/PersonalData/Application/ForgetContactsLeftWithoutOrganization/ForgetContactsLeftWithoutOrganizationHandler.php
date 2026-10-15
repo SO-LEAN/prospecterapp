@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Prospecter\Core\PersonalData\Application\ForgetContactsLeftWithoutOrganization;
 
 use Prospecter\Core\PersonalData\Domain\PersonRepository;
-use Prospecter\Core\PersonalData\Domain\Readers;
+use Prospecter\Core\PersonalData\Domain\ReaderService;
 use Prospecter\Core\SharedKernel\Application\EventHandler;
 use Prospecter\Core\SharedKernel\Application\Port\Events;
 use Prospecter\Core\SharedKernel\Application\PublishesEvents;
@@ -19,13 +19,13 @@ final readonly class ForgetContactsLeftWithoutOrganizationHandler implements Eve
 {
     use PublishesEvents;
 
-    public function __construct(private PersonRepository $persons, private Readers $readers, private Events $events)
+    public function __construct(private PersonRepository $persons, private ReaderService $readerService, private Events $events)
     {
     }
 
     public function __invoke(ContactsLeftWithoutOrganization $event): void
     {
-        $reader = $this->readers->get($event->by);
+        $reader = $this->readerService->readerFrom($event->by);
         $alone = $this->persons->ofIds($event->contacts);
 
         foreach ($alone as $contact) {

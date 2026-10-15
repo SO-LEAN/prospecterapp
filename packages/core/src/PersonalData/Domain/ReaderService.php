@@ -8,12 +8,13 @@ use Prospecter\Core\PersonalData\Domain\Exception\UnknownReader;
 use Prospecter\Core\SharedKernel\Domain\MemberId;
 
 /**
- * The readers, read from the context that knows the members of an account.
+ * Port: the reader a member is, translated from the context that knows the members of an account (Accounts),
+ * through its published query `ConsultMember` (ADR 0045).
  */
-interface Readers
+interface ReaderService
 {
     /**
      * @throws UnknownReader
      */
-    public function get(MemberId $id): Reader;
+    public function readerFrom(MemberId $id): Reader;
 }

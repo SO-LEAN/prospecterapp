@@ -14,10 +14,10 @@ class DomainBehindTheApplicationTest extends TestCase
     private const string DOMAIN = '/^use Prospecter\\\\Core\\\\\w+\\\\Domain\\\\[\w\\\\]+;/m';
 
     private const array ADAPTERS = [
-        'Prospecting/AccountsProspectors.php',
+        'Prospecting/AccountsProspectorService.php',
         'Prospecting/PersonalDataKnownContacts.php',
         'PersonalData/ProspectingOrganizations.php',
-        'PersonalData/AccountsReaders.php',
+        'PersonalData/AccountsReaderService.php',
         'Prospecting/GeoplateformeGeoLocation.php',
         'DataFixtures/AppFixtures.php',
     ];

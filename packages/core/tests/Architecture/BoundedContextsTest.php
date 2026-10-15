@@ -9,7 +9,8 @@ use PHPUnit\Framework\TestCase;
 
 /**
  * A bounded context speaks only to the shared kernel; the shared kernel speaks to nobody (ADR 0030). A
- * context reaches another one through a port of its own, implemented outside the core.
+ * context reaches another one through a port of its own, implemented outside the core by an anticorruption
+ * layer that sees only what the other context publishes (ADR 0045); its doubles too.
  */
 class BoundedContextsTest extends TestCase
 {
@@ -19,6 +20,11 @@ class BoundedContextsTest extends TestCase
         'Prospecting' => ['Accounts', 'PersonalData'],
         'SharedKernel' => ['Accounts', 'PersonalData', 'Prospecting'],
     ];
+
+    public function testADoubleOfAPortSeesOfTheOtherContextsOnlyWhatTheyPublish(): void
+    {
+        $this->assertSame([], $this->unpublishedUsesInTheDoubles());
+    }
 
     #[DataProvider('contexts')]
     public function testAContextDoesNotUseAnotherOne(string $context): void
@@ -55,5 +61,45 @@ class BoundedContextsTest extends TestCase
         }
 
         return $forbidden;
+    }
+
+    /**
+     * @return list<string> "file: used class" for every class of another context than the one of the port
+     */
+    private function unpublishedUsesInTheDoubles(): array
+    {
+        $forbidden = [];
+
+        foreach (glob(dirname(__DIR__).'/Double/*.php') ?: [] as $file) {
+            $source = (string) file_get_contents($file);
+            $port = $this->contextOfThePortIn($source);
+
+            if (null === $port) {
+                continue;
+            }
+
+            preg_match_all('/^use Prospecter\\\\Core\\\\(\\w+)\\\\([\\w\\\\]+);/m', $source, $uses, PREG_SET_ORDER);
+
+            foreach ($uses as [, $usedContext, $class]) {
+                if (in_array($usedContext, self::FORBIDDEN[$port], true) && !str_starts_with($class, 'Application\\Published\\')) {
+                    $forbidden[] = sprintf('%s: %s\\%s', basename($file), $usedContext, $class);
+                }
+            }
+        }
+
+        return $forbidden;
+    }
+
+    /**
+     * The context of the port a double implements, null when it implements none of a context.
+     */
+    private function contextOfThePortIn(string $source): ?string
+    {
+        if (1 !== preg_match('/^final (?:readonly )?class \\w+ implements (\\w+)/m', $source, $implements)
+            || 1 !== preg_match('/^use Prospecter\\\\Core\\\\(\\w+)\\\\[\\w\\\\]*\\\\'.$implements[1].';/m', $source, $port)) {
+            return null;
+        }
+
+        return 'SharedKernel' === $port[1] ? null : $port[1];
     }
 }

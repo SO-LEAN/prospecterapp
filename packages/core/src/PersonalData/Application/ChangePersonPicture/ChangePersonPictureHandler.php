@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Prospecter\Core\PersonalData\Application\ChangePersonPicture;
 
 use Prospecter\Core\PersonalData\Domain\PersonRepository;
-use Prospecter\Core\PersonalData\Domain\Readers;
+use Prospecter\Core\PersonalData\Domain\ReaderService;
 use Prospecter\Core\SharedKernel\Application\CommandHandler;
 use Prospecter\Core\SharedKernel\Application\FileStore;
 use Prospecter\Core\SharedKernel\Application\Port\Events;
@@ -19,7 +19,7 @@ final readonly class ChangePersonPictureHandler implements CommandHandler
 
     public function __construct(
         private PersonRepository $persons,
-        private Readers $readers,
+        private ReaderService $readerService,
         private Events $events,
         private FileStore $files,
     ) {
@@ -28,7 +28,7 @@ final readonly class ChangePersonPictureHandler implements CommandHandler
     public function __invoke(ChangePersonPicture $command): void
     {
         $person = $this->persons->get(new PersonId($command->id));
-        $person->changePicture($this->files->store($command->picture), by: $this->readers->get(new MemberId($command->readerId)), at: $command->executedAt);
+        $person->changePicture($this->files->store($command->picture), by: $this->readerService->readerFrom(new MemberId($command->readerId)), at: $command->executedAt);
         $this->persons->save($person);
         $this->publishWhatHappenedTo($person);
     }

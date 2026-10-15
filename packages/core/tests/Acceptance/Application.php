@@ -8,6 +8,8 @@ use Prospecter\Core\Accounts\Application\AccountResponse;
 use Prospecter\Core\Accounts\Application\ChangeMyOrganizationLogo\ChangeMyOrganizationLogoHandler;
 use Prospecter\Core\Accounts\Application\ConsultMyAccount\ConsultMyAccount;
 use Prospecter\Core\Accounts\Application\ConsultMyAccount\ConsultMyAccountHandler;
+use Prospecter\Core\Accounts\Application\Published\ConsultMember\ConsultMember;
+use Prospecter\Core\Accounts\Application\Published\ConsultMember\ConsultMemberHandler;
 use Prospecter\Core\Accounts\Application\ReviseMyOrganizationIdentity\ReviseMyOrganizationIdentityHandler;
 use Prospecter\Core\PersonalData\Application\ChangeJobTitle\ChangeJobTitleHandler;
 use Prospecter\Core\PersonalData\Application\ChangePersonContactDetails\ChangePersonContactDetailsHandler;
@@ -20,6 +22,8 @@ use Prospecter\Core\PersonalData\Application\ConsultPersons\ConsultPersonsHandle
 use Prospecter\Core\PersonalData\Application\ForgetContact\ForgetContactHandler;
 use Prospecter\Core\PersonalData\Application\ForgetContactsLeftWithoutOrganization\ForgetContactsLeftWithoutOrganizationHandler;
 use Prospecter\Core\PersonalData\Application\PersonResponse;
+use Prospecter\Core\PersonalData\Application\Published\IsAContactOf\IsAContactOf;
+use Prospecter\Core\PersonalData\Application\Published\IsAContactOf\IsAContactOfHandler;
 use Prospecter\Core\PersonalData\Application\RenamePerson\RenamePersonHandler;
 use Prospecter\Core\PersonalData\Application\SearchContacts\SearchContacts;
 use Prospecter\Core\PersonalData\Application\SearchContacts\SearchContactsHandler;
@@ -36,6 +40,8 @@ use Prospecter\Core\Prospecting\Application\DetachForgottenContact\DetachForgott
 use Prospecter\Core\Prospecting\Application\DetachFromHolding\DetachFromHoldingHandler;
 use Prospecter\Core\Prospecting\Application\GeoLocalizer;
 use Prospecter\Core\Prospecting\Application\OrganizationResponse;
+use Prospecter\Core\Prospecting\Application\Published\IsProspectedBy\IsProspectedBy;
+use Prospecter\Core\Prospecting\Application\Published\IsProspectedBy\IsProspectedByHandler;
 use Prospecter\Core\Prospecting\Application\Relocate\RelocateHandler;
 use Prospecter\Core\Prospecting\Application\RemoveContact\RemoveContactHandler;
 use Prospecter\Core\Prospecting\Application\RemoveLogo\RemoveLogoHandler;
@@ -52,8 +58,11 @@ use Prospecter\Core\SharedKernel\Application\CommandHandler;
 use Prospecter\Core\SharedKernel\Application\EventHandler;
 use Prospecter\Core\SharedKernel\Application\Exception\UseCaseRefused;
 use Prospecter\Core\SharedKernel\Application\FileStore;
+use Prospecter\Core\SharedKernel\Application\QueryHandler;
 use Prospecter\Core\SharedKernel\Application\RefusalTranslatingHandler;
 use Prospecter\Core\SharedKernel\Domain\MemberId;
+use Tests\Core\Double\AccountsProspectorService;
+use Tests\Core\Double\AccountsReaderService;
 use Tests\Core\Double\InMemoryAccountRepository;
 use Tests\Core\Double\InMemoryDatabase;
 use Tests\Core\Double\InMemoryMemberRepository;
@@ -61,10 +70,8 @@ use Tests\Core\Double\InMemoryOrganizationRepository;
 use Tests\Core\Double\InMemoryPersonRepository;
 use Tests\Core\Double\InMemoryStorage;
 use Tests\Core\Double\KnownPlacesGeoLocation;
-use Tests\Core\Double\MembersAsProspectors;
-use Tests\Core\Double\MembersAsReaders;
-use Tests\Core\Double\OrganizationsAsProspectedOrganizations;
-use Tests\Core\Double\PersonsAsKnownContacts;
+use Tests\Core\Double\PersonalDataKnownContacts;
+use Tests\Core\Double\ProspectingOrganizations;
 use Tests\Core\Double\SynchronousEvents;
 use Tests\Core\Double\TimeOrderedUuids;
 
@@ -84,10 +91,10 @@ final class Application
     public readonly InMemoryStorage $storage;
     public readonly KnownPlacesGeoLocation $geoLocation;
 
-    public readonly MembersAsProspectors $prospectors;
-    public readonly MembersAsReaders $readers;
-    public readonly PersonsAsKnownContacts $knownContacts;
-    public readonly OrganizationsAsProspectedOrganizations $prospectedOrganizations;
+    public readonly AccountsProspectorService $prospectorService;
+    public readonly AccountsReaderService $readerService;
+    public readonly PersonalDataKnownContacts $knownContacts;
+    public readonly ProspectingOrganizations $prospectedOrganizations;
     public readonly SynchronousEvents $events;
     private readonly FileStore $files;
     private readonly GeoLocalizer $geoLocalizer;
@@ -109,11 +116,11 @@ final class Application
         $this->organizations = new InMemoryOrganizationRepository($database);
         $this->accounts = new InMemoryAccountRepository($database);
         $this->members = new InMemoryMemberRepository($database);
-        $this->prospectors = new MembersAsProspectors($this->members);
         $this->persons = new InMemoryPersonRepository($database);
-        $this->readers = new MembersAsReaders($this->members);
-        $this->knownContacts = new PersonsAsKnownContacts($this->persons);
-        $this->prospectedOrganizations = new OrganizationsAsProspectedOrganizations($this->organizations);
+        $this->prospectorService = new AccountsProspectorService($this->published(new ConsultMemberHandler($this->members)));
+        $this->readerService = new AccountsReaderService($this->published(new ConsultMemberHandler($this->members)));
+        $this->knownContacts = new PersonalDataKnownContacts($this->published(new IsAContactOfHandler($this->persons)));
+        $this->prospectedOrganizations = new ProspectingOrganizations($this->published(new IsProspectedByHandler($this->organizations)));
         $this->events = new SynchronousEvents();
         $this->storage = new InMemoryStorage();
         $this->geoLocation = new KnownPlacesGeoLocation();
@@ -171,12 +178,12 @@ final class Application
 
     public function consultOrganization(ConsultOrganization $query): ?OrganizationResponse
     {
-        return $this->attempt(fn (): OrganizationResponse => new RefusalTranslatingHandler(new ConsultOrganizationHandler($this->organizations, $this->prospectors))($query));
+        return $this->attempt(fn (): OrganizationResponse => new RefusalTranslatingHandler(new ConsultOrganizationHandler($this->organizations, $this->prospectorService))($query));
     }
 
     public function searchProspectedOrganizations(SearchProspectedOrganizations $query): ?SearchProspectedOrganizationsResponse
     {
-        return $this->attempt(fn (): SearchProspectedOrganizationsResponse => new RefusalTranslatingHandler(new SearchProspectedOrganizationsHandler($this->organizations, $this->prospectors))($query));
+        return $this->attempt(fn (): SearchProspectedOrganizationsResponse => new RefusalTranslatingHandler(new SearchProspectedOrganizationsHandler($this->organizations, $this->prospectorService))($query));
     }
 
     public function consultMyAccount(): ?AccountResponse
@@ -186,7 +193,7 @@ final class Application
 
     public function consultPerson(ConsultPerson $query): ?PersonResponse
     {
-        return $this->attempt(fn (): PersonResponse => new RefusalTranslatingHandler(new ConsultPersonHandler($this->persons, $this->readers))($query));
+        return $this->attempt(fn (): PersonResponse => new RefusalTranslatingHandler(new ConsultPersonHandler($this->persons, $this->readerService))($query));
     }
 
     /**
@@ -194,12 +201,12 @@ final class Application
      */
     public function consultPersons(ConsultPersons $query): ?array
     {
-        return $this->attempt(fn (): array => new RefusalTranslatingHandler(new ConsultPersonsHandler($this->persons, $this->readers))($query));
+        return $this->attempt(fn (): array => new RefusalTranslatingHandler(new ConsultPersonsHandler($this->persons, $this->readerService))($query));
     }
 
     public function searchContacts(SearchContacts $query): ?SearchContactsResponse
     {
-        return $this->attempt(fn (): SearchContactsResponse => new RefusalTranslatingHandler(new SearchContactsHandler($this->persons, $this->readers))($query));
+        return $this->attempt(fn (): SearchContactsResponse => new RefusalTranslatingHandler(new SearchContactsHandler($this->persons, $this->readerService))($query));
     }
 
     /**
@@ -216,27 +223,50 @@ final class Application
     private function commandHandlers(): array
     {
         return [
-            new StartProspectingHandler($this->organizations, $this->prospectors, $this->events, $this->geoLocalizer, $this->organizationEmails),
-            new ReviseLegalIdentityHandler($this->organizations, $this->prospectors, $this->events),
-            new ChangeContactDetailsHandler($this->organizations, $this->prospectors, $this->events, $this->organizationEmails),
-            new RelocateHandler($this->organizations, $this->prospectors, $this->events, $this->geoLocalizer),
-            new WriteObservationsHandler($this->organizations, $this->prospectors, $this->events),
-            new AttachToHoldingHandler($this->organizations, $this->prospectors, $this->events),
-            new DetachFromHoldingHandler($this->organizations, $this->prospectors, $this->events),
-            new ChangeLogoHandler($this->organizations, $this->prospectors, $this->events, $this->files),
-            new RemoveLogoHandler($this->organizations, $this->prospectors, $this->events, $this->files),
-            new RenamePersonHandler($this->persons, $this->readers, $this->events),
-            new ChangePersonContactDetailsHandler($this->persons, $this->readers, $this->events, $this->personEmails),
-            new ChangePersonPictureHandler($this->persons, $this->readers, $this->events, $this->files),
+            new StartProspectingHandler($this->organizations, $this->prospectorService, $this->events, $this->geoLocalizer, $this->organizationEmails),
+            new ReviseLegalIdentityHandler($this->organizations, $this->prospectorService, $this->events),
+            new ChangeContactDetailsHandler($this->organizations, $this->prospectorService, $this->events, $this->organizationEmails),
+            new RelocateHandler($this->organizations, $this->prospectorService, $this->events, $this->geoLocalizer),
+            new WriteObservationsHandler($this->organizations, $this->prospectorService, $this->events),
+            new AttachToHoldingHandler($this->organizations, $this->prospectorService, $this->events),
+            new DetachFromHoldingHandler($this->organizations, $this->prospectorService, $this->events),
+            new ChangeLogoHandler($this->organizations, $this->prospectorService, $this->events, $this->files),
+            new RemoveLogoHandler($this->organizations, $this->prospectorService, $this->events, $this->files),
+            new RenamePersonHandler($this->persons, $this->readerService, $this->events),
+            new ChangePersonContactDetailsHandler($this->persons, $this->readerService, $this->events, $this->personEmails),
+            new ChangePersonPictureHandler($this->persons, $this->readerService, $this->events, $this->files),
             new ReviseMyOrganizationIdentityHandler($this->accounts, $this->members, $this->events),
             new ChangeMyOrganizationLogoHandler($this->accounts, $this->members, $this->events, $this->files),
-            new CollectContactHandler($this->persons, $this->readers, $this->prospectedOrganizations, $this->events, $this->personEmails),
-            new ChangeJobTitleHandler($this->persons, $this->readers, $this->events),
-            new ForgetContactHandler($this->persons, $this->readers, $this->events),
-            new AddContactHandler($this->organizations, $this->prospectors, $this->knownContacts, $this->events),
-            new RemoveContactHandler($this->organizations, $this->prospectors, $this->events, $this->orphans),
-            new StopProspectingHandler($this->organizations, $this->prospectors, $this->events, $this->orphans),
+            new CollectContactHandler($this->persons, $this->readerService, $this->prospectedOrganizations, $this->events, $this->personEmails),
+            new ChangeJobTitleHandler($this->persons, $this->readerService, $this->events),
+            new ForgetContactHandler($this->persons, $this->readerService, $this->events),
+            new AddContactHandler($this->organizations, $this->prospectorService, $this->knownContacts, $this->events),
+            new RemoveContactHandler($this->organizations, $this->prospectorService, $this->events, $this->orphans),
+            new StopProspectingHandler($this->organizations, $this->prospectorService, $this->events, $this->orphans),
         ];
+    }
+
+    /**
+     * Asks a query a context publishes to the others (ADR 0045), as their anticorruption layers do.
+     */
+    public function askPublished(object $query): mixed
+    {
+        return $this->attempt(fn (): mixed => $this->published($this->publishedHandlerOf($query))($query));
+    }
+
+    private function published(QueryHandler $handler): RefusalTranslatingHandler
+    {
+        return new RefusalTranslatingHandler($handler);
+    }
+
+    private function publishedHandlerOf(object $query): QueryHandler
+    {
+        return match ($query::class) {
+            ConsultMember::class => new ConsultMemberHandler($this->members),
+            IsAContactOf::class => new IsAContactOfHandler($this->persons),
+            IsProspectedBy::class => new IsProspectedByHandler($this->organizations),
+            default => throw new \LogicException(sprintf('%s is no published query', $query::class)),
+        };
     }
 
     /**
@@ -248,9 +278,9 @@ final class Application
     private function eventHandlers(): array
     {
         return [
-            new AttachCollectedContactHandler($this->organizations, $this->prospectors, $this->events),
-            new DetachForgottenContactHandler($this->organizations, $this->prospectors, $this->events, $this->orphans),
-            new ForgetContactsLeftWithoutOrganizationHandler($this->persons, $this->readers, $this->events),
+            new AttachCollectedContactHandler($this->organizations, $this->prospectorService, $this->events),
+            new DetachForgottenContactHandler($this->organizations, $this->prospectorService, $this->events, $this->orphans),
+            new ForgetContactsLeftWithoutOrganizationHandler($this->persons, $this->readerService, $this->events),
         ];
     }
 

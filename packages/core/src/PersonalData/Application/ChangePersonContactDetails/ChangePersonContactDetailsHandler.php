@@ -6,7 +6,7 @@ namespace Prospecter\Core\PersonalData\Application\ChangePersonContactDetails;
 
 use Prospecter\Core\PersonalData\Domain\EmailUniqueness;
 use Prospecter\Core\PersonalData\Domain\PersonRepository;
-use Prospecter\Core\PersonalData\Domain\Readers;
+use Prospecter\Core\PersonalData\Domain\ReaderService;
 use Prospecter\Core\SharedKernel\Application\CommandHandler;
 use Prospecter\Core\SharedKernel\Application\Port\Events;
 use Prospecter\Core\SharedKernel\Application\PublishesEvents;
@@ -21,7 +21,7 @@ final readonly class ChangePersonContactDetailsHandler implements CommandHandler
 
     public function __construct(
         private PersonRepository $persons,
-        private Readers $readers,
+        private ReaderService $readerService,
         private Events $events,
         private EmailUniqueness $emails,
     ) {
@@ -30,7 +30,7 @@ final readonly class ChangePersonContactDetailsHandler implements CommandHandler
     public function __invoke(ChangePersonContactDetails $command): void
     {
         $person = $this->persons->get(new PersonId($command->id));
-        $person->changeContactDetails(new ContactDetails(Email::orNone($command->email), $command->phoneNumber, $command->language), by: $this->readers->get(new MemberId($command->readerId)), at: $command->executedAt);
+        $person->changeContactDetails(new ContactDetails(Email::orNone($command->email), $command->phoneNumber, $command->language), by: $this->readerService->readerFrom(new MemberId($command->readerId)), at: $command->executedAt);
         $this->emails->ensureAvailableFor($person);
         $this->persons->save($person);
         $this->publishWhatHappenedTo($person);

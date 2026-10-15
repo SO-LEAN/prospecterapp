@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Prospecter\Core\Prospecting\Application\RemoveLogo;
 
 use Prospecter\Core\Prospecting\Domain\OrganizationRepository;
-use Prospecter\Core\Prospecting\Domain\Prospectors;
+use Prospecter\Core\Prospecting\Domain\ProspectorService;
 use Prospecter\Core\SharedKernel\Application\CommandHandler;
 use Prospecter\Core\SharedKernel\Application\FileStore;
 use Prospecter\Core\SharedKernel\Application\Port\Events;
@@ -19,7 +19,7 @@ final readonly class RemoveLogoHandler implements CommandHandler
 
     public function __construct(
         private OrganizationRepository $organizations,
-        private Prospectors $prospectors,
+        private ProspectorService $prospectorService,
         private Events $events,
         private FileStore $files,
     ) {
@@ -27,7 +27,7 @@ final readonly class RemoveLogoHandler implements CommandHandler
 
     public function __invoke(RemoveLogo $command): void
     {
-        $prospector = $this->prospectors->get(new MemberId($command->prospectorId));
+        $prospector = $this->prospectorService->prospectorFrom(new MemberId($command->prospectorId));
         $organization = $this->organizations->get(new OrganizationId($command->id));
         $removedLogo = $organization->removeLogo(by: $prospector, at: $command->executedAt);
         $this->organizations->save($organization);

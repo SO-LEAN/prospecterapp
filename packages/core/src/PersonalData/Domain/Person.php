@@ -90,6 +90,11 @@ class Person implements ReleasesEvents
         return $this->purpose;
     }
 
+    public function isAContactOf(AccountId $accountId): bool
+    {
+        return $this->accountId->equals($accountId) && Purpose::Prospecting === $this->purpose;
+    }
+
     public function name(): PersonName
     {
         return $this->name;

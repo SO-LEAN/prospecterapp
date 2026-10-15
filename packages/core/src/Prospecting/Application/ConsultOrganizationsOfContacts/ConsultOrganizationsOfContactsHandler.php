@@ -6,14 +6,14 @@ namespace Prospecter\Core\Prospecting\Application\ConsultOrganizationsOfContacts
 
 use Prospecter\Core\Prospecting\Domain\Organization;
 use Prospecter\Core\Prospecting\Domain\OrganizationRepository;
-use Prospecter\Core\Prospecting\Domain\Prospectors;
+use Prospecter\Core\Prospecting\Domain\ProspectorService;
 use Prospecter\Core\SharedKernel\Application\QueryHandler;
 use Prospecter\Core\SharedKernel\Domain\MemberId;
 use Prospecter\Core\SharedKernel\Domain\PersonId;
 
 final readonly class ConsultOrganizationsOfContactsHandler implements QueryHandler
 {
-    public function __construct(private OrganizationRepository $organizations, private Prospectors $prospectors)
+    public function __construct(private OrganizationRepository $organizations, private ProspectorService $prospectorService)
     {
     }
 
@@ -22,7 +22,7 @@ final readonly class ConsultOrganizationsOfContactsHandler implements QueryHandl
      */
     public function __invoke(ConsultOrganizationsOfContacts $query): array
     {
-        $prospector = $this->prospectors->get(new MemberId($query->prospectorId));
+        $prospector = $this->prospectorService->prospectorFrom(new MemberId($query->prospectorId));
         $contacts = array_map(static fn (string $id): PersonId => new PersonId($id), $query->personIds);
         $organizations = $this->organizations->withContacts($contacts, $prospector->accountId);
         $byContact = [];

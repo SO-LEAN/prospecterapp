@@ -184,7 +184,7 @@ final class ScenarioContext implements Context
 
     public function meAsReader(): Reader
     {
-        return $this->application->readers->get(new MemberId($this->application->signedIn()));
+        return $this->application->readerService->readerFrom(new MemberId($this->application->signedIn()));
     }
 
     public function myPerson(): Person
@@ -228,7 +228,7 @@ final class ScenarioContext implements Context
 
     public function meAsProspector(): Prospector
     {
-        return $this->application->prospectors->get(new MemberId($this->application->signedIn()));
+        return $this->application->prospectorService->prospectorFrom(new MemberId($this->application->signedIn()));
     }
 
     /**

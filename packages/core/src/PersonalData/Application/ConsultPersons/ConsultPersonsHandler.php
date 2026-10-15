@@ -9,14 +9,14 @@ use Prospecter\Core\PersonalData\Domain\Exception\UnknownPerson;
 use Prospecter\Core\PersonalData\Domain\Person;
 use Prospecter\Core\PersonalData\Domain\PersonRepository;
 use Prospecter\Core\PersonalData\Domain\Reader;
-use Prospecter\Core\PersonalData\Domain\Readers;
+use Prospecter\Core\PersonalData\Domain\ReaderService;
 use Prospecter\Core\SharedKernel\Application\QueryHandler;
 use Prospecter\Core\SharedKernel\Domain\MemberId;
 use Prospecter\Core\SharedKernel\Domain\PersonId;
 
 final readonly class ConsultPersonsHandler implements QueryHandler
 {
-    public function __construct(private PersonRepository $persons, private Readers $readers)
+    public function __construct(private PersonRepository $persons, private ReaderService $readerService)
     {
     }
 
@@ -25,7 +25,7 @@ final readonly class ConsultPersonsHandler implements QueryHandler
      */
     public function __invoke(ConsultPersons $query): array
     {
-        $reader = $this->readers->get(new MemberId($query->readerId));
+        $reader = $this->readerService->readerFrom(new MemberId($query->readerId));
         $responses = [];
 
         foreach ($this->persons->ofIds(array_map(static fn (string $id): PersonId => new PersonId($id), $query->ids)) as $person) {

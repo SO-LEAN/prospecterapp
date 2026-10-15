@@ -6,7 +6,7 @@ namespace Prospecter\Core\Prospecting\Application\ChangeContactDetails;
 
 use Prospecter\Core\Prospecting\Domain\EmailUniqueness;
 use Prospecter\Core\Prospecting\Domain\OrganizationRepository;
-use Prospecter\Core\Prospecting\Domain\Prospectors;
+use Prospecter\Core\Prospecting\Domain\ProspectorService;
 use Prospecter\Core\SharedKernel\Application\CommandHandler;
 use Prospecter\Core\SharedKernel\Application\Port\Events;
 use Prospecter\Core\SharedKernel\Application\PublishesEvents;
@@ -21,7 +21,7 @@ final readonly class ChangeContactDetailsHandler implements CommandHandler
 
     public function __construct(
         private OrganizationRepository $organizations,
-        private Prospectors $prospectors,
+        private ProspectorService $prospectorService,
         private Events $events,
         private EmailUniqueness $emails,
     ) {
@@ -29,7 +29,7 @@ final readonly class ChangeContactDetailsHandler implements CommandHandler
 
     public function __invoke(ChangeContactDetails $command): void
     {
-        $prospector = $this->prospectors->get(new MemberId($command->prospectorId));
+        $prospector = $this->prospectorService->prospectorFrom(new MemberId($command->prospectorId));
         $organization = $this->organizations->get(new OrganizationId($command->id));
         $organization->changeContactDetails(new ContactDetails(Email::orNone($command->email), $command->phoneNumber, $command->language), by: $prospector, at: $command->executedAt);
         $this->emails->ensureAvailableFor($organization);
