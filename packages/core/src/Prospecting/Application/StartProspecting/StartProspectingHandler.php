@@ -13,6 +13,8 @@ use Prospecter\Core\Prospecting\Domain\OrganizationRepository;
 use Prospecter\Core\Prospecting\Domain\Prospector;
 use Prospecter\Core\Prospecting\Domain\Prospectors;
 use Prospecter\Core\SharedKernel\Application\CommandHandler;
+use Prospecter\Core\SharedKernel\Application\Port\Events;
+use Prospecter\Core\SharedKernel\Application\PublishesEvents;
 use Prospecter\Core\SharedKernel\Domain\ContactDetails;
 use Prospecter\Core\SharedKernel\Domain\Email;
 use Prospecter\Core\SharedKernel\Domain\LegalIdentity;
@@ -21,10 +23,12 @@ use Prospecter\Core\SharedKernel\Domain\OrganizationId;
 
 final readonly class StartProspectingHandler implements CommandHandler
 {
+    use PublishesEvents;
+
     private GeoLocalizer $geoLocalizer;
     private EmailUniqueness $emails;
 
-    public function __construct(private OrganizationRepository $organizations, private Prospectors $prospectors, GeoLocation $geoLocation)
+    public function __construct(private OrganizationRepository $organizations, private Prospectors $prospectors, GeoLocation $geoLocation, private Events $events)
     {
         $this->geoLocalizer = new GeoLocalizer($geoLocation);
         $this->emails = new EmailUniqueness($organizations);
@@ -40,12 +44,31 @@ final readonly class StartProspectingHandler implements CommandHandler
             new ContactDetails(Email::orNone($command->email), $command->phoneNumber, $command->language),
             $command->executedAt,
         );
-        $address = new Address($command->street, $command->postalCode, $command->city, $command->country);
-        $organization->relocateTo($address, $this->geoLocalizer->locate($address), by: $prospector, at: $command->executedAt);
-        $organization->writeObservations($command->observations, by: $prospector, at: $command->executedAt);
+        $this->locate($organization, $command, $prospector);
+        $this->observe($organization, $command, $prospector);
         $this->attachToTheHolding($organization, $command, $prospector);
         $this->emails->ensureAvailableFor($organization);
         $this->organizations->save($organization);
+        $this->publishWhatHappenedTo($organization);
+    }
+
+    /**
+     * Only what is known is told: an organization started without an address did not move.
+     */
+    private function locate(Organization $organization, StartProspecting $command, Prospector $prospector): void
+    {
+        $address = new Address($command->street, $command->postalCode, $command->city, $command->country);
+
+        if (!$address->isEmpty()) {
+            $organization->relocateTo($address, $this->geoLocalizer->locate($address), by: $prospector, at: $command->executedAt);
+        }
+    }
+
+    private function observe(Organization $organization, StartProspecting $command, Prospector $prospector): void
+    {
+        if (null !== $command->observations) {
+            $organization->writeObservations($command->observations, by: $prospector, at: $command->executedAt);
+        }
     }
 
     private function attachToTheHolding(Organization $organization, StartProspecting $command, Prospector $prospector): void

@@ -4,6 +4,18 @@ declare(strict_types=1);
 
 namespace Prospecter\Core\Prospecting\Domain;
 
+use Prospecter\Core\Prospecting\Domain\Event\AttachedToHolding;
+use Prospecter\Core\Prospecting\Domain\Event\ContactAdded;
+use Prospecter\Core\Prospecting\Domain\Event\ContactDetailsChanged;
+use Prospecter\Core\Prospecting\Domain\Event\ContactRemoved;
+use Prospecter\Core\Prospecting\Domain\Event\DetachedFromHolding;
+use Prospecter\Core\Prospecting\Domain\Event\LegalIdentityRevised;
+use Prospecter\Core\Prospecting\Domain\Event\LogoChanged;
+use Prospecter\Core\Prospecting\Domain\Event\LogoRemoved;
+use Prospecter\Core\Prospecting\Domain\Event\ObservationsWritten;
+use Prospecter\Core\Prospecting\Domain\Event\ProspectingStarted;
+use Prospecter\Core\Prospecting\Domain\Event\ProspectingStopped;
+use Prospecter\Core\Prospecting\Domain\Event\Relocated;
 use Prospecter\Core\Prospecting\Domain\Exception\UnknownOrganization;
 use Prospecter\Core\SharedKernel\Domain\AccountId;
 use Prospecter\Core\SharedKernel\Domain\ContactDetails;
@@ -17,11 +29,12 @@ use Prospecter\Core\SharedKernel\Domain\MemberId;
 use Prospecter\Core\SharedKernel\Domain\OrganizationId;
 use Prospecter\Core\SharedKernel\Domain\PersonId;
 use Prospecter\Core\SharedKernel\Domain\RecordsEvents;
+use Prospecter\Core\SharedKernel\Domain\ReleasesEvents;
 
 /**
  * Aggregate root: an organization an account prospects; the whole team of the account shares it.
  */
-class Organization
+class Organization implements ReleasesEvents
 {
     use RecordsEvents;
 
@@ -49,7 +62,10 @@ class Organization
     {
         self::ensureItCanBeNamed($legalIdentity, $contactDetails);
 
-        return new self($id, $prospector->accountId, $prospector->id, $legalIdentity, $contactDetails, $at);
+        $organization = new self($id, $prospector->accountId, $prospector->id, $legalIdentity, $contactDetails, $at);
+        $organization->recordThat(new ProspectingStarted($prospector->accountId, $prospector->id, $id, $at));
+
+        return $organization;
     }
 
     public function id(): OrganizationId
@@ -172,6 +188,7 @@ class Organization
         self::ensureItCanBeNamed($legalIdentity, $this->contactDetails);
         $this->legalIdentity = $legalIdentity;
         $this->modifiedAt = $at;
+        $this->recordThat(new LegalIdentityRevised($this->accountId, $by->id, $this->id, $at));
     }
 
     public function changeContactDetails(ContactDetails $contactDetails, Prospector $by, \DateTimeImmutable $at): void
@@ -180,6 +197,7 @@ class Organization
         self::ensureItCanBeNamed($this->legalIdentity, $contactDetails);
         $this->contactDetails = $contactDetails;
         $this->modifiedAt = $at;
+        $this->recordThat(new ContactDetailsChanged($this->accountId, $by->id, $this->id, $at));
     }
 
     public function relocateTo(?Address $address, ?GeoPoint $geoPoint, Prospector $by, \DateTimeImmutable $at): void
@@ -188,6 +206,7 @@ class Organization
         $this->address = null === $address || $address->isEmpty() ? null : $address;
         $this->geoPoint = $geoPoint;
         $this->modifiedAt = $at;
+        $this->recordThat(new Relocated($this->accountId, $by->id, $this->id, $at));
     }
 
     public function writeObservations(?string $observations, Prospector $by, \DateTimeImmutable $at): void
@@ -195,6 +214,7 @@ class Organization
         $this->ensurePossible(OrganizationIntent::WriteObservations, $by);
         $this->observations = $observations;
         $this->modifiedAt = $at;
+        $this->recordThat(new ObservationsWritten($this->accountId, $by->id, $this->id, $at));
     }
 
     public function attachToHolding(self $holding, Prospector $by, \DateTimeImmutable $at): void
@@ -203,6 +223,7 @@ class Organization
         $holding->ensureReachableBy($by);
         $this->holdingId = $holding->id();
         $this->modifiedAt = $at;
+        $this->recordThat(new AttachedToHolding($this->accountId, $by->id, $this->id, $at));
     }
 
     public function detachFromHolding(Prospector $by, \DateTimeImmutable $at): void
@@ -210,6 +231,7 @@ class Organization
         $this->ensurePossible(OrganizationIntent::DetachFromHolding, $by);
         $this->holdingId = null;
         $this->modifiedAt = $at;
+        $this->recordThat(new DetachedFromHolding($this->accountId, $by->id, $this->id, $at));
     }
 
     public function changeLogo(File $logo, Prospector $by, \DateTimeImmutable $at): void
@@ -217,6 +239,7 @@ class Organization
         $this->ensurePossible(OrganizationIntent::ChangeLogo, $by);
         $this->logo = $logo;
         $this->modifiedAt = $at;
+        $this->recordThat(new LogoChanged($this->accountId, $by->id, $this->id, $at));
     }
 
     public function removeLogo(Prospector $by, \DateTimeImmutable $at): File
@@ -225,6 +248,7 @@ class Organization
         $removed = $this->logo;
         $this->logo = null;
         $this->modifiedAt = $at;
+        $this->recordThat(new LogoRemoved($this->accountId, $by->id, $this->id, $at));
 
         return $removed;
     }
@@ -242,6 +266,7 @@ class Organization
 
         $this->contacts[] = $contact;
         $this->modifiedAt = $at;
+        $this->recordThat(new ContactAdded($this->accountId, $by->id, $this->id, $contact, $at));
     }
 
     /**
@@ -259,6 +284,7 @@ class Organization
 
         $this->contacts = array_values(array_filter($this->contacts, static fn (PersonId $attached): bool => !$attached->equals($contact)));
         $this->modifiedAt = $at;
+        $this->recordThat(new ContactRemoved($this->accountId, $by->id, $this->id, $contact, $at));
         $this->leaveAlone($orphans->among([$contact], $this->accountId, $this->id), $by, $at);
     }
 
@@ -271,6 +297,7 @@ class Organization
     public function stopBeingProspected(Prospector $by, \DateTimeImmutable $at, OrphanContacts $orphans): void
     {
         $this->ensurePossible(OrganizationIntent::StopProspecting, $by);
+        $this->recordThat(new ProspectingStopped($this->accountId, $by->id, $this->id, $at));
         $this->leaveAlone($orphans->among($this->contacts, $this->accountId, $this->id), $by, $at);
     }
 
@@ -280,7 +307,7 @@ class Organization
     private function leaveAlone(array $contacts, Prospector $by, \DateTimeImmutable $at): void
     {
         if ([] !== $contacts) {
-            $this->recordThat(new ContactsLeftWithoutOrganization($this->accountId, $by->id, $contacts, $at));
+            $this->recordThat(new ContactsLeftWithoutOrganization($this->accountId, $by->id, $this->id, $contacts, $at));
         }
     }
 

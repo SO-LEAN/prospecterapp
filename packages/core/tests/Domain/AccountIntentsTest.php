@@ -32,7 +32,10 @@ class AccountIntentsTest extends TestCase
         $account = Account::open(new AccountId(self::MINE), new LegalIdentity('SOLEAN IT'), new \DateTimeImmutable());
         $offered = in_array($intent, $account->possibleIntentsOf($member), true);
 
-        $this->assertSame($offered, $this->isAccepted($intent, $account, $member));
+        $accepted = $this->isAccepted($intent, $account, $member);
+
+        $this->assertSame($offered, $accepted);
+        $this->assertSame($accepted, [] !== $account->releaseEvents(), 'an accepted intention records what happened, a refused one nothing');
     }
 
     /**

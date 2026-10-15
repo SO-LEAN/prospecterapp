@@ -8,6 +8,7 @@ use Prospecter\Core\Accounts\Domain\Account;
 use Prospecter\Core\Accounts\Domain\Member;
 use Prospecter\Core\PersonalData\Domain\Person;
 use Prospecter\Core\Prospecting\Domain\Organization;
+use Prospecter\Core\SharedKernel\Domain\ReleasesEvents;
 
 /**
  * The tables behind the in-memory repositories, with the constraints of the real ones: an email unique among
@@ -27,7 +28,7 @@ final class InMemoryDatabase
 
     public function storeAccount(Account $account): void
     {
-        $this->accounts[(string) $account->id()] = clone $account;
+        $this->accounts[(string) $account->id()] = self::withoutItsEvents($account);
     }
 
     public function storeMember(Member $member): void
@@ -103,13 +104,13 @@ final class InMemoryDatabase
      * Like the Doctrine mapping, a stored aggregate keeps its state, not the events it recorded: they belong to
      * the use case that changed it.
      *
-     * @template T of Person|Organization
+     * @template T of ReleasesEvents
      *
      * @param T $aggregate
      *
      * @return T
      */
-    private static function withoutItsEvents(Person|Organization $aggregate): Person|Organization
+    private static function withoutItsEvents(ReleasesEvents $aggregate): ReleasesEvents
     {
         $stored = clone $aggregate;
         $stored->releaseEvents();

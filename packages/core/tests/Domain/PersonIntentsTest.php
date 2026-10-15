@@ -36,7 +36,10 @@ class PersonIntentsTest extends TestCase
         $person = Person::collect(new PersonId(self::PERSON), new AccountId(self::ACCOUNT), $purpose, new \DateTimeImmutable());
         $offered = in_array($intent, $person->possibleIntentsOf($reader), true);
 
-        $this->assertSame($offered, $this->isAccepted($intent, $person, $reader));
+        $accepted = $this->isAccepted($intent, $person, $reader);
+
+        $this->assertSame($offered, $accepted);
+        $this->assertSame($accepted, [] !== $person->releaseEvents(), 'an accepted intention records what happened, a refused one nothing');
     }
 
     /**

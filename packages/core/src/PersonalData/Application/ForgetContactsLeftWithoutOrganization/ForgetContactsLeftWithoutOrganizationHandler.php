@@ -8,6 +8,7 @@ use Prospecter\Core\PersonalData\Domain\PersonRepository;
 use Prospecter\Core\PersonalData\Domain\Readers;
 use Prospecter\Core\SharedKernel\Application\EventHandler;
 use Prospecter\Core\SharedKernel\Application\Port\Events;
+use Prospecter\Core\SharedKernel\Application\PublishesEvents;
 use Prospecter\Core\SharedKernel\Domain\Event\ContactsLeftWithoutOrganization;
 
 /**
@@ -16,13 +17,15 @@ use Prospecter\Core\SharedKernel\Domain\Event\ContactsLeftWithoutOrganization;
  */
 final readonly class ForgetContactsLeftWithoutOrganizationHandler implements EventHandler
 {
+    use PublishesEvents;
+
     public function __construct(private PersonRepository $persons, private Readers $readers, private Events $events)
     {
     }
 
     public function __invoke(ContactsLeftWithoutOrganization $event): void
     {
-        $reader = $this->readers->get($event->leftBy);
+        $reader = $this->readers->get($event->by);
         $alone = $this->persons->ofIds($event->contacts);
 
         foreach ($alone as $contact) {
@@ -31,7 +34,7 @@ final readonly class ForgetContactsLeftWithoutOrganizationHandler implements Eve
 
         foreach ($alone as $contact) {
             $this->persons->remove($contact);
-            $this->events->publish(...$contact->releaseEvents());
+            $this->publishWhatHappenedTo($contact);
         }
     }
 }

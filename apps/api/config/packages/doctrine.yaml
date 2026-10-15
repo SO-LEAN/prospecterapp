@@ -43,6 +43,11 @@ doctrine:
                         is_bundle: false
                         dir: '%kernel.project_dir%/config/doctrine/SharedKernel'
                         prefix: 'Prospecter\Core\SharedKernel\Domain'
+                    Journal:
+                        type: attribute
+                        is_bundle: false
+                        dir: '%kernel.project_dir%/src/Shared/Persistence/Journal'
+                        prefix: 'App\Shared\Persistence\Journal'
             personal_data:
                 connection: personal_data
                 validate_xml_mapping: true
@@ -58,6 +63,11 @@ doctrine:
                         is_bundle: false
                         dir: '%kernel.project_dir%/config/doctrine/SharedKernel'
                         prefix: 'Prospecter\Core\SharedKernel\Domain'
+                    Journal:
+                        type: attribute
+                        is_bundle: false
+                        dir: '%kernel.project_dir%/src/Shared/Persistence/Journal'
+                        prefix: 'App\Shared\Persistence\Journal'
             prospecting:
                 connection: prospecting
                 validate_xml_mapping: true
@@ -73,6 +83,11 @@ doctrine:
                         is_bundle: false
                         dir: '%kernel.project_dir%/config/doctrine/SharedKernel'
                         prefix: 'Prospecter\Core\SharedKernel\Domain'
+                    Journal:
+                        type: attribute
+                        is_bundle: false
+                        dir: '%kernel.project_dir%/src/Shared/Persistence/Journal'
+                        prefix: 'App\Shared\Persistence\Journal'
 
 when@prod:
     doctrine:

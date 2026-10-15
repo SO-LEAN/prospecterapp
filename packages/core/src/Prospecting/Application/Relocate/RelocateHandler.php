@@ -10,14 +10,18 @@ use Prospecter\Core\Prospecting\Domain\Address;
 use Prospecter\Core\Prospecting\Domain\OrganizationRepository;
 use Prospecter\Core\Prospecting\Domain\Prospectors;
 use Prospecter\Core\SharedKernel\Application\CommandHandler;
+use Prospecter\Core\SharedKernel\Application\Port\Events;
+use Prospecter\Core\SharedKernel\Application\PublishesEvents;
 use Prospecter\Core\SharedKernel\Domain\MemberId;
 use Prospecter\Core\SharedKernel\Domain\OrganizationId;
 
 final readonly class RelocateHandler implements CommandHandler
 {
+    use PublishesEvents;
+
     private GeoLocalizer $geoLocalizer;
 
-    public function __construct(private OrganizationRepository $organizations, private Prospectors $prospectors, GeoLocation $geoLocation)
+    public function __construct(private OrganizationRepository $organizations, private Prospectors $prospectors, GeoLocation $geoLocation, private Events $events)
     {
         $this->geoLocalizer = new GeoLocalizer($geoLocation);
     }
@@ -29,5 +33,6 @@ final readonly class RelocateHandler implements CommandHandler
         $address = new Address($command->street, $command->postalCode, $command->city, $command->country);
         $organization->relocateTo($address, $this->geoLocalizer->locate($address), by: $prospector, at: $command->executedAt);
         $this->organizations->save($organization);
+        $this->publishWhatHappenedTo($organization);
     }
 }

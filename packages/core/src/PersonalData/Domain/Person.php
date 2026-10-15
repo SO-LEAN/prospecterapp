@@ -4,6 +4,10 @@ declare(strict_types=1);
 
 namespace Prospecter\Core\PersonalData\Domain;
 
+use Prospecter\Core\PersonalData\Domain\Event\JobTitleChanged;
+use Prospecter\Core\PersonalData\Domain\Event\PersonContactDetailsChanged;
+use Prospecter\Core\PersonalData\Domain\Event\PersonPictureChanged;
+use Prospecter\Core\PersonalData\Domain\Event\PersonRenamed;
 use Prospecter\Core\PersonalData\Domain\Exception\UnknownPerson;
 use Prospecter\Core\SharedKernel\Domain\AccountId;
 use Prospecter\Core\SharedKernel\Domain\ContactDetails;
@@ -15,12 +19,13 @@ use Prospecter\Core\SharedKernel\Domain\File;
 use Prospecter\Core\SharedKernel\Domain\OrganizationId;
 use Prospecter\Core\SharedKernel\Domain\PersonId;
 use Prospecter\Core\SharedKernel\Domain\RecordsEvents;
+use Prospecter\Core\SharedKernel\Domain\ReleasesEvents;
 
 /**
  * Aggregate root: the personal data of a natural person, kept for one account and one purpose. The account
  * collected them: another account does not even learn that the person exists (ADR 0031).
  */
-class Person
+class Person implements ReleasesEvents
 {
     use RecordsEvents;
 
@@ -151,6 +156,7 @@ class Person
         $this->ensurePossible(PersonIntent::Rename, $by);
         $this->name = $name;
         $this->modifiedAt = $at;
+        $this->recordThat(new PersonRenamed($this->accountId, $by->id, $this->id, $at));
     }
 
     public function changeJobTitle(?string $jobTitle, Reader $by, \DateTimeImmutable $at): void
@@ -158,6 +164,7 @@ class Person
         $this->ensurePossible(PersonIntent::ChangeJobTitle, $by);
         $this->jobTitle = $jobTitle;
         $this->modifiedAt = $at;
+        $this->recordThat(new JobTitleChanged($this->accountId, $by->id, $this->id, $at));
     }
 
     public function changeContactDetails(ContactDetails $contactDetails, Reader $by, \DateTimeImmutable $at): void
@@ -165,6 +172,7 @@ class Person
         $this->ensurePossible(PersonIntent::ChangeContactDetails, $by);
         $this->contactDetails = $contactDetails;
         $this->modifiedAt = $at;
+        $this->recordThat(new PersonContactDetailsChanged($this->accountId, $by->id, $this->id, $at));
     }
 
     public function changePicture(File $picture, Reader $by, \DateTimeImmutable $at): void
@@ -172,6 +180,7 @@ class Person
         $this->ensurePossible(PersonIntent::ChangePicture, $by);
         $this->picture = $picture;
         $this->modifiedAt = $at;
+        $this->recordThat(new PersonPictureChanged($this->accountId, $by->id, $this->id, $at));
     }
 
     /**

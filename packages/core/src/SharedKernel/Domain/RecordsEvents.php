@@ -4,17 +4,19 @@ declare(strict_types=1);
 
 namespace Prospecter\Core\SharedKernel\Domain;
 
+use Prospecter\Core\SharedKernel\Domain\Event\DomainEvent;
+
 /**
- * An aggregate records what happened to it, in the language its context publishes; the use case releases the
- * events once the aggregate is saved, and publishes them (ADR 0042).
+ * The events of an aggregate (ReleasesEvents): its intention methods record them, the use case releases them
+ * once the aggregate is saved, and publishes them (ADR 0042, 0043).
  */
 trait RecordsEvents
 {
-    /** @var list<object> */
+    /** @var list<DomainEvent> */
     private array $recordedEvents = [];
 
     /**
-     * @return list<object> the events recorded since the last release, oldest first
+     * @return list<DomainEvent>
      */
     public function releaseEvents(): array
     {
@@ -24,7 +26,7 @@ trait RecordsEvents
         return $released;
     }
 
-    private function recordThat(object $event): void
+    private function recordThat(DomainEvent $event): void
     {
         $this->recordedEvents[] = $event;
     }

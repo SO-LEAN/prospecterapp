@@ -4,17 +4,23 @@ declare(strict_types=1);
 
 namespace Prospecter\Core\Accounts\Domain;
 
+use Prospecter\Core\Accounts\Domain\Event\AccountIdentityRevised;
+use Prospecter\Core\Accounts\Domain\Event\AccountLogoChanged;
 use Prospecter\Core\Accounts\Domain\Exception\UnknownAccount;
 use Prospecter\Core\SharedKernel\Domain\AccountId;
 use Prospecter\Core\SharedKernel\Domain\ContactDetails;
 use Prospecter\Core\SharedKernel\Domain\File;
 use Prospecter\Core\SharedKernel\Domain\LegalIdentity;
+use Prospecter\Core\SharedKernel\Domain\RecordsEvents;
+use Prospecter\Core\SharedKernel\Domain\ReleasesEvents;
 
 /**
  * Aggregate root: an organization using Prospecter, managed by its members.
  */
-class Account
+class Account implements ReleasesEvents
 {
+    use RecordsEvents;
+
     private ?File $logo = null;
     private \DateTimeImmutable $modifiedAt;
 
@@ -80,6 +86,7 @@ class Account
         $this->ensureMember($by);
         $this->legalIdentity = $legalIdentity;
         $this->modifiedAt = $at;
+        $this->recordThat(new AccountIdentityRevised($this->id, $by->id(), $at));
     }
 
     public function changeLogo(File $logo, Member $by, \DateTimeImmutable $at): void
@@ -87,6 +94,7 @@ class Account
         $this->ensureMember($by);
         $this->logo = $logo;
         $this->modifiedAt = $at;
+        $this->recordThat(new AccountLogoChanged($this->id, $by->id(), $at));
     }
 
     private function hasMember(Member $member): bool

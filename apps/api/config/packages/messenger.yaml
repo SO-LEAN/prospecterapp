@@ -5,8 +5,8 @@ framework:
         default_bus: command.bus
         buses:
             command.bus: ~
-            # what a use case tells the other contexts, delivered within it (ADR 0042); an event nobody
-            # handles is not an error
+            # the domain events a use case releases, delivered within it (ADR 0042, 0043): the other
+            # contexts react, the activity journal keeps them all
             event.bus:
                 default_middleware:
                     allow_no_handlers: true

@@ -20,6 +20,7 @@ services:
             - '../src/Dashboard/DashboardResource.php'
             - '../src/Security/User.php'
             - '../src/Kernel.php'
+            - '../src/Shared/Persistence/Journal/JournalEntry.php'
 
     # Handlers of the core: commands go through the command bus, queries are called by the controllers
     Prospecter\Core\:

@@ -27,6 +27,14 @@ final class SynchronousEvents implements Events
         $this->handlers[$type->getName()][] = $handler;
     }
 
+    /**
+     * @return list<class-string<EventHandler>>
+     */
+    public function subscribers(): array
+    {
+        return array_values(array_unique(array_merge(...array_values(array_map(static fn (array $handlers): array => array_map(static fn (EventHandler $handler): string => $handler::class, $handlers), $this->handlers)))));
+    }
+
     public function publish(object ...$events): void
     {
         foreach ($events as $event) {

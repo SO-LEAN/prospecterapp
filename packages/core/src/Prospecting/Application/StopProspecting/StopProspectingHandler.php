@@ -11,11 +11,14 @@ use Prospecter\Core\Prospecting\Domain\Prospector;
 use Prospecter\Core\Prospecting\Domain\Prospectors;
 use Prospecter\Core\SharedKernel\Application\CommandHandler;
 use Prospecter\Core\SharedKernel\Application\Port\Events;
+use Prospecter\Core\SharedKernel\Application\PublishesEvents;
 use Prospecter\Core\SharedKernel\Domain\MemberId;
 use Prospecter\Core\SharedKernel\Domain\OrganizationId;
 
 final readonly class StopProspectingHandler implements CommandHandler
 {
+    use PublishesEvents;
+
     private OrphanContacts $orphans;
 
     public function __construct(private OrganizationRepository $organizations, private Prospectors $prospectors, private Events $events)
@@ -30,7 +33,7 @@ final readonly class StopProspectingHandler implements CommandHandler
         $organization->stopBeingProspected(by: $prospector, at: $command->executedAt, orphans: $this->orphans);
         $this->detachTheSubsidiariesOf($organization, $prospector, $command->executedAt);
         $this->organizations->remove($organization);
-        $this->events->publish(...$organization->releaseEvents());
+        $this->publishWhatHappenedTo($organization);
     }
 
     private function detachTheSubsidiariesOf(Organization $holding, Prospector $prospector, \DateTimeImmutable $at): void
@@ -38,6 +41,7 @@ final readonly class StopProspectingHandler implements CommandHandler
         foreach ($this->organizations->subsidiariesOf($holding->id()) as $subsidiary) {
             $subsidiary->detachFromHolding(by: $prospector, at: $at);
             $this->organizations->save($subsidiary);
+            $this->publishWhatHappenedTo($subsidiary);
         }
     }
 }

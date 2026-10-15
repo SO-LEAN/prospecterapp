@@ -12,17 +12,13 @@ use Prospecter\Core\SharedKernel\Domain\PersonId;
 /**
  * A person the account prospects was collected, as a contact of these organizations.
  */
-final readonly class ContactCollected
+final readonly class ContactCollected extends PersonEvent
 {
     /**
      * @param list<OrganizationId> $organizations
      */
-    public function __construct(
-        public AccountId $accountId,
-        public MemberId $collectedBy,
-        public PersonId $contact,
-        public array $organizations,
-        public \DateTimeImmutable $occurredAt,
-    ) {
+    public function __construct(AccountId $accountId, MemberId $by, PersonId $person, public array $organizations, \DateTimeImmutable $occurredAt)
+    {
+        parent::__construct($accountId, $by, $person, $occurredAt);
     }
 }

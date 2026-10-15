@@ -10,13 +10,17 @@ use Prospecter\Core\Prospecting\Domain\OrganizationRepository;
 use Prospecter\Core\Prospecting\Domain\Prospector;
 use Prospecter\Core\Prospecting\Domain\Prospectors;
 use Prospecter\Core\SharedKernel\Application\CommandHandler;
+use Prospecter\Core\SharedKernel\Application\Port\Events;
+use Prospecter\Core\SharedKernel\Application\PublishesEvents;
 use Prospecter\Core\SharedKernel\Domain\MemberId;
 use Prospecter\Core\SharedKernel\Domain\OrganizationId;
 use Prospecter\Core\SharedKernel\Domain\PersonId;
 
 final readonly class AddContactHandler implements CommandHandler
 {
-    public function __construct(private OrganizationRepository $organizations, private Prospectors $prospectors, private KnownContacts $knownContacts)
+    use PublishesEvents;
+
+    public function __construct(private OrganizationRepository $organizations, private Prospectors $prospectors, private KnownContacts $knownContacts, private Events $events)
     {
     }
 
@@ -28,6 +32,7 @@ final readonly class AddContactHandler implements CommandHandler
         $organization = $this->organizations->get(new OrganizationId($command->id));
         $organization->addContact($contact, by: $prospector, at: $command->executedAt);
         $this->organizations->save($organization);
+        $this->publishWhatHappenedTo($organization);
     }
 
     private function ensureKnown(PersonId $contact, Prospector $prospector): void

@@ -47,9 +47,13 @@ class OrganizationIntentsTest extends TestCase
     {
         $user = $this->someoneOf($userAccount, $managesPersonalData);
         $organization = $this->prospect($state);
+        $organization->releaseEvents();
         $offered = in_array($intent, $organization->possibleIntentsOf($user), true);
 
-        $this->assertSame($offered, $this->isAccepted($intent, $organization, $user), sprintf('%s offered: %s', $intent->name, var_export($offered, true)));
+        $accepted = $this->isAccepted($intent, $organization, $user);
+
+        $this->assertSame($offered, $accepted, sprintf('%s offered: %s', $intent->name, var_export($offered, true)));
+        $this->assertSame($accepted, [] !== $organization->releaseEvents(), 'an accepted intention records what happened, a refused one nothing');
     }
 
     /**

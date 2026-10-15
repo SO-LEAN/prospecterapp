@@ -14,6 +14,7 @@ use Prospecter\Core\PersonalData\Domain\Reader;
 use Prospecter\Core\PersonalData\Domain\Readers;
 use Prospecter\Core\SharedKernel\Application\CommandHandler;
 use Prospecter\Core\SharedKernel\Application\Port\Events;
+use Prospecter\Core\SharedKernel\Application\PublishesEvents;
 use Prospecter\Core\SharedKernel\Domain\ContactDetails;
 use Prospecter\Core\SharedKernel\Domain\Email;
 use Prospecter\Core\SharedKernel\Domain\MemberId;
@@ -26,6 +27,8 @@ use Prospecter\Core\SharedKernel\Domain\PersonId;
  */
 final readonly class CollectContactHandler implements CommandHandler
 {
+    use PublishesEvents;
+
     private EmailUniqueness $emails;
 
     public function __construct(
@@ -53,7 +56,7 @@ final readonly class CollectContactHandler implements CommandHandler
         );
         $this->emails->ensureAvailableFor($contact);
         $this->persons->save($contact);
-        $this->events->publish(...$contact->releaseEvents());
+        $this->publishWhatHappenedTo($contact);
     }
 
     /**
