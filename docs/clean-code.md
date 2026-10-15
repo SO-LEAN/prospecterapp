@@ -54,12 +54,9 @@ This guide is alive: rules get added and sharpened as the code is improved, iter
 - **Requests, responses and value objects are data structures**: `final readonly` with public properties, no behaviour except their invariants (`File` validates its URL).
 - **Prefer immutability**: `readonly` classes and properties; a change produces a new value object.
 
-**Known debt**
-- Aggregates keep the fields of their value objects in plain properties and rebuild them in their accessors (`assignLegalIdentity()`...), because Doctrine cannot map a nullable embeddable: a persistence limit leaking into the domain. The mapping should adapt instead (embeddables, custom types).
-
 ## 6. Error handling
 
-- **Exceptions, not return codes**, with the context needed to understand them: business refusals are `UseCaseException` subclasses carrying their violations; infrastructure failures are adapter exceptions translated at the boundary; an aggregate refuses a change with a `BusinessRuleViolation` naming the field.
+- **Exceptions, not return codes**, with the context needed to understand them: business refusals are domain exceptions (`NotFound`, `BusinessRuleViolation` naming its field, `NotPossibleInItsState`); infrastructure failures are adapter exceptions translated at the boundary.
 - **Define exceptions by the caller's needs**: one type per way the caller reacts (not found, refused, conflict), not one per failure.
 - **Do not return `null`, do not pass `null`** when it can be avoided: throw, return an empty collection, or a special case object. `?Type` only when absence is a real, expected answer.
 - **Unchecked exceptions**: PHP has no checked exceptions; document `@throws` on ports, where implementers need it.
@@ -70,6 +67,7 @@ This guide is alive: rules get added and sharpened as the code is improved, iter
 ## 7. Boundaries
 
 - **Wrap third-party code** behind our own interfaces: the core sees ports (`GeoLocation`, `Storage`), never Doctrine, Symfony or HTTP clients.
+- **The domain does not bend to a tool**: an aggregate keeps its value objects even when the ORM finds them awkward; the adapter adapts (embeddables, custom Doctrine types, ADR 0028). No comment, property or method of the core mentions persistence.
 - **Learning tests** for a library we depend on in a way we are unsure of; the adapter tests play this role (`GeoplateformeGeoLocationTest`).
 - **Code that does not exist yet**: define the interface we wish we had, and adapt to the real one later.
 

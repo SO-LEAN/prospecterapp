@@ -1,7 +1,7 @@
 # 0023. Tactical DDD in the core: aggregates, value objects, repositories
 
 - Date: 2026-10-15
-- Status: Accepted
+- Status: Accepted; its persistence point superseded by [0028](0028-aggregates-keep-their-value-objects.md)
 - Supersedes: [0018](0018-readonly-core-model.md)
 - Implemented by: `packages/core/src/Domain`, `packages/core/src/Application`, `apps/api/src/Repository`
 

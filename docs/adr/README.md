@@ -26,8 +26,9 @@ Why the project is shaped the way it is: one file per decision in `docs/adr/`, i
 | [0020](0020-command-bus-instead-of-the-facade.md) | Use cases as commands on a command bus, no query bus | Proposed | 2026-10-15 |
 | [0021](0021-use-cases-named-after-business-intents.md) | Use cases named after business intents | Superseded by 0025 | 2026-10-14 |
 | [0022](0022-clean-code-conventions.md) | Clean code as taught by Robert C. Martin, rules in `docs/clean-code.md` | Accepted | 2026-10-13 |
-| [0023](0023-tactical-ddd-in-the-core.md) | Tactical DDD in the core: aggregates, value objects, repositories | Accepted | 2026-10-15 |
+| [0023](0023-tactical-ddd-in-the-core.md) | Tactical DDD in the core: aggregates, value objects, repositories | Accepted, persistence superseded by 0028 | 2026-10-15 |
 | [0024](0024-uuid-v7-identities-given-by-the-repository.md) | Identities are UUID v7 given by the repository | Accepted | 2026-10-15 |
 | [0025](0025-one-business-intent-per-use-case-and-endpoint.md) | One business intent per use case and per endpoint; edition by section | Accepted | 2026-10-15 |
 | [0026](0026-roles-in-the-api-ownership-and-state-in-the-aggregate.md) | Roles are checked by the API, ownership and state are decided by the aggregate | Accepted | 2026-10-15 |
 | [0027](0027-hypermedia-links-from-the-possible-intents.md) | Resources carry hypermedia links built from the possible intents of the core | Accepted | 2026-10-15 |
+| [0028](0028-aggregates-keep-their-value-objects.md) | Aggregates keep their value objects; the Doctrine mapping adapts to them | Accepted | 2026-10-15 |
