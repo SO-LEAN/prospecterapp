@@ -35,7 +35,6 @@ function Organizations() {
   const { t } = useTranslation()
   const search = Route.useSearch()
   const navigate = useNavigate({ from: Route.fullPath })
-  // previous page stays on screen while the next one loads (no flash of skeleton)
   const { data, isPlaceholderData } = useQuery({
     ...organizationsQuery(search),
     placeholderData: keepPreviousData,

@@ -14,9 +14,15 @@ class UploadedFileInfoTest extends TestCase
 
     protected function setUp(): void
     {
-        // like PHP uploads: a temporary file without extension
-        $this->temporaryPath = tempnam(sys_get_temp_dir(), 'php');
-        copy(__DIR__.'/../Fixtures/logo.png', $this->temporaryPath);
+        $this->temporaryPath = $this->anUploadStoredLikePhpDoesWithoutExtension();
+    }
+
+    private function anUploadStoredLikePhpDoesWithoutExtension(): string
+    {
+        $path = (string) tempnam(sys_get_temp_dir(), 'php');
+        copy(__DIR__.'/../Fixtures/logo.png', $path);
+
+        return $path;
     }
 
     protected function tearDown(): void

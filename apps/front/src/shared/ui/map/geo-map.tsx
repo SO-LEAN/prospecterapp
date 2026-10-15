@@ -10,8 +10,7 @@ export type MapMarker = {
   imageUrl?: string | null
 }
 
-// MapLibre is heavy: load it only when a map is actually displayed
-const MapView = lazy(() => import('./map-view'))
+const MapViewLoadedOnDemand = lazy(() => import('./map-view'))
 
 type Props = {
   markers: MapMarker[]
@@ -25,7 +24,7 @@ export function GeoMap({ className, ...props }: Props) {
   return (
     <div className={cn('relative isolate overflow-hidden rounded-xl border bg-muted', className)}>
       <Suspense fallback={<Skeleton className="absolute inset-0 rounded-none" />}>
-        <MapView {...props} />
+        <MapViewLoadedOnDemand {...props} />
       </Suspense>
     </div>
   )

@@ -16,8 +16,8 @@ class LoginTest extends ControllerTestCase
 
         $this->submitCredentials('prospector', 'password');
 
-        // Symfony normalizes the saved URL (sorted query parameters)
-        $this->assertResponseRedirects('http://api.test.prospecter.io/authorize?client_id=prospecter-front&response_type=code');
+        $authorizeWithSortedParameters = 'http://api.test.prospecter.io/authorize?client_id=prospecter-front&response_type=code';
+        $this->assertResponseRedirects($authorizeWithSortedParameters);
     }
 
     public function testSignInWithoutPendingAuthorizationGoesToTheSpa(): void

@@ -4,7 +4,7 @@ import { RouterProvider } from '@tanstack/react-router'
 import type { User } from 'oidc-client-ts'
 import { useEffect, useRef } from 'react'
 import { useTranslation } from 'react-i18next'
-import { AuthProvider, useAuth } from 'react-oidc-context'
+import { type AuthContextProps, AuthProvider, useAuth } from 'react-oidc-context'
 import { useThemeClass } from '@/shared/stores/preferences'
 import { FullPageMessage } from '@/shared/ui/feedback/full-page-message'
 import { Toaster } from '@/shared/ui/sonner'
@@ -19,22 +19,28 @@ function onSigninCallback(user: User | undefined) {
   void router.navigate({ to: target ? target.pathname + target.search : '/', replace: true })
 }
 
-function InnerApp() {
-  const auth = useAuth()
-  const { t } = useTranslation()
-  useThemeClass()
-
-  // re-run the route guards when the user signs in or out (not on the first load: the router does it)
+function useRouteGuardsRerunOnSignInOrOut(auth: AuthContextProps) {
   const wasAuthenticated = useRef(auth.isAuthenticated)
+
   useEffect(() => {
     if (!auth.isLoading && wasAuthenticated.current !== auth.isAuthenticated) {
       wasAuthenticated.current = auth.isAuthenticated
       void router.invalidate()
     }
   }, [auth.isAuthenticated, auth.isLoading])
+}
 
-  // wait until the stored session is read, so no request leaves without its token
-  if (auth.isLoading && !window.location.pathname.startsWith('/auth/callback')) {
+const isReadingTheStoredSession = (auth: AuthContextProps) =>
+  auth.isLoading && !window.location.pathname.startsWith('/auth/callback')
+
+function InnerApp() {
+  const auth = useAuth()
+  const { t } = useTranslation()
+  useThemeClass()
+
+  useRouteGuardsRerunOnSignInOrOut(auth)
+
+  if (isReadingTheStoredSession(auth)) {
     return <FullPageMessage loading title={t('common.loading')} />
   }
 

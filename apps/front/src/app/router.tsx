@@ -12,9 +12,7 @@ export type RouterContext = {
 export const router = createRouter({
   routeTree,
   context: { queryClient, auth: undefined as unknown as AuthContextProps },
-  // start loading a route (code + data) when its link is hovered or focused
   defaultPreload: 'intent',
-  // loaders read the TanStack Query cache, which handles freshness itself
   defaultPreloadStaleTime: 0,
   scrollRestoration: true,
 })

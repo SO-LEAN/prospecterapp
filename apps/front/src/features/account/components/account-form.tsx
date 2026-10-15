@@ -39,15 +39,18 @@ export function AccountForm({ account }: { account: Account }) {
 
   const { errors, isSubmitting, isDirty } = formState
 
+  const signInAgainSinceTheTokenIsBoundToTheUserName = async () => {
+    toast.info(t('account.userNameChanged'))
+    await auth.removeUser()
+    await auth.signinRedirect()
+  }
+
   const submit = handleSubmit(async (values) => {
     setGlobalErrors([])
     try {
       const updated = await replace.mutateAsync({ body: toInput(values) })
       if (updated.userName !== account.userName) {
-        // the access token is bound to the user name: sign in again
-        toast.info(t('account.userNameChanged'))
-        await auth.removeUser()
-        await auth.signinRedirect()
+        await signInAgainSinceTheTokenIsBoundToTheUserName()
         return
       }
       reset(toFormValues(updated))

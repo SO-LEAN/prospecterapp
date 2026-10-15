@@ -6,20 +6,19 @@ import { tanstackRouter } from '@tanstack/router-plugin/vite'
 import react, { reactCompilerPreset } from '@vitejs/plugin-react'
 import { defineConfig } from 'vite'
 
+const PUBLIC_HOST = 'local.prospecter.io'
+
+const typedRoutesSplitByRoute = tanstackRouter({
+  target: 'react',
+  autoCodeSplitting: true,
+  routesDirectory: './src/routes',
+  generatedRouteTree: './src/app/routeTree.gen.ts',
+})
+
+const reactCompiler = babel({ presets: [reactCompilerPreset()] })
+
 export default defineConfig({
-  plugins: [
-    // must come before react(): generates the typed route tree and splits each route into its own chunk
-    tanstackRouter({
-      target: 'react',
-      autoCodeSplitting: true,
-      routesDirectory: './src/routes',
-      generatedRouteTree: './src/app/routeTree.gen.ts',
-    }),
-    react(),
-    // React Compiler memoizes components and hooks automatically (no manual useMemo/useCallback)
-    babel({ presets: [reactCompilerPreset()] }),
-    tailwindcss(),
-  ],
+  plugins: [typedRoutesSplitByRoute, react(), reactCompiler, tailwindcss()],
   resolve: {
     alias: { '@': fileURLToPath(new URL('./src', import.meta.url)) },
   },
@@ -27,9 +26,8 @@ export default defineConfig({
     host: '0.0.0.0',
     port: 5173,
     strictPort: true,
-    // served through nginx on https://local.prospecter.io
-    allowedHosts: ['local.prospecter.io'],
-    hmr: { host: 'local.prospecter.io', protocol: 'wss', clientPort: 443 },
+    allowedHosts: [PUBLIC_HOST],
+    hmr: { host: PUBLIC_HOST, protocol: 'wss', clientPort: 443 },
   },
   build: {
     target: 'es2024',

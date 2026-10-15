@@ -19,7 +19,6 @@ const RECENT = 4
 const recentQuery = () => organizationsQuery({ page: 1, q: '' })
 
 export const Route = createFileRoute('/_app/')({
-  // the three requests run in parallel
   loader: ({ context: { queryClient } }) =>
     Promise.all([
       queryClient.ensureQueryData(dashboardQuery()),

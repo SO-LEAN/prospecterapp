@@ -1,4 +1,4 @@
-import { useMutation, useQueryClient } from '@tanstack/react-query'
+import { type QueryClient, useMutation, useQueryClient } from '@tanstack/react-query'
 import { useTranslation } from 'react-i18next'
 import { toast } from 'sonner'
 import { api, fetchClient } from '@/shared/api/client'
@@ -10,6 +10,9 @@ import { accountQuery } from './queries'
 export type Account = components['schemas']['AccountResource']
 export type AccountInput = components['schemas']['AccountInput']
 
+const refreshTheDashboardShowingMyOrganization = (queryClient: QueryClient) =>
+  queryClient.invalidateQueries({ queryKey: queryKeys.dashboard })
+
 function useStoreAccount() {
   const queryClient = useQueryClient()
 
@@ -18,8 +21,7 @@ function useStoreAccount() {
       return
     }
     queryClient.setQueryData(accountQuery().queryKey, account)
-    // the organization name and logo are also shown on the dashboard
-    void queryClient.invalidateQueries({ queryKey: queryKeys.dashboard })
+    void refreshTheDashboardShowingMyOrganization(queryClient)
   }
 }
 

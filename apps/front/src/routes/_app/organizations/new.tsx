@@ -15,6 +15,8 @@ function NewOrganization() {
   const navigate = useNavigate()
   const cancel = useGoBack(() => navigate({ to: '/organizations', replace: true }))
   const create = useCreateOrganization()
+  const showInsteadOfTheForm = (organizationId: number) =>
+    navigate({ to: '/organizations/$organizationId', params: { organizationId }, replace: true })
 
   return (
     <div className="mx-auto max-w-3xl space-y-6">
@@ -25,12 +27,7 @@ function NewOrganization() {
         onCancel={cancel}
         onSubmit={async (body) => {
           const organization = await create.mutateAsync({ body })
-          await navigate({
-            to: '/organizations/$organizationId',
-            params: { organizationId: organization.id },
-            // the filled form is done with: going back from the new organization leads to where it was created from
-            replace: true,
-          })
+          await showInsteadOfTheForm(organization.id)
         }}
       />
     </div>

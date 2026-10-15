@@ -1,67 +1,66 @@
 import 'maplibre-gl/dist/maplibre-gl.css'
 import { setWorkerUrl } from 'maplibre-gl'
-import workerUrl from 'maplibre-gl/dist/maplibre-gl-worker.mjs?url'
-import { type ReactNode, useMemo, useRef, useState } from 'react'
-import MapGL, { type MapRef, Marker, NavigationControl, Popup } from 'react-map-gl/maplibre'
+import bundledWorkerUrl from 'maplibre-gl/dist/maplibre-gl-worker.mjs?url'
+import { type ReactNode, useRef, useState } from 'react'
+import MapGL, { type MapRef, Marker, type MarkerEvent, NavigationControl, Popup } from 'react-map-gl/maplibre'
 import { useResolvedTheme } from '@/shared/stores/preferences'
 import type { MapMarker } from './geo-map'
 
-// open data vector tiles, no API key (https://openfreemap.org)
-const styles = {
+const openFreeMapStyles = {
   light: 'https://tiles.openfreemap.org/styles/positron',
   dark: 'https://tiles.openfreemap.org/styles/dark',
 }
 
-// MapLibre looks for its worker next to its own file, which the Vite bundling moves: give its real URL
-setWorkerUrl(workerUrl)
+setWorkerUrl(bundledWorkerUrl)
 
 const MARKER_HEIGHT = 48
+const WHOLE_FRANCE = { longitude: 2.35, latitude: 46.6, zoom: 4.5 }
+
+const preventTheMapFromClosingThePopup = (event: MarkerEvent<MouseEvent>) =>
+  event.originalEvent.stopPropagation()
 
 type Props = { markers: MapMarker[]; zoom?: number; renderPopup?: (marker: MapMarker) => ReactNode }
+
+function initialViewStateFor(markers: MapMarker[], zoom: number) {
+  if (markers.length <= 1) {
+    const [first] = markers
+    return first ? { longitude: first.longitude, latitude: first.latitude, zoom } : WHOLE_FRANCE
+  }
+  const longitudes = markers.map((marker) => marker.longitude)
+  const latitudes = markers.map((marker) => marker.latitude)
+  return {
+    bounds: [
+      [Math.min(...longitudes), Math.min(...latitudes)],
+      [Math.max(...longitudes), Math.max(...latitudes)],
+    ] as [[number, number], [number, number]],
+    fitBoundsOptions: { padding: 48, maxZoom: 14 },
+  }
+}
 
 export default function MapView({ markers, zoom = 13, renderPopup }: Props) {
   const theme = useResolvedTheme()
   const [selected, setSelected] = useState<MapMarker | null>(null)
   const mapRef = useRef<MapRef>(null)
 
+  const makeRoomForThePopupAbove = (marker: MapMarker) =>
+    mapRef.current?.easeTo({
+      center: [marker.longitude, marker.latitude],
+      offset: [0, mapRef.current.getContainer().clientHeight / 2 - MARKER_HEIGHT],
+      duration: 400,
+    })
+
   const select = (marker: MapMarker) => {
     setSelected(marker)
-    // bring the marker to the bottom of the map: the popup above it then fits in the frame
-    const map = mapRef.current
-    if (map) {
-      map.easeTo({
-        center: [marker.longitude, marker.latitude],
-        offset: [0, map.getContainer().clientHeight / 2 - MARKER_HEIGHT],
-        duration: 400,
-      })
-    }
+    makeRoomForThePopupAbove(marker)
   }
 
-  const initialViewState = useMemo(() => {
-    if (markers.length <= 1) {
-      const [first] = markers
-      return {
-        longitude: first?.longitude ?? 2.35,
-        latitude: first?.latitude ?? 46.6,
-        zoom: first ? zoom : 4.5,
-      }
-    }
-    const longitudes = markers.map((marker) => marker.longitude)
-    const latitudes = markers.map((marker) => marker.latitude)
-    return {
-      bounds: [
-        [Math.min(...longitudes), Math.min(...latitudes)],
-        [Math.max(...longitudes), Math.max(...latitudes)],
-      ] as [[number, number], [number, number]],
-      fitBoundsOptions: { padding: 48, maxZoom: 14 },
-    }
-  }, [markers, zoom])
+  const initialViewState = initialViewStateFor(markers, zoom)
 
   return (
     <MapGL
       ref={mapRef}
       initialViewState={initialViewState}
-      mapStyle={styles[theme]}
+      mapStyle={openFreeMapStyles[theme]}
       style={{ width: '100%', height: '100%' }}
       attributionControl={{ compact: true }}
       cooperativeGestures
@@ -74,8 +73,7 @@ export default function MapView({ markers, zoom = 13, renderPopup }: Props) {
           latitude={marker.latitude}
           anchor="bottom"
           onClick={(event) => {
-            // the click would reach the map, which closes the popup it just opened
-            event.originalEvent.stopPropagation()
+            preventTheMapFromClosingThePopup(event)
             if (renderPopup) {
               select(marker)
             }
