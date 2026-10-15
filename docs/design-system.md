@@ -11,7 +11,7 @@ Modern SaaS style: cool neutrals, generous spacing, one blue accent, light and d
 
 ## Tokens
 
-Defined in `apps/front/src/app/styles.css` (`:root` and `.dark`) in OKLCH, exposed to Tailwind with `@theme inline`. The API sign-in page (`apps/api/templates/auth/login.html.twig`) copies the same values: keep them in sync.
+Defined in `apps/front/src/app/styles.css` (`:root` and `.dark`) in OKLCH, exposed to Tailwind with `@theme inline`. The sign-in page of the authorization server (`apps/auth/templates/auth/login.html.twig`) copies the same values: keep them in sync.
 
 | Token | Use |
 |---|---|

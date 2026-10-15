@@ -49,12 +49,12 @@ Dead endpoints broke fresh installs, not the code:
 
 # 2026-10-14: from server-rendered pages to SPA + API
 
-The Symfony pages were replaced by a React SPA (`apps/front`) and a JSON API (`apps/api`) with an OAuth 2 server. Choices are explained in `docs/front-architecture.md`, `docs/design-system.md` and `docs/auth.md`.
+The Symfony pages were replaced by a React SPA (`apps/front`) and a JSON API (`apps/api`) with an OAuth 2 server (since moved to `apps/auth`, ADR 0034). Choices are explained in `docs/front-architecture.md`, `docs/design-system.md` and `docs/auth.md`.
 
 ## Traps
 
 - PHP does not parse `multipart/form-data` on `PUT`/`PATCH`: file uploads are separate `POST .../logo` sub-resources, data endpoints stay JSON.
-- The update use cases overwrite every field: `PUT` (full replacement) is the honest verb, and file uploads send back the current values with the file.
+- The update use cases overwrote every field: `PUT` (full replacement) was the honest verb, and file uploads sent back the current values with the file. Since replaced by one use case and one `PATCH` per intent (ADR 0025).
 - PHP does not allow `new` in class constants (only in parameter defaults and attribute arguments).
 - Symfony refuses to redirect to another host after logout (falls back to `/`): `LogoutListener` sets the response explicitly.
 - `KernelBrowser` reboots the kernel between requests: the OAuth bundle's in-memory persistence loses the authorization code; tests use Doctrine persistence.
@@ -66,3 +66,14 @@ The Symfony pages were replaced by a React SPA (`apps/front`) and a JSON API (`a
 - TanStack Router: calling `router.invalidate()` before `RouterProvider` has received its context runs the guards with an undefined context; and right after the OAuth callback, the `useAuth()` state lags, so the guard reads `userManager.getUser()`.
 - shadcn's generator wrote `import { cn } from "cn"` with a custom `utils` alias, and its sonner wrapper imports `next-themes`.
 - Playwright in Docker reaches the stack with `--network host` (nginx listens on 127.0.0.1 only) and `--add-host` for the three local hosts.
+
+# 2026-10-15: bounded contexts, authorization server, storage
+
+## Traps
+
+- Doctrine refuses to initialize a lazy proxy whose identity is a readonly value object (hydration would replace it with an equal but new one): no association, no `getReference()`; API tests empty the entity manager after loading the fixtures.
+- SQLite keeps no time zone, not even with `datetimetz_immutable`: a moment read back lands in the time zone of the server. The `moment` Doctrine type writes and reads in UTC.
+- Without `symfony/monolog-bundle`, Symfony's default logger writes errors to stderr, so expected errors pollute the test output.
+- Messenger routes a message by the type of the argument of `__invoke()`: a generic decorator taking `object` needs the `handles` attribute of its tag (`RefusalTranslatingCommandHandlersPass`).
+- Rector and PHPStan can disagree (`?->` before `??`, `$handler->__invoke(...)` on a marker interface): write the code so that both accept it rather than ignoring one.
+- The generated front types of a second contract must be excluded from Biome like the first one.

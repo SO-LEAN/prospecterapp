@@ -28,11 +28,11 @@ tests/Acceptance/Vocabulary     French labels of the tables, how they read entit
 tests/Acceptance/Expect         assertions (PHPUnit's need its runner to describe a failure)
 tests/Double/                   the ports' test implementations
 tests/Domain/                   PHPUnit: value objects rich in edge cases, intents refused exactly when not offered
-tests/Architecture/             PHPUnit: no bounded context uses another one
-tests/UseCase/                  PHPUnit: roles and the facade
+tests/Application/              PHPUnit: the translation of the refusals of the domain (UseCaseRefused)
+tests/Architecture/             PHPUnit: no bounded context uses another one, no domain class in a request or a response
 ```
 
-The scenarios do not know the command bus of the API: `Application::dispatch()` sends a command to its handler, and a query is called directly.
+The scenarios do not know the command bus of the API: `Application::dispatch()` sends a command to its handler, and a query is called directly. `Application` plays the client: it gives the identities of what is created (`newIdentity()`) and the moment of the commands (`now()`, set by `nous sommes le "2026-10-20 14:00"`); a refusal is the `UseCaseRefused` of the last call (`refusal()`).
 
 ## Adding or changing a rule
 

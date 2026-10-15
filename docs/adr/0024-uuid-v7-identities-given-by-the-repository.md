@@ -1,7 +1,7 @@
 # 0024. Identities are UUID v7 given by the repository
 
 - Date: 2026-10-15
-- Status: Accepted
+- Status: Superseded by [0036](0036-client-gives-identity-and-moment-of-a-command.md)
 - Implemented by: `packages/core/src/Domain/Shared/Uuid.php`, `DoctrineOrganizationRepository::nextIdentity()`, `DoctrineUserRepository::nextIdentity()`
 
 ## Context

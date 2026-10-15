@@ -1,126 +1,48 @@
 # Prospecter core
 
-**Prospecter core** (formerly cleanprospecter) is a PHP 8.5 business prospect application designed according to Robert C. Martin [recommendations for clean architecture](https://8thlight.com/blog/uncle-bob/2012/08/13/the-clean-architecture.html).
+**Prospecter core** (formerly cleanprospecter) holds the business rules of Prospecter, a prospecting application designed after Robert C. Martin's [clean architecture](https://blog.cleancoder.com/uncle-bob/2012/08/13/the-clean-architecture.html): pure PHP 8.5, no framework, reached from outside only through its use cases and its ports. Part of the prospecterapp monorepo: `apps/api/` delivers it over HTTP.
 
-Part of the prospecterapp monorepo: the Symfony 8.1 implementation lives in `apps/api/`.
+> A good architecture maximizes the number of decisions not made. (Uncle Bob)
 
-## Progress
+## What it does
 
-Consider that scope as the **minimal viable product**.
- 
-- [x] As anonymous, I want to login
-- [x] As main app, I want to refresh user
-- [x] As prospector, I want to create organization
-- [x] As prospector, I want to find my own organizations
-- [x] As prospector, I want to get organization
-- [x] As prospector, I want to update organization
-- [x] As prospector, I want to create organization
-- [x] As user, I want to get my account information
-- [x] As user, I want to update my account information
-- [x] As user, I want to remove my organization logo
-- [ ] As prospector, I want to create prospect
-- [ ] As prospector, I want to find my own prospects
-- [ ] As prospector, I want to create phone call event
-- [ ] As prospector, I want to create appointment event
-- [ ] As prospector, I want to create email event
-- [ ] As prospector, I want to create sms event
-- [ ] As prospector, I want to find my own prospects
+Three bounded contexts and a small shared kernel (ADR 0030):
 
-## In the future
-* tags
-* auto import events from email box, short message service etc...
-* email marketing campaign
- 
-## Clean architecture -_Business rules as a simple composer package._-
+- **Accounts**: the organizations using Prospecter and their members; consult my account, revise the identity of my organization, change its logo.
+- **PersonalData**: the personal data of natural persons, read in clear or masked depending on who reads (ADR 0031); consult one person or many, rename, change the contact details or the picture.
+- **Prospecting**: the organizations an account prospects, shared by its team; start prospecting, consult, search, revise the identity, change the contact details, relocate (geocoded), write observations, attach to or detach from a holding, change or remove the logo.
 
-<p align="center">
-  <img src="https://8thlight.com/blog/assets/posts/2012-08-13-the-clean-architecture/CleanArchitecture-8d1fe066e8f7fa9c7d8e84c1a6b0e2b74b2c670ff8052828f4a7e73fcbbc698c.jpg" alt="The Clean Architecture">
-</p>
+Every use case is described by a French Gherkin feature in `features/` (`demenager.feature` for `Relocate`).
 
-A good explanation is available in this Uncle Bob [talk here](https://www.youtube.com/watch?v=Nsjsiz2A9mg)
+Next: the contacts of the prospected organizations, then the GDPR rights (anonymization, access export), then the prospecting events (calls, appointments, emails).
 
-> A GOOD ARCHITECTURE MAXIMIZES THE NUMBER OF DECISIONS NOT MADE
-> - UNCLE BOB
+## How it is shaped
 
-## Terminological differences
+- `src/<Context>/Domain`: aggregates (`Organization`, `Account`, `Person`), value objects, repository interfaces and other ports, business exceptions in `Domain/Exception`.
+- `src/<Context>/Application/<Intent>`: one use case per business intent, CQRS (ADR 0029): a command and its `CommandHandler` change the state and return nothing; a query and its `QueryHandler` answer a response.
+- Requests and responses are plain data, never a class of the domain (ADR 0035); the client gives the identity of what it creates and the moment of each command (ADR 0036).
+- A client calls every handler through `RefusalTranslatingHandler`: a refusal of the domain becomes a `UseCaseRefused` typed by `ErrorType` (not found, not allowed, not possible in its state, business rule violated).
 
-In order to clarify some uncle bob concepts
+## Using it
 
-* Interactors becomes use cases and are locatated in src/UseCase/**UseCaseName** and take its name from it : _ex_ FindMyOwnOrganizations
-* Request an response are data transfer object and are located at the same place : _ex_ FindMyOwnOrganizations**Request**, FindMyOwnOrganizations**Response**
-* Presenter interface (Dependency inversion) too : _ex_ FindMyOwnOrganizations**Presenter**
-* Gateways is not only database abstraction, entity gateway are located in src/Gateway/Entity
-
-
-## How to implement the core
-
-Clean architecture use dependency injection to build uses cases.
-
-1 You need to implement all Gateways in your main application
-* Build use cases in the IOC
-* Register it in the facade.
+The delivery implements the ports (repositories, `Prospectors`, `Readers`, `GeoLocation`, `Storage`), then:
 
 ```php
-    // in IOC
-    
-    //OrganizationGatewayImpl implements OrganizationGateway interface
-    $organizationGateway = new OrganizationGatewayImpl();
- 
-    $useCase = new GetOrganizationImpl($organizationGateway);
-    
-    //Create facade and register use case
-    $facade = new UseCasesFacade();
-    $facade->addUseCase($useCase);
+$relocate = new RefusalTranslatingHandler(new RelocateHandler($organizations, $prospectors, $geoLocation));
+$relocate(new Relocate(
+    prospectorId: $memberId,
+    id: $organizationId,
+    street: '2 rue des Clefs', postalCode: '68000', city: 'Colmar', country: 'FR',
+    executedAt: $clock->now(),
+));
+
+$organization = new RefusalTranslatingHandler(new ConsultOrganizationHandler($organizations, $prospectors))(
+    new ConsultOrganization($memberId, $organizationId),
+);
 ```
 
-```php
-    // in controller (or somewhere else)
-    $request = new GetOrganizationRequest(7);
-    
-    //presenter implements GetOrganizationPresenter
-    $presenter = new GetOrganizationPresenterImpl();
-    
-    //all use case is accessible by their name 
-    $facade->getOrganization($request, $presenter);
-```
+The API registers the command handlers on a Symfony Messenger bus through the decorator (`apps/api/CLAUDE.md`).
 
-A use case can say what it does
+## Developing
 
-```php
-   //...
-   
-   $useCase = new GetOrganizationImpl($organizationGateway);
-   
-   echo $useCase;
-   
-   //Display : "As prospector, I want to get organization"
-```
-
-## Developer tools
-
-### prerequisites
-
-* docker
-* docker-compose
-
-All common command lines are accessible by the Makefile. 
-Make create a docker image based on official php alpine docker image (php 7.2.3) with xdebug and composer installed globally.
-
-```console
-    $ make
-```
-
-### Commands
-
-make **command**
-
-| Command         | comments                                                   | 
-| ----------------|------------------------------------------------------------|
-| build-env       | Build the docker env file tagged _prospecter-run_          |
-| composer        | install vendors                                            |
-| composer-update | update vendors                                             |
-| test            | execute tests suite                                        |
-| testdox         | execute tests and write agile documentation in text format |                     
-| test-coverage   | execute tests and generate report in html format           |
-| cs              | code sniffer                                               |
-| cs-fix          | fix automatically code sniffer errors                      |
+From the repository root, in Docker: `make test-core` runs the scenarios (Behat) then the unit and architecture tests (PHPUnit); `make lint` and `make fix` cover the core. How to write a rule: `docs/core-tests.md`; conventions: `CLAUDE.md` of this folder and `docs/clean-code.md`.

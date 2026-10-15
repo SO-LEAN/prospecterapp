@@ -30,7 +30,7 @@ This guide is alive: rules get added and sharpened as the code is improved, iter
 - **`switch`/`match` on a type only once**, at a boundary or in a factory; elsewhere, polymorphism.
 
 **Known debt**
-- `Passwords::verify()` answers a question and upgrades the stored hash: split the command from the query.
+- `Passwords::verify()` (`apps/auth`) answers a question and upgrades the stored hash: split the command from the query.
 
 ## 3. Comments
 
@@ -51,12 +51,12 @@ This guide is alive: rules get added and sharpened as the code is improved, iter
 - **Objects hide their data and expose behaviour; data structures expose data and have no behaviour.** Do not mix both halves in one class.
 - **Tell, don't ask**: ask an object to do something rather than reading its state to decide for it (`$organization->removeLogo()` refuses when there is no logo).
 - **Law of Demeter**: a method talks to its own fields, its parameters and the objects it creates, not to objects returned by them. No train wrecks: `$user->getOrganization()->getId()` became `$member->accountId()` (aggregates reference each other by identity, ADR 0023).
-- **Requests, responses and value objects are data structures**: `final readonly` with public properties, no behaviour except their invariants (`File` validates its URL).
+- **Requests, responses and value objects are data structures**: `final readonly` with public properties, no behaviour except their invariants (`File` validates its URL). A response is built by a named constructor from what it answers (`OrganizationResponse::of()`), an exception too (`UnknownOrganization::identifiedBy()`).
 - **Prefer immutability**: `readonly` classes and properties; a change produces a new value object.
 
 ## 6. Error handling
 
-- **Exceptions, not return codes**, with the context needed to understand them: business refusals are domain exceptions (`NotFound`, `BusinessRuleViolation` naming its field, `NotPossibleInItsState`); infrastructure failures are adapter exceptions translated at the boundary.
+- **Exceptions, not return codes**, with the context needed to understand them: business refusals are domain exceptions (`Domain/Exception`: `NotFound`, `BusinessRuleViolation` naming its field, `NotPossibleInItsState`, with named constructors), translated into `UseCaseRefused` and its `ErrorType` by the decorator `RefusalTranslatingHandler` around every handler, the domain exception kept as previous (ADR 0035); infrastructure failures go through untouched. Error handling is one thing: it lives in that decorator, never in the handlers.
 - **Define exceptions by the caller's needs**: one type per way the caller reacts (not found, refused, conflict), not one per failure.
 - **Do not return `null`, do not pass `null`** when it can be avoided: throw, return an empty collection, or a special case object. `?Type` only when absence is a real, expected answer.
 - **Unchecked exceptions**: PHP has no checked exceptions; document `@throws` on ports, where implementers need it.
@@ -90,23 +90,23 @@ This guide is alive: rules get added and sharpened as the code is improved, iter
 - **Single responsibility**: a module has one reason to change, i.e. answers to one actor. Each use case serves one intent; presenters change with the API format, not with the rules.
 - **Open/closed**: extend behaviour by adding code (a new adapter behind a port, a new use case), not by editing working code.
 - **Liskov substitution**: an implementation honours the contract of its interface, including its exceptions; the in-memory doubles behave like the Doctrine adapters, or the scenarios lie.
-- **Interface segregation**: clients depend only on what they use: a repository offers the queries its use cases need (`countProspectedBy`, `pageProspectedBy`), no generic finder.
+- **Interface segregation**: clients depend only on what they use: a repository offers the queries its use cases need (`pageProspectedBy`, `ofIds`), no generic finder.
 - **Dependency inversion**: high-level policy does not depend on details; both depend on abstractions owned by the policy (ports in the core, adapters in the API).
 
 ## 11. Architecture and components
 
 - **The dependency rule**: source code dependencies point inwards, towards the business rules. The core knows nothing of the API, the API nothing of the front (ADR 0005).
 - **Policy and details**: the database, the web, the frameworks are details; the business rules do not know them. Use cases are the application's policy, entities the enterprise's.
-- **Boundaries cross with simple data**: requests and responses are plain data structures, never entities or framework objects.
+- **Boundaries cross with simple data**: requests and responses are plain data structures, never entities, value objects or framework objects (ADR 0035, guarded by `ApplicationBoundaryTest` in the core and `DomainBehindTheApplicationTest` in the API).
 - **Component cohesion**: classes released together are reused together (REP), change together (CCP), and nobody depends on what they do not use (CRP).
 - **Component coupling**: no cycle between packages (ADP); depend in the direction of stability (SDP): the front and the API depend on the stable core; the more stable a component, the more abstract it is (SAP): the core exposes ports.
 - **Screaming architecture**: the folders say what the application does (`Prospecting/Application/StartProspecting`, `Accounts/Domain/Account`, `features/organizations`): grouped by bounded context first, by layer inside (ADR 0030), not which framework it uses.
-- **Keep options open**: decisions on frameworks, databases and delivery are deferred and isolated behind boundaries (ADR 0012, 0016, 0020).
+- **Keep options open**: decisions on frameworks, databases and delivery are deferred and isolated behind boundaries (ADR 0016, 0029, 0034).
 
 ## 12. Simplicity
 
 - **Kent Beck's simple design**, in order: passes all the tests, reveals intention, no duplication, fewest elements.
-- **DRY, with judgement**: remove real duplication of knowledge; leave accidental duplication alone (two codes that look alike but change for different reasons, such as `CreateOrganizationResponse` and `UpdateOrganizationResponse`).
+- **DRY, with judgement**: remove real duplication of knowledge; leave accidental duplication alone (two codes that look alike but change for different reasons, such as `OrganizationResponse` and `FoundOrganization`, an organization for its page and for a list).
 - **YAGNI**: no code for a need that does not exist yet; dead code is deleted (`Customer`, `Call`, `Email`, `Event` were).
 - **KISS**: the simplest design that passes the tests.
 

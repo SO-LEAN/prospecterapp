@@ -2,12 +2,14 @@
 
 ```
 apps/front/      React SPA (pnpm, its own package.json)
-apps/api/        Symfony API (Composer)
+apps/api/        Symfony API, resource server (Composer), the only user of the core
+apps/auth/       Symfony authorization server (Composer)
+apps/storage/    Symfony file storage (Composer)
 packages/core/   prospecter/core library (Composer)
 docker/  docker-compose.yml  Makefile  docs/
 ```
 
-The two apps are independent projects with their own package manager; they only share the HTTP contract (`apps/api/openapi.json`, from which the front generates its types) and the root tooling (Docker, Makefile).
+The apps are independent projects with their own dependencies; they only share HTTP contracts (`apps/api/openapi.json` and `apps/auth/openapi.json`, from which the front generates its types; the internal `POST/DELETE /files` of the storage; the access tokens signed by the auth and checked by the API with its public key) and the root tooling (Docker, Makefile). Only the API uses the core.
 
 ## How the API uses the library
 
@@ -32,7 +34,7 @@ cd apps/api
 COMPOSER_MIRROR_PATH_REPOS=1 composer install --no-dev --classmap-authoritative
 ```
 
-Composer then copies the current content of `packages/core` into `vendor/` (even if `composer.lock` is behind), and `apps/api/` becomes self-contained: deploy only `apps/api/`. This only works because the path repository does not force `"symlink": true`; keep it that way.
+Composer then copies the current content of `packages/core` into `vendor/` (even if `composer.lock` is behind), and `apps/api/` becomes self-contained: deploy it alone. `apps/auth/` and `apps/storage/` do not use the core and build like any Symfony app. This only works because the path repository does not force `"symlink": true`; keep it that way.
 
 The copy includes what the core needs for its own tests (`vendor/`, `tests/`, `features/`, tool configs): remove `vendor/prospecter/core/{vendor,tests,features}` in the production image.
 

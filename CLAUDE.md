@@ -28,7 +28,7 @@ Everything runs in Docker (PHP 8.5, Node 24, nginx); nothing but Docker and make
 - `make api-doc`: after changing an endpoint, regenerate `apps/api/openapi.json`, `apps/auth/openapi.json` and the front API types (`make test` fails while the committed contract differs from the code)
 - `make db`: recreate the dev databases of the API and the auth (destroys local data)
 
-Other commands: `docker compose run --rm --no-deps php <cmd>` (working dir `apps/api`) or `docker compose run --rm --no-deps node <cmd>` (working dir `apps/front`).
+Other commands: `docker compose run --rm --no-deps php <cmd>` (working dir `apps/api`; add `-w /var/www/src/apps/auth`, `apps/storage` or `packages/core` for the others) or `docker compose run --rm --no-deps node <cmd>` (working dir `apps/front`).
 
 Before declaring work done: `make test` and `make lint` pass; `make e2e` for changes to a main journey.
 

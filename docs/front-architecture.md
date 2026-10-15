@@ -1,6 +1,6 @@
 # Front architecture (apps/front)
 
-A React single page application talking to the API (`apps/api`) over JSON, signed in with OAuth 2.
+A React single page application talking to the API (`apps/api`) over JSON, signed in with OAuth 2 on the authorization server (`apps/auth`).
 
 ## Stack and why
 
@@ -37,7 +37,7 @@ src/
   routes/               one file per URL, thin: loader + page component
   features/<feature>/   business screens: queries.ts, mutations.ts, schema.ts, components/
   shared/               reusable, business-agnostic code
-    api/                client.ts, schema.d.ts (generated), problem.ts, keys.ts, upload.ts
+    api/                client.ts, schema.d.ts and auth-schema.d.ts (generated), problem.ts, keys.ts, upload.ts
     ui/                 design system components (shadcn) + form/, feedback/, map/
     i18n/               setup and fr.ts
     lib/ hooks/ stores/ utilities, hooks, Zustand stores
@@ -74,12 +74,12 @@ Never copy server data into Zustand or `useState`: read it from the query, the c
 
 - "Retour" behaves like the browser back button (`shared/ui/back-button.tsx`): from the dashboard map it returns to the dashboard, from a filtered list to that list with its search. Opened from a bookmark, it falls back to a link.
 - A resource page is made of sections (`shared/ui/editable-section.tsx`): each shows one part of the resource and changes it in place through its own small form (`shared/forms/section-form.tsx`), one API intent each (ADR 0025); only the creation has a full form. A section is editable (`editable`), an image changeable (`onUpload`), a button shown only when the resource carries the link of that intention (`organization._links.relocate`): the API decides what is possible (ADR 0027), the front never re-implements it.
-- A creation form is left with `useGoBack` (cancel), and replaces itself with the new page with the new page (`replace: true`): the history never holds a form already done with.
+- A creation form is left with `useGoBack` (cancel), and replaces itself with the new page (`replace: true`): the history never holds a form already done with.
 - Map markers open a quick look (`features/organizations/components/organization-preview.tsx`, rendered by `GeoMap`'s `renderPopup`), which loads the organization into the cache: its page then opens instantly.
 
 ## API access
 
-- `pnpm api:types` (or `make api-doc` from the root) regenerates `shared/api/schema.d.ts` from `apps/api/openapi.json`.
+- `pnpm api:types` (or `make api-doc` from the root) regenerates `shared/api/schema.d.ts` from `apps/api/openapi.json` and `shared/api/auth-schema.d.ts` from `apps/auth/openapi.json`; `api` calls the API, `authApi` what a member signs in with (`/auth/me`), with the same access token.
 - `api.queryOptions('get', '/api/organizations/{id}', { params })` / `api.useMutation('patch', ...)`: path, params, body and response are typed.
 - The fetch middleware adds `Authorization: Bearer`; on a 401 it renews the token once with the refresh token, otherwise it sends the user to sign in.
 - Form values have the shape of the API input (`street` in the address section, `address.street` in the creation form), so the `propertyPath` of each API violation is the form field name. Groups of fields shared by several forms live in `shared/forms` (`AddressFields`, `ContactDetailsFields`, `LegalIdentityFields`, with their zod schema and conversions); their `path` option nests them in a bigger form.
