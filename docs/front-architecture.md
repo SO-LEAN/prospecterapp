@@ -91,7 +91,7 @@ Never copy server data into Zustand or `useState`: read it from the query, the c
 
 ## Authentication
 
-See `docs/auth.md`. In the SPA: `app/auth.ts` configures the client; the `_app` layout route guards every page by reading the stored session (`userManager.getUser()`), not the React auth state, which lags right after the OAuth callback.
+See `docs/auth.md`. In the SPA: `app/auth.ts` configures the client; the `_app` layout route guards every page by reading the stored session (`userManager.getUser()`), not the React auth state, which lags right after the OAuth callback. The sign-in screen is `routes/auth/sign-in.tsx` (`features/sign-in`): the authorization server sends anonymous authorization requests there, and the screen opens the interrupted request again once the member is signed in (ADR 0037).
 
 ## Adding a screen
 
