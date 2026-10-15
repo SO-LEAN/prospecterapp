@@ -86,6 +86,7 @@ Never copy server data into Zustand or `useState`: read it from the query, the c
 - A field shows its error through `FormField`, which subscribes to it (`useFormState`): the React Compiler memoizes components receiving the same `form`, so a group of fields would not render a new error by itself.
 - Errors are RFC 9457 problem details (`shared/api/problem.ts`): `applyViolations()` puts the server validation errors on the form fields; other mutation errors raise a toast (`query-client.ts`), unless the mutation sets `meta: { silentValidation: true }` and handles 422 in its form.
 - Uploads are separate multipart endpoints (`shared/api/upload.ts`).
+- An image comes in sizes (`smallUrl` 96 px, `mediumUrl` 256 px, `url` the original): show the smallest that covers the displayed size twice (high density screens): `smallUrl` for avatars, markers and cards, `mediumUrl` for an image section.
 - Ids are UUIDs: a route param that is not one is a 404 before any request (`features/organizations/route-params.ts`), and an API 404 in a loader becomes the same not found page.
 
 ## Authentication

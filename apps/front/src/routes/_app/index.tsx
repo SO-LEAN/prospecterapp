@@ -42,7 +42,7 @@ function Dashboard() {
           {
             id: organization.id,
             label: organization.name,
-            imageUrl: organization.logo?.thumbnailUrl,
+            imageUrl: organization.logo?.smallUrl,
             ...organization.location,
           },
         ]

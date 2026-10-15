@@ -33,6 +33,8 @@ class ResizeOperator implements Operator
     }
 
     /**
+     * Keeps the ratio and never enlarges: a smaller image stays as it is, blurring it would only make it heavier.
+     *
      * @param array<int, mixed> $args
      */
     private function ratioResizing(File $origin, array $args, string $target): void
@@ -40,9 +42,9 @@ class ResizeOperator implements Operator
         $image = $this->imagine->open($origin->getRealPath());
         $size = $image->getSize();
 
-        if (0 === $args[0]) {
+        if (0 === $args[0] && $args[1] < $size->getHeight()) {
             $image->resize($size->heighten($args[1]));
-        } elseif (0 === $args[1]) {
+        } elseif (0 === $args[1] && $args[0] < $size->getWidth()) {
             $image->resize($size->widen($args[0]));
         }
 

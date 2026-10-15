@@ -375,7 +375,8 @@ export interface components {
         };
         ImageResource: {
             url: string;
-            thumbnailUrl: string;
+            smallUrl: string;
+            mediumUrl: string;
         };
         LegalIdentityResource: {
             corporateName?: string | null;

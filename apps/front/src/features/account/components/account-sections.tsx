@@ -62,7 +62,7 @@ export function PictureSection({ account }: { account: Account }) {
       <CardContent>
         <ImageUpload
           shape="circle"
-          imageUrl={account.picture?.thumbnailUrl}
+          imageUrl={account.picture?.mediumUrl}
           alt={fullNameOf(account)}
           label={t('account.changePicture')}
           pending={change.isPending}
@@ -254,7 +254,7 @@ export function MyOrganizationLogoSection({ account }: { account: Account }) {
       </CardHeader>
       <CardContent>
         <ImageUpload
-          imageUrl={account.organization.logo?.thumbnailUrl}
+          imageUrl={account.organization.logo?.mediumUrl}
           alt={name}
           label={t('account.changeLogo')}
           pending={change.isPending}

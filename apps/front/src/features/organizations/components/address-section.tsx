@@ -64,7 +64,7 @@ export function AddressSection({ organization }: { organization: Organization })
                   id: organization.id,
                   ...location,
                   label: organization.name,
-                  imageUrl: organization.logo?.thumbnailUrl,
+                  imageUrl: organization.logo?.smallUrl,
                 },
               ]}
               zoom={14}

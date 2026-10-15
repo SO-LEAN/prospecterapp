@@ -14,7 +14,7 @@ export function OrganizationCard({ organization }: { organization: OrganizationS
       params={{ organizationId: organization.id }}
       className="group flex items-center gap-4 rounded-xl border bg-card p-4 shadow-card transition hover:border-primary/40 hover:shadow-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
     >
-      <OrganizationAvatar name={organization.name} logoUrl={organization.logo?.thumbnailUrl} />
+      <OrganizationAvatar name={organization.name} logoUrl={organization.logo?.smallUrl} />
       <div className="min-w-0 flex-1">
         <p className="truncate font-medium">{organization.name}</p>
         {(place || country) && (

@@ -1424,13 +1424,17 @@
             "ImageResource": {
                 "required": [
                     "url",
-                    "thumbnailUrl"
+                    "smallUrl",
+                    "mediumUrl"
                 ],
                 "properties": {
                     "url": {
                         "type": "string"
                     },
-                    "thumbnailUrl": {
+                    "smallUrl": {
+                        "type": "string"
+                    },
+                    "mediumUrl": {
                         "type": "string"
                     }
                 },

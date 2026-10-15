@@ -17,7 +17,7 @@ export function LogoSection({ organization }: { organization: Organization }) {
       </CardHeader>
       <CardContent>
         <ImageUpload
-          imageUrl={organization.logo?.thumbnailUrl}
+          imageUrl={organization.logo?.mediumUrl}
           alt={organization.name}
           label={organization.logo ? t('organizations.logo.change') : t('organizations.logo.add')}
           pending={change.isPending || remove.isPending}
