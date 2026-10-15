@@ -34,7 +34,7 @@ The certificate is self-signed: accept the browser warning once for each host (`
 | Command | Purpose |
 |---|---|
 | `make start` / `make stop` / `make logs` | Run the stack (the front reloads on save) |
-| `make test` | API, core and front unit tests |
+| `make test` | core business rules (Behat) and unit tests, API and front tests |
 | `make e2e` | Playwright journeys against the running stack |
 | `make lint` / `make fix` | PHPStan, php-cs-fixer, Rector, Biome, TypeScript |
 | `make api-doc` | Regenerate the OpenAPI contract and the front API types after an API change |

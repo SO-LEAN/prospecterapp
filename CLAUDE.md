@@ -6,9 +6,9 @@ Monorepo of a prospecting application built with clean architecture:
 |---|---|---|
 | `apps/front/` | React 19 SPA (TypeScript, Vite, TanStack Router/Query, shadcn/ui) | `apps/front/CLAUDE.md` |
 | `apps/api/` | Symfony 8.1 JSON API + OAuth 2 server, documented with NelmioApiDocBundle | `apps/api/CLAUDE.md` |
-| `packages/core/` | `prospecter/core`: entities, use cases, gateway interfaces (pure PHP) | `packages/core/CLAUDE.md` |
+| `packages/core/` | `prospecter/core`: entities, use cases, ports (pure PHP), tested by Behat scenarios | `packages/core/CLAUDE.md` |
 
-Docs: `docs/front-architecture.md`, `docs/design-system.md`, `docs/auth.md`, `docs/monorepo.md`, `docs/upgrade-2026.md`.
+Docs: `docs/front-architecture.md`, `docs/design-system.md`, `docs/auth.md`, `docs/core-tests.md`, `docs/monorepo.md`, `docs/upgrade-2026.md`.
 
 ## Commands
 
@@ -16,7 +16,7 @@ Everything runs in Docker (PHP 8.5, Node 24, nginx); nothing but Docker and make
 
 - `make install`: images, Composer and pnpm dependencies, OAuth keys, database with fixtures (OAuth client included)
 - `make start` / `make stop`: https://local.prospecter.io (SPA, sign in `prospector` / `password`), https://api.local.prospecter.io/api/doc (API doc)
-- `make test` (API + core + front unit tests), `make e2e` (Playwright on the running stack), `make lint`, `make fix`
+- `make test` (core scenarios and unit tests, API, front), `make test-core` (the business rules only), `make e2e` (Playwright on the running stack), `make lint`, `make fix`
 - `make api-doc`: after changing an endpoint, regenerate `apps/api/openapi.json` and the front API types (`make test` fails while the committed contract differs from the code)
 - `make db`: recreate the dev database (destroys local data)
 
@@ -26,9 +26,9 @@ Before declaring work done: `make test` and `make lint` pass; `make e2e` for cha
 
 ## Code conventions
 
-- Clean code: native types everywhere; no comment that repeats a type or a name; docblocks only for what the language cannot express (generics, array shapes). PHP: readonly DTOs, constructor promotion. TypeScript: strict, no `any`.
+- Clean code: native types everywhere; no comment that repeats a type or explains the code: give the intention a name (extract a function, a constant); short methods with one level of abstraction; docblocks only for what the language cannot express (generics, array shapes). PHP: readonly DTOs, constructor promotion. TypeScript: strict, no `any`.
 - Do not trust existing docblocks blindly: some were wrong (a `@var stdClass` led Rector to produce a broken type).
-- Business rules belong to `packages/core`; the API only adapts (HTTP, Doctrine, storage); the front only presents.
+- Business rules belong to `packages/core`, described by its Gherkin scenarios (`docs/core-tests.md`); the API only adapts (HTTP, Doctrine, storage, authentication); the front only presents.
 - One invokable controller per API endpoint, grouped by resource; resource-oriented URLs that do not mirror use case names (they will be renamed to business intents).
 
 ## Git

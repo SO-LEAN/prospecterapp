@@ -43,11 +43,11 @@ See `docs/auth.md` at the repository root.
 | `Entity\Transaction` | `Entity\TransactionEntityManagerAdapter` |
 | `Storage` | `StorageLocalAdapter` (files under `public/static/storage`) |
 | `UserNotifier` | `UserNotifierSymfonyAdapter` (flash messages, unused by the API) |
-| `GeoLocation` | `GeoLocatorAdapter` → `Service\GeoplateformeGeoLocator` (French State geocoder, IGN Géoplateforme: no key, France only, `APP_GEOCODER_URL`; tests get no answer from the mocked `http_client`) |
+| `GeoLocation` | `GeoplateformeGeoLocation` (French State geocoder, IGN Géoplateforme: no key, France only, `APP_GEOCODER_URL`; tests get no answer from the mocked `http_client`) |
 
 Ports are aliased to adapters in `config/services.yaml`. Every `*Impl` use case of the library is registered automatically (lazy, tagged `use_case`) and added to `UseCasesFacade` by `DependencyInjection\UseCasePass`.
 
-Doctrine mapping of the library entities is in `config/doctrine/*.orm.xml`. `Person` is single table inheritance with an explicit discriminator map (`organization`, `prospect`, `user`); `roles` and `stats` are `json`. The OAuth tables come from the bundle mapping.
+Doctrine mapping of the library entities is in `config/doctrine/*.orm.xml`. `Person` is single table inheritance with an explicit discriminator map (`organization`, `prospect`, `user`); `roles` and `stats` are `json`. Value objects are not embeddables (Doctrine cannot make them null): their fields are plain columns of the entity (`address_city`, `logo_url`...). The `credentials` table belongs to `src/Auth` (attribute mapping), the OAuth tables to the bundle.
 
 ## Hosts
 

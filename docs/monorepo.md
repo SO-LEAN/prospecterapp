@@ -34,7 +34,7 @@ COMPOSER_MIRROR_PATH_REPOS=1 composer install --no-dev --classmap-authoritative
 
 Composer then copies the current content of `packages/core` into `vendor/` (even if `composer.lock` is behind), and `apps/api/` becomes self-contained: deploy only `apps/api/`. This only works because the path repository does not force `"symlink": true`; keep it that way.
 
-The copy includes the library `tests/`; remove `vendor/prospecter/core/tests` in the image if wanted.
+The copy includes what the core needs for its own tests (`vendor/`, `tests/`, `features/`, tool configs): remove `vendor/prospecter/core/{vendor,tests,features}` in the production image.
 
 The front builds to static files (`pnpm build` → `apps/front/dist/`), served by any web server with a fallback to `index.html`; its API URL, app URL and OAuth client id are `VITE_*` variables set at build time.
 
