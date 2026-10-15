@@ -16,6 +16,10 @@ services:
         exclude:
             - '../src/Kernel.php'
 
+    # images are resized with ImageMagick
+    Imagine\Image\ImagineInterface:
+        class: Imagine\Imagick\Imagine
+
 when@test:
     parameters:
         storage.directory: '%kernel.project_dir%/var/test-storage'

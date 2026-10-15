@@ -19,11 +19,12 @@ final readonly class DetachForgottenContactHandler implements EventHandler
 {
     use PublishesEvents;
 
-    private OrphanContacts $orphans;
-
-    public function __construct(private OrganizationRepository $organizations, private Prospectors $prospectors, private Events $events)
-    {
-        $this->orphans = new OrphanContacts($organizations);
+    public function __construct(
+        private OrganizationRepository $organizations,
+        private Prospectors $prospectors,
+        private Events $events,
+        private OrphanContacts $orphans,
+    ) {
     }
 
     public function __invoke(ContactForgotten $event): void

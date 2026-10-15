@@ -9,7 +9,6 @@ use Prospecter\Core\Accounts\Domain\MemberRepository;
 use Prospecter\Core\SharedKernel\Application\CommandHandler;
 use Prospecter\Core\SharedKernel\Application\FileStore;
 use Prospecter\Core\SharedKernel\Application\Port\Events;
-use Prospecter\Core\SharedKernel\Application\Port\Storage;
 use Prospecter\Core\SharedKernel\Application\PublishesEvents;
 use Prospecter\Core\SharedKernel\Domain\MemberId;
 
@@ -17,11 +16,12 @@ final readonly class ChangeMyOrganizationLogoHandler implements CommandHandler
 {
     use PublishesEvents;
 
-    private FileStore $files;
-
-    public function __construct(private AccountRepository $accounts, private MemberRepository $members, Storage $storage, private Events $events)
-    {
-        $this->files = new FileStore($storage);
+    public function __construct(
+        private AccountRepository $accounts,
+        private MemberRepository $members,
+        private Events $events,
+        private FileStore $files,
+    ) {
     }
 
     public function __invoke(ChangeMyOrganizationLogo $command): void

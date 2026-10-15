@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace Prospecter\Core\Prospecting\Application\StartProspecting;
 
 use Prospecter\Core\Prospecting\Application\GeoLocalizer;
-use Prospecter\Core\Prospecting\Application\Port\GeoLocation;
 use Prospecter\Core\Prospecting\Domain\Address;
 use Prospecter\Core\Prospecting\Domain\EmailUniqueness;
 use Prospecter\Core\Prospecting\Domain\Organization;
@@ -25,13 +24,13 @@ final readonly class StartProspectingHandler implements CommandHandler
 {
     use PublishesEvents;
 
-    private GeoLocalizer $geoLocalizer;
-    private EmailUniqueness $emails;
-
-    public function __construct(private OrganizationRepository $organizations, private Prospectors $prospectors, GeoLocation $geoLocation, private Events $events)
-    {
-        $this->geoLocalizer = new GeoLocalizer($geoLocation);
-        $this->emails = new EmailUniqueness($organizations);
+    public function __construct(
+        private OrganizationRepository $organizations,
+        private Prospectors $prospectors,
+        private Events $events,
+        private GeoLocalizer $geoLocalizer,
+        private EmailUniqueness $emails,
+    ) {
     }
 
     public function __invoke(StartProspecting $command): void

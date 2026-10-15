@@ -16,7 +16,6 @@ use Nelmio\ApiDocBundle\Attribute\Model;
 use OpenApi\Attributes as OA;
 use Prospecter\Core\PersonalData\Application\PersonResponse;
 use Prospecter\Core\PersonalData\Application\SearchContacts\SearchContacts as SearchContactsQuery;
-use Prospecter\Core\PersonalData\Application\SearchContacts\SearchContactsHandler;
 use Prospecter\Core\PersonalData\Application\SearchContacts\SearchContactsResponse;
 use Prospecter\Core\SharedKernel\Application\RefusalTranslatingHandler;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -34,11 +33,11 @@ use Symfony\Component\Security\Http\Attribute\IsGranted;
 #[IsGranted('ROLE_PROSPECTOR')]
 final class SearchContacts extends AbstractController
 {
-    private readonly RefusalTranslatingHandler $searchContacts;
-
-    public function __construct(SearchContactsHandler $searchContacts, private readonly OrganizationsOfContacts $organizations, private readonly Links $links)
-    {
-        $this->searchContacts = new RefusalTranslatingHandler($searchContacts);
+    public function __construct(
+        private readonly RefusalTranslatingHandler $searchContacts,
+        private readonly OrganizationsOfContacts $organizations,
+        private readonly Links $links,
+    ) {
     }
 
     #[Route('/api/contacts', name: 'api_contacts_search', methods: ['GET'])]

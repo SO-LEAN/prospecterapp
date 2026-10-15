@@ -13,10 +13,8 @@ use App\Shared\Resource\ProblemResource;
 use Nelmio\ApiDocBundle\Attribute\Model;
 use OpenApi\Attributes as OA;
 use Prospecter\Core\PersonalData\Application\ConsultPersons\ConsultPersons;
-use Prospecter\Core\PersonalData\Application\ConsultPersons\ConsultPersonsHandler;
 use Prospecter\Core\PersonalData\Application\PersonResponse;
 use Prospecter\Core\Prospecting\Application\ConsultOrganization\ConsultOrganization;
-use Prospecter\Core\Prospecting\Application\ConsultOrganization\ConsultOrganizationHandler;
 use Prospecter\Core\Prospecting\Application\OrganizationResponse;
 use Prospecter\Core\SharedKernel\Application\RefusalTranslatingHandler;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -34,13 +32,11 @@ use Symfony\Component\Security\Http\Attribute\IsGranted;
 #[IsGranted('ROLE_PROSPECTOR')]
 final class ShowOrganizationContacts extends AbstractController
 {
-    private readonly RefusalTranslatingHandler $consultOrganization;
-    private readonly RefusalTranslatingHandler $consultPersons;
-
-    public function __construct(ConsultOrganizationHandler $consultOrganization, ConsultPersonsHandler $consultPersons, private readonly Links $links)
-    {
-        $this->consultOrganization = new RefusalTranslatingHandler($consultOrganization);
-        $this->consultPersons = new RefusalTranslatingHandler($consultPersons);
+    public function __construct(
+        private readonly RefusalTranslatingHandler $consultOrganization,
+        private readonly RefusalTranslatingHandler $consultPersons,
+        private readonly Links $links,
+    ) {
     }
 
     #[Route('/api/organizations/{id}/contacts', name: 'api_organizations_contacts', requirements: ['id' => Requirement::UUID], methods: ['GET'])]

@@ -26,7 +26,8 @@
     },
     "autoload-dev": {
         "psr-4": {
-            "Tests\\Core\\": "tests/"
+            "Tests\\Core\\": "tests/",
+            "Prospecter\\Tools\\PHPStan\\": "../../tools/phpstan/"
         }
     },
     "config": {

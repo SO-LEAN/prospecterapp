@@ -5,7 +5,6 @@ namespace App\Prospecting;
 use App\Prospecting\Presenter\OrganizationResourcePresenter;
 use App\Prospecting\Resource\OrganizationResource;
 use Prospecter\Core\Prospecting\Application\ConsultOrganization\ConsultOrganization;
-use Prospecter\Core\Prospecting\Application\ConsultOrganization\ConsultOrganizationHandler;
 use Prospecter\Core\SharedKernel\Application\RefusalTranslatingHandler;
 
 /**
@@ -14,13 +13,10 @@ use Prospecter\Core\SharedKernel\Application\RefusalTranslatingHandler;
  */
 final readonly class OrganizationReader
 {
-    private RefusalTranslatingHandler $consultOrganization;
-
     public function __construct(
-        ConsultOrganizationHandler $consultOrganization,
+        private RefusalTranslatingHandler $consultOrganization,
         private OrganizationResourcePresenter $presenter,
     ) {
-        $this->consultOrganization = new RefusalTranslatingHandler($consultOrganization);
     }
 
     public function read(string $reader, string $id): OrganizationResource

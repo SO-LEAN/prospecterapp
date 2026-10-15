@@ -3,7 +3,6 @@
 namespace App\Security;
 
 use Prospecter\Core\Accounts\Application\ConsultMyAccount\ConsultMyAccount;
-use Prospecter\Core\Accounts\Application\ConsultMyAccount\ConsultMyAccountHandler;
 use Prospecter\Core\SharedKernel\Application\Exception\ErrorType;
 use Prospecter\Core\SharedKernel\Application\Exception\UseCaseRefused;
 use Prospecter\Core\SharedKernel\Application\RefusalTranslatingHandler;
@@ -20,11 +19,9 @@ use Symfony\Component\Uid\Uuid;
  */
 final readonly class MemberProvider implements UserProviderInterface
 {
-    private RefusalTranslatingHandler $consultMyAccount;
-
-    public function __construct(ConsultMyAccountHandler $consultMyAccount)
-    {
-        $this->consultMyAccount = new RefusalTranslatingHandler($consultMyAccount);
+    public function __construct(
+        private RefusalTranslatingHandler $consultMyAccount,
+    ) {
     }
 
     public function loadUserByIdentifier(string $identifier): User

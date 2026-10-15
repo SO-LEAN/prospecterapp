@@ -3,7 +3,6 @@
 namespace App;
 
 use Imagine\Image\ImagineInterface;
-use Imagine\Imagick\Imagine;
 
 /**
  * Makes the copy of an image in a size, once: the copy is written next to the originals, nginx serves it
@@ -11,11 +10,8 @@ use Imagine\Imagick\Imagine;
  */
 final readonly class Resizer
 {
-    private ImagineInterface $imagine;
-
-    public function __construct(private Files $files)
+    public function __construct(private Files $files, private ImagineInterface $imagine)
     {
-        $this->imagine = new Imagine();
     }
 
     /**

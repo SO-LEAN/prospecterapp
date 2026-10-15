@@ -4,9 +4,7 @@ namespace App\Me;
 
 use App\Me\Resource\AccountResource;
 use Prospecter\Core\Accounts\Application\ConsultMyAccount\ConsultMyAccount;
-use Prospecter\Core\Accounts\Application\ConsultMyAccount\ConsultMyAccountHandler;
 use Prospecter\Core\PersonalData\Application\ConsultPerson\ConsultPerson;
-use Prospecter\Core\PersonalData\Application\ConsultPerson\ConsultPersonHandler;
 use Prospecter\Core\SharedKernel\Application\RefusalTranslatingHandler;
 
 /**
@@ -16,16 +14,11 @@ use Prospecter\Core\SharedKernel\Application\RefusalTranslatingHandler;
  */
 final readonly class MyAccountReader
 {
-    private RefusalTranslatingHandler $consultMyAccount;
-    private RefusalTranslatingHandler $consultPerson;
-
     public function __construct(
-        ConsultMyAccountHandler $consultMyAccount,
-        ConsultPersonHandler $consultPerson,
+        private RefusalTranslatingHandler $consultMyAccount,
+        private RefusalTranslatingHandler $consultPerson,
         private AccountResourcePresenter $presenter,
     ) {
-        $this->consultMyAccount = new RefusalTranslatingHandler($consultMyAccount);
-        $this->consultPerson = new RefusalTranslatingHandler($consultPerson);
     }
 
     public function read(string $me): AccountResource

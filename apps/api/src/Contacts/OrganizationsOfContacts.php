@@ -5,7 +5,6 @@ namespace App\Contacts;
 use App\Contacts\Resource\OrganizationOfContactResource;
 use App\Shared\Links;
 use Prospecter\Core\Prospecting\Application\ConsultOrganizationsOfContacts\ConsultOrganizationsOfContacts;
-use Prospecter\Core\Prospecting\Application\ConsultOrganizationsOfContacts\ConsultOrganizationsOfContactsHandler;
 use Prospecter\Core\Prospecting\Application\ConsultOrganizationsOfContacts\OrganizationOfContact;
 use Prospecter\Core\SharedKernel\Application\RefusalTranslatingHandler;
 
@@ -14,11 +13,10 @@ use Prospecter\Core\SharedKernel\Application\RefusalTranslatingHandler;
  */
 final readonly class OrganizationsOfContacts
 {
-    private RefusalTranslatingHandler $consultOrganizationsOfContacts;
-
-    public function __construct(ConsultOrganizationsOfContactsHandler $consultOrganizationsOfContacts, private Links $links)
-    {
-        $this->consultOrganizationsOfContacts = new RefusalTranslatingHandler($consultOrganizationsOfContacts);
+    public function __construct(
+        private RefusalTranslatingHandler $consultOrganizationsOfContacts,
+        private Links $links,
+    ) {
     }
 
     /**

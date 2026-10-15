@@ -29,15 +29,13 @@ final readonly class CollectContactHandler implements CommandHandler
 {
     use PublishesEvents;
 
-    private EmailUniqueness $emails;
-
     public function __construct(
         private PersonRepository $persons,
         private Readers $readers,
         private ProspectedOrganizations $organizations,
         private Events $events,
+        private EmailUniqueness $emails,
     ) {
-        $this->emails = new EmailUniqueness($persons);
     }
 
     public function __invoke(CollectContact $command): void

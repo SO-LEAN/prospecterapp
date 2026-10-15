@@ -19,11 +19,12 @@ final readonly class ChangeContactDetailsHandler implements CommandHandler
 {
     use PublishesEvents;
 
-    private EmailUniqueness $emails;
-
-    public function __construct(private OrganizationRepository $organizations, private Prospectors $prospectors, private Events $events)
-    {
-        $this->emails = new EmailUniqueness($organizations);
+    public function __construct(
+        private OrganizationRepository $organizations,
+        private Prospectors $prospectors,
+        private Events $events,
+        private EmailUniqueness $emails,
+    ) {
     }
 
     public function __invoke(ChangeContactDetails $command): void
