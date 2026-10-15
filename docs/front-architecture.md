@@ -40,8 +40,8 @@ src/
     config/             env.ts: typed VITE_* variables
     ui/                 design system components (shadcn) + form/, feedback/, map/
     i18n/               setup and fr.ts
-    forms/              section form, FormField, shared field groups (AddressFields, ContactDetailsFields, LegalIdentityFields)
-    lib/ hooks/ stores/ utilities, hooks, Zustand stores
+    forms/              section form, FormField, shared field groups (AddressFields, ContactDetailsFields, LegalIdentityFields, PersonNameFields)
+    lib/ hooks/ stores/ utilities (route-params.ts: UUID route params, a 404 of the API as a not found page), hooks, Zustand stores
   test/setup.ts         Vitest setup
 e2e/                    Playwright journeys
 ```

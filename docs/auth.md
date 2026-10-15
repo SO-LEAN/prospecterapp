@@ -28,7 +28,7 @@ SPA (local.prospecter.io)                         auth (api.local.prospecter.io,
 - Sign-in (ADR 0037): the screen is in the SPA; `POST /login` (JSON, documented by `Controller/SignIn`) is handled by `Security/SignInAuthenticator`, firewall `main` with a session. It accepts the SPA origin only (`Origin` = `FRONT_URL`, against login CSRF; CORS with credentials on `^/login$`), answers 401 for a wrong login email or password alike, 429 after 5 failures in a minute (`login_throttling`, per address and login email), and 200 with `resume`, the `/authorize` it interrupted (null when none was). As the entry point of `/authorize`, it sends an anonymous request to `FRONT_URL/auth/sign-in`. Consent is auto-approved for this first-party client (`EventListener/AuthorizationRequestListener`); `/logout` redirects to `FRONT_URL`.
 - The subject of the access token is the member id (`Security/SignedInMember`): changing the login email does not invalidate it.
 - `GET /auth/me`, `PATCH /auth/me/login-email` (422 when another member signs in with it), `PATCH /auth/me/password` (204): what I sign in with, with an access token of my own (firewall `me`, resource server of the bundle). Contract: `apps/auth/openapi.json`, front types `src/shared/api/auth-schema.d.ts`.
-- `bin/console app:user:set-password <login email>` sets a password by hand; the fixtures sign `prospector@solean-it.io` in with `password`, under the member id the API fixtures give the prospector.
+- `bin/console app:user:set-password <login email>` sets a password by hand; the fixtures sign `prospector@solean-it.io` and `assistant@solean-it.io` in with `password`, under the member ids the API fixtures give them.
 
 ## Resource server: `apps/api`
 

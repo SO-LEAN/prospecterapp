@@ -26,7 +26,7 @@ Then:
     make install
     make start
 
-- Application: https://local.prospecter.io, sign in with `prospector@solean-it.io` / `password`
+- Application: https://local.prospecter.io, sign in with `prospector@solean-it.io` / `password` (or `assistant@solean-it.io`, who sees the contacts masked)
 - API documentation: https://api.local.prospecter.io/api/doc
 
 The certificate is self-signed: accept the browser warning once for each host (`local.`, `api.local.` and `static.local.prospecter.io`).

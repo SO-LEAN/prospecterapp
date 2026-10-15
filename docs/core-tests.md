@@ -13,7 +13,8 @@ Aggregates, value objects, handlers, services (`FileStore`, `GeoLocalizer`, `Ema
 |---|---|---|
 | `AccountRepository`, `MemberRepository`, `OrganizationRepository` | `InMemoryAccountRepository`, `InMemoryMemberRepository`, `InMemoryOrganizationRepository` over `InMemoryDatabase` | the Doctrine repositories: copies stored and returned (a change not saved is lost), the answer to `isEmailUsed()` among the organizations of an account (the rule itself is `EmailUniqueness`), search and pagination newest first |
 | `Prospectors` (Prospecting) | `MembersAsProspectors` | the anticorruption adapter of the API: a prospector is a member of Accounts, seen with its account |
-| `PersonRepository`, `Readers` (PersonalData) | `InMemoryPersonRepository`, `MembersAsReaders` | the answer to `isEmailUsed()` among the persons of an account for a purpose; a reader is a member, with its person and its right to read personal data |
+| `PersonRepository`, `Readers` (PersonalData) | `InMemoryPersonRepository`, `MembersAsReaders` | the answer to `isEmailUsed()` among the persons of an account for a purpose, the search newest first; a reader is a member, with its person and its right to read personal data |
+| `KnownContacts` (Prospecting) | `PersonsAsKnownContacts` | the anticorruption adapter of the API: a contact is a person the account keeps for prospecting |
 | `Storage` | `InMemoryStorage` | stores by URL `https://storage.test/<file name>` and deletes the uploaded file, like the real storage moves it |
 | `GeoLocation` | `KnownPlacesGeoLocation` | finds an address that mentions a place declared by the scenario |
 
