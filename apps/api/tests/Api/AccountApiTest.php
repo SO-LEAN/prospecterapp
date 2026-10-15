@@ -3,7 +3,6 @@
 namespace Tests\App\Api;
 
 use PHPUnit\Framework\Attributes\Group;
-use Prospecter\Core\Accounts\Domain\Account;
 use Prospecter\Core\PersonalData\Domain\Person;
 use Prospecter\Core\PersonalData\Domain\PersonRepository;
 use Prospecter\Core\PersonalData\Domain\Purpose;
@@ -58,7 +57,7 @@ class AccountApiTest extends ApiTestCase
 
     public function testMyEmailCannotBeTheOneOfAColleagueButMayBeTheOneOfAnotherAccount(): void
     {
-        $this->aPersonWithTheEmail('grace@solean-it.io', $this->fixtures->getReference('solean-it-account', Account::class)->id());
+        $this->aPersonWithTheEmail('grace@solean-it.io', $this->accountOfTheFixtures());
         $this->aPersonWithTheEmail('linus@competitor.io', new AccountId(self::newIdentity()));
 
         $problem = $this->requestJson('PATCH', '/api/me/contact-details', ['email' => 'grace@solean-it.io', 'phoneNumber' => null, 'language' => null]);

@@ -193,7 +193,7 @@ class OrganizationApiTest extends ApiTestCase
 
     public function testMyOwnOrganizationIsNotAProspectedOne(): void
     {
-        $myAccount = $this->fixtures->getReference('solean-it-account', Account::class)->id();
+        $myAccount = $this->accountOfTheFixtures();
 
         $this->requestJson('GET', '/api/organizations/'.$myAccount->value);
 
@@ -224,7 +224,7 @@ class OrganizationApiTest extends ApiTestCase
     {
         $members = self::getContainer()->get(MemberRepository::class);
         $persons = self::getContainer()->get(PersonRepository::class);
-        $account = $this->fixtures->getReference('solean-it-account', Account::class)->id();
+        $account = $this->accountOfTheFixtures();
         $profile = Person::collect(new PersonId(self::newIdentity()), $account, Purpose::Membership, new \DateTimeImmutable());
         $persons->save($profile);
         $assistant = Member::register(new MemberId(self::newIdentity()), $account, $profile->id(), Role::User);

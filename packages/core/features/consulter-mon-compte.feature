@@ -18,6 +18,7 @@ Fonctionnalité: Consulter mon compte
       | nom                                | Lovelace           |
       | e-mail                             | ada@solean-it.test |
       | raison sociale de mon organisation | SOLEAN IT          |
+      | mes rôles                          | ROLE_USER, ROLE_PROSPECTOR, ROLE_PERSONAL_DATA |
 
   Scénario: Je vois ce que je peux changer de mon profil et de mon organisation
     Quand je consulte mon compte

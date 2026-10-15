@@ -14,7 +14,9 @@ use Lcobucci\JWT\Encoding\JoseEncoder;
 use Lcobucci\JWT\Signer\Key\InMemory;
 use Lcobucci\JWT\Signer\Rsa\Sha256;
 use Lcobucci\JWT\Token\Builder;
+use Prospecter\Core\Accounts\Domain\Account;
 use Prospecter\Core\Accounts\Domain\Member;
+use Prospecter\Core\SharedKernel\Domain\AccountId;
 use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
@@ -39,6 +41,18 @@ abstract class ApiTestCase extends WebTestCase
         $memberId = $this->fixtures->getReference($reference, Member::class)->id()->value;
         $this->forgetTheLoadedAggregates();
         $this->client->setServerParameter('HTTP_AUTHORIZATION', 'Bearer '.$this->accessTokenOf($memberId));
+    }
+
+    /**
+     * The account of the fixtures, SOLEAN IT, by its identity only: its lazy reference must not stay loaded
+     * while a request reads the account (see forgetTheLoadedAggregates()).
+     */
+    protected function accountOfTheFixtures(): AccountId
+    {
+        $accountId = $this->fixtures->getReference('solean-it-account', Account::class)->id();
+        $this->forgetTheLoadedAggregates();
+
+        return $accountId;
     }
 
     protected function accessTokenOf(string $memberId, string $audience = 'prospecter-front', string $expiresIn = '+15 minutes'): string

@@ -2,8 +2,8 @@
 
 namespace App\Security;
 
-use Prospecter\Core\Accounts\Application\IdentifyMember\IdentifyMember;
-use Prospecter\Core\Accounts\Application\IdentifyMember\IdentifyMemberHandler;
+use Prospecter\Core\Accounts\Application\ConsultMyAccount\ConsultMyAccount;
+use Prospecter\Core\Accounts\Application\ConsultMyAccount\ConsultMyAccountHandler;
 use Prospecter\Core\SharedKernel\Application\Exception\ErrorType;
 use Prospecter\Core\SharedKernel\Application\Exception\UseCaseRefused;
 use Prospecter\Core\SharedKernel\Application\RefusalTranslatingHandler;
@@ -20,11 +20,11 @@ use Symfony\Component\Uid\Uuid;
  */
 final readonly class MemberProvider implements UserProviderInterface
 {
-    private RefusalTranslatingHandler $identifyMember;
+    private RefusalTranslatingHandler $consultMyAccount;
 
-    public function __construct(IdentifyMemberHandler $identifyMember)
+    public function __construct(ConsultMyAccountHandler $consultMyAccount)
     {
-        $this->identifyMember = new RefusalTranslatingHandler($identifyMember);
+        $this->consultMyAccount = new RefusalTranslatingHandler($consultMyAccount);
     }
 
     public function loadUserByIdentifier(string $identifier): User
@@ -34,7 +34,7 @@ final readonly class MemberProvider implements UserProviderInterface
         }
 
         try {
-            return User::from(($this->identifyMember)(new IdentifyMember($identifier)));
+            return User::from(($this->consultMyAccount)(new ConsultMyAccount($identifier)));
         } catch (UseCaseRefused $refusal) {
             throw ErrorType::NotFound === $refusal->type ? new UserNotFoundException('Unknown member', previous: $refusal) : $refusal;
         }

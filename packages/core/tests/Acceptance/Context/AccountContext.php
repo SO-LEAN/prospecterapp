@@ -101,6 +101,7 @@ final class AccountContext implements Context
             'e-mail' => (string) $me->email,
             'raison sociale de mon organisation' => (string) $account->organizationCorporateName,
             'forme juridique de mon organisation' => (string) $account->organizationForm,
+            'mes rôles' => implode(', ', $account->roles),
         ]);
     }
 
