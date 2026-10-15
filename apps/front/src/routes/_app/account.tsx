@@ -37,7 +37,7 @@ function AccountPage() {
         </div>
         <div className="space-y-6">
           <UserNameSection account={account} />
-          <PasswordSection />
+          <PasswordSection account={account} />
           <MyOrganizationIdentitySection account={account} />
           <MyOrganizationLogoSection account={account} />
         </div>

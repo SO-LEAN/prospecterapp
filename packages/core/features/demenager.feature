@@ -38,6 +38,13 @@ Fonctionnalité: Déménager une organisation
       | ville    |        |
       | position | aucune |
 
+  Scénario: Je déménage ma propre organisation
+    Quand je déménage "SOLEAN IT" à l'adresse :
+      | ville | Strasbourg |
+    Alors l'organisation "SOLEAN IT" est enregistrée avec :
+      | ville    | Strasbourg  |
+      | position | 7.75, 48.58 |
+
   Scénario: L'organisation d'une autre organisation est introuvable
     Soit l'organisation "Concurrent" qui utilise Prospecter
     Et l'organisation "Initech" appartient à "Concurrent"

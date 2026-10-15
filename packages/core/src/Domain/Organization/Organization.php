@@ -8,6 +8,8 @@ use Prospecter\Core\Domain\Shared\BusinessRuleViolation;
 use Prospecter\Core\Domain\Shared\ContactDetails;
 use Prospecter\Core\Domain\Shared\Email;
 use Prospecter\Core\Domain\Shared\File;
+use Prospecter\Core\Domain\Shared\NotPossibleInItsState;
+use Prospecter\Core\Domain\User\User;
 
 /**
  * Aggregate root. Either an organization using Prospecter, or one it prospects (it has an owner).
@@ -46,11 +48,11 @@ class Organization
         return new self($id, $legalIdentity);
     }
 
-    public static function prospectedBy(OrganizationId $ownerId, OrganizationId $id, LegalIdentity $legalIdentity, ContactDetails $contactDetails): self
+    public static function prospectedBy(User $prospector, OrganizationId $id, LegalIdentity $legalIdentity, ContactDetails $contactDetails): self
     {
         self::ensureItCanBeNamed($legalIdentity, $contactDetails);
         $organization = new self($id, $legalIdentity);
-        $organization->ownerId = $ownerId->value;
+        $organization->ownerId = $prospector->organizationId()->value;
         $organization->assignContactDetails($contactDetails);
 
         return $organization;
@@ -117,25 +119,45 @@ class Organization
         return $this->ownerId === $organizationId->value;
     }
 
-    public function isVisibleTo(OrganizationId $organizationId): bool
+    /**
+     * What this user may do with the organization now: nothing if it is not theirs, and only what its
+     * state allows. Every intention refuses exactly what is missing here.
+     *
+     * @return list<OrganizationIntent>
+     */
+    public function possibleIntentsOf(User $user): array
     {
-        return $this->id === $organizationId->value || $this->isProspectedBy($organizationId);
+        if (!$this->isManagedBy($user)) {
+            return [];
+        }
+
+        return array_values(array_filter(OrganizationIntent::cases(), $this->allowsInItsState(...)));
     }
 
-    public function reviseLegalIdentity(LegalIdentity $legalIdentity): void
+    public function ensureReachableBy(User $user): void
     {
+        if (!$this->isManagedBy($user)) {
+            throw new UnknownOrganization($this->id());
+        }
+    }
+
+    public function reviseLegalIdentity(LegalIdentity $legalIdentity, User $by): void
+    {
+        $this->ensurePossible(OrganizationIntent::ReviseLegalIdentity, $by);
         $this->ensureAProspectCanBeNamed($legalIdentity, $this->contactDetails());
         $this->assignLegalIdentity($legalIdentity);
     }
 
-    public function changeContactDetails(ContactDetails $contactDetails): void
+    public function changeContactDetails(ContactDetails $contactDetails, User $by): void
     {
+        $this->ensurePossible(OrganizationIntent::ChangeContactDetails, $by);
         $this->ensureAProspectCanBeNamed($this->legalIdentity(), $contactDetails);
         $this->assignContactDetails($contactDetails);
     }
 
-    public function relocateTo(?Address $address, ?GeoPoint $geoPoint): void
+    public function relocateTo(?Address $address, ?GeoPoint $geoPoint, User $by): void
     {
+        $this->ensurePossible(OrganizationIntent::Relocate, $by);
         $this->addressStreet = $address?->street;
         $this->addressPostalCode = $address?->postalCode;
         $this->addressCity = $address?->city;
@@ -144,36 +166,85 @@ class Organization
         $this->geoPointLatitude = $geoPoint?->latitude;
     }
 
-    public function writeObservations(?string $observations): void
+    public function writeObservations(?string $observations, User $by): void
     {
+        $this->ensurePossible(OrganizationIntent::WriteObservations, $by);
         $this->observations = $observations;
     }
 
-    public function attachToHolding(OrganizationId $holdingId): void
+    public function attachToHolding(self $holding, User $by): void
     {
-        $this->holdingId = $holdingId->value;
+        $this->ensurePossible(OrganizationIntent::AttachToHolding, $by);
+        $holding->ensureProspectedBy($by);
+        $this->holdingId = $holding->id;
     }
 
-    public function detachFromHolding(): void
+    public function detachFromHolding(User $by): void
     {
+        $this->ensurePossible(OrganizationIntent::DetachFromHolding, $by);
         $this->holdingId = null;
     }
 
-    public function changeLogo(File $logo): void
+    public function changeLogo(File $logo, User $by): void
     {
+        $this->ensurePossible(OrganizationIntent::ChangeLogo, $by);
         $this->logoUrl = $logo->url;
         $this->logoExtension = $logo->extension;
         $this->logoSize = $logo->size;
     }
 
-    public function removeLogo(): File
+    public function removeLogo(User $by): File
     {
-        $logo = $this->logo() ?? throw new BusinessRuleViolation('There is no logo to remove', 'logo');
+        $this->ensurePossible(OrganizationIntent::RemoveLogo, $by);
+        $removed = new File((string) $this->logoUrl, (string) $this->logoExtension, (int) $this->logoSize);
         $this->logoUrl = null;
         $this->logoExtension = null;
         $this->logoSize = null;
 
-        return $logo;
+        return $removed;
+    }
+
+    /**
+     * Its own users manage the organization using Prospecter; the users of the organization prospecting
+     * it manage a prospect. Anybody else does not even learn that it exists (ADR 0019).
+     */
+    private function isManagedBy(User $user): bool
+    {
+        return $this->id === $user->organizationId()->value || $this->isProspectedBy($user->organizationId());
+    }
+
+    private function allowsInItsState(OrganizationIntent $intent): bool
+    {
+        return match ($intent) {
+            OrganizationIntent::RemoveLogo => null !== $this->logoUrl,
+            OrganizationIntent::DetachFromHolding => null !== $this->holdingId,
+            default => true,
+        };
+    }
+
+    private function ensurePossible(OrganizationIntent $intent, User $by): void
+    {
+        $this->ensureReachableBy($by);
+
+        if (!$this->allowsInItsState($intent)) {
+            throw $this->notPossibleInItsState($intent);
+        }
+    }
+
+    private function ensureProspectedBy(User $prospector): void
+    {
+        if (!$this->isProspectedBy($prospector->organizationId())) {
+            throw new UnknownOrganization($this->id());
+        }
+    }
+
+    private function notPossibleInItsState(OrganizationIntent $intent): NotPossibleInItsState
+    {
+        return match ($intent) {
+            OrganizationIntent::RemoveLogo => new NotPossibleInItsState('There is no logo to remove', 'logo'),
+            OrganizationIntent::DetachFromHolding => new NotPossibleInItsState('There is no holding to detach from', 'holdingId'),
+            default => new NotPossibleInItsState(sprintf('%s is not possible now', $intent->name)),
+        };
     }
 
     private function assignLegalIdentity(LegalIdentity $legalIdentity): void

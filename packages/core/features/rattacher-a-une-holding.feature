@@ -21,6 +21,10 @@ Fonctionnalité: Rattacher une organisation à sa holding
     Alors l'organisation "ACME" est enregistrée avec :
       | holding | |
 
+  Scénario: Sans holding, il n'y a rien à détacher
+    Quand je détache "ACME" de sa holding
+    Alors c'est refusé : "There is no holding to detach from"
+
   Scénario: La holding doit exister
     Quand je rattache "ACME" à la holding "Inconnue"
     Alors c'est introuvable

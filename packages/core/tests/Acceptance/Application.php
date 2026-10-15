@@ -19,7 +19,6 @@ use Prospecter\Core\Application\Account\ConsultMyAccount;
 use Prospecter\Core\Application\Account\ConsultMyAccountRequest;
 use Prospecter\Core\Application\Account\ReviseMyOrganizationIdentity;
 use Prospecter\Core\Application\Account\ReviseMyOrganizationIdentityRequest;
-use Prospecter\Core\Application\Exception\UseCaseException;
 use Prospecter\Core\Application\Organization\AttachToHolding;
 use Prospecter\Core\Application\Organization\AttachToHoldingRequest;
 use Prospecter\Core\Application\Organization\ChangeContactDetails;
@@ -45,13 +44,14 @@ use Prospecter\Core\Application\Organization\StartProspectingRequest;
 use Prospecter\Core\Application\Organization\WriteObservations;
 use Prospecter\Core\Application\Organization\WriteObservationsRequest;
 use Prospecter\Core\Domain\Shared\BusinessRuleViolation;
+use Prospecter\Core\Domain\Shared\NotFound;
+use Prospecter\Core\Domain\User\UserId;
 use Tests\Core\Double\InMemoryDatabase;
 use Tests\Core\Double\InMemoryOrganizationRepository;
 use Tests\Core\Double\InMemoryStorage;
 use Tests\Core\Double\InMemoryUserRepository;
 use Tests\Core\Double\KnownPlacesGeoLocation;
 use Tests\Core\Double\LastResponsePresenter;
-use Tests\Core\Double\SignedInUser;
 
 /**
  * The hexagon as the scenarios use it: the real use cases, wired to in-memory implementations of their
@@ -65,8 +65,8 @@ final class Application
     public readonly InMemoryStorage $storage;
     public readonly KnownPlacesGeoLocation $geoLocation;
 
-    private ?SignedInUser $signedIn = null;
-    private UseCaseException|BusinessRuleViolation|null $refusal = null;
+    private ?UserId $signedIn = null;
+    private NotFound|BusinessRuleViolation|null $refusal = null;
 
     public function __construct()
     {
@@ -77,74 +77,74 @@ final class Application
         $this->geoLocation = new KnownPlacesGeoLocation();
     }
 
-    public function signIn(SignedInUser $user): void
+    public function signIn(UserId $user): void
     {
         $this->signedIn = $user;
     }
 
-    public function signedIn(): SignedInUser
+    public function signedIn(): UserId
     {
         return $this->signedIn ?? throw new \LogicException('Nobody is signed in: add "je suis connecté..." to the scenario');
     }
 
     public function startProspecting(StartProspectingRequest $request): ?OrganizationResponse
     {
-        return $this->organizationIntent(new StartProspecting($this->organizations, $this->geoLocation), $request);
+        return $this->organizationIntent(new StartProspecting($this->organizations, $this->users, $this->geoLocation), $request);
     }
 
     public function reviseLegalIdentity(ReviseLegalIdentityRequest $request): ?OrganizationResponse
     {
-        return $this->organizationIntent(new ReviseLegalIdentity($this->organizations), $request);
+        return $this->organizationIntent(new ReviseLegalIdentity($this->organizations, $this->users), $request);
     }
 
     public function changeContactDetails(ChangeContactDetailsRequest $request): ?OrganizationResponse
     {
-        return $this->organizationIntent(new ChangeContactDetails($this->organizations), $request);
+        return $this->organizationIntent(new ChangeContactDetails($this->organizations, $this->users), $request);
     }
 
     public function relocate(RelocateRequest $request): ?OrganizationResponse
     {
-        return $this->organizationIntent(new Relocate($this->organizations, $this->geoLocation), $request);
+        return $this->organizationIntent(new Relocate($this->organizations, $this->users, $this->geoLocation), $request);
     }
 
     public function writeObservations(WriteObservationsRequest $request): ?OrganizationResponse
     {
-        return $this->organizationIntent(new WriteObservations($this->organizations), $request);
+        return $this->organizationIntent(new WriteObservations($this->organizations, $this->users), $request);
     }
 
     public function attachToHolding(AttachToHoldingRequest $request): ?OrganizationResponse
     {
-        return $this->organizationIntent(new AttachToHolding($this->organizations), $request);
+        return $this->organizationIntent(new AttachToHolding($this->organizations, $this->users), $request);
     }
 
     public function detachFromHolding(DetachFromHoldingRequest $request): ?OrganizationResponse
     {
-        return $this->organizationIntent(new DetachFromHolding($this->organizations), $request);
+        return $this->organizationIntent(new DetachFromHolding($this->organizations, $this->users), $request);
     }
 
     public function changeLogo(ChangeLogoRequest $request): ?OrganizationResponse
     {
-        return $this->organizationIntent(new ChangeLogo($this->organizations, $this->storage), $request);
+        return $this->organizationIntent(new ChangeLogo($this->organizations, $this->users, $this->storage), $request);
     }
 
     public function removeLogo(RemoveLogoRequest $request): ?OrganizationResponse
     {
-        return $this->organizationIntent(new RemoveLogo($this->organizations, $this->storage), $request);
+        return $this->organizationIntent(new RemoveLogo($this->organizations, $this->users, $this->storage), $request);
     }
 
     public function consultOrganization(ConsultOrganizationRequest $request): ?OrganizationResponse
     {
-        return $this->organizationIntent(new ConsultOrganization($this->organizations), $request);
+        return $this->organizationIntent(new ConsultOrganization($this->organizations, $this->users), $request);
     }
 
     public function searchProspectedOrganizations(SearchProspectedOrganizationsRequest $request): ?SearchProspectedOrganizationsResponse
     {
-        return $this->attempt(new SearchProspectedOrganizations($this->organizations), $request, SearchProspectedOrganizationsResponse::class);
+        return $this->attempt(new SearchProspectedOrganizations($this->organizations, $this->users), $request, SearchProspectedOrganizationsResponse::class);
     }
 
     public function consultMyAccount(): ?AccountResponse
     {
-        return $this->accountIntent(new ConsultMyAccount($this->users, $this->organizations), new ConsultMyAccountRequest());
+        return $this->accountIntent(new ConsultMyAccount($this->users, $this->organizations), new ConsultMyAccountRequest($this->signedIn()));
     }
 
     public function changeMyName(ChangeMyNameRequest $request): ?AccountResponse
@@ -180,7 +180,7 @@ final class Application
     /**
      * The business refusal of the last use case, null when it succeeded.
      */
-    public function refusal(): UseCaseException|BusinessRuleViolation|null
+    public function refusal(): NotFound|BusinessRuleViolation|null
     {
         return $this->refusal;
     }
@@ -208,8 +208,8 @@ final class Application
         $presenter = new LastResponsePresenter();
 
         try {
-            [$useCase, 'execute']($request, $presenter, $this->signedIn());
-        } catch (UseCaseException|BusinessRuleViolation $refusal) {
+            [$useCase, 'execute']($request, $presenter);
+        } catch (NotFound|BusinessRuleViolation $refusal) {
             $this->refusal = $refusal;
 
             return null;

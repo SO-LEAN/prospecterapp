@@ -17,9 +17,11 @@ use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpKernel\Attribute\MapUploadedFile;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Security\Http\Attribute\CurrentUser;
+use Symfony\Component\Security\Http\Attribute\IsGranted;
 use Symfony\Component\Validator\Constraints as Assert;
 
 #[OA\Tag('My account')]
+#[IsGranted('ROLE_USER')]
 final class ChangeMyOrganizationLogo extends AbstractController
 {
     public function __construct(
@@ -32,9 +34,10 @@ final class ChangeMyOrganizationLogo extends AbstractController
     #[OA\Post(summary: 'Send the new logo of my organization (multipart, field "file")')]
     #[OA\Response(response: 200, description: 'My account', content: new Model(type: AccountResource::class))]
     #[OA\Response(response: 401, description: 'Missing or invalid access token')]
+    #[OA\Response(response: 403, description: 'The signed-in user is not a user', content: new Model(type: ProblemResource::class))]
     #[OA\Response(response: 422, description: 'Invalid image', content: new Model(type: ProblemResource::class))]
     public function __invoke(#[MapUploadedFile([new Assert\Image(maxSize: '2M', mimeTypes: ['image/jpeg', 'image/png', 'image/webp'])])] UploadedFile $file, #[CurrentUser] User $user): JsonResponse
     {
-        return $this->json($this->useCases->changeMyOrganizationLogo(new ChangeMyOrganizationLogoRequest(new UploadedFileInfo($file)), $this->presenter, $user));
+        return $this->json($this->useCases->changeMyOrganizationLogo(new ChangeMyOrganizationLogoRequest($user->getUserId(), new UploadedFileInfo($file)), $this->presenter));
     }
 }

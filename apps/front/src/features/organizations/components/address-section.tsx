@@ -30,6 +30,7 @@ export function AddressSection({ organization }: { organization: Organization })
   return (
     <EditableSection
       title={t('organizations.sections.address')}
+      editable={Boolean(organization._links.relocate)}
       editor={(close) => (
         <SectionForm
           schema={addressSchema}

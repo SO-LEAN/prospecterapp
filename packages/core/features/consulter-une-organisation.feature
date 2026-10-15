@@ -46,3 +46,40 @@ Fonctionnalité: Consulter une organisation
     Soit l'organisation "Concurrent" qui utilise Prospecter
     Quand je consulte l'organisation "Concurrent"
     Alors c'est introuvable
+
+  Scénario: Sans logo ni holding, je ne peux ni retirer le logo ni détacher l'organisation
+    Soit l'organisation "ACME" fait partie de mes organisations
+    Quand je consulte l'organisation "ACME"
+    Alors je peux :
+      | réviser l'identité      |
+      | changer les coordonnées |
+      | déménager               |
+      | écrire des observations |
+      | rattacher à une holding |
+      | changer le logo         |
+
+  Scénario: Avec un logo et une holding, je peux aussi les retirer
+    Soit l'organisation "Groupe ACME" fait partie de mes organisations
+    Et l'organisation "ACME" fait partie de mes organisations avec :
+      | logo | acme.png |
+    Et "ACME" est rattachée à la holding "Groupe ACME"
+    Quand je consulte l'organisation "ACME"
+    Alors je peux :
+      | réviser l'identité      |
+      | changer les coordonnées |
+      | déménager               |
+      | écrire des observations |
+      | rattacher à une holding |
+      | détacher de la holding  |
+      | changer le logo         |
+      | retirer le logo         |
+
+  Scénario: Je gère ma propre organisation comme celles que je prospecte
+    Quand je consulte l'organisation "SOLEAN IT"
+    Alors je peux :
+      | réviser l'identité      |
+      | changer les coordonnées |
+      | déménager               |
+      | écrire des observations |
+      | rattacher à une holding |
+      | changer le logo         |

@@ -7,6 +7,9 @@ use Prospecter\Core\Domain\Organization\LegalIdentity;
 use Prospecter\Core\Domain\Organization\Organization;
 use Prospecter\Core\Domain\Organization\OrganizationRepository;
 use Prospecter\Core\Domain\Shared\ContactDetails;
+use Prospecter\Core\Domain\User\Role;
+use Prospecter\Core\Domain\User\User;
+use Prospecter\Core\Domain\User\UserRepository;
 use Tests\App\Base\ApiTestCase;
 
 #[Group('api')]
@@ -95,14 +98,41 @@ class OrganizationApiTest extends ApiTestCase
         $this->assertFileDoesNotExist($storedFile);
     }
 
-    public function testRemovingAMissingLogoIsRefused(): void
+    public function testTheLinksOfferWhatTheStateOfTheOrganizationAllows(): void
+    {
+        $started = $this->requestJson('POST', '/api/organizations', self::ACME);
+        $id = $started['id'];
+
+        $this->assertSame(['href' => '/api/organizations/'.$id, 'method' => 'GET'], $started['_links']['self']);
+        $this->assertSame(['href' => '/api/organizations/'.$id.'/address', 'method' => 'PATCH'], $started['_links']['relocate']);
+        $this->assertSame(['href' => '/api/organizations/'.$id.'/logo', 'method' => 'POST'], $started['_links']['changeLogo']);
+        $this->assertNull($started['_links']['removeLogo'], 'no logo to remove');
+        $this->assertNull($started['_links']['detachFromHolding'], 'no holding to detach from');
+
+        $withLogo = $this->uploadImage('/api/organizations/'.$id.'/logo');
+        $this->assertSame(['href' => '/api/organizations/'.$id.'/logo', 'method' => 'DELETE'], $withLogo['_links']['removeLogo']);
+    }
+
+    public function testAnIntentionWithoutItsLinkIsAConflict(): void
     {
         $id = $this->requestJson('POST', '/api/organizations', self::ACME)['id'];
 
-        $problem = $this->requestJson('DELETE', '/api/organizations/'.$id.'/logo');
+        foreach ([['DELETE', '/logo', 'logo'], ['DELETE', '/holding', 'holdingId']] as [$method, $path, $field]) {
+            $problem = $this->requestJson($method, '/api/organizations/'.$id.$path);
+            $this->assertResponseStatusCodeSame(409, $method.' '.$path);
+            $this->assertSame([$field], $this->violatedFields($problem));
+        }
+    }
 
-        $this->assertResponseStatusCodeSame(422);
-        $this->assertSame(['logo'], $this->violatedFields($problem));
+    public function testOnlyAProspectorProspects(): void
+    {
+        $this->login($this->aUserWhoIsNotAProspector());
+
+        $problem = $this->requestJson('POST', '/api/organizations', self::ACME);
+
+        $this->assertResponseStatusCodeSame(403);
+        $this->assertResponseHeaderSame('Content-Type', 'application/problem+json');
+        $this->assertSame(403, $problem['status']);
     }
 
     public function testInvalidInputIsRejectedWithViolations(): void
@@ -153,11 +183,22 @@ class OrganizationApiTest extends ApiTestCase
     {
         $organizations = self::getContainer()->get(OrganizationRepository::class);
         $competitor = Organization::usingProspecter($organizations->nextIdentity(), new LegalIdentity('Competitor'));
-        $prospect = Organization::prospectedBy($competitor->id(), $organizations->nextIdentity(), new LegalIdentity('Their prospect'), new ContactDetails());
+        $theirProspector = User::register(self::getContainer()->get(UserRepository::class)->nextIdentity(), $competitor->id(), 'competitor', Role::Prospector);
+        $prospect = Organization::prospectedBy($theirProspector, $organizations->nextIdentity(), new LegalIdentity('Their prospect'), new ContactDetails());
         $organizations->save($competitor);
         $organizations->save($prospect);
 
         return $prospect->id()->value;
+    }
+
+    private function aUserWhoIsNotAProspector(): string
+    {
+        $users = self::getContainer()->get(UserRepository::class);
+        $assistant = User::register($users->nextIdentity(), $this->fixtures->getReference('user-organization', Organization::class)->id(), 'assistant', Role::User);
+        $users->save($assistant);
+        $this->fixtures->setReference('assistant', $assistant);
+
+        return 'assistant';
     }
 
     private function storagePath(string $url): string

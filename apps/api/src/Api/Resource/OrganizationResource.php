@@ -2,6 +2,8 @@
 
 namespace App\Api\Resource;
 
+use Symfony\Component\Serializer\Attribute\SerializedName;
+
 /**
  * Each part is changed by its own intention: PATCH legal-identity, contact-details, address, observations, holding.
  */
@@ -18,6 +20,8 @@ final readonly class OrganizationResource
         public ?ImageResource $logo,
         public ?string $holdingId,
         public int $activeOrganizations,
+        #[SerializedName('_links')]
+        public OrganizationLinksResource $links,
     ) {
     }
 }

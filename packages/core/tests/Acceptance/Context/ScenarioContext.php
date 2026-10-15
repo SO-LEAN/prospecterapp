@@ -8,15 +8,14 @@ use Behat\Behat\Context\Context;
 use Behat\Hook\AfterScenario;
 use Behat\Step\Given;
 use Behat\Step\Then;
-use Prospecter\Core\Application\Exception\NotFoundException;
 use Prospecter\Core\Domain\Organization\LegalIdentity;
 use Prospecter\Core\Domain\Organization\Organization;
 use Prospecter\Core\Domain\Organization\OrganizationId;
+use Prospecter\Core\Domain\Shared\NotFound;
 use Prospecter\Core\Domain\User\Role;
 use Prospecter\Core\Domain\User\User;
 use Tests\Core\Acceptance\Application;
 use Tests\Core\Acceptance\Expect;
-use Tests\Core\Double\SignedInUser;
 
 /**
  * The state of a scenario, shared by the other contexts: the application, the organizations it names
@@ -55,7 +54,7 @@ final class ScenarioContext implements Context
     {
         $user = User::register($this->application->users->nextIdentity(), $this->idOf($organization), 'prospector', Role::User, Role::Prospector);
         $this->application->users->save($user);
-        $this->application->signIn(new SignedInUser($user->id(), $user->organizationId(), ...$user->roles()));
+        $this->application->signIn($user->id());
     }
 
     #[Given('le géocodeur situe :place en :longitude, :latitude')]
@@ -86,7 +85,7 @@ final class ScenarioContext implements Context
     #[Then('c\'est introuvable')]
     public function itIsNotFound(): void
     {
-        Expect::that($this->application->refusal() instanceof NotFoundException, sprintf('Not found was expected, got: %s', get_debug_type($this->application->refusal())));
+        Expect::that($this->application->refusal() instanceof NotFound, sprintf('Not found was expected, got: %s', get_debug_type($this->application->refusal())));
     }
 
     public function save(string $name, Organization $organization): Organization
@@ -130,7 +129,21 @@ final class ScenarioContext implements Context
 
     public function me(): User
     {
-        return $this->application->users->get($this->application->signedIn()->getUserId());
+        return $this->application->users->get($this->application->signedIn());
+    }
+
+    /**
+     * Someone of the organization that manages this one (its prospector, or one of its own users), to
+     * arrange its state the way the business allows.
+     */
+    public function managerOf(Organization $organization): User
+    {
+        return $this->someoneOf($organization->ownerId() ?? $organization->id());
+    }
+
+    public function someoneOf(OrganizationId $organizationId): User
+    {
+        return User::register($this->application->users->nextIdentity(), $organizationId, 'someone', Role::Prospector);
     }
 
     public function upload(string $fileName): \SplFileInfo

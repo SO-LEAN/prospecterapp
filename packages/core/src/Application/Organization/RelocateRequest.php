@@ -6,10 +6,12 @@ namespace Prospecter\Core\Application\Organization;
 
 use Prospecter\Core\Domain\Organization\Address;
 use Prospecter\Core\Domain\Organization\OrganizationId;
+use Prospecter\Core\Domain\User\UserId;
 
 final readonly class RelocateRequest
 {
     public function __construct(
+        public UserId $prospectorId,
         public OrganizationId $id,
         public ?Address $address,
     ) {

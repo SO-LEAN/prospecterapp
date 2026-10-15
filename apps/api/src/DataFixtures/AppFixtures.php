@@ -25,26 +25,21 @@ class AppFixtures extends Fixture
 
     public function load(ObjectManager $manager): void
     {
-        $soleanIt = $this->theOrganizationUsingProspecter();
-        $this->itsProspector($soleanIt);
-    }
-
-    private function theOrganizationUsingProspecter(): Organization
-    {
         $soleanIt = Organization::usingProspecter($this->organizations->nextIdentity(), new LegalIdentity('SOLEAN IT', 'SARL'));
-        $soleanIt->changeContactDetails(new ContactDetails(new Email('org@solean-it.io'), language: 'FR'));
+        $prospector = $this->itsProspector($soleanIt);
+        $soleanIt->changeContactDetails(new ContactDetails(new Email('org@solean-it.io'), language: 'FR'), by: $prospector);
         $this->organizations->save($soleanIt);
         $this->addReference('user-organization', $soleanIt);
-
-        return $soleanIt;
     }
 
-    private function itsProspector(Organization $organization): void
+    private function itsProspector(Organization $organization): User
     {
         $prospector = User::register($this->users->nextIdentity(), $organization->id(), 'prospector', Role::User, Role::Prospector);
         $prospector->changeContactDetails(new ContactDetails(new Email('prospector@solean-it.io'), language: 'FR'));
         $this->users->save($prospector);
         $this->passwords->set($prospector->id(), 'password');
         $this->addReference('prospector-user', $prospector);
+
+        return $prospector;
     }
 }

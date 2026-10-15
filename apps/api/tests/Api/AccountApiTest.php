@@ -26,6 +26,17 @@ class AccountApiTest extends ApiTestCase
         $this->assertSame('SOLEAN IT', $account['organization']['legalIdentity']['corporateName']);
     }
 
+    public function testTheLinksOfferEveryChangeOfMyAccount(): void
+    {
+        $links = $this->requestJson('GET', '/api/me')['_links'];
+
+        $this->assertSame(['href' => '/api/me', 'method' => 'GET'], $links['self']);
+        $this->assertSame(['href' => '/api/me/name', 'method' => 'PATCH'], $links['changeMyName']);
+        $this->assertSame(['href' => '/api/me/picture', 'method' => 'POST'], $links['changeMyPicture']);
+        $this->assertSame(['href' => '/api/me/password', 'method' => 'PATCH'], $links['changeMyPassword']);
+        $this->assertSame(['href' => '/api/me/organization/logo', 'method' => 'POST'], $links['changeMyOrganizationLogo']);
+    }
+
     public function testEachIntentionChangesOnlyItsPart(): void
     {
         $named = $this->requestJson('PATCH', '/api/me/name', ['firstName' => 'Ada', 'lastName' => 'Lovelace']);

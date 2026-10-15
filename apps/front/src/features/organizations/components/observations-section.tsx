@@ -17,6 +17,7 @@ export function ObservationsSection({ organization }: { organization: Organizati
   return (
     <EditableSection
       title={t('organizations.sections.observations')}
+      editable={Boolean(organization._links.writeObservations)}
       editor={(close) => (
         <SectionForm
           schema={observationsSchema}

@@ -43,7 +43,7 @@ final class AccountContext implements Context
     public function anOrganizationHasTheEmail(string $name, string $email): void
     {
         $organization = Organization::usingProspecter($this->application->organizations->nextIdentity(), new LegalIdentity($name));
-        $organization->changeContactDetails(new ContactDetails(new Email($email)));
+        $organization->changeContactDetails(new ContactDetails(new Email($email)), by: $this->scenario->managerOf($organization));
         $this->scenario->save($name, $organization);
     }
 
@@ -56,37 +56,37 @@ final class AccountContext implements Context
     #[When('je change mon nom :')]
     public function iChangeMyName(TableNode $table): void
     {
-        $this->application->changeMyName(new ChangeMyNameRequest(Vocabulary::personName(Vocabulary::values($table->getRowsHash()))));
+        $this->application->changeMyName(new ChangeMyNameRequest($this->application->signedIn(), Vocabulary::personName(Vocabulary::values($table->getRowsHash()))));
     }
 
     #[When('je change mon identifiant en :userName')]
     public function iChangeMyUserName(string $userName): void
     {
-        $this->application->changeMyUserName(new ChangeMyUserNameRequest($userName));
+        $this->application->changeMyUserName(new ChangeMyUserNameRequest($this->application->signedIn(), $userName));
     }
 
     #[When('je change mes coordonnées :')]
     public function iChangeMyContactDetails(TableNode $table): void
     {
-        $this->application->changeMyContactDetails(new ChangeMyContactDetailsRequest(Vocabulary::contactDetails(Vocabulary::values($table->getRowsHash()))));
+        $this->application->changeMyContactDetails(new ChangeMyContactDetailsRequest($this->application->signedIn(), Vocabulary::contactDetails(Vocabulary::values($table->getRowsHash()))));
     }
 
     #[When('je change ma photo avec :fileName')]
     public function iChangeMyPicture(string $fileName): void
     {
-        $this->application->changeMyPicture(new ChangeMyPictureRequest($this->scenario->upload($fileName)));
+        $this->application->changeMyPicture(new ChangeMyPictureRequest($this->application->signedIn(), $this->scenario->upload($fileName)));
     }
 
     #[When('je révise l\'identité de mon organisation :')]
     public function iReviseMyOrganizationIdentity(TableNode $table): void
     {
-        $this->application->reviseMyOrganizationIdentity(new ReviseMyOrganizationIdentityRequest(Vocabulary::legalIdentity(Vocabulary::values($table->getRowsHash()))));
+        $this->application->reviseMyOrganizationIdentity(new ReviseMyOrganizationIdentityRequest($this->application->signedIn(), Vocabulary::legalIdentity(Vocabulary::values($table->getRowsHash()))));
     }
 
     #[When('je change le logo de mon organisation avec :fileName')]
     public function iChangeMyOrganizationLogo(string $fileName): void
     {
-        $this->application->changeMyOrganizationLogo(new ChangeMyOrganizationLogoRequest($this->scenario->upload($fileName)));
+        $this->application->changeMyOrganizationLogo(new ChangeMyOrganizationLogoRequest($this->application->signedIn(), $this->scenario->upload($fileName)));
     }
 
     #[Then('je vois mon compte :')]
@@ -103,6 +103,20 @@ final class AccountContext implements Context
             'raison sociale de mon organisation' => (string) $account->organizationIdentity->corporateName,
             'forme juridique de mon organisation' => (string) $account->organizationIdentity->form,
         ]);
+    }
+
+    #[Then('je peux sur mon compte :')]
+    public function iMayOnMyAccount(TableNode $table): void
+    {
+        Expect::that(null !== $this->account, 'My account was expected');
+        Expect::same($table->getColumn(0), Vocabulary::describeIntents($this->account->possibleIntents));
+    }
+
+    #[Then('je peux sur mon organisation :')]
+    public function iMayOnMyOrganization(TableNode $table): void
+    {
+        Expect::that(null !== $this->account, 'My account was expected');
+        Expect::same($table->getColumn(0), Vocabulary::describeIntents($this->account->organizationIntents));
     }
 
     #[Then('mon compte est enregistré avec :')]

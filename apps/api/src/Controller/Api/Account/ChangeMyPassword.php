@@ -13,8 +13,10 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Attribute\MapRequestPayload;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Security\Http\Attribute\CurrentUser;
+use Symfony\Component\Security\Http\Attribute\IsGranted;
 
 #[OA\Tag('My account')]
+#[IsGranted('ROLE_USER')]
 final class ChangeMyPassword extends AbstractController
 {
     public function __construct(private readonly Passwords $passwords)
@@ -25,6 +27,7 @@ final class ChangeMyPassword extends AbstractController
     #[OA\Patch(summary: 'Change my password (a credential of the authentication module, not of the core)')]
     #[OA\Response(response: 204, description: 'Password changed')]
     #[OA\Response(response: 401, description: 'Missing or invalid access token')]
+    #[OA\Response(response: 403, description: 'The signed-in user is not a user', content: new Model(type: ProblemResource::class))]
     #[OA\Response(response: 422, description: 'Password too short', content: new Model(type: ProblemResource::class))]
     public function __invoke(#[MapRequestPayload] PasswordInput $input, #[CurrentUser] User $user): Response
     {

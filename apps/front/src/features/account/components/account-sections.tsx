@@ -66,7 +66,7 @@ export function PictureSection({ account }: { account: Account }) {
           alt={fullNameOf(account)}
           label={t('account.changePicture')}
           pending={change.isPending}
-          onUpload={(file) => change.mutate(file)}
+          onUpload={account._links.changeMyPicture ? (file) => change.mutate(file) : undefined}
           fallback={
             <span className="font-semibold text-2xl text-muted-foreground">
               {initials(fullNameOf(account))}
@@ -85,6 +85,7 @@ export function NameSection({ account }: { account: Account }) {
   return (
     <EditableSection
       title={t('account.sections.name')}
+      editable={Boolean(account._links.changeMyName)}
       editor={(close) => (
         <SectionForm
           schema={nameSchema}
@@ -130,6 +131,7 @@ export function UserNameSection({ account }: { account: Account }) {
   return (
     <EditableSection
       title={t('account.sections.userName')}
+      editable={Boolean(account._links.changeMyUserName)}
       editor={(close) => (
         <SectionForm
           schema={userNameSchema}
@@ -164,6 +166,7 @@ export function ContactDetailsSection({ account }: { account: Account }) {
   return (
     <EditableSection
       title={t('account.sections.contactDetails')}
+      editable={Boolean(account._links.changeMyContactDetails)}
       editor={(close) => (
         <SectionForm
           schema={contactDetailsSchema}
@@ -183,13 +186,14 @@ export function ContactDetailsSection({ account }: { account: Account }) {
   )
 }
 
-export function PasswordSection() {
+export function PasswordSection({ account }: { account: Account }) {
   const { t } = useTranslation()
   const change = useChangeMyPassword()
 
   return (
     <EditableSection
       title={t('account.sections.password')}
+      editable={Boolean(account._links.changeMyPassword)}
       editor={(close) => (
         <SectionForm
           schema={passwordSchema}
@@ -219,6 +223,7 @@ export function MyOrganizationIdentitySection({ account }: { account: Account })
   return (
     <EditableSection
       title={t('account.sections.organizationIdentity')}
+      editable={Boolean(account._links.reviseMyOrganizationIdentity)}
       editor={(close) => (
         <SectionForm
           schema={legalIdentitySchema}
@@ -253,7 +258,7 @@ export function MyOrganizationLogoSection({ account }: { account: Account }) {
           alt={name}
           label={t('account.changeLogo')}
           pending={change.isPending}
-          onUpload={(file) => change.mutate(file)}
+          onUpload={account._links.changeMyOrganizationLogo ? (file) => change.mutate(file) : undefined}
           fallback={<span className="font-semibold text-2xl text-muted-foreground">{initials(name)}</span>}
         />
       </CardContent>

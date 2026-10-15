@@ -8,17 +8,17 @@ use Prospecter\Core\Application\UseCasesFacade;
 use Symfony\Bundle\FrameworkBundle\Console\Application;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 use Symfony\Component\Console\Tester\CommandTester;
-use Tests\App\Stub\StubNeedsRoleUseCase;
-use Tests\App\Stub\StubPublicUseCase;
+use Tests\App\Stub\StubFirstUseCase;
+use Tests\App\Stub\StubSecondUseCase;
 
 #[Group('unit')]
 class ListUseCasesCommandTest extends KernelTestCase
 {
-    public function testEveryUseCaseIsListedWithWhoCanExecuteIt(): void
+    public function testEveryUseCaseIsListedWithTheIntentItServes(): void
     {
         $facade = new UseCasesFacade();
-        $facade->addUseCase(new StubNeedsRoleUseCase());
-        $facade->addUseCase(new StubPublicUseCase());
+        $facade->addUseCase(new StubSecondUseCase());
+        $facade->addUseCase(new StubFirstUseCase());
         $application = new Application(self::bootKernel());
         $application->addCommand(new ListUseCasesCommand($facade));
         $tester = new CommandTester($application->find('app:use-cases'));
@@ -27,8 +27,8 @@ class ListUseCasesCommandTest extends KernelTestCase
 
         $this->assertSame([
             '2 use case(s) registered',
-            '1/2 : As anonymous, I want to stub public use case',
-            '2/2 : As prospector, I want to stub needs role use case',
+            '1/2 : I want to stub first use case',
+            '2/2 : I want to stub second use case',
         ], array_slice(explode("\n", $tester->getDisplay()), 0, 3));
     }
 }

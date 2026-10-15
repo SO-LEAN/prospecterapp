@@ -20,6 +20,7 @@ export function LegalIdentitySection({ organization }: { organization: Organizat
   return (
     <EditableSection
       title={t('organizations.sections.legalIdentity')}
+      editable={Boolean(organization._links.reviseLegalIdentity)}
       editor={(close) => (
         <SectionForm
           schema={legalIdentitySchema}

@@ -16,8 +16,10 @@ use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpKernel\Attribute\MapRequestPayload;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Security\Http\Attribute\CurrentUser;
+use Symfony\Component\Security\Http\Attribute\IsGranted;
 
 #[OA\Tag('My account')]
+#[IsGranted('ROLE_USER')]
 final class ReviseMyOrganizationIdentity extends AbstractController
 {
     public function __construct(
@@ -30,9 +32,10 @@ final class ReviseMyOrganizationIdentity extends AbstractController
     #[OA\Patch(summary: 'Revise the legal identity of my organization')]
     #[OA\Response(response: 200, description: 'My account', content: new Model(type: AccountResource::class))]
     #[OA\Response(response: 401, description: 'Missing or invalid access token')]
+    #[OA\Response(response: 403, description: 'The signed-in user is not a user', content: new Model(type: ProblemResource::class))]
     #[OA\Response(response: 422, description: 'Invalid identity', content: new Model(type: ProblemResource::class))]
     public function __invoke(#[MapRequestPayload] LegalIdentityInput $input, #[CurrentUser] User $user): JsonResponse
     {
-        return $this->json($this->useCases->reviseMyOrganizationIdentity(new ReviseMyOrganizationIdentityRequest($input->toLegalIdentity()), $this->presenter, $user));
+        return $this->json($this->useCases->reviseMyOrganizationIdentity(new ReviseMyOrganizationIdentityRequest($user->getUserId(), $input->toLegalIdentity()), $this->presenter));
     }
 }

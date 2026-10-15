@@ -16,8 +16,10 @@ use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Routing\Requirement\Requirement;
 use Symfony\Component\Security\Http\Attribute\CurrentUser;
+use Symfony\Component\Security\Http\Attribute\IsGranted;
 
 #[OA\Tag('Organizations')]
+#[IsGranted('ROLE_PROSPECTOR')]
 final class RemoveLogo extends AbstractController
 {
     public function __construct(
@@ -30,10 +32,11 @@ final class RemoveLogo extends AbstractController
     #[OA\Delete(summary: 'Remove the logo of the organization')]
     #[OA\Response(response: 200, description: 'The organization without logo', content: new Model(type: OrganizationResource::class))]
     #[OA\Response(response: 401, description: 'Missing or invalid access token')]
-    #[OA\Response(response: 404, description: 'Unknown organization, or one that is not prospected by mine', content: new Model(type: ProblemResource::class))]
-    #[OA\Response(response: 422, description: 'The organization has no logo', content: new Model(type: ProblemResource::class))]
+    #[OA\Response(response: 403, description: 'The signed-in user is not a prospector', content: new Model(type: ProblemResource::class))]
+    #[OA\Response(response: 409, description: 'The organization has no logo (no removeLogo link)', content: new Model(type: ProblemResource::class))]
+    #[OA\Response(response: 404, description: 'Unknown organization, or one that is neither mine nor prospected by mine', content: new Model(type: ProblemResource::class))]
     public function __invoke(string $id, #[CurrentUser] User $user): JsonResponse
     {
-        return $this->json($this->useCases->removeLogo(new RemoveLogoRequest(new OrganizationId($id)), $this->presenter, $user));
+        return $this->json($this->useCases->removeLogo(new RemoveLogoRequest($user->getUserId(), new OrganizationId($id)), $this->presenter));
     }
 }

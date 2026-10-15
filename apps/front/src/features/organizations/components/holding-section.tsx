@@ -20,6 +20,7 @@ export function HoldingSection({ organization }: { organization: Organization })
   return (
     <EditableSection
       title={t('organizations.sections.holding')}
+      editable={Boolean(organization._links.attachToHolding)}
       editor={(close) => <HoldingPicker organization={organization} onDone={close} />}
     >
       {organization.holdingId ? (
@@ -31,14 +32,16 @@ export function HoldingSection({ organization }: { organization: Organization })
           >
             {holding.data?.name ?? t('common.loading')}
           </Link>
-          <Button
-            variant="ghost"
-            size="sm"
-            disabled={detach.isPending}
-            onClick={() => detach.mutate({ params: { path: { id: organization.id } } })}
-          >
-            {t('organizations.holding.detach')}
-          </Button>
+          {organization._links.detachFromHolding && (
+            <Button
+              variant="ghost"
+              size="sm"
+              disabled={detach.isPending}
+              onClick={() => detach.mutate({ params: { path: { id: organization.id } } })}
+            >
+              {t('organizations.holding.detach')}
+            </Button>
+          )}
         </div>
       ) : (
         <p className="text-muted-foreground">{t('organizations.holding.none')}</p>

@@ -18,8 +18,10 @@ use Symfony\Component\HttpKernel\Attribute\MapRequestPayload;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Routing\Requirement\Requirement;
 use Symfony\Component\Security\Http\Attribute\CurrentUser;
+use Symfony\Component\Security\Http\Attribute\IsGranted;
 
 #[OA\Tag('Organizations')]
+#[IsGranted('ROLE_PROSPECTOR')]
 final class WriteObservations extends AbstractController
 {
     public function __construct(
@@ -32,10 +34,11 @@ final class WriteObservations extends AbstractController
     #[OA\Patch(summary: 'Write the observations on the organization')]
     #[OA\Response(response: 200, description: 'The organization with its observations', content: new Model(type: OrganizationResource::class))]
     #[OA\Response(response: 401, description: 'Missing or invalid access token')]
-    #[OA\Response(response: 404, description: 'Unknown organization, or one that is not prospected by mine', content: new Model(type: ProblemResource::class))]
+    #[OA\Response(response: 403, description: 'The signed-in user is not a prospector', content: new Model(type: ProblemResource::class))]
+    #[OA\Response(response: 404, description: 'Unknown organization, or one that is neither mine nor prospected by mine', content: new Model(type: ProblemResource::class))]
     #[OA\Response(response: 422, description: 'Observations too long', content: new Model(type: ProblemResource::class))]
     public function __invoke(string $id, #[MapRequestPayload] ObservationsInput $input, #[CurrentUser] User $user): JsonResponse
     {
-        return $this->json($this->useCases->writeObservations(new WriteObservationsRequest(new OrganizationId($id), $input->observations), $this->presenter, $user));
+        return $this->json($this->useCases->writeObservations(new WriteObservationsRequest($user->getUserId(), new OrganizationId($id), $input->observations), $this->presenter));
     }
 }

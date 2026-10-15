@@ -21,8 +21,12 @@ export function LogoSection({ organization }: { organization: Organization }) {
           alt={organization.name}
           label={organization.logo ? t('organizations.logo.change') : t('organizations.logo.add')}
           pending={change.isPending || remove.isPending}
-          onUpload={(file) => change.mutate(file)}
-          onRemove={() => remove.mutate({ params: { path: { id: organization.id } } })}
+          onUpload={organization._links.changeLogo ? (file) => change.mutate(file) : undefined}
+          onRemove={
+            organization._links.removeLogo
+              ? () => remove.mutate({ params: { path: { id: organization.id } } })
+              : undefined
+          }
           fallback={
             <OrganizationAvatar name={organization.name} className="size-full rounded-none border-0" />
           }

@@ -6,26 +6,28 @@ namespace Prospecter\Core\Application\Account;
 
 use Prospecter\Core\Application\Port\Storage;
 use Prospecter\Core\Application\Service\FileStore;
-use Prospecter\Core\Application\UseCaseConsumer;
+use Prospecter\Core\Application\UseCase;
 use Prospecter\Core\Domain\Organization\OrganizationRepository;
 use Prospecter\Core\Domain\User\UserRepository;
 
-final class ChangeMyOrganizationLogo extends AccountUseCase
+final class ChangeMyOrganizationLogo extends UseCase
 {
+    private readonly AccountResponses $responses;
     private readonly FileStore $files;
 
-    public function __construct(UserRepository $users, OrganizationRepository $organizations, Storage $storage)
+    public function __construct(private readonly UserRepository $users, private readonly OrganizationRepository $organizations, Storage $storage)
     {
-        parent::__construct($users, $organizations);
+        $this->responses = new AccountResponses($organizations);
         $this->files = new FileStore($storage);
     }
 
-    public function execute(ChangeMyOrganizationLogoRequest $request, AccountPresenter $presenter, UseCaseConsumer $consumer): mixed
+    public function execute(ChangeMyOrganizationLogoRequest $request, AccountPresenter $presenter): mixed
     {
-        $myOrganization = $this->myOrganization($consumer);
-        $myOrganization->changeLogo($this->files->store($request->logo));
+        $me = $this->users->get($request->userId);
+        $myOrganization = $this->organizations->get($me->organizationId());
+        $myOrganization->changeLogo($this->files->store($request->logo), by: $me);
         $this->organizations->save($myOrganization);
 
-        return $this->present($consumer, $presenter);
+        return $presenter->present($this->responses->of($me));
     }
 }

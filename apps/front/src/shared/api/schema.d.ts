@@ -386,12 +386,33 @@ export interface components {
             legalIdentity: components["schemas"]["LegalIdentityResource"];
             logo?: components["schemas"]["ImageResource"] | null;
         };
+        LinkResource: {
+            href: string;
+            method: string;
+        };
+        AccountLinksResource: {
+            self: components["schemas"]["LinkResource"];
+            changeMyPassword: components["schemas"]["LinkResource"];
+            /** @default null */
+            changeMyName: components["schemas"]["LinkResource"] | null;
+            /** @default null */
+            changeMyUserName: components["schemas"]["LinkResource"] | null;
+            /** @default null */
+            changeMyContactDetails: components["schemas"]["LinkResource"] | null;
+            /** @default null */
+            changeMyPicture: components["schemas"]["LinkResource"] | null;
+            /** @default null */
+            reviseMyOrganizationIdentity: components["schemas"]["LinkResource"] | null;
+            /** @default null */
+            changeMyOrganizationLogo: components["schemas"]["LinkResource"] | null;
+        };
         AccountResource: {
             userName: string;
             name: components["schemas"]["PersonNameResource"];
             contactDetails: components["schemas"]["ContactDetailsResource"];
             picture?: components["schemas"]["ImageResource"] | null;
             organization: components["schemas"]["AccountOrganizationResource"];
+            _links: components["schemas"]["AccountLinksResource"];
         };
         ViolationResource: {
             propertyPath: string;
@@ -434,6 +455,25 @@ export interface components {
             city?: string | null;
             country?: string | null;
         };
+        OrganizationLinksResource: {
+            self: components["schemas"]["LinkResource"];
+            /** @default null */
+            reviseLegalIdentity: components["schemas"]["LinkResource"] | null;
+            /** @default null */
+            changeContactDetails: components["schemas"]["LinkResource"] | null;
+            /** @default null */
+            relocate: components["schemas"]["LinkResource"] | null;
+            /** @default null */
+            writeObservations: components["schemas"]["LinkResource"] | null;
+            /** @default null */
+            attachToHolding: components["schemas"]["LinkResource"] | null;
+            /** @default null */
+            detachFromHolding: components["schemas"]["LinkResource"] | null;
+            /** @default null */
+            changeLogo: components["schemas"]["LinkResource"] | null;
+            /** @default null */
+            removeLogo: components["schemas"]["LinkResource"] | null;
+        };
         OrganizationResource: {
             id: string;
             name: string;
@@ -445,6 +485,7 @@ export interface components {
             logo?: components["schemas"]["ImageResource"] | null;
             holdingId?: string | null;
             activeOrganizations: number;
+            _links: components["schemas"]["OrganizationLinksResource"];
         };
         OrganizationPageResource: {
             items: components["schemas"]["OrganizationSummaryResource"][];
@@ -490,6 +531,15 @@ export interface operations {
                 };
                 content?: never;
             };
+            /** @description The signed-in user is not a user */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ProblemResource"];
+                };
+            };
             /** @description Invalid contact details or email already used */
             422: {
                 headers: {
@@ -529,6 +579,15 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content?: never;
+            };
+            /** @description The signed-in user is not a user */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ProblemResource"];
+                };
             };
             /** @description Invalid name */
             422: {
@@ -573,6 +632,15 @@ export interface operations {
                 };
                 content?: never;
             };
+            /** @description The signed-in user is not a user */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ProblemResource"];
+                };
+            };
             /** @description Invalid image */
             422: {
                 headers: {
@@ -610,6 +678,15 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content?: never;
+            };
+            /** @description The signed-in user is not a user */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ProblemResource"];
+                };
             };
             /** @description Password too short */
             422: {
@@ -654,6 +731,15 @@ export interface operations {
                 };
                 content?: never;
             };
+            /** @description The signed-in user is not a user */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ProblemResource"];
+                };
+            };
             /** @description Invalid image */
             422: {
                 headers: {
@@ -693,6 +779,15 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content?: never;
+            };
+            /** @description The signed-in user is not a user */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ProblemResource"];
+                };
             };
             /** @description Missing or invalid user name */
             422: {
@@ -734,6 +829,15 @@ export interface operations {
                 };
                 content?: never;
             };
+            /** @description The signed-in user is not a user */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ProblemResource"];
+                };
+            };
             /** @description Invalid identity */
             422: {
                 headers: {
@@ -770,6 +874,15 @@ export interface operations {
                 };
                 content?: never;
             };
+            /** @description The signed-in user is not a user */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ProblemResource"];
+                };
+            };
         };
     };
     get_api_dashboard: {
@@ -796,6 +909,15 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content?: never;
+            };
+            /** @description The signed-in user is not a prospector */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ProblemResource"];
+                };
             };
         };
     };
@@ -826,8 +948,26 @@ export interface operations {
                 };
                 content?: never;
             };
-            /** @description Unknown organization, or one that is not prospected by mine */
+            /** @description The signed-in user is not a prospector */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ProblemResource"];
+                };
+            };
+            /** @description Unknown organization, or one that is neither mine nor prospected by mine */
             404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ProblemResource"];
+                };
+            };
+            /** @description The organization has no holding (no detachFromHolding link) */
+            409: {
                 headers: {
                     [name: string]: unknown;
                 };
@@ -868,7 +1008,16 @@ export interface operations {
                 };
                 content?: never;
             };
-            /** @description Unknown organization, or one that is not prospected by mine */
+            /** @description The signed-in user is not a prospector */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ProblemResource"];
+                };
+            };
+            /** @description Unknown organization, or one that is neither mine nor prospected by mine */
             404: {
                 headers: {
                     [name: string]: unknown;
@@ -919,7 +1068,16 @@ export interface operations {
                 };
                 content?: never;
             };
-            /** @description Unknown organization, or one that is not prospected by mine */
+            /** @description The signed-in user is not a prospector */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ProblemResource"];
+                };
+            };
+            /** @description Unknown organization, or one that is neither mine nor prospected by mine */
             404: {
                 headers: {
                     [name: string]: unknown;
@@ -973,7 +1131,16 @@ export interface operations {
                 };
                 content?: never;
             };
-            /** @description Unknown organization, or one that is not prospected by mine */
+            /** @description The signed-in user is not a prospector */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ProblemResource"];
+                };
+            };
+            /** @description Unknown organization, or one that is neither mine nor prospected by mine */
             404: {
                 headers: {
                     [name: string]: unknown;
@@ -1020,7 +1187,16 @@ export interface operations {
                 };
                 content?: never;
             };
-            /** @description Unknown organization, or one that is not prospected by mine */
+            /** @description The signed-in user is not a prospector */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ProblemResource"];
+                };
+            };
+            /** @description Unknown organization, or one that is neither mine nor prospected by mine */
             404: {
                 headers: {
                     [name: string]: unknown;
@@ -1029,8 +1205,8 @@ export interface operations {
                     "application/json": components["schemas"]["ProblemResource"];
                 };
             };
-            /** @description The organization has no logo */
-            422: {
+            /** @description The organization has no logo (no removeLogo link) */
+            409: {
                 headers: {
                     [name: string]: unknown;
                 };
@@ -1071,7 +1247,16 @@ export interface operations {
                 };
                 content?: never;
             };
-            /** @description Unknown organization, or one that is not prospected by mine */
+            /** @description The signed-in user is not a prospector */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ProblemResource"];
+                };
+            };
+            /** @description Unknown organization, or one that is neither mine nor prospected by mine */
             404: {
                 headers: {
                     [name: string]: unknown;
@@ -1122,7 +1307,16 @@ export interface operations {
                 };
                 content?: never;
             };
-            /** @description Unknown organization, or one that is not prospected by mine */
+            /** @description The signed-in user is not a prospector */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ProblemResource"];
+                };
+            };
+            /** @description Unknown organization, or one that is neither mine nor prospected by mine */
             404: {
                 headers: {
                     [name: string]: unknown;
@@ -1170,6 +1364,15 @@ export interface operations {
                 };
                 content?: never;
             };
+            /** @description The signed-in user is not a prospector */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ProblemResource"];
+                };
+            };
         };
     };
     post_api_organizations_start_prospecting: {
@@ -1200,6 +1403,15 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content?: never;
+            };
+            /** @description The signed-in user is not a prospector */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ProblemResource"];
+                };
             };
             /** @description Unknown holding, or one that is not prospected by mine */
             404: {
@@ -1248,7 +1460,16 @@ export interface operations {
                 };
                 content?: never;
             };
-            /** @description Unknown organization, or one that is not prospected by mine */
+            /** @description The signed-in user is not a prospector */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ProblemResource"];
+                };
+            };
+            /** @description Unknown organization, or one that is neither mine nor prospected by mine */
             404: {
                 headers: {
                     [name: string]: unknown;
@@ -1290,7 +1511,16 @@ export interface operations {
                 };
                 content?: never;
             };
-            /** @description Unknown organization, or one that is not prospected by mine */
+            /** @description The signed-in user is not a prospector */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ProblemResource"];
+                };
+            };
+            /** @description Unknown organization, or one that is neither mine nor prospected by mine */
             404: {
                 headers: {
                     [name: string]: unknown;

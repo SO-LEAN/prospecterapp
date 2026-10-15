@@ -81,6 +81,16 @@ class User
         return null === $this->pictureUrl ? null : new File($this->pictureUrl, (string) $this->pictureExtension, (int) $this->pictureSize);
     }
 
+    /**
+     * A user may change everything of their own account.
+     *
+     * @return list<UserIntent>
+     */
+    public function possibleIntents(): array
+    {
+        return UserIntent::cases();
+    }
+
     public function rename(PersonName $name): void
     {
         $this->firstName = $name->firstName;

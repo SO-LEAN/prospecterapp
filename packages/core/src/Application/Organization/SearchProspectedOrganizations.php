@@ -5,25 +5,20 @@ declare(strict_types=1);
 namespace Prospecter\Core\Application\Organization;
 
 use Prospecter\Core\Application\UseCase;
-use Prospecter\Core\Application\UseCaseConsumer;
 use Prospecter\Core\Domain\Organization\Organization;
 use Prospecter\Core\Domain\Organization\OrganizationRepository;
-use Prospecter\Core\Domain\User\Role;
+use Prospecter\Core\Domain\User\UserRepository;
 
 final class SearchProspectedOrganizations extends UseCase
 {
-    public function __construct(private readonly OrganizationRepository $organizations)
+    public function __construct(private readonly OrganizationRepository $organizations, private readonly UserRepository $users)
     {
     }
 
-    public function canBeExecutedBy(): array
+    public function execute(SearchProspectedOrganizationsRequest $request, SearchProspectedOrganizationsPresenter $presenter): mixed
     {
-        return [Role::Prospector];
-    }
-
-    public function execute(SearchProspectedOrganizationsRequest $request, SearchProspectedOrganizationsPresenter $presenter, UseCaseConsumer $consumer): mixed
-    {
-        $page = $this->organizations->pageProspectedBy($consumer->getOrganizationId(), $request->query, $request->page, $request->maxByPage);
+        $prospector = $this->users->get($request->prospectorId);
+        $page = $this->organizations->pageProspectedBy($prospector->organizationId(), $request->query, $request->page, $request->maxByPage);
 
         return $presenter->present(new SearchProspectedOrganizationsResponse(
             currentPage: $page->number,

@@ -37,6 +37,16 @@
                     "401": {
                         "description": "Missing or invalid access token"
                     },
+                    "403": {
+                        "description": "The signed-in user is not a user",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ProblemResource"
+                                }
+                            }
+                        }
+                    },
                     "422": {
                         "description": "Invalid contact details or email already used",
                         "content": {
@@ -80,6 +90,16 @@
                     },
                     "401": {
                         "description": "Missing or invalid access token"
+                    },
+                    "403": {
+                        "description": "The signed-in user is not a user",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ProblemResource"
+                                }
+                            }
+                        }
                     },
                     "422": {
                         "description": "Invalid name",
@@ -130,6 +150,16 @@
                     "401": {
                         "description": "Missing or invalid access token"
                     },
+                    "403": {
+                        "description": "The signed-in user is not a user",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ProblemResource"
+                                }
+                            }
+                        }
+                    },
                     "422": {
                         "description": "Invalid image",
                         "content": {
@@ -166,6 +196,16 @@
                     },
                     "401": {
                         "description": "Missing or invalid access token"
+                    },
+                    "403": {
+                        "description": "The signed-in user is not a user",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ProblemResource"
+                                }
+                            }
+                        }
                     },
                     "422": {
                         "description": "Password too short",
@@ -216,6 +256,16 @@
                     "401": {
                         "description": "Missing or invalid access token"
                     },
+                    "403": {
+                        "description": "The signed-in user is not a user",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ProblemResource"
+                                }
+                            }
+                        }
+                    },
                     "422": {
                         "description": "Invalid image",
                         "content": {
@@ -259,6 +309,16 @@
                     },
                     "401": {
                         "description": "Missing or invalid access token"
+                    },
+                    "403": {
+                        "description": "The signed-in user is not a user",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ProblemResource"
+                                }
+                            }
+                        }
                     },
                     "422": {
                         "description": "Missing or invalid user name",
@@ -304,6 +364,16 @@
                     "401": {
                         "description": "Missing or invalid access token"
                     },
+                    "403": {
+                        "description": "The signed-in user is not a user",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ProblemResource"
+                                }
+                            }
+                        }
+                    },
                     "422": {
                         "description": "Invalid identity",
                         "content": {
@@ -337,6 +407,16 @@
                     },
                     "401": {
                         "description": "Missing or invalid access token"
+                    },
+                    "403": {
+                        "description": "The signed-in user is not a user",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ProblemResource"
+                                }
+                            }
+                        }
                     }
                 }
             }
@@ -361,6 +441,16 @@
                     },
                     "401": {
                         "description": "Missing or invalid access token"
+                    },
+                    "403": {
+                        "description": "The signed-in user is not a prospector",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ProblemResource"
+                                }
+                            }
+                        }
                     }
                 }
             }
@@ -397,8 +487,28 @@
                     "401": {
                         "description": "Missing or invalid access token"
                     },
+                    "403": {
+                        "description": "The signed-in user is not a prospector",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ProblemResource"
+                                }
+                            }
+                        }
+                    },
+                    "409": {
+                        "description": "The organization has no holding (no detachFromHolding link)",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ProblemResource"
+                                }
+                            }
+                        }
+                    },
                     "404": {
-                        "description": "Unknown organization, or one that is not prospected by mine",
+                        "description": "Unknown organization, or one that is neither mine nor prospected by mine",
                         "content": {
                             "application/json": {
                                 "schema": {
@@ -450,8 +560,18 @@
                     "401": {
                         "description": "Missing or invalid access token"
                     },
+                    "403": {
+                        "description": "The signed-in user is not a prospector",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ProblemResource"
+                                }
+                            }
+                        }
+                    },
                     "404": {
-                        "description": "Unknown organization, or one that is not prospected by mine",
+                        "description": "Unknown organization, or one that is neither mine nor prospected by mine",
                         "content": {
                             "application/json": {
                                 "schema": {
@@ -515,8 +635,18 @@
                     "401": {
                         "description": "Missing or invalid access token"
                     },
+                    "403": {
+                        "description": "The signed-in user is not a prospector",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ProblemResource"
+                                }
+                            }
+                        }
+                    },
                     "404": {
-                        "description": "Unknown organization, or one that is not prospected by mine",
+                        "description": "Unknown organization, or one that is neither mine nor prospected by mine",
                         "content": {
                             "application/json": {
                                 "schema": {
@@ -585,8 +715,18 @@
                     "401": {
                         "description": "Missing or invalid access token"
                     },
+                    "403": {
+                        "description": "The signed-in user is not a prospector",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ProblemResource"
+                                }
+                            }
+                        }
+                    },
                     "404": {
-                        "description": "Unknown organization, or one that is not prospected by mine",
+                        "description": "Unknown organization, or one that is neither mine nor prospected by mine",
                         "content": {
                             "application/json": {
                                 "schema": {
@@ -638,8 +778,8 @@
                     "401": {
                         "description": "Missing or invalid access token"
                     },
-                    "404": {
-                        "description": "Unknown organization, or one that is not prospected by mine",
+                    "403": {
+                        "description": "The signed-in user is not a prospector",
                         "content": {
                             "application/json": {
                                 "schema": {
@@ -648,8 +788,18 @@
                             }
                         }
                     },
-                    "422": {
-                        "description": "The organization has no logo",
+                    "409": {
+                        "description": "The organization has no logo (no removeLogo link)",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ProblemResource"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Unknown organization, or one that is neither mine nor prospected by mine",
                         "content": {
                             "application/json": {
                                 "schema": {
@@ -703,8 +853,18 @@
                     "401": {
                         "description": "Missing or invalid access token"
                     },
+                    "403": {
+                        "description": "The signed-in user is not a prospector",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ProblemResource"
+                                }
+                            }
+                        }
+                    },
                     "404": {
-                        "description": "Unknown organization, or one that is not prospected by mine",
+                        "description": "Unknown organization, or one that is neither mine nor prospected by mine",
                         "content": {
                             "application/json": {
                                 "schema": {
@@ -768,8 +928,18 @@
                     "401": {
                         "description": "Missing or invalid access token"
                     },
+                    "403": {
+                        "description": "The signed-in user is not a prospector",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ProblemResource"
+                                }
+                            }
+                        }
+                    },
                     "404": {
-                        "description": "Unknown organization, or one that is not prospected by mine",
+                        "description": "Unknown organization, or one that is neither mine nor prospected by mine",
                         "content": {
                             "application/json": {
                                 "schema": {
@@ -834,6 +1004,16 @@
                     },
                     "401": {
                         "description": "Missing or invalid access token"
+                    },
+                    "403": {
+                        "description": "The signed-in user is not a prospector",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ProblemResource"
+                                }
+                            }
+                        }
                     }
                 }
             },
@@ -866,6 +1046,16 @@
                     },
                     "401": {
                         "description": "Missing or invalid access token"
+                    },
+                    "403": {
+                        "description": "The signed-in user is not a prospector",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ProblemResource"
+                                }
+                            }
+                        }
                     },
                     "404": {
                         "description": "Unknown holding, or one that is not prospected by mine",
@@ -922,8 +1112,18 @@
                     "401": {
                         "description": "Missing or invalid access token"
                     },
+                    "403": {
+                        "description": "The signed-in user is not a prospector",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ProblemResource"
+                                }
+                            }
+                        }
+                    },
                     "404": {
-                        "description": "Unknown organization, or one that is not prospected by mine",
+                        "description": "Unknown organization, or one that is neither mine nor prospected by mine",
                         "content": {
                             "application/json": {
                                 "schema": {
@@ -977,8 +1177,18 @@
                     "401": {
                         "description": "Missing or invalid access token"
                     },
+                    "403": {
+                        "description": "The signed-in user is not a prospector",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ProblemResource"
+                                }
+                            }
+                        }
+                    },
                     "404": {
-                        "description": "Unknown organization, or one that is not prospected by mine",
+                        "description": "Unknown organization, or one that is neither mine nor prospected by mine",
                         "content": {
                             "application/json": {
                                 "schema": {
@@ -1262,12 +1472,97 @@
                 },
                 "type": "object"
             },
+            "LinkResource": {
+                "required": [
+                    "href",
+                    "method"
+                ],
+                "properties": {
+                    "href": {
+                        "type": "string"
+                    },
+                    "method": {
+                        "type": "string"
+                    }
+                },
+                "type": "object"
+            },
+            "AccountLinksResource": {
+                "required": [
+                    "self",
+                    "changeMyPassword"
+                ],
+                "properties": {
+                    "self": {
+                        "$ref": "#/components/schemas/LinkResource"
+                    },
+                    "changeMyPassword": {
+                        "$ref": "#/components/schemas/LinkResource"
+                    },
+                    "changeMyName": {
+                        "nullable": true,
+                        "oneOf": [
+                            {
+                                "$ref": "#/components/schemas/LinkResource"
+                            }
+                        ],
+                        "default": null
+                    },
+                    "changeMyUserName": {
+                        "nullable": true,
+                        "oneOf": [
+                            {
+                                "$ref": "#/components/schemas/LinkResource"
+                            }
+                        ],
+                        "default": null
+                    },
+                    "changeMyContactDetails": {
+                        "nullable": true,
+                        "oneOf": [
+                            {
+                                "$ref": "#/components/schemas/LinkResource"
+                            }
+                        ],
+                        "default": null
+                    },
+                    "changeMyPicture": {
+                        "nullable": true,
+                        "oneOf": [
+                            {
+                                "$ref": "#/components/schemas/LinkResource"
+                            }
+                        ],
+                        "default": null
+                    },
+                    "reviseMyOrganizationIdentity": {
+                        "nullable": true,
+                        "oneOf": [
+                            {
+                                "$ref": "#/components/schemas/LinkResource"
+                            }
+                        ],
+                        "default": null
+                    },
+                    "changeMyOrganizationLogo": {
+                        "nullable": true,
+                        "oneOf": [
+                            {
+                                "$ref": "#/components/schemas/LinkResource"
+                            }
+                        ],
+                        "default": null
+                    }
+                },
+                "type": "object"
+            },
             "AccountResource": {
                 "required": [
                     "userName",
                     "name",
                     "contactDetails",
-                    "organization"
+                    "organization",
+                    "_links"
                 ],
                 "properties": {
                     "userName": {
@@ -1289,6 +1584,9 @@
                     },
                     "organization": {
                         "$ref": "#/components/schemas/AccountOrganizationResource"
+                    },
+                    "_links": {
+                        "$ref": "#/components/schemas/AccountLinksResource"
                     }
                 },
                 "type": "object"
@@ -1444,13 +1742,97 @@
                 },
                 "type": "object"
             },
+            "OrganizationLinksResource": {
+                "required": [
+                    "self"
+                ],
+                "properties": {
+                    "self": {
+                        "$ref": "#/components/schemas/LinkResource"
+                    },
+                    "reviseLegalIdentity": {
+                        "nullable": true,
+                        "oneOf": [
+                            {
+                                "$ref": "#/components/schemas/LinkResource"
+                            }
+                        ],
+                        "default": null
+                    },
+                    "changeContactDetails": {
+                        "nullable": true,
+                        "oneOf": [
+                            {
+                                "$ref": "#/components/schemas/LinkResource"
+                            }
+                        ],
+                        "default": null
+                    },
+                    "relocate": {
+                        "nullable": true,
+                        "oneOf": [
+                            {
+                                "$ref": "#/components/schemas/LinkResource"
+                            }
+                        ],
+                        "default": null
+                    },
+                    "writeObservations": {
+                        "nullable": true,
+                        "oneOf": [
+                            {
+                                "$ref": "#/components/schemas/LinkResource"
+                            }
+                        ],
+                        "default": null
+                    },
+                    "attachToHolding": {
+                        "nullable": true,
+                        "oneOf": [
+                            {
+                                "$ref": "#/components/schemas/LinkResource"
+                            }
+                        ],
+                        "default": null
+                    },
+                    "detachFromHolding": {
+                        "nullable": true,
+                        "oneOf": [
+                            {
+                                "$ref": "#/components/schemas/LinkResource"
+                            }
+                        ],
+                        "default": null
+                    },
+                    "changeLogo": {
+                        "nullable": true,
+                        "oneOf": [
+                            {
+                                "$ref": "#/components/schemas/LinkResource"
+                            }
+                        ],
+                        "default": null
+                    },
+                    "removeLogo": {
+                        "nullable": true,
+                        "oneOf": [
+                            {
+                                "$ref": "#/components/schemas/LinkResource"
+                            }
+                        ],
+                        "default": null
+                    }
+                },
+                "type": "object"
+            },
             "OrganizationResource": {
                 "required": [
                     "id",
                     "name",
                     "legalIdentity",
                     "contactDetails",
-                    "activeOrganizations"
+                    "activeOrganizations",
+                    "_links"
                 ],
                 "properties": {
                     "id": {
@@ -1499,6 +1881,9 @@
                     },
                     "activeOrganizations": {
                         "type": "integer"
+                    },
+                    "_links": {
+                        "$ref": "#/components/schemas/OrganizationLinksResource"
                     }
                 },
                 "type": "object"

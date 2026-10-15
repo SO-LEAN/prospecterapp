@@ -21,6 +21,7 @@ export function ContactDetailsSection({ organization }: { organization: Organiza
   return (
     <EditableSection
       title={t('organizations.sections.contactDetails')}
+      editable={Boolean(organization._links.changeContactDetails)}
       editor={(close) => (
         <SectionForm
           schema={contactDetailsSchema}

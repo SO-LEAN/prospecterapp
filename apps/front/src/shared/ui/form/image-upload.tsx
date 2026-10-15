@@ -11,14 +11,17 @@ type Props = {
   imageUrl: string | null | undefined
   alt: string
   label: string
-  onUpload: (file: File) => void
+  onUpload?: (file: File) => void
   onRemove?: () => void
   pending?: boolean
   shape?: 'square' | 'circle'
   fallback?: React.ReactNode
 }
 
-/** Preview + drag and drop or click to upload; the file is checked before being sent (same rules as the API). */
+/**
+ * Preview + drag and drop or click to upload; the file is checked before being sent (same rules as the API).
+ * Without `onUpload` (the API does not offer it), only the preview.
+ */
 export function ImageUpload({
   imageUrl,
   alt,
@@ -43,13 +46,23 @@ export function ImageUpload({
       return
     }
     setError(null)
-    onUpload(file)
+    onUpload?.(file)
   }
 
   const onDrop = (event: DragEvent) => {
     event.preventDefault()
     setDragging(false)
     pick(event.dataTransfer.files[0])
+  }
+
+  const frame = cn(
+    'relative grid size-24 shrink-0 place-items-center overflow-hidden border bg-muted',
+    shape === 'circle' ? 'rounded-full' : 'rounded-xl',
+  )
+  const preview = imageUrl ? <img src={imageUrl} alt={alt} className="size-full object-cover" /> : fallback
+
+  if (!onUpload) {
+    return <div className={frame}>{preview}</div>
   }
 
   return (
@@ -66,13 +79,12 @@ export function ImageUpload({
         disabled={pending}
         aria-label={label}
         className={cn(
-          'group relative grid size-24 shrink-0 place-items-center overflow-hidden border bg-muted transition',
-          'hover:border-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring',
-          shape === 'circle' ? 'rounded-full' : 'rounded-xl',
+          frame,
+          'group transition hover:border-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring',
           dragging && 'border-primary ring-4 ring-primary/20',
         )}
       >
-        {imageUrl ? <img src={imageUrl} alt={alt} className="size-full object-cover" /> : fallback}
+        {preview}
         <span className="absolute inset-0 grid place-items-center bg-foreground/50 text-background opacity-0 transition group-hover:opacity-100 group-focus-visible:opacity-100">
           {pending ? <Loader2 className="size-5 animate-spin" /> : <ImageUp className="size-5" />}
         </span>
@@ -93,7 +105,7 @@ export function ImageUpload({
           >
             {pending ? t('common.uploading') : label}
           </Button>
-          {onRemove && imageUrl && (
+          {onRemove && (
             <Button
               type="button"
               variant="ghost"

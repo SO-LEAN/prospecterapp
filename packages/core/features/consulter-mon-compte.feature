@@ -19,3 +19,18 @@ Fonctionnalité: Consulter mon compte
       | nom                                | Lovelace           |
       | e-mail                             | ada@solean-it.test |
       | raison sociale de mon organisation | SOLEAN IT          |
+
+  Scénario: Je vois ce que je peux changer de mon compte et de mon organisation
+    Quand je consulte mon compte
+    Alors je peux sur mon compte :
+      | changer mon nom         |
+      | changer mon identifiant |
+      | changer mes coordonnées |
+      | changer ma photo        |
+    Et je peux sur mon organisation :
+      | réviser l'identité      |
+      | changer les coordonnées |
+      | déménager               |
+      | écrire des observations |
+      | rattacher à une holding |
+      | changer le logo         |

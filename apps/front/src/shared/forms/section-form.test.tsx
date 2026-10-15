@@ -10,10 +10,11 @@ import {
 } from './contact-details'
 import { SectionForm } from './section-form'
 
-function renderSection(save = vi.fn().mockResolvedValue(undefined)) {
+function renderSection(save = vi.fn().mockResolvedValue(undefined), editable = true) {
   render(
     <EditableSection
       title="Coordonnées"
+      editable={editable}
       editor={(close) => (
         <SectionForm
           schema={contactDetailsSchema}
@@ -72,6 +73,13 @@ describe('an editable section', () => {
     await user.click(screen.getByRole('button', { name: 'Annuler' }))
 
     expect(save).not.toHaveBeenCalled()
+    expect(screen.getByText('contact@acme.test')).toBeInTheDocument()
+  })
+
+  it('cannot be changed when the API does not offer it', () => {
+    renderSection(vi.fn(), false)
+
+    expect(screen.queryByRole('button', { name: 'Modifier : Coordonnées' })).not.toBeInTheDocument()
     expect(screen.getByText('contact@acme.test')).toBeInTheDocument()
   })
 })

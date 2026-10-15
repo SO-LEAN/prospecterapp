@@ -9,11 +9,13 @@ use Prospecter\Core\Domain\Organization\GeoPoint;
 use Prospecter\Core\Domain\Organization\LegalIdentity;
 use Prospecter\Core\Domain\Organization\Organization;
 use Prospecter\Core\Domain\Organization\OrganizationId;
+use Prospecter\Core\Domain\Organization\OrganizationIntent;
 use Prospecter\Core\Domain\Shared\ContactDetails;
 use Prospecter\Core\Domain\Shared\Email;
 use Prospecter\Core\Domain\Shared\File;
 use Prospecter\Core\Domain\User\PersonName;
 use Prospecter\Core\Domain\User\User;
+use Prospecter\Core\Domain\User\UserIntent;
 
 /**
  * The words of the scenarios: French labels of the Gherkin tables, how they become value objects and how
@@ -21,6 +23,24 @@ use Prospecter\Core\Domain\User\User;
  */
 final class Vocabulary
 {
+    private const array ORGANIZATION_INTENTS = [
+        'ReviseLegalIdentity' => 'réviser l\'identité',
+        'ChangeContactDetails' => 'changer les coordonnées',
+        'Relocate' => 'déménager',
+        'WriteObservations' => 'écrire des observations',
+        'AttachToHolding' => 'rattacher à une holding',
+        'DetachFromHolding' => 'détacher de la holding',
+        'ChangeLogo' => 'changer le logo',
+        'RemoveLogo' => 'retirer le logo',
+    ];
+
+    private const array USER_INTENTS = [
+        'Rename' => 'changer mon nom',
+        'ChangeUserName' => 'changer mon identifiant',
+        'ChangeContactDetails' => 'changer mes coordonnées',
+        'ChangePicture' => 'changer ma photo',
+    ];
+
     private const array LABELS = [
         'raison sociale', 'forme juridique', 'type', 'e-mail', 'téléphone', 'langue',
         'rue', 'code postal', 'ville', 'pays', 'observations', 'holding', 'prénom', 'nom',
@@ -39,6 +59,19 @@ final class Vocabulary
         return array_merge(
             array_fill_keys(self::LABELS, null),
             array_map(static fn (string $value): ?string => '' === $value ? null : $value, $table),
+        );
+    }
+
+    /**
+     * @param list<OrganizationIntent|UserIntent> $intents
+     *
+     * @return list<string>
+     */
+    public static function describeIntents(array $intents): array
+    {
+        return array_map(
+            static fn (OrganizationIntent|UserIntent $intent): string => $intent instanceof OrganizationIntent ? self::ORGANIZATION_INTENTS[$intent->name] : self::USER_INTENTS[$intent->name],
+            $intents,
         );
     }
 

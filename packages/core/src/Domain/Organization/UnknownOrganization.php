@@ -4,7 +4,9 @@ declare(strict_types=1);
 
 namespace Prospecter\Core\Domain\Organization;
 
-final class UnknownOrganization extends \RuntimeException
+use Prospecter\Core\Domain\Shared\NotFound;
+
+final class UnknownOrganization extends NotFound
 {
     public function __construct(OrganizationId $id)
     {

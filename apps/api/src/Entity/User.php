@@ -2,7 +2,6 @@
 
 namespace App\Entity;
 
-use Prospecter\Core\Application\UseCaseConsumer;
 use Prospecter\Core\Domain\Organization\OrganizationId;
 use Prospecter\Core\Domain\User\Role;
 use Prospecter\Core\Domain\User\User as CoreUser;
@@ -10,9 +9,9 @@ use Prospecter\Core\Domain\User\UserId;
 use Symfony\Component\Security\Core\User\UserInterface;
 
 /**
- * The signed-in user, as the use cases see it: who it is, its organization and its roles.
+ * The signed-in user as Symfony security sees it: its user name, its roles, and its id for the requests.
  */
-final readonly class User implements UserInterface, UseCaseConsumer
+final readonly class User implements UserInterface
 {
     /**
      * @param list<string> $roles

@@ -7,12 +7,16 @@ import { Card, CardAction, CardContent, CardHeader, CardTitle } from '@/shared/u
 type Props = {
   title: string
   children: ReactNode
-  editor?: (close: () => void) => ReactNode
+  editable: boolean
+  editor: (close: () => void) => ReactNode
   className?: string
 }
 
-/** A card showing one part of a resource, changed in place through its own small form. */
-export function EditableSection({ title, children, editor, className }: Props) {
+/**
+ * A card showing one part of a resource, changed in place through its own small form when `editable`:
+ * when the API offers the action (its link is there).
+ */
+export function EditableSection({ title, children, editable, editor, className }: Props) {
   const { t } = useTranslation()
   const [editing, setEditing] = useState(false)
   const close = () => setEditing(false)
@@ -21,7 +25,7 @@ export function EditableSection({ title, children, editor, className }: Props) {
     <Card className={className}>
       <CardHeader>
         <CardTitle className="text-base">{title}</CardTitle>
-        {editor && !editing && (
+        {editable && !editing && (
           <CardAction>
             <Button
               variant="ghost"
@@ -34,7 +38,7 @@ export function EditableSection({ title, children, editor, className }: Props) {
           </CardAction>
         )}
       </CardHeader>
-      <CardContent className="text-sm">{editing && editor ? editor(close) : children}</CardContent>
+      <CardContent className="text-sm">{editing && editable ? editor(close) : children}</CardContent>
     </Card>
   )
 }

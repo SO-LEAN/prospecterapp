@@ -4,7 +4,9 @@ declare(strict_types=1);
 
 namespace Prospecter\Core\Domain\User;
 
-final class UnknownUser extends \RuntimeException
+use Prospecter\Core\Domain\Shared\NotFound;
+
+final class UnknownUser extends NotFound
 {
     public function __construct(UserId $id)
     {

@@ -8,10 +8,12 @@ use Prospecter\Core\Domain\Organization\Address;
 use Prospecter\Core\Domain\Organization\LegalIdentity;
 use Prospecter\Core\Domain\Organization\OrganizationId;
 use Prospecter\Core\Domain\Shared\ContactDetails;
+use Prospecter\Core\Domain\User\UserId;
 
 final readonly class StartProspectingRequest
 {
     public function __construct(
+        public UserId $prospectorId,
         public LegalIdentity $legalIdentity,
         public ContactDetails $contactDetails,
         public ?Address $address = null,
