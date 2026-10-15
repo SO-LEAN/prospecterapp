@@ -42,3 +42,4 @@ Why the project is shaped the way it is: one file per decision in `docs/adr/`, i
 | [0036](0036-client-gives-identity-and-moment-of-a-command.md) | The client gives the identity and the moment of a command; aggregates keep their creation and last change | Accepted | 2026-10-15 |
 | [0037](0037-sign-in-screen-in-the-spa.md) | The sign-in screen is in the SPA; the authorization server signs in with a JSON POST and its session cookie | Accepted | 2026-10-15 |
 | [0038](0038-one-database-per-bounded-context.md) | One database per bounded context | Accepted | 2026-10-15 |
+| [0039](0039-set-rules-in-domain-services-indexes-as-safety-net.md) | A rule on a set of aggregates is a domain service; a unique index is its safety net | Accepted | 2026-10-15 |
