@@ -1,14 +1,15 @@
 import { useSuspenseQuery } from '@tanstack/react-query'
-import { createFileRoute, Link } from '@tanstack/react-router'
-import { Pencil } from 'lucide-react'
-import { useTranslation } from 'react-i18next'
-import { OrganizationDetails } from '@/features/organizations/components/organization-details'
-import { OrganizationLogo } from '@/features/organizations/components/organization-logo'
+import { createFileRoute } from '@tanstack/react-router'
+import { AddressSection } from '@/features/organizations/components/address-section'
+import { ContactDetailsSection } from '@/features/organizations/components/contact-details-section'
+import { HoldingSection } from '@/features/organizations/components/holding-section'
+import { LegalIdentitySection } from '@/features/organizations/components/legal-identity-section'
+import { LogoSection } from '@/features/organizations/components/logo-section'
+import { ObservationsSection } from '@/features/organizations/components/observations-section'
 import { organizationQuery } from '@/features/organizations/queries'
-import { organizationIdParams } from '@/features/organizations/route-params'
+import { notFoundWhenTheApiSaysSo, organizationIdParams } from '@/features/organizations/route-params'
 import { BackButton } from '@/shared/ui/back-button'
 import { Badge } from '@/shared/ui/badge'
-import { Button } from '@/shared/ui/button'
 import { ErrorState } from '@/shared/ui/feedback/error-state'
 import { PageHeader } from '@/shared/ui/page-header'
 import { PageSkeleton } from '@/shared/ui/page-skeleton'
@@ -16,40 +17,45 @@ import { PageSkeleton } from '@/shared/ui/page-skeleton'
 export const Route = createFileRoute('/_app/organizations/$organizationId/')({
   params: organizationIdParams,
   loader: ({ context, params }) =>
-    context.queryClient.ensureQueryData(organizationQuery(params.organizationId)),
+    context.queryClient
+      .ensureQueryData(organizationQuery(params.organizationId))
+      .catch(notFoundWhenTheApiSaysSo),
   pendingComponent: () => <PageSkeleton />,
   errorComponent: ({ error, reset }) => <ErrorState error={error} reset={reset} />,
   component: OrganizationPage,
 })
 
 function OrganizationPage() {
-  const { t } = useTranslation()
   const { organizationId } = Route.useParams()
   const { data: organization } = useSuspenseQuery(organizationQuery(organizationId))
+  const { form, type } = organization.legalIdentity
 
   return (
     <div className="space-y-8">
       <BackButton fallback="/organizations" />
 
       <PageHeader
-        title={organization.corporateName ?? organization.email}
+        title={organization.name || organization.contactDetails.email || ''}
         description={
           <span className="flex flex-wrap gap-2">
-            {organization.form && <Badge variant="secondary">{organization.form}</Badge>}
-            {organization.type && <Badge variant="outline">{organization.type}</Badge>}
+            {form && <Badge variant="secondary">{form}</Badge>}
+            {type && <Badge variant="outline">{type}</Badge>}
           </span>
-        }
-        actions={
-          <Button asChild>
-            <Link to="/organizations/$organizationId/edit" params={{ organizationId }}>
-              <Pencil /> {t('common.edit')}
-            </Link>
-          </Button>
         }
       />
 
-      <OrganizationLogo organization={organization} />
-      <OrganizationDetails organization={organization} />
+      <div className="grid gap-6 lg:grid-cols-5">
+        <div className="space-y-6 lg:col-span-2">
+          <LegalIdentitySection organization={organization} />
+          <ContactDetailsSection organization={organization} />
+          <HoldingSection organization={organization} />
+          <ObservationsSection organization={organization} />
+        </div>
+        <div className="space-y-6 lg:col-span-3">
+          <LogoSection organization={organization} />
+          <AddressSection organization={organization} />
+        </div>
+      </div>
     </div>
   )
 }

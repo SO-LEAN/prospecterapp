@@ -4,83 +4,76 @@ declare(strict_types=1);
 
 namespace Tests\Core\Double;
 
-use Prospecter\Core\Entity\Person;
-use Prospecter\Core\Exception\Gateway\NotFoundException;
-use Prospecter\Core\Exception\Gateway\UniqueConstraintViolationException;
+use Prospecter\Core\Domain\Organization\Organization;
+use Prospecter\Core\Domain\Shared\Email;
+use Prospecter\Core\Domain\Shared\EmailAlreadyUsed;
+use Prospecter\Core\Domain\User\User;
 
 /**
- * The persons table shared by the in-memory gateways, with the constraints of the real one:
- * generated ids and an email unique among all persons (organizations and users alike). Like a database,
- * it keeps copies: a change is stored only when it is saved.
+ * The tables behind the in-memory repositories, with the constraints of the real ones: an email unique among
+ * organizations and users. Like a database, it keeps copies: a change is stored only when it is saved.
  */
 final class InMemoryDatabase
 {
-    /** @var array<int, Person> */
-    private array $persons = [];
-    private int $lastId = 0;
+    public readonly TimeOrderedUuids $uuids;
 
-    public function insert(Person $person): void
+    /** @var array<string, Organization> */
+    private array $organizations = [];
+    /** @var array<string, User> */
+    private array $users = [];
+
+    public function __construct()
     {
-        $this->assertEmailIsFree($person);
-        $person->setId(++$this->lastId);
-        $this->persons[$this->lastId] = clone $person;
+        $this->uuids = new TimeOrderedUuids();
     }
 
-    public function replace(int $id, Person $person): void
+    public function storeOrganization(Organization $organization): void
     {
-        $this->find($id) ?? throw new NotFoundException(sprintf('No person #%d', $id));
-        $this->assertEmailIsFree($person);
-        $person->setId($id);
-        $this->persons[$id] = clone $person;
+        $this->assertEmailIsFree($organization->contactDetails()->email, (string) $organization->id());
+        $this->organizations[(string) $organization->id()] = clone $organization;
     }
 
-    public function find(int $id): ?Person
+    public function storeUser(User $user): void
     {
-        return isset($this->persons[$id]) ? clone $this->persons[$id] : null;
+        $this->assertEmailIsFree($user->contactDetails()->email, (string) $user->id());
+        $this->users[(string) $user->id()] = clone $user;
     }
 
-    /**
-     * @template T of Person
-     *
-     * @param class-string<T> $class
-     *
-     * @return list<T>
-     */
-    public function all(string $class): array
+    public function organization(string $id): ?Organization
     {
-        return array_values(array_map(
-            static fn (Person $person): Person => clone $person,
-            array_filter($this->persons, static fn (Person $person): bool => $person instanceof $class),
-        ));
+        return isset($this->organizations[$id]) ? clone $this->organizations[$id] : null;
+    }
+
+    public function user(string $id): ?User
+    {
+        return isset($this->users[$id]) ? clone $this->users[$id] : null;
     }
 
     /**
-     * Copies the rows, like the state a database transaction starts from.
-     *
-     * @return array{array<int, Person>, int}
+     * @return list<Organization>
      */
-    public function snapshot(): array
+    public function organizations(): array
     {
-        return [array_map(static fn (Person $person): Person => clone $person, $this->persons), $this->lastId];
+        return array_values(array_map(static fn (Organization $organization): Organization => clone $organization, $this->organizations));
     }
 
     /**
-     * @param array{array<int, Person>, int} $snapshot
+     * @return list<User>
      */
-    public function restore(array $snapshot): void
+    public function users(): array
     {
-        [$this->persons, $this->lastId] = $snapshot;
+        return array_values(array_map(static fn (User $user): User => clone $user, $this->users));
     }
 
-    private function assertEmailIsFree(Person $person): void
+    private function assertEmailIsFree(?Email $email, string $ownerId): void
     {
-        if (null === $person->getEmail()) {
+        if (null === $email) {
             return;
         }
 
-        foreach ($this->persons as $id => $other) {
-            if ($id !== $person->getId() && $other->getEmail() === $person->getEmail()) {
-                throw new UniqueConstraintViolationException(sprintf('Email "%s" is already used', $person->getEmail()));
+        foreach ([...$this->organizations, ...$this->users] as $id => $other) {
+            if ($id !== $ownerId && $other->contactDetails()->email?->value === $email->value) {
+                throw new EmailAlreadyUsed();
             }
         }
     }

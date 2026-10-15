@@ -16,7 +16,6 @@ import { Route as AuthCallbackRouteImport } from './../routes/auth/callback'
 import { Route as AppOrganizationsIndexRouteImport } from './../routes/_app/organizations/index'
 import { Route as AppOrganizationsNewRouteImport } from './../routes/_app/organizations/new'
 import { Route as AppOrganizationsOrganizationIdIndexRouteImport } from './../routes/_app/organizations/$organizationId/index'
-import { Route as AppOrganizationsOrganizationIdEditRouteImport } from './../routes/_app/organizations/$organizationId/edit'
 
 const AppRoute = AppRouteImport.update({
   id: '/_app',
@@ -53,12 +52,6 @@ const AppOrganizationsOrganizationIdIndexRoute =
     path: '/organizations/$organizationId/',
     getParentRoute: () => AppRoute,
   } as any)
-const AppOrganizationsOrganizationIdEditRoute =
-  AppOrganizationsOrganizationIdEditRouteImport.update({
-    id: '/organizations/$organizationId/edit',
-    path: '/organizations/$organizationId/edit',
-    getParentRoute: () => AppRoute,
-  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof AppIndexRoute
@@ -66,7 +59,6 @@ export interface FileRoutesByFullPath {
   '/auth/callback': typeof AuthCallbackRoute
   '/organizations/new': typeof AppOrganizationsNewRoute
   '/organizations/': typeof AppOrganizationsIndexRoute
-  '/organizations/$organizationId/edit': typeof AppOrganizationsOrganizationIdEditRoute
   '/organizations/$organizationId/': typeof AppOrganizationsOrganizationIdIndexRoute
 }
 export interface FileRoutesByTo {
@@ -75,7 +67,6 @@ export interface FileRoutesByTo {
   '/': typeof AppIndexRoute
   '/organizations/new': typeof AppOrganizationsNewRoute
   '/organizations': typeof AppOrganizationsIndexRoute
-  '/organizations/$organizationId/edit': typeof AppOrganizationsOrganizationIdEditRoute
   '/organizations/$organizationId': typeof AppOrganizationsOrganizationIdIndexRoute
 }
 export interface FileRoutesById {
@@ -86,7 +77,6 @@ export interface FileRoutesById {
   '/_app/': typeof AppIndexRoute
   '/_app/organizations/new': typeof AppOrganizationsNewRoute
   '/_app/organizations/': typeof AppOrganizationsIndexRoute
-  '/_app/organizations/$organizationId/edit': typeof AppOrganizationsOrganizationIdEditRoute
   '/_app/organizations/$organizationId/': typeof AppOrganizationsOrganizationIdIndexRoute
 }
 export interface FileRouteTypes {
@@ -97,7 +87,6 @@ export interface FileRouteTypes {
     | '/auth/callback'
     | '/organizations/new'
     | '/organizations/'
-    | '/organizations/$organizationId/edit'
     | '/organizations/$organizationId/'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -106,7 +95,6 @@ export interface FileRouteTypes {
     | '/'
     | '/organizations/new'
     | '/organizations'
-    | '/organizations/$organizationId/edit'
     | '/organizations/$organizationId'
   id:
     | '__root__'
@@ -116,7 +104,6 @@ export interface FileRouteTypes {
     | '/_app/'
     | '/_app/organizations/new'
     | '/_app/organizations/'
-    | '/_app/organizations/$organizationId/edit'
     | '/_app/organizations/$organizationId/'
   fileRoutesById: FileRoutesById
 }
@@ -176,13 +163,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppOrganizationsOrganizationIdIndexRouteImport
       parentRoute: typeof AppRoute
     }
-    '/_app/organizations/$organizationId/edit': {
-      id: '/_app/organizations/$organizationId/edit'
-      path: '/organizations/$organizationId/edit'
-      fullPath: '/organizations/$organizationId/edit'
-      preLoaderRoute: typeof AppOrganizationsOrganizationIdEditRouteImport
-      parentRoute: typeof AppRoute
-    }
   }
 }
 
@@ -191,7 +171,6 @@ interface AppRouteChildren {
   AppIndexRoute: typeof AppIndexRoute
   AppOrganizationsNewRoute: typeof AppOrganizationsNewRoute
   AppOrganizationsIndexRoute: typeof AppOrganizationsIndexRoute
-  AppOrganizationsOrganizationIdEditRoute: typeof AppOrganizationsOrganizationIdEditRoute
   AppOrganizationsOrganizationIdIndexRoute: typeof AppOrganizationsOrganizationIdIndexRoute
 }
 
@@ -200,8 +179,6 @@ const AppRouteChildren: AppRouteChildren = {
   AppIndexRoute: AppIndexRoute,
   AppOrganizationsNewRoute: AppOrganizationsNewRoute,
   AppOrganizationsIndexRoute: AppOrganizationsIndexRoute,
-  AppOrganizationsOrganizationIdEditRoute:
-    AppOrganizationsOrganizationIdEditRoute,
   AppOrganizationsOrganizationIdIndexRoute:
     AppOrganizationsOrganizationIdIndexRoute,
 }

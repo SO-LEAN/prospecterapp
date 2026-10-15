@@ -8,13 +8,13 @@ import { fileBody } from '@/shared/api/upload'
 import { accountQuery } from './queries'
 
 export type Account = components['schemas']['AccountResource']
-export type AccountInput = components['schemas']['AccountInput']
 
 const refreshTheDashboardShowingMyOrganization = (queryClient: QueryClient) =>
   queryClient.invalidateQueries({ queryKey: queryKeys.dashboard })
 
 function useStoreAccount() {
   const queryClient = useQueryClient()
+  const { t } = useTranslation()
 
   return (account: Account | undefined) => {
     if (!account) {
@@ -22,21 +22,45 @@ function useStoreAccount() {
     }
     queryClient.setQueryData(accountQuery().queryKey, account)
     void refreshTheDashboardShowingMyOrganization(queryClient)
+    toast.success(t('common.saved'))
   }
 }
 
-export function useReplaceAccount() {
-  const store = useStoreAccount()
+const formIntention = { meta: { silentValidation: true } }
 
-  return api.useMutation('put', '/api/me', { meta: { silentValidation: true }, onSuccess: store })
+export function useChangeMyName() {
+  return api.useMutation('patch', '/api/me/name', { ...formIntention, onSuccess: useStoreAccount() })
 }
 
-function useUploadAccountFile(
-  path: '/api/me/picture' | '/api/me/organization-logo',
-  successMessage: 'account.pictureSuccess' | 'account.logoSuccess',
-) {
-  const store = useStoreAccount()
+export function useChangeMyUserName() {
+  return api.useMutation('patch', '/api/me/user-name', { ...formIntention, onSuccess: useStoreAccount() })
+}
+
+export function useChangeMyContactDetails() {
+  return api.useMutation('patch', '/api/me/contact-details', {
+    ...formIntention,
+    onSuccess: useStoreAccount(),
+  })
+}
+
+export function useReviseMyOrganizationIdentity() {
+  return api.useMutation('patch', '/api/me/organization/legal-identity', {
+    ...formIntention,
+    onSuccess: useStoreAccount(),
+  })
+}
+
+export function useChangeMyPassword() {
   const { t } = useTranslation()
+
+  return api.useMutation('patch', '/api/me/password', {
+    ...formIntention,
+    onSuccess: () => toast.success(t('common.saved')),
+  })
+}
+
+function useSendAccountFile(path: '/api/me/picture' | '/api/me/organization/logo') {
+  const store = useStoreAccount()
 
   return useMutation({
     mutationFn: async (file: File) => {
@@ -46,13 +70,9 @@ function useUploadAccountFile(
       }
       return data
     },
-    onSuccess: (account) => {
-      store(account)
-      toast.success(t(successMessage))
-    },
+    onSuccess: store,
   })
 }
 
-export const useUploadPicture = () => useUploadAccountFile('/api/me/picture', 'account.pictureSuccess')
-export const useUploadOrganizationLogo = () =>
-  useUploadAccountFile('/api/me/organization-logo', 'account.logoSuccess')
+export const useChangeMyPicture = () => useSendAccountFile('/api/me/picture')
+export const useChangeMyOrganizationLogo = () => useSendAccountFile('/api/me/organization/logo')

@@ -4,40 +4,31 @@ namespace Tests\App\Command;
 
 use App\Command\ListUseCasesCommand;
 use PHPUnit\Framework\Attributes\Group;
-use Prophecy\PhpUnit\ProphecyTrait;
-use Prospecter\Core\UseCase\UseCasesFacade;
+use Prospecter\Core\Application\UseCasesFacade;
 use Symfony\Bundle\FrameworkBundle\Console\Application;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 use Symfony\Component\Console\Tester\CommandTester;
-use Tests\App\Stub\StubNeedsRoleUseCaseImpl;
-use Tests\App\Stub\StubPublicUseCaseImpl;
+use Tests\App\Stub\StubNeedsRoleUseCase;
+use Tests\App\Stub\StubPublicUseCase;
 
 #[Group('unit')]
 class ListUseCasesCommandTest extends KernelTestCase
 {
-    use ProphecyTrait;
-
-    public function testExecute(): void
+    public function testEveryUseCaseIsListedWithWhoCanExecuteIt(): void
     {
-        $kernel = self::bootKernel();
-        $application = new Application($kernel);
+        $facade = new UseCasesFacade();
+        $facade->addUseCase(new StubNeedsRoleUseCase());
+        $facade->addUseCase(new StubPublicUseCase());
+        $application = new Application(self::bootKernel());
+        $application->addCommand(new ListUseCasesCommand($facade));
+        $tester = new CommandTester($application->find('app:use-cases'));
 
-        $facade = $this
-            ->prophesize(UseCasesFacade::class);
-        $facade
-            ->getUseCases()
-            ->shouldbeCalled()
-            ->willReturn([new StubNeedsRoleUseCaseImpl(), new StubPublicUseCaseImpl()]);
+        $tester->execute([]);
 
-        $application->addCommand(new ListUseCasesCommand($facade->reveal()));
-        $command = $application->find('app:use-cases');
-        $commandTester = new CommandTester($command);
-
-        $commandTester->execute(['command' => $command->getName()]);
-        $lines = explode("\n", $commandTester->getDisplay());
-
-        $this->assertEquals('2 use case(s) registered', $lines[0]);
-        $this->assertEquals('1/2 : As anonymous, I want to stub public use case', $lines[1]);
-        $this->assertEquals('2/2 : As specific_role, I want to stub needs role use case', $lines[2]);
+        $this->assertSame([
+            '2 use case(s) registered',
+            '1/2 : As anonymous, I want to stub public use case',
+            '2/2 : As prospector, I want to stub needs role use case',
+        ], array_slice(explode("\n", $tester->getDisplay()), 0, 3));
     }
 }

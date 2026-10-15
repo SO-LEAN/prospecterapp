@@ -4,16 +4,16 @@ namespace App\Controller\Api\Dashboard;
 
 use App\Api\Resource\DashboardResource;
 use App\Api\Resource\OrganizationPageResource;
+use App\Api\Resource\OrganizationResource;
 use App\Api\Resource\OrganizationSummaryResource;
 use App\Entity\User;
-use App\Presenter\GetOrganizationPresenterImpl;
 use App\Presenter\OrganizationPagePresenter;
+use App\Presenter\OrganizationResourcePresenter;
 use Nelmio\ApiDocBundle\Attribute\Model;
 use OpenApi\Attributes as OA;
-use Prospecter\Core\UseCase\FindMyOwnOrganizations\FindMyOwnOrganizationsRequest;
-use Prospecter\Core\UseCase\GetOrganization\GetOrganizationRequest;
-use Prospecter\Core\UseCase\GetOrganization\GetOrganizationResponse;
-use Prospecter\Core\UseCase\UseCasesFacade;
+use Prospecter\Core\Application\Organization\ConsultOrganizationRequest;
+use Prospecter\Core\Application\Organization\SearchProspectedOrganizationsRequest;
+use Prospecter\Core\Application\UseCasesFacade;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\Routing\Attribute\Route;
@@ -27,6 +27,7 @@ final class ShowDashboard extends AbstractController
     public function __construct(
         private readonly UseCasesFacade $useCases,
         private readonly OrganizationPagePresenter $pagePresenter,
+        private readonly OrganizationResourcePresenter $organizationPresenter,
     ) {
     }
 
@@ -36,14 +37,14 @@ final class ShowDashboard extends AbstractController
     #[OA\Response(response: 401, description: 'Missing or invalid access token')]
     public function __invoke(#[CurrentUser] User $user): JsonResponse
     {
-        /** @var GetOrganizationResponse $organization */
-        $organization = $this->useCases->getOrganization(new GetOrganizationRequest($user->getOrganizationId()), new GetOrganizationPresenterImpl(), $user);
+        /** @var OrganizationResource $myOrganization */
+        $myOrganization = $this->useCases->consultOrganization(new ConsultOrganizationRequest($user->getOrganizationId()), $this->organizationPresenter, $user);
         /** @var OrganizationPageResource $page */
-        $page = $this->useCases->findMyOwnOrganizations(new FindMyOwnOrganizationsRequest(1, '', self::MAX_MARKERS), $this->pagePresenter, $user);
+        $page = $this->useCases->searchProspectedOrganizations(new SearchProspectedOrganizationsRequest(1, '', self::MAX_MARKERS), $this->pagePresenter, $user);
 
         return $this->json(new DashboardResource(
-            organizationName: (string) $organization->corporateName,
-            stats: $organization->stats,
+            organizationName: (string) $myOrganization->legalIdentity->corporateName,
+            stats: ['activeOrganizations' => $myOrganization->activeOrganizations],
             markers: array_values(array_filter($page->items, static fn (OrganizationSummaryResource $item): bool => null !== $item->location)),
         ));
     }

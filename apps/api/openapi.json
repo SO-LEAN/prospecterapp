@@ -6,13 +6,23 @@
         "version": "1.0.0"
     },
     "paths": {
-        "/api/me": {
-            "get": {
+        "/api/me/contact-details": {
+            "patch": {
                 "tags": [
                     "My account"
                 ],
-                "summary": "Get my account and my organization",
-                "operationId": "get_api_me_show",
+                "summary": "Change my email, phone number and language, nothing else changes",
+                "operationId": "patch_api_me_change_contact_details",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/ContactDetailsInput"
+                            }
+                        }
+                    }
+                },
                 "responses": {
                     "200": {
                         "description": "My account",
@@ -26,28 +36,40 @@
                     },
                     "401": {
                         "description": "Missing or invalid access token"
+                    },
+                    "422": {
+                        "description": "Invalid contact details or email already used",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ProblemResource"
+                                }
+                            }
+                        }
                     }
                 }
-            },
-            "put": {
+            }
+        },
+        "/api/me/name": {
+            "patch": {
                 "tags": [
                     "My account"
                 ],
-                "summary": "Replace my account information (a null password keeps the current one; changing the user name ends the session)",
-                "operationId": "put_api_me_replace",
+                "summary": "Change my first and last names, nothing else changes",
+                "operationId": "patch_api_me_change_name",
                 "requestBody": {
                     "required": true,
                     "content": {
                         "application/json": {
                             "schema": {
-                                "$ref": "#/components/schemas/AccountInput"
+                                "$ref": "#/components/schemas/PersonNameInput"
                             }
                         }
                     }
                 },
                 "responses": {
                     "200": {
-                        "description": "My updated account",
+                        "description": "My account",
                         "content": {
                             "application/json": {
                                 "schema": {
@@ -60,7 +82,7 @@
                         "description": "Missing or invalid access token"
                     },
                     "422": {
-                        "description": "Invalid account",
+                        "description": "Invalid name",
                         "content": {
                             "application/json": {
                                 "schema": {
@@ -72,13 +94,13 @@
                 }
             }
         },
-        "/api/me/organization-logo": {
+        "/api/me/organization/logo": {
             "post": {
                 "tags": [
                     "My account"
                 ],
-                "summary": "Upload the logo of my organization (multipart, field \"file\")",
-                "operationId": "post_api_me_upload_organization_logo",
+                "summary": "Send the new logo of my organization (multipart, field \"file\")",
+                "operationId": "post_api_me_change_organization_logo",
                 "requestBody": {
                     "content": {
                         "multipart/form-data": {
@@ -96,7 +118,7 @@
                 },
                 "responses": {
                     "200": {
-                        "description": "My account with the new logo of my organization",
+                        "description": "My account",
                         "content": {
                             "application/json": {
                                 "schema": {
@@ -110,6 +132,43 @@
                     },
                     "422": {
                         "description": "Invalid image",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ProblemResource"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/me/password": {
+            "patch": {
+                "tags": [
+                    "My account"
+                ],
+                "summary": "Change my password (a credential of the authentication module, not of the core)",
+                "operationId": "patch_api_me_change_password",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/PasswordInput"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "204": {
+                        "description": "Password changed"
+                    },
+                    "401": {
+                        "description": "Missing or invalid access token"
+                    },
+                    "422": {
+                        "description": "Password too short",
                         "content": {
                             "application/json": {
                                 "schema": {
@@ -126,8 +185,8 @@
                 "tags": [
                     "My account"
                 ],
-                "summary": "Upload my picture (multipart, field \"file\")",
-                "operationId": "post_api_me_upload_picture",
+                "summary": "Send my new picture (multipart, field \"file\")",
+                "operationId": "post_api_me_change_picture",
                 "requestBody": {
                     "content": {
                         "multipart/form-data": {
@@ -145,7 +204,7 @@
                 },
                 "responses": {
                     "200": {
-                        "description": "My account with its new picture",
+                        "description": "My account",
                         "content": {
                             "application/json": {
                                 "schema": {
@@ -166,6 +225,118 @@
                                 }
                             }
                         }
+                    }
+                }
+            }
+        },
+        "/api/me/user-name": {
+            "patch": {
+                "tags": [
+                    "My account"
+                ],
+                "summary": "Change my user name (the access token is bound to it: sign in again)",
+                "operationId": "patch_api_me_change_user_name",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/UserNameInput"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "My account",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/AccountResource"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Missing or invalid access token"
+                    },
+                    "422": {
+                        "description": "Missing or invalid user name",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ProblemResource"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/me/organization/legal-identity": {
+            "patch": {
+                "tags": [
+                    "My account"
+                ],
+                "summary": "Revise the legal identity of my organization",
+                "operationId": "patch_api_me_revise_organization_identity",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/LegalIdentityInput"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "My account",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/AccountResource"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Missing or invalid access token"
+                    },
+                    "422": {
+                        "description": "Invalid identity",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ProblemResource"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/me": {
+            "get": {
+                "tags": [
+                    "My account"
+                ],
+                "summary": "Consult my account and my organization",
+                "operationId": "get_api_me_show",
+                "responses": {
+                    "200": {
+                        "description": "My account",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/AccountResource"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Missing or invalid access token"
                     }
                 }
             }
@@ -194,71 +365,27 @@
                 }
             }
         },
-        "/api/organizations": {
-            "get": {
+        "/api/organizations/{id}/holding": {
+            "delete": {
                 "tags": [
                     "Organizations"
                 ],
-                "summary": "Find the organizations owned by my organization, by name or email",
-                "operationId": "get_api_organizations_list",
+                "summary": "Detach the organization from its holding",
+                "operationId": "delete_api_organizations_detach_from_holding",
                 "parameters": [
                     {
-                        "name": "page",
-                        "in": "query",
-                        "required": false,
-                        "schema": {
-                            "type": "integer",
-                            "default": 1,
-                            "minimum": 0,
-                            "exclusiveMinimum": true
-                        }
-                    },
-                    {
-                        "name": "q",
-                        "in": "query",
-                        "required": false,
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
                         "schema": {
                             "type": "string",
-                            "default": "",
-                            "maxLength": 100
+                            "pattern": "[0-9a-f]{8}-[0-9a-f]{4}-[13-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}"
                         }
                     }
                 ],
                 "responses": {
                     "200": {
-                        "description": "A page of organizations, most recent first",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/OrganizationPageResource"
-                                }
-                            }
-                        }
-                    },
-                    "401": {
-                        "description": "Missing or invalid access token"
-                    }
-                }
-            },
-            "post": {
-                "tags": [
-                    "Organizations"
-                ],
-                "summary": "Create an organization owned by my organization",
-                "operationId": "post_api_organizations_create",
-                "requestBody": {
-                    "required": true,
-                    "content": {
-                        "application/json": {
-                            "schema": {
-                                "$ref": "#/components/schemas/OrganizationInput"
-                            }
-                        }
-                    }
-                },
-                "responses": {
-                    "201": {
-                        "description": "The created organization",
+                        "description": "The organization without holding",
                         "content": {
                             "application/json": {
                                 "schema": {
@@ -270,8 +397,136 @@
                     "401": {
                         "description": "Missing or invalid access token"
                     },
+                    "404": {
+                        "description": "Unknown organization, or one that is not prospected by mine",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ProblemResource"
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "patch": {
+                "tags": [
+                    "Organizations"
+                ],
+                "summary": "Attach the organization to a holding my organization prospects",
+                "operationId": "patch_api_organizations_attach_to_holding",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "pattern": "[0-9a-f]{8}-[0-9a-f]{4}-[13-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/HoldingInput"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "The organization in its holding",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/OrganizationResource"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Missing or invalid access token"
+                    },
+                    "404": {
+                        "description": "Unknown organization, or one that is not prospected by mine",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ProblemResource"
+                                }
+                            }
+                        }
+                    },
                     "422": {
-                        "description": "Invalid organization",
+                        "description": "Invalid holding id",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ProblemResource"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/organizations/{id}/contact-details": {
+            "patch": {
+                "tags": [
+                    "Organizations"
+                ],
+                "summary": "Change the email, phone number and language, nothing else changes",
+                "operationId": "patch_api_organizations_change_contact_details",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "pattern": "[0-9a-f]{8}-[0-9a-f]{4}-[13-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/ContactDetailsInput"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "The organization with its new contact details",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/OrganizationResource"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Missing or invalid access token"
+                    },
+                    "404": {
+                        "description": "Unknown organization, or one that is not prospected by mine",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ProblemResource"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Invalid contact details, email already used, or neither corporate name nor email left",
                         "content": {
                             "application/json": {
                                 "schema": {
@@ -288,8 +543,8 @@
                 "tags": [
                     "Organizations"
                 ],
-                "summary": "Upload the logo of an organization (multipart, field \"file\")",
-                "operationId": "post_api_organizations_upload_logo",
+                "summary": "Send a new logo (multipart, field \"file\"), stored as a new file",
+                "operationId": "post_api_organizations_change_logo",
                 "parameters": [
                     {
                         "name": "id",
@@ -297,7 +552,7 @@
                         "required": true,
                         "schema": {
                             "type": "string",
-                            "pattern": "\\d+"
+                            "pattern": "[0-9a-f]{8}-[0-9a-f]{4}-[13-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}"
                         }
                     }
                 ],
@@ -356,8 +611,8 @@
                 "tags": [
                     "Organizations"
                 ],
-                "summary": "Remove the logo of an organization",
-                "operationId": "delete_api_organizations_delete_logo",
+                "summary": "Remove the logo of the organization",
+                "operationId": "delete_api_organizations_remove_logo",
                 "parameters": [
                     {
                         "name": "id",
@@ -365,7 +620,7 @@
                         "required": true,
                         "schema": {
                             "type": "string",
-                            "pattern": "\\d+"
+                            "pattern": "[0-9a-f]{8}-[0-9a-f]{4}-[13-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}"
                         }
                     }
                 ],
@@ -406,12 +661,241 @@
                 }
             }
         },
+        "/api/organizations/{id}/address": {
+            "patch": {
+                "tags": [
+                    "Organizations"
+                ],
+                "summary": "Move the organization to an address (located again); an empty address removes it",
+                "operationId": "patch_api_organizations_relocate",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "pattern": "[0-9a-f]{8}-[0-9a-f]{4}-[13-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/AddressInput"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "The organization at its new address",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/OrganizationResource"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Missing or invalid access token"
+                    },
+                    "404": {
+                        "description": "Unknown organization, or one that is not prospected by mine",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ProblemResource"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Invalid address",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ProblemResource"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/organizations/{id}/legal-identity": {
+            "patch": {
+                "tags": [
+                    "Organizations"
+                ],
+                "summary": "Revise the legal identity (corporate name, form, type), nothing else changes",
+                "operationId": "patch_api_organizations_revise_legal_identity",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "pattern": "[0-9a-f]{8}-[0-9a-f]{4}-[13-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/LegalIdentityInput"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "The organization with its new identity",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/OrganizationResource"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Missing or invalid access token"
+                    },
+                    "404": {
+                        "description": "Unknown organization, or one that is not prospected by mine",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ProblemResource"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Invalid identity, or neither corporate name nor email left",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ProblemResource"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/organizations": {
+            "get": {
+                "tags": [
+                    "Organizations"
+                ],
+                "summary": "Search the organizations my organization prospects, by corporate name or email",
+                "operationId": "get_api_organizations_search",
+                "parameters": [
+                    {
+                        "name": "page",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "integer",
+                            "default": 1,
+                            "minimum": 0,
+                            "exclusiveMinimum": true
+                        }
+                    },
+                    {
+                        "name": "q",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "string",
+                            "default": "",
+                            "maxLength": 100
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "A page of organizations, most recent first",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/OrganizationPageResource"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Missing or invalid access token"
+                    }
+                }
+            },
+            "post": {
+                "tags": [
+                    "Organizations"
+                ],
+                "summary": "Start prospecting an organization, owned by my organization",
+                "operationId": "post_api_organizations_start_prospecting",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/StartProspectingInput"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "The organization now prospected",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/OrganizationResource"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Missing or invalid access token"
+                    },
+                    "404": {
+                        "description": "Unknown holding, or one that is not prospected by mine",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ProblemResource"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Invalid organization, email already used, or neither corporate name nor email",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ProblemResource"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
         "/api/organizations/{id}": {
             "get": {
                 "tags": [
                     "Organizations"
                 ],
-                "summary": "Get an organization",
+                "summary": "Consult an organization: mine or one my organization prospects",
                 "operationId": "get_api_organizations_show",
                 "parameters": [
                     {
@@ -420,7 +904,7 @@
                         "required": true,
                         "schema": {
                             "type": "string",
-                            "pattern": "\\d+"
+                            "pattern": "[0-9a-f]{8}-[0-9a-f]{4}-[13-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}"
                         }
                     }
                 ],
@@ -449,13 +933,15 @@
                         }
                     }
                 }
-            },
-            "put": {
+            }
+        },
+        "/api/organizations/{id}/observations": {
+            "patch": {
                 "tags": [
                     "Organizations"
                 ],
-                "summary": "Replace an organization (fields left out are cleared, the logo is kept)",
-                "operationId": "put_api_organizations_replace",
+                "summary": "Write the observations on the organization",
+                "operationId": "patch_api_organizations_write_observations",
                 "parameters": [
                     {
                         "name": "id",
@@ -463,7 +949,7 @@
                         "required": true,
                         "schema": {
                             "type": "string",
-                            "pattern": "\\d+"
+                            "pattern": "[0-9a-f]{8}-[0-9a-f]{4}-[13-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}"
                         }
                     }
                 ],
@@ -472,14 +958,14 @@
                     "content": {
                         "application/json": {
                             "schema": {
-                                "$ref": "#/components/schemas/OrganizationInput"
+                                "$ref": "#/components/schemas/ObservationsInput"
                             }
                         }
                     }
                 },
                 "responses": {
                     "200": {
-                        "description": "The updated organization",
+                        "description": "The organization with its observations",
                         "content": {
                             "application/json": {
                                 "schema": {
@@ -502,7 +988,7 @@
                         }
                     },
                     "422": {
-                        "description": "Invalid organization",
+                        "description": "Observations too long",
                         "content": {
                             "application/json": {
                                 "schema": {
@@ -517,49 +1003,8 @@
     },
     "components": {
         "schemas": {
-            "AccountOrganizationInput": {
+            "ContactDetailsInput": {
                 "properties": {
-                    "corporateName": {
-                        "type": "string",
-                        "nullable": true,
-                        "default": null,
-                        "maxLength": 150
-                    },
-                    "form": {
-                        "type": "string",
-                        "nullable": true,
-                        "default": null,
-                        "maxLength": 50
-                    }
-                },
-                "type": "object"
-            },
-            "AccountInput": {
-                "properties": {
-                    "userName": {
-                        "type": "string",
-                        "default": "",
-                        "maxLength": 50
-                    },
-                    "password": {
-                        "type": "string",
-                        "nullable": true,
-                        "default": null,
-                        "maxLength": 4096,
-                        "minLength": 8
-                    },
-                    "firstName": {
-                        "type": "string",
-                        "nullable": true,
-                        "default": null,
-                        "maxLength": 100
-                    },
-                    "lastName": {
-                        "type": "string",
-                        "nullable": true,
-                        "default": null,
-                        "maxLength": 100
-                    },
                     "email": {
                         "type": "string",
                         "nullable": true,
@@ -576,15 +1021,76 @@
                         "type": "string",
                         "nullable": true,
                         "default": null
-                    },
-                    "organization": {
+                    }
+                },
+                "type": "object"
+            },
+            "PersonNameInput": {
+                "properties": {
+                    "firstName": {
+                        "type": "string",
                         "nullable": true,
-                        "oneOf": [
-                            {
-                                "$ref": "#/components/schemas/AccountOrganizationInput"
-                            }
-                        ],
-                        "default": null
+                        "default": null,
+                        "maxLength": 100
+                    },
+                    "lastName": {
+                        "type": "string",
+                        "nullable": true,
+                        "default": null,
+                        "maxLength": 100
+                    }
+                },
+                "type": "object"
+            },
+            "PasswordInput": {
+                "properties": {
+                    "password": {
+                        "type": "string",
+                        "default": "",
+                        "maxLength": 4096,
+                        "minLength": 8
+                    }
+                },
+                "type": "object"
+            },
+            "UserNameInput": {
+                "properties": {
+                    "userName": {
+                        "type": "string",
+                        "default": "",
+                        "maxLength": 50
+                    }
+                },
+                "type": "object"
+            },
+            "LegalIdentityInput": {
+                "properties": {
+                    "corporateName": {
+                        "type": "string",
+                        "nullable": true,
+                        "default": null,
+                        "maxLength": 150
+                    },
+                    "form": {
+                        "type": "string",
+                        "nullable": true,
+                        "default": null,
+                        "maxLength": 50
+                    },
+                    "type": {
+                        "type": "string",
+                        "nullable": true,
+                        "default": null,
+                        "maxLength": 50
+                    }
+                },
+                "type": "object"
+            },
+            "HoldingInput": {
+                "properties": {
+                    "holdingId": {
+                        "type": "string",
+                        "default": ""
                     }
                 },
                 "type": "object"
@@ -617,42 +1123,29 @@
                 },
                 "type": "object"
             },
-            "OrganizationInput": {
+            "OrganizationListQuery": {
                 "properties": {
-                    "corporateName": {
-                        "type": "string",
-                        "nullable": true,
-                        "default": null,
-                        "maxLength": 150
+                    "page": {
+                        "type": "integer",
+                        "default": 1,
+                        "minimum": 0,
+                        "exclusiveMinimum": true
                     },
-                    "form": {
+                    "q": {
                         "type": "string",
-                        "nullable": true,
-                        "default": null,
-                        "maxLength": 50
+                        "default": "",
+                        "maxLength": 100
+                    }
+                },
+                "type": "object"
+            },
+            "StartProspectingInput": {
+                "properties": {
+                    "legalIdentity": {
+                        "$ref": "#/components/schemas/LegalIdentityInput"
                     },
-                    "type": {
-                        "type": "string",
-                        "nullable": true,
-                        "default": null,
-                        "maxLength": 50
-                    },
-                    "email": {
-                        "type": "string",
-                        "nullable": true,
-                        "default": null,
-                        "maxLength": 255
-                    },
-                    "phoneNumber": {
-                        "type": "string",
-                        "nullable": true,
-                        "default": null,
-                        "maxLength": 255
-                    },
-                    "language": {
-                        "type": "string",
-                        "nullable": true,
-                        "default": null
+                    "contactDetails": {
+                        "$ref": "#/components/schemas/ContactDetailsInput"
                     },
                     "address": {
                         "nullable": true,
@@ -669,28 +1162,51 @@
                         "default": null,
                         "maxLength": 255
                     },
-                    "holdBy": {
-                        "type": "integer",
+                    "holdingId": {
+                        "type": "string",
                         "nullable": true,
-                        "default": null,
-                        "minimum": 0,
-                        "exclusiveMinimum": true
+                        "default": null
                     }
                 },
                 "type": "object"
             },
-            "OrganizationListQuery": {
+            "ObservationsInput": {
                 "properties": {
-                    "page": {
-                        "type": "integer",
-                        "default": 1,
-                        "minimum": 0,
-                        "exclusiveMinimum": true
-                    },
-                    "q": {
+                    "observations": {
                         "type": "string",
-                        "default": "",
-                        "maxLength": 100
+                        "nullable": true,
+                        "default": null,
+                        "maxLength": 255
+                    }
+                },
+                "type": "object"
+            },
+            "PersonNameResource": {
+                "properties": {
+                    "firstName": {
+                        "type": "string",
+                        "nullable": true
+                    },
+                    "lastName": {
+                        "type": "string",
+                        "nullable": true
+                    }
+                },
+                "type": "object"
+            },
+            "ContactDetailsResource": {
+                "properties": {
+                    "email": {
+                        "type": "string",
+                        "nullable": true
+                    },
+                    "phoneNumber": {
+                        "type": "string",
+                        "nullable": true
+                    },
+                    "language": {
+                        "type": "string",
+                        "nullable": true
                     }
                 },
                 "type": "object"
@@ -710,7 +1226,7 @@
                 },
                 "type": "object"
             },
-            "AccountOrganizationResource": {
+            "LegalIdentityResource": {
                 "properties": {
                     "corporateName": {
                         "type": "string",
@@ -719,6 +1235,21 @@
                     "form": {
                         "type": "string",
                         "nullable": true
+                    },
+                    "type": {
+                        "type": "string",
+                        "nullable": true
+                    }
+                },
+                "type": "object"
+            },
+            "AccountOrganizationResource": {
+                "required": [
+                    "legalIdentity"
+                ],
+                "properties": {
+                    "legalIdentity": {
+                        "$ref": "#/components/schemas/LegalIdentityResource"
                     },
                     "logo": {
                         "nullable": true,
@@ -734,31 +1265,19 @@
             "AccountResource": {
                 "required": [
                     "userName",
+                    "name",
+                    "contactDetails",
                     "organization"
                 ],
                 "properties": {
                     "userName": {
                         "type": "string"
                     },
-                    "firstName": {
-                        "type": "string",
-                        "nullable": true
+                    "name": {
+                        "$ref": "#/components/schemas/PersonNameResource"
                     },
-                    "lastName": {
-                        "type": "string",
-                        "nullable": true
-                    },
-                    "email": {
-                        "type": "string",
-                        "nullable": true
-                    },
-                    "phoneNumber": {
-                        "type": "string",
-                        "nullable": true
-                    },
-                    "language": {
-                        "type": "string",
-                        "nullable": true
+                    "contactDetails": {
+                        "$ref": "#/components/schemas/ContactDetailsResource"
                     },
                     "picture": {
                         "nullable": true,
@@ -843,7 +1362,7 @@
                 ],
                 "properties": {
                     "id": {
-                        "type": "integer"
+                        "type": "string"
                     },
                     "name": {
                         "type": "string"
@@ -904,32 +1423,6 @@
                 },
                 "type": "object"
             },
-            "OrganizationPageResource": {
-                "required": [
-                    "items",
-                    "page",
-                    "totalPages",
-                    "totalItems"
-                ],
-                "properties": {
-                    "items": {
-                        "type": "array",
-                        "items": {
-                            "$ref": "#/components/schemas/OrganizationSummaryResource"
-                        }
-                    },
-                    "page": {
-                        "type": "integer"
-                    },
-                    "totalPages": {
-                        "type": "integer"
-                    },
-                    "totalItems": {
-                        "type": "integer"
-                    }
-                },
-                "type": "object"
-            },
             "AddressResource": {
                 "properties": {
                     "street": {
@@ -953,35 +1446,24 @@
             },
             "OrganizationResource": {
                 "required": [
-                    "id"
+                    "id",
+                    "name",
+                    "legalIdentity",
+                    "contactDetails",
+                    "activeOrganizations"
                 ],
                 "properties": {
                     "id": {
-                        "type": "integer"
+                        "type": "string"
                     },
-                    "corporateName": {
-                        "type": "string",
-                        "nullable": true
+                    "name": {
+                        "type": "string"
                     },
-                    "form": {
-                        "type": "string",
-                        "nullable": true
+                    "legalIdentity": {
+                        "$ref": "#/components/schemas/LegalIdentityResource"
                     },
-                    "type": {
-                        "type": "string",
-                        "nullable": true
-                    },
-                    "email": {
-                        "type": "string",
-                        "nullable": true
-                    },
-                    "phoneNumber": {
-                        "type": "string",
-                        "nullable": true
-                    },
-                    "language": {
-                        "type": "string",
-                        "nullable": true
+                    "contactDetails": {
+                        "$ref": "#/components/schemas/ContactDetailsResource"
                     },
                     "address": {
                         "nullable": true,
@@ -1011,9 +1493,38 @@
                             }
                         ]
                     },
-                    "holdBy": {
-                        "type": "integer",
+                    "holdingId": {
+                        "type": "string",
                         "nullable": true
+                    },
+                    "activeOrganizations": {
+                        "type": "integer"
+                    }
+                },
+                "type": "object"
+            },
+            "OrganizationPageResource": {
+                "required": [
+                    "items",
+                    "page",
+                    "totalPages",
+                    "totalItems"
+                ],
+                "properties": {
+                    "items": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/OrganizationSummaryResource"
+                        }
+                    },
+                    "page": {
+                        "type": "integer"
+                    },
+                    "totalPages": {
+                        "type": "integer"
+                    },
+                    "totalItems": {
+                        "type": "integer"
                     }
                 },
                 "type": "object"

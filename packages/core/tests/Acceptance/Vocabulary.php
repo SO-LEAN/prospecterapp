@@ -4,94 +4,107 @@ declare(strict_types=1);
 
 namespace Tests\Core\Acceptance;
 
-use Prospecter\Core\Entity\File;
-use Prospecter\Core\Entity\GeoPoint;
-use Prospecter\Core\Entity\Organization;
-use Prospecter\Core\Entity\User;
+use Prospecter\Core\Domain\Organization\Address;
+use Prospecter\Core\Domain\Organization\GeoPoint;
+use Prospecter\Core\Domain\Organization\LegalIdentity;
+use Prospecter\Core\Domain\Organization\Organization;
+use Prospecter\Core\Domain\Organization\OrganizationId;
+use Prospecter\Core\Domain\Shared\ContactDetails;
+use Prospecter\Core\Domain\Shared\Email;
+use Prospecter\Core\Domain\Shared\File;
+use Prospecter\Core\Domain\User\PersonName;
+use Prospecter\Core\Domain\User\User;
 
 /**
- * The words of the scenarios: French labels of the Gherkin tables, and how each one reads the
- * business objects, so that every feature speaks the same language.
+ * The words of the scenarios: French labels of the Gherkin tables, how they become value objects and how
+ * they describe the stored aggregates, so that every feature speaks the same language.
  */
 final class Vocabulary
 {
-    /** Organization labels => request parameter. */
-    public const array ORGANIZATION = [
-        'raison sociale' => 'corporateName',
-        'forme juridique' => 'form',
-        'type' => 'type',
-        'e-mail' => 'email',
-        'téléphone' => 'phoneNumber',
-        'langue' => 'language',
-        'rue' => 'street',
-        'code postal' => 'postalCode',
-        'ville' => 'city',
-        'pays' => 'country',
-        'observations' => 'observations',
-        'logo' => 'logo',
-        'holding' => 'holdBy',
-    ];
-
-    /** Account labels => request parameter. */
-    public const array ACCOUNT = [
-        'identifiant' => 'userName',
-        'prénom' => 'firstName',
-        'nom' => 'lastName',
-        'e-mail' => 'email',
-        'téléphone' => 'phoneNumber',
-        'langue' => 'language',
-        'photo' => 'picture',
-        'raison sociale de mon organisation' => 'organizationCorporateName',
-        'forme juridique de mon organisation' => 'organizationForm',
-        'logo de mon organisation' => 'organizationLogo',
+    private const array LABELS = [
+        'raison sociale', 'forme juridique', 'type', 'e-mail', 'téléphone', 'langue',
+        'rue', 'code postal', 'ville', 'pays', 'observations', 'holding', 'prénom', 'nom',
     ];
 
     /**
-     * Request parameters from a table of labels; labels left out are absent (null), an empty cell too.
-     *
      * @param array<string, string> $table
-     * @param array<string, string> $labels
      *
-     * @return array<string, string|null>
+     * @return array<string, string|null> every known label, null when left out or empty
      */
-    public static function parameters(array $table, array $labels): array
+    public static function values(array $table): array
     {
-        $parameters = array_fill_keys(array_values($labels), null);
+        $unknown = array_diff(array_keys($table), self::LABELS);
+        Expect::that([] === $unknown, 'Unknown labels: '.implode(', ', $unknown));
 
-        foreach ($table as $label => $value) {
-            $parameter = $labels[$label] ?? throw new \InvalidArgumentException(sprintf('Unknown label "%s", expected one of: %s', $label, implode(', ', array_keys($labels))));
-            $parameters[$parameter] = '' === $value ? null : $value;
-        }
+        return array_merge(
+            array_fill_keys(self::LABELS, null),
+            array_map(static fn (string $value): ?string => '' === $value ? null : $value, $table),
+        );
+    }
 
-        return $parameters;
+    /**
+     * @param array<string, string|null> $values
+     */
+    public static function legalIdentity(array $values): LegalIdentity
+    {
+        return new LegalIdentity($values['raison sociale'], $values['forme juridique'], $values['type']);
+    }
+
+    /**
+     * @param array<string, string|null> $values
+     */
+    public static function contactDetails(array $values): ContactDetails
+    {
+        return new ContactDetails(Email::orNone($values['e-mail']), $values['téléphone'], $values['langue']);
+    }
+
+    /**
+     * @param array<string, string|null> $values
+     */
+    public static function address(array $values): ?Address
+    {
+        $address = new Address($values['rue'], $values['code postal'], $values['ville'], $values['pays']);
+
+        return $address->isEmpty() ? null : $address;
+    }
+
+    /**
+     * @param array<string, string|null> $values
+     */
+    public static function personName(array $values): PersonName
+    {
+        return new PersonName($values['prénom'], $values['nom']);
     }
 
     /**
      * What a scenario can say about a stored organization, by label.
      *
+     * @param \Closure(OrganizationId): string $nameOf
+     *
      * @return array<string, string>
      */
-    public static function describeOrganization(Organization $organization): array
+    public static function describeOrganization(Organization $organization, \Closure $nameOf): array
     {
-        $address = $organization->getAddress();
-        $geoPoint = $organization->getGeoPoint();
+        $identity = $organization->legalIdentity();
+        $contact = $organization->contactDetails();
+        $address = $organization->address();
 
         return [
-            'raison sociale' => (string) $organization->getCorporateName(),
-            'forme juridique' => (string) $organization->getForm(),
-            'type' => (string) $organization->getType(),
-            'e-mail' => (string) $organization->getEmail(),
-            'téléphone' => (string) $organization->getPhoneNumber(),
-            'langue' => (string) $organization->getLanguage(),
+            'raison sociale' => (string) $identity->corporateName,
+            'forme juridique' => (string) $identity->form,
+            'type' => (string) $identity->type,
+            'e-mail' => (string) $contact->email,
+            'téléphone' => (string) $contact->phoneNumber,
+            'langue' => (string) $contact->language,
             'rue' => (string) $address?->street,
             'code postal' => (string) $address?->postalCode,
             'ville' => (string) $address?->city,
             'pays' => (string) $address?->country,
-            'observations' => (string) $organization->getObservations(),
-            'position' => self::describeGeoPoint($geoPoint),
-            'logo' => self::describeFile($organization->getLogo()),
-            'holding' => (string) $organization->getHoldBy()?->getCorporateName(),
-            'propriétaire' => (string) $organization->getOwnedBy()?->getCorporateName(),
+            'observations' => (string) $organization->observations(),
+            'position' => self::describeGeoPoint($organization->geoPoint()),
+            'logo' => self::describeFile($organization->logo()),
+            'holding' => null === $organization->holdingId() ? '' : $nameOf($organization->holdingId()),
+            'propriétaire' => null === $organization->ownerId() ? '' : $nameOf($organization->ownerId()),
         ];
     }
 
@@ -101,17 +114,17 @@ final class Vocabulary
     public static function describeAccount(User $user, Organization $organization): array
     {
         return [
-            'identifiant' => $user->getUserName(),
-            'prénom' => (string) $user->getFirstName(),
-            'nom' => (string) $user->getLastName(),
-            'e-mail' => (string) $user->getEmail(),
-            'téléphone' => (string) $user->getPhoneNumber(),
-            'langue' => (string) $user->getLanguage(),
-            'photo' => self::describeFile($user->getPicture()),
-            'raison sociale de mon organisation' => (string) $organization->getCorporateName(),
-            'forme juridique de mon organisation' => (string) $organization->getForm(),
-            'langue de mon organisation' => (string) $organization->getLanguage(),
-            'logo de mon organisation' => self::describeFile($organization->getLogo()),
+            'identifiant' => $user->userName(),
+            'prénom' => (string) $user->name()->firstName,
+            'nom' => (string) $user->name()->lastName,
+            'e-mail' => (string) $user->contactDetails()->email,
+            'téléphone' => (string) $user->contactDetails()->phoneNumber,
+            'langue' => (string) $user->contactDetails()->language,
+            'photo' => self::describeFile($user->picture()),
+            'raison sociale de mon organisation' => (string) $organization->legalIdentity()->corporateName,
+            'forme juridique de mon organisation' => (string) $organization->legalIdentity()->form,
+            'langue de mon organisation' => (string) $organization->contactDetails()->language,
+            'logo de mon organisation' => self::describeFile($organization->logo()),
         ];
     }
 

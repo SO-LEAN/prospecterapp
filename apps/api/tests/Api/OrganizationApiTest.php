@@ -2,18 +2,19 @@
 
 namespace Tests\App\Api;
 
-use Doctrine\ORM\EntityManagerInterface;
 use PHPUnit\Framework\Attributes\Group;
-use Prospecter\Core\Entity\Organization;
+use Prospecter\Core\Domain\Organization\LegalIdentity;
+use Prospecter\Core\Domain\Organization\Organization;
+use Prospecter\Core\Domain\Organization\OrganizationRepository;
+use Prospecter\Core\Domain\Shared\ContactDetails;
 use Tests\App\Base\ApiTestCase;
 
 #[Group('api')]
 class OrganizationApiTest extends ApiTestCase
 {
     private const array ACME = [
-        'corporateName' => 'ACME',
-        'form' => 'SAS',
-        'email' => 'contact@acme.test',
+        'legalIdentity' => ['corporateName' => 'ACME', 'form' => 'SAS', 'type' => null],
+        'contactDetails' => ['email' => 'contact@acme.test', 'phoneNumber' => null, 'language' => null],
         'address' => ['street' => '1 rue de la Paix', 'postalCode' => '75002', 'city' => 'Paris', 'country' => 'FR'],
     ];
 
@@ -23,86 +24,106 @@ class OrganizationApiTest extends ApiTestCase
         $this->login();
     }
 
-    public function testCreateThenRead(): void
+    public function testStartProspectingThenConsult(): void
     {
-        $created = $this->requestJson('POST', '/api/organizations', self::ACME);
+        $started = $this->requestJson('POST', '/api/organizations', self::ACME);
 
         $this->assertResponseStatusCodeSame(201);
-        $this->assertResponseHeaderSame('Location', '/api/organizations/'.$created['id']);
-        $this->assertSame('ACME', $created['corporateName']);
-        $this->assertSame(self::ACME['address'], $created['address'], 'the address is read in the shape it is written');
-        $this->assertNull($created['logo']);
-
-        $this->assertSame($created, $this->requestJson('GET', '/api/organizations/'.$created['id']));
+        $this->assertResponseHeaderSame('Location', '/api/organizations/'.$started['id']);
+        $this->assertMatchesRegularExpression('/^[0-9a-f-]{36}$/', $started['id']);
+        $this->assertSame('ACME SAS', $started['name']);
+        $this->assertSame(self::ACME['legalIdentity'], $started['legalIdentity']);
+        $this->assertSame(self::ACME['contactDetails'], $started['contactDetails']);
+        $this->assertSame(self::ACME['address'], $started['address']);
+        $this->assertSame($started, $this->requestJson('GET', '/api/organizations/'.$started['id']));
     }
 
-    public function testListIsPaginatedAndSearchable(): void
+    public function testSearchIsPaginatedAndMatchesNames(): void
     {
         $this->requestJson('POST', '/api/organizations', self::ACME);
-        $this->requestJson('POST', '/api/organizations', ['corporateName' => 'Globex']);
+        $this->requestJson('POST', '/api/organizations', ['legalIdentity' => ['corporateName' => 'Globex']]);
 
         $page = $this->requestJson('GET', '/api/organizations?q=acm');
 
         $this->assertResponseIsSuccessful();
         $this->assertSame(1, $page['totalItems']);
-        $this->assertSame(1, $page['page']);
-        $this->assertSame('ACME SAS', $page['items'][0]['name'], 'the name joins the corporate name and the legal form');
+        $this->assertSame('ACME SAS', $page['items'][0]['name']);
         $this->assertSame('Paris', $page['items'][0]['city']);
     }
 
-    public function testReplaceClearsLeftOutFields(): void
+    public function testEachIntentionChangesOnlyItsPart(): void
     {
-        $created = $this->requestJson('POST', '/api/organizations', self::ACME);
+        $id = $this->requestJson('POST', '/api/organizations', self::ACME)['id'];
 
-        $updated = $this->requestJson('PUT', '/api/organizations/'.$created['id'], ['corporateName' => 'ACME Corp']);
-
+        $revised = $this->requestJson('PATCH', '/api/organizations/'.$id.'/legal-identity', ['corporateName' => 'ACME Corp', 'form' => 'SA', 'type' => null]);
         $this->assertResponseIsSuccessful();
-        $this->assertSame('ACME Corp', $updated['corporateName']);
-        $this->assertNull($updated['email']);
-        $this->assertNull($updated['address']);
+        $this->assertSame('ACME Corp', $revised['legalIdentity']['corporateName']);
+        $this->assertSame(self::ACME['contactDetails'], $revised['contactDetails']);
+
+        $contacted = $this->requestJson('PATCH', '/api/organizations/'.$id.'/contact-details', ['email' => 'hello@acme.test', 'phoneNumber' => '0388000000', 'language' => 'FR']);
+        $this->assertSame('hello@acme.test', $contacted['contactDetails']['email']);
+        $this->assertSame('ACME Corp', $contacted['legalIdentity']['corporateName']);
+
+        $relocated = $this->requestJson('PATCH', '/api/organizations/'.$id.'/address', []);
+        $this->assertNull($relocated['address']);
+
+        $noted = $this->requestJson('PATCH', '/api/organizations/'.$id.'/observations', ['observations' => 'Call back']);
+        $this->assertSame('Call back', $noted['observations']);
     }
 
-    public function testUploadAndRemoveLogo(): void
+    public function testAttachToAndDetachFromAHolding(): void
     {
-        $created = $this->requestJson('POST', '/api/organizations', self::ACME);
+        $id = $this->requestJson('POST', '/api/organizations', self::ACME)['id'];
+        $holdingId = $this->requestJson('POST', '/api/organizations', ['legalIdentity' => ['corporateName' => 'Group']])['id'];
 
-        $withLogo = $this->uploadImage('/api/organizations/'.$created['id'].'/logo');
+        $this->assertSame($holdingId, $this->requestJson('PATCH', '/api/organizations/'.$id.'/holding', ['holdingId' => $holdingId])['holdingId']);
+        $this->assertNull($this->requestJson('DELETE', '/api/organizations/'.$id.'/holding')['holdingId']);
+    }
+
+    public function testChangeAndRemoveTheLogo(): void
+    {
+        $id = $this->requestJson('POST', '/api/organizations', self::ACME)['id'];
+
+        $withLogo = $this->uploadImage('/api/organizations/'.$id.'/logo');
 
         $this->assertResponseIsSuccessful();
         $this->assertStringEndsWith('.png', $withLogo['logo']['url']);
-        $this->assertNotSame($withLogo['logo']['url'], $withLogo['logo']['thumbnailUrl']);
-        $this->assertSame('ACME', $withLogo['corporateName'], 'uploading a logo keeps the other fields');
-
         $storedFile = $this->storagePath($withLogo['logo']['url']);
         $this->assertFileExists($storedFile);
 
-        $withoutLogo = $this->requestJson('DELETE', '/api/organizations/'.$created['id'].'/logo');
-
-        $this->assertResponseIsSuccessful();
-        $this->assertNull($withoutLogo['logo']);
+        $this->assertNull($this->requestJson('DELETE', '/api/organizations/'.$id.'/logo')['logo']);
         $this->assertFileDoesNotExist($storedFile);
     }
 
-    public function testInvalidPayloadIsRejectedWithViolations(): void
+    public function testRemovingAMissingLogoIsRefused(): void
     {
-        $problem = $this->requestJson('POST', '/api/organizations', ['corporateName' => 'ACME', 'email' => 'not an email', 'address' => ['country' => 'XX']]);
+        $id = $this->requestJson('POST', '/api/organizations', self::ACME)['id'];
+
+        $problem = $this->requestJson('DELETE', '/api/organizations/'.$id.'/logo');
 
         $this->assertResponseStatusCodeSame(422);
-        $this->assertSame(['email', 'address.country'], $this->violatedFields($problem));
+        $this->assertSame(['logo'], $this->violatedFields($problem));
+    }
+
+    public function testInvalidInputIsRejectedWithViolations(): void
+    {
+        $problem = $this->requestJson('POST', '/api/organizations', ['legalIdentity' => ['corporateName' => 'ACME'], 'contactDetails' => ['email' => 'not an email'], 'address' => ['country' => 'XX']]);
+
+        $this->assertResponseStatusCodeSame(422);
+        $this->assertSame(['contactDetails.email', 'address.country'], $this->violatedFields($problem));
     }
 
     public function testUnknownFieldsAreRejectedInsteadOfIgnored(): void
     {
-        $created = $this->requestJson('POST', '/api/organizations', self::ACME);
+        $id = $this->requestJson('POST', '/api/organizations', self::ACME)['id'];
 
-        $problem = $this->requestJson('PUT', '/api/organizations/'.$created['id'], ['corporateName' => 'ACME', 'street' => '2 rue de la Paix', 'city' => 'Paris']);
+        $problem = $this->requestJson('PATCH', '/api/organizations/'.$id.'/address', ['street' => '2 rue de la Paix', 'town' => 'Paris']);
 
         $this->assertResponseStatusCodeSame(422);
-        $this->assertSame(['street', 'city'], $this->violatedFields($problem));
-        $this->assertSame(self::ACME['address'], $this->requestJson('GET', '/api/organizations/'.$created['id'])['address'], 'nothing was cleared');
+        $this->assertSame(['town'], $this->violatedFields($problem));
     }
 
-    public function testBusinessRuleViolationIsRejected(): void
+    public function testABusinessRuleRefusalIsAViolation(): void
     {
         $problem = $this->requestJson('POST', '/api/organizations', ['address' => ['city' => 'Paris']]);
 
@@ -111,50 +132,32 @@ class OrganizationApiTest extends ApiTestCase
         $this->assertSame([''], $this->violatedFields($problem));
     }
 
-    public function testAnOrganizationOfAnotherOrganizationIsNotFound(): void
+    public function testAnOrganizationOfAnotherOrganizationIsNotFoundForEveryIntention(): void
     {
         $id = $this->anOrganizationOfAnotherOrganization();
 
-        $this->requestJson('GET', '/api/organizations/'.$id);
-        $this->assertResponseStatusCodeSame(404);
-
-        $this->requestJson('PUT', '/api/organizations/'.$id, ['corporateName' => 'Taken over']);
-        $this->assertResponseStatusCodeSame(404);
-
-        $this->requestJson('DELETE', '/api/organizations/'.$id.'/logo');
-        $this->assertResponseStatusCodeSame(404);
+        foreach ([['GET', ''], ['PATCH', '/legal-identity'], ['PATCH', '/contact-details'], ['PATCH', '/address'], ['PATCH', '/observations'], ['DELETE', '/holding'], ['DELETE', '/logo']] as [$method, $path]) {
+            $this->requestJson($method, '/api/organizations/'.$id.$path, 'PATCH' === $method ? [] : null);
+            $this->assertResponseStatusCodeSame(404, $method.' '.$path);
+        }
     }
 
-    public function testRemovingAMissingLogoIsRefused(): void
+    public function testAnIdThatIsNotAUuidIsNotFound(): void
     {
-        $created = $this->requestJson('POST', '/api/organizations', self::ACME);
-
-        $problem = $this->requestJson('DELETE', '/api/organizations/'.$created['id'].'/logo');
-
-        $this->assertResponseStatusCodeSame(422);
-        $this->assertSame(['logo'], $this->violatedFields($problem));
-    }
-
-    public function testUnknownOrganizationIsNotFound(): void
-    {
-        $this->requestJson('GET', '/api/organizations/999');
+        $this->requestJson('GET', '/api/organizations/42');
 
         $this->assertResponseStatusCodeSame(404);
     }
 
-    private function anOrganizationOfAnotherOrganization(): int
+    private function anOrganizationOfAnotherOrganization(): string
     {
-        $entityManager = self::getContainer()->get(EntityManagerInterface::class);
-        $competitor = new Organization();
-        $competitor->setCorporateName('Competitor');
-        $prospect = new Organization();
-        $prospect->setCorporateName('Their prospect');
-        $prospect->setOwnedBy($competitor);
-        $entityManager->persist($competitor);
-        $entityManager->persist($prospect);
-        $entityManager->flush();
+        $organizations = self::getContainer()->get(OrganizationRepository::class);
+        $competitor = Organization::usingProspecter($organizations->nextIdentity(), new LegalIdentity('Competitor'));
+        $prospect = Organization::prospectedBy($competitor->id(), $organizations->nextIdentity(), new LegalIdentity('Their prospect'), new ContactDetails());
+        $organizations->save($competitor);
+        $organizations->save($prospect);
 
-        return (int) $prospect->getId();
+        return $prospect->id()->value;
     }
 
     private function storagePath(string $url): string

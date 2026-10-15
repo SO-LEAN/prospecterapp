@@ -3,7 +3,7 @@ import { cn } from '@/shared/lib/utils'
 import { Skeleton } from '@/shared/ui/skeleton'
 
 export type MapMarker = {
-  id: number
+  id: string
   latitude: number
   longitude: number
   label: string

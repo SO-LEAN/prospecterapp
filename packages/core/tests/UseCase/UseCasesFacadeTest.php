@@ -6,11 +6,14 @@ namespace Tests\Core\UseCase;
 
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
-use Prospecter\Core\Exception\UseCase\UnauthorizedException;
-use Prospecter\Core\UseCase\UseCasesFacade;
+use Prospecter\Core\Application\Exception\UnauthorizedException;
+use Prospecter\Core\Application\UseCasesFacade;
+use Prospecter\Core\Domain\Organization\OrganizationId;
+use Prospecter\Core\Domain\User\Role;
+use Prospecter\Core\Domain\User\UserId;
 use Tests\Core\Double\SignedInUser;
-use Tests\Core\UseCase\Stub\StubNeedsRoleUseCaseImpl;
-use Tests\Core\UseCase\Stub\StubPublicUseCaseImpl;
+use Tests\Core\UseCase\Stub\StubNeedsRoleUseCase;
+use Tests\Core\UseCase\Stub\StubPublicUseCase;
 use Tests\Core\UseCase\Stub\StubUseCaseRequest;
 
 /**
@@ -23,8 +26,8 @@ class UseCasesFacadeTest extends TestCase
     protected function setUp(): void
     {
         $this->facade = new UseCasesFacade();
-        $this->facade->addUseCase(new StubPublicUseCaseImpl());
-        $this->facade->addUseCase(new StubNeedsRoleUseCaseImpl());
+        $this->facade->addUseCase(new StubPublicUseCase());
+        $this->facade->addUseCase(new StubNeedsRoleUseCase());
     }
 
     public function testUseCasesAreCalledByTheirNameWithoutImplSuffix(): void
@@ -36,7 +39,7 @@ class UseCasesFacadeTest extends TestCase
 
     public function testAnUnknownUseCaseCannotBeCalled(): void
     {
-        $this->expectExceptionObject(new \BadFunctionCallException('Call to undefined method Prospecter\Core\UseCase\UseCasesFacade::unknownUseCase()'));
+        $this->expectExceptionObject(new \BadFunctionCallException('Call to undefined method Prospecter\Core\Application\UseCasesFacade::unknownUseCase()'));
 
         $this->facade->unknownUseCase(new StubUseCaseRequest(), new \stdClass());
     }
@@ -57,17 +60,17 @@ class UseCasesFacadeTest extends TestCase
     {
         $this->expectException(UnauthorizedException::class);
 
-        $this->facade->stubNeedsRoleUseCase(new StubUseCaseRequest(), new \stdClass(), $this->userWith(['ROLE_USER']));
+        $this->facade->stubNeedsRoleUseCase(new StubUseCaseRequest(), new \stdClass(), $this->userWith(Role::User));
     }
 
     public function testAProtectedUseCaseIsOpenWithItsRole(): void
     {
-        $this->assertSame('executed', $this->facade->stubNeedsRoleUseCase(new StubUseCaseRequest(), new \stdClass(), $this->userWith(['SPECIFIC_ROLE']))->action);
+        $this->assertSame('executed', $this->facade->stubNeedsRoleUseCase(new StubUseCaseRequest(), new \stdClass(), $this->userWith(Role::Prospector))->action);
     }
 
     public function testAnAdministratorCanCallEveryUseCase(): void
     {
-        $this->assertSame('executed', $this->facade->stubNeedsRoleUseCase(new StubUseCaseRequest(), new \stdClass(), $this->userWith(['ROLE_ADMIN']))->action);
+        $this->assertSame('executed', $this->facade->stubNeedsRoleUseCase(new StubUseCaseRequest(), new \stdClass(), $this->userWith(Role::Admin))->action);
     }
 
     #[DataProvider('notAConsumer')]
@@ -83,18 +86,15 @@ class UseCasesFacadeTest extends TestCase
      */
     public static function notAConsumer(): iterable
     {
-        $expected = 'Argument 3 passed to stubPublicUseCase must be an instance of Prospecter\Core\UseCase\UseCaseConsumer, instance of %s given';
+        $expected = 'Argument 3 passed to stubPublicUseCase must be an instance of Prospecter\Core\Application\UseCaseConsumer, instance of %s given';
 
         yield 'another object' => [sprintf($expected, 'stdClass'), new \stdClass()];
         yield 'an array' => [sprintf($expected, 'array'), []];
         yield 'a string' => [sprintf($expected, 'string'), 'string'];
     }
 
-    /**
-     * @param list<string> $roles
-     */
-    private function userWith(array $roles): SignedInUser
+    private function userWith(Role $role): SignedInUser
     {
-        return new SignedInUser(1, 1, $roles);
+        return new SignedInUser(new UserId('0190a1c0-0000-7000-8000-000000000001'), new OrganizationId('0190a1c0-0000-7000-8000-000000000002'), $role);
     }
 }

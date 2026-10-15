@@ -2,7 +2,7 @@
 
 namespace App\Api\Input;
 
-use Prospecter\Core\Entity\Address;
+use Prospecter\Core\Domain\Organization\Address;
 use Symfony\Component\Validator\Constraints as Assert;
 
 final readonly class AddressInput
@@ -19,8 +19,10 @@ final readonly class AddressInput
     ) {
     }
 
-    public function toAddress(): Address
+    public function toAddress(): ?Address
     {
-        return new Address($this->street, $this->postalCode, $this->city, $this->country);
+        $address = new Address($this->street, $this->postalCode, $this->city, $this->country);
+
+        return $address->isEmpty() ? null : $address;
     }
 }

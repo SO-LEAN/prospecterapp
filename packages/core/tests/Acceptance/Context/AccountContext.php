@@ -9,9 +9,17 @@ use Behat\Gherkin\Node\TableNode;
 use Behat\Step\Given;
 use Behat\Step\Then;
 use Behat\Step\When;
-use Prospecter\Core\Entity\Organization;
-use Prospecter\Core\UseCase\GetMyAccountInformation\GetMyAccountInformationResponse;
-use Prospecter\Core\UseCase\UpdateMyAccountInformation\UpdateMyAccountInformationRequest;
+use Prospecter\Core\Application\Account\AccountResponse;
+use Prospecter\Core\Application\Account\ChangeMyContactDetailsRequest;
+use Prospecter\Core\Application\Account\ChangeMyNameRequest;
+use Prospecter\Core\Application\Account\ChangeMyOrganizationLogoRequest;
+use Prospecter\Core\Application\Account\ChangeMyPictureRequest;
+use Prospecter\Core\Application\Account\ChangeMyUserNameRequest;
+use Prospecter\Core\Application\Account\ReviseMyOrganizationIdentityRequest;
+use Prospecter\Core\Domain\Organization\LegalIdentity;
+use Prospecter\Core\Domain\Organization\Organization;
+use Prospecter\Core\Domain\Shared\ContactDetails;
+use Prospecter\Core\Domain\Shared\Email;
 use Tests\Core\Acceptance\Expect;
 use Tests\Core\Acceptance\Vocabulary;
 
@@ -19,61 +27,81 @@ final class AccountContext implements Context
 {
     use SharesTheScenario;
 
-    private ?GetMyAccountInformationResponse $account = null;
+    private ?AccountResponse $account = null;
 
     #[Given('mon profil est :')]
     public function myProfileIs(TableNode $table): void
     {
-        $profile = $table->getRowsHash();
+        $values = Vocabulary::values($table->getRowsHash());
         $me = $this->scenario->me();
-
-        $me->setFirstName($profile['prénom'] ?? null);
-        $me->setLastName($profile['nom'] ?? null);
-        $me->setEmail($profile['e-mail'] ?? null);
-        $me->setPhoneNumber($profile['téléphone'] ?? null);
-        $me->setLanguage($profile['langue'] ?? null);
-        $this->application->users->update((int) $me->getId(), $me);
+        $me->rename(Vocabulary::personName($values));
+        $me->changeContactDetails(Vocabulary::contactDetails($values));
+        $this->application->users->save($me);
     }
 
     #[Given('l\'organisation :name a l\'adresse e-mail :email')]
     public function anOrganizationHasTheEmail(string $name, string $email): void
     {
-        $organization = new Organization();
-        $organization->setCorporateName($name);
-        $organization->setEmail($email);
-        $this->application->organizations->create($organization);
+        $organization = Organization::usingProspecter($this->application->organizations->nextIdentity(), new LegalIdentity($name));
+        $organization->changeContactDetails(new ContactDetails(new Email($email)));
+        $this->scenario->save($name, $organization);
     }
 
     #[When('je consulte mon compte')]
     public function iConsultMyAccount(): void
     {
-        $this->account = $this->application->getMyAccountInformation();
+        $this->account = $this->application->consultMyAccount();
     }
 
-    #[When('je mets à jour mon compte avec :')]
-    public function iUpdateMyAccount(TableNode $table): void
+    #[When('je change mon nom :')]
+    public function iChangeMyName(TableNode $table): void
     {
-        $parameters = Vocabulary::parameters($table->getRowsHash(), Vocabulary::ACCOUNT);
-        $parameters['picture'] = $this->scenario->upload($parameters['picture']);
-        $parameters['organizationLogo'] = $this->scenario->upload($parameters['organizationLogo']);
-        $parameters['userName'] ??= $this->scenario->me()->getUserName();
+        $this->application->changeMyName(new ChangeMyNameRequest(Vocabulary::personName(Vocabulary::values($table->getRowsHash()))));
+    }
 
-        $this->application->updateMyAccountInformation(new UpdateMyAccountInformationRequest(...$parameters));
+    #[When('je change mon identifiant en :userName')]
+    public function iChangeMyUserName(string $userName): void
+    {
+        $this->application->changeMyUserName(new ChangeMyUserNameRequest($userName));
+    }
+
+    #[When('je change mes coordonnées :')]
+    public function iChangeMyContactDetails(TableNode $table): void
+    {
+        $this->application->changeMyContactDetails(new ChangeMyContactDetailsRequest(Vocabulary::contactDetails(Vocabulary::values($table->getRowsHash()))));
+    }
+
+    #[When('je change ma photo avec :fileName')]
+    public function iChangeMyPicture(string $fileName): void
+    {
+        $this->application->changeMyPicture(new ChangeMyPictureRequest($this->scenario->upload($fileName)));
+    }
+
+    #[When('je révise l\'identité de mon organisation :')]
+    public function iReviseMyOrganizationIdentity(TableNode $table): void
+    {
+        $this->application->reviseMyOrganizationIdentity(new ReviseMyOrganizationIdentityRequest(Vocabulary::legalIdentity(Vocabulary::values($table->getRowsHash()))));
+    }
+
+    #[When('je change le logo de mon organisation avec :fileName')]
+    public function iChangeMyOrganizationLogo(string $fileName): void
+    {
+        $this->application->changeMyOrganizationLogo(new ChangeMyOrganizationLogoRequest($this->scenario->upload($fileName)));
     }
 
     #[Then('je vois mon compte :')]
     public function iSeeMyAccount(TableNode $table): void
     {
         Expect::that(null !== $this->account, sprintf('My account was expected, got: %s', $this->application->refusal()?->getMessage()));
-        $expected = $table->getRowsHash();
+        $account = $this->account;
 
-        Expect::describes($expected, [
-            'identifiant' => $this->account->userName,
-            'prénom' => (string) $this->account->firstName,
-            'nom' => (string) $this->account->lastName,
-            'e-mail' => (string) $this->account->email,
-            'raison sociale de mon organisation' => (string) $this->account->organizationCorporateName,
-            'forme juridique de mon organisation' => (string) $this->account->organizationForm,
+        Expect::describes($table->getRowsHash(), [
+            'identifiant' => $account->userName,
+            'prénom' => (string) $account->name->firstName,
+            'nom' => (string) $account->name->lastName,
+            'e-mail' => (string) $account->contactDetails->email,
+            'raison sociale de mon organisation' => (string) $account->organizationIdentity->corporateName,
+            'forme juridique de mon organisation' => (string) $account->organizationIdentity->form,
         ]);
     }
 
@@ -81,11 +109,7 @@ final class AccountContext implements Context
     public function myAccountIsStoredWith(TableNode $table): void
     {
         $me = $this->scenario->me();
-        $expected = $table->getRowsHash();
 
-        Expect::describes(
-            $expected,
-            Vocabulary::describeAccount($me, $this->application->organizations->get($this->application->signedIn()->getOrganizationId())),
-        );
+        Expect::describes($table->getRowsHash(), Vocabulary::describeAccount($me, $this->application->organizations->get($me->organizationId())));
     }
 }

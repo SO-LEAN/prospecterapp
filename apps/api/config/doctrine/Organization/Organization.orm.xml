@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<doctrine-mapping xmlns="http://doctrine-project.org/schemas/orm/doctrine-mapping"
+                  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                  xsi:schemaLocation="http://doctrine-project.org/schemas/orm/doctrine-mapping https://www.doctrine-project.org/schemas/orm/doctrine-mapping.xsd">
+    <entity name="Prospecter\Core\Domain\Organization\Organization" table="organizations">
+        <indexes>
+            <index columns="owner_id"/>
+            <index columns="email"/>
+        </indexes>
+        <id name="id" type="guid">
+            <generator strategy="NONE"/>
+        </id>
+        <field name="ownerId" type="guid" nullable="true"/>
+        <field name="holdingId" type="guid" nullable="true"/>
+        <field name="corporateName" type="string" length="150" nullable="true"/>
+        <field name="form" type="string" length="50" nullable="true"/>
+        <field name="type" type="string" length="50" nullable="true"/>
+        <field name="email" type="string" length="255" nullable="true"/>
+        <field name="phoneNumber" type="string" length="255" nullable="true"/>
+        <field name="language" type="string" length="255" nullable="true"/>
+        <field name="addressStreet" type="string" length="255" nullable="true"/>
+        <field name="addressPostalCode" type="string" length="255" nullable="true"/>
+        <field name="addressCity" type="string" length="255" nullable="true"/>
+        <field name="addressCountry" type="string" length="255" nullable="true"/>
+        <field name="geoPointLongitude" type="float" nullable="true"/>
+        <field name="geoPointLatitude" type="float" nullable="true"/>
+        <field name="observations" type="string" length="255" nullable="true"/>
+        <field name="logoUrl" type="string" length="255" nullable="true"/>
+        <field name="logoExtension" type="string" length="255" nullable="true"/>
+        <field name="logoSize" type="integer" nullable="true"/>
+    </entity>
+</doctrine-mapping>

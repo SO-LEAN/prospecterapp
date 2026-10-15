@@ -38,7 +38,7 @@ export function UserMenu() {
   }
 
   const fullName =
-    [account?.firstName, account?.lastName].filter(Boolean).join(' ') || account?.userName || ''
+    [account?.name.firstName, account?.name.lastName].filter(Boolean).join(' ') || account?.userName || ''
 
   const signOut = async () => {
     queryClient.clear()
@@ -63,7 +63,9 @@ export function UserMenu() {
       <DropdownMenuContent align="end" className="w-60">
         <DropdownMenuLabel className="font-normal">
           <p className="truncate font-medium text-sm">{fullName}</p>
-          <p className="truncate text-muted-foreground text-xs">{account?.organization.corporateName}</p>
+          <p className="truncate text-muted-foreground text-xs">
+            {account?.organization.legalIdentity.corporateName}
+          </p>
         </DropdownMenuLabel>
         <DropdownMenuSeparator />
         <DropdownMenuItem asChild>

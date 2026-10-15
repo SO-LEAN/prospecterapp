@@ -5,52 +5,46 @@ namespace App\DataFixtures;
 use App\Auth\Passwords;
 use Doctrine\Bundle\FixturesBundle\Fixture;
 use Doctrine\Persistence\ObjectManager;
-use Prospecter\Core\Entity\Organization;
-use Prospecter\Core\Entity\User;
+use Prospecter\Core\Domain\Organization\LegalIdentity;
+use Prospecter\Core\Domain\Organization\Organization;
+use Prospecter\Core\Domain\Organization\OrganizationRepository;
+use Prospecter\Core\Domain\Shared\ContactDetails;
+use Prospecter\Core\Domain\Shared\Email;
+use Prospecter\Core\Domain\User\Role;
+use Prospecter\Core\Domain\User\User;
+use Prospecter\Core\Domain\User\UserRepository;
 
 class AppFixtures extends Fixture
 {
-    public function __construct(private readonly Passwords $passwords)
-    {
+    public function __construct(
+        private readonly OrganizationRepository $organizations,
+        private readonly UserRepository $users,
+        private readonly Passwords $passwords,
+    ) {
     }
 
     public function load(ObjectManager $manager): void
     {
-        $this->createProspectorOrganization($manager);
-        $this->createProspector($manager);
+        $soleanIt = $this->theOrganizationUsingProspecter();
+        $this->itsProspector($soleanIt);
     }
 
-    private function createProspectorOrganization(ObjectManager $manager): void
+    private function theOrganizationUsingProspecter(): Organization
     {
-        $org = new Organization();
+        $soleanIt = Organization::usingProspecter($this->organizations->nextIdentity(), new LegalIdentity('SOLEAN IT', 'SARL'));
+        $soleanIt->changeContactDetails(new ContactDetails(new Email('org@solean-it.io'), language: 'FR'));
+        $this->organizations->save($soleanIt);
+        $this->addReference('user-organization', $soleanIt);
 
-        $org->setEmail('org@solean-it.io');
-        $org->setCorporateName('SOLEAN IT');
-        $org->setForm('SARL');
-        $org->setLanguage('FR');
-
-        $manager->persist($org);
-        $manager->flush();
-
-        $this->addReference('user-organization', $org);
+        return $soleanIt;
     }
 
-    private function createProspector(ObjectManager $manager): void
+    private function itsProspector(Organization $organization): void
     {
-        $user = new User();
-        $org = $this->getReference('user-organization', Organization::class);
-
-        $user->setEmail('prospector@solean-it.io');
-        $user->setLanguage($org->getLanguage());
-        $user->setUserName('prospector');
-        $user->addRole('ROLE_PROSPECTOR');
-        $user->addRole('ROLE_USER');
-        $user->setOrganization($org);
-
-        $manager->persist($user);
-        $manager->flush();
-        $this->passwords->set($user->getId(), 'password');
-
-        $this->addReference('prospector-user', $user);
+        $prospector = User::register($this->users->nextIdentity(), $organization->id(), 'prospector', Role::User, Role::Prospector);
+        $prospector->changeContactDetails(new ContactDetails(new Email('prospector@solean-it.io'), language: 'FR'));
+        $this->users->save($prospector);
+        $this->passwords->set($prospector->id(), 'password');
+        $this->addReference('prospector-user', $prospector);
     }
 }

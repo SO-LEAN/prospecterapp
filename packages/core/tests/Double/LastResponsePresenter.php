@@ -4,18 +4,14 @@ declare(strict_types=1);
 
 namespace Tests\Core\Double;
 
-use Prospecter\Core\UseCase\CreateOrganization\CreateOrganizationPresenter;
-use Prospecter\Core\UseCase\FindMyOwnOrganizations\FindMyOwnOrganizationsPresenter;
-use Prospecter\Core\UseCase\GetMyAccountInformation\GetMyAccountInformationPresenter;
-use Prospecter\Core\UseCase\GetOrganization\GetOrganizationPresenter;
-use Prospecter\Core\UseCase\RemoveOrganizationLogo\RemoveOrganizationLogoPresenter;
-use Prospecter\Core\UseCase\UpdateMyAccountInformation\UpdateMyAccountInformationPresenter;
-use Prospecter\Core\UseCase\UpdateOrganization\UpdateOrganizationPresenter;
+use Prospecter\Core\Application\Account\AccountPresenter;
+use Prospecter\Core\Application\Organization\OrganizationPresenter;
+use Prospecter\Core\Application\Organization\SearchProspectedOrganizationsPresenter;
 
 /**
  * The output port of every use case: keeps what the use case presented, as a delivery would.
  */
-final class LastResponsePresenter implements CreateOrganizationPresenter, FindMyOwnOrganizationsPresenter, GetMyAccountInformationPresenter, GetOrganizationPresenter, RemoveOrganizationLogoPresenter, UpdateMyAccountInformationPresenter, UpdateOrganizationPresenter
+final class LastResponsePresenter implements AccountPresenter, OrganizationPresenter, SearchProspectedOrganizationsPresenter
 {
     private ?object $response = null;
 

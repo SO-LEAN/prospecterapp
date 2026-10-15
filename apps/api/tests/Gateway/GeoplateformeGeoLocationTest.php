@@ -4,7 +4,7 @@ namespace Tests\App\Gateway;
 
 use App\Gateway\GeoplateformeGeoLocation;
 use PHPUnit\Framework\TestCase;
-use Prospecter\Core\Entity\GeoPoint;
+use Prospecter\Core\Domain\Organization\GeoPoint;
 use Symfony\Component\HttpClient\MockHttpClient;
 use Symfony\Component\HttpClient\Response\JsonMockResponse;
 use Symfony\Component\HttpClient\Response\MockResponse;

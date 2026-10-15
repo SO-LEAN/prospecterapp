@@ -39,8 +39,8 @@ final class SetPasswordCommand extends Command
             return Command::INVALID;
         }
 
-        $this->passwords->set($user->getId(), $password);
-        $io->success(sprintf('Password of "%s" set.', $user->getUserName()));
+        $this->passwords->set($user->id(), $password);
+        $io->success(sprintf('Password of "%s" set.', $user->userName()));
 
         return Command::SUCCESS;
     }

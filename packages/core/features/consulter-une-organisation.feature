@@ -21,6 +21,7 @@ Fonctionnalité: Consulter une organisation
       | forme juridique | SAS               |
       | e-mail          | contact@acme.test |
       | ville           | Strasbourg        |
+      | position        | 7.75, 48.58       |
       | logo            | acme.png          |
 
   Scénario: Je consulte ma propre organisation et son nombre d'organisations actives

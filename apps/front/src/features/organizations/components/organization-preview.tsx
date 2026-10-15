@@ -10,7 +10,7 @@ import { Skeleton } from '@/shared/ui/skeleton'
 import { organizationQuery } from '../queries'
 import { OrganizationAvatar } from './organization-avatar'
 
-type Props = { id: number; name: string; logoUrl?: string | null }
+type Props = { id: string; name: string; logoUrl?: string | null }
 
 /**
  * Quick look at an organization (map popup). Loads the full organization, which also puts it in the
@@ -36,9 +36,9 @@ export function OrganizationPreview({ id, name, logoUrl }: Props) {
         <OrganizationAvatar name={name} logoUrl={logoUrl} className="size-10" />
         <div className="min-w-0">
           <p className="truncate font-medium">{name}</p>
-          {organization?.type && (
+          {organization?.legalIdentity.type && (
             <Badge variant="outline" className="mt-0.5">
-              {organization.type}
+              {organization.legalIdentity.type}
             </Badge>
           )}
         </div>
@@ -52,17 +52,20 @@ export function OrganizationPreview({ id, name, logoUrl }: Props) {
       ) : (
         <div className="space-y-1.5 text-sm">
           {place && <Line icon={<MapPin />}>{place}</Line>}
-          {organization?.email && (
+          {organization?.contactDetails.email && (
             <Line icon={<Mail />}>
-              <a href={`mailto:${organization.email}`} className="text-primary hover:underline">
-                {organization.email}
+              <a
+                href={`mailto:${organization.contactDetails.email}`}
+                className="text-primary hover:underline"
+              >
+                {organization.contactDetails.email}
               </a>
             </Line>
           )}
-          {organization?.phoneNumber && (
+          {organization?.contactDetails.phoneNumber && (
             <Line icon={<Phone />}>
-              <a href={`tel:${organization.phoneNumber}`} className="hover:underline">
-                {organization.phoneNumber}
+              <a href={`tel:${organization.contactDetails.phoneNumber}`} className="hover:underline">
+                {organization.contactDetails.phoneNumber}
               </a>
             </Line>
           )}

@@ -5,28 +5,27 @@ namespace App\Presenter;
 use App\Api\ImageResourceFactory;
 use App\Api\Resource\AccountOrganizationResource;
 use App\Api\Resource\AccountResource;
-use Prospecter\Core\UseCase\GetMyAccountInformation\GetMyAccountInformationPresenter;
-use Prospecter\Core\UseCase\GetMyAccountInformation\GetMyAccountInformationResponse;
+use App\Api\Resource\ContactDetailsResource;
+use App\Api\Resource\LegalIdentityResource;
+use App\Api\Resource\PersonNameResource;
+use Prospecter\Core\Application\Account\AccountPresenter;
+use Prospecter\Core\Application\Account\AccountResponse;
 
-final readonly class AccountResourcePresenter implements GetMyAccountInformationPresenter
+final readonly class AccountResourcePresenter implements AccountPresenter
 {
     public function __construct(private ImageResourceFactory $images)
     {
     }
 
-    public function present(GetMyAccountInformationResponse $response): AccountResource
+    public function present(AccountResponse $response): AccountResource
     {
         return new AccountResource(
             userName: $response->userName,
-            firstName: $response->firstName,
-            lastName: $response->lastName,
-            email: $response->email,
-            phoneNumber: $response->phoneNumber,
-            language: $response->language,
+            name: PersonNameResource::from($response->name),
+            contactDetails: ContactDetailsResource::from($response->contactDetails),
             picture: $this->images->create($response->picture?->url),
             organization: new AccountOrganizationResource(
-                $response->organizationCorporateName,
-                $response->organizationForm,
+                LegalIdentityResource::from($response->organizationIdentity),
                 $this->images->create($response->organizationLogo?->url),
             ),
         );

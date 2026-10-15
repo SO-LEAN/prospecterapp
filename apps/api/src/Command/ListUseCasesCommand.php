@@ -2,7 +2,7 @@
 
 namespace App\Command;
 
-use Prospecter\Core\UseCase\UseCasesFacade;
+use Prospecter\Core\Application\UseCasesFacade;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;

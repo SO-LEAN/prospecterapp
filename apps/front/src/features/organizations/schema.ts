@@ -1,91 +1,58 @@
-import type { Path } from 'react-hook-form'
 import { z } from 'zod'
+import { addressSchema, toAddress, toAddressValues } from '@/shared/forms/address'
+import {
+  contactDetailsSchema,
+  toContactDetails,
+  toContactDetailsValues,
+} from '@/shared/forms/contact-details'
+import { legalIdentitySchema, toLegalIdentity, toLegalIdentityValues } from '@/shared/forms/legal-identity'
+import { orNull, text } from '@/shared/forms/text'
 import { i18n } from '@/shared/i18n'
-import type { Organization, OrganizationInput } from './queries'
+import type { StartProspectingInput } from './queries'
 
-const text = (max: number) =>
-  z
-    .string()
-    .trim()
-    .max(max, { error: () => i18n.t('validation.max', { max }) })
-
-/** Same shape and constraints as the API (OrganizationInput) so most errors are caught before sending. */
-export const organizationSchema = z
+/** What is known when prospecting starts; the same rule as the API: a corporate name or an email. */
+export const startProspectingSchema = z
   .object({
-    corporateName: text(150),
-    form: text(50),
-    type: text(50),
-    email: z.union([z.literal(''), z.email({ error: () => i18n.t('validation.email') })]),
-    phoneNumber: text(255),
-    language: z.string().nullable(),
-    address: z.object({
-      street: text(255),
-      postalCode: text(255),
-      city: text(255),
-      country: z.string().nullable(),
-    }),
+    legalIdentity: legalIdentitySchema,
+    contactDetails: contactDetailsSchema,
+    address: addressSchema,
     observations: text(255),
   })
-  .refine((values) => values.corporateName !== '' || values.email !== '', {
-    path: ['corporateName'],
+  .refine((values) => values.legalIdentity.corporateName !== '' || values.contactDetails.email !== '', {
+    path: ['legalIdentity', 'corporateName'],
     error: () => i18n.t('organizations.validation.nameOrEmail'),
   })
 
-export type OrganizationFormValues = z.infer<typeof organizationSchema>
+export type StartProspectingValues = z.infer<typeof startProspectingSchema>
 
 /** Field paths, as the API reports them in its violations. */
-export const organizationFields = [
-  'corporateName',
-  'form',
-  'type',
-  'email',
-  'phoneNumber',
-  'language',
+export const startProspectingFields = [
+  'legalIdentity.corporateName',
+  'legalIdentity.form',
+  'legalIdentity.type',
+  'contactDetails.email',
+  'contactDetails.phoneNumber',
+  'contactDetails.language',
   'address.street',
   'address.postalCode',
   'address.city',
   'address.country',
   'observations',
-] as const satisfies readonly Path<OrganizationFormValues>[]
+] as const
 
-export type OrganizationField = (typeof organizationFields)[number]
+export type StartProspectingField = (typeof startProspectingFields)[number]
 
-export function toFormValues(organization?: Organization): OrganizationFormValues {
-  return {
-    corporateName: organization?.corporateName ?? '',
-    form: organization?.form ?? '',
-    type: organization?.type ?? '',
-    email: organization?.email ?? '',
-    phoneNumber: organization?.phoneNumber ?? '',
-    language: organization?.language ?? null,
-    address: {
-      street: organization?.address?.street ?? '',
-      postalCode: organization?.address?.postalCode ?? '',
-      city: organization?.address?.city ?? '',
-      country: organization?.address?.country ?? null,
-    },
-    observations: organization?.observations ?? '',
-  }
-}
+export const emptyStartProspecting = (): StartProspectingValues => ({
+  legalIdentity: toLegalIdentityValues({ corporateName: null, form: null, type: null }),
+  contactDetails: toContactDetailsValues({ email: null, phoneNumber: null, language: null }),
+  address: toAddressValues(null),
+  observations: '',
+})
 
-/** Empty strings become null: the API stores "not provided", not an empty value. */
-export function toInput(values: OrganizationFormValues, holdBy?: number | null): OrganizationInput {
-  const orNull = (value: string) => (value === '' ? null : value)
-
-  return {
-    corporateName: orNull(values.corporateName),
-    form: orNull(values.form),
-    type: orNull(values.type),
-    email: orNull(values.email),
-    phoneNumber: orNull(values.phoneNumber),
-    language: values.language,
-    address: {
-      street: orNull(values.address.street),
-      postalCode: orNull(values.address.postalCode),
-      city: orNull(values.address.city),
-      country: values.address.country,
-    },
-    observations: orNull(values.observations),
-    holdBy: holdBy ?? null,
-  }
-}
+export const toStartProspectingInput = (values: StartProspectingValues): StartProspectingInput => ({
+  legalIdentity: toLegalIdentity(values.legalIdentity),
+  contactDetails: toContactDetails(values.contactDetails),
+  address: toAddress(values.address),
+  observations: orNull(values.observations),
+  holdingId: null,
+})

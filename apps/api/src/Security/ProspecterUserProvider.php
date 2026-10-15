@@ -3,8 +3,8 @@
 namespace App\Security;
 
 use App\Entity\User;
-use Prospecter\Core\Entity\User as CoreUser;
-use Prospecter\Core\Gateway\Entity\UserGateway;
+use Prospecter\Core\Domain\User\User as CoreUser;
+use Prospecter\Core\Domain\User\UserRepository;
 use Symfony\Component\Security\Core\Exception\UnsupportedUserException;
 use Symfony\Component\Security\Core\Exception\UserNotFoundException;
 use Symfony\Component\Security\Core\User\UserInterface;
@@ -12,13 +12,13 @@ use Symfony\Component\Security\Core\User\UserProviderInterface;
 
 /**
  * Loads the signed-in user from its user name (the subject of the access token) straight from the
- * storage: authentication is infrastructure, it does not go through a use case.
+ * repository: authentication is infrastructure, it does not go through a use case.
  *
  * @implements UserProviderInterface<User>
  */
 final readonly class ProspecterUserProvider implements UserProviderInterface
 {
-    public function __construct(private UserGateway $users)
+    public function __construct(private UserRepository $users)
     {
     }
 
@@ -43,6 +43,6 @@ final readonly class ProspecterUserProvider implements UserProviderInterface
 
     public function find(string $userName): CoreUser
     {
-        return $this->users->findOneBy(['userName' => $userName]) ?? throw new UserNotFoundException('Bad credentials');
+        return $this->users->ofUserName($userName) ?? throw new UserNotFoundException('Bad credentials');
     }
 }

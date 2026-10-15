@@ -4,25 +4,7 @@
  */
 
 export interface paths {
-    "/api/me": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** Get my account and my organization */
-        get: operations["get_api_me_show"];
-        /** Replace my account information (a null password keeps the current one; changing the user name ends the session) */
-        put: operations["put_api_me_replace"];
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/me/organization-logo": {
+    "/api/me/contact-details": {
         parameters: {
             query?: never;
             header?: never;
@@ -31,12 +13,63 @@ export interface paths {
         };
         get?: never;
         put?: never;
-        /** Upload the logo of my organization (multipart, field "file") */
-        post: operations["post_api_me_upload_organization_logo"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        /** Change my email, phone number and language, nothing else changes */
+        patch: operations["patch_api_me_change_contact_details"];
+        trace?: never;
+    };
+    "/api/me/name": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        /** Change my first and last names, nothing else changes */
+        patch: operations["patch_api_me_change_name"];
+        trace?: never;
+    };
+    "/api/me/organization/logo": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Send the new logo of my organization (multipart, field "file") */
+        post: operations["post_api_me_change_organization_logo"];
         delete?: never;
         options?: never;
         head?: never;
         patch?: never;
+        trace?: never;
+    };
+    "/api/me/password": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        /** Change my password (a credential of the authentication module, not of the core) */
+        patch: operations["patch_api_me_change_password"];
         trace?: never;
     };
     "/api/me/picture": {
@@ -48,8 +81,59 @@ export interface paths {
         };
         get?: never;
         put?: never;
-        /** Upload my picture (multipart, field "file") */
-        post: operations["post_api_me_upload_picture"];
+        /** Send my new picture (multipart, field "file") */
+        post: operations["post_api_me_change_picture"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/me/user-name": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        /** Change my user name (the access token is bound to it: sign in again) */
+        patch: operations["patch_api_me_change_user_name"];
+        trace?: never;
+    };
+    "/api/me/organization/legal-identity": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        /** Revise the legal identity of my organization */
+        patch: operations["patch_api_me_revise_organization_identity"];
+        trace?: never;
+    };
+    "/api/me": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Consult my account and my organization */
+        get: operations["get_api_me_show"];
+        put?: never;
+        post?: never;
         delete?: never;
         options?: never;
         head?: never;
@@ -73,22 +157,39 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/api/organizations": {
+    "/api/organizations/{id}/holding": {
         parameters: {
             query?: never;
             header?: never;
             path?: never;
             cookie?: never;
         };
-        /** Find the organizations owned by my organization, by name or email */
-        get: operations["get_api_organizations_list"];
+        get?: never;
         put?: never;
-        /** Create an organization owned by my organization */
-        post: operations["post_api_organizations_create"];
+        post?: never;
+        /** Detach the organization from its holding */
+        delete: operations["delete_api_organizations_detach_from_holding"];
+        options?: never;
+        head?: never;
+        /** Attach the organization to a holding my organization prospects */
+        patch: operations["patch_api_organizations_attach_to_holding"];
+        trace?: never;
+    };
+    "/api/organizations/{id}/contact-details": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
         delete?: never;
         options?: never;
         head?: never;
-        patch?: never;
+        /** Change the email, phone number and language, nothing else changes */
+        patch: operations["patch_api_organizations_change_contact_details"];
         trace?: never;
     };
     "/api/organizations/{id}/logo": {
@@ -100,10 +201,62 @@ export interface paths {
         };
         get?: never;
         put?: never;
-        /** Upload the logo of an organization (multipart, field "file") */
-        post: operations["post_api_organizations_upload_logo"];
-        /** Remove the logo of an organization */
-        delete: operations["delete_api_organizations_delete_logo"];
+        /** Send a new logo (multipart, field "file"), stored as a new file */
+        post: operations["post_api_organizations_change_logo"];
+        /** Remove the logo of the organization */
+        delete: operations["delete_api_organizations_remove_logo"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/organizations/{id}/address": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        /** Move the organization to an address (located again); an empty address removes it */
+        patch: operations["patch_api_organizations_relocate"];
+        trace?: never;
+    };
+    "/api/organizations/{id}/legal-identity": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        /** Revise the legal identity (corporate name, form, type), nothing else changes */
+        patch: operations["patch_api_organizations_revise_legal_identity"];
+        trace?: never;
+    };
+    "/api/organizations": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Search the organizations my organization prospects, by corporate name or email */
+        get: operations["get_api_organizations_search"];
+        put?: never;
+        /** Start prospecting an organization, owned by my organization */
+        post: operations["post_api_organizations_start_prospecting"];
+        delete?: never;
         options?: never;
         head?: never;
         patch?: never;
@@ -116,10 +269,9 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        /** Get an organization */
+        /** Consult an organization: mine or one my organization prospects */
         get: operations["get_api_organizations_show"];
-        /** Replace an organization (fields left out are cleared, the logo is kept) */
-        put: operations["put_api_organizations_replace"];
+        put?: never;
         post?: never;
         delete?: never;
         options?: never;
@@ -127,33 +279,60 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/organizations/{id}/observations": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        /** Write the observations on the organization */
+        patch: operations["patch_api_organizations_write_observations"];
+        trace?: never;
+    };
 }
 export type webhooks = Record<string, never>;
 export interface components {
     schemas: {
-        AccountOrganizationInput: {
-            /** @default null */
-            corporateName: string | null;
-            /** @default null */
-            form: string | null;
-        };
-        AccountInput: {
-            /** @default  */
-            userName: string;
-            /** @default null */
-            password: string | null;
-            /** @default null */
-            firstName: string | null;
-            /** @default null */
-            lastName: string | null;
+        ContactDetailsInput: {
             /** @default null */
             email: string | null;
             /** @default null */
             phoneNumber: string | null;
             /** @default null */
             language: string | null;
+        };
+        PersonNameInput: {
             /** @default null */
-            organization: components["schemas"]["AccountOrganizationInput"] | null;
+            firstName: string | null;
+            /** @default null */
+            lastName: string | null;
+        };
+        PasswordInput: {
+            /** @default  */
+            password: string;
+        };
+        UserNameInput: {
+            /** @default  */
+            userName: string;
+        };
+        LegalIdentityInput: {
+            /** @default null */
+            corporateName: string | null;
+            /** @default null */
+            form: string | null;
+            /** @default null */
+            type: string | null;
+        };
+        HoldingInput: {
+            /** @default  */
+            holdingId: string;
         };
         AddressInput: {
             /** @default null */
@@ -165,48 +344,52 @@ export interface components {
             /** @default null */
             country: string | null;
         };
-        OrganizationInput: {
-            /** @default null */
-            corporateName: string | null;
-            /** @default null */
-            form: string | null;
-            /** @default null */
-            type: string | null;
-            /** @default null */
-            email: string | null;
-            /** @default null */
-            phoneNumber: string | null;
-            /** @default null */
-            language: string | null;
-            /** @default null */
-            address: components["schemas"]["AddressInput"] | null;
-            /** @default null */
-            observations: string | null;
-            /** @default null */
-            holdBy: number | null;
-        };
         OrganizationListQuery: {
             /** @default 1 */
             page: number;
             /** @default  */
             q: string;
         };
+        StartProspectingInput: {
+            legalIdentity?: components["schemas"]["LegalIdentityInput"];
+            contactDetails?: components["schemas"]["ContactDetailsInput"];
+            /** @default null */
+            address: components["schemas"]["AddressInput"] | null;
+            /** @default null */
+            observations: string | null;
+            /** @default null */
+            holdingId: string | null;
+        };
+        ObservationsInput: {
+            /** @default null */
+            observations: string | null;
+        };
+        PersonNameResource: {
+            firstName?: string | null;
+            lastName?: string | null;
+        };
+        ContactDetailsResource: {
+            email?: string | null;
+            phoneNumber?: string | null;
+            language?: string | null;
+        };
         ImageResource: {
             url: string;
             thumbnailUrl: string;
         };
-        AccountOrganizationResource: {
+        LegalIdentityResource: {
             corporateName?: string | null;
             form?: string | null;
+            type?: string | null;
+        };
+        AccountOrganizationResource: {
+            legalIdentity: components["schemas"]["LegalIdentityResource"];
             logo?: components["schemas"]["ImageResource"] | null;
         };
         AccountResource: {
             userName: string;
-            firstName?: string | null;
-            lastName?: string | null;
-            email?: string | null;
-            phoneNumber?: string | null;
-            language?: string | null;
+            name: components["schemas"]["PersonNameResource"];
+            contactDetails: components["schemas"]["ContactDetailsResource"];
             picture?: components["schemas"]["ImageResource"] | null;
             organization: components["schemas"]["AccountOrganizationResource"];
         };
@@ -230,7 +413,7 @@ export interface components {
             longitude: number;
         };
         OrganizationSummaryResource: {
-            id: number;
+            id: string;
             name: string;
             postalCode?: string | null;
             city?: string | null;
@@ -245,12 +428,6 @@ export interface components {
             };
             markers: components["schemas"]["OrganizationSummaryResource"][];
         };
-        OrganizationPageResource: {
-            items: components["schemas"]["OrganizationSummaryResource"][];
-            page: number;
-            totalPages: number;
-            totalItems: number;
-        };
         AddressResource: {
             street?: string | null;
             postalCode?: string | null;
@@ -258,18 +435,22 @@ export interface components {
             country?: string | null;
         };
         OrganizationResource: {
-            id: number;
-            corporateName?: string | null;
-            form?: string | null;
-            type?: string | null;
-            email?: string | null;
-            phoneNumber?: string | null;
-            language?: string | null;
+            id: string;
+            name: string;
+            legalIdentity: components["schemas"]["LegalIdentityResource"];
+            contactDetails: components["schemas"]["ContactDetailsResource"];
             address?: components["schemas"]["AddressResource"] | null;
             location?: components["schemas"]["LocationResource"] | null;
             observations?: string | null;
             logo?: components["schemas"]["ImageResource"] | null;
-            holdBy?: number | null;
+            holdingId?: string | null;
+            activeOrganizations: number;
+        };
+        OrganizationPageResource: {
+            items: components["schemas"]["OrganizationSummaryResource"][];
+            page: number;
+            totalPages: number;
+            totalItems: number;
         };
     };
     responses: never;
@@ -280,6 +461,290 @@ export interface components {
 }
 export type $defs = Record<string, never>;
 export interface operations {
+    patch_api_me_change_contact_details: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ContactDetailsInput"];
+            };
+        };
+        responses: {
+            /** @description My account */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AccountResource"];
+                };
+            };
+            /** @description Missing or invalid access token */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Invalid contact details or email already used */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ProblemResource"];
+                };
+            };
+        };
+    };
+    patch_api_me_change_name: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["PersonNameInput"];
+            };
+        };
+        responses: {
+            /** @description My account */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AccountResource"];
+                };
+            };
+            /** @description Missing or invalid access token */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Invalid name */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ProblemResource"];
+                };
+            };
+        };
+    };
+    post_api_me_change_organization_logo: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: {
+            content: {
+                "multipart/form-data": {
+                    /** Format: binary */
+                    file?: string;
+                };
+            };
+        };
+        responses: {
+            /** @description My account */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AccountResource"];
+                };
+            };
+            /** @description Missing or invalid access token */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Invalid image */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ProblemResource"];
+                };
+            };
+        };
+    };
+    patch_api_me_change_password: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["PasswordInput"];
+            };
+        };
+        responses: {
+            /** @description Password changed */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Missing or invalid access token */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Password too short */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ProblemResource"];
+                };
+            };
+        };
+    };
+    post_api_me_change_picture: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: {
+            content: {
+                "multipart/form-data": {
+                    /** Format: binary */
+                    file?: string;
+                };
+            };
+        };
+        responses: {
+            /** @description My account */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AccountResource"];
+                };
+            };
+            /** @description Missing or invalid access token */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Invalid image */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ProblemResource"];
+                };
+            };
+        };
+    };
+    patch_api_me_change_user_name: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["UserNameInput"];
+            };
+        };
+        responses: {
+            /** @description My account */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AccountResource"];
+                };
+            };
+            /** @description Missing or invalid access token */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Missing or invalid user name */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ProblemResource"];
+                };
+            };
+        };
+    };
+    patch_api_me_revise_organization_identity: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["LegalIdentityInput"];
+            };
+        };
+        responses: {
+            /** @description My account */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AccountResource"];
+                };
+            };
+            /** @description Missing or invalid access token */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Invalid identity */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ProblemResource"];
+                };
+            };
+        };
+    };
     get_api_me_show: {
         parameters: {
             query?: never;
@@ -304,132 +769,6 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content?: never;
-            };
-        };
-    };
-    put_api_me_replace: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["AccountInput"];
-            };
-        };
-        responses: {
-            /** @description My updated account */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["AccountResource"];
-                };
-            };
-            /** @description Missing or invalid access token */
-            401: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Invalid account */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ProblemResource"];
-                };
-            };
-        };
-    };
-    post_api_me_upload_organization_logo: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: {
-            content: {
-                "multipart/form-data": {
-                    /** Format: binary */
-                    file?: string;
-                };
-            };
-        };
-        responses: {
-            /** @description My account with the new logo of my organization */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["AccountResource"];
-                };
-            };
-            /** @description Missing or invalid access token */
-            401: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Invalid image */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ProblemResource"];
-                };
-            };
-        };
-    };
-    post_api_me_upload_picture: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: {
-            content: {
-                "multipart/form-data": {
-                    /** Format: binary */
-                    file?: string;
-                };
-            };
-        };
-        responses: {
-            /** @description My account with its new picture */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["AccountResource"];
-                };
-            };
-            /** @description Missing or invalid access token */
-            401: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Invalid image */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ProblemResource"];
-                };
             };
         };
     };
@@ -460,51 +799,19 @@ export interface operations {
             };
         };
     };
-    get_api_organizations_list: {
+    delete_api_organizations_detach_from_holding: {
         parameters: {
-            query?: {
-                page?: number;
-                q?: string;
-            };
+            query?: never;
             header?: never;
-            path?: never;
+            path: {
+                id: string;
+            };
             cookie?: never;
         };
         requestBody?: never;
         responses: {
-            /** @description A page of organizations, most recent first */
+            /** @description The organization without holding */
             200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["OrganizationPageResource"];
-                };
-            };
-            /** @description Missing or invalid access token */
-            401: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    post_api_organizations_create: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["OrganizationInput"];
-            };
-        };
-        responses: {
-            /** @description The created organization */
-            201: {
                 headers: {
                     [name: string]: unknown;
                 };
@@ -519,7 +826,58 @@ export interface operations {
                 };
                 content?: never;
             };
-            /** @description Invalid organization */
+            /** @description Unknown organization, or one that is not prospected by mine */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ProblemResource"];
+                };
+            };
+        };
+    };
+    patch_api_organizations_attach_to_holding: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["HoldingInput"];
+            };
+        };
+        responses: {
+            /** @description The organization in its holding */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["OrganizationResource"];
+                };
+            };
+            /** @description Missing or invalid access token */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Unknown organization, or one that is not prospected by mine */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ProblemResource"];
+                };
+            };
+            /** @description Invalid holding id */
             422: {
                 headers: {
                     [name: string]: unknown;
@@ -530,7 +888,58 @@ export interface operations {
             };
         };
     };
-    post_api_organizations_upload_logo: {
+    patch_api_organizations_change_contact_details: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ContactDetailsInput"];
+            };
+        };
+        responses: {
+            /** @description The organization with its new contact details */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["OrganizationResource"];
+                };
+            };
+            /** @description Missing or invalid access token */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Unknown organization, or one that is not prospected by mine */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ProblemResource"];
+                };
+            };
+            /** @description Invalid contact details, email already used, or neither corporate name nor email left */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ProblemResource"];
+                };
+            };
+        };
+    };
+    post_api_organizations_change_logo: {
         parameters: {
             query?: never;
             header?: never;
@@ -584,7 +993,7 @@ export interface operations {
             };
         };
     };
-    delete_api_organizations_delete_logo: {
+    delete_api_organizations_remove_logo: {
         parameters: {
             query?: never;
             header?: never;
@@ -621,6 +1030,187 @@ export interface operations {
                 };
             };
             /** @description The organization has no logo */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ProblemResource"];
+                };
+            };
+        };
+    };
+    patch_api_organizations_relocate: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["AddressInput"];
+            };
+        };
+        responses: {
+            /** @description The organization at its new address */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["OrganizationResource"];
+                };
+            };
+            /** @description Missing or invalid access token */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Unknown organization, or one that is not prospected by mine */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ProblemResource"];
+                };
+            };
+            /** @description Invalid address */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ProblemResource"];
+                };
+            };
+        };
+    };
+    patch_api_organizations_revise_legal_identity: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["LegalIdentityInput"];
+            };
+        };
+        responses: {
+            /** @description The organization with its new identity */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["OrganizationResource"];
+                };
+            };
+            /** @description Missing or invalid access token */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Unknown organization, or one that is not prospected by mine */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ProblemResource"];
+                };
+            };
+            /** @description Invalid identity, or neither corporate name nor email left */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ProblemResource"];
+                };
+            };
+        };
+    };
+    get_api_organizations_search: {
+        parameters: {
+            query?: {
+                page?: number;
+                q?: string;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description A page of organizations, most recent first */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["OrganizationPageResource"];
+                };
+            };
+            /** @description Missing or invalid access token */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    post_api_organizations_start_prospecting: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["StartProspectingInput"];
+            };
+        };
+        responses: {
+            /** @description The organization now prospected */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["OrganizationResource"];
+                };
+            };
+            /** @description Missing or invalid access token */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Unknown holding, or one that is not prospected by mine */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ProblemResource"];
+                };
+            };
+            /** @description Invalid organization, email already used, or neither corporate name nor email */
             422: {
                 headers: {
                     [name: string]: unknown;
@@ -669,7 +1259,7 @@ export interface operations {
             };
         };
     };
-    put_api_organizations_replace: {
+    patch_api_organizations_write_observations: {
         parameters: {
             query?: never;
             header?: never;
@@ -680,11 +1270,11 @@ export interface operations {
         };
         requestBody: {
             content: {
-                "application/json": components["schemas"]["OrganizationInput"];
+                "application/json": components["schemas"]["ObservationsInput"];
             };
         };
         responses: {
-            /** @description The updated organization */
+            /** @description The organization with its observations */
             200: {
                 headers: {
                     [name: string]: unknown;
@@ -709,7 +1299,7 @@ export interface operations {
                     "application/json": components["schemas"]["ProblemResource"];
                 };
             };
-            /** @description Invalid organization */
+            /** @description Observations too long */
             422: {
                 headers: {
                     [name: string]: unknown;

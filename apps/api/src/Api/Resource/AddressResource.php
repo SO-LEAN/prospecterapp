@@ -2,7 +2,7 @@
 
 namespace App\Api\Resource;
 
-use Prospecter\Core\Entity\Address;
+use Prospecter\Core\Domain\Organization\Address;
 
 final readonly class AddressResource
 {

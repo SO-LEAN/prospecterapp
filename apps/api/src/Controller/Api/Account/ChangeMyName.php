@@ -1,0 +1,38 @@
+<?php
+
+namespace App\Controller\Api\Account;
+
+use App\Api\Input\PersonNameInput;
+use App\Api\Resource\AccountResource;
+use App\Api\Resource\ProblemResource;
+use App\Entity\User;
+use App\Presenter\AccountResourcePresenter;
+use Nelmio\ApiDocBundle\Attribute\Model;
+use OpenApi\Attributes as OA;
+use Prospecter\Core\Application\Account\ChangeMyNameRequest;
+use Prospecter\Core\Application\UseCasesFacade;
+use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\HttpFoundation\JsonResponse;
+use Symfony\Component\HttpKernel\Attribute\MapRequestPayload;
+use Symfony\Component\Routing\Attribute\Route;
+use Symfony\Component\Security\Http\Attribute\CurrentUser;
+
+#[OA\Tag('My account')]
+final class ChangeMyName extends AbstractController
+{
+    public function __construct(
+        private readonly UseCasesFacade $useCases,
+        private readonly AccountResourcePresenter $presenter,
+    ) {
+    }
+
+    #[Route('/api/me/name', name: 'api_me_change_name', methods: ['PATCH'])]
+    #[OA\Patch(summary: 'Change my first and last names, nothing else changes')]
+    #[OA\Response(response: 200, description: 'My account', content: new Model(type: AccountResource::class))]
+    #[OA\Response(response: 401, description: 'Missing or invalid access token')]
+    #[OA\Response(response: 422, description: 'Invalid name', content: new Model(type: ProblemResource::class))]
+    public function __invoke(#[MapRequestPayload] PersonNameInput $input, #[CurrentUser] User $user): JsonResponse
+    {
+        return $this->json($this->useCases->changeMyName(new ChangeMyNameRequest($input->toPersonName()), $this->presenter, $user));
+    }
+}

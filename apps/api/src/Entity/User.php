@@ -2,8 +2,11 @@
 
 namespace App\Entity;
 
-use Prospecter\Core\Entity\User as CoreUser;
-use Prospecter\Core\UseCase\UseCaseConsumer;
+use Prospecter\Core\Application\UseCaseConsumer;
+use Prospecter\Core\Domain\Organization\OrganizationId;
+use Prospecter\Core\Domain\User\Role;
+use Prospecter\Core\Domain\User\User as CoreUser;
+use Prospecter\Core\Domain\User\UserId;
 use Symfony\Component\Security\Core\User\UserInterface;
 
 /**
@@ -15,16 +18,21 @@ final readonly class User implements UserInterface, UseCaseConsumer
      * @param list<string> $roles
      */
     public function __construct(
-        private int $id,
+        private string $id,
         private string $userName,
-        private int $organizationId,
+        private string $organizationId,
         private array $roles,
     ) {
     }
 
     public static function from(CoreUser $user): self
     {
-        return new self((int) $user->getId(), $user->getUserName(), (int) $user->getOrganization()->getId(), $user->getRoles());
+        return new self(
+            $user->id()->value,
+            $user->userName(),
+            $user->organizationId()->value,
+            array_map(static fn (Role $role): string => $role->value, $user->roles()),
+        );
     }
 
     public function getRoles(): array
@@ -37,13 +45,13 @@ final readonly class User implements UserInterface, UseCaseConsumer
         return $this->userName;
     }
 
-    public function getOrganizationId(): int
+    public function getUserId(): UserId
     {
-        return $this->organizationId;
+        return new UserId($this->id);
     }
 
-    public function getUserId(): int
+    public function getOrganizationId(): OrganizationId
     {
-        return $this->id;
+        return new OrganizationId($this->organizationId);
     }
 }

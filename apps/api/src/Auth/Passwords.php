@@ -3,6 +3,7 @@
 namespace App\Auth;
 
 use Doctrine\ORM\EntityManagerInterface;
+use Prospecter\Core\Domain\User\UserId;
 use Symfony\Component\PasswordHasher\Hasher\PasswordHasherFactoryInterface;
 use Symfony\Component\PasswordHasher\PasswordHasherInterface;
 
@@ -17,23 +18,23 @@ final readonly class Passwords
     ) {
     }
 
-    public function set(int $userId, string $password): void
+    public function set(UserId $userId, string $password): void
     {
         $hash = $this->hasher()->hash($password);
-        $credentials = $this->entityManager->find(Credentials::class, $userId);
+        $credentials = $this->entityManager->find(Credentials::class, $userId->value);
 
         if ($credentials) {
             $credentials->changePasswordHash($hash);
         } else {
-            $this->entityManager->persist(new Credentials($userId, $hash));
+            $this->entityManager->persist(new Credentials($userId->value, $hash));
         }
 
         $this->entityManager->flush();
     }
 
-    public function verify(int $userId, string $password): bool
+    public function verify(UserId $userId, string $password): bool
     {
-        $credentials = $this->entityManager->find(Credentials::class, $userId);
+        $credentials = $this->entityManager->find(Credentials::class, $userId->value);
 
         if (!$credentials || !$this->hasher()->verify($credentials->passwordHash(), $password)) {
             return false;
@@ -47,7 +48,7 @@ final readonly class Passwords
     private function upgradeHashIfOutdated(Credentials $credentials, string $password): void
     {
         if ($this->hasher()->needsRehash($credentials->passwordHash())) {
-            $this->set($credentials->userId(), $password);
+            $this->set(new UserId($credentials->userId()), $password);
         }
     }
 

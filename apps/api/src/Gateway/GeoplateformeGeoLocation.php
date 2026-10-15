@@ -2,8 +2,8 @@
 
 namespace App\Gateway;
 
-use Prospecter\Core\Entity\GeoPoint;
-use Prospecter\Core\Gateway\GeoLocation;
+use Prospecter\Core\Application\Port\GeoLocation;
+use Prospecter\Core\Domain\Organization\GeoPoint;
 use Symfony\Component\DependencyInjection\Attribute\Autowire;
 use Symfony\Contracts\HttpClient\Exception\ExceptionInterface;
 use Symfony\Contracts\HttpClient\HttpClientInterface;

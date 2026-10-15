@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<doctrine-mapping xmlns="http://doctrine-project.org/schemas/orm/doctrine-mapping"
+                  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                  xsi:schemaLocation="http://doctrine-project.org/schemas/orm/doctrine-mapping https://www.doctrine-project.org/schemas/orm/doctrine-mapping.xsd">
+    <entity name="Prospecter\Core\Domain\User\User" table="users">
+        <unique-constraints>
+            <unique-constraint columns="user_name"/>
+        </unique-constraints>
+        <indexes>
+            <index columns="email"/>
+        </indexes>
+        <id name="id" type="guid">
+            <generator strategy="NONE"/>
+        </id>
+        <field name="organizationId" type="guid"/>
+        <field name="userName" type="string" length="50"/>
+        <field name="roles" type="json"/>
+        <field name="firstName" type="string" length="100" nullable="true"/>
+        <field name="lastName" type="string" length="100" nullable="true"/>
+        <field name="email" type="string" length="255" nullable="true"/>
+        <field name="phoneNumber" type="string" length="255" nullable="true"/>
+        <field name="language" type="string" length="255" nullable="true"/>
+        <field name="pictureUrl" type="string" length="255" nullable="true"/>
+        <field name="pictureExtension" type="string" length="255" nullable="true"/>
+        <field name="pictureSize" type="integer" nullable="true"/>
+    </entity>
+</doctrine-mapping>

@@ -4,7 +4,7 @@ namespace Tests\App\Api;
 
 use App\Auth\Passwords;
 use PHPUnit\Framework\Attributes\Group;
-use Prospecter\Core\Entity\User;
+use Prospecter\Core\Domain\User\User;
 use Tests\App\Base\ApiTestCase;
 
 #[Group('api')]
@@ -16,64 +16,65 @@ class AccountApiTest extends ApiTestCase
         $this->login();
     }
 
-    public function testShowMyAccount(): void
+    public function testConsultMyAccount(): void
     {
         $account = $this->requestJson('GET', '/api/me');
 
         $this->assertResponseIsSuccessful();
         $this->assertSame('prospector', $account['userName']);
-        $this->assertSame('SOLEAN IT', $account['organization']['corporateName']);
+        $this->assertSame('prospector@solean-it.io', $account['contactDetails']['email']);
+        $this->assertSame('SOLEAN IT', $account['organization']['legalIdentity']['corporateName']);
     }
 
-    public function testReplaceMyAccount(): void
+    public function testEachIntentionChangesOnlyItsPart(): void
     {
-        $account = $this->requestJson('PUT', '/api/me', [
-            'userName' => 'prospector',
-            'firstName' => 'Ada',
-            'lastName' => 'Lovelace',
-            'email' => 'ada@solean-it.io',
-            'organization' => ['corporateName' => 'SOLEAN'],
-        ]);
-
+        $named = $this->requestJson('PATCH', '/api/me/name', ['firstName' => 'Ada', 'lastName' => 'Lovelace']);
         $this->assertResponseIsSuccessful();
-        $this->assertSame('Ada', $account['firstName']);
-        $this->assertSame('SOLEAN', $account['organization']['corporateName']);
+        $this->assertSame(['firstName' => 'Ada', 'lastName' => 'Lovelace'], $named['name']);
+        $this->assertSame('prospector@solean-it.io', $named['contactDetails']['email']);
+
+        $contacted = $this->requestJson('PATCH', '/api/me/contact-details', ['email' => 'ada@solean-it.io', 'phoneNumber' => null, 'language' => 'FR']);
+        $this->assertSame('ada@solean-it.io', $contacted['contactDetails']['email']);
+        $this->assertSame('Ada', $contacted['name']['firstName']);
+
+        $revised = $this->requestJson('PATCH', '/api/me/organization/legal-identity', ['corporateName' => 'SO-LEAN', 'form' => 'SARL', 'type' => null]);
+        $this->assertSame('SO-LEAN', $revised['organization']['legalIdentity']['corporateName']);
+    }
+
+    public function testChangeMyUserName(): void
+    {
+        $this->assertSame('ada', $this->requestJson('PATCH', '/api/me/user-name', ['userName' => 'ada'])['userName']);
+    }
+
+    public function testAUserNameIsRequired(): void
+    {
+        $problem = $this->requestJson('PATCH', '/api/me/user-name', ['userName' => '']);
+
+        $this->assertResponseStatusCodeSame(422);
+        $this->assertSame(['userName'], $this->violatedFields($problem));
+    }
+
+    public function testChangeMyPictureAndMyOrganizationLogo(): void
+    {
+        $this->assertStringEndsWith('.png', $this->uploadImage('/api/me/picture')['picture']['url']);
+        $this->assertStringEndsWith('.png', $this->uploadImage('/api/me/organization/logo')['organization']['logo']['url']);
     }
 
     public function testChangeMyPassword(): void
     {
-        $this->requestJson('PUT', '/api/me', ['userName' => 'prospector', 'password' => 'a new password']);
+        $this->requestJson('PATCH', '/api/me/password', ['password' => 'a new password']);
 
-        $this->assertResponseIsSuccessful();
+        $this->assertResponseStatusCodeSame(204);
         $passwords = self::getContainer()->get(Passwords::class);
-        $userId = $this->fixtures->getReference('prospector-user', User::class)->getId();
-        $this->assertTrue($passwords->verify($userId, 'a new password'));
-        $this->assertFalse($passwords->verify($userId, 'password'), 'the old password no longer signs in');
+        $me = $this->fixtures->getReference('prospector-user', User::class);
+        $this->assertTrue($passwords->verify($me->id(), 'a new password'));
+        $this->assertFalse($passwords->verify($me->id(), 'password'), 'the old password no longer signs in');
     }
 
-    public function testLeavingThePasswordOutKeepsIt(): void
+    public function testAPasswordIsLongEnough(): void
     {
-        $this->requestJson('PUT', '/api/me', ['userName' => 'prospector', 'firstName' => 'Ada']);
-
-        $this->assertResponseIsSuccessful();
-        $userId = $this->fixtures->getReference('prospector-user', User::class)->getId();
-        $this->assertTrue(self::getContainer()->get(Passwords::class)->verify($userId, 'password'));
-    }
-
-    public function testUploadMyPictureKeepsMyInformation(): void
-    {
-        $account = $this->uploadImage('/api/me/picture');
-
-        $this->assertResponseIsSuccessful();
-        $this->assertStringEndsWith('.png', $account['picture']['url']);
-        $this->assertSame('prospector@solean-it.io', $account['email']);
-    }
-
-    public function testUserNameIsRequired(): void
-    {
-        $problem = $this->requestJson('PUT', '/api/me', ['userName' => '']);
+        $this->requestJson('PATCH', '/api/me/password', ['password' => 'short']);
 
         $this->assertResponseStatusCodeSame(422);
-        $this->assertSame(['userName'], $this->violatedFields($problem));
     }
 }

@@ -4,65 +4,77 @@ declare(strict_types=1);
 
 namespace Tests\Core\Acceptance;
 
-use Prospecter\Core\Exception\UseCase\UseCaseException;
-use Prospecter\Core\UseCase\CreateOrganization\CreateOrganizationImpl;
-use Prospecter\Core\UseCase\CreateOrganization\CreateOrganizationRequest;
-use Prospecter\Core\UseCase\CreateOrganization\CreateOrganizationResponse;
-use Prospecter\Core\UseCase\FindMyOwnOrganizations\FindMyOwnOrganizationsImpl;
-use Prospecter\Core\UseCase\FindMyOwnOrganizations\FindMyOwnOrganizationsRequest;
-use Prospecter\Core\UseCase\FindMyOwnOrganizations\FindMyOwnOrganizationsResponse;
-use Prospecter\Core\UseCase\GetMyAccountInformation\GetMyAccountInformationImpl;
-use Prospecter\Core\UseCase\GetMyAccountInformation\GetMyAccountInformationRequest;
-use Prospecter\Core\UseCase\GetMyAccountInformation\GetMyAccountInformationResponse;
-use Prospecter\Core\UseCase\GetOrganization\GetOrganizationImpl;
-use Prospecter\Core\UseCase\GetOrganization\GetOrganizationRequest;
-use Prospecter\Core\UseCase\GetOrganization\GetOrganizationResponse;
-use Prospecter\Core\UseCase\RemoveOrganizationLogo\RemoveOrganizationLogoImpl;
-use Prospecter\Core\UseCase\RemoveOrganizationLogo\RemoveOrganizationLogoRequest;
-use Prospecter\Core\UseCase\RemoveOrganizationLogo\RemoveOrganizationLogoResponse;
-use Prospecter\Core\UseCase\UpdateMyAccountInformation\UpdateMyAccountInformationImpl;
-use Prospecter\Core\UseCase\UpdateMyAccountInformation\UpdateMyAccountInformationRequest;
-use Prospecter\Core\UseCase\UpdateMyAccountInformation\UpdateMyAccountInformationResponse;
-use Prospecter\Core\UseCase\UpdateOrganization\UpdateOrganizationImpl;
-use Prospecter\Core\UseCase\UpdateOrganization\UpdateOrganizationRequest;
-use Prospecter\Core\UseCase\UpdateOrganization\UpdateOrganizationResponse;
-use Tests\Core\Double\CollectedNotifications;
+use Prospecter\Core\Application\Account\AccountResponse;
+use Prospecter\Core\Application\Account\ChangeMyContactDetails;
+use Prospecter\Core\Application\Account\ChangeMyContactDetailsRequest;
+use Prospecter\Core\Application\Account\ChangeMyName;
+use Prospecter\Core\Application\Account\ChangeMyNameRequest;
+use Prospecter\Core\Application\Account\ChangeMyOrganizationLogo;
+use Prospecter\Core\Application\Account\ChangeMyOrganizationLogoRequest;
+use Prospecter\Core\Application\Account\ChangeMyPicture;
+use Prospecter\Core\Application\Account\ChangeMyPictureRequest;
+use Prospecter\Core\Application\Account\ChangeMyUserName;
+use Prospecter\Core\Application\Account\ChangeMyUserNameRequest;
+use Prospecter\Core\Application\Account\ConsultMyAccount;
+use Prospecter\Core\Application\Account\ConsultMyAccountRequest;
+use Prospecter\Core\Application\Account\ReviseMyOrganizationIdentity;
+use Prospecter\Core\Application\Account\ReviseMyOrganizationIdentityRequest;
+use Prospecter\Core\Application\Exception\UseCaseException;
+use Prospecter\Core\Application\Organization\AttachToHolding;
+use Prospecter\Core\Application\Organization\AttachToHoldingRequest;
+use Prospecter\Core\Application\Organization\ChangeContactDetails;
+use Prospecter\Core\Application\Organization\ChangeContactDetailsRequest;
+use Prospecter\Core\Application\Organization\ChangeLogo;
+use Prospecter\Core\Application\Organization\ChangeLogoRequest;
+use Prospecter\Core\Application\Organization\ConsultOrganization;
+use Prospecter\Core\Application\Organization\ConsultOrganizationRequest;
+use Prospecter\Core\Application\Organization\DetachFromHolding;
+use Prospecter\Core\Application\Organization\DetachFromHoldingRequest;
+use Prospecter\Core\Application\Organization\OrganizationResponse;
+use Prospecter\Core\Application\Organization\Relocate;
+use Prospecter\Core\Application\Organization\RelocateRequest;
+use Prospecter\Core\Application\Organization\RemoveLogo;
+use Prospecter\Core\Application\Organization\RemoveLogoRequest;
+use Prospecter\Core\Application\Organization\ReviseLegalIdentity;
+use Prospecter\Core\Application\Organization\ReviseLegalIdentityRequest;
+use Prospecter\Core\Application\Organization\SearchProspectedOrganizations;
+use Prospecter\Core\Application\Organization\SearchProspectedOrganizationsRequest;
+use Prospecter\Core\Application\Organization\SearchProspectedOrganizationsResponse;
+use Prospecter\Core\Application\Organization\StartProspecting;
+use Prospecter\Core\Application\Organization\StartProspectingRequest;
+use Prospecter\Core\Application\Organization\WriteObservations;
+use Prospecter\Core\Application\Organization\WriteObservationsRequest;
+use Prospecter\Core\Domain\Shared\BusinessRuleViolation;
 use Tests\Core\Double\InMemoryDatabase;
-use Tests\Core\Double\InMemoryOrganizationGateway;
+use Tests\Core\Double\InMemoryOrganizationRepository;
 use Tests\Core\Double\InMemoryStorage;
-use Tests\Core\Double\InMemoryTransaction;
-use Tests\Core\Double\InMemoryUserGateway;
+use Tests\Core\Double\InMemoryUserRepository;
 use Tests\Core\Double\KnownPlacesGeoLocation;
 use Tests\Core\Double\LastResponsePresenter;
 use Tests\Core\Double\SignedInUser;
 
 /**
  * The hexagon as the scenarios use it: the real use cases, wired to in-memory implementations of their
- * ports, called the way a delivery calls them. It is the only place that knows how a use case is
- * invoked (today `execute()`, tomorrow a command sent to a bus).
+ * ports, called the way a delivery calls them. It is the only place that knows how a use case is invoked
+ * (today execute(), tomorrow a command sent to a bus).
  */
 final class Application
 {
-    public readonly InMemoryDatabase $database;
-    public readonly InMemoryOrganizationGateway $organizations;
-    public readonly InMemoryUserGateway $users;
+    public readonly InMemoryOrganizationRepository $organizations;
+    public readonly InMemoryUserRepository $users;
     public readonly InMemoryStorage $storage;
     public readonly KnownPlacesGeoLocation $geoLocation;
-    public readonly CollectedNotifications $notifications;
-    private readonly InMemoryTransaction $transaction;
 
     private ?SignedInUser $signedIn = null;
-    private ?UseCaseException $refusal = null;
+    private UseCaseException|BusinessRuleViolation|null $refusal = null;
 
     public function __construct()
     {
-        $this->database = new InMemoryDatabase();
-        $this->organizations = new InMemoryOrganizationGateway($this->database);
-        $this->users = new InMemoryUserGateway($this->database);
+        $database = new InMemoryDatabase();
+        $this->organizations = new InMemoryOrganizationRepository($database);
+        $this->users = new InMemoryUserRepository($database);
         $this->storage = new InMemoryStorage();
         $this->geoLocation = new KnownPlacesGeoLocation();
-        $this->notifications = new CollectedNotifications();
-        $this->transaction = new InMemoryTransaction($this->database);
     }
 
     public function signIn(SignedInUser $user): void
@@ -75,79 +87,129 @@ final class Application
         return $this->signedIn ?? throw new \LogicException('Nobody is signed in: add "je suis connecté..." to the scenario');
     }
 
-    public function createOrganization(CreateOrganizationRequest $request): ?CreateOrganizationResponse
+    public function startProspecting(StartProspectingRequest $request): ?OrganizationResponse
     {
-        $useCase = new CreateOrganizationImpl($this->organizations, $this->storage, $this->notifications, $this->geoLocation);
-
-        return $this->attempt(fn (LastResponsePresenter $presenter): mixed => $useCase->execute($request, $presenter), CreateOrganizationResponse::class);
+        return $this->organizationIntent(new StartProspecting($this->organizations, $this->geoLocation), $request);
     }
 
-    public function getOrganization(GetOrganizationRequest $request): ?GetOrganizationResponse
+    public function reviseLegalIdentity(ReviseLegalIdentityRequest $request): ?OrganizationResponse
     {
-        $useCase = new GetOrganizationImpl($this->organizations);
-
-        return $this->attempt(fn (LastResponsePresenter $presenter): mixed => $useCase->execute($request, $presenter, $this->signedIn()), GetOrganizationResponse::class);
+        return $this->organizationIntent(new ReviseLegalIdentity($this->organizations), $request);
     }
 
-    public function findMyOwnOrganizations(FindMyOwnOrganizationsRequest $request): ?FindMyOwnOrganizationsResponse
+    public function changeContactDetails(ChangeContactDetailsRequest $request): ?OrganizationResponse
     {
-        $useCase = new FindMyOwnOrganizationsImpl($this->organizations);
-
-        return $this->attempt(fn (LastResponsePresenter $presenter): mixed => $useCase->execute($request, $presenter, $this->signedIn()), FindMyOwnOrganizationsResponse::class);
+        return $this->organizationIntent(new ChangeContactDetails($this->organizations), $request);
     }
 
-    public function updateOrganization(UpdateOrganizationRequest $request): ?UpdateOrganizationResponse
+    public function relocate(RelocateRequest $request): ?OrganizationResponse
     {
-        $useCase = new UpdateOrganizationImpl($this->organizations, $this->storage, $this->notifications, $this->geoLocation);
-
-        return $this->attempt(fn (LastResponsePresenter $presenter): mixed => $useCase->execute($request, $presenter, $this->signedIn()), UpdateOrganizationResponse::class);
+        return $this->organizationIntent(new Relocate($this->organizations, $this->geoLocation), $request);
     }
 
-    public function removeOrganizationLogo(RemoveOrganizationLogoRequest $request): ?RemoveOrganizationLogoResponse
+    public function writeObservations(WriteObservationsRequest $request): ?OrganizationResponse
     {
-        $useCase = new RemoveOrganizationLogoImpl($this->organizations, $this->storage, $this->notifications);
-
-        return $this->attempt(fn (LastResponsePresenter $presenter): mixed => $useCase->execute($request, $presenter, $this->signedIn()), RemoveOrganizationLogoResponse::class);
+        return $this->organizationIntent(new WriteObservations($this->organizations), $request);
     }
 
-    public function getMyAccountInformation(): ?GetMyAccountInformationResponse
+    public function attachToHolding(AttachToHoldingRequest $request): ?OrganizationResponse
     {
-        $useCase = new GetMyAccountInformationImpl($this->users, $this->organizations);
-
-        return $this->attempt(fn (LastResponsePresenter $presenter): mixed => $useCase->execute(new GetMyAccountInformationRequest(), $presenter, $this->signedIn()), GetMyAccountInformationResponse::class);
+        return $this->organizationIntent(new AttachToHolding($this->organizations), $request);
     }
 
-    public function updateMyAccountInformation(UpdateMyAccountInformationRequest $request): ?UpdateMyAccountInformationResponse
+    public function detachFromHolding(DetachFromHoldingRequest $request): ?OrganizationResponse
     {
-        $useCase = new UpdateMyAccountInformationImpl($this->organizations, $this->users, $this->transaction, $this->storage, $this->notifications);
+        return $this->organizationIntent(new DetachFromHolding($this->organizations), $request);
+    }
 
-        return $this->attempt(fn (LastResponsePresenter $presenter): mixed => $useCase->execute($request, $presenter, $this->signedIn()), UpdateMyAccountInformationResponse::class);
+    public function changeLogo(ChangeLogoRequest $request): ?OrganizationResponse
+    {
+        return $this->organizationIntent(new ChangeLogo($this->organizations, $this->storage), $request);
+    }
+
+    public function removeLogo(RemoveLogoRequest $request): ?OrganizationResponse
+    {
+        return $this->organizationIntent(new RemoveLogo($this->organizations, $this->storage), $request);
+    }
+
+    public function consultOrganization(ConsultOrganizationRequest $request): ?OrganizationResponse
+    {
+        return $this->organizationIntent(new ConsultOrganization($this->organizations), $request);
+    }
+
+    public function searchProspectedOrganizations(SearchProspectedOrganizationsRequest $request): ?SearchProspectedOrganizationsResponse
+    {
+        return $this->attempt(new SearchProspectedOrganizations($this->organizations), $request, SearchProspectedOrganizationsResponse::class);
+    }
+
+    public function consultMyAccount(): ?AccountResponse
+    {
+        return $this->accountIntent(new ConsultMyAccount($this->users, $this->organizations), new ConsultMyAccountRequest());
+    }
+
+    public function changeMyName(ChangeMyNameRequest $request): ?AccountResponse
+    {
+        return $this->accountIntent(new ChangeMyName($this->users, $this->organizations), $request);
+    }
+
+    public function changeMyUserName(ChangeMyUserNameRequest $request): ?AccountResponse
+    {
+        return $this->accountIntent(new ChangeMyUserName($this->users, $this->organizations), $request);
+    }
+
+    public function changeMyContactDetails(ChangeMyContactDetailsRequest $request): ?AccountResponse
+    {
+        return $this->accountIntent(new ChangeMyContactDetails($this->users, $this->organizations), $request);
+    }
+
+    public function changeMyPicture(ChangeMyPictureRequest $request): ?AccountResponse
+    {
+        return $this->accountIntent(new ChangeMyPicture($this->users, $this->organizations, $this->storage), $request);
+    }
+
+    public function reviseMyOrganizationIdentity(ReviseMyOrganizationIdentityRequest $request): ?AccountResponse
+    {
+        return $this->accountIntent(new ReviseMyOrganizationIdentity($this->users, $this->organizations), $request);
+    }
+
+    public function changeMyOrganizationLogo(ChangeMyOrganizationLogoRequest $request): ?AccountResponse
+    {
+        return $this->accountIntent(new ChangeMyOrganizationLogo($this->users, $this->organizations, $this->storage), $request);
     }
 
     /**
      * The business refusal of the last use case, null when it succeeded.
      */
-    public function refusal(): ?UseCaseException
+    public function refusal(): UseCaseException|BusinessRuleViolation|null
     {
         return $this->refusal;
+    }
+
+    private function organizationIntent(object $useCase, object $request): ?OrganizationResponse
+    {
+        return $this->attempt($useCase, $request, OrganizationResponse::class);
+    }
+
+    private function accountIntent(object $useCase, object $request): ?AccountResponse
+    {
+        return $this->attempt($useCase, $request, AccountResponse::class);
     }
 
     /**
      * @template T of object
      *
-     * @param callable(LastResponsePresenter): mixed $execute
-     * @param class-string<T>                        $responseClass
+     * @param class-string<T> $responseClass
      *
      * @return T|null
      */
-    private function attempt(callable $execute, string $responseClass): ?object
+    private function attempt(object $useCase, object $request, string $responseClass): ?object
     {
         $this->refusal = null;
         $presenter = new LastResponsePresenter();
 
         try {
-            $execute($presenter);
-        } catch (UseCaseException $refusal) {
+            [$useCase, 'execute']($request, $presenter, $this->signedIn());
+        } catch (UseCaseException|BusinessRuleViolation $refusal) {
             $this->refusal = $refusal;
 
             return null;

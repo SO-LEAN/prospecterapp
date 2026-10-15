@@ -7,8 +7,8 @@ use App\Entity\User;
 use App\Presenter\AccountResourcePresenter;
 use Nelmio\ApiDocBundle\Attribute\Model;
 use OpenApi\Attributes as OA;
-use Prospecter\Core\UseCase\GetMyAccountInformation\GetMyAccountInformationRequest;
-use Prospecter\Core\UseCase\UseCasesFacade;
+use Prospecter\Core\Application\Account\ConsultMyAccountRequest;
+use Prospecter\Core\Application\UseCasesFacade;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\Routing\Attribute\Route;
@@ -24,11 +24,11 @@ final class ShowAccount extends AbstractController
     }
 
     #[Route('/api/me', name: 'api_me_show', methods: ['GET'])]
-    #[OA\Get(summary: 'Get my account and my organization')]
+    #[OA\Get(summary: 'Consult my account and my organization')]
     #[OA\Response(response: 200, description: 'My account', content: new Model(type: AccountResource::class))]
     #[OA\Response(response: 401, description: 'Missing or invalid access token')]
     public function __invoke(#[CurrentUser] User $user): JsonResponse
     {
-        return $this->json($this->useCases->getMyAccountInformation(new GetMyAccountInformationRequest(), $this->presenter, $user));
+        return $this->json($this->useCases->consultMyAccount(new ConsultMyAccountRequest(), $this->presenter, $user));
     }
 }

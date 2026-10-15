@@ -52,7 +52,7 @@ function Dashboard() {
   return (
     <div className="space-y-8">
       <PageHeader
-        title={t('dashboard.greeting', { name: account.firstName || account.userName })}
+        title={t('dashboard.greeting', { name: account.name.firstName || account.userName })}
         description={t('dashboard.subtitle', { organization: dashboard.organizationName })}
       />
 

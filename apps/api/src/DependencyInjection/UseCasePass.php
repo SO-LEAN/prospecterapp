@@ -2,7 +2,7 @@
 
 namespace App\DependencyInjection;
 
-use Prospecter\Core\UseCase\UseCasesFacade;
+use Prospecter\Core\Application\UseCasesFacade;
 use Symfony\Component\DependencyInjection\Compiler\CompilerPassInterface;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\Reference;

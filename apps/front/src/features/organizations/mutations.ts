@@ -7,11 +7,12 @@ import { fileBody } from '@/shared/api/upload'
 import { type Organization, organizationQuery } from './queries'
 
 /**
- * Every mutation returns the fresh organization: it goes straight into the detail cache
- * (no refetch), while lists and the dashboard are marked stale and refetched when displayed.
+ * Every intention returns the fresh organization: it goes straight into the detail cache (no refetch),
+ * while lists and the dashboard are marked stale and refetched when displayed.
  */
 function useStoreOrganization() {
   const queryClient = useQueryClient()
+  const { t } = useTranslation()
 
   return (organization: Organization | undefined) => {
     if (!organization) {
@@ -20,43 +21,66 @@ function useStoreOrganization() {
     queryClient.setQueryData(organizationQuery(organization.id).queryKey, organization)
     void queryClient.invalidateQueries({ queryKey: queryKeys.organizationList })
     void queryClient.invalidateQueries({ queryKey: queryKeys.dashboard })
+    toast.success(t('common.saved'))
   }
 }
 
-export function useCreateOrganization() {
-  const store = useStoreOrganization()
-  const { t } = useTranslation()
+const formIntention = { meta: { silentValidation: true } }
 
+export function useStartProspecting() {
   return api.useMutation('post', '/api/organizations', {
-    meta: { silentValidation: true },
-    onSuccess: (organization) => {
-      store(organization)
-      toast.success(t('organizations.create.success'))
-    },
+    ...formIntention,
+    onSuccess: useStoreOrganization(),
   })
 }
 
-export function useReplaceOrganization() {
-  const store = useStoreOrganization()
-  const { t } = useTranslation()
-
-  return api.useMutation('put', '/api/organizations/{id}', {
-    meta: { silentValidation: true },
-    onSuccess: (organization) => {
-      store(organization)
-      toast.success(t('organizations.edit.success'))
-    },
+export function useReviseLegalIdentity() {
+  return api.useMutation('patch', '/api/organizations/{id}/legal-identity', {
+    ...formIntention,
+    onSuccess: useStoreOrganization(),
   })
 }
 
-export function useUploadOrganizationLogo(id: number) {
+export function useChangeContactDetails() {
+  return api.useMutation('patch', '/api/organizations/{id}/contact-details', {
+    ...formIntention,
+    onSuccess: useStoreOrganization(),
+  })
+}
+
+export function useRelocate() {
+  return api.useMutation('patch', '/api/organizations/{id}/address', {
+    ...formIntention,
+    onSuccess: useStoreOrganization(),
+  })
+}
+
+export function useWriteObservations() {
+  return api.useMutation('patch', '/api/organizations/{id}/observations', {
+    ...formIntention,
+    onSuccess: useStoreOrganization(),
+  })
+}
+
+export function useAttachToHolding() {
+  return api.useMutation('patch', '/api/organizations/{id}/holding', { onSuccess: useStoreOrganization() })
+}
+
+export function useDetachFromHolding() {
+  return api.useMutation('delete', '/api/organizations/{id}/holding', { onSuccess: useStoreOrganization() })
+}
+
+export function useRemoveLogo() {
+  return api.useMutation('delete', '/api/organizations/{id}/logo', { onSuccess: useStoreOrganization() })
+}
+
+export function useChangeLogo(id: string) {
   const store = useStoreOrganization()
-  const { t } = useTranslation()
 
   return useMutation({
     mutationFn: async (file: File) => {
       const { data, error } = await fetchClient.POST('/api/organizations/{id}/logo', {
-        params: { path: { id: String(id) } },
+        params: { path: { id } },
         ...fileBody(file),
       })
       if (error || !data) {
@@ -64,21 +88,6 @@ export function useUploadOrganizationLogo(id: number) {
       }
       return data
     },
-    onSuccess: (organization) => {
-      store(organization)
-      toast.success(t('organizations.logo.success'))
-    },
-  })
-}
-
-export function useRemoveOrganizationLogo() {
-  const store = useStoreOrganization()
-  const { t } = useTranslation()
-
-  return api.useMutation('delete', '/api/organizations/{id}/logo', {
-    onSuccess: (organization) => {
-      store(organization)
-      toast.success(t('organizations.logo.removed'))
-    },
+    onSuccess: store,
   })
 }

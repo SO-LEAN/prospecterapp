@@ -7,12 +7,16 @@ doctrine:
         naming_strategy: doctrine.orm.naming_strategy.underscore_number_aware
         auto_mapping: false
         mappings:
-            Core:
+            Organization:
                 type: xml
                 is_bundle: false
-                dir: '%kernel.project_dir%/config/doctrine'
-                prefix: 'Prospecter\Core\Entity'
-                alias: Core
+                dir: '%kernel.project_dir%/config/doctrine/Organization'
+                prefix: 'Prospecter\Core\Domain\Organization'
+            User:
+                type: xml
+                is_bundle: false
+                dir: '%kernel.project_dir%/config/doctrine/User'
+                prefix: 'Prospecter\Core\Domain\User'
             # authentication, kept apart from the core (future authorization server)
             Auth:
                 type: attribute

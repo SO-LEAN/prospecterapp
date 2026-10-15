@@ -6,17 +6,17 @@ use App\Api\ImageResourceFactory;
 use App\Api\Resource\LocationResource;
 use App\Api\Resource\OrganizationPageResource;
 use App\Api\Resource\OrganizationSummaryResource;
-use Prospecter\Core\UseCase\FindMyOwnOrganizations\FindMyOwnOrganizationsPresenter;
-use Prospecter\Core\UseCase\FindMyOwnOrganizations\FindMyOwnOrganizationsResponse;
-use Prospecter\Core\UseCase\FindMyOwnOrganizations\FindMyOwnOrganizationsResponse\Organization;
+use Prospecter\Core\Application\Organization\FoundOrganization;
+use Prospecter\Core\Application\Organization\SearchProspectedOrganizationsPresenter;
+use Prospecter\Core\Application\Organization\SearchProspectedOrganizationsResponse;
 
-final readonly class OrganizationPagePresenter implements FindMyOwnOrganizationsPresenter
+final readonly class OrganizationPagePresenter implements SearchProspectedOrganizationsPresenter
 {
     public function __construct(private ImageResourceFactory $images)
     {
     }
 
-    public function present(FindMyOwnOrganizationsResponse $response): OrganizationPageResource
+    public function present(SearchProspectedOrganizationsResponse $response): OrganizationPageResource
     {
         return new OrganizationPageResource(
             items: array_map($this->summarize(...), $response->organizations),
@@ -26,10 +26,10 @@ final readonly class OrganizationPagePresenter implements FindMyOwnOrganizations
         );
     }
 
-    private function summarize(Organization $organization): OrganizationSummaryResource
+    private function summarize(FoundOrganization $organization): OrganizationSummaryResource
     {
         return new OrganizationSummaryResource(
-            id: $organization->id,
+            id: $organization->id->value,
             name: $organization->fullName,
             postalCode: $organization->address?->postalCode,
             city: $organization->address?->city,

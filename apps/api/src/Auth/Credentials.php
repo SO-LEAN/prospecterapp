@@ -14,14 +14,14 @@ class Credentials
 {
     public function __construct(
         #[ORM\Id]
-        #[ORM\Column]
-        private readonly int $userId,
+        #[ORM\Column(type: 'guid')]
+        private readonly string $userId,
         #[ORM\Column(length: 255)]
         private string $passwordHash,
     ) {
     }
 
-    public function userId(): int
+    public function userId(): string
     {
         return $this->userId;
     }

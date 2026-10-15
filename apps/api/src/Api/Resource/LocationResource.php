@@ -2,7 +2,7 @@
 
 namespace App\Api\Resource;
 
-use Prospecter\Core\Entity\GeoPoint;
+use Prospecter\Core\Domain\Organization\GeoPoint;
 
 final readonly class LocationResource
 {

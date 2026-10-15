@@ -80,7 +80,7 @@ class ProspecterAuthenticator extends AbstractLoginFormAuthenticator
     private function isPasswordOf(string $userName, string $password): bool
     {
         try {
-            return $this->passwords->verify($this->users->find($userName)->getId(), $password);
+            return $this->passwords->verify($this->users->find($userName)->id(), $password);
         } catch (UserNotFoundException) {
             return false;
         }

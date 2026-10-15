@@ -9,7 +9,7 @@ framework:
     serializer:
         default_context:
             # an unknown field is a client mistake (wrong format, typo): reject it with a 422 instead of
-            # silently ignoring it, which on a PUT would clear the field the client meant to send
+            # silently ignoring it, which would let the client believe its change was saved
             allow_extra_attributes: false
             # report each unknown field as a violation on its own path, like the validator does
             collect_extra_attributes_errors: true

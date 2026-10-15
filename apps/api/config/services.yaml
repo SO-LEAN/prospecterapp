@@ -4,7 +4,7 @@ services:
         autoconfigure: true
 
     _instanceof:
-        Prospecter\Core\UseCase\AbstractUseCase:
+        Prospecter\Core\Application\UseCase:
             tags: ['use_case']
             lazy: true
 
@@ -18,27 +18,17 @@ services:
             - '../src/Kernel.php'
             - '../src/Service/Image/UrlImageInfo.php'
 
-    # Use cases (clean architecture library)
-    Prospecter\Core\UseCase\UseCasesFacade: ~
-    Prospecter\Core\UseCase\:
-        resource: '../vendor/prospecter/core/src/UseCase/*/*Impl.php'
+    # Use cases of the core: every intention, called through the facade
+    Prospecter\Core\Application\UseCasesFacade: ~
+    Prospecter\Core\Application\:
+        resource: '../vendor/prospecter/core/src/Application/{Organization,Account}/*.php'
+        exclude: '../vendor/prospecter/core/src/Application/{Organization,Account}/{*Request,*Response,*Responses,*Presenter,FoundOrganization}.php'
 
-    # Gateways: library interfaces implemented by the application
-    Prospecter\Core\Gateway\Entity\UserGateway: '@App\Gateway\Entity\UserRepositoryAdapter'
-    Prospecter\Core\Gateway\Entity\OrganizationGateway: '@App\Gateway\Entity\OrganizationRepositoryAdapter'
-    Prospecter\Core\Gateway\Entity\Transaction: '@App\Gateway\Entity\TransactionEntityManagerAdapter'
-    Prospecter\Core\Gateway\Storage: '@App\Gateway\StorageLocalAdapter'
-    Prospecter\Core\Gateway\UserNotifier: '@App\Gateway\UserNotifierSymfonyAdapter'
-    Prospecter\Core\Gateway\GeoLocation: '@App\Gateway\GeoplateformeGeoLocation'
-
-    App\Gateway\Entity\UserRepositoryAdapter:
-        lazy: true
-        arguments:
-            $entityClass: 'Prospecter\Core\Entity\User'
-    App\Gateway\Entity\OrganizationRepositoryAdapter:
-        lazy: true
-        arguments:
-            $entityClass: 'Prospecter\Core\Entity\Organization'
+    # Ports of the core, implemented by the application
+    Prospecter\Core\Domain\Organization\OrganizationRepository: '@App\Repository\DoctrineOrganizationRepository'
+    Prospecter\Core\Domain\User\UserRepository: '@App\Repository\DoctrineUserRepository'
+    Prospecter\Core\Application\Port\Storage: '@App\Gateway\LocalStorage'
+    Prospecter\Core\Application\Port\GeoLocation: '@App\Gateway\GeoplateformeGeoLocation'
 
     # Security
     App\Security\ProspecterAuthenticator:
