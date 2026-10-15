@@ -14,9 +14,6 @@ security:
         dev:
             pattern: ^/(_profiler|_wdt)/
             security: false
-        static:
-            host: '%app_static_host%'
-            security: false
         api_doc:
             pattern: ^/api/doc
             security: false

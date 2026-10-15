@@ -36,3 +36,4 @@ Why the project is shaped the way it is: one file per decision in `docs/adr/`, i
 | [0030](0030-bounded-contexts-accounts-prospecting.md) | Bounded contexts Accounts and Prospecting, a shared kernel, code grouped by context | Accepted | 2026-10-15 |
 | [0031](0031-personal-data-context.md) | A PersonalData context keeps the personal data of natural persons, and decides who reads them | Accepted | 2026-10-15 |
 | [0032](0032-login-email-kept-by-authentication.md) | Members sign in with an email kept by authentication | Accepted | 2026-10-15 |
+| [0033](0033-storage-app.md) | A storage app keeps the files and serves the images in named sizes | Accepted | 2026-10-15 |

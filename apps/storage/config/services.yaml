@@ -1,0 +1,21 @@
+parameters:
+    # where the files are written: nginx serves them from here, the originals and the sizes already made
+    storage.directory: '%kernel.project_dir%/public/storage'
+
+services:
+    _defaults:
+        autowire: true
+        autoconfigure: true
+        bind:
+            string $directory: '%storage.directory%'
+            string $publicUrl: '%env(STORAGE_PUBLIC_URL)%'
+            string $token: '%env(STORAGE_TOKEN)%'
+
+    App\:
+        resource: '../src/'
+        exclude:
+            - '../src/Kernel.php'
+
+when@test:
+    parameters:
+        storage.directory: '%kernel.project_dir%/var/test-storage'

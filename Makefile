@@ -6,8 +6,10 @@ PHP  = $(DC) run --rm --no-deps php
 NODE = $(DC) run --rm --no-deps node
 # the core has its own tooling (Behat, PHPUnit), run from its directory
 CORE = $(DC) run --rm --no-deps -w /var/www/src/packages/core php
+# the storage app (stored files and their sizes)
+STORAGE = $(DC) run --rm --no-deps -w /var/www/src/apps/storage php
 
-.PHONY: install build vendor keys db front-install start stop logs ps test test-api test-front e2e test-core lint fix api-doc usecases exec-api exec-front
+.PHONY: install build vendor keys db front-install start stop logs ps test test-api test-storage test-front e2e test-core lint fix api-doc commands exec-api exec-front
 
 ## Setup
 install: build vendor keys db front-install
@@ -21,6 +23,8 @@ vendor:
 	@$(PHP) composer install
 	@echo "Core/Installing Composer dependencies..."
 	@$(CORE) composer install
+	@echo "Storage/Installing Composer dependencies..."
+	@$(STORAGE) composer install
 
 keys:
 	@echo "OAuth/Generating the key pair..."
@@ -49,7 +53,7 @@ ps:
 	@$(DC) ps
 
 ## Quality
-test: test-core test-api test-front
+test: test-core test-api test-storage test-front
 
 # business rules (Gherkin scenarios on the use cases, in-memory ports) then the unit tests
 test-core:
@@ -57,6 +61,9 @@ test-core:
 
 test-api:
 	@$(PHP) bin/phpunit
+
+test-storage:
+	@$(STORAGE) bin/phpunit
 
 test-front:
 	@$(NODE) pnpm test
@@ -70,11 +77,13 @@ e2e:
 lint:
 	@$(CORE) sh -c 'vendor/bin/phpstan analyse --no-progress && vendor/bin/php-cs-fixer fix --dry-run --diff && vendor/bin/rector process --dry-run'
 	@$(PHP) sh -c 'vendor/bin/phpstan analyse --no-progress && vendor/bin/php-cs-fixer fix --dry-run --diff && vendor/bin/rector process --dry-run'
+	@$(STORAGE) sh -c 'vendor/bin/phpstan analyse --no-progress && vendor/bin/php-cs-fixer fix --dry-run --diff && vendor/bin/rector process --dry-run'
 	@$(NODE) sh -c 'pnpm lint && pnpm typecheck'
 
 fix:
 	@$(CORE) vendor/bin/php-cs-fixer fix
 	@$(PHP) vendor/bin/php-cs-fixer fix
+	@$(STORAGE) vendor/bin/php-cs-fixer fix
 	@$(NODE) pnpm format
 
 ## API contract: regenerate the OpenAPI document and the front types after changing an endpoint
@@ -83,8 +92,9 @@ api-doc:
 	@$(NODE) pnpm api:types
 
 ## Tools
-usecases:
-	@$(PHP) bin/console app:use-cases
+# the commands of the core and their handlers, on the command bus
+commands:
+	@$(PHP) bin/console debug:messenger
 
 exec-api:
 	@$(PHP) bash

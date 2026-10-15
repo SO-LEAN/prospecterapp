@@ -19,6 +19,7 @@ use Prospecter\Core\SharedKernel\Domain\ContactDetails;
 use Prospecter\Core\SharedKernel\Domain\Email;
 use Prospecter\Core\SharedKernel\Domain\LegalIdentity;
 use Tests\App\Base\ApiTestCase;
+use Tests\App\Double\InMemoryStorage;
 
 #[Group('api')]
 class OrganizationApiTest extends ApiTestCase
@@ -99,11 +100,10 @@ class OrganizationApiTest extends ApiTestCase
 
         $this->assertResponseIsSuccessful();
         $this->assertStringEndsWith('.png', $withLogo['logo']['url']);
-        $storedFile = $this->storagePath($withLogo['logo']['url']);
-        $this->assertFileExists($storedFile);
+        $this->assertTrue($this->storage()->has($withLogo['logo']['url']), 'sent to the storage');
 
         $this->assertNull($this->requestJson('DELETE', '/api/organizations/'.$id.'/logo')['logo']);
-        $this->assertFileDoesNotExist($storedFile);
+        $this->assertFalse($this->storage()->has($withLogo['logo']['url']), 'removed from the storage');
     }
 
     public function testTheLinksOfferWhatTheStateOfTheOrganizationAllows(): void
@@ -224,8 +224,8 @@ class OrganizationApiTest extends ApiTestCase
         return 'assistant';
     }
 
-    private function storagePath(string $url): string
+    private function storage(): InMemoryStorage
     {
-        return str_replace($_ENV['APP_STORAGE_URL'], self::getContainer()->getParameter('kernel.project_dir').'/public/static/storage/test', $url);
+        return self::getContainer()->get(InMemoryStorage::class);
     }
 }

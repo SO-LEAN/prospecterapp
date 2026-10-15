@@ -16,7 +16,6 @@ services:
             - '../src/Dashboard/DashboardResource.php'
             - '../src/Entity/'
             - '../src/Kernel.php'
-            - '../src/Service/Image/UrlImageInfo.php'
 
     # Handlers of the core: commands go through the command bus, queries are called by the controllers
     Prospecter\Core\:
@@ -30,7 +29,7 @@ services:
     Prospecter\Core\Prospecting\Domain\OrganizationRepository: '@App\Prospecting\Persistence\DoctrineOrganizationRepository'
     Prospecter\Core\Prospecting\Domain\Prospectors: '@App\Prospecting\AccountsProspectors'
     Prospecter\Core\Prospecting\Application\Port\GeoLocation: '@App\Prospecting\GeoplateformeGeoLocation'
-    Prospecter\Core\SharedKernel\Application\Port\Storage: '@App\Shared\LocalStorage'
+    Prospecter\Core\SharedKernel\Application\Port\Storage: '@App\Shared\StorageClient'
 
     # Security
     App\Security\ProspecterAuthenticator:
@@ -38,17 +37,12 @@ services:
             $loginRoute: 'login'
             $defaultSuccessUrl: '%env(FRONT_URL)%'
 
-    # Services
-    App\Service\LocalStorageService:
-        arguments:
-            $path: '%env(resolve:APP_STORAGE_PATH)%'
-            $url: '%env(APP_STORAGE_URL)%'
-    App\Service\Image\SecretCipherHandler:
-        arguments:
-            $secret: '%env(APP_SECRET)%'
-
 when@test:
     services:
         # no network in tests: every outgoing request gets an empty answer (a geocoding finds nothing)
         http_client:
             class: Symfony\Component\HttpClient\MockHttpClient
+        # the files stay in memory: the storage app is tested on its own
+        Prospecter\Core\SharedKernel\Application\Port\Storage: '@Tests\App\Double\InMemoryStorage'
+        Tests\App\Double\InMemoryStorage:
+            public: true

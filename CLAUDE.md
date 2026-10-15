@@ -6,7 +6,8 @@ Monorepo of a prospecting application built with clean architecture:
 |---|---|---|
 | `apps/front/` | React 19 SPA (TypeScript, Vite, TanStack Router/Query, shadcn/ui) | `apps/front/CLAUDE.md` |
 | `apps/api/` | Symfony 8.1 JSON API + OAuth 2 server, documented with NelmioApiDocBundle | `apps/api/CLAUDE.md` |
-| `packages/core/` | `prospecter/core`: the bounded contexts Accounts and Prospecting and their shared kernel (pure PHP), tested by Behat scenarios | `packages/core/CLAUDE.md` |
+| `apps/storage/` | Symfony 8.1 app keeping the uploaded files and serving them in named sizes (`static.local.prospecter.io`) | `apps/storage/CLAUDE.md` |
+| `packages/core/` | `prospecter/core`: the bounded contexts Accounts, PersonalData and Prospecting and their shared kernel (pure PHP), tested by Behat scenarios | `packages/core/CLAUDE.md` |
 
 Docs: `docs/clean-code.md`, `docs/front-architecture.md`, `docs/design-system.md`, `docs/auth.md`, `docs/core-tests.md`, `docs/monorepo.md`, `docs/upgrade-2026.md`.
 
@@ -22,7 +23,7 @@ Everything runs in Docker (PHP 8.5, Node 24, nginx); nothing but Docker and make
 
 - `make install`: images, Composer and pnpm dependencies, OAuth keys, database with fixtures (OAuth client included)
 - `make start` / `make stop`: https://local.prospecter.io (SPA, sign in `prospector@solean-it.io` / `password`), https://api.local.prospecter.io/api/doc (API doc)
-- `make test` (core scenarios and unit tests, API, front), `make test-core` (the business rules only), `make e2e` (Playwright on the running stack), `make lint`, `make fix`
+- `make test` (core scenarios and unit tests, API, storage, front), `make test-core` (the business rules only), `make e2e` (Playwright on the running stack), `make lint`, `make fix`
 - `make api-doc`: after changing an endpoint, regenerate `apps/api/openapi.json` and the front API types (`make test` fails while the committed contract differs from the code)
 - `make db`: recreate the dev database (destroys local data)
 

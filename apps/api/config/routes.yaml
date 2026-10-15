@@ -1,11 +1,6 @@
 # Routes are declared with #[Route] attributes on controllers.
 # To list all registered routes, run: bin/console debug:router
 
-statics:
-    resource: ../src/Controller/Statics/
-    type: attribute
-    host: '%app_static_host%'
-
 auth:
     resource: ../src/Controller/Auth/
     type: attribute
