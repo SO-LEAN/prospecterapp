@@ -27,10 +27,6 @@ final class UpdateMyAccountInformationRequest
     /**
      * @var string
      */
-    private $password;
-    /**
-     * @var string
-     */
     private $firstName;
     /**
      * @var string
@@ -55,7 +51,6 @@ final class UpdateMyAccountInformationRequest
 
     public function __construct(
         string $userName,
-        ?string $password,
         ?string $firstName,
         ?string $lastName,
         ?SplFileInfo $picture,
@@ -67,7 +62,6 @@ final class UpdateMyAccountInformationRequest
         ?SplFileInfo $organizationLogo
     ) {
         $this->userName = $userName;
-        $this->password = $password;
         $this->firstName = $firstName;
         $this->lastName = $lastName;
         $this->picture = $picture;
@@ -97,11 +91,6 @@ final class UpdateMyAccountInformationRequest
     public function getUserName(): string
     {
         return $this->userName;
-    }
-
-    public function getPassword(): ?string
-    {
-        return $this->password;
     }
 
     public function getFirstName(): ?string

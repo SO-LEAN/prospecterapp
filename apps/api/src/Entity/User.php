@@ -2,51 +2,48 @@
 
 namespace App\Entity;
 
-use Prospecter\Core\UseCase\RefreshUser\RefreshUserResponse;
+use Prospecter\Core\Entity\User as CoreUser;
 use Prospecter\Core\UseCase\UseCaseConsumer;
 use Symfony\Component\Security\Core\User\UserInterface;
 
 /**
- * Security user built from the RefreshUser use case response.
+ * The signed-in user, as the use cases see it: who it is, its organization and its roles.
  */
 final readonly class User implements UserInterface, UseCaseConsumer
 {
-    public function __construct(private RefreshUserResponse $refreshUser)
+    /**
+     * @param list<string> $roles
+     */
+    public function __construct(
+        private int $id,
+        private string $userName,
+        private int $organizationId,
+        private array $roles,
+    ) {
+    }
+
+    public static function from(CoreUser $user): self
     {
+        return new self($user->getId(), $user->getUserName(), $user->getOrganization()->getId(), array_values($user->getRoles()));
     }
 
     public function getRoles(): array
     {
-        return $this->refreshUser->getRoles();
-    }
-
-    public function getPassword(): string
-    {
-        return $this->refreshUser->getPassword();
+        return $this->roles;
     }
 
     public function getUserIdentifier(): string
     {
-        return $this->refreshUser->getUserName();
+        return $this->userName;
     }
 
-    public function getUsername(): string
+    public function getOrganizationId(): int
     {
-        return $this->getUserIdentifier();
+        return $this->organizationId;
     }
 
-    public function getOrganizationId(): mixed
+    public function getUserId(): int
     {
-        return $this->refreshUser->getOrganizationId();
-    }
-
-    public function getUserId(): mixed
-    {
-        return $this->refreshUser->getId();
-    }
-
-    public function getPictureUrl(): ?string
-    {
-        return $this->refreshUser->getPictureUrl();
+        return $this->id;
     }
 }

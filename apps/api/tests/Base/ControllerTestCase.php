@@ -12,7 +12,6 @@ use Doctrine\Common\DataFixtures\ReferenceRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\Tools\SchemaTool;
 use Prospecter\Core\Entity\User as UserEntity;
-use Prospecter\Core\UseCase\RefreshUser\RefreshUserResponse;
 use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 use Symfony\Component\DomCrawler\Crawler;
@@ -32,14 +31,7 @@ abstract class ControllerTestCase extends WebTestCase
     {
         $entity = $this->fixtures->getReference($reference, UserEntity::class);
 
-        $this->client->loginUser(new User(new RefreshUserResponse(
-            $entity->getId(),
-            $entity->getRoles(),
-            $entity->getUserName(),
-            $entity->getPassword(),
-            $entity->getOrganization()->getId(),
-            $entity->getPictureUrl(),
-        )), 'main');
+        $this->client->loginUser(User::from($entity), 'main');
     }
 
     protected function grab(Crawler $crawler, string $name): string
@@ -66,7 +58,7 @@ abstract class ControllerTestCase extends WebTestCase
         $schemaTool->createSchema($metadata);
 
         $loader = new Loader();
-        $loader->addFixture(new AppFixtures());
+        $loader->addFixture(static::getContainer()->get(AppFixtures::class));
         $loader->addFixture(static::getContainer()->get(OAuthClientFixtures::class));
 
         $executor = new ORMExecutor($entityManager, new ORMPurger($entityManager));

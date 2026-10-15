@@ -9,8 +9,6 @@ use Prospecter\Core\UseCase;
 use Prospecter\Core\Exception\UseCase\UnauthorizedException;
 
 /**
- * @method login(UseCase\Login\LoginRequest $request, UseCase\Login\LoginPresenter $presenter)
- * @method refreshUser(UseCase\RefreshUser\RefreshUserRequest $request, UseCase\RefreshUser\RefreshUserPresenter $presenter)
  *
  * @method createOrganization(UseCase\CreateOrganization\CreateOrganizationRequest $request, UseCase\CreateOrganization\CreateOrganizationPresenter $presenter, ?UseCaseConsumer $consumer)
  * @method getOrganization(UseCase\GetOrganization\GetOrganizationRequest $request, UseCase\GetOrganization\GetOrganizationPresenter $presenter, ?UseCaseConsumer $consumer)

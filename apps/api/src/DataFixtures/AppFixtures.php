@@ -2,6 +2,7 @@
 
 namespace App\DataFixtures;
 
+use App\Auth\Passwords;
 use Doctrine\Bundle\FixturesBundle\Fixture;
 use Doctrine\Persistence\ObjectManager;
 use Prospecter\Core\Entity\Organization;
@@ -9,6 +10,10 @@ use Prospecter\Core\Entity\User;
 
 class AppFixtures extends Fixture
 {
+    public function __construct(private readonly Passwords $passwords)
+    {
+    }
+
     public function load(ObjectManager $manager): void
     {
         $this->createProspectorOrganization($manager);
@@ -38,15 +43,13 @@ class AppFixtures extends Fixture
         $user->setEmail('prospector@solean-it.io');
         $user->setLanguage($org->getLanguage());
         $user->setUserName('prospector');
-        $user->setPassword('password');
-        $user->setSalt('salt');
-        $user->encodePassword();
         $user->addRole('ROLE_PROSPECTOR');
         $user->addRole('ROLE_USER');
         $user->setOrganization($org);
 
         $manager->persist($user);
         $manager->flush();
+        $this->passwords->set($user->getId(), 'password');
 
         $this->addReference('prospector-user', $user);
     }

@@ -31,8 +31,9 @@ A JSON API that exposes the use cases of `packages/core`, plus the OAuth 2 autho
 See `docs/auth.md` at the repository root.
 
 - `league/oauth2-server-bundle`: `/authorize` + `/token`, authorization code with PKCE for the public client `prospecter-front` (created by `DataFixtures\OAuthClientFixtures`), JWT access tokens 15 min, rotated refresh tokens 30 days. Keys in `config/jwt` (`make keys`, not committed).
-- Firewalls (`config/packages/security.yaml`): `api` (`^/api/`, stateless, `oauth2: true`), `main` (session, `/login` with `Security\ProspecterAuthenticator`, which checks credentials with the `login` use case), `/token` handled by the bundle. Consent is auto-approved (`EventListener\AuthorizationRequestListener`), logout redirects to `FRONT_URL` (`EventListener\LogoutListener`).
-- The token subject is the user name: `Security\ProspecterUserProvider` rebuilds `App\Entity\User` with the `refreshUser` use case, received as `#[CurrentUser] User $user` and passed to use cases as the `UseCaseConsumer`.
+- Firewalls (`config/packages/security.yaml`): `api` (`^/api/`, stateless, `oauth2: true`), `main` (session, `/login` with `Security\ProspecterAuthenticator`, which checks the password with `Auth\Passwords`), `/token` handled by the bundle. Consent is auto-approved (`EventListener\AuthorizationRequestListener`), logout redirects to `FRONT_URL` (`EventListener\LogoutListener`).
+- The token subject is the user name: `Security\ProspecterUserProvider` loads the core user through the `UserGateway` adapter and builds `App\Entity\User`, received as `#[CurrentUser] User $user` and passed to use cases as the `UseCaseConsumer`.
+- Authentication is not a use case. `src/Auth` keeps the passwords apart from the core (`Credentials`, table `credentials`, one row per user id; `Passwords` hashes with the `auto` hasher and upgrades old hashes at sign-in) so that it can move to a dedicated authorization server. `PUT /api/me` sets a new password through it; `bin/console app:user:set-password <userName>` does it by hand.
 
 ## Architecture
 

@@ -29,7 +29,6 @@ final readonly class AccountFileUpdater
 
         $this->useCases->updateMyAccountInformation(new UpdateMyAccountInformationRequest(
             userName: $account->userName,
-            password: null,
             firstName: $account->firstName,
             lastName: $account->lastName,
             picture: $picture,

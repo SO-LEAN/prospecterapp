@@ -13,15 +13,7 @@ class User extends Person
     /**
      * @var string
      */
-    private $password;
-    /**
-     * @var string
-     */
     private $userName;
-    /**
-     * @var string
-     */
-    private $salt;
     /**
      * @var string
      */
@@ -64,15 +56,7 @@ class User extends Person
         $this->roles[] = $role;
     }
 
-    public function getPassword() : string
-    {
-        return $this->password;
-    }
 
-    public function setPassword(string $password): void
-    {
-        $this->password = $password;
-    }
 
     public function getUserName() : string
     {
@@ -84,15 +68,7 @@ class User extends Person
         $this->userName = $userName;
     }
 
-    public function getSalt(): string
-    {
-        return $this->salt;
-    }
 
-    public function setSalt(string $salt): void
-    {
-        $this->salt = $salt;
-    }
 
     public function getFirstName(): ?string
     {
@@ -149,10 +125,4 @@ class User extends Person
         return sprintf('%s %s', $this->firstName, $this->lastName);
     }
 
-    public function encodePassword(): string
-    {
-        $this->password = md5(sprintf('%s%s', $this->password, $this->salt));
-
-        return $this->password;
-    }
 }

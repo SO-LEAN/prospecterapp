@@ -90,11 +90,6 @@ final class UpdateMyAccountInformationImpl extends AbstractUseCase implements Up
         $user->setFirstName($request->getFirstName());
         $user->setLastName($request->getLastName());
 
-        if ($request->getPassword()) {
-            $user->setPassword($request->getPassword());
-            $user->encodePassword();
-        }
-
         if ($request->getPicture()) {
             $user->setPicture($this->storeFile($request->getPicture()));
         }

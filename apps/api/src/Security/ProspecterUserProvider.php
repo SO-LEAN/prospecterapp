@@ -3,32 +3,28 @@
 namespace App\Security;
 
 use App\Entity\User;
-use App\Presenter\RefreshUserPresenterImpl;
-use Prospecter\Core\UseCase\RefreshUser\RefreshUserRequest;
-use Prospecter\Core\UseCase\UseCasesFacade;
+use Prospecter\Core\Entity\User as CoreUser;
+use Prospecter\Core\Gateway\Entity\UserGateway;
 use Symfony\Component\Security\Core\Exception\UnsupportedUserException;
 use Symfony\Component\Security\Core\Exception\UserNotFoundException;
 use Symfony\Component\Security\Core\User\UserInterface;
 use Symfony\Component\Security\Core\User\UserProviderInterface;
 
 /**
+ * Loads the signed-in user from its user name (the subject of the access token) straight from the
+ * storage: authentication is infrastructure, it does not go through a use case.
+ *
  * @implements UserProviderInterface<User>
  */
-class ProspecterUserProvider implements UserProviderInterface
+final readonly class ProspecterUserProvider implements UserProviderInterface
 {
-    public function __construct(private readonly UseCasesFacade $useCasesFacade)
+    public function __construct(private UserGateway $users)
     {
     }
 
     public function loadUserByIdentifier(string $identifier): UserInterface
     {
-        $response = $this->useCasesFacade->refreshUser(new RefreshUserRequest($identifier), new RefreshUserPresenterImpl());
-
-        if (!$response) {
-            throw new UserNotFoundException('Bad credentials');
-        }
-
-        return new User($response);
+        return User::from($this->find($identifier));
     }
 
     public function refreshUser(UserInterface $user): UserInterface
@@ -43,5 +39,10 @@ class ProspecterUserProvider implements UserProviderInterface
     public function supportsClass(string $class): bool
     {
         return User::class === $class;
+    }
+
+    public function find(string $userName): CoreUser
+    {
+        return $this->users->findOneBy(['userName' => $userName]) ?? throw new UserNotFoundException('Bad credentials');
     }
 }

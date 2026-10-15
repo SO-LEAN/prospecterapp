@@ -4,35 +4,28 @@ namespace Tests\App\Entity;
 
 use App\Entity\User;
 use PHPUnit\Framework\Attributes\Group;
-use Prospecter\Core\UseCase\RefreshUser\RefreshUserResponse;
-use Tests\App\Base\TestCase;
+use PHPUnit\Framework\TestCase;
+use Prospecter\Core\Entity\Organization;
+use Prospecter\Core\Entity\User as CoreUser;
 
 #[Group('unit')]
 class UserTest extends TestCase
 {
-    private ?RefreshUserResponse $response = null;
-
-    public function target(): User
+    public function testTheSignedInUserIsTheUseCaseConsumer(): void
     {
-        return parent::target();
-    }
+        $organization = new Organization();
+        $organization->setId(777);
+        $user = new CoreUser();
+        $user->setId(123);
+        $user->setUserName('ada');
+        $user->setRoles(['ROLE_USER', 'ROLE_PROSPECTOR']);
+        $user->setOrganization($organization);
 
-    public function setupArgs(): array
-    {
-        $this->response = new RefreshUserResponse(123, ['FAKE_ROLE'], 'user name', 'password', 777, 'http://file.com/pic.jpb');
+        $signedIn = User::from($user);
 
-        return [
-            $this->response,
-        ];
-    }
-
-    public function testGetter(): void
-    {
-        $this->assertEquals($this->target()->getUserId(), $this->response->getId());
-        $this->assertEquals($this->target()->getRoles(), $this->response->getRoles());
-        $this->assertEquals($this->target()->getUsername(), $this->response->getUserName());
-        $this->assertEquals($this->target()->getPassword(), $this->response->getPassword());
-        $this->assertEquals($this->target()->getPictureUrl(), $this->response->getPictureUrl());
-        $this->assertEquals($this->target()->getOrganizationId(), $this->response->getOrganizationId());
+        $this->assertSame(123, $signedIn->getUserId());
+        $this->assertSame(777, $signedIn->getOrganizationId());
+        $this->assertSame('ada', $signedIn->getUserIdentifier());
+        $this->assertSame(['ROLE_USER', 'ROLE_PROSPECTOR'], $signedIn->getRoles());
     }
 }

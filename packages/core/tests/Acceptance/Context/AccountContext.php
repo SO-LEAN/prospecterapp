@@ -65,7 +65,7 @@ final class AccountContext implements Context
         $parameters['organizationLogo'] = $this->scenario->upload($parameters['organizationLogo']);
         $parameters['userName'] ??= $this->scenario->me()->getUserName();
 
-        $this->application->updateMyAccountInformation(new UpdateMyAccountInformationRequest(...['password' => null, ...$parameters]));
+        $this->application->updateMyAccountInformation(new UpdateMyAccountInformationRequest(...$parameters));
     }
 
     #[Then('je vois mon compte :')]

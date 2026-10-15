@@ -90,8 +90,6 @@ final class ScenarioContext implements Context
     {
         $user = new User();
         $user->setUserName($userName);
-        $user->setPassword('irrelevant: authentication is not the business of the use cases');
-        $user->setSalt('salt');
         $user->setRoles($roles);
         $user->setOrganization($this->organizationNamed($organizationName));
         $this->application->users->create($user);

@@ -13,6 +13,13 @@ doctrine:
                 dir: '%kernel.project_dir%/config/doctrine'
                 prefix: 'Prospecter\Core\Entity'
                 alias: Core
+            # authentication, kept apart from the core (future authorization server)
+            Auth:
+                type: attribute
+                is_bundle: false
+                dir: '%kernel.project_dir%/src/Auth'
+                prefix: 'App\Auth'
+                alias: Auth
 
 when@prod:
     doctrine:
