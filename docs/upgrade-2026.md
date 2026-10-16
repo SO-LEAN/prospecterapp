@@ -98,3 +98,21 @@ The storage keeps its files in an S3 bucket (ADR 0051); Cognito signs the member
 - The clock of the API tests is fixed in the past, the tokens of MiniStack are issued now: the tokens are checked with a clock of their own (`app.token_clock`).
 - `amazon-cognito-identity-js` reads the Node `global`: Vite defines it as `globalThis`, or the page stays blank.
 - The SPA, served in https, cannot call MiniStack in http (mixed content): nginx passes `/cognito/` of the API host to it.
+
+# 2026-10-16: the API in a local Lambda with the Bref layer
+
+`make lambda` runs the API in a Lambda with the layer of Bref on MiniStack, behind an HTTP API, the repository mounted (ADR 0053).
+
+## Traps
+
+- MiniStack runs a function in a container only with `LAMBDA_EXECUTOR=docker` and the socket of the Docker of the host; it copies the code into `/var/task` (a bind mount of its own temporary folder would be empty for the Docker of the host) and the layers into `/opt`.
+- MiniStack starts every `provided` runtime with the handler `bootstrap`: Bref then looks for `/var/task/bootstrap`. The local `bootstrap` gives Bref its handler back.
+- Bref compiles the folder of its `.ini` files (`/opt/bref/etc/php/conf.d:/var/task/php/conf.d`): with the code elsewhere, `PHP_INI_SCAN_DIR` points to it, or `intl` stays off.
+- Bref 3 has one layer per PHP version (`php-85`) for every runtime, chosen by `BREF_RUNTIME`; `intl` is shipped in `/opt/bref/extensions` but disabled.
+- The function runs as root and `LAMBDA_DOCKER_FLAGS` takes no `--user`: a `umask 0000` keeps what it writes in the mounted repository writable by the php container.
+- MiniStack answers every preflight of an HTTP API from its CORS (403 "CORS not configured" without one), where AWS passes it to the integration when none is configured.
+- Bref does not tell Symfony the request was https: behind the gateway, `X-Forwarded-Proto` is trusted (`TRUSTED_PROXIES`).
+- `$default` in an nginx config is a variable, and envsubst eats it in a template: the stage is named `local`.
+- `fastcgi_pass` or `proxy_pass` with a variable needs a `resolver`.
+- A recipe of Flex (`nyholm/psr7`, required by Bref) adds a configuration nobody asked for: review `git status` after `composer require`.
+

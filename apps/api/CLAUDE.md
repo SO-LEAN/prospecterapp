@@ -28,7 +28,7 @@ A JSON API that exposes the use cases of `packages/core`, a resource server for 
 - Roles: one `#[IsGranted('ROLE_PROSPECTOR')]` or `#[IsGranted('ROLE_USER')]` per controller (`ROLE_ADMIN` inherits both); the core does not check roles.
 - Links: a resource carries `_links` (HAL, plus `method`), built by its presenter from the possible intents of the core response (`Shared\Links`): the key of a link is absent when the intention is not possible now (`SKIP_NULL_VALUES` on `_links`, optional in the contract), and the call then fails. Document a new intention as a new link.
 - Errors: a use case refuses with `UseCaseRefused`, which `Shared\UseCaseExceptionListener` turns into RFC 9457 `application/problem+json` by its `ErrorType`: `NotFound` 404, `NotPossibleInItsState` 409 (the link is missing), `NotAllowed` 403 (no right to manage personal data: search contacts by text, collect or forget a contact, stop prospecting an organization with contacts; the profile of a colleague), `BusinessRuleViolated` 422 with `violations`; any other exception is a failure (500); missing tokens 401 (`Security\ApiAuthenticationEntryPoint`), missing role 403 (`Security\ApiAccessDeniedHandler`).
-- CORS (`config/packages/nelmio_cors.yaml`) lists the allowed methods: a new verb must be added there, or the browser's preflight fails.
+- CORS (`config/packages/nelmio_cors.yaml`) lists the allowed methods: a new verb must be added there, or the browser's preflight fails, and in the CORS of the HTTP API of `docker/lambda/deploy.sh` (MiniStack answers the preflights of the Lambda mode from it).
 
 ## Authentication
 
@@ -67,6 +67,7 @@ Each bounded context has its own DynamoDB table (ADR 0038, 0048): `<DYNAMODB_TAB
 ## Hosts
 
 - `APP_API_HOST` (`api.local.prospecter.io`), routes in `src/{Me,Prospecting,PersonalData,SignIn}/Controller`, `src/Dashboard` and `src/Contacts` (`config/routes.yaml`); locally nginx passes `/cognito/` of the same host to the Cognito of MiniStack, for the SPA.
+- `make lambda` runs the API in a Lambda with the Bref layer (FPM runtime, `bref/bref`) behind an HTTP API of MiniStack, the repository mounted in the dev environment (ADR 0053): `php/conf.d/bref.ini` enables the extensions the layer ships disabled (`intl`; a new extension the API needs goes there too), `TRUSTED_PROXIES` (empty under PHP-FPM, `REMOTE_ADDR` in the function) lets Symfony trust the `X-Forwarded-Proto` of the gateway.
 - Files are not the API's business: the storage app (`apps/storage`, `static.local.prospecter.io`) keeps and serves them, and `Shared\ImageResourceFactory` names their sizes by its convention (`<public url>/<size>/<path>`, ADR 0033).
 
 ## Tests

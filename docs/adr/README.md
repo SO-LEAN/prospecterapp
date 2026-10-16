@@ -56,3 +56,4 @@ Why the project is shaped the way it is: one file per decision in `docs/adr/`, i
 | [0050](0050-text-search-by-a-projection-of-word-beginnings.md) | The text search is a projection of word beginnings, kept by the events, rebuildable | Accepted | 2026-10-16 |
 | [0051](0051-files-in-an-s3-bucket.md) | The files are in an S3 bucket, served from it; PHP only makes the missing sizes | Accepted | 2026-10-16 |
 | [0052](0052-cognito-signs-the-members-in.md) | Cognito signs the members in; the SPA keeps its screen and signs in by SRP; the API checks the tokens | Accepted | 2026-10-16 |
+| [0053](0053-the-api-in-a-local-lambda-with-the-bref-layer.md) | Locally, the API runs on demand in a Lambda with the Bref layer, the repository mounted | Accepted | 2026-10-16 |
