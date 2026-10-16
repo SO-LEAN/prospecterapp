@@ -36,7 +36,7 @@ Why the project is shaped the way it is: one file per decision in `docs/adr/`, i
 | [0030](0030-bounded-contexts-accounts-prospecting.md) | Bounded contexts Accounts and Prospecting, a shared kernel, code grouped by context | Accepted, port names superseded by 0045 | 2026-10-15 |
 | [0031](0031-personal-data-context.md) | A PersonalData context keeps the personal data of natural persons, and decides who reads them | Accepted, port names superseded by 0045 | 2026-10-15 |
 | [0032](0032-login-email-kept-by-authentication.md) | Members sign in with an email kept by authentication | Accepted | 2026-10-15 |
-| [0033](0033-storage-app.md) | A storage app keeps the files and serves the images in named sizes | Accepted | 2026-10-15 |
+| [0033](0033-storage-app.md) | A storage app keeps the files and serves the images in named sizes | Accepted, the disk superseded by 0051 | 2026-10-15 |
 | [0034](0034-authorization-server-app.md) | An auth app is the authorization server; the API is a resource server | Accepted | 2026-10-15 |
 | [0035](0035-plain-requests-and-responses-typed-refusals.md) | Requests and responses are plain data; the use cases translate the refusals of the domain | Accepted, authentication query superseded by 0040 | 2026-10-15 |
 | [0036](0036-client-gives-identity-and-moment-of-a-command.md) | The client gives the identity and the moment of a command; aggregates keep their creation and last change | Accepted | 2026-10-15 |
@@ -54,3 +54,4 @@ Why the project is shaped the way it is: one file per decision in `docs/adr/`, i
 | [0048](0048-dynamodb-one-table-per-context-on-ministack.md) | DynamoDB, one table per bounded context, emulated locally by MiniStack | Accepted | 2026-10-16 |
 | [0049](0049-lists-in-slices-after-a-cursor.md) | Lists come in slices after a cursor, never in numbered pages | Accepted | 2026-10-16 |
 | [0050](0050-text-search-by-a-projection-of-word-beginnings.md) | The text search is a projection of word beginnings, kept by the events, rebuildable | Accepted | 2026-10-16 |
+| [0051](0051-files-in-an-s3-bucket.md) | The files are in an S3 bucket, served from it; PHP only makes the missing sizes | Accepted | 2026-10-16 |
