@@ -6,6 +6,11 @@ framework:
     # Note that the session will be started ONLY if you read or write from it.
     session: true
 
+    # behind the API Gateway of a Lambda (Bref), the request comes in http: the gateway tells it was https.
+    # Empty under PHP-FPM, nginx telling it itself (HTTPS)
+    trusted_proxies: '%env(TRUSTED_PROXIES)%'
+    trusted_headers: ['x-forwarded-proto', 'x-forwarded-port']
+
     serializer:
         default_context:
             # an unknown field is a client mistake (wrong format, typo): reject it with a 422 instead of
