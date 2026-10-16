@@ -43,6 +43,8 @@ services:
   # the AWS services emulated locally (ADR 0048): DynamoDB for the API, kept between restarts
   ministack:
     image: ministackorg/ministack:1.5.27
+    ports:
+      - "127.0.0.1:4566:4566"
     environment:
       MINISTACK_REGION: eu-west-3
       PERSIST_STATE: "1"
