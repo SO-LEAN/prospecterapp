@@ -1,7 +1,7 @@
 # 0003. A single linear `main`, short-lived branches, fast-forward only
 
 - Date: 2026-10-13
-- Status: Accepted
+- Status: Superseded by [0057](0057-continuous-integration-around-dev.md)
 - Implemented by: history rewritten on 2026-10-13; root `CLAUDE.md`
 
 ## Context
