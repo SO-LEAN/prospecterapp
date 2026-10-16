@@ -10,7 +10,8 @@ CORE = $(DC) run --rm --no-deps -w /var/www/src/packages/core php
 STORAGE = $(DC) run --rm --no-deps -w /var/www/src/apps/storage php
 # the AWS services emulated locally (DynamoDB, S3, Cognito; ADR 0048, 0051, 0052), started before what needs them
 AWS = $(DC) up -d ministack
-# the API in a Lambda with the Bref layer (ADR 0053): the repository is mounted in the function by its absolute path
+# the API and the storage in Lambdas with the Bref layers (ADR 0053, 0054): the repository is mounted in the
+# functions by its absolute path
 LAMBDA = $(DC) -f docker-compose.yml -f docker-compose.lambda.yml
 export PROJECT_DIR := $(CURDIR)
 
@@ -59,12 +60,12 @@ start: ## Start the stack: https://local.prospecter.io
 stop: ## Stop the stack
 	@$(DC) stop
 
-lambda: ## Run the API in a Lambda with the Bref layer on MiniStack, the repository mounted (MiniStack gets the Docker socket); make fpm goes back
+lambda: ## Run the API and the storage in Lambdas with the Bref layers on MiniStack, the repository mounted (MiniStack gets the Docker socket); make fpm goes back
 	@$(LAMBDA) up -d --build ministack nginx
 	@$(LAMBDA) run --rm --build lambda-deploy
-	@echo "API in its Lambda: https://api.local.prospecter.io/api/doc"
+	@echo "API and storage in their Lambdas: https://api.local.prospecter.io/api/doc"
 
-fpm: ## Run the API on PHP-FPM again, the default of make start (MiniStack without the Docker socket)
+fpm: ## Run the API and the storage on PHP-FPM again, the default of make start (MiniStack without the Docker socket)
 	@docker ps -aq --filter label=ministack=lambda | xargs -r docker rm -f >/dev/null
 	@$(DC) up -d --build ministack nginx
 

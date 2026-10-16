@@ -5,5 +5,5 @@ RUN apk add --no-cache openssl \
 
 COPY conf.d/ /etc/nginx/conf.d/
 COPY templates/ /etc/nginx/templates/
-COPY api-runtime/ /etc/nginx/api-runtime/
+COPY runtime/ /etc/nginx/runtime/
 COPY 05-generate-certificate.sh /docker-entrypoint.d/

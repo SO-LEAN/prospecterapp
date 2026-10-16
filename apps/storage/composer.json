@@ -8,6 +8,7 @@
         "ext-ctype": "*",
         "ext-iconv": "*",
         "aws/aws-sdk-php": "^3.401",
+        "bref/bref": "^3.0",
         "imagine/imagine": "^1.5",
         "symfony/console": "8.1.*",
         "symfony/dotenv": "8.1.*",

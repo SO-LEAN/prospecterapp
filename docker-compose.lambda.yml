@@ -1,4 +1,5 @@
-# The API in a Lambda with the Bref layer on MiniStack (make lambda, ADR 0053), over docker-compose.yml.
+# The API and the storage in Lambdas with the Bref layers on MiniStack (make lambda, ADR 0053, 0054), over
+# docker-compose.yml.
 # MiniStack runs the functions in containers of the Docker of the host: its socket is mounted in this mode only,
 # which gives MiniStack the rights of root on the host. The repository is mounted in the function as in php.
 services:
@@ -15,9 +16,9 @@ services:
 
   nginx:
     environment:
-      API_RUNTIME: lambda
+      RUNTIME: lambda
 
-  # deploys the function and its HTTP API (docker/lambda/deploy.sh)
+  # deploys the functions and their HTTP APIs (docker/lambda/deploy.sh)
   lambda-deploy:
     build: docker/lambda
     environment:

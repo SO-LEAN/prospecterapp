@@ -1,4 +1,4 @@
-# The API (apps/api) on PHP-FPM or in its Lambda (API_RUNTIME, ADR 0053), and the Cognito of MiniStack for the SPA
+# The API (apps/api) on PHP-FPM or in its Lambda (RUNTIME, ADR 0053), and the Cognito of MiniStack for the SPA
 # (ADR 0052): the SPA, served in https, signs in there through this host. MiniStack serves every AWS service on
 # one port: only the calls of Cognito pass.
 map "$request_method $http_x_amz_target" $cognito_call {
@@ -27,5 +27,5 @@ server {
         proxy_pass http://$ministack;
     }
 
-    include /etc/nginx/api-runtime/${API_RUNTIME}.conf;
+    include /etc/nginx/runtime/${RUNTIME}/api.conf;
 }
