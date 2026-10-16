@@ -19,7 +19,3 @@
 /.phpunit.cache/
 ###< phpunit/phpunit ###
 
-###> storage ###
-# the stored files and their resized copies (data, not code)
-/public/storage/
-###< storage ###
