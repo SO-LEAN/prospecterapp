@@ -5,7 +5,7 @@ Prospecting application built with clean architecture: a React single page appli
 | Path | Content |
 |---|---|
 | `apps/front/` | React 19 SPA: TypeScript, Vite, TanStack Router and Query, shadcn/ui + Tailwind CSS, MapLibre |
-| `apps/api/` | Symfony 8.1 JSON API, an OAuth 2 resource server documented with NelmioApiDocBundle, Doctrine ORM 3, one SQLite database per bounded context |
+| `apps/api/` | Symfony 8.1 JSON API, an OAuth 2 resource server documented with NelmioApiDocBundle, DynamoDB (one table per bounded context, MiniStack locally) |
 | `apps/auth/` | Symfony 8.1 authorization server: sign-in, OAuth 2 tokens (authorization code + PKCE), login email and password |
 | `apps/storage/` | Symfony 8.1 app keeping the uploaded files and serving the images in named sizes |
 | `packages/core/` | `prospecter/core`: the bounded contexts Accounts, PersonalData and Prospecting, pure PHP, described by Gherkin scenarios |
@@ -43,7 +43,7 @@ The certificate is self-signed: accept the browser warning once for each host (`
 | `make e2e` | Playwright journeys against the running stack |
 | `make lint` / `make fix` | PHPStan, php-cs-fixer, Rector, Biome, TypeScript |
 | `make api-doc` | Regenerate the OpenAPI contracts (API, auth) and the front API types after an endpoint change |
-| `make db` | Reset the databases of the API and the auth, and reload the fixtures |
+| `make db` | Reset the tables of the API and the database of the auth, with the data of the demonstration |
 | `make commands` | List the commands of the core and their handlers |
 | `make exec-api` / `make exec-front` | Shell in the PHP or Node container |
 

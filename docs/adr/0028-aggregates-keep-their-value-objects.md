@@ -1,7 +1,7 @@
 # 0028. Aggregates keep their value objects; the Doctrine mapping adapts to them
 
 - Date: 2026-10-15
-- Status: Accepted
+- Status: Accepted, the Doctrine mapping superseded by [0048](0048-dynamodb-one-table-per-context-on-ministack.md)
 - Supersedes: the persistence point of [0023](0023-tactical-ddd-in-the-core.md) (flat columns inherited from [0018](0018-readonly-core-model.md))
 - Implemented by: `packages/core/src/Domain`, `apps/api/src/Doctrine/Type`, `apps/api/config/doctrine`
 

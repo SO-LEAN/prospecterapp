@@ -67,7 +67,7 @@ This guide is alive: rules get added and sharpened as the code is improved, iter
 ## 7. Boundaries
 
 - **Wrap third-party code** behind our own interfaces: the core sees ports (`GeoLocation`, `Storage`), never Doctrine, Symfony or HTTP clients.
-- **The domain does not bend to a tool**: an aggregate keeps its value objects even when the ORM finds them awkward; the adapter adapts (embeddables, custom Doctrine types, ADR 0028). No comment, property or method of the core mentions persistence.
+- **The domain does not bend to a tool**: an aggregate keeps its value objects even when the ORM finds them awkward; the adapter adapts (the documents of the DynamoDB repositories, restored without the constructor, ADR 0028, 0048). No comment, property or method of the core mentions persistence.
 - **Learning tests** for a library we depend on in a way we are unsure of; the adapter tests play this role (`GeoplateformeGeoLocationTest`).
 - **Code that does not exist yet**: define the interface we wish we had, and adapt to the real one later.
 
@@ -90,7 +90,7 @@ This guide is alive: rules get added and sharpened as the code is improved, iter
 
 - **Single responsibility**: a module has one reason to change, i.e. answers to one actor. Each use case serves one intent; presenters change with the API format, not with the rules.
 - **Open/closed**: extend behaviour by adding code (a new adapter behind a port, a new use case), not by editing working code.
-- **Liskov substitution**: an implementation honours the contract of its interface, including its exceptions; the in-memory doubles behave like the Doctrine adapters, or the scenarios lie.
+- **Liskov substitution**: an implementation honours the contract of its interface, including its exceptions; the in-memory doubles behave like the DynamoDB adapters, or the scenarios lie.
 - **Interface segregation**: clients depend only on what they use: a repository offers the queries its use cases need (`pageProspectedBy`, `ofIds`), no generic finder.
 - **Dependency inversion**: high-level policy does not depend on details; both depend on abstractions owned by the policy (ports in the core, adapters in the API).
 

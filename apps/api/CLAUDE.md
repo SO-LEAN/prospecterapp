@@ -10,7 +10,7 @@ A JSON API that exposes the use cases of `packages/core`, a resource server for 
 
 ## Project overrides
 
-- No migrations: the schema is created from the mapping (`make db`, tests recreate it). Do not add DoctrineMigrationsBundle unless asked.
+- No Doctrine, no migrations: the aggregates live in DynamoDB (ADR 0048), the tables are created by `bin/console app:tables:recreate` (`make db`, the tests recreate them).
 - No Symfony CLI: run commands through `docker compose run --rm php ...` (see the root `CLAUDE.md`).
 - No API Platform: plain controllers documented with NelmioApiDocBundle attributes.
 - Services in YAML: the ports and the services of the hexagon are registered in `config/services.yaml`, the core being pure PHP without Symfony attributes.
@@ -35,15 +35,15 @@ A JSON API that exposes the use cases of `packages/core`, a resource server for 
 See `docs/auth.md` at the repository root. The API is a resource server only: signing in, the OAuth 2 tokens and the credentials belong to `apps/auth` (ADR 0034).
 
 - Firewall `api` (`^/api/`, stateless, `access_token` with `Security\AccessTokenHandler`): the JWT is checked with the public key of the authorization server (`AUTH_PUBLIC_KEY`), its expiry and its client (`AUTH_CLIENT_ID`); its subject is the member id, loaded by `Security\MemberProvider` into `App\Security\User`, received as `#[CurrentUser] User $user`; its ids go into every command and query, and the aggregates decide ownership (ADR 0026).
-- The prospector of the fixtures has the member id `AppFixtures::PROSPECTOR`, the one the auth fixtures give its credentials.
+- The prospector of the demonstration has the member id `DemoData::PROSPECTOR` (the assistant `DemoData::ASSISTANT`), the ones the auth fixtures give their credentials.
 
 ## Architecture
 
 | Port of the core | Adapter |
 |---|---|
-| `Accounts\Domain\AccountRepository`, `Accounts\Domain\MemberRepository` | `Accounts\Persistence\DoctrineAccountRepository`, `DoctrineMemberRepository` |
-| `Prospecting\Domain\OrganizationRepository` | `Prospecting\Persistence\DoctrineOrganizationRepository` |
-| `PersonalData\Domain\PersonRepository` | `PersonalData\Persistence\DoctrinePersonRepository` |
+| `Accounts\Domain\AccountRepository`, `Accounts\Domain\MemberRepository` | `Accounts\Persistence\DynamoAccountRepository`, `DynamoMemberRepository` |
+| `Prospecting\Domain\OrganizationRepository` | `Prospecting\Persistence\DynamoOrganizationRepository` |
+| `PersonalData\Domain\PersonRepository` | `PersonalData\Persistence\DynamoPersonRepository` |
 | `PersonalData\Domain\ReaderService` | `PersonalData\AccountsReaderService`: anticorruption layer from the published query `ConsultMember` of Accounts (ADR 0045) |
 | `Prospecting\Domain\ProspectorService` | `Prospecting\AccountsProspectorService`: anticorruption layer from the published query `ConsultMember` of Accounts (with the right to manage personal data) |
 | `Prospecting\Domain\KnownContacts` | `Prospecting\PersonalDataKnownContacts`: anticorruption layer from the published query `IsAContactOf` of PersonalData |
@@ -56,9 +56,12 @@ The delivery (controllers, inputs, resources, presenters, readers, security) use
 
 Ports are aliased to adapters in `config/services.yaml`. Every `*Handler` of the core is a service; those implementing `Prospecter\Core\SharedKernel\Application\CommandHandler` are registered on `command.bus` through `RefusalTranslatingHandler` by `Shared\DependencyInjection\RefusalTranslatingHandlersPass`; the same pass wraps every `QueryHandler` and aliases it by the name of its intent, so a class calling one asks for `RefusalTranslatingHandler $consultOrganization` (`ConsultOrganizationHandler`) (ADR 0035, 0044). Nothing is built in a constructor and no service by the code: everything is injected (`make lint` checks it, ADR 0044); the services of the hexagon are registered in `config/services.yaml` (`config/packages/messenger.yaml`: no transport, handled in the request). Those implementing `EventHandler` are tagged on `event.bus` (synchronous, `allow_no_handlers`), routed by the type of the event they take: a domain event of their context (the `Publish…` translators) or an integration event of another context (ADR 0042, 0046). `bin/console debug:messenger` (`make commands`) lists both buses.
 
-Each bounded context has its own database (ADR 0038): a connection and an entity manager per context (`accounts`, `personal_data`, `prospecting`, SQLite files `var/<context>_<env>.db`, URLs `<CONTEXT>_DATABASE_URL`), injected by name in its repositories only (`EntityManagerInterface $prospectingEntityManager`); `tests/Architecture/DatabasePerContextTest` fails otherwise. Nothing joins or spans two contexts. `make db` and `ApiTestCase` recreate every database. Doctrine mapping of the aggregates is in `config/doctrine/<Context>/*.orm.xml`, each read by the entity manager of its context, with the embeddables of `SharedKernel` (tables `accounts` and `members` in Accounts, `persons` in PersonalData, `organizations` in Prospecting, and in each the `journal` of its domain events, ADR 0043). The aggregates keep their value objects and the mapping adapts to them (ADR 0028): the value objects always present are embeddables without column prefix (`LegalIdentity`, `ContactDetails`, `PersonName`: columns `corporate_name`, `email`...), the others are custom types of `src/<Context>/Persistence` and `src/Shared/Persistence` registered in `doctrine.yaml` (identities as `guid`, `Email` as a string, `Address`, `GeoPoint`, `File` and the roles as JSON, since Doctrine cannot make an embeddable null; `moment` for `createdAt` and `modifiedAt`, written and read in UTC since SQLite keeps no time zone). DQL reaches embedded fields by path (`o.contactDetails.email`) and passes identities with their type (`setParameter('account', $id, 'account_id')`).
+Each bounded context has its own DynamoDB table (ADR 0038, 0048): `<DYNAMODB_TABLE_PREFIX>-<context>` (`prospecter-dev-prospecting`; the prefix `prospecter-test` in tests), a `Shared\Persistence\Table` injected by name in the persistence of its context only (`Table $prospectingTable`); `tests/Architecture/TablePerContextTest` fails otherwise. Nothing spans two contexts. Locally the tables live in MiniStack (`ministack` service of `docker-compose.yml`, `DYNAMODB_ENDPOINT`, dev credentials in `.env`); `Shared\Persistence\Tables` creates them all alike (`PK`/`SK`, the indexes `GSI1` and `GSI2`, billed by request), `make db` with the data of the demonstration (`Demo\DemoData`, written through the domain and publishing its events like a use case).
 
-Doctrine refuses to initialize a lazy proxy of an aggregate: hydration would replace its readonly identity with an equal but new value object. The code never creates one (no association, no `getReference()`); `ApiTestCase` empties the entity managers after loading the fixtures and after reading a reference (`login()`, `accountOfTheFixtures()`), so that the requests load the aggregates again.
+- Single-table design, each repository documenting its items: `ORGANIZATION#<id>` listed by account in `GSI1` and by holding in `GSI2`, the links `CONTACT#<person>` / `ORGANIZATION#<id>`; `PERSON#<id>` listed by account and purpose; `ACCOUNT#<id>`, `MEMBER#<id>`; the journal `JOURNAL#<subject>` (ADR 0043).
+- An aggregate is stored as a plain document (`OrganizationDocument`, `PersonDocument`, `Shared\Persistence\Documents` for the value objects of the shared kernel, moments in UTC to the microsecond) and restored without its constructor by `Shared\Persistence\Hydrator`: the domain keeps its value objects and private properties (ADR 0028); a new property of an aggregate or a value object needs a change of its document.
+- `save()` writes in one transaction the aggregate and what follows from it: the reservation of its email (`EMAIL#...`, written under a condition, so that a second holder cancels the transaction into `EmailAlreadyUsed`, the safety net of `EmailUniqueness`, ADR 0039), the links of its contacts.
+- Lists come in slices newest first after a cursor (ADR 0049); a text search asks the projection `Shared\Persistence\SearchProjection` (`TOKEN#<scope>#<beginning>`, ADR 0050), kept up to date by `OrganizationSearchIndex` and `PersonSearchIndex` on the event bus; `bin/console app:search:rebuild` rebuilds it from the aggregates when it drifted.
 
 ## Hosts
 
@@ -67,7 +70,7 @@ Doctrine refuses to initialize a lazy proxy of an aggregate: hydration would rep
 
 ## Tests
 
-- `tests/Api`: functional tests through `Base/ApiTestCase`, whose `login()` signs an access token for a fixture member with the test key pair (`tests/bootstrap.php`, in `var/test-jwt`, never committed). Schema and fixtures are recreated for each test; host `api.test.prospecter.io`; variables in `.env.test`.
-- `tests/<Context>`: the adapters on their real database or service (`DoctrinePersonRepositoryTest`: the unique index refuses an email taken meanwhile; `GeoplateformeGeoLocationTest`); `tests/Architecture`: the boundaries (contexts, domain behind the application, one database per context).
+- `tests/Api`: functional tests through `Base/ApiTestCase`, whose `login()` signs an access token for a member of the demonstration with the test key pair (`tests/bootstrap.php`, in `var/test-jwt`, never committed). The tables of the prefix `prospecter-test` are recreated for each test, in MiniStack (`make test-api` starts it), with the data of the demonstration; host `api.test.prospecter.io`; variables in `.env.test`.
+- `tests/<Context>`: the adapters on their real table or service (`DynamoPersonRepositoryTest`: the reservation refuses an email taken meanwhile; `OrganizationSearchTest`: the projection follows the events and is rebuilt; `GeoplateformeGeoLocationTest`); `tests/Architecture`: the boundaries (contexts, domain behind the application, one table per context). A test failing because of a limit of MiniStack is skipped with its reason; a dev instance on AWS is the safety net.
 - Unit tests extend PHPUnit's `TestCase` and use hand-written doubles (`tests/Double`), no mock library.
 - PHPUnit 13: attributes only (`#[DataProvider]`, `#[Group]`), static data providers, abstract base classes named `*TestCase`.

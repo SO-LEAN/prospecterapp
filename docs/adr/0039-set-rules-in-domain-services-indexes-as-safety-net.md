@@ -1,7 +1,7 @@
 # 0039. A rule on a set of aggregates is a domain service; a unique index is its safety net
 
 - Date: 2026-10-15
-- Status: Accepted
+- Status: Accepted, the unique index superseded by a conditional reservation in [0048](0048-dynamodb-one-table-per-context-on-ministack.md)
 - Implemented by: `packages/core/src/{PersonalData,Prospecting}/Domain/EmailUniqueness.php`, `isEmailUsed()` of their repositories, the unique constraints of `apps/api/config/doctrine/{PersonalData/Person,Prospecting/Organization}.orm.xml`
 
 ## Context

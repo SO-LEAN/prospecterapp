@@ -11,7 +11,7 @@ Aggregates, value objects, handlers, services (`FileStore`, `GeoLocalizer`, `Ema
 
 | Port | Double | Behaves like |
 |---|---|---|
-| `AccountRepository`, `MemberRepository`, `OrganizationRepository` | `InMemoryAccountRepository`, `InMemoryMemberRepository`, `InMemoryOrganizationRepository` over `InMemoryDatabase` | the Doctrine repositories: copies stored and returned (a change not saved is lost, the recorded events are not stored), the answer to `isEmailUsed()` among the organizations of an account (the rule itself is `EmailUniqueness`), search and pagination newest first |
+| `AccountRepository`, `MemberRepository`, `OrganizationRepository` | `InMemoryAccountRepository`, `InMemoryMemberRepository`, `InMemoryOrganizationRepository` over `InMemoryDatabase` | the DynamoDB repositories: copies stored and returned (a change not saved is lost, the recorded events are not stored), the answer to `isEmailUsed()` among the organizations of an account (the rule itself is `EmailUniqueness`), slices newest first after a cursor, found by `searchTerms()` (`NewestFirst`) |
 | `ProspectorService` (Prospecting) | `AccountsProspectorService` | the anticorruption adapter of the API, same code: a prospector is the member the published query `ConsultMember` of Accounts answers |
 | `PersonRepository`, `ReaderService` (PersonalData) | `InMemoryPersonRepository`, `AccountsReaderService` | the answer to `isEmailUsed()` among the persons of an account for a purpose, the search newest first; a reader is the member `ConsultMember` answers, with its person and its right to read personal data |
 | `KnownContacts` (Prospecting) | `PersonalDataKnownContacts` | the anticorruption adapter of the API, same code: the published query `IsAContactOf` of PersonalData |

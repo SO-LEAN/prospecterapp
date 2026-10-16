@@ -1,7 +1,7 @@
 # 0016. SQLite, schema generated from the mapping, no migrations
 
 - Date: 2026-10-13
-- Status: Accepted (to revisit before any production deployment)
+- Status: Accepted for the auth app; the API superseded by [0048](0048-dynamodb-one-table-per-context-on-ministack.md)
 - Implemented by: `DATABASE_URL` in `apps/api/.env`, `make db`, `apps/api/CLAUDE.md`
 
 ## Context

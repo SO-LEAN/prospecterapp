@@ -53,7 +53,7 @@ Dependency rule: `shared` depends on nothing of the app; a `feature` depends onl
 | State | Where | Example |
 |---|---|---|
 | Server data | TanStack Query cache | organizations, my account, dashboard |
-| URL | Router search params, validated by zod | `?q=acme&page=2` on the organizations list |
+| URL | Router search params, validated by zod | `?q=acme` on the organizations list |
 | UI preferences | Zustand, persisted in localStorage | theme, collapsed sidebar |
 | Form | react-hook-form | the section being edited |
 | Session | oidc-client-ts (sessionStorage) | access and refresh tokens |
@@ -65,9 +65,9 @@ Never copy server data into Zustand or `useState`: read it from the query, the c
 
 - Queries are declared once as options (`organizationQuery(id)` in `features/*/queries.ts`) and reused by route loaders and components.
 - Route loaders call `queryClient.ensureQueryData(...)`: the data is fetched before the page renders (no loading waterfall), and with `defaultPreload: 'intent'` hovering a link starts loading its code and data.
-- Pages read with `useSuspenseQuery`: no undefined checks, the route `pendingComponent` shows a skeleton when loading takes time. Paginated lists are the exception: `useQuery` with `keepPreviousData` (below).
+- Pages read with `useSuspenseQuery`: no undefined checks, the route `pendingComponent` shows a skeleton when loading takes time. Lists are the exception: `useInfiniteQuery` with `keepPreviousData` (below).
 - `staleTime` 30 s: navigating back and forth does not refetch; data refreshes in the background when the window regains focus.
-- Lists keep the previous page on screen while the next loads (`placeholderData: keepPreviousData`); the search input is debounced (300 ms) and written to the URL.
+- A list comes a slice after the other (ADR 0049): `infiniteQueryOptions` on the typed client (`organizationSlicesQuery`, `contactSlicesQuery`), the cursor read in the link `next` of a slice (`shared/api/slices.ts`), "Charger plus" asks for the next one; no page number, no total. A list keeps the previous search on screen while the next loads (`placeholderData: keepPreviousData`); the search input is debounced (300 ms) and written to the URL.
 - Mutations put the returned resource directly in the cache (`setQueryData`), then invalidate only the lists that may change; invalidated queries refetch only if displayed.
 - Code splitting: one chunk per route (router plugin), MapLibre loaded with `lazy()` only on pages with a map.
 

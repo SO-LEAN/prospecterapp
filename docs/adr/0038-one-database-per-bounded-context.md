@@ -1,7 +1,7 @@
 # 0038. One database per bounded context
 
 - Date: 2026-10-15
-- Status: Accepted
+- Status: Accepted, the databases became tables by [0048](0048-dynamodb-one-table-per-context-on-ministack.md)
 - Implemented by: `apps/api/config/packages/doctrine.yaml`, the Doctrine repositories of `apps/api/src/<Context>/Persistence`, `apps/api/tests/Architecture/DatabasePerContextTest.php`
 
 ## Context
