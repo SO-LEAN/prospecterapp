@@ -1,6 +1,7 @@
-# The API (apps/api) on PHP-FPM or in its Lambda (RUNTIME, ADR 0053), and the Cognito of MiniStack for the SPA
-# (ADR 0052): the SPA, served in https, signs in there through this host. MiniStack serves every AWS service on
-# one port: only the calls of Cognito pass.
+# The API (apps/api) in its Lambda behind its HTTP API on MiniStack (ADR 0055), addressed by path: the host of the
+# request is kept for the routes of the API, the gateway telling the API it was https. And the Cognito of
+# MiniStack for the SPA (ADR 0052): the SPA, served in https, signs in there through this host. MiniStack serves
+# every AWS service on one port: only the calls of Cognito pass.
 map "$request_method $http_x_amz_target" $cognito_call {
     default 0;
     "~^OPTIONS " 1;
@@ -13,11 +14,9 @@ server {
     ssl_certificate /etc/ssl/certs/project.crt;
     ssl_certificate_key /etc/ssl/certs/project.key;
     server_name api.${NGINX_HOST};
-    root /var/www/src/apps/api/public;
-    # resolved on each request: PHP-FPM and MiniStack may be recreated with other addresses
+    # resolved on each request: MiniStack may be recreated with another address
     resolver 127.0.0.11 valid=10s;
     set $ministack ${MINISTACK_HOST};
-    set $php_fpm ${PHP_FPM_HOST};
 
     location /cognito/ {
         if ($cognito_call = 0) {
@@ -27,5 +26,11 @@ server {
         proxy_pass http://$ministack;
     }
 
-    include /etc/nginx/runtime/${RUNTIME}/api.conf;
+    location / {
+        proxy_set_header Host $host;
+        proxy_set_header X-Forwarded-Proto https;
+        proxy_set_header X-Forwarded-Port 443;
+        proxy_read_timeout 60s;
+        proxy_pass http://$ministack/_aws/execute-api/prospecter-dev-api/local$request_uri;
+    }
 }

@@ -10,14 +10,13 @@ CORE = $(DC) run --rm --no-deps -w /var/www/src/packages/core php
 STORAGE = $(DC) run --rm --no-deps -w /var/www/src/apps/storage php
 # the AWS services emulated locally (DynamoDB, S3, Cognito; ADR 0048, 0051, 0052), started before what needs them
 AWS = $(DC) up -d ministack
-# the API and the storage in Lambdas with the Bref layers (ADR 0053, 0054): the repository is mounted in the
+# the API and the storage run in Lambdas with the Bref layers (ADR 0055): the repository is mounted in the
 # functions by its absolute path
-LAMBDA = $(DC) -f docker-compose.yml -f docker-compose.lambda.yml
 export PROJECT_DIR := $(CURDIR)
 
 .DEFAULT_GOAL := help
 
-.PHONY: help install build vendor db aws front-install start stop lambda fpm logs ps test test-api test-storage test-front e2e test-core lint fix api-doc commands exec-api exec-front
+.PHONY: help install build vendor db aws front-install start deploy stop logs ps test test-api test-storage test-front e2e test-core lint fix api-doc commands exec-api exec-front
 
 ##@ Help
 help: ## List the commands (the default target)
@@ -53,21 +52,16 @@ front-install: ## Install the pnpm dependencies of the front
 aws: ## Start the AWS services emulated locally (MiniStack)
 	@$(AWS) >/dev/null 2>&1
 
-start: ## Start the stack: https://local.prospecter.io
-	@$(DC) up -d
+start: deploy ## Start the stack, the API and the storage in their Lambdas: https://local.prospecter.io
 	@echo "SPA: https://local.prospecter.io  API doc: https://api.local.prospecter.io/api/doc"
 
-stop: ## Stop the stack
+deploy: ## Start the stack and (re)deploy the Lambdas of the API and the storage on MiniStack
+	@$(DC) up -d --build
+	@$(DC) run --rm --build lambda-deploy
+
+stop: ## Stop the stack and the functions MiniStack runs
 	@$(DC) stop
-
-lambda: ## Run the API and the storage in Lambdas with the Bref layers on MiniStack, the repository mounted (MiniStack gets the Docker socket); make fpm goes back
-	@$(LAMBDA) up -d --build ministack nginx
-	@$(LAMBDA) run --rm --build lambda-deploy
-	@echo "API and storage in their Lambdas: https://api.local.prospecter.io/api/doc"
-
-fpm: ## Run the API and the storage on PHP-FPM again, the default of make start (MiniStack without the Docker socket)
 	@docker ps -aq --filter label=ministack=lambda | xargs -r docker rm -f >/dev/null
-	@$(DC) up -d --build ministack nginx
 
 logs: ## Follow the logs of the stack
 	@$(DC) logs -f

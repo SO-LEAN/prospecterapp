@@ -1,21 +1,18 @@
 # The storage app (apps/storage, ADR 0051): the stored files and their sizes, served from the S3 bucket
-# (MiniStack locally, by path); a size missing from the bucket goes to the app, which makes it once. The app runs
-# on PHP-FPM or in its Lambda (RUNTIME, ADR 0054).
+# (MiniStack locally, by path); a size missing from the bucket goes to the app in its Lambda (ADR 0055), which
+# makes it once.
 server {
     listen 443 ssl;
     http2 on;
     ssl_certificate /etc/ssl/certs/project.crt;
     ssl_certificate_key /etc/ssl/certs/project.key;
     server_name static.${NGINX_HOST};
-    root /var/www/src/apps/storage/public;
 
-    fastcgi_hide_header Set-Cookie;
     access_log off;
     add_header Access-Control-Allow-Origin *;
-    # resolved on each request: PHP-FPM and MiniStack may be recreated with other addresses
+    # resolved on each request: MiniStack may be recreated with another address
     resolver 127.0.0.11 valid=10s;
     set $ministack ${MINISTACK_HOST};
-    set $php_fpm ${PHP_FPM_HOST};
 
     location /storage/ {
         rewrite ^/storage/(.*)$ /${FILES_BUCKET}/$1 break;
@@ -32,7 +29,7 @@ server {
     }
 
     location @missing {
-        include /etc/nginx/runtime/${RUNTIME}/storage.conf;
+        include /etc/nginx/storage-lambda.conf;
     }
 
     # storing and removing files go through the internal server only
@@ -48,10 +45,9 @@ server {
     server_name _;
     resolver 127.0.0.11 valid=10s;
     set $ministack ${MINISTACK_HOST};
-    set $php_fpm ${PHP_FPM_HOST};
 
     location /files {
-        include /etc/nginx/runtime/${RUNTIME}/storage.conf;
+        include /etc/nginx/storage-lambda.conf;
     }
 
     location / {

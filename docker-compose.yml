@@ -1,4 +1,5 @@
 services:
+  # the command line of the PHP apps (tests, Composer, console): the apps themselves run in their Lambdas
   php:
     build:
       context: docker/php
@@ -14,6 +15,7 @@ services:
       - ministack
     extra_hosts:
       - host.docker.internal:host-gateway
+    profiles: [cli]
     container_name: pro-php
   node:
     build: docker/node
@@ -29,25 +31,23 @@ services:
       - "127.0.0.1:80:80"
       - "127.0.0.1:443:443"
     depends_on:
-      - php
       - node
       - ministack
     volumes:
-      - ./:/var/www/src:ro
       - ./docker/data/ssl/certs/:/etc/ssl/certs
     environment:
       NGINX_HOST: local.prospecter.io
-      PHP_FPM_HOST: php
-      # the API and the storage on PHP-FPM, or in their Lambdas (make lambda, docker-compose.lambda.yml)
-      RUNTIME: fpm
       FRONT_HOST: node
-      # MiniStack, behind the static host (the bucket of the files, apps/storage/.env) and the API host (Cognito)
+      # MiniStack, behind the API and static hosts: the HTTP APIs of the Lambdas, the bucket of the files
+      # (apps/storage/.env) and Cognito
       MINISTACK_HOST: ministack:4566
       FILES_BUCKET: prospecter-dev-files
     container_name: pro-nginx
 
-  # the AWS services emulated locally (ADR 0048, 0051): DynamoDB for the API, S3 for the storage,
-  # Cognito for the sign-in (ADR 0052), kept between restarts
+  # the AWS services emulated locally, kept between restarts: DynamoDB for the API (ADR 0048), S3 for the storage
+  # (ADR 0051), Cognito for the sign-in (ADR 0052), and the Lambdas of the API and the storage behind their HTTP
+  # APIs (ADR 0055). It runs the functions in containers of the Docker of the host, whose socket it gets: the
+  # rights of root on the host, accepted locally. The repository is mounted in the functions as in php.
   ministack:
     image: ministackorg/ministack:1.5.27
     ports:
@@ -58,9 +58,28 @@ services:
       S3_PERSIST: "1"
       S3_DATA_DIR: /var/lib/ministack/s3
       STATE_DIR: /var/lib/ministack
+      LAMBDA_EXECUTOR: docker
+      LAMBDA_DOCKER_NETWORK: ${COMPOSE_PROJECT_NAME:-prospecterapp}_default
+      LAMBDA_DOCKER_FLAGS: -v ${PROJECT_DIR:-${PWD}}:/var/www/src
+      # the code being mounted, a warm function stays up to date: keep it an hour rather than 5 minutes
+      LAMBDA_WARM_TTL_SECONDS: "3600"
     volumes:
       - ministack-data:/var/lib/ministack
+      - /var/run/docker.sock:/var/run/docker.sock
     container_name: pro-ministack
+
+  # deploys the Lambdas and their HTTP APIs (docker/lambda/deploy.sh, make start)
+  lambda-deploy:
+    build: docker/lambda
+    environment:
+      AWS_ENDPOINT_URL: http://ministack:4566
+      AWS_REGION: eu-west-3
+      AWS_ACCESS_KEY_ID: test
+      AWS_SECRET_ACCESS_KEY: test
+      API_HOST: api.local.prospecter.io
+    depends_on:
+      - ministack
+    profiles: [deploy]
 volumes:
   composer-cache:
   pnpm-store:

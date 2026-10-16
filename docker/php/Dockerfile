@@ -1,4 +1,6 @@
-FROM php:8.5-fpm-trixie
+# The command line of the PHP apps (tests, Composer, console, PHPStan): the apps themselves run in their Bref
+# Lambdas (ADR 0055)
+FROM php:8.5-cli-trixie
 
 ARG UID=1000
 ARG GID=1000
@@ -12,7 +14,6 @@ RUN apt-get update \
     && install-php-extensions gd imagick intl opcache zip xdebug
 
 COPY php.ini /usr/local/etc/php/conf.d/zz-app.ini
-COPY php-fpm.conf /usr/local/etc/php-fpm.d/zz-app.conf
 
 RUN groupadd -g ${GID} developer \
     && useradd -m -u ${UID} -g ${GID} -s /bin/bash developer
