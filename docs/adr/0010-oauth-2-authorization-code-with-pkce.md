@@ -1,7 +1,7 @@
 # 0010. OAuth 2 authorization code with PKCE for the SPA
 
 - Date: 2026-10-14
-- Status: Accepted
+- Status: Superseded by [0052](0052-cognito-signs-the-members-in.md)
 - Implemented by: 20f66d6; `docs/auth.md`, `config/packages/league_oauth2_server.yaml`
 
 ## Context

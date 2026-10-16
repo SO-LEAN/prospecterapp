@@ -9,7 +9,7 @@ This guide is alive: rules get added and sharpened as the code is improved, iter
 - **Reveal the intention.** A name says why it exists and how it is used; if it needs a comment, it is the wrong name. `Organization::possibleIntentsOf()`, `makeRoomForThePopupAbove()`.
 - **Make meaningful distinctions.** No number series (`$organization2`), no noise words (`Data`, `Info`, `Manager`, `Object`). The type does not belong in the name: `$customers`, not `$customerList`.
 - **Pronounceable and searchable.** No abbreviations (`$org`, `$req`), no single letters except tiny loop counters and closure parameters read on the same line.
-- **No encodings.** No Hungarian notation, no `m_` or `$str` prefixes, no `I` prefix nor `Interface` suffix on interfaces, no `Impl` on classes: the interface says the role (`OrganizationRepository`), an implementation its technology (`DoctrineOrganizationRepository`, `InMemoryOrganizationRepository`). PHP types carry the type.
+- **No encodings.** No Hungarian notation, no `m_` or `$str` prefixes, no `I` prefix nor `Interface` suffix on interfaces, no `Impl` on classes: the interface says the role (`OrganizationRepository`), an implementation its technology (`DynamoOrganizationRepository`, `InMemoryOrganizationRepository`). PHP types carry the type.
 - **Named constants instead of magic values.** `MIN_SCORE = 0.5`, `MARKER_HEIGHT = 48`, `WHOLE_FRANCE`. A closed set of values is an `enum`, not strings or integers.
 - **Classes are nouns, methods are verbs** (`FileStore::store()`); boolean methods read as questions (`isEmpty()`, `hasCorporateName()`).
 - **One word per concept.** We say `find` for "may return nothing" and `get` for "throws when missing"; we do not mix `fetch`, `retrieve` and `get`.
@@ -28,9 +28,6 @@ This guide is alive: rules get added and sharpened as the code is improved, iter
 - **Command-query separation**: a method either changes state (command, returns `void`) or answers a question (query, no change), never both.
 - **Prefer exceptions to error codes**; extract the `try/catch` body into its own function, the function handling an error does nothing else.
 - **`switch`/`match` on a type only once**, at a boundary or in a factory; elsewhere, polymorphism.
-
-**Known debt**
-- `Passwords::verify()` (`apps/auth`) answers a question and upgrades the stored hash: split the command from the query.
 
 ## 3. Comments
 
@@ -66,7 +63,7 @@ This guide is alive: rules get added and sharpened as the code is improved, iter
 
 ## 7. Boundaries
 
-- **Wrap third-party code** behind our own interfaces: the core sees ports (`GeoLocation`, `Storage`), never Doctrine, Symfony or HTTP clients.
+- **Wrap third-party code** behind our own interfaces: the core sees ports (`GeoLocation`, `Storage`), never DynamoDB, Cognito, Symfony or HTTP clients.
 - **The domain does not bend to a tool**: an aggregate keeps its value objects even when the ORM finds them awkward; the adapter adapts (the documents of the DynamoDB repositories, restored without the constructor, ADR 0028, 0048). No comment, property or method of the core mentions persistence.
 - **Learning tests** for a library we depend on in a way we are unsure of; the adapter tests play this role (`GeoplateformeGeoLocationTest`).
 - **Code that does not exist yet**: define the interface we wish we had, and adapt to the real one later.

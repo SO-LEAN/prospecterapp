@@ -1,7 +1,7 @@
 # 0034. An auth app is the authorization server; the API is a resource server
 
 - Date: 2026-10-15
-- Status: Accepted
+- Status: Superseded by [0052](0052-cognito-signs-the-members-in.md)
 - Supersedes: [0012](0012-dedicated-authorization-server.md)
 - Implemented by: `apps/auth`, `apps/api/src/Security/{AccessTokenHandler,MemberProvider}.php`, `docker/nginx/auth_fastcgi.conf`
 

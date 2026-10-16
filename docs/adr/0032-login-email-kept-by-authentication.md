@@ -1,7 +1,7 @@
 # 0032. Members sign in with an email kept by authentication
 
 - Date: 2026-10-15
-- Status: Accepted
+- Status: Accepted, where the login email is kept superseded by [0052](0052-cognito-signs-the-members-in.md)
 - Implemented by: `apps/api/src/Auth/{Credentials,LoginEmails}.php`, `apps/api/src/Security/ProspecterUserProvider.php`, `apps/api/src/Me/Controller/ChangeMyLoginEmail.php`
 
 ## Context

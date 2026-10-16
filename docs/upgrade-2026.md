@@ -80,3 +80,21 @@ The Symfony pages were replaced by a React SPA (`apps/front`) and a JSON API (`a
 - A Symfony array cache is cleared between two requests of a functional test (services are reset): the sign-in throttling cannot count attempts in it. The tests keep the default cache and sign in from an address of their own.
 - A lazy reference of the fixtures left in the entity manager breaks the next request that loads the same aggregate (its readonly identity): read the identity, then clear the entity managers (`ApiTestCase::accountOfTheFixtures()`).
 - The first target of a Makefile is its default: `install` ran on a bare `make` and recreated the databases while the e2e journeys ran. `help` is the default now.
+
+# 2026-10-16: the files on S3, the sign-in on Cognito, MiniStack locally
+
+The storage keeps its files in an S3 bucket (ADR 0051); Cognito signs the members in and `apps/auth` leaves the repository with Doctrine (ADR 0052).
+
+## Traps
+
+- MiniStack keeps the S3 objects in `/tmp` of its container even with `PERSIST_STATE`: `S3_PERSIST` and `S3_DATA_DIR` put them in its volume.
+- MiniStack answers every request with its own CORS headers: nginx hides them where it adds its own, or the browser sees `Access-Control-Allow-Origin` twice.
+- nginx resolves the host of a `proxy_pass` once at start: through a variable and the resolver of Docker (`127.0.0.11`), MiniStack may be recreated without a 502.
+- Symfony writes the directives of `Cache-Control` in its own order: a test checks the directives, not the string.
+- MiniStack makes the ids of a user pool and of a client at random (no custom id): the API finds them by name.
+- MiniStack applies the password policy of the pool (uppercase, digits and symbols by default), but neither keeps an email alias unique nor asks for a code when it changes: the API checks the uniqueness itself.
+- OpenSSL cannot build an RSA public key from the modulus and exponent of a JWK alone: `RsaPublicKey` encodes its DER.
+- An access token of Cognito has no `nbf`: lcobucci's `StrictValidAt` refuses it; `LooseValidAt` and a constraint requiring `exp` check it.
+- The clock of the API tests is fixed in the past, the tokens of MiniStack are issued now: the tokens are checked with a clock of their own (`app.token_clock`).
+- `amazon-cognito-identity-js` reads the Node `global`: Vite defines it as `globalThis`, or the page stays blank.
+- The SPA, served in https, cannot call MiniStack in http (mixed content): nginx passes `/cognito/` of the API host to it.

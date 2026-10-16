@@ -1,7 +1,7 @@
 # 0037. The sign-in screen is in the SPA; the authorization server signs in with a JSON POST and its session cookie
 
 - Date: 2026-10-15
-- Status: Accepted
+- Status: Accepted, the protocol superseded by [0052](0052-cognito-signs-the-members-in.md)
 - Implemented by: `apps/front/src/routes/auth/sign-in.tsx`, `apps/front/src/features/sign-in`, `apps/auth/src/Security/SignInAuthenticator.php`, `apps/auth/src/Controller/SignIn.php`
 
 ## Context

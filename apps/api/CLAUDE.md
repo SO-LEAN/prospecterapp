@@ -6,11 +6,11 @@ The generic Symfony guidance above is overridden by the project rules below when
 
 ## Role
 
-A JSON API that exposes the use cases of `packages/core`, a resource server for the SPA (`apps/front`): the tokens come from `apps/auth`. No server-rendered page. Full contract: `openapi.json` (generated, do not edit) and Swagger UI on `https://api.local.prospecter.io/api/doc`.
+A JSON API that exposes the use cases of `packages/core`, a resource server for the SPA (`apps/front`): the members sign in with a Cognito user pool, whose tokens the API checks and whose credentials it adapts (ADR 0052). No server-rendered page. Full contract: `openapi.json` (generated, do not edit) and Swagger UI on `https://api.local.prospecter.io/api/doc`.
 
 ## Project overrides
 
-- No Doctrine, no migrations: the aggregates live in DynamoDB (ADR 0048), the tables are created by `bin/console app:tables:recreate` (`make db`, the tests recreate them).
+- No Doctrine, no migrations: the aggregates live in DynamoDB (ADR 0048), the tables are created by `bin/console app:tables:recreate` (`make db`, the tests recreate them); the user pool by `bin/console app:user-pool:recreate`.
 - No Symfony CLI: run commands through `docker compose run --rm php ...` (see the root `CLAUDE.md`).
 - No API Platform: plain controllers documented with NelmioApiDocBundle attributes.
 - Services in YAML: the ports and the services of the hexagon are registered in `config/services.yaml`, the core being pure PHP without Symfony attributes.
@@ -32,10 +32,11 @@ A JSON API that exposes the use cases of `packages/core`, a resource server for 
 
 ## Authentication
 
-See `docs/auth.md` at the repository root. The API is a resource server only: signing in, the OAuth 2 tokens and the credentials belong to `apps/auth` (ADR 0034).
+See `docs/auth.md` at the repository root. The members sign in on Cognito (the SPA, by SRP); the API checks their tokens and keeps what they sign in with (ADR 0052).
 
-- Firewall `api` (`^/api/`, stateless, `access_token` with `Security\AccessTokenHandler`): the JWT is checked with the public key of the authorization server (`AUTH_PUBLIC_KEY`), its expiry and its client (`AUTH_CLIENT_ID`); its subject is the member id, loaded by `Security\MemberProvider` into `App\Security\User`, received as `#[CurrentUser] User $user`; its ids go into every command and query, and the aggregates decide ownership (ADR 0026).
-- The prospector of the demonstration has the member id `DemoData::PROSPECTOR` (the assistant `DemoData::ASSISTANT`), the ones the auth fixtures give their credentials.
+- Firewall `api` (`^/api/`, stateless, `access_token` with `Security\AccessTokenHandler`): the JWT is checked with the published key its `kid` names (`SignIn\SigningKeys`, cached), its issuer, its client, `token_use=access` and its expiry (`app.token_clock`); its `username` is the member id, loaded by `Security\MemberProvider` into `App\Security\User`, received as `#[CurrentUser] User $user`; its ids go into every command and query, and the aggregates decide ownership (ADR 0026).
+- `src/SignIn`: the user pool known by name (`UserPool`, ids cached, `COGNITO_*` variables), what a member signs in with (`Credentials`: login email unique on the platform, password, through the admin calls of Cognito), `GET /api/user-pool` (public, where the SPA signs in) and `/api/me/sign-in`; `app:user-pool:recreate [--demo]`, `app:user:set-password`.
+- The members of the demonstration sign in with `Demo\DemoCredentials` under the member ids `DemoData::PROSPECTOR` and `DemoData::ASSISTANT`.
 
 ## Architecture
 
@@ -48,11 +49,11 @@ See `docs/auth.md` at the repository root. The API is a resource server only: si
 | `Prospecting\Domain\ProspectorService` | `Prospecting\AccountsProspectorService`: anticorruption layer from the published query `ConsultMember` of Accounts (with the right to manage personal data) |
 | `Prospecting\Domain\KnownContacts` | `Prospecting\PersonalDataKnownContacts`: anticorruption layer from the published query `IsAContactOf` of PersonalData |
 | `PersonalData\Domain\ProspectedOrganizations` | `PersonalData\ProspectingOrganizations`: anticorruption layer from the published query `IsProspectedBy` of Prospecting |
-| `SharedKernel\Application\Port\Events` | `Shared\MessengerEvents`: the domain events and the integration events (ADR 0046) on the synchronous `event.bus`, a refusal of a handler thrown back as it was; `Shared\Persistence\Journal\ActivityJournal` keeps every domain event in a `journal` table of the database of their subject's context (ADR 0043) |
+| `SharedKernel\Application\Port\Events` | `Shared\MessengerEvents`: the domain events and the integration events (ADR 0046) on the synchronous `event.bus`, a refusal of a handler thrown back as it was; `Shared\Persistence\Journal\ActivityJournal` keeps every domain event in the table of their subject's context, under `JOURNAL#<subject>` (ADR 0043, 0048) |
 | `Prospecting\Application\Port\GeoLocation` | `Prospecting\GeoplateformeGeoLocation` (French State geocoder, IGN Géoplateforme: no key, France only, `APP_GEOCODER_URL`; tests get no answer from the mocked `http_client`) |
 | `SharedKernel\Application\Port\Storage` | `Shared\StorageClient`: sends the files to the storage app on its internal server (`STORAGE_INTERNAL_URL`, token `STORAGE_TOKEN`) and keeps their public URL; `Tests\App\Double\InMemoryStorage` in the tests |
 
-The delivery (controllers, inputs, resources, presenters, readers, security) uses the requests and responses of the application only; only the adapters of the ports use the domain (`tests/Architecture/DomainBehindTheApplicationTest`, ADR 0035). A context of the API uses nothing of another one but its Contract (`<Context>/Contract` of the core: published queries and integration events, `tests/Architecture/BoundedContextsTest`, ADR 0045, 0047). Security reads who calls with the query `ConsultMyAccount` (identities and roles, ADR 0040). Repositories answer the questions of the domain (`isEmailUsed()`) and decide nothing; a unique index (`account_id, purpose, email` for the persons, `account_id, email` for the organizations) is the safety net of `EmailUniqueness` when two requests take the same email at once, its violation translated into `EmailAlreadyUsed` by `save()` (ADR 0039). `tests/Architecture/BoundedContextsTest` fails when a context folder uses anything of another context but its Contract, the anticorruption adapters included.
+The delivery (controllers, inputs, resources, presenters, readers, security) uses the requests and responses of the application only; only the adapters of the ports use the domain (`tests/Architecture/DomainBehindTheApplicationTest`, ADR 0035). A context of the API uses nothing of another one but its Contract (`<Context>/Contract` of the core: published queries and integration events, `tests/Architecture/BoundedContextsTest`, ADR 0045, 0047). Security reads who calls with the query `ConsultMyAccount` (identities and roles, ADR 0040). Repositories answer the questions of the domain (`isEmailUsed()`) and decide nothing; the reservation of the email written with the aggregate (below) is the safety net of `EmailUniqueness` when two requests take the same email at once (ADR 0039, 0048). `tests/Architecture/BoundedContextsTest` fails when a context folder uses anything of another context but its Contract, the anticorruption adapters included.
 
 Ports are aliased to adapters in `config/services.yaml`. Every `*Handler` of the core is a service; those implementing `Prospecter\Core\SharedKernel\Application\CommandHandler` are registered on `command.bus` through `RefusalTranslatingHandler` by `Shared\DependencyInjection\RefusalTranslatingHandlersPass`; the same pass wraps every `QueryHandler` and aliases it by the name of its intent, so a class calling one asks for `RefusalTranslatingHandler $consultOrganization` (`ConsultOrganizationHandler`) (ADR 0035, 0044). Nothing is built in a constructor and no service by the code: everything is injected (`make lint` checks it, ADR 0044); the services of the hexagon are registered in `config/services.yaml` (`config/packages/messenger.yaml`: no transport, handled in the request). Those implementing `EventHandler` are tagged on `event.bus` (synchronous, `allow_no_handlers`), routed by the type of the event they take: a domain event of their context (the `Publish…` translators) or an integration event of another context (ADR 0042, 0046). `bin/console debug:messenger` (`make commands`) lists both buses.
 
@@ -65,12 +66,12 @@ Each bounded context has its own DynamoDB table (ADR 0038, 0048): `<DYNAMODB_TAB
 
 ## Hosts
 
-- `APP_API_HOST` (`api.local.prospecter.io`), routes in `src/{Me,Prospecting,PersonalData}/Controller`, `src/Dashboard` and `src/Contacts` (`config/routes.yaml`); nginx gives the sign-in paths of the same host to `apps/auth`.
+- `APP_API_HOST` (`api.local.prospecter.io`), routes in `src/{Me,Prospecting,PersonalData,SignIn}/Controller`, `src/Dashboard` and `src/Contacts` (`config/routes.yaml`); locally nginx passes `/cognito/` of the same host to the Cognito of MiniStack, for the SPA.
 - Files are not the API's business: the storage app (`apps/storage`, `static.local.prospecter.io`) keeps and serves them, and `Shared\ImageResourceFactory` names their sizes by its convention (`<public url>/<size>/<path>`, ADR 0033).
 
 ## Tests
 
-- `tests/Api`: functional tests through `Base/ApiTestCase`, whose `login()` signs an access token for a member of the demonstration with the test key pair (`tests/bootstrap.php`, in `var/test-jwt`, never committed). The tables of the prefix `prospecter-test` are recreated for each test, in MiniStack (`make test-api` starts it), with the data of the demonstration; host `api.test.prospecter.io`; variables in `.env.test`.
-- `tests/<Context>`: the adapters on their real table or service (`DynamoPersonRepositoryTest`: the reservation refuses an email taken meanwhile; `OrganizationSearchTest`: the projection follows the events and is rebuilt; `GeoplateformeGeoLocationTest`); `tests/Architecture`: the boundaries (contexts, domain behind the application, one table per context). A test failing because of a limit of MiniStack is skipped with its reason; a dev instance on AWS is the safety net.
+- `tests/Api`: functional tests through `Base/ApiTestCase`, whose `login()` signs a member in for real on the user pool `prospecter-test` of MiniStack (`AccessTokenTest`, `SignInTest`). The tables of the prefix `prospecter-test` and the user pool are recreated for each test, in MiniStack (`make test-api` starts it), with the data and the members of the demonstration; host `api.test.prospecter.io`; variables in `.env.test`.
+- `tests/<Context>`: the adapters on their real table or service (`DynamoPersonRepositoryTest`: the reservation refuses an email taken meanwhile; `OrganizationSearchTest`: the projection follows the events and is rebuilt; `GeoplateformeGeoLocationTest`; `SignIn/RsaPublicKeyTest`); `tests/Architecture`: the boundaries (contexts, domain behind the application, one table per context). A test failing because of a limit of MiniStack is skipped with its reason; a dev instance on AWS is the safety net.
 - Unit tests extend PHPUnit's `TestCase` and use hand-written doubles (`tests/Double`), no mock library.
 - PHPUnit 13: attributes only (`#[DataProvider]`, `#[Group]`), static data providers, abstract base classes named `*TestCase`.

@@ -5,8 +5,7 @@ Monorepo of a prospecting application built with clean architecture:
 | Path | What | Instructions |
 |---|---|---|
 | `apps/front/` | React 19 SPA (TypeScript, Vite, TanStack Router/Query, shadcn/ui) | `apps/front/CLAUDE.md` |
-| `apps/api/` | Symfony 8.1 JSON API, a resource server documented with NelmioApiDocBundle | `apps/api/CLAUDE.md` |
-| `apps/auth/` | Symfony 8.1 authorization server: sign-in, OAuth 2 tokens, login email and password (paths of the API host) | `apps/auth/CLAUDE.md` |
+| `apps/api/` | Symfony 8.1 JSON API documented with NelmioApiDocBundle, a resource server of the Cognito user pool the members sign in with (MiniStack locally, `docs/auth.md`) | `apps/api/CLAUDE.md` |
 | `apps/storage/` | Symfony 8.1 app keeping the uploaded files in an S3 bucket and serving them in named sizes (`static.local.prospecter.io`) | `apps/storage/CLAUDE.md` |
 | `packages/core/` | `prospecter/core`: the bounded contexts Accounts, PersonalData and Prospecting and their shared kernel (pure PHP), tested by Behat scenarios | `packages/core/CLAUDE.md` |
 
@@ -22,13 +21,13 @@ The index below is loaded in every session; open a record before working on its 
 
 Everything runs in Docker (PHP 8.5, Node 24, nginx); nothing but Docker and make on the host. From the repository root (`make` alone lists the commands; a new target gets a `## description` on its line):
 
-- `make install`: images, Composer and pnpm dependencies, OAuth keys (auth), the DynamoDB tables of the API and the S3 bucket of the storage in MiniStack with the data of the demonstration, the database of the auth with the OAuth client
+- `make install`: images, Composer and pnpm dependencies, and in MiniStack the DynamoDB tables and the Cognito user pool of the API and the S3 bucket of the storage, with the data and the members of the demonstration
 - `make start` / `make stop`: https://local.prospecter.io (SPA, sign in `prospector@solean-it.io` / `password`, or `assistant@solean-it.io` / `password`, a prospector without the right to manage personal data), https://api.local.prospecter.io/api/doc (API doc)
-- `make test` (core scenarios and unit tests, API, auth, storage, front), `make test-core` (the business rules only), `make e2e` (Playwright on the running stack), `make lint`, `make fix`
-- `make api-doc`: after changing an endpoint, regenerate `apps/api/openapi.json`, `apps/auth/openapi.json` and the front API types (`make test` fails while the committed contract differs from the code)
-- `make db`: recreate the dev tables of the API and the bucket of the storage (MiniStack), and the database of the auth (destroys local data); `bin/console app:search:rebuild` rebuilds the search of the API
+- `make test` (core scenarios and unit tests, API, storage, front), `make test-core` (the business rules only), `make e2e` (Playwright on the running stack), `make lint`, `make fix`
+- `make api-doc`: after changing an endpoint, regenerate `apps/api/openapi.json` and the front API types (`make test` fails while the committed contract differs from the code)
+- `make db`: recreate in MiniStack the dev tables and the user pool of the API and the bucket of the storage (destroys local data); `bin/console app:search:rebuild` rebuilds the search of the API
 
-Other commands: `docker compose run --rm --no-deps php <cmd>` (working dir `apps/api`; add `-w /var/www/src/apps/auth`, `apps/storage` or `packages/core` for the others) or `docker compose run --rm --no-deps node <cmd>` (working dir `apps/front`).
+Other commands: `docker compose run --rm --no-deps php <cmd>` (working dir `apps/api`; add `-w /var/www/src/apps/storage` or `-w /var/www/src/packages/core` for the others) or `docker compose run --rm --no-deps node <cmd>` (working dir `apps/front`).
 
 Before declaring work done: `make test` and `make lint` pass; `make e2e` for changes to a main journey.
 
@@ -47,7 +46,8 @@ Before declaring work done: `make test` and `make lint` pass; `make e2e` for cha
 
 ## Gotchas
 
-- MiniStack (`ministack` service, ADR 0048) emulates the AWS services locally: DynamoDB for the API, S3 for the storage (ADR 0051), their state in the volume `ministack-data`, reachable from the host (IDE, AWS CLI) at `http://localhost:4566`, region `eu-west-3`, keys `test`/`test`. After `docker compose up -d` recreated `php` or `node`, restart `nginx` (it keeps their former addresses: 502).
+- MiniStack (`ministack` service, ADR 0048) emulates the AWS services locally: DynamoDB and Cognito for the API, S3 for the storage (ADR 0051, 0052), their state in the volume `ministack-data`, reachable from the host (IDE, AWS CLI) at `http://localhost:4566`, region `eu-west-3`, keys `test`/`test`. After `docker compose up -d` recreated `php` or `node`, restart `nginx` (it keeps their former addresses: 502).
+- Cognito (ADR 0052): MiniStack makes the ids of the user pool and of its client at random, the API finds them by name and caches them; after the volume `ministack-data` was removed, run `make db`. The SPA reaches the Cognito of MiniStack through `https://api.local.prospecter.io/cognito/` (nginx passes its calls only).
 
 - Hosts: `/etc/hosts` needs `local.prospecter.io`, `api.local.prospecter.io` and `static.local.prospecter.io` on 127.0.0.1. The self-signed certificate (generated by nginx in `docker/data/ssl`) must be accepted once per host in the browser; Chrome reports requests to a non-accepted host as failed (503 in the network panel).
 - The core library is installed by a Composer `path` repository: `apps/api/vendor/prospecter/core` is a symlink to `packages/core`; production builds copy it with `COMPOSER_MIRROR_PATH_REPOS=1` (`docs/monorepo.md`). Never set `"symlink": true` on that repository.

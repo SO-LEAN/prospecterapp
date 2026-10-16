@@ -2,15 +2,14 @@
 
 ```
 apps/front/      React SPA (pnpm, its own package.json)
-apps/api/        Symfony API, resource server (Composer), the only user of the core
-apps/auth/       Symfony authorization server (Composer)
+apps/api/        Symfony API, resource server of the Cognito user pool (Composer), the only user of the core
 apps/storage/    Symfony file storage (Composer)
 packages/core/   prospecter/core library (Composer)
-tools/phpstan/   PHPStan rules shared by the four PHP codebases (autoload-dev of each, ADR 0044)
+tools/phpstan/   PHPStan rules shared by the three PHP codebases (autoload-dev of each, ADR 0044)
 docker/  docker-compose.yml  Makefile  docs/
 ```
 
-The apps are independent projects with their own dependencies; they only share HTTP contracts (`apps/api/openapi.json` and `apps/auth/openapi.json`, from which the front generates its types; the internal `POST/DELETE /files` of the storage; the access tokens signed by the auth and checked by the API with its public key) and the root tooling (Docker, Makefile). Only the API uses the core.
+The apps are independent projects with their own dependencies; they only share HTTP contracts (`apps/api/openapi.json`, from which the front generates its types; the internal `POST/DELETE /files` of the storage) and the AWS services (MiniStack locally: the Cognito user pool the SPA signs in with and whose tokens the API checks) and the root tooling (Docker, Makefile). Only the API uses the core.
 
 ## How the API uses the library
 
@@ -35,11 +34,11 @@ cd apps/api
 COMPOSER_MIRROR_PATH_REPOS=1 composer install --no-dev --classmap-authoritative
 ```
 
-Composer then copies the current content of `packages/core` into `vendor/` (even if `composer.lock` is behind), and `apps/api/` becomes self-contained: deploy it alone. `apps/auth/` and `apps/storage/` do not use the core and build like any Symfony app. This only works because the path repository does not force `"symlink": true`; keep it that way.
+Composer then copies the current content of `packages/core` into `vendor/` (even if `composer.lock` is behind), and `apps/api/` becomes self-contained: deploy it alone. `apps/storage/` does not use the core and build like any Symfony app. This only works because the path repository does not force `"symlink": true`; keep it that way.
 
 The copy includes what the core needs for its own tests (`vendor/`, `tests/`, `features/`, tool configs): remove `vendor/prospecter/core/{vendor,tests,features}` in the production image.
 
-The front builds to static files (`pnpm build` → `apps/front/dist/`), served by any web server with a fallback to `index.html`; its API URL, app URL and OAuth client id are `VITE_*` variables set at build time.
+The front builds to static files (`pnpm build` → `apps/front/dist/`), served by any web server with a fallback to `index.html`; its API URL is a `VITE_*` variable set at build time; where to sign in, it asks the API (`GET /api/user-pool`).
 
 ## Why not a separate package for the domain or the adapters
 

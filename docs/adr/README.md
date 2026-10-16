@@ -13,13 +13,13 @@ Why the project is shaped the way it is: one file per decision in `docs/adr/`, i
 | [0007](0007-plain-symfony-controllers-one-per-endpoint.md) | Plain Symfony controllers, one per endpoint, resource-oriented URLs | Superseded by 0025 | 2026-10-14 |
 | [0008](0008-committed-openapi-contract.md) | The OpenAPI contract is generated, committed, checked and typed in the front | Accepted | 2026-10-14 |
 | [0009](0009-api-inputs-and-errors.md) | Inputs have the shape of resources, unknown fields are rejected, errors are problem details | Accepted | 2026-10-14 |
-| [0010](0010-oauth-2-authorization-code-with-pkce.md) | OAuth 2 authorization code with PKCE for the SPA | Accepted | 2026-10-14 |
+| [0010](0010-oauth-2-authorization-code-with-pkce.md) | OAuth 2 authorization code with PKCE for the SPA | Superseded by 0052 | 2026-10-14 |
 | [0011](0011-authentication-outside-the-hexagon.md) | Authentication is infrastructure, outside the hexagon | Accepted | 2026-10-15 |
 | [0012](0012-dedicated-authorization-server.md) | Delegate authentication to a dedicated authorization server | Superseded by 0034 | 2026-10-15 |
 | [0013](0013-front-stack.md) | Front stack: React, TanStack, typed client, shadcn/ui | Accepted | 2026-10-14 |
 | [0014](0014-open-maps-and-state-geocoding.md) | Open maps (MapLibre, OpenFreeMap) and the French State geocoder | Accepted | 2026-10-14 |
 | [0015](0015-local-stack-in-docker.md) | The whole stack runs locally in Docker, driven by make | Accepted | 2026-10-14 |
-| [0016](0016-sqlite-without-migrations.md) | SQLite, schema generated from the mapping, no migrations | Accepted, the API superseded by 0048 | 2026-10-13 |
+| [0016](0016-sqlite-without-migrations.md) | SQLite, schema generated from the mapping, no migrations | Superseded by 0048, 0052 | 2026-10-13 |
 | [0017](0017-gherkin-acceptance-tests-on-the-core.md) | Gherkin acceptance tests on the core, only ports doubled | Accepted | 2026-10-15 |
 | [0018](0018-readonly-core-model.md) | Readonly requests, responses and value objects; flat entity columns | Superseded by 0023 | 2026-10-15 |
 | [0019](0019-organizations-reachable-only-by-their-prospector.md) | An organization is reachable only by the organization prospecting it | Superseded by 0026 | 2026-10-15 |
@@ -35,12 +35,12 @@ Why the project is shaped the way it is: one file per decision in `docs/adr/`, i
 | [0029](0029-cqrs-with-a-synchronous-messenger-command-bus.md) | CQRS: commands on a synchronous Messenger bus return nothing, only queries return data | Accepted | 2026-10-15 |
 | [0030](0030-bounded-contexts-accounts-prospecting.md) | Bounded contexts Accounts and Prospecting, a shared kernel, code grouped by context | Accepted, port names superseded by 0045 | 2026-10-15 |
 | [0031](0031-personal-data-context.md) | A PersonalData context keeps the personal data of natural persons, and decides who reads them | Accepted, port names superseded by 0045 | 2026-10-15 |
-| [0032](0032-login-email-kept-by-authentication.md) | Members sign in with an email kept by authentication | Accepted | 2026-10-15 |
+| [0032](0032-login-email-kept-by-authentication.md) | Members sign in with an email kept by authentication | Accepted, where the login email is kept superseded by 0052 | 2026-10-15 |
 | [0033](0033-storage-app.md) | A storage app keeps the files and serves the images in named sizes | Accepted, the disk superseded by 0051 | 2026-10-15 |
-| [0034](0034-authorization-server-app.md) | An auth app is the authorization server; the API is a resource server | Accepted | 2026-10-15 |
+| [0034](0034-authorization-server-app.md) | An auth app is the authorization server; the API is a resource server | Superseded by 0052 | 2026-10-15 |
 | [0035](0035-plain-requests-and-responses-typed-refusals.md) | Requests and responses are plain data; the use cases translate the refusals of the domain | Accepted, authentication query superseded by 0040 | 2026-10-15 |
 | [0036](0036-client-gives-identity-and-moment-of-a-command.md) | The client gives the identity and the moment of a command; aggregates keep their creation and last change | Accepted | 2026-10-15 |
-| [0037](0037-sign-in-screen-in-the-spa.md) | The sign-in screen is in the SPA; the authorization server signs in with a JSON POST and its session cookie | Accepted | 2026-10-15 |
+| [0037](0037-sign-in-screen-in-the-spa.md) | The sign-in screen is in the SPA; the authorization server signs in with a JSON POST and its session cookie | Accepted, the protocol superseded by 0052 | 2026-10-15 |
 | [0038](0038-one-database-per-bounded-context.md) | One database per bounded context | Accepted, the databases became tables by 0048 | 2026-10-15 |
 | [0039](0039-set-rules-in-domain-services-indexes-as-safety-net.md) | A rule on a set of aggregates is a domain service; a unique index is its safety net | Accepted, the unique index superseded by 0048 | 2026-10-15 |
 | [0040](0040-security-reads-the-caller-with-consult-my-account.md) | The security of the API reads who calls with ConsultMyAccount | Accepted | 2026-10-15 |
@@ -55,3 +55,4 @@ Why the project is shaped the way it is: one file per decision in `docs/adr/`, i
 | [0049](0049-lists-in-slices-after-a-cursor.md) | Lists come in slices after a cursor, never in numbered pages | Accepted | 2026-10-16 |
 | [0050](0050-text-search-by-a-projection-of-word-beginnings.md) | The text search is a projection of word beginnings, kept by the events, rebuildable | Accepted | 2026-10-16 |
 | [0051](0051-files-in-an-s3-bucket.md) | The files are in an S3 bucket, served from it; PHP only makes the missing sizes | Accepted | 2026-10-16 |
+| [0052](0052-cognito-signs-the-members-in.md) | Cognito signs the members in; the SPA keeps its screen and signs in by SRP; the API checks the tokens | Accepted | 2026-10-16 |

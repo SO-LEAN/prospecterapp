@@ -1,7 +1,7 @@
 # 0016. SQLite, schema generated from the mapping, no migrations
 
 - Date: 2026-10-13
-- Status: Accepted for the auth app; the API superseded by [0048](0048-dynamodb-one-table-per-context-on-ministack.md)
+- Status: Superseded by [0048](0048-dynamodb-one-table-per-context-on-ministack.md) (the API) and [0052](0052-cognito-signs-the-members-in.md) (the auth app removed)
 - Implemented by: `DATABASE_URL` in `apps/api/.env`, `make db`, `apps/api/CLAUDE.md`
 
 ## Context

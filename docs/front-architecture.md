@@ -1,6 +1,6 @@
 # Front architecture (apps/front)
 
-A React single page application talking to the API (`apps/api`) over JSON, signed in with OAuth 2 on the authorization server (`apps/auth`).
+A React single page application talking to the API (`apps/api`) over JSON, its members signed in by SRP on a Cognito user pool (ADR 0052).
 
 ## Stack and why
 
@@ -14,7 +14,7 @@ A React single page application talking to the API (`apps/api`) over JSON, signe
 | API client | openapi-fetch + openapi-react-query | Types generated from the API contract: a renamed field breaks the build, not production. |
 | Client state | Zustand | Tiny store for UI preferences only (theme, sidebar). |
 | Forms | react-hook-form + zod | Uncontrolled inputs (no re-render per key), schema validation mirroring the API. |
-| Auth | oidc-client-ts + react-oidc-context | Standard OAuth 2 authorization code + PKCE, token refresh. |
+| Auth | amazon-cognito-identity-js | SRP on the Cognito user pool from our own screen (the password never leaves the browser), token refresh. |
 | UI kit | shadcn/ui (Radix) + Tailwind CSS 4 | Accessible primitives, code owned by the project (see `design-system.md`). |
 | Maps | MapLibre + OpenFreeMap | Open source vector maps, no API key; loaded lazily. |
 | i18n | react-i18next, typed keys | French today, other languages without touching the screens. |
@@ -26,8 +26,8 @@ A React single page application talking to the API (`apps/api`) over JSON, signe
 src/
   main.tsx              entry: i18n, styles, <App/>
   app/                  wiring of the application
-    providers.tsx       Auth, Query, Tooltip providers, toasts, router
-    router.tsx          router instance and its context (queryClient, auth)
+    providers.tsx       Query and Tooltip providers, toasts, router
+    router.tsx          router instance and its context (queryClient)
     query-client.ts     cache defaults and global error handling
     layout/             app shell: sidebar navigation, header, user menu
     styles.css          design tokens (Tailwind theme)
@@ -35,8 +35,8 @@ src/
   routes/               one file per URL, thin: loader + page component
   features/<feature>/   business screens: queries.ts, mutations.ts, schema.ts, components/
   shared/               reusable, business-agnostic code
-    api/                client.ts, schema.d.ts and auth-schema.d.ts (generated), problem.ts, keys.ts, upload.ts
-    auth/               user-manager.ts: OAuth settings (UserManager)
+    api/                client.ts, schema.d.ts (generated), problem.ts, keys.ts, upload.ts
+    auth/               session.ts: signing in on Cognito, the tokens of the tab; sign-in-page.ts: the screen and its returnTo
     config/             env.ts: typed VITE_* variables
     ui/                 design system components (shadcn) + form/, feedback/, map/
     i18n/               setup and fr.ts
@@ -56,7 +56,7 @@ Dependency rule: `shared` depends on nothing of the app; a `feature` depends onl
 | URL | Router search params, validated by zod | `?q=acme` on the organizations list |
 | UI preferences | Zustand, persisted in localStorage | theme, collapsed sidebar |
 | Form | react-hook-form | the section being edited |
-| Session | oidc-client-ts (sessionStorage) | access and refresh tokens |
+| Session | amazon-cognito-identity-js (sessionStorage) | access, id and refresh tokens |
 | Local UI | `useState` | a dialog being open |
 
 Never copy server data into Zustand or `useState`: read it from the query, the cache is the single source of truth.
@@ -80,7 +80,7 @@ Never copy server data into Zustand or `useState`: read it from the query, the c
 
 ## API access
 
-- `pnpm api:types` (or `make api-doc` from the root) regenerates `shared/api/schema.d.ts` from `apps/api/openapi.json` and `shared/api/auth-schema.d.ts` from `apps/auth/openapi.json`; `api` calls the API, `authApi` what a member signs in with (`/auth/me`), with the same access token.
+- `pnpm api:types` (or `make api-doc` from the root) regenerates `shared/api/schema.d.ts` from `apps/api/openapi.json`; `api` calls the API with the access token, what a member signs in with included (`/api/me/sign-in`).
 - `api.queryOptions('get', '/api/organizations/{id}', { params })` / `api.useMutation('patch', ...)`: path, params, body and response are typed.
 - The fetch middleware adds `Authorization: Bearer`; on a 401 it renews the token once with the refresh token, otherwise it sends the user to sign in.
 - Form values have the shape of the API input (`street` in the address section, `address.street` in the creation form), so the `propertyPath` of each API violation is the form field name. Groups of fields shared by several forms live in `shared/forms` (`AddressFields`, `ContactDetailsFields`, `LegalIdentityFields`, `PersonNameFields`, with their zod schema and conversions); their `path` option nests them in a bigger form.
@@ -92,7 +92,7 @@ Never copy server data into Zustand or `useState`: read it from the query, the c
 
 ## Authentication
 
-See `docs/auth.md`. In the SPA: `shared/auth/user-manager.ts` configures the client; the `_app` layout route guards every page by reading the stored session (`userManager.getUser()`), not the React auth state, which lags right after the OAuth callback. The sign-in screen is `routes/auth/sign-in.tsx` (`features/sign-in`): the authorization server sends anonymous authorization requests there, and the screen opens the interrupted request again once the member is signed in (ADR 0037).
+See `docs/auth.md`. In the SPA: `shared/auth/session.ts` signs in on the user pool the API names (`GET /api/user-pool`) and gives the access token, renewed once expired; the `_app` layout route guards every page with it and sends an anonymous visitor to the sign-in screen, `routes/auth/sign-in.tsx` (`features/sign-in`), which goes back to the page asked for once signed in (ADR 0037, 0052).
 
 ## Adding a screen
 
