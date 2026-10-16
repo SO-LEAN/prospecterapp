@@ -6,8 +6,8 @@ framework:
     # Note that the session will be started ONLY if you read or write from it.
     session: true
 
-    # behind the API Gateway of a Lambda (Bref), the request comes in http: the gateway tells it was https.
-    # Empty under PHP-FPM, nginx telling it itself (HTTPS)
+    # behind the API Gateway of the Lambda (Bref), the request comes in http: the gateway tells it was https
+    # (TRUSTED_PROXIES=REMOTE_ADDR in the function, empty for the tests)
     trusted_proxies: '%env(TRUSTED_PROXIES)%'
     trusted_headers: ['x-forwarded-proto', 'x-forwarded-port']
 

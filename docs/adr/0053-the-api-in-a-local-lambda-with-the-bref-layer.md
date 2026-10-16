@@ -1,7 +1,7 @@
 # 0053. Locally, the API runs on demand in a Lambda with the Bref layer, the repository mounted
 
 - Date: 2026-10-16
-- Status: Accepted
+- Status: Accepted, on demand superseded by [0055](0055-locally-the-apps-run-only-in-their-lambdas.md)
 - Implemented by: `docker-compose.lambda.yml`, `docker/lambda/{Dockerfile,bootstrap,deploy.sh}`, `docker/nginx/api-runtime/{fpm,lambda}.conf`, `make lambda` / `make fpm`, `apps/api/php/conf.d/bref.ini`, `trusted_proxies` of `apps/api/config/packages/framework.yaml`
 
 ## Context

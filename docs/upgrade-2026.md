@@ -127,3 +127,11 @@ The storage keeps its files in an S3 bucket (ADR 0051); Cognito signs the member
 - Bref sends a body base64-encoded, as the gateway needs for an image, only with `BREF_BINARY_RESPONSES=1`.
 - `make lambda` and `make fpm` recreate MiniStack: for a few seconds it refuses connections (nginx answers 502).
 
+# 2026-10-16: the Lambdas are the only local runtime
+
+PHP-FPM leaves the local stack: `make start` deploys the API and the storage in their Lambdas, the `php` container is the command line only (ADR 0055).
+
+## Traps
+
+- A service in a profile (`php`, profile `cli`) is not started by `docker compose up`, but `docker compose run php` still runs it; a container of it started before stays up until removed (`docker compose rm -sf php`).
+

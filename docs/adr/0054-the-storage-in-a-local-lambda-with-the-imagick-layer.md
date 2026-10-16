@@ -1,7 +1,7 @@
 # 0054. Locally, the storage runs in a Lambda too, with the imagick layer of Bref
 
 - Date: 2026-10-16
-- Status: Accepted
+- Status: Accepted, on demand superseded by [0055](0055-locally-the-apps-run-only-in-their-lambdas.md)
 - Extends: [0053](0053-the-api-in-a-local-lambda-with-the-bref-layer.md)
 - Implemented by: `docker/lambda/{Dockerfile,deploy.sh}`, `docker/nginx/runtime/{fpm,lambda}/storage.conf`, `docker/nginx/templates/static.conf.template`, `bref/bref` in `apps/storage`
 

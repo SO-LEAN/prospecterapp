@@ -67,7 +67,7 @@ Each bounded context has its own DynamoDB table (ADR 0038, 0048): `<DYNAMODB_TAB
 ## Hosts
 
 - `APP_API_HOST` (`api.local.prospecter.io`), routes in `src/{Me,Prospecting,PersonalData,SignIn}/Controller`, `src/Dashboard` and `src/Contacts` (`config/routes.yaml`); locally nginx passes `/cognito/` of the same host to the Cognito of MiniStack, for the SPA.
-- `make lambda` runs the API in a Lambda with the Bref layer (FPM runtime, `bref/bref`) behind an HTTP API of MiniStack, the repository mounted in the dev environment (ADR 0053): `php/conf.d/bref.ini` enables the extensions the layer ships disabled (`intl`; a new extension the API needs goes there too), `TRUSTED_PROXIES` (empty under PHP-FPM, `REMOTE_ADDR` in the function) lets Symfony trust the `X-Forwarded-Proto` of the gateway.
+- The API runs in a Lambda with the Bref layer (FPM runtime, `bref/bref`) behind an HTTP API of MiniStack, the repository mounted in the dev environment (ADR 0053, 0055; `make start`): `php/conf.d/bref.ini` enables the extensions the layer ships disabled (`intl`; a new extension the API needs goes there too), `TRUSTED_PROXIES` (`REMOTE_ADDR` in the function, empty for the tests) lets Symfony trust the `X-Forwarded-Proto` of the gateway. The tests run on the command line of the `php` container.
 - Files are not the API's business: the storage app (`apps/storage`, `static.local.prospecter.io`) keeps and serves them, and `Shared\ImageResourceFactory` names their sizes by its convention (`<public url>/<size>/<path>`, ADR 0033).
 
 ## Tests
