@@ -40,8 +40,8 @@ Before declaring work done: `make ci` passes (what the CI runs: lint, tests, con
 
 ## Git
 
-- `dev` integrates the work (ADR 0057): a `feature/<name>` or `fix/<name>` branch starts from `dev` and comes back by pull request (`gh pr create --base dev`), merged by rebase once the CI passes (`gh pr merge --rebase`); `dev` goes to `main` by pull request. A `hotfix/<name>` starts from `main`, comes back to `main` by pull request, then is cherry-picked onto `dev` (a `fix/` branch). Linear history, no merge commits.
-- `dev` is the default branch of the repository (pull requests and clones start there). `main` and `dev` are protected (ruleset `protected`, no bypass): no direct push, the check `ci` must pass, no force-push.
+- `dev` integrates the work (ADR 0057): a `feature/<name>` or `fix/<name>` branch starts from `dev` and comes back by pull request (`gh pr create --base dev`), merged by rebase once the CI passes (`gh pr merge --rebase`): `dev` stays linear. `dev` goes to `main` by a pull request merged by a merge commit (`gh pr merge --merge`, ADR 0058: a rebase merge of GitHub rewrites the commits, `main` and `dev` would diverge). A `hotfix/<name>` starts from `main`, comes back to `main` the same way, then is cherry-picked onto `dev` (a `fix/` branch).
+- `dev` is the default branch of the repository (pull requests and clones start there). `main` and `dev` are protected (rulesets `dev` and `main`, no bypass): no direct push, the check `ci` must pass, no force-push; rebase only on `dev`, merge commits only on `main`.
 - The CI (`.github/workflows/ci.yml`) runs `make ci`: run it before pushing. The e2e journeys stay local (`make e2e`).
 - Conventional commits (`feat:`, `fix:`, `refactor:`, `chore:`, `docs:`) explaining why.
 - Commit or push only when asked.
