@@ -59,3 +59,4 @@ Why the project is shaped the way it is: one file per decision in `docs/adr/`, i
 | [0053](0053-the-api-in-a-local-lambda-with-the-bref-layer.md) | Locally, the API runs on demand in a Lambda with the Bref layer, the repository mounted | Accepted, on demand superseded by 0055 | 2026-10-16 |
 | [0054](0054-the-storage-in-a-local-lambda-with-the-imagick-layer.md) | Locally, the storage runs in a Lambda too, with the imagick layer of Bref | Accepted, on demand superseded by 0055 | 2026-10-16 |
 | [0055](0055-locally-the-apps-run-only-in-their-lambdas.md) | Locally, the API and the storage run only in their Bref Lambdas | Accepted | 2026-10-16 |
+| [0056](0056-the-command-line-on-the-php-of-the-lambdas.md) | The command line runs on the PHP of the Lambdas | Accepted | 2026-10-16 |

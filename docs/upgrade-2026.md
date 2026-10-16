@@ -135,3 +135,14 @@ PHP-FPM leaves the local stack: `make start` deploys the API and the storage in 
 
 - A service in a profile (`php`, profile `cli`) is not started by `docker compose up`, but `docker compose run php` still runs it; a container of it started before stays up until removed (`docker compose rm -sf php`).
 
+# 2026-10-16: the command line on the PHP of the Lambdas
+
+The `php` container is built on the dev image of Bref (ADR 0056).
+
+## Traps
+
+- The image of Bref has `microdnf` behind `dnf` (no `-q`), and `groupadd`/`useradd` in `/usr/sbin`, out of its `PATH`.
+- Its OPcache is a file cache only, in `/tmp`, made for read-only Lambdas: on the command line the parallel workers of Rector read classes being written ("Interface not found"); the CLI keeps OPcache in memory.
+- `xdebug.mode = off` unquoted is read as an empty value: write `"off"`.
+- Its entrypoint is the one of Lambda: the CLI image resets it.
+
