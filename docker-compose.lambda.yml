@@ -1,0 +1,31 @@
+# The API in a Lambda with the Bref layer on MiniStack (make lambda, ADR 0053), over docker-compose.yml.
+# MiniStack runs the functions in containers of the Docker of the host: its socket is mounted in this mode only,
+# which gives MiniStack the rights of root on the host. The repository is mounted in the function as in php.
+services:
+  ministack:
+    volumes:
+      - ministack-data:/var/lib/ministack
+      - /var/run/docker.sock:/var/run/docker.sock
+    environment:
+      LAMBDA_EXECUTOR: docker
+      LAMBDA_DOCKER_NETWORK: ${COMPOSE_PROJECT_NAME:-prospecterapp}_default
+      LAMBDA_DOCKER_FLAGS: -v ${PROJECT_DIR:?the absolute path of the repository, exported by make lambda}:/var/www/src
+      # the code being mounted, a warm function stays up to date: keep it an hour rather than 5 minutes
+      LAMBDA_WARM_TTL_SECONDS: "3600"
+
+  nginx:
+    environment:
+      API_RUNTIME: lambda
+
+  # deploys the function and its HTTP API (docker/lambda/deploy.sh)
+  lambda-deploy:
+    build: docker/lambda
+    environment:
+      AWS_ENDPOINT_URL: http://ministack:4566
+      AWS_REGION: eu-west-3
+      AWS_ACCESS_KEY_ID: test
+      AWS_SECRET_ACCESS_KEY: test
+      API_HOST: api.local.prospecter.io
+    depends_on:
+      - ministack
+    profiles: [deploy]

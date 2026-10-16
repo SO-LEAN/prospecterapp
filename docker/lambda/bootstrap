@@ -1,0 +1,11 @@
+#!/bin/sh
+# Local only (ADR 0053): MiniStack starts a provided runtime with the handler "bootstrap" where AWS gives the one
+# configured, and the code is the repository mounted in the function, not /var/task. Give Bref back its handler,
+# its root and the php.ini files of the code, then start the bootstrap of the layer. The function runs as root:
+# what it writes in the repository (the cache, the logs of the dev environment, shared with PHP-FPM) stays
+# writable by the user of the php container.
+umask 0000
+export _HANDLER="$BREF_LOCAL_HANDLER"
+export LAMBDA_TASK_ROOT="$BREF_LOCAL_ROOT"
+export PHP_INI_SCAN_DIR="/opt/bref/etc/php/conf.d:$BREF_LOCAL_ROOT/php/conf.d"
+exec /opt/bootstrap "$@"

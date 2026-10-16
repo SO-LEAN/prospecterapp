@@ -38,6 +38,8 @@ services:
     environment:
       NGINX_HOST: local.prospecter.io
       PHP_FPM_HOST: php
+      # the API on PHP-FPM, or in its Lambda (make lambda, docker-compose.lambda.yml)
+      API_RUNTIME: fpm
       FRONT_HOST: node
       # MiniStack, behind the static host (the bucket of the files, apps/storage/.env) and the API host (Cognito)
       MINISTACK_HOST: ministack:4566
