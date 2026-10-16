@@ -116,3 +116,14 @@ The storage keeps its files in an S3 bucket (ADR 0051); Cognito signs the member
 - `fastcgi_pass` or `proxy_pass` with a variable needs a `resolver`.
 - A recipe of Flex (`nyholm/psr7`, required by Bref) adds a configuration nobody asked for: review `git status` after `composer require`.
 
+# 2026-10-16: the storage in a local Lambda
+
+`make lambda` runs the storage in a Lambda as well, with the layer of imagick of Bref beside the one of PHP (ADR 0054).
+
+## Traps
+
+- Every app in a Bref Lambda needs `bref/bref` in its own `composer.json`: the layer starts `Bref\FpmRuntime\Main` from the vendor of the code, and says so in the logs of the function only (the gateway answers a bare 502).
+- The extension images of Bref (`bref/extra-imagick-php-85`) hold nothing but their `/opt`, no shell: read them with `docker create` and `docker cp`.
+- Bref sends a body base64-encoded, as the gateway needs for an image, only with `BREF_BINARY_RESPONSES=1`.
+- `make lambda` and `make fpm` recreate MiniStack: for a few seconds it refuses connections (nginx answers 502).
+

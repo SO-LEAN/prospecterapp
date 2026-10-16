@@ -37,7 +37,7 @@ The certificate is self-signed: accept the browser warning once for each host (`
 | Command | Purpose |
 |---|---|
 | `make start` / `make stop` / `make logs` | Run the stack (the front reloads on save) |
-| `make lambda` / `make fpm` | Run the API in a Lambda with the Bref layer on MiniStack, behind an HTTP API, or on PHP-FPM again (the default) |
+| `make lambda` / `make fpm` | Run the API and the storage in Lambdas with the Bref layers on MiniStack, behind HTTP APIs, or on PHP-FPM again (the default) |
 | `make test` | core business rules (Behat) and unit tests, API, storage and front tests |
 | `make test-core` / `make test-api` / `make test-storage` / `make test-front` | One of them |
 | `make e2e` | Playwright journeys against the running stack |

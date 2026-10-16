@@ -11,6 +11,7 @@ Keeps the files uploaded through the API (logos, pictures) in an S3 bucket and s
 - Bucket `S3_BUCKET` (`App\Bucket`): MiniStack locally (`S3_ENDPOINT`, by path, dev credentials in `.env`), every object put with its media type and `Cache-Control: public, max-age=31536000, immutable` (a key never changes content).
 - Public host `static.local.prospecter.io` (`docker/nginx/templates/static.conf.template`): nginx proxies `/storage/` to the bucket; a size missing from it (403, 404) reaches PHP (`Controller\ShowImageInSize`), which makes it from the original and puts it in the bucket.
 - Internal server `http://nginx:8080`, on the Docker network only: the services of the platform store (`POST /files`, multipart field `file`) and remove (`DELETE /files/<path>`) files with the bearer token `STORAGE_TOKEN` (`InternalCaller`).
+- Both entries reach the app on PHP-FPM, or with `make lambda` in its Lambda `prospecter-dev-storage` (ADR 0054: the mounted repository, the layers of PHP and imagick of Bref, `BREF_BINARY_RESPONSES` for the images), through `docker/nginx/runtime/<runtime>/storage.conf`.
 
 ## Layout
 
