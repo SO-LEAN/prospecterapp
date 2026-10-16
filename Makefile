@@ -41,9 +41,11 @@ keys: ## Generate the key pair the auth signs the access tokens with (kept if it
 	@echo "Auth/Generating the key pair the access tokens are signed with..."
 	@$(AUTH) sh -c 'test -f config/jwt/private.pem || bin/console league:oauth2-server:generate-keypair'
 
-db: aws ## Recreate the tables of the API (one per context, in MiniStack) and the database of the auth, with the demo data (destroys local data)
+db: aws ## Recreate the tables of the API (one per context, in MiniStack), the bucket of the storage and the database of the auth, with the demo data (destroys local data)
 	@echo "API/Creating the DynamoDB table of each bounded context with the data of the demonstration..."
 	@$(PHP) sh -c 'bin/console cache:clear >/dev/null && bin/console app:tables:recreate --demo'
+	@echo "Storage/Creating the S3 bucket of the files..."
+	@$(STORAGE) sh -c 'bin/console cache:clear >/dev/null && bin/console app:bucket:recreate'
 	@echo "Auth/Creating the database with fixtures (OAuth client, credentials of the fixture members)..."
 	@$(AUTH) sh -c 'bin/console cache:clear >/dev/null && bin/console doctrine:schema:drop --force --full-database && bin/console doctrine:schema:create && bin/console doctrine:fixtures:load --no-interaction'
 
@@ -80,7 +82,7 @@ test-api: aws ## Run the tests of the API (on MiniStack)
 test-auth: ## Run the tests of the auth
 	@$(AUTH) bin/phpunit
 
-test-storage: ## Run the tests of the storage
+test-storage: aws ## Run the tests of the storage (on MiniStack)
 	@$(STORAGE) bin/phpunit
 
 test-front: ## Run the tests of the front (Vitest)

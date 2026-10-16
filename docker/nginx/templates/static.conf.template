@@ -1,5 +1,5 @@
-# The storage app (apps/storage): the stored files and their sizes, served as is; a size asked for the first
-# time goes to PHP, which makes it once.
+# The storage app (apps/storage, ADR 0051): the stored files and their sizes, served from the S3 bucket
+# (MiniStack locally, by path); a size missing from the bucket goes to PHP, which makes it once.
 server {
     listen 443 ssl;
     http2 on;
@@ -13,7 +13,28 @@ server {
     add_header Access-Control-Allow-Origin *;
 
     location /storage/ {
-        try_files $uri /index.php$is_args$args;
+        # resolved on each request: MiniStack may be recreated with another address
+        resolver 127.0.0.11 valid=10s;
+        set $files ${FILES_HOST};
+        rewrite ^/storage/(.*)$ /${FILES_BUCKET}/$1 break;
+        proxy_pass http://$files;
+        proxy_hide_header Access-Control-Allow-Origin;
+        proxy_hide_header Access-Control-Allow-Methods;
+        proxy_hide_header Access-Control-Allow-Headers;
+        proxy_hide_header Access-Control-Expose-Headers;
+        proxy_hide_header x-amz-request-id;
+        proxy_hide_header x-amz-id-2;
+        proxy_hide_header x-amzn-requestid;
+        proxy_intercept_errors on;
+        error_page 403 404 = @missing;
+    }
+
+    location @missing {
+        fastcgi_pass ${PHP_FPM_HOST}:9000;
+        include fastcgi_params;
+        fastcgi_param SCRIPT_FILENAME $realpath_root/index.php;
+        fastcgi_param SCRIPT_NAME /index.php;
+        fastcgi_param DOCUMENT_ROOT $realpath_root;
     }
 
     # storing and removing files go through the internal server only

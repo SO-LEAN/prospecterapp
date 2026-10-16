@@ -3,43 +3,35 @@
 namespace App;
 
 use Imagine\Image\ImagineInterface;
+use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
 /**
- * Makes the copy of an image in a size, once: the copy is written next to the originals, nginx serves it
- * afterwards. Never enlarges: a smaller image stays as it is, blurring it would only make it heavier.
+ * Makes the copy of an image in a size, once: the copy is put in the bucket next to the original, and served
+ * from there afterwards. Never enlarges: a smaller image stays as it is, blurring it would only make it heavier.
  */
 final readonly class Resizer
 {
-    public function __construct(private Files $files, private ImagineInterface $imagine)
+    public function __construct(private Bucket $bucket, private ImagineInterface $imagine)
     {
     }
 
-    /**
-     * @return string the path of the copy
-     */
-    public function copy(string $originalPath, ImageSize $size): string
+    public function copy(string $originalKey, ImageSize $size): StoredFile
     {
-        $copy = $this->files->absolute($size->pathOf($originalPath));
-
-        if (!is_file($copy)) {
-            $this->make($this->files->original($originalPath), $copy, $size);
-        }
-
-        return $copy;
+        return $this->bucket->fileAt($size->pathOf($originalKey)) ?? $this->make($originalKey, $size);
     }
 
-    private function make(string $original, string $copy, ImageSize $size): void
+    private function make(string $originalKey, ImageSize $size): StoredFile
     {
-        $image = $this->imagine->open($original);
+        $original = $this->bucket->fileAt($originalKey) ?? throw new NotFoundHttpException(sprintf('No file %s', $originalKey));
+        $image = $this->imagine->load($original->contents);
 
         if ($size->value < $image->getSize()->getWidth()) {
             $image->resize($image->getSize()->widen($size->value));
         }
 
-        if (!is_dir(dirname($copy))) {
-            mkdir(dirname($copy), 0o775, true);
-        }
+        $copy = new StoredFile($image->get(pathinfo($originalKey, PATHINFO_EXTENSION)), $original->contentType);
+        $this->bucket->put($size->pathOf($originalKey), $copy);
 
-        $image->save($copy);
+        return $copy;
     }
 }

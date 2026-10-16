@@ -31,6 +31,7 @@ services:
     depends_on:
       - php
       - node
+      - ministack
     volumes:
       - ./:/var/www/src:ro
       - ./docker/data/ssl/certs/:/etc/ssl/certs
@@ -38,9 +39,13 @@ services:
       NGINX_HOST: local.prospecter.io
       PHP_FPM_HOST: php
       FRONT_HOST: node
+      # the bucket of the files served on the static host (apps/storage/.env)
+      FILES_HOST: ministack:4566
+      FILES_BUCKET: prospecter-dev-files
     container_name: pro-nginx
 
-  # the AWS services emulated locally (ADR 0048): DynamoDB for the API, kept between restarts
+  # the AWS services emulated locally (ADR 0048, 0051): DynamoDB for the API, S3 for the storage, kept
+  # between restarts
   ministack:
     image: ministackorg/ministack:1.5.27
     ports:
@@ -48,6 +53,8 @@ services:
     environment:
       MINISTACK_REGION: eu-west-3
       PERSIST_STATE: "1"
+      S3_PERSIST: "1"
+      S3_DATA_DIR: /var/lib/ministack/s3
       STATE_DIR: /var/lib/ministack
     volumes:
       - ministack-data:/var/lib/ministack

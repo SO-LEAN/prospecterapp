@@ -1,13 +1,8 @@
-parameters:
-    # where the files are written: nginx serves them from here, the originals and the sizes already made
-    storage.directory: '%kernel.project_dir%/public/storage'
-
 services:
     _defaults:
         autowire: true
         autoconfigure: true
         bind:
-            string $directory: '%storage.directory%'
             string $publicUrl: '%env(STORAGE_PUBLIC_URL)%'
             string $token: '%env(STORAGE_TOKEN)%'
 
@@ -15,11 +10,18 @@ services:
         resource: '../src/'
         exclude:
             - '../src/Kernel.php'
+            - '../src/StoredFile.php'
+
+    # S3 (ADR 0051): MiniStack locally (S3_ENDPOINT, its buckets by path), AWS in production
+    Aws\S3\S3Client:
+        arguments:
+            - region: '%env(AWS_REGION)%'
+              endpoint: '%env(S3_ENDPOINT)%'
+              use_path_style_endpoint: true
+              credentials: { key: '%env(AWS_ACCESS_KEY_ID)%', secret: '%env(AWS_SECRET_ACCESS_KEY)%' }
+    App\Bucket:
+        arguments: { $name: '%env(S3_BUCKET)%' }
 
     # images are resized with ImageMagick
     Imagine\Image\ImagineInterface:
         class: Imagine\Imagick\Imagine
-
-when@test:
-    parameters:
-        storage.directory: '%kernel.project_dir%/var/test-storage'
