@@ -15,7 +15,7 @@ use Prospecter\Core\PersonalData\Application\PersonResponse;
 
 /**
  * My account composed of my membership (Accounts) and my profile (PersonalData), with a link per intention
- * they offer me. What I sign in with lives on the authorization server (`/auth/me`).
+ * they offer me. What I sign in with lives in the user pool (`/api/me/sign-in`).
  */
 final readonly class AccountResourcePresenter
 {

@@ -21,7 +21,7 @@ final readonly class ApiAuthenticationEntryPoint implements AuthenticationEntryP
 
     public function start(Request $request, ?AuthenticationException $authException = null): JsonResponse
     {
-        $problem = new ProblemResource('Unauthorized', Response::HTTP_UNAUTHORIZED, 'A valid OAuth 2 access token is required.');
+        $problem = new ProblemResource('Unauthorized', Response::HTTP_UNAUTHORIZED, 'A valid access token of the user pool is required.');
 
         return new JsonResponse($this->normalizer->normalize($problem), $problem->status, [
             'Content-Type' => 'application/problem+json',

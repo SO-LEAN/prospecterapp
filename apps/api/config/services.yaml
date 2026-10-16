@@ -83,6 +83,27 @@ services:
     Prospecter\Core\Prospecting\Application\Port\GeoLocation: '@App\Prospecting\GeoplateformeGeoLocation'
     Prospecter\Core\SharedKernel\Application\Port\Storage: '@App\Shared\StorageClient'
 
+    # Cognito (ADR 0052): the user pool the members sign in with, MiniStack locally (COGNITO_ENDPOINT)
+    Aws\CognitoIdentityProvider\CognitoIdentityProviderClient:
+        arguments:
+            - region: '%env(AWS_REGION)%'
+              endpoint: '%env(COGNITO_ENDPOINT)%'
+              credentials: { key: '%env(AWS_ACCESS_KEY_ID)%', secret: '%env(AWS_SECRET_ACCESS_KEY)%' }
+    App\SignIn\UserPool:
+        arguments:
+            $name: '%env(COGNITO_USER_POOL_NAME)%'
+            $region: '%env(AWS_REGION)%'
+            $keysUrl: '%env(COGNITO_KEYS_URL)%'
+    # the keys of the user pool are read for real, in the tests too (they run on MiniStack)
+    app.signing_keys_client:
+        class: Symfony\Contracts\HttpClient\HttpClientInterface
+        factory: [Symfony\Component\HttpClient\HttpClient, create]
+    App\SignIn\SigningKeys:
+        arguments: { $httpClient: '@app.signing_keys_client' }
+    # the time the access tokens are checked at: the real one (the controllers use the clock of the tests)
+    app.token_clock:
+        class: Symfony\Component\Clock\NativeClock
+
 when@test:
     services:
         # no network in tests: every outgoing request gets an empty answer (a geocoding finds nothing)
@@ -96,3 +117,7 @@ when@test:
         clock:
             class: Symfony\Component\Clock\MockClock
             arguments: ['2026-10-15 09:00:00 UTC']
+        # the tokens come from MiniStack, issued now: checked now, a test may wait for one to expire
+        app.token_clock:
+            class: Symfony\Component\Clock\MockClock
+            public: true

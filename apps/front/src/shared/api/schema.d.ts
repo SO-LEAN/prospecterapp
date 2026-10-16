@@ -402,6 +402,74 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/me/sign-in/login-email": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        /** Change the email I sign in with, unique on the platform */
+        patch: operations["patch_api_me_change_login_email"];
+        trace?: never;
+    };
+    "/api/me/sign-in/password": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        /** Change my password */
+        patch: operations["patch_api_me_change_password"];
+        trace?: never;
+    };
+    "/api/me/sign-in": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** The email I sign in with */
+        get: operations["get_api_me_sign_in"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/user-pool": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Where the members sign in: the Cognito user pool and the client of the SPA */
+        get: operations["get_api_user_pool"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
 }
 export type webhooks = Record<string, never>;
 export interface components {
@@ -483,6 +551,14 @@ export interface components {
             q: string;
             /** @default null */
             after: string | null;
+        };
+        LoginEmailInput: {
+            /** @default  */
+            email: string;
+        };
+        PasswordInput: {
+            /** @default  */
+            password: string;
         };
         PersonNameResource: {
             firstName?: string | null;
@@ -661,6 +737,21 @@ export interface components {
         };
         OrganizationsOfContactResource: {
             items: components["schemas"]["OrganizationOfContactResource"][];
+        };
+        SignInLinksResource: {
+            self: components["schemas"]["LinkResource"];
+            changeMyLoginEmail: components["schemas"]["LinkResource"];
+            changeMyPassword: components["schemas"]["LinkResource"];
+        };
+        SignInResource: {
+            loginEmail: string;
+            _links: components["schemas"]["SignInLinksResource"];
+        };
+        UserPoolResource: {
+            region: string;
+            userPoolId: string;
+            clientId: string;
+            endpoint?: string | null;
         };
     };
     responses: never;
@@ -2234,6 +2325,131 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["ProblemResource"];
+                };
+            };
+        };
+    };
+    patch_api_me_change_login_email: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["LoginEmailInput"];
+            };
+        };
+        responses: {
+            /** @description What I sign in with */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SignInResource"];
+                };
+            };
+            /** @description Missing or invalid access token */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Missing or invalid email, or one another member signs in with */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ProblemResource"];
+                };
+            };
+        };
+    };
+    patch_api_me_change_password: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["PasswordInput"];
+            };
+        };
+        responses: {
+            /** @description Password changed */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Missing or invalid access token */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Password too short */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ProblemResource"];
+                };
+            };
+        };
+    };
+    get_api_me_sign_in: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description What I sign in with */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SignInResource"];
+                };
+            };
+            /** @description Missing or invalid access token */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    get_api_user_pool: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description The user pool */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["UserPoolResource"];
                 };
             };
         };

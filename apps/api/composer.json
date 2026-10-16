@@ -9,7 +9,6 @@
         "ext-ctype": "*",
         "ext-iconv": "*",
         "aws/aws-sdk-php": "^3.401",
-        "lcobucci/clock": "^3.3",
         "lcobucci/jwt": "^5.5",
         "nelmio/api-doc-bundle": "^5.13",
         "nelmio/cors-bundle": "^2.6",

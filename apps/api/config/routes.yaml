@@ -32,3 +32,10 @@ contacts:
     type: attribute
     host: '%app_api_host%'
     defaults: { _format: json }
+
+# where and with what the members sign in (Cognito, ADR 0052)
+sign_in:
+    resource: ../src/SignIn/Controller/
+    type: attribute
+    host: '%app_api_host%'
+    defaults: { _format: json }

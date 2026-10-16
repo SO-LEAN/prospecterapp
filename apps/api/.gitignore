@@ -22,6 +22,6 @@ phpstan.neon
 ###< phpunit/phpunit ###
 
 ###> auth keys ###
-# the former keys of the authorization server, now in apps/auth: never committed
+# the keys of the former OAuth 2 server, if some are left: never committed
 /config/jwt/
 ###< auth keys ###

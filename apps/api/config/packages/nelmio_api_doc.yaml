@@ -5,25 +5,21 @@ nelmio_api_doc:
             description: |
                 Exposes the use cases of `prospecter/core`.
 
-                Authentication: OAuth 2 authorization code with PKCE (public client `prospecter-front`),
-                then `Authorization: Bearer <access token>` on every call.
+                Authentication: the members sign in with the Cognito user pool of `GET /api/user-pool`
+                (SRP, client of the SPA), then send `Authorization: Bearer <access token>` on every call.
 
                 Errors use RFC 9457 problem details (`application/problem+json`);
                 validation errors list the invalid fields in `violations`.
             version: 1.0.0
         components:
             securitySchemes:
-                oauth2:
-                    type: oauth2
-                    flows:
-                        authorizationCode:
-                            authorizationUrl: /authorize
-                            tokenUrl: /token
-                            refreshUrl: /token
-                            scopes:
-                                api: Use the API on behalf of the signed-in user
+                cognito:
+                    type: http
+                    scheme: bearer
+                    bearerFormat: JWT
+                    description: An access token of the Cognito user pool
         security:
-            - oauth2: [api]
+            - cognito: []
     areas:
         path_patterns:
             - ^/api(?!/doc)

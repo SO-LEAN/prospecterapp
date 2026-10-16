@@ -14,7 +14,11 @@ security:
         api_doc:
             pattern: ^/api/doc
             security: false
-        # resource server: every API call carries an access token of the authorization server (apps/auth)
+        # where to sign in, asked before anyone is
+        user_pool:
+            pattern: ^/api/user-pool$
+            security: false
+        # resource server: every API call carries an access token of the Cognito user pool (ADR 0052)
         api:
             pattern: ^/api/
             stateless: true

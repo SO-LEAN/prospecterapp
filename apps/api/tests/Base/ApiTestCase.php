@@ -2,14 +2,13 @@
 
 namespace Tests\App\Base;
 
+use App\Demo\DemoCredentials;
 use App\Demo\DemoData;
 use App\Shared\Identities;
 use App\Shared\Persistence\Tables;
-use Lcobucci\JWT\Encoding\ChainedFormatter;
-use Lcobucci\JWT\Encoding\JoseEncoder;
-use Lcobucci\JWT\Signer\Key\InMemory;
-use Lcobucci\JWT\Signer\Rsa\Sha256;
-use Lcobucci\JWT\Token\Builder;
+use App\SignIn\Credentials;
+use App\SignIn\UserPool;
+use Aws\CognitoIdentityProvider\CognitoIdentityProviderClient;
 use Prospecter\Core\Accounts\Domain\Member;
 use Prospecter\Core\Accounts\Domain\MemberRepository;
 use Prospecter\Core\Accounts\Domain\Role;
@@ -25,8 +24,8 @@ use Symfony\Component\HttpFoundation\File\UploadedFile;
 
 /**
  * The API as the SPA uses it, on tables recreated for each test with the data of the demonstration (ADR 0048).
- * A member calls it with an access token signed like the authorization server signs them (the test key pair
- * of tests/bootstrap.php).
+ * A member calls it with a real access token of the test user pool of MiniStack, recreated for each test with
+ * the members of the demonstration (ADR 0052).
  */
 abstract class ApiTestCase extends WebTestCase
 {
@@ -42,11 +41,13 @@ abstract class ApiTestCase extends WebTestCase
         $this->client = static::createClient([], ['HTTP_HOST' => 'api.test.prospecter.io']);
         self::getContainer()->get(Tables::class)->recreate();
         self::getContainer()->get(DemoData::class)->load();
+        self::getContainer()->get(UserPool::class)->recreate();
+        self::getContainer()->get(DemoCredentials::class)->register();
     }
 
     protected function login(string $reference = 'prospector-user'): void
     {
-        $this->client->setServerParameter('HTTP_AUTHORIZATION', 'Bearer '.$this->accessTokenOf($this->members[$reference]));
+        $this->client->setServerParameter('HTTP_AUTHORIZATION', 'Bearer '.$this->tokensOf($this->members[$reference])['AccessToken']);
     }
 
     /**
@@ -68,23 +69,27 @@ abstract class ApiTestCase extends WebTestCase
         $member = Member::register(new MemberId(self::newIdentity()), $account, $profile->id(), ...$roles);
         self::getContainer()->get(MemberRepository::class)->save($member);
         $this->members[$reference] = $member->id()->value;
+        self::getContainer()->get(Credentials::class)->register($member->id()->value, $member->id()->value.'@solean-it.io', DemoCredentials::PASSWORD);
 
         return $reference;
     }
 
-    protected function accessTokenOf(string $memberId, string $audience = 'prospecter-front', string $expiresIn = '+15 minutes'): string
+    /**
+     * The tokens the user pool gives a member signing in with the password of the demonstration, for its
+     * client or another one.
+     *
+     * @return array{AccessToken: string, IdToken: string}
+     */
+    protected function tokensOf(string $memberId, ?string $clientId = null): array
     {
-        $now = new \DateTimeImmutable();
+        $pool = self::getContainer()->get(UserPool::class);
 
-        return new Builder(new JoseEncoder(), ChainedFormatter::default())
-            ->issuedBy('test')
-            ->permittedFor($audience)
-            ->relatedTo($memberId)
-            ->issuedAt($now)
-            ->canOnlyBeUsedAfter($now)
-            ->expiresAt($now->modify($expiresIn))
-            ->getToken(new Sha256(), InMemory::file(dirname(__DIR__, 2).'/var/test-jwt/private.pem'))
-            ->toString();
+        return self::getContainer()->get(CognitoIdentityProviderClient::class)->adminInitiateAuth([
+            'UserPoolId' => $pool->id(),
+            'ClientId' => $clientId ?? $pool->clientId(),
+            'AuthFlow' => 'ADMIN_USER_PASSWORD_AUTH',
+            'AuthParameters' => ['USERNAME' => $memberId, 'PASSWORD' => DemoCredentials::PASSWORD],
+        ])['AuthenticationResult'];
     }
 
     /**

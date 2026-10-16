@@ -3,12 +3,15 @@
 namespace Tests\App\Api;
 
 use App\Demo\DemoData;
+use App\SignIn\Credentials;
+use App\SignIn\UserPool;
+use Aws\CognitoIdentityProvider\CognitoIdentityProviderClient;
 use PHPUnit\Framework\Attributes\Group;
 use Tests\App\Base\ApiTestCase;
 
 /**
- * The API trusts an access token of the authorization server only: signed with its key, for the SPA, not
- * expired, naming a member.
+ * The API trusts an access token of the user pool only (ADR 0052): signed with one of its keys, issued for the
+ * SPA, an access token and not an id token, not expired, naming a member.
  */
 #[Group('api')]
 class AccessTokenTest extends ApiTestCase
@@ -33,21 +36,31 @@ class AccessTokenTest extends ApiTestCase
 
     public function testAnExpiredTokenIsRefused(): void
     {
-        $this->withToken($this->accessTokenOf(self::prospector(), expiresIn: '-1 minute'));
+        $token = $this->tokensOf(DemoData::PROSPECTOR)['AccessToken'];
+        self::getContainer()->get('app.token_clock')->modify('+2 hours');
+
+        $this->withToken($token);
 
         $this->assertResponseStatusCodeSame(401);
     }
 
     public function testATokenForAnotherClientIsRefused(): void
     {
-        $this->withToken($this->accessTokenOf(self::prospector(), audience: 'another-client'));
+        $this->withToken($this->tokensOf(DemoData::PROSPECTOR, $this->anotherClient())['AccessToken']);
 
         $this->assertResponseStatusCodeSame(401);
     }
 
-    public function testATokenNotSignedByTheAuthorizationServerIsRefused(): void
+    public function testAnIdTokenIsNotAnAccessToken(): void
     {
-        [$header, $payload] = explode('.', $this->accessTokenOf(self::prospector()));
+        $this->withToken($this->tokensOf(DemoData::PROSPECTOR)['IdToken']);
+
+        $this->assertResponseStatusCodeSame(401);
+    }
+
+    public function testATokenNotSignedByTheUserPoolIsRefused(): void
+    {
+        [$header, $payload] = explode('.', $this->tokensOf(DemoData::PROSPECTOR)['AccessToken']);
 
         $this->withToken($header.'.'.$payload.'.forged-signature');
 
@@ -56,7 +69,10 @@ class AccessTokenTest extends ApiTestCase
 
     public function testATokenNamingNoMemberIsRefused(): void
     {
-        $this->withToken($this->accessTokenOf('01900000-0000-7000-8000-0000000000ff'));
+        $stranger = '01900000-0000-7000-8000-0000000000ff';
+        self::getContainer()->get(Credentials::class)->register($stranger, 'stranger@competitor.io', 'password');
+
+        $this->withToken($this->tokensOf($stranger)['AccessToken']);
 
         $this->assertResponseStatusCodeSame(401);
     }
@@ -67,8 +83,12 @@ class AccessTokenTest extends ApiTestCase
         $this->requestJson('GET', '/api/me');
     }
 
-    private static function prospector(): string
+    private function anotherClient(): string
     {
-        return DemoData::PROSPECTOR;
+        return self::getContainer()->get(CognitoIdentityProviderClient::class)->createUserPoolClient([
+            'UserPoolId' => self::getContainer()->get(UserPool::class)->id(),
+            'ClientName' => 'another-client',
+            'ExplicitAuthFlows' => ['ALLOW_ADMIN_USER_PASSWORD_AUTH'],
+        ])['UserPoolClient']['ClientId'];
     }
 }
