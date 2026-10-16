@@ -1,0 +1,41 @@
+# Continuous integration (ADR 0057): what make ci runs locally, in Docker as locally, on every branch of work and
+# on the pull requests to dev and main, which cannot be merged while it fails.
+name: CI
+
+on:
+  push:
+    branches: [main, dev, 'feature/**', 'fix/**', 'hotfix/**']
+  pull_request:
+    branches: [dev, main]
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  ci:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v7.0.1
+
+      - name: Cache the Composer dependencies
+        uses: actions/cache@v6.1.0
+        with:
+          path: |
+            apps/api/vendor
+            apps/storage/vendor
+            packages/core/vendor
+          key: composer-${{ hashFiles('apps/api/composer.lock', 'apps/storage/composer.lock', 'packages/core/composer.lock') }}
+
+      - name: Cache the pnpm dependencies
+        uses: actions/cache@v6.1.0
+        with:
+          path: apps/front/node_modules
+          key: pnpm-${{ hashFiles('apps/front/pnpm-lock.yaml') }}
+
+      - name: Build, lint, test, check the contract, build the front
+        run: make ci

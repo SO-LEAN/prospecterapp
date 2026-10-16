@@ -23,13 +23,13 @@ Everything runs in Docker (MiniStack with the Lambdas, Node 24, nginx; the PHP 8
 
 - `make install`: images, Composer and pnpm dependencies, and in MiniStack the DynamoDB tables and the Cognito user pool of the API and the S3 bucket of the storage, with the data and the members of the demonstration
 - `make start` / `make stop`: the stack, the API and the storage deployed in their Lambdas on MiniStack (ADR 0055): https://local.prospecter.io (SPA, sign in `prospector@solean-it.io` / `password`, or `assistant@solean-it.io` / `password`, a prospector without the right to manage personal data), https://api.local.prospecter.io/api/doc (API doc)
-- `make test` (core scenarios and unit tests, API, storage, front), `make test-core` (the business rules only), `make e2e` (Playwright on the running stack), `make lint`, `make fix`
+- `make ci` (what the CI runs: build of the images, dependencies, lint, tests, contract, build of the front), `make test` (core scenarios and unit tests, API, storage, front), `make test-core` (the business rules only), `make e2e` (Playwright on the running stack), `make lint`, `make fix`
 - `make api-doc`: after changing an endpoint, regenerate `apps/api/openapi.json` and the front API types (`make test` fails while the committed contract differs from the code)
 - `make db`: recreate in MiniStack the dev tables and the user pool of the API and the bucket of the storage (destroys local data); `bin/console app:search:rebuild` rebuilds the search of the API
 
 Other commands: `docker compose run --rm --no-deps php <cmd>` (working dir `apps/api`; add `-w /var/www/src/apps/storage` or `-w /var/www/src/packages/core` for the others) or `docker compose run --rm --no-deps node <cmd>` (working dir `apps/front`).
 
-Before declaring work done: `make test` and `make lint` pass; `make e2e` for changes to a main journey.
+Before declaring work done: `make ci` passes (what the CI runs: lint, tests, contract, build of the front); `make e2e` for changes to a main journey.
 
 ## Code conventions
 
@@ -40,7 +40,9 @@ Before declaring work done: `make test` and `make lint` pass; `make e2e` for cha
 
 ## Git
 
-- Single branch `main`, linear history: work on a short-lived branch, then fast-forward `main`. No merge commits.
+- `dev` integrates the work (ADR 0057): a `feature/<name>` or `fix/<name>` branch starts from `dev` and comes back by pull request (`gh pr create --base dev`), merged by rebase once the CI passes (`gh pr merge --rebase`): `dev` stays linear. `dev` goes to `main` by a pull request merged by a merge commit (`gh pr merge --merge`, ADR 0058: a rebase merge of GitHub rewrites the commits, `main` and `dev` would diverge). A `hotfix/<name>` starts from `main`, comes back to `main` the same way, then is cherry-picked onto `dev` (a `fix/` branch).
+- `dev` is the default branch of the repository (pull requests and clones start there). `main` and `dev` are protected (rulesets `dev` and `main`, no bypass): no direct push, the check `ci` must pass, no force-push; rebase only on `dev`, merge commits only on `main`.
+- The CI (`.github/workflows/ci.yml`) runs `make ci`: run it before pushing. The e2e journeys stay local (`make e2e`).
 - Conventional commits (`feat:`, `fix:`, `refactor:`, `chore:`, `docs:`) explaining why.
 - Commit or push only when asked.
 

@@ -16,7 +16,7 @@ export PROJECT_DIR := $(CURDIR)
 
 .DEFAULT_GOAL := help
 
-.PHONY: help install build vendor db aws front-install start deploy stop logs ps test test-api test-storage test-front e2e test-core lint fix api-doc commands exec-api exec-front
+.PHONY: help install build vendor db aws front-install start deploy stop logs ps ci test test-api test-storage test-front e2e test-core lint fix front-build api-doc contract commands exec-api exec-front
 
 ##@ Help
 help: ## List the commands (the default target)
@@ -24,9 +24,9 @@ help: ## List the commands (the default target)
 
 ##@ Setup
 install: build vendor db front-install ## Build the images, install the dependencies, create the tables, the bucket and the user pool
-build: ## Build the Docker images
+build: ## Build the Docker images, those of the command line and of the deployment included
 	@echo "Docker/Building images..."
-	@$(DC) build
+	@$(DC) --profile cli --profile deploy build
 
 vendor: ## Install the Composer dependencies of the API, the core and the storage
 	@echo "API/Installing Composer dependencies..."
@@ -70,6 +70,7 @@ ps: ## List the containers of the stack
 	@$(DC) ps
 
 ##@ Quality
+ci: build vendor front-install lint test contract front-build ## Run what the continuous integration runs: build, lint, tests, contract, build of the front
 test: test-core test-api test-storage test-front ## Run every test suite: core, API, storage, front
 # business rules (Gherkin scenarios on the use cases, in-memory ports) then the unit tests
 test-core: ## Run the business rules (Behat) and the unit tests of the core
@@ -96,6 +97,9 @@ lint: ## Check the code: PHPStan, php-cs-fixer, Rector, Biome, TypeScript
 	@$(STORAGE) sh -c 'vendor/bin/phpstan analyse --no-progress && vendor/bin/php-cs-fixer fix --dry-run --diff && vendor/bin/rector process --dry-run'
 	@$(NODE) sh -c 'pnpm lint && pnpm typecheck'
 
+front-build: ## Build the front for production (TypeScript, Vite)
+	@$(NODE) pnpm build
+
 fix: ## Fix the style of the code: php-cs-fixer, Biome
 	@$(CORE) vendor/bin/php-cs-fixer fix
 	@$(PHP) vendor/bin/php-cs-fixer fix
@@ -106,6 +110,9 @@ fix: ## Fix the style of the code: php-cs-fixer, Biome
 api-doc: ## Regenerate the OpenAPI contract of the API and the front types after changing an endpoint
 	@$(PHP) sh -c 'bin/console nelmio:apidoc:dump --format=json > openapi.json'
 	@$(NODE) pnpm api:types
+
+contract: api-doc ## Fail when the committed OpenAPI contract or the front types differ from the code
+	@git diff --exit-code -- apps/api/openapi.json apps/front/src/shared/api/schema.d.ts
 
 ##@ Tools
 commands: ## List the commands of the core and their handlers
