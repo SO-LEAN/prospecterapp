@@ -1,7 +1,7 @@
 # 0057. Continuous integration around `dev`: branches of work by pull request, `main` and `dev` protected
 
 - Date: 2026-10-16
-- Status: Accepted
+- Status: Accepted, the rebase merges into `main` superseded by [0058](0058-main-receives-dev-and-hotfixes-by-merge-commits.md)
 - Supersedes: [0003](0003-single-linear-main-branch.md) (the history stays linear)
 - Implemented by: `.github/workflows/ci.yml`, `make ci` / `make contract` / `make front-build`, the ruleset `protected` of the repository on GitHub
 
