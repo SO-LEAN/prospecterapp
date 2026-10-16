@@ -1,9 +1,9 @@
 import { useQuery, useQueryClient } from '@tanstack/react-query'
-import { Link } from '@tanstack/react-router'
+import { Link, useNavigate } from '@tanstack/react-router'
 import { LogOut, Monitor, Moon, Sun, UserRound } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
-import { useAuth } from 'react-oidc-context'
 import { accountQuery } from '@/features/account/queries'
+import { session } from '@/shared/auth/session'
 import { initials } from '@/shared/lib/format'
 import { type Theme, usePreferences } from '@/shared/stores/preferences'
 import { Avatar, AvatarFallback, AvatarImage } from '@/shared/ui/avatar'
@@ -27,7 +27,7 @@ const themes = [
 
 export function UserMenu() {
   const { t } = useTranslation()
-  const auth = useAuth()
+  const navigate = useNavigate()
   const queryClient = useQueryClient()
   const { data: account, isPending } = useQuery(accountQuery())
   const theme = usePreferences((state) => state.theme)
@@ -43,9 +43,9 @@ export function UserMenu() {
     ''
 
   const signOut = async () => {
+    await session.signOut()
     queryClient.clear()
-    await auth.removeUser()
-    await auth.signoutRedirect()
+    await navigate({ to: '/auth/sign-in', search: { returnTo: '/' } })
   }
 
   return (

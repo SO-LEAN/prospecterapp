@@ -12,7 +12,6 @@ import { Route as rootRouteImport } from './../routes/__root'
 import { Route as AppRouteImport } from './../routes/_app'
 import { Route as AppIndexRouteImport } from './../routes/_app/index'
 import { Route as AppAccountRouteImport } from './../routes/_app/account'
-import { Route as AuthCallbackRouteImport } from './../routes/auth/callback'
 import { Route as AuthSignInRouteImport } from './../routes/auth/sign-in'
 import { Route as AppContactsIndexRouteImport } from './../routes/_app/contacts/index'
 import { Route as AppOrganizationsIndexRouteImport } from './../routes/_app/organizations/index'
@@ -33,11 +32,6 @@ const AppAccountRoute = AppAccountRouteImport.update({
   id: '/account',
   path: '/account',
   getParentRoute: () => AppRoute,
-} as any)
-const AuthCallbackRoute = AuthCallbackRouteImport.update({
-  id: '/auth/callback',
-  path: '/auth/callback',
-  getParentRoute: () => rootRouteImport,
 } as any)
 const AuthSignInRoute = AuthSignInRouteImport.update({
   id: '/auth/sign-in',
@@ -75,7 +69,6 @@ const AppOrganizationsOrganizationIdIndexRoute =
 export interface FileRoutesByFullPath {
   '/': typeof AppIndexRoute
   '/account': typeof AppAccountRoute
-  '/auth/callback': typeof AuthCallbackRoute
   '/auth/sign-in': typeof AuthSignInRoute
   '/organizations/new': typeof AppOrganizationsNewRoute
   '/contacts/': typeof AppContactsIndexRoute
@@ -85,7 +78,6 @@ export interface FileRoutesByFullPath {
 }
 export interface FileRoutesByTo {
   '/account': typeof AppAccountRoute
-  '/auth/callback': typeof AuthCallbackRoute
   '/auth/sign-in': typeof AuthSignInRoute
   '/': typeof AppIndexRoute
   '/organizations/new': typeof AppOrganizationsNewRoute
@@ -98,7 +90,6 @@ export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/_app': typeof AppRouteWithChildren
   '/_app/account': typeof AppAccountRoute
-  '/auth/callback': typeof AuthCallbackRoute
   '/auth/sign-in': typeof AuthSignInRoute
   '/_app/': typeof AppIndexRoute
   '/_app/organizations/new': typeof AppOrganizationsNewRoute
@@ -112,7 +103,6 @@ export interface FileRouteTypes {
   fullPaths:
     | '/'
     | '/account'
-    | '/auth/callback'
     | '/auth/sign-in'
     | '/organizations/new'
     | '/contacts/'
@@ -122,7 +112,6 @@ export interface FileRouteTypes {
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/account'
-    | '/auth/callback'
     | '/auth/sign-in'
     | '/'
     | '/organizations/new'
@@ -134,7 +123,6 @@ export interface FileRouteTypes {
     | '__root__'
     | '/_app'
     | '/_app/account'
-    | '/auth/callback'
     | '/auth/sign-in'
     | '/_app/'
     | '/_app/organizations/new'
@@ -146,7 +134,6 @@ export interface FileRouteTypes {
 }
 export interface RootRouteChildren {
   AppRoute: typeof AppRouteWithChildren
-  AuthCallbackRoute: typeof AuthCallbackRoute
   AuthSignInRoute: typeof AuthSignInRoute
 }
 
@@ -172,13 +159,6 @@ declare module '@tanstack/react-router' {
       fullPath: '/account'
       preLoaderRoute: typeof AppAccountRouteImport
       parentRoute: typeof AppRoute
-    }
-    '/auth/callback': {
-      id: '/auth/callback'
-      path: '/auth/callback'
-      fullPath: '/auth/callback'
-      preLoaderRoute: typeof AuthCallbackRouteImport
-      parentRoute: typeof rootRouteImport
     }
     '/auth/sign-in': {
       id: '/auth/sign-in'
@@ -250,7 +230,6 @@ const AppRouteWithChildren = AppRoute._addFileChildren(AppRouteChildren)
 
 const rootRouteChildren: RootRouteChildren = {
   AppRoute: AppRouteWithChildren,
-  AuthCallbackRoute: AuthCallbackRoute,
   AuthSignInRoute: AuthSignInRoute,
 }
 export const routeTree = rootRouteImport

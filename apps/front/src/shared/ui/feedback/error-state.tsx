@@ -18,7 +18,7 @@ export function ErrorState({ error, reset }: Props) {
       action={
         reset && (
           <Button variant="outline" onClick={reset}>
-            {t('auth.retry')}
+            {t('common.retry')}
           </Button>
         )
       }

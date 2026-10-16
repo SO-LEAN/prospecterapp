@@ -17,8 +17,12 @@ const typedRoutesSplitByRoute = tanstackRouter({
 
 const reactCompiler = babel({ presets: [reactCompilerPreset()] })
 
+/** amazon-cognito-identity-js reads the Node `global`: the browser names it `globalThis`. */
+const nodeGlobalOfTheCognitoLibrary = { global: 'globalThis' }
+
 export default defineConfig({
   plugins: [typedRoutesSplitByRoute, react(), reactCompiler, tailwindcss()],
+  define: nodeGlobalOfTheCognitoLibrary,
   resolve: {
     alias: { '@': fileURLToPath(new URL('./src', import.meta.url)) },
   },

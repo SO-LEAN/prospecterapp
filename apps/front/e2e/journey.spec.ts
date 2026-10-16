@@ -137,6 +137,8 @@ test('sign in, start prospecting an organization, change it section by section, 
     await page.getByRole('button', { name: /menu du compte/ }).click()
     await page.getByRole('menuitem', { name: 'Se déconnecter' }).click()
     await expect(page).toHaveURL(SIGN_IN_PAGE)
+    await page.goto(organizationUrl)
+    await expect(page, 'signed out of the tab').toHaveURL(SIGN_IN_PAGE)
   })
 })
 

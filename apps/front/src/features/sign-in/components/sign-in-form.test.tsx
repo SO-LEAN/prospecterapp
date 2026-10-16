@@ -3,13 +3,7 @@ import userEvent from '@testing-library/user-event'
 import { describe, expect, it, vi } from 'vitest'
 import { SignInForm } from './sign-in-form'
 
-const problem = (status: number) => ({
-  title: 'Refused',
-  status,
-  detail: 'Refused',
-  violations: [],
-  type: 'about:blank',
-})
+const refusal = (code: string, message = 'Refused') => ({ code, message })
 
 function renderForm(onSubmit = vi.fn().mockResolvedValue(undefined)) {
   render(<SignInForm onSubmit={onSubmit} />)
@@ -42,7 +36,9 @@ describe('SignInForm', () => {
   })
 
   it('says the credentials are wrong without telling which', async () => {
-    const { user } = renderForm(vi.fn().mockRejectedValue(problem(401)))
+    const { user } = renderForm(
+      vi.fn().mockRejectedValue(refusal('NotAuthorizedException', 'Incorrect username or password.')),
+    )
 
     await signIn(user, 'wrong password')
 
@@ -50,7 +46,9 @@ describe('SignInForm', () => {
   })
 
   it('asks to wait after too many failed attempts', async () => {
-    const { user } = renderForm(vi.fn().mockRejectedValue(problem(429)))
+    const { user } = renderForm(
+      vi.fn().mockRejectedValue(refusal('NotAuthorizedException', 'Password attempts exceeded')),
+    )
 
     await signIn(user)
 

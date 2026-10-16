@@ -25,13 +25,8 @@ export const fr = {
     failed: 'La connexion a échoué, réessayez.',
     copyright: '© SoLean IT {{year}}',
   },
-  auth: {
-    redirecting: 'Redirection vers la connexion…',
-    signingIn: 'Connexion en cours…',
-    error: 'La connexion a échoué.',
-    retry: 'Réessayer',
-  },
   common: {
+    retry: 'Réessayer',
     save: 'Enregistrer',
     saving: 'Enregistrement…',
     cancel: 'Annuler',

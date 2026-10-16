@@ -1,23 +1,12 @@
-import { createFileRoute, Outlet } from '@tanstack/react-router'
+import { createFileRoute, Outlet, redirect } from '@tanstack/react-router'
 import { AppShell } from '@/app/layout/app-shell'
-import { type SigninState, userManager } from '@/shared/auth/user-manager'
+import { session } from '@/shared/auth/session'
 
-/**
- * Every page below requires a signed-in user: anonymous visitors go through the OAuth flow and come back.
- * The guard reads the stored session itself: right after the OAuth callback, the React auth state may not be updated yet.
- */
-const waitForTheBrowserToLeave = () => new Promise<never>(() => {})
-
+/** Every page below requires a signed-in member: anonymous visitors sign in, then come back. */
 export const Route = createFileRoute('/_app')({
   beforeLoad: async ({ location }) => {
-    let user = await userManager.getUser()
-    if (user?.expired && user.refresh_token) {
-      user = await userManager.signinSilent().catch(() => null)
-    }
-    if (!user || user.expired) {
-      const state: SigninState = { returnTo: window.location.origin + location.href }
-      await userManager.signinRedirect({ state })
-      await waitForTheBrowserToLeave()
+    if (!(await session.accessToken())) {
+      throw redirect({ to: '/auth/sign-in', search: { returnTo: location.href } })
     }
   },
   component: () => (

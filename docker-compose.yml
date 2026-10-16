@@ -39,13 +39,13 @@ services:
       NGINX_HOST: local.prospecter.io
       PHP_FPM_HOST: php
       FRONT_HOST: node
-      # the bucket of the files served on the static host (apps/storage/.env)
-      FILES_HOST: ministack:4566
+      # MiniStack, behind the static host (the bucket of the files, apps/storage/.env) and the API host (Cognito)
+      MINISTACK_HOST: ministack:4566
       FILES_BUCKET: prospecter-dev-files
     container_name: pro-nginx
 
-  # the AWS services emulated locally (ADR 0048, 0051): DynamoDB for the API, S3 for the storage, kept
-  # between restarts
+  # the AWS services emulated locally (ADR 0048, 0051): DynamoDB for the API, S3 for the storage,
+  # Cognito for the sign-in (ADR 0052), kept between restarts
   ministack:
     image: ministackorg/ministack:1.5.27
     ports:

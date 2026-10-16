@@ -17,7 +17,7 @@
     "test": "vitest run",
     "test:watch": "vitest",
     "e2e": "playwright test",
-    "api:types": "pnpm dlx --package=openapi-typescript@7.13.0 --package=typescript@5.9 openapi-typescript ../api/openapi.json -o src/shared/api/schema.d.ts && pnpm dlx --package=openapi-typescript@7.13.0 --package=typescript@5.9 openapi-typescript ../auth/openapi.json -o src/shared/api/auth-schema.d.ts"
+    "api:types": "pnpm dlx --package=openapi-typescript@7.13.0 --package=typescript@5.9 openapi-typescript ../api/openapi.json -o src/shared/api/schema.d.ts"
   },
   "dependencies": {
     "@fontsource-variable/inter": "^5.3.0",
@@ -25,12 +25,12 @@
     "@tanstack/react-query": "^5.104.2",
     "@tanstack/react-router": "^1.170.43",
     "@tanstack/zod-adapter": "^1.167.0",
+    "amazon-cognito-identity-js": "^6.3.22",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
     "i18next": "^26.4.4",
     "lucide-react": "^1.55.0",
     "maplibre-gl": "^6.14.0",
-    "oidc-client-ts": "^3.5.0",
     "openapi-fetch": "^0.17.0",
     "openapi-react-query": "^0.5.4",
     "radix-ui": "^1.8.1",
@@ -39,7 +39,6 @@
     "react-hook-form": "^7.90.0",
     "react-i18next": "^17.0.16",
     "react-map-gl": "^8.1.3",
-    "react-oidc-context": "^3.3.1",
     "sonner": "^2.0.8",
     "tailwind-merge": "^3.7.0",
     "zod": "^4.6.7",

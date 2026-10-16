@@ -8,7 +8,7 @@ type Props = {
   children?: ReactNode
 }
 
-/** Centered message for states without the app shell: loading the session, OAuth callback, fatal errors. */
+/** Centered message for states without the app shell: loading, fatal errors. */
 export function FullPageMessage({ title, description, loading = false, children }: Props) {
   return (
     <main className="grid min-h-dvh place-items-center bg-background p-6">

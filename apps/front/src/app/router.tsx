@@ -1,17 +1,15 @@
 import type { QueryClient } from '@tanstack/react-query'
 import { createRouter } from '@tanstack/react-router'
-import type { AuthContextProps } from 'react-oidc-context'
 import { queryClient } from './query-client'
 import { routeTree } from './routeTree.gen'
 
 export type RouterContext = {
   queryClient: QueryClient
-  auth: AuthContextProps
 }
 
 export const router = createRouter({
   routeTree,
-  context: { queryClient, auth: undefined as unknown as AuthContextProps },
+  context: { queryClient },
   defaultPreload: 'intent',
   defaultPreloadStaleTime: 0,
   scrollRestoration: true,

@@ -1,6 +1,6 @@
 import { defineConfig, devices } from '@playwright/test'
 
-/** End-to-end journeys against the running local stack (`make start`), real OAuth flow included. */
+/** End-to-end journeys against the running local stack (`make start`), real sign-in on Cognito (MiniStack) included. */
 export default defineConfig({
   testDir: './e2e',
   timeout: 30_000,

@@ -15,7 +15,7 @@ server {
     location /storage/ {
         # resolved on each request: MiniStack may be recreated with another address
         resolver 127.0.0.11 valid=10s;
-        set $files ${FILES_HOST};
+        set $files ${MINISTACK_HOST};
         rewrite ^/storage/(.*)$ /${FILES_BUCKET}/$1 break;
         proxy_pass http://$files;
         proxy_hide_header Access-Control-Allow-Origin;

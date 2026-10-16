@@ -1,4 +1,11 @@
-# The API (apps/api) and, on a few paths, the authorization server (apps/auth)
+# The API (apps/api), and the Cognito of MiniStack for the SPA (ADR 0052): the SPA, served in https, signs in
+# there through this host. MiniStack serves every AWS service on one port: only the calls of Cognito pass.
+map "$request_method $http_x_amz_target" $cognito_call {
+    default 0;
+    "~^OPTIONS " 1;
+    "~^POST AWSCognitoIdentityProviderService\." 1;
+}
+
 server {
     listen 443 ssl;
     http2 on;
@@ -7,14 +14,15 @@ server {
     server_name api.${NGINX_HOST};
     root /var/www/src/apps/api/public;
 
-    # The authorization server (apps/auth) shares the host of the API (ADR 0034): sign-in, OAuth 2 and what a
-    # member signs in with go to its front controller, the rest to the API.
-    location ~ ^/(authorize|token|login|logout)$ {
-        include /etc/nginx/auth_fastcgi.conf;
-    }
-
-    location ^~ /auth/ {
-        include /etc/nginx/auth_fastcgi.conf;
+    location /cognito/ {
+        if ($cognito_call = 0) {
+            return 403;
+        }
+        # resolved on each request: MiniStack may be recreated with another address
+        resolver 127.0.0.11 valid=10s;
+        set $ministack ${MINISTACK_HOST};
+        rewrite ^/cognito/(.*)$ /$1 break;
+        proxy_pass http://$ministack;
     }
 
     location / {
