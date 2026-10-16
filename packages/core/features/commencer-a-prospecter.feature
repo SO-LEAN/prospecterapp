@@ -38,7 +38,7 @@ Fonctionnalité: Commencer à prospecter une organisation
     Quand je commence à prospecter l'organisation :
       | e-mail | contact@acme.test |
     Et je liste mes organisations
-    Alors je trouve 1 organisation sur 1 page
+    Alors je trouve 1 organisation
 
   Scénario: Il faut au moins une raison sociale ou un e-mail
     Quand je commence à prospecter l'organisation :

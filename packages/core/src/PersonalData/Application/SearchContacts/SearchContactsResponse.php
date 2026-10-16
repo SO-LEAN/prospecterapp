@@ -8,33 +8,30 @@ use Prospecter\Core\PersonalData\Application\PersonResponse;
 use Prospecter\Core\PersonalData\Domain\ContactsIntent;
 use Prospecter\Core\PersonalData\Domain\Person;
 use Prospecter\Core\PersonalData\Domain\Reader;
-use Prospecter\Core\SharedKernel\Domain\Page;
+use Prospecter\Core\SharedKernel\Domain\Slice;
 
 final readonly class SearchContactsResponse
 {
     /**
      * @param list<PersonResponse> $contacts
-     * @param list<string>         $possibleIntents names of what the reader may do with the contacts: Collect, SearchByText
+     * @param string|null          $next            the cursor of the next slice, null when this one is the last
+     * @param list<string>         $possibleIntents names of what the reader may do with the contacts: SearchByText
      */
     private function __construct(
-        public int $currentPage,
-        public int $total,
-        public int $totalPages,
         public array $contacts,
+        public ?string $next,
         public array $possibleIntents,
     ) {
     }
 
     /**
-     * @param Page<Person> $page
+     * @param Slice<Person> $slice
      */
-    public static function of(Page $page, Reader $reader): self
+    public static function of(Slice $slice, Reader $reader): self
     {
         return new self(
-            $page->number,
-            $page->total,
-            $page->totalPages,
-            array_map(static fn (Person $contact): PersonResponse => PersonResponse::of($contact, $reader), $page->content),
+            array_map(static fn (Person $contact): PersonResponse => PersonResponse::of($contact, $reader), $slice->content),
+            $slice->next,
             array_map(static fn (ContactsIntent $intent): string => $intent->name, $reader->contactsIntents()),
         );
     }

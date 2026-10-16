@@ -3,25 +3,31 @@
 namespace App\Prospecting\Presenter;
 
 use App\Prospecting\Resource\LocationResource;
+use App\Prospecting\Resource\OrganizationPageLinksResource;
 use App\Prospecting\Resource\OrganizationPageResource;
 use App\Prospecting\Resource\OrganizationSummaryResource;
 use App\Shared\ImageResourceFactory;
+use App\Shared\Links;
 use Prospecter\Core\Prospecting\Application\SearchProspectedOrganizations\FoundOrganization;
 use Prospecter\Core\Prospecting\Application\SearchProspectedOrganizations\SearchProspectedOrganizationsResponse;
 
 final readonly class OrganizationPagePresenter
 {
-    public function __construct(private ImageResourceFactory $images)
+    public function __construct(private ImageResourceFactory $images, private Links $links)
     {
     }
 
-    public function present(SearchProspectedOrganizationsResponse $response): OrganizationPageResource
+    /**
+     * @param string $query the search, kept by the link to the next slice
+     */
+    public function present(SearchProspectedOrganizationsResponse $response, string $query = ''): OrganizationPageResource
     {
         return new OrganizationPageResource(
             items: array_map($this->summarize(...), $response->organizations),
-            page: $response->currentPage,
-            totalPages: $response->totalPages,
-            totalItems: $response->total,
+            links: new OrganizationPageLinksResource(
+                $this->links->to('api_organizations_search', array_filter(['q' => $query])),
+                null === $response->next ? null : $this->links->to('api_organizations_search', array_filter(['q' => $query, 'after' => $response->next])),
+            ),
         );
     }
 

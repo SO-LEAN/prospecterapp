@@ -2,7 +2,6 @@
 
 namespace App\PersonalData\Persistence;
 
-use App\Shared\PaginatorFactory;
 use Doctrine\DBAL\Exception\UniqueConstraintViolationException;
 use Doctrine\ORM\EntityManagerInterface;
 use Prospecter\Core\PersonalData\Domain\Exception\UnknownPerson;
@@ -12,14 +11,14 @@ use Prospecter\Core\PersonalData\Domain\Purpose;
 use Prospecter\Core\SharedKernel\Domain\AccountId;
 use Prospecter\Core\SharedKernel\Domain\Email;
 use Prospecter\Core\SharedKernel\Domain\Exception\EmailAlreadyUsed;
-use Prospecter\Core\SharedKernel\Domain\Page;
 use Prospecter\Core\SharedKernel\Domain\PersonId;
+use Prospecter\Core\SharedKernel\Domain\SearchTerms;
+use Prospecter\Core\SharedKernel\Domain\Slice;
 
 final readonly class DoctrinePersonRepository implements PersonRepository
 {
     public function __construct(
         private EntityManagerInterface $personalDataEntityManager,
-        private PaginatorFactory $paginatorFactory,
     ) {
     }
 
@@ -44,18 +43,22 @@ final readonly class DoctrinePersonRepository implements PersonRepository
             ->getResult();
     }
 
-    public function pageOf(AccountId $accountId, Purpose $purpose, string $text, int $page, int $maxByPage): Page
+    public function sliceOf(AccountId $accountId, Purpose $purpose, SearchTerms $search, ?string $after, int $max): Slice
     {
-        $dql = sprintf('SELECT p FROM %s p WHERE p.accountId = :account AND p.purpose = :purpose AND (p.name.firstName LIKE :text OR p.name.lastName LIKE :text OR p.contactDetails.email LIKE :text) ORDER BY p.id DESC', Person::class);
-        $paginator = $this->paginatorFactory->create($this->personalDataEntityManager->createQuery($dql)
+        $query = $this->personalDataEntityManager->createQueryBuilder()->select('p')->from(Person::class, 'p')
+            ->where('p.accountId = :account AND p.purpose = :purpose')
             ->setParameter('account', $accountId, 'account_id')
             ->setParameter('purpose', $purpose->value)
-            ->setParameter('text', sprintf('%%%s%%', $text))
-            ->setFirstResult(($page - 1) * $maxByPage)
-            ->setMaxResults($maxByPage));
-        $total = $paginator->count();
+            ->orderBy('p.id', 'DESC');
 
-        return new Page($page, $total, intdiv($total - 1, $maxByPage) + 1, iterator_to_array($paginator, false));
+        if (null !== $after) {
+            $query->andWhere('p.id < :after')->setParameter('after', $after);
+        }
+
+        $found = array_values(array_filter($query->getQuery()->getResult(), static fn (Person $person): bool => $person->searchTerms()->findBy($search)));
+        $slice = array_slice($found, 0, $max);
+
+        return new Slice($slice, count($found) > $max ? (string) array_last($slice)->id() : null);
     }
 
     public function remove(Person $person): void

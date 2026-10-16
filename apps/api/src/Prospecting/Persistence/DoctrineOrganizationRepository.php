@@ -2,7 +2,6 @@
 
 namespace App\Prospecting\Persistence;
 
-use App\Shared\PaginatorFactory;
 use Doctrine\DBAL\Exception\UniqueConstraintViolationException;
 use Doctrine\ORM\EntityManagerInterface;
 use Prospecter\Core\Prospecting\Domain\Exception\UnknownOrganization;
@@ -12,13 +11,13 @@ use Prospecter\Core\SharedKernel\Domain\AccountId;
 use Prospecter\Core\SharedKernel\Domain\Email;
 use Prospecter\Core\SharedKernel\Domain\Exception\EmailAlreadyUsed;
 use Prospecter\Core\SharedKernel\Domain\OrganizationId;
-use Prospecter\Core\SharedKernel\Domain\Page;
+use Prospecter\Core\SharedKernel\Domain\SearchTerms;
+use Prospecter\Core\SharedKernel\Domain\Slice;
 
 final readonly class DoctrineOrganizationRepository implements OrganizationRepository
 {
     public function __construct(
         private EntityManagerInterface $prospectingEntityManager,
-        private PaginatorFactory $paginatorFactory,
     ) {
     }
 
@@ -83,16 +82,20 @@ final readonly class DoctrineOrganizationRepository implements OrganizationRepos
         return $query->andWhere($namesAContact)->getQuery()->getResult();
     }
 
-    public function pageProspectedBy(AccountId $accountId, string $query, int $page, int $maxByPage): Page
+    public function sliceProspectedBy(AccountId $accountId, SearchTerms $search, ?string $after, int $max): Slice
     {
-        $dql = sprintf('SELECT o FROM %s o WHERE o.accountId = :account AND (o.legalIdentity.corporateName LIKE :query OR o.contactDetails.email LIKE :query) ORDER BY o.id DESC', Organization::class);
-        $paginator = $this->paginatorFactory->create($this->prospectingEntityManager->createQuery($dql)
+        $query = $this->prospectingEntityManager->createQueryBuilder()->select('o')->from(Organization::class, 'o')
+            ->where('o.accountId = :account')
             ->setParameter('account', $accountId, 'account_id')
-            ->setParameter('query', sprintf('%%%s%%', $query))
-            ->setFirstResult(($page - 1) * $maxByPage)
-            ->setMaxResults($maxByPage));
-        $total = $paginator->count();
+            ->orderBy('o.id', 'DESC');
 
-        return new Page($page, $total, intdiv($total - 1, $maxByPage) + 1, iterator_to_array($paginator, false));
+        if (null !== $after) {
+            $query->andWhere('o.id < :after')->setParameter('after', $after);
+        }
+
+        $found = array_values(array_filter($query->getQuery()->getResult(), static fn (Organization $organization): bool => $organization->searchTerms()->findBy($search)));
+        $slice = array_slice($found, 0, $max);
+
+        return new Slice($slice, count($found) > $max ? (string) array_last($slice)->id() : null);
     }
 }

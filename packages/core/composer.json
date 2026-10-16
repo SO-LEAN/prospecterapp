@@ -10,7 +10,8 @@
         }
     ],
     "require": {
-        "php": ">=8.5"
+        "php": ">=8.5",
+        "ext-intl": "*"
     },
     "require-dev": {
         "behat/behat": "^4.0",

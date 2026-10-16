@@ -63,9 +63,30 @@ class OrganizationApiTest extends ApiTestCase
         $page = $this->requestJson('GET', '/api/organizations?q=acm');
 
         $this->assertResponseIsSuccessful();
-        $this->assertSame(1, $page['totalItems']);
+        $this->assertCount(1, $page['items']);
         $this->assertSame('ACME SAS', $page['items'][0]['name']);
         $this->assertSame('Paris', $page['items'][0]['city']);
+        $this->assertArrayNotHasKey('next', $page['_links']);
+    }
+
+    public function testTheNextSliceIsReachedByTheLinkNext(): void
+    {
+        $created = array_map(static fn (int $number): string => sprintf('Prospect %02d', $number), range(1, 21));
+
+        foreach ($created as $name) {
+            $this->requestJson('POST', '/api/organizations', ['legalIdentity' => ['corporateName' => $name]]);
+        }
+
+        $slice = $this->requestJson('GET', '/api/organizations?q=prospect');
+        $names = array_column($slice['items'], 'name');
+        $this->assertArrayHasKey('next', $slice['_links']);
+
+        while (isset($slice['_links']['next'])) {
+            $slice = $this->requestJson('GET', $slice['_links']['next']['href']);
+            $names = [...$names, ...array_column($slice['items'], 'name')];
+        }
+
+        $this->assertSame(array_reverse($created), $names);
     }
 
     public function testEachIntentionChangesOnlyItsPart(): void

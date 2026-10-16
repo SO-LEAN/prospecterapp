@@ -54,7 +54,7 @@ function HoldingPicker({ organization, onDone }: { organization: Organization; o
   const { t } = useTranslation()
   const attach = useAttachToHolding()
   const [query, setQuery] = useState('')
-  const candidates = useQuery(organizationsQuery({ page: 1, q: useDebouncedValue(query) }))
+  const candidates = useQuery(organizationsQuery(useDebouncedValue(query)))
   const others = (candidates.data?.items ?? []).filter((candidate) => candidate.id !== organization.id)
 
   const attachTo = async (holdingId: string) => {

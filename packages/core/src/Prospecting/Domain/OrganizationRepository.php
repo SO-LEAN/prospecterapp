@@ -9,8 +9,9 @@ use Prospecter\Core\SharedKernel\Domain\AccountId;
 use Prospecter\Core\SharedKernel\Domain\Email;
 use Prospecter\Core\SharedKernel\Domain\Exception\EmailAlreadyUsed;
 use Prospecter\Core\SharedKernel\Domain\OrganizationId;
-use Prospecter\Core\SharedKernel\Domain\Page;
 use Prospecter\Core\SharedKernel\Domain\PersonId;
+use Prospecter\Core\SharedKernel\Domain\SearchTerms;
+use Prospecter\Core\SharedKernel\Domain\Slice;
 
 interface OrganizationRepository
 {
@@ -48,9 +49,10 @@ interface OrganizationRepository
     public function withContacts(array $contacts, AccountId $accountId): array;
 
     /**
-     * Newest first; the query matches the corporate name or the email.
+     * The organizations the account prospects, newest first, after the cursor: those found by the search
+     * (`Organization::searchTerms()`), all of them when it is empty.
      *
-     * @return Page<Organization>
+     * @return Slice<Organization>
      */
-    public function pageProspectedBy(AccountId $accountId, string $query, int $page, int $maxByPage): Page;
+    public function sliceProspectedBy(AccountId $accountId, SearchTerms $search, ?string $after, int $max): Slice;
 }

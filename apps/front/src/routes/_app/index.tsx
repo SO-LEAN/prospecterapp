@@ -16,7 +16,7 @@ import { PageHeader } from '@/shared/ui/page-header'
 import { PageSkeleton } from '@/shared/ui/page-skeleton'
 
 const RECENT = 4
-const recentQuery = () => organizationsQuery({ page: 1, q: '' })
+const recentQuery = () => organizationsQuery('')
 
 export const Route = createFileRoute('/_app/')({
   loader: ({ context: { queryClient } }) =>
@@ -62,7 +62,7 @@ function Dashboard() {
         <StatCard
           icon={Building2}
           label={t('dashboard.stats.activeOrganizations')}
-          value={dashboard.stats.activeOrganizations ?? recent.totalItems}
+          value={dashboard.stats.activeOrganizations ?? recent.items.length}
         />
         <StatCard icon={MapPinned} label={t('dashboard.stats.mapped')} value={markers.length} />
       </div>

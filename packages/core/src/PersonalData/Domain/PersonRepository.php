@@ -8,8 +8,9 @@ use Prospecter\Core\PersonalData\Domain\Exception\UnknownPerson;
 use Prospecter\Core\SharedKernel\Domain\AccountId;
 use Prospecter\Core\SharedKernel\Domain\Email;
 use Prospecter\Core\SharedKernel\Domain\Exception\EmailAlreadyUsed;
-use Prospecter\Core\SharedKernel\Domain\Page;
 use Prospecter\Core\SharedKernel\Domain\PersonId;
+use Prospecter\Core\SharedKernel\Domain\SearchTerms;
+use Prospecter\Core\SharedKernel\Domain\Slice;
 
 interface PersonRepository
 {
@@ -28,12 +29,12 @@ interface PersonRepository
     public function ofIds(array $ids): array;
 
     /**
-     * The persons an account keeps for a purpose, newest first; the text matches the first name, the last
-     * name or the email.
+     * The persons an account keeps for a purpose, newest first, after the cursor: those found by the search
+     * (`Person::searchTerms()`), all of them when it is empty.
      *
-     * @return Page<Person>
+     * @return Slice<Person>
      */
-    public function pageOf(AccountId $accountId, Purpose $purpose, string $text, int $page, int $maxByPage): Page;
+    public function sliceOf(AccountId $accountId, Purpose $purpose, SearchTerms $search, ?string $after, int $max): Slice;
 
     public function remove(Person $person): void;
 

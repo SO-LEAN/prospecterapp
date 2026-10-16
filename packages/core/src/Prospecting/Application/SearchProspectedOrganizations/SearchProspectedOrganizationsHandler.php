@@ -8,6 +8,7 @@ use Prospecter\Core\Prospecting\Domain\OrganizationRepository;
 use Prospecter\Core\Prospecting\Domain\ProspectorService;
 use Prospecter\Core\SharedKernel\Application\QueryHandler;
 use Prospecter\Core\SharedKernel\Domain\MemberId;
+use Prospecter\Core\SharedKernel\Domain\SearchTerms;
 
 final readonly class SearchProspectedOrganizationsHandler implements QueryHandler
 {
@@ -19,6 +20,6 @@ final readonly class SearchProspectedOrganizationsHandler implements QueryHandle
     {
         $prospector = $this->prospectorService->prospectorFrom(new MemberId($query->prospectorId));
 
-        return SearchProspectedOrganizationsResponse::of($this->organizations->pageProspectedBy($prospector->accountId, $query->query, $query->page, $query->maxByPage));
+        return SearchProspectedOrganizationsResponse::of($this->organizations->sliceProspectedBy($prospector->accountId, SearchTerms::of($query->query), $query->after, $query->max));
     }
 }

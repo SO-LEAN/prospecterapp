@@ -11,6 +11,8 @@ final readonly class ContactListLinksResource
         public LinkResource $self,
         #[OA\Property(nullable: false, description: 'Search by text, with the query parameter q')]
         public ?LinkResource $search = null,
+        #[OA\Property(nullable: false, description: 'The next slice, absent when this one is the last')]
+        public ?LinkResource $next = null,
     ) {
     }
 }

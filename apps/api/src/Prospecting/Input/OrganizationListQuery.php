@@ -7,10 +7,10 @@ use Symfony\Component\Validator\Constraints as Assert;
 final readonly class OrganizationListQuery
 {
     public function __construct(
-        #[Assert\Positive]
-        public int $page = 1,
         #[Assert\Length(max: 100)]
         public string $q = '',
+        #[Assert\Length(max: 200)]
+        public ?string $after = null,
     ) {
     }
 }

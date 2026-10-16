@@ -38,11 +38,11 @@ final class ShowDashboard extends AbstractController
     public function __invoke(#[CurrentUser] User $user): JsonResponse
     {
         $myAccount = $this->account->read($user->memberId());
-        $page = $this->pagePresenter->present(($this->searchProspectedOrganizations)(new SearchProspectedOrganizations($user->memberId(), 1, '', self::MAX_MARKERS)));
+        $page = $this->pagePresenter->present(($this->searchProspectedOrganizations)(new SearchProspectedOrganizations($user->memberId(), max: self::MAX_MARKERS)));
 
         return $this->json(new DashboardResource(
             organizationName: (string) $myAccount->organization->legalIdentity->corporateName,
-            stats: ['activeOrganizations' => $page->totalItems],
+            stats: ['activeOrganizations' => count($page->items)],
             markers: array_values(array_filter($page->items, static fn (OrganizationSummaryResource $item): bool => null !== $item->location)),
         ));
     }

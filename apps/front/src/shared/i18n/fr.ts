@@ -44,9 +44,7 @@ export const fr = {
     optional: 'facultatif',
     notProvided: 'Non renseigné',
     loading: 'Chargement…',
-    previous: 'Précédent',
-    next: 'Suivant',
-    pageOf: 'Page {{page}} sur {{total}}',
+    loadMore: 'Charger plus',
   },
   errors: {
     title: 'Une erreur est survenue',
@@ -85,8 +83,7 @@ export const fr = {
   },
   organizations: {
     title: 'Organisations',
-    subtitle: '{{count}} organisation',
-    subtitle_other: '{{count}} organisations',
+    subtitle: 'Les organisations que vous prospectez, les plus récentes d’abord.',
     new: 'Nouvelle organisation',
     searchPlaceholder: 'Rechercher par nom ou e-mail…',
     empty: {
@@ -139,8 +136,7 @@ export const fr = {
   },
   contacts: {
     title: 'Contacts',
-    subtitle: '{{count}} contact',
-    subtitle_other: '{{count}} contacts',
+    subtitle: 'Les personnes que vous prospectez, les plus récentes d’abord.',
     new: 'Nouveau contact',
     searchPlaceholder: 'Rechercher par nom ou e-mail…',
     empty: {

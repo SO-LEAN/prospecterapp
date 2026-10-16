@@ -447,10 +447,10 @@ export interface components {
             country: string | null;
         };
         OrganizationListQuery: {
-            /** @default 1 */
-            page: number;
             /** @default  */
             q: string;
+            /** @default null */
+            after: string | null;
         };
         StartProspectingInput: {
             legalIdentity?: components["schemas"]["LegalIdentityInput"];
@@ -479,10 +479,10 @@ export interface components {
             organizationIds: string[];
         };
         ContactListQuery: {
-            /** @default 1 */
-            page: number;
             /** @default  */
             q: string;
+            /** @default null */
+            after: string | null;
         };
         PersonNameResource: {
             firstName?: string | null;
@@ -605,11 +605,13 @@ export interface components {
             location?: components["schemas"]["LocationResource"] | null;
             logo?: components["schemas"]["ImageResource"] | null;
         };
+        OrganizationPageLinksResource: {
+            self: components["schemas"]["LinkResource"];
+            next?: components["schemas"]["LinkResource"];
+        };
         OrganizationPageResource: {
             items: components["schemas"]["OrganizationSummaryResource"][];
-            page: number;
-            totalPages: number;
-            totalItems: number;
+            _links: components["schemas"]["OrganizationPageLinksResource"];
         };
         DashboardResource: {
             organizationName: string;
@@ -651,12 +653,10 @@ export interface components {
         ContactListLinksResource: {
             self: components["schemas"]["LinkResource"];
             search?: components["schemas"]["LinkResource"];
+            next?: components["schemas"]["LinkResource"];
         };
         ContactListResource: {
             items: components["schemas"]["ContactInListResource"][];
-            page: number;
-            totalPages: number;
-            totalItems: number;
             _links: components["schemas"]["ContactListLinksResource"];
         };
         OrganizationsOfContactResource: {
@@ -1549,8 +1549,8 @@ export interface operations {
     get_api_organizations_search: {
         parameters: {
             query?: {
-                page?: number;
                 q?: string;
+                after?: string | null;
             };
             header?: never;
             path?: never;
@@ -1558,7 +1558,7 @@ export interface operations {
         };
         requestBody?: never;
         responses: {
-            /** @description A page of organizations, most recent first */
+            /** @description A slice of organizations, most recent first, the next one at the link next */
             200: {
                 headers: {
                     [name: string]: unknown;
@@ -1954,8 +1954,8 @@ export interface operations {
     get_api_contacts_search: {
         parameters: {
             query?: {
-                page?: number;
                 q?: string;
+                after?: string | null;
             };
             header?: never;
             path?: never;
@@ -1963,7 +1963,7 @@ export interface operations {
         };
         requestBody?: never;
         responses: {
-            /** @description A page of contacts, most recent first */
+            /** @description A slice of contacts, most recent first, the next one at the link next */
             200: {
                 headers: {
                     [name: string]: unknown;

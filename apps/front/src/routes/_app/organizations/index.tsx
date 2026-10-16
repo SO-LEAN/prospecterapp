@@ -1,12 +1,12 @@
-import { keepPreviousData, useQuery } from '@tanstack/react-query'
+import { keepPreviousData, useInfiniteQuery } from '@tanstack/react-query'
 import { createFileRoute, Link, useNavigate } from '@tanstack/react-router'
 import { zodValidator } from '@tanstack/zod-adapter'
-import { Building2, ChevronLeft, ChevronRight, Plus, Search, SearchX } from 'lucide-react'
+import { Building2, Plus, Search, SearchX } from 'lucide-react'
 import { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { z } from 'zod'
 import { OrganizationCard } from '@/features/organizations/components/organization-card'
-import { organizationsQuery } from '@/features/organizations/queries'
+import { organizationSlicesQuery } from '@/features/organizations/queries'
 import { useDebouncedValue } from '@/shared/hooks/use-debounced-value'
 import { cn } from '@/shared/lib/utils'
 import { Button } from '@/shared/ui/button'
@@ -17,15 +17,14 @@ import { PageHeader } from '@/shared/ui/page-header'
 import { PageSkeleton } from '@/shared/ui/page-skeleton'
 
 const searchSchema = z.object({
-  page: z.number().int().positive().catch(1).default(1),
   q: z.string().catch('').default(''),
 })
 
-/** The search and the page live in the URL: shareable, and the back button works. */
+/** The search lives in the URL (shareable, the back button works); the list comes a slice after the other. */
 export const Route = createFileRoute('/_app/organizations/')({
   validateSearch: zodValidator(searchSchema),
   loaderDeps: ({ search }) => search,
-  loader: ({ context, deps }) => context.queryClient.ensureQueryData(organizationsQuery(deps)),
+  loader: ({ context, deps }) => context.queryClient.ensureInfiniteQueryData(organizationSlicesQuery(deps.q)),
   pendingComponent: () => <PageSkeleton rows={6} />,
   errorComponent: ({ error, reset }) => <ErrorState error={error} reset={reset} />,
   component: Organizations,
@@ -35,27 +34,25 @@ function Organizations() {
   const { t } = useTranslation()
   const search = Route.useSearch()
   const navigate = useNavigate({ from: Route.fullPath })
-  const { data, isPlaceholderData } = useQuery({
-    ...organizationsQuery(search),
+  const { data, isPlaceholderData, hasNextPage, fetchNextPage, isFetchingNextPage } = useInfiniteQuery({
+    ...organizationSlicesQuery(search.q),
     placeholderData: keepPreviousData,
   })
+  const items = data?.pages.flatMap((slice) => slice.items) ?? []
   const [query, setQuery] = useState(search.q)
   const debouncedQuery = useDebouncedValue(query)
 
   useEffect(() => {
     if (debouncedQuery !== search.q) {
-      void navigate({ search: { q: debouncedQuery, page: 1 }, replace: true })
+      void navigate({ search: { q: debouncedQuery }, replace: true })
     }
   }, [debouncedQuery])
-
-  const page = data?.page ?? search.page
-  const totalPages = Math.max(data?.totalPages ?? 1, 1)
 
   return (
     <div className="space-y-6">
       <PageHeader
         title={t('organizations.title')}
-        description={data && t('organizations.subtitle', { count: data.totalItems })}
+        description={t('organizations.subtitle')}
         actions={
           <Button asChild>
             <Link to="/organizations/new">
@@ -80,7 +77,7 @@ function Organizations() {
         />
       </div>
 
-      {data && data.items.length === 0 ? (
+      {data && items.length === 0 ? (
         search.q ? (
           <EmptyState
             icon={SearchX}
@@ -103,7 +100,7 @@ function Organizations() {
         )
       ) : (
         <ul className={cn('grid gap-3 transition-opacity md:grid-cols-2', isPlaceholderData && 'opacity-60')}>
-          {data?.items.map((organization) => (
+          {items.map((organization) => (
             <li key={organization.id}>
               <OrganizationCard organization={organization} />
             </li>
@@ -111,34 +108,12 @@ function Organizations() {
         </ul>
       )}
 
-      {totalPages > 1 && (
-        <nav className="flex items-center justify-between gap-4" aria-label="Pagination">
-          <Button variant="outline" size="sm" disabled={page <= 1} asChild={page > 1}>
-            {page > 1 ? (
-              <Link to="." search={(previous) => ({ ...previous, page: page - 1 })}>
-                <ChevronLeft /> {t('common.previous')}
-              </Link>
-            ) : (
-              <span>
-                <ChevronLeft /> {t('common.previous')}
-              </span>
-            )}
+      {hasNextPage && (
+        <div className="flex justify-center">
+          <Button variant="outline" onClick={() => void fetchNextPage()} disabled={isFetchingNextPage}>
+            {t('common.loadMore')}
           </Button>
-          <span className="text-muted-foreground text-sm">
-            {t('common.pageOf', { page, total: totalPages })}
-          </span>
-          <Button variant="outline" size="sm" disabled={page >= totalPages} asChild={page < totalPages}>
-            {page < totalPages ? (
-              <Link to="." search={(previous) => ({ ...previous, page: page + 1 })}>
-                {t('common.next')} <ChevronRight />
-              </Link>
-            ) : (
-              <span>
-                {t('common.next')} <ChevronRight />
-              </span>
-            )}
-          </Button>
-        </nav>
+        </div>
       )}
     </div>
   )

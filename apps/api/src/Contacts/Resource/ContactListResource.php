@@ -13,9 +13,6 @@ final readonly class ContactListResource
      */
     public function __construct(
         public array $items,
-        public int $page,
-        public int $totalPages,
-        public int $totalItems,
         #[SerializedName('_links')]
         #[Context([AbstractObjectNormalizer::SKIP_NULL_VALUES => true])]
         public ContactListLinksResource $links,

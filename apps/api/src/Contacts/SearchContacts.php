@@ -42,20 +42,17 @@ final class SearchContacts extends AbstractController
 
     #[Route('/api/contacts', name: 'api_contacts_search', methods: ['GET'])]
     #[OA\Get(summary: 'Search the persons my organization prospects, by name or email, with their organizations; a search by text needs the right to manage personal data')]
-    #[OA\Response(response: 200, description: 'A page of contacts, most recent first', content: new Model(type: ContactListResource::class))]
+    #[OA\Response(response: 200, description: 'A slice of contacts, most recent first, the next one at the link next', content: new Model(type: ContactListResource::class))]
     #[OA\Response(response: 401, description: 'Missing or invalid access token')]
     #[OA\Response(response: 403, description: 'Not a prospector, or a search by text without the right to manage personal data', content: new Model(type: ProblemResource::class))]
     public function __invoke(#[CurrentUser] User $user, #[MapQueryString] ContactListQuery $query = new ContactListQuery()): JsonResponse
     {
-        $page = ($this->searchContacts)(new SearchContactsQuery($user->memberId(), $query->page, $query->q));
+        $page = ($this->searchContacts)(new SearchContactsQuery($user->memberId(), $query->q, $query->after));
         $organizations = $this->organizations->read($user->memberId(), array_map(static fn (PersonResponse $contact): string => $contact->id, $page->contacts));
 
         return $this->json(new ContactListResource(
             array_map(fn (PersonResponse $contact): ContactInListResource => $this->present($contact, $organizations[$contact->id] ?? []), $page->contacts),
-            $page->currentPage,
-            $page->totalPages,
-            $page->total,
-            $this->linksOf($page),
+            $this->linksOf($page, $query->q),
         ));
     }
 
@@ -75,11 +72,12 @@ final class SearchContacts extends AbstractController
         );
     }
 
-    private function linksOf(SearchContactsResponse $page): ContactListLinksResource
+    private function linksOf(SearchContactsResponse $page, string $query): ContactListLinksResource
     {
         return new ContactListLinksResource(
-            $this->links->to('api_contacts_search'),
+            $this->links->to('api_contacts_search', array_filter(['q' => $query])),
             in_array('SearchByText', $page->possibleIntents, true) ? $this->links->to('api_contacts_search') : null,
+            null === $page->next ? null : $this->links->to('api_contacts_search', array_filter(['q' => $query, 'after' => $page->next])),
         );
     }
 }

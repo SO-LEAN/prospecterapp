@@ -32,6 +32,7 @@ use Prospecter\Core\SharedKernel\Domain\Email;
 use Prospecter\Core\SharedKernel\Domain\File;
 use Prospecter\Core\SharedKernel\Domain\LegalIdentity;
 use Prospecter\Core\SharedKernel\Domain\OrganizationId;
+use Prospecter\Core\SharedKernel\Domain\SearchTerms;
 use Tests\Core\Acceptance\Expect;
 use Tests\Core\Acceptance\Vocabulary;
 use Tests\Core\Double\InMemoryStorage;
@@ -42,6 +43,7 @@ final class OrganizationContext implements Context
 
     private ?OrganizationResponse $consulted = null;
     private ?SearchProspectedOrganizationsResponse $found = null;
+    private int $max = 20;
 
     #[Given('l\'organisation :name fait partie de mes organisations')]
     public function anOrganizationOfMine(string $name): Organization
@@ -243,10 +245,18 @@ final class OrganizationContext implements Context
         $this->found = $this->application->searchProspectedOrganizations(new SearchProspectedOrganizations($this->me(), query: $query));
     }
 
-    #[When('je liste la page :page de mes organisations, :maxByPage par page')]
-    public function iListAPageOfMyOrganizations(int $page, int $maxByPage): void
+    #[When('je liste mes organisations, :max à la fois')]
+    public function iListMyOrganizationsBySlices(int $max): void
     {
-        $this->found = $this->application->searchProspectedOrganizations(new SearchProspectedOrganizations($this->me(), $page, '', $maxByPage));
+        $this->max = $max;
+        $this->found = $this->application->searchProspectedOrganizations(new SearchProspectedOrganizations($this->me(), max: $max));
+    }
+
+    #[When('je demande la suite')]
+    public function iAskForTheNextSlice(): void
+    {
+        Expect::that(null !== $this->found?->next, 'A next slice was expected');
+        $this->found = $this->application->searchProspectedOrganizations(new SearchProspectedOrganizations($this->me(), after: $this->found->next, max: $this->max));
     }
 
     #[Then('l\'organisation :name est enregistrée avec :')]
@@ -258,7 +268,7 @@ final class OrganizationContext implements Context
     #[Then('l\'organisation :name compte :count organisation(s) active(s)')]
     public function theOrganizationCountsActiveOrganizations(string $name, int $count): void
     {
-        Expect::same($count, $this->application->organizations->pageProspectedBy($this->scenario->accountIdOf($name), '', 1, 1)->total);
+        Expect::same($count, count($this->application->organizations->sliceProspectedBy($this->scenario->accountIdOf($name), SearchTerms::of(), null, PHP_INT_MAX)->content));
     }
 
     #[Then('je vois l\'organisation :')]
@@ -284,11 +294,23 @@ final class OrganizationContext implements Context
         Expect::same($table->getColumn(0), Vocabulary::describeIntents($this->consulted->possibleIntents));
     }
 
-    #[Then('je trouve :total organisation(s) sur :pages page(s)')]
-    public function iFindOrganizationsOnPages(int $total, int $pages): void
+    #[Then('je trouve :count organisation(s)')]
+    public function iFindOrganizations(int $count): void
     {
         Expect::that(null !== $this->found, sprintf('Organizations were expected, got: %s', $this->application->refusal()?->getMessage()));
-        Expect::same([$total, $pages], [$this->found->total, $this->found->totalPages]);
+        Expect::same($count, count($this->found->organizations));
+    }
+
+    #[Then('il y a une suite')]
+    public function thereIsANextSlice(): void
+    {
+        Expect::that(null !== $this->found?->next, 'A next slice was expected');
+    }
+
+    #[Then('il n\'y a pas de suite')]
+    public function thereIsNoNextSlice(): void
+    {
+        Expect::that(null !== $this->found && null === $this->found->next, 'No next slice was expected');
     }
 
     #[Then('la liste affiche :')]

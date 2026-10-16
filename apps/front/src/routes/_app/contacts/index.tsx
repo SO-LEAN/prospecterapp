@@ -1,12 +1,12 @@
-import { keepPreviousData, useQuery } from '@tanstack/react-query'
-import { createFileRoute, Link, useNavigate } from '@tanstack/react-router'
+import { keepPreviousData, useInfiniteQuery } from '@tanstack/react-query'
+import { createFileRoute, useNavigate } from '@tanstack/react-router'
 import { zodValidator } from '@tanstack/zod-adapter'
-import { ChevronLeft, ChevronRight, Search, SearchX, UsersRound } from 'lucide-react'
+import { Search, SearchX, UsersRound } from 'lucide-react'
 import { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { z } from 'zod'
 import { ContactCard } from '@/features/contacts/components/contact-card'
-import { contactsQuery } from '@/features/contacts/queries'
+import { contactSlicesQuery } from '@/features/contacts/queries'
 import { useDebouncedValue } from '@/shared/hooks/use-debounced-value'
 import { cn } from '@/shared/lib/utils'
 import { Button } from '@/shared/ui/button'
@@ -17,19 +17,18 @@ import { PageHeader } from '@/shared/ui/page-header'
 import { PageSkeleton } from '@/shared/ui/page-skeleton'
 
 const searchSchema = z.object({
-  page: z.number().int().positive().catch(1).default(1),
   q: z.string().catch('').default(''),
 })
 
 /**
- * The persons my organization prospects, with their organizations. The search and the page live in the URL;
+ * The persons my organization prospects, with their organizations, a slice after the other. The search lives in the URL;
  * searching is offered only with the right to manage personal data (the links of the page). A contact is
  * collected from an organization, never here.
  */
 export const Route = createFileRoute('/_app/contacts/')({
   validateSearch: zodValidator(searchSchema),
   loaderDeps: ({ search }) => search,
-  loader: ({ context, deps }) => context.queryClient.ensureQueryData(contactsQuery(deps)),
+  loader: ({ context, deps }) => context.queryClient.ensureInfiniteQueryData(contactSlicesQuery(deps.q)),
   pendingComponent: () => <PageSkeleton rows={6} />,
   errorComponent: ({ error, reset }) => <ErrorState error={error} reset={reset} />,
   component: Contacts,
@@ -39,30 +38,25 @@ function Contacts() {
   const { t } = useTranslation()
   const search = Route.useSearch()
   const navigate = useNavigate({ from: Route.fullPath })
-  const { data, isPlaceholderData } = useQuery({
-    ...contactsQuery(search),
+  const { data, isPlaceholderData, hasNextPage, fetchNextPage, isFetchingNextPage } = useInfiniteQuery({
+    ...contactSlicesQuery(search.q),
     placeholderData: keepPreviousData,
   })
+  const items = data?.pages.flatMap((slice) => slice.items) ?? []
   const [query, setQuery] = useState(search.q)
   const debouncedQuery = useDebouncedValue(query)
 
   useEffect(() => {
     if (debouncedQuery !== search.q) {
-      void navigate({ search: { q: debouncedQuery, page: 1 }, replace: true })
+      void navigate({ search: { q: debouncedQuery }, replace: true })
     }
   }, [debouncedQuery])
 
-  const page = data?.page ?? search.page
-  const totalPages = Math.max(data?.totalPages ?? 1, 1)
-
   return (
     <div className="space-y-6">
-      <PageHeader
-        title={t('contacts.title')}
-        description={data && t('contacts.subtitle', { count: data.totalItems })}
-      />
+      <PageHeader title={t('contacts.title')} description={t('contacts.subtitle')} />
 
-      {data?._links.search && (
+      {data?.pages[0]?._links.search && (
         <div className="relative max-w-md">
           <Search
             className="-translate-y-1/2 pointer-events-none absolute top-1/2 left-3 size-4 text-muted-foreground"
@@ -79,7 +73,7 @@ function Contacts() {
         </div>
       )}
 
-      {data && data.items.length === 0 ? (
+      {data && items.length === 0 ? (
         search.q ? (
           <EmptyState
             icon={SearchX}
@@ -95,7 +89,7 @@ function Contacts() {
         )
       ) : (
         <ul className={cn('grid gap-3 transition-opacity md:grid-cols-2', isPlaceholderData && 'opacity-60')}>
-          {data?.items.map((contact) => (
+          {items.map((contact) => (
             <li key={contact.id}>
               <ContactCard contact={contact} />
             </li>
@@ -103,34 +97,12 @@ function Contacts() {
         </ul>
       )}
 
-      {totalPages > 1 && (
-        <nav className="flex items-center justify-between gap-4" aria-label="Pagination">
-          <Button variant="outline" size="sm" disabled={page <= 1} asChild={page > 1}>
-            {page > 1 ? (
-              <Link to="." search={(previous) => ({ ...previous, page: page - 1 })}>
-                <ChevronLeft /> {t('common.previous')}
-              </Link>
-            ) : (
-              <span>
-                <ChevronLeft /> {t('common.previous')}
-              </span>
-            )}
+      {hasNextPage && (
+        <div className="flex justify-center">
+          <Button variant="outline" onClick={() => void fetchNextPage()} disabled={isFetchingNextPage}>
+            {t('common.loadMore')}
           </Button>
-          <span className="text-muted-foreground text-sm">
-            {t('common.pageOf', { page, total: totalPages })}
-          </span>
-          <Button variant="outline" size="sm" disabled={page >= totalPages} asChild={page < totalPages}>
-            {page < totalPages ? (
-              <Link to="." search={(previous) => ({ ...previous, page: page + 1 })}>
-                {t('common.next')} <ChevronRight />
-              </Link>
-            ) : (
-              <span>
-                {t('common.next')} <ChevronRight />
-              </span>
-            )}
-          </Button>
-        </nav>
+        </div>
       )}
     </div>
   )
