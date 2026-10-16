@@ -8,46 +8,38 @@ NODE = $(DC) run --rm --no-deps node
 CORE = $(DC) run --rm --no-deps -w /var/www/src/packages/core php
 # the storage app (stored files and their sizes)
 STORAGE = $(DC) run --rm --no-deps -w /var/www/src/apps/storage php
-# the AWS services emulated locally (DynamoDB for the API, ADR 0048), started before what needs them
+# the AWS services emulated locally (DynamoDB, S3, Cognito; ADR 0048, 0051, 0052), started before what needs them
 AWS = $(DC) up -d ministack
-# the authorization server (sign-in, OAuth 2, credentials)
-AUTH = $(DC) run --rm --no-deps -w /var/www/src/apps/auth php
 
 .DEFAULT_GOAL := help
 
-.PHONY: help install build vendor keys db aws front-install start stop logs ps test test-api test-auth test-storage test-front e2e test-core lint fix api-doc commands exec-api exec-front
+.PHONY: help install build vendor db aws front-install start stop logs ps test test-api test-storage test-front e2e test-core lint fix api-doc commands exec-api exec-front
 
 ##@ Help
 help: ## List the commands (the default target)
 	@awk 'BEGIN {FS = ":.*## "} /^##@/ {printf "\n\033[1m%s\033[0m\n", substr($$0, 5)} /^[a-z0-9-]+:.*## / {printf "  \033[36m%-14s\033[0m %s\n", $$1, $$2}' $(MAKEFILE_LIST)
 
 ##@ Setup
-install: build vendor keys db front-install ## Build the images, install the dependencies, generate the keys, create the databases
+install: build vendor db front-install ## Build the images, install the dependencies, create the tables, the bucket and the user pool
 build: ## Build the Docker images
 	@echo "Docker/Building images..."
 	@$(DC) build
 
-vendor: ## Install the Composer dependencies of the API, the core, the auth and the storage
+vendor: ## Install the Composer dependencies of the API, the core and the storage
 	@echo "API/Installing Composer dependencies..."
 	@$(PHP) composer install
 	@echo "Core/Installing Composer dependencies..."
 	@$(CORE) composer install
-	@echo "Auth/Installing Composer dependencies..."
-	@$(AUTH) composer install
 	@echo "Storage/Installing Composer dependencies..."
 	@$(STORAGE) composer install
 
-keys: ## Generate the key pair the auth signs the access tokens with (kept if it exists)
-	@echo "Auth/Generating the key pair the access tokens are signed with..."
-	@$(AUTH) sh -c 'test -f config/jwt/private.pem || bin/console league:oauth2-server:generate-keypair'
-
-db: aws ## Recreate the tables of the API (one per context, in MiniStack), the bucket of the storage and the database of the auth, with the demo data (destroys local data)
+db: aws ## Recreate in MiniStack the tables and the user pool of the API and the bucket of the storage, with the demo data (destroys local data)
 	@echo "API/Creating the DynamoDB table of each bounded context with the data of the demonstration..."
 	@$(PHP) sh -c 'bin/console cache:clear >/dev/null && bin/console app:tables:recreate --demo'
+	@echo "API/Creating the Cognito user pool with the members of the demonstration..."
+	@$(PHP) bin/console app:user-pool:recreate --demo
 	@echo "Storage/Creating the S3 bucket of the files..."
 	@$(STORAGE) sh -c 'bin/console cache:clear >/dev/null && bin/console app:bucket:recreate'
-	@echo "Auth/Creating the database with fixtures (OAuth client, credentials of the fixture members)..."
-	@$(AUTH) sh -c 'bin/console cache:clear >/dev/null && bin/console doctrine:schema:drop --force --full-database && bin/console doctrine:schema:create && bin/console doctrine:fixtures:load --no-interaction'
 
 front-install: ## Install the pnpm dependencies of the front
 	@echo "Front/Installing pnpm dependencies..."
@@ -71,16 +63,13 @@ ps: ## List the containers of the stack
 	@$(DC) ps
 
 ##@ Quality
-test: test-core test-api test-auth test-storage test-front ## Run every test suite: core, API, auth, storage, front
+test: test-core test-api test-storage test-front ## Run every test suite: core, API, storage, front
 # business rules (Gherkin scenarios on the use cases, in-memory ports) then the unit tests
 test-core: ## Run the business rules (Behat) and the unit tests of the core
 	@$(CORE) sh -c 'vendor/bin/behat --strict -f progress && vendor/bin/phpunit'
 
-test-api: aws ## Run the tests of the API (on MiniStack)
+test-api: aws ## Run the tests of the API (on MiniStack: tables, user pool)
 	@$(PHP) bin/phpunit
-
-test-auth: ## Run the tests of the auth
-	@$(AUTH) bin/phpunit
 
 test-storage: aws ## Run the tests of the storage (on MiniStack)
 	@$(STORAGE) bin/phpunit
@@ -97,21 +86,18 @@ e2e: ## Run the Playwright journeys against the running stack
 lint: ## Check the code: PHPStan, php-cs-fixer, Rector, Biome, TypeScript
 	@$(CORE) sh -c 'vendor/bin/phpstan analyse --no-progress && vendor/bin/php-cs-fixer fix --dry-run --diff && vendor/bin/rector process --dry-run'
 	@$(PHP) sh -c 'vendor/bin/phpstan analyse --no-progress && vendor/bin/php-cs-fixer fix --dry-run --diff && vendor/bin/rector process --dry-run'
-	@$(AUTH) sh -c 'vendor/bin/phpstan analyse --no-progress && vendor/bin/php-cs-fixer fix --dry-run --diff && vendor/bin/rector process --dry-run'
 	@$(STORAGE) sh -c 'vendor/bin/phpstan analyse --no-progress && vendor/bin/php-cs-fixer fix --dry-run --diff && vendor/bin/rector process --dry-run'
 	@$(NODE) sh -c 'pnpm lint && pnpm typecheck'
 
 fix: ## Fix the style of the code: php-cs-fixer, Biome
 	@$(CORE) vendor/bin/php-cs-fixer fix
 	@$(PHP) vendor/bin/php-cs-fixer fix
-	@$(AUTH) vendor/bin/php-cs-fixer fix
 	@$(STORAGE) vendor/bin/php-cs-fixer fix
 	@$(NODE) pnpm format
 
 ##@ API contract
-api-doc: ## Regenerate the OpenAPI contracts (API, auth) and the front types after changing an endpoint
+api-doc: ## Regenerate the OpenAPI contract of the API and the front types after changing an endpoint
 	@$(PHP) sh -c 'bin/console nelmio:apidoc:dump --format=json > openapi.json'
-	@$(AUTH) sh -c 'bin/console nelmio:apidoc:dump --format=json > openapi.json'
 	@$(NODE) pnpm api:types
 
 ##@ Tools

@@ -14,7 +14,7 @@ return RectorConfig::configure()
         typeDeclarations: true,
         typeDeclarationDocblocks: true,
     )
-    ->withComposerBased(doctrine: true, phpunit: true, symfony: true)
+    ->withComposerBased(phpunit: true, symfony: true)
     ->withImportNames(importShortClasses: false, removeUnusedImports: true)
     // type docblocks only where the signature cannot say it (project convention)
     ->withSkip([AddReturnDocblockForCommonObjectDenominatorRector::class]);
