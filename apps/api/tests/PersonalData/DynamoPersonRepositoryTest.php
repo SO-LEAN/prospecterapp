@@ -13,12 +13,12 @@ use Prospecter\Core\SharedKernel\Domain\PersonId;
 use Tests\App\Base\ApiTestCase;
 
 /**
- * EmailUniqueness checks the email before saving; when two requests take it at once, the unique index of
- * the database refuses the second one the same way.
+ * EmailUniqueness checks the email before saving; when two requests take it at once, the conditional write
+ * of its reservation refuses the second one the same way (ADR 0039, 0048).
  */
-class DoctrinePersonRepositoryTest extends ApiTestCase
+class DynamoPersonRepositoryTest extends ApiTestCase
 {
-    public function testTheDatabaseRefusesAnEmailTakenMeanwhile(): void
+    public function testTheReservationRefusesAnEmailTakenMeanwhile(): void
     {
         $persons = self::getContainer()->get(PersonRepository::class);
         $account = new AccountId(self::newIdentity());
@@ -39,6 +39,28 @@ class DoctrinePersonRepositoryTest extends ApiTestCase
         $this->assertFalse($persons->isEmailUsed($account, Purpose::Prospecting, new Email('ada@solean-it.io'), except: $ada->id()));
         $this->assertTrue($persons->isEmailUsed($account, Purpose::Prospecting, new Email('ada@solean-it.io'), except: new PersonId(self::newIdentity())));
         $this->assertFalse($persons->isEmailUsed($account, Purpose::Membership, new Email('ada@solean-it.io'), except: new PersonId(self::newIdentity())));
+    }
+
+    public function testAnErasedPersonFreesItsEmail(): void
+    {
+        $persons = self::getContainer()->get(PersonRepository::class);
+        $account = new AccountId(self::newIdentity());
+        $ada = $this->personWithTheEmail($account, 'ada@solean-it.io');
+        $persons->save($ada);
+
+        $persons->remove($ada);
+
+        $this->assertFalse($persons->isEmailUsed($account, Purpose::Prospecting, new Email('ada@solean-it.io'), except: new PersonId(self::newIdentity())));
+    }
+
+    public function testAPersonIsReadBackAsItWasSaved(): void
+    {
+        $persons = self::getContainer()->get(PersonRepository::class);
+        $ada = $this->personWithTheEmail(new AccountId(self::newIdentity()), 'ada@solean-it.io');
+        $ada->releaseEvents();
+        $persons->save($ada);
+
+        $this->assertEquals([$ada], $persons->ofIds([$ada->id(), new PersonId(self::newIdentity())]));
     }
 
     private function personWithTheEmail(AccountId $account, string $email): Person

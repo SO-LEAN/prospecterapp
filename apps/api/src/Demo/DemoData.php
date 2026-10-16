@@ -1,10 +1,8 @@
 <?php
 
-namespace App\DataFixtures;
+namespace App\Demo;
 
 use App\Shared\Identities;
-use Doctrine\Bundle\FixturesBundle\Fixture;
-use Doctrine\Persistence\ObjectManager;
 use Prospecter\Core\Accounts\Domain\Account;
 use Prospecter\Core\Accounts\Domain\AccountRepository;
 use Prospecter\Core\Accounts\Domain\Member;
@@ -30,40 +28,43 @@ use Prospecter\Core\SharedKernel\Domain\PersonId;
  * SOLEAN IT and its prospector. The prospector signs in on the authorization server (apps/auth), whose
  * fixtures give the same member id: the two apps share it, nothing else.
  */
-class AppFixtures extends Fixture
+/**
+ * The data of the demonstration and of the API tests, written through the repositories, so through the
+ * domain (ADR 0048): the account SOLEAN IT, its prospector and its assistant (the member ids of the
+ * credentials of the auth app), and Babbage & Co with its contact Ada Lovelace. The identities are fixed:
+ * the tests name them.
+ */
+final readonly class DemoData
 {
+    public const string SOLEAN_IT = '01900000-0000-7000-8000-0000000000a1';
     public const string PROSPECTOR = '01900000-0000-7000-8000-000000000001';
     /** A prospector without the right to manage personal data: sees the contacts masked. */
     public const string ASSISTANT = '01900000-0000-7000-8000-000000000002';
     private const string OPENED_AT = '2026-10-13 09:00';
 
     public function __construct(
-        private readonly AccountRepository $accounts,
-        private readonly MemberRepository $members,
-        private readonly PersonRepository $persons,
-        private readonly OrganizationRepository $organizations,
-        private readonly Identities $identities,
+        private AccountRepository $accounts,
+        private MemberRepository $members,
+        private PersonRepository $persons,
+        private OrganizationRepository $organizations,
+        private Identities $identities,
     ) {
     }
 
-    public function load(ObjectManager $manager): void
+    public function load(): void
     {
-        $soleanIt = Account::open(new AccountId($this->identities->next()), new LegalIdentity('SOLEAN IT', 'SARL'), new \DateTimeImmutable(self::OPENED_AT), new ContactDetails(new Email('org@solean-it.io'), language: 'FR'));
+        $soleanIt = Account::open(new AccountId(self::SOLEAN_IT), new LegalIdentity('SOLEAN IT', 'SARL'), new \DateTimeImmutable(self::OPENED_AT), new ContactDetails(new Email('org@solean-it.io'), language: 'FR'));
         $this->accounts->save($soleanIt);
-        $this->addReference('solean-it-account', $soleanIt);
-        $this->addReference('prospector-user', $this->aMember(self::PROSPECTOR, 'prospector@solean-it.io', $soleanIt, Role::User, Role::Prospector, Role::PersonalData));
+        $this->aMember(self::PROSPECTOR, 'prospector@solean-it.io', $soleanIt, Role::User, Role::Prospector, Role::PersonalData);
         $this->aMember(self::ASSISTANT, 'assistant@solean-it.io', $soleanIt, Role::User, Role::Prospector);
         $this->aContact($soleanIt);
     }
 
-    private function aMember(string $id, string $email, Account $account, Role ...$roles): Member
+    private function aMember(string $id, string $email, Account $account, Role ...$roles): void
     {
         $profile = Person::collect(new PersonId($this->identities->next()), $account->id(), Purpose::Membership, new \DateTimeImmutable(self::OPENED_AT), contactDetails: new ContactDetails(new Email($email), language: 'FR'));
         $this->persons->save($profile);
-        $member = Member::register(new MemberId($id), $account->id(), $profile->id(), ...$roles);
-        $this->members->save($member);
-
-        return $member;
+        $this->members->save(Member::register(new MemberId($id), $account->id(), $profile->id(), ...$roles));
     }
 
     /**

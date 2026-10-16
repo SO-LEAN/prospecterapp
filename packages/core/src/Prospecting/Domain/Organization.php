@@ -35,7 +35,7 @@ use Prospecter\Core\SharedKernel\Domain\SearchTerms;
 /**
  * Aggregate root: an organization an account prospects; the whole team of the account shares it.
  */
-class Organization implements ReleasesEvents
+final class Organization implements ReleasesEvents
 {
     use RecordsEvents;
 

@@ -2,19 +2,14 @@
 
 namespace Tests\App\Base;
 
-use App\DataFixtures\AppFixtures;
+use App\Demo\DemoData;
 use App\Shared\Identities;
-use Doctrine\Common\DataFixtures\Executor\ORMExecutor;
-use Doctrine\Common\DataFixtures\Loader;
-use Doctrine\Common\DataFixtures\ReferenceRepository;
-use Doctrine\ORM\EntityManagerInterface;
-use Doctrine\ORM\Tools\SchemaTool;
+use App\Shared\Persistence\Tables;
 use Lcobucci\JWT\Encoding\ChainedFormatter;
 use Lcobucci\JWT\Encoding\JoseEncoder;
 use Lcobucci\JWT\Signer\Key\InMemory;
 use Lcobucci\JWT\Signer\Rsa\Sha256;
 use Lcobucci\JWT\Token\Builder;
-use Prospecter\Core\Accounts\Domain\Account;
 use Prospecter\Core\Accounts\Domain\Member;
 use Prospecter\Core\Accounts\Domain\MemberRepository;
 use Prospecter\Core\Accounts\Domain\Role;
@@ -29,37 +24,37 @@ use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 
 /**
- * The API as the SPA uses it, on a database recreated for each test with the fixtures. A member calls it with
- * an access token signed like the authorization server signs them (the test key pair of tests/bootstrap.php).
+ * The API as the SPA uses it, on tables recreated for each test with the data of the demonstration (ADR 0048).
+ * A member calls it with an access token signed like the authorization server signs them (the test key pair
+ * of tests/bootstrap.php).
  */
 abstract class ApiTestCase extends WebTestCase
 {
     protected KernelBrowser $client;
-    protected ReferenceRepository $fixtures;
+
+    /**
+     * @var array<string, string> the members the tests sign in, by reference
+     */
+    private array $members = ['prospector-user' => DemoData::PROSPECTOR, 'assistant-user' => DemoData::ASSISTANT];
 
     protected function setUp(): void
     {
         $this->client = static::createClient([], ['HTTP_HOST' => 'api.test.prospecter.io']);
-        $this->fixtures = $this->loadFixtures();
+        self::getContainer()->get(Tables::class)->recreate();
+        self::getContainer()->get(DemoData::class)->load();
     }
 
     protected function login(string $reference = 'prospector-user'): void
     {
-        $memberId = $this->fixtures->getReference($reference, Member::class)->id()->value;
-        $this->forgetTheLoadedAggregates();
-        $this->client->setServerParameter('HTTP_AUTHORIZATION', 'Bearer '.$this->accessTokenOf($memberId));
+        $this->client->setServerParameter('HTTP_AUTHORIZATION', 'Bearer '.$this->accessTokenOf($this->members[$reference]));
     }
 
     /**
-     * The account of the fixtures, SOLEAN IT, by its identity only: its lazy reference must not stay loaded
-     * while a request reads the account (see forgetTheLoadedAggregates()).
+     * The account of the demonstration, SOLEAN IT.
      */
     protected function accountOfTheFixtures(): AccountId
     {
-        $accountId = $this->fixtures->getReference('solean-it-account', Account::class)->id();
-        $this->forgetTheLoadedAggregates();
-
-        return $accountId;
+        return new AccountId(DemoData::SOLEAN_IT);
     }
 
     /**
@@ -72,7 +67,7 @@ abstract class ApiTestCase extends WebTestCase
         self::getContainer()->get(PersonRepository::class)->save($profile);
         $member = Member::register(new MemberId(self::newIdentity()), $account, $profile->id(), ...$roles);
         self::getContainer()->get(MemberRepository::class)->save($member);
-        $this->fixtures->setReference($reference, $member);
+        $this->members[$reference] = $member->id()->value;
 
         return $reference;
     }
@@ -143,49 +138,5 @@ abstract class ApiTestCase extends WebTestCase
     protected function violatedFields(array $problem): array
     {
         return array_map(static fn (array $violation): string => $violation['propertyPath'], $problem['violations'] ?? []);
-    }
-
-    /**
-     * The fixtures are written by the repositories, each in the database of its context (ADR 0038); the
-     * references belong to Accounts, the context of the members the tests sign in.
-     */
-    private function loadFixtures(): ReferenceRepository
-    {
-        array_map($this->recreateTheSchemaOf(...), $this->entityManagers());
-
-        $loader = new Loader();
-        $loader->addFixture(static::getContainer()->get(AppFixtures::class));
-        $executor = new ORMExecutor($this->entityManagers()['accounts']);
-        $executor->execute($loader->getFixtures(), append: true);
-        $this->forgetTheLoadedAggregates();
-
-        return $executor->getReferenceRepository();
-    }
-
-    private function recreateTheSchemaOf(EntityManagerInterface $entityManager): void
-    {
-        $schemaTool = new SchemaTool($entityManager);
-        $schemaTool->dropDatabase();
-        $schemaTool->createSchema($entityManager->getMetadataFactory()->getAllMetadata());
-    }
-
-    /**
-     * A fixture reference is a lazy proxy kept in the identity map: initializing it would overwrite its
-     * readonly identity with an equal but new value object, which Doctrine refuses. The requests load the
-     * aggregates again.
-     */
-    private function forgetTheLoadedAggregates(): void
-    {
-        foreach ($this->entityManagers() as $entityManager) {
-            $entityManager->clear();
-        }
-    }
-
-    /**
-     * @return array<string, EntityManagerInterface> by context
-     */
-    private function entityManagers(): array
-    {
-        return static::getContainer()->get('doctrine')->getManagers();
     }
 }

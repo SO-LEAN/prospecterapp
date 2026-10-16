@@ -2,8 +2,8 @@
 
 namespace Tests\App\Api;
 
-use App\DataFixtures\AppFixtures;
-use App\Shared\Persistence\Journal\JournalEntry;
+use App\Demo\DemoData;
+use App\Shared\Persistence\Journal\ActivityJournal;
 use PHPUnit\Framework\Attributes\Group;
 use Tests\App\Base\ApiTestCase;
 
@@ -44,7 +44,7 @@ class ActivityJournalTest extends ApiTestCase
 
         $entries = $this->entriesOf('prospecting', $organization);
 
-        $this->assertSame(AppFixtures::PROSPECTOR, $entries[0]->memberId);
+        $this->assertSame(DemoData::PROSPECTOR, $entries[0]['memberId']);
     }
 
     /**
@@ -52,14 +52,14 @@ class ActivityJournalTest extends ApiTestCase
      */
     private function journalOf(string $context, string $subject): array
     {
-        return array_map(static fn (JournalEntry $entry): string => $entry->event, $this->entriesOf($context, $subject));
+        return array_column($this->entriesOf($context, $subject), 'event');
     }
 
     /**
-     * @return list<JournalEntry>
+     * @return list<array{event: string, accountId: string, memberId: string, subjectId: string, occurredAt: string}>
      */
     private function entriesOf(string $context, string $subject): array
     {
-        return self::getContainer()->get('doctrine')->getManager($context)->getRepository(JournalEntry::class)->findBy(['subjectId' => $subject], ['occurredAt' => 'ASC', 'id' => 'ASC']);
+        return self::getContainer()->get(ActivityJournal::class)->of(self::getContainer()->get('app.table.'.$context), $subject);
     }
 }

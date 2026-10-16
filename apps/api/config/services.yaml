@@ -24,7 +24,7 @@ services:
             - '../src/Dashboard/DashboardResource.php'
             - '../src/Security/User.php'
             - '../src/Kernel.php'
-            - '../src/Shared/Persistence/Journal/JournalEntry.php'
+            - '../src/Shared/Persistence/Table.php'
 
     # Handlers of the core: commands go through the command bus, queries are called by the controllers, the
     # published queries by the anticorruption layers of the other contexts (ADR 0045)
@@ -38,12 +38,34 @@ services:
     Prospecter\Core\Prospecting\Domain\OrphanContacts: ~
     Prospecter\Core\PersonalData\Domain\EmailUniqueness: ~
 
+    # DynamoDB (ADR 0048): MiniStack locally (DYNAMODB_ENDPOINT), AWS in production; one table per bounded
+    # context, injected by name in its repositories only (Table $prospectingTable)
+    Aws\DynamoDb\DynamoDbClient:
+        arguments:
+            - region: '%env(AWS_REGION)%'
+              endpoint: '%env(DYNAMODB_ENDPOINT)%'
+              credentials: { key: '%env(AWS_ACCESS_KEY_ID)%', secret: '%env(AWS_SECRET_ACCESS_KEY)%' }
+    Aws\DynamoDb\Marshaler:
+        arguments: [{ nullify_invalid: true }]
+    app.table.accounts:
+        class: App\Shared\Persistence\Table
+        arguments: { $name: '%env(DYNAMODB_TABLE_PREFIX)%-accounts' }
+    app.table.personal_data:
+        class: App\Shared\Persistence\Table
+        arguments: { $name: '%env(DYNAMODB_TABLE_PREFIX)%-personal-data' }
+    app.table.prospecting:
+        class: App\Shared\Persistence\Table
+        arguments: { $name: '%env(DYNAMODB_TABLE_PREFIX)%-prospecting' }
+    App\Shared\Persistence\Table $accountsTable: '@app.table.accounts'
+    App\Shared\Persistence\Table $personalDataTable: '@app.table.personal_data'
+    App\Shared\Persistence\Table $prospectingTable: '@app.table.prospecting'
+
     # Ports of the core, implemented by the application
-    Prospecter\Core\Accounts\Domain\AccountRepository: '@App\Accounts\Persistence\DoctrineAccountRepository'
-    Prospecter\Core\Accounts\Domain\MemberRepository: '@App\Accounts\Persistence\DoctrineMemberRepository'
-    Prospecter\Core\PersonalData\Domain\PersonRepository: '@App\PersonalData\Persistence\DoctrinePersonRepository'
+    Prospecter\Core\Accounts\Domain\AccountRepository: '@App\Accounts\Persistence\DynamoAccountRepository'
+    Prospecter\Core\Accounts\Domain\MemberRepository: '@App\Accounts\Persistence\DynamoMemberRepository'
+    Prospecter\Core\PersonalData\Domain\PersonRepository: '@App\PersonalData\Persistence\DynamoPersonRepository'
     Prospecter\Core\PersonalData\Domain\ReaderService: '@App\PersonalData\AccountsReaderService'
-    Prospecter\Core\Prospecting\Domain\OrganizationRepository: '@App\Prospecting\Persistence\DoctrineOrganizationRepository'
+    Prospecter\Core\Prospecting\Domain\OrganizationRepository: '@App\Prospecting\Persistence\DynamoOrganizationRepository'
     Prospecter\Core\Prospecting\Domain\ProspectorService: '@App\Prospecting\AccountsProspectorService'
     Prospecter\Core\Prospecting\Domain\KnownContacts: '@App\Prospecting\PersonalDataKnownContacts'
     Prospecter\Core\PersonalData\Domain\ProspectedOrganizations: '@App\PersonalData\ProspectingOrganizations'

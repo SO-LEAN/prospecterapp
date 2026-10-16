@@ -8,14 +8,14 @@ NODE = $(DC) run --rm --no-deps node
 CORE = $(DC) run --rm --no-deps -w /var/www/src/packages/core php
 # the storage app (stored files and their sizes)
 STORAGE = $(DC) run --rm --no-deps -w /var/www/src/apps/storage php
-# the entity managers of the API, one database per bounded context (ADR 0038)
-API_CONTEXTS = accounts personal_data prospecting
+# the AWS services emulated locally (DynamoDB for the API, ADR 0048), started before what needs them
+AWS = $(DC) up -d ministack
 # the authorization server (sign-in, OAuth 2, credentials)
 AUTH = $(DC) run --rm --no-deps -w /var/www/src/apps/auth php
 
 .DEFAULT_GOAL := help
 
-.PHONY: help install build vendor keys db front-install start stop logs ps test test-api test-auth test-storage test-front e2e test-core lint fix api-doc commands exec-api exec-front
+.PHONY: help install build vendor keys db aws front-install start stop logs ps test test-api test-auth test-storage test-front e2e test-core lint fix api-doc commands exec-api exec-front
 
 ##@ Help
 help: ## List the commands (the default target)
@@ -41,9 +41,9 @@ keys: ## Generate the key pair the auth signs the access tokens with (kept if it
 	@echo "Auth/Generating the key pair the access tokens are signed with..."
 	@$(AUTH) sh -c 'test -f config/jwt/private.pem || bin/console league:oauth2-server:generate-keypair'
 
-db: ## Recreate the databases of the API (one per context) and of the auth, with fixtures (destroys local data)
-	@echo "API/Creating the database of each bounded context with fixtures..."
-	@$(PHP) sh -c 'bin/console cache:clear >/dev/null && for context in $(API_CONTEXTS); do bin/console doctrine:schema:drop --force --full-database --em=$$context && bin/console doctrine:schema:create --em=$$context || exit 1; done && bin/console doctrine:fixtures:load --no-interaction --append'
+db: aws ## Recreate the tables of the API (one per context, in MiniStack) and the database of the auth, with the demo data (destroys local data)
+	@echo "API/Creating the DynamoDB table of each bounded context with the data of the demonstration..."
+	@$(PHP) sh -c 'bin/console cache:clear >/dev/null && bin/console app:tables:recreate --demo'
 	@echo "Auth/Creating the database with fixtures (OAuth client, credentials of the fixture members)..."
 	@$(AUTH) sh -c 'bin/console cache:clear >/dev/null && bin/console doctrine:schema:drop --force --full-database && bin/console doctrine:schema:create && bin/console doctrine:fixtures:load --no-interaction'
 
@@ -52,6 +52,9 @@ front-install: ## Install the pnpm dependencies of the front
 	@$(NODE) pnpm install
 
 ##@ Stack
+aws: ## Start the AWS services emulated locally (MiniStack)
+	@$(AWS) >/dev/null 2>&1
+
 start: ## Start the stack: https://local.prospecter.io
 	@$(DC) up -d
 	@echo "SPA: https://local.prospecter.io  API doc: https://api.local.prospecter.io/api/doc"
@@ -71,7 +74,7 @@ test: test-core test-api test-auth test-storage test-front ## Run every test sui
 test-core: ## Run the business rules (Behat) and the unit tests of the core
 	@$(CORE) sh -c 'vendor/bin/behat --strict -f progress && vendor/bin/phpunit'
 
-test-api: ## Run the tests of the API
+test-api: aws ## Run the tests of the API (on MiniStack)
 	@$(PHP) bin/phpunit
 
 test-auth: ## Run the tests of the auth

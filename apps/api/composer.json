@@ -8,8 +8,7 @@
         "php": ">=8.5",
         "ext-ctype": "*",
         "ext-iconv": "*",
-        "doctrine/doctrine-bundle": "^3.3",
-        "doctrine/orm": "^3.7",
+        "aws/aws-sdk-php": "^3.401",
         "lcobucci/clock": "^3.3",
         "lcobucci/jwt": "^5.5",
         "nelmio/api-doc-bundle": "^5.13",
@@ -97,7 +96,6 @@
         }
     },
     "require-dev": {
-        "doctrine/doctrine-fixtures-bundle": "^4.3",
         "friendsofphp/php-cs-fixer": "^3.95",
         "phpstan/extension-installer": "^1.4",
         "phpstan/phpstan": "^2.3",

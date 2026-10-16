@@ -12,15 +12,15 @@ use Prospecter\Core\SharedKernel\Domain\PersonId;
  * Aggregate root: a person working in an account, with their roles. Their personal data live in PersonalData,
  * under their person id (ADR 0031); signing in, with a login email, is the business of authentication (ADR 0032).
  */
-class Member
+final readonly class Member
 {
     /** @var list<Role> */
-    private readonly array $roles;
+    private array $roles;
 
     private function __construct(
-        private readonly MemberId $id,
-        private readonly AccountId $accountId,
-        private readonly PersonId $personId,
+        private MemberId $id,
+        private AccountId $accountId,
+        private PersonId $personId,
         Role ...$roles,
     ) {
         $this->roles = array_values($roles);

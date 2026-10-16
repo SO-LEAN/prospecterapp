@@ -26,7 +26,7 @@ use Prospecter\Core\SharedKernel\Domain\SearchTerms;
  * Aggregate root: the personal data of a natural person, kept for one account and one purpose. The account
  * collected them: another account does not even learn that the person exists (ADR 0031).
  */
-class Person implements ReleasesEvents
+final class Person implements ReleasesEvents
 {
     use RecordsEvents;
 

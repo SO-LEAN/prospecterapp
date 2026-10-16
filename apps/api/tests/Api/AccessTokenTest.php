@@ -2,7 +2,7 @@
 
 namespace Tests\App\Api;
 
-use App\DataFixtures\AppFixtures;
+use App\Demo\DemoData;
 use PHPUnit\Framework\Attributes\Group;
 use Tests\App\Base\ApiTestCase;
 
@@ -69,6 +69,6 @@ class AccessTokenTest extends ApiTestCase
 
     private static function prospector(): string
     {
-        return AppFixtures::PROSPECTOR;
+        return DemoData::PROSPECTOR;
     }
 }

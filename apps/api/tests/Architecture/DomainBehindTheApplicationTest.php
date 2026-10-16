@@ -19,7 +19,7 @@ class DomainBehindTheApplicationTest extends TestCase
         'PersonalData/ProspectingOrganizations.php',
         'PersonalData/AccountsReaderService.php',
         'Prospecting/GeoplateformeGeoLocation.php',
-        'DataFixtures/AppFixtures.php',
+        'Demo/DemoData.php',
     ];
 
     public function testOnlyTheAdaptersOfThePortsUseTheDomain(): void

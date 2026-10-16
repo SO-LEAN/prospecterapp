@@ -101,7 +101,7 @@ final class InMemoryDatabase
     }
 
     /**
-     * Like the Doctrine mapping, a stored aggregate keeps its state, not the events it recorded: they belong to
+     * Like the DynamoDB adapters, a stored aggregate keeps its state, not the events it recorded: they belong to
      * the use case that changed it.
      *
      * @template T of ReleasesEvents

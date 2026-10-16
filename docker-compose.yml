@@ -10,6 +10,8 @@ services:
       - ./:/var/www/src
       - composer-cache:/home/developer/.cache/composer
     working_dir: /var/www/src/apps/api
+    depends_on:
+      - ministack
     extra_hosts:
       - host.docker.internal:host-gateway
     container_name: pro-php
@@ -38,6 +40,17 @@ services:
       FRONT_HOST: node
     container_name: pro-nginx
 
+  # the AWS services emulated locally (ADR 0048): DynamoDB for the API, kept between restarts
+  ministack:
+    image: ministackorg/ministack:1.5.27
+    environment:
+      MINISTACK_REGION: eu-west-3
+      PERSIST_STATE: "1"
+      STATE_DIR: /var/lib/ministack
+    volumes:
+      - ministack-data:/var/lib/ministack
+    container_name: pro-ministack
 volumes:
   composer-cache:
   pnpm-store:
+  ministack-data:

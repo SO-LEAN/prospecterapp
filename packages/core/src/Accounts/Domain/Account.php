@@ -17,7 +17,7 @@ use Prospecter\Core\SharedKernel\Domain\ReleasesEvents;
 /**
  * Aggregate root: an organization using Prospecter, managed by its members.
  */
-class Account implements ReleasesEvents
+final class Account implements ReleasesEvents
 {
     use RecordsEvents;
 
