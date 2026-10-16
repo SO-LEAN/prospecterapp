@@ -4,6 +4,7 @@ namespace App\PersonalData\Persistence;
 
 use App\Shared\Persistence\ConditionFailed;
 use App\Shared\Persistence\Documents;
+use App\Shared\Persistence\SearchProjection;
 use App\Shared\Persistence\Table;
 use Prospecter\Core\PersonalData\Domain\Exception\UnknownPerson;
 use Prospecter\Core\PersonalData\Domain\Person;
@@ -28,8 +29,16 @@ final readonly class DynamoPersonRepository implements PersonRepository
     private const string PERSON = 'PERSON';
     private const string EMAIL = 'EMAIL';
 
-    public function __construct(private Table $personalDataTable)
+    public function __construct(private Table $personalDataTable, private SearchProjection $personalDataSearch)
     {
+    }
+
+    /**
+     * What a person is searched among: the persons their account keeps for the same purpose.
+     */
+    public static function scopeOf(AccountId $accountId, Purpose $purpose): string
+    {
+        return $accountId->value.'#'.$purpose->value;
     }
 
     public function get(PersonId $id): Person
@@ -47,15 +56,32 @@ final readonly class DynamoPersonRepository implements PersonRepository
         return $this->personsOf($this->personalDataTable->items(array_map(static fn (PersonId $id): array => [self::keyOf($id), self::PERSON], $ids)));
     }
 
+    /**
+     * Without a search, the account lists its persons in GSI1; a search asks the projection (ADR 0050).
+     */
     public function sliceOf(AccountId $accountId, Purpose $purpose, SearchTerms $search, ?string $after, int $max): Slice
     {
-        $found = $this->personsOf($this->personalDataTable->query(self::listKey($accountId, $purpose), Table::BY_GSI1, $after, $search->isEmpty() ? $max + 1 : null));
+        $found = $search->isEmpty()
+            ? $this->personsOf($this->personalDataTable->query(self::listKey($accountId, $purpose), Table::BY_GSI1, $after, $max + 1))
+            : $this->inTheOrderOf(array_slice($this->personalDataSearch->find(self::scopeOf($accountId, $purpose), $search, $after), 0, $max + 1));
 
-        return Documents::slice(
-            array_values(array_filter($found, static fn (Person $person): bool => $person->searchTerms()->findBy($search))),
-            $max,
-            static fn (Person $person): string => (string) $person->id(),
-        );
+        return Documents::slice($found, $max, static fn (Person $person): string => (string) $person->id());
+    }
+
+    /**
+     * @param list<string> $ids
+     *
+     * @return list<Person>
+     */
+    private function inTheOrderOf(array $ids): array
+    {
+        $persons = [];
+
+        foreach ($this->ofIds(array_map(static fn (string $id): PersonId => new PersonId($id), $ids)) as $person) {
+            $persons[(string) $person->id()] = $person;
+        }
+
+        return array_values(array_filter(array_map(static fn (string $id): ?Person => $persons[$id] ?? null, $ids)));
     }
 
     public function remove(Person $person): void

@@ -4,6 +4,7 @@ namespace App\Prospecting\Persistence;
 
 use App\Shared\Persistence\ConditionFailed;
 use App\Shared\Persistence\Documents;
+use App\Shared\Persistence\SearchProjection;
 use App\Shared\Persistence\Table;
 use Prospecter\Core\Prospecting\Domain\Exception\UnknownOrganization;
 use Prospecter\Core\Prospecting\Domain\Organization;
@@ -29,7 +30,7 @@ final readonly class DynamoOrganizationRepository implements OrganizationReposit
     private const string ORGANIZATION = 'ORGANIZATION';
     private const string EMAIL = 'EMAIL';
 
-    public function __construct(private Table $prospectingTable)
+    public function __construct(private Table $prospectingTable, private SearchProjection $prospectingSearch)
     {
     }
 
@@ -105,15 +106,32 @@ final readonly class DynamoOrganizationRepository implements OrganizationReposit
         return $this->organizationsOf($this->prospectingTable->items(array_values($named)));
     }
 
+    /**
+     * Without a search, the account lists its organizations in GSI1; a search asks the projection (ADR 0050).
+     */
     public function sliceProspectedBy(AccountId $accountId, SearchTerms $search, ?string $after, int $max): Slice
     {
-        $found = $this->organizationsOf($this->prospectingTable->query('ACCOUNT#'.$accountId->value, Table::BY_GSI1, $after, $search->isEmpty() ? $max + 1 : null));
+        $found = $search->isEmpty()
+            ? $this->organizationsOf($this->prospectingTable->query('ACCOUNT#'.$accountId->value, Table::BY_GSI1, $after, $max + 1))
+            : $this->inTheOrderOf(array_slice($this->prospectingSearch->find($accountId->value, $search, $after), 0, $max + 1));
 
-        return Documents::slice(
-            array_values(array_filter($found, static fn (Organization $organization): bool => $organization->searchTerms()->findBy($search))),
-            $max,
-            static fn (Organization $organization): string => (string) $organization->id(),
-        );
+        return Documents::slice($found, $max, static fn (Organization $organization): string => (string) $organization->id());
+    }
+
+    /**
+     * @param list<string> $ids
+     *
+     * @return list<Organization>
+     */
+    private function inTheOrderOf(array $ids): array
+    {
+        $organizations = [];
+
+        foreach ($this->organizationsOf($this->prospectingTable->items(array_map(static fn (string $id): array => [self::keyOf(new OrganizationId($id)), self::ORGANIZATION], $ids))) as $organization) {
+            $organizations[(string) $organization->id()] = $organization;
+        }
+
+        return array_values(array_filter(array_map(static fn (string $id): ?Organization => $organizations[$id] ?? null, $ids)));
     }
 
     /**
