@@ -1,7 +1,7 @@
 # 0004. PHP 8.5 and Symfony 8.1, native types, PHPStan level 5
 
 - Date: 2026-10-13
-- Status: Accepted
+- Status: Accepted, the Doctrine mapping superseded by 0048
 - Implemented by: `docs/upgrade-2026.md`
 
 ## Context

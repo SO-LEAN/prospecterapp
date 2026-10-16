@@ -35,7 +35,7 @@ src/
   routes/               one file per URL, thin: loader + page component
   features/<feature>/   business screens: queries.ts, mutations.ts, schema.ts, components/
   shared/               reusable, business-agnostic code
-    api/                client.ts, schema.d.ts (generated), problem.ts, keys.ts, upload.ts
+    api/                client.ts, schema.d.ts (generated), problem.ts, keys.ts, slices.ts, upload.ts
     auth/               session.ts: signing in on Cognito, the tokens of the tab; sign-in-page.ts: the screen and its returnTo
     config/             env.ts: typed VITE_* variables
     ui/                 design system components (shadcn) + form/, feedback/, map/

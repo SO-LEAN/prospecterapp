@@ -42,7 +42,7 @@ The front builds to static files (`pnpm build` → `apps/front/dist/`), served b
 
 ## Why not a separate package for the domain or the adapters
 
-The library already is the hexagon and its `composer.json` only requires `php`, which enforces the boundary. Splitting entities from use cases, or extracting the persistence adapters into a bridge package, only pays off once a second consumer (API, CLI app) needs them.
+The library already is the hexagon and its `composer.json` only requires `php` and `ext-intl`, which enforces the boundary. Splitting entities from use cases, or extracting the persistence adapters into a bridge package, only pays off once a second consumer (API, CLI app) needs them.
 
 ## Decisions
 

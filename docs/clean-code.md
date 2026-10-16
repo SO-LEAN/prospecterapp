@@ -88,7 +88,7 @@ This guide is alive: rules get added and sharpened as the code is improved, iter
 - **Single responsibility**: a module has one reason to change, i.e. answers to one actor. Each use case serves one intent; presenters change with the API format, not with the rules.
 - **Open/closed**: extend behaviour by adding code (a new adapter behind a port, a new use case), not by editing working code.
 - **Liskov substitution**: an implementation honours the contract of its interface, including its exceptions; the in-memory doubles behave like the DynamoDB adapters, or the scenarios lie.
-- **Interface segregation**: clients depend only on what they use: a repository offers the queries its use cases need (`pageProspectedBy`, `ofIds`), no generic finder.
+- **Interface segregation**: clients depend only on what they use: a repository offers the queries its use cases need (`sliceProspectedBy`, `ofIds`), no generic finder.
 - **Dependency inversion**: high-level policy does not depend on details; both depend on abstractions owned by the policy (ports in the core, adapters in the API).
 
 ## 11. Architecture and components
@@ -99,7 +99,7 @@ This guide is alive: rules get added and sharpened as the code is improved, iter
 - **Component cohesion**: classes released together are reused together (REP), change together (CCP), and nobody depends on what they do not use (CRP).
 - **Component coupling**: no cycle between packages (ADP); depend in the direction of stability (SDP): the front and the API depend on the stable core; the more stable a component, the more abstract it is (SAP): the core exposes ports.
 - **Screaming architecture**: the folders say what the application does (`Prospecting/Application/StartProspecting`, `Accounts/Domain/Account`, `features/organizations`): grouped by bounded context first, by layer inside (ADR 0030), not which framework it uses.
-- **Keep options open**: decisions on frameworks, databases and delivery are deferred and isolated behind boundaries (ADR 0016, 0029, 0034).
+- **Keep options open**: decisions on frameworks, databases and delivery are deferred and isolated behind boundaries (ADR 0029, 0048, 0052).
 
 ## 12. Simplicity
 
@@ -117,4 +117,4 @@ This guide is alive: rules get added and sharpened as the code is improved, iter
 ## PHP and TypeScript specifics
 
 - PHP: native types everywhere, `readonly` classes and promoted properties, `enum` for closed sets, `match` instead of `switch`, first-class callables (`$this->allowsInItsState(...)`, `FoundOrganization::of(...)`), `never` and `throw` expressions, strict types in the core, PHPStan level 5 (ADR 0004).
-- TypeScript: strict mode, no `any`, named functions for intentions (`isClientError`, `waitForTheBrowserToLeave`), no manual memoization (the React Compiler does it), components small and composed.
+- TypeScript: strict mode, no `any`, named functions for intentions (`isClientError`, `nextSliceOf`), no manual memoization (the React Compiler does it), components small and composed.

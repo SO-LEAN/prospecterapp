@@ -2,7 +2,7 @@
 
 - Date: 2026-10-16
 - Status: Accepted
-- Supersedes: [0010](0010-oauth-2-authorization-code-with-pkce.md), [0034](0034-authorization-server-app.md), the protocol of [0037](0037-sign-in-screen-in-the-spa.md) (the screen stays in the SPA), where [0032](0032-login-email-kept-by-authentication.md) keeps the login email
+- Supersedes: [0010](0010-oauth-2-authorization-code-with-pkce.md), [0034](0034-authorization-server-app.md), the protocol of [0037](0037-sign-in-screen-in-the-spa.md) (the screen stays in the SPA), where [0032](0032-login-email-kept-by-authentication.md) keeps the login email, the SQLite of the auth app ([0016](0016-sqlite-without-migrations.md))
 - Implemented by: `apps/api/src/SignIn`, `apps/api/src/Security/{AccessTokenHandler,Expires}.php`, `apps/api/src/Demo/DemoCredentials.php`, `apps/front/src/shared/auth`, `docker/nginx/templates/api.conf.template`
 
 ## Context
@@ -11,7 +11,7 @@ The application is to run serverless on AWS (0048), where Cognito signs users in
 
 ## Decision
 
-- A Cognito user pool (`prospecter-dev`, `prospecter-test` in the tests) with one client, the SPA (`prospecter-front`): SRP and refresh, plus the password flow of the admin API for the commands and the tests. A member is a user named by its member id, who signs in with the email of its alias: the access token names the member (`username`), no table maps them. Password policy: 8 characters, as before.
+- A Cognito user pool (`prospecter-dev`, `prospecter-test` in the tests) with one client, the SPA (`prospecter-front`): SRP and refresh, plus the password flow of the admin API for the tests. A member is a user named by its member id, who signs in with the email of its alias: the access token names the member (`username`), no table maps them. Password policy: 8 characters, as before.
 - The SPA signs in on Cognito by SRP (`amazon-cognito-identity-js`): the password never leaves the browser. The tokens stay in `sessionStorage`; the access token is renewed with the refresh token once expired or refused by the API. Locally, the SPA being served in https, it reaches MiniStack through nginx (`https://api.local.prospecter.io/cognito/`), which passes the calls of Cognito only.
 - The API is a resource server: it checks the signature with the published key the token names (`kid`, read from the JWKS and cached), the issuer, the client, `token_use=access` and the expiry, without calling Cognito; the member is loaded as before (0040).
 - The API knows the pool and its client by name and finds their ids (cached); the SPA asks them on `GET /api/user-pool`, public, ids of a pool and of a client being public by nature.

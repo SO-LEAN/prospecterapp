@@ -18,7 +18,7 @@ SPA (local.prospecter.io)                                   API (api.local.prosp
 
 ## User pool
 
-- `prospecter-dev` (`prospecter-test` in the tests), its only client `prospecter-front`: SRP and refresh for the SPA, `ADMIN_USER_PASSWORD_AUTH` for the API alone (commands, tests). Password policy: 8 characters, nothing else.
+- `prospecter-dev` (`prospecter-test` in the tests), its only client `prospecter-front`: SRP and refresh for the SPA, `ADMIN_USER_PASSWORD_AUTH` for the tests of the API alone (it needs the AWS credentials). Password policy: 8 characters, nothing else.
 - A member is a user named by its member id, signing in with the email of its alias (`AliasAttributes: email`): the `username` of the access token is the member id. The login email is an access identifier, distinct from the contact email of the profile kept by PersonalData (ADR 0032).
 - `App\SignIn\UserPool` finds the pool and its client by name (their ids are made by Cognito, then cached) and recreates them (`bin/console app:user-pool:recreate [--demo]`, run by `make db`); `--demo` registers `prospector@solean-it.io` and `assistant@solean-it.io` with the password `password` under the member ids of `Demo\DemoData` (`Demo\DemoCredentials`). `bin/console app:user:set-password <login email>` sets a password by hand.
 - Configuration (`apps/api/.env`): `COGNITO_ENDPOINT` (MiniStack for the API; empty on AWS), `COGNITO_USER_POOL_NAME`, `COGNITO_KEYS_URL` (the JWKS, `%s` the id of the pool), `COGNITO_PUBLIC_ENDPOINT` (where the SPA reaches Cognito; empty on AWS), and the `AWS_*` credentials (dev values for MiniStack).

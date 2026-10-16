@@ -1,7 +1,7 @@
 # 0013. Front stack: React, TanStack, typed client, shadcn/ui
 
 - Date: 2026-10-14
-- Status: Accepted
+- Status: Accepted, the session library superseded by 0052, the pagination by 0049
 - Implemented by: c8bcf16; `docs/front-architecture.md`, `docs/design-system.md`
 
 ## Context

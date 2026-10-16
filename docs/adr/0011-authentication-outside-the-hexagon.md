@@ -1,7 +1,7 @@
 # 0011. Authentication is infrastructure, outside the hexagon
 
 - Date: 2026-10-15
-- Status: Accepted
+- Status: Accepted, where the credentials are kept superseded by 0052
 - Implemented by: 80403af; `apps/api/src/Auth`, `docs/auth.md`
 
 ## Context

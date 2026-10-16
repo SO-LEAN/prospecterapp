@@ -1,7 +1,7 @@
 # 0006. A React SPA and a JSON API replace the server-rendered application
 
 - Date: 2026-10-14
-- Status: Accepted
+- Status: Accepted, the OAuth 2 server superseded by 0034, then 0052
 - Implemented by: aa0ba05, 20f66d6, 308c797, c8bcf16
 
 ## Context
