@@ -34,7 +34,6 @@ export const fr = {
     saved: 'Modification enregistrée',
     back: 'Retour',
     remove: 'Supprimer',
-    upload: 'Téléverser',
     uploading: 'Envoi…',
     optional: 'facultatif',
     notProvided: 'Non renseigné',
@@ -51,7 +50,6 @@ export const fr = {
     imageInvalid: 'Image invalide : JPEG, PNG ou WebP de 2 Mo maximum.',
   },
   dashboard: {
-    title: 'Tableau de bord',
     greeting: 'Bonjour {{name}}',
     subtitle: 'Vue d’ensemble de la prospection de {{organization}}.',
     stats: { activeOrganizations: 'Organisations actives', mapped: 'Organisations géolocalisées' },
@@ -126,13 +124,12 @@ export const fr = {
       detach: 'Détacher',
       search: 'Rechercher une de mes organisations…',
     },
-    logo: { change: 'Changer le logo', add: 'Ajouter un logo', remove: 'Retirer le logo' },
+    logo: { change: 'Changer le logo', add: 'Ajouter un logo' },
     validation: { nameOrEmail: 'Renseignez au moins une raison sociale ou un e-mail.' },
   },
   contacts: {
     title: 'Contacts',
     subtitle: 'Les personnes que vous prospectez, les plus récentes d’abord.',
-    new: 'Nouveau contact',
     searchPlaceholder: 'Rechercher par nom ou e-mail…',
     empty: {
       title: 'Aucun contact',

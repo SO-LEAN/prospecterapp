@@ -6,7 +6,7 @@ set -eu
 
 aws() { command aws --endpoint-url "$AWS_ENDPOINT_URL" --output text "$@"; }
 
-# MiniStack may have just been recreated (make lambda switches its configuration)
+# MiniStack may have just been started or recreated (make start)
 for second in $(seq 1 30); do
     curl -sf -o /dev/null "$AWS_ENDPOINT_URL/_ministack/health" && break
     sleep 1

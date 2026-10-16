@@ -6,7 +6,6 @@
 
 /*
  * Design tokens. Semantic names only: components never use raw palette colors.
- * Same values as the API sign-in page (apps/api/templates/auth/login.html.twig).
  */
 :root {
   --radius: 0.75rem;
