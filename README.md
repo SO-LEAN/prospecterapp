@@ -41,6 +41,7 @@ The certificate is self-signed: accept the browser warning once for each host (`
 | `make test` | core business rules (Behat) and unit tests, API, storage and front tests |
 | `make test-core` / `make test-api` / `make test-storage` / `make test-front` | One of them |
 | `make e2e` | Playwright journeys against the running stack |
+| `make ci` | What the continuous integration runs: build, lint, tests, contract, build of the front |
 | `make lint` / `make fix` | PHPStan, php-cs-fixer, Rector, Biome, TypeScript |
 | `make api-doc` | Regenerate the OpenAPI contract of the API and the front API types after an endpoint change |
 | `make db` | Reset the tables and the user pool of the API and the bucket of the storage, with the data and the members of the demonstration |
@@ -48,3 +49,8 @@ The certificate is self-signed: accept the browser warning once for each host (`
 | `make exec-api` / `make exec-front` | Shell in the PHP or Node container |
 
 Local overrides go in `apps/<app>/.env.local`. Addresses are geocoded by the French State service (IGN Géoplateforme): free, no key, addresses in France only.
+
+## Contributing
+
+Work starts from `dev` on a `feature/<name>` or `fix/<name>` branch and comes back by pull request, merged by rebase once the continuous integration (GitHub Actions, `make ci`) passes; `dev` goes to `main` the same way. A `hotfix/<name>` starts from `main`, then is cherry-picked onto `dev`. `main` and `dev` accept no direct push ([ADR 0057](docs/adr/0057-continuous-integration-around-dev.md)).
+

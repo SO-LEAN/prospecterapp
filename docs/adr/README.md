@@ -6,7 +6,7 @@ Why the project is shaped the way it is: one file per decision in `docs/adr/`, i
 |---|---|---|---|
 | [0001](0001-record-architecture-decisions.md) | Record architecture decisions | Accepted | 2026-10-15 |
 | [0002](0002-monorepo-with-a-local-core-package.md) | One repository: front, API and core, the core as a local Composer package | Accepted | 2026-10-13 |
-| [0003](0003-single-linear-main-branch.md) | A single linear `main`, short-lived branches, fast-forward only | Accepted | 2026-10-13 |
+| [0003](0003-single-linear-main-branch.md) | A single linear `main`, short-lived branches, fast-forward only | Superseded by 0057 | 2026-10-13 |
 | [0004](0004-php-8-5-and-symfony-8-1.md) | PHP 8.5 and Symfony 8.1, native types, PHPStan level 5 | Accepted, the Doctrine mapping superseded by 0048 | 2026-10-13 |
 | [0005](0005-clean-architecture-with-the-core-as-hexagon.md) | Clean architecture: the core is the hexagon, the API adapts, the front presents | Accepted | 2026-10-13 |
 | [0006](0006-react-spa-and-json-api.md) | A React SPA and a JSON API replace the server-rendered application | Accepted, the OAuth 2 server superseded by 0034, then 0052 | 2026-10-14 |
@@ -60,3 +60,4 @@ Why the project is shaped the way it is: one file per decision in `docs/adr/`, i
 | [0054](0054-the-storage-in-a-local-lambda-with-the-imagick-layer.md) | Locally, the storage runs in a Lambda too, with the imagick layer of Bref | Accepted, on demand superseded by 0055 | 2026-10-16 |
 | [0055](0055-locally-the-apps-run-only-in-their-lambdas.md) | Locally, the API and the storage run only in their Bref Lambdas | Accepted | 2026-10-16 |
 | [0056](0056-the-command-line-on-the-php-of-the-lambdas.md) | The command line runs on the PHP of the Lambdas | Accepted | 2026-10-16 |
+| [0057](0057-continuous-integration-around-dev.md) | Continuous integration around `dev`: branches of work by pull request, `main` and `dev` protected | Accepted | 2026-10-16 |
