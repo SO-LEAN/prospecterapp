@@ -112,9 +112,13 @@ jobs:
               .filter(Boolean)
               .map(([, address, action]) => `- \`${address}\` ${action}`);
             const run = `${context.serverUrl}/${context.repo.owner}/${context.repo.repo}/actions/runs/${context.runId}`;
+            // An apply merged since makes the plan stale: the commit and the moment tell when to run it again
+            const commit = context.payload.pull_request.head.sha.slice(0, 7);
+            const moment = new Date().toISOString().slice(0, 16).replace('T', ' ');
             const body = [
               marker,
               `### Terraform plan · \`${APP}\` · \`${INSTANCE}\``,
+              `Planned at ${commit} on ${moment} UTC.`,
               summary,
               resources.length ? `<details><summary>${resources.length} resources</summary>\n\n${resources.slice(0, 200).join('\n')}\n</details>` : '',
               `[The whole plan in the log](${run}), values masked.`,
