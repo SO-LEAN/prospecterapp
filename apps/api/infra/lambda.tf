@@ -105,6 +105,7 @@ resource "aws_lambda_function" "api" {
       APP_API_HOST            = local.api_host
       DEFAULT_URI             = aws_apigatewayv2_api.api.api_endpoint
       TRUSTED_PROXIES         = "REMOTE_ADDR"
+      CORS_ALLOW_ORIGIN       = local.cors_allow_origin
       DYNAMODB_ENDPOINT       = ""
       DYNAMODB_TABLE_PREFIX   = local.name
       COGNITO_ENDPOINT        = ""
