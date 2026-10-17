@@ -25,6 +25,8 @@ Before declaring work done: `pnpm typecheck`, `pnpm lint`, `pnpm test`, and `mak
 
 ## Gotchas
 
+- The configuration (`shared/config/env.ts`) comes from `window.prospecter`, set by `/config.js` (empty locally, `public/config.js`; on AWS answered by the CloudFront Function of the instance, ADR 0066), else from the `VITE_*` variables of the build: a new setting goes in both.
+
 - TypeScript 7 is the native compiler and has no JavaScript compiler API: tools that need it (openapi-typescript) run with `pnpm dlx` and their own TypeScript 5 (see the `api:types` script).
 - pnpm 12 ignores the `pnpm` field of `package.json` (settings would go in a `pnpm-workspace.yaml`, none is needed today); the store is set by `npm_config_store_dir` in the node image and lives in the `pnpm-store` Docker volume.
 - The sign-in screen (`routes/auth/sign-in.tsx`, ADR 0037, 0052) is outside the app shell: the `_app` guard sends an anonymous visitor there with `returnTo`, a path of the SPA only (`shared/auth/sign-in-page.ts`), opened once signed in.

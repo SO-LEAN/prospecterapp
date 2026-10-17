@@ -1,0 +1,36 @@
+#!/bin/sh
+# Puts a release of the front in the bucket of an instance (ADR 0066), from build/front (make package-front): its
+# files under releases/<version>/, cached for a year, its index.html revalidated. Run before the apply, which makes
+# it the release the SPA serves; with --clean, after it: each former release is marked superseded once, and removed
+# 30 days later, so that a page opened on it still finds its files. Run in the image of the AWS CLI, with the
+# credentials of the instance (make release-front).
+# Usage: tools/deploy/front <instance> <version> [--clean]
+set -eu
+instance=$1 version=$2 clean=${3:-}
+kept_days=30
+
+bucket=$(aws ssm get-parameter --name "/prospecter/$instance/front/bucket" --query Parameter.Value --output text 2>/dev/null) || {
+    echo "The front of $instance has no bucket yet: the release is put after the apply that creates it"
+    exit 0
+}
+release="s3://$bucket/releases/$version"
+
+aws s3 sync build/front "$release" --exclude index.html --exclude config.js --only-show-errors \
+    --cache-control 'public, max-age=31536000, immutable'
+aws s3 cp build/front/index.html "$release/index.html" --only-show-errors --cache-control no-cache
+# a release served again (a revert) is not superseded any more
+aws s3 rm "$release/superseded" --only-show-errors
+echo "Release $version of the front put in the bucket of $instance"
+
+[ "$clean" = --clean ] || exit 0
+limit=$(date -u -d "$kept_days days ago" +%s)
+for other in $(aws s3api list-objects-v2 --bucket "$bucket" --prefix releases/ --delimiter / --query 'CommonPrefixes[].Prefix' --output text); do
+    [ "$other" = None ] || [ "$other" = "releases/$version/" ] && continue
+    if ! superseded=$(aws s3api head-object --bucket "$bucket" --key "${other}superseded" --query LastModified --output text 2>/dev/null); then
+        aws s3api put-object --bucket "$bucket" --key "${other}superseded" >/dev/null
+        echo "Release ${other#releases/} superseded, kept $kept_days days"
+    elif [ "$(date -u -d "$superseded" +%s)" -lt "$limit" ]; then
+        aws s3 rm "s3://$bucket/$other" --recursive --only-show-errors
+        echo "Release ${other#releases/} removed, superseded on $superseded"
+    fi
+done
