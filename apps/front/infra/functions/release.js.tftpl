@@ -1,11 +1,18 @@
 // The release of the SPA a visitor gets (ADR 0066), written by Terraform at each deployment: a page of the SPA is
 // the index.html of the current release, a file at the root is looked for in it, and config.js is the configuration
 // of the instance. The files of a release are asked by their path, a page opened on a former release included.
+// Behind an edge (ADR 0067), only the requests carrying its secret are answered, compared by their digest.
+import crypto from 'crypto'
+
 const release = '/releases/${version}'
 const config = ${config}
+const originSecretDigest = '${origin_secret_digest}'
 
 function handler(event) {
   const request = event.request
+  if (originSecretDigest !== '' && !comesThroughTheEdge(request)) {
+    return { statusCode: 403, statusDescription: 'Forbidden' }
+  }
   if (request.uri.endsWith('/config.js')) {
     return {
       statusCode: 200,
@@ -21,4 +28,9 @@ function handler(event) {
     request.uri = release + (request.uri.includes('.') ? request.uri : '/index.html')
   }
   return request
+}
+
+function comesThroughTheEdge(request) {
+  const secret = request.headers['x-origin-verify']
+  return secret !== undefined && crypto.createHash('sha256').update(secret.value).digest('hex') === originSecretDigest
 }

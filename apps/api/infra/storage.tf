@@ -1,7 +1,9 @@
 # What the api reads of the storage (ADR 0059, 0065): its addresses, published in SSM by its Terraform, and its token,
-# read by the function at its start. The storage of the instance is applied first.
+# read by the function at its start; behind an edge, the domain it gives the storage (ADR 0067). The storage of the
+# instance is applied first.
 locals {
-  storage_ssm_path = "/prospecter/${var.instance}/storage"
+  storage_ssm_path   = "/prospecter/${var.instance}/storage"
+  storage_public_url = local.edge_domains.storage != "" ? "https://${local.edge_domains.storage}" : data.aws_ssm_parameter.storage_public_url.insecure_value
 }
 
 data "aws_ssm_parameter" "storage_public_url" {

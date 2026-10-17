@@ -7,7 +7,7 @@ locals {
   package       = "${path.module}/../../../build/api.zip"
   ssm_path      = "/prospecter/${var.instance}/api"
   ssm_arn       = "arn:aws:ssm:${var.region}:${var.aws_account_id}:parameter${local.ssm_path}"
-  api_host      = trimprefix(aws_apigatewayv2_api.api.api_endpoint, "https://")
+  api_host      = local.edge_domains.api != "" ? local.edge_domains.api : trimprefix(aws_apigatewayv2_api.api.api_endpoint, "https://")
   table_arns    = [for table in aws_dynamodb_table.context : table.arn]
   logs_retained = 30
 }
@@ -64,10 +64,14 @@ resource "aws_iam_role_policy" "lambda" {
         Resource = aws_cognito_user_pool.members.arn
       },
       {
-        Sid      = "ReadItsParameters"
-        Effect   = "Allow"
-        Action   = ["ssm:GetParameter", "ssm:GetParameters"]
-        Resource = ["${local.ssm_arn}/*", "arn:aws:ssm:${var.region}:${var.aws_account_id}:parameter${local.storage_ssm_path}/token"]
+        Sid    = "ReadItsParameters"
+        Effect = "Allow"
+        Action = ["ssm:GetParameter", "ssm:GetParameters"]
+        Resource = [
+          "${local.ssm_arn}/*",
+          "arn:aws:ssm:${var.region}:${var.aws_account_id}:parameter${local.storage_ssm_path}/token",
+          "arn:aws:ssm:${var.region}:${var.aws_account_id}:parameter${local.origin_secret_parameter}",
+        ]
       },
       {
         Sid       = "DecryptItsSecretParameters"
@@ -103,8 +107,9 @@ resource "aws_lambda_function" "api" {
       APP_SECRET              = "bref-ssm:${aws_ssm_parameter.app_secret.name}"
       APP_SHARE_DIR           = "/tmp/share"
       APP_API_HOST            = local.api_host
-      DEFAULT_URI             = aws_apigatewayv2_api.api.api_endpoint
+      DEFAULT_URI             = "https://${local.api_host}"
       TRUSTED_PROXIES         = "REMOTE_ADDR"
+      ORIGIN_SECRET           = local.has_origin_secret ? "bref-ssm:${local.origin_secret_parameter}" : ""
       CORS_ALLOW_ORIGIN       = local.cors_allow_origin
       DYNAMODB_ENDPOINT       = ""
       DYNAMODB_TABLE_PREFIX   = local.name
@@ -112,7 +117,7 @@ resource "aws_lambda_function" "api" {
       COGNITO_USER_POOL_NAME  = aws_cognito_user_pool.members.name
       COGNITO_KEYS_URL        = "https://cognito-idp.${var.region}.amazonaws.com/%s/.well-known/jwks.json"
       COGNITO_PUBLIC_ENDPOINT = ""
-      STORAGE_PUBLIC_URL      = data.aws_ssm_parameter.storage_public_url.insecure_value
+      STORAGE_PUBLIC_URL      = local.storage_public_url
       STORAGE_INTERNAL_URL    = data.aws_ssm_parameter.storage_internal_url.insecure_value
       STORAGE_TOKEN           = "bref-ssm:${local.storage_ssm_path}/token"
     }

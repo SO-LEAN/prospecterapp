@@ -4,6 +4,8 @@
 name: Terraform apply dev
 
 on:
+  # run by hand on dev, every app is applied: when what the apps read in SSM changed (the edge, ADR 0067)
+  workflow_dispatch:
   push:
     branches: [dev]
     paths:
@@ -34,7 +36,7 @@ jobs:
         env:
           BEFORE: ${{ github.event.before }}
         run: |
-          # A push without a known former commit (a new branch, a forced push) applies every app
+          # A push without a known former commit (a new branch, a forced push) or a run by hand applies every app
           if git cat-file -e "$BEFORE^{commit}" 2>/dev/null; then range="$BEFORE..HEAD"; else range="$(git hash-object -t tree /dev/null)..HEAD"; fi
           echo "apps=$(tools/ci/infra-changed-apps "$range")" >> "$GITHUB_OUTPUT"
 
