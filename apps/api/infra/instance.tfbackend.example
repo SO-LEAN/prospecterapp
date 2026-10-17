@@ -1,0 +1,5 @@
+# The state of an instance, kept out of the repository as envs/<instance>.tfbackend in INFRA_CONFIG
+bucket       = "my-terraform-states"
+region       = "eu-west-3"
+use_lockfile = true
+encrypt      = true

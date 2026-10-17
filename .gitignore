@@ -1,3 +1,18 @@
 /.idea/
 /docker/data/*
 /.claude/settings.local.json
+# Terraform (ADR 0059): the state and the values of an installation never enter this public repository; they are
+# kept in INFRA_CONFIG (the *.example files show their shape, docs/infra.md)
+.terraform/
+*.tfstate
+*.tfstate.*
+*.tfvars
+*.tfvars.json
+*.tfbackend
+*.tfplan
+tfplan
+override.tf
+*_override.tf
+.terraformrc
+crash.log
+BOOTSTRAP.md

@@ -1,0 +1,42 @@
+# Nothing that opens the AWS installation enters this public repository (ADR 0059): the default rules of gitleaks,
+# and the identifiers of an installation they do not know. The pre-commit hook runs it (make secrets).
+title = "prospecterapp"
+
+[extend]
+useDefault = true
+
+[[rules]]
+id = "aws-account-arn"
+description = "An ARN naming an AWS account"
+regex = '''arn:aws[a-z-]*:[a-z0-9-]*:[a-z0-9-]*:\d{12}:'''
+
+[[rules]]
+id = "aws-account-id-in-infra"
+description = "A 12-digit AWS account id in Terraform, the workflows or the docs"
+regex = '''\b\d{12}\b'''
+path = '''(^|/)(\.github|docs|infra)/|\.(tf|tfvars|tfbackend|hcl)(\.example)?$'''
+
+[[rules]]
+id = "aws-identity-center"
+description = "The portal or the instance of an IAM Identity Center"
+regex = '''d-[0-9a-f]{10}\.awsapps\.com|ssoins-[0-9a-f]{16}'''
+
+[[rules]]
+id = "aws-organization-id"
+description = "An id of an AWS organization, its root, one of its OUs or policies"
+regex = '''\b(o-[a-z0-9]{10,32}|r-[a-z0-9]{4,32}|ou-[a-z0-9]{4,32}-[a-z0-9]{8,32}|p-[a-z0-9]{8,128})\b'''
+path = '''(^|/)(\.github|docs|infra)/|\.(tf|tfvars|tfbackend|hcl|json)(\.example)?$'''
+
+[[rules]]
+id = "terraform-state-bucket"
+description = "The real name of a Terraform state bucket"
+regex = '''[a-z0-9-]+-tfstate-\d{12}'''
+
+[[rules]]
+id = "plus-addressed-email"
+description = "A plus-addressed email, as the root emails of AWS accounts often are"
+regex = '''[a-zA-Z0-9._-]+\+[a-zA-Z0-9._-]+@[a-zA-Z0-9-]+\.[a-zA-Z.]+'''
+
+[[allowlists]]
+description = "The placeholder account of the examples, as in the AWS documentation"
+regexes = ['''123456789012''']

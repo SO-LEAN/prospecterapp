@@ -1,0 +1,4 @@
+# The values of an instance, kept out of the repository as envs/<instance>.tfvars in INFRA_CONFIG
+instance       = "dev"
+aws_account_id = "123456789012"
+region         = "eu-west-3"
