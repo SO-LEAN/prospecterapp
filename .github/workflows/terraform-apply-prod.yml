@@ -74,7 +74,17 @@ jobs:
       - name: Package the app, if it has a package (ADR 0063)
         run: if make -n "package-$APP" > /dev/null 2>&1; then make "package-$APP"; fi
 
+      - name: Put the release, if the app has one (ADR 0066)
+        env:
+          INFRA_CONFIG: ${{ steps.instance.outputs.config }}
+        run: if make -n "release-$APP" > /dev/null 2>&1; then make "release-$APP" INSTANCE="$INSTANCE"; fi
+
       - name: Apply
         env:
           INFRA_CONFIG: ${{ steps.instance.outputs.config }}
         run: make infra-apply APP="$APP" INSTANCE="$INSTANCE" INFRA_APPLY_FLAGS="-auto-approve -no-color"
+
+      - name: Remove the releases superseded for long, if the app has some (ADR 0066)
+        env:
+          INFRA_CONFIG: ${{ steps.instance.outputs.config }}
+        run: if make -n "release-$APP" > /dev/null 2>&1; then make "release-$APP" INSTANCE="$INSTANCE" CLEAN=1; fi

@@ -24,6 +24,12 @@ variable "region" {
   default     = "eu-west-3"
 }
 
+variable "code_version" {
+  description = "The version of the code of the front (tools/ci/code-version front, passed by make as TF_VAR_code_version): the release the SPA serves, put by tools/deploy/front"
+  type        = string
+  default     = "none"
+}
+
 # tflint-ignore: terraform_unused_declarations
 variable "permissions_boundary" {
   description = "The permissions boundary every role of the app will carry, when the account requires one"

@@ -1,0 +1,24 @@
+// The release of the SPA a visitor gets (ADR 0066), written by Terraform at each deployment: a page of the SPA is
+// the index.html of the current release, a file at the root is looked for in it, and config.js is the configuration
+// of the instance. The files of a release are asked by their path, a page opened on a former release included.
+const release = '/releases/${version}'
+const config = ${config}
+
+function handler(event) {
+  const request = event.request
+  if (request.uri.endsWith('/config.js')) {
+    return {
+      statusCode: 200,
+      statusDescription: 'OK',
+      headers: {
+        'content-type': { value: 'text/javascript; charset=utf-8' },
+        'cache-control': { value: 'no-cache' },
+      },
+      body: { encoding: 'text', data: 'window.prospecter = ' + JSON.stringify(config) + '\n' },
+    }
+  }
+  if (!request.uri.startsWith('/releases/')) {
+    request.uri = release + (request.uri.includes('.') ? request.uri : '/index.html')
+  }
+  return request
+}
