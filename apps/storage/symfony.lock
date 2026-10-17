@@ -1,4 +1,7 @@
 {
+    "bref/symfony-bridge": {
+        "version": "3.0.3"
+    },
     "friendsofphp/php-cs-fixer": {
         "version": "3.95",
         "recipe": {

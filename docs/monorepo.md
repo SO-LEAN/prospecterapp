@@ -38,7 +38,7 @@ COMPOSER_MIRROR_PATH_REPOS=1 composer install --no-dev --classmap-authoritative
 
 Composer then copies the current content of `packages/core` into `vendor/` (even if `composer.lock` is behind), and `apps/api/` becomes self-contained: deploy it alone. `apps/storage/` does not use the core and build like any Symfony app. This only works because the path repository does not force `"symlink": true`; keep it that way.
 
-The copy includes what the core needs for its own tests (`vendor/`, `tests/`, `features/`, tool configs): remove `vendor/prospecter/core/{vendor,tests,features}` in the production image. `make package-api` does all of it for the Lambda of the api on AWS (`tools/package/api`, `build/api.zip`).
+The copy includes what the core needs for its own tests (`vendor/`, `tests/`, `features/`, tool configs): remove `vendor/prospecter/core/{vendor,tests,features}` in the production image. `make package-api` does all of it for the Lambda of the api on AWS (`tools/package/lambda`, `build/api.zip`).
 
 The front builds to static files (`pnpm build` → `apps/front/dist/`), served by any web server with a fallback to `index.html`; its API URL is a `VITE_*` variable set at build time; where to sign in, it asks the API (`GET /api/user-pool`).
 
