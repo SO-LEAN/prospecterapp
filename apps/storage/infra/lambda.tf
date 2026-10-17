@@ -91,11 +91,12 @@ resource "aws_lambda_function" "storage" {
       APP_ENV               = "prod"
       APP_SECRET            = "bref-ssm:${aws_ssm_parameter.app_secret.name}"
       APP_SHARE_DIR         = "/tmp/share"
-      DEFAULT_URI           = local.public_url
-      STORAGE_PUBLIC_URL    = local.public_url
-      STORAGE_TOKEN         = "bref-ssm:${aws_ssm_parameter.token.name}"
-      S3_ENDPOINT           = ""
-      S3_BUCKET             = aws_s3_bucket.files.id
+      # read at the start, the distribution calling the function (a cycle in its variables)
+      DEFAULT_URI        = "bref-ssm:${local.ssm_path}/public-url"
+      STORAGE_PUBLIC_URL = "bref-ssm:${local.ssm_path}/public-url"
+      STORAGE_TOKEN      = "bref-ssm:${aws_ssm_parameter.token.name}"
+      S3_ENDPOINT        = ""
+      S3_BUCKET          = aws_s3_bucket.files.id
     }
   }
 

@@ -101,7 +101,7 @@ class StorageTest extends WebTestCase
      */
     private function asTheApi(): array
     {
-        return ['HTTP_AUTHORIZATION' => 'Bearer test-storage-token'];
+        return ['HTTP_X_STORAGE_TOKEN' => 'test-storage-token'];
     }
 
     private function keyOf(string $url): string
