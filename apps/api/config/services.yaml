@@ -90,6 +90,8 @@ services:
     Prospecter\Core\SharedKernel\Application\Port\Events: '@App\Shared\MessengerEvents'
     Prospecter\Core\Prospecting\Application\Port\GeoLocation: '@App\Prospecting\GeoplateformeGeoLocation'
     Prospecter\Core\SharedKernel\Application\Port\Storage: '@App\Shared\StorageClient'
+    # the internal entry of the storage: the token alone locally, signed by the role of the function on AWS (ADR 0068)
+    App\Shared\StorageAuthentication: '@App\Shared\TokenOnlyStorageAuthentication'
 
     # Cognito (ADR 0052): the user pool the members sign in with, MiniStack locally (COGNITO_ENDPOINT), AWS in
     # production (COGNITO_ENDPOINT empty)
@@ -130,3 +132,7 @@ when@test:
         app.token_clock:
             class: Symfony\Component\Clock\MockClock
             public: true
+
+when@prod:
+    services:
+        App\Shared\StorageAuthentication: '@App\Shared\SigV4StorageAuthentication'

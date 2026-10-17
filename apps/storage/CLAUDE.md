@@ -10,9 +10,9 @@ Keeps the files uploaded through the API (logos, pictures) in an S3 bucket and s
 
 - Bucket `S3_BUCKET` (`App\Bucket`): MiniStack locally (`S3_ENDPOINT`, by path, dev credentials in `.env`), every object put with its media type and `Cache-Control: public, max-age=31536000, immutable` (a key never changes content).
 - Public host `static.local.prospecter.io` (`docker/nginx/templates/static.conf.template`): nginx proxies `/storage/` to the bucket; a size missing from it (403, 404) reaches the app (`Controller\ShowImageInSize`), which makes it from the original and puts it in the bucket.
-- Internal server `http://nginx:8080`, on the Docker network only: the services of the platform store (`POST /files`, multipart field `file`) and remove (`DELETE /files/<path>`) files with the bearer token `STORAGE_TOKEN` (`InternalCaller`).
+- Internal server `http://nginx:8080`, on the Docker network only: the services of the platform store (`POST /files`, multipart field `file`) and remove (`DELETE /files/<path>`) files with the token `STORAGE_TOKEN` in the header `X-Storage-Token` (`InternalCaller`).
 - Both entries reach the app in its Lambda `prospecter-dev-storage` (ADR 0054, 0055: the mounted repository, the layers of PHP and imagick of Bref, `BREF_BINARY_RESPONSES` for the images), through `docker/nginx/storage-lambda.conf`.
-- On AWS (`infra/`, ADR 0065): CloudFront plays the static host, serving the bucket and failing over to the HTTP API of the function (`/storage` prefixed) for a missing size; the HTTP API is the internal server of the api, the token and the addresses in SSM `/prospecter/<instance>/storage/*`. The function runs `build/storage.zip` (`make package-storage`, ADR 0063), read-only: `Kernel` extends `BrefKernel`.
+- On AWS (`infra/`, ADR 0065): CloudFront plays the static host, serving the bucket and failing over to the HTTP API of the function (`/storage` prefixed) for a missing size; the internal server of the api is a function URL answering only signed requests (the api signs with its role, CloudFront with its origin access control, ADR 0068), the token and the addresses in SSM `/prospecter/<instance>/storage/*`. The function runs `build/storage.zip` (`make package-storage`, ADR 0063), read-only: `Kernel` extends `BrefKernel`.
 
 ## Layout
 

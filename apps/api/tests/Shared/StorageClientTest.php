@@ -3,13 +3,14 @@
 namespace Tests\App\Shared;
 
 use App\Shared\StorageClient;
+use App\Shared\TokenOnlyStorageAuthentication;
 use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\HttpClient\MockHttpClient;
 use Symfony\Component\HttpClient\Response\MockResponse;
 
 /**
- * The API talks to the storage app on its internal server, with the token of the services.
+ * The API talks to the storage app on its internal entry, with the token of the services.
  */
 #[Group('unit')]
 class StorageClientTest extends TestCase
@@ -22,7 +23,7 @@ class StorageClientTest extends TestCase
 
         $this->assertSame('https://static.test/storage/2026/10/a/a.png', $client->add($file));
         $this->assertSame(['POST', 'http://storage.internal/files'], [$requests[0]['method'], $requests[0]['url']]);
-        $this->assertContains('Authorization: Bearer the-token', $requests[0]['headers']);
+        $this->assertContains('X-Storage-Token: the-token', $requests[0]['headers']);
         $this->assertStringContainsString('name="file"; filename="upload.png"', $requests[0]['body']);
     }
 
@@ -45,7 +46,7 @@ class StorageClientTest extends TestCase
             return $response;
         });
 
-        return new StorageClient($http, 'http://storage.internal', 'https://static.test/storage', 'the-token');
+        return new StorageClient($http, new TokenOnlyStorageAuthentication(), 'http://storage.internal', 'https://static.test/storage', 'the-token');
     }
 
     /**
