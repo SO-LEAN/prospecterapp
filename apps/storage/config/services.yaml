@@ -12,13 +12,17 @@ services:
             - '../src/Kernel.php'
             - '../src/StoredFile.php'
 
-    # S3 (ADR 0051): MiniStack locally (S3_ENDPOINT, its buckets by path), AWS in production
+    # S3 (ADR 0051): MiniStack locally (S3_ENDPOINT, its buckets by path), AWS in a Lambda (no endpoint, the
+    # temporary credentials of its role, valid only with their session token)
     Aws\S3\S3Client:
         arguments:
             - region: '%env(AWS_REGION)%'
-              endpoint: '%env(S3_ENDPOINT)%'
+              endpoint: '%env(default::S3_ENDPOINT)%'
               use_path_style_endpoint: true
-              credentials: { key: '%env(AWS_ACCESS_KEY_ID)%', secret: '%env(AWS_SECRET_ACCESS_KEY)%' }
+              credentials:
+                  key: '%env(AWS_ACCESS_KEY_ID)%'
+                  secret: '%env(AWS_SECRET_ACCESS_KEY)%'
+                  token: '%env(default::AWS_SESSION_TOKEN)%'
     App\Bucket:
         arguments: { $name: '%env(S3_BUCKET)%' }
 

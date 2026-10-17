@@ -24,9 +24,14 @@ variable "region" {
   default     = "eu-west-3"
 }
 
-# tflint-ignore: terraform_unused_declarations
+variable "code_version" {
+  description = "The version of the code of the storage (tools/ci/code-version storage, passed by make as TF_VAR_code_version): a new one redeploys build/storage.zip"
+  type        = string
+  default     = "none"
+}
+
 variable "permissions_boundary" {
-  description = "The permissions boundary every role of the app will carry, when the account requires one"
+  description = "The permissions boundary every role of the storage carries, when the account requires one"
   type        = string
   default     = null
 }

@@ -68,3 +68,4 @@ Why the project is shaped the way it is: one file per decision in `docs/adr/`, i
 | [0062](0062-terraform-applies-main-after-approval.md) | Terraform applies each push to `main` to the instances of the prod account, after an approval | Accepted | 2026-10-17 |
 | [0063](0063-the-cd-packages-an-app-and-its-terraform-deploys-it.md) | The continuous deployment packages an app, its Terraform deploys the package | Accepted | 2026-10-17 |
 | [0064](0064-an-account-is-opened-by-its-founder.md) | An account is opened by its founder, from the console until the members open theirs | Accepted | 2026-10-17 |
+| [0065](0065-the-files-on-aws-behind-cloudfront.md) | On AWS, CloudFront serves the files from the bucket and fails over to the storage for a missing size | Accepted | 2026-10-17 |

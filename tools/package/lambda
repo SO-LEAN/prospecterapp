@@ -1,19 +1,21 @@
 #!/bin/sh
-# Packages the api for its Lambda on AWS in build/api.zip (ADR 0063): its code without what only develops, tests or
-# deploys it, its dependencies without those of development, the core copied in (docs/monorepo.md) and the cache
-# of the prod environment warmed. Run from the root of the repository, in the php container (make package-api).
+# Packages a PHP app for its Lambda on AWS in build/<app>.zip (ADR 0063): its code without what only develops, tests
+# or deploys it, its dependencies without those of development, the core copied in when it requires it
+# (docs/monorepo.md) and the cache of the prod environment warmed. Run from the root of the repository, in the php
+# container (make package-api, make package-storage). Usage: tools/package/lambda <app>
 set -eu
-build=build/api
-rm -rf "$build" build/api.zip
+app=$1
+build=build/$app
+rm -rf "$build" "build/$app.zip"
 mkdir -p "$build"
-tar -C apps/api \
+tar -C "apps/$app" \
     --exclude=./vendor --exclude=./var --exclude=./tests --exclude=./infra --exclude='./.env.*' \
-    --exclude=./phpunit.xml.dist --exclude=./phpstan.dist.neon --exclude=./rector.php \
+    --exclude=./phpunit.xml.dist --exclude=./phpunit.dist.xml --exclude=./phpstan.dist.neon --exclude=./rector.php \
     --exclude=./AGENTS.md --exclude=./CLAUDE.md \
     -cf - . | tar -C "$build" -xf -
 cd "$build"
 COMPOSER_MIRROR_PATH_REPOS=1 composer install --no-dev --no-autoloader --no-interaction --no-progress --no-scripts --quiet
-# only the services of the SDK of AWS the api uses (extra.aws/aws-sdk-php of its composer.json), then the autoloader
+# only the services of the SDK of AWS the app uses (extra.aws/aws-sdk-php of its composer.json), then the autoloader
 composer run-script pre-autoload-dump --quiet
 composer dump-autoload --no-dev --classmap-authoritative --no-scripts --quiet
 rm -rf vendor/prospecter/core/vendor vendor/prospecter/core/tests vendor/prospecter/core/features
@@ -22,7 +24,7 @@ rm -rf vendor/nelmio/api-doc-bundle/public public/bundles
 # the deprecations it logs are those make lint reports already; the share dir is compiled in the container: /tmp,
 # the only writable place of a Lambda (the cache is moved there by BrefKernel)
 APP_ENV=prod APP_DEBUG=0 APP_SHARE_DIR=/tmp/share php bin/console cache:warmup --no-interaction --quiet 2>/dev/null
-# the routes are bound to the host of the instance (APP_API_HOST), unknown here: the router is compiled at the first
-# request, in /tmp
+# the routes of the api are bound to the host of the instance (APP_API_HOST), unknown here: the router is compiled at
+# the first request, in /tmp
 rm -f var/cache/prod/url_matching_routes.php* var/cache/prod/url_generating_routes.php*
-zip -q -r -y ../api.zip .
+zip -q -r -y "../$app.zip" .
