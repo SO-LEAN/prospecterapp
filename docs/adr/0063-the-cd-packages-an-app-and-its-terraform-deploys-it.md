@@ -2,7 +2,7 @@
 
 - Date: 2026-10-17
 - Status: Accepted
-- Implemented by: `tools/package/api`, `tools/ci/code-version`, `tools/ci/infra-changed-apps`, the `package-api` target and `TF_VAR_code_version` of the `Makefile`, `apps/api/infra/{lambda,http-api,parameters}.tf`, the workflows `terraform-*.yml`, `apps/api/config/services.yaml`
+- Implemented by: `tools/package/api`, `apps/api/src/Kernel.php`, `tools/ci/code-version`, `tools/ci/infra-changed-apps`, the `package-api` target and `TF_VAR_code_version` of the `Makefile`, `apps/api/infra/{lambda,http-api,parameters}.tf`, the workflows `terraform-*.yml`, `apps/api/config/services.yaml`
 
 ## Context
 
@@ -15,6 +15,7 @@ The api is to run on AWS in a Lambda with the PHP layer of Bref behind an HTTP A
 - The workflows of 0060 to 0062 run on a change of the code of an app or of the core too; an app with a package is packaged before its apply.
 - The secrets of an app are SSM parameters read by the function at its start (`bref-ssm:`), never values of its variables, which a plan prints. Its roles carry the permissions boundary the values of the instance name, when there is one.
 - The SDK of AWS takes the session token of the credentials of the function, and no endpoint when the MiniStack one is empty.
+- The function runs its package read-only: the kernel of the api extends the `BrefKernel` of `bref/symfony-bridge`, which moves the cache and the logs to `/tmp` and copies there the cache warmed in the package, only when the project cannot be written (the local Lambdas and the command line, on the images of Bref too, keep the shared cache of 0053); the share dir is compiled to `/tmp`, and the router is compiled at the first request, its routes being bound to the host of the instance.
 
 ## Consequences
 

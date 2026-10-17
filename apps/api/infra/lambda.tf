@@ -86,6 +86,7 @@ resource "aws_lambda_function" "api" {
       BREF_RUNTIME          = "fpm"
       APP_ENV               = "prod"
       APP_SECRET            = "bref-ssm:${aws_ssm_parameter.app_secret.name}"
+      APP_SHARE_DIR         = "/tmp/share"
       APP_API_HOST          = local.api_host
       DEFAULT_URI           = aws_apigatewayv2_api.api.api_endpoint
       TRUSTED_PROXIES       = "REMOTE_ADDR"

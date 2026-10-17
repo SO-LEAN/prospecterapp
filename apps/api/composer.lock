@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "4e37959c562d48d59647c6852b45e630",
+    "content-hash": "8999bce68e2b549ceb57da31098af951",
     "packages": [
         {
             "name": "async-aws/core",
@@ -371,6 +371,59 @@
             "time": "2026-10-12T12:36:10+00:00"
         },
         {
+            "name": "bref/monolog-bridge",
+            "version": "2.0.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/brefphp/monolog-bridge.git",
+                "reference": "ffde3460fe25cf1f94293ec29c0d4df626a0acc4"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/brefphp/monolog-bridge/zipball/ffde3460fe25cf1f94293ec29c0d4df626a0acc4",
+                "reference": "ffde3460fe25cf1f94293ec29c0d4df626a0acc4",
+                "shasum": ""
+            },
+            "require": {
+                "monolog/monolog": "^2.4|^3",
+                "php": ">=8.2"
+            },
+            "require-dev": {
+                "mnapoli/hard-mode": "^0.3",
+                "phpstan/phpstan": "^2",
+                "phpunit/phpunit": "^11.5|^12|^13"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "Bref\\Monolog\\": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "description": "Monolog formatter optimized for AWS Lambda and CloudWatch",
+            "keywords": [
+                "aws",
+                "bref",
+                "cloudwatch",
+                "lambda",
+                "monolog"
+            ],
+            "support": {
+                "issues": "https://github.com/brefphp/monolog-bridge/issues",
+                "source": "https://github.com/brefphp/monolog-bridge/tree/2.0.0"
+            },
+            "funding": [
+                {
+                    "url": "https://github.com/mnapoli",
+                    "type": "github"
+                }
+            ],
+            "time": "2026-09-26T19:17:27+00:00"
+        },
+        {
             "name": "bref/secrets-loader",
             "version": "1.2.0",
             "source": {
@@ -421,6 +474,70 @@
                 }
             ],
             "time": "2026-02-10T14:15:46+00:00"
+        },
+        {
+            "name": "bref/symfony-bridge",
+            "version": "3.0.3",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/brefphp/symfony-bridge.git",
+                "reference": "3c6a789258d7ce98a9196a295048bda47b65d1e4"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/brefphp/symfony-bridge/zipball/3c6a789258d7ce98a9196a295048bda47b65d1e4",
+                "reference": "3c6a789258d7ce98a9196a295048bda47b65d1e4",
+                "shasum": ""
+            },
+            "require": {
+                "bref/bref": "^2.1.13|^3.0.13",
+                "bref/monolog-bridge": "^1.0|^2.0",
+                "php": ">=8.2",
+                "symfony/dependency-injection": "^5.4|^6.0|^7.0|^8.0",
+                "symfony/filesystem": "^5.4|^6.0|^7.0|^8.0",
+                "symfony/http-kernel": "^5.4|^6.0|^7.0|^8.0",
+                "symfony/psr-http-message-bridge": "^2.1|^6.4|^7.0|^8.0",
+                "symfony/runtime": "^5.4|^6.0|^7.0|^8.0"
+            },
+            "require-dev": {
+                "mnapoli/hard-mode": "^0.3.0",
+                "phpstan/phpstan": "^1.3",
+                "phpunit/phpunit": "^8.5.22",
+                "symfony/config": "^5.4|^6.0|^7.0|^8.0",
+                "symfony/framework-bundle": "^5.4|^6.0|^7.0|^8.0",
+                "symfony/phpunit-bridge": "^6.0|^7.0|^8.0",
+                "symfony/process": "^5.4|^6.0|^7.0|^8.0"
+            },
+            "type": "library",
+            "autoload": {
+                "files": [
+                    "src/bootstrap.php"
+                ],
+                "psr-4": {
+                    "Bref\\SymfonyBridge\\": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "description": "Makes Symfony work on AWS Lambda with Bref",
+            "keywords": [
+                "aws",
+                "lambda",
+                "symfony"
+            ],
+            "support": {
+                "issues": "https://github.com/brefphp/symfony-bridge/issues",
+                "source": "https://github.com/brefphp/symfony-bridge/tree/3.0.3"
+            },
+            "funding": [
+                {
+                    "url": "https://github.com/mnapoli",
+                    "type": "github"
+                }
+            ],
+            "time": "2026-10-12T13:18:06+00:00"
         },
         {
             "name": "crwlr/query-string",
@@ -5354,6 +5471,93 @@
                 }
             ],
             "time": "2026-09-28T19:13:15+00:00"
+        },
+        {
+            "name": "symfony/psr-http-message-bridge",
+            "version": "v8.1.9",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/symfony/psr-http-message-bridge.git",
+                "reference": "cfa8f3ac693fec234a91d8745b45ed9a81a0b799"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/symfony/psr-http-message-bridge/zipball/cfa8f3ac693fec234a91d8745b45ed9a81a0b799",
+                "reference": "cfa8f3ac693fec234a91d8745b45ed9a81a0b799",
+                "shasum": ""
+            },
+            "require": {
+                "php": ">=8.4.1",
+                "psr/http-message": "^1.0|^2.0",
+                "symfony/http-foundation": "^7.4|^8.0"
+            },
+            "conflict": {
+                "php-http/discovery": "<1.15"
+            },
+            "require-dev": {
+                "nyholm/psr7": "^1.1",
+                "php-http/discovery": "^1.15",
+                "psr/log": "^1.1.4|^2|^3",
+                "symfony/browser-kit": "^7.4|^8.0",
+                "symfony/config": "^7.4|^8.0",
+                "symfony/event-dispatcher": "^7.4|^8.0",
+                "symfony/framework-bundle": "^7.4|^8.0",
+                "symfony/http-kernel": "^7.4|^8.0",
+                "symfony/runtime": "^7.4|^8.0"
+            },
+            "type": "symfony-bridge",
+            "autoload": {
+                "psr-4": {
+                    "Symfony\\Bridge\\PsrHttpMessage\\": ""
+                },
+                "exclude-from-classmap": [
+                    "/Tests/"
+                ]
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Fabien Potencier",
+                    "email": "fabien@symfony.com"
+                },
+                {
+                    "name": "Symfony Community",
+                    "homepage": "https://symfony.com/contributors"
+                }
+            ],
+            "description": "PSR HTTP message bridge",
+            "homepage": "https://symfony.com",
+            "keywords": [
+                "http",
+                "http-message",
+                "psr-17",
+                "psr-7"
+            ],
+            "support": {
+                "source": "https://github.com/symfony/psr-http-message-bridge/tree/v8.1.9"
+            },
+            "funding": [
+                {
+                    "url": "https://symfony.com/sponsor",
+                    "type": "custom"
+                },
+                {
+                    "url": "https://github.com/fabpot",
+                    "type": "github"
+                },
+                {
+                    "url": "https://github.com/nicolas-grekas",
+                    "type": "github"
+                },
+                {
+                    "url": "https://tidelift.com/funding/github/packagist/symfony/symfony",
+                    "type": "tidelift"
+                }
+            ],
+            "time": "2026-10-07T08:21:34+00:00"
         },
         {
             "name": "symfony/routing",

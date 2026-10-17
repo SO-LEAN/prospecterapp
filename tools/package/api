@@ -19,6 +19,10 @@ composer dump-autoload --no-dev --classmap-authoritative --no-scripts --quiet
 rm -rf vendor/prospecter/core/vendor vendor/prospecter/core/tests vendor/prospecter/core/features
 # the doc of the api loads Swagger UI from its CDN (assets_mode of nelmio_api_doc): its copies are of no use
 rm -rf vendor/nelmio/api-doc-bundle/public public/bundles
-# the deprecations it logs are those make lint reports already
-APP_ENV=prod APP_DEBUG=0 php bin/console cache:warmup --no-interaction --quiet 2>/dev/null
+# the deprecations it logs are those make lint reports already; the share dir is compiled in the container: /tmp,
+# the only writable place of a Lambda (the cache is moved there by BrefKernel)
+APP_ENV=prod APP_DEBUG=0 APP_SHARE_DIR=/tmp/share php bin/console cache:warmup --no-interaction --quiet 2>/dev/null
+# the routes are bound to the host of the instance (APP_API_HOST), unknown here: the router is compiled at the first
+# request, in /tmp
+rm -f var/cache/prod/url_matching_routes.php* var/cache/prod/url_generating_routes.php*
 zip -q -r -y ../api.zip .
