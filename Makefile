@@ -23,6 +23,8 @@ INFRA_APPS = api storage front
 INFRA_CONFIG ?= $(abspath $(CURDIR)/../prospecterapp-infra)
 INFRA_INSTANCE = $(INFRA_CONFIG)/envs/$(INSTANCE)
 TERRAFORM_IMAGE = hashicorp/terraform:$(shell cat .terraform-version)
+# an apply asks for confirmation on the terminal, which the CI has not (CI is set there, with -auto-approve)
+TERRAFORM_TTY = $(if $(CI),,-it)
 TERRAFORM = docker run --rm -u $(UID):$(GID) -e HOME=/tmp --env-file $(INFRA_INSTANCE).env -e TF_DATA_DIR=.terraform/$(INSTANCE) \
 	-v $(HOME)/.aws:/tmp/.aws -v $(CURDIR):/src -v $(INFRA_CONFIG):/config:ro -w /src/apps/$(APP)/infra
 TFLINT_IMAGE = ghcr.io/terraform-linters/tflint:v0.64.0
@@ -139,10 +141,10 @@ infra-init: infra-target ## Prepare the Terraform of an app for an instance: mak
 	@$(TERRAFORM) $(TERRAFORM_IMAGE) init -reconfigure -input=false -backend-config=/config/envs/$(INSTANCE).tfbackend -backend-config=key=$(APP)/$(INSTANCE).tfstate
 
 infra-plan: infra-init ## Show what Terraform would change for an app and an instance: make infra-plan APP=api INSTANCE=dev
-	@$(TERRAFORM) $(TERRAFORM_IMAGE) plan -input=false -var-file=/config/envs/$(INSTANCE).tfvars
+	@$(TERRAFORM) $(TERRAFORM_IMAGE) plan -input=false -var-file=/config/envs/$(INSTANCE).tfvars $(INFRA_PLAN_FLAGS)
 
 infra-apply: infra-init ## Apply the Terraform of an app to an instance, after confirmation: make infra-apply APP=api INSTANCE=dev
-	@$(TERRAFORM) -it $(TERRAFORM_IMAGE) apply -var-file=/config/envs/$(INSTANCE).tfvars
+	@$(TERRAFORM) $(TERRAFORM_TTY) $(TERRAFORM_IMAGE) apply -input=false -var-file=/config/envs/$(INSTANCE).tfvars $(INFRA_APPLY_FLAGS)
 
 ##@ API contract
 api-doc: ## Regenerate the OpenAPI contract of the API and the front types after changing an endpoint

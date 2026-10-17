@@ -1,0 +1,111 @@
+# Terraform plans every pull request touching the infrastructure (ADR 0060): each changed app on each instance, with
+# a read-only role of the account of the instance. The repository is public, its logs too: the account ids and the
+# state bucket are masked, and the comment lists the changed resources, never their values.
+name: Terraform plan
+
+on:
+  pull_request:
+    branches: [dev, main]
+    paths:
+      - 'apps/*/infra/**'
+      - '.terraform-version'
+      - 'Makefile'
+      - '.github/workflows/terraform-plan.yml'
+      - '.github/actions/infra-instance/**'
+      - 'tools/ci/infra-changed-apps'
+
+concurrency:
+  group: terraform-plan-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  apps:
+    # A pull request from a fork gets neither the secrets nor an OIDC token
+    if: github.event.pull_request.head.repo.full_name == github.repository
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    outputs:
+      apps: ${{ steps.changed.outputs.apps }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          fetch-depth: 0
+
+      - name: List the apps whose infrastructure changed
+        id: changed
+        env:
+          BASE_REF: ${{ github.base_ref }}
+        run: echo "apps=$(tools/ci/infra-changed-apps "origin/$BASE_REF...HEAD")" >> "$GITHUB_OUTPUT"
+
+  plan:
+    needs: apps
+    if: needs.apps.outputs.apps != '[]'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    permissions:
+      contents: read
+      id-token: write
+      pull-requests: write
+    strategy:
+      fail-fast: false
+      matrix:
+        app: ${{ fromJSON(needs.apps.outputs.apps) }}
+        instance: ${{ fromJSON(vars.INFRA_PLAN_INSTANCES || '["dev", "prod"]') }}
+    env:
+      APP: ${{ matrix.app }}
+      INSTANCE: ${{ matrix.instance }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      - name: Prepare the instance with the plan role of its account
+        id: instance
+        uses: ./.github/actions/infra-instance
+        with:
+          instance: ${{ matrix.instance }}
+          tfvars: ${{ secrets[format('INFRA_TFVARS_{0}', matrix.instance)] }}
+          tfbackend: ${{ secrets[format('INFRA_TFBACKEND_{0}', matrix.instance)] }}
+          role-to-assume: ${{ secrets[format('AWS_PLAN_ROLE_ARN_{0}', matrix.instance)] }}
+
+      - name: Plan
+        id: plan
+        env:
+          INFRA_CONFIG: ${{ steps.instance.outputs.config }}
+        run: make infra-plan APP="$APP" INSTANCE="$INSTANCE" INFRA_PLAN_FLAGS="-lock=false -no-color" 2>&1 | tee plan.txt
+
+      - name: Comment the changed resources
+        if: always() && steps.instance.outcome == 'success'
+        uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9.0.0
+        with:
+          script: |
+            const fs = require('fs');
+            const { APP, INSTANCE } = process.env;
+            const marker = `<!-- terraform-plan ${APP} ${INSTANCE} -->`;
+            const log = fs.existsSync('plan.txt') ? fs.readFileSync('plan.txt', 'utf8') : '';
+            const summary = (log.match(/^(Plan: .*|No changes\..*)$/m) || ['**The plan failed**: see the log.'])[0];
+            const resources = log.split('\n')
+              .map((line) => line.match(/^\s+# (.+?) ((?:will|must) be .*)$/))
+              .filter(Boolean)
+              .map(([, address, action]) => `- \`${address}\` ${action}`);
+            const run = `${context.serverUrl}/${context.repo.owner}/${context.repo.repo}/actions/runs/${context.runId}`;
+            // An apply merged since makes the plan stale: the commit and the moment tell when to run it again
+            const commit = context.payload.pull_request.head.sha.slice(0, 7);
+            const moment = new Date().toISOString().slice(0, 16).replace('T', ' ');
+            const body = [
+              marker,
+              `### Terraform plan · \`${APP}\` · \`${INSTANCE}\``,
+              `Planned at ${commit} on ${moment} UTC.`,
+              summary,
+              resources.length ? `<details><summary>${resources.length} resources</summary>\n\n${resources.slice(0, 200).join('\n')}\n</details>` : '',
+              `[The whole plan in the log](${run}), values masked.`,
+            ].join('\n\n');
+            const issue = { owner: context.repo.owner, repo: context.repo.repo, issue_number: context.issue.number };
+            const comments = await github.paginate(github.rest.issues.listComments, issue);
+            const previous = comments.find((comment) => comment.body.includes(marker));
+            if (previous) {
+              await github.rest.issues.updateComment({ ...issue, comment_id: previous.id, body });
+            } else {
+              await github.rest.issues.createComment({ ...issue, body });
+            }
