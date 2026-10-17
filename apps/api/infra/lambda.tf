@@ -49,6 +49,21 @@ resource "aws_iam_role_policy" "lambda" {
         Resource = concat(local.table_arns, [for arn in local.table_arns : "${arn}/index/*"])
       },
       {
+        Sid      = "FindItsUserPool"
+        Effect   = "Allow"
+        Action   = "cognito-idp:ListUserPools"
+        Resource = "*"
+      },
+      {
+        Sid    = "AdministerItsMembers"
+        Effect = "Allow"
+        Action = [
+          "cognito-idp:AdminCreateUser", "cognito-idp:AdminGetUser", "cognito-idp:AdminSetUserPassword",
+          "cognito-idp:AdminUpdateUserAttributes", "cognito-idp:ListUserPoolClients", "cognito-idp:ListUsers",
+        ]
+        Resource = aws_cognito_user_pool.members.arn
+      },
+      {
         Sid      = "ReadItsParameters"
         Effect   = "Allow"
         Action   = ["ssm:GetParameter", "ssm:GetParameters"]
@@ -83,16 +98,19 @@ resource "aws_lambda_function" "api" {
 
   environment {
     variables = {
-      BREF_RUNTIME          = "fpm"
-      APP_ENV               = "prod"
-      APP_SECRET            = "bref-ssm:${aws_ssm_parameter.app_secret.name}"
-      APP_SHARE_DIR         = "/tmp/share"
-      APP_API_HOST          = local.api_host
-      DEFAULT_URI           = aws_apigatewayv2_api.api.api_endpoint
-      TRUSTED_PROXIES       = "REMOTE_ADDR"
-      DYNAMODB_ENDPOINT     = ""
-      DYNAMODB_TABLE_PREFIX = local.name
-      COGNITO_ENDPOINT      = ""
+      BREF_RUNTIME            = "fpm"
+      APP_ENV                 = "prod"
+      APP_SECRET              = "bref-ssm:${aws_ssm_parameter.app_secret.name}"
+      APP_SHARE_DIR           = "/tmp/share"
+      APP_API_HOST            = local.api_host
+      DEFAULT_URI             = aws_apigatewayv2_api.api.api_endpoint
+      TRUSTED_PROXIES         = "REMOTE_ADDR"
+      DYNAMODB_ENDPOINT       = ""
+      DYNAMODB_TABLE_PREFIX   = local.name
+      COGNITO_ENDPOINT        = ""
+      COGNITO_USER_POOL_NAME  = aws_cognito_user_pool.members.name
+      COGNITO_KEYS_URL        = "https://cognito-idp.${var.region}.amazonaws.com/%s/.well-known/jwks.json"
+      COGNITO_PUBLIC_ENDPOINT = ""
     }
   }
 
