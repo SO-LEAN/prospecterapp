@@ -90,6 +90,10 @@ services:
     Prospecter\Core\SharedKernel\Application\Port\Events: '@App\Shared\MessengerEvents'
     Prospecter\Core\Prospecting\Application\Port\GeoLocation: '@App\Prospecting\GeoplateformeGeoLocation'
     Prospecter\Core\SharedKernel\Application\Port\Storage: '@App\Shared\StorageClient'
+    # the files of Swagger UI asked at the installed version of NelmioApiDocBundle
+    App\Doc\VersionedNelmioAssets:
+        decorates: nelmio_api_doc.render_docs.html.asset
+        arguments: ['@.inner']
     # the internal entry of the storage: the token alone locally, signed by the role of the function on AWS (ADR 0068)
     App\Shared\StorageAuthentication: '@App\Shared\TokenOnlyStorageAuthentication'
 
