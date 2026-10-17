@@ -33,7 +33,7 @@ TFLINT_IMAGE = ghcr.io/terraform-linters/tflint:v0.64.0
 
 .DEFAULT_GOAL := help
 
-.PHONY: help install hooks build vendor db aws front-install infra-target infra-init infra-plan infra-apply infra-lint start deploy stop logs ps ci test test-api test-storage test-front e2e test-core lint fix front-build api-doc contract commands exec-api exec-front secrets secrets-branch
+.PHONY: help install hooks build vendor db aws front-install infra-target infra-init infra-plan infra-apply infra-lint package-api package-storage console start deploy stop logs ps ci test test-api test-storage test-front e2e test-core lint fix front-build api-doc contract commands exec-api exec-front secrets secrets-branch
 
 ##@ Help
 help: ## List the commands (the default target)
@@ -140,7 +140,10 @@ infra-target:
 	@test -f $(INFRA_INSTANCE).tfvars -a -f $(INFRA_INSTANCE).tfbackend -a -f $(INFRA_INSTANCE).env || { echo "No values for the instance $(INSTANCE): $(INFRA_INSTANCE).tfvars, .tfbackend and .env are needed (docs/infra.md), INFRA_CONFIG names their directory"; exit 1; }
 
 package-api: ## Package the API for its Lambda on AWS in build/api.zip (ADR 0063)
-	@$(DC) run --rm --no-deps -w /var/www/src php tools/package/api
+	@$(DC) run --rm --no-deps -w /var/www/src php tools/package/lambda api
+
+package-storage: ## Package the storage for its Lambda on AWS in build/storage.zip (ADR 0063)
+	@$(DC) run --rm --no-deps -w /var/www/src php tools/package/lambda storage
 
 # a command of the api, on MiniStack, or with INSTANCE= on the tables and the user pool of an instance on AWS, from
 # this machine: the temporary

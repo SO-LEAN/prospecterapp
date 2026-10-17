@@ -42,5 +42,5 @@ description = "The placeholder account of the examples, as in the AWS documentat
 regexes = ['''123456789012''']
 
 [[allowlists]]
-description = "The public account of Bref, which publishes the PHP layers of the Lambdas (apps/api/infra/lambda.tf)"
-regexes = ['''873528684822''']
+description = "The public accounts of Bref, which publish the layers of PHP and of its extensions of the Lambdas (apps/*/infra/lambda.tf)"
+regexes = ['''873528684822''', '''403367587399''']

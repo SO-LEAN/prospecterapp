@@ -9,6 +9,8 @@
         "ext-iconv": "*",
         "aws/aws-sdk-php": "^3.401",
         "bref/bref": "^3.0",
+        "bref/secrets-loader": "^1.2",
+        "bref/symfony-bridge": "^3.0",
         "imagine/imagine": "^1.5",
         "symfony/console": "8.1.*",
         "symfony/dotenv": "8.1.*",
@@ -63,7 +65,8 @@
         ],
         "post-update-cmd": [
             "@auto-scripts"
-        ]
+        ],
+        "pre-autoload-dump": "Aws\\Script\\Composer\\Composer::removeUnusedServices"
     },
     "conflict": {
         "symfony/symfony": "*"
@@ -72,7 +75,10 @@
         "symfony": {
             "allow-contrib": false,
             "require": "8.1.*"
-        }
+        },
+        "aws/aws-sdk-php": [
+            "S3"
+        ]
     },
     "require-dev": {
         "friendsofphp/php-cs-fixer": "^3.95",

@@ -17,5 +17,5 @@ override.tf
 crash.log
 BOOTSTRAP.md
 
-# the packages of the apps for AWS (make package-api)
+# the packages of the apps for AWS (make package-<app>)
 /build/
