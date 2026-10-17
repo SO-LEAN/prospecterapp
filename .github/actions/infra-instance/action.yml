@@ -1,0 +1,58 @@
+# The values of an instance written where make infra-* reads them, and a role of its account assumed by OIDC
+# (ADR 0060, 0061). The workflow logs are public: the account ids and the state bucket are masked.
+name: Infrastructure instance
+description: Writes the values of an instance and assumes a role of its account
+
+inputs:
+  instance:
+    description: The instance, such as dev
+    required: true
+  tfvars:
+    description: The content of envs/<instance>.tfvars
+    required: true
+  tfbackend:
+    description: The content of envs/<instance>.tfbackend
+    required: true
+  role-to-assume:
+    description: The ARN of the role of the account of the instance
+    required: true
+
+outputs:
+  config:
+    description: The directory to give make as INFRA_CONFIG
+    value: ${{ steps.values.outputs.config }}
+
+runs:
+  using: composite
+  steps:
+    - name: Write the values of the instance
+      id: values
+      shell: bash
+      env:
+        INSTANCE: ${{ inputs.instance }}
+        TFVARS: ${{ inputs.tfvars }}
+        TFBACKEND: ${{ inputs.tfbackend }}
+      run: |
+        if [ -z "$TFVARS" ] || [ -z "$TFBACKEND" ]; then
+          echo "::error::The values of the instance $INSTANCE are missing in the secrets of the repository (docs/infra.md)"
+          exit 1
+        fi
+        for value in $(printf '%s\n%s\n' "$TFVARS" "$TFBACKEND" | grep -oE '[0-9]{12}' | sort -u) \
+                     $(echo "$TFBACKEND" | sed -nE 's/^bucket *= *"(.*)"/\1/p'); do
+          echo "::add-mask::$value"
+        done
+        config="$RUNNER_TEMP/infra"
+        mkdir -p "$config/envs"
+        printf '%s\n' "$TFVARS" > "$config/envs/$INSTANCE.tfvars"
+        printf '%s\n' "$TFBACKEND" > "$config/envs/$INSTANCE.tfbackend"
+        # Names only: docker passes on the temporary credentials from the environment, none is written to disk
+        printf '%s\n' AWS_ACCESS_KEY_ID AWS_SECRET_ACCESS_KEY AWS_SESSION_TOKEN AWS_REGION > "$config/envs/$INSTANCE.env"
+        echo "config=$config" >> "$GITHUB_OUTPUT"
+        echo "region=$(echo "$TFBACKEND" | sed -nE 's/^region *= *"(.*)"/\1/p')" >> "$GITHUB_OUTPUT"
+
+    - name: Assume the role of the account
+      uses: aws-actions/configure-aws-credentials@e1253824e5c10ff9df46874f81ed3ec929e19cfd # v6.3.0
+      with:
+        role-to-assume: ${{ inputs.role-to-assume }}
+        aws-region: ${{ steps.values.outputs.region }}
+        mask-aws-account-id: true

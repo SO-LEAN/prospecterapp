@@ -11,6 +11,8 @@ on:
       - '.terraform-version'
       - 'Makefile'
       - '.github/workflows/terraform-plan.yml'
+      - '.github/actions/infra-instance/**'
+      - 'tools/ci/infra-changed-apps'
 
 concurrency:
   group: terraform-plan-${{ github.event.pull_request.number }}
@@ -36,14 +38,7 @@ jobs:
         id: changed
         env:
           BASE_REF: ${{ github.base_ref }}
-        run: |
-          changed=$(git diff --name-only "origin/$BASE_REF...HEAD")
-          if echo "$changed" | grep -qE '^(\.terraform-version|Makefile|\.github/workflows/terraform-plan\.yml)$'; then
-            apps=$(printf '%s\n' apps/*/infra | cut -d/ -f2)
-          else
-            apps=$(echo "$changed" | sed -nE 's|^apps/([a-z]+)/infra/.*|\1|p' | sort -u)
-          fi
-          echo "apps=$(echo "$apps" | jq -Rnc '[inputs | select(length > 0)]')" >> "$GITHUB_OUTPUT"
+        run: echo "apps=$(tools/ci/infra-changed-apps "origin/$BASE_REF...HEAD")" >> "$GITHUB_OUTPUT"
 
   plan:
     needs: apps
@@ -65,40 +60,23 @@ jobs:
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
-      - name: Write the values of the instance
-        id: values
-        env:
-          TFVARS: ${{ secrets[format('INFRA_TFVARS_{0}', matrix.instance)] }}
-          TFBACKEND: ${{ secrets[format('INFRA_TFBACKEND_{0}', matrix.instance)] }}
-        run: |
-          if [ -z "$TFVARS" ] || [ -z "$TFBACKEND" ]; then
-            echo "::error::The secrets INFRA_TFVARS_${INSTANCE^^} and INFRA_TFBACKEND_${INSTANCE^^} are missing (docs/infra.md)"
-            exit 1
-          fi
-          for value in $(printf '%s\n%s\n' "$TFVARS" "$TFBACKEND" | grep -oE '[0-9]{12}' | sort -u) \
-                       $(echo "$TFBACKEND" | sed -nE 's/^bucket *= *"(.*)"/\1/p'); do
-            echo "::add-mask::$value"
-          done
-          mkdir -p "$RUNNER_TEMP/infra/envs"
-          printf '%s\n' "$TFVARS" > "$RUNNER_TEMP/infra/envs/$INSTANCE.tfvars"
-          printf '%s\n' "$TFBACKEND" > "$RUNNER_TEMP/infra/envs/$INSTANCE.tfbackend"
-          # Names only: docker passes on the temporary credentials from the environment, none is written to disk
-          printf '%s\n' AWS_ACCESS_KEY_ID AWS_SECRET_ACCESS_KEY AWS_SESSION_TOKEN AWS_REGION > "$RUNNER_TEMP/infra/envs/$INSTANCE.env"
-          echo "region=$(echo "$TFBACKEND" | sed -nE 's/^region *= *"(.*)"/\1/p')" >> "$GITHUB_OUTPUT"
-
-      - name: Assume the plan role of the account
-        uses: aws-actions/configure-aws-credentials@e1253824e5c10ff9df46874f81ed3ec929e19cfd # v6.3.0
+      - name: Prepare the instance with the plan role of its account
+        id: instance
+        uses: ./.github/actions/infra-instance
         with:
+          instance: ${{ matrix.instance }}
+          tfvars: ${{ secrets[format('INFRA_TFVARS_{0}', matrix.instance)] }}
+          tfbackend: ${{ secrets[format('INFRA_TFBACKEND_{0}', matrix.instance)] }}
           role-to-assume: ${{ secrets[format('AWS_PLAN_ROLE_ARN_{0}', matrix.instance)] }}
-          aws-region: ${{ steps.values.outputs.region }}
-          mask-aws-account-id: true
 
       - name: Plan
         id: plan
-        run: make infra-plan APP="$APP" INSTANCE="$INSTANCE" INFRA_CONFIG="$RUNNER_TEMP/infra" INFRA_PLAN_FLAGS="-lock=false -no-color" 2>&1 | tee plan.txt
+        env:
+          INFRA_CONFIG: ${{ steps.instance.outputs.config }}
+        run: make infra-plan APP="$APP" INSTANCE="$INSTANCE" INFRA_PLAN_FLAGS="-lock=false -no-color" 2>&1 | tee plan.txt
 
       - name: Comment the changed resources
-        if: always() && steps.values.outcome == 'success'
+        if: always() && steps.instance.outcome == 'success'
         uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9.0.0
         with:
           script: |

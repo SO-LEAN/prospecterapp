@@ -64,3 +64,4 @@ Why the project is shaped the way it is: one file per decision in `docs/adr/`, i
 | [0058](0058-main-receives-dev-and-hotfixes-by-merge-commits.md) | `main` receives `dev` and the hotfixes by merge commits | Accepted | 2026-10-16 |
 | [0059](0059-terraform-per-app-values-out-of-the-repository.md) | Each app keeps its Terraform; the values of an installation stay out of the repository | Accepted | 2026-10-16 |
 | [0060](0060-terraform-plans-every-pull-request.md) | Terraform plans every pull request touching the infrastructure, with a read-only role | Accepted | 2026-10-17 |
+| [0061](0061-terraform-applies-each-merge-into-dev.md) | Terraform applies each merge into `dev` to the instances of the dev account | Accepted | 2026-10-17 |
