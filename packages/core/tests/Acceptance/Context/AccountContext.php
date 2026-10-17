@@ -11,6 +11,7 @@ use Behat\Step\Then;
 use Behat\Step\When;
 use Prospecter\Core\Accounts\Application\AccountResponse;
 use Prospecter\Core\Accounts\Application\ChangeMyOrganizationLogo\ChangeMyOrganizationLogo;
+use Prospecter\Core\Accounts\Application\OpenAccount\OpenAccount;
 use Prospecter\Core\Accounts\Application\ReviseMyOrganizationIdentity\ReviseMyOrganizationIdentity;
 use Prospecter\Core\Accounts\Domain\Account;
 use Prospecter\Core\PersonalData\Application\ChangePersonContactDetails\ChangePersonContactDetails;
@@ -22,6 +23,7 @@ use Prospecter\Core\SharedKernel\Domain\AccountId;
 use Prospecter\Core\SharedKernel\Domain\ContactDetails;
 use Prospecter\Core\SharedKernel\Domain\Email;
 use Prospecter\Core\SharedKernel\Domain\LegalIdentity;
+use Prospecter\Core\SharedKernel\Domain\MemberId;
 use Tests\Core\Acceptance\Expect;
 use Tests\Core\Acceptance\Vocabulary;
 
@@ -46,6 +48,19 @@ final class AccountContext implements Context
     public function anOrganizationHasTheEmail(string $name, string $email): void
     {
         $this->scenario->openAccount($name, Account::open(new AccountId($this->application->newIdentity()), new LegalIdentity($name), $this->application->now(), new ContactDetails(new Email($email))));
+    }
+
+    #[When('j\'ouvre le compte de mon organisation :')]
+    public function iOpenTheAccountOfMyOrganization(TableNode $table): void
+    {
+        $values = Vocabulary::values($table->getRowsHash());
+        $founder = $this->application->newIdentity();
+        $this->application->dispatch(new OpenAccount($this->application->newIdentity(), $values['raison sociale'], $values['forme juridique'], $founder, $this->application->newIdentity(), $this->application->now()));
+
+        if (null === $this->application->refusal()) {
+            $this->application->signIn(new MemberId($founder));
+            $this->iConsultMyAccount();
+        }
     }
 
     #[When('je consulte mon compte')]

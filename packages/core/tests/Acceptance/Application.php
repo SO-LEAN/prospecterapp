@@ -9,12 +9,16 @@ use Prospecter\Core\Accounts\Application\ChangeMyOrganizationLogo\ChangeMyOrgani
 use Prospecter\Core\Accounts\Application\ConsultMember\ConsultMemberHandler;
 use Prospecter\Core\Accounts\Application\ConsultMyAccount\ConsultMyAccount;
 use Prospecter\Core\Accounts\Application\ConsultMyAccount\ConsultMyAccountHandler;
+use Prospecter\Core\Accounts\Application\OpenAccount\OpenAccountHandler;
+use Prospecter\Core\Accounts\Application\PublishAccountOpened\PublishAccountOpenedHandler;
+use Prospecter\Core\Accounts\Application\RegisterTheFounder\RegisterTheFounderHandler;
 use Prospecter\Core\Accounts\Application\ReviseMyOrganizationIdentity\ReviseMyOrganizationIdentityHandler;
 use Prospecter\Core\Accounts\Contract\Service\ConsultMember\ConsultMember;
 use Prospecter\Core\PersonalData\Application\ChangeJobTitle\ChangeJobTitleHandler;
 use Prospecter\Core\PersonalData\Application\ChangePersonContactDetails\ChangePersonContactDetailsHandler;
 use Prospecter\Core\PersonalData\Application\ChangePersonPicture\ChangePersonPictureHandler;
 use Prospecter\Core\PersonalData\Application\CollectContact\CollectContactHandler;
+use Prospecter\Core\PersonalData\Application\CollectTheFounderProfile\CollectTheFounderProfileHandler;
 use Prospecter\Core\PersonalData\Application\ConsultPerson\ConsultPerson;
 use Prospecter\Core\PersonalData\Application\ConsultPerson\ConsultPersonHandler;
 use Prospecter\Core\PersonalData\Application\ConsultPersons\ConsultPersons;
@@ -240,6 +244,7 @@ final class Application
             new ChangePersonPictureHandler($this->persons, $this->readerService, $this->events, $this->files),
             new ReviseMyOrganizationIdentityHandler($this->accounts, $this->members, $this->events),
             new ChangeMyOrganizationLogoHandler($this->accounts, $this->members, $this->events, $this->files),
+            new OpenAccountHandler($this->accounts, $this->events),
             new CollectContactHandler($this->persons, $this->readerService, $this->prospectedOrganizations, $this->events, $this->personEmails),
             new ChangeJobTitleHandler($this->persons, $this->readerService, $this->events),
             new ForgetContactHandler($this->persons, $this->readerService, $this->events),
@@ -284,6 +289,9 @@ final class Application
             new AttachCollectedContactHandler($this->organizations, $this->prospectorService, $this->events),
             new DetachForgottenContactHandler($this->organizations, $this->prospectorService, $this->events, $this->orphans),
             new ForgetContactsLeftWithoutOrganizationHandler($this->persons, $this->readerService, $this->events),
+            new RegisterTheFounderHandler($this->members),
+            new CollectTheFounderProfileHandler($this->persons),
+            new PublishAccountOpenedHandler($this->events),
             new PublishContactCollectedHandler($this->events),
             new PublishContactForgottenHandler($this->events),
             new PublishContactsLeftWithoutOrganizationHandler($this->events),
