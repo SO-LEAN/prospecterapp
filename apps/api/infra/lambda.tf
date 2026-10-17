@@ -67,7 +67,7 @@ resource "aws_iam_role_policy" "lambda" {
         Sid      = "ReadItsParameters"
         Effect   = "Allow"
         Action   = ["ssm:GetParameter", "ssm:GetParameters"]
-        Resource = "${local.ssm_arn}/*"
+        Resource = ["${local.ssm_arn}/*", "arn:aws:ssm:${var.region}:${var.aws_account_id}:parameter${local.storage_ssm_path}/token"]
       },
       {
         Sid       = "DecryptItsSecretParameters"
@@ -111,6 +111,9 @@ resource "aws_lambda_function" "api" {
       COGNITO_USER_POOL_NAME  = aws_cognito_user_pool.members.name
       COGNITO_KEYS_URL        = "https://cognito-idp.${var.region}.amazonaws.com/%s/.well-known/jwks.json"
       COGNITO_PUBLIC_ENDPOINT = ""
+      STORAGE_PUBLIC_URL      = data.aws_ssm_parameter.storage_public_url.insecure_value
+      STORAGE_INTERNAL_URL    = data.aws_ssm_parameter.storage_internal_url.insecure_value
+      STORAGE_TOKEN           = "bref-ssm:${local.storage_ssm_path}/token"
     }
   }
 
