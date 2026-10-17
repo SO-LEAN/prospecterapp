@@ -1,4 +1,5 @@
-# The storage in a Lambda with the layers of PHP and imagick of Bref behind an HTTP API (ADR 0054, 0055, 0063):
+# The storage in a Lambda with the layers of PHP and imagick of Bref behind its function URL (ADR 0054, 0055, 0063,
+# 0068):
 # build/storage.zip, packaged by make package-storage, redeployed when the version of its code changes. The layers
 # are those of docker/php and docker/lambda (bref/php-85:3.0.9 = layer php-85:20, the image
 # bref/extra-imagick-php-85 of their digest = layer imagick-php-85:4): a new version of Bref changes the three.
