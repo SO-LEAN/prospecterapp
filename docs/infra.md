@@ -47,6 +47,18 @@ make infra-lint                           # fmt, validate, tflint on every root 
 
 `APP` and `INSTANCE` are given on the command line (a variable left in the shell is refused). Terraform and tflint run in Docker; each instance has its own working directory (`.terraform/<instance>`).
 
+## Plan of a pull request
+
+A pull request to `dev` or `main` touching the infrastructure is planned by `.github/workflows/terraform-plan.yml` ([ADR 0060](adr/0060-terraform-plans-every-pull-request.md)): each changed app on each instance of `vars.INFRA_PLAN_INSTANCES` (by default `["dev", "prod"]`), a comment per app and instance listing the changed resources, the whole plan in the log with the account ids and the state bucket masked. Per instance, the repository needs:
+
+| Secret | What |
+|---|---|
+| `INFRA_TFVARS_<INSTANCE>` | the content of `envs/<instance>.tfvars` |
+| `INFRA_TFBACKEND_<INSTANCE>` | the content of `envs/<instance>.tfbackend` |
+| `AWS_PLAN_ROLE_ARN_<INSTANCE>` | the plan role of the account of the instance |
+
+The plan role trusts the GitHub OIDC provider of the account for `repo:<owner>/<repository>:pull_request`; it has `ReadOnlyAccess`, `kms:Decrypt` through SSM only (the `SecureString` parameters), and is denied the application data: DynamoDB items, S3 objects other than the state, Cognito users, CloudWatch logs, Secrets Manager values.
+
 ## What never enters this repository
 
 The values of an installation: account ids, ARNs, state bucket names, account emails, keys and secrets. `.gitignore` refuses the values, the states and the saved plans; the pre-commit hook (`make hooks`, run by `make install`) runs gitleaks with `.gitleaks.toml` on what is committed, `git commit -a` and commits by paths included, and refuses a secret, an ARN, an account id in Terraform, the workflows or the docs, an id of an AWS organization or of an Identity Center, a state bucket name or a plus-addressed email; `make secrets-branch`, part of `make ci`, scans the commits of the branch since `dev` again. An example uses the account `123456789012`.
