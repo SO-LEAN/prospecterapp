@@ -139,7 +139,7 @@ infra-init: infra-target ## Prepare the Terraform of an app for an instance: mak
 	@$(TERRAFORM) $(TERRAFORM_IMAGE) init -reconfigure -input=false -backend-config=/config/envs/$(INSTANCE).tfbackend -backend-config=key=$(APP)/$(INSTANCE).tfstate
 
 infra-plan: infra-init ## Show what Terraform would change for an app and an instance: make infra-plan APP=api INSTANCE=dev
-	@$(TERRAFORM) $(TERRAFORM_IMAGE) plan -input=false -var-file=/config/envs/$(INSTANCE).tfvars
+	@$(TERRAFORM) $(TERRAFORM_IMAGE) plan -input=false -var-file=/config/envs/$(INSTANCE).tfvars $(INFRA_PLAN_FLAGS)
 
 infra-apply: infra-init ## Apply the Terraform of an app to an instance, after confirmation: make infra-apply APP=api INSTANCE=dev
 	@$(TERRAFORM) -it $(TERRAFORM_IMAGE) apply -var-file=/config/envs/$(INSTANCE).tfvars
