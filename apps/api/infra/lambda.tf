@@ -125,7 +125,7 @@ resource "aws_lambda_function" "api" {
       COGNITO_KEYS_URL        = "https://cognito-idp.${var.region}.amazonaws.com/%s/.well-known/jwks.json"
       COGNITO_PUBLIC_ENDPOINT = ""
       STORAGE_PUBLIC_URL      = local.storage_public_url
-      STORAGE_INTERNAL_URL    = data.aws_ssm_parameter.storage_internal_url.insecure_value
+      STORAGE_INTERNAL_URL    = nonsensitive(lookup(local.storage_parameters, "internal-url", ""))
       STORAGE_TOKEN           = "bref-ssm:${local.storage_ssm_path}/token"
     }
   }

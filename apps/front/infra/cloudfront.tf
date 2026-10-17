@@ -2,7 +2,7 @@
 # chooses the release (functions/release.js.tftpl): deploying a release is changing its version there.
 locals {
   url     = local.edge_domains.front != "" ? "https://${local.edge_domains.front}" : "https://${aws_cloudfront_distribution.site.domain_name}"
-  api_url = local.edge_domains.api != "" ? "https://${local.edge_domains.api}" : data.aws_ssm_parameter.api_url.insecure_value
+  api_url = local.edge_domains.api != "" ? "https://${local.edge_domains.api}" : nonsensitive(lookup(local.api_parameters, "url", ""))
   # the first 12 characters of the version of the code, as make names the release
   release = substr(var.code_version, 0, 12)
 }
