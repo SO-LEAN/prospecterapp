@@ -72,6 +72,8 @@ jobs:
 
       - name: Plan
         id: plan
+        # bash -eo pipefail: the plan fails the job when Terraform fails, not tee
+        shell: bash
         env:
           INFRA_CONFIG: ${{ steps.instance.outputs.config }}
         run: make infra-plan APP="$APP" INSTANCE="$INSTANCE" INFRA_PLAN_FLAGS="-lock=false -no-color" 2>&1 | tee plan.txt
@@ -85,7 +87,9 @@ jobs:
             const { APP, INSTANCE } = process.env;
             const marker = `<!-- terraform-plan ${APP} ${INSTANCE} -->`;
             const log = fs.existsSync('plan.txt') ? fs.readFileSync('plan.txt', 'utf8') : '';
-            const summary = (log.match(/^(Plan: .*|No changes\..*)$/m) || ['**The plan failed**: see the log.'])[0];
+            // Terraform prints the summary before the data sources it failed to read
+            const failed = '**The plan failed**: see the log.';
+            const summary = /^Error: /m.test(log) ? failed : (log.match(/^(Plan: .*|No changes\..*)$/m) || [failed])[0];
             const resources = log.split('\n')
               .map((line) => line.match(/^\s+# (.+?) ((?:will|must) be .*)$/))
               .filter(Boolean)
