@@ -62,3 +62,4 @@ Why the project is shaped the way it is: one file per decision in `docs/adr/`, i
 | [0056](0056-the-command-line-on-the-php-of-the-lambdas.md) | The command line runs on the PHP of the Lambdas | Accepted | 2026-10-16 |
 | [0057](0057-continuous-integration-around-dev.md) | Continuous integration around `dev`: branches of work by pull request, `main` and `dev` protected | Accepted, the rebase merges into `main` superseded by 0058 | 2026-10-16 |
 | [0058](0058-main-receives-dev-and-hotfixes-by-merge-commits.md) | `main` receives `dev` and the hotfixes by merge commits | Accepted | 2026-10-16 |
+| [0059](0059-terraform-per-app-values-out-of-the-repository.md) | Each app keeps its Terraform; the values of an installation stay out of the repository | Accepted | 2026-10-16 |

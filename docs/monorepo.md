@@ -6,6 +6,8 @@ apps/api/        Symfony API, resource server of the Cognito user pool (Composer
 apps/storage/    Symfony file storage (Composer)
 packages/core/   prospecter/core library (Composer)
 tools/phpstan/   PHPStan rules shared by the three PHP codebases (autoload-dev of each, ADR 0044)
+tools/git-hooks/ the pre-commit hook (gitleaks, ADR 0059)
+apps/*/infra/    the Terraform of each app on AWS (docs/infra.md, ADR 0059)
 docker/  docker-compose.yml  Makefile  docs/
 ```
 
