@@ -1,0 +1,12 @@
+#!/bin/sh
+# Prints the version of the code an app deploys (ADR 0063): a digest of its tracked files, and of the core when it
+# requires it, without its infrastructure and its tests, so that only a change of what runs redeploys it.
+# Usage: tools/ci/code-version <app>
+set -eu
+app=$1
+paths="apps/$app"
+if grep -q '"prospecter/core"' "apps/$app/composer.json" 2>/dev/null; then
+    paths="$paths packages/core"
+fi
+# shellcheck disable=SC2086
+git ls-files -s -- $paths ':!:apps/*/infra' ':!:*/tests' ':!:packages/core/features' | sha256sum | cut -c1-64

@@ -1,0 +1,24 @@
+#!/bin/sh
+# Packages the api for its Lambda on AWS in build/api.zip (ADR 0063): its code without what only develops, tests or
+# deploys it, its dependencies without those of development, the core copied in (docs/monorepo.md) and the cache
+# of the prod environment warmed. Run from the root of the repository, in the php container (make package-api).
+set -eu
+build=build/api
+rm -rf "$build" build/api.zip
+mkdir -p "$build"
+tar -C apps/api \
+    --exclude=./vendor --exclude=./var --exclude=./tests --exclude=./infra --exclude='./.env.*' \
+    --exclude=./phpunit.xml.dist --exclude=./phpstan.dist.neon --exclude=./rector.php \
+    --exclude=./AGENTS.md --exclude=./CLAUDE.md \
+    -cf - . | tar -C "$build" -xf -
+cd "$build"
+COMPOSER_MIRROR_PATH_REPOS=1 composer install --no-dev --no-autoloader --no-interaction --no-progress --no-scripts --quiet
+# only the services of the SDK of AWS the api uses (extra.aws/aws-sdk-php of its composer.json), then the autoloader
+composer run-script pre-autoload-dump --quiet
+composer dump-autoload --no-dev --classmap-authoritative --no-scripts --quiet
+rm -rf vendor/prospecter/core/vendor vendor/prospecter/core/tests vendor/prospecter/core/features
+# the doc of the api loads Swagger UI from its CDN (assets_mode of nelmio_api_doc): its copies are of no use
+rm -rf vendor/nelmio/api-doc-bundle/public public/bundles
+# the deprecations it logs are those make lint reports already
+APP_ENV=prod APP_DEBUG=0 php bin/console cache:warmup --no-interaction --quiet 2>/dev/null
+zip -q -r -y ../api.zip .
