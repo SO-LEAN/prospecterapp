@@ -10,6 +10,8 @@
         "ext-iconv": "*",
         "aws/aws-sdk-php": "^3.401",
         "bref/bref": "^3.0",
+        "bref/secrets-loader": "^1.2",
+        "bref/symfony-bridge": "^3.0",
         "lcobucci/jwt": "^5.5",
         "nelmio/api-doc-bundle": "^5.13",
         "nelmio/cors-bundle": "^2.6",
@@ -84,7 +86,8 @@
         ],
         "post-update-cmd": [
             "@auto-scripts"
-        ]
+        ],
+        "pre-autoload-dump": "Aws\\Script\\Composer\\Composer::removeUnusedServices"
     },
     "conflict": {
         "symfony/symfony": "*"
@@ -93,7 +96,11 @@
         "symfony": {
             "allow-contrib": true,
             "require": "8.1.*"
-        }
+        },
+        "aws/aws-sdk-php": [
+            "CognitoIdentityProvider",
+            "DynamoDb"
+        ]
     },
     "require-dev": {
         "friendsofphp/php-cs-fixer": "^3.95",

@@ -1,3 +1,11 @@
+parameters:
+    # the credentials of the AWS SDK: the keys of MiniStack locally, in a Lambda the temporary ones of its role,
+    # valid only with their session token
+    app.aws_credentials:
+        key: '%env(AWS_ACCESS_KEY_ID)%'
+        secret: '%env(AWS_SECRET_ACCESS_KEY)%'
+        token: '%env(default::AWS_SESSION_TOKEN)%'
+
 services:
     _defaults:
         autowire: true
@@ -39,13 +47,13 @@ services:
     Prospecter\Core\Prospecting\Domain\OrphanContacts: ~
     Prospecter\Core\PersonalData\Domain\EmailUniqueness: ~
 
-    # DynamoDB (ADR 0048): MiniStack locally (DYNAMODB_ENDPOINT), AWS in production; one table per bounded
-    # context, injected by name in its repositories only (Table $prospectingTable)
+    # DynamoDB (ADR 0048): MiniStack locally (DYNAMODB_ENDPOINT), AWS in production (DYNAMODB_ENDPOINT empty);
+    # one table per bounded context, injected by name in its repositories only (Table $prospectingTable)
     Aws\DynamoDb\DynamoDbClient:
         arguments:
             - region: '%env(AWS_REGION)%'
-              endpoint: '%env(DYNAMODB_ENDPOINT)%'
-              credentials: { key: '%env(AWS_ACCESS_KEY_ID)%', secret: '%env(AWS_SECRET_ACCESS_KEY)%' }
+              endpoint: '%env(default::DYNAMODB_ENDPOINT)%'
+              credentials: '%app.aws_credentials%'
     Aws\DynamoDb\Marshaler:
         arguments: [{ nullify_invalid: true }]
     app.table.accounts:
@@ -83,12 +91,13 @@ services:
     Prospecter\Core\Prospecting\Application\Port\GeoLocation: '@App\Prospecting\GeoplateformeGeoLocation'
     Prospecter\Core\SharedKernel\Application\Port\Storage: '@App\Shared\StorageClient'
 
-    # Cognito (ADR 0052): the user pool the members sign in with, MiniStack locally (COGNITO_ENDPOINT)
+    # Cognito (ADR 0052): the user pool the members sign in with, MiniStack locally (COGNITO_ENDPOINT), AWS in
+    # production (COGNITO_ENDPOINT empty)
     Aws\CognitoIdentityProvider\CognitoIdentityProviderClient:
         arguments:
             - region: '%env(AWS_REGION)%'
-              endpoint: '%env(COGNITO_ENDPOINT)%'
-              credentials: { key: '%env(AWS_ACCESS_KEY_ID)%', secret: '%env(AWS_SECRET_ACCESS_KEY)%' }
+              endpoint: '%env(default::COGNITO_ENDPOINT)%'
+              credentials: '%app.aws_credentials%'
     App\SignIn\UserPool:
         arguments:
             $name: '%env(COGNITO_USER_POOL_NAME)%'

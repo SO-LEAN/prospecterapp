@@ -30,7 +30,7 @@ They stay out of this repository, in a configuration directory: `INFRA_CONFIG`, 
 
 | File | What | Example |
 |---|---|---|
-| `envs/<instance>.tfvars` | the instance, its AWS account, its region | `apps/api/infra/instance.tfvars.example` |
+| `envs/<instance>.tfvars` | the instance, its AWS account, its region, the permissions boundary of the roles of the apps if the account requires one | `apps/api/infra/instance.tfvars.example` |
 | `envs/<instance>.tfbackend` | its state bucket (S3, versioned, locked by `use_lockfile`) | `apps/api/infra/instance.tfbackend.example` |
 | `envs/<instance>.env` | the environment of the AWS SDK, such as `AWS_PROFILE` (`~/.aws` is mounted) | `apps/api/infra/instance.env.example` |
 
@@ -63,6 +63,14 @@ The plan role trusts the GitHub OIDC provider of the account for `repo:<owner>/<
 Each push to `dev` touching the infrastructure is applied by `.github/workflows/terraform-apply-dev.yml` ([ADR 0061](adr/0061-terraform-applies-each-merge-into-dev.md)): each changed app on each instance of `vars.INFRA_DEV_INSTANCES` (by default `["dev"]`), with `-auto-approve`, two applies of the same app and instance waiting for each other. The role that applies trusts the GitHub OIDC provider of the account for `repo:<owner>/<repository>:ref:refs/heads/dev` only.
 
 Each push to `main` touching the infrastructure is applied by `.github/workflows/terraform-apply-prod.yml` ([ADR 0062](adr/0062-terraform-applies-main-after-approval.md)) to each instance of `vars.INFRA_MAIN_INSTANCES` (by default `["prod"]`), in the GitHub environment `production`: a required reviewer approves the jobs, and only `main` deploys to it. The role that applies in that account trusts `repo:<owner>/<repository>:environment:production` only.
+
+## Code of an app
+
+An app running in a Lambda (the api) is packaged by `make package-<app>` in `build/<app>.zip` and deployed by its Terraform with its function ([ADR 0063](adr/0063-the-cd-packages-an-app-and-its-terraform-deploys-it.md)): `make infra-apply` passes the version of its code (`tools/ci/code-version <app>`, a digest of its tracked files without `infra/` and the tests), a new one redeploying the package; build it first. The workflows plan and apply an app when its code, its infrastructure or the core it requires change. Its secrets are SSM `SecureString` parameters read at the start of the function (`bref-ssm:/prospecter/<instance>/<app>/<key>`), never values of its variables: a plan prints them.
+
+## Commands of an instance
+
+`make console CMD="..."` runs a command of the api on MiniStack; with `INSTANCE=<instance>`, it runs it from this machine on the tables and the user pool of an instance, with the temporary credentials of its AWS profile, exported by the AWS CLI in its image and passed through the environment ([ADR 0064](adr/0064-an-account-is-opened-by-its-founder.md)). The first account of an installation: `make console INSTANCE=dev CMD="app:account:open 'My company' me@example.com --form=SAS"`, the password asked without echo.
 
 ## What never enters this repository
 

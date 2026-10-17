@@ -25,7 +25,9 @@ INFRA_INSTANCE = $(INFRA_CONFIG)/envs/$(INSTANCE)
 TERRAFORM_IMAGE = hashicorp/terraform:$(shell cat .terraform-version)
 # an apply asks for confirmation on the terminal, which the CI has not (CI is set there, with -auto-approve)
 TERRAFORM_TTY = $(if $(CI),,-it)
+# the version of the code of the app (ADR 0063): a new one makes Terraform redeploy its package from build/
 TERRAFORM = docker run --rm -u $(UID):$(GID) -e HOME=/tmp --env-file $(INFRA_INSTANCE).env -e TF_DATA_DIR=.terraform/$(INSTANCE) \
+	-e TF_VAR_code_version=$(shell tools/ci/code-version $(APP)) \
 	-v $(HOME)/.aws:/tmp/.aws -v $(CURDIR):/src -v $(INFRA_CONFIG):/config:ro -w /src/apps/$(APP)/infra
 TFLINT_IMAGE = ghcr.io/terraform-linters/tflint:v0.64.0
 
@@ -136,6 +138,29 @@ infra-target:
 	@test "$(origin APP)" = "command line" -a "$(origin INSTANCE)" = "command line" -a "$(words $(APP) $(INSTANCE))" = 2 -a -n "$(filter $(APP),$(INFRA_APPS))" \
 		|| { echo "Usage: make infra-plan APP=<$(INFRA_APPS)> INSTANCE=<dev|prod|...>, on the command line"; exit 1; }
 	@test -f $(INFRA_INSTANCE).tfvars -a -f $(INFRA_INSTANCE).tfbackend -a -f $(INFRA_INSTANCE).env || { echo "No values for the instance $(INSTANCE): $(INFRA_INSTANCE).tfvars, .tfbackend and .env are needed (docs/infra.md), INFRA_CONFIG names their directory"; exit 1; }
+
+package-api: ## Package the API for its Lambda on AWS in build/api.zip (ADR 0063)
+	@$(DC) run --rm --no-deps -w /var/www/src php tools/package/api
+
+# a command of the api, on MiniStack, or with INSTANCE= on the tables and the user pool of an instance on AWS, from
+# this machine: the temporary
+# credentials of its AWS profile (envs/<instance>.env), exported by the AWS CLI in its image, reach the php container
+# through the environment only; the names are those of apps/api/infra
+AWS_CLI = docker run --rm -u $(UID):$(GID) -e HOME=/tmp --env-file $(INFRA_INSTANCE).env -v $(HOME)/.aws:/tmp/.aws amazon/aws-cli:2.37.2
+
+console: ## Run a command of the API, on MiniStack or with INSTANCE= on AWS: make console CMD="app:account:open 'SOLEAN IT' me@example.com" [INSTANCE=dev]
+	@test -n "$(CMD)" || { echo "Usage: make console CMD=\"<command of bin/console>\" [INSTANCE=<dev|prod|...>]"; exit 1; }
+ifeq ($(origin INSTANCE),command line)
+	@test -f $(INFRA_INSTANCE).env -a -f $(INFRA_INSTANCE).tfvars || { echo "No values for the instance $(INSTANCE) in $(INFRA_CONFIG)/envs (docs/infra.md)"; exit 1; }
+	@eval "$$($(AWS_CLI) configure export-credentials --format env)" && $(DC) run --rm --no-deps \
+		-e AWS_ACCESS_KEY_ID -e AWS_SECRET_ACCESS_KEY -e AWS_SESSION_TOKEN \
+		-e AWS_REGION=$$(sed -nE 's/^region *= *"(.*)"/\1/p' $(INFRA_INSTANCE).tfvars) \
+		-e DYNAMODB_ENDPOINT= -e COGNITO_ENDPOINT= -e DYNAMODB_TABLE_PREFIX=prospecter-$(INSTANCE)-api \
+		-e COGNITO_USER_POOL_NAME=prospecter-$(INSTANCE)-api-members php bin/console $(CMD)
+else
+	@$(AWS) >/dev/null 2>&1
+	@$(PHP) bin/console $(CMD)
+endif
 
 infra-init: infra-target ## Prepare the Terraform of an app for an instance: make infra-init APP=api INSTANCE=dev
 	@$(TERRAFORM) $(TERRAFORM_IMAGE) init -reconfigure -input=false -backend-config=/config/envs/$(INSTANCE).tfbackend -backend-config=key=$(APP)/$(INSTANCE).tfstate

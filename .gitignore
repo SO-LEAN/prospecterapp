@@ -16,3 +16,6 @@ override.tf
 .terraformrc
 crash.log
 BOOTSTRAP.md
+
+# the packages of the apps for AWS (make package-api)
+/build/

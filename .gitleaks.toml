@@ -40,3 +40,7 @@ regex = '''[a-zA-Z0-9._-]+\+[a-zA-Z0-9._-]+@[a-zA-Z0-9-]+\.[a-zA-Z.]+'''
 [[allowlists]]
 description = "The placeholder account of the examples, as in the AWS documentation"
 regexes = ['''123456789012''']
+
+[[allowlists]]
+description = "The public account of Bref, which publishes the PHP layers of the Lambdas (apps/api/infra/lambda.tf)"
+regexes = ['''873528684822''']

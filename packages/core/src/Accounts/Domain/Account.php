@@ -6,11 +6,15 @@ namespace Prospecter\Core\Accounts\Domain;
 
 use Prospecter\Core\Accounts\Domain\Event\AccountIdentityRevised;
 use Prospecter\Core\Accounts\Domain\Event\AccountLogoChanged;
+use Prospecter\Core\Accounts\Domain\Event\AccountOpened;
 use Prospecter\Core\Accounts\Domain\Exception\UnknownAccount;
 use Prospecter\Core\SharedKernel\Domain\AccountId;
 use Prospecter\Core\SharedKernel\Domain\ContactDetails;
+use Prospecter\Core\SharedKernel\Domain\Exception\BusinessRuleViolation;
 use Prospecter\Core\SharedKernel\Domain\File;
 use Prospecter\Core\SharedKernel\Domain\LegalIdentity;
+use Prospecter\Core\SharedKernel\Domain\MemberId;
+use Prospecter\Core\SharedKernel\Domain\PersonId;
 use Prospecter\Core\SharedKernel\Domain\RecordsEvents;
 use Prospecter\Core\SharedKernel\Domain\ReleasesEvents;
 
@@ -36,6 +40,23 @@ final class Account implements ReleasesEvents
     public static function open(AccountId $id, LegalIdentity $legalIdentity, \DateTimeImmutable $at, ContactDetails $contactDetails = new ContactDetails()): self
     {
         return new self($id, $legalIdentity, $contactDetails, $at);
+    }
+
+    /**
+     * An organization opens its account with its founder, who becomes its first member under the profile given.
+     *
+     * @throws BusinessRuleViolation without the corporate name of the organization
+     */
+    public static function openBy(MemberId $founder, PersonId $founderProfile, AccountId $id, LegalIdentity $legalIdentity, \DateTimeImmutable $at): self
+    {
+        if (!$legalIdentity->hasCorporateName()) {
+            throw BusinessRuleViolation::because('An account needs the corporate name of its organization', 'corporateName');
+        }
+
+        $account = new self($id, $legalIdentity, new ContactDetails(), $at);
+        $account->recordThat(new AccountOpened($id, $founder, $founderProfile, $at));
+
+        return $account;
     }
 
     public function id(): AccountId

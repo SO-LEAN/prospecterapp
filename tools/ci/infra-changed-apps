@@ -1,12 +1,20 @@
 #!/bin/sh
-# Prints as JSON the apps whose infrastructure changed in a git range (ADR 0060, 0061): all of them when a file every
-# root depends on changed. Usage: tools/ci/infra-changed-apps <range>, such as origin/dev...HEAD
+# Prints as JSON the apps a git range may change the deployment of (ADR 0060, 0061, 0063): an app whose code or
+# infrastructure changed, an app requiring the core when the core changed, all of them when a file every root depends
+# on changed. Usage: tools/ci/infra-changed-apps <range>, such as origin/dev...HEAD
 set -eu
 changed=$(git diff --name-only "$1")
-shared='^(\.terraform-version|Makefile|\.github/workflows/terraform-[a-z]+\.yml|\.github/actions/infra-instance/.*|tools/ci/infra-changed-apps)$'
+shared='^(\.terraform-version|Makefile|\.github/workflows/terraform-[a-z]+\.yml|\.github/actions/infra-instance/.*|tools/ci/.*)$'
+all=$(printf '%s\n' apps/*/infra | cut -d/ -f2)
 if echo "$changed" | grep -qE "$shared"; then
-    apps=$(printf '%s\n' apps/*/infra | cut -d/ -f2)
+    apps=$all
 else
-    apps=$(echo "$changed" | sed -nE 's|^apps/([a-z]+)/infra/.*|\1|p' | sort -u)
+    apps=$(echo "$changed" | sed -nE 's|^apps/([a-z]+)/.*|\1|p')
+    if echo "$changed" | grep -q '^packages/core/'; then
+        for app in $all; do
+            grep -q '"prospecter/core"' "apps/$app/composer.json" 2>/dev/null && apps="$apps
+$app"
+        done
+    fi
 fi
-echo "$apps" | jq -Rnc '[inputs | select(length > 0)]'
+echo "$apps" | sort -u | jq -Rnc '[inputs | select(length > 0)]'

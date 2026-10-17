@@ -8,12 +8,13 @@ on:
   push:
     branches: [main]
     paths:
-      - 'apps/*/infra/**'
+      - 'apps/**'
+      - 'packages/**'
       - '.terraform-version'
       - 'Makefile'
       - '.github/workflows/terraform-apply-prod.yml'
       - '.github/actions/infra-instance/**'
-      - 'tools/ci/infra-changed-apps'
+      - 'tools/ci/**'
 
 permissions:
   contents: read
@@ -69,6 +70,9 @@ jobs:
           tfvars: ${{ secrets[format('INFRA_TFVARS_{0}', matrix.instance)] }}
           tfbackend: ${{ secrets[format('INFRA_TFBACKEND_{0}', matrix.instance)] }}
           role-to-assume: ${{ secrets[format('AWS_TF_ROLE_ARN_{0}', matrix.instance)] }}
+
+      - name: Package the app, if it has a package (ADR 0063)
+        run: if make -n "package-$APP" > /dev/null 2>&1; then make "package-$APP"; fi
 
       - name: Apply
         env:
