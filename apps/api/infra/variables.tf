@@ -23,3 +23,15 @@ variable "region" {
   type        = string
   default     = "eu-west-3"
 }
+
+variable "code_version" {
+  description = "The version of the code of the api (tools/ci/code-version api, passed by make as TF_VAR_code_version): a new one redeploys build/api.zip"
+  type        = string
+  default     = "none"
+}
+
+variable "permissions_boundary" {
+  description = "The permissions boundary every role of the api carries, when the account requires one"
+  type        = string
+  default     = null
+}

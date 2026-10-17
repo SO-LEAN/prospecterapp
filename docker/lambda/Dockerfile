@@ -1,5 +1,7 @@
 # Deploys the API and the storage to MiniStack as Lambdas with the layers of Bref (ADR 0053, 0054): a layer is
 # the /opt of a Bref image, the code of a function only the local bootstrap, the repository being mounted in it.
+# The runtime of Bref is the one of the layer on AWS (bref/php-85:3.0.9 = layer php-85:20, apps/api/infra/lambda.tf)
+# and of docker/php: a new version of Bref changes the three (ADR 0056).
 FROM bref/php-85:3.0.9 AS php
 FROM bref/extra-imagick-php-85:3.0.5 AS imagick
 

@@ -66,3 +66,4 @@ Why the project is shaped the way it is: one file per decision in `docs/adr/`, i
 | [0060](0060-terraform-plans-every-pull-request.md) | Terraform plans every pull request touching the infrastructure, with a read-only role | Accepted | 2026-10-17 |
 | [0061](0061-terraform-applies-each-merge-into-dev.md) | Terraform applies each merge into `dev` to the instances of the dev account | Accepted | 2026-10-17 |
 | [0062](0062-terraform-applies-main-after-approval.md) | Terraform applies each push to `main` to the instances of the prod account, after an approval | Accepted | 2026-10-17 |
+| [0063](0063-the-cd-packages-an-app-and-its-terraform-deploys-it.md) | The continuous deployment packages an app, its Terraform deploys the package | Accepted | 2026-10-17 |

@@ -23,3 +23,10 @@ variable "region" {
   type        = string
   default     = "eu-west-3"
 }
+
+# tflint-ignore: terraform_unused_declarations
+variable "permissions_boundary" {
+  description = "The permissions boundary every role of the app will carry, when the account requires one"
+  type        = string
+  default     = null
+}
