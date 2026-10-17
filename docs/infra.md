@@ -47,7 +47,7 @@ make infra-lint                           # fmt, validate, tflint on every root 
 
 `APP` and `INSTANCE` are given on the command line (a variable left in the shell is refused). Terraform and tflint run in Docker; each instance has its own working directory (`.terraform/<instance>`).
 
-## Plan of a pull request
+## Plan of a pull request, apply of `dev`
 
 A pull request to `dev` or `main` touching the infrastructure is planned by `.github/workflows/terraform-plan.yml` ([ADR 0060](adr/0060-terraform-plans-every-pull-request.md)): each changed app on each instance of `vars.INFRA_PLAN_INSTANCES` (by default `["dev", "prod"]`), a comment per app and instance listing the changed resources, the whole plan in the log with the account ids and the state bucket masked. Per instance, the repository needs:
 
@@ -56,8 +56,11 @@ A pull request to `dev` or `main` touching the infrastructure is planned by `.gi
 | `INFRA_TFVARS_<INSTANCE>` | the content of `envs/<instance>.tfvars` |
 | `INFRA_TFBACKEND_<INSTANCE>` | the content of `envs/<instance>.tfbackend` |
 | `AWS_PLAN_ROLE_ARN_<INSTANCE>` | the plan role of the account of the instance |
+| `AWS_TF_ROLE_ARN_<INSTANCE>` | the role that applies in the account of the instance (instances applied from `dev`) |
 
 The plan role trusts the GitHub OIDC provider of the account for `repo:<owner>/<repository>:pull_request`; it has `ReadOnlyAccess`, `kms:Decrypt` through SSM only (the `SecureString` parameters), and is denied the application data: DynamoDB items, S3 objects other than the state, Cognito users, CloudWatch logs, Secrets Manager values.
+
+Each push to `dev` touching the infrastructure is applied by `.github/workflows/terraform-apply-dev.yml` ([ADR 0061](adr/0061-terraform-applies-each-merge-into-dev.md)): each changed app on each instance of `vars.INFRA_DEV_INSTANCES` (by default `["dev"]`), with `-auto-approve`, two applies of the same app and instance waiting for each other. The role that applies trusts the GitHub OIDC provider of the account for `repo:<owner>/<repository>:ref:refs/heads/dev` only.
 
 ## What never enters this repository
 

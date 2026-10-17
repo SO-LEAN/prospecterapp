@@ -1,0 +1,74 @@
+# Terraform applies each merge into dev (ADR 0061): each changed app on each instance of the dev account, with the
+# role that applies, which trusts the branch dev only. Two applies of the same app and instance wait for each other,
+# never cancelled; the logs are public, the account ids and the state bucket masked.
+name: Terraform apply dev
+
+on:
+  push:
+    branches: [dev]
+    paths:
+      - 'apps/*/infra/**'
+      - '.terraform-version'
+      - 'Makefile'
+      - '.github/workflows/terraform-apply-dev.yml'
+      - '.github/actions/infra-instance/**'
+      - 'tools/ci/infra-changed-apps'
+
+permissions:
+  contents: read
+
+jobs:
+  apps:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    outputs:
+      apps: ${{ steps.changed.outputs.apps }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          fetch-depth: 0
+
+      - name: List the apps whose infrastructure changed
+        id: changed
+        env:
+          BEFORE: ${{ github.event.before }}
+        run: |
+          # A push without a known former commit (a new branch, a forced push) applies every app
+          if git cat-file -e "$BEFORE^{commit}" 2>/dev/null; then range="$BEFORE..HEAD"; else range="$(git hash-object -t tree /dev/null)..HEAD"; fi
+          echo "apps=$(tools/ci/infra-changed-apps "$range")" >> "$GITHUB_OUTPUT"
+
+  apply:
+    needs: apps
+    if: needs.apps.outputs.apps != '[]'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    permissions:
+      contents: read
+      id-token: write
+    strategy:
+      fail-fast: false
+      matrix:
+        app: ${{ fromJSON(needs.apps.outputs.apps) }}
+        instance: ${{ fromJSON(vars.INFRA_DEV_INSTANCES || '["dev"]') }}
+    concurrency:
+      group: terraform-apply-${{ matrix.app }}-${{ matrix.instance }}
+      cancel-in-progress: false
+    env:
+      APP: ${{ matrix.app }}
+      INSTANCE: ${{ matrix.instance }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      - name: Prepare the instance with the role that applies
+        id: instance
+        uses: ./.github/actions/infra-instance
+        with:
+          instance: ${{ matrix.instance }}
+          tfvars: ${{ secrets[format('INFRA_TFVARS_{0}', matrix.instance)] }}
+          tfbackend: ${{ secrets[format('INFRA_TFBACKEND_{0}', matrix.instance)] }}
+          role-to-assume: ${{ secrets[format('AWS_TF_ROLE_ARN_{0}', matrix.instance)] }}
+
+      - name: Apply
+        env:
+          INFRA_CONFIG: ${{ steps.instance.outputs.config }}
+        run: make infra-apply APP="$APP" INSTANCE="$INSTANCE" INFRA_APPLY_FLAGS="-auto-approve -no-color"
