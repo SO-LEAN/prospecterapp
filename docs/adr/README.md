@@ -70,3 +70,4 @@ Why the project is shaped the way it is: one file per decision in `docs/adr/`, i
 | [0064](0064-an-account-is-opened-by-its-founder.md) | An account is opened by its founder, from the console until the members open theirs | Accepted | 2026-10-17 |
 | [0065](0065-the-files-on-aws-behind-cloudfront.md) | On AWS, CloudFront serves the files from the bucket and fails over to the storage for a missing size | Accepted | 2026-10-17 |
 | [0066](0066-the-spa-on-aws-in-releases.md) | On AWS, the SPA is served by CloudFront in releases kept 30 days after they are replaced | Accepted | 2026-10-17 |
+| [0067](0067-the-apps-behind-an-edge.md) | Behind an edge, the apps take their domains from SSM and answer only what the edge passes on | Accepted | 2026-10-17 |

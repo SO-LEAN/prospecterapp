@@ -1,7 +1,8 @@
-# The address of the SPA, on the AWS address of CloudFront until the domain of the platform (Cloudflare) comes. Its
-# function chooses the release (functions/release.js.tftpl): deploying a release is changing its version there.
+# The address of the SPA: the domain the edge gives (ADR 0067), else the AWS address of CloudFront. Its function
+# chooses the release (functions/release.js.tftpl): deploying a release is changing its version there.
 locals {
-  url = "https://${aws_cloudfront_distribution.site.domain_name}"
+  url     = local.edge_domains.front != "" ? "https://${local.edge_domains.front}" : "https://${aws_cloudfront_distribution.site.domain_name}"
+  api_url = local.edge_domains.api != "" ? "https://${local.edge_domains.api}" : data.aws_ssm_parameter.api_url.insecure_value
   # the first 12 characters of the version of the code, as make names the release
   release = substr(var.code_version, 0, 12)
 }
@@ -28,14 +29,16 @@ resource "aws_cloudfront_function" "release" {
   runtime = "cloudfront-js-2.0"
   publish = true
   code = templatefile("${path.module}/functions/release.js.tftpl", {
-    version = local.release
-    config  = jsonencode({ apiUrl = data.aws_ssm_parameter.api_url.insecure_value })
+    version              = local.release
+    config               = jsonencode({ apiUrl = local.api_url })
+    origin_secret_digest = local.origin_secret_digest
   })
 }
 
 resource "aws_cloudfront_distribution" "site" {
   enabled         = true
   comment         = "The SPA of ${local.name}"
+  aliases         = local.edge_domains.front != "" ? [local.edge_domains.front] : []
   price_class     = "PriceClass_100"
   http_version    = "http2and3"
   is_ipv6_enabled = true
@@ -67,7 +70,11 @@ resource "aws_cloudfront_distribution" "site" {
     }
   }
 
+  # the certificate of the domain the edge gives, else the one of CloudFront
   viewer_certificate {
-    cloudfront_default_certificate = true
+    cloudfront_default_certificate = local.edge_certificate == ""
+    acm_certificate_arn            = local.edge_certificate == "" ? null : local.edge_certificate
+    ssl_support_method             = local.edge_certificate == "" ? null : "sni-only"
+    minimum_protocol_version       = local.edge_certificate == "" ? "TLSv1" : "TLSv1.2_2021"
   }
 }
