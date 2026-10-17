@@ -68,6 +68,10 @@ Each push to `main` touching the infrastructure is applied by `.github/workflows
 
 An app running in a Lambda (the api) is packaged by `make package-<app>` in `build/<app>.zip` and deployed by its Terraform with its function ([ADR 0063](adr/0063-the-cd-packages-an-app-and-its-terraform-deploys-it.md)): `make infra-apply` passes the version of its code (`tools/ci/code-version <app>`, a digest of its tracked files without `infra/` and the tests), a new one redeploying the package; build it first. The workflows plan and apply an app when its code, its infrastructure or the core it requires change. Its secrets are SSM `SecureString` parameters read at the start of the function (`bref-ssm:/prospecter/<instance>/<app>/<key>`), never values of its variables: a plan prints them.
 
+## Commands of an instance
+
+`make console INSTANCE=<instance> CMD="..."` runs a command of the api from this machine on the tables and the user pool of an instance, with the temporary credentials of its AWS profile, exported by the AWS CLI in its image and passed through the environment ([ADR 0064](adr/0064-an-account-is-opened-by-its-founder.md)). The first account of an installation: `make console INSTANCE=dev CMD="app:account:open 'My company' me@example.com --form=SAS"`, the password asked without echo.
+
 ## What never enters this repository
 
 The values of an installation: account ids, ARNs, state bucket names, account emails, keys and secrets. `.gitignore` refuses the values, the states and the saved plans; the pre-commit hook (`make hooks`, run by `make install`) runs gitleaks with `.gitleaks.toml` on what is committed, `git commit -a` and commits by paths included, and refuses a secret, an ARN, an account id in Terraform, the workflows or the docs, an id of an AWS organization or of an Identity Center, a state bucket name or a plus-addressed email; `make secrets-branch`, part of `make ci`, scans the commits of the branch since `dev` again. An example uses the account `123456789012`.

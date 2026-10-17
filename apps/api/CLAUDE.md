@@ -35,7 +35,7 @@ A JSON API that exposes the use cases of `packages/core`, a resource server for 
 See `docs/auth.md` at the repository root. The members sign in on Cognito (the SPA, by SRP); the API checks their tokens and keeps what they sign in with (ADR 0052).
 
 - Firewall `api` (`^/api/`, stateless, `access_token` with `Security\AccessTokenHandler`): the JWT is checked with the published key its `kid` names (`SignIn\SigningKeys`, cached), its issuer, its client, `token_use=access` and its expiry (`app.token_clock`); its `username` is the member id, loaded by `Security\MemberProvider` into `App\Security\User`, received as `#[CurrentUser] User $user`; its ids go into every command and query, and the aggregates decide ownership (ADR 0026).
-- `src/SignIn`: the user pool known by name (`UserPool`, ids cached, `COGNITO_*` variables), what a member signs in with (`Credentials`: login email unique on the platform, password, through the admin calls of Cognito), `GET /api/user-pool` (public, where the SPA signs in) and `/api/me/sign-in`; `app:user-pool:recreate [--demo]`, `app:user:set-password`.
+- `src/SignIn`: the user pool known by name (`UserPool`, ids cached, `COGNITO_*` variables), what a member signs in with (`Credentials`: login email unique on the platform, password, through the admin calls of Cognito), `GET /api/user-pool` (public, where the SPA signs in) and `/api/me/sign-in`; `app:user-pool:recreate [--demo]`, `app:user:set-password`, `app:account:open` (an account and its founder, ADR 0064; on AWS through `make console`).
 - The members of the demonstration sign in with `Demo\DemoCredentials` under the member ids `DemoData::PROSPECTOR` and `DemoData::ASSISTANT`.
 
 ## Architecture

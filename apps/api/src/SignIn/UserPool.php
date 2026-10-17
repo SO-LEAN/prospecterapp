@@ -13,7 +13,7 @@ use Symfony\Contracts\Cache\CacheInterface;
 final readonly class UserPool
 {
     public const string CLIENT_NAME = 'prospecter-front';
-    private const int PASSWORD_MINIMUM_LENGTH = 8;
+    public const int PASSWORD_MINIMUM_LENGTH = 8;
     private const int LIST_SIZE = 60;
 
     public function __construct(
