@@ -33,7 +33,7 @@ TFLINT_IMAGE = ghcr.io/terraform-linters/tflint:v0.64.0
 
 .DEFAULT_GOAL := help
 
-.PHONY: help install hooks build vendor db aws front-install infra-target infra-init infra-plan infra-apply infra-lint package-api package-storage console start deploy stop logs ps ci test test-api test-storage test-front e2e test-core lint fix front-build api-doc contract commands exec-api exec-front secrets secrets-branch
+.PHONY: help install hooks build vendor db aws front-install infra-target infra-init infra-plan infra-apply infra-lint package-api package-storage package-front release-front console start deploy stop logs ps ci test test-api test-storage test-front e2e test-core lint fix front-build api-doc contract commands exec-api exec-front secrets secrets-branch
 
 ##@ Help
 help: ## List the commands (the default target)
@@ -145,11 +145,24 @@ package-api: ## Package the API for its Lambda on AWS in build/api.zip (ADR 0063
 package-storage: ## Package the storage for its Lambda on AWS in build/storage.zip (ADR 0063)
 	@$(DC) run --rm --no-deps -w /var/www/src php tools/package/lambda storage
 
+# the files of the front are a release, under releases/<version>/ of its bucket (ADR 0066)
+FRONT_RELEASE = releases/$(shell tools/ci/code-version front | cut -c1-12)
+
+package-front: ## Package the front as a release in build/front (ADR 0066)
+	@$(NODE) sh -c 'pnpm install --frozen-lockfile --silent && pnpm build --outDir ../../build/front --emptyOutDir --base /$(FRONT_RELEASE)/'
+
+release-front: ## Put the release of the front in the bucket of an instance, before its apply; CLEAN=1 after it removes the former ones (ADR 0066)
+	@test "$(origin INSTANCE)" = "command line" -a -f $(INFRA_INSTANCE).env || { echo "Usage: make release-front INSTANCE=<dev|prod|...> [CLEAN=1], on the command line"; exit 1; }
+	@test -f build/front/index.html || { echo "No release to put: make package-front first"; exit 1; }
+	@$(AWS_CLI_RUN) -v $(CURDIR):/src -w /src --entrypoint sh $(AWS_CLI_IMAGE) tools/deploy/front $(INSTANCE) $(notdir $(FRONT_RELEASE)) $(if $(CLEAN),--clean)
+
 # a command of the api, on MiniStack, or with INSTANCE= on the tables and the user pool of an instance on AWS, from
 # this machine: the temporary
 # credentials of its AWS profile (envs/<instance>.env), exported by the AWS CLI in its image, reach the php container
 # through the environment only; the names are those of apps/api/infra
-AWS_CLI = docker run --rm -u $(UID):$(GID) -e HOME=/tmp --env-file $(INFRA_INSTANCE).env -v $(HOME)/.aws:/tmp/.aws amazon/aws-cli:2.37.2
+AWS_CLI_IMAGE = amazon/aws-cli:2.37.2
+AWS_CLI_RUN = docker run --rm -u $(UID):$(GID) -e HOME=/tmp --env-file $(INFRA_INSTANCE).env -v $(HOME)/.aws:/tmp/.aws
+AWS_CLI = $(AWS_CLI_RUN) $(AWS_CLI_IMAGE)
 
 console: ## Run a command of the API, on MiniStack or with INSTANCE= on AWS: make console CMD="app:account:open 'SOLEAN IT' me@example.com" [INSTANCE=dev]
 	@test -n "$(CMD)" || { echo "Usage: make console CMD=\"<command of bin/console>\" [INSTANCE=<dev|prod|...>]"; exit 1; }
