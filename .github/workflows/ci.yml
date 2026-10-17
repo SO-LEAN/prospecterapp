@@ -21,6 +21,9 @@ jobs:
     timeout-minutes: 30
     steps:
       - uses: actions/checkout@v7.0.1
+        with:
+          # make secrets-branch scans the commits since dev
+          fetch-depth: 0
 
       - name: Cache the Composer dependencies
         uses: actions/cache@v6.1.0
@@ -39,3 +42,6 @@ jobs:
 
       - name: Build, lint, test, check the contract, build the front
         run: make ci
+        env:
+          # tflint downloads its AWS ruleset from GitHub, beyond the anonymous rate limit of the shared runners
+          GITHUB_TOKEN: ${{ github.token }}

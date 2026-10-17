@@ -9,7 +9,7 @@ Monorepo of a prospecting application built with clean architecture:
 | `apps/storage/` | Symfony 8.1 app keeping the uploaded files in an S3 bucket and serving them in named sizes (`static.local.prospecter.io`) | `apps/storage/CLAUDE.md` |
 | `packages/core/` | `prospecter/core`: the bounded contexts Accounts, PersonalData and Prospecting and their shared kernel (pure PHP), tested by Behat scenarios | `packages/core/CLAUDE.md` |
 
-Docs: `docs/clean-code.md`, `docs/front-architecture.md`, `docs/design-system.md`, `docs/auth.md`, `docs/core-tests.md`, `docs/monorepo.md`, `docs/upgrade-2026.md`.
+Docs: `docs/clean-code.md`, `docs/front-architecture.md`, `docs/design-system.md`, `docs/auth.md`, `docs/core-tests.md`, `docs/monorepo.md`, `docs/infra.md`, `docs/upgrade-2026.md`.
 
 ## Architecture decisions
 
@@ -25,6 +25,7 @@ Everything runs in Docker (MiniStack with the Lambdas, Node 24, nginx; the PHP 8
 - `make start` / `make stop`: the stack, the API and the storage deployed in their Lambdas on MiniStack (ADR 0055): https://local.prospecter.io (SPA, sign in `prospector@solean-it.io` / `password`, or `assistant@solean-it.io` / `password`, a prospector without the right to manage personal data), https://api.local.prospecter.io/api/doc (API doc)
 - `make ci` (what the CI runs: build of the images, dependencies, lint, tests, contract, build of the front), `make test` (core scenarios and unit tests, API, storage, front), `make test-core` (the business rules only), `make e2e` (Playwright on the running stack), `make lint`, `make fix`
 - `make api-doc`: after changing an endpoint, regenerate `apps/api/openapi.json` and the front API types (`make test` fails while the committed contract differs from the code)
+- `make infra-plan APP=<api|storage|front> INSTANCE=<dev|prod|...>` / `make infra-apply …`: the Terraform of an app on AWS (`apps/<app>/infra`, ADR 0059, `docs/infra.md`), the values of the instance in `envs/<instance>.{tfvars,tfbackend,env}` of `INFRA_CONFIG` (default `../prospecterapp-infra`), out of the repository; `make infra-lint` (part of `make lint`)
 - `make db`: recreate in MiniStack the dev tables and the user pool of the API and the bucket of the storage (destroys local data); `bin/console app:search:rebuild` rebuilds the search of the API
 
 Other commands: `docker compose run --rm --no-deps php <cmd>` (working dir `apps/api`; add `-w /var/www/src/apps/storage` or `-w /var/www/src/packages/core` for the others) or `docker compose run --rm --no-deps node <cmd>` (working dir `apps/front`).
@@ -47,6 +48,8 @@ Before declaring work done: `make ci` passes (what the CI runs: lint, tests, con
 - Commit or push only when asked.
 
 ## Gotchas
+
+- The repository is public and describes the platform, never an installation of it (ADR 0059): no AWS account id, ARN, state bucket name, account email or secret in a commit, not even an intermediate one, nor how the AWS accounts are organized; read `git diff --cached` before each commit; the pre-commit hook (`make hooks`) runs gitleaks; never `git add -f` an ignored file.
 
 - MiniStack (`ministack` service, ADR 0048) emulates the AWS services locally: DynamoDB and Cognito for the API, S3 for the storage (ADR 0051, 0052), their state in the volume `ministack-data`, reachable from the host (IDE, AWS CLI) at `http://localhost:4566`, region `eu-west-3`, keys `test`/`test`. After `docker compose up -d` recreated `node`, restart `nginx` (it keeps its former address on the SPA host: 502; the API and static hosts resolve MiniStack on each request).
 - Cognito (ADR 0052): MiniStack makes the ids of the user pool and of its client at random, the API finds them by name and caches them; after the volume `ministack-data` was removed, run `make db`. The SPA reaches the Cognito of MiniStack through `https://api.local.prospecter.io/cognito/` (nginx passes its calls only).
