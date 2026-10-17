@@ -142,19 +142,25 @@ infra-target:
 package-api: ## Package the API for its Lambda on AWS in build/api.zip (ADR 0063)
 	@$(DC) run --rm --no-deps -w /var/www/src php tools/package/api
 
-# a command of the api on the tables and the user pool of an instance on AWS, from this machine: the temporary
+# a command of the api, on MiniStack, or with INSTANCE= on the tables and the user pool of an instance on AWS, from
+# this machine: the temporary
 # credentials of its AWS profile (envs/<instance>.env), exported by the AWS CLI in its image, reach the php container
 # through the environment only; the names are those of apps/api/infra
 AWS_CLI = docker run --rm -u $(UID):$(GID) -e HOME=/tmp --env-file $(INFRA_INSTANCE).env -v $(HOME)/.aws:/tmp/.aws amazon/aws-cli:2.37.2
 
-console: ## Run a command of the API on an instance on AWS: make console INSTANCE=dev CMD="app:account:open 'SOLEAN IT' me@example.com"
-	@test "$(origin INSTANCE)" = "command line" -a -n "$(CMD)" -a -f $(INFRA_INSTANCE).env -a -f $(INFRA_INSTANCE).tfvars \
-		|| { echo "Usage: make console INSTANCE=<dev|prod|...> CMD=\"<command of bin/console>\", the values of the instance in INFRA_CONFIG"; exit 1; }
+console: ## Run a command of the API, on MiniStack or with INSTANCE= on AWS: make console CMD="app:account:open 'SOLEAN IT' me@example.com" [INSTANCE=dev]
+	@test -n "$(CMD)" || { echo "Usage: make console CMD=\"<command of bin/console>\" [INSTANCE=<dev|prod|...>]"; exit 1; }
+ifeq ($(origin INSTANCE),command line)
+	@test -f $(INFRA_INSTANCE).env -a -f $(INFRA_INSTANCE).tfvars || { echo "No values for the instance $(INSTANCE) in $(INFRA_CONFIG)/envs (docs/infra.md)"; exit 1; }
 	@eval "$$($(AWS_CLI) configure export-credentials --format env)" && $(DC) run --rm --no-deps \
 		-e AWS_ACCESS_KEY_ID -e AWS_SECRET_ACCESS_KEY -e AWS_SESSION_TOKEN \
 		-e AWS_REGION=$$(sed -nE 's/^region *= *"(.*)"/\1/p' $(INFRA_INSTANCE).tfvars) \
 		-e DYNAMODB_ENDPOINT= -e COGNITO_ENDPOINT= -e DYNAMODB_TABLE_PREFIX=prospecter-$(INSTANCE)-api \
 		-e COGNITO_USER_POOL_NAME=prospecter-$(INSTANCE)-api-members php bin/console $(CMD)
+else
+	@$(AWS) >/dev/null 2>&1
+	@$(PHP) bin/console $(CMD)
+endif
 
 infra-init: infra-target ## Prepare the Terraform of an app for an instance: make infra-init APP=api INSTANCE=dev
 	@$(TERRAFORM) $(TERRAFORM_IMAGE) init -reconfigure -input=false -backend-config=/config/envs/$(INSTANCE).tfbackend -backend-config=key=$(APP)/$(INSTANCE).tfstate

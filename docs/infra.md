@@ -70,7 +70,7 @@ An app running in a Lambda (the api) is packaged by `make package-<app>` in `bui
 
 ## Commands of an instance
 
-`make console INSTANCE=<instance> CMD="..."` runs a command of the api from this machine on the tables and the user pool of an instance, with the temporary credentials of its AWS profile, exported by the AWS CLI in its image and passed through the environment ([ADR 0064](adr/0064-an-account-is-opened-by-its-founder.md)). The first account of an installation: `make console INSTANCE=dev CMD="app:account:open 'My company' me@example.com --form=SAS"`, the password asked without echo.
+`make console CMD="..."` runs a command of the api on MiniStack; with `INSTANCE=<instance>`, it runs it from this machine on the tables and the user pool of an instance, with the temporary credentials of its AWS profile, exported by the AWS CLI in its image and passed through the environment ([ADR 0064](adr/0064-an-account-is-opened-by-its-founder.md)). The first account of an installation: `make console INSTANCE=dev CMD="app:account:open 'My company' me@example.com --form=SAS"`, the password asked without echo.
 
 ## What never enters this repository
 
