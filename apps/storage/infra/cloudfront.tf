@@ -1,8 +1,8 @@
-# The public address of the files (ADR 0051), on the AWS address of CloudFront until the domain of the platform
-# (Cloudflare) comes: the bucket answers what exists, a size missing from it (403, 404) fails over to the function,
+# The public address of the files (ADR 0051): the domain the edge gives (ADR 0067), else the AWS address of
+# CloudFront. The bucket answers what exists, a size missing from it (403, 404) fails over to the function,
 # which makes it once and puts it in the bucket, as nginx does locally. The function answers /storage/<size>/<key>.
 locals {
-  public_url = "https://${aws_cloudfront_distribution.files.domain_name}"
+  public_url = local.edge_domains.storage != "" ? "https://${local.edge_domains.storage}" : "https://${aws_cloudfront_distribution.files.domain_name}"
 }
 
 data "aws_cloudfront_cache_policy" "optimized" {
@@ -21,9 +21,21 @@ resource "aws_cloudfront_origin_access_control" "files" {
   signing_protocol                  = "sigv4"
 }
 
+# Behind an edge, only the requests carrying its secret are answered (functions/only-through-the-edge.js.tftpl)
+resource "aws_cloudfront_function" "only_through_the_edge" {
+  name    = "${local.name}-only-through-the-edge"
+  comment = "Only the requests the edge passes on"
+  runtime = "cloudfront-js-2.0"
+  publish = true
+  code = templatefile("${path.module}/functions/only-through-the-edge.js.tftpl", {
+    origin_secret_digest = local.origin_secret_digest
+  })
+}
+
 resource "aws_cloudfront_distribution" "files" {
   enabled         = true
   comment         = "The files of ${local.name}"
+  aliases         = local.edge_domains.storage != "" ? [local.edge_domains.storage] : []
   price_class     = "PriceClass_100"
   http_version    = "http2and3"
   is_ipv6_enabled = true
@@ -71,6 +83,14 @@ resource "aws_cloudfront_distribution" "files" {
     cache_policy_id            = data.aws_cloudfront_cache_policy.optimized.id
     response_headers_policy_id = data.aws_cloudfront_response_headers_policy.cors.id
     compress                   = true
+
+    dynamic "function_association" {
+      for_each = local.has_origin_secret ? [aws_cloudfront_function.only_through_the_edge.arn] : []
+      content {
+        event_type   = "viewer-request"
+        function_arn = function_association.value
+      }
+    }
   }
 
   restrictions {
@@ -79,7 +99,11 @@ resource "aws_cloudfront_distribution" "files" {
     }
   }
 
+  # the certificate of the domain the edge gives, else the one of CloudFront
   viewer_certificate {
-    cloudfront_default_certificate = true
+    cloudfront_default_certificate = local.edge_certificate == ""
+    acm_certificate_arn            = local.edge_certificate == "" ? null : local.edge_certificate
+    ssl_support_method             = local.edge_certificate == "" ? null : "sni-only"
+    minimum_protocol_version       = local.edge_certificate == "" ? "TLSv1" : "TLSv1.2_2021"
   }
 }

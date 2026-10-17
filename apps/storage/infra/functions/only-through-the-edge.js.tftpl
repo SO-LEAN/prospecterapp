@@ -1,0 +1,17 @@
+// Behind an edge (ADR 0067), the files are served only to the requests carrying its secret, compared by its digest.
+import crypto from 'crypto'
+
+const originSecretDigest = '${origin_secret_digest}'
+
+function handler(event) {
+  const request = event.request
+  if (!comesThroughTheEdge(request)) {
+    return { statusCode: 403, statusDescription: 'Forbidden' }
+  }
+  return request
+}
+
+function comesThroughTheEdge(request) {
+  const secret = request.headers['x-origin-verify']
+  return secret !== undefined && crypto.createHash('sha256').update(secret.value).digest('hex') === originSecretDigest
+}

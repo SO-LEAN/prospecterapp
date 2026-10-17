@@ -11,9 +11,9 @@ resource "aws_ssm_parameter" "app_secret" {
   value = random_password.app_secret.result
 }
 
-# What the other apps read of the api (ADR 0059): the address of its HTTP API
+# What the other apps read of the api (ADR 0059): its address, the domain the edge gives it or its AWS address
 resource "aws_ssm_parameter" "url" {
   name  = "${local.ssm_path}/url"
   type  = "String"
-  value = aws_apigatewayv2_api.api.api_endpoint
+  value = "https://${local.api_host}"
 }
