@@ -47,9 +47,10 @@ resource "aws_cloudfront_distribution" "files" {
   }
 
   origin {
-    origin_id   = "function"
-    domain_name = trimprefix(aws_apigatewayv2_api.storage.api_endpoint, "https://")
-    origin_path = "/storage"
+    origin_id                = "function"
+    domain_name              = trimprefix(local.internal_url, "https://")
+    origin_path              = "/storage"
+    origin_access_control_id = aws_cloudfront_origin_access_control.function.id
 
     custom_origin_config {
       http_port              = 80

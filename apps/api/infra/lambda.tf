@@ -74,6 +74,13 @@ resource "aws_iam_role_policy" "lambda" {
         ]
       },
       {
+        # the internal entry of the storage, a function URL signed by this role (ADR 0068)
+        Sid      = "CallTheStorage"
+        Effect   = "Allow"
+        Action   = ["lambda:InvokeFunctionUrl", "lambda:InvokeFunction"]
+        Resource = "arn:aws:lambda:${var.region}:${var.aws_account_id}:function:prospecter-${var.instance}-storage"
+      },
+      {
         Sid       = "DecryptItsSecretParameters"
         Effect    = "Allow"
         Action    = "kms:Decrypt"

@@ -33,5 +33,5 @@ resource "aws_ssm_parameter" "public_url" {
 resource "aws_ssm_parameter" "internal_url" {
   name  = "${local.ssm_path}/internal-url"
   type  = "String"
-  value = aws_apigatewayv2_api.storage.api_endpoint
+  value = local.internal_url
 }
