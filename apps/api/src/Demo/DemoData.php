@@ -13,6 +13,12 @@ use Prospecter\Core\PersonalData\Domain\PersonName;
 use Prospecter\Core\PersonalData\Domain\PersonRepository;
 use Prospecter\Core\PersonalData\Domain\Purpose;
 use Prospecter\Core\PersonalData\Domain\Reader;
+use Prospecter\Core\Prospecting\Domain\Channel;
+use Prospecter\Core\Prospecting\Domain\Direction;
+use Prospecter\Core\Prospecting\Domain\Exchange;
+use Prospecter\Core\Prospecting\Domain\ExchangeFacts;
+use Prospecter\Core\Prospecting\Domain\ExchangeId;
+use Prospecter\Core\Prospecting\Domain\ExchangeRepository;
 use Prospecter\Core\Prospecting\Domain\Organization;
 use Prospecter\Core\Prospecting\Domain\OrganizationRepository;
 use Prospecter\Core\Prospecting\Domain\Prospector;
@@ -34,7 +40,7 @@ use Prospecter\Core\SharedKernel\Domain\ReleasesEvents;
  * the domain and the repositories, each aggregate then publishing what happened to it, so that the other
  * contexts react, the journal keeps it and the search finds it. The account SOLEAN IT, its prospector and its
  * assistant (who sign in with DemoCredentials), and Babbage & Co with its contact Ada
- * Lovelace. The identities are fixed: the tests name them.
+ * Lovelace and two exchanges with her. The identities are fixed: the tests name them.
  */
 final readonly class DemoData
 {
@@ -49,6 +55,7 @@ final readonly class DemoData
         private MemberRepository $members,
         private PersonRepository $persons,
         private OrganizationRepository $organizations,
+        private ExchangeRepository $exchanges,
         private Identities $identities,
         private Events $events,
     ) {
@@ -92,6 +99,15 @@ final readonly class DemoData
         $this->publish($babbage);
         $this->persons->save($ada);
         $this->publish($ada);
+        $this->anExchange($prospector, $ada, $babbage, new ExchangeFacts(Channel::Call, Direction::Outbound, $openedAt->modify('+1 hour')));
+        $this->anExchange($prospector, $ada, $babbage, new ExchangeFacts(Channel::LinkedIn, Direction::Inbound, $openedAt->modify('+1 day'), 'Intéressée par une mission en mars'));
+    }
+
+    private function anExchange(Prospector $prospector, Person $contact, Organization $organization, ExchangeFacts $facts): void
+    {
+        $exchange = Exchange::notedBy($prospector, new ExchangeId($this->identities->next()), $contact->id(), [$organization->id()], $facts, $facts->occurredAt);
+        $this->exchanges->save($exchange);
+        $this->publish($exchange);
     }
 
     /**

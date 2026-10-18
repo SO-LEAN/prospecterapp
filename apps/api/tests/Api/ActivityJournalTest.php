@@ -38,6 +38,16 @@ class ActivityJournalTest extends ApiTestCase
         $this->assertSame(['ProspectingStarted', 'ContactAdded'], $this->journalOf('prospecting', $organization));
     }
 
+    public function testAnExchangeIsKeptInTheJournalOfProspecting(): void
+    {
+        $organization = $this->requestJson('POST', '/api/organizations', ['legalIdentity' => ['corporateName' => 'ACME']])['id'];
+        $contact = $this->requestJson('POST', '/api/contacts', ['name' => ['firstName' => 'Ada'], 'organizationIds' => [$organization]])['id'];
+
+        $exchange = $this->requestJson('POST', '/api/contacts/'.$contact.'/exchanges', ['channel' => 'sms', 'direction' => 'inbound'])['items'][0]['id'];
+
+        $this->assertSame(['ExchangeNoted'], $this->journalOf('prospecting', $exchange));
+    }
+
     public function testTheJournalNamesTheMemberWhoDidIt(): void
     {
         $organization = $this->requestJson('POST', '/api/organizations', ['legalIdentity' => ['corporateName' => 'ACME']])['id'];

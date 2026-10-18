@@ -44,6 +44,7 @@ services:
     Prospecter\Core\SharedKernel\Application\GeoLocalizer: ~
     Prospecter\Core\Prospecting\Domain\EmailUniqueness: ~
     Prospecter\Core\Prospecting\Domain\OrphanContacts: ~
+    Prospecter\Core\Prospecting\Domain\ContactOrganizations: ~
     Prospecter\Core\PersonalData\Domain\EmailUniqueness: ~
 
     # DynamoDB (ADR 0048): MiniStack locally (DYNAMODB_ENDPOINT), AWS in production (DYNAMODB_ENDPOINT empty);
@@ -74,6 +75,7 @@ services:
     Prospecter\Core\PersonalData\Domain\PersonRepository: '@App\PersonalData\Persistence\DynamoPersonRepository'
     Prospecter\Core\PersonalData\Domain\ReaderService: '@App\PersonalData\AccountsReaderService'
     Prospecter\Core\Prospecting\Domain\OrganizationRepository: '@App\Prospecting\Persistence\DynamoOrganizationRepository'
+    Prospecter\Core\Prospecting\Domain\ExchangeRepository: '@App\Prospecting\Persistence\DynamoExchangeRepository'
     Prospecter\Core\Prospecting\Domain\ProspectorService: '@App\Prospecting\AccountsProspectorService'
     Prospecter\Core\Prospecting\Domain\KnownContacts: '@App\Prospecting\PersonalDataKnownContacts'
     Prospecter\Core\PersonalData\Domain\ProspectedOrganizations: '@App\PersonalData\ProspectingOrganizations'

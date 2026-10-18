@@ -194,6 +194,24 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/contacts/{id}/exchanges": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** The exchanges with the contact, the most recent first */
+        get: operations["get_api_contacts_timeline"];
+        put?: never;
+        /** Note a call, a message or a meeting with the contact, kept for the organizations the contact is part of */
+        post: operations["post_api_contacts_note_exchange"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/organizations/{id}/address": {
         parameters: {
             query?: never;
@@ -552,9 +570,35 @@ export interface components {
             /** @default  */
             holdingId: string;
         };
+        ExchangeInput: {
+            /**
+             * @default
+             * @enum {string}
+             */
+            channel: "call" | "sms" | "email" | "linkedIn" | "meeting" | "other";
+            /**
+             * @default
+             * @enum {string}
+             */
+            direction: "inbound" | "outbound";
+            /**
+             * Format: date-time
+             * @description When it happened, now when left out; never in the future
+             * @default null
+             */
+            occurredAt: string | null;
+            /** @default null */
+            text: string | null;
+            /** @default false */
+            missed: boolean;
+        };
         OrganizationListQuery: {
             /** @default  */
             q: string;
+            /** @default null */
+            after: string | null;
+        };
+        TimelineQuery: {
             /** @default null */
             after: string | null;
         };
@@ -738,6 +782,32 @@ export interface components {
             /** Format: date-time */
             modifiedAt: string;
             _links: components["schemas"]["OrganizationLinksResource"];
+        };
+        ExchangeResource: {
+            id: string;
+            /** @enum {string} */
+            channel: "call" | "sms" | "email" | "linkedIn" | "meeting" | "other";
+            /**
+             * @description inbound: the contact reached out; outbound: we did
+             * @enum {string}
+             */
+            direction: "inbound" | "outbound";
+            /** @description A call that did not go through */
+            missed: boolean;
+            /** Format: date-time */
+            occurredAt: string;
+            text?: string | null;
+            /** @description The organizations it is kept for, those the contact was part of when it was noted */
+            organizationIds: string[];
+        };
+        TimelineLinksResource: {
+            self: components["schemas"]["LinkResource"];
+            noteExchange: components["schemas"]["LinkResource"];
+            next?: components["schemas"]["LinkResource"];
+        };
+        TimelineResource: {
+            items: components["schemas"]["ExchangeResource"][];
+            _links: components["schemas"]["TimelineLinksResource"];
         };
         OrganizationSummaryResource: {
             id: string;
@@ -1571,6 +1641,115 @@ export interface operations {
             };
             /** @description The organization has no logo (no removeLogo link) */
             409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ProblemResource"];
+                };
+            };
+        };
+    };
+    get_api_contacts_timeline: {
+        parameters: {
+            query?: {
+                after?: string | null;
+            };
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description A slice of the exchanges, the next one at the link next */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["TimelineResource"];
+                };
+            };
+            /** @description Missing or invalid access token */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Not a prospector, or no right to manage personal data */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ProblemResource"];
+                };
+            };
+            /** @description Unknown contact, or one of another account */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ProblemResource"];
+                };
+            };
+        };
+    };
+    post_api_contacts_note_exchange: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ExchangeInput"];
+            };
+        };
+        responses: {
+            /** @description The timeline of the contact with the new exchange */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["TimelineResource"];
+                };
+            };
+            /** @description Missing or invalid access token */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Not a prospector, or no right to manage personal data */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ProblemResource"];
+                };
+            };
+            /** @description Unknown contact, or one of another account */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ProblemResource"];
+                };
+            };
+            /** @description Invalid exchange: unknown channel or direction, a missed exchange that is no call, a moment in the future */
+            422: {
                 headers: {
                     [name: string]: unknown;
                 };
