@@ -43,7 +43,7 @@ src/
     forms/              section form, FormField, shared field groups (AddressFields, ContactDetailsFields, LegalIdentityFields, PersonNameFields)
     lib/ hooks/ stores/ utilities (route-params.ts: UUID route params, a 404 of the API as a not found page), hooks, Zustand stores
   test/setup.ts         Vitest setup
-e2e/                    Playwright journeys, one at a time; wait-for-the-stack.ts, their global setup, waits for the SPA, the api and the storage; sign-in.ts signs the demonstration member in
+e2e/                    Playwright journeys, one at a time; wait-for-the-stack.ts, their global setup, waits for the SPA, the api and the storage; sign-in.ts signs the demonstration member in; colors.ts reads the painted colors and their WCAG contrast
 ```
 
 Dependency rule: `shared` depends on nothing of the app; a `feature` depends only on `shared`; `routes` and `app` compose features. Query key prefixes used by several features live in `shared/api/keys.ts`.
