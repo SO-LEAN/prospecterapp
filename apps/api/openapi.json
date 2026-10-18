@@ -868,6 +868,145 @@
                 }
             }
         },
+        "/api/contacts/{id}/exchanges": {
+            "get": {
+                "tags": [
+                    "Contacts"
+                ],
+                "summary": "The exchanges with the contact, the most recent first",
+                "operationId": "get_api_contacts_timeline",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "pattern": "[0-9a-f]{8}-[0-9a-f]{4}-[13-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}"
+                        }
+                    },
+                    {
+                        "name": "after",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "string",
+                            "nullable": true,
+                            "default": null,
+                            "maxLength": 200
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "A slice of the exchanges, the next one at the link next",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/TimelineResource"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Missing or invalid access token"
+                    },
+                    "403": {
+                        "description": "Not a prospector, or no right to manage personal data",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ProblemResource"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Unknown contact, or one of another account",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ProblemResource"
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "post": {
+                "tags": [
+                    "Contacts"
+                ],
+                "summary": "Note a call, a message or a meeting with the contact, kept for the organizations the contact is part of",
+                "operationId": "post_api_contacts_note_exchange",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "pattern": "[0-9a-f]{8}-[0-9a-f]{4}-[13-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/ExchangeInput"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "The timeline of the contact with the new exchange",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/TimelineResource"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Missing or invalid access token"
+                    },
+                    "403": {
+                        "description": "Not a prospector, or no right to manage personal data",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ProblemResource"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Unknown contact, or one of another account",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ProblemResource"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Invalid exchange: unknown channel or direction, a missed exchange that is no call, a moment in the future",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ProblemResource"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
         "/api/organizations/{id}/address": {
             "patch": {
                 "tags": [
@@ -2205,6 +2344,48 @@
                 },
                 "type": "object"
             },
+            "ExchangeInput": {
+                "properties": {
+                    "channel": {
+                        "type": "string",
+                        "default": "",
+                        "enum": [
+                            "call",
+                            "sms",
+                            "email",
+                            "linkedIn",
+                            "meeting",
+                            "other"
+                        ]
+                    },
+                    "direction": {
+                        "type": "string",
+                        "default": "",
+                        "enum": [
+                            "inbound",
+                            "outbound"
+                        ]
+                    },
+                    "occurredAt": {
+                        "description": "When it happened, now when left out; never in the future",
+                        "type": "string",
+                        "format": "date-time",
+                        "nullable": true,
+                        "default": null
+                    },
+                    "text": {
+                        "type": "string",
+                        "nullable": true,
+                        "default": null,
+                        "maxLength": 5000
+                    },
+                    "missed": {
+                        "type": "boolean",
+                        "default": false
+                    }
+                },
+                "type": "object"
+            },
             "OrganizationListQuery": {
                 "properties": {
                     "q": {
@@ -2212,6 +2393,17 @@
                         "default": "",
                         "maxLength": 100
                     },
+                    "after": {
+                        "type": "string",
+                        "nullable": true,
+                        "default": null,
+                        "maxLength": 200
+                    }
+                },
+                "type": "object"
+            },
+            "TimelineQuery": {
+                "properties": {
                     "after": {
                         "type": "string",
                         "nullable": true,
@@ -2797,6 +2989,96 @@
                 },
                 "type": "object"
             },
+            "ExchangeResource": {
+                "required": [
+                    "id",
+                    "channel",
+                    "direction",
+                    "missed",
+                    "occurredAt",
+                    "organizationIds"
+                ],
+                "properties": {
+                    "id": {
+                        "type": "string"
+                    },
+                    "channel": {
+                        "type": "string",
+                        "enum": [
+                            "call",
+                            "sms",
+                            "email",
+                            "linkedIn",
+                            "meeting",
+                            "other"
+                        ]
+                    },
+                    "direction": {
+                        "description": "inbound: the contact reached out; outbound: we did",
+                        "type": "string",
+                        "enum": [
+                            "inbound",
+                            "outbound"
+                        ]
+                    },
+                    "missed": {
+                        "description": "A call that did not go through",
+                        "type": "boolean"
+                    },
+                    "occurredAt": {
+                        "type": "string",
+                        "format": "date-time"
+                    },
+                    "text": {
+                        "type": "string",
+                        "nullable": true
+                    },
+                    "organizationIds": {
+                        "description": "The organizations it is kept for, those the contact was part of when it was noted",
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        }
+                    }
+                },
+                "type": "object"
+            },
+            "TimelineLinksResource": {
+                "required": [
+                    "self",
+                    "noteExchange"
+                ],
+                "properties": {
+                    "self": {
+                        "$ref": "#/components/schemas/LinkResource"
+                    },
+                    "noteExchange": {
+                        "$ref": "#/components/schemas/LinkResource"
+                    },
+                    "next": {
+                        "$ref": "#/components/schemas/LinkResource"
+                    }
+                },
+                "type": "object"
+            },
+            "TimelineResource": {
+                "required": [
+                    "items",
+                    "_links"
+                ],
+                "properties": {
+                    "items": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/ExchangeResource"
+                        }
+                    },
+                    "_links": {
+                        "$ref": "#/components/schemas/TimelineLinksResource"
+                    }
+                },
+                "type": "object"
+            },
             "OrganizationSummaryResource": {
                 "required": [
                     "id",
@@ -3159,10 +3441,10 @@
             "name": "Organizations"
         },
         {
-            "name": "Dashboard"
+            "name": "Contacts"
         },
         {
-            "name": "Contacts"
+            "name": "Dashboard"
         },
         {
             "name": "Sign-in"

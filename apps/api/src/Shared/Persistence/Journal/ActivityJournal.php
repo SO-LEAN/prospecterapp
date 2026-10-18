@@ -5,15 +5,12 @@ namespace App\Shared\Persistence\Journal;
 use App\Shared\Identities;
 use App\Shared\Persistence\Documents;
 use App\Shared\Persistence\Table;
-use Prospecter\Core\SharedKernel\Domain\Event\AccountEvent;
 use Prospecter\Core\SharedKernel\Domain\Event\DomainEvent;
-use Prospecter\Core\SharedKernel\Domain\Event\OrganizationEvent;
-use Prospecter\Core\SharedKernel\Domain\Event\PersonEvent;
 use Symfony\Component\Messenger\Attribute\AsMessageHandler;
 
 /**
  * Keeps every domain event published on the event bus (ADR 0043): Messenger hands it any subclass of
- * DomainEvent. An event goes to the table of the context of its subject (ADR 0038, 0048), as the item
+ * DomainEvent. An event goes to the table of its context, where its subject lives (ADR 0038, 0048), as the item
  * `JOURNAL#<subject>` / `<moment>#<entry>`: what happened, who did it and when, identities only, never
  * personal data, so that the journal may be kept after an erasure.
  */
@@ -55,12 +52,20 @@ final readonly class ActivityJournal
 
     private function journalOf(DomainEvent $event): Table
     {
-        return match (true) {
-            $event instanceof OrganizationEvent => $this->prospectingTable,
-            $event instanceof PersonEvent => $this->personalDataTable,
-            $event instanceof AccountEvent => $this->accountsTable,
-            default => throw new \LogicException(sprintf('%s happens to no known kind of aggregate', $event::class)),
+        return match (self::contextOf($event)) {
+            'Prospecting' => $this->prospectingTable,
+            'PersonalData' => $this->personalDataTable,
+            'Accounts' => $this->accountsTable,
+            default => throw new \LogicException(sprintf('%s happens in no known context', $event::class)),
         };
+    }
+
+    /**
+     * The events of a context live in its namespace, `Prospecter\Core\<Context>\Domain\Event`.
+     */
+    private static function contextOf(DomainEvent $event): string
+    {
+        return explode('\\', $event::class)[2] ?? '';
     }
 
     private static function keyOf(string $subject): string
