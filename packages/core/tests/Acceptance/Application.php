@@ -45,9 +45,13 @@ use Prospecter\Core\Prospecting\Application\ChangeContactDetails\ChangeContactDe
 use Prospecter\Core\Prospecting\Application\ChangeLogo\ChangeLogoHandler;
 use Prospecter\Core\Prospecting\Application\ConsultOrganization\ConsultOrganization;
 use Prospecter\Core\Prospecting\Application\ConsultOrganization\ConsultOrganizationHandler;
+use Prospecter\Core\Prospecting\Application\ConsultTimeline\ConsultTimeline;
+use Prospecter\Core\Prospecting\Application\ConsultTimeline\ConsultTimelineHandler;
+use Prospecter\Core\Prospecting\Application\ConsultTimeline\TimelineResponse;
 use Prospecter\Core\Prospecting\Application\DetachForgottenContact\DetachForgottenContactHandler;
 use Prospecter\Core\Prospecting\Application\DetachFromHolding\DetachFromHoldingHandler;
 use Prospecter\Core\Prospecting\Application\IsProspectedBy\IsProspectedByHandler;
+use Prospecter\Core\Prospecting\Application\NoteExchange\NoteExchangeHandler;
 use Prospecter\Core\Prospecting\Application\OrganizationResponse;
 use Prospecter\Core\Prospecting\Application\PublishContactsLeftWithoutOrganization\PublishContactsLeftWithoutOrganizationHandler;
 use Prospecter\Core\Prospecting\Application\RecognizeCallingOrganization\RecognizeCallingOrganization;
@@ -60,9 +64,11 @@ use Prospecter\Core\Prospecting\Application\SearchProspectedOrganizations\Search
 use Prospecter\Core\Prospecting\Application\SearchProspectedOrganizations\SearchProspectedOrganizationsHandler;
 use Prospecter\Core\Prospecting\Application\SearchProspectedOrganizations\SearchProspectedOrganizationsResponse;
 use Prospecter\Core\Prospecting\Application\StartProspecting\StartProspectingHandler;
+use Prospecter\Core\Prospecting\Application\StopKeepingExchanges\StopKeepingExchangesHandler;
 use Prospecter\Core\Prospecting\Application\StopProspecting\StopProspectingHandler;
 use Prospecter\Core\Prospecting\Application\WriteObservations\WriteObservationsHandler;
 use Prospecter\Core\Prospecting\Contract\Service\IsProspectedBy\IsProspectedBy;
+use Prospecter\Core\Prospecting\Domain\ContactOrganizations;
 use Prospecter\Core\Prospecting\Domain\EmailUniqueness as ProspectingEmailUniqueness;
 use Prospecter\Core\Prospecting\Domain\OrphanContacts;
 use Prospecter\Core\SharedKernel\Application\CommandHandler;
@@ -77,6 +83,7 @@ use Tests\Core\Double\AccountsProspectorService;
 use Tests\Core\Double\AccountsReaderService;
 use Tests\Core\Double\InMemoryAccountRepository;
 use Tests\Core\Double\InMemoryDatabase;
+use Tests\Core\Double\InMemoryExchangeRepository;
 use Tests\Core\Double\InMemoryMemberRepository;
 use Tests\Core\Double\InMemoryOrganizationRepository;
 use Tests\Core\Double\InMemoryPersonRepository;
@@ -97,6 +104,7 @@ final class Application
     private const string FIRST_DAY = '2026-10-15 09:00';
 
     public readonly InMemoryOrganizationRepository $organizations;
+    public readonly InMemoryExchangeRepository $exchanges;
     public readonly InMemoryAccountRepository $accounts;
     public readonly InMemoryMemberRepository $members;
     public readonly InMemoryPersonRepository $persons;
@@ -113,6 +121,7 @@ final class Application
     private readonly PersonalDataEmailUniqueness $personEmails;
     private readonly ProspectingEmailUniqueness $organizationEmails;
     private readonly OrphanContacts $orphans;
+    private readonly ContactOrganizations $contactOrganizations;
     /** @var array<class-string, CommandHandler> */
     private array $handlers = [];
     private ?string $signedIn = null;
@@ -126,6 +135,7 @@ final class Application
         $this->now = new \DateTimeImmutable(self::FIRST_DAY);
         $this->uuids = new TimeOrderedUuids();
         $this->organizations = new InMemoryOrganizationRepository($database);
+        $this->exchanges = new InMemoryExchangeRepository($database);
         $this->accounts = new InMemoryAccountRepository($database);
         $this->members = new InMemoryMemberRepository($database);
         $this->persons = new InMemoryPersonRepository($database);
@@ -141,6 +151,7 @@ final class Application
         $this->personEmails = new PersonalDataEmailUniqueness($this->persons);
         $this->organizationEmails = new ProspectingEmailUniqueness($this->organizations);
         $this->orphans = new OrphanContacts($this->organizations);
+        $this->contactOrganizations = new ContactOrganizations($this->organizations);
 
         foreach ($this->eventHandlers() as $handler) {
             $this->events->subscribe($handler);
@@ -237,6 +248,11 @@ final class Application
         return $this->attempt(fn (): array => new RefusalTranslatingHandler(new RecognizeCallingOrganizationHandler($this->organizations, $this->prospectorService))($query));
     }
 
+    public function consultTimeline(ConsultTimeline $query): ?TimelineResponse
+    {
+        return $this->attempt(fn (): TimelineResponse => new RefusalTranslatingHandler(new ConsultTimelineHandler($this->exchanges, $this->prospectorService, $this->contactOrganizations))($query));
+    }
+
     /**
      * The business refusal of the last command or query, null when it succeeded.
      */
@@ -273,6 +289,7 @@ final class Application
             new AddContactHandler($this->organizations, $this->prospectorService, $this->knownContacts, $this->events),
             new RemoveContactHandler($this->organizations, $this->prospectorService, $this->events, $this->orphans),
             new StopProspectingHandler($this->organizations, $this->prospectorService, $this->events, $this->orphans),
+            new NoteExchangeHandler($this->exchanges, $this->prospectorService, $this->contactOrganizations, $this->events),
         ];
     }
 
@@ -317,6 +334,7 @@ final class Application
             new PublishContactCollectedHandler($this->events),
             new PublishContactForgottenHandler($this->events),
             new PublishContactsLeftWithoutOrganizationHandler($this->events),
+            new StopKeepingExchangesHandler($this->exchanges, $this->prospectorService, $this->events),
         ];
     }
 

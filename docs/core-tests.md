@@ -7,11 +7,12 @@ Two loops, as in *Growing Object-Oriented Software*:
 
 ## Nothing inside the hexagon is doubled
 
-Aggregates, value objects, handlers, services (`FileStore`, `GeoLocalizer`, `EmailUniqueness`, `OrphanContacts`, built once by `Application` and injected into the handlers, ADR 0044) and the decorator `RefusalTranslatingHandler` are the real classes. Only the ports, the interfaces towards the outside, get test implementations, in `tests/Double`. They are working implementations, not mocks; no mocking library is used.
+Aggregates, value objects, handlers, services (`FileStore`, `GeoLocalizer`, `EmailUniqueness`, `OrphanContacts`, `ContactOrganizations`, built once by `Application` and injected into the handlers, ADR 0044) and the decorator `RefusalTranslatingHandler` are the real classes. Only the ports, the interfaces towards the outside, get test implementations, in `tests/Double`. They are working implementations, not mocks; no mocking library is used.
 
 | Port | Double | Behaves like |
 |---|---|---|
 | `AccountRepository`, `MemberRepository`, `OrganizationRepository` | `InMemoryAccountRepository`, `InMemoryMemberRepository`, `InMemoryOrganizationRepository` over `InMemoryDatabase` | the DynamoDB repositories: copies stored and returned (a change not saved is lost, the recorded events are not stored), the answer to `isEmailUsed()` among the organizations of an account (the rule itself is `EmailUniqueness`), slices newest first after a cursor, found by `searchTerms()` (`NewestFirst`) |
+| `ExchangeRepository` (Prospecting) | `InMemoryExchangeRepository` over `InMemoryDatabase` | the DynamoDB repository: the timeline of a contact by the moment of the exchanges then their identity, the most recent first, after a cursor made of both (ADR 0074) |
 | `ProspectorService` (Prospecting) | `AccountsProspectorService` | the anticorruption adapter of the API, same code: a prospector is the member the published query `ConsultMember` of Accounts answers |
 | `PersonRepository`, `ReaderService` (PersonalData) | `InMemoryPersonRepository`, `AccountsReaderService` | the answer to `isEmailUsed()` among the persons of an account for a purpose, the search newest first; a reader is the member `ConsultMember` answers, with its person and its right to read personal data |
 | `KnownContacts` (Prospecting) | `PersonalDataKnownContacts` | the anticorruption adapter of the API, same code: the published query `IsAContactOf` of PersonalData |
