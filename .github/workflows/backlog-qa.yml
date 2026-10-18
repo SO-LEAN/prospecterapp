@@ -1,0 +1,63 @@
+# A pull request merged into dev moves the tickets of the backlog it refers to ("Refs <backlog>#<n>") to the column QA
+# of the project, where the acceptance starts. The release (dev to main) and a pull request closed without merge leave
+# the board alone. No checkout and no right on this repository: the token of the project only moves its items, and the
+# description of the pull request, written by anyone, is only read from the environment.
+name: Backlog QA
+
+on:
+  pull_request:
+    types: [closed]
+    branches: [dev]
+
+permissions: {}
+
+jobs:
+  qa:
+    if: github.event.pull_request.merged
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    env:
+      GH_TOKEN: ${{ secrets.PROJECT_TOKEN }}
+      OWNER: ${{ vars.BACKLOG_OWNER }}
+      PROJECT: ${{ vars.BACKLOG_PROJECT }}
+      BACKLOG: ${{ vars.BACKLOG_REPOSITORY }}
+      PR_BODY: ${{ github.event.pull_request.body }}
+    steps:
+      - name: Move the referred tickets to QA
+        run: |
+          set -euo pipefail
+
+          referred_tickets() {
+            { grep -oiE "Refs[[:space:]]+${BACKLOG}#[0-9]+" <<<"$PR_BODY" || true; } | sed 's/.*#//' | sort -un
+          }
+
+          item_id() {
+            local n=$1 id
+            id=$(jq -r --arg repo "$BACKLOG" --argjson n "$n" \
+              '.items[] | select(.content.number == $n and (.content.repository | ascii_downcase) == ($repo | ascii_downcase)) | .id' <<<"$items" | head -n1)
+            if [ -z "$id" ]; then
+              id=$(gh project item-add "$PROJECT" --owner "$OWNER" --url "https://github.com/$BACKLOG/issues/$n" --format json | jq -r .id)
+            fi
+            echo "$id"
+          }
+
+          tickets=$(referred_tickets)
+          if [ -z "$tickets" ]; then
+            echo "No ticket of $BACKLOG referred to"
+            exit 0
+          fi
+
+          project_id=$(gh project view "$PROJECT" --owner "$OWNER" --format json | jq -r .id)
+          fields=$(gh project field-list "$PROJECT" --owner "$OWNER" --format json)
+          field_id=$(jq -r '.fields[] | select(.name == "Status") | .id' <<<"$fields")
+          option_id=$(jq -r '.fields[] | select(.name == "Status") | .options[] | select(.name == "QA") | .id' <<<"$fields")
+          if [ -z "$option_id" ]; then
+            echo "::error::The project $OWNER/$PROJECT has no column QA"
+            exit 1
+          fi
+          items=$(gh project item-list "$PROJECT" --owner "$OWNER" --format json --limit 1000)
+
+          for n in $tickets; do
+            gh project item-edit --id "$(item_id "$n")" --project-id "$project_id" --field-id "$field_id" --single-select-option-id "$option_id" > /dev/null
+            echo "#$n -> QA"
+          done
