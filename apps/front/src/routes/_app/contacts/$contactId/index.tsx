@@ -9,6 +9,8 @@ import {
 } from '@/features/contacts/components/contact-sections'
 import { ForgetContact } from '@/features/contacts/components/forget-contact'
 import { contactQuery, fullNameOf } from '@/features/contacts/queries'
+import { ExchangesSection } from '@/features/exchanges/components/exchanges-section'
+import { timelineQuery } from '@/features/exchanges/queries'
 import { notFoundWhenTheApiSaysSo, uuidParams } from '@/shared/lib/route-params'
 import { BackButton } from '@/shared/ui/back-button'
 import { Badge } from '@/shared/ui/badge'
@@ -18,8 +20,10 @@ import { PageSkeleton } from '@/shared/ui/page-skeleton'
 
 export const Route = createFileRoute('/_app/contacts/$contactId/')({
   params: uuidParams('contactId'),
-  loader: ({ context, params }) =>
-    context.queryClient.ensureQueryData(contactQuery(params.contactId)).catch(notFoundWhenTheApiSaysSo),
+  loader: ({ context, params }) => {
+    void context.queryClient.prefetchInfiniteQuery(timelineQuery(params.contactId))
+    return context.queryClient.ensureQueryData(contactQuery(params.contactId)).catch(notFoundWhenTheApiSaysSo)
+  },
   pendingComponent: () => <PageSkeleton />,
   errorComponent: ({ error, reset }) => <ErrorState error={error} reset={reset} />,
   component: ContactPage,
@@ -30,13 +34,14 @@ function ContactPage() {
   const navigate = useNavigate()
   const { contactId } = Route.useParams()
   const { data: contact } = useSuspenseQuery(contactQuery(contactId))
+  const name = fullNameOf(contact) || t('contacts.unnamed')
 
   return (
     <div className="space-y-8">
       <BackButton fallback="/contacts" />
 
       <PageHeader
-        title={fullNameOf(contact) || t('contacts.unnamed')}
+        title={name}
         description={
           <span className="flex flex-wrap gap-2">
             {contact.jobTitle && <Badge variant="secondary">{contact.jobTitle}</Badge>}
@@ -58,6 +63,7 @@ function ContactPage() {
         <JobTitleSection contact={contact} />
         <ContactDetailsSection contact={contact} />
         <OrganizationsSection contact={contact} />
+        <ExchangesSection contactId={contact.id} contactName={name} className="lg:col-span-2" />
       </div>
     </div>
   )
