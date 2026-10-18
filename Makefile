@@ -14,8 +14,11 @@ AWS = $(DC) up -d ministack
 # functions by its absolute path
 export PROJECT_DIR := $(CURDIR)
 # the commits checked for secrets and identifiers of an AWS installation (ADR 0059): the repository is mounted at
-# its own path and the index git prepares for the commit is passed on, a commit -a or by paths using a temporary one
-GITLEAKS = docker run --rm -u $(UID):$(GID) -e GIT_INDEX_FILE -v $(CURDIR):$(CURDIR) -w $(CURDIR) ghcr.io/gitleaks/gitleaks:v8.30.1
+# its own path and the index git prepares for the commit is passed on, a commit -a or by paths using a temporary one;
+# the common git directory is mounted at its own path too: in a worktree, .git only points to it, out of the checkout
+GIT_COMMON_DIR = $(shell git rev-parse --path-format=absolute --git-common-dir)
+GITLEAKS = docker run --rm -u $(UID):$(GID) -e GIT_INDEX_FILE -v $(CURDIR):$(CURDIR) -v $(GIT_COMMON_DIR):$(GIT_COMMON_DIR) \
+	-w $(CURDIR) ghcr.io/gitleaks/gitleaks:v8.30.1
 # Terraform and tflint run in their images, each app keeping its root in apps/<app>/infra (ADR 0059); the values of
 # an instance stay out of the repository, in envs/<instance>.{tfvars,tfbackend,env} of the configuration directory;
 # each instance keeps its own working directory, so that two instances can be planned at once
