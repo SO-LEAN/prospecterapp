@@ -802,8 +802,8 @@ export interface components {
         };
         TimelineLinksResource: {
             self: components["schemas"]["LinkResource"];
-            noteExchange: components["schemas"]["LinkResource"];
             next?: components["schemas"]["LinkResource"];
+            noteExchange?: components["schemas"]["LinkResource"];
         };
         TimelineResource: {
             items: components["schemas"]["ExchangeResource"][];

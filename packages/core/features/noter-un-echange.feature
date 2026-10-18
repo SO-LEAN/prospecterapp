@@ -24,6 +24,15 @@ Fonctionnalité: Noter un échange avec un contact
       | 15/10/2026 14:30 | LinkedIn | reçu   | Intéressée par une mission en mars |
       | 10/10/2026 09:00 | Appel    | envoyé |                                    |
 
+  Scénario: Un échange noté après coup prend sa place dans la timeline
+    Soit je suis connecté en tant que prospecteur de "SOLEAN IT"
+    Et j'ai noté un SMS reçu de "Ada Lovelace" le 15/10/2026 à 14h30
+    Quand je note un appel envoyé à "Ada Lovelace" le 10/10/2026 à 9h00
+    Alors la timeline de "Ada Lovelace" est, du plus récent au plus ancien :
+      | moment           | canal | sens   | texte |
+      | 15/10/2026 14:30 | SMS   | reçu   |       |
+      | 10/10/2026 09:00 | Appel | envoyé |       |
+
   Scénario: Un appel peut ne pas avoir abouti
     Soit je suis connecté en tant que prospecteur de "SOLEAN IT"
     Quand je note un appel reçu de "Ada Lovelace" qui n'a pas abouti
@@ -61,6 +70,8 @@ Fonctionnalité: Noter un échange avec un contact
     Quand je consulte la timeline de "Ada Lovelace"
     Alors je vois les 20 plus récents
     Et je peux lire la suite après le dernier
+    Et je peux sur la timeline :
+      | noter un échange |
 
   Scénario: Sans le droit aux données personnelles, je ne note pas d'échange
     Soit je suis connecté en tant que prospecteur de "SOLEAN IT" sans le droit aux données personnelles

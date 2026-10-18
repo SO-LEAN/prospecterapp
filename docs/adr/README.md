@@ -34,7 +34,7 @@ Why the project is shaped the way it is: one file per decision in `docs/adr/`, i
 | [0028](0028-aggregates-keep-their-value-objects.md) | Aggregates keep their value objects; the Doctrine mapping adapts to them | Accepted, the Doctrine mapping superseded by 0048 | 2026-10-15 |
 | [0029](0029-cqrs-with-a-synchronous-messenger-command-bus.md) | CQRS: commands on a synchronous Messenger bus return nothing, only queries return data | Accepted | 2026-10-15 |
 | [0030](0030-bounded-contexts-accounts-prospecting.md) | Bounded contexts Accounts and Prospecting, a shared kernel, code grouped by context | Accepted, port names superseded by 0045 | 2026-10-15 |
-| [0031](0031-personal-data-context.md) | A PersonalData context keeps the personal data of natural persons, and decides who reads them | Accepted, port names superseded by 0045 | 2026-10-15 |
+| [0031](0031-personal-data-context.md) | A PersonalData context keeps the personal data of natural persons, and decides who reads them | Accepted, port names superseded by 0045, the text of the exchanges kept by Prospecting since [0074](0074-an-exchange-with-a-contact-is-an-aggregate-of-prospecting.md) | 2026-10-15 |
 | [0032](0032-login-email-kept-by-authentication.md) | Members sign in with an email kept by authentication | Accepted, where the login email is kept superseded by 0052 | 2026-10-15 |
 | [0033](0033-storage-app.md) | A storage app keeps the files and serves the images in named sizes | Accepted, the disk superseded by [0051](0051-files-in-an-s3-bucket.md), the bearer token by [0068](0068-the-internal-entry-of-the-storage-is-a-signed-function-url.md) | 2026-10-15 |
 | [0034](0034-authorization-server-app.md) | An auth app is the authorization server; the API is a resource server | Superseded by 0052 | 2026-10-15 |
@@ -52,7 +52,7 @@ Why the project is shaped the way it is: one file per decision in `docs/adr/`, i
 | [0046](0046-integration-events-between-contexts.md) | Contexts exchange published integration events; domain events stay in their context | Accepted, location superseded by 0047 | 2026-10-16 |
 | [0047](0047-a-contract-per-context.md) | Each context keeps what it publishes in a Contract of plain data | Accepted | 2026-10-16 |
 | [0048](0048-dynamodb-one-table-per-context-on-ministack.md) | DynamoDB, one table per bounded context, emulated locally by MiniStack | Accepted | 2026-10-16 |
-| [0049](0049-lists-in-slices-after-a-cursor.md) | Lists come in slices after a cursor, never in numbered pages | Accepted | 2026-10-16 |
+| [0049](0049-lists-in-slices-after-a-cursor.md) | Lists come in slices after a cursor, never in numbered pages | Accepted, the order and the cursor of a timeline superseded by [0074](0074-an-exchange-with-a-contact-is-an-aggregate-of-prospecting.md) | 2026-10-16 |
 | [0050](0050-text-search-by-a-projection-of-word-beginnings.md) | The text search is a projection of word beginnings, kept by the events, rebuildable | Superseded by 0071 | 2026-10-16 |
 | [0051](0051-files-in-an-s3-bucket.md) | The files are in an S3 bucket, served from it; PHP only makes the missing sizes | Accepted, on AWS the bucket read by CloudFront only since [0065](0065-the-files-on-aws-behind-cloudfront.md) | 2026-10-16 |
 | [0052](0052-cognito-signs-the-members-in.md) | Cognito signs the members in; the SPA keeps its screen and signs in by SRP; the API checks the tokens | Accepted | 2026-10-16 |

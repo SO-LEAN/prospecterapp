@@ -25,8 +25,26 @@ final readonly class ContactOrganizations
      */
     public function of(PersonId $contact, Prospector $prospector): array
     {
-        $ids = array_map(static fn (Organization $organization): OrganizationId => $organization->id(), $this->organizations->withContacts([$contact], $prospector->accountId));
+        $ids = array_map(static fn (Organization $organization): OrganizationId => $organization->id(), $this->naming($contact, $prospector));
 
         return [] === $ids ? throw UnknownContact::identifiedBy($contact) : $ids;
+    }
+
+    /**
+     * @throws UnknownContact
+     */
+    public function ensureIsAContactOfTheAccount(PersonId $contact, Prospector $prospector): void
+    {
+        if ([] === $this->naming($contact, $prospector)) {
+            throw UnknownContact::identifiedBy($contact);
+        }
+    }
+
+    /**
+     * @return list<Organization>
+     */
+    private function naming(PersonId $contact, Prospector $prospector): array
+    {
+        return $this->organizations->withContacts([$contact], $prospector->accountId);
     }
 }

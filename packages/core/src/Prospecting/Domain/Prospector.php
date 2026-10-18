@@ -21,6 +21,14 @@ final readonly class Prospector
     }
 
     /**
+     * @return list<TimelineIntent>
+     */
+    public function timelineIntents(): array
+    {
+        return $this->managesPersonalData ? TimelineIntent::cases() : [];
+    }
+
+    /**
      * What is said with a contact is personal data: noting or reading it needs the right to manage them.
      *
      * @throws PersonalDataManagersOnly
