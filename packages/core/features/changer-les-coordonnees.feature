@@ -17,10 +17,21 @@ Fonctionnalité: Changer les coordonnées d'une organisation
       | téléphone | 03 88 11 22 33  |
       | langue    | DE              |
     Alors l'organisation "ACME" est enregistrée avec :
-      | e-mail          | hello@acme.test |
-      | téléphone       | 03 88 11 22 33  |
-      | langue          | DE              |
-      | forme juridique | SAS             |
+      | e-mail          | hello@acme.test   |
+      | téléphone       | +33 3 88 11 22 33 |
+      | langue          | DE                |
+      | forme juridique | SAS               |
+
+  Scénario: Le téléphone est gardé tel que le monde le compose, quelle que soit sa saisie
+    Quand je change les coordonnées de "ACME" :
+      | téléphone | 0033.3.88.11.22.33 |
+    Alors l'organisation "ACME" est enregistrée avec :
+      | téléphone | +33 3 88 11 22 33 |
+
+  Scénario: Un numéro de téléphone invalide est refusé
+    Quand je change les coordonnées de "ACME" :
+      | téléphone | 12 |
+    Alors c'est refusé : "Phone number "12" is not valid"
 
   Scénario: L'e-mail ne peut pas être celui d'une autre organisation de ma base
     Soit l'organisation "Globex" fait partie de mes organisations avec :

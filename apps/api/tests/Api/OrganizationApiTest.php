@@ -100,6 +100,7 @@ class OrganizationApiTest extends ApiTestCase
 
         $contacted = $this->requestJson('PATCH', '/api/organizations/'.$id.'/contact-details', ['email' => 'hello@acme.test', 'phoneNumber' => '0388000000', 'language' => 'FR']);
         $this->assertSame('hello@acme.test', $contacted['contactDetails']['email']);
+        $this->assertSame('+33 3 88 00 00 00', $contacted['contactDetails']['phoneNumber']);
         $this->assertSame('ACME Corp', $contacted['legalIdentity']['corporateName']);
 
         $relocated = $this->requestJson('PATCH', '/api/organizations/'.$id.'/address', []);

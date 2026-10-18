@@ -11,6 +11,7 @@ use Prospecter\Core\PersonalData\Domain\Purpose;
 use Prospecter\Core\SharedKernel\Domain\AccountId;
 use Prospecter\Core\SharedKernel\Domain\Email;
 use Prospecter\Core\SharedKernel\Domain\PersonId;
+use Prospecter\Core\SharedKernel\Domain\PhoneNumber;
 use Prospecter\Core\SharedKernel\Domain\SearchKey;
 use Prospecter\Core\SharedKernel\Domain\SearchKeys;
 use Prospecter\Core\SharedKernel\Domain\Slice;
@@ -41,6 +42,11 @@ final readonly class InMemoryPersonRepository implements PersonRepository
         $kept = array_values(array_filter($this->database->persons(), static fn (Person $person): bool => $person->accountId()->equals($accountId) && $person->purpose() === $purpose));
 
         return NewestFirst::slice($kept, static fn (Person $person): string => (string) $person->id(), static fn (Person $person): SearchKeys => $person->searchKeys(), $search, $after, $max);
+    }
+
+    public function withPhoneNumber(AccountId $accountId, Purpose $purpose, PhoneNumber $phoneNumber): array
+    {
+        return array_values(array_filter($this->database->persons(), static fn (Person $person): bool => $person->accountId()->equals($accountId) && $person->purpose() === $purpose && $person->contactDetails()->phoneNumber?->value === $phoneNumber->value));
     }
 
     public function remove(Person $person): void

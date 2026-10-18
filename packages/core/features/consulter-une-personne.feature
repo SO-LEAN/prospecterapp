@@ -19,7 +19,7 @@ Fonctionnalité: Consulter les données personnelles d'une personne
       | prénom    | Grace                |
       | nom       | Hopper               |
       | e-mail    | grace@solean-it.test |
-      | téléphone | 06 12 34 56 78       |
+      | téléphone | +33 6 12 34 56 78    |
       | masquée   | non                  |
 
   Scénario: Sans le droit, je lis un collègue masqué, sans que la longueur de ses données ne fuie

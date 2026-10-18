@@ -20,6 +20,7 @@ use Prospecter\Core\SharedKernel\Domain\Email;
 use Prospecter\Core\SharedKernel\Domain\MemberId;
 use Prospecter\Core\SharedKernel\Domain\OrganizationId;
 use Prospecter\Core\SharedKernel\Domain\PersonId;
+use Prospecter\Core\SharedKernel\Domain\PhoneNumber;
 
 /**
  * Collects the person; the event it records attaches it to its organizations in Prospecting (ContactCollected).
@@ -48,7 +49,7 @@ final readonly class CollectContactHandler implements CommandHandler
             id: new PersonId($command->id),
             name: new PersonName($command->firstName, $command->lastName),
             jobTitle: $command->jobTitle,
-            contactDetails: new ContactDetails(Email::orNone($command->email), $command->phoneNumber, $command->language),
+            contactDetails: new ContactDetails(Email::orNone($command->email), PhoneNumber::orNone($command->phoneNumber), $command->language),
             organizations: $organizations,
             at: $command->executedAt,
         );

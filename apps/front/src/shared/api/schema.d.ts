@@ -402,6 +402,23 @@ export interface paths {
         patch: operations["patch_api_contacts_rename"];
         trace?: never;
     };
+    "/api/phone-numbers/{phoneNumber}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Recognize who calls: the organizations my organization prospects and its contacts having the phone number, given in E.164 or in the national format of France; needs the right to manage personal data */
+        get: operations["get_api_phone_numbers_recognize"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/contacts/{id}/organizations": {
         parameters: {
             query?: never;
@@ -494,7 +511,11 @@ export interface components {
         ContactDetailsInput: {
             /** @default null */
             email: string | null;
-            /** @default null */
+            /**
+             * @description In the international format (+33 3 88 11 22 33) or in the national format of France (03 88 11 22 33); kept in E.164, refused when it is no valid number
+             * @default null
+             * @example 03 88 11 22 33
+             */
             phoneNumber: string | null;
             /** @default null */
             language: string | null;
@@ -583,6 +604,10 @@ export interface components {
         };
         ContactDetailsResource: {
             email?: string | null;
+            /**
+             * @description In the international format
+             * @example +33 3 88 11 22 33
+             */
             phoneNumber?: string | null;
             language?: string | null;
         };
@@ -754,6 +779,10 @@ export interface components {
         ContactListResource: {
             items: components["schemas"]["ContactInListResource"][];
             _links: components["schemas"]["ContactListLinksResource"];
+        };
+        CallerResource: {
+            organizations: components["schemas"]["OrganizationResource"][];
+            contacts: components["schemas"]["ContactInListResource"][];
         };
         OrganizationsOfContactResource: {
             items: components["schemas"]["OrganizationOfContactResource"][];
@@ -2350,6 +2379,53 @@ export interface operations {
                 };
             };
             /** @description Invalid name */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ProblemResource"];
+                };
+            };
+        };
+    };
+    get_api_phone_numbers_recognize: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                phoneNumber: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Who has the number, nobody when both lists are empty */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CallerResource"];
+                };
+            };
+            /** @description Missing or invalid access token */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Not a prospector, or without the right to manage personal data */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ProblemResource"];
+                };
+            };
+            /** @description No valid phone number */
             422: {
                 headers: {
                     [name: string]: unknown;

@@ -5,12 +5,9 @@ namespace App\Contacts;
 use App\Contacts\Resource\ContactInListResource;
 use App\Contacts\Resource\ContactListLinksResource;
 use App\Contacts\Resource\ContactListResource;
-use App\Contacts\Resource\OrganizationOfContactResource;
 use App\PersonalData\Input\ContactListQuery;
-use App\PersonalData\Resource\PersonNameResource;
 use App\Security\User;
 use App\Shared\Links;
-use App\Shared\Resource\ContactDetailsResource;
 use App\Shared\Resource\ProblemResource;
 use Nelmio\ApiDocBundle\Attribute\Model;
 use OpenApi\Attributes as OA;
@@ -36,6 +33,7 @@ final class SearchContacts extends AbstractController
     public function __construct(
         private readonly RefusalTranslatingHandler $searchContacts,
         private readonly OrganizationsOfContacts $organizations,
+        private readonly ContactInListPresenter $contacts,
         private readonly Links $links,
     ) {
     }
@@ -51,25 +49,9 @@ final class SearchContacts extends AbstractController
         $organizations = $this->organizations->read($user->memberId(), array_map(static fn (PersonResponse $contact): string => $contact->id, $page->contacts));
 
         return $this->json(new ContactListResource(
-            array_map(fn (PersonResponse $contact): ContactInListResource => $this->present($contact, $organizations[$contact->id] ?? []), $page->contacts),
+            array_map(fn (PersonResponse $contact): ContactInListResource => $this->contacts->present($contact, $organizations[$contact->id] ?? []), $page->contacts),
             $this->linksOf($page, $query->q),
         ));
-    }
-
-    /**
-     * @param list<OrganizationOfContactResource> $organizations
-     */
-    private function present(PersonResponse $contact, array $organizations): ContactInListResource
-    {
-        return new ContactInListResource(
-            id: $contact->id,
-            name: new PersonNameResource($contact->firstName, $contact->lastName),
-            jobTitle: $contact->jobTitle,
-            contactDetails: new ContactDetailsResource($contact->email, $contact->phoneNumber, $contact->language),
-            masked: $contact->masked,
-            organizations: $organizations,
-            contact: $this->links->to('api_contacts_show', ['id' => $contact->id]),
-        );
     }
 
     private function linksOf(SearchContactsResponse $page, string $query): ContactListLinksResource

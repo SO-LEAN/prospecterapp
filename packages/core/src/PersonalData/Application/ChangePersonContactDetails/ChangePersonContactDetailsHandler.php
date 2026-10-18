@@ -14,6 +14,7 @@ use Prospecter\Core\SharedKernel\Domain\ContactDetails;
 use Prospecter\Core\SharedKernel\Domain\Email;
 use Prospecter\Core\SharedKernel\Domain\MemberId;
 use Prospecter\Core\SharedKernel\Domain\PersonId;
+use Prospecter\Core\SharedKernel\Domain\PhoneNumber;
 
 final readonly class ChangePersonContactDetailsHandler implements CommandHandler
 {
@@ -30,7 +31,7 @@ final readonly class ChangePersonContactDetailsHandler implements CommandHandler
     public function __invoke(ChangePersonContactDetails $command): void
     {
         $person = $this->persons->get(new PersonId($command->id));
-        $person->changeContactDetails(new ContactDetails(Email::orNone($command->email), $command->phoneNumber, $command->language), by: $this->readerService->readerFrom(new MemberId($command->readerId)), at: $command->executedAt);
+        $person->changeContactDetails(new ContactDetails(Email::orNone($command->email), PhoneNumber::orNone($command->phoneNumber), $command->language), by: $this->readerService->readerFrom(new MemberId($command->readerId)), at: $command->executedAt);
         $this->emails->ensureAvailableFor($person);
         $this->persons->save($person);
         $this->publishWhatHappenedTo($person);

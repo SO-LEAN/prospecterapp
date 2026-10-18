@@ -8,6 +8,7 @@ import {
 } from '@/shared/forms/contact-details'
 import { SectionForm } from '@/shared/forms/section-form'
 import { countryName } from '@/shared/lib/countries'
+import { telUrl } from '@/shared/lib/format'
 import { Detail } from '@/shared/ui/detail'
 import { EditableSection } from '@/shared/ui/editable-section'
 import { useChangeContactDetails } from '../mutations'
@@ -45,7 +46,7 @@ export function ContactDetailsSection({ organization }: { organization: Organiza
       </Detail>
       <Detail label={t('fields.phoneNumber')}>
         {contact.phoneNumber && (
-          <a href={`tel:${contact.phoneNumber}`} className="hover:underline">
+          <a href={telUrl(contact.phoneNumber)} className="hover:underline">
             {contact.phoneNumber}
           </a>
         )}

@@ -6,14 +6,14 @@ import { CountrySelect } from '@/shared/ui/form/country-select'
 import { Input } from '@/shared/ui/input'
 import { FormField } from './form-field'
 import { atRoot, type FieldsProps } from './section-form'
-import { optionalEmail, orNull, text } from './text'
+import { optionalEmail, optionalPhoneNumber, orNull } from './text'
 
 type ContactDetailsResource = components['schemas']['ContactDetailsResource']
 type ContactDetailsInput = components['schemas']['ContactDetailsInput']
 
 export const contactDetailsSchema = z.object({
   email: optionalEmail,
-  phoneNumber: text(255),
+  phoneNumber: optionalPhoneNumber,
   language: z.string().nullable(),
 })
 

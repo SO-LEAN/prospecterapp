@@ -19,6 +19,7 @@ use Prospecter\Core\SharedKernel\Domain\Email;
 use Prospecter\Core\SharedKernel\Domain\LegalIdentity;
 use Prospecter\Core\SharedKernel\Domain\MemberId;
 use Prospecter\Core\SharedKernel\Domain\OrganizationId;
+use Prospecter\Core\SharedKernel\Domain\PhoneNumber;
 
 final readonly class StartProspectingHandler implements CommandHandler
 {
@@ -40,7 +41,7 @@ final readonly class StartProspectingHandler implements CommandHandler
             $prospector,
             new OrganizationId($command->id),
             new LegalIdentity($command->corporateName, $command->form, $command->type),
-            new ContactDetails(Email::orNone($command->email), $command->phoneNumber, $command->language),
+            new ContactDetails(Email::orNone($command->email), PhoneNumber::orNone($command->phoneNumber), $command->language),
             $command->executedAt,
         );
         $this->locate($organization, $command, $prospector);

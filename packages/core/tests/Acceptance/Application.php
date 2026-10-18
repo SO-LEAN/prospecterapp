@@ -30,6 +30,8 @@ use Prospecter\Core\PersonalData\Application\IsAContactOf\IsAContactOfHandler;
 use Prospecter\Core\PersonalData\Application\PersonResponse;
 use Prospecter\Core\PersonalData\Application\PublishContactCollected\PublishContactCollectedHandler;
 use Prospecter\Core\PersonalData\Application\PublishContactForgotten\PublishContactForgottenHandler;
+use Prospecter\Core\PersonalData\Application\RecognizeCallingContact\RecognizeCallingContact;
+use Prospecter\Core\PersonalData\Application\RecognizeCallingContact\RecognizeCallingContactHandler;
 use Prospecter\Core\PersonalData\Application\RenamePerson\RenamePersonHandler;
 use Prospecter\Core\PersonalData\Application\SearchContacts\SearchContacts;
 use Prospecter\Core\PersonalData\Application\SearchContacts\SearchContactsHandler;
@@ -48,6 +50,8 @@ use Prospecter\Core\Prospecting\Application\DetachFromHolding\DetachFromHoldingH
 use Prospecter\Core\Prospecting\Application\IsProspectedBy\IsProspectedByHandler;
 use Prospecter\Core\Prospecting\Application\OrganizationResponse;
 use Prospecter\Core\Prospecting\Application\PublishContactsLeftWithoutOrganization\PublishContactsLeftWithoutOrganizationHandler;
+use Prospecter\Core\Prospecting\Application\RecognizeCallingOrganization\RecognizeCallingOrganization;
+use Prospecter\Core\Prospecting\Application\RecognizeCallingOrganization\RecognizeCallingOrganizationHandler;
 use Prospecter\Core\Prospecting\Application\Relocate\RelocateHandler;
 use Prospecter\Core\Prospecting\Application\RemoveContact\RemoveContactHandler;
 use Prospecter\Core\Prospecting\Application\RemoveLogo\RemoveLogoHandler;
@@ -215,6 +219,22 @@ final class Application
     public function searchContacts(SearchContacts $query): ?SearchContactsResponse
     {
         return $this->attempt(fn (): SearchContactsResponse => new RefusalTranslatingHandler(new SearchContactsHandler($this->persons, $this->readerService))($query));
+    }
+
+    /**
+     * @return list<PersonResponse>|null
+     */
+    public function recognizeACallingContact(RecognizeCallingContact $query): ?array
+    {
+        return $this->attempt(fn (): array => new RefusalTranslatingHandler(new RecognizeCallingContactHandler($this->persons, $this->readerService))($query));
+    }
+
+    /**
+     * @return list<OrganizationResponse>|null
+     */
+    public function recognizeACallingOrganization(RecognizeCallingOrganization $query): ?array
+    {
+        return $this->attempt(fn (): array => new RefusalTranslatingHandler(new RecognizeCallingOrganizationHandler($this->organizations, $this->prospectorService))($query));
     }
 
     /**

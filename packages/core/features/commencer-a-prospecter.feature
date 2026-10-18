@@ -21,7 +21,7 @@ Fonctionnalité: Commencer à prospecter une organisation
       | forme juridique | SAS                |
       | type            | Éditeur            |
       | e-mail          | contact@acme.test  |
-      | téléphone       | 03 88 00 00 00     |
+      | téléphone       | +33 3 88 00 00 00  |
       | langue          | FR                 |
       | observations    | Rencontré au salon |
       | compte          | SOLEAN IT          |

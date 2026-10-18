@@ -173,6 +173,7 @@ export const fr = {
   validation: {
     required: 'Ce champ est obligatoire.',
     email: 'Adresse e-mail invalide.',
+    phoneNumber: 'Numéro de téléphone invalide.',
     max: '{{max}} caractères maximum.',
     min: '{{min}} caractères minimum.',
   },

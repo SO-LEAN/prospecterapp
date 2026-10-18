@@ -8,7 +8,7 @@ final readonly class ContactDetails
 {
     public function __construct(
         public ?Email $email = null,
-        public ?string $phoneNumber = null,
+        public ?PhoneNumber $phoneNumber = null,
         public ?string $language = null,
     ) {
     }

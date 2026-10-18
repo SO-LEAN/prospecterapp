@@ -18,7 +18,7 @@ Fonctionnalité: Changer mes coordonnées
       | langue    | EN                |
     Alors mon compte est enregistré avec :
       | e-mail                     | ada@lovelace.test |
-      | téléphone                  | 06 00 00 00 00    |
+      | téléphone                  | +33 6 00 00 00 00 |
       | langue                     | EN                |
       | nom                        | Lovelace          |
       | langue de mon organisation |                   |
