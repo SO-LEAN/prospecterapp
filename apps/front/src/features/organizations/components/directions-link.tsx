@@ -1,5 +1,5 @@
-import { ExternalLink } from 'lucide-react'
-import type { MouseEvent } from 'react'
+import { ExternalLink, Loader2 } from 'lucide-react'
+import { type MouseEvent, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { toast } from 'sonner'
 import type { components } from '@/shared/api/schema'
@@ -16,10 +16,16 @@ type Location = components['schemas']['LocationResource']
  */
 export function DirectionsLink({ to, start }: { to: Location; start?: Location | null }) {
   const { t } = useTranslation()
+  const [locating, setLocating] = useState(false)
 
-  const startFromTheDevice = (event: MouseEvent<HTMLAnchorElement>) => {
+  const startFromTheDevice = async (event: MouseEvent<HTMLAnchorElement>) => {
     event.preventDefault()
-    void openTheRouteFromTheDevice(to)
+    if (locating) {
+      return
+    }
+    setLocating(true)
+    await openTheRouteFromTheDevice(to)
+    setLocating(false)
   }
 
   return (
@@ -29,8 +35,10 @@ export function DirectionsLink({ to, start }: { to: Location; start?: Location |
         target="_blank"
         rel="noreferrer"
         onClick={start ? undefined : startFromTheDevice}
+        aria-busy={locating}
       >
-        {t('organizations.address.directions')} <ExternalLink />
+        {t('organizations.address.directions')}{' '}
+        {locating ? <Loader2 className="animate-spin" aria-hidden /> : <ExternalLink />}
       </a>
     </Button>
   )

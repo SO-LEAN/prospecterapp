@@ -89,6 +89,26 @@ describe('DirectionsLink', () => {
     expect(open).toHaveBeenLastCalledWith(ROUTE_FROM_LYON, '_blank')
   })
 
+  it('while the position is awaited, says so and opens one route only', async () => {
+    const questions: PositionCallback[] = []
+    givenTheDevice((success) => {
+      questions.push(success)
+    })
+    const { open } = givenTheBrowserOpensTabs()
+    const user = renderTheLink(null)
+    const link = screen.getByRole('link', { name: 'Itinéraire' })
+
+    await user.click(link)
+    await user.click(link)
+
+    expect(link).toHaveAttribute('aria-busy', 'true')
+    for (const answer of questions) {
+      answer({ coords: lyon } as GeolocationPosition)
+    }
+    await vi.waitFor(() => expect(link).not.toHaveAttribute('aria-busy', 'true'))
+    expect(open).toHaveBeenCalledTimes(1)
+  })
+
   it('asks the device only on the click', () => {
     const device = givenTheDevice(sharingLyon)
 
