@@ -8,8 +8,10 @@ use App\Me\Resource\AccountResource;
 use App\PersonalData\Resource\PersonNameResource;
 use App\Shared\ImageResourceFactory;
 use App\Shared\Links;
+use App\Shared\Resource\AddressResource;
 use App\Shared\Resource\ContactDetailsResource;
 use App\Shared\Resource\LegalIdentityResource;
+use App\Shared\Resource\LocationResource;
 use Prospecter\Core\Accounts\Application\AccountResponse;
 use Prospecter\Core\PersonalData\Application\PersonResponse;
 
@@ -28,6 +30,7 @@ final readonly class AccountResourcePresenter
     private const array ORGANIZATION_ROUTES = [
         'ReviseLegalIdentity' => ['reviseMyOrganizationIdentity', 'api_me_revise_organization_identity'],
         'ChangeLogo' => ['changeMyOrganizationLogo', 'api_me_change_organization_logo'],
+        'Relocate' => ['relocateMyOrganization', 'api_me_relocate_organization'],
     ];
 
     public function __construct(private ImageResourceFactory $images, private Links $links)
@@ -43,6 +46,8 @@ final readonly class AccountResourcePresenter
             organization: new AccountOrganizationResource(
                 new LegalIdentityResource($account->organizationCorporateName, $account->organizationForm, $account->organizationType),
                 $this->images->create($account->organizationLogo?->url),
+                AddressResource::orNone($account->organizationStreet, $account->organizationPostalCode, $account->organizationCity, $account->organizationCountry),
+                LocationResource::orNone($account->organizationLatitude, $account->organizationLongitude),
             ),
             links: $this->linksOf($account, $me),
         );

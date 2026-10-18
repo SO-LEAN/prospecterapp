@@ -12,6 +12,7 @@ use Prospecter\Core\Accounts\Application\ConsultMyAccount\ConsultMyAccountHandle
 use Prospecter\Core\Accounts\Application\OpenAccount\OpenAccountHandler;
 use Prospecter\Core\Accounts\Application\PublishAccountOpened\PublishAccountOpenedHandler;
 use Prospecter\Core\Accounts\Application\RegisterTheFounder\RegisterTheFounderHandler;
+use Prospecter\Core\Accounts\Application\RelocateMyOrganization\RelocateMyOrganizationHandler;
 use Prospecter\Core\Accounts\Application\ReviseMyOrganizationIdentity\ReviseMyOrganizationIdentityHandler;
 use Prospecter\Core\Accounts\Contract\Service\ConsultMember\ConsultMember;
 use Prospecter\Core\PersonalData\Application\ChangeJobTitle\ChangeJobTitleHandler;
@@ -44,7 +45,6 @@ use Prospecter\Core\Prospecting\Application\ConsultOrganization\ConsultOrganizat
 use Prospecter\Core\Prospecting\Application\ConsultOrganization\ConsultOrganizationHandler;
 use Prospecter\Core\Prospecting\Application\DetachForgottenContact\DetachForgottenContactHandler;
 use Prospecter\Core\Prospecting\Application\DetachFromHolding\DetachFromHoldingHandler;
-use Prospecter\Core\Prospecting\Application\GeoLocalizer;
 use Prospecter\Core\Prospecting\Application\IsProspectedBy\IsProspectedByHandler;
 use Prospecter\Core\Prospecting\Application\OrganizationResponse;
 use Prospecter\Core\Prospecting\Application\PublishContactsLeftWithoutOrganization\PublishContactsLeftWithoutOrganizationHandler;
@@ -65,6 +65,7 @@ use Prospecter\Core\SharedKernel\Application\CommandHandler;
 use Prospecter\Core\SharedKernel\Application\EventHandler;
 use Prospecter\Core\SharedKernel\Application\Exception\UseCaseRefused;
 use Prospecter\Core\SharedKernel\Application\FileStore;
+use Prospecter\Core\SharedKernel\Application\GeoLocalizer;
 use Prospecter\Core\SharedKernel\Application\QueryHandler;
 use Prospecter\Core\SharedKernel\Application\RefusalTranslatingHandler;
 use Prospecter\Core\SharedKernel\Domain\MemberId;
@@ -243,6 +244,7 @@ final class Application
             new ChangePersonContactDetailsHandler($this->persons, $this->readerService, $this->events, $this->personEmails),
             new ChangePersonPictureHandler($this->persons, $this->readerService, $this->events, $this->files),
             new ReviseMyOrganizationIdentityHandler($this->accounts, $this->members, $this->events),
+            new RelocateMyOrganizationHandler($this->accounts, $this->members, $this->events, $this->geoLocalizer),
             new ChangeMyOrganizationLogoHandler($this->accounts, $this->members, $this->events, $this->files),
             new OpenAccountHandler($this->accounts, $this->events),
             new CollectContactHandler($this->persons, $this->readerService, $this->prospectedOrganizations, $this->events, $this->personEmails),

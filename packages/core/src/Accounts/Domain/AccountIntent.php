@@ -8,4 +8,5 @@ enum AccountIntent
 {
     case ReviseLegalIdentity;
     case ChangeLogo;
+    case Relocate;
 }

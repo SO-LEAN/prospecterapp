@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace Tests\Core\Double;
 
-use Prospecter\Core\Prospecting\Application\Port\GeoLocation;
-use Prospecter\Core\Prospecting\Domain\GeoPoint;
+use Prospecter\Core\SharedKernel\Application\Port\GeoLocation;
+use Prospecter\Core\SharedKernel\Domain\GeoPoint;
 
 /**
  * A geocoder that knows the places declared by the scenario: an address mentioning one of them is found

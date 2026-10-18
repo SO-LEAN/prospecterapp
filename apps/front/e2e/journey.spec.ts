@@ -113,6 +113,20 @@ test('sign in, start prospecting an organization, change it section by section, 
     await expect(page.getByRole('link', { name: new RegExp(lastName) })).toHaveCount(0)
   })
 
+  await test.step('the route to the organization starts from my organization', async () => {
+    await page.goto('/account')
+    await page.getByRole('button', { name: 'Modifier : Adresse de mon organisation' }).click()
+    await page.getByLabel('Ville').fill('Strasbourg')
+    await page.getByRole('button', { name: 'Enregistrer' }).click()
+    await expect(page.getByRole('main').getByText('Strasbourg', { exact: true })).toBeVisible()
+
+    await page.goto(organizationUrl)
+    await expect(page.getByRole('link', { name: 'Itinéraire' })).toHaveAttribute(
+      'href',
+      /openstreetmap\.org\/directions\?from=[\d.%C-]+&to=[\d.%C-]+$/,
+    )
+  })
+
   await test.step('stopping to prospect the organization removes it', async () => {
     await page.goto(organizationUrl)
     await page.getByRole('button', { name: 'Arrêter de prospecter' }).click()

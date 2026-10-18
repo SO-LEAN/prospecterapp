@@ -6,12 +6,12 @@ namespace Tests\Core\Domain;
 
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
-use Prospecter\Core\Prospecting\Domain\Address;
 use Prospecter\Core\Prospecting\Domain\Organization;
 use Prospecter\Core\Prospecting\Domain\OrganizationIntent;
 use Prospecter\Core\Prospecting\Domain\OrphanContacts;
 use Prospecter\Core\Prospecting\Domain\Prospector;
 use Prospecter\Core\SharedKernel\Domain\AccountId;
+use Prospecter\Core\SharedKernel\Domain\Address;
 use Prospecter\Core\SharedKernel\Domain\ContactDetails;
 use Prospecter\Core\SharedKernel\Domain\Exception\BusinessRuleViolation;
 use Prospecter\Core\SharedKernel\Domain\Exception\NotFound;

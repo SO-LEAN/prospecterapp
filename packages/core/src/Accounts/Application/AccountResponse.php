@@ -11,14 +11,14 @@ use Prospecter\Core\Accounts\Domain\Role;
 use Prospecter\Core\SharedKernel\Application\FileResponse;
 
 /**
- * My account: who I am (my identities, my roles), the identity and logo of my organization, what I may change
+ * My account: who I am (my identities, my roles), the identity, logo and address of my organization, what I may change
  * of it. The delivery also reads it to know who calls it.
  */
 final readonly class AccountResponse
 {
     /**
      * @param list<string> $roles          values of my roles: ROLE_USER, ROLE_PROSPECTOR...
-     * @param list<string> $accountIntents names of what I may change of my organization: ReviseLegalIdentity, ChangeLogo
+     * @param list<string> $accountIntents names of what I may change of my organization: ReviseLegalIdentity, ChangeLogo, Relocate
      */
     private function __construct(
         public string $memberId,
@@ -29,6 +29,12 @@ final readonly class AccountResponse
         public ?string $organizationForm,
         public ?string $organizationType,
         public ?FileResponse $organizationLogo,
+        public ?string $organizationStreet,
+        public ?string $organizationPostalCode,
+        public ?string $organizationCity,
+        public ?string $organizationCountry,
+        public ?float $organizationLongitude,
+        public ?float $organizationLatitude,
         public array $accountIntents,
         public \DateTimeImmutable $createdAt,
         public \DateTimeImmutable $modifiedAt,
@@ -38,6 +44,8 @@ final readonly class AccountResponse
     public static function of(Account $myAccount, Member $me): self
     {
         $identity = $myAccount->legalIdentity();
+        $address = $myAccount->address();
+        $geoPoint = $myAccount->geoPoint();
 
         return new self(
             memberId: $me->id()->value,
@@ -48,6 +56,12 @@ final readonly class AccountResponse
             organizationForm: $identity->form,
             organizationType: $identity->type,
             organizationLogo: FileResponse::orNone($myAccount->logo()),
+            organizationStreet: $address?->street,
+            organizationPostalCode: $address?->postalCode,
+            organizationCity: $address?->city,
+            organizationCountry: $address?->country,
+            organizationLongitude: $geoPoint?->longitude,
+            organizationLatitude: $geoPoint?->latitude,
             accountIntents: array_map(static fn (AccountIntent $intent): string => $intent->name, $myAccount->possibleIntentsOf($me)),
             createdAt: $myAccount->createdAt(),
             modifiedAt: $myAccount->modifiedAt(),

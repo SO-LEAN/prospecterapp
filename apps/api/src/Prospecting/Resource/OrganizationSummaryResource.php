@@ -3,6 +3,7 @@
 namespace App\Prospecting\Resource;
 
 use App\Shared\Resource\ImageResource;
+use App\Shared\Resource\LocationResource;
 
 final readonly class OrganizationSummaryResource
 {

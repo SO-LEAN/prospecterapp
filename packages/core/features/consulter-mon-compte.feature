@@ -30,3 +30,4 @@ Fonctionnalité: Consulter mon compte
     Et je peux sur mon organisation :
       | réviser l'identité |
       | changer le logo    |
+      | déménager          |

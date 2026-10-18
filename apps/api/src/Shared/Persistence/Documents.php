@@ -2,9 +2,11 @@
 
 namespace App\Shared\Persistence;
 
+use Prospecter\Core\SharedKernel\Domain\Address;
 use Prospecter\Core\SharedKernel\Domain\ContactDetails;
 use Prospecter\Core\SharedKernel\Domain\Email;
 use Prospecter\Core\SharedKernel\Domain\File;
+use Prospecter\Core\SharedKernel\Domain\GeoPoint;
 use Prospecter\Core\SharedKernel\Domain\LegalIdentity;
 use Prospecter\Core\SharedKernel\Domain\Slice;
 
@@ -56,6 +58,38 @@ final class Documents
     public static function contactDetailsOf(array $document): ContactDetails
     {
         return new ContactDetails(Email::orNone($document['email'] ?? null), $document['phoneNumber'] ?? null, $document['language'] ?? null);
+    }
+
+    /**
+     * @return array{street: ?string, postalCode: ?string, city: ?string, country: ?string}|null
+     */
+    public static function address(?Address $address): ?array
+    {
+        return null === $address ? null : ['street' => $address->street, 'postalCode' => $address->postalCode, 'city' => $address->city, 'country' => $address->country];
+    }
+
+    /**
+     * @param array<string, mixed>|null $document
+     */
+    public static function addressOf(?array $document): ?Address
+    {
+        return null === $document ? null : new Address($document['street'], $document['postalCode'], $document['city'], $document['country']);
+    }
+
+    /**
+     * @return array{longitude: float, latitude: float}|null
+     */
+    public static function geoPoint(?GeoPoint $geoPoint): ?array
+    {
+        return null === $geoPoint ? null : ['longitude' => $geoPoint->longitude, 'latitude' => $geoPoint->latitude];
+    }
+
+    /**
+     * @param array<string, mixed>|null $document
+     */
+    public static function geoPointOf(?array $document): ?GeoPoint
+    {
+        return null === $document ? null : new GeoPoint((float) $document['longitude'], (float) $document['latitude']);
     }
 
     /**

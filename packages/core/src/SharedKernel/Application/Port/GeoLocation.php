@@ -2,9 +2,9 @@
 
 declare(strict_types=1);
 
-namespace Prospecter\Core\Prospecting\Application\Port;
+namespace Prospecter\Core\SharedKernel\Application\Port;
 
-use Prospecter\Core\Prospecting\Domain\GeoPoint;
+use Prospecter\Core\SharedKernel\Domain\GeoPoint;
 
 interface GeoLocation
 {

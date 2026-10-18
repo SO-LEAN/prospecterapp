@@ -2,14 +2,14 @@
 
 namespace App\Prospecting\Presenter;
 
-use App\Prospecting\Resource\AddressResource;
-use App\Prospecting\Resource\LocationResource;
 use App\Prospecting\Resource\OrganizationLinksResource;
 use App\Prospecting\Resource\OrganizationResource;
 use App\Shared\ImageResourceFactory;
 use App\Shared\Links;
+use App\Shared\Resource\AddressResource;
 use App\Shared\Resource\ContactDetailsResource;
 use App\Shared\Resource\LegalIdentityResource;
+use App\Shared\Resource\LocationResource;
 use Prospecter\Core\Prospecting\Application\OrganizationResponse;
 
 /**

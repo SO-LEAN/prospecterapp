@@ -2,6 +2,7 @@
 
 namespace App\Prospecting\Input;
 
+use App\Shared\Input\AddressInput;
 use App\Shared\Input\ContactDetailsInput;
 use App\Shared\Input\LegalIdentityInput;
 use Symfony\Component\Validator\Constraints as Assert;

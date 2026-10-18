@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Prospecting\Resource;
+namespace App\Shared\Resource;
 
 final readonly class LocationResource
 {

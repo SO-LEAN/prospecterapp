@@ -2,12 +2,12 @@
 
 namespace App\Prospecting\Presenter;
 
-use App\Prospecting\Resource\LocationResource;
 use App\Prospecting\Resource\OrganizationPageLinksResource;
 use App\Prospecting\Resource\OrganizationPageResource;
 use App\Prospecting\Resource\OrganizationSummaryResource;
 use App\Shared\ImageResourceFactory;
 use App\Shared\Links;
+use App\Shared\Resource\LocationResource;
 use Prospecter\Core\Prospecting\Application\SearchProspectedOrganizations\FoundOrganization;
 use Prospecter\Core\Prospecting\Application\SearchProspectedOrganizations\SearchProspectedOrganizationsResponse;
 

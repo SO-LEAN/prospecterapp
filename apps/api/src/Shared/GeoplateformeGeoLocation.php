@@ -1,9 +1,9 @@
 <?php
 
-namespace App\Prospecting;
+namespace App\Shared;
 
-use Prospecter\Core\Prospecting\Application\Port\GeoLocation;
-use Prospecter\Core\Prospecting\Domain\GeoPoint;
+use Prospecter\Core\SharedKernel\Application\Port\GeoLocation;
+use Prospecter\Core\SharedKernel\Domain\GeoPoint;
 use Symfony\Component\DependencyInjection\Attribute\Autowire;
 use Symfony\Contracts\HttpClient\Exception\ExceptionInterface;
 use Symfony\Contracts\HttpClient\HttpClientInterface;

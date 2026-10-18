@@ -11,6 +11,7 @@ use Prospecter\Core\Accounts\Domain\AccountIntent;
 use Prospecter\Core\Accounts\Domain\Member;
 use Prospecter\Core\Accounts\Domain\Role;
 use Prospecter\Core\SharedKernel\Domain\AccountId;
+use Prospecter\Core\SharedKernel\Domain\Address;
 use Prospecter\Core\SharedKernel\Domain\Exception\NotFound;
 use Prospecter\Core\SharedKernel\Domain\File;
 use Prospecter\Core\SharedKernel\Domain\LegalIdentity;
@@ -56,6 +57,7 @@ class AccountIntentsTest extends TestCase
             match ($intent) {
                 AccountIntent::ReviseLegalIdentity => $account->reviseLegalIdentity(new LegalIdentity('SO-LEAN'), $by, new \DateTimeImmutable()),
                 AccountIntent::ChangeLogo => $account->changeLogo(new File('https://storage.test/logo.png', 'png', 1024), $by, new \DateTimeImmutable()),
+                AccountIntent::Relocate => $account->relocateTo(new Address(city: 'Strasbourg'), null, $by, new \DateTimeImmutable()),
             };
         } catch (NotFound) {
             return false;

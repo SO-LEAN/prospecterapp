@@ -2,9 +2,11 @@
 
 namespace App\Prospecting\Resource;
 
+use App\Shared\Resource\AddressResource;
 use App\Shared\Resource\ContactDetailsResource;
 use App\Shared\Resource\ImageResource;
 use App\Shared\Resource\LegalIdentityResource;
+use App\Shared\Resource\LocationResource;
 use Symfony\Component\Serializer\Attribute\Context;
 use Symfony\Component\Serializer\Attribute\SerializedName;
 use Symfony\Component\Serializer\Normalizer\AbstractObjectNormalizer;

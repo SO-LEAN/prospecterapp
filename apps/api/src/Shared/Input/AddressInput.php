@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Prospecting\Input;
+namespace App\Shared\Input;
 
 use Symfony\Component\Validator\Constraints as Assert;
 

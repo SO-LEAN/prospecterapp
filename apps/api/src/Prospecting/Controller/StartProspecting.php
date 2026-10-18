@@ -2,13 +2,13 @@
 
 namespace App\Prospecting\Controller;
 
-use App\Prospecting\Input\AddressInput;
 use App\Prospecting\Input\StartProspectingInput;
 use App\Prospecting\OrganizationReader;
 use App\Prospecting\Resource\OrganizationResource;
 use App\Security\User;
 use App\Shared\CommandBus;
 use App\Shared\Identities;
+use App\Shared\Input\AddressInput;
 use App\Shared\Resource\ProblemResource;
 use Nelmio\ApiDocBundle\Attribute\Model;
 use OpenApi\Attributes as OA;

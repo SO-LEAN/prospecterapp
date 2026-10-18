@@ -8,12 +8,12 @@ use Prospecter\Core\Accounts\Domain\Account;
 use Prospecter\Core\Accounts\Domain\Member;
 use Prospecter\Core\PersonalData\Domain\Person;
 use Prospecter\Core\PersonalData\Domain\PersonName;
-use Prospecter\Core\Prospecting\Domain\Address;
-use Prospecter\Core\Prospecting\Domain\GeoPoint;
 use Prospecter\Core\Prospecting\Domain\Organization;
+use Prospecter\Core\SharedKernel\Domain\Address;
 use Prospecter\Core\SharedKernel\Domain\ContactDetails;
 use Prospecter\Core\SharedKernel\Domain\Email;
 use Prospecter\Core\SharedKernel\Domain\File;
+use Prospecter\Core\SharedKernel\Domain\GeoPoint;
 use Prospecter\Core\SharedKernel\Domain\LegalIdentity;
 use Prospecter\Core\SharedKernel\Domain\MemberId;
 use Prospecter\Core\SharedKernel\Domain\Uuid;
@@ -161,6 +161,9 @@ final class Vocabulary
             'raison sociale de mon organisation' => (string) $account->legalIdentity()->corporateName,
             'forme juridique de mon organisation' => (string) $account->legalIdentity()->form,
             'langue de mon organisation' => (string) $account->contactDetails()->language,
+            'rue de mon organisation' => (string) $account->address()?->street,
+            'ville de mon organisation' => (string) $account->address()?->city,
+            'position de mon organisation' => self::describeGeoPoint($account->geoPoint()),
             'logo de mon organisation' => self::describeFile($account->logo()),
             'mon profil modifié le' => self::describeMoment($myPerson->modifiedAt()),
             'mon organisation modifiée le' => self::describeMoment($account->modifiedAt()),

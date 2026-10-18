@@ -31,6 +31,8 @@ final readonly class DynamoAccountRepository implements AccountRepository
             'legalIdentity' => Documents::legalIdentityOf($document['legalIdentity']),
             'contactDetails' => Documents::contactDetailsOf($document['contactDetails']),
             'logo' => Documents::fileOf($document['logo']),
+            'address' => Documents::addressOf($document['address'] ?? null),
+            'geoPoint' => Documents::geoPointOf($document['geoPoint'] ?? null),
             'createdAt' => Documents::momentOf($document['createdAt']),
             'modifiedAt' => Documents::momentOf($document['modifiedAt']),
         ]);
@@ -45,6 +47,8 @@ final readonly class DynamoAccountRepository implements AccountRepository
             'legalIdentity' => Documents::legalIdentity($state['legalIdentity']),
             'contactDetails' => Documents::contactDetails($state['contactDetails']),
             'logo' => Documents::file($state['logo']),
+            'address' => Documents::address($state['address']),
+            'geoPoint' => Documents::geoPoint($state['geoPoint']),
             'createdAt' => Documents::moment($state['createdAt']),
             'modifiedAt' => Documents::moment($state['modifiedAt']),
         ]])]);
