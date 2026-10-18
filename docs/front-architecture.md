@@ -37,13 +37,13 @@ src/
   shared/               reusable, business-agnostic code
     api/                client.ts, schema.d.ts (generated), problem.ts, keys.ts, slices.ts, upload.ts
     auth/               session.ts: signing in on Cognito, the tokens of the tab; sign-in-page.ts: the screen and its returnTo
-    config/             env.ts: typed VITE_* variables
+    config/             env.ts: the configuration from /config.js (window.prospecter), else the VITE_* variables (ADR 0066)
     ui/                 design system components (shadcn) + form/, feedback/, map/
     i18n/               setup and fr.ts
     forms/              section form, FormField, shared field groups (AddressFields, ContactDetailsFields, LegalIdentityFields, PersonNameFields)
     lib/ hooks/ stores/ utilities (route-params.ts: UUID route params, a 404 of the API as a not found page), hooks, Zustand stores
   test/setup.ts         Vitest setup
-e2e/                    Playwright journeys
+e2e/                    Playwright journeys; wait-for-the-stack.ts, their global setup, waits for the SPA, the api and the storage
 ```
 
 Dependency rule: `shared` depends on nothing of the app; a `feature` depends only on `shared`; `routes` and `app` compose features. Query key prefixes used by several features live in `shared/api/keys.ts`.

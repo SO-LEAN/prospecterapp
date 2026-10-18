@@ -1,7 +1,7 @@
 # 0051. The files are in an S3 bucket, served from it; PHP only makes the missing sizes
 
 - Date: 2026-10-16
-- Status: Accepted
+- Status: Accepted, on AWS the bucket read by CloudFront only since [0065](0065-the-files-on-aws-behind-cloudfront.md)
 - Supersedes: the disk of the storage app ([0033](0033-storage-app.md): `public/storage` served by nginx)
 - Implemented by: `apps/storage/src/{Bucket,StoredFile,Files,Resizer}.php`, `apps/storage/src/Command/RecreateBucketCommand.php`, `docker/nginx/templates/static.conf.template`, the `ministack` service of `docker-compose.yml`
 

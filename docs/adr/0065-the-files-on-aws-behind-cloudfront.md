@@ -1,7 +1,7 @@
 # 0065. On AWS, CloudFront serves the files from the bucket and fails over to the storage for a missing size
 
 - Date: 2026-10-17
-- Status: Accepted
+- Status: Accepted, the HTTP API of the storage superseded by [0068](0068-the-internal-entry-of-the-storage-is-a-signed-function-url.md), the order of the applies by [0069](0069-a-new-instance-converges-in-two-applies.md)
 - Implemented by: `apps/storage/infra/{bucket,cloudfront,lambda,http-api,parameters}.tf`, `apps/storage/src/Kernel.php`, `apps/storage/config/services.yaml`, `tools/package/lambda`, the `package-storage` target of the `Makefile`
 
 ## Context

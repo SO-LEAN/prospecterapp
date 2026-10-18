@@ -2,6 +2,7 @@
 
 - Date: 2026-10-18
 - Status: Accepted
+- Supersedes: the order of the first deployment of [0059](0059-terraform-per-app-values-out-of-the-repository.md), [0061](0061-terraform-applies-each-merge-into-dev.md), [0065](0065-the-files-on-aws-behind-cloudfront.md) and [0066](0066-the-spa-on-aws-in-releases.md)
 - Implemented by: `apps/api/infra/{front,storage}.tf`, `apps/front/infra/parameters.tf`
 
 ## Context
