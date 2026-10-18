@@ -32,7 +32,7 @@ function SignInPage() {
       <div className="grid w-full max-w-sm gap-6">
         <div className="flex flex-col items-center gap-2">
           <BrandMark className="size-20" />
-          <span className="font-semibold text-2xl tracking-tight">Prospecter</span>
+          <span className="font-semibold text-2xl tracking-tight">{t('app.name')}</span>
         </div>
         <Card>
           <CardHeader>
