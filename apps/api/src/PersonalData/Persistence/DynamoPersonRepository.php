@@ -14,6 +14,7 @@ use Prospecter\Core\SharedKernel\Domain\AccountId;
 use Prospecter\Core\SharedKernel\Domain\Email;
 use Prospecter\Core\SharedKernel\Domain\Exception\EmailAlreadyUsed;
 use Prospecter\Core\SharedKernel\Domain\PersonId;
+use Prospecter\Core\SharedKernel\Domain\PhoneNumber;
 use Prospecter\Core\SharedKernel\Domain\SearchKey;
 use Prospecter\Core\SharedKernel\Domain\Slice;
 
@@ -23,7 +24,8 @@ use Prospecter\Core\SharedKernel\Domain\Slice;
  *   its id);
  * - `EMAIL#<account>#<purpose>#<email>` / `EMAIL`: the email a person holds among the persons an account keeps
  *   for a purpose, the safety net of EmailUniqueness (ADR 0039).
- * The person carries its search keys among the persons of the same account and purpose (`SearchIndexes`).
+ * The person carries its search keys and its phone number among the persons of the same account and purpose
+ * (`SearchIndexes`).
  */
 final readonly class DynamoPersonRepository implements PersonRepository
 {
@@ -75,6 +77,11 @@ final readonly class DynamoPersonRepository implements PersonRepository
         }
 
         return array_values(array_filter(array_map(static fn (string $key): ?Person => $persons[$key] ?? null, $keys)));
+    }
+
+    public function withPhoneNumber(AccountId $accountId, Purpose $purpose, PhoneNumber $phoneNumber): array
+    {
+        return $this->inTheOrderOf(SearchIndexes::withPhoneNumber($this->personalDataTable, self::scopeOf($accountId, $purpose), $phoneNumber));
     }
 
     public function remove(Person $person): void
@@ -141,7 +148,7 @@ final readonly class DynamoPersonRepository implements PersonRepository
      */
     private function itemOf(Person $person, array $document): array
     {
-        return SearchIndexes::of(self::scopeOf($person->accountId(), $person->purpose()), $person->searchKeys()) + [
+        return SearchIndexes::of(self::scopeOf($person->accountId(), $person->purpose()), $person->searchKeys(), $person->contactDetails()->phoneNumber) + [
             'PK' => self::keyOf(new PersonId($document['id'])),
             'SK' => self::PERSON,
             'GSI1PK' => self::listKey(new AccountId($document['accountId']), Purpose::from($document['purpose'])),

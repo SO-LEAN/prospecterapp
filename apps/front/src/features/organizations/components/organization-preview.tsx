@@ -4,6 +4,7 @@ import { ArrowRight, Mail, MapPin, Phone } from 'lucide-react'
 import type { ReactNode } from 'react'
 import { useTranslation } from 'react-i18next'
 import { countryName } from '@/shared/lib/countries'
+import { telUrl } from '@/shared/lib/format'
 import { Badge } from '@/shared/ui/badge'
 import { Button } from '@/shared/ui/button'
 import { Skeleton } from '@/shared/ui/skeleton'
@@ -64,7 +65,7 @@ export function OrganizationPreview({ id, name, logoUrl }: Props) {
           )}
           {organization?.contactDetails.phoneNumber && (
             <Line icon={<Phone />}>
-              <a href={`tel:${organization.contactDetails.phoneNumber}`} className="hover:underline">
+              <a href={telUrl(organization.contactDetails.phoneNumber)} className="hover:underline">
                 {organization.contactDetails.phoneNumber}
               </a>
             </Line>

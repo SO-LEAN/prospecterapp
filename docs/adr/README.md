@@ -75,3 +75,4 @@ Why the project is shaped the way it is: one file per decision in `docs/adr/`, i
 | [0069](0069-a-new-instance-converges-in-two-applies.md) | The apps read each other without depending on each other: a new instance converges in two applies | Accepted | 2026-10-18 |
 | [0070](0070-a-removed-file-is-forgotten-by-the-caches.md) | A removed file is forgotten by the caches in front of the bucket | Accepted | 2026-10-18 |
 | [0071](0071-search-by-the-beginning-of-the-name-or-of-the-email.md) | An aggregate is found by the beginning of its name or of its email, read in indexes of its table | Accepted | 2026-10-18 |
+| [0072](0072-phone-numbers-in-e164-by-libphonenumber-in-the-core.md) | Phone numbers are kept in E.164 by libphonenumber, inside the core; a call is recognized by its number | Accepted | 2026-10-18 |

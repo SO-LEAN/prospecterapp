@@ -14,6 +14,7 @@ use Prospecter\Core\SharedKernel\Domain\Email;
 use Prospecter\Core\SharedKernel\Domain\Exception\EmailAlreadyUsed;
 use Prospecter\Core\SharedKernel\Domain\OrganizationId;
 use Prospecter\Core\SharedKernel\Domain\PersonId;
+use Prospecter\Core\SharedKernel\Domain\PhoneNumber;
 use Prospecter\Core\SharedKernel\Domain\SearchKey;
 use Prospecter\Core\SharedKernel\Domain\Slice;
 
@@ -24,7 +25,8 @@ use Prospecter\Core\SharedKernel\Domain\Slice;
  * - `EMAIL#<account>#<email>` / `EMAIL`: the email an organization holds in its account, the safety net of
  *   EmailUniqueness (ADR 0039): two organizations taking it at once, the second transaction is cancelled;
  * - `CONTACT#<person>` / `ORGANIZATION#<id>`: the organizations naming a contact.
- * The organization carries its search keys among the organizations of its account (`SearchIndexes`).
+ * The organization carries its search keys and its phone number among the organizations of its account
+ * (`SearchIndexes`).
  */
 final readonly class DynamoOrganizationRepository implements OrganizationRepository
 {
@@ -111,6 +113,11 @@ final readonly class DynamoOrganizationRepository implements OrganizationReposit
      * Without a search, the account lists its organizations in GSI1; a search asks the indexes of the search
      * (ADR 0071).
      */
+    public function withPhoneNumber(AccountId $accountId, PhoneNumber $phoneNumber): array
+    {
+        return $this->inTheOrderOf(SearchIndexes::withPhoneNumber($this->prospectingTable, $accountId->value, $phoneNumber));
+    }
+
     public function sliceProspectedBy(AccountId $accountId, ?SearchKey $search, ?string $after, int $max): Slice
     {
         $found = null === $search
@@ -158,7 +165,7 @@ final readonly class DynamoOrganizationRepository implements OrganizationReposit
      */
     private function itemOf(Organization $organization, array $document): array
     {
-        return SearchIndexes::of($organization->accountId()->value, $organization->searchKeys()) + [
+        return SearchIndexes::of($organization->accountId()->value, $organization->searchKeys(), $organization->contactDetails()->phoneNumber) + [
             'PK' => self::keyOf(new OrganizationId($document['id'])),
             'SK' => self::ORGANIZATION,
             'GSI1PK' => 'ACCOUNT#'.$document['accountId'],

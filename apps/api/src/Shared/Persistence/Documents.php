@@ -5,9 +5,11 @@ namespace App\Shared\Persistence;
 use Prospecter\Core\SharedKernel\Domain\Address;
 use Prospecter\Core\SharedKernel\Domain\ContactDetails;
 use Prospecter\Core\SharedKernel\Domain\Email;
+use Prospecter\Core\SharedKernel\Domain\Exception\BusinessRuleViolation;
 use Prospecter\Core\SharedKernel\Domain\File;
 use Prospecter\Core\SharedKernel\Domain\GeoPoint;
 use Prospecter\Core\SharedKernel\Domain\LegalIdentity;
+use Prospecter\Core\SharedKernel\Domain\PhoneNumber;
 use Prospecter\Core\SharedKernel\Domain\Slice;
 
 /**
@@ -49,7 +51,7 @@ final class Documents
      */
     public static function contactDetails(ContactDetails $contactDetails): array
     {
-        return ['email' => $contactDetails->email?->value, 'phoneNumber' => $contactDetails->phoneNumber, 'language' => $contactDetails->language];
+        return ['email' => $contactDetails->email?->value, 'phoneNumber' => $contactDetails->phoneNumber?->value, 'language' => $contactDetails->language];
     }
 
     /**
@@ -57,7 +59,20 @@ final class Documents
      */
     public static function contactDetailsOf(array $document): ContactDetails
     {
-        return new ContactDetails(Email::orNone($document['email'] ?? null), $document['phoneNumber'] ?? null, $document['language'] ?? null);
+        return new ContactDetails(Email::orNone($document['email'] ?? null), self::phoneNumberOf($document['phoneNumber'] ?? null), $document['language'] ?? null);
+    }
+
+    /**
+     * A number kept before the numbers were checked (ADR 0072) is restored as it was typed when it is no valid
+     * number: reading an aggregate never fails, saving it again keeps its number in E.164 when it is one.
+     */
+    private static function phoneNumberOf(?string $stored): ?PhoneNumber
+    {
+        try {
+            return PhoneNumber::orNone($stored);
+        } catch (BusinessRuleViolation) {
+            return Hydrator::restore(PhoneNumber::class, ['value' => $stored]);
+        }
     }
 
     /**

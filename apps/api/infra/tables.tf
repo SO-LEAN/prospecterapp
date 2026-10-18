@@ -1,6 +1,6 @@
 # The tables of the bounded contexts (ADR 0038, 0048), the shape apps/api/src/Shared/Persistence/Tables.php gives
-# them in MiniStack: PK/SK, the indexes GSI1 and GSI2 projecting everything, those of the search NAME and EMAIL
-# projecting the keys only (ADR 0071), billed by request. They are named
+# them in MiniStack: PK/SK, the indexes GSI1 and GSI2 projecting everything, those finding an aggregate NAME, EMAIL
+# (ADR 0071) and PHONE (ADR 0072) projecting the keys only, billed by request. They are named
 # prospecter-<instance>-api-<context>: the API finds them with DYNAMODB_TABLE_PREFIX=prospecter-<instance>-api.
 locals {
   contexts = toset(["accounts", "personal-data", "prospecting"])
@@ -9,6 +9,7 @@ locals {
     GSI2  = { partition = "GSI2PK", sort = "GSI2SK", projection = "ALL" }
     NAME  = { partition = "NAMEPK", sort = "NAMESK", projection = "KEYS_ONLY" }
     EMAIL = { partition = "EMAILPK", sort = "EMAILSK", projection = "KEYS_ONLY" }
+    PHONE = { partition = "PHONEPK", sort = "PHONESK", projection = "KEYS_ONLY" }
   }
 }
 

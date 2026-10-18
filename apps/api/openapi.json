@@ -1866,6 +1866,60 @@
                 }
             }
         },
+        "/api/phone-numbers/{phoneNumber}": {
+            "get": {
+                "tags": [
+                    "Contacts"
+                ],
+                "summary": "Recognize who calls: the organizations my organization prospects and its contacts having the phone number, given in E.164 or in the national format of France; needs the right to manage personal data",
+                "operationId": "get_api_phone_numbers_recognize",
+                "parameters": [
+                    {
+                        "name": "phoneNumber",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Who has the number, nobody when both lists are empty",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/CallerResource"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Missing or invalid access token"
+                    },
+                    "403": {
+                        "description": "Not a prospector, or without the right to manage personal data",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ProblemResource"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "No valid phone number",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ProblemResource"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
         "/api/contacts/{id}/organizations": {
             "get": {
                 "tags": [
@@ -2050,7 +2104,9 @@
                         "maxLength": 255
                     },
                     "phoneNumber": {
+                        "description": "In the international format (+33 3 88 11 22 33) or in the national format of France (03 88 11 22 33); kept in E.164, refused when it is no valid number",
                         "type": "string",
+                        "example": "03 88 11 22 33",
                         "nullable": true,
                         "default": null,
                         "maxLength": 255
@@ -2299,7 +2355,9 @@
                         "nullable": true
                     },
                     "phoneNumber": {
+                        "description": "In the international format",
                         "type": "string",
+                        "example": "+33 3 88 11 22 33",
                         "nullable": true
                     },
                     "language": {
@@ -2957,6 +3015,27 @@
                     },
                     "_links": {
                         "$ref": "#/components/schemas/ContactListLinksResource"
+                    }
+                },
+                "type": "object"
+            },
+            "CallerResource": {
+                "required": [
+                    "organizations",
+                    "contacts"
+                ],
+                "properties": {
+                    "organizations": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/OrganizationResource"
+                        }
+                    },
+                    "contacts": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/ContactInListResource"
+                        }
                     }
                 },
                 "type": "object"

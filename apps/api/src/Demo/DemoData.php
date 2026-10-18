@@ -26,6 +26,7 @@ use Prospecter\Core\SharedKernel\Domain\LegalIdentity;
 use Prospecter\Core\SharedKernel\Domain\MemberId;
 use Prospecter\Core\SharedKernel\Domain\OrganizationId;
 use Prospecter\Core\SharedKernel\Domain\PersonId;
+use Prospecter\Core\SharedKernel\Domain\PhoneNumber;
 use Prospecter\Core\SharedKernel\Domain\ReleasesEvents;
 
 /**
@@ -86,7 +87,7 @@ final readonly class DemoData
         $babbage = Organization::prospectedBy($prospector, new OrganizationId($this->identities->next()), new LegalIdentity('Babbage & Co', 'SAS'), new ContactDetails(new Email('contact@babbage.test')), $openedAt);
         $babbage->relocateTo(new Address('2 rue des Clefs', '68000', 'Colmar', 'FR'), new GeoPoint(7.3585, 48.0794), $prospector, $openedAt);
         $manager = new Reader($prospector->id, $account->id(), new PersonId($this->identities->next()), true);
-        $ada = Person::collectAsContact($manager, new PersonId($this->identities->next()), new PersonName('Ada', 'Lovelace'), 'Directrice commerciale', new ContactDetails(new Email('ada@babbage.test'), '03 88 00 00 42', 'FR'), [$babbage->id()], $openedAt);
+        $ada = Person::collectAsContact($manager, new PersonId($this->identities->next()), new PersonName('Ada', 'Lovelace'), 'Directrice commerciale', new ContactDetails(new Email('ada@babbage.test'), PhoneNumber::of('03 88 00 00 42'), 'FR'), [$babbage->id()], $openedAt);
         $this->organizations->save($babbage);
         $this->publish($babbage);
         $this->persons->save($ada);

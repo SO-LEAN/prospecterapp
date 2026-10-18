@@ -9,6 +9,7 @@ use Prospecter\Core\SharedKernel\Domain\AccountId;
 use Prospecter\Core\SharedKernel\Domain\Email;
 use Prospecter\Core\SharedKernel\Domain\Exception\EmailAlreadyUsed;
 use Prospecter\Core\SharedKernel\Domain\PersonId;
+use Prospecter\Core\SharedKernel\Domain\PhoneNumber;
 use Prospecter\Core\SharedKernel\Domain\SearchKey;
 use Prospecter\Core\SharedKernel\Domain\Slice;
 
@@ -35,6 +36,13 @@ interface PersonRepository
      * @return Slice<Person>
      */
     public function sliceOf(AccountId $accountId, Purpose $purpose, ?SearchKey $search, ?string $after, int $max): Slice;
+
+    /**
+     * The persons an account keeps for a purpose who have this phone number.
+     *
+     * @return list<Person>
+     */
+    public function withPhoneNumber(AccountId $accountId, Purpose $purpose, PhoneNumber $phoneNumber): array;
 
     public function remove(Person $person): void;
 

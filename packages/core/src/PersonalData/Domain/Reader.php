@@ -44,4 +44,16 @@ final readonly class Reader
             throw NotAllowed::because('Only a member allowed to manage personal data may search persons by text', 'q');
         }
     }
+
+    /**
+     * Recognizing a person by their phone number reads it: a reader of masked data may not.
+     *
+     * @throws NotAllowed
+     */
+    public function ensureMayRecognizeByPhoneNumber(): void
+    {
+        if (!$this->readsPersonalData) {
+            throw NotAllowed::because('Only a member allowed to manage personal data may recognize a person by their phone number', 'phoneNumber');
+        }
+    }
 }

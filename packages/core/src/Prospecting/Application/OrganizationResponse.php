@@ -62,7 +62,7 @@ final readonly class OrganizationResponse
             type: $identity->type,
             fullName: $organization->fullName(),
             email: $contact->email?->value,
-            phoneNumber: $contact->phoneNumber,
+            phoneNumber: $contact->phoneNumber?->international(),
             language: $contact->language,
             street: $address?->street,
             postalCode: $address?->postalCode,

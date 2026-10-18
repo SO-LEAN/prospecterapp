@@ -20,6 +20,7 @@ use Prospecter\Core\SharedKernel\Domain\LegalIdentity;
 use Prospecter\Core\SharedKernel\Domain\MemberId;
 use Prospecter\Core\SharedKernel\Domain\OrganizationId;
 use Prospecter\Core\SharedKernel\Domain\PersonId;
+use Prospecter\Core\SharedKernel\Domain\PhoneNumber;
 use Tests\Core\Double\InMemoryDatabase;
 use Tests\Core\Double\InMemoryOrganizationRepository;
 
@@ -85,7 +86,7 @@ class OrganizationIntentsTest extends TestCase
     {
         match ($intent) {
             OrganizationIntent::ReviseLegalIdentity => $organization->reviseLegalIdentity(new LegalIdentity('ACME SAS'), $by, new \DateTimeImmutable()),
-            OrganizationIntent::ChangeContactDetails => $organization->changeContactDetails(new ContactDetails(phoneNumber: '0388000000'), $by, new \DateTimeImmutable()),
+            OrganizationIntent::ChangeContactDetails => $organization->changeContactDetails(new ContactDetails(phoneNumber: PhoneNumber::of('03 88 00 00 00')), $by, new \DateTimeImmutable()),
             OrganizationIntent::Relocate => $organization->relocateTo(new Address(city: 'Colmar'), null, $by, new \DateTimeImmutable()),
             OrganizationIntent::WriteObservations => $organization->writeObservations('Rappeler lundi', $by, new \DateTimeImmutable()),
             OrganizationIntent::AttachToHolding => $organization->attachToHolding($this->holding(), $by, new \DateTimeImmutable()),

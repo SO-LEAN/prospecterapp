@@ -66,7 +66,10 @@ test('sign in, start prospecting an organization, change it section by section, 
     await page.getByLabel(/^Téléphone/).fill('03 88 00 00 00')
     await page.getByRole('button', { name: 'Enregistrer' }).click()
 
-    await expect(page.getByRole('link', { name: '03 88 00 00 00' })).toBeVisible()
+    await expect(page.getByRole('link', { name: '+33 3 88 00 00 00' })).toHaveAttribute(
+      'href',
+      'tel:+33388000000',
+    )
     await expect(organizationPage).toBeVisible()
     await expect(page.getByText('Strasbourg')).toBeVisible()
     organizationUrl = page.url()

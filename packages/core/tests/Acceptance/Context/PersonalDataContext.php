@@ -24,6 +24,7 @@ use Prospecter\Core\PersonalData\Domain\PersonName;
 use Prospecter\Core\SharedKernel\Domain\ContactDetails;
 use Prospecter\Core\SharedKernel\Domain\Email;
 use Prospecter\Core\SharedKernel\Domain\PersonId;
+use Prospecter\Core\SharedKernel\Domain\PhoneNumber;
 use Tests\Core\Acceptance\Expect;
 use Tests\Core\Acceptance\Vocabulary;
 
@@ -55,6 +56,17 @@ final class PersonalDataContext implements Context
     #[Given('le contact :name de :organization a l\'adresse e-mail :email')]
     public function aContactOf(string $name, string $organization, string $email): void
     {
+        $this->aContactWith($name, $organization, new ContactDetails(new Email($email)));
+    }
+
+    #[Given('le contact :name de :organization a le téléphone :phoneNumber')]
+    public function aContactWithThePhoneNumber(string $name, string $organization, string $phoneNumber): void
+    {
+        $this->aContactWith($name, $organization, new ContactDetails(phoneNumber: PhoneNumber::of($phoneNumber)));
+    }
+
+    private function aContactWith(string $name, string $organization, ContactDetails $contactDetails): void
+    {
         [$firstName, $lastName] = array_pad(explode(' ', $name, 2), 2, null);
         $prospect = $this->scenario->organizationNamed($organization);
         $contact = Person::collectAsContact(
@@ -62,7 +74,7 @@ final class PersonalDataContext implements Context
             new PersonId($this->application->newIdentity()),
             new PersonName($firstName, $lastName),
             null,
-            new ContactDetails(new Email($email)),
+            $contactDetails,
             [$prospect->id()],
             $this->application->now(),
         );

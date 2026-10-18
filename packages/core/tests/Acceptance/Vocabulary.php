@@ -16,6 +16,7 @@ use Prospecter\Core\SharedKernel\Domain\File;
 use Prospecter\Core\SharedKernel\Domain\GeoPoint;
 use Prospecter\Core\SharedKernel\Domain\LegalIdentity;
 use Prospecter\Core\SharedKernel\Domain\MemberId;
+use Prospecter\Core\SharedKernel\Domain\PhoneNumber;
 use Prospecter\Core\SharedKernel\Domain\Uuid;
 
 /**
@@ -90,7 +91,7 @@ final class Vocabulary
      */
     public static function contactDetails(array $values): ContactDetails
     {
-        return new ContactDetails(Email::orNone($values['e-mail']), $values['téléphone'], $values['langue']);
+        return new ContactDetails(Email::orNone($values['e-mail']), PhoneNumber::orNone($values['téléphone']), $values['langue']);
     }
 
     /**
@@ -129,7 +130,7 @@ final class Vocabulary
             'forme juridique' => (string) $identity->form,
             'type' => (string) $identity->type,
             'e-mail' => (string) $contact->email,
-            'téléphone' => (string) $contact->phoneNumber,
+            'téléphone' => (string) $contact->phoneNumber?->international(),
             'langue' => (string) $contact->language,
             'rue' => (string) $address?->street,
             'code postal' => (string) $address?->postalCode,
@@ -155,7 +156,7 @@ final class Vocabulary
             'prénom' => (string) $myPerson->name()->firstName,
             'nom' => (string) $myPerson->name()->lastName,
             'e-mail' => (string) $myPerson->contactDetails()->email,
-            'téléphone' => (string) $myPerson->contactDetails()->phoneNumber,
+            'téléphone' => (string) $myPerson->contactDetails()->phoneNumber?->international(),
             'langue' => (string) $myPerson->contactDetails()->language,
             'photo' => self::describeFile($myPerson->picture()),
             'raison sociale de mon organisation' => (string) $account->legalIdentity()->corporateName,

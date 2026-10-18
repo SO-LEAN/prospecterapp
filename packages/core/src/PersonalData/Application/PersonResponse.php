@@ -49,7 +49,7 @@ final readonly class PersonResponse
         $name = $person->name();
         $contact = $person->contactDetails();
 
-        return new self($person->id()->value, false, $name->firstName, $name->lastName, $person->jobTitle(), $contact->email?->value, $contact->phoneNumber, $contact->language, FileResponse::orNone($person->picture()), self::intentsOf($person, $reader), $person->createdAt(), $person->modifiedAt());
+        return new self($person->id()->value, false, $name->firstName, $name->lastName, $person->jobTitle(), $contact->email?->value, $contact->phoneNumber?->international(), $contact->language, FileResponse::orNone($person->picture()), self::intentsOf($person, $reader), $person->createdAt(), $person->modifiedAt());
     }
 
     private static function masked(Person $person, Reader $reader): self
