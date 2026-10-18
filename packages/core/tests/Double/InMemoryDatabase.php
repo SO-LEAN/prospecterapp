@@ -7,6 +7,7 @@ namespace Tests\Core\Double;
 use Prospecter\Core\Accounts\Domain\Account;
 use Prospecter\Core\Accounts\Domain\Member;
 use Prospecter\Core\PersonalData\Domain\Person;
+use Prospecter\Core\Prospecting\Domain\Exchange;
 use Prospecter\Core\Prospecting\Domain\Organization;
 use Prospecter\Core\SharedKernel\Domain\ReleasesEvents;
 
@@ -25,6 +26,26 @@ final class InMemoryDatabase
     private array $persons = [];
     /** @var array<string, Organization> */
     private array $organizations = [];
+    /** @var array<string, Exchange> */
+    private array $exchanges = [];
+
+    public function storeExchange(Exchange $exchange): void
+    {
+        $this->exchanges[(string) $exchange->id()] = self::withoutItsEvents($exchange);
+    }
+
+    public function forgetExchange(string $id): void
+    {
+        unset($this->exchanges[$id]);
+    }
+
+    /**
+     * @return list<Exchange>
+     */
+    public function exchanges(): array
+    {
+        return array_values(array_map(static fn (Exchange $exchange): Exchange => clone $exchange, $this->exchanges));
+    }
 
     public function storeAccount(Account $account): void
     {

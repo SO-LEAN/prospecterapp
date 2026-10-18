@@ -25,6 +25,7 @@ use Prospecter\Core\SharedKernel\Domain\PersonId;
 use Prospecter\Core\SharedKernel\Domain\Uuid;
 use Tests\Core\Acceptance\Application;
 use Tests\Core\Acceptance\Expect;
+use Tests\Core\Acceptance\Vocabulary;
 
 /**
  * The state of a scenario, shared by the other contexts: the application, the organizations it names
@@ -65,6 +66,12 @@ final class ScenarioContext implements Context
     public function itIs(string $moment): void
     {
         $this->application->itIs(new \DateTimeImmutable($moment));
+    }
+
+    #[Given('/^nous sommes le (?<moment>\\d{2}\\/\\d{2}\\/\\d{4} à \\d{1,2}h\\d{2})$/')]
+    public function itIsInFrench(string $moment): void
+    {
+        $this->application->itIs(Vocabulary::frenchMoment($moment));
     }
 
     #[Given('je suis connecté en tant que prospecteur de :organization')]

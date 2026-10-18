@@ -47,6 +47,32 @@ final class Vocabulary
 
     private const string MOMENT = 'Y-m-d H:i';
 
+    /** The channels as a table names them, by their value in the requests. */
+    private const array CHANNELS = [
+        'Appel' => 'call',
+        'SMS' => 'sms',
+        'E-mail' => 'email',
+        'LinkedIn' => 'linkedIn',
+        'Rendez-vous' => 'meeting',
+        'Autre' => 'other',
+    ];
+
+    /** The channels as a sentence names an exchange through them. */
+    private const array EXCHANGES = [
+        'un appel' => 'call',
+        'un SMS' => 'sms',
+        'un e-mail' => 'email',
+        'un message LinkedIn' => 'linkedIn',
+        'un rendez-vous' => 'meeting',
+    ];
+
+    private const array DIRECTIONS = [
+        'reçu' => 'inbound',
+        'envoyé' => 'outbound',
+    ];
+
+    private const string FRENCH_MOMENT = 'd/m/Y H:i';
+
     private const array LABELS = [
         'raison sociale', 'forme juridique', 'type', 'e-mail', 'téléphone', 'langue',
         'rue', 'code postal', 'ville', 'pays', 'observations', 'holding', 'prénom', 'nom', 'fonction',
@@ -184,6 +210,49 @@ final class Vocabulary
     public static function describeMoment(\DateTimeImmutable $moment): string
     {
         return $moment->format(self::MOMENT);
+    }
+
+    /**
+     * A moment as a French sentence says it: "18/10/2026 à 19h00", or as a table writes it: "18/10/2026 19:00".
+     */
+    public static function frenchMoment(string $moment): \DateTimeImmutable
+    {
+        $written = (string) preg_replace('/^(\S+) à (\d{1,2})h(\d{2})$/', '$1 $2:$3', $moment);
+
+        return \DateTimeImmutable::createFromFormat('!'.self::FRENCH_MOMENT, $written) ?: throw new \LogicException(sprintf('"%s" is no moment', $moment));
+    }
+
+    public static function describeFrenchMoment(\DateTimeImmutable $moment): string
+    {
+        return $moment->format(self::FRENCH_MOMENT);
+    }
+
+    public static function channel(string $label): string
+    {
+        return self::CHANNELS[$label] ?? throw new \LogicException(sprintf('No channel "%s"', $label));
+    }
+
+    public static function describeChannel(string $channel): string
+    {
+        return (string) array_search($channel, self::CHANNELS, true);
+    }
+
+    /**
+     * The channel of "un appel", "un SMS"...
+     */
+    public static function channelOfAnExchange(string $exchange): string
+    {
+        return self::EXCHANGES[$exchange] ?? throw new \LogicException(sprintf('No channel for "%s"', $exchange));
+    }
+
+    public static function direction(string $label): string
+    {
+        return self::DIRECTIONS[$label] ?? throw new \LogicException(sprintf('No direction "%s"', $label));
+    }
+
+    public static function describeDirection(string $direction): string
+    {
+        return (string) array_search($direction, self::DIRECTIONS, true);
     }
 
     /**
