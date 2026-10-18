@@ -118,7 +118,12 @@ export const fr = {
         'L’organisation sort de votre base de prospection, ses filiales n’ont plus de holding, et ses contacts rattachés à aucune autre organisation sont effacés.',
       confirm: 'Arrêter définitivement',
     },
-    address: { noLocation: 'Adresse non géolocalisée.', directions: 'Itinéraire' },
+    address: {
+      noLocation: 'Adresse non géolocalisée.',
+      directions: 'Itinéraire',
+      directionsReady: 'Votre itinéraire est prêt.',
+      openDirections: "Ouvrir l'itinéraire",
+    },
     holding: {
       none: 'Rattachée à aucune holding.',
       detach: 'Détacher',
@@ -166,7 +171,8 @@ export const fr = {
       organizationLogo: 'Logo de mon organisation',
       organizationAddress: 'Adresse de mon organisation',
     },
-    organizationAddressHint: 'Le point de départ des itinéraires vers les organisations que vous prospectez.',
+    organizationAddressHint:
+      'Le point de départ des itinéraires vers les organisations que vous prospectez, à défaut la position de votre appareil.',
     changePicture: 'Changer la photo',
     changeLogo: 'Changer le logo',
   },

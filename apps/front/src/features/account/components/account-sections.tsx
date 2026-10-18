@@ -238,7 +238,7 @@ export function MyOrganizationIdentitySection({ account }: { account: Account })
 export function MyOrganizationAddressSection({ account }: { account: Account }) {
   const { t } = useTranslation()
   const relocate = useRelocateMyOrganization()
-  const { address } = account.organization
+  const { address, location } = account.organization
   const lines = addressLines(address)
 
   return (
@@ -265,6 +265,9 @@ export function MyOrganizationAddressSection({ account }: { account: Account }) 
         </address>
       ) : (
         <p className="text-muted-foreground">{t('common.notProvided')}</p>
+      )}
+      {lines.length > 0 && !location && (
+        <p className="text-muted-foreground text-sm">{t('organizations.address.noLocation')}</p>
       )}
       <p className="text-muted-foreground text-sm">{t('account.organizationAddressHint')}</p>
     </EditableSection>
