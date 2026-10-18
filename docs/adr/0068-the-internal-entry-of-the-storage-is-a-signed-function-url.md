@@ -2,6 +2,7 @@
 
 - Date: 2026-10-18
 - Status: Accepted
+- Supersedes: the HTTP API of the storage of [0065](0065-the-files-on-aws-behind-cloudfront.md), the internal entry kept on its AWS address by [0067](0067-the-apps-behind-an-edge.md)
 - Implemented by: `apps/storage/infra/{function-url,cloudfront,lambda,parameters}.tf`, `apps/storage/src/InternalCaller.php`, `apps/api/src/Shared/{StorageClient,StorageAuthentication,TokenOnlyStorageAuthentication,SigV4StorageAuthentication}.php`, `apps/api/config/services.yaml`, `apps/api/infra/lambda.tf`
 
 ## Context
