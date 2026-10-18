@@ -53,16 +53,18 @@ class PhoneNumberApiTest extends ApiTestCase
         $problem = $this->requestJson('GET', '/api/phone-numbers/12');
 
         $this->assertResponseStatusCodeSame(422);
-        $this->assertSame(['phoneNumber'], $this->violatedFields($problem));
+        $this->assertSame('invalidPhoneNumber', $problem['reason']);
+        $this->assertSame([['propertyPath' => 'phoneNumber', 'title' => 'Phone number "12" is not valid', 'reason' => 'invalidPhoneNumber', 'context' => ['phoneNumber' => '12']]], $problem['violations']);
     }
 
     public function testWithoutTheRightToManagePersonalDataACallerIsNotRecognized(): void
     {
         $this->login('assistant-user');
 
-        $this->requestJson('GET', '/api/phone-numbers/0388000042');
+        $problem = $this->requestJson('GET', '/api/phone-numbers/0388000042');
 
         $this->assertResponseStatusCodeSame(403);
+        $this->assertSame('personalDataManagersOnly', $problem['reason']);
     }
 
     public function testAnInvalidNumberIsRefusedOnTheContactDetails(): void

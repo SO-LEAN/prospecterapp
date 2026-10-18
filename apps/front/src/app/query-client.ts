@@ -1,6 +1,6 @@
 import { type Mutation, MutationCache, type Query, QueryCache, QueryClient } from '@tanstack/react-query'
 import { toast } from 'sonner'
-import { isProblem } from '@/shared/api/problem'
+import { isProblem, messageOf } from '@/shared/api/problem'
 import { i18n } from '@/shared/i18n'
 
 const isClientError = (error: unknown) => isProblem(error) && error.status < 500
@@ -41,7 +41,7 @@ export const queryClient = new QueryClient({
       if (isShownByItsForm(error, mutation)) {
         return
       }
-      toast.error(isProblem(error) ? error.detail || error.title : i18n.t('errors.network'))
+      toast.error(isProblem(error) ? messageOf(error) : i18n.t('errors.network'))
     },
   }),
 })

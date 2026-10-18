@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Prospecter\Core\SharedKernel\Domain;
 
-use Prospecter\Core\SharedKernel\Domain\Exception\BusinessRuleViolation;
+use Prospecter\Core\SharedKernel\Domain\Exception\InvalidEmail;
 
 /**
  * In lower case: an address is one whatever the case it was typed in.
@@ -16,7 +16,7 @@ final readonly class Email implements \Stringable
     public function __construct(string $value)
     {
         if (!filter_var($value, FILTER_VALIDATE_EMAIL)) {
-            throw BusinessRuleViolation::because(sprintf('Email "%s" is not valid', $value), 'email');
+            throw InvalidEmail::of($value);
         }
         $this->value = mb_strtolower($value);
     }

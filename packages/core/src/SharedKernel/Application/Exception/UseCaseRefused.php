@@ -13,19 +13,28 @@ use Prospecter\Core\SharedKernel\Domain\Exception\NotPossibleInItsState;
 /**
  * The only exception a use case throws for a business reason: the refusal of the domain, typed and worded
  * for the client, the domain exception kept as the previous one. A failure of the infrastructure is not
- * translated: it goes through as it is.
+ * translated: it goes through as it is. The refusal is named by the class of the domain exception
+ * (`InvalidPhoneNumber` is `invalidPhoneNumber`), with what it is about, so that a client words it in its own
+ * language (ADR 0073).
  */
 final class UseCaseRefused extends \RuntimeException
 {
     public const string WHOLE_REQUEST = '';
 
+    public readonly string $reason;
+
+    /**
+     * @param array<string, string> $context what the refusal is about, by name
+     */
     private function __construct(
         public readonly ErrorType $type,
         string $message,
         public readonly string $field,
+        public readonly array $context,
         BusinessException $previous,
     ) {
         parent::__construct($message, previous: $previous);
+        $this->reason = self::reasonOf($previous);
     }
 
     public static function because(BusinessException $refusal): self
@@ -41,12 +50,22 @@ final class UseCaseRefused extends \RuntimeException
 
     private static function notFound(NotFound $refusal): self
     {
-        return new self(ErrorType::NotFound, $refusal->getMessage(), self::WHOLE_REQUEST, $refusal);
+        return new self(ErrorType::NotFound, $refusal->getMessage(), self::WHOLE_REQUEST, [], $refusal);
     }
 
     private static function ofTheRule(ErrorType $type, BusinessRuleViolation $refusal): self
     {
-        return new self($type, $refusal->getMessage(), self::fieldOf($refusal), $refusal);
+        return new self($type, $refusal->getMessage(), self::fieldOf($refusal), $refusal->context, $refusal);
+    }
+
+    /**
+     * The class of the refusal, as a client names it: `InvalidPhoneNumber` is `invalidPhoneNumber`.
+     */
+    private static function reasonOf(BusinessException $refusal): string
+    {
+        $class = $refusal::class;
+
+        return lcfirst(substr($class, (int) strrpos($class, '\\') + 1));
     }
 
     private static function fieldOf(BusinessRuleViolation $refusal): string

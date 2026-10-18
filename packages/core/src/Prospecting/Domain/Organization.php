@@ -17,13 +17,19 @@ use Prospecter\Core\Prospecting\Domain\Event\ObservationsWritten;
 use Prospecter\Core\Prospecting\Domain\Event\ProspectingStarted;
 use Prospecter\Core\Prospecting\Domain\Event\ProspectingStopped;
 use Prospecter\Core\Prospecting\Domain\Event\Relocated;
+use Prospecter\Core\Prospecting\Domain\Exception\AlreadyAContact;
+use Prospecter\Core\Prospecting\Domain\Exception\NoContactToRemove;
+use Prospecter\Core\Prospecting\Domain\Exception\NoHoldingToDetachFrom;
+use Prospecter\Core\Prospecting\Domain\Exception\NoLogoToRemove;
+use Prospecter\Core\Prospecting\Domain\Exception\NotAContact;
+use Prospecter\Core\Prospecting\Domain\Exception\OrganizationWithoutNameNorEmail;
 use Prospecter\Core\Prospecting\Domain\Exception\UnknownOrganization;
 use Prospecter\Core\SharedKernel\Domain\AccountId;
 use Prospecter\Core\SharedKernel\Domain\Address;
 use Prospecter\Core\SharedKernel\Domain\ContactDetails;
-use Prospecter\Core\SharedKernel\Domain\Exception\BusinessRuleViolation;
 use Prospecter\Core\SharedKernel\Domain\Exception\NotAllowed;
 use Prospecter\Core\SharedKernel\Domain\Exception\NotPossibleInItsState;
+use Prospecter\Core\SharedKernel\Domain\Exception\PersonalDataManagersOnly;
 use Prospecter\Core\SharedKernel\Domain\File;
 use Prospecter\Core\SharedKernel\Domain\GeoPoint;
 use Prospecter\Core\SharedKernel\Domain\LegalIdentity;
@@ -265,14 +271,14 @@ final class Organization implements ReleasesEvents
     }
 
     /**
-     * @throws NotPossibleInItsState when the person is a contact already
+     * @throws AlreadyAContact
      */
     public function addContact(PersonId $contact, Prospector $by, \DateTimeImmutable $at): void
     {
         $this->ensurePossible(OrganizationIntent::AddContact, $by);
 
         if ($this->hasContact($contact)) {
-            throw NotPossibleInItsState::because('This person is a contact of the organization already', 'personId');
+            throw AlreadyAContact::because('This person is a contact of the organization already', 'personId');
         }
 
         $this->contacts[] = $contact;
@@ -283,14 +289,14 @@ final class Organization implements ReleasesEvents
     /**
      * A contact no other organization names is left alone: it must not stay (ContactsLeftWithoutOrganization).
      *
-     * @throws NotPossibleInItsState when the person is no contact of the organization
+     * @throws NotAContact
      */
     public function removeContact(PersonId $contact, Prospector $by, \DateTimeImmutable $at, OrphanContacts $orphans): void
     {
         $this->ensurePossible(OrganizationIntent::RemoveContact, $by);
 
         if (!$this->hasContact($contact)) {
-            throw NotPossibleInItsState::because('This person is no contact of the organization', 'personId');
+            throw NotAContact::because('This person is no contact of the organization', 'personId');
         }
 
         $this->contacts = array_values(array_filter($this->contacts, static fn (PersonId $attached): bool => !$attached->equals($contact)));
@@ -360,7 +366,7 @@ final class Organization implements ReleasesEvents
         $this->ensureReachableBy($by);
 
         if (!$this->isAllowedTo($by, $intent)) {
-            throw NotAllowed::because('Only a prospector allowed to manage personal data may manage the contacts');
+            throw PersonalDataManagersOnly::because('Only a prospector allowed to manage personal data may manage the contacts');
         }
 
         if (!$this->allowsInItsState($intent)) {
@@ -371,9 +377,9 @@ final class Organization implements ReleasesEvents
     private function notPossibleInItsState(OrganizationIntent $intent): NotPossibleInItsState
     {
         return match ($intent) {
-            OrganizationIntent::RemoveLogo => NotPossibleInItsState::because('There is no logo to remove', 'logo'),
-            OrganizationIntent::DetachFromHolding => NotPossibleInItsState::because('There is no holding to detach from', 'holdingId'),
-            OrganizationIntent::RemoveContact => NotPossibleInItsState::because('There is no contact to remove', 'personId'),
+            OrganizationIntent::RemoveLogo => NoLogoToRemove::because('There is no logo to remove', 'logo'),
+            OrganizationIntent::DetachFromHolding => NoHoldingToDetachFrom::because('There is no holding to detach from', 'holdingId'),
+            OrganizationIntent::RemoveContact => NoContactToRemove::because('There is no contact to remove', 'personId'),
             default => NotPossibleInItsState::because(sprintf('%s is not possible now', $intent->name)),
         };
     }
@@ -381,7 +387,7 @@ final class Organization implements ReleasesEvents
     private static function ensureItCanBeNamed(LegalIdentity $legalIdentity, ContactDetails $contactDetails): void
     {
         if (!$legalIdentity->hasCorporateName() && null === $contactDetails->email) {
-            throw BusinessRuleViolation::because('At least one is mandatory : corporate name or email');
+            throw OrganizationWithoutNameNorEmail::because('At least one is mandatory : corporate name or email');
         }
     }
 }
