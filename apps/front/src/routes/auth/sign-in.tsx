@@ -30,9 +30,9 @@ function SignInPage() {
   return (
     <main className="grid min-h-dvh place-items-center bg-background p-6">
       <div className="grid w-full max-w-sm gap-6">
-        <div className="flex items-center justify-center gap-2 font-semibold text-lg tracking-tight">
-          <BrandMark className="size-9" />
-          Prospecter
+        <div className="flex flex-col items-center gap-2">
+          <BrandMark className="size-20" />
+          <span className="font-semibold text-2xl tracking-tight">Prospecter</span>
         </div>
         <Card>
           <CardHeader>
