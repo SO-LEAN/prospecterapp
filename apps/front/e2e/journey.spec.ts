@@ -1,15 +1,5 @@
-import { expect, type Page, test } from '@playwright/test'
-
-const SIGN_IN_PAGE = /local\.prospecter\.io\/auth\/sign-in/
-
-async function signInOnTheSignInScreen(page: Page) {
-  await page.goto('/')
-  await expect(page).toHaveURL(SIGN_IN_PAGE)
-  await page.getByLabel('E-mail').fill('prospector@solean-it.io')
-  await page.getByLabel('Mot de passe').fill('password')
-  await page.getByRole('button', { name: 'Se connecter' }).click()
-  await expect(page.getByRole('heading', { name: /Bonjour/ })).toBeVisible()
-}
+import { expect, test } from '@playwright/test'
+import { SIGN_IN_PAGE, signInOnTheSignInScreen } from './sign-in'
 
 test('sign in, start prospecting an organization, change it section by section, find it and sign out', async ({
   page,
