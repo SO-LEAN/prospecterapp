@@ -1,6 +1,6 @@
-import { render, screen } from '@testing-library/react'
+import { act, render, screen, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
-import { Toaster } from 'sonner'
+import { Toaster, toast } from 'sonner'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import { DirectionsLink } from './directions-link'
 
@@ -34,7 +34,16 @@ function renderTheLink(start: typeof strasbourg | null) {
   return userEvent.setup()
 }
 
-afterEach(() => {
+/** Sonner removes a toast closed after a timer of its own: once the test is over, it would find no window. */
+async function waitForTheToastsToBeRemoved() {
+  act(() => {
+    toast.dismiss()
+  })
+  await waitFor(() => expect(document.querySelector('[data-sonner-toast]')).toBeNull())
+}
+
+afterEach(async () => {
+  await waitForTheToastsToBeRemoved()
   vi.unstubAllGlobals()
   vi.restoreAllMocks()
 })
