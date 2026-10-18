@@ -36,3 +36,4 @@ Before declaring work done: `pnpm typecheck`, `pnpm lint`, `pnpm test`, and `mak
 - Self-signed certificate: the browser must accept it once per host (SPA, API, static).
 - The e2e journeys run one at a time (`workers: 1`): they sign the same demonstration member in, and signing out is a Cognito global sign-out, which would sign out the journeys running beside.
 - MapLibre 6 loads its worker from `maplibre-gl-worker.mjs` next to its own file, which Vite bundling moves: `map-view.tsx` passes the real URL (`?url` import + `setWorkerUrl`). Without it the map stays grey (markers shown, no tiles, "Worker failed to load" in the console).
+- The stylesheet of MapLibre comes with the lazy chunk of the map, after `app/styles.css`: a rule restyling its elements (the popups) goes in `shared/ui/map/map-view.css`, imported right after it, or MapLibre wins at equal specificity (a white popup in the dark theme).
