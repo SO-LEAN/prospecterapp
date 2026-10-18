@@ -1,5 +1,6 @@
 import { useSuspenseQuery } from '@tanstack/react-query'
 import { createFileRoute, useNavigate } from '@tanstack/react-router'
+import { accountQuery } from '@/features/account/queries'
 import { AddressSection } from '@/features/organizations/components/address-section'
 import { ContactDetailsSection } from '@/features/organizations/components/contact-details-section'
 import { ContactsSection } from '@/features/organizations/components/contacts-section'
@@ -19,9 +20,12 @@ import { PageSkeleton } from '@/shared/ui/page-skeleton'
 export const Route = createFileRoute('/_app/organizations/$organizationId/')({
   params: uuidParams('organizationId'),
   loader: ({ context, params }) =>
-    context.queryClient
-      .ensureQueryData(organizationQuery(params.organizationId))
-      .catch(notFoundWhenTheApiSaysSo),
+    Promise.all([
+      context.queryClient
+        .ensureQueryData(organizationQuery(params.organizationId))
+        .catch(notFoundWhenTheApiSaysSo),
+      context.queryClient.ensureQueryData(accountQuery()),
+    ]),
   pendingComponent: () => <PageSkeleton />,
   errorComponent: ({ error, reset }) => <ErrorState error={error} reset={reset} />,
   component: OrganizationPage,
@@ -30,6 +34,7 @@ export const Route = createFileRoute('/_app/organizations/$organizationId/')({
 function OrganizationPage() {
   const { organizationId } = Route.useParams()
   const { data: organization } = useSuspenseQuery(organizationQuery(organizationId))
+  const { data: account } = useSuspenseQuery(accountQuery())
   const { form, type } = organization.legalIdentity
   const navigate = useNavigate()
 
@@ -65,7 +70,7 @@ function OrganizationPage() {
         </div>
         <div className="space-y-6 lg:col-span-3">
           <LogoSection organization={organization} />
-          <AddressSection organization={organization} />
+          <AddressSection organization={organization} start={account.organization.location} />
         </div>
       </div>
     </div>

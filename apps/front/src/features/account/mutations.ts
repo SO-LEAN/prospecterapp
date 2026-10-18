@@ -59,6 +59,13 @@ export function useReviseMyOrganizationIdentity() {
   })
 }
 
+export function useRelocateMyOrganization() {
+  return api.useMutation('patch', '/api/me/organization/address', {
+    ...formIntention,
+    onSuccess: useStoreAccount(),
+  })
+}
+
 export function useChangeMyPassword() {
   const { t } = useTranslation()
 

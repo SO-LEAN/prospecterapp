@@ -72,6 +72,23 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/me/organization/address": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        /** Move my organization to an address (located again), the start of the routes to the organizations; an empty address removes it */
+        patch: operations["patch_api_me_relocate_organization"];
+        trace?: never;
+    };
     "/api/me/organization/legal-identity": {
         parameters: {
             query?: never;
@@ -488,6 +505,16 @@ export interface components {
             /** @default null */
             lastName: string | null;
         };
+        AddressInput: {
+            /** @default null */
+            street: string | null;
+            /** @default null */
+            postalCode: string | null;
+            /** @default null */
+            city: string | null;
+            /** @default null */
+            country: string | null;
+        };
         LegalIdentityInput: {
             /** @default null */
             corporateName: string | null;
@@ -503,16 +530,6 @@ export interface components {
         HoldingInput: {
             /** @default  */
             holdingId: string;
-        };
-        AddressInput: {
-            /** @default null */
-            street: string | null;
-            /** @default null */
-            postalCode: string | null;
-            /** @default null */
-            city: string | null;
-            /** @default null */
-            country: string | null;
         };
         OrganizationListQuery: {
             /** @default  */
@@ -579,9 +596,23 @@ export interface components {
             form?: string | null;
             type?: string | null;
         };
+        AddressResource: {
+            street?: string | null;
+            postalCode?: string | null;
+            city?: string | null;
+            country?: string | null;
+        };
+        LocationResource: {
+            /** Format: float */
+            latitude: number;
+            /** Format: float */
+            longitude: number;
+        };
         AccountOrganizationResource: {
             legalIdentity: components["schemas"]["LegalIdentityResource"];
             logo?: components["schemas"]["ImageResource"] | null;
+            address?: components["schemas"]["AddressResource"] | null;
+            location?: components["schemas"]["LocationResource"] | null;
         };
         LinkResource: {
             href: string;
@@ -594,6 +625,7 @@ export interface components {
             changeMyPicture?: components["schemas"]["LinkResource"];
             reviseMyOrganizationIdentity?: components["schemas"]["LinkResource"];
             changeMyOrganizationLogo?: components["schemas"]["LinkResource"];
+            relocateMyOrganization?: components["schemas"]["LinkResource"];
         };
         AccountResource: {
             name: components["schemas"]["PersonNameResource"];
@@ -629,18 +661,6 @@ export interface components {
         };
         OrganizationContactsResource: {
             items: components["schemas"]["OrganizationContactResource"][];
-        };
-        AddressResource: {
-            street?: string | null;
-            postalCode?: string | null;
-            city?: string | null;
-            country?: string | null;
-        };
-        LocationResource: {
-            /** Format: float */
-            latitude: number;
-            /** Format: float */
-            longitude: number;
         };
         OrganizationLinksResource: {
             self: components["schemas"]["LinkResource"];
@@ -954,6 +974,55 @@ export interface operations {
                 };
             };
             /** @description Invalid image */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ProblemResource"];
+                };
+            };
+        };
+    };
+    patch_api_me_relocate_organization: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["AddressInput"];
+            };
+        };
+        responses: {
+            /** @description My account */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AccountResource"];
+                };
+            };
+            /** @description Missing or invalid access token */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description The signed-in user is not a user */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ProblemResource"];
+                };
+            };
+            /** @description Invalid address */
             422: {
                 headers: {
                     [name: string]: unknown;

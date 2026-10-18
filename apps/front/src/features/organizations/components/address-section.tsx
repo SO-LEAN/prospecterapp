@@ -1,5 +1,6 @@
 import { ExternalLink } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
+import type { components } from '@/shared/api/schema'
 import {
   AddressFields,
   addressFields,
@@ -8,24 +9,27 @@ import {
   toAddressValues,
 } from '@/shared/forms/address'
 import { SectionForm } from '@/shared/forms/section-form'
-import { countryName } from '@/shared/lib/countries'
+import { addressLines, directionsUrl } from '@/shared/lib/address'
 import { Button } from '@/shared/ui/button'
 import { EditableSection } from '@/shared/ui/editable-section'
 import { GeoMap } from '@/shared/ui/map/geo-map'
 import { useRelocate } from '../mutations'
 import type { Organization } from '../queries'
 
-export function AddressSection({ organization }: { organization: Organization }) {
+type Location = components['schemas']['LocationResource']
+
+/** `start`: where the routes to the organization start from, the place of my organization when known. */
+export function AddressSection({
+  organization,
+  start,
+}: {
+  organization: Organization
+  start?: Location | null
+}) {
   const { t } = useTranslation()
   const relocate = useRelocate()
   const { address, location } = organization
-  const lines = address
-    ? [
-        address.street,
-        [address.postalCode, address.city].filter(Boolean).join(' '),
-        countryName(address.country),
-      ].filter(Boolean)
-    : []
+  const lines = addressLines(address)
 
   return (
     <EditableSection
@@ -70,11 +74,7 @@ export function AddressSection({ organization }: { organization: Organization })
               zoom={14}
             />
             <Button variant="outline" size="sm" asChild>
-              <a
-                href={`https://www.openstreetmap.org/directions?to=${location.latitude},${location.longitude}`}
-                target="_blank"
-                rel="noreferrer"
-              >
+              <a href={directionsUrl(location, start)} target="_blank" rel="noreferrer">
                 {t('organizations.address.directions')} <ExternalLink />
               </a>
             </Button>

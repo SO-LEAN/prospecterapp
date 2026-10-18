@@ -15,7 +15,6 @@ final readonly class AccountLinksResource
         #[OA\Property(nullable: false)]
         public ?LinkResource $changeMyName = null,
         #[OA\Property(nullable: false)]
-        #[OA\Property(nullable: false)]
         public ?LinkResource $changeMyContactDetails = null,
         #[OA\Property(nullable: false)]
         public ?LinkResource $changeMyPicture = null,
@@ -23,6 +22,8 @@ final readonly class AccountLinksResource
         public ?LinkResource $reviseMyOrganizationIdentity = null,
         #[OA\Property(nullable: false)]
         public ?LinkResource $changeMyOrganizationLogo = null,
+        #[OA\Property(nullable: false)]
+        public ?LinkResource $relocateMyOrganization = null,
     ) {
     }
 }

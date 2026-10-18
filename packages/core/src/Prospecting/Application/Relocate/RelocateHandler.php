@@ -4,13 +4,13 @@ declare(strict_types=1);
 
 namespace Prospecter\Core\Prospecting\Application\Relocate;
 
-use Prospecter\Core\Prospecting\Application\GeoLocalizer;
-use Prospecter\Core\Prospecting\Domain\Address;
 use Prospecter\Core\Prospecting\Domain\OrganizationRepository;
 use Prospecter\Core\Prospecting\Domain\ProspectorService;
 use Prospecter\Core\SharedKernel\Application\CommandHandler;
+use Prospecter\Core\SharedKernel\Application\GeoLocalizer;
 use Prospecter\Core\SharedKernel\Application\Port\Events;
 use Prospecter\Core\SharedKernel\Application\PublishesEvents;
+use Prospecter\Core\SharedKernel\Domain\Address;
 use Prospecter\Core\SharedKernel\Domain\MemberId;
 use Prospecter\Core\SharedKernel\Domain\OrganizationId;
 

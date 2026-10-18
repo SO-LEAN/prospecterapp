@@ -7,11 +7,14 @@ namespace Prospecter\Core\Accounts\Domain;
 use Prospecter\Core\Accounts\Domain\Event\AccountIdentityRevised;
 use Prospecter\Core\Accounts\Domain\Event\AccountLogoChanged;
 use Prospecter\Core\Accounts\Domain\Event\AccountOpened;
+use Prospecter\Core\Accounts\Domain\Event\AccountRelocated;
 use Prospecter\Core\Accounts\Domain\Exception\UnknownAccount;
 use Prospecter\Core\SharedKernel\Domain\AccountId;
+use Prospecter\Core\SharedKernel\Domain\Address;
 use Prospecter\Core\SharedKernel\Domain\ContactDetails;
 use Prospecter\Core\SharedKernel\Domain\Exception\BusinessRuleViolation;
 use Prospecter\Core\SharedKernel\Domain\File;
+use Prospecter\Core\SharedKernel\Domain\GeoPoint;
 use Prospecter\Core\SharedKernel\Domain\LegalIdentity;
 use Prospecter\Core\SharedKernel\Domain\MemberId;
 use Prospecter\Core\SharedKernel\Domain\PersonId;
@@ -26,6 +29,8 @@ final class Account implements ReleasesEvents
     use RecordsEvents;
 
     private ?File $logo = null;
+    private ?Address $address = null;
+    private ?GeoPoint $geoPoint = null;
     private \DateTimeImmutable $modifiedAt;
 
     private function __construct(
@@ -79,6 +84,16 @@ final class Account implements ReleasesEvents
         return $this->logo;
     }
 
+    public function address(): ?Address
+    {
+        return $this->address;
+    }
+
+    public function geoPoint(): ?GeoPoint
+    {
+        return $this->geoPoint;
+    }
+
     public function createdAt(): \DateTimeImmutable
     {
         return $this->createdAt;
@@ -116,6 +131,19 @@ final class Account implements ReleasesEvents
         $this->logo = $logo;
         $this->modifiedAt = $at;
         $this->recordThat(new AccountLogoChanged($this->id, $by->id(), $at));
+    }
+
+    /**
+     * Where the organization of the account is, the start of the routes to the organizations it prospects; an
+     * address without any part erases it.
+     */
+    public function relocateTo(Address $address, ?GeoPoint $geoPoint, Member $by, \DateTimeImmutable $at): void
+    {
+        $this->ensureMember($by);
+        $this->address = $address->isEmpty() ? null : $address;
+        $this->geoPoint = $geoPoint;
+        $this->modifiedAt = $at;
+        $this->recordThat(new AccountRelocated($this->id, $by->id(), $at));
     }
 
     private function hasMember(Member $member): bool

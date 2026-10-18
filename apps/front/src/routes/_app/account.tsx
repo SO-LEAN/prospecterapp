@@ -4,6 +4,7 @@ import { useTranslation } from 'react-i18next'
 import {
   ContactDetailsSection,
   LoginEmailSection,
+  MyOrganizationAddressSection,
   MyOrganizationIdentitySection,
   MyOrganizationLogoSection,
   NameSection,
@@ -43,6 +44,7 @@ function AccountPage() {
           <LoginEmailSection />
           <PasswordSection />
           <MyOrganizationIdentitySection account={account} />
+          <MyOrganizationAddressSection account={account} />
           <MyOrganizationLogoSection account={account} />
         </div>
       </div>

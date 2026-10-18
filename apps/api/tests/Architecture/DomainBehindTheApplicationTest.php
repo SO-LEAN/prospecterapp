@@ -18,7 +18,7 @@ class DomainBehindTheApplicationTest extends TestCase
         'Prospecting/PersonalDataKnownContacts.php',
         'PersonalData/ProspectingOrganizations.php',
         'PersonalData/AccountsReaderService.php',
-        'Prospecting/GeoplateformeGeoLocation.php',
+        'Shared/GeoplateformeGeoLocation.php',
         'Demo/DemoData.php',
     ];
 

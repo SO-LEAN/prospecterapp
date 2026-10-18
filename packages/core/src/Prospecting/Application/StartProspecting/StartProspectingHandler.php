@@ -4,16 +4,16 @@ declare(strict_types=1);
 
 namespace Prospecter\Core\Prospecting\Application\StartProspecting;
 
-use Prospecter\Core\Prospecting\Application\GeoLocalizer;
-use Prospecter\Core\Prospecting\Domain\Address;
 use Prospecter\Core\Prospecting\Domain\EmailUniqueness;
 use Prospecter\Core\Prospecting\Domain\Organization;
 use Prospecter\Core\Prospecting\Domain\OrganizationRepository;
 use Prospecter\Core\Prospecting\Domain\Prospector;
 use Prospecter\Core\Prospecting\Domain\ProspectorService;
 use Prospecter\Core\SharedKernel\Application\CommandHandler;
+use Prospecter\Core\SharedKernel\Application\GeoLocalizer;
 use Prospecter\Core\SharedKernel\Application\Port\Events;
 use Prospecter\Core\SharedKernel\Application\PublishesEvents;
+use Prospecter\Core\SharedKernel\Domain\Address;
 use Prospecter\Core\SharedKernel\Domain\ContactDetails;
 use Prospecter\Core\SharedKernel\Domain\Email;
 use Prospecter\Core\SharedKernel\Domain\LegalIdentity;

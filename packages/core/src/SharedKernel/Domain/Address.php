@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Prospecter\Core\Prospecting\Domain;
+namespace Prospecter\Core\SharedKernel\Domain;
 
 final readonly class Address implements \Stringable
 {

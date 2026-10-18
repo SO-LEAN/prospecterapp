@@ -232,6 +232,60 @@
                 }
             }
         },
+        "/api/me/organization/address": {
+            "patch": {
+                "tags": [
+                    "My account"
+                ],
+                "summary": "Move my organization to an address (located again), the start of the routes to the organizations; an empty address removes it",
+                "operationId": "patch_api_me_relocate_organization",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/AddressInput"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "My account",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/AccountResource"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Missing or invalid access token"
+                    },
+                    "403": {
+                        "description": "The signed-in user is not a user",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ProblemResource"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Invalid address",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ProblemResource"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
         "/api/me/organization/legal-identity": {
             "patch": {
                 "tags": [
@@ -2026,6 +2080,34 @@
                 },
                 "type": "object"
             },
+            "AddressInput": {
+                "properties": {
+                    "street": {
+                        "type": "string",
+                        "nullable": true,
+                        "default": null,
+                        "maxLength": 255
+                    },
+                    "postalCode": {
+                        "type": "string",
+                        "nullable": true,
+                        "default": null,
+                        "maxLength": 255
+                    },
+                    "city": {
+                        "type": "string",
+                        "nullable": true,
+                        "default": null,
+                        "maxLength": 255
+                    },
+                    "country": {
+                        "type": "string",
+                        "nullable": true,
+                        "default": null
+                    }
+                },
+                "type": "object"
+            },
             "LegalIdentityInput": {
                 "properties": {
                     "corporateName": {
@@ -2063,34 +2145,6 @@
                     "holdingId": {
                         "type": "string",
                         "default": ""
-                    }
-                },
-                "type": "object"
-            },
-            "AddressInput": {
-                "properties": {
-                    "street": {
-                        "type": "string",
-                        "nullable": true,
-                        "default": null,
-                        "maxLength": 255
-                    },
-                    "postalCode": {
-                        "type": "string",
-                        "nullable": true,
-                        "default": null,
-                        "maxLength": 255
-                    },
-                    "city": {
-                        "type": "string",
-                        "nullable": true,
-                        "default": null,
-                        "maxLength": 255
-                    },
-                    "country": {
-                        "type": "string",
-                        "nullable": true,
-                        "default": null
                     }
                 },
                 "type": "object"
@@ -2291,6 +2345,44 @@
                 },
                 "type": "object"
             },
+            "AddressResource": {
+                "properties": {
+                    "street": {
+                        "type": "string",
+                        "nullable": true
+                    },
+                    "postalCode": {
+                        "type": "string",
+                        "nullable": true
+                    },
+                    "city": {
+                        "type": "string",
+                        "nullable": true
+                    },
+                    "country": {
+                        "type": "string",
+                        "nullable": true
+                    }
+                },
+                "type": "object"
+            },
+            "LocationResource": {
+                "required": [
+                    "latitude",
+                    "longitude"
+                ],
+                "properties": {
+                    "latitude": {
+                        "type": "number",
+                        "format": "float"
+                    },
+                    "longitude": {
+                        "type": "number",
+                        "format": "float"
+                    }
+                },
+                "type": "object"
+            },
             "AccountOrganizationResource": {
                 "required": [
                     "legalIdentity"
@@ -2304,6 +2396,22 @@
                         "oneOf": [
                             {
                                 "$ref": "#/components/schemas/ImageResource"
+                            }
+                        ]
+                    },
+                    "address": {
+                        "nullable": true,
+                        "oneOf": [
+                            {
+                                "$ref": "#/components/schemas/AddressResource"
+                            }
+                        ]
+                    },
+                    "location": {
+                        "nullable": true,
+                        "oneOf": [
+                            {
+                                "$ref": "#/components/schemas/LocationResource"
                             }
                         ]
                     }
@@ -2346,6 +2454,9 @@
                         "$ref": "#/components/schemas/LinkResource"
                     },
                     "changeMyOrganizationLogo": {
+                        "$ref": "#/components/schemas/LinkResource"
+                    },
+                    "relocateMyOrganization": {
                         "$ref": "#/components/schemas/LinkResource"
                     }
                 },
@@ -2482,44 +2593,6 @@
                         "items": {
                             "$ref": "#/components/schemas/OrganizationContactResource"
                         }
-                    }
-                },
-                "type": "object"
-            },
-            "AddressResource": {
-                "properties": {
-                    "street": {
-                        "type": "string",
-                        "nullable": true
-                    },
-                    "postalCode": {
-                        "type": "string",
-                        "nullable": true
-                    },
-                    "city": {
-                        "type": "string",
-                        "nullable": true
-                    },
-                    "country": {
-                        "type": "string",
-                        "nullable": true
-                    }
-                },
-                "type": "object"
-            },
-            "LocationResource": {
-                "required": [
-                    "latitude",
-                    "longitude"
-                ],
-                "properties": {
-                    "latitude": {
-                        "type": "number",
-                        "format": "float"
-                    },
-                    "longitude": {
-                        "type": "number",
-                        "format": "float"
                     }
                 },
                 "type": "object"

@@ -42,7 +42,7 @@ services:
 
     # Services of the hexagon, injected in its handlers (ADR 0044)
     Prospecter\Core\SharedKernel\Application\FileStore: ~
-    Prospecter\Core\Prospecting\Application\GeoLocalizer: ~
+    Prospecter\Core\SharedKernel\Application\GeoLocalizer: ~
     Prospecter\Core\Prospecting\Domain\EmailUniqueness: ~
     Prospecter\Core\Prospecting\Domain\OrphanContacts: ~
     Prospecter\Core\PersonalData\Domain\EmailUniqueness: ~
@@ -88,7 +88,7 @@ services:
     Prospecter\Core\Prospecting\Domain\KnownContacts: '@App\Prospecting\PersonalDataKnownContacts'
     Prospecter\Core\PersonalData\Domain\ProspectedOrganizations: '@App\PersonalData\ProspectingOrganizations'
     Prospecter\Core\SharedKernel\Application\Port\Events: '@App\Shared\MessengerEvents'
-    Prospecter\Core\Prospecting\Application\Port\GeoLocation: '@App\Prospecting\GeoplateformeGeoLocation'
+    Prospecter\Core\SharedKernel\Application\Port\GeoLocation: '@App\Shared\GeoplateformeGeoLocation'
     Prospecter\Core\SharedKernel\Application\Port\Storage: '@App\Shared\StorageClient'
     # the files of Swagger UI asked at the installed version of NelmioApiDocBundle
     App\Doc\VersionedNelmioAssets:

@@ -12,6 +12,7 @@ use Behat\Step\When;
 use Prospecter\Core\Accounts\Application\AccountResponse;
 use Prospecter\Core\Accounts\Application\ChangeMyOrganizationLogo\ChangeMyOrganizationLogo;
 use Prospecter\Core\Accounts\Application\OpenAccount\OpenAccount;
+use Prospecter\Core\Accounts\Application\RelocateMyOrganization\RelocateMyOrganization;
 use Prospecter\Core\Accounts\Application\ReviseMyOrganizationIdentity\ReviseMyOrganizationIdentity;
 use Prospecter\Core\Accounts\Domain\Account;
 use Prospecter\Core\PersonalData\Application\ChangePersonContactDetails\ChangePersonContactDetails;
@@ -103,6 +104,19 @@ final class AccountContext implements Context
         $this->application->dispatch(new ChangeMyOrganizationLogo($this->application->signedIn(), $this->scenario->upload($fileName), $this->application->now()));
     }
 
+    #[When('je déménage mon organisation à l\'adresse :')]
+    public function iRelocateMyOrganization(TableNode $table): void
+    {
+        $values = Vocabulary::values($table->getRowsHash());
+        $this->application->dispatch(new RelocateMyOrganization($this->application->signedIn(), $values['rue'], $values['code postal'], $values['ville'], $values['pays'], $this->application->now()));
+    }
+
+    #[When('j\'efface l\'adresse de mon organisation')]
+    public function iEraseTheAddressOfMyOrganization(): void
+    {
+        $this->application->dispatch(new RelocateMyOrganization($this->application->signedIn(), null, null, null, null, $this->application->now()));
+    }
+
     #[Then('je vois mon compte :')]
     public function iSeeMyAccount(TableNode $table): void
     {
@@ -116,6 +130,8 @@ final class AccountContext implements Context
             'e-mail' => (string) $me->email,
             'raison sociale de mon organisation' => (string) $account->organizationCorporateName,
             'forme juridique de mon organisation' => (string) $account->organizationForm,
+            'ville de mon organisation' => (string) $account->organizationCity,
+            'position de mon organisation' => Vocabulary::describePosition($account->organizationLongitude, $account->organizationLatitude),
             'mes rôles' => implode(', ', $account->roles),
         ]);
     }

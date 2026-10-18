@@ -18,8 +18,10 @@ use Prospecter\Core\Prospecting\Domain\OrganizationRepository;
 use Prospecter\Core\Prospecting\Domain\Prospector;
 use Prospecter\Core\SharedKernel\Application\Port\Events;
 use Prospecter\Core\SharedKernel\Domain\AccountId;
+use Prospecter\Core\SharedKernel\Domain\Address;
 use Prospecter\Core\SharedKernel\Domain\ContactDetails;
 use Prospecter\Core\SharedKernel\Domain\Email;
+use Prospecter\Core\SharedKernel\Domain\GeoPoint;
 use Prospecter\Core\SharedKernel\Domain\LegalIdentity;
 use Prospecter\Core\SharedKernel\Domain\MemberId;
 use Prospecter\Core\SharedKernel\Domain\OrganizationId;
@@ -54,19 +56,23 @@ final readonly class DemoData
     public function load(): void
     {
         $soleanIt = Account::open(new AccountId(self::SOLEAN_IT), new LegalIdentity('SOLEAN IT', 'SARL'), new \DateTimeImmutable(self::OPENED_AT), new ContactDetails(new Email('org@solean-it.io'), language: 'FR'));
+        $prospector = $this->aMember(self::PROSPECTOR, 'prospector@solean-it.io', $soleanIt, Role::User, Role::Prospector, Role::PersonalData);
+        $this->aMember(self::ASSISTANT, 'assistant@solean-it.io', $soleanIt, Role::User, Role::Prospector);
+        $soleanIt->relocateTo(new Address('1 place Kléber', '67000', 'Strasbourg', 'FR'), new GeoPoint(7.7456, 48.5834), $prospector, new \DateTimeImmutable(self::OPENED_AT));
         $this->accounts->save($soleanIt);
         $this->publish($soleanIt);
-        $this->aMember(self::PROSPECTOR, 'prospector@solean-it.io', $soleanIt, Role::User, Role::Prospector, Role::PersonalData);
-        $this->aMember(self::ASSISTANT, 'assistant@solean-it.io', $soleanIt, Role::User, Role::Prospector);
         $this->aContact($soleanIt);
     }
 
-    private function aMember(string $id, string $email, Account $account, Role ...$roles): void
+    private function aMember(string $id, string $email, Account $account, Role ...$roles): Member
     {
         $profile = Person::collect(new PersonId($this->identities->next()), $account->id(), Purpose::Membership, new \DateTimeImmutable(self::OPENED_AT), contactDetails: new ContactDetails(new Email($email), language: 'FR'));
         $this->persons->save($profile);
         $this->publish($profile);
-        $this->members->save(Member::register(new MemberId($id), $account->id(), $profile->id(), ...$roles));
+        $member = Member::register(new MemberId($id), $account->id(), $profile->id(), ...$roles);
+        $this->members->save($member);
+
+        return $member;
     }
 
     /**
@@ -78,6 +84,7 @@ final readonly class DemoData
         $openedAt = new \DateTimeImmutable(self::OPENED_AT);
         $prospector = new Prospector(new MemberId(self::PROSPECTOR), $account->id(), managesPersonalData: true);
         $babbage = Organization::prospectedBy($prospector, new OrganizationId($this->identities->next()), new LegalIdentity('Babbage & Co', 'SAS'), new ContactDetails(new Email('contact@babbage.test')), $openedAt);
+        $babbage->relocateTo(new Address('2 rue des Clefs', '68000', 'Colmar', 'FR'), new GeoPoint(7.3585, 48.0794), $prospector, $openedAt);
         $manager = new Reader($prospector->id, $account->id(), new PersonId($this->identities->next()), true);
         $ada = Person::collectAsContact($manager, new PersonId($this->identities->next()), new PersonName('Ada', 'Lovelace'), 'Directrice commerciale', new ContactDetails(new Email('ada@babbage.test'), '03 88 00 00 42', 'FR'), [$babbage->id()], $openedAt);
         $this->organizations->save($babbage);

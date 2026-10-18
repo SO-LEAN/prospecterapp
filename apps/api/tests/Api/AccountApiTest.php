@@ -38,6 +38,7 @@ class AccountApiTest extends ApiTestCase
         $this->assertSame(['href' => '/api/me/name', 'method' => 'PATCH'], $links['changeMyName']);
         $this->assertSame(['href' => '/api/me/picture', 'method' => 'POST'], $links['changeMyPicture']);
         $this->assertSame(['href' => '/api/me/organization/logo', 'method' => 'POST'], $links['changeMyOrganizationLogo']);
+        $this->assertSame(['href' => '/api/me/organization/address', 'method' => 'PATCH'], $links['relocateMyOrganization']);
     }
 
     public function testEachIntentionChangesOnlyItsPart(): void
@@ -53,6 +54,14 @@ class AccountApiTest extends ApiTestCase
 
         $revised = $this->requestJson('PATCH', '/api/me/organization/legal-identity', ['corporateName' => 'SO-LEAN', 'form' => 'SARL', 'type' => null]);
         $this->assertSame('SO-LEAN', $revised['organization']['legalIdentity']['corporateName']);
+
+        $relocated = $this->requestJson('PATCH', '/api/me/organization/address', ['street' => '1 place Kléber', 'postalCode' => '67000', 'city' => 'Strasbourg', 'country' => 'FR']);
+        $this->assertSame(['street' => '1 place Kléber', 'postalCode' => '67000', 'city' => 'Strasbourg', 'country' => 'FR'], $relocated['organization']['address']);
+        $this->assertNull($relocated['organization']['location'], 'the geocoder of the tests answers nothing');
+        $this->assertSame('SO-LEAN', $relocated['organization']['legalIdentity']['corporateName']);
+
+        $erased = $this->requestJson('PATCH', '/api/me/organization/address', ['street' => null, 'postalCode' => null, 'city' => null, 'country' => null]);
+        $this->assertNull($erased['organization']['address']);
     }
 
     public function testMyEmailCannotBeTheOneOfAColleagueButMayBeTheOneOfAnotherAccount(): void

@@ -2,6 +2,13 @@ import { useSuspenseQuery } from '@tanstack/react-query'
 import { useTranslation } from 'react-i18next'
 import { z } from 'zod'
 import {
+  AddressFields,
+  addressFields,
+  addressSchema,
+  toAddress,
+  toAddressValues,
+} from '@/shared/forms/address'
+import {
   ContactDetailsFields,
   contactDetailsFields,
   contactDetailsSchema,
@@ -25,6 +32,7 @@ import {
 } from '@/shared/forms/person-name'
 import { SectionForm } from '@/shared/forms/section-form'
 import { i18n } from '@/shared/i18n'
+import { addressLines } from '@/shared/lib/address'
 import { countryName } from '@/shared/lib/countries'
 import { initials } from '@/shared/lib/format'
 import { Card, CardContent, CardHeader, CardTitle } from '@/shared/ui/card'
@@ -40,6 +48,7 @@ import {
   useChangeMyOrganizationLogo,
   useChangeMyPassword,
   useChangeMyPicture,
+  useRelocateMyOrganization,
   useReviseMyOrganizationIdentity,
 } from '../mutations'
 import { signInQuery } from '../queries'
@@ -222,6 +231,42 @@ export function MyOrganizationIdentitySection({ account }: { account: Account })
     >
       <Detail label={t('fields.corporateName')}>{identity.corporateName}</Detail>
       <Detail label={t('fields.form')}>{identity.form}</Detail>
+    </EditableSection>
+  )
+}
+
+export function MyOrganizationAddressSection({ account }: { account: Account }) {
+  const { t } = useTranslation()
+  const relocate = useRelocateMyOrganization()
+  const { address } = account.organization
+  const lines = addressLines(address)
+
+  return (
+    <EditableSection
+      title={t('account.sections.organizationAddress')}
+      editable={Boolean(account._links.relocateMyOrganization)}
+      editor={(close) => (
+        <SectionForm
+          schema={addressSchema}
+          defaultValues={toAddressValues(address)}
+          fields={addressFields}
+          save={(values) => relocate.mutateAsync({ body: toAddress(values) })}
+          onDone={close}
+        >
+          {(form) => <AddressFields form={form} />}
+        </SectionForm>
+      )}
+    >
+      {lines.length > 0 ? (
+        <address className="not-italic">
+          {lines.map((line) => (
+            <div key={line}>{line}</div>
+          ))}
+        </address>
+      ) : (
+        <p className="text-muted-foreground">{t('common.notProvided')}</p>
+      )}
+      <p className="text-muted-foreground text-sm">{t('account.organizationAddressHint')}</p>
     </EditableSection>
   )
 }
