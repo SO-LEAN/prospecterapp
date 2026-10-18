@@ -1,4 +1,3 @@
-import { ExternalLink } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import type { components } from '@/shared/api/schema'
 import {
@@ -9,12 +8,12 @@ import {
   toAddressValues,
 } from '@/shared/forms/address'
 import { SectionForm } from '@/shared/forms/section-form'
-import { addressLines, directionsUrl } from '@/shared/lib/address'
-import { Button } from '@/shared/ui/button'
+import { addressLines } from '@/shared/lib/address'
 import { EditableSection } from '@/shared/ui/editable-section'
 import { GeoMap } from '@/shared/ui/map/geo-map'
 import { useRelocate } from '../mutations'
 import type { Organization } from '../queries'
+import { DirectionsLink } from './directions-link'
 
 type Location = components['schemas']['LocationResource']
 
@@ -73,11 +72,7 @@ export function AddressSection({
               ]}
               zoom={14}
             />
-            <Button variant="outline" size="sm" asChild>
-              <a href={directionsUrl(location, start)} target="_blank" rel="noreferrer">
-                {t('organizations.address.directions')} <ExternalLink />
-              </a>
-            </Button>
+            <DirectionsLink to={location} start={start} />
           </>
         ) : (
           <p className="grid h-40 place-items-center rounded-xl border border-dashed text-muted-foreground">
