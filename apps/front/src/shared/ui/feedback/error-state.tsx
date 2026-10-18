@@ -1,6 +1,6 @@
 import { AlertTriangle } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
-import { isProblem } from '@/shared/api/problem'
+import { isProblem, messageOf } from '@/shared/api/problem'
 import { Button } from '@/shared/ui/button'
 import { EmptyState } from './empty-state'
 
@@ -14,7 +14,7 @@ export function ErrorState({ error, reset }: Props) {
     <EmptyState
       icon={AlertTriangle}
       title={t('errors.title')}
-      description={isProblem(error) ? error.detail || error.title : t('errors.network')}
+      description={isProblem(error) ? messageOf(error) : t('errors.network')}
       action={
         reset && (
           <Button variant="outline" onClick={reset}>

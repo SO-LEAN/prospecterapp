@@ -20,13 +20,16 @@ final readonly class LoginEmailTakenListener
     {
     }
 
+    /** Named as the refusal of the domain would be (ADR 0073). */
+    private const string REASON = 'loginEmailTaken';
+
     public function __invoke(ExceptionEvent $event): void
     {
         if (!$event->getThrowable() instanceof LoginEmailTaken) {
             return;
         }
 
-        $problem = new ProblemResource('Validation Failed', Response::HTTP_UNPROCESSABLE_ENTITY, $event->getThrowable()->getMessage(), [new ViolationResource('email', $event->getThrowable()->getMessage())]);
+        $problem = new ProblemResource('Validation Failed', Response::HTTP_UNPROCESSABLE_ENTITY, $event->getThrowable()->getMessage(), [new ViolationResource('email', $event->getThrowable()->getMessage(), self::REASON)], reason: self::REASON);
         $event->setResponse(new JsonResponse($this->normalizer->normalize($problem), $problem->status, ['Content-Type' => 'application/problem+json']));
     }
 }

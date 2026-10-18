@@ -7,7 +7,7 @@ namespace Prospecter\Core\SharedKernel\Domain;
 use libphonenumber\NumberParseException;
 use libphonenumber\PhoneNumberFormat;
 use libphonenumber\PhoneNumberUtil;
-use Prospecter\Core\SharedKernel\Domain\Exception\BusinessRuleViolation;
+use Prospecter\Core\SharedKernel\Domain\Exception\InvalidPhoneNumber;
 
 /**
  * A phone number as the world dials it (ADR 0072): kept in E.164 (`+33388112233`), read from the national
@@ -23,7 +23,7 @@ final readonly class PhoneNumber implements \Stringable
     }
 
     /**
-     * @throws BusinessRuleViolation when it is no valid number
+     * @throws InvalidPhoneNumber
      */
     public static function of(string $number): self
     {
@@ -32,11 +32,11 @@ final readonly class PhoneNumber implements \Stringable
         try {
             $parsed = $numbers->parse($number, self::DIALED_FROM);
         } catch (NumberParseException) {
-            throw self::invalid($number);
+            throw InvalidPhoneNumber::of($number);
         }
 
         if (!$numbers->isValidNumber($parsed)) {
-            throw self::invalid($number);
+            throw InvalidPhoneNumber::of($number);
         }
 
         return new self($numbers->format($parsed, PhoneNumberFormat::E164));
@@ -64,10 +64,5 @@ final readonly class PhoneNumber implements \Stringable
     public function __toString(): string
     {
         return $this->value;
-    }
-
-    private static function invalid(string $number): BusinessRuleViolation
-    {
-        return BusinessRuleViolation::because(sprintf('Phone number "%s" is not valid', $number), 'phoneNumber');
     }
 }

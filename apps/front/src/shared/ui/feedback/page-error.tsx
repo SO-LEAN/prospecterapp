@@ -1,6 +1,6 @@
 import { useRouter } from '@tanstack/react-router'
 import { useTranslation } from 'react-i18next'
-import { isProblem } from '@/shared/api/problem'
+import { isProblem, messageOf } from '@/shared/api/problem'
 import { Button } from '@/shared/ui/button'
 import { FullPageMessage } from './full-page-message'
 
@@ -14,7 +14,7 @@ export function PageError({ error }: Props) {
   return (
     <FullPageMessage
       title={t('errors.title')}
-      description={isProblem(error) ? error.detail || error.title : t('errors.network')}
+      description={isProblem(error) ? messageOf(error) : t('errors.network')}
     >
       <Button variant="outline" onClick={() => router.invalidate()}>
         {t('common.retry')}

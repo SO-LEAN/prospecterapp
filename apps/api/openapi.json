@@ -2562,6 +2562,24 @@
                     },
                     "title": {
                         "type": "string"
+                    },
+                    "reason": {
+                        "description": "The refusal of the business named, for a client to word it in its language (ADR 0073); absent for the violations of the input shape",
+                        "type": "string",
+                        "example": "invalidPhoneNumber",
+                        "nullable": true,
+                        "default": null
+                    },
+                    "context": {
+                        "description": "What the refusal is about, by name",
+                        "type": "object",
+                        "example": {
+                            "phoneNumber": "03554411"
+                        },
+                        "default": [],
+                        "additionalProperties": {
+                            "type": "string"
+                        }
                     }
                 },
                 "type": "object"
@@ -2592,6 +2610,13 @@
                     "type": {
                         "type": "string",
                         "default": "about:blank"
+                    },
+                    "reason": {
+                        "description": "The refusal of the business named, for a client to word it in its language (ADR 0073)",
+                        "type": "string",
+                        "example": "unknownOrganization",
+                        "nullable": true,
+                        "default": null
                     }
                 },
                 "type": "object"

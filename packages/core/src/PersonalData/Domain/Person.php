@@ -10,11 +10,13 @@ use Prospecter\Core\PersonalData\Domain\Event\JobTitleChanged;
 use Prospecter\Core\PersonalData\Domain\Event\PersonContactDetailsChanged;
 use Prospecter\Core\PersonalData\Domain\Event\PersonPictureChanged;
 use Prospecter\Core\PersonalData\Domain\Event\PersonRenamed;
+use Prospecter\Core\PersonalData\Domain\Exception\ContactWithoutOrganization;
+use Prospecter\Core\PersonalData\Domain\Exception\ThePersonOrAPersonalDataManagerOnly;
 use Prospecter\Core\PersonalData\Domain\Exception\UnknownPerson;
 use Prospecter\Core\SharedKernel\Domain\AccountId;
 use Prospecter\Core\SharedKernel\Domain\ContactDetails;
-use Prospecter\Core\SharedKernel\Domain\Exception\BusinessRuleViolation;
 use Prospecter\Core\SharedKernel\Domain\Exception\NotAllowed;
+use Prospecter\Core\SharedKernel\Domain\Exception\PersonalDataManagersOnly;
 use Prospecter\Core\SharedKernel\Domain\File;
 use Prospecter\Core\SharedKernel\Domain\OrganizationId;
 use Prospecter\Core\SharedKernel\Domain\PersonId;
@@ -56,17 +58,17 @@ final class Person implements ReleasesEvents
      *
      * @param list<OrganizationId> $organizations where the person works, prospected by the account
      *
-     * @throws NotAllowed            for a member without the right
-     * @throws BusinessRuleViolation without an organization
+     * @throws PersonalDataManagersOnly
+     * @throws ContactWithoutOrganization
      */
     public static function collectAsContact(Reader $by, PersonId $id, PersonName $name, ?string $jobTitle, ContactDetails $contactDetails, array $organizations, \DateTimeImmutable $at): self
     {
         if (!$by->readsPersonalData) {
-            throw NotAllowed::because('Only a member allowed to manage personal data may collect a contact');
+            throw PersonalDataManagersOnly::because('Only a member allowed to manage personal data may collect a contact');
         }
 
         if ([] === $organizations) {
-            throw BusinessRuleViolation::because('A contact belongs to at least one organization', 'organizationIds');
+            throw ContactWithoutOrganization::because('A contact belongs to at least one organization', 'organizationIds');
         }
 
         $contact = new self($id, $by->accountId, Purpose::Prospecting, $name, $contactDetails, $at);
@@ -241,7 +243,7 @@ final class Person implements ReleasesEvents
         $this->ensureReachableBy($by);
 
         if (!$this->allows($intent, $by)) {
-            throw NotAllowed::because(PersonIntent::Forget === $intent ? 'Only a member allowed to manage personal data may forget a prospected person' : 'Only the person or a member allowed to manage personal data may change them');
+            throw PersonIntent::Forget === $intent ? PersonalDataManagersOnly::because('Only a member allowed to manage personal data may forget a prospected person') : ThePersonOrAPersonalDataManagerOnly::because('Only the person or a member allowed to manage personal data may change them');
         }
     }
 }

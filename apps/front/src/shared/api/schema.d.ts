@@ -662,6 +662,22 @@ export interface components {
         ViolationResource: {
             propertyPath: string;
             title: string;
+            /**
+             * @description The refusal of the business named, for a client to word it in its language (ADR 0073); absent for the violations of the input shape
+             * @default null
+             * @example invalidPhoneNumber
+             */
+            reason: string | null;
+            /**
+             * @description What the refusal is about, by name
+             * @default []
+             * @example {
+             *       "phoneNumber": "03554411"
+             *     }
+             */
+            context: {
+                [key: string]: string;
+            };
         };
         ProblemResource: {
             title: string;
@@ -671,6 +687,12 @@ export interface components {
             violations: components["schemas"]["ViolationResource"][];
             /** @default about:blank */
             type: string;
+            /**
+             * @description The refusal of the business named, for a client to word it in its language (ADR 0073)
+             * @default null
+             * @example unknownOrganization
+             */
+            reason: string | null;
         };
         OrganizationContactLinksResource: {
             contact: components["schemas"]["LinkResource"];

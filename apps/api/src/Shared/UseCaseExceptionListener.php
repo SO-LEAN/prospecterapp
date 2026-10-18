@@ -15,7 +15,8 @@ use Symfony\Component\Serializer\Normalizer\NormalizerInterface;
 /**
  * Translates the refusals of the use cases into problem+json responses, by their type: unknown (or not mine)
  * is a 404, an intention its state does not offer (no link) a 409, one the asker has no right to a 403, any
- * other business rule a 422. Any other exception is a failure, left to Symfony.
+ * other business rule a 422, each named by its reason for the client to word it (ADR 0073). Any other
+ * exception is a failure, left to Symfony.
  */
 #[AsEventListener]
 final readonly class UseCaseExceptionListener
@@ -45,7 +46,7 @@ final readonly class UseCaseExceptionListener
             ErrorType::BusinessRuleViolated => [Response::HTTP_UNPROCESSABLE_ENTITY, 'Validation Failed'],
         };
 
-        return new ProblemResource($title, $status, $refusal->getMessage(), $this->violationsOf($refusal));
+        return new ProblemResource($title, $status, $refusal->getMessage(), $this->violationsOf($refusal), reason: $refusal->reason);
     }
 
     /**
@@ -53,6 +54,6 @@ final readonly class UseCaseExceptionListener
      */
     private function violationsOf(UseCaseRefused $refusal): array
     {
-        return ErrorType::NotFound === $refusal->type ? [] : [new ViolationResource($refusal->field, $refusal->getMessage())];
+        return ErrorType::NotFound === $refusal->type ? [] : [new ViolationResource($refusal->field, $refusal->getMessage(), $refusal->reason, $refusal->context)];
     }
 }

@@ -8,11 +8,11 @@ use Prospecter\Core\Accounts\Domain\Event\AccountIdentityRevised;
 use Prospecter\Core\Accounts\Domain\Event\AccountLogoChanged;
 use Prospecter\Core\Accounts\Domain\Event\AccountOpened;
 use Prospecter\Core\Accounts\Domain\Event\AccountRelocated;
+use Prospecter\Core\Accounts\Domain\Exception\AccountWithoutCorporateName;
 use Prospecter\Core\Accounts\Domain\Exception\UnknownAccount;
 use Prospecter\Core\SharedKernel\Domain\AccountId;
 use Prospecter\Core\SharedKernel\Domain\Address;
 use Prospecter\Core\SharedKernel\Domain\ContactDetails;
-use Prospecter\Core\SharedKernel\Domain\Exception\BusinessRuleViolation;
 use Prospecter\Core\SharedKernel\Domain\File;
 use Prospecter\Core\SharedKernel\Domain\GeoPoint;
 use Prospecter\Core\SharedKernel\Domain\LegalIdentity;
@@ -50,12 +50,12 @@ final class Account implements ReleasesEvents
     /**
      * An organization opens its account with its founder, who becomes its first member under the profile given.
      *
-     * @throws BusinessRuleViolation without the corporate name of the organization
+     * @throws AccountWithoutCorporateName
      */
     public static function openBy(MemberId $founder, PersonId $founderProfile, AccountId $id, LegalIdentity $legalIdentity, \DateTimeImmutable $at): self
     {
         if (!$legalIdentity->hasCorporateName()) {
-            throw BusinessRuleViolation::because('An account needs the corporate name of its organization', 'corporateName');
+            throw AccountWithoutCorporateName::because('An account needs the corporate name of its organization', 'corporateName');
         }
 
         $account = new self($id, $legalIdentity, new ContactDetails(), $at);
