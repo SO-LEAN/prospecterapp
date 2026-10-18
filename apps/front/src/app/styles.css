@@ -43,6 +43,11 @@
   --chart-3: oklch(0.7 0.15 155);
   --chart-4: oklch(0.75 0.15 75);
   --chart-5: oklch(0.62 0.2 330);
+
+  --brand-ink: #224471;
+  --brand-gold: #ebba3a;
+  --brand-gold-shade: #ba871e;
+  --brand-gold-light: #f3d98c;
 }
 
 .dark {
@@ -73,6 +78,8 @@
   --sidebar-accent: oklch(0.25 0.014 265);
   --sidebar-accent-foreground: var(--foreground);
   --sidebar-border: oklch(0.27 0.014 265);
+
+  --brand-ink: #c3d0e8;
 }
 
 @theme inline {
@@ -109,6 +116,10 @@
   --color-chart-3: var(--chart-3);
   --color-chart-4: var(--chart-4);
   --color-chart-5: var(--chart-5);
+  --color-brand-ink: var(--brand-ink);
+  --color-brand-gold: var(--brand-gold);
+  --color-brand-gold-shade: var(--brand-gold-shade);
+  --color-brand-gold-light: var(--brand-gold-light);
 
   --radius-sm: calc(var(--radius) - 4px);
   --radius-md: calc(var(--radius) - 2px);
