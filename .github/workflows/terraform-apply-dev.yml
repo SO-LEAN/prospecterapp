@@ -4,7 +4,8 @@
 name: Terraform apply dev
 
 on:
-  # run by hand on dev, every app is applied: when what the apps read in SSM changed (the edge, ADR 0067)
+  # run by hand on dev, every app is applied: when what the apps read in SSM changed (the edge, ADR 0067), or for
+  # the second apply of a new instance (ADR 0069)
   workflow_dispatch:
   push:
     branches: [dev]

@@ -5,9 +5,9 @@ How the platform goes to AWS ([ADR 0059](adr/0059-terraform-per-app-values-out-o
 ## Layout
 
 ```
-apps/api/infra/       the API: DynamoDB tables, Cognito user pool, Lambda, HTTP API
-apps/storage/infra/   the storage: files bucket, Lambda, HTTP API
-apps/front/infra/     the SPA: static files
+apps/api/infra/       the API: DynamoDB tables, Cognito user pool, Lambda, HTTP API (on the domain of the edge)
+apps/storage/infra/   the storage: files bucket, CloudFront and its function, Lambda and its signed function URL
+apps/front/infra/     the SPA: bucket of the releases, CloudFront and its release function
 infra/modules/        modules shared by apps of the same kind, created at the second use (none yet)
 ```
 
@@ -21,7 +21,7 @@ An instance is a whole installation (`dev`, `prod`, `test`...), in the AWS accou
 |---|---|
 | Resources | `prospecter-<instance>-<app>-<resource>` |
 | State | key `<app>/<instance>.tfstate` in the state bucket of the instance |
-| Values shared between apps | SSM Parameter Store `/prospecter/<instance>/<app>/<key>`, published by the owner app |
+| Values shared between apps | SSM Parameter Store `/prospecter/<instance>/<app>/<key>`, published by the owner app, read by path by the others, empty until published ([ADR 0069](adr/0069-a-new-instance-converges-in-two-applies.md)) |
 | Application secrets | SSM `SecureString` parameters, standard tier; their value is set by hand, never in the code |
 
 ## Values of an instance
@@ -43,13 +43,17 @@ make infra-plan  APP=api INSTANCE=dev     # re-initializes the root on the state
 make infra-apply APP=api INSTANCE=dev     # the same, then applies after confirmation
 make infra-init  APP=storage INSTANCE=prod
 make infra-lint                           # fmt, validate, tflint on every root (part of make lint)
+make package-api                          # the api for its Lambda: build/api.zip (package-storage: build/storage.zip)
+make package-front                        # the SPA as a release: build/front
+make release-front INSTANCE=dev [CLEAN=1] # put the release in the bucket of the instance (CLEAN=1: remove the former ones)
+make console INSTANCE=dev CMD="..."       # a command of the api on the tables and the user pool of the instance
 ```
 
 `APP` and `INSTANCE` are given on the command line (a variable left in the shell is refused). Terraform and tflint run in Docker; each instance has its own working directory (`.terraform/<instance>`).
 
 ## Plan of a pull request, apply of `dev` and `main`
 
-A pull request to `dev` or `main` touching the infrastructure is planned by `.github/workflows/terraform-plan.yml` ([ADR 0060](adr/0060-terraform-plans-every-pull-request.md)): each changed app on each instance of `vars.INFRA_PLAN_INSTANCES` (by default `["dev", "prod"]`), a comment per app and instance listing the changed resources, the whole plan in the log with the account ids and the state bucket masked. Per instance, the repository needs:
+A pull request to `dev` or `main` touching the infrastructure is planned by `.github/workflows/terraform-plan.yml` ([ADR 0060](adr/0060-terraform-plans-every-pull-request.md)): each changed app on each instance of `vars.INFRA_PLAN_INSTANCES` (by default `["dev", "prod"]`), a comment per app and instance listing the changed resources, the whole plan in the log with the account ids and the state bucket masked; a plan that fails fails its job. Per instance, the repository needs:
 
 | Secret | What |
 |---|---|

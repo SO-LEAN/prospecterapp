@@ -1,7 +1,7 @@
 # 0059. Each app keeps its Terraform; the values of an installation stay out of the repository
 
 - Date: 2026-10-16
-- Status: Accepted
+- Status: Accepted, the order of the first deployment superseded by [0069](0069-a-new-instance-converges-in-two-applies.md)
 - Implemented by: `apps/{api,storage,front}/infra/`, `.terraform-version`, the `infra-*`, `hooks` and `secrets` targets of the `Makefile`, `.gitleaks.toml`, `tools/git-hooks/pre-commit`, `docs/infra.md`
 
 ## Context

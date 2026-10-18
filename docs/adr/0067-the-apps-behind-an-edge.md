@@ -1,7 +1,7 @@
 # 0067. Behind an edge, the apps take their domains from SSM and answer only what the edge passes on
 
 - Date: 2026-10-17
-- Status: Accepted
+- Status: Accepted, the internal entry of the storage superseded by [0068](0068-the-internal-entry-of-the-storage-is-a-signed-function-url.md)
 - Implemented by: `apps/*/infra/edge.tf`, `apps/front/infra/{cloudfront.tf,functions/release.js.tftpl}`, `apps/storage/infra/{cloudfront.tf,functions/only-through-the-edge.js.tftpl}`, `apps/api/infra/{http-api,lambda,front,storage,parameters}.tf`, `apps/api/src/Shared/OnlyThroughTheEdge.php`, the `workflow_dispatch` of the workflows `terraform-apply-*.yml`
 
 ## Context

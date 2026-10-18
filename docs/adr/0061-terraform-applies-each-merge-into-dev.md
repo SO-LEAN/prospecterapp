@@ -1,7 +1,7 @@
 # 0061. Terraform applies each merge into `dev` to the instances of the dev account
 
 - Date: 2026-10-17
-- Status: Accepted
+- Status: Accepted, the first deployment ordered by hand superseded by [0069](0069-a-new-instance-converges-in-two-applies.md)
 - Implemented by: `.github/workflows/terraform-apply-dev.yml`, `.github/actions/infra-instance`, `tools/ci/infra-changed-apps`, `INFRA_APPLY_FLAGS` of `make infra-apply`, `docs/infra.md`
 
 ## Context
