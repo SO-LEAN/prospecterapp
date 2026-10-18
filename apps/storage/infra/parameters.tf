@@ -35,3 +35,10 @@ resource "aws_ssm_parameter" "internal_url" {
   type  = "String"
   value = local.internal_url
 }
+
+# The distribution the function invalidates a removed file in, read at its start
+resource "aws_ssm_parameter" "distribution_id" {
+  name  = "${local.ssm_path}/distribution-id"
+  type  = "String"
+  value = aws_cloudfront_distribution.files.id
+}
