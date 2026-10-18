@@ -30,5 +30,6 @@ class DocPagesTest extends WebTestCase
 
         $this->assertResponseIsSuccessful();
         $this->assertResponseHeaderSame('Content-Type', 'image/svg+xml');
+        $this->assertStringContainsString('<title>Prospecter</title>', (string) $client->getResponse()->getContent());
     }
 }

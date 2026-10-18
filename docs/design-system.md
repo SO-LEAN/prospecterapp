@@ -1,6 +1,6 @@
 # Design system
 
-Modern SaaS style: cool neutrals, generous spacing, one blue accent, light and dark themes. Built on Tailwind CSS 4 and shadcn/ui.
+Modern SaaS style: cool neutrals, generous spacing, one blue accent, light and dark themes; the logo in navy and gold. Built on Tailwind CSS 4 and shadcn/ui.
 
 ## Principles
 
@@ -38,6 +38,19 @@ Radius: `--radius` 0.75 rem (`rounded-lg`), cards `rounded-xl`. Shadow: `shadow-
 - `shared/ui/map/geo-map.tsx`: lazy MapLibre map with avatar markers that fits all of them.
 - `shared/ui/page-header.tsx`, `page-skeleton.tsx`.
 - `app/layout/`: app shell (collapsible sidebar, mobile sheet, sticky blurred header, user menu with theme switch).
+
+## Logo
+
+A shovel digging up nuggets of gold: `BrandMark` (`app/layout/brand.tsx`) draws it with the tokens `brand-ink` (navy, light in the dark theme) and `brand-gold*`. The same drawing is `public/favicon.svg` of the front (the icon of the tabs, its ink following the theme of the system) and of the api (the icon of its doc, `App\Doc\ShowFavicon`): a change of the logo goes in the three. The icons in PNG, and `site.webmanifest`, are made from the SVG once, then committed:
+
+```sh
+docker compose run --rm --no-deps -w /var/www/src/apps/front/public node sh -c '
+  x="npx --yes sharp-cli@6.1.0 --density 600 -i favicon.svg"
+  $x -o favicon-32.png resize 32 32
+  $x -o apple-touch-icon.png resize 148 148 -- extend 16 16 16 16 --background "#ffffff" -- flatten --background "#ffffff"
+  $x -o icon-192.png resize 160 160 -- extend 16 16 16 16 --background "#ffffff" -- flatten --background "#ffffff"
+  $x -o icon-512.png resize 428 428 -- extend 42 42 42 42 --background "#ffffff" -- flatten --background "#ffffff"'
+```
 
 ## Icons and texts
 
