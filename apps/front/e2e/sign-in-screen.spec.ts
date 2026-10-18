@@ -80,6 +80,7 @@ test('in the dark theme, the ink of the logo and the name stay readable on the b
 }) => {
   await page.emulateMedia({ colorScheme: 'dark' })
   await page.goto('/auth/sign-in')
+  await expect(page.locator('html'), 'the dark theme on').toHaveClass(/\bdark\b/)
   const { name, logo } = brandOf(page)
   const background = await colorOf(page.getByRole('main'), 'background-color')
 
