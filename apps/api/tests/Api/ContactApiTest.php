@@ -68,7 +68,7 @@ class ContactApiTest extends ApiTestCase
         $organization = $this->anOrganization('Navy');
         $this->collect(['name' => ['firstName' => 'Grace', 'lastName' => 'Hopper'], 'contactDetails' => ['email' => 'grace@navy.test']], $organization);
 
-        $page = $this->requestJson('GET', '/api/contacts?q=navy');
+        $page = $this->requestJson('GET', '/api/contacts?q=hop');
 
         $this->assertCount(1, $page['items']);
         $this->assertSame('Grace', $page['items'][0]['name']['firstName']);

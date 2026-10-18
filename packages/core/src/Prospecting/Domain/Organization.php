@@ -32,7 +32,7 @@ use Prospecter\Core\SharedKernel\Domain\OrganizationId;
 use Prospecter\Core\SharedKernel\Domain\PersonId;
 use Prospecter\Core\SharedKernel\Domain\RecordsEvents;
 use Prospecter\Core\SharedKernel\Domain\ReleasesEvents;
-use Prospecter\Core\SharedKernel\Domain\SearchTerms;
+use Prospecter\Core\SharedKernel\Domain\SearchKeys;
 
 /**
  * Aggregate root: an organization an account prospects; the whole team of the account shares it.
@@ -113,11 +113,11 @@ final class Organization implements ReleasesEvents
     }
 
     /**
-     * An organization is found by its corporate name and its email.
+     * An organization is found by the beginning of its corporate name or of its email.
      */
-    public function searchTerms(): SearchTerms
+    public function searchKeys(): SearchKeys
     {
-        return SearchTerms::of($this->legalIdentity->corporateName, $this->contactDetails->email?->value);
+        return new SearchKeys($this->legalIdentity->corporateName, $this->contactDetails->email);
     }
 
     public function address(): ?Address

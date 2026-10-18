@@ -1,7 +1,7 @@
 # 0050. The text search is a projection of word beginnings, kept by the events, rebuildable
 
 - Date: 2026-10-16
-- Status: Accepted
+- Status: Superseded by [0071](0071-search-by-the-beginning-of-the-name-or-of-the-email.md)
 - Implemented by: `packages/core/src/SharedKernel/Domain/SearchTerms.php`, `Organization::searchTerms()`, `Person::searchTerms()`, `apps/api/src/Shared/Persistence/SearchProjection.php`, `apps/api/src/*/Persistence/*SearchIndex.php`, `bin/console app:search:rebuild`
 
 ## Context

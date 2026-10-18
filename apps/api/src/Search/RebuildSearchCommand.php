@@ -2,26 +2,27 @@
 
 namespace App\Search;
 
-use App\PersonalData\Persistence\PersonSearchIndex;
-use App\Prospecting\Persistence\OrganizationSearchIndex;
+use App\PersonalData\Persistence\DynamoPersonRepository;
+use App\Prospecting\Persistence\DynamoOrganizationRepository;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Style\SymfonyStyle;
 
 /**
- * Rebuilds the search projections from the aggregates (ADR 0050): run it again whenever a projection
- * drifted, after an error between saving an aggregate and indexing it. It can run any number of times.
+ * Writes again the search keys of the organizations and of the persons (ADR 0071), forgetting the items of the
+ * former search (ADR 0050): once on tables written before, then whenever the keys of an aggregate change of
+ * rule. It can run any number of times.
  */
-#[AsCommand(name: 'app:search:rebuild', description: 'Rebuild the search of the organizations and of the persons from the aggregates')]
+#[AsCommand(name: 'app:search:rebuild', description: 'Write again the search keys of the organizations and of the persons')]
 final readonly class RebuildSearchCommand
 {
-    public function __construct(private OrganizationSearchIndex $organizations, private PersonSearchIndex $persons)
+    public function __construct(private DynamoOrganizationRepository $organizations, private DynamoPersonRepository $persons)
     {
     }
 
     public function __invoke(SymfonyStyle $io): int
     {
-        $io->success(sprintf('Indexed %d organizations and %d persons.', $this->organizations->rebuild(), $this->persons->rebuild()));
+        $io->success(sprintf('Wrote the keys of %d organizations and %d persons.', $this->organizations->writeTheSearchKeysAgain(), $this->persons->writeTheSearchKeysAgain()));
 
         return Command::SUCCESS;
     }

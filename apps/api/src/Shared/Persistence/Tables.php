@@ -6,13 +6,13 @@ use Aws\DynamoDb\DynamoDbClient;
 use Aws\DynamoDb\Exception\DynamoDbException;
 
 /**
- * The tables of the bounded contexts (ADR 0038, 0048), all of the same shape: `PK`/`SK`, and the indexes
- * `GSI1` and `GSI2`, billed by request. Locally they live in MiniStack; in production Terraform will make
- * them alike.
+ * The tables of the bounded contexts (ADR 0038, 0048), all of the same shape: `PK`/`SK`, the indexes
+ * `GSI1` and `GSI2`, and those of the search, `NAME` and `EMAIL`, keeping only the keys (ADR 0071); billed by
+ * request. Locally they live in MiniStack; on AWS Terraform makes them alike (`infra/tables.tf`).
  */
 final readonly class Tables
 {
-    private const array KEYS = ['PK', 'SK', 'GSI1PK', 'GSI1SK', 'GSI2PK', 'GSI2SK'];
+    private const array KEYS = ['PK', 'SK', 'GSI1PK', 'GSI1SK', 'GSI2PK', 'GSI2SK', 'NAMEPK', 'NAMESK', 'EMAILPK', 'EMAILSK'];
 
     public function __construct(
         private DynamoDbClient $client,
@@ -66,6 +66,8 @@ final readonly class Tables
             'GlobalSecondaryIndexes' => [
                 ['IndexName' => Table::BY_GSI1, 'KeySchema' => self::keySchema('GSI1PK', 'GSI1SK'), 'Projection' => ['ProjectionType' => 'ALL']],
                 ['IndexName' => Table::BY_GSI2, 'KeySchema' => self::keySchema('GSI2PK', 'GSI2SK'), 'Projection' => ['ProjectionType' => 'ALL']],
+                ['IndexName' => Table::BY_NAME, 'KeySchema' => self::keySchema('NAMEPK', 'NAMESK'), 'Projection' => ['ProjectionType' => 'KEYS_ONLY']],
+                ['IndexName' => Table::BY_EMAIL, 'KeySchema' => self::keySchema('EMAILPK', 'EMAILSK'), 'Projection' => ['ProjectionType' => 'KEYS_ONLY']],
             ],
         ]);
         $this->client->waitUntil('TableExists', ['TableName' => $name]);

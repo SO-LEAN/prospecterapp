@@ -9,7 +9,7 @@ use Prospecter\Core\SharedKernel\Domain\AccountId;
 use Prospecter\Core\SharedKernel\Domain\Email;
 use Prospecter\Core\SharedKernel\Domain\Exception\EmailAlreadyUsed;
 use Prospecter\Core\SharedKernel\Domain\PersonId;
-use Prospecter\Core\SharedKernel\Domain\SearchTerms;
+use Prospecter\Core\SharedKernel\Domain\SearchKey;
 use Prospecter\Core\SharedKernel\Domain\Slice;
 
 interface PersonRepository
@@ -30,11 +30,11 @@ interface PersonRepository
 
     /**
      * The persons an account keeps for a purpose, newest first, after the cursor: those found by the search
-     * (`Person::searchTerms()`), all of them when it is empty.
+     * (`Person::searchKeys()`), all of them without one.
      *
      * @return Slice<Person>
      */
-    public function sliceOf(AccountId $accountId, Purpose $purpose, SearchTerms $search, ?string $after, int $max): Slice;
+    public function sliceOf(AccountId $accountId, Purpose $purpose, ?SearchKey $search, ?string $after, int $max): Slice;
 
     public function remove(Person $person): void;
 

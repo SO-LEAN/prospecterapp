@@ -53,7 +53,7 @@ Why the project is shaped the way it is: one file per decision in `docs/adr/`, i
 | [0047](0047-a-contract-per-context.md) | Each context keeps what it publishes in a Contract of plain data | Accepted | 2026-10-16 |
 | [0048](0048-dynamodb-one-table-per-context-on-ministack.md) | DynamoDB, one table per bounded context, emulated locally by MiniStack | Accepted | 2026-10-16 |
 | [0049](0049-lists-in-slices-after-a-cursor.md) | Lists come in slices after a cursor, never in numbered pages | Accepted | 2026-10-16 |
-| [0050](0050-text-search-by-a-projection-of-word-beginnings.md) | The text search is a projection of word beginnings, kept by the events, rebuildable | Accepted | 2026-10-16 |
+| [0050](0050-text-search-by-a-projection-of-word-beginnings.md) | The text search is a projection of word beginnings, kept by the events, rebuildable | Superseded by 0071 | 2026-10-16 |
 | [0051](0051-files-in-an-s3-bucket.md) | The files are in an S3 bucket, served from it; PHP only makes the missing sizes | Accepted, on AWS the bucket read by CloudFront only since [0065](0065-the-files-on-aws-behind-cloudfront.md) | 2026-10-16 |
 | [0052](0052-cognito-signs-the-members-in.md) | Cognito signs the members in; the SPA keeps its screen and signs in by SRP; the API checks the tokens | Accepted | 2026-10-16 |
 | [0053](0053-the-api-in-a-local-lambda-with-the-bref-layer.md) | Locally, the API runs on demand in a Lambda with the Bref layer, the repository mounted | Accepted, on demand superseded by 0055 | 2026-10-16 |
@@ -74,3 +74,4 @@ Why the project is shaped the way it is: one file per decision in `docs/adr/`, i
 | [0068](0068-the-internal-entry-of-the-storage-is-a-signed-function-url.md) | On AWS, the internal entry of the storage is a function URL answering only signed requests | Accepted | 2026-10-18 |
 | [0069](0069-a-new-instance-converges-in-two-applies.md) | The apps read each other without depending on each other: a new instance converges in two applies | Accepted | 2026-10-18 |
 | [0070](0070-a-removed-file-is-forgotten-by-the-caches.md) | A removed file is forgotten by the caches in front of the bucket | Accepted | 2026-10-18 |
+| [0071](0071-search-by-the-beginning-of-the-name-or-of-the-email.md) | An aggregate is found by the beginning of its name or of its email, read in indexes of its table | Accepted | 2026-10-18 |

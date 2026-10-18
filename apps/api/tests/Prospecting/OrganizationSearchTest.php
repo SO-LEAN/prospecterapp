@@ -2,13 +2,14 @@
 
 namespace Tests\App\Prospecting;
 
-use App\Prospecting\Persistence\OrganizationSearchIndex;
+use App\Prospecting\Persistence\DynamoOrganizationRepository;
+use App\Shared\Persistence\Table;
 use PHPUnit\Framework\Attributes\Group;
 use Tests\App\Base\ApiTestCase;
 
 /**
- * The search of the organizations is a projection of their words, kept up to date by the domain events and
- * rebuilt from the organizations when it drifted (ADR 0050).
+ * An organization is found by the beginning of its corporate name or of its email, read in the indexes of
+ * the search of its table (ADR 0071).
  */
 #[Group('api')]
 class OrganizationSearchTest extends ApiTestCase
@@ -22,15 +23,24 @@ class OrganizationSearchTest extends ApiTestCase
     public function testTheOrganizationsOfTheDemonstrationAreFound(): void
     {
         $this->assertSame(['Babbage & Co SAS'], $this->found('babb'));
+        $this->assertSame(['Babbage & Co SAS'], $this->found('contact@bab'));
     }
 
-    public function testAnOrganizationIsFoundByTheBeginningsOfItsWordsWithoutAccents(): void
+    public function testAnOrganizationIsFoundByTheBeginningOfItsNameWithoutAccentsSpacesNorPunctuation(): void
     {
         $this->requestJson('POST', '/api/organizations', ['legalIdentity' => ['corporateName' => 'Société Générale d\'Électricité']]);
         $this->requestJson('POST', '/api/organizations', ['legalIdentity' => ['corporateName' => 'Globex']]);
 
-        $this->assertSame(['Société Générale d\'Électricité'], $this->found('gen ELEC'));
-        $this->assertSame([], $this->found('ener'));
+        $this->assertSame(['Société Générale d\'Électricité'], $this->found('SOCIETE gen'));
+        $this->assertSame([], $this->found('generale'));
+    }
+
+    public function testTheOrganizationsFoundComeNewestFirstAfterTheCursor(): void
+    {
+        $ids = array_map(fn (string $name): string => $this->requestJson('POST', '/api/organizations', ['legalIdentity' => ['corporateName' => $name]])['id'], ['Acme 1', 'Acme 2', 'Acme 3']);
+
+        $this->assertSame(['Acme 3', 'Acme 2', 'Acme 1'], $this->found('acme'));
+        $this->assertSame(['Acme 2', 'Acme 1'], array_column($this->requestJson('GET', '/api/organizations?q=acme&after='.$ids[2])['items'], 'name'));
     }
 
     public function testARenamedOrganizationIsFoundByItsNewNameOnly(): void
@@ -52,16 +62,17 @@ class OrganizationSearchTest extends ApiTestCase
         $this->assertSame([], $this->found('initech'));
     }
 
-    public function testTheRebuildRepairsAProjectionThatDrifted(): void
+    public function testTheKeysAreWrittenAgainAndTheFormerSearchForgotten(): void
     {
-        $this->requestJson('POST', '/api/organizations', ['legalIdentity' => ['corporateName' => 'Initech']]);
-        self::getContainer()->get('app.search.prospecting')->clear();
-        $this->assertSame([], $this->found('initech'));
+        $table = self::getContainer()->get('app.table.prospecting');
+        $this->assertInstanceOf(Table::class, $table);
+        $table->batch([['PK' => 'TOKEN#former#b', 'SK' => 'subject'], ['PK' => 'TOKENS#subject', 'SK' => 'TOKENS']]);
 
-        $indexed = self::getContainer()->get(OrganizationSearchIndex::class)->rebuild();
+        $written = self::getContainer()->get(DynamoOrganizationRepository::class)->writeTheSearchKeysAgain();
 
-        $this->assertSame(2, $indexed);
-        $this->assertSame(['Initech'], $this->found('initech'));
+        $this->assertSame(1, $written);
+        $this->assertSame([], $table->scan('TOKEN'));
+        $this->assertSame(['Babbage & Co SAS'], $this->found('babb'));
     }
 
     /**

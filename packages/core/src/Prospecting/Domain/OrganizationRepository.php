@@ -10,7 +10,7 @@ use Prospecter\Core\SharedKernel\Domain\Email;
 use Prospecter\Core\SharedKernel\Domain\Exception\EmailAlreadyUsed;
 use Prospecter\Core\SharedKernel\Domain\OrganizationId;
 use Prospecter\Core\SharedKernel\Domain\PersonId;
-use Prospecter\Core\SharedKernel\Domain\SearchTerms;
+use Prospecter\Core\SharedKernel\Domain\SearchKey;
 use Prospecter\Core\SharedKernel\Domain\Slice;
 
 interface OrganizationRepository
@@ -50,9 +50,9 @@ interface OrganizationRepository
 
     /**
      * The organizations the account prospects, newest first, after the cursor: those found by the search
-     * (`Organization::searchTerms()`), all of them when it is empty.
+     * (`Organization::searchKeys()`), all of them without one.
      *
      * @return Slice<Organization>
      */
-    public function sliceProspectedBy(AccountId $accountId, SearchTerms $search, ?string $after, int $max): Slice;
+    public function sliceProspectedBy(AccountId $accountId, ?SearchKey $search, ?string $after, int $max): Slice;
 }

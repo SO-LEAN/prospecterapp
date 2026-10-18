@@ -23,10 +23,10 @@ Fonctionnalité: Rechercher parmi mes organisations
       | Globex   |            |
       | ACME SAS | Strasbourg |
 
-  Scénario: Je recherche par raison sociale ou par e-mail
+  Scénario: Je recherche par le début de la raison sociale ou de l'e-mail
     Soit l'organisation "ACME" fait partie de mes organisations
     Et l'organisation "Globex" fait partie de mes organisations avec :
-      | e-mail | contact@acme-partner.test |
+      | e-mail | acme.partner@globex.test |
     Et l'organisation "Initech" fait partie de mes organisations
     Quand je cherche "acme" dans mes organisations
     Alors je trouve 2 organisations
@@ -35,17 +35,17 @@ Fonctionnalité: Rechercher parmi mes organisations
       | Globex |
       | ACME   |
 
-  Scénario: Je trouve une organisation par le début de ses mots, sans souci des accents ni des majuscules
+  Scénario: Je trouve une organisation sans souci des accents, des majuscules, des espaces ni de la ponctuation
     Soit l'organisation "Société Générale d'Électricité" fait partie de mes organisations
     Et l'organisation "Globex" fait partie de mes organisations
-    Quand je cherche "gen ELEC" dans mes organisations
+    Quand je cherche "SOCIETE gen" dans mes organisations
     Alors la liste affiche :
       | nom                            |
       | Société Générale d'Électricité |
 
-  Scénario: Un mot cherché commence un mot, il ne se trouve pas au milieu
-    Soit l'organisation "ACME" fait partie de mes organisations
-    Quand je cherche "cme" dans mes organisations
+  Scénario: Ce qui est cherché commence le nom, il ne se trouve pas au milieu
+    Soit l'organisation "Société Générale" fait partie de mes organisations
+    Quand je cherche "generale" dans mes organisations
     Alors je trouve 0 organisation
 
   Scénario: Les organisations arrivent par tranches, chacune après la précédente

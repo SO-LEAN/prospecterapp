@@ -4,7 +4,7 @@ namespace App\PersonalData\Persistence;
 
 use App\Shared\Persistence\ConditionFailed;
 use App\Shared\Persistence\Documents;
-use App\Shared\Persistence\SearchProjection;
+use App\Shared\Persistence\SearchIndexes;
 use App\Shared\Persistence\Table;
 use Prospecter\Core\PersonalData\Domain\Exception\UnknownPerson;
 use Prospecter\Core\PersonalData\Domain\Person;
@@ -14,7 +14,7 @@ use Prospecter\Core\SharedKernel\Domain\AccountId;
 use Prospecter\Core\SharedKernel\Domain\Email;
 use Prospecter\Core\SharedKernel\Domain\Exception\EmailAlreadyUsed;
 use Prospecter\Core\SharedKernel\Domain\PersonId;
-use Prospecter\Core\SharedKernel\Domain\SearchTerms;
+use Prospecter\Core\SharedKernel\Domain\SearchKey;
 use Prospecter\Core\SharedKernel\Domain\Slice;
 
 /**
@@ -23,22 +23,15 @@ use Prospecter\Core\SharedKernel\Domain\Slice;
  *   its id);
  * - `EMAIL#<account>#<purpose>#<email>` / `EMAIL`: the email a person holds among the persons an account keeps
  *   for a purpose, the safety net of EmailUniqueness (ADR 0039).
+ * The person carries its search keys among the persons of the same account and purpose (`SearchIndexes`).
  */
 final readonly class DynamoPersonRepository implements PersonRepository
 {
     private const string PERSON = 'PERSON';
     private const string EMAIL = 'EMAIL';
 
-    public function __construct(private Table $personalDataTable, private SearchProjection $personalDataSearch)
+    public function __construct(private Table $personalDataTable)
     {
-    }
-
-    /**
-     * What a person is searched among: the persons their account keeps for the same purpose.
-     */
-    public static function scopeOf(AccountId $accountId, Purpose $purpose): string
-    {
-        return $accountId->value.'#'.$purpose->value;
     }
 
     public function get(PersonId $id): Person
@@ -57,31 +50,31 @@ final readonly class DynamoPersonRepository implements PersonRepository
     }
 
     /**
-     * Without a search, the account lists its persons in GSI1; a search asks the projection (ADR 0050).
+     * Without a search, the account lists its persons in GSI1; a search asks the indexes of the search (ADR 0071).
      */
-    public function sliceOf(AccountId $accountId, Purpose $purpose, SearchTerms $search, ?string $after, int $max): Slice
+    public function sliceOf(AccountId $accountId, Purpose $purpose, ?SearchKey $search, ?string $after, int $max): Slice
     {
-        $found = $search->isEmpty()
+        $found = null === $search
             ? $this->personsOf($this->personalDataTable->query(self::listKey($accountId, $purpose), Table::BY_GSI1, $after, $max + 1))
-            : $this->inTheOrderOf(array_slice($this->personalDataSearch->find(self::scopeOf($accountId, $purpose), $search, $after), 0, $max + 1));
+            : $this->inTheOrderOf(SearchIndexes::found($this->personalDataTable, self::scopeOf($accountId, $purpose), $search, null === $after ? null : self::keyOf(new PersonId($after)), $max + 1));
 
         return Documents::slice($found, $max, static fn (Person $person): string => (string) $person->id());
     }
 
     /**
-     * @param list<string> $ids
+     * @param list<string> $keys partition keys of persons
      *
      * @return list<Person>
      */
-    private function inTheOrderOf(array $ids): array
+    private function inTheOrderOf(array $keys): array
     {
         $persons = [];
 
-        foreach ($this->ofIds(array_map(static fn (string $id): PersonId => new PersonId($id), $ids)) as $person) {
-            $persons[(string) $person->id()] = $person;
+        foreach ($this->personsOf($this->personalDataTable->items(array_map(static fn (string $key): array => [$key, self::PERSON], $keys))) as $person) {
+            $persons[self::keyOf($person->id())] = $person;
         }
 
-        return array_values(array_filter(array_map(static fn (string $id): ?Person => $persons[$id] ?? null, $ids)));
+        return array_values(array_filter(array_map(static fn (string $key): ?Person => $persons[$key] ?? null, $keys)));
     }
 
     public function remove(Person $person): void
@@ -106,7 +99,7 @@ final readonly class DynamoPersonRepository implements PersonRepository
         $document = PersonDocument::of($person);
         $storedEmail = $this->personalDataTable->item(self::keyOf($person->id()), self::PERSON)['email'] ?? null;
         $email = $document['contactDetails']['email'];
-        $writes = [$this->personalDataTable->putting($this->itemOf($document))];
+        $writes = [$this->personalDataTable->putting($this->itemOf($person, $document))];
 
         $reservation = null;
 
@@ -127,13 +120,28 @@ final readonly class DynamoPersonRepository implements PersonRepository
     }
 
     /**
+     * Writes again the search keys of every person, and forgets the items of the former search (ADR 0050):
+     * what a table written before ADR 0071 needs once.
+     */
+    public function writeTheSearchKeysAgain(): int
+    {
+        $items = $this->personalDataTable->scan(self::PERSON.'#');
+        $this->personalDataTable->batch(
+            array_map(fn (array $item): array => $this->itemOf(PersonDocument::person($item['person']), $item['person']), $items),
+            array_map(static fn (array $former): array => [$former['PK'], $former['SK']], $this->personalDataTable->scan('TOKEN')),
+        );
+
+        return count($items);
+    }
+
+    /**
      * @param array<string, mixed> $document
      *
      * @return array<string, mixed>
      */
-    private function itemOf(array $document): array
+    private function itemOf(Person $person, array $document): array
     {
-        return [
+        return SearchIndexes::of(self::scopeOf($person->accountId(), $person->purpose()), $person->searchKeys()) + [
             'PK' => self::keyOf(new PersonId($document['id'])),
             'SK' => self::PERSON,
             'GSI1PK' => self::listKey(new AccountId($document['accountId']), Purpose::from($document['purpose'])),
@@ -156,6 +164,14 @@ final readonly class DynamoPersonRepository implements PersonRepository
     private static function keyOf(PersonId $id): string
     {
         return self::PERSON.'#'.$id->value;
+    }
+
+    /**
+     * What a person is searched among: the persons their account keeps for the same purpose.
+     */
+    private static function scopeOf(AccountId $accountId, Purpose $purpose): string
+    {
+        return $accountId->value.'#'.$purpose->value;
     }
 
     private static function listKey(AccountId $accountId, Purpose $purpose): string

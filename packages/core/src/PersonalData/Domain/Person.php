@@ -20,7 +20,7 @@ use Prospecter\Core\SharedKernel\Domain\OrganizationId;
 use Prospecter\Core\SharedKernel\Domain\PersonId;
 use Prospecter\Core\SharedKernel\Domain\RecordsEvents;
 use Prospecter\Core\SharedKernel\Domain\ReleasesEvents;
-use Prospecter\Core\SharedKernel\Domain\SearchTerms;
+use Prospecter\Core\SharedKernel\Domain\SearchKeys;
 
 /**
  * Aggregate root: the personal data of a natural person, kept for one account and one purpose. The account
@@ -115,11 +115,11 @@ final class Person implements ReleasesEvents
     }
 
     /**
-     * A person is found by their first name, last name and email.
+     * A person is found by the beginning of their last name or of their email.
      */
-    public function searchTerms(): SearchTerms
+    public function searchKeys(): SearchKeys
     {
-        return SearchTerms::of($this->name->firstName, $this->name->lastName, $this->contactDetails->email?->value);
+        return new SearchKeys($this->name->lastName, $this->contactDetails->email);
     }
 
     public function picture(): ?File

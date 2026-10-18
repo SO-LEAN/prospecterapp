@@ -23,12 +23,25 @@ Fonctionnalité: Rechercher mes contacts
     Et je peux sur mes contacts :
       | chercher par texte |
 
-  Scénario: Je cherche dans le nom ou l'e-mail
+  Scénario: Je cherche par le début du nom
     Soit je suis connecté en tant que prospecteur de "SOLEAN IT"
-    Quand je cherche "navy" dans mes contacts
+    Quand je cherche "HOP" dans mes contacts
     Alors la liste des contacts affiche :
       | prénom | nom    |
       | Grace  | Hopper |
+
+  Scénario: Je cherche par le début de l'e-mail
+    Soit je suis connecté en tant que prospecteur de "SOLEAN IT"
+    Quand je cherche "ada@" dans mes contacts
+    Alors la liste des contacts affiche :
+      | prénom | nom      |
+      | Ada    | Lovelace |
+
+  Scénario: Le prénom suivi du nom ne trouve pas un contact, seul le début du nom le trouve
+    Soit je suis connecté en tant que prospecteur de "SOLEAN IT"
+    Quand je cherche "grace hop" dans mes contacts
+    Alors la liste des contacts affiche :
+      | prénom | nom |
 
   Scénario: Sans le droit, je vois mes contacts masqués
     Soit je suis connecté en tant que prospecteur de "SOLEAN IT" sans le droit aux données personnelles
