@@ -4,7 +4,7 @@ namespace App\Prospecting\Persistence;
 
 use App\Shared\Persistence\ConditionFailed;
 use App\Shared\Persistence\Documents;
-use App\Shared\Persistence\SearchProjection;
+use App\Shared\Persistence\SearchIndexes;
 use App\Shared\Persistence\Table;
 use Prospecter\Core\Prospecting\Domain\Exception\UnknownOrganization;
 use Prospecter\Core\Prospecting\Domain\Organization;
@@ -14,7 +14,7 @@ use Prospecter\Core\SharedKernel\Domain\Email;
 use Prospecter\Core\SharedKernel\Domain\Exception\EmailAlreadyUsed;
 use Prospecter\Core\SharedKernel\Domain\OrganizationId;
 use Prospecter\Core\SharedKernel\Domain\PersonId;
-use Prospecter\Core\SharedKernel\Domain\SearchTerms;
+use Prospecter\Core\SharedKernel\Domain\SearchKey;
 use Prospecter\Core\SharedKernel\Domain\Slice;
 
 /**
@@ -24,13 +24,14 @@ use Prospecter\Core\SharedKernel\Domain\Slice;
  * - `EMAIL#<account>#<email>` / `EMAIL`: the email an organization holds in its account, the safety net of
  *   EmailUniqueness (ADR 0039): two organizations taking it at once, the second transaction is cancelled;
  * - `CONTACT#<person>` / `ORGANIZATION#<id>`: the organizations naming a contact.
+ * The organization carries its search keys among the organizations of its account (`SearchIndexes`).
  */
 final readonly class DynamoOrganizationRepository implements OrganizationRepository
 {
     private const string ORGANIZATION = 'ORGANIZATION';
     private const string EMAIL = 'EMAIL';
 
-    public function __construct(private Table $prospectingTable, private SearchProjection $prospectingSearch)
+    public function __construct(private Table $prospectingTable)
     {
     }
 
@@ -52,7 +53,7 @@ final readonly class DynamoOrganizationRepository implements OrganizationReposit
     {
         $document = OrganizationDocument::of($organization);
         $stored = $this->prospectingTable->item(self::keyOf($organization->id()), self::ORGANIZATION);
-        $writes = [$this->prospectingTable->putting($this->itemOf($document))];
+        $writes = [$this->prospectingTable->putting($this->itemOf($organization, $document))];
         $email = $document['contactDetails']['email'];
         $storedEmail = $stored['email'] ?? null;
 
@@ -107,31 +108,47 @@ final readonly class DynamoOrganizationRepository implements OrganizationReposit
     }
 
     /**
-     * Without a search, the account lists its organizations in GSI1; a search asks the projection (ADR 0050).
+     * Without a search, the account lists its organizations in GSI1; a search asks the indexes of the search
+     * (ADR 0071).
      */
-    public function sliceProspectedBy(AccountId $accountId, SearchTerms $search, ?string $after, int $max): Slice
+    public function sliceProspectedBy(AccountId $accountId, ?SearchKey $search, ?string $after, int $max): Slice
     {
-        $found = $search->isEmpty()
+        $found = null === $search
             ? $this->organizationsOf($this->prospectingTable->query('ACCOUNT#'.$accountId->value, Table::BY_GSI1, $after, $max + 1))
-            : $this->inTheOrderOf(array_slice($this->prospectingSearch->find($accountId->value, $search, $after), 0, $max + 1));
+            : $this->inTheOrderOf(SearchIndexes::found($this->prospectingTable, $accountId->value, $search, null === $after ? null : self::keyOf(new OrganizationId($after)), $max + 1));
 
         return Documents::slice($found, $max, static fn (Organization $organization): string => (string) $organization->id());
     }
 
     /**
-     * @param list<string> $ids
+     * @param list<string> $keys partition keys of organizations
      *
      * @return list<Organization>
      */
-    private function inTheOrderOf(array $ids): array
+    private function inTheOrderOf(array $keys): array
     {
         $organizations = [];
 
-        foreach ($this->organizationsOf($this->prospectingTable->items(array_map(static fn (string $id): array => [self::keyOf(new OrganizationId($id)), self::ORGANIZATION], $ids))) as $organization) {
-            $organizations[(string) $organization->id()] = $organization;
+        foreach ($this->organizationsOf($this->prospectingTable->items(array_map(static fn (string $key): array => [$key, self::ORGANIZATION], $keys))) as $organization) {
+            $organizations[self::keyOf($organization->id())] = $organization;
         }
 
-        return array_values(array_filter(array_map(static fn (string $id): ?Organization => $organizations[$id] ?? null, $ids)));
+        return array_values(array_filter(array_map(static fn (string $key): ?Organization => $organizations[$key] ?? null, $keys)));
+    }
+
+    /**
+     * Writes again the search keys of every organization, and forgets the items of the former search (ADR
+     * 0050): what a table written before ADR 0071 needs once.
+     */
+    public function writeTheSearchKeysAgain(): int
+    {
+        $items = $this->prospectingTable->scan(self::ORGANIZATION.'#');
+        $this->prospectingTable->batch(
+            array_map(fn (array $item): array => $this->itemOf(OrganizationDocument::organization($item['organization']), $item['organization']), $items),
+            array_map(static fn (array $former): array => [$former['PK'], $former['SK']], $this->prospectingTable->scan('TOKEN')),
+        );
+
+        return count($items);
     }
 
     /**
@@ -139,9 +156,9 @@ final readonly class DynamoOrganizationRepository implements OrganizationReposit
      *
      * @return array<string, mixed>
      */
-    private function itemOf(array $document): array
+    private function itemOf(Organization $organization, array $document): array
     {
-        return [
+        return SearchIndexes::of($organization->accountId()->value, $organization->searchKeys()) + [
             'PK' => self::keyOf(new OrganizationId($document['id'])),
             'SK' => self::ORGANIZATION,
             'GSI1PK' => 'ACCOUNT#'.$document['accountId'],

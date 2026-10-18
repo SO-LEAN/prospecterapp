@@ -33,7 +33,6 @@ services:
             - '../src/Security/User.php'
             - '../src/Kernel.php'
             - '../src/Shared/Persistence/Table.php'
-            - '../src/Shared/Persistence/SearchProjection.php'
 
     # Handlers of the core: commands go through the command bus, queries are called by the controllers, the
     # published queries by the anticorruption layers of the other contexts (ADR 0045)
@@ -65,15 +64,6 @@ services:
     app.table.prospecting:
         class: App\Shared\Persistence\Table
         arguments: { $name: '%env(DYNAMODB_TABLE_PREFIX)%-prospecting' }
-    # the search projections (ADR 0050), in the table of their context: SearchProjection $prospectingSearch
-    app.search.personal_data:
-        class: App\Shared\Persistence\SearchProjection
-        arguments: ['@app.table.personal_data']
-    app.search.prospecting:
-        class: App\Shared\Persistence\SearchProjection
-        arguments: ['@app.table.prospecting']
-    App\Shared\Persistence\SearchProjection $personalDataSearch: '@app.search.personal_data'
-    App\Shared\Persistence\SearchProjection $prospectingSearch: '@app.search.prospecting'
     App\Shared\Persistence\Table $accountsTable: '@app.table.accounts'
     App\Shared\Persistence\Table $personalDataTable: '@app.table.personal_data'
     App\Shared\Persistence\Table $prospectingTable: '@app.table.prospecting'

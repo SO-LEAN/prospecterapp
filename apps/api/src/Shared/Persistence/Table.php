@@ -10,12 +10,14 @@ use Aws\DynamoDb\Marshaler;
  * The DynamoDB table of one bounded context (ADR 0038, 0048), in single-table design: every item is a plain
  * document (strings, numbers, booleans, null, lists and maps) keyed by `PK` and `SK`; the two secondary
  * indexes `GSI1` and `GSI2` list items by `GSI1PK`/`GSI1SK` and `GSI2PK`/`GSI2SK`, each repository giving
- * them their meaning.
+ * them their meaning; `NAME` and `EMAIL` keep only the keys of what the search finds (`SearchIndexes`).
  */
 final readonly class Table
 {
     public const string BY_GSI1 = 'GSI1';
     public const string BY_GSI2 = 'GSI2';
+    public const string BY_NAME = 'NAME';
+    public const string BY_EMAIL = 'EMAIL';
     private const int BATCH_GET_SIZE = 100;
     private const int BATCH_WRITE_SIZE = 25;
 
@@ -83,7 +85,33 @@ final readonly class Table
     }
 
     /**
-     * Every item whose partition key begins with the prefix: what a projection is rebuilt from.
+     * The partition keys of the items an index lists in a partition with a sort key beginning with
+     * `beginning`, every one of them.
+     *
+     * @return list<string>
+     */
+    public function keysBeginningWith(string $index, string $partition, string $beginning): array
+    {
+        $request = [
+            'TableName' => $this->name,
+            'IndexName' => $index,
+            'KeyConditionExpression' => '#pk = :pk AND begins_with(#sk, :beginning)',
+            'ExpressionAttributeNames' => ['#pk' => $index.'PK', '#sk' => $index.'SK'],
+            'ExpressionAttributeValues' => $this->marshaler->marshalItem([':pk' => $partition, ':beginning' => $beginning]),
+        ];
+        $keys = [];
+
+        do {
+            $result = $this->client->query($request);
+            $keys = [...$keys, ...array_map(fn (array $item): string => (string) $this->documentOf($item)['PK'], $result['Items'] ?? [])];
+            $request['ExclusiveStartKey'] = $result['LastEvaluatedKey'] ?? null;
+        } while (null !== $request['ExclusiveStartKey']);
+
+        return $keys;
+    }
+
+    /**
+     * Every item whose partition key begins with the prefix.
      *
      * @return list<array<string, mixed>>
      */

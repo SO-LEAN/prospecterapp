@@ -9,7 +9,7 @@ use Prospecter\Core\PersonalData\Domain\Purpose;
 use Prospecter\Core\PersonalData\Domain\ReaderService;
 use Prospecter\Core\SharedKernel\Application\QueryHandler;
 use Prospecter\Core\SharedKernel\Domain\MemberId;
-use Prospecter\Core\SharedKernel\Domain\SearchTerms;
+use Prospecter\Core\SharedKernel\Domain\SearchKey;
 
 final readonly class SearchContactsHandler implements QueryHandler
 {
@@ -22,6 +22,6 @@ final readonly class SearchContactsHandler implements QueryHandler
         $reader = $this->readerService->readerFrom(new MemberId($query->readerId));
         $reader->ensureMaySearchByText($query->query);
 
-        return SearchContactsResponse::of($this->persons->sliceOf($reader->accountId, Purpose::Prospecting, SearchTerms::of($query->query), $query->after, $query->max), $reader);
+        return SearchContactsResponse::of($this->persons->sliceOf($reader->accountId, Purpose::Prospecting, SearchKey::of($query->query), $query->after, $query->max), $reader);
     }
 }

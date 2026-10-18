@@ -29,6 +29,13 @@ Fonctionnalité: Changer les coordonnées d'une organisation
       | e-mail | contact@globex.test |
     Alors c'est refusé : "Email already used"
 
+  Scénario: L'e-mail d'une autre organisation l'est quelle que soit sa casse
+    Soit l'organisation "Globex" fait partie de mes organisations avec :
+      | e-mail | contact@globex.test |
+    Quand je change les coordonnées de "ACME" :
+      | e-mail | Contact@GLOBEX.test |
+    Alors c'est refusé : "Email already used"
+
   Scénario: Sans raison sociale, l'e-mail ne peut pas être effacé
     Soit l'organisation sans raison sociale "contact@globex.test" fait partie de mes organisations
     Quand je change les coordonnées de "contact@globex.test" :

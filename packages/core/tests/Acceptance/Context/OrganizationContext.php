@@ -32,7 +32,6 @@ use Prospecter\Core\SharedKernel\Domain\Email;
 use Prospecter\Core\SharedKernel\Domain\File;
 use Prospecter\Core\SharedKernel\Domain\LegalIdentity;
 use Prospecter\Core\SharedKernel\Domain\OrganizationId;
-use Prospecter\Core\SharedKernel\Domain\SearchTerms;
 use Tests\Core\Acceptance\Expect;
 use Tests\Core\Acceptance\Vocabulary;
 use Tests\Core\Double\InMemoryStorage;
@@ -268,7 +267,7 @@ final class OrganizationContext implements Context
     #[Then('l\'organisation :name compte :count organisation(s) active(s)')]
     public function theOrganizationCountsActiveOrganizations(string $name, int $count): void
     {
-        Expect::same($count, count($this->application->organizations->sliceProspectedBy($this->scenario->accountIdOf($name), SearchTerms::of(), null, PHP_INT_MAX)->content));
+        Expect::same($count, count($this->application->organizations->sliceProspectedBy($this->scenario->accountIdOf($name), null, null, PHP_INT_MAX)->content));
     }
 
     #[Then('je vois l\'organisation :')]

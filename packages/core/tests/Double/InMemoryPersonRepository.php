@@ -11,7 +11,8 @@ use Prospecter\Core\PersonalData\Domain\Purpose;
 use Prospecter\Core\SharedKernel\Domain\AccountId;
 use Prospecter\Core\SharedKernel\Domain\Email;
 use Prospecter\Core\SharedKernel\Domain\PersonId;
-use Prospecter\Core\SharedKernel\Domain\SearchTerms;
+use Prospecter\Core\SharedKernel\Domain\SearchKey;
+use Prospecter\Core\SharedKernel\Domain\SearchKeys;
 use Prospecter\Core\SharedKernel\Domain\Slice;
 
 final readonly class InMemoryPersonRepository implements PersonRepository
@@ -35,11 +36,11 @@ final readonly class InMemoryPersonRepository implements PersonRepository
         return array_values(array_filter(array_map(fn (PersonId $id): ?Person => $this->database->person((string) $id), $ids)));
     }
 
-    public function sliceOf(AccountId $accountId, Purpose $purpose, SearchTerms $search, ?string $after, int $max): Slice
+    public function sliceOf(AccountId $accountId, Purpose $purpose, ?SearchKey $search, ?string $after, int $max): Slice
     {
         $kept = array_values(array_filter($this->database->persons(), static fn (Person $person): bool => $person->accountId()->equals($accountId) && $person->purpose() === $purpose));
 
-        return NewestFirst::slice($kept, static fn (Person $person): string => (string) $person->id(), static fn (Person $person): SearchTerms => $person->searchTerms(), $search, $after, $max);
+        return NewestFirst::slice($kept, static fn (Person $person): string => (string) $person->id(), static fn (Person $person): SearchKeys => $person->searchKeys(), $search, $after, $max);
     }
 
     public function remove(Person $person): void

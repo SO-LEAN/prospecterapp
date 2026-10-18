@@ -10,7 +10,8 @@ use Prospecter\Core\Prospecting\Domain\OrganizationRepository;
 use Prospecter\Core\SharedKernel\Domain\AccountId;
 use Prospecter\Core\SharedKernel\Domain\Email;
 use Prospecter\Core\SharedKernel\Domain\OrganizationId;
-use Prospecter\Core\SharedKernel\Domain\SearchTerms;
+use Prospecter\Core\SharedKernel\Domain\SearchKey;
+use Prospecter\Core\SharedKernel\Domain\SearchKeys;
 use Prospecter\Core\SharedKernel\Domain\Slice;
 
 final readonly class InMemoryOrganizationRepository implements OrganizationRepository
@@ -49,9 +50,9 @@ final readonly class InMemoryOrganizationRepository implements OrganizationRepos
         return array_values(array_filter($this->prospectedBy($accountId), static fn (Organization $organization): bool => array_any($contacts, $organization->hasContact(...))));
     }
 
-    public function sliceProspectedBy(AccountId $accountId, SearchTerms $search, ?string $after, int $max): Slice
+    public function sliceProspectedBy(AccountId $accountId, ?SearchKey $search, ?string $after, int $max): Slice
     {
-        return NewestFirst::slice($this->prospectedBy($accountId), static fn (Organization $organization): string => (string) $organization->id(), static fn (Organization $organization): SearchTerms => $organization->searchTerms(), $search, $after, $max);
+        return NewestFirst::slice($this->prospectedBy($accountId), static fn (Organization $organization): string => (string) $organization->id(), static fn (Organization $organization): SearchKeys => $organization->searchKeys(), $search, $after, $max);
     }
 
     /**
