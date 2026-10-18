@@ -123,6 +123,13 @@ final class ExchangeContext implements Context
         Expect::same(array_map(static fn (Exchange $exchange): string => $exchange->id()->value, $mostRecent), array_map(static fn (ExchangeResponse $exchange): string => $exchange->id, $this->timeline->exchanges));
     }
 
+    #[Then('je peux sur la timeline :')]
+    public function iMayOnTheTimeline(TableNode $table): void
+    {
+        Expect::that(null !== $this->timeline, 'A timeline was expected');
+        Expect::same($table->getColumn(0), Vocabulary::describeIntents($this->timeline->possibleIntents));
+    }
+
     #[Then('je peux lire la suite après le dernier')]
     public function iMayReadWhatFollows(): void
     {

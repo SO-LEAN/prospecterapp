@@ -43,6 +43,7 @@ final class Vocabulary
         'RemoveContact' => 'retirer un contact',
         'StopProspecting' => 'arrêter de prospecter',
         'SearchByText' => 'chercher par texte',
+        'NoteExchange' => 'noter un échange',
     ];
 
     private const string MOMENT = 'Y-m-d H:i';
