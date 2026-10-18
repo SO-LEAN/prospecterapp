@@ -1,7 +1,7 @@
 # 0063. The continuous deployment packages an app, its Terraform deploys the package
 
 - Date: 2026-10-17
-- Status: Accepted
+- Status: Accepted, the packaging script generalized by [0065](0065-the-files-on-aws-behind-cloudfront.md) (`tools/package/lambda`), the address of the api by [0067](0067-the-apps-behind-an-edge.md)
 - Implemented by: `tools/package/api`, `apps/api/src/Kernel.php`, `tools/ci/code-version`, `tools/ci/infra-changed-apps`, the `package-api` target and `TF_VAR_code_version` of the `Makefile`, `apps/api/infra/{lambda,http-api,parameters}.tf`, the workflows `terraform-*.yml`, `apps/api/config/services.yaml`
 
 ## Context

@@ -46,6 +46,7 @@ The certificate is self-signed: accept the browser warning once for each host (`
 | `make api-doc` | Regenerate the OpenAPI contract of the API and the front API types after an endpoint change |
 | `make db` | Reset the tables and the user pool of the API and the bucket of the storage, with the data and the members of the demonstration |
 | `make infra-plan APP=api INSTANCE=dev` / `make infra-apply …` / `make infra-lint` | Terraform of an app on AWS ([infrastructure](docs/infra.md); its values are internal configuration) |
+| `make package-<api\|storage\|front>` / `make release-front INSTANCE=dev` / `make console INSTANCE=dev CMD=…` | package an app for AWS, put the release of the SPA, a command of the api on an instance ([infrastructure](docs/infra.md)) |
 | `make hooks` | Install the pre-commit hook that refuses secrets and AWS identifiers (done by `make install`) |
 | `make commands` | List the commands of the core and their handlers |
 | `make exec-api` / `make exec-front` | Shell in the PHP or Node container |

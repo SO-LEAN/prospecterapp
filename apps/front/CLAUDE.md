@@ -6,7 +6,7 @@ Architecture and the reasons behind each choice: `docs/front-architecture.md`. D
 
 Run through Docker from the repository root (no Node on the host): `docker compose run --rm --no-deps node pnpm <script>`, or the Makefile (`make test-front`, `make lint`, `make fix`, `make e2e`, `make api-doc`). The dev server runs in the `node` service (`make start`) behind https://local.prospecter.io.
 
-Scripts: `dev`, `build`, `preview`, `typecheck` (tsc 7), `lint` / `format` (Biome), `test` / `test:watch` (Vitest), `e2e` (Playwright, use `make e2e`), `api:types`.
+Scripts: `dev`, `build`, `preview`, `typecheck` (tsc 7), `lint` / `format` (Biome), `test` / `test:watch` (Vitest), `e2e` (Playwright, use `make e2e`: its global setup `e2e/wait-for-the-stack.ts` waits for the stack to answer), `api:types`.
 
 Before declaring work done: `pnpm typecheck`, `pnpm lint`, `pnpm test`, and `make e2e` for changes to a main journey.
 
@@ -14,7 +14,7 @@ Before declaring work done: `pnpm typecheck`, `pnpm lint`, `pnpm test`, and `mak
 
 - Respect the folders: `routes/` thin (loader + page), `features/<feature>/` (queries, mutations, schema, components), `shared/` business agnostic. A feature never imports another feature; shared query keys go to `shared/api/keys.ts`. `shared` imports nothing from `app`, `features` or `routes` (Biome `noRestrictedImports` refuses it).
 - Server data only through TanStack Query with the generated client `api` (what a member signs in with included: `/api/me/sign-in`). Signing in, renewing the token and signing out go through `shared/auth/session.ts` only (Cognito). Never `fetch` by hand, never copy server data into `useState` or Zustand. Mutations update the cache with the returned resource, then invalidate the affected list prefixes.
-- Route data: `loader` with `context.queryClient.ensureQueryData(...)`, page with `useSuspenseQuery`, plus `pendingComponent` and `errorComponent`. Search state in validated search params; a list comes in slices (`useInfiniteQuery`, the link `next`, "Charger plus", ADR 0049), never numbered pages.
+- Route data: `loader` with `context.queryClient.ensureQueryData(...)`, page with `useSuspenseQuery`, plus `pendingComponent` and `errorComponent`; a page that cannot load at all (the api unreachable) falls to the `PageError` of the root route. Search state in validated search params; a list comes in slices (`useInfiniteQuery`, the link `next`, "Charger plus", ADR 0049), never numbered pages.
 - Never write `useMemo`/`useCallback`/`memo` for performance: the React Compiler does it.
 - After an API change: `make api-doc` (regenerates `src/shared/api/schema.d.ts`, never edited by hand) and fix the type errors.
 - Forms: react-hook-form + zod schema mirroring the API constraints; show server violations with `applyViolations`. A resource is changed section by section, one intent each: `EditableSection` + `SectionForm`, shared field groups in `shared/forms`, fields through `FormField` (it subscribes to its own error; the React Compiler would not re-render a memoized group). Only a creation has a full form. Show an action only when the resource carries its link (`_links.<intention>`), never from the data itself.

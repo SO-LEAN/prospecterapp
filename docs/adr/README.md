@@ -36,7 +36,7 @@ Why the project is shaped the way it is: one file per decision in `docs/adr/`, i
 | [0030](0030-bounded-contexts-accounts-prospecting.md) | Bounded contexts Accounts and Prospecting, a shared kernel, code grouped by context | Accepted, port names superseded by 0045 | 2026-10-15 |
 | [0031](0031-personal-data-context.md) | A PersonalData context keeps the personal data of natural persons, and decides who reads them | Accepted, port names superseded by 0045 | 2026-10-15 |
 | [0032](0032-login-email-kept-by-authentication.md) | Members sign in with an email kept by authentication | Accepted, where the login email is kept superseded by 0052 | 2026-10-15 |
-| [0033](0033-storage-app.md) | A storage app keeps the files and serves the images in named sizes | Accepted, the disk superseded by 0051 | 2026-10-15 |
+| [0033](0033-storage-app.md) | A storage app keeps the files and serves the images in named sizes | Accepted, the disk superseded by [0051](0051-files-in-an-s3-bucket.md), the bearer token by [0068](0068-the-internal-entry-of-the-storage-is-a-signed-function-url.md) | 2026-10-15 |
 | [0034](0034-authorization-server-app.md) | An auth app is the authorization server; the API is a resource server | Superseded by 0052 | 2026-10-15 |
 | [0035](0035-plain-requests-and-responses-typed-refusals.md) | Requests and responses are plain data; the use cases translate the refusals of the domain | Accepted, authentication query superseded by 0040 | 2026-10-15 |
 | [0036](0036-client-gives-identity-and-moment-of-a-command.md) | The client gives the identity and the moment of a command; aggregates keep their creation and last change | Accepted | 2026-10-15 |
@@ -54,7 +54,7 @@ Why the project is shaped the way it is: one file per decision in `docs/adr/`, i
 | [0048](0048-dynamodb-one-table-per-context-on-ministack.md) | DynamoDB, one table per bounded context, emulated locally by MiniStack | Accepted | 2026-10-16 |
 | [0049](0049-lists-in-slices-after-a-cursor.md) | Lists come in slices after a cursor, never in numbered pages | Accepted | 2026-10-16 |
 | [0050](0050-text-search-by-a-projection-of-word-beginnings.md) | The text search is a projection of word beginnings, kept by the events, rebuildable | Accepted | 2026-10-16 |
-| [0051](0051-files-in-an-s3-bucket.md) | The files are in an S3 bucket, served from it; PHP only makes the missing sizes | Accepted | 2026-10-16 |
+| [0051](0051-files-in-an-s3-bucket.md) | The files are in an S3 bucket, served from it; PHP only makes the missing sizes | Accepted, on AWS the bucket read by CloudFront only since [0065](0065-the-files-on-aws-behind-cloudfront.md) | 2026-10-16 |
 | [0052](0052-cognito-signs-the-members-in.md) | Cognito signs the members in; the SPA keeps its screen and signs in by SRP; the API checks the tokens | Accepted | 2026-10-16 |
 | [0053](0053-the-api-in-a-local-lambda-with-the-bref-layer.md) | Locally, the API runs on demand in a Lambda with the Bref layer, the repository mounted | Accepted, on demand superseded by 0055 | 2026-10-16 |
 | [0054](0054-the-storage-in-a-local-lambda-with-the-imagick-layer.md) | Locally, the storage runs in a Lambda too, with the imagick layer of Bref | Accepted, on demand superseded by 0055 | 2026-10-16 |
@@ -62,15 +62,15 @@ Why the project is shaped the way it is: one file per decision in `docs/adr/`, i
 | [0056](0056-the-command-line-on-the-php-of-the-lambdas.md) | The command line runs on the PHP of the Lambdas | Accepted | 2026-10-16 |
 | [0057](0057-continuous-integration-around-dev.md) | Continuous integration around `dev`: branches of work by pull request, `main` and `dev` protected | Accepted, the rebase merges into `main` superseded by 0058 | 2026-10-16 |
 | [0058](0058-main-receives-dev-and-hotfixes-by-merge-commits.md) | `main` receives `dev` and the hotfixes by merge commits | Accepted | 2026-10-16 |
-| [0059](0059-terraform-per-app-values-out-of-the-repository.md) | Each app keeps its Terraform; the values of an installation stay out of the repository | Accepted | 2026-10-16 |
+| [0059](0059-terraform-per-app-values-out-of-the-repository.md) | Each app keeps its Terraform; the values of an installation stay out of the repository | Accepted, the order of the first deployment superseded by [0069](0069-a-new-instance-converges-in-two-applies.md) | 2026-10-16 |
 | [0060](0060-terraform-plans-every-pull-request.md) | Terraform plans every pull request touching the infrastructure, with a read-only role | Accepted | 2026-10-17 |
-| [0061](0061-terraform-applies-each-merge-into-dev.md) | Terraform applies each merge into `dev` to the instances of the dev account | Accepted | 2026-10-17 |
+| [0061](0061-terraform-applies-each-merge-into-dev.md) | Terraform applies each merge into `dev` to the instances of the dev account | Accepted, the first deployment ordered by hand superseded by [0069](0069-a-new-instance-converges-in-two-applies.md) | 2026-10-17 |
 | [0062](0062-terraform-applies-main-after-approval.md) | Terraform applies each push to `main` to the instances of the prod account, after an approval | Accepted | 2026-10-17 |
-| [0063](0063-the-cd-packages-an-app-and-its-terraform-deploys-it.md) | The continuous deployment packages an app, its Terraform deploys the package | Accepted | 2026-10-17 |
+| [0063](0063-the-cd-packages-an-app-and-its-terraform-deploys-it.md) | The continuous deployment packages an app, its Terraform deploys the package | Accepted, the packaging script generalized by [0065](0065-the-files-on-aws-behind-cloudfront.md) (`tools/package/lambda`), the address of the api by [0067](0067-the-apps-behind-an-edge.md) | 2026-10-17 |
 | [0064](0064-an-account-is-opened-by-its-founder.md) | An account is opened by its founder, from the console until the members open theirs | Accepted | 2026-10-17 |
-| [0065](0065-the-files-on-aws-behind-cloudfront.md) | On AWS, CloudFront serves the files from the bucket and fails over to the storage for a missing size | Accepted | 2026-10-17 |
-| [0066](0066-the-spa-on-aws-in-releases.md) | On AWS, the SPA is served by CloudFront in releases kept 30 days after they are replaced | Accepted | 2026-10-17 |
-| [0067](0067-the-apps-behind-an-edge.md) | Behind an edge, the apps take their domains from SSM and answer only what the edge passes on | Accepted | 2026-10-17 |
+| [0065](0065-the-files-on-aws-behind-cloudfront.md) | On AWS, CloudFront serves the files from the bucket and fails over to the storage for a missing size | Accepted, the HTTP API of the storage superseded by [0068](0068-the-internal-entry-of-the-storage-is-a-signed-function-url.md), the order of the applies by [0069](0069-a-new-instance-converges-in-two-applies.md) | 2026-10-17 |
+| [0066](0066-the-spa-on-aws-in-releases.md) | On AWS, the SPA is served by CloudFront in releases kept 30 days after they are replaced | Accepted, the order of the applies superseded by [0069](0069-a-new-instance-converges-in-two-applies.md) | 2026-10-17 |
+| [0067](0067-the-apps-behind-an-edge.md) | Behind an edge, the apps take their domains from SSM and answer only what the edge passes on | Accepted, the internal entry of the storage superseded by [0068](0068-the-internal-entry-of-the-storage-is-a-signed-function-url.md) | 2026-10-17 |
 | [0068](0068-the-internal-entry-of-the-storage-is-a-signed-function-url.md) | On AWS, the internal entry of the storage is a function URL answering only signed requests | Accepted | 2026-10-18 |
 | [0069](0069-a-new-instance-converges-in-two-applies.md) | The apps read each other without depending on each other: a new instance converges in two applies | Accepted | 2026-10-18 |
 | [0070](0070-a-removed-file-is-forgotten-by-the-caches.md) | A removed file is forgotten by the caches in front of the bucket | Accepted | 2026-10-18 |
