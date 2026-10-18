@@ -1,4 +1,5 @@
 import 'maplibre-gl/dist/maplibre-gl.css'
+import './map-view.css'
 import { setWorkerUrl } from 'maplibre-gl'
 import bundledWorkerUrl from 'maplibre-gl/dist/maplibre-gl-worker.mjs?url'
 import { type ReactNode, useRef, useState } from 'react'
