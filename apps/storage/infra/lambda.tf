@@ -98,8 +98,26 @@ resource "aws_lambda_function" "storage" {
       STORAGE_TOKEN      = "bref-ssm:${aws_ssm_parameter.token.name}"
       S3_ENDPOINT        = ""
       S3_BUCKET          = aws_s3_bucket.files.id
+      # read at the start too, for the same cycle
+      CLOUDFRONT_DISTRIBUTION_ID = "bref-ssm:${local.ssm_path}/distribution-id"
     }
   }
 
   depends_on = [aws_cloudwatch_log_group.lambda, aws_iam_role_policy.lambda]
+}
+
+# A removed file is invalidated in CloudFront (ADR 0070): apart from the policy the function waits for, the
+# distribution calling the function
+resource "aws_iam_role_policy" "invalidate" {
+  name = "forget-the-removed-files"
+  role = aws_iam_role.lambda.id
+  policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [{
+      Sid      = "InvalidateItsDistribution"
+      Effect   = "Allow"
+      Action   = "cloudfront:CreateInvalidation"
+      Resource = aws_cloudfront_distribution.files.arn
+    }]
+  })
 }

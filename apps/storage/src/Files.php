@@ -10,7 +10,7 @@ use Symfony\Component\HttpFoundation\File\File;
  */
 final readonly class Files
 {
-    public function __construct(private Bucket $bucket, private string $publicUrl)
+    public function __construct(private Bucket $bucket, private PublicCache $publicCache, private string $publicUrl)
     {
     }
 
@@ -27,10 +27,12 @@ final readonly class Files
     }
 
     /**
-     * Removes the original and every copy made from it.
+     * Removes the original and every copy made from it, from the bucket and from what keeps copies in front of it.
      */
     public function remove(string $key): void
     {
-        $this->bucket->delete([$key, ...array_map(static fn (ImageSize $size): string => $size->pathOf($key), ImageSize::cases())]);
+        $keys = [$key, ...array_map(static fn (ImageSize $size): string => $size->pathOf($key), ImageSize::cases())];
+        $this->bucket->delete($keys);
+        $this->publicCache->forget($keys);
     }
 }

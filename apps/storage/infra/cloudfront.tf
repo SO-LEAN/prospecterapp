@@ -9,8 +9,37 @@ data "aws_cloudfront_cache_policy" "optimized" {
   name = "Managed-CachingOptimized"
 }
 
-data "aws_cloudfront_response_headers_policy" "cors" {
-  name = "Managed-SimpleCORS"
+# The files for every origin, as the static host locally; only CloudFront keeps copies of them, the edge in front of
+# it asked to keep none (CDN-Cache-Control, RFC 9213), so that a removed file stops being served once CloudFront
+# forgets it (ADR 0070)
+resource "aws_cloudfront_response_headers_policy" "files" {
+  name    = "${local.name}-files"
+  comment = "CORS for every origin, no copy kept by an edge in front"
+
+  cors_config {
+    access_control_allow_credentials = false
+    origin_override                  = true
+
+    access_control_allow_headers {
+      items = ["*"]
+    }
+
+    access_control_allow_methods {
+      items = ["GET", "HEAD"]
+    }
+
+    access_control_allow_origins {
+      items = ["*"]
+    }
+  }
+
+  custom_headers_config {
+    items {
+      header   = "CDN-Cache-Control"
+      value    = "no-store"
+      override = true
+    }
+  }
 }
 
 resource "aws_cloudfront_origin_access_control" "files" {
@@ -82,7 +111,7 @@ resource "aws_cloudfront_distribution" "files" {
     allowed_methods            = ["GET", "HEAD"]
     cached_methods             = ["GET", "HEAD"]
     cache_policy_id            = data.aws_cloudfront_cache_policy.optimized.id
-    response_headers_policy_id = data.aws_cloudfront_response_headers_policy.cors.id
+    response_headers_policy_id = aws_cloudfront_response_headers_policy.files.id
     compress                   = true
 
     dynamic "function_association" {
