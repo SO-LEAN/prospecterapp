@@ -1,4 +1,4 @@
-import { countries } from '@/shared/lib/countries'
+import { frequentCountries, otherCountries } from '@/shared/lib/countries'
 import {
   Select,
   SelectContent,
@@ -28,13 +28,13 @@ export function CountrySelect({ value, onChange, placeholder, ...aria }: Props) 
       <SelectContent className="max-h-80">
         <SelectItem value={NONE}>{placeholder ?? '—'}</SelectItem>
         <SelectSeparator />
-        {countries.slice(0, 8).map((country) => (
+        {frequentCountries.map((country) => (
           <SelectItem key={country.code} value={country.code}>
             {country.name}
           </SelectItem>
         ))}
         <SelectSeparator />
-        {countries.slice(8).map((country) => (
+        {otherCountries.map((country) => (
           <SelectItem key={country.code} value={country.code}>
             {country.name}
           </SelectItem>
