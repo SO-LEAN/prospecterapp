@@ -9,3 +9,9 @@ app.swagger_ui:
     methods: GET
     host: '%app_api_host%'
     defaults: { _controller: nelmio_api_doc.controller.swagger_ui }
+
+# the icon of its pages
+app.doc:
+    resource: ../../src/Doc/
+    type: attribute
+    host: '%app_api_host%'

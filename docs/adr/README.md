@@ -72,3 +72,5 @@ Why the project is shaped the way it is: one file per decision in `docs/adr/`, i
 | [0066](0066-the-spa-on-aws-in-releases.md) | On AWS, the SPA is served by CloudFront in releases kept 30 days after they are replaced | Accepted | 2026-10-17 |
 | [0067](0067-the-apps-behind-an-edge.md) | Behind an edge, the apps take their domains from SSM and answer only what the edge passes on | Accepted | 2026-10-17 |
 | [0068](0068-the-internal-entry-of-the-storage-is-a-signed-function-url.md) | On AWS, the internal entry of the storage is a function URL answering only signed requests | Accepted | 2026-10-18 |
+| [0069](0069-a-new-instance-converges-in-two-applies.md) | The apps read each other without depending on each other: a new instance converges in two applies | Accepted | 2026-10-18 |
+| [0070](0070-a-removed-file-is-forgotten-by-the-caches.md) | A removed file is forgotten by the caches in front of the bucket | Accepted | 2026-10-18 |

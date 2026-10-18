@@ -26,6 +26,20 @@ services:
     App\Bucket:
         arguments: { $name: '%env(S3_BUCKET)%' }
 
+    # what keeps copies of the files: nothing locally, CloudFront on AWS (ADR 0070)
+    App\PublicCache: '@App\NoPublicCache'
+    Aws\CloudFront\CloudFrontClient:
+        arguments:
+            - region: '%env(AWS_REGION)%'
+              credentials:
+                  key: '%env(AWS_ACCESS_KEY_ID)%'
+                  secret: '%env(AWS_SECRET_ACCESS_KEY)%'
+                  token: '%env(default::AWS_SESSION_TOKEN)%'
+
     # images are resized with ImageMagick
     Imagine\Image\ImagineInterface:
         class: Imagine\Imagick\Imagine
+
+when@prod:
+    services:
+        App\PublicCache: '@App\CloudFrontPublicCache'
