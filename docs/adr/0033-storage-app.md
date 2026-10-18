@@ -1,7 +1,7 @@
 # 0033. A storage app keeps the files and serves the images in named sizes
 
 - Date: 2026-10-15
-- Status: Accepted, the disk superseded by [0051](0051-files-in-an-s3-bucket.md)
+- Status: Accepted, the disk superseded by [0051](0051-files-in-an-s3-bucket.md), the bearer token by [0068](0068-the-internal-entry-of-the-storage-is-a-signed-function-url.md)
 - Implemented by: `apps/storage`, `apps/api/src/Shared/{StorageClient,ImageResourceFactory}.php`, `docker/nginx/templates/static.conf.template`
 
 ## Context

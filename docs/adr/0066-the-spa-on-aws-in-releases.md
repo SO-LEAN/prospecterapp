@@ -1,7 +1,7 @@
 # 0066. On AWS, the SPA is served by CloudFront in releases kept 30 days after they are replaced
 
 - Date: 2026-10-17
-- Status: Accepted
+- Status: Accepted, the order of the applies superseded by [0069](0069-a-new-instance-converges-in-two-applies.md)
 - Implemented by: `apps/front/infra/{bucket,cloudfront,parameters}.tf`, `apps/front/infra/functions/release.js.tftpl`, `apps/front/src/shared/config/env.ts`, `apps/front/public/config.js`, `tools/deploy/front`, the `package-front` and `release-front` targets of the `Makefile`, the workflows `terraform-apply-*.yml`
 
 ## Context

@@ -34,7 +34,7 @@ Radius: `--radius` 0.75 rem (`rounded-lg`), cards `rounded-xl`. Shadow: `shadow-
 
 - `shared/ui/*`: shadcn components (button, input, select, card, dialog, dropdown-menu, sheet, tooltip, badge, avatar, skeleton, alert, separator, sonner…). They are project code: adapt them, keep their API. Add new ones with `pnpm dlx shadcn@latest add <name>` (configured by `components.json` to write into `shared/ui`), then fix the `cn` import if the generator gets it wrong.
 - `shared/ui/form/`: `Field` (label + control + hint/error), `CountrySelect` (French names, frequent countries first), `ImageUpload` (drag and drop, preview, client-side checks matching the API: JPEG/PNG/WebP, 2 MB).
-- `shared/ui/feedback/`: `FullPageMessage`, `EmptyState`, `ErrorState`, `NotFound`.
+- `shared/ui/feedback/`: `FullPageMessage`, `EmptyState`, `ErrorState`, `NotFound`, `PageError` (a page that could not load at all, the api unreachable: the `errorComponent` of the root route).
 - `shared/ui/map/geo-map.tsx`: lazy MapLibre map with avatar markers that fits all of them.
 - `shared/ui/page-header.tsx`, `page-skeleton.tsx`.
 - `app/layout/`: app shell (collapsible sidebar, mobile sheet, sticky blurred header, user menu with theme switch).
