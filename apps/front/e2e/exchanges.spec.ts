@@ -1,8 +1,12 @@
 import { expect, test } from '@playwright/test'
-import { signInOnTheSignInScreen } from './sign-in'
+import { ASSISTANT, signInOnTheSignInScreen } from './sign-in'
+
+const A_LONG_TEXT =
+  'Intéressée par une mission en mars, à recontacter après le salon de novembre pour fixer un rendez-vous'
 
 test('note the exchanges with a contact, find them in its timeline, gone with its organization', async ({
   page,
+  browser,
 }) => {
   const organization = `E2E échanges ${Date.now()}`
   const lastName = `Échange ${Date.now()}`
@@ -32,11 +36,35 @@ test('note the exchanges with a contact, find them in its timeline, gone with it
 
     await page.getByRole('button', { name: 'Noter un échange' }).click()
     await page.getByLabel('LinkedIn', { exact: true }).check()
-    await page.getByLabel(/^Texte/).fill('Intéressée par une mission en mars')
+    await page.getByLabel(/^Texte/).fill(A_LONG_TEXT)
     await page.getByRole('button', { name: 'Enregistrer' }).click()
     await expect(timeline.first()).toContainText('LinkedIn, Reçu')
-    await expect(timeline.first()).toContainText('Intéressée par une mission en mars')
+    await expect(timeline.first()).toContainText(A_LONG_TEXT)
     await expect(timeline.nth(1)).toContainText('Appel, Envoyé')
+  })
+
+  await test.step('on a phone, the long text is cut and the card keeps to the width of the screen', async () => {
+    await page.setViewportSize({ width: 375, height: 800 })
+    await expect(timeline.first()).toContainText('LinkedIn, Reçu')
+    const overflow = await page.evaluate(() => document.documentElement.scrollWidth - window.innerWidth)
+    expect(overflow).toBeLessThanOrEqual(0)
+    await page.setViewportSize({ width: 1280, height: 720 })
+  })
+
+  await test.step('without the right to manage personal data, the card asks nothing of its exchanges', async () => {
+    const assistant = await browser.newPage()
+    const exchangesAsked: string[] = []
+    assistant.on('request', (request) => {
+      if (request.url().endsWith('/exchanges')) {
+        exchangesAsked.push(request.url())
+      }
+    })
+    await signInOnTheSignInScreen(assistant, ASSISTANT)
+    await assistant.goto(new URL(page.url()).pathname)
+    await expect(assistant.getByText('Données masquées')).toBeVisible()
+    await expect(assistant.getByRole('list', { name: 'Échanges' })).toHaveCount(0)
+    expect(exchangesAsked).toEqual([])
+    await assistant.close()
   })
 
   await test.step('a received call that did not go through is missed', async () => {
