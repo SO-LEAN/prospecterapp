@@ -9,6 +9,8 @@ namespace Prospecter\Core\Prospecting\Domain;
  */
 enum TimelineIntent
 {
+    /** Read the exchanges with the contact; needs the right to manage personal data. */
+    case ConsultTimeline;
     /** Note a new exchange with the contact; needs the right to manage personal data. */
     case NoteExchange;
 }

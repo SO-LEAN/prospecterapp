@@ -20,9 +20,14 @@ import { PageSkeleton } from '@/shared/ui/page-skeleton'
 
 export const Route = createFileRoute('/_app/contacts/$contactId/')({
   params: uuidParams('contactId'),
-  loader: ({ context, params }) => {
-    void context.queryClient.prefetchInfiniteQuery(timelineQuery(params.contactId))
-    return context.queryClient.ensureQueryData(contactQuery(params.contactId)).catch(notFoundWhenTheApiSaysSo)
+  loader: async ({ context, params }) => {
+    const contact = await context.queryClient
+      .ensureQueryData(contactQuery(params.contactId))
+      .catch(notFoundWhenTheApiSaysSo)
+    if (contact._links.exchanges) {
+      void context.queryClient.prefetchInfiniteQuery(timelineQuery(contact.id))
+    }
+    return contact
   },
   pendingComponent: () => <PageSkeleton />,
   errorComponent: ({ error, reset }) => <ErrorState error={error} reset={reset} />,
@@ -63,7 +68,9 @@ function ContactPage() {
         <JobTitleSection contact={contact} />
         <ContactDetailsSection contact={contact} />
         <OrganizationsSection contact={contact} />
-        <ExchangesSection contactId={contact.id} contactName={name} className="lg:col-span-2" />
+        {contact._links.exchanges && (
+          <ExchangesSection contactId={contact.id} contactName={name} className="lg:col-span-2" />
+        )}
       </div>
     </div>
   )

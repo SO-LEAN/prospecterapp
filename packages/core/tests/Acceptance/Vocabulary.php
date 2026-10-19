@@ -43,6 +43,7 @@ final class Vocabulary
         'RemoveContact' => 'retirer un contact',
         'StopProspecting' => 'arrêter de prospecter',
         'SearchByText' => 'chercher par texte',
+        'ConsultTimeline' => 'consulter la timeline',
         'NoteExchange' => 'noter un échange',
     ];
 

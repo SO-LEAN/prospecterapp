@@ -71,7 +71,15 @@ Fonctionnalité: Noter un échange avec un contact
     Alors je vois les 20 plus récents
     Et je peux lire la suite après le dernier
     Et je peux sur la timeline :
-      | noter un échange |
+      | consulter la timeline |
+      | noter un échange      |
+
+  Scénario: La fiche d'un contact mène à sa timeline
+    Soit je suis connecté en tant que prospecteur de "SOLEAN IT"
+    Quand je regarde ce que je peux faire de la timeline de "Ada Lovelace"
+    Alors je peux sur la timeline :
+      | consulter la timeline |
+      | noter un échange      |
 
   Scénario: Sans le droit aux données personnelles, je ne note pas d'échange
     Soit je suis connecté en tant que prospecteur de "SOLEAN IT" sans le droit aux données personnelles
@@ -83,6 +91,11 @@ Fonctionnalité: Noter un échange avec un contact
     Quand je consulte la timeline de "Ada Lovelace"
     Alors c'est refusé : "Only a prospector allowed to manage personal data may exchange with the contacts"
 
+  Scénario: Sans le droit aux données personnelles, la fiche d'un contact ne mène pas à sa timeline
+    Soit je suis connecté en tant que prospecteur de "SOLEAN IT" sans le droit aux données personnelles
+    Quand je regarde ce que je peux faire de la timeline de "Ada Lovelace"
+    Alors je ne peux rien sur la timeline
+
   Scénario: Le contact d'un autre compte est introuvable
     Soit l'organisation "Concurrent" qui utilise Prospecter
     Et l'organisation "Initech" appartient à "Concurrent"
@@ -90,3 +103,11 @@ Fonctionnalité: Noter un échange avec un contact
     Et je suis connecté en tant que prospecteur de "SOLEAN IT"
     Quand je note un SMS reçu de "Linus Torvalds"
     Alors c'est introuvable
+
+  Scénario: Une personne qui n'est pas un contact du compte n'a pas de timeline à consulter
+    Soit l'organisation "Concurrent" qui utilise Prospecter
+    Et l'organisation "Initech" appartient à "Concurrent"
+    Et le contact "Linus Torvalds" de "Initech"
+    Et je suis connecté en tant que prospecteur de "SOLEAN IT"
+    Quand je regarde ce que je peux faire de la timeline de "Linus Torvalds"
+    Alors je ne peux rien sur la timeline

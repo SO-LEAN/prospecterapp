@@ -48,6 +48,9 @@ use Prospecter\Core\Prospecting\Application\ConsultOrganization\ConsultOrganizat
 use Prospecter\Core\Prospecting\Application\ConsultTimeline\ConsultTimeline;
 use Prospecter\Core\Prospecting\Application\ConsultTimeline\ConsultTimelineHandler;
 use Prospecter\Core\Prospecting\Application\ConsultTimeline\TimelineResponse;
+use Prospecter\Core\Prospecting\Application\ConsultTimelineIntents\ConsultTimelineIntents;
+use Prospecter\Core\Prospecting\Application\ConsultTimelineIntents\ConsultTimelineIntentsHandler;
+use Prospecter\Core\Prospecting\Application\ConsultTimelineIntents\TimelineIntentsResponse;
 use Prospecter\Core\Prospecting\Application\DetachForgottenContact\DetachForgottenContactHandler;
 use Prospecter\Core\Prospecting\Application\DetachFromHolding\DetachFromHoldingHandler;
 use Prospecter\Core\Prospecting\Application\IsProspectedBy\IsProspectedByHandler;
@@ -251,6 +254,11 @@ final class Application
     public function consultTimeline(ConsultTimeline $query): ?TimelineResponse
     {
         return $this->attempt(fn (): TimelineResponse => new RefusalTranslatingHandler(new ConsultTimelineHandler($this->exchanges, $this->prospectorService, $this->contactOrganizations))($query));
+    }
+
+    public function consultTimelineIntents(ConsultTimelineIntents $query): ?TimelineIntentsResponse
+    {
+        return $this->attempt(fn (): TimelineIntentsResponse => new RefusalTranslatingHandler(new ConsultTimelineIntentsHandler($this->prospectorService, $this->contactOrganizations))($query));
     }
 
     /**

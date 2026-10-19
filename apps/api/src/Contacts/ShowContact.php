@@ -1,9 +1,8 @@
 <?php
 
-namespace App\PersonalData\Controller;
+namespace App\Contacts;
 
-use App\PersonalData\ContactReader;
-use App\PersonalData\Resource\ContactResource;
+use App\Contacts\Resource\ContactResource;
 use App\Security\User;
 use App\Shared\Resource\ProblemResource;
 use Nelmio\ApiDocBundle\Attribute\Model;
