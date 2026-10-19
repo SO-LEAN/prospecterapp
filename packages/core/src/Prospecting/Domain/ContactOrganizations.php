@@ -35,9 +35,14 @@ final readonly class ContactOrganizations
      */
     public function ensureIsAContactOfTheAccount(PersonId $contact, Prospector $prospector): void
     {
-        if ([] === $this->naming($contact, $prospector)) {
+        if (!$this->isAContactOfTheAccount($contact, $prospector)) {
             throw UnknownContact::identifiedBy($contact);
         }
+    }
+
+    public function isAContactOfTheAccount(PersonId $person, Prospector $prospector): bool
+    {
+        return [] !== $this->naming($person, $prospector);
     }
 
     /**

@@ -333,6 +333,24 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/contacts/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Consult a person my organization keeps, in clear or masked */
+        get: operations["get_api_contacts_show"];
+        put?: never;
+        post?: never;
+        /** Erase a person my organization prospects; the organizations that named them forget them */
+        delete: operations["delete_api_contacts_forget"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/contacts/{id}/contact-details": {
         parameters: {
             query?: never;
@@ -385,19 +403,18 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/api/contacts/{id}": {
+    "/api/phone-numbers/{phoneNumber}": {
         parameters: {
             query?: never;
             header?: never;
             path?: never;
             cookie?: never;
         };
-        /** Consult a person my organization keeps, in clear or masked */
-        get: operations["get_api_contacts_show"];
+        /** Recognize who calls: the organizations my organization prospects and its contacts having the phone number, given in E.164 or in the national format of France; needs the right to manage personal data */
+        get: operations["get_api_phone_numbers_recognize"];
         put?: never;
         post?: never;
-        /** Erase a person my organization prospects; the organizations that named them forget them */
-        delete: operations["delete_api_contacts_forget"];
+        delete?: never;
         options?: never;
         head?: never;
         patch?: never;
@@ -418,23 +435,6 @@ export interface paths {
         head?: never;
         /** Change the first and last names of a contact, nothing else changes */
         patch: operations["patch_api_contacts_rename"];
-        trace?: never;
-    };
-    "/api/phone-numbers/{phoneNumber}": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** Recognize who calls: the organizations my organization prospects and its contacts having the phone number, given in E.164 or in the national format of France; needs the right to manage personal data */
-        get: operations["get_api_phone_numbers_recognize"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
         trace?: never;
     };
     "/api/contacts/{id}/organizations": {
@@ -839,6 +839,7 @@ export interface components {
             changeJobTitle?: components["schemas"]["LinkResource"];
             changeContactDetails?: components["schemas"]["LinkResource"];
             forget?: components["schemas"]["LinkResource"];
+            exchanges?: components["schemas"]["LinkResource"];
         };
         ContactResource: {
             id: string;
@@ -2221,6 +2222,98 @@ export interface operations {
             };
         };
     };
+    get_api_contacts_show: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description The contact */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ContactResource"];
+                };
+            };
+            /** @description Missing or invalid access token */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description The signed-in user is not a prospector */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ProblemResource"];
+                };
+            };
+            /** @description Unknown contact, or one of another account */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ProblemResource"];
+                };
+            };
+        };
+    };
+    delete_api_contacts_forget: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Erased */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Missing or invalid access token */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Not a prospector, no right to manage personal data, or a member and not a contact */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ProblemResource"];
+                };
+            };
+            /** @description Unknown contact, or one of another account */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ProblemResource"];
+                };
+            };
+        };
+    };
     patch_api_contacts_change_contact_details: {
         parameters: {
             query?: never;
@@ -2438,24 +2531,24 @@ export interface operations {
             };
         };
     };
-    get_api_contacts_show: {
+    get_api_phone_numbers_recognize: {
         parameters: {
             query?: never;
             header?: never;
             path: {
-                id: string;
+                phoneNumber: string;
             };
             cookie?: never;
         };
         requestBody?: never;
         responses: {
-            /** @description The contact */
+            /** @description Who has the number, nobody when both lists are empty */
             200: {
                 headers: {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["ContactResource"];
+                    "application/json": components["schemas"]["CallerResource"];
                 };
             };
             /** @description Missing or invalid access token */
@@ -2465,7 +2558,7 @@ export interface operations {
                 };
                 content?: never;
             };
-            /** @description The signed-in user is not a prospector */
+            /** @description Not a prospector, or without the right to manage personal data */
             403: {
                 headers: {
                     [name: string]: unknown;
@@ -2474,53 +2567,8 @@ export interface operations {
                     "application/json": components["schemas"]["ProblemResource"];
                 };
             };
-            /** @description Unknown contact, or one of another account */
-            404: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ProblemResource"];
-                };
-            };
-        };
-    };
-    delete_api_contacts_forget: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                id: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Erased */
-            204: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Missing or invalid access token */
-            401: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Not a prospector, no right to manage personal data, or a member and not a contact */
-            403: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ProblemResource"];
-                };
-            };
-            /** @description Unknown contact, or one of another account */
-            404: {
+            /** @description No valid phone number */
+            422: {
                 headers: {
                     [name: string]: unknown;
                 };
@@ -2580,53 +2628,6 @@ export interface operations {
                 };
             };
             /** @description Invalid name */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ProblemResource"];
-                };
-            };
-        };
-    };
-    get_api_phone_numbers_recognize: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                phoneNumber: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Who has the number, nobody when both lists are empty */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["CallerResource"];
-                };
-            };
-            /** @description Missing or invalid access token */
-            401: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Not a prospector, or without the right to manage personal data */
-            403: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ProblemResource"];
-                };
-            };
-            /** @description No valid phone number */
             422: {
                 headers: {
                     [name: string]: unknown;

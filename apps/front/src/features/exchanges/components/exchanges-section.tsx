@@ -20,10 +20,7 @@ import { NoteExchangeForm } from './note-exchange-form'
 
 type Props = { contactId: string; contactName: string; className?: string }
 
-/**
- * The timeline of the contact, the most recent first, what follows loaded on scrolling. A member the API
- * refuses it to (no right to manage personal data) does not see the section.
- */
+/** The timeline of the contact, the most recent first, what follows loaded on scrolling. */
 export function ExchangesSection(props: Props) {
   const timeline = useInfiniteQuery(timelineQuery(props.contactId))
 

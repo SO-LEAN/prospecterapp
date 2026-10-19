@@ -12,6 +12,7 @@ use Behat\Step\When;
 use Prospecter\Core\Prospecting\Application\ConsultTimeline\ConsultTimeline;
 use Prospecter\Core\Prospecting\Application\ConsultTimeline\ExchangeResponse;
 use Prospecter\Core\Prospecting\Application\ConsultTimeline\TimelineResponse;
+use Prospecter\Core\Prospecting\Application\ConsultTimelineIntents\ConsultTimelineIntents;
 use Prospecter\Core\Prospecting\Application\NoteExchange\NoteExchange;
 use Prospecter\Core\Prospecting\Domain\Channel;
 use Prospecter\Core\Prospecting\Domain\Direction;
@@ -37,6 +38,11 @@ final class ExchangeContext implements Context
     private string $lastNotedWith = '';
     private ?TimelineResponse $timeline = null;
     private string $timelineOf = '';
+
+    /**
+     * @var list<string>|null
+     */
+    private ?array $timelineIntents = null;
 
     #[Given('/^(?:j\'ai noté|je note) (?<exchange>'.self::ANY_EXCHANGE.') (?<direction>reçu|envoyé) (?:à|de) "(?<contact>[^"]+)"(?: le (?<day>\S+) à (?<time>\S+))?(?<missed> qui n\'a pas abouti)?$/')]
     public function iNoteAnExchange(string $exchange, string $direction, string $contact, string $day = '', string $time = '', string $missed = ''): void
@@ -75,6 +81,13 @@ final class ExchangeContext implements Context
     {
         $this->timelineOf = $contact;
         $this->timeline = $this->application->consultTimeline(new ConsultTimeline($this->application->signedIn(), $this->scenario->personIdOf($contact)));
+        $this->timelineIntents = $this->timeline?->possibleIntents;
+    }
+
+    #[When('je regarde ce que je peux faire de la timeline de :person')]
+    public function iLookAtWhatIMayDoWithTheTimeline(string $person): void
+    {
+        $this->timelineIntents = $this->application->consultTimelineIntents(new ConsultTimelineIntents($this->application->signedIn(), $this->scenario->personIdOf($person)))?->possibleIntents;
     }
 
     #[Then('la timeline de :contact est, du plus récent au plus ancien :')]
@@ -126,8 +139,13 @@ final class ExchangeContext implements Context
     #[Then('je peux sur la timeline :')]
     public function iMayOnTheTimeline(TableNode $table): void
     {
-        Expect::that(null !== $this->timeline, 'A timeline was expected');
-        Expect::same($table->getColumn(0), Vocabulary::describeIntents($this->timeline->possibleIntents));
+        Expect::same($table->getColumn(0), Vocabulary::describeIntents($this->offeredOnTheTimeline()));
+    }
+
+    #[Then('je ne peux rien sur la timeline')]
+    public function iMayDoNothingOnTheTimeline(): void
+    {
+        Expect::same([], $this->offeredOnTheTimeline());
     }
 
     #[Then('je peux lire la suite après le dernier')]
@@ -139,6 +157,16 @@ final class ExchangeContext implements Context
         $older = array_filter($following->exchanges ?? [], static fn (ExchangeResponse $exchange): bool => $exchange->occurredAt < $last?->occurredAt);
 
         Expect::same(count($this->storedTimelineOf($this->timelineOf)) - count($this->timeline->exchanges), count($older));
+    }
+
+    /**
+     * @return list<string>
+     */
+    private function offeredOnTheTimeline(): array
+    {
+        Expect::that(null !== $this->timelineIntents, sprintf('What the timeline offers was expected, got: %s', $this->application->refusal()?->getMessage()));
+
+        return $this->timelineIntents;
     }
 
     private function note(string $contact, string $channel, string $direction, \DateTimeImmutable $occurredAt, ?string $text, bool $missed): void

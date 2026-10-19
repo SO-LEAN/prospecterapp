@@ -1560,6 +1560,107 @@
                 }
             }
         },
+        "/api/contacts/{id}": {
+            "get": {
+                "tags": [
+                    "Contacts"
+                ],
+                "summary": "Consult a person my organization keeps, in clear or masked",
+                "operationId": "get_api_contacts_show",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "pattern": "[0-9a-f]{8}-[0-9a-f]{4}-[13-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "The contact",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ContactResource"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Missing or invalid access token"
+                    },
+                    "403": {
+                        "description": "The signed-in user is not a prospector",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ProblemResource"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Unknown contact, or one of another account",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ProblemResource"
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "tags": [
+                    "Contacts"
+                ],
+                "summary": "Erase a person my organization prospects; the organizations that named them forget them",
+                "operationId": "delete_api_contacts_forget",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "pattern": "[0-9a-f]{8}-[0-9a-f]{4}-[13-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}"
+                        }
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "Erased"
+                    },
+                    "401": {
+                        "description": "Missing or invalid access token"
+                    },
+                    "403": {
+                        "description": "Not a prospector, no right to manage personal data, or a member and not a contact",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ProblemResource"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Unknown contact, or one of another account",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ProblemResource"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
         "/api/contacts/{id}/contact-details": {
             "patch": {
                 "tags": [
@@ -1829,31 +1930,30 @@
                 }
             }
         },
-        "/api/contacts/{id}": {
+        "/api/phone-numbers/{phoneNumber}": {
             "get": {
                 "tags": [
                     "Contacts"
                 ],
-                "summary": "Consult a person my organization keeps, in clear or masked",
-                "operationId": "get_api_contacts_show",
+                "summary": "Recognize who calls: the organizations my organization prospects and its contacts having the phone number, given in E.164 or in the national format of France; needs the right to manage personal data",
+                "operationId": "get_api_phone_numbers_recognize",
                 "parameters": [
                     {
-                        "name": "id",
+                        "name": "phoneNumber",
                         "in": "path",
                         "required": true,
                         "schema": {
-                            "type": "string",
-                            "pattern": "[0-9a-f]{8}-[0-9a-f]{4}-[13-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}"
+                            "type": "string"
                         }
                     }
                 ],
                 "responses": {
                     "200": {
-                        "description": "The contact",
+                        "description": "Who has the number, nobody when both lists are empty",
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "$ref": "#/components/schemas/ContactResource"
+                                    "$ref": "#/components/schemas/CallerResource"
                                 }
                             }
                         }
@@ -1862,7 +1962,7 @@
                         "description": "Missing or invalid access token"
                     },
                     "403": {
-                        "description": "The signed-in user is not a prospector",
+                        "description": "Not a prospector, or without the right to manage personal data",
                         "content": {
                             "application/json": {
                                 "schema": {
@@ -1871,54 +1971,8 @@
                             }
                         }
                     },
-                    "404": {
-                        "description": "Unknown contact, or one of another account",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/ProblemResource"
-                                }
-                            }
-                        }
-                    }
-                }
-            },
-            "delete": {
-                "tags": [
-                    "Contacts"
-                ],
-                "summary": "Erase a person my organization prospects; the organizations that named them forget them",
-                "operationId": "delete_api_contacts_forget",
-                "parameters": [
-                    {
-                        "name": "id",
-                        "in": "path",
-                        "required": true,
-                        "schema": {
-                            "type": "string",
-                            "pattern": "[0-9a-f]{8}-[0-9a-f]{4}-[13-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}"
-                        }
-                    }
-                ],
-                "responses": {
-                    "204": {
-                        "description": "Erased"
-                    },
-                    "401": {
-                        "description": "Missing or invalid access token"
-                    },
-                    "403": {
-                        "description": "Not a prospector, no right to manage personal data, or a member and not a contact",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/ProblemResource"
-                                }
-                            }
-                        }
-                    },
-                    "404": {
-                        "description": "Unknown contact, or one of another account",
+                    "422": {
+                        "description": "No valid phone number",
                         "content": {
                             "application/json": {
                                 "schema": {
@@ -1994,60 +2048,6 @@
                     },
                     "422": {
                         "description": "Invalid name",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/ProblemResource"
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-        },
-        "/api/phone-numbers/{phoneNumber}": {
-            "get": {
-                "tags": [
-                    "Contacts"
-                ],
-                "summary": "Recognize who calls: the organizations my organization prospects and its contacts having the phone number, given in E.164 or in the national format of France; needs the right to manage personal data",
-                "operationId": "get_api_phone_numbers_recognize",
-                "parameters": [
-                    {
-                        "name": "phoneNumber",
-                        "in": "path",
-                        "required": true,
-                        "schema": {
-                            "type": "string"
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "Who has the number, nobody when both lists are empty",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/CallerResource"
-                                }
-                            }
-                        }
-                    },
-                    "401": {
-                        "description": "Missing or invalid access token"
-                    },
-                    "403": {
-                        "description": "Not a prospector, or without the right to manage personal data",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/ProblemResource"
-                                }
-                            }
-                        }
-                    },
-                    "422": {
-                        "description": "No valid phone number",
                         "content": {
                             "application/json": {
                                 "schema": {
@@ -3196,6 +3196,9 @@
                         "$ref": "#/components/schemas/LinkResource"
                     },
                     "forget": {
+                        "$ref": "#/components/schemas/LinkResource"
+                    },
+                    "exchanges": {
                         "$ref": "#/components/schemas/LinkResource"
                     }
                 },

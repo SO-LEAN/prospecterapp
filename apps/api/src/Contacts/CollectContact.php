@@ -1,10 +1,9 @@
 <?php
 
-namespace App\PersonalData\Controller;
+namespace App\Contacts;
 
-use App\PersonalData\ContactReader;
+use App\Contacts\Resource\ContactResource;
 use App\PersonalData\Input\CollectContactInput;
-use App\PersonalData\Resource\ContactResource;
 use App\Security\User;
 use App\Shared\CommandBus;
 use App\Shared\Identities;

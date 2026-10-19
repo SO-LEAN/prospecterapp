@@ -1,7 +1,8 @@
 <?php
 
-namespace App\PersonalData\Resource;
+namespace App\Contacts\Resource;
 
+use App\PersonalData\Resource\PersonNameResource;
 use App\Shared\Resource\ContactDetailsResource;
 use OpenApi\Attributes as OA;
 use Symfony\Component\Serializer\Attribute\Context;

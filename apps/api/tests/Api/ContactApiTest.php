@@ -33,7 +33,8 @@ class ContactApiTest extends ApiTestCase
         $this->assertResponseStatusCodeSame(201);
         $this->assertResponseHeaderSame('Location', '/api/contacts/'.$collected['id']);
         $this->assertSame('Directrice commerciale', $collected['jobTitle']);
-        $this->assertSame(['self', 'rename', 'changeJobTitle', 'changeContactDetails', 'forget'], array_keys($collected['_links']));
+        $this->assertSame(['self', 'rename', 'changeJobTitle', 'changeContactDetails', 'forget', 'exchanges'], array_keys($collected['_links']));
+        $this->assertSame(['href' => '/api/contacts/'.$collected['id'].'/exchanges', 'method' => 'GET'], $collected['_links']['exchanges']);
         $this->assertSame([$collected['id']], $this->requestJson('GET', '/api/organizations/'.$organization)['contactIds']);
         $this->assertSame(['ACME'], array_column($this->requestJson('GET', '/api/contacts/'.$collected['id'].'/organizations')['items'], 'name'));
     }
