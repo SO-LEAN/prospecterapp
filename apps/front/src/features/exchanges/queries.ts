@@ -6,6 +6,9 @@ import { dataOf, nextSliceOf } from '@/shared/api/slices'
 export type Timeline = components['schemas']['TimelineResource']
 export type Exchange = components['schemas']['ExchangeResource']
 export type ExchangeInput = components['schemas']['ExchangeInput']
+export type OrganizationTimeline = components['schemas']['OrganizationTimelineResource']
+export type OrganizationExchange = components['schemas']['OrganizationExchangeResource']
+export type Interlocutor = OrganizationExchange['interlocutor']
 export type Channel = Exchange['channel']
 export type Direction = Exchange['direction']
 
@@ -33,3 +36,29 @@ export const timelineQuery = (contactId: string) =>
     initialPageParam: undefined as string | undefined,
     getNextPageParam: (slice) => nextSliceOf(slice._links),
   })
+
+/** The exchanges with an organization and with its contacts, each with who communicated (ADR 0076). */
+export const organizationTimelineQuery = (organizationId: string) =>
+  infiniteQueryOptions({
+    queryKey: [
+      'get',
+      '/api/organizations/{id}/exchanges',
+      { params: { path: { id: organizationId } } },
+      'slices',
+    ],
+    queryFn: async ({ pageParam, signal }) =>
+      dataOf(
+        await fetchClient.GET('/api/organizations/{id}/exchanges', {
+          params: { path: { id: organizationId }, query: { after: pageParam } },
+          signal,
+        }),
+      ),
+    initialPageParam: undefined as string | undefined,
+    getNextPageParam: (slice) => nextSliceOf(slice._links),
+  })
+
+/** An exchange noted on one card shows in the timelines of the other cards: those of contacts and of organizations. */
+export const timelineKeys = {
+  ofContacts: ['get', '/api/contacts/{id}/exchanges'],
+  ofOrganizations: ['get', '/api/organizations/{id}/exchanges'],
+} as const

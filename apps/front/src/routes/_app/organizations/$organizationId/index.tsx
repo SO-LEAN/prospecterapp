@@ -1,6 +1,8 @@
-import { useSuspenseQuery } from '@tanstack/react-query'
+import { useQuery, useSuspenseQuery } from '@tanstack/react-query'
 import { createFileRoute, useNavigate } from '@tanstack/react-router'
 import { accountQuery } from '@/features/account/queries'
+import { OrganizationExchangesSection } from '@/features/exchanges/components/organization-exchanges-section'
+import { organizationTimelineQuery } from '@/features/exchanges/queries'
 import { AddressSection } from '@/features/organizations/components/address-section'
 import { ContactDetailsSection } from '@/features/organizations/components/contact-details-section'
 import { ContactsSection } from '@/features/organizations/components/contacts-section'
@@ -9,7 +11,12 @@ import { LegalIdentitySection } from '@/features/organizations/components/legal-
 import { LogoSection } from '@/features/organizations/components/logo-section'
 import { ObservationsSection } from '@/features/organizations/components/observations-section'
 import { StopProspecting } from '@/features/organizations/components/stop-prospecting'
-import { organizationQuery } from '@/features/organizations/queries'
+import {
+  type Organization,
+  type OrganizationContact,
+  organizationContactsQuery,
+  organizationQuery,
+} from '@/features/organizations/queries'
 import { notFoundWhenTheApiSaysSo, uuidParams } from '@/shared/lib/route-params'
 import { BackButton } from '@/shared/ui/back-button'
 import { Badge } from '@/shared/ui/badge'
@@ -23,7 +30,13 @@ export const Route = createFileRoute('/_app/organizations/$organizationId/')({
     Promise.all([
       context.queryClient
         .ensureQueryData(organizationQuery(params.organizationId))
-        .catch(notFoundWhenTheApiSaysSo),
+        .catch(notFoundWhenTheApiSaysSo)
+        .then((organization) => {
+          if (organization._links.exchanges) {
+            void context.queryClient.prefetchInfiniteQuery(organizationTimelineQuery(organization.id))
+          }
+          return organization
+        }),
       context.queryClient.ensureQueryData(accountQuery()),
     ]),
   pendingComponent: () => <PageSkeleton />,
@@ -37,13 +50,14 @@ function OrganizationPage() {
   const { data: account } = useSuspenseQuery(accountQuery())
   const { form, type } = organization.legalIdentity
   const navigate = useNavigate()
+  const name = nameOf(organization)
 
   return (
     <div className="space-y-8">
       <BackButton fallback="/organizations" />
 
       <PageHeader
-        title={organization.name || organization.contactDetails.email || ''}
+        title={name}
         description={
           <span className="flex flex-wrap gap-2">
             {form && <Badge variant="secondary">{form}</Badge>}
@@ -71,8 +85,32 @@ function OrganizationPage() {
         <div className="space-y-6 lg:col-span-3">
           <LogoSection organization={organization} />
           <AddressSection organization={organization} start={account.organization.location} />
+          {organization._links.exchanges && <Exchanges organization={organization} name={name} />}
         </div>
       </div>
     </div>
+  )
+}
+
+const nameOf = (organization: Organization) => organization.name || organization.contactDetails.email || ''
+
+const fullNameOf = (contact: OrganizationContact) =>
+  [contact.name.firstName, contact.name.lastName].filter(Boolean).join(' ')
+
+/** Its timeline, noted with the organization itself or with one of its contacts. */
+function Exchanges({ organization, name }: { organization: Organization; name: string }) {
+  const contacts = useQuery(organizationContactsQuery(organization.id))
+
+  return (
+    <OrganizationExchangesSection
+      organizationId={organization.id}
+      interlocutors={{
+        organization: name,
+        contacts: (contacts.data?.items ?? []).map((contact) => ({
+          id: contact.id,
+          name: fullNameOf(contact),
+        })),
+      }}
+    />
   )
 }

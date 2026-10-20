@@ -1,10 +1,12 @@
 import { fireEvent, render, screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { describe, expect, it, vi } from 'vitest'
-import { NoteExchangeForm } from './note-exchange-form'
+import { type Interlocutors, NoteExchangeForm } from './note-exchange-form'
 
-function renderForm(onSubmit = vi.fn().mockResolvedValue(undefined)) {
-  render(<NoteExchangeForm onSubmit={onSubmit} onCancel={vi.fn()} />)
+const ROBERT = '0190a1c0-0000-7000-8000-000000000002'
+
+function renderForm(onSubmit = vi.fn().mockResolvedValue(undefined), interlocutors?: Interlocutors) {
+  render(<NoteExchangeForm onSubmit={onSubmit} onCancel={vi.fn()} interlocutors={interlocutors} />)
   return { onSubmit, user: userEvent.setup() }
 }
 
@@ -17,13 +19,17 @@ describe('NoteExchangeForm', () => {
     await user.click(screen.getByLabelText('SMS'))
     await user.click(save())
 
-    expect(onSubmit).toHaveBeenCalledWith({
-      channel: 'sms',
-      direction: 'inbound',
-      occurredAt: expect.any(String),
-      text: null,
-      missed: false,
-    })
+    expect(onSubmit).toHaveBeenCalledWith(
+      {
+        channel: 'sms',
+        direction: 'inbound',
+        occurredAt: expect.any(String),
+        text: null,
+        missed: false,
+      },
+      null,
+    )
+    expect(screen.queryByText('Interlocuteur')).not.toBeInTheDocument()
     const occurredAt = new Date(onSubmit.mock.calls[0]?.[0].occurredAt).getTime()
     expect(Date.now() - occurredAt).toBeLessThan(60_000)
   })
@@ -51,6 +57,37 @@ describe('NoteExchangeForm', () => {
 
     expect(onSubmit).toHaveBeenCalledWith(
       expect.objectContaining({ channel: 'call', direction: 'outbound', missed: true, text: 'Messagerie' }),
+      null,
+    )
+  })
+
+  it('notes from an organization with the organization itself by default', async () => {
+    const { onSubmit, user } = renderForm(undefined, {
+      organization: 'ACME',
+      contacts: [{ id: ROBERT, name: 'Robert Noyce' }],
+    })
+
+    expect(screen.getByLabelText('ACME')).toBeChecked()
+    await user.click(screen.getByLabelText('Appel'))
+    await user.click(save())
+
+    expect(onSubmit).toHaveBeenCalledWith(expect.objectContaining({ channel: 'call' }), null)
+  })
+
+  it('notes from an organization with one of its contacts', async () => {
+    const { onSubmit, user } = renderForm(undefined, {
+      organization: 'ACME',
+      contacts: [{ id: ROBERT, name: 'Robert Noyce' }],
+    })
+
+    await user.click(screen.getByLabelText('Robert Noyce'))
+    await user.click(screen.getByLabelText('E-mail'))
+    await user.click(screen.getByLabelText('Envoyé'))
+    await user.click(save())
+
+    expect(onSubmit).toHaveBeenCalledWith(
+      expect.objectContaining({ channel: 'email', direction: 'outbound' }),
+      ROBERT,
     )
   })
 

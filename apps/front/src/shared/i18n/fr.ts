@@ -201,6 +201,9 @@ export const fr = {
     chooseChannel: 'Choisissez le canal.',
     inTheFuture: 'Un échange ne peut pas être dans le futur.',
     summary: '{{channel}}, {{direction}}',
+    interlocutor: 'Interlocuteur',
+    interlocutors: { organization: 'Organisation :', person: 'Contact :' },
+    unknownPerson: 'Contact effacé',
   },
   /** The refusals of the API by their reason (ADR 0073): a reason unknown here is shown as the API words it. */
   refusals: {
