@@ -67,10 +67,22 @@ final readonly class DynamoExchangeRepository implements ExchangeRepository
     public function timelineOfOrganization(OrganizationId $organization, ?string $after, int $max): Slice
     {
         $links = $this->prospectingTable->query(self::organizationTimelineKey($organization->value), Table::BY_GSI1, $after, $max + 1);
-        $byKey = array_column($this->prospectingTable->items(array_map(static fn (array $link): array => [$link['SK'], self::EXCHANGE], $links)), null, 'PK');
-        $found = array_values(array_filter(array_map(static fn (array $link): ?array => $byKey[$link['SK']] ?? null, $links)));
 
-        return Documents::slice($this->exchangesOf($found), $max, self::positionOf(...));
+        return Documents::slice($this->exchangesOf($this->itemsListedBy($links)), $max, self::positionOf(...));
+    }
+
+    /**
+     * The items of the exchanges the links name, in the order of the links.
+     *
+     * @param list<array<string, mixed>> $links
+     *
+     * @return list<array<string, mixed>>
+     */
+    private function itemsListedBy(array $links): array
+    {
+        $byKey = array_column($this->prospectingTable->items(array_map(static fn (array $link): array => [$link['SK'], self::EXCHANGE], $links)), null, 'PK');
+
+        return array_values(array_filter(array_map(static fn (array $link): ?array => $byKey[$link['SK']] ?? null, $links)));
     }
 
     /**

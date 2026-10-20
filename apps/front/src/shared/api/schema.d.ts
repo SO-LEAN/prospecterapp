@@ -816,7 +816,7 @@ export interface components {
             /** @enum {string} */
             channel: "call" | "sms" | "email" | "linkedIn" | "meeting" | "other";
             /**
-             * @description inbound: the contact reached out; outbound: we did
+             * @description inbound: the contact or the organization reached out; outbound: we did
              * @enum {string}
              */
             direction: "inbound" | "outbound";
@@ -825,7 +825,7 @@ export interface components {
             /** Format: date-time */
             occurredAt: string;
             text?: string | null;
-            /** @description The organizations it is kept for, those the contact was part of when it was noted */
+            /** @description The organizations it is kept for: those the contact was part of when it was noted, or the organization itself */
             organizationIds: string[];
         };
         TimelineLinksResource: {

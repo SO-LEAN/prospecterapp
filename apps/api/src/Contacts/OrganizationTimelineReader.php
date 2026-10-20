@@ -7,6 +7,7 @@ use Prospecter\Core\PersonalData\Application\ConsultPersons\ConsultPersons;
 use Prospecter\Core\Prospecting\Application\ConsultOrganization\ConsultOrganization;
 use Prospecter\Core\Prospecting\Application\ConsultOrganizationTimeline\ConsultOrganizationTimeline;
 use Prospecter\Core\Prospecting\Application\ExchangeResponse;
+use Prospecter\Core\Prospecting\Application\TimelineResponse;
 use Prospecter\Core\SharedKernel\Application\RefusalTranslatingHandler;
 
 /**
@@ -27,12 +28,19 @@ final readonly class OrganizationTimelineReader
     public function read(string $reader, string $organizationId, ?string $after = null): OrganizationTimelineResource
     {
         $timeline = ($this->consultOrganizationTimeline)(new ConsultOrganizationTimeline($reader, $organizationId, $after));
-        $personIds = array_values(array_unique(array_filter(array_map(static fn (ExchangeResponse $exchange): ?string => $exchange->personId, $timeline->exchanges))));
 
         return $this->presenter->present(
             ($this->consultOrganization)(new ConsultOrganization($reader, $organizationId)),
             $timeline,
-            ($this->consultPersons)(new ConsultPersons($reader, $personIds)),
+            ($this->consultPersons)(new ConsultPersons($reader, self::personIdsOf($timeline))),
         );
+    }
+
+    /**
+     * @return list<string> the persons the exchanges of the slice were with, each once
+     */
+    private static function personIdsOf(TimelineResponse $timeline): array
+    {
+        return array_values(array_unique(array_filter(array_map(static fn (ExchangeResponse $exchange): ?string => $exchange->personId, $timeline->exchanges))));
     }
 }
