@@ -1,9 +1,11 @@
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { render, screen } from '@testing-library/react'
 import { describe, expect, it } from 'vitest'
+import { TooltipProvider } from '@/shared/ui/tooltip'
 import type { Account } from '../mutations'
 import { MyOrganizationAddressSection } from './account-sections'
 
+const UNLOCATED = 'Non géolocalisée'
 const colmar = { street: '1 rue des Clefs', postalCode: '68000', city: 'Colmar', country: 'FR' }
 
 function anAccountOfMyOrganization(organization: Partial<Account['organization']>): Account {
@@ -18,29 +20,31 @@ function anAccountOfMyOrganization(organization: Partial<Account['organization']
 function renderTheSection(account: Account) {
   render(
     <QueryClientProvider client={new QueryClient()}>
-      <MyOrganizationAddressSection account={account} />
+      <TooltipProvider>
+        <MyOrganizationAddressSection account={account} />
+      </TooltipProvider>
     </QueryClientProvider>,
   )
 }
 
 describe('MyOrganizationAddressSection', () => {
-  it('says an address the geocoder did not recognize is not geolocated', () => {
+  it('marks an address the geocoder did not recognize', () => {
     renderTheSection(anAccountOfMyOrganization({ address: colmar, location: null }))
 
-    expect(screen.getByText('Adresse non géolocalisée.')).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: UNLOCATED })).toBeInTheDocument()
   })
 
-  it('says nothing of the location of a geolocated address', () => {
+  it('marks nothing on a geolocated address', () => {
     renderTheSection(
       anAccountOfMyOrganization({ address: colmar, location: { latitude: 48.0794, longitude: 7.3585 } }),
     )
 
-    expect(screen.queryByText('Adresse non géolocalisée.')).not.toBeInTheDocument()
+    expect(screen.queryByText(UNLOCATED)).not.toBeInTheDocument()
   })
 
-  it('says nothing of the location without an address', () => {
+  it('marks nothing without an address', () => {
     renderTheSection(anAccountOfMyOrganization({ address: null, location: null }))
 
-    expect(screen.queryByText('Adresse non géolocalisée.')).not.toBeInTheDocument()
+    expect(screen.queryByText(UNLOCATED)).not.toBeInTheDocument()
   })
 })

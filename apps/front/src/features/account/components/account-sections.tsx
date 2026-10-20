@@ -40,6 +40,7 @@ import { Detail } from '@/shared/ui/detail'
 import { EditableSection } from '@/shared/ui/editable-section'
 import { ImageUpload } from '@/shared/ui/form/image-upload'
 import { Input } from '@/shared/ui/input'
+import { ExplainedUnlocatedBadge } from '@/shared/ui/unlocated-badge'
 import {
   type Account,
   useChangeMyContactDetails,
@@ -258,16 +259,16 @@ export function MyOrganizationAddressSection({ account }: { account: Account }) 
       )}
     >
       {lines.length > 0 ? (
-        <address className="not-italic">
-          {lines.map((line) => (
-            <div key={line}>{line}</div>
-          ))}
-        </address>
+        <div className="flex flex-wrap items-start justify-between gap-2">
+          <address className="not-italic">
+            {lines.map((line) => (
+              <div key={line}>{line}</div>
+            ))}
+          </address>
+          {!location && <ExplainedUnlocatedBadge />}
+        </div>
       ) : (
         <p className="text-muted-foreground">{t('common.notProvided')}</p>
-      )}
-      {lines.length > 0 && !location && (
-        <p className="text-muted-foreground text-sm">{t('organizations.address.noLocation')}</p>
       )}
       <p className="text-muted-foreground text-sm">{t('account.organizationAddressHint')}</p>
     </EditableSection>

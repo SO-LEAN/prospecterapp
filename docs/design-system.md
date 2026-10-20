@@ -36,6 +36,7 @@ Radius: `--radius` 0.75 rem (`rounded-lg`), cards `rounded-xl`. Shadow: `shadow-
 - `shared/ui/form/`: `Field` (label + control + hint/error), `CountrySelect` (French names, frequent countries first), `ImageUpload` (drag and drop, preview, client-side checks matching the API: JPEG/PNG/WebP, 2 MB).
 - `shared/ui/feedback/`: `FullPageMessage`, `EmptyState`, `ErrorState`, `NotFound`, `PageError` (a page that could not load at all, the api unreachable: the `errorComponent` of the root route).
 - `shared/ui/map/geo-map.tsx`: lazy MapLibre map with avatar markers that fits all of them.
+- `shared/ui/unlocated-badge.tsx`: "Non géolocalisée" next to an address the geocoder did not place (the `warning` token on the stroke and the icon, the text in `foreground` for contrast); `ExplainedUnlocatedBadge` says why on hover, focus or press, `UnlocatedBadge` alone inside a link (a list card).
 - `shared/ui/page-header.tsx`, `page-skeleton.tsx`.
 - `app/layout/`: app shell (collapsible sidebar, mobile sheet, sticky blurred header, user menu with theme switch).
 
