@@ -2,13 +2,14 @@
 
 declare(strict_types=1);
 
-namespace Prospecter\Core\Prospecting\Application\ConsultTimeline;
+namespace Prospecter\Core\Prospecting\Application;
 
 use Prospecter\Core\Prospecting\Domain\Exchange;
 use Prospecter\Core\SharedKernel\Domain\OrganizationId;
 
 /**
- * An exchange in a timeline; its channel and its direction by the values of `Channel` and `Direction`.
+ * An exchange in a timeline; its channel and its direction by the values of `Channel` and `Direction`, the
+ * contact it was with, none when it was with the organization itself.
  */
 final readonly class ExchangeResponse
 {
@@ -17,6 +18,7 @@ final readonly class ExchangeResponse
      */
     private function __construct(
         public string $id,
+        public ?string $personId,
         public string $channel,
         public string $direction,
         public bool $missed,
@@ -32,6 +34,7 @@ final readonly class ExchangeResponse
 
         return new self(
             id: $exchange->id()->value,
+            personId: $exchange->contact()?->value,
             channel: $facts->channel->value,
             direction: $facts->direction->value,
             missed: $facts->missed,

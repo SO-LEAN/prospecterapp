@@ -403,6 +403,24 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/organizations/{id}/exchanges": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** The exchanges with the organization and with its contacts, the most recent first, each with who communicated */
+        get: operations["get_api_organizations_timeline"];
+        put?: never;
+        /** Note a call, a message or a meeting with the organization itself, or with one of its contacts */
+        post: operations["post_api_organizations_note_exchange"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/phone-numbers/{phoneNumber}": {
         parameters: {
             query?: never;
@@ -628,6 +646,14 @@ export interface components {
             /** @default [] */
             organizationIds: string[];
         };
+        OrganizationExchangeInput: {
+            exchange?: components["schemas"]["ExchangeInput"];
+            /**
+             * @description The contact of the organization it was with; left out, it was with the organization itself
+             * @default null
+             */
+            personId: string | null;
+        };
         ContactListQuery: {
             /** @default  */
             q: string;
@@ -765,6 +791,8 @@ export interface components {
             removeLogo?: components["schemas"]["LinkResource"];
             addContact?: components["schemas"]["LinkResource"];
             stopProspecting?: components["schemas"]["LinkResource"];
+            exchanges?: components["schemas"]["LinkResource"];
+            noteExchange?: components["schemas"]["LinkResource"];
         };
         OrganizationResource: {
             id: string;
@@ -872,6 +900,21 @@ export interface components {
         ContactListResource: {
             items: components["schemas"]["ContactInListResource"][];
             _links: components["schemas"]["ContactListLinksResource"];
+        };
+        InterlocutorResource: {
+            /** @enum {string} */
+            kind: "organization" | "person";
+            id: string;
+            /** @description Its name; none for a person no longer known */
+            name?: string | null;
+        };
+        OrganizationExchangeResource: {
+            exchange: components["schemas"]["ExchangeResource"];
+            interlocutor: components["schemas"]["InterlocutorResource"];
+        };
+        OrganizationTimelineResource: {
+            items: components["schemas"]["OrganizationExchangeResource"][];
+            _links: components["schemas"]["TimelineLinksResource"];
         };
         CallerResource: {
             organizations: components["schemas"]["OrganizationResource"][];
@@ -2521,6 +2564,124 @@ export interface operations {
                 };
             };
             /** @description Invalid contact, no organization, or email already used by another contact */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ProblemResource"];
+                };
+            };
+        };
+    };
+    get_api_organizations_timeline: {
+        parameters: {
+            query?: {
+                after?: string | null;
+            };
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description A slice of the exchanges, the next one at the link next */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["OrganizationTimelineResource"];
+                };
+            };
+            /** @description Missing or invalid access token */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Not a prospector, or no right to manage personal data */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ProblemResource"];
+                };
+            };
+            /** @description Unknown organization, or one of another account */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ProblemResource"];
+                };
+            };
+        };
+    };
+    post_api_organizations_note_exchange: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["OrganizationExchangeInput"];
+            };
+        };
+        responses: {
+            /** @description The timeline of the organization with the new exchange */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["OrganizationTimelineResource"];
+                };
+            };
+            /** @description Missing or invalid access token */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Not a prospector, or no right to manage personal data */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ProblemResource"];
+                };
+            };
+            /** @description Unknown organization, or one of another account */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ProblemResource"];
+                };
+            };
+            /** @description The person is no contact of the organization */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ProblemResource"];
+                };
+            };
+            /** @description Invalid exchange: unknown channel or direction, a missed exchange that is no call, a moment in the future */
             422: {
                 headers: {
                     [name: string]: unknown;

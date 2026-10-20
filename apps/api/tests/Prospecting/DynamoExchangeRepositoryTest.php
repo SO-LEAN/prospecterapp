@@ -8,16 +8,19 @@ use Prospecter\Core\Prospecting\Domain\Exchange;
 use Prospecter\Core\Prospecting\Domain\ExchangeFacts;
 use Prospecter\Core\Prospecting\Domain\ExchangeId;
 use Prospecter\Core\Prospecting\Domain\ExchangeRepository;
+use Prospecter\Core\Prospecting\Domain\Organization;
 use Prospecter\Core\Prospecting\Domain\Prospector;
 use Prospecter\Core\SharedKernel\Domain\AccountId;
+use Prospecter\Core\SharedKernel\Domain\ContactDetails;
+use Prospecter\Core\SharedKernel\Domain\LegalIdentity;
 use Prospecter\Core\SharedKernel\Domain\MemberId;
 use Prospecter\Core\SharedKernel\Domain\OrganizationId;
 use Prospecter\Core\SharedKernel\Domain\PersonId;
 use Tests\App\Base\ApiTestCase;
 
 /**
- * The timeline of a contact by the moment of its exchanges, and the exchanges kept for an organization, from
- * the items the repository writes next to them (ADR 0074).
+ * The timeline of a contact by the moment of its exchanges, and the exchanges kept for an organization, its
+ * timeline, from the items the repository writes next to them (ADR 0074, 0076).
  */
 class DynamoExchangeRepositoryTest extends ApiTestCase
 {
@@ -85,6 +88,53 @@ class DynamoExchangeRepositoryTest extends ApiTestCase
         $this->assertSame([], $exchanges->keptFor($this->acme));
         $this->assertSame([], $exchanges->keptFor($this->group));
         $this->assertSame([], $exchanges->timelineOf($this->contact, $this->prospector->accountId, null, 20)->content);
+    }
+
+    public function testTheTimelineOfAnOrganizationGoesFromTheMostRecentMomentInSlices(): void
+    {
+        $exchanges = $this->exchanges();
+        $withTheContact = $this->noted('2026-10-10 09:00 UTC');
+        $withTheOrganization = $this->notedWithTheOrganization('2026-10-15 14:30 UTC');
+        $oldest = $this->noted('2026-10-01 08:00 UTC');
+        array_map($exchanges->save(...), [$withTheContact, $withTheOrganization, $oldest]);
+
+        $first = $exchanges->timelineOfOrganization($this->acme, null, 2);
+        $following = $exchanges->timelineOfOrganization($this->acme, $first->next, 2);
+
+        $this->assertEquals([$withTheOrganization->id(), $withTheContact->id()], array_map(static fn (Exchange $exchange): ExchangeId => $exchange->id(), $first->content));
+        $this->assertEquals([$oldest->id()], array_map(static fn (Exchange $exchange): ExchangeId => $exchange->id(), $following->content));
+        $this->assertNull($following->next);
+    }
+
+    public function testAnExchangeWithTheOrganizationItselfIsInTheTimelineOfNoContact(): void
+    {
+        $exchanges = $this->exchanges();
+        $exchange = $this->notedWithTheOrganization('2026-10-15 14:30 UTC');
+
+        $exchanges->save($exchange);
+
+        $this->assertNull($exchanges->timelineOfOrganization($this->acme, null, 20)->content[0]->contact());
+        $this->assertSame([], $exchanges->timelineOfOrganization($this->group, null, 20)->content);
+    }
+
+    public function testAnExchangeNoLongerKeptForAnOrganizationLeavesItsTimeline(): void
+    {
+        $exchanges = $this->exchanges();
+        $exchange = $this->noted('2026-10-10 09:00 UTC');
+        $exchanges->save($exchange);
+
+        $exchange->stopKeepingFor($this->acme, by: $this->prospector, at: new \DateTimeImmutable(self::NOW));
+        $exchanges->save($exchange);
+
+        $this->assertSame([], $exchanges->timelineOfOrganization($this->acme, null, 20)->content);
+        $this->assertCount(1, $exchanges->timelineOfOrganization($this->group, null, 20)->content);
+    }
+
+    private function notedWithTheOrganization(string $occurredAt): Exchange
+    {
+        $organization = Organization::prospectedBy($this->prospector, $this->acme, new LegalIdentity('ACME'), new ContactDetails(), new \DateTimeImmutable(self::NOW));
+
+        return Exchange::notedWithTheOrganization($organization, $this->prospector, new ExchangeId(self::newIdentity()), new ExchangeFacts(Channel::Call, Direction::Inbound, new \DateTimeImmutable($occurredAt)), new \DateTimeImmutable(self::NOW));
     }
 
     private function noted(string $occurredAt): Exchange

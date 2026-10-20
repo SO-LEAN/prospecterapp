@@ -190,6 +190,17 @@ final class Organization implements ReleasesEvents
     }
 
     /**
+     * What this prospector may do with the timeline of the organization: nothing if their account does not
+     * prospect it.
+     *
+     * @return list<TimelineIntent>
+     */
+    public function timelineIntentsOf(Prospector $prospector): array
+    {
+        return $this->isProspectedBy($prospector->accountId) ? $prospector->timelineIntents() : [];
+    }
+
+    /**
      * Another account does not even learn that the organization exists (ADR 0019).
      */
     public function ensureReachableBy(Prospector $prospector): void
@@ -296,7 +307,7 @@ final class Organization implements ReleasesEvents
         $this->ensurePossible(OrganizationIntent::RemoveContact, $by);
 
         if (!$this->hasContact($contact)) {
-            throw NotAContact::because('This person is no contact of the organization', 'personId');
+            throw $this->notAContact();
         }
 
         $this->contacts = array_values(array_filter($this->contacts, static fn (PersonId $attached): bool => !$attached->equals($contact)));
@@ -328,9 +339,26 @@ final class Organization implements ReleasesEvents
         }
     }
 
+    /**
+     * @throws UnknownOrganization|NotAContact
+     */
+    public function ensureHasContact(PersonId $contact, Prospector $prospector): void
+    {
+        $this->ensureReachableBy($prospector);
+
+        if (!$this->hasContact($contact)) {
+            throw $this->notAContact();
+        }
+    }
+
     public function hasContact(PersonId $contact): bool
     {
         return array_any($this->contacts, static fn (PersonId $attached): bool => $attached->equals($contact));
+    }
+
+    private function notAContact(): NotAContact
+    {
+        return NotAContact::because('This person is no contact of the organization', 'personId');
     }
 
     private function allowsInItsState(OrganizationIntent $intent): bool

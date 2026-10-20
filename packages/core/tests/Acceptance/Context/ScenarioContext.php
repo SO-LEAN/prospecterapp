@@ -188,6 +188,11 @@ final class ScenarioContext implements Context
         throw new \LogicException(sprintf('Nothing named %s in the scenario', $id));
     }
 
+    public function isAnOrganization(string $name): bool
+    {
+        return isset($this->organizationIds[$name]);
+    }
+
     public function organizationNamed(string $name): Organization
     {
         return $this->application->organizations->get($this->organizationIds[$name] ?? throw new \LogicException(sprintf('No organization "%s" in the scenario', $name)));

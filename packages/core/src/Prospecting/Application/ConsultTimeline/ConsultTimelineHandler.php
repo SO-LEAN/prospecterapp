@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Prospecter\Core\Prospecting\Application\ConsultTimeline;
 
+use Prospecter\Core\Prospecting\Application\TimelineResponse;
 use Prospecter\Core\Prospecting\Domain\ContactOrganizations;
 use Prospecter\Core\Prospecting\Domain\ExchangeRepository;
 use Prospecter\Core\Prospecting\Domain\ProspectorService;
