@@ -1,7 +1,13 @@
 import { zodResolver } from '@hookform/resolvers/zod'
 import { ArrowDownLeft, ArrowUpRight, type LucideIcon } from 'lucide-react'
 import { type ReactNode, useState } from 'react'
-import { type UseFormRegisterReturn, useForm, useFormState, useWatch } from 'react-hook-form'
+import {
+  type DefaultValues,
+  type UseFormRegisterReturn,
+  useForm,
+  useFormState,
+  useWatch,
+} from 'react-hook-form'
 import { useTranslation } from 'react-i18next'
 import { applyViolations } from '@/shared/api/problem'
 import { FormField } from '@/shared/forms/form-field'
@@ -9,7 +15,7 @@ import { Alert, AlertDescription } from '@/shared/ui/alert'
 import { Button } from '@/shared/ui/button'
 import { Input } from '@/shared/ui/input'
 import { Textarea } from '@/shared/ui/textarea'
-import { CHANNELS, DIRECTIONS, type ExchangeInput } from '../queries'
+import { CHANNELS, DIRECTIONS, type ExchangeFacts } from '../queries'
 import {
   type ExchangeValues,
   exchangeFields,
@@ -18,7 +24,7 @@ import {
   localMoment,
   newExchange,
   personIdOf,
-  toExchangeInput,
+  toExchangeFacts,
 } from '../schema'
 import { CHANNEL_ICONS, INTERLOCUTOR_ICONS } from './exchange-line'
 
@@ -27,20 +33,22 @@ export type Interlocutors = { organization: string; contacts: { id: string; name
 
 type Props = {
   /** The person chosen, null for the organization itself or on the card of a contact. */
-  onSubmit: (input: ExchangeInput, personId: string | null) => Promise<unknown>
+  onSubmit: (facts: ExchangeFacts, personId: string | null) => Promise<unknown>
   onCancel: () => void
   interlocutors?: Interlocutors
+  /** The exchange to correct; a new one is received, now, by default. */
+  defaultValues?: DefaultValues<ExchangeValues>
 }
 
 const DIRECTION_ICONS = { inbound: ArrowDownLeft, outbound: ArrowUpRight }
 
-/** Noted in a few seconds: received and now by default, the channel to choose, then save. */
-export function NoteExchangeForm({ onSubmit, onCancel, interlocutors }: Props) {
+/** Noted in a few seconds: received and now by default, the channel to choose, then save; or corrected. */
+export function ExchangeForm({ onSubmit, onCancel, interlocutors, defaultValues }: Props) {
   const { t } = useTranslation()
   const [globalErrors, setGlobalErrors] = useState<string[]>([])
   const form = useForm<ExchangeValues>({
     resolver: zodResolver(exchangeSchema),
-    defaultValues: newExchange(new Date()),
+    defaultValues: defaultValues ?? newExchange(new Date()),
   })
   const { errors, isSubmitting } = useFormState({ control: form.control })
   const channel = useWatch({ control: form.control, name: 'channel' })
@@ -48,7 +56,7 @@ export function NoteExchangeForm({ onSubmit, onCancel, interlocutors }: Props) {
   const submit = form.handleSubmit(async (values) => {
     setGlobalErrors([])
     try {
-      await onSubmit(toExchangeInput(values), personIdOf(values))
+      await onSubmit(toExchangeFacts(values), personIdOf(values))
     } catch (error) {
       setGlobalErrors(applyViolations(error, form.setError, exchangeFields))
     }

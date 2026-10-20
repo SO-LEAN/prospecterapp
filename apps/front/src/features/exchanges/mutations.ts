@@ -1,8 +1,10 @@
-import { useQueryClient } from '@tanstack/react-query'
+import { type QueryClient, useQueryClient } from '@tanstack/react-query'
 import { useTranslation } from 'react-i18next'
 import { toast } from 'sonner'
 import { api } from '@/shared/api/client'
 import {
+  type ExchangeDetail,
+  exchangeQuery,
   type OrganizationTimeline,
   organizationTimelineQuery,
   type Timeline,
@@ -49,6 +51,40 @@ export function useNoteOrganizationExchange() {
         pageParams: [undefined],
       })
       toast.success(t('exchanges.noted'))
+    },
+  })
+}
+
+/** A corrected or erased exchange may be in several timelines, of contacts and of organizations. */
+function readTheTimelinesAgain(queryClient: QueryClient) {
+  void queryClient.invalidateQueries({ queryKey: timelineKeys.ofContacts })
+  void queryClient.invalidateQueries({ queryKey: timelineKeys.ofOrganizations })
+}
+
+/** The corrected exchange goes straight into its detail; the timelines showing it read it again. */
+export function useCorrectExchange() {
+  const queryClient = useQueryClient()
+  const { t } = useTranslation()
+
+  return api.useMutation('patch', '/api/exchanges/{id}', {
+    meta: { silentValidation: true },
+    onSuccess: (exchange: ExchangeDetail) => {
+      queryClient.setQueryData(exchangeQuery(exchange.id).queryKey, exchange)
+      readTheTimelinesAgain(queryClient)
+      toast.success(t('exchanges.detail.correctionSaved'))
+    },
+  })
+}
+
+export function useEraseExchange() {
+  const queryClient = useQueryClient()
+  const { t } = useTranslation()
+
+  return api.useMutation('delete', '/api/exchanges/{id}', {
+    onSuccess: (_nothing, { params }) => {
+      queryClient.removeQueries({ queryKey: exchangeQuery(params.path.id).queryKey })
+      readTheTimelinesAgain(queryClient)
+      toast.success(t('exchanges.detail.erased'))
     },
   })
 }

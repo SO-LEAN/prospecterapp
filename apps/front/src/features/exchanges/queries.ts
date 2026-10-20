@@ -1,5 +1,5 @@
 import { infiniteQueryOptions } from '@tanstack/react-query'
-import { fetchClient } from '@/shared/api/client'
+import { api, fetchClient } from '@/shared/api/client'
 import type { components } from '@/shared/api/schema'
 import { dataOf, nextSliceOf } from '@/shared/api/slices'
 
@@ -9,6 +9,10 @@ export type ExchangeInput = components['schemas']['ExchangeInput']
 export type OrganizationTimeline = components['schemas']['OrganizationTimelineResource']
 export type OrganizationExchange = components['schemas']['OrganizationExchangeResource']
 export type Interlocutor = OrganizationExchange['interlocutor']
+/** What happened, all of it: what noting and correcting an exchange send. */
+export type ExchangeFacts = components['schemas']['CorrectionInput']
+export type ExchangeDetail = components['schemas']['ExchangeDetailResource']
+export type Author = components['schemas']['AuthorResource']
 export type Channel = Exchange['channel']
 export type Direction = Exchange['direction']
 
@@ -25,7 +29,7 @@ export const DIRECTIONS = ['inbound', 'outbound'] as const satisfies readonly Di
 /** The exchanges with a contact, the most recent first, a slice after the other (ADR 0049, 0074). */
 export const timelineQuery = (contactId: string) =>
   infiniteQueryOptions({
-    queryKey: ['get', '/api/contacts/{id}/exchanges', { params: { path: { id: contactId } } }, 'slices'],
+    queryKey: [...timelineKeys.ofContacts, { params: { path: { id: contactId } } }, 'slices'],
     queryFn: async ({ pageParam, signal }) =>
       dataOf(
         await fetchClient.GET('/api/contacts/{id}/exchanges', {
@@ -62,3 +66,6 @@ export const timelineKeys = {
   ofContacts: ['get', '/api/contacts/{id}/exchanges'],
   ofOrganizations: ['get', '/api/organizations/{id}/exchanges'],
 } as const
+
+export const exchangeQuery = (id: string) =>
+  api.queryOptions('get', '/api/exchanges/{id}', { params: { path: { id } } })
