@@ -4,7 +4,9 @@ declare(strict_types=1);
 
 namespace Tests\Core\Double;
 
+use Prospecter\Core\Prospecting\Domain\Exception\UnknownExchange;
 use Prospecter\Core\Prospecting\Domain\Exchange;
+use Prospecter\Core\Prospecting\Domain\ExchangeId;
 use Prospecter\Core\Prospecting\Domain\ExchangeRepository;
 use Prospecter\Core\SharedKernel\Domain\AccountId;
 use Prospecter\Core\SharedKernel\Domain\OrganizationId;
@@ -19,6 +21,11 @@ final readonly class InMemoryExchangeRepository implements ExchangeRepository
 {
     public function __construct(private InMemoryDatabase $database)
     {
+    }
+
+    public function get(ExchangeId $id): Exchange
+    {
+        return $this->database->exchange((string) $id) ?? throw UnknownExchange::identifiedBy($id);
     }
 
     public function save(Exchange $exchange): void

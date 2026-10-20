@@ -48,6 +48,18 @@ class ActivityJournalTest extends ApiTestCase
         $this->assertSame(['ExchangeNoted'], $this->journalOf('prospecting', $exchange));
     }
 
+    public function testTheJournalKeepsTheCorrectionsOfAnExchangeOnceErased(): void
+    {
+        $organization = $this->requestJson('POST', '/api/organizations', ['legalIdentity' => ['corporateName' => 'ACME']])['id'];
+        $contact = $this->requestJson('POST', '/api/contacts', ['name' => ['firstName' => 'Ada'], 'organizationIds' => [$organization]])['id'];
+        $exchange = $this->requestJson('POST', '/api/contacts/'.$contact.'/exchanges', ['channel' => 'sms', 'direction' => 'inbound'])['items'][0]['id'];
+
+        $this->requestJson('PATCH', '/api/exchanges/'.$exchange, ['channel' => 'email', 'direction' => 'inbound', 'occurredAt' => '2026-10-15T08:00:00+00:00']);
+        $this->requestJson('DELETE', '/api/exchanges/'.$exchange);
+
+        $this->assertSame(['ExchangeNoted', 'ExchangeCorrected', 'ExchangeErased'], $this->journalOf('prospecting', $exchange));
+    }
+
     public function testTheJournalNamesTheMemberWhoDidIt(): void
     {
         $organization = $this->requestJson('POST', '/api/organizations', ['legalIdentity' => ['corporateName' => 'ACME']])['id'];

@@ -45,6 +45,8 @@ final class Vocabulary
         'SearchByText' => 'chercher par texte',
         'ConsultTimeline' => 'consulter la timeline',
         'NoteExchange' => 'noter un échange',
+        'CorrectExchange' => 'corriger l\'échange',
+        'EraseExchange' => 'supprimer l\'échange',
     ];
 
     private const string MOMENT = 'Y-m-d H:i';
@@ -244,6 +246,14 @@ final class Vocabulary
     public static function describeFrenchMoment(\DateTimeImmutable $moment): string
     {
         return $moment->format(self::FRENCH_MOMENT);
+    }
+
+    /**
+     * Who did something and when, as a sentence says it: "le 15/10/2026 à 14:35 par Michel".
+     */
+    public static function describeDoneBy(\DateTimeImmutable $at, string $by): string
+    {
+        return sprintf('le %s à %s par %s', $at->format('d/m/Y'), $at->format('H:i'), $by);
     }
 
     public static function channel(string $label): string

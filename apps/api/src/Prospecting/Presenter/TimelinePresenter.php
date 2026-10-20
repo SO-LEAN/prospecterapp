@@ -2,6 +2,7 @@
 
 namespace App\Prospecting\Presenter;
 
+use App\Prospecting\Resource\ExchangeLinksResource;
 use App\Prospecting\Resource\ExchangeResource;
 use App\Prospecting\Resource\TimelineLinksResource;
 use App\Prospecting\Resource\TimelineResource;
@@ -56,6 +57,7 @@ final readonly class TimelinePresenter
             occurredAt: $exchange->occurredAt->format(\DateTimeInterface::ATOM),
             text: $exchange->text,
             organizationIds: $exchange->organizationIds,
+            links: new ExchangeLinksResource($this->links->to('api_exchanges_show', ['id' => $exchange->id])),
         );
     }
 }

@@ -17,6 +17,8 @@ use Prospecter\Core\SharedKernel\Domain\MemberId;
 use Prospecter\Core\SharedKernel\Domain\OrganizationId;
 use Prospecter\Core\SharedKernel\Domain\PersonId;
 use Tests\App\Base\ApiTestCase;
+use Prospecter\Core\Prospecting\Domain\Correction;
+use Prospecter\Core\Prospecting\Domain\Exception\UnknownExchange;
 
 /**
  * The timeline of a contact by the moment of its exchanges, and the exchanges kept for an organization, its
@@ -135,6 +137,42 @@ class DynamoExchangeRepositoryTest extends ApiTestCase
         $organization = Organization::prospectedBy($this->prospector, $this->acme, new LegalIdentity('ACME'), new ContactDetails(), new \DateTimeImmutable(self::NOW));
 
         return Exchange::notedWithTheOrganization($organization, $this->prospector, new ExchangeId(self::newIdentity()), new ExchangeFacts(Channel::Call, Direction::Inbound, new \DateTimeImmutable($occurredAt)), new \DateTimeImmutable(self::NOW));
+    }
+
+    public function testACorrectedExchangeIsReadWithItsCorrection(): void
+    {
+        $exchanges = $this->exchanges();
+        $exchange = $this->noted('2026-10-10 09:00 UTC');
+        $exchanges->save($exchange);
+        $corrected = new ExchangeFacts(Channel::Email, Direction::Outbound, new \DateTimeImmutable('2026-10-12 10:00 UTC'), 'Objet : mission');
+
+        $exchange->correct($corrected, by: $this->prospector, at: new \DateTimeImmutable(self::NOW));
+        $exchanges->save($exchange);
+
+        $read = $exchanges->get($exchange->id());
+        $this->assertEquals($corrected, $read->facts());
+        $this->assertEquals(new Correction($this->prospector->id, new \DateTimeImmutable(self::NOW)), $read->lastCorrection());
+    }
+
+    public function testACorrectedMomentMovesTheExchangeInTheTimeline(): void
+    {
+        $exchanges = $this->exchanges();
+        $first = $this->noted('2026-10-10 09:00 UTC');
+        $second = $this->noted('2026-10-11 09:00 UTC');
+        array_map($exchanges->save(...), [$first, $second]);
+
+        $first->correct(new ExchangeFacts(Channel::Call, Direction::Inbound, new \DateTimeImmutable('2026-10-12 09:00 UTC')), by: $this->prospector, at: new \DateTimeImmutable(self::NOW));
+        $exchanges->save($first);
+
+        $timeline = $exchanges->timelineOf($this->contact, $this->prospector->accountId, null, 20)->content;
+        $this->assertEquals([$first->id(), $second->id()], array_map(static fn (Exchange $exchange): ExchangeId => $exchange->id(), $timeline));
+    }
+
+    public function testAnExchangeNeverNotedIsUnknown(): void
+    {
+        $this->expectException(UnknownExchange::class);
+
+        $this->exchanges()->get(new ExchangeId(self::newIdentity()));
     }
 
     private function noted(string $occurredAt): Exchange

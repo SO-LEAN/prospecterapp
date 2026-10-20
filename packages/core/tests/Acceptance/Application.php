@@ -46,6 +46,9 @@ use Prospecter\Core\Prospecting\Application\AttachCollectedContact\AttachCollect
 use Prospecter\Core\Prospecting\Application\AttachToHolding\AttachToHoldingHandler;
 use Prospecter\Core\Prospecting\Application\ChangeContactDetails\ChangeContactDetailsHandler;
 use Prospecter\Core\Prospecting\Application\ChangeLogo\ChangeLogoHandler;
+use Prospecter\Core\Prospecting\Application\ConsultExchange\ConsultExchange;
+use Prospecter\Core\Prospecting\Application\ConsultExchange\ConsultExchangeHandler;
+use Prospecter\Core\Prospecting\Application\ConsultExchange\ExchangeDetailResponse;
 use Prospecter\Core\Prospecting\Application\ConsultOrganization\ConsultOrganization;
 use Prospecter\Core\Prospecting\Application\ConsultOrganization\ConsultOrganizationHandler;
 use Prospecter\Core\Prospecting\Application\ConsultOrganizationTimeline\ConsultOrganizationTimeline;
@@ -55,8 +58,10 @@ use Prospecter\Core\Prospecting\Application\ConsultTimeline\ConsultTimelineHandl
 use Prospecter\Core\Prospecting\Application\ConsultTimelineIntents\ConsultTimelineIntents;
 use Prospecter\Core\Prospecting\Application\ConsultTimelineIntents\ConsultTimelineIntentsHandler;
 use Prospecter\Core\Prospecting\Application\ConsultTimelineIntents\TimelineIntentsResponse;
+use Prospecter\Core\Prospecting\Application\CorrectExchange\CorrectExchangeHandler;
 use Prospecter\Core\Prospecting\Application\DetachForgottenContact\DetachForgottenContactHandler;
 use Prospecter\Core\Prospecting\Application\DetachFromHolding\DetachFromHoldingHandler;
+use Prospecter\Core\Prospecting\Application\EraseExchange\EraseExchangeHandler;
 use Prospecter\Core\Prospecting\Application\IsProspectedBy\IsProspectedByHandler;
 use Prospecter\Core\Prospecting\Application\NoteExchange\NoteExchangeHandler;
 use Prospecter\Core\Prospecting\Application\NoteOrganizationExchange\NoteOrganizationExchangeHandler;
@@ -272,6 +277,11 @@ final class Application
         return $this->attempt(fn (): TimelineIntentsResponse => new RefusalTranslatingHandler(new ConsultTimelineIntentsHandler($this->prospectorService, $this->contactOrganizations))($query));
     }
 
+    public function consultExchange(ConsultExchange $query): ?ExchangeDetailResponse
+    {
+        return $this->attempt(fn (): ExchangeDetailResponse => new RefusalTranslatingHandler(new ConsultExchangeHandler($this->exchanges, $this->prospectorService))($query));
+    }
+
     /**
      * The business refusal of the last command or query, null when it succeeded.
      */
@@ -311,6 +321,8 @@ final class Application
             new StopProspectingHandler($this->organizations, $this->prospectorService, $this->events, $this->orphans),
             new NoteExchangeHandler($this->exchanges, $this->prospectorService, $this->contactOrganizations, $this->events),
             new NoteOrganizationExchangeHandler($this->exchanges, $this->organizations, $this->prospectorService, $this->contactOrganizations, $this->events),
+            new CorrectExchangeHandler($this->exchanges, $this->prospectorService, $this->events),
+            new EraseExchangeHandler($this->exchanges, $this->prospectorService, $this->events),
         ];
     }
 

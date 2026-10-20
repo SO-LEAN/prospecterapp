@@ -5,6 +5,7 @@ namespace App\Prospecting\Persistence;
 use App\Shared\Persistence\Documents;
 use App\Shared\Persistence\Hydrator;
 use Prospecter\Core\Prospecting\Domain\Channel;
+use Prospecter\Core\Prospecting\Domain\Correction;
 use Prospecter\Core\Prospecting\Domain\Direction;
 use Prospecter\Core\Prospecting\Domain\Exchange;
 use Prospecter\Core\Prospecting\Domain\ExchangeFacts;
@@ -41,6 +42,7 @@ final class ExchangeDocument
                 'text' => $facts->text,
                 'missed' => $facts->missed,
             ],
+            'lastCorrection' => self::correctionDocument($state['lastCorrection']),
             'createdAt' => Documents::moment($state['createdAt']),
             'modifiedAt' => Documents::moment($state['modifiedAt']),
         ];
@@ -60,8 +62,25 @@ final class ExchangeDocument
             'contact' => null === $document['contact'] ? null : new PersonId($document['contact']),
             'keptFor' => array_map(static fn (string $organization): OrganizationId => new OrganizationId($organization), $document['keptFor']),
             'facts' => new ExchangeFacts(Channel::from($facts['channel']), Direction::from($facts['direction']), Documents::momentOf($facts['occurredAt']), $facts['text'], $facts['missed']),
+            'lastCorrection' => self::correction($document['lastCorrection'] ?? null),
             'createdAt' => Documents::momentOf($document['createdAt']),
             'modifiedAt' => Documents::momentOf($document['modifiedAt']),
         ]);
+    }
+
+    /**
+     * @return array{by: string, at: string}|null
+     */
+    private static function correctionDocument(?Correction $correction): ?array
+    {
+        return null === $correction ? null : ['by' => (string) $correction->by, 'at' => Documents::moment($correction->at)];
+    }
+
+    /**
+     * @param array{by: string, at: string}|null $document
+     */
+    private static function correction(?array $document): ?Correction
+    {
+        return null === $document ? null : new Correction(new MemberId($document['by']), Documents::momentOf($document['at']));
     }
 }

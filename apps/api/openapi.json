@@ -2253,6 +2253,180 @@
                 }
             }
         },
+        "/api/exchanges/{id}": {
+            "get": {
+                "tags": [
+                    "Contacts"
+                ],
+                "summary": "The whole of an exchange with a contact, who noted it and who corrected it last",
+                "operationId": "get_api_exchanges_show",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "pattern": "[0-9a-f]{8}-[0-9a-f]{4}-[13-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "The exchange",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ExchangeDetailResource"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Missing or invalid access token"
+                    },
+                    "403": {
+                        "description": "Not a prospector, or no right to manage personal data",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ProblemResource"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Unknown exchange, or one of another account",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ProblemResource"
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "tags": [
+                    "Contacts"
+                ],
+                "summary": "Erase an exchange from every timeline",
+                "operationId": "delete_api_exchanges_erase",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "pattern": "[0-9a-f]{8}-[0-9a-f]{4}-[13-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}"
+                        }
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "Erased"
+                    },
+                    "401": {
+                        "description": "Missing or invalid access token"
+                    },
+                    "403": {
+                        "description": "Not a prospector, or no right to manage personal data",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ProblemResource"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Unknown exchange, or one of another account",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ProblemResource"
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "patch": {
+                "tags": [
+                    "Contacts"
+                ],
+                "summary": "Correct the channel, the direction, whether a call was missed, the moment and the text of an exchange; its contact stays",
+                "operationId": "patch_api_exchanges_correct",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "pattern": "[0-9a-f]{8}-[0-9a-f]{4}-[13-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/CorrectionInput"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "The corrected exchange",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ExchangeDetailResource"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Missing or invalid access token"
+                    },
+                    "403": {
+                        "description": "Not a prospector, or no right to manage personal data",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ProblemResource"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Unknown exchange, or one of another account",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ProblemResource"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Invalid correction: unknown channel or direction, a missed exchange that is no call, a moment in the future, another contact",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ProblemResource"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
         "/api/me/sign-in/login-email": {
             "patch": {
                 "tags": [
@@ -2665,6 +2839,48 @@
                         "nullable": true,
                         "default": null,
                         "maxLength": 200
+                    }
+                },
+                "type": "object"
+            },
+            "CorrectionInput": {
+                "properties": {
+                    "channel": {
+                        "type": "string",
+                        "default": "",
+                        "enum": [
+                            "call",
+                            "sms",
+                            "email",
+                            "linkedIn",
+                            "meeting",
+                            "other"
+                        ]
+                    },
+                    "direction": {
+                        "type": "string",
+                        "default": "",
+                        "enum": [
+                            "inbound",
+                            "outbound"
+                        ]
+                    },
+                    "occurredAt": {
+                        "description": "When it happened; never in the future",
+                        "type": "string",
+                        "format": "date-time",
+                        "nullable": true,
+                        "default": null
+                    },
+                    "text": {
+                        "type": "string",
+                        "nullable": true,
+                        "default": null,
+                        "maxLength": 5000
+                    },
+                    "missed": {
+                        "type": "boolean",
+                        "default": false
                     }
                 },
                 "type": "object"
@@ -3158,6 +3374,17 @@
                 },
                 "type": "object"
             },
+            "ExchangeLinksResource": {
+                "required": [
+                    "self"
+                ],
+                "properties": {
+                    "self": {
+                        "$ref": "#/components/schemas/LinkResource"
+                    }
+                },
+                "type": "object"
+            },
             "ExchangeResource": {
                 "required": [
                     "id",
@@ -3165,7 +3392,8 @@
                     "direction",
                     "missed",
                     "occurredAt",
-                    "organizationIds"
+                    "organizationIds",
+                    "_links"
                 ],
                 "properties": {
                     "id": {
@@ -3208,6 +3436,9 @@
                         "items": {
                             "type": "string"
                         }
+                    },
+                    "_links": {
+                        "$ref": "#/components/schemas/ExchangeLinksResource"
                     }
                 },
                 "type": "object"
@@ -3585,6 +3816,149 @@
                         "items": {
                             "$ref": "#/components/schemas/OrganizationOfContactResource"
                         }
+                    }
+                },
+                "type": "object"
+            },
+            "ExchangeContactResource": {
+                "required": [
+                    "id",
+                    "name"
+                ],
+                "properties": {
+                    "id": {
+                        "type": "string"
+                    },
+                    "name": {
+                        "$ref": "#/components/schemas/PersonNameResource"
+                    }
+                },
+                "type": "object"
+            },
+            "AuthorResource": {
+                "required": [
+                    "name"
+                ],
+                "properties": {
+                    "name": {
+                        "$ref": "#/components/schemas/PersonNameResource"
+                    },
+                    "email": {
+                        "description": "Their email, to name them while their profile has no name",
+                        "type": "string",
+                        "nullable": true
+                    }
+                },
+                "type": "object"
+            },
+            "StampResource": {
+                "required": [
+                    "at",
+                    "by"
+                ],
+                "properties": {
+                    "at": {
+                        "type": "string",
+                        "format": "date-time"
+                    },
+                    "by": {
+                        "$ref": "#/components/schemas/AuthorResource"
+                    }
+                },
+                "type": "object"
+            },
+            "ExchangeDetailLinksResource": {
+                "required": [
+                    "self",
+                    "contact"
+                ],
+                "properties": {
+                    "self": {
+                        "$ref": "#/components/schemas/LinkResource"
+                    },
+                    "contact": {
+                        "$ref": "#/components/schemas/LinkResource"
+                    },
+                    "correctExchange": {
+                        "$ref": "#/components/schemas/LinkResource"
+                    },
+                    "eraseExchange": {
+                        "$ref": "#/components/schemas/LinkResource"
+                    }
+                },
+                "type": "object"
+            },
+            "ExchangeDetailResource": {
+                "required": [
+                    "id",
+                    "contact",
+                    "channel",
+                    "direction",
+                    "missed",
+                    "occurredAt",
+                    "organizationIds",
+                    "noted",
+                    "_links"
+                ],
+                "properties": {
+                    "id": {
+                        "type": "string"
+                    },
+                    "contact": {
+                        "$ref": "#/components/schemas/ExchangeContactResource"
+                    },
+                    "channel": {
+                        "type": "string",
+                        "enum": [
+                            "call",
+                            "sms",
+                            "email",
+                            "linkedIn",
+                            "meeting",
+                            "other"
+                        ]
+                    },
+                    "direction": {
+                        "description": "inbound: the contact reached out; outbound: we did",
+                        "type": "string",
+                        "enum": [
+                            "inbound",
+                            "outbound"
+                        ]
+                    },
+                    "missed": {
+                        "description": "A call that did not go through",
+                        "type": "boolean"
+                    },
+                    "occurredAt": {
+                        "type": "string",
+                        "format": "date-time"
+                    },
+                    "text": {
+                        "type": "string",
+                        "nullable": true
+                    },
+                    "organizationIds": {
+                        "description": "The organizations it is kept for, those the contact was part of when it was noted",
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        }
+                    },
+                    "noted": {
+                        "$ref": "#/components/schemas/StampResource"
+                    },
+                    "corrected": {
+                        "description": "The last correction, null while it is as it was noted",
+                        "nullable": true,
+                        "oneOf": [
+                            {
+                                "$ref": "#/components/schemas/StampResource"
+                            }
+                        ]
+                    },
+                    "_links": {
+                        "$ref": "#/components/schemas/ExchangeDetailLinksResource"
                     }
                 },
                 "type": "object"

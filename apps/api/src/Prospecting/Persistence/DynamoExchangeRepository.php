@@ -4,6 +4,7 @@ namespace App\Prospecting\Persistence;
 
 use App\Shared\Persistence\Documents;
 use App\Shared\Persistence\Table;
+use Prospecter\Core\Prospecting\Domain\Exception\UnknownExchange;
 use Prospecter\Core\Prospecting\Domain\Exchange;
 use Prospecter\Core\Prospecting\Domain\ExchangeId;
 use Prospecter\Core\Prospecting\Domain\ExchangeRepository;
@@ -26,6 +27,13 @@ final readonly class DynamoExchangeRepository implements ExchangeRepository
 
     public function __construct(private Table $prospectingTable)
     {
+    }
+
+    public function get(ExchangeId $id): Exchange
+    {
+        $item = $this->prospectingTable->item(self::keyOf($id), self::EXCHANGE) ?? throw UnknownExchange::identifiedBy($id);
+
+        return ExchangeDocument::exchange($item['exchange']);
     }
 
     public function save(Exchange $exchange): void
