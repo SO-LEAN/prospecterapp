@@ -1,7 +1,7 @@
 # 0064. An account is opened by its founder, from the console until the members open theirs
 
 - Date: 2026-10-17
-- Status: Accepted
+- Status: Accepted, the members after the founder registered by [0075](0075-a-member-is-registered-by-an-administrator-of-the-account.md)
 - Implemented by: `packages/core/features/ouvrir-un-compte.feature`, `Accounts\Application\{OpenAccount,RegisterTheFounder,PublishAccountOpened}`, `Accounts\Contract\Event\AccountOpened`, `PersonalData\Application\CollectTheFounderProfile`, `apps/api/src/SignIn/Command/OpenAccountCommand.php`, the `console` target of the `Makefile`
 
 ## Context

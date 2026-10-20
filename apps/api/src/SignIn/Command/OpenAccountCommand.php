@@ -5,7 +5,6 @@ namespace App\SignIn\Command;
 use App\Shared\CommandBus;
 use App\Shared\Identities;
 use App\SignIn\Credentials;
-use App\SignIn\UserPool;
 use Prospecter\Core\Accounts\Application\OpenAccount\OpenAccount;
 use Prospecter\Core\PersonalData\Application\ChangePersonContactDetails\ChangePersonContactDetails;
 use Prospecter\Core\SharedKernel\Application\Exception\UseCaseRefused;
@@ -23,9 +22,12 @@ use Symfony\Component\Console\Style\SymfonyStyle;
 #[AsCommand(name: 'app:account:open', description: 'Open the account of an organization, its founder signing in with the email given')]
 final readonly class OpenAccountCommand
 {
+    use TellsTheRefusal;
+
     public function __construct(
         private CommandBus $commands,
         private Credentials $credentials,
+        private NewCredentials $newCredentials,
         private Identities $identities,
         private ClockInterface $clock,
     ) {
@@ -42,36 +44,33 @@ final readonly class OpenAccountCommand
         #[Option(description: 'For scripts; asked without echo otherwise')]
         ?string $password = null,
     ): int {
-        if (null !== $this->credentials->memberSigningInWith($email)) {
-            $io->error(sprintf('Somebody signs in with "%s" already.', $email));
-
-            return Command::FAILURE;
-        }
-
-        $password ??= $io->askHidden('Password of the founder');
-
-        if (!is_string($password) || mb_strlen($password) < UserPool::PASSWORD_MINIMUM_LENGTH) {
-            $io->error(sprintf('The password needs %d characters at least.', UserPool::PASSWORD_MINIMUM_LENGTH));
-
-            return Command::INVALID;
-        }
-
-        $founder = $this->identities->next();
-        $profile = $this->identities->next();
-        $now = $this->clock->now();
-
         try {
-            $this->commands->dispatch(new OpenAccount($this->identities->next(), $corporateName, $form, $founder, $profile, $now));
-            $this->commands->dispatch(new ChangePersonContactDetails($founder, $profile, $email, null, null, $now));
-        } catch (UseCaseRefused $refusal) {
-            $io->error($refusal->getMessage());
-
-            return Command::FAILURE;
+            $this->open($corporateName, $form, $email, $password, $io);
+        } catch (CredentialsRefused|UseCaseRefused $refusal) {
+            return self::refused($refusal, $io);
         }
 
-        $this->credentials->register($founder, $email, $password);
         $io->success(sprintf('The account of "%s" is open: its founder signs in with "%s".', $corporateName, $email));
 
         return Command::SUCCESS;
+    }
+
+    private function open(string $corporateName, ?string $form, string $email, ?string $password, SymfonyStyle $io): void
+    {
+        $password = $this->newCredentials->passwordFor($email, $password, $io);
+        $founder = $this->identities->next();
+        $this->openWith($founder, $corporateName, $form, $email);
+        $this->credentials->register($founder, $email, $password);
+    }
+
+    /**
+     * The account and its founder, then the email of their profile, as the founder.
+     */
+    private function openWith(string $founder, string $corporateName, ?string $form, string $email): void
+    {
+        $profile = $this->identities->next();
+        $now = $this->clock->now();
+        $this->commands->dispatch(new OpenAccount($this->identities->next(), $corporateName, $form, $founder, $profile, $now));
+        $this->commands->dispatch(new ChangePersonContactDetails($founder, $profile, $email, null, null, $now));
     }
 }

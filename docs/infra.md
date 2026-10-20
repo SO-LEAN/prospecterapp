@@ -78,7 +78,7 @@ An installation puts its apps on its domains behind its edge, a proxy such as Cl
 
 ## Commands of an instance
 
-`make console CMD="..."` runs a command of the api on MiniStack; with `INSTANCE=<instance>`, it runs it from this machine on the tables and the user pool of an instance, with the temporary credentials of its AWS profile, exported by the AWS CLI in its image and passed through the environment ([ADR 0064](adr/0064-an-account-is-opened-by-its-founder.md)). The first account of an installation: `make console INSTANCE=dev CMD="app:account:open 'My company' me@example.com --form=SAS"`, the password asked without echo.
+`make console CMD="..."` runs a command of the api on MiniStack; with `INSTANCE=<instance>`, it runs it from this machine on the tables and the user pool of an instance, with the temporary credentials of its AWS profile, exported by the AWS CLI in its image and passed through the environment ([ADR 0064](adr/0064-an-account-is-opened-by-its-founder.md)). The first account of an installation: `make console INSTANCE=dev CMD="app:account:open 'My company' me@example.com --form=SAS"`, the password asked without echo. Its colleagues, with only the roles they need ([ADR 0075](adr/0075-a-member-is-registered-by-an-administrator-of-the-account.md)): `make console INSTANCE=dev CMD="app:member:register me@example.com colleague@example.com --first-name=Ada --personal-data"`.
 
 ## What never enters this repository
 
