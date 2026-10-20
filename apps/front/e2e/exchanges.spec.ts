@@ -22,6 +22,7 @@ test('note the exchanges with a contact, find them in its timeline, gone with it
     await page.getByLabel('Nom', { exact: true }).fill(lastName)
     await page.getByRole('button', { name: 'Enregistrer le contact' }).click()
     await page.getByRole('link', { name: `Test ${lastName}` }).click()
+    await expect(page.getByRole('heading', { name: `Test ${lastName}` })).toBeVisible()
     await expect(page.getByText('Aucun échange noté.')).toBeVisible()
   })
 

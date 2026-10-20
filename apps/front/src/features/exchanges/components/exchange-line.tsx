@@ -2,6 +2,7 @@ import {
   ArrowDownLeft,
   ArrowUpRight,
   BriefcaseBusiness,
+  Building2,
   CalendarDays,
   type LucideIcon,
   Mail,
@@ -9,10 +10,11 @@ import {
   MessageSquareText,
   Phone,
   PhoneMissed,
+  UserRound,
 } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import { formatMoment } from '@/shared/lib/format'
-import type { Channel, Exchange } from '../queries'
+import type { Channel, Exchange, Interlocutor } from '../queries'
 
 export const CHANNEL_ICONS: Record<Channel, LucideIcon> = {
   call: Phone,
@@ -26,8 +28,22 @@ export const CHANNEL_ICONS: Record<Channel, LucideIcon> = {
 const directionIconOf = (exchange: Exchange) =>
   exchange.missed ? PhoneMissed : exchange.direction === 'inbound' ? ArrowDownLeft : ArrowUpRight
 
-/** One exchange of the timeline: its channel, its direction (missed for a call that did not go through), when, and the beginning of its text. */
-export function ExchangeLine({ exchange }: { exchange: Exchange }) {
+export const INTERLOCUTOR_ICONS: Record<Interlocutor['kind'], LucideIcon> = {
+  organization: Building2,
+  person: UserRound,
+}
+
+/**
+ * One exchange of the timeline: who communicated in the timeline of an organization, its channel, its direction
+ * (missed for a call that did not go through), when, and the beginning of its text.
+ */
+export function ExchangeLine({
+  exchange,
+  interlocutor,
+}: {
+  exchange: Exchange
+  interlocutor?: Interlocutor
+}) {
   const { t } = useTranslation()
   const ChannelIcon = CHANNEL_ICONS[exchange.channel]
   const DirectionIcon = directionIconOf(exchange)
@@ -39,6 +55,7 @@ export function ExchangeLine({ exchange }: { exchange: Exchange }) {
         <ChannelIcon aria-hidden className="size-4" />
       </span>
       <div className="min-w-0 flex-1">
+        {interlocutor && <InterlocutorName interlocutor={interlocutor} />}
         <p className="flex items-center gap-1.5 font-medium">
           {t('exchanges.summary', { channel: t(`exchanges.channels.${exchange.channel}`), direction })}
           <DirectionIcon
@@ -52,5 +69,18 @@ export function ExchangeLine({ exchange }: { exchange: Exchange }) {
         {exchange.text && <p className="truncate">{exchange.text}</p>}
       </div>
     </div>
+  )
+}
+
+function InterlocutorName({ interlocutor }: { interlocutor: Interlocutor }) {
+  const { t } = useTranslation()
+  const Icon = INTERLOCUTOR_ICONS[interlocutor.kind]
+
+  return (
+    <p className="flex min-w-0 items-center gap-1.5 font-semibold">
+      <Icon aria-hidden className="size-4 shrink-0 text-muted-foreground" />
+      <span className="sr-only">{t(`exchanges.interlocutors.${interlocutor.kind}`)}</span>
+      <span className="truncate">{interlocutor.name ?? t('exchanges.unknownPerson')}</span>
+    </p>
   )
 }

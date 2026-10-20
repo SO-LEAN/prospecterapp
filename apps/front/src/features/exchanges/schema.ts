@@ -24,11 +24,15 @@ export const exchangeSchema = z.object({
     .refine(isPast, { error: () => i18n.t('exchanges.inTheFuture') }),
   text: text(MAX_TEXT),
   missed: z.boolean(),
+  personId: z.string(),
 })
 
 export type ExchangeValues = z.input<typeof exchangeSchema>
 
-export const exchangeFields = ['channel', 'direction', 'occurredAt', 'text', 'missed'] as const
+export const exchangeFields = ['channel', 'direction', 'occurredAt', 'text', 'missed', 'personId'] as const
+
+/** The interlocutor chosen when noting from the card of an organization: none is the organization itself. */
+export const ITSELF = ''
 
 /** Quick to note: received, now; only the channel is to choose. */
 export const newExchange = (now: Date): DefaultValues<ExchangeValues> => ({
@@ -36,6 +40,7 @@ export const newExchange = (now: Date): DefaultValues<ExchangeValues> => ({
   occurredAt: localMoment(now),
   text: '',
   missed: false,
+  personId: ITSELF,
 })
 
 export const toExchangeInput = (values: ExchangeValues): ExchangeInput => ({
@@ -45,3 +50,6 @@ export const toExchangeInput = (values: ExchangeValues): ExchangeInput => ({
   text: orNull(values.text),
   missed: values.channel === 'call' && values.missed,
 })
+
+export const personIdOf = (values: ExchangeValues): string | null =>
+  values.personId === ITSELF ? null : values.personId

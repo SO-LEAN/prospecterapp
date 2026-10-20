@@ -14,21 +14,28 @@ import {
   type ExchangeValues,
   exchangeFields,
   exchangeSchema,
+  ITSELF,
   localMoment,
   newExchange,
+  personIdOf,
   toExchangeInput,
 } from '../schema'
-import { CHANNEL_ICONS } from './exchange-line'
+import { CHANNEL_ICONS, INTERLOCUTOR_ICONS } from './exchange-line'
+
+/** Who may be chosen from the card of an organization: itself, first and by default, or one of its contacts. */
+export type Interlocutors = { organization: string; contacts: { id: string; name: string }[] }
 
 type Props = {
-  onSubmit: (input: ExchangeInput) => Promise<unknown>
+  /** The person chosen, null for the organization itself or on the card of a contact. */
+  onSubmit: (input: ExchangeInput, personId: string | null) => Promise<unknown>
   onCancel: () => void
+  interlocutors?: Interlocutors
 }
 
 const DIRECTION_ICONS = { inbound: ArrowDownLeft, outbound: ArrowUpRight }
 
 /** Noted in a few seconds: received and now by default, the channel to choose, then save. */
-export function NoteExchangeForm({ onSubmit, onCancel }: Props) {
+export function NoteExchangeForm({ onSubmit, onCancel, interlocutors }: Props) {
   const { t } = useTranslation()
   const [globalErrors, setGlobalErrors] = useState<string[]>([])
   const form = useForm<ExchangeValues>({
@@ -41,7 +48,7 @@ export function NoteExchangeForm({ onSubmit, onCancel }: Props) {
   const submit = form.handleSubmit(async (values) => {
     setGlobalErrors([])
     try {
-      await onSubmit(toExchangeInput(values))
+      await onSubmit(toExchangeInput(values), personIdOf(values))
     } catch (error) {
       setGlobalErrors(applyViolations(error, form.setError, exchangeFields))
     }
@@ -53,6 +60,26 @@ export function NoteExchangeForm({ onSubmit, onCancel }: Props) {
         <Alert variant="destructive">
           <AlertDescription>{globalErrors.join(' ')}</AlertDescription>
         </Alert>
+      )}
+
+      {interlocutors && (
+        <Choices legend={t('exchanges.interlocutor')} error={errors.personId?.message}>
+          <Choice
+            icon={INTERLOCUTOR_ICONS.organization}
+            label={interlocutors.organization}
+            value={ITSELF}
+            {...form.register('personId')}
+          />
+          {interlocutors.contacts.map((contact) => (
+            <Choice
+              key={contact.id}
+              icon={INTERLOCUTOR_ICONS.person}
+              label={contact.name}
+              value={contact.id}
+              {...form.register('personId')}
+            />
+          ))}
+        </Choices>
       )}
 
       <Choices legend={t('exchanges.channel')} error={errors.channel?.message}>
