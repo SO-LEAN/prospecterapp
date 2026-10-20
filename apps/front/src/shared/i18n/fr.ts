@@ -209,6 +209,8 @@ export const fr = {
     emailAlreadyUsed: 'Cette adresse e-mail est déjà utilisée.',
     loginEmailTaken: 'Cette adresse e-mail de connexion est déjà utilisée.',
     accountWithoutCorporateName: 'Un compte a besoin de la raison sociale de son organisation.',
+    administratorsOnly: 'Seul un administrateur du compte peut inscrire un membre.',
+    memberWithoutRole: 'Un membre a au moins un rôle : prospecteur, données personnelles ou administrateur.',
     organizationWithoutNameNorEmail: 'Renseignez au moins une raison sociale ou un e-mail.',
     contactWithoutOrganization: 'Un contact est rattaché à au moins une organisation.',
     personalDataManagersOnly: 'Il faut le droit de gérer les données personnelles.',

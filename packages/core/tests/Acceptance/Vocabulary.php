@@ -75,9 +75,16 @@ final class Vocabulary
 
     private const string FRENCH_MOMENT = 'd/m/Y H:i';
 
+    /** The roles a member works with, as an administrator gives them. */
+    private const array ROLES = [
+        'prospecteur' => 'ROLE_PROSPECTOR',
+        'données personnelles' => 'ROLE_PERSONAL_DATA',
+        'administrateur' => 'ROLE_ADMIN',
+    ];
+
     private const array LABELS = [
         'raison sociale', 'forme juridique', 'type', 'e-mail', 'téléphone', 'langue',
-        'rue', 'code postal', 'ville', 'pays', 'observations', 'holding', 'prénom', 'nom', 'fonction',
+        'rue', 'code postal', 'ville', 'pays', 'observations', 'holding', 'prénom', 'nom', 'fonction', 'rôles',
     ];
 
     /**
@@ -130,6 +137,16 @@ final class Vocabulary
         $address = new Address($values['rue'], $values['code postal'], $values['ville'], $values['pays']);
 
         return $address->isEmpty() ? null : $address;
+    }
+
+    /**
+     * @return list<string> the roles named, comma separated, as the use cases take them
+     */
+    public static function roles(?string $roles): array
+    {
+        $labels = null === $roles ? [] : array_map(trim(...), explode(',', $roles));
+
+        return array_map(static fn (string $label): string => self::ROLES[$label] ?? throw new \LogicException(sprintf('Unknown role "%s"', $label)), $labels);
     }
 
     /**

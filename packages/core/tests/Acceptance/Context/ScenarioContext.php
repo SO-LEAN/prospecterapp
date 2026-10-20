@@ -41,6 +41,8 @@ final class ScenarioContext implements Context
     private array $organizationIds = [];
     /** @var array<string, PersonId> */
     private array $personIds = [];
+    /** @var array<string, MemberId> */
+    private array $memberIds = [];
 
     public function __construct()
     {
@@ -86,6 +88,12 @@ final class ScenarioContext implements Context
         $this->application->signIn($this->aMemberOf('moi', $account, Role::User, Role::Prospector)->id());
     }
 
+    #[Given('je suis connecté en tant que :name')]
+    public function iAmSignedInAs(string $name): void
+    {
+        $this->application->signIn($this->memberIdOf($name));
+    }
+
     /**
      * A member of the account, with their person in PersonalData (membership), known by name in the scenario.
      */
@@ -96,6 +104,7 @@ final class ScenarioContext implements Context
         $this->personIds[$name] = $person->id();
         $member = Member::register(new MemberId($this->application->newIdentity()), $this->accountIdOf($account), $person->id(), ...$roles);
         $this->application->members->save($member);
+        $this->rememberMember($name, $member->id());
 
         return $member;
     }
@@ -205,6 +214,21 @@ final class ScenarioContext implements Context
     public function rememberPerson(string $name, PersonId $id): void
     {
         $this->personIds[$name] = $id;
+    }
+
+    public function rememberMember(string $name, MemberId $id): void
+    {
+        $this->memberIds[$name] = $id;
+    }
+
+    public function memberIdOf(string $name): MemberId
+    {
+        return $this->memberIds[$name] ?? throw new \LogicException(sprintf('No member "%s" in the scenario', $name));
+    }
+
+    public function memberNamed(string $name): Member
+    {
+        return $this->application->members->get($this->memberIdOf($name));
     }
 
     public function personNamed(string $name): Person
