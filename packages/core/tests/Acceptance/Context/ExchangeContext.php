@@ -35,7 +35,7 @@ final class ExchangeContext implements Context
 {
     use SharesTheScenario;
 
-    private const string ANY_EXCHANGE = 'un appel|un SMS|un e-mail|un message LinkedIn|un rendez-vous';
+    public const string ANY_EXCHANGE = 'un appel|un SMS|un e-mail|un message LinkedIn|un rendez-vous';
 
     private ?string $lastNoted = null;
     private string $lastNotedWith = '';
@@ -146,6 +146,18 @@ final class ExchangeContext implements Context
         $noted = array_find($this->timelineOfNow($organization), fn (ExchangeResponse $exchange): bool => $exchange->id === $this->lastNoted);
 
         Expect::same($interlocutor, null === $noted ? null : $this->interlocutorOf($noted, $organization));
+    }
+
+    #[Then('la timeline de :contact est vide')]
+    public function theTimelineIsEmpty(string $contact): void
+    {
+        Expect::same([], $this->timelineOfNow($contact));
+    }
+
+    #[Then(':organization ne garde aucun échange')]
+    public function theOrganizationKeepsNoExchange(string $organization): void
+    {
+        Expect::same([], $this->application->exchanges->keptFor($this->scenario->organizationNamed($organization)->id()));
     }
 
     #[Then('la timeline de :contact montre un appel reçu manqué')]

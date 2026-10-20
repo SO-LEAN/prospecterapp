@@ -4,6 +4,7 @@ namespace App\Prospecting\Resource;
 
 use App\Prospecting\Input\ExchangeInput;
 use OpenApi\Attributes as OA;
+use Symfony\Component\Serializer\Attribute\SerializedName;
 
 /**
  * A call, a message or a meeting with a contact, or with the organization itself.
@@ -26,6 +27,8 @@ final readonly class ExchangeResource
         public ?string $text,
         #[OA\Property(description: 'The organizations it is kept for: those the contact was part of when it was noted, or the organization itself')]
         public array $organizationIds,
+        #[SerializedName('_links')]
+        public ExchangeLinksResource $links,
     ) {
     }
 }

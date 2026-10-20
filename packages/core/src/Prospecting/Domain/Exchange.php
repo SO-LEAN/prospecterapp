@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace Prospecter\Core\Prospecting\Domain;
 
+use Prospecter\Core\Prospecting\Domain\Event\ExchangeCorrected;
+use Prospecter\Core\Prospecting\Domain\Event\ExchangeErased;
 use Prospecter\Core\Prospecting\Domain\Event\ExchangeNoLongerKeptFor;
 use Prospecter\Core\Prospecting\Domain\Event\ExchangeNoted;
 use Prospecter\Core\Prospecting\Domain\Exception\ExchangeInTheFuture;
@@ -28,6 +30,7 @@ final class Exchange implements ReleasesEvents
     use RecordsEvents;
 
     private \DateTimeImmutable $modifiedAt;
+    private ?Correction $lastCorrection = null;
 
     /**
      * @param list<OrganizationId> $keptFor
@@ -38,7 +41,7 @@ final class Exchange implements ReleasesEvents
         private readonly MemberId $createdBy,
         private readonly ?PersonId $contact,
         private array $keptFor,
-        private readonly ExchangeFacts $facts,
+        private ExchangeFacts $facts,
         private readonly \DateTimeImmutable $createdAt,
     ) {
         $this->modifiedAt = $createdAt;
@@ -73,15 +76,21 @@ final class Exchange implements ReleasesEvents
     private static function noted(Prospector $prospector, ExchangeId $id, ?PersonId $contact, array $keptFor, ExchangeFacts $facts, \DateTimeImmutable $at): self
     {
         $prospector->ensureMayExchangeWithTheContacts();
-
-        if ($facts->occurredAt > $at) {
-            throw ExchangeInTheFuture::because('An exchange is never in the future', 'occurredAt');
-        }
-
+        self::ensureHappenedBefore($facts, $at);
         $exchange = new self($id, $prospector->accountId, $prospector->id, $contact, $keptFor, $facts, $at);
         $exchange->recordThat(new ExchangeNoted($prospector->accountId, $prospector->id, $id, $at));
 
         return $exchange;
+    }
+
+    /**
+     * @throws ExchangeInTheFuture
+     */
+    private static function ensureHappenedBefore(ExchangeFacts $facts, \DateTimeImmutable $at): void
+    {
+        if ($facts->occurredAt > $at) {
+            throw ExchangeInTheFuture::because('An exchange is never in the future', 'occurredAt');
+        }
     }
 
     public function id(): ExchangeId
@@ -125,6 +134,15 @@ final class Exchange implements ReleasesEvents
         return $this->facts;
     }
 
+    /**
+     * Who corrected the exchange last, and when; null while it is as it was noted. Its former versions are
+     * kept by the activity journal only.
+     */
+    public function lastCorrection(): ?Correction
+    {
+        return $this->lastCorrection;
+    }
+
     public function createdAt(): \DateTimeImmutable
     {
         return $this->createdAt;
@@ -136,6 +154,51 @@ final class Exchange implements ReleasesEvents
     }
 
     /**
+     * @return list<ExchangeIntent>
+     */
+    public function possibleIntentsOf(Prospector $prospector): array
+    {
+        return $this->belongsTo($prospector) && $prospector->managesPersonalData ? ExchangeIntent::cases() : [];
+    }
+
+    /**
+     * What was said is personal data: it is read with the right to manage them, within the account only.
+     *
+     * @throws UnknownExchange|PersonalDataManagersOnly
+     */
+    public function ensureReadableBy(Prospector $prospector): void
+    {
+        $this->ensureReachableBy($prospector);
+        $prospector->ensureMayExchangeWithTheContacts();
+    }
+
+    /**
+     * The contact stays: an exchange with somebody else is erased, then noted again.
+     *
+     * @throws UnknownExchange|PersonalDataManagersOnly|ExchangeInTheFuture
+     */
+    public function correct(ExchangeFacts $facts, Prospector $by, \DateTimeImmutable $at): void
+    {
+        $this->ensureReadableBy($by);
+        self::ensureHappenedBefore($facts, $at);
+        $this->facts = $facts;
+        $this->modifiedAt = $at;
+        $this->lastCorrection = new Correction($by->id, $at);
+        $this->recordThat(new ExchangeCorrected($this->accountId, $by->id, $this->id, $at));
+    }
+
+    /**
+     * Erased from every timeline, once the repository removed it.
+     *
+     * @throws UnknownExchange|PersonalDataManagersOnly
+     */
+    public function erase(Prospector $by, \DateTimeImmutable $at): void
+    {
+        $this->ensureReadableBy($by);
+        $this->recordThat(new ExchangeErased($this->accountId, $by->id, $this->id, $at));
+    }
+
+    /**
      * The account stopped prospecting this organization: kept for no organization any more, the exchange must
      * not stay (`isKeptForAnOrganization()`).
      *
@@ -143,10 +206,7 @@ final class Exchange implements ReleasesEvents
      */
     public function stopKeepingFor(OrganizationId $organization, Prospector $by, \DateTimeImmutable $at): void
     {
-        if (!$by->accountId->equals($this->accountId)) {
-            throw UnknownExchange::identifiedBy($this->id);
-        }
-
+        $this->ensureReachableBy($by);
         $this->keptFor = array_values(array_filter($this->keptFor, static fn (OrganizationId $keptFor): bool => !$keptFor->equals($organization)));
         $this->modifiedAt = $at;
         $this->recordThat(new ExchangeNoLongerKeptFor($this->accountId, $by->id, $this->id, $organization, $at));
@@ -155,5 +215,22 @@ final class Exchange implements ReleasesEvents
     public function isKeptForAnOrganization(): bool
     {
         return [] !== $this->keptFor;
+    }
+
+    /**
+     * Another account does not even learn that the exchange exists.
+     *
+     * @throws UnknownExchange
+     */
+    private function ensureReachableBy(Prospector $prospector): void
+    {
+        if (!$this->belongsTo($prospector)) {
+            throw UnknownExchange::identifiedBy($this->id);
+        }
+    }
+
+    private function belongsTo(Prospector $prospector): bool
+    {
+        return $prospector->accountId->equals($this->accountId);
     }
 }

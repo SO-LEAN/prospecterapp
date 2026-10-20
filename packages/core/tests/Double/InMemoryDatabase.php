@@ -39,6 +39,11 @@ final class InMemoryDatabase
         unset($this->exchanges[$id]);
     }
 
+    public function exchange(string $id): ?Exchange
+    {
+        return isset($this->exchanges[$id]) ? clone $this->exchanges[$id] : null;
+    }
+
     /**
      * @return list<Exchange>
      */

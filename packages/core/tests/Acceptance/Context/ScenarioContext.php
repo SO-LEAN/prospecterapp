@@ -231,6 +231,13 @@ final class ScenarioContext implements Context
         return $this->memberIds[$name] ?? throw new \LogicException(sprintf('No member "%s" in the scenario', $name));
     }
 
+    public function nameOfMember(MemberId $id): string
+    {
+        $name = array_search($id, $this->memberIds, false);
+
+        return false === $name ? throw new \LogicException(sprintf('No member %s in the scenario', $id)) : $name;
+    }
+
     public function memberNamed(string $name): Member
     {
         return $this->application->members->get($this->memberIdOf($name));

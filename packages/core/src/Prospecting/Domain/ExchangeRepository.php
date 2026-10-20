@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Prospecter\Core\Prospecting\Domain;
 
+use Prospecter\Core\Prospecting\Domain\Exception\UnknownExchange;
 use Prospecter\Core\SharedKernel\Domain\AccountId;
 use Prospecter\Core\SharedKernel\Domain\OrganizationId;
 use Prospecter\Core\SharedKernel\Domain\PersonId;
@@ -11,6 +12,11 @@ use Prospecter\Core\SharedKernel\Domain\Slice;
 
 interface ExchangeRepository
 {
+    /**
+     * @throws UnknownExchange
+     */
+    public function get(ExchangeId $id): Exchange;
+
     public function save(Exchange $exchange): void;
 
     public function remove(Exchange $exchange): void;

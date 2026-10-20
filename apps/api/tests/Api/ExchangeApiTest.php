@@ -29,6 +29,7 @@ class ExchangeApiTest extends ApiTestCase
         $this->assertResponseStatusCodeSame(201);
         $this->assertSame([['linkedIn', 'inbound', '2026-10-14T12:30:00+00:00', 'Intéressée par une mission en mars'], ['call', 'outbound', '2026-10-10T07:00:00+00:00', null]], array_map(static fn (array $exchange): array => [$exchange['channel'], $exchange['direction'], $exchange['occurredAt'], $exchange['text']], $timeline['items']));
         $this->assertSame(['self', 'noteExchange'], array_keys($timeline['_links']));
+        $this->assertSame(['href' => '/api/exchanges/'.$timeline['items'][0]['id'], 'method' => 'GET'], $timeline['items'][0]['_links']['self']);
         $this->assertSame(['href' => '/api/contacts/'.$contact.'/exchanges', 'method' => 'POST'], $timeline['_links']['noteExchange']);
         $this->assertSame($timeline, $this->requestJson('GET', '/api/contacts/'.$contact.'/exchanges'));
     }
@@ -129,6 +130,100 @@ class ExchangeApiTest extends ApiTestCase
 
         $timeline = $this->requestJson('GET', '/api/contacts/'.$shared.'/exchanges');
         $this->assertSame([[$group]], array_column($timeline['items'], 'organizationIds'));
+    }
+
+    public function testTheDetailShowsTheWholeExchangeAndWhoNotedIt(): void
+    {
+        $contact = $this->aContactOf($this->anOrganization('ACME'));
+        $timeline = $this->note($contact, ['channel' => 'sms', 'direction' => 'inbound', 'occurredAt' => '2026-10-14T14:30:00+00:00', 'text' => "Rappeler lundi\nAprès le salon"]);
+
+        $exchange = $this->requestJson('GET', $timeline['items'][0]['_links']['self']['href']);
+
+        $this->assertResponseStatusCodeSame(200);
+        $this->assertSame(['id' => $contact, 'name' => ['firstName' => 'Ada', 'lastName' => null]], $exchange['contact']);
+        $this->assertSame(['sms', 'inbound', false, '2026-10-14T14:30:00+00:00', "Rappeler lundi\nAprès le salon"], [$exchange['channel'], $exchange['direction'], $exchange['missed'], $exchange['occurredAt'], $exchange['text']]);
+        $this->assertSame(['at' => '2026-10-15T09:00:00+00:00', 'by' => ['name' => ['firstName' => null, 'lastName' => null], 'email' => 'prospector@solean-it.io']], $exchange['noted']);
+        $this->assertNull($exchange['corrected']);
+        $this->assertSame(['self', 'contact', 'correctExchange', 'eraseExchange'], array_keys($exchange['_links']));
+        $this->assertSame(['href' => '/api/exchanges/'.$exchange['id'], 'method' => 'PATCH'], $exchange['_links']['correctExchange']);
+        $this->assertSame(['href' => '/api/exchanges/'.$exchange['id'], 'method' => 'DELETE'], $exchange['_links']['eraseExchange']);
+    }
+
+    public function testACorrectionIsShownWithWhoMadeIt(): void
+    {
+        $contact = $this->aContactOf($this->anOrganization('ACME'));
+        $id = $this->note($contact, ['channel' => 'linkedIn', 'direction' => 'inbound', 'occurredAt' => '2026-10-14T14:30:00+00:00', 'text' => 'Intéressée'])['items'][0]['id'];
+
+        $exchange = $this->correct($id, ['channel' => 'email', 'direction' => 'inbound', 'occurredAt' => '2026-10-14T14:30:00+00:00', 'text' => 'Objet : mission. Intéressée']);
+
+        $this->assertResponseStatusCodeSame(200);
+        $this->assertSame(['email', 'Objet : mission. Intéressée'], [$exchange['channel'], $exchange['text']]);
+        $this->assertSame('2026-10-15T09:00:00+00:00', $exchange['corrected']['at']);
+        $this->assertSame('prospector@solean-it.io', $exchange['corrected']['by']['email']);
+        $this->assertSame([['email', 'Objet : mission. Intéressée']], array_map(static fn (array $item): array => [$item['channel'], $item['text']], $this->requestJson('GET', '/api/contacts/'.$contact.'/exchanges')['items']));
+    }
+
+    public function testACorrectionIsNeverInTheFuture(): void
+    {
+        $id = $this->note($this->aContactOf($this->anOrganization('ACME')), ['channel' => 'call', 'direction' => 'inbound'])['items'][0]['id'];
+
+        $problem = $this->correct($id, ['channel' => 'call', 'direction' => 'inbound', 'occurredAt' => '2026-10-16T09:00:00+00:00']);
+
+        $this->assertResponseStatusCodeSame(422);
+        $this->assertSame(['occurredAt'], $this->violatedFields($problem));
+    }
+
+    public function testTheContactOfAnExchangeIsNotCorrected(): void
+    {
+        $id = $this->note($this->aContactOf($this->anOrganization('ACME')), ['channel' => 'call', 'direction' => 'inbound'])['items'][0]['id'];
+
+        $problem = $this->correct($id, ['channel' => 'call', 'direction' => 'inbound', 'occurredAt' => '2026-10-15T08:00:00+00:00', 'personId' => self::newIdentity()]);
+
+        $this->assertResponseStatusCodeSame(422);
+        $this->assertSame(['personId'], $this->violatedFields($problem));
+    }
+
+    public function testAnErasedExchangeLeavesEveryTimeline(): void
+    {
+        $organization = $this->anOrganization('ACME');
+        $contact = $this->aContactOf($organization);
+        $id = $this->note($contact, ['channel' => 'sms', 'direction' => 'inbound'])['items'][0]['id'];
+
+        $this->requestJson('DELETE', '/api/exchanges/'.$id);
+
+        $this->assertResponseStatusCodeSame(204);
+        $this->assertSame([], $this->requestJson('GET', '/api/contacts/'.$contact.'/exchanges')['items']);
+        $this->requestJson('GET', '/api/exchanges/'.$id);
+        $this->assertResponseStatusCodeSame(404);
+    }
+
+    public function testWithoutTheRightAnExchangeIsNeitherReadNorCorrectedNorErased(): void
+    {
+        $id = $this->note($this->aContactOf($this->anOrganization('ACME')), ['channel' => 'sms', 'direction' => 'inbound'])['items'][0]['id'];
+        $this->login($this->aMemberOfTheFixtures('prospector-without-the-right', Role::User, Role::Prospector));
+
+        $this->requestJson('GET', '/api/exchanges/'.$id);
+        $this->assertResponseStatusCodeSame(403);
+        $this->correct($id, ['channel' => 'sms', 'direction' => 'inbound', 'occurredAt' => '2026-10-15T08:00:00+00:00']);
+        $this->assertResponseStatusCodeSame(403);
+        $this->requestJson('DELETE', '/api/exchanges/'.$id);
+        $this->assertResponseStatusCodeSame(403);
+    }
+
+    public function testAnExchangeNeverNotedIsNotFound(): void
+    {
+        $this->requestJson('GET', '/api/exchanges/'.self::newIdentity());
+        $this->assertResponseStatusCodeSame(404);
+    }
+
+    /**
+     * @param array<string, mixed> $facts
+     *
+     * @return array<string, mixed>
+     */
+    private function correct(string $id, array $facts): array
+    {
+        return $this->requestJson('PATCH', '/api/exchanges/'.$id, $facts);
     }
 
     /**
