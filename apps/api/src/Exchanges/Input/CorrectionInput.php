@@ -7,7 +7,7 @@ use OpenApi\Attributes as OA;
 use Symfony\Component\Validator\Constraints as Assert;
 
 /**
- * The corrected facts of an exchange, all of them, shaped like `ExchangeDetailResource`; its contact stays.
+ * The corrected facts of an exchange, all of them, shaped like those of `ExchangeDetailResource`; its contact stays.
  */
 final readonly class CorrectionInput
 {

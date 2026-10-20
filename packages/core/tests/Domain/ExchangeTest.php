@@ -145,6 +145,48 @@ class ExchangeTest extends TestCase
         $this->assertSame([], $this->anExchange()->possibleIntentsOf($this->otherAccount()));
     }
 
+    /**
+     * Every intention is refused exactly when the exchange does not offer it.
+     */
+    #[DataProvider('intentionsAndCallers')]
+    public function testAnIntentionIsRefusedExactlyWhenNotOffered(ExchangeIntent $intent, string $caller): void
+    {
+        $exchange = $this->anExchange();
+        $prospector = $this->{$caller}();
+        $offered = in_array($intent, $exchange->possibleIntentsOf($prospector), true);
+
+        try {
+            $this->carryOut($intent, $exchange, $prospector);
+            $refused = false;
+        } catch (UnknownExchange|PersonalDataManagersOnly) {
+            $refused = true;
+        }
+
+        $this->assertSame(!$offered, $refused);
+    }
+
+    /**
+     * @return iterable<string, array{ExchangeIntent, string}>
+     */
+    public static function intentionsAndCallers(): iterable
+    {
+        foreach (ExchangeIntent::cases() as $intent) {
+            foreach (['me', 'colleagueWithoutTheRight', 'otherAccount'] as $caller) {
+                yield $intent->name.' by '.$caller => [$intent, $caller];
+            }
+        }
+    }
+
+    private function carryOut(ExchangeIntent $intent, Exchange $exchange, Prospector $by): void
+    {
+        $now = new \DateTimeImmutable(self::NOW);
+
+        match ($intent) {
+            ExchangeIntent::CorrectExchange => $exchange->correct(new ExchangeFacts(Channel::Call, Direction::Inbound, $now), by: $by, at: $now),
+            ExchangeIntent::EraseExchange => $exchange->erase(by: $by, at: $now),
+        };
+    }
+
     public function testCorrectingRecordsItAndWhoCorrected(): void
     {
         $exchange = $this->anExchange();
