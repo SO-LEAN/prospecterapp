@@ -29,4 +29,12 @@ interface ExchangeRepository
      * @return Slice<Exchange>
      */
     public function timelineOf(PersonId $contact, AccountId $accountId, ?string $after, int $max): Slice;
+
+    /**
+     * The exchanges kept for this organization, with it or with its contacts, the most recent moment first,
+     * after the cursor.
+     *
+     * @return Slice<Exchange>
+     */
+    public function timelineOfOrganization(OrganizationId $organization, ?string $after, int $max): Slice;
 }

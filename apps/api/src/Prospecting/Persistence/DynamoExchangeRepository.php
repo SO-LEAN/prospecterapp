@@ -13,10 +13,12 @@ use Prospecter\Core\SharedKernel\Domain\PersonId;
 use Prospecter\Core\SharedKernel\Domain\Slice;
 
 /**
- * The exchanges in the table of Prospecting (ADR 0048, 0074):
+ * The exchanges in the table of Prospecting (ADR 0048, 0074, 0076):
  * - `EXCHANGE#<id>` / `EXCHANGE`: the exchange, listed in `GSI1` in the timeline of its contact
  *   (`TIMELINE#<account>#<person>`), under its position: the moment it happened and its id, the cursor of a slice;
- * - `EXCHANGES#<organization>` / `EXCHANGE#<id>`: the exchanges kept for an organization, written with it.
+ *   an exchange with the organization itself is in the timeline of no contact;
+ * - `EXCHANGES#<organization>` / `EXCHANGE#<id>`: the exchanges kept for an organization, written with it, listed
+ *   in `GSI1` in the timeline of the organization (`ORGANIZATION_TIMELINE#<organization>`) under the same position.
  */
 final readonly class DynamoExchangeRepository implements ExchangeRepository
 {
@@ -62,6 +64,15 @@ final readonly class DynamoExchangeRepository implements ExchangeRepository
         return Documents::slice($found, $max, self::positionOf(...));
     }
 
+    public function timelineOfOrganization(OrganizationId $organization, ?string $after, int $max): Slice
+    {
+        $links = $this->prospectingTable->query(self::organizationTimelineKey($organization->value), Table::BY_GSI1, $after, $max + 1);
+        $byKey = array_column($this->prospectingTable->items(array_map(static fn (array $link): array => [$link['SK'], self::EXCHANGE], $links)), null, 'PK');
+        $found = array_values(array_filter(array_map(static fn (array $link): ?array => $byKey[$link['SK']] ?? null, $links)));
+
+        return Documents::slice($this->exchangesOf($found), $max, self::positionOf(...));
+    }
+
     /**
      * @param array<string, mixed> $document
      *
@@ -69,13 +80,12 @@ final readonly class DynamoExchangeRepository implements ExchangeRepository
      */
     private function itemOf(Exchange $exchange, array $document): array
     {
-        return [
-            'PK' => self::keyOf($exchange->id()),
-            'SK' => self::EXCHANGE,
+        $inTheTimelineOfItsContact = null === $document['contact'] ? [] : [
             'GSI1PK' => self::timelineKey($document['accountId'], $document['contact']),
             'GSI1SK' => self::positionOf($exchange),
-            'exchange' => $document,
         ];
+
+        return ['PK' => self::keyOf($exchange->id()), 'SK' => self::EXCHANGE, ...$inTheTimelineOfItsContact, 'exchange' => $document];
     }
 
     /**
@@ -90,9 +100,11 @@ final readonly class DynamoExchangeRepository implements ExchangeRepository
     private function keptForChanged(array $document, array $storedKeptFor): array
     {
         $exchange = self::EXCHANGE.'#'.$document['id'];
+        $position = $document['facts']['occurredAt'].'#'.$document['id'];
+        $link = static fn (string $organization): array => ['PK' => self::keptForKey($organization), 'SK' => $exchange, 'GSI1PK' => self::organizationTimelineKey($organization), 'GSI1SK' => $position];
 
         return [
-            ...array_map(fn (string $organization): array => $this->prospectingTable->putting(['PK' => self::keptForKey($organization), 'SK' => $exchange]), array_values(array_diff($document['keptFor'], $storedKeptFor))),
+            ...array_map(fn (string $organization): array => $this->prospectingTable->putting($link($organization)), array_values(array_diff($document['keptFor'], $storedKeptFor))),
             ...array_map(fn (string $organization): array => $this->prospectingTable->deleting(self::keptForKey($organization), $exchange), array_values(array_diff($storedKeptFor, $document['keptFor']))),
         ];
     }
@@ -120,6 +132,11 @@ final readonly class DynamoExchangeRepository implements ExchangeRepository
     private static function keptForKey(string $organization): string
     {
         return 'EXCHANGES#'.$organization;
+    }
+
+    private static function organizationTimelineKey(string $organization): string
+    {
+        return 'ORGANIZATION_TIMELINE#'.$organization;
     }
 
     private static function timelineKey(string $accountId, string $contact): string

@@ -48,9 +48,10 @@ use Prospecter\Core\Prospecting\Application\ChangeContactDetails\ChangeContactDe
 use Prospecter\Core\Prospecting\Application\ChangeLogo\ChangeLogoHandler;
 use Prospecter\Core\Prospecting\Application\ConsultOrganization\ConsultOrganization;
 use Prospecter\Core\Prospecting\Application\ConsultOrganization\ConsultOrganizationHandler;
+use Prospecter\Core\Prospecting\Application\ConsultOrganizationTimeline\ConsultOrganizationTimeline;
+use Prospecter\Core\Prospecting\Application\ConsultOrganizationTimeline\ConsultOrganizationTimelineHandler;
 use Prospecter\Core\Prospecting\Application\ConsultTimeline\ConsultTimeline;
 use Prospecter\Core\Prospecting\Application\ConsultTimeline\ConsultTimelineHandler;
-use Prospecter\Core\Prospecting\Application\ConsultTimeline\TimelineResponse;
 use Prospecter\Core\Prospecting\Application\ConsultTimelineIntents\ConsultTimelineIntents;
 use Prospecter\Core\Prospecting\Application\ConsultTimelineIntents\ConsultTimelineIntentsHandler;
 use Prospecter\Core\Prospecting\Application\ConsultTimelineIntents\TimelineIntentsResponse;
@@ -58,6 +59,7 @@ use Prospecter\Core\Prospecting\Application\DetachForgottenContact\DetachForgott
 use Prospecter\Core\Prospecting\Application\DetachFromHolding\DetachFromHoldingHandler;
 use Prospecter\Core\Prospecting\Application\IsProspectedBy\IsProspectedByHandler;
 use Prospecter\Core\Prospecting\Application\NoteExchange\NoteExchangeHandler;
+use Prospecter\Core\Prospecting\Application\NoteOrganizationExchange\NoteOrganizationExchangeHandler;
 use Prospecter\Core\Prospecting\Application\OrganizationResponse;
 use Prospecter\Core\Prospecting\Application\PublishContactsLeftWithoutOrganization\PublishContactsLeftWithoutOrganizationHandler;
 use Prospecter\Core\Prospecting\Application\RecognizeCallingOrganization\RecognizeCallingOrganization;
@@ -72,6 +74,7 @@ use Prospecter\Core\Prospecting\Application\SearchProspectedOrganizations\Search
 use Prospecter\Core\Prospecting\Application\StartProspecting\StartProspectingHandler;
 use Prospecter\Core\Prospecting\Application\StopKeepingExchanges\StopKeepingExchangesHandler;
 use Prospecter\Core\Prospecting\Application\StopProspecting\StopProspectingHandler;
+use Prospecter\Core\Prospecting\Application\TimelineResponse;
 use Prospecter\Core\Prospecting\Application\WriteObservations\WriteObservationsHandler;
 use Prospecter\Core\Prospecting\Contract\Service\IsProspectedBy\IsProspectedBy;
 use Prospecter\Core\Prospecting\Domain\ContactOrganizations;
@@ -259,6 +262,11 @@ final class Application
         return $this->attempt(fn (): TimelineResponse => new RefusalTranslatingHandler(new ConsultTimelineHandler($this->exchanges, $this->prospectorService, $this->contactOrganizations))($query));
     }
 
+    public function consultOrganizationTimeline(ConsultOrganizationTimeline $query): ?TimelineResponse
+    {
+        return $this->attempt(fn (): TimelineResponse => new RefusalTranslatingHandler(new ConsultOrganizationTimelineHandler($this->exchanges, $this->organizations, $this->prospectorService))($query));
+    }
+
     public function consultTimelineIntents(ConsultTimelineIntents $query): ?TimelineIntentsResponse
     {
         return $this->attempt(fn (): TimelineIntentsResponse => new RefusalTranslatingHandler(new ConsultTimelineIntentsHandler($this->prospectorService, $this->contactOrganizations))($query));
@@ -302,6 +310,7 @@ final class Application
             new RemoveContactHandler($this->organizations, $this->prospectorService, $this->events, $this->orphans),
             new StopProspectingHandler($this->organizations, $this->prospectorService, $this->events, $this->orphans),
             new NoteExchangeHandler($this->exchanges, $this->prospectorService, $this->contactOrganizations, $this->events),
+            new NoteOrganizationExchangeHandler($this->exchanges, $this->organizations, $this->prospectorService, $this->contactOrganizations, $this->events),
         ];
     }
 

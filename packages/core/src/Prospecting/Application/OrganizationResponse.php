@@ -7,6 +7,7 @@ namespace Prospecter\Core\Prospecting\Application;
 use Prospecter\Core\Prospecting\Domain\Organization;
 use Prospecter\Core\Prospecting\Domain\OrganizationIntent;
 use Prospecter\Core\Prospecting\Domain\Prospector;
+use Prospecter\Core\Prospecting\Domain\TimelineIntent;
 use Prospecter\Core\SharedKernel\Application\FileResponse;
 use Prospecter\Core\SharedKernel\Domain\PersonId;
 
@@ -18,6 +19,7 @@ final readonly class OrganizationResponse
     /**
      * @param list<string> $contactIds      the persons prospected in it, to read in PersonalData
      * @param list<string> $possibleIntents names of the intentions the prospector may carry out now: Relocate, RemoveLogo...
+     * @param list<string> $timelineIntents names of what the prospector may do with its timeline: ConsultTimeline, NoteExchange
      */
     private function __construct(
         public string $id,
@@ -41,6 +43,7 @@ final readonly class OrganizationResponse
         public ?string $holdingId,
         public array $contactIds,
         public array $possibleIntents,
+        public array $timelineIntents,
         public \DateTimeImmutable $createdAt,
         public \DateTimeImmutable $modifiedAt,
     ) {
@@ -75,6 +78,7 @@ final readonly class OrganizationResponse
             holdingId: $organization->holdingId()?->value,
             contactIds: array_map(static fn (PersonId $contact): string => $contact->value, $organization->contacts()),
             possibleIntents: array_map(static fn (OrganizationIntent $intent): string => $intent->name, $organization->possibleIntentsOf($viewer)),
+            timelineIntents: array_map(static fn (TimelineIntent $intent): string => $intent->name, $organization->timelineIntentsOf($viewer)),
             createdAt: $organization->createdAt(),
             modifiedAt: $organization->modifiedAt(),
         );

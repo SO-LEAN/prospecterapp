@@ -9,11 +9,13 @@ use Behat\Gherkin\Node\TableNode;
 use Behat\Step\Given;
 use Behat\Step\Then;
 use Behat\Step\When;
+use Prospecter\Core\Prospecting\Application\ConsultOrganizationTimeline\ConsultOrganizationTimeline;
 use Prospecter\Core\Prospecting\Application\ConsultTimeline\ConsultTimeline;
-use Prospecter\Core\Prospecting\Application\ConsultTimeline\ExchangeResponse;
-use Prospecter\Core\Prospecting\Application\ConsultTimeline\TimelineResponse;
 use Prospecter\Core\Prospecting\Application\ConsultTimelineIntents\ConsultTimelineIntents;
+use Prospecter\Core\Prospecting\Application\ExchangeResponse;
 use Prospecter\Core\Prospecting\Application\NoteExchange\NoteExchange;
+use Prospecter\Core\Prospecting\Application\NoteOrganizationExchange\NoteOrganizationExchange;
+use Prospecter\Core\Prospecting\Application\TimelineResponse;
 use Prospecter\Core\Prospecting\Domain\Channel;
 use Prospecter\Core\Prospecting\Domain\Direction;
 use Prospecter\Core\Prospecting\Domain\Exchange;
@@ -26,7 +28,8 @@ use Tests\Core\Acceptance\Expect;
 use Tests\Core\Acceptance\Vocabulary;
 
 /**
- * The exchanges with the contacts, noted and read in their timeline.
+ * The exchanges with the contacts and with the organizations, noted and read in their timeline: a timeline is
+ * named after its contact or its organization.
  */
 final class ExchangeContext implements Context
 {
@@ -58,6 +61,19 @@ final class ExchangeContext implements Context
         $this->note($contact, Vocabulary::channel($values['canal']), Vocabulary::direction($values['sens']), Vocabulary::frenchMoment($values['moment']), $values['texte'] ?? null, false);
     }
 
+    #[Given('/^(?:j\'ai noté|je note) (?<exchange>'.self::ANY_EXCHANGE.') (?<direction>reçu|envoyé) (?:à|de) "(?<organization>[^"]+)" elle-même(?: le (?<day>\S+) à (?<time>\S+))?$/')]
+    public function iNoteAnExchangeWithTheOrganization(string $exchange, string $direction, string $organization, string $day = '', string $time = ''): void
+    {
+        $occurredAt = '' === $day ? $this->application->now() : Vocabulary::frenchMoment(sprintf('%s à %s', $day, $time));
+        $this->noteFrom($organization, null, Vocabulary::channelOfAnExchange($exchange), Vocabulary::direction($direction), $occurredAt);
+    }
+
+    #[When('/^je note depuis "(?<organization>[^"]+)" (?<exchange>'.self::ANY_EXCHANGE.') (?<direction>reçu|envoyé) (?:à|de) "(?<contact>[^"]+)"$/')]
+    public function iNoteFromTheOrganization(string $organization, string $exchange, string $direction, string $contact): void
+    {
+        $this->noteFrom($organization, $this->scenario->personIdOf($contact), Vocabulary::channelOfAnExchange($exchange), Vocabulary::direction($direction), $this->application->now());
+    }
+
     #[Given('/^j\'ai noté (?<exchange>'.self::ANY_EXCHANGE.') avec "(?<contact>[^"]+)", gardé pour (?<organizations>.+?)(?: seulement)?$/')]
     public function iNotedAnExchangeKeptFor(string $exchange, string $contact, string $organizations): void
     {
@@ -76,11 +92,22 @@ final class ExchangeContext implements Context
         }
     }
 
-    #[When('je consulte la timeline de :contact')]
-    public function iConsultTheTimeline(string $contact): void
+    #[Given('j\'ai noté :count échanges avec :organization elle-même')]
+    public function iNotedManyExchangesWithTheOrganization(int $count, string $organization): void
     {
-        $this->timelineOf = $contact;
-        $this->timeline = $this->application->consultTimeline(new ConsultTimeline($this->application->signedIn(), $this->scenario->personIdOf($contact)));
+        $prospect = $this->scenario->organizationNamed($organization);
+
+        foreach (range(1, $count) as $minutesAgo) {
+            $facts = new ExchangeFacts(Channel::Call, Direction::Inbound, $this->application->now()->modify(sprintf('-%d minutes', $minutesAgo)));
+            $this->application->exchanges->save(Exchange::notedWithTheOrganization($prospect, $this->scenario->meAsProspector(), new ExchangeId($this->application->newIdentity()), $facts, $this->application->now()));
+        }
+    }
+
+    #[When('je consulte la timeline de :name')]
+    public function iConsultTheTimeline(string $name): void
+    {
+        $this->timelineOf = $name;
+        $this->timeline = $this->consultTimelineOf($name);
         $this->timelineIntents = $this->timeline?->possibleIntents;
     }
 
@@ -90,10 +117,35 @@ final class ExchangeContext implements Context
         $this->timelineIntents = $this->application->consultTimelineIntents(new ConsultTimelineIntents($this->application->signedIn(), $this->scenario->personIdOf($person)))?->possibleIntents;
     }
 
-    #[Then('la timeline de :contact est, du plus récent au plus ancien :')]
-    public function theTimelineIs(string $contact, TableNode $table): void
+    #[Then('la timeline de :name est, du plus récent au plus ancien :')]
+    public function theTimelineIs(string $name, TableNode $table): void
     {
-        Expect::same($table->getColumnsHash(), array_map($this->describe(...), $this->timelineOfNow($contact)));
+        $columns = array_flip($table->getRow(0));
+        $described = array_map(fn (ExchangeResponse $exchange): array => array_intersect_key($this->describe($exchange, $name), $columns), $this->timelineOfNow($name));
+
+        Expect::same($table->getColumnsHash(), $described);
+    }
+
+    #[Then('la timeline de :name est vide')]
+    public function theTimelineIsEmpty(string $name): void
+    {
+        Expect::same([], $this->timelineOfNow($name));
+    }
+
+    #[Then('/^la timeline de "(?<name>[^"]+)" montre (?:ce|cet) (?:SMS|e-mail|appel|message LinkedIn|rendez-vous)$/')]
+    public function theTimelineShowsTheLastNoted(string $name): void
+    {
+        Expect::that(null !== $this->lastNoted, sprintf('An exchange was expected to be noted, got: %s', $this->application->refusal()?->getMessage()));
+
+        Expect::that(array_any($this->timelineOfNow($name), fn (ExchangeResponse $exchange): bool => $exchange->id === $this->lastNoted), sprintf('The timeline of %s does not show the exchange', $name));
+    }
+
+    #[Then('la timeline de :organization le montre avec l\'interlocuteur :interlocutor')]
+    public function theTimelineShowsTheLastNotedWith(string $organization, string $interlocutor): void
+    {
+        $noted = array_find($this->timelineOfNow($organization), fn (ExchangeResponse $exchange): bool => $exchange->id === $this->lastNoted);
+
+        Expect::same($interlocutor, null === $noted ? null : $this->interlocutorOf($noted, $organization));
     }
 
     #[Then('la timeline de :contact montre un appel reçu manqué')]
@@ -153,7 +205,7 @@ final class ExchangeContext implements Context
     {
         Expect::that(null !== $this->timeline?->next, 'A next slice was expected');
         $last = array_last($this->timeline->exchanges);
-        $following = $this->application->consultTimeline(new ConsultTimeline($this->application->signedIn(), $this->scenario->personIdOf($this->timelineOf), after: $this->timeline->next));
+        $following = $this->consultTimelineOf($this->timelineOf, after: $this->timeline->next);
         $older = array_filter($following->exchanges ?? [], static fn (ExchangeResponse $exchange): bool => $exchange->occurredAt < $last?->occurredAt);
 
         Expect::same(count($this->storedTimelineOf($this->timelineOf)) - count($this->timeline->exchanges), count($older));
@@ -167,6 +219,13 @@ final class ExchangeContext implements Context
         Expect::that(null !== $this->timelineIntents, sprintf('What the timeline offers was expected, got: %s', $this->application->refusal()?->getMessage()));
 
         return $this->timelineIntents;
+    }
+
+    private function noteFrom(string $organization, ?string $personId, string $channel, string $direction, \DateTimeImmutable $occurredAt): void
+    {
+        $id = $this->application->newIdentity();
+        $this->application->dispatch(new NoteOrganizationExchange($this->application->signedIn(), $id, $this->scenario->idOf($organization), $personId, $channel, $direction, $occurredAt, null, false, $this->application->now()));
+        $this->lastNoted = null === $this->application->refusal() ? $id : null;
     }
 
     private function note(string $contact, string $channel, string $direction, \DateTimeImmutable $occurredAt, ?string $text, bool $missed): void
@@ -186,12 +245,21 @@ final class ExchangeContext implements Context
         $this->application->exchanges->save($exchange);
     }
 
+    private function consultTimelineOf(string $name, ?string $after = null): ?TimelineResponse
+    {
+        $prospector = $this->application->signedIn();
+
+        return $this->scenario->isAnOrganization($name)
+            ? $this->application->consultOrganizationTimeline(new ConsultOrganizationTimeline($prospector, $this->scenario->idOf($name), $after))
+            : $this->application->consultTimeline(new ConsultTimeline($prospector, $this->scenario->personIdOf($name), $after));
+    }
+
     /**
      * @return list<ExchangeResponse>
      */
-    private function timelineOfNow(string $contact): array
+    private function timelineOfNow(string $name): array
     {
-        $timeline = $this->application->consultTimeline(new ConsultTimeline($this->application->signedIn(), $this->scenario->personIdOf($contact)));
+        $timeline = $this->consultTimelineOf($name);
         Expect::that(null !== $timeline, sprintf('A timeline was expected, got: %s', $this->application->refusal()?->getMessage()));
 
         return $timeline->exchanges;
@@ -200,18 +268,31 @@ final class ExchangeContext implements Context
     /**
      * @return list<Exchange>
      */
-    private function storedTimelineOf(string $contact): array
+    private function storedTimelineOf(string $name): array
     {
-        return $this->application->exchanges->timelineOf(new PersonId($this->scenario->personIdOf($contact)), $this->scenario->meAsProspector()->accountId, null, PHP_INT_MAX)->content;
+        $timeline = $this->scenario->isAnOrganization($name)
+            ? $this->application->exchanges->timelineOfOrganization($this->scenario->organizationNamed($name)->id(), null, PHP_INT_MAX)
+            : $this->application->exchanges->timelineOf(new PersonId($this->scenario->personIdOf($name)), $this->scenario->meAsProspector()->accountId, null, PHP_INT_MAX);
+
+        return $timeline->content;
+    }
+
+    /**
+     * Who communicated: the contact, or the organization of the timeline itself.
+     */
+    private function interlocutorOf(ExchangeResponse $exchange, string $timelineOf): string
+    {
+        return null === $exchange->personId ? $timelineOf : $this->scenario->nameOfPerson(new PersonId($exchange->personId));
     }
 
     /**
      * @return array<string, string>
      */
-    private function describe(ExchangeResponse $exchange): array
+    private function describe(ExchangeResponse $exchange, string $timelineOf): array
     {
         return [
             'moment' => Vocabulary::describeFrenchMoment($exchange->occurredAt),
+            'interlocuteur' => $this->interlocutorOf($exchange, $timelineOf),
             'canal' => Vocabulary::describeChannel($exchange->channel),
             'sens' => Vocabulary::describeDirection($exchange->direction),
             'texte' => (string) $exchange->text,

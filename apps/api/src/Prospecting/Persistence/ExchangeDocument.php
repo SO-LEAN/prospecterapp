@@ -32,7 +32,7 @@ final class ExchangeDocument
             'id' => (string) $state['id'],
             'accountId' => (string) $state['accountId'],
             'createdBy' => (string) $state['createdBy'],
-            'contact' => (string) $state['contact'],
+            'contact' => $state['contact']?->value,
             'keptFor' => array_map(static fn (OrganizationId $organization): string => (string) $organization, $state['keptFor']),
             'facts' => [
                 'channel' => $facts->channel->value,
@@ -57,7 +57,7 @@ final class ExchangeDocument
             'id' => new ExchangeId($document['id']),
             'accountId' => new AccountId($document['accountId']),
             'createdBy' => new MemberId($document['createdBy']),
-            'contact' => new PersonId($document['contact']),
+            'contact' => null === $document['contact'] ? null : new PersonId($document['contact']),
             'keptFor' => array_map(static fn (string $organization): OrganizationId => new OrganizationId($organization), $document['keptFor']),
             'facts' => new ExchangeFacts(Channel::from($facts['channel']), Direction::from($facts['direction']), Documents::momentOf($facts['occurredAt']), $facts['text'], $facts['missed']),
             'createdAt' => Documents::momentOf($document['createdAt']),

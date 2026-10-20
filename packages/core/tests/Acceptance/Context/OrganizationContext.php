@@ -293,6 +293,28 @@ final class OrganizationContext implements Context
         Expect::same($table->getColumn(0), Vocabulary::describeIntents($this->consulted->possibleIntents));
     }
 
+    #[Then('je peux sur sa timeline :')]
+    public function iMayOnItsTimeline(TableNode $table): void
+    {
+        Expect::same($table->getColumn(0), Vocabulary::describeIntents($this->timelineIntentsOfTheConsulted()));
+    }
+
+    #[Then('je ne peux rien sur sa timeline')]
+    public function iMayDoNothingOnItsTimeline(): void
+    {
+        Expect::same([], $this->timelineIntentsOfTheConsulted());
+    }
+
+    /**
+     * @return list<string>
+     */
+    private function timelineIntentsOfTheConsulted(): array
+    {
+        Expect::that(null !== $this->consulted, sprintf('The organization was expected, got: %s', $this->application->refusal()?->getMessage()));
+
+        return $this->consulted->timelineIntents;
+    }
+
     #[Then('je trouve :count organisation(s)')]
     public function iFindOrganizations(int $count): void
     {

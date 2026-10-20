@@ -13,8 +13,9 @@ use App\Shared\Resource\LocationResource;
 use Prospecter\Core\Prospecting\Application\OrganizationResponse;
 
 /**
- * An organization with a link per intention it offers; removing a contact concerns one contact, so its link is
- * on each contact of GET /api/organizations/{id}/contacts.
+ * An organization with a link per intention it offers, and to its timeline when the prospector may read it
+ * (ADR 0076); removing a contact concerns one contact, so its link is on each contact of
+ * GET /api/organizations/{id}/contacts.
  */
 final readonly class OrganizationResourcePresenter
 {
@@ -29,6 +30,11 @@ final readonly class OrganizationResourcePresenter
         'removeLogo' => 'api_organizations_remove_logo',
         'addContact' => 'api_organizations_add_contact',
         'stopProspecting' => 'api_organizations_stop_prospecting',
+    ];
+
+    private const array TIMELINE_ROUTES = [
+        'ConsultTimeline' => ['exchanges', 'api_organizations_timeline'],
+        'NoteExchange' => ['noteExchange', 'api_organizations_note_exchange'],
     ];
 
     public function __construct(private ImageResourceFactory $images, private Links $links)
@@ -64,6 +70,11 @@ final readonly class OrganizationResourcePresenter
             if (isset(self::ROUTES[$name])) {
                 $possible[$name] = $this->links->to(self::ROUTES[$name], $id);
             }
+        }
+
+        foreach ($response->timelineIntents as $intent) {
+            [$name, $route] = self::TIMELINE_ROUTES[$intent];
+            $possible[$name] = $this->links->to($route, $id);
         }
 
         return new OrganizationLinksResource($this->links->to('api_organizations_show', $id), ...$possible);

@@ -1,7 +1,7 @@
 # 0074. An exchange with a contact is an aggregate of Prospecting, kept for the organizations of the contact
 
 - Date: 2026-10-18
-- Status: Accepted
+- Status: Accepted, the interlocutor of an exchange and the links to the organizations superseded by [0076](0076-the-timeline-of-an-organization-gathers-its-exchanges-and-those-of-its-contacts.md)
 - Supersedes: for a timeline, the order and the cursor of [0049](0049-lists-in-slices-after-a-cursor.md); for the text of an exchange, the single place of the personal data of [0031](0031-personal-data-context.md)
 - Implemented by: `packages/core/src/Prospecting/Domain/{Exchange,ExchangeFacts,ExchangeRepository,ContactOrganizations}.php`, `packages/core/src/Prospecting/Application/{NoteExchange,ConsultTimeline,StopKeepingExchanges}`, `packages/core/features/noter-un-echange.feature`, `apps/api/src/Prospecting/Persistence/DynamoExchangeRepository.php`, `apps/api/src/Prospecting/Controller/{NoteExchange,ShowTimeline}.php`, `apps/front/src/features/exchanges`
 

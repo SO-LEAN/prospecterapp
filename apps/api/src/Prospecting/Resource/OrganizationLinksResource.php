@@ -32,6 +32,10 @@ final readonly class OrganizationLinksResource
         public ?LinkResource $addContact = null,
         #[OA\Property(nullable: false)]
         public ?LinkResource $stopProspecting = null,
+        #[OA\Property(nullable: false, description: 'Its timeline: its exchanges and those of its contacts')]
+        public ?LinkResource $exchanges = null,
+        #[OA\Property(nullable: false)]
+        public ?LinkResource $noteExchange = null,
     ) {
     }
 }

@@ -1930,6 +1930,155 @@
                 }
             }
         },
+        "/api/organizations/{id}/exchanges": {
+            "get": {
+                "tags": [
+                    "Organizations"
+                ],
+                "summary": "The exchanges with the organization and with its contacts, the most recent first, each with who communicated",
+                "operationId": "get_api_organizations_timeline",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "pattern": "[0-9a-f]{8}-[0-9a-f]{4}-[13-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}"
+                        }
+                    },
+                    {
+                        "name": "after",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "string",
+                            "nullable": true,
+                            "default": null,
+                            "maxLength": 200
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "A slice of the exchanges, the next one at the link next",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/OrganizationTimelineResource"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Missing or invalid access token"
+                    },
+                    "403": {
+                        "description": "Not a prospector, or no right to manage personal data",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ProblemResource"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Unknown organization, or one of another account",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ProblemResource"
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "post": {
+                "tags": [
+                    "Organizations"
+                ],
+                "summary": "Note a call, a message or a meeting with the organization itself, or with one of its contacts",
+                "operationId": "post_api_organizations_note_exchange",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "pattern": "[0-9a-f]{8}-[0-9a-f]{4}-[13-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/OrganizationExchangeInput"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "The timeline of the organization with the new exchange",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/OrganizationTimelineResource"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Missing or invalid access token"
+                    },
+                    "403": {
+                        "description": "Not a prospector, or no right to manage personal data",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ProblemResource"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Unknown organization, or one of another account",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ProblemResource"
+                                }
+                            }
+                        }
+                    },
+                    "409": {
+                        "description": "The person is no contact of the organization",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ProblemResource"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Invalid exchange: unknown channel or direction, a missed exchange that is no call, a moment in the future",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ProblemResource"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
         "/api/phone-numbers/{phoneNumber}": {
             "get": {
                 "tags": [
@@ -2490,6 +2639,20 @@
                 },
                 "type": "object"
             },
+            "OrganizationExchangeInput": {
+                "properties": {
+                    "exchange": {
+                        "$ref": "#/components/schemas/ExchangeInput"
+                    },
+                    "personId": {
+                        "description": "The contact of the organization it was with; left out, it was with the organization itself",
+                        "type": "string",
+                        "nullable": true,
+                        "default": null
+                    }
+                },
+                "type": "object"
+            },
             "ContactListQuery": {
                 "properties": {
                     "q": {
@@ -2909,6 +3072,12 @@
                     },
                     "stopProspecting": {
                         "$ref": "#/components/schemas/LinkResource"
+                    },
+                    "exchanges": {
+                        "$ref": "#/components/schemas/LinkResource"
+                    },
+                    "noteExchange": {
+                        "$ref": "#/components/schemas/LinkResource"
                     }
                 },
                 "type": "object"
@@ -3324,6 +3493,63 @@
                     },
                     "_links": {
                         "$ref": "#/components/schemas/ContactListLinksResource"
+                    }
+                },
+                "type": "object"
+            },
+            "InterlocutorResource": {
+                "required": [
+                    "kind",
+                    "id"
+                ],
+                "properties": {
+                    "kind": {
+                        "type": "string",
+                        "enum": [
+                            "organization",
+                            "person"
+                        ]
+                    },
+                    "id": {
+                        "type": "string"
+                    },
+                    "name": {
+                        "description": "Its name; none for a person no longer known",
+                        "type": "string",
+                        "nullable": true
+                    }
+                },
+                "type": "object"
+            },
+            "OrganizationExchangeResource": {
+                "required": [
+                    "exchange",
+                    "interlocutor"
+                ],
+                "properties": {
+                    "exchange": {
+                        "$ref": "#/components/schemas/ExchangeResource"
+                    },
+                    "interlocutor": {
+                        "$ref": "#/components/schemas/InterlocutorResource"
+                    }
+                },
+                "type": "object"
+            },
+            "OrganizationTimelineResource": {
+                "required": [
+                    "items",
+                    "_links"
+                ],
+                "properties": {
+                    "items": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/OrganizationExchangeResource"
+                        }
+                    },
+                    "_links": {
+                        "$ref": "#/components/schemas/TimelineLinksResource"
                     }
                 },
                 "type": "object"
