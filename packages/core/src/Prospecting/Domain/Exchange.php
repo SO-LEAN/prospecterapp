@@ -179,7 +179,7 @@ final class Exchange implements ReleasesEvents
      */
     public function correct(ExchangeFacts $facts, Prospector $by, \DateTimeImmutable $at): void
     {
-        $this->ensureReadableBy($by);
+        $this->ensurePossible(ExchangeIntent::CorrectExchange, $by);
         self::ensureHappenedBefore($facts, $at);
         $this->facts = $facts;
         $this->modifiedAt = $at;
@@ -194,7 +194,7 @@ final class Exchange implements ReleasesEvents
      */
     public function erase(Prospector $by, \DateTimeImmutable $at): void
     {
-        $this->ensureReadableBy($by);
+        $this->ensurePossible(ExchangeIntent::EraseExchange, $by);
         $this->recordThat(new ExchangeErased($this->accountId, $by->id, $this->id, $at));
     }
 
@@ -215,6 +215,18 @@ final class Exchange implements ReleasesEvents
     public function isKeptForAnOrganization(): bool
     {
         return [] !== $this->keptFor;
+    }
+
+    /**
+     * @throws UnknownExchange|PersonalDataManagersOnly
+     */
+    private function ensurePossible(ExchangeIntent $intent, Prospector $by): void
+    {
+        $this->ensureReachableBy($by);
+
+        if (!in_array($intent, $this->possibleIntentsOf($by), true)) {
+            throw PersonalDataManagersOnly::because('Only a prospector allowed to manage personal data may exchange with the contacts');
+        }
     }
 
     /**

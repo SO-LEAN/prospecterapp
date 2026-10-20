@@ -472,6 +472,23 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/exchanges/{id}/facts": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        /** Correct the channel, the direction, whether a call was missed, the moment and the text of an exchange; its contact stays */
+        patch: operations["patch_api_exchanges_correct"];
+        trace?: never;
+    };
     "/api/exchanges/{id}": {
         parameters: {
             query?: never;
@@ -487,8 +504,7 @@ export interface paths {
         delete: operations["delete_api_exchanges_erase"];
         options?: never;
         head?: never;
-        /** Correct the channel, the direction, whether a call was missed, the moment and the text of an exchange; its contact stays */
-        patch: operations["patch_api_exchanges_correct"];
+        patch?: never;
         trace?: never;
     };
     "/api/me/sign-in/login-email": {
@@ -2924,6 +2940,66 @@ export interface operations {
             };
         };
     };
+    patch_api_exchanges_correct: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CorrectionInput"];
+            };
+        };
+        responses: {
+            /** @description The corrected exchange */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ExchangeDetailResource"];
+                };
+            };
+            /** @description Missing or invalid access token */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Not a prospector, or no right to manage personal data */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ProblemResource"];
+                };
+            };
+            /** @description Unknown exchange, or one of another account */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ProblemResource"];
+                };
+            };
+            /** @description Invalid correction: unknown channel or direction, a missed exchange that is no call, a moment in the future, another contact */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ProblemResource"];
+                };
+            };
+        };
+    };
     get_api_exchanges_show: {
         parameters: {
             query?: never;
@@ -3007,66 +3083,6 @@ export interface operations {
             };
             /** @description Unknown exchange, or one of another account */
             404: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ProblemResource"];
-                };
-            };
-        };
-    };
-    patch_api_exchanges_correct: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                id: string;
-            };
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["CorrectionInput"];
-            };
-        };
-        responses: {
-            /** @description The corrected exchange */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ExchangeDetailResource"];
-                };
-            };
-            /** @description Missing or invalid access token */
-            401: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Not a prospector, or no right to manage personal data */
-            403: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ProblemResource"];
-                };
-            };
-            /** @description Unknown exchange, or one of another account */
-            404: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ProblemResource"];
-                };
-            };
-            /** @description Invalid correction: unknown channel or direction, a missed exchange that is no call, a moment in the future, another contact */
-            422: {
                 headers: {
                     [name: string]: unknown;
                 };

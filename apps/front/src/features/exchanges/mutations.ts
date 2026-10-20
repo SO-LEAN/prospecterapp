@@ -66,7 +66,7 @@ export function useCorrectExchange() {
   const queryClient = useQueryClient()
   const { t } = useTranslation()
 
-  return api.useMutation('patch', '/api/exchanges/{id}', {
+  return api.useMutation('patch', '/api/exchanges/{id}/facts', {
     meta: { silentValidation: true },
     onSuccess: (exchange: ExchangeDetail) => {
       queryClient.setQueryData(exchangeQuery(exchange.id).queryKey, exchange)

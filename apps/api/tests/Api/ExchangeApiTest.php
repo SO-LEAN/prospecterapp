@@ -145,7 +145,7 @@ class ExchangeApiTest extends ApiTestCase
         $this->assertSame(['at' => '2026-10-15T09:00:00+00:00', 'by' => ['name' => ['firstName' => null, 'lastName' => null], 'email' => 'prospector@solean-it.io']], $exchange['noted']);
         $this->assertNull($exchange['corrected']);
         $this->assertSame(['self', 'contact', 'correctExchange', 'eraseExchange'], array_keys($exchange['_links']));
-        $this->assertSame(['href' => '/api/exchanges/'.$exchange['id'], 'method' => 'PATCH'], $exchange['_links']['correctExchange']);
+        $this->assertSame(['href' => '/api/exchanges/'.$exchange['id'].'/facts', 'method' => 'PATCH'], $exchange['_links']['correctExchange']);
         $this->assertSame(['href' => '/api/exchanges/'.$exchange['id'], 'method' => 'DELETE'], $exchange['_links']['eraseExchange']);
     }
 
@@ -223,7 +223,7 @@ class ExchangeApiTest extends ApiTestCase
      */
     private function correct(string $id, array $facts): array
     {
-        return $this->requestJson('PATCH', '/api/exchanges/'.$id, $facts);
+        return $this->requestJson('PATCH', '/api/exchanges/'.$id.'/facts', $facts);
     }
 
     /**

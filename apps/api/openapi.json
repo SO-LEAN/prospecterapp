@@ -2253,6 +2253,81 @@
                 }
             }
         },
+        "/api/exchanges/{id}/facts": {
+            "patch": {
+                "tags": [
+                    "Contacts"
+                ],
+                "summary": "Correct the channel, the direction, whether a call was missed, the moment and the text of an exchange; its contact stays",
+                "operationId": "patch_api_exchanges_correct",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "pattern": "[0-9a-f]{8}-[0-9a-f]{4}-[13-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/CorrectionInput"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "The corrected exchange",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ExchangeDetailResource"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Missing or invalid access token"
+                    },
+                    "403": {
+                        "description": "Not a prospector, or no right to manage personal data",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ProblemResource"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Unknown exchange, or one of another account",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ProblemResource"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Invalid correction: unknown channel or direction, a missed exchange that is no call, a moment in the future, another contact",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ProblemResource"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
         "/api/exchanges/{id}": {
             "get": {
                 "tags": [
@@ -2343,79 +2418,6 @@
                     },
                     "404": {
                         "description": "Unknown exchange, or one of another account",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/ProblemResource"
-                                }
-                            }
-                        }
-                    }
-                }
-            },
-            "patch": {
-                "tags": [
-                    "Contacts"
-                ],
-                "summary": "Correct the channel, the direction, whether a call was missed, the moment and the text of an exchange; its contact stays",
-                "operationId": "patch_api_exchanges_correct",
-                "parameters": [
-                    {
-                        "name": "id",
-                        "in": "path",
-                        "required": true,
-                        "schema": {
-                            "type": "string",
-                            "pattern": "[0-9a-f]{8}-[0-9a-f]{4}-[13-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}"
-                        }
-                    }
-                ],
-                "requestBody": {
-                    "required": true,
-                    "content": {
-                        "application/json": {
-                            "schema": {
-                                "$ref": "#/components/schemas/CorrectionInput"
-                            }
-                        }
-                    }
-                },
-                "responses": {
-                    "200": {
-                        "description": "The corrected exchange",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/ExchangeDetailResource"
-                                }
-                            }
-                        }
-                    },
-                    "401": {
-                        "description": "Missing or invalid access token"
-                    },
-                    "403": {
-                        "description": "Not a prospector, or no right to manage personal data",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/ProblemResource"
-                                }
-                            }
-                        }
-                    },
-                    "404": {
-                        "description": "Unknown exchange, or one of another account",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/ProblemResource"
-                                }
-                            }
-                        }
-                    },
-                    "422": {
-                        "description": "Invalid correction: unknown channel or direction, a missed exchange that is no call, a moment in the future, another contact",
                         "content": {
                             "application/json": {
                                 "schema": {

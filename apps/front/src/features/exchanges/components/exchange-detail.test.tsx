@@ -23,7 +23,7 @@ const anExchange = (exchange: Partial<ExchangeDetail>): ExchangeDetail => ({
   _links: {
     self,
     contact: { href: `/api/contacts/${ADA}`, method: 'GET' },
-    correctExchange: { href: self.href, method: 'PATCH' },
+    correctExchange: { href: `${self.href}/facts`, method: 'PATCH' },
     eraseExchange: { href: self.href, method: 'DELETE' },
   },
   ...exchange,
