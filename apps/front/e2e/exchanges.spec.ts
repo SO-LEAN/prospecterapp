@@ -87,7 +87,10 @@ test('note the exchanges with a contact, find them in its timeline, gone with it
     await detail.getByLabel('E-mail', { exact: true }).check()
     await detail.getByRole('button', { name: 'Enregistrer' }).click()
     await expect(detail).toContainText(/Modifié le .+ par /)
+    await expect(detail).toContainText('E-mail, Reçu')
+    await page.keyboard.press('Escape')
     await expect(timeline.nth(1)).toContainText('E-mail, Reçu')
+    await timeline.nth(1).getByRole('button').click()
 
     await detail.getByRole('button', { name: 'Supprimer' }).click()
     await page.getByRole('button', { name: 'Supprimer l’échange' }).click()
