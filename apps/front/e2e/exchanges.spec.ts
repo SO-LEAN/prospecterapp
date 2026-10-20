@@ -76,6 +76,26 @@ test('note the exchanges with a contact, find them in its timeline, gone with it
     await expect(timeline.first()).toContainText('Appel, Manqué')
   })
 
+  await test.step('the detail of an exchange beside the card, corrected, then erased once confirmed', async () => {
+    await timeline.nth(1).getByRole('button').click()
+    const detail = page.getByRole('dialog', { name: 'Échange' })
+    await expect(detail).toContainText(A_LONG_TEXT)
+    await expect(detail).toContainText(/Noté le .+ par /)
+    await expect(detail).not.toContainText('Modifié le')
+
+    await detail.getByRole('button', { name: 'Corriger' }).click()
+    await detail.getByLabel('E-mail', { exact: true }).check()
+    await detail.getByRole('button', { name: 'Enregistrer' }).click()
+    await expect(detail).toContainText(/Modifié le .+ par /)
+    await expect(timeline.nth(1)).toContainText('E-mail, Reçu')
+
+    await detail.getByRole('button', { name: 'Supprimer' }).click()
+    await page.getByRole('button', { name: 'Supprimer l’échange' }).click()
+    await expect(detail).toBeHidden()
+    await expect(timeline).toHaveCount(2)
+    await expect(timeline.nth(1)).toContainText('Appel, Envoyé')
+  })
+
   await test.step('stopping to prospect the organization takes the contact and its exchanges along', async () => {
     await page.getByRole('link', { name: organization }).click()
     await page.getByRole('button', { name: 'Arrêter de prospecter' }).click()

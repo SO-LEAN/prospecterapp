@@ -204,6 +204,21 @@ export const fr = {
     interlocutor: 'Interlocuteur',
     interlocutors: { organization: 'Organisation :', person: 'Contact :' },
     unknownPerson: 'Contact effacé',
+    detail: {
+      title: 'Échange',
+      description: 'Tout l’échange, qui l’a noté et qui l’a corrigé.',
+      with: 'Avec {{name}}',
+      noted: 'Noté le {{moment}} par {{author}}',
+      corrected: 'Modifié le {{moment}} par {{author}}',
+      aMember: 'un membre',
+      correct: 'Corriger',
+      correctionSaved: 'Échange corrigé',
+      erase: 'Supprimer',
+      eraseTitle: 'Supprimer cet échange ?',
+      eraseDescription: 'Il disparaîtra de toutes les timelines.',
+      eraseConfirm: 'Supprimer l’échange',
+      erased: 'Échange supprimé',
+    },
   },
   /** The refusals of the API by their reason (ADR 0073): a reason unknown here is shown as the API words it. */
   refusals: {

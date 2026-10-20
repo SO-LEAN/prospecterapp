@@ -472,6 +472,25 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/exchanges/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** The whole of an exchange with a contact, who noted it and who corrected it last */
+        get: operations["get_api_exchanges_show"];
+        put?: never;
+        post?: never;
+        /** Erase an exchange from every timeline */
+        delete: operations["delete_api_exchanges_erase"];
+        options?: never;
+        head?: never;
+        /** Correct the channel, the direction, whether a call was missed, the moment and the text of an exchange; its contact stays */
+        patch: operations["patch_api_exchanges_correct"];
+        trace?: never;
+    };
     "/api/me/sign-in/login-email": {
         parameters: {
             query?: never;
@@ -660,6 +679,28 @@ export interface components {
             /** @default null */
             after: string | null;
         };
+        CorrectionInput: {
+            /**
+             * @default
+             * @enum {string}
+             */
+            channel: "call" | "sms" | "email" | "linkedIn" | "meeting" | "other";
+            /**
+             * @default
+             * @enum {string}
+             */
+            direction: "inbound" | "outbound";
+            /**
+             * Format: date-time
+             * @description When it happened; never in the future
+             * @default null
+             */
+            occurredAt: string | null;
+            /** @default null */
+            text: string | null;
+            /** @default false */
+            missed: boolean;
+        };
         LoginEmailInput: {
             /** @default  */
             email: string;
@@ -811,6 +852,9 @@ export interface components {
             modifiedAt: string;
             _links: components["schemas"]["OrganizationLinksResource"];
         };
+        ExchangeLinksResource: {
+            self: components["schemas"]["LinkResource"];
+        };
         ExchangeResource: {
             id: string;
             /** @enum {string} */
@@ -827,6 +871,7 @@ export interface components {
             text?: string | null;
             /** @description The organizations it is kept for: those the contact was part of when it was noted, or the organization itself */
             organizationIds: string[];
+            _links: components["schemas"]["ExchangeLinksResource"];
         };
         TimelineLinksResource: {
             self: components["schemas"]["LinkResource"];
@@ -922,6 +967,48 @@ export interface components {
         };
         OrganizationsOfContactResource: {
             items: components["schemas"]["OrganizationOfContactResource"][];
+        };
+        ExchangeContactResource: {
+            id: string;
+            name: components["schemas"]["PersonNameResource"];
+        };
+        AuthorResource: {
+            name: components["schemas"]["PersonNameResource"];
+            /** @description Their email, to name them while their profile has no name */
+            email?: string | null;
+        };
+        StampResource: {
+            /** Format: date-time */
+            at: string;
+            by: components["schemas"]["AuthorResource"];
+        };
+        ExchangeDetailLinksResource: {
+            self: components["schemas"]["LinkResource"];
+            contact: components["schemas"]["LinkResource"];
+            correctExchange?: components["schemas"]["LinkResource"];
+            eraseExchange?: components["schemas"]["LinkResource"];
+        };
+        ExchangeDetailResource: {
+            id: string;
+            contact: components["schemas"]["ExchangeContactResource"];
+            /** @enum {string} */
+            channel: "call" | "sms" | "email" | "linkedIn" | "meeting" | "other";
+            /**
+             * @description inbound: the contact reached out; outbound: we did
+             * @enum {string}
+             */
+            direction: "inbound" | "outbound";
+            /** @description A call that did not go through */
+            missed: boolean;
+            /** Format: date-time */
+            occurredAt: string;
+            text?: string | null;
+            /** @description The organizations it is kept for, those the contact was part of when it was noted */
+            organizationIds: string[];
+            noted: components["schemas"]["StampResource"];
+            /** @description The last correction, null while it is as it was noted */
+            corrected?: components["schemas"]["StampResource"] | null;
+            _links: components["schemas"]["ExchangeDetailLinksResource"];
         };
         SignInLinksResource: {
             self: components["schemas"]["LinkResource"];
@@ -2828,6 +2915,158 @@ export interface operations {
             };
             /** @description The signed-in user is not a prospector */
             403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ProblemResource"];
+                };
+            };
+        };
+    };
+    get_api_exchanges_show: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description The exchange */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ExchangeDetailResource"];
+                };
+            };
+            /** @description Missing or invalid access token */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Not a prospector, or no right to manage personal data */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ProblemResource"];
+                };
+            };
+            /** @description Unknown exchange, or one of another account */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ProblemResource"];
+                };
+            };
+        };
+    };
+    delete_api_exchanges_erase: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Erased */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Missing or invalid access token */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Not a prospector, or no right to manage personal data */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ProblemResource"];
+                };
+            };
+            /** @description Unknown exchange, or one of another account */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ProblemResource"];
+                };
+            };
+        };
+    };
+    patch_api_exchanges_correct: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CorrectionInput"];
+            };
+        };
+        responses: {
+            /** @description The corrected exchange */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ExchangeDetailResource"];
+                };
+            };
+            /** @description Missing or invalid access token */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Not a prospector, or no right to manage personal data */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ProblemResource"];
+                };
+            };
+            /** @description Unknown exchange, or one of another account */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ProblemResource"];
+                };
+            };
+            /** @description Invalid correction: unknown channel or direction, a missed exchange that is no call, a moment in the future, another contact */
+            422: {
                 headers: {
                     [name: string]: unknown;
                 };

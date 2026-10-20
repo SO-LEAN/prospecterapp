@@ -12,6 +12,7 @@ import {
   PhoneMissed,
   UserRound,
 } from 'lucide-react'
+import type { ReactNode } from 'react'
 import { useTranslation } from 'react-i18next'
 import { formatMoment } from '@/shared/lib/format'
 import type { Channel, Exchange, Interlocutor } from '../queries'
@@ -25,7 +26,9 @@ export const CHANNEL_ICONS: Record<Channel, LucideIcon> = {
   other: MessageCircle,
 }
 
-const directionIconOf = (exchange: Exchange) =>
+type Summarized = Pick<Exchange, 'channel' | 'direction' | 'missed' | 'occurredAt'>
+
+const directionIconOf = (exchange: Summarized) =>
   exchange.missed ? PhoneMissed : exchange.direction === 'inbound' ? ArrowDownLeft : ArrowUpRight
 
 export const INTERLOCUTOR_ICONS: Record<Interlocutor['kind'], LucideIcon> = {
@@ -34,15 +37,26 @@ export const INTERLOCUTOR_ICONS: Record<Interlocutor['kind'], LucideIcon> = {
 }
 
 /**
- * One exchange of the timeline: who communicated in the timeline of an organization, its channel, its direction
- * (missed for a call that did not go through), when, and the beginning of its text.
+ * One exchange of the timeline: who communicated in the timeline of an organization, its summary and the
+ * beginning of its text.
  */
-export function ExchangeLine({
+export function ExchangeLine({ exchange, interlocutor }: { exchange: Exchange; interlocutor?: Interlocutor }) {
+  return (
+    <ExchangeSummary exchange={exchange} interlocutor={interlocutor}>
+      {exchange.text && <p className="truncate">{exchange.text}</p>}
+    </ExchangeSummary>
+  )
+}
+
+/** Who communicated, when said, its channel, its direction (missed for a call that did not go through) and when, then what follows. */
+export function ExchangeSummary({
   exchange,
   interlocutor,
+  children,
 }: {
-  exchange: Exchange
+  exchange: Summarized
   interlocutor?: Interlocutor
+  children?: ReactNode
 }) {
   const { t } = useTranslation()
   const ChannelIcon = CHANNEL_ICONS[exchange.channel]
@@ -66,7 +80,7 @@ export function ExchangeLine({
         <p className="text-muted-foreground text-xs">
           <time dateTime={exchange.occurredAt}>{formatMoment(exchange.occurredAt)}</time>
         </p>
-        {exchange.text && <p className="truncate">{exchange.text}</p>}
+        {children}
       </div>
     </div>
   )

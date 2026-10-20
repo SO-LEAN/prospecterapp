@@ -1,18 +1,21 @@
 import { fireEvent, render, screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { describe, expect, it, vi } from 'vitest'
-import { type Interlocutors, NoteExchangeForm } from './note-exchange-form'
+import type { ExchangeValues } from '../schema'
+import { ExchangeForm, type Interlocutors } from './exchange-form'
 
 const ROBERT = '0190a1c0-0000-7000-8000-000000000002'
 
-function renderForm(onSubmit = vi.fn().mockResolvedValue(undefined), interlocutors?: Interlocutors) {
-  render(<NoteExchangeForm onSubmit={onSubmit} onCancel={vi.fn()} interlocutors={interlocutors} />)
+type Options = { interlocutors?: Interlocutors; defaultValues?: ExchangeValues }
+
+function renderForm(onSubmit = vi.fn().mockResolvedValue(undefined), options: Options = {}) {
+  render(<ExchangeForm onSubmit={onSubmit} onCancel={vi.fn()} {...options} />)
   return { onSubmit, user: userEvent.setup() }
 }
 
 const save = () => screen.getByRole('button', { name: 'Enregistrer' })
 
-describe('NoteExchangeForm', () => {
+describe('ExchangeForm', () => {
   it('notes a received exchange, now, once its channel is chosen', async () => {
     const { onSubmit, user } = renderForm()
 
@@ -63,8 +66,7 @@ describe('NoteExchangeForm', () => {
 
   it('notes from an organization with the organization itself by default', async () => {
     const { onSubmit, user } = renderForm(undefined, {
-      organization: 'ACME',
-      contacts: [{ id: ROBERT, name: 'Robert Noyce' }],
+      interlocutors: { organization: 'ACME', contacts: [{ id: ROBERT, name: 'Robert Noyce' }] },
     })
 
     expect(screen.getByLabelText('ACME')).toBeChecked()
@@ -76,8 +78,7 @@ describe('NoteExchangeForm', () => {
 
   it('notes from an organization with one of its contacts', async () => {
     const { onSubmit, user } = renderForm(undefined, {
-      organization: 'ACME',
-      contacts: [{ id: ROBERT, name: 'Robert Noyce' }],
+      interlocutors: { organization: 'ACME', contacts: [{ id: ROBERT, name: 'Robert Noyce' }] },
     })
 
     await user.click(screen.getByLabelText('Robert Noyce'))
@@ -123,5 +124,32 @@ describe('NoteExchangeForm', () => {
     await user.click(save())
 
     expect(await screen.findByText('Un échange ne peut pas être dans le futur.')).toBeInTheDocument()
+  })
+
+  it('corrects an exchange from what it was', async () => {
+    const { onSubmit, user } = renderForm(undefined, {
+      defaultValues: {
+        channel: 'linkedIn',
+        direction: 'inbound',
+        occurredAt: '2026-10-15T14:30',
+        text: 'Intéressée',
+        missed: false,
+        personId: '',
+      },
+    })
+
+    await user.click(screen.getByLabelText('E-mail'))
+    await user.click(save())
+
+    expect(onSubmit).toHaveBeenCalledWith(
+      {
+        channel: 'email',
+        direction: 'inbound',
+        occurredAt: new Date('2026-10-15T14:30').toISOString(),
+        text: 'Intéressée',
+        missed: false,
+      },
+      null,
+    )
   })
 })

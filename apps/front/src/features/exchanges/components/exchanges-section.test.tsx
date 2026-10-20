@@ -1,29 +1,36 @@
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { render, screen, within } from '@testing-library/react'
+import userEvent from '@testing-library/user-event'
 import { describe, expect, it } from 'vitest'
-import { type Exchange, type Timeline, timelineQuery } from '../queries'
+import { type Exchange, type ExchangeDetail, exchangeQuery, type Timeline, timelineQuery } from '../queries'
 import { ExchangesSection } from './exchanges-section'
 
 const ADA = '0190a1c0-0000-7000-8000-000000000001'
 const timelineLink = { href: `/api/contacts/${ADA}/exchanges`, method: 'GET' }
 const noteLink = { href: `/api/contacts/${ADA}/exchanges`, method: 'POST' }
 
+const EXCHANGE = '0190a1c0-0000-7000-8000-000000000010'
+
 const anExchange = (exchange: Partial<Exchange>): Exchange => ({
-  id: '0190a1c0-0000-7000-8000-000000000010',
+  id: EXCHANGE,
   channel: 'sms',
   direction: 'inbound',
   missed: false,
   occurredAt: '2026-10-15T12:30:00+00:00',
   text: null,
   organizationIds: [],
+  _links: { self: { href: `/api/exchanges/${exchange.id ?? EXCHANGE}`, method: 'GET' } },
   ...exchange,
 })
 
-function renderTheSection(timeline: Timeline) {
+function renderTheSection(timeline: Timeline, detail?: ExchangeDetail) {
   const queryClient = new QueryClient({
     defaultOptions: { queries: { staleTime: Number.POSITIVE_INFINITY } },
   })
   queryClient.setQueryData(timelineQuery(ADA).queryKey, { pages: [timeline], pageParams: [undefined] })
+  if (detail) {
+    queryClient.setQueryData(exchangeQuery(detail.id).queryKey, detail)
+  }
   render(
     <QueryClientProvider client={queryClient}>
       <ExchangesSection contactId={ADA} contactName="Ada Lovelace" />
@@ -75,5 +82,35 @@ describe('ExchangesSection', () => {
     })
 
     expect(screen.getByRole('button', { name: 'Charger plus' })).toBeInTheDocument()
+  })
+
+  it('opens the whole exchange beside the card when a line is clicked', async () => {
+    const text = 'Intéressée par une mission en mars,\nà recontacter après le salon de novembre'
+    renderTheSection(
+      { items: [anExchange({ text })], _links: { self: timelineLink } },
+      {
+        id: EXCHANGE,
+        contact: { id: ADA, name: { firstName: 'Ada', lastName: 'Lovelace' } },
+        channel: 'sms',
+        direction: 'inbound',
+        missed: false,
+        occurredAt: '2026-10-15T12:30:00+00:00',
+        text,
+        organizationIds: [],
+        noted: {
+          at: '2026-10-15T12:35:00+00:00',
+          by: { name: { firstName: 'Michel' }, email: 'michel@solean-it.io' },
+        },
+        corrected: null,
+        _links: { self: { href: `/api/exchanges/${EXCHANGE}`, method: 'GET' }, contact: timelineLink },
+      },
+    )
+
+    await userEvent.setup().click(screen.getByRole('button', { name: /SMS, Reçu/ }))
+
+    const panel = await screen.findByRole('dialog', { name: 'Échange' })
+    expect(within(panel).getByText('Avec Ada Lovelace')).toBeInTheDocument()
+    expect(within(panel).getByText(/à recontacter après le salon de novembre/)).toBeInTheDocument()
+    expect(within(panel).getByText(/^Noté le .* par Michel$/)).toBeInTheDocument()
   })
 })

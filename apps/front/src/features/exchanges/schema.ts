@@ -2,7 +2,7 @@ import type { DefaultValues } from 'react-hook-form'
 import { z } from 'zod'
 import { orNull, text } from '@/shared/forms/text'
 import { i18n } from '@/shared/i18n'
-import { CHANNELS, DIRECTIONS, type ExchangeInput } from './queries'
+import { CHANNELS, DIRECTIONS, type ExchangeDetail, type ExchangeFacts } from './queries'
 
 const MAX_TEXT = 5000
 
@@ -14,7 +14,7 @@ export const localMoment = (moment: Date) => {
 
 const isPast = (moment: string) => new Date(moment).getTime() <= Date.now()
 
-/** Mirrors `ExchangeInput` of the API: only a call is missed, never in the future. */
+/** Mirrors `ExchangeInput` and `CorrectionInput` of the API: only a call is missed, never in the future. */
 export const exchangeSchema = z.object({
   channel: z.enum(CHANNELS, { error: () => i18n.t('exchanges.chooseChannel') }),
   direction: z.enum(DIRECTIONS),
@@ -43,7 +43,17 @@ export const newExchange = (now: Date): DefaultValues<ExchangeValues> => ({
   personId: ITSELF,
 })
 
-export const toExchangeInput = (values: ExchangeValues): ExchangeInput => ({
+/** The exchange as it is, to correct it. */
+export const correctionOf = (exchange: ExchangeDetail): ExchangeValues => ({
+  channel: exchange.channel,
+  direction: exchange.direction,
+  occurredAt: localMoment(new Date(exchange.occurredAt)),
+  text: exchange.text ?? '',
+  missed: exchange.missed,
+  personId: ITSELF,
+})
+
+export const toExchangeFacts = (values: ExchangeValues): ExchangeFacts => ({
   channel: values.channel,
   direction: values.direction,
   occurredAt: new Date(values.occurredAt).toISOString(),

@@ -13,10 +13,12 @@ import {
   DialogTitle,
   DialogTrigger,
 } from '@/shared/ui/dialog'
+import { ExchangeDetailSheet } from './exchange-detail'
 
 type Props<Item> = {
   timeline: UseInfiniteQueryResult
   items: Item[]
+  /** The id of the exchange of an item, the one its detail opens. */
   keyOf: (item: Item) => string
   renderItem: (item: Item) => ReactNode
   /** The quick entry of a new exchange, when the timeline offers it. */
@@ -24,7 +26,10 @@ type Props<Item> = {
   className?: string
 }
 
-/** A timeline, of a contact or of an organization: the most recent first, what follows loaded on scrolling. */
+/**
+ * A timeline, of a contact or of an organization: the most recent first, what follows loaded on scrolling; an
+ * exchange opens its detail beside the card.
+ */
 export function TimelineCard<Item>({
   timeline,
   items,
@@ -41,6 +46,7 @@ export function TimelineCard<Item>({
     }
   }
   const end = useWhenVisible<HTMLDivElement>(loadWhatFollows)
+  const [opened, setOpened] = useState<string | null>(null)
 
   return (
     <Card className={className}>
@@ -52,8 +58,14 @@ export function TimelineCard<Item>({
         {items.length === 0 && <p className="text-muted-foreground">{t('exchanges.none')}</p>}
         <ol className="divide-y" aria-label={t('exchanges.title')}>
           {items.map((item) => (
-            <li key={keyOf(item)} className="py-3 first:pt-0 last:pb-0">
-              {renderItem(item)}
+            <li key={keyOf(item)} className="py-1 first:pt-0 last:pb-0">
+              <button
+                type="button"
+                className="-mx-2 w-[calc(100%+1rem)] rounded-md px-2 py-2 text-left transition-colors hover:bg-accent focus-visible:outline-none focus-visible:ring-[3px] focus-visible:ring-ring/50"
+                onClick={() => setOpened(keyOf(item))}
+              >
+                {renderItem(item)}
+              </button>
             </li>
           ))}
         </ol>
@@ -65,6 +77,7 @@ export function TimelineCard<Item>({
             </Button>
           </div>
         )}
+        <ExchangeDetailSheet exchangeId={opened} onClose={() => setOpened(null)} />
       </CardContent>
     </Card>
   )

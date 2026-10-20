@@ -2,7 +2,7 @@ import { useInfiniteQuery } from '@tanstack/react-query'
 import { useNoteExchange } from '../mutations'
 import { timelineQuery } from '../queries'
 import { ExchangeLine } from './exchange-line'
-import { NoteExchangeForm } from './note-exchange-form'
+import { ExchangeForm } from './exchange-form'
 import { NoteExchangeDialog, TimelineCard } from './timeline-card'
 
 type Props = { contactId: string; contactName: string; className?: string }
@@ -29,7 +29,7 @@ export function ExchangesSection({ contactId, contactName, className }: Props) {
         mayNote && (
           <NoteExchangeDialog name={contactName}>
             {(close) => (
-              <NoteExchangeForm
+              <ExchangeForm
                 onCancel={close}
                 onSubmit={async (body) => {
                   await note.mutateAsync({ params: { path: { id: contactId } }, body })
