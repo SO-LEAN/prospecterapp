@@ -1,12 +1,14 @@
 import { Link } from '@tanstack/react-router'
 import { ChevronRight, MapPin } from 'lucide-react'
 import { countryName } from '@/shared/lib/countries'
+import { UnlocatedBadge } from '@/shared/ui/unlocated-badge'
 import type { OrganizationSummary } from '../queries'
 import { OrganizationAvatar } from './organization-avatar'
 
 export function OrganizationCard({ organization }: { organization: OrganizationSummary }) {
   const place = [organization.postalCode, organization.city].filter(Boolean).join(' ')
   const country = countryName(organization.country)
+  const unlocated = Boolean(place || country) && !organization.location
 
   return (
     <Link
@@ -23,6 +25,7 @@ export function OrganizationCard({ organization }: { organization: OrganizationS
             {[place, country].filter(Boolean).join(', ')}
           </p>
         )}
+        {unlocated && <UnlocatedBadge className="mt-1" />}
       </div>
       <ChevronRight
         className="size-4 text-muted-foreground transition group-hover:translate-x-0.5 group-hover:text-foreground"

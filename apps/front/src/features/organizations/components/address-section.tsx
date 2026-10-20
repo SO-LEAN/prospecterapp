@@ -11,6 +11,7 @@ import { SectionForm } from '@/shared/forms/section-form'
 import { addressLines } from '@/shared/lib/address'
 import { EditableSection } from '@/shared/ui/editable-section'
 import { GeoMap } from '@/shared/ui/map/geo-map'
+import { ExplainedUnlocatedBadge } from '@/shared/ui/unlocated-badge'
 import { useRelocate } from '../mutations'
 import type { Organization } from '../queries'
 import { DirectionsLink } from './directions-link'
@@ -50,11 +51,14 @@ export function AddressSection({
     >
       <div className="space-y-4">
         {lines.length > 0 ? (
-          <address className="not-italic">
-            {lines.map((line) => (
-              <div key={line}>{line}</div>
-            ))}
-          </address>
+          <div className="flex flex-wrap items-start justify-between gap-2">
+            <address className="not-italic">
+              {lines.map((line) => (
+                <div key={line}>{line}</div>
+              ))}
+            </address>
+            {!location && <ExplainedUnlocatedBadge />}
+          </div>
         ) : (
           <p className="text-muted-foreground">{t('common.notProvided')}</p>
         )}

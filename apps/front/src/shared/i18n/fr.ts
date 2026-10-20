@@ -39,6 +39,9 @@ export const fr = {
     notProvided: 'Non renseigné',
     loading: 'Chargement…',
     loadMore: 'Charger plus',
+    unlocated: 'Non géolocalisée',
+    unlocatedExplanation:
+      'Adresse introuvable sur la carte : vérifiez-la pour la voir sur la carte et dans les itinéraires.',
   },
   errors: {
     title: 'Une erreur est survenue',
