@@ -52,7 +52,7 @@ export function CollectContactForm({ organizationId, onSubmit, onCancel }: Props
         </Alert>
       )}
 
-      <fieldset className="grid gap-4 sm:grid-cols-2">
+      <fieldset className="grid grid-cols-1 gap-4 sm:grid-cols-2">
         <legend className="mb-2 font-medium text-sm">{t('organizations.contacts.identity')}</legend>
         <PersonNameFields form={form} path={under<CollectContactValues>('name')} />
         <FormField
@@ -65,7 +65,7 @@ export function CollectContactForm({ organizationId, onSubmit, onCancel }: Props
           <Input autoComplete="organization-title" {...form.register('jobTitle')} />
         </FormField>
       </fieldset>
-      <fieldset className="grid gap-4 sm:grid-cols-2">
+      <fieldset className="grid grid-cols-1 gap-4 sm:grid-cols-2">
         <legend className="mb-2 font-medium text-sm">{t('organizations.sections.contactDetails')}</legend>
         <ContactDetailsFields form={form} path={under<CollectContactValues>('contactDetails')} />
       </fieldset>

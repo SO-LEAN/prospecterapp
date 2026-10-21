@@ -8,6 +8,7 @@ Modern SaaS style: cool neutrals, generous spacing, one blue accent, light and d
 - Accessible by default: Radix primitives (focus management, keyboard, ARIA), visible focus rings, labels wired to inputs (`shared/ui/form/field.tsx`), sufficient contrast in both themes.
 - Calm hierarchy: one primary action per screen, secondary actions as `outline` or `ghost` buttons, titles `text-2xl font-semibold tracking-tight`.
 - Every async state is designed: skeletons (`PageSkeleton`), empty states (`EmptyState`), error states (`ErrorState`), toasts for outcomes.
+- On a phone the page is used at its size: it never zooms (the `viewport` of `index.html`, `touch-action: pan-x pan-y` on every element, the gesture events of Safari cancelled by `shared/lib/keep-the-page-from-zooming.ts`), only the maps do. It never scrolls sideways either: a responsive grid starts with `grid-cols-1` (`minmax(0, 1fr)`), or its implicit column takes the width of its longest truncated text.
 
 ## Tokens
 

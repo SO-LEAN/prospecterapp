@@ -88,7 +88,12 @@ function Contacts() {
           />
         )
       ) : (
-        <ul className={cn('grid gap-3 transition-opacity md:grid-cols-2', isPlaceholderData && 'opacity-60')}>
+        <ul
+          className={cn(
+            'grid grid-cols-1 gap-3 transition-opacity md:grid-cols-2',
+            isPlaceholderData && 'opacity-60',
+          )}
+        >
           {items.map((contact) => (
             <li key={contact.id}>
               <ContactCard contact={contact} />

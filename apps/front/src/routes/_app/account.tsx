@@ -34,7 +34,7 @@ function AccountPage() {
   return (
     <div className="space-y-8">
       <PageHeader title={t('account.title')} description={t('account.subtitle')} />
-      <div className="grid gap-6 lg:grid-cols-2">
+      <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
         <div className="space-y-6">
           <PictureSection account={account} />
           <NameSection account={account} />
