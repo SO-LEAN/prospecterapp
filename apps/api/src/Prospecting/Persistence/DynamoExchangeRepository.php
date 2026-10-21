@@ -43,7 +43,7 @@ final readonly class DynamoExchangeRepository implements ExchangeRepository
 
         $this->prospectingTable->transact([
             $this->prospectingTable->putting($this->itemOf($exchange, $document)),
-            ...$this->keptForChanged($document, $stored['exchange']['keptFor'] ?? []),
+            ...$this->linksToItsOrganizations($document, $stored['exchange']['keptFor'] ?? []),
         ]);
     }
 
@@ -54,7 +54,7 @@ final readonly class DynamoExchangeRepository implements ExchangeRepository
 
         $this->prospectingTable->transact([
             $this->prospectingTable->deleting(self::keyOf($exchange->id()), self::EXCHANGE),
-            ...$this->keptForChanged(['keptFor' => []] + $document, $stored['exchange']['keptFor'] ?? []),
+            ...$this->linksToItsOrganizations(['keptFor' => []] + $document, $stored['exchange']['keptFor'] ?? []),
         ]);
     }
 
@@ -110,21 +110,21 @@ final readonly class DynamoExchangeRepository implements ExchangeRepository
 
     /**
      * The links to write and to delete so that the organizations the exchange is kept for are those of the
-     * document.
+     * document, each at the moment of the exchange in the timeline of its organization: a correction may move it.
      *
      * @param array<string, mixed> $document
      * @param list<string>         $storedKeptFor
      *
      * @return list<array<string, mixed>>
      */
-    private function keptForChanged(array $document, array $storedKeptFor): array
+    private function linksToItsOrganizations(array $document, array $storedKeptFor): array
     {
         $exchange = self::EXCHANGE.'#'.$document['id'];
         $position = $document['facts']['occurredAt'].'#'.$document['id'];
         $link = static fn (string $organization): array => ['PK' => self::keptForKey($organization), 'SK' => $exchange, 'GSI1PK' => self::organizationTimelineKey($organization), 'GSI1SK' => $position];
 
         return [
-            ...array_map(fn (string $organization): array => $this->prospectingTable->putting($link($organization)), array_values(array_diff($document['keptFor'], $storedKeptFor))),
+            ...array_map(fn (string $organization): array => $this->prospectingTable->putting($link($organization)), $document['keptFor']),
             ...array_map(fn (string $organization): array => $this->prospectingTable->deleting(self::keptForKey($organization), $exchange), array_values(array_diff($storedKeptFor, $document['keptFor']))),
         ];
     }

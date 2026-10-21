@@ -207,7 +207,6 @@ export const fr = {
     detail: {
       title: 'Échange',
       description: 'Tout l’échange, qui l’a noté et qui l’a corrigé.',
-      with: 'Avec {{name}}',
       noted: 'Noté le {{moment}} par {{author}}',
       corrected: 'Modifié le {{moment}} par {{author}}',
       aMember: 'un membre',

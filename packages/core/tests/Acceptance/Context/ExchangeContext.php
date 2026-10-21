@@ -148,12 +148,6 @@ final class ExchangeContext implements Context
         Expect::same($interlocutor, null === $noted ? null : $this->interlocutorOf($noted, $organization));
     }
 
-    #[Then('la timeline de :contact est vide')]
-    public function theTimelineIsEmpty(string $contact): void
-    {
-        Expect::same([], $this->timelineOfNow($contact));
-    }
-
     #[Then(':organization ne garde aucun échange')]
     public function theOrganizationKeepsNoExchange(string $organization): void
     {

@@ -90,7 +90,7 @@ describe('ExchangesSection', () => {
       { items: [anExchange({ text })], _links: { self: timelineLink } },
       {
         id: EXCHANGE,
-        contact: { id: ADA, name: { firstName: 'Ada', lastName: 'Lovelace' } },
+        interlocutor: { kind: 'person', id: ADA, name: 'Ada Lovelace' },
         channel: 'sms',
         direction: 'inbound',
         missed: false,
@@ -102,14 +102,14 @@ describe('ExchangesSection', () => {
           by: { name: { firstName: 'Michel' }, email: 'michel@solean-it.io' },
         },
         corrected: null,
-        _links: { self: { href: `/api/exchanges/${EXCHANGE}`, method: 'GET' }, contact: timelineLink },
+        _links: { self: { href: `/api/exchanges/${EXCHANGE}`, method: 'GET' }, interlocutor: timelineLink },
       },
     )
 
     await userEvent.setup().click(screen.getByRole('button', { name: /SMS, Reçu/ }))
 
     const panel = await screen.findByRole('dialog', { name: 'Échange' })
-    expect(within(panel).getByText('Avec Ada Lovelace')).toBeInTheDocument()
+    expect(within(panel).getByText('Ada Lovelace')).toBeInTheDocument()
     expect(within(panel).getByText(/à recontacter après le salon de novembre/)).toBeInTheDocument()
     expect(within(panel).getByText(/^Noté le .* par Michel$/)).toBeInTheDocument()
   })

@@ -140,13 +140,28 @@ class ExchangeApiTest extends ApiTestCase
         $exchange = $this->requestJson('GET', $timeline['items'][0]['_links']['self']['href']);
 
         $this->assertResponseStatusCodeSame(200);
-        $this->assertSame(['id' => $contact, 'name' => ['firstName' => 'Ada', 'lastName' => null]], $exchange['contact']);
+        $this->assertSame(['kind' => 'person', 'id' => $contact, 'name' => 'Ada'], $exchange['interlocutor']);
         $this->assertSame(['sms', 'inbound', false, '2026-10-14T14:30:00+00:00', "Rappeler lundi\nAprès le salon"], [$exchange['channel'], $exchange['direction'], $exchange['missed'], $exchange['occurredAt'], $exchange['text']]);
         $this->assertSame(['at' => '2026-10-15T09:00:00+00:00', 'by' => ['name' => ['firstName' => null, 'lastName' => null], 'email' => 'prospector@solean-it.io']], $exchange['noted']);
         $this->assertNull($exchange['corrected']);
-        $this->assertSame(['self', 'contact', 'correctExchange', 'eraseExchange'], array_keys($exchange['_links']));
+        $this->assertSame(['self', 'interlocutor', 'correctExchange', 'eraseExchange'], array_keys($exchange['_links']));
+        $this->assertSame(['href' => '/api/contacts/'.$contact, 'method' => 'GET'], $exchange['_links']['interlocutor']);
         $this->assertSame(['href' => '/api/exchanges/'.$exchange['id'].'/facts', 'method' => 'PATCH'], $exchange['_links']['correctExchange']);
         $this->assertSame(['href' => '/api/exchanges/'.$exchange['id'], 'method' => 'DELETE'], $exchange['_links']['eraseExchange']);
+    }
+
+    public function testAnExchangeWithTheOrganizationItselfHasItForInterlocutor(): void
+    {
+        $organization = $this->anOrganization('ACME');
+        $timeline = $this->requestJson('POST', '/api/organizations/'.$organization.'/exchanges', ['exchange' => ['channel' => 'call', 'direction' => 'inbound', 'occurredAt' => '2026-10-14T14:30:00+00:00'], 'personId' => null]);
+        $id = $timeline['items'][0]['exchange']['id'];
+
+        $exchange = $this->correct($id, ['channel' => 'call', 'direction' => 'inbound', 'occurredAt' => '2026-10-14T14:30:00+00:00', 'text' => 'Le standard rappellera']);
+
+        $this->assertResponseStatusCodeSame(200);
+        $this->assertSame(['kind' => 'organization', 'id' => $organization, 'name' => 'ACME'], $exchange['interlocutor']);
+        $this->assertSame('Le standard rappellera', $exchange['text']);
+        $this->assertSame(['href' => '/api/organizations/'.$organization, 'method' => 'GET'], $exchange['_links']['interlocutor']);
     }
 
     public function testACorrectionIsShownWithWhoMadeIt(): void

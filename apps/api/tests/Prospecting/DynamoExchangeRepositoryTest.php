@@ -3,7 +3,9 @@
 namespace Tests\App\Prospecting;
 
 use Prospecter\Core\Prospecting\Domain\Channel;
+use Prospecter\Core\Prospecting\Domain\Correction;
 use Prospecter\Core\Prospecting\Domain\Direction;
+use Prospecter\Core\Prospecting\Domain\Exception\UnknownExchange;
 use Prospecter\Core\Prospecting\Domain\Exchange;
 use Prospecter\Core\Prospecting\Domain\ExchangeFacts;
 use Prospecter\Core\Prospecting\Domain\ExchangeId;
@@ -17,8 +19,6 @@ use Prospecter\Core\SharedKernel\Domain\MemberId;
 use Prospecter\Core\SharedKernel\Domain\OrganizationId;
 use Prospecter\Core\SharedKernel\Domain\PersonId;
 use Tests\App\Base\ApiTestCase;
-use Prospecter\Core\Prospecting\Domain\Correction;
-use Prospecter\Core\Prospecting\Domain\Exception\UnknownExchange;
 
 /**
  * The timeline of a contact by the moment of its exchanges, and the exchanges kept for an organization, its
@@ -165,6 +165,20 @@ class DynamoExchangeRepositoryTest extends ApiTestCase
         $exchanges->save($first);
 
         $timeline = $exchanges->timelineOf($this->contact, $this->prospector->accountId, null, 20)->content;
+        $this->assertEquals([$first->id(), $second->id()], array_map(static fn (Exchange $exchange): ExchangeId => $exchange->id(), $timeline));
+    }
+
+    public function testACorrectedMomentMovesTheExchangeInTheTimelinesOfItsOrganizations(): void
+    {
+        $exchanges = $this->exchanges();
+        $first = $this->noted('2026-10-10 09:00 UTC');
+        $second = $this->notedWithTheOrganization('2026-10-11 09:00 UTC');
+        array_map($exchanges->save(...), [$first, $second]);
+
+        $first->correct(new ExchangeFacts(Channel::Call, Direction::Inbound, new \DateTimeImmutable('2026-10-12 09:00 UTC')), by: $this->prospector, at: new \DateTimeImmutable(self::NOW));
+        $exchanges->save($first);
+
+        $timeline = $exchanges->timelineOfOrganization($this->acme, null, 20)->content;
         $this->assertEquals([$first->id(), $second->id()], array_map(static fn (Exchange $exchange): ExchangeId => $exchange->id(), $timeline));
     }
 

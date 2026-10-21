@@ -7,11 +7,12 @@ import { ExchangeDetailSheet } from './exchange-detail'
 
 const EXCHANGE = '0190a1c0-0000-7000-8000-000000000010'
 const ADA = '0190a1c0-0000-7000-8000-000000000001'
+const ACME = '0190a1c0-0000-7000-8000-000000000002'
 const self = { href: `/api/exchanges/${EXCHANGE}`, method: 'GET' }
 
 const anExchange = (exchange: Partial<ExchangeDetail>): ExchangeDetail => ({
   id: EXCHANGE,
-  contact: { id: ADA, name: { firstName: 'Ada', lastName: 'Lovelace' } },
+  interlocutor: { kind: 'person', id: ADA, name: 'Ada Lovelace' },
   channel: 'linkedIn',
   direction: 'inbound',
   missed: false,
@@ -22,7 +23,7 @@ const anExchange = (exchange: Partial<ExchangeDetail>): ExchangeDetail => ({
   corrected: null,
   _links: {
     self,
-    contact: { href: `/api/contacts/${ADA}`, method: 'GET' },
+    interlocutor: { href: `/api/contacts/${ADA}`, method: 'GET' },
     correctExchange: { href: `${self.href}/facts`, method: 'PATCH' },
     eraseExchange: { href: self.href, method: 'DELETE' },
   },
@@ -43,13 +44,21 @@ function renderTheDetail(exchange: ExchangeDetail) {
 }
 
 describe('ExchangeDetailSheet', () => {
-  it('shows who noted the exchange, and no correction while there was none', () => {
+  it('shows who it was with, who noted it, and no correction while there was none', () => {
     renderTheDetail(anExchange({}))
 
+    expect(screen.getByText('Ada Lovelace')).toBeInTheDocument()
     expect(screen.getByText('LinkedIn, Reçu')).toBeInTheDocument()
     expect(screen.getByText('Intéressée par une mission en mars')).toBeInTheDocument()
     expect(screen.getByText(/^Noté le 15 oct\. 2026, .* par Michel Maier$/)).toBeInTheDocument()
     expect(screen.queryByText(/^Modifié le/)).not.toBeInTheDocument()
+  })
+
+  it('names the organization itself when it was with no contact', () => {
+    renderTheDetail(anExchange({ interlocutor: { kind: 'organization', id: ACME, name: 'ACME' } }))
+
+    expect(screen.getByText('Organisation :')).toBeInTheDocument()
+    expect(screen.getByText('ACME')).toBeInTheDocument()
   })
 
   it('shows who corrected it last, named by their email while their profile has no name', () => {
@@ -82,7 +91,7 @@ describe('ExchangeDetailSheet', () => {
 
   it('offers nothing the exchange does not link to', () => {
     renderTheDetail(
-      anExchange({ _links: { self, contact: { href: `/api/contacts/${ADA}`, method: 'GET' } } }),
+      anExchange({ _links: { self, interlocutor: { href: `/api/contacts/${ADA}`, method: 'GET' } } }),
     )
 
     expect(screen.queryByRole('button', { name: 'Corriger' })).not.toBeInTheDocument()

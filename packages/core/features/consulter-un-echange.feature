@@ -26,6 +26,19 @@ Fonctionnalité: Consulter le détail d'un échange
       | corriger l'échange  |
       | supprimer l'échange |
 
+  Scénario: Un échange avec l'organisation elle-même a l'organisation pour interlocuteur
+    Soit "Michel" a noté le 16/10/2026 à 09h05 un appel reçu de "ACME" elle-même à 09h00 : "Le standard rappellera"
+    Et je suis connecté en tant que "Michel"
+    Quand je consulte cet échange
+    Alors je vois l'échange :
+      | interlocuteur | ACME                             |
+      | canal         | Appel                            |
+      | sens          | reçu                             |
+      | moment        | 16/10/2026 09:00                 |
+      | texte         | Le standard rappellera           |
+      | noté          | le 16/10/2026 à 09:05 par Michel |
+      | modifié       |                                  |
+
   Scénario: Sans le droit aux données personnelles, je ne lis pas un échange
     Soit je suis connecté en tant que prospecteur de "SOLEAN IT" sans le droit aux données personnelles
     Quand je consulte cet échange
