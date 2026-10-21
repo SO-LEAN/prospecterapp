@@ -39,19 +39,8 @@ final readonly class OrganizationTimelinePresenter
      */
     private static function interlocutorOf(ExchangeResponse $exchange, OrganizationResponse $organization, array $persons): InterlocutorResource
     {
-        if (null === $exchange->personId) {
-            return new InterlocutorResource(InterlocutorResource::ORGANIZATION, $organization->id, $organization->fullName);
-        }
-
-        $person = $persons[$exchange->personId] ?? null;
-
-        return new InterlocutorResource(InterlocutorResource::PERSON, $exchange->personId, null === $person ? null : self::fullNameOf($person));
-    }
-
-    private static function fullNameOf(PersonResponse $person): ?string
-    {
-        $name = trim(sprintf('%s %s', $person->firstName, $person->lastName));
-
-        return '' === $name ? null : $name;
+        return null === $exchange->personId
+            ? InterlocutorResource::ofTheOrganization($organization)
+            : InterlocutorResource::ofPerson($exchange->personId, $persons[$exchange->personId] ?? null);
     }
 }

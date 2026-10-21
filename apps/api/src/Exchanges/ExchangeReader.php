@@ -2,14 +2,15 @@
 
 namespace App\Exchanges;
 
+use App\Contacts\Resource\InterlocutorResource;
 use App\Exchanges\Resource\ExchangeDetailResource;
 use Prospecter\Core\Accounts\Contract\Service\ConsultMember\ConsultMember;
 use Prospecter\Core\Accounts\Contract\Service\ConsultMember\MemberResponse;
 use Prospecter\Core\PersonalData\Application\ConsultPersons\ConsultPersons;
+use Prospecter\Core\PersonalData\Application\PersonResponse;
 use Prospecter\Core\Prospecting\Application\ConsultExchange\ConsultExchange;
 use Prospecter\Core\Prospecting\Application\ConsultExchange\ExchangeDetailResponse;
 use Prospecter\Core\Prospecting\Application\ConsultOrganization\ConsultOrganization;
-use Prospecter\Core\Prospecting\Application\OrganizationResponse;
 use Prospecter\Core\SharedKernel\Application\RefusalTranslatingHandler;
 
 /**
@@ -35,12 +36,19 @@ final readonly class ExchangeReader
         $personOfMember = $this->personsOfMembers(array_filter([$exchange->createdBy, $exchange->correctedBy]));
         $persons = ($this->consultPersons)(new ConsultPersons($prospector, array_values(array_unique(array_filter([$exchange->personId, ...array_values($personOfMember)])))));
 
-        return $this->presenter->present($exchange, $persons, $personOfMember, $this->itselfIfNoContact($prospector, $exchange));
+        return $this->presenter->present($exchange, $this->interlocutorOf($prospector, $exchange, $persons), $persons, $personOfMember);
     }
 
-    private function itselfIfNoContact(string $prospector, ExchangeDetailResponse $exchange): ?OrganizationResponse
+    /**
+     * The contact it was with, or the organization itself, the only one it is kept for.
+     *
+     * @param array<string, PersonResponse> $persons by person id
+     */
+    private function interlocutorOf(string $prospector, ExchangeDetailResponse $exchange, array $persons): InterlocutorResource
     {
-        return null === $exchange->personId ? ($this->consultOrganization)(new ConsultOrganization($prospector, $exchange->organizationIds[0])) : null;
+        return null === $exchange->personId
+            ? InterlocutorResource::ofTheOrganization(($this->consultOrganization)(new ConsultOrganization($prospector, $exchange->organizationIds[0])))
+            : InterlocutorResource::ofPerson($exchange->personId, $persons[$exchange->personId] ?? null);
     }
 
     /**

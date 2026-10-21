@@ -15,7 +15,7 @@ Fonctionnalité: Supprimer un échange
     Soit je suis connecté en tant que "Michel"
     Quand je supprime cet échange
     Alors la timeline de "Ada Lovelace" est vide
-    Et "ACME" ne garde aucun échange
+    Et la timeline de "ACME" est vide
 
   Scénario: Sans le droit aux données personnelles, je ne supprime pas un échange
     Soit je suis connecté en tant que prospecteur de "SOLEAN IT" sans le droit aux données personnelles

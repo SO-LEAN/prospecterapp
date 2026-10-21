@@ -148,12 +148,6 @@ final class ExchangeContext implements Context
         Expect::same($interlocutor, null === $noted ? null : $this->interlocutorOf($noted, $organization));
     }
 
-    #[Then(':organization ne garde aucun échange')]
-    public function theOrganizationKeepsNoExchange(string $organization): void
-    {
-        Expect::same([], $this->application->exchanges->keptFor($this->scenario->organizationNamed($organization)->id()));
-    }
-
     #[Then('la timeline de :contact montre un appel reçu manqué')]
     public function theTimelineShowsAMissedInboundCall(string $contact): void
     {
