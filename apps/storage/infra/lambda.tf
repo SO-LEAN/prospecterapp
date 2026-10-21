@@ -1,11 +1,11 @@
 # The storage in a Lambda with the layers of PHP and imagick of Bref behind its function URL (ADR 0054, 0055, 0063,
 # 0068):
 # build/storage.zip, packaged by make package-storage, redeployed when the version of its code changes. The layers
-# are those of docker/php and docker/lambda (bref/php-85:3.0.9 = layer php-85:20, the image
+# are those of docker/php and docker/lambda (bref/php-85:3.0.10 = layer php-85:21, the image
 # bref/extra-imagick-php-85 of their digest = layer imagick-php-85:4): a new version of Bref changes the three.
 locals {
   name          = "prospecter-${var.instance}-storage"
-  bref_php      = "arn:aws:lambda:${var.region}:873528684822:layer:php-85:20"
+  bref_php      = "arn:aws:lambda:${var.region}:873528684822:layer:php-85:21"
   bref_imagick  = "arn:aws:lambda:${var.region}:403367587399:layer:imagick-php-85:4"
   package       = "${path.module}/../../../build/storage.zip"
   ssm_path      = "/prospecter/${var.instance}/storage"
