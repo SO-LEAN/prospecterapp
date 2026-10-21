@@ -2,11 +2,11 @@
 # 0056): the dev image of Bref is the PHP of its layer with Xdebug and Composer; the layer of imagick is the one
 # of the storage function; zip and tar package the api and the storage for AWS (tools/package/lambda).
 
-# the runtimes of docker/lambda and of the layers on AWS (php-85:20 and imagick-php-85:4, apps/*/infra/lambda.tf):
+# the runtimes of docker/lambda and of the layers on AWS (php-85:21 and imagick-php-85:4, apps/*/infra/lambda.tf):
 # changed together (ADR 0056)
 FROM bref/extra-imagick-php-85:3@sha256:b6ea36cf9e6bdd8e9a73b20dcf2b578eee27a914785ddf28da07624fb48c303d AS imagick
 
-FROM bref/php-85-dev:3.0.9
+FROM bref/php-85-dev:3.0.10
 
 ARG UID=1000
 ARG GID=1000

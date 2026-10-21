@@ -1,9 +1,9 @@
 # The api in a Lambda with the PHP layer of Bref behind an HTTP API (ADR 0053, 0055, 0063): build/api.zip, packaged
 # by make package-api, redeployed when the version of its code changes. The runtime of the layer is the one of
-# docker/php and docker/lambda (bref/php-85:3.0.9 = layer php-85:20): a new version of Bref changes the three.
+# docker/php and docker/lambda (bref/php-85:3.0.10 = layer php-85:21): a new version of Bref changes the three.
 locals {
   name          = "prospecter-${var.instance}-api"
-  bref_php      = "arn:aws:lambda:${var.region}:873528684822:layer:php-85:20"
+  bref_php      = "arn:aws:lambda:${var.region}:873528684822:layer:php-85:21"
   package       = "${path.module}/../../../build/api.zip"
   ssm_path      = "/prospecter/${var.instance}/api"
   ssm_arn       = "arn:aws:ssm:${var.region}:${var.aws_account_id}:parameter${local.ssm_path}"
