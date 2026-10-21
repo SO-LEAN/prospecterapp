@@ -11,7 +11,6 @@ use App\PersonalData\Resource\PersonNameResource;
 use App\Shared\Links;
 use Prospecter\Core\PersonalData\Application\PersonResponse;
 use Prospecter\Core\Prospecting\Application\ConsultExchange\ExchangeDetailResponse;
-use Prospecter\Core\Prospecting\Application\OrganizationResponse;
 
 /**
  * The detail of an exchange, with a link per intention the prospector may carry out on it.
@@ -31,11 +30,10 @@ final readonly class ExchangeDetailPresenter
      * @param array<string, PersonResponse> $persons        by person id
      * @param array<string, string>         $personOfMember the person id of each member, by member id
      */
-    public function present(ExchangeDetailResponse $exchange, array $persons, array $personOfMember, ?OrganizationResponse $itself): ExchangeDetailResource
+    public function present(ExchangeDetailResponse $exchange, InterlocutorResource $interlocutor, array $persons, array $personOfMember): ExchangeDetailResource
     {
         $nameOf = static fn (string $person): PersonNameResource => new PersonNameResource($persons[$person]->firstName ?? null, $persons[$person]->lastName ?? null);
         $authorOf = static fn (string $member): AuthorResource => new AuthorResource($nameOf($personOfMember[$member]), $persons[$personOfMember[$member]]->email ?? null);
-        $interlocutor = self::interlocutorOf($exchange, $persons, $itself);
 
         return new ExchangeDetailResource(
             id: $exchange->id,
@@ -50,20 +48,6 @@ final readonly class ExchangeDetailPresenter
             corrected: null === $exchange->correctedAt || null === $exchange->correctedBy ? null : new StampResource($exchange->correctedAt->format(\DateTimeInterface::ATOM), $authorOf($exchange->correctedBy)),
             links: $this->linksOf($exchange, $interlocutor),
         );
-    }
-
-    /**
-     * @param array<string, PersonResponse> $persons
-     */
-    private static function interlocutorOf(ExchangeDetailResponse $exchange, array $persons, ?OrganizationResponse $itself): InterlocutorResource
-    {
-        if (null === $exchange->personId) {
-            return new InterlocutorResource(InterlocutorResource::ORGANIZATION, $itself->id ?? '', $itself?->fullName);
-        }
-        $person = $persons[$exchange->personId] ?? null;
-        $name = null === $person ? '' : trim(sprintf('%s %s', $person->firstName, $person->lastName));
-
-        return new InterlocutorResource(InterlocutorResource::PERSON, $exchange->personId, '' === $name ? null : $name);
     }
 
     private function linksOf(ExchangeDetailResponse $exchange, InterlocutorResource $interlocutor): ExchangeDetailLinksResource

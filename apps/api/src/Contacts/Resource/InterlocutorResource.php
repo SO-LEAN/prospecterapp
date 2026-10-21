@@ -3,6 +3,8 @@
 namespace App\Contacts\Resource;
 
 use OpenApi\Attributes as OA;
+use Prospecter\Core\PersonalData\Application\PersonResponse;
+use Prospecter\Core\Prospecting\Application\OrganizationResponse;
 
 /**
  * Who communicated in an exchange of the timeline of an organization: one of its contacts, or the organization
@@ -20,5 +22,25 @@ final readonly class InterlocutorResource
         #[OA\Property(description: 'Its name; none for a person no longer known')]
         public ?string $name,
     ) {
+    }
+
+    public static function ofTheOrganization(OrganizationResponse $organization): self
+    {
+        return new self(self::ORGANIZATION, $organization->id, $organization->fullName);
+    }
+
+    /**
+     * @param ?PersonResponse $person none for a person no longer known
+     */
+    public static function ofPerson(string $personId, ?PersonResponse $person): self
+    {
+        return new self(self::PERSON, $personId, null === $person ? null : self::fullNameOf($person));
+    }
+
+    private static function fullNameOf(PersonResponse $person): ?string
+    {
+        $name = trim(sprintf('%s %s', $person->firstName, $person->lastName));
+
+        return '' === $name ? null : $name;
     }
 }
