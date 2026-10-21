@@ -58,7 +58,7 @@ function Dashboard() {
         description={t('dashboard.subtitle', { organization: dashboard.organizationName })}
       />
 
-      <div className="grid gap-4 sm:grid-cols-2">
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
         <StatCard
           icon={Building2}
           label={t('dashboard.stats.activeOrganizations')}
@@ -67,7 +67,7 @@ function Dashboard() {
         <StatCard icon={MapPinned} label={t('dashboard.stats.mapped')} value={markers.length} />
       </div>
 
-      <div className="grid gap-6 lg:grid-cols-5">
+      <div className="grid grid-cols-1 gap-6 lg:grid-cols-5">
         <Card className="lg:col-span-3">
           <CardHeader>
             <CardTitle className="text-base">{t('dashboard.map.title')}</CardTitle>

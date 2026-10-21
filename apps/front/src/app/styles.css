@@ -130,9 +130,9 @@
 }
 
 @layer base {
-  /* A double tap while scrolling no longer zooms the page; a pinch still does, to enlarge the text (WCAG 1.4.4). */
+  /* The page scrolls under a finger and never zooms, neither under a pinch nor under a double tap; maps still zoom. */
   * {
-    @apply border-border outline-ring/50 touch-manipulation;
+    @apply border-border outline-ring/50 touch-pan-x touch-pan-y;
   }
   html {
     @apply antialiased;

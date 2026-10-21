@@ -50,7 +50,7 @@ export function SectionForm<Values extends FieldValues>({
           <AlertDescription>{globalErrors.join(' ')}</AlertDescription>
         </Alert>
       )}
-      <div className="grid gap-5 sm:grid-cols-2">{children(form)}</div>
+      <div className="grid grid-cols-1 gap-5 sm:grid-cols-2">{children(form)}</div>
       <div className="flex justify-end gap-2">
         <Button type="button" variant="ghost" onClick={onDone}>
           {t('common.cancel')}

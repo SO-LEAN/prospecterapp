@@ -91,7 +91,7 @@ function Section({ title, children }: { title: string; children: React.ReactNode
       <CardHeader>
         <CardTitle className="text-base">{title}</CardTitle>
       </CardHeader>
-      <CardContent className="grid gap-5 sm:grid-cols-2">{children}</CardContent>
+      <CardContent className="grid grid-cols-1 gap-5 sm:grid-cols-2">{children}</CardContent>
     </Card>
   )
 }
