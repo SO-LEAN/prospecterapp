@@ -1,6 +1,6 @@
 import { fireEvent, render, screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
-import { describe, expect, it, vi } from 'vitest'
+import { afterEach, describe, expect, it, vi } from 'vitest'
 import type { ExchangeValues } from '../schema'
 import { ExchangeForm, type Interlocutors } from './exchange-form'
 
@@ -15,8 +15,14 @@ function renderForm(onSubmit = vi.fn().mockResolvedValue(undefined), options: Op
 
 const save = () => screen.getByRole('button', { name: 'Enregistrer' })
 
+afterEach(() => {
+  vi.useRealTimers()
+})
+
 describe('ExchangeForm', () => {
   it('notes a received exchange, now, once its channel is chosen', async () => {
+    vi.useFakeTimers({ toFake: ['Date'] })
+    vi.setSystemTime(new Date('2026-10-15T14:35:59'))
     const { onSubmit, user } = renderForm()
 
     await user.click(screen.getByLabelText('SMS'))
@@ -26,7 +32,7 @@ describe('ExchangeForm', () => {
       {
         channel: 'sms',
         direction: 'inbound',
-        occurredAt: expect.any(String),
+        occurredAt: new Date('2026-10-15T14:35').toISOString(),
         text: null,
         missed: false,
       },
@@ -34,8 +40,6 @@ describe('ExchangeForm', () => {
       [],
     )
     expect(screen.queryByText('Interlocuteur')).not.toBeInTheDocument()
-    const occurredAt = new Date(onSubmit.mock.calls[0]?.[0].occurredAt).getTime()
-    expect(Date.now() - occurredAt).toBeLessThan(60_000)
   })
 
   it('asks for the channel before sending', async () => {
