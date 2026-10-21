@@ -76,12 +76,18 @@ test('on a phone, pinching the map zooms the map', async ({ page }) => {
   await expect.poll(() => mapOf(page).screenshot(), 'the map zoomed').not.toEqual(before)
 })
 
-test('on a phone, the page never zooms, on the map or out of it', async ({ page }) => {
+test('on a phone, the page never zooms, on the map or out of it, and a finger on the map scrolls it', async ({
+  page,
+}) => {
   await theDashboardWithItsMap(page)
   const theText = page.getByRole('heading', { name: /Bonjour/ })
 
   await expect(page.locator('meta[name=viewport]')).toHaveAttribute('content', NO_PAGE_ZOOM)
   await expect(theText).toHaveCSS('touch-action', PAGE_SCROLL_ONLY)
+  await expect(mapOf(page).locator('..'), 'a finger on the map scrolls the page').toHaveCSS(
+    'touch-action',
+    PAGE_SCROLL_ONLY,
+  )
   expect(await safariPinchOn(theText), 'Safari kept from zooming the page').toBe(true)
   expect(await safariPinchOn(mapOf(page)), 'over the map too').toBe(true)
 })
