@@ -1,8 +1,8 @@
 import { useInfiniteQuery } from '@tanstack/react-query'
 import { useNoteExchange } from '../mutations'
 import { timelineQuery } from '../queries'
-import { ExchangeLine } from './exchange-line'
 import { ExchangeForm } from './exchange-form'
+import { ExchangeLine } from './exchange-line'
 import { NoteExchangeDialog, TimelineCard } from './timeline-card'
 
 type Props = { contactId: string; contactName: string; className?: string }

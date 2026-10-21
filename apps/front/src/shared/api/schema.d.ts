@@ -984,10 +984,6 @@ export interface components {
         OrganizationsOfContactResource: {
             items: components["schemas"]["OrganizationOfContactResource"][];
         };
-        ExchangeContactResource: {
-            id: string;
-            name: components["schemas"]["PersonNameResource"];
-        };
         AuthorResource: {
             name: components["schemas"]["PersonNameResource"];
             /** @description Their email, to name them while their profile has no name */
@@ -1000,17 +996,17 @@ export interface components {
         };
         ExchangeDetailLinksResource: {
             self: components["schemas"]["LinkResource"];
-            contact: components["schemas"]["LinkResource"];
+            interlocutor: components["schemas"]["LinkResource"];
             correctExchange?: components["schemas"]["LinkResource"];
             eraseExchange?: components["schemas"]["LinkResource"];
         };
         ExchangeDetailResource: {
             id: string;
-            contact: components["schemas"]["ExchangeContactResource"];
+            interlocutor: components["schemas"]["InterlocutorResource"];
             /** @enum {string} */
             channel: "call" | "sms" | "email" | "linkedIn" | "meeting" | "other";
             /**
-             * @description inbound: the contact reached out; outbound: we did
+             * @description inbound: the contact or the organization reached out; outbound: we did
              * @enum {string}
              */
             direction: "inbound" | "outbound";
@@ -1019,7 +1015,7 @@ export interface components {
             /** Format: date-time */
             occurredAt: string;
             text?: string | null;
-            /** @description The organizations it is kept for, those the contact was part of when it was noted */
+            /** @description The organizations it is kept for: those the contact was part of when it was noted, or the organization itself */
             organizationIds: string[];
             noted: components["schemas"]["StampResource"];
             /** @description The last correction, null while it is as it was noted */

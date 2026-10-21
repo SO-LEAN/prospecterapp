@@ -21,7 +21,7 @@ final readonly class ExchangeDetailResponse
      */
     private function __construct(
         public string $id,
-        public string $personId,
+        public ?string $personId,
         public string $channel,
         public string $direction,
         public bool $missed,
@@ -43,7 +43,7 @@ final readonly class ExchangeDetailResponse
 
         return new self(
             id: $exchange->id()->value,
-            personId: $exchange->contact()->value,
+            personId: $exchange->contact()?->value,
             channel: $facts->channel->value,
             direction: $facts->direction->value,
             missed: $facts->missed,

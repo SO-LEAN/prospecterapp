@@ -2,8 +2,8 @@
 
 namespace App\Exchanges;
 
+use App\Contacts\Resource\InterlocutorResource;
 use App\Exchanges\Resource\AuthorResource;
-use App\Exchanges\Resource\ExchangeContactResource;
 use App\Exchanges\Resource\ExchangeDetailLinksResource;
 use App\Exchanges\Resource\ExchangeDetailResource;
 use App\Exchanges\Resource\StampResource;
@@ -11,6 +11,7 @@ use App\PersonalData\Resource\PersonNameResource;
 use App\Shared\Links;
 use Prospecter\Core\PersonalData\Application\PersonResponse;
 use Prospecter\Core\Prospecting\Application\ConsultExchange\ExchangeDetailResponse;
+use Prospecter\Core\Prospecting\Application\OrganizationResponse;
 
 /**
  * The detail of an exchange, with a link per intention the prospector may carry out on it.
@@ -30,14 +31,15 @@ final readonly class ExchangeDetailPresenter
      * @param array<string, PersonResponse> $persons        by person id
      * @param array<string, string>         $personOfMember the person id of each member, by member id
      */
-    public function present(ExchangeDetailResponse $exchange, array $persons, array $personOfMember): ExchangeDetailResource
+    public function present(ExchangeDetailResponse $exchange, array $persons, array $personOfMember, ?OrganizationResponse $itself): ExchangeDetailResource
     {
         $nameOf = static fn (string $person): PersonNameResource => new PersonNameResource($persons[$person]->firstName ?? null, $persons[$person]->lastName ?? null);
         $authorOf = static fn (string $member): AuthorResource => new AuthorResource($nameOf($personOfMember[$member]), $persons[$personOfMember[$member]]->email ?? null);
+        $interlocutor = self::interlocutorOf($exchange, $persons, $itself);
 
         return new ExchangeDetailResource(
             id: $exchange->id,
-            contact: new ExchangeContactResource($exchange->personId, $nameOf($exchange->personId)),
+            interlocutor: $interlocutor,
             channel: $exchange->channel,
             direction: $exchange->direction,
             missed: $exchange->missed,
@@ -46,11 +48,25 @@ final readonly class ExchangeDetailPresenter
             organizationIds: $exchange->organizationIds,
             noted: new StampResource($exchange->createdAt->format(\DateTimeInterface::ATOM), $authorOf($exchange->createdBy)),
             corrected: null === $exchange->correctedAt || null === $exchange->correctedBy ? null : new StampResource($exchange->correctedAt->format(\DateTimeInterface::ATOM), $authorOf($exchange->correctedBy)),
-            links: $this->linksOf($exchange),
+            links: $this->linksOf($exchange, $interlocutor),
         );
     }
 
-    private function linksOf(ExchangeDetailResponse $exchange): ExchangeDetailLinksResource
+    /**
+     * @param array<string, PersonResponse> $persons
+     */
+    private static function interlocutorOf(ExchangeDetailResponse $exchange, array $persons, ?OrganizationResponse $itself): InterlocutorResource
+    {
+        if (null === $exchange->personId) {
+            return new InterlocutorResource(InterlocutorResource::ORGANIZATION, $itself->id ?? '', $itself?->fullName);
+        }
+        $person = $persons[$exchange->personId] ?? null;
+        $name = null === $person ? '' : trim(sprintf('%s %s', $person->firstName, $person->lastName));
+
+        return new InterlocutorResource(InterlocutorResource::PERSON, $exchange->personId, '' === $name ? null : $name);
+    }
+
+    private function linksOf(ExchangeDetailResponse $exchange, InterlocutorResource $interlocutor): ExchangeDetailLinksResource
     {
         $id = ['id' => $exchange->id];
         $possible = [];
@@ -64,7 +80,7 @@ final readonly class ExchangeDetailPresenter
 
         return new ExchangeDetailLinksResource(
             $this->links->to('api_exchanges_show', $id),
-            $this->links->to('api_contacts_show', ['id' => $exchange->personId]),
+            $this->links->to(InterlocutorResource::PERSON === $interlocutor->kind ? 'api_contacts_show' : 'api_organizations_show', ['id' => $interlocutor->id]),
             ...$possible,
         );
     }

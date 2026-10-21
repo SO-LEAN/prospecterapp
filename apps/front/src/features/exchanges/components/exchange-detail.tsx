@@ -79,10 +79,7 @@ function Exchange({ exchange, onErased }: { exchange: ExchangeDetail; onErased: 
 
   return (
     <div className="space-y-4 px-4 pb-4 text-sm">
-      <p className="text-muted-foreground">
-        {t('exchanges.detail.with', { name: nameOf(exchange.contact.name) })}
-      </p>
-      <ExchangeSummary exchange={exchange}>
+      <ExchangeSummary exchange={exchange} interlocutor={exchange.interlocutor}>
         {exchange.text && <p className="mt-2 whitespace-pre-wrap break-words">{exchange.text}</p>}
       </ExchangeSummary>
       <div className="space-y-1 text-muted-foreground text-xs">

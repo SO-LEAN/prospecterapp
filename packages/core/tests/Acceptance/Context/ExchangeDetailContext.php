@@ -14,8 +14,10 @@ use Prospecter\Core\Prospecting\Application\ConsultExchange\ExchangeDetailRespon
 use Prospecter\Core\Prospecting\Application\CorrectExchange\CorrectExchange;
 use Prospecter\Core\Prospecting\Application\EraseExchange\EraseExchange;
 use Prospecter\Core\Prospecting\Application\NoteExchange\NoteExchange;
+use Prospecter\Core\Prospecting\Application\NoteOrganizationExchange\NoteOrganizationExchange;
 use Prospecter\Core\Prospecting\Domain\ExchangeId;
 use Prospecter\Core\SharedKernel\Domain\MemberId;
+use Prospecter\Core\SharedKernel\Domain\OrganizationId;
 use Prospecter\Core\SharedKernel\Domain\PersonId;
 use Tests\Core\Acceptance\Expect;
 use Tests\Core\Acceptance\Vocabulary;
@@ -31,22 +33,17 @@ final class ExchangeDetailContext implements Context
 
     private string $exchange = '';
 
-    #[Given('/^"(?<member>[^"]+)" a noté le (?<day>\S+) à (?<time>\S+) (?<exchange>'.ExchangeContext::ANY_EXCHANGE.') (?<direction>reçu|envoyé) (?:à|de) "(?<contact>[^"]+)" à (?<occurredTime>\S+) : "(?<text>.*)"$/')]
-    public function aMemberNotedAnExchange(string $member, string $day, string $time, string $exchange, string $direction, string $contact, string $occurredTime, string $text): void
+    #[Given('/^"(?<member>[^"]+)" a noté le (?<day>\S+) à (?<time>\S+) (?<exchange>'.ExchangeContext::ANY_EXCHANGE.') (?<direction>reçu|envoyé) (?:à|de) "(?<interlocutor>[^"]+)"(?<itself> elle-même)? à (?<occurredTime>\S+) : "(?<text>.*)"$/')]
+    public function aMemberNotedAnExchange(string $member, string $day, string $time, string $exchange, string $direction, string $interlocutor, string $itself, string $occurredTime, string $text): void
     {
         $this->application->itIs(Vocabulary::frenchMoment(sprintf('%s à %s', $day, $time)));
         $this->exchange = $this->application->newIdentity();
-        $this->application->dispatch(new NoteExchange(
-            prospectorId: $this->scenario->memberIdOf($member)->value,
-            id: $this->exchange,
-            personId: $this->scenario->personIdOf($contact),
-            channel: Vocabulary::channelOfAnExchange($exchange),
-            direction: Vocabulary::direction($direction),
-            occurredAt: Vocabulary::frenchMoment(sprintf('%s à %s', $day, $occurredTime)),
-            text: $text,
-            missed: false,
-            executedAt: $this->application->now(),
-        ));
+        $prospectorId = $this->scenario->memberIdOf($member)->value;
+        $channel = Vocabulary::channelOfAnExchange($exchange);
+        $occurredAt = Vocabulary::frenchMoment(sprintf('%s à %s', $day, $occurredTime));
+        $this->application->dispatch('' === $itself
+            ? new NoteExchange($prospectorId, $this->exchange, $this->scenario->personIdOf($interlocutor), $channel, Vocabulary::direction($direction), $occurredAt, $text, false, $this->application->now())
+            : new NoteOrganizationExchange($prospectorId, $this->exchange, $this->scenario->idOf($interlocutor), null, $channel, Vocabulary::direction($direction), $occurredAt, $text, false, $this->application->now()));
         Expect::that(null === $this->application->refusal(), sprintf('The exchange was expected to be noted, got: %s', $this->application->refusal()?->getMessage()));
     }
 
@@ -116,7 +113,7 @@ final class ExchangeDetailContext implements Context
     private function describe(ExchangeDetailResponse $exchange): array
     {
         return [
-            'interlocuteur' => $this->scenario->nameOfPerson(new PersonId($exchange->personId)),
+            'interlocuteur' => $this->interlocutorOf($exchange),
             'canal' => Vocabulary::describeChannel($exchange->channel),
             'sens' => Vocabulary::describeDirection($exchange->direction),
             'moment' => Vocabulary::describeFrenchMoment($exchange->occurredAt),
@@ -124,5 +121,15 @@ final class ExchangeDetailContext implements Context
             'noté' => Vocabulary::describeDoneBy($exchange->createdAt, $this->scenario->nameOfMember(new MemberId($exchange->createdBy))),
             'modifié' => null === $exchange->correctedAt || null === $exchange->correctedBy ? '' : Vocabulary::describeDoneBy($exchange->correctedAt, $this->scenario->nameOfMember(new MemberId($exchange->correctedBy))),
         ];
+    }
+
+    /**
+     * The contact it was with, or the organization itself, the only one it is kept for.
+     */
+    private function interlocutorOf(ExchangeDetailResponse $exchange): string
+    {
+        return null === $exchange->personId
+            ? $this->scenario->nameOf(new OrganizationId($exchange->organizationIds[0] ?? ''))
+            : $this->scenario->nameOfPerson(new PersonId($exchange->personId));
     }
 }

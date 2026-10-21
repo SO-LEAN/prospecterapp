@@ -40,7 +40,13 @@ export const INTERLOCUTOR_ICONS: Record<Interlocutor['kind'], LucideIcon> = {
  * One exchange of the timeline: who communicated in the timeline of an organization, its summary and the
  * beginning of its text.
  */
-export function ExchangeLine({ exchange, interlocutor }: { exchange: Exchange; interlocutor?: Interlocutor }) {
+export function ExchangeLine({
+  exchange,
+  interlocutor,
+}: {
+  exchange: Exchange
+  interlocutor?: Interlocutor
+}) {
   return (
     <ExchangeSummary exchange={exchange} interlocutor={interlocutor}>
       {exchange.text && <p className="truncate">{exchange.text}</p>}

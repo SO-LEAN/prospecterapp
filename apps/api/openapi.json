@@ -3822,21 +3822,6 @@
                 },
                 "type": "object"
             },
-            "ExchangeContactResource": {
-                "required": [
-                    "id",
-                    "name"
-                ],
-                "properties": {
-                    "id": {
-                        "type": "string"
-                    },
-                    "name": {
-                        "$ref": "#/components/schemas/PersonNameResource"
-                    }
-                },
-                "type": "object"
-            },
             "AuthorResource": {
                 "required": [
                     "name"
@@ -3872,13 +3857,13 @@
             "ExchangeDetailLinksResource": {
                 "required": [
                     "self",
-                    "contact"
+                    "interlocutor"
                 ],
                 "properties": {
                     "self": {
                         "$ref": "#/components/schemas/LinkResource"
                     },
-                    "contact": {
+                    "interlocutor": {
                         "$ref": "#/components/schemas/LinkResource"
                     },
                     "correctExchange": {
@@ -3893,7 +3878,7 @@
             "ExchangeDetailResource": {
                 "required": [
                     "id",
-                    "contact",
+                    "interlocutor",
                     "channel",
                     "direction",
                     "missed",
@@ -3906,8 +3891,8 @@
                     "id": {
                         "type": "string"
                     },
-                    "contact": {
-                        "$ref": "#/components/schemas/ExchangeContactResource"
+                    "interlocutor": {
+                        "$ref": "#/components/schemas/InterlocutorResource"
                     },
                     "channel": {
                         "type": "string",
@@ -3921,7 +3906,7 @@
                         ]
                     },
                     "direction": {
-                        "description": "inbound: the contact reached out; outbound: we did",
+                        "description": "inbound: the contact or the organization reached out; outbound: we did",
                         "type": "string",
                         "enum": [
                             "inbound",
@@ -3941,7 +3926,7 @@
                         "nullable": true
                     },
                     "organizationIds": {
-                        "description": "The organizations it is kept for, those the contact was part of when it was noted",
+                        "description": "The organizations it is kept for: those the contact was part of when it was noted, or the organization itself",
                         "type": "array",
                         "items": {
                             "type": "string"
