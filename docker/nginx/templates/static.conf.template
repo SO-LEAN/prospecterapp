@@ -32,6 +32,26 @@ server {
         include /etc/nginx/storage-lambda.conf;
     }
 
+    # The private files (ADR 0077): only the requests the storage signed, passed as they came for MiniStack to check
+    # their signature against this host; MiniStack checks those of the downloads, not those of the upload forms.
+    location = /${PRIVATE_FILES_BUCKET} {
+        limit_except POST {
+            deny all;
+        }
+        client_max_body_size 11m;
+        include /etc/nginx/private-files.conf;
+    }
+
+    location /${PRIVATE_FILES_BUCKET}/ {
+        limit_except GET {
+            deny all;
+        }
+        if ($args !~ "X-Amz-Signature=") {
+            return 403;
+        }
+        include /etc/nginx/private-files.conf;
+    }
+
     # storing and removing files go through the internal server only
     location / {
         return 404;
@@ -47,6 +67,11 @@ server {
     set $ministack ${MINISTACK_HOST};
 
     location /files {
+        include /etc/nginx/storage-lambda.conf;
+    }
+
+    # the private files: the forms of the uploads, keeping them, the links reading them, removing them (ADR 0077)
+    location ~ ^/(uploads|private-files)(/|$) {
         include /etc/nginx/storage-lambda.conf;
     }
 

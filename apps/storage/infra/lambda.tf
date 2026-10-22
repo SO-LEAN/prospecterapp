@@ -40,17 +40,18 @@ resource "aws_iam_role_policy" "lambda" {
         Resource = "${aws_cloudwatch_log_group.lambda.arn}:*"
       },
       {
+        # the requests it signs for the browsers act with these rights too (ADR 0077)
         Sid      = "KeepItsFiles"
         Effect   = "Allow"
         Action   = ["s3:DeleteObject", "s3:GetObject", "s3:PutObject"]
-        Resource = "${aws_s3_bucket.files.arn}/*"
+        Resource = ["${aws_s3_bucket.files.arn}/*", "${aws_s3_bucket.private_files.arn}/*"]
       },
       {
         # a missing key is then NoSuchKey, not AccessDenied
-        Sid      = "KnowWhatItsBucketHolds"
+        Sid      = "KnowWhatItsBucketsHold"
         Effect   = "Allow"
         Action   = "s3:ListBucket"
-        Resource = aws_s3_bucket.files.arn
+        Resource = [aws_s3_bucket.files.arn, aws_s3_bucket.private_files.arn]
       },
       {
         Sid      = "ReadItsParameters"
@@ -98,6 +99,9 @@ resource "aws_lambda_function" "storage" {
       STORAGE_TOKEN      = "bref-ssm:${aws_ssm_parameter.token.name}"
       S3_ENDPOINT        = ""
       S3_BUCKET          = aws_s3_bucket.files.id
+      S3_PRIVATE_BUCKET  = aws_s3_bucket.private_files.id
+      # the browsers reach the private files on S3 itself
+      S3_BROWSER_ENDPOINT = ""
       # read at the start too, for the same cycle
       CLOUDFRONT_DISTRIBUTION_ID = "bref-ssm:${local.ssm_path}/distribution-id"
     }

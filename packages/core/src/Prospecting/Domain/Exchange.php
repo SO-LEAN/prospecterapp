@@ -4,11 +4,15 @@ declare(strict_types=1);
 
 namespace Prospecter\Core\Prospecting\Domain;
 
+use Prospecter\Core\Prospecting\Domain\Event\AttachmentRemoved;
 use Prospecter\Core\Prospecting\Domain\Event\ExchangeCorrected;
 use Prospecter\Core\Prospecting\Domain\Event\ExchangeErased;
 use Prospecter\Core\Prospecting\Domain\Event\ExchangeNoLongerKeptFor;
 use Prospecter\Core\Prospecting\Domain\Event\ExchangeNoted;
+use Prospecter\Core\Prospecting\Domain\Event\FileAttached;
 use Prospecter\Core\Prospecting\Domain\Exception\ExchangeInTheFuture;
+use Prospecter\Core\Prospecting\Domain\Exception\NoRoomForAnAttachment;
+use Prospecter\Core\Prospecting\Domain\Exception\UnknownAttachment;
 use Prospecter\Core\Prospecting\Domain\Exception\UnknownExchange;
 use Prospecter\Core\Prospecting\Domain\Exception\UnknownOrganization;
 use Prospecter\Core\SharedKernel\Domain\AccountId;
@@ -29,8 +33,12 @@ final class Exchange implements ReleasesEvents
 {
     use RecordsEvents;
 
+    public const int MOST_ATTACHMENTS = 10;
+
     private \DateTimeImmutable $modifiedAt;
     private ?Correction $lastCorrection = null;
+    /** @var list<Attachment> */
+    private array $attachments = [];
 
     /**
      * @param list<OrganizationId> $keptFor
@@ -143,6 +151,34 @@ final class Exchange implements ReleasesEvents
         return $this->lastCorrection;
     }
 
+    /**
+     * The files joined to it, in the order they were.
+     *
+     * @return list<Attachment>
+     */
+    public function attachments(): array
+    {
+        return $this->attachments;
+    }
+
+    /**
+     * A file joined to it, read like the exchange itself.
+     *
+     * @throws UnknownExchange|PersonalDataManagersOnly|UnknownAttachment
+     */
+    public function attachmentReadBy(Prospector $prospector, AttachmentId $id): Attachment
+    {
+        $this->ensureReadableBy($prospector);
+
+        foreach ($this->attachments as $attachment) {
+            if ($attachment->id->equals($id)) {
+                return $attachment;
+            }
+        }
+
+        throw UnknownAttachment::identifiedBy($id);
+    }
+
     public function createdAt(): \DateTimeImmutable
     {
         return $this->createdAt;
@@ -158,7 +194,16 @@ final class Exchange implements ReleasesEvents
      */
     public function possibleIntentsOf(Prospector $prospector): array
     {
-        return $this->belongsTo($prospector) && $prospector->managesPersonalData ? ExchangeIntent::cases() : [];
+        if (!$this->belongsTo($prospector) || !$prospector->managesPersonalData) {
+            return [];
+        }
+
+        return array_values(array_filter(ExchangeIntent::cases(), fn (ExchangeIntent $intent): bool => ExchangeIntent::AttachFile !== $intent || $this->hasRoomForAnAttachment()));
+    }
+
+    private function hasRoomForAnAttachment(): bool
+    {
+        return count($this->attachments) < self::MOST_ATTACHMENTS;
     }
 
     /**
@@ -199,6 +244,31 @@ final class Exchange implements ReleasesEvents
     }
 
     /**
+     * A file it brought, or that was sent with it.
+     *
+     * @throws UnknownExchange|PersonalDataManagersOnly|NoRoomForAnAttachment
+     */
+    public function attach(Attachment $attachment, Prospector $by, \DateTimeImmutable $at): void
+    {
+        $this->ensurePossible(ExchangeIntent::AttachFile, $by);
+        $this->attachments[] = $attachment;
+        $this->modifiedAt = $at;
+        $this->recordThat(new FileAttached($this->accountId, $by->id, $this->id, $attachment->id, $at));
+    }
+
+    /**
+     * @throws UnknownExchange|PersonalDataManagersOnly|UnknownAttachment
+     */
+    public function removeAttachment(AttachmentId $id, Prospector $by, \DateTimeImmutable $at): void
+    {
+        $this->ensurePossible(ExchangeIntent::RemoveAttachment, $by);
+        $removed = $this->attachmentReadBy($by, $id);
+        $this->attachments = array_values(array_filter($this->attachments, static fn (Attachment $attachment): bool => $attachment !== $removed));
+        $this->modifiedAt = $at;
+        $this->recordThat(new AttachmentRemoved($this->accountId, $by->id, $this->id, $id, $at));
+    }
+
+    /**
      * The account stopped prospecting this organization: kept for no organization any more, the exchange must
      * not stay (`isKeptForAnOrganization()`).
      *
@@ -218,14 +288,16 @@ final class Exchange implements ReleasesEvents
     }
 
     /**
-     * @throws UnknownExchange|PersonalDataManagersOnly
+     * Every intention needs the right to manage personal data; joining a file, room for it too.
+     *
+     * @throws UnknownExchange|PersonalDataManagersOnly|NoRoomForAnAttachment
      */
     private function ensurePossible(ExchangeIntent $intent, Prospector $by): void
     {
-        $this->ensureReachableBy($by);
+        $this->ensureReadableBy($by);
 
         if (!in_array($intent, $this->possibleIntentsOf($by), true)) {
-            throw PersonalDataManagersOnly::because('Only a prospector allowed to manage personal data may exchange with the contacts');
+            throw NoRoomForAnAttachment::because(sprintf('An exchange holds %d attachments at most', self::MOST_ATTACHMENTS));
         }
     }
 

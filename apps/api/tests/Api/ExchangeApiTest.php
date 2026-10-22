@@ -27,6 +27,7 @@ class ExchangeApiTest extends ApiTestCase
         $timeline = $this->note($contact, ['channel' => 'linkedIn', 'direction' => 'inbound', 'occurredAt' => '2026-10-14T14:30:00+02:00', 'text' => 'Intéressée par une mission en mars']);
 
         $this->assertResponseStatusCodeSame(201);
+        $this->assertResponseHeaderSame('Location', '/api/exchanges/'.$timeline['items'][0]['id']);
         $this->assertSame([['linkedIn', 'inbound', '2026-10-14T12:30:00+00:00', 'Intéressée par une mission en mars'], ['call', 'outbound', '2026-10-10T07:00:00+00:00', null]], array_map(static fn (array $exchange): array => [$exchange['channel'], $exchange['direction'], $exchange['occurredAt'], $exchange['text']], $timeline['items']));
         $this->assertSame(['self', 'noteExchange'], array_keys($timeline['_links']));
         $this->assertSame(['href' => '/api/exchanges/'.$timeline['items'][0]['id'], 'method' => 'GET'], $timeline['items'][0]['_links']['self']);
@@ -144,7 +145,8 @@ class ExchangeApiTest extends ApiTestCase
         $this->assertSame(['sms', 'inbound', false, '2026-10-14T14:30:00+00:00', "Rappeler lundi\nAprès le salon"], [$exchange['channel'], $exchange['direction'], $exchange['missed'], $exchange['occurredAt'], $exchange['text']]);
         $this->assertSame(['at' => '2026-10-15T09:00:00+00:00', 'by' => ['name' => ['firstName' => null, 'lastName' => null], 'email' => 'prospector@solean-it.io']], $exchange['noted']);
         $this->assertNull($exchange['corrected']);
-        $this->assertSame(['self', 'interlocutor', 'correctExchange', 'eraseExchange'], array_keys($exchange['_links']));
+        $this->assertSame([], $exchange['attachments']);
+        $this->assertSame(['self', 'interlocutor', 'correctExchange', 'eraseExchange', 'attachFile'], array_keys($exchange['_links']));
         $this->assertSame(['href' => '/api/contacts/'.$contact, 'method' => 'GET'], $exchange['_links']['interlocutor']);
         $this->assertSame(['href' => '/api/exchanges/'.$exchange['id'].'/facts', 'method' => 'PATCH'], $exchange['_links']['correctExchange']);
         $this->assertSame(['href' => '/api/exchanges/'.$exchange['id'], 'method' => 'DELETE'], $exchange['_links']['eraseExchange']);

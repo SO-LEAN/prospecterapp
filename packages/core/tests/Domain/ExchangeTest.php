@@ -6,15 +6,20 @@ namespace Tests\Core\Domain;
 
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
+use Prospecter\Core\Prospecting\Domain\Attachment;
+use Prospecter\Core\Prospecting\Domain\AttachmentId;
 use Prospecter\Core\Prospecting\Domain\Channel;
 use Prospecter\Core\Prospecting\Domain\Correction;
 use Prospecter\Core\Prospecting\Domain\Direction;
+use Prospecter\Core\Prospecting\Domain\Event\AttachmentRemoved;
 use Prospecter\Core\Prospecting\Domain\Event\ExchangeCorrected;
 use Prospecter\Core\Prospecting\Domain\Event\ExchangeErased;
 use Prospecter\Core\Prospecting\Domain\Event\ExchangeNoLongerKeptFor;
 use Prospecter\Core\Prospecting\Domain\Event\ExchangeNoted;
+use Prospecter\Core\Prospecting\Domain\Event\FileAttached;
 use Prospecter\Core\Prospecting\Domain\Exception\ExchangeInTheFuture;
 use Prospecter\Core\Prospecting\Domain\Exception\MissedOnlyForACall;
+use Prospecter\Core\Prospecting\Domain\Exception\NoRoomForAnAttachment;
 use Prospecter\Core\Prospecting\Domain\Exception\UnknownExchange;
 use Prospecter\Core\Prospecting\Domain\Exchange;
 use Prospecter\Core\Prospecting\Domain\ExchangeFacts;
@@ -35,6 +40,7 @@ class ExchangeTest extends TestCase
     private const string CONTACT = '0190a1c0-0000-7000-8000-000000000004';
     private const string ACME = '0190a1c0-0000-7000-8000-000000000005';
     private const string GROUP = '0190a1c0-0000-7000-8000-000000000006';
+    private const string ATTACHMENT = '0190a1c0-0000-7000-8000-000000000007';
     private const string NOW = '2026-10-18 19:00';
 
     public function testNotingRecordsIt(): void
@@ -130,9 +136,42 @@ class ExchangeTest extends TestCase
         $exchange->stopKeepingFor(new OrganizationId(self::ACME), by: $this->otherAccount(), at: new \DateTimeImmutable(self::NOW));
     }
 
-    public function testAManagerOfPersonalDataMayCorrectOrEraseIt(): void
+    public function testAManagerOfPersonalDataMayDoAnythingWithIt(): void
     {
         $this->assertSame(ExchangeIntent::cases(), $this->anExchange()->possibleIntentsOf($this->me()));
+    }
+
+    public function testAFullExchangeOffersNoRoomForAnotherFile(): void
+    {
+        $this->assertNotContains(ExchangeIntent::AttachFile, $this->aFullExchange()->possibleIntentsOf($this->me()));
+    }
+
+    public function testAFullExchangeRefusesAnotherFile(): void
+    {
+        $this->expectException(NoRoomForAnAttachment::class);
+
+        $this->aFullExchange()->attach($this->anAttachment(self::ATTACHMENT), by: $this->me(), at: new \DateTimeImmutable(self::NOW));
+    }
+
+    public function testAttachingRecordsIt(): void
+    {
+        $exchange = $this->anExchange();
+        $exchange->releaseEvents();
+
+        $exchange->attach($this->anAttachment(self::ATTACHMENT), by: $this->me(), at: new \DateTimeImmutable(self::NOW));
+
+        $this->assertEquals([new FileAttached(new AccountId(self::MINE), $this->me()->id, new ExchangeId(self::EXCHANGE), new AttachmentId(self::ATTACHMENT), new \DateTimeImmutable(self::NOW))], $exchange->releaseEvents());
+    }
+
+    public function testRemovingAnAttachmentRecordsIt(): void
+    {
+        $exchange = $this->withAnAttachment();
+        $exchange->releaseEvents();
+
+        $exchange->removeAttachment(new AttachmentId(self::ATTACHMENT), by: $this->me(), at: new \DateTimeImmutable(self::NOW));
+
+        $this->assertSame([], $exchange->attachments());
+        $this->assertEquals([new AttachmentRemoved(new AccountId(self::MINE), $this->me()->id, new ExchangeId(self::EXCHANGE), new AttachmentId(self::ATTACHMENT), new \DateTimeImmutable(self::NOW))], $exchange->releaseEvents());
     }
 
     public function testNothingIsOfferedWithoutTheRightToManagePersonalData(): void
@@ -151,14 +190,14 @@ class ExchangeTest extends TestCase
     #[DataProvider('intentionsAndCallers')]
     public function testAnIntentionIsRefusedExactlyWhenNotOffered(ExchangeIntent $intent, string $caller): void
     {
-        $exchange = $this->anExchange();
+        $exchange = $this->withAnAttachment();
         $prospector = $this->{$caller}();
         $offered = in_array($intent, $exchange->possibleIntentsOf($prospector), true);
 
         try {
             $this->carryOut($intent, $exchange, $prospector);
             $refused = false;
-        } catch (UnknownExchange|PersonalDataManagersOnly) {
+        } catch (UnknownExchange|PersonalDataManagersOnly|NoRoomForAnAttachment) {
             $refused = true;
         }
 
@@ -184,6 +223,8 @@ class ExchangeTest extends TestCase
         match ($intent) {
             ExchangeIntent::CorrectExchange => $exchange->correct(new ExchangeFacts(Channel::Call, Direction::Inbound, $now), by: $by, at: $now),
             ExchangeIntent::EraseExchange => $exchange->erase(by: $by, at: $now),
+            ExchangeIntent::AttachFile => $exchange->attach($this->anAttachment('0190a1c0-0000-7000-8000-000000000008'), by: $by, at: $now),
+            ExchangeIntent::RemoveAttachment => $exchange->removeAttachment(new AttachmentId(self::ATTACHMENT), by: $by, at: $now),
         };
     }
 
@@ -249,6 +290,30 @@ class ExchangeTest extends TestCase
         $this->expectException(UnknownExchange::class);
 
         $this->anExchange()->erase(by: $this->otherAccount(), at: new \DateTimeImmutable(self::NOW));
+    }
+
+    private function withAnAttachment(): Exchange
+    {
+        $exchange = $this->anExchange();
+        $exchange->attach($this->anAttachment(self::ATTACHMENT), by: $this->me(), at: new \DateTimeImmutable(self::NOW));
+
+        return $exchange;
+    }
+
+    private function aFullExchange(): Exchange
+    {
+        $exchange = $this->anExchange();
+
+        foreach (range(1, Exchange::MOST_ATTACHMENTS) as $number) {
+            $exchange->attach($this->anAttachment(sprintf('0190a1c0-0000-7000-8000-%012d', 100 + $number)), by: $this->me(), at: new \DateTimeImmutable(self::NOW));
+        }
+
+        return $exchange;
+    }
+
+    private function anAttachment(string $id): Attachment
+    {
+        return new Attachment(new AttachmentId($id), 'devis.pdf', 2048, 'application/pdf', bin2hex(random_bytes(16)));
     }
 
     private function anExchange(): Exchange

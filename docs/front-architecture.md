@@ -69,6 +69,7 @@ Never copy server data into Zustand or `useState`: read it from the query, the c
 - `staleTime` 30 s: navigating back and forth does not refetch; data refreshes in the background when the window regains focus.
 - A list comes a slice after the other (ADR 0049): `infiniteQueryOptions` on the typed client (`organizationSlicesQuery`, `contactSlicesQuery`), the cursor read in the link `next` of a slice (`shared/api/slices.ts`), "Charger plus" asks for the next one (a timeline, of a contact or of an organization, also when its end scrolls into view: `timelineQuery`, `organizationTimelineQuery` and the shared `TimelineCard` of `features/exchanges`, `shared/hooks/use-when-visible.ts`); no page number, no total. A list keeps the previous search on screen while the next loads (`placeholderData: keepPreviousData`); the search input is debounced (300 ms) and written to the URL.
 - Mutations put the returned resource directly in the cache (`setQueryData`), then invalidate only the lists that may change; invalidated queries refetch only if displayed.
+- A file joined to an exchange goes from the browser to S3 with a form the API signs, then is joined by its upload; it is downloaded by a link signed for a minute the API answers, the link shown being the API's (`features/exchanges/attachments.ts`, ADR 0077). A new exchange tells its address in `Location`, for its files to be joined once it is noted.
 - Code splitting: one chunk per route (router plugin), MapLibre loaded with `lazy()` only on pages with a map.
 
 ## Navigation

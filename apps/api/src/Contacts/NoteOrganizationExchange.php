@@ -35,7 +35,7 @@ final class NoteOrganizationExchange extends AbstractController
 
     #[Route('/api/organizations/{id}/exchanges', name: 'api_organizations_note_exchange', requirements: ['id' => Requirement::UUID], methods: ['POST'])]
     #[OA\Post(summary: 'Note a call, a message or a meeting with the organization itself, or with one of its contacts')]
-    #[OA\Response(response: 201, description: 'The timeline of the organization with the new exchange', content: new Model(type: OrganizationTimelineResource::class))]
+    #[OA\Response(response: 201, description: 'The timeline of the organization with the new exchange', content: new Model(type: OrganizationTimelineResource::class), headers: [new OA\Header(header: 'Location', description: 'The new exchange, to join files to it', schema: new OA\Schema(type: 'string'))])]
     #[OA\Response(response: 401, description: 'Missing or invalid access token')]
     #[OA\Response(response: 403, description: 'Not a prospector, or no right to manage personal data', content: new Model(type: ProblemResource::class))]
     #[OA\Response(response: 404, description: 'Unknown organization, or one of another account', content: new Model(type: ProblemResource::class))]
@@ -44,9 +44,10 @@ final class NoteOrganizationExchange extends AbstractController
     public function __invoke(string $id, #[MapRequestPayload] OrganizationExchangeInput $input, #[CurrentUser] User $user): JsonResponse
     {
         $exchange = $input->exchange;
+        $noted = $this->identities->next();
         $this->commands->dispatch(new NoteOrganizationExchangeCommand(
             prospectorId: $user->memberId(),
-            id: $this->identities->next(),
+            id: $noted,
             organizationId: $id,
             personId: $input->personId,
             channel: $exchange->channel,
@@ -57,6 +58,6 @@ final class NoteOrganizationExchange extends AbstractController
             executedAt: $this->clock->now(),
         ));
 
-        return $this->json($this->timelines->read($user->memberId(), $id), Response::HTTP_CREATED);
+        return $this->json($this->timelines->read($user->memberId(), $id), Response::HTTP_CREATED, ['Location' => $this->generateUrl('api_exchanges_show', ['id' => $noted])]);
     }
 }

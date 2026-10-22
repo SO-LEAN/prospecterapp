@@ -1,10 +1,11 @@
-import { expect, test } from '@playwright/test'
+import { readFile } from 'node:fs/promises'
+import { expect, request, test } from '@playwright/test'
 import { ASSISTANT, signInOnTheSignInScreen } from './sign-in'
 
 const A_LONG_TEXT =
   'Intéressée par une mission en mars, à recontacter après le salon de novembre pour fixer un rendez-vous'
 
-test('note the exchanges with a contact, find them in its timeline, gone with its organization', async ({
+test('note the exchanges with a contact and their files, find them in its timeline, gone with its organization', async ({
   page,
   browser,
 }) => {
@@ -97,6 +98,35 @@ test('note the exchanges with a contact, find them in its timeline, gone with it
     await expect(detail).toBeHidden()
     await expect(timeline).toHaveCount(2)
     await expect(timeline.nth(1)).toContainText('Appel, Envoyé')
+  })
+
+  await test.step('a file joined while noting, downloaded as it was sent, never read signed out, then removed', async () => {
+    const contents = `Cahier des charges ${Date.now()}`
+    await page.getByRole('button', { name: 'Noter un échange' }).click()
+    await page.getByLabel('E-mail', { exact: true }).check()
+    await page.getByLabel('choisissez-les').setInputFiles({
+      name: 'cahier-des-charges.txt',
+      mimeType: 'text/plain',
+      buffer: Buffer.from(contents),
+    })
+    await page.getByRole('button', { name: 'Enregistrer' }).click()
+    await expect(timeline.first()).toContainText('1 pièce jointe')
+
+    await timeline.first().getByRole('button').click()
+    const detail = page.getByRole('dialog', { name: 'Échange' })
+    const file = detail.getByRole('link', { name: 'Télécharger cahier-des-charges.txt' })
+    const [download] = await Promise.all([page.waitForEvent('download'), file.click()])
+    expect(download.suggestedFilename()).toBe('cahier-des-charges.txt')
+    expect(await readFile((await download.path()) ?? '', 'utf8')).toBe(contents)
+
+    const signedOut = await request.newContext({ ignoreHTTPSErrors: true })
+    expect((await signedOut.get((await file.getAttribute('href')) ?? '')).status()).toBe(401)
+    await signedOut.dispose()
+
+    await detail.getByRole('button', { name: 'Retirer cahier-des-charges.txt' }).click()
+    await expect(file).toBeHidden()
+    await page.keyboard.press('Escape')
+    await expect(timeline.first()).not.toContainText('pièce jointe')
   })
 
   await test.step('stopping to prospect the organization takes the contact and its exchanges along', async () => {

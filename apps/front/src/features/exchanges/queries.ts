@@ -6,6 +6,8 @@ import { dataOf, nextSliceOf } from '@/shared/api/slices'
 export type Timeline = components['schemas']['TimelineResource']
 export type Exchange = components['schemas']['ExchangeResource']
 export type ExchangeInput = components['schemas']['ExchangeInput']
+export type OrganizationExchangeInput = components['schemas']['OrganizationExchangeInput']
+export type Attachment = components['schemas']['AttachmentResource']
 export type OrganizationTimeline = components['schemas']['OrganizationTimelineResource']
 export type OrganizationExchange = components['schemas']['OrganizationExchangeResource']
 export type Interlocutor = OrganizationExchange['interlocutor']

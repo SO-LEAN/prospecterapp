@@ -23,8 +23,10 @@ Fonctionnalité: Consulter le détail d'un échange
       | noté          | le 15/10/2026 à 14:35 par Michel   |
       | modifié       |                                    |
     Et je peux sur l'échange :
-      | corriger l'échange  |
-      | supprimer l'échange |
+      | corriger l'échange       |
+      | supprimer l'échange      |
+      | joindre un fichier       |
+      | retirer une pièce jointe |
 
   Scénario: Un échange avec l'organisation elle-même a l'organisation pour interlocuteur
     Soit "Michel" a noté le 16/10/2026 à 09h05 un appel reçu de "ACME" elle-même à 09h00 : "Le standard rappellera"

@@ -43,6 +43,8 @@ use Prospecter\Core\PersonalData\Contract\Service\IsAContactOf\IsAContactOf;
 use Prospecter\Core\PersonalData\Domain\EmailUniqueness as PersonalDataEmailUniqueness;
 use Prospecter\Core\Prospecting\Application\AddContact\AddContactHandler;
 use Prospecter\Core\Prospecting\Application\AttachCollectedContact\AttachCollectedContactHandler;
+use Prospecter\Core\Prospecting\Application\AttachedFiles;
+use Prospecter\Core\Prospecting\Application\AttachFile\AttachFileHandler;
 use Prospecter\Core\Prospecting\Application\AttachToHolding\AttachToHoldingHandler;
 use Prospecter\Core\Prospecting\Application\ChangeContactDetails\ChangeContactDetailsHandler;
 use Prospecter\Core\Prospecting\Application\ChangeLogo\ChangeLogoHandler;
@@ -61,6 +63,9 @@ use Prospecter\Core\Prospecting\Application\ConsultTimelineIntents\TimelineInten
 use Prospecter\Core\Prospecting\Application\CorrectExchange\CorrectExchangeHandler;
 use Prospecter\Core\Prospecting\Application\DetachForgottenContact\DetachForgottenContactHandler;
 use Prospecter\Core\Prospecting\Application\DetachFromHolding\DetachFromHoldingHandler;
+use Prospecter\Core\Prospecting\Application\DownloadAttachment\AttachmentDownloadResponse;
+use Prospecter\Core\Prospecting\Application\DownloadAttachment\DownloadAttachment;
+use Prospecter\Core\Prospecting\Application\DownloadAttachment\DownloadAttachmentHandler;
 use Prospecter\Core\Prospecting\Application\EraseExchange\EraseExchangeHandler;
 use Prospecter\Core\Prospecting\Application\IsProspectedBy\IsProspectedByHandler;
 use Prospecter\Core\Prospecting\Application\NoteExchange\NoteExchangeHandler;
@@ -70,6 +75,7 @@ use Prospecter\Core\Prospecting\Application\PublishContactsLeftWithoutOrganizati
 use Prospecter\Core\Prospecting\Application\RecognizeCallingOrganization\RecognizeCallingOrganization;
 use Prospecter\Core\Prospecting\Application\RecognizeCallingOrganization\RecognizeCallingOrganizationHandler;
 use Prospecter\Core\Prospecting\Application\Relocate\RelocateHandler;
+use Prospecter\Core\Prospecting\Application\RemoveAttachment\RemoveAttachmentHandler;
 use Prospecter\Core\Prospecting\Application\RemoveContact\RemoveContactHandler;
 use Prospecter\Core\Prospecting\Application\RemoveLogo\RemoveLogoHandler;
 use Prospecter\Core\Prospecting\Application\ReviseLegalIdentity\ReviseLegalIdentityHandler;
@@ -101,6 +107,7 @@ use Tests\Core\Double\InMemoryExchangeRepository;
 use Tests\Core\Double\InMemoryMemberRepository;
 use Tests\Core\Double\InMemoryOrganizationRepository;
 use Tests\Core\Double\InMemoryPersonRepository;
+use Tests\Core\Double\InMemoryPrivateStorage;
 use Tests\Core\Double\InMemoryStorage;
 use Tests\Core\Double\KnownPlacesGeoLocation;
 use Tests\Core\Double\PersonalDataKnownContacts;
@@ -123,6 +130,7 @@ final class Application
     public readonly InMemoryMemberRepository $members;
     public readonly InMemoryPersonRepository $persons;
     public readonly InMemoryStorage $storage;
+    public readonly InMemoryPrivateStorage $privateStorage;
     public readonly KnownPlacesGeoLocation $geoLocation;
 
     public readonly AccountsProspectorService $prospectorService;
@@ -136,6 +144,7 @@ final class Application
     private readonly ProspectingEmailUniqueness $organizationEmails;
     private readonly OrphanContacts $orphans;
     private readonly ContactOrganizations $contactOrganizations;
+    private readonly AttachedFiles $attachedFiles;
     /** @var array<class-string, CommandHandler> */
     private array $handlers = [];
     private ?string $signedIn = null;
@@ -159,6 +168,8 @@ final class Application
         $this->prospectedOrganizations = new ProspectingOrganizations($this->published(new IsProspectedByHandler($this->organizations)));
         $this->events = new SynchronousEvents();
         $this->storage = new InMemoryStorage();
+        $this->privateStorage = new InMemoryPrivateStorage();
+        $this->attachedFiles = new AttachedFiles($this->privateStorage);
         $this->geoLocation = new KnownPlacesGeoLocation();
         $this->files = new FileStore($this->storage);
         $this->geoLocalizer = new GeoLocalizer($this->geoLocation);
@@ -282,6 +293,11 @@ final class Application
         return $this->attempt(fn (): ExchangeDetailResponse => new RefusalTranslatingHandler(new ConsultExchangeHandler($this->exchanges, $this->prospectorService))($query));
     }
 
+    public function downloadAttachment(DownloadAttachment $query): ?AttachmentDownloadResponse
+    {
+        return $this->attempt(fn (): AttachmentDownloadResponse => new RefusalTranslatingHandler(new DownloadAttachmentHandler($this->exchanges, $this->prospectorService, $this->privateStorage))($query));
+    }
+
     /**
      * The business refusal of the last command or query, null when it succeeded.
      */
@@ -322,7 +338,9 @@ final class Application
             new NoteExchangeHandler($this->exchanges, $this->prospectorService, $this->contactOrganizations, $this->events),
             new NoteOrganizationExchangeHandler($this->exchanges, $this->organizations, $this->prospectorService, $this->contactOrganizations, $this->events),
             new CorrectExchangeHandler($this->exchanges, $this->prospectorService, $this->events),
-            new EraseExchangeHandler($this->exchanges, $this->prospectorService, $this->events),
+            new EraseExchangeHandler($this->exchanges, $this->prospectorService, $this->events, $this->attachedFiles),
+            new AttachFileHandler($this->exchanges, $this->prospectorService, $this->privateStorage, $this->events),
+            new RemoveAttachmentHandler($this->exchanges, $this->prospectorService, $this->privateStorage, $this->events),
         ];
     }
 
@@ -369,7 +387,7 @@ final class Application
             new PublishContactCollectedHandler($this->events),
             new PublishContactForgottenHandler($this->events),
             new PublishContactsLeftWithoutOrganizationHandler($this->events),
-            new StopKeepingExchangesHandler($this->exchanges, $this->prospectorService, $this->events),
+            new StopKeepingExchangesHandler($this->exchanges, $this->prospectorService, $this->events, $this->attachedFiles),
         ];
     }
 

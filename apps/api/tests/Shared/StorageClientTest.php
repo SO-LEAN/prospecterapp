@@ -3,6 +3,7 @@
 namespace Tests\App\Shared;
 
 use App\Shared\StorageClient;
+use App\Shared\StorageEntry;
 use App\Shared\TokenOnlyStorageAuthentication;
 use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
@@ -46,7 +47,7 @@ class StorageClientTest extends TestCase
             return $response;
         });
 
-        return new StorageClient($http, new TokenOnlyStorageAuthentication(), 'http://storage.internal', 'https://static.test/storage', 'the-token');
+        return new StorageClient(new StorageEntry($http, new TokenOnlyStorageAuthentication(), 'http://storage.internal', 'the-token'), 'https://static.test/storage');
     }
 
     /**

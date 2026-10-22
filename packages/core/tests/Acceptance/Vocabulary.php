@@ -47,6 +47,8 @@ final class Vocabulary
         'NoteExchange' => 'noter un échange',
         'CorrectExchange' => 'corriger l\'échange',
         'EraseExchange' => 'supprimer l\'échange',
+        'AttachFile' => 'joindre un fichier',
+        'RemoveAttachment' => 'retirer une pièce jointe',
     ];
 
     private const string MOMENT = 'Y-m-d H:i';

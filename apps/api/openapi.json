@@ -963,6 +963,14 @@
                 "responses": {
                     "201": {
                         "description": "The timeline of the contact with the new exchange",
+                        "headers": {
+                            "Location": {
+                                "description": "The new exchange, to join files to it",
+                                "schema": {
+                                    "type": "string"
+                                }
+                            }
+                        },
                         "content": {
                             "application/json": {
                                 "schema": {
@@ -2025,6 +2033,14 @@
                 "responses": {
                     "201": {
                         "description": "The timeline of the organization with the new exchange",
+                        "headers": {
+                            "Location": {
+                                "description": "The new exchange, to join files to it",
+                                "schema": {
+                                    "type": "string"
+                                }
+                            }
+                        },
                         "content": {
                             "application/json": {
                                 "schema": {
@@ -2253,6 +2269,91 @@
                 }
             }
         },
+        "/api/exchanges/{id}/attachments": {
+            "post": {
+                "tags": [
+                    "Contacts"
+                ],
+                "summary": "Join to an exchange a file the browser sent with the form of an upload",
+                "operationId": "post_api_exchanges_attach_file",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "pattern": "[0-9a-f]{8}-[0-9a-f]{4}-[13-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/AttachmentInput"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "The exchange with the file joined",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ExchangeDetailResource"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Missing or invalid access token"
+                    },
+                    "403": {
+                        "description": "Not a prospector, or no right to manage personal data",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ProblemResource"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Unknown exchange, or one of another account; unknown upload, expired or already joined",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ProblemResource"
+                                }
+                            }
+                        }
+                    },
+                    "409": {
+                        "description": "The exchange holds as many files as it may",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ProblemResource"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Invalid input, or a file over 10 MB",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ProblemResource"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
         "/api/exchanges/{id}/facts": {
             "patch": {
                 "tags": [
@@ -2317,6 +2418,132 @@
                     },
                     "422": {
                         "description": "Invalid correction: unknown channel or direction, a missed exchange that is no call, a moment in the future, another contact",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ProblemResource"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/exchanges/{id}/attachments/{attachmentId}": {
+            "get": {
+                "tags": [
+                    "Contacts"
+                ],
+                "summary": "Where to read a file joined to an exchange, for a minute",
+                "operationId": "get_api_exchanges_download_attachment",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "pattern": "[0-9a-f]{8}-[0-9a-f]{4}-[13-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}"
+                        }
+                    },
+                    {
+                        "name": "attachmentId",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "pattern": "[0-9a-f]{8}-[0-9a-f]{4}-[13-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "A link signed for a minute",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/AttachmentDownloadResource"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Missing or invalid access token"
+                    },
+                    "403": {
+                        "description": "Not a prospector, or no right to manage personal data",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ProblemResource"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Unknown exchange or attachment, or one of another account",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ProblemResource"
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "tags": [
+                    "Contacts"
+                ],
+                "summary": "Remove a file joined to an exchange, and forget it",
+                "operationId": "delete_api_exchanges_remove_attachment",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "pattern": "[0-9a-f]{8}-[0-9a-f]{4}-[13-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}"
+                        }
+                    },
+                    {
+                        "name": "attachmentId",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "pattern": "[0-9a-f]{8}-[0-9a-f]{4}-[13-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "The exchange without the file",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ExchangeDetailResource"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Missing or invalid access token"
+                    },
+                    "403": {
+                        "description": "Not a prospector, or no right to manage personal data",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ProblemResource"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Unknown exchange or attachment, or one of another account",
                         "content": {
                             "application/json": {
                                 "schema": {
@@ -2425,6 +2652,33 @@
                                 }
                             }
                         }
+                    }
+                }
+            }
+        },
+        "/api/uploads": {
+            "post": {
+                "tags": [
+                    "Contacts"
+                ],
+                "summary": "A form the browser sends one private file with, itself, before joining it to an exchange",
+                "operationId": "post_api_uploads_prepare",
+                "responses": {
+                    "201": {
+                        "description": "The form, signed for a few minutes",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/UploadResource"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Missing or invalid access token"
+                    },
+                    "403": {
+                        "description": "Not a prospector"
                     }
                 }
             }
@@ -2841,6 +3095,21 @@
                         "nullable": true,
                         "default": null,
                         "maxLength": 200
+                    }
+                },
+                "type": "object"
+            },
+            "AttachmentInput": {
+                "properties": {
+                    "upload": {
+                        "description": "The upload of `UploadResource`",
+                        "type": "string",
+                        "default": ""
+                    },
+                    "name": {
+                        "type": "string",
+                        "default": "",
+                        "maxLength": 255
                     }
                 },
                 "type": "object"
@@ -3395,6 +3664,7 @@
                     "missed",
                     "occurredAt",
                     "organizationIds",
+                    "attachmentCount",
                     "_links"
                 ],
                 "properties": {
@@ -3438,6 +3708,10 @@
                         "items": {
                             "type": "string"
                         }
+                    },
+                    "attachmentCount": {
+                        "description": "How many files are joined to it",
+                        "type": "integer"
                     },
                     "_links": {
                         "$ref": "#/components/schemas/ExchangeLinksResource"
@@ -3854,6 +4128,49 @@
                 },
                 "type": "object"
             },
+            "AttachmentLinksResource": {
+                "required": [
+                    "download"
+                ],
+                "properties": {
+                    "download": {
+                        "$ref": "#/components/schemas/LinkResource"
+                    },
+                    "removeAttachment": {
+                        "$ref": "#/components/schemas/LinkResource"
+                    }
+                },
+                "type": "object"
+            },
+            "AttachmentResource": {
+                "required": [
+                    "id",
+                    "name",
+                    "size",
+                    "mediaType",
+                    "_links"
+                ],
+                "properties": {
+                    "id": {
+                        "type": "string"
+                    },
+                    "name": {
+                        "description": "Its name as it was sent",
+                        "type": "string"
+                    },
+                    "size": {
+                        "description": "In bytes",
+                        "type": "integer"
+                    },
+                    "mediaType": {
+                        "type": "string"
+                    },
+                    "_links": {
+                        "$ref": "#/components/schemas/AttachmentLinksResource"
+                    }
+                },
+                "type": "object"
+            },
             "ExchangeDetailLinksResource": {
                 "required": [
                     "self",
@@ -3871,6 +4188,9 @@
                     },
                     "eraseExchange": {
                         "$ref": "#/components/schemas/LinkResource"
+                    },
+                    "attachFile": {
+                        "$ref": "#/components/schemas/LinkResource"
                     }
                 },
                 "type": "object"
@@ -3885,6 +4205,7 @@
                     "occurredAt",
                     "organizationIds",
                     "noted",
+                    "attachments",
                     "_links"
                 ],
                 "properties": {
@@ -3944,8 +4265,59 @@
                             }
                         ]
                     },
+                    "attachments": {
+                        "description": "The files joined to it, in the order they were",
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/AttachmentResource"
+                        }
+                    },
                     "_links": {
                         "$ref": "#/components/schemas/ExchangeDetailLinksResource"
+                    }
+                },
+                "type": "object"
+            },
+            "AttachmentDownloadResource": {
+                "required": [
+                    "name",
+                    "url"
+                ],
+                "properties": {
+                    "name": {
+                        "type": "string"
+                    },
+                    "url": {
+                        "description": "Signed for a minute: open it at once, never keep it",
+                        "type": "string"
+                    }
+                },
+                "type": "object"
+            },
+            "UploadResource": {
+                "required": [
+                    "upload",
+                    "url",
+                    "fields",
+                    "heaviest"
+                ],
+                "properties": {
+                    "upload": {
+                        "description": "What the file is joined under once sent",
+                        "type": "string"
+                    },
+                    "url": {
+                        "type": "string"
+                    },
+                    "fields": {
+                        "type": "object",
+                        "additionalProperties": {
+                            "type": "string"
+                        }
+                    },
+                    "heaviest": {
+                        "description": "The heaviest file the form takes, in bytes",
+                        "type": "integer"
                     }
                 },
                 "type": "object"

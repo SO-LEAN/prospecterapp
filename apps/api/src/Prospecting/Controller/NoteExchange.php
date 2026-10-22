@@ -39,16 +39,17 @@ final class NoteExchange extends AbstractController
 
     #[Route('/api/contacts/{id}/exchanges', name: 'api_contacts_note_exchange', requirements: ['id' => Requirement::UUID], methods: ['POST'])]
     #[OA\Post(summary: 'Note a call, a message or a meeting with the contact, kept for the organizations the contact is part of')]
-    #[OA\Response(response: 201, description: 'The timeline of the contact with the new exchange', content: new Model(type: TimelineResource::class))]
+    #[OA\Response(response: 201, description: 'The timeline of the contact with the new exchange', content: new Model(type: TimelineResource::class), headers: [new OA\Header(header: 'Location', description: 'The new exchange, to join files to it', schema: new OA\Schema(type: 'string'))])]
     #[OA\Response(response: 401, description: 'Missing or invalid access token')]
     #[OA\Response(response: 403, description: 'Not a prospector, or no right to manage personal data', content: new Model(type: ProblemResource::class))]
     #[OA\Response(response: 404, description: 'Unknown contact, or one of another account', content: new Model(type: ProblemResource::class))]
     #[OA\Response(response: 422, description: 'Invalid exchange: unknown channel or direction, a missed exchange that is no call, a moment in the future', content: new Model(type: ProblemResource::class))]
     public function __invoke(string $id, #[MapRequestPayload] ExchangeInput $input, #[CurrentUser] User $user): JsonResponse
     {
+        $exchange = $this->identities->next();
         $this->commands->dispatch(new NoteExchangeCommand(
             prospectorId: $user->memberId(),
-            id: $this->identities->next(),
+            id: $exchange,
             personId: $id,
             channel: $input->channel,
             direction: $input->direction,
@@ -58,6 +59,6 @@ final class NoteExchange extends AbstractController
             executedAt: $this->clock->now(),
         ));
 
-        return $this->json($this->presenter->present($id, ($this->consultTimeline)(new ConsultTimeline($user->memberId(), $id))), Response::HTTP_CREATED);
+        return $this->json($this->presenter->present($id, ($this->consultTimeline)(new ConsultTimeline($user->memberId(), $id))), Response::HTTP_CREATED, ['Location' => $this->generateUrl('api_exchanges_show', ['id' => $exchange])]);
     }
 }

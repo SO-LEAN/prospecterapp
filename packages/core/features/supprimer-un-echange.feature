@@ -17,6 +17,12 @@ Fonctionnalité: Supprimer un échange
     Alors la timeline de "Ada Lovelace" est vide
     Et la timeline de "ACME" est vide
 
+  Scénario: Un échange supprimé emporte ses pièces jointes
+    Soit je suis connecté en tant que "Michel"
+    Et "planning.xlsx" est joint à cet échange
+    Quand je supprime cet échange
+    Alors le fichier "planning.xlsx" n'est plus téléchargeable
+
   Scénario: Sans le droit aux données personnelles, je ne supprime pas un échange
     Soit je suis connecté en tant que prospecteur de "SOLEAN IT" sans le droit aux données personnelles
     Quand je supprime cet échange

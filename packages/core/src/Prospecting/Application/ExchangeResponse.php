@@ -25,6 +25,7 @@ final readonly class ExchangeResponse
         public \DateTimeImmutable $occurredAt,
         public ?string $text,
         public array $organizationIds,
+        public int $attachmentCount,
     ) {
     }
 
@@ -41,6 +42,7 @@ final readonly class ExchangeResponse
             occurredAt: $facts->occurredAt,
             text: $facts->text,
             organizationIds: array_map(static fn (OrganizationId $organization): string => $organization->value, $exchange->keptFor()),
+            attachmentCount: count($exchange->attachments()),
         );
     }
 }

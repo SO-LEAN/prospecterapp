@@ -45,6 +45,7 @@ services:
     Prospecter\Core\Prospecting\Domain\EmailUniqueness: ~
     Prospecter\Core\Prospecting\Domain\OrphanContacts: ~
     Prospecter\Core\Prospecting\Domain\ContactOrganizations: ~
+    Prospecter\Core\Prospecting\Application\AttachedFiles: ~
     Prospecter\Core\PersonalData\Domain\EmailUniqueness: ~
 
     # DynamoDB (ADR 0048): MiniStack locally (DYNAMODB_ENDPOINT), AWS in production (DYNAMODB_ENDPOINT empty);
@@ -82,6 +83,9 @@ services:
     Prospecter\Core\SharedKernel\Application\Port\Events: '@App\Shared\MessengerEvents'
     Prospecter\Core\SharedKernel\Application\Port\GeoLocation: '@App\Shared\GeoplateformeGeoLocation'
     Prospecter\Core\SharedKernel\Application\Port\Storage: '@App\Shared\StorageClient'
+    # the private files of the storage, sent by the browsers themselves (ADR 0077)
+    Prospecter\Core\SharedKernel\Application\Port\PrivateStorage: '@App\Shared\PrivateStorageClient'
+    App\Shared\UploadForms: '@App\Shared\PrivateStorageClient'
     # the files of Swagger UI asked at the installed version of NelmioApiDocBundle
     App\Doc\VersionedNelmioAssets:
         decorates: nelmio_api_doc.render_docs.html.asset
@@ -119,6 +123,10 @@ when@test:
         # the files stay in memory: the storage app is tested on its own
         Prospecter\Core\SharedKernel\Application\Port\Storage: '@Tests\App\Double\InMemoryStorage'
         Tests\App\Double\InMemoryStorage:
+            public: true
+        Prospecter\Core\SharedKernel\Application\Port\PrivateStorage: '@Tests\App\Double\InMemoryPrivateStorage'
+        App\Shared\UploadForms: '@Tests\App\Double\InMemoryPrivateStorage'
+        Tests\App\Double\InMemoryPrivateStorage:
             public: true
         # the moment the controllers give the commands: fixed, so that the tests can name it
         clock:

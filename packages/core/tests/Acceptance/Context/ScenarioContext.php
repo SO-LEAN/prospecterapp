@@ -43,6 +43,7 @@ final class ScenarioContext implements Context
     private array $personIds = [];
     /** @var array<string, MemberId> */
     private array $memberIds = [];
+    private string $exchange = '';
 
     public function __construct()
     {
@@ -293,6 +294,19 @@ final class ScenarioContext implements Context
     public function memberOf(Account $account): Member
     {
         return Member::register(new MemberId($this->application->newIdentity()), $account->id(), new PersonId($this->application->newIdentity()), Role::User);
+    }
+
+    /**
+     * "Cet échange" of the scenarios: the last one noted.
+     */
+    public function rememberTheExchange(string $id): void
+    {
+        $this->exchange = $id;
+    }
+
+    public function theExchange(): string
+    {
+        return $this->exchange;
     }
 
     public function upload(string $fileName): \SplFileInfo

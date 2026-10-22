@@ -15,6 +15,8 @@ final readonly class ExchangeDetailLinksResource
         public ?LinkResource $correctExchange = null,
         #[OA\Property(nullable: false)]
         public ?LinkResource $eraseExchange = null,
+        #[OA\Property(nullable: false, description: 'Joins a file sent with the form of an upload, while the exchange has room for one')]
+        public ?LinkResource $attachFile = null,
     ) {
     }
 }

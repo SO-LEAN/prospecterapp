@@ -1,16 +1,21 @@
-import { type QueryClient, useQueryClient } from '@tanstack/react-query'
+import { type QueryClient, useMutation, useQueryClient } from '@tanstack/react-query'
 import { useTranslation } from 'react-i18next'
 import { toast } from 'sonner'
-import { api } from '@/shared/api/client'
+import { api, fetchClient } from '@/shared/api/client'
+import { dataOf } from '@/shared/api/slices'
+import { attachFile } from './attachments'
 import {
   type ExchangeDetail,
+  type ExchangeInput,
   exchangeQuery,
-  type OrganizationTimeline,
+  type OrganizationExchangeInput,
   organizationTimelineQuery,
-  type Timeline,
   timelineKeys,
   timelineQuery,
 } from './queries'
+
+/** The new exchange, whose address the API answers in `Location`: files are joined to it. */
+const notedIn = (response: Response) => response.headers.get('Location')?.split('/').pop() ?? ''
 
 /**
  * The API answers the first slice of the timeline with the new exchange: the timeline starts again from it,
@@ -20,10 +25,17 @@ export function useNoteExchange() {
   const queryClient = useQueryClient()
   const { t } = useTranslation()
 
-  return api.useMutation('post', '/api/contacts/{id}/exchanges', {
+  return useMutation({
     meta: { silentValidation: true },
-    onSuccess: (timeline: Timeline, { params }) => {
-      queryClient.setQueryData(timelineQuery(params.path.id).queryKey, {
+    mutationFn: async ({ contactId, body }: { contactId: string; body: ExchangeInput }) => {
+      const { data, error, response } = await fetchClient.POST('/api/contacts/{id}/exchanges', {
+        params: { path: { id: contactId } },
+        body,
+      })
+      return { timeline: dataOf({ data, error }), noted: notedIn(response) }
+    },
+    onSuccess: ({ timeline }, { contactId }) => {
+      queryClient.setQueryData(timelineQuery(contactId).queryKey, {
         pages: [timeline],
         pageParams: [undefined],
       })
@@ -41,12 +53,25 @@ export function useNoteOrganizationExchange() {
   const queryClient = useQueryClient()
   const { t } = useTranslation()
 
-  return api.useMutation('post', '/api/organizations/{id}/exchanges', {
+  return useMutation({
     meta: { silentValidation: true },
-    onSuccess: (timeline: OrganizationTimeline, { params }) => {
+    mutationFn: async ({
+      organizationId,
+      body,
+    }: {
+      organizationId: string
+      body: OrganizationExchangeInput
+    }) => {
+      const { data, error, response } = await fetchClient.POST('/api/organizations/{id}/exchanges', {
+        params: { path: { id: organizationId } },
+        body,
+      })
+      return { timeline: dataOf({ data, error }), noted: notedIn(response) }
+    },
+    onSuccess: ({ timeline }, { organizationId }) => {
       void queryClient.invalidateQueries({ queryKey: timelineKeys.ofContacts, refetchType: 'none' })
       void queryClient.invalidateQueries({ queryKey: timelineKeys.ofOrganizations, refetchType: 'none' })
-      queryClient.setQueryData(organizationTimelineQuery(params.path.id).queryKey, {
+      queryClient.setQueryData(organizationTimelineQuery(organizationId).queryKey, {
         pages: [timeline],
         pageParams: [undefined],
       })
@@ -85,6 +110,47 @@ export function useEraseExchange() {
       queryClient.removeQueries({ queryKey: exchangeQuery(params.path.id).queryKey })
       readTheTimelinesAgain(queryClient)
       toast.success(t('exchanges.detail.erased'))
+    },
+  })
+}
+
+/**
+ * The files are sent one after the other, the exchange as the last answer shows it going straight into its detail;
+ * a file refused stops the others.
+ */
+export function useAttachFiles() {
+  const queryClient = useQueryClient()
+  const { t } = useTranslation()
+
+  return useMutation({
+    mutationFn: async ({ exchangeId, files }: { exchangeId: string; files: File[] }) => {
+      for (const file of files) {
+        queryClient.setQueryData(exchangeQuery(exchangeId).queryKey, await attachFile(exchangeId, file))
+      }
+    },
+    onSuccess: (_nothing, { files }) => {
+      readTheTimelinesAgain(queryClient)
+      toast.success(t('exchanges.attachments.attached', { count: files.length }))
+    },
+  })
+}
+
+/** Once the exchange is noted, its files are sent while the timeline shows it; a refusal is told by a toast. */
+export function attachTheFiles(attach: ReturnType<typeof useAttachFiles>, exchangeId: string, files: File[]) {
+  if (files.length > 0) {
+    attach.mutate({ exchangeId, files })
+  }
+}
+
+export function useRemoveAttachment() {
+  const queryClient = useQueryClient()
+  const { t } = useTranslation()
+
+  return api.useMutation('delete', '/api/exchanges/{id}/attachments/{attachmentId}', {
+    onSuccess: (exchange: ExchangeDetail) => {
+      queryClient.setQueryData(exchangeQuery(exchange.id).queryKey, exchange)
+      readTheTimelinesAgain(queryClient)
+      toast.success(t('exchanges.attachments.removed'))
     },
   })
 }

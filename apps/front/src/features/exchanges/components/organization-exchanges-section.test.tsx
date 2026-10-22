@@ -17,6 +17,7 @@ const anExchange = (exchange: Partial<Exchange>): Exchange => ({
   occurredAt: '2026-10-15T14:00:00+00:00',
   text: null,
   organizationIds: [ACME],
+  attachmentCount: 0,
   _links: { self: { href: '/api/exchanges/0190a1c0-0000-7000-8000-000000000010', method: 'GET' } },
   ...exchange,
 })

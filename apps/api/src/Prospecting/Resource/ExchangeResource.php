@@ -27,6 +27,8 @@ final readonly class ExchangeResource
         public ?string $text,
         #[OA\Property(description: 'The organizations it is kept for: those the contact was part of when it was noted, or the organization itself')]
         public array $organizationIds,
+        #[OA\Property(description: 'How many files are joined to it')]
+        public int $attachmentCount,
         #[SerializedName('_links')]
         public ExchangeLinksResource $links,
     ) {

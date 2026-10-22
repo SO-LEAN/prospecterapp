@@ -21,6 +21,7 @@ const anExchange = (exchange: Partial<ExchangeDetail>): ExchangeDetail => ({
   organizationIds: [],
   noted: { at: '2026-10-15T12:35:00+00:00', by: { name: { firstName: 'Michel', lastName: 'Maier' } } },
   corrected: null,
+  attachments: [],
   _links: {
     self,
     interlocutor: { href: `/api/contacts/${ADA}`, method: 'GET' },
@@ -96,5 +97,48 @@ describe('ExchangeDetailSheet', () => {
 
     expect(screen.queryByRole('button', { name: 'Corriger' })).not.toBeInTheDocument()
     expect(screen.queryByRole('button', { name: 'Supprimer' })).not.toBeInTheDocument()
+    expect(screen.queryByText('Pièces jointes')).not.toBeInTheDocument()
+  })
+
+  it('lists the files joined to it, each downloaded through the API and removed', () => {
+    const attachment = `${self.href}/attachments/0190a1c0-0000-7000-8000-000000000020`
+    renderTheDetail(
+      anExchange({
+        attachments: [
+          {
+            id: '0190a1c0-0000-7000-8000-000000000020',
+            name: 'cahier-des-charges.pdf',
+            size: 1572864,
+            mediaType: 'application/pdf',
+            _links: {
+              download: { href: attachment, method: 'GET' },
+              removeAttachment: { href: attachment, method: 'DELETE' },
+            },
+          },
+        ],
+      }),
+    )
+
+    expect(screen.getByRole('link', { name: 'Télécharger cahier-des-charges.pdf' })).toHaveAttribute(
+      'href',
+      expect.stringMatching(new RegExp(`${attachment}$`)),
+    )
+    expect(screen.getByText('1,5 Mo')).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: 'Retirer cahier-des-charges.pdf' })).toBeInTheDocument()
+  })
+
+  it('offers to join files while it has room for them', () => {
+    renderTheDetail(
+      anExchange({
+        _links: {
+          self,
+          interlocutor: { href: `/api/contacts/${ADA}`, method: 'GET' },
+          attachFile: { href: `${self.href}/attachments`, method: 'POST' },
+        },
+      }),
+    )
+
+    expect(screen.getByText('choisissez-les')).toBeInTheDocument()
+    expect(screen.getByText('10 Mo au plus par fichier.')).toBeInTheDocument()
   })
 })

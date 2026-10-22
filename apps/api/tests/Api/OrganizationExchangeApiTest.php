@@ -30,6 +30,7 @@ class OrganizationExchangeApiTest extends ApiTestCase
         $timeline = $this->note($organization, ['exchange' => ['channel' => 'call', 'direction' => 'inbound', 'occurredAt' => '2026-10-14T16:00:00+00:00']]);
 
         $this->assertResponseStatusCodeSame(201);
+        $this->assertResponseHeaderSame('Location', '/api/exchanges/'.$timeline['items'][0]['exchange']['id']);
         $this->assertSame([
             [['kind' => 'organization', 'id' => $organization, 'name' => 'ACME'], 'call', 'inbound'],
             [['kind' => 'person', 'id' => $robert, 'name' => 'Robert Noyce'], 'call', 'outbound'],

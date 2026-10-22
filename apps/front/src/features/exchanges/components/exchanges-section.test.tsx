@@ -19,6 +19,7 @@ const anExchange = (exchange: Partial<Exchange>): Exchange => ({
   occurredAt: '2026-10-15T12:30:00+00:00',
   text: null,
   organizationIds: [],
+  attachmentCount: 0,
   _links: { self: { href: `/api/exchanges/${exchange.id ?? EXCHANGE}`, method: 'GET' } },
   ...exchange,
 })
@@ -64,6 +65,15 @@ describe('ExchangesSection', () => {
     expect(screen.getByRole('button', { name: 'Noter un échange' })).toBeInTheDocument()
   })
 
+  it('shows how many files are joined to an exchange', () => {
+    renderTheSection({
+      items: [anExchange({ attachmentCount: 2 })],
+      _links: { self: timelineLink, noteExchange: noteLink },
+    })
+
+    expect(screen.getByText('2 pièces jointes')).toBeInTheDocument()
+  })
+
   it('says there is none yet', () => {
     renderTheSection({ items: [], _links: { self: timelineLink, noteExchange: noteLink } })
 
@@ -102,6 +112,7 @@ describe('ExchangesSection', () => {
           by: { name: { firstName: 'Michel' }, email: 'michel@solean-it.io' },
         },
         corrected: null,
+        attachments: [],
         _links: { self: { href: `/api/exchanges/${EXCHANGE}`, method: 'GET' }, interlocutor: timelineLink },
       },
     )

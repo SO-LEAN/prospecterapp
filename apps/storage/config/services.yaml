@@ -11,6 +11,7 @@ services:
         exclude:
             - '../src/Kernel.php'
             - '../src/StoredFile.php'
+            - '../src/ObjectDescription.php'
 
     # S3 (ADR 0051): MiniStack locally (S3_ENDPOINT, its buckets by path), AWS in a Lambda (no endpoint, the
     # temporary credentials of its role, valid only with their session token)
@@ -25,6 +26,25 @@ services:
                   token: '%env(default::AWS_SESSION_TOKEN)%'
     App\Bucket:
         arguments: { $name: '%env(S3_BUCKET)%' }
+
+    # the private files (ADR 0077): a bucket nothing serves, reached by the browsers with requests the storage signs
+    # on the address they reach it at (S3_BROWSER_ENDPOINT: the static host locally, S3 itself on AWS)
+    app.private_bucket:
+        class: App\Bucket
+        arguments: { $name: '%env(S3_PRIVATE_BUCKET)%' }
+    App\Bucket $privateBucket: '@app.private_bucket'
+    app.browser_s3:
+        class: Aws\S3\S3Client
+        arguments:
+            - region: '%env(AWS_REGION)%'
+              endpoint: '%env(default::S3_BROWSER_ENDPOINT)%'
+              use_path_style_endpoint: true
+              credentials:
+                  key: '%env(AWS_ACCESS_KEY_ID)%'
+                  secret: '%env(AWS_SECRET_ACCESS_KEY)%'
+                  token: '%env(default::AWS_SESSION_TOKEN)%'
+    App\SignedRequests:
+        arguments: { $browserClient: '@app.browser_s3' }
 
     # what keeps copies of the files: nothing locally, CloudFront on AWS (ADR 0070)
     App\PublicCache: '@App\NoPublicCache'
