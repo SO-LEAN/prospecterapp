@@ -11,14 +11,15 @@ use Prospecter\Core\SharedKernel\Domain\OrganizationId;
 
 /**
  * An exchange as its detail shows it; its channel and its direction by the values of `Channel` and
- * `Direction`, who noted and corrected it by their member id, the files joined to it.
+ * `Direction`, who noted and corrected it by their member id, the files joined to it, its text flagged when the
+ * prospector reads it without the right to manage personal data.
  */
 final readonly class ExchangeDetailResponse
 {
     /**
      * @param list<string>             $organizationIds the organizations it is kept for
      * @param list<AttachmentResponse> $attachments     the files joined to it, in the order they were
-     * @param list<string>             $possibleIntents names of what the prospector may do with it: CorrectExchange, EraseExchange, AttachFile, RemoveAttachment
+     * @param list<string>             $possibleIntents names of what the prospector may do with it: CorrectExchange, CorrectText, EraseExchange, AttachFile, RemoveAttachment
      */
     private function __construct(
         public string $id,
@@ -28,6 +29,7 @@ final readonly class ExchangeDetailResponse
         public bool $missed,
         public \DateTimeImmutable $occurredAt,
         public ?string $text,
+        public bool $textFlagged,
         public array $organizationIds,
         public string $createdBy,
         public \DateTimeImmutable $createdAt,
@@ -51,6 +53,7 @@ final readonly class ExchangeDetailResponse
             missed: $facts->missed,
             occurredAt: $facts->occurredAt,
             text: $facts->text,
+            textFlagged: $exchange->isTextFlaggedFor($prospector),
             organizationIds: array_map(static fn (OrganizationId $organization): string => $organization->value, $exchange->keptFor()),
             createdBy: $exchange->createdBy()->value,
             createdAt: $exchange->createdAt(),

@@ -61,6 +61,7 @@ use Prospecter\Core\Prospecting\Application\ConsultTimelineIntents\ConsultTimeli
 use Prospecter\Core\Prospecting\Application\ConsultTimelineIntents\ConsultTimelineIntentsHandler;
 use Prospecter\Core\Prospecting\Application\ConsultTimelineIntents\TimelineIntentsResponse;
 use Prospecter\Core\Prospecting\Application\CorrectExchange\CorrectExchangeHandler;
+use Prospecter\Core\Prospecting\Application\CorrectExchangeText\CorrectExchangeTextHandler;
 use Prospecter\Core\Prospecting\Application\DetachForgottenContact\DetachForgottenContactHandler;
 use Prospecter\Core\Prospecting\Application\DetachFromHolding\DetachFromHoldingHandler;
 use Prospecter\Core\Prospecting\Application\DownloadAttachment\AttachmentDownloadResponse;
@@ -338,6 +339,7 @@ final class Application
             new NoteExchangeHandler($this->exchanges, $this->prospectorService, $this->contactOrganizations, $this->events),
             new NoteOrganizationExchangeHandler($this->exchanges, $this->organizations, $this->prospectorService, $this->contactOrganizations, $this->events),
             new CorrectExchangeHandler($this->exchanges, $this->prospectorService, $this->events),
+            new CorrectExchangeTextHandler($this->exchanges, $this->prospectorService, $this->events),
             new EraseExchangeHandler($this->exchanges, $this->prospectorService, $this->events, $this->attachedFiles),
             new AttachFileHandler($this->exchanges, $this->prospectorService, $this->privateStorage, $this->events),
             new RemoveAttachmentHandler($this->exchanges, $this->prospectorService, $this->privateStorage, $this->events),

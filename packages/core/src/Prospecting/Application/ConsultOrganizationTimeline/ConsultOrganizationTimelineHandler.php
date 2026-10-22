@@ -26,7 +26,6 @@ final readonly class ConsultOrganizationTimelineHandler implements QueryHandler
         $prospector = $this->prospectorService->prospectorFrom(new MemberId($query->prospectorId));
         $organization = $this->organizations->get(new OrganizationId($query->organizationId));
         $organization->ensureReachableBy($prospector);
-        $prospector->ensureMayExchangeWithTheContacts();
 
         return TimelineResponse::of($this->exchanges->timelineOfOrganization($organization->id(), $query->after, $query->max), $prospector);
     }
