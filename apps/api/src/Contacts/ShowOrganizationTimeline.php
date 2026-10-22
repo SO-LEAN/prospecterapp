@@ -29,7 +29,7 @@ final class ShowOrganizationTimeline extends AbstractController
     #[OA\Get(summary: 'The exchanges with the organization and with its contacts, the most recent first, each with who communicated')]
     #[OA\Response(response: 200, description: 'A slice of the exchanges, the next one at the link next', content: new Model(type: OrganizationTimelineResource::class))]
     #[OA\Response(response: 401, description: 'Missing or invalid access token')]
-    #[OA\Response(response: 403, description: 'Not a prospector, or no right to manage personal data', content: new Model(type: ProblemResource::class))]
+    #[OA\Response(response: 403, description: 'Not a prospector', content: new Model(type: ProblemResource::class))]
     #[OA\Response(response: 404, description: 'Unknown organization, or one of another account', content: new Model(type: ProblemResource::class))]
     public function __invoke(string $id, #[CurrentUser] User $user, #[MapQueryString] TimelineQuery $query = new TimelineQuery()): JsonResponse
     {

@@ -77,7 +77,7 @@ class ContactApiTest extends ApiTestCase
         $this->assertSame(['self', 'search'], array_keys($page['_links']));
     }
 
-    public function testWithoutTheRightContactsAreMaskedAndOfferNothing(): void
+    public function testWithoutTheRightContactsAreMaskedAndOfferOnlyTheirTimeline(): void
     {
         $organization = $this->anOrganization('ACME');
         $id = $this->collect(self::ADA, $organization)['id'];
@@ -86,7 +86,7 @@ class ContactApiTest extends ApiTestCase
         $contact = $this->requestJson('GET', '/api/contacts/'.$id);
         $this->assertTrue($contact['masked']);
         $this->assertSame('A***a', $contact['name']['firstName']);
-        $this->assertSame(['self'], array_keys($contact['_links']));
+        $this->assertSame(['self', 'exchanges'], array_keys($contact['_links']));
         $this->assertSame(['self'], array_keys($this->requestJson('GET', '/api/contacts')['_links']));
 
         $this->requestJson('GET', '/api/contacts?q=ada');
