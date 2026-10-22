@@ -4301,6 +4301,7 @@
                     "organizationIds",
                     "noted",
                     "attachments",
+                    "hiddenAttachments",
                     "_links"
                 ],
                 "properties": {
@@ -4370,6 +4371,10 @@
                         "items": {
                             "$ref": "#/components/schemas/AttachmentResource"
                         }
+                    },
+                    "hiddenAttachments": {
+                        "description": "How many files are joined to it but hidden to a prospector reading it without the right to manage personal data",
+                        "type": "integer"
                     },
                     "_links": {
                         "$ref": "#/components/schemas/ExchangeDetailLinksResource"

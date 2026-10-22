@@ -53,6 +53,7 @@ final readonly class ExchangeDetailPresenter
             noted: new StampResource($exchange->createdAt->format(\DateTimeInterface::ATOM), $authorOf($exchange->createdBy)),
             corrected: null === $exchange->correctedAt || null === $exchange->correctedBy ? null : new StampResource($exchange->correctedAt->format(\DateTimeInterface::ATOM), $authorOf($exchange->correctedBy)),
             attachments: array_map(fn (AttachmentResponse $attachment): AttachmentResource => $this->presentAttachment($exchange, $attachment), $exchange->attachments),
+            hiddenAttachments: $exchange->hiddenAttachments,
             links: $this->linksOf($exchange, $interlocutor),
         );
     }

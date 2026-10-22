@@ -21,6 +21,11 @@ Fonctionnalité: Télécharger une pièce jointe d'un échange
     Quand je télécharge "planning.xlsx"
     Alors c'est refusé : "Only a prospector allowed to manage personal data may exchange with the contacts"
 
+  Scénario: Sans le droit aux données personnelles, le détail ne montre que le nombre de pièces jointes
+    Soit "devis.pdf" est joint à cet échange
+    Et je suis connecté en tant que prospecteur de "SOLEAN IT" sans le droit aux données personnelles
+    Alors le détail de l'échange cache 2 pièces jointes
+
   Scénario: La pièce jointe d'un autre compte est introuvable
     Soit l'organisation "Concurrent" qui utilise Prospecter
     Et je suis connecté en tant que prospecteur de "Concurrent"

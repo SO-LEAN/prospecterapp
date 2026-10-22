@@ -1125,6 +1125,8 @@ export interface components {
             corrected?: components["schemas"]["StampResource"] | null;
             /** @description The files joined to it, in the order they were */
             attachments: components["schemas"]["AttachmentResource"][];
+            /** @description How many files are joined to it but hidden to a prospector reading it without the right to manage personal data */
+            hiddenAttachments: number;
             _links: components["schemas"]["ExchangeDetailLinksResource"];
         };
         AttachmentDownloadResource: {

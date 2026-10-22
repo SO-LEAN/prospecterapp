@@ -113,6 +113,17 @@ class AttachmentApiTest extends ApiTestCase
         $this->assertResponseStatusCodeSame(403);
     }
 
+    public function testWithoutTheRightTheDetailOnlyCountsTheFiles(): void
+    {
+        $exchange = $this->anExchangeWith($this->aContact());
+        $this->attach($exchange, $this->sent(2048, 'application/pdf'), 'devis.pdf');
+        $this->login($this->aMemberOfTheFixtures('prospector-without-the-right', Role::User, Role::Prospector));
+
+        $detail = $this->requestJson('GET', '/api/exchanges/'.$exchange);
+
+        $this->assertSame([[], 1], [$detail['attachments'], $detail['hiddenAttachments']]);
+    }
+
     /**
      * A file the browser sent with the form of an upload.
      */

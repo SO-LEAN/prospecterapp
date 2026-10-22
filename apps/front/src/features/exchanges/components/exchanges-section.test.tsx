@@ -127,6 +127,7 @@ describe('ExchangesSection', () => {
         },
         corrected: null,
         attachments: [],
+        hiddenAttachments: 0,
         _links: { self: { href: `/api/exchanges/${EXCHANGE}`, method: 'GET' }, interlocutor: timelineLink },
       },
     )
