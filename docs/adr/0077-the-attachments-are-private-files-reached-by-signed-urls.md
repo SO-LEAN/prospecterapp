@@ -2,7 +2,8 @@
 
 - Date: 2026-10-22
 - Status: Accepted
-- Implemented by: `packages/core/src/Prospecting/Domain/{Exchange,Attachment}.php`, `packages/core/src/Prospecting/Application/{AttachFile,RemoveAttachment,DownloadAttachment,AttachedFiles}`, `packages/core/src/SharedKernel/Application/Port/PrivateStorage.php`, `apps/storage/src/{PrivateFiles,Uploads}.php`, `apps/storage/src/Controller`, `apps/storage/infra/private-bucket.tf`, `apps/api/src/Shared/StorageClient.php`, `apps/api/src/Exchanges`, `docker/nginx/templates/static.conf.template`
+- Supersedes: for the files joined to an exchange, the single place of the personal data of [0031](0031-personal-data-context.md)
+- Implemented by: `packages/core/src/Prospecting/Domain/{Exchange,Attachment}.php`, `packages/core/src/Prospecting/Application/{AttachFile,RemoveAttachment,DownloadAttachment,AttachedFiles}`, `packages/core/src/SharedKernel/Application/Port/PrivateStorage.php`, `apps/storage/src/{PrivateFiles,SignedRequests}.php`, `apps/storage/src/Controller`, `apps/storage/infra/private-bucket.tf`, `apps/api/src/Shared/{PrivateStorageClient,StorageEntry}.php`, `apps/api/src/Exchanges`, `docker/nginx/templates/static.conf.template`
 
 ## Context
 
@@ -18,6 +19,7 @@ A prospector joins to an exchange the files a prospect sent: a CV, a signed orde
 
 ## Consequences
 
+- Prospecting keeps the name and the file of attachments that may hold personal data, as it keeps the text of the exchanges (0074): a forgotten contact leaves them while an organization of the exchange is prospected.
 - The bucket allows the origin of the SPA in its CORS, for the uploads.
 - A signed URL is a bearer link during its minute: whoever gets it reads the file. The address the SPA shows is the API's, which a signed-out browser does not read.
 - Locally, MiniStack does not check the signature of an upload form; it checks those of the downloads.

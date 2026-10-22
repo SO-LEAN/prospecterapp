@@ -296,7 +296,7 @@ final class Exchange implements ReleasesEvents
     {
         $this->ensureReadableBy($by);
 
-        if (!in_array($intent, $this->possibleIntentsOf($by), true)) {
+        if (ExchangeIntent::AttachFile === $intent && !$this->hasRoomForAnAttachment()) {
             throw NoRoomForAnAttachment::because(sprintf('An exchange holds %d attachments at most', self::MOST_ATTACHMENTS));
         }
     }
