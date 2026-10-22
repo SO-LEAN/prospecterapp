@@ -21,15 +21,18 @@ final readonly class Prospector
     }
 
     /**
+     * Every prospector reads the timelines, the names masked and the texts flagged without the right to manage
+     * personal data; noting needs it.
+     *
      * @return list<TimelineIntent>
      */
     public function timelineIntents(): array
     {
-        return $this->managesPersonalData ? TimelineIntent::cases() : [];
+        return $this->managesPersonalData ? TimelineIntent::cases() : [TimelineIntent::ConsultTimeline];
     }
 
     /**
-     * What is said with a contact is personal data: noting or reading it needs the right to manage them.
+     * What is said with a contact is personal data: noting it needs the right to manage them.
      *
      * @throws PersonalDataManagersOnly
      */

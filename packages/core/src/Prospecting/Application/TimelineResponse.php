@@ -14,7 +14,7 @@ final readonly class TimelineResponse
     /**
      * @param list<ExchangeResponse> $exchanges
      * @param string|null            $next            the cursor of the next slice, null when this one is the last
-     * @param list<string>           $possibleIntents names of what the prospector may do with the timeline: NoteExchange
+     * @param list<string>           $possibleIntents names of what the prospector may do with the timeline: ConsultTimeline, NoteExchange
      */
     private function __construct(
         public array $exchanges,
@@ -29,7 +29,7 @@ final readonly class TimelineResponse
     public static function of(Slice $slice, Prospector $prospector): self
     {
         return new self(
-            array_map(ExchangeResponse::of(...), $slice->content),
+            array_map(static fn (Exchange $exchange): ExchangeResponse => ExchangeResponse::of($exchange, $prospector), $slice->content),
             $slice->next,
             array_map(static fn (TimelineIntent $intent): string => $intent->name, $prospector->timelineIntents()),
         );

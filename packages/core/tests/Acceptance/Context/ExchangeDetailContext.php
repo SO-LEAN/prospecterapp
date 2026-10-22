@@ -75,7 +75,7 @@ final class ExchangeDetailContext implements Context
     #[When('je corrige le texte de cet échange en :text')]
     public function iCorrectTheTextOfTheExchange(string $text): void
     {
-        $this->application->dispatch(new CorrectExchangeText($this->application->signedIn(), $this->exchange, $text, $this->application->now()));
+        $this->application->dispatch(new CorrectExchangeText($this->application->signedIn(), $this->scenario->theExchange(), $text, $this->application->now()));
     }
 
     #[When('je supprime cet échange')]

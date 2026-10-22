@@ -16,6 +16,7 @@ use Prospecter\Core\Prospecting\Domain\Event\ExchangeCorrected;
 use Prospecter\Core\Prospecting\Domain\Event\ExchangeErased;
 use Prospecter\Core\Prospecting\Domain\Event\ExchangeNoLongerKeptFor;
 use Prospecter\Core\Prospecting\Domain\Event\ExchangeNoted;
+use Prospecter\Core\Prospecting\Domain\Event\ExchangeTextCorrected;
 use Prospecter\Core\Prospecting\Domain\Event\FileAttached;
 use Prospecter\Core\Prospecting\Domain\Exception\ExchangeInTheFuture;
 use Prospecter\Core\Prospecting\Domain\Exception\MissedOnlyForACall;
@@ -174,9 +175,9 @@ class ExchangeTest extends TestCase
         $this->assertEquals([new AttachmentRemoved(new AccountId(self::MINE), $this->me()->id, new ExchangeId(self::EXCHANGE), new AttachmentId(self::ATTACHMENT), new \DateTimeImmutable(self::NOW))], $exchange->releaseEvents());
     }
 
-    public function testNothingIsOfferedWithoutTheRightToManagePersonalData(): void
+    public function testOnlyTheTextIsOfferedWithoutTheRightToManagePersonalData(): void
     {
-        $this->assertSame([], $this->anExchange()->possibleIntentsOf($this->colleagueWithoutTheRight()));
+        $this->assertSame([ExchangeIntent::CorrectText], $this->anExchange()->possibleIntentsOf($this->colleagueWithoutTheRight()));
     }
 
     public function testNothingIsOfferedToAnotherAccount(): void
@@ -222,6 +223,7 @@ class ExchangeTest extends TestCase
 
         match ($intent) {
             ExchangeIntent::CorrectExchange => $exchange->correct(new ExchangeFacts(Channel::Call, Direction::Inbound, $now), by: $by, at: $now),
+            ExchangeIntent::CorrectText => $exchange->correctText('Rappellera lundi', by: $by, at: $now),
             ExchangeIntent::EraseExchange => $exchange->erase(by: $by, at: $now),
             ExchangeIntent::AttachFile => $exchange->attach($this->anAttachment('0190a1c0-0000-7000-8000-000000000008'), by: $by, at: $now),
             ExchangeIntent::RemoveAttachment => $exchange->removeAttachment(new AttachmentId(self::ATTACHMENT), by: $by, at: $now),
@@ -266,6 +268,43 @@ class ExchangeTest extends TestCase
         $this->expectException(UnknownExchange::class);
 
         $this->anExchange()->correct(new ExchangeFacts(Channel::Call, Direction::Inbound, new \DateTimeImmutable(self::NOW)), by: $this->otherAccount(), at: new \DateTimeImmutable(self::NOW));
+    }
+
+    public function testCorrectingTheTextKeepsTheOtherFactsAndRecordsWhoCorrected(): void
+    {
+        $exchange = $this->anExchange();
+        $exchange->releaseEvents();
+        $later = new \DateTimeImmutable(self::NOW)->modify('+1 day');
+
+        $exchange->correctText('La contactée est intéressée', by: $this->colleagueWithoutTheRight(), at: $later);
+
+        $this->assertEquals(new ExchangeFacts(Channel::LinkedIn, Direction::Inbound, new \DateTimeImmutable(self::NOW), 'La contactée est intéressée'), $exchange->facts());
+        $this->assertEquals(new Correction($this->colleagueWithoutTheRight()->id, $later), $exchange->lastCorrection());
+        $this->assertEquals([new ExchangeTextCorrected(new AccountId(self::MINE), $this->colleagueWithoutTheRight()->id, new ExchangeId(self::EXCHANGE), $later)], $exchange->releaseEvents());
+    }
+
+    public function testAnotherAccountDoesNotCorrectTheText(): void
+    {
+        $this->expectException(UnknownExchange::class);
+
+        $this->anExchange()->correctText('Rien', by: $this->otherAccount(), at: new \DateTimeImmutable(self::NOW));
+    }
+
+    public function testTheTextIsFlaggedToAProspectorWithoutTheRightToManagePersonalData(): void
+    {
+        $this->assertTrue($this->anExchange()->isTextFlaggedFor($this->colleagueWithoutTheRight()));
+    }
+
+    public function testTheTextIsNotFlaggedToAManagerOfPersonalData(): void
+    {
+        $this->assertFalse($this->anExchange()->isTextFlaggedFor($this->me()));
+    }
+
+    public function testNoTextIsNoTextToFlag(): void
+    {
+        $exchange = $this->noted(new ExchangeFacts(Channel::Call, Direction::Inbound, new \DateTimeImmutable(self::NOW)));
+
+        $this->assertFalse($exchange->isTextFlaggedFor($this->colleagueWithoutTheRight()));
     }
 
     public function testErasingRecordsIt(): void

@@ -30,4 +30,9 @@ final readonly class ExchangeFacts
 
         $this->text = null === $text || '' === trim($text) ? null : $text;
     }
+
+    public function withText(?string $text): self
+    {
+        return new self($this->channel, $this->direction, $this->occurredAt, $text, $this->missed);
+    }
 }

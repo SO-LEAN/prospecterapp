@@ -22,7 +22,7 @@ final readonly class ConsultExchangeHandler implements QueryHandler
     {
         $prospector = $this->prospectorService->prospectorFrom(new MemberId($query->prospectorId));
         $exchange = $this->exchanges->get(new ExchangeId($query->id));
-        $exchange->ensureReadableBy($prospector);
+        $exchange->ensureReachableBy($prospector);
 
         return ExchangeDetailResponse::of($exchange, $prospector);
     }

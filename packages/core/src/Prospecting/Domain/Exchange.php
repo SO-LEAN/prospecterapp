@@ -9,6 +9,7 @@ use Prospecter\Core\Prospecting\Domain\Event\ExchangeCorrected;
 use Prospecter\Core\Prospecting\Domain\Event\ExchangeErased;
 use Prospecter\Core\Prospecting\Domain\Event\ExchangeNoLongerKeptFor;
 use Prospecter\Core\Prospecting\Domain\Event\ExchangeNoted;
+use Prospecter\Core\Prospecting\Domain\Event\ExchangeTextCorrected;
 use Prospecter\Core\Prospecting\Domain\Event\FileAttached;
 use Prospecter\Core\Prospecting\Domain\Exception\ExchangeInTheFuture;
 use Prospecter\Core\Prospecting\Domain\Exception\NoRoomForAnAttachment;
@@ -162,13 +163,14 @@ final class Exchange implements ReleasesEvents
     }
 
     /**
-     * A file joined to it, read like the exchange itself.
+     * A file joined to it, hidden to a prospector without the right to manage personal data (ADR 0078).
      *
      * @throws UnknownExchange|PersonalDataManagersOnly|UnknownAttachment
      */
     public function attachmentReadBy(Prospector $prospector, AttachmentId $id): Attachment
     {
-        $this->ensureReadableBy($prospector);
+        $this->ensureReachableBy($prospector);
+        $prospector->ensureMayExchangeWithTheContacts();
 
         foreach ($this->attachments as $attachment) {
             if ($attachment->id->equals($id)) {
@@ -194,11 +196,22 @@ final class Exchange implements ReleasesEvents
      */
     public function possibleIntentsOf(Prospector $prospector): array
     {
-        if (!$this->belongsTo($prospector) || !$prospector->managesPersonalData) {
+        if (!$this->belongsTo($prospector)) {
             return [];
         }
 
-        return array_values(array_filter(ExchangeIntent::cases(), fn (ExchangeIntent $intent): bool => ExchangeIntent::AttachFile !== $intent || $this->hasRoomForAnAttachment()));
+        return array_values(array_filter($this->intentsOpenTo($prospector), fn (ExchangeIntent $intent): bool => ExchangeIntent::AttachFile !== $intent || $this->hasRoomForAnAttachment()));
+    }
+
+    /**
+     * Retouching its text, to make it conform, is open to every prospector of the account; the rest needs the
+     * right to manage personal data.
+     *
+     * @return list<ExchangeIntent>
+     */
+    private function intentsOpenTo(Prospector $prospector): array
+    {
+        return $prospector->managesPersonalData ? ExchangeIntent::cases() : [ExchangeIntent::CorrectText];
     }
 
     private function hasRoomForAnAttachment(): bool
@@ -207,14 +220,12 @@ final class Exchange implements ReleasesEvents
     }
 
     /**
-     * What was said is personal data: it is read with the right to manage them, within the account only.
-     *
-     * @throws UnknownExchange|PersonalDataManagersOnly
+     * Every prospector of the account reads the text; without the right to manage personal data, it comes
+     * flagged: it may hold some.
      */
-    public function ensureReadableBy(Prospector $prospector): void
+    public function isTextFlaggedFor(Prospector $prospector): bool
     {
-        $this->ensureReachableBy($prospector);
-        $prospector->ensureMayExchangeWithTheContacts();
+        return null !== $this->facts->text && !$prospector->managesPersonalData;
     }
 
     /**
@@ -227,9 +238,27 @@ final class Exchange implements ReleasesEvents
         $this->ensurePossible(ExchangeIntent::CorrectExchange, $by);
         self::ensureHappenedBefore($facts, $at);
         $this->facts = $facts;
-        $this->modifiedAt = $at;
-        $this->lastCorrection = new Correction($by->id, $at);
+        $this->correctedBy($by, $at);
         $this->recordThat(new ExchangeCorrected($this->accountId, $by->id, $this->id, $at));
+    }
+
+    /**
+     * To make it conform, without the right to manage personal data too: its other facts stay.
+     *
+     * @throws UnknownExchange
+     */
+    public function correctText(?string $text, Prospector $by, \DateTimeImmutable $at): void
+    {
+        $this->ensurePossible(ExchangeIntent::CorrectText, $by);
+        $this->facts = $this->facts->withText($text);
+        $this->correctedBy($by, $at);
+        $this->recordThat(new ExchangeTextCorrected($this->accountId, $by->id, $this->id, $at));
+    }
+
+    private function correctedBy(Prospector $prospector, \DateTimeImmutable $at): void
+    {
+        $this->modifiedAt = $at;
+        $this->lastCorrection = new Correction($prospector->id, $at);
     }
 
     /**
@@ -288,13 +317,15 @@ final class Exchange implements ReleasesEvents
     }
 
     /**
-     * Every intention needs the right to manage personal data; joining a file, room for it too.
-     *
      * @throws UnknownExchange|PersonalDataManagersOnly|NoRoomForAnAttachment
      */
     private function ensurePossible(ExchangeIntent $intent, Prospector $by): void
     {
-        $this->ensureReadableBy($by);
+        $this->ensureReachableBy($by);
+
+        if (!in_array($intent, $this->intentsOpenTo($by), true)) {
+            throw PersonalDataManagersOnly::because('Only a prospector allowed to manage personal data may exchange with the contacts');
+        }
 
         if (ExchangeIntent::AttachFile === $intent && !$this->hasRoomForAnAttachment()) {
             throw NoRoomForAnAttachment::because(sprintf('An exchange holds %d attachments at most', self::MOST_ATTACHMENTS));
@@ -306,7 +337,7 @@ final class Exchange implements ReleasesEvents
      *
      * @throws UnknownExchange
      */
-    private function ensureReachableBy(Prospector $prospector): void
+    public function ensureReachableBy(Prospector $prospector): void
     {
         if (!$this->belongsTo($prospector)) {
             throw UnknownExchange::identifiedBy($this->id);
