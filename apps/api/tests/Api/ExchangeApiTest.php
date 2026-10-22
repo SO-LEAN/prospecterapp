@@ -105,14 +105,17 @@ class ExchangeApiTest extends ApiTestCase
         $this->assertResponseStatusCodeSame(404);
     }
 
-    public function testWithoutTheRightNoExchangeIsNotedNorRead(): void
+    public function testWithoutTheRightTheTimelineIsReadItsTextsFlaggedButNoExchangeIsNoted(): void
     {
         $contact = $this->aContactOf($this->anOrganization('ACME'));
+        $this->note($contact, ['channel' => 'call', 'direction' => 'inbound', 'text' => 'Ada rappellera lundi']);
         $this->login($this->aMemberOfTheFixtures('prospector-without-the-right', Role::User, Role::Prospector));
 
+        $timeline = $this->requestJson('GET', '/api/contacts/'.$contact.'/exchanges');
+        $this->assertResponseStatusCodeSame(200);
+        $this->assertSame([['Ada rappellera lundi', true]], array_map(static fn (array $exchange): array => [$exchange['text'], $exchange['textFlagged']], $timeline['items']));
+        $this->assertSame(['self'], array_keys($timeline['_links']));
         $this->note($contact, ['channel' => 'sms', 'direction' => 'inbound']);
-        $this->assertResponseStatusCodeSame(403);
-        $this->requestJson('GET', '/api/contacts/'.$contact.'/exchanges');
         $this->assertResponseStatusCodeSame(403);
     }
 
@@ -142,13 +145,14 @@ class ExchangeApiTest extends ApiTestCase
 
         $this->assertResponseStatusCodeSame(200);
         $this->assertSame(['kind' => 'person', 'id' => $contact, 'name' => 'Ada'], $exchange['interlocutor']);
-        $this->assertSame(['sms', 'inbound', false, '2026-10-14T14:30:00+00:00', "Rappeler lundi\nAprès le salon"], [$exchange['channel'], $exchange['direction'], $exchange['missed'], $exchange['occurredAt'], $exchange['text']]);
+        $this->assertSame(['sms', 'inbound', false, '2026-10-14T14:30:00+00:00', "Rappeler lundi\nAprès le salon", false], [$exchange['channel'], $exchange['direction'], $exchange['missed'], $exchange['occurredAt'], $exchange['text'], $exchange['textFlagged']]);
         $this->assertSame(['at' => '2026-10-15T09:00:00+00:00', 'by' => ['name' => ['firstName' => null, 'lastName' => null], 'email' => 'prospector@solean-it.io']], $exchange['noted']);
         $this->assertNull($exchange['corrected']);
         $this->assertSame([], $exchange['attachments']);
-        $this->assertSame(['self', 'interlocutor', 'correctExchange', 'eraseExchange', 'attachFile'], array_keys($exchange['_links']));
+        $this->assertSame(['self', 'interlocutor', 'correctExchange', 'correctText', 'eraseExchange', 'attachFile'], array_keys($exchange['_links']));
         $this->assertSame(['href' => '/api/contacts/'.$contact, 'method' => 'GET'], $exchange['_links']['interlocutor']);
         $this->assertSame(['href' => '/api/exchanges/'.$exchange['id'].'/facts', 'method' => 'PATCH'], $exchange['_links']['correctExchange']);
+        $this->assertSame(['href' => '/api/exchanges/'.$exchange['id'].'/text', 'method' => 'PATCH'], $exchange['_links']['correctText']);
         $this->assertSame(['href' => '/api/exchanges/'.$exchange['id'], 'method' => 'DELETE'], $exchange['_links']['eraseExchange']);
     }
 
@@ -214,17 +218,43 @@ class ExchangeApiTest extends ApiTestCase
         $this->assertResponseStatusCodeSame(404);
     }
 
-    public function testWithoutTheRightAnExchangeIsNeitherReadNorCorrectedNorErased(): void
+    public function testWithoutTheRightAnExchangeIsReadMaskedAndOnlyItsTextCorrected(): void
     {
-        $id = $this->note($this->aContactOf($this->anOrganization('ACME')), ['channel' => 'sms', 'direction' => 'inbound'])['items'][0]['id'];
+        $id = $this->note($this->aContactOf($this->anOrganization('ACME'), 'Grace'), ['channel' => 'sms', 'direction' => 'inbound', 'text' => 'Grace rappellera lundi'])['items'][0]['id'];
         $this->login($this->aMemberOfTheFixtures('prospector-without-the-right', Role::User, Role::Prospector));
 
-        $this->requestJson('GET', '/api/exchanges/'.$id);
-        $this->assertResponseStatusCodeSame(403);
-        $this->correct($id, ['channel' => 'sms', 'direction' => 'inbound', 'occurredAt' => '2026-10-15T08:00:00+00:00']);
+        $exchange = $this->requestJson('GET', '/api/exchanges/'.$id);
+        $this->assertResponseStatusCodeSame(200);
+        $this->assertSame('G***e', $exchange['interlocutor']['name']);
+        $this->assertSame(['Grace rappellera lundi', true], [$exchange['text'], $exchange['textFlagged']]);
+        $this->assertSame(['self', 'interlocutor', 'correctText'], array_keys($exchange['_links']));
+        $this->correct($id, ['channel' => 'call', 'direction' => 'inbound', 'occurredAt' => '2026-10-15T08:00:00+00:00']);
         $this->assertResponseStatusCodeSame(403);
         $this->requestJson('DELETE', '/api/exchanges/'.$id);
         $this->assertResponseStatusCodeSame(403);
+    }
+
+    public function testTheTextCorrectedAloneIsShownWithWhoCorrectedIt(): void
+    {
+        $id = $this->note($this->aContactOf($this->anOrganization('ACME')), ['channel' => 'sms', 'direction' => 'inbound', 'occurredAt' => '2026-10-14T14:30:00+00:00', 'text' => 'Ada rappellera lundi'])['items'][0]['id'];
+        $this->login('assistant-user');
+
+        $exchange = $this->requestJson('PATCH', '/api/exchanges/'.$id.'/text', ['text' => 'La contactée rappellera lundi']);
+
+        $this->assertResponseStatusCodeSame(200);
+        $this->assertSame(['sms', '2026-10-14T14:30:00+00:00', 'La contactée rappellera lundi'], [$exchange['channel'], $exchange['occurredAt'], $exchange['text']]);
+        $this->assertSame('2026-10-15T09:00:00+00:00', $exchange['corrected']['at']);
+        $this->assertSame('assistant@solean-it.io', $exchange['corrected']['by']['email']);
+    }
+
+    public function testOnlyTheTextIsCorrectedThere(): void
+    {
+        $id = $this->note($this->aContactOf($this->anOrganization('ACME')), ['channel' => 'sms', 'direction' => 'inbound'])['items'][0]['id'];
+
+        $problem = $this->requestJson('PATCH', '/api/exchanges/'.$id.'/text', ['text' => 'Rien', 'channel' => 'call']);
+
+        $this->assertResponseStatusCodeSame(422);
+        $this->assertSame(['channel'], $this->violatedFields($problem));
     }
 
     public function testAnExchangeNeverNotedIsNotFound(): void

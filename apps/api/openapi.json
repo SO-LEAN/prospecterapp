@@ -912,7 +912,7 @@
                         "description": "Missing or invalid access token"
                     },
                     "403": {
-                        "description": "Not a prospector, or no right to manage personal data",
+                        "description": "Not a prospector",
                         "content": {
                             "application/json": {
                                 "schema": {
@@ -1982,7 +1982,7 @@
                         "description": "Missing or invalid access token"
                     },
                     "403": {
-                        "description": "Not a prospector, or no right to manage personal data",
+                        "description": "Not a prospector",
                         "content": {
                             "application/json": {
                                 "schema": {
@@ -2429,6 +2429,81 @@
                 }
             }
         },
+        "/api/exchanges/{id}/text": {
+            "patch": {
+                "tags": [
+                    "Contacts"
+                ],
+                "summary": "Correct the text of an exchange only, to make it conform; open to every prospector of the account",
+                "operationId": "patch_api_exchanges_correct_text",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "pattern": "[0-9a-f]{8}-[0-9a-f]{4}-[13-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/TextCorrectionInput"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "The corrected exchange",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ExchangeDetailResource"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Missing or invalid access token"
+                    },
+                    "403": {
+                        "description": "Not a prospector",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ProblemResource"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Unknown exchange, or one of another account",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ProblemResource"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Invalid text: too long, or another fact of the exchange",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ProblemResource"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
         "/api/exchanges/{id}/attachments/{attachmentId}": {
             "get": {
                 "tags": [
@@ -2588,7 +2663,7 @@
                         "description": "Missing or invalid access token"
                     },
                     "403": {
-                        "description": "Not a prospector, or no right to manage personal data",
+                        "description": "Not a prospector",
                         "content": {
                             "application/json": {
                                 "schema": {
@@ -3156,6 +3231,17 @@
                 },
                 "type": "object"
             },
+            "TextCorrectionInput": {
+                "properties": {
+                    "text": {
+                        "type": "string",
+                        "nullable": true,
+                        "default": null,
+                        "maxLength": 5000
+                    }
+                },
+                "type": "object"
+            },
             "LoginEmailInput": {
                 "properties": {
                     "email": {
@@ -3663,6 +3749,7 @@
                     "direction",
                     "missed",
                     "occurredAt",
+                    "textFlagged",
                     "organizationIds",
                     "attachmentCount",
                     "_links"
@@ -3701,6 +3788,10 @@
                     "text": {
                         "type": "string",
                         "nullable": true
+                    },
+                    "textFlagged": {
+                        "description": "Its text may hold personal data: flagged to a prospector reading it without the right to manage them",
+                        "type": "boolean"
                     },
                     "organizationIds": {
                         "description": "The organizations it is kept for: those the contact was part of when it was noted, or the organization itself",
@@ -4186,6 +4277,9 @@
                     "correctExchange": {
                         "$ref": "#/components/schemas/LinkResource"
                     },
+                    "correctText": {
+                        "$ref": "#/components/schemas/LinkResource"
+                    },
                     "eraseExchange": {
                         "$ref": "#/components/schemas/LinkResource"
                     },
@@ -4203,6 +4297,7 @@
                     "direction",
                     "missed",
                     "occurredAt",
+                    "textFlagged",
                     "organizationIds",
                     "noted",
                     "attachments",
@@ -4245,6 +4340,10 @@
                     "text": {
                         "type": "string",
                         "nullable": true
+                    },
+                    "textFlagged": {
+                        "description": "Its text may hold personal data: flagged to a prospector reading it without the right to manage them",
+                        "type": "boolean"
                     },
                     "organizationIds": {
                         "description": "The organizations it is kept for: those the contact was part of when it was noted, or the organization itself",

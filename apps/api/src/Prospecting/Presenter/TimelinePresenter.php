@@ -56,6 +56,7 @@ final readonly class TimelinePresenter
             missed: $exchange->missed,
             occurredAt: $exchange->occurredAt->format(\DateTimeInterface::ATOM),
             text: $exchange->text,
+            textFlagged: $exchange->textFlagged,
             organizationIds: $exchange->organizationIds,
             attachmentCount: $exchange->attachmentCount,
             links: new ExchangeLinksResource($this->links->to('api_exchanges_show', ['id' => $exchange->id])),

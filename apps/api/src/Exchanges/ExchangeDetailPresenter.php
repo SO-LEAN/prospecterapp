@@ -22,6 +22,7 @@ final readonly class ExchangeDetailPresenter
 {
     private const array ROUTES = [
         'CorrectExchange' => ['correctExchange', 'api_exchanges_correct'],
+        'CorrectText' => ['correctText', 'api_exchanges_correct_text'],
         'EraseExchange' => ['eraseExchange', 'api_exchanges_erase'],
         'AttachFile' => ['attachFile', 'api_exchanges_attach_file'],
     ];
@@ -47,6 +48,7 @@ final readonly class ExchangeDetailPresenter
             missed: $exchange->missed,
             occurredAt: $exchange->occurredAt->format(\DateTimeInterface::ATOM),
             text: $exchange->text,
+            textFlagged: $exchange->textFlagged,
             organizationIds: $exchange->organizationIds,
             noted: new StampResource($exchange->createdAt->format(\DateTimeInterface::ATOM), $authorOf($exchange->createdBy)),
             corrected: null === $exchange->correctedAt || null === $exchange->correctedBy ? null : new StampResource($exchange->correctedAt->format(\DateTimeInterface::ATOM), $authorOf($exchange->correctedBy)),

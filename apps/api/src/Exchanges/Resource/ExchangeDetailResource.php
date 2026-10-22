@@ -31,6 +31,8 @@ final readonly class ExchangeDetailResource
         #[OA\Property(format: 'date-time')]
         public string $occurredAt,
         public ?string $text,
+        #[OA\Property(description: 'Its text may hold personal data: flagged to a prospector reading it without the right to manage them')]
+        public bool $textFlagged,
         #[OA\Property(description: 'The organizations it is kept for: those the contact was part of when it was noted, or the organization itself')]
         public array $organizationIds,
         public StampResource $noted,

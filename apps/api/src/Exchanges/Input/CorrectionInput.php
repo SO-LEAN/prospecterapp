@@ -11,7 +11,7 @@ use Symfony\Component\Validator\Constraints as Assert;
  */
 final readonly class CorrectionInput
 {
-    private const int MAX_TEXT = 5000;
+    public const int MAX_TEXT = 5000;
 
     public function __construct(
         #[Assert\NotBlank]

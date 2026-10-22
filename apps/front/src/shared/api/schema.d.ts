@@ -506,6 +506,23 @@ export interface paths {
         patch: operations["patch_api_exchanges_correct"];
         trace?: never;
     };
+    "/api/exchanges/{id}/text": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        /** Correct the text of an exchange only, to make it conform; open to every prospector of the account */
+        patch: operations["patch_api_exchanges_correct_text"];
+        trace?: never;
+    };
     "/api/exchanges/{id}/attachments/{attachmentId}": {
         parameters: {
             query?: never;
@@ -778,6 +795,10 @@ export interface components {
             /** @default false */
             missed: boolean;
         };
+        TextCorrectionInput: {
+            /** @default null */
+            text: string | null;
+        };
         LoginEmailInput: {
             /** @default  */
             email: string;
@@ -946,6 +967,8 @@ export interface components {
             /** Format: date-time */
             occurredAt: string;
             text?: string | null;
+            /** @description Its text may hold personal data: flagged to a prospector reading it without the right to manage them */
+            textFlagged: boolean;
             /** @description The organizations it is kept for: those the contact was part of when it was noted, or the organization itself */
             organizationIds: string[];
             /** @description How many files are joined to it */
@@ -1074,6 +1097,7 @@ export interface components {
             self: components["schemas"]["LinkResource"];
             interlocutor: components["schemas"]["LinkResource"];
             correctExchange?: components["schemas"]["LinkResource"];
+            correctText?: components["schemas"]["LinkResource"];
             eraseExchange?: components["schemas"]["LinkResource"];
             attachFile?: components["schemas"]["LinkResource"];
         };
@@ -1092,6 +1116,8 @@ export interface components {
             /** Format: date-time */
             occurredAt: string;
             text?: string | null;
+            /** @description Its text may hold personal data: flagged to a prospector reading it without the right to manage them */
+            textFlagged: boolean;
             /** @description The organizations it is kept for: those the contact was part of when it was noted, or the organization itself */
             organizationIds: string[];
             noted: components["schemas"]["StampResource"];
@@ -1916,7 +1942,7 @@ export interface operations {
                 };
                 content?: never;
             };
-            /** @description Not a prospector, or no right to manage personal data */
+            /** @description Not a prospector */
             403: {
                 headers: {
                     [name: string]: unknown;
@@ -2798,7 +2824,7 @@ export interface operations {
                 };
                 content?: never;
             };
-            /** @description Not a prospector, or no right to manage personal data */
+            /** @description Not a prospector */
             403: {
                 headers: {
                     [name: string]: unknown;
@@ -3163,6 +3189,66 @@ export interface operations {
             };
         };
     };
+    patch_api_exchanges_correct_text: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["TextCorrectionInput"];
+            };
+        };
+        responses: {
+            /** @description The corrected exchange */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ExchangeDetailResource"];
+                };
+            };
+            /** @description Missing or invalid access token */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Not a prospector */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ProblemResource"];
+                };
+            };
+            /** @description Unknown exchange, or one of another account */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ProblemResource"];
+                };
+            };
+            /** @description Invalid text: too long, or another fact of the exchange */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ProblemResource"];
+                };
+            };
+        };
+    };
     get_api_exchanges_download_attachment: {
         parameters: {
             query?: never;
@@ -3286,7 +3372,7 @@ export interface operations {
                 };
                 content?: never;
             };
-            /** @description Not a prospector, or no right to manage personal data */
+            /** @description Not a prospector */
             403: {
                 headers: {
                     [name: string]: unknown;
