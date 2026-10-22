@@ -16,12 +16,14 @@ import {
 } from '@/shared/ui/dialog'
 import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle } from '@/shared/ui/sheet'
 import { Skeleton } from '@/shared/ui/skeleton'
-import { useCorrectExchange, useEraseExchange } from '../mutations'
+import { useCorrectExchange, useCorrectExchangeText, useEraseExchange } from '../mutations'
 import { type Author, type ExchangeDetail, exchangeQuery } from '../queries'
 import { correctionOf } from '../schema'
 import { ExchangeAttachments } from './exchange-attachments'
 import { ExchangeForm } from './exchange-form'
 import { ExchangeSummary } from './exchange-line'
+import { ExchangeText } from './exchange-text'
+import { TextCorrectionForm } from './text-correction-form'
 
 type Props = { exchangeId: string | null; onClose: () => void }
 
@@ -57,21 +59,41 @@ function ExchangePanel({ exchangeId, onErased }: { exchangeId: string; onErased:
   return <Exchange exchange={exchange.data} onErased={onErased} />
 }
 
+/** What is being corrected: all its facts, its text only, or nothing while it is read. */
+type Correcting = 'facts' | 'text' | null
+
 function Exchange({ exchange, onErased }: { exchange: ExchangeDetail; onErased: () => void }) {
   const { t } = useTranslation()
-  const [correcting, setCorrecting] = useState(false)
+  const [correcting, setCorrecting] = useState<Correcting>(null)
   const correct = useCorrectExchange()
+  const correctText = useCorrectExchangeText()
   const authorOf = (author: Author) => nameOf(author.name) || author.email || t('exchanges.detail.aMember')
+  const params = { path: { id: exchange.id } }
 
-  if (correcting) {
+  if (correcting === 'facts') {
     return (
       <div className="px-4 pb-4">
         <ExchangeForm
           defaultValues={correctionOf(exchange)}
-          onCancel={() => setCorrecting(false)}
+          onCancel={() => setCorrecting(null)}
           onSubmit={async (body) => {
-            await correct.mutateAsync({ params: { path: { id: exchange.id } }, body })
-            setCorrecting(false)
+            await correct.mutateAsync({ params, body })
+            setCorrecting(null)
+          }}
+        />
+      </div>
+    )
+  }
+
+  if (correcting === 'text') {
+    return (
+      <div className="px-4 pb-4">
+        <TextCorrectionForm
+          text={exchange.text}
+          onCancel={() => setCorrecting(null)}
+          onSubmit={async (body) => {
+            await correctText.mutateAsync({ params, body })
+            setCorrecting(null)
           }}
         />
       </div>
@@ -81,7 +103,15 @@ function Exchange({ exchange, onErased }: { exchange: ExchangeDetail; onErased: 
   return (
     <div className="space-y-4 px-4 pb-4 text-sm">
       <ExchangeSummary exchange={exchange} interlocutor={exchange.interlocutor}>
-        {exchange.text && <p className="mt-2 whitespace-pre-wrap break-words">{exchange.text}</p>}
+        {exchange.text && (
+          <div className="mt-2">
+            <ExchangeText
+              text={exchange.text}
+              flagged={exchange.textFlagged}
+              className="whitespace-pre-wrap break-words"
+            />
+          </div>
+        )}
       </ExchangeSummary>
       <div className="space-y-1 text-muted-foreground text-xs">
         <p>
@@ -101,10 +131,16 @@ function Exchange({ exchange, onErased }: { exchange: ExchangeDetail; onErased: 
       </div>
       <ExchangeAttachments exchange={exchange} />
       <div className="flex flex-wrap gap-2">
-        {exchange._links.correctExchange && (
-          <Button variant="outline" onClick={() => setCorrecting(true)}>
+        {exchange._links.correctExchange ? (
+          <Button variant="outline" onClick={() => setCorrecting('facts')}>
             <Pencil aria-hidden /> {t('exchanges.detail.correct')}
           </Button>
+        ) : (
+          exchange._links.correctText && (
+            <Button variant="outline" onClick={() => setCorrecting('text')}>
+              <Pencil aria-hidden /> {t('exchanges.detail.correctText')}
+            </Button>
+          )
         )}
         {exchange._links.eraseExchange && <EraseExchange exchangeId={exchange.id} onErased={onErased} />}
       </div>

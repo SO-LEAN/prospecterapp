@@ -2,7 +2,7 @@ import type { DefaultValues } from 'react-hook-form'
 import { z } from 'zod'
 import { orNull, text } from '@/shared/forms/text'
 import { i18n } from '@/shared/i18n'
-import { CHANNELS, DIRECTIONS, type ExchangeDetail, type ExchangeFacts } from './queries'
+import { CHANNELS, DIRECTIONS, type ExchangeDetail, type ExchangeFacts, type TextCorrection } from './queries'
 
 const MAX_TEXT = 5000
 
@@ -63,3 +63,12 @@ export const toExchangeFacts = (values: ExchangeValues): ExchangeFacts => ({
 
 export const personIdOf = (values: ExchangeValues): string | null =>
   values.personId === ITSELF ? null : values.personId
+
+/** Mirrors `TextCorrectionInput` of the API. */
+export const textSchema = z.object({ text: text(MAX_TEXT) })
+
+export type TextValues = z.input<typeof textSchema>
+
+export const textFields = ['text'] as const
+
+export const toTextCorrection = (values: TextValues): TextCorrection => ({ text: orNull(values.text) })

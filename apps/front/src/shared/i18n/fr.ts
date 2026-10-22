@@ -207,6 +207,7 @@ export const fr = {
     interlocutor: 'Interlocuteur',
     interlocutors: { organization: 'Organisation :', person: 'Contact :' },
     unknownPerson: 'Contact effacé',
+    mayHoldPersonalData: 'Peut contenir des données personnelles',
     detail: {
       title: 'Échange',
       description: 'Tout l’échange, qui l’a noté et qui l’a corrigé.',
@@ -214,6 +215,7 @@ export const fr = {
       corrected: 'Modifié le {{moment}} par {{author}}',
       aMember: 'un membre',
       correct: 'Corriger',
+      correctText: 'Corriger le texte',
       correctionSaved: 'Échange corrigé',
       erase: 'Supprimer',
       eraseTitle: 'Supprimer cet échange ?',

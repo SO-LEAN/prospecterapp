@@ -18,6 +18,7 @@ const anExchange = (exchange: Partial<Exchange>): Exchange => ({
   missed: false,
   occurredAt: '2026-10-15T12:30:00+00:00',
   text: null,
+  textFlagged: false,
   organizationIds: [],
   attachmentCount: 0,
   _links: { self: { href: `/api/exchanges/${exchange.id ?? EXCHANGE}`, method: 'GET' } },
@@ -74,6 +75,18 @@ describe('ExchangesSection', () => {
     expect(screen.getByText('2 pièces jointes')).toBeInTheDocument()
   })
 
+  it('flags a text that may hold personal data the reader may not manage, and offers no quick entry', () => {
+    renderTheSection({
+      items: [anExchange({ text: 'Grace rappellera lundi', textFlagged: true })],
+      _links: { self: timelineLink },
+    })
+
+    const [line] = screen.getAllByRole('listitem')
+    expect(line).toHaveTextContent('Peut contenir des données personnelles')
+    expect(line).toHaveTextContent('Grace rappellera lundi')
+    expect(screen.queryByRole('button', { name: 'Noter un échange' })).not.toBeInTheDocument()
+  })
+
   it('says there is none yet', () => {
     renderTheSection({ items: [], _links: { self: timelineLink, noteExchange: noteLink } })
 
@@ -106,6 +119,7 @@ describe('ExchangesSection', () => {
         missed: false,
         occurredAt: '2026-10-15T12:30:00+00:00',
         text,
+        textFlagged: false,
         organizationIds: [],
         noted: {
           at: '2026-10-15T12:35:00+00:00',
