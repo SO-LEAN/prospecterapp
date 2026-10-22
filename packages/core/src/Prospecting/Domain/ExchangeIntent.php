@@ -5,8 +5,8 @@ declare(strict_types=1);
 namespace Prospecter\Core\Prospecting\Domain;
 
 /**
- * What a prospector may do with an exchange; reading it, correcting or erasing it, joining a file to it or removing one needs the right to manage
- * personal data.
+ * What a prospector may do with an exchange; reading it, correcting or erasing it, joining a file to it or
+ * removing one needs the right to manage personal data.
  */
 enum ExchangeIntent
 {
