@@ -100,7 +100,7 @@ export function NoteExchangeDialog({ name, children }: NoteExchangeDialogProps) 
           <Plus aria-hidden /> {t('exchanges.note')}
         </Button>
       </DialogTrigger>
-      <DialogContent>
+      <DialogContent className="max-h-[calc(100dvh-2rem)] overflow-y-auto">
         <DialogHeader>
           <DialogTitle>{t('exchanges.note')}</DialogTitle>
           <DialogDescription>{t('exchanges.noteDescription', { name })}</DialogDescription>
