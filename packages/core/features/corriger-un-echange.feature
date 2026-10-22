@@ -43,10 +43,10 @@ Fonctionnalité: Corriger un échange
       | non abouti | oui |
     Alors c'est refusé : "Only a call may be missed"
 
-  Scénario: Sans le droit aux données personnelles, je ne corrige pas un échange
+  Scénario: Sans le droit aux données personnelles, je ne corrige que le texte
     Soit je suis connecté en tant que prospecteur de "SOLEAN IT" sans le droit aux données personnelles
     Quand je corrige cet échange :
-      | texte | Rien |
+      | canal | SMS |
     Alors c'est refusé : "Only a prospector allowed to manage personal data may exchange with the contacts"
 
   Scénario: L'échange d'un autre compte est introuvable

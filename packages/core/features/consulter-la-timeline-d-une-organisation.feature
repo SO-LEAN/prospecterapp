@@ -70,15 +70,23 @@ Fonctionnalité: La timeline d'une organisation
     Quand je note un appel reçu de "ACME" elle-même
     Alors c'est refusé : "Only a prospector allowed to manage personal data may exchange with the contacts"
 
-  Scénario: Sans le droit aux données personnelles, je ne lis pas la timeline de l'organisation
-    Soit je suis connecté en tant que prospecteur de "SOLEAN IT" sans le droit aux données personnelles
+  Scénario: Sans le droit aux données personnelles, la timeline de l'organisation masque ses contacts
+    Soit j'ai noté un e-mail reçu de "Ada Lovelace" le 10/10/2026 à 9h00
+    Et j'ai noté un appel reçu de "ACME" elle-même le 15/10/2026 à 16h00
+    Et je suis connecté en tant que prospecteur de "SOLEAN IT" sans le droit aux données personnelles
     Quand je consulte la timeline de "ACME"
-    Alors c'est refusé : "Only a prospector allowed to manage personal data may exchange with the contacts"
+    Alors la timeline de "ACME" est, du plus récent au plus ancien :
+      | moment           | interlocuteur | canal  |
+      | 15/10/2026 16:00 | ACME          | Appel  |
+      | 10/10/2026 09:00 | A***a L***e   | E-mail |
+    Et je peux sur la timeline :
+      | consulter la timeline |
 
-  Scénario: Sans le droit aux données personnelles, la fiche d'une organisation ne mène pas à sa timeline
+  Scénario: Sans le droit aux données personnelles, la fiche d'une organisation mène à sa timeline pour la lire seulement
     Soit je suis connecté en tant que prospecteur de "SOLEAN IT" sans le droit aux données personnelles
     Quand je consulte l'organisation "ACME"
-    Alors je ne peux rien sur sa timeline
+    Alors je peux sur sa timeline :
+      | consulter la timeline |
 
   Scénario: L'organisation d'un autre compte est introuvable
     Soit l'organisation "Concurrent" qui utilise Prospecter

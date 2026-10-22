@@ -11,6 +11,7 @@ use Behat\Step\Then;
 use Prospecter\Core\Accounts\Domain\Account;
 use Prospecter\Core\Accounts\Domain\Member;
 use Prospecter\Core\Accounts\Domain\Role;
+use Prospecter\Core\PersonalData\Application\ConsultPersons\ConsultPersons;
 use Prospecter\Core\PersonalData\Domain\Person;
 use Prospecter\Core\PersonalData\Domain\Purpose;
 use Prospecter\Core\PersonalData\Domain\Reader;
@@ -254,6 +255,16 @@ final class ScenarioContext implements Context
         $name = array_search($id, $this->personIds, false);
 
         return false === $name ? throw new \LogicException(sprintf('No person %s in the scenario', $id)) : $name;
+    }
+
+    /**
+     * The name of a person as the signed-in member reads it, in clear or masked, the way the clients name them.
+     */
+    public function nameOfPersonAsRead(PersonId $id): string
+    {
+        $person = $this->application->consultPersons(new ConsultPersons($this->application->signedIn(), [$id->value]))[$id->value] ?? null;
+
+        return null === $person ? '' : trim(sprintf('%s %s', $person->firstName, $person->lastName));
     }
 
     /**
