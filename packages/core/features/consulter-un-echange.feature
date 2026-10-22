@@ -22,8 +22,10 @@ Fonctionnalité: Consulter le détail d'un échange
       | texte         | Intéressée par une mission en mars |
       | noté          | le 15/10/2026 à 14:35 par Michel   |
       | modifié       |                                    |
+      | signalé       | non                                |
     Et je peux sur l'échange :
       | corriger l'échange       |
+      | corriger le texte        |
       | supprimer l'échange      |
       | joindre un fichier       |
       | retirer une pièce jointe |
@@ -41,10 +43,15 @@ Fonctionnalité: Consulter le détail d'un échange
       | noté          | le 16/10/2026 à 09:05 par Michel |
       | modifié       |                                  |
 
-  Scénario: Sans le droit aux données personnelles, je ne lis pas un échange
+  Scénario: Sans le droit aux données personnelles, je lis l'échange, l'interlocuteur masqué, le texte signalé
     Soit je suis connecté en tant que prospecteur de "SOLEAN IT" sans le droit aux données personnelles
     Quand je consulte cet échange
-    Alors c'est refusé : "Only a prospector allowed to manage personal data may exchange with the contacts"
+    Alors je vois l'échange :
+      | interlocuteur | A***a L***e                        |
+      | texte         | Intéressée par une mission en mars |
+      | signalé       | oui                                |
+    Et je peux sur l'échange :
+      | corriger le texte |
 
   Scénario: L'échange d'un autre compte est introuvable
     Soit l'organisation "Concurrent" qui utilise Prospecter

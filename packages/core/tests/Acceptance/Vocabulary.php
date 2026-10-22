@@ -46,6 +46,7 @@ final class Vocabulary
         'ConsultTimeline' => 'consulter la timeline',
         'NoteExchange' => 'noter un échange',
         'CorrectExchange' => 'corriger l\'échange',
+        'CorrectText' => 'corriger le texte',
         'EraseExchange' => 'supprimer l\'échange',
         'AttachFile' => 'joindre un fichier',
         'RemoveAttachment' => 'retirer une pièce jointe',

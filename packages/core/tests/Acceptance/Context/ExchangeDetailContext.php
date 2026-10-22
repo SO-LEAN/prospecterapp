@@ -12,6 +12,7 @@ use Behat\Step\When;
 use Prospecter\Core\Prospecting\Application\ConsultExchange\ConsultExchange;
 use Prospecter\Core\Prospecting\Application\ConsultExchange\ExchangeDetailResponse;
 use Prospecter\Core\Prospecting\Application\CorrectExchange\CorrectExchange;
+use Prospecter\Core\Prospecting\Application\CorrectExchangeText\CorrectExchangeText;
 use Prospecter\Core\Prospecting\Application\EraseExchange\EraseExchange;
 use Prospecter\Core\Prospecting\Application\NoteExchange\NoteExchange;
 use Prospecter\Core\Prospecting\Application\NoteOrganizationExchange\NoteOrganizationExchange;
@@ -71,6 +72,12 @@ final class ExchangeDetailContext implements Context
         ));
     }
 
+    #[When('je corrige le texte de cet échange en :text')]
+    public function iCorrectTheTextOfTheExchange(string $text): void
+    {
+        $this->application->dispatch(new CorrectExchangeText($this->application->signedIn(), $this->exchange, $text, $this->application->now()));
+    }
+
     #[When('je supprime cet échange')]
     public function iEraseTheExchange(): void
     {
@@ -80,7 +87,9 @@ final class ExchangeDetailContext implements Context
     #[Then('je vois l\'échange :')]
     public function iSeeTheExchange(TableNode $table): void
     {
-        Expect::same($table->getRowsHash(), $this->describe($this->consulted()));
+        $expected = $table->getRowsHash();
+
+        Expect::same($expected, array_intersect_key($this->describe($this->consulted()), $expected));
     }
 
     #[Then('je peux sur l\'échange :')]
@@ -118,6 +127,7 @@ final class ExchangeDetailContext implements Context
             'texte' => (string) $exchange->text,
             'noté' => Vocabulary::describeDoneBy($exchange->createdAt, $this->scenario->nameOfMember(new MemberId($exchange->createdBy))),
             'modifié' => null === $exchange->correctedAt || null === $exchange->correctedBy ? '' : Vocabulary::describeDoneBy($exchange->correctedAt, $this->scenario->nameOfMember(new MemberId($exchange->correctedBy))),
+            'signalé' => $exchange->textFlagged ? 'oui' : 'non',
         ];
     }
 
@@ -128,6 +138,6 @@ final class ExchangeDetailContext implements Context
     {
         return null === $exchange->personId
             ? $this->scenario->nameOf(new OrganizationId($exchange->organizationIds[0] ?? ''))
-            : $this->scenario->nameOfPerson(new PersonId($exchange->personId));
+            : $this->scenario->nameOfPersonAsRead(new PersonId($exchange->personId));
     }
 }

@@ -282,7 +282,7 @@ final class ExchangeContext implements Context
      */
     private function interlocutorOf(ExchangeResponse $exchange, string $timelineOf): string
     {
-        return null === $exchange->personId ? $timelineOf : $this->scenario->nameOfPerson(new PersonId($exchange->personId));
+        return null === $exchange->personId ? $timelineOf : $this->scenario->nameOfPersonAsRead(new PersonId($exchange->personId));
     }
 
     /**
@@ -296,6 +296,7 @@ final class ExchangeContext implements Context
             'canal' => Vocabulary::describeChannel($exchange->channel),
             'sens' => Vocabulary::describeDirection($exchange->direction),
             'texte' => (string) $exchange->text,
+            'signalé' => $exchange->textFlagged ? 'oui' : 'non',
         ];
     }
 }

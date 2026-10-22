@@ -20,9 +20,9 @@ Fonctionnalité: Noter un échange avec un contact
       | moment | 15/10/2026 14:30                   |
       | texte  | Intéressée par une mission en mars |
     Alors la timeline de "Ada Lovelace" est, du plus récent au plus ancien :
-      | moment           | canal    | sens   | texte                              |
-      | 15/10/2026 14:30 | LinkedIn | reçu   | Intéressée par une mission en mars |
-      | 10/10/2026 09:00 | Appel    | envoyé |                                    |
+      | moment           | canal    | sens   | texte                              | signalé |
+      | 15/10/2026 14:30 | LinkedIn | reçu   | Intéressée par une mission en mars | non     |
+      | 10/10/2026 09:00 | Appel    | envoyé |                                    | non     |
 
   Scénario: Un échange noté après coup prend sa place dans la timeline
     Soit je suis connecté en tant que prospecteur de "SOLEAN IT"
@@ -86,15 +86,23 @@ Fonctionnalité: Noter un échange avec un contact
     Quand je note un SMS reçu de "Ada Lovelace"
     Alors c'est refusé : "Only a prospector allowed to manage personal data may exchange with the contacts"
 
-  Scénario: Sans le droit aux données personnelles, je ne lis pas la timeline
-    Soit je suis connecté en tant que prospecteur de "SOLEAN IT" sans le droit aux données personnelles
-    Quand je consulte la timeline de "Ada Lovelace"
-    Alors c'est refusé : "Only a prospector allowed to manage personal data may exchange with the contacts"
+  Scénario: Sans le droit aux données personnelles, je lis la timeline, l'interlocuteur masqué, le texte signalé
+    Soit "Michel" est membre de "SOLEAN IT" avec le droit aux données personnelles
+    Et le contact "Grace Hopper" de "ACME"
+    Et "Michel" a noté le 15/10/2026 à 09h05 un appel reçu de "Grace Hopper" à 09h00 : "Grace rappellera lundi"
+    Et je suis connecté en tant que prospecteur de "SOLEAN IT" sans le droit aux données personnelles
+    Quand je consulte la timeline de "Grace Hopper"
+    Alors la timeline de "Grace Hopper" est, du plus récent au plus ancien :
+      | interlocuteur | canal | texte                  | signalé |
+      | G***e H***r   | Appel | Grace rappellera lundi | oui     |
+    Et je peux sur la timeline :
+      | consulter la timeline |
 
-  Scénario: Sans le droit aux données personnelles, la fiche d'un contact ne mène pas à sa timeline
+  Scénario: Sans le droit aux données personnelles, la fiche d'un contact mène à sa timeline pour la lire seulement
     Soit je suis connecté en tant que prospecteur de "SOLEAN IT" sans le droit aux données personnelles
     Quand je regarde ce que je peux faire de la timeline de "Ada Lovelace"
-    Alors je ne peux rien sur la timeline
+    Alors je peux sur la timeline :
+      | consulter la timeline |
 
   Scénario: Le contact d'un autre compte est introuvable
     Soit l'organisation "Concurrent" qui utilise Prospecter
