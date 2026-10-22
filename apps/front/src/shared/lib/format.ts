@@ -27,3 +27,14 @@ export function formatMoment(moment: string): string {
 export function telUrl(phoneNumber: string): string {
   return `tel:${phoneNumber.replace(/[^\d+]/g, '')}`
 }
+
+const sizeFormat = new Intl.NumberFormat('fr-FR', { maximumFractionDigits: 1 })
+const UNITS = ['octets', 'Ko', 'Mo', 'Go'] as const
+const KILO = 1024
+
+/** A size in bytes as a person reads it: 2048 -> "2 Ko", 1572864 -> "1,5 Mo" */
+export function formatSize(bytes: number): string {
+  const power = Math.min(Math.floor(Math.log(Math.max(bytes, 1)) / Math.log(KILO)), UNITS.length - 1)
+
+  return `${sizeFormat.format(bytes / KILO ** power)} ${UNITS[power]}`
+}

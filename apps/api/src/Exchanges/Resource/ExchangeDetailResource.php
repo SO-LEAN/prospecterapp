@@ -10,13 +10,14 @@ use Symfony\Component\Serializer\Attribute\SerializedName;
 use Symfony\Component\Serializer\Normalizer\AbstractObjectNormalizer;
 
 /**
- * The whole of an exchange with a contact or with the organization itself: who noted it, and who corrected it
- * last.
+ * The whole of an exchange with a contact or with the organization itself: who noted it, who corrected it last, and
+ * the files joined to it.
  */
 final readonly class ExchangeDetailResource
 {
     /**
-     * @param list<string> $organizationIds
+     * @param list<string>             $organizationIds
+     * @param list<AttachmentResource> $attachments
      */
     public function __construct(
         public string $id,
@@ -35,6 +36,8 @@ final readonly class ExchangeDetailResource
         public StampResource $noted,
         #[OA\Property(description: 'The last correction, null while it is as it was noted')]
         public ?StampResource $corrected,
+        #[OA\Property(description: 'The files joined to it, in the order they were')]
+        public array $attachments,
         #[SerializedName('_links')]
         #[Context([AbstractObjectNormalizer::SKIP_NULL_VALUES => true])]
         public ExchangeDetailLinksResource $links,

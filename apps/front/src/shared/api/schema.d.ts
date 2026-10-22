@@ -472,6 +472,23 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/exchanges/{id}/attachments": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Join to an exchange a file the browser sent with the form of an upload */
+        post: operations["post_api_exchanges_attach_file"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/exchanges/{id}/facts": {
         parameters: {
             query?: never;
@@ -489,6 +506,24 @@ export interface paths {
         patch: operations["patch_api_exchanges_correct"];
         trace?: never;
     };
+    "/api/exchanges/{id}/attachments/{attachmentId}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Where to read a file joined to an exchange, for a minute */
+        get: operations["get_api_exchanges_download_attachment"];
+        put?: never;
+        post?: never;
+        /** Remove a file joined to an exchange, and forget it */
+        delete: operations["delete_api_exchanges_remove_attachment"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/exchanges/{id}": {
         parameters: {
             query?: never;
@@ -502,6 +537,23 @@ export interface paths {
         post?: never;
         /** Erase an exchange from every timeline */
         delete: operations["delete_api_exchanges_erase"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/uploads": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** A form the browser sends one private file with, itself, before joining it to an exchange */
+        post: operations["post_api_uploads_prepare"];
+        delete?: never;
         options?: never;
         head?: never;
         patch?: never;
@@ -695,6 +747,15 @@ export interface components {
             /** @default null */
             after: string | null;
         };
+        AttachmentInput: {
+            /**
+             * @description The upload of `UploadResource`
+             * @default
+             */
+            upload: string;
+            /** @default  */
+            name: string;
+        };
         CorrectionInput: {
             /**
              * @default
@@ -887,6 +948,8 @@ export interface components {
             text?: string | null;
             /** @description The organizations it is kept for: those the contact was part of when it was noted, or the organization itself */
             organizationIds: string[];
+            /** @description How many files are joined to it */
+            attachmentCount: number;
             _links: components["schemas"]["ExchangeLinksResource"];
         };
         TimelineLinksResource: {
@@ -994,11 +1057,25 @@ export interface components {
             at: string;
             by: components["schemas"]["AuthorResource"];
         };
+        AttachmentLinksResource: {
+            download: components["schemas"]["LinkResource"];
+            removeAttachment?: components["schemas"]["LinkResource"];
+        };
+        AttachmentResource: {
+            id: string;
+            /** @description Its name as it was sent */
+            name: string;
+            /** @description In bytes */
+            size: number;
+            mediaType: string;
+            _links: components["schemas"]["AttachmentLinksResource"];
+        };
         ExchangeDetailLinksResource: {
             self: components["schemas"]["LinkResource"];
             interlocutor: components["schemas"]["LinkResource"];
             correctExchange?: components["schemas"]["LinkResource"];
             eraseExchange?: components["schemas"]["LinkResource"];
+            attachFile?: components["schemas"]["LinkResource"];
         };
         ExchangeDetailResource: {
             id: string;
@@ -1020,7 +1097,24 @@ export interface components {
             noted: components["schemas"]["StampResource"];
             /** @description The last correction, null while it is as it was noted */
             corrected?: components["schemas"]["StampResource"] | null;
+            /** @description The files joined to it, in the order they were */
+            attachments: components["schemas"]["AttachmentResource"][];
             _links: components["schemas"]["ExchangeDetailLinksResource"];
+        };
+        AttachmentDownloadResource: {
+            name: string;
+            /** @description Signed for a minute: open it at once, never keep it */
+            url: string;
+        };
+        UploadResource: {
+            /** @description What the file is joined under once sent */
+            upload: string;
+            url: string;
+            fields: {
+                [key: string]: string;
+            };
+            /** @description The heaviest file the form takes, in bytes */
+            heaviest: number;
         };
         SignInLinksResource: {
             self: components["schemas"]["LinkResource"];
@@ -1860,6 +1954,8 @@ export interface operations {
             /** @description The timeline of the contact with the new exchange */
             201: {
                 headers: {
+                    /** @description The new exchange, to join files to it */
+                    Location?: string;
                     [name: string]: unknown;
                 };
                 content: {
@@ -2740,6 +2836,8 @@ export interface operations {
             /** @description The timeline of the organization with the new exchange */
             201: {
                 headers: {
+                    /** @description The new exchange, to join files to it */
+                    Location?: string;
                     [name: string]: unknown;
                 };
                 content: {
@@ -2936,6 +3034,75 @@ export interface operations {
             };
         };
     };
+    post_api_exchanges_attach_file: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["AttachmentInput"];
+            };
+        };
+        responses: {
+            /** @description The exchange with the file joined */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ExchangeDetailResource"];
+                };
+            };
+            /** @description Missing or invalid access token */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Not a prospector, or no right to manage personal data */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ProblemResource"];
+                };
+            };
+            /** @description Unknown exchange, or one of another account; unknown upload, expired or already joined */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ProblemResource"];
+                };
+            };
+            /** @description The exchange holds as many files as it may */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ProblemResource"];
+                };
+            };
+            /** @description Invalid input, or a file over 10 MB */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ProblemResource"];
+                };
+            };
+        };
+    };
     patch_api_exchanges_correct: {
         parameters: {
             query?: never;
@@ -2987,6 +3154,102 @@ export interface operations {
             };
             /** @description Invalid correction: unknown channel or direction, a missed exchange that is no call, a moment in the future, another contact */
             422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ProblemResource"];
+                };
+            };
+        };
+    };
+    get_api_exchanges_download_attachment: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+                attachmentId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description A link signed for a minute */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AttachmentDownloadResource"];
+                };
+            };
+            /** @description Missing or invalid access token */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Not a prospector, or no right to manage personal data */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ProblemResource"];
+                };
+            };
+            /** @description Unknown exchange or attachment, or one of another account */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ProblemResource"];
+                };
+            };
+        };
+    };
+    delete_api_exchanges_remove_attachment: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+                attachmentId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description The exchange without the file */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ExchangeDetailResource"];
+                };
+            };
+            /** @description Missing or invalid access token */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Not a prospector, or no right to manage personal data */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ProblemResource"];
+                };
+            };
+            /** @description Unknown exchange or attachment, or one of another account */
+            404: {
                 headers: {
                     [name: string]: unknown;
                 };
@@ -3085,6 +3348,40 @@ export interface operations {
                 content: {
                     "application/json": components["schemas"]["ProblemResource"];
                 };
+            };
+        };
+    };
+    post_api_uploads_prepare: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description The form, signed for a few minutes */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["UploadResource"];
+                };
+            };
+            /** @description Missing or invalid access token */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Not a prospector */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
             };
         };
     };

@@ -8,6 +8,7 @@ import {
   Mail,
   MessageCircle,
   MessageSquareText,
+  Paperclip,
   Phone,
   PhoneMissed,
   UserRound,
@@ -37,8 +38,8 @@ export const INTERLOCUTOR_ICONS: Record<Interlocutor['kind'], LucideIcon> = {
 }
 
 /**
- * One exchange of the timeline: who communicated in the timeline of an organization, its summary and the
- * beginning of its text.
+ * One exchange of the timeline: who communicated in the timeline of an organization, its summary, the
+ * beginning of its text and how many files are joined to it.
  */
 export function ExchangeLine({
   exchange,
@@ -50,6 +51,7 @@ export function ExchangeLine({
   return (
     <ExchangeSummary exchange={exchange} interlocutor={interlocutor}>
       {exchange.text && <p className="truncate">{exchange.text}</p>}
+      {exchange.attachmentCount > 0 && <AttachmentCount count={exchange.attachmentCount} />}
     </ExchangeSummary>
   )
 }
@@ -101,6 +103,18 @@ function InterlocutorName({ interlocutor }: { interlocutor: Interlocutor }) {
       <Icon aria-hidden className="size-4 shrink-0 text-muted-foreground" />
       <span className="sr-only">{t(`exchanges.interlocutors.${interlocutor.kind}`)}</span>
       <span className="truncate">{interlocutor.name ?? t('exchanges.unknownPerson')}</span>
+    </p>
+  )
+}
+
+function AttachmentCount({ count }: { count: number }) {
+  const { t } = useTranslation()
+
+  return (
+    <p className="mt-1 flex items-center gap-1 text-muted-foreground text-xs">
+      <Paperclip aria-hidden className="size-3.5" />
+      <span aria-hidden>{count}</span>
+      <span className="sr-only">{t('exchanges.attachments.count', { count })}</span>
     </p>
   )
 }

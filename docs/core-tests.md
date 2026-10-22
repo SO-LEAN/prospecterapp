@@ -7,7 +7,7 @@ Two loops, as in *Growing Object-Oriented Software*:
 
 ## Nothing inside the hexagon is doubled
 
-Aggregates, value objects, handlers, services (`FileStore`, `GeoLocalizer`, `EmailUniqueness`, `OrphanContacts`, `ContactOrganizations`, built once by `Application` and injected into the handlers, ADR 0044) and the decorator `RefusalTranslatingHandler` are the real classes. Only the ports, the interfaces towards the outside, get test implementations, in `tests/Double`. They are working implementations, not mocks; no mocking library is used.
+Aggregates, value objects, handlers, services (`FileStore`, `GeoLocalizer`, `EmailUniqueness`, `OrphanContacts`, `ContactOrganizations`, `AttachedFiles`, built once by `Application` and injected into the handlers, ADR 0044) and the decorator `RefusalTranslatingHandler` are the real classes. Only the ports, the interfaces towards the outside, get test implementations, in `tests/Double`. They are working implementations, not mocks; no mocking library is used.
 
 | Port | Double | Behaves like |
 |---|---|---|
@@ -19,6 +19,7 @@ Aggregates, value objects, handlers, services (`FileStore`, `GeoLocalizer`, `Ema
 | `ProspectedOrganizations` (PersonalData) | `ProspectingOrganizations` | the anticorruption adapter of the API, same code: the published query `IsProspectedBy` of Prospecting |
 | `Events` | `SynchronousEvents` | the event bus of the API: each event delivered at once to the real event handlers `Application` subscribed |
 | `Storage` | `InMemoryStorage` | stores by URL `https://storage.test/<file name>` and deletes the uploaded file, like the real storage moves it |
+| `PrivateStorage` | `InMemoryPrivateStorage` | the private files of the storage: the client sends an upload (`send()`), kept once, read by a link while it is kept (ADR 0077) |
 | `GeoLocation` | `KnownPlacesGeoLocation` | finds an address that mentions a place declared by the scenario |
 
 ## Layout

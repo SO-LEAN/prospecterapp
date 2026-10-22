@@ -6,8 +6,8 @@ use Aws\S3\Exception\S3Exception;
 use Aws\S3\S3Client;
 
 /**
- * The S3 bucket of the files (ADR 0051), MiniStack locally. Every object is public and never changes under its
- * key (a new file gets a new name), so it is cached for a year by whoever serves it.
+ * An S3 bucket of the storage, MiniStack locally: the files (ADR 0051), or the private files (ADR 0077). An object
+ * put never changes under its key (a new file gets a new name), so it is cached for a year by whoever serves it.
  */
 final readonly class Bucket
 {
@@ -39,6 +39,29 @@ final readonly class Bucket
         }
 
         return new StoredFile((string) $object['Body'], (string) $object['ContentType']);
+    }
+
+    /**
+     * The size and the media type of an object, null when there is none under the key.
+     */
+    public function describe(string $key): ?ObjectDescription
+    {
+        try {
+            $object = $this->client->headObject(['Bucket' => $this->name, 'Key' => $key]);
+        } catch (S3Exception $failure) {
+            return in_array($failure->getStatusCode(), [403, 404], true) ? null : throw $failure;
+        }
+
+        return new ObjectDescription((int) $object['ContentLength'], (string) ($object['ContentType'] ?? 'application/octet-stream'));
+    }
+
+    /**
+     * Moves an object under another key, in the bucket itself.
+     */
+    public function move(string $from, string $to): void
+    {
+        $this->client->copyObject(['Bucket' => $this->name, 'Key' => $to, 'CopySource' => sprintf('%s/%s', $this->name, $from)]);
+        $this->delete([$from]);
     }
 
     /**

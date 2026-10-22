@@ -4,6 +4,8 @@ namespace App\Prospecting\Persistence;
 
 use App\Shared\Persistence\Documents;
 use App\Shared\Persistence\Hydrator;
+use Prospecter\Core\Prospecting\Domain\Attachment;
+use Prospecter\Core\Prospecting\Domain\AttachmentId;
 use Prospecter\Core\Prospecting\Domain\Channel;
 use Prospecter\Core\Prospecting\Domain\Correction;
 use Prospecter\Core\Prospecting\Domain\Direction;
@@ -16,8 +18,8 @@ use Prospecter\Core\SharedKernel\Domain\OrganizationId;
 use Prospecter\Core\SharedKernel\Domain\PersonId;
 
 /**
- * An exchange as a plain document of its DynamoDB item, and back (ADR 0048): its facts as they are, its
- * recorded events never.
+ * An exchange as a plain document of its DynamoDB item, and back (ADR 0048): its facts and its attachments as
+ * they are, its recorded events never.
  */
 final class ExchangeDocument
 {
@@ -43,6 +45,7 @@ final class ExchangeDocument
                 'missed' => $facts->missed,
             ],
             'lastCorrection' => self::correctionDocument($state['lastCorrection']),
+            'attachments' => array_map(self::attachmentDocument(...), $state['attachments']),
             'createdAt' => Documents::moment($state['createdAt']),
             'modifiedAt' => Documents::moment($state['modifiedAt']),
         ];
@@ -63,6 +66,7 @@ final class ExchangeDocument
             'keptFor' => array_map(static fn (string $organization): OrganizationId => new OrganizationId($organization), $document['keptFor']),
             'facts' => new ExchangeFacts(Channel::from($facts['channel']), Direction::from($facts['direction']), Documents::momentOf($facts['occurredAt']), $facts['text'], $facts['missed']),
             'lastCorrection' => self::correction($document['lastCorrection'] ?? null),
+            'attachments' => array_map(self::attachment(...), $document['attachments'] ?? []),
             'createdAt' => Documents::momentOf($document['createdAt']),
             'modifiedAt' => Documents::momentOf($document['modifiedAt']),
         ]);
@@ -82,5 +86,29 @@ final class ExchangeDocument
     private static function correction(?array $document): ?Correction
     {
         return null === $document ? null : new Correction(new MemberId($document['by']), Documents::momentOf($document['at']));
+    }
+
+    /**
+     * @return array{id: string, name: string, size: int, mediaType: string, file: string}
+     */
+    private static function attachmentDocument(Attachment $attachment): array
+    {
+        return ['id' => (string) $attachment->id, 'name' => $attachment->name, 'size' => $attachment->size, 'mediaType' => $attachment->mediaType, 'file' => $attachment->file];
+    }
+
+    /**
+     * Restored without its constructor: a file accepted once stays, whatever the limit becomes.
+     *
+     * @param array{id: string, name: string, size: int|string, mediaType: string, file: string} $document
+     */
+    private static function attachment(array $document): Attachment
+    {
+        return Hydrator::restore(Attachment::class, [
+            'id' => new AttachmentId($document['id']),
+            'name' => $document['name'],
+            'size' => (int) $document['size'],
+            'mediaType' => $document['mediaType'],
+            'file' => $document['file'],
+        ]);
     }
 }

@@ -57,6 +57,7 @@ final readonly class TimelinePresenter
             occurredAt: $exchange->occurredAt->format(\DateTimeInterface::ATOM),
             text: $exchange->text,
             organizationIds: $exchange->organizationIds,
+            attachmentCount: $exchange->attachmentCount,
             links: new ExchangeLinksResource($this->links->to('api_exchanges_show', ['id' => $exchange->id])),
         );
     }

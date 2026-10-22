@@ -6,7 +6,7 @@ import { ExchangeForm, type Interlocutors } from './exchange-form'
 
 const ROBERT = '0190a1c0-0000-7000-8000-000000000002'
 
-type Options = { interlocutors?: Interlocutors; defaultValues?: ExchangeValues }
+type Options = { interlocutors?: Interlocutors; defaultValues?: ExchangeValues; withFiles?: boolean }
 
 function renderForm(onSubmit = vi.fn().mockResolvedValue(undefined), options: Options = {}) {
   render(<ExchangeForm onSubmit={onSubmit} onCancel={vi.fn()} {...options} />)
@@ -31,6 +31,7 @@ describe('ExchangeForm', () => {
         missed: false,
       },
       null,
+      [],
     )
     expect(screen.queryByText('Interlocuteur')).not.toBeInTheDocument()
     const occurredAt = new Date(onSubmit.mock.calls[0]?.[0].occurredAt).getTime()
@@ -61,6 +62,7 @@ describe('ExchangeForm', () => {
     expect(onSubmit).toHaveBeenCalledWith(
       expect.objectContaining({ channel: 'call', direction: 'outbound', missed: true, text: 'Messagerie' }),
       null,
+      [],
     )
   })
 
@@ -73,7 +75,7 @@ describe('ExchangeForm', () => {
     await user.click(screen.getByLabelText('Appel'))
     await user.click(save())
 
-    expect(onSubmit).toHaveBeenCalledWith(expect.objectContaining({ channel: 'call' }), null)
+    expect(onSubmit).toHaveBeenCalledWith(expect.objectContaining({ channel: 'call' }), null, [])
   })
 
   it('notes from an organization with one of its contacts', async () => {
@@ -89,7 +91,27 @@ describe('ExchangeForm', () => {
     expect(onSubmit).toHaveBeenCalledWith(
       expect.objectContaining({ channel: 'email', direction: 'outbound' }),
       ROBERT,
+      [],
     )
+  })
+
+  it('joins the files chosen with a new exchange, one removed before saving', async () => {
+    const { onSubmit, user } = renderForm(undefined, { withFiles: true })
+    const devis = new File(['devis'], 'devis.pdf', { type: 'application/pdf' })
+    const photo = new File(['photo'], 'photo.png', { type: 'image/png' })
+
+    await user.click(screen.getByLabelText('E-mail'))
+    await user.upload(screen.getByLabelText('choisissez-les'), [devis, photo])
+    await user.click(screen.getByRole('button', { name: 'Retirer photo.png' }))
+    await user.click(save())
+
+    expect(onSubmit).toHaveBeenCalledWith(expect.objectContaining({ channel: 'email' }), null, [devis])
+  })
+
+  it('joins no file to a correction', () => {
+    renderForm()
+
+    expect(screen.queryByText('Pièces jointes')).not.toBeInTheDocument()
   })
 
   it('refuses a moment in the future', async () => {
@@ -150,6 +172,7 @@ describe('ExchangeForm', () => {
         missed: false,
       },
       null,
+      [],
     )
   })
 })

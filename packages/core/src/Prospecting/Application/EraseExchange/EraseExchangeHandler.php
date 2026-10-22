@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Prospecter\Core\Prospecting\Application\EraseExchange;
 
+use Prospecter\Core\Prospecting\Application\AttachedFiles;
 use Prospecter\Core\Prospecting\Domain\ExchangeId;
 use Prospecter\Core\Prospecting\Domain\ExchangeRepository;
 use Prospecter\Core\Prospecting\Domain\ProspectorService;
@@ -20,6 +21,7 @@ final readonly class EraseExchangeHandler implements CommandHandler
         private ExchangeRepository $exchanges,
         private ProspectorService $prospectorService,
         private Events $events,
+        private AttachedFiles $attachedFiles,
     ) {
     }
 
@@ -29,6 +31,7 @@ final readonly class EraseExchangeHandler implements CommandHandler
         $exchange = $this->exchanges->get(new ExchangeId($command->id));
         $exchange->erase(by: $prospector, at: $command->executedAt);
         $this->exchanges->remove($exchange);
+        $this->attachedFiles->forgetThoseOf($exchange);
         $this->publishWhatHappenedTo($exchange);
     }
 }

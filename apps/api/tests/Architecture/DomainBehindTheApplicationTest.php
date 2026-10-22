@@ -19,6 +19,7 @@ class DomainBehindTheApplicationTest extends TestCase
         'PersonalData/ProspectingOrganizations.php',
         'PersonalData/AccountsReaderService.php',
         'Shared/GeoplateformeGeoLocation.php',
+        'Shared/PrivateStorageClient.php',
         'Demo/DemoData.php',
     ];
 

@@ -31,19 +31,17 @@ final class ExchangeDetailContext implements Context
 
     private const array NO = ['', 'non'];
 
-    private string $exchange = '';
-
     #[Given('/^"(?<member>[^"]+)" a noté le (?<day>\S+) à (?<time>\S+) (?<exchange>'.ExchangeContext::ANY_EXCHANGE.') (?<direction>reçu|envoyé) (?:à|de) "(?<interlocutor>[^"]+)"(?<itself> elle-même)? à (?<occurredTime>\S+) : "(?<text>.*)"$/')]
     public function aMemberNotedAnExchange(string $member, string $day, string $time, string $exchange, string $direction, string $interlocutor, string $itself, string $occurredTime, string $text): void
     {
         $this->application->itIs(Vocabulary::frenchMoment(sprintf('%s à %s', $day, $time)));
-        $this->exchange = $this->application->newIdentity();
+        $this->scenario->rememberTheExchange($this->application->newIdentity());
         $prospectorId = $this->scenario->memberIdOf($member)->value;
         $channel = Vocabulary::channelOfAnExchange($exchange);
         $occurredAt = Vocabulary::frenchMoment(sprintf('%s à %s', $day, $occurredTime));
         $this->application->dispatch('' === $itself
-            ? new NoteExchange($prospectorId, $this->exchange, $this->scenario->personIdOf($interlocutor), $channel, Vocabulary::direction($direction), $occurredAt, $text, false, $this->application->now())
-            : new NoteOrganizationExchange($prospectorId, $this->exchange, $this->scenario->idOf($interlocutor), null, $channel, Vocabulary::direction($direction), $occurredAt, $text, false, $this->application->now()));
+            ? new NoteExchange($prospectorId, $this->scenario->theExchange(), $this->scenario->personIdOf($interlocutor), $channel, Vocabulary::direction($direction), $occurredAt, $text, false, $this->application->now())
+            : new NoteOrganizationExchange($prospectorId, $this->scenario->theExchange(), $this->scenario->idOf($interlocutor), null, $channel, Vocabulary::direction($direction), $occurredAt, $text, false, $this->application->now()));
         Expect::that(null === $this->application->refusal(), sprintf('The exchange was expected to be noted, got: %s', $this->application->refusal()?->getMessage()));
     }
 
@@ -60,10 +58,10 @@ final class ExchangeDetailContext implements Context
     public function iCorrectTheExchange(TableNode $table): void
     {
         $values = $table->getRowsHash();
-        $facts = $this->application->exchanges->get(new ExchangeId($this->exchange))->facts();
+        $facts = $this->application->exchanges->get(new ExchangeId($this->scenario->theExchange()))->facts();
         $this->application->dispatch(new CorrectExchange(
             prospectorId: $this->application->signedIn(),
-            id: $this->exchange,
+            id: $this->scenario->theExchange(),
             channel: isset($values['canal']) ? Vocabulary::channel($values['canal']) : $facts->channel->value,
             direction: isset($values['sens']) ? Vocabulary::direction($values['sens']) : $facts->direction->value,
             occurredAt: isset($values['moment']) ? Vocabulary::frenchMoment($values['moment']) : $facts->occurredAt,
@@ -76,7 +74,7 @@ final class ExchangeDetailContext implements Context
     #[When('je supprime cet échange')]
     public function iEraseTheExchange(): void
     {
-        $this->application->dispatch(new EraseExchange($this->application->signedIn(), $this->exchange, $this->application->now()));
+        $this->application->dispatch(new EraseExchange($this->application->signedIn(), $this->scenario->theExchange(), $this->application->now()));
     }
 
     #[Then('je vois l\'échange :')]
@@ -104,7 +102,7 @@ final class ExchangeDetailContext implements Context
 
     private function consult(): ?ExchangeDetailResponse
     {
-        return $this->application->consultExchange(new ConsultExchange($this->application->signedIn(), $this->exchange));
+        return $this->application->consultExchange(new ConsultExchange($this->application->signedIn(), $this->scenario->theExchange()));
     }
 
     /**

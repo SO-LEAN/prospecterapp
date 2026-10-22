@@ -11,13 +11,14 @@ use Prospecter\Core\SharedKernel\Domain\OrganizationId;
 
 /**
  * An exchange as its detail shows it; its channel and its direction by the values of `Channel` and
- * `Direction`, who noted and corrected it by their member id.
+ * `Direction`, who noted and corrected it by their member id, the files joined to it.
  */
 final readonly class ExchangeDetailResponse
 {
     /**
-     * @param list<string> $organizationIds the organizations it is kept for
-     * @param list<string> $possibleIntents names of what the prospector may do with it: CorrectExchange, EraseExchange
+     * @param list<string>             $organizationIds the organizations it is kept for
+     * @param list<AttachmentResponse> $attachments     the files joined to it, in the order they were
+     * @param list<string>             $possibleIntents names of what the prospector may do with it: CorrectExchange, EraseExchange, AttachFile, RemoveAttachment
      */
     private function __construct(
         public string $id,
@@ -32,6 +33,7 @@ final readonly class ExchangeDetailResponse
         public \DateTimeImmutable $createdAt,
         public ?string $correctedBy,
         public ?\DateTimeImmutable $correctedAt,
+        public array $attachments,
         public array $possibleIntents,
     ) {
     }
@@ -54,6 +56,7 @@ final readonly class ExchangeDetailResponse
             createdAt: $exchange->createdAt(),
             correctedBy: $correction?->by->value,
             correctedAt: $correction?->at,
+            attachments: array_map(AttachmentResponse::of(...), $exchange->attachments()),
             possibleIntents: array_map(static fn (ExchangeIntent $intent): string => $intent->name, $exchange->possibleIntentsOf($prospector)),
         );
     }

@@ -1,5 +1,5 @@
 import { useInfiniteQuery } from '@tanstack/react-query'
-import { useNoteExchange } from '../mutations'
+import { attachTheFiles, useAttachFiles, useNoteExchange } from '../mutations'
 import { timelineQuery } from '../queries'
 import { ExchangeForm } from './exchange-form'
 import { ExchangeLine } from './exchange-line'
@@ -11,6 +11,7 @@ type Props = { contactId: string; contactName: string; className?: string }
 export function ExchangesSection({ contactId, contactName, className }: Props) {
   const timeline = useInfiniteQuery(timelineQuery(contactId))
   const note = useNoteExchange()
+  const attach = useAttachFiles()
 
   if (!timeline.data) {
     return null
@@ -30,10 +31,12 @@ export function ExchangesSection({ contactId, contactName, className }: Props) {
           <NoteExchangeDialog name={contactName}>
             {(close) => (
               <ExchangeForm
+                withFiles
                 onCancel={close}
-                onSubmit={async (body) => {
-                  await note.mutateAsync({ params: { path: { id: contactId } }, body })
+                onSubmit={async (body, _itself, files) => {
+                  const { noted } = await note.mutateAsync({ contactId, body })
                   close()
+                  attachTheFiles(attach, noted, files)
                 }}
               />
             )}

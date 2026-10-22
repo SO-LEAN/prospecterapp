@@ -1,5 +1,5 @@
 import { zodResolver } from '@hookform/resolvers/zod'
-import { ArrowDownLeft, ArrowUpRight, type LucideIcon } from 'lucide-react'
+import { ArrowDownLeft, ArrowUpRight, type LucideIcon, Paperclip, X } from 'lucide-react'
 import { type ReactNode, useState } from 'react'
 import {
   type DefaultValues,
@@ -11,8 +11,10 @@ import {
 import { useTranslation } from 'react-i18next'
 import { applyViolations } from '@/shared/api/problem'
 import { FormField } from '@/shared/forms/form-field'
+import { formatSize } from '@/shared/lib/format'
 import { Alert, AlertDescription } from '@/shared/ui/alert'
 import { Button } from '@/shared/ui/button'
+import { FileDropZone } from '@/shared/ui/file-drop-zone'
 import { Input } from '@/shared/ui/input'
 import { Textarea } from '@/shared/ui/textarea'
 import { CHANNELS, DIRECTIONS, type ExchangeFacts } from '../queries'
@@ -32,20 +34,26 @@ import { CHANNEL_ICONS, INTERLOCUTOR_ICONS } from './exchange-line'
 export type Interlocutors = { organization: string; contacts: { id: string; name: string }[] }
 
 type Props = {
-  /** The person chosen, null for the organization itself or on the card of a contact. */
-  onSubmit: (facts: ExchangeFacts, personId: string | null) => Promise<unknown>
+  /** The person chosen, null for the organization itself or on the card of a contact; the files to join to it. */
+  onSubmit: (facts: ExchangeFacts, personId: string | null, files: File[]) => Promise<unknown>
   onCancel: () => void
   interlocutors?: Interlocutors
   /** The exchange to correct; a new one is received, now, by default. */
   defaultValues?: DefaultValues<ExchangeValues>
+  /** A new exchange comes with the files received or sent with it; those of an exchange noted are in its detail. */
+  withFiles?: boolean
 }
 
 const DIRECTION_ICONS = { inbound: ArrowDownLeft, outbound: ArrowUpRight }
 
+/** A file chosen to join, the same file possibly chosen twice. */
+type ChosenFile = { key: string; file: File }
+
 /** Noted in a few seconds: received and now by default, the channel to choose, then save; or corrected. */
-export function ExchangeForm({ onSubmit, onCancel, interlocutors, defaultValues }: Props) {
+export function ExchangeForm({ onSubmit, onCancel, interlocutors, defaultValues, withFiles = false }: Props) {
   const { t } = useTranslation()
   const [globalErrors, setGlobalErrors] = useState<string[]>([])
+  const [files, setFiles] = useState<ChosenFile[]>([])
   const form = useForm<ExchangeValues>({
     resolver: zodResolver(exchangeSchema),
     defaultValues: defaultValues ?? newExchange(new Date()),
@@ -56,7 +64,11 @@ export function ExchangeForm({ onSubmit, onCancel, interlocutors, defaultValues 
   const submit = form.handleSubmit(async (values) => {
     setGlobalErrors([])
     try {
-      await onSubmit(toExchangeFacts(values), personIdOf(values))
+      await onSubmit(
+        toExchangeFacts(values),
+        personIdOf(values),
+        files.map(({ file }) => file),
+      )
     } catch (error) {
       setGlobalErrors(applyViolations(error, form.setError, exchangeFields))
     }
@@ -133,6 +145,40 @@ export function ExchangeForm({ onSubmit, onCancel, interlocutors, defaultValues 
       >
         <Textarea rows={3} {...form.register('text')} />
       </FormField>
+
+      {withFiles && (
+        <fieldset className="space-y-2">
+          <legend className="font-medium text-sm">{t('exchanges.attachments.title')}</legend>
+          {files.length > 0 && (
+            <ul className="space-y-1 text-sm">
+              {files.map(({ key, file }) => (
+                <li key={key} className="flex items-center gap-2">
+                  <Paperclip aria-hidden className="size-4 shrink-0 text-muted-foreground" />
+                  <span className="min-w-0 flex-1 truncate">{file.name}</span>
+                  <span className="shrink-0 text-muted-foreground text-xs">{formatSize(file.size)}</span>
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="icon"
+                    aria-label={t('exchanges.attachments.remove', { name: file.name })}
+                    onClick={() => setFiles(files.filter((chosen) => chosen.key !== key))}
+                  >
+                    <X aria-hidden />
+                  </Button>
+                </li>
+              ))}
+            </ul>
+          )}
+          <FileDropZone
+            invitation={t('exchanges.attachments.drop')}
+            choose={t('exchanges.attachments.choose')}
+            hint={t('exchanges.attachments.heaviest')}
+            onFiles={(added) =>
+              setFiles([...files, ...added.map((file) => ({ key: crypto.randomUUID(), file }))])
+            }
+          />
+        </fieldset>
+      )}
 
       <div className="flex justify-end gap-2">
         <Button type="button" variant="ghost" onClick={onCancel}>

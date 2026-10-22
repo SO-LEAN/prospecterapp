@@ -19,6 +19,7 @@ import { Skeleton } from '@/shared/ui/skeleton'
 import { useCorrectExchange, useEraseExchange } from '../mutations'
 import { type Author, type ExchangeDetail, exchangeQuery } from '../queries'
 import { correctionOf } from '../schema'
+import { ExchangeAttachments } from './exchange-attachments'
 import { ExchangeForm } from './exchange-form'
 import { ExchangeSummary } from './exchange-line'
 
@@ -98,6 +99,7 @@ function Exchange({ exchange, onErased }: { exchange: ExchangeDetail; onErased: 
           </p>
         )}
       </div>
+      <ExchangeAttachments exchange={exchange} />
       <div className="flex flex-wrap gap-2">
         {exchange._links.correctExchange && (
           <Button variant="outline" onClick={() => setCorrecting(true)}>

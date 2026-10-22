@@ -36,10 +36,11 @@ services:
     environment:
       NGINX_HOST: local.prospecter.io
       FRONT_HOST: node
-      # MiniStack, behind the API and static hosts: the HTTP APIs of the Lambdas, the bucket of the files
-      # (apps/storage/.env) and Cognito
+      # MiniStack, behind the API and static hosts: the HTTP APIs of the Lambdas, the buckets of the files and of the
+      # private files (apps/storage/.env) and Cognito
       MINISTACK_HOST: ministack:4566
       FILES_BUCKET: prospecter-dev-files
+      PRIVATE_FILES_BUCKET: prospecter-dev-private-files
     container_name: pro-nginx
 
   # the AWS services emulated locally, kept between restarts: DynamoDB for the API (ADR 0048), S3 for the storage
