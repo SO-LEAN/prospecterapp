@@ -1,7 +1,7 @@
 # 0076. The timeline of an organization gathers its exchanges and those of its contacts
 
 - Date: 2026-10-20
-- Status: Accepted
+- Status: Accepted, the right to read the timeline superseded by [0078](0078-every-prospector-reads-the-exchanges-and-corrects-their-text.md)
 - Supersedes: for the interlocutor of an exchange and the links to the organizations, [0074](0074-an-exchange-with-a-contact-is-an-aggregate-of-prospecting.md)
 - Implemented by: `packages/core/src/Prospecting/Domain/{Exchange,Organization}.php` (`notedWithTheOrganization`, `ensureHasContact`, `timelineIntentsOf`), `packages/core/src/Prospecting/Application/{NoteOrganizationExchange,ConsultOrganizationTimeline}`, `packages/core/features/consulter-la-timeline-d-une-organisation.feature`, `apps/api/src/Prospecting/Persistence/DynamoExchangeRepository.php`, `apps/api/src/Contacts/{NoteOrganizationExchange,ShowOrganizationTimeline,OrganizationTimelineReader}.php`, `apps/front/src/features/exchanges`
 
