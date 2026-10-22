@@ -18,6 +18,7 @@ const anExchange = (exchange: Partial<ExchangeDetail>): ExchangeDetail => ({
   missed: false,
   occurredAt: '2026-10-15T12:30:00+00:00',
   text: 'Intéressée par une mission en mars',
+  textFlagged: false,
   organizationIds: [],
   noted: { at: '2026-10-15T12:35:00+00:00', by: { name: { firstName: 'Michel', lastName: 'Maier' } } },
   corrected: null,
@@ -26,6 +27,7 @@ const anExchange = (exchange: Partial<ExchangeDetail>): ExchangeDetail => ({
     self,
     interlocutor: { href: `/api/contacts/${ADA}`, method: 'GET' },
     correctExchange: { href: `${self.href}/facts`, method: 'PATCH' },
+    correctText: { href: `${self.href}/text`, method: 'PATCH' },
     eraseExchange: { href: self.href, method: 'DELETE' },
   },
   ...exchange,
@@ -53,6 +55,14 @@ describe('ExchangeDetailSheet', () => {
     expect(screen.getByText('Intéressée par une mission en mars')).toBeInTheDocument()
     expect(screen.getByText(/^Noté le 15 oct\. 2026, .* par Michel Maier$/)).toBeInTheDocument()
     expect(screen.queryByText(/^Modifié le/)).not.toBeInTheDocument()
+    expect(screen.queryByText('Peut contenir des données personnelles')).not.toBeInTheDocument()
+  })
+
+  it('flags a text that may hold personal data the reader may not manage', () => {
+    renderTheDetail(anExchange({ textFlagged: true }))
+
+    expect(screen.getByText('Peut contenir des données personnelles')).toBeInTheDocument()
+    expect(screen.getByText('Intéressée par une mission en mars')).toBeInTheDocument()
   })
 
   it('names the organization itself when it was with no contact', () => {
@@ -81,6 +91,32 @@ describe('ExchangeDetailSheet', () => {
     expect(screen.getByLabelText(/Texte/)).toHaveValue('Intéressée par une mission en mars')
   })
 
+  it('offers the whole correction rather than the text alone when it may do both', () => {
+    renderTheDetail(anExchange({}))
+
+    expect(screen.queryByRole('button', { name: 'Corriger le texte' })).not.toBeInTheDocument()
+  })
+
+  it('offers to correct its text alone when that is all it links to', async () => {
+    const user = renderTheDetail(
+      anExchange({
+        textFlagged: true,
+        _links: {
+          self,
+          interlocutor: { href: `/api/contacts/${ADA}`, method: 'GET' },
+          correctText: { href: `${self.href}/text`, method: 'PATCH' },
+        },
+      }),
+    )
+
+    expect(screen.queryByRole('button', { name: 'Corriger' })).not.toBeInTheDocument()
+    expect(screen.queryByRole('button', { name: 'Supprimer' })).not.toBeInTheDocument()
+    await user.click(screen.getByRole('button', { name: 'Corriger le texte' }))
+
+    expect(screen.getByLabelText(/Texte/)).toHaveValue('Intéressée par une mission en mars')
+    expect(screen.queryByRole('group', { name: 'Canal' })).not.toBeInTheDocument()
+  })
+
   it('asks before erasing it', async () => {
     const user = renderTheDetail(anExchange({}))
 
@@ -96,6 +132,7 @@ describe('ExchangeDetailSheet', () => {
     )
 
     expect(screen.queryByRole('button', { name: 'Corriger' })).not.toBeInTheDocument()
+    expect(screen.queryByRole('button', { name: 'Corriger le texte' })).not.toBeInTheDocument()
     expect(screen.queryByRole('button', { name: 'Supprimer' })).not.toBeInTheDocument()
     expect(screen.queryByText('Pièces jointes')).not.toBeInTheDocument()
   })

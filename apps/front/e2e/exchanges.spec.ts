@@ -4,6 +4,7 @@ import { ASSISTANT, signInOnTheSignInScreen } from './sign-in'
 
 const A_LONG_TEXT =
   'Intéressée par une mission en mars, à recontacter après le salon de novembre pour fixer un rendez-vous'
+const A_CONFORM_TEXT = 'La contactée est intéressée par une mission en mars'
 
 test('note the exchanges with a contact and their files, find them in its timeline, gone with its organization', async ({
   page,
@@ -53,19 +54,26 @@ test('note the exchanges with a contact and their files, find them in its timeli
     await page.setViewportSize({ width: 1280, height: 720 })
   })
 
-  await test.step('without the right to manage personal data, the card asks nothing of its exchanges', async () => {
+  await test.step('without the right to manage personal data, the timeline is read, its texts flagged, and only a text is corrected', async () => {
     const assistant = await browser.newPage()
-    const exchangesAsked: string[] = []
-    assistant.on('request', (request) => {
-      if (request.url().endsWith('/exchanges')) {
-        exchangesAsked.push(request.url())
-      }
-    })
     await signInOnTheSignInScreen(assistant, ASSISTANT)
     await assistant.goto(new URL(page.url()).pathname)
     await expect(assistant.getByText('Données masquées')).toBeVisible()
-    await expect(assistant.getByRole('list', { name: 'Échanges' })).toHaveCount(0)
-    expect(exchangesAsked).toEqual([])
+    const itsTimeline = assistant.getByRole('list', { name: 'Échanges' }).getByRole('listitem')
+    await expect(itsTimeline.first()).toContainText('Peut contenir des données personnelles')
+    await expect(itsTimeline.first()).toContainText(A_LONG_TEXT)
+    await expect(assistant.getByRole('button', { name: 'Noter un échange' })).toHaveCount(0)
+
+    await itsTimeline.first().getByRole('button').click()
+    const detail = assistant.getByRole('dialog', { name: 'Échange' })
+    await expect(detail.getByRole('button', { name: 'Corriger le texte' })).toBeVisible()
+    await expect(detail.getByRole('button', { name: 'Corriger', exact: true })).toHaveCount(0)
+    await expect(detail.getByRole('button', { name: 'Supprimer' })).toHaveCount(0)
+    await detail.getByRole('button', { name: 'Corriger le texte' }).click()
+    await detail.getByLabel(/^Texte/).fill(A_CONFORM_TEXT)
+    await detail.getByRole('button', { name: 'Enregistrer' }).click()
+    await expect(detail).toContainText(A_CONFORM_TEXT)
+    await expect(detail).toContainText(/Modifié le .+ par /)
     await assistant.close()
   })
 
@@ -80,9 +88,9 @@ test('note the exchanges with a contact and their files, find them in its timeli
   await test.step('the detail of an exchange beside the card, corrected, then erased once confirmed', async () => {
     await timeline.nth(1).getByRole('button').click()
     const detail = page.getByRole('dialog', { name: 'Échange' })
-    await expect(detail).toContainText(A_LONG_TEXT)
+    await expect(detail).toContainText(A_CONFORM_TEXT)
+    await expect(detail).not.toContainText('Peut contenir des données personnelles')
     await expect(detail).toContainText(/Noté le .+ par /)
-    await expect(detail).not.toContainText('Modifié le')
 
     await detail.getByRole('button', { name: 'Corriger' }).click()
     await detail.getByLabel('E-mail', { exact: true }).check()

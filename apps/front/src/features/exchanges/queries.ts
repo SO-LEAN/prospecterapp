@@ -14,6 +14,7 @@ export type Interlocutor = OrganizationExchange['interlocutor']
 /** What happened, all of it: what noting and correcting an exchange send. */
 export type ExchangeFacts = components['schemas']['CorrectionInput']
 export type ExchangeDetail = components['schemas']['ExchangeDetailResource']
+export type TextCorrection = components['schemas']['TextCorrectionInput']
 export type Author = components['schemas']['AuthorResource']
 export type Channel = Exchange['channel']
 export type Direction = Exchange['direction']

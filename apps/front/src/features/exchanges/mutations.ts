@@ -87,17 +87,32 @@ function readTheTimelinesAgain(queryClient: QueryClient) {
 }
 
 /** The corrected exchange goes straight into its detail; the timelines showing it read it again. */
-export function useCorrectExchange() {
+function useShowTheCorrection() {
   const queryClient = useQueryClient()
   const { t } = useTranslation()
 
+  return (exchange: ExchangeDetail) => {
+    queryClient.setQueryData(exchangeQuery(exchange.id).queryKey, exchange)
+    readTheTimelinesAgain(queryClient)
+    toast.success(t('exchanges.detail.correctionSaved'))
+  }
+}
+
+export function useCorrectExchange() {
+  const showTheCorrection = useShowTheCorrection()
+
   return api.useMutation('patch', '/api/exchanges/{id}/facts', {
     meta: { silentValidation: true },
-    onSuccess: (exchange: ExchangeDetail) => {
-      queryClient.setQueryData(exchangeQuery(exchange.id).queryKey, exchange)
-      readTheTimelinesAgain(queryClient)
-      toast.success(t('exchanges.detail.correctionSaved'))
-    },
+    onSuccess: showTheCorrection,
+  })
+}
+
+export function useCorrectExchangeText() {
+  const showTheCorrection = useShowTheCorrection()
+
+  return api.useMutation('patch', '/api/exchanges/{id}/text', {
+    meta: { silentValidation: true },
+    onSuccess: showTheCorrection,
   })
 }
 

@@ -17,6 +17,7 @@ import type { ReactNode } from 'react'
 import { useTranslation } from 'react-i18next'
 import { formatMoment } from '@/shared/lib/format'
 import type { Channel, Exchange, Interlocutor } from '../queries'
+import { ExchangeText } from './exchange-text'
 
 export const CHANNEL_ICONS: Record<Channel, LucideIcon> = {
   call: Phone,
@@ -50,7 +51,9 @@ export function ExchangeLine({
 }) {
   return (
     <ExchangeSummary exchange={exchange} interlocutor={interlocutor}>
-      {exchange.text && <p className="truncate">{exchange.text}</p>}
+      {exchange.text && (
+        <ExchangeText text={exchange.text} flagged={exchange.textFlagged} className="truncate" />
+      )}
       {exchange.attachmentCount > 0 && <AttachmentCount count={exchange.attachmentCount} />}
     </ExchangeSummary>
   )
