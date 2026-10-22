@@ -103,6 +103,14 @@ final class AttachmentContext implements Context
         Expect::same($table->getColumn(0), array_map(static fn (AttachmentResponse $attachment): string => $attachment->name, $detail->attachments));
     }
 
+    #[Then('le détail de l\'échange cache :count pièces jointes')]
+    public function theDetailHidesTheAttachments(int $count): void
+    {
+        $detail = $this->application->consultExchange(new ConsultExchange($this->application->signedIn(), $this->scenario->theExchange()));
+        Expect::that(null !== $detail, sprintf('The exchange was expected, got: %s', $this->application->refusal()?->getMessage()));
+        Expect::same([[], $count], [$detail->attachments, $detail->hiddenAttachments]);
+    }
+
     #[Then('je télécharge :file tel que je l\'ai joint')]
     public function iDownloadItAsAttached(string $file): void
     {

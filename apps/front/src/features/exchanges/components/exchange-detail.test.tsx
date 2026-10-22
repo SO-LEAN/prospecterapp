@@ -23,6 +23,7 @@ const anExchange = (exchange: Partial<ExchangeDetail>): ExchangeDetail => ({
   noted: { at: '2026-10-15T12:35:00+00:00', by: { name: { firstName: 'Michel', lastName: 'Maier' } } },
   corrected: null,
   attachments: [],
+  hiddenAttachments: 0,
   _links: {
     self,
     interlocutor: { href: `/api/contacts/${ADA}`, method: 'GET' },
@@ -162,6 +163,18 @@ describe('ExchangeDetailSheet', () => {
     )
     expect(screen.getByText('1,5 Mo')).toBeInTheDocument()
     expect(screen.getByRole('button', { name: 'Retirer cahier-des-charges.pdf' })).toBeInTheDocument()
+  })
+
+  it('only counts the files hidden to a reader without the right to personal data', () => {
+    renderTheDetail(
+      anExchange({
+        hiddenAttachments: 2,
+        _links: { self, interlocutor: { href: `/api/contacts/${ADA}`, method: 'GET' } },
+      }),
+    )
+
+    expect(screen.getByText('2 pièces jointes cachées')).toBeInTheDocument()
+    expect(screen.queryByRole('link', { name: /^Télécharger/ })).not.toBeInTheDocument()
   })
 
   it('offers to join files while it has room for them', () => {

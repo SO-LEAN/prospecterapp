@@ -227,6 +227,8 @@ export const fr = {
       title: 'Pièces jointes',
       count_one: '{{count}} pièce jointe',
       count_other: '{{count}} pièces jointes',
+      hidden_one: '{{count}} pièce jointe cachée',
+      hidden_other: '{{count}} pièces jointes cachées',
       drop: 'Déposez des fichiers ici, ou',
       choose: 'choisissez-les',
       heaviest: '10 Mo au plus par fichier.',

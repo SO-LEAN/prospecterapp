@@ -40,6 +40,8 @@ final readonly class ExchangeDetailResource
         public ?StampResource $corrected,
         #[OA\Property(description: 'The files joined to it, in the order they were')]
         public array $attachments,
+        #[OA\Property(description: 'How many files are joined to it but hidden to a prospector reading it without the right to manage personal data')]
+        public int $hiddenAttachments,
         #[SerializedName('_links')]
         #[Context([AbstractObjectNormalizer::SKIP_NULL_VALUES => true])]
         public ExchangeDetailLinksResource $links,

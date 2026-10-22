@@ -163,6 +163,16 @@ final class Exchange implements ReleasesEvents
     }
 
     /**
+     * The files joined to it a prospector reads: none without the right to manage personal data (ADR 0078).
+     *
+     * @return list<Attachment>
+     */
+    public function attachmentsReadBy(Prospector $prospector): array
+    {
+        return $prospector->managesPersonalData ? $this->attachments : [];
+    }
+
+    /**
      * A file joined to it, hidden to a prospector without the right to manage personal data (ADR 0078).
      *
      * @throws UnknownExchange|PersonalDataManagersOnly|UnknownAttachment

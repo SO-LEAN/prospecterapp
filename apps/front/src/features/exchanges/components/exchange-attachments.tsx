@@ -1,4 +1,4 @@
-import { Paperclip, X } from 'lucide-react'
+import { EyeOff, Paperclip, X } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import { env } from '@/shared/config/env'
 import { formatSize } from '@/shared/lib/format'
@@ -10,13 +10,13 @@ import type { Attachment, ExchangeDetail } from '../queries'
 
 /**
  * The files joined to an exchange, each downloaded or removed, and the zone joining more while the exchange has
- * room for them.
+ * room for them; only counted when they are hidden to the reader.
  */
 export function ExchangeAttachments({ exchange }: { exchange: ExchangeDetail }) {
   const { t } = useTranslation()
   const attach = useAttachFiles()
 
-  if (exchange.attachments.length === 0 && !exchange._links.attachFile) {
+  if (exchange.attachments.length === 0 && exchange.hiddenAttachments === 0 && !exchange._links.attachFile) {
     return null
   }
 
@@ -25,6 +25,12 @@ export function ExchangeAttachments({ exchange }: { exchange: ExchangeDetail }) 
       <h3 id="attachments" className="font-medium">
         {t('exchanges.attachments.title')}
       </h3>
+      {exchange.hiddenAttachments > 0 && (
+        <p className="flex items-center gap-2 text-muted-foreground">
+          <EyeOff aria-hidden className="size-4 shrink-0" />
+          {t('exchanges.attachments.hidden', { count: exchange.hiddenAttachments })}
+        </p>
+      )}
       {exchange.attachments.length > 0 && (
         <ul className="space-y-1">
           {exchange.attachments.map((attachment) => (
