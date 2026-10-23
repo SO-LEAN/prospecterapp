@@ -11,14 +11,14 @@ mkdir -p "$build"
 tar -C "apps/$app" \
     --exclude=./vendor --exclude=./var --exclude=./tests --exclude=./infra --exclude='./.env.*' \
     --exclude=./phpunit.xml.dist --exclude=./phpunit.dist.xml --exclude=./phpstan.dist.neon --exclude=./rector.php \
-    --exclude=./AGENTS.md --exclude=./CLAUDE.md \
+    --exclude=./AGENTS.md --exclude=./CLAUDE.md --exclude=./Makefile \
     -cf - . | tar -C "$build" -xf -
 cd "$build"
 COMPOSER_MIRROR_PATH_REPOS=1 composer install --no-dev --no-autoloader --no-interaction --no-progress --no-scripts --quiet
 # only the services of the SDK of AWS the app uses (extra.aws/aws-sdk-php of its composer.json), then the autoloader
 composer run-script pre-autoload-dump --quiet
 composer dump-autoload --no-dev --classmap-authoritative --no-scripts --quiet
-rm -rf vendor/prospecter/core/vendor vendor/prospecter/core/tests vendor/prospecter/core/features
+rm -rf vendor/prospecter/core/vendor vendor/prospecter/core/tests vendor/prospecter/core/features vendor/prospecter/core/Makefile
 # the doc of the api loads Swagger UI from its CDN (assets_mode of nelmio_api_doc): its copies are of no use
 rm -rf vendor/nelmio/api-doc-bundle/public public/bundles
 # the deprecations it logs are those make lint reports already; the share dir is compiled in the container: /tmp,

@@ -4,7 +4,7 @@
 # on changed. Usage: tools/ci/infra-changed-apps <range>, such as origin/dev...HEAD
 set -eu
 changed=$(git diff --name-only "$1")
-shared='^(\.terraform-version|Makefile|\.github/workflows/terraform-[a-z]+\.yml|\.github/actions/infra-instance/.*|tools/ci/.*)$'
+shared='^(\.terraform-version|Makefile|make/.*|\.github/workflows/terraform-[a-z]+\.yml|\.github/actions/infra-instance/.*|tools/ci/.*)$'
 all=$(printf '%s\n' apps/*/infra | cut -d/ -f2)
 if echo "$changed" | grep -qE "$shared"; then
     apps=$all

@@ -15,6 +15,7 @@ on:
       - 'packages/**'
       - '.terraform-version'
       - 'Makefile'
+      - 'make/**'
       - '.github/workflows/terraform-apply-prod.yml'
       - '.github/actions/infra-instance/**'
       - 'tools/ci/**'
