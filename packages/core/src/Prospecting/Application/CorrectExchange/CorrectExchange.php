@@ -6,7 +6,8 @@ namespace Prospecter\Core\Prospecting\Application\CorrectExchange;
 
 /**
  * Corrects what happened in an exchange, all its facts at once; its contact stays. The channel and the
- * direction are named by the values of `Channel` and `Direction`.
+ * direction are named by the values of `Channel` and `Direction`. Its contact forgotten, the prospector may
+ * declare it made conform at once.
  */
 final readonly class CorrectExchange
 {
@@ -19,6 +20,7 @@ final readonly class CorrectExchange
         public ?string $text,
         public bool $missed,
         public \DateTimeImmutable $executedAt,
+        public bool $madeConform = false,
     ) {
     }
 }

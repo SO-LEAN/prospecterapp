@@ -111,6 +111,14 @@ final class AttachmentContext implements Context
         Expect::same([[], $count], [$detail->attachments, $detail->hiddenAttachments]);
     }
 
+    #[Then(':file est à rendre conforme')]
+    public function theFileIsToMakeConform(string $file): void
+    {
+        $detail = $this->application->consultExchange(new ConsultExchange($this->application->signedIn(), $this->scenario->theExchange()));
+        $attachment = array_find($detail->attachments ?? [], static fn (AttachmentResponse $attachment): bool => $attachment->name === $file);
+        Expect::that(true === $attachment?->toMakeConform, sprintf('%s was expected to be made conform', $file));
+    }
+
     #[Then('je télécharge :file tel que je l\'ai joint')]
     public function iDownloadItAsAttached(string $file): void
     {

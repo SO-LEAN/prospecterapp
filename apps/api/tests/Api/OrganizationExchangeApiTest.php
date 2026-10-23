@@ -32,9 +32,9 @@ class OrganizationExchangeApiTest extends ApiTestCase
         $this->assertResponseStatusCodeSame(201);
         $this->assertResponseHeaderSame('Location', '/api/exchanges/'.$timeline['items'][0]['exchange']['id']);
         $this->assertSame([
-            [['kind' => 'organization', 'id' => $organization, 'name' => 'ACME'], 'call', 'inbound'],
-            [['kind' => 'person', 'id' => $robert, 'name' => 'Robert Noyce'], 'call', 'outbound'],
-            [['kind' => 'person', 'id' => $ada, 'name' => 'Ada Lovelace'], 'email', 'inbound'],
+            [['kind' => 'organization', 'id' => $organization, 'name' => 'ACME', 'presence' => null], 'call', 'inbound'],
+            [['kind' => 'person', 'id' => $robert, 'name' => 'Robert Noyce', 'presence' => 'present'], 'call', 'outbound'],
+            [['kind' => 'person', 'id' => $ada, 'name' => 'Ada Lovelace', 'presence' => 'present'], 'email', 'inbound'],
         ], array_map(static fn (array $item): array => [$item['interlocutor'], $item['exchange']['channel'], $item['exchange']['direction']], $timeline['items']));
         $this->assertSame(['self', 'noteExchange'], array_keys($timeline['_links']));
         $this->assertSame(['href' => '/api/organizations/'.$organization.'/exchanges', 'method' => 'POST'], $timeline['_links']['noteExchange']);
@@ -116,6 +116,57 @@ class OrganizationExchangeApiTest extends ApiTestCase
         $this->assertResponseStatusCodeSame(403);
     }
 
+    public function testAContactRemovedFromTheOrganizationStaysInItsTimelineAsRemoved(): void
+    {
+        $organization = $this->anOrganization('ACME');
+        $group = $this->anOrganization('Groupe ACME');
+        $ada = $this->aContactOf($organization, 'Ada', 'Lovelace', $group);
+        $this->note($organization, ['personId' => $ada, 'exchange' => ['channel' => 'email', 'direction' => 'inbound']]);
+
+        $this->requestJson('DELETE', '/api/organizations/'.$organization.'/contacts/'.$ada);
+
+        $this->assertSame([['kind' => 'person', 'id' => $ada, 'name' => 'Ada Lovelace', 'presence' => 'removed']], array_column($this->requestJson('GET', '/api/organizations/'.$organization.'/exchanges')['items'], 'interlocutor'));
+        $this->assertSame(['present'], array_column(array_column($this->requestJson('GET', '/api/organizations/'.$group.'/exchanges')['items'], 'interlocutor'), 'presence'));
+    }
+
+    public function testTheExchangesOfAForgottenContactStayToMakeConform(): void
+    {
+        $organization = $this->anOrganization('ACME');
+        $ada = $this->aContactOf($organization, 'Ada', 'Lovelace');
+        $this->note($organization, ['personId' => $ada, 'exchange' => ['channel' => 'email', 'direction' => 'inbound', 'text' => 'Ada, 06 12 34 56 78, attend notre devis']]);
+        $this->note($organization, ['exchange' => ['channel' => 'call', 'direction' => 'inbound']]);
+
+        $this->requestJson('DELETE', '/api/contacts/'.$ada);
+
+        $timeline = $this->requestJson('GET', '/api/organizations/'.$organization.'/exchanges');
+        $this->assertSame(1, $timeline['toMakeConform']);
+        $this->assertSame(['href' => '/api/organizations/'.$organization.'/exchanges-to-make-conform', 'method' => 'GET'], $timeline['_links']['toMakeConform']);
+        $toMakeConform = $this->requestJson('GET', $timeline['_links']['toMakeConform']['href']);
+        $this->assertSame([[['kind' => 'person', 'id' => $ada, 'name' => null, 'presence' => 'forgotten'], 'Ada, 06 12 34 56 78, attend notre devis', true, true]], array_map(static fn (array $item): array => [$item['interlocutor'], $item['exchange']['text'], $item['exchange']['textToMakeConform'], $item['exchange']['toMakeConform']], $toMakeConform['items']));
+        $this->assertSame(['self', 'noteExchange', 'toMakeConform'], array_keys($toMakeConform['_links']));
+    }
+
+    public function testAnExchangeOfAForgottenContactIsMadeConformByCorrectingItsText(): void
+    {
+        $organization = $this->anOrganization('ACME');
+        $ada = $this->aContactOf($organization, 'Ada', 'Lovelace');
+        $exchange = $this->note($organization, ['personId' => $ada, 'exchange' => ['channel' => 'email', 'direction' => 'inbound', 'text' => 'Ada attend notre devis']])['items'][0]['exchange']['id'];
+        $this->requestJson('DELETE', '/api/contacts/'.$ada);
+
+        $detail = $this->requestJson('GET', '/api/exchanges/'.$exchange);
+        $this->assertArrayNotHasKey('interlocutor', $detail['_links']);
+        $this->assertSame(['href' => '/api/exchanges/'.$exchange.'/text', 'method' => 'PATCH'], $detail['_links']['makeConform']);
+        $corrected = $this->requestJson('PATCH', $detail['_links']['makeConform']['href'], ['text' => 'La directrice attend notre devis', 'madeConform' => true]);
+
+        $this->assertResponseStatusCodeSame(200);
+        $this->assertSame([false, false, '2026-10-15T09:00:00+00:00'], [$corrected['textToMakeConform'], $corrected['toMakeConform'], $corrected['madeConform']['at']]);
+        $this->assertArrayNotHasKey('makeConform', $corrected['_links']);
+        $this->assertSame(0, $this->requestJson('GET', '/api/organizations/'.$organization.'/exchanges')['toMakeConform']);
+        $problem = $this->requestJson('PATCH', '/api/exchanges/'.$exchange.'/text', ['text' => 'Encore', 'madeConform' => true]);
+        $this->assertResponseStatusCodeSame(409);
+        $this->assertSame('nothingToMakeConform', $problem['reason']);
+    }
+
     public function testAnOrganizationOfAnotherAccountIsNotFound(): void
     {
         $this->note(self::newIdentity(), ['exchange' => ['channel' => 'call', 'direction' => 'inbound']]);
@@ -135,9 +186,9 @@ class OrganizationExchangeApiTest extends ApiTestCase
         return $this->requestJson('POST', '/api/organizations/'.$organization.'/exchanges', $noted);
     }
 
-    private function aContactOf(string $organization, string $firstName, string $lastName): string
+    private function aContactOf(string $organization, string $firstName, string $lastName, string ...$others): string
     {
-        return $this->requestJson('POST', '/api/contacts', ['name' => ['firstName' => $firstName, 'lastName' => $lastName], 'organizationIds' => [$organization]])['id'];
+        return $this->requestJson('POST', '/api/contacts', ['name' => ['firstName' => $firstName, 'lastName' => $lastName], 'organizationIds' => [$organization, ...$others]])['id'];
     }
 
     private function anOrganization(string $name): string

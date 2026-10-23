@@ -8,6 +8,7 @@ use Prospecter\Core\Accounts\Domain\Account;
 use Prospecter\Core\Accounts\Domain\Member;
 use Prospecter\Core\PersonalData\Domain\Person;
 use Prospecter\Core\PersonalData\Domain\PersonName;
+use Prospecter\Core\Prospecting\Domain\ContactPresence;
 use Prospecter\Core\Prospecting\Domain\Organization;
 use Prospecter\Core\SharedKernel\Domain\Address;
 use Prospecter\Core\SharedKernel\Domain\ContactDetails;
@@ -47,6 +48,7 @@ final class Vocabulary
         'NoteExchange' => 'noter un échange',
         'CorrectExchange' => 'corriger l\'échange',
         'CorrectText' => 'corriger le texte',
+        'MakeConform' => 'rendre conforme',
         'EraseExchange' => 'supprimer l\'échange',
         'AttachFile' => 'joindre un fichier',
         'RemoveAttachment' => 'retirer une pièce jointe',
@@ -254,6 +256,25 @@ final class Vocabulary
     /**
      * Who did something and when, as a sentence says it: "le 15/10/2026 à 14:35 par Michel".
      */
+    /**
+     * Whether the contact of an exchange is still one of the organization of the timeline, removed from it, or
+     * forgotten; nothing for the organization itself.
+     */
+    public static function describeContactPresence(?string $presence): string
+    {
+        return match (null === $presence ? null : ContactPresence::from($presence)) {
+            ContactPresence::Present => 'présent',
+            ContactPresence::Removed => 'retiré',
+            ContactPresence::Forgotten => 'effacé',
+            null => '',
+        };
+    }
+
+    public static function describeYesOrNo(bool $answer): string
+    {
+        return $answer ? 'oui' : 'non';
+    }
+
     public static function describeDoneBy(\DateTimeImmutable $at, string $by): string
     {
         return sprintf('le %s à %s par %s', $at->format('d/m/Y'), $at->format('H:i'), $by);

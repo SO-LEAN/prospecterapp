@@ -5,8 +5,8 @@ declare(strict_types=1);
 namespace Prospecter\Core\Prospecting\Domain;
 
 /**
- * What a prospector of the account may do with an exchange: retouching its text, to make it conform, is open to
- * every one of them; the rest needs the right to manage personal data.
+ * What a prospector of the account may do with an exchange: retouching its text, and declaring it conform, are
+ * open to every one of them; the rest needs the right to manage personal data.
  */
 enum ExchangeIntent
 {
@@ -14,6 +14,8 @@ enum ExchangeIntent
     case CorrectExchange;
     /** Correct its text only. */
     case CorrectText;
+    /** Declare conform the text of an exchange whose contact was forgotten, while it is not yet. */
+    case MakeConform;
     /** Erase it from every timeline. */
     case EraseExchange;
     /** Join a file to it, while it has room for one. */

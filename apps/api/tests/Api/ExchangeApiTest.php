@@ -144,7 +144,7 @@ class ExchangeApiTest extends ApiTestCase
         $exchange = $this->requestJson('GET', $timeline['items'][0]['_links']['self']['href']);
 
         $this->assertResponseStatusCodeSame(200);
-        $this->assertSame(['kind' => 'person', 'id' => $contact, 'name' => 'Ada'], $exchange['interlocutor']);
+        $this->assertSame(['kind' => 'person', 'id' => $contact, 'name' => 'Ada', 'presence' => 'present'], $exchange['interlocutor']);
         $this->assertSame(['sms', 'inbound', false, '2026-10-14T14:30:00+00:00', "Rappeler lundi\nAprès le salon", false], [$exchange['channel'], $exchange['direction'], $exchange['missed'], $exchange['occurredAt'], $exchange['text'], $exchange['textFlagged']]);
         $this->assertSame(['at' => '2026-10-15T09:00:00+00:00', 'by' => ['name' => ['firstName' => null, 'lastName' => null], 'email' => 'prospector@solean-it.io']], $exchange['noted']);
         $this->assertNull($exchange['corrected']);
@@ -165,7 +165,7 @@ class ExchangeApiTest extends ApiTestCase
         $exchange = $this->correct($id, ['channel' => 'call', 'direction' => 'inbound', 'occurredAt' => '2026-10-14T14:30:00+00:00', 'text' => 'Le standard rappellera']);
 
         $this->assertResponseStatusCodeSame(200);
-        $this->assertSame(['kind' => 'organization', 'id' => $organization, 'name' => 'ACME'], $exchange['interlocutor']);
+        $this->assertSame(['kind' => 'organization', 'id' => $organization, 'name' => 'ACME', 'presence' => null], $exchange['interlocutor']);
         $this->assertSame('Le standard rappellera', $exchange['text']);
         $this->assertSame(['href' => '/api/organizations/'.$organization, 'method' => 'GET'], $exchange['_links']['interlocutor']);
     }

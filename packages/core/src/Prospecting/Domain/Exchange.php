@@ -5,14 +5,17 @@ declare(strict_types=1);
 namespace Prospecter\Core\Prospecting\Domain;
 
 use Prospecter\Core\Prospecting\Domain\Event\AttachmentRemoved;
+use Prospecter\Core\Prospecting\Domain\Event\ExchangeContactForgotten;
 use Prospecter\Core\Prospecting\Domain\Event\ExchangeCorrected;
 use Prospecter\Core\Prospecting\Domain\Event\ExchangeErased;
+use Prospecter\Core\Prospecting\Domain\Event\ExchangeMadeConform;
 use Prospecter\Core\Prospecting\Domain\Event\ExchangeNoLongerKeptFor;
 use Prospecter\Core\Prospecting\Domain\Event\ExchangeNoted;
 use Prospecter\Core\Prospecting\Domain\Event\ExchangeTextCorrected;
 use Prospecter\Core\Prospecting\Domain\Event\FileAttached;
 use Prospecter\Core\Prospecting\Domain\Exception\ExchangeInTheFuture;
 use Prospecter\Core\Prospecting\Domain\Exception\NoRoomForAnAttachment;
+use Prospecter\Core\Prospecting\Domain\Exception\NothingToMakeConform;
 use Prospecter\Core\Prospecting\Domain\Exception\UnknownAttachment;
 use Prospecter\Core\Prospecting\Domain\Exception\UnknownExchange;
 use Prospecter\Core\Prospecting\Domain\Exception\UnknownOrganization;
@@ -29,6 +32,7 @@ use Prospecter\Core\SharedKernel\Domain\ReleasesEvents;
  * organization itself, a call, a message or a meeting; not a change made in the application, which the activity
  * journal keeps (ADR 0074, 0076). Its text may hold personal data: it is kept for the organizations the contact
  * was part of when it was noted, or for the organization itself, and lives as long as one of them is prospected.
+ * Its contact forgotten, it stays, to make conform (ADR 0079).
  */
 final class Exchange implements ReleasesEvents
 {
@@ -38,6 +42,8 @@ final class Exchange implements ReleasesEvents
 
     private \DateTimeImmutable $modifiedAt;
     private ?Correction $lastCorrection = null;
+    private bool $contactForgotten = false;
+    private ?Correction $madeConform = null;
     /** @var list<Attachment> */
     private array $attachments = [];
 
@@ -129,6 +135,31 @@ final class Exchange implements ReleasesEvents
     }
 
     /**
+     * The contact still known, or forgotten; none for the organization itself.
+     */
+    public function contactPresence(): ?ContactPresence
+    {
+        if (null === $this->contact) {
+            return null;
+        }
+
+        return $this->contactForgotten ? ContactPresence::Forgotten : ContactPresence::Present;
+    }
+
+    /**
+     * The contact still one of this organization, removed from it, or forgotten; none for the organization
+     * itself.
+     */
+    public function contactPresenceIn(Organization $organization): ?ContactPresence
+    {
+        if (null === $this->contact || $this->contactForgotten) {
+            return $this->contactPresence();
+        }
+
+        return $organization->hasContact($this->contact) ? ContactPresence::Present : ContactPresence::Removed;
+    }
+
+    /**
      * The organizations the contact was part of when the exchange was noted, still prospected.
      *
      * @return list<OrganizationId>
@@ -150,6 +181,41 @@ final class Exchange implements ReleasesEvents
     public function lastCorrection(): ?Correction
     {
         return $this->lastCorrection;
+    }
+
+    /**
+     * Who declared it conform, and when; null while it is not.
+     */
+    public function madeConform(): ?Correction
+    {
+        return $this->madeConform;
+    }
+
+    /**
+     * Its contact forgotten, it may still hold their personal data: in its text until it is declared conform,
+     * in its files until they are removed.
+     */
+    public function isToMakeConform(): bool
+    {
+        return $this->awaitsBeingMadeConform() || $this->areAttachmentsToMakeConform() && [] !== $this->attachments;
+    }
+
+    public function isTextToMakeConform(): bool
+    {
+        return null !== $this->facts->text && $this->awaitsBeingMadeConform();
+    }
+
+    /**
+     * A file is made conform by removing it.
+     */
+    public function areAttachmentsToMakeConform(): bool
+    {
+        return $this->contactForgotten;
+    }
+
+    private function awaitsBeingMadeConform(): bool
+    {
+        return $this->contactForgotten && null === $this->madeConform;
     }
 
     /**
@@ -210,18 +276,27 @@ final class Exchange implements ReleasesEvents
             return [];
         }
 
-        return array_values(array_filter($this->intentsOpenTo($prospector), fn (ExchangeIntent $intent): bool => ExchangeIntent::AttachFile !== $intent || $this->hasRoomForAnAttachment()));
+        return array_values(array_filter($this->intentsOpenTo($prospector), $this->allowsInItsState(...)));
     }
 
     /**
-     * Retouching its text, to make it conform, is open to every prospector of the account; the rest needs the
-     * right to manage personal data.
+     * Retouching its text, and declaring it conform, are open to every prospector of the account; the rest
+     * needs the right to manage personal data.
      *
      * @return list<ExchangeIntent>
      */
     private function intentsOpenTo(Prospector $prospector): array
     {
-        return $prospector->managesPersonalData ? ExchangeIntent::cases() : [ExchangeIntent::CorrectText];
+        return $prospector->managesPersonalData ? ExchangeIntent::cases() : [ExchangeIntent::CorrectText, ExchangeIntent::MakeConform];
+    }
+
+    private function allowsInItsState(ExchangeIntent $intent): bool
+    {
+        return match ($intent) {
+            ExchangeIntent::AttachFile => $this->hasRoomForAnAttachment(),
+            ExchangeIntent::MakeConform => $this->awaitsBeingMadeConform(),
+            default => true,
+        };
     }
 
     private function hasRoomForAnAttachment(): bool
@@ -263,6 +338,19 @@ final class Exchange implements ReleasesEvents
         $this->facts = $this->facts->withText($text);
         $this->correctedBy($by, $at);
         $this->recordThat(new ExchangeTextCorrected($this->accountId, $by->id, $this->id, $at));
+    }
+
+    /**
+     * Once its text retouched: its files, if any, are made conform by removing them.
+     *
+     * @throws UnknownExchange|NothingToMakeConform
+     */
+    public function declareConform(Prospector $by, \DateTimeImmutable $at): void
+    {
+        $this->ensurePossible(ExchangeIntent::MakeConform, $by);
+        $this->modifiedAt = $at;
+        $this->madeConform = new Correction($by->id, $at);
+        $this->recordThat(new ExchangeMadeConform($this->accountId, $by->id, $this->id, $at));
     }
 
     private function correctedBy(Prospector $prospector, \DateTimeImmutable $at): void
@@ -321,13 +409,27 @@ final class Exchange implements ReleasesEvents
         $this->recordThat(new ExchangeNoLongerKeptFor($this->accountId, $by->id, $this->id, $organization, $at));
     }
 
+    /**
+     * Its contact erased by PersonalData: the exchange stays in the timelines of its organizations, its text
+     * and its files to make conform (ADR 0079).
+     *
+     * @throws UnknownExchange
+     */
+    public function forgetItsContact(Prospector $by, \DateTimeImmutable $at): void
+    {
+        $this->ensureReachableBy($by);
+        $this->contactForgotten = true;
+        $this->modifiedAt = $at;
+        $this->recordThat(new ExchangeContactForgotten($this->accountId, $by->id, $this->id, $at));
+    }
+
     public function isKeptForAnOrganization(): bool
     {
         return [] !== $this->keptFor;
     }
 
     /**
-     * @throws UnknownExchange|PersonalDataManagersOnly|NoRoomForAnAttachment
+     * @throws UnknownExchange|PersonalDataManagersOnly|NoRoomForAnAttachment|NothingToMakeConform
      */
     private function ensurePossible(ExchangeIntent $intent, Prospector $by): void
     {
@@ -339,6 +441,10 @@ final class Exchange implements ReleasesEvents
 
         if (ExchangeIntent::AttachFile === $intent && !$this->hasRoomForAnAttachment()) {
             throw NoRoomForAnAttachment::because(sprintf('An exchange holds %d attachments at most', self::MOST_ATTACHMENTS));
+        }
+
+        if (ExchangeIntent::MakeConform === $intent && !$this->awaitsBeingMadeConform()) {
+            throw NothingToMakeConform::because('Only an exchange with a forgotten contact is to make conform');
         }
     }
 

@@ -230,7 +230,7 @@ final class PersonalDataContext implements Context
             'e-mail' => (string) $person->email,
             'téléphone' => (string) $person->phoneNumber,
             'photo' => null === $person->picture ? 'aucune' : basename($person->picture->url),
-            'masquée' => $person->masked ? 'oui' : 'non',
+            'masquée' => Vocabulary::describeYesOrNo($person->masked),
             'modifiée le' => Vocabulary::describeMoment($person->modifiedAt),
         ];
     }

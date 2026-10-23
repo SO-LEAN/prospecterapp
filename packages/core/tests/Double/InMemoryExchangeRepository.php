@@ -43,14 +43,37 @@ final readonly class InMemoryExchangeRepository implements ExchangeRepository
         return array_values(array_filter($this->database->exchanges(), static fn (Exchange $exchange): bool => array_any($exchange->keptFor(), $organization->equals(...))));
     }
 
+    public function withContact(PersonId $contact, AccountId $accountId): array
+    {
+        return array_values(array_filter($this->database->exchanges(), static fn (Exchange $exchange): bool => true === $exchange->contact()?->equals($contact) && $exchange->accountId()->equals($accountId)));
+    }
+
     public function timelineOf(PersonId $contact, AccountId $accountId, ?string $after, int $max): Slice
     {
-        return self::sliceOf(array_filter($this->database->exchanges(), static fn (Exchange $exchange): bool => true === $exchange->contact()?->equals($contact) && $exchange->accountId()->equals($accountId)), $after, $max);
+        return self::sliceOf($this->withContact($contact, $accountId), $after, $max);
     }
 
     public function timelineOfOrganization(OrganizationId $organization, ?string $after, int $max): Slice
     {
         return self::sliceOf($this->keptFor($organization), $after, $max);
+    }
+
+    public function toMakeConformFor(OrganizationId $organization, ?string $after, int $max): Slice
+    {
+        return self::sliceOf($this->keptForAndToMakeConform($organization), $after, $max);
+    }
+
+    public function countToMakeConformFor(OrganizationId $organization): int
+    {
+        return count($this->keptForAndToMakeConform($organization));
+    }
+
+    /**
+     * @return list<Exchange>
+     */
+    private function keptForAndToMakeConform(OrganizationId $organization): array
+    {
+        return array_values(array_filter($this->keptFor($organization), static fn (Exchange $exchange): bool => $exchange->isToMakeConform()));
     }
 
     /**

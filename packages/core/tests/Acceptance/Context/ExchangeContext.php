@@ -9,6 +9,7 @@ use Behat\Gherkin\Node\TableNode;
 use Behat\Step\Given;
 use Behat\Step\Then;
 use Behat\Step\When;
+use Prospecter\Core\Prospecting\Application\ConsultExchangesToMakeConform\ConsultExchangesToMakeConform;
 use Prospecter\Core\Prospecting\Application\ConsultOrganizationTimeline\ConsultOrganizationTimeline;
 use Prospecter\Core\Prospecting\Application\ConsultTimeline\ConsultTimeline;
 use Prospecter\Core\Prospecting\Application\ConsultTimelineIntents\ConsultTimelineIntents;
@@ -121,7 +122,7 @@ final class ExchangeContext implements Context
     public function theTimelineIs(string $name, TableNode $table): void
     {
         $columns = array_flip($table->getRow(0));
-        $described = array_map(fn (ExchangeResponse $exchange): array => array_intersect_key($this->describe($exchange, $name), $columns), $this->timelineOfNow($name));
+        $described = array_map(fn (ExchangeResponse $exchange): array => array_replace($columns, array_intersect_key($this->describe($exchange, $name), $columns)), $this->timelineOfNow($name));
 
         Expect::same($table->getColumnsHash(), $described);
     }
@@ -186,6 +187,28 @@ final class ExchangeContext implements Context
         $mostRecent = array_slice($this->storedTimelineOf($this->timelineOf), 0, $count);
 
         Expect::same(array_map(static fn (Exchange $exchange): string => $exchange->id()->value, $mostRecent), array_map(static fn (ExchangeResponse $exchange): string => $exchange->id, $this->timeline->exchanges));
+    }
+
+    #[Then('la timeline de :organization signale :count échanges à rendre conformes')]
+    public function theTimelineCountsTheExchangesToMakeConform(string $organization, int $count): void
+    {
+        Expect::same($count, $this->consultTimelineOf($organization)?->toMakeConform);
+    }
+
+    #[When('je consulte les échanges à rendre conformes de :organization')]
+    public function iConsultTheExchangesToMakeConform(string $organization): void
+    {
+        $this->timeline = $this->application->consultExchangesToMakeConform(new ConsultExchangesToMakeConform($this->application->signedIn(), $this->scenario->idOf($organization)));
+    }
+
+    #[Then('les échanges à rendre conformes de :organization sont, du plus récent au plus ancien :')]
+    public function theExchangesToMakeConformAre(string $organization, TableNode $table): void
+    {
+        $this->iConsultTheExchangesToMakeConform($organization);
+        Expect::that(null !== $this->timeline, sprintf('The exchanges to make conform were expected, got: %s', $this->application->refusal()?->getMessage()));
+        $columns = array_flip($table->getRow(0));
+
+        Expect::same($table->getColumnsHash(), array_map(fn (ExchangeResponse $exchange): array => array_replace($columns, array_intersect_key($this->describe($exchange, $organization), $columns)), $this->timeline->exchanges));
     }
 
     #[Then('je peux sur la timeline :')]
@@ -296,7 +319,10 @@ final class ExchangeContext implements Context
             'canal' => Vocabulary::describeChannel($exchange->channel),
             'sens' => Vocabulary::describeDirection($exchange->direction),
             'texte' => (string) $exchange->text,
-            'signalé' => $exchange->textFlagged ? 'oui' : 'non',
+            'signalé' => Vocabulary::describeYesOrNo($exchange->textFlagged),
+            'contact' => Vocabulary::describeContactPresence($exchange->contactPresence),
+            'texte à rendre conforme' => Vocabulary::describeYesOrNo($exchange->textToMakeConform),
+            'à rendre conforme' => Vocabulary::describeYesOrNo($exchange->toMakeConform),
         ];
     }
 }

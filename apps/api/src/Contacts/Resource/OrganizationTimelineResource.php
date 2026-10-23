@@ -3,6 +3,7 @@
 namespace App\Contacts\Resource;
 
 use App\Prospecting\Resource\TimelineLinksResource;
+use OpenApi\Attributes as OA;
 use Symfony\Component\Serializer\Attribute\Context;
 use Symfony\Component\Serializer\Attribute\SerializedName;
 use Symfony\Component\Serializer\Normalizer\AbstractObjectNormalizer;
@@ -18,6 +19,8 @@ final readonly class OrganizationTimelineResource
      */
     public function __construct(
         public array $items,
+        #[OA\Property(description: 'How many exchanges of the organization are to make conform, their contact forgotten')]
+        public int $toMakeConform,
         #[SerializedName('_links')]
         #[Context([AbstractObjectNormalizer::SKIP_NULL_VALUES => true])]
         public TimelineLinksResource $links,

@@ -86,6 +86,30 @@ final readonly class Table
     }
 
     /**
+     * How many items an index lists in a partition, counted by DynamoDB without reading them.
+     */
+    public function count(string $partition, string $index): int
+    {
+        $request = [
+            'TableName' => $this->name,
+            'IndexName' => $index,
+            'KeyConditionExpression' => '#pk = :pk',
+            'ExpressionAttributeNames' => ['#pk' => $index.'PK'],
+            'ExpressionAttributeValues' => $this->marshaler->marshalItem([':pk' => $partition]),
+            'Select' => 'COUNT',
+        ];
+        $count = 0;
+
+        do {
+            $result = $this->client->query($request);
+            $count += (int) $result['Count'];
+            $request['ExclusiveStartKey'] = $result['LastEvaluatedKey'] ?? null;
+        } while (null !== $request['ExclusiveStartKey']);
+
+        return $count;
+    }
+
+    /**
      * The partition keys of the items an index lists in a partition with a sort key beginning with
      * `beginning`, every one of them.
      *

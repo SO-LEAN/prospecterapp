@@ -19,6 +19,8 @@ final readonly class AttachmentResource
         #[OA\Property(description: 'In bytes')]
         public int $size,
         public string $mediaType,
+        #[OA\Property(description: 'The contact of the exchange forgotten, it may hold their personal data: made conform by removing it')]
+        public bool $toMakeConform,
         #[SerializedName('_links')]
         #[Context([AbstractObjectNormalizer::SKIP_NULL_VALUES => true])]
         public AttachmentLinksResource $links,

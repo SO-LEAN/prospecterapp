@@ -2224,6 +2224,72 @@
                 }
             }
         },
+        "/api/organizations/{id}/exchanges-to-make-conform": {
+            "get": {
+                "tags": [
+                    "Organizations"
+                ],
+                "summary": "The exchanges of the timeline of the organization whose contact was forgotten, their text or their files still to make conform, the most recent first",
+                "operationId": "get_api_organizations_exchanges_to_make_conform",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "pattern": "[0-9a-f]{8}-[0-9a-f]{4}-[13-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}"
+                        }
+                    },
+                    {
+                        "name": "after",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "string",
+                            "nullable": true,
+                            "default": null,
+                            "maxLength": 200
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "A slice of the exchanges to make conform, the next one at the link next",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/OrganizationTimelineResource"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Missing or invalid access token"
+                    },
+                    "403": {
+                        "description": "Not a prospector",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ProblemResource"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Unknown organization, or one of another account",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ProblemResource"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
         "/api/contacts/{id}/organizations": {
             "get": {
                 "tags": [
@@ -2416,6 +2482,16 @@
                             }
                         }
                     },
+                    "409": {
+                        "description": "Declared made conform while nothing is to make conform",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ProblemResource"
+                                }
+                            }
+                        }
+                    },
                     "422": {
                         "description": "Invalid correction: unknown channel or direction, a missed exchange that is no call, a moment in the future, another contact",
                         "content": {
@@ -2434,7 +2510,7 @@
                 "tags": [
                     "Contacts"
                 ],
-                "summary": "Correct the text of an exchange only, to make it conform; open to every prospector of the account",
+                "summary": "Correct the text of an exchange only, to make it conform, and declare it made conform once its contact was forgotten; open to every prospector of the account",
                 "operationId": "patch_api_exchanges_correct_text",
                 "parameters": [
                     {
@@ -2483,6 +2559,16 @@
                     },
                     "404": {
                         "description": "Unknown exchange, or one of another account",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ProblemResource"
+                                }
+                            }
+                        }
+                    },
+                    "409": {
+                        "description": "Declared made conform while nothing is to make conform",
                         "content": {
                             "application/json": {
                                 "schema": {
@@ -3227,6 +3313,11 @@
                     "missed": {
                         "type": "boolean",
                         "default": false
+                    },
+                    "madeConform": {
+                        "description": "Declares the exchange made conform, its contact forgotten; only while the link makeConform is offered",
+                        "type": "boolean",
+                        "default": false
                     }
                 },
                 "type": "object"
@@ -3238,6 +3329,11 @@
                         "nullable": true,
                         "default": null,
                         "maxLength": 5000
+                    },
+                    "madeConform": {
+                        "description": "Declares the exchange made conform, its contact forgotten; only while the link makeConform is offered",
+                        "type": "boolean",
+                        "default": false
                     }
                 },
                 "type": "object"
@@ -3750,6 +3846,8 @@
                     "missed",
                     "occurredAt",
                     "textFlagged",
+                    "textToMakeConform",
+                    "toMakeConform",
                     "organizationIds",
                     "attachmentCount",
                     "_links"
@@ -3793,6 +3891,14 @@
                         "description": "Its text may hold personal data: flagged to a prospector reading it without the right to manage them",
                         "type": "boolean"
                     },
+                    "textToMakeConform": {
+                        "description": "Its contact forgotten, its text may still hold their personal data, until it is declared made conform",
+                        "type": "boolean"
+                    },
+                    "toMakeConform": {
+                        "description": "Its contact forgotten, its text or its files may still hold their personal data",
+                        "type": "boolean"
+                    },
                     "organizationIds": {
                         "description": "The organizations it is kept for: those the contact was part of when it was noted, or the organization itself",
                         "type": "array",
@@ -3822,6 +3928,9 @@
                         "$ref": "#/components/schemas/LinkResource"
                     },
                     "noteExchange": {
+                        "$ref": "#/components/schemas/LinkResource"
+                    },
+                    "toMakeConform": {
                         "$ref": "#/components/schemas/LinkResource"
                     }
                 },
@@ -4115,6 +4224,17 @@
                         "description": "Its name; none for a person no longer known",
                         "type": "string",
                         "nullable": true
+                    },
+                    "presence": {
+                        "description": "A person still a contact of the organization, removed from it, or forgotten; none for the organization itself",
+                        "type": "string",
+                        "nullable": true,
+                        "default": null,
+                        "enum": [
+                            "present",
+                            "removed",
+                            "forgotten"
+                        ]
                     }
                 },
                 "type": "object"
@@ -4137,6 +4257,7 @@
             "OrganizationTimelineResource": {
                 "required": [
                     "items",
+                    "toMakeConform",
                     "_links"
                 ],
                 "properties": {
@@ -4145,6 +4266,10 @@
                         "items": {
                             "$ref": "#/components/schemas/OrganizationExchangeResource"
                         }
+                    },
+                    "toMakeConform": {
+                        "description": "How many exchanges of the organization are to make conform, their contact forgotten",
+                        "type": "integer"
                     },
                     "_links": {
                         "$ref": "#/components/schemas/TimelineLinksResource"
@@ -4239,6 +4364,7 @@
                     "name",
                     "size",
                     "mediaType",
+                    "toMakeConform",
                     "_links"
                 ],
                 "properties": {
@@ -4256,6 +4382,10 @@
                     "mediaType": {
                         "type": "string"
                     },
+                    "toMakeConform": {
+                        "description": "The contact of the exchange forgotten, it may hold their personal data: made conform by removing it",
+                        "type": "boolean"
+                    },
                     "_links": {
                         "$ref": "#/components/schemas/AttachmentLinksResource"
                     }
@@ -4264,8 +4394,7 @@
             },
             "ExchangeDetailLinksResource": {
                 "required": [
-                    "self",
-                    "interlocutor"
+                    "self"
                 ],
                 "properties": {
                     "self": {
@@ -4278,6 +4407,9 @@
                         "$ref": "#/components/schemas/LinkResource"
                     },
                     "correctText": {
+                        "$ref": "#/components/schemas/LinkResource"
+                    },
+                    "makeConform": {
                         "$ref": "#/components/schemas/LinkResource"
                     },
                     "eraseExchange": {
@@ -4298,6 +4430,8 @@
                     "missed",
                     "occurredAt",
                     "textFlagged",
+                    "textToMakeConform",
+                    "toMakeConform",
                     "organizationIds",
                     "noted",
                     "attachments",
@@ -4346,6 +4480,14 @@
                         "description": "Its text may hold personal data: flagged to a prospector reading it without the right to manage them",
                         "type": "boolean"
                     },
+                    "textToMakeConform": {
+                        "description": "Its contact forgotten, its text may still hold their personal data, until it is declared made conform",
+                        "type": "boolean"
+                    },
+                    "toMakeConform": {
+                        "description": "Its contact forgotten, its text or its files may still hold their personal data",
+                        "type": "boolean"
+                    },
                     "organizationIds": {
                         "description": "The organizations it is kept for: those the contact was part of when it was noted, or the organization itself",
                         "type": "array",
@@ -4358,6 +4500,15 @@
                     },
                     "corrected": {
                         "description": "The last correction, null while it is as it was noted",
+                        "nullable": true,
+                        "oneOf": [
+                            {
+                                "$ref": "#/components/schemas/StampResource"
+                            }
+                        ]
+                    },
+                    "madeConform": {
+                        "description": "Who declared it made conform, and when; null while it is not",
                         "nullable": true,
                         "oneOf": [
                             {

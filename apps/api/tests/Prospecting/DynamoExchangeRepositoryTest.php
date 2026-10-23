@@ -182,6 +182,52 @@ class DynamoExchangeRepositoryTest extends ApiTestCase
         $this->assertEquals([$first->id(), $second->id()], array_map(static fn (Exchange $exchange): ExchangeId => $exchange->id(), $timeline));
     }
 
+    public function testTheExchangesWithAContactAreFoundAll(): void
+    {
+        $exchanges = $this->exchanges();
+        $first = $this->noted('2026-10-10 09:00 UTC');
+        $second = $this->noted('2026-10-11 09:00 UTC');
+        array_map($exchanges->save(...), [$first, $second, $this->notedWithTheOrganization('2026-10-12 09:00 UTC')]);
+
+        $found = $exchanges->withContact($this->contact, $this->prospector->accountId);
+
+        $this->assertEquals([$second->id(), $first->id()], array_map(static fn (Exchange $exchange): ExchangeId => $exchange->id(), $found));
+    }
+
+    public function testTheExchangesToMakeConformOfAnOrganizationAreCountedAndListedInSlices(): void
+    {
+        $exchanges = $this->exchanges();
+        $older = $this->noted('2026-10-10 09:00 UTC');
+        $recent = $this->noted('2026-10-11 09:00 UTC');
+        array_map($exchanges->save(...), [$older, $recent, $this->notedWithTheOrganization('2026-10-12 09:00 UTC')]);
+
+        foreach ([$older, $recent] as $exchange) {
+            $exchange->forgetItsContact(by: $this->prospector, at: new \DateTimeImmutable(self::NOW));
+            $exchanges->save($exchange);
+        }
+
+        $first = $exchanges->toMakeConformFor($this->acme, null, 1);
+        $following = $exchanges->toMakeConformFor($this->acme, $first->next, 1);
+        $this->assertSame([2, 2], [$exchanges->countToMakeConformFor($this->acme), $exchanges->countToMakeConformFor($this->group)]);
+        $this->assertEquals([[$recent->id()], [$older->id()]], [array_map(static fn (Exchange $exchange): ExchangeId => $exchange->id(), $first->content), array_map(static fn (Exchange $exchange): ExchangeId => $exchange->id(), $following->content)]);
+        $this->assertTrue($exchanges->get($older->id())->isToMakeConform());
+    }
+
+    public function testAnExchangeMadeConformIsNoLongerCounted(): void
+    {
+        $exchanges = $this->exchanges();
+        $exchange = $this->noted('2026-10-10 09:00 UTC');
+        $exchange->forgetItsContact(by: $this->prospector, at: new \DateTimeImmutable(self::NOW));
+        $exchanges->save($exchange);
+
+        $exchange->declareConform(by: $this->prospector, at: new \DateTimeImmutable(self::NOW));
+        $exchanges->save($exchange);
+
+        $this->assertSame(0, $exchanges->countToMakeConformFor($this->acme));
+        $this->assertSame([], $exchanges->toMakeConformFor($this->acme, null, 20)->content);
+        $this->assertEquals(new Correction($this->prospector->id, new \DateTimeImmutable(self::NOW)), $exchanges->get($exchange->id())->madeConform());
+    }
+
     public function testAnExchangeNeverNotedIsUnknown(): void
     {
         $this->expectException(UnknownExchange::class);
