@@ -1,46 +1,16 @@
-export UID := $(shell id -u)
-export GID := $(shell id -g)
+# The façade of the projects (ADR 0080): what one project does is in its own Makefile, run here by its directory;
+# only what crosses the projects is written here
+include make/common.mk make/aws.mk
 
-DC   = docker compose
-PHP  = $(DC) run --rm --no-deps php
-NODE = $(DC) run --rm --no-deps node
-# the core has its own tooling (Behat, PHPUnit), run from its directory
-CORE = $(DC) run --rm --no-deps -w /var/www/src/packages/core php
-# the storage app (stored files and their sizes)
-STORAGE = $(DC) run --rm --no-deps -w /var/www/src/apps/storage php
-# the AWS services emulated locally (DynamoDB, S3, Cognito; ADR 0048, 0051, 0052), started before what needs them
-AWS = $(DC) up -d ministack
-# the API and the storage run in Lambdas with the Bref layers (ADR 0055): the repository is mounted in the
-# functions by its absolute path
-export PROJECT_DIR := $(CURDIR)
 # the commits checked for secrets and identifiers of an AWS installation (ADR 0059): the repository is mounted at
 # its own path and the index git prepares for the commit is passed on, a commit -a or by paths using a temporary one;
 # the common git directory is mounted at its own path too: in a worktree, .git only points to it, out of the checkout
 GIT_COMMON_DIR = $(shell git rev-parse --path-format=absolute --git-common-dir)
 GITLEAKS = docker run --rm -u $(UID):$(GID) -e GIT_INDEX_FILE -v $(CURDIR):$(CURDIR) -v $(GIT_COMMON_DIR):$(GIT_COMMON_DIR) \
 	-w $(CURDIR) ghcr.io/gitleaks/gitleaks:v8.30.1
-# Terraform and tflint run in their images, each app keeping its root in apps/<app>/infra (ADR 0059); the values of
-# an instance stay out of the repository, in envs/<instance>.{tfvars,tfbackend,env} of the configuration directory;
-# each instance keeps its own working directory, so that two instances can be planned at once
 INFRA_APPS = api storage front
-INFRA_CONFIG ?= $(abspath $(CURDIR)/../prospecterapp-infra)
-INFRA_INSTANCE = $(INFRA_CONFIG)/envs/$(INSTANCE)
-TERRAFORM_IMAGE = hashicorp/terraform:$(shell cat .terraform-version)
-# an apply asks for confirmation on the terminal, which the CI has not (CI is set there, with -auto-approve)
-TERRAFORM_TTY = $(if $(CI),,-it)
-# the version of the code of the app (ADR 0063): a new one makes Terraform redeploy its package from build/
-TERRAFORM = docker run --rm -u $(UID):$(GID) -e HOME=/tmp --env-file $(INFRA_INSTANCE).env -e TF_DATA_DIR=.terraform/$(INSTANCE) \
-	-e TF_VAR_code_version=$(shell tools/ci/code-version $(APP)) \
-	-v $(HOME)/.aws:/tmp/.aws -v $(CURDIR):/src -v $(INFRA_CONFIG):/config:ro -w /src/apps/$(APP)/infra
-TFLINT_IMAGE = ghcr.io/terraform-linters/tflint:v0.64.0
 
-.DEFAULT_GOAL := help
-
-.PHONY: help install hooks build vendor db aws front-install infra-target infra-init infra-plan infra-apply infra-lint package-api package-storage package-front release-front console start deploy stop logs ps ci test test-api test-storage test-front e2e test-core lint fix front-build api-doc contract commands exec-api exec-front secrets secrets-branch
-
-##@ Help
-help: ## List the commands (the default target)
-	@awk 'BEGIN {FS = ":.*## "} /^##@/ {printf "\n\033[1m%s\033[0m\n", substr($$0, 5)} /^[a-z0-9-]+:.*## / {printf "  \033[36m%-14s\033[0m %s\n", $$1, $$2}' $(MAKEFILE_LIST)
+.PHONY: install hooks build vendor db aws front-install infra-target infra-init infra-plan infra-apply infra-lint package-api package-storage package-front release-front console start deploy stop logs ps ci test test-api test-storage test-front e2e test-core lint fix front-build api-doc contract commands exec-api exec-front secrets secrets-branch
 
 ##@ Setup
 install: hooks build vendor db front-install ## Build the images, install the dependencies, create the tables, the bucket and the user pool, install the Git hooks
@@ -49,31 +19,22 @@ build: ## Build the Docker images, those of the command line and of the deployme
 	@$(DC) --profile cli --profile deploy build
 
 vendor: ## Install the Composer dependencies of the API, the core and the storage
-	@echo "API/Installing Composer dependencies..."
-	@$(PHP) composer install
-	@echo "Core/Installing Composer dependencies..."
-	@$(CORE) composer install
-	@echo "Storage/Installing Composer dependencies..."
-	@$(STORAGE) composer install
+	@$(MAKE) -C apps/api vendor
+	@$(MAKE) -C packages/core vendor
+	@$(MAKE) -C apps/storage vendor
 
-db: aws ## Recreate in MiniStack the tables and the user pool of the API and the bucket of the storage, with the demo data (destroys local data)
-	@echo "API/Creating the DynamoDB table of each bounded context with the data of the demonstration..."
-	@$(PHP) sh -c 'bin/console cache:clear >/dev/null && bin/console app:tables:recreate --demo'
-	@echo "API/Creating the Cognito user pool with the members of the demonstration..."
-	@$(PHP) bin/console app:user-pool:recreate --demo
-	@echo "Storage/Creating the S3 bucket of the files..."
-	@$(STORAGE) sh -c 'bin/console cache:clear >/dev/null && bin/console app:bucket:recreate'
+db: ## Recreate in MiniStack the tables and the user pool of the API and the bucket of the storage, with the demo data (destroys local data)
+	@$(MAKE) -C apps/api db
+	@$(MAKE) -C apps/storage db
 
 front-install: ## Install the pnpm dependencies of the front
-	@echo "Front/Installing pnpm dependencies..."
-	@$(NODE) pnpm install
+	@$(MAKE) -C apps/front install
 
 hooks: ## Install the Git hooks of the repository: gitleaks before each commit
 	@git config core.hooksPath tools/git-hooks
 
 ##@ Stack
-aws: ## Start the AWS services emulated locally (MiniStack)
-	@$(AWS) >/dev/null 2>&1
+aws: ministack ## Start the AWS services emulated locally (MiniStack)
 
 start: deploy ## Start the stack, the API and the storage in their Lambdas: https://local.prospecter.io
 	@echo "SPA: https://local.prospecter.io  API doc: https://api.local.prospecter.io/api/doc"
@@ -95,118 +56,87 @@ ps: ## List the containers of the stack
 ##@ Quality
 ci: build vendor front-install secrets-branch lint test contract front-build ## Run what the continuous integration runs: secrets of the branch, build, lint, tests, contract, build of the front
 test: test-core test-api test-storage test-front ## Run every test suite: core, API, storage, front
-# business rules (Gherkin scenarios on the use cases, in-memory ports) then the unit tests
 test-core: ## Run the business rules (Behat) and the unit tests of the core
-	@$(CORE) sh -c 'vendor/bin/behat --strict -f progress && vendor/bin/phpunit'
+	@$(MAKE) -C packages/core test
 
-test-api: aws ## Run the tests of the API (on MiniStack: tables, user pool)
-	@$(PHP) bin/phpunit
+test-api: ## Run the tests of the API (on MiniStack: tables, user pool)
+	@$(MAKE) -C apps/api test
 
-test-storage: aws ## Run the tests of the storage (on MiniStack)
-	@$(STORAGE) bin/phpunit
+test-storage: ## Run the tests of the storage (on MiniStack)
+	@$(MAKE) -C apps/storage test
 
 test-front: ## Run the tests of the front (Vitest)
-	@$(NODE) pnpm test
-
-# Playwright runs in its official image, the local hosts resolved to the running stack
-E2E_HOSTS = --add-host local.prospecter.io:127.0.0.1 --add-host api.local.prospecter.io:127.0.0.1 --add-host static.local.prospecter.io:127.0.0.1
+	@$(MAKE) -C apps/front test
 
 e2e: ## Run the Playwright journeys against the running stack
-	@docker run --rm --init --ipc=host --network host $(E2E_HOSTS) -u $(UID):$(GID) -e HOME=/tmp -v $(CURDIR)/apps/front:/work -w /work mcr.microsoft.com/playwright:v1.64.0-noble npx playwright test
+	@$(MAKE) -C apps/front e2e
 
 lint: infra-lint ## Check the code: PHPStan, php-cs-fixer, Rector, Biome, TypeScript, Terraform
-	@$(CORE) sh -c 'vendor/bin/phpstan analyse --no-progress && vendor/bin/php-cs-fixer fix --dry-run --diff && vendor/bin/rector process --dry-run'
-	@$(PHP) sh -c 'vendor/bin/phpstan analyse --no-progress && vendor/bin/php-cs-fixer fix --dry-run --diff && vendor/bin/rector process --dry-run'
-	@$(STORAGE) sh -c 'vendor/bin/phpstan analyse --no-progress && vendor/bin/php-cs-fixer fix --dry-run --diff && vendor/bin/rector process --dry-run'
-	@$(NODE) sh -c 'pnpm lint && pnpm typecheck'
+	@$(MAKE) -C packages/core lint
+	@$(MAKE) -C apps/api lint
+	@$(MAKE) -C apps/storage lint
+	@$(MAKE) -C apps/front lint
 
 front-build: ## Build the front for production (TypeScript, Vite)
-	@$(NODE) pnpm build
+	@$(MAKE) -C apps/front build
 
 fix: ## Fix the style of the code: php-cs-fixer, Biome
-	@$(CORE) vendor/bin/php-cs-fixer fix
-	@$(PHP) vendor/bin/php-cs-fixer fix
-	@$(STORAGE) vendor/bin/php-cs-fixer fix
-	@$(NODE) pnpm format
+	@$(MAKE) -C packages/core fix
+	@$(MAKE) -C apps/api fix
+	@$(MAKE) -C apps/storage fix
+	@$(MAKE) -C apps/front fix
 
 infra-lint: ## Check the Terraform of the apps: format, validity, tflint
-	@docker run --rm -u $(UID):$(GID) -e HOME=/tmp -e TF_PLUGIN_CACHE_DIR=/tmp/plugins -v $(CURDIR):/src -w /src --entrypoint sh $(TERRAFORM_IMAGE) -c \
-		'mkdir -p /tmp/plugins && { [ ! -d /src/infra ] || terraform fmt -check -diff -recursive /src/infra; } && for app in $(INFRA_APPS); do cd /src/apps/$$app/infra && terraform fmt -check -diff && TF_DATA_DIR=/tmp/data/$$app terraform init -backend=false -input=false >/dev/null && TF_DATA_DIR=/tmp/data/$$app terraform validate -no-color >/dev/null || exit 1; done'
-	@docker run --rm -u $(UID):$(GID) -e HOME=/tmp -e GITHUB_TOKEN -v $(CURDIR):/src -w /src --entrypoint sh $(TFLINT_IMAGE) -c \
-		'for app in $(INFRA_APPS); do tflint --chdir=apps/$$app/infra --init >/dev/null && tflint --chdir=apps/$$app/infra || exit 1; done'
+	$(call infra-lint,$(INFRA_APPS))
 
 ##@ Infrastructure
-# APP and INSTANCE given on the command line only: a variable left in the shell would silently change the target
+# APP given on the command line only, like INSTANCE (checked by the app): a variable left in the shell would silently
+# change the target
 infra-target:
 	@test "$(origin APP)" = "command line" -a "$(origin INSTANCE)" = "command line" -a "$(words $(APP) $(INSTANCE))" = 2 -a -n "$(filter $(APP),$(INFRA_APPS))" \
 		|| { echo "Usage: make infra-plan APP=<$(INFRA_APPS)> INSTANCE=<dev|prod|...>, on the command line"; exit 1; }
-	@test -f $(INFRA_INSTANCE).tfvars -a -f $(INFRA_INSTANCE).tfbackend -a -f $(INFRA_INSTANCE).env || { echo "No values for the instance $(INSTANCE): $(INFRA_INSTANCE).tfvars, .tfbackend and .env are needed (docs/infra.md), INFRA_CONFIG names their directory"; exit 1; }
 
 package-api: ## Package the API for its Lambda on AWS in build/api.zip (ADR 0063)
-	@$(DC) run --rm --no-deps -w /var/www/src php tools/package/lambda api
+	@$(MAKE) -C apps/api package
 
 package-storage: ## Package the storage for its Lambda on AWS in build/storage.zip (ADR 0063)
-	@$(DC) run --rm --no-deps -w /var/www/src php tools/package/lambda storage
-
-# the files of the front are a release, under releases/<version>/ of its bucket (ADR 0066)
-FRONT_RELEASE = releases/$(shell tools/ci/code-version front | cut -c1-12)
+	@$(MAKE) -C apps/storage package
 
 package-front: ## Package the front as a release in build/front (ADR 0066)
-	@$(NODE) sh -c 'pnpm install --frozen-lockfile --silent && pnpm build --outDir ../../build/front --emptyOutDir --base /$(FRONT_RELEASE)/'
+	@$(MAKE) -C apps/front package
 
 release-front: ## Put the release of the front in the bucket of an instance, before its apply; CLEAN=1 after it removes the former ones (ADR 0066)
-	@test "$(origin INSTANCE)" = "command line" -a -f $(INFRA_INSTANCE).env || { echo "Usage: make release-front INSTANCE=<dev|prod|...> [CLEAN=1], on the command line"; exit 1; }
-	@test -f build/front/index.html || { echo "No release to put: make package-front first"; exit 1; }
-	@$(AWS_CLI_RUN) -v $(CURDIR):/src -w /src --entrypoint sh $(AWS_CLI_IMAGE) tools/deploy/front $(INSTANCE) $(notdir $(FRONT_RELEASE)) $(if $(CLEAN),--clean)
-
-# a command of the api, on MiniStack, or with INSTANCE= on the tables and the user pool of an instance on AWS, from
-# this machine: the temporary
-# credentials of its AWS profile (envs/<instance>.env), exported by the AWS CLI in its image, reach the php container
-# through the environment only; the names are those of apps/api/infra
-AWS_CLI_IMAGE = amazon/aws-cli:2.37.2
-AWS_CLI_RUN = docker run --rm -u $(UID):$(GID) -e HOME=/tmp --env-file $(INFRA_INSTANCE).env -v $(HOME)/.aws:/tmp/.aws
-AWS_CLI = $(AWS_CLI_RUN) $(AWS_CLI_IMAGE)
+	@$(MAKE) -C apps/front release
 
 console: ## Run a command of the API, on MiniStack or with INSTANCE= on AWS: make console CMD="app:account:open 'SOLEAN IT' me@example.com" [INSTANCE=dev]
-	@test -n "$(CMD)" || { echo "Usage: make console CMD=\"<command of bin/console>\" [INSTANCE=<dev|prod|...>]"; exit 1; }
-ifeq ($(origin INSTANCE),command line)
-	@test -f $(INFRA_INSTANCE).env -a -f $(INFRA_INSTANCE).tfvars || { echo "No values for the instance $(INSTANCE) in $(INFRA_CONFIG)/envs (docs/infra.md)"; exit 1; }
-	@eval "$$($(AWS_CLI) configure export-credentials --format env)" && $(DC) run --rm --no-deps \
-		-e AWS_ACCESS_KEY_ID -e AWS_SECRET_ACCESS_KEY -e AWS_SESSION_TOKEN \
-		-e AWS_REGION=$$(sed -nE 's/^region *= *"(.*)"/\1/p' $(INFRA_INSTANCE).tfvars) \
-		-e DYNAMODB_ENDPOINT= -e COGNITO_ENDPOINT= -e DYNAMODB_TABLE_PREFIX=prospecter-$(INSTANCE)-api \
-		-e COGNITO_USER_POOL_NAME=prospecter-$(INSTANCE)-api-members php bin/console $(CMD)
-else
-	@$(AWS) >/dev/null 2>&1
-	@$(PHP) bin/console $(CMD)
-endif
+	@$(MAKE) -C apps/api console
 
 infra-init: infra-target ## Prepare the Terraform of an app for an instance: make infra-init APP=api INSTANCE=dev
-	@$(TERRAFORM) $(TERRAFORM_IMAGE) init -reconfigure -input=false -backend-config=/config/envs/$(INSTANCE).tfbackend -backend-config=key=$(APP)/$(INSTANCE).tfstate
+	@$(MAKE) -C apps/$(APP) infra-init
 
-infra-plan: infra-init ## Show what Terraform would change for an app and an instance: make infra-plan APP=api INSTANCE=dev
-	@$(TERRAFORM) $(TERRAFORM_IMAGE) plan -input=false -var-file=/config/envs/$(INSTANCE).tfvars $(INFRA_PLAN_FLAGS)
+infra-plan: infra-target ## Show what Terraform would change for an app and an instance: make infra-plan APP=api INSTANCE=dev
+	@$(MAKE) -C apps/$(APP) infra-plan
 
-infra-apply: infra-init ## Apply the Terraform of an app to an instance, after confirmation: make infra-apply APP=api INSTANCE=dev
-	@$(TERRAFORM) $(TERRAFORM_TTY) $(TERRAFORM_IMAGE) apply -input=false -var-file=/config/envs/$(INSTANCE).tfvars $(INFRA_APPLY_FLAGS)
+infra-apply: infra-target ## Apply the Terraform of an app to an instance, after confirmation: make infra-apply APP=api INSTANCE=dev
+	@$(MAKE) -C apps/$(APP) infra-apply
 
 ##@ API contract
 api-doc: ## Regenerate the OpenAPI contract of the API and the front types after changing an endpoint
-	@$(PHP) sh -c 'bin/console nelmio:apidoc:dump --format=json > openapi.json'
-	@$(NODE) pnpm api:types
+	@$(MAKE) -C apps/api openapi
+	@$(MAKE) -C apps/front api-types
 
 contract: api-doc ## Fail when the committed OpenAPI contract or the front types differ from the code
 	@git diff --exit-code -- apps/api/openapi.json apps/front/src/shared/api/schema.d.ts
 
 ##@ Tools
 commands: ## List the commands of the core and their handlers
-	@$(PHP) bin/console debug:messenger
+	@$(MAKE) -C apps/api commands
 
 exec-api: ## Open a shell in the PHP container
-	@$(PHP) bash
+	@$(MAKE) -C apps/api shell
 
 exec-front: ## Open a shell in the Node container
-	@$(NODE) sh
+	@$(MAKE) -C apps/front shell
 
 secrets: ## Fail when the staged changes hold a secret or an identifier of the AWS installation (the pre-commit hook)
 	@$(GITLEAKS) git --pre-commit --staged --redact --no-banner --verbose .
