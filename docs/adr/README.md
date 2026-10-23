@@ -18,7 +18,7 @@ Why the project is shaped the way it is: one file per decision in `docs/adr/`, i
 | [0012](0012-dedicated-authorization-server.md) | Delegate authentication to a dedicated authorization server | Superseded by 0034 | 2026-10-15 |
 | [0013](0013-front-stack.md) | Front stack: React, TanStack, typed client, shadcn/ui | Accepted, the session library superseded by 0052, the pagination by 0049 | 2026-10-14 |
 | [0014](0014-open-maps-and-state-geocoding.md) | Open maps (MapLibre, OpenFreeMap) and the French State geocoder | Accepted | 2026-10-14 |
-| [0015](0015-local-stack-in-docker.md) | The whole stack runs locally in Docker, driven by make | Accepted | 2026-10-14 |
+| [0015](0015-local-stack-in-docker.md) | The whole stack runs locally in Docker, driven by make | Accepted, the commands of each project in its own Makefile since [0080](0080-a-makefile-per-project-the-root-one-a-facade.md) | 2026-10-14 |
 | [0016](0016-sqlite-without-migrations.md) | SQLite, schema generated from the mapping, no migrations | Superseded by 0048, 0052 | 2026-10-13 |
 | [0017](0017-gherkin-acceptance-tests-on-the-core.md) | Gherkin acceptance tests on the core, only ports doubled | Accepted | 2026-10-15 |
 | [0018](0018-readonly-core-model.md) | Readonly requests, responses and value objects; flat entity columns | Superseded by 0023 | 2026-10-15 |
@@ -83,3 +83,4 @@ Why the project is shaped the way it is: one file per decision in `docs/adr/`, i
 | [0077](0077-the-attachments-are-private-files-reached-by-signed-urls.md) | The attachments of an exchange are private files, sent and read by short-lived signed URLs | Accepted, the attachments of a forgotten contact superseded by [0079](0079-the-exchanges-of-a-forgotten-contact-stay-to-make-conform.md) | 2026-10-22 |
 | [0078](0078-every-prospector-reads-the-exchanges-and-corrects-their-text.md) | Every prospector reads the exchanges, their text flagged without the right, and may correct it | Accepted | 2026-10-22 |
 | [0079](0079-the-exchanges-of-a-forgotten-contact-stay-to-make-conform.md) | The exchanges of a forgotten contact stay in the timelines of their organizations, to make conform | Accepted | 2026-10-23 |
+| [0080](0080-a-makefile-per-project-the-root-one-a-facade.md) | A Makefile per project, run from its directory; the root one a façade | Accepted | 2026-10-23 |

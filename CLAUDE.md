@@ -19,7 +19,7 @@ The index below is loaded in every session; open a record before working on its 
 
 ## Commands
 
-Everything runs in Docker (MiniStack with the Lambdas, Node 24, nginx; the PHP 8.5 of the Lambdas for the command line, ADR 0056); nothing but Docker and make on the host. From the repository root (`make` alone lists the commands; a new target gets a `## description` on its line):
+Everything runs in Docker (MiniStack with the Lambdas, Node 24, nginx; the PHP 8.5 of the Lambdas for the command line, ADR 0056); nothing but Docker and make on the host. Each project has its `Makefile`, run from its directory (`cd apps/api && make test`), including only the fragments of `make/`; the root `Makefile` is the façade, running the targets of the projects and holding only what crosses them (ADR 0080): a command of one project goes in its Makefile, then in the façade under its former name. From the repository root (`make` alone lists the commands; a new target gets a `## description` on its line):
 
 - `make install`: images, Composer and pnpm dependencies, and in MiniStack the DynamoDB tables and the Cognito user pool of the API and the S3 bucket of the storage, with the data and the members of the demonstration
 - `make start` / `make stop`: the stack, the API and the storage deployed in their Lambdas on MiniStack (ADR 0055): https://local.prospecter.io (SPA, sign in `prospector@solean-it.io` / `password`, or `assistant@solean-it.io` / `password`, a prospector without the right to manage personal data), https://api.local.prospecter.io/api/doc (API doc)
