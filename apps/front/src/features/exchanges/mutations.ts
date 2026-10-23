@@ -84,6 +84,7 @@ export function useNoteOrganizationExchange() {
 function readTheTimelinesAgain(queryClient: QueryClient) {
   void queryClient.invalidateQueries({ queryKey: timelineKeys.ofContacts })
   void queryClient.invalidateQueries({ queryKey: timelineKeys.ofOrganizations })
+  void queryClient.invalidateQueries({ queryKey: timelineKeys.toMakeConform })
 }
 
 /** The corrected exchange goes straight into its detail; the timelines showing it read it again. */

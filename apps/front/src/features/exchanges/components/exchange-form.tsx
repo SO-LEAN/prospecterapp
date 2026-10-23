@@ -29,6 +29,7 @@ import {
   toExchangeFacts,
 } from '../schema'
 import { CHANNEL_ICONS, INTERLOCUTOR_ICONS } from './exchange-line'
+import { MadeConformField } from './made-conform-field'
 
 /** Who may be chosen from the card of an organization: itself, first and by default, or one of its contacts. */
 export type Interlocutors = { organization: string; contacts: { id: string; name: string }[] }
@@ -42,6 +43,8 @@ type Props = {
   defaultValues?: DefaultValues<ExchangeValues>
   /** A new exchange comes with the files received or sent with it; those of an exchange noted are in its detail. */
   withFiles?: boolean
+  /** Its contact forgotten, the correction may declare it made conform. */
+  mayDeclareConform?: boolean
 }
 
 const DIRECTION_ICONS = { inbound: ArrowDownLeft, outbound: ArrowUpRight }
@@ -50,7 +53,14 @@ const DIRECTION_ICONS = { inbound: ArrowDownLeft, outbound: ArrowUpRight }
 type ChosenFile = { key: string; file: File }
 
 /** Noted in a few seconds: received and now by default, the channel to choose, then save; or corrected. */
-export function ExchangeForm({ onSubmit, onCancel, interlocutors, defaultValues, withFiles = false }: Props) {
+export function ExchangeForm({
+  onSubmit,
+  onCancel,
+  interlocutors,
+  defaultValues,
+  withFiles = false,
+  mayDeclareConform = false,
+}: Props) {
   const { t } = useTranslation()
   const [globalErrors, setGlobalErrors] = useState<string[]>([])
   const [files, setFiles] = useState<ChosenFile[]>([])
@@ -145,6 +155,7 @@ export function ExchangeForm({ onSubmit, onCancel, interlocutors, defaultValues,
       >
         <Textarea rows={3} {...form.register('text')} />
       </FormField>
+      {mayDeclareConform && <MadeConformField {...form.register('madeConform')} />}
 
       {withFiles && (
         <fieldset className="space-y-2">

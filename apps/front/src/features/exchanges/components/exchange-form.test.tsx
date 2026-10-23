@@ -157,6 +157,7 @@ describe('ExchangeForm', () => {
         text: 'Intéressée',
         missed: false,
         personId: '',
+        madeConform: false,
       },
     })
 

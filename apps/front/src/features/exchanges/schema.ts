@@ -25,11 +25,20 @@ export const exchangeSchema = z.object({
   text: text(MAX_TEXT),
   missed: z.boolean(),
   personId: z.string(),
+  madeConform: z.boolean(),
 })
 
 export type ExchangeValues = z.input<typeof exchangeSchema>
 
-export const exchangeFields = ['channel', 'direction', 'occurredAt', 'text', 'missed', 'personId'] as const
+export const exchangeFields = [
+  'channel',
+  'direction',
+  'occurredAt',
+  'text',
+  'missed',
+  'personId',
+  'madeConform',
+] as const
 
 /** The interlocutor chosen when noting from the card of an organization: none is the organization itself. */
 export const ITSELF = ''
@@ -41,6 +50,7 @@ export const newExchange = (now: Date): DefaultValues<ExchangeValues> => ({
   text: '',
   missed: false,
   personId: ITSELF,
+  madeConform: false,
 })
 
 /** The exchange as it is, to correct it. */
@@ -51,6 +61,7 @@ export const correctionOf = (exchange: ExchangeDetail): ExchangeValues => ({
   text: exchange.text ?? '',
   missed: exchange.missed,
   personId: ITSELF,
+  madeConform: false,
 })
 
 export const toExchangeFacts = (values: ExchangeValues): ExchangeFacts => ({
@@ -59,16 +70,20 @@ export const toExchangeFacts = (values: ExchangeValues): ExchangeFacts => ({
   occurredAt: new Date(values.occurredAt).toISOString(),
   text: orNull(values.text),
   missed: values.channel === 'call' && values.missed,
+  ...(values.madeConform && { madeConform: true }),
 })
 
 export const personIdOf = (values: ExchangeValues): string | null =>
   values.personId === ITSELF ? null : values.personId
 
 /** Mirrors `TextCorrectionInput` of the API. */
-export const textSchema = z.object({ text: text(MAX_TEXT) })
+export const textSchema = z.object({ text: text(MAX_TEXT), madeConform: z.boolean() })
 
 export type TextValues = z.input<typeof textSchema>
 
-export const textFields = ['text'] as const
+export const textFields = ['text', 'madeConform'] as const
 
-export const toTextCorrection = (values: TextValues): TextCorrection => ({ text: orNull(values.text) })
+export const toTextCorrection = (values: TextValues): TextCorrection => ({
+  text: orNull(values.text),
+  madeConform: values.madeConform,
+})

@@ -2,15 +2,18 @@ import { EyeOff, Paperclip, X } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import { env } from '@/shared/config/env'
 import { formatSize } from '@/shared/lib/format'
+import { cn } from '@/shared/lib/utils'
 import { Button } from '@/shared/ui/button'
 import { FileDropZone } from '@/shared/ui/file-drop-zone'
 import { downloadAttachment } from '../attachments'
 import { useAttachFiles, useRemoveAttachment } from '../mutations'
 import type { Attachment, ExchangeDetail } from '../queries'
+import { PersonalDataWarning } from './exchange-text'
 
 /**
  * The files joined to an exchange, each downloaded or removed, and the zone joining more while the exchange has
- * room for them; only counted when they are hidden to the reader.
+ * room for them; only counted when they are hidden to the reader; on a yellow ground while they are to make
+ * conform, by removing them.
  */
 export function ExchangeAttachments({ exchange }: { exchange: ExchangeDetail }) {
   const { t } = useTranslation()
@@ -30,6 +33,9 @@ export function ExchangeAttachments({ exchange }: { exchange: ExchangeDetail }) 
           <EyeOff aria-hidden className="size-4 shrink-0" />
           {t('exchanges.attachments.hidden', { count: exchange.hiddenAttachments })}
         </p>
+      )}
+      {exchange.attachments.some((attachment) => attachment.toMakeConform) && (
+        <PersonalDataWarning warning={t('exchanges.toMakeConform')} />
       )}
       {exchange.attachments.length > 0 && (
         <ul className="space-y-1">
@@ -61,7 +67,9 @@ function AttachmentLine({ exchangeId, attachment }: { exchangeId: string; attach
   const removeLink = attachment._links.removeAttachment
 
   return (
-    <li className="flex items-center gap-2">
+    <li
+      className={cn('flex items-center gap-2', attachment.toMakeConform && 'rounded-md bg-warning/15 px-2')}
+    >
       <Paperclip aria-hidden className="size-4 shrink-0 text-muted-foreground" />
       <a
         href={`${env.apiUrl}${attachment._links.download.href}`}

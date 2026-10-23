@@ -23,6 +23,8 @@ type Props<Item> = {
   renderItem: (item: Item) => ReactNode
   /** The quick entry of a new exchange, when the timeline offers it. */
   noteExchange?: ReactNode
+  /** What narrows the timeline, beside its title. */
+  filter?: ReactNode
   className?: string
 }
 
@@ -36,6 +38,7 @@ export function TimelineCard<Item>({
   keyOf,
   renderItem,
   noteExchange,
+  filter,
   className,
 }: Props<Item>) {
   const { t } = useTranslation()
@@ -52,7 +55,12 @@ export function TimelineCard<Item>({
     <Card className={className}>
       <CardHeader>
         <CardTitle className="text-base">{t('exchanges.title')}</CardTitle>
-        {noteExchange && <CardAction>{noteExchange}</CardAction>}
+        {(filter || noteExchange) && (
+          <CardAction className="flex flex-wrap justify-end gap-2">
+            {filter}
+            {noteExchange}
+          </CardAction>
+        )}
       </CardHeader>
       <CardContent className="text-sm">
         {items.length === 0 && <p className="text-muted-foreground">{t('exchanges.none')}</p>}
