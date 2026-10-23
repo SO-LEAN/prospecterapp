@@ -72,7 +72,7 @@ function givenTheApiRelocatesItTo(relocated: Organization) {
 }
 
 async function relocateTo(user: ReturnType<typeof userEvent.setup>, address: typeof strasbourg) {
-  await user.click(screen.getByRole('button', { name: 'Modifier : Adresse' }))
+  await user.click(screen.getByRole('button', { name: 'Modifier : Adresse' }))
   await user.clear(screen.getByLabelText('Rue'))
   await user.type(screen.getByLabelText('Rue'), address.street)
   await user.clear(screen.getByLabelText('Code postal'))

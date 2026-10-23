@@ -37,7 +37,7 @@ describe('an editable section', () => {
   it('sends only its own part, then shows it again', async () => {
     const { save, user } = renderSection()
 
-    await user.click(screen.getByRole('button', { name: 'Modifier : Coordonnées' }))
+    await user.click(screen.getByRole('button', { name: 'Modifier : Coordonnées' }))
     await user.type(screen.getByLabelText(/^Téléphone/), '0388000000')
     await user.click(screen.getByRole('button', { name: 'Enregistrer' }))
 
@@ -46,7 +46,7 @@ describe('an editable section', () => {
       phoneNumber: '0388000000',
       language: null,
     })
-    expect(await screen.findByRole('button', { name: 'Modifier : Coordonnées' })).toBeInTheDocument()
+    expect(await screen.findByRole('button', { name: 'Modifier : Coordonnées' })).toBeInTheDocument()
   })
 
   it('stays open with the API violations on its fields', async () => {
@@ -59,7 +59,7 @@ describe('an editable section', () => {
       }),
     )
 
-    await user.click(screen.getByRole('button', { name: 'Modifier : Coordonnées' }))
+    await user.click(screen.getByRole('button', { name: 'Modifier : Coordonnées' }))
     await user.click(screen.getByRole('button', { name: 'Enregistrer' }))
 
     expect(await screen.findByText('Email already used')).toBeInTheDocument()
@@ -69,7 +69,7 @@ describe('an editable section', () => {
   it('can be left without saving', async () => {
     const { save, user } = renderSection()
 
-    await user.click(screen.getByRole('button', { name: 'Modifier : Coordonnées' }))
+    await user.click(screen.getByRole('button', { name: 'Modifier : Coordonnées' }))
     await user.click(screen.getByRole('button', { name: 'Annuler' }))
 
     expect(save).not.toHaveBeenCalled()
@@ -79,7 +79,7 @@ describe('an editable section', () => {
   it('cannot be changed when the API does not offer it', () => {
     renderSection(vi.fn(), false)
 
-    expect(screen.queryByRole('button', { name: 'Modifier : Coordonnées' })).not.toBeInTheDocument()
+    expect(screen.queryByRole('button', { name: 'Modifier : Coordonnées' })).not.toBeInTheDocument()
     expect(screen.getByText('contact@acme.test')).toBeInTheDocument()
   })
 })

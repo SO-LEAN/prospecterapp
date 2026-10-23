@@ -31,7 +31,7 @@ export function EditableSection({ title, children, editable, editor, className }
               variant="ghost"
               size="sm"
               onClick={() => setEditing(true)}
-              aria-label={`${t('common.edit')} : ${title}`}
+              aria-label={t('common.editSection', { section: title })}
             >
               <Pencil /> {t('common.edit')}
             </Button>

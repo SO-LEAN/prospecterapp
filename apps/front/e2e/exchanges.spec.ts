@@ -19,7 +19,7 @@ test('note the exchanges with a contact and their files, find them in its timeli
     await page.goto('/organizations/new')
     await page.getByLabel('Raison sociale').fill(organization)
     await page.getByRole('button', { name: 'Commencer à prospecter' }).click()
-    await page.getByRole('button', { name: 'Modifier : Contacts' }).click()
+    await page.getByRole('button', { name: 'Modifier : Contacts' }).click()
     await page.getByLabel('Prénom').fill('Test')
     await page.getByLabel('Nom', { exact: true }).fill(lastName)
     await page.getByRole('button', { name: 'Enregistrer le contact' }).click()
