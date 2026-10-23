@@ -8,10 +8,13 @@ packages/core/   prospecter/core library (Composer)
 tools/phpstan/   PHPStan rules shared by the three PHP codebases (autoload-dev of each, ADR 0044)
 tools/git-hooks/ the pre-commit hook (gitleaks, ADR 0059)
 apps/*/infra/    the Terraform of each app on AWS (docs/infra.md, ADR 0059)
+make/            the fragments the Makefiles include (ADR 0080)
 docker/  docker-compose.yml  Makefile  docs/
 ```
 
-The apps are independent projects with their own dependencies; they only share HTTP contracts (`apps/api/openapi.json`, from which the front generates its types; the internal `POST/DELETE /files` of the storage) and the AWS services (MiniStack locally: the Cognito user pool the SPA signs in with and whose tokens the API checks) and the root tooling (Docker, Makefile). Only the API uses the core.
+The apps are independent projects with their own dependencies; they only share HTTP contracts (`apps/api/openapi.json`, from which the front generates its types; the internal `POST/DELETE /files` of the storage) and the AWS services (MiniStack locally: the Cognito user pool the SPA signs in with and whose tokens the API checks) and the root tooling (Docker, the fragments of `make/`). Only the API uses the core.
+
+Each project has its own `Makefile`, run from its directory (`cd apps/api && make test`; `make` alone lists its commands), including only the fragments of `make/`; the root `Makefile` is the façade: its targets run those of the projects (`make test-api` runs `make -C apps/api test`) and hold only what crosses them (`install`, `ci`, the stack, `api-doc`, the secrets). A project never runs the Makefile of another one (ADR 0080).
 
 ## How the API uses the library
 
@@ -38,7 +41,7 @@ COMPOSER_MIRROR_PATH_REPOS=1 composer install --no-dev --classmap-authoritative
 
 Composer then copies the current content of `packages/core` into `vendor/` (even if `composer.lock` is behind), and `apps/api/` becomes self-contained: deploy it alone. `apps/storage/` does not use the core; `make package-storage` packages it the same way (`build/storage.zip`). This only works because the path repository does not force `"symlink": true`; keep it that way.
 
-The copy includes what the core needs for its own tests (`vendor/`, `tests/`, `features/`, tool configs): remove `vendor/prospecter/core/{vendor,tests,features}` in the production image. `make package-api` / `make package-storage` do all of it for the Lambdas on AWS (`tools/package/lambda`, `build/<app>.zip`).
+The copy includes what the core needs for its own tests (`vendor/`, `tests/`, `features/`, tool configs): remove `vendor/prospecter/core/{vendor,tests,features,Makefile}` in the production image. `make package-api` / `make package-storage` do all of it for the Lambdas on AWS (`tools/package/lambda`, `build/<app>.zip`).
 
 The front builds to static files (`pnpm build` → `apps/front/dist/`), one build for every instance: its API URL comes from `/config.js` (on AWS answered by the CloudFront Function of the instance, ADR 0066), else from the `VITE_*` variables of the build; on AWS each build is a release under `releases/<version>/` of its bucket (`make package-front`, `make release-front`); where to sign in, it asks the API (`GET /api/user-pool`).
 
