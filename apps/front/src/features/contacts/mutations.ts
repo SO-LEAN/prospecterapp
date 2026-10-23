@@ -1,7 +1,8 @@
-import { type QueryClient, useQueryClient } from '@tanstack/react-query'
+import { useQueryClient } from '@tanstack/react-query'
 import { useTranslation } from 'react-i18next'
 import { toast } from 'sonner'
 import { api } from '@/shared/api/client'
+import { readTheExchangesAgain } from '@/shared/api/exchanges'
 import { queryKeys } from '@/shared/api/keys'
 import { type Contact, contactQuery } from './queries'
 
@@ -66,11 +67,4 @@ export function useForgetContact() {
       readTheExchangesAgain(queryClient)
     },
   })
-}
-
-/** Its exchanges stay in the timelines of its organizations, its name gone, to make conform (ADR 0079). */
-function readTheExchangesAgain(queryClient: QueryClient) {
-  void queryClient.invalidateQueries({ queryKey: queryKeys.organizationTimelines })
-  void queryClient.invalidateQueries({ queryKey: queryKeys.exchangesToMakeConform })
-  void queryClient.invalidateQueries({ queryKey: queryKeys.exchange })
 }
