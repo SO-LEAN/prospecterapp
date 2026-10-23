@@ -8,4 +8,7 @@ export const queryKeys = {
   organization: ['get', '/api/organizations/{id}'],
   organizationContacts: ['get', '/api/organizations/{id}/contacts'],
   contactList: ['get', '/api/contacts'],
+  organizationTimelines: ['get', '/api/organizations/{id}/exchanges'],
+  exchangesToMakeConform: ['get', '/api/organizations/{id}/exchanges-to-make-conform'],
+  exchange: ['get', '/api/exchanges/{id}'],
 } as const

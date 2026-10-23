@@ -1,5 +1,6 @@
 import { infiniteQueryOptions } from '@tanstack/react-query'
 import { api, fetchClient } from '@/shared/api/client'
+import { queryKeys } from '@/shared/api/keys'
 import type { components } from '@/shared/api/schema'
 import { dataOf, nextSliceOf } from '@/shared/api/slices'
 
@@ -11,8 +12,10 @@ export type Attachment = components['schemas']['AttachmentResource']
 export type OrganizationTimeline = components['schemas']['OrganizationTimelineResource']
 export type OrganizationExchange = components['schemas']['OrganizationExchangeResource']
 export type Interlocutor = OrganizationExchange['interlocutor']
-/** What happened, all of it: what noting and correcting an exchange send. */
-export type ExchangeFacts = components['schemas']['CorrectionInput']
+export type ContactPresence = NonNullable<Interlocutor['presence']>
+type Correction = components['schemas']['CorrectionInput']
+/** What happened, all of it: what noting and correcting an exchange send; a correction may declare it made conform. */
+export type ExchangeFacts = Omit<Correction, 'madeConform'> & Partial<Pick<Correction, 'madeConform'>>
 export type ExchangeDetail = components['schemas']['ExchangeDetailResource']
 export type TextCorrection = components['schemas']['TextCorrectionInput']
 export type Author = components['schemas']['AuthorResource']
@@ -64,10 +67,26 @@ export const organizationTimelineQuery = (organizationId: string) =>
     getNextPageParam: (slice) => nextSliceOf(slice._links),
   })
 
+/** Only the exchanges of the organization to make conform, their contact forgotten (ADR 0079). */
+export const exchangesToMakeConformQuery = (organizationId: string) =>
+  infiniteQueryOptions({
+    queryKey: [...timelineKeys.toMakeConform, { params: { path: { id: organizationId } } }, 'slices'],
+    queryFn: async ({ pageParam, signal }) =>
+      dataOf(
+        await fetchClient.GET('/api/organizations/{id}/exchanges-to-make-conform', {
+          params: { path: { id: organizationId }, query: { after: pageParam } },
+          signal,
+        }),
+      ),
+    initialPageParam: undefined as string | undefined,
+    getNextPageParam: (slice) => nextSliceOf(slice._links),
+  })
+
 /** An exchange noted on one card shows in the timelines of the other cards: those of contacts and of organizations. */
 export const timelineKeys = {
   ofContacts: ['get', '/api/contacts/{id}/exchanges'],
-  ofOrganizations: ['get', '/api/organizations/{id}/exchanges'],
+  ofOrganizations: queryKeys.organizationTimelines,
+  toMakeConform: queryKeys.exchangesToMakeConform,
 } as const
 
 export const exchangeQuery = (id: string) =>

@@ -9,18 +9,24 @@ import { Button } from '@/shared/ui/button'
 import { Textarea } from '@/shared/ui/textarea'
 import type { TextCorrection } from '../queries'
 import { type TextValues, textFields, textSchema, toTextCorrection } from '../schema'
+import { MadeConformField } from './made-conform-field'
 
 type Props = {
   text: string | null | undefined
+  /** Its contact forgotten, the correction may declare it made conform. */
+  mayDeclareConform: boolean
   onSubmit: (correction: TextCorrection) => Promise<unknown>
   onCancel: () => void
 }
 
 /** The text of an exchange alone, to make it conform; its other facts stay. */
-export function TextCorrectionForm({ text, onSubmit, onCancel }: Props) {
+export function TextCorrectionForm({ text, mayDeclareConform, onSubmit, onCancel }: Props) {
   const { t } = useTranslation()
   const [globalErrors, setGlobalErrors] = useState<string[]>([])
-  const form = useForm<TextValues>({ resolver: zodResolver(textSchema), defaultValues: { text: text ?? '' } })
+  const form = useForm<TextValues>({
+    resolver: zodResolver(textSchema),
+    defaultValues: { text: text ?? '', madeConform: false },
+  })
   const { isSubmitting } = useFormState({ control: form.control })
 
   const submit = form.handleSubmit(async (values) => {
@@ -42,6 +48,7 @@ export function TextCorrectionForm({ text, onSubmit, onCancel }: Props) {
       <FormField form={form} name="text" label={t('exchanges.text')} optional={t('common.optional')}>
         <Textarea rows={5} {...form.register('text')} />
       </FormField>
+      {mayDeclareConform && <MadeConformField {...form.register('madeConform')} />}
       <div className="flex justify-end gap-2">
         <Button type="button" variant="ghost" onClick={onCancel}>
           {t('common.cancel')}

@@ -12,16 +12,19 @@ const self = { href: `/api/exchanges/${EXCHANGE}`, method: 'GET' }
 
 const anExchange = (exchange: Partial<ExchangeDetail>): ExchangeDetail => ({
   id: EXCHANGE,
-  interlocutor: { kind: 'person', id: ADA, name: 'Ada Lovelace' },
+  interlocutor: { kind: 'person', id: ADA, name: 'Ada Lovelace', presence: 'present' },
   channel: 'linkedIn',
   direction: 'inbound',
   missed: false,
   occurredAt: '2026-10-15T12:30:00+00:00',
   text: 'Intéressée par une mission en mars',
   textFlagged: false,
+  textToMakeConform: false,
+  toMakeConform: false,
   organizationIds: [],
   noted: { at: '2026-10-15T12:35:00+00:00', by: { name: { firstName: 'Michel', lastName: 'Maier' } } },
   corrected: null,
+  madeConform: null,
   attachments: [],
   hiddenAttachments: 0,
   _links: {
@@ -67,7 +70,9 @@ describe('ExchangeDetailSheet', () => {
   })
 
   it('names the organization itself when it was with no contact', () => {
-    renderTheDetail(anExchange({ interlocutor: { kind: 'organization', id: ACME, name: 'ACME' } }))
+    renderTheDetail(
+      anExchange({ interlocutor: { kind: 'organization', id: ACME, name: 'ACME', presence: null } }),
+    )
 
     expect(screen.getByText('Organisation :')).toBeInTheDocument()
     expect(screen.getByText('ACME')).toBeInTheDocument()
@@ -118,6 +123,51 @@ describe('ExchangeDetailSheet', () => {
     expect(screen.queryByRole('group', { name: 'Canal' })).not.toBeInTheDocument()
   })
 
+  it('offers the correction no case to declare it made conform while its contact is known', async () => {
+    const user = renderTheDetail(anExchange({}))
+
+    await user.click(screen.getByRole('button', { name: 'Corriger' }))
+
+    expect(screen.queryByLabelText('Rendu conforme')).not.toBeInTheDocument()
+  })
+
+  it('shows what is to make conform once its contact was forgotten, and offers to declare it made conform', async () => {
+    const user = renderTheDetail(
+      anExchange({
+        interlocutor: { kind: 'person', id: ADA, name: null, presence: 'forgotten' },
+        textToMakeConform: true,
+        toMakeConform: true,
+        _links: {
+          self,
+          correctText: { href: `${self.href}/text`, method: 'PATCH' },
+          makeConform: { href: `${self.href}/text`, method: 'PATCH' },
+        },
+      }),
+    )
+
+    expect(screen.getByText('Contact effacé')).toBeInTheDocument()
+    expect(
+      screen.getByText('Ce contact a été effacé (RGPD) : retouchez ce contenu pour le rendre conforme.'),
+    ).toBeInTheDocument()
+    await user.click(screen.getByRole('button', { name: 'Corriger le texte' }))
+
+    expect(screen.getByLabelText('Rendu conforme')).not.toBeChecked()
+  })
+
+  it('shows who declared it made conform', () => {
+    renderTheDetail(
+      anExchange({
+        madeConform: {
+          at: '2026-10-16T08:00:00+00:00',
+          by: { name: { firstName: 'Michel', lastName: 'Maier' } },
+        },
+      }),
+    )
+
+    expect(screen.getByText(/^Rendu conforme le 16 oct\. 2026, .* par Michel Maier$/)).toBeInTheDocument()
+    expect(screen.queryByText(/retouchez ce contenu/)).not.toBeInTheDocument()
+  })
+
   it('asks before erasing it', async () => {
     const user = renderTheDetail(anExchange({}))
 
@@ -148,6 +198,7 @@ describe('ExchangeDetailSheet', () => {
             name: 'cahier-des-charges.pdf',
             size: 1572864,
             mediaType: 'application/pdf',
+            toMakeConform: false,
             _links: {
               download: { href: attachment, method: 'GET' },
               removeAttachment: { href: attachment, method: 'DELETE' },

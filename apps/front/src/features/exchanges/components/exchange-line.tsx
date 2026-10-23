@@ -16,8 +16,9 @@ import {
 import type { ReactNode } from 'react'
 import { useTranslation } from 'react-i18next'
 import { formatMoment } from '@/shared/lib/format'
+import { cn } from '@/shared/lib/utils'
 import type { Channel, Exchange, Interlocutor } from '../queries'
-import { ExchangeText } from './exchange-text'
+import { ExchangeText, PersonalDataWarning } from './exchange-text'
 
 export const CHANNEL_ICONS: Record<Channel, LucideIcon> = {
   call: Phone,
@@ -40,7 +41,8 @@ export const INTERLOCUTOR_ICONS: Record<Interlocutor['kind'], LucideIcon> = {
 
 /**
  * One exchange of the timeline: who communicated in the timeline of an organization, its summary, the
- * beginning of its text and how many files are joined to it.
+ * beginning of its text and how many files are joined to it; what is to make conform once its contact was
+ * forgotten.
  */
 export function ExchangeLine({
   exchange,
@@ -52,8 +54,14 @@ export function ExchangeLine({
   return (
     <ExchangeSummary exchange={exchange} interlocutor={interlocutor}>
       {exchange.text && (
-        <ExchangeText text={exchange.text} flagged={exchange.textFlagged} className="truncate" />
+        <ExchangeText
+          text={exchange.text}
+          flagged={exchange.textFlagged}
+          toMakeConform={exchange.textToMakeConform}
+          className="truncate"
+        />
       )}
+      {exchange.toMakeConform && !exchange.textToMakeConform && <ToMakeConform />}
       {exchange.attachmentCount > 0 && <AttachmentCount count={exchange.attachmentCount} />}
     </ExchangeSummary>
   )
@@ -97,17 +105,30 @@ export function ExchangeSummary({
   )
 }
 
+/** Its name, struck through once the contact left the organization; "Contact effacé" once forgotten. */
 function InterlocutorName({ interlocutor }: { interlocutor: Interlocutor }) {
   const { t } = useTranslation()
   const Icon = INTERLOCUTOR_ICONS[interlocutor.kind]
+  const removed = interlocutor.presence === 'removed'
+  const name = interlocutor.presence === 'forgotten' ? null : interlocutor.name
 
   return (
     <p className="flex min-w-0 items-center gap-1.5 font-semibold">
       <Icon aria-hidden className="size-4 shrink-0 text-muted-foreground" />
       <span className="sr-only">{t(`exchanges.interlocutors.${interlocutor.kind}`)}</span>
-      <span className="truncate">{interlocutor.name ?? t('exchanges.unknownPerson')}</span>
+      <span className={cn('truncate', removed && 'text-muted-foreground line-through')}>
+        {name ?? t('exchanges.unknownPerson')}
+      </span>
+      {removed && <span className="sr-only">{t('exchanges.removedContact')}</span>}
     </p>
   )
+}
+
+/** Its files still to make conform, its text made so or none. */
+function ToMakeConform() {
+  const { t } = useTranslation()
+
+  return <PersonalDataWarning warning={t('exchanges.toMakeConform')} />
 }
 
 function AttachmentCount({ count }: { count: number }) {

@@ -69,15 +69,17 @@ function Exchange({ exchange, onErased }: { exchange: ExchangeDetail; onErased: 
   const correctText = useCorrectExchangeText()
   const authorOf = (author: Author) => nameOf(author.name) || author.email || t('exchanges.detail.aMember')
   const params = { path: { id: exchange.id } }
+  const mayDeclareConform = Boolean(exchange._links.makeConform)
 
   if (correcting === 'facts') {
     return (
       <div className="px-4 pb-4">
         <ExchangeForm
           defaultValues={correctionOf(exchange)}
+          mayDeclareConform={mayDeclareConform}
           onCancel={() => setCorrecting(null)}
           onSubmit={async (body) => {
-            await correct.mutateAsync({ params, body })
+            await correct.mutateAsync({ params, body: { madeConform: false, ...body } })
             setCorrecting(null)
           }}
         />
@@ -90,6 +92,7 @@ function Exchange({ exchange, onErased }: { exchange: ExchangeDetail; onErased: 
       <div className="px-4 pb-4">
         <TextCorrectionForm
           text={exchange.text}
+          mayDeclareConform={mayDeclareConform}
           onCancel={() => setCorrecting(null)}
           onSubmit={async (body) => {
             await correctText.mutateAsync({ params, body })
@@ -108,6 +111,7 @@ function Exchange({ exchange, onErased }: { exchange: ExchangeDetail; onErased: 
             <ExchangeText
               text={exchange.text}
               flagged={exchange.textFlagged}
+              toMakeConform={exchange.textToMakeConform}
               className="whitespace-pre-wrap break-words"
             />
           </div>
@@ -125,6 +129,14 @@ function Exchange({ exchange, onErased }: { exchange: ExchangeDetail; onErased: 
             {t('exchanges.detail.corrected', {
               moment: formatMoment(exchange.corrected.at),
               author: authorOf(exchange.corrected.by),
+            })}
+          </p>
+        )}
+        {exchange.madeConform && (
+          <p>
+            {t('exchanges.detail.madeConform', {
+              moment: formatMoment(exchange.madeConform.at),
+              author: authorOf(exchange.madeConform.by),
             })}
           </p>
         )}
