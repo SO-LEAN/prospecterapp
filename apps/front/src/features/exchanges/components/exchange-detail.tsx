@@ -105,7 +105,11 @@ function Exchange({ exchange, onErased }: { exchange: ExchangeDetail; onErased: 
 
   return (
     <div className="space-y-4 px-4 pb-4 text-sm">
-      <ExchangeSummary exchange={exchange} interlocutor={exchange.interlocutor}>
+      <ExchangeSummary
+        exchange={exchange}
+        interlocutor={exchange.interlocutor}
+        linkedToTheCard={Boolean(exchange._links.interlocutor)}
+      >
         {exchange.text && (
           <div className="mt-2">
             <ExchangeText
