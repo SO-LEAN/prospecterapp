@@ -1,7 +1,7 @@
 # 0077. The attachments of an exchange are private files, sent and read by short-lived signed URLs
 
 - Date: 2026-10-22
-- Status: Accepted
+- Status: Accepted, the attachments of a forgotten contact superseded by [0079](0079-the-exchanges-of-a-forgotten-contact-stay-to-make-conform.md)
 - Supersedes: for the files joined to an exchange, the single place of the personal data of [0031](0031-personal-data-context.md)
 - Implemented by: `packages/core/src/Prospecting/Domain/{Exchange,Attachment}.php`, `packages/core/src/Prospecting/Application/{AttachFile,RemoveAttachment,DownloadAttachment,AttachedFiles}`, `packages/core/src/SharedKernel/Application/Port/PrivateStorage.php`, `apps/storage/src/{PrivateFiles,SignedRequests}.php`, `apps/storage/src/Controller`, `apps/storage/infra/private-bucket.tf`, `apps/api/src/Shared/{PrivateStorageClient,StorageEntry}.php`, `apps/api/src/Exchanges`, `docker/nginx/templates/static.conf.template`
 

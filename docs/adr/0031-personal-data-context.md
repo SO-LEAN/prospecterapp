@@ -1,7 +1,7 @@
 # 0031. A PersonalData context keeps the personal data of natural persons, and decides who reads them
 
 - Date: 2026-10-15
-- Status: Accepted, port names superseded by [0045](0045-published-language-between-contexts.md), the text of the exchanges kept by Prospecting since [0074](0074-an-exchange-with-a-contact-is-an-aggregate-of-prospecting.md)
+- Status: Accepted, port names superseded by [0045](0045-published-language-between-contexts.md), the text of the exchanges kept by Prospecting since [0074](0074-an-exchange-with-a-contact-is-an-aggregate-of-prospecting.md), kept after the forgetting of their contact, to make conform, since [0079](0079-the-exchanges-of-a-forgotten-contact-stay-to-make-conform.md)
 - Implemented by: `packages/core/src/PersonalData`, `apps/api/src/PersonalData`, `apps/api/src/Me`
 
 ## Context
