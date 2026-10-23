@@ -27,6 +27,11 @@ final readonly class ConsultOrganizationTimelineHandler implements QueryHandler
         $organization = $this->organizations->get(new OrganizationId($query->organizationId));
         $organization->ensureReachableBy($prospector);
 
-        return TimelineResponse::of($this->exchanges->timelineOfOrganization($organization->id(), $query->after, $query->max), $prospector);
+        return TimelineResponse::ofOrganization(
+            $organization,
+            $this->exchanges->timelineOfOrganization($organization->id(), $query->after, $query->max),
+            $this->exchanges->countToMakeConformFor($organization->id()),
+            $prospector,
+        );
     }
 }

@@ -36,6 +36,7 @@ final class CorrectExchange extends AbstractController
     #[OA\Response(response: 401, description: 'Missing or invalid access token')]
     #[OA\Response(response: 403, description: 'Not a prospector, or no right to manage personal data', content: new Model(type: ProblemResource::class))]
     #[OA\Response(response: 404, description: 'Unknown exchange, or one of another account', content: new Model(type: ProblemResource::class))]
+    #[OA\Response(response: 409, description: 'Declared made conform while nothing is to make conform', content: new Model(type: ProblemResource::class))]
     #[OA\Response(response: 422, description: 'Invalid correction: unknown channel or direction, a missed exchange that is no call, a moment in the future, another contact', content: new Model(type: ProblemResource::class))]
     public function __invoke(string $id, #[MapRequestPayload] CorrectionInput $input, #[CurrentUser] User $user): JsonResponse
     {
@@ -48,6 +49,7 @@ final class CorrectExchange extends AbstractController
             text: $input->text,
             missed: $input->missed,
             executedAt: $this->clock->now(),
+            madeConform: $input->madeConform,
         ));
 
         return $this->json($this->exchanges->read($user->memberId(), $id));

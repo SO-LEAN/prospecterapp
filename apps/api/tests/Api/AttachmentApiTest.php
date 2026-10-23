@@ -124,6 +124,19 @@ class AttachmentApiTest extends ApiTestCase
         $this->assertSame([[], 1], [$detail['attachments'], $detail['hiddenAttachments']]);
     }
 
+    public function testTheFilesOfAnExchangeWithAForgottenContactAreToMakeConformByRemovingThem(): void
+    {
+        $contact = $this->aContact();
+        $exchange = $this->anExchangeWith($contact);
+        $this->attach($exchange, $this->sent(2048, 'application/pdf'), 'cv-ada.pdf');
+
+        $this->requestJson('DELETE', '/api/contacts/'.$contact);
+
+        $attachment = $this->requestJson('GET', '/api/exchanges/'.$exchange)['attachments'][0];
+        $this->assertTrue($attachment['toMakeConform']);
+        $this->assertSame([], $this->requestJson('DELETE', $attachment['_links']['removeAttachment']['href'])['attachments']);
+    }
+
     /**
      * A file the browser sent with the form of an upload.
      */

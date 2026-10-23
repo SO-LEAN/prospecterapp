@@ -15,7 +15,7 @@ use Prospecter\Core\SharedKernel\Application\RefusalTranslatingHandler;
 
 /**
  * An exchange as the API shows it: read in Prospecting, with the organization itself when it was with no contact,
- * its contact and the members who noted and corrected it named by PersonalData under the person ids Accounts gives
+ * its contact and the members who noted, corrected and made it conform named by PersonalData under the person ids Accounts gives
  * them, then presented. A controller calls it after a
  * command, which returns nothing, to answer with the fresh resource.
  */
@@ -33,7 +33,7 @@ final readonly class ExchangeReader
     public function read(string $prospector, string $id): ExchangeDetailResource
     {
         $exchange = ($this->consultExchange)(new ConsultExchange($prospector, $id));
-        $personOfMember = $this->personsOfMembers(array_filter([$exchange->createdBy, $exchange->correctedBy]));
+        $personOfMember = $this->personsOfMembers(array_filter([$exchange->createdBy, $exchange->correctedBy, $exchange->madeConformBy]));
         $persons = ($this->consultPersons)(new ConsultPersons($prospector, array_values(array_unique(array_filter([$exchange->personId, ...array_values($personOfMember)])))));
 
         return $this->presenter->present($exchange, $this->interlocutorOf($prospector, $exchange, $persons), $persons, $personOfMember);
@@ -48,7 +48,7 @@ final readonly class ExchangeReader
     {
         return null === $exchange->personId
             ? InterlocutorResource::ofTheOrganization(($this->consultOrganization)(new ConsultOrganization($prospector, $exchange->organizationIds[0])))
-            : InterlocutorResource::ofPerson($exchange->personId, $persons[$exchange->personId] ?? null);
+            : InterlocutorResource::ofPerson($exchange->personId, $persons[$exchange->personId] ?? null, $exchange->contactPresence);
     }
 
     /**

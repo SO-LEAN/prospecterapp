@@ -33,11 +33,17 @@ final readonly class ExchangeDetailResource
         public ?string $text,
         #[OA\Property(description: 'Its text may hold personal data: flagged to a prospector reading it without the right to manage them')]
         public bool $textFlagged,
+        #[OA\Property(description: 'Its contact forgotten, its text may still hold their personal data, until it is declared made conform')]
+        public bool $textToMakeConform,
+        #[OA\Property(description: 'Its contact forgotten, its text or its files may still hold their personal data')]
+        public bool $toMakeConform,
         #[OA\Property(description: 'The organizations it is kept for: those the contact was part of when it was noted, or the organization itself')]
         public array $organizationIds,
         public StampResource $noted,
         #[OA\Property(description: 'The last correction, null while it is as it was noted')]
         public ?StampResource $corrected,
+        #[OA\Property(description: 'Who declared it made conform, and when; null while it is not')]
+        public ?StampResource $madeConform,
         #[OA\Property(description: 'The files joined to it, in the order they were')]
         public array $attachments,
         #[OA\Property(description: 'How many files are joined to it but hidden to a prospector reading it without the right to manage personal data')]

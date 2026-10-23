@@ -26,6 +26,8 @@ final readonly class CorrectionInput
         #[Assert\Length(max: self::MAX_TEXT)]
         public ?string $text = null,
         public bool $missed = false,
+        #[OA\Property(description: 'Declares the exchange made conform, its contact forgotten; only while the link makeConform is offered')]
+        public bool $madeConform = false,
     ) {
     }
 }

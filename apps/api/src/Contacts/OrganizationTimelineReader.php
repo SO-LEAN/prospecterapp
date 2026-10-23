@@ -4,6 +4,7 @@ namespace App\Contacts;
 
 use App\Contacts\Resource\OrganizationTimelineResource;
 use Prospecter\Core\PersonalData\Application\ConsultPersons\ConsultPersons;
+use Prospecter\Core\Prospecting\Application\ConsultExchangesToMakeConform\ConsultExchangesToMakeConform;
 use Prospecter\Core\Prospecting\Application\ConsultOrganization\ConsultOrganization;
 use Prospecter\Core\Prospecting\Application\ConsultOrganizationTimeline\ConsultOrganizationTimeline;
 use Prospecter\Core\Prospecting\Application\ExchangeResponse;
@@ -19,6 +20,7 @@ final readonly class OrganizationTimelineReader
 {
     public function __construct(
         private RefusalTranslatingHandler $consultOrganizationTimeline,
+        private RefusalTranslatingHandler $consultExchangesToMakeConform,
         private RefusalTranslatingHandler $consultOrganization,
         private RefusalTranslatingHandler $consultPersons,
         private OrganizationTimelinePresenter $presenter,
@@ -30,6 +32,20 @@ final readonly class OrganizationTimelineReader
         $timeline = ($this->consultOrganizationTimeline)(new ConsultOrganizationTimeline($reader, $organizationId, $after));
 
         return $this->presenter->present(
+            ($this->consultOrganization)(new ConsultOrganization($reader, $organizationId)),
+            $timeline,
+            ($this->consultPersons)(new ConsultPersons($reader, self::personIdsOf($timeline))),
+        );
+    }
+
+    /**
+     * Only its exchanges to make conform, their contact forgotten (ADR 0079).
+     */
+    public function readToMakeConform(string $reader, string $organizationId, ?string $after = null): OrganizationTimelineResource
+    {
+        $timeline = ($this->consultExchangesToMakeConform)(new ConsultExchangesToMakeConform($reader, $organizationId, $after));
+
+        return $this->presenter->presentToMakeConform(
             ($this->consultOrganization)(new ConsultOrganization($reader, $organizationId)),
             $timeline,
             ($this->consultPersons)(new ConsultPersons($reader, self::personIdsOf($timeline))),

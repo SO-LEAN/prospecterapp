@@ -35,6 +35,11 @@ final readonly class CorrectExchangeHandler implements CommandHandler
             by: $prospector,
             at: $command->executedAt,
         );
+
+        if ($command->madeConform) {
+            $exchange->declareConform(by: $prospector, at: $command->executedAt);
+        }
+
         $this->exchanges->save($exchange);
         $this->publishWhatHappenedTo($exchange);
     }

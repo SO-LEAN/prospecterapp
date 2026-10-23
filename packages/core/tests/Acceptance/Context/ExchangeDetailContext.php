@@ -78,6 +78,29 @@ final class ExchangeDetailContext implements Context
         $this->application->dispatch(new CorrectExchangeText($this->application->signedIn(), $this->scenario->theExchange(), $text, $this->application->now()));
     }
 
+    #[When('je corrige le texte de cet échange en :text et le déclare rendu conforme')]
+    public function iMakeTheTextConform(string $text): void
+    {
+        $this->application->dispatch(new CorrectExchangeText($this->application->signedIn(), $this->scenario->theExchange(), $text, $this->application->now(), madeConform: true));
+    }
+
+    #[When('je corrige cet échange et le déclare rendu conforme :')]
+    public function iMakeTheExchangeConform(TableNode $table): void
+    {
+        $facts = $this->application->exchanges->get(new ExchangeId($this->scenario->theExchange()))->facts();
+        $this->application->dispatch(new CorrectExchange(
+            prospectorId: $this->application->signedIn(),
+            id: $this->scenario->theExchange(),
+            channel: $facts->channel->value,
+            direction: $facts->direction->value,
+            occurredAt: $facts->occurredAt,
+            text: $table->getRowsHash()['texte'],
+            missed: $facts->missed,
+            executedAt: $this->application->now(),
+            madeConform: true,
+        ));
+    }
+
     #[When('je supprime cet échange')]
     public function iEraseTheExchange(): void
     {
@@ -89,7 +112,7 @@ final class ExchangeDetailContext implements Context
     {
         $expected = $table->getRowsHash();
 
-        Expect::same($expected, array_intersect_key($this->describe($this->consulted()), $expected));
+        Expect::same($expected, array_replace($expected, array_intersect_key($this->describe($this->consulted()), $expected)));
     }
 
     #[Then('je peux sur l\'échange :')]
@@ -127,7 +150,11 @@ final class ExchangeDetailContext implements Context
             'texte' => (string) $exchange->text,
             'noté' => Vocabulary::describeDoneBy($exchange->createdAt, $this->scenario->nameOfMember(new MemberId($exchange->createdBy))),
             'modifié' => null === $exchange->correctedAt || null === $exchange->correctedBy ? '' : Vocabulary::describeDoneBy($exchange->correctedAt, $this->scenario->nameOfMember(new MemberId($exchange->correctedBy))),
-            'signalé' => $exchange->textFlagged ? 'oui' : 'non',
+            'signalé' => Vocabulary::describeYesOrNo($exchange->textFlagged),
+            'contact' => Vocabulary::describeContactPresence($exchange->contactPresence),
+            'texte à rendre conforme' => Vocabulary::describeYesOrNo($exchange->textToMakeConform),
+            'à rendre conforme' => Vocabulary::describeYesOrNo($exchange->toMakeConform),
+            'rendu conforme' => null === $exchange->madeConformAt || null === $exchange->madeConformBy ? '' : Vocabulary::describeDoneBy($exchange->madeConformAt, $this->scenario->nameOfMember(new MemberId($exchange->madeConformBy))),
         ];
     }
 

@@ -11,6 +11,7 @@ use App\Exchanges\Resource\ExchangeDetailResource;
 use App\Exchanges\Resource\StampResource;
 use App\PersonalData\Resource\PersonNameResource;
 use App\Shared\Links;
+use App\Shared\Resource\LinkResource;
 use Prospecter\Core\PersonalData\Application\PersonResponse;
 use Prospecter\Core\Prospecting\Application\ConsultExchange\AttachmentResponse;
 use Prospecter\Core\Prospecting\Application\ConsultExchange\ExchangeDetailResponse;
@@ -23,6 +24,7 @@ final readonly class ExchangeDetailPresenter
     private const array ROUTES = [
         'CorrectExchange' => ['correctExchange', 'api_exchanges_correct'],
         'CorrectText' => ['correctText', 'api_exchanges_correct_text'],
+        'MakeConform' => ['makeConform', 'api_exchanges_correct_text'],
         'EraseExchange' => ['eraseExchange', 'api_exchanges_erase'],
         'AttachFile' => ['attachFile', 'api_exchanges_attach_file'],
     ];
@@ -49,9 +51,12 @@ final readonly class ExchangeDetailPresenter
             occurredAt: $exchange->occurredAt->format(\DateTimeInterface::ATOM),
             text: $exchange->text,
             textFlagged: $exchange->textFlagged,
+            textToMakeConform: $exchange->textToMakeConform,
+            toMakeConform: $exchange->toMakeConform,
             organizationIds: $exchange->organizationIds,
             noted: new StampResource($exchange->createdAt->format(\DateTimeInterface::ATOM), $authorOf($exchange->createdBy)),
             corrected: null === $exchange->correctedAt || null === $exchange->correctedBy ? null : new StampResource($exchange->correctedAt->format(\DateTimeInterface::ATOM), $authorOf($exchange->correctedBy)),
+            madeConform: null === $exchange->madeConformAt || null === $exchange->madeConformBy ? null : new StampResource($exchange->madeConformAt->format(\DateTimeInterface::ATOM), $authorOf($exchange->madeConformBy)),
             attachments: array_map(fn (AttachmentResponse $attachment): AttachmentResource => $this->presentAttachment($exchange, $attachment), $exchange->attachments),
             hiddenAttachments: $exchange->hiddenAttachments,
             links: $this->linksOf($exchange, $interlocutor),
@@ -65,7 +70,7 @@ final readonly class ExchangeDetailPresenter
     {
         $ids = ['id' => $exchange->id, 'attachmentId' => $attachment->id];
 
-        return new AttachmentResource($attachment->id, $attachment->name, $attachment->size, $attachment->mediaType, new AttachmentLinksResource(
+        return new AttachmentResource($attachment->id, $attachment->name, $attachment->size, $attachment->mediaType, $attachment->toMakeConform, new AttachmentLinksResource(
             $this->links->to('api_exchanges_download_attachment', $ids),
             in_array('RemoveAttachment', $exchange->possibleIntents, true) ? $this->links->to('api_exchanges_remove_attachment', $ids) : null,
         ));
@@ -85,8 +90,20 @@ final readonly class ExchangeDetailPresenter
 
         return new ExchangeDetailLinksResource(
             $this->links->to('api_exchanges_show', $id),
-            $this->links->to(InterlocutorResource::PERSON === $interlocutor->kind ? 'api_contacts_show' : 'api_organizations_show', ['id' => $interlocutor->id]),
+            $this->cardOf($interlocutor),
             ...$possible,
         );
+    }
+
+    /**
+     * The card of the contact or of the organization itself; a forgotten contact has none any more.
+     */
+    private function cardOf(InterlocutorResource $interlocutor): ?LinkResource
+    {
+        if (InterlocutorResource::FORGOTTEN === $interlocutor->presence) {
+            return null;
+        }
+
+        return $this->links->to(InterlocutorResource::PERSON === $interlocutor->kind ? 'api_contacts_show' : 'api_organizations_show', ['id' => $interlocutor->id]);
     }
 }

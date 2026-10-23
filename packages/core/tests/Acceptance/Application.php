@@ -51,6 +51,8 @@ use Prospecter\Core\Prospecting\Application\ChangeLogo\ChangeLogoHandler;
 use Prospecter\Core\Prospecting\Application\ConsultExchange\ConsultExchange;
 use Prospecter\Core\Prospecting\Application\ConsultExchange\ConsultExchangeHandler;
 use Prospecter\Core\Prospecting\Application\ConsultExchange\ExchangeDetailResponse;
+use Prospecter\Core\Prospecting\Application\ConsultExchangesToMakeConform\ConsultExchangesToMakeConform;
+use Prospecter\Core\Prospecting\Application\ConsultExchangesToMakeConform\ConsultExchangesToMakeConformHandler;
 use Prospecter\Core\Prospecting\Application\ConsultOrganization\ConsultOrganization;
 use Prospecter\Core\Prospecting\Application\ConsultOrganization\ConsultOrganizationHandler;
 use Prospecter\Core\Prospecting\Application\ConsultOrganizationTimeline\ConsultOrganizationTimeline;
@@ -69,6 +71,7 @@ use Prospecter\Core\Prospecting\Application\DownloadAttachment\DownloadAttachmen
 use Prospecter\Core\Prospecting\Application\DownloadAttachment\DownloadAttachmentHandler;
 use Prospecter\Core\Prospecting\Application\EraseExchange\EraseExchangeHandler;
 use Prospecter\Core\Prospecting\Application\IsProspectedBy\IsProspectedByHandler;
+use Prospecter\Core\Prospecting\Application\KeepExchangesOfForgottenContact\KeepExchangesOfForgottenContactHandler;
 use Prospecter\Core\Prospecting\Application\NoteExchange\NoteExchangeHandler;
 use Prospecter\Core\Prospecting\Application\NoteOrganizationExchange\NoteOrganizationExchangeHandler;
 use Prospecter\Core\Prospecting\Application\OrganizationResponse;
@@ -284,6 +287,11 @@ final class Application
         return $this->attempt(fn (): TimelineResponse => new RefusalTranslatingHandler(new ConsultOrganizationTimelineHandler($this->exchanges, $this->organizations, $this->prospectorService))($query));
     }
 
+    public function consultExchangesToMakeConform(ConsultExchangesToMakeConform $query): ?TimelineResponse
+    {
+        return $this->attempt(fn (): TimelineResponse => new RefusalTranslatingHandler(new ConsultExchangesToMakeConformHandler($this->exchanges, $this->organizations, $this->prospectorService))($query));
+    }
+
     public function consultTimelineIntents(ConsultTimelineIntents $query): ?TimelineIntentsResponse
     {
         return $this->attempt(fn (): TimelineIntentsResponse => new RefusalTranslatingHandler(new ConsultTimelineIntentsHandler($this->prospectorService, $this->contactOrganizations))($query));
@@ -380,6 +388,7 @@ final class Application
         return [
             new AttachCollectedContactHandler($this->organizations, $this->prospectorService, $this->events),
             new DetachForgottenContactHandler($this->organizations, $this->prospectorService, $this->events, $this->orphans),
+            new KeepExchangesOfForgottenContactHandler($this->exchanges, $this->prospectorService, $this->events),
             new ForgetContactsLeftWithoutOrganizationHandler($this->persons, $this->readerService, $this->events),
             new RegisterTheFounderHandler($this->members),
             new CollectTheFounderProfileHandler($this->persons),

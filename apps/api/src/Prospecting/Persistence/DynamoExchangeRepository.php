@@ -19,7 +19,9 @@ use Prospecter\Core\SharedKernel\Domain\Slice;
  *   (`TIMELINE#<account>#<person>`), under its position: the moment it happened and its id, the cursor of a slice;
  *   an exchange with the organization itself is in the timeline of no contact;
  * - `EXCHANGES#<organization>` / `EXCHANGE#<id>`: the exchanges kept for an organization, written with it, listed
- *   in `GSI1` in the timeline of the organization (`ORGANIZATION_TIMELINE#<organization>`) under the same position.
+ *   in `GSI1` in the timeline of the organization (`ORGANIZATION_TIMELINE#<organization>`) under the same position,
+ *   and, while the exchange is to make conform, in `GSI2` among those of the organization
+ *   (`TO_MAKE_CONFORM#<organization>`, ADR 0079), counted there.
  */
 final readonly class DynamoExchangeRepository implements ExchangeRepository
 {
@@ -43,7 +45,7 @@ final readonly class DynamoExchangeRepository implements ExchangeRepository
 
         $this->prospectingTable->transact([
             $this->prospectingTable->putting($this->itemOf($exchange, $document)),
-            ...$this->linksToItsOrganizations($document, $stored['exchange']['keptFor'] ?? []),
+            ...$this->linksToItsOrganizations($document, $exchange->isToMakeConform(), $stored['exchange']['keptFor'] ?? []),
         ]);
     }
 
@@ -54,7 +56,7 @@ final readonly class DynamoExchangeRepository implements ExchangeRepository
 
         $this->prospectingTable->transact([
             $this->prospectingTable->deleting(self::keyOf($exchange->id()), self::EXCHANGE),
-            ...$this->linksToItsOrganizations(['keptFor' => []] + $document, $stored['exchange']['keptFor'] ?? []),
+            ...$this->linksToItsOrganizations(['keptFor' => []] + $document, false, $stored['exchange']['keptFor'] ?? []),
         ]);
     }
 
@@ -63,6 +65,11 @@ final readonly class DynamoExchangeRepository implements ExchangeRepository
         $links = $this->prospectingTable->query(self::keptForKey($organization->value));
 
         return $this->exchangesOf($this->prospectingTable->items(array_map(static fn (array $link): array => [$link['SK'], self::EXCHANGE], $links)));
+    }
+
+    public function withContact(PersonId $contact, AccountId $accountId): array
+    {
+        return $this->exchangesOf($this->prospectingTable->query(self::timelineKey($accountId->value, $contact->value), Table::BY_GSI1));
     }
 
     public function timelineOf(PersonId $contact, AccountId $accountId, ?string $after, int $max): Slice
@@ -77,6 +84,18 @@ final readonly class DynamoExchangeRepository implements ExchangeRepository
         $links = $this->prospectingTable->query(self::organizationTimelineKey($organization->value), Table::BY_GSI1, $after, $max + 1);
 
         return Documents::slice($this->exchangesOf($this->itemsListedBy($links)), $max, self::positionOf(...));
+    }
+
+    public function toMakeConformFor(OrganizationId $organization, ?string $after, int $max): Slice
+    {
+        $links = $this->prospectingTable->query(self::toMakeConformKey($organization->value), Table::BY_GSI2, $after, $max + 1);
+
+        return Documents::slice($this->exchangesOf($this->itemsListedBy($links)), $max, self::positionOf(...));
+    }
+
+    public function countToMakeConformFor(OrganizationId $organization): int
+    {
+        return $this->prospectingTable->count(self::toMakeConformKey($organization->value), Table::BY_GSI2);
     }
 
     /**
@@ -110,18 +129,25 @@ final readonly class DynamoExchangeRepository implements ExchangeRepository
 
     /**
      * The links to write and to delete so that the organizations the exchange is kept for are those of the
-     * document, each at the moment of the exchange in the timeline of its organization: a correction may move it.
+     * document, each at the moment of the exchange in the timeline of its organization: a correction may move it;
+     * among those to make conform of its organization while it is.
      *
      * @param array<string, mixed> $document
      * @param list<string>         $storedKeptFor
      *
      * @return list<array<string, mixed>>
      */
-    private function linksToItsOrganizations(array $document, array $storedKeptFor): array
+    private function linksToItsOrganizations(array $document, bool $toMakeConform, array $storedKeptFor): array
     {
         $exchange = self::EXCHANGE.'#'.$document['id'];
         $position = $document['facts']['occurredAt'].'#'.$document['id'];
-        $link = static fn (string $organization): array => ['PK' => self::keptForKey($organization), 'SK' => $exchange, 'GSI1PK' => self::organizationTimelineKey($organization), 'GSI1SK' => $position];
+        $link = static fn (string $organization): array => [
+            'PK' => self::keptForKey($organization),
+            'SK' => $exchange,
+            'GSI1PK' => self::organizationTimelineKey($organization),
+            'GSI1SK' => $position,
+            ...($toMakeConform ? ['GSI2PK' => self::toMakeConformKey($organization), 'GSI2SK' => $position] : []),
+        ];
 
         return [
             ...array_map(fn (string $organization): array => $this->prospectingTable->putting($link($organization)), $document['keptFor']),
@@ -157,6 +183,11 @@ final readonly class DynamoExchangeRepository implements ExchangeRepository
     private static function organizationTimelineKey(string $organization): string
     {
         return 'ORGANIZATION_TIMELINE#'.$organization;
+    }
+
+    private static function toMakeConformKey(string $organization): string
+    {
+        return 'TO_MAKE_CONFORM#'.$organization;
     }
 
     private static function timelineKey(string $accountId, string $contact): string
