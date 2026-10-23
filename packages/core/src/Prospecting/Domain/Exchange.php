@@ -197,7 +197,7 @@ final class Exchange implements ReleasesEvents
      */
     public function isToMakeConform(): bool
     {
-        return $this->awaitsBeingMadeConform() || $this->areAttachmentsToMakeConform() && [] !== $this->attachments;
+        return $this->awaitsBeingMadeConform() || $this->hasFilesToMakeConform();
     }
 
     public function isTextToMakeConform(): bool
@@ -211,6 +211,11 @@ final class Exchange implements ReleasesEvents
     public function areAttachmentsToMakeConform(): bool
     {
         return $this->contactForgotten;
+    }
+
+    private function hasFilesToMakeConform(): bool
+    {
+        return $this->areAttachmentsToMakeConform() && [] !== $this->attachments;
     }
 
     private function awaitsBeingMadeConform(): bool

@@ -254,9 +254,6 @@ final class Vocabulary
     }
 
     /**
-     * Who did something and when, as a sentence says it: "le 15/10/2026 à 14:35 par Michel".
-     */
-    /**
      * Whether the contact of an exchange is still one of the organization of the timeline, removed from it, or
      * forgotten; nothing for the organization itself.
      */
@@ -275,6 +272,9 @@ final class Vocabulary
         return $answer ? 'oui' : 'non';
     }
 
+    /**
+     * Who did something and when, as a sentence says it: "le 15/10/2026 à 14:35 par Michel".
+     */
     public static function describeDoneBy(\DateTimeImmutable $at, string $by): string
     {
         return sprintf('le %s à %s par %s', $at->format('d/m/Y'), $at->format('H:i'), $by);
