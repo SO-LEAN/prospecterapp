@@ -52,7 +52,7 @@ test('sign in, start prospecting an organization, change it section by section, 
   })
 
   await test.step('a section changes alone, the others stay as they were', async () => {
-    await page.getByRole('button', { name: 'Modifier : Coordonnées' }).click()
+    await page.getByRole('button', { name: 'Modifier : Coordonnées' }).click()
     await page.getByLabel(/^Téléphone/).fill('03 88 00 00 00')
     await page.getByRole('button', { name: 'Enregistrer' }).click()
 
@@ -66,7 +66,7 @@ test('sign in, start prospecting an organization, change it section by section, 
   })
 
   await test.step('leaving a section form, then back, returns to the dashboard', async () => {
-    await page.getByRole('button', { name: 'Modifier : Observations' }).click()
+    await page.getByRole('button', { name: 'Modifier : Observations' }).click()
     await page.getByRole('button', { name: 'Annuler' }).click()
     await expect(organizationPage).toBeVisible()
     await page.getByRole('button', { name: 'Retour' }).click()
@@ -83,7 +83,7 @@ test('sign in, start prospecting an organization, change it section by section, 
     const lastName = `Lovelace ${Date.now()}`
     const contact = `Ada ${lastName}`
     await page.goto(organizationUrl)
-    await page.getByRole('button', { name: 'Modifier : Contacts' }).click()
+    await page.getByRole('button', { name: 'Modifier : Contacts' }).click()
     await page.getByLabel('Prénom').fill('Ada')
     await page.getByLabel('Nom', { exact: true }).fill(lastName)
     await page.getByLabel(/^Fonction/).fill('Directrice commerciale')
@@ -108,7 +108,7 @@ test('sign in, start prospecting an organization, change it section by section, 
 
   await test.step('the route to the organization starts from my organization', async () => {
     await page.goto('/account')
-    await page.getByRole('button', { name: 'Modifier : Adresse de mon organisation' }).click()
+    await page.getByRole('button', { name: 'Modifier : Adresse de mon organisation' }).click()
     await page.getByLabel('Ville').fill('Strasbourg')
     await page.getByRole('button', { name: 'Enregistrer' }).click()
     await expect(page.getByRole('main').getByText('Strasbourg', { exact: true })).toBeVisible()
@@ -131,11 +131,11 @@ test('sign in, start prospecting an organization, change it section by section, 
 
   await test.step('my account changes section by section', async () => {
     await page.getByRole('link', { name: 'Mon compte' }).first().click()
-    await page.getByRole('button', { name: 'Modifier : Nom' }).click()
+    await page.getByRole('button', { name: 'Modifier : Nom' }).click()
     await page.getByLabel('Prénom').fill('Paul')
     await page.getByRole('button', { name: 'Enregistrer' }).click()
 
-    await expect(page.getByRole('button', { name: 'Modifier : Nom' })).toBeVisible()
+    await expect(page.getByRole('button', { name: 'Modifier : Nom' })).toBeVisible()
     await expect(page.getByRole('main').getByText('Paul', { exact: true })).toBeVisible()
     await expect(page.getByRole('main').getByText('SOLEAN IT', { exact: true })).toBeVisible()
   })

@@ -184,7 +184,7 @@ describe('ExchangeDetailSheet', () => {
 
     await user.click(screen.getByRole('button', { name: 'Supprimer' }))
 
-    expect(await screen.findByRole('dialog', { name: 'Supprimer cet échange ?' })).toBeInTheDocument()
+    expect(await screen.findByRole('dialog', { name: 'Supprimer cet échange ?' })).toBeInTheDocument()
     expect(screen.getByRole('button', { name: 'Supprimer l’échange' })).toBeInTheDocument()
   })
 

@@ -57,7 +57,7 @@ describe('the reason of a refusal', () => {
 
     expect(setError).toHaveBeenCalledWith('phoneNumber', {
       type: 'server',
-      message: 'Le numéro « 12 » n’est pas un numéro de téléphone valide.',
+      message: 'Le numéro « 12 » n’est pas un numéro de téléphone valide.',
     })
   })
 

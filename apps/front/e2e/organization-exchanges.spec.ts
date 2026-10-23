@@ -15,7 +15,7 @@ test('the timeline of an organization gathers its exchanges and those of its con
     await page.getByLabel('Raison sociale').fill(organization)
     await page.getByRole('button', { name: 'Commencer à prospecter' }).click()
     for (const lastName of ['Un', 'Deux']) {
-      await page.getByRole('button', { name: 'Modifier : Contacts' }).click()
+      await page.getByRole('button', { name: 'Modifier : Contacts' }).click()
       await page.getByLabel('Prénom').fill('Test')
       await page.getByLabel('Nom', { exact: true }).fill(lastName)
       await page.getByRole('button', { name: 'Enregistrer le contact' }).click()
