@@ -28,6 +28,7 @@ const unknownAddress = { street: '12 rue Imaginaire', postalCode: '99999', city:
 const strasbourg = { street: '1 place Kléber', postalCode: '67000', city: 'Strasbourg', country: 'FR' }
 const kleber = { latitude: 48.5834, longitude: 7.7456 }
 const UNLOCATED = 'Non géolocalisée'
+const NO_LOCATION = 'Adresse non géolocalisée.'
 
 const anOrganization = (organization: Partial<Organization>): Organization => ({
   id: BABBAGE,
@@ -95,20 +96,25 @@ describe('AddressSection', () => {
     expect(await screen.findByRole('tooltip')).toHaveTextContent(
       'Adresse introuvable sur la carte : vérifiez-la pour la voir sur la carte et dans les itinéraires.',
     )
-    expect(screen.getByText('Adresse non géolocalisée.')).toBeInTheDocument()
+    expect(screen.getByText(NO_LOCATION)).toBeInTheDocument()
   })
 
-  it('marks nothing without an address', () => {
+  it('says only that nothing is provided without an address', () => {
     renderTheSection(anOrganization({ address: null, location: null }))
 
     expect(screen.getByText('Non renseigné')).toBeInTheDocument()
     expect(screen.queryByText(UNLOCATED)).not.toBeInTheDocument()
+    expect(screen.queryByText(NO_LOCATION)).not.toBeInTheDocument()
+    expect(screen.queryByRole('figure')).not.toBeInTheDocument()
   })
 
-  it('marks nothing on a geolocated address', () => {
+  it('shows the map and the directions of a geolocated address, without a mark', () => {
     renderTheSection(anOrganization({ address: strasbourg, location: kleber }))
 
+    expect(screen.getByRole('figure', { name: 'Carte de Babbage & Co' })).toBeInTheDocument()
+    expect(screen.getByRole('link', { name: 'Itinéraire' })).toBeInTheDocument()
     expect(screen.queryByText(UNLOCATED)).not.toBeInTheDocument()
+    expect(screen.queryByText(NO_LOCATION)).not.toBeInTheDocument()
   })
 
   it('takes the mark off once the address is corrected, and shows the map', async () => {
