@@ -1,4 +1,4 @@
-import { useMutation, useQueryClient } from '@tanstack/react-query'
+import { type QueryClient, useMutation, useQueryClient } from '@tanstack/react-query'
 import { useTranslation } from 'react-i18next'
 import { toast } from 'sonner'
 import { api, fetchClient } from '@/shared/api/client'
@@ -83,7 +83,18 @@ function useStoreOrganizationAndItsContacts() {
     store(organization)
     void queryClient.invalidateQueries({ queryKey: queryKeys.organizationContacts })
     void queryClient.invalidateQueries({ queryKey: queryKeys.contactList })
+    readTheTimelinesAgain(queryClient)
   }
+}
+
+/**
+ * A contact who leaves an organization is struck through in its timeline, no longer once back; erased with its
+ * last organization, their exchanges are to make conform (ADR 0079).
+ */
+function readTheTimelinesAgain(queryClient: QueryClient) {
+  void queryClient.invalidateQueries({ queryKey: queryKeys.organizationTimelines })
+  void queryClient.invalidateQueries({ queryKey: queryKeys.exchangesToMakeConform })
+  void queryClient.invalidateQueries({ queryKey: queryKeys.exchange })
 }
 
 /** A new contact names the organization: the organization and its contacts are read again. */

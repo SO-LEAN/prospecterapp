@@ -1,3 +1,4 @@
+import { Link } from '@tanstack/react-router'
 import {
   ArrowDownLeft,
   ArrowUpRight,
@@ -67,14 +68,19 @@ export function ExchangeLine({
   )
 }
 
-/** Who communicated, when said, its channel, its direction (missed for a call that did not go through) and when, then what follows. */
+/**
+ * Who communicated, when said, a link to their card when given, its channel, its direction (missed for a call
+ * that did not go through) and when, then what follows.
+ */
 export function ExchangeSummary({
   exchange,
   interlocutor,
+  linkedToTheCard = false,
   children,
 }: {
   exchange: Summarized
   interlocutor?: Interlocutor
+  linkedToTheCard?: boolean
   children?: ReactNode
 }) {
   const { t } = useTranslation()
@@ -88,7 +94,7 @@ export function ExchangeSummary({
         <ChannelIcon aria-hidden className="size-4" />
       </span>
       <div className="min-w-0 flex-1">
-        {interlocutor && <InterlocutorName interlocutor={interlocutor} />}
+        {interlocutor && <InterlocutorName interlocutor={interlocutor} linkedToTheCard={linkedToTheCard} />}
         <p className="flex items-center gap-1.5 font-medium">
           {t('exchanges.summary', { channel: t(`exchanges.channels.${exchange.channel}`), direction })}
           <DirectionIcon
@@ -106,21 +112,51 @@ export function ExchangeSummary({
 }
 
 /** Its name, struck through once the contact left the organization; "Contact effacé" once forgotten. */
-function InterlocutorName({ interlocutor }: { interlocutor: Interlocutor }) {
+function InterlocutorName({
+  interlocutor,
+  linkedToTheCard,
+}: {
+  interlocutor: Interlocutor
+  linkedToTheCard: boolean
+}) {
   const { t } = useTranslation()
   const Icon = INTERLOCUTOR_ICONS[interlocutor.kind]
   const removed = interlocutor.presence === 'removed'
-  const name = interlocutor.presence === 'forgotten' ? null : interlocutor.name
+  const name =
+    (interlocutor.presence === 'forgotten' ? null : interlocutor.name) ?? t('exchanges.unknownPerson')
+  const className = cn('truncate', removed && 'text-muted-foreground line-through')
 
   return (
     <p className="flex min-w-0 items-center gap-1.5 font-semibold">
       <Icon aria-hidden className="size-4 shrink-0 text-muted-foreground" />
       <span className="sr-only">{t(`exchanges.interlocutors.${interlocutor.kind}`)}</span>
-      <span className={cn('truncate', removed && 'text-muted-foreground line-through')}>
-        {name ?? t('exchanges.unknownPerson')}
-      </span>
+      {linkedToTheCard ? (
+        <CardLink interlocutor={interlocutor} className={cn(className, 'hover:underline')}>
+          {name}
+        </CardLink>
+      ) : (
+        <span className={className}>{name}</span>
+      )}
       {removed && <span className="sr-only">{t('exchanges.removedContact')}</span>}
     </p>
+  )
+}
+
+type CardLinkProps = { interlocutor: Interlocutor; className: string; children: ReactNode }
+
+function CardLink({ interlocutor, className, children }: CardLinkProps) {
+  return interlocutor.kind === 'person' ? (
+    <Link to="/contacts/$contactId" params={{ contactId: interlocutor.id }} className={className}>
+      {children}
+    </Link>
+  ) : (
+    <Link
+      to="/organizations/$organizationId"
+      params={{ organizationId: interlocutor.id }}
+      className={className}
+    >
+      {children}
+    </Link>
   )
 }
 
