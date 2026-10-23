@@ -49,8 +49,8 @@ export function AddressSection({
         </SectionForm>
       )}
     >
-      <div className="space-y-4">
-        {lines.length > 0 ? (
+      {lines.length > 0 ? (
+        <div className="space-y-4">
           <div className="flex flex-wrap items-start justify-between gap-2">
             <address className="not-italic">
               {lines.map((line) => (
@@ -59,31 +59,42 @@ export function AddressSection({
             </address>
             {!location && <ExplainedUnlocatedBadge />}
           </div>
-        ) : (
-          <p className="text-muted-foreground">{t('common.notProvided')}</p>
-        )}
-        {location ? (
-          <>
-            <GeoMap
-              className="h-72"
-              markers={[
-                {
-                  id: organization.id,
-                  ...location,
-                  label: organization.name,
-                  imageUrl: organization.logo?.smallUrl,
-                },
-              ]}
-              zoom={14}
-            />
-            <DirectionsLink to={location} start={start} />
-          </>
-        ) : (
-          <p className="grid h-40 place-items-center rounded-xl border border-dashed text-muted-foreground">
-            {t('organizations.address.noLocation')}
-          </p>
-        )}
-      </div>
+          <TheMapOf organization={organization} start={start} />
+        </div>
+      ) : (
+        <p className="text-muted-foreground">{t('common.notProvided')}</p>
+      )}
     </EditableSection>
+  )
+}
+
+function TheMapOf({ organization, start }: { organization: Organization; start?: Location | null }) {
+  const { t } = useTranslation()
+  const { location } = organization
+
+  if (!location) {
+    return (
+      <p className="grid h-40 place-items-center rounded-xl border border-dashed text-muted-foreground">
+        {t('organizations.address.noLocation')}
+      </p>
+    )
+  }
+
+  return (
+    <>
+      <GeoMap
+        className="h-72"
+        markers={[
+          {
+            id: organization.id,
+            ...location,
+            label: organization.name,
+            imageUrl: organization.logo?.smallUrl,
+          },
+        ]}
+        zoom={14}
+      />
+      <DirectionsLink to={location} start={start} />
+    </>
   )
 }
