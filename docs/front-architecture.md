@@ -35,14 +35,14 @@ src/
   routes/               one file per URL, thin: loader + page component
   features/<feature>/   business screens: queries.ts, mutations.ts, schema.ts, components/
   shared/               reusable, business-agnostic code
-    api/                client.ts, schema.d.ts (generated), problem.ts, keys.ts, slices.ts, upload.ts
+    api/                client.ts, schema.d.ts (generated), problem.ts, keys.ts, exchanges.ts (what several features read again once a contact leaves an organization or is erased), slices.ts, upload.ts
     auth/               session.ts: signing in on Cognito, the tokens of the tab; sign-in-page.ts: the screen and its returnTo
     config/             env.ts: the configuration from /config.js (window.prospecter), else the VITE_* variables (ADR 0066)
     ui/                 design system components (shadcn) + form/, feedback/, map/
     i18n/               setup and fr.ts
     forms/              section form, FormField, shared field groups (AddressFields, ContactDetailsFields, LegalIdentityFields, PersonNameFields)
     lib/ hooks/ stores/ utilities (route-params.ts: UUID route params, a 404 of the API as a not found page), hooks, Zustand stores
-  test/setup.ts         Vitest setup
+  test/                 setup.ts: the Vitest setup; render-in-a-router.tsx: renders a component holding links in a memory router
 e2e/                    Playwright journeys, one at a time; wait-for-the-stack.ts, their global setup, waits for the SPA, the api and the storage; sign-in.ts signs the demonstration member in; colors.ts reads the painted colors and their WCAG contrast
 ```
 
