@@ -1,7 +1,7 @@
 # 0049. Lists come in slices after a cursor, never in numbered pages
 
 - Date: 2026-10-16
-- Status: Accepted, the order and the cursor of a timeline superseded by [0074](0074-an-exchange-with-a-contact-is-an-aggregate-of-prospecting.md)
+- Status: Accepted, the order and the cursor of a timeline superseded by [0074](0074-an-exchange-with-a-contact-is-an-aggregate-of-prospecting.md), the exchanges to make conform of an organization counted since [0079](0079-the-exchanges-of-a-forgotten-contact-stay-to-make-conform.md)
 - Implemented by: `packages/core/src/SharedKernel/Domain/Slice.php`, the search use cases (`after`, `max`, `next`), the links `next` of the lists of the API, `apps/front/src/shared/api/slices.ts`
 
 ## Context
