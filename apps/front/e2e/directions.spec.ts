@@ -7,6 +7,7 @@ const TO_COLMAR = 'to=48.0794%2C7.3585'
 
 const STRASBOURG = { latitude: 48.5834, longitude: 7.7456 }
 const COLMAR = { latitude: 48.0794, longitude: 7.3585 }
+const IN_COLMAR = { street: '1 place de la Cathédrale', postalCode: '68000', city: 'Colmar', country: 'FR' }
 const AN_ORGANIZATION = /^\/api\/organizations\/[^/]+$/
 
 test.beforeEach(async ({ page, context }) => {
@@ -14,13 +15,16 @@ test.beforeEach(async ({ page, context }) => {
   await theOrganizationsOpenedInColmar(page)
 })
 
-/** The organization opened placed in Colmar, whatever the local data say of it. */
+/** The organization opened at an address of Colmar and placed there, whatever the local data say of it. */
 async function theOrganizationsOpenedInColmar(page: Page) {
   await page.route(
     (url) => AN_ORGANIZATION.test(url.pathname),
     async (route) => {
       const response = await route.fetch()
-      await route.fulfill({ response, json: { ...(await response.json()), location: COLMAR } })
+      await route.fulfill({
+        response,
+        json: { ...(await response.json()), address: IN_COLMAR, location: COLMAR },
+      })
     },
   )
 }
