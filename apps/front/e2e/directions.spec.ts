@@ -46,6 +46,7 @@ async function myOrganizationAt(page: Page, location: typeof STRASBOURG | null) 
 
 async function openTheRouteToBabbage(page: Page) {
   await page.getByRole('link', { name: 'Organisations' }).first().click()
+  await page.getByRole('searchbox').fill('Babbage')
   await page.getByRole('link', { name: /Babbage & Co/ }).click()
   const route = page.waitForEvent('popup')
   await page.getByRole('link', { name: 'Itinéraire' }).click()
