@@ -230,7 +230,7 @@ final class Application
 
     public function consultOrganization(ConsultOrganization $query): ?OrganizationResponse
     {
-        return $this->attempt(fn (): OrganizationResponse => new RefusalTranslatingHandler(new ConsultOrganizationHandler($this->organizations, $this->prospectorService))($query));
+        return $this->attempt(fn (): OrganizationResponse => new RefusalTranslatingHandler(new ConsultOrganizationHandler($this->organizations))($query));
     }
 
     public function searchProspectedOrganizations(SearchProspectedOrganizations $query): ?SearchProspectedOrganizationsResponse
@@ -322,14 +322,14 @@ final class Application
     {
         return [
             new StartProspectingHandler($this->organizations, $this->prospectorService, $this->events, $this->geoLocalizer, $this->organizationEmails),
-            new ReviseLegalIdentityHandler($this->organizations, $this->prospectorService, $this->events),
-            new ChangeContactDetailsHandler($this->organizations, $this->prospectorService, $this->events, $this->organizationEmails),
-            new RelocateHandler($this->organizations, $this->prospectorService, $this->events, $this->geoLocalizer),
-            new WriteObservationsHandler($this->organizations, $this->prospectorService, $this->events),
-            new AttachToHoldingHandler($this->organizations, $this->prospectorService, $this->events),
-            new DetachFromHoldingHandler($this->organizations, $this->prospectorService, $this->events),
-            new ChangeLogoHandler($this->organizations, $this->prospectorService, $this->events, $this->files),
-            new RemoveLogoHandler($this->organizations, $this->prospectorService, $this->events, $this->files),
+            new ReviseLegalIdentityHandler($this->organizations, $this->events),
+            new ChangeContactDetailsHandler($this->organizations, $this->events, $this->organizationEmails),
+            new RelocateHandler($this->organizations, $this->events, $this->geoLocalizer),
+            new WriteObservationsHandler($this->organizations, $this->events),
+            new AttachToHoldingHandler($this->organizations, $this->events),
+            new DetachFromHoldingHandler($this->organizations, $this->events),
+            new ChangeLogoHandler($this->organizations, $this->events, $this->files),
+            new RemoveLogoHandler($this->organizations, $this->events, $this->files),
             new RenamePersonHandler($this->persons, $this->readerService, $this->events),
             new ChangePersonContactDetailsHandler($this->persons, $this->readerService, $this->events, $this->personEmails),
             new ChangePersonPictureHandler($this->persons, $this->readerService, $this->events, $this->files),
@@ -341,16 +341,16 @@ final class Application
             new CollectContactHandler($this->persons, $this->readerService, $this->prospectedOrganizations, $this->events, $this->personEmails),
             new ChangeJobTitleHandler($this->persons, $this->readerService, $this->events),
             new ForgetContactHandler($this->persons, $this->readerService, $this->events),
-            new AddContactHandler($this->organizations, $this->prospectorService, $this->knownContacts, $this->events),
-            new RemoveContactHandler($this->organizations, $this->prospectorService, $this->events, $this->orphans),
-            new StopProspectingHandler($this->organizations, $this->prospectorService, $this->events, $this->orphans),
+            new AddContactHandler($this->organizations, $this->knownContacts, $this->events),
+            new RemoveContactHandler($this->organizations, $this->events, $this->orphans),
+            new StopProspectingHandler($this->organizations, $this->events, $this->orphans),
             new NoteExchangeHandler($this->exchanges, $this->prospectorService, $this->contactOrganizations, $this->events),
-            new NoteOrganizationExchangeHandler($this->exchanges, $this->organizations, $this->prospectorService, $this->contactOrganizations, $this->events),
-            new CorrectExchangeHandler($this->exchanges, $this->prospectorService, $this->events),
-            new CorrectExchangeTextHandler($this->exchanges, $this->prospectorService, $this->events),
-            new EraseExchangeHandler($this->exchanges, $this->prospectorService, $this->events, $this->attachedFiles),
-            new AttachFileHandler($this->exchanges, $this->prospectorService, $this->privateStorage, $this->events),
-            new RemoveAttachmentHandler($this->exchanges, $this->prospectorService, $this->privateStorage, $this->events),
+            new NoteOrganizationExchangeHandler($this->exchanges, $this->organizations, $this->contactOrganizations, $this->events),
+            new CorrectExchangeHandler($this->exchanges, $this->events),
+            new CorrectExchangeTextHandler($this->exchanges, $this->events),
+            new EraseExchangeHandler($this->exchanges, $this->events, $this->attachedFiles),
+            new AttachFileHandler($this->exchanges, $this->privateStorage, $this->events),
+            new RemoveAttachmentHandler($this->exchanges, $this->privateStorage, $this->events),
         ];
     }
 
@@ -386,9 +386,9 @@ final class Application
     private function eventHandlers(): array
     {
         return [
-            new AttachCollectedContactHandler($this->organizations, $this->prospectorService, $this->events),
-            new DetachForgottenContactHandler($this->organizations, $this->prospectorService, $this->events, $this->orphans),
-            new KeepExchangesOfForgottenContactHandler($this->exchanges, $this->prospectorService, $this->events),
+            new AttachCollectedContactHandler($this->organizations, $this->events),
+            new DetachForgottenContactHandler($this->organizations, $this->events, $this->orphans),
+            new KeepExchangesOfForgottenContactHandler($this->exchanges, $this->events),
             new ForgetContactsLeftWithoutOrganizationHandler($this->persons, $this->readerService, $this->events),
             new RegisterTheFounderHandler($this->members),
             new CollectTheFounderProfileHandler($this->persons),
@@ -398,7 +398,7 @@ final class Application
             new PublishContactCollectedHandler($this->events),
             new PublishContactForgottenHandler($this->events),
             new PublishContactsLeftWithoutOrganizationHandler($this->events),
-            new StopKeepingExchangesHandler($this->exchanges, $this->prospectorService, $this->events, $this->attachedFiles),
+            new StopKeepingExchangesHandler($this->exchanges, $this->events, $this->attachedFiles),
         ];
     }
 

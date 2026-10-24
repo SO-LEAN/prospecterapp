@@ -22,10 +22,11 @@ final readonly class ExchangeDetailResponse
      * @param string|null              $contactPresence by the values of `ContactPresence`, none for the organization itself
      * @param list<string>             $organizationIds the organizations it is kept for
      * @param list<AttachmentResponse> $attachments     the files joined to it, in the order they were
-     * @param list<string>             $possibleIntents names of what the prospector may do with it: CorrectExchange, CorrectText, MakeConform, EraseExchange, AttachFile, RemoveAttachment
+     * @param list<string>             $possibleIntents names of what its state offers now: CorrectExchange, CorrectText, MakeConform, EraseExchange, AttachFile, RemoveAttachment
      */
     private function __construct(
         public string $id,
+        public string $accountId,
         public ?string $personId,
         public ?string $contactPresence,
         public string $channel,
@@ -58,6 +59,7 @@ final readonly class ExchangeDetailResponse
 
         return new self(
             id: $exchange->id()->value,
+            accountId: $exchange->accountId()->value,
             personId: $exchange->contact()?->value,
             contactPresence: $exchange->contactPresence()?->value,
             channel: $facts->channel->value,
@@ -77,7 +79,7 @@ final readonly class ExchangeDetailResponse
             madeConformAt: $madeConform?->at,
             attachments: array_map(static fn (Attachment $attachment): AttachmentResponse => AttachmentResponse::of($attachment, $exchange), $attachments),
             hiddenAttachments: count($exchange->attachments()) - count($attachments),
-            possibleIntents: array_map(static fn (ExchangeIntent $intent): string => $intent->name, $exchange->possibleIntentsOf($prospector)),
+            possibleIntents: array_map(static fn (ExchangeIntent $intent): string => $intent->name, $exchange->possibleIntents()),
         );
     }
 }

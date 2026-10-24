@@ -6,6 +6,8 @@ use App\Prospecting\Resource\ExchangeLinksResource;
 use App\Prospecting\Resource\ExchangeResource;
 use App\Prospecting\Resource\TimelineLinksResource;
 use App\Prospecting\Resource\TimelineResource;
+use App\Prospecting\TimelineVoter;
+use App\Security\IntentLinks;
 use App\Shared\Links;
 use Prospecter\Core\Prospecting\Application\ExchangeResponse;
 use Prospecter\Core\Prospecting\Application\TimelineResponse;
@@ -18,7 +20,7 @@ final readonly class TimelinePresenter
 {
     private const array CONTACT_ROUTES = ['api_contacts_timeline', 'api_contacts_note_exchange'];
 
-    public function __construct(private Links $links)
+    public function __construct(private Links $links, private IntentLinks $intents)
     {
     }
 
@@ -31,7 +33,7 @@ final readonly class TimelinePresenter
     }
 
     /**
-     * Itself, the next slice, and noting an exchange when the prospector may.
+     * Itself, the next slice, and noting an exchange when the signed-in member may (`IntentLinks`).
      *
      * @param array{string, string} $routes  the route of the timeline and the route noting an exchange in it
      * @param array<string, string> $subject the parameters naming whose timeline it is
@@ -43,7 +45,7 @@ final readonly class TimelinePresenter
         return new TimelineLinksResource(
             $this->links->to($timeline, $subject),
             null === $response->next ? null : $this->links->to($timeline, $subject + ['after' => $response->next]),
-            in_array('NoteExchange', $response->possibleIntents, true) ? $this->links->to($noteExchange, $subject) : null,
+            $this->intents->shows(TimelineVoter::NOTE_EXCHANGE, $response, $response->possibleIntents) ? $this->links->to($noteExchange, $subject) : null,
         );
     }
 

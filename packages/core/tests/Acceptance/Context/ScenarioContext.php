@@ -287,11 +287,11 @@ final class ScenarioContext implements Context
     }
 
     /**
-     * A prospector of the account owning this organization, to arrange its state the way the business allows.
+     * A member of the account owning this organization, the author of what a scenario arranges.
      */
-    public function managerOf(Organization $organization): Prospector
+    public function managerOf(Organization $organization): MemberId
     {
-        return $this->prospectorOf($organization->accountId());
+        return new MemberId($this->application->newIdentity());
     }
 
     public function prospectorOf(AccountId $accountId): Prospector

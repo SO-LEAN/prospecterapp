@@ -2,7 +2,7 @@
 
 Two loops, as in *Growing Object-Oriented Software*:
 
-- **Acceptance (outer loop)**: a Gherkin scenario, in French, states a business rule at the entrance of the hexagon. It is written first and stays red until the rule works. It knows requests, responses and the state of the outside world, never how a use case does its job, so refactoring does not touch it.
+- **Acceptance (outer loop)**: a Gherkin scenario, in French, states a business rule at the entrance of the hexagon. It is written first and stays red until the rule works. It knows requests, responses and the state of the outside world, never how a use case does its job, so refactoring does not touch it. The access to a resource of Prospecting (unknown for another account, refused without the right to manage personal data) is no rule of the core: the voters of the API check it, and its tests prove it (ADR 0081).
 - **Unit (inner loop)**: PHPUnit for what a scenario cannot reach or would express clumsily for pure logic rich in edge cases (`tests/Domain`: `Email`, identities, and the intents tests of `Organization`, `Account` and `Person`: every intention is refused exactly when the aggregate does not offer it, i.e. when its API link is missing; `tests/Application`: the translation of the refusals; `tests/Architecture`: the boundaries). A unit test checks a behaviour, never a structure (no getter and setter tests).
 
 ## Nothing inside the hexagon is doubled

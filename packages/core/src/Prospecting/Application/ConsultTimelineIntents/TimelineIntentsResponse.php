@@ -9,7 +9,7 @@ use Prospecter\Core\Prospecting\Domain\TimelineIntent;
 final readonly class TimelineIntentsResponse
 {
     /**
-     * @param list<string> $possibleIntents names of what the prospector may do with the timeline: ConsultTimeline, NoteExchange
+     * @param list<string> $possibleIntents names of what the timeline offers, nothing for a person who is no contact: ConsultTimeline, NoteExchange
      */
     private function __construct(public array $possibleIntents)
     {

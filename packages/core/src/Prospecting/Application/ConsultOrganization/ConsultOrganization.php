@@ -7,7 +7,6 @@ namespace Prospecter\Core\Prospecting\Application\ConsultOrganization;
 final readonly class ConsultOrganization
 {
     public function __construct(
-        public string $prospectorId,
         public string $id,
     ) {
     }

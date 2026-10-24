@@ -6,7 +6,7 @@ This guide is alive: rules get added and sharpened as the code is improved, iter
 
 ## 1. Names
 
-- **Reveal the intention.** A name says why it exists and how it is used; if it needs a comment, it is the wrong name. `Organization::possibleIntentsOf()`, `makeRoomForThePopupAbove()`.
+- **Reveal the intention.** A name says why it exists and how it is used; if it needs a comment, it is the wrong name. `Organization::possibleIntents()`, `makeRoomForThePopupAbove()`.
 - **Make meaningful distinctions.** No number series (`$organization2`), no noise words (`Data`, `Info`, `Manager`, `Object`). The type does not belong in the name: `$customers`, not `$customerList`.
 - **Pronounceable and searchable.** No abbreviations (`$org`, `$req`), no single letters except tiny loop counters and closure parameters read on the same line.
 - **No encodings.** No Hungarian notation, no `m_` or `$str` prefixes, no `I` prefix nor `Interface` suffix on interfaces, no `Impl` on classes: the interface says the role (`OrganizationRepository`), an implementation its technology (`DynamoOrganizationRepository`, `InMemoryOrganizationRepository`). PHP types carry the type.

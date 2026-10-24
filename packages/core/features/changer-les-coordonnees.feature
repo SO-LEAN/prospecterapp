@@ -52,10 +52,3 @@ Fonctionnalité: Changer les coordonnées d'une organisation
     Quand je change les coordonnées de "contact@globex.test" :
       | e-mail | |
     Alors c'est refusé : "At least one is mandatory : corporate name or email"
-
-  Scénario: L'organisation d'une autre organisation est introuvable
-    Soit l'organisation "Concurrent" qui utilise Prospecter
-    Et l'organisation "Initech" appartient à "Concurrent"
-    Quand je change les coordonnées de "Initech" :
-      | e-mail | hello@initech.test |
-    Alors c'est introuvable

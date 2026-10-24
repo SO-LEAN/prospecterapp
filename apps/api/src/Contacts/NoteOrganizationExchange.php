@@ -4,6 +4,7 @@ namespace App\Contacts;
 
 use App\Contacts\Resource\OrganizationTimelineResource;
 use App\Prospecting\Input\OrganizationExchangeInput;
+use App\Prospecting\OrganizationVoter;
 use App\Security\User;
 use App\Shared\CommandBus;
 use App\Shared\Identities;
@@ -11,6 +12,7 @@ use App\Shared\Resource\ProblemResource;
 use Nelmio\ApiDocBundle\Attribute\Model;
 use OpenApi\Attributes as OA;
 use Prospecter\Core\Prospecting\Application\NoteOrganizationExchange\NoteOrganizationExchange as NoteOrganizationExchangeCommand;
+use Prospecter\Core\Prospecting\Application\OrganizationResponse;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\Clock\ClockInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -34,6 +36,7 @@ final class NoteOrganizationExchange extends AbstractController
     }
 
     #[Route('/api/organizations/{id}/exchanges', name: 'api_organizations_note_exchange', requirements: ['id' => Requirement::UUID], methods: ['POST'])]
+    #[IsGranted(OrganizationVoter::NOTE_EXCHANGE, subject: 'organization')]
     #[OA\Post(summary: 'Note a call, a message or a meeting with the organization itself, or with one of its contacts')]
     #[OA\Response(response: 201, description: 'The timeline of the organization with the new exchange', content: new Model(type: OrganizationTimelineResource::class), headers: [new OA\Header(header: 'Location', description: 'The new exchange, to join files to it', schema: new OA\Schema(type: 'string'))])]
     #[OA\Response(response: 401, description: 'Missing or invalid access token')]
@@ -41,14 +44,14 @@ final class NoteOrganizationExchange extends AbstractController
     #[OA\Response(response: 404, description: 'Unknown organization, or one of another account', content: new Model(type: ProblemResource::class))]
     #[OA\Response(response: 409, description: 'The person is no contact of the organization', content: new Model(type: ProblemResource::class))]
     #[OA\Response(response: 422, description: 'Invalid exchange: unknown channel or direction, a missed exchange that is no call, a moment in the future', content: new Model(type: ProblemResource::class))]
-    public function __invoke(string $id, #[MapRequestPayload] OrganizationExchangeInput $input, #[CurrentUser] User $user): JsonResponse
+    public function __invoke(OrganizationResponse $organization, #[MapRequestPayload] OrganizationExchangeInput $input, #[CurrentUser] User $user): JsonResponse
     {
         $exchange = $input->exchange;
         $noted = $this->identities->next();
         $this->commands->dispatch(new NoteOrganizationExchangeCommand(
             prospectorId: $user->memberId(),
             id: $noted,
-            organizationId: $id,
+            organizationId: $organization->id,
             personId: $input->personId,
             channel: $exchange->channel,
             direction: $exchange->direction,
@@ -58,6 +61,6 @@ final class NoteOrganizationExchange extends AbstractController
             executedAt: $this->clock->now(),
         ));
 
-        return $this->json($this->timelines->read($user->memberId(), $id), Response::HTTP_CREATED, ['Location' => $this->generateUrl('api_exchanges_show', ['id' => $noted])]);
+        return $this->json($this->timelines->read($user->memberId(), $organization), Response::HTTP_CREATED, ['Location' => $this->generateUrl('api_exchanges_show', ['id' => $noted])]);
     }
 }

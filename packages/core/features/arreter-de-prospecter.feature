@@ -34,20 +34,7 @@ Fonctionnalité: Arrêter de prospecter une organisation
     Alors je vois la fiche :
       | e-mail | grace@navy.test |
 
-  Scénario: Sans le droit aux données personnelles, une organisation avec des contacts reste
-    Soit je suis connecté en tant que prospecteur de "SOLEAN IT" sans le droit aux données personnelles
-    Et le contact "Ada Lovelace" de "ACME" a l'adresse e-mail "ada@acme.test"
-    Quand j'arrête de prospecter "ACME"
-    Alors c'est refusé : "Only a prospector allowed to manage personal data may manage the contacts"
-
   Scénario: Sans le droit, une organisation sans contact s'arrête quand même
     Soit je suis connecté en tant que prospecteur de "SOLEAN IT" sans le droit aux données personnelles
     Quand j'arrête de prospecter "ACME"
     Alors ce n'est pas refusé
-
-  Scénario: L'organisation d'un autre compte est introuvable
-    Soit l'organisation "Concurrent" qui utilise Prospecter
-    Et l'organisation "Initech" appartient à "Concurrent"
-    Et je suis connecté en tant que prospecteur de "SOLEAN IT"
-    Quand j'arrête de prospecter "Initech"
-    Alors c'est introuvable

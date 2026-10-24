@@ -8,7 +8,6 @@ use Prospecter\Core\Prospecting\Application\AttachedFiles;
 use Prospecter\Core\Prospecting\Domain\Event\ProspectingStopped;
 use Prospecter\Core\Prospecting\Domain\Exchange;
 use Prospecter\Core\Prospecting\Domain\ExchangeRepository;
-use Prospecter\Core\Prospecting\Domain\ProspectorService;
 use Prospecter\Core\SharedKernel\Application\EventHandler;
 use Prospecter\Core\SharedKernel\Application\Port\Events;
 use Prospecter\Core\SharedKernel\Application\PublishesEvents;
@@ -23,7 +22,6 @@ final readonly class StopKeepingExchangesHandler implements EventHandler
 
     public function __construct(
         private ExchangeRepository $exchanges,
-        private ProspectorService $prospectorService,
         private Events $events,
         private AttachedFiles $attachedFiles,
     ) {
@@ -31,10 +29,8 @@ final readonly class StopKeepingExchangesHandler implements EventHandler
 
     public function __invoke(ProspectingStopped $event): void
     {
-        $prospector = $this->prospectorService->prospectorFrom($event->by);
-
         foreach ($this->exchanges->keptFor($event->organization) as $exchange) {
-            $exchange->stopKeepingFor($event->organization, by: $prospector, at: $event->occurredAt);
+            $exchange->stopKeepingFor($event->organization, by: $event->by, at: $event->occurredAt);
             $this->keepOrErase($exchange);
             $this->publishWhatHappenedTo($exchange);
         }

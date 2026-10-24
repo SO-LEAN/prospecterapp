@@ -71,7 +71,7 @@ class DynamoExchangeRepositoryTest extends ApiTestCase
         $exchange = $this->noted('2026-10-10 09:00 UTC');
         $exchanges->save($exchange);
 
-        $exchange->stopKeepingFor($this->acme, by: $this->prospector, at: new \DateTimeImmutable(self::NOW));
+        $exchange->stopKeepingFor($this->acme, by: $this->prospector->id, at: new \DateTimeImmutable(self::NOW));
         $exchanges->save($exchange);
 
         $this->assertSame([], $exchanges->keptFor($this->acme));
@@ -125,7 +125,7 @@ class DynamoExchangeRepositoryTest extends ApiTestCase
         $exchange = $this->noted('2026-10-10 09:00 UTC');
         $exchanges->save($exchange);
 
-        $exchange->stopKeepingFor($this->acme, by: $this->prospector, at: new \DateTimeImmutable(self::NOW));
+        $exchange->stopKeepingFor($this->acme, by: $this->prospector->id, at: new \DateTimeImmutable(self::NOW));
         $exchanges->save($exchange);
 
         $this->assertSame([], $exchanges->timelineOfOrganization($this->acme, null, 20)->content);
@@ -136,7 +136,7 @@ class DynamoExchangeRepositoryTest extends ApiTestCase
     {
         $organization = Organization::prospectedBy($this->prospector, $this->acme, new LegalIdentity('ACME'), new ContactDetails(), new \DateTimeImmutable(self::NOW));
 
-        return Exchange::notedWithTheOrganization($organization, $this->prospector, new ExchangeId(self::newIdentity()), new ExchangeFacts(Channel::Call, Direction::Inbound, new \DateTimeImmutable($occurredAt)), new \DateTimeImmutable(self::NOW));
+        return Exchange::notedWithTheOrganization($organization, $this->prospector->id, new ExchangeId(self::newIdentity()), new ExchangeFacts(Channel::Call, Direction::Inbound, new \DateTimeImmutable($occurredAt)), new \DateTimeImmutable(self::NOW));
     }
 
     public function testACorrectedExchangeIsReadWithItsCorrection(): void
@@ -146,7 +146,7 @@ class DynamoExchangeRepositoryTest extends ApiTestCase
         $exchanges->save($exchange);
         $corrected = new ExchangeFacts(Channel::Email, Direction::Outbound, new \DateTimeImmutable('2026-10-12 10:00 UTC'), 'Objet : mission');
 
-        $exchange->correct($corrected, by: $this->prospector, at: new \DateTimeImmutable(self::NOW));
+        $exchange->correct($corrected, by: $this->prospector->id, at: new \DateTimeImmutable(self::NOW));
         $exchanges->save($exchange);
 
         $read = $exchanges->get($exchange->id());
@@ -161,7 +161,7 @@ class DynamoExchangeRepositoryTest extends ApiTestCase
         $second = $this->noted('2026-10-11 09:00 UTC');
         array_map($exchanges->save(...), [$first, $second]);
 
-        $first->correct(new ExchangeFacts(Channel::Call, Direction::Inbound, new \DateTimeImmutable('2026-10-12 09:00 UTC')), by: $this->prospector, at: new \DateTimeImmutable(self::NOW));
+        $first->correct(new ExchangeFacts(Channel::Call, Direction::Inbound, new \DateTimeImmutable('2026-10-12 09:00 UTC')), by: $this->prospector->id, at: new \DateTimeImmutable(self::NOW));
         $exchanges->save($first);
 
         $timeline = $exchanges->timelineOf($this->contact, $this->prospector->accountId, null, 20)->content;
@@ -175,7 +175,7 @@ class DynamoExchangeRepositoryTest extends ApiTestCase
         $second = $this->notedWithTheOrganization('2026-10-11 09:00 UTC');
         array_map($exchanges->save(...), [$first, $second]);
 
-        $first->correct(new ExchangeFacts(Channel::Call, Direction::Inbound, new \DateTimeImmutable('2026-10-12 09:00 UTC')), by: $this->prospector, at: new \DateTimeImmutable(self::NOW));
+        $first->correct(new ExchangeFacts(Channel::Call, Direction::Inbound, new \DateTimeImmutable('2026-10-12 09:00 UTC')), by: $this->prospector->id, at: new \DateTimeImmutable(self::NOW));
         $exchanges->save($first);
 
         $timeline = $exchanges->timelineOfOrganization($this->acme, null, 20)->content;
@@ -202,7 +202,7 @@ class DynamoExchangeRepositoryTest extends ApiTestCase
         array_map($exchanges->save(...), [$older, $recent, $this->notedWithTheOrganization('2026-10-12 09:00 UTC')]);
 
         foreach ([$older, $recent] as $exchange) {
-            $exchange->forgetItsContact(by: $this->prospector, at: new \DateTimeImmutable(self::NOW));
+            $exchange->forgetItsContact(by: $this->prospector->id, at: new \DateTimeImmutable(self::NOW));
             $exchanges->save($exchange);
         }
 
@@ -217,10 +217,10 @@ class DynamoExchangeRepositoryTest extends ApiTestCase
     {
         $exchanges = $this->exchanges();
         $exchange = $this->noted('2026-10-10 09:00 UTC');
-        $exchange->forgetItsContact(by: $this->prospector, at: new \DateTimeImmutable(self::NOW));
+        $exchange->forgetItsContact(by: $this->prospector->id, at: new \DateTimeImmutable(self::NOW));
         $exchanges->save($exchange);
 
-        $exchange->declareConform(by: $this->prospector, at: new \DateTimeImmutable(self::NOW));
+        $exchange->declareConform(by: $this->prospector->id, at: new \DateTimeImmutable(self::NOW));
         $exchanges->save($exchange);
 
         $this->assertSame(0, $exchanges->countToMakeConformFor($this->acme));
@@ -237,7 +237,7 @@ class DynamoExchangeRepositoryTest extends ApiTestCase
 
     private function noted(string $occurredAt): Exchange
     {
-        return Exchange::notedBy($this->prospector, new ExchangeId(self::newIdentity()), $this->contact, [$this->acme, $this->group], new ExchangeFacts(Channel::Call, Direction::Inbound, new \DateTimeImmutable($occurredAt), 'Rappeler lundi'), new \DateTimeImmutable(self::NOW));
+        return Exchange::notedWithAContact($this->prospector->accountId, $this->prospector->id, new ExchangeId(self::newIdentity()), $this->contact, [$this->acme, $this->group], new ExchangeFacts(Channel::Call, Direction::Inbound, new \DateTimeImmutable($occurredAt), 'Rappeler lundi'), new \DateTimeImmutable(self::NOW));
     }
 
     private function exchanges(): ExchangeRepository

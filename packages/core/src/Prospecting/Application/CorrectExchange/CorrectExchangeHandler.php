@@ -9,7 +9,6 @@ use Prospecter\Core\Prospecting\Domain\Direction;
 use Prospecter\Core\Prospecting\Domain\ExchangeFacts;
 use Prospecter\Core\Prospecting\Domain\ExchangeId;
 use Prospecter\Core\Prospecting\Domain\ExchangeRepository;
-use Prospecter\Core\Prospecting\Domain\ProspectorService;
 use Prospecter\Core\SharedKernel\Application\CommandHandler;
 use Prospecter\Core\SharedKernel\Application\Port\Events;
 use Prospecter\Core\SharedKernel\Application\PublishesEvents;
@@ -21,23 +20,22 @@ final readonly class CorrectExchangeHandler implements CommandHandler
 
     public function __construct(
         private ExchangeRepository $exchanges,
-        private ProspectorService $prospectorService,
         private Events $events,
     ) {
     }
 
     public function __invoke(CorrectExchange $command): void
     {
-        $prospector = $this->prospectorService->prospectorFrom(new MemberId($command->prospectorId));
+        $author = new MemberId($command->prospectorId);
         $exchange = $this->exchanges->get(new ExchangeId($command->id));
         $exchange->correct(
             new ExchangeFacts(Channel::from($command->channel), Direction::from($command->direction), $command->occurredAt, $command->text, $command->missed),
-            by: $prospector,
+            by: $author,
             at: $command->executedAt,
         );
 
         if ($command->madeConform) {
-            $exchange->declareConform(by: $prospector, at: $command->executedAt);
+            $exchange->declareConform(by: $author, at: $command->executedAt);
         }
 
         $this->exchanges->save($exchange);

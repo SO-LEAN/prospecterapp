@@ -38,6 +38,7 @@ final class NoteExchange extends AbstractController
     }
 
     #[Route('/api/contacts/{id}/exchanges', name: 'api_contacts_note_exchange', requirements: ['id' => Requirement::UUID], methods: ['POST'])]
+    #[IsGranted(User::PERSONAL_DATA)]
     #[OA\Post(summary: 'Note a call, a message or a meeting with the contact, kept for the organizations the contact is part of')]
     #[OA\Response(response: 201, description: 'The timeline of the contact with the new exchange', content: new Model(type: TimelineResource::class), headers: [new OA\Header(header: 'Location', description: 'The new exchange, to join files to it', schema: new OA\Schema(type: 'string'))])]
     #[OA\Response(response: 401, description: 'Missing or invalid access token')]

@@ -229,7 +229,7 @@ final class OrganizationContext implements Context
     #[When('je consulte l\'organisation :name')]
     public function iConsultTheOrganization(string $name): void
     {
-        $this->consulted = $this->application->consultOrganization(new ConsultOrganization($this->me(), $this->scenario->idOf($name)));
+        $this->consulted = $this->application->consultOrganization(new ConsultOrganization($this->scenario->idOf($name)));
     }
 
     #[When('je liste mes organisations')]
@@ -291,28 +291,6 @@ final class OrganizationContext implements Context
     {
         Expect::that(null !== $this->consulted, sprintf('The organization was expected, got: %s', $this->application->refusal()?->getMessage()));
         Expect::same($table->getColumn(0), Vocabulary::describeIntents($this->consulted->possibleIntents));
-    }
-
-    #[Then('je peux sur sa timeline :')]
-    public function iMayOnItsTimeline(TableNode $table): void
-    {
-        Expect::same($table->getColumn(0), Vocabulary::describeIntents($this->timelineIntentsOfTheConsulted()));
-    }
-
-    #[Then('je ne peux rien sur sa timeline')]
-    public function iMayDoNothingOnItsTimeline(): void
-    {
-        Expect::same([], $this->timelineIntentsOfTheConsulted());
-    }
-
-    /**
-     * @return list<string>
-     */
-    private function timelineIntentsOfTheConsulted(): array
-    {
-        Expect::that(null !== $this->consulted, sprintf('The organization was expected, got: %s', $this->application->refusal()?->getMessage()));
-
-        return $this->consulted->timelineIntents;
     }
 
     #[Then('je trouve :count organisation(s)')]

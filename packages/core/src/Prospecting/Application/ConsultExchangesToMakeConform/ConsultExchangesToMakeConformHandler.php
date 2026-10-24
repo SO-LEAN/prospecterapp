@@ -25,7 +25,6 @@ final readonly class ConsultExchangesToMakeConformHandler implements QueryHandle
     {
         $prospector = $this->prospectorService->prospectorFrom(new MemberId($query->prospectorId));
         $organization = $this->organizations->get(new OrganizationId($query->organizationId));
-        $organization->ensureReachableBy($prospector);
 
         return TimelineResponse::ofOrganization(
             $organization,

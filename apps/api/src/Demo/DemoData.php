@@ -92,7 +92,7 @@ final readonly class DemoData
         $openedAt = new \DateTimeImmutable(self::OPENED_AT);
         $prospector = new Prospector(new MemberId(self::PROSPECTOR), $account->id(), managesPersonalData: true);
         $babbage = Organization::prospectedBy($prospector, new OrganizationId($this->identities->next()), new LegalIdentity('Babbage & Co', 'SAS'), new ContactDetails(new Email('contact@babbage.test')), $openedAt);
-        $babbage->relocateTo(new Address('2 rue des Clefs', '68000', 'Colmar', 'FR'), new GeoPoint(7.3585, 48.0794), $prospector, $openedAt);
+        $babbage->relocateTo(new Address('2 rue des Clefs', '68000', 'Colmar', 'FR'), new GeoPoint(7.3585, 48.0794), $prospector->id, $openedAt);
         $manager = new Reader($prospector->id, $account->id(), new PersonId($this->identities->next()), true);
         $ada = Person::collectAsContact($manager, new PersonId($this->identities->next()), new PersonName('Ada', 'Lovelace'), 'Directrice commerciale', new ContactDetails(new Email('ada@babbage.test'), PhoneNumber::of('03 88 00 00 42'), 'FR'), [$babbage->id()], $openedAt);
         $this->organizations->save($babbage);
@@ -105,7 +105,7 @@ final readonly class DemoData
 
     private function anExchange(Prospector $prospector, Person $contact, Organization $organization, ExchangeFacts $facts): void
     {
-        $exchange = Exchange::notedBy($prospector, new ExchangeId($this->identities->next()), $contact->id(), [$organization->id()], $facts, $facts->occurredAt);
+        $exchange = Exchange::notedWithAContact($prospector->accountId, $prospector->id, new ExchangeId($this->identities->next()), $contact->id(), [$organization->id()], $facts, $facts->occurredAt);
         $this->exchanges->save($exchange);
         $this->publish($exchange);
     }

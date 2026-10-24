@@ -12,6 +12,11 @@ use Symfony\Component\Security\Core\User\UserInterface;
 final readonly class User implements UserInterface
 {
     /**
+     * The role of a member allowed to manage personal data (ADR 0031).
+     */
+    public const string PERSONAL_DATA = 'ROLE_PERSONAL_DATA';
+
+    /**
      * @param list<string> $roles
      */
     public function __construct(

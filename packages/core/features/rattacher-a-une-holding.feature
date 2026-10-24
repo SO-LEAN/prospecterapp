@@ -34,9 +34,3 @@ Fonctionnalité: Rattacher une organisation à sa holding
     Et l'organisation "Initech" appartient à "Concurrent"
     Quand je rattache "ACME" à la holding "Initech"
     Alors c'est introuvable
-
-  Scénario: L'organisation d'une autre organisation est introuvable
-    Soit l'organisation "Concurrent" qui utilise Prospecter
-    Et l'organisation "Initech" appartient à "Concurrent"
-    Quand je rattache "Initech" à la holding "Groupe ACME"
-    Alors c'est introuvable

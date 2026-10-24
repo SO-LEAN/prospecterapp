@@ -19,8 +19,8 @@ final readonly class OrganizationReader
     ) {
     }
 
-    public function read(string $reader, string $id): OrganizationResource
+    public function read(string $id): OrganizationResource
     {
-        return $this->presenter->present(($this->consultOrganization)(new ConsultOrganization($reader, $id)));
+        return $this->presenter->present(($this->consultOrganization)(new ConsultOrganization($id)));
     }
 }

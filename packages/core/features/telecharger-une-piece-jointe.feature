@@ -25,9 +25,3 @@ Fonctionnalité: Télécharger une pièce jointe d'un échange
     Soit "devis.pdf" est joint à cet échange
     Et je suis connecté en tant que prospecteur de "SOLEAN IT" sans le droit aux données personnelles
     Alors le détail de l'échange cache 2 pièces jointes
-
-  Scénario: La pièce jointe d'un autre compte est introuvable
-    Soit l'organisation "Concurrent" qui utilise Prospecter
-    Et je suis connecté en tant que prospecteur de "Concurrent"
-    Quand je télécharge "planning.xlsx"
-    Alors c'est introuvable

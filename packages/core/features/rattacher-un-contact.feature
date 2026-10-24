@@ -30,8 +30,3 @@ Fonctionnalité: Rattacher un contact existant à une organisation
     Et je suis connecté en tant que prospecteur de "SOLEAN IT"
     Quand je rattache le contact "Linus Torvalds" à "ACME"
     Alors c'est introuvable
-
-  Scénario: Sans le droit aux données personnelles, je ne rattache pas de contact
-    Soit je suis connecté en tant que prospecteur de "SOLEAN IT" sans le droit aux données personnelles
-    Quand je rattache le contact "Ada Lovelace" à "ACME"
-    Alors c'est refusé : "Only a prospector allowed to manage personal data may manage the contacts"

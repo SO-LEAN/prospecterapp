@@ -5,9 +5,9 @@ namespace App\Contacts;
 use App\Contacts\Resource\OrganizationTimelineResource;
 use Prospecter\Core\PersonalData\Application\ConsultPersons\ConsultPersons;
 use Prospecter\Core\Prospecting\Application\ConsultExchangesToMakeConform\ConsultExchangesToMakeConform;
-use Prospecter\Core\Prospecting\Application\ConsultOrganization\ConsultOrganization;
 use Prospecter\Core\Prospecting\Application\ConsultOrganizationTimeline\ConsultOrganizationTimeline;
 use Prospecter\Core\Prospecting\Application\ExchangeResponse;
+use Prospecter\Core\Prospecting\Application\OrganizationResponse;
 use Prospecter\Core\Prospecting\Application\TimelineResponse;
 use Prospecter\Core\SharedKernel\Application\RefusalTranslatingHandler;
 
@@ -21,18 +21,17 @@ final readonly class OrganizationTimelineReader
     public function __construct(
         private RefusalTranslatingHandler $consultOrganizationTimeline,
         private RefusalTranslatingHandler $consultExchangesToMakeConform,
-        private RefusalTranslatingHandler $consultOrganization,
         private RefusalTranslatingHandler $consultPersons,
         private OrganizationTimelinePresenter $presenter,
     ) {
     }
 
-    public function read(string $reader, string $organizationId, ?string $after = null): OrganizationTimelineResource
+    public function read(string $reader, OrganizationResponse $organization, ?string $after = null): OrganizationTimelineResource
     {
-        $timeline = ($this->consultOrganizationTimeline)(new ConsultOrganizationTimeline($reader, $organizationId, $after));
+        $timeline = ($this->consultOrganizationTimeline)(new ConsultOrganizationTimeline($reader, $organization->id, $after));
 
         return $this->presenter->present(
-            ($this->consultOrganization)(new ConsultOrganization($reader, $organizationId)),
+            $organization,
             $timeline,
             ($this->consultPersons)(new ConsultPersons($reader, self::personIdsOf($timeline))),
         );
@@ -41,12 +40,12 @@ final readonly class OrganizationTimelineReader
     /**
      * Only its exchanges to make conform, their contact forgotten (ADR 0079).
      */
-    public function readToMakeConform(string $reader, string $organizationId, ?string $after = null): OrganizationTimelineResource
+    public function readToMakeConform(string $reader, OrganizationResponse $organization, ?string $after = null): OrganizationTimelineResource
     {
-        $timeline = ($this->consultExchangesToMakeConform)(new ConsultExchangesToMakeConform($reader, $organizationId, $after));
+        $timeline = ($this->consultExchangesToMakeConform)(new ConsultExchangesToMakeConform($reader, $organization->id, $after));
 
         return $this->presenter->presentToMakeConform(
-            ($this->consultOrganization)(new ConsultOrganization($reader, $organizationId)),
+            $organization,
             $timeline,
             ($this->consultPersons)(new ConsultPersons($reader, self::personIdsOf($timeline))),
         );

@@ -11,6 +11,7 @@ use App\Shared\Resource\ProblemResource;
 use Nelmio\ApiDocBundle\Attribute\Model;
 use OpenApi\Attributes as OA;
 use Prospecter\Core\Prospecting\Application\AttachFile\AttachFile as AttachFileCommand;
+use Prospecter\Core\Prospecting\Application\ConsultExchange\ExchangeDetailResponse;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\Clock\ClockInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -34,6 +35,7 @@ final class AttachFile extends AbstractController
     }
 
     #[Route('/api/exchanges/{id}/attachments', name: 'api_exchanges_attach_file', requirements: ['id' => Requirement::UUID], methods: ['POST'])]
+    #[IsGranted(ExchangeVoter::ATTACH_FILE, subject: 'exchange')]
     #[OA\Post(summary: 'Join to an exchange a file the browser sent with the form of an upload')]
     #[OA\Response(response: 201, description: 'The exchange with the file joined', content: new Model(type: ExchangeDetailResource::class))]
     #[OA\Response(response: 401, description: 'Missing or invalid access token')]
@@ -41,17 +43,17 @@ final class AttachFile extends AbstractController
     #[OA\Response(response: 404, description: 'Unknown exchange, or one of another account; unknown upload, expired or already joined', content: new Model(type: ProblemResource::class))]
     #[OA\Response(response: 409, description: 'The exchange holds as many files as it may', content: new Model(type: ProblemResource::class))]
     #[OA\Response(response: 422, description: 'Invalid input, or a file over 10 MB', content: new Model(type: ProblemResource::class))]
-    public function __invoke(string $id, #[MapRequestPayload] AttachmentInput $input, #[CurrentUser] User $user): JsonResponse
+    public function __invoke(ExchangeDetailResponse $exchange, #[MapRequestPayload] AttachmentInput $input, #[CurrentUser] User $user): JsonResponse
     {
         $this->commands->dispatch(new AttachFileCommand(
             prospectorId: $user->memberId(),
-            exchangeId: $id,
+            exchangeId: $exchange->id,
             id: $this->identities->next(),
             upload: $input->upload,
             name: $input->name,
             executedAt: $this->clock->now(),
         ));
 
-        return $this->json($this->exchanges->read($user->memberId(), $id), Response::HTTP_CREATED);
+        return $this->json($this->exchanges->read($user->memberId(), $exchange->id), Response::HTTP_CREATED);
     }
 }

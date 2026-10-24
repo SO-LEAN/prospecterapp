@@ -2,11 +2,13 @@
 
 namespace App\Prospecting\Controller;
 
+use App\Prospecting\OrganizationVoter;
 use App\Security\User;
 use App\Shared\CommandBus;
 use App\Shared\Resource\ProblemResource;
 use Nelmio\ApiDocBundle\Attribute\Model;
 use OpenApi\Attributes as OA;
+use Prospecter\Core\Prospecting\Application\OrganizationResponse;
 use Prospecter\Core\Prospecting\Application\StopProspecting\StopProspecting as StopProspectingCommand;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\Clock\ClockInterface;
@@ -25,14 +27,15 @@ final class StopProspecting extends AbstractController
     }
 
     #[Route('/api/organizations/{id}', name: 'api_organizations_stop_prospecting', requirements: ['id' => Requirement::UUID], methods: ['DELETE'])]
+    #[IsGranted(OrganizationVoter::STOP_PROSPECTING, subject: 'organization')]
     #[OA\Delete(summary: 'Stop prospecting the organization: its subsidiaries lose their holding, its contacts that no other organization names are erased')]
     #[OA\Response(response: 204, description: 'No longer prospected')]
     #[OA\Response(response: 401, description: 'Missing or invalid access token')]
     #[OA\Response(response: 403, description: 'Not a prospector, or no right to manage personal data while the organization has contacts', content: new Model(type: ProblemResource::class))]
     #[OA\Response(response: 404, description: 'Unknown organization, or one of another account', content: new Model(type: ProblemResource::class))]
-    public function __invoke(string $id, #[CurrentUser] User $user): Response
+    public function __invoke(OrganizationResponse $organization, #[CurrentUser] User $user): Response
     {
-        $this->commands->dispatch(new StopProspectingCommand($user->memberId(), $id, $this->clock->now()));
+        $this->commands->dispatch(new StopProspectingCommand($user->memberId(), $organization->id, $this->clock->now()));
 
         return new Response(status: Response::HTTP_NO_CONTENT);
     }

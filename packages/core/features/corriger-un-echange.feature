@@ -42,16 +42,3 @@ Fonctionnalité: Corriger un échange
       | canal      | SMS |
       | non abouti | oui |
     Alors c'est refusé : "Only a call may be missed"
-
-  Scénario: Sans le droit aux données personnelles, je ne corrige que le texte
-    Soit je suis connecté en tant que prospecteur de "SOLEAN IT" sans le droit aux données personnelles
-    Quand je corrige cet échange :
-      | canal | SMS |
-    Alors c'est refusé : "Only a prospector allowed to manage personal data may exchange with the contacts"
-
-  Scénario: L'échange d'un autre compte est introuvable
-    Soit l'organisation "Concurrent" qui utilise Prospecter
-    Et je suis connecté en tant que prospecteur de "Concurrent"
-    Quand je corrige cet échange :
-      | texte | Rien |
-    Alors c'est introuvable

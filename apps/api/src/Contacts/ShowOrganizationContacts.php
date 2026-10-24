@@ -6,6 +6,8 @@ use App\Contacts\Resource\OrganizationContactLinksResource;
 use App\Contacts\Resource\OrganizationContactResource;
 use App\Contacts\Resource\OrganizationContactsResource;
 use App\PersonalData\Resource\PersonNameResource;
+use App\Prospecting\OrganizationVoter;
+use App\Security\IntentLinks;
 use App\Security\User;
 use App\Shared\Links;
 use App\Shared\Resource\ContactDetailsResource;
@@ -14,7 +16,6 @@ use Nelmio\ApiDocBundle\Attribute\Model;
 use OpenApi\Attributes as OA;
 use Prospecter\Core\PersonalData\Application\ConsultPersons\ConsultPersons;
 use Prospecter\Core\PersonalData\Application\PersonResponse;
-use Prospecter\Core\Prospecting\Application\ConsultOrganization\ConsultOrganization;
 use Prospecter\Core\Prospecting\Application\OrganizationResponse;
 use Prospecter\Core\SharedKernel\Application\RefusalTranslatingHandler;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -33,21 +34,21 @@ use Symfony\Component\Security\Http\Attribute\IsGranted;
 final class ShowOrganizationContacts extends AbstractController
 {
     public function __construct(
-        private readonly RefusalTranslatingHandler $consultOrganization,
         private readonly RefusalTranslatingHandler $consultPersons,
         private readonly Links $links,
+        private readonly IntentLinks $intents,
     ) {
     }
 
     #[Route('/api/organizations/{id}/contacts', name: 'api_organizations_contacts', requirements: ['id' => Requirement::UUID], methods: ['GET'])]
+    #[IsGranted(OrganizationVoter::CONSULT, subject: 'organization')]
     #[OA\Get(summary: 'The contacts of the organization, in clear or masked')]
     #[OA\Response(response: 200, description: 'The contacts, in the order they were attached', content: new Model(type: OrganizationContactsResource::class))]
     #[OA\Response(response: 401, description: 'Missing or invalid access token')]
     #[OA\Response(response: 403, description: 'The signed-in user is not a prospector', content: new Model(type: ProblemResource::class))]
     #[OA\Response(response: 404, description: 'Unknown organization, or one of another account', content: new Model(type: ProblemResource::class))]
-    public function __invoke(string $id, #[CurrentUser] User $user): JsonResponse
+    public function __invoke(OrganizationResponse $organization, #[CurrentUser] User $user): JsonResponse
     {
-        $organization = ($this->consultOrganization)(new ConsultOrganization($user->memberId(), $id));
         $persons = ($this->consultPersons)(new ConsultPersons($user->memberId(), $organization->contactIds));
         $contacts = array_values(array_filter(array_map(static fn (string $contactId): ?PersonResponse => $persons[$contactId] ?? null, $organization->contactIds)));
 
@@ -64,7 +65,7 @@ final class ShowOrganizationContacts extends AbstractController
             masked: $contact->masked,
             links: new OrganizationContactLinksResource(
                 $this->links->to('api_contacts_show', ['id' => $contact->id]),
-                in_array('RemoveContact', $organization->possibleIntents, true) ? $this->links->to('api_organizations_remove_contact', ['id' => $organization->id, 'personId' => $contact->id]) : null,
+                $this->intents->shows(OrganizationVoter::REMOVE_CONTACT, $organization, $organization->possibleIntents) ? $this->links->to('api_organizations_remove_contact', ['id' => $organization->id, 'personId' => $contact->id]) : null,
             ),
         );
     }

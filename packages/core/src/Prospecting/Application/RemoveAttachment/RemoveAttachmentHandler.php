@@ -7,7 +7,6 @@ namespace Prospecter\Core\Prospecting\Application\RemoveAttachment;
 use Prospecter\Core\Prospecting\Domain\AttachmentId;
 use Prospecter\Core\Prospecting\Domain\ExchangeId;
 use Prospecter\Core\Prospecting\Domain\ExchangeRepository;
-use Prospecter\Core\Prospecting\Domain\ProspectorService;
 use Prospecter\Core\SharedKernel\Application\CommandHandler;
 use Prospecter\Core\SharedKernel\Application\Port\Events;
 use Prospecter\Core\SharedKernel\Application\Port\PrivateStorage;
@@ -20,7 +19,6 @@ final readonly class RemoveAttachmentHandler implements CommandHandler
 
     public function __construct(
         private ExchangeRepository $exchanges,
-        private ProspectorService $prospectorService,
         private PrivateStorage $privateStorage,
         private Events $events,
     ) {
@@ -28,13 +26,10 @@ final readonly class RemoveAttachmentHandler implements CommandHandler
 
     public function __invoke(RemoveAttachment $command): void
     {
-        $prospector = $this->prospectorService->prospectorFrom(new MemberId($command->prospectorId));
         $exchange = $this->exchanges->get(new ExchangeId($command->exchangeId));
-        $id = new AttachmentId($command->id);
-        $file = $exchange->attachmentReadBy($prospector, $id)->file;
-        $exchange->removeAttachment($id, by: $prospector, at: $command->executedAt);
+        $removed = $exchange->removeAttachment(new AttachmentId($command->id), by: new MemberId($command->prospectorId), at: $command->executedAt);
         $this->exchanges->save($exchange);
-        $this->privateStorage->remove($file);
+        $this->privateStorage->remove($removed->file);
         $this->publishWhatHappenedTo($exchange);
     }
 }

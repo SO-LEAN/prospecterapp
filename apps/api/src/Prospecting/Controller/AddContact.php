@@ -4,6 +4,7 @@ namespace App\Prospecting\Controller;
 
 use App\Prospecting\Input\ContactInput;
 use App\Prospecting\OrganizationReader;
+use App\Prospecting\OrganizationVoter;
 use App\Prospecting\Resource\OrganizationResource;
 use App\Security\User;
 use App\Shared\CommandBus;
@@ -11,6 +12,7 @@ use App\Shared\Resource\ProblemResource;
 use Nelmio\ApiDocBundle\Attribute\Model;
 use OpenApi\Attributes as OA;
 use Prospecter\Core\Prospecting\Application\AddContact\AddContact as AddContactCommand;
+use Prospecter\Core\Prospecting\Application\OrganizationResponse;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\Clock\ClockInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -32,6 +34,7 @@ final class AddContact extends AbstractController
     }
 
     #[Route('/api/organizations/{id}/contacts', name: 'api_organizations_add_contact', requirements: ['id' => Requirement::UUID], methods: ['POST'])]
+    #[IsGranted(OrganizationVoter::ADD_CONTACT, subject: 'organization')]
     #[OA\Post(summary: 'Attach a person my organization prospects as a contact of the organization')]
     #[OA\Response(response: 200, description: 'The organization with its new contact', content: new Model(type: OrganizationResource::class))]
     #[OA\Response(response: 401, description: 'Missing or invalid access token')]
@@ -39,10 +42,10 @@ final class AddContact extends AbstractController
     #[OA\Response(response: 404, description: 'Unknown organization or contact, or one of another account', content: new Model(type: ProblemResource::class))]
     #[OA\Response(response: 409, description: 'The person is a contact of the organization already', content: new Model(type: ProblemResource::class))]
     #[OA\Response(response: 422, description: 'Invalid person id', content: new Model(type: ProblemResource::class))]
-    public function __invoke(string $id, #[MapRequestPayload] ContactInput $input, #[CurrentUser] User $user): JsonResponse
+    public function __invoke(OrganizationResponse $organization, #[MapRequestPayload] ContactInput $input, #[CurrentUser] User $user): JsonResponse
     {
-        $this->commands->dispatch(new AddContactCommand($user->memberId(), $id, $input->personId, $this->clock->now()));
+        $this->commands->dispatch(new AddContactCommand($user->memberId(), $organization->id, $input->personId, $this->clock->now()));
 
-        return $this->json($this->organizations->read($user->memberId(), $id));
+        return $this->json($this->organizations->read($organization->id));
     }
 }

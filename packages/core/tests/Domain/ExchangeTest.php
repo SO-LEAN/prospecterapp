@@ -25,7 +25,6 @@ use Prospecter\Core\Prospecting\Domain\Exception\ExchangeInTheFuture;
 use Prospecter\Core\Prospecting\Domain\Exception\MissedOnlyForACall;
 use Prospecter\Core\Prospecting\Domain\Exception\NoRoomForAnAttachment;
 use Prospecter\Core\Prospecting\Domain\Exception\NothingToMakeConform;
-use Prospecter\Core\Prospecting\Domain\Exception\UnknownExchange;
 use Prospecter\Core\Prospecting\Domain\Exchange;
 use Prospecter\Core\Prospecting\Domain\ExchangeFacts;
 use Prospecter\Core\Prospecting\Domain\ExchangeId;
@@ -40,7 +39,7 @@ use Prospecter\Core\SharedKernel\Domain\PersonId;
 class ExchangeTest extends TestCase
 {
     private const string MINE = '0190a1c0-0000-7000-8000-000000000001';
-    private const string THEIRS = '0190a1c0-0000-7000-8000-000000000002';
+    private const string COLLEAGUE = '0190a1c0-0000-7000-8000-000000000002';
     private const string EXCHANGE = '0190a1c0-0000-7000-8000-000000000003';
     private const string CONTACT = '0190a1c0-0000-7000-8000-000000000004';
     private const string ACME = '0190a1c0-0000-7000-8000-000000000005';
@@ -115,7 +114,7 @@ class ExchangeTest extends TestCase
         $exchange = $this->noted(new ExchangeFacts(Channel::Call, Direction::Inbound, new \DateTimeImmutable(self::NOW)));
         $exchange->releaseEvents();
 
-        $exchange->stopKeepingFor(new OrganizationId(self::ACME), by: $this->me(), at: new \DateTimeImmutable(self::NOW));
+        $exchange->stopKeepingFor(new OrganizationId(self::ACME), by: $this->me()->id, at: new \DateTimeImmutable(self::NOW));
 
         $this->assertEquals([new OrganizationId(self::GROUP)], $exchange->keptFor());
         $this->assertTrue($exchange->isKeptForAnOrganization());
@@ -126,31 +125,34 @@ class ExchangeTest extends TestCase
     {
         $exchange = $this->noted(new ExchangeFacts(Channel::Call, Direction::Inbound, new \DateTimeImmutable(self::NOW)));
 
-        $exchange->stopKeepingFor(new OrganizationId(self::ACME), by: $this->me(), at: new \DateTimeImmutable(self::NOW));
-        $exchange->stopKeepingFor(new OrganizationId(self::GROUP), by: $this->me(), at: new \DateTimeImmutable(self::NOW));
+        $exchange->stopKeepingFor(new OrganizationId(self::ACME), by: $this->me()->id, at: new \DateTimeImmutable(self::NOW));
+        $exchange->stopKeepingFor(new OrganizationId(self::GROUP), by: $this->me()->id, at: new \DateTimeImmutable(self::NOW));
 
         $this->assertFalse($exchange->isKeptForAnOrganization());
     }
 
-    public function testAnotherAccountDoesNotReachIt(): void
+    public function testItsContactForgottenEverythingIsOffered(): void
     {
-        $exchange = $this->noted(new ExchangeFacts(Channel::Call, Direction::Inbound, new \DateTimeImmutable(self::NOW)));
-
-        $this->expectException(UnknownExchange::class);
-
-        $exchange->stopKeepingFor(new OrganizationId(self::ACME), by: $this->otherAccount(), at: new \DateTimeImmutable(self::NOW));
+        $this->assertSame(ExchangeIntent::cases(), $this->withItsContactForgotten()->possibleIntents());
     }
 
-    public function testAManagerOfPersonalDataMayDoAnythingWithIt(): void
+    public function testAFileIsReadWithTheRightToManagePersonalData(): void
     {
-        $this->assertSame(ExchangeIntent::cases(), $this->withItsContactForgotten()->possibleIntentsOf($this->me()));
+        $this->assertSame('devis.pdf', $this->withAnAttachment()->attachmentReadBy($this->me(), new AttachmentId(self::ATTACHMENT))->name);
+    }
+
+    public function testAFileIsNotReadWithoutTheRightToManagePersonalData(): void
+    {
+        $this->expectException(PersonalDataManagersOnly::class);
+
+        $this->withAnAttachment()->attachmentReadBy($this->colleagueWithoutTheRight(), new AttachmentId(self::ATTACHMENT));
     }
 
     public function testNothingIsToMakeConformWhileItsContactIsKnown(): void
     {
         $exchange = $this->withAnAttachment();
 
-        $this->assertNotContains(ExchangeIntent::MakeConform, $exchange->possibleIntentsOf($this->me()));
+        $this->assertNotContains(ExchangeIntent::MakeConform, $exchange->possibleIntents());
         $this->assertFalse($exchange->isToMakeConform());
         $this->assertSame(ContactPresence::Present, $exchange->contactPresence());
     }
@@ -160,18 +162,11 @@ class ExchangeTest extends TestCase
         $exchange = $this->withAnAttachment();
         $exchange->releaseEvents();
 
-        $exchange->forgetItsContact(by: $this->me(), at: new \DateTimeImmutable(self::NOW));
+        $exchange->forgetItsContact(by: $this->me()->id, at: new \DateTimeImmutable(self::NOW));
 
         $this->assertSame(ContactPresence::Forgotten, $exchange->contactPresence());
         $this->assertSame([true, true, true], [$exchange->isToMakeConform(), $exchange->isTextToMakeConform(), $exchange->areAttachmentsToMakeConform()]);
         $this->assertEquals([new ExchangeContactForgotten(new AccountId(self::MINE), $this->me()->id, new ExchangeId(self::EXCHANGE), new \DateTimeImmutable(self::NOW))], $exchange->releaseEvents());
-    }
-
-    public function testAnotherAccountDoesNotForgetItsContact(): void
-    {
-        $this->expectException(UnknownExchange::class);
-
-        $this->anExchange()->forgetItsContact(by: $this->otherAccount(), at: new \DateTimeImmutable(self::NOW));
     }
 
     public function testDeclaringItConformRecordsWhoDeclaredIt(): void
@@ -180,7 +175,7 @@ class ExchangeTest extends TestCase
         $exchange->releaseEvents();
         $later = new \DateTimeImmutable(self::NOW)->modify('+1 day');
 
-        $exchange->declareConform(by: $this->colleagueWithoutTheRight(), at: $later);
+        $exchange->declareConform(by: $this->colleagueWithoutTheRight()->id, at: $later);
 
         $this->assertEquals(new Correction($this->colleagueWithoutTheRight()->id, $later), $exchange->madeConform());
         $this->assertEquals([new ExchangeMadeConform(new AccountId(self::MINE), $this->colleagueWithoutTheRight()->id, new ExchangeId(self::EXCHANGE), $later)], $exchange->releaseEvents());
@@ -190,18 +185,18 @@ class ExchangeTest extends TestCase
     {
         $exchange = $this->withItsContactForgotten();
 
-        $exchange->declareConform(by: $this->me(), at: new \DateTimeImmutable(self::NOW));
+        $exchange->declareConform(by: $this->me()->id, at: new \DateTimeImmutable(self::NOW));
 
         $this->assertSame([false, true], [$exchange->isTextToMakeConform(), $exchange->isToMakeConform()]);
-        $this->assertNotContains(ExchangeIntent::MakeConform, $exchange->possibleIntentsOf($this->me()));
+        $this->assertNotContains(ExchangeIntent::MakeConform, $exchange->possibleIntents());
     }
 
     public function testDeclaredConformAndItsFilesRemovedNothingIsToMakeConform(): void
     {
         $exchange = $this->withItsContactForgotten();
 
-        $exchange->declareConform(by: $this->me(), at: new \DateTimeImmutable(self::NOW));
-        $exchange->removeAttachment(new AttachmentId(self::ATTACHMENT), by: $this->me(), at: new \DateTimeImmutable(self::NOW));
+        $exchange->declareConform(by: $this->me()->id, at: new \DateTimeImmutable(self::NOW));
+        $exchange->removeAttachment(new AttachmentId(self::ATTACHMENT), by: $this->me()->id, at: new \DateTimeImmutable(self::NOW));
 
         $this->assertFalse($exchange->isToMakeConform());
     }
@@ -210,7 +205,7 @@ class ExchangeTest extends TestCase
     {
         $exchange = $this->noted(new ExchangeFacts(Channel::Call, Direction::Inbound, new \DateTimeImmutable(self::NOW)));
 
-        $exchange->forgetItsContact(by: $this->me(), at: new \DateTimeImmutable(self::NOW));
+        $exchange->forgetItsContact(by: $this->me()->id, at: new \DateTimeImmutable(self::NOW));
 
         $this->assertSame([true, false], [$exchange->isToMakeConform(), $exchange->isTextToMakeConform()]);
     }
@@ -219,19 +214,19 @@ class ExchangeTest extends TestCase
     {
         $this->expectException(NothingToMakeConform::class);
 
-        $this->anExchange()->declareConform(by: $this->me(), at: new \DateTimeImmutable(self::NOW));
+        $this->anExchange()->declareConform(by: $this->me()->id, at: new \DateTimeImmutable(self::NOW));
     }
 
     public function testAFullExchangeOffersNoRoomForAnotherFile(): void
     {
-        $this->assertNotContains(ExchangeIntent::AttachFile, $this->aFullExchange()->possibleIntentsOf($this->me()));
+        $this->assertNotContains(ExchangeIntent::AttachFile, $this->aFullExchange()->possibleIntents());
     }
 
     public function testAFullExchangeRefusesAnotherFile(): void
     {
         $this->expectException(NoRoomForAnAttachment::class);
 
-        $this->aFullExchange()->attach($this->anAttachment(self::ATTACHMENT), by: $this->me(), at: new \DateTimeImmutable(self::NOW));
+        $this->aFullExchange()->attach($this->anAttachment(self::ATTACHMENT), by: $this->me()->id, at: new \DateTimeImmutable(self::NOW));
     }
 
     public function testAttachingRecordsIt(): void
@@ -239,7 +234,7 @@ class ExchangeTest extends TestCase
         $exchange = $this->anExchange();
         $exchange->releaseEvents();
 
-        $exchange->attach($this->anAttachment(self::ATTACHMENT), by: $this->me(), at: new \DateTimeImmutable(self::NOW));
+        $exchange->attach($this->anAttachment(self::ATTACHMENT), by: $this->me()->id, at: new \DateTimeImmutable(self::NOW));
 
         $this->assertEquals([new FileAttached(new AccountId(self::MINE), $this->me()->id, new ExchangeId(self::EXCHANGE), new AttachmentId(self::ATTACHMENT), new \DateTimeImmutable(self::NOW))], $exchange->releaseEvents());
     }
@@ -249,36 +244,25 @@ class ExchangeTest extends TestCase
         $exchange = $this->withAnAttachment();
         $exchange->releaseEvents();
 
-        $exchange->removeAttachment(new AttachmentId(self::ATTACHMENT), by: $this->me(), at: new \DateTimeImmutable(self::NOW));
+        $exchange->removeAttachment(new AttachmentId(self::ATTACHMENT), by: $this->me()->id, at: new \DateTimeImmutable(self::NOW));
 
         $this->assertSame([], $exchange->attachments());
         $this->assertEquals([new AttachmentRemoved(new AccountId(self::MINE), $this->me()->id, new ExchangeId(self::EXCHANGE), new AttachmentId(self::ATTACHMENT), new \DateTimeImmutable(self::NOW))], $exchange->releaseEvents());
     }
 
-    public function testOnlyTheTextIsOfferedWithoutTheRightToManagePersonalData(): void
-    {
-        $this->assertSame([ExchangeIntent::CorrectText, ExchangeIntent::MakeConform], $this->withItsContactForgotten()->possibleIntentsOf($this->colleagueWithoutTheRight()));
-    }
-
-    public function testNothingIsOfferedToAnotherAccount(): void
-    {
-        $this->assertSame([], $this->anExchange()->possibleIntentsOf($this->otherAccount()));
-    }
-
     /**
      * Every intention is refused exactly when the exchange does not offer it.
      */
-    #[DataProvider('intentionsAndCallers')]
-    public function testAnIntentionIsRefusedExactlyWhenNotOffered(ExchangeIntent $intent, string $caller, string $state): void
+    #[DataProvider('intentionsAndStates')]
+    public function testAnIntentionIsRefusedExactlyWhenNotOffered(ExchangeIntent $intent, string $state): void
     {
         $exchange = $this->{$state}();
-        $prospector = $this->{$caller}();
-        $offered = in_array($intent, $exchange->possibleIntentsOf($prospector), true);
+        $offered = in_array($intent, $exchange->possibleIntents(), true);
 
         try {
-            $this->carryOut($intent, $exchange, $prospector);
+            $this->carryOut($intent, $exchange, $this->me()->id);
             $refused = false;
-        } catch (UnknownExchange|PersonalDataManagersOnly|NoRoomForAnAttachment|NothingToMakeConform) {
+        } catch (NoRoomForAnAttachment|NothingToMakeConform) {
             $refused = true;
         }
 
@@ -286,20 +270,18 @@ class ExchangeTest extends TestCase
     }
 
     /**
-     * @return iterable<string, array{ExchangeIntent, string, string}>
+     * @return iterable<string, array{ExchangeIntent, string}>
      */
-    public static function intentionsAndCallers(): iterable
+    public static function intentionsAndStates(): iterable
     {
         foreach (ExchangeIntent::cases() as $intent) {
-            foreach (['me', 'colleagueWithoutTheRight', 'otherAccount'] as $caller) {
-                foreach (['withAnAttachment', 'withItsContactForgotten'] as $state) {
-                    yield sprintf('%s by %s %s', $intent->name, $caller, $state) => [$intent, $caller, $state];
-                }
+            foreach (['withAnAttachment', 'withItsContactForgotten'] as $state) {
+                yield sprintf('%s %s', $intent->name, $state) => [$intent, $state];
             }
         }
     }
 
-    private function carryOut(ExchangeIntent $intent, Exchange $exchange, Prospector $by): void
+    private function carryOut(ExchangeIntent $intent, Exchange $exchange, MemberId $by): void
     {
         $now = new \DateTimeImmutable(self::NOW);
 
@@ -320,7 +302,7 @@ class ExchangeTest extends TestCase
         $later = new \DateTimeImmutable(self::NOW)->modify('+1 day');
         $corrected = new ExchangeFacts(Channel::Email, Direction::Outbound, new \DateTimeImmutable(self::NOW), 'Objet : mission');
 
-        $exchange->correct($corrected, by: $this->me(), at: $later);
+        $exchange->correct($corrected, by: $this->me()->id, at: $later);
 
         $this->assertSame($corrected, $exchange->facts());
         $this->assertEquals(new Correction($this->me()->id, $later), $exchange->lastCorrection());
@@ -336,21 +318,7 @@ class ExchangeTest extends TestCase
     {
         $this->expectException(ExchangeInTheFuture::class);
 
-        $this->anExchange()->correct(new ExchangeFacts(Channel::Call, Direction::Inbound, new \DateTimeImmutable(self::NOW)->modify('+1 second')), by: $this->me(), at: new \DateTimeImmutable(self::NOW));
-    }
-
-    public function testCorrectingNeedsTheRightToManagePersonalData(): void
-    {
-        $this->expectException(PersonalDataManagersOnly::class);
-
-        $this->anExchange()->correct(new ExchangeFacts(Channel::Call, Direction::Inbound, new \DateTimeImmutable(self::NOW)), by: $this->colleagueWithoutTheRight(), at: new \DateTimeImmutable(self::NOW));
-    }
-
-    public function testAnotherAccountDoesNotCorrectIt(): void
-    {
-        $this->expectException(UnknownExchange::class);
-
-        $this->anExchange()->correct(new ExchangeFacts(Channel::Call, Direction::Inbound, new \DateTimeImmutable(self::NOW)), by: $this->otherAccount(), at: new \DateTimeImmutable(self::NOW));
+        $this->anExchange()->correct(new ExchangeFacts(Channel::Call, Direction::Inbound, new \DateTimeImmutable(self::NOW)->modify('+1 second')), by: $this->me()->id, at: new \DateTimeImmutable(self::NOW));
     }
 
     public function testCorrectingTheTextKeepsTheOtherFactsAndRecordsWhoCorrected(): void
@@ -359,18 +327,11 @@ class ExchangeTest extends TestCase
         $exchange->releaseEvents();
         $later = new \DateTimeImmutable(self::NOW)->modify('+1 day');
 
-        $exchange->correctText('La contactée est intéressée', by: $this->colleagueWithoutTheRight(), at: $later);
+        $exchange->correctText('La contactée est intéressée', by: $this->colleagueWithoutTheRight()->id, at: $later);
 
         $this->assertEquals(new ExchangeFacts(Channel::LinkedIn, Direction::Inbound, new \DateTimeImmutable(self::NOW), 'La contactée est intéressée'), $exchange->facts());
         $this->assertEquals(new Correction($this->colleagueWithoutTheRight()->id, $later), $exchange->lastCorrection());
         $this->assertEquals([new ExchangeTextCorrected(new AccountId(self::MINE), $this->colleagueWithoutTheRight()->id, new ExchangeId(self::EXCHANGE), $later)], $exchange->releaseEvents());
-    }
-
-    public function testAnotherAccountDoesNotCorrectTheText(): void
-    {
-        $this->expectException(UnknownExchange::class);
-
-        $this->anExchange()->correctText('Rien', by: $this->otherAccount(), at: new \DateTimeImmutable(self::NOW));
     }
 
     public function testTheTextIsFlaggedToAProspectorWithoutTheRightToManagePersonalData(): void
@@ -395,29 +356,15 @@ class ExchangeTest extends TestCase
         $exchange = $this->anExchange();
         $exchange->releaseEvents();
 
-        $exchange->erase(by: $this->me(), at: new \DateTimeImmutable(self::NOW));
+        $exchange->erase(by: $this->me()->id, at: new \DateTimeImmutable(self::NOW));
 
         $this->assertEquals([new ExchangeErased(new AccountId(self::MINE), $this->me()->id, new ExchangeId(self::EXCHANGE), new \DateTimeImmutable(self::NOW))], $exchange->releaseEvents());
-    }
-
-    public function testErasingNeedsTheRightToManagePersonalData(): void
-    {
-        $this->expectException(PersonalDataManagersOnly::class);
-
-        $this->anExchange()->erase(by: $this->colleagueWithoutTheRight(), at: new \DateTimeImmutable(self::NOW));
-    }
-
-    public function testAnotherAccountDoesNotEraseIt(): void
-    {
-        $this->expectException(UnknownExchange::class);
-
-        $this->anExchange()->erase(by: $this->otherAccount(), at: new \DateTimeImmutable(self::NOW));
     }
 
     private function withAnAttachment(): Exchange
     {
         $exchange = $this->anExchange();
-        $exchange->attach($this->anAttachment(self::ATTACHMENT), by: $this->me(), at: new \DateTimeImmutable(self::NOW));
+        $exchange->attach($this->anAttachment(self::ATTACHMENT), by: $this->me()->id, at: new \DateTimeImmutable(self::NOW));
 
         return $exchange;
     }
@@ -425,7 +372,7 @@ class ExchangeTest extends TestCase
     private function withItsContactForgotten(): Exchange
     {
         $exchange = $this->withAnAttachment();
-        $exchange->forgetItsContact(by: $this->me(), at: new \DateTimeImmutable(self::NOW));
+        $exchange->forgetItsContact(by: $this->me()->id, at: new \DateTimeImmutable(self::NOW));
 
         return $exchange;
     }
@@ -435,7 +382,7 @@ class ExchangeTest extends TestCase
         $exchange = $this->anExchange();
 
         foreach (range(1, Exchange::MOST_ATTACHMENTS) as $number) {
-            $exchange->attach($this->anAttachment(sprintf('0190a1c0-0000-7000-8000-%012d', 100 + $number)), by: $this->me(), at: new \DateTimeImmutable(self::NOW));
+            $exchange->attach($this->anAttachment(sprintf('0190a1c0-0000-7000-8000-%012d', 100 + $number)), by: $this->me()->id, at: new \DateTimeImmutable(self::NOW));
         }
 
         return $exchange;
@@ -453,7 +400,7 @@ class ExchangeTest extends TestCase
 
     private function noted(ExchangeFacts $facts): Exchange
     {
-        return Exchange::notedBy($this->me(), new ExchangeId(self::EXCHANGE), new PersonId(self::CONTACT), [new OrganizationId(self::ACME), new OrganizationId(self::GROUP)], $facts, new \DateTimeImmutable(self::NOW));
+        return Exchange::notedWithAContact(new AccountId(self::MINE), $this->me()->id, new ExchangeId(self::EXCHANGE), new PersonId(self::CONTACT), [new OrganizationId(self::ACME), new OrganizationId(self::GROUP)], $facts, new \DateTimeImmutable(self::NOW));
     }
 
     private function me(): Prospector
@@ -463,11 +410,6 @@ class ExchangeTest extends TestCase
 
     private function colleagueWithoutTheRight(): Prospector
     {
-        return new Prospector(new MemberId(self::THEIRS), new AccountId(self::MINE));
-    }
-
-    private function otherAccount(): Prospector
-    {
-        return new Prospector(new MemberId(self::THEIRS), new AccountId(self::THEIRS), true);
+        return new Prospector(new MemberId(self::COLLEAGUE), new AccountId(self::MINE));
     }
 }

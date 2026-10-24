@@ -31,8 +31,3 @@ Fonctionnalité: Retirer un contact d'une organisation
     Et le contact "Grace Hopper" de "Groupe ACME" a l'adresse e-mail "grace@navy.test"
     Quand je retire le contact "Grace Hopper" de "ACME"
     Alors c'est refusé : "This person is no contact of the organization"
-
-  Scénario: Sans le droit aux données personnelles, je ne retire pas de contact
-    Soit je suis connecté en tant que prospecteur de "SOLEAN IT" sans le droit aux données personnelles
-    Quand je retire le contact "Ada Lovelace" de "ACME"
-    Alors c'est refusé : "Only a prospector allowed to manage personal data may manage the contacts"
