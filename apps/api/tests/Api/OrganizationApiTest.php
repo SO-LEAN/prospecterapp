@@ -214,6 +214,17 @@ class OrganizationApiTest extends ApiTestCase
             $this->assertResponseStatusCodeSame(404, $method.' '.$path);
             $this->assertSame('unknownOrganization', $problem['reason'], $method.' '.$path);
         }
+
+        $this->assertSame('unknownOrganization', $this->uploadImage('/api/organizations/'.$id.'/logo')['reason']);
+        $this->assertResponseStatusCodeSame(404, 'POST /logo');
+    }
+
+    public function testAnOrganizationOfAnotherOrganizationIsNotFoundWhateverThePayload(): void
+    {
+        $problem = $this->requestJson('PATCH', '/api/organizations/'.$this->anOrganizationOfAnotherOrganization().'/observations', ['notes' => 'unknown field']);
+
+        $this->assertResponseStatusCodeSame(404);
+        $this->assertSame('unknownOrganization', $problem['reason']);
     }
 
     public function testAHoldingOfAnotherOrganizationIsNotFound(): void

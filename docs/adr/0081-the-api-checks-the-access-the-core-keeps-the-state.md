@@ -25,7 +25,6 @@ Every use case of Prospecting received the id of the member who acts, and the ag
 - A use case of Prospecting that changes an organization or an exchange runs without a signed-in member, given the member it records as the author.
 - The rules of the access are no longer in the scenarios of the core but in the tests of the API; a client of the core other than the API checks them itself.
 - The resolver reads the resource before the command, the controller reads it again to answer it: one more read by key per change.
-- The payload of a request is validated with its arguments, before the voter: an invalid payload sent to a resource of another account is a 422, not a 404.
 
 ## Alternatives considered
 
