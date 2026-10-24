@@ -33,10 +33,3 @@ Fonctionnalité: Réviser l'identité légale d'une organisation
     Alors c'est refusé : "At least one is mandatory : corporate name or email"
     Et l'organisation "Globex" est enregistrée avec :
       | raison sociale | Globex |
-
-  Scénario: L'organisation d'une autre organisation est introuvable
-    Soit l'organisation "Concurrent" qui utilise Prospecter
-    Et l'organisation "Initech" appartient à "Concurrent"
-    Quand je révise l'identité de "Initech" :
-      | raison sociale | Initech rachetée |
-    Alors c'est introuvable

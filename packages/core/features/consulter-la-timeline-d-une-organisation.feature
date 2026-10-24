@@ -59,17 +59,6 @@ Fonctionnalité: La timeline d'une organisation
       | consulter la timeline |
       | noter un échange      |
 
-  Scénario: La fiche d'une organisation mène à sa timeline
-    Quand je consulte l'organisation "ACME"
-    Alors je peux sur sa timeline :
-      | consulter la timeline |
-      | noter un échange      |
-
-  Scénario: Sans le droit aux données personnelles, je ne note pas d'échange avec l'organisation
-    Soit je suis connecté en tant que prospecteur de "SOLEAN IT" sans le droit aux données personnelles
-    Quand je note un appel reçu de "ACME" elle-même
-    Alors c'est refusé : "Only a prospector allowed to manage personal data may exchange with the contacts"
-
   Scénario: Sans le droit aux données personnelles, la timeline de l'organisation masque ses contacts
     Soit j'ai noté un e-mail reçu de "Ada Lovelace" le 10/10/2026 à 9h00
     Et j'ai noté un appel reçu de "ACME" elle-même le 15/10/2026 à 16h00
@@ -79,23 +68,3 @@ Fonctionnalité: La timeline d'une organisation
       | moment           | interlocuteur | canal  |
       | 15/10/2026 16:00 | ACME          | Appel  |
       | 10/10/2026 09:00 | A***a L***e   | E-mail |
-    Et je peux sur la timeline :
-      | consulter la timeline |
-
-  Scénario: Sans le droit aux données personnelles, la fiche d'une organisation mène à sa timeline pour la lire seulement
-    Soit je suis connecté en tant que prospecteur de "SOLEAN IT" sans le droit aux données personnelles
-    Quand je consulte l'organisation "ACME"
-    Alors je peux sur sa timeline :
-      | consulter la timeline |
-
-  Scénario: L'organisation d'un autre compte est introuvable
-    Soit l'organisation "Concurrent" qui utilise Prospecter
-    Et l'organisation "Initech" appartient à "Concurrent"
-    Quand je consulte la timeline de "Initech"
-    Alors c'est introuvable
-
-  Scénario: Je ne note pas d'échange avec l'organisation d'un autre compte
-    Soit l'organisation "Concurrent" qui utilise Prospecter
-    Et l'organisation "Initech" appartient à "Concurrent"
-    Quand je note un appel reçu de "Initech" elle-même
-    Alors c'est introuvable

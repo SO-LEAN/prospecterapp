@@ -6,7 +6,6 @@ namespace Prospecter\Core\Prospecting\Application\AttachCollectedContact;
 
 use Prospecter\Core\PersonalData\Contract\Event\ContactCollected;
 use Prospecter\Core\Prospecting\Domain\OrganizationRepository;
-use Prospecter\Core\Prospecting\Domain\ProspectorService;
 use Prospecter\Core\SharedKernel\Application\EventHandler;
 use Prospecter\Core\SharedKernel\Application\Port\Events;
 use Prospecter\Core\SharedKernel\Application\PublishesEvents;
@@ -22,13 +21,13 @@ final readonly class AttachCollectedContactHandler implements EventHandler
 {
     use PublishesEvents;
 
-    public function __construct(private OrganizationRepository $organizations, private ProspectorService $prospectorService, private Events $events)
+    public function __construct(private OrganizationRepository $organizations, private Events $events)
     {
     }
 
     public function __invoke(ContactCollected $event): void
     {
-        $collector = $this->prospectorService->prospectorFrom(new MemberId($event->memberId));
+        $collector = new MemberId($event->memberId);
 
         foreach ($event->organizationIds as $organizationId) {
             $organization = $this->organizations->get(new OrganizationId($organizationId));

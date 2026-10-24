@@ -34,11 +34,12 @@ final readonly class NoteExchangeHandler implements CommandHandler
     {
         $prospector = $this->prospectorService->prospectorFrom(new MemberId($command->prospectorId));
         $contact = new PersonId($command->personId);
-        $exchange = Exchange::notedBy(
-            $prospector,
+        $exchange = Exchange::notedWithAContact(
+            $prospector->accountId,
+            $prospector->id,
             new ExchangeId($command->id),
             $contact,
-            $this->contactOrganizations->of($contact, $prospector),
+            $this->contactOrganizations->of($contact, $prospector->accountId),
             new ExchangeFacts(Channel::from($command->channel), Direction::from($command->direction), $command->occurredAt, $command->text, $command->missed),
             $command->executedAt,
         );

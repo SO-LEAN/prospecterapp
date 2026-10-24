@@ -4,12 +4,14 @@ namespace App\Prospecting\Controller;
 
 use App\Prospecting\Input\ObservationsInput;
 use App\Prospecting\OrganizationReader;
+use App\Prospecting\OrganizationVoter;
 use App\Prospecting\Resource\OrganizationResource;
 use App\Security\User;
 use App\Shared\CommandBus;
 use App\Shared\Resource\ProblemResource;
 use Nelmio\ApiDocBundle\Attribute\Model;
 use OpenApi\Attributes as OA;
+use Prospecter\Core\Prospecting\Application\OrganizationResponse;
 use Prospecter\Core\Prospecting\Application\WriteObservations\WriteObservations as WriteObservationsCommand;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\Clock\ClockInterface;
@@ -32,16 +34,17 @@ final class WriteObservations extends AbstractController
     }
 
     #[Route('/api/organizations/{id}/observations', name: 'api_organizations_write_observations', requirements: ['id' => Requirement::UUID], methods: ['PATCH'])]
+    #[IsGranted(OrganizationVoter::WRITE_OBSERVATIONS, subject: 'organization')]
     #[OA\Patch(summary: 'Write the observations on the organization')]
     #[OA\Response(response: 200, description: 'The organization with its observations', content: new Model(type: OrganizationResource::class))]
     #[OA\Response(response: 401, description: 'Missing or invalid access token')]
     #[OA\Response(response: 403, description: 'The signed-in user is not a prospector', content: new Model(type: ProblemResource::class))]
     #[OA\Response(response: 404, description: 'Unknown organization, or one that is neither mine nor prospected by mine', content: new Model(type: ProblemResource::class))]
     #[OA\Response(response: 422, description: 'Observations too long', content: new Model(type: ProblemResource::class))]
-    public function __invoke(string $id, #[MapRequestPayload] ObservationsInput $input, #[CurrentUser] User $user): JsonResponse
+    public function __invoke(OrganizationResponse $organization, #[MapRequestPayload] ObservationsInput $input, #[CurrentUser] User $user): JsonResponse
     {
-        $this->commands->dispatch(new WriteObservationsCommand($user->memberId(), $id, $input->observations, $this->clock->now()));
+        $this->commands->dispatch(new WriteObservationsCommand($user->memberId(), $organization->id, $input->observations, $this->clock->now()));
 
-        return $this->json($this->organizations->read($user->memberId(), $id));
+        return $this->json($this->organizations->read($organization->id));
     }
 }

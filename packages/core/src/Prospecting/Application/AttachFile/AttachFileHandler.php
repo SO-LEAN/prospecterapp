@@ -8,7 +8,6 @@ use Prospecter\Core\Prospecting\Domain\Attachment;
 use Prospecter\Core\Prospecting\Domain\AttachmentId;
 use Prospecter\Core\Prospecting\Domain\ExchangeId;
 use Prospecter\Core\Prospecting\Domain\ExchangeRepository;
-use Prospecter\Core\Prospecting\Domain\ProspectorService;
 use Prospecter\Core\SharedKernel\Application\CommandHandler;
 use Prospecter\Core\SharedKernel\Application\Port\Events;
 use Prospecter\Core\SharedKernel\Application\Port\PrivateStorage;
@@ -24,7 +23,6 @@ final readonly class AttachFileHandler implements CommandHandler
 
     public function __construct(
         private ExchangeRepository $exchanges,
-        private ProspectorService $prospectorService,
         private PrivateStorage $privateStorage,
         private Events $events,
     ) {
@@ -32,10 +30,10 @@ final readonly class AttachFileHandler implements CommandHandler
 
     public function __invoke(AttachFile $command): void
     {
-        $prospector = $this->prospectorService->prospectorFrom(new MemberId($command->prospectorId));
+        $author = new MemberId($command->prospectorId);
         $exchange = $this->exchanges->get(new ExchangeId($command->exchangeId));
         $upload = $this->privateStorage->uploaded($command->upload);
-        $exchange->attach(new Attachment(new AttachmentId($command->id), $command->name, $upload->size, $upload->mediaType, $command->upload), by: $prospector, at: $command->executedAt);
+        $exchange->attach(new Attachment(new AttachmentId($command->id), $command->name, $upload->size, $upload->mediaType, $command->upload), by: $author, at: $command->executedAt);
         $this->privateStorage->keep($command->upload);
         $this->exchanges->save($exchange);
         $this->publishWhatHappenedTo($exchange);

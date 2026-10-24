@@ -3,6 +3,7 @@
 namespace App\Prospecting\Controller;
 
 use App\Prospecting\OrganizationReader;
+use App\Prospecting\OrganizationVoter;
 use App\Prospecting\Resource\OrganizationResource;
 use App\Security\User;
 use App\Shared\CommandBus;
@@ -11,6 +12,7 @@ use App\Shared\UploadedFileInfo;
 use Nelmio\ApiDocBundle\Attribute\Model;
 use OpenApi\Attributes as OA;
 use Prospecter\Core\Prospecting\Application\ChangeLogo\ChangeLogo as ChangeLogoCommand;
+use Prospecter\Core\Prospecting\Application\OrganizationResponse;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\Clock\ClockInterface;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
@@ -34,16 +36,17 @@ final class ChangeLogo extends AbstractController
     }
 
     #[Route('/api/organizations/{id}/logo', name: 'api_organizations_change_logo', requirements: ['id' => Requirement::UUID], methods: ['POST'])]
+    #[IsGranted(OrganizationVoter::CHANGE_LOGO, subject: 'organization')]
     #[OA\Post(summary: 'Send a new logo (multipart, field "file"), stored as a new file')]
     #[OA\Response(response: 200, description: 'The organization with its new logo', content: new Model(type: OrganizationResource::class))]
     #[OA\Response(response: 401, description: 'Missing or invalid access token')]
     #[OA\Response(response: 403, description: 'The signed-in user is not a prospector', content: new Model(type: ProblemResource::class))]
     #[OA\Response(response: 404, description: 'Unknown organization, or one that is neither mine nor prospected by mine', content: new Model(type: ProblemResource::class))]
     #[OA\Response(response: 422, description: 'Invalid image', content: new Model(type: ProblemResource::class))]
-    public function __invoke(string $id, #[MapUploadedFile([new Assert\Image(maxSize: '2M', mimeTypes: ['image/jpeg', 'image/png', 'image/webp'])])] UploadedFile $file, #[CurrentUser] User $user): JsonResponse
+    public function __invoke(OrganizationResponse $organization, #[MapUploadedFile([new Assert\Image(maxSize: '2M', mimeTypes: ['image/jpeg', 'image/png', 'image/webp'])])] UploadedFile $file, #[CurrentUser] User $user): JsonResponse
     {
-        $this->commands->dispatch(new ChangeLogoCommand($user->memberId(), $id, new UploadedFileInfo($file), $this->clock->now()));
+        $this->commands->dispatch(new ChangeLogoCommand($user->memberId(), $organization->id, new UploadedFileInfo($file), $this->clock->now()));
 
-        return $this->json($this->organizations->read($user->memberId(), $id));
+        return $this->json($this->organizations->read($organization->id));
     }
 }

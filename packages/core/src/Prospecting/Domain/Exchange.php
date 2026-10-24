@@ -17,8 +17,6 @@ use Prospecter\Core\Prospecting\Domain\Exception\ExchangeInTheFuture;
 use Prospecter\Core\Prospecting\Domain\Exception\NoRoomForAnAttachment;
 use Prospecter\Core\Prospecting\Domain\Exception\NothingToMakeConform;
 use Prospecter\Core\Prospecting\Domain\Exception\UnknownAttachment;
-use Prospecter\Core\Prospecting\Domain\Exception\UnknownExchange;
-use Prospecter\Core\Prospecting\Domain\Exception\UnknownOrganization;
 use Prospecter\Core\SharedKernel\Domain\AccountId;
 use Prospecter\Core\SharedKernel\Domain\Exception\PersonalDataManagersOnly;
 use Prospecter\Core\SharedKernel\Domain\MemberId;
@@ -65,35 +63,32 @@ final class Exchange implements ReleasesEvents
     /**
      * @param list<OrganizationId> $organizationsOfTheContact
      *
-     * @throws PersonalDataManagersOnly|ExchangeInTheFuture
+     * @throws ExchangeInTheFuture
      */
-    public static function notedBy(Prospector $prospector, ExchangeId $id, PersonId $contact, array $organizationsOfTheContact, ExchangeFacts $facts, \DateTimeImmutable $at): self
+    public static function notedWithAContact(AccountId $accountId, MemberId $by, ExchangeId $id, PersonId $contact, array $organizationsOfTheContact, ExchangeFacts $facts, \DateTimeImmutable $at): self
     {
-        return self::noted($prospector, $id, $contact, $organizationsOfTheContact, $facts, $at);
+        return self::noted($accountId, $by, $id, $contact, $organizationsOfTheContact, $facts, $at);
     }
 
     /**
      * With the organization itself (its switchboard, its generic email): kept for it alone, in the timeline
      * of no contact.
      *
-     * @throws UnknownOrganization|PersonalDataManagersOnly|ExchangeInTheFuture
+     * @throws ExchangeInTheFuture
      */
-    public static function notedWithTheOrganization(Organization $organization, Prospector $prospector, ExchangeId $id, ExchangeFacts $facts, \DateTimeImmutable $at): self
+    public static function notedWithTheOrganization(Organization $organization, MemberId $by, ExchangeId $id, ExchangeFacts $facts, \DateTimeImmutable $at): self
     {
-        $organization->ensureReachableBy($prospector);
-
-        return self::noted($prospector, $id, null, [$organization->id()], $facts, $at);
+        return self::noted($organization->accountId(), $by, $id, null, [$organization->id()], $facts, $at);
     }
 
     /**
      * @param list<OrganizationId> $keptFor
      */
-    private static function noted(Prospector $prospector, ExchangeId $id, ?PersonId $contact, array $keptFor, ExchangeFacts $facts, \DateTimeImmutable $at): self
+    private static function noted(AccountId $accountId, MemberId $by, ExchangeId $id, ?PersonId $contact, array $keptFor, ExchangeFacts $facts, \DateTimeImmutable $at): self
     {
-        $prospector->ensureMayExchangeWithTheContacts();
         self::ensureHappenedBefore($facts, $at);
-        $exchange = new self($id, $prospector->accountId, $prospector->id, $contact, $keptFor, $facts, $at);
-        $exchange->recordThat(new ExchangeNoted($prospector->accountId, $prospector->id, $id, $at));
+        $exchange = new self($id, $accountId, $by, $contact, $keptFor, $facts, $at);
+        $exchange->recordThat(new ExchangeNoted($accountId, $by, $id, $at));
 
         return $exchange;
     }
@@ -246,13 +241,20 @@ final class Exchange implements ReleasesEvents
     /**
      * A file joined to it, hidden to a prospector without the right to manage personal data (ADR 0078).
      *
-     * @throws UnknownExchange|PersonalDataManagersOnly|UnknownAttachment
+     * @throws PersonalDataManagersOnly|UnknownAttachment
      */
     public function attachmentReadBy(Prospector $prospector, AttachmentId $id): Attachment
     {
-        $this->ensureReachableBy($prospector);
         $prospector->ensureMayExchangeWithTheContacts();
 
+        return $this->attachment($id);
+    }
+
+    /**
+     * @throws UnknownAttachment
+     */
+    private function attachment(AttachmentId $id): Attachment
+    {
         foreach ($this->attachments as $attachment) {
             if ($attachment->id->equals($id)) {
                 return $attachment;
@@ -273,26 +275,13 @@ final class Exchange implements ReleasesEvents
     }
 
     /**
-     * @return list<ExchangeIntent>
-     */
-    public function possibleIntentsOf(Prospector $prospector): array
-    {
-        if (!$this->belongsTo($prospector)) {
-            return [];
-        }
-
-        return array_values(array_filter($this->intentsOpenTo($prospector), $this->allowsInItsState(...)));
-    }
-
-    /**
-     * Retouching its text, and declaring it conform, are open to every prospector of the account; the rest
-     * needs the right to manage personal data.
+     * What its state offers now; the API decides who may (ADR 0081).
      *
      * @return list<ExchangeIntent>
      */
-    private function intentsOpenTo(Prospector $prospector): array
+    public function possibleIntents(): array
     {
-        return $prospector->managesPersonalData ? ExchangeIntent::cases() : [ExchangeIntent::CorrectText, ExchangeIntent::MakeConform];
+        return array_values(array_filter(ExchangeIntent::cases(), $this->allowsInItsState(...)));
     }
 
     private function allowsInItsState(ExchangeIntent $intent): bool
@@ -321,111 +310,105 @@ final class Exchange implements ReleasesEvents
     /**
      * The contact stays: an exchange with somebody else is erased, then noted again.
      *
-     * @throws UnknownExchange|PersonalDataManagersOnly|ExchangeInTheFuture
+     * @throws ExchangeInTheFuture
      */
-    public function correct(ExchangeFacts $facts, Prospector $by, \DateTimeImmutable $at): void
+    public function correct(ExchangeFacts $facts, MemberId $by, \DateTimeImmutable $at): void
     {
-        $this->ensurePossible(ExchangeIntent::CorrectExchange, $by);
+        $this->ensurePossible(ExchangeIntent::CorrectExchange);
         self::ensureHappenedBefore($facts, $at);
         $this->facts = $facts;
         $this->correctedBy($by, $at);
-        $this->recordThat(new ExchangeCorrected($this->accountId, $by->id, $this->id, $at));
+        $this->recordThat(new ExchangeCorrected($this->accountId, $by, $this->id, $at));
     }
 
     /**
      * To make it conform, without the right to manage personal data too: its other facts stay.
-     *
-     * @throws UnknownExchange
      */
-    public function correctText(?string $text, Prospector $by, \DateTimeImmutable $at): void
+    public function correctText(?string $text, MemberId $by, \DateTimeImmutable $at): void
     {
-        $this->ensurePossible(ExchangeIntent::CorrectText, $by);
+        $this->ensurePossible(ExchangeIntent::CorrectText);
         $this->facts = $this->facts->withText($text);
         $this->correctedBy($by, $at);
-        $this->recordThat(new ExchangeTextCorrected($this->accountId, $by->id, $this->id, $at));
+        $this->recordThat(new ExchangeTextCorrected($this->accountId, $by, $this->id, $at));
     }
 
     /**
      * Once its text retouched: its files, if any, are made conform by removing them.
      *
-     * @throws UnknownExchange|NothingToMakeConform
+     * @throws NothingToMakeConform
      */
-    public function declareConform(Prospector $by, \DateTimeImmutable $at): void
+    public function declareConform(MemberId $by, \DateTimeImmutable $at): void
     {
-        $this->ensurePossible(ExchangeIntent::MakeConform, $by);
+        $this->ensurePossible(ExchangeIntent::MakeConform);
         $this->modifiedAt = $at;
-        $this->madeConform = new Correction($by->id, $at);
-        $this->recordThat(new ExchangeMadeConform($this->accountId, $by->id, $this->id, $at));
+        $this->madeConform = new Correction($by, $at);
+        $this->recordThat(new ExchangeMadeConform($this->accountId, $by, $this->id, $at));
     }
 
-    private function correctedBy(Prospector $prospector, \DateTimeImmutable $at): void
+    private function correctedBy(MemberId $by, \DateTimeImmutable $at): void
     {
         $this->modifiedAt = $at;
-        $this->lastCorrection = new Correction($prospector->id, $at);
+        $this->lastCorrection = new Correction($by, $at);
     }
 
     /**
      * Erased from every timeline, once the repository removed it.
-     *
-     * @throws UnknownExchange|PersonalDataManagersOnly
      */
-    public function erase(Prospector $by, \DateTimeImmutable $at): void
+    public function erase(MemberId $by, \DateTimeImmutable $at): void
     {
-        $this->ensurePossible(ExchangeIntent::EraseExchange, $by);
-        $this->recordThat(new ExchangeErased($this->accountId, $by->id, $this->id, $at));
+        $this->ensurePossible(ExchangeIntent::EraseExchange);
+        $this->recordThat(new ExchangeErased($this->accountId, $by, $this->id, $at));
     }
 
     /**
      * A file it brought, or that was sent with it.
      *
-     * @throws UnknownExchange|PersonalDataManagersOnly|NoRoomForAnAttachment
+     * @throws NoRoomForAnAttachment
      */
-    public function attach(Attachment $attachment, Prospector $by, \DateTimeImmutable $at): void
+    public function attach(Attachment $attachment, MemberId $by, \DateTimeImmutable $at): void
     {
-        $this->ensurePossible(ExchangeIntent::AttachFile, $by);
+        $this->ensurePossible(ExchangeIntent::AttachFile);
         $this->attachments[] = $attachment;
         $this->modifiedAt = $at;
-        $this->recordThat(new FileAttached($this->accountId, $by->id, $this->id, $attachment->id, $at));
+        $this->recordThat(new FileAttached($this->accountId, $by, $this->id, $attachment->id, $at));
     }
 
     /**
-     * @throws UnknownExchange|PersonalDataManagersOnly|UnknownAttachment
+     * Gives back the file removed, for the client to remove it from the storage.
+     *
+     * @throws UnknownAttachment
      */
-    public function removeAttachment(AttachmentId $id, Prospector $by, \DateTimeImmutable $at): void
+    public function removeAttachment(AttachmentId $id, MemberId $by, \DateTimeImmutable $at): Attachment
     {
-        $this->ensurePossible(ExchangeIntent::RemoveAttachment, $by);
-        $removed = $this->attachmentReadBy($by, $id);
+        $this->ensurePossible(ExchangeIntent::RemoveAttachment);
+        $removed = $this->attachment($id);
         $this->attachments = array_values(array_filter($this->attachments, static fn (Attachment $attachment): bool => $attachment !== $removed));
         $this->modifiedAt = $at;
-        $this->recordThat(new AttachmentRemoved($this->accountId, $by->id, $this->id, $id, $at));
+        $this->recordThat(new AttachmentRemoved($this->accountId, $by, $this->id, $id, $at));
+
+        return $removed;
     }
 
     /**
      * The account stopped prospecting this organization: kept for no organization any more, the exchange must
      * not stay (`isKeptForAnOrganization()`).
-     *
-     * @throws UnknownExchange
      */
-    public function stopKeepingFor(OrganizationId $organization, Prospector $by, \DateTimeImmutable $at): void
+    public function stopKeepingFor(OrganizationId $organization, MemberId $by, \DateTimeImmutable $at): void
     {
-        $this->ensureReachableBy($by);
         $this->keptFor = array_values(array_filter($this->keptFor, static fn (OrganizationId $keptFor): bool => !$keptFor->equals($organization)));
         $this->modifiedAt = $at;
-        $this->recordThat(new ExchangeNoLongerKeptFor($this->accountId, $by->id, $this->id, $organization, $at));
+        $this->recordThat(new ExchangeNoLongerKeptFor($this->accountId, $by, $this->id, $organization, $at));
     }
 
     /**
      * Its contact erased by PersonalData: the exchange stays in the timelines of its organizations, its text
      * and its files to make conform (ADR 0079).
-     *
-     * @throws UnknownExchange
      */
-    public function forgetItsContact(Prospector $by, \DateTimeImmutable $at): void
+    public function forgetItsContact(MemberId $by, \DateTimeImmutable $at): void
     {
-        $this->ensureReachableBy($by);
         $this->contactForgotten = true;
         $this->modifiedAt = $at;
-        $this->recordThat(new ExchangeContactForgotten($this->accountId, $by->id, $this->id, $at));
+        $this->recordThat(new ExchangeContactForgotten($this->accountId, $by, $this->id, $at));
     }
 
     public function isKeptForAnOrganization(): bool
@@ -434,16 +417,10 @@ final class Exchange implements ReleasesEvents
     }
 
     /**
-     * @throws UnknownExchange|PersonalDataManagersOnly|NoRoomForAnAttachment|NothingToMakeConform
+     * @throws NoRoomForAnAttachment|NothingToMakeConform
      */
-    private function ensurePossible(ExchangeIntent $intent, Prospector $by): void
+    private function ensurePossible(ExchangeIntent $intent): void
     {
-        $this->ensureReachableBy($by);
-
-        if (!in_array($intent, $this->intentsOpenTo($by), true)) {
-            throw PersonalDataManagersOnly::because('Only a prospector allowed to manage personal data may exchange with the contacts');
-        }
-
         if (ExchangeIntent::AttachFile === $intent && !$this->hasRoomForAnAttachment()) {
             throw NoRoomForAnAttachment::because(sprintf('An exchange holds %d attachments at most', self::MOST_ATTACHMENTS));
         }
@@ -451,22 +428,5 @@ final class Exchange implements ReleasesEvents
         if (ExchangeIntent::MakeConform === $intent && !$this->awaitsBeingMadeConform()) {
             throw NothingToMakeConform::because('Only an exchange with a forgotten contact is to make conform');
         }
-    }
-
-    /**
-     * Another account does not even learn that the exchange exists.
-     *
-     * @throws UnknownExchange
-     */
-    public function ensureReachableBy(Prospector $prospector): void
-    {
-        if (!$this->belongsTo($prospector)) {
-            throw UnknownExchange::identifiedBy($this->id);
-        }
-    }
-
-    private function belongsTo(Prospector $prospector): bool
-    {
-        return $prospector->accountId->equals($this->accountId);
     }
 }

@@ -22,14 +22,3 @@ Fonctionnalité: Supprimer un échange
     Et "planning.xlsx" est joint à cet échange
     Quand je supprime cet échange
     Alors le fichier "planning.xlsx" n'est plus téléchargeable
-
-  Scénario: Sans le droit aux données personnelles, je ne supprime pas un échange
-    Soit je suis connecté en tant que prospecteur de "SOLEAN IT" sans le droit aux données personnelles
-    Quand je supprime cet échange
-    Alors c'est refusé : "Only a prospector allowed to manage personal data may exchange with the contacts"
-
-  Scénario: L'échange d'un autre compte est introuvable
-    Soit l'organisation "Concurrent" qui utilise Prospecter
-    Et je suis connecté en tant que prospecteur de "Concurrent"
-    Quand je supprime cet échange
-    Alors c'est introuvable

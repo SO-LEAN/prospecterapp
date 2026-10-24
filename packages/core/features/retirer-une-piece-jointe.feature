@@ -19,14 +19,3 @@ Fonctionnalité: Retirer une pièce jointe d'un échange
     Alors le détail de l'échange liste :
       | cahier-des-charges.pdf |
     Et le fichier "planning.xlsx" n'est plus téléchargeable
-
-  Scénario: Sans le droit aux données personnelles, je ne retire pas une pièce jointe
-    Soit je suis connecté en tant que prospecteur de "SOLEAN IT" sans le droit aux données personnelles
-    Quand je retire "planning.xlsx"
-    Alors c'est refusé : "Only a prospector allowed to manage personal data may exchange with the contacts"
-
-  Scénario: La pièce jointe d'un autre compte est introuvable
-    Soit l'organisation "Concurrent" qui utilise Prospecter
-    Et je suis connecté en tant que prospecteur de "Concurrent"
-    Quand je retire "planning.xlsx"
-    Alors c'est introuvable

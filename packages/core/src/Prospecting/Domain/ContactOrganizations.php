@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Prospecter\Core\Prospecting\Domain;
 
 use Prospecter\Core\Prospecting\Domain\Exception\UnknownContact;
+use Prospecter\Core\SharedKernel\Domain\AccountId;
 use Prospecter\Core\SharedKernel\Domain\OrganizationId;
 use Prospecter\Core\SharedKernel\Domain\PersonId;
 
@@ -23,9 +24,9 @@ final readonly class ContactOrganizations
      *
      * @throws UnknownContact
      */
-    public function of(PersonId $contact, Prospector $prospector): array
+    public function of(PersonId $contact, AccountId $account): array
     {
-        $ids = array_map(static fn (Organization $organization): OrganizationId => $organization->id(), $this->naming($contact, $prospector));
+        $ids = array_map(static fn (Organization $organization): OrganizationId => $organization->id(), $this->naming($contact, $account));
 
         return [] === $ids ? throw UnknownContact::identifiedBy($contact) : $ids;
     }
@@ -33,23 +34,23 @@ final readonly class ContactOrganizations
     /**
      * @throws UnknownContact
      */
-    public function ensureIsAContactOfTheAccount(PersonId $contact, Prospector $prospector): void
+    public function ensureIsAContactOfTheAccount(PersonId $contact, AccountId $account): void
     {
-        if (!$this->isAContactOfTheAccount($contact, $prospector)) {
+        if (!$this->isAContactOfTheAccount($contact, $account)) {
             throw UnknownContact::identifiedBy($contact);
         }
     }
 
-    public function isAContactOfTheAccount(PersonId $person, Prospector $prospector): bool
+    public function isAContactOfTheAccount(PersonId $person, AccountId $account): bool
     {
-        return [] !== $this->naming($person, $prospector);
+        return [] !== $this->naming($person, $account);
     }
 
     /**
      * @return list<Organization>
      */
-    private function naming(PersonId $contact, Prospector $prospector): array
+    private function naming(PersonId $contact, AccountId $account): array
     {
-        return $this->organizations->withContacts([$contact], $prospector->accountId);
+        return $this->organizations->withContacts([$contact], $account);
     }
 }

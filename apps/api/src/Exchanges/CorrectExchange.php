@@ -9,6 +9,7 @@ use App\Shared\CommandBus;
 use App\Shared\Resource\ProblemResource;
 use Nelmio\ApiDocBundle\Attribute\Model;
 use OpenApi\Attributes as OA;
+use Prospecter\Core\Prospecting\Application\ConsultExchange\ExchangeDetailResponse;
 use Prospecter\Core\Prospecting\Application\CorrectExchange\CorrectExchange as CorrectExchangeCommand;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\Clock\ClockInterface;
@@ -31,6 +32,7 @@ final class CorrectExchange extends AbstractController
     }
 
     #[Route('/api/exchanges/{id}/facts', name: 'api_exchanges_correct', requirements: ['id' => Requirement::UUID], methods: ['PATCH'])]
+    #[IsGranted(ExchangeVoter::CORRECT_EXCHANGE, subject: 'exchange')]
     #[OA\Patch(summary: 'Correct the channel, the direction, whether a call was missed, the moment and the text of an exchange; its contact stays')]
     #[OA\Response(response: 200, description: 'The corrected exchange', content: new Model(type: ExchangeDetailResource::class))]
     #[OA\Response(response: 401, description: 'Missing or invalid access token')]
@@ -38,11 +40,11 @@ final class CorrectExchange extends AbstractController
     #[OA\Response(response: 404, description: 'Unknown exchange, or one of another account', content: new Model(type: ProblemResource::class))]
     #[OA\Response(response: 409, description: 'Declared made conform while nothing is to make conform', content: new Model(type: ProblemResource::class))]
     #[OA\Response(response: 422, description: 'Invalid correction: unknown channel or direction, a missed exchange that is no call, a moment in the future, another contact', content: new Model(type: ProblemResource::class))]
-    public function __invoke(string $id, #[MapRequestPayload] CorrectionInput $input, #[CurrentUser] User $user): JsonResponse
+    public function __invoke(ExchangeDetailResponse $exchange, #[MapRequestPayload] CorrectionInput $input, #[CurrentUser] User $user): JsonResponse
     {
         $this->commands->dispatch(new CorrectExchangeCommand(
             prospectorId: $user->memberId(),
-            id: $id,
+            id: $exchange->id,
             channel: $input->channel,
             direction: $input->direction,
             occurredAt: $input->occurredAt ?? throw new \LogicException('The moment of a correction is validated'),
@@ -52,6 +54,6 @@ final class CorrectExchange extends AbstractController
             madeConform: $input->madeConform,
         ));
 
-        return $this->json($this->exchanges->read($user->memberId(), $id));
+        return $this->json($this->exchanges->read($user->memberId(), $exchange->id));
     }
 }

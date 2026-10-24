@@ -3,7 +3,25 @@
 namespace Tests\App\Api;
 
 use PHPUnit\Framework\Attributes\Group;
+use Prospecter\Core\Accounts\Domain\Account;
+use Prospecter\Core\Accounts\Domain\AccountRepository;
 use Prospecter\Core\Accounts\Domain\Role;
+use Prospecter\Core\Prospecting\Domain\Attachment;
+use Prospecter\Core\Prospecting\Domain\AttachmentId;
+use Prospecter\Core\Prospecting\Domain\Channel;
+use Prospecter\Core\Prospecting\Domain\Direction;
+use Prospecter\Core\Prospecting\Domain\Exchange;
+use Prospecter\Core\Prospecting\Domain\ExchangeFacts;
+use Prospecter\Core\Prospecting\Domain\ExchangeId;
+use Prospecter\Core\Prospecting\Domain\ExchangeRepository;
+use Prospecter\Core\Prospecting\Domain\Organization;
+use Prospecter\Core\Prospecting\Domain\OrganizationRepository;
+use Prospecter\Core\Prospecting\Domain\Prospector;
+use Prospecter\Core\SharedKernel\Domain\AccountId;
+use Prospecter\Core\SharedKernel\Domain\ContactDetails;
+use Prospecter\Core\SharedKernel\Domain\LegalIdentity;
+use Prospecter\Core\SharedKernel\Domain\MemberId;
+use Prospecter\Core\SharedKernel\Domain\OrganizationId;
 use Tests\App\Base\ApiTestCase;
 
 /**
@@ -13,6 +31,8 @@ use Tests\App\Base\ApiTestCase;
 #[Group('api')]
 class ExchangeApiTest extends ApiTestCase
 {
+    private const string ATTACHMENT = '0190a1c0-0000-7000-8000-0000000000a1';
+
     protected function setUp(): void
     {
         parent::setUp();
@@ -263,6 +283,23 @@ class ExchangeApiTest extends ApiTestCase
         $this->assertResponseStatusCodeSame(404);
     }
 
+    public function testAnExchangeOfAnotherAccountIsNotFoundForEveryIntention(): void
+    {
+        $id = $this->anExchangeOfAnotherAccount();
+        $attachment = '/attachments/'.self::ATTACHMENT;
+        $intentions = [
+            ['GET', '', null], ['PATCH', '/facts', ['channel' => 'call', 'direction' => 'inbound', 'occurredAt' => '2026-10-14T08:00:00+00:00']], ['PATCH', '/text', ['text' => 'Rien']],
+            ['DELETE', '', null], ['POST', '/attachments', ['upload' => self::newIdentity(), 'name' => 'devis.pdf']],
+            ['GET', $attachment, null], ['DELETE', $attachment, null],
+        ];
+
+        foreach ($intentions as [$method, $path, $payload]) {
+            $problem = $this->requestJson($method, '/api/exchanges/'.$id.$path, $payload);
+            $this->assertResponseStatusCodeSame(404, $method.' '.$path);
+            $this->assertSame('unknownExchange', $problem['reason'], $method.' '.$path);
+        }
+    }
+
     /**
      * @param array<string, mixed> $facts
      *
@@ -291,5 +328,18 @@ class ExchangeApiTest extends ApiTestCase
     private function anOrganization(string $name): string
     {
         return $this->requestJson('POST', '/api/organizations', ['legalIdentity' => ['corporateName' => $name]])['id'];
+    }
+
+    private function anExchangeOfAnotherAccount(): string
+    {
+        $competitor = Account::open(new AccountId(self::newIdentity()), new LegalIdentity('Competitor'), new \DateTimeImmutable());
+        self::getContainer()->get(AccountRepository::class)->save($competitor);
+        $theirs = Organization::prospectedBy(new Prospector(new MemberId(self::newIdentity()), $competitor->id()), new OrganizationId(self::newIdentity()), new LegalIdentity('Their prospect'), new ContactDetails(), new \DateTimeImmutable());
+        self::getContainer()->get(OrganizationRepository::class)->save($theirs);
+        $exchange = Exchange::notedWithTheOrganization($theirs, new MemberId(self::newIdentity()), new ExchangeId(self::newIdentity()), new ExchangeFacts(Channel::Call, Direction::Inbound, new \DateTimeImmutable('2026-10-14')), new \DateTimeImmutable('2026-10-14'));
+        $exchange->attach(new Attachment(new AttachmentId(self::ATTACHMENT), 'devis.pdf', 2048, 'application/pdf', 'their-file'), new MemberId(self::newIdentity()), new \DateTimeImmutable('2026-10-14'));
+        self::getContainer()->get(ExchangeRepository::class)->save($exchange);
+
+        return $exchange->id()->value;
     }
 }

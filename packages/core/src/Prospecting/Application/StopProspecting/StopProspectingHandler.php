@@ -7,8 +7,6 @@ namespace Prospecter\Core\Prospecting\Application\StopProspecting;
 use Prospecter\Core\Prospecting\Domain\Organization;
 use Prospecter\Core\Prospecting\Domain\OrganizationRepository;
 use Prospecter\Core\Prospecting\Domain\OrphanContacts;
-use Prospecter\Core\Prospecting\Domain\Prospector;
-use Prospecter\Core\Prospecting\Domain\ProspectorService;
 use Prospecter\Core\SharedKernel\Application\CommandHandler;
 use Prospecter\Core\SharedKernel\Application\Port\Events;
 use Prospecter\Core\SharedKernel\Application\PublishesEvents;
@@ -21,7 +19,6 @@ final readonly class StopProspectingHandler implements CommandHandler
 
     public function __construct(
         private OrganizationRepository $organizations,
-        private ProspectorService $prospectorService,
         private Events $events,
         private OrphanContacts $orphans,
     ) {
@@ -29,18 +26,18 @@ final readonly class StopProspectingHandler implements CommandHandler
 
     public function __invoke(StopProspecting $command): void
     {
-        $prospector = $this->prospectorService->prospectorFrom(new MemberId($command->prospectorId));
+        $author = new MemberId($command->prospectorId);
         $organization = $this->organizations->get(new OrganizationId($command->id));
-        $organization->stopBeingProspected(by: $prospector, at: $command->executedAt, orphans: $this->orphans);
-        $this->detachTheSubsidiariesOf($organization, $prospector, $command->executedAt);
+        $organization->stopBeingProspected(by: $author, at: $command->executedAt, orphans: $this->orphans);
+        $this->detachTheSubsidiariesOf($organization, $author, $command->executedAt);
         $this->organizations->remove($organization);
         $this->publishWhatHappenedTo($organization);
     }
 
-    private function detachTheSubsidiariesOf(Organization $holding, Prospector $prospector, \DateTimeImmutable $at): void
+    private function detachTheSubsidiariesOf(Organization $holding, MemberId $author, \DateTimeImmutable $at): void
     {
         foreach ($this->organizations->subsidiariesOf($holding->id()) as $subsidiary) {
-            $subsidiary->detachFromHolding(by: $prospector, at: $at);
+            $subsidiary->detachFromHolding(by: $author, at: $at);
             $this->organizations->save($subsidiary);
             $this->publishWhatHappenedTo($subsidiary);
         }

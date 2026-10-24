@@ -32,11 +32,18 @@ final readonly class ExchangeReader
 
     public function read(string $prospector, string $id): ExchangeDetailResource
     {
-        $exchange = ($this->consultExchange)(new ConsultExchange($prospector, $id));
+        return $this->present($prospector, ($this->consultExchange)(new ConsultExchange($prospector, $id)));
+    }
+
+    /**
+     * The exchange already read, its interlocutor and its authors named.
+     */
+    public function present(string $prospector, ExchangeDetailResponse $exchange): ExchangeDetailResource
+    {
         $personOfMember = $this->personsOfMembers(array_filter([$exchange->createdBy, $exchange->correctedBy, $exchange->madeConformBy]));
         $persons = ($this->consultPersons)(new ConsultPersons($prospector, array_values(array_unique(array_filter([$exchange->personId, ...array_values($personOfMember)])))));
 
-        return $this->presenter->present($exchange, $this->interlocutorOf($prospector, $exchange, $persons), $persons, $personOfMember);
+        return $this->presenter->present($exchange, $this->interlocutorOf($exchange, $persons), $persons, $personOfMember);
     }
 
     /**
@@ -44,10 +51,10 @@ final readonly class ExchangeReader
      *
      * @param array<string, PersonResponse> $persons by person id
      */
-    private function interlocutorOf(string $prospector, ExchangeDetailResponse $exchange, array $persons): InterlocutorResource
+    private function interlocutorOf(ExchangeDetailResponse $exchange, array $persons): InterlocutorResource
     {
         return null === $exchange->personId
-            ? InterlocutorResource::ofTheOrganization(($this->consultOrganization)(new ConsultOrganization($prospector, $exchange->organizationIds[0])))
+            ? InterlocutorResource::ofTheOrganization(($this->consultOrganization)(new ConsultOrganization($exchange->organizationIds[0])))
             : InterlocutorResource::ofPerson($exchange->personId, $persons[$exchange->personId] ?? null, $exchange->contactPresence);
     }
 

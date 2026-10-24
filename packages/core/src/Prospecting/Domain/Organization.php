@@ -27,9 +27,7 @@ use Prospecter\Core\Prospecting\Domain\Exception\UnknownOrganization;
 use Prospecter\Core\SharedKernel\Domain\AccountId;
 use Prospecter\Core\SharedKernel\Domain\Address;
 use Prospecter\Core\SharedKernel\Domain\ContactDetails;
-use Prospecter\Core\SharedKernel\Domain\Exception\NotAllowed;
 use Prospecter\Core\SharedKernel\Domain\Exception\NotPossibleInItsState;
-use Prospecter\Core\SharedKernel\Domain\Exception\PersonalDataManagersOnly;
 use Prospecter\Core\SharedKernel\Domain\File;
 use Prospecter\Core\SharedKernel\Domain\GeoPoint;
 use Prospecter\Core\SharedKernel\Domain\LegalIdentity;
@@ -175,108 +173,83 @@ final class Organization implements ReleasesEvents
     }
 
     /**
-     * What this prospector may do with the organization now: nothing if their account does not prospect
-     * it, and only what its state allows. Every intention refuses exactly what is missing here.
+     * What its state offers now; the API decides who may (ADR 0081). Every intention refuses exactly what is
+     * missing here.
      *
      * @return list<OrganizationIntent>
      */
-    public function possibleIntentsOf(Prospector $prospector): array
+    public function possibleIntents(): array
     {
-        if (!$this->isProspectedBy($prospector->accountId)) {
-            return [];
-        }
-
-        return array_values(array_filter(OrganizationIntent::cases(), fn (OrganizationIntent $intent): bool => $this->isAllowedTo($prospector, $intent) && $this->allowsInItsState($intent)));
+        return array_values(array_filter(OrganizationIntent::cases(), $this->allowsInItsState(...)));
     }
 
-    /**
-     * What this prospector may do with the timeline of the organization: nothing if their account does not
-     * prospect it.
-     *
-     * @return list<TimelineIntent>
-     */
-    public function timelineIntentsOf(Prospector $prospector): array
+    public function reviseLegalIdentity(LegalIdentity $legalIdentity, MemberId $by, \DateTimeImmutable $at): void
     {
-        return $this->isProspectedBy($prospector->accountId) ? $prospector->timelineIntents() : [];
-    }
-
-    /**
-     * Another account does not even learn that the organization exists (ADR 0019).
-     */
-    public function ensureReachableBy(Prospector $prospector): void
-    {
-        if (!$this->isProspectedBy($prospector->accountId)) {
-            throw UnknownOrganization::identifiedBy($this->id);
-        }
-    }
-
-    public function reviseLegalIdentity(LegalIdentity $legalIdentity, Prospector $by, \DateTimeImmutable $at): void
-    {
-        $this->ensurePossible(OrganizationIntent::ReviseLegalIdentity, $by);
+        $this->ensurePossible(OrganizationIntent::ReviseLegalIdentity);
         self::ensureItCanBeNamed($legalIdentity, $this->contactDetails);
         $this->legalIdentity = $legalIdentity;
         $this->modifiedAt = $at;
-        $this->recordThat(new LegalIdentityRevised($this->accountId, $by->id, $this->id, $at));
+        $this->recordThat(new LegalIdentityRevised($this->accountId, $by, $this->id, $at));
     }
 
-    public function changeContactDetails(ContactDetails $contactDetails, Prospector $by, \DateTimeImmutable $at): void
+    public function changeContactDetails(ContactDetails $contactDetails, MemberId $by, \DateTimeImmutable $at): void
     {
-        $this->ensurePossible(OrganizationIntent::ChangeContactDetails, $by);
+        $this->ensurePossible(OrganizationIntent::ChangeContactDetails);
         self::ensureItCanBeNamed($this->legalIdentity, $contactDetails);
         $this->contactDetails = $contactDetails;
         $this->modifiedAt = $at;
-        $this->recordThat(new ContactDetailsChanged($this->accountId, $by->id, $this->id, $at));
+        $this->recordThat(new ContactDetailsChanged($this->accountId, $by, $this->id, $at));
     }
 
-    public function relocateTo(?Address $address, ?GeoPoint $geoPoint, Prospector $by, \DateTimeImmutable $at): void
+    public function relocateTo(?Address $address, ?GeoPoint $geoPoint, MemberId $by, \DateTimeImmutable $at): void
     {
-        $this->ensurePossible(OrganizationIntent::Relocate, $by);
+        $this->ensurePossible(OrganizationIntent::Relocate);
         $this->address = null === $address || $address->isEmpty() ? null : $address;
         $this->geoPoint = $geoPoint;
         $this->modifiedAt = $at;
-        $this->recordThat(new Relocated($this->accountId, $by->id, $this->id, $at));
+        $this->recordThat(new Relocated($this->accountId, $by, $this->id, $at));
     }
 
-    public function writeObservations(?string $observations, Prospector $by, \DateTimeImmutable $at): void
+    public function writeObservations(?string $observations, MemberId $by, \DateTimeImmutable $at): void
     {
-        $this->ensurePossible(OrganizationIntent::WriteObservations, $by);
+        $this->ensurePossible(OrganizationIntent::WriteObservations);
         $this->observations = $observations;
         $this->modifiedAt = $at;
-        $this->recordThat(new ObservationsWritten($this->accountId, $by->id, $this->id, $at));
+        $this->recordThat(new ObservationsWritten($this->accountId, $by, $this->id, $at));
     }
 
-    public function attachToHolding(self $holding, Prospector $by, \DateTimeImmutable $at): void
+    public function attachToHolding(self $holding, MemberId $by, \DateTimeImmutable $at): void
     {
-        $this->ensurePossible(OrganizationIntent::AttachToHolding, $by);
-        $holding->ensureReachableBy($by);
+        $this->ensurePossible(OrganizationIntent::AttachToHolding);
+        $this->ensureOfTheSameAccount($holding);
         $this->holdingId = $holding->id();
         $this->modifiedAt = $at;
-        $this->recordThat(new AttachedToHolding($this->accountId, $by->id, $this->id, $at));
+        $this->recordThat(new AttachedToHolding($this->accountId, $by, $this->id, $at));
     }
 
-    public function detachFromHolding(Prospector $by, \DateTimeImmutable $at): void
+    public function detachFromHolding(MemberId $by, \DateTimeImmutable $at): void
     {
-        $this->ensurePossible(OrganizationIntent::DetachFromHolding, $by);
+        $this->ensurePossible(OrganizationIntent::DetachFromHolding);
         $this->holdingId = null;
         $this->modifiedAt = $at;
-        $this->recordThat(new DetachedFromHolding($this->accountId, $by->id, $this->id, $at));
+        $this->recordThat(new DetachedFromHolding($this->accountId, $by, $this->id, $at));
     }
 
-    public function changeLogo(File $logo, Prospector $by, \DateTimeImmutable $at): void
+    public function changeLogo(File $logo, MemberId $by, \DateTimeImmutable $at): void
     {
-        $this->ensurePossible(OrganizationIntent::ChangeLogo, $by);
+        $this->ensurePossible(OrganizationIntent::ChangeLogo);
         $this->logo = $logo;
         $this->modifiedAt = $at;
-        $this->recordThat(new LogoChanged($this->accountId, $by->id, $this->id, $at));
+        $this->recordThat(new LogoChanged($this->accountId, $by, $this->id, $at));
     }
 
-    public function removeLogo(Prospector $by, \DateTimeImmutable $at): File
+    public function removeLogo(MemberId $by, \DateTimeImmutable $at): File
     {
-        $this->ensurePossible(OrganizationIntent::RemoveLogo, $by);
+        $this->ensurePossible(OrganizationIntent::RemoveLogo);
         $removed = $this->logo;
         $this->logo = null;
         $this->modifiedAt = $at;
-        $this->recordThat(new LogoRemoved($this->accountId, $by->id, $this->id, $at));
+        $this->recordThat(new LogoRemoved($this->accountId, $by, $this->id, $at));
 
         return $removed;
     }
@@ -284,9 +257,9 @@ final class Organization implements ReleasesEvents
     /**
      * @throws AlreadyAContact
      */
-    public function addContact(PersonId $contact, Prospector $by, \DateTimeImmutable $at): void
+    public function addContact(PersonId $contact, MemberId $by, \DateTimeImmutable $at): void
     {
-        $this->ensurePossible(OrganizationIntent::AddContact, $by);
+        $this->ensurePossible(OrganizationIntent::AddContact);
 
         if ($this->hasContact($contact)) {
             throw AlreadyAContact::because('This person is a contact of the organization already', 'personId');
@@ -294,7 +267,7 @@ final class Organization implements ReleasesEvents
 
         $this->contacts[] = $contact;
         $this->modifiedAt = $at;
-        $this->recordThat(new ContactAdded($this->accountId, $by->id, $this->id, $contact, $at));
+        $this->recordThat(new ContactAdded($this->accountId, $by, $this->id, $contact, $at));
     }
 
     /**
@@ -302,9 +275,9 @@ final class Organization implements ReleasesEvents
      *
      * @throws NotAContact
      */
-    public function removeContact(PersonId $contact, Prospector $by, \DateTimeImmutable $at, OrphanContacts $orphans): void
+    public function removeContact(PersonId $contact, MemberId $by, \DateTimeImmutable $at, OrphanContacts $orphans): void
     {
-        $this->ensurePossible(OrganizationIntent::RemoveContact, $by);
+        $this->ensurePossible(OrganizationIntent::RemoveContact);
 
         if (!$this->hasContact($contact)) {
             throw $this->notAContact();
@@ -312,40 +285,36 @@ final class Organization implements ReleasesEvents
 
         $this->contacts = array_values(array_filter($this->contacts, static fn (PersonId $attached): bool => !$attached->equals($contact)));
         $this->modifiedAt = $at;
-        $this->recordThat(new ContactRemoved($this->accountId, $by->id, $this->id, $contact, $at));
+        $this->recordThat(new ContactRemoved($this->accountId, $by, $this->id, $contact, $at));
         $this->leaveAlone($orphans->among([$contact], $this->accountId, $this->id), $by, $at);
     }
 
     /**
      * Leaves the prospecting base: once the repository removed it, its contacts no other organization names
      * are left alone (ContactsLeftWithoutOrganization).
-     *
-     * @throws UnknownOrganization|NotAllowed
      */
-    public function stopBeingProspected(Prospector $by, \DateTimeImmutable $at, OrphanContacts $orphans): void
+    public function stopBeingProspected(MemberId $by, \DateTimeImmutable $at, OrphanContacts $orphans): void
     {
-        $this->ensurePossible(OrganizationIntent::StopProspecting, $by);
-        $this->recordThat(new ProspectingStopped($this->accountId, $by->id, $this->id, $at));
+        $this->ensurePossible(OrganizationIntent::StopProspecting);
+        $this->recordThat(new ProspectingStopped($this->accountId, $by, $this->id, $at));
         $this->leaveAlone($orphans->among($this->contacts, $this->accountId, $this->id), $by, $at);
     }
 
     /**
      * @param list<PersonId> $contacts
      */
-    private function leaveAlone(array $contacts, Prospector $by, \DateTimeImmutable $at): void
+    private function leaveAlone(array $contacts, MemberId $by, \DateTimeImmutable $at): void
     {
         if ([] !== $contacts) {
-            $this->recordThat(new ContactsLeftWithoutOrganization($this->accountId, $by->id, $this->id, $contacts, $at));
+            $this->recordThat(new ContactsLeftWithoutOrganization($this->accountId, $by, $this->id, $contacts, $at));
         }
     }
 
     /**
-     * @throws UnknownOrganization|NotAContact
+     * @throws NotAContact
      */
-    public function ensureHasContact(PersonId $contact, Prospector $prospector): void
+    public function ensureHasContact(PersonId $contact): void
     {
-        $this->ensureReachableBy($prospector);
-
         if (!$this->hasContact($contact)) {
             throw $this->notAContact();
         }
@@ -372,31 +341,19 @@ final class Organization implements ReleasesEvents
     }
 
     /**
-     * The contacts are personal data: managing them, or stopping to prospect an organization that has some
-     * (they may be erased with it), needs the right to manage personal data.
+     * A holding of another account is unknown to it.
+     *
+     * @throws UnknownOrganization
      */
-    private function isAllowedTo(Prospector $prospector, OrganizationIntent $intent): bool
+    private function ensureOfTheSameAccount(self $holding): void
     {
-        return $prospector->managesPersonalData || !$this->touchesContacts($intent);
-    }
-
-    private function touchesContacts(OrganizationIntent $intent): bool
-    {
-        return match ($intent) {
-            OrganizationIntent::AddContact, OrganizationIntent::RemoveContact => true,
-            OrganizationIntent::StopProspecting => [] !== $this->contacts,
-            default => false,
-        };
-    }
-
-    private function ensurePossible(OrganizationIntent $intent, Prospector $by): void
-    {
-        $this->ensureReachableBy($by);
-
-        if (!$this->isAllowedTo($by, $intent)) {
-            throw PersonalDataManagersOnly::because('Only a prospector allowed to manage personal data may manage the contacts');
+        if (!$holding->isProspectedBy($this->accountId)) {
+            throw UnknownOrganization::identifiedBy($holding->id);
         }
+    }
 
+    private function ensurePossible(OrganizationIntent $intent): void
+    {
         if (!$this->allowsInItsState($intent)) {
             throw $this->notPossibleInItsState($intent);
         }

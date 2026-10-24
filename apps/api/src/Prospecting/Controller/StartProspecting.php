@@ -63,6 +63,6 @@ final class StartProspecting extends AbstractController
             executedAt: $this->clock->now(),
         ));
 
-        return $this->json($this->reader->read($user->memberId(), $id), Response::HTTP_CREATED, ['Location' => $this->generateUrl('api_organizations_show', ['id' => $id])]);
+        return $this->json($this->reader->read($id), Response::HTTP_CREATED, ['Location' => $this->generateUrl('api_organizations_show', ['id' => $id])]);
     }
 }

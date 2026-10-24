@@ -28,9 +28,3 @@ Fonctionnalité: Corriger le texte d'un échange
     Quand je corrige le texte de cet échange en "Rappellera lundi"
     Alors je vois l'échange :
       | texte | Rappellera lundi |
-
-  Scénario: L'échange d'un autre compte est introuvable
-    Soit l'organisation "Concurrent" qui utilise Prospecter
-    Et je suis connecté en tant que prospecteur de "Concurrent"
-    Quand je corrige le texte de cet échange en "Rien"
-    Alors c'est introuvable

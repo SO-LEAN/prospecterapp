@@ -100,7 +100,7 @@ final class ExchangeContext implements Context
 
         foreach (range(1, $count) as $minutesAgo) {
             $facts = new ExchangeFacts(Channel::Call, Direction::Inbound, $this->application->now()->modify(sprintf('-%d minutes', $minutesAgo)));
-            $this->application->exchanges->save(Exchange::notedWithTheOrganization($prospect, $this->scenario->meAsProspector(), new ExchangeId($this->application->newIdentity()), $facts, $this->application->now()));
+            $this->application->exchanges->save(Exchange::notedWithTheOrganization($prospect, $this->scenario->meAsProspector()->id, new ExchangeId($this->application->newIdentity()), $facts, $this->application->now()));
         }
     }
 
@@ -264,7 +264,8 @@ final class ExchangeContext implements Context
      */
     private function arrange(string $contact, array $keptFor, ExchangeFacts $facts): void
     {
-        $exchange = Exchange::notedBy($this->scenario->meAsProspector(), new ExchangeId($this->application->newIdentity()), $this->scenario->personNamed($contact)->id(), $keptFor, $facts, $this->application->now());
+        $me = $this->scenario->meAsProspector();
+        $exchange = Exchange::notedWithAContact($me->accountId, $me->id, new ExchangeId($this->application->newIdentity()), $this->scenario->personNamed($contact)->id(), $keptFor, $facts, $this->application->now());
         $this->application->exchanges->save($exchange);
     }
 

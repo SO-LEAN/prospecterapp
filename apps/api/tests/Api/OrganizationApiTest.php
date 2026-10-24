@@ -200,11 +200,55 @@ class OrganizationApiTest extends ApiTestCase
     public function testAnOrganizationOfAnotherOrganizationIsNotFoundForEveryIntention(): void
     {
         $id = $this->anOrganizationOfAnotherOrganization();
+        $mine = $this->requestJson('POST', '/api/organizations', self::ACME)['id'];
+        $intentions = [
+            ['GET', '', null], ['PATCH', '/legal-identity', []], ['PATCH', '/contact-details', []], ['PATCH', '/address', []],
+            ['PATCH', '/observations', []], ['PATCH', '/holding', ['holdingId' => $mine]], ['DELETE', '/holding', null], ['DELETE', '/logo', null],
+            ['POST', '/contacts', ['personId' => self::newIdentity()]], ['DELETE', '/contacts/'.self::newIdentity(), null], ['DELETE', '', null],
+            ['GET', '/contacts', null], ['GET', '/exchanges', null], ['GET', '/exchanges-to-make-conform', null],
+            ['POST', '/exchanges', ['exchange' => ['channel' => 'call', 'direction' => 'inbound']]],
+        ];
 
-        foreach ([['GET', ''], ['PATCH', '/legal-identity'], ['PATCH', '/contact-details'], ['PATCH', '/address'], ['PATCH', '/observations'], ['DELETE', '/holding'], ['DELETE', '/logo']] as [$method, $path]) {
-            $this->requestJson($method, '/api/organizations/'.$id.$path, 'PATCH' === $method ? [] : null);
+        foreach ($intentions as [$method, $path, $payload]) {
+            $problem = $this->requestJson($method, '/api/organizations/'.$id.$path, $payload);
             $this->assertResponseStatusCodeSame(404, $method.' '.$path);
+            $this->assertSame('unknownOrganization', $problem['reason'], $method.' '.$path);
         }
+    }
+
+    public function testAHoldingOfAnotherOrganizationIsNotFound(): void
+    {
+        $id = $this->requestJson('POST', '/api/organizations', self::ACME)['id'];
+
+        $this->requestJson('PATCH', '/api/organizations/'.$id.'/holding', ['holdingId' => $this->anOrganizationOfAnotherOrganization()]);
+
+        $this->assertResponseStatusCodeSame(404);
+    }
+
+    public function testWithoutTheRightTheContactsAreNotManaged(): void
+    {
+        $id = $this->requestJson('POST', '/api/organizations', self::ACME)['id'];
+        $contact = $this->requestJson('POST', '/api/contacts', ['name' => ['firstName' => 'Ada'], 'organizationIds' => [$id]])['id'];
+        $this->login($this->aMemberOfTheFixtures('prospector-without-the-right', Role::User, Role::Prospector));
+
+        $links = $this->requestJson('GET', '/api/organizations/'.$id)['_links'];
+        $this->assertSame([], array_values(array_intersect(['addContact', 'stopProspecting', 'noteExchange'], array_keys($links))));
+        $this->assertArrayHasKey('exchanges', $links, 'its timeline is read without the right');
+
+        foreach ([['POST', '/contacts', ['personId' => $contact]], ['DELETE', '/contacts/'.$contact, null], ['DELETE', '', null], ['POST', '/exchanges', ['exchange' => ['channel' => 'call', 'direction' => 'inbound']]]] as [$method, $path, $payload]) {
+            $this->requestJson($method, '/api/organizations/'.$id.$path, $payload);
+            $this->assertResponseStatusCodeSame(403, $method.' '.$path);
+        }
+    }
+
+    public function testWithoutTheRightAnOrganizationWithoutContactsIsStillLeft(): void
+    {
+        $id = $this->requestJson('POST', '/api/organizations', self::ACME)['id'];
+        $this->login($this->aMemberOfTheFixtures('prospector-without-the-right', Role::User, Role::Prospector));
+
+        $this->assertArrayHasKey('stopProspecting', $this->requestJson('GET', '/api/organizations/'.$id)['_links']);
+        $this->requestJson('DELETE', '/api/organizations/'.$id);
+        $this->assertResponseStatusCodeSame(204);
     }
 
     public function testMyOwnOrganizationIsNotAProspectedOne(): void

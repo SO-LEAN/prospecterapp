@@ -6,20 +6,17 @@ namespace Prospecter\Core\Prospecting\Application;
 
 use Prospecter\Core\Prospecting\Domain\Organization;
 use Prospecter\Core\Prospecting\Domain\OrganizationIntent;
-use Prospecter\Core\Prospecting\Domain\Prospector;
-use Prospecter\Core\Prospecting\Domain\TimelineIntent;
 use Prospecter\Core\SharedKernel\Application\FileResponse;
 use Prospecter\Core\SharedKernel\Domain\PersonId;
 
 /**
- * An organization as a prospector of its account sees it, with what they may do with it now.
+ * An organization of an account, with what its state offers now.
  */
 final readonly class OrganizationResponse
 {
     /**
      * @param list<string> $contactIds      the persons prospected in it, to read in PersonalData
-     * @param list<string> $possibleIntents names of the intentions the prospector may carry out now: Relocate, RemoveLogo...
-     * @param list<string> $timelineIntents names of what the prospector may do with its timeline: ConsultTimeline, NoteExchange
+     * @param list<string> $possibleIntents names of the intentions its state offers now: Relocate, RemoveLogo...
      */
     private function __construct(
         public string $id,
@@ -43,13 +40,12 @@ final readonly class OrganizationResponse
         public ?string $holdingId,
         public array $contactIds,
         public array $possibleIntents,
-        public array $timelineIntents,
         public \DateTimeImmutable $createdAt,
         public \DateTimeImmutable $modifiedAt,
     ) {
     }
 
-    public static function of(Organization $organization, Prospector $viewer): self
+    public static function of(Organization $organization): self
     {
         $identity = $organization->legalIdentity();
         $contact = $organization->contactDetails();
@@ -77,8 +73,7 @@ final readonly class OrganizationResponse
             logo: FileResponse::orNone($organization->logo()),
             holdingId: $organization->holdingId()?->value,
             contactIds: array_map(static fn (PersonId $contact): string => $contact->value, $organization->contacts()),
-            possibleIntents: array_map(static fn (OrganizationIntent $intent): string => $intent->name, $organization->possibleIntentsOf($viewer)),
-            timelineIntents: array_map(static fn (TimelineIntent $intent): string => $intent->name, $organization->timelineIntentsOf($viewer)),
+            possibleIntents: array_map(static fn (OrganizationIntent $intent): string => $intent->name, $organization->possibleIntents()),
             createdAt: $organization->createdAt(),
             modifiedAt: $organization->modifiedAt(),
         );

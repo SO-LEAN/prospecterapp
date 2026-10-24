@@ -50,11 +50,3 @@ Fonctionnalité: Consulter le détail d'un échange
       | interlocuteur | A***a L***e                        |
       | texte         | Intéressée par une mission en mars |
       | signalé       | oui                                |
-    Et je peux sur l'échange :
-      | corriger le texte |
-
-  Scénario: L'échange d'un autre compte est introuvable
-    Soit l'organisation "Concurrent" qui utilise Prospecter
-    Et je suis connecté en tant que prospecteur de "Concurrent"
-    Quand je consulte cet échange
-    Alors c'est introuvable

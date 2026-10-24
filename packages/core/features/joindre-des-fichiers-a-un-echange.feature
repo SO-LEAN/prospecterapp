@@ -44,11 +44,6 @@ Fonctionnalité: Joindre des fichiers à un échange
     Quand je joins encore le même envoi à cet échange
     Alors c'est introuvable
 
-  Scénario: Sans le droit aux données personnelles, je ne joins pas de fichier
-    Soit je suis connecté en tant que prospecteur de "SOLEAN IT" sans le droit aux données personnelles
-    Quand je joins "planning.xlsx" à cet échange
-    Alors c'est refusé : "Only a prospector allowed to manage personal data may exchange with the contacts"
-
   Scénario: Une organisation qu'on arrête de prospecter emporte les pièces jointes de ses échanges
     Soit "planning.xlsx" est joint à cet échange
     Quand j'arrête de prospecter "ACME"

@@ -25,53 +25,45 @@ use Tests\Core\Double\InMemoryDatabase;
 use Tests\Core\Double\InMemoryOrganizationRepository;
 
 /**
- * The front shows an action when its link is there, the API refuses a call when it is not: an intention
- * must be refused exactly when the organization does not offer it.
+ * The API shows the link of an intention its state offers, and the aggregate refuses a call it does not:
+ * an intention must be refused exactly when the organization does not offer it.
  */
 class OrganizationIntentsTest extends TestCase
 {
     private const string MINE = '0190a1c0-0000-7000-8000-000000000001';
-    private const string THEIRS = '0190a1c0-0000-7000-8000-000000000002';
     private const string PROSPECT = '0190a1c0-0000-7000-8000-000000000003';
     private const string HOLDING = '0190a1c0-0000-7000-8000-000000000004';
     private const string CONTACT = '0190a1c0-0000-7000-8000-000000000005';
     private const string NEW_CONTACT = '0190a1c0-0000-7000-8000-000000000006';
     private const string FULL = 'with logo, holding and a contact';
-    private const array USERS = [
-        'mine' => [self::MINE, true],
-        'mine without the right to manage personal data' => [self::MINE, false],
-        'theirs' => [self::THEIRS, true],
-    ];
+    private const string AUTHOR = '0190a1c0-0000-7000-8000-0000000000aa';
 
     #[DataProvider('situations')]
-    public function testAnIntentionIsRefusedExactlyWhenItIsNotOffered(OrganizationIntent $intent, string $state, string $userAccount, bool $managesPersonalData): void
+    public function testAnIntentionIsRefusedExactlyWhenItIsNotOffered(OrganizationIntent $intent, string $state): void
     {
-        $user = $this->someoneOf($userAccount, $managesPersonalData);
         $organization = $this->prospect($state);
         $organization->releaseEvents();
-        $offered = in_array($intent, $organization->possibleIntentsOf($user), true);
+        $offered = in_array($intent, $organization->possibleIntents(), true);
 
-        $accepted = $this->isAccepted($intent, $organization, $user);
+        $accepted = $this->isAccepted($intent, $organization, new MemberId(self::AUTHOR));
 
         $this->assertSame($offered, $accepted, sprintf('%s offered: %s', $intent->name, var_export($offered, true)));
         $this->assertSame($accepted, [] !== $organization->releaseEvents(), 'an accepted intention records what happened, a refused one nothing');
     }
 
     /**
-     * @return iterable<string, array{OrganizationIntent, string, string, bool}>
+     * @return iterable<string, array{OrganizationIntent, string}>
      */
     public static function situations(): iterable
     {
         foreach (OrganizationIntent::cases() as $intent) {
             foreach (['bare', self::FULL] as $state) {
-                foreach (self::USERS as $user => [$account, $managesPersonalData]) {
-                    yield sprintf('%s, %s, by %s', $intent->name, $state, $user) => [$intent, $state, $account, $managesPersonalData];
-                }
+                yield sprintf('%s, %s', $intent->name, $state) => [$intent, $state];
             }
         }
     }
 
-    private function isAccepted(OrganizationIntent $intent, Organization $organization, Prospector $by): bool
+    private function isAccepted(OrganizationIntent $intent, Organization $organization, MemberId $by): bool
     {
         try {
             $this->carryOut($intent, $organization, $by);
@@ -82,7 +74,7 @@ class OrganizationIntentsTest extends TestCase
         return true;
     }
 
-    private function carryOut(OrganizationIntent $intent, Organization $organization, Prospector $by): void
+    private function carryOut(OrganizationIntent $intent, Organization $organization, MemberId $by): void
     {
         match ($intent) {
             OrganizationIntent::ReviseLegalIdentity => $organization->reviseLegalIdentity(new LegalIdentity('ACME SAS'), $by, new \DateTimeImmutable()),
@@ -101,13 +93,12 @@ class OrganizationIntentsTest extends TestCase
 
     private function prospect(string $state): Organization
     {
-        $mine = $this->someoneOf(self::MINE);
-        $prospect = Organization::prospectedBy($mine, new OrganizationId(self::PROSPECT), new LegalIdentity('ACME'), new ContactDetails(), new \DateTimeImmutable());
+        $prospect = Organization::prospectedBy($this->prospector(), new OrganizationId(self::PROSPECT), new LegalIdentity('ACME'), new ContactDetails(), new \DateTimeImmutable());
 
         if (self::FULL === $state) {
-            $prospect->changeLogo($this->logo(), $mine, new \DateTimeImmutable());
-            $prospect->attachToHolding($this->holding(), $mine, new \DateTimeImmutable());
-            $prospect->addContact(new PersonId(self::CONTACT), $mine, new \DateTimeImmutable());
+            $prospect->changeLogo($this->logo(), $this->prospector()->id, new \DateTimeImmutable());
+            $prospect->attachToHolding($this->holding(), $this->prospector()->id, new \DateTimeImmutable());
+            $prospect->addContact(new PersonId(self::CONTACT), $this->prospector()->id, new \DateTimeImmutable());
         }
 
         return $prospect;
@@ -123,7 +114,7 @@ class OrganizationIntentsTest extends TestCase
 
     private function holding(): Organization
     {
-        return Organization::prospectedBy($this->someoneOf(self::MINE), new OrganizationId(self::HOLDING), new LegalIdentity('Groupe ACME'), new ContactDetails(), new \DateTimeImmutable());
+        return Organization::prospectedBy($this->prospector(), new OrganizationId(self::HOLDING), new LegalIdentity('Groupe ACME'), new ContactDetails(), new \DateTimeImmutable());
     }
 
     private function logo(): File
@@ -131,8 +122,8 @@ class OrganizationIntentsTest extends TestCase
         return new File('https://storage.test/acme.png', 'png', 1024);
     }
 
-    private function someoneOf(string $account, bool $managesPersonalData = true): Prospector
+    private function prospector(): Prospector
     {
-        return new Prospector(new MemberId('0190a1c0-0000-7000-8000-0000000000aa'), new AccountId($account), $managesPersonalData);
+        return new Prospector(new MemberId(self::AUTHOR), new AccountId(self::MINE));
     }
 }

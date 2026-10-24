@@ -7,7 +7,6 @@ namespace Prospecter\Core\Prospecting\Application\DetachForgottenContact;
 use Prospecter\Core\PersonalData\Contract\Event\ContactForgotten;
 use Prospecter\Core\Prospecting\Domain\OrganizationRepository;
 use Prospecter\Core\Prospecting\Domain\OrphanContacts;
-use Prospecter\Core\Prospecting\Domain\ProspectorService;
 use Prospecter\Core\SharedKernel\Application\EventHandler;
 use Prospecter\Core\SharedKernel\Application\Port\Events;
 use Prospecter\Core\SharedKernel\Application\PublishesEvents;
@@ -25,7 +24,6 @@ final readonly class DetachForgottenContactHandler implements EventHandler
 
     public function __construct(
         private OrganizationRepository $organizations,
-        private ProspectorService $prospectorService,
         private Events $events,
         private OrphanContacts $orphans,
     ) {
@@ -33,11 +31,11 @@ final readonly class DetachForgottenContactHandler implements EventHandler
 
     public function __invoke(ContactForgotten $event): void
     {
-        $prospector = $this->prospectorService->prospectorFrom(new MemberId($event->memberId));
+        $author = new MemberId($event->memberId);
         $contact = new PersonId($event->personId);
 
         foreach ($this->organizations->withContacts([$contact], new AccountId($event->accountId)) as $organization) {
-            $organization->removeContact($contact, by: $prospector, at: $event->occurredAt, orphans: $this->orphans);
+            $organization->removeContact($contact, by: $author, at: $event->occurredAt, orphans: $this->orphans);
             $this->organizations->save($organization);
             $this->publishWhatHappenedTo($organization);
         }

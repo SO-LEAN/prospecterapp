@@ -13,8 +13,6 @@ use Prospecter\Core\Prospecting\Domain\ExchangeId;
 use Prospecter\Core\Prospecting\Domain\ExchangeRepository;
 use Prospecter\Core\Prospecting\Domain\Organization;
 use Prospecter\Core\Prospecting\Domain\OrganizationRepository;
-use Prospecter\Core\Prospecting\Domain\Prospector;
-use Prospecter\Core\Prospecting\Domain\ProspectorService;
 use Prospecter\Core\SharedKernel\Application\CommandHandler;
 use Prospecter\Core\SharedKernel\Application\Port\Events;
 use Prospecter\Core\SharedKernel\Application\PublishesEvents;
@@ -29,7 +27,6 @@ final readonly class NoteOrganizationExchangeHandler implements CommandHandler
     public function __construct(
         private ExchangeRepository $exchanges,
         private OrganizationRepository $organizations,
-        private ProspectorService $prospectorService,
         private ContactOrganizations $contactOrganizations,
         private Events $events,
     ) {
@@ -37,11 +34,11 @@ final readonly class NoteOrganizationExchangeHandler implements CommandHandler
 
     public function __invoke(NoteOrganizationExchange $command): void
     {
-        $prospector = $this->prospectorService->prospectorFrom(new MemberId($command->prospectorId));
+        $author = new MemberId($command->prospectorId);
         $organization = $this->organizations->get(new OrganizationId($command->organizationId));
         $exchange = null === $command->personId
-            ? Exchange::notedWithTheOrganization($organization, $prospector, new ExchangeId($command->id), self::factsOf($command), $command->executedAt)
-            : $this->notedWithAContact($organization, $prospector, new PersonId($command->personId), $command);
+            ? Exchange::notedWithTheOrganization($organization, $author, new ExchangeId($command->id), self::factsOf($command), $command->executedAt)
+            : $this->notedWithAContact($organization, $author, new PersonId($command->personId), $command);
         $this->exchanges->save($exchange);
         $this->publishWhatHappenedTo($exchange);
     }
@@ -49,11 +46,11 @@ final readonly class NoteOrganizationExchangeHandler implements CommandHandler
     /**
      * Kept, like any other exchange with a contact, for every organization the contact is part of.
      */
-    private function notedWithAContact(Organization $organization, Prospector $prospector, PersonId $contact, NoteOrganizationExchange $command): Exchange
+    private function notedWithAContact(Organization $organization, MemberId $author, PersonId $contact, NoteOrganizationExchange $command): Exchange
     {
-        $organization->ensureHasContact($contact, $prospector);
+        $organization->ensureHasContact($contact);
 
-        return Exchange::notedBy($prospector, new ExchangeId($command->id), $contact, $this->contactOrganizations->of($contact, $prospector), self::factsOf($command), $command->executedAt);
+        return Exchange::notedWithAContact($organization->accountId(), $author, new ExchangeId($command->id), $contact, $this->contactOrganizations->of($contact, $organization->accountId()), self::factsOf($command), $command->executedAt);
     }
 
     private static function factsOf(NoteOrganizationExchange $command): ExchangeFacts

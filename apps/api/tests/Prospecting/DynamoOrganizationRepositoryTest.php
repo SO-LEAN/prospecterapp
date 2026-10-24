@@ -51,7 +51,7 @@ class DynamoOrganizationRepositoryTest extends ApiTestCase
         $acme = $this->organizationWithTheEmail($prospector, 'contact@acme.test');
         $organizations->save($acme);
 
-        $acme->changeContactDetails(new ContactDetails(new Email('hello@acme.test')), by: $prospector, at: new \DateTimeImmutable());
+        $acme->changeContactDetails(new ContactDetails(new Email('hello@acme.test')), by: $prospector->id, at: new \DateTimeImmutable());
         $organizations->save($acme);
 
         $this->assertFalse($organizations->isEmailUsed($prospector->accountId, new Email('contact@acme.test'), except: new OrganizationId(self::newIdentity())));
@@ -64,14 +64,14 @@ class DynamoOrganizationRepositoryTest extends ApiTestCase
         $prospector = new Prospector(new MemberId(self::newIdentity()), new AccountId(self::newIdentity()), managesPersonalData: true);
         $ada = new PersonId(self::newIdentity());
         $acme = $this->organizationWithTheEmail($prospector, 'contact@acme.test');
-        $acme->addContact($ada, by: $prospector, at: new \DateTimeImmutable());
+        $acme->addContact($ada, by: $prospector->id, at: new \DateTimeImmutable());
         $organizations->save($acme);
         $organizations->save($this->organizationWithTheEmail($prospector, 'contact@globex.test'));
 
         $this->assertSame([(string) $acme->id()], array_map(static fn (Organization $organization): string => (string) $organization->id(), $organizations->withContacts([$ada], $prospector->accountId)));
         $this->assertSame([], $organizations->withContacts([$ada], new AccountId(self::newIdentity())));
 
-        $acme->removeContact($ada, by: $prospector, at: new \DateTimeImmutable(), orphans: new OrphanContacts($organizations));
+        $acme->removeContact($ada, by: $prospector->id, at: new \DateTimeImmutable(), orphans: new OrphanContacts($organizations));
         $organizations->save($acme);
 
         $this->assertSame([], $organizations->withContacts([$ada], $prospector->accountId));
@@ -83,7 +83,7 @@ class DynamoOrganizationRepositoryTest extends ApiTestCase
         $prospector = new Prospector(new MemberId(self::newIdentity()), new AccountId(self::newIdentity()));
         $holding = $this->organizationWithTheEmail($prospector, 'contact@group.test');
         $subsidiary = $this->organizationWithTheEmail($prospector, 'contact@subsidiary.test');
-        $subsidiary->attachToHolding($holding, by: $prospector, at: new \DateTimeImmutable());
+        $subsidiary->attachToHolding($holding, by: $prospector->id, at: new \DateTimeImmutable());
         $organizations->save($holding);
         $organizations->save($subsidiary);
 

@@ -8,6 +8,7 @@ use App\Shared\CommandBus;
 use App\Shared\Resource\ProblemResource;
 use Nelmio\ApiDocBundle\Attribute\Model;
 use OpenApi\Attributes as OA;
+use Prospecter\Core\Prospecting\Application\ConsultExchange\ExchangeDetailResponse;
 use Prospecter\Core\Prospecting\Application\RemoveAttachment\RemoveAttachment as RemoveAttachmentCommand;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\Clock\ClockInterface;
@@ -29,15 +30,16 @@ final class RemoveAttachment extends AbstractController
     }
 
     #[Route('/api/exchanges/{id}/attachments/{attachmentId}', name: 'api_exchanges_remove_attachment', requirements: ['id' => Requirement::UUID, 'attachmentId' => Requirement::UUID], methods: ['DELETE'])]
+    #[IsGranted(ExchangeVoter::REMOVE_ATTACHMENT, subject: 'exchange')]
     #[OA\Delete(summary: 'Remove a file joined to an exchange, and forget it')]
     #[OA\Response(response: 200, description: 'The exchange without the file', content: new Model(type: ExchangeDetailResource::class))]
     #[OA\Response(response: 401, description: 'Missing or invalid access token')]
     #[OA\Response(response: 403, description: 'Not a prospector, or no right to manage personal data', content: new Model(type: ProblemResource::class))]
     #[OA\Response(response: 404, description: 'Unknown exchange or attachment, or one of another account', content: new Model(type: ProblemResource::class))]
-    public function __invoke(string $id, string $attachmentId, #[CurrentUser] User $user): JsonResponse
+    public function __invoke(ExchangeDetailResponse $exchange, string $attachmentId, #[CurrentUser] User $user): JsonResponse
     {
-        $this->commands->dispatch(new RemoveAttachmentCommand($user->memberId(), $id, $attachmentId, $this->clock->now()));
+        $this->commands->dispatch(new RemoveAttachmentCommand($user->memberId(), $exchange->id, $attachmentId, $this->clock->now()));
 
-        return $this->json($this->exchanges->read($user->memberId(), $id));
+        return $this->json($this->exchanges->read($user->memberId(), $exchange->id));
     }
 }

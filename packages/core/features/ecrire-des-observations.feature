@@ -21,9 +21,3 @@ Fonctionnalité: Écrire des observations sur une organisation
     Quand j'efface les observations de "ACME"
     Alors l'organisation "ACME" est enregistrée avec :
       | observations | |
-
-  Scénario: L'organisation d'une autre organisation est introuvable
-    Soit l'organisation "Concurrent" qui utilise Prospecter
-    Et l'organisation "Initech" appartient à "Concurrent"
-    Quand j'écris les observations de "Initech" : "Racheter"
-    Alors c'est introuvable

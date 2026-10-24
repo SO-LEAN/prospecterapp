@@ -43,13 +43,6 @@ Fonctionnalité: Déménager une organisation
       | ville | Strasbourg |
     Alors c'est introuvable
 
-  Scénario: L'organisation d'une autre organisation est introuvable
-    Soit l'organisation "Concurrent" qui utilise Prospecter
-    Et l'organisation "Initech" appartient à "Concurrent"
-    Quand je déménage "Initech" à l'adresse :
-      | ville | Strasbourg |
-    Alors c'est introuvable
-
   Scénario: Un déménagement date la dernière modification, pas la création
     Soit nous sommes le "2026-10-20 14:00"
     Quand je déménage "ACME" à l'adresse :

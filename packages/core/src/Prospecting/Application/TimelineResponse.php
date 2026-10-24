@@ -15,7 +15,7 @@ final readonly class TimelineResponse
     /**
      * @param list<ExchangeResponse> $exchanges
      * @param string|null            $next            the cursor of the next slice, null when this one is the last
-     * @param list<string>           $possibleIntents names of what the prospector may do with the timeline: ConsultTimeline, NoteExchange
+     * @param list<string>           $possibleIntents names of what the timeline offers: ConsultTimeline, NoteExchange
      * @param int                    $toMakeConform   how many of its exchanges are to make conform, all of them, not only those of the slice
      */
     private function __construct(
@@ -36,7 +36,7 @@ final readonly class TimelineResponse
         return new self(
             array_map(static fn (Exchange $exchange): ExchangeResponse => ExchangeResponse::of($exchange, $prospector), $slice->content),
             $slice->next,
-            self::intentsOf($prospector),
+            self::intentsOf(),
             0,
         );
     }
@@ -49,7 +49,7 @@ final readonly class TimelineResponse
         return new self(
             array_map(static fn (Exchange $exchange): ExchangeResponse => ExchangeResponse::inTheTimelineOf($organization, $exchange, $prospector), $slice->content),
             $slice->next,
-            self::intentsOf($prospector),
+            self::intentsOf(),
             $toMakeConform,
         );
     }
@@ -57,8 +57,8 @@ final readonly class TimelineResponse
     /**
      * @return list<string>
      */
-    private static function intentsOf(Prospector $prospector): array
+    private static function intentsOf(): array
     {
-        return array_map(static fn (TimelineIntent $intent): string => $intent->name, $prospector->timelineIntents());
+        return array_map(static fn (TimelineIntent $intent): string => $intent->name, TimelineIntent::cases());
     }
 }

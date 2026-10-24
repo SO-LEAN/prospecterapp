@@ -127,9 +127,3 @@ Fonctionnalité: Les échanges d'un contact retiré ou effacé
     Alors la timeline de "ACME" signale 0 échanges à rendre conformes
     Et les échanges à rendre conformes de "ACME" sont, du plus récent au plus ancien :
       | moment |
-
-  Scénario: Les échanges à rendre conformes de l'organisation d'un autre compte sont introuvables
-    Soit l'organisation "Concurrent" qui utilise Prospecter
-    Et je suis connecté en tant que prospecteur de "Concurrent"
-    Quand je consulte les échanges à rendre conformes de "ACME"
-    Alors c'est introuvable

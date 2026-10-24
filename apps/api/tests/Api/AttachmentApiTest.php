@@ -101,15 +101,17 @@ class AttachmentApiTest extends ApiTestCase
         $this->assertFalse($this->privateStorage()->holds($upload), 'removed from the storage');
     }
 
-    public function testWithoutTheRightNoFileIsJoinedNorRead(): void
+    public function testWithoutTheRightNoFileIsJoinedReadNorRemoved(): void
     {
         $exchange = $this->anExchangeWith($this->aContact());
-        $download = $this->attach($exchange, $this->sent(2048, 'application/pdf'), 'devis.pdf')['attachments'][0]['_links']['download']['href'];
+        $file = $this->attach($exchange, $this->sent(2048, 'application/pdf'), 'devis.pdf')['attachments'][0]['_links']['download']['href'];
         $this->login($this->aMemberOfTheFixtures('prospector-without-the-right', Role::User, Role::Prospector));
 
         $this->attach($exchange, $this->sent(2048, 'application/pdf'), 'devis.pdf');
         $this->assertResponseStatusCodeSame(403);
-        $this->requestJson('GET', $download);
+        $this->requestJson('GET', $file);
+        $this->assertResponseStatusCodeSame(403);
+        $this->requestJson('DELETE', $file);
         $this->assertResponseStatusCodeSame(403);
     }
 

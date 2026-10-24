@@ -6,6 +6,7 @@ namespace Prospecter\Core\Prospecting\Application\ConsultTimelineIntents;
 
 use Prospecter\Core\Prospecting\Domain\ContactOrganizations;
 use Prospecter\Core\Prospecting\Domain\ProspectorService;
+use Prospecter\Core\Prospecting\Domain\TimelineIntent;
 use Prospecter\Core\SharedKernel\Application\QueryHandler;
 use Prospecter\Core\SharedKernel\Domain\MemberId;
 use Prospecter\Core\SharedKernel\Domain\PersonId;
@@ -24,8 +25,8 @@ final readonly class ConsultTimelineIntentsHandler implements QueryHandler
     public function __invoke(ConsultTimelineIntents $query): TimelineIntentsResponse
     {
         $prospector = $this->prospectorService->prospectorFrom(new MemberId($query->prospectorId));
-        $isAContact = $this->contactOrganizations->isAContactOfTheAccount(new PersonId($query->personId), $prospector);
+        $isAContact = $this->contactOrganizations->isAContactOfTheAccount(new PersonId($query->personId), $prospector->accountId);
 
-        return TimelineIntentsResponse::of($isAContact ? $prospector->timelineIntents() : []);
+        return TimelineIntentsResponse::of($isAContact ? TimelineIntent::cases() : []);
     }
 }

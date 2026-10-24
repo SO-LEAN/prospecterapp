@@ -81,11 +81,6 @@ Fonctionnalité: Noter un échange avec un contact
       | consulter la timeline |
       | noter un échange      |
 
-  Scénario: Sans le droit aux données personnelles, je ne note pas d'échange
-    Soit je suis connecté en tant que prospecteur de "SOLEAN IT" sans le droit aux données personnelles
-    Quand je note un SMS reçu de "Ada Lovelace"
-    Alors c'est refusé : "Only a prospector allowed to manage personal data may exchange with the contacts"
-
   Scénario: Sans le droit aux données personnelles, je lis la timeline, l'interlocuteur masqué, le texte signalé
     Soit "Michel" est membre de "SOLEAN IT" avec le droit aux données personnelles
     Et le contact "Grace Hopper" de "ACME"
@@ -95,14 +90,6 @@ Fonctionnalité: Noter un échange avec un contact
     Alors la timeline de "Grace Hopper" est, du plus récent au plus ancien :
       | interlocuteur | canal | texte                  | signalé |
       | G***e H***r   | Appel | Grace rappellera lundi | oui     |
-    Et je peux sur la timeline :
-      | consulter la timeline |
-
-  Scénario: Sans le droit aux données personnelles, la fiche d'un contact mène à sa timeline pour la lire seulement
-    Soit je suis connecté en tant que prospecteur de "SOLEAN IT" sans le droit aux données personnelles
-    Quand je regarde ce que je peux faire de la timeline de "Ada Lovelace"
-    Alors je peux sur la timeline :
-      | consulter la timeline |
 
   Scénario: Le contact d'un autre compte est introuvable
     Soit l'organisation "Concurrent" qui utilise Prospecter

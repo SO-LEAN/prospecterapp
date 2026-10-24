@@ -23,10 +23,3 @@ Fonctionnalité: Changer le logo d'une organisation
     Quand je change le logo de "Globex" avec "globex-2026.webp"
     Alors l'organisation "Globex" est enregistrée avec :
       | logo | globex-2026.webp (webp, 512 octets) |
-
-  Scénario: L'organisation d'une autre organisation est introuvable
-    Soit l'organisation "Concurrent" qui utilise Prospecter
-    Et l'organisation "Initech" appartient à "Concurrent"
-    Et j'ai une image "initech.png" de 1024 octets
-    Quand je change le logo de "Initech" avec "initech.png"
-    Alors c'est introuvable

@@ -9,7 +9,8 @@ use Prospecter\Core\SharedKernel\Domain\Exception\PersonalDataManagersOnly;
 use Prospecter\Core\SharedKernel\Domain\MemberId;
 
 /**
- * A member of an account as prospecting sees them: who acts, and for which account they prospect.
+ * A member of an account as prospecting sees them: who reads, for which account they prospect, and whether
+ * they read the personal data an exchange may hold.
  */
 final readonly class Prospector
 {
@@ -18,17 +19,6 @@ final readonly class Prospector
         public AccountId $accountId,
         public bool $managesPersonalData = false,
     ) {
-    }
-
-    /**
-     * Every prospector reads the timelines, the names masked and the texts flagged without the right to manage
-     * personal data; noting needs it.
-     *
-     * @return list<TimelineIntent>
-     */
-    public function timelineIntents(): array
-    {
-        return $this->managesPersonalData ? TimelineIntent::cases() : [TimelineIntent::ConsultTimeline];
     }
 
     /**
