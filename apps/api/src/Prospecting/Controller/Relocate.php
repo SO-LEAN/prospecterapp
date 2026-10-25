@@ -34,7 +34,7 @@ final class Relocate extends AbstractController
     }
 
     #[Route('/api/organizations/{id}/address', name: 'api_organizations_relocate', requirements: ['id' => Requirement::UUID], methods: ['PATCH'])]
-    #[IsGranted(OrganizationVoter::RELOCATE, subject: 'organization')]
+    #[IsGranted(OrganizationVoter::ACCESS, subject: 'organization')]
     #[OA\Patch(summary: 'Move the organization to an address (located again); an empty address removes it')]
     #[OA\Response(response: 200, description: 'The organization at its new address', content: new Model(type: OrganizationResource::class))]
     #[OA\Response(response: 401, description: 'Missing or invalid access token')]

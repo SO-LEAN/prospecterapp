@@ -34,7 +34,7 @@ final class ChangeContactDetails extends AbstractController
     }
 
     #[Route('/api/organizations/{id}/contact-details', name: 'api_organizations_change_contact_details', requirements: ['id' => Requirement::UUID], methods: ['PATCH'])]
-    #[IsGranted(OrganizationVoter::CHANGE_CONTACT_DETAILS, subject: 'organization')]
+    #[IsGranted(OrganizationVoter::ACCESS, subject: 'organization')]
     #[OA\Patch(summary: 'Change the email, phone number and language, nothing else changes')]
     #[OA\Response(response: 200, description: 'The organization with its new contact details', content: new Model(type: OrganizationResource::class))]
     #[OA\Response(response: 401, description: 'Missing or invalid access token')]

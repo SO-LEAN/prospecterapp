@@ -5,8 +5,7 @@ declare(strict_types=1);
 namespace Prospecter\Core\Prospecting\Domain;
 
 /**
- * What a prospector of the account may do with an exchange: retouching its text, and declaring it conform, are
- * open to every one of them; the rest needs the right to manage personal data.
+ * What the state of an exchange offers; who may carry it out is decided by the API (ADR 0081).
  */
 enum ExchangeIntent
 {

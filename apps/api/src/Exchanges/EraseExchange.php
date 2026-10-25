@@ -28,7 +28,8 @@ final class EraseExchange extends AbstractController
     }
 
     #[Route('/api/exchanges/{id}', name: 'api_exchanges_erase', requirements: ['id' => Requirement::UUID], methods: ['DELETE'])]
-    #[IsGranted(ExchangeVoter::ERASE_EXCHANGE, subject: 'exchange')]
+    #[IsGranted(ExchangeVoter::ACCESS, subject: 'exchange')]
+    #[IsGranted(User::PERSONAL_DATA)]
     #[OA\Delete(summary: 'Erase an exchange from every timeline')]
     #[OA\Response(response: 204, description: 'Erased')]
     #[OA\Response(response: 401, description: 'Missing or invalid access token')]

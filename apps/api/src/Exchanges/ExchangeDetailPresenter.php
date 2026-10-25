@@ -11,6 +11,7 @@ use App\Exchanges\Resource\ExchangeDetailResource;
 use App\Exchanges\Resource\StampResource;
 use App\PersonalData\Resource\PersonNameResource;
 use App\Security\IntentLinks;
+use App\Security\User;
 use App\Shared\Links;
 use App\Shared\Resource\LinkResource;
 use Prospecter\Core\PersonalData\Application\PersonResponse;
@@ -18,16 +19,19 @@ use Prospecter\Core\Prospecting\Application\ConsultExchange\AttachmentResponse;
 use Prospecter\Core\Prospecting\Application\ConsultExchange\ExchangeDetailResponse;
 
 /**
- * The detail of an exchange, with a link per intention the prospector may carry out on it and on its attachments.
+ * The detail of an exchange, with a link per intention its state offers and the signed-in member may carry out on it
+ * and on its attachments (`IntentLinks`, ADR 0081): every prospector retouches its text and declares it conform
+ * (ADR 0078), the rest needs the right to manage personal data. Each link names its intention, its route, and the role
+ * its controller requires beyond reaching the exchange.
  */
 final readonly class ExchangeDetailPresenter
 {
     private const array ROUTES = [
-        'correctExchange' => [ExchangeVoter::CORRECT_EXCHANGE, 'api_exchanges_correct'],
-        'correctText' => [ExchangeVoter::CORRECT_TEXT, 'api_exchanges_correct_text'],
-        'makeConform' => [ExchangeVoter::MAKE_CONFORM, 'api_exchanges_correct_text'],
-        'eraseExchange' => [ExchangeVoter::ERASE_EXCHANGE, 'api_exchanges_erase'],
-        'attachFile' => [ExchangeVoter::ATTACH_FILE, 'api_exchanges_attach_file'],
+        'correctExchange' => ['CorrectExchange', 'api_exchanges_correct', User::PERSONAL_DATA],
+        'correctText' => ['CorrectText', 'api_exchanges_correct_text', null],
+        'makeConform' => ['MakeConform', 'api_exchanges_correct_text', null],
+        'eraseExchange' => ['EraseExchange', 'api_exchanges_erase', User::PERSONAL_DATA],
+        'attachFile' => ['AttachFile', 'api_exchanges_attach_file', User::PERSONAL_DATA],
     ];
 
     public function __construct(private Links $links, private IntentLinks $intents)
@@ -73,14 +77,14 @@ final readonly class ExchangeDetailPresenter
 
         return new AttachmentResource($attachment->id, $attachment->name, $attachment->size, $attachment->mediaType, $attachment->toMakeConform, new AttachmentLinksResource(
             $this->links->to('api_exchanges_download_attachment', $ids),
-            $this->intents->shows(ExchangeVoter::REMOVE_ATTACHMENT, $exchange, $exchange->possibleIntents) ? $this->links->to('api_exchanges_remove_attachment', $ids) : null,
+            $this->intents->shows('RemoveAttachment', $exchange->possibleIntents, User::PERSONAL_DATA) ? $this->links->to('api_exchanges_remove_attachment', $ids) : null,
         ));
     }
 
     private function linksOf(ExchangeDetailResponse $exchange, InterlocutorResource $interlocutor): ExchangeDetailLinksResource
     {
         $id = ['id' => $exchange->id];
-        $granted = array_filter(self::ROUTES, fn (array $route): bool => $this->intents->shows($route[0], $exchange, $exchange->possibleIntents));
+        $granted = array_filter(self::ROUTES, fn (array $route): bool => $this->intents->shows($route[0], $exchange->possibleIntents, $route[2]));
 
         return new ExchangeDetailLinksResource(
             $this->links->to('api_exchanges_show', $id),

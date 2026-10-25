@@ -32,7 +32,7 @@ final class CorrectExchangeText extends AbstractController
     }
 
     #[Route('/api/exchanges/{id}/text', name: 'api_exchanges_correct_text', requirements: ['id' => Requirement::UUID], methods: ['PATCH'])]
-    #[IsGranted(ExchangeVoter::CORRECT_TEXT, subject: 'exchange')]
+    #[IsGranted(ExchangeVoter::ACCESS, subject: 'exchange')]
     #[OA\Patch(summary: 'Correct the text of an exchange only, to make it conform, and declare it made conform once its contact was forgotten; open to every prospector of the account')]
     #[OA\Response(response: 200, description: 'The corrected exchange', content: new Model(type: ExchangeDetailResource::class))]
     #[OA\Response(response: 401, description: 'Missing or invalid access token')]

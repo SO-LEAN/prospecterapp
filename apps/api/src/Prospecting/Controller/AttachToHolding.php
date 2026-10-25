@@ -34,7 +34,7 @@ final class AttachToHolding extends AbstractController
     }
 
     #[Route('/api/organizations/{id}/holding', name: 'api_organizations_attach_to_holding', requirements: ['id' => Requirement::UUID], methods: ['PATCH'])]
-    #[IsGranted(OrganizationVoter::ATTACH_TO_HOLDING, subject: 'organization')]
+    #[IsGranted(OrganizationVoter::ACCESS, subject: 'organization')]
     #[OA\Patch(summary: 'Attach the organization to a holding my organization prospects')]
     #[OA\Response(response: 200, description: 'The organization in its holding', content: new Model(type: OrganizationResource::class))]
     #[OA\Response(response: 401, description: 'Missing or invalid access token')]

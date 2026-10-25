@@ -24,7 +24,7 @@ final class ShowExchange extends AbstractController
     }
 
     #[Route('/api/exchanges/{id}', name: 'api_exchanges_show', requirements: ['id' => Requirement::UUID], methods: ['GET'])]
-    #[IsGranted(ExchangeVoter::CONSULT, subject: 'exchange')]
+    #[IsGranted(ExchangeVoter::ACCESS, subject: 'exchange')]
     #[OA\Get(summary: 'The whole of an exchange with a contact, who noted it and who corrected it last')]
     #[OA\Response(response: 200, description: 'The exchange', content: new Model(type: ExchangeDetailResource::class))]
     #[OA\Response(response: 401, description: 'Missing or invalid access token')]

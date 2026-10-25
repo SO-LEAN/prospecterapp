@@ -25,7 +25,7 @@ final class ShowOrganization extends AbstractController
     }
 
     #[Route('/api/organizations/{id}', name: 'api_organizations_show', requirements: ['id' => Requirement::UUID], methods: ['GET'])]
-    #[IsGranted(OrganizationVoter::CONSULT, subject: 'organization')]
+    #[IsGranted(OrganizationVoter::ACCESS, subject: 'organization')]
     #[OA\Get(summary: 'Consult an organization: mine or one my organization prospects')]
     #[OA\Response(response: 200, description: 'The organization', content: new Model(type: OrganizationResource::class))]
     #[OA\Response(response: 401, description: 'Missing or invalid access token')]
