@@ -26,12 +26,15 @@ use Prospecter\Core\Prospecting\Application\ConsultExchange\ExchangeDetailRespon
  */
 final readonly class ExchangeDetailPresenter
 {
+    /**
+     * @var array<string, array{intent: string, route: string, role: ?string}>
+     */
     private const array ROUTES = [
-        'correctExchange' => ['CorrectExchange', 'api_exchanges_correct', User::PERSONAL_DATA],
-        'correctText' => ['CorrectText', 'api_exchanges_correct_text', null],
-        'makeConform' => ['MakeConform', 'api_exchanges_correct_text', null],
-        'eraseExchange' => ['EraseExchange', 'api_exchanges_erase', User::PERSONAL_DATA],
-        'attachFile' => ['AttachFile', 'api_exchanges_attach_file', User::PERSONAL_DATA],
+        'correctExchange' => ['intent' => 'CorrectExchange', 'route' => 'api_exchanges_correct', 'role' => User::PERSONAL_DATA],
+        'correctText' => ['intent' => 'CorrectText', 'route' => 'api_exchanges_correct_text', 'role' => null],
+        'makeConform' => ['intent' => 'MakeConform', 'route' => 'api_exchanges_correct_text', 'role' => null],
+        'eraseExchange' => ['intent' => 'EraseExchange', 'route' => 'api_exchanges_erase', 'role' => User::PERSONAL_DATA],
+        'attachFile' => ['intent' => 'AttachFile', 'route' => 'api_exchanges_attach_file', 'role' => User::PERSONAL_DATA],
     ];
 
     public function __construct(private Links $links, private IntentLinks $intents)
@@ -84,12 +87,12 @@ final readonly class ExchangeDetailPresenter
     private function linksOf(ExchangeDetailResponse $exchange, InterlocutorResource $interlocutor): ExchangeDetailLinksResource
     {
         $id = ['id' => $exchange->id];
-        $granted = array_filter(self::ROUTES, fn (array $route): bool => $this->intents->shows($route[0], $exchange->possibleIntents, $route[2]));
+        $granted = array_filter(self::ROUTES, fn (array $link): bool => $this->intents->shows($link['intent'], $exchange->possibleIntents, $link['role']));
 
         return new ExchangeDetailLinksResource(
             $this->links->to('api_exchanges_show', $id),
             $this->cardOf($interlocutor),
-            ...array_map(fn (array $route): LinkResource => $this->links->to($route[1], $id), $granted),
+            ...array_map(fn (array $link): LinkResource => $this->links->to($link['route'], $id), $granted),
         );
     }
 
