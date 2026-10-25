@@ -3,15 +3,13 @@
 namespace App\Security;
 
 use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
-use Symfony\Component\Security\Core\Authorization\AccessDecisionManagerInterface;
 use Symfony\Component\Security\Core\Authorization\Voter\Vote;
 use Symfony\Component\Security\Core\Authorization\Voter\Voter;
 
 /**
- * Decides whether the signed-in member may carry out an intention on a resource of an account, from its read model
- * (ADR 0081): a resource of another account is unknown to them (404, `ApiAccessDeniedHandler`), an intention may
- * need the right to manage personal data (403). Whether its state offers it now is the business of the core, which
- * refuses it otherwise (409): a presenter shows a link only when both agree.
+ * Decides whether the signed-in member reaches a resource, from its read model (ADR 0081): one of their account,
+ * or one they do not even learn exists (404, `ApiAccessDeniedHandler`). The rights an intention needs are roles
+ * on its controller, and the presenter of the resource shows its link only when they are granted.
  *
  * @template TResource of object
  *
@@ -24,10 +22,6 @@ abstract class AccountResourceVoter extends Voter
      */
     public const string UNKNOWN = 'unknown';
 
-    public function __construct(private readonly AccessDecisionManagerInterface $accessDecisions)
-    {
-    }
-
     protected function voteOnAttribute(string $attribute, mixed $subject, TokenInterface $token, ?Vote $vote = null): bool
     {
         $member = $token->getUser();
@@ -36,13 +30,13 @@ abstract class AccountResourceVoter extends Voter
             return false;
         }
 
-        if ($member->accountId() !== $this->accountOf($subject)) {
-            $this->tellUnknown($vote);
-
-            return false;
+        if ($member->accountId() === $this->accountOf($subject)) {
+            return true;
         }
 
-        return !$this->needsThePersonalDataRight($attribute, $subject) || $this->accessDecisions->decide($token, [User::PERSONAL_DATA]);
+        $this->tellUnknown($vote);
+
+        return false;
     }
 
     private function tellUnknown(?Vote $vote): void
@@ -61,9 +55,4 @@ abstract class AccountResourceVoter extends Voter
      * The reason of the 404, as the core names an unknown resource of its kind (`unknownOrganization`).
      */
     abstract protected function unknownReason(): string;
-
-    /**
-     * @param TResource $subject
-     */
-    abstract protected function needsThePersonalDataRight(string $attribute, object $subject): bool;
 }

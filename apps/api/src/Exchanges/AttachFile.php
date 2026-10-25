@@ -35,7 +35,8 @@ final class AttachFile extends AbstractController
     }
 
     #[Route('/api/exchanges/{id}/attachments', name: 'api_exchanges_attach_file', requirements: ['id' => Requirement::UUID], methods: ['POST'])]
-    #[IsGranted(ExchangeVoter::ATTACH_FILE, subject: 'exchange')]
+    #[IsGranted(ExchangeVoter::ACCESS, subject: 'exchange')]
+    #[IsGranted(User::PERSONAL_DATA)]
     #[OA\Post(summary: 'Join to an exchange a file the browser sent with the form of an upload')]
     #[OA\Response(response: 201, description: 'The exchange with the file joined', content: new Model(type: ExchangeDetailResource::class))]
     #[OA\Response(response: 401, description: 'Missing or invalid access token')]

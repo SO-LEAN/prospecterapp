@@ -6,8 +6,8 @@ use App\Prospecting\Resource\ExchangeLinksResource;
 use App\Prospecting\Resource\ExchangeResource;
 use App\Prospecting\Resource\TimelineLinksResource;
 use App\Prospecting\Resource\TimelineResource;
-use App\Prospecting\TimelineVoter;
 use App\Security\IntentLinks;
+use App\Security\User;
 use App\Shared\Links;
 use Prospecter\Core\Prospecting\Application\ExchangeResponse;
 use Prospecter\Core\Prospecting\Application\TimelineResponse;
@@ -45,7 +45,7 @@ final readonly class TimelinePresenter
         return new TimelineLinksResource(
             $this->links->to($timeline, $subject),
             null === $response->next ? null : $this->links->to($timeline, $subject + ['after' => $response->next]),
-            $this->intents->shows(TimelineVoter::NOTE_EXCHANGE, $response, $response->possibleIntents) ? $this->links->to($noteExchange, $subject) : null,
+            $this->intents->shows('NoteExchange', $response->possibleIntents, User::PERSONAL_DATA) ? $this->links->to($noteExchange, $subject) : null,
         );
     }
 

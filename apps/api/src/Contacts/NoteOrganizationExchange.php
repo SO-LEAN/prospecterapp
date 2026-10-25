@@ -36,7 +36,8 @@ final class NoteOrganizationExchange extends AbstractController
     }
 
     #[Route('/api/organizations/{id}/exchanges', name: 'api_organizations_note_exchange', requirements: ['id' => Requirement::UUID], methods: ['POST'])]
-    #[IsGranted(OrganizationVoter::NOTE_EXCHANGE, subject: 'organization')]
+    #[IsGranted(OrganizationVoter::ACCESS, subject: 'organization')]
+    #[IsGranted(User::PERSONAL_DATA)]
     #[OA\Post(summary: 'Note a call, a message or a meeting with the organization itself, or with one of its contacts')]
     #[OA\Response(response: 201, description: 'The timeline of the organization with the new exchange', content: new Model(type: OrganizationTimelineResource::class), headers: [new OA\Header(header: 'Location', description: 'The new exchange, to join files to it', schema: new OA\Schema(type: 'string'))])]
     #[OA\Response(response: 401, description: 'Missing or invalid access token')]

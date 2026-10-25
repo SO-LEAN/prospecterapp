@@ -32,7 +32,7 @@ final class DetachFromHolding extends AbstractController
     }
 
     #[Route('/api/organizations/{id}/holding', name: 'api_organizations_detach_from_holding', requirements: ['id' => Requirement::UUID], methods: ['DELETE'])]
-    #[IsGranted(OrganizationVoter::DETACH_FROM_HOLDING, subject: 'organization')]
+    #[IsGranted(OrganizationVoter::ACCESS, subject: 'organization')]
     #[OA\Delete(summary: 'Detach the organization from its holding')]
     #[OA\Response(response: 200, description: 'The organization without holding', content: new Model(type: OrganizationResource::class))]
     #[OA\Response(response: 401, description: 'Missing or invalid access token')]

@@ -30,7 +30,8 @@ final class RemoveAttachment extends AbstractController
     }
 
     #[Route('/api/exchanges/{id}/attachments/{attachmentId}', name: 'api_exchanges_remove_attachment', requirements: ['id' => Requirement::UUID, 'attachmentId' => Requirement::UUID], methods: ['DELETE'])]
-    #[IsGranted(ExchangeVoter::REMOVE_ATTACHMENT, subject: 'exchange')]
+    #[IsGranted(ExchangeVoter::ACCESS, subject: 'exchange')]
+    #[IsGranted(User::PERSONAL_DATA)]
     #[OA\Delete(summary: 'Remove a file joined to an exchange, and forget it')]
     #[OA\Response(response: 200, description: 'The exchange without the file', content: new Model(type: ExchangeDetailResource::class))]
     #[OA\Response(response: 401, description: 'Missing or invalid access token')]

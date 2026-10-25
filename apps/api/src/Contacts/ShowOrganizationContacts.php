@@ -41,7 +41,7 @@ final class ShowOrganizationContacts extends AbstractController
     }
 
     #[Route('/api/organizations/{id}/contacts', name: 'api_organizations_contacts', requirements: ['id' => Requirement::UUID], methods: ['GET'])]
-    #[IsGranted(OrganizationVoter::CONSULT, subject: 'organization')]
+    #[IsGranted(OrganizationVoter::ACCESS, subject: 'organization')]
     #[OA\Get(summary: 'The contacts of the organization, in clear or masked')]
     #[OA\Response(response: 200, description: 'The contacts, in the order they were attached', content: new Model(type: OrganizationContactsResource::class))]
     #[OA\Response(response: 401, description: 'Missing or invalid access token')]
@@ -65,7 +65,7 @@ final class ShowOrganizationContacts extends AbstractController
             masked: $contact->masked,
             links: new OrganizationContactLinksResource(
                 $this->links->to('api_contacts_show', ['id' => $contact->id]),
-                $this->intents->shows(OrganizationVoter::REMOVE_CONTACT, $organization, $organization->possibleIntents) ? $this->links->to('api_organizations_remove_contact', ['id' => $organization->id, 'personId' => $contact->id]) : null,
+                $this->intents->shows('RemoveContact', $organization->possibleIntents, User::PERSONAL_DATA) ? $this->links->to('api_organizations_remove_contact', ['id' => $organization->id, 'personId' => $contact->id]) : null,
             ),
         );
     }

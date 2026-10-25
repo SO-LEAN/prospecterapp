@@ -36,7 +36,7 @@ final class ChangeLogo extends AbstractController
     }
 
     #[Route('/api/organizations/{id}/logo', name: 'api_organizations_change_logo', requirements: ['id' => Requirement::UUID], methods: ['POST'])]
-    #[IsGranted(OrganizationVoter::CHANGE_LOGO, subject: 'organization')]
+    #[IsGranted(OrganizationVoter::ACCESS, subject: 'organization')]
     #[OA\Post(summary: 'Send a new logo (multipart, field "file"), stored as a new file')]
     #[OA\Response(response: 200, description: 'The organization with its new logo', content: new Model(type: OrganizationResource::class))]
     #[OA\Response(response: 401, description: 'Missing or invalid access token')]

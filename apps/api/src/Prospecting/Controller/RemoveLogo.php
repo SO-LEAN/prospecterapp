@@ -32,7 +32,7 @@ final class RemoveLogo extends AbstractController
     }
 
     #[Route('/api/organizations/{id}/logo', name: 'api_organizations_remove_logo', requirements: ['id' => Requirement::UUID], methods: ['DELETE'])]
-    #[IsGranted(OrganizationVoter::REMOVE_LOGO, subject: 'organization')]
+    #[IsGranted(OrganizationVoter::ACCESS, subject: 'organization')]
     #[OA\Delete(summary: 'Remove the logo of the organization')]
     #[OA\Response(response: 200, description: 'The organization without logo', content: new Model(type: OrganizationResource::class))]
     #[OA\Response(response: 401, description: 'Missing or invalid access token')]

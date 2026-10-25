@@ -34,7 +34,7 @@ final class ReviseLegalIdentity extends AbstractController
     }
 
     #[Route('/api/organizations/{id}/legal-identity', name: 'api_organizations_revise_legal_identity', requirements: ['id' => Requirement::UUID], methods: ['PATCH'])]
-    #[IsGranted(OrganizationVoter::REVISE_LEGAL_IDENTITY, subject: 'organization')]
+    #[IsGranted(OrganizationVoter::ACCESS, subject: 'organization')]
     #[OA\Patch(summary: 'Revise the legal identity (corporate name, form, type), nothing else changes')]
     #[OA\Response(response: 200, description: 'The organization with its new identity', content: new Model(type: OrganizationResource::class))]
     #[OA\Response(response: 401, description: 'Missing or invalid access token')]

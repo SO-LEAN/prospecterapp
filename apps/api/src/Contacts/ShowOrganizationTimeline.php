@@ -28,7 +28,7 @@ final class ShowOrganizationTimeline extends AbstractController
     }
 
     #[Route('/api/organizations/{id}/exchanges', name: 'api_organizations_timeline', requirements: ['id' => Requirement::UUID], methods: ['GET'])]
-    #[IsGranted(OrganizationVoter::CONSULT_TIMELINE, subject: 'organization')]
+    #[IsGranted(OrganizationVoter::ACCESS, subject: 'organization')]
     #[OA\Get(summary: 'The exchanges with the organization and with its contacts, the most recent first, each with who communicated')]
     #[OA\Response(response: 200, description: 'A slice of the exchanges, the next one at the link next', content: new Model(type: OrganizationTimelineResource::class))]
     #[OA\Response(response: 401, description: 'Missing or invalid access token')]

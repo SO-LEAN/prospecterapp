@@ -3,7 +3,7 @@
 - Date: 2026-10-25
 - Status: Accepted
 - Supersedes: for the ownership of a resource and the right to manage personal data of an intention of Prospecting, [0026](0026-roles-in-the-api-ownership-and-state-in-the-aggregate.md); for who decides the links, [0027](0027-hypermedia-links-from-the-possible-intents.md)
-- Implemented by: `apps/api/src/Security/{AccountResourceVoter,ApiAccessDeniedHandler,IntentLinks}.php`, `apps/api/src/Prospecting/{OrganizationVoter,OrganizationResolver,TimelineVoter}.php`, `apps/api/src/Exchanges/{ExchangeVoter,ExchangeResolver}.php`, `packages/core/src/Prospecting/Domain/{Organization,Exchange}.php` (`possibleIntents()`, the intentions `by:` a `MemberId`)
+- Implemented by: `apps/api/src/Security/{AccountResourceVoter,ApiAccessDeniedHandler,IntentLinks}.php`, `apps/api/src/Prospecting/{OrganizationVoter,OrganizationResolver}.php`, `apps/api/src/Exchanges/{ExchangeVoter,ExchangeResolver}.php`, the tables of links of the presenters (`OrganizationResourcePresenter`, `ExchangeDetailPresenter`, `TimelinePresenter`), `apps/api/tests/Architecture/ResourcesAreReachedThroughTheirVoterTest.php`, `packages/core/src/Prospecting/Domain/{Organization,Exchange}.php` (`possibleIntents()`, the intentions `by:` a `MemberId`)
 
 ## Context
 
@@ -11,10 +11,9 @@ Every use case of Prospecting received the id of the member who acts, and the ag
 
 ## Decision
 
-- **The API decides the access** with a voter per resource of Prospecting: `OrganizationVoter`, `ExchangeVoter`, and `TimelineVoter` for noting in a timeline. Its subject is the read model of the resource, the response of the query of the core, which carries the account of the resource; a value resolver reads it from the `id` of the route (`OrganizationResolver`, `ExchangeResolver`), and the controller declares `#[IsGranted(<intention>, subject: ...)]`, the attribute named after the intent of the core. The voter checks:
-  - that the resource belongs to the account of the member: a resource of another account is unknown to them, a 404 named like the refusal of the core (`unknownOrganization`), the voter telling it in its vote to `ApiAccessDeniedHandler`;
-  - the right to manage personal data when the intention needs it (managing the contacts of an organization, stopping to prospect one that has some, noting an exchange, correcting its facts, erasing it, its attachments): a 403.
-- **The state stays the business of the core**: the aggregate says what its state offers now (`possibleIntents()`, without the member), and refuses the rest (`NotPossibleInItsState`, 409, with its reason for the client to word it, 0073). A presenter shows the link of an intention when both agree (`IntentLinks`): a link shown is a call accepted.
+- **The API decides the access** with a voter per resource of Prospecting, `OrganizationVoter` and `ExchangeVoter`, answering one question: does the resource belong to the account of the member? Its subject is the read model of the resource, the response of the query of the core, which carries the account of the resource; a value resolver reads it from the `id` of the route (`OrganizationResolver`, `ExchangeResolver`), and the controller declares `#[IsGranted(<Voter>::ACCESS, subject: ...)]`. A resource of another account is unknown to the member, a 404 named like the refusal of the core (`unknownOrganization`), the voter telling it in its vote to `ApiAccessDeniedHandler`. A test fails when an endpoint naming an organization or an exchange by its id does not declare it.
+- **The right to manage personal data is a role on the controller**, `#[IsGranted(User::PERSONAL_DATA)]` (403), declared by the intentions that need it: managing the contacts of an organization, noting an exchange, correcting its facts, erasing it, its attachments; stopping to prospect an organization only while it has contacts, checked by its controller.
+- **The state stays the business of the core**: the aggregate says what its state offers now (`possibleIntents()`, without the member), and refuses the rest (`NotPossibleInItsState`, 409, with its reason for the client to word it, 0073). Each presenter keeps a table of its links, the intention, the route and the role its controller requires; it shows a link when the state offers the intention and the member holds the role (`IntentLinks`): a link shown is a call accepted.
 - **Prospecting** keeps its business rules (`NotAContact`, the uniqueness in an account, a contact never alone, a holding of the same account as the organization, a contact of the account of the organization). Its intentions take the member only as the author of what they record (`by:` a `MemberId`): the commands keep the id of the member who acts, kept by the events and the activity journal. What a member reads still depends on them, through `ProspectorService`: the text of an exchange flagged, its attachments hidden and their download refused without the right to manage personal data (0078), the timeline of a person read only when they are a contact of the account.
 - **PersonalData** is unchanged: it decides what its reader sees and may do (masking, searching, collecting and forgetting a contact, the intents of a person) through `ReaderService`, and checks that a person belongs to the account of its reader. The personal data are never read without a member: by an administrator or a command of the console.
 - **Accounts** is unchanged: the right to register a member stays decided by the aggregate (0075).
@@ -25,11 +24,14 @@ Every use case of Prospecting received the id of the member who acts, and the ag
 - A use case of Prospecting that changes an organization or an exchange runs without a signed-in member, given the member it records as the author.
 - The rules of the access are no longer in the scenarios of the core but in the tests of the API; a client of the core other than the API checks them itself.
 - The resolver reads the resource before the command, the controller reads it again to answer it: one more read by key per change.
+- The role an intention requires is written twice, on its controller and in the table of its presenter; the tests of the API cover both (403 without it, the link absent).
+- The right to stop prospecting is decided on the organization read before the command: a contact added in between is erased by a member who may lack the right.
 
 ## Alternatives considered
 
 - The voter deciding the state too, the links deduced from the read model by the voter alone: a call its state does not offer would have been a 403 instead of the 409 naming the refusal of the core, which the client words.
-- The aggregate computing the links for a member, the voters guarding only the access: Michel chose the links filtered by the voters.
+- The aggregate computing the links for a member, the voters guarding only the access: Michel chose the links decided by the API.
+- A voter attribute per intention of the core, the voter deciding the account and the right: it repeated the intents of the core (14 for an organization) to decide two things; Michel preferred one access per resource, the rights configured with the links in the presenters (review of the pull request #71).
 
 ## Revisit when
 

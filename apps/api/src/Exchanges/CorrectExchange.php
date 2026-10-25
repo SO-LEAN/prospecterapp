@@ -32,7 +32,8 @@ final class CorrectExchange extends AbstractController
     }
 
     #[Route('/api/exchanges/{id}/facts', name: 'api_exchanges_correct', requirements: ['id' => Requirement::UUID], methods: ['PATCH'])]
-    #[IsGranted(ExchangeVoter::CORRECT_EXCHANGE, subject: 'exchange')]
+    #[IsGranted(ExchangeVoter::ACCESS, subject: 'exchange')]
+    #[IsGranted(User::PERSONAL_DATA)]
     #[OA\Patch(summary: 'Correct the channel, the direction, whether a call was missed, the moment and the text of an exchange; its contact stays')]
     #[OA\Response(response: 200, description: 'The corrected exchange', content: new Model(type: ExchangeDetailResource::class))]
     #[OA\Response(response: 401, description: 'Missing or invalid access token')]

@@ -2,10 +2,10 @@
 
 namespace App\Prospecting\Presenter;
 
-use App\Prospecting\OrganizationVoter;
 use App\Prospecting\Resource\OrganizationLinksResource;
 use App\Prospecting\Resource\OrganizationResource;
 use App\Security\IntentLinks;
+use App\Security\User;
 use App\Shared\ImageResourceFactory;
 use App\Shared\Links;
 use App\Shared\Resource\AddressResource;
@@ -14,34 +14,42 @@ use App\Shared\Resource\LegalIdentityResource;
 use App\Shared\Resource\LinkResource;
 use App\Shared\Resource\LocationResource;
 use Prospecter\Core\Prospecting\Application\OrganizationResponse;
-use Symfony\Component\Security\Core\Authorization\AuthorizationCheckerInterface;
 
 /**
  * An organization with a link per intention its state offers and the signed-in member may carry out
  * (`IntentLinks`, ADR 0081), and to its timeline (ADR 0076); removing a contact concerns one contact, so its link is on
- * each contact of GET /api/organizations/{id}/contacts.
+ * each contact of GET /api/organizations/{id}/contacts. Each link names its intention, its route, and the role its
+ * controller requires beyond reaching the organization.
  */
 final readonly class OrganizationResourcePresenter
 {
+    /**
+     * Stopping to prospect an organization erases its contacts: the right to manage them is needed while it has some.
+     */
+    private const string PERSONAL_DATA_WITH_CONTACTS = 'personalDataWithContacts';
+
     private const array ROUTES = [
-        'reviseLegalIdentity' => [OrganizationVoter::REVISE_LEGAL_IDENTITY, 'api_organizations_revise_legal_identity'],
-        'changeContactDetails' => [OrganizationVoter::CHANGE_CONTACT_DETAILS, 'api_organizations_change_contact_details'],
-        'relocate' => [OrganizationVoter::RELOCATE, 'api_organizations_relocate'],
-        'writeObservations' => [OrganizationVoter::WRITE_OBSERVATIONS, 'api_organizations_write_observations'],
-        'attachToHolding' => [OrganizationVoter::ATTACH_TO_HOLDING, 'api_organizations_attach_to_holding'],
-        'detachFromHolding' => [OrganizationVoter::DETACH_FROM_HOLDING, 'api_organizations_detach_from_holding'],
-        'changeLogo' => [OrganizationVoter::CHANGE_LOGO, 'api_organizations_change_logo'],
-        'removeLogo' => [OrganizationVoter::REMOVE_LOGO, 'api_organizations_remove_logo'],
-        'addContact' => [OrganizationVoter::ADD_CONTACT, 'api_organizations_add_contact'],
-        'stopProspecting' => [OrganizationVoter::STOP_PROSPECTING, 'api_organizations_stop_prospecting'],
+        'reviseLegalIdentity' => ['ReviseLegalIdentity', 'api_organizations_revise_legal_identity', null],
+        'changeContactDetails' => ['ChangeContactDetails', 'api_organizations_change_contact_details', null],
+        'relocate' => ['Relocate', 'api_organizations_relocate', null],
+        'writeObservations' => ['WriteObservations', 'api_organizations_write_observations', null],
+        'attachToHolding' => ['AttachToHolding', 'api_organizations_attach_to_holding', null],
+        'detachFromHolding' => ['DetachFromHolding', 'api_organizations_detach_from_holding', null],
+        'changeLogo' => ['ChangeLogo', 'api_organizations_change_logo', null],
+        'removeLogo' => ['RemoveLogo', 'api_organizations_remove_logo', null],
+        'addContact' => ['AddContact', 'api_organizations_add_contact', User::PERSONAL_DATA],
+        'stopProspecting' => ['StopProspecting', 'api_organizations_stop_prospecting', self::PERSONAL_DATA_WITH_CONTACTS],
     ];
 
+    /**
+     * Every member reaching the organization reads its timeline; noting in it needs the right to manage personal data.
+     */
     private const array TIMELINE_ROUTES = [
-        'exchanges' => [OrganizationVoter::CONSULT_TIMELINE, 'api_organizations_timeline'],
-        'noteExchange' => [OrganizationVoter::NOTE_EXCHANGE, 'api_organizations_note_exchange'],
+        'exchanges' => ['api_organizations_timeline', null],
+        'noteExchange' => ['api_organizations_note_exchange', User::PERSONAL_DATA],
     ];
 
-    public function __construct(private ImageResourceFactory $images, private Links $links, private IntentLinks $intents, private AuthorizationCheckerInterface $access)
+    public function __construct(private ImageResourceFactory $images, private Links $links, private IntentLinks $intents)
     {
     }
 
@@ -68,13 +76,28 @@ final readonly class OrganizationResourcePresenter
     {
         $id = ['id' => $response->id];
         $granted = [
-            ...array_filter(self::ROUTES, fn (array $route): bool => $this->intents->shows($route[0], $response, $response->possibleIntents)),
-            ...array_filter(self::TIMELINE_ROUTES, fn (array $route): bool => $this->access->isGranted($route[0], $response)),
+            ...array_map(
+                static fn (array $route): string => $route[1],
+                array_filter(self::ROUTES, fn (array $route): bool => $this->intents->shows($route[0], $response->possibleIntents, $this->roleOf($route[2], $response))),
+            ),
+            ...array_map(
+                static fn (array $route): string => $route[0],
+                array_filter(self::TIMELINE_ROUTES, fn (array $route): bool => $this->intents->holds($route[1])),
+            ),
         ];
 
         return new OrganizationLinksResource(
             $this->links->to('api_organizations_show', $id),
-            ...array_map(fn (array $route): LinkResource => $this->links->to($route[1], $id), $granted),
+            ...array_map(fn (string $route): LinkResource => $this->links->to($route, $id), $granted),
         );
+    }
+
+    private function roleOf(?string $role, OrganizationResponse $response): ?string
+    {
+        if (self::PERSONAL_DATA_WITH_CONTACTS !== $role) {
+            return $role;
+        }
+
+        return [] === $response->contactIds ? null : User::PERSONAL_DATA;
     }
 }

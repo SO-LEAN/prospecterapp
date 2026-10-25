@@ -14,10 +14,10 @@ enum OrganizationIntent
     case DetachFromHolding;
     case ChangeLogo;
     case RemoveLogo;
-    /** Attach a person the account prospects; needs the right to manage personal data. */
+    /** Attach a person the account prospects. */
     case AddContact;
-    /** Detach one of its contacts; needs the right to manage personal data. */
+    /** Detach one of its contacts. */
     case RemoveContact;
-    /** Remove it from the prospecting base; with contacts, needs the right to manage personal data. */
+    /** Remove it from the prospecting base, erasing its contacts no other organization names. */
     case StopProspecting;
 }

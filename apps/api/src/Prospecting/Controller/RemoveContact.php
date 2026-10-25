@@ -32,7 +32,8 @@ final class RemoveContact extends AbstractController
     }
 
     #[Route('/api/organizations/{id}/contacts/{personId}', name: 'api_organizations_remove_contact', requirements: ['id' => Requirement::UUID, 'personId' => Requirement::UUID], methods: ['DELETE'])]
-    #[IsGranted(OrganizationVoter::REMOVE_CONTACT, subject: 'organization')]
+    #[IsGranted(OrganizationVoter::ACCESS, subject: 'organization')]
+    #[IsGranted(User::PERSONAL_DATA)]
     #[OA\Delete(summary: 'Detach a contact from the organization; the person stays among my contacts')]
     #[OA\Response(response: 200, description: 'The organization without this contact', content: new Model(type: OrganizationResource::class))]
     #[OA\Response(response: 401, description: 'Missing or invalid access token')]

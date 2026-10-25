@@ -29,7 +29,7 @@ SPA (local.prospecter.io)                                   API (api.local.prosp
 - `GET /api/user-pool` is public (firewall `user_pool`): the SPA asks it before anyone is signed in.
 - `GET /api/me/sign-in`, `PATCH /api/me/sign-in/login-email` (422 when another member signs in with it), `PATCH /api/me/sign-in/password` (204): what I sign in with (`SignIn\Credentials`, admin calls of Cognito). The API checks that a login email is free before writing it (`ListUsers`), Cognito refusing a second holder of an alias on AWS as a safety net (`AliasExistsException`); MiniStack does not, the check of the API does.
 - A token stays valid until it expires even after signing out: the price of not calling Cognito on every request.
-- Roles are checked by `#[IsGranted]` (403 problem+json from `Security\ApiAccessDeniedHandler`), the voters whether this member may reach a resource of Prospecting and carry out an intention on it, the aggregate whether its state allows it (ADR 0081). The core knows no password.
+- Roles are checked by `#[IsGranted]` (403 problem+json from `Security\ApiAccessDeniedHandler`), the voters whether this member may reach a resource of Prospecting, the aggregate whether its state allows the intention (ADR 0081). The core knows no password.
 
 ## SPA side
 

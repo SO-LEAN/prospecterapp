@@ -34,7 +34,8 @@ final class AddContact extends AbstractController
     }
 
     #[Route('/api/organizations/{id}/contacts', name: 'api_organizations_add_contact', requirements: ['id' => Requirement::UUID], methods: ['POST'])]
-    #[IsGranted(OrganizationVoter::ADD_CONTACT, subject: 'organization')]
+    #[IsGranted(OrganizationVoter::ACCESS, subject: 'organization')]
+    #[IsGranted(User::PERSONAL_DATA)]
     #[OA\Post(summary: 'Attach a person my organization prospects as a contact of the organization')]
     #[OA\Response(response: 200, description: 'The organization with its new contact', content: new Model(type: OrganizationResource::class))]
     #[OA\Response(response: 401, description: 'Missing or invalid access token')]

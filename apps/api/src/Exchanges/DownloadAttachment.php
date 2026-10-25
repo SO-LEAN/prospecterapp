@@ -26,7 +26,8 @@ final class DownloadAttachment extends AbstractController
     }
 
     #[Route('/api/exchanges/{id}/attachments/{attachmentId}', name: 'api_exchanges_download_attachment', requirements: ['id' => Requirement::UUID, 'attachmentId' => Requirement::UUID], methods: ['GET'])]
-    #[IsGranted(ExchangeVoter::DOWNLOAD_ATTACHMENT, subject: 'exchange')]
+    #[IsGranted(ExchangeVoter::ACCESS, subject: 'exchange')]
+    #[IsGranted(User::PERSONAL_DATA)]
     #[OA\Get(summary: 'Where to read a file joined to an exchange, for a minute')]
     #[OA\Response(response: 200, description: 'A link signed for a minute', content: new Model(type: AttachmentDownloadResource::class))]
     #[OA\Response(response: 401, description: 'Missing or invalid access token')]
