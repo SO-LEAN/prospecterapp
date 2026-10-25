@@ -24,29 +24,28 @@ use Prospecter\Core\Prospecting\Application\OrganizationResponse;
 final readonly class OrganizationResourcePresenter
 {
     /**
-     * Stopping to prospect an organization erases its contacts: the right to manage them is needed while it has some.
+     * @var array<string, array{intent: string, route: string, role: ?string}>
      */
-    private const string PERSONAL_DATA_WITH_CONTACTS = 'personalDataWithContacts';
-
     private const array ROUTES = [
-        'reviseLegalIdentity' => ['ReviseLegalIdentity', 'api_organizations_revise_legal_identity', null],
-        'changeContactDetails' => ['ChangeContactDetails', 'api_organizations_change_contact_details', null],
-        'relocate' => ['Relocate', 'api_organizations_relocate', null],
-        'writeObservations' => ['WriteObservations', 'api_organizations_write_observations', null],
-        'attachToHolding' => ['AttachToHolding', 'api_organizations_attach_to_holding', null],
-        'detachFromHolding' => ['DetachFromHolding', 'api_organizations_detach_from_holding', null],
-        'changeLogo' => ['ChangeLogo', 'api_organizations_change_logo', null],
-        'removeLogo' => ['RemoveLogo', 'api_organizations_remove_logo', null],
-        'addContact' => ['AddContact', 'api_organizations_add_contact', User::PERSONAL_DATA],
-        'stopProspecting' => ['StopProspecting', 'api_organizations_stop_prospecting', self::PERSONAL_DATA_WITH_CONTACTS],
+        'reviseLegalIdentity' => ['intent' => 'ReviseLegalIdentity', 'route' => 'api_organizations_revise_legal_identity', 'role' => null],
+        'changeContactDetails' => ['intent' => 'ChangeContactDetails', 'route' => 'api_organizations_change_contact_details', 'role' => null],
+        'relocate' => ['intent' => 'Relocate', 'route' => 'api_organizations_relocate', 'role' => null],
+        'writeObservations' => ['intent' => 'WriteObservations', 'route' => 'api_organizations_write_observations', 'role' => null],
+        'attachToHolding' => ['intent' => 'AttachToHolding', 'route' => 'api_organizations_attach_to_holding', 'role' => null],
+        'detachFromHolding' => ['intent' => 'DetachFromHolding', 'route' => 'api_organizations_detach_from_holding', 'role' => null],
+        'changeLogo' => ['intent' => 'ChangeLogo', 'route' => 'api_organizations_change_logo', 'role' => null],
+        'removeLogo' => ['intent' => 'RemoveLogo', 'route' => 'api_organizations_remove_logo', 'role' => null],
+        'addContact' => ['intent' => 'AddContact', 'route' => 'api_organizations_add_contact', 'role' => User::PERSONAL_DATA],
     ];
 
     /**
      * Every member reaching the organization reads its timeline; noting in it needs the right to manage personal data.
+     *
+     * @var array<string, array{route: string, role: ?string}>
      */
     private const array TIMELINE_ROUTES = [
-        'exchanges' => ['api_organizations_timeline', null],
-        'noteExchange' => ['api_organizations_note_exchange', User::PERSONAL_DATA],
+        'exchanges' => ['route' => 'api_organizations_timeline', 'role' => null],
+        'noteExchange' => ['route' => 'api_organizations_note_exchange', 'role' => User::PERSONAL_DATA],
     ];
 
     public function __construct(private ImageResourceFactory $images, private Links $links, private IntentLinks $intents)
@@ -77,13 +76,14 @@ final readonly class OrganizationResourcePresenter
         $id = ['id' => $response->id];
         $granted = [
             ...array_map(
-                static fn (array $route): string => $route[1],
-                array_filter(self::ROUTES, fn (array $route): bool => $this->intents->shows($route[0], $response->possibleIntents, $this->roleOf($route[2], $response))),
+                static fn (array $link): string => $link['route'],
+                array_filter(self::ROUTES, fn (array $link): bool => $this->intents->shows($link['intent'], $response->possibleIntents, $link['role'])),
             ),
             ...array_map(
-                static fn (array $route): string => $route[0],
-                array_filter(self::TIMELINE_ROUTES, fn (array $route): bool => $this->intents->holds($route[1])),
+                static fn (array $link): string => $link['route'],
+                array_filter(self::TIMELINE_ROUTES, fn (array $link): bool => $this->intents->holds($link['role'])),
             ),
+            ...($this->mayStopProspecting($response) ? ['stopProspecting' => 'api_organizations_stop_prospecting'] : []),
         ];
 
         return new OrganizationLinksResource(
@@ -92,12 +92,12 @@ final readonly class OrganizationResourcePresenter
         );
     }
 
-    private function roleOf(?string $role, OrganizationResponse $response): ?string
+    /**
+     * Stopping to prospect an organization erases its contacts: the right to manage them is needed while it has some,
+     * as its controller checks.
+     */
+    private function mayStopProspecting(OrganizationResponse $response): bool
     {
-        if (self::PERSONAL_DATA_WITH_CONTACTS !== $role) {
-            return $role;
-        }
-
-        return [] === $response->contactIds ? null : User::PERSONAL_DATA;
+        return $this->intents->shows('StopProspecting', $response->possibleIntents, [] === $response->contactIds ? null : User::PERSONAL_DATA);
     }
 }
