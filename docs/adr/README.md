@@ -18,7 +18,7 @@ Why the project is shaped the way it is: one file per decision in `docs/adr/`, i
 | [0012](0012-dedicated-authorization-server.md) | Delegate authentication to a dedicated authorization server | Superseded by 0034 | 2026-10-15 |
 | [0013](0013-front-stack.md) | Front stack: React, TanStack, typed client, shadcn/ui | Accepted, the session library superseded by 0052, the pagination by 0049 | 2026-10-14 |
 | [0014](0014-open-maps-and-state-geocoding.md) | Open maps (MapLibre, OpenFreeMap) and the French State geocoder | Accepted | 2026-10-14 |
-| [0015](0015-local-stack-in-docker.md) | The whole stack runs locally in Docker, driven by make | Accepted, the commands of each project in its own Makefile since [0080](0080-a-makefile-per-project-the-root-one-a-facade.md) | 2026-10-14 |
+| [0015](0015-local-stack-in-docker.md) | The whole stack runs locally in Docker, driven by make | Accepted, the commands of each project in its own Makefile since [0080](0080-a-makefile-per-project-the-root-one-a-facade.md), the network of Playwright by [0084](0084-playwright-runs-on-the-network-of-the-stack.md) | 2026-10-14 |
 | [0016](0016-sqlite-without-migrations.md) | SQLite, schema generated from the mapping, no migrations | Superseded by 0048, 0052 | 2026-10-13 |
 | [0017](0017-gherkin-acceptance-tests-on-the-core.md) | Gherkin acceptance tests on the core, only ports doubled | Accepted | 2026-10-15 |
 | [0018](0018-readonly-core-model.md) | Readonly requests, responses and value objects; flat entity columns | Superseded by 0023 | 2026-10-15 |
@@ -87,3 +87,4 @@ Why the project is shaped the way it is: one file per decision in `docs/adr/`, i
 | [0081](0081-the-api-checks-the-access-the-core-keeps-the-state.md) | The API checks the access to a resource with a voter; the core keeps its state and what a member reads | Accepted | 2026-10-25 |
 | [0082](0082-a-local-function-serves-as-the-owner-of-the-repository.md) | A local function serves as the owner of the mounted repository | Accepted | 2026-10-26 |
 | [0083](0083-the-scripts-of-tools-become-recipes-of-their-project.md) | The scripts of `tools/` become recipes of their project; the PHPStan rules a package | Accepted | 2026-10-26 |
+| [0084](0084-playwright-runs-on-the-network-of-the-stack.md) | Playwright runs on the network of the stack, the local hosts resolved to its nginx | Accepted | 2026-10-26 |

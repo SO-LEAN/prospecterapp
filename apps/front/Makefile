@@ -22,11 +22,17 @@ build: ## Build the front for production (TypeScript, Vite)
 api-types: ## Generate the types of the API from its OpenAPI contract (src/shared/api/schema.d.ts)
 	@$(NODE) pnpm api:types
 
-# Playwright runs in its official image, the local hosts resolved to the running stack
-E2E_HOSTS = --add-host local.prospecter.io:127.0.0.1 --add-host api.local.prospecter.io:127.0.0.1 --add-host static.local.prospecter.io:127.0.0.1
+# Playwright runs in its official image, on the network of the stack, the local hosts resolved to its nginx. Not on the
+# network of the host: Chromium would see the interface of each Lambda MiniStack starts, and cancel what it was loading
+# (net::ERR_NETWORK_CHANGED)
+E2E_NGINX = pro-nginx
+E2E_NETWORK = $(shell docker inspect -f '{{range $$network, $$address := .NetworkSettings.Networks}}{{$$network}}{{end}}' $(E2E_NGINX) 2>/dev/null)
+E2E_NGINX_IP = $(shell docker inspect -f '{{range .NetworkSettings.Networks}}{{.IPAddress}}{{end}}' $(E2E_NGINX) 2>/dev/null)
+E2E_HOSTS = --add-host local.prospecter.io:$(E2E_NGINX_IP) --add-host api.local.prospecter.io:$(E2E_NGINX_IP) --add-host static.local.prospecter.io:$(E2E_NGINX_IP)
 
 e2e: ## Run the Playwright journeys against the running stack
-	@docker run --rm --init --ipc=host --network host $(E2E_HOSTS) -u $(UID):$(GID) -e HOME=/tmp -v $(CURDIR):/work -w /work mcr.microsoft.com/playwright:v1.64.0-noble npx playwright test
+	@test -n "$(E2E_NGINX_IP)" || { echo "The stack is not running: make start"; exit 1; }
+	@docker run --rm --init --ipc=host --network $(E2E_NETWORK) $(E2E_HOSTS) -u $(UID):$(GID) -e HOME=/tmp -v $(CURDIR):/work -w /work mcr.microsoft.com/playwright:v1.64.0-noble npx playwright test
 
 shell: ## Open a shell in the Node container
 	@$(NODE) sh

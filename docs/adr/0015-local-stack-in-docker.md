@@ -1,7 +1,7 @@
 # 0015. The whole stack runs locally in Docker, driven by make
 
 - Date: 2026-10-14
-- Status: Accepted
+- Status: Accepted, the network of Playwright superseded by [0084](0084-playwright-runs-on-the-network-of-the-stack.md)
 - Implemented by: cd389ea; `docker-compose.yml`, `Makefile`, `docker/`
 
 ## Context
