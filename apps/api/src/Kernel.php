@@ -8,8 +8,8 @@ use Symfony\Bundle\FrameworkBundle\Kernel\MicroKernelTrait;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 
 /**
- * In a Lambda of AWS (ADR 0063), BrefKernel moves the cache and the logs to /tmp, the only writable place, and copies
- * there the cache warmed in the package; elsewhere it is the kernel of Symfony.
+ * In a Lambda, on AWS (ADR 0063) or locally on MiniStack, BrefKernel moves the cache and the logs to /tmp, and copies
+ * there the cache found in var/cache, warmed in the package on AWS; on the command line it is the kernel of Symfony.
  */
 class Kernel extends BrefKernel
 {
