@@ -1,7 +1,7 @@
 # 0035. Requests and responses are plain data; the use cases translate the refusals of the domain
 
 - Date: 2026-10-15
-- Status: Accepted; the authentication query superseded by [0040](0040-security-reads-the-caller-with-consult-my-account.md)
+- Status: Accepted; the authentication query superseded by [0040](0040-security-reads-the-caller-with-consult-my-account.md), the response a query returns by [0084](0084-a-query-presents-its-answer-to-a-presenter-built-for-the-call.md)
 - Implemented by: `packages/core/src/*/Application`, `packages/core/src/SharedKernel/Application/{RefusalTranslatingHandler,Exception/UseCaseRefused,Exception/ErrorType}.php`, `apps/api/src/Shared/DependencyInjection/RefusalTranslatingCommandHandlersPass.php`, `packages/core/tests/Architecture/ApplicationBoundaryTest.php`, `apps/api/tests/Architecture/DomainBehindTheApplicationTest.php`
 
 ## Context
