@@ -89,7 +89,11 @@ export const fr = {
     },
     noResult: { title: 'Aucun résultat', description: 'Aucune organisation ne correspond à « {{query}} ».' },
     preview: { open: 'Voir la fiche' },
-    start: { title: 'Commencer à prospecter', submit: 'Commencer à prospecter' },
+    start: {
+      title: 'Commencer à prospecter',
+      submit: 'Commencer à prospecter',
+      started: 'Vous prospectez {{name}}',
+    },
     sections: {
       legalIdentity: 'Identité',
       contactDetails: 'Coordonnées',
