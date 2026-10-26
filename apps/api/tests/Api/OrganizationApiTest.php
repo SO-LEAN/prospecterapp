@@ -252,6 +252,23 @@ class OrganizationApiTest extends ApiTestCase
         }
     }
 
+    public function testAnAdministratorManagesThePersonalDataWithoutTheirRole(): void
+    {
+        $id = $this->requestJson('POST', '/api/organizations', self::ACME)['id'];
+        $contact = $this->requestJson('POST', '/api/contacts', ['name' => ['firstName' => 'Ada'], 'organizationIds' => [$id]])['id'];
+        $this->login($this->aMemberOfTheFixtures('administrator', Role::Prospector, Role::Admin));
+
+        $links = $this->requestJson('GET', '/api/organizations/'.$id)['_links'];
+        $this->assertSame(['addContact', 'stopProspecting', 'noteExchange'], array_values(array_intersect(['addContact', 'stopProspecting', 'noteExchange'], array_keys($links))));
+
+        $this->requestJson('POST', '/api/organizations/'.$id.'/exchanges', ['exchange' => ['channel' => 'call', 'direction' => 'inbound'], 'personId' => $contact]);
+        $this->assertResponseStatusCodeSame(201);
+        $this->requestJson('DELETE', '/api/organizations/'.$id.'/contacts/'.$contact);
+        $this->assertResponseIsSuccessful();
+        $this->requestJson('DELETE', '/api/organizations/'.$id);
+        $this->assertResponseStatusCodeSame(204);
+    }
+
     public function testWithoutTheRightAnOrganizationWithoutContactsIsStillLeft(): void
     {
         $id = $this->requestJson('POST', '/api/organizations', self::ACME)['id'];

@@ -1,7 +1,7 @@
 security:
-    # an administrator may do what any user may
+    # an administrator may do what any member may, the personal data managed included, as the core lets them read them
     role_hierarchy:
-        ROLE_ADMIN: [ROLE_PROSPECTOR, ROLE_USER]
+        ROLE_ADMIN: [ROLE_PROSPECTOR, ROLE_PERSONAL_DATA, ROLE_USER]
 
     providers:
         members:
