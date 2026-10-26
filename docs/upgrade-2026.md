@@ -65,7 +65,7 @@ The Symfony pages were replaced by a React SPA (`apps/front`) and a JSON API (`a
 - `@vitejs/plugin-react` 6: React Compiler through `@rolldown/plugin-babel` + `reactCompilerPreset()` (the Rust compiler option is still experimental).
 - TanStack Router: calling `router.invalidate()` before `RouterProvider` has received its context runs the guards with an undefined context; and right after the OAuth callback, the `useAuth()` state lags, so the guard reads `userManager.getUser()`.
 - shadcn's generator wrote `import { cn } from "cn"` with a custom `utils` alias, and its sonner wrapper imports `next-themes`.
-- Playwright in Docker reaches the stack with `--network host` (nginx listens on 127.0.0.1 only) and `--add-host` for the three local hosts.
+- Playwright in Docker reaches the stack with `--network host` (nginx listens on 127.0.0.1 only) and `--add-host` for the three local hosts. Since replaced by the network of the stack (ADR 0084).
 
 # 2026-10-15: bounded contexts, authorization server, storage
 
