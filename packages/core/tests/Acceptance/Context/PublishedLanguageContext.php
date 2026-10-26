@@ -44,7 +44,7 @@ final class PublishedLanguageContext implements Context
     #[When('un autre contexte demande à Accounts qui est le membre :name')]
     public function anotherContextConsultsTheMember(string $name): void
     {
-        $this->member = $this->application->askPublished(new ConsultMember($this->memberIdOf($name)));
+        $this->member = $this->application->consultMember(new ConsultMember($this->memberIdOf($name)));
     }
 
     #[Then('Accounts répond que :name est membre de :account avec le droit aux données personnelles')]
@@ -105,12 +105,12 @@ final class PublishedLanguageContext implements Context
 
     private function isAContactOf(string $person, string $account): ?bool
     {
-        return $this->application->askPublished(new IsAContactOf($this->scenario->personIdOf($person), $this->scenario->accountIdOf($account)->value));
+        return $this->application->isAContactOf(new IsAContactOf($this->scenario->personIdOf($person), $this->scenario->accountIdOf($account)->value));
     }
 
     private function isProspectedBy(string $organization, string $account): ?bool
     {
-        return $this->application->askPublished(new IsProspectedBy($this->scenario->idOf($organization), $this->scenario->accountIdOf($account)->value));
+        return $this->application->isProspectedBy(new IsProspectedBy($this->scenario->idOf($organization), $this->scenario->accountIdOf($account)->value));
     }
 
     /**

@@ -5,6 +5,7 @@ namespace App\Exchanges;
 use App\Security\User;
 use Prospecter\Core\Prospecting\Application\ConsultExchange\ConsultExchange;
 use Prospecter\Core\Prospecting\Application\ConsultExchange\ExchangeDetailResponse;
+use Prospecter\Core\Prospecting\Application\ConsultExchange\KeptExchange;
 use Prospecter\Core\SharedKernel\Application\RefusalTranslatingHandler;
 use Symfony\Bundle\SecurityBundle\Security;
 use Symfony\Component\HttpFoundation\Request;
@@ -32,6 +33,9 @@ final readonly class ExchangeResolver implements ValueResolverInterface
             return [];
         }
 
-        return [($this->consultExchange)(new ConsultExchange($reader->memberId(), $request->attributes->getString('id')))];
+        $kept = new KeptExchange();
+        ($this->consultExchange)(new ConsultExchange($reader->memberId(), $request->attributes->getString('id')), $kept);
+
+        return [$kept->exchange];
     }
 }

@@ -20,10 +20,7 @@ final readonly class ConsultPersonsHandler implements QueryHandler
     {
     }
 
-    /**
-     * @return array<string, PersonResponse> by person id
-     */
-    public function __invoke(ConsultPersons $query): array
+    public function __invoke(ConsultPersons $query, ConsultPersonsOutput $output): void
     {
         $reader = $this->readerService->readerFrom(new MemberId($query->readerId));
         $responses = [];
@@ -36,7 +33,7 @@ final readonly class ConsultPersonsHandler implements QueryHandler
             }
         }
 
-        return $responses;
+        $output->present($responses);
     }
 
     private function reachable(Person $person, Reader $reader): ?PersonResponse

@@ -2,8 +2,8 @@
 
 namespace App\Prospecting\Controller;
 
+use App\Prospecting\OrganizationReader;
 use App\Prospecting\OrganizationVoter;
-use App\Prospecting\Presenter\OrganizationResourcePresenter;
 use App\Prospecting\Resource\OrganizationResource;
 use App\Shared\Resource\ProblemResource;
 use Nelmio\ApiDocBundle\Attribute\Model;
@@ -20,7 +20,7 @@ use Symfony\Component\Security\Http\Attribute\IsGranted;
 final class ShowOrganization extends AbstractController
 {
     public function __construct(
-        private readonly OrganizationResourcePresenter $presenter,
+        private readonly OrganizationReader $organizations,
     ) {
     }
 
@@ -33,6 +33,6 @@ final class ShowOrganization extends AbstractController
     #[OA\Response(response: 404, description: 'Unknown organization, or one that is neither mine nor prospected by mine', content: new Model(type: ProblemResource::class))]
     public function __invoke(OrganizationResponse $organization): JsonResponse
     {
-        return $this->json($this->presenter->present($organization));
+        return $this->json($this->organizations->present($organization));
     }
 }

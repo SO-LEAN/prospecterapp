@@ -9,6 +9,7 @@ use Nelmio\ApiDocBundle\Attribute\Model;
 use OpenApi\Attributes as OA;
 use Prospecter\Core\Prospecting\Application\ConsultExchange\ExchangeDetailResponse;
 use Prospecter\Core\Prospecting\Application\DownloadAttachment\DownloadAttachment as DownloadAttachmentQuery;
+use Prospecter\Core\Prospecting\Application\DownloadAttachment\KeptDownload;
 use Prospecter\Core\SharedKernel\Application\RefusalTranslatingHandler;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -35,8 +36,9 @@ final class DownloadAttachment extends AbstractController
     #[OA\Response(response: 404, description: 'Unknown exchange or attachment, or one of another account', content: new Model(type: ProblemResource::class))]
     public function __invoke(ExchangeDetailResponse $exchange, string $attachmentId, #[CurrentUser] User $user): JsonResponse
     {
-        $download = ($this->downloadAttachment)(new DownloadAttachmentQuery($user->memberId(), $exchange->id, $attachmentId));
+        $kept = new KeptDownload();
+        ($this->downloadAttachment)(new DownloadAttachmentQuery($user->memberId(), $exchange->id, $attachmentId), $kept);
 
-        return $this->json(new AttachmentDownloadResource($download->name, $download->url));
+        return $this->json(new AttachmentDownloadResource($kept->download->name, $kept->download->url));
     }
 }

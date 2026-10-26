@@ -3,17 +3,15 @@
 namespace App\Prospecting\Controller;
 
 use App\Prospecting\Input\ExchangeInput;
-use App\Prospecting\Presenter\TimelinePresenter;
 use App\Prospecting\Resource\TimelineResource;
+use App\Prospecting\TimelineReader;
 use App\Security\User;
 use App\Shared\CommandBus;
 use App\Shared\Identities;
 use App\Shared\Resource\ProblemResource;
 use Nelmio\ApiDocBundle\Attribute\Model;
 use OpenApi\Attributes as OA;
-use Prospecter\Core\Prospecting\Application\ConsultTimeline\ConsultTimeline;
 use Prospecter\Core\Prospecting\Application\NoteExchange\NoteExchange as NoteExchangeCommand;
-use Prospecter\Core\SharedKernel\Application\RefusalTranslatingHandler;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\Clock\ClockInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -32,8 +30,7 @@ final class NoteExchange extends AbstractController
         private readonly CommandBus $commands,
         private readonly Identities $identities,
         private readonly ClockInterface $clock,
-        private readonly RefusalTranslatingHandler $consultTimeline,
-        private readonly TimelinePresenter $presenter,
+        private readonly TimelineReader $timelines,
     ) {
     }
 
@@ -60,6 +57,6 @@ final class NoteExchange extends AbstractController
             executedAt: $this->clock->now(),
         ));
 
-        return $this->json($this->presenter->present($id, ($this->consultTimeline)(new ConsultTimeline($user->memberId(), $id))), Response::HTTP_CREATED, ['Location' => $this->generateUrl('api_exchanges_show', ['id' => $exchange])]);
+        return $this->json($this->timelines->read($user->memberId(), $id), Response::HTTP_CREATED, ['Location' => $this->generateUrl('api_exchanges_show', ['id' => $exchange])]);
     }
 }

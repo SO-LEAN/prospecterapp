@@ -15,6 +15,7 @@ use App\Shared\Resource\ProblemResource;
 use Nelmio\ApiDocBundle\Attribute\Model;
 use OpenApi\Attributes as OA;
 use Prospecter\Core\PersonalData\Application\ConsultPersons\ConsultPersons;
+use Prospecter\Core\PersonalData\Application\ConsultPersons\KeptPersons;
 use Prospecter\Core\PersonalData\Application\PersonResponse;
 use Prospecter\Core\Prospecting\Application\OrganizationResponse;
 use Prospecter\Core\SharedKernel\Application\RefusalTranslatingHandler;
@@ -49,8 +50,9 @@ final class ShowOrganizationContacts extends AbstractController
     #[OA\Response(response: 404, description: 'Unknown organization, or one of another account', content: new Model(type: ProblemResource::class))]
     public function __invoke(OrganizationResponse $organization, #[CurrentUser] User $user): JsonResponse
     {
-        $persons = ($this->consultPersons)(new ConsultPersons($user->memberId(), $organization->contactIds));
-        $contacts = array_values(array_filter(array_map(static fn (string $contactId): ?PersonResponse => $persons[$contactId] ?? null, $organization->contactIds)));
+        $persons = new KeptPersons();
+        ($this->consultPersons)(new ConsultPersons($user->memberId(), $organization->contactIds), $persons);
+        $contacts = array_values(array_filter(array_map(static fn (string $contactId): ?PersonResponse => $persons->persons[$contactId] ?? null, $organization->contactIds)));
 
         return $this->json(new OrganizationContactsResource(array_map(fn (PersonResponse $contact): OrganizationContactResource => $this->present($contact, $organization), $contacts)));
     }

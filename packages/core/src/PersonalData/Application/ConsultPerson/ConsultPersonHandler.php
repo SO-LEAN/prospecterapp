@@ -17,8 +17,8 @@ final readonly class ConsultPersonHandler implements QueryHandler
     {
     }
 
-    public function __invoke(ConsultPerson $query): PersonResponse
+    public function __invoke(ConsultPerson $query, ConsultPersonOutput $output): void
     {
-        return PersonResponse::of($this->persons->get(new PersonId($query->id)), $this->readerService->readerFrom(new MemberId($query->readerId)));
+        $output->present(PersonResponse::of($this->persons->get(new PersonId($query->id)), $this->readerService->readerFrom(new MemberId($query->readerId))));
     }
 }

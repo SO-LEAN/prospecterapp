@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Tests\Core\Double;
 
 use Prospecter\Core\Accounts\Contract\Service\ConsultMember\ConsultMember;
+use Prospecter\Core\Accounts\Contract\Service\ConsultMember\KeptMember;
 use Prospecter\Core\Accounts\Contract\Service\ConsultMember\MemberResponse;
 use Prospecter\Core\Prospecting\Domain\Exception\UnknownProspector;
 use Prospecter\Core\Prospecting\Domain\Prospector;
@@ -32,10 +33,14 @@ final readonly class AccountsProspectorService implements ProspectorService
 
     private function memberOf(MemberId $id): MemberResponse
     {
+        $kept = new KeptMember();
+
         try {
-            return ($this->consultMember)(new ConsultMember((string) $id));
+            ($this->consultMember)(new ConsultMember((string) $id), $kept);
         } catch (UseCaseRefused) {
             throw UnknownProspector::identifiedBy($id);
         }
+
+        return $kept->member;
     }
 }

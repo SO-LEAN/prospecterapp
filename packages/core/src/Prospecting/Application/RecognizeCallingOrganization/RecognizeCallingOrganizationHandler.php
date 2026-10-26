@@ -17,14 +17,11 @@ final readonly class RecognizeCallingOrganizationHandler implements QueryHandler
     {
     }
 
-    /**
-     * @return list<OrganizationResponse> the organizations having the number
-     */
-    public function __invoke(RecognizeCallingOrganization $query): array
+    public function __invoke(RecognizeCallingOrganization $query, RecognizeCallingOrganizationOutput $output): void
     {
         $prospector = $this->prospectorService->prospectorFrom(new MemberId($query->prospectorId));
         $organizations = $this->organizations->withPhoneNumber($prospector->accountId, PhoneNumber::of($query->phoneNumber));
 
-        return array_map(OrganizationResponse::of(...), $organizations);
+        $output->present(array_map(OrganizationResponse::of(...), $organizations));
     }
 }

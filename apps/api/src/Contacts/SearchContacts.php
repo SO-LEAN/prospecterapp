@@ -12,6 +12,7 @@ use App\Shared\Resource\ProblemResource;
 use Nelmio\ApiDocBundle\Attribute\Model;
 use OpenApi\Attributes as OA;
 use Prospecter\Core\PersonalData\Application\PersonResponse;
+use Prospecter\Core\PersonalData\Application\SearchContacts\KeptContactPage;
 use Prospecter\Core\PersonalData\Application\SearchContacts\SearchContacts as SearchContactsQuery;
 use Prospecter\Core\PersonalData\Application\SearchContacts\SearchContactsResponse;
 use Prospecter\Core\SharedKernel\Application\RefusalTranslatingHandler;
@@ -33,7 +34,7 @@ final class SearchContacts extends AbstractController
     public function __construct(
         private readonly RefusalTranslatingHandler $searchContacts,
         private readonly OrganizationsOfContacts $organizations,
-        private readonly ContactInListPresenter $contacts,
+        private readonly ContactInListResourceFactory $contacts,
         private readonly Links $links,
     ) {
     }
@@ -45,11 +46,13 @@ final class SearchContacts extends AbstractController
     #[OA\Response(response: 403, description: 'Not a prospector, or a search by text without the right to manage personal data', content: new Model(type: ProblemResource::class))]
     public function __invoke(#[CurrentUser] User $user, #[MapQueryString] ContactListQuery $query = new ContactListQuery()): JsonResponse
     {
-        $page = ($this->searchContacts)(new SearchContactsQuery($user->memberId(), $query->q, $query->after));
+        $kept = new KeptContactPage();
+        ($this->searchContacts)(new SearchContactsQuery($user->memberId(), $query->q, $query->after), $kept);
+        $page = $kept->page;
         $organizations = $this->organizations->read($user->memberId(), array_map(static fn (PersonResponse $contact): string => $contact->id, $page->contacts));
 
         return $this->json(new ContactListResource(
-            array_map(fn (PersonResponse $contact): ContactInListResource => $this->contacts->present($contact, $organizations[$contact->id] ?? []), $page->contacts),
+            array_map(fn (PersonResponse $contact): ContactInListResource => $this->contacts->create($contact, $organizations[$contact->id] ?? []), $page->contacts),
             $this->linksOf($page, $query->q),
         ));
     }

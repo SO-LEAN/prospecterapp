@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Tests\Core\Double;
 
 use Prospecter\Core\PersonalData\Contract\Service\IsAContactOf\IsAContactOf;
+use Prospecter\Core\PersonalData\Contract\Service\IsAContactOf\KeptIsAContact;
 use Prospecter\Core\Prospecting\Domain\KnownContacts;
 use Prospecter\Core\SharedKernel\Application\Exception\UseCaseRefused;
 use Prospecter\Core\SharedKernel\Application\RefusalTranslatingHandler;
@@ -23,10 +24,14 @@ final readonly class PersonalDataKnownContacts implements KnownContacts
 
     public function isAContactOf(PersonId $person, AccountId $accountId): bool
     {
+        $kept = new KeptIsAContact();
+
         try {
-            return ($this->isAContactOf)(new IsAContactOf((string) $person, (string) $accountId));
+            ($this->isAContactOf)(new IsAContactOf((string) $person, (string) $accountId), $kept);
         } catch (UseCaseRefused) {
             return false;
         }
+
+        return $kept->isAContact;
     }
 }

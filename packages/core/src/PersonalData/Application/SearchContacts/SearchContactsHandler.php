@@ -17,11 +17,11 @@ final readonly class SearchContactsHandler implements QueryHandler
     {
     }
 
-    public function __invoke(SearchContacts $query): SearchContactsResponse
+    public function __invoke(SearchContacts $query, SearchContactsOutput $output): void
     {
         $reader = $this->readerService->readerFrom(new MemberId($query->readerId));
         $reader->ensureMaySearchByText($query->query);
 
-        return SearchContactsResponse::of($this->persons->sliceOf($reader->accountId, Purpose::Prospecting, SearchKey::of($query->query), $query->after, $query->max), $reader);
+        $output->present(SearchContactsResponse::of($this->persons->sliceOf($reader->accountId, Purpose::Prospecting, SearchKey::of($query->query), $query->after, $query->max), $reader));
     }
 }

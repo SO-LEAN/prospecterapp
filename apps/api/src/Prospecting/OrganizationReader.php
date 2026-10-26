@@ -4,23 +4,46 @@ namespace App\Prospecting;
 
 use App\Prospecting\Presenter\OrganizationResourcePresenter;
 use App\Prospecting\Resource\OrganizationResource;
+use App\Security\IntentLinks;
+use App\Shared\ImageResourceFactory;
+use App\Shared\Links;
 use Prospecter\Core\Prospecting\Application\ConsultOrganization\ConsultOrganization;
+use Prospecter\Core\Prospecting\Application\OrganizationResponse;
 use Prospecter\Core\SharedKernel\Application\RefusalTranslatingHandler;
 
 /**
- * An organization as the API shows it: read by the query of the core, then presented. A controller calls
- * it after a command, which returns nothing, to answer with the fresh resource.
+ * An organization as the API shows it: read by the query of the core, presented to the presenter it builds for the
+ * call (ADR 0084). A controller calls it after a command, which returns nothing, to answer with the fresh resource,
+ * or to present an organization a resolver already read.
  */
 final readonly class OrganizationReader
 {
     public function __construct(
         private RefusalTranslatingHandler $consultOrganization,
-        private OrganizationResourcePresenter $presenter,
+        private ImageResourceFactory $images,
+        private Links $links,
+        private IntentLinks $intents,
     ) {
     }
 
     public function read(string $id): OrganizationResource
     {
-        return $this->presenter->present(($this->consultOrganization)(new ConsultOrganization($id)));
+        $presenter = $this->presenter();
+        ($this->consultOrganization)(new ConsultOrganization($id), $presenter);
+
+        return $presenter->resource;
+    }
+
+    public function present(OrganizationResponse $organization): OrganizationResource
+    {
+        $presenter = $this->presenter();
+        $presenter->present($organization);
+
+        return $presenter->resource;
+    }
+
+    private function presenter(): OrganizationResourcePresenter
+    {
+        return new OrganizationResourcePresenter($this->images, $this->links, $this->intents);
     }
 }

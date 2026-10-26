@@ -17,10 +17,7 @@ final readonly class ConsultOrganizationsOfContactsHandler implements QueryHandl
     {
     }
 
-    /**
-     * @return array<string, list<OrganizationOfContact>> by person id, every asked person included
-     */
-    public function __invoke(ConsultOrganizationsOfContacts $query): array
+    public function __invoke(ConsultOrganizationsOfContacts $query, ConsultOrganizationsOfContactsOutput $output): void
     {
         $prospector = $this->prospectorService->prospectorFrom(new MemberId($query->prospectorId));
         $contacts = array_map(static fn (string $id): PersonId => new PersonId($id), $query->personIds);
@@ -31,6 +28,6 @@ final readonly class ConsultOrganizationsOfContactsHandler implements QueryHandl
             $byContact[$contact->value] = array_map(OrganizationOfContact::of(...), array_values(array_filter($organizations, static fn (Organization $organization): bool => $organization->hasContact($contact))));
         }
 
-        return $byContact;
+        $output->present($byContact);
     }
 }
