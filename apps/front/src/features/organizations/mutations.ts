@@ -11,9 +11,8 @@ import { type Organization, organizationQuery } from './queries'
  * Every intention returns the fresh organization: it goes straight into the detail cache (no refetch),
  * while lists and the dashboard are marked stale and refetched when displayed.
  */
-function useStoreOrganization() {
+function useStoreOrganization(confirmation: (organization: Organization) => string) {
   const queryClient = useQueryClient()
-  const { t } = useTranslation()
 
   return (organization: Organization | undefined) => {
     if (!organization) {
@@ -22,63 +21,77 @@ function useStoreOrganization() {
     queryClient.setQueryData(organizationQuery(organization.id).queryKey, organization)
     void queryClient.invalidateQueries({ queryKey: queryKeys.organizationList })
     void queryClient.invalidateQueries({ queryKey: queryKeys.dashboard })
-    toast.success(t('common.saved'))
+    toast.success(confirmation(organization))
   }
+}
+
+function useStoreChangedOrganization() {
+  const { t } = useTranslation()
+
+  return useStoreOrganization(() => t('common.saved'))
 }
 
 const formIntention = { meta: { silentValidation: true } }
 
 export function useStartProspecting() {
+  const { t } = useTranslation()
+
   return api.useMutation('post', '/api/organizations', {
     ...formIntention,
-    onSuccess: useStoreOrganization(),
+    onSuccess: useStoreOrganization(({ name }) => t('organizations.start.started', { name })),
   })
 }
 
 export function useReviseLegalIdentity() {
   return api.useMutation('patch', '/api/organizations/{id}/legal-identity', {
     ...formIntention,
-    onSuccess: useStoreOrganization(),
+    onSuccess: useStoreChangedOrganization(),
   })
 }
 
 export function useChangeContactDetails() {
   return api.useMutation('patch', '/api/organizations/{id}/contact-details', {
     ...formIntention,
-    onSuccess: useStoreOrganization(),
+    onSuccess: useStoreChangedOrganization(),
   })
 }
 
 export function useRelocate() {
   return api.useMutation('patch', '/api/organizations/{id}/address', {
     ...formIntention,
-    onSuccess: useStoreOrganization(),
+    onSuccess: useStoreChangedOrganization(),
   })
 }
 
 export function useWriteObservations() {
   return api.useMutation('patch', '/api/organizations/{id}/observations', {
     ...formIntention,
-    onSuccess: useStoreOrganization(),
+    onSuccess: useStoreChangedOrganization(),
   })
 }
 
 export function useAttachToHolding() {
-  return api.useMutation('patch', '/api/organizations/{id}/holding', { onSuccess: useStoreOrganization() })
+  return api.useMutation('patch', '/api/organizations/{id}/holding', {
+    onSuccess: useStoreChangedOrganization(),
+  })
 }
 
 export function useDetachFromHolding() {
-  return api.useMutation('delete', '/api/organizations/{id}/holding', { onSuccess: useStoreOrganization() })
+  return api.useMutation('delete', '/api/organizations/{id}/holding', {
+    onSuccess: useStoreChangedOrganization(),
+  })
 }
 
 export function useRemoveLogo() {
-  return api.useMutation('delete', '/api/organizations/{id}/logo', { onSuccess: useStoreOrganization() })
+  return api.useMutation('delete', '/api/organizations/{id}/logo', {
+    onSuccess: useStoreChangedOrganization(),
+  })
 }
 
 /** The organization changes, and so do the list of its contacts and the contacts (one may be erased). */
 function useStoreOrganizationAndItsContacts() {
   const queryClient = useQueryClient()
-  const store = useStoreOrganization()
+  const store = useStoreChangedOrganization()
 
   return (organization: Organization | undefined) => {
     store(organization)
@@ -131,7 +144,7 @@ export function useRemoveContact() {
 }
 
 export function useChangeLogo(id: string) {
-  const store = useStoreOrganization()
+  const store = useStoreChangedOrganization()
 
   return useMutation({
     mutationFn: async (file: File) => {
