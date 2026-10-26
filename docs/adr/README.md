@@ -56,7 +56,7 @@ Why the project is shaped the way it is: one file per decision in `docs/adr/`, i
 | [0050](0050-text-search-by-a-projection-of-word-beginnings.md) | The text search is a projection of word beginnings, kept by the events, rebuildable | Superseded by 0071 | 2026-10-16 |
 | [0051](0051-files-in-an-s3-bucket.md) | The files are in an S3 bucket, served from it; PHP only makes the missing sizes | Accepted, on AWS the bucket read by CloudFront only since [0065](0065-the-files-on-aws-behind-cloudfront.md) | 2026-10-16 |
 | [0052](0052-cognito-signs-the-members-in.md) | Cognito signs the members in; the SPA keeps its screen and signs in by SRP; the API checks the tokens | Accepted | 2026-10-16 |
-| [0053](0053-the-api-in-a-local-lambda-with-the-bref-layer.md) | Locally, the API runs on demand in a Lambda with the Bref layer, the repository mounted | Accepted, on demand superseded by 0055 | 2026-10-16 |
+| [0053](0053-the-api-in-a-local-lambda-with-the-bref-layer.md) | Locally, the API runs on demand in a Lambda with the Bref layer, the repository mounted | Accepted, on demand superseded by 0055, how the function writes in the repository by [0082](0082-a-local-function-serves-as-the-owner-of-the-repository.md) | 2026-10-16 |
 | [0054](0054-the-storage-in-a-local-lambda-with-the-imagick-layer.md) | Locally, the storage runs in a Lambda too, with the imagick layer of Bref | Accepted, on demand superseded by 0055 | 2026-10-16 |
 | [0055](0055-locally-the-apps-run-only-in-their-lambdas.md) | Locally, the API and the storage run only in their Bref Lambdas | Accepted | 2026-10-16 |
 | [0056](0056-the-command-line-on-the-php-of-the-lambdas.md) | The command line runs on the PHP of the Lambdas | Accepted | 2026-10-16 |
@@ -85,3 +85,4 @@ Why the project is shaped the way it is: one file per decision in `docs/adr/`, i
 | [0079](0079-the-exchanges-of-a-forgotten-contact-stay-to-make-conform.md) | The exchanges of a forgotten contact stay in the timelines of their organizations, to make conform | Accepted | 2026-10-23 |
 | [0080](0080-a-makefile-per-project-the-root-one-a-facade.md) | A Makefile per project, run from its directory; the root one a façade | Accepted | 2026-10-23 |
 | [0081](0081-the-api-checks-the-access-the-core-keeps-the-state.md) | The API checks the access to a resource with a voter; the core keeps its state and what a member reads | Accepted | 2026-10-25 |
+| [0082](0082-a-local-function-serves-as-the-owner-of-the-repository.md) | A local function serves as the owner of the mounted repository | Accepted | 2026-10-26 |
