@@ -2,7 +2,7 @@
 
 - Date: 2026-10-26
 - Status: Accepted
-- Implemented by: `make/aws.mk` (`code-version`, `requires-core`), `make/lambda.mk`, the `changed-apps` and `hooks` targets of the `Makefile`, `apps/{api,storage}/Makefile`, `apps/front/Makefile`, `apps/front/release`, `.githooks/pre-commit`, `packages/phpstan-rules/`, `docker/php/Dockerfile`, the workflows `terraform-*.yml`, `docs/monorepo.md`
+- Implemented by: `make/aws.mk` (`code-version`, `requires-core`), `make/lambda.mk`, the `changed-apps` and `hooks` targets of the `Makefile`, `apps/{api,storage}/Makefile`, `apps/front/Makefile`, `apps/front/script/release`, `.githooks/pre-commit`, `packages/phpstan-rules/`, `docker/php/Dockerfile`, the workflows `terraform-*.yml`, `docs/monorepo.md`
 
 ## Context
 
@@ -12,7 +12,7 @@ ADR 0080 made a script a recipe of the Makefile of its project, unless it runs i
 
 - The version of the code of an app is the function `code-version` of `make/aws.mk`, the same digest as before; `make changed-apps RANGE=<range>` at the root prints the apps a range changes, called by the Terraform workflows. A change of a workflow `terraform-*.yml` now plans and applies every app, as its comment always said (the former pattern missed the hyphen of `terraform-apply-*`).
 - The package of the api and the storage is the `package` of `make/lambda.mk`, included by their Makefiles: it runs `make lambda-package` of the same Makefile in the php container, which now has make, one recipe line per step.
-- The release of the front stays a script, `apps/front/release`, run by `make release` of the front: it runs in the image of the AWS CLI, which has no make, and its cleaning is a loop on the releases of the bucket.
+- The release of the front stays a script, `apps/front/script/release`, run by `make release` of the front: it runs in the image of the AWS CLI, which has no make, and its cleaning is a loop on the releases of the bucket.
 - The pre-commit hook is `.githooks/pre-commit` (git runs a file of `core.hooksPath`); the PHPStan rules are `packages/phpstan-rules/`, namespace `Prospecter\PHPStan`, in the `autoload-dev` of the core, the api and the storage. `tools/` is gone; `docs/monorepo.md` lists the scripts left and why.
 
 ## Consequences
@@ -20,7 +20,7 @@ ADR 0080 made a script a recipe of the Makefile of its project, unless it runs i
 - `make` is the only entry; a recipe is read in the Makefile of its project.
 - A clone where `make hooks` ran before has its hooks path on `tools/git-hooks`, which no longer exists: git then runs no hook until `make hooks` is run again.
 - The php image must be rebuilt (`make build`) before `make package-api` or `make package-storage`.
-- `apps/front/release` is in the code of the front: changing it gives the front a new version, a new release.
+- `apps/front/script/release` is out of the version of the code of the front, like `infra/` and the Makefile: changing it puts no new release.
 
 ## Alternatives considered
 

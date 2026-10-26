@@ -4,7 +4,7 @@
 # it the release the SPA serves; with --clean, after it: each former release is marked superseded once, and removed
 # 30 days later, so that a page opened on it still finds its files. Run in the image of the AWS CLI, which has no
 # make (ADR 0083), with the credentials of the instance: make release (make release-front at the root).
-# Usage: apps/front/release <instance> <version> [--clean], from the root of the repository
+# Usage: apps/front/script/release <instance> <version> [--clean], from the root of the repository
 set -eu
 instance=$1 version=$2 clean=${3:-}
 kept_days=30
