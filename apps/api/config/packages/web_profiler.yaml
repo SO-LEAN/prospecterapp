@@ -3,7 +3,7 @@ when@dev:
         toolbar: true
 
     framework:
-        # out of the cache: kept by a cache:clear, and shared by the warm functions, which keep their cache in /tmp
+        # out of the cache: the history of the requests is kept by a cache:clear (make db)
         profiler:
             dsn: 'file:%kernel.project_dir%/var/profiler'
 

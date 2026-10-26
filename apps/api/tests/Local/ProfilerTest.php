@@ -7,8 +7,8 @@ use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 use Symfony\Component\Yaml\Yaml;
 
 /**
- * Locally, the profiler keeps the history of the requests out of the cache, which every warm function keeps in its
- * own /tmp, and the front reads the profile of a call; elsewhere the CORS exposes the location only.
+ * Locally, the profiler keeps the history of the requests out of the cache, and the front reads the profile of a
+ * call; elsewhere the CORS exposes the location only.
  */
 #[Group('api')]
 class ProfilerTest extends WebTestCase
