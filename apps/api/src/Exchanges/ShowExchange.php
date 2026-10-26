@@ -32,6 +32,6 @@ final class ShowExchange extends AbstractController
     #[OA\Response(response: 404, description: 'Unknown exchange, or one of another account', content: new Model(type: ProblemResource::class))]
     public function __invoke(ExchangeDetailResponse $exchange, #[CurrentUser] User $user): JsonResponse
     {
-        return $this->json($this->exchanges->present($user->memberId(), $exchange));
+        return $this->json($this->exchanges->resourceOf($user->memberId(), $exchange));
     }
 }

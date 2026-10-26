@@ -33,6 +33,6 @@ final class ShowOrganization extends AbstractController
     #[OA\Response(response: 404, description: 'Unknown organization, or one that is neither mine nor prospected by mine', content: new Model(type: ProblemResource::class))]
     public function __invoke(OrganizationResponse $organization): JsonResponse
     {
-        return $this->json($this->organizations->present($organization));
+        return $this->json($this->organizations->resourceOf($organization));
     }
 }
