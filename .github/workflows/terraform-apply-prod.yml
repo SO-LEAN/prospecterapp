@@ -18,7 +18,6 @@ on:
       - 'make/**'
       - '.github/workflows/terraform-apply-prod.yml'
       - '.github/actions/infra-instance/**'
-      - 'tools/ci/**'
 
 permissions:
   contents: read
@@ -41,7 +40,8 @@ jobs:
         run: |
           # A push without a known former commit (a new branch, a forced push) or a run by hand applies every app
           if git cat-file -e "$BEFORE^{commit}" 2>/dev/null; then range="$BEFORE..HEAD"; else range="$(git hash-object -t tree /dev/null)..HEAD"; fi
-          echo "apps=$(tools/ci/infra-changed-apps "$range")" >> "$GITHUB_OUTPUT"
+          apps=$(make changed-apps RANGE="$range")
+          echo "apps=$apps" >> "$GITHUB_OUTPUT"
 
   apply:
     needs: apps

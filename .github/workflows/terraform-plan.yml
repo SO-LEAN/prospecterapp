@@ -14,7 +14,6 @@ on:
       - 'make/**'
       - '.github/workflows/terraform-plan.yml'
       - '.github/actions/infra-instance/**'
-      - 'tools/ci/**'
 
 concurrency:
   group: terraform-plan-${{ github.event.pull_request.number }}
@@ -40,7 +39,9 @@ jobs:
         id: changed
         env:
           BASE_REF: ${{ github.base_ref }}
-        run: echo "apps=$(tools/ci/infra-changed-apps "origin/$BASE_REF...HEAD")" >> "$GITHUB_OUTPUT"
+        run: |
+          apps=$(make changed-apps RANGE="origin/$BASE_REF...HEAD")
+          echo "apps=$apps" >> "$GITHUB_OUTPUT"
 
   plan:
     needs: apps

@@ -25,7 +25,7 @@ variable "region" {
 }
 
 variable "code_version" {
-  description = "The version of the code of the storage (tools/ci/code-version storage, passed by make as TF_VAR_code_version): a new one redeploys build/storage.zip"
+  description = "The version of the code of the storage (code-version of make/aws.mk, passed by make as TF_VAR_code_version): a new one redeploys build/storage.zip"
   type        = string
   default     = "none"
 }

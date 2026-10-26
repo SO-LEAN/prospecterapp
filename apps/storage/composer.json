@@ -39,7 +39,7 @@
     "autoload-dev": {
         "psr-4": {
             "App\\Tests\\": "tests/",
-            "Prospecter\\Tools\\PHPStan\\": "../../tools/phpstan/"
+            "Prospecter\\PHPStan\\": "../../packages/phpstan-rules/"
         }
     },
     "replace": {

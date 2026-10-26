@@ -25,7 +25,7 @@ variable "region" {
 }
 
 variable "code_version" {
-  description = "The version of the code of the api (tools/ci/code-version api, passed by make as TF_VAR_code_version): a new one redeploys build/api.zip"
+  description = "The version of the code of the api (code-version of make/aws.mk, passed by make as TF_VAR_code_version): a new one redeploys build/api.zip"
   type        = string
   default     = "none"
 }

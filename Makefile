@@ -10,7 +10,7 @@ GITLEAKS = docker run --rm -u $(UID):$(GID) -e GIT_INDEX_FILE -v $(CURDIR):$(CUR
 	-w $(CURDIR) ghcr.io/gitleaks/gitleaks:v8.30.1
 INFRA_APPS = api storage front
 
-.PHONY: install hooks build vendor db aws front-install infra-target infra-init infra-plan infra-apply infra-lint package-api package-storage package-front release-front console start deploy stop logs ps ci test test-api test-storage test-front e2e test-core lint fix front-build api-doc contract commands profiler-clear exec-api exec-front secrets secrets-branch
+.PHONY: install hooks build vendor db aws front-install infra-target infra-init infra-plan infra-apply infra-lint changed-apps package-api package-storage package-front release-front console start deploy stop logs ps ci test test-api test-storage test-front e2e test-core lint fix front-build api-doc contract commands profiler-clear exec-api exec-front secrets secrets-branch
 
 ##@ Setup
 install: hooks build vendor db front-install ## Build the images, install the dependencies, create the tables, the bucket and the user pool, install the Git hooks
@@ -31,7 +31,7 @@ front-install: ## Install the pnpm dependencies of the front
 	@$(MAKE) -C apps/front install
 
 hooks: ## Install the Git hooks of the repository: gitleaks before each commit
-	@git config core.hooksPath tools/git-hooks
+	@git config core.hooksPath .githooks
 
 ##@ Stack
 aws: ministack ## Start the AWS services emulated locally (MiniStack)
@@ -95,6 +95,23 @@ infra-lint: ## Check the Terraform of the apps: format, validity, tflint
 infra-target:
 	@test "$(origin APP)" = "command line" -a "$(origin INSTANCE)" = "command line" -a "$(words $(APP) $(INSTANCE))" = 2 -a -n "$(filter $(APP),$(INFRA_APPS))" \
 		|| { echo "Usage: make infra-plan APP=<$(INFRA_APPS)> INSTANCE=<dev|prod|...>, on the command line"; exit 1; }
+
+# the apps a git range may change the deployment of (ADR 0060, 0061, 0063): an app whose code or infrastructure
+# changed, an app requiring the core when the core changed, every app when a file every root depends on changed
+INFRA_SHARED = .terraform-version Makefile make/% .github/workflows/terraform-%.yml .github/actions/infra-instance/%
+CHANGED = $(shell git diff --name-only '$(RANGE)' 2>/dev/null)
+CHANGED_APPS = $(if $(filter $(INFRA_SHARED),$(CHANGED)),$(INFRA_APPS), \
+	$(filter $(INFRA_APPS),$(foreach file,$(filter apps/%,$(CHANGED)),$(word 2,$(subst /, ,$(file))))) \
+	$(if $(filter packages/core/%,$(CHANGED)),$(foreach app,$(INFRA_APPS),$(if $(call requires-core,$(app)),$(app)))))
+comma := ,
+empty :=
+space := $(empty) $(empty)
+json-strings = [$(subst $(space),$(comma),$(patsubst %,"%",$(1)))]
+
+changed-apps: ## Print as JSON the apps a git range may change the deployment of: make changed-apps RANGE=origin/dev...HEAD
+	@test -n "$(RANGE)" || { echo "Usage: make changed-apps RANGE=<git range>, such as origin/dev...HEAD"; exit 1; }
+	@git diff --name-only '$(RANGE)' >/dev/null
+	@echo '$(call json-strings,$(sort $(CHANGED_APPS)))'
 
 package-api: ## Package the API for its Lambda on AWS in build/api.zip (ADR 0063)
 	@$(MAKE) -C apps/api package

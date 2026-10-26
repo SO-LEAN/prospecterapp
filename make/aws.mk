@@ -7,6 +7,14 @@ AWS_CLI_IMAGE = amazon/aws-cli:2.37.2
 AWS_CLI_RUN = docker run --rm -u $(UID):$(GID) -e HOME=/tmp --env-file $(INFRA_INSTANCE).env -v $(HOME)/.aws:/tmp/.aws
 AWS_CLI = $(AWS_CLI_RUN) $(AWS_CLI_IMAGE)
 
+# the apps deploying the core with their code: those requiring it
+requires-core = $(shell grep -l '"prospecter/core"' $(ROOT)/apps/$(1)/composer.json 2>/dev/null)
+# the version of the code an app deploys (ADR 0063): a digest of its tracked files, and of the core when it requires
+# it, without its infrastructure, its tests and its Makefile, so that only a change of what runs redeploys it
+code-version = $(shell cd $(ROOT) && git ls-files -s -- apps/$(1) $(if $(call requires-core,$(1)),packages/core) \
+	':(exclude,glob)apps/*/infra/**' ':(exclude,glob)**/tests/**' ':!:packages/core/features' \
+	':(exclude,glob)apps/*/Makefile' ':!:packages/core/Makefile' | sha256sum | cut -c1-64)
+
 # Terraform and tflint run in their images, each app keeping its root in apps/<app>/infra
 TERRAFORM_IMAGE = hashicorp/terraform:$(shell cat $(ROOT)/.terraform-version)
 TFLINT_IMAGE = ghcr.io/terraform-linters/tflint:v0.64.0

@@ -1,6 +1,6 @@
 # The command line of the PHP apps (tests, Composer, console, PHPStan), on the PHP of their Lambdas (ADR 0055,
 # 0056): the dev image of Bref is the PHP of its layer with Xdebug and Composer; the layer of imagick is the one
-# of the storage function; zip and tar package the api and the storage for AWS (tools/package/lambda).
+# of the storage function; make, zip and tar package the api and the storage for AWS (make/lambda.mk).
 
 # the runtimes of docker/lambda and of the layers on AWS (php-85:21 and imagick-php-85:4, apps/*/infra/lambda.tf):
 # changed together (ADR 0056)
@@ -12,7 +12,7 @@ ARG UID=1000
 ARG GID=1000
 
 COPY --from=imagick /opt /opt
-RUN dnf install -y git unzip zip tar shadow-utils >/dev/null && dnf clean all \
+RUN dnf install -y git unzip zip tar make shadow-utils >/dev/null && dnf clean all \
     && /usr/sbin/groupadd -g ${GID} developer \
     && /usr/sbin/useradd -m -u ${UID} -g ${GID} -s /bin/bash developer
 

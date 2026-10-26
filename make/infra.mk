@@ -5,7 +5,7 @@ INFRA_APP := $(notdir $(CURDIR))
 # of the app (ADR 0063): a new one makes Terraform redeploy its package from build/
 TERRAFORM_TTY = $(if $(CI),,-it)
 TERRAFORM = docker run --rm -u $(UID):$(GID) -e HOME=/tmp --env-file $(INFRA_INSTANCE).env -e TF_DATA_DIR=.terraform/$(INSTANCE) \
-	-e TF_VAR_code_version=$(shell cd $(ROOT) && tools/ci/code-version $(INFRA_APP)) \
+	-e TF_VAR_code_version=$(call code-version,$(INFRA_APP)) \
 	-v $(HOME)/.aws:/tmp/.aws -v $(ROOT):/src -v $(INFRA_CONFIG):/config:ro -w /src/apps/$(INFRA_APP)/infra
 
 .PHONY: infra-instance infra-init infra-plan infra-apply infra-lint
