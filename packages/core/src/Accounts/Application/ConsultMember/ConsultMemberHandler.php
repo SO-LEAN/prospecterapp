@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Prospecter\Core\Accounts\Application\ConsultMember;
 
 use Prospecter\Core\Accounts\Contract\Service\ConsultMember\ConsultMember;
+use Prospecter\Core\Accounts\Contract\Service\ConsultMember\ConsultMemberOutput;
 use Prospecter\Core\Accounts\Contract\Service\ConsultMember\MemberResponse;
 use Prospecter\Core\Accounts\Domain\Member;
 use Prospecter\Core\Accounts\Domain\MemberRepository;
@@ -17,9 +18,9 @@ final readonly class ConsultMemberHandler implements QueryHandler
     {
     }
 
-    public function __invoke(ConsultMember $query): MemberResponse
+    public function __invoke(ConsultMember $query, ConsultMemberOutput $output): void
     {
-        return $this->published($this->members->get(new MemberId($query->memberId)));
+        $output->present($this->published($this->members->get(new MemberId($query->memberId))));
     }
 
     private function published(Member $member): MemberResponse

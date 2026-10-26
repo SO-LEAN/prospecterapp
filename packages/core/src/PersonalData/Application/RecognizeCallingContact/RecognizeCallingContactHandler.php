@@ -19,15 +19,12 @@ final readonly class RecognizeCallingContactHandler implements QueryHandler
     {
     }
 
-    /**
-     * @return list<PersonResponse> the contacts having the number
-     */
-    public function __invoke(RecognizeCallingContact $query): array
+    public function __invoke(RecognizeCallingContact $query, RecognizeCallingContactOutput $output): void
     {
         $reader = $this->readerService->readerFrom(new MemberId($query->readerId));
         $reader->ensureMayRecognizeByPhoneNumber();
         $contacts = $this->persons->withPhoneNumber($reader->accountId, Purpose::Prospecting, PhoneNumber::of($query->phoneNumber));
 
-        return array_map(static fn (Person $contact): PersonResponse => PersonResponse::of($contact, $reader), $contacts);
+        $output->present(array_map(static fn (Person $contact): PersonResponse => PersonResponse::of($contact, $reader), $contacts));
     }
 }

@@ -9,13 +9,13 @@ use App\SignIn\Resource\SignInResource;
 /**
  * What a member signs in with, read from the user pool, with the changes it may make to it.
  */
-final readonly class SignInPresenter
+final readonly class SignInReader
 {
     public function __construct(private Credentials $credentials, private Links $links)
     {
     }
 
-    public function present(string $memberId): SignInResource
+    public function read(string $memberId): SignInResource
     {
         return new SignInResource($this->credentials->loginEmailOf($memberId), new SignInLinksResource(
             $this->links->to('api_me_sign_in'),

@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Prospecter\Core\Prospecting\Application\ConsultTimeline;
 
+use Prospecter\Core\Prospecting\Application\TimelineOutput;
 use Prospecter\Core\Prospecting\Application\TimelineResponse;
 use Prospecter\Core\Prospecting\Domain\ContactOrganizations;
 use Prospecter\Core\Prospecting\Domain\ExchangeRepository;
@@ -21,12 +22,12 @@ final readonly class ConsultTimelineHandler implements QueryHandler
     ) {
     }
 
-    public function __invoke(ConsultTimeline $query): TimelineResponse
+    public function __invoke(ConsultTimeline $query, TimelineOutput $output): void
     {
         $prospector = $this->prospectorService->prospectorFrom(new MemberId($query->prospectorId));
         $contact = new PersonId($query->personId);
         $this->contactOrganizations->ensureIsAContactOfTheAccount($contact, $prospector->accountId);
 
-        return TimelineResponse::of($this->exchanges->timelineOf($contact, $prospector->accountId, $query->after, $query->max), $prospector);
+        $output->present(TimelineResponse::of($this->exchanges->timelineOf($contact, $prospector->accountId, $query->after, $query->max), $prospector));
     }
 }

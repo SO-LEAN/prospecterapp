@@ -15,8 +15,8 @@ final readonly class ConsultOrganizationHandler implements QueryHandler
     {
     }
 
-    public function __invoke(ConsultOrganization $query): OrganizationResponse
+    public function __invoke(ConsultOrganization $query, ConsultOrganizationOutput $output): void
     {
-        return OrganizationResponse::of($this->organizations->get(new OrganizationId($query->id)));
+        $output->present(OrganizationResponse::of($this->organizations->get(new OrganizationId($query->id))));
     }
 }

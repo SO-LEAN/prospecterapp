@@ -12,7 +12,7 @@ use Prospecter\Core\PersonalData\Application\PersonResponse;
 /**
  * A contact in a list, with the organizations naming them and the link to their card.
  */
-final readonly class ContactInListPresenter
+final readonly class ContactInListResourceFactory
 {
     public function __construct(private Links $links)
     {
@@ -21,7 +21,7 @@ final readonly class ContactInListPresenter
     /**
      * @param list<OrganizationOfContactResource> $organizations
      */
-    public function present(PersonResponse $contact, array $organizations): ContactInListResource
+    public function create(PersonResponse $contact, array $organizations): ContactInListResource
     {
         return new ContactInListResource(
             id: $contact->id,

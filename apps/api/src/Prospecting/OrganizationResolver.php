@@ -3,6 +3,7 @@
 namespace App\Prospecting;
 
 use Prospecter\Core\Prospecting\Application\ConsultOrganization\ConsultOrganization;
+use Prospecter\Core\Prospecting\Application\ConsultOrganization\KeptOrganization;
 use Prospecter\Core\Prospecting\Application\OrganizationResponse;
 use Prospecter\Core\SharedKernel\Application\RefusalTranslatingHandler;
 use Symfony\Component\HttpFoundation\Request;
@@ -28,6 +29,9 @@ final readonly class OrganizationResolver implements ValueResolverInterface
             return [];
         }
 
-        return [($this->consultOrganization)(new ConsultOrganization($request->attributes->getString('id')))];
+        $kept = new KeptOrganization();
+        ($this->consultOrganization)(new ConsultOrganization($request->attributes->getString('id')), $kept);
+
+        return [$kept->organization];
     }
 }

@@ -18,10 +18,10 @@ final readonly class ConsultExchangeHandler implements QueryHandler
     ) {
     }
 
-    public function __invoke(ConsultExchange $query): ExchangeDetailResponse
+    public function __invoke(ConsultExchange $query, ConsultExchangeOutput $output): void
     {
         $prospector = $this->prospectorService->prospectorFrom(new MemberId($query->prospectorId));
 
-        return ExchangeDetailResponse::of($this->exchanges->get(new ExchangeId($query->id)), $prospector);
+        $output->present(ExchangeDetailResponse::of($this->exchanges->get(new ExchangeId($query->id)), $prospector));
     }
 }

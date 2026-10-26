@@ -21,11 +21,11 @@ final readonly class DownloadAttachmentHandler implements QueryHandler
     ) {
     }
 
-    public function __invoke(DownloadAttachment $query): AttachmentDownloadResponse
+    public function __invoke(DownloadAttachment $query, DownloadAttachmentOutput $output): void
     {
         $prospector = $this->prospectorService->prospectorFrom(new MemberId($query->prospectorId));
         $attachment = $this->exchanges->get(new ExchangeId($query->exchangeId))->attachmentReadBy($prospector, new AttachmentId($query->id));
 
-        return new AttachmentDownloadResponse($attachment->name, $this->privateStorage->downloadLinkOf($attachment->file, $attachment->name));
+        $output->present(new AttachmentDownloadResponse($attachment->name, $this->privateStorage->downloadLinkOf($attachment->file, $attachment->name)));
     }
 }

@@ -6,6 +6,8 @@ use App\Me\MyAccountReader;
 use App\Prospecting\Presenter\OrganizationPagePresenter;
 use App\Prospecting\Resource\OrganizationSummaryResource;
 use App\Security\User;
+use App\Shared\ImageResourceFactory;
+use App\Shared\Links;
 use App\Shared\Resource\ProblemResource;
 use Nelmio\ApiDocBundle\Attribute\Model;
 use OpenApi\Attributes as OA;
@@ -26,7 +28,8 @@ final class ShowDashboard extends AbstractController
     public function __construct(
         private readonly MyAccountReader $account,
         private readonly RefusalTranslatingHandler $searchProspectedOrganizations,
-        private readonly OrganizationPagePresenter $pagePresenter,
+        private readonly ImageResourceFactory $images,
+        private readonly Links $links,
     ) {
     }
 
@@ -38,7 +41,9 @@ final class ShowDashboard extends AbstractController
     public function __invoke(#[CurrentUser] User $user): JsonResponse
     {
         $myAccount = $this->account->read($user->memberId());
-        $page = $this->pagePresenter->present(($this->searchProspectedOrganizations)(new SearchProspectedOrganizations($user->memberId(), max: self::MAX_MARKERS)));
+        $presenter = new OrganizationPagePresenter($this->images, $this->links);
+        ($this->searchProspectedOrganizations)(new SearchProspectedOrganizations($user->memberId(), max: self::MAX_MARKERS), $presenter);
+        $page = $presenter->resource;
 
         return $this->json(new DashboardResource(
             organizationName: (string) $myAccount->organization->legalIdentity->corporateName,

@@ -6,6 +6,8 @@ use App\Prospecting\Input\OrganizationListQuery;
 use App\Prospecting\Presenter\OrganizationPagePresenter;
 use App\Prospecting\Resource\OrganizationPageResource;
 use App\Security\User;
+use App\Shared\ImageResourceFactory;
+use App\Shared\Links;
 use App\Shared\Resource\ProblemResource;
 use Nelmio\ApiDocBundle\Attribute\Model;
 use OpenApi\Attributes as OA;
@@ -24,7 +26,8 @@ final class SearchOrganizations extends AbstractController
 {
     public function __construct(
         private readonly RefusalTranslatingHandler $searchProspectedOrganizations,
-        private readonly OrganizationPagePresenter $presenter,
+        private readonly ImageResourceFactory $images,
+        private readonly Links $links,
     ) {
     }
 
@@ -35,6 +38,9 @@ final class SearchOrganizations extends AbstractController
     #[OA\Response(response: 403, description: 'The signed-in user is not a prospector', content: new Model(type: ProblemResource::class))]
     public function __invoke(#[CurrentUser] User $user, #[MapQueryString] OrganizationListQuery $query = new OrganizationListQuery()): JsonResponse
     {
-        return $this->json($this->presenter->present(($this->searchProspectedOrganizations)(new SearchProspectedOrganizations($user->memberId(), $query->q, $query->after)), $query->q));
+        $presenter = new OrganizationPagePresenter($this->images, $this->links, $query->q);
+        ($this->searchProspectedOrganizations)(new SearchProspectedOrganizations($user->memberId(), $query->q, $query->after), $presenter);
+
+        return $this->json($presenter->resource);
     }
 }

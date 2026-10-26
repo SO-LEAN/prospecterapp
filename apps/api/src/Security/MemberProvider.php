@@ -3,6 +3,7 @@
 namespace App\Security;
 
 use Prospecter\Core\Accounts\Application\ConsultMyAccount\ConsultMyAccount;
+use Prospecter\Core\Accounts\Application\ConsultMyAccount\KeptAccount;
 use Prospecter\Core\SharedKernel\Application\Exception\ErrorType;
 use Prospecter\Core\SharedKernel\Application\Exception\UseCaseRefused;
 use Prospecter\Core\SharedKernel\Application\RefusalTranslatingHandler;
@@ -30,11 +31,15 @@ final readonly class MemberProvider implements UserProviderInterface
             throw new UserNotFoundException('Unknown member');
         }
 
+        $kept = new KeptAccount();
+
         try {
-            return User::from(($this->consultMyAccount)(new ConsultMyAccount($identifier)));
+            ($this->consultMyAccount)(new ConsultMyAccount($identifier), $kept);
         } catch (UseCaseRefused $refusal) {
             throw ErrorType::NotFound === $refusal->type ? new UserNotFoundException('Unknown member', previous: $refusal) : $refusal;
         }
+
+        return User::from($kept->account);
     }
 
     public function refreshUser(UserInterface $user): User

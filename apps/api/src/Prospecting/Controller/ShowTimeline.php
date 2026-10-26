@@ -3,14 +3,12 @@
 namespace App\Prospecting\Controller;
 
 use App\Prospecting\Input\TimelineQuery;
-use App\Prospecting\Presenter\TimelinePresenter;
 use App\Prospecting\Resource\TimelineResource;
+use App\Prospecting\TimelineReader;
 use App\Security\User;
 use App\Shared\Resource\ProblemResource;
 use Nelmio\ApiDocBundle\Attribute\Model;
 use OpenApi\Attributes as OA;
-use Prospecter\Core\Prospecting\Application\ConsultTimeline\ConsultTimeline;
-use Prospecter\Core\SharedKernel\Application\RefusalTranslatingHandler;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpKernel\Attribute\MapQueryString;
@@ -24,8 +22,7 @@ use Symfony\Component\Security\Http\Attribute\IsGranted;
 final class ShowTimeline extends AbstractController
 {
     public function __construct(
-        private readonly RefusalTranslatingHandler $consultTimeline,
-        private readonly TimelinePresenter $presenter,
+        private readonly TimelineReader $timelines,
     ) {
     }
 
@@ -37,6 +34,6 @@ final class ShowTimeline extends AbstractController
     #[OA\Response(response: 404, description: 'Unknown contact, or one of another account', content: new Model(type: ProblemResource::class))]
     public function __invoke(string $id, #[CurrentUser] User $user, #[MapQueryString] TimelineQuery $query = new TimelineQuery()): JsonResponse
     {
-        return $this->json($this->presenter->present($id, ($this->consultTimeline)(new ConsultTimeline($user->memberId(), $id, $query->after))));
+        return $this->json($this->timelines->read($user->memberId(), $id, $query->after));
     }
 }

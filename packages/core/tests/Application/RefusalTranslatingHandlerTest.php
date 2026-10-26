@@ -13,9 +13,17 @@ use Prospecter\Core\SharedKernel\Domain\Exception\NotAllowed;
 
 class RefusalTranslatingHandlerTest extends TestCase
 {
-    public function testTheAnswerOfTheHandlerGoesThrough(): void
+    public function testTheAnswerOfTheHandlerReachesTheOutputPortOfItsClient(): void
     {
-        $this->assertSame('answer to the query', new RefusalTranslatingHandler($this->handlerDoing(static fn (): string => 'answer to the query'))(new \stdClass()));
+        $output = new \ArrayObject();
+
+        $answer = static function (\ArrayObject $output): void {
+            $output->append('answer to the query');
+        };
+
+        new RefusalTranslatingHandler($this->handlerDoing($answer))(new \stdClass(), $output);
+
+        $this->assertSame(['answer to the query'], $output->getArrayCopy());
     }
 
     public function testARefusalOfTheDomainIsTranslated(): void
@@ -23,7 +31,7 @@ class RefusalTranslatingHandlerTest extends TestCase
         $refusal = NotAllowed::because('Only the person may change it');
 
         try {
-            new RefusalTranslatingHandler($this->handlerDoing(static fn () => throw $refusal))(new \stdClass());
+            new RefusalTranslatingHandler($this->handlerDoing(static fn () => throw $refusal))(new \stdClass(), new \ArrayObject());
             $this->fail('The refusal was expected');
         } catch (UseCaseRefused $translated) {
             $this->assertSame(ErrorType::NotAllowed, $translated->type);
@@ -37,25 +45,28 @@ class RefusalTranslatingHandlerTest extends TestCase
 
         $this->expectExceptionObject($failure);
 
-        new RefusalTranslatingHandler($this->handlerDoing(static fn () => throw $failure))(new \stdClass());
+        new RefusalTranslatingHandler($this->handlerDoing(static fn () => throw $failure))(new \stdClass(), new \ArrayObject());
     }
 
     /**
-     * @param \Closure(): mixed $work
+     * @param \Closure(\ArrayObject<int, string>): mixed $work
      */
     private function handlerDoing(\Closure $work): QueryHandler
     {
         return new readonly class($work) implements QueryHandler {
             /**
-             * @param \Closure(): mixed $work
+             * @param \Closure(\ArrayObject<int, string>): mixed $work
              */
             public function __construct(private \Closure $work)
             {
             }
 
-            public function __invoke(\stdClass $query): mixed
+            /**
+             * @param \ArrayObject<int, string> $output
+             */
+            public function __invoke(\stdClass $query, \ArrayObject $output): void
             {
-                return ($this->work)();
+                ($this->work)($output);
             }
         };
     }

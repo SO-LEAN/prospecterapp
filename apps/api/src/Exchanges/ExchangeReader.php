@@ -4,20 +4,26 @@ namespace App\Exchanges;
 
 use App\Contacts\Resource\InterlocutorResource;
 use App\Exchanges\Resource\ExchangeDetailResource;
+use App\Security\IntentLinks;
+use App\Shared\Links;
 use Prospecter\Core\Accounts\Contract\Service\ConsultMember\ConsultMember;
-use Prospecter\Core\Accounts\Contract\Service\ConsultMember\MemberResponse;
+use Prospecter\Core\Accounts\Contract\Service\ConsultMember\KeptMember;
 use Prospecter\Core\PersonalData\Application\ConsultPersons\ConsultPersons;
+use Prospecter\Core\PersonalData\Application\ConsultPersons\KeptPersons;
 use Prospecter\Core\PersonalData\Application\PersonResponse;
 use Prospecter\Core\Prospecting\Application\ConsultExchange\ConsultExchange;
 use Prospecter\Core\Prospecting\Application\ConsultExchange\ExchangeDetailResponse;
+use Prospecter\Core\Prospecting\Application\ConsultExchange\KeptExchange;
 use Prospecter\Core\Prospecting\Application\ConsultOrganization\ConsultOrganization;
+use Prospecter\Core\Prospecting\Application\ConsultOrganization\KeptOrganization;
+use Prospecter\Core\Prospecting\Application\OrganizationResponse;
 use Prospecter\Core\SharedKernel\Application\RefusalTranslatingHandler;
 
 /**
  * An exchange as the API shows it: read in Prospecting, with the organization itself when it was with no contact,
- * its contact and the members who noted, corrected and made it conform named by PersonalData under the person ids Accounts gives
- * them, then presented. A controller calls it after a
- * command, which returns nothing, to answer with the fresh resource.
+ * its contact and the members who noted, corrected and made it conform named by PersonalData under the person ids
+ * Accounts gives them, then presented to the presenter it builds for the call (ADR 0084). A controller calls it after
+ * a command, which returns nothing, to answer with the fresh resource.
  */
 final readonly class ExchangeReader
 {
@@ -26,13 +32,17 @@ final readonly class ExchangeReader
         private RefusalTranslatingHandler $consultMember,
         private RefusalTranslatingHandler $consultPersons,
         private RefusalTranslatingHandler $consultOrganization,
-        private ExchangeDetailPresenter $presenter,
+        private Links $links,
+        private IntentLinks $intents,
     ) {
     }
 
     public function read(string $prospector, string $id): ExchangeDetailResource
     {
-        return $this->present($prospector, ($this->consultExchange)(new ConsultExchange($prospector, $id)));
+        $kept = new KeptExchange();
+        ($this->consultExchange)(new ConsultExchange($prospector, $id), $kept);
+
+        return $this->present($prospector, $kept->exchange);
     }
 
     /**
@@ -40,10 +50,19 @@ final readonly class ExchangeReader
      */
     public function present(string $prospector, ExchangeDetailResponse $exchange): ExchangeDetailResource
     {
-        $personOfMember = $this->personsOfMembers(array_filter([$exchange->createdBy, $exchange->correctedBy, $exchange->madeConformBy]));
-        $persons = ($this->consultPersons)(new ConsultPersons($prospector, array_values(array_unique(array_filter([$exchange->personId, ...array_values($personOfMember)])))));
+        $presenter = new ExchangeDetailPresenter($this->participantsOf($prospector, $exchange), $this->links, $this->intents);
+        $presenter->present($exchange);
 
-        return $this->presenter->present($exchange, $this->interlocutorOf($exchange, $persons), $persons, $personOfMember);
+        return $presenter->resource;
+    }
+
+    private function participantsOf(string $prospector, ExchangeDetailResponse $exchange): ExchangeParticipants
+    {
+        $personOfMember = $this->personsOfMembers(array_filter([$exchange->createdBy, $exchange->correctedBy, $exchange->madeConformBy]));
+        $persons = new KeptPersons();
+        ($this->consultPersons)(new ConsultPersons($prospector, array_values(array_unique(array_filter([$exchange->personId, ...array_values($personOfMember)])))), $persons);
+
+        return new ExchangeParticipants($this->interlocutorOf($exchange, $persons->persons), $persons->persons, $personOfMember);
     }
 
     /**
@@ -54,8 +73,16 @@ final readonly class ExchangeReader
     private function interlocutorOf(ExchangeDetailResponse $exchange, array $persons): InterlocutorResource
     {
         return null === $exchange->personId
-            ? InterlocutorResource::ofTheOrganization(($this->consultOrganization)(new ConsultOrganization($exchange->organizationIds[0])))
+            ? InterlocutorResource::ofTheOrganization($this->organizationOf($exchange->organizationIds[0]))
             : InterlocutorResource::ofPerson($exchange->personId, $persons[$exchange->personId] ?? null, $exchange->contactPresence);
+    }
+
+    private function organizationOf(string $id): OrganizationResponse
+    {
+        $kept = new KeptOrganization();
+        ($this->consultOrganization)(new ConsultOrganization($id), $kept);
+
+        return $kept->organization;
     }
 
     /**
@@ -68,14 +95,17 @@ final readonly class ExchangeReader
         $persons = [];
 
         foreach (array_unique($members) as $member) {
-            $persons[$member] = $this->memberOf($member)->personId;
+            $persons[$member] = $this->personOf($member);
         }
 
         return $persons;
     }
 
-    private function memberOf(string $id): MemberResponse
+    private function personOf(string $member): string
     {
-        return ($this->consultMember)(new ConsultMember($id));
+        $kept = new KeptMember();
+        ($this->consultMember)(new ConsultMember($member), $kept);
+
+        return $kept->member->personId;
     }
 }

@@ -13,15 +13,16 @@ use App\Shared\Resource\ContactDetailsResource;
 use App\Shared\Resource\LegalIdentityResource;
 use App\Shared\Resource\LinkResource;
 use App\Shared\Resource\LocationResource;
+use Prospecter\Core\Prospecting\Application\ConsultOrganization\ConsultOrganizationOutput;
 use Prospecter\Core\Prospecting\Application\OrganizationResponse;
 
 /**
  * An organization with a link per intention its state offers and the signed-in member may carry out
  * (`IntentLinks`, ADR 0081), and to its timeline (ADR 0076); removing a contact concerns one contact, so its link is on
  * each contact of GET /api/organizations/{id}/contacts. Each link names its intention, its route, and the role its
- * controller requires beyond reaching the organization.
+ * controller requires beyond reaching the organization. Built for one call, it keeps the resource (ADR 0084).
  */
-final readonly class OrganizationResourcePresenter
+final class OrganizationResourcePresenter implements ConsultOrganizationOutput
 {
     /**
      * @var array<string, array{intent: string, route: string, role: ?string}>
@@ -48,11 +49,18 @@ final readonly class OrganizationResourcePresenter
         'noteExchange' => ['route' => 'api_organizations_note_exchange', 'role' => User::PERSONAL_DATA],
     ];
 
-    public function __construct(private ImageResourceFactory $images, private Links $links, private IntentLinks $intents)
+    public private(set) OrganizationResource $resource;
+
+    public function __construct(private readonly ImageResourceFactory $images, private readonly Links $links, private readonly IntentLinks $intents)
     {
     }
 
-    public function present(OrganizationResponse $response): OrganizationResource
+    public function present(OrganizationResponse $organization): void
+    {
+        $this->resource = $this->resourceOf($organization);
+    }
+
+    private function resourceOf(OrganizationResponse $response): OrganizationResource
     {
         return new OrganizationResource(
             id: $response->id,

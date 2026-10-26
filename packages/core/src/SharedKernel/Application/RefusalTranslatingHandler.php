@@ -10,11 +10,12 @@ use Prospecter\Core\SharedKernel\Domain\Exception\BusinessException;
 /**
  * Decorates a handler so that it refuses the way every use case refuses: the BusinessException of the
  * domain becomes a UseCaseRefused (ADR 0035), anything else goes through. The handlers stay free of
- * error handling; a client calls them through this decorator.
+ * error handling; a client calls them through this decorator, giving a query the output port it presents its
+ * answer to (ADR 0084).
  */
 final readonly class RefusalTranslatingHandler
 {
-    /** @var \Closure(object): mixed */
+    /** @var \Closure(object, ?object): void */
     private \Closure $handler;
 
     public function __construct(CommandHandler|QueryHandler $handler)
@@ -22,10 +23,10 @@ final readonly class RefusalTranslatingHandler
         $this->handler = $handler->__invoke(...);
     }
 
-    public function __invoke(object $request): mixed
+    public function __invoke(object $request, ?object $output = null): void
     {
         try {
-            return ($this->handler)($request);
+            ($this->handler)($request, $output);
         } catch (BusinessException $refusal) {
             throw UseCaseRefused::because($refusal);
         }

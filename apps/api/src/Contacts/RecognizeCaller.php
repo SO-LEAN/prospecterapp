@@ -4,14 +4,15 @@ namespace App\Contacts;
 
 use App\Contacts\Resource\CallerResource;
 use App\Contacts\Resource\ContactInListResource;
-use App\Prospecting\Presenter\OrganizationResourcePresenter;
+use App\Prospecting\OrganizationReader;
 use App\Security\User;
 use App\Shared\Resource\ProblemResource;
 use Nelmio\ApiDocBundle\Attribute\Model;
 use OpenApi\Attributes as OA;
 use Prospecter\Core\PersonalData\Application\PersonResponse;
+use Prospecter\Core\PersonalData\Application\RecognizeCallingContact\KeptCallingContacts;
 use Prospecter\Core\PersonalData\Application\RecognizeCallingContact\RecognizeCallingContact;
-use Prospecter\Core\Prospecting\Application\OrganizationResponse;
+use Prospecter\Core\Prospecting\Application\RecognizeCallingOrganization\KeptCallingOrganizations;
 use Prospecter\Core\Prospecting\Application\RecognizeCallingOrganization\RecognizeCallingOrganization;
 use Prospecter\Core\SharedKernel\Application\RefusalTranslatingHandler;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -32,8 +33,8 @@ final class RecognizeCaller extends AbstractController
         private readonly RefusalTranslatingHandler $recognizeCallingOrganization,
         private readonly RefusalTranslatingHandler $recognizeCallingContact,
         private readonly OrganizationsOfContacts $organizationsOfContacts,
-        private readonly OrganizationResourcePresenter $organizations,
-        private readonly ContactInListPresenter $contacts,
+        private readonly OrganizationReader $organizations,
+        private readonly ContactInListResourceFactory $contacts,
     ) {
     }
 
@@ -45,15 +46,16 @@ final class RecognizeCaller extends AbstractController
     #[OA\Response(response: 422, description: 'No valid phone number', content: new Model(type: ProblemResource::class))]
     public function __invoke(string $phoneNumber, #[CurrentUser] User $user): JsonResponse
     {
-        /** @var list<OrganizationResponse> $organizations */
-        $organizations = ($this->recognizeCallingOrganization)(new RecognizeCallingOrganization($user->memberId(), $phoneNumber));
-        /** @var list<PersonResponse> $contacts */
-        $contacts = ($this->recognizeCallingContact)(new RecognizeCallingContact($user->memberId(), $phoneNumber));
+        $organizations = new KeptCallingOrganizations();
+        ($this->recognizeCallingOrganization)(new RecognizeCallingOrganization($user->memberId(), $phoneNumber), $organizations);
+        $callingContacts = new KeptCallingContacts();
+        ($this->recognizeCallingContact)(new RecognizeCallingContact($user->memberId(), $phoneNumber), $callingContacts);
+        $contacts = $callingContacts->contacts;
         $organizationsOfContacts = $this->organizationsOfContacts->read($user->memberId(), array_map(static fn (PersonResponse $contact): string => $contact->id, $contacts));
 
         return $this->json(new CallerResource(
-            array_map($this->organizations->present(...), $organizations),
-            array_map(fn (PersonResponse $contact): ContactInListResource => $this->contacts->present($contact, $organizationsOfContacts[$contact->id] ?? []), $contacts),
+            array_map($this->organizations->present(...), $organizations->organizations),
+            array_map(fn (PersonResponse $contact): ContactInListResource => $this->contacts->create($contact, $organizationsOfContacts[$contact->id] ?? []), $contacts),
         ));
     }
 }
