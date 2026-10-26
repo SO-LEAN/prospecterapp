@@ -3,7 +3,9 @@ when@dev:
         toolbar: true
 
     framework:
-        profiler: true
+        # out of the cache: kept by a cache:clear, and shared by the warm functions, which keep their cache in /tmp
+        profiler:
+            dsn: 'file:%kernel.project_dir%/var/profiler'
 
 when@test:
     framework:

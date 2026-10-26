@@ -8,3 +8,9 @@ nelmio_cors:
         max_age: 3600
     paths:
         '^/api/': ~
+
+# the front reads the profile of a call; the same headers in docker/lambda/deploy.sh
+when@dev:
+    nelmio_cors:
+        defaults:
+            expose_headers: ['Location', 'X-Debug-Token', 'X-Debug-Token-Link']

@@ -63,9 +63,9 @@ php=$(layer "$PHP_LAYER" /build/php.zip)
 imagick=$(layer "$IMAGICK_LAYER" /build/imagick.zip)
 
 # MiniStack answers every preflight from the CORS of the HTTP API, never passing it to the function as AWS does
-# without one: the API gets the same CORS as its nelmio_cors
+# without one: the API gets the same CORS as its nelmio_cors in dev
 http_api api "$(lambda_function api ,TRUSTED_PROXIES=REMOTE_ADDR "$php")" \
-    'AllowOrigins=https://local.prospecter.io,AllowMethods=GET,OPTIONS,POST,PATCH,DELETE,AllowHeaders=content-type,authorization,ExposeHeaders=location,MaxAge=3600'
+    'AllowOrigins=https://local.prospecter.io,AllowMethods=GET,OPTIONS,POST,PATCH,DELETE,AllowHeaders=content-type,authorization,ExposeHeaders=location,x-debug-token,x-debug-token-link,MaxAge=3600'
 # the storage answers images: Bref sends them base64-encoded only when asked
 http_api storage "$(lambda_function storage ,BREF_BINARY_RESPONSES=1 "$php" "$imagick")"
 
