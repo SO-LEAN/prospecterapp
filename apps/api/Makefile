@@ -1,6 +1,6 @@
 include ../../make/common.mk ../../make/aws.mk
 
-.PHONY: vendor db test lint fix openapi console commands shell package
+.PHONY: vendor db test lint fix openapi console commands profiler-clear shell package
 
 ##@ API
 vendor: ## Install the Composer dependencies of the API
@@ -44,6 +44,9 @@ endif
 
 commands: ## List the commands of the core and their handlers
 	@$(PHP) bin/console debug:messenger
+
+profiler-clear: ## Empty the history of the requests kept by the profiler of the API, locally
+	@$(PHP) rm -rf var/profiler
 
 shell: ## Open a shell in the PHP container
 	@$(PHP) bash

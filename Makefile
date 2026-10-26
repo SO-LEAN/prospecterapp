@@ -10,7 +10,7 @@ GITLEAKS = docker run --rm -u $(UID):$(GID) -e GIT_INDEX_FILE -v $(CURDIR):$(CUR
 	-w $(CURDIR) ghcr.io/gitleaks/gitleaks:v8.30.1
 INFRA_APPS = api storage front
 
-.PHONY: install hooks build vendor db aws front-install infra-target infra-init infra-plan infra-apply infra-lint package-api package-storage package-front release-front console start deploy stop logs ps ci test test-api test-storage test-front e2e test-core lint fix front-build api-doc contract commands exec-api exec-front secrets secrets-branch
+.PHONY: install hooks build vendor db aws front-install infra-target infra-init infra-plan infra-apply infra-lint package-api package-storage package-front release-front console start deploy stop logs ps ci test test-api test-storage test-front e2e test-core lint fix front-build api-doc contract commands profiler-clear exec-api exec-front secrets secrets-branch
 
 ##@ Setup
 install: hooks build vendor db front-install ## Build the images, install the dependencies, create the tables, the bucket and the user pool, install the Git hooks
@@ -131,6 +131,9 @@ contract: api-doc ## Fail when the committed OpenAPI contract or the front types
 ##@ Tools
 commands: ## List the commands of the core and their handlers
 	@$(MAKE) -C apps/api commands
+
+profiler-clear: ## Empty the history of the requests kept by the profiler of the API, locally: https://api.local.prospecter.io/_profiler
+	@$(MAKE) -C apps/api profiler-clear
 
 exec-api: ## Open a shell in the PHP container
 	@$(MAKE) -C apps/api shell

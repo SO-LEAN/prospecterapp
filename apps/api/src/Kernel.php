@@ -16,8 +16,9 @@ class Kernel extends BrefKernel
     use MicroKernelTrait;
 
     /**
-     * A Lambda of AWS runs its package read-only; the local ones of MiniStack and the command line, on the images of
-     * Bref too, write in the mounted repository and share its cache (ADR 0053).
+     * A Lambda of AWS runs its package read-only; the command line, on the image of Bref too, writes in the mounted
+     * repository (ADR 0053). A local one of MiniStack serves as nobody, who cannot write it: it keeps its cache in
+     * its /tmp, as on AWS.
      */
     public function isLambda(): bool
     {
