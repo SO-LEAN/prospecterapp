@@ -42,13 +42,13 @@ final readonly class ExchangeReader
         $kept = new KeptExchange();
         ($this->consultExchange)(new ConsultExchange($prospector, $id), $kept);
 
-        return $this->present($prospector, $kept->exchange);
+        return $this->resourceOf($prospector, $kept->exchange);
     }
 
     /**
      * The exchange already read, its interlocutor and its authors named.
      */
-    public function present(string $prospector, ExchangeDetailResponse $exchange): ExchangeDetailResource
+    public function resourceOf(string $prospector, ExchangeDetailResponse $exchange): ExchangeDetailResource
     {
         $presenter = new ExchangeDetailPresenter($this->participantsOf($prospector, $exchange), $this->links, $this->intents);
         $presenter->present($exchange);

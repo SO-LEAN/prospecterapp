@@ -34,7 +34,7 @@ final readonly class OrganizationReader
         return $presenter->resource;
     }
 
-    public function present(OrganizationResponse $organization): OrganizationResource
+    public function resourceOf(OrganizationResponse $organization): OrganizationResource
     {
         $presenter = $this->presenter();
         $presenter->present($organization);
