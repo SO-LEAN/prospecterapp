@@ -1,6 +1,6 @@
 include ../../make/common.mk ../../make/aws.mk
 
-.PHONY: vendor db test lint fix package
+.PHONY: vendor db test lint fix
 
 ##@ Storage
 vendor: ## Install the Composer dependencies of the storage
@@ -20,7 +20,4 @@ lint: ## Check the code of the storage: PHPStan, php-cs-fixer, Rector
 fix: ## Fix the style of the code of the storage: php-cs-fixer
 	@$(PHP) vendor/bin/php-cs-fixer fix
 
-package: ## Package the storage for its Lambda on AWS in build/storage.zip at the root (ADR 0063)
-	@$(DC) run --rm --no-deps -w /var/www/src php tools/package/lambda storage
-
-include ../../make/infra.mk
+include ../../make/lambda.mk ../../make/infra.mk

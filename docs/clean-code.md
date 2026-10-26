@@ -81,7 +81,7 @@ This guide is alive: rules get added and sharpened as the code is improved, iter
 - **Small**, measured in responsibilities, not lines. A class described with "and", "or", "but" has more than one.
 - **Cohesive**: most methods use most fields. When a subset of fields serves a subset of methods, it is another class waiting to be extracted (`FileStore` and `GeoLocalizer` came out of the use cases).
 - **Organized for change**: adding a feature adds a class rather than editing many.
-- **Dependencies are injected, never built** (ADR 0044): a constructor only receives what the class needs, and builds nothing but the exception it throws; a service is built by the container (the composition root of the tests in the core), never by the code. `make lint` fails otherwise (`tools/phpstan/DependenciesAreInjectedRule`).
+- **Dependencies are injected, never built** (ADR 0044): a constructor only receives what the class needs, and builds nothing but the exception it throws; a service is built by the container (the composition root of the tests in the core), never by the code. `make lint` fails otherwise (`packages/phpstan-rules/DependenciesAreInjectedRule`).
 
 ## 10. SOLID
 

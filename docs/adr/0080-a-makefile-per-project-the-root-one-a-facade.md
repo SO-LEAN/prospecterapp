@@ -1,7 +1,7 @@
 # 0080. A Makefile per project, the root one a façade
 
 - Date: 2026-10-23
-- Status: Accepted
+- Status: Accepted, applied to the scripts of `tools/` by [0083](0083-the-scripts-of-tools-become-recipes-of-their-project.md)
 - Implemented by: `Makefile`, `make/*.mk`, `packages/core/Makefile`, `apps/{api,storage,front}/Makefile`, `tools/ci/code-version`, `tools/package/lambda`
 
 ## Context

@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Prospecter\Tools\PHPStan;
+namespace Prospecter\PHPStan;
 
 use PhpParser\Node;
 use PhpParser\Node\Expr\New_;

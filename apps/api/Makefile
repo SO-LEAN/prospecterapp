@@ -1,6 +1,6 @@
 include ../../make/common.mk ../../make/aws.mk
 
-.PHONY: vendor db test lint fix openapi console commands profiler-clear shell package
+.PHONY: vendor db test lint fix openapi console commands profiler-clear shell
 
 ##@ API
 vendor: ## Install the Composer dependencies of the API
@@ -51,7 +51,4 @@ profiler-clear: ## Empty the history of the requests kept by the profiler of the
 shell: ## Open a shell in the PHP container
 	@$(PHP) bash
 
-package: ## Package the API for its Lambda on AWS in build/api.zip at the root (ADR 0063)
-	@$(DC) run --rm --no-deps -w /var/www/src php tools/package/lambda api
-
-include ../../make/infra.mk
+include ../../make/lambda.mk ../../make/infra.mk

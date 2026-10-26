@@ -1,3 +1,3 @@
 # Rules shared by every PHP codebase of the monorepo, included by their phpstan.dist.neon
 rules:
-    - Prospecter\Tools\PHPStan\DependenciesAreInjectedRule
+    - Prospecter\PHPStan\DependenciesAreInjectedRule

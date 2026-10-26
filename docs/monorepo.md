@@ -5,12 +5,22 @@ apps/front/      React SPA (pnpm, its own package.json)
 apps/api/        Symfony API, resource server of the Cognito user pool (Composer), the only user of the core
 apps/storage/    Symfony file storage (Composer)
 packages/core/   prospecter/core library (Composer)
-tools/phpstan/   PHPStan rules shared by the three PHP codebases (autoload-dev of each, ADR 0044)
-tools/git-hooks/ the pre-commit hook (gitleaks, ADR 0059)
+packages/phpstan-rules/ PHPStan rules shared by the three PHP codebases (autoload-dev of each, ADR 0044)
 apps/*/infra/    the Terraform of each app on AWS (docs/infra.md, ADR 0059)
 make/            the fragments the Makefiles include (ADR 0080)
+.githooks/       the pre-commit hook (gitleaks, ADR 0059), installed by make hooks
 docker/  docker-compose.yml  Makefile  docs/
 ```
+
+What a project does is a recipe of its Makefile, a shared one a fragment of `make/` (ADR 0080, 0083). The scripts left are files a tool runs, each next to what uses it:
+
+| Script | Run by | Why not a recipe |
+|---|---|---|
+| `.githooks/pre-commit` | git, before each commit | git runs a file of `core.hooksPath` |
+| `docker/lambda/bootstrap` | the local functions, at their start (ADR 0055) | the runtime of a function runs a file |
+| `docker/lambda/deploy.sh` | the image `lambda-deploy` (`make deploy`) | the entrypoint of an image |
+| `docker/nginx/05-generate-certificate.sh` | the image of nginx at its start | the entrypoint of an image |
+| `apps/front/release` | `make release` of the front, in the image of the AWS CLI | that image has no make, and the cleaning of the former releases is a loop on the bucket |
 
 The apps are independent projects with their own dependencies; they only share HTTP contracts (`apps/api/openapi.json`, from which the front generates its types; the internal `POST/DELETE /files` of the storage) and the AWS services (MiniStack locally: the Cognito user pool the SPA signs in with and whose tokens the API checks) and the root tooling (Docker, the fragments of `make/`). Only the API uses the core.
 
@@ -41,7 +51,7 @@ COMPOSER_MIRROR_PATH_REPOS=1 composer install --no-dev --classmap-authoritative
 
 Composer then copies the current content of `packages/core` into `vendor/` (even if `composer.lock` is behind), and `apps/api/` becomes self-contained: deploy it alone. `apps/storage/` does not use the core; `make package-storage` packages it the same way (`build/storage.zip`). This only works because the path repository does not force `"symlink": true`; keep it that way.
 
-The copy includes what the core needs for its own tests (`vendor/`, `tests/`, `features/`, tool configs): remove `vendor/prospecter/core/{vendor,tests,features,Makefile}` in the production image. `make package-api` / `make package-storage` do all of it for the Lambdas on AWS (`tools/package/lambda`, `build/<app>.zip`).
+The copy includes what the core needs for its own tests (`vendor/`, `tests/`, `features/`, tool configs): remove `vendor/prospecter/core/{vendor,tests,features,Makefile}` in the production image. `make package-api` / `make package-storage` do all of it for the Lambdas on AWS (`make/lambda.mk`, `build/<app>.zip`).
 
 The front builds to static files (`pnpm build` → `apps/front/dist/`), one build for every instance: its API URL comes from `/config.js` (on AWS answered by the CloudFront Function of the instance, ADR 0066), else from the `VITE_*` variables of the build; on AWS each build is a release under `releases/<version>/` of its bucket (`make package-front`, `make release-front`); where to sign in, it asks the API (`GET /api/user-pool`).
 

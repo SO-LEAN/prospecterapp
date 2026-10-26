@@ -1,5 +1,5 @@
 includes:
-    - ../../tools/phpstan/rules.neon
+    - ../../packages/phpstan-rules/rules.neon
 
 parameters:
     level: 5

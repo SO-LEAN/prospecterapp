@@ -1,5 +1,5 @@
 # The bucket of the SPA (ADR 0066): private, read by CloudFront only (cloudfront.tf). Each build is a release under
-# releases/<version>/, put by the continuous deployment (tools/deploy/front) and removed 30 days after another one
+# releases/<version>/, put by the continuous deployment (apps/front/release) and removed 30 days after another one
 # replaced it: a page opened on a former release still finds its files. Its name ends with the account, bucket names
 # being shared by every AWS account.
 locals {
