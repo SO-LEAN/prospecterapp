@@ -13,7 +13,7 @@ locals {
 }
 
 # What the others read of the front: its address (the origin the api allows) and the bucket the continuous
-# deployment puts the releases in (apps/front/release)
+# deployment puts the releases in (apps/front/script/release)
 resource "aws_ssm_parameter" "url" {
   name  = "/prospecter/${var.instance}/front/url"
   type  = "String"

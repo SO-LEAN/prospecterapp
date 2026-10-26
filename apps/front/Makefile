@@ -40,6 +40,6 @@ package: ## Package the front as a release in build/front at the root (ADR 0066)
 release: ## Put the release of the front in the bucket of an instance, before its apply; CLEAN=1 after it removes the former ones (ADR 0066)
 	@test "$(origin INSTANCE)" = "command line" -a -f $(INFRA_INSTANCE).env || { echo "Usage: make release INSTANCE=<dev|prod|...> [CLEAN=1] (make release-front at the root), on the command line"; exit 1; }
 	@test -f $(ROOT)/build/front/index.html || { echo "No release to put: make package (make package-front at the root) first"; exit 1; }
-	@$(AWS_CLI_RUN) -v $(ROOT):/src -w /src --entrypoint sh $(AWS_CLI_IMAGE) apps/front/release $(INSTANCE) $(notdir $(RELEASE)) $(if $(CLEAN),--clean)
+	@$(AWS_CLI_RUN) -v $(ROOT):/src -w /src --entrypoint sh $(AWS_CLI_IMAGE) apps/front/script/release $(INSTANCE) $(notdir $(RELEASE)) $(if $(CLEAN),--clean)
 
 include ../../make/infra.mk

@@ -25,7 +25,7 @@ variable "region" {
 }
 
 variable "code_version" {
-  description = "The version of the code of the front (code-version of make/aws.mk, passed by make as TF_VAR_code_version): the release the SPA serves, put by apps/front/release"
+  description = "The version of the code of the front (code-version of make/aws.mk, passed by make as TF_VAR_code_version): the release the SPA serves, put by apps/front/script/release"
   type        = string
   default     = "none"
 }

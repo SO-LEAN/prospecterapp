@@ -20,7 +20,7 @@ What a project does is a recipe of its Makefile, a shared one a fragment of `mak
 | `docker/lambda/bootstrap` | the local functions, at their start (ADR 0055) | the runtime of a function runs a file |
 | `docker/lambda/deploy.sh` | the image `lambda-deploy` (`make deploy`) | the entrypoint of an image |
 | `docker/nginx/05-generate-certificate.sh` | the image of nginx at its start | the entrypoint of an image |
-| `apps/front/release` | `make release` of the front, in the image of the AWS CLI | that image has no make, and the cleaning of the former releases is a loop on the bucket |
+| `apps/front/script/release` | `make release` of the front, in the image of the AWS CLI | that image has no make, and the cleaning of the former releases is a loop on the bucket |
 
 The apps are independent projects with their own dependencies; they only share HTTP contracts (`apps/api/openapi.json`, from which the front generates its types; the internal `POST/DELETE /files` of the storage) and the AWS services (MiniStack locally: the Cognito user pool the SPA signs in with and whose tokens the API checks) and the root tooling (Docker, the fragments of `make/`). Only the API uses the core.
 
