@@ -18,13 +18,16 @@ use PHPStan\Type\Type;
  * Dependencies are injected, never built (ADR 0044): a constructor builds nothing but the exception it throws,
  * and a service of the monorepo (a class depending on an interface or on another service) is built only by the
  * container or, in the tests, by their composition root. The objects a library makes for one call (a Passport,
- * a SymfonyStyle) are not services.
+ * a SymfonyStyle) are not services, nor a presenter, which implements an output port of the core and keeps the
+ * state of one call: built where it is used, it may receive the services of its builder (ADR 0084).
  *
  * @implements Rule<New_>
  */
 final class DependenciesAreInjectedRule implements Rule
 {
     private const int MAX_DEPTH = 5;
+
+    private const string OUTPUT_PORT = 'Prospecter\\Core\\SharedKernel\\Application\\OutputPort';
 
     /**
      * @var array<string, bool>
@@ -75,11 +78,16 @@ final class DependenciesAreInjectedRule implements Rule
 
     private function isAService(ClassReflection $class, int $depth): bool
     {
-        if ($depth > self::MAX_DEPTH || !$this->isOfTheMonorepo($class) || !$class->hasConstructor() || $this->isAnException($class)) {
+        if ($depth > self::MAX_DEPTH || !$this->isOfTheMonorepo($class) || !$class->hasConstructor() || $this->isAnException($class) || $this->isAPresenter($class)) {
             return false;
         }
 
         return $this->services[$class->getName()] ??= $this->dependsOnAService($class, $depth);
+    }
+
+    private function isAPresenter(ClassReflection $class): bool
+    {
+        return $class->implementsInterface(self::OUTPUT_PORT);
     }
 
     /**

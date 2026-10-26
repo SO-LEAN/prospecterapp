@@ -9,6 +9,7 @@ use Prospecter\Core\Accounts\Application\ChangeMyOrganizationLogo\ChangeMyOrgani
 use Prospecter\Core\Accounts\Application\ConsultMember\ConsultMemberHandler;
 use Prospecter\Core\Accounts\Application\ConsultMyAccount\ConsultMyAccount;
 use Prospecter\Core\Accounts\Application\ConsultMyAccount\ConsultMyAccountHandler;
+use Prospecter\Core\Accounts\Application\ConsultMyAccount\KeptAccount;
 use Prospecter\Core\Accounts\Application\OpenAccount\OpenAccountHandler;
 use Prospecter\Core\Accounts\Application\PublishAccountOpened\PublishAccountOpenedHandler;
 use Prospecter\Core\Accounts\Application\PublishMemberRegistered\PublishMemberRegisteredHandler;
@@ -17,6 +18,8 @@ use Prospecter\Core\Accounts\Application\RegisterTheFounder\RegisterTheFounderHa
 use Prospecter\Core\Accounts\Application\RelocateMyOrganization\RelocateMyOrganizationHandler;
 use Prospecter\Core\Accounts\Application\ReviseMyOrganizationIdentity\ReviseMyOrganizationIdentityHandler;
 use Prospecter\Core\Accounts\Contract\Service\ConsultMember\ConsultMember;
+use Prospecter\Core\Accounts\Contract\Service\ConsultMember\KeptMember;
+use Prospecter\Core\Accounts\Contract\Service\ConsultMember\MemberResponse;
 use Prospecter\Core\PersonalData\Application\ChangeJobTitle\ChangeJobTitleHandler;
 use Prospecter\Core\PersonalData\Application\ChangePersonContactDetails\ChangePersonContactDetailsHandler;
 use Prospecter\Core\PersonalData\Application\ChangePersonPicture\ChangePersonPictureHandler;
@@ -25,21 +28,26 @@ use Prospecter\Core\PersonalData\Application\CollectTheFounderProfile\CollectThe
 use Prospecter\Core\PersonalData\Application\CollectTheMemberProfile\CollectTheMemberProfileHandler;
 use Prospecter\Core\PersonalData\Application\ConsultPerson\ConsultPerson;
 use Prospecter\Core\PersonalData\Application\ConsultPerson\ConsultPersonHandler;
+use Prospecter\Core\PersonalData\Application\ConsultPerson\KeptPerson;
 use Prospecter\Core\PersonalData\Application\ConsultPersons\ConsultPersons;
 use Prospecter\Core\PersonalData\Application\ConsultPersons\ConsultPersonsHandler;
+use Prospecter\Core\PersonalData\Application\ConsultPersons\KeptPersons;
 use Prospecter\Core\PersonalData\Application\ForgetContact\ForgetContactHandler;
 use Prospecter\Core\PersonalData\Application\ForgetContactsLeftWithoutOrganization\ForgetContactsLeftWithoutOrganizationHandler;
 use Prospecter\Core\PersonalData\Application\IsAContactOf\IsAContactOfHandler;
 use Prospecter\Core\PersonalData\Application\PersonResponse;
 use Prospecter\Core\PersonalData\Application\PublishContactCollected\PublishContactCollectedHandler;
 use Prospecter\Core\PersonalData\Application\PublishContactForgotten\PublishContactForgottenHandler;
+use Prospecter\Core\PersonalData\Application\RecognizeCallingContact\KeptCallingContacts;
 use Prospecter\Core\PersonalData\Application\RecognizeCallingContact\RecognizeCallingContact;
 use Prospecter\Core\PersonalData\Application\RecognizeCallingContact\RecognizeCallingContactHandler;
 use Prospecter\Core\PersonalData\Application\RenamePerson\RenamePersonHandler;
+use Prospecter\Core\PersonalData\Application\SearchContacts\KeptContactPage;
 use Prospecter\Core\PersonalData\Application\SearchContacts\SearchContacts;
 use Prospecter\Core\PersonalData\Application\SearchContacts\SearchContactsHandler;
 use Prospecter\Core\PersonalData\Application\SearchContacts\SearchContactsResponse;
 use Prospecter\Core\PersonalData\Contract\Service\IsAContactOf\IsAContactOf;
+use Prospecter\Core\PersonalData\Contract\Service\IsAContactOf\KeptIsAContact;
 use Prospecter\Core\PersonalData\Domain\EmailUniqueness as PersonalDataEmailUniqueness;
 use Prospecter\Core\Prospecting\Application\AddContact\AddContactHandler;
 use Prospecter\Core\Prospecting\Application\AttachCollectedContact\AttachCollectedContactHandler;
@@ -51,16 +59,19 @@ use Prospecter\Core\Prospecting\Application\ChangeLogo\ChangeLogoHandler;
 use Prospecter\Core\Prospecting\Application\ConsultExchange\ConsultExchange;
 use Prospecter\Core\Prospecting\Application\ConsultExchange\ConsultExchangeHandler;
 use Prospecter\Core\Prospecting\Application\ConsultExchange\ExchangeDetailResponse;
+use Prospecter\Core\Prospecting\Application\ConsultExchange\KeptExchange;
 use Prospecter\Core\Prospecting\Application\ConsultExchangesToMakeConform\ConsultExchangesToMakeConform;
 use Prospecter\Core\Prospecting\Application\ConsultExchangesToMakeConform\ConsultExchangesToMakeConformHandler;
 use Prospecter\Core\Prospecting\Application\ConsultOrganization\ConsultOrganization;
 use Prospecter\Core\Prospecting\Application\ConsultOrganization\ConsultOrganizationHandler;
+use Prospecter\Core\Prospecting\Application\ConsultOrganization\KeptOrganization;
 use Prospecter\Core\Prospecting\Application\ConsultOrganizationTimeline\ConsultOrganizationTimeline;
 use Prospecter\Core\Prospecting\Application\ConsultOrganizationTimeline\ConsultOrganizationTimelineHandler;
 use Prospecter\Core\Prospecting\Application\ConsultTimeline\ConsultTimeline;
 use Prospecter\Core\Prospecting\Application\ConsultTimeline\ConsultTimelineHandler;
 use Prospecter\Core\Prospecting\Application\ConsultTimelineIntents\ConsultTimelineIntents;
 use Prospecter\Core\Prospecting\Application\ConsultTimelineIntents\ConsultTimelineIntentsHandler;
+use Prospecter\Core\Prospecting\Application\ConsultTimelineIntents\KeptTimelineIntents;
 use Prospecter\Core\Prospecting\Application\ConsultTimelineIntents\TimelineIntentsResponse;
 use Prospecter\Core\Prospecting\Application\CorrectExchange\CorrectExchangeHandler;
 use Prospecter\Core\Prospecting\Application\CorrectExchangeText\CorrectExchangeTextHandler;
@@ -69,13 +80,16 @@ use Prospecter\Core\Prospecting\Application\DetachFromHolding\DetachFromHoldingH
 use Prospecter\Core\Prospecting\Application\DownloadAttachment\AttachmentDownloadResponse;
 use Prospecter\Core\Prospecting\Application\DownloadAttachment\DownloadAttachment;
 use Prospecter\Core\Prospecting\Application\DownloadAttachment\DownloadAttachmentHandler;
+use Prospecter\Core\Prospecting\Application\DownloadAttachment\KeptDownload;
 use Prospecter\Core\Prospecting\Application\EraseExchange\EraseExchangeHandler;
 use Prospecter\Core\Prospecting\Application\IsProspectedBy\IsProspectedByHandler;
 use Prospecter\Core\Prospecting\Application\KeepExchangesOfForgottenContact\KeepExchangesOfForgottenContactHandler;
+use Prospecter\Core\Prospecting\Application\KeptTimeline;
 use Prospecter\Core\Prospecting\Application\NoteExchange\NoteExchangeHandler;
 use Prospecter\Core\Prospecting\Application\NoteOrganizationExchange\NoteOrganizationExchangeHandler;
 use Prospecter\Core\Prospecting\Application\OrganizationResponse;
 use Prospecter\Core\Prospecting\Application\PublishContactsLeftWithoutOrganization\PublishContactsLeftWithoutOrganizationHandler;
+use Prospecter\Core\Prospecting\Application\RecognizeCallingOrganization\KeptCallingOrganizations;
 use Prospecter\Core\Prospecting\Application\RecognizeCallingOrganization\RecognizeCallingOrganization;
 use Prospecter\Core\Prospecting\Application\RecognizeCallingOrganization\RecognizeCallingOrganizationHandler;
 use Prospecter\Core\Prospecting\Application\Relocate\RelocateHandler;
@@ -83,6 +97,7 @@ use Prospecter\Core\Prospecting\Application\RemoveAttachment\RemoveAttachmentHan
 use Prospecter\Core\Prospecting\Application\RemoveContact\RemoveContactHandler;
 use Prospecter\Core\Prospecting\Application\RemoveLogo\RemoveLogoHandler;
 use Prospecter\Core\Prospecting\Application\ReviseLegalIdentity\ReviseLegalIdentityHandler;
+use Prospecter\Core\Prospecting\Application\SearchProspectedOrganizations\KeptOrganizationPage;
 use Prospecter\Core\Prospecting\Application\SearchProspectedOrganizations\SearchProspectedOrganizations;
 use Prospecter\Core\Prospecting\Application\SearchProspectedOrganizations\SearchProspectedOrganizationsHandler;
 use Prospecter\Core\Prospecting\Application\SearchProspectedOrganizations\SearchProspectedOrganizationsResponse;
@@ -92,6 +107,7 @@ use Prospecter\Core\Prospecting\Application\StopProspecting\StopProspectingHandl
 use Prospecter\Core\Prospecting\Application\TimelineResponse;
 use Prospecter\Core\Prospecting\Application\WriteObservations\WriteObservationsHandler;
 use Prospecter\Core\Prospecting\Contract\Service\IsProspectedBy\IsProspectedBy;
+use Prospecter\Core\Prospecting\Contract\Service\IsProspectedBy\KeptIsProspected;
 use Prospecter\Core\Prospecting\Domain\ContactOrganizations;
 use Prospecter\Core\Prospecting\Domain\EmailUniqueness as ProspectingEmailUniqueness;
 use Prospecter\Core\Prospecting\Domain\OrphanContacts;
@@ -122,7 +138,8 @@ use Tests\Core\Double\TimeOrderedUuids;
 /**
  * The hexagon as the scenarios use it: the real handlers, wired to in-memory implementations of their
  * ports, called the way a delivery calls them: through a RefusalTranslatingHandler, a command is sent to
- * its handler (a command bus in the API) and returns nothing, a query returns what it reads.
+ * its handler (a command bus in the API) and returns nothing, a query presents what it reads to the presenter
+ * of the core keeping it as it is (ADR 0084).
  */
 final class Application
 {
@@ -225,27 +242,37 @@ final class Application
     public function dispatch(object $command): void
     {
         $handler = $this->handlers[$command::class] ?? throw new \LogicException(sprintf('No handler for %s', $command::class));
-        $this->attempt(static fn (): mixed => new RefusalTranslatingHandler($handler)($command));
+        $this->attempt(static function () use ($handler, $command): void {
+            new RefusalTranslatingHandler($handler)($command);
+        });
     }
 
     public function consultOrganization(ConsultOrganization $query): ?OrganizationResponse
     {
-        return $this->attempt(fn (): OrganizationResponse => new RefusalTranslatingHandler(new ConsultOrganizationHandler($this->organizations))($query));
+        $kept = new KeptOrganization();
+
+        return $this->ask(new ConsultOrganizationHandler($this->organizations), $query, $kept) ? $kept->organization : null;
     }
 
     public function searchProspectedOrganizations(SearchProspectedOrganizations $query): ?SearchProspectedOrganizationsResponse
     {
-        return $this->attempt(fn (): SearchProspectedOrganizationsResponse => new RefusalTranslatingHandler(new SearchProspectedOrganizationsHandler($this->organizations, $this->prospectorService))($query));
+        $kept = new KeptOrganizationPage();
+
+        return $this->ask(new SearchProspectedOrganizationsHandler($this->organizations, $this->prospectorService), $query, $kept) ? $kept->page : null;
     }
 
     public function consultMyAccount(): ?AccountResponse
     {
-        return $this->attempt(fn (): AccountResponse => new RefusalTranslatingHandler(new ConsultMyAccountHandler($this->members, $this->accounts))(new ConsultMyAccount($this->signedIn())));
+        $kept = new KeptAccount();
+
+        return $this->ask(new ConsultMyAccountHandler($this->members, $this->accounts), new ConsultMyAccount($this->signedIn()), $kept) ? $kept->account : null;
     }
 
     public function consultPerson(ConsultPerson $query): ?PersonResponse
     {
-        return $this->attempt(fn (): PersonResponse => new RefusalTranslatingHandler(new ConsultPersonHandler($this->persons, $this->readerService))($query));
+        $kept = new KeptPerson();
+
+        return $this->ask(new ConsultPersonHandler($this->persons, $this->readerService), $query, $kept) ? $kept->person : null;
     }
 
     /**
@@ -253,12 +280,16 @@ final class Application
      */
     public function consultPersons(ConsultPersons $query): ?array
     {
-        return $this->attempt(fn (): array => new RefusalTranslatingHandler(new ConsultPersonsHandler($this->persons, $this->readerService))($query));
+        $kept = new KeptPersons();
+
+        return $this->ask(new ConsultPersonsHandler($this->persons, $this->readerService), $query, $kept) ? $kept->persons : null;
     }
 
     public function searchContacts(SearchContacts $query): ?SearchContactsResponse
     {
-        return $this->attempt(fn (): SearchContactsResponse => new RefusalTranslatingHandler(new SearchContactsHandler($this->persons, $this->readerService))($query));
+        $kept = new KeptContactPage();
+
+        return $this->ask(new SearchContactsHandler($this->persons, $this->readerService), $query, $kept) ? $kept->page : null;
     }
 
     /**
@@ -266,7 +297,9 @@ final class Application
      */
     public function recognizeACallingContact(RecognizeCallingContact $query): ?array
     {
-        return $this->attempt(fn (): array => new RefusalTranslatingHandler(new RecognizeCallingContactHandler($this->persons, $this->readerService))($query));
+        $kept = new KeptCallingContacts();
+
+        return $this->ask(new RecognizeCallingContactHandler($this->persons, $this->readerService), $query, $kept) ? $kept->contacts : null;
     }
 
     /**
@@ -274,37 +307,51 @@ final class Application
      */
     public function recognizeACallingOrganization(RecognizeCallingOrganization $query): ?array
     {
-        return $this->attempt(fn (): array => new RefusalTranslatingHandler(new RecognizeCallingOrganizationHandler($this->organizations, $this->prospectorService))($query));
+        $kept = new KeptCallingOrganizations();
+
+        return $this->ask(new RecognizeCallingOrganizationHandler($this->organizations, $this->prospectorService), $query, $kept) ? $kept->organizations : null;
     }
 
     public function consultTimeline(ConsultTimeline $query): ?TimelineResponse
     {
-        return $this->attempt(fn (): TimelineResponse => new RefusalTranslatingHandler(new ConsultTimelineHandler($this->exchanges, $this->prospectorService, $this->contactOrganizations))($query));
+        $kept = new KeptTimeline();
+
+        return $this->ask(new ConsultTimelineHandler($this->exchanges, $this->prospectorService, $this->contactOrganizations), $query, $kept) ? $kept->timeline : null;
     }
 
     public function consultOrganizationTimeline(ConsultOrganizationTimeline $query): ?TimelineResponse
     {
-        return $this->attempt(fn (): TimelineResponse => new RefusalTranslatingHandler(new ConsultOrganizationTimelineHandler($this->exchanges, $this->organizations, $this->prospectorService))($query));
+        $kept = new KeptTimeline();
+
+        return $this->ask(new ConsultOrganizationTimelineHandler($this->exchanges, $this->organizations, $this->prospectorService), $query, $kept) ? $kept->timeline : null;
     }
 
     public function consultExchangesToMakeConform(ConsultExchangesToMakeConform $query): ?TimelineResponse
     {
-        return $this->attempt(fn (): TimelineResponse => new RefusalTranslatingHandler(new ConsultExchangesToMakeConformHandler($this->exchanges, $this->organizations, $this->prospectorService))($query));
+        $kept = new KeptTimeline();
+
+        return $this->ask(new ConsultExchangesToMakeConformHandler($this->exchanges, $this->organizations, $this->prospectorService), $query, $kept) ? $kept->timeline : null;
     }
 
     public function consultTimelineIntents(ConsultTimelineIntents $query): ?TimelineIntentsResponse
     {
-        return $this->attempt(fn (): TimelineIntentsResponse => new RefusalTranslatingHandler(new ConsultTimelineIntentsHandler($this->prospectorService, $this->contactOrganizations))($query));
+        $kept = new KeptTimelineIntents();
+
+        return $this->ask(new ConsultTimelineIntentsHandler($this->prospectorService, $this->contactOrganizations), $query, $kept) ? $kept->intents : null;
     }
 
     public function consultExchange(ConsultExchange $query): ?ExchangeDetailResponse
     {
-        return $this->attempt(fn (): ExchangeDetailResponse => new RefusalTranslatingHandler(new ConsultExchangeHandler($this->exchanges, $this->prospectorService))($query));
+        $kept = new KeptExchange();
+
+        return $this->ask(new ConsultExchangeHandler($this->exchanges, $this->prospectorService), $query, $kept) ? $kept->exchange : null;
     }
 
     public function downloadAttachment(DownloadAttachment $query): ?AttachmentDownloadResponse
     {
-        return $this->attempt(fn (): AttachmentDownloadResponse => new RefusalTranslatingHandler(new DownloadAttachmentHandler($this->exchanges, $this->prospectorService, $this->privateStorage))($query));
+        $kept = new KeptDownload();
+
+        return $this->ask(new DownloadAttachmentHandler($this->exchanges, $this->prospectorService, $this->privateStorage), $query, $kept) ? $kept->download : null;
     }
 
     /**
@@ -355,26 +402,32 @@ final class Application
     }
 
     /**
-     * Asks a query a context publishes to the others (ADR 0045), as their anticorruption layers do.
+     * The queries a context publishes to the others (ADR 0045), asked as their anticorruption layers ask them.
      */
-    public function askPublished(object $query): mixed
+    public function consultMember(ConsultMember $query): ?MemberResponse
     {
-        return $this->attempt(fn (): mixed => $this->published($this->publishedHandlerOf($query))($query));
+        $kept = new KeptMember();
+
+        return $this->ask(new ConsultMemberHandler($this->members), $query, $kept) ? $kept->member : null;
+    }
+
+    public function isAContactOf(IsAContactOf $query): ?bool
+    {
+        $kept = new KeptIsAContact();
+
+        return $this->ask(new IsAContactOfHandler($this->persons), $query, $kept) ? $kept->isAContact : null;
+    }
+
+    public function isProspectedBy(IsProspectedBy $query): ?bool
+    {
+        $kept = new KeptIsProspected();
+
+        return $this->ask(new IsProspectedByHandler($this->organizations), $query, $kept) ? $kept->isProspected : null;
     }
 
     private function published(QueryHandler $handler): RefusalTranslatingHandler
     {
         return new RefusalTranslatingHandler($handler);
-    }
-
-    private function publishedHandlerOf(object $query): QueryHandler
-    {
-        return match ($query::class) {
-            ConsultMember::class => new ConsultMemberHandler($this->members),
-            IsAContactOf::class => new IsAContactOfHandler($this->persons),
-            IsProspectedBy::class => new IsProspectedByHandler($this->organizations),
-            default => throw new \LogicException(sprintf('%s is no published query', $query::class)),
-        };
     }
 
     /**
@@ -413,6 +466,18 @@ final class Application
         $type = new \ReflectionMethod($handler, '__invoke')->getParameters()[0]->getType();
 
         return $type instanceof \ReflectionNamedType ? $type->getName() : throw new \LogicException(sprintf('%s::__invoke() must take one command', $handler::class));
+    }
+
+    /**
+     * Asks a query, its answer presented to the output port given; false when it was refused.
+     */
+    private function ask(QueryHandler $handler, object $query, object $output): bool
+    {
+        return null !== $this->attempt(static function () use ($handler, $query, $output): bool {
+            new RefusalTranslatingHandler($handler)($query, $output);
+
+            return true;
+        });
     }
 
     /**

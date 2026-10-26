@@ -8,13 +8,15 @@ use App\PersonalData\Resource\PersonNameResource;
 use App\Shared\Links;
 use App\Shared\Resource\ContactDetailsResource;
 use App\Shared\Resource\LinkResource;
+use Prospecter\Core\PersonalData\Application\ConsultPerson\ConsultPersonOutput;
 use Prospecter\Core\PersonalData\Application\PersonResponse;
 use Prospecter\Core\Prospecting\Application\ConsultTimelineIntents\TimelineIntentsResponse;
 
 /**
- * A contact with a link per intention the reader may carry out on it, or on its timeline.
+ * A contact with a link per intention the reader may carry out on it, or on its timeline. Built for one call with
+ * what its timeline offers, it presents the person and keeps the resource (ADR 0084).
  */
-final readonly class ContactResourcePresenter
+final class ContactResourcePresenter implements ConsultPersonOutput
 {
     private const array ROUTES = [
         'Rename' => ['rename', 'api_contacts_rename'],
@@ -27,28 +29,30 @@ final readonly class ContactResourcePresenter
         'ConsultTimeline' => ['exchanges', 'api_contacts_timeline'],
     ];
 
-    public function __construct(private Links $links)
+    public private(set) ContactResource $resource;
+
+    public function __construct(private readonly TimelineIntentsResponse $timeline, private readonly Links $links)
     {
     }
 
-    public function present(PersonResponse $contact, TimelineIntentsResponse $timeline): ContactResource
+    public function present(PersonResponse $contact): void
     {
-        return new ContactResource(
+        $this->resource = new ContactResource(
             id: $contact->id,
             name: new PersonNameResource($contact->firstName, $contact->lastName),
             jobTitle: $contact->jobTitle,
             contactDetails: new ContactDetailsResource($contact->email, $contact->phoneNumber, $contact->language),
             masked: $contact->masked,
-            links: $this->linksOf($contact, $timeline),
+            links: $this->linksOf($contact),
         );
     }
 
-    private function linksOf(PersonResponse $contact, TimelineIntentsResponse $timeline): ContactLinksResource
+    private function linksOf(PersonResponse $contact): ContactLinksResource
     {
         $id = ['id' => $contact->id];
         $possible = [
             ...$this->possible(self::ROUTES, $contact->possibleIntents, $id),
-            ...$this->possible(self::TIMELINE_ROUTES, $timeline->possibleIntents, $id),
+            ...$this->possible(self::TIMELINE_ROUTES, $this->timeline->possibleIntents, $id),
         ];
 
         return new ContactLinksResource($this->links->to('api_contacts_show', $id), ...$possible);

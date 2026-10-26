@@ -22,11 +22,11 @@ final readonly class ConsultTimelineIntentsHandler implements QueryHandler
     ) {
     }
 
-    public function __invoke(ConsultTimelineIntents $query): TimelineIntentsResponse
+    public function __invoke(ConsultTimelineIntents $query, ConsultTimelineIntentsOutput $output): void
     {
         $prospector = $this->prospectorService->prospectorFrom(new MemberId($query->prospectorId));
         $isAContact = $this->contactOrganizations->isAContactOfTheAccount(new PersonId($query->personId), $prospector->accountId);
 
-        return TimelineIntentsResponse::of($isAContact ? TimelineIntent::cases() : []);
+        $output->present(TimelineIntentsResponse::of($isAContact ? TimelineIntent::cases() : []));
     }
 }

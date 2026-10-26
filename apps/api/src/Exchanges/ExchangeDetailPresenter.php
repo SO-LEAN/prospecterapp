@@ -14,17 +14,18 @@ use App\Security\IntentLinks;
 use App\Security\User;
 use App\Shared\Links;
 use App\Shared\Resource\LinkResource;
-use Prospecter\Core\PersonalData\Application\PersonResponse;
 use Prospecter\Core\Prospecting\Application\ConsultExchange\AttachmentResponse;
+use Prospecter\Core\Prospecting\Application\ConsultExchange\ConsultExchangeOutput;
 use Prospecter\Core\Prospecting\Application\ConsultExchange\ExchangeDetailResponse;
 
 /**
  * The detail of an exchange, with a link per intention its state offers and the signed-in member may carry out on it
  * and on its attachments (`IntentLinks`, ADR 0081): every prospector retouches its text and declares it conform
  * (ADR 0078), the rest needs the right to manage personal data. Each link names its intention, its route, and the role
- * its controller requires beyond reaching the exchange.
+ * its controller requires beyond reaching the exchange. Built for one call with its participants, it keeps the
+ * resource (ADR 0084).
  */
-final readonly class ExchangeDetailPresenter
+final class ExchangeDetailPresenter implements ConsultExchangeOutput
 {
     /**
      * @var array<string, array{intent: string, route: string, role: ?string}>
@@ -37,22 +38,22 @@ final readonly class ExchangeDetailPresenter
         'attachFile' => ['intent' => 'AttachFile', 'route' => 'api_exchanges_attach_file', 'role' => User::PERSONAL_DATA],
     ];
 
-    public function __construct(private Links $links, private IntentLinks $intents)
+    public private(set) ExchangeDetailResource $resource;
+
+    public function __construct(private readonly ExchangeParticipants $participants, private readonly Links $links, private readonly IntentLinks $intents)
     {
     }
 
-    /**
-     * @param array<string, PersonResponse> $persons        by person id
-     * @param array<string, string>         $personOfMember the person id of each member, by member id
-     */
-    public function present(ExchangeDetailResponse $exchange, InterlocutorResource $interlocutor, array $persons, array $personOfMember): ExchangeDetailResource
+    public function present(ExchangeDetailResponse $exchange): void
     {
+        $persons = $this->participants->persons;
+        $personOfMember = $this->participants->personOfMember;
         $nameOf = static fn (string $person): PersonNameResource => new PersonNameResource($persons[$person]->firstName ?? null, $persons[$person]->lastName ?? null);
         $authorOf = static fn (string $member): AuthorResource => new AuthorResource($nameOf($personOfMember[$member]), $persons[$personOfMember[$member]]->email ?? null);
 
-        return new ExchangeDetailResource(
+        $this->resource = new ExchangeDetailResource(
             id: $exchange->id,
-            interlocutor: $interlocutor,
+            interlocutor: $this->participants->interlocutor,
             channel: $exchange->channel,
             direction: $exchange->direction,
             missed: $exchange->missed,
@@ -67,7 +68,7 @@ final readonly class ExchangeDetailPresenter
             madeConform: null === $exchange->madeConformAt || null === $exchange->madeConformBy ? null : new StampResource($exchange->madeConformAt->format(\DateTimeInterface::ATOM), $authorOf($exchange->madeConformBy)),
             attachments: array_map(fn (AttachmentResponse $attachment): AttachmentResource => $this->presentAttachment($exchange, $attachment), $exchange->attachments),
             hiddenAttachments: $exchange->hiddenAttachments,
-            links: $this->linksOf($exchange, $interlocutor),
+            links: $this->linksOf($exchange),
         );
     }
 
@@ -84,14 +85,14 @@ final readonly class ExchangeDetailPresenter
         ));
     }
 
-    private function linksOf(ExchangeDetailResponse $exchange, InterlocutorResource $interlocutor): ExchangeDetailLinksResource
+    private function linksOf(ExchangeDetailResponse $exchange): ExchangeDetailLinksResource
     {
         $id = ['id' => $exchange->id];
         $granted = array_filter(self::ROUTES, fn (array $link): bool => $this->intents->shows($link['intent'], $exchange->possibleIntents, $link['role']));
 
         return new ExchangeDetailLinksResource(
             $this->links->to('api_exchanges_show', $id),
-            $this->cardOf($interlocutor),
+            $this->cardOf($this->participants->interlocutor),
             ...array_map(fn (array $link): LinkResource => $this->links->to($link['route'], $id), $granted),
         );
     }

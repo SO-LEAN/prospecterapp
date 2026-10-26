@@ -3,6 +3,7 @@
 namespace App\PersonalData;
 
 use Prospecter\Core\Accounts\Contract\Service\ConsultMember\ConsultMember;
+use Prospecter\Core\Accounts\Contract\Service\ConsultMember\KeptMember;
 use Prospecter\Core\Accounts\Contract\Service\ConsultMember\MemberResponse;
 use Prospecter\Core\PersonalData\Domain\Exception\UnknownReader;
 use Prospecter\Core\PersonalData\Domain\Reader;
@@ -31,10 +32,14 @@ final readonly class AccountsReaderService implements ReaderService
 
     private function memberOf(MemberId $id): MemberResponse
     {
+        $kept = new KeptMember();
+
         try {
-            return ($this->consultMember)(new ConsultMember((string) $id));
+            ($this->consultMember)(new ConsultMember((string) $id), $kept);
         } catch (UseCaseRefused) {
             throw UnknownReader::identifiedBy($id);
         }
+
+        return $kept->member;
     }
 }

@@ -13,13 +13,15 @@ use App\Shared\Resource\ContactDetailsResource;
 use App\Shared\Resource\LegalIdentityResource;
 use App\Shared\Resource\LocationResource;
 use Prospecter\Core\Accounts\Application\AccountResponse;
+use Prospecter\Core\PersonalData\Application\ConsultPerson\ConsultPersonOutput;
 use Prospecter\Core\PersonalData\Application\PersonResponse;
 
 /**
  * My account composed of my membership (Accounts) and my profile (PersonalData), with a link per intention
- * they offer me. What I sign in with lives in the user pool (`/api/me/sign-in`).
+ * they offer me. What I sign in with lives in the user pool (`/api/me/sign-in`). Built for one call with my
+ * membership, it presents my profile and keeps the resource (ADR 0084).
  */
-final readonly class AccountResourcePresenter
+final class AccountResourcePresenter implements ConsultPersonOutput
 {
     private const array PROFILE_ROUTES = [
         'Rename' => ['changeMyName', 'api_me_change_name'],
@@ -33,32 +35,41 @@ final readonly class AccountResourcePresenter
         'Relocate' => ['relocateMyOrganization', 'api_me_relocate_organization'],
     ];
 
-    public function __construct(private ImageResourceFactory $images, private Links $links)
+    public private(set) AccountResource $resource;
+
+    public function __construct(private readonly AccountResponse $account, private readonly ImageResourceFactory $images, private readonly Links $links)
     {
     }
 
-    public function present(AccountResponse $account, PersonResponse $me): AccountResource
+    public function present(PersonResponse $me): void
     {
-        return new AccountResource(
+        $this->resource = new AccountResource(
             name: new PersonNameResource($me->firstName, $me->lastName),
             contactDetails: new ContactDetailsResource($me->email, $me->phoneNumber, $me->language),
             picture: $this->images->create($me->picture?->url),
-            organization: new AccountOrganizationResource(
-                new LegalIdentityResource($account->organizationCorporateName, $account->organizationForm, $account->organizationType),
-                $this->images->create($account->organizationLogo?->url),
-                AddressResource::orNone($account->organizationStreet, $account->organizationPostalCode, $account->organizationCity, $account->organizationCountry),
-                LocationResource::orNone($account->organizationLatitude, $account->organizationLongitude),
-            ),
-            links: $this->linksOf($account, $me),
+            organization: $this->organization(),
+            links: $this->linksOf($me),
         );
     }
 
-    private function linksOf(AccountResponse $account, PersonResponse $me): AccountLinksResource
+    private function organization(): AccountOrganizationResource
+    {
+        $account = $this->account;
+
+        return new AccountOrganizationResource(
+            new LegalIdentityResource($account->organizationCorporateName, $account->organizationForm, $account->organizationType),
+            $this->images->create($account->organizationLogo?->url),
+            AddressResource::orNone($account->organizationStreet, $account->organizationPostalCode, $account->organizationCity, $account->organizationCountry),
+            LocationResource::orNone($account->organizationLatitude, $account->organizationLongitude),
+        );
+    }
+
+    private function linksOf(PersonResponse $me): AccountLinksResource
     {
         $possible = [];
         foreach ([
             ...$this->linked($me->possibleIntents, self::PROFILE_ROUTES),
-            ...$this->linked($account->accountIntents, self::ORGANIZATION_ROUTES),
+            ...$this->linked($this->account->accountIntents, self::ORGANIZATION_ROUTES),
         ] as [$name, $route]) {
             $possible[$name] = $this->links->to($route);
         }

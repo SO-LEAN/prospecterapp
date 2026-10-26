@@ -6,6 +6,7 @@ namespace Tests\Core\Double;
 
 use Prospecter\Core\PersonalData\Domain\ProspectedOrganizations;
 use Prospecter\Core\Prospecting\Contract\Service\IsProspectedBy\IsProspectedBy;
+use Prospecter\Core\Prospecting\Contract\Service\IsProspectedBy\KeptIsProspected;
 use Prospecter\Core\SharedKernel\Application\Exception\UseCaseRefused;
 use Prospecter\Core\SharedKernel\Application\RefusalTranslatingHandler;
 use Prospecter\Core\SharedKernel\Domain\AccountId;
@@ -23,10 +24,14 @@ final readonly class ProspectingOrganizations implements ProspectedOrganizations
 
     public function isProspectedBy(OrganizationId $organization, AccountId $accountId): bool
     {
+        $kept = new KeptIsProspected();
+
         try {
-            return ($this->isProspectedBy)(new IsProspectedBy((string) $organization, (string) $accountId));
+            ($this->isProspectedBy)(new IsProspectedBy((string) $organization, (string) $accountId), $kept);
         } catch (UseCaseRefused) {
             return false;
         }
+
+        return $kept->isProspected;
     }
 }

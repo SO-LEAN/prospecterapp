@@ -16,10 +16,10 @@ final readonly class ConsultMyAccountHandler implements QueryHandler
     {
     }
 
-    public function __invoke(ConsultMyAccount $query): AccountResponse
+    public function __invoke(ConsultMyAccount $query, ConsultMyAccountOutput $output): void
     {
         $me = $this->members->get(new MemberId($query->memberId));
 
-        return AccountResponse::of($this->accounts->get($me->accountId()), $me);
+        $output->present(AccountResponse::of($this->accounts->get($me->accountId()), $me));
     }
 }

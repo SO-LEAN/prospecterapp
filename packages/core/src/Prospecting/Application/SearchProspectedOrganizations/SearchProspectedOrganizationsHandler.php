@@ -16,10 +16,10 @@ final readonly class SearchProspectedOrganizationsHandler implements QueryHandle
     {
     }
 
-    public function __invoke(SearchProspectedOrganizations $query): SearchProspectedOrganizationsResponse
+    public function __invoke(SearchProspectedOrganizations $query, SearchProspectedOrganizationsOutput $output): void
     {
         $prospector = $this->prospectorService->prospectorFrom(new MemberId($query->prospectorId));
 
-        return SearchProspectedOrganizationsResponse::of($this->organizations->sliceProspectedBy($prospector->accountId, SearchKey::of($query->query), $query->after, $query->max));
+        $output->present(SearchProspectedOrganizationsResponse::of($this->organizations->sliceProspectedBy($prospector->accountId, SearchKey::of($query->query), $query->after, $query->max)));
     }
 }

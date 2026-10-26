@@ -9,24 +9,31 @@ use App\Shared\ImageResourceFactory;
 use App\Shared\Links;
 use App\Shared\Resource\LocationResource;
 use Prospecter\Core\Prospecting\Application\SearchProspectedOrganizations\FoundOrganization;
+use Prospecter\Core\Prospecting\Application\SearchProspectedOrganizations\SearchProspectedOrganizationsOutput;
 use Prospecter\Core\Prospecting\Application\SearchProspectedOrganizations\SearchProspectedOrganizationsResponse;
 
-final readonly class OrganizationPagePresenter
+/**
+ * A slice of the organizations my organization prospects, each summed up. Built for one call, it keeps the resource
+ * (ADR 0084).
+ */
+final class OrganizationPagePresenter implements SearchProspectedOrganizationsOutput
 {
-    public function __construct(private ImageResourceFactory $images, private Links $links)
-    {
-    }
+    public private(set) OrganizationPageResource $resource;
 
     /**
      * @param string $query the search, kept by the link to the next slice
      */
-    public function present(SearchProspectedOrganizationsResponse $response, string $query = ''): OrganizationPageResource
+    public function __construct(private readonly ImageResourceFactory $images, private readonly Links $links, private readonly string $query = '')
     {
-        return new OrganizationPageResource(
-            items: array_map($this->summarize(...), $response->organizations),
+    }
+
+    public function present(SearchProspectedOrganizationsResponse $page): void
+    {
+        $this->resource = new OrganizationPageResource(
+            items: array_map($this->summarize(...), $page->organizations),
             links: new OrganizationPageLinksResource(
-                $this->links->to('api_organizations_search', array_filter(['q' => $query])),
-                null === $response->next ? null : $this->links->to('api_organizations_search', array_filter(['q' => $query, 'after' => $response->next])),
+                $this->links->to('api_organizations_search', array_filter(['q' => $this->query])),
+                null === $page->next ? null : $this->links->to('api_organizations_search', array_filter(['q' => $this->query, 'after' => $page->next])),
             ),
         );
     }

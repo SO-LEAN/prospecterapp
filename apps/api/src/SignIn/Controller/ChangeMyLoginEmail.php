@@ -7,7 +7,7 @@ use App\Shared\Resource\ProblemResource;
 use App\SignIn\Credentials;
 use App\SignIn\Input\LoginEmailInput;
 use App\SignIn\Resource\SignInResource;
-use App\SignIn\SignInPresenter;
+use App\SignIn\SignInReader;
 use Nelmio\ApiDocBundle\Attribute\Model;
 use OpenApi\Attributes as OA;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -21,7 +21,7 @@ use Symfony\Component\Security\Http\Attribute\IsGranted;
 #[IsGranted('ROLE_USER')]
 final class ChangeMyLoginEmail extends AbstractController
 {
-    public function __construct(private readonly Credentials $credentials, private readonly SignInPresenter $signIn)
+    public function __construct(private readonly Credentials $credentials, private readonly SignInReader $signIn)
     {
     }
 
@@ -34,6 +34,6 @@ final class ChangeMyLoginEmail extends AbstractController
     {
         $this->credentials->changeLoginEmail($user->memberId(), $input->email);
 
-        return $this->json($this->signIn->present($user->memberId()));
+        return $this->json($this->signIn->read($user->memberId()));
     }
 }
