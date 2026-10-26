@@ -12,8 +12,9 @@ use Prospecter\Core\SharedKernel\Application\RefusalTranslatingHandler;
 
 /**
  * My account as the API shows it: my membership read in Accounts, my profile read in PersonalData under my
- * person id, presented to the presenter it builds for the call (ADR 0084); what I sign in with is read apart (`/api/me/sign-in`). A controller calls it
- * after a command, which returns nothing, to answer with the fresh resource.
+ * person id, presented to the presenter it builds for the call (ADR 0084); what I sign in with is read apart
+ * (`/api/me/sign-in`). A controller calls it after a command, which returns nothing, to answer with the fresh
+ * resource.
  */
 final readonly class MyAccountReader
 {

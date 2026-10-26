@@ -29,6 +29,9 @@ services:
         exclude:
             - '../src/*/Input/'
             - '../src/*/Resource/'
+            - '../src/*/Presenter/'
+            - '../src/*/*Presenter.php'
+            - '../src/Exchanges/ExchangeParticipants.php'
             - '../src/Dashboard/DashboardResource.php'
             - '../src/Security/User.php'
             - '../src/Kernel.php'

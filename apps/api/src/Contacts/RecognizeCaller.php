@@ -54,7 +54,7 @@ final class RecognizeCaller extends AbstractController
         $organizationsOfContacts = $this->organizationsOfContacts->read($user->memberId(), array_map(static fn (PersonResponse $contact): string => $contact->id, $contacts));
 
         return $this->json(new CallerResource(
-            array_map($this->organizations->present(...), $organizations->organizations),
+            array_map($this->organizations->resourceOf(...), $organizations->organizations),
             array_map(fn (PersonResponse $contact): ContactInListResource => $this->contacts->create($contact, $organizationsOfContacts[$contact->id] ?? []), $contacts),
         ));
     }
