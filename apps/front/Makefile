@@ -22,11 +22,16 @@ build: ## Build the front for production (TypeScript, Vite)
 api-types: ## Generate the types of the API from its OpenAPI contract (src/shared/api/schema.d.ts)
 	@$(NODE) pnpm api:types
 
-# Playwright runs in its official image, the local hosts resolved to the running stack
-E2E_HOSTS = --add-host local.prospecter.io:127.0.0.1 --add-host api.local.prospecter.io:127.0.0.1 --add-host static.local.prospecter.io:127.0.0.1
+# Playwright runs in its official image, in the network of the stack, the local hosts resolved to its nginx: on the
+# network of the host, its Chromium would drop its requests each time a function starts its container there
+# (net::ERR_NETWORK_CHANGED)
+E2E_NETWORK = $(or $(COMPOSE_PROJECT_NAME),prospecterapp)_default
+NGINX_IP = $(shell docker inspect -f '{{(index .NetworkSettings.Networks "$(E2E_NETWORK)").IPAddress}}' pro-nginx 2>/dev/null)
 
 e2e: ## Run the Playwright journeys against the running stack
-	@docker run --rm --init --ipc=host --network host $(E2E_HOSTS) -u $(UID):$(GID) -e HOME=/tmp -v $(CURDIR):/work -w /work mcr.microsoft.com/playwright:v1.64.0-noble npx playwright test
+	@ip=$(NGINX_IP); test -n "$$ip" || { echo "No nginx in the network $(E2E_NETWORK): is the stack running (make start)?"; exit 1; }; \
+	docker run --rm --init --ipc=host --network $(E2E_NETWORK) $(foreach host,local api.local static.local,--add-host $(host).prospecter.io:$$ip) \
+		-u $(UID):$(GID) -e HOME=/tmp -v $(CURDIR):/work -w /work mcr.microsoft.com/playwright:v1.64.0-noble npx playwright test
 
 shell: ## Open a shell in the Node container
 	@$(NODE) sh

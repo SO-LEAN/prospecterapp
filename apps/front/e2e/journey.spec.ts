@@ -25,6 +25,7 @@ test('sign in, start prospecting an organization, change it section by section, 
     await page.getByRole('button', { name: 'Commencer à prospecter' }).click()
 
     await expect(organizationPage).toBeVisible()
+    await expect(page.getByText(`Vous prospectez ${name}`)).toBeVisible()
     await expect(page.getByText('Strasbourg')).toBeVisible()
     await expect(page.getByRole('button', { name: 'Supprimer' }), 'no logo to remove').toHaveCount(0)
     await expect(page.getByRole('button', { name: 'Détacher' }), 'no holding to detach from').toHaveCount(0)
