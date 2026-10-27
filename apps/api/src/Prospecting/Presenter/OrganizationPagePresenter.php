@@ -14,7 +14,7 @@ use Prospecter\Core\Prospecting\Application\SearchProspectedOrganizations\Search
 
 /**
  * A slice of the organizations my organization prospects, each summed up. Built for one call, it keeps the resource
- * (ADR 0084).
+ * (ADR 0085).
  */
 final class OrganizationPagePresenter implements SearchProspectedOrganizationsOutput
 {

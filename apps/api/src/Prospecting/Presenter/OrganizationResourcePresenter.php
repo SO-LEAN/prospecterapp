@@ -20,7 +20,7 @@ use Prospecter\Core\Prospecting\Application\OrganizationResponse;
  * An organization with a link per intention its state offers and the signed-in member may carry out
  * (`IntentLinks`, ADR 0081), and to its timeline (ADR 0076); removing a contact concerns one contact, so its link is on
  * each contact of GET /api/organizations/{id}/contacts. Each link names its intention, its route, and the role its
- * controller requires beyond reaching the organization. Built for one call, it keeps the resource (ADR 0084).
+ * controller requires beyond reaching the organization. Built for one call, it keeps the resource (ADR 0085).
  */
 final class OrganizationResourcePresenter implements ConsultOrganizationOutput
 {

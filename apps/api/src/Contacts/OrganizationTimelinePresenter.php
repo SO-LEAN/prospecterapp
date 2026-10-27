@@ -16,7 +16,7 @@ use Prospecter\Core\Prospecting\Application\TimelineResponse;
 /**
  * A slice of the timeline of an organization, or of its exchanges to make conform, each exchange with who
  * communicated: the person, still its contact, removed or forgotten, or the organization itself. Built for one call
- * with the persons of the slice, it keeps the resource (ADR 0084).
+ * with the persons of the slice, it keeps the resource (ADR 0085).
  */
 final class OrganizationTimelinePresenter implements TimelineOutput
 {

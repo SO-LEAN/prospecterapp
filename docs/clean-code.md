@@ -23,7 +23,7 @@ This guide is alive: rules get added and sharpened as the code is improved, iter
 - **One level of abstraction per function**, and read top-down: each function is followed by those it calls (*stepdown rule*). `StartProspectingHandler::__invoke()` reads as a list of steps.
 - **Few arguments**: zero, one, two; three is suspicious; more needs an *argument object*. PHP named arguments make long lists readable at the call site, they do not make them acceptable.
 - **No flag arguments**: a `bool` parameter means the function does two things; write two functions, or pass an `enum` when it is a real variant.
-- **No output arguments**: return a value, never modify a parameter to give a result back. The output port of a query is the exception: the use case presents its answer to it, as Robert C. Martin's use cases do (ADR 0084).
+- **No output arguments**: return a value, never modify a parameter to give a result back. The output port of a query is the exception: the use case presents its answer to it, as Robert C. Martin's use cases do (ADR 0085).
 - **No hidden side effects**: a function does what its name says, nothing else.
 - **Command-query separation**: a method either changes state (command, returns `void`) or answers a question (query, no change), never both. A presenter receives an answer (`present()`, `void`) and is read apart.
 - **Prefer exceptions to error codes**; extract the `try/catch` body into its own function, the function handling an error does nothing else.

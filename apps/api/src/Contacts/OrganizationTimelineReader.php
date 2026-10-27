@@ -19,7 +19,7 @@ use Prospecter\Core\SharedKernel\Application\RefusalTranslatingHandler;
 /**
  * The timeline of an organization, composed of two contexts (ADR 0076): Prospecting knows its exchanges and the
  * person of each, PersonalData names the persons of the slice in one batch; the slice kept, then presented with
- * them (ADR 0084). A controller calls it after a command, which returns nothing, to answer with the fresh resource.
+ * them (ADR 0085). A controller calls it after a command, which returns nothing, to answer with the fresh resource.
  */
 final readonly class OrganizationTimelineReader
 {

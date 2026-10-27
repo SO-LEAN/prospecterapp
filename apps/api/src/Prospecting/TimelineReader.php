@@ -9,7 +9,7 @@ use Prospecter\Core\SharedKernel\Application\RefusalTranslatingHandler;
 
 /**
  * The timeline of a contact as the API shows it: read by the query of the core, presented to the presenter it
- * builds for the call (ADR 0084). A controller calls it after a command, which returns nothing, to answer with the
+ * builds for the call (ADR 0085). A controller calls it after a command, which returns nothing, to answer with the
  * fresh resource.
  */
 final readonly class TimelineReader

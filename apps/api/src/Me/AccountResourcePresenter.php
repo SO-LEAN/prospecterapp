@@ -19,7 +19,7 @@ use Prospecter\Core\PersonalData\Application\PersonResponse;
 /**
  * My account composed of my membership (Accounts) and my profile (PersonalData), with a link per intention
  * they offer me. What I sign in with lives in the user pool (`/api/me/sign-in`). Built for one call with my
- * membership, it presents my profile and keeps the resource (ADR 0084).
+ * membership, it presents my profile and keeps the resource (ADR 0085).
  */
 final class AccountResourcePresenter implements ConsultPersonOutput
 {
