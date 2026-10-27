@@ -9,7 +9,7 @@ use Prospecter\Core\Prospecting\Application\TimelineResponse;
 
 /**
  * A slice of the timeline of a contact, with a link per intention the prospector may carry out on it. Built for one
- * call, it keeps the resource (ADR 0084).
+ * call, it keeps the resource (ADR 0085).
  */
 final class TimelinePresenter implements TimelineOutput
 {

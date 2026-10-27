@@ -22,7 +22,7 @@ use Prospecter\Core\SharedKernel\Application\RefusalTranslatingHandler;
 /**
  * An exchange as the API shows it: read in Prospecting, with the organization itself when it was with no contact,
  * its contact and the members who noted, corrected and made it conform named by PersonalData under the person ids
- * Accounts gives them, then presented to the presenter it builds for the call (ADR 0084). A controller calls it after
+ * Accounts gives them, then presented to the presenter it builds for the call (ADR 0085). A controller calls it after
  * a command, which returns nothing, to answer with the fresh resource.
  */
 final readonly class ExchangeReader

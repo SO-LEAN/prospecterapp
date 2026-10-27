@@ -23,7 +23,7 @@ use Prospecter\Core\Prospecting\Application\ConsultExchange\ExchangeDetailRespon
  * and on its attachments (`IntentLinks`, ADR 0081): every prospector retouches its text and declares it conform
  * (ADR 0078), the rest needs the right to manage personal data. Each link names its intention, its route, and the role
  * its controller requires beyond reaching the exchange. Built for one call with its participants, it keeps the
- * resource (ADR 0084).
+ * resource (ADR 0085).
  */
 final class ExchangeDetailPresenter implements ConsultExchangeOutput
 {

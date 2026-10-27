@@ -14,7 +14,7 @@ use Prospecter\Core\Prospecting\Application\ConsultTimelineIntents\TimelineInten
 
 /**
  * A contact with a link per intention the reader may carry out on it, or on its timeline. Built for one call with
- * what its timeline offers, it presents the person and keeps the resource (ADR 0084).
+ * what its timeline offers, it presents the person and keeps the resource (ADR 0085).
  */
 final class ContactResourcePresenter implements ConsultPersonOutput
 {
