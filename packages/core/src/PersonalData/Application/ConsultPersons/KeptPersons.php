@@ -7,7 +7,7 @@ namespace Prospecter\Core\PersonalData\Application\ConsultPersons;
 use Prospecter\Core\PersonalData\Application\PersonResponse;
 
 /**
- * Keeps the answer as it is, for a client that reads it rather than shows it (ADR 0084).
+ * Keeps the answer as it is, for a client that reads it rather than shows it (ADR 0085).
  */
 final class KeptPersons implements ConsultPersonsOutput
 {

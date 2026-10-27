@@ -1,4 +1,4 @@
-# 0084. A query presents its answer to a presenter built for the call; a service is stateless
+# 0085. A query presents its answer to a presenter built for the call; a service is stateless
 
 - Date: 2026-10-26
 - Status: Accepted

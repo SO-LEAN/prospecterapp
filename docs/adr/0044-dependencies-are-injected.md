@@ -1,7 +1,7 @@
 # 0044. Dependencies are injected, never built; a PHPStan rule checks it
 
 - Date: 2026-10-15
-- Status: Accepted, the objects of one call (presenters) specified by [0084](0084-a-query-presents-its-answer-to-a-presenter-built-for-the-call.md)
+- Status: Accepted, the objects of one call (presenters) specified by [0085](0085-a-query-presents-its-answer-to-a-presenter-built-for-the-call.md)
 - Implemented by: `tools/phpstan/DependenciesAreInjectedRule.php` (included by the `phpstan.dist.neon` of the core and the three apps), `apps/api/src/Shared/DependencyInjection/RefusalTranslatingHandlersPass.php`, `packages/core/tests/Acceptance/Application.php`
 
 ## Context

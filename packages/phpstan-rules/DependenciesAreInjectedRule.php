@@ -19,7 +19,7 @@ use PHPStan\Type\Type;
  * and a service of the monorepo (a class depending on an interface or on another service) is built only by the
  * container or, in the tests, by their composition root. The objects a library makes for one call (a Passport,
  * a SymfonyStyle) are not services, nor a presenter, which implements an output port of the core and keeps the
- * state of one call: built where it is used, it may receive the services of its builder (ADR 0084).
+ * state of one call: built where it is used, it may receive the services of its builder (ADR 0085).
  *
  * @implements Rule<New_>
  */

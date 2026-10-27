@@ -11,7 +11,7 @@ use Prospecter\Core\SharedKernel\Domain\Exception\BusinessException;
  * Decorates a handler so that it refuses the way every use case refuses: the BusinessException of the
  * domain becomes a UseCaseRefused (ADR 0035), anything else goes through. The handlers stay free of
  * error handling; a client calls them through this decorator, giving a query the output port it presents its
- * answer to (ADR 0084).
+ * answer to (ADR 0085).
  */
 final readonly class RefusalTranslatingHandler
 {

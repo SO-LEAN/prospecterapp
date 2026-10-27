@@ -139,7 +139,7 @@ use Tests\Core\Double\TimeOrderedUuids;
  * The hexagon as the scenarios use it: the real handlers, wired to in-memory implementations of their
  * ports, called the way a delivery calls them: through a RefusalTranslatingHandler, a command is sent to
  * its handler (a command bus in the API) and returns nothing, a query presents what it reads to the presenter
- * of the core keeping it as it is (ADR 0084).
+ * of the core keeping it as it is (ADR 0085).
  */
 final class Application
 {
