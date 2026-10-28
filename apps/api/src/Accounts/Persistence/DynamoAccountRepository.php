@@ -5,9 +5,9 @@ namespace App\Accounts\Persistence;
 use App\Shared\Persistence\Documents;
 use App\Shared\Persistence\Hydrator;
 use App\Shared\Persistence\Table;
-use Prospecter\Core\Accounts\Domain\Account;
-use Prospecter\Core\Accounts\Domain\AccountRepository;
 use Prospecter\Core\Accounts\Domain\Exception\UnknownAccount;
+use Prospecter\Core\Accounts\Domain\Model\Account;
+use Prospecter\Core\Accounts\Domain\Repository\AccountRepository;
 use Prospecter\Core\SharedKernel\Domain\AccountId;
 
 /**

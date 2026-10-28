@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Prospecter\Core\Prospecting\Domain\Exception;
 
-use Prospecter\Core\Prospecting\Domain\ExchangeId;
+use Prospecter\Core\Prospecting\Domain\Model\ExchangeId;
 use Prospecter\Core\SharedKernel\Domain\Exception\NotFound;
 
 final class UnknownExchange extends NotFound

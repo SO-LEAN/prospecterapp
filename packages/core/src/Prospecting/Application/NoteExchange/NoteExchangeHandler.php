@@ -4,14 +4,14 @@ declare(strict_types=1);
 
 namespace Prospecter\Core\Prospecting\Application\NoteExchange;
 
-use Prospecter\Core\Prospecting\Domain\Channel;
-use Prospecter\Core\Prospecting\Domain\ContactOrganizations;
-use Prospecter\Core\Prospecting\Domain\Direction;
-use Prospecter\Core\Prospecting\Domain\Exchange;
-use Prospecter\Core\Prospecting\Domain\ExchangeFacts;
-use Prospecter\Core\Prospecting\Domain\ExchangeId;
-use Prospecter\Core\Prospecting\Domain\ExchangeRepository;
-use Prospecter\Core\Prospecting\Domain\ProspectorService;
+use Prospecter\Core\Prospecting\Domain\Model\Channel;
+use Prospecter\Core\Prospecting\Domain\Model\Direction;
+use Prospecter\Core\Prospecting\Domain\Model\Exchange;
+use Prospecter\Core\Prospecting\Domain\Model\ExchangeFacts;
+use Prospecter\Core\Prospecting\Domain\Model\ExchangeId;
+use Prospecter\Core\Prospecting\Domain\Port\Prospectors;
+use Prospecter\Core\Prospecting\Domain\Repository\ExchangeRepository;
+use Prospecter\Core\Prospecting\Domain\Service\ContactOrganizations;
 use Prospecter\Core\SharedKernel\Application\CommandHandler;
 use Prospecter\Core\SharedKernel\Application\Port\Events;
 use Prospecter\Core\SharedKernel\Application\PublishesEvents;
@@ -24,7 +24,7 @@ final readonly class NoteExchangeHandler implements CommandHandler
 
     public function __construct(
         private ExchangeRepository $exchanges,
-        private ProspectorService $prospectorService,
+        private Prospectors $prospectors,
         private ContactOrganizations $contactOrganizations,
         private Events $events,
     ) {
@@ -32,7 +32,7 @@ final readonly class NoteExchangeHandler implements CommandHandler
 
     public function __invoke(NoteExchange $command): void
     {
-        $prospector = $this->prospectorService->prospectorFrom(new MemberId($command->prospectorId));
+        $prospector = $this->prospectors->prospectorFrom(new MemberId($command->prospectorId));
         $contact = new PersonId($command->personId);
         $exchange = Exchange::notedWithAContact(
             $prospector->accountId,

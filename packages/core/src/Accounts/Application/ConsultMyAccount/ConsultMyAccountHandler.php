@@ -5,8 +5,8 @@ declare(strict_types=1);
 namespace Prospecter\Core\Accounts\Application\ConsultMyAccount;
 
 use Prospecter\Core\Accounts\Application\AccountResponse;
-use Prospecter\Core\Accounts\Domain\AccountRepository;
-use Prospecter\Core\Accounts\Domain\MemberRepository;
+use Prospecter\Core\Accounts\Domain\Repository\AccountRepository;
+use Prospecter\Core\Accounts\Domain\Repository\MemberRepository;
 use Prospecter\Core\SharedKernel\Application\QueryHandler;
 use Prospecter\Core\SharedKernel\Domain\MemberId;
 

@@ -5,9 +5,9 @@ declare(strict_types=1);
 namespace Tests\Core\Double;
 
 use Prospecter\Core\Prospecting\Domain\Exception\UnknownExchange;
-use Prospecter\Core\Prospecting\Domain\Exchange;
-use Prospecter\Core\Prospecting\Domain\ExchangeId;
-use Prospecter\Core\Prospecting\Domain\ExchangeRepository;
+use Prospecter\Core\Prospecting\Domain\Model\Exchange;
+use Prospecter\Core\Prospecting\Domain\Model\ExchangeId;
+use Prospecter\Core\Prospecting\Domain\Repository\ExchangeRepository;
 use Prospecter\Core\SharedKernel\Domain\AccountId;
 use Prospecter\Core\SharedKernel\Domain\OrganizationId;
 use Prospecter\Core\SharedKernel\Domain\PersonId;

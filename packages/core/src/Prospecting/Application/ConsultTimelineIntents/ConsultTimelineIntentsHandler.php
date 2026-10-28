@@ -4,9 +4,9 @@ declare(strict_types=1);
 
 namespace Prospecter\Core\Prospecting\Application\ConsultTimelineIntents;
 
-use Prospecter\Core\Prospecting\Domain\ContactOrganizations;
-use Prospecter\Core\Prospecting\Domain\ProspectorService;
-use Prospecter\Core\Prospecting\Domain\TimelineIntent;
+use Prospecter\Core\Prospecting\Domain\Model\TimelineIntent;
+use Prospecter\Core\Prospecting\Domain\Port\Prospectors;
+use Prospecter\Core\Prospecting\Domain\Service\ContactOrganizations;
 use Prospecter\Core\SharedKernel\Application\QueryHandler;
 use Prospecter\Core\SharedKernel\Domain\MemberId;
 use Prospecter\Core\SharedKernel\Domain\PersonId;
@@ -17,14 +17,14 @@ use Prospecter\Core\SharedKernel\Domain\PersonId;
 final readonly class ConsultTimelineIntentsHandler implements QueryHandler
 {
     public function __construct(
-        private ProspectorService $prospectorService,
+        private Prospectors $prospectors,
         private ContactOrganizations $contactOrganizations,
     ) {
     }
 
     public function __invoke(ConsultTimelineIntents $query, ConsultTimelineIntentsOutput $output): void
     {
-        $prospector = $this->prospectorService->prospectorFrom(new MemberId($query->prospectorId));
+        $prospector = $this->prospectors->prospectorFrom(new MemberId($query->prospectorId));
         $isAContact = $this->contactOrganizations->isAContactOfTheAccount(new PersonId($query->personId), $prospector->accountId);
 
         $output->present(TimelineIntentsResponse::of($isAContact ? TimelineIntent::cases() : []));

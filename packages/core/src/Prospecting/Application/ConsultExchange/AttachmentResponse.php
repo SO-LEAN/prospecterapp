@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace Prospecter\Core\Prospecting\Application\ConsultExchange;
 
-use Prospecter\Core\Prospecting\Domain\Attachment;
-use Prospecter\Core\Prospecting\Domain\Exchange;
+use Prospecter\Core\Prospecting\Domain\Model\Attachment;
+use Prospecter\Core\Prospecting\Domain\Model\Exchange;
 
 /**
  * A file joined to an exchange, its size in bytes; read by `DownloadAttachment`. To make conform, its contact

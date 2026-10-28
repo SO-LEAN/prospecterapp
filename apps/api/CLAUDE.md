@@ -43,14 +43,14 @@ See `docs/auth.md` at the repository root. The members sign in on Cognito (the S
 
 | Port of the core | Adapter |
 |---|---|
-| `Accounts\Domain\AccountRepository`, `Accounts\Domain\MemberRepository` | `Accounts\Persistence\DynamoAccountRepository`, `DynamoMemberRepository` |
-| `Prospecting\Domain\OrganizationRepository` | `Prospecting\Persistence\DynamoOrganizationRepository` |
-| `Prospecting\Domain\ExchangeRepository` | `Prospecting\Persistence\DynamoExchangeRepository` |
-| `PersonalData\Domain\PersonRepository` | `PersonalData\Persistence\DynamoPersonRepository` |
-| `PersonalData\Domain\ReaderService` | `PersonalData\AccountsReaderService`: anticorruption layer from the published query `ConsultMember` of Accounts (ADR 0045) |
-| `Prospecting\Domain\ProspectorService` | `Prospecting\AccountsProspectorService`: anticorruption layer from the published query `ConsultMember` of Accounts (with the right to manage personal data) |
-| `Prospecting\Domain\KnownContacts` | `Prospecting\PersonalDataKnownContacts`: anticorruption layer from the published query `IsAContactOf` of PersonalData |
-| `PersonalData\Domain\ProspectedOrganizations` | `PersonalData\ProspectingOrganizations`: anticorruption layer from the published query `IsProspectedBy` of Prospecting |
+| `Accounts\Domain\Repository\AccountRepository`, `Accounts\Domain\Repository\MemberRepository` | `Accounts\Persistence\DynamoAccountRepository`, `DynamoMemberRepository` |
+| `Prospecting\Domain\Repository\OrganizationRepository` | `Prospecting\Persistence\DynamoOrganizationRepository` |
+| `Prospecting\Domain\Repository\ExchangeRepository` | `Prospecting\Persistence\DynamoExchangeRepository` |
+| `PersonalData\Domain\Repository\PersonRepository` | `PersonalData\Persistence\DynamoPersonRepository` |
+| `PersonalData\Domain\Port\Readers` | `PersonalData\AccountsReaders`: anticorruption layer from the published query `ConsultMember` of Accounts (ADR 0045) |
+| `Prospecting\Domain\Port\Prospectors` | `Prospecting\AccountsProspectors`: anticorruption layer from the published query `ConsultMember` of Accounts (with the right to manage personal data) |
+| `Prospecting\Domain\Port\KnownContacts` | `Prospecting\PersonalDataKnownContacts`: anticorruption layer from the published query `IsAContactOf` of PersonalData |
+| `PersonalData\Domain\Port\ProspectedOrganizations` | `PersonalData\ProspectingOrganizations`: anticorruption layer from the published query `IsProspectedBy` of Prospecting |
 | `SharedKernel\Application\Port\Events` | `Shared\MessengerEvents`: the domain events and the integration events (ADR 0046) on the synchronous `event.bus`, a refusal of a handler thrown back as it was; `Shared\Persistence\Journal\ActivityJournal` keeps every domain event in the table of its context (its namespace), under `JOURNAL#<subject>` (ADR 0043, 0048) |
 | `SharedKernel\Application\Port\PrivateStorage` | `Shared\PrivateStorageClient`: the private files of the storage on the same internal entry (`Shared\StorageEntry`), also the forms of the uploads (`Shared\UploadForms`, ADR 0077); `Tests\App\Double\InMemoryPrivateStorage` in the tests |
 | `SharedKernel\Application\Port\GeoLocation` | `Shared\GeoplateformeGeoLocation` (French State geocoder, IGN Géoplateforme: no key, France only, `APP_GEOCODER_URL`; tests get no answer from the mocked `http_client`) |

@@ -4,9 +4,9 @@ declare(strict_types=1);
 
 namespace Tests\Core\Double;
 
-use Prospecter\Core\Accounts\Domain\Account;
-use Prospecter\Core\Accounts\Domain\AccountRepository;
 use Prospecter\Core\Accounts\Domain\Exception\UnknownAccount;
+use Prospecter\Core\Accounts\Domain\Model\Account;
+use Prospecter\Core\Accounts\Domain\Repository\AccountRepository;
 use Prospecter\Core\SharedKernel\Domain\AccountId;
 
 final readonly class InMemoryAccountRepository implements AccountRepository

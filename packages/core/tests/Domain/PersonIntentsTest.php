@@ -6,11 +6,11 @@ namespace Tests\Core\Domain;
 
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
-use Prospecter\Core\PersonalData\Domain\Person;
-use Prospecter\Core\PersonalData\Domain\PersonIntent;
-use Prospecter\Core\PersonalData\Domain\PersonName;
-use Prospecter\Core\PersonalData\Domain\Purpose;
-use Prospecter\Core\PersonalData\Domain\Reader;
+use Prospecter\Core\PersonalData\Domain\Model\Person;
+use Prospecter\Core\PersonalData\Domain\Model\PersonIntent;
+use Prospecter\Core\PersonalData\Domain\Model\PersonName;
+use Prospecter\Core\PersonalData\Domain\Model\Purpose;
+use Prospecter\Core\PersonalData\Domain\Model\Reader;
 use Prospecter\Core\SharedKernel\Domain\AccountId;
 use Prospecter\Core\SharedKernel\Domain\ContactDetails;
 use Prospecter\Core\SharedKernel\Domain\Exception\BusinessRuleViolation;

@@ -17,8 +17,8 @@ use Prospecter\Core\Prospecting\Application\DownloadAttachment\AttachmentDownloa
 use Prospecter\Core\Prospecting\Application\DownloadAttachment\DownloadAttachment;
 use Prospecter\Core\Prospecting\Application\NoteExchange\NoteExchange;
 use Prospecter\Core\Prospecting\Application\RemoveAttachment\RemoveAttachment;
-use Prospecter\Core\Prospecting\Domain\Channel;
-use Prospecter\Core\Prospecting\Domain\Direction;
+use Prospecter\Core\Prospecting\Domain\Model\Channel;
+use Prospecter\Core\Prospecting\Domain\Model\Direction;
 use Tests\Core\Acceptance\Expect;
 
 /**

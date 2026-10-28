@@ -99,7 +99,7 @@ This guide is alive: rules get added and sharpened as the code is improved, iter
 - **Boundaries cross with simple data**: requests and responses are plain data structures, never entities, value objects or framework objects (ADR 0035, guarded by `ApplicationBoundaryTest` in the core and `DomainBehindTheApplicationTest` in the API).
 - **Component cohesion**: classes released together are reused together (REP), change together (CCP), and nobody depends on what they do not use (CRP).
 - **Component coupling**: no cycle between packages (ADP); depend in the direction of stability (SDP): the front and the API depend on the stable core; the more stable a component, the more abstract it is (SAP): the core exposes ports.
-- **Screaming architecture**: the folders say what the application does (`Prospecting/Application/StartProspecting`, `Accounts/Domain/Account`, `features/organizations`): grouped by bounded context first, by layer inside (ADR 0030), not which framework it uses.
+- **Screaming architecture**: the folders say what the application does (`Prospecting/Application/StartProspecting`, `Accounts/Domain/Model/Account`, `features/organizations`): grouped by bounded context first, by layer inside (ADR 0030), not which framework it uses.
 - **Keep options open**: decisions on frameworks, databases and delivery are deferred and isolated behind boundaries (ADR 0029, 0048, 0052).
 
 ## 12. Simplicity

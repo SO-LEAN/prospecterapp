@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Tests\Core\Double;
 
-use Prospecter\Core\PersonalData\Domain\ProspectedOrganizations;
+use Prospecter\Core\PersonalData\Domain\Port\ProspectedOrganizations;
 use Prospecter\Core\Prospecting\Contract\Service\IsProspectedBy\IsProspectedBy;
 use Prospecter\Core\Prospecting\Contract\Service\IsProspectedBy\KeptIsProspected;
 use Prospecter\Core\SharedKernel\Application\Exception\UseCaseRefused;

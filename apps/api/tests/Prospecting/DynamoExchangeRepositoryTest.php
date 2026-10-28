@@ -2,16 +2,16 @@
 
 namespace Tests\App\Prospecting;
 
-use Prospecter\Core\Prospecting\Domain\Channel;
-use Prospecter\Core\Prospecting\Domain\Correction;
-use Prospecter\Core\Prospecting\Domain\Direction;
 use Prospecter\Core\Prospecting\Domain\Exception\UnknownExchange;
-use Prospecter\Core\Prospecting\Domain\Exchange;
-use Prospecter\Core\Prospecting\Domain\ExchangeFacts;
-use Prospecter\Core\Prospecting\Domain\ExchangeId;
-use Prospecter\Core\Prospecting\Domain\ExchangeRepository;
-use Prospecter\Core\Prospecting\Domain\Organization;
-use Prospecter\Core\Prospecting\Domain\Prospector;
+use Prospecter\Core\Prospecting\Domain\Model\Channel;
+use Prospecter\Core\Prospecting\Domain\Model\Correction;
+use Prospecter\Core\Prospecting\Domain\Model\Direction;
+use Prospecter\Core\Prospecting\Domain\Model\Exchange;
+use Prospecter\Core\Prospecting\Domain\Model\ExchangeFacts;
+use Prospecter\Core\Prospecting\Domain\Model\ExchangeId;
+use Prospecter\Core\Prospecting\Domain\Model\Organization;
+use Prospecter\Core\Prospecting\Domain\Model\Prospector;
+use Prospecter\Core\Prospecting\Domain\Repository\ExchangeRepository;
 use Prospecter\Core\SharedKernel\Domain\AccountId;
 use Prospecter\Core\SharedKernel\Domain\ContactDetails;
 use Prospecter\Core\SharedKernel\Domain\LegalIdentity;

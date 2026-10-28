@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Prospecter\Core\Prospecting\Application\ConsultTimelineIntents;
 
-use Prospecter\Core\Prospecting\Domain\TimelineIntent;
+use Prospecter\Core\Prospecting\Domain\Model\TimelineIntent;
 
 final readonly class TimelineIntentsResponse
 {

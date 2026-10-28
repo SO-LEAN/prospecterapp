@@ -14,7 +14,7 @@ use Prospecter\Core\Accounts\Application\ChangeMyOrganizationLogo\ChangeMyOrgani
 use Prospecter\Core\Accounts\Application\OpenAccount\OpenAccount;
 use Prospecter\Core\Accounts\Application\RelocateMyOrganization\RelocateMyOrganization;
 use Prospecter\Core\Accounts\Application\ReviseMyOrganizationIdentity\ReviseMyOrganizationIdentity;
-use Prospecter\Core\Accounts\Domain\Account;
+use Prospecter\Core\Accounts\Domain\Model\Account;
 use Prospecter\Core\PersonalData\Application\ChangePersonContactDetails\ChangePersonContactDetails;
 use Prospecter\Core\PersonalData\Application\ChangePersonPicture\ChangePersonPicture;
 use Prospecter\Core\PersonalData\Application\ConsultPerson\ConsultPerson;

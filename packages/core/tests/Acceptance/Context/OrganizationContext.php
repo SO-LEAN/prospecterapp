@@ -26,7 +26,7 @@ use Prospecter\Core\Prospecting\Application\SearchProspectedOrganizations\Search
 use Prospecter\Core\Prospecting\Application\StartProspecting\StartProspecting;
 use Prospecter\Core\Prospecting\Application\StopProspecting\StopProspecting;
 use Prospecter\Core\Prospecting\Application\WriteObservations\WriteObservations;
-use Prospecter\Core\Prospecting\Domain\Organization;
+use Prospecter\Core\Prospecting\Domain\Model\Organization;
 use Prospecter\Core\SharedKernel\Domain\ContactDetails;
 use Prospecter\Core\SharedKernel\Domain\Email;
 use Prospecter\Core\SharedKernel\Domain\File;

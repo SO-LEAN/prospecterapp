@@ -4,10 +4,10 @@ declare(strict_types=1);
 
 namespace Prospecter\Core\Prospecting\Application\ConsultExchange;
 
-use Prospecter\Core\Prospecting\Domain\Attachment;
-use Prospecter\Core\Prospecting\Domain\Exchange;
-use Prospecter\Core\Prospecting\Domain\ExchangeIntent;
-use Prospecter\Core\Prospecting\Domain\Prospector;
+use Prospecter\Core\Prospecting\Domain\Model\Attachment;
+use Prospecter\Core\Prospecting\Domain\Model\Exchange;
+use Prospecter\Core\Prospecting\Domain\Model\ExchangeIntent;
+use Prospecter\Core\Prospecting\Domain\Model\Prospector;
 use Prospecter\Core\SharedKernel\Domain\OrganizationId;
 
 /**
