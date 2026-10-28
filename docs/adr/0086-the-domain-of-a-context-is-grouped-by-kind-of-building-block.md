@@ -2,7 +2,7 @@
 
 - Date: 2026-10-28
 - Status: Accepted
-- Implemented by: `packages/core/src/{Accounts,PersonalData,Prospecting}/Domain/{Model,Repository,Service,Policy,Port}`, the ports `Readers` and `Prospectors`, their adapters `AccountsReaders` and `AccountsProspectors` (`apps/api/src`, `packages/core/tests/Double`)
+- Implemented by: `packages/core/src/{Accounts,PersonalData,Prospecting}/Domain/{Model,Repository,Service,Policy,Port}`, the ports `Readers` and `Prospectors`, their adapters `AccountsReaders` and `AccountsProspectors` (`packages/core/tests/Double`), `apps/api/src/{PersonalData,Prospecting}/AntiCorruption`
 
 ## Context
 
@@ -17,12 +17,13 @@ The `Domain` of a context kept its events and its exceptions in `Event/` and `Ex
   - `Policy/`: a pure rule without state (`Masking`);
   - `Port/`: what the context asks the others, implemented by an anticorruption layer (ADR 0045);
   - `Event/` and `Exception/`.
+- In the API, the anticorruption layers implementing the ports of a context are grouped in `src/<Context>/AntiCorruption`, as its repositories are in `src/<Context>/Persistence`: the class names the context it reads (`AccountsReaders`), the folder the pattern, never a suffix.
 - A folder exists only when it holds something. The shared kernel stays flat but for `Event/` and `Exception/`: it holds model only.
 - The ports `ReaderService` and `ProspectorService` become `Readers` and `Prospectors`, their adapters `AccountsReaders` and `AccountsProspectors`: in `Port/`, the suffix `Service` would read as a domain service.
 
 ## Consequences
 
-- Opening the `Domain` of a context shows what it decides (`Service/`, `Policy/`) and what it asks the others (`Port/`).
+- Opening the `Domain` of a context shows what it decides (`Service/`, `Policy/`) and what it asks the others (`Port/`); opening a context of the API shows its anticorruption layers.
 - The same layout in every context, whatever its number of aggregates.
 - A class of the model now imports the repositories and services it names, and the other way round: the dependencies inside a domain are visible.
 
