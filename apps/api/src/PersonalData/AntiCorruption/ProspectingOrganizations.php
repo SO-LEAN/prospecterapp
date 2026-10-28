@@ -1,6 +1,6 @@
 <?php
 
-namespace App\PersonalData;
+namespace App\PersonalData\AntiCorruption;
 
 use Prospecter\Core\PersonalData\Domain\Port\ProspectedOrganizations;
 use Prospecter\Core\Prospecting\Contract\Service\IsProspectedBy\IsProspectedBy;

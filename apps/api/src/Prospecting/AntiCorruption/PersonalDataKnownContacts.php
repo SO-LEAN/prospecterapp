@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Prospecting;
+namespace App\Prospecting\AntiCorruption;
 
 use Prospecter\Core\PersonalData\Contract\Service\IsAContactOf\IsAContactOf;
 use Prospecter\Core\PersonalData\Contract\Service\IsAContactOf\KeptIsAContact;
