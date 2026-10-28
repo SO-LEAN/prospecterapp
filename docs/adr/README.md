@@ -89,3 +89,4 @@ Why the project is shaped the way it is: one file per decision in `docs/adr/`, i
 | [0083](0083-the-scripts-of-tools-become-recipes-of-their-project.md) | The scripts of `tools/` become recipes of their project; the PHPStan rules a package | Accepted | 2026-10-26 |
 | [0084](0084-the-e2e-journeys-run-in-the-network-of-the-stack.md) | The e2e journeys run in the network of the stack, the local hosts resolved to its nginx | Accepted | 2026-10-26 |
 | [0085](0085-a-query-presents-its-answer-to-a-presenter-built-for-the-call.md) | A query presents its answer to a presenter built for the call; a service is stateless | Accepted | 2026-10-26 |
+| [0086](0086-the-domain-of-a-context-is-grouped-by-kind-of-building-block.md) | The domain of a context is grouped by kind of building block | Accepted | 2026-10-28 |
