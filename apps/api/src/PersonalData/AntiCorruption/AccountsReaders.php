@@ -1,6 +1,6 @@
 <?php
 
-namespace App\PersonalData;
+namespace App\PersonalData\AntiCorruption;
 
 use Prospecter\Core\Accounts\Contract\Service\ConsultMember\ConsultMember;
 use Prospecter\Core\Accounts\Contract\Service\ConsultMember\KeptMember;
