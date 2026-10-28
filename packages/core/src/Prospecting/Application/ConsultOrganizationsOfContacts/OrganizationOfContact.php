@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Prospecter\Core\Prospecting\Application\ConsultOrganizationsOfContacts;
 
-use Prospecter\Core\Prospecting\Domain\Organization;
+use Prospecter\Core\Prospecting\Domain\Model\Organization;
 
 final readonly class OrganizationOfContact
 {

@@ -4,15 +4,15 @@ declare(strict_types=1);
 
 namespace Prospecter\Core\Prospecting\Application\NoteOrganizationExchange;
 
-use Prospecter\Core\Prospecting\Domain\Channel;
-use Prospecter\Core\Prospecting\Domain\ContactOrganizations;
-use Prospecter\Core\Prospecting\Domain\Direction;
-use Prospecter\Core\Prospecting\Domain\Exchange;
-use Prospecter\Core\Prospecting\Domain\ExchangeFacts;
-use Prospecter\Core\Prospecting\Domain\ExchangeId;
-use Prospecter\Core\Prospecting\Domain\ExchangeRepository;
-use Prospecter\Core\Prospecting\Domain\Organization;
-use Prospecter\Core\Prospecting\Domain\OrganizationRepository;
+use Prospecter\Core\Prospecting\Domain\Model\Channel;
+use Prospecter\Core\Prospecting\Domain\Model\Direction;
+use Prospecter\Core\Prospecting\Domain\Model\Exchange;
+use Prospecter\Core\Prospecting\Domain\Model\ExchangeFacts;
+use Prospecter\Core\Prospecting\Domain\Model\ExchangeId;
+use Prospecter\Core\Prospecting\Domain\Model\Organization;
+use Prospecter\Core\Prospecting\Domain\Repository\ExchangeRepository;
+use Prospecter\Core\Prospecting\Domain\Repository\OrganizationRepository;
+use Prospecter\Core\Prospecting\Domain\Service\ContactOrganizations;
 use Prospecter\Core\SharedKernel\Application\CommandHandler;
 use Prospecter\Core\SharedKernel\Application\Port\Events;
 use Prospecter\Core\SharedKernel\Application\PublishesEvents;

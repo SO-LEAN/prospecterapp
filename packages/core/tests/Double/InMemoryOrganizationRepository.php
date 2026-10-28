@@ -5,8 +5,8 @@ declare(strict_types=1);
 namespace Tests\Core\Double;
 
 use Prospecter\Core\Prospecting\Domain\Exception\UnknownOrganization;
-use Prospecter\Core\Prospecting\Domain\Organization;
-use Prospecter\Core\Prospecting\Domain\OrganizationRepository;
+use Prospecter\Core\Prospecting\Domain\Model\Organization;
+use Prospecter\Core\Prospecting\Domain\Repository\OrganizationRepository;
 use Prospecter\Core\SharedKernel\Domain\AccountId;
 use Prospecter\Core\SharedKernel\Domain\Email;
 use Prospecter\Core\SharedKernel\Domain\OrganizationId;

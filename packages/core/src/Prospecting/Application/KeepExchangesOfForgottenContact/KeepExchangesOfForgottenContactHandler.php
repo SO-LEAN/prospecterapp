@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Prospecter\Core\Prospecting\Application\KeepExchangesOfForgottenContact;
 
 use Prospecter\Core\PersonalData\Contract\Event\ContactForgotten;
-use Prospecter\Core\Prospecting\Domain\ExchangeRepository;
+use Prospecter\Core\Prospecting\Domain\Repository\ExchangeRepository;
 use Prospecter\Core\SharedKernel\Application\EventHandler;
 use Prospecter\Core\SharedKernel\Application\Port\Events;
 use Prospecter\Core\SharedKernel\Application\PublishesEvents;

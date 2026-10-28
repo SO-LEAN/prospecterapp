@@ -16,7 +16,7 @@ use Prospecter\Core\Prospecting\Application\CorrectExchangeText\CorrectExchangeT
 use Prospecter\Core\Prospecting\Application\EraseExchange\EraseExchange;
 use Prospecter\Core\Prospecting\Application\NoteExchange\NoteExchange;
 use Prospecter\Core\Prospecting\Application\NoteOrganizationExchange\NoteOrganizationExchange;
-use Prospecter\Core\Prospecting\Domain\ExchangeId;
+use Prospecter\Core\Prospecting\Domain\Model\ExchangeId;
 use Prospecter\Core\SharedKernel\Domain\MemberId;
 use Prospecter\Core\SharedKernel\Domain\OrganizationId;
 use Prospecter\Core\SharedKernel\Domain\PersonId;

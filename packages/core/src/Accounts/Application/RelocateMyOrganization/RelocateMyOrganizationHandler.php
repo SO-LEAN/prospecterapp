@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace Prospecter\Core\Accounts\Application\RelocateMyOrganization;
 
-use Prospecter\Core\Accounts\Domain\AccountRepository;
-use Prospecter\Core\Accounts\Domain\MemberRepository;
+use Prospecter\Core\Accounts\Domain\Repository\AccountRepository;
+use Prospecter\Core\Accounts\Domain\Repository\MemberRepository;
 use Prospecter\Core\SharedKernel\Application\CommandHandler;
 use Prospecter\Core\SharedKernel\Application\GeoLocalizer;
 use Prospecter\Core\SharedKernel\Application\Port\Events;

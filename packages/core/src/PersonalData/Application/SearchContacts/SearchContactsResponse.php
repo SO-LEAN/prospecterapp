@@ -5,9 +5,9 @@ declare(strict_types=1);
 namespace Prospecter\Core\PersonalData\Application\SearchContacts;
 
 use Prospecter\Core\PersonalData\Application\PersonResponse;
-use Prospecter\Core\PersonalData\Domain\ContactsIntent;
-use Prospecter\Core\PersonalData\Domain\Person;
-use Prospecter\Core\PersonalData\Domain\Reader;
+use Prospecter\Core\PersonalData\Domain\Model\ContactsIntent;
+use Prospecter\Core\PersonalData\Domain\Model\Person;
+use Prospecter\Core\PersonalData\Domain\Model\Reader;
 use Prospecter\Core\SharedKernel\Domain\Slice;
 
 final readonly class SearchContactsResponse

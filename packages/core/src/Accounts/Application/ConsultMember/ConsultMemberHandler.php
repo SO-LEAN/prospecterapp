@@ -7,8 +7,8 @@ namespace Prospecter\Core\Accounts\Application\ConsultMember;
 use Prospecter\Core\Accounts\Contract\Service\ConsultMember\ConsultMember;
 use Prospecter\Core\Accounts\Contract\Service\ConsultMember\ConsultMemberOutput;
 use Prospecter\Core\Accounts\Contract\Service\ConsultMember\MemberResponse;
-use Prospecter\Core\Accounts\Domain\Member;
-use Prospecter\Core\Accounts\Domain\MemberRepository;
+use Prospecter\Core\Accounts\Domain\Model\Member;
+use Prospecter\Core\Accounts\Domain\Repository\MemberRepository;
 use Prospecter\Core\SharedKernel\Application\QueryHandler;
 use Prospecter\Core\SharedKernel\Domain\MemberId;
 

@@ -4,10 +4,10 @@ declare(strict_types=1);
 
 namespace Prospecter\Core\Prospecting\Application\StartProspecting;
 
-use Prospecter\Core\Prospecting\Domain\EmailUniqueness;
-use Prospecter\Core\Prospecting\Domain\Organization;
-use Prospecter\Core\Prospecting\Domain\OrganizationRepository;
-use Prospecter\Core\Prospecting\Domain\ProspectorService;
+use Prospecter\Core\Prospecting\Domain\Model\Organization;
+use Prospecter\Core\Prospecting\Domain\Port\Prospectors;
+use Prospecter\Core\Prospecting\Domain\Repository\OrganizationRepository;
+use Prospecter\Core\Prospecting\Domain\Service\EmailUniqueness;
 use Prospecter\Core\SharedKernel\Application\CommandHandler;
 use Prospecter\Core\SharedKernel\Application\GeoLocalizer;
 use Prospecter\Core\SharedKernel\Application\Port\Events;
@@ -26,7 +26,7 @@ final readonly class StartProspectingHandler implements CommandHandler
 
     public function __construct(
         private OrganizationRepository $organizations,
-        private ProspectorService $prospectorService,
+        private Prospectors $prospectors,
         private Events $events,
         private GeoLocalizer $geoLocalizer,
         private EmailUniqueness $emails,
@@ -35,7 +35,7 @@ final readonly class StartProspectingHandler implements CommandHandler
 
     public function __invoke(StartProspecting $command): void
     {
-        $prospector = $this->prospectorService->prospectorFrom(new MemberId($command->prospectorId));
+        $prospector = $this->prospectors->prospectorFrom(new MemberId($command->prospectorId));
         $organization = Organization::prospectedBy(
             $prospector,
             new OrganizationId($command->id),

@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Prospecter\Core\Prospecting\Application\SearchProspectedOrganizations;
 
-use Prospecter\Core\Prospecting\Domain\Organization;
+use Prospecter\Core\Prospecting\Domain\Model\Organization;
 use Prospecter\Core\SharedKernel\Domain\Slice;
 
 final readonly class SearchProspectedOrganizationsResponse

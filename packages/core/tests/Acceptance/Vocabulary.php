@@ -4,12 +4,12 @@ declare(strict_types=1);
 
 namespace Tests\Core\Acceptance;
 
-use Prospecter\Core\Accounts\Domain\Account;
-use Prospecter\Core\Accounts\Domain\Member;
-use Prospecter\Core\PersonalData\Domain\Person;
-use Prospecter\Core\PersonalData\Domain\PersonName;
-use Prospecter\Core\Prospecting\Domain\ContactPresence;
-use Prospecter\Core\Prospecting\Domain\Organization;
+use Prospecter\Core\Accounts\Domain\Model\Account;
+use Prospecter\Core\Accounts\Domain\Model\Member;
+use Prospecter\Core\PersonalData\Domain\Model\Person;
+use Prospecter\Core\PersonalData\Domain\Model\PersonName;
+use Prospecter\Core\Prospecting\Domain\Model\ContactPresence;
+use Prospecter\Core\Prospecting\Domain\Model\Organization;
 use Prospecter\Core\SharedKernel\Domain\Address;
 use Prospecter\Core\SharedKernel\Domain\ContactDetails;
 use Prospecter\Core\SharedKernel\Domain\Email;

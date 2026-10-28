@@ -5,11 +5,11 @@ declare(strict_types=1);
 namespace Prospecter\Core\PersonalData\Application;
 
 use Prospecter\Core\PersonalData\Domain\Exception\UnknownPerson;
-use Prospecter\Core\PersonalData\Domain\Masking;
-use Prospecter\Core\PersonalData\Domain\Person;
-use Prospecter\Core\PersonalData\Domain\PersonIntent;
-use Prospecter\Core\PersonalData\Domain\Reader;
-use Prospecter\Core\PersonalData\Domain\Reading;
+use Prospecter\Core\PersonalData\Domain\Model\Person;
+use Prospecter\Core\PersonalData\Domain\Model\PersonIntent;
+use Prospecter\Core\PersonalData\Domain\Model\Reader;
+use Prospecter\Core\PersonalData\Domain\Model\Reading;
+use Prospecter\Core\PersonalData\Domain\Policy\Masking;
 use Prospecter\Core\SharedKernel\Application\FileResponse;
 
 /**

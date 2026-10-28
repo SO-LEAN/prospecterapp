@@ -3,7 +3,7 @@
 namespace Tests\App\Api;
 
 use PHPUnit\Framework\Attributes\Group;
-use Prospecter\Core\Accounts\Domain\Role;
+use Prospecter\Core\Accounts\Domain\Model\Role;
 use Tests\App\Base\ApiTestCase;
 
 /**

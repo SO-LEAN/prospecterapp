@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Prospecter\Core\Prospecting\Application;
 
-use Prospecter\Core\Prospecting\Domain\Exchange;
+use Prospecter\Core\Prospecting\Domain\Model\Exchange;
 use Prospecter\Core\SharedKernel\Application\Port\PrivateStorage;
 
 /**

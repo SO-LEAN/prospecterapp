@@ -4,10 +4,10 @@ declare(strict_types=1);
 
 namespace Prospecter\Core\Prospecting\Application;
 
-use Prospecter\Core\Prospecting\Domain\Exchange;
-use Prospecter\Core\Prospecting\Domain\Organization;
-use Prospecter\Core\Prospecting\Domain\Prospector;
-use Prospecter\Core\Prospecting\Domain\TimelineIntent;
+use Prospecter\Core\Prospecting\Domain\Model\Exchange;
+use Prospecter\Core\Prospecting\Domain\Model\Organization;
+use Prospecter\Core\Prospecting\Domain\Model\Prospector;
+use Prospecter\Core\Prospecting\Domain\Model\TimelineIntent;
 use Prospecter\Core\SharedKernel\Domain\Slice;
 
 final readonly class TimelineResponse

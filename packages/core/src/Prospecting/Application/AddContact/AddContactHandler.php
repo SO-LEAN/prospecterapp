@@ -5,9 +5,9 @@ declare(strict_types=1);
 namespace Prospecter\Core\Prospecting\Application\AddContact;
 
 use Prospecter\Core\Prospecting\Domain\Exception\UnknownContact;
-use Prospecter\Core\Prospecting\Domain\KnownContacts;
-use Prospecter\Core\Prospecting\Domain\Organization;
-use Prospecter\Core\Prospecting\Domain\OrganizationRepository;
+use Prospecter\Core\Prospecting\Domain\Model\Organization;
+use Prospecter\Core\Prospecting\Domain\Port\KnownContacts;
+use Prospecter\Core\Prospecting\Domain\Repository\OrganizationRepository;
 use Prospecter\Core\SharedKernel\Application\CommandHandler;
 use Prospecter\Core\SharedKernel\Application\Port\Events;
 use Prospecter\Core\SharedKernel\Application\PublishesEvents;

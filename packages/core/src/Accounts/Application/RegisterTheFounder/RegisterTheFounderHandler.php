@@ -5,9 +5,9 @@ declare(strict_types=1);
 namespace Prospecter\Core\Accounts\Application\RegisterTheFounder;
 
 use Prospecter\Core\Accounts\Domain\Event\AccountOpened;
-use Prospecter\Core\Accounts\Domain\Member;
-use Prospecter\Core\Accounts\Domain\MemberRepository;
-use Prospecter\Core\Accounts\Domain\Role;
+use Prospecter\Core\Accounts\Domain\Model\Member;
+use Prospecter\Core\Accounts\Domain\Model\Role;
+use Prospecter\Core\Accounts\Domain\Repository\MemberRepository;
 use Prospecter\Core\SharedKernel\Application\EventHandler;
 
 /**

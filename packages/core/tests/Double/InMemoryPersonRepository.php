@@ -5,9 +5,9 @@ declare(strict_types=1);
 namespace Tests\Core\Double;
 
 use Prospecter\Core\PersonalData\Domain\Exception\UnknownPerson;
-use Prospecter\Core\PersonalData\Domain\Person;
-use Prospecter\Core\PersonalData\Domain\PersonRepository;
-use Prospecter\Core\PersonalData\Domain\Purpose;
+use Prospecter\Core\PersonalData\Domain\Model\Person;
+use Prospecter\Core\PersonalData\Domain\Model\Purpose;
+use Prospecter\Core\PersonalData\Domain\Repository\PersonRepository;
 use Prospecter\Core\SharedKernel\Domain\AccountId;
 use Prospecter\Core\SharedKernel\Domain\Email;
 use Prospecter\Core\SharedKernel\Domain\PersonId;

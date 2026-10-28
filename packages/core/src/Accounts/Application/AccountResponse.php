@@ -4,10 +4,10 @@ declare(strict_types=1);
 
 namespace Prospecter\Core\Accounts\Application;
 
-use Prospecter\Core\Accounts\Domain\Account;
-use Prospecter\Core\Accounts\Domain\AccountIntent;
-use Prospecter\Core\Accounts\Domain\Member;
-use Prospecter\Core\Accounts\Domain\Role;
+use Prospecter\Core\Accounts\Domain\Model\Account;
+use Prospecter\Core\Accounts\Domain\Model\AccountIntent;
+use Prospecter\Core\Accounts\Domain\Model\Member;
+use Prospecter\Core\Accounts\Domain\Model\Role;
 use Prospecter\Core\SharedKernel\Application\FileResponse;
 
 /**

@@ -48,7 +48,7 @@ use Prospecter\Core\PersonalData\Application\SearchContacts\SearchContactsHandle
 use Prospecter\Core\PersonalData\Application\SearchContacts\SearchContactsResponse;
 use Prospecter\Core\PersonalData\Contract\Service\IsAContactOf\IsAContactOf;
 use Prospecter\Core\PersonalData\Contract\Service\IsAContactOf\KeptIsAContact;
-use Prospecter\Core\PersonalData\Domain\EmailUniqueness as PersonalDataEmailUniqueness;
+use Prospecter\Core\PersonalData\Domain\Service\EmailUniqueness as PersonalDataEmailUniqueness;
 use Prospecter\Core\Prospecting\Application\AddContact\AddContactHandler;
 use Prospecter\Core\Prospecting\Application\AttachCollectedContact\AttachCollectedContactHandler;
 use Prospecter\Core\Prospecting\Application\AttachedFiles;
@@ -108,9 +108,9 @@ use Prospecter\Core\Prospecting\Application\TimelineResponse;
 use Prospecter\Core\Prospecting\Application\WriteObservations\WriteObservationsHandler;
 use Prospecter\Core\Prospecting\Contract\Service\IsProspectedBy\IsProspectedBy;
 use Prospecter\Core\Prospecting\Contract\Service\IsProspectedBy\KeptIsProspected;
-use Prospecter\Core\Prospecting\Domain\ContactOrganizations;
-use Prospecter\Core\Prospecting\Domain\EmailUniqueness as ProspectingEmailUniqueness;
-use Prospecter\Core\Prospecting\Domain\OrphanContacts;
+use Prospecter\Core\Prospecting\Domain\Service\ContactOrganizations;
+use Prospecter\Core\Prospecting\Domain\Service\EmailUniqueness as ProspectingEmailUniqueness;
+use Prospecter\Core\Prospecting\Domain\Service\OrphanContacts;
 use Prospecter\Core\SharedKernel\Application\CommandHandler;
 use Prospecter\Core\SharedKernel\Application\EventHandler;
 use Prospecter\Core\SharedKernel\Application\Exception\UseCaseRefused;
@@ -119,8 +119,8 @@ use Prospecter\Core\SharedKernel\Application\GeoLocalizer;
 use Prospecter\Core\SharedKernel\Application\QueryHandler;
 use Prospecter\Core\SharedKernel\Application\RefusalTranslatingHandler;
 use Prospecter\Core\SharedKernel\Domain\MemberId;
-use Tests\Core\Double\AccountsProspectorService;
-use Tests\Core\Double\AccountsReaderService;
+use Tests\Core\Double\AccountsProspectors;
+use Tests\Core\Double\AccountsReaders;
 use Tests\Core\Double\InMemoryAccountRepository;
 use Tests\Core\Double\InMemoryDatabase;
 use Tests\Core\Double\InMemoryExchangeRepository;
@@ -154,8 +154,8 @@ final class Application
     public readonly InMemoryPrivateStorage $privateStorage;
     public readonly KnownPlacesGeoLocation $geoLocation;
 
-    public readonly AccountsProspectorService $prospectorService;
-    public readonly AccountsReaderService $readerService;
+    public readonly AccountsProspectors $prospectors;
+    public readonly AccountsReaders $readers;
     public readonly PersonalDataKnownContacts $knownContacts;
     public readonly ProspectingOrganizations $prospectedOrganizations;
     public readonly SynchronousEvents $events;
@@ -183,8 +183,8 @@ final class Application
         $this->accounts = new InMemoryAccountRepository($database);
         $this->members = new InMemoryMemberRepository($database);
         $this->persons = new InMemoryPersonRepository($database);
-        $this->prospectorService = new AccountsProspectorService($this->published(new ConsultMemberHandler($this->members)));
-        $this->readerService = new AccountsReaderService($this->published(new ConsultMemberHandler($this->members)));
+        $this->prospectors = new AccountsProspectors($this->published(new ConsultMemberHandler($this->members)));
+        $this->readers = new AccountsReaders($this->published(new ConsultMemberHandler($this->members)));
         $this->knownContacts = new PersonalDataKnownContacts($this->published(new IsAContactOfHandler($this->persons)));
         $this->prospectedOrganizations = new ProspectingOrganizations($this->published(new IsProspectedByHandler($this->organizations)));
         $this->events = new SynchronousEvents();
@@ -258,7 +258,7 @@ final class Application
     {
         $kept = new KeptOrganizationPage();
 
-        return $this->ask(new SearchProspectedOrganizationsHandler($this->organizations, $this->prospectorService), $query, $kept) ? $kept->page : null;
+        return $this->ask(new SearchProspectedOrganizationsHandler($this->organizations, $this->prospectors), $query, $kept) ? $kept->page : null;
     }
 
     public function consultMyAccount(): ?AccountResponse
@@ -272,7 +272,7 @@ final class Application
     {
         $kept = new KeptPerson();
 
-        return $this->ask(new ConsultPersonHandler($this->persons, $this->readerService), $query, $kept) ? $kept->person : null;
+        return $this->ask(new ConsultPersonHandler($this->persons, $this->readers), $query, $kept) ? $kept->person : null;
     }
 
     /**
@@ -282,14 +282,14 @@ final class Application
     {
         $kept = new KeptPersons();
 
-        return $this->ask(new ConsultPersonsHandler($this->persons, $this->readerService), $query, $kept) ? $kept->persons : null;
+        return $this->ask(new ConsultPersonsHandler($this->persons, $this->readers), $query, $kept) ? $kept->persons : null;
     }
 
     public function searchContacts(SearchContacts $query): ?SearchContactsResponse
     {
         $kept = new KeptContactPage();
 
-        return $this->ask(new SearchContactsHandler($this->persons, $this->readerService), $query, $kept) ? $kept->page : null;
+        return $this->ask(new SearchContactsHandler($this->persons, $this->readers), $query, $kept) ? $kept->page : null;
     }
 
     /**
@@ -299,7 +299,7 @@ final class Application
     {
         $kept = new KeptCallingContacts();
 
-        return $this->ask(new RecognizeCallingContactHandler($this->persons, $this->readerService), $query, $kept) ? $kept->contacts : null;
+        return $this->ask(new RecognizeCallingContactHandler($this->persons, $this->readers), $query, $kept) ? $kept->contacts : null;
     }
 
     /**
@@ -309,49 +309,49 @@ final class Application
     {
         $kept = new KeptCallingOrganizations();
 
-        return $this->ask(new RecognizeCallingOrganizationHandler($this->organizations, $this->prospectorService), $query, $kept) ? $kept->organizations : null;
+        return $this->ask(new RecognizeCallingOrganizationHandler($this->organizations, $this->prospectors), $query, $kept) ? $kept->organizations : null;
     }
 
     public function consultTimeline(ConsultTimeline $query): ?TimelineResponse
     {
         $kept = new KeptTimeline();
 
-        return $this->ask(new ConsultTimelineHandler($this->exchanges, $this->prospectorService, $this->contactOrganizations), $query, $kept) ? $kept->timeline : null;
+        return $this->ask(new ConsultTimelineHandler($this->exchanges, $this->prospectors, $this->contactOrganizations), $query, $kept) ? $kept->timeline : null;
     }
 
     public function consultOrganizationTimeline(ConsultOrganizationTimeline $query): ?TimelineResponse
     {
         $kept = new KeptTimeline();
 
-        return $this->ask(new ConsultOrganizationTimelineHandler($this->exchanges, $this->organizations, $this->prospectorService), $query, $kept) ? $kept->timeline : null;
+        return $this->ask(new ConsultOrganizationTimelineHandler($this->exchanges, $this->organizations, $this->prospectors), $query, $kept) ? $kept->timeline : null;
     }
 
     public function consultExchangesToMakeConform(ConsultExchangesToMakeConform $query): ?TimelineResponse
     {
         $kept = new KeptTimeline();
 
-        return $this->ask(new ConsultExchangesToMakeConformHandler($this->exchanges, $this->organizations, $this->prospectorService), $query, $kept) ? $kept->timeline : null;
+        return $this->ask(new ConsultExchangesToMakeConformHandler($this->exchanges, $this->organizations, $this->prospectors), $query, $kept) ? $kept->timeline : null;
     }
 
     public function consultTimelineIntents(ConsultTimelineIntents $query): ?TimelineIntentsResponse
     {
         $kept = new KeptTimelineIntents();
 
-        return $this->ask(new ConsultTimelineIntentsHandler($this->prospectorService, $this->contactOrganizations), $query, $kept) ? $kept->intents : null;
+        return $this->ask(new ConsultTimelineIntentsHandler($this->prospectors, $this->contactOrganizations), $query, $kept) ? $kept->intents : null;
     }
 
     public function consultExchange(ConsultExchange $query): ?ExchangeDetailResponse
     {
         $kept = new KeptExchange();
 
-        return $this->ask(new ConsultExchangeHandler($this->exchanges, $this->prospectorService), $query, $kept) ? $kept->exchange : null;
+        return $this->ask(new ConsultExchangeHandler($this->exchanges, $this->prospectors), $query, $kept) ? $kept->exchange : null;
     }
 
     public function downloadAttachment(DownloadAttachment $query): ?AttachmentDownloadResponse
     {
         $kept = new KeptDownload();
 
-        return $this->ask(new DownloadAttachmentHandler($this->exchanges, $this->prospectorService, $this->privateStorage), $query, $kept) ? $kept->download : null;
+        return $this->ask(new DownloadAttachmentHandler($this->exchanges, $this->prospectors, $this->privateStorage), $query, $kept) ? $kept->download : null;
     }
 
     /**
@@ -368,7 +368,7 @@ final class Application
     private function commandHandlers(): array
     {
         return [
-            new StartProspectingHandler($this->organizations, $this->prospectorService, $this->events, $this->geoLocalizer, $this->organizationEmails),
+            new StartProspectingHandler($this->organizations, $this->prospectors, $this->events, $this->geoLocalizer, $this->organizationEmails),
             new ReviseLegalIdentityHandler($this->organizations, $this->events),
             new ChangeContactDetailsHandler($this->organizations, $this->events, $this->organizationEmails),
             new RelocateHandler($this->organizations, $this->events, $this->geoLocalizer),
@@ -377,21 +377,21 @@ final class Application
             new DetachFromHoldingHandler($this->organizations, $this->events),
             new ChangeLogoHandler($this->organizations, $this->events, $this->files),
             new RemoveLogoHandler($this->organizations, $this->events, $this->files),
-            new RenamePersonHandler($this->persons, $this->readerService, $this->events),
-            new ChangePersonContactDetailsHandler($this->persons, $this->readerService, $this->events, $this->personEmails),
-            new ChangePersonPictureHandler($this->persons, $this->readerService, $this->events, $this->files),
+            new RenamePersonHandler($this->persons, $this->readers, $this->events),
+            new ChangePersonContactDetailsHandler($this->persons, $this->readers, $this->events, $this->personEmails),
+            new ChangePersonPictureHandler($this->persons, $this->readers, $this->events, $this->files),
             new ReviseMyOrganizationIdentityHandler($this->accounts, $this->members, $this->events),
             new RelocateMyOrganizationHandler($this->accounts, $this->members, $this->events, $this->geoLocalizer),
             new ChangeMyOrganizationLogoHandler($this->accounts, $this->members, $this->events, $this->files),
             new OpenAccountHandler($this->accounts, $this->events),
             new RegisterAMemberHandler($this->members, $this->events),
-            new CollectContactHandler($this->persons, $this->readerService, $this->prospectedOrganizations, $this->events, $this->personEmails),
-            new ChangeJobTitleHandler($this->persons, $this->readerService, $this->events),
-            new ForgetContactHandler($this->persons, $this->readerService, $this->events),
+            new CollectContactHandler($this->persons, $this->readers, $this->prospectedOrganizations, $this->events, $this->personEmails),
+            new ChangeJobTitleHandler($this->persons, $this->readers, $this->events),
+            new ForgetContactHandler($this->persons, $this->readers, $this->events),
             new AddContactHandler($this->organizations, $this->knownContacts, $this->events),
             new RemoveContactHandler($this->organizations, $this->events, $this->orphans),
             new StopProspectingHandler($this->organizations, $this->events, $this->orphans),
-            new NoteExchangeHandler($this->exchanges, $this->prospectorService, $this->contactOrganizations, $this->events),
+            new NoteExchangeHandler($this->exchanges, $this->prospectors, $this->contactOrganizations, $this->events),
             new NoteOrganizationExchangeHandler($this->exchanges, $this->organizations, $this->contactOrganizations, $this->events),
             new CorrectExchangeHandler($this->exchanges, $this->events),
             new CorrectExchangeTextHandler($this->exchanges, $this->events),
@@ -442,7 +442,7 @@ final class Application
             new AttachCollectedContactHandler($this->organizations, $this->events),
             new DetachForgottenContactHandler($this->organizations, $this->events, $this->orphans),
             new KeepExchangesOfForgottenContactHandler($this->exchanges, $this->events),
-            new ForgetContactsLeftWithoutOrganizationHandler($this->persons, $this->readerService, $this->events),
+            new ForgetContactsLeftWithoutOrganizationHandler($this->persons, $this->readers, $this->events),
             new RegisterTheFounderHandler($this->members),
             new CollectTheFounderProfileHandler($this->persons),
             new PublishAccountOpenedHandler($this->events),

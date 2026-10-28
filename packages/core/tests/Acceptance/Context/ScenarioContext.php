@@ -8,15 +8,15 @@ use Behat\Behat\Context\Context;
 use Behat\Hook\AfterScenario;
 use Behat\Step\Given;
 use Behat\Step\Then;
-use Prospecter\Core\Accounts\Domain\Account;
-use Prospecter\Core\Accounts\Domain\Member;
-use Prospecter\Core\Accounts\Domain\Role;
+use Prospecter\Core\Accounts\Domain\Model\Account;
+use Prospecter\Core\Accounts\Domain\Model\Member;
+use Prospecter\Core\Accounts\Domain\Model\Role;
 use Prospecter\Core\PersonalData\Application\ConsultPersons\ConsultPersons;
-use Prospecter\Core\PersonalData\Domain\Person;
-use Prospecter\Core\PersonalData\Domain\Purpose;
-use Prospecter\Core\PersonalData\Domain\Reader;
-use Prospecter\Core\Prospecting\Domain\Organization;
-use Prospecter\Core\Prospecting\Domain\Prospector;
+use Prospecter\Core\PersonalData\Domain\Model\Person;
+use Prospecter\Core\PersonalData\Domain\Model\Purpose;
+use Prospecter\Core\PersonalData\Domain\Model\Reader;
+use Prospecter\Core\Prospecting\Domain\Model\Organization;
+use Prospecter\Core\Prospecting\Domain\Model\Prospector;
 use Prospecter\Core\SharedKernel\Application\Exception\ErrorType;
 use Prospecter\Core\SharedKernel\Domain\AccountId;
 use Prospecter\Core\SharedKernel\Domain\LegalIdentity;
@@ -207,7 +207,7 @@ final class ScenarioContext implements Context
 
     public function meAsReader(): Reader
     {
-        return $this->application->readerService->readerFrom(new MemberId($this->application->signedIn()));
+        return $this->application->readers->readerFrom(new MemberId($this->application->signedIn()));
     }
 
     public function myPerson(): Person
@@ -283,7 +283,7 @@ final class ScenarioContext implements Context
 
     public function meAsProspector(): Prospector
     {
-        return $this->application->prospectorService->prospectorFrom(new MemberId($this->application->signedIn()));
+        return $this->application->prospectors->prospectorFrom(new MemberId($this->application->signedIn()));
     }
 
     /**

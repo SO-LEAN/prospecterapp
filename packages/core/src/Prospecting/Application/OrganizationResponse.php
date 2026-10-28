@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace Prospecter\Core\Prospecting\Application;
 
-use Prospecter\Core\Prospecting\Domain\Organization;
-use Prospecter\Core\Prospecting\Domain\OrganizationIntent;
+use Prospecter\Core\Prospecting\Domain\Model\Organization;
+use Prospecter\Core\Prospecting\Domain\Model\OrganizationIntent;
 use Prospecter\Core\SharedKernel\Application\FileResponse;
 use Prospecter\Core\SharedKernel\Domain\PersonId;
 

@@ -6,8 +6,8 @@ namespace Prospecter\Core\Prospecting\Application\StopKeepingExchanges;
 
 use Prospecter\Core\Prospecting\Application\AttachedFiles;
 use Prospecter\Core\Prospecting\Domain\Event\ProspectingStopped;
-use Prospecter\Core\Prospecting\Domain\Exchange;
-use Prospecter\Core\Prospecting\Domain\ExchangeRepository;
+use Prospecter\Core\Prospecting\Domain\Model\Exchange;
+use Prospecter\Core\Prospecting\Domain\Repository\ExchangeRepository;
 use Prospecter\Core\SharedKernel\Application\EventHandler;
 use Prospecter\Core\SharedKernel\Application\Port\Events;
 use Prospecter\Core\SharedKernel\Application\PublishesEvents;

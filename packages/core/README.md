@@ -25,10 +25,10 @@ Next: the GDPR rights (anonymization, access export), then the prospecting event
 
 ## Using it
 
-The delivery implements the ports (repositories, `ProspectorService`, `ReaderService`, `KnownContacts`, `ProspectedOrganizations`, `Events`, `GeoLocation`, `Storage`), builds the services of the hexagon (`GeoLocalizer`, `FileStore`, `EmailUniqueness`, `OrphanContacts`) and injects them in the handlers (ADR 0044), then:
+The delivery implements the ports (repositories, `Prospectors`, `Readers`, `KnownContacts`, `ProspectedOrganizations`, `Events`, `GeoLocation`, `Storage`), builds the services of the hexagon (`GeoLocalizer`, `FileStore`, `EmailUniqueness`, `OrphanContacts`) and injects them in the handlers (ADR 0044), then:
 
 ```php
-$relocate = new RefusalTranslatingHandler(new RelocateHandler($organizations, $prospectorService, $events, $geoLocalizer));
+$relocate = new RefusalTranslatingHandler(new RelocateHandler($organizations, $prospectors, $events, $geoLocalizer));
 $relocate(new Relocate(
     prospectorId: $memberId,
     id: $organizationId,
@@ -36,7 +36,7 @@ $relocate(new Relocate(
     executedAt: $clock->now(),
 ));
 
-$organization = new RefusalTranslatingHandler(new ConsultOrganizationHandler($organizations, $prospectorService))(
+$organization = new RefusalTranslatingHandler(new ConsultOrganizationHandler($organizations, $prospectors))(
     new ConsultOrganization($memberId, $organizationId),
 );
 ```

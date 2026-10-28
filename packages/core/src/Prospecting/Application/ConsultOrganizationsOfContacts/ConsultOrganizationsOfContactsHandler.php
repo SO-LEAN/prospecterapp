@@ -4,22 +4,22 @@ declare(strict_types=1);
 
 namespace Prospecter\Core\Prospecting\Application\ConsultOrganizationsOfContacts;
 
-use Prospecter\Core\Prospecting\Domain\Organization;
-use Prospecter\Core\Prospecting\Domain\OrganizationRepository;
-use Prospecter\Core\Prospecting\Domain\ProspectorService;
+use Prospecter\Core\Prospecting\Domain\Model\Organization;
+use Prospecter\Core\Prospecting\Domain\Port\Prospectors;
+use Prospecter\Core\Prospecting\Domain\Repository\OrganizationRepository;
 use Prospecter\Core\SharedKernel\Application\QueryHandler;
 use Prospecter\Core\SharedKernel\Domain\MemberId;
 use Prospecter\Core\SharedKernel\Domain\PersonId;
 
 final readonly class ConsultOrganizationsOfContactsHandler implements QueryHandler
 {
-    public function __construct(private OrganizationRepository $organizations, private ProspectorService $prospectorService)
+    public function __construct(private OrganizationRepository $organizations, private Prospectors $prospectors)
     {
     }
 
     public function __invoke(ConsultOrganizationsOfContacts $query, ConsultOrganizationsOfContactsOutput $output): void
     {
-        $prospector = $this->prospectorService->prospectorFrom(new MemberId($query->prospectorId));
+        $prospector = $this->prospectors->prospectorFrom(new MemberId($query->prospectorId));
         $contacts = array_map(static fn (string $id): PersonId => new PersonId($id), $query->personIds);
         $organizations = $this->organizations->withContacts($contacts, $prospector->accountId);
         $byContact = [];

@@ -5,8 +5,8 @@ declare(strict_types=1);
 namespace Tests\Core\Double;
 
 use Prospecter\Core\Accounts\Domain\Exception\UnknownMember;
-use Prospecter\Core\Accounts\Domain\Member;
-use Prospecter\Core\Accounts\Domain\MemberRepository;
+use Prospecter\Core\Accounts\Domain\Model\Member;
+use Prospecter\Core\Accounts\Domain\Repository\MemberRepository;
 use Prospecter\Core\SharedKernel\Domain\MemberId;
 
 final readonly class InMemoryMemberRepository implements MemberRepository

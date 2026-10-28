@@ -5,8 +5,8 @@ declare(strict_types=1);
 namespace Prospecter\Core\Prospecting\Application\EraseExchange;
 
 use Prospecter\Core\Prospecting\Application\AttachedFiles;
-use Prospecter\Core\Prospecting\Domain\ExchangeId;
-use Prospecter\Core\Prospecting\Domain\ExchangeRepository;
+use Prospecter\Core\Prospecting\Domain\Model\ExchangeId;
+use Prospecter\Core\Prospecting\Domain\Repository\ExchangeRepository;
 use Prospecter\Core\SharedKernel\Application\CommandHandler;
 use Prospecter\Core\SharedKernel\Application\Port\Events;
 use Prospecter\Core\SharedKernel\Application\PublishesEvents;

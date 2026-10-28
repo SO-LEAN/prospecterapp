@@ -45,11 +45,11 @@ services:
     # Services of the hexagon, injected in its handlers (ADR 0044)
     Prospecter\Core\SharedKernel\Application\FileStore: ~
     Prospecter\Core\SharedKernel\Application\GeoLocalizer: ~
-    Prospecter\Core\Prospecting\Domain\EmailUniqueness: ~
-    Prospecter\Core\Prospecting\Domain\OrphanContacts: ~
-    Prospecter\Core\Prospecting\Domain\ContactOrganizations: ~
+    Prospecter\Core\Prospecting\Domain\Service\EmailUniqueness: ~
+    Prospecter\Core\Prospecting\Domain\Service\OrphanContacts: ~
+    Prospecter\Core\Prospecting\Domain\Service\ContactOrganizations: ~
     Prospecter\Core\Prospecting\Application\AttachedFiles: ~
-    Prospecter\Core\PersonalData\Domain\EmailUniqueness: ~
+    Prospecter\Core\PersonalData\Domain\Service\EmailUniqueness: ~
 
     # DynamoDB (ADR 0048): MiniStack locally (DYNAMODB_ENDPOINT), AWS in production (DYNAMODB_ENDPOINT empty);
     # one table per bounded context, injected by name in its repositories only (Table $prospectingTable)
@@ -74,15 +74,15 @@ services:
     App\Shared\Persistence\Table $prospectingTable: '@app.table.prospecting'
 
     # Ports of the core, implemented by the application
-    Prospecter\Core\Accounts\Domain\AccountRepository: '@App\Accounts\Persistence\DynamoAccountRepository'
-    Prospecter\Core\Accounts\Domain\MemberRepository: '@App\Accounts\Persistence\DynamoMemberRepository'
-    Prospecter\Core\PersonalData\Domain\PersonRepository: '@App\PersonalData\Persistence\DynamoPersonRepository'
-    Prospecter\Core\PersonalData\Domain\ReaderService: '@App\PersonalData\AccountsReaderService'
-    Prospecter\Core\Prospecting\Domain\OrganizationRepository: '@App\Prospecting\Persistence\DynamoOrganizationRepository'
-    Prospecter\Core\Prospecting\Domain\ExchangeRepository: '@App\Prospecting\Persistence\DynamoExchangeRepository'
-    Prospecter\Core\Prospecting\Domain\ProspectorService: '@App\Prospecting\AccountsProspectorService'
-    Prospecter\Core\Prospecting\Domain\KnownContacts: '@App\Prospecting\PersonalDataKnownContacts'
-    Prospecter\Core\PersonalData\Domain\ProspectedOrganizations: '@App\PersonalData\ProspectingOrganizations'
+    Prospecter\Core\Accounts\Domain\Repository\AccountRepository: '@App\Accounts\Persistence\DynamoAccountRepository'
+    Prospecter\Core\Accounts\Domain\Repository\MemberRepository: '@App\Accounts\Persistence\DynamoMemberRepository'
+    Prospecter\Core\PersonalData\Domain\Repository\PersonRepository: '@App\PersonalData\Persistence\DynamoPersonRepository'
+    Prospecter\Core\PersonalData\Domain\Port\Readers: '@App\PersonalData\AccountsReaders'
+    Prospecter\Core\Prospecting\Domain\Repository\OrganizationRepository: '@App\Prospecting\Persistence\DynamoOrganizationRepository'
+    Prospecter\Core\Prospecting\Domain\Repository\ExchangeRepository: '@App\Prospecting\Persistence\DynamoExchangeRepository'
+    Prospecter\Core\Prospecting\Domain\Port\Prospectors: '@App\Prospecting\AccountsProspectors'
+    Prospecter\Core\Prospecting\Domain\Port\KnownContacts: '@App\Prospecting\PersonalDataKnownContacts'
+    Prospecter\Core\PersonalData\Domain\Port\ProspectedOrganizations: '@App\PersonalData\ProspectingOrganizations'
     Prospecter\Core\SharedKernel\Application\Port\Events: '@App\Shared\MessengerEvents'
     Prospecter\Core\SharedKernel\Application\Port\GeoLocation: '@App\Shared\GeoplateformeGeoLocation'
     Prospecter\Core\SharedKernel\Application\Port\Storage: '@App\Shared\StorageClient'

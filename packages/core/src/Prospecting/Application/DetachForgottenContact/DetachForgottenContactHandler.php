@@ -5,8 +5,8 @@ declare(strict_types=1);
 namespace Prospecter\Core\Prospecting\Application\DetachForgottenContact;
 
 use Prospecter\Core\PersonalData\Contract\Event\ContactForgotten;
-use Prospecter\Core\Prospecting\Domain\OrganizationRepository;
-use Prospecter\Core\Prospecting\Domain\OrphanContacts;
+use Prospecter\Core\Prospecting\Domain\Repository\OrganizationRepository;
+use Prospecter\Core\Prospecting\Domain\Service\OrphanContacts;
 use Prospecter\Core\SharedKernel\Application\EventHandler;
 use Prospecter\Core\SharedKernel\Application\Port\Events;
 use Prospecter\Core\SharedKernel\Application\PublishesEvents;

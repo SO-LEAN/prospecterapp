@@ -6,7 +6,7 @@ namespace Prospecter\Core\PersonalData\Application\IsAContactOf;
 
 use Prospecter\Core\PersonalData\Contract\Service\IsAContactOf\IsAContactOf;
 use Prospecter\Core\PersonalData\Contract\Service\IsAContactOf\IsAContactOfOutput;
-use Prospecter\Core\PersonalData\Domain\PersonRepository;
+use Prospecter\Core\PersonalData\Domain\Repository\PersonRepository;
 use Prospecter\Core\SharedKernel\Application\QueryHandler;
 use Prospecter\Core\SharedKernel\Domain\AccountId;
 use Prospecter\Core\SharedKernel\Domain\PersonId;

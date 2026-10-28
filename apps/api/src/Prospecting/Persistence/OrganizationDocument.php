@@ -4,7 +4,7 @@ namespace App\Prospecting\Persistence;
 
 use App\Shared\Persistence\Documents;
 use App\Shared\Persistence\Hydrator;
-use Prospecter\Core\Prospecting\Domain\Organization;
+use Prospecter\Core\Prospecting\Domain\Model\Organization;
 use Prospecter\Core\SharedKernel\Domain\AccountId;
 use Prospecter\Core\SharedKernel\Domain\MemberId;
 use Prospecter\Core\SharedKernel\Domain\OrganizationId;

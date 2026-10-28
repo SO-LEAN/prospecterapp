@@ -3,12 +3,12 @@
 namespace Tests\App\Api;
 
 use PHPUnit\Framework\Attributes\Group;
-use Prospecter\Core\Accounts\Domain\Account;
-use Prospecter\Core\Accounts\Domain\AccountRepository;
-use Prospecter\Core\Accounts\Domain\Role;
-use Prospecter\Core\Prospecting\Domain\Organization;
-use Prospecter\Core\Prospecting\Domain\OrganizationRepository;
-use Prospecter\Core\Prospecting\Domain\Prospector;
+use Prospecter\Core\Accounts\Domain\Model\Account;
+use Prospecter\Core\Accounts\Domain\Model\Role;
+use Prospecter\Core\Accounts\Domain\Repository\AccountRepository;
+use Prospecter\Core\Prospecting\Domain\Model\Organization;
+use Prospecter\Core\Prospecting\Domain\Model\Prospector;
+use Prospecter\Core\Prospecting\Domain\Repository\OrganizationRepository;
 use Prospecter\Core\SharedKernel\Domain\AccountId;
 use Prospecter\Core\SharedKernel\Domain\ContactDetails;
 use Prospecter\Core\SharedKernel\Domain\LegalIdentity;

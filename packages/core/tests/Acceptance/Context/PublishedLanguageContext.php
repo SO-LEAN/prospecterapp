@@ -10,7 +10,7 @@ use Behat\Step\Then;
 use Behat\Step\When;
 use Prospecter\Core\Accounts\Contract\Service\ConsultMember\ConsultMember;
 use Prospecter\Core\Accounts\Contract\Service\ConsultMember\MemberResponse;
-use Prospecter\Core\Accounts\Domain\Role;
+use Prospecter\Core\Accounts\Domain\Model\Role;
 use Prospecter\Core\PersonalData\Contract\Service\IsAContactOf\IsAContactOf;
 use Prospecter\Core\Prospecting\Contract\Service\IsProspectedBy\IsProspectedBy;
 use Prospecter\Core\SharedKernel\Domain\MemberId;

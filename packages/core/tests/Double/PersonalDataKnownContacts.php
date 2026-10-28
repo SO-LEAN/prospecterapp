@@ -6,7 +6,7 @@ namespace Tests\Core\Double;
 
 use Prospecter\Core\PersonalData\Contract\Service\IsAContactOf\IsAContactOf;
 use Prospecter\Core\PersonalData\Contract\Service\IsAContactOf\KeptIsAContact;
-use Prospecter\Core\Prospecting\Domain\KnownContacts;
+use Prospecter\Core\Prospecting\Domain\Port\KnownContacts;
 use Prospecter\Core\SharedKernel\Application\Exception\UseCaseRefused;
 use Prospecter\Core\SharedKernel\Application\RefusalTranslatingHandler;
 use Prospecter\Core\SharedKernel\Domain\AccountId;
