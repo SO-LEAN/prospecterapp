@@ -13,8 +13,8 @@ db: ministack ## Recreate in MiniStack the tables and the user pool, with the de
 	@echo "API/Creating the Cognito user pool with the members of the demonstration..."
 	@$(PHP) bin/console app:user-pool:recreate --demo
 
-test: ministack ## Run the tests of the API (on MiniStack: tables, user pool)
-	@$(PHP) bin/phpunit
+test: ministack ## Run the tests of the API (on MiniStack: tables, user pool); FILTER= a test by name
+	@$(PHP) bin/phpunit $(if $(FILTER),--filter='$(FILTER)')
 
 lint: ## Check the code of the API: PHPStan, php-cs-fixer, Rector
 	@$(PHP) sh -c 'vendor/bin/phpstan analyse --no-progress && vendor/bin/php-cs-fixer fix --dry-run --diff && vendor/bin/rector process --dry-run'

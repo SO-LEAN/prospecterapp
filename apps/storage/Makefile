@@ -11,8 +11,8 @@ db: ministack ## Recreate in MiniStack the buckets of the files (destroys local 
 	@echo "Storage/Creating the S3 bucket of the files..."
 	@$(PHP) sh -c 'bin/console cache:clear >/dev/null && bin/console app:bucket:recreate'
 
-test: ministack ## Run the tests of the storage (on MiniStack)
-	@$(PHP) bin/phpunit
+test: ministack ## Run the tests of the storage (on MiniStack); FILTER= a test by name
+	@$(PHP) bin/phpunit $(if $(FILTER),--filter='$(FILTER)')
 
 lint: ## Check the code of the storage: PHPStan, php-cs-fixer, Rector
 	@$(PHP) sh -c 'vendor/bin/phpstan analyse --no-progress && vendor/bin/php-cs-fixer fix --dry-run --diff && vendor/bin/rector process --dry-run'

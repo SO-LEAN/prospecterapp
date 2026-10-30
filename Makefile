@@ -56,16 +56,16 @@ ps: ## List the containers of the stack
 ##@ Quality
 ci: build vendor front-install secrets-branch lint test contract front-build ## Run what the continuous integration runs: secrets of the branch, build, lint, tests, contract, build of the front
 test: test-core test-api test-storage test-front ## Run every test suite: core, API, storage, front
-test-core: ## Run the business rules (Behat) and the unit tests of the core
+test-core: ## Run the business rules (Behat) and the unit tests of the core; FILTER= a scenario or a test by name
 	@$(MAKE) -C packages/core test
 
-test-api: ## Run the tests of the API (on MiniStack: tables, user pool)
+test-api: ## Run the tests of the API (on MiniStack: tables, user pool); FILTER= a test by name
 	@$(MAKE) -C apps/api test
 
-test-storage: ## Run the tests of the storage (on MiniStack)
+test-storage: ## Run the tests of the storage (on MiniStack); FILTER= a test by name
 	@$(MAKE) -C apps/storage test
 
-test-front: ## Run the tests of the front (Vitest)
+test-front: ## Run the tests of the front (Vitest); FILTER= a test file by its path or a part of it
 	@$(MAKE) -C apps/front test
 
 e2e: ## Run the Playwright journeys against the running stack
