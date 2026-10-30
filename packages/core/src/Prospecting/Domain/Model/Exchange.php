@@ -17,6 +17,9 @@ use Prospecter\Core\Prospecting\Domain\Exception\ExchangeInTheFuture;
 use Prospecter\Core\Prospecting\Domain\Exception\NoRoomForAnAttachment;
 use Prospecter\Core\Prospecting\Domain\Exception\NothingToMakeConform;
 use Prospecter\Core\Prospecting\Domain\Exception\UnknownAttachment;
+use Prospecter\Core\Prospecting\Domain\Policy\ExchangeConformity;
+use Prospecter\Core\Prospecting\Domain\Policy\ExchangePossibilities;
+use Prospecter\Core\Prospecting\Domain\Policy\ExchangeReading;
 use Prospecter\Core\SharedKernel\Domain\AccountId;
 use Prospecter\Core\SharedKernel\Domain\Exception\PersonalDataManagersOnly;
 use Prospecter\Core\SharedKernel\Domain\MemberId;
@@ -134,11 +137,7 @@ final class Exchange implements ReleasesEvents
      */
     public function contactPresence(): ?ContactPresence
     {
-        if (null === $this->contact) {
-            return null;
-        }
-
-        return $this->contactForgotten ? ContactPresence::Forgotten : ContactPresence::Present;
+        return ContactPresence::ofTheContact(null !== $this->contact, $this->contactForgotten);
     }
 
     /**
@@ -192,30 +191,22 @@ final class Exchange implements ReleasesEvents
      */
     public function isToMakeConform(): bool
     {
-        return $this->awaitsBeingMadeConform() || $this->hasFilesToMakeConform();
+        return ExchangeConformity::isToMakeConform($this->contactForgotten, null !== $this->madeConform, [] !== $this->attachments);
     }
 
     public function isTextToMakeConform(): bool
     {
-        return null !== $this->facts->text && $this->awaitsBeingMadeConform();
+        return ExchangeConformity::isTextToMakeConform(null !== $this->facts->text, $this->contactForgotten, null !== $this->madeConform);
     }
 
-    /**
-     * A file is made conform by removing it.
-     */
     public function areAttachmentsToMakeConform(): bool
     {
-        return $this->contactForgotten;
-    }
-
-    private function hasFilesToMakeConform(): bool
-    {
-        return $this->areAttachmentsToMakeConform() && [] !== $this->attachments;
+        return ExchangeConformity::areAttachmentsToMakeConform($this->contactForgotten);
     }
 
     private function awaitsBeingMadeConform(): bool
     {
-        return $this->contactForgotten && null === $this->madeConform;
+        return ExchangeConformity::awaitsBeingMadeConform($this->contactForgotten, null !== $this->madeConform);
     }
 
     /**
@@ -235,7 +226,7 @@ final class Exchange implements ReleasesEvents
      */
     public function attachmentsReadBy(Prospector $prospector): array
     {
-        return $prospector->managesPersonalData ? $this->attachments : [];
+        return ExchangeReading::readsTheAttachments($prospector) ? $this->attachments : [];
     }
 
     /**
@@ -274,37 +265,14 @@ final class Exchange implements ReleasesEvents
         return $this->modifiedAt;
     }
 
-    /**
-     * What its state offers now; the API decides who may (ADR 0081).
-     *
-     * @return list<ExchangeIntent>
-     */
-    public function possibleIntents(): array
-    {
-        return array_values(array_filter(ExchangeIntent::cases(), $this->allowsInItsState(...)));
-    }
-
     private function allowsInItsState(ExchangeIntent $intent): bool
     {
-        return match ($intent) {
-            ExchangeIntent::AttachFile => $this->hasRoomForAnAttachment(),
-            ExchangeIntent::MakeConform => $this->awaitsBeingMadeConform(),
-            default => true,
-        };
+        return in_array($intent, ExchangePossibilities::given(count($this->attachments), $this->awaitsBeingMadeConform()), true);
     }
 
-    private function hasRoomForAnAttachment(): bool
-    {
-        return count($this->attachments) < self::MOST_ATTACHMENTS;
-    }
-
-    /**
-     * Every prospector of the account reads the text; without the right to manage personal data, it comes
-     * flagged: it may hold some.
-     */
     public function isTextFlaggedFor(Prospector $prospector): bool
     {
-        return null !== $this->facts->text && !$prospector->managesPersonalData;
+        return ExchangeReading::isTextFlagged(null !== $this->facts->text, $prospector);
     }
 
     /**
@@ -421,11 +389,11 @@ final class Exchange implements ReleasesEvents
      */
     private function ensurePossible(ExchangeIntent $intent): void
     {
-        if (ExchangeIntent::AttachFile === $intent && !$this->hasRoomForAnAttachment()) {
+        if (ExchangeIntent::AttachFile === $intent && !$this->allowsInItsState($intent)) {
             throw NoRoomForAnAttachment::because(sprintf('An exchange holds %d attachments at most', self::MOST_ATTACHMENTS));
         }
 
-        if (ExchangeIntent::MakeConform === $intent && !$this->awaitsBeingMadeConform()) {
+        if (ExchangeIntent::MakeConform === $intent && !$this->allowsInItsState($intent)) {
             throw NothingToMakeConform::because('Only an exchange with a forgotten contact is to make conform');
         }
     }

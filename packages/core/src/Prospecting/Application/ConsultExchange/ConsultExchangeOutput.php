@@ -8,5 +8,5 @@ use Prospecter\Core\SharedKernel\Application\OutputPort;
 
 interface ConsultExchangeOutput extends OutputPort
 {
-    public function present(ExchangeDetailResponse $exchange): void;
+    public function present(ExchangeDetail $exchange): void;
 }

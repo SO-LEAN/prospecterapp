@@ -10,7 +10,7 @@ use Behat\Step\Given;
 use Behat\Step\Then;
 use Behat\Step\When;
 use Prospecter\Core\Prospecting\Application\AttachFile\AttachFile;
-use Prospecter\Core\Prospecting\Application\ConsultExchange\AttachmentResponse;
+use Prospecter\Core\Prospecting\Application\ConsultExchange\AttachmentDetail;
 use Prospecter\Core\Prospecting\Application\ConsultExchange\ConsultExchange;
 use Prospecter\Core\Prospecting\Application\ConsultTimeline\ConsultTimeline;
 use Prospecter\Core\Prospecting\Application\DownloadAttachment\AttachmentDownloadResponse;
@@ -100,7 +100,7 @@ final class AttachmentContext implements Context
     {
         $detail = $this->application->consultExchange(new ConsultExchange($this->application->signedIn(), $this->scenario->theExchange()));
         Expect::that(null !== $detail, sprintf('The exchange was expected, got: %s', $this->application->refusal()?->getMessage()));
-        Expect::same($table->getColumn(0), array_map(static fn (AttachmentResponse $attachment): string => $attachment->name, $detail->attachments));
+        Expect::same($table->getColumn(0), array_map(static fn (AttachmentDetail $attachment): string => $attachment->name, $detail->attachments));
     }
 
     #[Then('le détail de l\'échange cache :count pièces jointes')]
@@ -115,7 +115,7 @@ final class AttachmentContext implements Context
     public function theFileIsToMakeConform(string $file): void
     {
         $detail = $this->application->consultExchange(new ConsultExchange($this->application->signedIn(), $this->scenario->theExchange()));
-        $attachment = array_find($detail->attachments ?? [], static fn (AttachmentResponse $attachment): bool => $attachment->name === $file);
+        $attachment = array_find($detail->attachments ?? [], static fn (AttachmentDetail $attachment): bool => $attachment->name === $file);
         Expect::that(true === $attachment?->toMakeConform, sprintf('%s was expected to be made conform', $file));
     }
 

@@ -58,7 +58,7 @@ use Prospecter\Core\Prospecting\Application\ChangeContactDetails\ChangeContactDe
 use Prospecter\Core\Prospecting\Application\ChangeLogo\ChangeLogoHandler;
 use Prospecter\Core\Prospecting\Application\ConsultExchange\ConsultExchange;
 use Prospecter\Core\Prospecting\Application\ConsultExchange\ConsultExchangeHandler;
-use Prospecter\Core\Prospecting\Application\ConsultExchange\ExchangeDetailResponse;
+use Prospecter\Core\Prospecting\Application\ConsultExchange\ExchangeDetail;
 use Prospecter\Core\Prospecting\Application\ConsultExchange\KeptExchange;
 use Prospecter\Core\Prospecting\Application\ConsultExchangesToMakeConform\ConsultExchangesToMakeConform;
 use Prospecter\Core\Prospecting\Application\ConsultExchangesToMakeConform\ConsultExchangesToMakeConformHandler;
@@ -123,6 +123,7 @@ use Tests\Core\Double\AccountsProspectors;
 use Tests\Core\Double\AccountsReaders;
 use Tests\Core\Double\InMemoryAccountRepository;
 use Tests\Core\Double\InMemoryDatabase;
+use Tests\Core\Double\InMemoryExchangeDetailRetriever;
 use Tests\Core\Double\InMemoryExchangeRepository;
 use Tests\Core\Double\InMemoryFoundOrganizationRetriever;
 use Tests\Core\Double\InMemoryMemberRepository;
@@ -150,6 +151,7 @@ final class Application
     public readonly InMemoryOrganizationRepository $organizations;
     public readonly InMemoryFoundOrganizationRetriever $foundOrganizationRetriever;
     private readonly InMemoryOrganizationSheetRetriever $organizationSheetRetriever;
+    private readonly InMemoryExchangeDetailRetriever $exchangeDetailRetriever;
     public readonly InMemoryExchangeRepository $exchanges;
     public readonly InMemoryAccountRepository $accounts;
     public readonly InMemoryMemberRepository $members;
@@ -185,6 +187,7 @@ final class Application
         $this->organizations = new InMemoryOrganizationRepository($database);
         $this->foundOrganizationRetriever = new InMemoryFoundOrganizationRetriever($database);
         $this->organizationSheetRetriever = new InMemoryOrganizationSheetRetriever($database);
+        $this->exchangeDetailRetriever = new InMemoryExchangeDetailRetriever($database);
         $this->exchanges = new InMemoryExchangeRepository($database);
         $this->accounts = new InMemoryAccountRepository($database);
         $this->members = new InMemoryMemberRepository($database);
@@ -346,11 +349,11 @@ final class Application
         return $this->ask(new ConsultTimelineIntentsHandler($this->prospectors, $this->contactOrganizations), $query, $kept) ? $kept->intents : null;
     }
 
-    public function consultExchange(ConsultExchange $query): ?ExchangeDetailResponse
+    public function consultExchange(ConsultExchange $query): ?ExchangeDetail
     {
         $kept = new KeptExchange();
 
-        return $this->ask(new ConsultExchangeHandler($this->exchanges, $this->prospectors), $query, $kept) ? $kept->exchange : null;
+        return $this->ask(new ConsultExchangeHandler($this->exchangeDetailRetriever, $this->prospectors), $query, $kept) ? $kept->exchange : null;
     }
 
     public function downloadAttachment(DownloadAttachment $query): ?AttachmentDownloadResponse

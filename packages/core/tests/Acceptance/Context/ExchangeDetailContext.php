@@ -10,7 +10,7 @@ use Behat\Step\Given;
 use Behat\Step\Then;
 use Behat\Step\When;
 use Prospecter\Core\Prospecting\Application\ConsultExchange\ConsultExchange;
-use Prospecter\Core\Prospecting\Application\ConsultExchange\ExchangeDetailResponse;
+use Prospecter\Core\Prospecting\Application\ConsultExchange\ExchangeDetail;
 use Prospecter\Core\Prospecting\Application\CorrectExchange\CorrectExchange;
 use Prospecter\Core\Prospecting\Application\CorrectExchangeText\CorrectExchangeText;
 use Prospecter\Core\Prospecting\Application\EraseExchange\EraseExchange;
@@ -124,7 +124,7 @@ final class ExchangeDetailContext implements Context
     /**
      * The exchange as it is now, read again after what the scenario did.
      */
-    private function consulted(): ExchangeDetailResponse
+    private function consulted(): ExchangeDetail
     {
         $detail = $this->consult();
         Expect::that(null !== $detail, sprintf('The exchange was expected, got: %s', $this->application->refusal()?->getMessage()));
@@ -132,7 +132,7 @@ final class ExchangeDetailContext implements Context
         return $detail;
     }
 
-    private function consult(): ?ExchangeDetailResponse
+    private function consult(): ?ExchangeDetail
     {
         return $this->application->consultExchange(new ConsultExchange($this->application->signedIn(), $this->scenario->theExchange()));
     }
@@ -140,7 +140,7 @@ final class ExchangeDetailContext implements Context
     /**
      * @return array<string, string>
      */
-    private function describe(ExchangeDetailResponse $exchange): array
+    private function describe(ExchangeDetail $exchange): array
     {
         return [
             'interlocuteur' => $this->interlocutorOf($exchange),
@@ -161,7 +161,7 @@ final class ExchangeDetailContext implements Context
     /**
      * The contact it was with, or the organization itself, the only one it is kept for.
      */
-    private function interlocutorOf(ExchangeDetailResponse $exchange): string
+    private function interlocutorOf(ExchangeDetail $exchange): string
     {
         return null === $exchange->personId
             ? $this->scenario->nameOf(new OrganizationId($exchange->organizationIds[0] ?? ''))

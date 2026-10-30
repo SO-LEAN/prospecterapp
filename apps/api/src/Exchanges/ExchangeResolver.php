@@ -4,7 +4,7 @@ namespace App\Exchanges;
 
 use App\Security\User;
 use Prospecter\Core\Prospecting\Application\ConsultExchange\ConsultExchange;
-use Prospecter\Core\Prospecting\Application\ConsultExchange\ExchangeDetailResponse;
+use Prospecter\Core\Prospecting\Application\ConsultExchange\ExchangeDetail;
 use Prospecter\Core\Prospecting\Application\ConsultExchange\KeptExchange;
 use Prospecter\Core\SharedKernel\Application\RefusalTranslatingHandler;
 use Symfony\Bundle\SecurityBundle\Security;
@@ -23,13 +23,13 @@ final readonly class ExchangeResolver implements ValueResolverInterface
     }
 
     /**
-     * @return list<ExchangeDetailResponse>
+     * @return list<ExchangeDetail>
      */
     public function resolve(Request $request, ArgumentMetadata $argument): iterable
     {
         $reader = $this->security->getUser();
 
-        if (ExchangeDetailResponse::class !== $argument->getType() || !$reader instanceof User) {
+        if (ExchangeDetail::class !== $argument->getType() || !$reader instanceof User) {
             return [];
         }
 

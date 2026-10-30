@@ -14,9 +14,9 @@ use App\Security\IntentLinks;
 use App\Security\User;
 use App\Shared\Links;
 use App\Shared\Resource\LinkResource;
-use Prospecter\Core\Prospecting\Application\ConsultExchange\AttachmentResponse;
+use Prospecter\Core\Prospecting\Application\ConsultExchange\AttachmentDetail;
 use Prospecter\Core\Prospecting\Application\ConsultExchange\ConsultExchangeOutput;
-use Prospecter\Core\Prospecting\Application\ConsultExchange\ExchangeDetailResponse;
+use Prospecter\Core\Prospecting\Application\ConsultExchange\ExchangeDetail;
 
 /**
  * The detail of an exchange, with a link per intention its state offers and the signed-in member may carry out on it
@@ -44,7 +44,7 @@ final class ExchangeDetailPresenter implements ConsultExchangeOutput
     {
     }
 
-    public function present(ExchangeDetailResponse $exchange): void
+    public function present(ExchangeDetail $exchange): void
     {
         $persons = $this->participants->persons;
         $personOfMember = $this->participants->personOfMember;
@@ -66,7 +66,7 @@ final class ExchangeDetailPresenter implements ConsultExchangeOutput
             noted: new StampResource($exchange->createdAt->format(\DateTimeInterface::ATOM), $authorOf($exchange->createdBy)),
             corrected: null === $exchange->correctedAt || null === $exchange->correctedBy ? null : new StampResource($exchange->correctedAt->format(\DateTimeInterface::ATOM), $authorOf($exchange->correctedBy)),
             madeConform: null === $exchange->madeConformAt || null === $exchange->madeConformBy ? null : new StampResource($exchange->madeConformAt->format(\DateTimeInterface::ATOM), $authorOf($exchange->madeConformBy)),
-            attachments: array_map(fn (AttachmentResponse $attachment): AttachmentResource => $this->presentAttachment($exchange, $attachment), $exchange->attachments),
+            attachments: array_map(fn (AttachmentDetail $attachment): AttachmentResource => $this->presentAttachment($exchange, $attachment), $exchange->attachments),
             hiddenAttachments: $exchange->hiddenAttachments,
             links: $this->linksOf($exchange),
         );
@@ -75,7 +75,7 @@ final class ExchangeDetailPresenter implements ConsultExchangeOutput
     /**
      * Downloaded by whoever reads it, removed when the signed-in member may (`IntentLinks`).
      */
-    private function presentAttachment(ExchangeDetailResponse $exchange, AttachmentResponse $attachment): AttachmentResource
+    private function presentAttachment(ExchangeDetail $exchange, AttachmentDetail $attachment): AttachmentResource
     {
         $ids = ['id' => $exchange->id, 'attachmentId' => $attachment->id];
 
@@ -85,7 +85,7 @@ final class ExchangeDetailPresenter implements ConsultExchangeOutput
         ));
     }
 
-    private function linksOf(ExchangeDetailResponse $exchange): ExchangeDetailLinksResource
+    private function linksOf(ExchangeDetail $exchange): ExchangeDetailLinksResource
     {
         $id = ['id' => $exchange->id];
         $granted = array_filter(self::ROUTES, fn (array $link): bool => $this->intentLinks->shows($link['intent'], $exchange->possibleIntents, $link['role']));
