@@ -46,7 +46,7 @@ final class PersonalDataContext implements Context
     {
         $member = $this->scenario->aMemberOf($name, $account, Role::User, Role::Prospector);
         $values = Vocabulary::values($table->getRowsHash());
-        $person = $this->application->persons->get($member->personId());
+        $person = $this->application->persons->get($this->scenario->profileOf($member));
         $theColleague = $this->application->readers->readerFrom($member->id());
         $person->rename(Vocabulary::personName($values), by: $theColleague, at: $this->application->now());
         $person->changeContactDetails(Vocabulary::contactDetails($values), by: $theColleague, at: $this->application->now());

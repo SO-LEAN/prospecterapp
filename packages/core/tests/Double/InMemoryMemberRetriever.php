@@ -23,6 +23,8 @@ final readonly class InMemoryMemberRetriever implements MemberRetriever
     {
         $member = $this->database->member((string) $id) ?? throw UnknownMember::identifiedBy($id);
 
-        return new MemberResponse($member->id()->value, $member->accountId()->value, $member->personId()->value, PersonalDataRight::isGrantedBy(...$member->roles()));
+        $state = StateOf::the($member);
+
+        return new MemberResponse($member->id()->value, $member->accountId()->value, $state['personId']->value, PersonalDataRight::isGrantedBy(...$state['roles']));
     }
 }

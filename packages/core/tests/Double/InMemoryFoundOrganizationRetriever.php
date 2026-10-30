@@ -33,16 +33,17 @@ final readonly class InMemoryFoundOrganizationRetriever implements FoundOrganiza
 
     private static function found(Organization $organization): FoundOrganization
     {
-        $address = $organization->address();
-        $geoPoint = $organization->geoPoint();
+        $state = StateOf::the($organization);
+        $address = $state['address'];
+        $geoPoint = $state['geoPoint'];
 
         return new FoundOrganization(
             id: $organization->id()->value,
-            fullName: $organization->fullName(),
+            fullName: $state['legalIdentity']->fullName(),
             postalCode: $address?->postalCode,
             city: $address?->city,
             country: $address?->country,
-            logo: FileResponse::orNone($organization->logo()),
+            logo: FileResponse::orNone($state['logo']),
             longitude: $geoPoint?->longitude,
             latitude: $geoPoint?->latitude,
         );

@@ -39,7 +39,7 @@ final readonly class InMemoryOrganizationRepository implements OrganizationRepos
 
     public function subsidiariesOf(OrganizationId $holding): array
     {
-        return array_values(array_filter($this->database->organizations(), static fn (Organization $organization): bool => $organization->holdingId()?->equals($holding) ?? false));
+        return array_values(array_filter($this->database->organizations(), static fn (Organization $organization): bool => StateOf::the($organization)['holdingId']?->equals($holding) ?? false));
     }
 
     public function withContacts(array $contacts, AccountId $accountId): array

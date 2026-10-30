@@ -19,6 +19,7 @@ use Prospecter\Core\SharedKernel\Domain\LegalIdentity;
 use Prospecter\Core\SharedKernel\Domain\MemberId;
 use Prospecter\Core\SharedKernel\Domain\PhoneNumber;
 use Prospecter\Core\SharedKernel\Domain\Uuid;
+use Tests\Core\Double\StateOf;
 
 /**
  * The words of the scenarios: French labels of the Gherkin tables, how they become value objects and how
@@ -173,9 +174,9 @@ final class Vocabulary
      */
     public static function describeOrganization(Organization $organization, \Closure $nameOf, MemberId $me): array
     {
-        $identity = $organization->legalIdentity();
+        $identity = StateOf::the($organization)['legalIdentity'];
         $contact = $organization->contactDetails();
-        $address = $organization->address();
+        $address = StateOf::the($organization)['address'];
 
         return [
             'raison sociale' => (string) $identity->corporateName,
@@ -188,14 +189,14 @@ final class Vocabulary
             'code postal' => (string) $address?->postalCode,
             'ville' => (string) $address?->city,
             'pays' => (string) $address?->country,
-            'observations' => (string) $organization->observations(),
-            'position' => self::describeGeoPoint($organization->geoPoint()),
-            'logo' => self::describeFile($organization->logo()),
-            'holding' => null === $organization->holdingId() ? '' : $nameOf($organization->holdingId()),
+            'observations' => (string) StateOf::the($organization)['observations'],
+            'position' => self::describeGeoPoint(StateOf::the($organization)['geoPoint']),
+            'logo' => self::describeFile(StateOf::the($organization)['logo']),
+            'holding' => null === StateOf::the($organization)['holdingId'] ? '' : $nameOf(StateOf::the($organization)['holdingId']),
             'compte' => $nameOf($organization->accountId()),
-            'saisie par' => $organization->createdBy()->equals($me) ? 'moi' : 'un autre membre',
-            'créée le' => self::describeMoment($organization->createdAt()),
-            'modifiée le' => self::describeMoment($organization->modifiedAt()),
+            'saisie par' => StateOf::the($organization)['createdBy']->equals($me) ? 'moi' : 'un autre membre',
+            'créée le' => self::describeMoment(StateOf::the($organization)['createdAt']),
+            'modifiée le' => self::describeMoment(StateOf::the($organization)['modifiedAt']),
         ];
     }
 
@@ -205,21 +206,21 @@ final class Vocabulary
     public static function describeAccount(Member $me, Account $account, Person $myPerson): array
     {
         return [
-            'prénom' => (string) $myPerson->name()->firstName,
-            'nom' => (string) $myPerson->name()->lastName,
+            'prénom' => (string) StateOf::the($myPerson)['name']->firstName,
+            'nom' => (string) StateOf::the($myPerson)['name']->lastName,
             'e-mail' => (string) $myPerson->contactDetails()->email,
             'téléphone' => (string) $myPerson->contactDetails()->phoneNumber?->international(),
             'langue' => (string) $myPerson->contactDetails()->language,
-            'photo' => self::describeFile($myPerson->picture()),
-            'raison sociale de mon organisation' => (string) $account->legalIdentity()->corporateName,
-            'forme juridique de mon organisation' => (string) $account->legalIdentity()->form,
-            'langue de mon organisation' => (string) $account->contactDetails()->language,
-            'rue de mon organisation' => (string) $account->address()?->street,
-            'ville de mon organisation' => (string) $account->address()?->city,
-            'position de mon organisation' => self::describeGeoPoint($account->geoPoint()),
-            'logo de mon organisation' => self::describeFile($account->logo()),
-            'mon profil modifié le' => self::describeMoment($myPerson->modifiedAt()),
-            'mon organisation modifiée le' => self::describeMoment($account->modifiedAt()),
+            'photo' => self::describeFile(StateOf::the($myPerson)['picture']),
+            'raison sociale de mon organisation' => (string) StateOf::the($account)['legalIdentity']->corporateName,
+            'forme juridique de mon organisation' => (string) StateOf::the($account)['legalIdentity']->form,
+            'langue de mon organisation' => (string) StateOf::the($account)['contactDetails']->language,
+            'rue de mon organisation' => (string) StateOf::the($account)['address']?->street,
+            'ville de mon organisation' => (string) StateOf::the($account)['address']?->city,
+            'position de mon organisation' => self::describeGeoPoint(StateOf::the($account)['geoPoint']),
+            'logo de mon organisation' => self::describeFile(StateOf::the($account)['logo']),
+            'mon profil modifié le' => self::describeMoment(StateOf::the($myPerson)['modifiedAt']),
+            'mon organisation modifiée le' => self::describeMoment(StateOf::the($account)['modifiedAt']),
         ];
     }
 

@@ -70,44 +70,6 @@ final class Account implements ReleasesEvents
         return $this->id;
     }
 
-    public function legalIdentity(): LegalIdentity
-    {
-        return $this->legalIdentity;
-    }
-
-    public function contactDetails(): ContactDetails
-    {
-        return $this->contactDetails;
-    }
-
-    public function logo(): ?File
-    {
-        return $this->logo;
-    }
-
-    public function address(): ?Address
-    {
-        return $this->address;
-    }
-
-    public function geoPoint(): ?GeoPoint
-    {
-        return $this->geoPoint;
-    }
-
-    public function createdAt(): \DateTimeImmutable
-    {
-        return $this->createdAt;
-    }
-
-    /**
-     * When an intention last changed it: its creation, then every change.
-     */
-    public function modifiedAt(): \DateTimeImmutable
-    {
-        return $this->modifiedAt;
-    }
-
     public function reviseLegalIdentity(LegalIdentity $legalIdentity, Member $by, \DateTimeImmutable $at): void
     {
         $this->ensurePossible(AccountIntent::ReviseLegalIdentity, $by);

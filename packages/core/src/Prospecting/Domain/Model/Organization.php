@@ -90,29 +90,6 @@ final class Organization implements ReleasesEvents
         return $this->accountId;
     }
 
-    /**
-     * Who entered it, for the record: every prospector of the account manages it alike.
-     */
-    public function createdBy(): MemberId
-    {
-        return $this->createdBy;
-    }
-
-    public function holdingId(): ?OrganizationId
-    {
-        return $this->holdingId;
-    }
-
-    public function legalIdentity(): LegalIdentity
-    {
-        return $this->legalIdentity;
-    }
-
-    public function fullName(): string
-    {
-        return $this->legalIdentity->fullName();
-    }
-
     public function contactDetails(): ContactDetails
     {
         return $this->contactDetails;
@@ -124,49 +101,6 @@ final class Organization implements ReleasesEvents
     public function searchKeys(): SearchKeys
     {
         return new SearchKeys($this->legalIdentity->corporateName, $this->contactDetails->email);
-    }
-
-    public function address(): ?Address
-    {
-        return $this->address;
-    }
-
-    public function geoPoint(): ?GeoPoint
-    {
-        return $this->geoPoint;
-    }
-
-    public function observations(): ?string
-    {
-        return $this->observations;
-    }
-
-    public function logo(): ?File
-    {
-        return $this->logo;
-    }
-
-    /**
-     * The persons prospected in the organization, kept by PersonalData (ADR 0041).
-     *
-     * @return list<PersonId>
-     */
-    public function contacts(): array
-    {
-        return $this->contacts;
-    }
-
-    public function createdAt(): \DateTimeImmutable
-    {
-        return $this->createdAt;
-    }
-
-    /**
-     * When an intention last changed it: its creation, then every change.
-     */
-    public function modifiedAt(): \DateTimeImmutable
-    {
-        return $this->modifiedAt;
     }
 
     public function isProspectedBy(AccountId $accountId): bool

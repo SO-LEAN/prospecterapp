@@ -2,6 +2,7 @@
 
 namespace Tests\App\Prospecting;
 
+use App\Shared\Persistence\Hydrator;
 use Prospecter\Core\Prospecting\Domain\Exception\UnknownExchange;
 use Prospecter\Core\Prospecting\Domain\Model\Channel;
 use Prospecter\Core\Prospecting\Domain\Model\Correction;
@@ -53,7 +54,7 @@ class DynamoExchangeRepositoryTest extends ApiTestCase
 
         $this->assertSame([], $exchanges->keptFor($this->acme));
         $this->assertEquals([$exchange->id()], array_map(static fn (Exchange $kept): ExchangeId => $kept->id(), $exchanges->keptFor($this->group)));
-        $this->assertEquals([$this->group], $exchanges->keptFor($this->group)[0]->keptFor());
+        $this->assertEquals([$this->group], Hydrator::stateOf($exchanges->keptFor($this->group)[0])['keptFor']);
     }
 
     public function testARemovedExchangeIsFoundNowhere(): void
@@ -87,8 +88,8 @@ class DynamoExchangeRepositoryTest extends ApiTestCase
         $exchanges->save($exchange);
 
         $read = $exchanges->get($exchange->id());
-        $this->assertEquals($corrected, $read->facts());
-        $this->assertEquals(new Correction($this->prospector->id, new \DateTimeImmutable(self::NOW)), $read->lastCorrection());
+        $this->assertEquals($corrected, Hydrator::stateOf($read)['facts']);
+        $this->assertEquals(new Correction($this->prospector->id, new \DateTimeImmutable(self::NOW)), Hydrator::stateOf($read)['lastCorrection']);
     }
 
     public function testTheExchangesWithAContactAreFoundAll(): void
@@ -114,7 +115,7 @@ class DynamoExchangeRepositoryTest extends ApiTestCase
         $exchanges->save($exchange);
 
         $read = $exchanges->get($exchange->id());
-        $this->assertEquals(new Correction($this->prospector->id, new \DateTimeImmutable(self::NOW)), $read->madeConform());
+        $this->assertEquals(new Correction($this->prospector->id, new \DateTimeImmutable(self::NOW)), Hydrator::stateOf($read)['madeConform']);
         $this->assertFalse($read->isToMakeConform());
     }
 

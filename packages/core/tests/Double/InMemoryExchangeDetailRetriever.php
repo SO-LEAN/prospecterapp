@@ -30,10 +30,11 @@ final readonly class InMemoryExchangeDetailRetriever implements ExchangeDetailRe
     public function get(ExchangeId $id, Prospector $reader): ExchangeDetail
     {
         $exchange = $this->database->exchange((string) $id) ?? throw UnknownExchange::identifiedBy($id);
-        $facts = $exchange->facts();
-        $correction = $exchange->lastCorrection();
-        $madeConform = $exchange->madeConform();
-        $contactForgotten = ContactPresence::Forgotten === $exchange->contactPresence();
+        $state = StateOf::the($exchange);
+        $facts = $state['facts'];
+        $correction = $state['lastCorrection'];
+        $madeConform = $state['madeConform'];
+        $contactForgotten = $state['contactForgotten'];
         $attachments = $exchange->attachments();
         $read = ExchangeReading::readsTheAttachments($reader) ? $attachments : [];
         $attachmentsToMakeConform = ExchangeConformity::areAttachmentsToMakeConform($contactForgotten);
@@ -41,8 +42,8 @@ final readonly class InMemoryExchangeDetailRetriever implements ExchangeDetailRe
         return new ExchangeDetail(
             id: $exchange->id()->value,
             accountId: $exchange->accountId()->value,
-            personId: $exchange->contact()?->value,
-            contactPresence: $exchange->contactPresence()?->value,
+            personId: $state['contact']?->value,
+            contactPresence: ContactPresence::ofTheContact(null !== $state['contact'], $contactForgotten)?->value,
             channel: $facts->channel->value,
             direction: $facts->direction->value,
             missed: $facts->missed,
@@ -51,9 +52,9 @@ final readonly class InMemoryExchangeDetailRetriever implements ExchangeDetailRe
             textFlagged: ExchangeReading::isTextFlagged(null !== $facts->text, $reader),
             textToMakeConform: ExchangeConformity::isTextToMakeConform(null !== $facts->text, $contactForgotten, null !== $madeConform),
             toMakeConform: ExchangeConformity::isToMakeConform($contactForgotten, null !== $madeConform, [] !== $attachments),
-            organizationIds: array_map(static fn (OrganizationId $organization): string => $organization->value, $exchange->keptFor()),
-            createdBy: $exchange->createdBy()->value,
-            createdAt: $exchange->createdAt(),
+            organizationIds: array_map(static fn (OrganizationId $organization): string => $organization->value, $state['keptFor']),
+            createdBy: $state['createdBy']->value,
+            createdAt: $state['createdAt'],
             correctedBy: $correction?->by->value,
             correctedAt: $correction?->at,
             madeConformBy: $madeConform?->by->value,

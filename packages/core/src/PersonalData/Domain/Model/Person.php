@@ -100,19 +100,6 @@ final class Person implements ReleasesEvents
         return $this->accountId->equals($accountId) && Purpose::Prospecting === $this->purpose;
     }
 
-    public function name(): PersonName
-    {
-        return $this->name;
-    }
-
-    /**
-     * What the person does in the organization they work for.
-     */
-    public function jobTitle(): ?string
-    {
-        return $this->jobTitle;
-    }
-
     public function contactDetails(): ContactDetails
     {
         return $this->contactDetails;
@@ -124,24 +111,6 @@ final class Person implements ReleasesEvents
     public function searchKeys(): SearchKeys
     {
         return new SearchKeys($this->name->lastName, $this->contactDetails->email);
-    }
-
-    public function picture(): ?File
-    {
-        return $this->picture;
-    }
-
-    public function createdAt(): \DateTimeImmutable
-    {
-        return $this->createdAt;
-    }
-
-    /**
-     * When an intention last changed it: its creation, then every change.
-     */
-    public function modifiedAt(): \DateTimeImmutable
-    {
-        return $this->modifiedAt;
     }
 
     public function rename(PersonName $name, Reader $by, \DateTimeImmutable $at): void

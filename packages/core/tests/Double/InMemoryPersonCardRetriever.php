@@ -57,8 +57,9 @@ final readonly class InMemoryPersonCardRetriever implements PersonCardRetriever
      */
     public static function cardOf(Person $person, Reader $reader): PersonCard
     {
+        $state = StateOf::the($person);
         $masked = Reading::Masked === PersonReading::by($reader, $person->id());
-        $name = $person->name();
+        $name = $state['name'];
         $contact = $person->contactDetails();
 
         return new PersonCard(
@@ -66,14 +67,14 @@ final readonly class InMemoryPersonCardRetriever implements PersonCardRetriever
             masked: $masked,
             firstName: $masked ? Masking::name($name->firstName) : $name->firstName,
             lastName: $masked ? Masking::name($name->lastName) : $name->lastName,
-            jobTitle: $masked ? Masking::jobTitle($person->jobTitle()) : $person->jobTitle(),
+            jobTitle: $masked ? Masking::jobTitle($state['jobTitle']) : $state['jobTitle'],
             email: $masked ? Masking::email($contact->email?->value) : $contact->email?->value,
             phoneNumber: $masked ? Masking::phoneNumber($contact->phoneNumber) : $contact->phoneNumber?->international(),
             language: $contact->language,
-            picture: $masked ? null : FileResponse::orNone($person->picture()),
+            picture: $masked ? null : FileResponse::orNone($state['picture']),
             possibleIntents: array_map(static fn (PersonIntent $intent): string => $intent->name, PersonPossibilities::given($reader, $person->id(), $person->accountId(), $person->purpose())),
-            createdAt: $person->createdAt(),
-            modifiedAt: $person->modifiedAt(),
+            createdAt: $state['createdAt'],
+            modifiedAt: $state['modifiedAt'],
         );
     }
 

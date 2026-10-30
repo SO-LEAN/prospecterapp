@@ -117,78 +117,12 @@ final class Exchange implements ReleasesEvents
     }
 
     /**
-     * Who noted it, for the record: every prospector of the account reads it alike.
-     */
-    public function createdBy(): MemberId
-    {
-        return $this->createdBy;
-    }
-
-    /**
-     * The contact it was with, none when it was with the organization itself.
-     */
-    public function contact(): ?PersonId
-    {
-        return $this->contact;
-    }
-
-    /**
-     * The contact still known, or forgotten; none for the organization itself.
-     */
-    public function contactPresence(): ?ContactPresence
-    {
-        return ContactPresence::ofTheContact(null !== $this->contact, $this->contactForgotten);
-    }
-
-    /**
-     * The organizations the contact was part of when the exchange was noted, still prospected.
-     *
-     * @return list<OrganizationId>
-     */
-    public function keptFor(): array
-    {
-        return $this->keptFor;
-    }
-
-    public function facts(): ExchangeFacts
-    {
-        return $this->facts;
-    }
-
-    /**
-     * Who corrected the exchange last, and when; null while it is as it was noted. Its former versions are
-     * kept by the activity journal only.
-     */
-    public function lastCorrection(): ?Correction
-    {
-        return $this->lastCorrection;
-    }
-
-    /**
-     * Who declared it conform, and when; null while it is not.
-     */
-    public function madeConform(): ?Correction
-    {
-        return $this->madeConform;
-    }
-
-    /**
      * Its contact forgotten, it may still hold their personal data: in its text until it is declared conform,
      * in its files until they are removed.
      */
     public function isToMakeConform(): bool
     {
         return ExchangeConformity::isToMakeConform($this->contactForgotten, null !== $this->madeConform, [] !== $this->attachments);
-    }
-
-    public function isTextToMakeConform(): bool
-    {
-        return ExchangeConformity::isTextToMakeConform(null !== $this->facts->text, $this->contactForgotten, null !== $this->madeConform);
-    }
-
-    public function areAttachmentsToMakeConform(): bool
-    {
-        return ExchangeConformity::areAttachmentsToMakeConform($this->contactForgotten);
     }
 
     private function awaitsBeingMadeConform(): bool
@@ -240,16 +174,6 @@ final class Exchange implements ReleasesEvents
         }
 
         throw UnknownAttachment::identifiedBy($id);
-    }
-
-    public function createdAt(): \DateTimeImmutable
-    {
-        return $this->createdAt;
-    }
-
-    public function modifiedAt(): \DateTimeImmutable
-    {
-        return $this->modifiedAt;
     }
 
     private function allowsInItsState(ExchangeIntent $intent): bool

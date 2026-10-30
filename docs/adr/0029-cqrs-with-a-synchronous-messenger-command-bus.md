@@ -1,7 +1,7 @@
 # 0029. CQRS: commands on a synchronous Messenger bus return nothing, only queries return data
 
 - Date: 2026-10-15
-- Status: Accepted, what a query returns superseded by [0085](0085-a-query-presents-its-answer-to-a-presenter-built-for-the-call.md)
+- Status: Accepted, what a query returns superseded by [0085](0085-a-query-presents-its-answer-to-a-presenter-built-for-the-call.md), what it reads specified by [0088](0088-a-query-reads-its-read-model-through-a-port-a-policy-says-what-is-possible.md)
 - Supersedes: [0020](0020-command-bus-instead-of-the-facade.md)
 - Implemented by: `packages/core/src/Application/*/*/` (`*Handler`, `CommandHandler`), `apps/api/config/packages/messenger.yaml`, `apps/api/src/Messenger/CommandBus.php`, `apps/api/src/Api/OrganizationReader.php`
 

@@ -41,19 +41,20 @@ final readonly class InMemoryOrganizationSheetRetriever implements OrganizationS
 
     private static function sheetOf(Organization $organization): OrganizationSheet
     {
-        $identity = $organization->legalIdentity();
+        $state = StateOf::the($organization);
+        $identity = $state['legalIdentity'];
         $contact = $organization->contactDetails();
-        $address = $organization->address();
-        $geoPoint = $organization->geoPoint();
+        $address = $state['address'];
+        $geoPoint = $state['geoPoint'];
 
         return new OrganizationSheet(
             id: $organization->id()->value,
             accountId: $organization->accountId()->value,
-            createdBy: $organization->createdBy()->value,
+            createdBy: $state['createdBy']->value,
             corporateName: $identity->corporateName,
             form: $identity->form,
             type: $identity->type,
-            fullName: $organization->fullName(),
+            fullName: $identity->fullName(),
             email: $contact->email?->value,
             phoneNumber: $contact->phoneNumber?->international(),
             language: $contact->language,
@@ -63,13 +64,13 @@ final readonly class InMemoryOrganizationSheetRetriever implements OrganizationS
             country: $address?->country,
             longitude: $geoPoint?->longitude,
             latitude: $geoPoint?->latitude,
-            observations: $organization->observations(),
-            logo: FileResponse::orNone($organization->logo()),
-            holdingId: $organization->holdingId()?->value,
-            contactIds: array_map(static fn (PersonId $contact): string => $contact->value, $organization->contacts()),
-            createdAt: $organization->createdAt(),
-            modifiedAt: $organization->modifiedAt(),
-            possibleIntents: array_map(static fn (OrganizationIntent $intent): string => $intent->name, OrganizationPossibilities::given(hasLogo: null !== $organization->logo(), hasHolding: null !== $organization->holdingId(), hasContacts: [] !== $organization->contacts())),
+            observations: $state['observations'],
+            logo: FileResponse::orNone($state['logo']),
+            holdingId: $state['holdingId']?->value,
+            contactIds: array_map(static fn (PersonId $contact): string => $contact->value, $state['contacts']),
+            createdAt: $state['createdAt'],
+            modifiedAt: $state['modifiedAt'],
+            possibleIntents: array_map(static fn (OrganizationIntent $intent): string => $intent->name, OrganizationPossibilities::given(hasLogo: null !== $state['logo'], hasHolding: null !== $state['holdingId'], hasContacts: [] !== $state['contacts'])),
         );
     }
 }

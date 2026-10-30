@@ -1,3 +1,9 @@
 # Rules shared by every PHP codebase of the monorepo, included by their phpstan.dist.neon
 rules:
     - Prospecter\PHPStan\DependenciesAreInjectedRule
+
+services:
+    -
+        class: Prospecter\PHPStan\AggregateStateIsReadByItsRepository
+        tags:
+            - phpstan.properties.readWriteExtension

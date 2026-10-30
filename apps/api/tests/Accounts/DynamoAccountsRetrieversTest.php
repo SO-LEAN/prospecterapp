@@ -2,6 +2,7 @@
 
 namespace Tests\App\Accounts;
 
+use App\Shared\Persistence\Hydrator;
 use PHPUnit\Framework\Attributes\DataProvider;
 use Prospecter\Core\Accounts\Application\Port\MemberRetriever;
 use Prospecter\Core\Accounts\Application\Port\MyAccountRetriever;
@@ -32,7 +33,7 @@ class DynamoAccountsRetrieversTest extends ApiTestCase
 
         $myAccount = self::getContainer()->get(MyAccountRetriever::class)->of($me->id());
 
-        $this->assertSame([$me->id()->value, $account->id()->value, $me->personId()->value], [$myAccount->memberId, $myAccount->accountId, $myAccount->personId]);
+        $this->assertSame([$me->id()->value, $account->id()->value, Hydrator::stateOf($me)['personId']->value], [$myAccount->memberId, $myAccount->accountId, $myAccount->personId]);
         $this->assertSame(['ROLE_USER', 'ROLE_PROSPECTOR'], $myAccount->roles);
         $this->assertSame(['SOLEAN IT', 'Strasbourg'], [$myAccount->organizationCorporateName, $myAccount->organizationCity]);
         $this->assertSame(array_map(static fn (AccountIntent $intent): string => $intent->name, AccountIntent::cases()), $myAccount->accountIntents);
@@ -56,7 +57,7 @@ class DynamoAccountsRetrieversTest extends ApiTestCase
 
         $published = self::getContainer()->get(MemberRetriever::class)->get($member->id());
 
-        $this->assertSame([$member->id()->value, $account->id()->value, $member->personId()->value, $readsPersonalData], [$published->id, $published->accountId, $published->personId, $published->readsPersonalData]);
+        $this->assertSame([$member->id()->value, $account->id()->value, Hydrator::stateOf($member)['personId']->value, $readsPersonalData], [$published->id, $published->accountId, $published->personId, $published->readsPersonalData]);
     }
 
     /**
