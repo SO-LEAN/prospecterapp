@@ -9,6 +9,7 @@ use PHPUnit\Framework\TestCase;
 use Prospecter\Core\Prospecting\Domain\Model\Organization;
 use Prospecter\Core\Prospecting\Domain\Model\OrganizationIntent;
 use Prospecter\Core\Prospecting\Domain\Model\Prospector;
+use Prospecter\Core\Prospecting\Domain\Policy\OrganizationPossibilities;
 use Prospecter\Core\Prospecting\Domain\Service\OrphanContacts;
 use Prospecter\Core\SharedKernel\Domain\AccountId;
 use Prospecter\Core\SharedKernel\Domain\Address;
@@ -25,8 +26,8 @@ use Tests\Core\Double\InMemoryDatabase;
 use Tests\Core\Double\InMemoryOrganizationRepository;
 
 /**
- * The API shows the link of an intention its state offers, and the aggregate refuses a call it does not:
- * an intention must be refused exactly when the organization does not offer it.
+ * The reading of an organization tells what its state offers, and the aggregate refuses a call it does not:
+ * an intention must be refused exactly when the policy does not offer it (ADR 0088).
  */
 class OrganizationIntentsTest extends TestCase
 {
@@ -43,7 +44,8 @@ class OrganizationIntentsTest extends TestCase
     {
         $organization = $this->prospect($state);
         $organization->releaseEvents();
-        $offered = in_array($intent, $organization->possibleIntents(), true);
+        $full = self::FULL === $state;
+        $offered = in_array($intent, OrganizationPossibilities::given(hasLogo: $full, hasHolding: $full, hasContacts: $full), true);
 
         $accepted = $this->isAccepted($intent, $organization, new MemberId(self::AUTHOR));
 

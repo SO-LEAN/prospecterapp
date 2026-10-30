@@ -10,7 +10,6 @@ use Prospecter\Core\Prospecting\Domain\Repository\OrganizationRepository;
 use Prospecter\Core\SharedKernel\Domain\AccountId;
 use Prospecter\Core\SharedKernel\Domain\Email;
 use Prospecter\Core\SharedKernel\Domain\OrganizationId;
-use Prospecter\Core\SharedKernel\Domain\PhoneNumber;
 
 final readonly class InMemoryOrganizationRepository implements OrganizationRepository
 {
@@ -46,11 +45,6 @@ final readonly class InMemoryOrganizationRepository implements OrganizationRepos
     public function withContacts(array $contacts, AccountId $accountId): array
     {
         return array_values(array_filter($this->prospectedBy($accountId), static fn (Organization $organization): bool => array_any($contacts, $organization->hasContact(...))));
-    }
-
-    public function withPhoneNumber(AccountId $accountId, PhoneNumber $phoneNumber): array
-    {
-        return array_values(array_filter($this->prospectedBy($accountId), static fn (Organization $organization): bool => $organization->contactDetails()->phoneNumber?->value === $phoneNumber->value));
     }
 
     /**

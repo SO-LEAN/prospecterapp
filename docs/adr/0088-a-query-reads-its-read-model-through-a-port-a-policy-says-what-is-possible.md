@@ -3,7 +3,7 @@
 - Date: 2026-10-30
 - Status: Proposed
 - Supersedes: for who computes what the state offers, [0027](0027-hypermedia-links-from-the-possible-intents.md) and [0081](0081-the-api-checks-the-access-the-core-keeps-the-state.md); specifies [0029](0029-cqrs-with-a-synchronous-messenger-command-bus.md) for what a query reads
-- Implemented by: in part, the reading of `SearchProspectedOrganizations` (`packages/core/src/Prospecting/Application/Port/FoundOrganizationRetriever.php`, `FoundOrganizationPage`, `apps/api/src/Prospecting/Persistence/DynamoFoundOrganizationRetriever.php`, `packages/core/tests/Double/InMemoryFoundOrganizationRetriever.php`); the policies not yet
+- Implemented by: in part, the reading of `SearchProspectedOrganizations` (`packages/core/src/Prospecting/Application/Port/FoundOrganizationRetriever.php`, `FoundOrganizationPage`, `apps/api/src/Prospecting/Persistence/DynamoFoundOrganizationRetriever.php`, `packages/core/tests/Double/InMemoryFoundOrganizationRetriever.php`), of `ConsultOrganization` and `RecognizeCallingOrganization` (`OrganizationSheet`, `OrganizationSheetRetriever`, `Domain/Policy/OrganizationPossibilities.php`); the exchanges, the accounts and the persons not yet
 
 ## Context
 

@@ -14,7 +14,7 @@ use App\Shared\Resource\LegalIdentityResource;
 use App\Shared\Resource\LinkResource;
 use App\Shared\Resource\LocationResource;
 use Prospecter\Core\Prospecting\Application\ConsultOrganization\ConsultOrganizationOutput;
-use Prospecter\Core\Prospecting\Application\OrganizationResponse;
+use Prospecter\Core\Prospecting\Application\OrganizationSheet;
 
 /**
  * An organization with a link per intention its state offers and the signed-in member may carry out
@@ -55,12 +55,12 @@ final class OrganizationResourcePresenter implements ConsultOrganizationOutput
     {
     }
 
-    public function present(OrganizationResponse $organization): void
+    public function present(OrganizationSheet $organization): void
     {
         $this->resource = $this->resourceOf($organization);
     }
 
-    private function resourceOf(OrganizationResponse $response): OrganizationResource
+    private function resourceOf(OrganizationSheet $response): OrganizationResource
     {
         return new OrganizationResource(
             id: $response->id,
@@ -79,7 +79,7 @@ final class OrganizationResourcePresenter implements ConsultOrganizationOutput
         );
     }
 
-    private function linksOf(OrganizationResponse $response): OrganizationLinksResource
+    private function linksOf(OrganizationSheet $response): OrganizationLinksResource
     {
         $id = ['id' => $response->id];
         $granted = [
@@ -104,7 +104,7 @@ final class OrganizationResourcePresenter implements ConsultOrganizationOutput
      * Stopping to prospect an organization erases its contacts: the right to manage them is needed while it has some,
      * as its controller checks.
      */
-    private function mayStopProspecting(OrganizationResponse $response): bool
+    private function mayStopProspecting(OrganizationSheet $response): bool
     {
         return $this->intentLinks->shows('StopProspecting', $response->possibleIntents, [] === $response->contactIds ? null : User::PERSONAL_DATA);
     }

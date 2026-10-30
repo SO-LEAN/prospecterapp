@@ -87,7 +87,7 @@ use Prospecter\Core\Prospecting\Application\KeepExchangesOfForgottenContact\Keep
 use Prospecter\Core\Prospecting\Application\KeptTimeline;
 use Prospecter\Core\Prospecting\Application\NoteExchange\NoteExchangeHandler;
 use Prospecter\Core\Prospecting\Application\NoteOrganizationExchange\NoteOrganizationExchangeHandler;
-use Prospecter\Core\Prospecting\Application\OrganizationResponse;
+use Prospecter\Core\Prospecting\Application\OrganizationSheet;
 use Prospecter\Core\Prospecting\Application\PublishContactsLeftWithoutOrganization\PublishContactsLeftWithoutOrganizationHandler;
 use Prospecter\Core\Prospecting\Application\RecognizeCallingOrganization\KeptCallingOrganizations;
 use Prospecter\Core\Prospecting\Application\RecognizeCallingOrganization\RecognizeCallingOrganization;
@@ -127,6 +127,7 @@ use Tests\Core\Double\InMemoryExchangeRepository;
 use Tests\Core\Double\InMemoryFoundOrganizationRetriever;
 use Tests\Core\Double\InMemoryMemberRepository;
 use Tests\Core\Double\InMemoryOrganizationRepository;
+use Tests\Core\Double\InMemoryOrganizationSheetRetriever;
 use Tests\Core\Double\InMemoryPersonRepository;
 use Tests\Core\Double\InMemoryPrivateStorage;
 use Tests\Core\Double\InMemoryStorage;
@@ -148,6 +149,7 @@ final class Application
 
     public readonly InMemoryOrganizationRepository $organizations;
     public readonly InMemoryFoundOrganizationRetriever $foundOrganizationRetriever;
+    private readonly InMemoryOrganizationSheetRetriever $organizationSheetRetriever;
     public readonly InMemoryExchangeRepository $exchanges;
     public readonly InMemoryAccountRepository $accounts;
     public readonly InMemoryMemberRepository $members;
@@ -182,6 +184,7 @@ final class Application
         $this->uuids = new TimeOrderedUuids();
         $this->organizations = new InMemoryOrganizationRepository($database);
         $this->foundOrganizationRetriever = new InMemoryFoundOrganizationRetriever($database);
+        $this->organizationSheetRetriever = new InMemoryOrganizationSheetRetriever($database);
         $this->exchanges = new InMemoryExchangeRepository($database);
         $this->accounts = new InMemoryAccountRepository($database);
         $this->members = new InMemoryMemberRepository($database);
@@ -250,11 +253,11 @@ final class Application
         });
     }
 
-    public function consultOrganization(ConsultOrganization $query): ?OrganizationResponse
+    public function consultOrganization(ConsultOrganization $query): ?OrganizationSheet
     {
         $kept = new KeptOrganization();
 
-        return $this->ask(new ConsultOrganizationHandler($this->organizations), $query, $kept) ? $kept->organization : null;
+        return $this->ask(new ConsultOrganizationHandler($this->organizationSheetRetriever), $query, $kept) ? $kept->organization : null;
     }
 
     public function searchProspectedOrganizations(SearchProspectedOrganizations $query): ?FoundOrganizationPage
@@ -306,13 +309,13 @@ final class Application
     }
 
     /**
-     * @return list<OrganizationResponse>|null
+     * @return list<OrganizationSheet>|null
      */
     public function recognizeACallingOrganization(RecognizeCallingOrganization $query): ?array
     {
         $kept = new KeptCallingOrganizations();
 
-        return $this->ask(new RecognizeCallingOrganizationHandler($this->organizations, $this->prospectors), $query, $kept) ? $kept->organizations : null;
+        return $this->ask(new RecognizeCallingOrganizationHandler($this->organizationSheetRetriever, $this->prospectors), $query, $kept) ? $kept->organizations : null;
     }
 
     public function consultTimeline(ConsultTimeline $query): ?TimelineResponse

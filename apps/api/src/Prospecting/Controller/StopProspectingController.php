@@ -8,7 +8,7 @@ use App\Shared\CommandBus;
 use App\Shared\Resource\ProblemResource;
 use Nelmio\ApiDocBundle\Attribute\Model;
 use OpenApi\Attributes as OA;
-use Prospecter\Core\Prospecting\Application\OrganizationResponse;
+use Prospecter\Core\Prospecting\Application\OrganizationSheet;
 use Prospecter\Core\Prospecting\Application\StopProspecting\StopProspecting;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\Clock\ClockInterface;
@@ -33,7 +33,7 @@ final class StopProspectingController extends AbstractController
     #[OA\Response(response: 401, description: 'Missing or invalid access token')]
     #[OA\Response(response: 403, description: 'Not a prospector, or no right to manage personal data while the organization has contacts', content: new Model(type: ProblemResource::class))]
     #[OA\Response(response: 404, description: 'Unknown organization, or one of another account', content: new Model(type: ProblemResource::class))]
-    public function __invoke(OrganizationResponse $organization, #[CurrentUser] User $user): Response
+    public function __invoke(OrganizationSheet $organization, #[CurrentUser] User $user): Response
     {
         $this->ensureMayEraseItsContacts($organization);
         $this->commandBus->dispatch(new StopProspecting($user->memberId(), $organization->id, $this->clock->now()));
@@ -44,7 +44,7 @@ final class StopProspectingController extends AbstractController
     /**
      * Its contacts that no other organization names are erased with it: personal data.
      */
-    private function ensureMayEraseItsContacts(OrganizationResponse $organization): void
+    private function ensureMayEraseItsContacts(OrganizationSheet $organization): void
     {
         if ([] !== $organization->contactIds) {
             $this->denyAccessUnlessGranted(User::PERSONAL_DATA);

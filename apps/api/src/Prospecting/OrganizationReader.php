@@ -8,7 +8,7 @@ use App\Security\IntentLinks;
 use App\Shared\ImageResourceFactory;
 use App\Shared\Links;
 use Prospecter\Core\Prospecting\Application\ConsultOrganization\ConsultOrganization;
-use Prospecter\Core\Prospecting\Application\OrganizationResponse;
+use Prospecter\Core\Prospecting\Application\OrganizationSheet;
 use Prospecter\Core\SharedKernel\Application\RefusalTranslatingHandler;
 
 /**
@@ -34,7 +34,7 @@ final readonly class OrganizationReader
         return $presenter->resource;
     }
 
-    public function resourceOf(OrganizationResponse $organization): OrganizationResource
+    public function resourceOf(OrganizationSheet $organization): OrganizationResource
     {
         $presenter = $this->presenter();
         $presenter->present($organization);

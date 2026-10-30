@@ -10,7 +10,7 @@ use App\Shared\CommandBus;
 use App\Shared\Resource\ProblemResource;
 use Nelmio\ApiDocBundle\Attribute\Model;
 use OpenApi\Attributes as OA;
-use Prospecter\Core\Prospecting\Application\OrganizationResponse;
+use Prospecter\Core\Prospecting\Application\OrganizationSheet;
 use Prospecter\Core\Prospecting\Application\RemoveLogo\RemoveLogo;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\Clock\ClockInterface;
@@ -39,7 +39,7 @@ final class RemoveLogoController extends AbstractController
     #[OA\Response(response: 403, description: 'The signed-in user is not a prospector', content: new Model(type: ProblemResource::class))]
     #[OA\Response(response: 409, description: 'The organization has no logo (no removeLogo link)', content: new Model(type: ProblemResource::class))]
     #[OA\Response(response: 404, description: 'Unknown organization, or one that is neither mine nor prospected by mine', content: new Model(type: ProblemResource::class))]
-    public function __invoke(OrganizationResponse $organization, #[CurrentUser] User $user): JsonResponse
+    public function __invoke(OrganizationSheet $organization, #[CurrentUser] User $user): JsonResponse
     {
         $this->commandBus->dispatch(new RemoveLogo($user->memberId(), $organization->id, $this->clock->now()));
 

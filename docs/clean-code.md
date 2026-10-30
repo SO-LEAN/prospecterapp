@@ -6,7 +6,7 @@ This guide is alive: rules get added and sharpened as the code is improved, iter
 
 ## 1. Names
 
-- **Reveal the intention.** A name says why it exists and how it is used; if it needs a comment, it is the wrong name. `Organization::possibleIntents()`, `makeRoomForThePopupAbove()`.
+- **Reveal the intention.** A name says why it exists and how it is used; if it needs a comment, it is the wrong name. `OrganizationPossibilities::given()`, `makeRoomForThePopupAbove()`.
 - **Make meaningful distinctions.** No number series (`$organization2`), no noise words (`Data`, `Info`, `Manager`, `Object`). The type does not belong in the name: `$customers`, not `$customerList`.
 - **Pronounceable and searchable.** No abbreviations (`$org`, `$req`), no single letters except tiny loop counters and closure parameters read on the same line.
 - **No encodings.** No Hungarian notation, no `m_` or `$str` prefixes, no `I` prefix nor `Interface` suffix on interfaces, no `Impl` on classes: the interface says the role (`OrganizationRepository`), an implementation its technology (`DynamoOrganizationRepository`, `InMemoryOrganizationRepository`). PHP types carry the type.
@@ -50,7 +50,7 @@ This guide is alive: rules get added and sharpened as the code is improved, iter
 - **Objects hide their data and expose behaviour; data structures expose data and have no behaviour.** Do not mix both halves in one class.
 - **Tell, don't ask**: ask an object to do something rather than reading its state to decide for it (`$organization->removeLogo()` refuses when there is no logo).
 - **Law of Demeter**: a method talks to its own fields, its parameters and the objects it creates, not to objects returned by them. No train wrecks: `$user->getOrganization()->getId()` became `$member->accountId()` (aggregates reference each other by identity, ADR 0023).
-- **Requests, responses and value objects are data structures**: `final readonly` with public properties, no behaviour except their invariants (`File` validates its URL). A response is built by a named constructor from what it answers (`OrganizationResponse::of()`), an exception too (`UnknownOrganization::identifiedBy()`).
+- **Requests, responses and value objects are data structures**: `final readonly` with public properties, no behaviour except their invariants (`File` validates its URL). A response is built by a named constructor from what it answers (`FileResponse::orNone()`), an exception too (`UnknownOrganization::identifiedBy()`).
 - **Prefer immutability**: `readonly` classes and properties; a change produces a new value object.
 
 ## 6. Error handling
@@ -107,7 +107,7 @@ This guide is alive: rules get added and sharpened as the code is improved, iter
 ## 12. Simplicity
 
 - **Kent Beck's simple design**, in order: passes all the tests, reveals intention, no duplication, fewest elements.
-- **DRY, with judgement**: remove real duplication of knowledge; leave accidental duplication alone (two codes that look alike but change for different reasons, such as `OrganizationResponse` and `FoundOrganization`, an organization for its page and for a list).
+- **DRY, with judgement**: remove real duplication of knowledge; leave accidental duplication alone (two codes that look alike but change for different reasons, such as `OrganizationSheet` and `FoundOrganization`, an organization for its page and for a list).
 - **YAGNI**: no code for a need that does not exist yet; dead code is deleted (the old `Customer`, `Call`, `Email` and `Event` entities were).
 - **KISS**: the simplest design that passes the tests.
 

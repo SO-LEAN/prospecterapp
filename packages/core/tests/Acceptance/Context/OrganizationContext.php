@@ -15,7 +15,7 @@ use Prospecter\Core\Prospecting\Application\ChangeContactDetails\ChangeContactDe
 use Prospecter\Core\Prospecting\Application\ChangeLogo\ChangeLogo;
 use Prospecter\Core\Prospecting\Application\ConsultOrganization\ConsultOrganization;
 use Prospecter\Core\Prospecting\Application\DetachFromHolding\DetachFromHolding;
-use Prospecter\Core\Prospecting\Application\OrganizationResponse;
+use Prospecter\Core\Prospecting\Application\OrganizationSheet;
 use Prospecter\Core\Prospecting\Application\Relocate\Relocate;
 use Prospecter\Core\Prospecting\Application\RemoveContact\RemoveContact;
 use Prospecter\Core\Prospecting\Application\RemoveLogo\RemoveLogo;
@@ -40,7 +40,7 @@ final class OrganizationContext implements Context
 {
     use SharesTheScenario;
 
-    private ?OrganizationResponse $consulted = null;
+    private ?OrganizationSheet $consulted = null;
     private ?FoundOrganizationPage $found = null;
     private int $max = 20;
 
