@@ -22,15 +22,13 @@ use Prospecter\Core\SharedKernel\Domain\PhoneNumber;
  */
 final readonly class DynamoOrganizationSheetRetriever implements OrganizationSheetRetriever
 {
-    private const string ORGANIZATION = 'ORGANIZATION';
-
     public function __construct(private Table $prospectingTable)
     {
     }
 
     public function get(OrganizationId $id): OrganizationSheet
     {
-        $item = $this->prospectingTable->item(self::keyOf($id->value), self::ORGANIZATION) ?? throw UnknownOrganization::identifiedBy($id);
+        $item = $this->prospectingTable->item(OrganizationKeys::organization($id->value), OrganizationKeys::ORGANIZATION) ?? throw UnknownOrganization::identifiedBy($id);
 
         return self::sheetOf($item['organization']);
     }
@@ -40,7 +38,7 @@ final readonly class DynamoOrganizationSheetRetriever implements OrganizationShe
         $keys = SearchIndexes::withPhoneNumber($this->prospectingTable, $accountId->value, $phoneNumber);
         $sheets = [];
 
-        foreach ($this->prospectingTable->items(array_map(static fn (string $key): array => [$key, self::ORGANIZATION], $keys)) as $item) {
+        foreach ($this->prospectingTable->items(array_map(static fn (string $key): array => [$key, OrganizationKeys::ORGANIZATION], $keys)) as $item) {
             $sheets[$item['PK']] = self::sheetOf($item['organization']);
         }
 
@@ -82,10 +80,5 @@ final readonly class DynamoOrganizationSheetRetriever implements OrganizationShe
             modifiedAt: Documents::momentOf($document['modifiedAt']),
             possibleIntents: array_map(static fn (OrganizationIntent $intent): string => $intent->name, OrganizationPossibilities::given(hasLogo: null !== $document['logo'], hasHolding: null !== $document['holdingId'], hasContacts: [] !== $document['contacts'])),
         );
-    }
-
-    private static function keyOf(string $id): string
-    {
-        return self::ORGANIZATION.'#'.$id;
     }
 }

@@ -19,8 +19,6 @@ use Prospecter\Core\SharedKernel\Domain\SearchKey;
  */
 final readonly class DynamoFoundOrganizationRetriever implements FoundOrganizationRetriever
 {
-    private const string ORGANIZATION = 'ORGANIZATION';
-
     public function __construct(private Table $prospectingTable)
     {
     }
@@ -29,7 +27,7 @@ final readonly class DynamoFoundOrganizationRetriever implements FoundOrganizati
     {
         $items = null === $search
             ? $this->prospectingTable->query('ACCOUNT#'.$accountId->value, Table::BY_GSI1, $after, $max + 1)
-            : $this->inTheOrderOf(SearchIndexes::found($this->prospectingTable, $accountId->value, $search, null === $after ? null : self::keyOf($after), $max + 1));
+            : $this->inTheOrderOf(SearchIndexes::found($this->prospectingTable, $accountId->value, $search, null === $after ? null : OrganizationKeys::organization($after), $max + 1));
         $found = array_map(static fn (array $item): FoundOrganization => self::found($item['organization']), $items);
 
         return FoundOrganizationPage::of(Documents::slice($found, $max, static fn (FoundOrganization $organization): string => $organization->id));
@@ -44,7 +42,7 @@ final readonly class DynamoFoundOrganizationRetriever implements FoundOrganizati
     {
         $items = [];
 
-        foreach ($this->prospectingTable->items(array_map(static fn (string $key): array => [$key, self::ORGANIZATION], $keys)) as $item) {
+        foreach ($this->prospectingTable->items(array_map(static fn (string $key): array => [$key, OrganizationKeys::ORGANIZATION], $keys)) as $item) {
             $items[$item['PK']] = $item;
         }
 
@@ -69,10 +67,5 @@ final readonly class DynamoFoundOrganizationRetriever implements FoundOrganizati
             longitude: $geoPoint?->longitude,
             latitude: $geoPoint?->latitude,
         );
-    }
-
-    private static function keyOf(string $id): string
-    {
-        return self::ORGANIZATION.'#'.$id;
     }
 }
