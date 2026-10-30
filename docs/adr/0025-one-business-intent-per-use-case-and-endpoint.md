@@ -1,7 +1,7 @@
 # 0025. One business intent per use case and per endpoint; edition by section
 
 - Date: 2026-10-15
-- Status: Accepted, declaring an exchange made conform carried by its corrections since [0079](0079-the-exchanges-of-a-forgotten-contact-stay-to-make-conform.md)
+- Status: Accepted, declaring an exchange made conform carried by its corrections since [0079](0079-the-exchanges-of-a-forgotten-contact-stay-to-make-conform.md), the names of the controllers superseded by [0087](0087-a-controller-is-named-after-its-intent-and-its-role.md)
 - Supersedes: [0007](0007-plain-symfony-controllers-one-per-endpoint.md), [0021](0021-use-cases-named-after-business-intents.md)
 - Implemented by: `packages/core/src/Application`, `packages/core/features`, `apps/api/src/Controller/Api`, `apps/front/src/features`
 

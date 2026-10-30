@@ -15,6 +15,8 @@ This guide is alive: rules get added and sharpened as the code is improved, iter
 - **One word per concept.** We say `find` for "may return nothing" and `get` for "throws when missing"; we do not mix `fetch`, `retrieve` and `get`.
 - **Length follows scope.** The wider the scope, the longer and more precise the name; private helpers can be shorter than public API.
 - **Use the business's words** (prospect, holding, owner), the solution's words (presenter, gateway, adapter) for technical code.
+- **A class of the delivery carries its role** (ADR 0087): `StartProspectingController`, `OrganizationPagePresenter`, `OrganizationReader`, `ImageResourceFactory`; the command it dispatches keeps the name of the intent, never imported under an alias.
+- **A property is named after its type** (`ImageResourceFactory $imageResourceFactory`, `CommandBus $commandBus`), **a repository after its collection** (`OrganizationRepository $organizations`: `$this->organizations->get($id)`, Evans), a query handler after its intent (`RefusalTranslatingHandler $consultOrganization`). A variable of several elements is in the plural, named after what they are here, not after the repository they come from: `$callingOrganizations = $this->organizations->withPhoneNumber(...)`.
 
 ## 2. Functions
 
