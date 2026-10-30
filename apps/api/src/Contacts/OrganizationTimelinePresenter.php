@@ -8,10 +8,10 @@ use App\Contacts\Resource\OrganizationTimelineResource;
 use App\Prospecting\TimelineResourceFactory;
 use App\Shared\Links;
 use Prospecter\Core\PersonalData\Application\PersonResponse;
-use Prospecter\Core\Prospecting\Application\ExchangeResponse;
+use Prospecter\Core\Prospecting\Application\ExchangeInTimeline;
 use Prospecter\Core\Prospecting\Application\OrganizationSheet;
+use Prospecter\Core\Prospecting\Application\Timeline;
 use Prospecter\Core\Prospecting\Application\TimelineOutput;
-use Prospecter\Core\Prospecting\Application\TimelineResponse;
 
 /**
  * A slice of the timeline of an organization, or of its exchanges to make conform, each exchange with who
@@ -54,18 +54,18 @@ final class OrganizationTimelinePresenter implements TimelineOutput
         return new self(self::TO_MAKE_CONFORM_ROUTES, $organization, $persons, $timelines, $links);
     }
 
-    public function present(TimelineResponse $timeline): void
+    public function present(Timeline $timeline): void
     {
         $subject = ['id' => $this->organization->id];
 
         $this->resource = new OrganizationTimelineResource(
-            items: array_map(fn (ExchangeResponse $exchange): OrganizationExchangeResource => new OrganizationExchangeResource($this->timelineResourceFactory->createExchange($exchange), $this->interlocutorOf($exchange)), $timeline->exchanges),
+            items: array_map(fn (ExchangeInTimeline $exchange): OrganizationExchangeResource => new OrganizationExchangeResource($this->timelineResourceFactory->createExchange($exchange), $this->interlocutorOf($exchange)), $timeline->exchanges),
             toMakeConform: $timeline->toMakeConform,
             links: $this->timelineResourceFactory->createLinks($this->routes, $subject, $timeline)->withToMakeConform(0 === $timeline->toMakeConform ? null : $this->links->to(self::TO_MAKE_CONFORM_ROUTES[0], $subject)),
         );
     }
 
-    private function interlocutorOf(ExchangeResponse $exchange): InterlocutorResource
+    private function interlocutorOf(ExchangeInTimeline $exchange): InterlocutorResource
     {
         return null === $exchange->personId
             ? InterlocutorResource::ofTheOrganization($this->organization)

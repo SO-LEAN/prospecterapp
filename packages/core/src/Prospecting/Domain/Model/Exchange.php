@@ -141,19 +141,6 @@ final class Exchange implements ReleasesEvents
     }
 
     /**
-     * The contact still one of this organization, removed from it, or forgotten; none for the organization
-     * itself.
-     */
-    public function contactPresenceIn(Organization $organization): ?ContactPresence
-    {
-        if (null === $this->contact || $this->contactForgotten) {
-            return $this->contactPresence();
-        }
-
-        return $organization->hasContact($this->contact) ? ContactPresence::Present : ContactPresence::Removed;
-    }
-
-    /**
      * The organizations the contact was part of when the exchange was noted, still prospected.
      *
      * @return list<OrganizationId>

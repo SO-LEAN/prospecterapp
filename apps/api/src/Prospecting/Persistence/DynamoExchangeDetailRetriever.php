@@ -23,15 +23,13 @@ use Prospecter\Core\Prospecting\Domain\Policy\ExchangeReading;
  */
 final readonly class DynamoExchangeDetailRetriever implements ExchangeDetailRetriever
 {
-    private const string EXCHANGE = 'EXCHANGE';
-
     public function __construct(private Table $prospectingTable)
     {
     }
 
     public function get(ExchangeId $id, Prospector $reader): ExchangeDetail
     {
-        $item = $this->prospectingTable->item(self::EXCHANGE.'#'.$id->value, self::EXCHANGE) ?? throw UnknownExchange::identifiedBy($id);
+        $item = $this->prospectingTable->item(ExchangeKeys::exchange($id->value), ExchangeKeys::EXCHANGE) ?? throw UnknownExchange::identifiedBy($id);
 
         return self::detailOf($item['exchange'], $reader);
     }

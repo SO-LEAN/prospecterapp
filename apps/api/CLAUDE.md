@@ -48,6 +48,7 @@ See `docs/auth.md` at the repository root. The members sign in on Cognito (the S
 | `Prospecting\Domain\Repository\ExchangeRepository` | `Prospecting\Persistence\DynamoExchangeRepository` |
 | `Prospecting\Application\Port\OrganizationSheetRetriever` | `Prospecting\Persistence\DynamoOrganizationSheetRetriever`: the sheet of an organization, and those having a phone number, read from the items of `DynamoOrganizationRepository` (ADR 0088) |
 | `Prospecting\Application\Port\ExchangeDetailRetriever` | `Prospecting\Persistence\DynamoExchangeDetailRetriever`: the detail of an exchange as its reader may read it, read from the item of `DynamoExchangeRepository` (ADR 0088) |
+| `Prospecting\Application\Port\TimelineRetriever` | `Prospecting\Persistence\DynamoTimelineRetriever`: the timelines of a contact and of an organization, and its exchanges to make conform, read in the indexes `DynamoExchangeRepository` writes, their keys in `ExchangeKeys` (ADR 0088) |
 | `Prospecting\Application\Port\FoundOrganizationRetriever` | `Prospecting\Persistence\DynamoFoundOrganizationRetriever`: the organizations of a search read from the items of `DynamoOrganizationRepository`, without restoring them (ADR 0088) |
 | `PersonalData\Domain\Repository\PersonRepository` | `PersonalData\Persistence\DynamoPersonRepository` |
 | `PersonalData\Domain\Port\Readers` | `PersonalData\AntiCorruption\AccountsReaders`: anticorruption layer from the published query `ConsultMember` of Accounts (ADR 0045) |
