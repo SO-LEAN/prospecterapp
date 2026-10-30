@@ -8,6 +8,8 @@ use App\Shared\Persistence\Table;
 use Prospecter\Core\Prospecting\Application\OrganizationSheet;
 use Prospecter\Core\Prospecting\Application\Port\OrganizationSheetRetriever;
 use Prospecter\Core\Prospecting\Domain\Exception\UnknownOrganization;
+use Prospecter\Core\Prospecting\Domain\Model\OrganizationIntent;
+use Prospecter\Core\Prospecting\Domain\Policy\OrganizationPossibilities;
 use Prospecter\Core\SharedKernel\Application\FileResponse;
 use Prospecter\Core\SharedKernel\Domain\AccountId;
 use Prospecter\Core\SharedKernel\Domain\OrganizationId;
@@ -78,6 +80,7 @@ final readonly class DynamoOrganizationSheetRetriever implements OrganizationShe
             contactIds: $document['contacts'],
             createdAt: Documents::momentOf($document['createdAt']),
             modifiedAt: Documents::momentOf($document['modifiedAt']),
+            possibleIntents: array_map(static fn (OrganizationIntent $intent): string => $intent->name, OrganizationPossibilities::given(hasLogo: null !== $document['logo'], hasHolding: null !== $document['holdingId'], hasContacts: [] !== $document['contacts'])),
         );
     }
 

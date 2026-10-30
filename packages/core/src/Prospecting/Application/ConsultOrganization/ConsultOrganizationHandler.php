@@ -16,6 +16,6 @@ final readonly class ConsultOrganizationHandler implements QueryHandler
 
     public function __invoke(ConsultOrganization $query, ConsultOrganizationOutput $output): void
     {
-        $output->present($this->organizationSheetRetriever->get(new OrganizationId($query->id))->offeringWhatItsStateAllows());
+        $output->present($this->organizationSheetRetriever->get(new OrganizationId($query->id)));
     }
 }

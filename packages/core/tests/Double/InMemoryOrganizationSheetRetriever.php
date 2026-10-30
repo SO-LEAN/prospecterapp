@@ -8,6 +8,8 @@ use Prospecter\Core\Prospecting\Application\OrganizationSheet;
 use Prospecter\Core\Prospecting\Application\Port\OrganizationSheetRetriever;
 use Prospecter\Core\Prospecting\Domain\Exception\UnknownOrganization;
 use Prospecter\Core\Prospecting\Domain\Model\Organization;
+use Prospecter\Core\Prospecting\Domain\Model\OrganizationIntent;
+use Prospecter\Core\Prospecting\Domain\Policy\OrganizationPossibilities;
 use Prospecter\Core\SharedKernel\Application\FileResponse;
 use Prospecter\Core\SharedKernel\Domain\AccountId;
 use Prospecter\Core\SharedKernel\Domain\OrganizationId;
@@ -67,6 +69,7 @@ final readonly class InMemoryOrganizationSheetRetriever implements OrganizationS
             contactIds: array_map(static fn (PersonId $contact): string => $contact->value, $organization->contacts()),
             createdAt: $organization->createdAt(),
             modifiedAt: $organization->modifiedAt(),
+            possibleIntents: array_map(static fn (OrganizationIntent $intent): string => $intent->name, OrganizationPossibilities::given(hasLogo: null !== $organization->logo(), hasHolding: null !== $organization->holdingId(), hasContacts: [] !== $organization->contacts())),
         );
     }
 }

@@ -4,8 +4,6 @@ declare(strict_types=1);
 
 namespace Prospecter\Core\Prospecting\Application;
 
-use Prospecter\Core\Prospecting\Domain\Model\OrganizationIntent;
-use Prospecter\Core\Prospecting\Domain\Policy\OrganizationPossibilities;
 use Prospecter\Core\SharedKernel\Application\FileResponse;
 
 /**
@@ -40,17 +38,7 @@ final readonly class OrganizationSheet
         public array $contactIds,
         public \DateTimeImmutable $createdAt,
         public \DateTimeImmutable $modifiedAt,
-        public array $possibleIntents = [],
+        public array $possibleIntents,
     ) {
-    }
-
-    /**
-     * The sheet as read, with what the state it shows offers now (ADR 0088).
-     */
-    public function offeringWhatItsStateAllows(): self
-    {
-        $possibilities = OrganizationPossibilities::given(hasLogo: null !== $this->logo, hasHolding: null !== $this->holdingId, hasContacts: [] !== $this->contactIds);
-
-        return clone ($this, ['possibleIntents' => array_map(static fn (OrganizationIntent $intent): string => $intent->name, $possibilities)]);
     }
 }

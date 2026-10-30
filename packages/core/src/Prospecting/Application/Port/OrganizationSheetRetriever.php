@@ -11,8 +11,8 @@ use Prospecter\Core\SharedKernel\Domain\OrganizationId;
 use Prospecter\Core\SharedKernel\Domain\PhoneNumber;
 
 /**
- * Reads the sheets of the organizations, without restoring them (ADR 0088); what their state offers is left to
- * the query.
+ * Reads the sheets of the organizations, without restoring them, with what their state offers now, asked to
+ * `OrganizationPossibilities` (ADR 0088).
  */
 interface OrganizationSheetRetriever
 {
