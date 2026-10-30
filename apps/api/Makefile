@@ -16,8 +16,8 @@ db: ministack ## Recreate in MiniStack the tables and the user pool, with the de
 test: ministack ## Run the tests of the API (on MiniStack: tables, user pool); FILTER= a test by name
 	@$(PHP) bin/phpunit $(if $(FILTER),--filter='$(FILTER)')
 
-lint: ## Check the code of the API: PHPStan, php-cs-fixer, Rector
-	@$(PHP) sh -c 'vendor/bin/phpstan analyse --no-progress && vendor/bin/php-cs-fixer fix --dry-run --diff && vendor/bin/rector process --dry-run'
+lint: ## Check the code of the API: PHPStan, php-cs-fixer, Rector; FILTER= paths of the project, for php-cs-fixer and Rector
+	@$(PHP) sh -c '$(PHP_LINT)'
 
 fix: ## Fix the style of the code of the API: php-cs-fixer
 	@$(PHP) vendor/bin/php-cs-fixer fix

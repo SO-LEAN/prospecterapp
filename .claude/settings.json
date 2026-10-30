@@ -4,7 +4,7 @@
     "allow": [
       "Bash(make test-core:*)",
       "Bash(make test-front:*)",
-      "Bash(make lint)",
+      "Bash(make lint:*)",
       "Bash(make fix)",
       "Bash(make contract)",
       "Bash(make api-doc)",

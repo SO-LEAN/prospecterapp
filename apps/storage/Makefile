@@ -14,8 +14,8 @@ db: ministack ## Recreate in MiniStack the buckets of the files (destroys local 
 test: ministack ## Run the tests of the storage (on MiniStack); FILTER= a test by name
 	@$(PHP) bin/phpunit $(if $(FILTER),--filter='$(FILTER)')
 
-lint: ## Check the code of the storage: PHPStan, php-cs-fixer, Rector
-	@$(PHP) sh -c 'vendor/bin/phpstan analyse --no-progress && vendor/bin/php-cs-fixer fix --dry-run --diff && vendor/bin/rector process --dry-run'
+lint: ## Check the code of the storage: PHPStan, php-cs-fixer, Rector; FILTER= paths of the project, for php-cs-fixer and Rector
+	@$(PHP) sh -c '$(PHP_LINT)'
 
 fix: ## Fix the style of the code of the storage: php-cs-fixer
 	@$(PHP) vendor/bin/php-cs-fixer fix

@@ -71,11 +71,16 @@ test-front: ## Run the tests of the front (Vitest); FILTER= a test file by its p
 e2e: ## Run the Playwright journeys against the running stack
 	@$(MAKE) -C apps/front e2e
 
-lint: infra-lint ## Check the code: PHPStan, php-cs-fixer, Rector, Biome, TypeScript, Terraform
-	@$(MAKE) -C packages/core lint
-	@$(MAKE) -C apps/api lint
-	@$(MAKE) -C apps/storage lint
-	@$(MAKE) -C apps/front lint
+# with FILTER, paths from the root: each project checks those under its directory, a project without any is passed
+# over, and so is the Terraform
+paths-in = $(patsubst $(1)/%,%,$(filter $(1)/%,$(FILTER)))
+lint-project = $(if $(FILTER),$(if $(call paths-in,$(1)),$(MAKE) -C $(1) lint FILTER="$(call paths-in,$(1))"),$(MAKE) -C $(1) lint)
+
+lint: $(if $(FILTER),,infra-lint) ## Check the code: PHPStan, php-cs-fixer, Rector, Biome, TypeScript, Terraform; FILTER= paths from the root
+	@$(call lint-project,packages/core)
+	@$(call lint-project,apps/api)
+	@$(call lint-project,apps/storage)
+	@$(call lint-project,apps/front)
 
 front-build: ## Build the front for production (TypeScript, Vite)
 	@$(MAKE) -C apps/front build

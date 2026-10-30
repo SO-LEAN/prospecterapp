@@ -17,8 +17,8 @@ PHPUNIT = vendor/bin/phpunit $(if $(FILTER),--filter="$(FILTER)" --do-not-fail-o
 test: ## Run the business rules (Behat) and the unit tests of the core; FILTER= a scenario or a test by name
 	@$(PHP) sh -c '{ $(UNLESS_NO_SCENARIO_MATCHES) $(BEHAT); } && $(PHPUNIT)'
 
-lint: ## Check the code of the core: PHPStan, php-cs-fixer, Rector
-	@$(PHP) sh -c 'vendor/bin/phpstan analyse --no-progress && vendor/bin/php-cs-fixer fix --dry-run --diff && vendor/bin/rector process --dry-run'
+lint: ## Check the code of the core: PHPStan, php-cs-fixer, Rector; FILTER= paths of the project, for php-cs-fixer and Rector
+	@$(PHP) sh -c '$(PHP_LINT)'
 
 fix: ## Fix the style of the code of the core: php-cs-fixer
 	@$(PHP) vendor/bin/php-cs-fixer fix
