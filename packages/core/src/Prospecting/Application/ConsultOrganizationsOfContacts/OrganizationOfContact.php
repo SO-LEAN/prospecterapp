@@ -4,18 +4,14 @@ declare(strict_types=1);
 
 namespace Prospecter\Core\Prospecting\Application\ConsultOrganizationsOfContacts;
 
-use Prospecter\Core\Prospecting\Domain\Model\Organization;
-
+/**
+ * An organization a contact is part of, as the list of the contacts names it.
+ */
 final readonly class OrganizationOfContact
 {
-    private function __construct(
+    public function __construct(
         public string $id,
         public string $fullName,
     ) {
-    }
-
-    public static function of(Organization $organization): self
-    {
-        return new self($organization->id()->value, $organization->fullName());
     }
 }

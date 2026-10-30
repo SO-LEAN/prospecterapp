@@ -88,6 +88,7 @@ services:
     Prospecter\Core\Prospecting\Application\Port\OrganizationSheetRetriever: '@App\Prospecting\Persistence\DynamoOrganizationSheetRetriever'
     Prospecter\Core\Prospecting\Application\Port\ExchangeDetailRetriever: '@App\Prospecting\Persistence\DynamoExchangeDetailRetriever'
     Prospecter\Core\Prospecting\Application\Port\TimelineRetriever: '@App\Prospecting\Persistence\DynamoTimelineRetriever'
+    Prospecter\Core\Prospecting\Application\Port\OrganizationOfContactRetriever: '@App\Prospecting\Persistence\DynamoOrganizationOfContactRetriever'
     Prospecter\Core\Prospecting\Domain\Port\Prospectors: '@App\Prospecting\AntiCorruption\AccountsProspectors'
     Prospecter\Core\Prospecting\Domain\Port\KnownContacts: '@App\Prospecting\AntiCorruption\PersonalDataKnownContacts'
     Prospecter\Core\PersonalData\Domain\Port\ProspectedOrganizations: '@App\PersonalData\AntiCorruption\ProspectingOrganizations'

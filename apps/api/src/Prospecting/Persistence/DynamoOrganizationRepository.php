@@ -12,7 +12,6 @@ use Prospecter\Core\SharedKernel\Domain\AccountId;
 use Prospecter\Core\SharedKernel\Domain\Email;
 use Prospecter\Core\SharedKernel\Domain\Exception\EmailAlreadyUsed;
 use Prospecter\Core\SharedKernel\Domain\OrganizationId;
-use Prospecter\Core\SharedKernel\Domain\PersonId;
 
 /**
  * The organizations in the table of Prospecting (ADR 0048):
@@ -26,7 +25,6 @@ use Prospecter\Core\SharedKernel\Domain\PersonId;
  */
 final readonly class DynamoOrganizationRepository implements OrganizationRepository
 {
-    private const string ORGANIZATION = 'ORGANIZATION';
     private const string EMAIL = 'EMAIL';
 
     public function __construct(private Table $prospectingTable)
@@ -35,7 +33,7 @@ final readonly class DynamoOrganizationRepository implements OrganizationReposit
 
     public function get(OrganizationId $id): Organization
     {
-        $item = $this->prospectingTable->item(self::keyOf($id), self::ORGANIZATION) ?? throw UnknownOrganization::identifiedBy($id);
+        $item = $this->prospectingTable->item(OrganizationKeys::organization($id->value), OrganizationKeys::ORGANIZATION) ?? throw UnknownOrganization::identifiedBy($id);
 
         return OrganizationDocument::organization($item['organization']);
     }
@@ -50,7 +48,7 @@ final readonly class DynamoOrganizationRepository implements OrganizationReposit
     public function save(Organization $organization): void
     {
         $document = OrganizationDocument::of($organization);
-        $stored = $this->prospectingTable->item(self::keyOf($organization->id()), self::ORGANIZATION);
+        $stored = $this->prospectingTable->item(OrganizationKeys::organization($organization->id()->value), OrganizationKeys::ORGANIZATION);
         $writes = [$this->prospectingTable->putting($this->itemOf($organization, $document))];
         $email = $document['contactDetails']['email'];
         $storedEmail = $stored['email'] ?? null;
@@ -79,7 +77,7 @@ final readonly class DynamoOrganizationRepository implements OrganizationReposit
         $email = $document['contactDetails']['email'];
 
         $this->prospectingTable->transact([
-            $this->prospectingTable->deleting(self::keyOf($organization->id()), self::ORGANIZATION),
+            $this->prospectingTable->deleting(OrganizationKeys::organization($organization->id()->value), OrganizationKeys::ORGANIZATION),
             ...(null === $email ? [] : [$this->prospectingTable->deleting(self::emailKey($organization->accountId(), $email), self::EMAIL)]),
             ...$this->contactLinksChanged(['contacts' => []] + $document, $document['contacts']),
         ]);
@@ -95,9 +93,9 @@ final readonly class DynamoOrganizationRepository implements OrganizationReposit
         $named = [];
 
         foreach ($contacts as $contact) {
-            foreach ($this->prospectingTable->query(self::contactKey($contact)) as $link) {
+            foreach ($this->prospectingTable->query(OrganizationKeys::contact($contact->value)) as $link) {
                 if ($link['accountId'] === $accountId->value) {
-                    $named[$link['organizationId']] = [self::keyOf(new OrganizationId($link['organizationId'])), self::ORGANIZATION];
+                    $named[$link['organizationId']] = [OrganizationKeys::organization($link['organizationId']), OrganizationKeys::ORGANIZATION];
                 }
             }
         }
@@ -111,7 +109,7 @@ final readonly class DynamoOrganizationRepository implements OrganizationReposit
      */
     public function writeTheSearchKeysAgain(): int
     {
-        $items = $this->prospectingTable->scan(self::ORGANIZATION.'#');
+        $items = $this->prospectingTable->scan(OrganizationKeys::ORGANIZATION.'#');
         $this->prospectingTable->batch(
             array_map(fn (array $item): array => $this->itemOf(OrganizationDocument::organization($item['organization']), $item['organization']), $items),
             array_map(static fn (array $former): array => [$former['PK'], $former['SK']], $this->prospectingTable->scan('TOKEN')),
@@ -128,8 +126,8 @@ final readonly class DynamoOrganizationRepository implements OrganizationReposit
     private function itemOf(Organization $organization, array $document): array
     {
         return SearchIndexes::of($organization->accountId()->value, $organization->searchKeys(), $organization->contactDetails()->phoneNumber) + [
-            'PK' => self::keyOf(new OrganizationId($document['id'])),
-            'SK' => self::ORGANIZATION,
+            'PK' => OrganizationKeys::organization($document['id']),
+            'SK' => OrganizationKeys::ORGANIZATION,
             'GSI1PK' => 'ACCOUNT#'.$document['accountId'],
             'GSI1SK' => $document['id'],
             'email' => $document['contactDetails']['email'],
@@ -147,11 +145,11 @@ final readonly class DynamoOrganizationRepository implements OrganizationReposit
      */
     private function contactLinksChanged(array $document, array $storedContacts): array
     {
-        $organization = self::ORGANIZATION.'#'.$document['id'];
+        $organization = OrganizationKeys::organization($document['id']);
 
         return [
-            ...array_map(fn (string $contact): array => $this->prospectingTable->putting(['PK' => self::contactKey(new PersonId($contact)), 'SK' => $organization, 'accountId' => $document['accountId'], 'organizationId' => $document['id']]), array_values(array_diff($document['contacts'], $storedContacts))),
-            ...array_map(fn (string $contact): array => $this->prospectingTable->deleting(self::contactKey(new PersonId($contact)), $organization), array_values(array_diff($storedContacts, $document['contacts']))),
+            ...array_map(fn (string $contact): array => $this->prospectingTable->putting(['PK' => OrganizationKeys::contact($contact), 'SK' => $organization, 'accountId' => $document['accountId'], 'organizationId' => $document['id']]), array_values(array_diff($document['contacts'], $storedContacts))),
+            ...array_map(fn (string $contact): array => $this->prospectingTable->deleting(OrganizationKeys::contact($contact), $organization), array_values(array_diff($storedContacts, $document['contacts']))),
         ];
     }
 
@@ -165,18 +163,8 @@ final readonly class DynamoOrganizationRepository implements OrganizationReposit
         return array_map(static fn (array $item): Organization => OrganizationDocument::organization($item['organization']), $items);
     }
 
-    private static function keyOf(OrganizationId $id): string
-    {
-        return self::ORGANIZATION.'#'.$id->value;
-    }
-
     private static function emailKey(AccountId $accountId, string $email): string
     {
         return sprintf('%s#%s#%s', self::EMAIL, $accountId->value, $email);
-    }
-
-    private static function contactKey(PersonId $contact): string
-    {
-        return 'CONTACT#'.$contact->value;
     }
 }
