@@ -27,6 +27,7 @@ use Prospecter\Core\SharedKernel\Domain\Uuid;
 use Tests\Core\Acceptance\Application;
 use Tests\Core\Acceptance\Expect;
 use Tests\Core\Acceptance\Vocabulary;
+use Tests\Core\Double\StateOf;
 
 /**
  * The state of a scenario, shared by the other contexts: the application, the organizations it names
@@ -212,7 +213,12 @@ final class ScenarioContext implements Context
 
     public function myPerson(): Person
     {
-        return $this->application->persons->get($this->me()->personId());
+        return $this->application->persons->get($this->profileOf($this->me()));
+    }
+
+    public function profileOf(Member $member): PersonId
+    {
+        return StateOf::the($member)['personId'];
     }
 
     /**

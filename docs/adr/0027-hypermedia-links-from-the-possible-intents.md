@@ -1,7 +1,7 @@
 # 0027. Resources carry hypermedia links built from the possible intents of the core
 
 - Date: 2026-10-15
-- Status: Accepted; who decides the links superseded by [0081](0081-the-api-checks-the-access-the-core-keeps-the-state.md): the state by the aggregate, the member by a voter of the API
+- Status: Accepted; who decides the links superseded by [0081](0081-the-api-checks-the-access-the-core-keeps-the-state.md): the state by the aggregate, the member by a voter of the API; who computes what the state offers by [0088](0088-a-query-reads-its-read-model-through-a-port-a-policy-says-what-is-possible.md): a policy of the domain
 - Implemented by: `Organization::possibleIntentsOf()`, `User::possibleIntents()`, `apps/api/src/Api/Links.php`, `apps/api/src/Presenter`, `apps/front/src/shared/ui/editable-section.tsx`
 
 ## Context

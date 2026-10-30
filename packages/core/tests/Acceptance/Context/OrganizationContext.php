@@ -35,6 +35,7 @@ use Prospecter\Core\SharedKernel\Domain\OrganizationId;
 use Tests\Core\Acceptance\Expect;
 use Tests\Core\Acceptance\Vocabulary;
 use Tests\Core\Double\InMemoryStorage;
+use Tests\Core\Double\StateOf;
 
 final class OrganizationContext implements Context
 {
@@ -217,13 +218,13 @@ final class OrganizationContext implements Context
     #[Then('les contacts de :organization sont :')]
     public function theContactsOfTheOrganizationAre(string $organization, TableNode $table): void
     {
-        Expect::same($table->getColumn(0), array_map($this->scenario->nameOfPerson(...), $this->scenario->organizationNamed($organization)->contacts()));
+        Expect::same($table->getColumn(0), array_map($this->scenario->nameOfPerson(...), StateOf::the($this->scenario->organizationNamed($organization))['contacts']));
     }
 
     #[Then(':organization n\'a pas de contact')]
     public function theOrganizationHasNoContact(string $organization): void
     {
-        Expect::same([], $this->scenario->organizationNamed($organization)->contacts());
+        Expect::same([], StateOf::the($this->scenario->organizationNamed($organization))['contacts']);
     }
 
     #[When('je consulte l\'organisation :name')]
@@ -361,7 +362,7 @@ final class OrganizationContext implements Context
     {
         $values = Vocabulary::values(array_diff_key($details, ['logo' => true]));
         $manager = $this->scenario->managerOf($organization);
-        $organization->reviseLegalIdentity(new LegalIdentity($organization->legalIdentity()->corporateName, $values['forme juridique']), by: $manager, at: $this->application->now());
+        $organization->reviseLegalIdentity(new LegalIdentity(StateOf::the($organization)['legalIdentity']->corporateName, $values['forme juridique']), by: $manager, at: $this->application->now());
         $organization->changeContactDetails(Vocabulary::contactDetails($values), by: $manager, at: $this->application->now());
         $address = Vocabulary::address($values);
         $organization->relocateTo($address, null === $address ? null : $this->application->geoLocation->find((string) $address), by: $manager, at: $this->application->now());

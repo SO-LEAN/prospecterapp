@@ -10,6 +10,7 @@ use Behat\Step\Given;
 use Behat\Step\Then;
 use Behat\Step\When;
 use Prospecter\Core\Accounts\Application\RegisterAMember\RegisterAMember;
+use Prospecter\Core\Accounts\Contract\Service\ConsultMember\ConsultMember;
 use Prospecter\Core\Accounts\Domain\Model\Role;
 use Prospecter\Core\PersonalData\Application\ChangePersonContactDetails\ChangePersonContactDetails;
 use Prospecter\Core\PersonalData\Application\RenamePerson\RenamePerson;
@@ -17,6 +18,7 @@ use Prospecter\Core\SharedKernel\Domain\MemberId;
 use Prospecter\Core\SharedKernel\Domain\PersonId;
 use Tests\Core\Acceptance\Expect;
 use Tests\Core\Acceptance\Vocabulary;
+use Tests\Core\Double\StateOf;
 
 /**
  * The members of an account: who registers them, with which roles, under which profile.
@@ -56,29 +58,29 @@ final class MemberContext implements Context
         $member = $this->scenario->memberNamed($name);
 
         Expect::same($account, $this->scenario->nameOf($member->accountId()));
-        Expect::same($roles, implode(', ', array_map(static fn (Role $role): string => $role->value, $member->roles())));
+        Expect::same($roles, implode(', ', array_map(static fn (Role $role): string => $role->value, StateOf::the($member)['roles'])));
     }
 
     #[Then(':name a le droit aux données personnelles')]
     public function readsPersonalData(string $name): void
     {
-        Expect::same(true, $this->scenario->memberNamed($name)->readsPersonalData());
+        Expect::same(true, $this->hasThePersonalDataRight($name));
     }
 
     #[Then(':name n\'a pas le droit aux données personnelles')]
     public function readsNoPersonalData(string $name): void
     {
-        Expect::same(false, $this->scenario->memberNamed($name)->readsPersonalData());
+        Expect::same(false, $this->hasThePersonalDataRight($name));
     }
 
     #[Then('le profil de :name est :')]
     public function theProfileOf(string $name, TableNode $table): void
     {
-        $profile = $this->application->persons->get($this->scenario->memberNamed($name)->personId());
+        $profile = $this->application->persons->get($this->scenario->profileOf($this->scenario->memberNamed($name)));
 
         Expect::describes($table->getRowsHash(), [
-            'prénom' => (string) $profile->name()->firstName,
-            'nom' => (string) $profile->name()->lastName,
+            'prénom' => (string) StateOf::the($profile)['name']->firstName,
+            'nom' => (string) StateOf::the($profile)['name']->lastName,
             'e-mail' => (string) $profile->contactDetails()->email,
         ]);
     }
@@ -86,6 +88,14 @@ final class MemberContext implements Context
     #[Then('le profil de :name n\'est pas celui de :other')]
     public function theProfilesDiffer(string $name, string $other): void
     {
-        Expect::that(!$this->scenario->memberNamed($name)->personId()->equals($this->scenario->memberNamed($other)->personId()), sprintf('%s and %s share a profile', $name, $other));
+        Expect::that(!$this->scenario->profileOf($this->scenario->memberNamed($name))->equals($this->scenario->profileOf($this->scenario->memberNamed($other))), sprintf('%s and %s share a profile', $name, $other));
+    }
+
+    /**
+     * As the other contexts learn it, by the published query of Accounts.
+     */
+    private function hasThePersonalDataRight(string $name): bool
+    {
+        return $this->application->consultMember(new ConsultMember($this->scenario->memberNamed($name)->id()->value))->readsPersonalData ?? false;
     }
 }

@@ -1,7 +1,7 @@
 # 0081. The API checks the access to a resource with a voter; the core keeps its state and what a member reads
 
 - Date: 2026-10-25
-- Status: Accepted
+- Status: Accepted, who computes what the state offers superseded by [0088](0088-a-query-reads-its-read-model-through-a-port-a-policy-says-what-is-possible.md): a policy of the domain, asked by the aggregate and by the retrievers of the read models
 - Supersedes: for the ownership of a resource and the right to manage personal data of an intention of Prospecting, [0026](0026-roles-in-the-api-ownership-and-state-in-the-aggregate.md); for who decides the links, [0027](0027-hypermedia-links-from-the-possible-intents.md)
 - Implemented by: `apps/api/src/Security/{AccountResourceVoter,ApiAccessDeniedHandler,IntentLinks}.php`, `apps/api/src/Prospecting/{OrganizationVoter,OrganizationResolver}.php`, `apps/api/src/Exchanges/{ExchangeVoter,ExchangeResolver}.php`, the tables of links of the presenters (`OrganizationResourcePresenter`, `ExchangeDetailPresenter`, `TimelinePresenter`), `apps/api/tests/Architecture/ResourcesAreReachedThroughTheirVoterTest.php`, `packages/core/src/Prospecting/Domain/{Organization,Exchange}.php` (`possibleIntents()`, the intentions `by:` a `MemberId`)
 

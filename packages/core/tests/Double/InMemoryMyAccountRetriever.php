@@ -28,19 +28,21 @@ final readonly class InMemoryMyAccountRetriever implements MyAccountRetriever
     {
         $member = $this->database->member((string) $me) ?? throw UnknownMember::identifiedBy($me);
         $account = $this->database->account((string) $member->accountId()) ?? throw UnknownAccount::identifiedBy($member->accountId());
-        $identity = $account->legalIdentity();
-        $address = $account->address();
-        $geoPoint = $account->geoPoint();
+        $memberState = StateOf::the($member);
+        $state = StateOf::the($account);
+        $identity = $state['legalIdentity'];
+        $address = $state['address'];
+        $geoPoint = $state['geoPoint'];
 
         return new MyAccount(
             memberId: $member->id()->value,
             accountId: $account->id()->value,
-            personId: $member->personId()->value,
-            roles: array_map(static fn (Role $role): string => $role->value, $member->roles()),
+            personId: $memberState['personId']->value,
+            roles: array_map(static fn (Role $role): string => $role->value, $memberState['roles']),
             organizationCorporateName: $identity->corporateName,
             organizationForm: $identity->form,
             organizationType: $identity->type,
-            organizationLogo: FileResponse::orNone($account->logo()),
+            organizationLogo: FileResponse::orNone($state['logo']),
             organizationStreet: $address?->street,
             organizationPostalCode: $address?->postalCode,
             organizationCity: $address?->city,
@@ -48,8 +50,8 @@ final readonly class InMemoryMyAccountRetriever implements MyAccountRetriever
             organizationLongitude: $geoPoint?->longitude,
             organizationLatitude: $geoPoint?->latitude,
             accountIntents: array_map(static fn (AccountIntent $intent): string => $intent->name, AccountPossibilities::given($account->id()->equals($member->accountId()))),
-            createdAt: $account->createdAt(),
-            modifiedAt: $account->modifiedAt(),
+            createdAt: $state['createdAt'],
+            modifiedAt: $state['modifiedAt'],
         );
     }
 }

@@ -30,9 +30,9 @@ final readonly class InMemoryTimelineRetriever implements TimelineRetriever
 
     public function ofContact(PersonId $contact, Prospector $reader, ?string $after, int $max): Timeline
     {
-        $withTheContact = array_filter($this->database->exchanges(), static fn (Exchange $exchange): bool => true === $exchange->contact()?->equals($contact) && $exchange->accountId()->equals($reader->accountId));
+        $withTheContact = array_filter($this->database->exchanges(), static fn (Exchange $exchange): bool => true === StateOf::the($exchange)['contact']?->equals($contact) && $exchange->accountId()->equals($reader->accountId));
 
-        return self::timelineOf($withTheContact, $after, $max, 0, static fn (Exchange $exchange): ExchangeInTimeline => self::inTimeline($exchange, $exchange->contactPresence(), $reader));
+        return self::timelineOf($withTheContact, $after, $max, 0, static fn (Exchange $exchange): ExchangeInTimeline => self::inTimeline($exchange, ContactPresence::ofTheContact(null !== StateOf::the($exchange)['contact'], StateOf::the($exchange)['contactForgotten']), $reader));
     }
 
     public function ofOrganization(OrganizationSheet $organization, Prospector $reader, ?string $after, int $max): Timeline
@@ -52,7 +52,7 @@ final readonly class InMemoryTimelineRetriever implements TimelineRetriever
      */
     private function keptFor(OrganizationSheet $organization): array
     {
-        return array_values(array_filter($this->database->exchanges(), static fn (Exchange $exchange): bool => array_any($exchange->keptFor(), static fn (OrganizationId $keptFor): bool => $keptFor->value === $organization->id)));
+        return array_values(array_filter($this->database->exchanges(), static fn (Exchange $exchange): bool => array_any(StateOf::the($exchange)['keptFor'], static fn (OrganizationId $keptFor): bool => $keptFor->value === $organization->id)));
     }
 
     /**
@@ -69,8 +69,9 @@ final readonly class InMemoryTimelineRetriever implements TimelineRetriever
     private static function inTheTimelineOf(OrganizationSheet $organization, Prospector $reader): \Closure
     {
         return static function (Exchange $exchange) use ($organization, $reader): ExchangeInTimeline {
-            $contact = $exchange->contact()?->value;
-            $presence = ContactPresence::inTheOrganization(null !== $contact, ContactPresence::Forgotten === $exchange->contactPresence(), in_array($contact, $organization->contactIds, true));
+            $state = StateOf::the($exchange);
+            $contact = $state['contact']?->value;
+            $presence = ContactPresence::inTheOrganization(null !== $contact, $state['contactForgotten'], in_array($contact, $organization->contactIds, true));
 
             return self::inTimeline($exchange, $presence, $reader);
         };
@@ -96,13 +97,14 @@ final readonly class InMemoryTimelineRetriever implements TimelineRetriever
 
     private static function inTimeline(Exchange $exchange, ?ContactPresence $presence, Prospector $reader): ExchangeInTimeline
     {
-        $facts = $exchange->facts();
-        $contactForgotten = ContactPresence::Forgotten === $exchange->contactPresence();
-        $declaredConform = null !== $exchange->madeConform();
+        $state = StateOf::the($exchange);
+        $facts = $state['facts'];
+        $contactForgotten = $state['contactForgotten'];
+        $declaredConform = null !== $state['madeConform'];
 
         return new ExchangeInTimeline(
             id: $exchange->id()->value,
-            personId: $exchange->contact()?->value,
+            personId: $state['contact']?->value,
             contactPresence: $presence?->value,
             channel: $facts->channel->value,
             direction: $facts->direction->value,
@@ -112,13 +114,13 @@ final readonly class InMemoryTimelineRetriever implements TimelineRetriever
             textFlagged: ExchangeReading::isTextFlagged(null !== $facts->text, $reader),
             textToMakeConform: ExchangeConformity::isTextToMakeConform(null !== $facts->text, $contactForgotten, $declaredConform),
             toMakeConform: ExchangeConformity::isToMakeConform($contactForgotten, $declaredConform, [] !== $exchange->attachments()),
-            organizationIds: array_map(static fn (OrganizationId $organization): string => $organization->value, $exchange->keptFor()),
+            organizationIds: array_map(static fn (OrganizationId $organization): string => $organization->value, $state['keptFor']),
             attachmentCount: count($exchange->attachments()),
         );
     }
 
     private static function positionOf(Exchange $exchange): string
     {
-        return $exchange->facts()->occurredAt->setTimezone(new \DateTimeZone('UTC'))->format('Y-m-d\TH:i:s.u\Z').'#'.$exchange->id();
+        return StateOf::the($exchange)['facts']->occurredAt->setTimezone(new \DateTimeZone('UTC'))->format('Y-m-d\TH:i:s.u\Z').'#'.$exchange->id();
     }
 }

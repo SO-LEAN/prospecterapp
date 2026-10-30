@@ -68,27 +68,27 @@ final class AccountContext implements Context
     public function iConsultMyAccount(): void
     {
         $this->account = $this->application->consultMyAccount();
-        $this->myPerson = $this->application->consultPerson(new ConsultPerson($this->application->signedIn(), $this->scenario->me()->personId()->value));
+        $this->myPerson = $this->application->consultPerson(new ConsultPerson($this->application->signedIn(), $this->scenario->profileOf($this->scenario->me())->value));
     }
 
     #[When('je change mon nom :')]
     public function iChangeMyName(TableNode $table): void
     {
         $values = Vocabulary::values($table->getRowsHash());
-        $this->application->dispatch(new RenamePerson($this->application->signedIn(), $this->scenario->me()->personId()->value, $values['prénom'], $values['nom'], $this->application->now()));
+        $this->application->dispatch(new RenamePerson($this->application->signedIn(), $this->scenario->profileOf($this->scenario->me())->value, $values['prénom'], $values['nom'], $this->application->now()));
     }
 
     #[When('je change mes coordonnées :')]
     public function iChangeMyContactDetails(TableNode $table): void
     {
         $values = Vocabulary::values($table->getRowsHash());
-        $this->application->dispatch(new ChangePersonContactDetails($this->application->signedIn(), $this->scenario->me()->personId()->value, $values['e-mail'], $values['téléphone'], $values['langue'], $this->application->now()));
+        $this->application->dispatch(new ChangePersonContactDetails($this->application->signedIn(), $this->scenario->profileOf($this->scenario->me())->value, $values['e-mail'], $values['téléphone'], $values['langue'], $this->application->now()));
     }
 
     #[When('je change ma photo avec :fileName')]
     public function iChangeMyPicture(string $fileName): void
     {
-        $this->application->dispatch(new ChangePersonPicture($this->application->signedIn(), $this->scenario->me()->personId()->value, $this->scenario->upload($fileName), $this->application->now()));
+        $this->application->dispatch(new ChangePersonPicture($this->application->signedIn(), $this->scenario->profileOf($this->scenario->me())->value, $this->scenario->upload($fileName), $this->application->now()));
     }
 
     #[When('je révise l\'identité de mon organisation :')]

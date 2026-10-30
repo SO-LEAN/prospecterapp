@@ -22,6 +22,7 @@ use Prospecter\Core\SharedKernel\Domain\OrganizationId;
 use Prospecter\Core\SharedKernel\Domain\PersonId;
 use Tests\Core\Acceptance\Expect;
 use Tests\Core\Acceptance\Vocabulary;
+use Tests\Core\Double\StateOf;
 
 /**
  * One exchange, "cet échange" of the scenarios: its detail, its correction, its erasure.
@@ -59,7 +60,7 @@ final class ExchangeDetailContext implements Context
     public function iCorrectTheExchange(TableNode $table): void
     {
         $values = $table->getRowsHash();
-        $facts = $this->application->exchanges->get(new ExchangeId($this->scenario->theExchange()))->facts();
+        $facts = StateOf::the($this->application->exchanges->get(new ExchangeId($this->scenario->theExchange())))['facts'];
         $this->application->dispatch(new CorrectExchange(
             prospectorId: $this->application->signedIn(),
             id: $this->scenario->theExchange(),
@@ -87,7 +88,7 @@ final class ExchangeDetailContext implements Context
     #[When('je corrige cet échange et le déclare rendu conforme :')]
     public function iMakeTheExchangeConform(TableNode $table): void
     {
-        $facts = $this->application->exchanges->get(new ExchangeId($this->scenario->theExchange()))->facts();
+        $facts = StateOf::the($this->application->exchanges->get(new ExchangeId($this->scenario->theExchange())))['facts'];
         $this->application->dispatch(new CorrectExchange(
             prospectorId: $this->application->signedIn(),
             id: $this->scenario->theExchange(),
