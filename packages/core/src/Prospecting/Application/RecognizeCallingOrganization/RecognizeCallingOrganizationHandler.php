@@ -20,8 +20,8 @@ final readonly class RecognizeCallingOrganizationHandler implements QueryHandler
     public function __invoke(RecognizeCallingOrganization $query, RecognizeCallingOrganizationOutput $output): void
     {
         $prospector = $this->prospectors->prospectorFrom(new MemberId($query->prospectorId));
-        $organizations = $this->organizations->withPhoneNumber($prospector->accountId, PhoneNumber::of($query->phoneNumber));
+        $callingOrganizations = $this->organizations->withPhoneNumber($prospector->accountId, PhoneNumber::of($query->phoneNumber));
 
-        $output->present(array_map(OrganizationResponse::of(...), $organizations));
+        $output->present(array_map(OrganizationResponse::of(...), $callingOrganizations));
     }
 }

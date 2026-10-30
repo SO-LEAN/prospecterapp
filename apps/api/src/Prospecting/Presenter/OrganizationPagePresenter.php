@@ -23,7 +23,7 @@ final class OrganizationPagePresenter implements SearchProspectedOrganizationsOu
     /**
      * @param string $query the search, kept by the link to the next slice
      */
-    public function __construct(private readonly ImageResourceFactory $images, private readonly Links $links, private readonly string $query = '')
+    public function __construct(private readonly ImageResourceFactory $imageResourceFactory, private readonly Links $links, private readonly string $query = '')
     {
     }
 
@@ -47,7 +47,7 @@ final class OrganizationPagePresenter implements SearchProspectedOrganizationsOu
             city: $organization->city,
             country: $organization->country,
             location: LocationResource::orNone($organization->latitude, $organization->longitude),
-            logo: $this->images->create($organization->logo?->url),
+            logo: $this->imageResourceFactory->create($organization->logo?->url),
         );
     }
 }

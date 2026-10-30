@@ -21,11 +21,11 @@ final readonly class ConsultOrganizationsOfContactsHandler implements QueryHandl
     {
         $prospector = $this->prospectors->prospectorFrom(new MemberId($query->prospectorId));
         $contacts = array_map(static fn (string $id): PersonId => new PersonId($id), $query->personIds);
-        $organizations = $this->organizations->withContacts($contacts, $prospector->accountId);
+        $organizationsOfContacts = $this->organizations->withContacts($contacts, $prospector->accountId);
         $byContact = [];
 
         foreach ($contacts as $contact) {
-            $byContact[$contact->value] = array_map(OrganizationOfContact::of(...), array_values(array_filter($organizations, static fn (Organization $organization): bool => $organization->hasContact($contact))));
+            $byContact[$contact->value] = array_map(OrganizationOfContact::of(...), array_values(array_filter($organizationsOfContacts, static fn (Organization $organization): bool => $organization->hasContact($contact))));
         }
 
         $output->present($byContact);

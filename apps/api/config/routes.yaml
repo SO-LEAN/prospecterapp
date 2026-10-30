@@ -15,7 +15,7 @@ prospecting:
     defaults: { _format: json }
 
 dashboard:
-    resource: ../src/Dashboard/
+    resource: ../src/Dashboard/Controller/
     type: attribute
     host: '%app_api_host%'
     defaults: { _format: json }
@@ -28,14 +28,14 @@ personal_data:
 
 # the contacts across Prospecting and PersonalData, composed like the dashboard
 contacts:
-    resource: ../src/Contacts/
+    resource: ../src/Contacts/Controller/
     type: attribute
     host: '%app_api_host%'
     defaults: { _format: json }
 
 # an exchange with a contact read in Prospecting, the members who noted and corrected it named by PersonalData
 exchanges:
-    resource: ../src/Exchanges/
+    resource: ../src/Exchanges/Controller/
     type: attribute
     host: '%app_api_host%'
     defaults: { _format: json }

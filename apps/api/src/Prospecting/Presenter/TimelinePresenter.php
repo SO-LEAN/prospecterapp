@@ -17,15 +17,15 @@ final class TimelinePresenter implements TimelineOutput
 
     public private(set) TimelineResource $resource;
 
-    public function __construct(private readonly string $contactId, private readonly TimelineResourceFactory $timelines)
+    public function __construct(private readonly string $contactId, private readonly TimelineResourceFactory $timelineResourceFactory)
     {
     }
 
     public function present(TimelineResponse $timeline): void
     {
         $this->resource = new TimelineResource(
-            items: array_map($this->timelines->createExchange(...), $timeline->exchanges),
-            links: $this->timelines->createLinks(self::CONTACT_ROUTES, ['id' => $this->contactId], $timeline),
+            items: array_map($this->timelineResourceFactory->createExchange(...), $timeline->exchanges),
+            links: $this->timelineResourceFactory->createLinks(self::CONTACT_ROUTES, ['id' => $this->contactId], $timeline),
         );
     }
 }
