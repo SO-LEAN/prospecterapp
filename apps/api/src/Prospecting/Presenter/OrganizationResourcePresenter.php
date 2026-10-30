@@ -51,7 +51,7 @@ final class OrganizationResourcePresenter implements ConsultOrganizationOutput
 
     public private(set) OrganizationResource $resource;
 
-    public function __construct(private readonly ImageResourceFactory $images, private readonly Links $links, private readonly IntentLinks $intents)
+    public function __construct(private readonly ImageResourceFactory $imageResourceFactory, private readonly Links $links, private readonly IntentLinks $intentLinks)
     {
     }
 
@@ -70,7 +70,7 @@ final class OrganizationResourcePresenter implements ConsultOrganizationOutput
             address: AddressResource::orNone($response->street, $response->postalCode, $response->city, $response->country),
             location: LocationResource::orNone($response->latitude, $response->longitude),
             observations: $response->observations,
-            logo: $this->images->create($response->logo?->url),
+            logo: $this->imageResourceFactory->create($response->logo?->url),
             holdingId: $response->holdingId,
             contactIds: $response->contactIds,
             createdAt: $response->createdAt,
@@ -85,11 +85,11 @@ final class OrganizationResourcePresenter implements ConsultOrganizationOutput
         $granted = [
             ...array_map(
                 static fn (array $link): string => $link['route'],
-                array_filter(self::ROUTES, fn (array $link): bool => $this->intents->shows($link['intent'], $response->possibleIntents, $link['role'])),
+                array_filter(self::ROUTES, fn (array $link): bool => $this->intentLinks->shows($link['intent'], $response->possibleIntents, $link['role'])),
             ),
             ...array_map(
                 static fn (array $link): string => $link['route'],
-                array_filter(self::TIMELINE_ROUTES, fn (array $link): bool => $this->intents->holds($link['role'])),
+                array_filter(self::TIMELINE_ROUTES, fn (array $link): bool => $this->intentLinks->holds($link['role'])),
             ),
             ...($this->mayStopProspecting($response) ? ['stopProspecting' => 'api_organizations_stop_prospecting'] : []),
         ];
@@ -106,6 +106,6 @@ final class OrganizationResourcePresenter implements ConsultOrganizationOutput
      */
     private function mayStopProspecting(OrganizationResponse $response): bool
     {
-        return $this->intents->shows('StopProspecting', $response->possibleIntents, [] === $response->contactIds ? null : User::PERSONAL_DATA);
+        return $this->intentLinks->shows('StopProspecting', $response->possibleIntents, [] === $response->contactIds ? null : User::PERSONAL_DATA);
     }
 }

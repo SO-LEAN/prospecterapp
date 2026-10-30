@@ -40,7 +40,7 @@ final class ExchangeDetailPresenter implements ConsultExchangeOutput
 
     public private(set) ExchangeDetailResource $resource;
 
-    public function __construct(private readonly ExchangeParticipants $participants, private readonly Links $links, private readonly IntentLinks $intents)
+    public function __construct(private readonly ExchangeParticipants $participants, private readonly Links $links, private readonly IntentLinks $intentLinks)
     {
     }
 
@@ -81,14 +81,14 @@ final class ExchangeDetailPresenter implements ConsultExchangeOutput
 
         return new AttachmentResource($attachment->id, $attachment->name, $attachment->size, $attachment->mediaType, $attachment->toMakeConform, new AttachmentLinksResource(
             $this->links->to('api_exchanges_download_attachment', $ids),
-            $this->intents->shows('RemoveAttachment', $exchange->possibleIntents, User::PERSONAL_DATA) ? $this->links->to('api_exchanges_remove_attachment', $ids) : null,
+            $this->intentLinks->shows('RemoveAttachment', $exchange->possibleIntents, User::PERSONAL_DATA) ? $this->links->to('api_exchanges_remove_attachment', $ids) : null,
         ));
     }
 
     private function linksOf(ExchangeDetailResponse $exchange): ExchangeDetailLinksResource
     {
         $id = ['id' => $exchange->id];
-        $granted = array_filter(self::ROUTES, fn (array $link): bool => $this->intents->shows($link['intent'], $exchange->possibleIntents, $link['role']));
+        $granted = array_filter(self::ROUTES, fn (array $link): bool => $this->intentLinks->shows($link['intent'], $exchange->possibleIntents, $link['role']));
 
         return new ExchangeDetailLinksResource(
             $this->links->to('api_exchanges_show', $id),

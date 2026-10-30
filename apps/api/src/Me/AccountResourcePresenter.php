@@ -37,7 +37,7 @@ final class AccountResourcePresenter implements ConsultPersonOutput
 
     public private(set) AccountResource $resource;
 
-    public function __construct(private readonly AccountResponse $account, private readonly ImageResourceFactory $images, private readonly Links $links)
+    public function __construct(private readonly AccountResponse $account, private readonly ImageResourceFactory $imageResourceFactory, private readonly Links $links)
     {
     }
 
@@ -46,7 +46,7 @@ final class AccountResourcePresenter implements ConsultPersonOutput
         $this->resource = new AccountResource(
             name: new PersonNameResource($me->firstName, $me->lastName),
             contactDetails: new ContactDetailsResource($me->email, $me->phoneNumber, $me->language),
-            picture: $this->images->create($me->picture?->url),
+            picture: $this->imageResourceFactory->create($me->picture?->url),
             organization: $this->organization(),
             links: $this->linksOf($me),
         );
@@ -58,7 +58,7 @@ final class AccountResourcePresenter implements ConsultPersonOutput
 
         return new AccountOrganizationResource(
             new LegalIdentityResource($account->organizationCorporateName, $account->organizationForm, $account->organizationType),
-            $this->images->create($account->organizationLogo?->url),
+            $this->imageResourceFactory->create($account->organizationLogo?->url),
             AddressResource::orNone($account->organizationStreet, $account->organizationPostalCode, $account->organizationCity, $account->organizationCountry),
             LocationResource::orNone($account->organizationLatitude, $account->organizationLongitude),
         );

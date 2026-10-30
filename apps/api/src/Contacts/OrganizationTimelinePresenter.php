@@ -33,7 +33,7 @@ final class OrganizationTimelinePresenter implements TimelineOutput
         private readonly array $routes,
         private readonly OrganizationResponse $organization,
         private readonly array $persons,
-        private readonly TimelineResourceFactory $timelines,
+        private readonly TimelineResourceFactory $timelineResourceFactory,
         private readonly Links $links,
     ) {
     }
@@ -59,9 +59,9 @@ final class OrganizationTimelinePresenter implements TimelineOutput
         $subject = ['id' => $this->organization->id];
 
         $this->resource = new OrganizationTimelineResource(
-            items: array_map(fn (ExchangeResponse $exchange): OrganizationExchangeResource => new OrganizationExchangeResource($this->timelines->createExchange($exchange), $this->interlocutorOf($exchange)), $timeline->exchanges),
+            items: array_map(fn (ExchangeResponse $exchange): OrganizationExchangeResource => new OrganizationExchangeResource($this->timelineResourceFactory->createExchange($exchange), $this->interlocutorOf($exchange)), $timeline->exchanges),
             toMakeConform: $timeline->toMakeConform,
-            links: $this->timelines->createLinks($this->routes, $subject, $timeline)->withToMakeConform(0 === $timeline->toMakeConform ? null : $this->links->to(self::TO_MAKE_CONFORM_ROUTES[0], $subject)),
+            links: $this->timelineResourceFactory->createLinks($this->routes, $subject, $timeline)->withToMakeConform(0 === $timeline->toMakeConform ? null : $this->links->to(self::TO_MAKE_CONFORM_ROUTES[0], $subject)),
         );
     }
 
