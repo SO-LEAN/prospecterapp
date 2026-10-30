@@ -7,8 +7,8 @@ install: ## Install the pnpm dependencies of the front
 	@echo "Front/Installing pnpm dependencies..."
 	@$(NODE) pnpm install
 
-test: ## Run the tests of the front (Vitest)
-	@$(NODE) pnpm test
+test: ## Run the tests of the front (Vitest); FILTER= a test file by its path or a part of it
+	@$(NODE) pnpm test $(if $(FILTER),'$(FILTER)')
 
 lint: ## Check the code of the front: Biome, TypeScript
 	@$(NODE) sh -c 'pnpm lint && pnpm typecheck'
