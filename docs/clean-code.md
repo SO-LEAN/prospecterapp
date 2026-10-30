@@ -91,7 +91,7 @@ This guide is alive: rules get added and sharpened as the code is improved, iter
 - **Single responsibility**: a module has one reason to change, i.e. answers to one actor. Each use case serves one intent; presenters change with the API format, not with the rules.
 - **Open/closed**: extend behaviour by adding code (a new adapter behind a port, a new use case), not by editing working code.
 - **Liskov substitution**: an implementation honours the contract of its interface, including its exceptions; the in-memory doubles behave like the DynamoDB adapters, or the scenarios lie.
-- **Interface segregation**: clients depend only on what they use: a repository offers the queries its use cases need (`sliceProspectedBy`, `ofIds`), no generic finder.
+- **Interface segregation**: clients depend only on what they use: a repository offers the queries its use cases need (`withPhoneNumber`, `subsidiariesOf`), no generic finder.
 - **Dependency inversion**: high-level policy does not depend on details; both depend on abstractions owned by the policy (ports in the core, adapters in the API).
 
 ## 11. Architecture and components
@@ -119,5 +119,5 @@ This guide is alive: rules get added and sharpened as the code is improved, iter
 
 ## PHP and TypeScript specifics
 
-- PHP: native types everywhere, `readonly` classes and promoted properties, `enum` for closed sets, `match` instead of `switch`, first-class callables (`$this->allowsInItsState(...)`, `FoundOrganization::of(...)`), `never` and `throw` expressions, strict types in the core, PHPStan level 5 (ADR 0004).
+- PHP: native types everywhere, `readonly` classes and promoted properties, `enum` for closed sets, `match` instead of `switch`, first-class callables (`$this->allowsInItsState(...)`, `Role::from(...)`), `never` and `throw` expressions, strict types in the core, PHPStan level 5 (ADR 0004).
 - TypeScript: strict mode, no `any`, named functions for intentions (`isClientError`, `nextSliceOf`), no manual memoization (the React Compiler does it), components small and composed.

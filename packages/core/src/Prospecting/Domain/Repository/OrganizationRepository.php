@@ -12,8 +12,6 @@ use Prospecter\Core\SharedKernel\Domain\Exception\EmailAlreadyUsed;
 use Prospecter\Core\SharedKernel\Domain\OrganizationId;
 use Prospecter\Core\SharedKernel\Domain\PersonId;
 use Prospecter\Core\SharedKernel\Domain\PhoneNumber;
-use Prospecter\Core\SharedKernel\Domain\SearchKey;
-use Prospecter\Core\SharedKernel\Domain\Slice;
 
 interface OrganizationRepository
 {
@@ -56,12 +54,4 @@ interface OrganizationRepository
      * @return list<Organization>
      */
     public function withPhoneNumber(AccountId $accountId, PhoneNumber $phoneNumber): array;
-
-    /**
-     * The organizations the account prospects, newest first, after the cursor: those found by the search
-     * (`Organization::searchKeys()`), all of them without one.
-     *
-     * @return Slice<Organization>
-     */
-    public function sliceProspectedBy(AccountId $accountId, ?SearchKey $search, ?string $after, int $max): Slice;
 }

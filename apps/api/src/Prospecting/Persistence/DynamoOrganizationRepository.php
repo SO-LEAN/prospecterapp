@@ -3,7 +3,6 @@
 namespace App\Prospecting\Persistence;
 
 use App\Shared\Persistence\ConditionFailed;
-use App\Shared\Persistence\Documents;
 use App\Shared\Persistence\SearchIndexes;
 use App\Shared\Persistence\Table;
 use Prospecter\Core\Prospecting\Domain\Exception\UnknownOrganization;
@@ -15,8 +14,6 @@ use Prospecter\Core\SharedKernel\Domain\Exception\EmailAlreadyUsed;
 use Prospecter\Core\SharedKernel\Domain\OrganizationId;
 use Prospecter\Core\SharedKernel\Domain\PersonId;
 use Prospecter\Core\SharedKernel\Domain\PhoneNumber;
-use Prospecter\Core\SharedKernel\Domain\SearchKey;
-use Prospecter\Core\SharedKernel\Domain\Slice;
 
 /**
  * The organizations in the table of Prospecting (ADR 0048):
@@ -109,22 +106,9 @@ final readonly class DynamoOrganizationRepository implements OrganizationReposit
         return $this->organizationsOf($this->prospectingTable->items(array_values($named)));
     }
 
-    /**
-     * Without a search, the account lists its organizations in GSI1; a search asks the indexes of the search
-     * (ADR 0071).
-     */
     public function withPhoneNumber(AccountId $accountId, PhoneNumber $phoneNumber): array
     {
         return $this->inTheOrderOf(SearchIndexes::withPhoneNumber($this->prospectingTable, $accountId->value, $phoneNumber));
-    }
-
-    public function sliceProspectedBy(AccountId $accountId, ?SearchKey $search, ?string $after, int $max): Slice
-    {
-        $found = null === $search
-            ? $this->organizationsOf($this->prospectingTable->query('ACCOUNT#'.$accountId->value, Table::BY_GSI1, $after, $max + 1))
-            : $this->inTheOrderOf(SearchIndexes::found($this->prospectingTable, $accountId->value, $search, null === $after ? null : self::keyOf(new OrganizationId($after)), $max + 1));
-
-        return Documents::slice($found, $max, static fn (Organization $organization): string => (string) $organization->id());
     }
 
     /**

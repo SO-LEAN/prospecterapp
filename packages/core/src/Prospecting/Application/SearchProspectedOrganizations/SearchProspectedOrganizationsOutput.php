@@ -8,5 +8,5 @@ use Prospecter\Core\SharedKernel\Application\OutputPort;
 
 interface SearchProspectedOrganizationsOutput extends OutputPort
 {
-    public function present(SearchProspectedOrganizationsResponse $page): void;
+    public function present(FoundOrganizationPage $page): void;
 }

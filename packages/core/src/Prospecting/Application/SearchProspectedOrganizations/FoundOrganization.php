@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Prospecter\Core\Prospecting\Application\SearchProspectedOrganizations;
 
-use Prospecter\Core\Prospecting\Domain\Model\Organization;
 use Prospecter\Core\SharedKernel\Application\FileResponse;
 
 /**
@@ -12,7 +11,7 @@ use Prospecter\Core\SharedKernel\Application\FileResponse;
  */
 final readonly class FoundOrganization
 {
-    private function __construct(
+    public function __construct(
         public string $id,
         public string $fullName,
         public ?string $postalCode,
@@ -22,22 +21,5 @@ final readonly class FoundOrganization
         public ?float $longitude,
         public ?float $latitude,
     ) {
-    }
-
-    public static function of(Organization $organization): self
-    {
-        $address = $organization->address();
-        $geoPoint = $organization->geoPoint();
-
-        return new self(
-            id: $organization->id()->value,
-            fullName: $organization->fullName(),
-            postalCode: $address?->postalCode,
-            city: $address?->city,
-            country: $address?->country,
-            logo: FileResponse::orNone($organization->logo()),
-            longitude: $geoPoint?->longitude,
-            latitude: $geoPoint?->latitude,
-        );
     }
 }

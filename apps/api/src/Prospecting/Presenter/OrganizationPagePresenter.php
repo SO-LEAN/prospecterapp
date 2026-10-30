@@ -9,8 +9,8 @@ use App\Shared\ImageResourceFactory;
 use App\Shared\Links;
 use App\Shared\Resource\LocationResource;
 use Prospecter\Core\Prospecting\Application\SearchProspectedOrganizations\FoundOrganization;
+use Prospecter\Core\Prospecting\Application\SearchProspectedOrganizations\FoundOrganizationPage;
 use Prospecter\Core\Prospecting\Application\SearchProspectedOrganizations\SearchProspectedOrganizationsOutput;
-use Prospecter\Core\Prospecting\Application\SearchProspectedOrganizations\SearchProspectedOrganizationsResponse;
 
 /**
  * A slice of the organizations my organization prospects, each summed up. Built for one call, it keeps the resource
@@ -27,7 +27,7 @@ final class OrganizationPagePresenter implements SearchProspectedOrganizationsOu
     {
     }
 
-    public function present(SearchProspectedOrganizationsResponse $page): void
+    public function present(FoundOrganizationPage $page): void
     {
         $this->resource = new OrganizationPageResource(
             items: array_map($this->summarize(...), $page->organizations),
