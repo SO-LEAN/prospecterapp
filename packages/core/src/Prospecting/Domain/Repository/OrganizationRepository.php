@@ -11,7 +11,6 @@ use Prospecter\Core\SharedKernel\Domain\Email;
 use Prospecter\Core\SharedKernel\Domain\Exception\EmailAlreadyUsed;
 use Prospecter\Core\SharedKernel\Domain\OrganizationId;
 use Prospecter\Core\SharedKernel\Domain\PersonId;
-use Prospecter\Core\SharedKernel\Domain\PhoneNumber;
 
 interface OrganizationRepository
 {
@@ -47,11 +46,4 @@ interface OrganizationRepository
      * @return list<Organization>
      */
     public function withContacts(array $contacts, AccountId $accountId): array;
-
-    /**
-     * The organizations the account prospects that have this phone number.
-     *
-     * @return list<Organization>
-     */
-    public function withPhoneNumber(AccountId $accountId, PhoneNumber $phoneNumber): array;
 }

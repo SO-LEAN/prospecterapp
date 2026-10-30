@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Prospecter\Core\Prospecting\Application\RecognizeCallingOrganization;
 
-use Prospecter\Core\Prospecting\Application\OrganizationResponse;
+use Prospecter\Core\Prospecting\Application\OrganizationSheet;
 
 /**
  * Keeps the answer as it is, for a client that reads it rather than shows it (ADR 0085).
@@ -12,12 +12,12 @@ use Prospecter\Core\Prospecting\Application\OrganizationResponse;
 final class KeptCallingOrganizations implements RecognizeCallingOrganizationOutput
 {
     /**
-     * @var list<OrganizationResponse>
+     * @var list<OrganizationSheet>
      */
     public private(set) array $organizations;
 
     /**
-     * @param list<OrganizationResponse> $organizations the organizations having the number
+     * @param list<OrganizationSheet> $organizations the organizations having the number
      */
     public function present(array $organizations): void
     {

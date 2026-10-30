@@ -13,7 +13,6 @@ use Prospecter\Core\SharedKernel\Domain\Email;
 use Prospecter\Core\SharedKernel\Domain\Exception\EmailAlreadyUsed;
 use Prospecter\Core\SharedKernel\Domain\OrganizationId;
 use Prospecter\Core\SharedKernel\Domain\PersonId;
-use Prospecter\Core\SharedKernel\Domain\PhoneNumber;
 
 /**
  * The organizations in the table of Prospecting (ADR 0048):
@@ -104,27 +103,6 @@ final readonly class DynamoOrganizationRepository implements OrganizationReposit
         }
 
         return $this->organizationsOf($this->prospectingTable->items(array_values($named)));
-    }
-
-    public function withPhoneNumber(AccountId $accountId, PhoneNumber $phoneNumber): array
-    {
-        return $this->inTheOrderOf(SearchIndexes::withPhoneNumber($this->prospectingTable, $accountId->value, $phoneNumber));
-    }
-
-    /**
-     * @param list<string> $keys partition keys of organizations
-     *
-     * @return list<Organization>
-     */
-    private function inTheOrderOf(array $keys): array
-    {
-        $organizations = [];
-
-        foreach ($this->organizationsOf($this->prospectingTable->items(array_map(static fn (string $key): array => [$key, self::ORGANIZATION], $keys))) as $organization) {
-            $organizations[self::keyOf($organization->id())] = $organization;
-        }
-
-        return array_values(array_filter(array_map(static fn (string $key): ?Organization => $organizations[$key] ?? null, $keys)));
     }
 
     /**

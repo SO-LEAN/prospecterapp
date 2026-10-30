@@ -4,7 +4,7 @@ namespace App\Contacts\Resource;
 
 use OpenApi\Attributes as OA;
 use Prospecter\Core\PersonalData\Application\PersonResponse;
-use Prospecter\Core\Prospecting\Application\OrganizationResponse;
+use Prospecter\Core\Prospecting\Application\OrganizationSheet;
 
 /**
  * Who communicated in an exchange of the timeline of an organization: one of its contacts, still, removed from it
@@ -28,7 +28,7 @@ final readonly class InterlocutorResource
     ) {
     }
 
-    public static function ofTheOrganization(OrganizationResponse $organization): self
+    public static function ofTheOrganization(OrganizationSheet $organization): self
     {
         return new self(self::ORGANIZATION, $organization->id, $organization->fullName);
     }

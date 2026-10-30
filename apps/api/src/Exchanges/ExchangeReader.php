@@ -16,7 +16,7 @@ use Prospecter\Core\Prospecting\Application\ConsultExchange\ExchangeDetailRespon
 use Prospecter\Core\Prospecting\Application\ConsultExchange\KeptExchange;
 use Prospecter\Core\Prospecting\Application\ConsultOrganization\ConsultOrganization;
 use Prospecter\Core\Prospecting\Application\ConsultOrganization\KeptOrganization;
-use Prospecter\Core\Prospecting\Application\OrganizationResponse;
+use Prospecter\Core\Prospecting\Application\OrganizationSheet;
 use Prospecter\Core\SharedKernel\Application\RefusalTranslatingHandler;
 
 /**
@@ -77,7 +77,7 @@ final readonly class ExchangeReader
             : InterlocutorResource::ofPerson($exchange->personId, $persons[$exchange->personId] ?? null, $exchange->contactPresence);
     }
 
-    private function organizationOf(string $id): OrganizationResponse
+    private function organizationOf(string $id): OrganizationSheet
     {
         $kept = new KeptOrganization();
         ($this->consultOrganization)(new ConsultOrganization($id), $kept);

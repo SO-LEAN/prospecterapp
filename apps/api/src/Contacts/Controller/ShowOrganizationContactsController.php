@@ -17,7 +17,7 @@ use OpenApi\Attributes as OA;
 use Prospecter\Core\PersonalData\Application\ConsultPersons\ConsultPersons;
 use Prospecter\Core\PersonalData\Application\ConsultPersons\KeptPersons;
 use Prospecter\Core\PersonalData\Application\PersonResponse;
-use Prospecter\Core\Prospecting\Application\OrganizationResponse;
+use Prospecter\Core\Prospecting\Application\OrganizationSheet;
 use Prospecter\Core\SharedKernel\Application\RefusalTranslatingHandler;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -48,7 +48,7 @@ final class ShowOrganizationContactsController extends AbstractController
     #[OA\Response(response: 401, description: 'Missing or invalid access token')]
     #[OA\Response(response: 403, description: 'The signed-in user is not a prospector', content: new Model(type: ProblemResource::class))]
     #[OA\Response(response: 404, description: 'Unknown organization, or one of another account', content: new Model(type: ProblemResource::class))]
-    public function __invoke(OrganizationResponse $organization, #[CurrentUser] User $user): JsonResponse
+    public function __invoke(OrganizationSheet $organization, #[CurrentUser] User $user): JsonResponse
     {
         $persons = new KeptPersons();
         ($this->consultPersons)(new ConsultPersons($user->memberId(), $organization->contactIds), $persons);
@@ -57,7 +57,7 @@ final class ShowOrganizationContactsController extends AbstractController
         return $this->json(new OrganizationContactsResource(array_map(fn (PersonResponse $contact): OrganizationContactResource => $this->present($contact, $organization), $contacts)));
     }
 
-    private function present(PersonResponse $contact, OrganizationResponse $organization): OrganizationContactResource
+    private function present(PersonResponse $contact, OrganizationSheet $organization): OrganizationContactResource
     {
         return new OrganizationContactResource(
             id: $contact->id,

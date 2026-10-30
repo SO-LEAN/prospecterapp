@@ -10,7 +10,7 @@ use App\Shared\CommandBus;
 use App\Shared\Resource\ProblemResource;
 use Nelmio\ApiDocBundle\Attribute\Model;
 use OpenApi\Attributes as OA;
-use Prospecter\Core\Prospecting\Application\OrganizationResponse;
+use Prospecter\Core\Prospecting\Application\OrganizationSheet;
 use Prospecter\Core\Prospecting\Application\RemoveContact\RemoveContact;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\Clock\ClockInterface;
@@ -40,7 +40,7 @@ final class RemoveContactController extends AbstractController
     #[OA\Response(response: 403, description: 'Not a prospector, or no right to manage personal data', content: new Model(type: ProblemResource::class))]
     #[OA\Response(response: 404, description: 'Unknown organization, or one of another account', content: new Model(type: ProblemResource::class))]
     #[OA\Response(response: 409, description: 'The person is no contact of the organization', content: new Model(type: ProblemResource::class))]
-    public function __invoke(OrganizationResponse $organization, string $personId, #[CurrentUser] User $user): JsonResponse
+    public function __invoke(OrganizationSheet $organization, string $personId, #[CurrentUser] User $user): JsonResponse
     {
         $this->commandBus->dispatch(new RemoveContact($user->memberId(), $organization->id, $personId, $this->clock->now()));
 

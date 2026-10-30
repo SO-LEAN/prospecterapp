@@ -9,7 +9,7 @@ use App\Prospecting\TimelineResourceFactory;
 use App\Shared\Links;
 use Prospecter\Core\PersonalData\Application\PersonResponse;
 use Prospecter\Core\Prospecting\Application\ExchangeResponse;
-use Prospecter\Core\Prospecting\Application\OrganizationResponse;
+use Prospecter\Core\Prospecting\Application\OrganizationSheet;
 use Prospecter\Core\Prospecting\Application\TimelineOutput;
 use Prospecter\Core\Prospecting\Application\TimelineResponse;
 
@@ -31,7 +31,7 @@ final class OrganizationTimelinePresenter implements TimelineOutput
      */
     private function __construct(
         private readonly array $routes,
-        private readonly OrganizationResponse $organization,
+        private readonly OrganizationSheet $organization,
         private readonly array $persons,
         private readonly TimelineResourceFactory $timelineResourceFactory,
         private readonly Links $links,
@@ -41,7 +41,7 @@ final class OrganizationTimelinePresenter implements TimelineOutput
     /**
      * @param array<string, PersonResponse> $persons the persons of the slice, by id
      */
-    public static function ofTheTimeline(OrganizationResponse $organization, array $persons, TimelineResourceFactory $timelines, Links $links): self
+    public static function ofTheTimeline(OrganizationSheet $organization, array $persons, TimelineResourceFactory $timelines, Links $links): self
     {
         return new self(self::ROUTES, $organization, $persons, $timelines, $links);
     }
@@ -49,7 +49,7 @@ final class OrganizationTimelinePresenter implements TimelineOutput
     /**
      * @param array<string, PersonResponse> $persons the persons of the slice, by id
      */
-    public static function ofTheExchangesToMakeConform(OrganizationResponse $organization, array $persons, TimelineResourceFactory $timelines, Links $links): self
+    public static function ofTheExchangesToMakeConform(OrganizationSheet $organization, array $persons, TimelineResourceFactory $timelines, Links $links): self
     {
         return new self(self::TO_MAKE_CONFORM_ROUTES, $organization, $persons, $timelines, $links);
     }

@@ -3,12 +3,12 @@
 namespace App\Prospecting;
 
 use App\Security\AccountResourceVoter;
-use Prospecter\Core\Prospecting\Application\OrganizationResponse;
+use Prospecter\Core\Prospecting\Application\OrganizationSheet;
 
 /**
  * Whether the signed-in member reaches an organization: one of their account (ADR 0081).
  *
- * @extends AccountResourceVoter<OrganizationResponse>
+ * @extends AccountResourceVoter<OrganizationSheet>
  */
 final class OrganizationVoter extends AccountResourceVoter
 {
@@ -16,7 +16,7 @@ final class OrganizationVoter extends AccountResourceVoter
 
     protected function supports(string $attribute, mixed $subject): bool
     {
-        return self::ACCESS === $attribute && $subject instanceof OrganizationResponse;
+        return self::ACCESS === $attribute && $subject instanceof OrganizationSheet;
     }
 
     protected function accountOf(object $subject): string

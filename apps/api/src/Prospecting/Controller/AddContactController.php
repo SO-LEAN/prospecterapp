@@ -12,7 +12,7 @@ use App\Shared\Resource\ProblemResource;
 use Nelmio\ApiDocBundle\Attribute\Model;
 use OpenApi\Attributes as OA;
 use Prospecter\Core\Prospecting\Application\AddContact\AddContact;
-use Prospecter\Core\Prospecting\Application\OrganizationResponse;
+use Prospecter\Core\Prospecting\Application\OrganizationSheet;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\Clock\ClockInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -43,7 +43,7 @@ final class AddContactController extends AbstractController
     #[OA\Response(response: 404, description: 'Unknown organization or contact, or one of another account', content: new Model(type: ProblemResource::class))]
     #[OA\Response(response: 409, description: 'The person is a contact of the organization already', content: new Model(type: ProblemResource::class))]
     #[OA\Response(response: 422, description: 'Invalid person id', content: new Model(type: ProblemResource::class))]
-    public function __invoke(OrganizationResponse $organization, #[MapRequestPayload] ContactInput $input, #[CurrentUser] User $user): JsonResponse
+    public function __invoke(OrganizationSheet $organization, #[MapRequestPayload] ContactInput $input, #[CurrentUser] User $user): JsonResponse
     {
         $this->commandBus->dispatch(new AddContact($user->memberId(), $organization->id, $input->personId, $this->clock->now()));
 

@@ -12,7 +12,7 @@ use Prospecter\Core\Prospecting\Application\ConsultExchangesToMakeConform\Consul
 use Prospecter\Core\Prospecting\Application\ConsultOrganizationTimeline\ConsultOrganizationTimeline;
 use Prospecter\Core\Prospecting\Application\ExchangeResponse;
 use Prospecter\Core\Prospecting\Application\KeptTimeline;
-use Prospecter\Core\Prospecting\Application\OrganizationResponse;
+use Prospecter\Core\Prospecting\Application\OrganizationSheet;
 use Prospecter\Core\Prospecting\Application\TimelineResponse;
 use Prospecter\Core\SharedKernel\Application\RefusalTranslatingHandler;
 
@@ -32,7 +32,7 @@ final readonly class OrganizationTimelineReader
     ) {
     }
 
-    public function read(string $reader, OrganizationResponse $organization, ?string $after = null): OrganizationTimelineResource
+    public function read(string $reader, OrganizationSheet $organization, ?string $after = null): OrganizationTimelineResource
     {
         $timeline = new KeptTimeline();
         ($this->consultOrganizationTimeline)(new ConsultOrganizationTimeline($reader, $organization->id, $after), $timeline);
@@ -45,7 +45,7 @@ final readonly class OrganizationTimelineReader
     /**
      * Only its exchanges to make conform, their contact forgotten (ADR 0079).
      */
-    public function readToMakeConform(string $reader, OrganizationResponse $organization, ?string $after = null): OrganizationTimelineResource
+    public function readToMakeConform(string $reader, OrganizationSheet $organization, ?string $after = null): OrganizationTimelineResource
     {
         $timeline = new KeptTimeline();
         ($this->consultExchangesToMakeConform)(new ConsultExchangesToMakeConform($reader, $organization->id, $after), $timeline);

@@ -9,7 +9,7 @@ use Behat\Step\Then;
 use Behat\Step\When;
 use Prospecter\Core\PersonalData\Application\PersonResponse;
 use Prospecter\Core\PersonalData\Application\RecognizeCallingContact\RecognizeCallingContact;
-use Prospecter\Core\Prospecting\Application\OrganizationResponse;
+use Prospecter\Core\Prospecting\Application\OrganizationSheet;
 use Prospecter\Core\Prospecting\Application\RecognizeCallingOrganization\RecognizeCallingOrganization;
 use Tests\Core\Acceptance\Expect;
 
@@ -29,7 +29,7 @@ final class CallerContext implements Context
     public function aCallComesFrom(string $phoneNumber): void
     {
         $organizations = $this->application->recognizeACallingOrganization(new RecognizeCallingOrganization($this->application->signedIn(), $phoneNumber));
-        $this->organizations = null === $organizations ? null : array_map(static fn (OrganizationResponse $organization): string => $organization->fullName, $organizations);
+        $this->organizations = null === $organizations ? null : array_map(static fn (OrganizationSheet $organization): string => $organization->fullName, $organizations);
 
         if (null !== $organizations) {
             $contacts = $this->application->recognizeACallingContact(new RecognizeCallingContact($this->application->signedIn(), $phoneNumber));

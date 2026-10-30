@@ -4,7 +4,7 @@ namespace App\Prospecting;
 
 use Prospecter\Core\Prospecting\Application\ConsultOrganization\ConsultOrganization;
 use Prospecter\Core\Prospecting\Application\ConsultOrganization\KeptOrganization;
-use Prospecter\Core\Prospecting\Application\OrganizationResponse;
+use Prospecter\Core\Prospecting\Application\OrganizationSheet;
 use Prospecter\Core\SharedKernel\Application\RefusalTranslatingHandler;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpKernel\Controller\ValueResolverInterface;
@@ -21,11 +21,11 @@ final readonly class OrganizationResolver implements ValueResolverInterface
     }
 
     /**
-     * @return list<OrganizationResponse>
+     * @return list<OrganizationSheet>
      */
     public function resolve(Request $request, ArgumentMetadata $argument): iterable
     {
-        if (OrganizationResponse::class !== $argument->getType()) {
+        if (OrganizationSheet::class !== $argument->getType()) {
             return [];
         }
 

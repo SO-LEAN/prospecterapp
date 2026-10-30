@@ -13,7 +13,7 @@ use App\Shared\Resource\ProblemResource;
 use Nelmio\ApiDocBundle\Attribute\Model;
 use OpenApi\Attributes as OA;
 use Prospecter\Core\Prospecting\Application\NoteOrganizationExchange\NoteOrganizationExchange;
-use Prospecter\Core\Prospecting\Application\OrganizationResponse;
+use Prospecter\Core\Prospecting\Application\OrganizationSheet;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\Clock\ClockInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -46,7 +46,7 @@ final class NoteOrganizationExchangeController extends AbstractController
     #[OA\Response(response: 404, description: 'Unknown organization, or one of another account', content: new Model(type: ProblemResource::class))]
     #[OA\Response(response: 409, description: 'The person is no contact of the organization', content: new Model(type: ProblemResource::class))]
     #[OA\Response(response: 422, description: 'Invalid exchange: unknown channel or direction, a missed exchange that is no call, a moment in the future', content: new Model(type: ProblemResource::class))]
-    public function __invoke(OrganizationResponse $organization, #[MapRequestPayload] OrganizationExchangeInput $input, #[CurrentUser] User $user): JsonResponse
+    public function __invoke(OrganizationSheet $organization, #[MapRequestPayload] OrganizationExchangeInput $input, #[CurrentUser] User $user): JsonResponse
     {
         $exchange = $input->exchange;
         $noted = $this->identities->next();

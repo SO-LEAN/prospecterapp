@@ -11,7 +11,7 @@ use App\Shared\CommandBus;
 use App\Shared\Resource\ProblemResource;
 use Nelmio\ApiDocBundle\Attribute\Model;
 use OpenApi\Attributes as OA;
-use Prospecter\Core\Prospecting\Application\OrganizationResponse;
+use Prospecter\Core\Prospecting\Application\OrganizationSheet;
 use Prospecter\Core\Prospecting\Application\WriteObservations\WriteObservations;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\Clock\ClockInterface;
@@ -41,7 +41,7 @@ final class WriteObservationsController extends AbstractController
     #[OA\Response(response: 403, description: 'The signed-in user is not a prospector', content: new Model(type: ProblemResource::class))]
     #[OA\Response(response: 404, description: 'Unknown organization, or one that is neither mine nor prospected by mine', content: new Model(type: ProblemResource::class))]
     #[OA\Response(response: 422, description: 'Observations too long', content: new Model(type: ProblemResource::class))]
-    public function __invoke(OrganizationResponse $organization, #[MapRequestPayload] ObservationsInput $input, #[CurrentUser] User $user): JsonResponse
+    public function __invoke(OrganizationSheet $organization, #[MapRequestPayload] ObservationsInput $input, #[CurrentUser] User $user): JsonResponse
     {
         $this->commandBus->dispatch(new WriteObservations($user->memberId(), $organization->id, $input->observations, $this->clock->now()));
 

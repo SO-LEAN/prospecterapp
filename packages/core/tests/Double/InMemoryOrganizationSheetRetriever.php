@@ -2,57 +2,49 @@
 
 declare(strict_types=1);
 
-namespace Prospecter\Core\Prospecting\Application;
+namespace Tests\Core\Double;
 
+use Prospecter\Core\Prospecting\Application\OrganizationSheet;
+use Prospecter\Core\Prospecting\Application\Port\OrganizationSheetRetriever;
+use Prospecter\Core\Prospecting\Domain\Exception\UnknownOrganization;
 use Prospecter\Core\Prospecting\Domain\Model\Organization;
-use Prospecter\Core\Prospecting\Domain\Model\OrganizationIntent;
 use Prospecter\Core\SharedKernel\Application\FileResponse;
+use Prospecter\Core\SharedKernel\Domain\AccountId;
+use Prospecter\Core\SharedKernel\Domain\OrganizationId;
 use Prospecter\Core\SharedKernel\Domain\PersonId;
+use Prospecter\Core\SharedKernel\Domain\PhoneNumber;
 
 /**
- * An organization of an account, with what its state offers now.
+ * Reads the organizations the in-memory repository saved, as the adapter reads the items of the table.
  */
-final readonly class OrganizationResponse
+final readonly class InMemoryOrganizationSheetRetriever implements OrganizationSheetRetriever
 {
-    /**
-     * @param list<string> $contactIds      the persons prospected in it, to read in PersonalData
-     * @param list<string> $possibleIntents names of the intentions its state offers now: Relocate, RemoveLogo...
-     */
-    private function __construct(
-        public string $id,
-        public string $accountId,
-        public string $createdBy,
-        public ?string $corporateName,
-        public ?string $form,
-        public ?string $type,
-        public string $fullName,
-        public ?string $email,
-        public ?string $phoneNumber,
-        public ?string $language,
-        public ?string $street,
-        public ?string $postalCode,
-        public ?string $city,
-        public ?string $country,
-        public ?float $longitude,
-        public ?float $latitude,
-        public ?string $observations,
-        public ?FileResponse $logo,
-        public ?string $holdingId,
-        public array $contactIds,
-        public array $possibleIntents,
-        public \DateTimeImmutable $createdAt,
-        public \DateTimeImmutable $modifiedAt,
-    ) {
+    public function __construct(private InMemoryDatabase $database)
+    {
     }
 
-    public static function of(Organization $organization): self
+    public function get(OrganizationId $id): OrganizationSheet
+    {
+        $organization = $this->database->organization((string) $id) ?? throw UnknownOrganization::identifiedBy($id);
+
+        return self::sheetOf($organization);
+    }
+
+    public function withPhoneNumber(AccountId $accountId, PhoneNumber $phoneNumber): array
+    {
+        $calling = array_filter($this->database->organizations(), static fn (Organization $organization): bool => $organization->isProspectedBy($accountId) && $organization->contactDetails()->phoneNumber?->value === $phoneNumber->value);
+
+        return array_values(array_map(self::sheetOf(...), $calling));
+    }
+
+    private static function sheetOf(Organization $organization): OrganizationSheet
     {
         $identity = $organization->legalIdentity();
         $contact = $organization->contactDetails();
         $address = $organization->address();
         $geoPoint = $organization->geoPoint();
 
-        return new self(
+        return new OrganizationSheet(
             id: $organization->id()->value,
             accountId: $organization->accountId()->value,
             createdBy: $organization->createdBy()->value,
@@ -73,7 +65,6 @@ final readonly class OrganizationResponse
             logo: FileResponse::orNone($organization->logo()),
             holdingId: $organization->holdingId()?->value,
             contactIds: array_map(static fn (PersonId $contact): string => $contact->value, $organization->contacts()),
-            possibleIntents: array_map(static fn (OrganizationIntent $intent): string => $intent->name, $organization->possibleIntents()),
             createdAt: $organization->createdAt(),
             modifiedAt: $organization->modifiedAt(),
         );

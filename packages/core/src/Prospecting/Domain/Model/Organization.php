@@ -24,6 +24,7 @@ use Prospecter\Core\Prospecting\Domain\Exception\NoLogoToRemove;
 use Prospecter\Core\Prospecting\Domain\Exception\NotAContact;
 use Prospecter\Core\Prospecting\Domain\Exception\OrganizationWithoutNameNorEmail;
 use Prospecter\Core\Prospecting\Domain\Exception\UnknownOrganization;
+use Prospecter\Core\Prospecting\Domain\Policy\OrganizationPossibilities;
 use Prospecter\Core\Prospecting\Domain\Service\OrphanContacts;
 use Prospecter\Core\SharedKernel\Domain\AccountId;
 use Prospecter\Core\SharedKernel\Domain\Address;
@@ -171,17 +172,6 @@ final class Organization implements ReleasesEvents
     public function isProspectedBy(AccountId $accountId): bool
     {
         return $this->accountId->equals($accountId);
-    }
-
-    /**
-     * What its state offers now; the API decides who may (ADR 0081). Every intention refuses exactly what is
-     * missing here.
-     *
-     * @return list<OrganizationIntent>
-     */
-    public function possibleIntents(): array
-    {
-        return array_values(array_filter(OrganizationIntent::cases(), $this->allowsInItsState(...)));
     }
 
     public function reviseLegalIdentity(LegalIdentity $legalIdentity, MemberId $by, \DateTimeImmutable $at): void
@@ -333,12 +323,7 @@ final class Organization implements ReleasesEvents
 
     private function allowsInItsState(OrganizationIntent $intent): bool
     {
-        return match ($intent) {
-            OrganizationIntent::RemoveLogo => null !== $this->logo,
-            OrganizationIntent::DetachFromHolding => null !== $this->holdingId,
-            OrganizationIntent::RemoveContact => [] !== $this->contacts,
-            default => true,
-        };
+        return in_array($intent, OrganizationPossibilities::given(hasLogo: null !== $this->logo, hasHolding: null !== $this->holdingId, hasContacts: [] !== $this->contacts), true);
     }
 
     /**
