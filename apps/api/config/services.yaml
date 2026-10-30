@@ -79,6 +79,8 @@ services:
     Prospecter\Core\Accounts\Application\Port\MyAccountRetriever: '@App\Accounts\Persistence\DynamoMyAccountRetriever'
     Prospecter\Core\Accounts\Application\Port\MemberRetriever: '@App\Accounts\Persistence\DynamoMemberRetriever'
     Prospecter\Core\PersonalData\Domain\Repository\PersonRepository: '@App\PersonalData\Persistence\DynamoPersonRepository'
+    Prospecter\Core\PersonalData\Application\Port\PersonCardRetriever: '@App\PersonalData\Persistence\DynamoPersonCardRetriever'
+    Prospecter\Core\PersonalData\Application\Port\ContactPageRetriever: '@App\PersonalData\Persistence\DynamoContactPageRetriever'
     Prospecter\Core\PersonalData\Domain\Port\Readers: '@App\PersonalData\AntiCorruption\AccountsReaders'
     Prospecter\Core\Prospecting\Domain\Repository\OrganizationRepository: '@App\Prospecting\Persistence\DynamoOrganizationRepository'
     Prospecter\Core\Prospecting\Domain\Repository\ExchangeRepository: '@App\Prospecting\Persistence\DynamoExchangeRepository'

@@ -16,7 +16,7 @@ use Nelmio\ApiDocBundle\Attribute\Model;
 use OpenApi\Attributes as OA;
 use Prospecter\Core\PersonalData\Application\ConsultPersons\ConsultPersons;
 use Prospecter\Core\PersonalData\Application\ConsultPersons\KeptPersons;
-use Prospecter\Core\PersonalData\Application\PersonResponse;
+use Prospecter\Core\PersonalData\Application\PersonCard;
 use Prospecter\Core\Prospecting\Application\OrganizationSheet;
 use Prospecter\Core\SharedKernel\Application\RefusalTranslatingHandler;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -52,12 +52,12 @@ final class ShowOrganizationContactsController extends AbstractController
     {
         $persons = new KeptPersons();
         ($this->consultPersons)(new ConsultPersons($user->memberId(), $organization->contactIds), $persons);
-        $contacts = array_values(array_filter(array_map(static fn (string $contactId): ?PersonResponse => $persons->persons[$contactId] ?? null, $organization->contactIds)));
+        $contacts = array_values(array_filter(array_map(static fn (string $contactId): ?PersonCard => $persons->persons[$contactId] ?? null, $organization->contactIds)));
 
-        return $this->json(new OrganizationContactsResource(array_map(fn (PersonResponse $contact): OrganizationContactResource => $this->present($contact, $organization), $contacts)));
+        return $this->json(new OrganizationContactsResource(array_map(fn (PersonCard $contact): OrganizationContactResource => $this->present($contact, $organization), $contacts)));
     }
 
-    private function present(PersonResponse $contact, OrganizationSheet $organization): OrganizationContactResource
+    private function present(PersonCard $contact, OrganizationSheet $organization): OrganizationContactResource
     {
         return new OrganizationContactResource(
             id: $contact->id,

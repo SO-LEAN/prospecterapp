@@ -10,7 +10,7 @@ use Prospecter\Core\Accounts\Contract\Service\ConsultMember\ConsultMember;
 use Prospecter\Core\Accounts\Contract\Service\ConsultMember\KeptMember;
 use Prospecter\Core\PersonalData\Application\ConsultPersons\ConsultPersons;
 use Prospecter\Core\PersonalData\Application\ConsultPersons\KeptPersons;
-use Prospecter\Core\PersonalData\Application\PersonResponse;
+use Prospecter\Core\PersonalData\Application\PersonCard;
 use Prospecter\Core\Prospecting\Application\ConsultExchange\ConsultExchange;
 use Prospecter\Core\Prospecting\Application\ConsultExchange\ExchangeDetail;
 use Prospecter\Core\Prospecting\Application\ConsultExchange\KeptExchange;
@@ -68,7 +68,7 @@ final readonly class ExchangeReader
     /**
      * The contact it was with, or the organization itself, the only one it is kept for.
      *
-     * @param array<string, PersonResponse> $persons by person id
+     * @param array<string, PersonCard> $persons by person id
      */
     private function interlocutorOf(ExchangeDetail $exchange, array $persons): InterlocutorResource
     {

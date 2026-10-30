@@ -3,7 +3,7 @@
 namespace App\Exchanges;
 
 use App\Contacts\Resource\InterlocutorResource;
-use Prospecter\Core\PersonalData\Application\PersonResponse;
+use Prospecter\Core\PersonalData\Application\PersonCard;
 
 /**
  * Who took part in an exchange, read in the other contexts: its interlocutor, and the persons of the members who
@@ -12,8 +12,8 @@ use Prospecter\Core\PersonalData\Application\PersonResponse;
 final readonly class ExchangeParticipants
 {
     /**
-     * @param array<string, PersonResponse> $persons        by person id
-     * @param array<string, string>         $personOfMember the person id of each member, by member id
+     * @param array<string, PersonCard> $persons        by person id
+     * @param array<string, string>     $personOfMember the person id of each member, by member id
      */
     public function __construct(
         public InterlocutorResource $interlocutor,

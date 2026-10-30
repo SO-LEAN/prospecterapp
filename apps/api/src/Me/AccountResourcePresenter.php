@@ -14,7 +14,7 @@ use App\Shared\Resource\LegalIdentityResource;
 use App\Shared\Resource\LocationResource;
 use Prospecter\Core\Accounts\Application\MyAccount;
 use Prospecter\Core\PersonalData\Application\ConsultPerson\ConsultPersonOutput;
-use Prospecter\Core\PersonalData\Application\PersonResponse;
+use Prospecter\Core\PersonalData\Application\PersonCard;
 
 /**
  * My account composed of my membership (Accounts) and my profile (PersonalData), with a link per intention
@@ -41,7 +41,7 @@ final class AccountResourcePresenter implements ConsultPersonOutput
     {
     }
 
-    public function present(PersonResponse $me): void
+    public function present(PersonCard $me): void
     {
         $this->resource = new AccountResource(
             name: new PersonNameResource($me->firstName, $me->lastName),
@@ -64,7 +64,7 @@ final class AccountResourcePresenter implements ConsultPersonOutput
         );
     }
 
-    private function linksOf(PersonResponse $me): AccountLinksResource
+    private function linksOf(PersonCard $me): AccountLinksResource
     {
         $possible = [];
         foreach ([

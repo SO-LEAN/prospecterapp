@@ -13,10 +13,10 @@ use App\Shared\Links;
 use App\Shared\Resource\ProblemResource;
 use Nelmio\ApiDocBundle\Attribute\Model;
 use OpenApi\Attributes as OA;
-use Prospecter\Core\PersonalData\Application\PersonResponse;
+use Prospecter\Core\PersonalData\Application\PersonCard;
+use Prospecter\Core\PersonalData\Application\SearchContacts\ContactPage;
 use Prospecter\Core\PersonalData\Application\SearchContacts\KeptContactPage;
 use Prospecter\Core\PersonalData\Application\SearchContacts\SearchContacts;
-use Prospecter\Core\PersonalData\Application\SearchContacts\SearchContactsResponse;
 use Prospecter\Core\SharedKernel\Application\RefusalTranslatingHandler;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -51,15 +51,15 @@ final class SearchContactsController extends AbstractController
         $kept = new KeptContactPage();
         ($this->searchContacts)(new SearchContacts($user->memberId(), $query->q, $query->after), $kept);
         $page = $kept->page;
-        $organizations = $this->organizationsOfContacts->read($user->memberId(), array_map(static fn (PersonResponse $contact): string => $contact->id, $page->contacts));
+        $organizations = $this->organizationsOfContacts->read($user->memberId(), array_map(static fn (PersonCard $contact): string => $contact->id, $page->contacts));
 
         return $this->json(new ContactListResource(
-            array_map(fn (PersonResponse $contact): ContactInListResource => $this->contactInListResourceFactory->create($contact, $organizations[$contact->id] ?? []), $page->contacts),
+            array_map(fn (PersonCard $contact): ContactInListResource => $this->contactInListResourceFactory->create($contact, $organizations[$contact->id] ?? []), $page->contacts),
             $this->linksOf($page, $query->q),
         ));
     }
 
-    private function linksOf(SearchContactsResponse $page, string $query): ContactListLinksResource
+    private function linksOf(ContactPage $page, string $query): ContactListLinksResource
     {
         return new ContactListLinksResource(
             $this->links->to('api_contacts_search', array_filter(['q' => $query])),

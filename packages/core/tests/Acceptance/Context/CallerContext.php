@@ -7,7 +7,7 @@ namespace Tests\Core\Acceptance\Context;
 use Behat\Behat\Context\Context;
 use Behat\Step\Then;
 use Behat\Step\When;
-use Prospecter\Core\PersonalData\Application\PersonResponse;
+use Prospecter\Core\PersonalData\Application\PersonCard;
 use Prospecter\Core\PersonalData\Application\RecognizeCallingContact\RecognizeCallingContact;
 use Prospecter\Core\Prospecting\Application\OrganizationSheet;
 use Prospecter\Core\Prospecting\Application\RecognizeCallingOrganization\RecognizeCallingOrganization;
@@ -33,7 +33,7 @@ final class CallerContext implements Context
 
         if (null !== $organizations) {
             $contacts = $this->application->recognizeACallingContact(new RecognizeCallingContact($this->application->signedIn(), $phoneNumber));
-            $this->contacts = null === $contacts ? null : array_map(static fn (PersonResponse $contact): string => trim($contact->firstName.' '.$contact->lastName), $contacts);
+            $this->contacts = null === $contacts ? null : array_map(static fn (PersonCard $contact): string => trim($contact->firstName.' '.$contact->lastName), $contacts);
         }
     }
 

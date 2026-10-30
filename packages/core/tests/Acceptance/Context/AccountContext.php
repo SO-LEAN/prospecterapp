@@ -18,7 +18,7 @@ use Prospecter\Core\Accounts\Domain\Model\Account;
 use Prospecter\Core\PersonalData\Application\ChangePersonContactDetails\ChangePersonContactDetails;
 use Prospecter\Core\PersonalData\Application\ChangePersonPicture\ChangePersonPicture;
 use Prospecter\Core\PersonalData\Application\ConsultPerson\ConsultPerson;
-use Prospecter\Core\PersonalData\Application\PersonResponse;
+use Prospecter\Core\PersonalData\Application\PersonCard;
 use Prospecter\Core\PersonalData\Application\RenamePerson\RenamePerson;
 use Prospecter\Core\SharedKernel\Domain\AccountId;
 use Prospecter\Core\SharedKernel\Domain\ContactDetails;
@@ -33,7 +33,7 @@ final class AccountContext implements Context
     use SharesTheScenario;
 
     private ?MyAccount $account = null;
-    private ?PersonResponse $myPerson = null;
+    private ?PersonCard $myPerson = null;
 
     #[Given('mon profil est :')]
     public function myProfileIs(TableNode $table): void

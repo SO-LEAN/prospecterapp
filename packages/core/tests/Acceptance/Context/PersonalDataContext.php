@@ -15,10 +15,10 @@ use Prospecter\Core\PersonalData\Application\CollectContact\CollectContact;
 use Prospecter\Core\PersonalData\Application\ConsultPerson\ConsultPerson;
 use Prospecter\Core\PersonalData\Application\ConsultPersons\ConsultPersons;
 use Prospecter\Core\PersonalData\Application\ForgetContact\ForgetContact;
-use Prospecter\Core\PersonalData\Application\PersonResponse;
+use Prospecter\Core\PersonalData\Application\PersonCard;
 use Prospecter\Core\PersonalData\Application\RenamePerson\RenamePerson;
+use Prospecter\Core\PersonalData\Application\SearchContacts\ContactPage;
 use Prospecter\Core\PersonalData\Application\SearchContacts\SearchContacts;
-use Prospecter\Core\PersonalData\Application\SearchContacts\SearchContactsResponse;
 use Prospecter\Core\PersonalData\Domain\Model\Person;
 use Prospecter\Core\PersonalData\Domain\Model\PersonName;
 use Prospecter\Core\SharedKernel\Domain\ContactDetails;
@@ -36,9 +36,9 @@ final class PersonalDataContext implements Context
 {
     use SharesTheScenario;
 
-    private ?PersonResponse $consulted = null;
-    private ?SearchContactsResponse $found = null;
-    /** @var array<string, PersonResponse>|null */
+    private ?PersonCard $consulted = null;
+    private ?ContactPage $found = null;
+    /** @var array<string, PersonCard>|null */
     private ?array $batch = null;
 
     #[Given(':name est membre de :account avec le profil :')]
@@ -167,7 +167,7 @@ final class PersonalDataContext implements Context
     {
         Expect::that(null !== $this->batch, sprintf('The persons were expected, got: %s', $this->application->refusal()?->getMessage()));
         $columns = array_flip(array_keys($table->getColumnsHash()[0] ?? []));
-        $seen = array_map(fn (PersonResponse $person): array => array_intersect_key($this->describe($person), $columns), array_values($this->batch));
+        $seen = array_map(fn (PersonCard $person): array => array_intersect_key($this->describe($person), $columns), array_values($this->batch));
         usort($seen, static fn (array $a, array $b): int => strcmp((string) reset($a), (string) reset($b)));
 
         Expect::same($table->getColumnsHash(), $seen);
@@ -178,7 +178,7 @@ final class PersonalDataContext implements Context
     {
         Expect::that(null !== $this->found, sprintf('Contacts were expected, got: %s', $this->application->refusal()?->getMessage()));
         $columns = array_flip(array_keys($table->getColumnsHash()[0] ?? []));
-        $shown = array_map(fn (PersonResponse $contact): array => array_intersect_key($this->describe($contact), $columns), $this->found->contacts);
+        $shown = array_map(fn (PersonCard $contact): array => array_intersect_key($this->describe($contact), $columns), $this->found->contacts);
 
         Expect::same($table->getColumnsHash(), $shown);
     }
@@ -221,7 +221,7 @@ final class PersonalDataContext implements Context
     /**
      * @return array<string, string>
      */
-    private function describe(PersonResponse $person): array
+    private function describe(PersonCard $person): array
     {
         return [
             'prénom' => (string) $person->firstName,

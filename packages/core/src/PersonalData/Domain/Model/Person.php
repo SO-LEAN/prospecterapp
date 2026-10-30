@@ -13,6 +13,8 @@ use Prospecter\Core\PersonalData\Domain\Event\PersonRenamed;
 use Prospecter\Core\PersonalData\Domain\Exception\ContactWithoutOrganization;
 use Prospecter\Core\PersonalData\Domain\Exception\ThePersonOrAPersonalDataManagerOnly;
 use Prospecter\Core\PersonalData\Domain\Exception\UnknownPerson;
+use Prospecter\Core\PersonalData\Domain\Policy\PersonPossibilities;
+use Prospecter\Core\PersonalData\Domain\Policy\PersonReading;
 use Prospecter\Core\SharedKernel\Domain\AccountId;
 use Prospecter\Core\SharedKernel\Domain\ContactDetails;
 use Prospecter\Core\SharedKernel\Domain\Exception\NotAllowed;
@@ -142,31 +144,6 @@ final class Person implements ReleasesEvents
         return $this->modifiedAt;
     }
 
-    /**
-     * In clear for the person themself and for a member of the account with the right to read personal data,
-     * masked for the other members of the account.
-     *
-     * @throws UnknownPerson for anybody else
-     */
-    public function readingFor(Reader $reader): Reading
-    {
-        $this->ensureReachableBy($reader);
-
-        return $this->isThePersonOf($reader) || $reader->readsPersonalData ? Reading::Clear : Reading::Masked;
-    }
-
-    /**
-     * A person changes their own data; a member with the right changes the persons their account prospects,
-     * not the profile of a colleague, and only a prospected person is forgotten. Every intention refuses
-     * exactly what is missing here.
-     *
-     * @return list<PersonIntent>
-     */
-    public function possibleIntentsOf(Reader $reader): array
-    {
-        return array_values(array_filter(PersonIntent::cases(), fn (PersonIntent $intent): bool => $this->belongsTo($reader) && $this->allows($intent, $reader)));
-    }
-
     public function rename(PersonName $name, Reader $by, \DateTimeImmutable $at): void
     {
         $this->ensurePossible(PersonIntent::Rename, $by);
@@ -211,29 +188,9 @@ final class Person implements ReleasesEvents
         $this->recordThat(new ContactForgotten($this->accountId, $by->id, $this->id, $at));
     }
 
-    private function belongsTo(Reader $reader): bool
-    {
-        return $this->accountId->equals($reader->accountId);
-    }
-
-    private function isThePersonOf(Reader $reader): bool
-    {
-        return $this->id->equals($reader->personId);
-    }
-
-    private function allows(PersonIntent $intent, Reader $reader): bool
-    {
-        return PersonIntent::Forget === $intent ? $this->isAContactManagedBy($reader) : $this->isThePersonOf($reader) || $this->isAContactManagedBy($reader);
-    }
-
-    private function isAContactManagedBy(Reader $reader): bool
-    {
-        return Purpose::Prospecting === $this->purpose && $reader->readsPersonalData;
-    }
-
     private function ensureReachableBy(Reader $reader): void
     {
-        if (!$this->belongsTo($reader)) {
+        if (!PersonReading::isReachableBy($reader, $this->accountId)) {
             throw UnknownPerson::identifiedBy($this->id);
         }
     }
@@ -242,7 +199,7 @@ final class Person implements ReleasesEvents
     {
         $this->ensureReachableBy($by);
 
-        if (!$this->allows($intent, $by)) {
+        if (!PersonPossibilities::allows($intent, $by, $this->id, $this->purpose)) {
             throw PersonIntent::Forget === $intent ? PersonalDataManagersOnly::because('Only a member allowed to manage personal data may forget a prospected person') : ThePersonOrAPersonalDataManagerOnly::because('Only the person or a member allowed to manage personal data may change them');
         }
     }

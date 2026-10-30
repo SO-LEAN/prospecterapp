@@ -7,7 +7,7 @@ use App\Contacts\Resource\OrganizationOfContactResource;
 use App\PersonalData\Resource\PersonNameResource;
 use App\Shared\Links;
 use App\Shared\Resource\ContactDetailsResource;
-use Prospecter\Core\PersonalData\Application\PersonResponse;
+use Prospecter\Core\PersonalData\Application\PersonCard;
 
 /**
  * A contact in a list, with the organizations naming them and the link to their card.
@@ -21,7 +21,7 @@ final readonly class ContactInListResourceFactory
     /**
      * @param list<OrganizationOfContactResource> $organizations
      */
-    public function create(PersonResponse $contact, array $organizations): ContactInListResource
+    public function create(PersonCard $contact, array $organizations): ContactInListResource
     {
         return new ContactInListResource(
             id: $contact->id,
