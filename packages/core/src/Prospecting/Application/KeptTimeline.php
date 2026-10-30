@@ -9,9 +9,9 @@ namespace Prospecter\Core\Prospecting\Application;
  */
 final class KeptTimeline implements TimelineOutput
 {
-    public private(set) TimelineResponse $timeline;
+    public private(set) Timeline $timeline;
 
-    public function present(TimelineResponse $timeline): void
+    public function present(Timeline $timeline): void
     {
         $this->timeline = $timeline;
     }

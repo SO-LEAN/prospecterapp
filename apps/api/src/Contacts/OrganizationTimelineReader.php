@@ -10,10 +10,10 @@ use Prospecter\Core\PersonalData\Application\ConsultPersons\KeptPersons;
 use Prospecter\Core\PersonalData\Application\PersonResponse;
 use Prospecter\Core\Prospecting\Application\ConsultExchangesToMakeConform\ConsultExchangesToMakeConform;
 use Prospecter\Core\Prospecting\Application\ConsultOrganizationTimeline\ConsultOrganizationTimeline;
-use Prospecter\Core\Prospecting\Application\ExchangeResponse;
+use Prospecter\Core\Prospecting\Application\ExchangeInTimeline;
 use Prospecter\Core\Prospecting\Application\KeptTimeline;
 use Prospecter\Core\Prospecting\Application\OrganizationSheet;
-use Prospecter\Core\Prospecting\Application\TimelineResponse;
+use Prospecter\Core\Prospecting\Application\Timeline;
 use Prospecter\Core\SharedKernel\Application\RefusalTranslatingHandler;
 
 /**
@@ -58,7 +58,7 @@ final readonly class OrganizationTimelineReader
     /**
      * @return array<string, PersonResponse> the persons the exchanges of the slice were with, by id
      */
-    private function personsOf(string $reader, TimelineResponse $timeline): array
+    private function personsOf(string $reader, Timeline $timeline): array
     {
         $persons = new KeptPersons();
         ($this->consultPersons)(new ConsultPersons($reader, self::personIdsOf($timeline)), $persons);
@@ -69,8 +69,8 @@ final readonly class OrganizationTimelineReader
     /**
      * @return list<string> the persons the exchanges of the slice were with, each once
      */
-    private static function personIdsOf(TimelineResponse $timeline): array
+    private static function personIdsOf(Timeline $timeline): array
     {
-        return array_values(array_unique(array_filter(array_map(static fn (ExchangeResponse $exchange): ?string => $exchange->personId, $timeline->exchanges))));
+        return array_values(array_unique(array_filter(array_map(static fn (ExchangeInTimeline $exchange): ?string => $exchange->personId, $timeline->exchanges))));
     }
 }

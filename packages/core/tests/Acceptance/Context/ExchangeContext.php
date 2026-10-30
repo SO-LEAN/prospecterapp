@@ -13,10 +13,10 @@ use Prospecter\Core\Prospecting\Application\ConsultExchangesToMakeConform\Consul
 use Prospecter\Core\Prospecting\Application\ConsultOrganizationTimeline\ConsultOrganizationTimeline;
 use Prospecter\Core\Prospecting\Application\ConsultTimeline\ConsultTimeline;
 use Prospecter\Core\Prospecting\Application\ConsultTimelineIntents\ConsultTimelineIntents;
-use Prospecter\Core\Prospecting\Application\ExchangeResponse;
+use Prospecter\Core\Prospecting\Application\ExchangeInTimeline;
 use Prospecter\Core\Prospecting\Application\NoteExchange\NoteExchange;
 use Prospecter\Core\Prospecting\Application\NoteOrganizationExchange\NoteOrganizationExchange;
-use Prospecter\Core\Prospecting\Application\TimelineResponse;
+use Prospecter\Core\Prospecting\Application\Timeline;
 use Prospecter\Core\Prospecting\Domain\Model\Channel;
 use Prospecter\Core\Prospecting\Domain\Model\Direction;
 use Prospecter\Core\Prospecting\Domain\Model\Exchange;
@@ -40,7 +40,7 @@ final class ExchangeContext implements Context
 
     private ?string $lastNoted = null;
     private string $lastNotedWith = '';
-    private ?TimelineResponse $timeline = null;
+    private ?Timeline $timeline = null;
     private string $timelineOf = '';
 
     /**
@@ -122,7 +122,7 @@ final class ExchangeContext implements Context
     public function theTimelineIs(string $name, TableNode $table): void
     {
         $columns = array_flip($table->getRow(0));
-        $described = array_map(fn (ExchangeResponse $exchange): array => array_replace($columns, array_intersect_key($this->describe($exchange, $name), $columns)), $this->timelineOfNow($name));
+        $described = array_map(fn (ExchangeInTimeline $exchange): array => array_replace($columns, array_intersect_key($this->describe($exchange, $name), $columns)), $this->timelineOfNow($name));
 
         Expect::same($table->getColumnsHash(), $described);
     }
@@ -138,13 +138,13 @@ final class ExchangeContext implements Context
     {
         Expect::that(null !== $this->lastNoted, sprintf('An exchange was expected to be noted, got: %s', $this->application->refusal()?->getMessage()));
 
-        Expect::that(array_any($this->timelineOfNow($name), fn (ExchangeResponse $exchange): bool => $exchange->id === $this->lastNoted), sprintf('The timeline of %s does not show the exchange', $name));
+        Expect::that(array_any($this->timelineOfNow($name), fn (ExchangeInTimeline $exchange): bool => $exchange->id === $this->lastNoted), sprintf('The timeline of %s does not show the exchange', $name));
     }
 
     #[Then('la timeline de :organization le montre avec l\'interlocuteur :interlocutor')]
     public function theTimelineShowsTheLastNotedWith(string $organization, string $interlocutor): void
     {
-        $noted = array_find($this->timelineOfNow($organization), fn (ExchangeResponse $exchange): bool => $exchange->id === $this->lastNoted);
+        $noted = array_find($this->timelineOfNow($organization), fn (ExchangeInTimeline $exchange): bool => $exchange->id === $this->lastNoted);
 
         Expect::same($interlocutor, null === $noted ? null : $this->interlocutorOf($noted, $organization));
     }
@@ -186,7 +186,7 @@ final class ExchangeContext implements Context
         Expect::that(null !== $this->timeline, sprintf('A timeline was expected, got: %s', $this->application->refusal()?->getMessage()));
         $mostRecent = array_slice($this->storedTimelineOf($this->timelineOf), 0, $count);
 
-        Expect::same(array_map(static fn (Exchange $exchange): string => $exchange->id()->value, $mostRecent), array_map(static fn (ExchangeResponse $exchange): string => $exchange->id, $this->timeline->exchanges));
+        Expect::same(array_map(static fn (Exchange $exchange): string => $exchange->id()->value, $mostRecent), array_map(static fn (ExchangeInTimeline $exchange): string => $exchange->id, $this->timeline->exchanges));
     }
 
     #[Then('la timeline de :organization signale :count échanges à rendre conformes')]
@@ -208,7 +208,7 @@ final class ExchangeContext implements Context
         Expect::that(null !== $this->timeline, sprintf('The exchanges to make conform were expected, got: %s', $this->application->refusal()?->getMessage()));
         $columns = array_flip($table->getRow(0));
 
-        Expect::same($table->getColumnsHash(), array_map(fn (ExchangeResponse $exchange): array => array_replace($columns, array_intersect_key($this->describe($exchange, $organization), $columns)), $this->timeline->exchanges));
+        Expect::same($table->getColumnsHash(), array_map(fn (ExchangeInTimeline $exchange): array => array_replace($columns, array_intersect_key($this->describe($exchange, $organization), $columns)), $this->timeline->exchanges));
     }
 
     #[Then('je peux sur la timeline :')]
@@ -229,7 +229,7 @@ final class ExchangeContext implements Context
         Expect::that(null !== $this->timeline?->next, 'A next slice was expected');
         $last = array_last($this->timeline->exchanges);
         $following = $this->consultTimelineOf($this->timelineOf, after: $this->timeline->next);
-        $older = array_filter($following->exchanges ?? [], static fn (ExchangeResponse $exchange): bool => $exchange->occurredAt < $last?->occurredAt);
+        $older = array_filter($following->exchanges ?? [], static fn (ExchangeInTimeline $exchange): bool => $exchange->occurredAt < $last?->occurredAt);
 
         Expect::same(count($this->storedTimelineOf($this->timelineOf)) - count($this->timeline->exchanges), count($older));
     }
@@ -269,7 +269,7 @@ final class ExchangeContext implements Context
         $this->application->exchanges->save($exchange);
     }
 
-    private function consultTimelineOf(string $name, ?string $after = null): ?TimelineResponse
+    private function consultTimelineOf(string $name, ?string $after = null): ?Timeline
     {
         $prospector = $this->application->signedIn();
 
@@ -279,7 +279,7 @@ final class ExchangeContext implements Context
     }
 
     /**
-     * @return list<ExchangeResponse>
+     * @return list<ExchangeInTimeline>
      */
     private function timelineOfNow(string $name): array
     {
@@ -290,21 +290,24 @@ final class ExchangeContext implements Context
     }
 
     /**
+     * The exchanges saved for the timeline, the most recent moment first.
+     *
      * @return list<Exchange>
      */
     private function storedTimelineOf(string $name): array
     {
-        $timeline = $this->scenario->isAnOrganization($name)
-            ? $this->application->exchanges->timelineOfOrganization($this->scenario->organizationNamed($name)->id(), null, PHP_INT_MAX)
-            : $this->application->exchanges->timelineOf(new PersonId($this->scenario->personIdOf($name)), $this->scenario->meAsProspector()->accountId, null, PHP_INT_MAX);
+        $stored = $this->scenario->isAnOrganization($name)
+            ? $this->application->exchanges->keptFor($this->scenario->organizationNamed($name)->id())
+            : $this->application->exchanges->withContact(new PersonId($this->scenario->personIdOf($name)), $this->scenario->meAsProspector()->accountId);
+        usort($stored, static fn (Exchange $a, Exchange $b): int => [$b->facts()->occurredAt, (string) $b->id()] <=> [$a->facts()->occurredAt, (string) $a->id()]);
 
-        return $timeline->content;
+        return $stored;
     }
 
     /**
      * Who communicated: the contact, or the organization of the timeline itself.
      */
-    private function interlocutorOf(ExchangeResponse $exchange, string $timelineOf): string
+    private function interlocutorOf(ExchangeInTimeline $exchange, string $timelineOf): string
     {
         return null === $exchange->personId ? $timelineOf : $this->scenario->nameOfPersonAsRead(new PersonId($exchange->personId));
     }
@@ -312,7 +315,7 @@ final class ExchangeContext implements Context
     /**
      * @return array<string, string>
      */
-    private function describe(ExchangeResponse $exchange, string $timelineOf): array
+    private function describe(ExchangeInTimeline $exchange, string $timelineOf): array
     {
         return [
             'moment' => Vocabulary::describeFrenchMoment($exchange->occurredAt),

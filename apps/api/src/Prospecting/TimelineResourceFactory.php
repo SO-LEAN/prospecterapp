@@ -8,8 +8,8 @@ use App\Prospecting\Resource\TimelineLinksResource;
 use App\Security\IntentLinks;
 use App\Security\User;
 use App\Shared\Links;
-use Prospecter\Core\Prospecting\Application\ExchangeResponse;
-use Prospecter\Core\Prospecting\Application\TimelineResponse;
+use Prospecter\Core\Prospecting\Application\ExchangeInTimeline;
+use Prospecter\Core\Prospecting\Application\Timeline;
 
 /**
  * What the timelines of a contact and of an organization show alike: their exchanges, and their links.
@@ -26,7 +26,7 @@ final readonly class TimelineResourceFactory
      * @param array{string, string} $routes  the route of the timeline and the route noting an exchange in it
      * @param array<string, string> $subject the parameters naming whose timeline it is
      */
-    public function createLinks(array $routes, array $subject, TimelineResponse $response): TimelineLinksResource
+    public function createLinks(array $routes, array $subject, Timeline $response): TimelineLinksResource
     {
         [$timeline, $noteExchange] = $routes;
 
@@ -37,7 +37,7 @@ final readonly class TimelineResourceFactory
         );
     }
 
-    public function createExchange(ExchangeResponse $exchange): ExchangeResource
+    public function createExchange(ExchangeInTimeline $exchange): ExchangeResource
     {
         return new ExchangeResource(
             id: $exchange->id,

@@ -25,4 +25,14 @@ enum ContactPresence: string
 
         return $forgotten ? self::Forgotten : self::Present;
     }
+
+    /**
+     * In the timeline of an organization: the contact known may have left it since.
+     */
+    public static function inTheOrganization(bool $hasAContact, bool $forgotten, bool $stillItsContact): ?self
+    {
+        $presence = self::ofTheContact($hasAContact, $forgotten);
+
+        return self::Present === $presence && !$stillItsContact ? self::Removed : $presence;
+    }
 }

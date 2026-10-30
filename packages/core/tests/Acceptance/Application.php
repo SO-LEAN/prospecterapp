@@ -104,7 +104,7 @@ use Prospecter\Core\Prospecting\Application\SearchProspectedOrganizations\Search
 use Prospecter\Core\Prospecting\Application\StartProspecting\StartProspectingHandler;
 use Prospecter\Core\Prospecting\Application\StopKeepingExchanges\StopKeepingExchangesHandler;
 use Prospecter\Core\Prospecting\Application\StopProspecting\StopProspectingHandler;
-use Prospecter\Core\Prospecting\Application\TimelineResponse;
+use Prospecter\Core\Prospecting\Application\Timeline;
 use Prospecter\Core\Prospecting\Application\WriteObservations\WriteObservationsHandler;
 use Prospecter\Core\Prospecting\Contract\Service\IsProspectedBy\IsProspectedBy;
 use Prospecter\Core\Prospecting\Contract\Service\IsProspectedBy\KeptIsProspected;
@@ -132,6 +132,7 @@ use Tests\Core\Double\InMemoryOrganizationSheetRetriever;
 use Tests\Core\Double\InMemoryPersonRepository;
 use Tests\Core\Double\InMemoryPrivateStorage;
 use Tests\Core\Double\InMemoryStorage;
+use Tests\Core\Double\InMemoryTimelineRetriever;
 use Tests\Core\Double\KnownPlacesGeoLocation;
 use Tests\Core\Double\PersonalDataKnownContacts;
 use Tests\Core\Double\ProspectingOrganizations;
@@ -152,6 +153,7 @@ final class Application
     public readonly InMemoryFoundOrganizationRetriever $foundOrganizationRetriever;
     private readonly InMemoryOrganizationSheetRetriever $organizationSheetRetriever;
     private readonly InMemoryExchangeDetailRetriever $exchangeDetailRetriever;
+    private readonly InMemoryTimelineRetriever $timelineRetriever;
     public readonly InMemoryExchangeRepository $exchanges;
     public readonly InMemoryAccountRepository $accounts;
     public readonly InMemoryMemberRepository $members;
@@ -188,6 +190,7 @@ final class Application
         $this->foundOrganizationRetriever = new InMemoryFoundOrganizationRetriever($database);
         $this->organizationSheetRetriever = new InMemoryOrganizationSheetRetriever($database);
         $this->exchangeDetailRetriever = new InMemoryExchangeDetailRetriever($database);
+        $this->timelineRetriever = new InMemoryTimelineRetriever($database);
         $this->exchanges = new InMemoryExchangeRepository($database);
         $this->accounts = new InMemoryAccountRepository($database);
         $this->members = new InMemoryMemberRepository($database);
@@ -321,25 +324,25 @@ final class Application
         return $this->ask(new RecognizeCallingOrganizationHandler($this->organizationSheetRetriever, $this->prospectors), $query, $kept) ? $kept->organizations : null;
     }
 
-    public function consultTimeline(ConsultTimeline $query): ?TimelineResponse
+    public function consultTimeline(ConsultTimeline $query): ?Timeline
     {
         $kept = new KeptTimeline();
 
-        return $this->ask(new ConsultTimelineHandler($this->exchanges, $this->prospectors, $this->contactOrganizations), $query, $kept) ? $kept->timeline : null;
+        return $this->ask(new ConsultTimelineHandler($this->timelineRetriever, $this->prospectors, $this->contactOrganizations), $query, $kept) ? $kept->timeline : null;
     }
 
-    public function consultOrganizationTimeline(ConsultOrganizationTimeline $query): ?TimelineResponse
+    public function consultOrganizationTimeline(ConsultOrganizationTimeline $query): ?Timeline
     {
         $kept = new KeptTimeline();
 
-        return $this->ask(new ConsultOrganizationTimelineHandler($this->exchanges, $this->organizations, $this->prospectors), $query, $kept) ? $kept->timeline : null;
+        return $this->ask(new ConsultOrganizationTimelineHandler($this->timelineRetriever, $this->organizationSheetRetriever, $this->prospectors), $query, $kept) ? $kept->timeline : null;
     }
 
-    public function consultExchangesToMakeConform(ConsultExchangesToMakeConform $query): ?TimelineResponse
+    public function consultExchangesToMakeConform(ConsultExchangesToMakeConform $query): ?Timeline
     {
         $kept = new KeptTimeline();
 
-        return $this->ask(new ConsultExchangesToMakeConformHandler($this->exchanges, $this->organizations, $this->prospectors), $query, $kept) ? $kept->timeline : null;
+        return $this->ask(new ConsultExchangesToMakeConformHandler($this->timelineRetriever, $this->organizationSheetRetriever, $this->prospectors), $query, $kept) ? $kept->timeline : null;
     }
 
     public function consultTimelineIntents(ConsultTimelineIntents $query): ?TimelineIntentsResponse

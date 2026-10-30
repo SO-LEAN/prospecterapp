@@ -2,7 +2,6 @@
 
 namespace App\Prospecting\Persistence;
 
-use App\Shared\Persistence\Documents;
 use App\Shared\Persistence\Table;
 use Prospecter\Core\Prospecting\Domain\Exception\UnknownExchange;
 use Prospecter\Core\Prospecting\Domain\Model\Exchange;
@@ -11,7 +10,6 @@ use Prospecter\Core\Prospecting\Domain\Repository\ExchangeRepository;
 use Prospecter\Core\SharedKernel\Domain\AccountId;
 use Prospecter\Core\SharedKernel\Domain\OrganizationId;
 use Prospecter\Core\SharedKernel\Domain\PersonId;
-use Prospecter\Core\SharedKernel\Domain\Slice;
 
 /**
  * The exchanges in the table of Prospecting (ADR 0048, 0074, 0076):
@@ -25,15 +23,13 @@ use Prospecter\Core\SharedKernel\Domain\Slice;
  */
 final readonly class DynamoExchangeRepository implements ExchangeRepository
 {
-    private const string EXCHANGE = 'EXCHANGE';
-
     public function __construct(private Table $prospectingTable)
     {
     }
 
     public function get(ExchangeId $id): Exchange
     {
-        $item = $this->prospectingTable->item(self::keyOf($id), self::EXCHANGE) ?? throw UnknownExchange::identifiedBy($id);
+        $item = $this->prospectingTable->item(ExchangeKeys::exchange($id->value), ExchangeKeys::EXCHANGE) ?? throw UnknownExchange::identifiedBy($id);
 
         return ExchangeDocument::exchange($item['exchange']);
     }
@@ -41,10 +37,10 @@ final readonly class DynamoExchangeRepository implements ExchangeRepository
     public function save(Exchange $exchange): void
     {
         $document = ExchangeDocument::of($exchange);
-        $stored = $this->prospectingTable->item(self::keyOf($exchange->id()), self::EXCHANGE);
+        $stored = $this->prospectingTable->item(ExchangeKeys::exchange($exchange->id()->value), ExchangeKeys::EXCHANGE);
 
         $this->prospectingTable->transact([
-            $this->prospectingTable->putting($this->itemOf($exchange, $document)),
+            $this->prospectingTable->putting($this->itemOf($document)),
             ...$this->linksToItsOrganizations($document, $exchange->isToMakeConform(), $stored['exchange']['keptFor'] ?? []),
         ]);
     }
@@ -52,64 +48,24 @@ final readonly class DynamoExchangeRepository implements ExchangeRepository
     public function remove(Exchange $exchange): void
     {
         $document = ExchangeDocument::of($exchange);
-        $stored = $this->prospectingTable->item(self::keyOf($exchange->id()), self::EXCHANGE);
+        $stored = $this->prospectingTable->item(ExchangeKeys::exchange($exchange->id()->value), ExchangeKeys::EXCHANGE);
 
         $this->prospectingTable->transact([
-            $this->prospectingTable->deleting(self::keyOf($exchange->id()), self::EXCHANGE),
+            $this->prospectingTable->deleting(ExchangeKeys::exchange($exchange->id()->value), ExchangeKeys::EXCHANGE),
             ...$this->linksToItsOrganizations(['keptFor' => []] + $document, false, $stored['exchange']['keptFor'] ?? []),
         ]);
     }
 
     public function keptFor(OrganizationId $organization): array
     {
-        $links = $this->prospectingTable->query(self::keptForKey($organization->value));
+        $links = $this->prospectingTable->query(ExchangeKeys::keptFor($organization->value));
 
-        return $this->exchangesOf($this->prospectingTable->items(array_map(static fn (array $link): array => [$link['SK'], self::EXCHANGE], $links)));
+        return $this->exchangesOf($this->prospectingTable->items(array_map(static fn (array $link): array => [$link['SK'], ExchangeKeys::EXCHANGE], $links)));
     }
 
     public function withContact(PersonId $contact, AccountId $accountId): array
     {
-        return $this->exchangesOf($this->prospectingTable->query(self::timelineKey($accountId->value, $contact->value), Table::BY_GSI1));
-    }
-
-    public function timelineOf(PersonId $contact, AccountId $accountId, ?string $after, int $max): Slice
-    {
-        $found = $this->exchangesOf($this->prospectingTable->query(self::timelineKey($accountId->value, $contact->value), Table::BY_GSI1, $after, $max + 1));
-
-        return Documents::slice($found, $max, self::positionOf(...));
-    }
-
-    public function timelineOfOrganization(OrganizationId $organization, ?string $after, int $max): Slice
-    {
-        $links = $this->prospectingTable->query(self::organizationTimelineKey($organization->value), Table::BY_GSI1, $after, $max + 1);
-
-        return Documents::slice($this->exchangesOf($this->itemsListedBy($links)), $max, self::positionOf(...));
-    }
-
-    public function toMakeConformFor(OrganizationId $organization, ?string $after, int $max): Slice
-    {
-        $links = $this->prospectingTable->query(self::toMakeConformKey($organization->value), Table::BY_GSI2, $after, $max + 1);
-
-        return Documents::slice($this->exchangesOf($this->itemsListedBy($links)), $max, self::positionOf(...));
-    }
-
-    public function countToMakeConformFor(OrganizationId $organization): int
-    {
-        return $this->prospectingTable->count(self::toMakeConformKey($organization->value), Table::BY_GSI2);
-    }
-
-    /**
-     * The items of the exchanges the links name, in the order of the links.
-     *
-     * @param list<array<string, mixed>> $links
-     *
-     * @return list<array<string, mixed>>
-     */
-    private function itemsListedBy(array $links): array
-    {
-        $byKey = array_column($this->prospectingTable->items(array_map(static fn (array $link): array => [$link['SK'], self::EXCHANGE], $links)), null, 'PK');
-
-        return array_values(array_filter(array_map(static fn (array $link): ?array => $byKey[$link['SK']] ?? null, $links)));
+        return $this->exchangesOf($this->prospectingTable->query(ExchangeKeys::timeline($accountId->value, $contact->value), Table::BY_GSI1));
     }
 
     /**
@@ -117,14 +73,14 @@ final readonly class DynamoExchangeRepository implements ExchangeRepository
      *
      * @return array<string, mixed>
      */
-    private function itemOf(Exchange $exchange, array $document): array
+    private function itemOf(array $document): array
     {
         $inTheTimelineOfItsContact = null === $document['contact'] ? [] : [
-            'GSI1PK' => self::timelineKey($document['accountId'], $document['contact']),
-            'GSI1SK' => self::positionOf($exchange),
+            'GSI1PK' => ExchangeKeys::timeline($document['accountId'], $document['contact']),
+            'GSI1SK' => ExchangeKeys::positionOf($document),
         ];
 
-        return ['PK' => self::keyOf($exchange->id()), 'SK' => self::EXCHANGE, ...$inTheTimelineOfItsContact, 'exchange' => $document];
+        return ['PK' => ExchangeKeys::exchange($document['id']), 'SK' => ExchangeKeys::EXCHANGE, ...$inTheTimelineOfItsContact, 'exchange' => $document];
     }
 
     /**
@@ -139,19 +95,19 @@ final readonly class DynamoExchangeRepository implements ExchangeRepository
      */
     private function linksToItsOrganizations(array $document, bool $toMakeConform, array $storedKeptFor): array
     {
-        $exchange = self::EXCHANGE.'#'.$document['id'];
-        $position = $document['facts']['occurredAt'].'#'.$document['id'];
+        $exchange = ExchangeKeys::exchange($document['id']);
+        $position = ExchangeKeys::positionOf($document);
         $link = static fn (string $organization): array => [
-            'PK' => self::keptForKey($organization),
+            'PK' => ExchangeKeys::keptFor($organization),
             'SK' => $exchange,
-            'GSI1PK' => self::organizationTimelineKey($organization),
+            'GSI1PK' => ExchangeKeys::organizationTimeline($organization),
             'GSI1SK' => $position,
-            ...($toMakeConform ? ['GSI2PK' => self::toMakeConformKey($organization), 'GSI2SK' => $position] : []),
+            ...($toMakeConform ? ['GSI2PK' => ExchangeKeys::toMakeConform($organization), 'GSI2SK' => $position] : []),
         ];
 
         return [
             ...array_map(fn (string $organization): array => $this->prospectingTable->putting($link($organization)), $document['keptFor']),
-            ...array_map(fn (string $organization): array => $this->prospectingTable->deleting(self::keptForKey($organization), $exchange), array_values(array_diff($storedKeptFor, $document['keptFor']))),
+            ...array_map(fn (string $organization): array => $this->prospectingTable->deleting(ExchangeKeys::keptFor($organization), $exchange), array_values(array_diff($storedKeptFor, $document['keptFor']))),
         ];
     }
 
@@ -163,35 +119,5 @@ final readonly class DynamoExchangeRepository implements ExchangeRepository
     private function exchangesOf(array $items): array
     {
         return array_map(static fn (array $item): Exchange => ExchangeDocument::exchange($item['exchange']), $items);
-    }
-
-    private static function positionOf(Exchange $exchange): string
-    {
-        return Documents::moment($exchange->facts()->occurredAt).'#'.$exchange->id();
-    }
-
-    private static function keyOf(ExchangeId $id): string
-    {
-        return self::EXCHANGE.'#'.$id->value;
-    }
-
-    private static function keptForKey(string $organization): string
-    {
-        return 'EXCHANGES#'.$organization;
-    }
-
-    private static function organizationTimelineKey(string $organization): string
-    {
-        return 'ORGANIZATION_TIMELINE#'.$organization;
-    }
-
-    private static function toMakeConformKey(string $organization): string
-    {
-        return 'TO_MAKE_CONFORM#'.$organization;
-    }
-
-    private static function timelineKey(string $accountId, string $contact): string
-    {
-        return sprintf('TIMELINE#%s#%s', $accountId, $contact);
     }
 }

@@ -8,5 +8,5 @@ use Prospecter\Core\SharedKernel\Application\OutputPort;
 
 interface TimelineOutput extends OutputPort
 {
-    public function present(TimelineResponse $timeline): void;
+    public function present(Timeline $timeline): void;
 }
