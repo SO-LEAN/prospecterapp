@@ -13,4 +13,16 @@ enum ContactPresence: string
     case Present = 'present';
     case Removed = 'removed';
     case Forgotten = 'forgotten';
+
+    /**
+     * The contact still known, or forgotten; none for an exchange with the organization itself.
+     */
+    public static function ofTheContact(bool $hasAContact, bool $forgotten): ?self
+    {
+        if (!$hasAContact) {
+            return null;
+        }
+
+        return $forgotten ? self::Forgotten : self::Present;
+    }
 }

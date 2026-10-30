@@ -30,6 +30,8 @@ use Prospecter\Core\Prospecting\Domain\Model\ExchangeFacts;
 use Prospecter\Core\Prospecting\Domain\Model\ExchangeId;
 use Prospecter\Core\Prospecting\Domain\Model\ExchangeIntent;
 use Prospecter\Core\Prospecting\Domain\Model\Prospector;
+use Prospecter\Core\Prospecting\Domain\Policy\ExchangeConformity;
+use Prospecter\Core\Prospecting\Domain\Policy\ExchangePossibilities;
 use Prospecter\Core\SharedKernel\Domain\AccountId;
 use Prospecter\Core\SharedKernel\Domain\Exception\PersonalDataManagersOnly;
 use Prospecter\Core\SharedKernel\Domain\MemberId;
@@ -133,7 +135,7 @@ class ExchangeTest extends TestCase
 
     public function testItsContactForgottenEverythingIsOffered(): void
     {
-        $this->assertSame(ExchangeIntent::cases(), $this->withItsContactForgotten()->possibleIntents());
+        $this->assertSame(ExchangeIntent::cases(), self::possibleIntentsOf($this->withItsContactForgotten()));
     }
 
     public function testAFileIsReadWithTheRightToManagePersonalData(): void
@@ -152,7 +154,7 @@ class ExchangeTest extends TestCase
     {
         $exchange = $this->withAnAttachment();
 
-        $this->assertNotContains(ExchangeIntent::MakeConform, $exchange->possibleIntents());
+        $this->assertNotContains(ExchangeIntent::MakeConform, self::possibleIntentsOf($exchange));
         $this->assertFalse($exchange->isToMakeConform());
         $this->assertSame(ContactPresence::Present, $exchange->contactPresence());
     }
@@ -188,7 +190,7 @@ class ExchangeTest extends TestCase
         $exchange->declareConform(by: $this->me()->id, at: new \DateTimeImmutable(self::NOW));
 
         $this->assertSame([false, true], [$exchange->isTextToMakeConform(), $exchange->isToMakeConform()]);
-        $this->assertNotContains(ExchangeIntent::MakeConform, $exchange->possibleIntents());
+        $this->assertNotContains(ExchangeIntent::MakeConform, self::possibleIntentsOf($exchange));
     }
 
     public function testDeclaredConformAndItsFilesRemovedNothingIsToMakeConform(): void
@@ -219,7 +221,7 @@ class ExchangeTest extends TestCase
 
     public function testAFullExchangeOffersNoRoomForAnotherFile(): void
     {
-        $this->assertNotContains(ExchangeIntent::AttachFile, $this->aFullExchange()->possibleIntents());
+        $this->assertNotContains(ExchangeIntent::AttachFile, self::possibleIntentsOf($this->aFullExchange()));
     }
 
     public function testAFullExchangeRefusesAnotherFile(): void
@@ -257,7 +259,7 @@ class ExchangeTest extends TestCase
     public function testAnIntentionIsRefusedExactlyWhenNotOffered(ExchangeIntent $intent, string $state): void
     {
         $exchange = $this->{$state}();
-        $offered = in_array($intent, $exchange->possibleIntents(), true);
+        $offered = in_array($intent, self::possibleIntentsOf($exchange), true);
 
         try {
             $this->carryOut($intent, $exchange, $this->me()->id);
@@ -279,6 +281,18 @@ class ExchangeTest extends TestCase
                 yield sprintf('%s %s', $intent->name, $state) => [$intent, $state];
             }
         }
+    }
+
+    /**
+     * What the policy offers given the state of the exchange, as its reading tells it (ADR 0088).
+     *
+     * @return list<ExchangeIntent>
+     */
+    private static function possibleIntentsOf(Exchange $exchange): array
+    {
+        $awaitsBeingMadeConform = ExchangeConformity::awaitsBeingMadeConform(ContactPresence::Forgotten === $exchange->contactPresence(), null !== $exchange->madeConform());
+
+        return ExchangePossibilities::given(count($exchange->attachments()), $awaitsBeingMadeConform);
     }
 
     private function carryOut(ExchangeIntent $intent, Exchange $exchange, MemberId $by): void

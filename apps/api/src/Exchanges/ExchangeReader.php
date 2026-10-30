@@ -12,7 +12,7 @@ use Prospecter\Core\PersonalData\Application\ConsultPersons\ConsultPersons;
 use Prospecter\Core\PersonalData\Application\ConsultPersons\KeptPersons;
 use Prospecter\Core\PersonalData\Application\PersonResponse;
 use Prospecter\Core\Prospecting\Application\ConsultExchange\ConsultExchange;
-use Prospecter\Core\Prospecting\Application\ConsultExchange\ExchangeDetailResponse;
+use Prospecter\Core\Prospecting\Application\ConsultExchange\ExchangeDetail;
 use Prospecter\Core\Prospecting\Application\ConsultExchange\KeptExchange;
 use Prospecter\Core\Prospecting\Application\ConsultOrganization\ConsultOrganization;
 use Prospecter\Core\Prospecting\Application\ConsultOrganization\KeptOrganization;
@@ -48,7 +48,7 @@ final readonly class ExchangeReader
     /**
      * The exchange already read, its interlocutor and its authors named.
      */
-    public function resourceOf(string $prospector, ExchangeDetailResponse $exchange): ExchangeDetailResource
+    public function resourceOf(string $prospector, ExchangeDetail $exchange): ExchangeDetailResource
     {
         $presenter = new ExchangeDetailPresenter($this->participantsOf($prospector, $exchange), $this->links, $this->intents);
         $presenter->present($exchange);
@@ -56,7 +56,7 @@ final readonly class ExchangeReader
         return $presenter->resource;
     }
 
-    private function participantsOf(string $prospector, ExchangeDetailResponse $exchange): ExchangeParticipants
+    private function participantsOf(string $prospector, ExchangeDetail $exchange): ExchangeParticipants
     {
         $personOfMember = $this->personsOfMembers(array_filter([$exchange->createdBy, $exchange->correctedBy, $exchange->madeConformBy]));
         $persons = new KeptPersons();
@@ -70,7 +70,7 @@ final readonly class ExchangeReader
      *
      * @param array<string, PersonResponse> $persons by person id
      */
-    private function interlocutorOf(ExchangeDetailResponse $exchange, array $persons): InterlocutorResource
+    private function interlocutorOf(ExchangeDetail $exchange, array $persons): InterlocutorResource
     {
         return null === $exchange->personId
             ? InterlocutorResource::ofTheOrganization($this->organizationOf($exchange->organizationIds[0]))

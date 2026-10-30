@@ -9,9 +9,9 @@ namespace Prospecter\Core\Prospecting\Application\ConsultExchange;
  */
 final class KeptExchange implements ConsultExchangeOutput
 {
-    public private(set) ExchangeDetailResponse $exchange;
+    public private(set) ExchangeDetail $exchange;
 
-    public function present(ExchangeDetailResponse $exchange): void
+    public function present(ExchangeDetail $exchange): void
     {
         $this->exchange = $exchange;
     }

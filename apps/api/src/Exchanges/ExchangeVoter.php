@@ -3,12 +3,12 @@
 namespace App\Exchanges;
 
 use App\Security\AccountResourceVoter;
-use Prospecter\Core\Prospecting\Application\ConsultExchange\ExchangeDetailResponse;
+use Prospecter\Core\Prospecting\Application\ConsultExchange\ExchangeDetail;
 
 /**
  * Whether the signed-in member reaches an exchange: one of their account (ADR 0081).
  *
- * @extends AccountResourceVoter<ExchangeDetailResponse>
+ * @extends AccountResourceVoter<ExchangeDetail>
  */
 final class ExchangeVoter extends AccountResourceVoter
 {
@@ -16,7 +16,7 @@ final class ExchangeVoter extends AccountResourceVoter
 
     protected function supports(string $attribute, mixed $subject): bool
     {
-        return self::ACCESS === $attribute && $subject instanceof ExchangeDetailResponse;
+        return self::ACCESS === $attribute && $subject instanceof ExchangeDetail;
     }
 
     protected function accountOf(object $subject): string

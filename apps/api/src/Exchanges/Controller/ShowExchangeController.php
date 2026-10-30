@@ -9,7 +9,7 @@ use App\Security\User;
 use App\Shared\Resource\ProblemResource;
 use Nelmio\ApiDocBundle\Attribute\Model;
 use OpenApi\Attributes as OA;
-use Prospecter\Core\Prospecting\Application\ConsultExchange\ExchangeDetailResponse;
+use Prospecter\Core\Prospecting\Application\ConsultExchange\ExchangeDetail;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\Routing\Attribute\Route;
@@ -32,7 +32,7 @@ final class ShowExchangeController extends AbstractController
     #[OA\Response(response: 401, description: 'Missing or invalid access token')]
     #[OA\Response(response: 403, description: 'Not a prospector', content: new Model(type: ProblemResource::class))]
     #[OA\Response(response: 404, description: 'Unknown exchange, or one of another account', content: new Model(type: ProblemResource::class))]
-    public function __invoke(ExchangeDetailResponse $exchange, #[CurrentUser] User $user): JsonResponse
+    public function __invoke(ExchangeDetail $exchange, #[CurrentUser] User $user): JsonResponse
     {
         return $this->json($this->exchangeReader->resourceOf($user->memberId(), $exchange));
     }

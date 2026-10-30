@@ -8,7 +8,7 @@ use App\Security\User;
 use App\Shared\Resource\ProblemResource;
 use Nelmio\ApiDocBundle\Attribute\Model;
 use OpenApi\Attributes as OA;
-use Prospecter\Core\Prospecting\Application\ConsultExchange\ExchangeDetailResponse;
+use Prospecter\Core\Prospecting\Application\ConsultExchange\ExchangeDetail;
 use Prospecter\Core\Prospecting\Application\DownloadAttachment\DownloadAttachment;
 use Prospecter\Core\Prospecting\Application\DownloadAttachment\KeptDownload;
 use Prospecter\Core\SharedKernel\Application\RefusalTranslatingHandler;
@@ -35,7 +35,7 @@ final class DownloadAttachmentController extends AbstractController
     #[OA\Response(response: 401, description: 'Missing or invalid access token')]
     #[OA\Response(response: 403, description: 'Not a prospector, or no right to manage personal data', content: new Model(type: ProblemResource::class))]
     #[OA\Response(response: 404, description: 'Unknown exchange or attachment, or one of another account', content: new Model(type: ProblemResource::class))]
-    public function __invoke(ExchangeDetailResponse $exchange, string $attachmentId, #[CurrentUser] User $user): JsonResponse
+    public function __invoke(ExchangeDetail $exchange, string $attachmentId, #[CurrentUser] User $user): JsonResponse
     {
         $kept = new KeptDownload();
         ($this->downloadAttachment)(new DownloadAttachment($user->memberId(), $exchange->id, $attachmentId), $kept);

@@ -13,7 +13,7 @@ use App\Shared\Resource\ProblemResource;
 use Nelmio\ApiDocBundle\Attribute\Model;
 use OpenApi\Attributes as OA;
 use Prospecter\Core\Prospecting\Application\AttachFile\AttachFile;
-use Prospecter\Core\Prospecting\Application\ConsultExchange\ExchangeDetailResponse;
+use Prospecter\Core\Prospecting\Application\ConsultExchange\ExchangeDetail;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\Clock\ClockInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -46,7 +46,7 @@ final class AttachFileController extends AbstractController
     #[OA\Response(response: 404, description: 'Unknown exchange, or one of another account; unknown upload, expired or already joined', content: new Model(type: ProblemResource::class))]
     #[OA\Response(response: 409, description: 'The exchange holds as many files as it may', content: new Model(type: ProblemResource::class))]
     #[OA\Response(response: 422, description: 'Invalid input, or a file over 10 MB', content: new Model(type: ProblemResource::class))]
-    public function __invoke(ExchangeDetailResponse $exchange, #[MapRequestPayload] AttachmentInput $input, #[CurrentUser] User $user): JsonResponse
+    public function __invoke(ExchangeDetail $exchange, #[MapRequestPayload] AttachmentInput $input, #[CurrentUser] User $user): JsonResponse
     {
         $this->commandBus->dispatch(new AttachFile(
             prospectorId: $user->memberId(),

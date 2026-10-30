@@ -11,7 +11,7 @@ use App\Shared\CommandBus;
 use App\Shared\Resource\ProblemResource;
 use Nelmio\ApiDocBundle\Attribute\Model;
 use OpenApi\Attributes as OA;
-use Prospecter\Core\Prospecting\Application\ConsultExchange\ExchangeDetailResponse;
+use Prospecter\Core\Prospecting\Application\ConsultExchange\ExchangeDetail;
 use Prospecter\Core\Prospecting\Application\CorrectExchangeText\CorrectExchangeText;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\Clock\ClockInterface;
@@ -42,7 +42,7 @@ final class CorrectExchangeTextController extends AbstractController
     #[OA\Response(response: 404, description: 'Unknown exchange, or one of another account', content: new Model(type: ProblemResource::class))]
     #[OA\Response(response: 409, description: 'Declared made conform while nothing is to make conform', content: new Model(type: ProblemResource::class))]
     #[OA\Response(response: 422, description: 'Invalid text: too long, or another fact of the exchange', content: new Model(type: ProblemResource::class))]
-    public function __invoke(ExchangeDetailResponse $exchange, #[MapRequestPayload] TextCorrectionInput $input, #[CurrentUser] User $user): JsonResponse
+    public function __invoke(ExchangeDetail $exchange, #[MapRequestPayload] TextCorrectionInput $input, #[CurrentUser] User $user): JsonResponse
     {
         $this->commandBus->dispatch(new CorrectExchangeText($user->memberId(), $exchange->id, $input->text, $this->clock->now(), $input->madeConform));
 
