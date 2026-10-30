@@ -10,6 +10,7 @@ use Prospecter\Core\Accounts\Domain\Event\AccountOpened;
 use Prospecter\Core\Accounts\Domain\Event\AccountRelocated;
 use Prospecter\Core\Accounts\Domain\Exception\AccountWithoutCorporateName;
 use Prospecter\Core\Accounts\Domain\Exception\UnknownAccount;
+use Prospecter\Core\Accounts\Domain\Policy\AccountPossibilities;
 use Prospecter\Core\SharedKernel\Domain\AccountId;
 use Prospecter\Core\SharedKernel\Domain\Address;
 use Prospecter\Core\SharedKernel\Domain\ContactDetails;
@@ -107,19 +108,9 @@ final class Account implements ReleasesEvents
         return $this->modifiedAt;
     }
 
-    /**
-     * What this member may change of the account: everything if they belong to it, nothing otherwise.
-     *
-     * @return list<AccountIntent>
-     */
-    public function possibleIntentsOf(Member $member): array
-    {
-        return $this->hasMember($member) ? AccountIntent::cases() : [];
-    }
-
     public function reviseLegalIdentity(LegalIdentity $legalIdentity, Member $by, \DateTimeImmutable $at): void
     {
-        $this->ensureMember($by);
+        $this->ensurePossible(AccountIntent::ReviseLegalIdentity, $by);
         $this->legalIdentity = $legalIdentity;
         $this->modifiedAt = $at;
         $this->recordThat(new AccountIdentityRevised($this->id, $by->id(), $at));
@@ -127,7 +118,7 @@ final class Account implements ReleasesEvents
 
     public function changeLogo(File $logo, Member $by, \DateTimeImmutable $at): void
     {
-        $this->ensureMember($by);
+        $this->ensurePossible(AccountIntent::ChangeLogo, $by);
         $this->logo = $logo;
         $this->modifiedAt = $at;
         $this->recordThat(new AccountLogoChanged($this->id, $by->id(), $at));
@@ -139,21 +130,21 @@ final class Account implements ReleasesEvents
      */
     public function relocateTo(Address $address, ?GeoPoint $geoPoint, Member $by, \DateTimeImmutable $at): void
     {
-        $this->ensureMember($by);
+        $this->ensurePossible(AccountIntent::Relocate, $by);
         $this->address = $address->isEmpty() ? null : $address;
         $this->geoPoint = $geoPoint;
         $this->modifiedAt = $at;
         $this->recordThat(new AccountRelocated($this->id, $by->id(), $at));
     }
 
-    private function hasMember(Member $member): bool
+    /**
+     * An account is unknown to whom does not belong to it.
+     *
+     * @throws UnknownAccount
+     */
+    private function ensurePossible(AccountIntent $intent, Member $by): void
     {
-        return $this->id->equals($member->accountId());
-    }
-
-    private function ensureMember(Member $member): void
-    {
-        if (!$this->hasMember($member)) {
+        if (!in_array($intent, AccountPossibilities::given($this->id->equals($by->accountId())), true)) {
             throw UnknownAccount::identifiedBy($this->id);
         }
     }

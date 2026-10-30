@@ -5,30 +5,41 @@ namespace Tests\App\Security;
 use App\Security\User;
 use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
-use Prospecter\Core\Accounts\Application\AccountResponse;
-use Prospecter\Core\Accounts\Domain\Model\Account;
-use Prospecter\Core\Accounts\Domain\Model\Member;
-use Prospecter\Core\Accounts\Domain\Model\Role;
-use Prospecter\Core\SharedKernel\Domain\AccountId;
-use Prospecter\Core\SharedKernel\Domain\LegalIdentity;
-use Prospecter\Core\SharedKernel\Domain\MemberId;
-use Prospecter\Core\SharedKernel\Domain\PersonId;
+use Prospecter\Core\Accounts\Application\MyAccount;
 
 #[Group('unit')]
 class UserTest extends TestCase
 {
     public function testTheSignedInUserCarriesTheIdentitiesOfTheMemberAndItsAccount(): void
     {
-        $userId = new MemberId('0190a1c0-0000-7000-8000-000000000001');
-        $accountId = new AccountId('0190a1c0-0000-7000-8000-000000000002');
-        $personId = new PersonId('0190a1c0-0000-7000-8000-000000000003');
+        $userId = '0190a1c0-0000-7000-8000-000000000001';
+        $accountId = '0190a1c0-0000-7000-8000-000000000002';
+        $personId = '0190a1c0-0000-7000-8000-000000000003';
 
-        $signedIn = User::from(AccountResponse::of(Account::open($accountId, new LegalIdentity('SOLEAN IT'), new \DateTimeImmutable()), Member::register($userId, $accountId, $personId, Role::User, Role::Prospector)));
+        $signedIn = User::from(new MyAccount(
+            memberId: $userId,
+            accountId: $accountId,
+            personId: $personId,
+            roles: ['ROLE_USER', 'ROLE_PROSPECTOR'],
+            organizationCorporateName: 'SOLEAN IT',
+            organizationForm: null,
+            organizationType: null,
+            organizationLogo: null,
+            organizationStreet: null,
+            organizationPostalCode: null,
+            organizationCity: null,
+            organizationCountry: null,
+            organizationLongitude: null,
+            organizationLatitude: null,
+            accountIntents: [],
+            createdAt: new \DateTimeImmutable(),
+            modifiedAt: new \DateTimeImmutable(),
+        ));
 
-        $this->assertSame($userId->value, $signedIn->memberId());
-        $this->assertSame($accountId->value, $signedIn->accountId());
-        $this->assertSame($personId->value, $signedIn->personId());
-        $this->assertSame($userId->value, $signedIn->getUserIdentifier(), 'the subject of the access token');
+        $this->assertSame($userId, $signedIn->memberId());
+        $this->assertSame($accountId, $signedIn->accountId());
+        $this->assertSame($personId, $signedIn->personId());
+        $this->assertSame($userId, $signedIn->getUserIdentifier(), 'the subject of the access token');
         $this->assertSame(['ROLE_USER', 'ROLE_PROSPECTOR'], $signedIn->getRoles());
     }
 }

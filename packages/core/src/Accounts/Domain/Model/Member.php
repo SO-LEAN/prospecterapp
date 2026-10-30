@@ -7,6 +7,7 @@ namespace Prospecter\Core\Accounts\Domain\Model;
 use Prospecter\Core\Accounts\Domain\Event\MemberRegistered;
 use Prospecter\Core\Accounts\Domain\Exception\AdministratorsOnly;
 use Prospecter\Core\Accounts\Domain\Exception\MemberWithoutRole;
+use Prospecter\Core\Accounts\Domain\Policy\PersonalDataRight;
 use Prospecter\Core\SharedKernel\Domain\AccountId;
 use Prospecter\Core\SharedKernel\Domain\MemberId;
 use Prospecter\Core\SharedKernel\Domain\PersonId;
@@ -101,7 +102,7 @@ final class Member implements ReleasesEvents
 
     public function readsPersonalData(): bool
     {
-        return in_array(Role::PersonalData, $this->roles, true) || $this->isAdministrator();
+        return PersonalDataRight::isGrantedBy(...$this->roles);
     }
 
     private function isAdministrator(): bool

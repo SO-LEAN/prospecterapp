@@ -76,6 +76,8 @@ services:
     # Ports of the core, implemented by the application
     Prospecter\Core\Accounts\Domain\Repository\AccountRepository: '@App\Accounts\Persistence\DynamoAccountRepository'
     Prospecter\Core\Accounts\Domain\Repository\MemberRepository: '@App\Accounts\Persistence\DynamoMemberRepository'
+    Prospecter\Core\Accounts\Application\Port\MyAccountRetriever: '@App\Accounts\Persistence\DynamoMyAccountRetriever'
+    Prospecter\Core\Accounts\Application\Port\MemberRetriever: '@App\Accounts\Persistence\DynamoMemberRetriever'
     Prospecter\Core\PersonalData\Domain\Repository\PersonRepository: '@App\PersonalData\Persistence\DynamoPersonRepository'
     Prospecter\Core\PersonalData\Domain\Port\Readers: '@App\PersonalData\AntiCorruption\AccountsReaders'
     Prospecter\Core\Prospecting\Domain\Repository\OrganizationRepository: '@App\Prospecting\Persistence\DynamoOrganizationRepository'

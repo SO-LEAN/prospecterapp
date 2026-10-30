@@ -15,15 +15,13 @@ use Prospecter\Core\SharedKernel\Domain\AccountId;
  */
 final readonly class DynamoAccountRepository implements AccountRepository
 {
-    private const string ACCOUNT = 'ACCOUNT';
-
     public function __construct(private Table $accountsTable)
     {
     }
 
     public function get(AccountId $id): Account
     {
-        $item = $this->accountsTable->item(self::keyOf($id), self::ACCOUNT) ?? throw UnknownAccount::identifiedBy($id);
+        $item = $this->accountsTable->item(AccountsKeys::account($id->value), AccountsKeys::ACCOUNT) ?? throw UnknownAccount::identifiedBy($id);
         $document = $item['account'];
 
         return Hydrator::restore(Account::class, [
@@ -42,7 +40,7 @@ final readonly class DynamoAccountRepository implements AccountRepository
     {
         $state = Hydrator::stateOf($account);
 
-        $this->accountsTable->transact([$this->accountsTable->putting(['PK' => self::keyOf($account->id()), 'SK' => self::ACCOUNT, 'account' => [
+        $this->accountsTable->transact([$this->accountsTable->putting(['PK' => AccountsKeys::account($account->id()->value), 'SK' => AccountsKeys::ACCOUNT, 'account' => [
             'id' => (string) $state['id'],
             'legalIdentity' => Documents::legalIdentity($state['legalIdentity']),
             'contactDetails' => Documents::contactDetails($state['contactDetails']),
@@ -52,10 +50,5 @@ final readonly class DynamoAccountRepository implements AccountRepository
             'createdAt' => Documents::moment($state['createdAt']),
             'modifiedAt' => Documents::moment($state['modifiedAt']),
         ]])]);
-    }
-
-    private static function keyOf(AccountId $id): string
-    {
-        return self::ACCOUNT.'#'.$id->value;
     }
 }

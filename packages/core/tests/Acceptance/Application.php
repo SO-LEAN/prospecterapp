@@ -4,12 +4,12 @@ declare(strict_types=1);
 
 namespace Tests\Core\Acceptance;
 
-use Prospecter\Core\Accounts\Application\AccountResponse;
 use Prospecter\Core\Accounts\Application\ChangeMyOrganizationLogo\ChangeMyOrganizationLogoHandler;
 use Prospecter\Core\Accounts\Application\ConsultMember\ConsultMemberHandler;
 use Prospecter\Core\Accounts\Application\ConsultMyAccount\ConsultMyAccount;
 use Prospecter\Core\Accounts\Application\ConsultMyAccount\ConsultMyAccountHandler;
 use Prospecter\Core\Accounts\Application\ConsultMyAccount\KeptAccount;
+use Prospecter\Core\Accounts\Application\MyAccount;
 use Prospecter\Core\Accounts\Application\OpenAccount\OpenAccountHandler;
 use Prospecter\Core\Accounts\Application\PublishAccountOpened\PublishAccountOpenedHandler;
 use Prospecter\Core\Accounts\Application\PublishMemberRegistered\PublishMemberRegisteredHandler;
@@ -127,6 +127,8 @@ use Tests\Core\Double\InMemoryExchangeDetailRetriever;
 use Tests\Core\Double\InMemoryExchangeRepository;
 use Tests\Core\Double\InMemoryFoundOrganizationRetriever;
 use Tests\Core\Double\InMemoryMemberRepository;
+use Tests\Core\Double\InMemoryMemberRetriever;
+use Tests\Core\Double\InMemoryMyAccountRetriever;
 use Tests\Core\Double\InMemoryOrganizationRepository;
 use Tests\Core\Double\InMemoryOrganizationSheetRetriever;
 use Tests\Core\Double\InMemoryPersonRepository;
@@ -154,6 +156,8 @@ final class Application
     private readonly InMemoryOrganizationSheetRetriever $organizationSheetRetriever;
     private readonly InMemoryExchangeDetailRetriever $exchangeDetailRetriever;
     private readonly InMemoryTimelineRetriever $timelineRetriever;
+    private readonly InMemoryMyAccountRetriever $myAccountRetriever;
+    private readonly InMemoryMemberRetriever $memberRetriever;
     public readonly InMemoryExchangeRepository $exchanges;
     public readonly InMemoryAccountRepository $accounts;
     public readonly InMemoryMemberRepository $members;
@@ -194,9 +198,11 @@ final class Application
         $this->exchanges = new InMemoryExchangeRepository($database);
         $this->accounts = new InMemoryAccountRepository($database);
         $this->members = new InMemoryMemberRepository($database);
+        $this->myAccountRetriever = new InMemoryMyAccountRetriever($database);
+        $this->memberRetriever = new InMemoryMemberRetriever($database);
         $this->persons = new InMemoryPersonRepository($database);
-        $this->prospectors = new AccountsProspectors($this->published(new ConsultMemberHandler($this->members)));
-        $this->readers = new AccountsReaders($this->published(new ConsultMemberHandler($this->members)));
+        $this->prospectors = new AccountsProspectors($this->published(new ConsultMemberHandler($this->memberRetriever)));
+        $this->readers = new AccountsReaders($this->published(new ConsultMemberHandler($this->memberRetriever)));
         $this->knownContacts = new PersonalDataKnownContacts($this->published(new IsAContactOfHandler($this->persons)));
         $this->prospectedOrganizations = new ProspectingOrganizations($this->published(new IsProspectedByHandler($this->organizations)));
         $this->events = new SynchronousEvents();
@@ -273,11 +279,11 @@ final class Application
         return $this->ask(new SearchProspectedOrganizationsHandler($this->foundOrganizationRetriever, $this->prospectors), $query, $kept) ? $kept->page : null;
     }
 
-    public function consultMyAccount(): ?AccountResponse
+    public function consultMyAccount(): ?MyAccount
     {
         $kept = new KeptAccount();
 
-        return $this->ask(new ConsultMyAccountHandler($this->members, $this->accounts), new ConsultMyAccount($this->signedIn()), $kept) ? $kept->account : null;
+        return $this->ask(new ConsultMyAccountHandler($this->myAccountRetriever), new ConsultMyAccount($this->signedIn()), $kept) ? $kept->account : null;
     }
 
     public function consultPerson(ConsultPerson $query): ?PersonResponse
@@ -420,7 +426,7 @@ final class Application
     {
         $kept = new KeptMember();
 
-        return $this->ask(new ConsultMemberHandler($this->members), $query, $kept) ? $kept->member : null;
+        return $this->ask(new ConsultMemberHandler($this->memberRetriever), $query, $kept) ? $kept->member : null;
     }
 
     public function isAContactOf(IsAContactOf $query): ?bool
