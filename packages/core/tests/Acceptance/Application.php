@@ -35,17 +35,17 @@ use Prospecter\Core\PersonalData\Application\ConsultPersons\KeptPersons;
 use Prospecter\Core\PersonalData\Application\ForgetContact\ForgetContactHandler;
 use Prospecter\Core\PersonalData\Application\ForgetContactsLeftWithoutOrganization\ForgetContactsLeftWithoutOrganizationHandler;
 use Prospecter\Core\PersonalData\Application\IsAContactOf\IsAContactOfHandler;
-use Prospecter\Core\PersonalData\Application\PersonResponse;
+use Prospecter\Core\PersonalData\Application\PersonCard;
 use Prospecter\Core\PersonalData\Application\PublishContactCollected\PublishContactCollectedHandler;
 use Prospecter\Core\PersonalData\Application\PublishContactForgotten\PublishContactForgottenHandler;
 use Prospecter\Core\PersonalData\Application\RecognizeCallingContact\KeptCallingContacts;
 use Prospecter\Core\PersonalData\Application\RecognizeCallingContact\RecognizeCallingContact;
 use Prospecter\Core\PersonalData\Application\RecognizeCallingContact\RecognizeCallingContactHandler;
 use Prospecter\Core\PersonalData\Application\RenamePerson\RenamePersonHandler;
+use Prospecter\Core\PersonalData\Application\SearchContacts\ContactPage;
 use Prospecter\Core\PersonalData\Application\SearchContacts\KeptContactPage;
 use Prospecter\Core\PersonalData\Application\SearchContacts\SearchContacts;
 use Prospecter\Core\PersonalData\Application\SearchContacts\SearchContactsHandler;
-use Prospecter\Core\PersonalData\Application\SearchContacts\SearchContactsResponse;
 use Prospecter\Core\PersonalData\Contract\Service\IsAContactOf\IsAContactOf;
 use Prospecter\Core\PersonalData\Contract\Service\IsAContactOf\KeptIsAContact;
 use Prospecter\Core\PersonalData\Domain\Service\EmailUniqueness as PersonalDataEmailUniqueness;
@@ -122,6 +122,7 @@ use Prospecter\Core\SharedKernel\Domain\MemberId;
 use Tests\Core\Double\AccountsProspectors;
 use Tests\Core\Double\AccountsReaders;
 use Tests\Core\Double\InMemoryAccountRepository;
+use Tests\Core\Double\InMemoryContactPageRetriever;
 use Tests\Core\Double\InMemoryDatabase;
 use Tests\Core\Double\InMemoryExchangeDetailRetriever;
 use Tests\Core\Double\InMemoryExchangeRepository;
@@ -131,6 +132,7 @@ use Tests\Core\Double\InMemoryMemberRetriever;
 use Tests\Core\Double\InMemoryMyAccountRetriever;
 use Tests\Core\Double\InMemoryOrganizationRepository;
 use Tests\Core\Double\InMemoryOrganizationSheetRetriever;
+use Tests\Core\Double\InMemoryPersonCardRetriever;
 use Tests\Core\Double\InMemoryPersonRepository;
 use Tests\Core\Double\InMemoryPrivateStorage;
 use Tests\Core\Double\InMemoryStorage;
@@ -158,6 +160,8 @@ final class Application
     private readonly InMemoryTimelineRetriever $timelineRetriever;
     private readonly InMemoryMyAccountRetriever $myAccountRetriever;
     private readonly InMemoryMemberRetriever $memberRetriever;
+    private readonly InMemoryPersonCardRetriever $personCardRetriever;
+    private readonly InMemoryContactPageRetriever $contactPageRetriever;
     public readonly InMemoryExchangeRepository $exchanges;
     public readonly InMemoryAccountRepository $accounts;
     public readonly InMemoryMemberRepository $members;
@@ -201,6 +205,8 @@ final class Application
         $this->myAccountRetriever = new InMemoryMyAccountRetriever($database);
         $this->memberRetriever = new InMemoryMemberRetriever($database);
         $this->persons = new InMemoryPersonRepository($database);
+        $this->personCardRetriever = new InMemoryPersonCardRetriever($database);
+        $this->contactPageRetriever = new InMemoryContactPageRetriever($database);
         $this->prospectors = new AccountsProspectors($this->published(new ConsultMemberHandler($this->memberRetriever)));
         $this->readers = new AccountsReaders($this->published(new ConsultMemberHandler($this->memberRetriever)));
         $this->knownContacts = new PersonalDataKnownContacts($this->published(new IsAContactOfHandler($this->persons)));
@@ -286,38 +292,38 @@ final class Application
         return $this->ask(new ConsultMyAccountHandler($this->myAccountRetriever), new ConsultMyAccount($this->signedIn()), $kept) ? $kept->account : null;
     }
 
-    public function consultPerson(ConsultPerson $query): ?PersonResponse
+    public function consultPerson(ConsultPerson $query): ?PersonCard
     {
         $kept = new KeptPerson();
 
-        return $this->ask(new ConsultPersonHandler($this->persons, $this->readers), $query, $kept) ? $kept->person : null;
+        return $this->ask(new ConsultPersonHandler($this->personCardRetriever, $this->readers), $query, $kept) ? $kept->person : null;
     }
 
     /**
-     * @return array<string, PersonResponse>|null
+     * @return array<string, PersonCard>|null
      */
     public function consultPersons(ConsultPersons $query): ?array
     {
         $kept = new KeptPersons();
 
-        return $this->ask(new ConsultPersonsHandler($this->persons, $this->readers), $query, $kept) ? $kept->persons : null;
+        return $this->ask(new ConsultPersonsHandler($this->personCardRetriever, $this->readers), $query, $kept) ? $kept->persons : null;
     }
 
-    public function searchContacts(SearchContacts $query): ?SearchContactsResponse
+    public function searchContacts(SearchContacts $query): ?ContactPage
     {
         $kept = new KeptContactPage();
 
-        return $this->ask(new SearchContactsHandler($this->persons, $this->readers), $query, $kept) ? $kept->page : null;
+        return $this->ask(new SearchContactsHandler($this->contactPageRetriever, $this->readers), $query, $kept) ? $kept->page : null;
     }
 
     /**
-     * @return list<PersonResponse>|null
+     * @return list<PersonCard>|null
      */
     public function recognizeACallingContact(RecognizeCallingContact $query): ?array
     {
         $kept = new KeptCallingContacts();
 
-        return $this->ask(new RecognizeCallingContactHandler($this->persons, $this->readers), $query, $kept) ? $kept->contacts : null;
+        return $this->ask(new RecognizeCallingContactHandler($this->personCardRetriever, $this->readers), $query, $kept) ? $kept->contacts : null;
     }
 
     /**

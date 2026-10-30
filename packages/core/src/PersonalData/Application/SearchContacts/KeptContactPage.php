@@ -9,9 +9,9 @@ namespace Prospecter\Core\PersonalData\Application\SearchContacts;
  */
 final class KeptContactPage implements SearchContactsOutput
 {
-    public private(set) SearchContactsResponse $page;
+    public private(set) ContactPage $page;
 
-    public function present(SearchContactsResponse $page): void
+    public function present(ContactPage $page): void
     {
         $this->page = $page;
     }

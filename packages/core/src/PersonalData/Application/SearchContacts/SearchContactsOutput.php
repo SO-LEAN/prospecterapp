@@ -8,5 +8,5 @@ use Prospecter\Core\SharedKernel\Application\OutputPort;
 
 interface SearchContactsOutput extends OutputPort
 {
-    public function present(SearchContactsResponse $page): void;
+    public function present(ContactPage $page): void;
 }

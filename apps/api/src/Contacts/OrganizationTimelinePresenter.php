@@ -7,7 +7,7 @@ use App\Contacts\Resource\OrganizationExchangeResource;
 use App\Contacts\Resource\OrganizationTimelineResource;
 use App\Prospecting\TimelineResourceFactory;
 use App\Shared\Links;
-use Prospecter\Core\PersonalData\Application\PersonResponse;
+use Prospecter\Core\PersonalData\Application\PersonCard;
 use Prospecter\Core\Prospecting\Application\ExchangeInTimeline;
 use Prospecter\Core\Prospecting\Application\OrganizationSheet;
 use Prospecter\Core\Prospecting\Application\Timeline;
@@ -26,8 +26,8 @@ final class OrganizationTimelinePresenter implements TimelineOutput
     public private(set) OrganizationTimelineResource $resource;
 
     /**
-     * @param array{string, string}         $routes  the route of the list and the route noting an exchange
-     * @param array<string, PersonResponse> $persons the persons of the slice, by id
+     * @param array{string, string}     $routes  the route of the list and the route noting an exchange
+     * @param array<string, PersonCard> $persons the persons of the slice, by id
      */
     private function __construct(
         private readonly array $routes,
@@ -39,7 +39,7 @@ final class OrganizationTimelinePresenter implements TimelineOutput
     }
 
     /**
-     * @param array<string, PersonResponse> $persons the persons of the slice, by id
+     * @param array<string, PersonCard> $persons the persons of the slice, by id
      */
     public static function ofTheTimeline(OrganizationSheet $organization, array $persons, TimelineResourceFactory $timelines, Links $links): self
     {
@@ -47,7 +47,7 @@ final class OrganizationTimelinePresenter implements TimelineOutput
     }
 
     /**
-     * @param array<string, PersonResponse> $persons the persons of the slice, by id
+     * @param array<string, PersonCard> $persons the persons of the slice, by id
      */
     public static function ofTheExchangesToMakeConform(OrganizationSheet $organization, array $persons, TimelineResourceFactory $timelines, Links $links): self
     {

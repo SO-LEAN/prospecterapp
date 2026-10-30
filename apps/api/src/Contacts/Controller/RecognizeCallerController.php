@@ -11,7 +11,7 @@ use App\Security\User;
 use App\Shared\Resource\ProblemResource;
 use Nelmio\ApiDocBundle\Attribute\Model;
 use OpenApi\Attributes as OA;
-use Prospecter\Core\PersonalData\Application\PersonResponse;
+use Prospecter\Core\PersonalData\Application\PersonCard;
 use Prospecter\Core\PersonalData\Application\RecognizeCallingContact\KeptCallingContacts;
 use Prospecter\Core\PersonalData\Application\RecognizeCallingContact\RecognizeCallingContact;
 use Prospecter\Core\Prospecting\Application\RecognizeCallingOrganization\KeptCallingOrganizations;
@@ -53,11 +53,11 @@ final class RecognizeCallerController extends AbstractController
         $callingContacts = new KeptCallingContacts();
         ($this->recognizeCallingContact)(new RecognizeCallingContact($user->memberId(), $phoneNumber), $callingContacts);
         $contacts = $callingContacts->contacts;
-        $organizationsOfContacts = $this->organizationsOfContacts->read($user->memberId(), array_map(static fn (PersonResponse $contact): string => $contact->id, $contacts));
+        $organizationsOfContacts = $this->organizationsOfContacts->read($user->memberId(), array_map(static fn (PersonCard $contact): string => $contact->id, $contacts));
 
         return $this->json(new CallerResource(
             array_map($this->organizationReader->resourceOf(...), $organizations->organizations),
-            array_map(fn (PersonResponse $contact): ContactInListResource => $this->contactInListResourceFactory->create($contact, $organizationsOfContacts[$contact->id] ?? []), $contacts),
+            array_map(fn (PersonCard $contact): ContactInListResource => $this->contactInListResourceFactory->create($contact, $organizationsOfContacts[$contact->id] ?? []), $contacts),
         ));
     }
 }

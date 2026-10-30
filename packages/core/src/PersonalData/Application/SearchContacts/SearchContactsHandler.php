@@ -4,16 +4,15 @@ declare(strict_types=1);
 
 namespace Prospecter\Core\PersonalData\Application\SearchContacts;
 
-use Prospecter\Core\PersonalData\Domain\Model\Purpose;
+use Prospecter\Core\PersonalData\Application\Port\ContactPageRetriever;
 use Prospecter\Core\PersonalData\Domain\Port\Readers;
-use Prospecter\Core\PersonalData\Domain\Repository\PersonRepository;
 use Prospecter\Core\SharedKernel\Application\QueryHandler;
 use Prospecter\Core\SharedKernel\Domain\MemberId;
 use Prospecter\Core\SharedKernel\Domain\SearchKey;
 
 final readonly class SearchContactsHandler implements QueryHandler
 {
-    public function __construct(private PersonRepository $persons, private Readers $readers)
+    public function __construct(private ContactPageRetriever $contactPageRetriever, private Readers $readers)
     {
     }
 
@@ -22,6 +21,6 @@ final readonly class SearchContactsHandler implements QueryHandler
         $reader = $this->readers->readerFrom(new MemberId($query->readerId));
         $reader->ensureMaySearchByText($query->query);
 
-        $output->present(SearchContactsResponse::of($this->persons->sliceOf($reader->accountId, Purpose::Prospecting, SearchKey::of($query->query), $query->after, $query->max), $reader));
+        $output->present($this->contactPageRetriever->sliceFor($reader, SearchKey::of($query->query), $query->after, $query->max));
     }
 }

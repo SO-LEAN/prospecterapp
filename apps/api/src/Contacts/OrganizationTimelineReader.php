@@ -7,7 +7,7 @@ use App\Prospecting\TimelineResourceFactory;
 use App\Shared\Links;
 use Prospecter\Core\PersonalData\Application\ConsultPersons\ConsultPersons;
 use Prospecter\Core\PersonalData\Application\ConsultPersons\KeptPersons;
-use Prospecter\Core\PersonalData\Application\PersonResponse;
+use Prospecter\Core\PersonalData\Application\PersonCard;
 use Prospecter\Core\Prospecting\Application\ConsultExchangesToMakeConform\ConsultExchangesToMakeConform;
 use Prospecter\Core\Prospecting\Application\ConsultOrganizationTimeline\ConsultOrganizationTimeline;
 use Prospecter\Core\Prospecting\Application\ExchangeInTimeline;
@@ -56,7 +56,7 @@ final readonly class OrganizationTimelineReader
     }
 
     /**
-     * @return array<string, PersonResponse> the persons the exchanges of the slice were with, by id
+     * @return array<string, PersonCard> the persons the exchanges of the slice were with, by id
      */
     private function personsOf(string $reader, Timeline $timeline): array
     {

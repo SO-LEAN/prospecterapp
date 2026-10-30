@@ -11,6 +11,7 @@ use Prospecter\Core\PersonalData\Domain\Model\PersonIntent;
 use Prospecter\Core\PersonalData\Domain\Model\PersonName;
 use Prospecter\Core\PersonalData\Domain\Model\Purpose;
 use Prospecter\Core\PersonalData\Domain\Model\Reader;
+use Prospecter\Core\PersonalData\Domain\Policy\PersonPossibilities;
 use Prospecter\Core\SharedKernel\Domain\AccountId;
 use Prospecter\Core\SharedKernel\Domain\ContactDetails;
 use Prospecter\Core\SharedKernel\Domain\Exception\BusinessRuleViolation;
@@ -21,8 +22,9 @@ use Prospecter\Core\SharedKernel\Domain\PersonId;
 use Prospecter\Core\SharedKernel\Domain\PhoneNumber;
 
 /**
- * Like the organizations and the accounts: a person refuses a change exactly when it does not offer it, and
- * offers it to the person themself, or to a member with the right for a person their account prospects.
+ * Like the organizations and the accounts: a person refuses a change exactly when the policy does not offer it
+ * (ADR 0088), which offers it to the person themself, or to a member with the right for a person their account
+ * prospects.
  */
 class PersonIntentsTest extends TestCase
 {
@@ -35,7 +37,7 @@ class PersonIntentsTest extends TestCase
     public function testAnIntentionIsRefusedExactlyWhenItIsNotOffered(PersonIntent $intent, Purpose $purpose, Reader $reader): void
     {
         $person = Person::collect(new PersonId(self::PERSON), new AccountId(self::ACCOUNT), $purpose, new \DateTimeImmutable());
-        $offered = in_array($intent, $person->possibleIntentsOf($reader), true);
+        $offered = in_array($intent, PersonPossibilities::given($reader, new PersonId(self::PERSON), new AccountId(self::ACCOUNT), $purpose), true);
 
         $accepted = $this->isAccepted($intent, $person, $reader);
 
@@ -68,8 +70,8 @@ class PersonIntentsTest extends TestCase
     {
         $withTheRight = new Reader(self::member(), new AccountId(self::ACCOUNT), new PersonId(self::COLLEAGUE), true);
 
-        $this->assertSame(PersonIntent::cases(), Person::collect(new PersonId(self::PERSON), new AccountId(self::ACCOUNT), Purpose::Prospecting, new \DateTimeImmutable())->possibleIntentsOf($withTheRight));
-        $this->assertSame([], Person::collect(new PersonId(self::PERSON), new AccountId(self::ACCOUNT), Purpose::Membership, new \DateTimeImmutable())->possibleIntentsOf($withTheRight));
+        $this->assertSame(PersonIntent::cases(), PersonPossibilities::given($withTheRight, new PersonId(self::PERSON), new AccountId(self::ACCOUNT), Purpose::Prospecting));
+        $this->assertSame([], PersonPossibilities::given($withTheRight, new PersonId(self::PERSON), new AccountId(self::ACCOUNT), Purpose::Membership));
     }
 
     private static function member(): MemberId

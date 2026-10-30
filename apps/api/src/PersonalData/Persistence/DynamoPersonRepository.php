@@ -3,7 +3,6 @@
 namespace App\PersonalData\Persistence;
 
 use App\Shared\Persistence\ConditionFailed;
-use App\Shared\Persistence\Documents;
 use App\Shared\Persistence\SearchIndexes;
 use App\Shared\Persistence\Table;
 use Prospecter\Core\PersonalData\Domain\Exception\UnknownPerson;
@@ -14,9 +13,6 @@ use Prospecter\Core\SharedKernel\Domain\AccountId;
 use Prospecter\Core\SharedKernel\Domain\Email;
 use Prospecter\Core\SharedKernel\Domain\Exception\EmailAlreadyUsed;
 use Prospecter\Core\SharedKernel\Domain\PersonId;
-use Prospecter\Core\SharedKernel\Domain\PhoneNumber;
-use Prospecter\Core\SharedKernel\Domain\SearchKey;
-use Prospecter\Core\SharedKernel\Domain\Slice;
 
 /**
  * The persons in the table of PersonalData (ADR 0048):
@@ -29,7 +25,6 @@ use Prospecter\Core\SharedKernel\Domain\Slice;
  */
 final readonly class DynamoPersonRepository implements PersonRepository
 {
-    private const string PERSON = 'PERSON';
     private const string EMAIL = 'EMAIL';
 
     public function __construct(private Table $personalDataTable)
@@ -38,7 +33,7 @@ final readonly class DynamoPersonRepository implements PersonRepository
 
     public function get(PersonId $id): Person
     {
-        $item = $this->personalDataTable->item(self::keyOf($id), self::PERSON) ?? throw UnknownPerson::identifiedBy($id);
+        $item = $this->personalDataTable->item(PersonalDataKeys::person($id->value), PersonalDataKeys::PERSON) ?? throw UnknownPerson::identifiedBy($id);
 
         return PersonDocument::person($item['person']);
     }
@@ -48,40 +43,7 @@ final readonly class DynamoPersonRepository implements PersonRepository
      */
     public function ofIds(array $ids): array
     {
-        return $this->personsOf($this->personalDataTable->items(array_map(static fn (PersonId $id): array => [self::keyOf($id), self::PERSON], $ids)));
-    }
-
-    /**
-     * Without a search, the account lists its persons in GSI1; a search asks the indexes of the search (ADR 0071).
-     */
-    public function sliceOf(AccountId $accountId, Purpose $purpose, ?SearchKey $search, ?string $after, int $max): Slice
-    {
-        $found = null === $search
-            ? $this->personsOf($this->personalDataTable->query(self::listKey($accountId, $purpose), Table::BY_GSI1, $after, $max + 1))
-            : $this->inTheOrderOf(SearchIndexes::found($this->personalDataTable, self::scopeOf($accountId, $purpose), $search, null === $after ? null : self::keyOf(new PersonId($after)), $max + 1));
-
-        return Documents::slice($found, $max, static fn (Person $person): string => (string) $person->id());
-    }
-
-    /**
-     * @param list<string> $keys partition keys of persons
-     *
-     * @return list<Person>
-     */
-    private function inTheOrderOf(array $keys): array
-    {
-        $persons = [];
-
-        foreach ($this->personsOf($this->personalDataTable->items(array_map(static fn (string $key): array => [$key, self::PERSON], $keys))) as $person) {
-            $persons[self::keyOf($person->id())] = $person;
-        }
-
-        return array_values(array_filter(array_map(static fn (string $key): ?Person => $persons[$key] ?? null, $keys)));
-    }
-
-    public function withPhoneNumber(AccountId $accountId, Purpose $purpose, PhoneNumber $phoneNumber): array
-    {
-        return $this->inTheOrderOf(SearchIndexes::withPhoneNumber($this->personalDataTable, self::scopeOf($accountId, $purpose), $phoneNumber));
+        return $this->personsOf($this->personalDataTable->items(array_map(static fn (PersonId $id): array => [PersonalDataKeys::person($id->value), PersonalDataKeys::PERSON], $ids)));
     }
 
     public function remove(Person $person): void
@@ -89,7 +51,7 @@ final readonly class DynamoPersonRepository implements PersonRepository
         $email = $person->contactDetails()->email?->value;
 
         $this->personalDataTable->transact([
-            $this->personalDataTable->deleting(self::keyOf($person->id()), self::PERSON),
+            $this->personalDataTable->deleting(PersonalDataKeys::person($person->id()->value), PersonalDataKeys::PERSON),
             ...(null === $email ? [] : [$this->personalDataTable->deleting(self::emailKey($person->accountId(), $person->purpose(), $email), self::EMAIL)]),
         ]);
     }
@@ -104,7 +66,7 @@ final readonly class DynamoPersonRepository implements PersonRepository
     public function save(Person $person): void
     {
         $document = PersonDocument::of($person);
-        $storedEmail = $this->personalDataTable->item(self::keyOf($person->id()), self::PERSON)['email'] ?? null;
+        $storedEmail = $this->personalDataTable->item(PersonalDataKeys::person($person->id()->value), PersonalDataKeys::PERSON)['email'] ?? null;
         $email = $document['contactDetails']['email'];
         $writes = [$this->personalDataTable->putting($this->itemOf($person, $document))];
 
@@ -132,7 +94,7 @@ final readonly class DynamoPersonRepository implements PersonRepository
      */
     public function writeTheSearchKeysAgain(): int
     {
-        $items = $this->personalDataTable->scan(self::PERSON.'#');
+        $items = $this->personalDataTable->scan(PersonalDataKeys::PERSON.'#');
         $this->personalDataTable->batch(
             array_map(fn (array $item): array => $this->itemOf(PersonDocument::person($item['person']), $item['person']), $items),
             array_map(static fn (array $former): array => [$former['PK'], $former['SK']], $this->personalDataTable->scan('TOKEN')),
@@ -148,10 +110,10 @@ final readonly class DynamoPersonRepository implements PersonRepository
      */
     private function itemOf(Person $person, array $document): array
     {
-        return SearchIndexes::of(self::scopeOf($person->accountId(), $person->purpose()), $person->searchKeys(), $person->contactDetails()->phoneNumber) + [
-            'PK' => self::keyOf(new PersonId($document['id'])),
-            'SK' => self::PERSON,
-            'GSI1PK' => self::listKey(new AccountId($document['accountId']), Purpose::from($document['purpose'])),
+        return SearchIndexes::of(PersonalDataKeys::scopeOf($person->accountId(), $person->purpose()), $person->searchKeys(), $person->contactDetails()->phoneNumber) + [
+            'PK' => PersonalDataKeys::person($document['id']),
+            'SK' => PersonalDataKeys::PERSON,
+            'GSI1PK' => PersonalDataKeys::listOf(new AccountId($document['accountId']), Purpose::from($document['purpose'])),
             'GSI1SK' => $document['id'],
             'email' => $document['contactDetails']['email'],
             'person' => $document,
@@ -166,24 +128,6 @@ final readonly class DynamoPersonRepository implements PersonRepository
     private function personsOf(array $items): array
     {
         return array_map(static fn (array $item): Person => PersonDocument::person($item['person']), $items);
-    }
-
-    private static function keyOf(PersonId $id): string
-    {
-        return self::PERSON.'#'.$id->value;
-    }
-
-    /**
-     * What a person is searched among: the persons their account keeps for the same purpose.
-     */
-    private static function scopeOf(AccountId $accountId, Purpose $purpose): string
-    {
-        return $accountId->value.'#'.$purpose->value;
-    }
-
-    private static function listKey(AccountId $accountId, Purpose $purpose): string
-    {
-        return sprintf('ACCOUNT#%s#%s', $accountId->value, $purpose->value);
     }
 
     private static function emailKey(AccountId $accountId, Purpose $purpose, string $email): string

@@ -3,7 +3,7 @@
 namespace App\Contacts\Resource;
 
 use OpenApi\Attributes as OA;
-use Prospecter\Core\PersonalData\Application\PersonResponse;
+use Prospecter\Core\PersonalData\Application\PersonCard;
 use Prospecter\Core\Prospecting\Application\OrganizationSheet;
 
 /**
@@ -34,15 +34,15 @@ final readonly class InterlocutorResource
     }
 
     /**
-     * @param ?PersonResponse $person   none for a person no longer known
-     * @param ?string         $presence by the values of `ContactPresence`
+     * @param ?PersonCard $person   none for a person no longer known
+     * @param ?string     $presence by the values of `ContactPresence`
      */
-    public static function ofPerson(string $personId, ?PersonResponse $person, ?string $presence): self
+    public static function ofPerson(string $personId, ?PersonCard $person, ?string $presence): self
     {
         return new self(self::PERSON, $personId, null === $person ? null : self::fullNameOf($person), $presence);
     }
 
-    private static function fullNameOf(PersonResponse $person): ?string
+    private static function fullNameOf(PersonCard $person): ?string
     {
         $name = trim(sprintf('%s %s', $person->firstName, $person->lastName));
 

@@ -9,7 +9,7 @@ use App\Shared\Links;
 use App\Shared\Resource\ContactDetailsResource;
 use App\Shared\Resource\LinkResource;
 use Prospecter\Core\PersonalData\Application\ConsultPerson\ConsultPersonOutput;
-use Prospecter\Core\PersonalData\Application\PersonResponse;
+use Prospecter\Core\PersonalData\Application\PersonCard;
 use Prospecter\Core\Prospecting\Application\ConsultTimelineIntents\TimelineIntentsResponse;
 
 /**
@@ -35,7 +35,7 @@ final class ContactResourcePresenter implements ConsultPersonOutput
     {
     }
 
-    public function present(PersonResponse $contact): void
+    public function present(PersonCard $contact): void
     {
         $this->resource = new ContactResource(
             id: $contact->id,
@@ -47,7 +47,7 @@ final class ContactResourcePresenter implements ConsultPersonOutput
         );
     }
 
-    private function linksOf(PersonResponse $contact): ContactLinksResource
+    private function linksOf(PersonCard $contact): ContactLinksResource
     {
         $id = ['id' => $contact->id];
         $possible = [
