@@ -91,3 +91,4 @@ Why the project is shaped the way it is: one file per decision in `docs/adr/`, i
 | [0085](0085-a-query-presents-its-answer-to-a-presenter-built-for-the-call.md) | A query presents its answer to a presenter built for the call; a service is stateless | Accepted | 2026-10-26 |
 | [0086](0086-the-domain-of-a-context-is-grouped-by-kind-of-building-block.md) | The domain of a context is grouped by kind of building block | Accepted | 2026-10-28 |
 | [0087](0087-a-controller-is-named-after-its-intent-and-its-role.md) | A controller is named after its intent and its role; a property after its type, a repository after its collection | Accepted | 2026-10-30 |
+| [0088](0088-a-query-reads-its-read-model-through-a-port-a-policy-says-what-is-possible.md) | A query reads its read model through a port, in the table of the aggregate; a policy says what is possible | Proposed | 2026-10-30 |
