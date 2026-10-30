@@ -10,6 +10,7 @@ use Prospecter\Core\Accounts\Domain\Model\Account;
 use Prospecter\Core\Accounts\Domain\Model\AccountIntent;
 use Prospecter\Core\Accounts\Domain\Model\Member;
 use Prospecter\Core\Accounts\Domain\Model\Role;
+use Prospecter\Core\Accounts\Domain\Policy\AccountPossibilities;
 use Prospecter\Core\SharedKernel\Domain\AccountId;
 use Prospecter\Core\SharedKernel\Domain\Address;
 use Prospecter\Core\SharedKernel\Domain\Exception\NotFound;
@@ -19,7 +20,7 @@ use Prospecter\Core\SharedKernel\Domain\MemberId;
 use Prospecter\Core\SharedKernel\Domain\PersonId;
 
 /**
- * Like the organizations: the account refuses an intention exactly when it does not offer it.
+ * Like the organizations: the account refuses an intention exactly when the policy does not offer it (ADR 0088).
  */
 class AccountIntentsTest extends TestCase
 {
@@ -31,7 +32,7 @@ class AccountIntentsTest extends TestCase
     {
         $member = Member::register(new MemberId('0190a1c0-0000-7000-8000-0000000000aa'), new AccountId($memberAccount), new PersonId('0190a1c0-0000-7000-8000-0000000000bb'), Role::User);
         $account = Account::open(new AccountId(self::MINE), new LegalIdentity('SOLEAN IT'), new \DateTimeImmutable());
-        $offered = in_array($intent, $account->possibleIntentsOf($member), true);
+        $offered = in_array($intent, AccountPossibilities::given(self::MINE === $memberAccount), true);
 
         $accepted = $this->isAccepted($intent, $account, $member);
 

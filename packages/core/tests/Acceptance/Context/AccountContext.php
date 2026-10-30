@@ -9,8 +9,8 @@ use Behat\Gherkin\Node\TableNode;
 use Behat\Step\Given;
 use Behat\Step\Then;
 use Behat\Step\When;
-use Prospecter\Core\Accounts\Application\AccountResponse;
 use Prospecter\Core\Accounts\Application\ChangeMyOrganizationLogo\ChangeMyOrganizationLogo;
+use Prospecter\Core\Accounts\Application\MyAccount;
 use Prospecter\Core\Accounts\Application\OpenAccount\OpenAccount;
 use Prospecter\Core\Accounts\Application\RelocateMyOrganization\RelocateMyOrganization;
 use Prospecter\Core\Accounts\Application\ReviseMyOrganizationIdentity\ReviseMyOrganizationIdentity;
@@ -32,7 +32,7 @@ final class AccountContext implements Context
 {
     use SharesTheScenario;
 
-    private ?AccountResponse $account = null;
+    private ?MyAccount $account = null;
     private ?PersonResponse $myPerson = null;
 
     #[Given('mon profil est :')]

@@ -2,7 +2,7 @@
 
 namespace App\Security;
 
-use Prospecter\Core\Accounts\Application\AccountResponse;
+use Prospecter\Core\Accounts\Application\MyAccount;
 use Symfony\Component\Security\Core\User\UserInterface;
 
 /**
@@ -27,7 +27,7 @@ final readonly class User implements UserInterface
     ) {
     }
 
-    public static function from(AccountResponse $myAccount): self
+    public static function from(MyAccount $myAccount): self
     {
         return new self($myAccount->memberId, $myAccount->accountId, $myAccount->personId, $myAccount->roles);
     }

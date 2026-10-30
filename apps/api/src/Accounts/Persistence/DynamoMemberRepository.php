@@ -17,15 +17,13 @@ use Prospecter\Core\SharedKernel\Domain\PersonId;
  */
 final readonly class DynamoMemberRepository implements MemberRepository
 {
-    private const string MEMBER = 'MEMBER';
-
     public function __construct(private Table $accountsTable)
     {
     }
 
     public function get(MemberId $id): Member
     {
-        $item = $this->accountsTable->item(self::keyOf($id), self::MEMBER) ?? throw UnknownMember::identifiedBy($id);
+        $item = $this->accountsTable->item(AccountsKeys::member($id->value), AccountsKeys::MEMBER) ?? throw UnknownMember::identifiedBy($id);
         $document = $item['member'];
 
         return Hydrator::restore(Member::class, [
@@ -40,16 +38,11 @@ final readonly class DynamoMemberRepository implements MemberRepository
     {
         $state = Hydrator::stateOf($member);
 
-        $this->accountsTable->transact([$this->accountsTable->putting(['PK' => self::keyOf($member->id()), 'SK' => self::MEMBER, 'member' => [
+        $this->accountsTable->transact([$this->accountsTable->putting(['PK' => AccountsKeys::member($member->id()->value), 'SK' => AccountsKeys::MEMBER, 'member' => [
             'id' => (string) $state['id'],
             'accountId' => (string) $state['accountId'],
             'personId' => (string) $state['personId'],
             'roles' => array_map(static fn (Role $role): string => $role->value, $state['roles']),
         ]])]);
-    }
-
-    private static function keyOf(MemberId $id): string
-    {
-        return self::MEMBER.'#'.$id->value;
     }
 }

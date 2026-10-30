@@ -12,7 +12,7 @@ use App\Shared\Resource\AddressResource;
 use App\Shared\Resource\ContactDetailsResource;
 use App\Shared\Resource\LegalIdentityResource;
 use App\Shared\Resource\LocationResource;
-use Prospecter\Core\Accounts\Application\AccountResponse;
+use Prospecter\Core\Accounts\Application\MyAccount;
 use Prospecter\Core\PersonalData\Application\ConsultPerson\ConsultPersonOutput;
 use Prospecter\Core\PersonalData\Application\PersonResponse;
 
@@ -37,7 +37,7 @@ final class AccountResourcePresenter implements ConsultPersonOutput
 
     public private(set) AccountResource $resource;
 
-    public function __construct(private readonly AccountResponse $account, private readonly ImageResourceFactory $imageResourceFactory, private readonly Links $links)
+    public function __construct(private readonly MyAccount $account, private readonly ImageResourceFactory $imageResourceFactory, private readonly Links $links)
     {
     }
 
