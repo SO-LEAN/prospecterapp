@@ -4,10 +4,12 @@ declare(strict_types=1);
 
 namespace Prospecter\Core\Prospecting\Application\SearchProspectedOrganizations;
 
-use Prospecter\Core\Prospecting\Domain\Model\Organization;
 use Prospecter\Core\SharedKernel\Domain\Slice;
 
-final readonly class SearchProspectedOrganizationsResponse
+/**
+ * A slice of the organizations an account prospects, as a list shows them.
+ */
+final readonly class FoundOrganizationPage
 {
     /**
      * @param list<FoundOrganization> $organizations
@@ -20,10 +22,10 @@ final readonly class SearchProspectedOrganizationsResponse
     }
 
     /**
-     * @param Slice<Organization> $slice
+     * @param Slice<FoundOrganization> $slice
      */
     public static function of(Slice $slice): self
     {
-        return new self(array_map(FoundOrganization::of(...), $slice->content), $slice->next);
+        return new self($slice->content, $slice->next);
     }
 }

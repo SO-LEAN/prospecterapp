@@ -97,10 +97,10 @@ use Prospecter\Core\Prospecting\Application\RemoveAttachment\RemoveAttachmentHan
 use Prospecter\Core\Prospecting\Application\RemoveContact\RemoveContactHandler;
 use Prospecter\Core\Prospecting\Application\RemoveLogo\RemoveLogoHandler;
 use Prospecter\Core\Prospecting\Application\ReviseLegalIdentity\ReviseLegalIdentityHandler;
+use Prospecter\Core\Prospecting\Application\SearchProspectedOrganizations\FoundOrganizationPage;
 use Prospecter\Core\Prospecting\Application\SearchProspectedOrganizations\KeptOrganizationPage;
 use Prospecter\Core\Prospecting\Application\SearchProspectedOrganizations\SearchProspectedOrganizations;
 use Prospecter\Core\Prospecting\Application\SearchProspectedOrganizations\SearchProspectedOrganizationsHandler;
-use Prospecter\Core\Prospecting\Application\SearchProspectedOrganizations\SearchProspectedOrganizationsResponse;
 use Prospecter\Core\Prospecting\Application\StartProspecting\StartProspectingHandler;
 use Prospecter\Core\Prospecting\Application\StopKeepingExchanges\StopKeepingExchangesHandler;
 use Prospecter\Core\Prospecting\Application\StopProspecting\StopProspectingHandler;
@@ -124,6 +124,7 @@ use Tests\Core\Double\AccountsReaders;
 use Tests\Core\Double\InMemoryAccountRepository;
 use Tests\Core\Double\InMemoryDatabase;
 use Tests\Core\Double\InMemoryExchangeRepository;
+use Tests\Core\Double\InMemoryFoundOrganizationRetriever;
 use Tests\Core\Double\InMemoryMemberRepository;
 use Tests\Core\Double\InMemoryOrganizationRepository;
 use Tests\Core\Double\InMemoryPersonRepository;
@@ -146,6 +147,7 @@ final class Application
     private const string FIRST_DAY = '2026-10-15 09:00';
 
     public readonly InMemoryOrganizationRepository $organizations;
+    public readonly InMemoryFoundOrganizationRetriever $foundOrganizationRetriever;
     public readonly InMemoryExchangeRepository $exchanges;
     public readonly InMemoryAccountRepository $accounts;
     public readonly InMemoryMemberRepository $members;
@@ -179,6 +181,7 @@ final class Application
         $this->now = new \DateTimeImmutable(self::FIRST_DAY);
         $this->uuids = new TimeOrderedUuids();
         $this->organizations = new InMemoryOrganizationRepository($database);
+        $this->foundOrganizationRetriever = new InMemoryFoundOrganizationRetriever($database);
         $this->exchanges = new InMemoryExchangeRepository($database);
         $this->accounts = new InMemoryAccountRepository($database);
         $this->members = new InMemoryMemberRepository($database);
@@ -254,11 +257,11 @@ final class Application
         return $this->ask(new ConsultOrganizationHandler($this->organizations), $query, $kept) ? $kept->organization : null;
     }
 
-    public function searchProspectedOrganizations(SearchProspectedOrganizations $query): ?SearchProspectedOrganizationsResponse
+    public function searchProspectedOrganizations(SearchProspectedOrganizations $query): ?FoundOrganizationPage
     {
         $kept = new KeptOrganizationPage();
 
-        return $this->ask(new SearchProspectedOrganizationsHandler($this->organizations, $this->prospectors), $query, $kept) ? $kept->page : null;
+        return $this->ask(new SearchProspectedOrganizationsHandler($this->foundOrganizationRetriever, $this->prospectors), $query, $kept) ? $kept->page : null;
     }
 
     public function consultMyAccount(): ?AccountResponse

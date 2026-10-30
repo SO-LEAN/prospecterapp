@@ -9,9 +9,9 @@ namespace Prospecter\Core\Prospecting\Application\SearchProspectedOrganizations;
  */
 final class KeptOrganizationPage implements SearchProspectedOrganizationsOutput
 {
-    public private(set) SearchProspectedOrganizationsResponse $page;
+    public private(set) FoundOrganizationPage $page;
 
-    public function present(SearchProspectedOrganizationsResponse $page): void
+    public function present(FoundOrganizationPage $page): void
     {
         $this->page = $page;
     }

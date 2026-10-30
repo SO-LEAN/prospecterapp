@@ -11,9 +11,6 @@ use Prospecter\Core\SharedKernel\Domain\AccountId;
 use Prospecter\Core\SharedKernel\Domain\Email;
 use Prospecter\Core\SharedKernel\Domain\OrganizationId;
 use Prospecter\Core\SharedKernel\Domain\PhoneNumber;
-use Prospecter\Core\SharedKernel\Domain\SearchKey;
-use Prospecter\Core\SharedKernel\Domain\SearchKeys;
-use Prospecter\Core\SharedKernel\Domain\Slice;
 
 final readonly class InMemoryOrganizationRepository implements OrganizationRepository
 {
@@ -54,11 +51,6 @@ final readonly class InMemoryOrganizationRepository implements OrganizationRepos
     public function withPhoneNumber(AccountId $accountId, PhoneNumber $phoneNumber): array
     {
         return array_values(array_filter($this->prospectedBy($accountId), static fn (Organization $organization): bool => $organization->contactDetails()->phoneNumber?->value === $phoneNumber->value));
-    }
-
-    public function sliceProspectedBy(AccountId $accountId, ?SearchKey $search, ?string $after, int $max): Slice
-    {
-        return NewestFirst::slice($this->prospectedBy($accountId), static fn (Organization $organization): string => (string) $organization->id(), static fn (Organization $organization): SearchKeys => $organization->searchKeys(), $search, $after, $max);
     }
 
     /**

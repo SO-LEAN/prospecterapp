@@ -21,8 +21,8 @@ use Prospecter\Core\Prospecting\Application\RemoveContact\RemoveContact;
 use Prospecter\Core\Prospecting\Application\RemoveLogo\RemoveLogo;
 use Prospecter\Core\Prospecting\Application\ReviseLegalIdentity\ReviseLegalIdentity;
 use Prospecter\Core\Prospecting\Application\SearchProspectedOrganizations\FoundOrganization;
+use Prospecter\Core\Prospecting\Application\SearchProspectedOrganizations\FoundOrganizationPage;
 use Prospecter\Core\Prospecting\Application\SearchProspectedOrganizations\SearchProspectedOrganizations;
-use Prospecter\Core\Prospecting\Application\SearchProspectedOrganizations\SearchProspectedOrganizationsResponse;
 use Prospecter\Core\Prospecting\Application\StartProspecting\StartProspecting;
 use Prospecter\Core\Prospecting\Application\StopProspecting\StopProspecting;
 use Prospecter\Core\Prospecting\Application\WriteObservations\WriteObservations;
@@ -41,7 +41,7 @@ final class OrganizationContext implements Context
     use SharesTheScenario;
 
     private ?OrganizationResponse $consulted = null;
-    private ?SearchProspectedOrganizationsResponse $found = null;
+    private ?FoundOrganizationPage $found = null;
     private int $max = 20;
 
     #[Given('l\'organisation :name fait partie de mes organisations')]
@@ -267,7 +267,7 @@ final class OrganizationContext implements Context
     #[Then('l\'organisation :name compte :count organisation(s) active(s)')]
     public function theOrganizationCountsActiveOrganizations(string $name, int $count): void
     {
-        Expect::same($count, count($this->application->organizations->sliceProspectedBy($this->scenario->accountIdOf($name), null, null, PHP_INT_MAX)->content));
+        Expect::same($count, count($this->application->foundOrganizationRetriever->sliceProspectedBy($this->scenario->accountIdOf($name), null, null, PHP_INT_MAX)->organizations));
     }
 
     #[Then('je vois l\'organisation :')]

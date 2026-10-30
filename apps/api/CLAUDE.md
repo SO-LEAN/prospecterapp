@@ -46,6 +46,7 @@ See `docs/auth.md` at the repository root. The members sign in on Cognito (the S
 | `Accounts\Domain\Repository\AccountRepository`, `Accounts\Domain\Repository\MemberRepository` | `Accounts\Persistence\DynamoAccountRepository`, `DynamoMemberRepository` |
 | `Prospecting\Domain\Repository\OrganizationRepository` | `Prospecting\Persistence\DynamoOrganizationRepository` |
 | `Prospecting\Domain\Repository\ExchangeRepository` | `Prospecting\Persistence\DynamoExchangeRepository` |
+| `Prospecting\Application\Port\FoundOrganizationRetriever` | `Prospecting\Persistence\DynamoFoundOrganizationRetriever`: the organizations of a search read from the items of `DynamoOrganizationRepository`, without restoring them (ADR 0088) |
 | `PersonalData\Domain\Repository\PersonRepository` | `PersonalData\Persistence\DynamoPersonRepository` |
 | `PersonalData\Domain\Port\Readers` | `PersonalData\AntiCorruption\AccountsReaders`: anticorruption layer from the published query `ConsultMember` of Accounts (ADR 0045) |
 | `Prospecting\Domain\Port\Prospectors` | `Prospecting\AntiCorruption\AccountsProspectors`: anticorruption layer from the published query `ConsultMember` of Accounts (with the right to manage personal data) |
