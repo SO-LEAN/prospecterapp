@@ -55,9 +55,20 @@ class DynamoAccountsRetrieversTest extends ApiTestCase
         $account = $this->anAccount();
         $member = $this->aMemberOf($account, ...$roles);
 
-        $published = self::getContainer()->get(MemberRetriever::class)->get($member->id());
+        $published = self::getContainer()->get(MemberRetriever::class)->ofIds([$member->id()])[$member->id()->value];
 
         $this->assertSame([$member->id()->value, $account->id()->value, Hydrator::stateOf($member)['personId']->value, $readsPersonalData], [$published->id, $published->accountId, $published->personId, $published->readsPersonalData]);
+    }
+
+    public function testTheMembersAreReadInOneBatchTheUnknownOnesAbsent(): void
+    {
+        $account = $this->anAccount();
+        $member = $this->aMemberOf($account, Role::User, Role::Prospector);
+        $unknown = new MemberId(self::newIdentity());
+
+        $members = self::getContainer()->get(MemberRetriever::class)->ofIds([$member->id(), $unknown]);
+
+        $this->assertSame([$member->id()->value], array_keys($members));
     }
 
     /**

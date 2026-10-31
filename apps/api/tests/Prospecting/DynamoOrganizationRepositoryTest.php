@@ -100,6 +100,17 @@ class DynamoOrganizationRepositoryTest extends ApiTestCase
         $this->assertEquals($acme, $organizations->get($acme->id()));
     }
 
+    public function testTheOrganizationsThatExistAmongIdsAreReadInOneBatch(): void
+    {
+        $organizations = self::getContainer()->get(OrganizationRepository::class);
+        $acme = $this->organizationWithTheEmail(new Prospector(new MemberId(self::newIdentity()), new AccountId(self::newIdentity())), 'contact@acme.test');
+        $organizations->save($acme);
+
+        $found = $organizations->ofIds([$acme->id(), new OrganizationId(self::newIdentity())]);
+
+        $this->assertEquals([$acme->id()], array_map(static fn (Organization $organization): OrganizationId => $organization->id(), $found));
+    }
+
     private function organizationWithTheEmail(Prospector $prospector, string $email): Organization
     {
         return Organization::prospectedBy($prospector, new OrganizationId(self::newIdentity()), new LegalIdentity(), new ContactDetails(new Email($email)), new \DateTimeImmutable());

@@ -20,6 +20,15 @@ interface OrganizationRepository
     public function get(OrganizationId $id): Organization;
 
     /**
+     * The organizations that exist among these ids, in no particular order.
+     *
+     * @param list<OrganizationId> $ids
+     *
+     * @return list<Organization>
+     */
+    public function ofIds(array $ids): array;
+
+    /**
      * Whether another organization of the prospecting base of the account has this email.
      */
     public function isEmailUsed(AccountId $accountId, Email $email, OrganizationId $except): bool;

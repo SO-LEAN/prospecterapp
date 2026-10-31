@@ -73,6 +73,11 @@ services:
     App\Shared\Persistence\Table $personalDataTable: '@app.table.personal_data'
     App\Shared\Persistence\Table $prospectingTable: '@app.table.prospecting'
 
+    # The services the contexts offer each other, answered in process by the handlers of their Contracts (ADR 0089)
+    Prospecter\Core\Accounts\Contract\Service\ConsultMembers\ConsultMembersService: '@Prospecter\Core\Accounts\Application\ConsultMembers\ConsultMembersHandler'
+    Prospecter\Core\PersonalData\Contract\Service\WhichAreContacts\WhichAreContactsService: '@Prospecter\Core\PersonalData\Application\WhichAreContacts\WhichAreContactsHandler'
+    Prospecter\Core\Prospecting\Contract\Service\WhichAreProspected\WhichAreProspectedService: '@Prospecter\Core\Prospecting\Application\WhichAreProspected\WhichAreProspectedHandler'
+
     # Ports of the core, implemented by the application
     Prospecter\Core\Accounts\Domain\Repository\AccountRepository: '@App\Accounts\Persistence\DynamoAccountRepository'
     Prospecter\Core\Accounts\Domain\Repository\MemberRepository: '@App\Accounts\Persistence\DynamoMemberRepository'

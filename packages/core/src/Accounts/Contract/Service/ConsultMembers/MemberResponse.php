@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Prospecter\Core\Accounts\Contract\Service\ConsultMember;
+namespace Prospecter\Core\Accounts\Contract\Service\ConsultMembers;
 
 /**
  * The published language of a member (ADR 0045, 0047): only what the other contexts need, it changes with them,

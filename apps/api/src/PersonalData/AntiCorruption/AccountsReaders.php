@@ -2,44 +2,31 @@
 
 namespace App\PersonalData\AntiCorruption;
 
-use Prospecter\Core\Accounts\Contract\Service\ConsultMember\ConsultMember;
-use Prospecter\Core\Accounts\Contract\Service\ConsultMember\KeptMember;
-use Prospecter\Core\Accounts\Contract\Service\ConsultMember\MemberResponse;
+use Prospecter\Core\Accounts\Contract\Service\ConsultMembers\ConsultMembers;
+use Prospecter\Core\Accounts\Contract\Service\ConsultMembers\ConsultMembersService;
+use Prospecter\Core\Accounts\Contract\Service\ConsultMembers\KeptMembers;
 use Prospecter\Core\PersonalData\Domain\Exception\UnknownReader;
 use Prospecter\Core\PersonalData\Domain\Model\Reader;
 use Prospecter\Core\PersonalData\Domain\Port\Readers;
-use Prospecter\Core\SharedKernel\Application\Exception\UseCaseRefused;
-use Prospecter\Core\SharedKernel\Application\RefusalTranslatingHandler;
 use Prospecter\Core\SharedKernel\Domain\AccountId;
 use Prospecter\Core\SharedKernel\Domain\MemberId;
 use Prospecter\Core\SharedKernel\Domain\PersonId;
 
 /**
- * Anticorruption layer (ADR 0045): PersonalData knows readers, Accounts publishes its members.
+ * Anticorruption layer (ADR 0045, 0089): PersonalData knows readers, Accounts publishes its members.
  */
 final readonly class AccountsReaders implements Readers
 {
-    public function __construct(private RefusalTranslatingHandler $consultMember)
+    public function __construct(private ConsultMembersService $consultMembersService)
     {
     }
 
     public function readerFrom(MemberId $id): Reader
     {
-        $member = $this->memberOf($id);
+        $kept = new KeptMembers();
+        ($this->consultMembersService)(new ConsultMembers([$id->value]), $kept);
+        $member = $kept->members[$id->value] ?? throw UnknownReader::identifiedBy($id);
 
         return new Reader($id, new AccountId($member->accountId), new PersonId($member->personId), $member->readsPersonalData);
-    }
-
-    private function memberOf(MemberId $id): MemberResponse
-    {
-        $kept = new KeptMember();
-
-        try {
-            ($this->consultMember)(new ConsultMember((string) $id), $kept);
-        } catch (UseCaseRefused) {
-            throw UnknownReader::identifiedBy($id);
-        }
-
-        return $kept->member;
     }
 }
