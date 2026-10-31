@@ -4,6 +4,11 @@
     "allow": [
       "Bash(make test-core:*)",
       "Bash(make test-front:*)",
+      "Bash(make ci)",
+      "Bash(make test)",
+      "Bash(make test-api:*)",
+      "Bash(make test-storage:*)",
+      "Bash(make e2e)",
       "Bash(make lint:*)",
       "Bash(make fix)",
       "Bash(make contract)",

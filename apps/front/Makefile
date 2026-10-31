@@ -8,7 +8,7 @@ install: ## Install the pnpm dependencies of the front
 	@$(NODE) pnpm install
 
 test: ## Run the tests of the front (Vitest); FILTER= a test file by its path or a part of it
-	@$(NODE) pnpm test $(if $(FILTER),'$(FILTER)')
+	@$(NODE) pnpm test --reporter=dot --silent=passed-only $(if $(FILTER),'$(FILTER)')
 
 # TypeScript checks the whole project: the types of a file depend on the others
 lint: ## Check the code of the front: Biome, TypeScript; FILTER= paths of the project, for Biome
