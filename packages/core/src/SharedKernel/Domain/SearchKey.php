@@ -20,9 +20,13 @@ final readonly class SearchKey implements \Stringable
     /**
      * Null when the text has no letter nor digit: nothing to compare.
      */
+    #[\NoDiscard]
     public static function of(?string $text): ?self
     {
-        $value = (string) preg_replace([self::ACCENT, self::NEITHER_A_LETTER_NOR_A_DIGIT], '', (string) \Normalizer::normalize(mb_strtolower((string) $text), \Normalizer::FORM_D));
+        $value = (string) $text
+            |> mb_strtolower(...)
+            |> (static fn (string $lower): string => (string) \Normalizer::normalize($lower, \Normalizer::FORM_D))
+            |> (static fn (string $decomposed): string => (string) preg_replace([self::ACCENT, self::NEITHER_A_LETTER_NOR_A_DIGIT], '', $decomposed));
 
         return '' === $value ? null : new self($value);
     }

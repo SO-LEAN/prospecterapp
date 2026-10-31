@@ -20,6 +20,7 @@ final class PersonPossibilities
     /**
      * @return list<PersonIntent>
      */
+    #[\NoDiscard]
     public static function given(Reader $reader, PersonId $person, AccountId $accountOfThePerson, Purpose $purpose): array
     {
         if (!PersonReading::isReachableBy($reader, $accountOfThePerson)) {
@@ -32,6 +33,7 @@ final class PersonPossibilities
     /**
      * For a person the reader reaches.
      */
+    #[\NoDiscard]
     public static function allows(PersonIntent $intent, Reader $reader, PersonId $person, Purpose $purpose): bool
     {
         $isAContactManagedByTheReader = Purpose::Prospecting === $purpose && $reader->readsPersonalData;

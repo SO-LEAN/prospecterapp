@@ -15,6 +15,7 @@ final class AccountPossibilities
     /**
      * @return list<AccountIntent>
      */
+    #[\NoDiscard]
     public static function given(bool $isAMember): array
     {
         return $isAMember ? AccountIntent::cases() : [];

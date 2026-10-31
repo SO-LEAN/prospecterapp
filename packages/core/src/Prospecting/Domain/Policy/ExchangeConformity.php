@@ -10,11 +10,13 @@ namespace Prospecter\Core\Prospecting\Domain\Policy;
  */
 final class ExchangeConformity
 {
+    #[\NoDiscard]
     public static function awaitsBeingMadeConform(bool $contactForgotten, bool $declaredConform): bool
     {
         return $contactForgotten && !$declaredConform;
     }
 
+    #[\NoDiscard]
     public static function isTextToMakeConform(bool $hasText, bool $contactForgotten, bool $declaredConform): bool
     {
         return $hasText && self::awaitsBeingMadeConform($contactForgotten, $declaredConform);
@@ -23,11 +25,13 @@ final class ExchangeConformity
     /**
      * A file is made conform by removing it.
      */
+    #[\NoDiscard]
     public static function areAttachmentsToMakeConform(bool $contactForgotten): bool
     {
         return $contactForgotten;
     }
 
+    #[\NoDiscard]
     public static function isToMakeConform(bool $contactForgotten, bool $declaredConform, bool $hasAttachments): bool
     {
         return self::awaitsBeingMadeConform($contactForgotten, $declaredConform) || (self::areAttachmentsToMakeConform($contactForgotten) && $hasAttachments);

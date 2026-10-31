@@ -101,10 +101,10 @@ final readonly class UserPool
         do {
             $result = $this->cognito->listUserPools($request);
 
-            foreach ($result['UserPools'] ?? [] as $pool) {
-                if ($this->name === $pool['Name']) {
-                    return $pool;
-                }
+            $pool = array_find($result['UserPools'] ?? [], fn (array $pool): bool => $this->name === $pool['Name']);
+
+            if (null !== $pool) {
+                return $pool;
             }
 
             $request['NextToken'] = $result['NextToken'] ?? null;
@@ -115,13 +115,10 @@ final readonly class UserPool
 
     private function clientNamed(string $name, string $poolId): string
     {
-        foreach ($this->cognito->listUserPoolClients(['UserPoolId' => $poolId, 'MaxResults' => self::LIST_SIZE])['UserPoolClients'] ?? [] as $client) {
-            if ($name === $client['ClientName']) {
-                return $client['ClientId'];
-            }
-        }
+        $clients = $this->cognito->listUserPoolClients(['UserPoolId' => $poolId, 'MaxResults' => self::LIST_SIZE])['UserPoolClients'] ?? [];
+        $client = array_find($clients, static fn (array $client): bool => $name === $client['ClientName']);
 
-        throw new \LogicException(sprintf('No client "%s" in the user pool "%s"', $name, $this->name));
+        return $client['ClientId'] ?? throw new \LogicException(sprintf('No client "%s" in the user pool "%s"', $name, $this->name));
     }
 
     private function cacheKey(string $what): string

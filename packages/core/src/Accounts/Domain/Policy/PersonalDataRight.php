@@ -12,6 +12,7 @@ use Prospecter\Core\Accounts\Domain\Model\Role;
  */
 final class PersonalDataRight
 {
+    #[\NoDiscard]
     public static function isGrantedBy(Role ...$roles): bool
     {
         return in_array(Role::PersonalData, $roles, true) || in_array(Role::Admin, $roles, true);
