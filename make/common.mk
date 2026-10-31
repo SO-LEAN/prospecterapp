@@ -10,11 +10,12 @@ MAKEFLAGS += --no-print-directory
 DC = docker compose --project-directory $(ROOT)
 # the whole repository is mounted in the containers: a project runs in its own directory there
 WORKDIR = /var/www/src$(patsubst $(ROOT)%,%,$(CURDIR))
-PHP  = $(DC) run --rm --no-deps -w $(WORKDIR) php
-NODE = $(DC) run --rm --no-deps -w $(WORKDIR) node
+# a command prints its own output only, not the creation of its container: what the agents read stays short
+PHP  = $(DC) --progress quiet run --rm --no-deps -w $(WORKDIR) php
+NODE = $(DC) --progress quiet run --rm --no-deps -w $(WORKDIR) node
 # the checks of a PHP project, on its whole code or on the paths of FILTER (php-cs-fixer keeping the exclusions of
 # its finder); PHPStan analyses the whole project, a class reading its properties in traits it may not be given
-PHP_LINT = vendor/bin/phpstan analyse --no-progress && vendor/bin/php-cs-fixer fix --dry-run --diff $(if $(FILTER),--path-mode=intersection $(FILTER)) && vendor/bin/rector process --dry-run $(FILTER)
+PHP_LINT = vendor/bin/phpstan analyse --no-progress && vendor/bin/php-cs-fixer fix --dry-run --diff --show-progress=none $(if $(FILTER),--path-mode=intersection $(FILTER)) && vendor/bin/rector process --dry-run $(FILTER)
 # the API and the storage run in Lambdas with the Bref layers (ADR 0055): the repository is mounted in the
 # functions by its absolute path
 export PROJECT_DIR := $(ROOT)

@@ -9,7 +9,7 @@ export default defineConfig({
   // The journeys sign the same demonstration member in, and signing out signs it out everywhere (Cognito global
   // sign-out): run in parallel, one journey would sign the others out.
   workers: 1,
-  reporter: [['list'], ['html', { open: 'never' }]],
+  reporter: [['dot'], ['html', { open: 'never' }]],
   use: {
     baseURL: 'https://local.prospecter.io',
     ignoreHTTPSErrors: true,
