@@ -38,7 +38,7 @@ services:
             - '../src/Shared/Persistence/Table.php'
 
     # Handlers of the core: commands go through the command bus, queries are called by the controllers, the
-    # published queries by the anticorruption layers of the other contexts (ADR 0045)
+    # published services by the anticorruption layers of the other contexts (ADR 0045, 0089)
     Prospecter\Core\:
         resource: '../vendor/prospecter/core/src/{Accounts,PersonalData,Prospecting}/Application/*/*Handler.php'
 

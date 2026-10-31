@@ -7,7 +7,7 @@ use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
 
 /**
- * The API is grouped by bounded context like the core (ADR 0030): a context folder uses neither the other
+ * The API is grouped by bounded context like the core (ADR 0030, 0045, 0047): a context folder uses neither the other
  * context of the core nor its API folder; `Me` and `Dashboard` compose contexts. The exceptions cross the
  * border on purpose.
  */

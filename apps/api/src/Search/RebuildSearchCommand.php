@@ -10,7 +10,7 @@ use Symfony\Component\Console\Style\SymfonyStyle;
 
 /**
  * Writes again the search keys of the organizations and of the persons (ADR 0071), forgetting the items of the
- * former search (ADR 0050): once on tables written before, then whenever the keys of an aggregate change of
+ * former search, before ADR 0071: once on tables written before, then whenever the keys of an aggregate change of
  * rule. It can run any number of times.
  */
 #[AsCommand(name: 'app:search:rebuild', description: 'Write again the search keys of the organizations and of the persons')]

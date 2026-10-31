@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Prospecter\Core\PersonalData\Application\ForgetContact;
 
 /**
- * Erases a prospected person: the organizations that still name them ignore them from then on (ADR 0041).
+ * Erases a prospected person: every organization naming them lets them go, their exchanges staying to make conform (ADR 0042, 0079).
  */
 final readonly class ForgetContact
 {

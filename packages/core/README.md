@@ -19,7 +19,7 @@ Next: the GDPR rights (anonymization, access export), then the prospecting event
 ## How it is shaped
 
 - `src/<Context>/Domain`: aggregates (`Organization`, `Account`, `Person`), value objects, repository interfaces and other ports, business exceptions in `Domain/Exception`.
-- `src/<Context>/Application/<Intent>`: one use case per business intent, CQRS (ADR 0029): a command and its `CommandHandler` change the state and return nothing; a query and its `QueryHandler` answer a response.
+- `src/<Context>/Application/<Intent>`: one use case per business intent, CQRS (ADR 0029): a command and its `CommandHandler` change the state and return nothing; a query and its `QueryHandler` present the answer to the output port its client gives (ADR 0085), read through a port of the application (ADR 0088).
 - Requests and responses are plain data, never a class of the domain (ADR 0035); the client gives the identity of what it creates and the moment of each command (ADR 0036).
 - A client calls every handler through `RefusalTranslatingHandler`: a refusal of the domain becomes a `UseCaseRefused` typed by `ErrorType` (not found, not allowed, not possible in its state, business rule violated).
 
@@ -41,8 +41,8 @@ $organization = new RefusalTranslatingHandler(new ConsultOrganizationHandler($or
 );
 ```
 
-The API registers the command handlers on a Symfony Messenger bus through the decorator (`apps/api/CLAUDE.md`).
+The API registers the command handlers on a Symfony Messenger bus through the decorator (`docs/architecture/api.md`).
 
 ## Developing
 
-From the repository root, in Docker: `make test-core` runs the scenarios (Behat) then the unit and architecture tests (PHPUnit); `make lint` and `make fix` cover the core. How to write a rule: `docs/core-tests.md`; conventions: `CLAUDE.md` of this folder and `docs/clean-code.md`.
+From the repository root, in Docker: `make test-core` runs the scenarios (Behat) then the unit and architecture tests (PHPUnit); `make lint` and `make fix` cover the core. How to write a rule: `docs/architecture/tests.md`; conventions: `docs/architecture/core.md` and `docs/architecture/clean-code.md`.

@@ -10,7 +10,7 @@ GITLEAKS = docker run --rm -u $(UID):$(GID) -e GIT_INDEX_FILE -v $(CURDIR):$(CUR
 	-w $(CURDIR) ghcr.io/gitleaks/gitleaks:v8.30.1
 INFRA_APPS = api storage front
 
-.PHONY: install hooks build vendor db aws front-install infra-target infra-init infra-plan infra-apply infra-lint changed-apps package-api package-storage package-front release-front console start deploy stop logs ps ci test test-api test-storage test-front e2e test-core lint fix front-build api-doc contract commands profiler-clear exec-api exec-front secrets secrets-branch
+.PHONY: install hooks build vendor db aws front-install infra-target infra-init infra-plan infra-apply infra-lint changed-apps package-api package-storage package-front release-front console start deploy stop logs ps ci test test-api test-storage test-front e2e test-core lint adr-references fix front-build api-doc contract commands profiler-clear exec-api exec-front secrets secrets-branch
 
 ##@ Setup
 install: hooks build vendor db front-install ## Build the images, install the dependencies, create the tables, the bucket and the user pool, install the Git hooks
@@ -76,11 +76,18 @@ e2e: ## Run the Playwright journeys against the running stack
 paths-in = $(patsubst $(1)/%,%,$(filter $(1)/%,$(FILTER)))
 lint-project = $(if $(FILTER),$(if $(call paths-in,$(1)),$(MAKE) -C $(1) lint FILTER="$(call paths-in,$(1))"),$(MAKE) -C $(1) lint)
 
-lint: $(if $(FILTER),,infra-lint) ## Check the code: PHPStan, php-cs-fixer, Rector, Biome, TypeScript, Terraform; FILTER= paths from the root
+lint: $(if $(FILTER),,infra-lint) adr-references ## Check the code: PHPStan, php-cs-fixer, Rector, Biome, TypeScript, Terraform, the references to the records; FILTER= paths from the root
 	@$(call lint-project,packages/core)
 	@$(call lint-project,apps/api)
 	@$(call lint-project,apps/storage)
 	@$(call lint-project,apps/front)
+
+# a record entirely replaced is no reason any more: the history (the journal, the upgrade of 2026) aside
+ADR_HISTORY := ':!docs/adr/' ':!docs/upgrade-2026.md'
+adr-references: ## Check that no reference names a decision record entirely replaced (ADR 0090)
+	@superseded=$$(grep -E '^\| \[[0-9]{4}\].*\| Superseded by' docs/adr/README.md | grep -oE '^\| \[[0-9]{4}' | grep -oE '[0-9]{4}' | paste -sd'|'); \
+	found=$$( { git grep -nE "ADRs?[ ,0-9and]*\b($$superseded)\b" -- . $(ADR_HISTORY); git grep -nE "adr/($$superseded)-" -- . $(ADR_HISTORY); } ); \
+	if [ -n "$$found" ]; then echo "References to records entirely replaced: cite the record in force (docs/adr/README.md)"; echo "$$found"; exit 1; fi
 
 front-build: ## Build the front for production (TypeScript, Vite)
 	@$(MAKE) -C apps/front build
@@ -101,7 +108,7 @@ infra-target:
 	@test "$(origin APP)" = "command line" -a "$(origin INSTANCE)" = "command line" -a "$(words $(APP) $(INSTANCE))" = 2 -a -n "$(filter $(APP),$(INFRA_APPS))" \
 		|| { echo "Usage: make infra-plan APP=<$(INFRA_APPS)> INSTANCE=<dev|prod|...>, on the command line"; exit 1; }
 
-# the apps a git range may change the deployment of (ADR 0060, 0061, 0063): an app whose code or infrastructure
+# the apps a git range may change the deployment of (ADR 0060, 0061, 0063, 0083): an app whose code or infrastructure
 # changed, an app requiring the core when the core changed, every app when a file every root depends on changed
 INFRA_SHARED = .terraform-version Makefile make/% .github/workflows/terraform-%.yml .github/actions/infra-instance/%
 CHANGED = $(shell git diff --name-only '$(RANGE)' 2>/dev/null)

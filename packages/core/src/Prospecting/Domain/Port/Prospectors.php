@@ -10,7 +10,7 @@ use Prospecter\Core\SharedKernel\Domain\MemberId;
 
 /**
  * Port: the prospector a member is, translated from the context that knows the members of an account (Accounts),
- * through its published query `ConsultMember` (ADR 0045).
+ * through its published service `ConsultMembersService` (ADR 0045, 0089).
  */
 interface Prospectors
 {

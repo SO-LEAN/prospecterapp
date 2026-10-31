@@ -49,7 +49,7 @@ Dead endpoints broke fresh installs, not the code:
 
 # 2026-10-14: from server-rendered pages to SPA + API
 
-The Symfony pages were replaced by a React SPA (`apps/front`) and a JSON API (`apps/api`) with an OAuth 2 server (since moved to `apps/auth`, ADR 0034, then replaced by Cognito, ADR 0052). Choices are explained in `docs/front-architecture.md`, `docs/design-system.md` and `docs/auth.md`.
+The Symfony pages were replaced by a React SPA (`apps/front`) and a JSON API (`apps/api`) with an OAuth 2 server (since moved to `apps/auth`, ADR 0034, then replaced by Cognito, ADR 0052). Choices are explained in `docs/architecture/front.md`, `docs/architecture/design-system.md` and `docs/architecture/auth.md`.
 
 ## Traps
 

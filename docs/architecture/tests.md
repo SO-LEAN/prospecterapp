@@ -39,7 +39,7 @@ tests/Architecture/             PHPUnit: no bounded context uses another one but
                                 QueryHandler or an EventHandler, every event handler subscribed in the scenarios
 ```
 
-The scenarios do not know the command bus of the API: `Application::dispatch()` sends a command to its handler, and a query is called directly with the presenter of the core keeping its answer (`KeptOrganization`, ADR 0085), both through `RefusalTranslatingHandler` like the API; a scenario reads the response the method of `Application` gives back. Every event handler of the core, the translators publishing the integration events included (ADR 0046), reacts in the scenarios as in the API (`Application::eventHandlers()`; `tests/Architecture/EventHandlersSubscribedTest` fails when one is missing): a scenario checks the side effects of a gesture in the other contexts, never the events themselves; the intents tests check that an accepted intention records its event. The published queries of the contexts (ADR 0045, `Contract/Service`) are asked through `Application::consultMember()`, `isAContactOf()` and `isProspectedBy()`, as the anticorruption layers ask them, in `features/langage-publie.feature`. `Application` plays the client: it gives the identities of what is created (`newIdentity()`, time ordered UUIDs from `TimeOrderedUuids`) and the moment of the commands (`now()`, set by `nous sommes le "2026-10-20 14:00"`); a refusal is the `UseCaseRefused` of the last call (`refusal()`).
+The scenarios do not know the command bus of the API: `Application::dispatch()` sends a command to its handler, and a query is called directly with the presenter of the core keeping its answer (`KeptOrganization`, ADR 0085), both through `RefusalTranslatingHandler` like the API; a scenario reads the response the method of `Application` gives back. Every event handler of the core, the translators publishing the integration events included (ADR 0046), reacts in the scenarios as in the API (`Application::eventHandlers()`; `tests/Architecture/EventHandlersSubscribedTest` fails when one is missing): a scenario checks the side effects of a gesture in the other contexts, never the events themselves; the intents tests check that an accepted intention records its event. The services the contexts publish (ADR 0045, 0089, `Contract/Service`) are asked through `Application::consultMembers()`, `whichAreContacts()` and `whichAreProspected()`, as the anticorruption layers ask them, in `features/langage-publie.feature`. `Application` plays the client: it gives the identities of what is created (`newIdentity()`, time ordered UUIDs from `TimeOrderedUuids`) and the moment of the commands (`now()`, set by `nous sommes le "2026-10-20 14:00"`); a refusal is the `UseCaseRefused` of the last call (`refusal()`).
 
 ## Adding or changing a rule
 
@@ -50,3 +50,14 @@ The scenarios do not know the command bus of the API: `Application::dispatch()` 
 5. `make test-core && make lint`, then `make test` (the API uses the core).
 
 Check that a scenario really protects its rule: break the rule in `src`, the scenario must fail, then restore it.
+
+## Tests of the API
+
+- `tests/Api`: functional tests through `Base/ApiTestCase`, whose `login()` signs a member in for real on the user pool `prospecter-test` of MiniStack (`AccessTokenTest`, `SignInTest`). The tables of the prefix `prospecter-test` and the user pool are recreated for each test, in MiniStack (`make test-api` starts it), with the data and the members of the demonstration; host `api.test.prospecter.io`; variables in `.env.test`.
+- `tests/<Context>`: the adapters on their real table or service (`DynamoPersonRepositoryTest`: the reservation refuses an email taken meanwhile; `OrganizationSearchTest`: found by the beginning of the name or of the email, the keys written again; `GeoplateformeGeoLocationTest`; `SignIn/RsaPublicKeyTest`); `tests/Architecture`: the boundaries (contexts, domain behind the application, one table per context); `tests/Local`: what only the local stack has (the profiler, its CORS). A test failing because of a limit of MiniStack is skipped with its reason; a dev instance on AWS is the safety net.
+- Unit tests extend PHPUnit's `TestCase` and use hand-written doubles (`tests/Double`), no mock library.
+- PHPUnit 13: attributes only (`#[DataProvider]`, `#[Group]`), static data providers, abstract base classes named `*TestCase`.
+
+## Tests of the storage
+
+`tests/StorageTest`: the storage as the API and the browsers use it, on the bucket `prospecter-test-files` of MiniStack, recreated before each test; `tests/PrivateFilesTest` the private files, on `prospecter-test-private-files`, the test sending and reading as a browser.

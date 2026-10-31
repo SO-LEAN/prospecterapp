@@ -29,7 +29,7 @@ SPA (local.prospecter.io)                                   API (api.local.prosp
 - `GET /api/user-pool` is public (firewall `user_pool`): the SPA asks it before anyone is signed in.
 - `GET /api/me/sign-in`, `PATCH /api/me/sign-in/login-email` (422 when another member signs in with it), `PATCH /api/me/sign-in/password` (204): what I sign in with (`SignIn\Credentials`, admin calls of Cognito). The API checks that a login email is free before writing it (`ListUsers`), Cognito refusing a second holder of an alias on AWS as a safety net (`AliasExistsException`); MiniStack does not, the check of the API does.
 - A token stays valid until it expires even after signing out: the price of not calling Cognito on every request.
-- Roles are checked by `#[IsGranted]` (403 problem+json from `Security\ApiAccessDeniedHandler`), the voters whether this member may reach a resource of Prospecting, the aggregate whether its state allows the intention (ADR 0081). The core knows no password.
+- Roles are checked by `#[IsGranted]` (403 problem+json from `Security\ApiAccessDeniedHandler`), the voters whether this member may reach a resource of Prospecting, the aggregate whether its state allows the intention (ADR 0081, 0088). The core knows no password.
 
 ## SPA side
 
@@ -43,3 +43,9 @@ SPA (local.prospecter.io)                                   API (api.local.prosp
 
 - API: `ApiTestCase` recreates the test pool for each test with the members of the demonstration, and `login()` signs in for real (`ADMIN_USER_PASSWORD_AUTH`); `tests/Api/AccessTokenTest` (no token, expired by moving the clock `app.token_clock`, another client, an id token, a forged signature, a user naming no member), `tests/Api/SignInTest` (the pool for the SPA, the links, login email changed then signed in with, unique, password changed then signed in with, too short), `tests/SignIn/RsaPublicKeyTest`.
 - Front: `features/sign-in/components/sign-in-form.test.tsx`; `e2e/journey.spec.ts` signs in through the real screen and SRP, signs out, and checks a wrong password.
+
+## In the code of the API
+
+- Firewall `api` (`^/api/`, stateless, `access_token` with `Security\AccessTokenHandler`): the JWT is checked with the published key its `kid` names (`SignIn\SigningKeys`, cached), its issuer, its client, `token_use=access` and its expiry (`app.token_clock`); its `username` is the member id, loaded by `Security\MemberProvider` into `App\Security\User`, received as `#[CurrentUser] User $user`; its ids go into every command and query; the voters decide the access to a resource of Prospecting (ADR 0081), PersonalData and Accounts the rest (ADR 0026, 0075).
+- `src/SignIn`: the user pool known by name (`UserPool`, ids cached, `COGNITO_*` variables), what a member signs in with (`Credentials`: login email unique on the platform, password, through the admin calls of Cognito), `GET /api/user-pool` (public, where the SPA signs in) and `/api/me/sign-in`; `app:user-pool:recreate [--demo]`, `app:user:set-password`, `app:account:open` (an account and its founder, ADR 0064), `app:member:register` (a member in the account of an administrator, ADR 0075), on AWS through `make console`.
+- The members of the demonstration sign in with `Demo\DemoCredentials` under the member ids `DemoData::PROSPECTOR` and `DemoData::ASSISTANT`.

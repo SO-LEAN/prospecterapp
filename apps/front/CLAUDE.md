@@ -1,6 +1,8 @@
 # front (React SPA)
 
-Architecture and the reasons behind each choice: `docs/front-architecture.md`. Design rules: `docs/design-system.md`. Sign-in (Cognito, SRP): `docs/auth.md`.
+## What is in force
+
+Read before working on it: `docs/architecture/front.md` (stack, folders, state, data flow, navigation, API access, and its rules), `docs/architecture/design-system.md` (design rules), `docs/architecture/auth.md` (sign-in on Cognito by SRP).
 
 ## Commands
 
@@ -9,19 +11,6 @@ Run through Docker from the repository root (no Node on the host): `docker compo
 Scripts: `dev`, `build`, `preview`, `typecheck` (tsc 7), `lint` / `format` (Biome), `test` / `test:watch` (Vitest), `e2e` (Playwright, use `make e2e`: its global setup `e2e/wait-for-the-stack.ts` waits for the stack to answer), `api:types`.
 
 Before declaring work done: `pnpm typecheck`, `pnpm lint`, `pnpm test`, and `make e2e` for changes to a main journey.
-
-## Rules
-
-- Respect the folders: `routes/` thin (loader + page), `features/<feature>/` (queries, mutations, schema, components), `shared/` business agnostic. A feature never imports another feature; shared query keys go to `shared/api/keys.ts`. `shared` imports nothing from `app`, `features` or `routes` (Biome `noRestrictedImports` refuses it).
-- Server data only through TanStack Query with the generated client `api` (what a member signs in with included: `/api/me/sign-in`). Signing in, renewing the token and signing out go through `shared/auth/session.ts` only (Cognito). Never `fetch` by hand (but to send a private file to S3 with the form the API signed, `features/exchanges/attachments.ts`, ADR 0077), never copy server data into `useState` or Zustand. Mutations update the cache with the returned resource, then invalidate the affected list prefixes.
-- Route data: `loader` with `context.queryClient.ensureQueryData(...)`, page with `useSuspenseQuery`, plus `pendingComponent` and `errorComponent`; a page that cannot load at all (the api unreachable) falls to the `PageError` of the root route. Search state in validated search params; a list comes in slices (`useInfiniteQuery`, the link `next`, "Charger plus", ADR 0049), never numbered pages.
-- Never write `useMemo`/`useCallback`/`memo` for performance: the React Compiler does it.
-- After an API change: `make api-doc` (regenerates `src/shared/api/schema.d.ts`, never edited by hand) and fix the type errors.
-- Forms: react-hook-form + zod schema mirroring the API constraints; show server violations with `applyViolations`. A resource is changed section by section, one intent each: `EditableSection` + `SectionForm`, shared field groups in `shared/forms`, fields through `FormField` (it subscribes to its own error; the React Compiler would not re-render a memoized group). Only a creation has a full form. Show an action only when the resource carries its link (`_links.<intention>`), never from the data itself.
-- UI: compose `shared/ui` components and semantic tokens (`bg-card`, `text-muted-foreground`…), no raw colors, no inline styles. Every text through `t()` with a key added to `shared/i18n/fr.ts` (keys are typed).
-- Navigation: "Retour" goes back in history (`shared/ui/back-button.tsx`, fallback link when opened directly), a creation form is left with `useGoBack` and replaces itself (`replace: true`), so going back never lands on a form already submitted or cancelled.
-- Accessibility: every control labelled (`Field`), icons `aria-hidden` next to text, keyboard reachable.
-- Style: Biome (single quotes, no semicolons, 110 columns), `import type` for types, `@/` alias for `src/`.
 
 ## Gotchas
 

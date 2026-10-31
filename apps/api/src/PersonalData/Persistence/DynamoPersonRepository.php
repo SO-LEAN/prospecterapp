@@ -19,7 +19,7 @@ use Prospecter\Core\SharedKernel\Domain\PersonId;
  * - `PERSON#<id>` / `PERSON`: the person, listed by account and purpose in `GSI1` (`ACCOUNT#<id>#<purpose>`,
  *   its id);
  * - `EMAIL#<account>#<purpose>#<email>` / `EMAIL`: the email a person holds among the persons an account keeps
- *   for a purpose, the safety net of EmailUniqueness (ADR 0039).
+ *   for a purpose, the safety net of EmailUniqueness (ADR 0039, 0048).
  * The person carries its search keys and its phone number among the persons of the same account and purpose
  * (`SearchIndexes`).
  */
@@ -89,7 +89,7 @@ final readonly class DynamoPersonRepository implements PersonRepository
     }
 
     /**
-     * Writes again the search keys of every person, and forgets the items of the former search (ADR 0050):
+     * Writes again the search keys of every person, and forgets the items of the search before ADR 0071:
      * what a table written before ADR 0071 needs once.
      */
     public function writeTheSearchKeysAgain(): int

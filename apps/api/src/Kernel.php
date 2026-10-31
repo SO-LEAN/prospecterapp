@@ -17,7 +17,7 @@ class Kernel extends BrefKernel
 
     /**
      * A Lambda of AWS runs its package read-only; the local ones of MiniStack and the command line, on the images of
-     * Bref too, write in the mounted repository and share its cache (ADR 0053).
+     * Bref too, write in the mounted repository and share its cache (ADR 0053, 0082).
      */
     public function isLambda(): bool
     {

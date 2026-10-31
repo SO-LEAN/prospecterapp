@@ -18,7 +18,7 @@ use Prospecter\Core\SharedKernel\Domain\OrganizationId;
  * - `ORGANIZATION#<id>` / `ORGANIZATION`: the organization, listed by account in `GSI1` (`ACCOUNT#<id>`, its id)
  *   and by holding in `GSI2` (`HOLDING#<id>`, its id);
  * - `EMAIL#<account>#<email>` / `EMAIL`: the email an organization holds in its account, the safety net of
- *   EmailUniqueness (ADR 0039): two organizations taking it at once, the second transaction is cancelled;
+ *   EmailUniqueness (ADR 0039, 0048): two organizations taking it at once, the second transaction is cancelled;
  * - `CONTACT#<person>` / `ORGANIZATION#<id>`: the organizations naming a contact.
  * The organization carries its search keys and its phone number among the organizations of its account
  * (`SearchIndexes`).

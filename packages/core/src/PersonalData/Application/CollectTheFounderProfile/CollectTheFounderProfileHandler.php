@@ -13,7 +13,7 @@ use Prospecter\Core\SharedKernel\Domain\AccountId;
 use Prospecter\Core\SharedKernel\Domain\PersonId;
 
 /**
- * The profile of the founder of a new account, collected empty: the founder fills it in (ADR 0031).
+ * The profile of the founder of a new account, collected empty: the founder fills it in (ADR 0031, 0064).
  */
 final readonly class CollectTheFounderProfileHandler implements EventHandler
 {

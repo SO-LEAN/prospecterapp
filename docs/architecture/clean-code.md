@@ -1,6 +1,6 @@
 # Clean code guide
 
-The rules the code of this project follows, from Robert C. Martin (*Clean Code*, *Clean Architecture*, the Clean Coders videos), applied to PHP 8.5 and TypeScript. Decision: [ADR 0022](adr/0022-clean-code-conventions.md).
+The rules the code of this project follows, from Robert C. Martin (*Clean Code*, *Clean Architecture*, the Clean Coders videos), applied to PHP 8.5 and TypeScript. Decision: [ADR 0022](../adr/0022-clean-code-conventions.md).
 
 This guide is alive: rules get added and sharpened as the code is improved, iteration by iteration. Where the code does not follow a rule yet, the rule names it under **Known debt**: that list is the backlog of the next iterations.
 
@@ -76,7 +76,7 @@ This guide is alive: rules get added and sharpened as the code is improved, iter
 - **Clean tests**: as readable as production code, the domain-specific language of the tests is built on purpose (`Vocabulary`, `Expect`, the Gherkin steps).
 - **One concept per test**; Arrange, Act, Assert (Given, When, Then).
 - **F.I.R.S.T.**: fast, independent, repeatable, self-validating, timely (written before the code).
-- **Test behaviour, never structure**: no getter and setter tests, no mocks verifying calls; only ports are doubled (ADR 0017, `docs/core-tests.md`).
+- **Test behaviour, never structure**: no getter and setter tests, no mocks verifying calls; only ports are doubled (ADR 0017, `docs/architecture/tests.md`).
 
 ## 9. Classes
 

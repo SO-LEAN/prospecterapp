@@ -75,7 +75,7 @@
                 "patterns": [
                   {
                     "group": ["@/app/*", "@/features/*", "@/routes/*"],
-                    "message": "shared depends on nothing of the app (docs/front-architecture.md)."
+                    "message": "shared depends on nothing of the app (docs/architecture/front.md)."
                   }
                 ]
               }
