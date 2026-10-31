@@ -63,8 +63,10 @@ final readonly class CollectContactHandler implements CommandHandler
      */
     private function ensureProspected(array $organizations, Reader $collector): void
     {
+        $prospected = $this->organizations->prospectedAmong($organizations, $collector->accountId);
+
         foreach ($organizations as $organization) {
-            if (!$this->organizations->isProspectedBy($organization, $collector->accountId)) {
+            if (!array_any($prospected, $organization->equals(...))) {
                 throw UnknownOrganization::identifiedBy($organization);
             }
         }

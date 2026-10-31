@@ -5,19 +5,21 @@ declare(strict_types=1);
 namespace Tests\Core\Acceptance\Context;
 
 use Behat\Behat\Context\Context;
+use Behat\Gherkin\Node\TableNode;
 use Behat\Step\Given;
 use Behat\Step\Then;
 use Behat\Step\When;
-use Prospecter\Core\Accounts\Contract\Service\ConsultMember\ConsultMember;
-use Prospecter\Core\Accounts\Contract\Service\ConsultMember\MemberResponse;
+use Prospecter\Core\Accounts\Contract\Service\ConsultMembers\ConsultMembers;
+use Prospecter\Core\Accounts\Contract\Service\ConsultMembers\MemberResponse;
 use Prospecter\Core\Accounts\Domain\Model\Role;
-use Prospecter\Core\PersonalData\Contract\Service\IsAContactOf\IsAContactOf;
-use Prospecter\Core\Prospecting\Contract\Service\IsProspectedBy\IsProspectedBy;
+use Prospecter\Core\PersonalData\Contract\Service\WhichAreContacts\WhichAreContacts;
+use Prospecter\Core\Prospecting\Contract\Service\WhichAreProspected\WhichAreProspected;
 use Prospecter\Core\SharedKernel\Domain\MemberId;
 use Tests\Core\Acceptance\Expect;
 
 /**
- * The contract a context publishes to the others (ADR 0045): what its published queries answer.
+ * The contract a context publishes to the others (ADR 0045, 0089): what its services answer about a set, what is
+ * unknown being absent.
  */
 final class PublishedLanguageContext implements Context
 {
@@ -27,7 +29,18 @@ final class PublishedLanguageContext implements Context
      * @var array<string, MemberId>
      */
     private array $members = [];
-    private ?MemberResponse $member = null;
+    /**
+     * @var array<string, MemberResponse>
+     */
+    private array $consulted = [];
+    /**
+     * @var list<string>
+     */
+    private array $answered = [];
+    /**
+     * @var array<string, string> the names asked about, by their identity
+     */
+    private array $asked = [];
 
     #[Given(':name est membre de :account avec le droit aux données personnelles')]
     public function aMemberManagingPersonalData(string $name, string $account): void
@@ -41,10 +54,11 @@ final class PublishedLanguageContext implements Context
         $this->members[$name] = $this->scenario->aMemberOf($name, $account, Role::User, Role::Prospector)->id();
     }
 
-    #[When('un autre contexte demande à Accounts qui est le membre :name')]
-    public function anotherContextConsultsTheMember(string $name): void
+    #[When('un autre contexte demande à Accounts qui sont les membres :')]
+    public function anotherContextConsultsTheMembers(TableNode $names): void
     {
-        $this->member = $this->application->consultMember(new ConsultMember($this->memberIdOf($name)));
+        $this->asked = array_combine(array_map($this->memberIdOf(...), $names->getColumn(0)), $names->getColumn(0));
+        $this->consulted = $this->application->consultMembers(new ConsultMembers(array_keys($this->asked)));
     }
 
     #[Then('Accounts répond que :name est membre de :account avec le droit aux données personnelles')]
@@ -59,58 +73,56 @@ final class PublishedLanguageContext implements Context
         $this->expectTheMember($name, $account, false);
     }
 
-    #[Then('PersonalData répond que :person est un contact de :account')]
-    public function personalDataAnswersAContact(string $person, string $account): void
+    #[Then('Accounts ne répond rien de :name')]
+    public function accountsAnswersNothingOf(string $name): void
     {
-        Expect::same(true, $this->isAContactOf($person, $account));
+        Expect::that(!isset($this->consulted[(string) array_search($name, $this->asked, true)]), sprintf('Accounts answered about "%s"', $name));
     }
 
-    #[Then('PersonalData répond que :person n\'est pas un contact de :account')]
-    public function personalDataAnswersNoContact(string $person, string $account): void
+    #[When('un autre contexte demande à PersonalData lesquelles sont des contacts de :account :')]
+    public function anotherContextAsksPersonalData(string $account, TableNode $persons): void
     {
-        Expect::same(false, $this->isAContactOf($person, $account));
+        $this->asked = array_combine(array_map($this->scenario->personIdOf(...), $persons->getColumn(0)), $persons->getColumn(0));
+        $this->answered = $this->application->whichAreContacts(new WhichAreContacts(array_keys($this->asked), $this->scenario->accountIdOf($account)->value));
     }
 
-    #[When('un autre contexte demande à PersonalData si :person est un contact de :account')]
-    public function anotherContextAsksPersonalData(string $person, string $account): void
+    #[When('un autre contexte demande à Prospecting lesquelles sont prospectées par :account :')]
+    public function anotherContextAsksProspecting(string $account, TableNode $organizations): void
     {
-        $this->isAContactOf($person, $account);
+        $this->asked = array_combine(array_map($this->scenario->idOf(...), $organizations->getColumn(0)), $organizations->getColumn(0));
+        $this->answered = $this->application->whichAreProspected(new WhichAreProspected(array_keys($this->asked), $this->scenario->accountIdOf($account)->value));
     }
 
-    #[Then('Prospecting répond que :organization est prospectée par :account')]
-    public function prospectingAnswersProspected(string $organization, string $account): void
+    #[Then('PersonalData répond :')]
+    #[Then('Prospecting répond :')]
+    public function theContextAnswers(TableNode $names): void
     {
-        Expect::same(true, $this->isProspectedBy($organization, $account));
+        Expect::same($names->getColumn(0), $this->namesAnswered());
     }
 
-    #[Then('Prospecting répond que :organization n\'est pas prospectée par :account')]
-    public function prospectingAnswersNotProspected(string $organization, string $account): void
+    #[Then('PersonalData ne répond aucune')]
+    #[Then('Prospecting ne répond aucune')]
+    public function theContextAnswersNone(): void
     {
-        Expect::same(false, $this->isProspectedBy($organization, $account));
-    }
-
-    #[When('un autre contexte demande à Prospecting si :organization est prospectée par :account')]
-    public function anotherContextAsksProspecting(string $organization, string $account): void
-    {
-        $this->isProspectedBy($organization, $account);
+        Expect::same([], $this->namesAnswered());
     }
 
     private function expectTheMember(string $name, string $account, bool $readsPersonalData): void
     {
+        $member = $this->consulted[$this->memberIdOf($name)] ?? null;
+
         Expect::same(
             ['accountId' => $this->scenario->accountIdOf($account)->value, 'personId' => $this->scenario->personIdOf($name), 'readsPersonalData' => $readsPersonalData],
-            ['accountId' => $this->member?->accountId, 'personId' => $this->member?->personId, 'readsPersonalData' => $this->member?->readsPersonalData],
+            ['accountId' => $member?->accountId, 'personId' => $member?->personId, 'readsPersonalData' => $member?->readsPersonalData],
         );
     }
 
-    private function isAContactOf(string $person, string $account): ?bool
+    /**
+     * @return list<string>
+     */
+    private function namesAnswered(): array
     {
-        return $this->application->isAContactOf(new IsAContactOf($this->scenario->personIdOf($person), $this->scenario->accountIdOf($account)->value));
-    }
-
-    private function isProspectedBy(string $organization, string $account): ?bool
-    {
-        return $this->application->isProspectedBy(new IsProspectedBy($this->scenario->idOf($organization), $this->scenario->accountIdOf($account)->value));
+        return array_map(fn (string $id): string => $this->asked[$id], $this->answered);
     }
 
     /**

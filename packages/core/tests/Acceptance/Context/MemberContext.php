@@ -10,7 +10,7 @@ use Behat\Step\Given;
 use Behat\Step\Then;
 use Behat\Step\When;
 use Prospecter\Core\Accounts\Application\RegisterAMember\RegisterAMember;
-use Prospecter\Core\Accounts\Contract\Service\ConsultMember\ConsultMember;
+use Prospecter\Core\Accounts\Contract\Service\ConsultMembers\ConsultMembers;
 use Prospecter\Core\Accounts\Domain\Model\Role;
 use Prospecter\Core\PersonalData\Application\ChangePersonContactDetails\ChangePersonContactDetails;
 use Prospecter\Core\PersonalData\Application\RenamePerson\RenamePerson;
@@ -96,6 +96,8 @@ final class MemberContext implements Context
      */
     private function hasThePersonalDataRight(string $name): bool
     {
-        return $this->application->consultMember(new ConsultMember($this->scenario->memberNamed($name)->id()->value))->readsPersonalData ?? false;
+        $id = $this->scenario->memberNamed($name)->id()->value;
+
+        return $this->application->consultMembers(new ConsultMembers([$id]))[$id]->readsPersonalData ?? false;
     }
 }

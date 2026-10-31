@@ -2,43 +2,30 @@
 
 namespace App\Prospecting\AntiCorruption;
 
-use Prospecter\Core\Accounts\Contract\Service\ConsultMember\ConsultMember;
-use Prospecter\Core\Accounts\Contract\Service\ConsultMember\KeptMember;
-use Prospecter\Core\Accounts\Contract\Service\ConsultMember\MemberResponse;
+use Prospecter\Core\Accounts\Contract\Service\ConsultMembers\ConsultMembers;
+use Prospecter\Core\Accounts\Contract\Service\ConsultMembers\ConsultMembersService;
+use Prospecter\Core\Accounts\Contract\Service\ConsultMembers\KeptMembers;
 use Prospecter\Core\Prospecting\Domain\Exception\UnknownProspector;
 use Prospecter\Core\Prospecting\Domain\Model\Prospector;
 use Prospecter\Core\Prospecting\Domain\Port\Prospectors;
-use Prospecter\Core\SharedKernel\Application\Exception\UseCaseRefused;
-use Prospecter\Core\SharedKernel\Application\RefusalTranslatingHandler;
 use Prospecter\Core\SharedKernel\Domain\AccountId;
 use Prospecter\Core\SharedKernel\Domain\MemberId;
 
 /**
- * Anticorruption layer (ADR 0045): Prospecting knows prospectors, Accounts publishes its members.
+ * Anticorruption layer (ADR 0045, 0089): Prospecting knows prospectors, Accounts publishes its members.
  */
 final readonly class AccountsProspectors implements Prospectors
 {
-    public function __construct(private RefusalTranslatingHandler $consultMember)
+    public function __construct(private ConsultMembersService $consultMembersService)
     {
     }
 
     public function prospectorFrom(MemberId $id): Prospector
     {
-        $member = $this->memberOf($id);
+        $kept = new KeptMembers();
+        ($this->consultMembersService)(new ConsultMembers([$id->value]), $kept);
+        $member = $kept->members[$id->value] ?? throw UnknownProspector::identifiedBy($id);
 
         return new Prospector($id, new AccountId($member->accountId), $member->readsPersonalData);
-    }
-
-    private function memberOf(MemberId $id): MemberResponse
-    {
-        $kept = new KeptMember();
-
-        try {
-            ($this->consultMember)(new ConsultMember((string) $id), $kept);
-        } catch (UseCaseRefused) {
-            throw UnknownProspector::identifiedBy($id);
-        }
-
-        return $kept->member;
     }
 }

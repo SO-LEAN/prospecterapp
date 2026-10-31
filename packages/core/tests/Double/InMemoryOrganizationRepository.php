@@ -22,6 +22,14 @@ final readonly class InMemoryOrganizationRepository implements OrganizationRepos
         return $this->database->organization((string) $id) ?? throw UnknownOrganization::identifiedBy($id);
     }
 
+    /**
+     * @param list<OrganizationId> $ids
+     */
+    public function ofIds(array $ids): array
+    {
+        return array_values(array_filter(array_map(fn (OrganizationId $id): ?Organization => $this->database->organization((string) $id), $ids)));
+    }
+
     public function isEmailUsed(AccountId $accountId, Email $email, OrganizationId $except): bool
     {
         return array_any($this->prospectedBy($accountId), fn (Organization $organization): bool => !$organization->id()->equals($except) && $organization->contactDetails()->email?->value === $email->value);

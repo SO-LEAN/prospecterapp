@@ -6,8 +6,10 @@ use App\Contacts\Resource\InterlocutorResource;
 use App\Exchanges\Resource\ExchangeDetailResource;
 use App\Security\IntentLinks;
 use App\Shared\Links;
-use Prospecter\Core\Accounts\Contract\Service\ConsultMember\ConsultMember;
-use Prospecter\Core\Accounts\Contract\Service\ConsultMember\KeptMember;
+use Prospecter\Core\Accounts\Contract\Service\ConsultMembers\ConsultMembers;
+use Prospecter\Core\Accounts\Contract\Service\ConsultMembers\ConsultMembersService;
+use Prospecter\Core\Accounts\Contract\Service\ConsultMembers\KeptMembers;
+use Prospecter\Core\Accounts\Contract\Service\ConsultMembers\MemberResponse;
 use Prospecter\Core\PersonalData\Application\ConsultPersons\ConsultPersons;
 use Prospecter\Core\PersonalData\Application\ConsultPersons\KeptPersons;
 use Prospecter\Core\PersonalData\Application\PersonCard;
@@ -29,7 +31,7 @@ final readonly class ExchangeReader
 {
     public function __construct(
         private RefusalTranslatingHandler $consultExchange,
-        private RefusalTranslatingHandler $consultMember,
+        private ConsultMembersService $consultMembersService,
         private RefusalTranslatingHandler $consultPersons,
         private RefusalTranslatingHandler $consultOrganization,
         private Links $links,
@@ -86,26 +88,17 @@ final readonly class ExchangeReader
     }
 
     /**
+     * Asked to Accounts once for all of them (ADR 0089).
+     *
      * @param array<string> $members
      *
-     * @return array<string, string> the person id of each member, by member id
+     * @return array<string, string> the person id of each member found, by member id
      */
     private function personsOfMembers(array $members): array
     {
-        $persons = [];
+        $kept = new KeptMembers();
+        ($this->consultMembersService)(new ConsultMembers(array_values(array_unique($members))), $kept);
 
-        foreach (array_unique($members) as $member) {
-            $persons[$member] = $this->personOf($member);
-        }
-
-        return $persons;
-    }
-
-    private function personOf(string $member): string
-    {
-        $kept = new KeptMember();
-        ($this->consultMember)(new ConsultMember($member), $kept);
-
-        return $kept->member->personId;
+        return array_map(static fn (MemberResponse $member): string => $member->personId, $kept->members);
     }
 }

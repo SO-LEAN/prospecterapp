@@ -38,6 +38,14 @@ final readonly class DynamoOrganizationRepository implements OrganizationReposit
         return OrganizationDocument::organization($item['organization']);
     }
 
+    /**
+     * @param list<OrganizationId> $ids
+     */
+    public function ofIds(array $ids): array
+    {
+        return $this->organizationsOf($this->prospectingTable->items(array_map(static fn (OrganizationId $id): array => [OrganizationKeys::organization($id->value), OrganizationKeys::ORGANIZATION], $ids)));
+    }
+
     public function isEmailUsed(AccountId $accountId, Email $email, OrganizationId $except): bool
     {
         $holder = $this->prospectingTable->item(self::emailKey($accountId, $email->value), self::EMAIL);

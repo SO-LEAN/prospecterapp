@@ -5,33 +5,30 @@ declare(strict_types=1);
 namespace Tests\Core\Double;
 
 use Prospecter\Core\PersonalData\Domain\Port\ProspectedOrganizations;
-use Prospecter\Core\Prospecting\Contract\Service\IsProspectedBy\IsProspectedBy;
-use Prospecter\Core\Prospecting\Contract\Service\IsProspectedBy\KeptIsProspected;
-use Prospecter\Core\SharedKernel\Application\Exception\UseCaseRefused;
-use Prospecter\Core\SharedKernel\Application\RefusalTranslatingHandler;
+use Prospecter\Core\Prospecting\Contract\Service\WhichAreProspected\KeptProspected;
+use Prospecter\Core\Prospecting\Contract\Service\WhichAreProspected\WhichAreProspected;
+use Prospecter\Core\Prospecting\Contract\Service\WhichAreProspected\WhichAreProspectedService;
 use Prospecter\Core\SharedKernel\Domain\AccountId;
 use Prospecter\Core\SharedKernel\Domain\OrganizationId;
 
 /**
- * Anticorruption layer of the API, in the scenarios (ADR 0045): PersonalData asks Prospecting, through its published query, whether
- * an organization is one the account prospects; an unknown organization is prospected by nobody.
+ * Anticorruption layer of the API, in the scenarios (ADR 0045, 0089): PersonalData knows the organizations a contact may belong to,
+ * Prospecting tells which organizations an account prospects, once for all of them.
  */
 final readonly class ProspectingOrganizations implements ProspectedOrganizations
 {
-    public function __construct(private RefusalTranslatingHandler $isProspectedBy)
+    public function __construct(private WhichAreProspectedService $whichAreProspectedService)
     {
     }
 
-    public function isProspectedBy(OrganizationId $organization, AccountId $accountId): bool
+    /**
+     * @param list<OrganizationId> $organizations
+     */
+    public function prospectedAmong(array $organizations, AccountId $accountId): array
     {
-        $kept = new KeptIsProspected();
+        $kept = new KeptProspected();
+        ($this->whichAreProspectedService)(new WhichAreProspected(array_map(static fn (OrganizationId $organization): string => $organization->value, $organizations), $accountId->value), $kept);
 
-        try {
-            ($this->isProspectedBy)(new IsProspectedBy((string) $organization, (string) $accountId), $kept);
-        } catch (UseCaseRefused) {
-            return false;
-        }
-
-        return $kept->isProspected;
+        return array_map(static fn (string $id): OrganizationId => new OrganizationId($id), $kept->organizationIds);
     }
 }

@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Tests\Core\Acceptance;
 
 use Prospecter\Core\Accounts\Application\ChangeMyOrganizationLogo\ChangeMyOrganizationLogoHandler;
-use Prospecter\Core\Accounts\Application\ConsultMember\ConsultMemberHandler;
+use Prospecter\Core\Accounts\Application\ConsultMembers\ConsultMembersHandler;
 use Prospecter\Core\Accounts\Application\ConsultMyAccount\ConsultMyAccount;
 use Prospecter\Core\Accounts\Application\ConsultMyAccount\ConsultMyAccountHandler;
 use Prospecter\Core\Accounts\Application\ConsultMyAccount\KeptAccount;
@@ -17,9 +17,9 @@ use Prospecter\Core\Accounts\Application\RegisterAMember\RegisterAMemberHandler;
 use Prospecter\Core\Accounts\Application\RegisterTheFounder\RegisterTheFounderHandler;
 use Prospecter\Core\Accounts\Application\RelocateMyOrganization\RelocateMyOrganizationHandler;
 use Prospecter\Core\Accounts\Application\ReviseMyOrganizationIdentity\ReviseMyOrganizationIdentityHandler;
-use Prospecter\Core\Accounts\Contract\Service\ConsultMember\ConsultMember;
-use Prospecter\Core\Accounts\Contract\Service\ConsultMember\KeptMember;
-use Prospecter\Core\Accounts\Contract\Service\ConsultMember\MemberResponse;
+use Prospecter\Core\Accounts\Contract\Service\ConsultMembers\ConsultMembers;
+use Prospecter\Core\Accounts\Contract\Service\ConsultMembers\KeptMembers;
+use Prospecter\Core\Accounts\Contract\Service\ConsultMembers\MemberResponse;
 use Prospecter\Core\PersonalData\Application\ChangeJobTitle\ChangeJobTitleHandler;
 use Prospecter\Core\PersonalData\Application\ChangePersonContactDetails\ChangePersonContactDetailsHandler;
 use Prospecter\Core\PersonalData\Application\ChangePersonPicture\ChangePersonPictureHandler;
@@ -34,7 +34,6 @@ use Prospecter\Core\PersonalData\Application\ConsultPersons\ConsultPersonsHandle
 use Prospecter\Core\PersonalData\Application\ConsultPersons\KeptPersons;
 use Prospecter\Core\PersonalData\Application\ForgetContact\ForgetContactHandler;
 use Prospecter\Core\PersonalData\Application\ForgetContactsLeftWithoutOrganization\ForgetContactsLeftWithoutOrganizationHandler;
-use Prospecter\Core\PersonalData\Application\IsAContactOf\IsAContactOfHandler;
 use Prospecter\Core\PersonalData\Application\PersonCard;
 use Prospecter\Core\PersonalData\Application\PublishContactCollected\PublishContactCollectedHandler;
 use Prospecter\Core\PersonalData\Application\PublishContactForgotten\PublishContactForgottenHandler;
@@ -46,8 +45,9 @@ use Prospecter\Core\PersonalData\Application\SearchContacts\ContactPage;
 use Prospecter\Core\PersonalData\Application\SearchContacts\KeptContactPage;
 use Prospecter\Core\PersonalData\Application\SearchContacts\SearchContacts;
 use Prospecter\Core\PersonalData\Application\SearchContacts\SearchContactsHandler;
-use Prospecter\Core\PersonalData\Contract\Service\IsAContactOf\IsAContactOf;
-use Prospecter\Core\PersonalData\Contract\Service\IsAContactOf\KeptIsAContact;
+use Prospecter\Core\PersonalData\Application\WhichAreContacts\WhichAreContactsHandler;
+use Prospecter\Core\PersonalData\Contract\Service\WhichAreContacts\KeptContacts;
+use Prospecter\Core\PersonalData\Contract\Service\WhichAreContacts\WhichAreContacts;
 use Prospecter\Core\PersonalData\Domain\Service\EmailUniqueness as PersonalDataEmailUniqueness;
 use Prospecter\Core\Prospecting\Application\AddContact\AddContactHandler;
 use Prospecter\Core\Prospecting\Application\AttachCollectedContact\AttachCollectedContactHandler;
@@ -82,7 +82,6 @@ use Prospecter\Core\Prospecting\Application\DownloadAttachment\DownloadAttachmen
 use Prospecter\Core\Prospecting\Application\DownloadAttachment\DownloadAttachmentHandler;
 use Prospecter\Core\Prospecting\Application\DownloadAttachment\KeptDownload;
 use Prospecter\Core\Prospecting\Application\EraseExchange\EraseExchangeHandler;
-use Prospecter\Core\Prospecting\Application\IsProspectedBy\IsProspectedByHandler;
 use Prospecter\Core\Prospecting\Application\KeepExchangesOfForgottenContact\KeepExchangesOfForgottenContactHandler;
 use Prospecter\Core\Prospecting\Application\KeptTimeline;
 use Prospecter\Core\Prospecting\Application\NoteExchange\NoteExchangeHandler;
@@ -105,9 +104,10 @@ use Prospecter\Core\Prospecting\Application\StartProspecting\StartProspectingHan
 use Prospecter\Core\Prospecting\Application\StopKeepingExchanges\StopKeepingExchangesHandler;
 use Prospecter\Core\Prospecting\Application\StopProspecting\StopProspectingHandler;
 use Prospecter\Core\Prospecting\Application\Timeline;
+use Prospecter\Core\Prospecting\Application\WhichAreProspected\WhichAreProspectedHandler;
 use Prospecter\Core\Prospecting\Application\WriteObservations\WriteObservationsHandler;
-use Prospecter\Core\Prospecting\Contract\Service\IsProspectedBy\IsProspectedBy;
-use Prospecter\Core\Prospecting\Contract\Service\IsProspectedBy\KeptIsProspected;
+use Prospecter\Core\Prospecting\Contract\Service\WhichAreProspected\KeptProspected;
+use Prospecter\Core\Prospecting\Contract\Service\WhichAreProspected\WhichAreProspected;
 use Prospecter\Core\Prospecting\Domain\Service\ContactOrganizations;
 use Prospecter\Core\Prospecting\Domain\Service\EmailUniqueness as ProspectingEmailUniqueness;
 use Prospecter\Core\Prospecting\Domain\Service\OrphanContacts;
@@ -162,6 +162,9 @@ final class Application
     private readonly InMemoryMemberRetriever $memberRetriever;
     private readonly InMemoryPersonCardRetriever $personCardRetriever;
     private readonly InMemoryContactPageRetriever $contactPageRetriever;
+    private readonly ConsultMembersHandler $consultMembersService;
+    private readonly WhichAreContactsHandler $whichAreContactsService;
+    private readonly WhichAreProspectedHandler $whichAreProspectedService;
     public readonly InMemoryExchangeRepository $exchanges;
     public readonly InMemoryAccountRepository $accounts;
     public readonly InMemoryMemberRepository $members;
@@ -207,10 +210,13 @@ final class Application
         $this->persons = new InMemoryPersonRepository($database);
         $this->personCardRetriever = new InMemoryPersonCardRetriever($database);
         $this->contactPageRetriever = new InMemoryContactPageRetriever($database);
-        $this->prospectors = new AccountsProspectors($this->published(new ConsultMemberHandler($this->memberRetriever)));
-        $this->readers = new AccountsReaders($this->published(new ConsultMemberHandler($this->memberRetriever)));
-        $this->knownContacts = new PersonalDataKnownContacts($this->published(new IsAContactOfHandler($this->persons)));
-        $this->prospectedOrganizations = new ProspectingOrganizations($this->published(new IsProspectedByHandler($this->organizations)));
+        $this->consultMembersService = new ConsultMembersHandler($this->memberRetriever);
+        $this->whichAreContactsService = new WhichAreContactsHandler($this->persons);
+        $this->whichAreProspectedService = new WhichAreProspectedHandler($this->organizations);
+        $this->prospectors = new AccountsProspectors($this->consultMembersService);
+        $this->readers = new AccountsReaders($this->consultMembersService);
+        $this->knownContacts = new PersonalDataKnownContacts($this->whichAreContactsService);
+        $this->prospectedOrganizations = new ProspectingOrganizations($this->whichAreProspectedService);
         $this->events = new SynchronousEvents();
         $this->storage = new InMemoryStorage();
         $this->privateStorage = new InMemoryPrivateStorage();
@@ -428,30 +434,40 @@ final class Application
     /**
      * The queries a context publishes to the others (ADR 0045), asked as their anticorruption layers ask them.
      */
-    public function consultMember(ConsultMember $query): ?MemberResponse
+    /**
+     * The services a context offers the others refuse nothing (ADR 0089): they are called as an anticorruption
+     * layer calls them.
+     *
+     * @return array<string, MemberResponse>
+     */
+    public function consultMembers(ConsultMembers $query): array
     {
-        $kept = new KeptMember();
+        $kept = new KeptMembers();
+        ($this->consultMembersService)($query, $kept);
 
-        return $this->ask(new ConsultMemberHandler($this->memberRetriever), $query, $kept) ? $kept->member : null;
+        return $kept->members;
     }
 
-    public function isAContactOf(IsAContactOf $query): ?bool
+    /**
+     * @return list<string>
+     */
+    public function whichAreContacts(WhichAreContacts $query): array
     {
-        $kept = new KeptIsAContact();
+        $kept = new KeptContacts();
+        ($this->whichAreContactsService)($query, $kept);
 
-        return $this->ask(new IsAContactOfHandler($this->persons), $query, $kept) ? $kept->isAContact : null;
+        return $kept->personIds;
     }
 
-    public function isProspectedBy(IsProspectedBy $query): ?bool
+    /**
+     * @return list<string>
+     */
+    public function whichAreProspected(WhichAreProspected $query): array
     {
-        $kept = new KeptIsProspected();
+        $kept = new KeptProspected();
+        ($this->whichAreProspectedService)($query, $kept);
 
-        return $this->ask(new IsProspectedByHandler($this->organizations), $query, $kept) ? $kept->isProspected : null;
-    }
-
-    private function published(QueryHandler $handler): RefusalTranslatingHandler
-    {
-        return new RefusalTranslatingHandler($handler);
+        return $kept->organizationIds;
     }
 
     /**
