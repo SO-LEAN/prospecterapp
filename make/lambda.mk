@@ -1,6 +1,6 @@
-# The package of a PHP app for its Lambda on AWS (ADR 0063), included by the Makefile of the app: build/<app>.zip at
+# The package of a PHP app for its Lambda on AWS (ADR 0063, 0083), included by the Makefile of the app: build/<app>.zip at
 # the root, its code without what only develops, tests or deploys it, its dependencies without those of development,
-# the core copied in when it requires it (docs/monorepo.md) and the cache of the prod environment warmed
+# the core copied in when it requires it (docs/architecture/monorepo.md) and the cache of the prod environment warmed
 LAMBDA_APP := $(notdir $(CURDIR))
 LAMBDA_BUILD = $(ROOT)/build/$(LAMBDA_APP)
 LAMBDA_LEFT_OUT = vendor var tests infra .env.* phpunit.xml.dist phpunit.dist.xml phpstan.dist.neon rector.php AGENTS.md \

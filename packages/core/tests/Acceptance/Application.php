@@ -432,9 +432,6 @@ final class Application
     }
 
     /**
-     * The queries a context publishes to the others (ADR 0045), asked as their anticorruption layers ask them.
-     */
-    /**
      * The services a context offers the others refuse nothing (ADR 0089): they are called as an anticorruption
      * layer calls them.
      *

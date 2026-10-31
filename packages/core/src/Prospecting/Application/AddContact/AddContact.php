@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Prospecter\Core\Prospecting\Application\AddContact;
 
 /**
- * Attaches a person the account prospects, collected beforehand in PersonalData (ADR 0041).
+ * Attaches a person the account prospects, collected beforehand in PersonalData (ADR 0041, 0042).
  */
 final readonly class AddContact
 {

@@ -93,7 +93,7 @@ Never copy server data into Zustand or `useState`: read it from the query, the c
 
 ## Authentication
 
-See `docs/auth.md`. In the SPA: `shared/auth/session.ts` signs in on the user pool the API names (`GET /api/user-pool`) and gives the access token, renewed once expired; the `_app` layout route guards every page with it and sends an anonymous visitor to the sign-in screen, `routes/auth/sign-in.tsx` (`features/sign-in`), which goes back to the page asked for once signed in (ADR 0037, 0052).
+See `docs/architecture/auth.md`. In the SPA: `shared/auth/session.ts` signs in on the user pool the API names (`GET /api/user-pool`) and gives the access token, renewed once expired; the `_app` layout route guards every page with it and sends an anonymous visitor to the sign-in screen, `routes/auth/sign-in.tsx` (`features/sign-in`), which goes back to the page asked for once signed in (ADR 0037, 0052).
 
 ## Adding a screen
 
@@ -102,3 +102,16 @@ See `docs/auth.md`. In the SPA: `shared/auth/session.ts` signs in on the user po
 3. A route file in `routes/_app/...` with a `loader` (`ensureQueryData`), `pendingComponent`, `errorComponent`, and the page component.
 4. Texts in `shared/i18n/fr.ts`.
 5. A component test for the behaviour, and a Playwright step if it is a main journey.
+
+## Rules
+
+- Respect the folders: `routes/` thin (loader + page), `features/<feature>/` (queries, mutations, schema, components), `shared/` business agnostic. A feature never imports another feature; shared query keys go to `shared/api/keys.ts`. `shared` imports nothing from `app`, `features` or `routes` (Biome `noRestrictedImports` refuses it).
+- Server data only through TanStack Query with the generated client `api` (what a member signs in with included: `/api/me/sign-in`). Signing in, renewing the token and signing out go through `shared/auth/session.ts` only (Cognito). Never `fetch` by hand (but to send a private file to S3 with the form the API signed, `features/exchanges/attachments.ts`, ADR 0077), never copy server data into `useState` or Zustand. Mutations update the cache with the returned resource, then invalidate the affected list prefixes.
+- Route data: `loader` with `context.queryClient.ensureQueryData(...)`, page with `useSuspenseQuery`, plus `pendingComponent` and `errorComponent`; a page that cannot load at all (the api unreachable) falls to the `PageError` of the root route. Search state in validated search params; a list comes in slices (`useInfiniteQuery`, the link `next`, "Charger plus", ADR 0049), never numbered pages.
+- Never write `useMemo`/`useCallback`/`memo` for performance: the React Compiler does it.
+- After an API change: `make api-doc` (regenerates `src/shared/api/schema.d.ts`, never edited by hand) and fix the type errors.
+- Forms: react-hook-form + zod schema mirroring the API constraints; show server violations with `applyViolations`. A resource is changed section by section, one intent each: `EditableSection` + `SectionForm`, shared field groups in `shared/forms`, fields through `FormField` (it subscribes to its own error; the React Compiler would not re-render a memoized group). Only a creation has a full form. Show an action only when the resource carries its link (`_links.<intention>`), never from the data itself.
+- UI: compose `shared/ui` components and semantic tokens (`bg-card`, `text-muted-foreground`…), no raw colors, no inline styles. Every text through `t()` with a key added to `shared/i18n/fr.ts` (keys are typed).
+- Navigation: "Retour" goes back in history (`shared/ui/back-button.tsx`, fallback link when opened directly), a creation form is left with `useGoBack` and replaces itself (`replace: true`), so going back never lands on a form already submitted or cancelled.
+- Accessibility: every control labelled (`Field`), icons `aria-hidden` next to text, keyboard reachable.
+- Style: Biome (single quotes, no semicolons, 110 columns), `import type` for types, `@/` alias for `src/`.

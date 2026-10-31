@@ -14,7 +14,7 @@ TERRAFORM = docker run --rm -u $(UID):$(GID) -e HOME=/tmp --env-file $(INFRA_INS
 # INSTANCE given on the command line only: a variable left in the shell would silently change the target
 infra-instance:
 	@test "$(origin INSTANCE)" = "command line" -a "$(words $(INSTANCE))" = 1 || { echo "Usage: make infra-plan INSTANCE=<dev|prod|...>, on the command line"; exit 1; }
-	@test -f $(INFRA_INSTANCE).tfvars -a -f $(INFRA_INSTANCE).tfbackend -a -f $(INFRA_INSTANCE).env || { echo "No values for the instance $(INSTANCE): $(INFRA_INSTANCE).tfvars, .tfbackend and .env are needed (docs/infra.md), INFRA_CONFIG names their directory"; exit 1; }
+	@test -f $(INFRA_INSTANCE).tfvars -a -f $(INFRA_INSTANCE).tfbackend -a -f $(INFRA_INSTANCE).env || { echo "No values for the instance $(INSTANCE): $(INFRA_INSTANCE).tfvars, .tfbackend and .env are needed (docs/architecture/infra.md), INFRA_CONFIG names their directory"; exit 1; }
 
 infra-init: infra-instance ## Prepare the Terraform of the app for an instance: make infra-init INSTANCE=dev
 	@$(TERRAFORM) $(TERRAFORM_IMAGE) init -reconfigure -input=false -backend-config=/config/envs/$(INSTANCE).tfbackend -backend-config=key=$(INFRA_APP)/$(INSTANCE).tfstate

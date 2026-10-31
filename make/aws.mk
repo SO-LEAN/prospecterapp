@@ -9,7 +9,7 @@ AWS_CLI = $(AWS_CLI_RUN) $(AWS_CLI_IMAGE)
 
 # the apps deploying the core with their code: those requiring it
 requires-core = $(shell grep -l '"prospecter/core"' $(ROOT)/apps/$(1)/composer.json 2>/dev/null)
-# the version of the code an app deploys (ADR 0063): a digest of its tracked files, and of the core when it requires
+# the version of the code an app deploys (ADR 0063, 0083): a digest of its tracked files, and of the core when it requires
 # it, without its infrastructure, its tests, its scripts and its Makefile, so that only a change of what runs
 # redeploys it
 code-version = $(shell cd $(ROOT) && git ls-files -s -- apps/$(1) $(if $(call requires-core,$(1)),packages/core) \

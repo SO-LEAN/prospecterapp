@@ -13,7 +13,7 @@ use Prospecter\Core\SharedKernel\Domain\AccountId;
 use Prospecter\Core\SharedKernel\Domain\PersonId;
 
 /**
- * The profile of a member registered in an account, collected empty: the member fills it in (ADR 0031).
+ * The profile of a member registered in an account, collected empty: the member fills it in (ADR 0031, 0075).
  */
 final readonly class CollectTheMemberProfileHandler implements EventHandler
 {
