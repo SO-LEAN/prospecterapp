@@ -1,14 +1,10 @@
 # api (Symfony 8.1)
 
-@AGENTS.md
-
-The generic Symfony guidance above is overridden by the project rules below when they differ.
-
 ## Role
 
 A JSON API that exposes the use cases of `packages/core`, a resource server for the SPA (`apps/front`): the members sign in with a Cognito user pool, whose tokens the API checks and whose credentials it adapts (ADR 0052). No server-rendered page. Full contract: `openapi.json` (generated, do not edit) and Swagger UI on `https://api.local.prospecter.io/api/doc`.
 
-## Project overrides
+## Project rules
 
 - No Doctrine, no migrations: the aggregates live in DynamoDB (ADR 0048), the tables are created by `bin/console app:tables:recreate` (`make db`, the tests recreate them); the user pool by `bin/console app:user-pool:recreate`.
 - No Symfony CLI: run commands through `docker compose run --rm php ...` (see the root `CLAUDE.md`).
@@ -16,6 +12,7 @@ A JSON API that exposes the use cases of `packages/core`, a resource server for 
 - Services in YAML: the ports and the services of the hexagon are registered in `config/services.yaml`, the core being pure PHP without Symfony attributes.
 - Messenger is synchronous: the command and event buses have no transport, handled within the request (ADR 0029, 0042).
 - `Request::get()` no longer exists: use `$request->attributes`, `$request->query` or `$request->request`.
+- Symfony 8.1 is newer than what you remember: look it up rather than guess, `make console CMD="debug:container <id>"` (or `debug:router`, `debug:config <bundle>`, `config:dump-reference <bundle>`) and the sources under `vendor/`.
 
 ## What is in force
 
