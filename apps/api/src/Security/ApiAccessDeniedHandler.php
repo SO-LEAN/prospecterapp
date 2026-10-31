@@ -6,6 +6,7 @@ use App\Shared\Resource\ProblemResource;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\Security\Core\Authorization\Voter\Vote;
 use Symfony\Component\Security\Core\Exception\AccessDeniedException;
 use Symfony\Component\Security\Http\Authorization\AccessDeniedHandlerInterface;
 use Symfony\Component\Serializer\Normalizer\NormalizerInterface;
@@ -32,12 +33,8 @@ final readonly class ApiAccessDeniedHandler implements AccessDeniedHandlerInterf
 
     private function unknownReasonOf(AccessDeniedException $denial): ?string
     {
-        foreach ($denial->getAccessDecision()->votes ?? [] as $vote) {
-            if (isset($vote->extraData[AccountResourceVoter::UNKNOWN])) {
-                return $vote->extraData[AccountResourceVoter::UNKNOWN];
-            }
-        }
+        $vote = array_find($denial->getAccessDecision()->votes ?? [], static fn (Vote $vote): bool => isset($vote->extraData[AccountResourceVoter::UNKNOWN]));
 
-        return null;
+        return $vote?->extraData[AccountResourceVoter::UNKNOWN];
     }
 }

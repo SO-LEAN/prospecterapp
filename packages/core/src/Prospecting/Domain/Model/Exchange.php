@@ -167,13 +167,7 @@ final class Exchange implements ReleasesEvents
      */
     private function attachment(AttachmentId $id): Attachment
     {
-        foreach ($this->attachments as $attachment) {
-            if ($attachment->id->equals($id)) {
-                return $attachment;
-            }
-        }
-
-        throw UnknownAttachment::identifiedBy($id);
+        return array_find($this->attachments, static fn (Attachment $attachment): bool => $attachment->id->equals($id)) ?? throw UnknownAttachment::identifiedBy($id);
     }
 
     private function allowsInItsState(ExchangeIntent $intent): bool

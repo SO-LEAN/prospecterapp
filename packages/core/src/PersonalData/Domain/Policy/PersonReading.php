@@ -16,11 +16,13 @@ use Prospecter\Core\SharedKernel\Domain\PersonId;
  */
 final class PersonReading
 {
+    #[\NoDiscard]
     public static function isReachableBy(Reader $reader, AccountId $accountOfThePerson): bool
     {
         return $accountOfThePerson->equals($reader->accountId);
     }
 
+    #[\NoDiscard]
     public static function by(Reader $reader, PersonId $person): Reading
     {
         return $person->equals($reader->personId) || $reader->readsPersonalData ? Reading::Clear : Reading::Masked;

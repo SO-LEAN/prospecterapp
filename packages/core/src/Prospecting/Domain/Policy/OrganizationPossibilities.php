@@ -15,6 +15,7 @@ final class OrganizationPossibilities
     /**
      * @return list<OrganizationIntent>
      */
+    #[\NoDiscard]
     public static function given(bool $hasLogo, bool $hasHolding, bool $hasContacts): array
     {
         return array_values(array_filter(OrganizationIntent::cases(), static fn (OrganizationIntent $intent): bool => match ($intent) {

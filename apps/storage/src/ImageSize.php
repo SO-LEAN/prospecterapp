@@ -13,13 +13,7 @@ enum ImageSize: int
 
     public static function named(string $name): ?self
     {
-        foreach (self::cases() as $size) {
-            if ($size->name() === $name) {
-                return $size;
-            }
-        }
-
-        return null;
+        return array_find(self::cases(), static fn (self $size): bool => $size->name() === $name);
     }
 
     public function name(): string

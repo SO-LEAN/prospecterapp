@@ -16,6 +16,7 @@ final class ExchangePossibilities
     /**
      * @return list<ExchangeIntent>
      */
+    #[\NoDiscard]
     public static function given(int $attachments, bool $awaitsBeingMadeConform): array
     {
         return array_values(array_filter(ExchangeIntent::cases(), static fn (ExchangeIntent $intent): bool => match ($intent) {

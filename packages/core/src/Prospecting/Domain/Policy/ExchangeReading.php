@@ -12,11 +12,13 @@ use Prospecter\Core\Prospecting\Domain\Model\Prospector;
  */
 final class ExchangeReading
 {
+    #[\NoDiscard]
     public static function isTextFlagged(bool $hasText, Prospector $reader): bool
     {
         return $hasText && !$reader->managesPersonalData;
     }
 
+    #[\NoDiscard]
     public static function readsTheAttachments(Prospector $reader): bool
     {
         return $reader->managesPersonalData;
