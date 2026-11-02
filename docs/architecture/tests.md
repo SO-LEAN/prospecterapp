@@ -37,6 +37,7 @@ tests/Application/              PHPUnit: the translation of the refusals of the 
 tests/Architecture/             PHPUnit: no bounded context uses another one but its Contract, a Contract imports nothing,
                                 no domain class in a request or a response, every handler a CommandHandler, a
                                 QueryHandler or an EventHandler, every event handler subscribed in the scenarios
+tests/Mutation/                 the scenarios of each feature as a PHPUnit test, for the tests of mutation only
 ```
 
 The scenarios do not know the command bus of the API: `Application::dispatch()` sends a command to its handler, and a query is called directly with the presenter of the core keeping its answer (`KeptOrganization`, ADR 0085), both through `RefusalTranslatingHandler` like the API; a scenario reads the response the method of `Application` gives back. Every event handler of the core, the translators publishing the integration events included (ADR 0046), reacts in the scenarios as in the API (`Application::eventHandlers()`; `tests/Architecture/EventHandlersSubscribedTest` fails when one is missing): a scenario checks the side effects of a gesture in the other contexts, never the events themselves; the intents tests check that an accepted intention records its event. The services the contexts publish (ADR 0045, 0089, `Contract/Service`) are asked through `Application::consultMembers()`, `whichAreContacts()` and `whichAreProspected()`, as the anticorruption layers ask them, in `features/langage-publie.feature`. `Application` plays the client: it gives the identities of what is created (`newIdentity()`, time ordered UUIDs from `TimeOrderedUuids`) and the moment of the commands (`now()`, set by `nous sommes le "2026-10-20 14:00"`); a refusal is the `UseCaseRefused` of the last call (`refusal()`).
@@ -49,7 +50,7 @@ The scenarios do not know the command bus of the API: `Application::dispatch()` 
 4. Make it pass in `src`, then refactor with the scenarios green.
 5. `make test-core && make lint`, then `make test` (the API uses the core).
 
-Check that a scenario really protects its rule: break the rule in `src`, the scenario must fail, then restore it.
+Check that a scenario really protects its rule: break the rule in `src`, the scenario must fail, then restore it; `make mutation` does it for every line the branch adds ([below](#tests-of-mutation)).
 
 ## Tests of the API
 
@@ -61,3 +62,13 @@ Check that a scenario really protects its rule: break the rule in `src`, the sce
 ## Tests of the storage
 
 `tests/StorageTest`: the storage as the API and the browsers use it, on the bucket `prospecter-test-files` of MiniStack, recreated before each test; `tests/PrivateFilesTest` the private files, on `prospecter-test-private-files`, the test sending and reading as a browser.
+
+## Tests of mutation
+
+What the tests of a branch protect (ADR 0091): a tool changes a line the branch adds (a mutant: a condition inverted, a call removed, a value changed) and runs the tests covering it; a mutant they let pass **survives**, a change the tests do not see.
+
+- `make mutation`: the core then the front, on the lines added since `origin/dev`, committed or not (`BASE=` another reference); a project where the branch adds no line in `src` runs nothing. `make mutation-api`: the API, on demand (on MiniStack), minutes per mutant.
+- **The core**: Infection on PHPUnit (`infection.json5`, `tests/Mutation/phpunit.xml.dist`), the unit tests and the scenarios together. Infection knows no Behat and mutates nothing a test of PHPUnit does not cover, the use cases included: `tests/Mutation/ScenariosTest` runs the scenarios of each feature in its process, PHPUnit recording the coverage of the test. Behat runs there with `--xdebug` (without it, Behat restarts PHP without Xdebug and the coverage is lost), its error handlers removed afterwards. One test per feature: Behat booted for each scenario would take too long. `make test-core` runs neither twice (`phpunit.xml.dist` leaves `tests/Mutation` out).
+- **The API**: Infection on PHPUnit, 4 processes, each its own tables and user pool on MiniStack (`TEST_TOKEN` in `.env.test`: `prospecter-test1`…, left in MiniStack); a line most tests cross is skipped (S) past the timeout.
+- **The front**: Stryker with Vitest (`stryker.config.json`), per test coverage, on the ranges of the added lines (Stryker reads no git diff); neither the tests, the generated files nor the components of shadcn (`src/shared/ui`: class names no test reads).
+- **Reading a survivor**: each one is killed by a test protecting the behaviour, or justified in the pull request: equivalent (a cast without effect, the same behaviour another way) or noise. No minimum score: equivalent mutants would make it arbitrary. Not in `make ci`: the first run of every test, with its coverage, takes minutes. Reports: `var/mutation.log` (core, API), `reports/mutation.json` (front).

@@ -11,6 +11,7 @@ Read before working on it: `docs/architecture/core.md` (layout and rules of the 
 Run from the repository root (the core has its own `vendor/`, installed by `make vendor`):
 
 - `make test-core`: the Behat scenarios (`features/`, one per intent or close: a feature may hold a sibling intent, `rattacher-a-une-holding` holds the detachment), then PHPUnit (`tests/Domain`, `tests/Application`, `tests/Architecture`)
+- `make mutation`: the lines the branch adds in `src` mutated, killed by the unit tests and by the scenarios run by PHPUnit (`tests/Mutation`, ADR 0091), the survivors listed
 - `make lint` / `make fix` cover the core too (PHPStan level 5, php-cs-fixer with strict types, Rector)
 - one command: `docker compose run --rm --no-deps -w /var/www/src/packages/core php vendor/bin/behat features/demenager.feature`
 
