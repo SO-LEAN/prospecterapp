@@ -108,7 +108,7 @@
         "infection/infection": "^0.35.8",
         "phpstan/extension-installer": "^1.4",
         "phpstan/phpstan": "^2.3",
-        "phpunit/phpunit": "^13.4",
+        "phpunit/phpunit": "^13.4.4",
         "rector/rector": "^2.7",
         "symfony/browser-kit": "8.1.*",
         "symfony/debug-bundle": "8.1.*",
