@@ -11,7 +11,7 @@ That a scenario protects its rule was declared ("I broke the rule and the scenar
 
 ## Decision
 
-- **Only the lines a branch adds since `origin/dev`** are mutated, committed or not (`BASE=` another reference): Infection with `--git-diff-lines`, Stryker with the ranges of the added lines (`--mutate <file>:<first>-<last>`), which `make/mutation.mk` reads in `git diff -U0`. A branch adding no line runs nothing.
+- **Only the lines a branch adds since `origin/dev`** are mutated, committed or not, a new file once added to git (`BASE=` another reference): Infection with `--git-diff-lines`, Stryker with the ranges of the added lines (`--mutate <file>:<first>-<last>`), which `make/mutation.mk` reads in `git diff -U0`. A branch adding no line runs nothing.
 - **The core: Infection on PHPUnit, the scenarios included.** `tests/Mutation/ScenariosTest` runs the scenarios of each feature in its process, as a PHPUnit test whose coverage PHPUnit records; `tests/Mutation/phpunit.xml.dist` gathers it with the unit tests, `make test-core` runs neither twice.
 - **The front: Stryker with Vitest**, per test coverage, without the tests, the generated files and the components of shadcn.
 - **The API: Infection on PHPUnit, on demand** (`make mutation-api`, on MiniStack): each process of Infection has its own tables and user pool (`TEST_TOKEN` in `.env.test`).

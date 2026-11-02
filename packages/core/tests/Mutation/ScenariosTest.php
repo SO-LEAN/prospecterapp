@@ -48,7 +48,7 @@ final class ScenariosTest extends TestCase
 
         $status = $behat->run(new ArrayInput(['paths' => [$feature], ...self::behatOptions()]), $output);
 
-        while (get_error_handler() !== $errorHandlerOfPhpunit) {
+        while (!\in_array(get_error_handler(), [$errorHandlerOfPhpunit, null], true)) {
             restore_error_handler();
         }
 
