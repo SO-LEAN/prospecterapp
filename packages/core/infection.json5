@@ -1,0 +1,11 @@
+// The tests of mutation of the core (ADR 0091): the unit tests and the scenarios, run by PHPUnit (tests/Mutation)
+{
+    "$schema": "vendor/infection/infection/resources/schema.json",
+    "source": {"directories": ["src"]},
+    "phpUnit": {"configDir": "tests/Mutation"},
+    "mutators": {"@default": true},
+    // the coverage under Xdebug makes the first run slow, and a mutant whose tests took longer is skipped
+    "timeout": 120,
+    "tmpDir": "var/infection",
+    "logs": {"text": "var/mutation.log"}
+}

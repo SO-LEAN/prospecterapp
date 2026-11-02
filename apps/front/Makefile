@@ -1,6 +1,6 @@
-include ../../make/common.mk ../../make/aws.mk
+include ../../make/common.mk ../../make/aws.mk ../../make/mutation.mk
 
-.PHONY: install test lint fix build api-types e2e shell package release
+.PHONY: install test mutation lint fix build api-types e2e shell package release
 
 ##@ Front
 install: ## Install the pnpm dependencies of the front
@@ -9,6 +9,18 @@ install: ## Install the pnpm dependencies of the front
 
 test: ## Run the tests of the front (Vitest); FILTER= a test file by its path or a part of it
 	@$(NODE) pnpm test --reporter=dot --silent=passed-only $(if $(FILTER),'$(FILTER)')
+
+# the code of the front a branch may change and a test may protect: neither the tests, the generated files, nor the
+# components of shadcn, whose class names no test reads
+MUTATED_CODE = 'src/*.ts' 'src/*.tsx' ':!*.test.ts' ':!*.test.tsx' ':!*.d.ts' ':!src/test/*' ':!src/app/routeTree.gen.ts' ':!src/shared/ui/*'
+# Stryker reads no git diff: the hunks of the added lines become its ranges, <file>:<first>-<last>, comma separated
+ADDED_LINE_RANGES = $(call ADDED_LINES,$(MUTATED_CODE)) | awk '/^\+\+\+ b\// { file = substr($$0, 7) } \
+	/^@@/ { split(substr($$3, 2), new, ","); count = new[2] == "" ? 1 : new[2]; \
+	if (count > 0) { printf "%s%s:%d-%d", separator, file, new[1], new[1] + count - 1; separator = "," } }'
+
+mutation: ## Mutate the lines the branch adds in src since BASE (origin/dev), killed by the tests of Vitest; list the survivors
+	@ranges=$$($(ADDED_LINE_RANGES)); \
+	if [ -n "$$ranges" ]; then $(NODE) pnpm exec stryker run --mutate "$$ranges"; else $(call NO_ADDED_LINE,src); fi
 
 # TypeScript checks the whole project: the types of a file depend on the others
 lint: ## Check the code of the front: Biome, TypeScript; FILTER= paths of the project, for Biome

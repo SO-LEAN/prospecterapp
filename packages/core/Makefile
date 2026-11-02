@@ -1,6 +1,6 @@
-include ../../make/common.mk
+include ../../make/common.mk ../../make/mutation.mk
 
-.PHONY: vendor test lint fix
+.PHONY: vendor test mutation lint fix
 
 ##@ Core
 vendor: ## Install the Composer dependencies of the core
@@ -16,6 +16,9 @@ PHPUNIT = vendor/bin/phpunit $(if $(FILTER),--filter="$(FILTER)" --do-not-fail-o
 # business rules (Gherkin scenarios on the use cases, in-memory ports) then the unit tests
 test: ## Run the business rules (Behat) and the unit tests of the core; FILTER= a scenario or a test by name
 	@$(PHP) sh -c '{ $(UNLESS_NO_SCENARIO_MATCHES) $(BEHAT); } && $(PHPUNIT)'
+
+mutation: ## Mutate the lines the branch adds in src since BASE (origin/dev), killed by the unit tests and the scenarios; list the survivors
+	$(infection-on-added-lines)
 
 lint: ## Check the code of the core: PHPStan, php-cs-fixer, Rector; FILTER= paths of the project, for php-cs-fixer and Rector
 	@$(PHP) sh -c '$(PHP_LINT)'
