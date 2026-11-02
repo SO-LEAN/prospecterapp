@@ -1,5 +1,6 @@
-# The tests of mutation of a branch (ADR 0091): only the lines it adds since BASE are mutated, committed or only added, and
-# the mutants its tests let survive are listed; no minimum score, a survivor is killed by a test or justified
+# The tests of mutation of a branch (ADR 0091): only the lines it adds since BASE are mutated, committed or not, a new
+# file once added to git, and the mutants its tests let survive are listed; no minimum score, a survivor is killed by a
+# test or justified
 BASE ?= origin/dev
 SINCE = $(shell git merge-base $(BASE) HEAD)
 
