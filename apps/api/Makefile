@@ -1,6 +1,6 @@
-include ../../make/common.mk ../../make/aws.mk
+include ../../make/common.mk ../../make/aws.mk ../../make/mutation.mk
 
-.PHONY: vendor db test lint fix openapi console commands profiler-clear shell
+.PHONY: vendor db test mutation lint fix openapi console commands profiler-clear shell
 
 ##@ API
 vendor: ## Install the Composer dependencies of the API
@@ -15,6 +15,11 @@ db: ministack ## Recreate in MiniStack the tables and the user pool, with the de
 
 test: ministack ## Run the tests of the API (on MiniStack: tables, user pool); FILTER= a test by name
 	@$(PHP) bin/phpunit $(if $(FILTER),--filter='$(FILTER)')
+
+# a few processes only, each with its own tables and user pool on MiniStack (TEST_TOKEN, .env.test)
+mutation: INFECTION_THREADS = 4
+mutation: ministack ## Mutate the lines the branch adds in src since BASE (origin/dev), killed by the tests of the API on MiniStack; list the survivors
+	$(infection-on-added-lines)
 
 lint: ## Check the code of the API: PHPStan, php-cs-fixer, Rector; FILTER= paths of the project, for php-cs-fixer and Rector
 	@$(PHP) sh -c '$(PHP_LINT)'

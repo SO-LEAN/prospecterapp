@@ -49,6 +49,8 @@
     "@biomejs/biome": "^2.5.15",
     "@playwright/test": "^1.64.0",
     "@rolldown/plugin-babel": "^0.2.4",
+    "@stryker-mutator/core": "^10.1.1",
+    "@stryker-mutator/vitest-runner": "^10.1.1",
     "@tailwindcss/vite": "^4.3.3",
     "@tanstack/react-query-devtools": "^5.104.2",
     "@tanstack/router-plugin": "^1.168.44",

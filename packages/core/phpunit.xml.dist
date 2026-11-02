@@ -14,6 +14,7 @@
             <directory>tests</directory>
             <exclude>tests/Acceptance</exclude>
             <exclude>tests/Double</exclude>
+            <exclude>tests/Mutation</exclude>
         </testsuite>
     </testsuites>
 

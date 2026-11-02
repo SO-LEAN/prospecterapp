@@ -1,0 +1,10 @@
+// The tests of mutation of the API (ADR 0091), on MiniStack: make mutation-api at the root
+{
+    "$schema": "vendor/infection/infection/resources/schema.json",
+    "source": {"directories": ["src"]},
+    "mutators": {"@default": true},
+    // most tests recreate the tables and sign a member in: a mutant on a line they all cross takes minutes
+    "timeout": 300,
+    "tmpDir": "var/infection",
+    "logs": {"text": "var/mutation.log"}
+}

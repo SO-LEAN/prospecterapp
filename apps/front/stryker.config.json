@@ -1,0 +1,12 @@
+{
+  "$schema": "./node_modules/@stryker-mutator/core/schema/stryker-schema.json",
+  "testRunner": "vitest",
+  "plugins": ["@stryker-mutator/vitest-runner"],
+  "coverageAnalysis": "perTest",
+  "reporters": ["clear-text", "json"],
+  "clearTextReporter": { "allowColor": false, "logTests": false },
+  "jsonReporter": { "fileName": "reports/mutation.json" },
+  "tempDirName": ".stryker-tmp",
+  "tsconfigFile": "no-tsconfig-for-stryker.json",
+  "timeoutMS": 30000
+}

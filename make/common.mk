@@ -16,6 +16,8 @@ NODE = $(DC) --progress quiet run --rm --no-deps -w $(WORKDIR) node
 # the checks of a PHP project, on its whole code or on the paths of FILTER (php-cs-fixer keeping the exclusions of
 # its finder); PHPStan analyses the whole project, a class reading its properties in traits it may not be given
 PHP_LINT = vendor/bin/phpstan analyse --no-progress && vendor/bin/php-cs-fixer fix --dry-run --diff --show-progress=none $(if $(FILTER),--path-mode=intersection $(FILTER)) && vendor/bin/rector process --dry-run $(FILTER)
+# the common git directory: in a worktree, .git only points to it, out of the checkout mounted in the containers
+GIT_COMMON_DIR = $(shell git rev-parse --path-format=absolute --git-common-dir)
 # the API and the storage run in Lambdas with the Bref layers (ADR 0055): the repository is mounted in the
 # functions by its absolute path
 export PROJECT_DIR := $(ROOT)

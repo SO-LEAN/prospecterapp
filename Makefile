@@ -4,13 +4,12 @@ include make/common.mk make/aws.mk
 
 # the commits checked for secrets and identifiers of an AWS installation (ADR 0059): the repository is mounted at
 # its own path and the index git prepares for the commit is passed on, a commit -a or by paths using a temporary one;
-# the common git directory is mounted at its own path too: in a worktree, .git only points to it, out of the checkout
-GIT_COMMON_DIR = $(shell git rev-parse --path-format=absolute --git-common-dir)
+# the common git directory is mounted at its own path too
 GITLEAKS = docker run --rm -u $(UID):$(GID) -e GIT_INDEX_FILE -v $(CURDIR):$(CURDIR) -v $(GIT_COMMON_DIR):$(GIT_COMMON_DIR) \
 	-w $(CURDIR) ghcr.io/gitleaks/gitleaks:v8.30.1
 INFRA_APPS = api storage front
 
-.PHONY: install hooks build vendor db aws front-install infra-target infra-init infra-plan infra-apply infra-lint changed-apps package-api package-storage package-front release-front console start deploy stop logs ps ci test test-api test-storage test-front e2e test-core lint adr-references fix front-build api-doc contract commands profiler-clear exec-api exec-front secrets secrets-branch
+.PHONY: install hooks build vendor db aws front-install infra-target infra-init infra-plan infra-apply infra-lint changed-apps package-api package-storage package-front release-front console start deploy stop logs ps ci test test-api test-storage test-front e2e test-core mutation mutation-api lint adr-references fix front-build api-doc contract commands profiler-clear exec-api exec-front secrets secrets-branch
 
 ##@ Setup
 install: hooks build vendor db front-install ## Build the images, install the dependencies, create the tables, the bucket and the user pool, install the Git hooks
@@ -70,6 +69,13 @@ test-front: ## Run the tests of the front (Vitest); FILTER= a test file by its p
 
 e2e: ## Run the Playwright journeys against the running stack
 	@$(MAKE) -C apps/front e2e
+
+mutation: ## Mutate the lines the branch adds since BASE (origin/dev) in the core and the front, list the mutants their tests let survive (ADR 0091)
+	@$(MAKE) -C packages/core mutation
+	@$(MAKE) -C apps/front mutation
+
+mutation-api: ## Mutate the lines the branch adds in the API since BASE (origin/dev), on MiniStack: minutes per mutant, on demand
+	@$(MAKE) -C apps/api mutation
 
 # with FILTER, paths from the root: each project checks those under its directory, a project without any is passed
 # over, and so is the Terraform
