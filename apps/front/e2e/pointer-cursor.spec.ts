@@ -36,17 +36,18 @@ test('the buttons, the menus and the lists of choices have the hand, a disabled 
     await page.keyboard.press('Escape')
   })
 
-  await test.step('a list of choices and its options, the submit button of an empty form', async () => {
+  await test.step('a list of choices opened by its label and its options, the submit button of an empty form', async () => {
     await page.goto('/organizations/new')
     const theSubmit = page.getByRole('button', { name: 'Commencer à prospecter' })
     await expect(theSubmit).toBeDisabled()
     await expect(theSubmit).toHaveCSS('cursor', DISABLED)
 
-    const theCountries = page.getByRole('combobox').first()
+    const theCountries = page.getByRole('combobox', { name: 'Pays', exact: true })
     await expect(theCountries).toHaveCSS('cursor', HAND)
-    await theCountries.click()
+    await page.getByText('Pays', { exact: true }).click()
     await expect(page.getByRole('option').first()).toHaveCSS('cursor', HAND)
     await page.keyboard.press('Escape')
+    await expect(theCountries).toBeFocused()
 
     await expect(page.getByRole('heading', { level: 1 })).not.toHaveCSS('cursor', HAND)
   })

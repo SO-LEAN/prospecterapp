@@ -1,9 +1,9 @@
-import { Controller, type FieldValues } from 'react-hook-form'
+import type { FieldValues } from 'react-hook-form'
 import { useTranslation } from 'react-i18next'
 import { z } from 'zod'
 import type { components } from '@/shared/api/schema'
-import { CountrySelect } from '@/shared/ui/form/country-select'
 import { Input } from '@/shared/ui/input'
+import { CountryField } from './country-field'
 import { FormField } from './form-field'
 import { atRoot, type FieldsProps } from './section-form'
 import { optionalEmail, optionalPhoneNumber, orNull } from './text'
@@ -52,20 +52,12 @@ export function ContactDetailsFields<Values extends FieldValues>({
       >
         <Input type="tel" autoComplete="tel" {...form.register(path('phoneNumber'))} />
       </FormField>
-      <FormField
+      <CountryField
         form={form}
         name={path('language')}
         label={t('fields.language')}
         optional={t('common.optional')}
-      >
-        <Controller
-          control={form.control}
-          name={path('language')}
-          render={({ field: { value, onChange } }) => (
-            <CountrySelect value={value as string | null} onChange={onChange} />
-          )}
-        />
-      </FormField>
+      />
     </>
   )
 }
