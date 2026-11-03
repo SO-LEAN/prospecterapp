@@ -1,9 +1,9 @@
-import { Controller, type FieldValues } from 'react-hook-form'
+import type { FieldValues } from 'react-hook-form'
 import { useTranslation } from 'react-i18next'
 import { z } from 'zod'
 import type { components } from '@/shared/api/schema'
-import { CountrySelect } from '@/shared/ui/form/country-select'
 import { Input } from '@/shared/ui/input'
+import { CountryField } from './country-field'
 import { FormField } from './form-field'
 import { atRoot, type FieldsProps } from './section-form'
 import { orNull, text } from './text'
@@ -50,15 +50,7 @@ export function AddressFields<Values extends FieldValues>({ form, path = atRoot 
       <FormField form={form} name={path('city')} label={t('fields.city')}>
         <Input {...form.register(path('city'))} />
       </FormField>
-      <FormField form={form} name={path('country')} label={t('fields.country')}>
-        <Controller
-          control={form.control}
-          name={path('country')}
-          render={({ field: { value, onChange } }) => (
-            <CountrySelect value={value as string | null} onChange={onChange} />
-          )}
-        />
-      </FormField>
+      <CountryField form={form} name={path('country')} label={t('fields.country')} />
     </>
   )
 }
