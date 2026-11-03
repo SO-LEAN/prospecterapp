@@ -17,6 +17,8 @@ vi.mock('@/shared/auth/session', () => ({
   session: { accessToken: async () => null, renewedAccessToken: async () => null },
 }))
 
+vi.mock('@/shared/ui/form/country-select', () => import('@/test/country-select'))
+
 vi.mock('@/shared/ui/map/geo-map', () => ({
   GeoMap: ({ markers }: { markers: { label: string }[] }) => (
     <figure aria-label={`Carte de ${markers[0]?.label}`} />

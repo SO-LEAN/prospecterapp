@@ -20,6 +20,12 @@ const reactCompiler = babel({ presets: [reactCompilerPreset()] })
 /** amazon-cognito-identity-js reads the Node `global`: the browser names it `globalThis`. */
 const nodeGlobalOfTheCognitoLibrary = { global: 'globalThis' }
 
+/**
+ * One worker per physical core on a machine with two threads per core: a jsdom per thread doubles the
+ * time of each test, the forms passing their 5 s (12 threads, 6 cores), and the whole suite runs slower.
+ */
+const oneJsdomPerCore = '50%'
+
 export default defineConfig({
   plugins: [typedRoutesSplitByRoute, react(), reactCompiler, tailwindcss()],
   define: nodeGlobalOfTheCognitoLibrary,
@@ -42,5 +48,6 @@ export default defineConfig({
     setupFiles: ['./src/test/setup.ts'],
     include: ['src/**/*.test.{ts,tsx}'],
     css: false,
+    maxWorkers: oneJsdomPerCore,
   },
 })
