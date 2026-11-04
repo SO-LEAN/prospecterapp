@@ -1,5 +1,9 @@
-import { expect, test } from '@playwright/test'
+import { expect, test } from './fixtures'
 import { SIGN_IN_PAGE, signInOnTheSignInScreen } from './sign-in'
+
+/** Where the double of the geocoder places Strasbourg, each time; a place it does not know, it places nowhere. */
+const IN_STRASBOURG = '48.5834%2C7.7456'
+const AN_UNKNOWN_PLACE = 'Nulle-Part'
 
 test('sign in, start prospecting an organization, change it section by section, find it and sign out', async ({
   page,
@@ -7,6 +11,14 @@ test('sign in, start prospecting an organization, change it section by section, 
   const name = `E2E ${Date.now()}`
   const organizationPage = page.getByRole('heading', { name })
   let organizationUrl = ''
+
+  async function myOrganizationIn(city: string) {
+    await page.goto('/account')
+    await page.getByRole('button', { name: 'Modifier : Adresse de mon organisation' }).click()
+    await page.getByLabel('Ville').fill(city)
+    await page.getByRole('button', { name: 'Enregistrer' }).click()
+    await expect(page.getByRole('main').getByText(city, { exact: true })).toBeVisible()
+  }
 
   await test.step('sign in', async () => {
     await signInOnTheSignInScreen(page)
@@ -107,17 +119,23 @@ test('sign in, start prospecting an organization, change it section by section, 
     await expect(page.getByRole('link', { name: new RegExp(lastName) })).toHaveCount(0)
   })
 
-  await test.step('the route to the organization starts from my organization', async () => {
-    await page.goto('/account')
-    await page.getByRole('button', { name: 'Modifier : Adresse de mon organisation' }).click()
-    await page.getByLabel('Ville').fill('Strasbourg')
-    await page.getByRole('button', { name: 'Enregistrer' }).click()
-    await expect(page.getByRole('main').getByText('Strasbourg', { exact: true })).toBeVisible()
+  await test.step('an address the geocoder does not know places nothing: the route has its arrival only', async () => {
+    await myOrganizationIn(AN_UNKNOWN_PLACE)
 
     await page.goto(organizationUrl)
     await expect(page.getByRole('link', { name: 'Itinéraire' })).toHaveAttribute(
       'href',
-      /openstreetmap\.org\/directions\?from=[\d.%C-]+&to=[\d.%C-]+$/,
+      `https://www.openstreetmap.org/directions?to=${IN_STRASBOURG}`,
+    )
+  })
+
+  await test.step('the route to the organization starts from my organization', async () => {
+    await myOrganizationIn('Strasbourg')
+
+    await page.goto(organizationUrl)
+    await expect(page.getByRole('link', { name: 'Itinéraire' })).toHaveAttribute(
+      'href',
+      `https://www.openstreetmap.org/directions?from=${IN_STRASBOURG}&to=${IN_STRASBOURG}`,
     )
   })
 

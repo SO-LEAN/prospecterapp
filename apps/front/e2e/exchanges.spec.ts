@@ -1,5 +1,6 @@
 import { readFile } from 'node:fs/promises'
-import { expect, request, test } from '@playwright/test'
+import { request } from '@playwright/test'
+import { expect, test } from './fixtures'
 import { ASSISTANT, signInOnTheSignInScreen } from './sign-in'
 
 const A_LONG_TEXT =

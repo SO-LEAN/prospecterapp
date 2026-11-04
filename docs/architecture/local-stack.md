@@ -11,3 +11,7 @@ Everything runs in Docker, driven by make (ADR 0015, 0080): MiniStack emulates t
 ## The storage
 
 - Both entries reach the app in its Lambda `prospecter-dev-storage` (ADR 0054, 0055: the mounted repository, the layers of PHP and imagick of Bref, `BREF_BINARY_RESPONSES` for the images), through `docker/nginx/storage-lambda.conf`.
+
+## The doubles of the journeys
+
+- nginx serves on the Docker network only the double of the geocoder of the IGN (`http://nginx:8081/search`, `conf.d/geocoder-double.conf`); `make e2e` points the API at it while the journeys run (`docker/lambda/deploy.sh geocoder <url>`), then at the service of `apps/api/.env` again (ADR 0092, `docs/architecture/tests.md`).

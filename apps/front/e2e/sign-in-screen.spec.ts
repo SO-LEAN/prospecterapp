@@ -1,5 +1,6 @@
-import { expect, type Locator, type Page, test } from '@playwright/test'
+import type { Locator, Page } from '@playwright/test'
 import { colorOf, contrastBetween, READABLE_GRAPHIC_CONTRAST, READABLE_TEXT_CONTRAST } from './colors'
+import { expect, test } from './fixtures'
 
 const LOGO_SIDE = 80
 const FORMER_NAME_SIZE = 18

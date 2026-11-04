@@ -1,4 +1,4 @@
-import { expect, test } from '@playwright/test'
+import { expect, test } from './fixtures'
 import { SIGN_IN_PAGE, signInOnTheSignInScreen } from './sign-in'
 
 /*

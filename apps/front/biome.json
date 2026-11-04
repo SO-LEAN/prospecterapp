@@ -65,6 +65,26 @@
   },
   "overrides": [
     {
+      "includes": ["e2e/**", "!e2e/fixtures.ts"],
+      "linter": {
+        "rules": {
+          "style": {
+            "noRestrictedImports": {
+              "level": "error",
+              "options": {
+                "paths": {
+                  "@playwright/test": {
+                    "importNames": ["test"],
+                    "message": "A journey takes test from ./fixtures: it depends on no service outside the stack (docs/architecture/tests.md)."
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    {
       "includes": ["src/shared/**"],
       "linter": {
         "rules": {

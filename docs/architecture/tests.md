@@ -63,6 +63,16 @@ Check that a scenario really protects its rule: break the rule in `src`, the sce
 
 `tests/StorageTest`: the storage as the API and the browsers use it, on the bucket `prospecter-test-files` of MiniStack, recreated before each test; `tests/PrivateFilesTest` the private files, on `prospecter-test-private-files`, the test sending and reading as a browser.
 
+## No service outside the stack
+
+No test depends on a service outside the local stack: it doubles it, so that a red test always means a defect of Prospecter, never a failure of a third party (ADR 0092). The tests of the API give the geocoder an address of no host (`APP_GEOCODER_URL` of `.env.test`, `GeoplateformeGeoLocationTest` on a `MockHttpClient`).
+
+## The journeys
+
+- `make e2e`: Playwright on the running stack (`apps/front/e2e`), one journey at a time, the API asking the double of the geocoder of nginx meanwhile (`http://nginx:8081/search`, `docker/nginx/conf.d/geocoder-double.conf`): a known place (Strasbourg, Colmar) at a fixed position, any other address not placed, as the service of the IGN answers. Afterwards, whatever the result, and with `make start`, the API asks the IGN again.
+- A journey takes its `test` from `e2e/fixtures.ts` (Biome refuses it from `@playwright/test`): the maps get their style from a double, without tiles, and a journey whose pages ask a host outside the stack fails, naming it (`outside-the-stack.spec.ts`). A service a journey needs is doubled by its own route (`page.route`, `context.route`), which wins: OpenStreetMap in `directions.spec.ts`, a resource of the API changed to the case of the journey.
+- A journey needing a new place adds it to the map of the double.
+
 ## Tests of mutation
 
 What the tests of a branch protect (ADR 0091): a tool changes a line the branch adds (a mutant: a condition inverted, a call removed, a value changed) and runs the tests covering it; a mutant they let pass **survives**, a change the tests do not see.

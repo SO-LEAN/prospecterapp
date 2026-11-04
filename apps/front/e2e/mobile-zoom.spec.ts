@@ -1,4 +1,5 @@
-import { devices, expect, type Locator, type Page, test } from '@playwright/test'
+import { devices, type Locator, type Page } from '@playwright/test'
+import { expect, test } from './fixtures'
 import { signInOnTheSignInScreen } from './sign-in'
 
 /*
