@@ -2,6 +2,8 @@
 # Deploys the API and the storage to MiniStack (ADR 0053, 0054): the layers of Bref, a function per app running the
 # mounted repository in the dev environment, and an HTTP API in front of each, whose id is fixed so that nginx
 # knows where to send the hosts. Run again any time: the functions are recreated, the rest kept.
+# deploy geocoder <url>: only the geocoder the API asks, its double while the journeys run (make e2e), the service
+# of the IGN of apps/api/.env with no url.
 set -eu
 
 aws() { command aws --endpoint-url "$AWS_ENDPOINT_URL" --output text "$@"; }
@@ -26,6 +28,17 @@ layer() {
     echo "$arn"
 }
 
+# environment <app> <variables>: the variables of the function of an app, those of Bref and its own
+environment() {
+    echo "Variables={BREF_RUNTIME=fpm,BREF_LOCAL_HANDLER=public/index.php,BREF_LOCAL_ROOT=/var/www/src/apps/$1$2}"
+}
+
+# the API trusts the gateway in front of it; the geocoder of its .env unless one is given
+API_VARIABLES=,TRUSTED_PROXIES=REMOTE_ADDR
+api_variables() {
+    echo "$API_VARIABLES${1:+,APP_GEOCODER_URL=$1}"
+}
+
 # lambda_function <app> <variables> <layers...>: the function of an app, its code the mounted apps/<app>
 lambda_function() {
     app=$1 variables=$2
@@ -33,9 +46,17 @@ lambda_function() {
     aws lambda delete-function --function-name "prospecter-dev-$app" >/dev/null 2>&1 || true
     aws lambda create-function --function-name "prospecter-dev-$app" --runtime provided.al2023 --handler public/index.php \
         --role "$role" --zip-file fileb:///build/function.zip --layers "$@" --memory-size 1024 --timeout 28 \
-        --environment "Variables={BREF_RUNTIME=fpm,BREF_LOCAL_HANDLER=public/index.php,BREF_LOCAL_ROOT=/var/www/src/apps/$app$variables}" \
-        --query FunctionArn
+        --environment "$(environment "$app" "$variables")" --query FunctionArn
 }
+
+# MiniStack recycles the containers of a function whose environment changes: the next request starts a new one
+if [ "${1:-}" = geocoder ]; then
+    aws lambda update-function-configuration --function-name prospecter-dev-api \
+        --environment "$(environment api "$(api_variables "${2:-}")")" >/dev/null
+    aws lambda wait function-updated --function-name prospecter-dev-api
+    echo "The API asks the geocoder ${2:-of apps/api/.env}"
+    exit
+fi
 
 # http_api <app> <function arn> [cors]: the HTTP API of an app, stage local
 http_api() {
@@ -64,7 +85,7 @@ imagick=$(layer "$IMAGICK_LAYER" /build/imagick.zip)
 
 # MiniStack answers every preflight from the CORS of the HTTP API, never passing it to the function as AWS does
 # without one: the API gets the same CORS as its nelmio_cors in dev
-http_api api "$(lambda_function api ,TRUSTED_PROXIES=REMOTE_ADDR "$php")" \
+http_api api "$(lambda_function api "$(api_variables)" "$php")" \
     'AllowOrigins=https://local.prospecter.io,AllowMethods=GET,OPTIONS,POST,PATCH,DELETE,AllowHeaders=content-type,authorization,ExposeHeaders=location,x-debug-token,x-debug-token-link,MaxAge=3600'
 # the storage answers images: Bref sends them base64-encoded only when asked
 http_api storage "$(lambda_function storage ,BREF_BINARY_RESPONSES=1 "$php" "$imagick")"

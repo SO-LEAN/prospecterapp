@@ -1,5 +1,6 @@
-import { expect, type Page, test } from '@playwright/test'
+import type { Page } from '@playwright/test'
 import { colorOf, contrastBetween, READABLE_GRAPHIC_CONTRAST, READABLE_TEXT_CONTRAST } from './colors'
+import { expect, test } from './fixtures'
 import { signInOnTheSignInScreen } from './sign-in'
 
 type ThemeName = 'Clair' | 'Sombre'
