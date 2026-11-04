@@ -8,6 +8,7 @@ import { dashboardQuery } from '@/features/dashboard/queries'
 import { OrganizationCard } from '@/features/organizations/components/organization-card'
 import { OrganizationPreview } from '@/features/organizations/components/organization-preview'
 import { organizationsQuery } from '@/features/organizations/queries'
+import { ensureSharedQueryData } from '@/shared/api/ensure-shared-query-data'
 import { Button } from '@/shared/ui/button'
 import { Card, CardAction, CardContent, CardHeader, CardTitle } from '@/shared/ui/card'
 import { ErrorState } from '@/shared/ui/feedback/error-state'
@@ -22,7 +23,7 @@ export const Route = createFileRoute('/_app/')({
   loader: ({ context: { queryClient } }) =>
     Promise.all([
       queryClient.ensureQueryData(dashboardQuery()),
-      queryClient.ensureQueryData(accountQuery()),
+      ensureSharedQueryData(queryClient, accountQuery()),
       queryClient.ensureQueryData(recentQuery()),
     ]),
   pendingComponent: () => <PageSkeleton />,
