@@ -10,8 +10,7 @@ namespace Prospecter\Core\SharedKernel\Domain;
  */
 final readonly class SearchKey implements \Stringable
 {
-    private const string NEITHER_A_LETTER_NOR_A_DIGIT = '/[^\p{L}\p{N}]+/u';
-    private const string ACCENT = '/\p{Mn}+/u';
+    private const string IGNORED_BY_THE_SEARCH = '/[^\p{L}\p{N}]+/u';
 
     private function __construct(public string $value)
     {
@@ -26,7 +25,7 @@ final readonly class SearchKey implements \Stringable
         $value = (string) $text
             |> mb_strtolower(...)
             |> (static fn (string $lower): string => (string) \Normalizer::normalize($lower, \Normalizer::FORM_D))
-            |> (static fn (string $decomposed): string => (string) preg_replace([self::ACCENT, self::NEITHER_A_LETTER_NOR_A_DIGIT], '', $decomposed));
+            |> (static fn (string $decomposed): string => (string) preg_replace(self::IGNORED_BY_THE_SEARCH, '', $decomposed));
 
         return '' === $value ? null : new self($value);
     }
