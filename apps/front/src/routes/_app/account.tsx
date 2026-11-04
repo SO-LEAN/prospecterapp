@@ -12,6 +12,7 @@ import {
   PictureSection,
 } from '@/features/account/components/account-sections'
 import { accountQuery, signInQuery } from '@/features/account/queries'
+import { ensureSharedQueryData } from '@/shared/api/ensure-shared-query-data'
 import { ErrorState } from '@/shared/ui/feedback/error-state'
 import { PageHeader } from '@/shared/ui/page-header'
 import { PageSkeleton } from '@/shared/ui/page-skeleton'
@@ -19,7 +20,7 @@ import { PageSkeleton } from '@/shared/ui/page-skeleton'
 export const Route = createFileRoute('/_app/account')({
   loader: ({ context }) =>
     Promise.all([
-      context.queryClient.ensureQueryData(accountQuery()),
+      ensureSharedQueryData(context.queryClient, accountQuery()),
       context.queryClient.ensureQueryData(signInQuery()),
     ]),
   pendingComponent: () => <PageSkeleton />,

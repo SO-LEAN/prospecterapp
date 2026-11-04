@@ -17,6 +17,7 @@ import {
   organizationContactsQuery,
   organizationQuery,
 } from '@/features/organizations/queries'
+import { ensureSharedQueryData } from '@/shared/api/ensure-shared-query-data'
 import { notFoundWhenTheApiSaysSo, uuidParams } from '@/shared/lib/route-params'
 import { BackButton } from '@/shared/ui/back-button'
 import { Badge } from '@/shared/ui/badge'
@@ -37,7 +38,7 @@ export const Route = createFileRoute('/_app/organizations/$organizationId/')({
           }
           return organization
         }),
-      context.queryClient.ensureQueryData(accountQuery()),
+      ensureSharedQueryData(context.queryClient, accountQuery()),
     ]),
   pendingComponent: () => <PageSkeleton />,
   errorComponent: ({ error, reset }) => <ErrorState error={error} reset={reset} />,
