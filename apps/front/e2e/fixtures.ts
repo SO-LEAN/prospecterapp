@@ -1,4 +1,4 @@
-import { type BrowserContext, test as base, expect, type Route } from '@playwright/test'
+import { type BrowserContext, test as base, expect, type Route, type WebSocketRoute } from '@playwright/test'
 
 /** The hosts of the local stack: a journey asks nothing else, a service outside it doubled. */
 const HOSTS_OF_THE_STACK = new Set([
@@ -51,15 +51,18 @@ function lineThrough(...coordinates: [number, number][]) {
   return { type: 'Feature', properties: {}, geometry: { type: 'LineString', coordinates } }
 }
 
-/** Refuses what a page asks outside the stack, and remembers the host asked. */
+const isOutsideTheStack = (url: URL) => !HOSTS_OF_THE_STACK.has(url.hostname)
+
+/** Refuses what a page asks outside the stack, by HTTP or WebSocket, and remembers the host asked. */
 async function refuseTheHostsOutsideTheStack(context: BrowserContext, asked: Set<string>) {
-  await context.route(
-    (url) => !HOSTS_OF_THE_STACK.has(url.hostname),
-    (route: Route) => {
-      asked.add(new URL(route.request().url()).hostname)
-      return route.abort('blockedbyclient')
-    },
-  )
+  await context.route(isOutsideTheStack, (route: Route) => {
+    asked.add(new URL(route.request().url()).hostname)
+    return route.abort('blockedbyclient')
+  })
+  await context.routeWebSocket(isOutsideTheStack, (webSocket: WebSocketRoute) => {
+    asked.add(new URL(webSocket.url()).hostname)
+    return webSocket.close()
+  })
 }
 
 /**

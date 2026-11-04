@@ -49,14 +49,18 @@ lambda_function() {
         --environment "$(environment "$app" "$variables")" --query FunctionArn
 }
 
-# MiniStack recycles the containers of a function whose environment changes: the next request starts a new one
-if [ "${1:-}" = geocoder ]; then
+# api_geocoder [url]: the geocoder the API asks, a double that must answer first; MiniStack recycles the containers
+# of a function whose environment changes, the next request starting a new one
+api_geocoder() {
+    if [ -n "${1:-}" ] && ! curl -sf -o /dev/null "$1"; then
+        echo "No geocoder answers at $1: make start builds nginx with its double" >&2
+        exit 1
+    fi
     aws lambda update-function-configuration --function-name prospecter-dev-api \
-        --environment "$(environment api "$(api_variables "${2:-}")")" >/dev/null
+        --environment "$(environment api "$(api_variables "${1:-}")")" >/dev/null
     aws lambda wait function-updated --function-name prospecter-dev-api
-    echo "The API asks the geocoder ${2:-of apps/api/.env}"
-    exit
-fi
+    echo "The API asks the geocoder ${1:-of apps/api/.env}"
+}
 
 # http_api <app> <function arn> [cors]: the HTTP API of an app, stage local
 http_api() {
@@ -80,21 +84,30 @@ http_api() {
         || aws apigatewayv2 create-stage --api-id "$name" --stage-name local --auto-deploy >/dev/null
 }
 
-php=$(layer "$PHP_LAYER" /build/php.zip)
-imagick=$(layer "$IMAGICK_LAYER" /build/imagick.zip)
+# deploy_apps: the functions of the API and the storage behind their HTTP APIs, warmed
+deploy_apps() {
+    php=$(layer "$PHP_LAYER" /build/php.zip)
+    imagick=$(layer "$IMAGICK_LAYER" /build/imagick.zip)
 
-# MiniStack answers every preflight from the CORS of the HTTP API, never passing it to the function as AWS does
-# without one: the API gets the same CORS as its nelmio_cors in dev
-http_api api "$(lambda_function api "$(api_variables)" "$php")" \
-    'AllowOrigins=https://local.prospecter.io,AllowMethods=GET,OPTIONS,POST,PATCH,DELETE,AllowHeaders=content-type,authorization,ExposeHeaders=location,x-debug-token,x-debug-token-link,MaxAge=3600'
-# the storage answers images: Bref sends them base64-encoded only when asked
-http_api storage "$(lambda_function storage ,BREF_BINARY_RESPONSES=1 "$php" "$imagick")"
+    # MiniStack answers every preflight from the CORS of the HTTP API, never passing it to the function as AWS does
+    # without one: the API gets the same CORS as its nelmio_cors in dev
+    http_api api "$(lambda_function api "$(api_variables)" "$php")" \
+        'AllowOrigins=https://local.prospecter.io,AllowMethods=GET,OPTIONS,POST,PATCH,DELETE,AllowHeaders=content-type,authorization,ExposeHeaders=location,x-debug-token,x-debug-token-link,MaxAge=3600'
+    # the storage answers images: Bref sends them base64-encoded only when asked
+    http_api storage "$(lambda_function storage ,BREF_BINARY_RESPONSES=1 "$php" "$imagick")"
 
-# warm a few functions and the caches of Symfony: the SPA asks several resources at once, each in a function
-for warm in 1 2 3; do
-    curl -s -o /dev/null -H "Host: $API_HOST" "$AWS_ENDPOINT_URL/_aws/execute-api/prospecter-dev-api/local/api/user-pool" &
-done
-curl -s -o /dev/null "$AWS_ENDPOINT_URL/_aws/execute-api/prospecter-dev-storage/local/storage/small/none" &
-wait
+    # warm a few functions and the caches of Symfony: the SPA asks several resources at once, each in a function
+    for warm in 1 2 3; do
+        curl -s -o /dev/null -H "Host: $API_HOST" "$AWS_ENDPOINT_URL/_aws/execute-api/prospecter-dev-api/local/api/user-pool" &
+    done
+    curl -s -o /dev/null "$AWS_ENDPOINT_URL/_aws/execute-api/prospecter-dev-storage/local/storage/small/none" &
+    wait
 
-echo "Lambdas prospecter-dev-api and prospecter-dev-storage with $php and $imagick, behind their HTTP APIs (stage local)"
+    echo "Lambdas prospecter-dev-api and prospecter-dev-storage with $php and $imagick, behind their HTTP APIs (stage local)"
+}
+
+if [ "${1:-}" = geocoder ]; then
+    api_geocoder "${2:-}"
+else
+    deploy_apps
+fi
