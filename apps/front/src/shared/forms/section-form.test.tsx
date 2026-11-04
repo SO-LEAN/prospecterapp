@@ -10,8 +10,6 @@ import {
 } from './contact-details'
 import { SectionForm } from './section-form'
 
-vi.mock('@/shared/ui/form/country-select', () => import('@/test/country-select'))
-
 function renderSection(save = vi.fn().mockResolvedValue(undefined), editable = true) {
   render(
     <EditableSection

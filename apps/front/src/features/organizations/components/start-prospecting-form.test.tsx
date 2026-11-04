@@ -3,8 +3,6 @@ import userEvent from '@testing-library/user-event'
 import { describe, expect, it, vi } from 'vitest'
 import { StartProspectingForm } from './start-prospecting-form'
 
-vi.mock('@/shared/ui/form/country-select', () => import('@/test/country-select'))
-
 function renderForm(onSubmit = vi.fn().mockResolvedValue(undefined)) {
   render(<StartProspectingForm onSubmit={onSubmit} onCancel={vi.fn()} />)
   return { onSubmit, user: userEvent.setup() }
