@@ -1,11 +1,27 @@
 import { expect, test } from './fixtures'
 import { SIGN_IN_PAGE } from './sign-in'
 
-const A_HOST_OUTSIDE_THE_STACK = 'https://example.org/'
+test.fail(
+  'a journey whose page fetches from a host outside the stack fails, naming the host',
+  async ({ page }) => {
+    await page.goto('/')
+    await expect(page).toHaveURL(SIGN_IN_PAGE)
 
-test.fail('a journey whose page asks a host outside the stack fails, naming the host', async ({ page }) => {
-  await page.goto('/')
-  await expect(page).toHaveURL(SIGN_IN_PAGE)
+    await page.evaluate(() => fetch('https://example.org/').catch(() => 'refused'))
+  },
+)
 
-  await page.evaluate((url) => fetch(url).catch(() => 'refused'), A_HOST_OUTSIDE_THE_STACK)
-})
+test.fail(
+  'a journey whose page opens a WebSocket outside the stack fails, naming the host',
+  async ({ page }) => {
+    await page.goto('/')
+    await expect(page).toHaveURL(SIGN_IN_PAGE)
+
+    await page.evaluate(
+      () =>
+        new Promise((closed) => {
+          new WebSocket('wss://example.net/').addEventListener('close', closed)
+        }),
+    )
+  },
+)
