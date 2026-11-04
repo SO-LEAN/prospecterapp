@@ -3,8 +3,6 @@ import userEvent from '@testing-library/user-event'
 import { describe, expect, it, vi } from 'vitest'
 import { CollectContactForm } from './collect-contact-form'
 
-vi.mock('@/shared/ui/form/country-select', () => import('@/test/country-select'))
-
 function renderForm(onSubmit = vi.fn().mockResolvedValue(undefined)) {
   render(
     <CollectContactForm

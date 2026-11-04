@@ -42,7 +42,7 @@ src/
     i18n/               setup and fr.ts
     forms/              section form, FormField, CountryField, shared field groups (AddressFields, ContactDetailsFields, LegalIdentityFields, PersonNameFields)
     lib/ hooks/ stores/ utilities (route-params.ts: UUID route params, a 404 of the API as a not found page), hooks, Zustand stores
-  test/                 setup.ts: the Vitest setup; render-in-a-router.tsx: renders a component holding links in a memory router; country-select.tsx: a native double of the country select, for the tests of a form choosing no country (the select of Radix mounts its 249 options even closed, a second or more in jsdom)
+  test/                 setup.ts: the Vitest setup; render-in-a-router.tsx: renders a component holding links in a memory router
 e2e/                    Playwright journeys, one at a time; wait-for-the-stack.ts, their global setup, waits for the SPA, the api and the storage; sign-in.ts signs the demonstration member in; colors.ts reads the painted colors and their WCAG contrast
 ```
 
