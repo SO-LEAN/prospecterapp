@@ -14,7 +14,7 @@
         "imagine/imagine": "^1.5",
         "symfony/console": "8.1.*",
         "symfony/dotenv": "8.1.*",
-        "symfony/flex": "^2",
+        "symfony/flex": "^2.12",
         "symfony/framework-bundle": "8.1.*",
         "symfony/mime": "8.1.*",
         "symfony/monolog-bundle": "^4.1",
