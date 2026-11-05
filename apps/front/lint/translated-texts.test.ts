@@ -7,9 +7,9 @@ import { describe, expect, it } from 'vitest'
 const BIOME = join(import.meta.dirname, '../node_modules/.bin/biome')
 const THE_RULE = join(import.meta.dirname, 'translated-texts.grit')
 const ONLY_THE_RULE = { linter: { rules: { recommended: false } }, plugins: [THE_RULE] }
-const ANNOTATION = /^::error title=plugin,file=[^,]+,line=(\d+),[^:]*::(.*)$/
+const ANNOTATION = /^::error title=plugin,file=([^,]+),line=(\d+),[^:]*::(.*)$/
 
-type Refusal = { line: number; message: string }
+type Refusal = { file: string; line: number; message: string }
 
 /** Lints a component with the rule alone, in a project of its own: what the rule refuses, by line. */
 function refusalsOf(component: string): Refusal[] {
@@ -25,7 +25,7 @@ function refusalsOf(component: string): Refusal[] {
       .split('\n')
       .map((line) => ANNOTATION.exec(line))
       .filter((annotation) => annotation !== null)
-      .map(([, line, message]) => ({ line: Number(line), message: message ?? '' }))
+      .map(([, file, line, message]) => ({ file: file ?? '', line: Number(line), message: message ?? '' }))
   } finally {
     rmSync(project, { recursive: true, force: true })
   }
@@ -36,10 +36,14 @@ function linesRefused(component: string): number[] {
 }
 
 describe('the rule of the translations', () => {
-  it('refuses a text written in a component, naming the rule', () => {
+  it('refuses a text written in a component, naming its file, its line and the rule', () => {
     const [refusal] = refusalsOf(`export const Hint = () => <p>JPEG, PNG, WebP</p>\n`)
 
-    expect(refusal).toEqual({ line: 1, message: expect.stringContaining('shared/i18n/fr.ts through t()') })
+    expect(refusal).toEqual({
+      file: expect.stringMatching(/\/component\.tsx$/),
+      line: 1,
+      message: expect.stringContaining('shared/i18n/fr.ts through t()'),
+    })
   })
 
   it('refuses a text announced to the screen readers or shown in a field', () => {
