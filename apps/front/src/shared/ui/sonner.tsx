@@ -3,7 +3,7 @@ import { useTranslation } from 'react-i18next'
 import { Toaster as Sonner, type ToasterProps } from 'sonner'
 import { useResolvedTheme } from '@/shared/stores/preferences'
 
-const Toaster = ({ ...props }: ToasterProps) => {
+const Toaster = ({ toastOptions, ...props }: ToasterProps) => {
   const { t } = useTranslation()
   const theme = useResolvedTheme()
 
@@ -11,7 +11,7 @@ const Toaster = ({ ...props }: ToasterProps) => {
     <Sonner
       theme={theme}
       className="toaster group"
-      toastOptions={{ closeButtonAriaLabel: t('common.close') }}
+      toastOptions={{ ...toastOptions, closeButtonAriaLabel: t('common.close') }}
       icons={{
         success: <CircleCheckIcon className="size-4" />,
         info: <InfoIcon className="size-4" />,
