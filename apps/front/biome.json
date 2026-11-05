@@ -56,6 +56,12 @@
       }
     }
   },
+  "plugins": [
+    {
+      "path": "./lint/translated-texts.grit",
+      "includes": ["**/src/**", "!**/*.test.ts", "!**/*.test.tsx"]
+    }
+  ],
   "assist": {
     "actions": {
       "source": {

@@ -43,6 +43,7 @@ src/
     forms/              section form, FormField, CountryField, shared field groups (AddressFields, ContactDetailsFields, LegalIdentityFields, PersonNameFields)
     lib/ hooks/ stores/ utilities (route-params.ts: UUID route params, a 404 of the API as a not found page), hooks, Zustand stores
   test/                 setup.ts: the Vitest setup; render-in-a-router.tsx: renders a component holding links in a memory router
+lint/                   translated-texts.grit: the plugin of Biome refusing a text written in the code (ADR 0093), and its test
 e2e/                    Playwright journeys, one at a time (docs/architecture/tests.md); fixtures.ts, their test: the maps on a double, no host outside the stack; wait-for-the-stack.ts, their global setup, waits for the SPA, the api and the storage; sign-in.ts signs the demonstration member in; colors.ts reads the painted colors and their WCAG contrast
 ```
 
@@ -112,7 +113,7 @@ See `docs/architecture/auth.md`. In the SPA: `shared/auth/session.ts` signs in o
 - Never write `useMemo`/`useCallback`/`memo` for performance: the React Compiler does it.
 - After an API change: `make api-doc` (regenerates `src/shared/api/schema.d.ts`, never edited by hand) and fix the type errors.
 - Forms: react-hook-form + zod schema mirroring the API constraints; show server violations with `applyViolations`. A resource is changed section by section, one intent each: `EditableSection` + `SectionForm`, shared field groups in `shared/forms`, fields through `FormField` (it subscribes to its own error; the React Compiler would not re-render a memoized group). `Field` gives its label, error and hint to its direct child: a controlled field puts its `Controller` around the `FormField`, never inside (`CountryField`), or the control has no name for a screen reader. Only a creation has a full form. Show an action only when the resource carries its link (`_links.<intention>`), never from the data itself.
-- UI: compose `shared/ui` components and semantic tokens (`bg-card`, `text-muted-foreground`…), no raw colors, no inline styles. Every text through `t()` with a key added to `shared/i18n/fr.ts` (keys are typed).
+- UI: compose `shared/ui` components and semantic tokens (`bg-card`, `text-muted-foreground`…), no raw colors, no inline styles. Every text shown or announced (to the screen readers too: `sr-only`, `aria-label`, `title`, `placeholder`, `alt`) through `t()` with a key added to `shared/i18n/fr.ts` (keys are typed); `make lint` refuses one written in the code (`lint/translated-texts.grit`, ADR 0093), never an error thrown or a log. The texts of a library come from `fr.ts` too: MapLibre by its `locale` (`map-view.tsx`), Sonner by `closeButtonAriaLabel` (`shared/ui/sonner.tsx`), a component of shadcn added by its props.
 - Navigation: "Retour" goes back in history (`shared/ui/back-button.tsx`, fallback link when opened directly), a creation form is left with `useGoBack` and replaces itself (`replace: true`), so going back never lands on a form already submitted or cancelled.
 - Accessibility: every control labelled (`Field`), icons `aria-hidden` next to text, keyboard reachable.
 - Style: Biome (single quotes, no semicolons, 110 columns), `import type` for types, `@/` alias for `src/`.

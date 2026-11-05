@@ -70,7 +70,7 @@ No test depends on a service outside the local stack: it doubles it, so that a r
 ## The journeys
 
 - `make e2e`: Playwright on the running stack (`apps/front/e2e`), one journey at a time, the API asking the double of the geocoder of nginx meanwhile (`http://nginx:8081/search`, `docker/nginx/conf.d/geocoder-double.conf`): a known place (Strasbourg) at a fixed position, any other address not placed, as the service of the IGN answers; a double that does not answer stops the journeys before they start. Afterwards, whatever the result, and with `make start`, the API asks the IGN again.
-- A journey takes its `test` from `e2e/fixtures.ts` (Biome refuses it from `@playwright/test`): the maps get their style from a double, without tiles, and a journey whose pages ask a host outside the stack, by HTTP or WebSocket, fails, naming it (`outside-the-stack.spec.ts`). A service a journey needs is doubled by its own route (`page.route`, `context.route`), which wins: OpenStreetMap in `directions.spec.ts`, a resource of the API changed to the case of the journey.
+- A journey takes its `test` from `e2e/fixtures.ts` (Biome refuses it from `@playwright/test`): the maps get their style from a double, without tiles, credited as the real one, and a journey whose pages ask a host outside the stack, by HTTP or WebSocket, fails, naming it (`outside-the-stack.spec.ts`). A service a journey needs is doubled by its own route (`page.route`, `context.route`), which wins: OpenStreetMap in `directions.spec.ts`, a resource of the API changed to the case of the journey.
 - A journey needing a new place adds it to the map of the double.
 
 ## Tests of mutation

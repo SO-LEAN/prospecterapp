@@ -119,7 +119,7 @@ export function ImageUpload({
           )}
         </div>
         <p className={cn('text-xs', error ? 'text-destructive' : 'text-muted-foreground')}>
-          {error ?? 'JPEG, PNG, WebP · 2 Mo max'}
+          {error ?? t('common.imageRequirements')}
         </p>
       </div>
       <input

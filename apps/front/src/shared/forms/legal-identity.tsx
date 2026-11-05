@@ -46,7 +46,7 @@ export function LegalIdentityFields<Values extends FieldValues>({
         <Input {...form.register(path('corporateName'))} />
       </FormField>
       <FormField form={form} name={path('form')} label={t('fields.form')} optional={t('common.optional')}>
-        <Input {...form.register(path('form'))} placeholder="SAS, SARL…" />
+        <Input {...form.register(path('form'))} placeholder={t('fields.formExample')} />
       </FormField>
       {withType && (
         <FormField form={form} name={path('type')} label={t('fields.type')} optional={t('common.optional')}>
