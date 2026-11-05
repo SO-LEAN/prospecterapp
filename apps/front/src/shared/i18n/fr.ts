@@ -34,6 +34,7 @@ export const fr = {
     editSection: 'Modifier : {{section}}',
     saved: 'Modification enregistrée',
     back: 'Retour',
+    close: 'Fermer',
     remove: 'Supprimer',
     uploading: 'Envoi…',
     optional: 'facultatif',
