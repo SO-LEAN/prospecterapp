@@ -1,0 +1,49 @@
+language js
+
+pattern hard_coded_text() {
+  or {
+    JsStringLiteralExpression() as $literal where { $literal <: r"(?s).*\p{L}.*" },
+    JsTemplateExpression(tag=.) as $template where { $template <: r"(?s).*\p{L}.*" },
+    JsConditionalExpression(consequent=$shown, alternate=$otherwise) where {
+      or { $shown <: hard_coded_text(), $otherwise <: hard_coded_text() }
+    },
+    JsLogicalExpression(right=$fallback) where { $fallback <: hard_coded_text() },
+    JsParenthesizedExpression(expression=$inner) where { $inner <: hard_coded_text() }
+  }
+}
+
+pattern announced_attribute() {
+  or {
+    `title`,
+    `aria-label`,
+    `placeholder`,
+    `alt`,
+    `label`
+  }
+}
+
+or {
+  JsxText() as $text where {
+    $text <: r"(?s).*\p{L}.*",
+    register_diagnostic(span=$text, message="A text shown or announced comes from shared/i18n/fr.ts through t() (docs/architecture/front.md).")
+  },
+  JsxExpressionChild(expression=$child) where {
+    $child <: hard_coded_text(),
+    register_diagnostic(span=$child, message="A text shown or announced comes from shared/i18n/fr.ts through t() (docs/architecture/front.md).")
+  },
+  JsxAttribute(name=$name, initializer=JsxAttributeInitializerClause(value=$value)) where {
+    $name <: announced_attribute(),
+    $value <: or {
+      JsxString() as $string where { $string <: r"(?s).*\p{L}.*" },
+      JsxExpressionAttributeValue(expression=$expression) where { $expression <: hard_coded_text() }
+    },
+    register_diagnostic(span=$value, message="A text shown or announced comes from shared/i18n/fr.ts through t() (docs/architecture/front.md).")
+  },
+  or {
+    `toast($message)`,
+    `toast.$_($message)`
+  } where {
+    $message <: hard_coded_text(),
+    register_diagnostic(span=$message, message="A text shown or announced comes from shared/i18n/fr.ts through t() (docs/architecture/front.md).")
+  }
+}

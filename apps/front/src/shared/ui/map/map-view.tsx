@@ -1,8 +1,10 @@
 import 'maplibre-gl/dist/maplibre-gl.css'
 import './map-view.css'
+import type { TFunction } from 'i18next'
 import { setWorkerUrl } from 'maplibre-gl'
 import bundledWorkerUrl from 'maplibre-gl/dist/maplibre-gl-worker.mjs?url'
 import { type ReactNode, useRef, useState } from 'react'
+import { useTranslation } from 'react-i18next'
 import MapGL, { type MapRef, Marker, type MarkerEvent, NavigationControl, Popup } from 'react-map-gl/maplibre'
 import { useResolvedTheme } from '@/shared/stores/preferences'
 import type { MapMarker } from './geo-map'
@@ -19,6 +21,20 @@ const WHOLE_FRANCE = { longitude: 2.35, latitude: 46.6, zoom: 4.5 }
 
 const preventTheMapFromClosingThePopup = (event: MarkerEvent<MouseEvent>) =>
   event.originalEvent.stopPropagation()
+
+/** The texts MapLibre shows or announces on our maps, by its identifiers (`src/ui/default_locale.ts` of MapLibre). */
+function mapLibreTextsIn(t: TFunction) {
+  return {
+    'Map.Title': t('map.title'),
+    'NavigationControl.ZoomIn': t('map.zoomIn'),
+    'NavigationControl.ZoomOut': t('map.zoomOut'),
+    'AttributionControl.ToggleAttribution': t('map.toggleAttribution'),
+    'Popup.Close': t('common.close'),
+    'CooperativeGesturesHandler.WindowsHelpText': t('map.gestures.zoomWithCtrl'),
+    'CooperativeGesturesHandler.MacHelpText': t('map.gestures.zoomWithCommand'),
+    'CooperativeGesturesHandler.MobileHelpText': t('map.gestures.moveWithTwoFingers'),
+  }
+}
 
 type Props = { markers: MapMarker[]; zoom?: number; renderPopup?: (marker: MapMarker) => ReactNode }
 
@@ -39,6 +55,7 @@ function initialViewStateFor(markers: MapMarker[], zoom: number) {
 }
 
 export default function MapView({ markers, zoom = 13, renderPopup }: Props) {
+  const { t } = useTranslation()
   const theme = useResolvedTheme()
   const [selected, setSelected] = useState<MapMarker | null>(null)
   const mapRef = useRef<MapRef>(null)
@@ -65,6 +82,7 @@ export default function MapView({ markers, zoom = 13, renderPopup }: Props) {
       style={{ width: '100%', height: '100%' }}
       attributionControl={{ compact: true }}
       cooperativeGestures
+      locale={mapLibreTextsIn(t)}
     >
       <NavigationControl position="top-right" showCompass={false} />
       {markers.map((marker) => (

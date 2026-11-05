@@ -37,6 +37,7 @@ export const fr = {
     close: 'Fermer',
     remove: 'Supprimer',
     uploading: 'Envoi…',
+    imageRequirements: 'JPEG, PNG, WebP · 2 Mo max',
     optional: 'facultatif',
     notProvided: 'Non renseigné',
     loading: 'Chargement…',
@@ -54,6 +55,17 @@ export const fr = {
     backHome: 'Retour au tableau de bord',
     imageInvalid: 'Image invalide : JPEG, PNG ou WebP de 2 Mo maximum.',
   },
+  map: {
+    title: 'Carte',
+    zoomIn: 'Zoomer',
+    zoomOut: 'Dézoomer',
+    toggleAttribution: 'Afficher ou masquer les crédits de la carte',
+    gestures: {
+      zoomWithCtrl: 'Ctrl + molette pour zoomer sur la carte',
+      zoomWithCommand: '⌘ + molette pour zoomer sur la carte',
+      moveWithTwoFingers: 'Deux doigts pour déplacer la carte',
+    },
+  },
   dashboard: {
     greeting: 'Bonjour {{name}}',
     subtitle: 'Vue d’ensemble de la prospection de {{organization}}.',
@@ -65,6 +77,7 @@ export const fr = {
     jobTitle: 'Fonction',
     corporateName: 'Raison sociale',
     form: 'Forme juridique',
+    formExample: 'SAS, SARL…',
     type: 'Type',
     email: 'E-mail',
     phoneNumber: 'Téléphone',

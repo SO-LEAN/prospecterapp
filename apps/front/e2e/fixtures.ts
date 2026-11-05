@@ -16,13 +16,15 @@ function degreesBetween(first: number, last: number) {
 
 /**
  * The double of the styles of OpenFreeMap: no tile, a background crossed by the meridians and the parallels of
- * France, drawn from the style itself, so that the map moves visibly when it is zoomed or dragged.
+ * France, drawn from the style itself, so that the map moves visibly when it is zoomed or dragged; credited as
+ * OpenFreeMap credits its tiles, so that the map has its button of the credits.
  */
 const MAP_STYLE = {
   version: 8,
   sources: {
     graticule: {
       type: 'geojson',
+      attribution: 'OpenFreeMap © OpenMapTiles Data from OpenStreetMap',
       data: {
         type: 'FeatureCollection',
         features: [
