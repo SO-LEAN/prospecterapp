@@ -13,7 +13,7 @@ use App\Shared\Resource\ProblemResource;
 use Nelmio\ApiDocBundle\Attribute\Model;
 use OpenApi\Attributes as OA;
 use Prospecter\Core\Prospecting\Application\SearchProspectedOrganizations\SearchProspectedOrganizations;
-use Prospecter\Core\SharedKernel\Application\RefusalTranslatingHandler;
+use Prospecter\Core\SharedKernel\Application\QueryHandler;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\Routing\Attribute\Route;
@@ -28,7 +28,7 @@ final class ShowDashboardController extends AbstractController
 
     public function __construct(
         private readonly MyAccountReader $myAccountReader,
-        private readonly RefusalTranslatingHandler $searchProspectedOrganizations,
+        private readonly QueryHandler $searchProspectedOrganizations,
         private readonly ImageResourceFactory $imageResourceFactory,
         private readonly Links $links,
     ) {

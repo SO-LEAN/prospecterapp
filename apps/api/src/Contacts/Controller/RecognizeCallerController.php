@@ -16,7 +16,7 @@ use Prospecter\Core\PersonalData\Application\RecognizeCallingContact\KeptCalling
 use Prospecter\Core\PersonalData\Application\RecognizeCallingContact\RecognizeCallingContact;
 use Prospecter\Core\Prospecting\Application\RecognizeCallingOrganization\KeptCallingOrganizations;
 use Prospecter\Core\Prospecting\Application\RecognizeCallingOrganization\RecognizeCallingOrganization;
-use Prospecter\Core\SharedKernel\Application\RefusalTranslatingHandler;
+use Prospecter\Core\SharedKernel\Application\QueryHandler;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\Routing\Attribute\Route;
@@ -32,8 +32,8 @@ use Symfony\Component\Security\Http\Attribute\IsGranted;
 final class RecognizeCallerController extends AbstractController
 {
     public function __construct(
-        private readonly RefusalTranslatingHandler $recognizeCallingOrganization,
-        private readonly RefusalTranslatingHandler $recognizeCallingContact,
+        private readonly QueryHandler $recognizeCallingOrganization,
+        private readonly QueryHandler $recognizeCallingContact,
         private readonly OrganizationsOfContacts $organizationsOfContacts,
         private readonly OrganizationReader $organizationReader,
         private readonly ContactInListResourceFactory $contactInListResourceFactory,

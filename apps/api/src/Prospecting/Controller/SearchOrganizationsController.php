@@ -12,7 +12,7 @@ use App\Shared\Resource\ProblemResource;
 use Nelmio\ApiDocBundle\Attribute\Model;
 use OpenApi\Attributes as OA;
 use Prospecter\Core\Prospecting\Application\SearchProspectedOrganizations\SearchProspectedOrganizations;
-use Prospecter\Core\SharedKernel\Application\RefusalTranslatingHandler;
+use Prospecter\Core\SharedKernel\Application\QueryHandler;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpKernel\Attribute\MapQueryString;
@@ -25,7 +25,7 @@ use Symfony\Component\Security\Http\Attribute\IsGranted;
 final class SearchOrganizationsController extends AbstractController
 {
     public function __construct(
-        private readonly RefusalTranslatingHandler $searchProspectedOrganizations,
+        private readonly QueryHandler $searchProspectedOrganizations,
         private readonly ImageResourceFactory $imageResourceFactory,
         private readonly Links $links,
     ) {

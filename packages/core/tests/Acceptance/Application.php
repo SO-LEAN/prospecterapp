@@ -117,7 +117,8 @@ use Prospecter\Core\SharedKernel\Application\Exception\UseCaseRefused;
 use Prospecter\Core\SharedKernel\Application\FileStore;
 use Prospecter\Core\SharedKernel\Application\GeoLocalizer;
 use Prospecter\Core\SharedKernel\Application\QueryHandler;
-use Prospecter\Core\SharedKernel\Application\RefusalTranslatingHandler;
+use Prospecter\Core\SharedKernel\Application\RefusalTranslatingCommandHandler;
+use Prospecter\Core\SharedKernel\Application\RefusalTranslatingQueryHandler;
 use Prospecter\Core\SharedKernel\Domain\MemberId;
 use Tests\Core\Double\AccountsProspectors;
 use Tests\Core\Double\AccountsReaders;
@@ -145,7 +146,7 @@ use Tests\Core\Double\TimeOrderedUuids;
 
 /**
  * The hexagon as the scenarios use it: the real handlers, wired to in-memory implementations of their
- * ports, called the way a delivery calls them: through a RefusalTranslatingHandler, a command is sent to
+ * ports, called the way a delivery calls them: through the translation of their refusals, a command is sent to
  * its handler (a command bus in the API) and returns nothing, a query presents what it reads to the presenter
  * of the core keeping it as it is (ADR 0085).
  */
@@ -273,7 +274,7 @@ final class Application
     {
         $handler = $this->handlers[$command::class] ?? throw new \LogicException(sprintf('No handler for %s', $command::class));
         $this->attempt(static function () use ($handler, $command): void {
-            new RefusalTranslatingHandler($handler)($command);
+            new RefusalTranslatingCommandHandler($handler)($command);
         });
     }
 
@@ -511,7 +512,7 @@ final class Application
     private function ask(QueryHandler $handler, object $query, object $output): bool
     {
         return null !== $this->attempt(static function () use ($handler, $query, $output): bool {
-            new RefusalTranslatingHandler($handler)($query, $output);
+            new RefusalTranslatingQueryHandler($handler)($query, $output);
 
             return true;
         });

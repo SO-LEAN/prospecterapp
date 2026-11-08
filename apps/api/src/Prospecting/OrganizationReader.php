@@ -9,7 +9,7 @@ use App\Shared\ImageResourceFactory;
 use App\Shared\Links;
 use Prospecter\Core\Prospecting\Application\ConsultOrganization\ConsultOrganization;
 use Prospecter\Core\Prospecting\Application\OrganizationSheet;
-use Prospecter\Core\SharedKernel\Application\RefusalTranslatingHandler;
+use Prospecter\Core\SharedKernel\Application\QueryHandler;
 
 /**
  * An organization as the API shows it: read by the query of the core, presented to the presenter it builds for the
@@ -19,7 +19,7 @@ use Prospecter\Core\SharedKernel\Application\RefusalTranslatingHandler;
 final readonly class OrganizationReader
 {
     public function __construct(
-        private RefusalTranslatingHandler $consultOrganization,
+        private QueryHandler $consultOrganization,
         private ImageResourceFactory $images,
         private Links $links,
         private IntentLinks $intents,

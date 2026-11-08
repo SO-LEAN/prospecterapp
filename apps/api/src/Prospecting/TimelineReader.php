@@ -5,7 +5,7 @@ namespace App\Prospecting;
 use App\Prospecting\Presenter\TimelinePresenter;
 use App\Prospecting\Resource\TimelineResource;
 use Prospecter\Core\Prospecting\Application\ConsultTimeline\ConsultTimeline;
-use Prospecter\Core\SharedKernel\Application\RefusalTranslatingHandler;
+use Prospecter\Core\SharedKernel\Application\QueryHandler;
 
 /**
  * The timeline of a contact as the API shows it: read by the query of the core, presented to the presenter it
@@ -14,7 +14,7 @@ use Prospecter\Core\SharedKernel\Application\RefusalTranslatingHandler;
  */
 final readonly class TimelineReader
 {
-    public function __construct(private RefusalTranslatingHandler $consultTimeline, private TimelineResourceFactory $timelines)
+    public function __construct(private QueryHandler $consultTimeline, private TimelineResourceFactory $timelines)
     {
     }
 

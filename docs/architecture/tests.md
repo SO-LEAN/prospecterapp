@@ -7,7 +7,7 @@ Two loops, as in *Growing Object-Oriented Software*:
 
 ## Nothing inside the hexagon is doubled
 
-Aggregates, value objects, handlers, services (`FileStore`, `GeoLocalizer`, `EmailUniqueness`, `OrphanContacts`, `ContactOrganizations`, `AttachedFiles`, built once by `Application` and injected into the handlers, ADR 0044) and the decorator `RefusalTranslatingHandler` are the real classes. Only the ports, the interfaces towards the outside, get test implementations, in `tests/Double`. They are working implementations, not mocks; no mocking library is used.
+Aggregates, value objects, handlers, services (`FileStore`, `GeoLocalizer`, `EmailUniqueness`, `OrphanContacts`, `ContactOrganizations`, `AttachedFiles`, built once by `Application` and injected into the handlers, ADR 0044) and the decorators `RefusalTranslatingCommandHandler` and `RefusalTranslatingQueryHandler` are the real classes. Only the ports, the interfaces towards the outside, get test implementations, in `tests/Double`. They are working implementations, not mocks; no mocking library is used.
 
 | Port | Double | Behaves like |
 |---|---|---|
@@ -33,14 +33,14 @@ tests/Acceptance/Vocabulary     French labels of the tables, how they read entit
 tests/Acceptance/Expect         assertions (PHPUnit's need its runner to describe a failure)
 tests/Double/                   the ports' test implementations
 tests/Domain/                   PHPUnit: value objects rich in edge cases, intents refused exactly when not offered
-tests/Application/              PHPUnit: the translation of the refusals of the domain (UseCaseRefused, RefusalTranslatingHandler)
+tests/Application/              PHPUnit: the translation of the refusals of the domain (UseCaseRefused, RefusalTranslatingCommandHandler, RefusalTranslatingQueryHandler)
 tests/Architecture/             PHPUnit: no bounded context uses another one but its Contract, a Contract imports nothing,
                                 no domain class in a request or a response, every handler a CommandHandler, a
                                 QueryHandler or an EventHandler, every event handler subscribed in the scenarios
 tests/Mutation/                 the scenarios of each feature as a PHPUnit test, for the tests of mutation only
 ```
 
-The scenarios do not know the command bus of the API: `Application::dispatch()` sends a command to its handler, and a query is called directly with the presenter of the core keeping its answer (`KeptOrganization`, ADR 0085), both through `RefusalTranslatingHandler` like the API; a scenario reads the response the method of `Application` gives back. Every event handler of the core, the translators publishing the integration events included (ADR 0046), reacts in the scenarios as in the API (`Application::eventHandlers()`; `tests/Architecture/EventHandlersSubscribedTest` fails when one is missing): a scenario checks the side effects of a gesture in the other contexts, never the events themselves; the intents tests check that an accepted intention records its event. The services the contexts publish (ADR 0045, 0089, `Contract/Service`) are asked through `Application::consultMembers()`, `whichAreContacts()` and `whichAreProspected()`, as the anticorruption layers ask them, in `features/langage-publie.feature`. `Application` plays the client: it gives the identities of what is created (`newIdentity()`, time ordered UUIDs from `TimeOrderedUuids`) and the moment of the commands (`now()`, set by `nous sommes le "2026-10-20 14:00"`); a refusal is the `UseCaseRefused` of the last call (`refusal()`).
+The scenarios do not know the command bus of the API: `Application::dispatch()` sends a command to its handler, and a query is called directly with the presenter of the core keeping its answer (`KeptOrganization`, ADR 0085), each through the decorator of its kind like the API; a scenario reads the response the method of `Application` gives back. Every event handler of the core, the translators publishing the integration events included (ADR 0046), reacts in the scenarios as in the API (`Application::eventHandlers()`; `tests/Architecture/EventHandlersSubscribedTest` fails when one is missing): a scenario checks the side effects of a gesture in the other contexts, never the events themselves; the intents tests check that an accepted intention records its event. The services the contexts publish (ADR 0045, 0089, `Contract/Service`) are asked through `Application::consultMembers()`, `whichAreContacts()` and `whichAreProspected()`, as the anticorruption layers ask them, in `features/langage-publie.feature`. `Application` plays the client: it gives the identities of what is created (`newIdentity()`, time ordered UUIDs from `TimeOrderedUuids`) and the moment of the commands (`now()`, set by `nous sommes le "2026-10-20 14:00"`); a refusal is the `UseCaseRefused` of the last call (`refusal()`).
 
 ## Adding or changing a rule
 

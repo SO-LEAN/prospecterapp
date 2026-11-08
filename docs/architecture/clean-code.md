@@ -16,7 +16,7 @@ This guide is alive: rules get added and sharpened as the code is improved, iter
 - **Length follows scope.** The wider the scope, the longer and more precise the name; private helpers can be shorter than public API.
 - **Use the business's words** (prospect, holding, owner), the solution's words (presenter, gateway, adapter) for technical code.
 - **A class of the delivery carries its role** (ADR 0087): `StartProspectingController`, `OrganizationPagePresenter`, `OrganizationReader`, `ImageResourceFactory`; the command it dispatches keeps the name of the intent, never imported under an alias.
-- **A property is named after its type** (`ImageResourceFactory $imageResourceFactory`, `CommandBus $commandBus`), **a repository after its collection** (`OrganizationRepository $organizations`: `$this->organizations->get($id)`, Evans), a query handler after its intent (`RefusalTranslatingHandler $consultOrganization`). A variable of several elements is in the plural, named after what they are here, not after the repository they come from: `$callingOrganizations = $this->organizations->withPhoneNumber(...)`.
+- **A property is named after its type** (`ImageResourceFactory $imageResourceFactory`, `CommandBus $commandBus`), **a repository after its collection** (`OrganizationRepository $organizations`: `$this->organizations->get($id)`, Evans), a query handler after its intent (`QueryHandler $consultOrganization`). A variable of several elements is in the plural, named after what they are here, not after the repository they come from: `$callingOrganizations = $this->organizations->withPhoneNumber(...)`.
 
 ## 2. Functions
 
@@ -55,7 +55,7 @@ This guide is alive: rules get added and sharpened as the code is improved, iter
 
 ## 6. Error handling
 
-- **Exceptions, not return codes**, with the context needed to understand them: business refusals are domain exceptions (`Domain/Exception`: `NotFound`, `BusinessRuleViolation` naming its field, `NotPossibleInItsState`, `NotAllowed`, `EmailAlreadyUsed`, with named constructors), translated into `UseCaseRefused` and its `ErrorType` by the decorator `RefusalTranslatingHandler` around every handler, the domain exception kept as previous (ADR 0035); infrastructure failures go through untouched. Error handling is one thing: it lives in that decorator, never in the handlers.
+- **Exceptions, not return codes**, with the context needed to understand them: business refusals are domain exceptions (`Domain/Exception`: `NotFound`, `BusinessRuleViolation` naming its field, `NotPossibleInItsState`, `NotAllowed`, `EmailAlreadyUsed`, with named constructors), translated into `UseCaseRefused` and its `ErrorType` by the decorators `RefusalTranslatingCommandHandler` and `RefusalTranslatingQueryHandler` around every handler, the domain exception kept as previous (ADR 0035); infrastructure failures go through untouched. Error handling is one thing: it lives in those decorators, never in the handlers.
 - **Define exceptions by the caller's needs**: one type per way the caller reacts (not found, refused, conflict), not one per failure.
 - **Do not return `null`, do not pass `null`** when it can be avoided: throw, return an empty collection, or a special case object. `?Type` only when absence is a real, expected answer.
 - **Unchecked exceptions**: PHP has no checked exceptions; document `@throws` on ports, where implementers need it.

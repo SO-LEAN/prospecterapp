@@ -17,7 +17,7 @@ use Prospecter\Core\PersonalData\Application\PersonCard;
 use Prospecter\Core\PersonalData\Application\SearchContacts\ContactPage;
 use Prospecter\Core\PersonalData\Application\SearchContacts\KeptContactPage;
 use Prospecter\Core\PersonalData\Application\SearchContacts\SearchContacts;
-use Prospecter\Core\SharedKernel\Application\RefusalTranslatingHandler;
+use Prospecter\Core\SharedKernel\Application\QueryHandler;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpKernel\Attribute\MapQueryString;
@@ -34,7 +34,7 @@ use Symfony\Component\Security\Http\Attribute\IsGranted;
 final class SearchContactsController extends AbstractController
 {
     public function __construct(
-        private readonly RefusalTranslatingHandler $searchContacts,
+        private readonly QueryHandler $searchContacts,
         private readonly OrganizationsOfContacts $organizationsOfContacts,
         private readonly ContactInListResourceFactory $contactInListResourceFactory,
         private readonly Links $links,
