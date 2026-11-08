@@ -8,7 +8,7 @@ use App\Shared\Links;
 use Prospecter\Core\Accounts\Application\ConsultMyAccount\ConsultMyAccount;
 use Prospecter\Core\Accounts\Application\ConsultMyAccount\KeptAccount;
 use Prospecter\Core\PersonalData\Application\ConsultPerson\ConsultPerson;
-use Prospecter\Core\SharedKernel\Application\RefusalTranslatingHandler;
+use Prospecter\Core\SharedKernel\Application\QueryHandler;
 
 /**
  * My account as the API shows it: my membership read in Accounts, my profile read in PersonalData under my
@@ -19,8 +19,8 @@ use Prospecter\Core\SharedKernel\Application\RefusalTranslatingHandler;
 final readonly class MyAccountReader
 {
     public function __construct(
-        private RefusalTranslatingHandler $consultMyAccount,
-        private RefusalTranslatingHandler $consultPerson,
+        private QueryHandler $consultMyAccount,
+        private QueryHandler $consultPerson,
         private ImageResourceFactory $images,
         private Links $links,
     ) {

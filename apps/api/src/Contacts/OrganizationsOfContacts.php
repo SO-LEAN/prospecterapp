@@ -7,7 +7,7 @@ use App\Shared\Links;
 use Prospecter\Core\Prospecting\Application\ConsultOrganizationsOfContacts\ConsultOrganizationsOfContacts;
 use Prospecter\Core\Prospecting\Application\ConsultOrganizationsOfContacts\KeptOrganizationsOfContacts;
 use Prospecter\Core\Prospecting\Application\ConsultOrganizationsOfContacts\OrganizationOfContact;
-use Prospecter\Core\SharedKernel\Application\RefusalTranslatingHandler;
+use Prospecter\Core\SharedKernel\Application\QueryHandler;
 
 /**
  * The organizations of contacts, read in Prospecting in one batch and presented with a link to each.
@@ -15,7 +15,7 @@ use Prospecter\Core\SharedKernel\Application\RefusalTranslatingHandler;
 final readonly class OrganizationsOfContacts
 {
     public function __construct(
-        private RefusalTranslatingHandler $consultOrganizationsOfContacts,
+        private QueryHandler $consultOrganizationsOfContacts,
         private Links $links,
     ) {
     }

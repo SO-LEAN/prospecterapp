@@ -7,7 +7,7 @@ use App\Shared\Links;
 use Prospecter\Core\PersonalData\Application\ConsultPerson\ConsultPerson;
 use Prospecter\Core\Prospecting\Application\ConsultTimelineIntents\ConsultTimelineIntents;
 use Prospecter\Core\Prospecting\Application\ConsultTimelineIntents\KeptTimelineIntents;
-use Prospecter\Core\SharedKernel\Application\RefusalTranslatingHandler;
+use Prospecter\Core\SharedKernel\Application\QueryHandler;
 
 /**
  * A contact as the API shows it: read in PersonalData, what may be done with its timeline in Prospecting, then
@@ -17,8 +17,8 @@ use Prospecter\Core\SharedKernel\Application\RefusalTranslatingHandler;
 final readonly class ContactReader
 {
     public function __construct(
-        private RefusalTranslatingHandler $consultPerson,
-        private RefusalTranslatingHandler $consultTimelineIntents,
+        private QueryHandler $consultPerson,
+        private QueryHandler $consultTimelineIntents,
         private Links $links,
     ) {
     }

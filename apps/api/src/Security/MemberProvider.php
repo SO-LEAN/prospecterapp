@@ -6,7 +6,7 @@ use Prospecter\Core\Accounts\Application\ConsultMyAccount\ConsultMyAccount;
 use Prospecter\Core\Accounts\Application\ConsultMyAccount\KeptAccount;
 use Prospecter\Core\SharedKernel\Application\Exception\ErrorType;
 use Prospecter\Core\SharedKernel\Application\Exception\UseCaseRefused;
-use Prospecter\Core\SharedKernel\Application\RefusalTranslatingHandler;
+use Prospecter\Core\SharedKernel\Application\QueryHandler;
 use Symfony\Component\Security\Core\Exception\UnsupportedUserException;
 use Symfony\Component\Security\Core\Exception\UserNotFoundException;
 use Symfony\Component\Security\Core\User\UserInterface;
@@ -21,7 +21,7 @@ use Symfony\Component\Uid\Uuid;
 final readonly class MemberProvider implements UserProviderInterface
 {
     public function __construct(
-        private RefusalTranslatingHandler $consultMyAccount,
+        private QueryHandler $consultMyAccount,
     ) {
     }
 

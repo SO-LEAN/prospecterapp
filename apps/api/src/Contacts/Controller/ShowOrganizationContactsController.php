@@ -18,7 +18,7 @@ use Prospecter\Core\PersonalData\Application\ConsultPersons\ConsultPersons;
 use Prospecter\Core\PersonalData\Application\ConsultPersons\KeptPersons;
 use Prospecter\Core\PersonalData\Application\PersonCard;
 use Prospecter\Core\Prospecting\Application\OrganizationSheet;
-use Prospecter\Core\SharedKernel\Application\RefusalTranslatingHandler;
+use Prospecter\Core\SharedKernel\Application\QueryHandler;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\Routing\Attribute\Route;
@@ -35,7 +35,7 @@ use Symfony\Component\Security\Http\Attribute\IsGranted;
 final class ShowOrganizationContactsController extends AbstractController
 {
     public function __construct(
-        private readonly RefusalTranslatingHandler $consultPersons,
+        private readonly QueryHandler $consultPersons,
         private readonly Links $links,
         private readonly IntentLinks $intentLinks,
     ) {

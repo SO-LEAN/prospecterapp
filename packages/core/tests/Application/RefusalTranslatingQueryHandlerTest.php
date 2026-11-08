@@ -8,10 +8,10 @@ use PHPUnit\Framework\TestCase;
 use Prospecter\Core\SharedKernel\Application\Exception\ErrorType;
 use Prospecter\Core\SharedKernel\Application\Exception\UseCaseRefused;
 use Prospecter\Core\SharedKernel\Application\QueryHandler;
-use Prospecter\Core\SharedKernel\Application\RefusalTranslatingHandler;
+use Prospecter\Core\SharedKernel\Application\RefusalTranslatingQueryHandler;
 use Prospecter\Core\SharedKernel\Domain\Exception\NotAllowed;
 
-class RefusalTranslatingHandlerTest extends TestCase
+class RefusalTranslatingQueryHandlerTest extends TestCase
 {
     public function testTheAnswerOfTheHandlerReachesTheOutputPortOfItsClient(): void
     {
@@ -21,7 +21,7 @@ class RefusalTranslatingHandlerTest extends TestCase
             $output->append('answer to the query');
         };
 
-        new RefusalTranslatingHandler($this->handlerDoing($answer))(new \stdClass(), $output);
+        new RefusalTranslatingQueryHandler($this->handlerDoing($answer))(new \stdClass(), $output);
 
         $this->assertSame(['answer to the query'], $output->getArrayCopy());
     }
@@ -31,7 +31,7 @@ class RefusalTranslatingHandlerTest extends TestCase
         $refusal = NotAllowed::because('Only the person may change it');
 
         try {
-            new RefusalTranslatingHandler($this->handlerDoing(static fn () => throw $refusal))(new \stdClass(), new \ArrayObject());
+            new RefusalTranslatingQueryHandler($this->handlerDoing(static fn () => throw $refusal))(new \stdClass(), new \ArrayObject());
             $this->fail('The refusal was expected');
         } catch (UseCaseRefused $translated) {
             $this->assertSame(ErrorType::NotAllowed, $translated->type);
@@ -45,7 +45,7 @@ class RefusalTranslatingHandlerTest extends TestCase
 
         $this->expectExceptionObject($failure);
 
-        new RefusalTranslatingHandler($this->handlerDoing(static fn () => throw $failure))(new \stdClass(), new \ArrayObject());
+        new RefusalTranslatingQueryHandler($this->handlerDoing(static fn () => throw $failure))(new \stdClass(), new \ArrayObject());
     }
 
     /**

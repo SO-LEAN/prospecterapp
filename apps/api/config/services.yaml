@@ -17,7 +17,7 @@ services:
         Prospecter\Core\SharedKernel\Application\CommandHandler:
             tags: [app.command_handler]
         # every query handler of the core is injected through the translation of its refusals, by the name of
-        # its intent: RefusalTranslatingHandler $consultOrganization
+        # its intent: QueryHandler $consultOrganization
         Prospecter\Core\SharedKernel\Application\QueryHandler:
             tags: [app.query_handler]
         # every event handler of the core reacts on the event bus, within the command that published

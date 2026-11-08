@@ -19,7 +19,7 @@ use Prospecter\Core\Prospecting\Application\ConsultExchange\KeptExchange;
 use Prospecter\Core\Prospecting\Application\ConsultOrganization\ConsultOrganization;
 use Prospecter\Core\Prospecting\Application\ConsultOrganization\KeptOrganization;
 use Prospecter\Core\Prospecting\Application\OrganizationSheet;
-use Prospecter\Core\SharedKernel\Application\RefusalTranslatingHandler;
+use Prospecter\Core\SharedKernel\Application\QueryHandler;
 
 /**
  * An exchange as the API shows it: read in Prospecting, with the organization itself when it was with no contact,
@@ -30,10 +30,10 @@ use Prospecter\Core\SharedKernel\Application\RefusalTranslatingHandler;
 final readonly class ExchangeReader
 {
     public function __construct(
-        private RefusalTranslatingHandler $consultExchange,
+        private QueryHandler $consultExchange,
         private ConsultMembersService $consultMembersService,
-        private RefusalTranslatingHandler $consultPersons,
-        private RefusalTranslatingHandler $consultOrganization,
+        private QueryHandler $consultPersons,
+        private QueryHandler $consultOrganization,
         private Links $links,
         private IntentLinks $intents,
     ) {

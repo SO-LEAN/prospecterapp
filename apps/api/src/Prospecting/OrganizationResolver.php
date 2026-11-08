@@ -5,7 +5,7 @@ namespace App\Prospecting;
 use Prospecter\Core\Prospecting\Application\ConsultOrganization\ConsultOrganization;
 use Prospecter\Core\Prospecting\Application\ConsultOrganization\KeptOrganization;
 use Prospecter\Core\Prospecting\Application\OrganizationSheet;
-use Prospecter\Core\SharedKernel\Application\RefusalTranslatingHandler;
+use Prospecter\Core\SharedKernel\Application\QueryHandler;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpKernel\Controller\ValueResolverInterface;
 use Symfony\Component\HttpKernel\ControllerMetadata\ArgumentMetadata;
@@ -16,7 +16,7 @@ use Symfony\Component\HttpKernel\ControllerMetadata\ArgumentMetadata;
  */
 final readonly class OrganizationResolver implements ValueResolverInterface
 {
-    public function __construct(private RefusalTranslatingHandler $consultOrganization)
+    public function __construct(private QueryHandler $consultOrganization)
     {
     }
 

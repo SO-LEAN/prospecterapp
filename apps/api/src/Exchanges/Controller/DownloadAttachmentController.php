@@ -11,7 +11,7 @@ use OpenApi\Attributes as OA;
 use Prospecter\Core\Prospecting\Application\ConsultExchange\ExchangeDetail;
 use Prospecter\Core\Prospecting\Application\DownloadAttachment\DownloadAttachment;
 use Prospecter\Core\Prospecting\Application\DownloadAttachment\KeptDownload;
-use Prospecter\Core\SharedKernel\Application\RefusalTranslatingHandler;
+use Prospecter\Core\SharedKernel\Application\QueryHandler;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\Routing\Attribute\Route;
@@ -23,7 +23,7 @@ use Symfony\Component\Security\Http\Attribute\IsGranted;
 #[IsGranted('ROLE_PROSPECTOR')]
 final class DownloadAttachmentController extends AbstractController
 {
-    public function __construct(private readonly RefusalTranslatingHandler $downloadAttachment)
+    public function __construct(private readonly QueryHandler $downloadAttachment)
     {
     }
 

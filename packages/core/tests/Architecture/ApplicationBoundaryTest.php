@@ -9,7 +9,8 @@ use PHPUnit\Framework\TestCase;
 use Prospecter\Core\SharedKernel\Application\CommandHandler;
 use Prospecter\Core\SharedKernel\Application\EventHandler;
 use Prospecter\Core\SharedKernel\Application\QueryHandler;
-use Prospecter\Core\SharedKernel\Application\RefusalTranslatingHandler;
+use Prospecter\Core\SharedKernel\Application\RefusalTranslatingCommandHandler;
+use Prospecter\Core\SharedKernel\Application\RefusalTranslatingQueryHandler;
 
 /**
  * The domain does not cross the application (ADR 0035): what a client sends (requests) and receives
@@ -18,6 +19,7 @@ use Prospecter\Core\SharedKernel\Application\RefusalTranslatingHandler;
 class ApplicationBoundaryTest extends TestCase
 {
     private const string NAMESPACE = 'Prospecter\Core\\';
+    private const array REFUSAL_TRANSLATIONS = [RefusalTranslatingCommandHandler::class, RefusalTranslatingQueryHandler::class];
 
     #[DataProvider('handlersCalledByAClient')]
     public function testAHandlerTakesAndAnswersNoDomainClass(string $handler): void
@@ -32,7 +34,7 @@ class ApplicationBoundaryTest extends TestCase
     {
         $this->assertTrue(
             is_a($handler, CommandHandler::class, true) || is_a($handler, QueryHandler::class, true) || is_a($handler, EventHandler::class, true),
-            'A handler implements CommandHandler or QueryHandler, so that RefusalTranslatingHandler decorates it, or EventHandler, called within a command decorated so',
+            'A handler implements CommandHandler or QueryHandler, so that the translation of the refusals decorates it, or EventHandler, called within a command decorated so',
         );
     }
 
@@ -50,7 +52,7 @@ class ApplicationBoundaryTest extends TestCase
     public static function handlers(): iterable
     {
         foreach (self::applicationClasses() as $class) {
-            if (str_ends_with($class, 'Handler') && RefusalTranslatingHandler::class !== $class && !interface_exists($class)) {
+            if (str_ends_with($class, 'Handler') && !in_array($class, self::REFUSAL_TRANSLATIONS, true) && !interface_exists($class)) {
                 yield $class => [$class];
             }
         }

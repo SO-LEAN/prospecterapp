@@ -14,7 +14,7 @@ use Prospecter\Core\Prospecting\Application\ExchangeInTimeline;
 use Prospecter\Core\Prospecting\Application\KeptTimeline;
 use Prospecter\Core\Prospecting\Application\OrganizationSheet;
 use Prospecter\Core\Prospecting\Application\Timeline;
-use Prospecter\Core\SharedKernel\Application\RefusalTranslatingHandler;
+use Prospecter\Core\SharedKernel\Application\QueryHandler;
 
 /**
  * The timeline of an organization, composed of two contexts (ADR 0076): Prospecting knows its exchanges and the
@@ -24,9 +24,9 @@ use Prospecter\Core\SharedKernel\Application\RefusalTranslatingHandler;
 final readonly class OrganizationTimelineReader
 {
     public function __construct(
-        private RefusalTranslatingHandler $consultOrganizationTimeline,
-        private RefusalTranslatingHandler $consultExchangesToMakeConform,
-        private RefusalTranslatingHandler $consultPersons,
+        private QueryHandler $consultOrganizationTimeline,
+        private QueryHandler $consultExchangesToMakeConform,
+        private QueryHandler $consultPersons,
         private TimelineResourceFactory $timelines,
         private Links $links,
     ) {
