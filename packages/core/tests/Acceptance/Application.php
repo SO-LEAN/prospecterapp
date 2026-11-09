@@ -154,6 +154,7 @@ final class Application
 {
     private const string FIRST_DAY = '2026-10-15 09:00';
 
+    public readonly InMemoryDatabase $database;
     public readonly InMemoryOrganizationRepository $organizations;
     public readonly InMemoryFoundOrganizationRetriever $foundOrganizationRetriever;
     private readonly InMemoryOrganizationSheetRetriever $organizationSheetRetriever;
@@ -195,7 +196,7 @@ final class Application
 
     public function __construct()
     {
-        $database = new InMemoryDatabase();
+        $this->database = $database = new InMemoryDatabase();
         $this->now = new \DateTimeImmutable(self::FIRST_DAY);
         $this->uuids = new TimeOrderedUuids();
         $this->organizations = new InMemoryOrganizationRepository($database);
@@ -237,6 +238,14 @@ final class Application
         foreach ($this->commandHandlers() as $handler) {
             $this->handlers[$this->commandOf($handler)] = $handler;
         }
+    }
+
+    /**
+     * A reaction of the scenario, subscribed after those of the core.
+     */
+    public function alsoReactWith(EventHandler $reaction): void
+    {
+        $this->events->subscribe($reaction);
     }
 
     public function signIn(MemberId $user): void

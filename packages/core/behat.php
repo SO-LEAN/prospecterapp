@@ -6,6 +6,7 @@ use Behat\Config\Config;
 use Behat\Config\Profile;
 use Behat\Config\Suite;
 use Tests\Core\Acceptance\Context\AccountContext;
+use Tests\Core\Acceptance\Context\AllOrNothingContext;
 use Tests\Core\Acceptance\Context\AttachmentContext;
 use Tests\Core\Acceptance\Context\CallerContext;
 use Tests\Core\Acceptance\Context\ExchangeContext;
@@ -21,4 +22,4 @@ return new Config()
     ->withProfile(new Profile('default')
         ->withSuite(new Suite('business_rules')
             ->withPaths('%paths.base%/features')
-            ->withContexts(ScenarioContext::class, OrganizationContext::class, AccountContext::class, MemberContext::class, PersonalDataContext::class, PublishedLanguageContext::class, CallerContext::class, ExchangeContext::class, ExchangeDetailContext::class, AttachmentContext::class)));
+            ->withContexts(ScenarioContext::class, OrganizationContext::class, AccountContext::class, MemberContext::class, PersonalDataContext::class, PublishedLanguageContext::class, CallerContext::class, ExchangeContext::class, ExchangeDetailContext::class, AttachmentContext::class, AllOrNothingContext::class)));
