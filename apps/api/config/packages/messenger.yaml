@@ -6,7 +6,7 @@ framework:
         buses:
             command.bus: ~
             # the domain events a use case releases, delivered within it (ADR 0042, 0043): the other
-            # contexts react, the activity journal keeps them all
+            # contexts react
             event.bus:
                 default_middleware:
                     allow_no_handlers: true
