@@ -9,6 +9,7 @@ use Symfony\Bundle\FrameworkBundle\Console\Application;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Tester\CommandTester;
 use Tests\App\Base\ApiTestCase;
+use Tests\App\Double\EmailTakenMeanwhile;
 
 final class RegisterMemberCommandTest extends ApiTestCase
 {
@@ -80,6 +81,20 @@ final class RegisterMemberCommandTest extends ApiTestCase
 
         $this->assertSame($written, $this->itemsOfTheTables(), 'neither the member nor their profile is written');
         $this->assertNull($this->credentials()->memberSigningInWith('contact@babbage.test'));
+    }
+
+    public function testAnEmailTakenMeanwhileIsRefusedAtTheCommitAndRegistersNobody(): void
+    {
+        $written = $this->itemsOfTheTables();
+        self::getContainer()->get(EmailTakenMeanwhile::class)->takeTheNextEmail();
+
+        $command = new CommandTester(new Application(self::$kernel)->find('app:member:register'));
+        $status = $command->execute(['administrator-email' => self::FOUNDER, 'email' => self::MEMBER, '--password' => self::PASSWORD]);
+
+        $this->assertSame(Command::FAILURE, $status);
+        $this->assertStringContainsString('Email already used', $command->getDisplay());
+        $this->assertSame(['accounts' => $written['accounts'], 'personal_data' => $written['personal_data'] + 2], $this->itemsOfTheTables(), 'only the person of the other request and its email are written');
+        $this->assertNull($this->credentials()->memberSigningInWith(self::MEMBER));
     }
 
     public function testAnAdministratorNobodySignsInWithRegistersNobody(): void

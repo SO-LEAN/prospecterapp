@@ -70,7 +70,7 @@ final readonly class DynamoPersonRepository implements PersonRepository
         $writes = [$this->personalDataTable->putting($this->itemOf($person, $document))];
 
         if ($email !== $storedEmail && null !== $email) {
-            $writes[] = $this->personalDataTable->putting(['PK' => self::emailKey($person->accountId(), $person->purpose(), $email), 'SK' => self::EMAIL, 'ownerId' => $document['id']], 'attribute_not_exists(PK) OR ownerId = :owner', [':owner' => $document['id']], EmailAlreadyUsed::byAnother());
+            $writes[] = $this->personalDataTable->putting(['PK' => self::emailKey($person->accountId(), $person->purpose(), $email), 'SK' => self::EMAIL, 'ownerId' => $document['id']], 'attribute_not_exists(PK) OR ownerId = :owner', [':owner' => $document['id']], EmailAlreadyUsed::byAnother(...));
         }
 
         if ($email !== $storedEmail && null !== $storedEmail) {

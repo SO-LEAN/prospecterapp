@@ -62,7 +62,7 @@ final readonly class DynamoOrganizationRepository implements OrganizationReposit
         $storedEmail = $stored['email'] ?? null;
 
         if ($email !== $storedEmail && null !== $email) {
-            $writes[] = $this->prospectingTable->putting(['PK' => self::emailKey($organization->accountId(), $email), 'SK' => self::EMAIL, 'ownerId' => $document['id']], 'attribute_not_exists(PK) OR ownerId = :owner', [':owner' => $document['id']], EmailAlreadyUsed::byAnother());
+            $writes[] = $this->prospectingTable->putting(['PK' => self::emailKey($organization->accountId(), $email), 'SK' => self::EMAIL, 'ownerId' => $document['id']], 'attribute_not_exists(PK) OR ownerId = :owner', [':owner' => $document['id']], EmailAlreadyUsed::byAnother(...));
         }
 
         if ($email !== $storedEmail && null !== $storedEmail) {

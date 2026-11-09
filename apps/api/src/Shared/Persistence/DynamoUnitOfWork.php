@@ -129,9 +129,9 @@ final class DynamoUnitOfWork implements UnitOfWork
      */
     private static function refusalOf(ConditionFailed $cancelled, array $writes): \Throwable
     {
-        $refused = array_find($cancelled->failedWrites, static fn (int $position): bool => null !== $writes[$position]->refusal);
+        $refusal = array_find(array_map(static fn (int $position): ?\Closure => $writes[$position]->refusal, $cancelled->failedWrites), static fn (?\Closure $refusal): bool => null !== $refusal);
 
-        return null === $refused ? $cancelled : $writes[$refused]->refusal ?? $cancelled;
+        return null === $refusal ? $cancelled : $refusal($cancelled);
     }
 
     private function abandon(): void

@@ -3,6 +3,7 @@
 namespace Tests\App\Shared;
 
 use App\PersonalData\Persistence\DynamoPersonRepository;
+use App\Shared\Persistence\ConditionFailed;
 use App\Shared\Persistence\DynamoUnitOfWork;
 use App\Shared\Persistence\Table;
 use Aws\DynamoDb\DynamoDbClient;
@@ -160,7 +161,8 @@ class DynamoUnitOfWorkTest extends ApiTestCase
         try {
             $this->unitOfWork->commit();
             $this->fail('The email was expected to be refused');
-        } catch (EmailAlreadyUsed) {
+        } catch (EmailAlreadyUsed $refusal) {
+            $this->assertInstanceOf(ConditionFailed::class, $refusal->getPrevious(), 'the cancellation is its cause');
             $this->unitOfWork->discard();
         }
 

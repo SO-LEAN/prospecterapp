@@ -6,6 +6,7 @@ use App\Shared\Persistence\Journal\ActivityJournal;
 use PHPUnit\Framework\Attributes\Group;
 use Prospecter\Core\SharedKernel\Domain\Exception\NotPossibleInItsState;
 use Tests\App\Base\ApiTestCase;
+use Tests\App\Double\EmailTakenMeanwhile;
 use Tests\App\Double\FailingReaction;
 
 /**
@@ -45,11 +46,28 @@ class AllOrNothingApiTest extends ApiTestCase
         $this->assertTheOrganizationIsAsItWas();
     }
 
+    public function testAnEmailTakenMeanwhileIsRefusedAtTheCommitWhichWritesNothing(): void
+    {
+        $this->emailTakenMeanwhile()->takeTheNextEmail();
+        $before = $this->requestJson('GET', '/api/me')['contactDetails'];
+
+        $problem = $this->requestJson('PATCH', '/api/me/contact-details', ['email' => 'anais@example.com']);
+
+        $this->assertResponseStatusCodeSame(422);
+        $this->assertSame('emailAlreadyUsed', $problem['reason']);
+        $this->assertSame($before, $this->requestJson('GET', '/api/me')['contactDetails']);
+    }
+
     private function assertTheOrganizationIsAsItWas(): void
     {
         $journal = self::getContainer()->get(ActivityJournal::class)->of(self::getContainer()->get('app.table.prospecting'), $this->organization);
         $this->assertSame(['ProspectingStarted'], array_column($journal, 'event'));
         $this->assertNull($this->requestJson('GET', '/api/organizations/'.$this->organization)['observations']);
+    }
+
+    private function emailTakenMeanwhile(): EmailTakenMeanwhile
+    {
+        return self::getContainer()->get(EmailTakenMeanwhile::class);
     }
 
     private function reaction(): FailingReaction
