@@ -31,22 +31,22 @@ final class RefusalTranslatingHandlersPass implements CompilerPassInterface
     /** the decorators of a command handler, from the innermost to the outermost, by the suffix of their id */
     private const array COMMAND_DECORATORS = ['transactional' => TransactionalCommandHandler::class, 'refusal_translating' => RefusalTranslatingCommandHandler::class];
     private const array QUERY_DECORATORS = ['refusal_translating' => RefusalTranslatingQueryHandler::class];
-    private const array EVENT_DECORATORS = ['transactional' => TransactionalEventHandler::class, 'refusal_translating' => RefusalTranslatingEventHandler::class];
+    public const array EVENT_DECORATORS = ['transactional' => TransactionalEventHandler::class, 'refusal_translating' => RefusalTranslatingEventHandler::class];
 
     public function process(ContainerBuilder $container): void
     {
         foreach (array_keys($container->findTaggedServiceIds(self::COMMAND_HANDLER)) as $id) {
-            $container->getDefinition($this->decorate($container, $id, self::COMMAND_DECORATORS))
-                ->addTag('messenger.message_handler', ['bus' => 'command.bus', 'handles' => $this->messageOf($this->classOf($container, $id))]);
+            $container->getDefinition(self::decorate($container, $id, self::COMMAND_DECORATORS))
+                ->addTag('messenger.message_handler', ['bus' => 'command.bus', 'handles' => $this->messageOf(self::classOf($container, $id))]);
         }
 
         foreach (array_keys($container->findTaggedServiceIds(self::EVENT_HANDLER)) as $id) {
-            $container->getDefinition($this->decorate($container, $id, self::EVENT_DECORATORS))
-                ->addTag('messenger.message_handler', ['bus' => 'event.bus', 'handles' => $this->messageOf($this->classOf($container, $id))]);
+            $container->getDefinition(self::decorate($container, $id, self::EVENT_DECORATORS))
+                ->addTag('messenger.message_handler', ['bus' => 'event.bus', 'handles' => $this->messageOf(self::classOf($container, $id))]);
         }
 
         foreach (array_keys($container->findTaggedServiceIds(self::QUERY_HANDLER)) as $id) {
-            $container->registerAliasForArgument($this->decorate($container, $id, self::QUERY_DECORATORS), QueryHandler::class, $this->intentOf($this->classOf($container, $id)));
+            $container->registerAliasForArgument(self::decorate($container, $id, self::QUERY_DECORATORS), QueryHandler::class, $this->intentOf(self::classOf($container, $id)));
         }
     }
 
@@ -55,7 +55,7 @@ final class RefusalTranslatingHandlersPass implements CompilerPassInterface
      *
      * @return string the id of the outermost
      */
-    private function decorate(ContainerBuilder $container, string $id, array $decorators): string
+    public static function decorate(ContainerBuilder $container, string $id, array $decorators): string
     {
         $decorated = $id;
 
@@ -67,7 +67,7 @@ final class RefusalTranslatingHandlersPass implements CompilerPassInterface
         return $decorated;
     }
 
-    private function classOf(ContainerBuilder $container, string $id): string
+    public static function classOf(ContainerBuilder $container, string $id): string
     {
         return $container->getParameterBag()->resolveValue($container->getDefinition($id)->getClass() ?? $id);
     }

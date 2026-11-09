@@ -27,6 +27,12 @@ class BoundedContextsTest extends TestCase
      */
     private const string CONTRACT = '\\Contract\\';
 
+    /**
+     * The list of the domain events that may travel names those of every context, each from its own source:
+     * ReactionsAreSubscribedTest checks that none is read by another context (ADR 0046).
+     */
+    private const array CROSSING_ON_PURPOSE = ['Shared/Messaging/DomainEventTypes.php'];
+
     #[DataProvider('contexts')]
     public function testAContextDoesNotUseAnotherOne(string $context): void
     {
@@ -53,6 +59,11 @@ class BoundedContextsTest extends TestCase
 
         foreach (new \RecursiveIteratorIterator(new \RecursiveDirectoryIterator($root.$context, \FilesystemIterator::SKIP_DOTS)) as $file) {
             $path = substr($file->getPathname(), strlen($root));
+
+            if (in_array($path, self::CROSSING_ON_PURPOSE, true)) {
+                continue;
+            }
+
             preg_match_all('/^use ([\w\\\\]+)(?: as \w+)?;/m', (string) file_get_contents($file->getPathname()), $uses);
 
             foreach ($uses[1] as $class) {
