@@ -2,9 +2,7 @@
 
 namespace App\Shared;
 
-use Prospecter\Core\SharedKernel\Application\Exception\UseCaseRefused;
 use Prospecter\Core\SharedKernel\Application\Port\UnitOfWork;
-use Prospecter\Core\SharedKernel\Domain\Exception\BusinessException;
 use Symfony\Component\Messenger\Exception\HandlerFailedException;
 use Symfony\Component\Messenger\MessageBusInterface;
 
@@ -20,7 +18,7 @@ final readonly class CommandBus
 
     /**
      * One gesture made of several commands: what they write is kept all at once, or nothing when one of them
-     * refuses or fails.
+     * refuses or fails, a refusal detected at the commit translated like any other (RefusalTranslatingUnitOfWork).
      */
     public function dispatchTogether(object ...$commands): void
     {
@@ -31,21 +29,9 @@ final readonly class CommandBus
                 $this->dispatch($command);
             }
 
-            $this->commitTheUnit();
+            $this->unitOfWork->commit();
         } finally {
             $this->unitOfWork->discard();
-        }
-    }
-
-    /**
-     * A refusal detected when the unit is written refuses the gesture like any other.
-     */
-    private function commitTheUnit(): void
-    {
-        try {
-            $this->unitOfWork->commit();
-        } catch (BusinessException $refusal) {
-            throw UseCaseRefused::because($refusal);
         }
     }
 
