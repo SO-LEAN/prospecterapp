@@ -3,6 +3,7 @@
 namespace App\Prospecting\Persistence;
 
 use App\Shared\Persistence\Table;
+use App\Shared\Persistence\Write;
 use Prospecter\Core\Prospecting\Domain\Exception\UnknownExchange;
 use Prospecter\Core\Prospecting\Domain\Model\Exchange;
 use Prospecter\Core\Prospecting\Domain\Model\ExchangeId;
@@ -91,7 +92,7 @@ final readonly class DynamoExchangeRepository implements ExchangeRepository
      * @param array<string, mixed> $document
      * @param list<string>         $storedKeptFor
      *
-     * @return list<array<string, mixed>>
+     * @return list<Write>
      */
     private function linksToItsOrganizations(array $document, bool $toMakeConform, array $storedKeptFor): array
     {
@@ -106,8 +107,8 @@ final readonly class DynamoExchangeRepository implements ExchangeRepository
         ];
 
         return [
-            ...array_map(fn (string $organization): array => $this->prospectingTable->putting($link($organization)), $document['keptFor']),
-            ...array_map(fn (string $organization): array => $this->prospectingTable->deleting(ExchangeKeys::keptFor($organization), $exchange), array_values(array_diff($storedKeptFor, $document['keptFor']))),
+            ...array_map(fn (string $organization): Write => $this->prospectingTable->putting($link($organization)), $document['keptFor']),
+            ...array_map(fn (string $organization): Write => $this->prospectingTable->deleting(ExchangeKeys::keptFor($organization), $exchange), array_values(array_diff($storedKeptFor, $document['keptFor']))),
         ];
     }
 

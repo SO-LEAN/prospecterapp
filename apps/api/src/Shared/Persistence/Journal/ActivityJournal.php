@@ -12,7 +12,7 @@ use Symfony\Component\Messenger\Attribute\AsMessageHandler;
  * Keeps every domain event published on the event bus (ADR 0043): Messenger hands it any subclass of
  * DomainEvent. An event goes to the table of its context, where its subject lives (ADR 0038, 0048), as the item
  * `JOURNAL#<subject>` / `<moment>#<entry>`: what happened, who did it and when, identities only, never
- * personal data, so that the journal may be kept after an erasure.
+ * personal data, so that the journal may be kept after an erasure. It is written with what the use case writes.
  */
 #[AsMessageHandler(bus: 'event.bus')]
 final readonly class ActivityJournal
@@ -29,7 +29,8 @@ final readonly class ActivityJournal
     {
         $moment = Documents::moment($event->occurredAt);
 
-        $this->journalOf($event)->batch([[
+        $journal = $this->journalOf($event);
+        $journal->transact([$journal->putting([
             'PK' => self::keyOf($event->subject()->value),
             'SK' => $moment.'#'.$this->identities->next(),
             'event' => new \ReflectionClass($event)->getShortName(),
@@ -37,7 +38,7 @@ final readonly class ActivityJournal
             'memberId' => $event->by->value,
             'subjectId' => $event->subject()->value,
             'occurredAt' => $moment,
-        ]]);
+        ])]);
     }
 
     /**

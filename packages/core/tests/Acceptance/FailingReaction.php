@@ -17,7 +17,7 @@ final readonly class FailingReaction implements EventHandler
     {
     }
 
-    public function __invoke(AccountOpened $event): void
+    public function __invoke(AccountOpened $event): never
     {
         throw $this->failure;
     }

@@ -2,9 +2,9 @@
 
 namespace App\Prospecting\Persistence;
 
-use App\Shared\Persistence\ConditionFailed;
 use App\Shared\Persistence\SearchIndexes;
 use App\Shared\Persistence\Table;
+use App\Shared\Persistence\Write;
 use Prospecter\Core\Prospecting\Domain\Exception\UnknownOrganization;
 use Prospecter\Core\Prospecting\Domain\Model\Organization;
 use Prospecter\Core\Prospecting\Domain\Repository\OrganizationRepository;
@@ -61,22 +61,15 @@ final readonly class DynamoOrganizationRepository implements OrganizationReposit
         $email = $document['contactDetails']['email'];
         $storedEmail = $stored['email'] ?? null;
 
-        $reservation = null;
-
         if ($email !== $storedEmail && null !== $email) {
-            $reservation = count($writes);
-            $writes[] = $this->prospectingTable->putting(['PK' => self::emailKey($organization->accountId(), $email), 'SK' => self::EMAIL, 'ownerId' => $document['id']], 'attribute_not_exists(PK) OR ownerId = :owner', [':owner' => $document['id']]);
+            $writes[] = $this->prospectingTable->putting(['PK' => self::emailKey($organization->accountId(), $email), 'SK' => self::EMAIL, 'ownerId' => $document['id']], 'attribute_not_exists(PK) OR ownerId = :owner', [':owner' => $document['id']], EmailAlreadyUsed::byAnother());
         }
 
         if ($email !== $storedEmail && null !== $storedEmail) {
             $writes[] = $this->prospectingTable->deleting(self::emailKey($organization->accountId(), $storedEmail), self::EMAIL);
         }
 
-        try {
-            $this->prospectingTable->transact([...$writes, ...$this->contactLinksChanged($document, $stored['organization']['contacts'] ?? [])]);
-        } catch (ConditionFailed $taken) {
-            throw null !== $reservation && $taken->failed($reservation) ? EmailAlreadyUsed::byAnother($taken) : $taken;
-        }
+        $this->prospectingTable->transact([...$writes, ...$this->contactLinksChanged($document, $stored['organization']['contacts'] ?? [])]);
     }
 
     public function remove(Organization $organization): void
@@ -149,15 +142,15 @@ final readonly class DynamoOrganizationRepository implements OrganizationReposit
      * @param array<string, mixed> $document
      * @param list<string>         $storedContacts
      *
-     * @return list<array<string, mixed>>
+     * @return list<Write>
      */
     private function contactLinksChanged(array $document, array $storedContacts): array
     {
         $organization = OrganizationKeys::organization($document['id']);
 
         return [
-            ...array_map(fn (string $contact): array => $this->prospectingTable->putting(['PK' => OrganizationKeys::contact($contact), 'SK' => $organization, 'accountId' => $document['accountId'], 'organizationId' => $document['id']]), array_values(array_diff($document['contacts'], $storedContacts))),
-            ...array_map(fn (string $contact): array => $this->prospectingTable->deleting(OrganizationKeys::contact($contact), $organization), array_values(array_diff($storedContacts, $document['contacts']))),
+            ...array_map(fn (string $contact): Write => $this->prospectingTable->putting(['PK' => OrganizationKeys::contact($contact), 'SK' => $organization, 'accountId' => $document['accountId'], 'organizationId' => $document['id']]), array_values(array_diff($document['contacts'], $storedContacts))),
+            ...array_map(fn (string $contact): Write => $this->prospectingTable->deleting(OrganizationKeys::contact($contact), $organization), array_values(array_diff($storedContacts, $document['contacts']))),
         ];
     }
 

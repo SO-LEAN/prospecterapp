@@ -9,14 +9,16 @@ use Prospecter\Core\SharedKernel\Application\Port\Events;
 
 /**
  * The events delivered at once to the real handlers that subscribed, found by the type of their __invoke(),
- * like the synchronous event bus of the API.
+ * like the synchronous event bus of the API, each called through its decorators.
  */
 final class SynchronousEvents implements Events
 {
     /** @var array<class-string, list<EventHandler>> */
     private array $handlers = [];
+    /** @var list<class-string<EventHandler>> */
+    private array $subscribers = [];
 
-    public function subscribe(EventHandler $handler): void
+    public function subscribe(EventHandler $handler, EventHandler $calledThrough): void
     {
         $type = new \ReflectionMethod($handler, '__invoke')->getParameters()[0]->getType();
 
@@ -24,7 +26,8 @@ final class SynchronousEvents implements Events
             throw new \LogicException(sprintf('%s::__invoke() must take one event', $handler::class));
         }
 
-        $this->handlers[$type->getName()][] = $handler;
+        $this->handlers[$type->getName()][] = $calledThrough;
+        $this->subscribers[] = $handler::class;
     }
 
     /**
@@ -32,7 +35,7 @@ final class SynchronousEvents implements Events
      */
     public function subscribers(): array
     {
-        return array_values(array_unique(array_merge(...array_values(array_map(static fn (array $handlers): array => array_map(static fn (EventHandler $handler): string => $handler::class, $handlers), $this->handlers)))));
+        return array_values(array_unique($this->subscribers));
     }
 
     public function publish(object ...$events): void

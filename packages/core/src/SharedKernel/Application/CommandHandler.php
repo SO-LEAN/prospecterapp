@@ -6,8 +6,9 @@ namespace Prospecter\Core\SharedKernel\Application;
 
 /**
  * Carries out one command: changes the state of the application, returns nothing. A query is the only
- * way to read it back. The delivery registers every implementation on its command bus, through a
- * RefusalTranslatingCommandHandler.
+ * way to read it back. The delivery registers every implementation on its command bus, through
+ * RefusalTranslatingCommandHandler, then TransactionalCommandHandler, then the handler: the refusal detected when
+ * the unit of work commits is translated like any other.
  *
  * @method void __invoke(object $command) narrowed by each handler to its command
  */

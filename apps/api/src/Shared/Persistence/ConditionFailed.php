@@ -5,7 +5,8 @@ namespace App\Shared\Persistence;
 use Aws\DynamoDb\Exception\DynamoDbException;
 
 /**
- * A transaction was cancelled: the condition of some of its writes did not hold, nothing was written.
+ * A transaction was cancelled, nothing written: the condition of some of its writes did not hold, none of them
+ * carrying the refusal to throw instead.
  */
 final class ConditionFailed extends \RuntimeException
 {
@@ -22,10 +23,5 @@ final class ConditionFailed extends \RuntimeException
         $reasons = $cancelled->get('CancellationReasons') ?? [];
 
         return new self(array_keys(array_filter($reasons, static fn (array $reason): bool => 'ConditionalCheckFailed' === ($reason['Code'] ?? null))), $cancelled);
-    }
-
-    public function failed(int $write): bool
-    {
-        return in_array($write, $this->failedWrites, true);
     }
 }

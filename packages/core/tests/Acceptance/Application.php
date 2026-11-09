@@ -118,7 +118,10 @@ use Prospecter\Core\SharedKernel\Application\FileStore;
 use Prospecter\Core\SharedKernel\Application\GeoLocalizer;
 use Prospecter\Core\SharedKernel\Application\QueryHandler;
 use Prospecter\Core\SharedKernel\Application\RefusalTranslatingCommandHandler;
+use Prospecter\Core\SharedKernel\Application\RefusalTranslatingEventHandler;
 use Prospecter\Core\SharedKernel\Application\RefusalTranslatingQueryHandler;
+use Prospecter\Core\SharedKernel\Application\TransactionalCommandHandler;
+use Prospecter\Core\SharedKernel\Application\TransactionalEventHandler;
 use Prospecter\Core\SharedKernel\Domain\MemberId;
 use Tests\Core\Double\AccountsProspectors;
 use Tests\Core\Double\AccountsReaders;
@@ -138,6 +141,7 @@ use Tests\Core\Double\InMemoryPersonRepository;
 use Tests\Core\Double\InMemoryPrivateStorage;
 use Tests\Core\Double\InMemoryStorage;
 use Tests\Core\Double\InMemoryTimelineRetriever;
+use Tests\Core\Double\InMemoryUnitOfWork;
 use Tests\Core\Double\KnownPlacesGeoLocation;
 use Tests\Core\Double\PersonalDataKnownContacts;
 use Tests\Core\Double\ProspectingOrganizations;
@@ -147,7 +151,7 @@ use Tests\Core\Double\TimeOrderedUuids;
 /**
  * The hexagon as the scenarios use it: the real handlers, wired to in-memory implementations of their
  * ports, called the way a delivery calls them: through the translation of their refusals, a command is sent to
- * its handler (a command bus in the API) and returns nothing, a query presents what it reads to the presenter
+ * its handler (a command bus in the API) within a unit of work its reactions join, and returns nothing, a query presents what it reads to the presenter
  * of the core keeping it as it is (ADR 0085).
  */
 final class Application
@@ -180,6 +184,7 @@ final class Application
     public readonly PersonalDataKnownContacts $knownContacts;
     public readonly ProspectingOrganizations $prospectedOrganizations;
     public readonly SynchronousEvents $events;
+    private readonly InMemoryUnitOfWork $unitOfWork;
     private readonly FileStore $files;
     private readonly GeoLocalizer $geoLocalizer;
     private readonly PersonalDataEmailUniqueness $personEmails;
@@ -220,6 +225,7 @@ final class Application
         $this->knownContacts = new PersonalDataKnownContacts($this->whichAreContactsService);
         $this->prospectedOrganizations = new ProspectingOrganizations($this->whichAreProspectedService);
         $this->events = new SynchronousEvents();
+        $this->unitOfWork = new InMemoryUnitOfWork($database);
         $this->storage = new InMemoryStorage();
         $this->privateStorage = new InMemoryPrivateStorage();
         $this->attachedFiles = new AttachedFiles($this->privateStorage);
@@ -232,20 +238,21 @@ final class Application
         $this->contactOrganizations = new ContactOrganizations($this->organizations);
 
         foreach ($this->eventHandlers() as $handler) {
-            $this->events->subscribe($handler);
+            $this->alsoReactWith($handler);
         }
 
         foreach ($this->commandHandlers() as $handler) {
-            $this->handlers[$this->commandOf($handler)] = $handler;
+            $this->handlers[$this->commandOf($handler)] = new RefusalTranslatingCommandHandler(new TransactionalCommandHandler($handler, $this->unitOfWork));
         }
     }
 
     /**
-     * A reaction of the scenario, subscribed after those of the core.
+     * A reaction subscribed after those already there, called the way the event bus of the API calls it: through
+     * the translation of its refusals, within the unit of work of the command that published.
      */
     public function alsoReactWith(EventHandler $reaction): void
     {
-        $this->events->subscribe($reaction);
+        $this->events->subscribe($reaction, calledThrough: new RefusalTranslatingEventHandler(new TransactionalEventHandler($reaction, $this->unitOfWork)));
     }
 
     public function signIn(MemberId $user): void
@@ -283,7 +290,7 @@ final class Application
     {
         $handler = $this->handlers[$command::class] ?? throw new \LogicException(sprintf('No handler for %s', $command::class));
         $this->attempt(static function () use ($handler, $command): void {
-            new RefusalTranslatingCommandHandler($handler)($command);
+            $handler($command);
         });
     }
 
