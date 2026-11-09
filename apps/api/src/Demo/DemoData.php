@@ -38,7 +38,7 @@ use Prospecter\Core\SharedKernel\Domain\ReleasesEvents;
 /**
  * The data of the demonstration and of the API tests, made as the use cases make them (ADR 0048): through
  * the domain and the repositories, each aggregate then publishing what happened to it, so that the other
- * contexts react, the journal keeps it and the search finds it. The account SOLEAN IT, its prospector and its
+ * contexts react and the search finds it. The account SOLEAN IT, its prospector and its
  * assistant (who sign in with DemoCredentials), and Babbage & Co with its contact Ada
  * Lovelace and two exchanges with her. The identities are fixed: the tests name them.
  */

@@ -7,7 +7,7 @@ use PHPUnit\Framework\TestCase;
 
 /**
  * Each bounded context keeps its aggregates in its own table (ADR 0038, 0048): only its persistence adapters
- * reach it, through the table named after it; the shared persistence (the tables, the journal) serves them all.
+ * reach it, through the table named after it; the shared persistence (the tables) serves them all.
  */
 class TablePerContextTest extends TestCase
 {

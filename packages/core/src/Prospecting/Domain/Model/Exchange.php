@@ -30,9 +30,9 @@ use Prospecter\Core\SharedKernel\Domain\ReleasesEvents;
 
 /**
  * Aggregate root: a fact of the real world between a prospector of the account and a contact, or the
- * organization itself, a call, a message or a meeting; not a change made in the application, which the activity
- * journal keeps (ADR 0074, 0076). Its text may hold personal data: it is kept for the organizations the contact
- * was part of when it was noted, or for the organization itself, and lives as long as one of them is prospected.
+ * organization itself, a call, a message or a meeting; not a change made in the application (ADR 0074, 0076).
+ * Its text may hold personal data: it is kept for the organizations the contact was part of when it was noted, or
+ * for the organization itself, and lives as long as one of them is prospected.
  * Its contact forgotten, it stays, to make conform (ADR 0079).
  */
 final class Exchange implements ReleasesEvents

@@ -2,7 +2,6 @@
 
 namespace Tests\App\Api;
 
-use App\Shared\Persistence\Journal\ActivityJournal;
 use PHPUnit\Framework\Attributes\Group;
 use Prospecter\Core\SharedKernel\Domain\Exception\NotPossibleInItsState;
 use Tests\App\Base\ApiTestCase;
@@ -10,8 +9,7 @@ use Tests\App\Double\EmailTakenMeanwhile;
 use Tests\App\Double\FailingReaction;
 
 /**
- * A command and its reactions write all or nothing: a reaction that throws leaves the tables as they were, the
- * journal included.
+ * A command and its reactions write all or nothing: a reaction that throws leaves the tables as they were.
  */
 #[Group('api')]
 class AllOrNothingApiTest extends ApiTestCase
@@ -60,8 +58,6 @@ class AllOrNothingApiTest extends ApiTestCase
 
     private function assertTheOrganizationIsAsItWas(): void
     {
-        $journal = self::getContainer()->get(ActivityJournal::class)->of(self::getContainer()->get('app.table.prospecting'), $this->organization);
-        $this->assertSame(['ProspectingStarted'], array_column($journal, 'event'));
         $this->assertNull($this->requestJson('GET', '/api/organizations/'.$this->organization)['observations']);
     }
 
