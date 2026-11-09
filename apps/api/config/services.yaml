@@ -153,6 +153,11 @@ when@test:
         Tests\App\Double\FailingReaction:
             public: true
             tags: [app.event_handler]
+        # another request taking an email meanwhile, when a test asks it to
+        Tests\App\Double\EmailTakenMeanwhile:
+            autowire: true
+            public: true
+            tags: [app.event_handler]
         # the moment the controllers give the commands: fixed, so that the tests can name it
         clock:
             class: Symfony\Component\Clock\MockClock

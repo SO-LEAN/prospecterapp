@@ -2,16 +2,19 @@
 
 namespace App\Shared\Persistence;
 
+use Prospecter\Core\SharedKernel\Domain\Exception\BusinessException;
+
 /**
  * One write of a transaction, a put or a delete of one item of a table: the operation of TransactWriteItems, and
- * the refusal to throw when its condition does not hold.
+ * the refusal to throw when its condition does not hold, given the cancellation as its cause.
  */
 final readonly class Write
 {
     /**
-     * @param array<string, mixed> $operation
+     * @param array<string, mixed>                                $operation
+     * @param (\Closure(ConditionFailed): BusinessException)|null $refusal
      */
-    public function __construct(public string $table, public string $pk, public string $sk, public array $operation, public ?\Throwable $refusal = null)
+    public function __construct(public string $table, public string $pk, public string $sk, public array $operation, public ?\Closure $refusal = null)
     {
     }
 

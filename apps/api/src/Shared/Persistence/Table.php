@@ -4,6 +4,7 @@ namespace App\Shared\Persistence;
 
 use Aws\DynamoDb\DynamoDbClient;
 use Aws\DynamoDb\Marshaler;
+use Prospecter\Core\SharedKernel\Domain\Exception\BusinessException;
 
 /**
  * The DynamoDB table of one bounded context (ADR 0038, 0048), in single-table design: every item is a plain
@@ -243,10 +244,11 @@ final readonly class Table
     /**
      * A put of a transaction, written only when the condition holds, the refusal thrown otherwise.
      *
-     * @param array{PK: string, SK: string, ...} $item
-     * @param array<string, mixed>               $values the values the condition names
+     * @param array{PK: string, SK: string, ...}                  $item
+     * @param array<string, mixed>                                $values  the values the condition names
+     * @param (\Closure(ConditionFailed): BusinessException)|null $refusal
      */
-    public function putting(array $item, ?string $condition = null, array $values = [], ?\Throwable $refusal = null): Write
+    public function putting(array $item, ?string $condition = null, array $values = [], ?\Closure $refusal = null): Write
     {
         return new Write($this->name, $item['PK'], $item['SK'], ['Put' => ['TableName' => $this->name, 'Item' => $this->marshaler->marshalItem($item)] + $this->conditionOf($condition, $values)], $refusal);
     }
