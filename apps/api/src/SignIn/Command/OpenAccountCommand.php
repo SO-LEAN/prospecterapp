@@ -64,13 +64,15 @@ final readonly class OpenAccountCommand
     }
 
     /**
-     * The account and its founder, then the email of their profile, as the founder.
+     * The account and its founder, then the email of their profile, as the founder, all or nothing.
      */
     private function openWith(string $founder, string $corporateName, ?string $form, string $email): void
     {
         $profile = $this->identities->next();
         $now = $this->clock->now();
-        $this->commands->dispatch(new OpenAccount($this->identities->next(), $corporateName, $form, $founder, $profile, $now));
-        $this->commands->dispatch(new ChangePersonContactDetails($founder, $profile, $email, null, null, $now));
+        $this->commands->dispatchTogether(
+            new OpenAccount($this->identities->next(), $corporateName, $form, $founder, $profile, $now),
+            new ChangePersonContactDetails($founder, $profile, $email, null, null, $now),
+        );
     }
 }

@@ -13,16 +13,17 @@ services:
 
     _instanceof:
         # every command handler of the core is registered on the command bus, through the translation of its
-        # refusals (App\Shared\DependencyInjection\RefusalTranslatingHandlersPass)
+        # refusals, then its unit of work (App\Shared\DependencyInjection\RefusalTranslatingHandlersPass)
         Prospecter\Core\SharedKernel\Application\CommandHandler:
             tags: [app.command_handler]
         # every query handler of the core is injected through the translation of its refusals, by the name of
         # its intent: QueryHandler $consultOrganization
         Prospecter\Core\SharedKernel\Application\QueryHandler:
             tags: [app.query_handler]
-        # every event handler of the core reacts on the event bus, within the command that published
+        # every event handler of the core reacts on the event bus, through the translation of its refusals, within
+        # the unit of work of the command that published
         Prospecter\Core\SharedKernel\Application\EventHandler:
-            tags: [{ name: messenger.message_handler, bus: event.bus }]
+            tags: [app.event_handler]
 
     App\:
         resource: '../src/'
@@ -36,6 +37,7 @@ services:
             - '../src/Security/User.php'
             - '../src/Kernel.php'
             - '../src/Shared/Persistence/Table.php'
+            - '../src/Shared/Persistence/Write.php'
 
     # Handlers of the core: commands go through the command bus, queries are called by the controllers, the
     # published services by the anticorruption layers of the other contexts (ADR 0045, 0089)
@@ -98,6 +100,8 @@ services:
     Prospecter\Core\Prospecting\Domain\Port\KnownContacts: '@App\Prospecting\AntiCorruption\PersonalDataKnownContacts'
     Prospecter\Core\PersonalData\Domain\Port\ProspectedOrganizations: '@App\PersonalData\AntiCorruption\ProspectingOrganizations'
     Prospecter\Core\SharedKernel\Application\Port\Events: '@App\Shared\MessengerEvents'
+    # what a command writes, and what its reactions write, in one transaction of DynamoDB, all or nothing
+    Prospecter\Core\SharedKernel\Application\Port\UnitOfWork: '@App\Shared\Persistence\DynamoUnitOfWork'
     Prospecter\Core\SharedKernel\Application\Port\GeoLocation: '@App\Shared\GeoplateformeGeoLocation'
     Prospecter\Core\SharedKernel\Application\Port\Storage: '@App\Shared\StorageClient'
     # the private files of the storage, sent by the browsers themselves (ADR 0077)
@@ -145,6 +149,10 @@ when@test:
         App\Shared\UploadForms: '@Tests\App\Double\InMemoryPrivateStorage'
         Tests\App\Double\InMemoryPrivateStorage:
             public: true
+        # a reaction that throws when a test asks it to, reached like those of the core
+        Tests\App\Double\FailingReaction:
+            public: true
+            tags: [app.event_handler]
         # the moment the controllers give the commands: fixed, so that the tests can name it
         clock:
             class: Symfony\Component\Clock\MockClock

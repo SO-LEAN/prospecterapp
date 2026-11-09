@@ -70,6 +70,18 @@ final class RegisterMemberCommandTest extends ApiTestCase
         $this->assertSame(Command::FAILURE, $this->register(self::FOUNDER, 'assistant@solean-it.io'));
     }
 
+    public function testAnEmailOfAnotherProfileOfTheAccountRegistersNobody(): void
+    {
+        $this->signInAs(self::FOUNDER);
+        $this->requestJson('PATCH', '/api/me/contact-details', ['email' => 'contact@babbage.test']);
+        $written = $this->itemsOfTheTables();
+
+        $this->assertSame(Command::FAILURE, $this->register(self::FOUNDER, 'contact@babbage.test'));
+
+        $this->assertSame($written, $this->itemsOfTheTables(), 'neither the member nor their profile is written');
+        $this->assertNull($this->credentials()->memberSigningInWith('contact@babbage.test'));
+    }
+
     public function testAnAdministratorNobodySignsInWithRegistersNobody(): void
     {
         $this->assertSame(Command::FAILURE, $this->register('nobody@babbage.test', self::MEMBER));
@@ -105,6 +117,14 @@ final class RegisterMemberCommandTest extends ApiTestCase
         ])['AuthenticationResult'];
 
         $this->client->setServerParameter('HTTP_AUTHORIZATION', 'Bearer '.$tokens['AccessToken']);
+    }
+
+    /**
+     * @return array<string, int> how many items each table keeps
+     */
+    private function itemsOfTheTables(): array
+    {
+        return array_map(static fn (string $table): int => count(self::getContainer()->get('app.table.'.$table)->scan('')), ['accounts' => 'accounts', 'personal_data' => 'personal_data']);
     }
 
     private function credentials(): Credentials

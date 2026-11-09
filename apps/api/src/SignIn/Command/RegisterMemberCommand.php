@@ -91,14 +91,16 @@ final readonly class RegisterMemberCommand
     }
 
     /**
-     * The member, then their profile filled in by the new member themselves.
+     * The member, then their profile filled in by the new member themselves, all or nothing.
      */
     private function registerInTheAccountOf(string $administrator, string $memberId, MemberToRegister $member): void
     {
         $profile = $this->identities->next();
         $now = $this->clock->now();
-        $this->commands->dispatch(new RegisterAMember($administrator, $memberId, $profile, $member->roles, $now));
-        $this->commands->dispatch(new RenamePerson($memberId, $profile, $member->firstName, $member->lastName, $now));
-        $this->commands->dispatch(new ChangePersonContactDetails($memberId, $profile, $member->email, null, null, $now));
+        $this->commands->dispatchTogether(
+            new RegisterAMember($administrator, $memberId, $profile, $member->roles, $now),
+            new RenamePerson($memberId, $profile, $member->firstName, $member->lastName, $now),
+            new ChangePersonContactDetails($memberId, $profile, $member->email, null, null, $now),
+        );
     }
 }

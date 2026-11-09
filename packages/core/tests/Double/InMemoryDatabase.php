@@ -34,6 +34,23 @@ final class InMemoryDatabase
         return [] === [...$this->accounts, ...$this->members, ...$this->persons, ...$this->organizations, ...$this->exchanges];
     }
 
+    public function snapshot(): self
+    {
+        return clone $this;
+    }
+
+    /**
+     * The stored copies are never changed in place: the arrays of a snapshot keep the state it was taken in.
+     */
+    public function restore(self $snapshot): void
+    {
+        $this->accounts = $snapshot->accounts;
+        $this->members = $snapshot->members;
+        $this->persons = $snapshot->persons;
+        $this->organizations = $snapshot->organizations;
+        $this->exchanges = $snapshot->exchanges;
+    }
+
     public function storeExchange(Exchange $exchange): void
     {
         $this->exchanges[(string) $exchange->id()] = self::withoutItsEvents($exchange);

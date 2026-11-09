@@ -2,7 +2,6 @@
 
 namespace App\PersonalData\Persistence;
 
-use App\Shared\Persistence\ConditionFailed;
 use App\Shared\Persistence\SearchIndexes;
 use App\Shared\Persistence\Table;
 use Prospecter\Core\PersonalData\Domain\Exception\UnknownPerson;
@@ -70,22 +69,15 @@ final readonly class DynamoPersonRepository implements PersonRepository
         $email = $document['contactDetails']['email'];
         $writes = [$this->personalDataTable->putting($this->itemOf($person, $document))];
 
-        $reservation = null;
-
         if ($email !== $storedEmail && null !== $email) {
-            $reservation = count($writes);
-            $writes[] = $this->personalDataTable->putting(['PK' => self::emailKey($person->accountId(), $person->purpose(), $email), 'SK' => self::EMAIL, 'ownerId' => $document['id']], 'attribute_not_exists(PK) OR ownerId = :owner', [':owner' => $document['id']]);
+            $writes[] = $this->personalDataTable->putting(['PK' => self::emailKey($person->accountId(), $person->purpose(), $email), 'SK' => self::EMAIL, 'ownerId' => $document['id']], 'attribute_not_exists(PK) OR ownerId = :owner', [':owner' => $document['id']], EmailAlreadyUsed::byAnother());
         }
 
         if ($email !== $storedEmail && null !== $storedEmail) {
             $writes[] = $this->personalDataTable->deleting(self::emailKey($person->accountId(), $person->purpose(), $storedEmail), self::EMAIL);
         }
 
-        try {
-            $this->personalDataTable->transact($writes);
-        } catch (ConditionFailed $taken) {
-            throw null !== $reservation && $taken->failed($reservation) ? EmailAlreadyUsed::byAnother($taken) : $taken;
-        }
+        $this->personalDataTable->transact($writes);
     }
 
     /**

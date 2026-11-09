@@ -3,7 +3,6 @@
 namespace App\Shared\Persistence;
 
 use Aws\DynamoDb\DynamoDbClient;
-use Aws\DynamoDb\Exception\DynamoDbException;
 use Aws\DynamoDb\Marshaler;
 
 /**
@@ -11,6 +10,8 @@ use Aws\DynamoDb\Marshaler;
  * document (strings, numbers, booleans, null, lists and maps) keyed by `PK` and `SK`; the two secondary
  * indexes `GSI1` and `GSI2` list items by `GSI1PK`/`GSI1SK` and `GSI2PK`/`GSI2SK`, each repository giving
  * them their meaning; `NAME`, `EMAIL` and `PHONE` keep only the keys of what finds an aggregate (`SearchIndexes`).
+ * Its writes wait in the open unit of work, sent at once without one; a read by key and the query of a partition see
+ * what the unit is about to write there, a count, the keys of the search and a scan read the table as it was.
  */
 final readonly class Table
 {
@@ -22,7 +23,7 @@ final readonly class Table
     private const int BATCH_GET_SIZE = 100;
     private const int BATCH_WRITE_SIZE = 25;
 
-    public function __construct(private DynamoDbClient $client, private Marshaler $marshaler, public string $name)
+    public function __construct(private DynamoDbClient $client, private Marshaler $marshaler, private DynamoUnitOfWork $unitOfWork, public string $name)
     {
     }
 
@@ -31,7 +32,10 @@ final readonly class Table
      */
     public function item(string $pk, string $sk): ?array
     {
-        $item = $this->client->getItem(['TableName' => $this->name, 'Key' => $this->key($pk, $sk), 'ConsistentRead' => true])['Item'] ?? null;
+        $pending = $this->unitOfWork->pendingWriteOn($this->name, $pk, $sk);
+        $item = null === $pending
+            ? $this->client->getItem(['TableName' => $this->name, 'Key' => $this->key($pk, $sk), 'ConsistentRead' => true])['Item'] ?? null
+            : $pending->itemPut();
 
         return null === $item ? null : $this->documentOf($item);
     }
@@ -43,9 +47,23 @@ final readonly class Table
      */
     public function items(array $keys): array
     {
+        $keys = array_values(array_unique($keys, SORT_REGULAR));
+        $pending = array_filter(array_map(fn (array $key): ?Write => $this->unitOfWork->pendingWriteOn($this->name, ...$key), $keys));
+        $put = array_filter(array_map(static fn (Write $write): ?array => $write->itemPut(), $pending));
+
+        return [...array_map($this->documentOf(...), array_values($put)), ...$this->storedItems(array_values(array_diff_key($keys, $pending)))];
+    }
+
+    /**
+     * @param list<array{string, string}> $keys
+     *
+     * @return list<array<string, mixed>>
+     */
+    private function storedItems(array $keys): array
+    {
         $found = [];
 
-        foreach (array_chunk(array_values(array_unique($keys, SORT_REGULAR)), self::BATCH_GET_SIZE) as $chunk) {
+        foreach (array_chunk($keys, self::BATCH_GET_SIZE) as $chunk) {
             $request = [$this->name => ['Keys' => array_map(fn (array $key): array => $this->key(...$key), $chunk), 'ConsistentRead' => true]];
 
             while ([] !== $request) {
@@ -66,7 +84,66 @@ final readonly class Table
      */
     public function query(string $partition, ?string $index = null, ?string $before = null, ?int $limit = null): array
     {
-        [$pkName, $skName] = null === $index ? ['PK', 'SK'] : [$index.'PK', $index.'SK'];
+        $pending = $this->unitOfWork->pendingWritesOn($this->name);
+
+        if ([] === $pending) {
+            return $this->storedItemsOf($partition, $index, $before, $limit);
+        }
+
+        $stored = $this->storedItemsOf($partition, $index, $before, null === $limit ? null : $limit + count($pending));
+
+        return array_slice($this->withPending($pending, $stored, $partition, $index, $before), 0, $limit);
+    }
+
+    /**
+     * The items of a partition as the open unit is about to write them, by sort key descending.
+     *
+     * @param list<Write>                $pending
+     * @param list<array<string, mixed>> $stored
+     *
+     * @return list<array<string, mixed>>
+     */
+    private function withPending(array $pending, array $stored, string $partition, ?string $index, ?string $before): array
+    {
+        $sortKey = self::keyNamesOf($index)[1];
+        $items = [...$this->notRewritten($stored, $pending), ...$this->putIn($pending, $partition, $index, $before)];
+        usort($items, static fn (array $one, array $other): int => strcmp($other[$sortKey], $one[$sortKey]));
+
+        return $items;
+    }
+
+    /**
+     * @param list<array<string, mixed>> $stored
+     * @param list<Write>                $pending
+     *
+     * @return list<array<string, mixed>> the items stored that no pending write changes
+     */
+    private function notRewritten(array $stored, array $pending): array
+    {
+        $rewritten = array_flip(array_map(static fn (Write $write): string => $write->item(), $pending));
+
+        return array_values(array_filter($stored, fn (array $item): bool => !isset($rewritten[Write::itemOf($this->name, $item['PK'], $item['SK'])])));
+    }
+
+    /**
+     * @param list<Write> $pending
+     *
+     * @return list<array<string, mixed>> the items put in the partition, below `before` when given
+     */
+    private function putIn(array $pending, string $partition, ?string $index, ?string $before): array
+    {
+        [$partitionKey, $sortKey] = self::keyNamesOf($index);
+        $put = array_map($this->documentOf(...), array_values(array_filter(array_map(static fn (Write $write): ?array => $write->itemPut(), $pending))));
+
+        return array_values(array_filter($put, static fn (array $item): bool => $partition === ($item[$partitionKey] ?? null) && isset($item[$sortKey]) && (null === $before || strcmp($item[$sortKey], $before) < 0)));
+    }
+
+    /**
+     * @return list<array<string, mixed>>
+     */
+    private function storedItemsOf(string $partition, ?string $index, ?string $before, ?int $limit): array
+    {
+        [$pkName, $skName] = self::keyNamesOf($index);
         $request = [
             'TableName' => $this->name,
             'KeyConditionExpression' => null === $before ? '#pk = :pk' : '#pk = :pk AND #sk < :before',
@@ -83,6 +160,14 @@ final readonly class Table
         } while (null !== $request['ExclusiveStartKey'] && (null === $limit || count($found) < $limit));
 
         return $found;
+    }
+
+    /**
+     * @return array{string, string} the names of the partition key and of the sort key of the table or of the index
+     */
+    private static function keyNamesOf(?string $index): array
+    {
+        return null === $index ? ['PK', 'SK'] : [$index.'PK', $index.'SK'];
     }
 
     /**
@@ -156,48 +241,34 @@ final readonly class Table
     }
 
     /**
-     * A put of a transaction, written only when the condition holds.
+     * A put of a transaction, written only when the condition holds, the refusal thrown otherwise.
      *
-     * @param array<string, mixed> $item
-     * @param array<string, mixed> $values the values the condition names
-     *
-     * @return array<string, mixed>
+     * @param array{PK: string, SK: string, ...} $item
+     * @param array<string, mixed>               $values the values the condition names
      */
-    public function putting(array $item, ?string $condition = null, array $values = []): array
+    public function putting(array $item, ?string $condition = null, array $values = [], ?\Throwable $refusal = null): Write
     {
-        return ['Put' => ['TableName' => $this->name, 'Item' => $this->marshaler->marshalItem($item)] + $this->conditionOf($condition, $values)];
+        return new Write($this->name, $item['PK'], $item['SK'], ['Put' => ['TableName' => $this->name, 'Item' => $this->marshaler->marshalItem($item)] + $this->conditionOf($condition, $values)], $refusal);
     }
 
     /**
-     * A delete of a transaction, done only when the condition holds.
-     *
-     * @param array<string, mixed> $values the values the condition names
-     *
-     * @return array<string, mixed>
+     * A delete of a transaction.
      */
-    public function deleting(string $pk, string $sk, ?string $condition = null, array $values = []): array
+    public function deleting(string $pk, string $sk): Write
     {
-        return ['Delete' => ['TableName' => $this->name, 'Key' => $this->key($pk, $sk)] + $this->conditionOf($condition, $values)];
+        return new Write($this->name, $pk, $sk, ['Delete' => ['TableName' => $this->name, 'Key' => $this->key($pk, $sk)]]);
     }
 
     /**
-     * Writes all or nothing.
+     * Writes all or nothing, with what the open unit of work writes.
      *
-     * @param list<array<string, mixed>> $writes made by putting() and deleting()
+     * @param list<Write> $writes made by putting() and deleting()
      *
-     * @throws ConditionFailed naming the writes whose condition did not hold
+     * @throws ConditionFailed when the condition of a write carrying no refusal did not hold
      */
     public function transact(array $writes): void
     {
-        if ([] === $writes) {
-            return;
-        }
-
-        try {
-            $this->client->transactWriteItems(['TransactItems' => $writes]);
-        } catch (DynamoDbException $failure) {
-            throw 'TransactionCanceledException' === $failure->getAwsErrorCode() ? ConditionFailed::in($failure) : $failure;
-        }
+        $this->unitOfWork->write(...$writes);
     }
 
     /**
