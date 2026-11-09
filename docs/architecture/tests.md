@@ -7,7 +7,7 @@ Two loops, as in *Growing Object-Oriented Software*:
 
 ## Nothing inside the hexagon is doubled
 
-Aggregates, value objects, handlers, services (`FileStore`, `GeoLocalizer`, `EmailUniqueness`, `OrphanContacts`, `ContactOrganizations`, `AttachedFiles`, built once by `Application` and injected into the handlers, ADR 0044) and the decorators `RefusalTranslatingCommandHandler` and `RefusalTranslatingQueryHandler` are the real classes. Only the ports, the interfaces towards the outside, get test implementations, in `tests/Double`. They are working implementations, not mocks; no mocking library is used.
+Aggregates, value objects, handlers, services (`FileStore`, `GeoLocalizer`, `EmailUniqueness`, `OrphanContacts`, `ContactOrganizations`, `AttachedFiles`, built once by `Application` and injected into the handlers, ADR 0044) and the decorators (`RefusalTranslating…Handler`, `Transactional…Handler`) are the real classes. Only the ports, the interfaces towards the outside, get test implementations, in `tests/Double`. They are working implementations, not mocks; no mocking library is used.
 
 | Port | Double | Behaves like |
 |---|---|---|
@@ -18,7 +18,8 @@ Aggregates, value objects, handlers, services (`FileStore`, `GeoLocalizer`, `Ema
 | `PersonRepository`, `Readers` (PersonalData) | `InMemoryPersonRepository`, `AccountsReaders` | the answer to `isEmailUsed()` among the persons of an account for a purpose; a reader is the member `ConsultMembersService` answers, with its person and its right to read personal data |
 | `KnownContacts` (Prospecting) | `PersonalDataKnownContacts` | the anticorruption adapter of the API, same code: the service `WhichAreContactsService` of PersonalData, asked about a set of one |
 | `ProspectedOrganizations` (PersonalData) | `ProspectingOrganizations` | the anticorruption adapter of the API, same code: the service `WhichAreProspectedService` of Prospecting, asked once for all the organizations of a contact |
-| `Events` | `SynchronousEvents` | the event bus of the API: each event delivered at once to the real event handlers `Application` subscribed |
+| `Events` | `SynchronousEvents` | the event bus of the API: each event delivered at once to the real event handlers `Application` subscribed, through their decorators |
+| `UnitOfWork` | `InMemoryUnitOfWork` | the DynamoDB unit of work: its levels counted the same way, the outermost `begin()` takes a snapshot of the `InMemoryDatabase`, restored when a discarded unit ends |
 | `Storage` | `InMemoryStorage` | stores by URL `https://storage.test/<file name>` and deletes the uploaded file, like the real storage moves it |
 | `PrivateStorage` | `InMemoryPrivateStorage` | the private files of the storage: the client sends an upload (`send()`), kept once, read by a link while it is kept (ADR 0077) |
 | `GeoLocation` | `KnownPlacesGeoLocation` | finds an address that mentions a place declared by the scenario |
@@ -33,14 +34,15 @@ tests/Acceptance/Vocabulary     French labels of the tables, how they read entit
 tests/Acceptance/Expect         assertions (PHPUnit's need its runner to describe a failure)
 tests/Double/                   the ports' test implementations
 tests/Domain/                   PHPUnit: value objects rich in edge cases, intents refused exactly when not offered
-tests/Application/              PHPUnit: the translation of the refusals of the domain (UseCaseRefused, RefusalTranslatingCommandHandler, RefusalTranslatingQueryHandler)
+tests/Application/              PHPUnit: the decorators of the handlers: the translation of the refusals of the domain (UseCaseRefused,
+                                RefusalTranslating…Handler), the unit of work they begin and commit (Transactional…Handler)
 tests/Architecture/             PHPUnit: no bounded context uses another one but its Contract, a Contract imports nothing,
                                 no domain class in a request or a response, every handler a CommandHandler, a
                                 QueryHandler or an EventHandler, every event handler subscribed in the scenarios
 tests/Mutation/                 the scenarios of each feature as a PHPUnit test, for the tests of mutation only
 ```
 
-The scenarios do not know the command bus of the API: `Application::dispatch()` sends a command to its handler, and a query is called directly with the presenter of the core keeping its answer (`KeptOrganization`, ADR 0085), each through the decorator of its kind like the API; a scenario reads the response the method of `Application` gives back. Every event handler of the core, the translators publishing the integration events included (ADR 0046), reacts in the scenarios as in the API (`Application::eventHandlers()`; `tests/Architecture/EventHandlersSubscribedTest` fails when one is missing): a scenario checks the side effects of a gesture in the other contexts, never the events themselves; the intents tests check that an accepted intention records its event. The services the contexts publish (ADR 0045, 0089, `Contract/Service`) are asked through `Application::consultMembers()`, `whichAreContacts()` and `whichAreProspected()`, as the anticorruption layers ask them, in `features/langage-publie.feature`. `Application` plays the client: it gives the identities of what is created (`newIdentity()`, time ordered UUIDs from `TimeOrderedUuids`) and the moment of the commands (`now()`, set by `nous sommes le "2026-10-20 14:00"`); a refusal is the `UseCaseRefused` of the last call (`refusal()`).
+The scenarios do not know the command bus of the API: `Application::dispatch()` sends a command to its handler, and a query is called directly with the presenter of the core keeping its answer (`KeptOrganization`, ADR 0085), each through the decorators of its kind like the API, a command and its reactions in one unit of work; a scenario reads the response the method of `Application` gives back. Every event handler of the core, the translators publishing the integration events included (ADR 0046), reacts in the scenarios as in the API (`Application::eventHandlers()`; `tests/Architecture/EventHandlersSubscribedTest` fails when one is missing): a scenario checks the side effects of a gesture in the other contexts, never the events themselves; it may add a reaction of its own after them (`Application::alsoReactWith()`, `FailingReaction` in `une-commande-ecrit-tout-ou-rien.feature`); the intents tests check that an accepted intention records its event. The services the contexts publish (ADR 0045, 0089, `Contract/Service`) are asked through `Application::consultMembers()`, `whichAreContacts()` and `whichAreProspected()`, as the anticorruption layers ask them, in `features/langage-publie.feature`. `Application` plays the client: it gives the identities of what is created (`newIdentity()`, time ordered UUIDs from `TimeOrderedUuids`) and the moment of the commands (`now()`, set by `nous sommes le "2026-10-20 14:00"`); a refusal is the `UseCaseRefused` of the last call (`refusal()`).
 
 ## Adding or changing a rule
 
@@ -55,6 +57,7 @@ Check that a scenario really protects its rule: break the rule in `src`, the sce
 ## Tests of the API
 
 - `tests/Api`: functional tests through `Base/ApiTestCase`, whose `login()` signs a member in for real on the user pool `prospecter-test` of MiniStack (`AccessTokenTest`, `SignInTest`). The tables of the prefix `prospecter-test` and the user pool are recreated for each test, in MiniStack (`make test-api` starts it), with the data and the members of the demonstration; host `api.test.prospecter.io`; variables in `.env.test`.
+- `tests/Shared/DynamoUnitOfWorkTest`: the unit of work on the tables of MiniStack (levels, one write per item, the ceiling of 100, the refusal carried by a write, what a read sees before the commit); `tests/Api/AllOrNothingApiTest`: a reaction refusing or failing (`Tests\App\Double\FailingReaction`, armed by the test, the client not rebooted) leaves the tables as they were.
 - `tests/<Context>`: the adapters on their real table or service (`DynamoPersonRepositoryTest`: the reservation refuses an email taken meanwhile; `OrganizationSearchTest`: found by the beginning of the name or of the email, the keys written again; `GeoplateformeGeoLocationTest`; `SignIn/RsaPublicKeyTest`); `tests/Architecture`: the boundaries (contexts, domain behind the application, one table per context); `tests/Local`: what only the local stack has (the profiler, its CORS). A test failing because of a limit of MiniStack is skipped with its reason; a dev instance on AWS is the safety net.
 - Unit tests extend PHPUnit's `TestCase` and use hand-written doubles (`tests/Double`), no mock library.
 - PHPUnit 13: attributes only (`#[DataProvider]`, `#[Group]`), static data providers, abstract base classes named `*TestCase`.
