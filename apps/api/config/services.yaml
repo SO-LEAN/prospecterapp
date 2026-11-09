@@ -20,8 +20,9 @@ services:
         # its intent: QueryHandler $consultOrganization
         Prospecter\Core\SharedKernel\Application\QueryHandler:
             tags: [app.query_handler]
-        # every event handler of the core reacts on the event bus, through the translation of its refusals, within
-        # the unit of work of the command that published
+        # every event handler of the core reacts through the translation of its refusals, within the unit of work of
+        # the command that published: a translator on the event bus, any other as the subscription naming it in
+        # config/subscriptions.json (App\Shared\DependencyInjection\SubscriptionsPass)
         Prospecter\Core\SharedKernel\Application\EventHandler:
             tags: [app.event_handler]
 
@@ -99,7 +100,16 @@ services:
     Prospecter\Core\Prospecting\Domain\Port\Prospectors: '@App\Prospecting\AntiCorruption\AccountsProspectors'
     Prospecter\Core\Prospecting\Domain\Port\KnownContacts: '@App\Prospecting\AntiCorruption\PersonalDataKnownContacts'
     Prospecter\Core\PersonalData\Domain\Port\ProspectedOrganizations: '@App\PersonalData\AntiCorruption\ProspectingOrganizations'
-    Prospecter\Core\SharedKernel\Application\Port\Events: '@App\Shared\MessengerEvents'
+    # a domain event to the translators of its context on the event bus, every event to the reactions of the
+    # subscriptions of config/subscriptions.json, delivered the way INTEGRATION_EVENTS_DELIVERY names (sync only)
+    Prospecter\Core\SharedKernel\Application\Port\Events: '@App\Shared\Messaging\RoutingEvents'
+    app.deliveries:
+        class: Symfony\Component\DependencyInjection\ServiceLocator
+        arguments: [{ sync: '@App\Shared\Messaging\SynchronousDelivery' }]
+        tags: [container.service_locator]
+    App\Shared\Messaging\Delivery:
+        factory: ['@app.deliveries', 'get']
+        arguments: ['%env(INTEGRATION_EVENTS_DELIVERY)%']
     # what a command writes, and what its reactions write, in one transaction of DynamoDB, all or nothing
     Prospecter\Core\SharedKernel\Application\Port\UnitOfWork: '@App\Shared\Persistence\DynamoUnitOfWork'
     # a gesture of several commands commits its unit itself: its refusal translated like that of a command

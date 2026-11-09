@@ -4,9 +4,11 @@ framework:
         # the result back with a query right after (ADR 0029).
         default_bus: command.bus
         buses:
-            command.bus: ~
-            # the domain events a use case releases, delivered within it (ADR 0042, 0043): the other
-            # contexts react
+            command.bus:
+                # the events of a command and of its reactions carry its correlation
+                middleware: [App\Shared\Messaging\CorrelatedCommands]
+            # the domain events a use case releases, delivered within it (ADR 0042, 0043): the translators publish
+            # them for the other contexts; the reactions are subscriptions (App\Shared\Messaging\RoutingEvents)
             event.bus:
                 default_middleware:
                     allow_no_handlers: true

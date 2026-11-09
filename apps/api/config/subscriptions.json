@@ -1,0 +1,58 @@
+{
+  "accounts-register-the-founder": {
+    "context": "accounts",
+    "sources": ["prospecter.accounts.internal"],
+    "events": ["AccountOpened.v1"],
+    "handler": "Prospecter\\Core\\Accounts\\Application\\RegisterTheFounder\\RegisterTheFounderHandler",
+    "inbox": true
+  },
+  "prospecting-stop-keeping-exchanges": {
+    "context": "prospecting",
+    "sources": ["prospecter.prospecting.internal"],
+    "events": ["ProspectingStopped.v1"],
+    "handler": "Prospecter\\Core\\Prospecting\\Application\\StopKeepingExchanges\\StopKeepingExchangesHandler",
+    "inbox": true
+  },
+  "personal-data-collect-founder-profile": {
+    "context": "personal-data",
+    "sources": ["prospecter.accounts"],
+    "events": ["AccountOpened.v1"],
+    "handler": "Prospecter\\Core\\PersonalData\\Application\\CollectTheFounderProfile\\CollectTheFounderProfileHandler",
+    "inbox": true
+  },
+  "personal-data-collect-member-profile": {
+    "context": "personal-data",
+    "sources": ["prospecter.accounts"],
+    "events": ["MemberRegistered.v1"],
+    "handler": "Prospecter\\Core\\PersonalData\\Application\\CollectTheMemberProfile\\CollectTheMemberProfileHandler",
+    "inbox": true
+  },
+  "personal-data-forget-contacts-left-without-organization": {
+    "context": "personal-data",
+    "sources": ["prospecter.prospecting"],
+    "events": ["ContactsLeftWithoutOrganization.v1"],
+    "handler": "Prospecter\\Core\\PersonalData\\Application\\ForgetContactsLeftWithoutOrganization\\ForgetContactsLeftWithoutOrganizationHandler",
+    "inbox": true
+  },
+  "prospecting-attach-collected-contact": {
+    "context": "prospecting",
+    "sources": ["prospecter.personal-data"],
+    "events": ["ContactCollected.v1"],
+    "handler": "Prospecter\\Core\\Prospecting\\Application\\AttachCollectedContact\\AttachCollectedContactHandler",
+    "inbox": true
+  },
+  "prospecting-detach-forgotten-contact": {
+    "context": "prospecting",
+    "sources": ["prospecter.personal-data"],
+    "events": ["ContactForgotten.v1"],
+    "handler": "Prospecter\\Core\\Prospecting\\Application\\DetachForgottenContact\\DetachForgottenContactHandler",
+    "inbox": true
+  },
+  "prospecting-keep-exchanges-of-forgotten-contact": {
+    "context": "prospecting",
+    "sources": ["prospecter.personal-data"],
+    "events": ["ContactForgotten.v1"],
+    "handler": "Prospecter\\Core\\Prospecting\\Application\\KeepExchangesOfForgottenContact\\KeepExchangesOfForgottenContactHandler",
+    "inbox": true
+  }
+}
