@@ -20,7 +20,8 @@ final class SubscriptionsPass implements CompilerPassInterface
     public const string FILE = '/config/subscriptions.json';
     public const string PARAMETER = 'app.subscriptions';
     private const string CORE = 'Prospecter\\Core\\';
-    private const string TRANSLATOR = '/\\\\Application\\\\Publish(\w+)\\\\Publish\1Handler$/';
+    /** a translator publishes a domain event for the other contexts: `Application\PublishAccountOpened\PublishAccountOpenedHandler` */
+    public const string TRANSLATOR = '/\\\\Application\\\\Publish(\w+)\\\\Publish\1Handler$/';
 
     public function process(ContainerBuilder $container): void
     {

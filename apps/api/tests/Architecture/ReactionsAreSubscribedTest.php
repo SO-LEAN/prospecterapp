@@ -2,6 +2,7 @@
 
 namespace Tests\App\Architecture;
 
+use App\Shared\DependencyInjection\SubscriptionsPass;
 use App\Shared\Messaging\DomainEventTypes;
 use App\Shared\Messaging\EventTypes;
 use App\Shared\Messaging\IntegrationEventTypes;
@@ -15,7 +16,6 @@ use Prospecter\Core\SharedKernel\Application\EventHandler;
  */
 class ReactionsAreSubscribedTest extends TestCase
 {
-    private const string TRANSLATOR = '/\\\\Application\\\\Publish(\w+)\\\\Publish\1Handler$/';
     private const string INTERNAL = '.internal';
 
     public function testEveryEventHandlerIsATranslatorOrASubscription(): void
@@ -23,7 +23,7 @@ class ReactionsAreSubscribedTest extends TestCase
         $subscribed = array_column($this->subscriptions(), 'handler');
         $undeclared = array_filter(
             $this->eventHandlersOfTheCore(),
-            static fn (string $handler): bool => !preg_match(self::TRANSLATOR, $handler) && !in_array($handler, $subscribed, true),
+            static fn (string $handler): bool => !preg_match(SubscriptionsPass::TRANSLATOR, $handler) && !in_array($handler, $subscribed, true),
         );
 
         $this->assertSame([], array_values($undeclared), 'reactions missing from config/subscriptions.json');
@@ -31,7 +31,7 @@ class ReactionsAreSubscribedTest extends TestCase
 
     public function testASubscriptionNamesAKnownReaction(): void
     {
-        $reactions = array_filter($this->eventHandlersOfTheCore(), static fn (string $handler): bool => !preg_match(self::TRANSLATOR, $handler));
+        $reactions = array_filter($this->eventHandlersOfTheCore(), static fn (string $handler): bool => !preg_match(SubscriptionsPass::TRANSLATOR, $handler));
         $unknown = array_diff(array_column($this->subscriptions(), 'handler'), $reactions);
 
         $this->assertSame([], array_values($unknown));

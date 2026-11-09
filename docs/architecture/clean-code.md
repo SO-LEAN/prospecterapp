@@ -84,7 +84,7 @@ This guide is alive: rules get added and sharpened as the code is improved, iter
 - **Cohesive**: most methods use most fields. When a subset of fields serves a subset of methods, it is another class waiting to be extracted (`FileStore` and `GeoLocalizer` came out of the use cases).
 - **Organized for change**: adding a feature adds a class rather than editing many.
 - **Dependencies are injected, never built** (ADR 0044): a constructor only receives what the class needs, and builds nothing but the exception it throws; a service is built by the container (the composition root of the tests in the core), never by the code. `make lint` fails otherwise (`packages/phpstan-rules/DependenciesAreInjectedRule`).
-- **A service is stateless** (an in-memory cache aside); **an object keeping the state of one call is no service** (ADR 0085): built where it is used, it may receive the services of its builder. A presenter is one: it implements the output port of a query, keeps its view model, and its client reads it once the query answered (`$presenter->resource`); the rule allows building a class implementing `OutputPort`.
+- **A service is stateless** (an in-memory cache aside; the unit of work and the causation of the events keep the state of a request, emptied at its end, ADR 0095, 0097); **an object keeping the state of one call is no service** (ADR 0085): built where it is used, it may receive the services of its builder. A presenter is one: it implements the output port of a query, keeps its view model, and its client reads it once the query answered (`$presenter->resource`); the rule allows building a class implementing `OutputPort`.
 
 ## 10. SOLID
 
