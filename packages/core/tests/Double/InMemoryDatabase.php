@@ -29,6 +29,11 @@ final class InMemoryDatabase
     /** @var array<string, Exchange> */
     private array $exchanges = [];
 
+    public function isEmpty(): bool
+    {
+        return [] === [...$this->accounts, ...$this->members, ...$this->persons, ...$this->organizations, ...$this->exchanges];
+    }
+
     public function storeExchange(Exchange $exchange): void
     {
         $this->exchanges[(string) $exchange->id()] = self::withoutItsEvents($exchange);
