@@ -7,7 +7,7 @@ use PHPUnit\Framework\TestCase;
 /**
  * The API delivers the use cases through their requests and responses only (ADR 0035): controllers,
  * inputs, resources, presenters and security never see a class of the domain. Only the adapters that
- * implement its ports do: persistence, anticorruption layers, gateways, and the fixtures that arrange it.
+ * implement its ports do: persistence, messaging, anticorruption layers, gateways, and the fixtures that arrange it.
  */
 class DomainBehindTheApplicationTest extends TestCase
 {
@@ -51,6 +51,6 @@ class DomainBehindTheApplicationTest extends TestCase
 
     private function isAnAdapter(string $path): bool
     {
-        return str_contains($path, '/Persistence/') || in_array($path, self::ADAPTERS, true);
+        return str_contains($path, '/Persistence/') || str_contains($path, '/Messaging/') || in_array($path, self::ADAPTERS, true);
     }
 }
