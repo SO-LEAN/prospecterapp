@@ -20,7 +20,7 @@ In the API, the anticorruption layers implementing the ports of a context are in
 
 ## How events travel
 
-Every event leaves its context in the shape of an event of EventBridge, so that the reactions may later be carried by a bus; for now it is delivered at once, within the command (`INTEGRATION_EVENTS_DELIVERY=sync`).
+Every event leaves its context in the shape of an event of EventBridge (ADR 0097), so that the reactions may later be carried by a bus; for now it is delivered at once, within the command (`INTEGRATION_EVENTS_DELIVERY=sync`).
 
 | Field | Value |
 |---|---|
@@ -33,7 +33,7 @@ Every event leaves its context in the shape of an event of EventBridge, so that 
 
 ## The subscriptions
 
-The reactions are listed in one place, `apps/api/config/subscriptions.json`, read by Symfony (the parameter `app.subscriptions`) and later by the infrastructure. One entry per subscription, named `<context>-<intent>`, of the context of its reaction:
+The reactions are listed in one place (ADR 0097), `apps/api/config/subscriptions.json`, read by Symfony (the parameter `app.subscriptions`) and later by the infrastructure. One entry per subscription, named `<context>-<intent>`, of the context of its reaction:
 
 ```json
 "prospecting-stop-keeping-exchanges": {
@@ -45,4 +45,4 @@ The reactions are listed in one place, `apps/api/config/subscriptions.json`, rea
 }
 ```
 
-One handler per type of event: two handlers of one event make two subscriptions. A translator (`Application/Publish…/Publish…Handler`) is no subscription: it stays on the event bus, publishing a domain event for the other contexts. `tests/Architecture/ReactionsAreSubscribedTest` fails when an event handler of the core is neither a translator nor a subscription, when a subscription names an unknown reaction or an event no list knows, or when a subscription to a source `.internal` is of another context than the event: a domain event never leaves its context (ADR 0046).
+One handler per type of event: two handlers of one event make two subscriptions. A translator (`Application/Publish…/Publish…Handler`) is no subscription: it stays on the event bus, publishing a domain event for the other contexts. `tests/Architecture/ReactionsAreSubscribedTest` fails when an event handler of the core is neither a translator nor a subscription, when a subscription names an unknown reaction or an event no list knows, or when a subscription to a source `.internal` is of another context than the event: a domain event never leaves its context (ADR 0046). Within a command, the order of the reactions is no promise: a translator and the reactions to its integration event run before the internal reactions of the same domain event.
