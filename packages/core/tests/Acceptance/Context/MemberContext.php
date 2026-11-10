@@ -12,8 +12,6 @@ use Behat\Step\When;
 use Prospecter\Core\Accounts\Application\RegisterAMember\RegisterAMember;
 use Prospecter\Core\Accounts\Contract\Service\ConsultMembers\ConsultMembers;
 use Prospecter\Core\Accounts\Domain\Model\Role;
-use Prospecter\Core\PersonalData\Application\ChangePersonContactDetails\ChangePersonContactDetails;
-use Prospecter\Core\PersonalData\Application\RenamePerson\RenamePerson;
 use Prospecter\Core\SharedKernel\Domain\MemberId;
 use Prospecter\Core\SharedKernel\Domain\PersonId;
 use Tests\Core\Acceptance\Expect;
@@ -33,9 +31,6 @@ final class MemberContext implements Context
         $this->scenario->aMemberOf($name, $account, ...Role::cases());
     }
 
-    /**
-     * As a client registers a member: the member, then their profile filled in by the new member themselves.
-     */
     #[When('j\'inscris :name à mon compte :')]
     public function iRegisterAMember(string $name, TableNode $table): void
     {
@@ -47,8 +42,6 @@ final class MemberContext implements Context
         if (null === $this->application->refusal()) {
             $this->scenario->rememberMember($name, new MemberId($member));
             $this->scenario->rememberPerson($name, new PersonId($profile));
-            $this->application->dispatch(new RenamePerson($member, $profile, $values['prénom'], $values['nom'], $this->application->now()));
-            $this->application->dispatch(new ChangePersonContactDetails($member, $profile, $values['e-mail'], null, null, $this->application->now()));
         }
     }
 
