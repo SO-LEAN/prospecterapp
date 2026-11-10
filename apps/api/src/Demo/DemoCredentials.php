@@ -14,6 +14,7 @@ final readonly class DemoCredentials
     public const array LOGIN_EMAILS = [
         DemoData::PROSPECTOR => 'prospector@solean-it.io',
         DemoData::ASSISTANT => 'assistant@solean-it.io',
+        DemoData::NEWCOMER => 'newcomer@solean-it.io',
     ];
 
     public function __construct(private Credentials $credentials)
