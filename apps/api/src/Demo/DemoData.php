@@ -38,9 +38,9 @@ use Prospecter\Core\SharedKernel\Domain\ReleasesEvents;
 /**
  * The data of the demonstration and of the API tests, made as the use cases make them (ADR 0048): through
  * the domain and the repositories, each aggregate then publishing what happened to it, so that the other
- * contexts react and the search finds it. The account SOLEAN IT, its prospector Camille Martin and its
- * assistant Louis Petit (who sign in with DemoCredentials), and Babbage & Co with its contact Ada
- * Lovelace and two exchanges with her. The identities are fixed: the tests name them.
+ * contexts react and the search finds it. The account SOLEAN IT, its prospector Camille Martin, its assistant
+ * Louis Petit and a newcomer whose profile is empty (who sign in with DemoCredentials), and Babbage & Co with its
+ * contact Ada Lovelace and two exchanges with her. The identities are fixed: the tests name them.
  */
 final readonly class DemoData
 {
@@ -48,6 +48,8 @@ final readonly class DemoData
     public const string PROSPECTOR = '01900000-0000-7000-8000-000000000001';
     /** A prospector without the right to manage personal data: sees the contacts masked. */
     public const string ASSISTANT = '01900000-0000-7000-8000-000000000002';
+    /** A prospector signing in for the first time: their profile is empty, theirs to complete. */
+    public const string NEWCOMER = '01900000-0000-7000-8000-000000000003';
     private const string OPENED_AT = '2026-10-13 09:00';
 
     public function __construct(
@@ -64,20 +66,36 @@ final readonly class DemoData
     public function load(): void
     {
         $soleanIt = Account::open(new AccountId(self::SOLEAN_IT), new LegalIdentity('SOLEAN IT', 'SARL'), new \DateTimeImmutable(self::OPENED_AT), new ContactDetails(new Email('org@solean-it.io'), language: 'FR'));
-        $prospector = $this->aMember(self::PROSPECTOR, new PersonName('Camille', 'Martin'), 'prospector@solean-it.io', $soleanIt, Role::User, Role::Prospector, Role::PersonalData);
-        $this->aMember(self::ASSISTANT, new PersonName('Louis', 'Petit'), 'assistant@solean-it.io', $soleanIt, Role::User, Role::Prospector);
+        $prospector = $this->aMember(self::PROSPECTOR, $this->aProfileIn($soleanIt, new PersonName('Camille', 'Martin'), 'prospector@solean-it.io'), Role::User, Role::Prospector, Role::PersonalData);
+        $this->aMember(self::ASSISTANT, $this->aProfileIn($soleanIt, new PersonName('Louis', 'Petit'), 'assistant@solean-it.io'), Role::User, Role::Prospector);
+        $this->aMember(self::NEWCOMER, $this->anEmptyProfileIn($soleanIt), Role::User, Role::Prospector);
         $soleanIt->relocateTo(new Address('1 place Kléber', '67000', 'Strasbourg', 'FR'), new GeoPoint(7.7456, 48.5834), $prospector, new \DateTimeImmutable(self::OPENED_AT));
         $this->accounts->save($soleanIt);
         $this->publish($soleanIt);
         $this->aContact($soleanIt);
     }
 
-    private function aMember(string $id, PersonName $name, string $email, Account $account, Role ...$roles): Member
+    private function aProfileIn(Account $account, PersonName $name, string $email): Person
     {
-        $profile = Person::collect(new PersonId($this->identities->next()), $account->id(), Purpose::Membership, new \DateTimeImmutable(self::OPENED_AT), $name, new ContactDetails(new Email($email), language: 'FR'));
+        return $this->collected(Person::collect(new PersonId($this->identities->next()), $account->id(), Purpose::Membership, new \DateTimeImmutable(self::OPENED_AT), $name, new ContactDetails(new Email($email), language: 'FR')));
+    }
+
+    private function anEmptyProfileIn(Account $account): Person
+    {
+        return $this->collected(Person::collect(new PersonId($this->identities->next()), $account->id(), Purpose::Membership, new \DateTimeImmutable(self::OPENED_AT)));
+    }
+
+    private function collected(Person $profile): Person
+    {
         $this->persons->save($profile);
         $this->publish($profile);
-        $member = Member::register(new MemberId($id), $account->id(), $profile->id(), ...$roles);
+
+        return $profile;
+    }
+
+    private function aMember(string $id, Person $profile, Role ...$roles): Member
+    {
+        $member = Member::register(new MemberId($id), $profile->accountId(), $profile->id(), ...$roles);
         $this->members->save($member);
 
         return $member;
