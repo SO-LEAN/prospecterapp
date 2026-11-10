@@ -12,6 +12,8 @@ db: ministack ## Recreate in MiniStack the tables and the user pool, with the de
 	@$(PHP) sh -c 'bin/console cache:clear >/dev/null && bin/console app:tables:recreate --demo'
 	@echo "API/Creating the Cognito user pool with the members of the demonstration..."
 	@$(PHP) bin/console app:user-pool:recreate --demo
+	@echo "API/Relaying the outbox of the new tables to the bus..."
+	@$(DC) --progress quiet run --rm --build lambda-deploy relay
 
 test: ministack ## Run the tests of the API (on MiniStack: tables, user pool); FILTER= a test by name
 	@$(PHP) bin/phpunit $(if $(FILTER),--filter='$(FILTER)')
@@ -32,7 +34,7 @@ openapi: ## Regenerate the OpenAPI contract of the API (openapi.json) after chan
 
 # a command on MiniStack, or with INSTANCE= on the tables and the user pool of an instance on AWS, from this machine:
 # the temporary credentials of its AWS profile, exported by the AWS CLI in its image, reach the php container through
-# the environment only; the names are those of infra/
+# the environment only; the names are those of infra/ (the bus of app:outbox:republish too)
 console: ## Run a command of the API, on MiniStack or with INSTANCE= on AWS: make console CMD="app:account:open 'SOLEAN IT' me@example.com" [INSTANCE=dev]
 	@test -n "$(CMD)" || { echo "Usage: make console CMD=\"<command of bin/console>\" [INSTANCE=<dev|prod|...>]"; exit 1; }
 ifeq ($(origin INSTANCE),command line)
@@ -41,6 +43,7 @@ ifeq ($(origin INSTANCE),command line)
 		-e AWS_ACCESS_KEY_ID -e AWS_SECRET_ACCESS_KEY -e AWS_SESSION_TOKEN \
 		-e AWS_REGION=$$(sed -nE 's/^region *= *"(.*)"/\1/p' $(INFRA_INSTANCE).tfvars) \
 		-e DYNAMODB_ENDPOINT= -e COGNITO_ENDPOINT= -e DYNAMODB_TABLE_PREFIX=prospecter-$(INSTANCE)-api \
+		-e EVENTBRIDGE_ENDPOINT= -e INTEGRATION_EVENT_BUS=prospecter-$(INSTANCE)-api-integration \
 		-e COGNITO_USER_POOL_NAME=prospecter-$(INSTANCE)-api-members php bin/console $(CMD)
 else
 	@$(START_MINISTACK)

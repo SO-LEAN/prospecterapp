@@ -4,6 +4,8 @@
 # knows where to send the hosts. Run again any time: the functions are recreated, the rest kept.
 # deploy geocoder <url>: only the geocoder the API asks, its double while the journeys run (make e2e), the service
 # of the IGN of apps/api/.env with no url.
+# deploy relay: only the bus, the relay of the outbox and the mappings of the streams of the tables, which make db
+# recreates.
 set -eu
 
 aws() { command aws --endpoint-url "$AWS_ENDPOINT_URL" --output text "$@"; }
@@ -84,6 +86,40 @@ http_api() {
         || aws apigatewayv2 create-stage --api-id "$name" --stage-name local --auto-deploy >/dev/null
 }
 
+# deploy_relay: the bus, and the relay of the outbox (ADR 0098), a function of the API reading the stream of each
+# table; MiniStack neither splits a failing batch nor stops retrying it (spike of MiniStack 1.5.27): the age of a
+# record is limited to a minute, after which the batch goes to the queue of the failures, or it would block the table
+deploy_relay() {
+    php=$(layer "$PHP_LAYER" /build/php.zip)
+    aws events describe-event-bus --name prospecter-dev-integration >/dev/null 2>&1 \
+        || aws events create-event-bus --name prospecter-dev-integration >/dev/null
+    failures=$(aws sqs create-queue --queue-name prospecter-dev-relay-failures --attributes MessageRetentionPeriod=1209600 --query QueueUrl)
+    failures=$(aws sqs get-queue-attributes --queue-url "$failures" --attribute-names QueueArn --query Attributes.QueueArn)
+
+    aws lambda delete-function --function-name prospecter-dev-relay >/dev/null 2>&1 || true
+    relay=$(aws lambda create-function --function-name prospecter-dev-relay --runtime provided.al2023 --handler bootstrap \
+        --role "$role" --zip-file fileb:///build/function.zip --layers "$php" --memory-size 512 --timeout 28 \
+        --environment 'Variables={BREF_RUNTIME=function,BREF_LOCAL_HANDLER=App\Shared\Messaging\OutboxRelay,BREF_LOCAL_ROOT=/var/www/src/apps/api}' \
+        --query FunctionArn)
+
+    for mapping in $(aws lambda list-event-source-mappings --function-name prospecter-dev-relay --query 'EventSourceMappings[].UUID'); do
+        aws lambda delete-event-source-mapping --uuid "$mapping" >/dev/null
+    done
+    for context in accounts personal-data prospecting; do
+        stream=$(aws dynamodb describe-table --table-name "prospecter-dev-$context" --query Table.LatestStreamArn 2>/dev/null) || stream=None
+        if [ "$stream" = None ]; then
+            echo "No stream of the table prospecter-dev-$context: make db creates the tables, then relays them" >&2
+            continue
+        fi
+        aws lambda create-event-source-mapping --function-name "$relay" --event-source-arn "$stream" \
+            --starting-position TRIM_HORIZON --batch-size 10 --bisect-batch-on-function-error --maximum-retry-attempts 5 \
+            --maximum-record-age-in-seconds 60 --destination-config "OnFailure={Destination=$failures}" \
+            --filter-criteria '{"Filters":[{"Pattern":"{\"eventName\":[\"INSERT\"],\"dynamodb\":{\"Keys\":{\"PK\":{\"S\":[{\"prefix\":\"OUTBOX#\"}]}}}}"}]}' >/dev/null
+    done
+
+    echo "Lambda prospecter-dev-relay relaying the outbox of the tables to the bus prospecter-dev-integration"
+}
+
 # deploy_apps: the functions of the API and the storage behind their HTTP APIs, warmed
 deploy_apps() {
     php=$(layer "$PHP_LAYER" /build/php.zip)
@@ -104,10 +140,13 @@ deploy_apps() {
     wait
 
     echo "Lambdas prospecter-dev-api and prospecter-dev-storage with $php and $imagick, behind their HTTP APIs (stage local)"
+    deploy_relay
 }
 
 if [ "${1:-}" = geocoder ]; then
     api_geocoder "${2:-}"
+elif [ "${1:-}" = relay ]; then
+    deploy_relay
 else
     deploy_apps
 fi

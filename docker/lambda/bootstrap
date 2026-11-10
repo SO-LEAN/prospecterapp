@@ -4,8 +4,19 @@
 # its root and the php.ini files of the code, then start the bootstrap of the layer. PHP-FPM of the layer serves as
 # nobody, who cannot write the repository: it serves as its owner, the user of the php container, so that the
 # function writes there the cache and the logs of the dev environment, shared with the command line.
-sed -i "s/^user = nobody$/user = $(stat -c %u "$BREF_LOCAL_ROOT")\ngroup = $(stat -c %g "$BREF_LOCAL_ROOT")/" /opt/bref/etc/php-fpm.conf
+# A function of the runtime "function" (the relay of the outbox) runs PHP itself, as the user of the container: as
+# root, it drops to the owner too; from the root of the code, where AWS starts it, the bridge of Symfony finding
+# public/index.php there.
+owner=$(stat -c %u "$BREF_LOCAL_ROOT")
+group=$(stat -c %g "$BREF_LOCAL_ROOT")
+sed -i "s/^user = nobody$/user = $owner\ngroup = $group/" /opt/bref/etc/php-fpm.conf
 export _HANDLER="$BREF_LOCAL_HANDLER"
 export LAMBDA_TASK_ROOT="$BREF_LOCAL_ROOT"
 export PHP_INI_SCAN_DIR="/opt/bref/etc/php/conf.d:$BREF_LOCAL_ROOT/php/conf.d"
+cd "$BREF_LOCAL_ROOT"
+if [ "${BREF_RUNTIME:-}" = function ] && [ "$(id -u)" = 0 ]; then
+    while true; do
+        php -r "posix_setgid($group); posix_setuid($owner); require '/opt/bref/bootstrap.php';" 2>&1
+    done
+fi
 exec /opt/bootstrap "$@"
