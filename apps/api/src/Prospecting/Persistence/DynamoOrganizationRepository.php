@@ -2,6 +2,7 @@
 
 namespace App\Prospecting\Persistence;
 
+use App\Shared\Persistence\Revision;
 use App\Shared\Persistence\SearchIndexes;
 use App\Shared\Persistence\Table;
 use App\Shared\Persistence\Write;
@@ -21,7 +22,8 @@ use Prospecter\Core\SharedKernel\Domain\OrganizationId;
  *   EmailUniqueness (ADR 0039, 0048): two organizations taking it at once, the second transaction is cancelled;
  * - `CONTACT#<person>` / `ORGANIZATION#<id>`: the organizations naming a contact.
  * The organization carries its search keys and its phone number among the organizations of its account
- * (`SearchIndexes`).
+ * (`SearchIndexes`), and its `revision`, incremented at each save: the revision of its facts, which the aggregate
+ * does not know.
  */
 final readonly class DynamoOrganizationRepository implements OrganizationRepository
 {
@@ -57,7 +59,7 @@ final readonly class DynamoOrganizationRepository implements OrganizationReposit
     {
         $document = OrganizationDocument::of($organization);
         $stored = $this->prospectingTable->item(OrganizationKeys::organization($organization->id()->value), OrganizationKeys::ORGANIZATION);
-        $writes = [$this->prospectingTable->putting($this->itemOf($organization, $document))];
+        $writes = [$this->prospectingTable->putting($this->itemOf($organization, $document, Revision::after($stored)))];
         $email = $document['contactDetails']['email'];
         $storedEmail = $stored['email'] ?? null;
 
@@ -112,7 +114,7 @@ final readonly class DynamoOrganizationRepository implements OrganizationReposit
     {
         $items = $this->prospectingTable->scan(OrganizationKeys::ORGANIZATION.'#');
         $this->prospectingTable->batch(
-            array_map(fn (array $item): array => $this->itemOf(OrganizationDocument::organization($item['organization']), $item['organization']), $items),
+            array_map(fn (array $item): array => $this->itemOf(OrganizationDocument::organization($item['organization']), $item['organization'], Revision::of($item)), $items),
             array_map(static fn (array $former): array => [$former['PK'], $former['SK']], $this->prospectingTable->scan('TOKEN')),
         );
 
@@ -124,7 +126,7 @@ final readonly class DynamoOrganizationRepository implements OrganizationReposit
      *
      * @return array<string, mixed>
      */
-    private function itemOf(Organization $organization, array $document): array
+    private function itemOf(Organization $organization, array $document, int $revision): array
     {
         return SearchIndexes::of($organization->accountId()->value, $organization->searchKeys(), $organization->contactDetails()->phoneNumber) + [
             'PK' => OrganizationKeys::organization($document['id']),
@@ -132,6 +134,7 @@ final readonly class DynamoOrganizationRepository implements OrganizationReposit
             'GSI1PK' => 'ACCOUNT#'.$document['accountId'],
             'GSI1SK' => $document['id'],
             'email' => $document['contactDetails']['email'],
+            Revision::ATTRIBUTE => $revision,
             'organization' => $document,
         ] + (null === $document['holdingId'] ? [] : ['GSI2PK' => 'HOLDING#'.$document['holdingId'], 'GSI2SK' => $document['id']]);
     }

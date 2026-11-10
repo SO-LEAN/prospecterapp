@@ -44,9 +44,23 @@ class CommitOutboxApiTest extends ApiTestCase
             'prospecter.prospecting.internal ProspectingStopped.v1',
             'prospecter.prospecting.internal ContactsLeftWithoutOrganization.v1',
             'prospecter.prospecting ContactsLeftWithoutOrganization.v1',
+            'prospecter.prospecting OrganizationFactsChanged.v1',
+            'prospecter.prospecting OrganizationFactsChanged.v1',
         ], array_map(static fn (array $event): string => $event['source'].' '.$event['detailType'], json_decode($items[0]['events'], true, flags: \JSON_THROW_ON_ERROR)));
         $this->assertSame([], $this->outboxOf('app.table.accounts'));
         $this->assertSame([], $this->outboxOf('app.table.personal_data'));
+    }
+
+    public function testAnOrganizationNoLongerProspectedPublishesItsTerminalFacts(): void
+    {
+        $this->requestJson('DELETE', '/api/organizations/'.$this->organization);
+
+        $events = json_decode($this->outboxOf('app.table.prospecting')[0]['events'], true, flags: \JSON_THROW_ON_ERROR);
+        $facts = array_values(array_filter($events, static fn (array $event): bool => 'OrganizationFactsChanged.v1' === $event['detailType']));
+        $this->assertSame(
+            ['organizationId' => $this->organization, 'revision' => 0, 'present' => false, 'located' => false],
+            array_intersect_key($facts[0]['detail']['payload'], ['organizationId' => true, 'revision' => true, 'present' => true, 'located' => true]),
+        );
     }
 
     public function testTheItemOfOutboxExpiresAWeekAfterItsCommit(): void

@@ -2,6 +2,7 @@
 
 namespace App\Prospecting\Persistence;
 
+use App\Shared\Persistence\Revision;
 use App\Shared\Persistence\Table;
 use App\Shared\Persistence\Write;
 use Prospecter\Core\Prospecting\Domain\Exception\UnknownExchange;
@@ -21,6 +22,8 @@ use Prospecter\Core\SharedKernel\Domain\PersonId;
  *   in `GSI1` in the timeline of the organization (`ORGANIZATION_TIMELINE#<organization>`) under the same position,
  *   and, while the exchange is to make conform, in `GSI2` among those of the organization
  *   (`TO_MAKE_CONFORM#<organization>`, ADR 0079), counted there.
+ * The exchange is listed in `GSI2` among those of its account (`ACCOUNT_EXCHANGES#<account>`, its id), and
+ * carries its `revision`, incremented at each save: the revision of its facts, which the aggregate does not know.
  */
 final readonly class DynamoExchangeRepository implements ExchangeRepository
 {
@@ -41,7 +44,7 @@ final readonly class DynamoExchangeRepository implements ExchangeRepository
         $stored = $this->prospectingTable->item(ExchangeKeys::exchange($exchange->id()->value), ExchangeKeys::EXCHANGE);
 
         $this->prospectingTable->transact([
-            $this->prospectingTable->putting($this->itemOf($document)),
+            $this->prospectingTable->putting($this->itemOf($document, Revision::after($stored))),
             ...$this->linksToItsOrganizations($document, $exchange->isToMakeConform(), $stored['exchange']['keptFor'] ?? []),
         ]);
     }
@@ -70,18 +73,38 @@ final readonly class DynamoExchangeRepository implements ExchangeRepository
     }
 
     /**
+     * Writes again the item of every exchange, its revision kept: what a table written before the exchanges were
+     * listed by account needs once.
+     */
+    public function writeTheKeysAgain(): int
+    {
+        $items = $this->prospectingTable->scan(ExchangeKeys::EXCHANGE.'#');
+        $this->prospectingTable->batch(array_map(fn (array $item): array => $this->itemOf($item['exchange'], Revision::of($item)), $items));
+
+        return count($items);
+    }
+
+    /**
      * @param array<string, mixed> $document
      *
      * @return array<string, mixed>
      */
-    private function itemOf(array $document): array
+    private function itemOf(array $document, int $revision): array
     {
         $inTheTimelineOfItsContact = null === $document['contact'] ? [] : [
             'GSI1PK' => ExchangeKeys::timeline($document['accountId'], $document['contact']),
             'GSI1SK' => ExchangeKeys::positionOf($document),
         ];
 
-        return ['PK' => ExchangeKeys::exchange($document['id']), 'SK' => ExchangeKeys::EXCHANGE, ...$inTheTimelineOfItsContact, 'exchange' => $document];
+        return [
+            'PK' => ExchangeKeys::exchange($document['id']),
+            'SK' => ExchangeKeys::EXCHANGE,
+            ...$inTheTimelineOfItsContact,
+            'GSI2PK' => ExchangeKeys::ofAccount($document['accountId']),
+            'GSI2SK' => $document['id'],
+            Revision::ATTRIBUTE => $revision,
+            'exchange' => $document,
+        ];
     }
 
     /**

@@ -30,6 +30,14 @@ final class ExchangeKeys
         return 'ORGANIZATION_TIMELINE#'.$organization;
     }
 
+    /**
+     * The exchanges of an account, in `GSI2`.
+     */
+    public static function ofAccount(string $accountId): string
+    {
+        return 'ACCOUNT_EXCHANGES#'.$accountId;
+    }
+
     public static function toMakeConform(string $organization): string
     {
         return 'TO_MAKE_CONFORM#'.$organization;

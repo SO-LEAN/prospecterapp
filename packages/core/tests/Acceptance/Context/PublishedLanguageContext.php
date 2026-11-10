@@ -13,9 +13,17 @@ use Prospecter\Core\Accounts\Contract\Service\ConsultMembers\ConsultMembers;
 use Prospecter\Core\Accounts\Contract\Service\ConsultMembers\MemberResponse;
 use Prospecter\Core\Accounts\Domain\Model\Role;
 use Prospecter\Core\PersonalData\Contract\Service\WhichAreContacts\WhichAreContacts;
+use Prospecter\Core\Prospecting\Contract\Service\ListExchangeFacts\ExchangeFactsResponse;
+use Prospecter\Core\Prospecting\Contract\Service\ListExchangeFacts\KeptExchangeFacts;
+use Prospecter\Core\Prospecting\Contract\Service\ListExchangeFacts\ListExchangeFacts;
+use Prospecter\Core\Prospecting\Contract\Service\ListOrganizationFacts\KeptOrganizationFacts;
+use Prospecter\Core\Prospecting\Contract\Service\ListOrganizationFacts\ListOrganizationFacts;
+use Prospecter\Core\Prospecting\Contract\Service\ListOrganizationFacts\OrganizationFactsResponse;
 use Prospecter\Core\Prospecting\Contract\Service\WhichAreProspected\WhichAreProspected;
 use Prospecter\Core\SharedKernel\Domain\MemberId;
+use Prospecter\Core\SharedKernel\Domain\OrganizationId;
 use Tests\Core\Acceptance\Expect;
+use Tests\Core\Acceptance\Vocabulary;
 
 /**
  * The contract a context publishes to the others (ADR 0045, 0089): what its services answer about a set, what is
@@ -41,6 +49,11 @@ final class PublishedLanguageContext implements Context
      * @var array<string, string> the names asked about, by their identity
      */
     private array $asked = [];
+    /**
+     * @var \Closure(?string): (KeptOrganizationFacts|KeptExchangeFacts) the facts asked, given the cursor
+     */
+    private \Closure $askFacts;
+    private KeptOrganizationFacts|KeptExchangeFacts|null $facts = null;
 
     #[Given(':name est membre de :account avec le droit aux données personnelles')]
     public function aMemberManagingPersonalData(string $name, string $account): void
@@ -93,6 +106,70 @@ final class PublishedLanguageContext implements Context
         $this->answered = $this->application->whichAreProspected(new WhichAreProspected(array_keys($this->asked), $this->scenario->accountIdOf($account)->value));
     }
 
+    #[When('un autre contexte demande à Prospecting :max faits des organisations de :account')]
+    public function anotherContextListsTheOrganizationFacts(int $max, string $account): void
+    {
+        $this->listOrganizationFacts($this->scenario->accountIdOf($account)->value, $max);
+    }
+
+    #[When('un autre contexte demande à Prospecting :max faits des organisations d\'un compte inconnu')]
+    public function anotherContextListsTheOrganizationFactsOfAnUnknownAccount(int $max): void
+    {
+        $this->listOrganizationFacts($this->application->newIdentity(), $max);
+    }
+
+    #[When('un autre contexte demande à Prospecting :max faits des échanges de :account')]
+    public function anotherContextListsTheExchangeFacts(int $max, string $account): void
+    {
+        $this->listExchangeFacts($this->scenario->accountIdOf($account)->value, $max);
+    }
+
+    #[When('un autre contexte demande à Prospecting :max faits des échanges d\'un compte inconnu')]
+    public function anotherContextListsTheExchangeFactsOfAnUnknownAccount(int $max): void
+    {
+        $this->listExchangeFacts($this->application->newIdentity(), $max);
+    }
+
+    #[When('il demande la suite')]
+    public function itAsksWhatFollows(): void
+    {
+        $this->facts = ($this->askFacts)($this->facts?->next);
+    }
+
+    #[Then('Prospecting répond les faits des organisations :')]
+    public function prospectingAnswersTheOrganizationFacts(TableNode $table): void
+    {
+        $facts = $this->facts instanceof KeptOrganizationFacts ? $this->facts->facts : [];
+
+        Expect::same($table->getColumnsHash(), array_map(fn (OrganizationFactsResponse $facts): array => [
+            'organisation' => $this->scenario->nameOf(new OrganizationId($facts->organizationId)),
+            'révision' => (string) $facts->revision,
+            'présente' => Vocabulary::describeYesOrNo($facts->present),
+            'géolocalisée' => Vocabulary::describeYesOrNo($facts->located),
+        ], $facts));
+    }
+
+    #[Then('/^Prospecting répond les faits de (?<count>\d+) échanges?, (?:présents?), révision (?<revision>\d+)$/')]
+    public function prospectingAnswersTheExchangeFacts(int $count, int $revision): void
+    {
+        $facts = $this->facts instanceof KeptExchangeFacts ? $this->facts->facts : [];
+
+        Expect::same(array_fill(0, $count, ['present' => true, 'revision' => $revision]), array_map(static fn (ExchangeFactsResponse $facts): array => ['present' => $facts->present, 'revision' => $facts->revision], $facts));
+    }
+
+    #[Then('Prospecting ne donne pas de suite')]
+    public function prospectingGivesNothingToFollow(): void
+    {
+        Expect::same(null, $this->facts?->next);
+    }
+
+    #[Then('Prospecting ne répond aucun fait')]
+    public function prospectingAnswersNoFacts(): void
+    {
+        Expect::same([], $this->facts?->facts);
+        $this->prospectingGivesNothingToFollow();
+    }
+
     #[Then('PersonalData répond :')]
     #[Then('Prospecting répond :')]
     public function theContextAnswers(TableNode $names): void
@@ -105,6 +182,18 @@ final class PublishedLanguageContext implements Context
     public function theContextAnswersNone(): void
     {
         Expect::same([], $this->namesAnswered());
+    }
+
+    private function listOrganizationFacts(string $accountId, int $max): void
+    {
+        $this->askFacts = fn (?string $after): KeptOrganizationFacts => $this->application->listOrganizationFacts(new ListOrganizationFacts($accountId, $after, $max));
+        $this->facts = ($this->askFacts)(null);
+    }
+
+    private function listExchangeFacts(string $accountId, int $max): void
+    {
+        $this->askFacts = fn (?string $after): KeptExchangeFacts => $this->application->listExchangeFacts(new ListExchangeFacts($accountId, $after, $max));
+        $this->facts = ($this->askFacts)(null);
     }
 
     private function expectTheMember(string $name, string $account, bool $readsPersonalData): void
