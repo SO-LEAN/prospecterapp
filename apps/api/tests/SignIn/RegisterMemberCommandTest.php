@@ -7,12 +7,15 @@ use App\SignIn\UserPool;
 use Aws\CognitoIdentityProvider\CognitoIdentityProviderClient;
 use Symfony\Bundle\FrameworkBundle\Console\Application;
 use Symfony\Component\Console\Command\Command;
+use Symfony\Component\Console\Exception\InvalidOptionException;
 use Symfony\Component\Console\Tester\CommandTester;
 use Tests\App\Base\ApiTestCase;
-use Tests\App\Double\EmailTakenMeanwhile;
+use Tests\App\Base\DeliversThroughTheOutbox;
 
 final class RegisterMemberCommandTest extends ApiTestCase
 {
+    use DeliversThroughTheOutbox;
+
     private const string FOUNDER = 'founder@babbage.test';
     private const string MEMBER = 'ada@babbage.test';
     private const string PASSWORD = 'analytical-engine';
@@ -24,20 +27,43 @@ final class RegisterMemberCommandTest extends ApiTestCase
         $command->execute(['corporate-name' => 'Babbage & Co', 'email' => self::FOUNDER, '--password' => self::PASSWORD]);
     }
 
-    public function testTheMemberSignsInToTheAccountOfTheAdministratorUnderTheirOwnProfile(): void
+    protected function tearDown(): void
     {
-        $this->assertSame(Command::SUCCESS, $this->register(self::FOUNDER, self::MEMBER, '--first-name=Ada', '--last-name=Lovelace'));
+        $this->deliverAsTheTestsDo();
+        parent::tearDown();
+    }
+
+    public function testTheMemberSignsInToTheAccountOfTheAdministratorUnderAnEmptyProfileOfTheirOwn(): void
+    {
+        $this->assertSame(Command::SUCCESS, $this->register(self::FOUNDER, self::MEMBER));
 
         $this->signInAs(self::MEMBER);
         $account = $this->requestJson('GET', '/api/me');
 
         $this->assertResponseIsSuccessful();
         $this->assertSame('Babbage & Co', $account['organization']['legalIdentity']['corporateName']);
-        $this->assertSame(['firstName' => 'Ada', 'lastName' => 'Lovelace'], $account['name']);
-        $this->assertSame(self::MEMBER, $account['contactDetails']['email']);
+        $this->assertSame(['firstName' => null, 'lastName' => null], $account['name'], 'the member fills in their profile');
+        $this->assertNull($account['contactDetails']['email']);
+        $this->assertSame(self::MEMBER, $this->requestJson('GET', '/api/me/sign-in')['loginEmail']);
+    }
 
-        $this->signInAs(self::FOUNDER);
-        $this->assertSame(self::FOUNDER, $this->requestJson('GET', '/api/me')['contactDetails']['email'], 'the profile of the founder is left alone');
+    public function testTheGestureCommitsInAccountsAloneThroughTheOutbox(): void
+    {
+        $this->deliverThroughTheOutbox();
+        $outboxOfThePersonalData = $this->outboxOf('personal_data');
+
+        $this->assertSame(Command::SUCCESS, $this->register(self::FOUNDER, self::MEMBER));
+
+        $this->assertSame($outboxOfThePersonalData, $this->outboxOf('personal_data'));
+        $this->assertCount(1, $this->outboxOf('accounts'));
+        $this->assertNotNull($this->credentials()->memberSigningInWith(self::MEMBER));
+    }
+
+    public function testTheNameIsNoLongerAnOption(): void
+    {
+        $this->expectException(InvalidOptionException::class);
+
+        $this->register(self::FOUNDER, self::MEMBER, '--first-name=Ada');
     }
 
     public function testAProspectorRegisteredWithoutOptionsHasNoRightToPersonalData(): void
@@ -69,32 +95,6 @@ final class RegisterMemberCommandTest extends ApiTestCase
     public function testAnEmailSomebodySignsInWithRegistersNobody(): void
     {
         $this->assertSame(Command::FAILURE, $this->register(self::FOUNDER, 'assistant@solean-it.io'));
-    }
-
-    public function testAnEmailOfAnotherProfileOfTheAccountRegistersNobody(): void
-    {
-        $this->signInAs(self::FOUNDER);
-        $this->requestJson('PATCH', '/api/me/contact-details', ['email' => 'contact@babbage.test']);
-        $written = $this->itemsOfTheTables();
-
-        $this->assertSame(Command::FAILURE, $this->register(self::FOUNDER, 'contact@babbage.test'));
-
-        $this->assertSame($written, $this->itemsOfTheTables(), 'neither the member nor their profile is written');
-        $this->assertNull($this->credentials()->memberSigningInWith('contact@babbage.test'));
-    }
-
-    public function testAnEmailTakenMeanwhileIsRefusedAtTheCommitAndRegistersNobody(): void
-    {
-        $written = $this->itemsOfTheTables();
-        self::getContainer()->get(EmailTakenMeanwhile::class)->takeTheNextEmail();
-
-        $command = new CommandTester(new Application(self::$kernel)->find('app:member:register'));
-        $status = $command->execute(['administrator-email' => self::FOUNDER, 'email' => self::MEMBER, '--password' => self::PASSWORD]);
-
-        $this->assertSame(Command::FAILURE, $status);
-        $this->assertStringContainsString('Email already used', $command->getDisplay());
-        $this->assertSame(['accounts' => $written['accounts'], 'personal_data' => $written['personal_data'] + 2], $this->itemsOfTheTables(), 'only the person of the other request and its email are written');
-        $this->assertNull($this->credentials()->memberSigningInWith(self::MEMBER));
     }
 
     public function testAnAdministratorNobodySignsInWithRegistersNobody(): void
@@ -132,14 +132,6 @@ final class RegisterMemberCommandTest extends ApiTestCase
         ])['AuthenticationResult'];
 
         $this->client->setServerParameter('HTTP_AUTHORIZATION', 'Bearer '.$tokens['AccessToken']);
-    }
-
-    /**
-     * @return array<string, int> how many items each table keeps
-     */
-    private function itemsOfTheTables(): array
-    {
-        return array_map(static fn (string $table): int => count(self::getContainer()->get('app.table.'.$table)->scan('')), ['accounts' => 'accounts', 'personal_data' => 'personal_data']);
     }
 
     private function credentials(): Credentials
