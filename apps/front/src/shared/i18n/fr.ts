@@ -1,6 +1,6 @@
 /** French texts. Keys are typed: a missing or misspelled key is a compile error. */
 export const fr = {
-  app: { name: 'Prospecter' },
+  app: { name: 'Prospecter', copyright: '© SoLean IT {{year}}' },
   nav: {
     dashboard: 'Tableau de bord',
     organizations: 'Organisations',
@@ -23,7 +23,6 @@ export const fr = {
     wrongCredentials: 'E-mail ou mot de passe incorrect.',
     tooManyAttempts: 'Trop de tentatives échouées : réessayez dans une minute.',
     failed: 'La connexion a échoué, réessayez.',
-    copyright: '© SoLean IT {{year}}',
   },
   common: {
     retry: 'Réessayer',
