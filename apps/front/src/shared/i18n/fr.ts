@@ -180,6 +180,14 @@ export const fr = {
       confirm: 'Effacer définitivement',
     },
   },
+  members: { unnamed: 'Membre sans nom' },
+  completeMyProfile: {
+    title: 'Complétez votre profil',
+    subtitle: 'Votre nom et votre e-mail, tels que vos collègues les verront.',
+    emailHint: 'Votre e-mail de connexion vous est proposé : vous pouvez en donner un autre.',
+    submit: 'Continuer',
+    submitting: 'Enregistrement…',
+  },
   account: {
     title: 'Mon compte',
     subtitle: 'Vos informations personnelles et celles de votre organisation.',
@@ -239,7 +247,6 @@ export const fr = {
       noted: 'Noté le {{moment}} par {{author}}',
       corrected: 'Modifié le {{moment}} par {{author}}',
       madeConform: 'Rendu conforme le {{moment}} par {{author}}',
-      aMember: 'un membre',
       correct: 'Corriger',
       correctText: 'Corriger le texte',
       correctionSaved: 'Échange corrigé',

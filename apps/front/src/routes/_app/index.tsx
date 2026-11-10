@@ -2,6 +2,7 @@ import { useSuspenseQuery } from '@tanstack/react-query'
 import { createFileRoute, Link } from '@tanstack/react-router'
 import { ArrowRight, Building2, MapPinned } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
+import { myFirstName } from '@/features/account/me'
 import { accountQuery } from '@/features/account/queries'
 import { StatCard } from '@/features/dashboard/components/stat-card'
 import { dashboardQuery } from '@/features/dashboard/queries'
@@ -53,9 +54,7 @@ function Dashboard() {
   return (
     <div className="space-y-8">
       <PageHeader
-        title={t('dashboard.greeting', {
-          name: account.name.firstName || account.contactDetails.email || '',
-        })}
+        title={t('dashboard.greeting', { name: myFirstName(account) })}
         description={t('dashboard.subtitle', { organization: dashboard.organizationName })}
       />
 

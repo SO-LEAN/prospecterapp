@@ -8,6 +8,8 @@ import { fileBody } from '@/shared/api/upload'
 import { accountQuery, signInQuery } from './queries'
 
 export type Account = components['schemas']['AccountResource']
+type PersonNameInput = components['schemas']['PersonNameInput']
+type ContactDetailsInput = components['schemas']['ContactDetailsInput']
 
 const refreshTheDashboardShowingMyOrganization = (queryClient: QueryClient) =>
   queryClient.invalidateQueries({ queryKey: queryKeys.dashboard })
@@ -30,6 +32,34 @@ const formIntention = { meta: { silentValidation: true } }
 
 export function useChangeMyName() {
   return api.useMutation('patch', '/api/me/name', { ...formIntention, onSuccess: useStoreAccount() })
+}
+
+/** What a member gives of themselves to complete their profile: their name and the email of their profile. */
+export type MyProfile = { name: PersonNameInput; contactDetails: ContactDetailsInput }
+
+/**
+ * Completes the profile of the signed-in member with the intentions of their account, each its own use case: the
+ * email first, the one an API may refuse (already the email of another member), then the name, which shows the
+ * application once stored.
+ */
+export function useCompleteMyProfile() {
+  const queryClient = useQueryClient()
+
+  return useMutation({
+    ...formIntention,
+    mutationFn: async ({ name, contactDetails }: MyProfile) => {
+      answerOf(await fetchClient.PATCH('/api/me/contact-details', { body: contactDetails }))
+      return answerOf(await fetchClient.PATCH('/api/me/name', { body: name }))
+    },
+    onSuccess: (account) => queryClient.setQueryData(accountQuery().queryKey, account),
+  })
+}
+
+function answerOf<Answer>({ data, error }: { data?: Answer; error?: unknown }): Answer {
+  if (error || !data) {
+    throw error
+  }
+  return data
 }
 
 export function useChangeMyLoginEmail() {
@@ -79,13 +109,7 @@ function useSendAccountFile(path: '/api/me/picture' | '/api/me/organization/logo
   const store = useStoreAccount()
 
   return useMutation({
-    mutationFn: async (file: File) => {
-      const { data, error } = await fetchClient.POST(path, fileBody(file))
-      if (error || !data) {
-        throw error
-      }
-      return data
-    },
+    mutationFn: async (file: File) => answerOf(await fetchClient.POST(path, fileBody(file))),
     onSuccess: store,
   })
 }
