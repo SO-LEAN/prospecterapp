@@ -9,11 +9,20 @@ use Symfony\Bundle\FrameworkBundle\Console\Application;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Tester\CommandTester;
 use Tests\App\Base\ApiTestCase;
+use Tests\App\Base\DeliversThroughTheOutbox;
 
 final class OpenAccountCommandTest extends ApiTestCase
 {
+    use DeliversThroughTheOutbox;
+
     private const string FOUNDER = 'founder@babbage.test';
     private const string PASSWORD = 'analytical-engine';
+
+    protected function tearDown(): void
+    {
+        $this->deliverAsTheTestsDo();
+        parent::tearDown();
+    }
 
     public function testTheFounderSignsInToTheNewAccountAndProspects(): void
     {
@@ -25,10 +34,22 @@ final class OpenAccountCommandTest extends ApiTestCase
         $this->assertResponseIsSuccessful();
         $this->assertSame('Babbage & Co', $account['organization']['legalIdentity']['corporateName']);
         $this->assertSame('SA', $account['organization']['legalIdentity']['form']);
-        $this->assertSame(self::FOUNDER, $account['contactDetails']['email']);
+        $this->assertSame(['firstName' => null, 'lastName' => null], $account['name'], 'the founder fills in their profile');
+        $this->assertNull($account['contactDetails']['email']);
 
         $this->requestJson('GET', '/api/organizations');
         $this->assertResponseIsSuccessful('the founder prospects');
+    }
+
+    public function testTheGestureCommitsInAccountsAloneThroughTheOutbox(): void
+    {
+        $this->deliverThroughTheOutbox();
+
+        $this->assertSame(Command::SUCCESS, $this->open('Babbage & Co', self::FOUNDER));
+
+        $this->assertSame([], $this->outboxOf('personal_data'));
+        $this->assertCount(1, $this->outboxOf('accounts'));
+        $this->assertNotNull(self::getContainer()->get(Credentials::class)->memberSigningInWith(self::FOUNDER));
     }
 
     public function testAnEmailSomebodySignsInWithOpensNothing(): void

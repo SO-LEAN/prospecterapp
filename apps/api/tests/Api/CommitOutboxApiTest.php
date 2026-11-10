@@ -4,6 +4,7 @@ namespace Tests\App\Api;
 
 use PHPUnit\Framework\Attributes\Group;
 use Tests\App\Base\ApiTestCase;
+use Tests\App\Base\DeliversThroughTheOutbox;
 
 /**
  * With the delivery outbox, what a command publishes is written with what it changes, in one item of the outbox
@@ -13,11 +14,10 @@ use Tests\App\Base\ApiTestCase;
 #[Group('api')]
 class CommitOutboxApiTest extends ApiTestCase
 {
-    private const string DELIVERY = 'INTEGRATION_EVENTS_DELIVERY';
+    use DeliversThroughTheOutbox;
 
     private string $organization;
     private string $contact;
-    private string $deliveryOfTheTests;
 
     protected function setUp(): void
     {
@@ -30,7 +30,7 @@ class CommitOutboxApiTest extends ApiTestCase
 
     protected function tearDown(): void
     {
-        $_SERVER[self::DELIVERY] = $_ENV[self::DELIVERY] = $this->deliveryOfTheTests;
+        $this->deliverAsTheTestsDo();
         parent::tearDown();
     }
 
@@ -39,7 +39,7 @@ class CommitOutboxApiTest extends ApiTestCase
         $this->requestJson('DELETE', '/api/organizations/'.$this->organization);
 
         $this->assertResponseIsSuccessful();
-        $items = $this->outboxOf('app.table.prospecting');
+        $items = $this->outboxOf('prospecting');
         $this->assertCount(1, $items);
         $this->assertEqualsCanonicalizing([
             'prospecter.prospecting.internal ProspectingStopped.v1',
@@ -48,15 +48,15 @@ class CommitOutboxApiTest extends ApiTestCase
             'prospecter.prospecting OrganizationFactsChanged.v1',
             'prospecter.prospecting OrganizationFactsChanged.v1',
         ], array_map(static fn (array $event): string => $event['source'].' '.$event['detailType'], json_decode($items[0]['events'], true, flags: \JSON_THROW_ON_ERROR)));
-        $this->assertSame([], $this->outboxOf('app.table.accounts'));
-        $this->assertSame([], $this->outboxOf('app.table.personal_data'));
+        $this->assertSame([], $this->outboxOf('accounts'));
+        $this->assertSame([], $this->outboxOf('personal_data'));
     }
 
     public function testAnOrganizationNoLongerProspectedPublishesItsTerminalFacts(): void
     {
         $this->requestJson('DELETE', '/api/organizations/'.$this->organization);
 
-        $events = json_decode($this->outboxOf('app.table.prospecting')[0]['events'], true, flags: \JSON_THROW_ON_ERROR);
+        $events = json_decode($this->outboxOf('prospecting')[0]['events'], true, flags: \JSON_THROW_ON_ERROR);
         $facts = array_values(array_filter($events, static fn (array $event): bool => 'OrganizationFactsChanged.v1' === $event['detailType']));
         $this->assertSame(
             ['organizationId' => $this->organization, 'revision' => 0, 'present' => false, 'located' => false],
@@ -68,7 +68,7 @@ class CommitOutboxApiTest extends ApiTestCase
     {
         $this->requestJson('POST', '/api/contacts/'.$this->contact.'/exchanges', ['channel' => 'call', 'direction' => 'inbound', 'occurredAt' => '2026-10-10T09:00:00+00:00']);
 
-        $events = json_decode($this->outboxOf('app.table.prospecting')[0]['events'], true, flags: \JSON_THROW_ON_ERROR);
+        $events = json_decode($this->outboxOf('prospecting')[0]['events'], true, flags: \JSON_THROW_ON_ERROR);
         $facts = array_values(array_filter($events, static fn (array $event): bool => 'ExchangeFactsChanged.v1' === $event['detailType']));
         $this->assertCount(1, $facts);
         $this->assertSame(
@@ -81,22 +81,8 @@ class CommitOutboxApiTest extends ApiTestCase
     {
         $this->requestJson('DELETE', '/api/organizations/'.$this->organization);
 
-        $item = $this->outboxOf('app.table.prospecting')[0];
+        $item = $this->outboxOf('prospecting')[0];
         $this->assertSame('OUTBOX', $item['SK']);
         $this->assertEqualsWithDelta(new \DateTimeImmutable('+7 days')->getTimestamp(), $item['expiresAt'], 60);
-    }
-
-    private function deliverThroughTheOutbox(): void
-    {
-        $this->deliveryOfTheTests = $_SERVER[self::DELIVERY];
-        $_SERVER[self::DELIVERY] = $_ENV[self::DELIVERY] = 'outbox';
-    }
-
-    /**
-     * @return list<array<string, mixed>>
-     */
-    private function outboxOf(string $table): array
-    {
-        return self::getContainer()->get($table)->scan('OUTBOX#');
     }
 }
