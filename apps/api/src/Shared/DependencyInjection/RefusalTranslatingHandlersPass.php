@@ -18,7 +18,9 @@ use Symfony\Component\DependencyInjection\Reference;
  * of the refusals is outside the unit of work, so that a refusal detected when it commits is translated too:
  * - a command handler is registered on the command bus, a reaction on the event bus; Messenger routes a message by
  *   the type of the argument of __invoke(), the decorators take any object, so the message handled is named
- *   explicitly, read on the handler itself;
+ *   explicitly, read on the handler itself; a reaction is named after the handler it decorates (`alias`), Messenger
+ *   skipping a handler of the same name already called for a message: the translator of `ContactsLeftWithoutOrganization`
+ *   and that of its parent `OrganizationEvent`, both decorated alike, would be one;
  * - a query handler is injected as a QueryHandler named after its intent: `QueryHandler $consultOrganization` for
  *   `ConsultOrganizationHandler`.
  */
@@ -42,7 +44,7 @@ final class RefusalTranslatingHandlersPass implements CompilerPassInterface
 
         foreach (array_keys($container->findTaggedServiceIds(self::EVENT_HANDLER)) as $id) {
             $container->getDefinition(self::decorate($container, $id, self::EVENT_DECORATORS))
-                ->addTag('messenger.message_handler', ['bus' => 'event.bus', 'handles' => $this->messageOf(self::classOf($container, $id))]);
+                ->addTag('messenger.message_handler', ['bus' => 'event.bus', 'handles' => $this->messageOf(self::classOf($container, $id)), 'alias' => $id]);
         }
 
         foreach (array_keys($container->findTaggedServiceIds(self::QUERY_HANDLER)) as $id) {
