@@ -38,8 +38,8 @@ use Prospecter\Core\SharedKernel\Domain\ReleasesEvents;
 /**
  * The data of the demonstration and of the API tests, made as the use cases make them (ADR 0048): through
  * the domain and the repositories, each aggregate then publishing what happened to it, so that the other
- * contexts react and the search finds it. The account SOLEAN IT, its prospector and its
- * assistant (who sign in with DemoCredentials), and Babbage & Co with its contact Ada
+ * contexts react and the search finds it. The account SOLEAN IT, its prospector Camille Martin and its
+ * assistant Louis Petit (who sign in with DemoCredentials), and Babbage & Co with its contact Ada
  * Lovelace and two exchanges with her. The identities are fixed: the tests name them.
  */
 final readonly class DemoData
@@ -64,17 +64,17 @@ final readonly class DemoData
     public function load(): void
     {
         $soleanIt = Account::open(new AccountId(self::SOLEAN_IT), new LegalIdentity('SOLEAN IT', 'SARL'), new \DateTimeImmutable(self::OPENED_AT), new ContactDetails(new Email('org@solean-it.io'), language: 'FR'));
-        $prospector = $this->aMember(self::PROSPECTOR, 'prospector@solean-it.io', $soleanIt, Role::User, Role::Prospector, Role::PersonalData);
-        $this->aMember(self::ASSISTANT, 'assistant@solean-it.io', $soleanIt, Role::User, Role::Prospector);
+        $prospector = $this->aMember(self::PROSPECTOR, new PersonName('Camille', 'Martin'), 'prospector@solean-it.io', $soleanIt, Role::User, Role::Prospector, Role::PersonalData);
+        $this->aMember(self::ASSISTANT, new PersonName('Louis', 'Petit'), 'assistant@solean-it.io', $soleanIt, Role::User, Role::Prospector);
         $soleanIt->relocateTo(new Address('1 place Kléber', '67000', 'Strasbourg', 'FR'), new GeoPoint(7.7456, 48.5834), $prospector, new \DateTimeImmutable(self::OPENED_AT));
         $this->accounts->save($soleanIt);
         $this->publish($soleanIt);
         $this->aContact($soleanIt);
     }
 
-    private function aMember(string $id, string $email, Account $account, Role ...$roles): Member
+    private function aMember(string $id, PersonName $name, string $email, Account $account, Role ...$roles): Member
     {
-        $profile = Person::collect(new PersonId($this->identities->next()), $account->id(), Purpose::Membership, new \DateTimeImmutable(self::OPENED_AT), contactDetails: new ContactDetails(new Email($email), language: 'FR'));
+        $profile = Person::collect(new PersonId($this->identities->next()), $account->id(), Purpose::Membership, new \DateTimeImmutable(self::OPENED_AT), $name, new ContactDetails(new Email($email), language: 'FR'));
         $this->persons->save($profile);
         $this->publish($profile);
         $member = Member::register(new MemberId($id), $account->id(), $profile->id(), ...$roles);

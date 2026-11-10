@@ -13,8 +13,6 @@ final readonly class MemberToRegister
     public function __construct(
         public string $administratorEmail,
         public string $email,
-        public ?string $firstName,
-        public ?string $lastName,
         public array $roles,
         public ?string $password,
     ) {

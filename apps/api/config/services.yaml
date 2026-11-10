@@ -139,11 +139,6 @@ services:
         public: true
     # what a command writes, and what its reactions write, in one transaction of DynamoDB, all or nothing
     Prospecter\Core\SharedKernel\Application\Port\UnitOfWork: '@App\Shared\Persistence\DynamoUnitOfWork'
-    # a gesture of several commands commits its unit itself: its refusal translated like that of a command
-    Prospecter\Core\SharedKernel\Application\RefusalTranslatingUnitOfWork:
-        arguments: ['@App\Shared\Persistence\DynamoUnitOfWork']
-    App\Shared\CommandBus:
-        arguments: { $unitOfWork: '@Prospecter\Core\SharedKernel\Application\RefusalTranslatingUnitOfWork' }
     Prospecter\Core\SharedKernel\Application\Port\GeoLocation: '@App\Shared\GeoplateformeGeoLocation'
     Prospecter\Core\SharedKernel\Application\Port\Storage: '@App\Shared\StorageClient'
     # the private files of the storage, sent by the browsers themselves (ADR 0077)

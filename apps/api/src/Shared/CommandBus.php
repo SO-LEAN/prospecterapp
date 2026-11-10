@@ -2,7 +2,6 @@
 
 namespace App\Shared;
 
-use Prospecter\Core\SharedKernel\Application\Port\UnitOfWork;
 use Symfony\Component\Messenger\Exception\HandlerFailedException;
 use Symfony\Component\Messenger\MessageBusInterface;
 
@@ -12,27 +11,8 @@ use Symfony\Component\Messenger\MessageBusInterface;
  */
 final readonly class CommandBus
 {
-    public function __construct(private MessageBusInterface $commandBus, private UnitOfWork $unitOfWork)
+    public function __construct(private MessageBusInterface $commandBus)
     {
-    }
-
-    /**
-     * One gesture made of several commands: what they write is kept all at once, or nothing when one of them
-     * refuses or fails, a refusal detected at the commit translated like any other (RefusalTranslatingUnitOfWork).
-     */
-    public function dispatchTogether(object ...$commands): void
-    {
-        $this->unitOfWork->begin();
-
-        try {
-            foreach ($commands as $command) {
-                $this->dispatch($command);
-            }
-
-            $this->unitOfWork->commit();
-        } finally {
-            $this->unitOfWork->discard();
-        }
     }
 
     public function dispatch(object $command): void
