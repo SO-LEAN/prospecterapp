@@ -41,7 +41,7 @@ src/
     ui/                 design system components (shadcn) + form/, feedback/, map/
     i18n/               setup, fr.ts, de.ts (the elision of « de »)
     forms/              section form, FormField, CountryField, shared field groups (AddressFields, ContactDetailsFields, LegalIdentityFields, PersonNameFields)
-    lib/ hooks/ stores/ utilities (route-params.ts: UUID route params, a 404 of the API as a not found page), hooks, Zustand stores
+    lib/ hooks/ stores/ utilities (route-params.ts: UUID route params, a 404 of the API as a not found page; member-name.ts: how a member is shown, their name, else the email of their profile, else « Membre sans nom »), hooks, Zustand stores
   test/                 setup.ts: the Vitest setup; render-in-a-router.tsx: renders a component holding links in a memory router
 lint/                   translated-texts.grit: the plugin of Biome refusing a text written in the code (ADR 0093), and its test
 e2e/                    Playwright journeys, one at a time (docs/architecture/tests.md); fixtures.ts, their test: the maps on a double, no host outside the stack; wait-for-the-stack.ts, their global setup, waits for the SPA, the api and the storage; sign-in.ts signs the demonstration member in; colors.ts reads the painted colors and their WCAG contrast
@@ -95,7 +95,7 @@ Never copy server data into Zustand or `useState`: read it from the query, the c
 
 ## Authentication
 
-See `docs/architecture/auth.md`. In the SPA: `shared/auth/session.ts` signs in on the user pool the API names (`GET /api/user-pool`) and gives the access token, renewed once expired; the `_app` layout route guards every page with it and sends an anonymous visitor to the sign-in screen, `routes/auth/sign-in.tsx` (`features/sign-in`), which goes back to the page asked for once signed in (ADR 0037, 0052).
+See `docs/architecture/auth.md`. In the SPA: `shared/auth/session.ts` signs in on the user pool the API names (`GET /api/user-pool`) and gives the access token, renewed once expired; the `_app` layout route guards every page with it and sends an anonymous visitor to the sign-in screen, `routes/auth/sign-in.tsx` (`features/sign-in`), which goes back to the page asked for once signed in (ADR 0037, 0052). Signed in, a member whose profile has no name completes it before anything else: the `_app` layout loads the account and shows « Complétez votre profil » in place of the shell (`features/account/components/complete-my-profile-form.tsx`), their login email proposed for their profile, sent by the intentions of the account, the email then the name, each its own use case, then opens the home page (ADR 0100). The sign-in screen and this one are pages of one card outside the shell (`app/layout/card-page.tsx`).
 
 ## Adding a screen
 
