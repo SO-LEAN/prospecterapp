@@ -17,6 +17,8 @@ final class SynchronousEvents implements Events
     private array $handlers = [];
     /** @var list<class-string<EventHandler>> */
     private array $subscribers = [];
+    /** @var list<object> */
+    private array $published = [];
 
     public function subscribe(EventHandler $handler, EventHandler $calledThrough): void
     {
@@ -38,9 +40,25 @@ final class SynchronousEvents implements Events
         return array_values(array_unique($this->subscribers));
     }
 
+    /**
+     * The events of this class published so far, the oldest first.
+     *
+     * @template T of object
+     *
+     * @param class-string<T> $class
+     *
+     * @return list<T>
+     */
+    public function published(string $class): array
+    {
+        return array_values(array_filter($this->published, static fn (object $event): bool => $event instanceof $class));
+    }
+
     public function publish(object ...$events): void
     {
         foreach ($events as $event) {
+            $this->published[] = $event;
+
             foreach ($this->handlers[$event::class] ?? [] as $handler) {
                 $handler($event);
             }

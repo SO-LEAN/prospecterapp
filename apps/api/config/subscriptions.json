@@ -13,6 +13,13 @@
     "handler": "Prospecter\\Core\\Prospecting\\Application\\StopKeepingExchanges\\StopKeepingExchangesHandler",
     "inbox": true
   },
+  "prospecting-erase-exchange": {
+    "context": "prospecting",
+    "sources": ["prospecter.prospecting.internal"],
+    "events": ["ExchangeLeftWithoutOrganization.v1"],
+    "handler": "Prospecter\\Core\\Prospecting\\Application\\EraseExchangeLeftWithoutOrganization\\EraseExchangeLeftWithoutOrganizationHandler",
+    "inbox": true
+  },
   "personal-data-collect-founder-profile": {
     "context": "personal-data",
     "sources": ["prospecter.accounts"],

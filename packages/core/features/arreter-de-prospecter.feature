@@ -38,3 +38,18 @@ Fonctionnalité: Arrêter de prospecter une organisation
     Soit je suis connecté en tant que prospecteur de "SOLEAN IT" sans le droit aux données personnelles
     Quand j'arrête de prospecter "ACME"
     Alors ce n'est pas refusé
+
+  Scénario: Chaque échange est effacé par sa propre réaction
+    Soit je suis connecté en tant que prospecteur de "SOLEAN IT"
+    Et j'ai noté 3 échanges avec "ACME" elle-même
+    Quand j'arrête de prospecter "ACME"
+    Alors 3 échanges à effacer sont publiés
+    Et aucun échange n'est gardé pour "ACME"
+
+  Scénario: Un échange déjà effacé ne fait pas échouer la réaction
+    Soit je suis connecté en tant que prospecteur de "SOLEAN IT"
+    Et j'ai noté un appel reçu de "ACME" elle-même
+    Et j'arrête de prospecter "ACME"
+    Quand l'échange à effacer est publié de nouveau
+    Alors ce n'est pas refusé
+    Et rien de plus n'est écrit

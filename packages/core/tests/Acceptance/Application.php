@@ -82,6 +82,7 @@ use Prospecter\Core\Prospecting\Application\DownloadAttachment\DownloadAttachmen
 use Prospecter\Core\Prospecting\Application\DownloadAttachment\DownloadAttachmentHandler;
 use Prospecter\Core\Prospecting\Application\DownloadAttachment\KeptDownload;
 use Prospecter\Core\Prospecting\Application\EraseExchange\EraseExchangeHandler;
+use Prospecter\Core\Prospecting\Application\EraseExchangeLeftWithoutOrganization\EraseExchangeLeftWithoutOrganizationHandler;
 use Prospecter\Core\Prospecting\Application\KeepExchangesOfForgottenContact\KeepExchangesOfForgottenContactHandler;
 use Prospecter\Core\Prospecting\Application\KeptTimeline;
 use Prospecter\Core\Prospecting\Application\NoteExchange\NoteExchangeHandler;
@@ -291,6 +292,16 @@ final class Application
         $handler = $this->handlers[$command::class] ?? throw new \LogicException(sprintf('No handler for %s', $command::class));
         $this->attempt(static function () use ($handler, $command): void {
             $handler($command);
+        });
+    }
+
+    /**
+     * An event delivered once more to its reactions, as a bus delivering at least once may do.
+     */
+    public function publishAgain(object $event): void
+    {
+        $this->attempt(function () use ($event): void {
+            $this->events->publish($event);
         });
     }
 
@@ -505,7 +516,8 @@ final class Application
             new PublishContactCollectedHandler($this->events),
             new PublishContactForgottenHandler($this->events),
             new PublishContactsLeftWithoutOrganizationHandler($this->events),
-            new StopKeepingExchangesHandler($this->exchanges, $this->events, $this->attachedFiles),
+            new StopKeepingExchangesHandler($this->exchanges, $this->events),
+            new EraseExchangeLeftWithoutOrganizationHandler($this->exchanges, $this->attachedFiles),
         ];
     }
 

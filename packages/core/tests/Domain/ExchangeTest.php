@@ -10,6 +10,7 @@ use Prospecter\Core\Prospecting\Domain\Event\AttachmentRemoved;
 use Prospecter\Core\Prospecting\Domain\Event\ExchangeContactForgotten;
 use Prospecter\Core\Prospecting\Domain\Event\ExchangeCorrected;
 use Prospecter\Core\Prospecting\Domain\Event\ExchangeErased;
+use Prospecter\Core\Prospecting\Domain\Event\ExchangeLeftWithoutOrganization;
 use Prospecter\Core\Prospecting\Domain\Event\ExchangeMadeConform;
 use Prospecter\Core\Prospecting\Domain\Event\ExchangeNoLongerKeptFor;
 use Prospecter\Core\Prospecting\Domain\Event\ExchangeNoted;
@@ -128,9 +129,14 @@ class ExchangeTest extends TestCase
         $exchange = $this->noted(new ExchangeFacts(Channel::Call, Direction::Inbound, new \DateTimeImmutable(self::NOW)));
 
         $exchange->stopKeepingFor(new OrganizationId(self::ACME), by: $this->me()->id, at: new \DateTimeImmutable(self::NOW));
+        $exchange->releaseEvents();
         $exchange->stopKeepingFor(new OrganizationId(self::GROUP), by: $this->me()->id, at: new \DateTimeImmutable(self::NOW));
 
         $this->assertFalse($exchange->isKeptForAnOrganization());
+        $this->assertEquals([
+            new ExchangeNoLongerKeptFor(new AccountId(self::MINE), $this->me()->id, new ExchangeId(self::EXCHANGE), new OrganizationId(self::GROUP), new \DateTimeImmutable(self::NOW)),
+            new ExchangeLeftWithoutOrganization(new AccountId(self::MINE), $this->me()->id, new ExchangeId(self::EXCHANGE), new \DateTimeImmutable(self::NOW)),
+        ], $exchange->releaseEvents());
     }
 
     public function testItsContactForgottenEverythingIsOffered(): void
