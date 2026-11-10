@@ -17,7 +17,7 @@ test('sign in, start prospecting an organization, change it section by section, 
     await page.getByRole('button', { name: 'Modifier : Adresse de mon organisation' }).click()
     await page.getByLabel('Ville').fill(city)
     await page.getByRole('button', { name: 'Enregistrer' }).click()
-    await expect(page.getByRole('main').getByText(city, { exact: true })).toBeVisible()
+    await expect(page.getByRole('main').locator('address').getByText(city)).toBeVisible()
   }
 
   await test.step('sign in', async () => {
