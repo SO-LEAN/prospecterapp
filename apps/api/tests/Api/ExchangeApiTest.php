@@ -168,7 +168,7 @@ class ExchangeApiTest extends ApiTestCase
         $this->assertResponseStatusCodeSame(200);
         $this->assertSame(['kind' => 'person', 'id' => $contact, 'name' => 'Ada', 'presence' => 'present'], $exchange['interlocutor']);
         $this->assertSame(['sms', 'inbound', false, '2026-10-14T14:30:00+00:00', "Rappeler lundi\nAprès le salon", false], [$exchange['channel'], $exchange['direction'], $exchange['missed'], $exchange['occurredAt'], $exchange['text'], $exchange['textFlagged']]);
-        $this->assertSame(['at' => '2026-10-15T09:00:00+00:00', 'by' => ['name' => ['firstName' => null, 'lastName' => null], 'email' => 'prospector@solean-it.io']], $exchange['noted']);
+        $this->assertSame(['at' => '2026-10-15T09:00:00+00:00', 'by' => ['name' => ['firstName' => 'Camille', 'lastName' => 'Martin'], 'email' => 'prospector@solean-it.io']], $exchange['noted']);
         $this->assertNull($exchange['corrected']);
         $this->assertSame([], $exchange['attachments']);
         $this->assertSame(['self', 'interlocutor', 'correctExchange', 'correctText', 'eraseExchange', 'attachFile'], array_keys($exchange['_links']));

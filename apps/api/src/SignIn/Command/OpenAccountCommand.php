@@ -6,7 +6,6 @@ use App\Shared\CommandBus;
 use App\Shared\Identities;
 use App\SignIn\Credentials;
 use Prospecter\Core\Accounts\Application\OpenAccount\OpenAccount;
-use Prospecter\Core\PersonalData\Application\ChangePersonContactDetails\ChangePersonContactDetails;
 use Prospecter\Core\SharedKernel\Application\Exception\UseCaseRefused;
 use Symfony\Component\Clock\ClockInterface;
 use Symfony\Component\Console\Attribute\Argument;
@@ -17,7 +16,7 @@ use Symfony\Component\Console\Style\SymfonyStyle;
 
 /**
  * The first account of an installation, and any account until the members open theirs: the account and its founder
- * (the core), the email of the founder in their profile, as the founder, then what the founder signs in with.
+ * (the core), then what the founder signs in with; the founder fills in their profile once signed in.
  */
 #[AsCommand(name: 'app:account:open', description: 'Open the account of an organization, its founder signing in with the email given')]
 final readonly class OpenAccountCommand
@@ -37,7 +36,7 @@ final readonly class OpenAccountCommand
         SymfonyStyle $io,
         #[Argument(description: 'The corporate name of the organization')]
         string $corporateName,
-        #[Argument(description: 'The login email of the founder, also the email of their profile')]
+        #[Argument(description: 'The login email of the founder')]
         string $email,
         #[Option(description: 'The legal form of the organization, such as SARL')]
         ?string $form = null,
@@ -59,20 +58,12 @@ final readonly class OpenAccountCommand
     {
         $password = $this->newCredentials->passwordFor($email, $password, $io);
         $founder = $this->identities->next();
-        $this->openWith($founder, $corporateName, $form, $email);
+        $this->openWith($founder, $corporateName, $form);
         $this->credentials->register($founder, $email, $password);
     }
 
-    /**
-     * The account and its founder, then the email of their profile, as the founder, all or nothing.
-     */
-    private function openWith(string $founder, string $corporateName, ?string $form, string $email): void
+    private function openWith(string $founder, string $corporateName, ?string $form): void
     {
-        $profile = $this->identities->next();
-        $now = $this->clock->now();
-        $this->commands->dispatchTogether(
-            new OpenAccount($this->identities->next(), $corporateName, $form, $founder, $profile, $now),
-            new ChangePersonContactDetails($founder, $profile, $email, null, null, $now),
-        );
+        $this->commands->dispatch(new OpenAccount($this->identities->next(), $corporateName, $form, $founder, $this->identities->next(), $this->clock->now()));
     }
 }

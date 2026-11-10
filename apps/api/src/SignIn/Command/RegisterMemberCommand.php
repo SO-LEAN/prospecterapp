@@ -6,8 +6,6 @@ use App\Shared\CommandBus;
 use App\Shared\Identities;
 use App\SignIn\Credentials;
 use Prospecter\Core\Accounts\Application\RegisterAMember\RegisterAMember;
-use Prospecter\Core\PersonalData\Application\ChangePersonContactDetails\ChangePersonContactDetails;
-use Prospecter\Core\PersonalData\Application\RenamePerson\RenamePerson;
 use Prospecter\Core\SharedKernel\Application\Exception\UseCaseRefused;
 use Symfony\Component\Clock\ClockInterface;
 use Symfony\Component\Console\Attribute\Argument;
@@ -18,7 +16,7 @@ use Symfony\Component\Console\Style\SymfonyStyle;
 
 /**
  * A colleague registered by an administrator until a screen of the SPA does it (ADR 0075): the member (the core),
- * their name and the email of their profile, as the new member, then what they sign in with.
+ * then what they sign in with; the member fills in their profile once signed in.
  */
 #[AsCommand(name: 'app:member:register', description: 'Register a member in the account of an administrator, signing in with the email given')]
 final readonly class RegisterMemberCommand
@@ -42,12 +40,8 @@ final readonly class RegisterMemberCommand
         SymfonyStyle $io,
         #[Argument(description: 'The login email of an administrator of the account')]
         string $administratorEmail,
-        #[Argument(description: 'The login email of the new member, also the email of their profile')]
+        #[Argument(description: 'The login email of the new member')]
         string $email,
-        #[Option(description: 'The first name of the new member')]
-        ?string $firstName = null,
-        #[Option(description: 'The last name of the new member')]
-        ?string $lastName = null,
         #[Option(description: 'The right to manage personal data')]
         bool $personalData = false,
         #[Option(description: 'The right to administer the account')]
@@ -55,7 +49,7 @@ final readonly class RegisterMemberCommand
         #[Option(description: 'For scripts; asked without echo otherwise')]
         ?string $password = null,
     ): int {
-        $member = new MemberToRegister($administratorEmail, $email, $firstName, $lastName, self::rolesGiven($personalData, $admin), $password);
+        $member = new MemberToRegister($administratorEmail, $email, self::rolesGiven($personalData, $admin), $password);
 
         try {
             $this->register($member, $io);
@@ -90,17 +84,8 @@ final readonly class RegisterMemberCommand
         return $this->credentials->memberSigningInWith($email) ?? throw CredentialsRefused::becauseNobodySignsInWith($email);
     }
 
-    /**
-     * The member, then their profile filled in by the new member themselves, all or nothing.
-     */
     private function registerInTheAccountOf(string $administrator, string $memberId, MemberToRegister $member): void
     {
-        $profile = $this->identities->next();
-        $now = $this->clock->now();
-        $this->commands->dispatchTogether(
-            new RegisterAMember($administrator, $memberId, $profile, $member->roles, $now),
-            new RenamePerson($memberId, $profile, $member->firstName, $member->lastName, $now),
-            new ChangePersonContactDetails($memberId, $profile, $member->email, null, null, $now),
-        );
+        $this->commands->dispatch(new RegisterAMember($administrator, $memberId, $this->identities->next(), $member->roles, $this->clock->now()));
     }
 }
