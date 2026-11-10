@@ -16,6 +16,7 @@ class CommitOutboxApiTest extends ApiTestCase
     private const string DELIVERY = 'INTEGRATION_EVENTS_DELIVERY';
 
     private string $organization;
+    private string $contact;
     private string $deliveryOfTheTests;
 
     protected function setUp(): void
@@ -23,7 +24,7 @@ class CommitOutboxApiTest extends ApiTestCase
         parent::setUp();
         $this->login();
         $this->organization = $this->requestJson('POST', '/api/organizations', ['legalIdentity' => ['corporateName' => 'ACME']])['id'];
-        $this->requestJson('POST', '/api/contacts', ['name' => ['firstName' => 'Ada'], 'organizationIds' => [$this->organization]]);
+        $this->contact = $this->requestJson('POST', '/api/contacts', ['name' => ['firstName' => 'Ada'], 'organizationIds' => [$this->organization]])['id'];
         $this->deliverThroughTheOutbox();
     }
 
@@ -60,6 +61,19 @@ class CommitOutboxApiTest extends ApiTestCase
         $this->assertSame(
             ['organizationId' => $this->organization, 'revision' => 0, 'present' => false, 'located' => false],
             array_intersect_key($facts[0]['detail']['payload'], ['organizationId' => true, 'revision' => true, 'present' => true, 'located' => true]),
+        );
+    }
+
+    public function testANotedExchangePublishesItsFacts(): void
+    {
+        $this->requestJson('POST', '/api/contacts/'.$this->contact.'/exchanges', ['channel' => 'call', 'direction' => 'inbound', 'occurredAt' => '2026-10-10T09:00:00+00:00']);
+
+        $events = json_decode($this->outboxOf('app.table.prospecting')[0]['events'], true, flags: \JSON_THROW_ON_ERROR);
+        $facts = array_values(array_filter($events, static fn (array $event): bool => 'ExchangeFactsChanged.v1' === $event['detailType']));
+        $this->assertCount(1, $facts);
+        $this->assertSame(
+            ['revision' => 1, 'present' => true, 'notedAt' => '2026-10-10T09:00:00.000000Z'],
+            array_intersect_key($facts[0]['detail']['payload'], ['revision' => true, 'present' => true, 'notedAt' => true]),
         );
     }
 
