@@ -4,17 +4,16 @@ declare(strict_types=1);
 
 namespace Prospecter\Core\Prospecting\Application\StopKeepingExchanges;
 
-use Prospecter\Core\Prospecting\Application\AttachedFiles;
 use Prospecter\Core\Prospecting\Domain\Event\ProspectingStopped;
-use Prospecter\Core\Prospecting\Domain\Model\Exchange;
 use Prospecter\Core\Prospecting\Domain\Repository\ExchangeRepository;
 use Prospecter\Core\SharedKernel\Application\EventHandler;
 use Prospecter\Core\SharedKernel\Application\Port\Events;
 use Prospecter\Core\SharedKernel\Application\PublishesEvents;
 
 /**
- * An organization no longer prospected takes its exchanges along: those kept for no other organization are
- * erased, with the personal data their text and their files may hold (ADR 0074, 0077).
+ * An organization no longer prospected takes its exchanges along: those still kept for another organization
+ * are saved, each of the others left to its own reaction, that erases it (EraseExchangeLeftWithoutOrganization,
+ * ADR 0074): one transaction holds a bounded number of writes.
  */
 final readonly class StopKeepingExchangesHandler implements EventHandler
 {
@@ -23,7 +22,6 @@ final readonly class StopKeepingExchangesHandler implements EventHandler
     public function __construct(
         private ExchangeRepository $exchanges,
         private Events $events,
-        private AttachedFiles $attachedFiles,
     ) {
     }
 
@@ -31,18 +29,12 @@ final readonly class StopKeepingExchangesHandler implements EventHandler
     {
         foreach ($this->exchanges->keptFor($event->organization) as $exchange) {
             $exchange->stopKeepingFor($event->organization, by: $event->by, at: $event->occurredAt);
-            $this->keepOrErase($exchange);
-            $this->publishWhatHappenedTo($exchange);
-        }
-    }
 
-    private function keepOrErase(Exchange $exchange): void
-    {
-        if ($exchange->isKeptForAnOrganization()) {
-            $this->exchanges->save($exchange);
-        } else {
-            $this->exchanges->remove($exchange);
-            $this->attachedFiles->forgetThoseOf($exchange);
+            if ($exchange->isKeptForAnOrganization()) {
+                $this->exchanges->save($exchange);
+            }
+
+            $this->publishWhatHappenedTo($exchange);
         }
     }
 }

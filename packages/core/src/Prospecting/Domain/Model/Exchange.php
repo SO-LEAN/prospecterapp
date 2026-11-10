@@ -8,6 +8,7 @@ use Prospecter\Core\Prospecting\Domain\Event\AttachmentRemoved;
 use Prospecter\Core\Prospecting\Domain\Event\ExchangeContactForgotten;
 use Prospecter\Core\Prospecting\Domain\Event\ExchangeCorrected;
 use Prospecter\Core\Prospecting\Domain\Event\ExchangeErased;
+use Prospecter\Core\Prospecting\Domain\Event\ExchangeLeftWithoutOrganization;
 use Prospecter\Core\Prospecting\Domain\Event\ExchangeMadeConform;
 use Prospecter\Core\Prospecting\Domain\Event\ExchangeNoLongerKeptFor;
 use Prospecter\Core\Prospecting\Domain\Event\ExchangeNoted;
@@ -264,13 +265,17 @@ final class Exchange implements ReleasesEvents
 
     /**
      * The account stopped prospecting this organization: kept for no organization any more, the exchange must
-     * not stay (`isKeptForAnOrganization()`).
+     * not stay (ExchangeLeftWithoutOrganization).
      */
     public function stopKeepingFor(OrganizationId $organization, MemberId $by, \DateTimeImmutable $at): void
     {
         $this->keptFor = array_values(array_filter($this->keptFor, static fn (OrganizationId $keptFor): bool => !$keptFor->equals($organization)));
         $this->modifiedAt = $at;
         $this->recordThat(new ExchangeNoLongerKeptFor($this->accountId, $by, $this->id, $organization, $at));
+
+        if (!$this->isKeptForAnOrganization()) {
+            $this->recordThat(new ExchangeLeftWithoutOrganization($this->accountId, $by, $this->id, $at));
+        }
     }
 
     /**

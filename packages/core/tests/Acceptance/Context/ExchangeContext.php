@@ -17,6 +17,7 @@ use Prospecter\Core\Prospecting\Application\ExchangeInTimeline;
 use Prospecter\Core\Prospecting\Application\NoteExchange\NoteExchange;
 use Prospecter\Core\Prospecting\Application\NoteOrganizationExchange\NoteOrganizationExchange;
 use Prospecter\Core\Prospecting\Application\Timeline;
+use Prospecter\Core\Prospecting\Domain\Event\ExchangeLeftWithoutOrganization;
 use Prospecter\Core\Prospecting\Domain\Model\Channel;
 use Prospecter\Core\Prospecting\Domain\Model\Direction;
 use Prospecter\Core\Prospecting\Domain\Model\Exchange;
@@ -27,6 +28,8 @@ use Prospecter\Core\SharedKernel\Domain\OrganizationId;
 use Prospecter\Core\SharedKernel\Domain\PersonId;
 use Tests\Core\Acceptance\Expect;
 use Tests\Core\Acceptance\Vocabulary;
+use Tests\Core\Double\InMemoryDatabase;
+use Tests\Core\Double\InMemoryPrivateStorage;
 use Tests\Core\Double\StateOf;
 
 /**
@@ -42,6 +45,8 @@ final class ExchangeContext implements Context
     private ?string $lastNoted = null;
     private string $lastNotedWith = '';
     private ?Timeline $timeline = null;
+    /** @var array{InMemoryDatabase, InMemoryPrivateStorage}|null */
+    private ?array $beforeDeliveredAgain = null;
     private string $timelineOf = '';
 
     /**
@@ -171,6 +176,33 @@ final class ExchangeContext implements Context
     public function theExchangeWithTheContactIsGone(string $contact): void
     {
         Expect::same([], $this->storedTimelineOf($contact));
+    }
+
+    #[Then('aucun échange n\'est gardé pour :organization')]
+    public function noExchangeIsKeptFor(string $organization): void
+    {
+        Expect::same([], $this->application->exchanges->keptFor(new OrganizationId($this->scenario->idOf($organization))));
+    }
+
+    #[Then(':count échanges à effacer sont publiés')]
+    public function exchangesToEraseArePublished(int $count): void
+    {
+        Expect::same($count, count($this->application->events->published(ExchangeLeftWithoutOrganization::class)));
+    }
+
+    #[When('l\'échange à effacer est publié de nouveau')]
+    public function theExchangeToEraseIsPublishedAgain(): void
+    {
+        $published = $this->application->events->published(ExchangeLeftWithoutOrganization::class);
+        Expect::that([] !== $published, 'No exchange to erase was published');
+        $this->beforeDeliveredAgain = [clone $this->application->database, clone $this->application->privateStorage];
+        $this->application->publishAgain(array_last($published));
+    }
+
+    #[Then('rien de plus n\'est écrit')]
+    public function nothingMoreIsWritten(): void
+    {
+        Expect::that([$this->application->database, $this->application->privateStorage] == $this->beforeDeliveredAgain, 'Something more is written');
     }
 
     #[Then('l\'appel avec :contact est toujours dans sa timeline, gardé pour :organization')]
