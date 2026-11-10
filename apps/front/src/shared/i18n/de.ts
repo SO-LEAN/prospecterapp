@@ -6,7 +6,7 @@ function baseLettersOf(name: string): string {
   return name.normalize('NFD').replace(DIACRITICS, '').toLowerCase()
 }
 
-/** Elides before a vowel; never before an h, a mute h cannot be told from an aspirated one. */
+/** Never before an h: a mute h cannot be told from an aspirated one. */
 function startsWithAVowelSound(name: string): boolean {
   const letters = baseLettersOf(name)
   return VOWEL.test(letters) || Y_BEFORE_A_CONSONANT.test(letters)
