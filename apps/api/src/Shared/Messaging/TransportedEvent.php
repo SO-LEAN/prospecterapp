@@ -7,6 +7,8 @@ namespace App\Shared\Messaging;
  * event, `prospecter.<context>.internal` for a domain event; its detail-type the short name of its class and the
  * version of its contract; its detail the identity of this publication, its moment, its cause, and the event as
  * plain data.
+ *
+ * @phpstan-type Detail array{eventId: string, occurredAt: string, correlationId: string, causationId: ?string, depth: int, payload: array<string, mixed>}
  */
 final readonly class TransportedEvent
 {
@@ -26,32 +28,44 @@ final readonly class TransportedEvent
     }
 
     /**
-     * @param array{source: string, detail-type: string, detail: array{eventId: string, occurredAt: string, correlationId: string, causationId: ?string, depth: int, payload: array<string, mixed>}} $event
+     * @param array{source: string, detail-type: string, detail: Detail} $event
      */
     public static function fromEventBridge(array $event): self
     {
-        $detail = $event['detail'];
-
-        return new self($event['source'], $event['detail-type'], $detail['eventId'], $detail['occurredAt'], $detail['correlationId'], $detail['causationId'], $detail['depth'], $detail['payload']);
+        return self::of($event['source'], $event['detail-type'], $event['detail']);
     }
 
     /**
-     * @return array{source: string, detail-type: string, detail: array{eventId: string, occurredAt: string, correlationId: string, causationId: ?string, depth: int, payload: array<string, mixed>}}
+     * @return array{source: string, detail-type: string, detail: Detail}
      */
     public function toEventBridge(): array
     {
-        return [
-            'source' => $this->source,
-            'detail-type' => $this->detailType,
-            'detail' => [
-                'eventId' => $this->eventId,
-                'occurredAt' => $this->occurredAt,
-                'correlationId' => $this->correlationId,
-                'causationId' => $this->causationId,
-                'depth' => $this->depth,
-                'payload' => $this->payload,
-            ],
-        ];
+        return ['source' => $this->source, 'detail-type' => $this->detailType, 'detail' => $this->detail()];
+    }
+
+    /**
+     * @param array{source: string, detailType: string, detail: Detail} $entry
+     */
+    public static function fromOutbox(array $entry): self
+    {
+        return self::of($entry['source'], $entry['detailType'], $entry['detail']);
+    }
+
+    /**
+     * @return array{source: string, detailType: string, detail: Detail} the entry of an item of outbox
+     */
+    public function toOutbox(): array
+    {
+        return ['source' => $this->source, 'detailType' => $this->detailType, 'detail' => $this->detail()];
+    }
+
+    /**
+     * The bounded context the event happened in, as its source names it: `personal-data` for
+     * `prospecter.personal-data.internal`.
+     */
+    public function context(): string
+    {
+        return explode('.', $this->source)[1];
     }
 
     /**
@@ -69,5 +83,28 @@ final readonly class TransportedEvent
     public function causeOfATranslation(): Cause
     {
         return new Cause($this->correlationId, $this->eventId, $this->depth);
+    }
+
+    /**
+     * @param Detail $detail
+     */
+    private static function of(string $source, string $detailType, array $detail): self
+    {
+        return new self($source, $detailType, $detail['eventId'], $detail['occurredAt'], $detail['correlationId'], $detail['causationId'], $detail['depth'], $detail['payload']);
+    }
+
+    /**
+     * @return Detail
+     */
+    private function detail(): array
+    {
+        return [
+            'eventId' => $this->eventId,
+            'occurredAt' => $this->occurredAt,
+            'correlationId' => $this->correlationId,
+            'causationId' => $this->causationId,
+            'depth' => $this->depth,
+            'payload' => $this->payload,
+        ];
     }
 }

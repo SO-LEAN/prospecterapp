@@ -8,10 +8,12 @@ use Aws\DynamoDb\Exception\DynamoDbException;
 /**
  * The tables of the bounded contexts (ADR 0038, 0048), all of the same shape: `PK`/`SK`, the indexes
  * `GSI1` and `GSI2`, and those finding an aggregate, `NAME` and `EMAIL` (ADR 0071) and `PHONE` (ADR 0072), keeping only the keys; billed by
- * request. Locally they live in MiniStack; on AWS Terraform makes them alike (`infra/tables.tf`).
+ * request; their new items given to a stream, which the relay of the outbox reads, an item forgotten past its
+ * `expiresAt`. Locally they live in MiniStack; on AWS Terraform makes them alike (`infra/tables.tf`).
  */
 final readonly class Tables
 {
+    private const string EXPIRES_AT = 'expiresAt';
     private const array KEYS = ['PK', 'SK', 'GSI1PK', 'GSI1SK', 'GSI2PK', 'GSI2SK', 'NAMEPK', 'NAMESK', 'EMAILPK', 'EMAILSK', 'PHONEPK', 'PHONESK'];
 
     public function __construct(
@@ -70,8 +72,10 @@ final readonly class Tables
                 ['IndexName' => Table::BY_EMAIL, 'KeySchema' => self::keySchema('EMAILPK', 'EMAILSK'), 'Projection' => ['ProjectionType' => 'KEYS_ONLY']],
                 ['IndexName' => Table::BY_PHONE, 'KeySchema' => self::keySchema('PHONEPK', 'PHONESK'), 'Projection' => ['ProjectionType' => 'KEYS_ONLY']],
             ],
+            'StreamSpecification' => ['StreamEnabled' => true, 'StreamViewType' => 'NEW_IMAGE'],
         ]);
         $this->client->waitUntil('TableExists', ['TableName' => $name]);
+        $this->client->updateTimeToLive(['TableName' => $name, 'TimeToLiveSpecification' => ['Enabled' => true, 'AttributeName' => self::EXPIRES_AT]]);
     }
 
     /**
