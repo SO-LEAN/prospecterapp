@@ -6,6 +6,7 @@ use App\Shared\Messaging\CommitOutbox;
 use Aws\DynamoDb\DynamoDbClient;
 use Aws\DynamoDb\Exception\DynamoDbException;
 use Prospecter\Core\SharedKernel\Application\Port\UnitOfWork;
+use Prospecter\Core\SharedKernel\Domain\Exception\BusinessException;
 
 /**
  * What a use case writes in the tables, kept until the outermost commit sends it in one TransactWriteItems,
@@ -34,6 +35,10 @@ final class DynamoUnitOfWork implements UnitOfWork
         $this->levels[] = false;
     }
 
+    /**
+     * @throws BusinessException the refusal a write carries, when its condition did not hold
+     * @throws ConditionFailed   when the condition of a write carrying no refusal did not hold
+     */
     public function commit(): void
     {
         $level = array_key_last($this->levels) ?? throw new \LogicException('No unit of work is begun');

@@ -7,13 +7,13 @@ use Tests\App\Base\ApiTestCase;
 
 /**
  * With the delivery outbox, what a command publishes is written with what it changes, in one item of the outbox
- * of the table of its context, all or nothing: the relay publishes it on the bus once the commit is done.
+ * of the table of its context: the relay publishes it on the bus once the commit is done (a refused commit writes
+ * none, CommitOutboxTest).
  */
 #[Group('api')]
 class CommitOutboxApiTest extends ApiTestCase
 {
     private const string DELIVERY = 'INTEGRATION_EVENTS_DELIVERY';
-    private const array TABLES = ['app.table.accounts', 'app.table.personal_data', 'app.table.prospecting'];
 
     private string $organization;
     private string $deliveryOfTheTests;
@@ -56,16 +56,6 @@ class CommitOutboxApiTest extends ApiTestCase
         $item = $this->outboxOf('app.table.prospecting')[0];
         $this->assertSame('OUTBOX', $item['SK']);
         $this->assertEqualsWithDelta(new \DateTimeImmutable('+7 days')->getTimestamp(), $item['expiresAt'], 60);
-    }
-
-    public function testARefusedCommandWritesNoOutbox(): void
-    {
-        $this->requestJson('DELETE', '/api/organizations/'.$this->organization.'/logo');
-
-        $this->assertResponseStatusCodeSame(409);
-        foreach (self::TABLES as $table) {
-            $this->assertSame([], $this->outboxOf($table), $table);
-        }
     }
 
     private function deliverThroughTheOutbox(): void

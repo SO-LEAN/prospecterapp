@@ -34,6 +34,15 @@ class RepublishOutboxCommandTest extends ApiTestCase
         $this->assertSame([], $this->bus()->puts);
     }
 
+    public function testTheMomentIsAsked(): void
+    {
+        $this->publishThroughTheOutbox('prospecter.accounts');
+        $tester = new CommandTester(new Application(self::$kernel)->find('app:outbox:republish'));
+
+        $this->assertSame(Command::INVALID, $tester->execute([]));
+        $this->assertSame([], $this->bus()->puts);
+    }
+
     private function publishThroughTheOutbox(string ...$sources): void
     {
         foreach ($sources as $source) {
