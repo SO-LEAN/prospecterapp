@@ -45,8 +45,10 @@ final class ExchangeContext implements Context
     private ?string $lastNoted = null;
     private string $lastNotedWith = '';
     private ?Timeline $timeline = null;
-    /** @var array{InMemoryDatabase, InMemoryPrivateStorage}|null */
-    private ?array $beforeDeliveredAgain = null;
+    /** @var list<string> */
+    private array $notedWithTheOrganization = [];
+    private ?InMemoryDatabase $databaseBeforeDeliveredAgain = null;
+    private ?InMemoryPrivateStorage $privateStorageBeforeDeliveredAgain = null;
     private string $timelineOf = '';
 
     /**
@@ -106,7 +108,9 @@ final class ExchangeContext implements Context
 
         foreach (range(1, $count) as $minutesAgo) {
             $facts = new ExchangeFacts(Channel::Call, Direction::Inbound, $this->application->now()->modify(sprintf('-%d minutes', $minutesAgo)));
-            $this->application->exchanges->save(Exchange::notedWithTheOrganization($prospect, $this->scenario->meAsProspector()->id, new ExchangeId($this->application->newIdentity()), $facts, $this->application->now()));
+            $id = $this->application->newIdentity();
+            $this->application->exchanges->save(Exchange::notedWithTheOrganization($prospect, $this->scenario->meAsProspector()->id, new ExchangeId($id), $facts, $this->application->now()));
+            $this->notedWithTheOrganization[] = $id;
         }
     }
 
@@ -178,10 +182,11 @@ final class ExchangeContext implements Context
         Expect::same([], $this->storedTimelineOf($contact));
     }
 
-    #[Then('aucun échange n\'est gardé pour :organization')]
-    public function noExchangeIsKeptFor(string $organization): void
+    #[Then('ses :count échanges sont effacés')]
+    public function itsExchangesAreErased(int $count): void
     {
-        Expect::same([], $this->application->exchanges->keptFor(new OrganizationId($this->scenario->idOf($organization))));
+        Expect::same($count, count($this->notedWithTheOrganization));
+        Expect::same([], array_filter($this->notedWithTheOrganization, fn (string $id): bool => null !== $this->application->database->exchange($id)));
     }
 
     #[Then(':count échanges à effacer sont publiés')]
@@ -195,14 +200,16 @@ final class ExchangeContext implements Context
     {
         $published = $this->application->events->published(ExchangeLeftWithoutOrganization::class);
         Expect::that([] !== $published, 'No exchange to erase was published');
-        $this->beforeDeliveredAgain = [clone $this->application->database, clone $this->application->privateStorage];
+        $this->databaseBeforeDeliveredAgain = $this->application->database->snapshot();
+        $this->privateStorageBeforeDeliveredAgain = clone $this->application->privateStorage;
         $this->application->publishAgain(array_last($published));
     }
 
     #[Then('rien de plus n\'est écrit')]
     public function nothingMoreIsWritten(): void
     {
-        Expect::that([$this->application->database, $this->application->privateStorage] == $this->beforeDeliveredAgain, 'Something more is written');
+        Expect::that($this->application->database == $this->databaseBeforeDeliveredAgain, 'Something more is stored');
+        Expect::that($this->application->privateStorage == $this->privateStorageBeforeDeliveredAgain, 'Something more is kept in the private storage');
     }
 
     #[Then('l\'appel avec :contact est toujours dans sa timeline, gardé pour :organization')]
