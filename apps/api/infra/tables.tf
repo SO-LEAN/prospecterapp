@@ -1,6 +1,7 @@
 # The tables of the bounded contexts (ADR 0038, 0048), the shape apps/api/src/Shared/Persistence/Tables.php gives
 # them in MiniStack: PK/SK, the indexes GSI1 and GSI2 projecting everything, those finding an aggregate NAME, EMAIL
-# (ADR 0071) and PHONE (ADR 0072) projecting the keys only, billed by request. They are named
+# (ADR 0071) and PHONE (ADR 0072) projecting the keys only, billed by request; their new items given to a stream, read
+# by the relay of the outbox (messaging.tf, ADR 0098), an item forgotten past its expiresAt. They are named
 # prospecter-<instance>-api-<context>: the API finds them with DYNAMODB_TABLE_PREFIX=prospecter-<instance>-api.
 locals {
   contexts = toset(["accounts", "personal-data", "prospecting"])
@@ -26,6 +27,14 @@ resource "aws_dynamodb_table" "context" {
 
   point_in_time_recovery {
     enabled = true
+  }
+
+  stream_enabled   = true
+  stream_view_type = "NEW_IMAGE"
+
+  ttl {
+    attribute_name = "expiresAt"
+    enabled        = true
   }
 
   dynamic "attribute" {
