@@ -26,10 +26,11 @@ The organizations an account prospects, their contacts, and the exchanges with t
 
 - The service `WhichAreProspectedService` (which organizations an account prospects), asked by PersonalData when a contact is collected (ADR 0089).
 - The integration event `ContactsLeftWithoutOrganization` (ADR 0046).
+- The facts of its organizations (present, located) and of its exchanges (present, the moment they happened), each time one changes (`OrganizationFactsChanged`, `ExchangeFactsChanged`), and by slice for an account (`ListOrganizationFactsService`, `ListExchangeFactsService`), for a context counting them without reading its tables (ADR 0099). An organization the account stops prospecting, an erased exchange, give a last fact, absent; an exchange no organization keeps any more is erased like one a member erases.
 
 ## Features
 
-`commencer-a-prospecter`, `consulter-une-organisation`, `rechercher-mes-organisations`, `reviser-l-identite`, `changer-les-coordonnees`, `demenager`, `ecrire-des-observations`, `changer-le-logo`, `retirer-le-logo`, `rattacher-a-une-holding`, `rattacher-un-contact`, `retirer-un-contact`, `arreter-de-prospecter`, `noter-un-echange`, `consulter-un-echange`, `corriger-un-echange`, `corriger-le-texte-d-un-echange`, `supprimer-un-echange`, `joindre-des-fichiers-a-un-echange`, `retirer-une-piece-jointe`, `telecharger-une-piece-jointe`, `consulter-la-timeline-d-une-organisation`, `les-echanges-d-un-contact-retire-ou-efface`, and the questions of `langage-publie`.
+`commencer-a-prospecter`, `consulter-une-organisation`, `rechercher-mes-organisations`, `reviser-l-identite`, `changer-les-coordonnees`, `demenager`, `ecrire-des-observations`, `changer-le-logo`, `retirer-le-logo`, `rattacher-a-une-holding`, `rattacher-un-contact`, `retirer-un-contact`, `arreter-de-prospecter`, `noter-un-echange`, `consulter-un-echange`, `corriger-un-echange`, `corriger-le-texte-d-un-echange`, `supprimer-un-echange`, `joindre-des-fichiers-a-un-echange`, `retirer-une-piece-jointe`, `telecharger-une-piece-jointe`, `consulter-la-timeline-d-une-organisation`, `les-echanges-d-un-contact-retire-ou-efface`, `publier-les-faits-de-prospecting`, and the questions of `langage-publie`.
 
 ## In the code
 

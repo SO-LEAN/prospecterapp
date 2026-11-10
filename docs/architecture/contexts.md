@@ -14,7 +14,9 @@ Accounts, PersonalData and Prospecting (ADR 0030, 0031), and the shared kernel o
 |---|---|---|
 | Accounts | `ConsultMembersService`: who the members are | `AccountOpened`, `MemberRegistered` |
 | PersonalData | `WhichAreContactsService`: which persons are contacts of an account | `ContactCollected`, `ContactForgotten` |
-| Prospecting | `WhichAreProspectedService`: which organizations an account prospects | `ContactsLeftWithoutOrganization` |
+| Prospecting | `WhichAreProspectedService`: which organizations an account prospects; `ListOrganizationFactsService`, `ListExchangeFactsService`: the facts of the organizations and of the exchanges of an account, by slice | `ContactsLeftWithoutOrganization`, `OrganizationFactsChanged`, `ExchangeFactsChanged` |
+
+A context counting what another one holds reads its **facts** (ADR 0099): a snapshot of an aggregate published each time it changes (`OrganizationFactsChanged`: present, located; `ExchangeFactsChanged`: present, the moment of the exchange), by a translator receiving every domain event of the aggregate (`PublishOrganizationFactsHandler` of `OrganizationEvent`, `PublishExchangeFactsHandler` of `ExchangeEvent`) before the commit, with the revision its repository writes (`persistence.md`), the highest the latest; an aggregate removed gives a terminal fact, absent at the revision 0. The service of the same facts gives them again by slice, to count everything from the state; both read one retriever (`OrganizationFactsRetriever`, `ExchangeFactsRetriever`).
 
 In the API, the anticorruption layers implementing the ports of a context are in `src/<Context>/AntiCorruption` (ADR 0086), the delivery of a context uses nothing of another but its Contract (`api.md`).
 
