@@ -68,7 +68,7 @@ export const fr = {
   },
   dashboard: {
     greeting: 'Bonjour {{name}}',
-    subtitle: 'Vue d’ensemble de la prospection de {{organization}}.',
+    subtitle: 'Vue d’ensemble de la prospection {{organization, de}}.',
     stats: { activeOrganizations: 'Organisations actives', mapped: 'Organisations géolocalisées' },
     map: { title: 'Carte des organisations', empty: 'Aucune organisation géolocalisée pour l’instant.' },
     recent: { title: 'Dernières organisations', viewAll: 'Tout voir', empty: 'Aucune organisation.' },
@@ -165,7 +165,7 @@ export const fr = {
     noResult: { title: 'Aucun résultat', description: 'Aucun contact ne correspond à « {{query}} ».' },
     unnamed: 'Contact sans nom',
     masked: 'Données masquées',
-    organizationsOf: 'Organisations de {{name}}',
+    organizationsOf: 'Organisations {{name, de}}',
     sections: {
       name: 'Nom',
       jobTitle: 'Fonction',
@@ -174,7 +174,7 @@ export const fr = {
     },
     forget: {
       action: 'Effacer la fiche',
-      title: 'Effacer la fiche de {{name}} ?',
+      title: 'Effacer la fiche {{name, de}} ?',
       description:
         'Ses données personnelles seront supprimées définitivement, et elle sera retirée de toutes ses organisations.',
       confirm: 'Effacer définitivement',
