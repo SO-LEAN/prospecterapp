@@ -102,3 +102,4 @@ Why the project is shaped the way it is: one record per decision, in the order t
 | [0096](0096-no-activity-journal-an-audit-is-designed-when-it-is-needed.md) | No activity journal: an audit is designed when it is needed, with its purpose, its events, its retention and its readers | architecture | Accepted | 2026-11-09 |
 | [0097](0097-events-travel-as-eventbridge-events-reactions-are-subscriptions.md) | Events travel in the shape of EventBridge events, and the reactions are the subscriptions of one file | architecture | Accepted | 2026-11-09 |
 | [0098](0098-each-commit-writes-an-outbox-relayed-to-an-eventbridge-bus.md) | Each commit writes its events in an outbox, relayed to a bus of EventBridge | architecture | Accepted | 2026-11-10 |
+| [0099](0099-the-contexts-publish-their-facts-by-event-and-by-sliced-service.md) | The contexts publish their facts, by an event and by a sliced service | architecture | Accepted | 2026-11-10 |
