@@ -44,7 +44,7 @@ Fonctionnalité: Arrêter de prospecter une organisation
     Et j'ai noté 3 échanges avec "ACME" elle-même
     Quand j'arrête de prospecter "ACME"
     Alors 3 échanges à effacer sont publiés
-    Et aucun échange n'est gardé pour "ACME"
+    Et ses 3 échanges sont effacés
 
   Scénario: Un échange déjà effacé ne fait pas échouer la réaction
     Soit je suis connecté en tant que prospecteur de "SOLEAN IT"

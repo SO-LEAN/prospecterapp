@@ -146,7 +146,7 @@ class ExchangeApiTest extends ApiTestCase
         $alone = $this->aContactOf($organization);
         $shared = $this->aContactOf($organization, 'Grace');
         $this->requestJson('POST', '/api/organizations/'.$group.'/contacts', ['personId' => $shared]);
-        $this->note($alone, ['channel' => 'sms', 'direction' => 'inbound']);
+        $erased = $this->note($alone, ['channel' => 'sms', 'direction' => 'inbound'])['items'][0]['id'];
         $this->note($shared, ['channel' => 'call', 'direction' => 'outbound']);
 
         $this->requestJson('DELETE', '/api/organizations/'.$organization);
@@ -154,6 +154,8 @@ class ExchangeApiTest extends ApiTestCase
 
         $timeline = $this->requestJson('GET', '/api/contacts/'.$shared.'/exchanges');
         $this->assertSame([[$group]], array_column($timeline['items'], 'organizationIds'));
+        $this->requestJson('GET', '/api/exchanges/'.$erased);
+        $this->assertResponseStatusCodeSame(404);
     }
 
     public function testTheDetailShowsTheWholeExchangeAndWhoNotedIt(): void
