@@ -10,8 +10,9 @@ use App\Shared\Persistence\Table;
 use Tests\App\Base\ApiTestCase;
 
 /**
- * The events delivered through the outbox are written at the outermost commit, in one item per table of the
- * contexts they happened in, with what the unit writes; none when nothing is published.
+ * The events delivered through the outbox are written at the outermost commit, in one item of the table of the
+ * context they happened in, with what the unit writes; none when nothing is published. A transaction spans one use
+ * case, hence one context: a commit publishing in two is refused.
  */
 class CommitOutboxTest extends ApiTestCase
 {
@@ -56,16 +57,23 @@ class CommitOutboxTest extends ApiTestCase
         $this->assertSame([['AccountOpened.v1', 'AccountOpened.v1']], $this->detailTypesOfTheOutbox());
     }
 
-    public function testTheEventsOfTwoContextsGoToTheirOwnTables(): void
+    public function testACommitPublishingInTwoContextsIsRefusedBeforeAnythingIsSent(): void
     {
         $this->unitOfWork->begin();
+        $this->accounts->transact([$this->accounts->putting(['PK' => 'TEST#ada', 'SK' => 'TEST'])]);
         $this->delivery->deliver($this->event('prospecter.accounts', 'AccountOpened.v1'));
         $this->delivery->deliver($this->event('prospecter.personal-data', 'ContactCollected.v1'));
-        $this->unitOfWork->commit();
-        $this->unitOfWork->discard();
 
-        $this->assertCount(1, $this->accounts->scan('OUTBOX#'));
-        $this->assertCount(1, self::getContainer()->get('app.table.personal_data')->scan('OUTBOX#'));
+        try {
+            $this->unitOfWork->commit();
+            $this->fail('A commit spanning two contexts was expected to be refused');
+        } catch (\LogicException) {
+            $this->unitOfWork->discard();
+        }
+
+        $this->assertNull($this->accounts->item('TEST#ada', 'TEST'));
+        $this->assertSame([], $this->accounts->scan('OUTBOX#'));
+        $this->assertSame([], self::getContainer()->get('app.table.personal_data')->scan('OUTBOX#'));
     }
 
     public function testAnEventPublishedOutsideAUnitIsACommitOfItsOwn(): void

@@ -11,7 +11,7 @@ use Symfony\Contracts\Service\ResetInterface;
 
 /**
  * The events the open unit of work publishes, delivered through the outbox: written at its outermost commit, with
- * what it changes, in one item per table of the contexts they happened in. It builds its puts itself, by the names of
+ * what it changes, in one item of the table of the context of the use case. It builds its put itself, by the names of
  * the tables, and not through a `Table`: a table depends on the unit of work, which depends on the outbox.
  */
 final class CommitOutbox implements ResetInterface
@@ -38,17 +38,13 @@ final class CommitOutbox implements ResetInterface
     }
 
     /**
-     * @return list<Write> the puts of the items of outbox, none when nothing was published
+     * @return list<Write> the put of the item of outbox, none when nothing was published
+     *
+     * @throws \LogicException when the events happened in two contexts: a transaction spans one use case
      */
     public function writes(): array
     {
-        $byContext = [];
-
-        foreach ($this->events as $event) {
-            $byContext[$event->context()][] = $event;
-        }
-
-        return array_map($this->putOf(...), array_keys($byContext), array_values($byContext));
+        return [] === $this->events ? [] : [$this->putOf($this->contextOfTheCommit())];
     }
 
     public function clear(): void
@@ -61,13 +57,21 @@ final class CommitOutbox implements ResetInterface
         $this->clear();
     }
 
-    /**
-     * @param list<TransportedEvent> $events
-     */
-    private function putOf(string $context, array $events): Write
+    private function contextOfTheCommit(): string
+    {
+        $contexts = array_values(array_unique(array_map(static fn (TransportedEvent $event): string => $event->context(), $this->events)));
+
+        if (count($contexts) > 1) {
+            throw new \LogicException(sprintf('A commit publishes in the context of its use case only, not in %s: what another context must do follows from the events, in its own transaction', implode(' and ', $contexts)));
+        }
+
+        return $contexts[0];
+    }
+
+    private function putOf(string $context): Write
     {
         $table = $this->tables[$context] ?? throw new \LogicException(sprintf('No table keeps the outbox of the context %s', $context));
-        $item = new OutboxItem($this->identities->next(), $events, $this->clock->now())->document();
+        $item = new OutboxItem($this->identities->next(), $this->events, $this->clock->now())->document();
 
         return new Write($table, $item['PK'], $item['SK'], ['Put' => ['TableName' => $table, 'Item' => $this->marshaler->marshalItem($item), 'ConditionExpression' => self::NEW_ITEM]]);
     }
