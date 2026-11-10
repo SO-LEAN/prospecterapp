@@ -5,7 +5,7 @@ How the platform goes to AWS ([ADR 0059](../adr/0059-terraform-per-app-values-ou
 ## Layout
 
 ```
-apps/api/infra/       the API: DynamoDB tables, Cognito user pool, Lambda, HTTP API (on the domain of the edge)
+apps/api/infra/       the API: DynamoDB tables, Cognito user pool, Lambda, HTTP API (on the domain of the edge), the bus and the relay of the outbox
 apps/storage/infra/   the storage: files bucket, CloudFront and its function, private files bucket, Lambda and its signed function URL
 apps/front/infra/     the SPA: bucket of the releases, CloudFront and its release function
 infra/modules/        modules shared by apps of the same kind, created at the second use (none yet)
@@ -89,4 +89,5 @@ The values of an installation: account ids, ARNs, state bucket names, account em
 ## The apps on AWS
 
 - On AWS (`infra/`, ADR 0063, 0067, 0068): the function runs `build/api.zip` (`make package-api`, `make/lambda.mk`), read-only (`Kernel` extends `BrefKernel`), behind its HTTP API on the domain of the edge, its `execute-api` address closed; `Shared\OnlyThroughTheEdge` refuses a request without the secret of the edge (`ORIGIN_SECRET`, header `X-Origin-Verify`), and every secret is read in SSM at the start (`bref-ssm:`).
+- The messaging of the api (`infra/messaging.tf`, ADR 0098): the tables stream their new items and forget them past their `expiresAt` (`tables.tf`); the relay `prospecter-<instance>-api-relay`, the same package with `BREF_RUNTIME=function` and the handler `App\Shared\Messaging\OutboxRelay`, a role of its own (the streams of the tables, `events:PutEvents` on the bus, its queue of failures, its logs), is called by a mapping on the stream of each table filtered on the insertions of `OUTBOX#` (10 records from `TRIM_HORIZON`, a failing batch split and tried again 5 times, a record a day at most, then its metadata in the queue `prospecter-<instance>-api-relay-failures`, kept 14 days); it publishes on the bus `prospecter-<instance>-api-integration`, without archive. The delivery stays `sync` on the instances: nothing reads the bus yet.
 - On AWS (`infra/`, ADR 0065): CloudFront plays the static host, serving the bucket and failing over to the function URL (origin path `/storage`, signed by its origin access control of type `lambda`) for a missing size; the internal server of the api is a function URL answering only signed requests (the api signs with its role, CloudFront with its origin access control, ADR 0068), the token and the addresses in SSM `/prospecter/<instance>/storage/*`. The function runs `build/storage.zip` (`make package-storage`, ADR 0063), read-only: `Kernel` extends `BrefKernel`. A removed file is invalidated in CloudFront (`PublicCache`, ADR 0070), the edge in front told to keep no copy.
