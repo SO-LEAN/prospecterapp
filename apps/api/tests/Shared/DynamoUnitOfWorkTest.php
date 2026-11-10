@@ -3,6 +3,8 @@
 namespace Tests\App\Shared;
 
 use App\PersonalData\Persistence\DynamoPersonRepository;
+use App\Shared\Identities;
+use App\Shared\Messaging\CommitOutbox;
 use App\Shared\Persistence\ConditionFailed;
 use App\Shared\Persistence\DynamoUnitOfWork;
 use App\Shared\Persistence\Table;
@@ -15,6 +17,7 @@ use Prospecter\Core\SharedKernel\Domain\ContactDetails;
 use Prospecter\Core\SharedKernel\Domain\Email;
 use Prospecter\Core\SharedKernel\Domain\Exception\EmailAlreadyUsed;
 use Prospecter\Core\SharedKernel\Domain\PersonId;
+use Symfony\Component\Clock\NativeClock;
 use Tests\App\Base\ApiTestCase;
 
 /**
@@ -209,7 +212,7 @@ class DynamoUnitOfWorkTest extends ApiTestCase
     {
         $client = self::getContainer()->get(DynamoDbClient::class);
 
-        return new Table($client, self::getContainer()->get(Marshaler::class), new DynamoUnitOfWork($client), $table->name);
+        return new Table($client, self::getContainer()->get(Marshaler::class), new DynamoUnitOfWork($client, new CommitOutbox([], self::getContainer()->get(Marshaler::class), new Identities(), new NativeClock())), $table->name);
     }
 
     private function personWithTheEmail(AccountId $account, string $email): Person

@@ -101,15 +101,38 @@ services:
     Prospecter\Core\Prospecting\Domain\Port\KnownContacts: '@App\Prospecting\AntiCorruption\PersonalDataKnownContacts'
     Prospecter\Core\PersonalData\Domain\Port\ProspectedOrganizations: '@App\PersonalData\AntiCorruption\ProspectingOrganizations'
     # a domain event to the translators of its context on the event bus, every event to the reactions of the
-    # subscriptions of config/subscriptions.json, delivered the way INTEGRATION_EVENTS_DELIVERY names (sync only)
+    # subscriptions of config/subscriptions.json, delivered the way INTEGRATION_EVENTS_DELIVERY names: sync, within
+    # the command, or outbox, written with it and relayed to the bus
     Prospecter\Core\SharedKernel\Application\Port\Events: '@App\Shared\Messaging\RoutingEvents'
     app.deliveries:
         class: Symfony\Component\DependencyInjection\ServiceLocator
-        arguments: [{ sync: '@App\Shared\Messaging\SynchronousDelivery' }]
+        arguments: [{ sync: '@App\Shared\Messaging\SynchronousDelivery', outbox: '@App\Shared\Messaging\OutboxDelivery' }]
         tags: [container.service_locator]
     App\Shared\Messaging\Delivery:
         factory: ['@app.deliveries', 'get']
         arguments: ['%env(INTEGRATION_EVENTS_DELIVERY)%']
+    # the outbox of a commit, written in the table of the context its events happened in, named as their sources
+    # name it; the moment of the commit the real one, the table forgetting the item a week later
+    App\Shared\Messaging\CommitOutbox:
+        arguments:
+            $tables:
+                accounts: '%env(DYNAMODB_TABLE_PREFIX)%-accounts'
+                personal-data: '%env(DYNAMODB_TABLE_PREFIX)%-personal-data'
+                prospecting: '%env(DYNAMODB_TABLE_PREFIX)%-prospecting'
+            $clock: '@app.commit_clock'
+    app.commit_clock:
+        class: Symfony\Component\Clock\NativeClock
+    # EventBridge (ADR 0098): MiniStack locally (EVENTBRIDGE_ENDPOINT), AWS in production (EVENTBRIDGE_ENDPOINT
+    # empty); the relay, a function of its own, publishes the outbox on the bus INTEGRATION_EVENT_BUS
+    Aws\EventBridge\EventBridgeClient:
+        arguments:
+            - region: '%env(AWS_REGION)%'
+              endpoint: '%env(default::EVENTBRIDGE_ENDPOINT)%'
+              credentials: '%app.aws_credentials%'
+    App\Shared\Messaging\IntegrationEventBus:
+        arguments: { $name: '%env(INTEGRATION_EVENT_BUS)%' }
+    App\Shared\Messaging\OutboxRelay:
+        public: true
     # what a command writes, and what its reactions write, in one transaction of DynamoDB, all or nothing
     Prospecter\Core\SharedKernel\Application\Port\UnitOfWork: '@App\Shared\Persistence\DynamoUnitOfWork'
     # a gesture of several commands commits its unit itself: its refusal translated like that of a command
@@ -173,6 +196,14 @@ when@test:
             autowire: true
             public: true
             tags: [app.event_handler]
+        # the bus in memory: the relay is tested on its own
+        Aws\EventBridge\EventBridgeClient:
+            arguments:
+                - region: '%env(AWS_REGION)%'
+                  credentials: '%app.aws_credentials%'
+                  handler: '@Tests\App\Double\InMemoryEventBridge'
+        Tests\App\Double\InMemoryEventBridge:
+            public: true
         # the moment the controllers give the commands: fixed, so that the tests can name it
         clock:
             class: Symfony\Component\Clock\MockClock

@@ -4,6 +4,7 @@ namespace Tests\App\Double;
 
 use App\PersonalData\Persistence\DynamoPersonRepository;
 use App\Shared\Identities;
+use App\Shared\Messaging\CommitOutbox;
 use App\Shared\Persistence\DynamoUnitOfWork;
 use App\Shared\Persistence\Table;
 use Aws\DynamoDb\DynamoDbClient;
@@ -14,6 +15,7 @@ use Prospecter\Core\PersonalData\Domain\Repository\PersonRepository;
 use Prospecter\Core\SharedKernel\Application\EventHandler;
 use Prospecter\Core\SharedKernel\Domain\ContactDetails;
 use Prospecter\Core\SharedKernel\Domain\PersonId;
+use Symfony\Component\Clock\NativeClock;
 
 /**
  * Once a test asks it to, another request takes the email a person has just been given, before the command that
@@ -49,6 +51,6 @@ final class EmailTakenMeanwhile implements EventHandler
 
     private function anotherRequest(): DynamoPersonRepository
     {
-        return new DynamoPersonRepository(new Table($this->client, $this->marshaler, new DynamoUnitOfWork($this->client), $this->personalDataTable->name));
+        return new DynamoPersonRepository(new Table($this->client, $this->marshaler, new DynamoUnitOfWork($this->client, new CommitOutbox([], $this->marshaler, $this->identities, new NativeClock())), $this->personalDataTable->name));
     }
 }

@@ -2,16 +2,18 @@
 
 namespace App\Shared\Persistence;
 
+use App\Shared\Messaging\CommitOutbox;
 use Aws\DynamoDb\DynamoDbClient;
 use Aws\DynamoDb\Exception\DynamoDbException;
 use Prospecter\Core\SharedKernel\Application\Port\UnitOfWork;
 
 /**
  * What a use case writes in the tables, kept until the outermost commit sends it in one TransactWriteItems,
- * all or nothing. While a unit is open, the writes of the tables wait in it, one per item, the last one winning;
- * without one, a write is sent at once. A write whose condition does not hold throws the refusal it carries.
- * A unit discarded at one level is abandoned until its outermost level ends: what is written meanwhile, by the
- * other reactions the event bus still calls, is thrown away too.
+ * all or nothing, with the items of outbox of what it published (CommitOutbox). While a unit is open, the writes of
+ * the tables wait in it, one per item, the last one winning; without one, a write is sent at once. A write whose
+ * condition does not hold throws the refusal it carries. A unit discarded at one level is abandoned until its
+ * outermost level ends: what is written meanwhile, by the other reactions the event bus still calls, is thrown away
+ * too, and what it published with it.
  */
 final class DynamoUnitOfWork implements UnitOfWork
 {
@@ -23,7 +25,7 @@ final class DynamoUnitOfWork implements UnitOfWork
     private array $pending = [];
     private bool $abandoned = false;
 
-    public function __construct(private readonly DynamoDbClient $client)
+    public function __construct(private readonly DynamoDbClient $client, private readonly CommitOutbox $outbox)
     {
     }
 
@@ -55,6 +57,17 @@ final class DynamoUnitOfWork implements UnitOfWork
 
         if ([] === $this->levels) {
             $this->abandoned = false;
+            $this->outbox->clear();
+        }
+    }
+
+    /**
+     * Outside a unit, what is published is a commit of its own, its outbox written at once.
+     */
+    public function sendTheOutboxOutsideAUnit(): void
+    {
+        if ([] === $this->levels) {
+            $this->write();
         }
     }
 
@@ -106,7 +119,7 @@ final class DynamoUnitOfWork implements UnitOfWork
             throw new \LogicException('The unit of work was discarded: nothing of it is written');
         }
 
-        $writes = array_values($this->pending);
+        $writes = [...array_values($this->pending), ...$this->outbox->writes()];
         $this->pending = [];
 
         if ([] === $writes) {
