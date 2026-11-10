@@ -20,7 +20,7 @@ In the API, the anticorruption layers implementing the ports of a context are in
 
 ## How events travel
 
-Every event leaves its context in the shape of an event of EventBridge (ADR 0097), so that the reactions may later be carried by a bus; for now it is delivered at once, within the command (`INTEGRATION_EVENTS_DELIVERY=sync`).
+Every event leaves its context in the shape of an event of EventBridge (ADR 0097), so that the reactions may later be carried by a bus; for now it is delivered at once, within the command (`INTEGRATION_EVENTS_DELIVERY=sync`). The delivery `outbox` writes it with the command and relays it to the bus of EventBridge (ADR 0098, `persistence.md`), available but not in service: nothing subscribes to the bus yet.
 
 | Field | Value |
 |---|---|
