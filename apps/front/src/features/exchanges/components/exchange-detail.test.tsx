@@ -99,6 +99,14 @@ describe('ExchangeDetailSheet', () => {
     expect(screen.getByText(/^Modifié le 16 oct\. 2026, .* par assistant@solean-it\.io$/)).toBeInTheDocument()
   })
 
+  it('shows who noted it as a member without a name while their profile has neither name nor email', async () => {
+    await renderTheDetail(
+      anExchange({ noted: { at: '2026-10-15T12:35:00+00:00', by: { name: {}, email: null } } }),
+    )
+
+    expect(screen.getByText(/^Noté le 15 oct\. 2026, .* par Membre sans nom$/)).toBeInTheDocument()
+  })
+
   it('offers to correct the exchange with what it is', async () => {
     const user = await renderTheDetail(anExchange({}))
 

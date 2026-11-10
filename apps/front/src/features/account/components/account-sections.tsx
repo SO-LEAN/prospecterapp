@@ -41,6 +41,7 @@ import { EditableSection } from '@/shared/ui/editable-section'
 import { ImageUpload } from '@/shared/ui/form/image-upload'
 import { Input } from '@/shared/ui/input'
 import { ExplainedUnlocatedBadge } from '@/shared/ui/unlocated-badge'
+import { myName } from '../me'
 import {
   type Account,
   useChangeMyContactDetails,
@@ -62,11 +63,6 @@ const passwordSchema = z.object({
     .max(4096),
 })
 
-export const fullNameOf = (account: Account) =>
-  [account.name.firstName, account.name.lastName].filter(Boolean).join(' ') ||
-  account.contactDetails.email ||
-  ''
-
 export function PictureSection({ account }: { account: Account }) {
   const { t } = useTranslation()
   const change = useChangeMyPicture()
@@ -80,14 +76,12 @@ export function PictureSection({ account }: { account: Account }) {
         <ImageUpload
           shape="circle"
           imageUrl={account.picture?.mediumUrl}
-          alt={fullNameOf(account)}
+          alt={myName(account)}
           label={t('account.changePicture')}
           pending={change.isPending}
           onUpload={account._links.changeMyPicture ? (file) => change.mutate(file) : undefined}
           fallback={
-            <span className="font-semibold text-2xl text-muted-foreground">
-              {initials(fullNameOf(account))}
-            </span>
+            <span className="font-semibold text-2xl text-muted-foreground">{initials(myName(account))}</span>
           }
         />
       </CardContent>

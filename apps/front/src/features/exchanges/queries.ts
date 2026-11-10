@@ -18,7 +18,6 @@ type Correction = components['schemas']['CorrectionInput']
 export type ExchangeFacts = Omit<Correction, 'madeConform'> & Partial<Pick<Correction, 'madeConform'>>
 export type ExchangeDetail = components['schemas']['ExchangeDetailResource']
 export type TextCorrection = components['schemas']['TextCorrectionInput']
-export type Author = components['schemas']['AuthorResource']
 export type Channel = Exchange['channel']
 export type Direction = Exchange['direction']
 

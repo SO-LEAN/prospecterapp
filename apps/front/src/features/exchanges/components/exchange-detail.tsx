@@ -3,6 +3,7 @@ import { Pencil, Trash2 } from 'lucide-react'
 import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { formatMoment } from '@/shared/lib/format'
+import { memberName } from '@/shared/lib/member-name'
 import { Button } from '@/shared/ui/button'
 import {
   Dialog,
@@ -17,7 +18,7 @@ import {
 import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle } from '@/shared/ui/sheet'
 import { Skeleton } from '@/shared/ui/skeleton'
 import { useCorrectExchange, useCorrectExchangeText, useEraseExchange } from '../mutations'
-import { type Author, type ExchangeDetail, exchangeQuery } from '../queries'
+import { type ExchangeDetail, exchangeQuery } from '../queries'
 import { correctionOf } from '../schema'
 import { ExchangeAttachments } from './exchange-attachments'
 import { ExchangeForm } from './exchange-form'
@@ -67,7 +68,6 @@ function Exchange({ exchange, onErased }: { exchange: ExchangeDetail; onErased: 
   const [correcting, setCorrecting] = useState<Correcting>(null)
   const correct = useCorrectExchange()
   const correctText = useCorrectExchangeText()
-  const authorOf = (author: Author) => nameOf(author.name) || author.email || t('exchanges.detail.aMember')
   const params = { path: { id: exchange.id } }
   const mayDeclareConform = Boolean(exchange._links.makeConform)
 
@@ -125,14 +125,14 @@ function Exchange({ exchange, onErased }: { exchange: ExchangeDetail; onErased: 
         <p>
           {t('exchanges.detail.noted', {
             moment: formatMoment(exchange.noted.at),
-            author: authorOf(exchange.noted.by),
+            author: memberName(exchange.noted.by),
           })}
         </p>
         {exchange.corrected && (
           <p>
             {t('exchanges.detail.corrected', {
               moment: formatMoment(exchange.corrected.at),
-              author: authorOf(exchange.corrected.by),
+              author: memberName(exchange.corrected.by),
             })}
           </p>
         )}
@@ -140,7 +140,7 @@ function Exchange({ exchange, onErased }: { exchange: ExchangeDetail; onErased: 
           <p>
             {t('exchanges.detail.madeConform', {
               moment: formatMoment(exchange.madeConform.at),
-              author: authorOf(exchange.madeConform.by),
+              author: memberName(exchange.madeConform.by),
             })}
           </p>
         )}
@@ -163,9 +163,6 @@ function Exchange({ exchange, onErased }: { exchange: ExchangeDetail; onErased: 
     </div>
   )
 }
-
-const nameOf = ({ firstName, lastName }: { firstName?: string | null; lastName?: string | null }) =>
-  [firstName, lastName].filter(Boolean).join(' ')
 
 /** Erasing an exchange cannot be undone: it is confirmed first. */
 function EraseExchange({ exchangeId, onErased }: { exchangeId: string; onErased: () => void }) {

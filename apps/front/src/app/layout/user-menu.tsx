@@ -2,6 +2,7 @@ import { useQuery, useQueryClient } from '@tanstack/react-query'
 import { Link, useNavigate } from '@tanstack/react-router'
 import { LogOut, Monitor, Moon, Sun, UserRound } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
+import { myName } from '@/features/account/me'
 import { accountQuery } from '@/features/account/queries'
 import { session } from '@/shared/auth/session'
 import { initials } from '@/shared/lib/format'
@@ -37,10 +38,7 @@ export function UserMenu() {
     return <Skeleton className="size-9 rounded-full" />
   }
 
-  const fullName =
-    [account?.name.firstName, account?.name.lastName].filter(Boolean).join(' ') ||
-    account?.contactDetails.email ||
-    ''
+  const fullName = account ? myName(account) : ''
 
   const signOut = async () => {
     await session.signOut()
