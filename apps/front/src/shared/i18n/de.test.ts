@@ -12,12 +12,14 @@ describe('« de » before a name', () => {
     ['alstom', 'd’alstom'],
     ['Œuvre Sociale', 'd’Œuvre Sociale'],
     ['Yves Robert', 'd’Yves Robert'],
+    ['Ælia Roux', 'd’Ælia Roux'],
   ])('elides before a vowel: %s', (name, expected) => {
     expect(de(name)).toBe(expected)
   })
 
   it.each([
     ['Pauline Martin', 'de Pauline Martin'],
+    ['Sylvie Martin', 'de Sylvie Martin'],
     ['Hager', 'de Hager'],
     ['Yannick Noah', 'de Yannick Noah'],
     ['3M', 'de 3M'],

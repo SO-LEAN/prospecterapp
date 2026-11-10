@@ -39,7 +39,7 @@ src/
     auth/               session.ts: signing in on Cognito, the tokens of the tab; sign-in-page.ts: the screen and its returnTo
     config/             env.ts: the configuration from /config.js (window.prospecter), else the VITE_* variables (ADR 0066)
     ui/                 design system components (shadcn) + form/, feedback/, map/
-    i18n/               setup and fr.ts
+    i18n/               setup, fr.ts, de.ts (the elision of « de »)
     forms/              section form, FormField, CountryField, shared field groups (AddressFields, ContactDetailsFields, LegalIdentityFields, PersonNameFields)
     lib/ hooks/ stores/ utilities (route-params.ts: UUID route params, a 404 of the API as a not found page), hooks, Zustand stores
   test/                 setup.ts: the Vitest setup; render-in-a-router.tsx: renders a component holding links in a memory router
