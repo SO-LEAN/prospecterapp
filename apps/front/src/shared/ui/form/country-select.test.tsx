@@ -3,6 +3,18 @@ import userEvent from '@testing-library/user-event'
 import { describe, expect, it, vi } from 'vitest'
 import { CountrySelect } from './country-select'
 
+// The 249 countries are protected by countries.test.ts; rendering them all in jsdom made this test outlast its timeout on a busy machine.
+vi.mock('@/shared/lib/countries', () => ({
+  frequentCountries: [
+    { code: 'FR', name: 'France' },
+    { code: 'BE', name: 'Belgique' },
+  ],
+  otherCountries: [
+    { code: 'DE', name: 'Allemagne' },
+    { code: 'ES', name: 'Espagne' },
+  ],
+}))
+
 const noCountry = 'Aucun pays'
 
 function theCountries(value: string | null) {
