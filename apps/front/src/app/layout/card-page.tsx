@@ -26,7 +26,7 @@ export function CardPage({ title, description, children }: Props) {
           <CardContent>{children}</CardContent>
         </Card>
         <footer className="text-center text-muted-foreground text-xs">
-          {t('signIn.copyright', { year: new Date().getFullYear() })}
+          {t('app.copyright', { year: new Date().getFullYear() })}
         </footer>
       </div>
     </main>

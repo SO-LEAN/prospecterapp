@@ -4,7 +4,7 @@ import { useTranslation } from 'react-i18next'
 import { AppShell } from '@/app/layout/app-shell'
 import { CardPage } from '@/app/layout/card-page'
 import { CompleteMyProfileForm } from '@/features/account/components/complete-my-profile-form'
-import { hasNoName } from '@/features/account/me'
+import { hasAProfileToComplete } from '@/features/account/me'
 import type { Account } from '@/features/account/mutations'
 import { accountQuery, signInQuery } from '@/features/account/queries'
 import { ensureSharedQueryData } from '@/shared/api/ensure-shared-query-data'
@@ -22,7 +22,7 @@ export const Route = createFileRoute('/_app')({
   },
   loader: async ({ context: { queryClient } }) => {
     const account = await ensureSharedQueryData(queryClient, accountQuery())
-    if (hasNoName(account)) {
+    if (hasAProfileToComplete(account)) {
       await queryClient.ensureQueryData(signInQuery())
     }
   },
@@ -32,7 +32,7 @@ export const Route = createFileRoute('/_app')({
 function SignedIn() {
   const { data: account } = useSuspenseQuery(accountQuery())
 
-  if (hasNoName(account)) {
+  if (hasAProfileToComplete(account)) {
     return <CompleteMyProfile account={account} />
   }
 
