@@ -11,8 +11,8 @@ An organization using Prospecter, and the members working in it. Code: `packages
 
 ## Rules
 
-- An account is opened by its founder, from the console until the members open theirs: the founder is registered with every role and gets an empty profile of their own (`OpenAccount`, `RegisterTheFounder`; ADR 0064).
-- A member is registered by an administrator of the account, under a profile of their own, with at least one role among prospector, personal data and administrator; every member signs in (`RegisterAMember`, `Member::registerBy()`; ADR 0075). The right to register is decided by the aggregate.
+- An account is opened by its founder, from the console until the members open theirs: the founder is registered with every role and gets an empty profile of their own (`OpenAccount`, `RegisterTheFounder`; ADR 0064), theirs to complete at their first sign-in (ADR 0100).
+- A member is registered by an administrator of the account, under a profile of their own, with at least one role among prospector, personal data and administrator; every member signs in (`RegisterAMember`, `Member::registerBy()`; ADR 0075) and completes their empty profile at their first sign-in (ADR 0100). The right to register is decided by the aggregate.
 - A member may change everything of their account, nothing of another one: the account of another is unknown to them (`AccountPossibilities`; ADR 0088).
 - A member reads and manages the personal data with the right to, or as an administrator (`PersonalDataRight`; ADR 0031).
 

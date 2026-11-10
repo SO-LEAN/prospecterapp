@@ -13,6 +13,7 @@ The personal data of natural persons, and who reads them. Code: `packages/core/s
 
 - No other context keeps personal data, only a `PersonId`; but the text and the attachments of the exchanges of Prospecting, which may hold some (ADR 0031, 0074, 0077).
 - Another account does not even learn that a person exists; the person themself and a member of the account with the right read them in clear, the other members masked: a fixed number of stars, so that the length of a name or of an address does not leak (`PersonReading`, `Masking`; ADR 0031).
+- The profile of a member is collected empty, when their account is opened or they are registered; the member fills it in themselves: the SPA asks their name and the email of their profile, their login email proposed, at their first sign-in (`CollectTheFounderProfile`, `CollectTheMemberProfile`; ADR 0064, 0075, 0100).
 - A person changes their own data; a member with the right changes the persons their account prospects, not the profile of a colleague; only a prospected person is forgotten (`PersonPossibilities`; ADR 0031, 0075).
 - A contact is collected by a member with the right, for at least one organization the account prospects: a contact is never alone, and a contact no organization names any more is erased (`CollectContact`, `ForgetContactsLeftWithoutOrganization`; ADR 0041, 0042).
 - An email is unique among the persons an account keeps for a purpose (`EmailUniqueness`; ADR 0039).
