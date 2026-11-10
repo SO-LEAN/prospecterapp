@@ -4,6 +4,7 @@ namespace Tests\App\Shared;
 
 use App\Shared\Messaging\OutboxDelivery;
 use App\Shared\Messaging\TransportedEvent;
+use App\Shared\Persistence\ConditionFailed;
 use App\Shared\Persistence\DynamoUnitOfWork;
 use App\Shared\Persistence\Table;
 use Tests\App\Base\ApiTestCase;
@@ -83,6 +84,23 @@ class CommitOutboxTest extends ApiTestCase
         $this->unitOfWork->begin();
         $this->unitOfWork->commit();
         $this->unitOfWork->discard();
+
+        $this->assertSame([], $this->accounts->scan('OUTBOX#'));
+    }
+
+    public function testAUnitRefusedAtItsCommitWritesNoOutbox(): void
+    {
+        $this->accounts->transact([$this->accounts->putting(['PK' => 'TEST#ada', 'SK' => 'TEST'])]);
+        $this->unitOfWork->begin();
+        $this->delivery->deliver($this->event('prospecter.accounts', 'AccountOpened.v1'));
+        $this->accounts->transact([$this->accounts->putting(['PK' => 'TEST#ada', 'SK' => 'TEST'], 'attribute_not_exists(PK)')]);
+
+        try {
+            $this->unitOfWork->commit();
+            $this->fail('The unit was expected to be refused at its commit');
+        } catch (ConditionFailed) {
+            $this->unitOfWork->discard();
+        }
 
         $this->assertSame([], $this->accounts->scan('OUTBOX#'));
     }

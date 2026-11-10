@@ -7,7 +7,7 @@ vendor: ## Install the Composer dependencies of the API
 	@echo "API/Installing Composer dependencies..."
 	@$(PHP) composer install
 
-db: ministack ## Recreate in MiniStack the tables and the user pool, with the demo data (destroys local data)
+db: ministack ## Recreate in MiniStack the tables and the user pool, with the demo data (destroys local data), the relay of the outbox on their new streams
 	@echo "API/Creating the DynamoDB table of each bounded context with the data of the demonstration..."
 	@$(PHP) sh -c 'bin/console cache:clear >/dev/null && bin/console app:tables:recreate --demo'
 	@echo "API/Creating the Cognito user pool with the members of the demonstration..."

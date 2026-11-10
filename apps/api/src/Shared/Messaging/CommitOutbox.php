@@ -11,7 +11,8 @@ use Symfony\Contracts\Service\ResetInterface;
 
 /**
  * The events the open unit of work publishes, delivered through the outbox: written at its outermost commit, with
- * what it changes, in one item per table of the contexts they happened in.
+ * what it changes, in one item per table of the contexts they happened in. It builds its puts itself, by the names of
+ * the tables, and not through a `Table`: a table depends on the unit of work, which depends on the outbox.
  */
 final class CommitOutbox implements ResetInterface
 {
