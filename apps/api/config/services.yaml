@@ -80,6 +80,8 @@ services:
     Prospecter\Core\Accounts\Contract\Service\ConsultMembers\ConsultMembersService: '@Prospecter\Core\Accounts\Application\ConsultMembers\ConsultMembersHandler'
     Prospecter\Core\PersonalData\Contract\Service\WhichAreContacts\WhichAreContactsService: '@Prospecter\Core\PersonalData\Application\WhichAreContacts\WhichAreContactsHandler'
     Prospecter\Core\Prospecting\Contract\Service\WhichAreProspected\WhichAreProspectedService: '@Prospecter\Core\Prospecting\Application\WhichAreProspected\WhichAreProspectedHandler'
+    Prospecter\Core\Prospecting\Contract\Service\ListOrganizationFacts\ListOrganizationFactsService: '@Prospecter\Core\Prospecting\Application\ListOrganizationFacts\ListOrganizationFactsHandler'
+    Prospecter\Core\Prospecting\Contract\Service\ListExchangeFacts\ListExchangeFactsService: '@Prospecter\Core\Prospecting\Application\ListExchangeFacts\ListExchangeFactsHandler'
 
     # Ports of the core, implemented by the application
     Prospecter\Core\Accounts\Domain\Repository\AccountRepository: '@App\Accounts\Persistence\DynamoAccountRepository'
@@ -97,6 +99,8 @@ services:
     Prospecter\Core\Prospecting\Application\Port\ExchangeDetailRetriever: '@App\Prospecting\Persistence\DynamoExchangeDetailRetriever'
     Prospecter\Core\Prospecting\Application\Port\TimelineRetriever: '@App\Prospecting\Persistence\DynamoTimelineRetriever'
     Prospecter\Core\Prospecting\Application\Port\OrganizationOfContactRetriever: '@App\Prospecting\Persistence\DynamoOrganizationOfContactRetriever'
+    Prospecter\Core\Prospecting\Application\Port\OrganizationFactsRetriever: '@App\Prospecting\Persistence\DynamoOrganizationFactsRetriever'
+    Prospecter\Core\Prospecting\Application\Port\ExchangeFactsRetriever: '@App\Prospecting\Persistence\DynamoExchangeFactsRetriever'
     Prospecter\Core\Prospecting\Domain\Port\Prospectors: '@App\Prospecting\AntiCorruption\AccountsProspectors'
     Prospecter\Core\Prospecting\Domain\Port\KnownContacts: '@App\Prospecting\AntiCorruption\PersonalDataKnownContacts'
     Prospecter\Core\PersonalData\Domain\Port\ProspectedOrganizations: '@App\PersonalData\AntiCorruption\ProspectingOrganizations'

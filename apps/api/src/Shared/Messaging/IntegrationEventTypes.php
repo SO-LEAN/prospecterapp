@@ -22,6 +22,8 @@ final readonly class IntegrationEventTypes extends EventTypes
         ],
         'prospecter.prospecting' => [
             'ContactsLeftWithoutOrganization.v1' => Prospecting\ContactsLeftWithoutOrganization::class,
+            'OrganizationFactsChanged.v1' => Prospecting\OrganizationFactsChanged::class,
+            'ExchangeFactsChanged.v1' => Prospecting\ExchangeFactsChanged::class,
         ],
     ];
 }

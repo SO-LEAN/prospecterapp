@@ -85,10 +85,14 @@ use Prospecter\Core\Prospecting\Application\EraseExchange\EraseExchangeHandler;
 use Prospecter\Core\Prospecting\Application\EraseExchangeLeftWithoutOrganization\EraseExchangeLeftWithoutOrganizationHandler;
 use Prospecter\Core\Prospecting\Application\KeepExchangesOfForgottenContact\KeepExchangesOfForgottenContactHandler;
 use Prospecter\Core\Prospecting\Application\KeptTimeline;
+use Prospecter\Core\Prospecting\Application\ListExchangeFacts\ListExchangeFactsHandler;
+use Prospecter\Core\Prospecting\Application\ListOrganizationFacts\ListOrganizationFactsHandler;
 use Prospecter\Core\Prospecting\Application\NoteExchange\NoteExchangeHandler;
 use Prospecter\Core\Prospecting\Application\NoteOrganizationExchange\NoteOrganizationExchangeHandler;
 use Prospecter\Core\Prospecting\Application\OrganizationSheet;
 use Prospecter\Core\Prospecting\Application\PublishContactsLeftWithoutOrganization\PublishContactsLeftWithoutOrganizationHandler;
+use Prospecter\Core\Prospecting\Application\PublishExchangeFacts\PublishExchangeFactsHandler;
+use Prospecter\Core\Prospecting\Application\PublishOrganizationFacts\PublishOrganizationFactsHandler;
 use Prospecter\Core\Prospecting\Application\RecognizeCallingOrganization\KeptCallingOrganizations;
 use Prospecter\Core\Prospecting\Application\RecognizeCallingOrganization\RecognizeCallingOrganization;
 use Prospecter\Core\Prospecting\Application\RecognizeCallingOrganization\RecognizeCallingOrganizationHandler;
@@ -107,6 +111,10 @@ use Prospecter\Core\Prospecting\Application\StopProspecting\StopProspectingHandl
 use Prospecter\Core\Prospecting\Application\Timeline;
 use Prospecter\Core\Prospecting\Application\WhichAreProspected\WhichAreProspectedHandler;
 use Prospecter\Core\Prospecting\Application\WriteObservations\WriteObservationsHandler;
+use Prospecter\Core\Prospecting\Contract\Service\ListExchangeFacts\KeptExchangeFacts;
+use Prospecter\Core\Prospecting\Contract\Service\ListExchangeFacts\ListExchangeFacts;
+use Prospecter\Core\Prospecting\Contract\Service\ListOrganizationFacts\KeptOrganizationFacts;
+use Prospecter\Core\Prospecting\Contract\Service\ListOrganizationFacts\ListOrganizationFacts;
 use Prospecter\Core\Prospecting\Contract\Service\WhichAreProspected\KeptProspected;
 use Prospecter\Core\Prospecting\Contract\Service\WhichAreProspected\WhichAreProspected;
 use Prospecter\Core\Prospecting\Domain\Service\ContactOrganizations;
@@ -130,11 +138,13 @@ use Tests\Core\Double\InMemoryAccountRepository;
 use Tests\Core\Double\InMemoryContactPageRetriever;
 use Tests\Core\Double\InMemoryDatabase;
 use Tests\Core\Double\InMemoryExchangeDetailRetriever;
+use Tests\Core\Double\InMemoryExchangeFactsRetriever;
 use Tests\Core\Double\InMemoryExchangeRepository;
 use Tests\Core\Double\InMemoryFoundOrganizationRetriever;
 use Tests\Core\Double\InMemoryMemberRepository;
 use Tests\Core\Double\InMemoryMemberRetriever;
 use Tests\Core\Double\InMemoryMyAccountRetriever;
+use Tests\Core\Double\InMemoryOrganizationFactsRetriever;
 use Tests\Core\Double\InMemoryOrganizationRepository;
 use Tests\Core\Double\InMemoryOrganizationSheetRetriever;
 use Tests\Core\Double\InMemoryPersonCardRetriever;
@@ -172,6 +182,10 @@ final class Application
     private readonly ConsultMembersHandler $consultMembersService;
     private readonly WhichAreContactsHandler $whichAreContactsService;
     private readonly WhichAreProspectedHandler $whichAreProspectedService;
+    private readonly InMemoryOrganizationFactsRetriever $organizationFactsRetriever;
+    private readonly InMemoryExchangeFactsRetriever $exchangeFactsRetriever;
+    private readonly ListOrganizationFactsHandler $listOrganizationFactsService;
+    private readonly ListExchangeFactsHandler $listExchangeFactsService;
     public readonly InMemoryExchangeRepository $exchanges;
     public readonly InMemoryAccountRepository $accounts;
     public readonly InMemoryMemberRepository $members;
@@ -221,6 +235,10 @@ final class Application
         $this->consultMembersService = new ConsultMembersHandler($this->memberRetriever);
         $this->whichAreContactsService = new WhichAreContactsHandler($this->persons);
         $this->whichAreProspectedService = new WhichAreProspectedHandler($this->organizations);
+        $this->organizationFactsRetriever = new InMemoryOrganizationFactsRetriever($database);
+        $this->exchangeFactsRetriever = new InMemoryExchangeFactsRetriever($database);
+        $this->listOrganizationFactsService = new ListOrganizationFactsHandler($this->organizationFactsRetriever);
+        $this->listExchangeFactsService = new ListExchangeFactsHandler($this->exchangeFactsRetriever);
         $this->prospectors = new AccountsProspectors($this->consultMembersService);
         $this->readers = new AccountsReaders($this->consultMembersService);
         $this->knownContacts = new PersonalDataKnownContacts($this->whichAreContactsService);
@@ -495,15 +513,34 @@ final class Application
         return $kept->organizationIds;
     }
 
+    public function listOrganizationFacts(ListOrganizationFacts $query): KeptOrganizationFacts
+    {
+        $kept = new KeptOrganizationFacts();
+        ($this->listOrganizationFactsService)($query, $kept);
+
+        return $kept;
+    }
+
+    public function listExchangeFacts(ListExchangeFacts $query): KeptExchangeFacts
+    {
+        $kept = new KeptExchangeFacts();
+        ($this->listExchangeFactsService)($query, $kept);
+
+        return $kept;
+    }
+
     /**
      * Every event handler of the core: the reactions of the other contexts run in the scenarios as in the API
-     * (`EventHandlersSubscribedTest` fails when one is missing).
+     * (`EventHandlersSubscribedTest` fails when one is missing), the translators of the facts first, as the event
+     * bus of the API calls them before the delivery of the subscriptions.
      *
      * @return list<EventHandler>
      */
     private function eventHandlers(): array
     {
         return [
+            new PublishOrganizationFactsHandler($this->organizationFactsRetriever, $this->events),
+            new PublishExchangeFactsHandler($this->exchangeFactsRetriever, $this->events),
             new AttachCollectedContactHandler($this->organizations, $this->events),
             new DetachForgottenContactHandler($this->organizations, $this->events, $this->orphans),
             new KeepExchangesOfForgottenContactHandler($this->exchanges, $this->events),
@@ -517,7 +554,7 @@ final class Application
             new PublishContactForgottenHandler($this->events),
             new PublishContactsLeftWithoutOrganizationHandler($this->events),
             new StopKeepingExchangesHandler($this->exchanges, $this->events),
-            new EraseExchangeLeftWithoutOrganizationHandler($this->exchanges, $this->attachedFiles),
+            new EraseExchangeLeftWithoutOrganizationHandler($this->exchanges, $this->attachedFiles, $this->events),
         ];
     }
 

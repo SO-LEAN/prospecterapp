@@ -28,6 +28,8 @@ final class InMemoryDatabase
     private array $organizations = [];
     /** @var array<string, Exchange> */
     private array $exchanges = [];
+    /** @var array<string, int> the revision of each aggregate stored, by its identity, as the documents keep it */
+    private array $revisions = [];
 
     public function isEmpty(): bool
     {
@@ -49,16 +51,18 @@ final class InMemoryDatabase
         $this->persons = $snapshot->persons;
         $this->organizations = $snapshot->organizations;
         $this->exchanges = $snapshot->exchanges;
+        $this->revisions = $snapshot->revisions;
     }
 
     public function storeExchange(Exchange $exchange): void
     {
         $this->exchanges[(string) $exchange->id()] = self::withoutItsEvents($exchange);
+        $this->revise((string) $exchange->id());
     }
 
     public function forgetExchange(string $id): void
     {
-        unset($this->exchanges[$id]);
+        unset($this->exchanges[$id], $this->revisions[$id]);
     }
 
     public function exchange(string $id): ?Exchange
@@ -96,12 +100,27 @@ final class InMemoryDatabase
 
     public function forgetOrganization(string $id): void
     {
-        unset($this->organizations[$id]);
+        unset($this->organizations[$id], $this->revisions[$id]);
     }
 
     public function storeOrganization(Organization $organization): void
     {
         $this->organizations[(string) $organization->id()] = self::withoutItsEvents($organization);
+        $this->revise((string) $organization->id());
+    }
+
+    /**
+     * How many times the organization or the exchange was saved: the adapters count it in its document, the
+     * aggregate does not know it.
+     */
+    public function revisionOf(string $id): int
+    {
+        return $this->revisions[$id] ?? 0;
+    }
+
+    private function revise(string $id): void
+    {
+        $this->revisions[$id] = $this->revisionOf($id) + 1;
     }
 
     public function account(string $id): ?Account

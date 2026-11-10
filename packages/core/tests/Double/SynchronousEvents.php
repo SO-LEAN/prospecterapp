@@ -8,12 +8,13 @@ use Prospecter\Core\SharedKernel\Application\EventHandler;
 use Prospecter\Core\SharedKernel\Application\Port\Events;
 
 /**
- * The events delivered at once to the real handlers that subscribed, found by the type of their __invoke(),
- * like the synchronous event bus of the API, each called through its decorators.
+ * The events delivered at once to the real handlers that subscribed, in the order they subscribed, found by the type
+ * of their __invoke(), a parent class of the event included, like the synchronous event bus of the API, each called
+ * through its decorators.
  */
 final class SynchronousEvents implements Events
 {
-    /** @var array<class-string, list<EventHandler>> */
+    /** @var list<array{class-string, EventHandler}> each handler with the type of event it takes, in the order they subscribed */
     private array $handlers = [];
     /** @var list<class-string<EventHandler>> */
     private array $subscribers = [];
@@ -28,7 +29,7 @@ final class SynchronousEvents implements Events
             throw new \LogicException(sprintf('%s::__invoke() must take one event', $handler::class));
         }
 
-        $this->handlers[$type->getName()][] = $calledThrough;
+        $this->handlers[] = [$type->getName(), $calledThrough];
         $this->subscribers[] = $handler::class;
     }
 
@@ -59,9 +60,20 @@ final class SynchronousEvents implements Events
         foreach ($events as $event) {
             $this->published[] = $event;
 
-            foreach ($this->handlers[$event::class] ?? [] as $handler) {
+            foreach ($this->handlersOf($event) as $handler) {
                 $handler($event);
             }
         }
+    }
+
+    /**
+     * The handlers taking its class or a parent of it, in the order they subscribed: a handler of
+     * `OrganizationEvent` receives every event of an organization.
+     *
+     * @return list<EventHandler>
+     */
+    private function handlersOf(object $event): array
+    {
+        return array_values(array_map(static fn (array $subscribed): EventHandler => $subscribed[1], array_filter($this->handlers, static fn (array $subscribed): bool => $event instanceof $subscribed[0])));
     }
 }

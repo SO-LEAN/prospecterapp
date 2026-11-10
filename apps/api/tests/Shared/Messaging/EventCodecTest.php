@@ -22,6 +22,7 @@ use Symfony\Component\TypeInfo\Type;
 use Symfony\Component\TypeInfo\Type\CollectionType;
 use Symfony\Component\TypeInfo\Type\NullableType;
 use Symfony\Component\TypeInfo\Type\ObjectType;
+use Symfony\Component\TypeInfo\TypeIdentifier;
 use Symfony\Component\TypeInfo\TypeResolver\TypeResolver;
 
 /**
@@ -33,6 +34,7 @@ class EventCodecTest extends TestCase
 {
     private const string MOMENT = '2026-10-15 09:00:00.123456 UTC';
     private const string ID = '0199f1d2-6a3b-7c4d-8e5f-0123456789ab';
+    private const int REVISION = 3;
 
     #[DataProvider('events')]
     public function testAnEventSurvivesARoundTrip(string $class): void
@@ -126,6 +128,8 @@ class EventCodecTest extends TestCase
             $type instanceof CollectionType => [$this->sampleValue($type->getCollectionValueType()), $this->sampleValue($type->getCollectionValueType())],
             $type instanceof ObjectType && \DateTimeImmutable::class === $type->getClassName() => new \DateTimeImmutable(self::MOMENT),
             $type instanceof ObjectType && is_a($type->getClassName(), Uuid::class, true) => new ($type->getClassName())(self::ID),
+            $type->isIdentifiedBy(TypeIdentifier::INT) => self::REVISION,
+            $type->isIdentifiedBy(TypeIdentifier::BOOL) => true,
             default => self::ID,
         };
     }
