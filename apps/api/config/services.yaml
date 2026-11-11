@@ -230,12 +230,9 @@ services:
 
 when@test:
     services:
-        # no network in tests: every outgoing request gets an empty answer (a geocoding finds nothing)
-        http_client:
-            class: Symfony\Component\HttpClient\MockHttpClient
-        # the client above, under the template of URLs the framework puts around it: a test gives it an answer
-        Symfony\Component\HttpClient\MockHttpClient:
-            alias: http_client.uri_template.inner
+        # no network in tests: the services outside the API answer by this double (config/packages/framework.yaml)
+        Tests\App\Double\OutsideServices:
+            arguments: ['%env(APP_GEOCODER_URL)%']
             public: true
         # the files stay in memory: the storage app is tested on its own
         Prospecter\Core\SharedKernel\Application\Port\Storage: '@Tests\App\Double\InMemoryStorage'

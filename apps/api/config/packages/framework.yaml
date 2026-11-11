@@ -18,3 +18,5 @@ framework:
 when@test:
     framework:
         test: true
+        http_client:
+            mock_response_factory: Tests\App\Double\OutsideServices
