@@ -5,6 +5,7 @@ namespace App\Reporting\Command;
 use App\Shared\Persistence\ConditionFailed;
 use Prospecter\Core\Reporting\Application\RebuildFigures\RebuildFigures;
 use Prospecter\Core\Reporting\Application\RebuildFigures\RebuildFiguresHandler;
+use Prospecter\Core\Reporting\Domain\Port\SourceAccounts;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Style\SymfonyStyle;
@@ -16,25 +17,36 @@ use Symfony\Component\Console\Style\SymfonyStyle;
  * wrong. Run from the command line, out of the time limit of a function; its steps commit their own units, so it
  * calls its handler without the unit of work of a command. It writes only the table of Reporting, figures derived
  * from the state. A step cancelled by a recording of the worker on the same figures starts the rebuild again, three
- * times at most, the version it was building abandoned then emptied first (ADR 0104, 0106).
+ * times at most, the version it was building abandoned then emptied first (ADR 0104, 0106). It says how many accounts
+ * the list of the accounts gives it, none being no failure: a new instance has none, and app:consistency:check shows
+ * an account missing from that list.
  */
 #[AsCommand(name: 'app:reporting:rebuild', description: 'Count the figures of every account again, from the state of the other contexts')]
 final readonly class RebuildFiguresCommand
 {
     private const int RETRIES_OF_A_CONFLICT = 3;
 
-    public function __construct(private RebuildFiguresHandler $rebuildFigures)
+    public function __construct(private RebuildFiguresHandler $rebuildFigures, private SourceAccounts $sourceAccounts)
     {
     }
 
     public function __invoke(SymfonyStyle $io): int
+    {
+        $this->rebuildStartingAgainOnAConflict($io);
+        $io->success(sprintf('The figures are counted again for %d account(s).', iterator_count($this->sourceAccounts->all())));
+
+        return Command::SUCCESS;
+    }
+
+    private function rebuildStartingAgainOnAConflict(SymfonyStyle $io): void
     {
         for ($retry = 1;; ++$retry) {
             $io->comment('Waiting two minutes for the facts being recorded, then counting every account again...');
 
             try {
                 ($this->rebuildFigures)(new RebuildFigures());
-                break;
+
+                return;
             } catch (ConditionFailed $conflict) {
                 if ($retry > self::RETRIES_OF_A_CONFLICT) {
                     throw $conflict;
@@ -43,9 +55,5 @@ final readonly class RebuildFiguresCommand
                 $io->warning('A fact recorded meanwhile cancelled the rebuild: starting it again.');
             }
         }
-
-        $io->success('The figures of every account are counted again.');
-
-        return Command::SUCCESS;
     }
 }
