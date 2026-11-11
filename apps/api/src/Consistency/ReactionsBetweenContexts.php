@@ -3,9 +3,9 @@
 namespace App\Consistency;
 
 /**
- * What the reactions between the contexts should have written, read in the tables: each account has its members, the
- * founder first, and each member their profile in PersonalData; each contact collected is attached to organizations,
- * none forgotten still is; no organization no longer prospected still keeps exchanges.
+ * What the reactions between the contexts should have written, read in the tables: each account has a member at
+ * least, its founder registered, and each member their profile in PersonalData; each contact collected is attached to
+ * organizations, none forgotten still is; no organization no longer prospected still keeps exchanges.
  */
 final readonly class ReactionsBetweenContexts
 {

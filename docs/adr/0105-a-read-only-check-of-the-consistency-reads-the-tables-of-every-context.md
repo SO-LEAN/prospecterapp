@@ -7,7 +7,7 @@
 
 ## Context
 
-The reactions between the contexts run after the command, in the worker (ADR 0101), and the figures of Reporting are kept from the facts the other contexts publish (ADR 0103, 0104). An event may end in a queue of failures, a reaction may be missed or a figure may drift, and nothing tells it: no alarm is planned. Each context reads only its own table (ADR 0038, 0048), and the others only through the services they publish (ADR 0045, 0089).
+The reactions between the contexts run after the command, in the worker (ADR 0101), and the figures of Reporting are kept from the facts the other contexts publish (ADR 0103, 0104). An event may end in a queue of failures, a reaction may be missed or a figure may drift, and nothing tells it: no alarm is planned. Each context reads only its own table (ADR 0038, 0048; the check is an exception to it), and the others only through the services they publish (ADR 0045, 0089).
 
 ## Decision
 
