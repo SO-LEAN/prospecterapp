@@ -85,7 +85,7 @@ Never copy server data into Zustand or `useState`: read it from the query, the c
 ## API access
 
 - `pnpm api:types` (or `make api-doc` from the root) regenerates `shared/api/schema.d.ts` from `apps/api/openapi.json`; `api` calls the API with the access token, what a member signs in with included (`/api/me/sign-in`).
-- `api.queryOptions('get', '/api/organizations/{id}', { params })` / `api.useMutation('patch', ...)`: path, params, body and response are typed.
+- `api.queryOptions('get', '/api/organizations/{id}', { params })` / `api.useMutation('patch', ...)`: path, params, body and response are typed. Other options of a query go in its fourth argument (`api.queryOptions('get', '/api/me', undefined, { refetchInterval })`), typed by TanStack Query, never spread over it with a hand-written type.
 - The fetch middleware adds `Authorization: Bearer`; on a 401 it renews the token once with the refresh token, otherwise it sends the user to sign in.
 - Form values have the shape of the API input (`street` in the address section, `address.street` in the creation form), so the `propertyPath` of each API violation is the form field name. Groups of fields shared by several forms live in `shared/forms` (`AddressFields`, `ContactDetailsFields`, `LegalIdentityFields`, `PersonNameFields`, with their zod schema and conversions); their `path` option nests them in a bigger form.
 - A field shows its error through `FormField`, which subscribes to it (`useFormState`): the React Compiler memoizes components receiving the same `form`, so a group of fields would not render a new error by itself.

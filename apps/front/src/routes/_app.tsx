@@ -8,7 +8,7 @@ import { CompleteMyProfileForm } from '@/features/account/components/complete-my
 import { MyProfileBeingPrepared } from '@/features/account/components/my-profile-being-prepared'
 import { hasAProfileToComplete, isMyProfileBeingPrepared } from '@/features/account/me'
 import type { Account } from '@/features/account/mutations'
-import { accountQuery, signInQuery } from '@/features/account/queries'
+import { accountQuery, myAccountBeingPreparedQuery, signInQuery } from '@/features/account/queries'
 import { ensureSharedQueryData } from '@/shared/api/ensure-shared-query-data'
 import { session } from '@/shared/auth/session'
 import { PageError } from '@/shared/ui/feedback/page-error'
@@ -48,7 +48,7 @@ export const Route = createFileRoute('/_app')({
 })
 
 function SignedIn() {
-  const { data: account, error } = useQuery({ ...accountQuery(), retryOnMount: false })
+  const { data: account, error } = useQuery(myAccountBeingPreparedQuery())
 
   if (!account) {
     if (error && !isMyProfileBeingPrepared(error)) {
