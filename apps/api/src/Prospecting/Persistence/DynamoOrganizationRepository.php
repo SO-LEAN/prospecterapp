@@ -131,7 +131,7 @@ final readonly class DynamoOrganizationRepository implements OrganizationReposit
         return SearchIndexes::of($organization->accountId()->value, $organization->searchKeys(), $organization->contactDetails()->phoneNumber) + [
             'PK' => OrganizationKeys::organization($document['id']),
             'SK' => OrganizationKeys::ORGANIZATION,
-            'GSI1PK' => 'ACCOUNT#'.$document['accountId'],
+            'GSI1PK' => OrganizationKeys::ofAccount($document['accountId']),
             'GSI1SK' => $document['id'],
             'email' => $document['contactDetails']['email'],
             Revision::ATTRIBUTE => $revision,

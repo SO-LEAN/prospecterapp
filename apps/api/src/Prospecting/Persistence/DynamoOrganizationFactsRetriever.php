@@ -31,7 +31,7 @@ final readonly class DynamoOrganizationFactsRetriever implements OrganizationFac
 
     public function sliceOf(AccountId $accountId, ?string $after, int $max): Slice
     {
-        $items = $this->prospectingTable->query('ACCOUNT#'.$accountId->value, Table::BY_GSI1, $after, $max + 1);
+        $items = $this->prospectingTable->query(OrganizationKeys::ofAccount($accountId->value), Table::BY_GSI1, $after, $max + 1);
 
         return Documents::slice(array_map(self::factsOf(...), $items), $max, static fn (OrganizationFactsResponse $facts): string => $facts->organizationId);
     }
