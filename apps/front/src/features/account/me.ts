@@ -37,8 +37,12 @@ const LONGEST_WAIT_MS = 60_000
  * once the member waited a minute.
  */
 export function nextReadingOfMyProfile(readings: number): number | false {
-  const delay = FIRST_DELAY_MS * 2 ** (readings - 1)
-  const waited = delay - FIRST_DELAY_MS
+  const waited = waitedBefore(readings)
 
-  return waited < LONGEST_WAIT_MS ? Math.min(delay, LONGEST_WAIT_MS - waited) : false
+  return waited < LONGEST_WAIT_MS ? Math.min(doubledDelay(readings), LONGEST_WAIT_MS - waited) : false
 }
+
+const doubledDelay = (readings: number) => FIRST_DELAY_MS * 2 ** (readings - 1)
+
+/** The delays before the readings so far, 1 + 2 + … + 2^(n−2) seconds: 2^(n−1) − 1, a second short of the next. */
+const waitedBefore = (readings: number) => doubledDelay(readings) - FIRST_DELAY_MS

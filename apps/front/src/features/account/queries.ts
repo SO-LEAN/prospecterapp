@@ -7,16 +7,16 @@ export const accountQuery = () => api.queryOptions('get', '/api/me')
 /** What I sign in with, in the user pool. */
 export const signInQuery = () => api.queryOptions('get', '/api/me/sign-in')
 
-type Readings = { state: { data: unknown; errorUpdateCount: number } }
-
 /**
- * My account while my profile is being prepared: read again, a delay growing, until it exists or I waited too long;
- * a refusal is not tried again at once, nor read again by a screen mounted.
+ * My account as the layout reads it, while my profile may still be being prepared: read again, a delay growing, until
+ * it exists or I waited too long; a refusal is read again neither at once, nor by a screen mounted, nor by the window
+ * focused, for the wait to last as long as it says.
  */
-export const myAccountBeingPreparedQuery = () => ({
-  ...accountQuery(),
-  retry: false,
-  retryOnMount: false,
-  refetchInterval: ({ state }: Readings) =>
-    state.data === undefined && nextReadingOfMyProfile(state.errorUpdateCount),
-})
+export const myAccountBeingPreparedQuery = () =>
+  api.queryOptions('get', '/api/me', undefined, {
+    retry: false,
+    retryOnMount: false,
+    refetchOnWindowFocus: false,
+    refetchInterval: ({ state }) =>
+      state.data === undefined && nextReadingOfMyProfile(state.errorUpdateCount),
+  })
