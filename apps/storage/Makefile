@@ -1,11 +1,11 @@
-include ../../make/common.mk ../../make/aws.mk
+include ../../make/common.mk ../../make/aws.mk ../../make/composer.mk
 
 .PHONY: vendor db test lint fix
 
 ##@ Storage
 vendor: ## Install the Composer dependencies of the storage
 	@echo "Storage/Installing Composer dependencies..."
-	@$(PHP) composer install
+	@$(PHP) make composer-install
 
 db: ministack ## Recreate in MiniStack the buckets of the files (destroys local data)
 	@echo "Storage/Creating the S3 bucket of the files..."

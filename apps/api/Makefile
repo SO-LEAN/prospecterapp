@@ -1,11 +1,11 @@
-include ../../make/common.mk ../../make/aws.mk ../../make/mutation.mk
+include ../../make/common.mk ../../make/aws.mk ../../make/composer.mk ../../make/mutation.mk
 
 .PHONY: vendor db test mutation lint fix openapi console commands profiler-clear shell
 
 ##@ API
 vendor: ## Install the Composer dependencies of the API
 	@echo "API/Installing Composer dependencies..."
-	@$(PHP) composer install
+	@$(PHP) make composer-install
 
 db: ministack ## Recreate in MiniStack the tables and the user pool, with the demo data (destroys local data), the relay of the outbox on their new streams, the figures counted
 	@echo "API/Creating the DynamoDB table of each bounded context with the data of the demonstration..."

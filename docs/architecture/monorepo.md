@@ -26,6 +26,10 @@ The apps are independent projects with their own dependencies; they only share H
 
 Each project has its own `Makefile`, run from its directory (`cd apps/api && make test`; `make` alone lists its commands), including only the fragments of `make/`; the root `Makefile` is the façade: its targets run those of the projects (`make test-api` runs `make -C apps/api test`) and hold only what crosses them (`install`, `ci`, the stack, `api-doc`, the secrets). A project never runs the Makefile of another one (ADR 0080).
 
+## The services of the SDK of AWS
+
+The API and the storage keep only the services of the SDK of AWS listed in their `composer.json` (`extra.aws/aws-sdk-php`): the script `Aws\Script\Composer\Composer::removeUnusedServices` deletes the others from `vendor` at each autoload dump. A service added to the list is not brought back by `composer install`, the SDK being installed at its version already, and the app then fails at its start (`Service id "Aws\Sqs\SqsClient" looks like a FQCN but no corresponding class or interface exists`). `make vendor` of these apps (`make/composer.mk`, run by `make install` and `make ci`) reinstalls the SDK first when a listed service has no directory in `vendor/aws/aws-sdk-php/src`; a list that did not change reinstalls nothing. The package for a Lambda (`make/lambda.mk`) installs a new `vendor`: it always has the services of the list.
+
 ## How the API uses the library
 
 `apps/api/composer.json`:
