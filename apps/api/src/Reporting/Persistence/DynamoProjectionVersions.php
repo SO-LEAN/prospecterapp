@@ -9,10 +9,11 @@ use Psr\Clock\ClockInterface;
 
 /**
  * The versions of the figures in the table of Reporting: PK `PROJECTION`, SK `ACTIVE` (`version`) and `BUILDING`
- * (`version`, `since` the moment the rebuild started it). A rebuild starts by removing every version but the
- * active one: what an interrupted rebuild left, and what a recording wrote in the former version after it was removed;
- * once activated, the former one is removed, its facts and its figures, in batches written at once, a projection that
- * can be rebuilt.
+ * (`version`, `since` the moment the rebuild started it). The version being built is abandoned by removing `BUILDING`,
+ * written in its unit; the abandoned versions are every version but the active one, removed by a scan then deletions
+ * written at once: what an interrupted rebuild left, and what a recording wrote in the former version after its removal.
+ * Once activated, the former version is removed the same way, its facts and its figures, a projection that can be
+ * rebuilt (ADR 0103, 0106).
  */
 final readonly class DynamoProjectionVersions implements ProjectionVersions
 {
@@ -34,9 +35,18 @@ final readonly class DynamoProjectionVersions implements ProjectionVersions
         return $versions;
     }
 
-    public function startBuilding(int $version): void
+    public function abandonBuilding(): void
+    {
+        $this->reportingTable->transact([$this->reportingTable->deleting(ReportingKeys::PROJECTION, ReportingKeys::BUILDING)]);
+    }
+
+    public function removeAbandoned(): void
     {
         $this->removeEveryVersionBut($this->active());
+    }
+
+    public function startBuilding(int $version): void
+    {
         $this->reportingTable->transact([$this->reportingTable->putting(['PK' => ReportingKeys::PROJECTION, 'SK' => ReportingKeys::BUILDING, 'version' => $version, 'since' => Documents::moment($this->clock->now())])]);
     }
 
