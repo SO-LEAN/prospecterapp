@@ -60,9 +60,11 @@ function theApiAnswers(...myAccount: Answer[]) {
   })
 }
 
-function signIn() {
+/** Signs in on the home page, rendered once the router loaded it: its routes, their code and their data. */
+async function signIn() {
   const queryClient = new QueryClient({ defaultOptions: { queries: { retry: false } } })
   const router = createRouter({ routeTree, context: { queryClient }, history: createMemoryHistory() })
+  await router.load()
   render(
     <QueryClientProvider client={queryClient}>
       <RouterProvider router={router} />
@@ -80,7 +82,7 @@ describe('the layout of a member signed in', () => {
 
   it('tells a member whose profile is not created yet that it is being prepared, and lets them sign out', async () => {
     theApiAnswers(myProfileNotCreatedYet)
-    signIn()
+    await signIn()
 
     expect(await screen.findByRole('status')).toHaveTextContent('Votre profil est en cours de préparation…')
     expect(screen.getByRole('button', { name: 'Se déconnecter' })).toBeInTheDocument()
@@ -89,7 +91,7 @@ describe('the layout of a member signed in', () => {
 
   it('asks their name, without a reload, once their profile is created', async () => {
     theApiAnswers(myProfileNotCreatedYet, myProfileCreated)
-    signIn()
+    await signIn()
     await screen.findByRole('status')
 
     expect(
@@ -100,7 +102,7 @@ describe('the layout of a member signed in', () => {
 
   it('shows any other failure to read the account as an error, offering to sign out', async () => {
     theApiAnswers(() => refused(404, 'unknownMember'))
-    signIn()
+    await signIn()
 
     expect(await screen.findByText('Une erreur est survenue')).toBeInTheDocument()
     expect(screen.getByRole('button', { name: 'Réessayer' })).toBeInTheDocument()
