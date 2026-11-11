@@ -2,12 +2,11 @@ import { keepPreviousData, useInfiniteQuery } from '@tanstack/react-query'
 import { createFileRoute, Link, useNavigate } from '@tanstack/react-router'
 import { zodValidator } from '@tanstack/zod-adapter'
 import { Building2, Plus, Search, SearchX } from 'lucide-react'
-import { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { z } from 'zod'
 import { OrganizationCard } from '@/features/organizations/components/organization-card'
 import { organizationSlicesQuery } from '@/features/organizations/queries'
-import { useDebouncedValue } from '@/shared/hooks/use-debounced-value'
+import { useSearchAsYouType } from '@/shared/hooks/use-search-as-you-type'
 import { cn } from '@/shared/lib/utils'
 import { Button } from '@/shared/ui/button'
 import { EmptyState } from '@/shared/ui/feedback/empty-state'
@@ -39,14 +38,7 @@ function Organizations() {
     placeholderData: keepPreviousData,
   })
   const items = data?.pages.flatMap((slice) => slice.items) ?? []
-  const [query, setQuery] = useState(search.q)
-  const debouncedQuery = useDebouncedValue(query)
-
-  useEffect(() => {
-    if (debouncedQuery !== search.q) {
-      void navigate({ search: { q: debouncedQuery }, replace: true })
-    }
-  }, [debouncedQuery])
+  const [query, setQuery] = useSearchAsYouType(search.q, (q) => navigate({ search: { q }, replace: true }))
 
   return (
     <div className="space-y-6">
