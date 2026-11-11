@@ -66,8 +66,34 @@ Fonctionnalité: Le langage publié des contextes
     Alors Prospecting répond les faits de 1 échange, présent, révision 1
     Et Prospecting ne donne pas de suite
 
+  Scénario: PersonalData liste les faits des contacts d'un compte, par tranche
+    Soit le contact "Alan Turing" de "ACME"
+    Et le contact "Linus Torvalds" de "ACME"
+    Et "Grace Hopper" est membre de "SOLEAN IT" avec le droit aux données personnelles
+    Quand un autre contexte demande à PersonalData 2 faits des contacts de "SOLEAN IT"
+    Alors PersonalData répond les faits des contacts :
+      | contact        | révision | présent |
+      | Linus Torvalds | 1        | oui     |
+      | Alan Turing    | 1        | oui     |
+    Quand il demande la suite
+    Alors PersonalData répond les faits des contacts :
+      | contact      | révision | présent |
+      | Ada Lovelace | 1        | oui     |
+    Et PersonalData ne donne pas de suite
+
+  Scénario: Accounts liste les comptes, par tranche
+    Quand un autre contexte demande à Accounts 1 compte
+    Alors Accounts répond les comptes :
+      | Concurrent |
+    Quand il demande la suite
+    Alors Accounts répond les comptes :
+      | SOLEAN IT |
+    Et Accounts ne donne pas de suite
+
   Scénario: Un compte inconnu n'a aucun fait
     Quand un autre contexte demande à Prospecting 10 faits des organisations d'un compte inconnu
     Alors Prospecting ne répond aucun fait
     Quand un autre contexte demande à Prospecting 10 faits des échanges d'un compte inconnu
     Alors Prospecting ne répond aucun fait
+    Quand un autre contexte demande à PersonalData 10 faits des contacts d'un compte inconnu
+    Alors PersonalData ne répond aucun fait

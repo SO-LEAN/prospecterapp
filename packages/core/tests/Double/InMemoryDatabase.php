@@ -91,11 +91,12 @@ final class InMemoryDatabase
     public function storePerson(Person $person): void
     {
         $this->persons[(string) $person->id()] = self::withoutItsEvents($person);
+        $this->revise((string) $person->id());
     }
 
     public function forgetPerson(string $id): void
     {
-        unset($this->persons[$id]);
+        unset($this->persons[$id], $this->revisions[$id]);
     }
 
     public function forgetOrganization(string $id): void
@@ -110,7 +111,7 @@ final class InMemoryDatabase
     }
 
     /**
-     * How many times the organization or the exchange was saved: the adapters count it in its document, the
+     * How many times the organization, the exchange or the person was saved: the adapters count it in its document, the
      * aggregate does not know it.
      */
     public function revisionOf(string $id): int
@@ -141,6 +142,14 @@ final class InMemoryDatabase
     public function organization(string $id): ?Organization
     {
         return isset($this->organizations[$id]) ? clone $this->organizations[$id] : null;
+    }
+
+    /**
+     * @return list<Account>
+     */
+    public function accounts(): array
+    {
+        return array_values(array_map(static fn (Account $account): Account => clone $account, $this->accounts));
     }
 
     /**
