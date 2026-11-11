@@ -25,11 +25,37 @@ final readonly class ContextTables
     }
 
     /**
-     * @return list<string>
+     * @return list<string> every account, found by its item, listed among the accounts or not
      */
     public function accounts(): array
     {
-        return array_map(static fn (array $item): string => $item['account']['id'], $this->accountsTable->query(AccountsKeys::ALL_ACCOUNTS, Table::BY_GSI1));
+        return array_map(self::accountIdOf(...), $this->accountItems());
+    }
+
+    /**
+     * @return list<string> the accounts whose item lacks the key listing it among the accounts
+     */
+    public function accountsOutOfTheirList(): array
+    {
+        $outOfTheList = array_filter($this->accountItems(), static fn (array $item): bool => AccountsKeys::ALL_ACCOUNTS !== ($item['GSI1PK'] ?? null));
+
+        return array_values(array_map(self::accountIdOf(...), $outOfTheList));
+    }
+
+    /**
+     * @return list<array<string, mixed>>
+     */
+    private function accountItems(): array
+    {
+        return $this->accountsTable->scan(AccountsKeys::account(''));
+    }
+
+    /**
+     * @param array<string, mixed> $item
+     */
+    private static function accountIdOf(array $item): string
+    {
+        return $item['account']['id'];
     }
 
     public function isAnAccount(string $accountId): bool
@@ -89,6 +115,16 @@ final readonly class ContextTables
     public function exchangesOf(string $accountId): array
     {
         return array_map(static fn (array $item): array => $item['exchange'], $this->prospectingTable->query(ExchangeKeys::ofAccount($accountId), Table::BY_GSI2));
+    }
+
+    /**
+     * @return list<array<string, mixed>> the documents of the exchanges whose item lacks the key listing it in its account
+     */
+    public function exchangesOutOfTheListOfTheirAccount(): array
+    {
+        $outOfTheList = array_filter($this->prospectingTable->scan(ExchangeKeys::exchange('')), static fn (array $item): bool => ExchangeKeys::ofAccount($item['exchange']['accountId']) !== ($item['GSI2PK'] ?? null));
+
+        return array_values(array_map(static fn (array $item): array => $item['exchange'], $outOfTheList));
     }
 
     public function countExchangesOf(string $accountId): int

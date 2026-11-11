@@ -9,11 +9,11 @@ use Symfony\Component\Console\Style\SymfonyStyle;
 
 /**
  * Checks the result rather than watching the failures, on demand, reading only: the figures of Reporting counted again
- * from the tables of the other contexts, what the reactions between the contexts should have written, and the queues
- * of the failures. Lists each discrepancy with its account, what it concerns and the command correcting it, and fails
+ * from the tables of the other contexts, what the reactions between the contexts should have written, the keys listing
+ * the accounts and the exchanges of each, and the queues of the failures. Lists each discrepancy with its account, what it concerns and the command correcting it, and fails
  * when there is one (ADR 0105).
  */
-#[AsCommand(name: 'app:consistency:check', description: 'Check that the figures and the reactions between the contexts agree with the tables, and that no failure waits')]
+#[AsCommand(name: 'app:consistency:check', description: 'Check that the figures, the reactions between the contexts and the lists of the items agree with the tables, and that no failure waits')]
 final readonly class CheckConsistencyCommand
 {
     private const array COLUMNS = ['Account', 'Concerns', 'Discrepancy', 'Corrected by'];
@@ -22,6 +22,7 @@ final readonly class CheckConsistencyCommand
         private ContextTables $tables,
         private FiguresAgainstTheTables $figures,
         private ReactionsBetweenContexts $reactions,
+        private KeysListingTheItems $keysListingTheItems,
         private FailureQueues $failureQueues,
     ) {
     }
@@ -37,7 +38,7 @@ final readonly class CheckConsistencyCommand
         $discrepancies = $this->discrepanciesAmong(null === $account ? $this->tables->accounts() : [$account]);
 
         if ([] === $discrepancies) {
-            $io->success('No discrepancy: the figures and the reactions agree with the tables, no failure waits.');
+            $io->success('No discrepancy: the figures, the reactions and the lists agree with the tables, no failure waits.');
 
             return Command::SUCCESS;
         }
@@ -58,6 +59,7 @@ final readonly class CheckConsistencyCommand
         return [
             ...$this->figures->discrepanciesAmong($accountIds),
             ...$this->reactions->discrepanciesAmong($accountIds),
+            ...$this->keysListingTheItems->discrepanciesAmong($accountIds),
             ...$this->failureQueues->discrepancies(),
         ];
     }

@@ -5,11 +5,14 @@ namespace Tests\App\Reporting;
 use App\Demo\DemoData;
 use App\Shared\Persistence\ConditionFailed;
 use App\Shared\Persistence\Table;
+use Prospecter\Core\Accounts\Domain\Model\Account;
+use Prospecter\Core\Accounts\Domain\Repository\AccountRepository;
 use Prospecter\Core\Reporting\Application\ConsultFigures\FiguresResponse;
 use Prospecter\Core\Reporting\Application\Port\FiguresRetriever;
 use Prospecter\Core\Reporting\Application\Port\ProjectionVersions;
 use Prospecter\Core\Reporting\Domain\Model\Month;
 use Prospecter\Core\SharedKernel\Domain\AccountId;
+use Prospecter\Core\SharedKernel\Domain\LegalIdentity;
 use Symfony\Bundle\FrameworkBundle\Console\Application;
 use Symfony\Component\Console\Tester\CommandTester;
 use Tests\App\Base\ApiTestCase;
@@ -17,7 +20,8 @@ use Tests\App\Double\ConflictingFactRepository;
 
 /**
  * `app:reporting:rebuild` counts every account again from the state of the other contexts, in a new version made
- * the active one, the former one removed; it writes only the table of Reporting. The demonstration: SOLEAN IT
+ * the active one, the former one removed; it writes only the table of Reporting, and says how many accounts it counted,
+ * none included. The demonstration: SOLEAN IT
  * prospects Babbage & Co, placed on the map, its contact Ada, and two exchanges with her in October 2026.
  */
 class RebuildFiguresCommandTest extends ApiTestCase
@@ -82,11 +86,27 @@ class RebuildFiguresCommandTest extends ApiTestCase
         $this->assertEquals($before, $this->otherTables());
     }
 
-    private function rebuild(): void
+    public function testTheRebuildSaysHowManyAccountsItCounted(): void
+    {
+        self::getContainer()->get(AccountRepository::class)->save(Account::open(new AccountId(self::newIdentity()), new LegalIdentity('Initech', 'SAS'), new \DateTimeImmutable('2026-10-14 09:00')));
+
+        $this->assertStringContainsString('counted again for 2 account(s)', $this->rebuild());
+    }
+
+    public function testARebuildWithoutAccountSaysSoAndSucceeds(): void
+    {
+        $this->accountsTable()->batch([], [['ACCOUNT#'.DemoData::SOLEAN_IT, 'ACCOUNT']]);
+
+        $this->assertStringContainsString('counted again for 0 account(s)', $this->rebuild());
+    }
+
+    private function rebuild(): string
     {
         $tester = new CommandTester(new Application(self::$kernel)->find('app:reporting:rebuild'));
         $tester->execute([]);
         $tester->assertCommandIsSuccessful();
+
+        return preg_replace('/\s+/', ' ', $tester->getDisplay());
     }
 
     private function figuresOfTheDemonstration(): FiguresResponse
@@ -112,9 +132,7 @@ class RebuildFiguresCommandTest extends ApiTestCase
         $items = [];
 
         foreach (['accounts', 'personal_data', 'prospecting'] as $context) {
-            $table = self::getContainer()->get('app.table.'.$context);
-            $this->assertInstanceOf(Table::class, $table);
-            $items[$context] = $table->scan('');
+            $items[$context] = $this->table($context)->scan('');
         }
 
         return $items;
@@ -122,7 +140,17 @@ class RebuildFiguresCommandTest extends ApiTestCase
 
     private function reportingTable(): Table
     {
-        $table = self::getContainer()->get('app.table.reporting');
+        return $this->table('reporting');
+    }
+
+    private function accountsTable(): Table
+    {
+        return $this->table('accounts');
+    }
+
+    private function table(string $context): Table
+    {
+        $table = self::getContainer()->get('app.table.'.$context);
         $this->assertInstanceOf(Table::class, $table);
 
         return $table;

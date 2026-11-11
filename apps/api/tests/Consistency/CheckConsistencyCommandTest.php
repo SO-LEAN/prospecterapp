@@ -17,7 +17,8 @@ use Tests\App\Double\InMemorySqs;
 /**
  * `app:consistency:check` counts the figures again by reading the tables of the contexts, checks what the reactions
  * between the contexts should have written, and the queues of the failures: it lists each discrepancy with its
- * account, what it concerns and the command correcting it, and fails when there is one. The demonstration: SOLEAN IT
+ * account, what it concerns and the command correcting it, and fails when there is one; it finds the accounts and the
+ * exchanges by their items, so that one missing from its list is shown too. The demonstration: SOLEAN IT
  * prospects Babbage & Co, placed on the map, its contact Ada, and two exchanges with her in October 2026; its figures
  * are counted again before each test.
  */
@@ -100,6 +101,25 @@ class CheckConsistencyCommandTest extends ApiTestCase
         $this->prospectingTable()->batch([], [['ORGANIZATION#'.$babbage, 'ORGANIZATION']]);
 
         $this->assertDiscrepancy(DemoData::SOLEAN_IT, $this->anExchange(), 'exchange kept for '.$babbage.', no longer prospected', 'app:integration:redrive');
+    }
+
+    public function testAnAccountOutOfTheListOfTheAccountsIsShown(): void
+    {
+        $soleanIt = $this->accountsTable()->item('ACCOUNT#'.DemoData::SOLEAN_IT, 'ACCOUNT');
+        unset($soleanIt['GSI1PK'], $soleanIt['GSI1SK']);
+        $this->accountsTable()->batch([$soleanIt]);
+
+        $this->assertDiscrepancy(DemoData::SOLEAN_IT, DemoData::SOLEAN_IT, 'account out of the list of the accounts', 'app:search:rebuild');
+    }
+
+    public function testAnExchangeOutOfTheListOfItsAccountIsShown(): void
+    {
+        $exchange = $this->anExchange();
+        $item = $this->prospectingTable()->item('EXCHANGE#'.$exchange, 'EXCHANGE');
+        unset($item['GSI2PK'], $item['GSI2SK']);
+        $this->prospectingTable()->batch([$item]);
+
+        $this->assertDiscrepancy(DemoData::SOLEAN_IT, $exchange, 'exchange out of the list of its account', 'app:search:rebuild');
     }
 
     public function testAnEventTheWorkerFailedToApplyIsShown(): void
