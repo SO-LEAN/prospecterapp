@@ -23,6 +23,9 @@ Aggregates, value objects, handlers, services (`FileStore`, `GeoLocalizer`, `Ema
 | `Storage` | `InMemoryStorage` | stores by URL `https://storage.test/<file name>` and deletes the uploaded file, like the real storage moves it |
 | `PrivateStorage` | `InMemoryPrivateStorage` | the private files of the storage: the client sends an upload (`send()`), kept once, read by a link while it is kept (ADR 0077) |
 | `GeoLocation` | `KnownPlacesGeoLocation` | finds an address that mentions a place declared by the scenario |
+| `FactRepository`, `FiguresRetriever`, `ProjectionVersions` (Reporting) | `InMemoryFactRepository`, `InMemoryFiguresRetriever`, `InMemoryProjectionVersions` over `InMemoryDatabase` | the facts of each version and its figures, counters a change is added to; the active version and the one being built, the former one removed with its facts at the activation; within a fiber a reading of a fact yields (`Application::publishAtTheSameTime()`, two recordings interleaved), and a scenario may do a gesture just before the next activation (`beforeTheNextActivation()`) |
+| `SourceAccounts`, `ProspectingFacts`, `PersonalDataFacts` (Reporting) | `AccountsSourceAccounts`, `SlicedProspectingFacts`, `SlicedPersonalDataFacts` | the anticorruption adapters of the API, same code: `ListAccountsService` and `ConsultMembersService` of Accounts, the services of facts of Prospecting and of PersonalData, slice after slice |
+| `RecordingsInFlight` (Reporting) | `NoRecordingsInFlight` | none in flight: a scenario records each fact before its gesture returns |
 
 ## Layout
 

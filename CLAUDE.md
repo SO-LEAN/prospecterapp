@@ -7,7 +7,7 @@ Monorepo of a prospecting application built with clean architecture:
 | `apps/front/` | React 19 SPA (TypeScript, Vite, TanStack Router/Query, shadcn/ui) | `apps/front/CLAUDE.md` |
 | `apps/api/` | Symfony 8.1 JSON API documented with NelmioApiDocBundle, a resource server of the Cognito user pool the members sign in with (MiniStack locally, `docs/architecture/auth.md`) | `apps/api/CLAUDE.md` |
 | `apps/storage/` | Symfony 8.1 app keeping the uploaded files in an S3 bucket and serving them in named sizes (`static.local.prospecter.io`) | `apps/storage/CLAUDE.md` |
-| `packages/core/` | `prospecter/core`: the bounded contexts Accounts, PersonalData and Prospecting and their shared kernel (pure PHP), tested by Behat scenarios | `packages/core/CLAUDE.md` |
+| `packages/core/` | `prospecter/core`: the bounded contexts Accounts, PersonalData, Prospecting and Reporting and their shared kernel (pure PHP), tested by Behat scenarios | `packages/core/CLAUDE.md` |
 
 ## What is in force
 
