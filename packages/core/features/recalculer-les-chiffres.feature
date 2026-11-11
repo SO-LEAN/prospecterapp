@@ -63,3 +63,23 @@ Fonctionnalité: Recalculer les chiffres
     Alors mes chiffres sont :
       | organisations prospectées   | 2 |
       | organisations géolocalisées | 1 |
+
+  Scénario: Un fait enregistré pendant qu'un recalcul relancé vide sa version est compté
+    Soit les chiffres ont été recalculés
+    Et je commence à prospecter l'organisation :
+      | raison sociale | ACME |
+    Et un recalcul interrompu, sa version encore en construction
+    Quand les chiffres sont recalculés, et que pendant qu'il vide les versions abandonnées je commence à prospecter l'organisation :
+      | raison sociale | Globex |
+    Alors mes chiffres sont :
+      | organisations prospectées | 2 |
+    Et seule la nouvelle version active garde des faits et des chiffres
+
+  Scénario: Un recalcul relancé ne laisse rien des versions abandonnées
+    Soit je commence à prospecter l'organisation :
+      | raison sociale | ACME |
+    Et un recalcul interrompu, sa version encore en construction
+    Quand les chiffres sont recalculés
+    Alors seule la nouvelle version active garde des faits et des chiffres
+    Et mes chiffres sont :
+      | organisations prospectées | 1 |

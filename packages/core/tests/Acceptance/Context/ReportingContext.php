@@ -15,6 +15,7 @@ use Prospecter\Core\Reporting\Application\ConsultFigures\ConsultFigures;
 use Prospecter\Core\Reporting\Application\RebuildFigures\RebuildFigures;
 use Tests\Core\Acceptance\Expect;
 use Tests\Core\Acceptance\Vocabulary;
+use Tests\Core\Double\RebuildInterrupted;
 
 /**
  * The figures Reporting keeps from the facts of the other contexts (ADR 0103): the facts it receives, its rebuilds,
@@ -45,6 +46,35 @@ final class ReportingContext implements Context
     {
         $this->application->projectionVersions->beforeTheNextActivation(fn () => $this->startProspecting($table));
         $this->theFiguresAreRebuilt();
+    }
+
+    #[Given('un recalcul interrompu, sa version encore en construction')]
+    public function aRebuildWasInterrupted(): void
+    {
+        $this->application->projectionVersions->interruptTheNextActivation();
+
+        try {
+            $this->application->dispatch(new RebuildFigures());
+        } catch (RebuildInterrupted) {
+            return;
+        }
+
+        throw new \LogicException('The rebuild was expected to be interrupted');
+    }
+
+    #[When('les chiffres sont recalculés, et que pendant qu\'il vide les versions abandonnées je commence à prospecter l\'organisation :')]
+    public function theFiguresAreRebuiltWhileIStartProspectingDuringTheRemoval(TableNode $table): void
+    {
+        $this->application->projectionVersions->whileRemovingTheAbandoned(fn () => $this->startProspecting($table));
+        $this->theFiguresAreRebuilt();
+    }
+
+    #[Then('seule la nouvelle version active garde des faits et des chiffres')]
+    public function onlyTheActiveVersionKeepsFactsAndFigures(): void
+    {
+        $versions = $this->application->projectionVersions;
+
+        Expect::same([$versions->active()], $versions->versionsKeepingFactsOrFigures());
     }
 
     #[Given('/^Reporting (?:a reçu|reçoit) le fait de "(?<name>[^"]+)" : (?<presence>présente|absente), (?<location>géolocalisée|non géolocalisée), révision (?<revision>\d+)$/')]
