@@ -19,6 +19,7 @@ final readonly class IntegrationEventTypes extends EventTypes
         'prospecter.personal-data' => [
             'ContactCollected.v1' => PersonalData\ContactCollected::class,
             'ContactForgotten.v1' => PersonalData\ContactForgotten::class,
+            'ContactFactsChanged.v1' => PersonalData\ContactFactsChanged::class,
         ],
         'prospecter.prospecting' => [
             'ContactsLeftWithoutOrganization.v1' => Prospecting\ContactsLeftWithoutOrganization::class,
