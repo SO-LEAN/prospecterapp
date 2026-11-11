@@ -2,6 +2,7 @@
 
 namespace App\PersonalData\Persistence;
 
+use App\Shared\Persistence\Revision;
 use App\Shared\Persistence\SearchIndexes;
 use App\Shared\Persistence\Table;
 use Prospecter\Core\PersonalData\Domain\Exception\UnknownPerson;
@@ -20,7 +21,8 @@ use Prospecter\Core\SharedKernel\Domain\PersonId;
  * - `EMAIL#<account>#<purpose>#<email>` / `EMAIL`: the email a person holds among the persons an account keeps
  *   for a purpose, the safety net of EmailUniqueness (ADR 0039, 0048).
  * The person carries its search keys and its phone number among the persons of the same account and purpose
- * (`SearchIndexes`).
+ * (`SearchIndexes`), and its `revision`, incremented at each save: the revision of its facts (ADR 0099), which
+ * the aggregate does not know.
  */
 final readonly class DynamoPersonRepository implements PersonRepository
 {
@@ -65,9 +67,10 @@ final readonly class DynamoPersonRepository implements PersonRepository
     public function save(Person $person): void
     {
         $document = PersonDocument::of($person);
-        $storedEmail = $this->personalDataTable->item(PersonalDataKeys::person($person->id()->value), PersonalDataKeys::PERSON)['email'] ?? null;
+        $stored = $this->personalDataTable->item(PersonalDataKeys::person($person->id()->value), PersonalDataKeys::PERSON);
+        $storedEmail = $stored['email'] ?? null;
         $email = $document['contactDetails']['email'];
-        $writes = [$this->personalDataTable->putting($this->itemOf($person, $document))];
+        $writes = [$this->personalDataTable->putting($this->itemOf($person, $document, Revision::after($stored)))];
 
         if ($email !== $storedEmail && null !== $email) {
             $writes[] = $this->personalDataTable->putting(['PK' => self::emailKey($person->accountId(), $person->purpose(), $email), 'SK' => self::EMAIL, 'ownerId' => $document['id']], 'attribute_not_exists(PK) OR ownerId = :owner', [':owner' => $document['id']], EmailAlreadyUsed::byAnother(...));
@@ -88,7 +91,7 @@ final readonly class DynamoPersonRepository implements PersonRepository
     {
         $items = $this->personalDataTable->scan(PersonalDataKeys::PERSON.'#');
         $this->personalDataTable->batch(
-            array_map(fn (array $item): array => $this->itemOf(PersonDocument::person($item['person']), $item['person']), $items),
+            array_map(fn (array $item): array => $this->itemOf(PersonDocument::person($item['person']), $item['person'], Revision::of($item)), $items),
             array_map(static fn (array $former): array => [$former['PK'], $former['SK']], $this->personalDataTable->scan('TOKEN')),
         );
 
@@ -100,7 +103,7 @@ final readonly class DynamoPersonRepository implements PersonRepository
      *
      * @return array<string, mixed>
      */
-    private function itemOf(Person $person, array $document): array
+    private function itemOf(Person $person, array $document, int $revision): array
     {
         return SearchIndexes::of(PersonalDataKeys::scopeOf($person->accountId(), $person->purpose()), $person->searchKeys(), $person->contactDetails()->phoneNumber) + [
             'PK' => PersonalDataKeys::person($document['id']),
@@ -108,6 +111,7 @@ final readonly class DynamoPersonRepository implements PersonRepository
             'GSI1PK' => PersonalDataKeys::listOf(new AccountId($document['accountId']), Purpose::from($document['purpose'])),
             'GSI1SK' => $document['id'],
             'email' => $document['contactDetails']['email'],
+            Revision::ATTRIBUTE => $revision,
             'person' => $document,
         ];
     }

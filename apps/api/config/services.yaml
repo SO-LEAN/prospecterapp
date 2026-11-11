@@ -82,15 +82,19 @@ services:
     Prospecter\Core\Prospecting\Contract\Service\WhichAreProspected\WhichAreProspectedService: '@Prospecter\Core\Prospecting\Application\WhichAreProspected\WhichAreProspectedHandler'
     Prospecter\Core\Prospecting\Contract\Service\ListOrganizationFacts\ListOrganizationFactsService: '@Prospecter\Core\Prospecting\Application\ListOrganizationFacts\ListOrganizationFactsHandler'
     Prospecter\Core\Prospecting\Contract\Service\ListExchangeFacts\ListExchangeFactsService: '@Prospecter\Core\Prospecting\Application\ListExchangeFacts\ListExchangeFactsHandler'
+    Prospecter\Core\PersonalData\Contract\Service\ListContactFacts\ListContactFactsService: '@Prospecter\Core\PersonalData\Application\ListContactFacts\ListContactFactsHandler'
+    Prospecter\Core\Accounts\Contract\Service\ListAccounts\ListAccountsService: '@Prospecter\Core\Accounts\Application\ListAccounts\ListAccountsHandler'
 
     # Ports of the core, implemented by the application
     Prospecter\Core\Accounts\Domain\Repository\AccountRepository: '@App\Accounts\Persistence\DynamoAccountRepository'
     Prospecter\Core\Accounts\Domain\Repository\MemberRepository: '@App\Accounts\Persistence\DynamoMemberRepository'
     Prospecter\Core\Accounts\Application\Port\MyAccountRetriever: '@App\Accounts\Persistence\DynamoMyAccountRetriever'
     Prospecter\Core\Accounts\Application\Port\MemberRetriever: '@App\Accounts\Persistence\DynamoMemberRetriever'
+    Prospecter\Core\Accounts\Application\Port\AccountListRetriever: '@App\Accounts\Persistence\DynamoAccountListRetriever'
     Prospecter\Core\PersonalData\Domain\Repository\PersonRepository: '@App\PersonalData\Persistence\DynamoPersonRepository'
     Prospecter\Core\PersonalData\Application\Port\PersonCardRetriever: '@App\PersonalData\Persistence\DynamoPersonCardRetriever'
     Prospecter\Core\PersonalData\Application\Port\ContactPageRetriever: '@App\PersonalData\Persistence\DynamoContactPageRetriever'
+    Prospecter\Core\PersonalData\Application\Port\ContactFactsRetriever: '@App\PersonalData\Persistence\DynamoContactFactsRetriever'
     Prospecter\Core\PersonalData\Domain\Port\Readers: '@App\PersonalData\AntiCorruption\AccountsReaders'
     Prospecter\Core\Prospecting\Domain\Repository\OrganizationRepository: '@App\Prospecting\Persistence\DynamoOrganizationRepository'
     Prospecter\Core\Prospecting\Domain\Repository\ExchangeRepository: '@App\Prospecting\Persistence\DynamoExchangeRepository'
@@ -185,6 +189,10 @@ when@test:
         Prospecter\Core\SharedKernel\Application\Port\PrivateStorage: '@Tests\App\Double\InMemoryPrivateStorage'
         App\Shared\UploadForms: '@Tests\App\Double\InMemoryPrivateStorage'
         Tests\App\Double\InMemoryPrivateStorage:
+            public: true
+        # the list of the accounts, which no context asks for yet: kept for its test
+        Prospecter\Core\Accounts\Application\Port\AccountListRetriever:
+            alias: App\Accounts\Persistence\DynamoAccountListRetriever
             public: true
         # a reaction that throws when a test asks it to, reached like those of the core
         Tests\App\Double\FailingReaction:

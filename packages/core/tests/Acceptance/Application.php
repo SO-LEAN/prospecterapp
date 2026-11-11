@@ -37,9 +37,9 @@ use Prospecter\Core\PersonalData\Application\ConsultPersons\ConsultPersonsHandle
 use Prospecter\Core\PersonalData\Application\ConsultPersons\KeptPersons;
 use Prospecter\Core\PersonalData\Application\ForgetContact\ForgetContactHandler;
 use Prospecter\Core\PersonalData\Application\ForgetContactsLeftWithoutOrganization\ForgetContactsLeftWithoutOrganizationHandler;
+use Prospecter\Core\PersonalData\Application\ListContactFacts\ListContactFactsHandler;
 use Prospecter\Core\PersonalData\Application\PersonCard;
 use Prospecter\Core\PersonalData\Application\PublishContactCollected\PublishContactCollectedHandler;
-use Prospecter\Core\PersonalData\Application\ListContactFacts\ListContactFactsHandler;
 use Prospecter\Core\PersonalData\Application\PublishContactFacts\PublishContactFactsHandler;
 use Prospecter\Core\PersonalData\Application\PublishContactForgotten\PublishContactForgottenHandler;
 use Prospecter\Core\PersonalData\Application\RecognizeCallingContact\KeptCallingContacts;

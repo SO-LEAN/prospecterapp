@@ -77,6 +77,19 @@ class CommitOutboxApiTest extends ApiTestCase
         );
     }
 
+    public function testAForgottenContactPublishesItsTerminalFacts(): void
+    {
+        $this->requestJson('DELETE', '/api/contacts/'.$this->contact);
+
+        $events = json_decode($this->outboxOf('personal_data')[0]['events'], true, flags: \JSON_THROW_ON_ERROR);
+        $facts = array_values(array_filter($events, static fn (array $event): bool => 'prospecter.personal-data ContactFactsChanged.v1' === $event['source'].' '.$event['detailType']));
+        $this->assertCount(1, $facts);
+        $this->assertSame(
+            ['personId' => $this->contact, 'revision' => 0, 'present' => false],
+            array_intersect_key($facts[0]['detail']['payload'], ['personId' => true, 'revision' => true, 'present' => true]),
+        );
+    }
+
     public function testTheItemOfOutboxExpiresAWeekAfterItsCommit(): void
     {
         $this->requestJson('DELETE', '/api/organizations/'.$this->organization);
