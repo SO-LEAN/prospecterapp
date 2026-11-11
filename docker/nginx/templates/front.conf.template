@@ -11,6 +11,11 @@ server {
     ssl_certificate_key /etc/ssl/certs/project.key;
     server_name ${NGINX_HOST};
 
+    # The dev server answers a request per module, about 150 for a page loaded: past 1000 requests (the default),
+    # nginx closed the connection of a browser reloading pages, and the modules asked meanwhile failed
+    # (net::ERR_FAILED), leaving the page blank
+    keepalive_requests 100000;
+
     location / {
         proxy_pass http://${FRONT_HOST}:5173;
         proxy_http_version 1.1;
