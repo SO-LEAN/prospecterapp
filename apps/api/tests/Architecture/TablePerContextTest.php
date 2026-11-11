@@ -17,6 +17,7 @@ class TablePerContextTest extends TestCase
         'Accounts' => 'accountsTable',
         'PersonalData' => 'personalDataTable',
         'Prospecting' => 'prospectingTable',
+        'Reporting' => 'reportingTable',
     ];
 
     #[DataProvider('contexts')]

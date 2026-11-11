@@ -2,17 +2,22 @@
 
 namespace App\Shared\Messaging;
 
+use App\Shared\Persistence\ConditionFailed;
 use App\Shared\Persistence\DynamoUnitOfWork;
 use Bref\Context\Context;
 use Bref\Event\Handler;
 use Prospecter\Core\SharedKernel\Application\Exception\UseCaseRefused;
 use Prospecter\Core\SharedKernel\Domain\Exception\BusinessException;
 use Psr\Log\LoggerInterface;
+use Symfony\Component\Clock\ClockInterface;
 
 /**
  * The worker: the function the rules of the subscriptions invoke with an event, which it applies once by the reaction
  * of the subscription, in one unit of work holding its inbox, what the reaction writes and what it publishes, the
  * outbox of the reaction carrying the cause it reacted to, one level deeper.
+ *
+ * A transaction cancelled by a condition carrying no refusal, or by another transaction on its items, is applied
+ * again from its reads, three times at most after a short random wait (ADR 0104).
  *
  * A failure is sorted: an event delivered again ends the invocation normally; a failure another attempt would repeat
  * (a refusal, translated by the decorators of the reaction or detected at the commit, an event it cannot read, a
@@ -21,6 +26,9 @@ use Psr\Log\LoggerInterface;
  */
 final readonly class IntegrationEventConsumer implements Handler
 {
+    private const int RETRIES_OF_A_CONFLICT = 3;
+    private const int LONGEST_WAIT_BEFORE_A_RETRY_IN_MS = 100;
+
     public function __construct(
         private Subscriptions $subscriptions,
         private EventCodec $codec,
@@ -29,6 +37,7 @@ final readonly class IntegrationEventConsumer implements Handler
         private Inbox $inbox,
         private IntegrationFailures $failures,
         private LoggerInterface $logger,
+        private ClockInterface $clock,
     ) {
     }
 
@@ -49,10 +58,28 @@ final readonly class IntegrationEventConsumer implements Handler
     {
         $subscription = $this->subscriptions->named($invocation->subscription);
         EventLoop::ensureNotReachedBy($invocation->event);
+
+        for ($retry = 1;; ++$retry) {
+            try {
+                $this->applyOnce($subscription, $invocation->event);
+
+                return;
+            } catch (ConditionFailed $conflict) {
+                if ($retry > self::RETRIES_OF_A_CONFLICT) {
+                    throw $conflict;
+                }
+
+                $this->clock->sleep(random_int(1, self::LONGEST_WAIT_BEFORE_A_RETRY_IN_MS) / 1000);
+            }
+        }
+    }
+
+    private function applyOnce(Subscription $subscription, TransportedEvent $event): void
+    {
         $this->unitOfWork->begin();
 
         try {
-            $this->react($subscription, $invocation->event);
+            $this->react($subscription, $event);
             $this->unitOfWork->commit();
         } finally {
             $this->unitOfWork->discard();
@@ -65,8 +92,8 @@ final readonly class IntegrationEventConsumer implements Handler
             $this->inbox->receive($subscription, $event);
         }
 
-        $reaction = $this->subscriptions->reactionOf($subscription);
         $decoded = $this->decode($event);
+        $reaction = $this->subscriptions->reactionOf($subscription, $event);
         $this->causation->within($event->causeOfAReaction(), static fn () => $reaction($decoded));
     }
 

@@ -46,7 +46,6 @@ class CommitOutboxApiTest extends ApiTestCase
             'prospecter.prospecting.internal ContactsLeftWithoutOrganization.v1',
             'prospecter.prospecting ContactsLeftWithoutOrganization.v1',
             'prospecter.prospecting OrganizationFactsChanged.v1',
-            'prospecter.prospecting OrganizationFactsChanged.v1',
         ], array_map(static fn (array $event): string => $event['source'].' '.$event['detailType'], json_decode($items[0]['events'], true, flags: \JSON_THROW_ON_ERROR)));
         $this->assertSame([], $this->outboxOf('accounts'));
         $this->assertSame([], $this->outboxOf('personal_data'));

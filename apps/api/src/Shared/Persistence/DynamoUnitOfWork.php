@@ -12,7 +12,8 @@ use Prospecter\Core\SharedKernel\Domain\Exception\BusinessException;
 /**
  * What a use case writes in the tables, kept until the outermost commit sends it in one TransactWriteItems,
  * all or nothing, with the items of outbox of what it published (CommitOutbox). While a unit is open, the writes of
- * the tables wait in it, one per item, the last one winning; without one, a write is sent at once. A write whose
+ * the tables wait in it, one per item, the last one winning unless it combines with the one before (Write::after());
+ * without one, a write is sent at once. A write whose
  * condition does not hold throws the refusal it carries. A unit discarded at one level is abandoned until its
  * outermost level ends: what is written meanwhile, by the other reactions the event bus still calls, is thrown away
  * too, and what it published with it.
@@ -100,24 +101,26 @@ final class DynamoUnitOfWork implements UnitOfWork
         }
 
         foreach ($writes as $write) {
-            $this->pending[$write->item()] = $write;
+            $this->pending[$write->item()] = $write->after($this->pending[$write->item()] ?? null);
         }
     }
 
     /**
-     * What the open unit is about to write on an item, that a read sees before it is sent.
+     * What the open unit is about to put or delete on an item, that a read sees before it is sent.
      */
     public function pendingWriteOn(string $table, string $pk, string $sk): ?Write
     {
-        return $this->pending[Write::itemOf($table, $pk, $sk)] ?? null;
+        $pending = $this->pending[Write::itemOf($table, $pk, $sk)] ?? null;
+
+        return true === $pending?->replacesTheItem() ? $pending : null;
     }
 
     /**
-     * @return list<Write> what the open unit is about to write in a table
+     * @return list<Write> what the open unit is about to put or delete in a table
      */
     public function pendingWritesOn(string $table): array
     {
-        return array_values(array_filter($this->pending, static fn (Write $write): bool => $table === $write->table));
+        return array_values(array_filter($this->pending, static fn (Write $write): bool => $table === $write->table && $write->replacesTheItem()));
     }
 
     private function send(): void

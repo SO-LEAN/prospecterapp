@@ -13,9 +13,13 @@ use Symfony\Component\DependencyInjection\Reference;
  * Ranks the event handlers of the core: a translator publishing a domain event for the other contexts stays on the
  * event bus (RefusalTranslatingHandlersPass); every other one is the reaction of a subscription of
  * `config/subscriptions.json`, the list the infrastructure reads too, taken off the event bus and reached through
- * its decorators by the delivery (Subscriptions). A reaction the list does not name fails the build. A service tagged
+ * its decorators by the delivery (Subscriptions). A subscription names its reaction (`handler`), or one per event it
+ * listens to (`handlers`, by detail-type). A reaction the list does not name fails the build. A service tagged
  * app.subscription is a subscription too, declared by its tag, unknown to the infrastructure: a reaction of the
  * tests.
+ *
+ * @phpstan-type Listed array{context: string, sources: list<string>, events: list<string>, handler?: string, handlers?: array<string, string>, inbox: bool}
+ * @phpstan-type Declared array{context: string, sources: list<string>, events: list<string>, handlers: array<string, string>, inbox: bool}
  */
 final class SubscriptionsPass implements CompilerPassInterface
 {
@@ -28,12 +32,12 @@ final class SubscriptionsPass implements CompilerPassInterface
 
     public function process(ContainerBuilder $container): void
     {
-        $subscriptions = $this->subscriptions($container);
+        $subscriptions = array_map(self::withAHandlerPerEvent(...), $this->subscriptions($container));
         $reactions = $this->reactionsOfTheCore($container, $subscriptions);
 
         foreach ($this->declaredByTheirTag($container) as $name => [$declared, $reaction]) {
             $subscriptions[$name] = $declared;
-            $reactions[$name] = $reaction;
+            $reactions[Subscriptions::reactionKey($name, $declared['events'][0])] = $reaction;
         }
 
         $container->setParameter(self::PARAMETER, $subscriptions);
@@ -43,9 +47,9 @@ final class SubscriptionsPass implements CompilerPassInterface
     }
 
     /**
-     * @param array<string, array{handler: string}> $subscriptions
+     * @param array<string, Declared> $subscriptions
      *
-     * @return array<string, Reference> the reaction of each subscription, by its name
+     * @return array<string, Reference> the reaction of each subscription to each event, by Subscriptions::reactionKey()
      */
     private function reactionsOfTheCore(ContainerBuilder $container, array $subscriptions): array
     {
@@ -60,8 +64,8 @@ final class SubscriptionsPass implements CompilerPassInterface
 
             $reaction = $this->asASubscription($container, $id);
 
-            foreach ($this->namesOf($handler, $subscriptions) as $name) {
-                $reactions[$name] = $reaction;
+            foreach ($this->keysOf($handler, $subscriptions) as $key) {
+                $reactions[$key] = $reaction;
             }
         }
 
@@ -69,7 +73,7 @@ final class SubscriptionsPass implements CompilerPassInterface
     }
 
     /**
-     * @return array<string, array{array{context: string, sources: list<string>, events: list<string>, handler: string, inbox: bool}, Reference}> each subscription and its reaction, by its name
+     * @return array<string, array{Declared, Reference}> each subscription and its reaction, by its name
      */
     private function declaredByTheirTag(ContainerBuilder $container): array
     {
@@ -79,7 +83,7 @@ final class SubscriptionsPass implements CompilerPassInterface
             $reaction = $this->asASubscription($container, $id);
 
             foreach ($tags as $tag) {
-                $declared[$tag['subscription']] = [['context' => $tag['context'], 'sources' => [$tag['source']], 'events' => [$tag['event']], 'handler' => RefusalTranslatingHandlersPass::classOf($container, $id), 'inbox' => $tag['inbox']], $reaction];
+                $declared[$tag['subscription']] = [['context' => $tag['context'], 'sources' => [$tag['source']], 'events' => [$tag['event']], 'handlers' => [$tag['event'] => RefusalTranslatingHandlersPass::classOf($container, $id)], 'inbox' => $tag['inbox']], $reaction];
             }
         }
 
@@ -99,7 +103,7 @@ final class SubscriptionsPass implements CompilerPassInterface
     /**
      * Read once at the build.
      *
-     * @return array<string, array{context: string, sources: list<string>, events: list<string>, handler: string, inbox: bool}>
+     * @return array<string, Listed>
      */
     private function subscriptions(ContainerBuilder $container): array
     {
@@ -110,14 +114,35 @@ final class SubscriptionsPass implements CompilerPassInterface
     }
 
     /**
-     * @param array<string, array{handler: string}> $subscriptions
+     * Its reaction to every event it listens to, when it names only one.
      *
-     * @return non-empty-list<string>
+     * @param Listed $subscription
+     *
+     * @return Declared
      */
-    private function namesOf(string $handler, array $subscriptions): array
+    private static function withAHandlerPerEvent(array $subscription): array
     {
-        $names = array_keys(array_filter($subscriptions, static fn (array $subscription): bool => $subscription['handler'] === $handler));
+        $handlers = $subscription['handlers'] ?? array_fill_keys($subscription['events'], $subscription['handler'] ?? null);
+        unset($subscription['handler']);
 
-        return [] !== $names ? $names : throw new \LogicException(sprintf('%s reacts to an event without being a subscription of %s', $handler, self::FILE));
+        return ['handlers' => array_map(static fn (?string $handler): string => $handler ?? throw new \LogicException(sprintf('A subscription of %s names its handler or its handlers', self::FILE)), $handlers)] + $subscription;
+    }
+
+    /**
+     * @param array<string, Declared> $subscriptions
+     *
+     * @return non-empty-list<string> the keys of the reactions the handler is, by Subscriptions::reactionKey()
+     */
+    private function keysOf(string $handler, array $subscriptions): array
+    {
+        $keys = [];
+
+        foreach ($subscriptions as $name => $subscription) {
+            foreach (array_keys($subscription['handlers'], $handler, true) as $event) {
+                $keys[] = Subscriptions::reactionKey($name, $event);
+            }
+        }
+
+        return [] !== $keys ? $keys : throw new \LogicException(sprintf('%s reacts to an event without being a subscription of %s', $handler, self::FILE));
     }
 }

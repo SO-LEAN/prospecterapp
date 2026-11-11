@@ -49,7 +49,11 @@ services:
     # Handlers of the core: commands go through the command bus, queries are called by the controllers, the
     # published services by the anticorruption layers of the other contexts (ADR 0045, 0089)
     Prospecter\Core\:
-        resource: '../vendor/prospecter/core/src/{Accounts,PersonalData,Prospecting}/Application/*/*Handler.php'
+        resource: '../vendor/prospecter/core/src/{Accounts,PersonalData,Prospecting,Reporting}/Application/*/*Handler.php'
+        exclude: '../vendor/prospecter/core/src/Reporting/Application/RebuildFigures/RebuildFiguresHandler.php'
+    # its steps commit their own units (ADR 0103): called by app:reporting:rebuild, out of the command bus
+    Prospecter\Core\Reporting\Application\RebuildFigures\RebuildFiguresHandler:
+        autoconfigure: false
 
     # Services of the hexagon, injected in its handlers (ADR 0044)
     Prospecter\Core\SharedKernel\Application\FileStore: ~
@@ -58,6 +62,8 @@ services:
     Prospecter\Core\Prospecting\Domain\Service\OrphanContacts: ~
     Prospecter\Core\Prospecting\Domain\Service\ContactOrganizations: ~
     Prospecter\Core\PersonalData\Domain\Service\EmailUniqueness: ~
+    Prospecter\Core\Reporting\Application\FactRecorder: ~
+    Prospecter\Core\Reporting\Application\RebuildFigures\SourceFacts: ~
 
     # DynamoDB (ADR 0048): MiniStack locally (DYNAMODB_ENDPOINT), AWS in production (DYNAMODB_ENDPOINT empty);
     # one table per bounded context, injected by name in its repositories only (Table $prospectingTable)
@@ -77,9 +83,13 @@ services:
     app.table.prospecting:
         class: App\Shared\Persistence\Table
         arguments: { $name: '%env(DYNAMODB_TABLE_PREFIX)%-prospecting' }
+    app.table.reporting:
+        class: App\Shared\Persistence\Table
+        arguments: { $name: '%env(DYNAMODB_TABLE_PREFIX)%-reporting' }
     App\Shared\Persistence\Table $accountsTable: '@app.table.accounts'
     App\Shared\Persistence\Table $personalDataTable: '@app.table.personal_data'
     App\Shared\Persistence\Table $prospectingTable: '@app.table.prospecting'
+    App\Shared\Persistence\Table $reportingTable: '@app.table.reporting'
 
     # The services the contexts offer each other, answered in process by the handlers of their Contracts (ADR 0089)
     Prospecter\Core\Accounts\Contract\Service\ConsultMembers\ConsultMembersService: '@Prospecter\Core\Accounts\Application\ConsultMembers\ConsultMembersHandler'
@@ -110,6 +120,18 @@ services:
     Prospecter\Core\Prospecting\Application\Port\OrganizationOfContactRetriever: '@App\Prospecting\Persistence\DynamoOrganizationOfContactRetriever'
     Prospecter\Core\Prospecting\Application\Port\OrganizationFactsRetriever: '@App\Prospecting\Persistence\DynamoOrganizationFactsRetriever'
     Prospecter\Core\Prospecting\Application\Port\ExchangeFactsRetriever: '@App\Prospecting\Persistence\DynamoExchangeFactsRetriever'
+    Prospecter\Core\Reporting\Domain\Repository\FactRepository: '@App\Reporting\Persistence\DynamoFactRepository'
+    Prospecter\Core\Reporting\Application\Port\FiguresRetriever: '@App\Reporting\Persistence\DynamoFiguresRetriever'
+    Prospecter\Core\Reporting\Application\Port\ProjectionVersions: '@App\Reporting\Persistence\DynamoProjectionVersions'
+    Prospecter\Core\Reporting\Application\Port\RecordingsInFlight: '@App\Reporting\RecordingsOfTheWorker'
+    Prospecter\Core\Reporting\Domain\Port\SourceAccounts: '@App\Reporting\AntiCorruption\AccountsSourceAccounts'
+    Prospecter\Core\Reporting\Domain\Port\ProspectingFacts: '@App\Reporting\AntiCorruption\ProspectingFactsFromProspecting'
+    Prospecter\Core\Reporting\Domain\Port\PersonalDataFacts: '@App\Reporting\AntiCorruption\PersonalDataFactsFromPersonalData'
+    # the moment a terminal fact is forgotten at counted from now, the real one
+    App\Reporting\Persistence\DynamoFactRepository:
+        arguments: { $clock: '@app.commit_clock' }
+    App\Reporting\Persistence\DynamoProjectionVersions:
+        arguments: { $clock: '@app.commit_clock' }
     Prospecter\Core\Prospecting\Domain\Port\Prospectors: '@App\Prospecting\AntiCorruption\AccountsProspectors'
     Prospecter\Core\Prospecting\Domain\Port\KnownContacts: '@App\Prospecting\AntiCorruption\PersonalDataKnownContacts'
     Prospecter\Core\PersonalData\Domain\Port\ProspectedOrganizations: '@App\PersonalData\AntiCorruption\ProspectingOrganizations'
@@ -216,9 +238,14 @@ when@test:
         App\Shared\UploadForms: '@Tests\App\Double\InMemoryPrivateStorage'
         Tests\App\Double\InMemoryPrivateStorage:
             public: true
-        # the list of the accounts, which no context asks for yet: kept for its test
-        Prospecter\Core\Accounts\Application\Port\AccountListRetriever:
-            alias: App\Accounts\Persistence\DynamoAccountListRetriever
+        # the recordings of the facts, cancelled when a test asks it to
+        Tests\App\Double\ConflictingFactRepository:
+            decorates: Prospecter\Core\Reporting\Domain\Repository\FactRepository
+            arguments: ['@.inner']
+            public: true
+        # the figures, which no page shows yet: kept for their tests
+        Prospecter\Core\Reporting\Application\Port\FiguresRetriever:
+            alias: App\Reporting\Persistence\DynamoFiguresRetriever
             public: true
         # a reaction that throws when a test asks it to, a subscription like those of the core
         Tests\App\Double\FailingReaction:

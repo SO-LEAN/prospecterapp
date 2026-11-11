@@ -97,7 +97,13 @@ class SynchronousDeliveryTest extends TestCase
     private function events(array $subscriptions): Events
     {
         $codec = new EventCodec(new DomainEventTypes(), new IntegrationEventTypes(), new Payloads(TypeResolver::create()), new Identities());
-        $locator = new ServiceLocator(array_map(fn (string $name): \Closure => fn (): EventHandler => $this->reactions[$name], array_combine(array_keys($subscriptions), array_keys($subscriptions))));
+        $reactions = [];
+
+        foreach ($subscriptions as $name => [, $detailType]) {
+            $reactions[Subscriptions::reactionKey($name, $detailType)] = fn (): EventHandler => $this->reactions[$name];
+        }
+
+        $locator = new ServiceLocator($reactions);
         $declared = array_map(static fn (array $subscription): array => ['context' => 'prospecting', 'sources' => [$subscription[0]], 'events' => [$subscription[1]], 'inbox' => true], $subscriptions);
         $this->delivered = new Recording(new SynchronousDelivery(new Subscriptions($locator, $declared), $codec, $this->causation));
 

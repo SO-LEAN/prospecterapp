@@ -8,11 +8,23 @@ use App\Shared\Messaging\EventCodec;
 use App\Shared\Messaging\EventLoop;
 use App\Shared\Messaging\IntegrationEventConsumer;
 use App\Shared\Messaging\IntegrationFailures;
+use App\Shared\Messaging\UnknownSubscription;
+use App\Shared\Persistence\ConditionFailed;
+use Aws\Command;
+use Aws\DynamoDb\Exception\DynamoDbException;
 use Bref\Context\Context;
 use PHPUnit\Framework\Attributes\DataProvider;
+use Prospecter\Core\PersonalData\Contract\Event\ContactFactsChanged;
 use Prospecter\Core\PersonalData\Contract\Event\ContactForgotten;
+use Prospecter\Core\Prospecting\Contract\Event\OrganizationFactsChanged;
 use Prospecter\Core\Prospecting\Domain\Event\ObservationsWritten;
 use Prospecter\Core\Prospecting\Domain\Event\ProspectingStopped;
+use Prospecter\Core\Reporting\Application\ConsultFigures\FiguresResponse;
+use Prospecter\Core\Reporting\Application\Port\FiguresRetriever;
+use Prospecter\Core\Reporting\Application\Port\ProjectionVersions;
+use Prospecter\Core\Reporting\Application\RebuildFigures\RebuildFigures;
+use Prospecter\Core\Reporting\Application\RebuildFigures\RebuildFiguresHandler;
+use Prospecter\Core\Reporting\Domain\Model\Month;
 use Prospecter\Core\SharedKernel\Domain\AccountId;
 use Prospecter\Core\SharedKernel\Domain\Exception\NotPossibleInItsState;
 use Prospecter\Core\SharedKernel\Domain\MemberId;
@@ -153,6 +165,58 @@ class IntegrationEventConsumerTest extends ApiTestCase
         $this->assertCount(1, $this->inboxOf('prospecting', 'prospecting-failing-reaction'));
     }
 
+    public function testAConflictIsAppliedAgainFromTheRead(): void
+    {
+        $this->reaction()->failWith(self::conflict(), times: 3);
+        $invocation = $this->invocationOf('prospecting-failing-reaction', $this->observationsWritten());
+
+        $this->consume($invocation);
+
+        $this->assertSame(4, $this->reaction()->calls);
+        $this->assertCount(1, $this->inboxOf('prospecting', 'prospecting-failing-reaction'));
+        $this->assertSame([], $this->failures());
+    }
+
+    public function testAConflictBeyondThreeRetriesIsThrownForLambdaToRetry(): void
+    {
+        $this->reaction()->failWith(self::conflict());
+        $invocation = $this->invocationOf('prospecting-failing-reaction', $this->observationsWritten());
+
+        try {
+            $this->consume($invocation);
+            $this->fail('the conflict was not thrown');
+        } catch (ConditionFailed) {
+            $this->assertSame(4, $this->reaction()->calls);
+        }
+
+        $this->assertSame([], $this->inboxOf('prospecting', 'prospecting-failing-reaction'));
+        $this->assertSame([], $this->failures());
+    }
+
+    public function testASubscriptionReactsToEachEventByTheHandlerItNamesForIt(): void
+    {
+        $this->rebuildTheFigures();
+        $before = $this->figures();
+        $organization = new OrganizationFactsChanged(DemoData::SOLEAN_IT, self::newIdentity(), 1, true, true, new \DateTimeImmutable());
+        $contact = new ContactFactsChanged(DemoData::SOLEAN_IT, self::newIdentity(), 1, true, new \DateTimeImmutable());
+
+        $this->consume($this->invocationOf('reporting-figures', $organization));
+        $this->consume($this->invocationOf('reporting-figures', $contact));
+
+        $after = $this->figures();
+        $this->assertSame([$before->activeOrganizations + 1, $before->locatedOrganizations + 1, $before->contacts + 1], [$after->activeOrganizations, $after->locatedOrganizations, $after->contacts]);
+        $this->assertSame([], $this->failures());
+    }
+
+    public function testAnEventASubscriptionDoesNotListenToIsRefused(): void
+    {
+        $invocation = ['subscription' => 'reporting-figures'] + $this->invocationOf('prospecting-failing-reaction', $this->observationsWritten());
+
+        $this->consume($invocation);
+
+        $this->assertSame([UnknownSubscription::class], array_column(array_column($this->failures(), 'responsePayload'), 'errorType'));
+    }
+
     public function testAnEventDeeperThanTheMaximumIsRefused(): void
     {
         $invocation = $this->invocationOf('prospecting-failing-reaction', $this->observationsWritten(), depth: EventLoop::MAX_EVENT_DEPTH + 1);
@@ -205,6 +269,26 @@ class IntegrationEventConsumerTest extends ApiTestCase
         $carried = json_decode(json_encode($transported->toEventBridge(), \JSON_THROW_ON_ERROR), true, flags: \JSON_THROW_ON_ERROR);
 
         return ['subscription' => $subscription, 'source' => $carried['source'], 'detailType' => $carried['detail-type'], 'detail' => $carried['detail']];
+    }
+
+    /**
+     * A transaction cancelled by a condition carrying no refusal, or by another transaction on its items.
+     */
+    private static function conflict(): ConditionFailed
+    {
+        return ConditionFailed::in(new DynamoDbException('Transaction cancelled', new Command('TransactWriteItems'), ['code' => 'TransactionCanceledException', 'body' => ['CancellationReasons' => [['Code' => 'TransactionConflict']]]]));
+    }
+
+    private function rebuildTheFigures(): void
+    {
+        self::getContainer()->get(RebuildFiguresHandler::class)(new RebuildFigures());
+    }
+
+    private function figures(): FiguresResponse
+    {
+        $versions = self::getContainer()->get(ProjectionVersions::class);
+
+        return self::getContainer()->get(FiguresRetriever::class)->of((int) $versions->active(), new AccountId(DemoData::SOLEAN_IT), Month::of(new \DateTimeImmutable()));
     }
 
     private function prospectingStopped(): ProspectingStopped
