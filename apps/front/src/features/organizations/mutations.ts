@@ -10,7 +10,8 @@ import { type Organization, organizationQuery } from './queries'
 
 /**
  * Every intention returns the fresh organization: it goes straight into the detail cache (no refetch),
- * while lists and the dashboard are marked stale and refetched when displayed.
+ * while lists are marked stale and refetched when displayed, and the dashboard read again once the reactions to
+ * the gesture counted it.
  */
 function useStoreOrganization(confirmation: (organization: Organization) => string) {
   const queryClient = useQueryClient()
@@ -21,7 +22,7 @@ function useStoreOrganization(confirmation: (organization: Organization) => stri
     }
     queryClient.setQueryData(organizationQuery(organization.id).queryKey, organization)
     void queryClient.invalidateQueries({ queryKey: queryKeys.organizationList })
-    void queryClient.invalidateQueries({ queryKey: queryKeys.dashboard })
+    readAgainAfterTheReactions(queryClient, queryKeys.dashboard)
     toast.success(confirmation(organization))
   }
 }
@@ -117,6 +118,7 @@ export function useCollectContact() {
         queryKeys.organization,
         queryKeys.organizationContacts,
         queryKeys.contactList,
+        queryKeys.dashboard,
       )
       toast.success(t('common.saved'))
     },

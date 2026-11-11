@@ -3,6 +3,7 @@ import { act, render, renderHook, screen, waitFor } from '@testing-library/react
 import type { ReactNode } from 'react'
 import { Toaster, toast } from 'sonner'
 import { afterEach, describe, expect, it, vi } from 'vitest'
+import { theDashboardInTheCacheOf } from '@/test/the-dashboard'
 import { useReviseLegalIdentity, useStartProspecting } from './mutations'
 import type { Organization } from './queries'
 
@@ -35,6 +36,12 @@ function withACache({ children }: { children: ReactNode }) {
   return <QueryClientProvider client={new QueryClient()}>{children}</QueryClientProvider>
 }
 
+function withTheCache(queryClient: QueryClient) {
+  return ({ children }: { children: ReactNode }) => (
+    <QueryClientProvider client={queryClient}>{children}</QueryClientProvider>
+  )
+}
+
 function givenTheApiAnswers(organization: Organization) {
   theApi.mockResolvedValue(Response.json(organization))
   render(<Toaster />)
@@ -49,6 +56,7 @@ async function waitForTheToastsToBeRemoved() {
 }
 
 afterEach(async () => {
+  vi.useRealTimers()
   await waitForTheToastsToBeRemoved()
   theApi.mockReset()
 })
@@ -75,5 +83,21 @@ describe('the intentions on an organization', () => {
     await act(() => result.current.mutateAsync({ params: { path: { id: ACME } }, body: legalIdentity }))
 
     expect(await screen.findByText('Modification enregistrée')).toBeInTheDocument()
+  })
+
+  it('have the dashboard read again once the reactions to the gesture counted the new organization', async () => {
+    vi.useFakeTimers({ shouldAdvanceTime: true })
+    givenTheApiAnswers(acme)
+    const queryClient = new QueryClient()
+    const dashboard = theDashboardInTheCacheOf(queryClient)
+    const { result } = renderHook(useStartProspecting, { wrapper: withTheCache(queryClient) })
+
+    await act(() =>
+      result.current.mutateAsync({
+        body: { legalIdentity, address: null, observations: null, holdingId: null },
+      }),
+    )
+
+    expect(await dashboard.isReadAgainAfterTheReactions()).toBe(true)
   })
 })
