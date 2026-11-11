@@ -187,6 +187,12 @@ export const fr = {
     submit: 'Continuer',
     submitting: 'Enregistrement…',
   },
+  myProfileBeingPrepared: {
+    title: 'Votre profil est en cours de préparation…',
+    description: 'Il sera prêt dans un instant.',
+    notReady: 'Votre profil n’est pas encore prêt',
+    tryAgainLater: 'Réessayez plus tard.',
+  },
   account: {
     title: 'Mon compte',
     subtitle: 'Vos informations personnelles et celles de votre organisation.',

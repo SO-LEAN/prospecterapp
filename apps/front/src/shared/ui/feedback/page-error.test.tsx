@@ -34,4 +34,21 @@ describe('PageError', () => {
 
     expect(await screen.findByText('Page loaded')).toBeInTheDocument()
   })
+
+  it('offers the actions it is given beside trying again', async () => {
+    const rootRoute = createRootRoute({
+      beforeLoad: () => {
+        throw new TypeError('Failed to fetch')
+      },
+      errorComponent: ({ error }) => (
+        <PageError error={error}>
+          <button type="button">Se déconnecter</button>
+        </PageError>
+      ),
+    })
+    render(<RouterProvider router={createRouter({ routeTree: rootRoute, history: createMemoryHistory() })} />)
+
+    expect(await screen.findByRole('button', { name: 'Se déconnecter' })).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: 'Réessayer' })).toBeInTheDocument()
+  })
 })

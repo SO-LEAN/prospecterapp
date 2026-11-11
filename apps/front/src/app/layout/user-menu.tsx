@@ -1,10 +1,9 @@
-import { useQuery, useQueryClient } from '@tanstack/react-query'
-import { Link, useNavigate } from '@tanstack/react-router'
+import { useQuery } from '@tanstack/react-query'
+import { Link } from '@tanstack/react-router'
 import { LogOut, Monitor, Moon, Sun, UserRound } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import { myName } from '@/features/account/me'
 import { accountQuery } from '@/features/account/queries'
-import { session } from '@/shared/auth/session'
 import { initials } from '@/shared/lib/format'
 import { type Theme, usePreferences } from '@/shared/stores/preferences'
 import { Avatar, AvatarFallback, AvatarImage } from '@/shared/ui/avatar'
@@ -19,6 +18,7 @@ import {
   DropdownMenuTrigger,
 } from '@/shared/ui/dropdown-menu'
 import { Skeleton } from '@/shared/ui/skeleton'
+import { useSignOut } from './sign-out'
 
 const themes = [
   { value: 'light', icon: Sun },
@@ -28,9 +28,8 @@ const themes = [
 
 export function UserMenu() {
   const { t } = useTranslation()
-  const navigate = useNavigate()
-  const queryClient = useQueryClient()
   const { data: account, isPending } = useQuery(accountQuery())
+  const signOut = useSignOut()
   const theme = usePreferences((state) => state.theme)
   const setTheme = usePreferences((state) => state.setTheme)
 
@@ -39,12 +38,6 @@ export function UserMenu() {
   }
 
   const fullName = account ? myName(account) : ''
-
-  const signOut = async () => {
-    await session.signOut()
-    queryClient.clear()
-    await navigate({ to: '/auth/sign-in', search: { returnTo: '/' } })
-  }
 
   return (
     <DropdownMenu>
