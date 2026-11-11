@@ -23,7 +23,7 @@ use Prospecter\Core\SharedKernel\Domain\OrganizationId;
  * Anticorruption layer of the API, in the scenarios (ADR 0045, 0089, 0099): the facts Prospecting gives again, slice
  * after slice, in the words of Reporting.
  */
-final readonly class SlicedProspectingFacts implements ProspectingFacts
+final readonly class ProspectingFactsFromProspecting implements ProspectingFacts
 {
     private const int SLICE = 100;
 

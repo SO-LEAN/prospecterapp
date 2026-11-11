@@ -35,7 +35,7 @@ final readonly class FactRecorder
         $known = $this->facts->find($version, $received);
 
         if (FactSuccession::replaces($received, $known)) {
-            $this->facts->record($version, $received, FiguresDelta::between($known, $received));
+            $this->facts->record($version, $received, $known, FiguresDelta::between($known, $received));
         }
     }
 }

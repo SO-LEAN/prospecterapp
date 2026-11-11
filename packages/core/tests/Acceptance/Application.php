@@ -182,10 +182,10 @@ use Tests\Core\Double\InMemoryTimelineRetriever;
 use Tests\Core\Double\InMemoryUnitOfWork;
 use Tests\Core\Double\KnownPlacesGeoLocation;
 use Tests\Core\Double\NoRecordingsInFlight;
+use Tests\Core\Double\PersonalDataFactsFromPersonalData;
 use Tests\Core\Double\PersonalDataKnownContacts;
+use Tests\Core\Double\ProspectingFactsFromProspecting;
 use Tests\Core\Double\ProspectingOrganizations;
-use Tests\Core\Double\SlicedPersonalDataFacts;
-use Tests\Core\Double\SlicedProspectingFacts;
 use Tests\Core\Double\SynchronousEvents;
 use Tests\Core\Double\TimeOrderedUuids;
 
@@ -687,7 +687,7 @@ final class Application
         return new RebuildFiguresHandler(
             $this->projectionVersions,
             new NoRecordingsInFlight(),
-            new SourceFacts($this->sourceAccounts, new SlicedProspectingFacts($this->listOrganizationFactsService, $this->listExchangeFactsService), new SlicedPersonalDataFacts($this->listContactFactsService)),
+            new SourceFacts($this->sourceAccounts, new ProspectingFactsFromProspecting($this->listOrganizationFactsService, $this->listExchangeFactsService), new PersonalDataFactsFromPersonalData($this->listContactFactsService)),
             $this->factRecorder,
             $this->unitOfWork,
         );
