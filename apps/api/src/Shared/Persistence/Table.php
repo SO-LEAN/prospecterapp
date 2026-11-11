@@ -254,6 +254,96 @@ final readonly class Table
     }
 
     /**
+     * A put of a transaction whose condition is about the item as stored: put again in the same unit, it keeps the
+     * condition of the first put, the item as stored being the same.
+     *
+     * @param array{PK: string, SK: string, ...} $item
+     * @param array<string, mixed>               $values the values the condition names
+     */
+    public function replacing(array $item, string $condition, array $values = []): Write
+    {
+        return $this->replacingUnder($item, $this->conditionOf($condition, $values));
+    }
+
+    /**
+     * @param array{PK: string, SK: string, ...} $item
+     * @param array<string, mixed>               $condition the condition of the put, as DynamoDB takes it
+     */
+    private function replacingUnder(array $item, array $condition): Write
+    {
+        return new Write(
+            $this->name,
+            $item['PK'],
+            $item['SK'],
+            ['Put' => ['TableName' => $this->name, 'Item' => $this->marshaler->marshalItem($item)] + $condition],
+            afterPending: fn (Write $pending): Write => $this->replacingUnder($item, self::conditionOfTheOperation($pending)),
+        );
+    }
+
+    /**
+     * @return array<string, mixed> the condition of a write, as DynamoDB takes it
+     */
+    private static function conditionOfTheOperation(Write $write): array
+    {
+        $operation = $write->operation['Put'] ?? $write->operation['Delete'] ?? [];
+
+        return array_intersect_key($operation, array_flip(['ConditionExpression', 'ExpressionAttributeValues']));
+    }
+
+    /**
+     * An addition to numbers of an item, created with them when it is not there: what a transaction adds is added to
+     * what another one added meanwhile, and two additions to the item in the same unit are one, their sum.
+     *
+     * @param non-empty-array<string, int> $increments by the name of the number
+     */
+    public function adding(string $pk, string $sk, array $increments): Write
+    {
+        $names = array_keys($increments);
+        $placeholders = array_map(static fn (int $position): string => 'n'.$position, array_keys($names));
+
+        return new Write($this->name, $pk, $sk, ['Update' => [
+            'TableName' => $this->name,
+            'Key' => $this->key($pk, $sk),
+            'UpdateExpression' => 'ADD '.implode(', ', array_map(static fn (string $placeholder): string => sprintf('#%1$s :%1$s', $placeholder), $placeholders)),
+            'ExpressionAttributeNames' => array_combine(array_map(static fn (string $placeholder): string => '#'.$placeholder, $placeholders), $names),
+            'ExpressionAttributeValues' => $this->marshaler->marshalItem(array_combine(array_map(static fn (string $placeholder): string => ':'.$placeholder, $placeholders), array_values($increments))),
+        ]], afterPending: fn (Write $pending): Write => $this->adding($pk, $sk, self::sum($this->incrementsOf($pending), $increments)));
+    }
+
+    /**
+     * @return array<string, int> what an addition adds, by the name of the number
+     */
+    private function incrementsOf(Write $addition): array
+    {
+        $update = $addition->operation['Update'] ?? throw new \LogicException(sprintf('Only an addition is followed by an addition to %s %s', $addition->pk, $addition->sk));
+        $values = $this->marshaler->unmarshalItem($update['ExpressionAttributeValues']);
+        $increments = [];
+
+        foreach ($update['ExpressionAttributeNames'] as $placeholder => $name) {
+            $increments[$name] = (int) $values[':'.substr($placeholder, 1)];
+        }
+
+        return $increments;
+    }
+
+    /**
+     * @param array<string, int> $increments
+     * @param array<string, int> $others
+     *
+     * @return non-empty-array<string, int>
+     */
+    private static function sum(array $increments, array $others): array
+    {
+        $sum = $increments;
+
+        foreach ($others as $name => $increment) {
+            $sum[$name] = ($sum[$name] ?? 0) + $increment;
+        }
+
+        return $sum;
+    }
+
+    /**
      * A delete of a transaction.
      */
     public function deleting(string $pk, string $sk): Write
@@ -264,7 +354,7 @@ final readonly class Table
     /**
      * Writes all or nothing, with what the open unit of work writes.
      *
-     * @param list<Write> $writes made by putting() and deleting()
+     * @param list<Write> $writes made by putting(), replacing(), adding() and deleting()
      *
      * @throws ConditionFailed when the condition of a write carrying no refusal did not hold
      */

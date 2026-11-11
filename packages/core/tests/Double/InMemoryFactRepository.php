@@ -41,8 +41,15 @@ final readonly class InMemoryFactRepository implements FactRepository
         return $known;
     }
 
+    /**
+     * @throws \RuntimeException when the version no longer keeps the replaced fact, as the condition of the adapter
+     */
     public function record(int $version, Fact $fact, ?Fact $replaced, FiguresChange $change): void
     {
+        if ($this->database->fact($version, self::aggregateOf($fact)) != $replaced) {
+            throw new \RuntimeException(sprintf('The fact of %s changed since it was read', self::aggregateOf($fact)));
+        }
+
         $this->database->storeFact($version, self::aggregateOf($fact), $fact);
 
         foreach ($this->figuresChangedBy($change) as $name => $difference) {

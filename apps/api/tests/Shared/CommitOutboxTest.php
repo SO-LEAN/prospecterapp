@@ -57,6 +57,18 @@ class CommitOutboxTest extends ApiTestCase
         $this->assertSame([['AccountOpened.v1', 'AccountOpened.v1']], $this->detailTypesOfTheOutbox());
     }
 
+    public function testAnEventPublishedTwiceByACommitIsWrittenOnce(): void
+    {
+        $this->unitOfWork->begin();
+        $this->delivery->deliver($this->event('prospecter.accounts', 'AccountOpened.v1'));
+        $this->delivery->deliver($this->event('prospecter.accounts', 'AccountOpened.v1'));
+        $this->delivery->deliver($this->event('prospecter.accounts', 'AccountOpened.v1', 'Globex'));
+        $this->unitOfWork->commit();
+        $this->unitOfWork->discard();
+
+        $this->assertSame([['AccountOpened.v1', 'AccountOpened.v1']], $this->detailTypesOfTheOutbox());
+    }
+
     public function testACommitPublishingInTwoContextsIsRefusedBeforeAnythingIsSent(): void
     {
         $this->unitOfWork->begin();

@@ -12,13 +12,15 @@ use Symfony\Contracts\Service\ResetInterface;
 /**
  * The events the open unit of work publishes, delivered through the outbox: written at its outermost commit, with
  * what it changes, in one item of the table of the context of the use case. It builds its put itself, by the names of
- * the tables, and not through a `Table`: a table depends on the unit of work, which depends on the outbox.
+ * the tables, and not through a `Table`: a table depends on the unit of work, which depends on the outbox. An event
+ * the commit publishes again, the same source, type and payload (the facts of an aggregate, published for each of
+ * its domain events, ADR 0099), is kept once: each one published is a reaction more for the worker.
  */
 final class CommitOutbox implements ResetInterface
 {
     private const string NEW_ITEM = 'attribute_not_exists(PK)';
 
-    /** @var list<TransportedEvent> */
+    /** @var array<string, TransportedEvent> by what makes it the same event */
     private array $events = [];
 
     /**
@@ -34,7 +36,12 @@ final class CommitOutbox implements ResetInterface
 
     public function add(TransportedEvent $event): void
     {
-        $this->events[] = $event;
+        $this->events[self::sameness($event)] ??= $event;
+    }
+
+    private static function sameness(TransportedEvent $event): string
+    {
+        return json_encode([$event->source, $event->detailType, $event->payload], \JSON_THROW_ON_ERROR);
     }
 
     /**
@@ -71,7 +78,7 @@ final class CommitOutbox implements ResetInterface
     private function putOf(string $context): Write
     {
         $table = $this->tables[$context] ?? throw new \LogicException(sprintf('No table keeps the outbox of the context %s', $context));
-        $item = new OutboxItem($this->identities->next(), $this->events, $this->clock->now())->document();
+        $item = new OutboxItem($this->identities->next(), array_values($this->events), $this->clock->now())->document();
 
         return new Write($table, $item['PK'], $item['SK'], ['Put' => ['TableName' => $table, 'Item' => $this->marshaler->marshalItem($item), 'ConditionExpression' => self::NEW_ITEM]]);
     }

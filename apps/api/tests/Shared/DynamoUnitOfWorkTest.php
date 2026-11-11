@@ -104,6 +104,59 @@ class DynamoUnitOfWorkTest extends ApiTestCase
         $this->assertSame('Ada Lovelace', $this->storedNameOf('ada'));
     }
 
+    public function testTwoAdditionsToAnItemInAUnitBothCount(): void
+    {
+        $this->add('figures', ['organizations' => 1]);
+        $this->unitOfWork->begin();
+        $this->add('figures', ['organizations' => 2, 'contacts' => 1]);
+        $this->add('figures', ['organizations' => -1]);
+        $this->unitOfWork->commit();
+        $this->unitOfWork->discard();
+
+        $this->assertEquals(['organizations' => 2, 'contacts' => 1], $this->storedCountersOf('figures'));
+    }
+
+    public function testAnAdditionAboutToBeWrittenLeavesTheItemReadAsStored(): void
+    {
+        $this->add('figures', ['organizations' => 1]);
+        $this->unitOfWork->begin();
+        $this->add('figures', ['organizations' => 2]);
+
+        $this->assertSame(1, $this->table->item('TEST#figures', 'TEST')['organizations'] ?? null);
+        $this->assertSame([1], array_column($this->table->query('TEST#figures'), 'organizations'));
+
+        $this->unitOfWork->discard();
+    }
+
+    public function testAPutReplacingAnotherAboutToBeWrittenKeepsTheConditionOnTheStoredItem(): void
+    {
+        $this->table->transact([$this->table->putting(['PK' => 'TEST#fact', 'SK' => 'TEST', 'revision' => 1])]);
+        $this->unitOfWork->begin();
+        $this->table->transact([$this->table->replacing(['PK' => 'TEST#fact', 'SK' => 'TEST', 'revision' => 2], 'revision = :revision', [':revision' => 1])]);
+        $this->table->transact([$this->table->replacing(['PK' => 'TEST#fact', 'SK' => 'TEST', 'revision' => 3], 'revision = :revision', [':revision' => 2])]);
+        $this->unitOfWork->commit();
+        $this->unitOfWork->discard();
+
+        $this->assertSame(3, $this->asAnotherRequest($this->table)->item('TEST#fact', 'TEST')['revision'] ?? null);
+    }
+
+    public function testAPutWhoseStoredItemChangedMeanwhileIsCancelled(): void
+    {
+        $this->table->transact([$this->table->putting(['PK' => 'TEST#fact', 'SK' => 'TEST', 'revision' => 1])]);
+        $this->unitOfWork->begin();
+        $this->table->transact([$this->table->replacing(['PK' => 'TEST#fact', 'SK' => 'TEST', 'revision' => 2], 'revision = :revision', [':revision' => 1])]);
+        $this->asAnotherRequest($this->table)->transact([$this->table->putting(['PK' => 'TEST#fact', 'SK' => 'TEST', 'revision' => 5])]);
+
+        try {
+            $this->unitOfWork->commit();
+            $this->fail('The put was expected to be cancelled');
+        } catch (ConditionFailed) {
+            $this->unitOfWork->discard();
+        }
+
+        $this->assertSame(5, $this->asAnotherRequest($this->table)->item('TEST#fact', 'TEST')['revision'] ?? null);
+    }
+
     public function testMoreThanAHundredWritesAreRefusedBeforeAnyIsSent(): void
     {
         $this->unitOfWork->begin();
@@ -175,6 +228,22 @@ class DynamoUnitOfWorkTest extends ApiTestCase
     private function put(string $id, string $name): void
     {
         $this->table->transact([$this->table->putting(['PK' => 'TEST#'.$id, 'SK' => 'TEST', 'name' => $name])]);
+    }
+
+    /**
+     * @param array<string, int> $increments
+     */
+    private function add(string $id, array $increments): void
+    {
+        $this->table->transact([$this->table->adding('TEST#'.$id, 'TEST', $increments)]);
+    }
+
+    /**
+     * @return array<string, mixed> the counters of the item as another request reads them
+     */
+    private function storedCountersOf(string $id): array
+    {
+        return array_diff_key($this->asAnotherRequest($this->table)->item('TEST#'.$id, 'TEST') ?? [], ['PK' => true, 'SK' => true]);
     }
 
     private function link(string $id, string $group): void

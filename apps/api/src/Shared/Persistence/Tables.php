@@ -21,6 +21,7 @@ final readonly class Tables
         private Table $accountsTable,
         private Table $personalDataTable,
         private Table $prospectingTable,
+        private Table $reportingTable,
     ) {
     }
 
@@ -43,7 +44,7 @@ final readonly class Tables
      */
     public function names(): array
     {
-        return [$this->accountsTable->name, $this->personalDataTable->name, $this->prospectingTable->name];
+        return [$this->accountsTable->name, $this->personalDataTable->name, $this->prospectingTable->name, $this->reportingTable->name];
     }
 
     private function drop(string $name): void

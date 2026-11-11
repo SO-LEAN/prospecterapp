@@ -19,11 +19,11 @@ class ReactionsAreSubscribedTest extends TestCase
     private const string INTERNAL = '.internal';
 
     /** The contexts the API serves, whose handlers `config/services.yaml` loads. */
-    private const string SERVED_CONTEXTS = '{Accounts,PersonalData,Prospecting}';
+    private const string SERVED_CONTEXTS = '{Accounts,PersonalData,Prospecting,Reporting}';
 
     public function testEveryEventHandlerIsATranslatorOrASubscription(): void
     {
-        $subscribed = array_column($this->subscriptions(), 'handler');
+        $subscribed = $this->handlersOfTheSubscriptions();
         $undeclared = array_filter(
             $this->eventHandlersOfTheCore(),
             static fn (string $handler): bool => !preg_match(SubscriptionsPass::TRANSLATOR, $handler) && !in_array($handler, $subscribed, true),
@@ -35,7 +35,7 @@ class ReactionsAreSubscribedTest extends TestCase
     public function testASubscriptionNamesAKnownReaction(): void
     {
         $reactions = array_filter($this->eventHandlersOfTheCore(), static fn (string $handler): bool => !preg_match(SubscriptionsPass::TRANSLATOR, $handler));
-        $unknown = array_diff(array_column($this->subscriptions(), 'handler'), $reactions);
+        $unknown = array_diff($this->handlersOfTheSubscriptions(), $reactions);
 
         $this->assertSame([], array_values($unknown));
     }
@@ -43,8 +43,19 @@ class ReactionsAreSubscribedTest extends TestCase
     public function testASubscriptionIsNamedAfterTheContextOfItsReaction(): void
     {
         foreach ($this->subscriptions() as $name => $subscription) {
-            $this->assertSame(self::contextOf($subscription['handler']), $subscription['context'], $name);
+            foreach (self::handlersOf($subscription) as $handler) {
+                $this->assertSame(self::contextOf($handler), $subscription['context'], $name);
+            }
+
             $this->assertStringStartsWith($subscription['context'].'-', $name);
+        }
+    }
+
+    public function testASubscriptionNamesItsHandlerOrOneForEachOfItsEvents(): void
+    {
+        foreach ($this->subscriptions() as $name => $subscription) {
+            $this->assertNotSame(isset($subscription['handler']), isset($subscription['handlers']), $name);
+            $this->assertSame($subscription['events'], array_keys($subscription['handlers'] ?? array_flip($subscription['events'])), $name);
         }
     }
 
@@ -59,16 +70,18 @@ class ReactionsAreSubscribedTest extends TestCase
         }
     }
 
+    /**
+     * The rule of a subscription takes an event of any of its sources of any of its types: each type is published by
+     * one of its sources at least.
+     */
     public function testASubscriptionListensToListedEvents(): void
     {
         $types = [new DomainEventTypes(), new IntegrationEventTypes()];
 
         foreach ($this->subscriptions() as $name => $subscription) {
-            foreach ($subscription['sources'] as $source) {
-                foreach ($subscription['events'] as $detailType) {
-                    $known = array_any($types, static fn (EventTypes $list): bool => null !== $list->classOf($source, $detailType));
-                    $this->assertTrue($known, sprintf('%s: %s of %s is listed in no event types', $name, $detailType, $source));
-                }
+            foreach ($subscription['events'] as $detailType) {
+                $known = array_any($subscription['sources'], static fn (string $source): bool => array_any($types, static fn (EventTypes $list): bool => null !== $list->classOf($source, $detailType)));
+                $this->assertTrue($known, sprintf('%s: %s is listed in no event types of its sources', $name, $detailType));
             }
         }
     }
@@ -82,7 +95,25 @@ class ReactionsAreSubscribedTest extends TestCase
     }
 
     /**
-     * @return array<string, array{context: string, sources: list<string>, events: list<string>, handler: string, inbox: bool}>
+     * @param array{events: list<string>, handler?: string, handlers?: array<string, string>} $subscription
+     *
+     * @return list<string>
+     */
+    private static function handlersOf(array $subscription): array
+    {
+        return array_values(array_unique($subscription['handlers'] ?? [$subscription['handler'] ?? '']));
+    }
+
+    /**
+     * @return list<string>
+     */
+    private function handlersOfTheSubscriptions(): array
+    {
+        return array_merge(...array_values(array_map(self::handlersOf(...), $this->subscriptions())));
+    }
+
+    /**
+     * @return array<string, array{context: string, sources: list<string>, events: list<string>, handler?: string, handlers?: array<string, string>, inbox: bool}>
      */
     private function subscriptions(): array
     {
