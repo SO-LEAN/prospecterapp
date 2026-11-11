@@ -106,3 +106,4 @@ Why the project is shaped the way it is: one record per decision, in the order t
 | [0100](0100-a-gesture-is-one-use-case-the-member-completes-their-profile.md) | A gesture is one use case: the member completes their profile at their first sign-in | architecture | Accepted | 2026-11-10 |
 | [0101](0101-the-reactions-run-after-the-command-in-a-worker.md) | The reactions run after the command, in a worker, each in its own transaction | architecture | Accepted | 2026-11-11 |
 | [0102](0102-a-transactional-inbox-per-subscription.md) | A transactional inbox per subscription | architecture | Accepted | 2026-11-11 |
+| [0103](0103-the-reporting-context-and-its-rebuildable-projections.md) | The Reporting context and its rebuildable projections | architecture | Accepted | 2026-11-11 |

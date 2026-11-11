@@ -27,6 +27,7 @@ Read the document of your subject before working on it: it says the rule in forc
 | Accounts: the organizations using Prospecter, their members, their roles | [domain/accounts.md](domain/accounts.md) |
 | PersonalData: the personal data of natural persons and who reads them | [domain/personal-data.md](domain/personal-data.md) |
 | Prospecting: the organizations an account prospects, their contacts, the exchanges | [domain/prospecting.md](domain/prospecting.md) |
+| Reporting: the figures of each account, kept from the facts of the others and rebuilt from their state | [domain/reporting.md](domain/reporting.md) |
 
 The business rules themselves are the scenarios of the core (`packages/core/features`), each feature an intent.
 
