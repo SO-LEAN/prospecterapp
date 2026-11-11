@@ -233,6 +233,10 @@ when@test:
         # no network in tests: every outgoing request gets an empty answer (a geocoding finds nothing)
         http_client:
             class: Symfony\Component\HttpClient\MockHttpClient
+        # the client above, under the template of URLs the framework puts around it: a test gives it an answer
+        Symfony\Component\HttpClient\MockHttpClient:
+            alias: http_client.uri_template.inner
+            public: true
         # the files stay in memory: the storage app is tested on its own
         Prospecter\Core\SharedKernel\Application\Port\Storage: '@Tests\App\Double\InMemoryStorage'
         Tests\App\Double\InMemoryStorage:
@@ -246,7 +250,7 @@ when@test:
             decorates: Prospecter\Core\Reporting\Domain\Repository\FactRepository
             arguments: ['@.inner']
             public: true
-        # the figures, which no page shows yet: kept for their tests
+        # the figures, read by their tests at the month they choose
         Prospecter\Core\Reporting\Application\Port\FiguresRetriever:
             alias: App\Reporting\Persistence\DynamoFiguresRetriever
             public: true

@@ -1539,7 +1539,7 @@
                 "tags": [
                     "Dashboard"
                 ],
-                "summary": "Statistics of my organization and the organizations to place on a map",
+                "summary": "The figures of my organization and the organizations to place on a map",
                 "operationId": "get_api_dashboard",
                 "responses": {
                     "200": {
@@ -4029,6 +4029,33 @@
                 },
                 "type": "object"
             },
+            "DashboardStatsResource": {
+                "required": [
+                    "activeOrganizations",
+                    "locatedOrganizations",
+                    "contacts",
+                    "exchanges",
+                    "exchangesThisMonth"
+                ],
+                "properties": {
+                    "activeOrganizations": {
+                        "type": "integer"
+                    },
+                    "locatedOrganizations": {
+                        "type": "integer"
+                    },
+                    "contacts": {
+                        "type": "integer"
+                    },
+                    "exchanges": {
+                        "type": "integer"
+                    },
+                    "exchangesThisMonth": {
+                        "type": "integer"
+                    }
+                },
+                "type": "object"
+            },
             "DashboardResource": {
                 "required": [
                     "organizationName",
@@ -4040,10 +4067,7 @@
                         "type": "string"
                     },
                     "stats": {
-                        "type": "object",
-                        "additionalProperties": {
-                            "type": "integer"
-                        }
+                        "$ref": "#/components/schemas/DashboardStatsResource"
                     },
                     "markers": {
                         "type": "array",

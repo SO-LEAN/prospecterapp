@@ -323,7 +323,7 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        /** Statistics of my organization and the organizations to place on a map */
+        /** The figures of my organization and the organizations to place on a map */
         get: operations["get_api_dashboard"];
         put?: never;
         post?: never;
@@ -1033,11 +1033,16 @@ export interface components {
             items: components["schemas"]["OrganizationSummaryResource"][];
             _links: components["schemas"]["OrganizationPageLinksResource"];
         };
+        DashboardStatsResource: {
+            activeOrganizations: number;
+            locatedOrganizations: number;
+            contacts: number;
+            exchanges: number;
+            exchangesThisMonth: number;
+        };
         DashboardResource: {
             organizationName: string;
-            stats: {
-                [key: string]: number;
-            };
+            stats: components["schemas"]["DashboardStatsResource"];
             markers: components["schemas"]["OrganizationSummaryResource"][];
         };
         ContactLinksResource: {
