@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Prospecter\Core\Prospecting\Application\EraseExchangeLeftWithoutOrganization;
 
-use Prospecter\Core\Prospecting\Application\AttachedFiles;
 use Prospecter\Core\Prospecting\Domain\Event\ExchangeLeftWithoutOrganization;
 use Prospecter\Core\Prospecting\Domain\Exception\UnknownExchange;
 use Prospecter\Core\Prospecting\Domain\Repository\ExchangeRepository;
@@ -23,7 +22,6 @@ final readonly class EraseExchangeLeftWithoutOrganizationHandler implements Even
 
     public function __construct(
         private ExchangeRepository $exchanges,
-        private AttachedFiles $attachedFiles,
         private Events $events,
     ) {
     }
@@ -38,7 +36,6 @@ final readonly class EraseExchangeLeftWithoutOrganizationHandler implements Even
 
         $exchange->erase(by: $event->by, at: $event->occurredAt);
         $this->exchanges->remove($exchange);
-        $this->attachedFiles->forgetThoseOf($exchange);
         $this->publishWhatHappenedTo($exchange);
     }
 }

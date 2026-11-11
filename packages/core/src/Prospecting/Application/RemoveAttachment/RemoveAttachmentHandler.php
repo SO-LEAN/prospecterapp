@@ -9,7 +9,6 @@ use Prospecter\Core\Prospecting\Domain\Model\ExchangeId;
 use Prospecter\Core\Prospecting\Domain\Repository\ExchangeRepository;
 use Prospecter\Core\SharedKernel\Application\CommandHandler;
 use Prospecter\Core\SharedKernel\Application\Port\Events;
-use Prospecter\Core\SharedKernel\Application\Port\PrivateStorage;
 use Prospecter\Core\SharedKernel\Application\PublishesEvents;
 use Prospecter\Core\SharedKernel\Domain\MemberId;
 
@@ -19,7 +18,6 @@ final readonly class RemoveAttachmentHandler implements CommandHandler
 
     public function __construct(
         private ExchangeRepository $exchanges,
-        private PrivateStorage $privateStorage,
         private Events $events,
     ) {
     }
@@ -27,9 +25,8 @@ final readonly class RemoveAttachmentHandler implements CommandHandler
     public function __invoke(RemoveAttachment $command): void
     {
         $exchange = $this->exchanges->get(new ExchangeId($command->exchangeId));
-        $removed = $exchange->removeAttachment(new AttachmentId($command->id), by: new MemberId($command->prospectorId), at: $command->executedAt);
+        $exchange->removeAttachment(new AttachmentId($command->id), by: new MemberId($command->prospectorId), at: $command->executedAt);
         $this->exchanges->save($exchange);
-        $this->privateStorage->remove($removed->file);
         $this->publishWhatHappenedTo($exchange);
     }
 }

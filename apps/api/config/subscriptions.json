@@ -61,5 +61,26 @@
     "events": ["ContactForgotten.v1"],
     "handler": "Prospecter\\Core\\Prospecting\\Application\\KeepExchangesOfForgottenContact\\KeepExchangesOfForgottenContactHandler",
     "inbox": true
+  },
+  "prospecting-discard-removed-logo": {
+    "context": "prospecting",
+    "sources": ["prospecter.prospecting.internal"],
+    "events": ["LogoRemoved.v1"],
+    "handler": "Prospecter\\Core\\Prospecting\\Application\\DiscardRemovedLogo\\DiscardRemovedLogoHandler",
+    "inbox": false
+  },
+  "prospecting-discard-removed-attachment": {
+    "context": "prospecting",
+    "sources": ["prospecter.prospecting.internal"],
+    "events": ["AttachmentRemoved.v1"],
+    "handler": "Prospecter\\Core\\Prospecting\\Application\\DiscardRemovedAttachment\\DiscardRemovedAttachmentHandler",
+    "inbox": false
+  },
+  "prospecting-discard-attachments-of-erased-exchange": {
+    "context": "prospecting",
+    "sources": ["prospecter.prospecting.internal"],
+    "events": ["ExchangeErased.v1"],
+    "handler": "Prospecter\\Core\\Prospecting\\Application\\DiscardAttachmentsOfErasedExchange\\DiscardAttachmentsOfErasedExchangeHandler",
+    "inbox": false
   }
 }

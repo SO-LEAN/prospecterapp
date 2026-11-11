@@ -48,6 +48,7 @@ class ExchangeTest extends TestCase
     private const string ACME = '0190a1c0-0000-7000-8000-000000000005';
     private const string GROUP = '0190a1c0-0000-7000-8000-000000000006';
     private const string ATTACHMENT = '0190a1c0-0000-7000-8000-000000000007';
+    private const string FILE = '6f1c2a9e0b7d4c3a8e5f1b2c3d4e5f60';
     private const string NOW = '2026-10-18 19:00';
 
     public function testNotingRecordsIt(): void
@@ -255,7 +256,7 @@ class ExchangeTest extends TestCase
         $exchange->removeAttachment(new AttachmentId(self::ATTACHMENT), by: $this->me()->id, at: new \DateTimeImmutable(self::NOW));
 
         $this->assertSame([], $exchange->attachments());
-        $this->assertEquals([new AttachmentRemoved(new AccountId(self::MINE), $this->me()->id, new ExchangeId(self::EXCHANGE), new AttachmentId(self::ATTACHMENT), new \DateTimeImmutable(self::NOW))], $exchange->releaseEvents());
+        $this->assertEquals([new AttachmentRemoved(new AccountId(self::MINE), $this->me()->id, new ExchangeId(self::EXCHANGE), new AttachmentId(self::ATTACHMENT), self::FILE, new \DateTimeImmutable(self::NOW))], $exchange->releaseEvents());
     }
 
     /**
@@ -381,14 +382,14 @@ class ExchangeTest extends TestCase
         $this->assertFalse($exchange->isTextFlaggedFor($this->colleagueWithoutTheRight()));
     }
 
-    public function testErasingRecordsIt(): void
+    public function testErasingRecordsItWithTheFilesLeftToRemove(): void
     {
-        $exchange = $this->anExchange();
+        $exchange = $this->withAnAttachment();
         $exchange->releaseEvents();
 
         $exchange->erase(by: $this->me()->id, at: new \DateTimeImmutable(self::NOW));
 
-        $this->assertEquals([new ExchangeErased(new AccountId(self::MINE), $this->me()->id, new ExchangeId(self::EXCHANGE), new \DateTimeImmutable(self::NOW))], $exchange->releaseEvents());
+        $this->assertEquals([new ExchangeErased(new AccountId(self::MINE), $this->me()->id, new ExchangeId(self::EXCHANGE), [self::FILE], new \DateTimeImmutable(self::NOW))], $exchange->releaseEvents());
     }
 
     private function withAnAttachment(): Exchange
@@ -420,7 +421,7 @@ class ExchangeTest extends TestCase
 
     private function anAttachment(string $id): Attachment
     {
-        return new Attachment(new AttachmentId($id), 'devis.pdf', 2048, 'application/pdf', bin2hex(random_bytes(16)));
+        return new Attachment(new AttachmentId($id), 'devis.pdf', 2048, 'application/pdf', self::FILE);
     }
 
     private function anExchange(): Exchange

@@ -58,7 +58,6 @@ use Prospecter\Core\PersonalData\Contract\Service\WhichAreContacts\WhichAreConta
 use Prospecter\Core\PersonalData\Domain\Service\EmailUniqueness as PersonalDataEmailUniqueness;
 use Prospecter\Core\Prospecting\Application\AddContact\AddContactHandler;
 use Prospecter\Core\Prospecting\Application\AttachCollectedContact\AttachCollectedContactHandler;
-use Prospecter\Core\Prospecting\Application\AttachedFiles;
 use Prospecter\Core\Prospecting\Application\AttachFile\AttachFileHandler;
 use Prospecter\Core\Prospecting\Application\AttachToHolding\AttachToHoldingHandler;
 use Prospecter\Core\Prospecting\Application\ChangeContactDetails\ChangeContactDetailsHandler;
@@ -84,6 +83,9 @@ use Prospecter\Core\Prospecting\Application\CorrectExchange\CorrectExchangeHandl
 use Prospecter\Core\Prospecting\Application\CorrectExchangeText\CorrectExchangeTextHandler;
 use Prospecter\Core\Prospecting\Application\DetachForgottenContact\DetachForgottenContactHandler;
 use Prospecter\Core\Prospecting\Application\DetachFromHolding\DetachFromHoldingHandler;
+use Prospecter\Core\Prospecting\Application\DiscardAttachmentsOfErasedExchange\DiscardAttachmentsOfErasedExchangeHandler;
+use Prospecter\Core\Prospecting\Application\DiscardRemovedAttachment\DiscardRemovedAttachmentHandler;
+use Prospecter\Core\Prospecting\Application\DiscardRemovedLogo\DiscardRemovedLogoHandler;
 use Prospecter\Core\Prospecting\Application\DownloadAttachment\AttachmentDownloadResponse;
 use Prospecter\Core\Prospecting\Application\DownloadAttachment\DownloadAttachment;
 use Prospecter\Core\Prospecting\Application\DownloadAttachment\DownloadAttachmentHandler;
@@ -218,7 +220,6 @@ final class Application
     private readonly ProspectingEmailUniqueness $organizationEmails;
     private readonly OrphanContacts $orphans;
     private readonly ContactOrganizations $contactOrganizations;
-    private readonly AttachedFiles $attachedFiles;
     /** @var array<class-string, CommandHandler> */
     private array $handlers = [];
     private ?string $signedIn = null;
@@ -262,7 +263,6 @@ final class Application
         $this->unitOfWork = new InMemoryUnitOfWork($database);
         $this->storage = new InMemoryStorage();
         $this->privateStorage = new InMemoryPrivateStorage();
-        $this->attachedFiles = new AttachedFiles($this->privateStorage);
         $this->geoLocation = new KnownPlacesGeoLocation();
         $this->files = new FileStore($this->storage);
         $this->geoLocalizer = new GeoLocalizer($this->geoLocation);
@@ -471,7 +471,7 @@ final class Application
             new AttachToHoldingHandler($this->organizations, $this->events),
             new DetachFromHoldingHandler($this->organizations, $this->events),
             new ChangeLogoHandler($this->organizations, $this->events, $this->files),
-            new RemoveLogoHandler($this->organizations, $this->events, $this->files),
+            new RemoveLogoHandler($this->organizations, $this->events),
             new RenamePersonHandler($this->persons, $this->readers, $this->events),
             new ChangePersonContactDetailsHandler($this->persons, $this->readers, $this->events, $this->personEmails),
             new ChangePersonPictureHandler($this->persons, $this->readers, $this->events, $this->files),
@@ -490,9 +490,9 @@ final class Application
             new NoteOrganizationExchangeHandler($this->exchanges, $this->organizations, $this->contactOrganizations, $this->events),
             new CorrectExchangeHandler($this->exchanges, $this->events),
             new CorrectExchangeTextHandler($this->exchanges, $this->events),
-            new EraseExchangeHandler($this->exchanges, $this->events, $this->attachedFiles),
+            new EraseExchangeHandler($this->exchanges, $this->events),
             new AttachFileHandler($this->exchanges, $this->privateStorage, $this->events),
-            new RemoveAttachmentHandler($this->exchanges, $this->privateStorage, $this->events),
+            new RemoveAttachmentHandler($this->exchanges, $this->events),
         ];
     }
 
@@ -601,7 +601,10 @@ final class Application
             new CollectTheFounderProfileHandler($this->persons),
             new CollectTheMemberProfileHandler($this->persons),
             new StopKeepingExchangesHandler($this->exchanges, $this->events),
-            new EraseExchangeLeftWithoutOrganizationHandler($this->exchanges, $this->attachedFiles, $this->events),
+            new EraseExchangeLeftWithoutOrganizationHandler($this->exchanges, $this->events),
+            new DiscardRemovedLogoHandler($this->storage),
+            new DiscardRemovedAttachmentHandler($this->privateStorage),
+            new DiscardAttachmentsOfErasedExchangeHandler($this->privateStorage),
         ];
     }
 
