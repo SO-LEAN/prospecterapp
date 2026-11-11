@@ -230,6 +230,13 @@ when@test:
             autowire: true
             public: true
             tags: [app.event_handler]
+        # what the worker logs, read by its tests
+        App\Shared\Messaging\IntegrationEventConsumer:
+            autowire: true
+            public: true
+            arguments: { $logger: '@Tests\App\Double\InMemoryLogger' }
+        Tests\App\Double\InMemoryLogger:
+            public: true
         # the queue of the failures and the worker in memory: the worker is tested on its own
         Aws\Sqs\SqsClient:
             arguments:

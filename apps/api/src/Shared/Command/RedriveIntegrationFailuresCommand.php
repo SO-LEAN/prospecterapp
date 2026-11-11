@@ -11,9 +11,9 @@ use Symfony\Component\Console\Style\SymfonyStyle;
 
 /**
  * Gives the worker again each event of the queue of the failures, whether Lambda gave it up or the worker refused
- * it, then forgets it: an event refused is given again once what refused it is corrected and deployed; delivered
- * twice, it is applied once (the inbox keeps an event 15 days, longer than the queue, 14 days). A message keeping no
- * invocation is left in the queue.
+ * it, then forgets it, a batch at a time: an event refused is given again once what refused it is corrected and
+ * deployed; delivered twice, it is applied once (the inbox keeps an event 15 days, longer than the queue, 14 days).
+ * A message keeping no invocation is left in the queue, hidden while the redrive lasts.
  */
 #[AsCommand(name: 'app:integration:redrive', description: 'Give the worker again the events of the queue of the failures')]
 final readonly class RedriveIntegrationFailuresCommand
@@ -24,38 +24,35 @@ final readonly class RedriveIntegrationFailuresCommand
 
     public function __invoke(SymfonyStyle $io): int
     {
-        $failed = $this->everyFailure();
-        $redriven = array_filter($failed, static fn (FailedInvocation $message): bool => null !== $message->invocation);
-        array_walk($redriven, $this->redrive(...));
+        $redriven = 0;
+        $left = [];
 
-        foreach (array_diff_key($failed, $redriven) as $left) {
-            $io->warning(sprintf('The message %s keeps no invocation of the worker (%s): left in the queue', $left->id, $left->reason));
+        while ([] !== $received = $this->failures->next()) {
+            foreach ($received as $failed) {
+                if (null === $failed->invocation) {
+                    $left[] = $failed;
+                    continue;
+                }
+                $this->redrive($failed, $failed->invocation);
+                ++$redriven;
+            }
         }
 
-        $io->success(sprintf('Gave the worker again %d events of the failures.', count($redriven)));
+        foreach ($left as $failed) {
+            $io->warning(sprintf('The message %s keeps no invocation of the worker (%s): left in the queue', $failed->id, $failed->reason));
+        }
 
-        return count($redriven) === count($failed) ? Command::SUCCESS : Command::FAILURE;
+        $io->success(sprintf('Gave the worker again %d events of the failures.', $redriven));
+
+        return [] === $left ? Command::SUCCESS : Command::FAILURE;
     }
 
     /**
-     * Each message received is hidden from the next receive while the redrive lasts.
-     *
-     * @return list<FailedInvocation>
+     * @param array<string, mixed> $invocation
      */
-    private function everyFailure(): array
+    private function redrive(FailedInvocation $failed, array $invocation): void
     {
-        $failed = [];
-
-        while ([] !== $received = $this->failures->next()) {
-            array_push($failed, ...$received);
-        }
-
-        return $failed;
-    }
-
-    private function redrive(FailedInvocation $failed): void
-    {
-        $this->worker->invoke($failed->invocation ?? []);
+        $this->worker->invoke($invocation);
         $this->failures->forget($failed);
     }
 }

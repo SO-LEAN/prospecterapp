@@ -18,6 +18,8 @@ final readonly class IntegrationFailures
     private const int MOST_MESSAGES_OF_A_RECEIVE = 10;
     /** long enough for the redrive to give each one again before it is received again */
     private const int HIDDEN_FOR_SECONDS = 300;
+    /** long polling: an empty answer is an empty queue, not a sample of its servers that held nothing */
+    private const int WAITED_FOR_SECONDS = 1;
 
     public function __construct(private SqsClient $client, private string $name, private ClockInterface $clock)
     {
@@ -48,7 +50,7 @@ final readonly class IntegrationFailures
      */
     public function next(): array
     {
-        $received = $this->client->receiveMessage(['QueueUrl' => $this->url(), 'MaxNumberOfMessages' => self::MOST_MESSAGES_OF_A_RECEIVE, 'VisibilityTimeout' => self::HIDDEN_FOR_SECONDS]);
+        $received = $this->client->receiveMessage(['QueueUrl' => $this->url(), 'MaxNumberOfMessages' => self::MOST_MESSAGES_OF_A_RECEIVE, 'VisibilityTimeout' => self::HIDDEN_FOR_SECONDS, 'WaitTimeSeconds' => self::WAITED_FOR_SECONDS]);
 
         return array_map(FailedInvocation::of(...), $received['Messages'] ?? []);
     }
