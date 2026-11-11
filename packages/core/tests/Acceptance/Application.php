@@ -364,9 +364,14 @@ final class Application
     public function dispatch(object $command): void
     {
         $handler = $this->handlers[$command::class] ?? throw new \LogicException(sprintf('No handler for %s', $command::class));
+        $wasOpen = $this->unitOfWork->isOpen();
         $this->attempt(function () use ($handler, $command): void {
             $this->events->deliverAfter(static fn () => $handler($command));
         });
+
+        if (!$wasOpen && $this->unitOfWork->isOpen()) {
+            throw new \LogicException(sprintf('%s left a unit of work open', $command::class));
+        }
     }
 
     /**
