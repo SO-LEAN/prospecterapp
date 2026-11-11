@@ -44,7 +44,7 @@ NGINX_IP = $(shell docker inspect -f '{{(index .NetworkSettings.Networks "$(E2E_
 e2e: ## Run the Playwright journeys against the running stack
 	@ip=$(NGINX_IP); test -n "$$ip" || { echo "No nginx in the network $(E2E_NETWORK): is the stack running (make start)?"; exit 1; }; \
 	docker run --rm --init --ipc=host --network $(E2E_NETWORK) $(foreach host,local api.local static.local,--add-host $(host).prospecter.io:$$ip) \
-		-u $(UID):$(GID) -e HOME=/tmp -v $(CURDIR):/work -w /work mcr.microsoft.com/playwright:v1.64.0-noble npx playwright test
+		-u $(UID):$(GID) -e HOME=/tmp $(if $(E2E_RUN),-e E2E_RUN=$(E2E_RUN)) -v $(CURDIR):/work -w /work mcr.microsoft.com/playwright:v1.64.0-noble npx playwright test
 
 shell: ## Open a shell in the Node container
 	@$(NODE) sh

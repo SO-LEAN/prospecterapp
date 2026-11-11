@@ -73,8 +73,15 @@ GEOCODER_DOUBLE = http://nginx:8081/search
 API_GEOCODER = $(DC) --progress quiet run --rm --build lambda-deploy geocoder
 # the relay and the worker warmed first: a journey waits a second or so for a reaction
 WARM_REACTIONS = $(DC) --progress quiet run --rm --build lambda-deploy warm
+# a founder and a member the console opens and registers, their member and profiles written by the worker: a journey
+# signs each in (e2e/console-gestures.spec.ts); the registration is tried again until the worker wrote the founder
+E2E_RUN := $(shell date +%s)
+API_CONSOLE = $(MAKE) -s -C apps/api console CMD=
+CONSOLE_GESTURES = $(API_CONSOLE)"app:account:open 'E2E $(E2E_RUN)' founder-$(E2E_RUN)@e2e.test --password=password" >/dev/null \
+	&& tries=0 && until $(API_CONSOLE)"app:member:register founder-$(E2E_RUN)@e2e.test member-$(E2E_RUN)@e2e.test --password=password" >/dev/null 2>&1; \
+	do tries=$$((tries + 1)); test $$tries -lt 15 || { echo "The founder of the journeys is not a member: is the worker running?"; exit 1; }; sleep 1; done
 e2e: ## Run the Playwright journeys against the running stack, the API on the double of the geocoder meanwhile
-	@$(WARM_REACTIONS) && $(API_GEOCODER) $(GEOCODER_DOUBLE) && trap '$(API_GEOCODER)' EXIT && trap 'exit 130' INT TERM && $(MAKE) -C apps/front e2e
+	@$(WARM_REACTIONS) && $(CONSOLE_GESTURES) && $(API_GEOCODER) $(GEOCODER_DOUBLE) && trap '$(API_GEOCODER)' EXIT && trap 'exit 130' INT TERM && $(MAKE) -C apps/front e2e E2E_RUN=$(E2E_RUN)
 
 mutation: ## Mutate the lines the branch adds since BASE (origin/dev) in the core and the front, list the mutants their tests let survive (ADR 0091)
 	@$(MAKE) -C packages/core mutation
