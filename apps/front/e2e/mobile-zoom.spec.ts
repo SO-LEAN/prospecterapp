@@ -70,6 +70,7 @@ async function theDashboardWithItsMap(page: Page) {
 
 test('on a phone, pinching the map zooms the map', async ({ page }) => {
   await theDashboardWithItsMap(page)
+  await mapOf(page).scrollIntoViewIfNeeded()
   const before = await mapOf(page).screenshot()
 
   await pinchToEnlarge(page, mapOf(page))
