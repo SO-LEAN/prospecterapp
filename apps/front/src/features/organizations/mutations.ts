@@ -4,6 +4,7 @@ import { toast } from 'sonner'
 import { api, fetchClient } from '@/shared/api/client'
 import { readTheExchangesAgain } from '@/shared/api/exchanges'
 import { queryKeys } from '@/shared/api/keys'
+import { readAgainAfterTheReactions } from '@/shared/api/reactions'
 import { fileBody } from '@/shared/api/upload'
 import { type Organization, organizationQuery } from './queries'
 
@@ -88,20 +89,22 @@ export function useRemoveLogo() {
   })
 }
 
-/** The organization changes, and so do the list of its contacts and the contacts (one may be erased). */
+/**
+ * The organization changes, and so do the list of its contacts and the contacts: one left alone is erased by the
+ * reactions to the gesture.
+ */
 function useStoreOrganizationAndItsContacts() {
   const queryClient = useQueryClient()
   const store = useStoreChangedOrganization()
 
   return (organization: Organization | undefined) => {
     store(organization)
-    void queryClient.invalidateQueries({ queryKey: queryKeys.organizationContacts })
-    void queryClient.invalidateQueries({ queryKey: queryKeys.contactList })
+    readAgainAfterTheReactions(queryClient, queryKeys.organizationContacts, queryKeys.contactList)
     readTheExchangesAgain(queryClient)
   }
 }
 
-/** A new contact names the organization: the organization and its contacts are read again. */
+/** A new contact names the organization, which a reaction attaches it to: the organization and its contacts are read again. */
 export function useCollectContact() {
   const queryClient = useQueryClient()
   const { t } = useTranslation()
@@ -109,24 +112,30 @@ export function useCollectContact() {
   return api.useMutation('post', '/api/contacts', {
     ...formIntention,
     onSuccess: () => {
-      void queryClient.invalidateQueries({ queryKey: queryKeys.organization })
-      void queryClient.invalidateQueries({ queryKey: queryKeys.organizationContacts })
-      void queryClient.invalidateQueries({ queryKey: queryKeys.contactList })
+      readAgainAfterTheReactions(
+        queryClient,
+        queryKeys.organization,
+        queryKeys.organizationContacts,
+        queryKeys.contactList,
+      )
       toast.success(t('common.saved'))
     },
   })
 }
 
-/** The organization is gone; its contacts left alone are erased with it. */
+/** The organization is gone; its contacts left alone are erased with it, by the reactions to the gesture. */
 export function useStopProspecting() {
   const queryClient = useQueryClient()
 
   return api.useMutation('delete', '/api/organizations/{id}', {
     onSuccess: (_nothing, { params }) => {
       queryClient.removeQueries({ queryKey: organizationQuery(params.path.id).queryKey })
-      void queryClient.invalidateQueries({ queryKey: queryKeys.organizationList })
-      void queryClient.invalidateQueries({ queryKey: queryKeys.dashboard })
-      void queryClient.invalidateQueries({ queryKey: queryKeys.contactList })
+      readAgainAfterTheReactions(
+        queryClient,
+        queryKeys.organizationList,
+        queryKeys.dashboard,
+        queryKeys.contactList,
+      )
     },
   })
 }
