@@ -1,6 +1,6 @@
 # prospecter/core
 
-The hexagon of the application: the bounded contexts Accounts, PersonalData and Prospecting and their shared kernel, in pure PHP. Internal Composer package of the monorepo, not published (`docs/architecture/monorepo.md`).
+The hexagon of the application: the bounded contexts Accounts, PersonalData, Prospecting and Reporting and their shared kernel, in pure PHP. Internal Composer package of the monorepo, not published (`docs/architecture/monorepo.md`).
 
 ## What is in force
 

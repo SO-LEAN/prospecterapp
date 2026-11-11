@@ -18,6 +18,9 @@ class ReactionsAreSubscribedTest extends TestCase
 {
     private const string INTERNAL = '.internal';
 
+    /** The contexts the API serves, whose handlers `config/services.yaml` loads. */
+    private const string SERVED_CONTEXTS = '{Accounts,PersonalData,Prospecting}';
+
     public function testEveryEventHandlerIsATranslatorOrASubscription(): void
     {
         $subscribed = array_column($this->subscriptions(), 'handler');
@@ -94,7 +97,7 @@ class ReactionsAreSubscribedTest extends TestCase
         $root = dirname(__DIR__, 2).'/vendor/prospecter/core/src/';
         $handlers = [];
 
-        foreach (glob($root.'*/Application/*/*Handler.php') ?: [] as $file) {
+        foreach (glob($root.self::SERVED_CONTEXTS.'/Application/*/*Handler.php', \GLOB_BRACE) ?: [] as $file) {
             $class = 'Prospecter\\Core\\'.str_replace(['/', '.php'], ['\\', ''], substr($file, strlen($root)));
 
             if (is_a($class, EventHandler::class, true)) {

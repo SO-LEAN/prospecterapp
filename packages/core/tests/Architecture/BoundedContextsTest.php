@@ -24,10 +24,11 @@ class BoundedContextsTest extends TestCase
     private const string IMPORT = '/^use Prospecter\\\\Core\\\\(\w+)\\\\([\w\\\\]+)(?: as \w+)?;/m';
 
     private const array FORBIDDEN = [
-        'Accounts' => ['PersonalData', 'Prospecting'],
-        'PersonalData' => ['Accounts', 'Prospecting'],
-        'Prospecting' => ['Accounts', 'PersonalData'],
-        'SharedKernel' => ['Accounts', 'PersonalData', 'Prospecting'],
+        'Accounts' => ['PersonalData', 'Prospecting', 'Reporting'],
+        'PersonalData' => ['Accounts', 'Prospecting', 'Reporting'],
+        'Prospecting' => ['Accounts', 'PersonalData', 'Reporting'],
+        'Reporting' => ['Accounts', 'PersonalData', 'Prospecting'],
+        'SharedKernel' => ['Accounts', 'PersonalData', 'Prospecting', 'Reporting'],
     ];
 
     public function testADoubleOfAPortSeesOfTheOtherContextsOnlyWhatTheyPublish(): void
