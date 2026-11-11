@@ -16,6 +16,14 @@ final class OrganizationKeys
     }
 
     /**
+     * The organizations an account prospects, in `GSI1`.
+     */
+    public static function ofAccount(string $accountId): string
+    {
+        return 'ACCOUNT#'.$accountId;
+    }
+
+    /**
      * The links to the organizations naming a contact.
      */
     public static function contact(string $person): string

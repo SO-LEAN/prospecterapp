@@ -26,7 +26,7 @@ final readonly class DynamoFoundOrganizationRetriever implements FoundOrganizati
     public function sliceProspectedBy(AccountId $accountId, ?SearchKey $search, ?string $after, int $max): FoundOrganizationPage
     {
         $items = null === $search
-            ? $this->prospectingTable->query('ACCOUNT#'.$accountId->value, Table::BY_GSI1, $after, $max + 1)
+            ? $this->prospectingTable->query(OrganizationKeys::ofAccount($accountId->value), Table::BY_GSI1, $after, $max + 1)
             : $this->inTheOrderOf(SearchIndexes::found($this->prospectingTable, $accountId->value, $search, null === $after ? null : OrganizationKeys::organization($after), $max + 1));
         $found = array_map(static fn (array $item): FoundOrganization => self::found($item['organization']), $items);
 
