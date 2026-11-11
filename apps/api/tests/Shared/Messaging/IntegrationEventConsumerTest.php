@@ -17,9 +17,11 @@ use Prospecter\Core\SharedKernel\Domain\AccountId;
 use Prospecter\Core\SharedKernel\Domain\Exception\NotPossibleInItsState;
 use Prospecter\Core\SharedKernel\Domain\MemberId;
 use Prospecter\Core\SharedKernel\Domain\OrganizationId;
+use Psr\Log\LogLevel;
 use Tests\App\Base\ApiTestCase;
 use Tests\App\Base\DeliversThroughTheOutbox;
 use Tests\App\Double\FailingReaction;
+use Tests\App\Double\InMemoryLogger;
 use Tests\App\Double\InMemorySqs;
 
 /**
@@ -115,6 +117,21 @@ class IntegrationEventConsumerTest extends ApiTestCase
         $this->assertSame(IntegrationFailures::REFUSED, $failures[0]['requestContext']['condition']);
         $this->assertSame('Refused by the reaction', $failures[0]['responsePayload']['errorMessage']);
         $this->assertSame([], $this->inboxOf('prospecting', 'prospecting-failing-reaction'));
+    }
+
+    public function testARefusalIsLoggedWithTheEventItsCorrelationAndItsReason(): void
+    {
+        $this->reaction()->failWith(NotPossibleInItsState::because('Refused by the reaction'));
+        $invocation = $this->invocationOf('prospecting-failing-reaction', $this->observationsWritten());
+
+        $this->consume($invocation);
+
+        $logged = array_values(array_filter(self::getContainer()->get(InMemoryLogger::class)->records, static fn (array $record): bool => LogLevel::ERROR === $record['level']));
+        $this->assertCount(1, $logged);
+        $this->assertSame(
+            ['subscription' => 'prospecting-failing-reaction', 'eventId' => $invocation['detail']['eventId'], 'correlationId' => self::CORRELATION, 'reason' => 'notPossibleInItsState', 'field' => ''],
+            array_intersect_key($logged[0]['context'], array_flip(['subscription', 'eventId', 'correlationId', 'reason', 'field'])),
+        );
     }
 
     public function testAFailureIsThrownForLambdaToRetryWritingNothingNorItsInbox(): void
