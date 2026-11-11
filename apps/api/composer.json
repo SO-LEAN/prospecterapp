@@ -102,7 +102,9 @@
         "aws/aws-sdk-php": [
             "CognitoIdentityProvider",
             "DynamoDb",
-            "EventBridge"
+            "EventBridge",
+            "Lambda",
+            "Sqs"
         ]
     },
     "require-dev": {

@@ -5,6 +5,12 @@ parameters:
         key: '%env(AWS_ACCESS_KEY_ID)%'
         secret: '%env(AWS_SECRET_ACCESS_KEY)%'
         token: '%env(default::AWS_SESSION_TOKEN)%'
+    # the table of each context, by the name its sources give it: where the outbox of a commit and the inbox of a
+    # subscription are written
+    app.context_tables:
+        accounts: '%env(DYNAMODB_TABLE_PREFIX)%-accounts'
+        personal-data: '%env(DYNAMODB_TABLE_PREFIX)%-personal-data'
+        prospecting: '%env(DYNAMODB_TABLE_PREFIX)%-prospecting'
 
 services:
     _defaults:
@@ -122,10 +128,7 @@ services:
     # name it; the moment of the commit the real one, the table forgetting the item a week later
     App\Shared\Messaging\CommitOutbox:
         arguments:
-            $tables:
-                accounts: '%env(DYNAMODB_TABLE_PREFIX)%-accounts'
-                personal-data: '%env(DYNAMODB_TABLE_PREFIX)%-personal-data'
-                prospecting: '%env(DYNAMODB_TABLE_PREFIX)%-prospecting'
+            $tables: '%app.context_tables%'
             $clock: '@app.commit_clock'
     app.commit_clock:
         class: Symfony\Component\Clock\NativeClock
@@ -140,6 +143,30 @@ services:
         arguments: { $name: '%env(INTEGRATION_EVENT_BUS)%' }
     App\Shared\Messaging\OutboxRelay:
         public: true
+    # the worker (ADR 0101), a function of its own the rules of the subscriptions invoke: the inbox of a subscription
+    # in the table of its context, what it could not apply kept in INTEGRATION_FAILURES_QUEUE, invoked again by
+    # app:integration:redrive; SQS and Lambda of MiniStack locally (SQS_ENDPOINT, LAMBDA_ENDPOINT), of AWS in
+    # production (empty)
+    App\Shared\Messaging\IntegrationEventConsumer:
+        public: true
+    App\Shared\Messaging\Inbox:
+        arguments:
+            $tables: '%app.context_tables%'
+            $clock: '@app.commit_clock'
+    Aws\Sqs\SqsClient:
+        arguments:
+            - region: '%env(AWS_REGION)%'
+              endpoint: '%env(default::SQS_ENDPOINT)%'
+              credentials: '%app.aws_credentials%'
+    App\Shared\Messaging\IntegrationFailures:
+        arguments: { $name: '%env(INTEGRATION_FAILURES_QUEUE)%', $clock: '@app.commit_clock' }
+    Aws\Lambda\LambdaClient:
+        arguments:
+            - region: '%env(AWS_REGION)%'
+              endpoint: '%env(default::LAMBDA_ENDPOINT)%'
+              credentials: '%app.aws_credentials%'
+    App\Shared\Messaging\IntegrationWorker:
+        arguments: { $name: '%env(INTEGRATION_WORKER)%' }
     # what a command writes, and what its reactions write, in one transaction of DynamoDB, all or nothing
     Prospecter\Core\SharedKernel\Application\Port\UnitOfWork: '@App\Shared\Persistence\DynamoUnitOfWork'
     Prospecter\Core\SharedKernel\Application\Port\GeoLocation: '@App\Shared\GeoplateformeGeoLocation'
@@ -193,15 +220,31 @@ when@test:
         Prospecter\Core\Accounts\Application\Port\AccountListRetriever:
             alias: App\Accounts\Persistence\DynamoAccountListRetriever
             public: true
-        # a reaction that throws when a test asks it to, reached like those of the core
+        # a reaction that throws when a test asks it to, a subscription like those of the core
         Tests\App\Double\FailingReaction:
             public: true
-            tags: [app.event_handler]
+            tags:
+                - { name: app.subscription, subscription: prospecting-failing-reaction, context: prospecting, source: prospecter.prospecting.internal, event: ObservationsWritten.v1, inbox: true }
         # another request taking an email meanwhile, when a test asks it to
         Tests\App\Double\EmailTakenMeanwhile:
             autowire: true
             public: true
             tags: [app.event_handler]
+        # the queue of the failures and the worker in memory: the worker is tested on its own
+        Aws\Sqs\SqsClient:
+            arguments:
+                - region: '%env(AWS_REGION)%'
+                  credentials: '%app.aws_credentials%'
+                  handler: '@Tests\App\Double\InMemorySqs'
+        Tests\App\Double\InMemorySqs:
+            public: true
+        Aws\Lambda\LambdaClient:
+            arguments:
+                - region: '%env(AWS_REGION)%'
+                  credentials: '%app.aws_credentials%'
+                  handler: '@Tests\App\Double\InMemoryLambda'
+        Tests\App\Double\InMemoryLambda:
+            public: true
         # the bus in memory: the relay is tested on its own
         Aws\EventBridge\EventBridgeClient:
             arguments:

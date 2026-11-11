@@ -71,8 +71,10 @@ test-front: ## Run the tests of the front (Vitest); FILTER= a test file by its p
 # run, and the service of the IGN again afterwards, whatever their result
 GEOCODER_DOUBLE = http://nginx:8081/search
 API_GEOCODER = $(DC) --progress quiet run --rm --build lambda-deploy geocoder
+# the relay and the worker warmed first: a journey waits a second or so for a reaction
+WARM_REACTIONS = $(DC) --progress quiet run --rm --build lambda-deploy warm
 e2e: ## Run the Playwright journeys against the running stack, the API on the double of the geocoder meanwhile
-	@$(API_GEOCODER) $(GEOCODER_DOUBLE) && trap '$(API_GEOCODER)' EXIT && trap 'exit 130' INT TERM && $(MAKE) -C apps/front e2e
+	@$(WARM_REACTIONS) && $(API_GEOCODER) $(GEOCODER_DOUBLE) && trap '$(API_GEOCODER)' EXIT && trap 'exit 130' INT TERM && $(MAKE) -C apps/front e2e
 
 mutation: ## Mutate the lines the branch adds since BASE (origin/dev) in the core and the front, list the mutants their tests let survive (ADR 0091)
 	@$(MAKE) -C packages/core mutation

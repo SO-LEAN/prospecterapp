@@ -8,17 +8,13 @@ namespace App\Shared\Messaging;
  */
 final readonly class SynchronousDelivery implements Delivery
 {
-    public const int MAX_EVENT_DEPTH = 5;
-
     public function __construct(private Subscriptions $subscriptions, private EventCodec $codec, private Causation $causation)
     {
     }
 
     public function deliver(TransportedEvent $event): void
     {
-        if ($event->depth > self::MAX_EVENT_DEPTH) {
-            throw EventLoop::reachedBy($event, self::MAX_EVENT_DEPTH);
-        }
+        EventLoop::ensureNotReachedBy($event);
 
         $received = $this->carried($event);
 

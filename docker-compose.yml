@@ -76,6 +76,9 @@ services:
       AWS_ACCESS_KEY_ID: test
       AWS_SECRET_ACCESS_KEY: test
       API_HOST: api.local.prospecter.io
+    # the subscriptions the rules of the worker are made of
+    volumes:
+      - ./apps/api/config/subscriptions.json:/build/subscriptions.json:ro
     depends_on:
       - ministack
     profiles: [deploy]

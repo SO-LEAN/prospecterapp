@@ -5,7 +5,8 @@
 # deploy geocoder <url>: only the geocoder the API asks, its double while the journeys run (make e2e), the service
 # of the IGN of apps/api/.env with no url.
 # deploy relay: only the bus, the relay of the outbox and the mappings of the streams of the tables, which make db
-# recreates.
+# recreates, and the worker with the rules of the subscriptions.
+# deploy warm: only a first call to the relay and to the worker, before the journeys.
 set -eu
 
 aws() { command aws --endpoint-url "$AWS_ENDPOINT_URL" --output text "$@"; }
@@ -86,13 +87,15 @@ http_api() {
         || aws apigatewayv2 create-stage --api-id "$name" --stage-name local --auto-deploy >/dev/null
 }
 
-# deploy_relay: the bus, and the relay of the outbox (ADR 0098), a function of the API reading the stream of each
-# table; MiniStack neither splits a failing batch nor stops retrying it (spike of MiniStack 1.5.27): the age of a
+# deploy_relay: the bus, its rules and the worker, and the relay of the outbox (ADR 0098), a function of the API
+# reading the stream of each table; MiniStack neither splits a failing batch nor stops retrying it (spike of MiniStack 1.5.27): the age of a
 # record is limited to a minute, after which the batch goes to the queue of the failures, or it would block the table
 deploy_relay() {
     php=$(layer "$PHP_LAYER" /build/php.zip)
     aws events describe-event-bus --name prospecter-dev-integration >/dev/null 2>&1 \
         || aws events create-event-bus --name prospecter-dev-integration >/dev/null
+    # the rules of the bus before the relay publishes on it, the data of the demonstration first
+    deploy_worker "$php"
     failures=$(aws sqs create-queue --queue-name prospecter-dev-relay-failures --attributes MessageRetentionPeriod=1209600 --query QueueUrl)
     failures=$(aws sqs get-queue-attributes --queue-url "$failures" --attribute-names QueueArn --query Attributes.QueueArn)
 
@@ -120,6 +123,39 @@ deploy_relay() {
     echo "Lambda prospecter-dev-relay relaying the outbox of the tables to the bus prospecter-dev-integration"
 }
 
+# deploy_worker <php layer>: the worker running the reactions (ADR 0101), invoked by a rule of the bus per
+# subscription of apps/api/config/subscriptions.json, with the name of the subscription and the event; what it refuses,
+# and what Lambda gives up after its 2 retries, in the queue of the failures. MiniStack invokes the target of a rule
+# without the retries of Lambda nor its destination (spike of MiniStack 1.5.27): a failure coming from a rule is only
+# logged; invoked asynchronously directly (app:integration:redrive), the worker gets both.
+deploy_worker() {
+    failures=$(aws sqs create-queue --queue-name prospecter-dev-integration-failures --attributes MessageRetentionPeriod=1209600 --query QueueUrl)
+    failures=$(aws sqs get-queue-attributes --queue-url "$failures" --attribute-names QueueArn --query Attributes.QueueArn)
+
+    aws lambda delete-function --function-name prospecter-dev-worker >/dev/null 2>&1 || true
+    worker=$(aws lambda create-function --function-name prospecter-dev-worker --runtime provided.al2023 --handler bootstrap \
+        --role "$role" --zip-file fileb:///build/function.zip --layers "$1" --memory-size 1024 --timeout 28 \
+        --environment 'Variables={BREF_RUNTIME=function,BREF_LOCAL_HANDLER=App\Shared\Messaging\IntegrationEventConsumer,BREF_LOCAL_ROOT=/var/www/src/apps/api}' \
+        --query FunctionArn)
+    aws lambda put-function-event-invoke-config --function-name prospecter-dev-worker --maximum-retry-attempts 2 \
+        --maximum-event-age-in-seconds 21600 --destination-config "OnFailure={Destination=$failures}" >/dev/null
+
+    for rule in $(aws events list-rules --event-bus-name prospecter-dev-integration --query 'Rules[].Name'); do
+        aws events remove-targets --rule "$rule" --event-bus-name prospecter-dev-integration --ids worker >/dev/null 2>&1 || true
+        aws events delete-rule --name "$rule" --event-bus-name prospecter-dev-integration
+    done
+    for subscription in $(jq -r 'keys[]' /build/subscriptions.json); do
+        aws events put-rule --name "$subscription" --event-bus-name prospecter-dev-integration \
+            --event-pattern "$(jq -c --arg name "$subscription" '.[$name] | {source: .sources, "detail-type": .events}' /build/subscriptions.json)" >/dev/null
+        aws events put-targets --rule "$subscription" --event-bus-name prospecter-dev-integration \
+            --targets "$(jq -c -n --arg name "$subscription" --arg worker "$worker" '[{Id: "worker", Arn: $worker, InputTransformer: {
+                InputPathsMap: {source: "$.source", detailType: "$.detail-type", detail: "$.detail"},
+                InputTemplate: ("{\"subscription\": \"" + $name + "\", \"source\": <source>, \"detailType\": <detailType>, \"detail\": <detail>}")}}]')" >/dev/null
+    done
+
+    echo "Lambda prospecter-dev-worker reacting to the subscriptions of the bus prospecter-dev-integration"
+}
+
 # deploy_apps: the functions of the API and the storage behind their HTTP APIs, warmed
 deploy_apps() {
     php=$(layer "$PHP_LAYER" /build/php.zip)
@@ -143,10 +179,25 @@ deploy_apps() {
     deploy_relay
 }
 
+# warm_reactions: the relay and the worker started, their first call taking some 16 seconds, before the journeys
+# count on a reaction within a second: the relay given an empty batch, the worker an exchange erased without a file,
+# to which its subscription reacts by removing nothing, without an inbox
+warm_reactions() {
+    erased='{"subscription": "prospecting-discard-attachments-of-erased-exchange", "source": "prospecter.prospecting.internal", "detailType": "ExchangeErased.v1", "detail": {"eventId": "01900000-0000-7000-8000-00000000f001", "occurredAt": "2026-10-15T09:00:00.000000Z", "correlationId": "01900000-0000-7000-8000-00000000f002", "causationId": null, "depth": 0, "payload": {"accountId": "01900000-0000-7000-8000-00000000f003", "by": "01900000-0000-7000-8000-00000000f004", "exchange": "01900000-0000-7000-8000-00000000f005", "files": [], "occurredAt": "2026-10-15T09:00:00.000000Z"}}}'
+    aws lambda invoke --function-name prospecter-dev-relay --cli-binary-format raw-in-base64-out --cli-read-timeout 120 \
+        --payload '{"Records": []}' /dev/null >/dev/null &
+    aws lambda invoke --function-name prospecter-dev-worker --cli-binary-format raw-in-base64-out --cli-read-timeout 120 \
+        --payload "$erased" /dev/null >/dev/null &
+    wait
+    echo "Lambdas prospecter-dev-relay and prospecter-dev-worker warm"
+}
+
 if [ "${1:-}" = geocoder ]; then
     api_geocoder "${2:-}"
 elif [ "${1:-}" = relay ]; then
     deploy_relay
+elif [ "${1:-}" = warm ]; then
+    warm_reactions
 else
     deploy_apps
 fi
