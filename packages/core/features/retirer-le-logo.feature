@@ -16,6 +16,14 @@ Fonctionnalité: Retirer le logo d'une organisation
       | logo | aucun |
     Et le stockage ne contient plus "acme.png"
 
+  Scénario: Le fichier du logo reste tant que son retrait n'est pas écrit
+    Soit l'organisation "ACME" fait partie de mes organisations avec :
+      | logo | acme.png |
+    Et le prochain enregistrement est refusé : "Written meanwhile"
+    Quand je retire le logo de "ACME"
+    Alors c'est refusé : "Written meanwhile"
+    Et le stockage contient "acme.png"
+
   Scénario: Sans logo, il n'y a rien à retirer
     Soit l'organisation "ACME" fait partie de mes organisations
     Quand je retire le logo de "ACME"

@@ -19,3 +19,9 @@ Fonctionnalité: Retirer une pièce jointe d'un échange
     Alors le détail de l'échange liste :
       | cahier-des-charges.pdf |
     Et le fichier "planning.xlsx" n'est plus téléchargeable
+
+  Scénario: Le fichier reste tant que son retrait n'est pas écrit
+    Soit le prochain enregistrement est refusé : "Written meanwhile"
+    Quand je retire "planning.xlsx"
+    Alors c'est refusé : "Written meanwhile"
+    Et le fichier "planning.xlsx" est toujours gardé
