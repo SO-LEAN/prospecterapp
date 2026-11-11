@@ -104,3 +104,5 @@ Why the project is shaped the way it is: one record per decision, in the order t
 | [0098](0098-each-commit-writes-an-outbox-relayed-to-an-eventbridge-bus.md) | Each commit writes its events in an outbox, relayed to a bus of EventBridge | architecture | Accepted | 2026-11-10 |
 | [0099](0099-the-contexts-publish-their-facts-by-event-and-by-sliced-service.md) | The contexts publish their facts, by an event and by a sliced service | architecture | Accepted | 2026-11-10 |
 | [0100](0100-a-gesture-is-one-use-case-the-member-completes-their-profile.md) | A gesture is one use case: the member completes their profile at their first sign-in | architecture | Accepted | 2026-11-10 |
+| [0101](0101-the-reactions-run-after-the-command-in-a-worker.md) | The reactions run after the command, in a worker, each in its own transaction | architecture | Accepted | 2026-11-11 |
+| [0102](0102-a-transactional-inbox-per-subscription.md) | A transactional inbox per subscription | architecture | Accepted | 2026-11-11 |
