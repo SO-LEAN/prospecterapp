@@ -22,12 +22,13 @@ final class ReportingKeys
     public const string TOTAL = 'TOTAL';
     /** the number of exchanges, in the figures of an account and in those of a month */
     public const string EXCHANGES = 'exchanges';
+    /** the beginning of the sort key of the figures of a month */
+    public const string MONTH = 'MONTH#';
     private const string FACTS = 'FACTS#';
     private const string FIGURES = 'FIGURES#';
     private const string ORGANIZATION = 'ORGANIZATION#';
     private const string EXCHANGE = 'EXCHANGE#';
     private const string CONTACT = 'CONTACT#';
-    private const string MONTH = 'MONTH#';
 
     public static function facts(int $version, AccountId $accountId): string
     {

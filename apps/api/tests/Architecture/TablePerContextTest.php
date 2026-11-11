@@ -7,7 +7,8 @@ use PHPUnit\Framework\TestCase;
 
 /**
  * Each bounded context keeps its aggregates in its own table (ADR 0038, 0048): only its persistence adapters
- * reach it, through the table named after it; the shared persistence (the tables) serves them all.
+ * reach it, through the table named after it; the shared persistence (the tables) serves them all. The check of the
+ * consistency alone reads the tables of every context, and only reads them (ADR 0105).
  */
 class TablePerContextTest extends TestCase
 {
@@ -19,6 +20,10 @@ class TablePerContextTest extends TestCase
         'Prospecting' => 'prospectingTable',
         'Reporting' => 'reportingTable',
     ];
+
+    /** the only code reading the tables of several contexts */
+    private const string READING_EVERY_TABLE = 'Consistency/ContextTables.php';
+    private const array WRITES = ['->putting(', '->replacing(', '->adding(', '->deleting(', '->transact(', '->batch('];
 
     #[DataProvider('contexts')]
     public function testThePersistenceOfAContextUsesItsOwnTable(string $context, string $table): void
@@ -32,10 +37,20 @@ class TablePerContextTest extends TestCase
     {
         $outsideThePersistence = array_filter(
             array_keys($this->tablesIn('')),
-            static fn (string $path): bool => !str_contains($path, '/Persistence/'),
+            static fn (string $path): bool => !str_contains($path, '/Persistence/') && self::READING_EVERY_TABLE !== $path,
         );
 
         $this->assertSame([], array_values($outsideThePersistence));
+    }
+
+    public function testTheCheckOfTheConsistencyReadsEveryTableAndWritesNone(): void
+    {
+        $this->assertSame(array_values(self::TABLES), $this->tablesIn('Consistency')[self::READING_EVERY_TABLE]);
+        $code = (string) file_get_contents(dirname(__DIR__, 2).'/src/'.self::READING_EVERY_TABLE);
+
+        foreach (self::WRITES as $write) {
+            $this->assertStringNotContainsString($write, $code);
+        }
     }
 
     /**
