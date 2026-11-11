@@ -9,6 +9,7 @@ use Prospecter\Core\Accounts\Application\ConsultMembers\ConsultMembersHandler;
 use Prospecter\Core\Accounts\Application\ConsultMyAccount\ConsultMyAccount;
 use Prospecter\Core\Accounts\Application\ConsultMyAccount\ConsultMyAccountHandler;
 use Prospecter\Core\Accounts\Application\ConsultMyAccount\KeptAccount;
+use Prospecter\Core\Accounts\Application\ListAccounts\ListAccountsHandler;
 use Prospecter\Core\Accounts\Application\MyAccount;
 use Prospecter\Core\Accounts\Application\OpenAccount\OpenAccountHandler;
 use Prospecter\Core\Accounts\Application\PublishAccountOpened\PublishAccountOpenedHandler;
@@ -20,6 +21,8 @@ use Prospecter\Core\Accounts\Application\ReviseMyOrganizationIdentity\ReviseMyOr
 use Prospecter\Core\Accounts\Contract\Service\ConsultMembers\ConsultMembers;
 use Prospecter\Core\Accounts\Contract\Service\ConsultMembers\KeptMembers;
 use Prospecter\Core\Accounts\Contract\Service\ConsultMembers\MemberResponse;
+use Prospecter\Core\Accounts\Contract\Service\ListAccounts\KeptAccounts;
+use Prospecter\Core\Accounts\Contract\Service\ListAccounts\ListAccounts;
 use Prospecter\Core\PersonalData\Application\ChangeJobTitle\ChangeJobTitleHandler;
 use Prospecter\Core\PersonalData\Application\ChangePersonContactDetails\ChangePersonContactDetailsHandler;
 use Prospecter\Core\PersonalData\Application\ChangePersonPicture\ChangePersonPictureHandler;
@@ -36,6 +39,8 @@ use Prospecter\Core\PersonalData\Application\ForgetContact\ForgetContactHandler;
 use Prospecter\Core\PersonalData\Application\ForgetContactsLeftWithoutOrganization\ForgetContactsLeftWithoutOrganizationHandler;
 use Prospecter\Core\PersonalData\Application\PersonCard;
 use Prospecter\Core\PersonalData\Application\PublishContactCollected\PublishContactCollectedHandler;
+use Prospecter\Core\PersonalData\Application\ListContactFacts\ListContactFactsHandler;
+use Prospecter\Core\PersonalData\Application\PublishContactFacts\PublishContactFactsHandler;
 use Prospecter\Core\PersonalData\Application\PublishContactForgotten\PublishContactForgottenHandler;
 use Prospecter\Core\PersonalData\Application\RecognizeCallingContact\KeptCallingContacts;
 use Prospecter\Core\PersonalData\Application\RecognizeCallingContact\RecognizeCallingContact;
@@ -46,6 +51,8 @@ use Prospecter\Core\PersonalData\Application\SearchContacts\KeptContactPage;
 use Prospecter\Core\PersonalData\Application\SearchContacts\SearchContacts;
 use Prospecter\Core\PersonalData\Application\SearchContacts\SearchContactsHandler;
 use Prospecter\Core\PersonalData\Application\WhichAreContacts\WhichAreContactsHandler;
+use Prospecter\Core\PersonalData\Contract\Service\ListContactFacts\KeptContactFacts;
+use Prospecter\Core\PersonalData\Contract\Service\ListContactFacts\ListContactFacts;
 use Prospecter\Core\PersonalData\Contract\Service\WhichAreContacts\KeptContacts;
 use Prospecter\Core\PersonalData\Contract\Service\WhichAreContacts\WhichAreContacts;
 use Prospecter\Core\PersonalData\Domain\Service\EmailUniqueness as PersonalDataEmailUniqueness;
@@ -134,7 +141,9 @@ use Prospecter\Core\SharedKernel\Application\TransactionalEventHandler;
 use Prospecter\Core\SharedKernel\Domain\MemberId;
 use Tests\Core\Double\AccountsProspectors;
 use Tests\Core\Double\AccountsReaders;
+use Tests\Core\Double\InMemoryAccountListRetriever;
 use Tests\Core\Double\InMemoryAccountRepository;
+use Tests\Core\Double\InMemoryContactFactsRetriever;
 use Tests\Core\Double\InMemoryContactPageRetriever;
 use Tests\Core\Double\InMemoryDatabase;
 use Tests\Core\Double\InMemoryExchangeDetailRetriever;
@@ -186,6 +195,9 @@ final class Application
     private readonly InMemoryExchangeFactsRetriever $exchangeFactsRetriever;
     private readonly ListOrganizationFactsHandler $listOrganizationFactsService;
     private readonly ListExchangeFactsHandler $listExchangeFactsService;
+    private readonly InMemoryContactFactsRetriever $contactFactsRetriever;
+    private readonly ListContactFactsHandler $listContactFactsService;
+    private readonly ListAccountsHandler $listAccountsService;
     public readonly InMemoryExchangeRepository $exchanges;
     public readonly InMemoryAccountRepository $accounts;
     public readonly InMemoryMemberRepository $members;
@@ -239,6 +251,9 @@ final class Application
         $this->exchangeFactsRetriever = new InMemoryExchangeFactsRetriever($database);
         $this->listOrganizationFactsService = new ListOrganizationFactsHandler($this->organizationFactsRetriever);
         $this->listExchangeFactsService = new ListExchangeFactsHandler($this->exchangeFactsRetriever);
+        $this->contactFactsRetriever = new InMemoryContactFactsRetriever($database);
+        $this->listContactFactsService = new ListContactFactsHandler($this->contactFactsRetriever);
+        $this->listAccountsService = new ListAccountsHandler(new InMemoryAccountListRetriever($database));
         $this->prospectors = new AccountsProspectors($this->consultMembersService);
         $this->readers = new AccountsReaders($this->consultMembersService);
         $this->knownContacts = new PersonalDataKnownContacts($this->whichAreContactsService);
@@ -529,6 +544,22 @@ final class Application
         return $kept;
     }
 
+    public function listContactFacts(ListContactFacts $query): KeptContactFacts
+    {
+        $kept = new KeptContactFacts();
+        ($this->listContactFactsService)($query, $kept);
+
+        return $kept;
+    }
+
+    public function listAccounts(ListAccounts $query): KeptAccounts
+    {
+        $kept = new KeptAccounts();
+        ($this->listAccountsService)($query, $kept);
+
+        return $kept;
+    }
+
     /**
      * Every event handler of the core: the reactions of the other contexts run in the scenarios as in the API
      * (`EventHandlersSubscribedTest` fails when one is missing), the translators of the facts first, as the event
@@ -541,6 +572,7 @@ final class Application
         return [
             new PublishOrganizationFactsHandler($this->organizationFactsRetriever, $this->events),
             new PublishExchangeFactsHandler($this->exchangeFactsRetriever, $this->events),
+            new PublishContactFactsHandler($this->contactFactsRetriever, $this->events),
             new AttachCollectedContactHandler($this->organizations, $this->events),
             new DetachForgottenContactHandler($this->organizations, $this->events, $this->orphans),
             new KeepExchangesOfForgottenContactHandler($this->exchanges, $this->events),

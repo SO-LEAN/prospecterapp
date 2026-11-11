@@ -11,7 +11,12 @@ use Behat\Step\Then;
 use Behat\Step\When;
 use Prospecter\Core\Accounts\Contract\Service\ConsultMembers\ConsultMembers;
 use Prospecter\Core\Accounts\Contract\Service\ConsultMembers\MemberResponse;
+use Prospecter\Core\Accounts\Contract\Service\ListAccounts\KeptAccounts;
+use Prospecter\Core\Accounts\Contract\Service\ListAccounts\ListAccounts;
 use Prospecter\Core\Accounts\Domain\Model\Role;
+use Prospecter\Core\PersonalData\Contract\Service\ListContactFacts\ContactFactsResponse;
+use Prospecter\Core\PersonalData\Contract\Service\ListContactFacts\KeptContactFacts;
+use Prospecter\Core\PersonalData\Contract\Service\ListContactFacts\ListContactFacts;
 use Prospecter\Core\PersonalData\Contract\Service\WhichAreContacts\WhichAreContacts;
 use Prospecter\Core\Prospecting\Contract\Service\ListExchangeFacts\ExchangeFactsResponse;
 use Prospecter\Core\Prospecting\Contract\Service\ListExchangeFacts\KeptExchangeFacts;
@@ -20,8 +25,10 @@ use Prospecter\Core\Prospecting\Contract\Service\ListOrganizationFacts\KeptOrgan
 use Prospecter\Core\Prospecting\Contract\Service\ListOrganizationFacts\ListOrganizationFacts;
 use Prospecter\Core\Prospecting\Contract\Service\ListOrganizationFacts\OrganizationFactsResponse;
 use Prospecter\Core\Prospecting\Contract\Service\WhichAreProspected\WhichAreProspected;
+use Prospecter\Core\SharedKernel\Domain\AccountId;
 use Prospecter\Core\SharedKernel\Domain\MemberId;
 use Prospecter\Core\SharedKernel\Domain\OrganizationId;
+use Prospecter\Core\SharedKernel\Domain\PersonId;
 use Tests\Core\Acceptance\Expect;
 use Tests\Core\Acceptance\Vocabulary;
 
@@ -50,10 +57,10 @@ final class PublishedLanguageContext implements Context
      */
     private array $asked = [];
     /**
-     * @var \Closure(?string): (KeptOrganizationFacts|KeptExchangeFacts) the facts asked, given the cursor
+     * @var \Closure(?string): (KeptOrganizationFacts|KeptExchangeFacts|KeptContactFacts|KeptAccounts) the slice asked, given the cursor
      */
     private \Closure $askFacts;
-    private KeptOrganizationFacts|KeptExchangeFacts|null $facts = null;
+    private KeptOrganizationFacts|KeptExchangeFacts|KeptContactFacts|KeptAccounts|null $facts = null;
 
     #[Given(':name est membre de :account avec le droit aux données personnelles')]
     public function aMemberManagingPersonalData(string $name, string $account): void
@@ -130,6 +137,25 @@ final class PublishedLanguageContext implements Context
         $this->listExchangeFacts($this->application->newIdentity(), $max);
     }
 
+    #[When('un autre contexte demande à PersonalData :max faits des contacts de :account')]
+    public function anotherContextListsTheContactFacts(int $max, string $account): void
+    {
+        $this->listContactFacts($this->scenario->accountIdOf($account)->value, $max);
+    }
+
+    #[When('un autre contexte demande à PersonalData :max faits des contacts d\'un compte inconnu')]
+    public function anotherContextListsTheContactFactsOfAnUnknownAccount(int $max): void
+    {
+        $this->listContactFacts($this->application->newIdentity(), $max);
+    }
+
+    #[When('/^un autre contexte demande à Accounts (?<max>\d+) comptes?$/')]
+    public function anotherContextListsTheAccounts(int $max): void
+    {
+        $this->askFacts = fn (?string $after): KeptAccounts => $this->application->listAccounts(new ListAccounts($after, $max));
+        $this->facts = ($this->askFacts)(null);
+    }
+
     #[When('il demande la suite')]
     public function itAsksWhatFollows(): void
     {
@@ -157,17 +183,40 @@ final class PublishedLanguageContext implements Context
         Expect::same(array_fill(0, $count, ['present' => true, 'revision' => $revision]), array_map(static fn (ExchangeFactsResponse $facts): array => ['present' => $facts->present, 'revision' => $facts->revision], $facts));
     }
 
+    #[Then('PersonalData répond les faits des contacts :')]
+    public function personalDataAnswersTheContactFacts(TableNode $table): void
+    {
+        $facts = $this->facts instanceof KeptContactFacts ? $this->facts->facts : [];
+
+        Expect::same($table->getColumnsHash(), array_map(fn (ContactFactsResponse $facts): array => [
+            'contact' => $this->scenario->nameOfPerson(new PersonId($facts->personId)),
+            'révision' => (string) $facts->revision,
+            'présent' => Vocabulary::describeYesOrNo($facts->present),
+        ], $facts));
+    }
+
+    #[Then('Accounts répond les comptes :')]
+    public function accountsAnswersTheAccounts(TableNode $accounts): void
+    {
+        $accountIds = $this->facts instanceof KeptAccounts ? $this->facts->accountIds : [];
+
+        Expect::same($accounts->getColumn(0), array_map(fn (string $accountId): string => $this->scenario->nameOf(new AccountId($accountId)), $accountIds));
+    }
+
     #[Then('Prospecting ne donne pas de suite')]
-    public function prospectingGivesNothingToFollow(): void
+    #[Then('PersonalData ne donne pas de suite')]
+    #[Then('Accounts ne donne pas de suite')]
+    public function theContextGivesNothingToFollow(): void
     {
         Expect::same(null, $this->facts?->next);
     }
 
     #[Then('Prospecting ne répond aucun fait')]
-    public function prospectingAnswersNoFacts(): void
+    #[Then('PersonalData ne répond aucun fait')]
+    public function theContextAnswersNoFacts(): void
     {
-        Expect::same([], $this->facts?->facts);
-        $this->prospectingGivesNothingToFollow();
+        Expect::same([], $this->facts instanceof KeptAccounts ? null : $this->facts?->facts);
+        $this->theContextGivesNothingToFollow();
     }
 
     #[Then('PersonalData répond :')]
@@ -193,6 +242,12 @@ final class PublishedLanguageContext implements Context
     private function listExchangeFacts(string $accountId, int $max): void
     {
         $this->askFacts = fn (?string $after): KeptExchangeFacts => $this->application->listExchangeFacts(new ListExchangeFacts($accountId, $after, $max));
+        $this->facts = ($this->askFacts)(null);
+    }
+
+    private function listContactFacts(string $accountId, int $max): void
+    {
+        $this->askFacts = fn (?string $after): KeptContactFacts => $this->application->listContactFacts(new ListContactFacts($accountId, $after, $max));
         $this->facts = ($this->askFacts)(null);
     }
 
