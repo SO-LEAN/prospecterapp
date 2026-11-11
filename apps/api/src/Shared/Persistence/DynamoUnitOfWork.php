@@ -2,6 +2,7 @@
 
 namespace App\Shared\Persistence;
 
+use App\Shared\Messaging\AlreadyApplied;
 use App\Shared\Messaging\CommitOutbox;
 use Aws\DynamoDb\DynamoDbClient;
 use Aws\DynamoDb\Exception\DynamoDbException;
@@ -37,6 +38,7 @@ final class DynamoUnitOfWork implements UnitOfWork
 
     /**
      * @throws BusinessException the refusal a write carries, when its condition did not hold
+     * @throws AlreadyApplied    when the item of inbox it writes is there already: the event was applied
      * @throws ConditionFailed   when the condition of a write carrying no refusal did not hold
      */
     public function commit(): void

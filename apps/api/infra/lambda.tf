@@ -26,68 +26,72 @@ resource "aws_iam_role" "lambda" {
   })
 }
 
+# what the api may do with its data, the worker too (messaging.tf)
+locals {
+  data_statements = [
+    {
+      Sid    = "UseItsTables"
+      Effect = "Allow"
+      Action = [
+        "dynamodb:BatchGetItem", "dynamodb:BatchWriteItem", "dynamodb:ConditionCheckItem", "dynamodb:DeleteItem",
+        "dynamodb:DescribeTable", "dynamodb:GetItem", "dynamodb:PutItem", "dynamodb:Query", "dynamodb:Scan",
+        "dynamodb:UpdateItem",
+      ]
+      Resource = concat(local.table_arns, [for arn in local.table_arns : "${arn}/index/*"])
+    },
+    {
+      Sid      = "FindItsUserPool"
+      Effect   = "Allow"
+      Action   = "cognito-idp:ListUserPools"
+      Resource = "*"
+    },
+    {
+      Sid    = "AdministerItsMembers"
+      Effect = "Allow"
+      Action = [
+        "cognito-idp:AdminCreateUser", "cognito-idp:AdminGetUser", "cognito-idp:AdminSetUserPassword",
+        "cognito-idp:AdminUpdateUserAttributes", "cognito-idp:ListUserPoolClients", "cognito-idp:ListUsers",
+      ]
+      Resource = aws_cognito_user_pool.members.arn
+    },
+    {
+      Sid    = "ReadItsParameters"
+      Effect = "Allow"
+      Action = ["ssm:GetParameter", "ssm:GetParameters"]
+      Resource = [
+        "${local.ssm_arn}/*",
+        "arn:aws:ssm:${var.region}:${var.aws_account_id}:parameter${local.storage_ssm_path}/token",
+        "arn:aws:ssm:${var.region}:${var.aws_account_id}:parameter${local.origin_secret_parameter}",
+      ]
+    },
+    {
+      # the internal entry of the storage, a function URL signed by this role (ADR 0068)
+      Sid      = "CallTheStorage"
+      Effect   = "Allow"
+      Action   = ["lambda:InvokeFunctionUrl", "lambda:InvokeFunction"]
+      Resource = "arn:aws:lambda:${var.region}:${var.aws_account_id}:function:prospecter-${var.instance}-storage"
+    },
+    {
+      Sid       = "DecryptItsSecretParameters"
+      Effect    = "Allow"
+      Action    = "kms:Decrypt"
+      Resource  = "*"
+      Condition = { StringEquals = { "kms:ViaService" = "ssm.${var.region}.amazonaws.com" } }
+    },
+  ]
+}
+
 resource "aws_iam_role_policy" "lambda" {
   name = "the-data-of-the-api"
   role = aws_iam_role.lambda.id
   policy = jsonencode({
     Version = "2012-10-17"
-    Statement = [
-      {
-        Sid      = "WriteItsLogs"
-        Effect   = "Allow"
-        Action   = ["logs:CreateLogStream", "logs:PutLogEvents"]
-        Resource = "${aws_cloudwatch_log_group.lambda.arn}:*"
-      },
-      {
-        Sid    = "UseItsTables"
-        Effect = "Allow"
-        Action = [
-          "dynamodb:BatchGetItem", "dynamodb:BatchWriteItem", "dynamodb:ConditionCheckItem", "dynamodb:DeleteItem",
-          "dynamodb:DescribeTable", "dynamodb:GetItem", "dynamodb:PutItem", "dynamodb:Query", "dynamodb:Scan",
-          "dynamodb:UpdateItem",
-        ]
-        Resource = concat(local.table_arns, [for arn in local.table_arns : "${arn}/index/*"])
-      },
-      {
-        Sid      = "FindItsUserPool"
-        Effect   = "Allow"
-        Action   = "cognito-idp:ListUserPools"
-        Resource = "*"
-      },
-      {
-        Sid    = "AdministerItsMembers"
-        Effect = "Allow"
-        Action = [
-          "cognito-idp:AdminCreateUser", "cognito-idp:AdminGetUser", "cognito-idp:AdminSetUserPassword",
-          "cognito-idp:AdminUpdateUserAttributes", "cognito-idp:ListUserPoolClients", "cognito-idp:ListUsers",
-        ]
-        Resource = aws_cognito_user_pool.members.arn
-      },
-      {
-        Sid    = "ReadItsParameters"
-        Effect = "Allow"
-        Action = ["ssm:GetParameter", "ssm:GetParameters"]
-        Resource = [
-          "${local.ssm_arn}/*",
-          "arn:aws:ssm:${var.region}:${var.aws_account_id}:parameter${local.storage_ssm_path}/token",
-          "arn:aws:ssm:${var.region}:${var.aws_account_id}:parameter${local.origin_secret_parameter}",
-        ]
-      },
-      {
-        # the internal entry of the storage, a function URL signed by this role (ADR 0068)
-        Sid      = "CallTheStorage"
-        Effect   = "Allow"
-        Action   = ["lambda:InvokeFunctionUrl", "lambda:InvokeFunction"]
-        Resource = "arn:aws:lambda:${var.region}:${var.aws_account_id}:function:prospecter-${var.instance}-storage"
-      },
-      {
-        Sid       = "DecryptItsSecretParameters"
-        Effect    = "Allow"
-        Action    = "kms:Decrypt"
-        Resource  = "*"
-        Condition = { StringEquals = { "kms:ViaService" = "ssm.${var.region}.amazonaws.com" } }
-      },
-    ]
+    Statement = concat([{
+      Sid      = "WriteItsLogs"
+      Effect   = "Allow"
+      Action   = ["logs:CreateLogStream", "logs:PutLogEvents"]
+      Resource = "${aws_cloudwatch_log_group.lambda.arn}:*"
+    }], local.data_statements)
   })
 }
 
@@ -108,27 +112,33 @@ resource "aws_lambda_function" "api" {
   source_code_hash = base64sha256(var.code_version)
 
   environment {
-    variables = {
-      BREF_RUNTIME            = "fpm"
-      APP_ENV                 = "prod"
-      APP_SECRET              = "bref-ssm:${aws_ssm_parameter.app_secret.name}"
-      APP_SHARE_DIR           = "/tmp/share"
-      APP_API_HOST            = local.api_host
-      DEFAULT_URI             = "https://${local.api_host}"
-      TRUSTED_PROXIES         = "REMOTE_ADDR"
-      ORIGIN_SECRET           = local.has_origin_secret ? "bref-ssm:${local.origin_secret_parameter}" : ""
-      CORS_ALLOW_ORIGIN       = local.cors_allow_origin
-      DYNAMODB_ENDPOINT       = ""
-      DYNAMODB_TABLE_PREFIX   = local.name
-      COGNITO_ENDPOINT        = ""
-      COGNITO_USER_POOL_NAME  = aws_cognito_user_pool.members.name
-      COGNITO_KEYS_URL        = "https://cognito-idp.${var.region}.amazonaws.com/%s/.well-known/jwks.json"
-      COGNITO_PUBLIC_ENDPOINT = ""
-      STORAGE_PUBLIC_URL      = local.storage_public_url
-      STORAGE_INTERNAL_URL    = nonsensitive(lookup(local.storage_parameters, "internal-url", ""))
-      STORAGE_TOKEN           = "bref-ssm:${local.storage_ssm_path}/token"
-    }
+    variables = merge(local.environment, { BREF_RUNTIME = "fpm" })
   }
 
   depends_on = [aws_cloudwatch_log_group.lambda, aws_iam_role_policy.lambda]
+}
+
+# the environment of the api, the worker's too (messaging.tf); the delivery stays sync until the reactions are put in
+# service (the worker is deployed, the rules invoke it, nothing is published on the bus yet)
+locals {
+  environment = {
+    APP_ENV                     = "prod"
+    APP_SECRET                  = "bref-ssm:${aws_ssm_parameter.app_secret.name}"
+    APP_SHARE_DIR               = "/tmp/share"
+    APP_API_HOST                = local.api_host
+    DEFAULT_URI                 = "https://${local.api_host}"
+    TRUSTED_PROXIES             = "REMOTE_ADDR"
+    ORIGIN_SECRET               = local.has_origin_secret ? "bref-ssm:${local.origin_secret_parameter}" : ""
+    CORS_ALLOW_ORIGIN           = local.cors_allow_origin
+    DYNAMODB_ENDPOINT           = ""
+    DYNAMODB_TABLE_PREFIX       = local.name
+    COGNITO_ENDPOINT            = ""
+    COGNITO_USER_POOL_NAME      = aws_cognito_user_pool.members.name
+    COGNITO_KEYS_URL            = "https://cognito-idp.${var.region}.amazonaws.com/%s/.well-known/jwks.json"
+    COGNITO_PUBLIC_ENDPOINT     = ""
+    STORAGE_PUBLIC_URL          = local.storage_public_url
+    STORAGE_INTERNAL_URL        = nonsensitive(lookup(local.storage_parameters, "internal-url", ""))
+    STORAGE_TOKEN               = "bref-ssm:${local.storage_ssm_path}/token"
+    INTEGRATION_EVENTS_DELIVERY = "sync"
+  }
 }

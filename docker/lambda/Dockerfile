@@ -7,7 +7,7 @@ FROM bref/php-85:3.0.10 AS php
 FROM bref/extra-imagick-php-85:3@sha256:b6ea36cf9e6bdd8e9a73b20dcf2b578eee27a914785ddf28da07624fb48c303d AS imagick
 
 FROM amazon/aws-cli:2.37.2
-RUN yum install -y -q zip && yum clean all
+RUN yum install -y -q zip jq && yum clean all
 # the layers of the images above, named after their version
 ENV PHP_LAYER=bref-php-85-3-0-10 \
     IMAGICK_LAYER=bref-imagick-php-85-4

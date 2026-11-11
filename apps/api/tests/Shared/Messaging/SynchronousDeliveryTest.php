@@ -56,7 +56,7 @@ class SynchronousDeliveryTest extends TestCase
             $this->causation->withinACommand(fn () => $events->publish($this->collected()));
             $this->fail('the loop went on');
         } catch (EventLoop) {
-            $this->assertSame(SynchronousDelivery::MAX_EVENT_DEPTH + 1, array_last($this->delivered->events)?->depth);
+            $this->assertSame(EventLoop::MAX_EVENT_DEPTH + 1, array_last($this->delivered->events)?->depth);
         }
     }
 
@@ -98,7 +98,7 @@ class SynchronousDeliveryTest extends TestCase
     {
         $codec = new EventCodec(new DomainEventTypes(), new IntegrationEventTypes(), new Payloads(TypeResolver::create()), new Identities());
         $locator = new ServiceLocator(array_map(fn (string $name): \Closure => fn (): EventHandler => $this->reactions[$name], array_combine(array_keys($subscriptions), array_keys($subscriptions))));
-        $declared = array_map(static fn (array $subscription): array => ['sources' => [$subscription[0]], 'events' => [$subscription[1]]], $subscriptions);
+        $declared = array_map(static fn (array $subscription): array => ['context' => 'prospecting', 'sources' => [$subscription[0]], 'events' => [$subscription[1]], 'inbox' => true], $subscriptions);
         $this->delivered = new Recording(new SynchronousDelivery(new Subscriptions($locator, $declared), $codec, $this->causation));
 
         return new RoutingEvents(new MessageBus(), $this->delivered, $codec, $this->causation);
