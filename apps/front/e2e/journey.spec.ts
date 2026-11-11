@@ -115,8 +115,13 @@ test('sign in, start prospecting an organization, change it section by section, 
     await page.getByRole('button', { name: `Retirer ${contact} des contacts` }).click()
     await page.getByRole('button', { name: 'Retirer', exact: true }).click()
     await expect(page.getByText('Aucun contact rattaché.')).toBeVisible()
-    await page.goto('/contacts')
-    await expect(page.getByRole('link', { name: new RegExp(lastName) })).toHaveCount(0)
+    await page
+      .getByRole('navigation', { name: 'Navigation principale' })
+      .getByRole('link', { name: 'Contacts' })
+      .click()
+    await expect(page.getByRole('link', { name: new RegExp(lastName) }), 'erased by a reaction').toHaveCount(
+      0,
+    )
   })
 
   await test.step('an address the geocoder does not know places nothing: the route has its arrival only', async () => {

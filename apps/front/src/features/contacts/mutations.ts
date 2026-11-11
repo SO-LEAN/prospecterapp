@@ -4,6 +4,7 @@ import { toast } from 'sonner'
 import { api } from '@/shared/api/client'
 import { readTheExchangesAgain } from '@/shared/api/exchanges'
 import { queryKeys } from '@/shared/api/keys'
+import { readAgainAfterTheReactions } from '@/shared/api/reactions'
 import { type Contact, contactQuery } from './queries'
 
 /** The contacts listed elsewhere (the list, the contacts of the organizations) show what changed. */
@@ -57,13 +58,17 @@ export function useChangeContactDetailsOfContact() {
 
 export function useForgetContact() {
   const queryClient = useQueryClient()
-  const refreshTheLists = useRefreshTheLists()
 
   return api.useMutation('delete', '/api/contacts/{id}', {
     onSuccess: (_nothing, { params }) => {
       queryClient.removeQueries({ queryKey: contactQuery(params.path.id).queryKey })
-      refreshTheLists()
-      void queryClient.invalidateQueries({ queryKey: queryKeys.organizationList })
+      readAgainAfterTheReactions(
+        queryClient,
+        queryKeys.contactList,
+        queryKeys.organizationContacts,
+        queryKeys.organization,
+        queryKeys.organizationList,
+      )
       readTheExchangesAgain(queryClient)
     },
   })
