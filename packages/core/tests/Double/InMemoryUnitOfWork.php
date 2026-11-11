@@ -31,6 +31,14 @@ final class InMemoryUnitOfWork implements UnitOfWork
         $this->levels[] = false;
     }
 
+    /**
+     * Whether a unit is begun and not ended: a command ends every unit it begins.
+     */
+    public function isOpen(): bool
+    {
+        return [] !== $this->levels;
+    }
+
     public function refuseTheNextCommit(BusinessException $refusal): void
     {
         $this->nextRefusal = $refusal;
