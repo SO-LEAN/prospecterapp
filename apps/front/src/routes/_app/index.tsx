@@ -1,10 +1,10 @@
 import { useSuspenseQuery } from '@tanstack/react-query'
 import { createFileRoute, Link } from '@tanstack/react-router'
-import { ArrowRight, Building2, MapPinned } from 'lucide-react'
+import { ArrowRight } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import { myFirstName } from '@/features/account/me'
 import { accountQuery } from '@/features/account/queries'
-import { StatCard } from '@/features/dashboard/components/stat-card'
+import { DashboardFigures } from '@/features/dashboard/components/dashboard-figures'
 import { dashboardQuery } from '@/features/dashboard/queries'
 import { OrganizationCard } from '@/features/organizations/components/organization-card'
 import { OrganizationPreview } from '@/features/organizations/components/organization-preview'
@@ -58,14 +58,7 @@ function Dashboard() {
         description={t('dashboard.subtitle', { organization: dashboard.organizationName })}
       />
 
-      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-        <StatCard
-          icon={Building2}
-          label={t('dashboard.stats.activeOrganizations')}
-          value={dashboard.stats.activeOrganizations ?? recent.items.length}
-        />
-        <StatCard icon={MapPinned} label={t('dashboard.stats.mapped')} value={markers.length} />
-      </div>
+      <DashboardFigures stats={dashboard.stats} />
 
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-5">
         <Card className="lg:col-span-3">

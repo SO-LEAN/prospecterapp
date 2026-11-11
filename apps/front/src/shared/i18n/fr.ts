@@ -68,7 +68,13 @@ export const fr = {
   dashboard: {
     greeting: 'Bonjour {{name}}',
     subtitle: 'Vue d’ensemble de la prospection {{organization, de}}.',
-    stats: { activeOrganizations: 'Organisations actives', mapped: 'Organisations géolocalisées' },
+    stats: {
+      activeOrganizations: 'Organisations actives',
+      locatedOrganizations: 'Organisations géolocalisées',
+      contacts: 'Contacts',
+      exchanges: 'Échanges notés',
+      exchangesThisMonth: 'Échanges ce mois-ci',
+    },
     map: { title: 'Carte des organisations', empty: 'Aucune organisation géolocalisée pour l’instant.' },
     recent: { title: 'Dernières organisations', viewAll: 'Tout voir', empty: 'Aucune organisation.' },
   },
