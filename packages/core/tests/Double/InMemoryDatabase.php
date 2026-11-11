@@ -9,6 +9,7 @@ use Prospecter\Core\Accounts\Domain\Model\Member;
 use Prospecter\Core\PersonalData\Domain\Model\Person;
 use Prospecter\Core\Prospecting\Domain\Model\Exchange;
 use Prospecter\Core\Prospecting\Domain\Model\Organization;
+use Prospecter\Core\Reporting\Domain\Model\Fact;
 use Prospecter\Core\SharedKernel\Domain\ReleasesEvents;
 
 /**
@@ -30,6 +31,12 @@ final class InMemoryDatabase
     private array $exchanges = [];
     /** @var array<string, int> the revision of each aggregate stored, by its identity, as the documents keep it */
     private array $revisions = [];
+    /** @var array<int, array<string, Fact>> the facts each version of the figures keeps, by the aggregate they are about */
+    private array $facts = [];
+    /** @var array<int, array<string, array<string, int>>> the figures of each version, by account, then by name */
+    private array $figures = [];
+    private ?int $activeVersion = null;
+    private ?int $versionBuilding = null;
 
     public function isEmpty(): bool
     {
@@ -51,6 +58,10 @@ final class InMemoryDatabase
         $this->persons = $snapshot->persons;
         $this->organizations = $snapshot->organizations;
         $this->exchanges = $snapshot->exchanges;
+        $this->facts = $snapshot->facts;
+        $this->figures = $snapshot->figures;
+        $this->activeVersion = $snapshot->activeVersion;
+        $this->versionBuilding = $snapshot->versionBuilding;
         $this->revisions = $snapshot->revisions;
     }
 
@@ -174,6 +185,53 @@ final class InMemoryDatabase
     public function organizations(): array
     {
         return array_values(array_map(static fn (Organization $organization): Organization => clone $organization, $this->organizations));
+    }
+
+    public function fact(int $version, string $aggregate): ?Fact
+    {
+        return $this->facts[$version][$aggregate] ?? null;
+    }
+
+    public function storeFact(int $version, string $aggregate, Fact $fact): void
+    {
+        $this->facts[$version][$aggregate] = $fact;
+    }
+
+    public function figure(int $version, string $accountId, string $name): int
+    {
+        return $this->figures[$version][$accountId][$name] ?? 0;
+    }
+
+    public function addToFigure(int $version, string $accountId, string $name, int $change): void
+    {
+        $this->figures[$version][$accountId][$name] = $this->figure($version, $accountId, $name) + $change;
+    }
+
+    public function activeVersion(): ?int
+    {
+        return $this->activeVersion;
+    }
+
+    public function versionBuilding(): ?int
+    {
+        return $this->versionBuilding;
+    }
+
+    public function startBuilding(int $version): void
+    {
+        $this->versionBuilding = $version;
+    }
+
+    /**
+     * The version built becomes the active one, the former one removed with its facts and its figures.
+     */
+    public function activate(int $version): void
+    {
+        if (null !== $this->activeVersion) {
+            unset($this->facts[$this->activeVersion], $this->figures[$this->activeVersion]);
+        }
+
+        [$this->activeVersion, $this->versionBuilding] = [$version, null];
     }
 
     /**

@@ -129,6 +129,17 @@ use Prospecter\Core\Prospecting\Contract\Service\WhichAreProspected\WhichArePros
 use Prospecter\Core\Prospecting\Domain\Service\ContactOrganizations;
 use Prospecter\Core\Prospecting\Domain\Service\EmailUniqueness as ProspectingEmailUniqueness;
 use Prospecter\Core\Prospecting\Domain\Service\OrphanContacts;
+use Prospecter\Core\Reporting\Application\ConsultFigures\ConsultFigures;
+use Prospecter\Core\Reporting\Application\ConsultFigures\ConsultFiguresHandler;
+use Prospecter\Core\Reporting\Application\ConsultFigures\FiguresResponse;
+use Prospecter\Core\Reporting\Application\ConsultFigures\KeptFigures;
+use Prospecter\Core\Reporting\Application\FactRecorder;
+use Prospecter\Core\Reporting\Application\RebuildFigures\RebuildFigures;
+use Prospecter\Core\Reporting\Application\RebuildFigures\RebuildFiguresHandler;
+use Prospecter\Core\Reporting\Application\RebuildFigures\SourceFacts;
+use Prospecter\Core\Reporting\Application\RecordContactFacts\RecordContactFactsHandler;
+use Prospecter\Core\Reporting\Application\RecordExchangeFacts\RecordExchangeFactsHandler;
+use Prospecter\Core\Reporting\Application\RecordOrganizationFacts\RecordOrganizationFactsHandler;
 use Prospecter\Core\SharedKernel\Application\CommandHandler;
 use Prospecter\Core\SharedKernel\Application\EventHandler;
 use Prospecter\Core\SharedKernel\Application\Exception\UseCaseRefused;
@@ -144,6 +155,7 @@ use Prospecter\Core\SharedKernel\Domain\Exception\BusinessException;
 use Prospecter\Core\SharedKernel\Domain\MemberId;
 use Tests\Core\Double\AccountsProspectors;
 use Tests\Core\Double\AccountsReaders;
+use Tests\Core\Double\AccountsSourceAccounts;
 use Tests\Core\Double\InMemoryAccountListRetriever;
 use Tests\Core\Double\InMemoryAccountRepository;
 use Tests\Core\Double\InMemoryContactFactsRetriever;
@@ -152,6 +164,8 @@ use Tests\Core\Double\InMemoryDatabase;
 use Tests\Core\Double\InMemoryExchangeDetailRetriever;
 use Tests\Core\Double\InMemoryExchangeFactsRetriever;
 use Tests\Core\Double\InMemoryExchangeRepository;
+use Tests\Core\Double\InMemoryFactRepository;
+use Tests\Core\Double\InMemoryFiguresRetriever;
 use Tests\Core\Double\InMemoryFoundOrganizationRetriever;
 use Tests\Core\Double\InMemoryMemberRepository;
 use Tests\Core\Double\InMemoryMemberRetriever;
@@ -162,12 +176,16 @@ use Tests\Core\Double\InMemoryOrganizationSheetRetriever;
 use Tests\Core\Double\InMemoryPersonCardRetriever;
 use Tests\Core\Double\InMemoryPersonRepository;
 use Tests\Core\Double\InMemoryPrivateStorage;
+use Tests\Core\Double\InMemoryProjectionVersions;
 use Tests\Core\Double\InMemoryStorage;
 use Tests\Core\Double\InMemoryTimelineRetriever;
 use Tests\Core\Double\InMemoryUnitOfWork;
 use Tests\Core\Double\KnownPlacesGeoLocation;
+use Tests\Core\Double\NoRecordingsInFlight;
 use Tests\Core\Double\PersonalDataKnownContacts;
 use Tests\Core\Double\ProspectingOrganizations;
+use Tests\Core\Double\SlicedPersonalDataFacts;
+use Tests\Core\Double\SlicedProspectingFacts;
 use Tests\Core\Double\SynchronousEvents;
 use Tests\Core\Double\TimeOrderedUuids;
 
@@ -221,6 +239,10 @@ final class Application
     private readonly ProspectingEmailUniqueness $organizationEmails;
     private readonly OrphanContacts $orphans;
     private readonly ContactOrganizations $contactOrganizations;
+    public readonly InMemoryProjectionVersions $projectionVersions;
+    private readonly AccountsSourceAccounts $sourceAccounts;
+    private readonly InMemoryFiguresRetriever $figuresRetriever;
+    private readonly FactRecorder $factRecorder;
     /** @var array<class-string, CommandHandler> */
     private array $handlers = [];
     private ?string $signedIn = null;
@@ -271,6 +293,10 @@ final class Application
         $this->organizationEmails = new ProspectingEmailUniqueness($this->organizations);
         $this->orphans = new OrphanContacts($this->organizations);
         $this->contactOrganizations = new ContactOrganizations($this->organizations);
+        $this->projectionVersions = new InMemoryProjectionVersions($database);
+        $this->sourceAccounts = new AccountsSourceAccounts($this->listAccountsService, $this->consultMembersService);
+        $this->figuresRetriever = new InMemoryFiguresRetriever($database);
+        $this->factRecorder = new FactRecorder(new InMemoryFactRepository($database), $this->projectionVersions);
 
         foreach ($this->translators() as $translator) {
             $this->events->translateWith($translator, calledThrough: new RefusalTranslatingEventHandler(new TransactionalEventHandler($translator, $this->unitOfWork)));
@@ -283,6 +309,8 @@ final class Application
         foreach ($this->commandHandlers() as $handler) {
             $this->handlers[$this->commandOf($handler)] = new RefusalTranslatingCommandHandler(new TransactionalCommandHandler($handler, $this->unitOfWork));
         }
+
+        $this->handlers[RebuildFigures::class] = new RefusalTranslatingCommandHandler($this->rebuildFigures());
     }
 
     /**
@@ -458,6 +486,32 @@ final class Application
         return $this->ask(new DownloadAttachmentHandler($this->exchanges, $this->prospectors, $this->privateStorage), $query, $kept) ? $kept->download : null;
     }
 
+    public function consultFigures(ConsultFigures $query): ?FiguresResponse
+    {
+        $kept = new KeptFigures();
+
+        return $this->ask(new ConsultFiguresHandler($this->sourceAccounts, $this->projectionVersions, $this->figuresRetriever), $query, $kept) ? $kept->figures : null;
+    }
+
+    /**
+     * Events delivered to their reactions at the same time, as invocations of the worker running together: each
+     * reaction reads what it needs before any writes.
+     */
+    public function publishAtTheSameTime(object ...$events): void
+    {
+        $deliveries = array_map(fn (object $event): \Fiber => new \Fiber(fn () => $this->publishAgain($event)), $events);
+
+        foreach ($deliveries as $delivery) {
+            $delivery->start();
+        }
+
+        while (array_any($deliveries, static fn (\Fiber $delivery): bool => !$delivery->isTerminated())) {
+            foreach (array_filter($deliveries, static fn (\Fiber $delivery): bool => $delivery->isSuspended()) as $delivery) {
+                $delivery->resume();
+            }
+        }
+    }
+
     /**
      * The business refusal of the last command or query, null when it succeeded.
      */
@@ -614,7 +668,24 @@ final class Application
             new DiscardRemovedLogoHandler($this->storage),
             new DiscardRemovedAttachmentHandler($this->privateStorage),
             new DiscardAttachmentsOfErasedExchangeHandler($this->privateStorage),
+            new RecordOrganizationFactsHandler($this->factRecorder),
+            new RecordExchangeFactsHandler($this->factRecorder),
+            new RecordContactFactsHandler($this->factRecorder),
         ];
+    }
+
+    /**
+     * The rebuild commits each of its steps in a unit of its own: no unit of work around it (ADR 0103).
+     */
+    private function rebuildFigures(): RebuildFiguresHandler
+    {
+        return new RebuildFiguresHandler(
+            $this->projectionVersions,
+            new NoRecordingsInFlight(),
+            new SourceFacts($this->sourceAccounts, new SlicedProspectingFacts($this->listOrganizationFactsService, $this->listExchangeFactsService), new SlicedPersonalDataFacts($this->listContactFactsService)),
+            $this->factRecorder,
+            $this->unitOfWork,
+        );
     }
 
     /**
