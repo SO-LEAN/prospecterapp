@@ -108,3 +108,4 @@ Why the project is shaped the way it is: one record per decision, in the order t
 | [0102](0102-a-transactional-inbox-per-subscription.md) | A transactional inbox per subscription | architecture | Accepted | 2026-11-11 |
 | [0103](0103-the-reporting-context-and-its-rebuildable-projections.md) | The Reporting context and its rebuildable projections | architecture | Accepted | 2026-11-11 |
 | [0104](0104-reporting-keeps-its-figures-by-additions-its-rebuild-run-from-the-console.md) | Reporting keeps its figures by additions in a table of its own, its rebuild run from the console | architecture | Accepted | 2026-11-11 |
+| [0105](0105-a-read-only-check-of-the-consistency-reads-the-tables-of-every-context.md) | A read-only check of the consistency reads the tables of every context | architecture | Accepted | 2026-11-11 |
