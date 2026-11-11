@@ -40,7 +40,7 @@ final readonly class DynamoFactRepository implements FactRepository
 
     public function find(int $version, Fact $about): ?Fact
     {
-        $item = $this->reportingTable->item(ReportingKeys::facts($version, $about->accountId), ReportingKeys::fact($about));
+        $item = $this->reportingTable->item(ReportingKeys::facts($version, $about->accountId->value), ReportingKeys::fact($about));
 
         return null === $item ? null : self::factOf($about, $item);
     }
@@ -53,7 +53,7 @@ final readonly class DynamoFactRepository implements FactRepository
     private function factWrite(int $version, Fact $fact, ?Fact $replaced): Write
     {
         $item = [
-            'PK' => ReportingKeys::facts($version, $fact->accountId),
+            'PK' => ReportingKeys::facts($version, $fact->accountId->value),
             'SK' => ReportingKeys::fact($fact),
             'revision' => $fact->revision,
             'present' => $fact->present,
@@ -71,7 +71,7 @@ final readonly class DynamoFactRepository implements FactRepository
      */
     private function figuresWrites(int $version, Fact $fact, FiguresChange $change): array
     {
-        $figures = ReportingKeys::figures($version, $fact->accountId);
+        $figures = ReportingKeys::figures($version, $fact->accountId->value);
         $total = array_filter([
             'activeOrganizations' => $change->activeOrganizations,
             'locatedOrganizations' => $change->locatedOrganizations,

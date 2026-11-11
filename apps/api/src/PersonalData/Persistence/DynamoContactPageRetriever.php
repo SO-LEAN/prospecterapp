@@ -27,7 +27,7 @@ final readonly class DynamoContactPageRetriever implements ContactPageRetriever
     public function sliceFor(Reader $reader, ?SearchKey $search, ?string $after, int $max): ContactPage
     {
         $items = null === $search
-            ? $this->personalDataTable->query(PersonalDataKeys::listOf($reader->accountId, Purpose::Prospecting), Table::BY_GSI1, $after, $max + 1)
+            ? $this->personalDataTable->query(PersonalDataKeys::contactsOf($reader->accountId->value), Table::BY_GSI1, $after, $max + 1)
             : $this->inTheOrderOf(SearchIndexes::found($this->personalDataTable, PersonalDataKeys::scopeOf($reader->accountId, Purpose::Prospecting), $search, null === $after ? null : PersonalDataKeys::person($after), $max + 1));
         $slice = Documents::slice(array_map(static fn (array $item): PersonCard => PersonCards::of($item['person'], $reader), $items), $max, static fn (PersonCard $contact): string => $contact->id);
 

@@ -36,7 +36,7 @@ final readonly class DynamoContactFactsRetriever implements ContactFactsRetrieve
 
     public function sliceOf(AccountId $accountId, ?string $after, int $max): Slice
     {
-        $items = $this->personalDataTable->query(PersonalDataKeys::listOf($accountId, Purpose::Prospecting), Table::BY_GSI1, $after, $max + 1);
+        $items = $this->personalDataTable->query(PersonalDataKeys::contactsOf($accountId->value), Table::BY_GSI1, $after, $max + 1);
 
         return Documents::slice(array_map(self::factsOf(...), $items), $max, static fn (ContactFactsResponse $facts): string => $facts->personId);
     }

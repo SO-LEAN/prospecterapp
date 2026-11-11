@@ -7,7 +7,6 @@ use Prospecter\Core\Reporting\Domain\Model\ExchangeFact;
 use Prospecter\Core\Reporting\Domain\Model\Fact;
 use Prospecter\Core\Reporting\Domain\Model\Month;
 use Prospecter\Core\Reporting\Domain\Model\OrganizationFact;
-use Prospecter\Core\SharedKernel\Domain\AccountId;
 
 /**
  * The keys of the items of the table of Reporting, written by the repository and read by the retriever (ADR 0088):
@@ -30,9 +29,9 @@ final class ReportingKeys
     private const string EXCHANGE = 'EXCHANGE#';
     private const string CONTACT = 'CONTACT#';
 
-    public static function facts(int $version, AccountId $accountId): string
+    public static function facts(int $version, string $accountId): string
     {
-        return self::ofTheVersion($version, self::FACTS).$accountId->value;
+        return self::ofTheVersion($version, self::FACTS).$accountId;
     }
 
     public static function fact(Fact $fact): string
@@ -45,9 +44,9 @@ final class ReportingKeys
         }.$fact->id->value;
     }
 
-    public static function figures(int $version, AccountId $accountId): string
+    public static function figures(int $version, string $accountId): string
     {
-        return self::ofTheVersion($version, self::FIGURES).$accountId->value;
+        return self::ofTheVersion($version, self::FIGURES).$accountId;
     }
 
     public static function month(Month $month): string

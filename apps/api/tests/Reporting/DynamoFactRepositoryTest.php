@@ -67,7 +67,7 @@ class DynamoFactRepositoryTest extends ApiTestCase
         $this->recorder()->record(new OrganizationFact($this->account, $organization, 0, false, false));
         $this->recorder()->record($this->organization($organization, revision: 4, located: true));
 
-        $item = $this->reportingTable()->item(ReportingKeys::facts(self::VERSION, $this->account), 'ORGANIZATION#'.$organization->value);
+        $item = $this->reportingTable()->item(ReportingKeys::facts(self::VERSION, $this->account->value), 'ORGANIZATION#'.$organization->value);
         $this->assertFalse($item['present']);
         $this->assertEqualsWithDelta(new \DateTimeImmutable('+15 days')->getTimestamp(), $item['expiresAt'], 60);
         $this->assertSame([0, 0], [$this->figures()->activeOrganizations, $this->figures()->locatedOrganizations]);
