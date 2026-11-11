@@ -20,6 +20,20 @@ interface ProjectionVersions
      */
     public function live(): array;
 
+    /**
+     * The version being built, if any, is no longer live: the facts received are no longer recorded in it.
+     */
+    public function abandonBuilding(): void;
+
+    /**
+     * Every version but the active one is removed, its facts and its figures: what an abandoned rebuild left, and
+     * what a recording wrote in a former version after its removal.
+     */
+    public function removeAbandoned(): void;
+
+    /**
+     * The version becomes live beside the active one: the facts received are recorded in it too.
+     */
     public function startBuilding(int $version): void;
 
     /**
