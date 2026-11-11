@@ -69,8 +69,23 @@ test('the timeline of an organization gathers its exchanges and those of its con
     await expect(timeline.first()).toContainText('E-mail, Envoyé')
   })
 
-  await test.step('stopping to prospect the organization takes everything along', async () => {
+  await test.step('Test Deux forgotten from their card, a reaction detaches them from the organization', async () => {
     await page.getByRole('link', { name: organization }).click()
+    await page.getByRole('link', { name: 'Test Deux' }).click()
+    await page.getByRole('button', { name: 'Effacer la fiche' }).click()
+    await page.getByRole('button', { name: 'Effacer définitivement' }).click()
+
+    await page
+      .getByRole('navigation', { name: 'Navigation principale' })
+      .getByRole('link', { name: 'Organisations' })
+      .click()
+    await page.getByRole('link', { name: organization }).click()
+    await expect(page.getByRole('heading', { name: organization })).toBeVisible()
+    await expect(page.getByRole('link', { name: 'Test Un' })).toBeVisible()
+    await expect(page.getByRole('link', { name: 'Test Deux' }), 'detached by a reaction').toHaveCount(0)
+  })
+
+  await test.step('stopping to prospect the organization takes everything along', async () => {
     await page.getByRole('button', { name: 'Arrêter de prospecter' }).click()
     await page.getByRole('button', { name: 'Arrêter définitivement' }).click()
     await expect(page.getByRole('heading', { name: 'Organisations' })).toBeVisible()
