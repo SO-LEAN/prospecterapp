@@ -140,6 +140,7 @@ use Prospecter\Core\SharedKernel\Application\RefusalTranslatingEventHandler;
 use Prospecter\Core\SharedKernel\Application\RefusalTranslatingQueryHandler;
 use Prospecter\Core\SharedKernel\Application\TransactionalCommandHandler;
 use Prospecter\Core\SharedKernel\Application\TransactionalEventHandler;
+use Prospecter\Core\SharedKernel\Domain\Exception\BusinessException;
 use Prospecter\Core\SharedKernel\Domain\MemberId;
 use Tests\Core\Double\AccountsProspectors;
 use Tests\Core\Double\AccountsReaders;
@@ -291,6 +292,14 @@ final class Application
     public function alsoReactWith(EventHandler $reaction): void
     {
         $this->events->subscribe($reaction, calledThrough: new RefusalTranslatingEventHandler(new TransactionalEventHandler($reaction, $this->unitOfWork)));
+    }
+
+    /**
+     * The next command is refused when it commits, after its handler ran, as a write whose condition no longer holds.
+     */
+    public function refuseTheNextCommit(BusinessException $refusal): void
+    {
+        $this->unitOfWork->refuseTheNextCommit($refusal);
     }
 
     public function signIn(MemberId $user): void

@@ -128,6 +128,12 @@ final class AttachmentContext implements Context
         Expect::same($this->contents[$file], $this->application->privateStorage->read($this->download->url));
     }
 
+    #[Then('le fichier :file est toujours gardé')]
+    public function theFileIsStillKept(string $file): void
+    {
+        Expect::that($this->application->privateStorage->holds($this->files[$file]), sprintf('%s was expected to stay in the storage', $file));
+    }
+
     #[Then('le fichier :file n\'est plus téléchargeable')]
     public function theFileIsNoLongerDownloadable(string $file): void
     {

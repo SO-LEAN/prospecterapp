@@ -47,6 +47,12 @@ final class AllOrNothingContext implements Context
         }));
     }
 
+    #[Given('le prochain enregistrement est refusé : :message')]
+    public function theNextCommitIsRefused(string $message): void
+    {
+        $this->application->refuseTheNextCommit(BusinessRuleViolation::because($message));
+    }
+
     #[Then('l\'ouverture du compte attend en file d\'échec : :message')]
     public function theOpeningOfTheAccountWaitsInTheFailures(string $message): void
     {
