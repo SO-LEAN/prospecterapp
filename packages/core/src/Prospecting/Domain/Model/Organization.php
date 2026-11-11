@@ -168,15 +168,13 @@ final class Organization implements ReleasesEvents
         $this->recordThat(new LogoChanged($this->accountId, $by, $this->id, $at));
     }
 
-    public function removeLogo(MemberId $by, \DateTimeImmutable $at): File
+    public function removeLogo(MemberId $by, \DateTimeImmutable $at): void
     {
         $this->ensurePossible(OrganizationIntent::RemoveLogo);
         $removed = $this->logo;
         $this->logo = null;
         $this->modifiedAt = $at;
-        $this->recordThat(new LogoRemoved($this->accountId, $by, $this->id, $at));
-
-        return $removed;
+        $this->recordThat(new LogoRemoved($this->accountId, $by, $this->id, $removed->url, $at));
     }
 
     /**

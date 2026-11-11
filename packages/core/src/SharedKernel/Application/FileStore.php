@@ -20,9 +20,4 @@ final readonly class FileStore
 
         return new File($this->storage->add($upload), $extension, $size);
     }
-
-    public function discard(File $file): void
-    {
-        $this->storage->remove($file->url);
-    }
 }

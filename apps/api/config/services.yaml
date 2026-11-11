@@ -51,7 +51,6 @@ services:
     Prospecter\Core\Prospecting\Domain\Service\EmailUniqueness: ~
     Prospecter\Core\Prospecting\Domain\Service\OrphanContacts: ~
     Prospecter\Core\Prospecting\Domain\Service\ContactOrganizations: ~
-    Prospecter\Core\Prospecting\Application\AttachedFiles: ~
     Prospecter\Core\PersonalData\Domain\Service\EmailUniqueness: ~
 
     # DynamoDB (ADR 0048): MiniStack locally (DYNAMODB_ENDPOINT), AWS in production (DYNAMODB_ENDPOINT empty);

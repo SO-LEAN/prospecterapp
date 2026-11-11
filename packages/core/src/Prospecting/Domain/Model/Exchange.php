@@ -231,7 +231,7 @@ final class Exchange implements ReleasesEvents
     public function erase(MemberId $by, \DateTimeImmutable $at): void
     {
         $this->ensurePossible(ExchangeIntent::EraseExchange);
-        $this->recordThat(new ExchangeErased($this->accountId, $by, $this->id, $at));
+        $this->recordThat(new ExchangeErased($this->accountId, $by, $this->id, array_map(static fn (Attachment $attachment): string => $attachment->file, $this->attachments), $at));
     }
 
     /**
@@ -248,19 +248,15 @@ final class Exchange implements ReleasesEvents
     }
 
     /**
-     * Gives back the file removed, for the client to remove it from the storage.
-     *
      * @throws UnknownAttachment
      */
-    public function removeAttachment(AttachmentId $id, MemberId $by, \DateTimeImmutable $at): Attachment
+    public function removeAttachment(AttachmentId $id, MemberId $by, \DateTimeImmutable $at): void
     {
         $this->ensurePossible(ExchangeIntent::RemoveAttachment);
         $removed = $this->attachment($id);
         $this->attachments = array_values(array_filter($this->attachments, static fn (Attachment $attachment): bool => $attachment !== $removed));
         $this->modifiedAt = $at;
-        $this->recordThat(new AttachmentRemoved($this->accountId, $by, $this->id, $id, $at));
-
-        return $removed;
+        $this->recordThat(new AttachmentRemoved($this->accountId, $by, $this->id, $id, $removed->file, $at));
     }
 
     /**
