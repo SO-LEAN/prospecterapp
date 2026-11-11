@@ -9,7 +9,7 @@ namespace App\Consistency;
 final readonly class Discrepancy
 {
     public function __construct(
-        public string $account,
+        public ?string $account,
         public string $concerns,
         public string $description,
         public Correction $correction,

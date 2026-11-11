@@ -67,6 +67,6 @@ final readonly class CheckConsistencyCommand
      */
     private static function rowOf(Discrepancy $discrepancy): array
     {
-        return [$discrepancy->account, $discrepancy->concerns, $discrepancy->description, $discrepancy->correction->value];
+        return [$discrepancy->account ?? '', $discrepancy->concerns, $discrepancy->description, $discrepancy->correction->value];
     }
 }

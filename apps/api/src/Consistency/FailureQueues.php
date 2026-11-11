@@ -32,7 +32,7 @@ final readonly class FailureQueues
     {
         $waiting = $this->waitingIn($queue);
 
-        return 0 === $waiting ? null : new Discrepancy('', $queue, sprintf('%d message(s) waiting', $waiting), $correction);
+        return 0 === $waiting ? null : new Discrepancy(null, $queue, sprintf('%d message(s) waiting', $waiting), $correction);
     }
 
     private function waitingIn(string $queue): int
