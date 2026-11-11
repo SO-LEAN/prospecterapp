@@ -222,6 +222,64 @@ final class InMemoryDatabase
         $this->versionBuilding = $version;
     }
 
+    public function abandonBuilding(): void
+    {
+        $this->versionBuilding = null;
+    }
+
+    /**
+     * The keys of the facts (version, aggregate) and of the figures (version, account, name) of every version but the
+     * one kept, as a scan reads them.
+     *
+     * @return array{facts: list<array{int, string}>, figures: list<array{int, string, string}>}
+     */
+    public function itemsOfEveryVersionBut(?int $kept): array
+    {
+        $items = ['facts' => [], 'figures' => []];
+
+        foreach ($this->facts as $version => $facts) {
+            foreach ($version === $kept ? [] : array_keys($facts) as $aggregate) {
+                $items['facts'][] = [$version, $aggregate];
+            }
+        }
+
+        foreach ($this->figures as $version => $accounts) {
+            foreach ($version === $kept ? [] : $accounts as $account => $figures) {
+                foreach (array_keys($figures) as $name) {
+                    $items['figures'][] = [$version, $account, $name];
+                }
+            }
+        }
+
+        return $items;
+    }
+
+    /**
+     * @param array{facts: list<array{int, string}>, figures: list<array{int, string, string}>} $items
+     */
+    public function removeItems(array $items): void
+    {
+        foreach ($items['facts'] as [$version, $aggregate]) {
+            unset($this->facts[$version][$aggregate]);
+        }
+
+        foreach ($items['figures'] as [$version, $account, $name]) {
+            unset($this->figures[$version][$account][$name]);
+        }
+    }
+
+    /**
+     * @return list<int> the versions keeping a fact or a figure
+     */
+    public function versionsKept(): array
+    {
+        $items = $this->itemsOfEveryVersionBut(null);
+        $versions = array_unique(array_map(static fn (array $item): int => $item[0], [...$items['facts'], ...$items['figures']]));
+        sort($versions);
+
+        return $versions;
+    }
+
     /**
      * The version built becomes the active one, the former one removed with its facts and its figures.
      */

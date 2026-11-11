@@ -7,13 +7,18 @@ namespace Tests\Core\Double;
 use Prospecter\Core\Reporting\Application\Port\ProjectionVersions;
 
 /**
- * The versions of the figures over the InMemoryDatabase. A scenario may do a gesture just before the next activation,
- * once the rebuild read every fact again, as a member may while a rebuild runs.
+ * The versions of the figures over the InMemoryDatabase. A scenario may do a gesture while a rebuild removes the
+ * abandoned versions, between their reading and their removal, as DynamoDB scans then deletes, or just before the next
+ * activation, once the rebuild read every fact again, as a member may while a rebuild runs; it may interrupt the next
+ * activation, the version left being built.
  */
 final class InMemoryProjectionVersions implements ProjectionVersions
 {
     /** @var (\Closure(): void)|null */
+    private ?\Closure $whileRemovingTheAbandoned = null;
+    /** @var (\Closure(): void)|null */
     private ?\Closure $beforeTheNextActivation = null;
+    private bool $interruptTheNextActivation = false;
 
     public function __construct(private readonly InMemoryDatabase $database)
     {
@@ -22,9 +27,30 @@ final class InMemoryProjectionVersions implements ProjectionVersions
     /**
      * @param \Closure(): void $gesture
      */
+    public function whileRemovingTheAbandoned(\Closure $gesture): void
+    {
+        $this->whileRemovingTheAbandoned = $gesture;
+    }
+
+    /**
+     * @param \Closure(): void $gesture
+     */
     public function beforeTheNextActivation(\Closure $gesture): void
     {
         $this->beforeTheNextActivation = $gesture;
+    }
+
+    public function interruptTheNextActivation(): void
+    {
+        $this->interruptTheNextActivation = true;
+    }
+
+    /**
+     * @return list<int>
+     */
+    public function versionsKeepingFactsOrFigures(): array
+    {
+        return $this->database->versionsKept();
     }
 
     public function active(): ?int
@@ -37,6 +63,19 @@ final class InMemoryProjectionVersions implements ProjectionVersions
         return array_values(array_filter([$this->database->activeVersion(), $this->database->versionBuilding()], static fn (?int $version): bool => null !== $version));
     }
 
+    public function abandonBuilding(): void
+    {
+        $this->database->abandonBuilding();
+    }
+
+    public function removeAbandoned(): void
+    {
+        $read = $this->database->itemsOfEveryVersionBut($this->active());
+        [$gesture, $this->whileRemovingTheAbandoned] = [$this->whileRemovingTheAbandoned, null];
+        self::run($gesture);
+        $this->database->removeItems($read);
+    }
+
     public function startBuilding(int $version): void
     {
         $this->database->startBuilding($version);
@@ -44,12 +83,24 @@ final class InMemoryProjectionVersions implements ProjectionVersions
 
     public function activate(int $version): void
     {
-        [$gesture, $this->beforeTheNextActivation] = [$this->beforeTheNextActivation, null];
+        if ($this->interruptTheNextActivation) {
+            $this->interruptTheNextActivation = false;
 
+            throw new RebuildInterrupted(sprintf('The activation of version %d was cancelled', $version));
+        }
+
+        [$gesture, $this->beforeTheNextActivation] = [$this->beforeTheNextActivation, null];
+        self::run($gesture);
+        $this->database->activate($version);
+    }
+
+    /**
+     * @param (\Closure(): void)|null $gesture
+     */
+    private static function run(?\Closure $gesture): void
+    {
         if (null !== $gesture) {
             $gesture();
         }
-
-        $this->database->activate($version);
     }
 }
