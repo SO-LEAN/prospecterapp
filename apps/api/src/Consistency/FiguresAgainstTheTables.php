@@ -4,7 +4,6 @@ namespace App\Consistency;
 
 use App\Reporting\Persistence\ReportingKeys;
 use App\Shared\Persistence\Documents;
-use Prospecter\Core\Reporting\Domain\Model\Month;
 
 /**
  * The figures of each account counted again from the tables of Accounts, PersonalData and Prospecting, against those
@@ -16,6 +15,8 @@ final readonly class FiguresAgainstTheTables
     private const string ACTIVE_ORGANIZATIONS = 'activeOrganizations';
     private const string LOCATED_ORGANIZATIONS = 'locatedOrganizations';
     private const string CONTACTS = 'contacts';
+    /** a month as Reporting counts it, of a moment stored in UTC */
+    private const string MONTH = 'Y-m';
     private const array FIGURES_OF_THE_TOTAL = [self::ACTIVE_ORGANIZATIONS, self::LOCATED_ORGANIZATIONS, self::CONTACTS, ReportingKeys::EXCHANGES];
 
     public function __construct(private ContextTables $tables)
@@ -71,7 +72,7 @@ final readonly class FiguresAgainstTheTables
      */
     private function exchangesByMonth(string $accountId): array
     {
-        $months = array_map(static fn (array $exchange): string => Month::of(Documents::momentOf($exchange['facts']['occurredAt']))->value, $this->tables->exchangesOf($accountId));
+        $months = array_map(static fn (array $exchange): string => Documents::momentOf($exchange['facts']['occurredAt'])->format(self::MONTH), $this->tables->exchangesOf($accountId));
         $exchangesByMonth = array_count_values($months);
 
         return array_combine(array_map(self::figureOfTheMonth(...), array_keys($exchangesByMonth)), $exchangesByMonth);

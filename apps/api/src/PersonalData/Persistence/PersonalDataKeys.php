@@ -27,6 +27,14 @@ final class PersonalDataKeys
     }
 
     /**
+     * The contacts of an account, the persons it keeps for its prospecting, listed in `GSI1`.
+     */
+    public static function contactsOf(string $accountId): string
+    {
+        return self::listOf(new AccountId($accountId), Purpose::Prospecting);
+    }
+
+    /**
      * The persons an account keeps for a purpose, listed in `GSI1`.
      */
     public static function listOf(AccountId $accountId, Purpose $purpose): string

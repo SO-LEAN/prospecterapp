@@ -20,7 +20,7 @@ final readonly class DynamoFiguresRetriever implements FiguresRetriever
 
     public function of(int $version, AccountId $accountId, Month $month): FiguresResponse
     {
-        $figures = ReportingKeys::figures($version, $accountId);
+        $figures = ReportingKeys::figures($version, $accountId->value);
         $items = array_column($this->reportingTable->items([[$figures, ReportingKeys::TOTAL], [$figures, ReportingKeys::month($month)]]), null, 'SK');
         $total = $items[ReportingKeys::TOTAL] ?? [];
 

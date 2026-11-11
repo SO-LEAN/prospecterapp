@@ -8,8 +8,6 @@ use App\Prospecting\Persistence\ExchangeKeys;
 use App\Prospecting\Persistence\OrganizationKeys;
 use App\Reporting\Persistence\ReportingKeys;
 use App\Shared\Persistence\Table;
-use Prospecter\Core\PersonalData\Domain\Model\Purpose;
-use Prospecter\Core\SharedKernel\Domain\AccountId;
 
 /**
  * The tables of every context, read directly by their keys and their indexes, never through the services the contexts
@@ -64,17 +62,12 @@ final readonly class ContextTables
      */
     public function contactsOf(string $accountId): array
     {
-        return array_map(static fn (array $item): string => $item['person']['id'], $this->personalDataTable->query(self::contactsListOf($accountId), Table::BY_GSI1));
+        return array_map(static fn (array $item): string => $item['person']['id'], $this->personalDataTable->query(PersonalDataKeys::contactsOf($accountId), Table::BY_GSI1));
     }
 
     public function countContactsOf(string $accountId): int
     {
-        return $this->personalDataTable->count(self::contactsListOf($accountId), Table::BY_GSI1);
-    }
-
-    private static function contactsListOf(string $accountId): string
-    {
-        return PersonalDataKeys::listOf(new AccountId($accountId), Purpose::Prospecting);
+        return $this->personalDataTable->count(PersonalDataKeys::contactsOf($accountId), Table::BY_GSI1);
     }
 
     /**
@@ -111,6 +104,6 @@ final readonly class ContextTables
     {
         $active = $this->reportingTable->item(ReportingKeys::PROJECTION, ReportingKeys::ACTIVE);
 
-        return null === $active ? [] : $this->reportingTable->query(ReportingKeys::figures((int) $active['version'], new AccountId($accountId)));
+        return null === $active ? [] : $this->reportingTable->query(ReportingKeys::figures((int) $active['version'], $accountId));
     }
 }
