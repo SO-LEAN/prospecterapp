@@ -182,6 +182,9 @@ services:
               credentials: '%app.aws_credentials%'
     App\Shared\Messaging\IntegrationFailures:
         arguments: { $name: '%env(INTEGRATION_FAILURES_QUEUE)%', $clock: '@app.commit_clock' }
+    # app:consistency:check counts what waits in the failures of the worker and in those of the relay (ADR 0105)
+    App\Consistency\FailureQueues:
+        arguments: { $integrationFailures: '%env(INTEGRATION_FAILURES_QUEUE)%', $relayFailures: '%env(RELAY_FAILURES_QUEUE)%' }
     Aws\Lambda\LambdaClient:
         arguments:
             - region: '%env(AWS_REGION)%'

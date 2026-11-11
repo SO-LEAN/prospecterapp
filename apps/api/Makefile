@@ -37,7 +37,8 @@ openapi: ## Regenerate the OpenAPI contract of the API (openapi.json) after chan
 # a command on MiniStack, or with INSTANCE= on the tables and the user pool of an instance on AWS, from this machine:
 # the temporary credentials of its AWS profile, exported by the AWS CLI in its image, reach the php container through
 # the environment only; the names are those of infra/ (the bus of app:outbox:republish, the queue of the failures and
-# the worker of app:integration:redrive too), the delivery sync as the api's until the reactions are put in service
+# the worker of app:integration:redrive, the queues of the failures app:consistency:check counts too), the delivery
+# sync as the api's until the reactions are put in service
 console: ## Run a command of the API, on MiniStack or with INSTANCE= on AWS: make console CMD="app:account:open 'SOLEAN IT' me@example.com" [INSTANCE=dev]
 	@test -n "$(CMD)" || { echo "Usage: make console CMD=\"<command of bin/console>\" [INSTANCE=<dev|prod|...>]"; exit 1; }
 ifeq ($(origin INSTANCE),command line)
@@ -49,6 +50,7 @@ ifeq ($(origin INSTANCE),command line)
 		-e EVENTBRIDGE_ENDPOINT= -e INTEGRATION_EVENT_BUS=prospecter-$(INSTANCE)-api-integration \
 		-e INTEGRATION_EVENTS_DELIVERY=sync -e SQS_ENDPOINT= -e LAMBDA_ENDPOINT= \
 		-e INTEGRATION_FAILURES_QUEUE=prospecter-$(INSTANCE)-api-integration-failures \
+		-e RELAY_FAILURES_QUEUE=prospecter-$(INSTANCE)-api-relay-failures \
 		-e INTEGRATION_WORKER=prospecter-$(INSTANCE)-api-worker \
 		-e COGNITO_USER_POOL_NAME=prospecter-$(INSTANCE)-api-members php bin/console $(CMD)
 else

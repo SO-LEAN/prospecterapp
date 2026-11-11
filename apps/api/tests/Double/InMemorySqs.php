@@ -9,7 +9,7 @@ use GuzzleHttp\Promise\PromiseInterface;
 
 /**
  * SQS as the client of the SDK reaches it, in memory: one queue per name, its messages kept in order, received ten
- * at most at a time and hidden once received, until deleted.
+ * at most at a time and hidden once received, until deleted; it counts those waiting, visible or hidden.
  */
 final class InMemorySqs
 {
@@ -41,6 +41,7 @@ final class InMemorySqs
             'SendMessage' => $this->sendMessage($this->queueOf($command), $command['MessageBody']),
             'ReceiveMessage' => ['Messages' => $this->receive($this->queueOf($command), $command['MaxNumberOfMessages'] ?? 1)],
             'DeleteMessage' => $this->delete($this->queueOf($command), $command['ReceiptHandle']),
+            'GetQueueAttributes' => ['Attributes' => $this->countsOf($this->queueOf($command))],
             default => throw new \LogicException(sprintf('The SQS of the tests does not answer %s', $command->getName())),
         }));
     }
@@ -69,6 +70,17 @@ final class InMemorySqs
         $this->received += array_fill_keys(array_keys($visible), true);
 
         return array_map(static fn (string $receipt, string $body): array => ['MessageId' => 'message-of-'.$receipt, 'ReceiptHandle' => $receipt, 'Body' => $body], array_keys($visible), $visible);
+    }
+
+    /**
+     * @return array{ApproximateNumberOfMessages: string, ApproximateNumberOfMessagesNotVisible: string}
+     */
+    private function countsOf(string $queue): array
+    {
+        $waiting = $this->queues[$queue] ?? [];
+        $hidden = count(array_intersect_key($waiting, $this->received));
+
+        return ['ApproximateNumberOfMessages' => (string) (count($waiting) - $hidden), 'ApproximateNumberOfMessagesNotVisible' => (string) $hidden];
     }
 
     /**
