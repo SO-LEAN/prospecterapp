@@ -271,8 +271,12 @@ final class Application
         $this->orphans = new OrphanContacts($this->organizations);
         $this->contactOrganizations = new ContactOrganizations($this->organizations);
 
-        foreach ($this->eventHandlers() as $handler) {
-            $this->alsoReactWith($handler);
+        foreach ($this->translators() as $translator) {
+            $this->events->translateWith($translator, calledThrough: new RefusalTranslatingEventHandler(new TransactionalEventHandler($translator, $this->unitOfWork)));
+        }
+
+        foreach ($this->reactions() as $reaction) {
+            $this->alsoReactWith($reaction);
         }
 
         foreach ($this->commandHandlers() as $handler) {
@@ -281,8 +285,8 @@ final class Application
     }
 
     /**
-     * A reaction subscribed after those already there, called the way the event bus of the API calls it: through
-     * the translation of its refusals, within the unit of work of the command that published.
+     * A reaction subscribed after those already there, called the way the worker of the API calls it: through
+     * the translation of its refusals, in a unit of work of its own, once the command that published succeeded.
      */
     public function alsoReactWith(EventHandler $reaction): void
     {
@@ -323,8 +327,8 @@ final class Application
     public function dispatch(object $command): void
     {
         $handler = $this->handlers[$command::class] ?? throw new \LogicException(sprintf('No handler for %s', $command::class));
-        $this->attempt(static function () use ($handler, $command): void {
-            $handler($command);
+        $this->attempt(function () use ($handler, $command): void {
+            $this->events->deliverAfter(static fn () => $handler($command));
         });
     }
 
@@ -334,7 +338,7 @@ final class Application
     public function publishAgain(object $event): void
     {
         $this->attempt(function () use ($event): void {
-            $this->events->publish($event);
+            $this->events->deliverAfter(fn () => $this->events->publish($event));
         });
     }
 
@@ -561,30 +565,41 @@ final class Application
     }
 
     /**
-     * Every event handler of the core: the reactions of the other contexts run in the scenarios as in the API
-     * (`EventHandlersSubscribedTest` fails when one is missing), the translators of the facts first, as the event
-     * bus of the API calls them before the delivery of the subscriptions.
+     * The translators publishing the domain events of a context for the others, the facts first, called within the
+     * command as the event bus of the API calls them (`EventHandlersSubscribedTest` fails when one is missing).
      *
      * @return list<EventHandler>
      */
-    private function eventHandlers(): array
+    private function translators(): array
     {
         return [
             new PublishOrganizationFactsHandler($this->organizationFactsRetriever, $this->events),
             new PublishExchangeFactsHandler($this->exchangeFactsRetriever, $this->events),
             new PublishContactFactsHandler($this->contactFactsRetriever, $this->events),
+            new PublishAccountOpenedHandler($this->events),
+            new PublishMemberRegisteredHandler($this->events),
+            new PublishContactCollectedHandler($this->events),
+            new PublishContactForgottenHandler($this->events),
+            new PublishContactsLeftWithoutOrganizationHandler($this->events),
+        ];
+    }
+
+    /**
+     * Every other event handler of the core: the reactions, internal or of the other contexts, run in the scenarios
+     * after the command as the worker of the API runs the subscriptions.
+     *
+     * @return list<EventHandler>
+     */
+    private function reactions(): array
+    {
+        return [
             new AttachCollectedContactHandler($this->organizations, $this->events),
             new DetachForgottenContactHandler($this->organizations, $this->events, $this->orphans),
             new KeepExchangesOfForgottenContactHandler($this->exchanges, $this->events),
             new ForgetContactsLeftWithoutOrganizationHandler($this->persons, $this->readers, $this->events),
             new RegisterTheFounderHandler($this->members),
             new CollectTheFounderProfileHandler($this->persons),
-            new PublishAccountOpenedHandler($this->events),
             new CollectTheMemberProfileHandler($this->persons),
-            new PublishMemberRegisteredHandler($this->events),
-            new PublishContactCollectedHandler($this->events),
-            new PublishContactForgottenHandler($this->events),
-            new PublishContactsLeftWithoutOrganizationHandler($this->events),
             new StopKeepingExchangesHandler($this->exchanges, $this->events),
             new EraseExchangeLeftWithoutOrganizationHandler($this->exchanges, $this->attachedFiles, $this->events),
         ];
