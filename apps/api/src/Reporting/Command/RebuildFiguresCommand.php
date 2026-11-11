@@ -14,8 +14,8 @@ use Symfony\Component\Console\Style\SymfonyStyle;
  * one (ADR 0103): once Reporting is put in service on an instance, after `app:search:rebuild` wrote the keys listing
  * the accounts and the exchanges of an account in the items written before them, then whenever its figures went
  * wrong. Run from the command line, out of the time limit of a function; its steps commit their own units, so it
- * calls its handler without the unit of work of a command. It writes only the table of Reporting, figures derived from the state.
- * A step cancelled by a recording of the worker on the same figures starts the rebuild again, from a version emptied
+ * calls its handler without the unit of work of a command. It writes only the table of Reporting, figures derived
+ * from the state. A step cancelled by a recording of the worker on the same figures starts the rebuild again, from a version emptied
  * first, three times at most (ADR 0104).
  */
 #[AsCommand(name: 'app:reporting:rebuild', description: 'Count the figures of every account again, from the state of the other contexts')]
