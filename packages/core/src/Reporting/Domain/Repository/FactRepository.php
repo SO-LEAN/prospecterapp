@@ -18,7 +18,9 @@ interface FactRepository
     public function find(int $version, Fact $about): ?Fact;
 
     /**
-     * Keeps the fact in the version and adds the change to the figures of its account, together.
+     * Keeps the fact in the version in place of the one it replaces, found by find(), and adds the change to the
+     * figures of its account, together; refused when the version no longer keeps the replaced fact, the change being
+     * computed from it.
      */
-    public function record(int $version, Fact $fact, FiguresChange $change): void;
+    public function record(int $version, Fact $fact, ?Fact $replaced, FiguresChange $change): void;
 }

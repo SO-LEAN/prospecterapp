@@ -41,7 +41,7 @@ final readonly class InMemoryFactRepository implements FactRepository
         return $known;
     }
 
-    public function record(int $version, Fact $fact, FiguresChange $change): void
+    public function record(int $version, Fact $fact, ?Fact $replaced, FiguresChange $change): void
     {
         $this->database->storeFact($version, self::aggregateOf($fact), $fact);
 

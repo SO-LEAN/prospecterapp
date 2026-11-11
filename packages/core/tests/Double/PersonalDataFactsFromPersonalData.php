@@ -17,7 +17,7 @@ use Prospecter\Core\SharedKernel\Domain\PersonId;
  * Anticorruption layer of the API, in the scenarios (ADR 0045, 0089, 0099): the facts PersonalData gives again, slice
  * after slice, in the words of Reporting.
  */
-final readonly class SlicedPersonalDataFacts implements PersonalDataFacts
+final readonly class PersonalDataFactsFromPersonalData implements PersonalDataFacts
 {
     private const int SLICE = 100;
 
