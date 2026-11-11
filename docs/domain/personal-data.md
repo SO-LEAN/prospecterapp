@@ -24,10 +24,11 @@ The personal data of natural persons, and who reads them. Code: `packages/core/s
 
 - The service `WhichAreContactsService` (which persons are contacts of an account), asked by Prospecting (ADR 0089).
 - The integration events `ContactCollected` and `ContactForgotten` (ADR 0046).
+- The facts of its contacts (present), each time one changes (`ContactFactsChanged`), and by slice for an account (`ListContactFactsService`), for a context counting them without reading its tables (ADR 0099). A forgotten contact gives a last fact, absent; the profile of a member, no contact, publishes none.
 
 ## Features
 
-`enregistrer-un-contact`, `effacer-un-contact`, `consulter-une-personne`, `rechercher-mes-contacts`, `reconnaitre-un-appelant`, `changer-mon-nom`, `changer-mes-coordonnees`, `changer-ma-photo`, `changer-la-fonction`, `changer-le-profil-d-un-collegue`, and the questions of `langage-publie`.
+`enregistrer-un-contact`, `effacer-un-contact`, `consulter-une-personne`, `rechercher-mes-contacts`, `reconnaitre-un-appelant`, `changer-mon-nom`, `changer-mes-coordonnees`, `changer-ma-photo`, `changer-la-fonction`, `changer-le-profil-d-un-collegue`, `publier-les-faits-de-personaldata`, and the questions of `langage-publie`.
 
 ## In the code
 
