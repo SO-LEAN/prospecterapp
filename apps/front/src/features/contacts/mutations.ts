@@ -68,6 +68,7 @@ export function useForgetContact() {
         queryKeys.organizationContacts,
         queryKeys.organization,
         queryKeys.organizationList,
+        queryKeys.dashboard,
       )
       readTheExchangesAgain(queryClient)
     },

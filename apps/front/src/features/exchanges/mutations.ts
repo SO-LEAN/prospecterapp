@@ -2,6 +2,8 @@ import { type QueryClient, useMutation, useQueryClient } from '@tanstack/react-q
 import { useTranslation } from 'react-i18next'
 import { toast } from 'sonner'
 import { api, fetchClient } from '@/shared/api/client'
+import { queryKeys } from '@/shared/api/keys'
+import { readAgainAfterTheReactions } from '@/shared/api/reactions'
 import { dataOf } from '@/shared/api/slices'
 import { attachFile } from './attachments'
 import {
@@ -40,6 +42,7 @@ export function useNoteExchange() {
         pageParams: [undefined],
       })
       void queryClient.invalidateQueries({ queryKey: timelineKeys.ofOrganizations })
+      readTheFiguresAgain(queryClient)
       toast.success(t('exchanges.noted'))
     },
   })
@@ -75,9 +78,15 @@ export function useNoteOrganizationExchange() {
         pages: [timeline],
         pageParams: [undefined],
       })
+      readTheFiguresAgain(queryClient)
       toast.success(t('exchanges.noted'))
     },
   })
+}
+
+/** The dashboard counts the exchanges, those of the month by their moment, once the reactions to the gesture ran. */
+function readTheFiguresAgain(queryClient: QueryClient) {
+  readAgainAfterTheReactions(queryClient, queryKeys.dashboard)
 }
 
 /** A corrected or erased exchange may be in several timelines, of contacts and of organizations. */
@@ -95,6 +104,7 @@ function useShowTheCorrection() {
   return (exchange: ExchangeDetail) => {
     queryClient.setQueryData(exchangeQuery(exchange.id).queryKey, exchange)
     readTheTimelinesAgain(queryClient)
+    readTheFiguresAgain(queryClient)
     toast.success(t('exchanges.detail.correctionSaved'))
   }
 }
@@ -125,6 +135,7 @@ export function useEraseExchange() {
     onSuccess: (_nothing, { params }) => {
       queryClient.removeQueries({ queryKey: exchangeQuery(params.path.id).queryKey })
       readTheTimelinesAgain(queryClient)
+      readTheFiguresAgain(queryClient)
       toast.success(t('exchanges.detail.erased'))
     },
   })
