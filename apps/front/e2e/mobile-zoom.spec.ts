@@ -17,16 +17,22 @@ const PAGE_SCROLL_ONLY = 'pan-x pan-y'
 const NO_PAGE_ZOOM = /maximum-scale=1\b.*user-scalable=no/
 const A_LONG_NAME = 'Compagnie Générale des Établissements Michelin et de leurs Filiales Européennes'
 
-async function centerOf(target: Locator) {
+/*
+ * Off the center of the map, where a single marker is centered and the double of the tiles is a plain background:
+ * zoomed around that point, the marker moves away from it, whatever the organizations placed.
+ */
+const PINCH_ACROSS = 1 / 4
+
+async function aQuarterAcross(target: Locator) {
   const box = await target.boundingBox()
   if (!box) throw new Error(`${target} is not on the screen`)
-  return { x: box.x + box.width / 2, y: box.y + box.height / 2 }
+  return { x: box.x + box.width * PINCH_ACROSS, y: box.y + box.height / 2 }
 }
 
-/** Two fingers moving apart from the center of the target, as a phone reports them. */
+/** Two fingers moving apart from a quarter across the target, as a phone reports them. */
 async function pinchToEnlarge(page: Page, target: Locator) {
   const touchScreen = await page.context().newCDPSession(page)
-  const { x, y } = await centerOf(target)
+  const { x, y } = await aQuarterAcross(target)
   const fingersApart = (spread: number) => [
     { x: x - spread, y, id: 0 },
     { x: x + spread, y, id: 1 },
