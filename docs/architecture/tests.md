@@ -76,7 +76,7 @@ Check that a scenario really protects its rule: break the rule in `src`, the sce
 
 ## No service outside the stack
 
-No test depends on a service outside the local stack: it doubles it, so that a red test always means a defect of Prospecter, never a failure of a third party (ADR 0092). The tests of the API give the geocoder an address of no host (`APP_GEOCODER_URL` of `.env.test`, `GeoplateformeGeoLocationTest` on a `MockHttpClient`), and EventBridge its double in memory (`InMemoryEventBridge`).
+No test depends on a service outside the local stack: it doubles it, so that a red test always means a defect of Prospecter, never a failure of a third party (ADR 0092). The tests of the API give the geocoder an address of no host (`APP_GEOCODER_URL` of `.env.test`, `GeoplateformeGeoLocationTest` on a `MockHttpClient`); every request leaving the API is answered by the double `tests/Double/OutsideServices` (`framework.http_client.mock_response_factory`), empty unless a test makes the geocoder place an address (`DashboardApiTest`), never by an alias of a service of the framework; EventBridge its double in memory (`InMemoryEventBridge`).
 
 ## The journeys
 
