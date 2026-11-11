@@ -5,6 +5,9 @@ import { signInOnTheSignInScreen } from './sign-in'
 /** More exchanges than one transaction could erase along with the organization, some three writes each. */
 const MANY_EXCHANGES = 36
 const API = 'https://api.local.prospecter.io'
+/** Noting the exchanges, then a reaction per exchange, each an invocation of the worker, take longer than a journey. */
+const LONGER_THAN_A_JOURNEY_MS = 120_000
+const ERASED_WITHIN_MS = 60_000
 
 /** The access token the SPA keeps in the session of its tab (`shared/auth/session.ts`). */
 function accessTokenOf(page: Page): Promise<string> {
@@ -20,6 +23,7 @@ function accessTokenOf(page: Page): Promise<string> {
 test('stopping to prospect an organization of many exchanges erases each in a reaction of its own', async ({
   page,
 }) => {
+  test.setTimeout(LONGER_THAN_A_JOURNEY_MS)
   const organization = `E2E many exchanges ${Date.now()}`
   let organizationUrl = ''
   let authorization = ''
@@ -38,7 +42,7 @@ test('stopping to prospect an organization of many exchanges erases each in a re
     for (let exchange = 0; exchange < MANY_EXCHANGES; exchange += 1) {
       const noted = await page.request.post(`${API}/api/organizations/${id}/exchanges`, {
         headers: { authorization },
-        data: { channel: 'call', direction: 'inbound' },
+        data: { exchange: { channel: 'call', direction: 'inbound' } },
       })
       expect(noted.status()).toBe(201)
       exchanges.push(new URL(noted.headers().location ?? '', API).href)
@@ -62,6 +66,6 @@ test('stopping to prospect an organization of many exchanges erases each in a re
       return answers.every((answer) => answer.status() === 404)
     }
 
-    await expect.poll(erased, { timeout: 30_000 }).toBe(true)
+    await expect.poll(erased, { timeout: ERASED_WITHIN_MS }).toBe(true)
   })
 })

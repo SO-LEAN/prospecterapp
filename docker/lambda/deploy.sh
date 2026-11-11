@@ -181,13 +181,16 @@ deploy_apps() {
 
 # warm_reactions: the relay and the worker started, their first call taking some 16 seconds, before the journeys
 # count on a reaction within a second: the relay given an empty batch, the worker an exchange erased without a file,
-# to which its subscription reacts by removing nothing, without an inbox
+# to which its subscription reacts by removing nothing, without an inbox, several at once: a gesture has several
+# reactions, and a container of a function starting meanwhile may fail the requests of the journey in flight
 warm_reactions() {
     erased='{"subscription": "prospecting-discard-attachments-of-erased-exchange", "source": "prospecter.prospecting.internal", "detailType": "ExchangeErased.v1", "detail": {"eventId": "01900000-0000-7000-8000-00000000f001", "occurredAt": "2026-10-15T09:00:00.000000Z", "correlationId": "01900000-0000-7000-8000-00000000f002", "causationId": null, "depth": 0, "payload": {"accountId": "01900000-0000-7000-8000-00000000f003", "by": "01900000-0000-7000-8000-00000000f004", "exchange": "01900000-0000-7000-8000-00000000f005", "files": [], "occurredAt": "2026-10-15T09:00:00.000000Z"}}}'
     aws lambda invoke --function-name prospecter-dev-relay --cli-binary-format raw-in-base64-out --cli-read-timeout 120 \
         --payload '{"Records": []}' /dev/null >/dev/null &
-    aws lambda invoke --function-name prospecter-dev-worker --cli-binary-format raw-in-base64-out --cli-read-timeout 120 \
-        --payload "$erased" /dev/null >/dev/null &
+    for warm in 1 2 3 4; do
+        aws lambda invoke --function-name prospecter-dev-worker --cli-binary-format raw-in-base64-out --cli-read-timeout 120 \
+            --payload "$erased" /dev/null >/dev/null &
+    done
     wait
     echo "Lambdas prospecter-dev-relay and prospecter-dev-worker warm"
 }
