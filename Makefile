@@ -22,7 +22,7 @@ vendor: ## Install the Composer dependencies of the API, the core and the storag
 	@$(MAKE) -C packages/core vendor
 	@$(MAKE) -C apps/storage vendor
 
-db: ## Recreate in MiniStack the tables and the user pool of the API and the bucket of the storage, with the demo data (destroys local data), the relay of the outbox on their new streams, the figures counted
+db: ## Recreate in MiniStack the tables and the user pool of the API and the bucket of the storage, with the demo data (destroys local data) and the queues of the failures emptied, the relay of the outbox on their new streams, the figures counted
 	@$(MAKE) -C apps/api db
 	@$(MAKE) -C apps/storage db
 

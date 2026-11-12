@@ -7,6 +7,8 @@
 # deploy relay: only the bus, the relay of the outbox and the mappings of the streams of the tables, which make db
 # recreates, and the worker with the rules of the subscriptions.
 # deploy warm: only a first call to the relay and to the worker, before the journeys.
+# deploy purge: only the messages of the queues of the failures emptied, which make db does before recreating the
+# tables their messages are about.
 set -eu
 
 aws() { command aws --endpoint-url "$AWS_ENDPOINT_URL" --output text "$@"; }
@@ -196,10 +198,21 @@ warm_reactions() {
     echo "Lambdas prospecter-dev-relay and prospecter-dev-worker warm"
 }
 
+# purge_failures: the queues of the failures of the relay and the worker emptied, those not created yet skipped
+purge_failures() {
+    for queue in prospecter-dev-relay-failures prospecter-dev-integration-failures; do
+        url=$(aws sqs get-queue-url --queue-name "$queue" --query QueueUrl 2>/dev/null) || continue
+        aws sqs purge-queue --queue-url "$url"
+        echo "Queue $queue emptied"
+    done
+}
+
 if [ "${1:-}" = geocoder ]; then
     api_geocoder "${2:-}"
 elif [ "${1:-}" = relay ]; then
     deploy_relay
+elif [ "${1:-}" = purge ]; then
+    purge_failures
 elif [ "${1:-}" = warm ]; then
     warm_reactions
 else
