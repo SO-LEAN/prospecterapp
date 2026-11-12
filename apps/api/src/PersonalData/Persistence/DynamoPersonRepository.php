@@ -84,10 +84,10 @@ final readonly class DynamoPersonRepository implements PersonRepository
     }
 
     /**
-     * Writes again the search keys of every person, and forgets the items of the search before ADR 0071:
-     * what a table written before ADR 0071 needs once.
+     * Writes again the item of every person, its search keys and its key in its list with it, and forgets the items
+     * of the search before ADR 0071: what a table written before ADR 0071 needs once.
      */
-    public function writeTheSearchKeysAgain(): int
+    public function writeTheKeysAgain(): int
     {
         $items = $this->personalDataTable->scan(PersonalDataKeys::PERSON.'#');
         $this->personalDataTable->batch(

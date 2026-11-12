@@ -4,7 +4,7 @@ namespace App\Consistency;
 
 /**
  * The keys listing each account among the accounts and each exchange in its account, by which the figures are counted
- * again: an item written before them lacks them until app:search:rebuild writes them, and nothing counts it meanwhile.
+ * again: an item written before them lacks them until app:keys:rebuild writes them, and nothing counts it meanwhile.
  */
 final readonly class KeysListingTheItems
 {

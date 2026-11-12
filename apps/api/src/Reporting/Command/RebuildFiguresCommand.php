@@ -12,7 +12,7 @@ use Symfony\Component\Console\Style\SymfonyStyle;
 
 /**
  * Counts the figures of every account again, from the state of the other contexts, in a new version made the active
- * one (ADR 0103): once Reporting is put in service on an instance, after `app:search:rebuild` wrote the keys listing
+ * one (ADR 0103): once Reporting is put in service on an instance, after `app:keys:rebuild` wrote the keys listing
  * the accounts and the exchanges of an account in the items written before them, then whenever its figures went
  * wrong. Run from the command line, out of the time limit of a function; its steps commit their own units, so it
  * calls its handler without the unit of work of a command. It writes only the table of Reporting, figures derived

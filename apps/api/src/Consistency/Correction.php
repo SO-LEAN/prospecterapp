@@ -13,5 +13,5 @@ enum Correction: string
     case GiveTheReactionAgain = 'app:integration:redrive, or app:outbox:republish --since=<moment of the gesture> when no failure keeps it';
     case RedriveTheFailures = 'app:integration:redrive';
     case RepublishTheOutbox = 'app:outbox:republish --since=<moment of the first failure>';
-    case WriteTheKeysAgain = 'app:search:rebuild';
+    case WriteTheKeysAgain = 'app:keys:rebuild';
 }
