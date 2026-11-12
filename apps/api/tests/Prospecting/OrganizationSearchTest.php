@@ -68,7 +68,7 @@ class OrganizationSearchTest extends ApiTestCase
         $this->assertInstanceOf(Table::class, $table);
         $table->batch([['PK' => 'TOKEN#former#b', 'SK' => 'subject'], ['PK' => 'TOKENS#subject', 'SK' => 'TOKENS']]);
 
-        $written = self::getContainer()->get(DynamoOrganizationRepository::class)->writeTheSearchKeysAgain();
+        $written = self::getContainer()->get(DynamoOrganizationRepository::class)->writeTheKeysAgain();
 
         $this->assertSame(1, $written);
         $this->assertSame([], $table->scan('TOKEN'));

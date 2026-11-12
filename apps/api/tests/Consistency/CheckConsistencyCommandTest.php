@@ -109,7 +109,7 @@ class CheckConsistencyCommandTest extends ApiTestCase
         unset($soleanIt['GSI1PK'], $soleanIt['GSI1SK']);
         $this->accountsTable()->batch([$soleanIt]);
 
-        $this->assertDiscrepancy(DemoData::SOLEAN_IT, DemoData::SOLEAN_IT, 'account out of the list of the accounts', 'app:search:rebuild');
+        $this->assertDiscrepancy(DemoData::SOLEAN_IT, DemoData::SOLEAN_IT, 'account out of the list of the accounts', 'app:keys:rebuild');
     }
 
     public function testAnExchangeOutOfTheListOfItsAccountIsShown(): void
@@ -119,7 +119,7 @@ class CheckConsistencyCommandTest extends ApiTestCase
         unset($item['GSI2PK'], $item['GSI2SK']);
         $this->prospectingTable()->batch([$item]);
 
-        $this->assertDiscrepancy(DemoData::SOLEAN_IT, $exchange, 'exchange out of the list of its account', 'app:search:rebuild');
+        $this->assertDiscrepancy(DemoData::SOLEAN_IT, $exchange, 'exchange out of the list of its account', 'app:keys:rebuild');
     }
 
     public function testAnEventTheWorkerFailedToApplyIsShown(): void

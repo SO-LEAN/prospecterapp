@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Search;
+namespace App\Keys;
 
 use App\Accounts\Persistence\DynamoAccountRepository;
 use App\PersonalData\Persistence\DynamoPersonRepository;
@@ -11,13 +11,13 @@ use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Style\SymfonyStyle;
 
 /**
- * Writes again the search keys of the organizations and of the persons (ADR 0071), forgetting the items of the
- * former search, before ADR 0071, the keys listing the exchanges by account and the keys listing the accounts
- * (ADR 0099): once on tables written before, then whenever the keys of an aggregate change of rule. It can run any
- * number of times.
+ * Writes again the items of the aggregates with the keys the tables derive from them: the search keys of the
+ * organizations and of the persons (ADR 0071), forgetting the items of the former search, the keys listing the
+ * exchanges by account and the keys listing the accounts (ADR 0099): once on tables written before, then whenever
+ * the keys of an aggregate change of rule. It can run any number of times.
  */
-#[AsCommand(name: 'app:search:rebuild', description: 'Write again the search keys of the organizations and of the persons, and the keys of the exchanges and of the accounts')]
-final readonly class RebuildSearchCommand
+#[AsCommand(name: 'app:keys:rebuild', description: 'Write again the keys the tables derive from the aggregates: search keys of the organizations and of the persons, keys listing the exchanges by account and the accounts')]
+final readonly class RebuildKeysCommand
 {
     public function __construct(
         private DynamoOrganizationRepository $organizations,
@@ -31,8 +31,8 @@ final readonly class RebuildSearchCommand
     {
         $io->success(sprintf(
             'Wrote the keys of %d organizations, %d persons, %d exchanges and %d accounts.',
-            $this->organizations->writeTheSearchKeysAgain(),
-            $this->persons->writeTheSearchKeysAgain(),
+            $this->organizations->writeTheKeysAgain(),
+            $this->persons->writeTheKeysAgain(),
             $this->exchanges->writeTheKeysAgain(),
             $this->accounts->writeTheKeysAgain(),
         ));

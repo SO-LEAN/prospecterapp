@@ -107,10 +107,10 @@ final readonly class DynamoOrganizationRepository implements OrganizationReposit
     }
 
     /**
-     * Writes again the search keys of every organization, and forgets the items of the former search (ADR
-     * 0050): what a table written before ADR 0071 needs once.
+     * Writes again the item of every organization, its search keys and its keys in its lists with it, and forgets the
+     * items of the search before ADR 0071: what a table written before ADR 0071 needs once.
      */
-    public function writeTheSearchKeysAgain(): int
+    public function writeTheKeysAgain(): int
     {
         $items = $this->prospectingTable->scan(OrganizationKeys::ORGANIZATION.'#');
         $this->prospectingTable->batch(
