@@ -9,8 +9,9 @@ use Prospecter\Core\Reporting\Application\Port\ProjectionVersions;
 /**
  * The versions of the figures over the InMemoryDatabase. A scenario may do a gesture while a rebuild removes the
  * abandoned versions, between their reading and their removal, as DynamoDB scans then deletes, or just before the next
- * activation, once the rebuild read every fact again, as a member may while a rebuild runs; it may interrupt the next
- * activation, the version left being built.
+ * activation, once the rebuild read every fact again, as a member may while a rebuild runs, or just after it, as the
+ * worker may write in the former version a recording read live before; it may interrupt the next activation, the
+ * version left being built.
  */
 final class InMemoryProjectionVersions implements ProjectionVersions
 {
@@ -18,6 +19,8 @@ final class InMemoryProjectionVersions implements ProjectionVersions
     private ?\Closure $whileRemovingTheAbandoned = null;
     /** @var (\Closure(): void)|null */
     private ?\Closure $beforeTheNextActivation = null;
+    /** @var (\Closure(): void)|null */
+    private ?\Closure $afterTheNextActivation = null;
     private bool $interruptTheNextActivation = false;
 
     public function __construct(private readonly InMemoryDatabase $database)
@@ -38,6 +41,14 @@ final class InMemoryProjectionVersions implements ProjectionVersions
     public function beforeTheNextActivation(\Closure $gesture): void
     {
         $this->beforeTheNextActivation = $gesture;
+    }
+
+    /**
+     * @param \Closure(): void $gesture
+     */
+    public function afterTheNextActivation(\Closure $gesture): void
+    {
+        $this->afterTheNextActivation = $gesture;
     }
 
     public function interruptTheNextActivation(): void
@@ -89,9 +100,11 @@ final class InMemoryProjectionVersions implements ProjectionVersions
             throw new RebuildInterrupted(sprintf('The activation of version %d was cancelled', $version));
         }
 
-        [$gesture, $this->beforeTheNextActivation] = [$this->beforeTheNextActivation, null];
-        self::run($gesture);
+        [$before, $this->beforeTheNextActivation] = [$this->beforeTheNextActivation, null];
+        [$after, $this->afterTheNextActivation] = [$this->afterTheNextActivation, null];
+        self::run($before);
         $this->database->activate($version);
+        self::run($after);
     }
 
     /**

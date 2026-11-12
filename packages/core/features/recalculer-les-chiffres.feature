@@ -76,10 +76,12 @@ Fonctionnalité: Recalculer les chiffres
     Et seule la nouvelle version active garde des faits et des chiffres
 
   Scénario: Un recalcul relancé ne laisse rien des versions abandonnées
-    Soit je commence à prospecter l'organisation :
+    Soit les chiffres ont été recalculés
+    Et je commence à prospecter l'organisation :
       | raison sociale | ACME |
-    Et un recalcul interrompu, sa version encore en construction
-    Quand les chiffres sont recalculés
+    Et un recalcul achevé, et un fait enregistré dans l'ancienne version après qu'il l'a retirée
+    Et un recalcul interrompu
+    Quand il est relancé jusqu'au bout
     Alors seule la nouvelle version active garde des faits et des chiffres
     Et mes chiffres sont :
       | organisations prospectées | 1 |
