@@ -118,8 +118,8 @@ resource "aws_lambda_function" "api" {
   depends_on = [aws_cloudwatch_log_group.lambda, aws_iam_role_policy.lambda]
 }
 
-# the environment of the api, the worker's too (messaging.tf); the delivery stays sync until the reactions are put in
-# service (the worker is deployed, the rules invoke it, nothing is published on the bus yet)
+# the environment of the api, the worker's too (messaging.tf); the delivery that of the instance, sync until its
+# reactions are put in service (the worker is deployed, the rules invoke it, nothing is published on the bus yet)
 locals {
   environment = {
     APP_ENV                     = "prod"
@@ -139,6 +139,6 @@ locals {
     STORAGE_PUBLIC_URL          = local.storage_public_url
     STORAGE_INTERNAL_URL        = nonsensitive(lookup(local.storage_parameters, "internal-url", ""))
     STORAGE_TOKEN               = "bref-ssm:${local.storage_ssm_path}/token"
-    INTEGRATION_EVENTS_DELIVERY = "sync"
+    INTEGRATION_EVENTS_DELIVERY = var.integration_events_delivery
   }
 }
