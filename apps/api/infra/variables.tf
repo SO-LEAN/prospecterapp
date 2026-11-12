@@ -35,3 +35,14 @@ variable "permissions_boundary" {
   type        = string
   default     = null
 }
+
+variable "integration_events_delivery" {
+  description = "How the api delivers the events of its commands (ADR 0097, 0098): sync, the reactions within the command, until the reactions of the instance are put in service; outbox, written with the command and relayed to the bus, the worker running the reactions after it"
+  type        = string
+  default     = "sync"
+
+  validation {
+    condition     = contains(["sync", "outbox"], var.integration_events_delivery)
+    error_message = "The delivery is sync or outbox."
+  }
+}
