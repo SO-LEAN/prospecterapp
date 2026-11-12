@@ -26,7 +26,7 @@ An instance is a whole installation (`dev`, `prod`, `test`...), in the AWS accou
 
 ## Values of an instance
 
-They stay out of this repository, in a configuration directory: `INFRA_CONFIG`, by default `../prospecterapp-infra` next to this clone. For each instance:
+They stay out of this repository, in a configuration directory: `INFRA_CONFIG`, by default `../prospecterapp-infra` next to the main clone, found from a worktree too (the parent of the common git directory). For each instance:
 
 | File | What | Example |
 |---|---|---|
@@ -81,6 +81,8 @@ An installation puts its apps on its domains behind its edge, a proxy such as Cl
 ## Commands of an instance
 
 `make console CMD="..."` runs a command of the api on MiniStack; with `INSTANCE=<instance>`, it runs it from this machine on the tables and the user pool of an instance, with the temporary credentials of its AWS profile, exported by the AWS CLI in its image and passed through the environment ([ADR 0064](../adr/0064-an-account-is-opened-by-its-founder.md)). The first account of an installation: `make console INSTANCE=dev CMD="app:account:open 'My company' me@example.com --form=SAS"`, the password asked without echo. Its colleagues, with only the roles they need ([ADR 0075](../adr/0075-a-member-is-registered-by-an-administrator-of-the-account.md)): `make console INSTANCE=dev CMD="app:member:register me@example.com colleague@example.com --personal-data"`.
+
+The command runs the local code, not the code deployed on the instance, on its data: it is refused while the local code lacks changes of the branch the instance deploys, `origin/main` for `prod`, `origin/dev` for the others, fetched first; the message says how to update it. The changes, not the commits, are compared: `main` receives `dev` by merge commits, and its hotfixes come back to `dev` cherry-picked. `FORCE=1` runs it all the same, the code being older than the instance ([ADR 0107](../adr/0107-a-command-on-an-instance-is-refused-while-the-local-code-lags-behind-it.md)).
 
 ## What never enters this repository
 

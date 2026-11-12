@@ -43,6 +43,7 @@ console: ## Run a command of the API, on MiniStack or with INSTANCE= on AWS: mak
 	@test -n "$(CMD)" || { echo "Usage: make console CMD=\"<command of bin/console>\" [INSTANCE=<dev|prod|...>]"; exit 1; }
 ifeq ($(origin INSTANCE),command line)
 	@test -f $(INFRA_INSTANCE).env -a -f $(INFRA_INSTANCE).tfvars || { echo "No values for the instance $(INSTANCE) in $(INFRA_CONFIG)/envs (docs/architecture/infra.md)"; exit 1; }
+	$(instance-code-check)
 	@eval "$$($(AWS_CLI) configure export-credentials --format env)" && $(DC) run --rm --no-deps -w $(WORKDIR) \
 		-e AWS_ACCESS_KEY_ID -e AWS_SECRET_ACCESS_KEY -e AWS_SESSION_TOKEN \
 		-e AWS_REGION=$$(sed -nE 's/^region *= *"(.*)"/\1/p' $(INFRA_INSTANCE).tfvars) \
