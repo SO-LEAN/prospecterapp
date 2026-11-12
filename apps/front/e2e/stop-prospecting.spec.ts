@@ -59,11 +59,15 @@ test('stopping to prospect an organization of many exchanges erases each in a re
   })
 
   await test.step('its exchanges are erased by the reactions, a second or so later', async () => {
+    /** One exchange after the other: asked all at once, they would start a function of the API each, beside the reactions. */
     const erased = async () => {
-      const answers = await Promise.all(
-        exchanges.map((exchange) => page.request.get(exchange, { headers: { authorization } })),
-      )
-      return answers.every((answer) => answer.status() === 404)
+      for (const exchange of exchanges) {
+        const answer = await page.request.get(exchange, { headers: { authorization } })
+        if (answer.status() !== 404) {
+          return false
+        }
+      }
+      return true
     }
 
     await expect.poll(erased, { timeout: ERASED_WITHIN_MS }).toBe(true)
