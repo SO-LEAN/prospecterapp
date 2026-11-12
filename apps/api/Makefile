@@ -38,7 +38,7 @@ openapi: ## Regenerate the OpenAPI contract of the API (openapi.json) after chan
 # the temporary credentials of its AWS profile, exported by the AWS CLI in its image, reach the php container through
 # the environment only; the names are those of infra/ (the bus of app:outbox:republish, the queue of the failures and
 # the worker of app:integration:redrive, the queues of the failures app:consistency:check counts too), the delivery
-# that of the api, read in the values of the instance like its region, sync when they name none
+# that of the api, read in the values of the instance like its region, outbox when they name none (ADR 0108)
 console: ## Run a command of the API, on MiniStack or with INSTANCE= on AWS: make console CMD="app:account:open 'SOLEAN IT' me@example.com" [INSTANCE=dev [FORCE=1]]
 	@test -n "$(CMD)" || { echo "Usage: make console CMD=\"<command of bin/console>\" [INSTANCE=<dev|prod|...> [FORCE=1]]"; exit 1; }
 ifeq ($(origin INSTANCE),command line)
@@ -49,7 +49,7 @@ ifeq ($(origin INSTANCE),command line)
 		-e AWS_REGION=$$(sed -nE 's/^region *= *"([^"]*)".*/\1/p' $(INFRA_INSTANCE).tfvars) \
 		-e DYNAMODB_ENDPOINT= -e COGNITO_ENDPOINT= -e DYNAMODB_TABLE_PREFIX=prospecter-$(INSTANCE)-api \
 		-e EVENTBRIDGE_ENDPOINT= -e INTEGRATION_EVENT_BUS=prospecter-$(INSTANCE)-api-integration \
-		-e INTEGRATION_EVENTS_DELIVERY=$$(sed -nE 's/^integration_events_delivery *= *"([^"]*)".*/\1/p' $(INFRA_INSTANCE).tfvars | grep . || echo sync) \
+		-e INTEGRATION_EVENTS_DELIVERY=$$(sed -nE 's/^integration_events_delivery *= *"([^"]*)".*/\1/p' $(INFRA_INSTANCE).tfvars | grep . || echo outbox) \
 		-e SQS_ENDPOINT= -e LAMBDA_ENDPOINT= \
 		-e INTEGRATION_FAILURES_QUEUE=prospecter-$(INSTANCE)-api-integration-failures \
 		-e RELAY_FAILURES_QUEUE=prospecter-$(INSTANCE)-api-relay-failures \

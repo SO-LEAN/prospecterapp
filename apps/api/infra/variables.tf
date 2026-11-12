@@ -37,9 +37,9 @@ variable "permissions_boundary" {
 }
 
 variable "integration_events_delivery" {
-  description = "How the api delivers the events of its commands (ADR 0097, 0098): sync, the reactions within the command, until the reactions of the instance are put in service; outbox, written with the command and relayed to the bus, the worker running the reactions after it"
+  description = "How the api delivers the events of its commands (ADR 0097, 0098, 0108): outbox, written with the command and relayed to the bus, the worker running the reactions after it; sync, the reactions within the command, for an instance whose reactions are not in service"
   type        = string
-  default     = "sync"
+  default     = "outbox"
 
   validation {
     condition     = contains(["sync", "outbox"], var.integration_events_delivery)

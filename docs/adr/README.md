@@ -111,3 +111,4 @@ Why the project is shaped the way it is: one record per decision, in the order t
 | [0105](0105-a-read-only-check-of-the-consistency-reads-the-tables-of-every-context.md) | A read-only check of the consistency reads the tables of every context | architecture | Accepted | 2026-11-11 |
 | [0106](0106-a-rebuild-abandons-the-version-being-built-before-emptying-it.md) | A rebuild abandons the version being built before emptying it | architecture | Accepted | 2026-11-12 |
 | [0107](0107-a-command-on-an-instance-is-refused-while-the-local-code-lags-behind-it.md) | A command on an instance is refused while the local code lags behind it | architecture | Accepted | 2026-11-12 |
+| [0108](0108-the-instances-deliver-outbox-by-default-of-the-code.md) | The instances deliver outbox, by the default of the code | architecture | Accepted | 2026-11-12 |
