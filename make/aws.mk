@@ -15,7 +15,7 @@ define instance-code-check
 @test -z "$$($(MISSING_DEPLOYED_CHANGES))" || { \
 	echo "The local code lacks changes of origin/$(INSTANCE_BRANCH), deployed on the instance $(INSTANCE): it would run code older than the instance on its data."; \
 	echo "Update it: git pull on $(INSTANCE_BRANCH), git rebase origin/$(INSTANCE_BRANCH) on a branch started from it; FORCE=1 runs the command all the same."; \
-	test -n "$(FORCE)"; }
+	test "$(FORCE)" = 1; }
 endef
 # the temporary credentials of the AWS profile of an instance (envs/<instance>.env), from this machine
 AWS_CLI_IMAGE = amazon/aws-cli:2.37.2

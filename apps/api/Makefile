@@ -39,8 +39,8 @@ openapi: ## Regenerate the OpenAPI contract of the API (openapi.json) after chan
 # the environment only; the names are those of infra/ (the bus of app:outbox:republish, the queue of the failures and
 # the worker of app:integration:redrive, the queues of the failures app:consistency:check counts too), the delivery
 # sync as the api's until the reactions are put in service
-console: ## Run a command of the API, on MiniStack or with INSTANCE= on AWS: make console CMD="app:account:open 'SOLEAN IT' me@example.com" [INSTANCE=dev]
-	@test -n "$(CMD)" || { echo "Usage: make console CMD=\"<command of bin/console>\" [INSTANCE=<dev|prod|...>]"; exit 1; }
+console: ## Run a command of the API, on MiniStack or with INSTANCE= on AWS: make console CMD="app:account:open 'SOLEAN IT' me@example.com" [INSTANCE=dev [FORCE=1]]
+	@test -n "$(CMD)" || { echo "Usage: make console CMD=\"<command of bin/console>\" [INSTANCE=<dev|prod|...> [FORCE=1]]"; exit 1; }
 ifeq ($(origin INSTANCE),command line)
 	@test -f $(INFRA_INSTANCE).env -a -f $(INFRA_INSTANCE).tfvars || { echo "No values for the instance $(INSTANCE) in $(INFRA_CONFIG)/envs (docs/architecture/infra.md)"; exit 1; }
 	$(instance-code-check)
