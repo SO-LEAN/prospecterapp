@@ -46,10 +46,10 @@ ifeq ($(origin INSTANCE),command line)
 	$(instance-code-check)
 	@eval "$$($(AWS_CLI) configure export-credentials --format env)" && $(DC) run --rm --no-deps -w $(WORKDIR) \
 		-e AWS_ACCESS_KEY_ID -e AWS_SECRET_ACCESS_KEY -e AWS_SESSION_TOKEN \
-		-e AWS_REGION=$$(sed -nE 's/^region *= *"(.*)"/\1/p' $(INFRA_INSTANCE).tfvars) \
+		-e AWS_REGION=$$(sed -nE 's/^region *= *"([^"]*)".*/\1/p' $(INFRA_INSTANCE).tfvars) \
 		-e DYNAMODB_ENDPOINT= -e COGNITO_ENDPOINT= -e DYNAMODB_TABLE_PREFIX=prospecter-$(INSTANCE)-api \
 		-e EVENTBRIDGE_ENDPOINT= -e INTEGRATION_EVENT_BUS=prospecter-$(INSTANCE)-api-integration \
-		-e INTEGRATION_EVENTS_DELIVERY=$$(sed -nE 's/^integration_events_delivery *= *"(.*)"/\1/p' $(INFRA_INSTANCE).tfvars | grep . || echo sync) \
+		-e INTEGRATION_EVENTS_DELIVERY=$$(sed -nE 's/^integration_events_delivery *= *"([^"]*)".*/\1/p' $(INFRA_INSTANCE).tfvars | grep . || echo sync) \
 		-e SQS_ENDPOINT= -e LAMBDA_ENDPOINT= \
 		-e INTEGRATION_FAILURES_QUEUE=prospecter-$(INSTANCE)-api-integration-failures \
 		-e RELAY_FAILURES_QUEUE=prospecter-$(INSTANCE)-api-relay-failures \
