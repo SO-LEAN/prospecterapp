@@ -2,10 +2,10 @@
 
 namespace App\Reporting\Command;
 
+use App\Reporting\AntiCorruption\AccountsSourceAccounts;
 use App\Shared\Persistence\ConditionFailed;
 use Prospecter\Core\Reporting\Application\RebuildFigures\RebuildFigures;
 use Prospecter\Core\Reporting\Application\RebuildFigures\RebuildFiguresHandler;
-use Prospecter\Core\Reporting\Domain\Port\SourceAccounts;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Style\SymfonyStyle;
@@ -26,7 +26,7 @@ final readonly class RebuildFiguresCommand
 {
     private const int RETRIES_OF_A_CONFLICT = 3;
 
-    public function __construct(private RebuildFiguresHandler $rebuildFigures, private SourceAccounts $sourceAccounts)
+    public function __construct(private RebuildFiguresHandler $rebuildFigures, private AccountsSourceAccounts $sourceAccounts)
     {
     }
 
