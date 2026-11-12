@@ -140,6 +140,7 @@ use Prospecter\Core\Reporting\Application\RebuildFigures\SourceFacts;
 use Prospecter\Core\Reporting\Application\RecordContactFacts\RecordContactFactsHandler;
 use Prospecter\Core\Reporting\Application\RecordExchangeFacts\RecordExchangeFactsHandler;
 use Prospecter\Core\Reporting\Application\RecordOrganizationFacts\RecordOrganizationFactsHandler;
+use Prospecter\Core\Reporting\Domain\Model\Fact;
 use Prospecter\Core\SharedKernel\Application\CommandHandler;
 use Prospecter\Core\SharedKernel\Application\EventHandler;
 use Prospecter\Core\SharedKernel\Application\Exception\UseCaseRefused;
@@ -382,6 +383,15 @@ final class Application
         $this->attempt(function () use ($event): void {
             $this->events->deliverAfter(fn () => $this->events->publish($event));
         });
+    }
+
+    /**
+     * A recording that read the live versions before a rebuild activated a new one, writing in the former, as the
+     * worker may.
+     */
+    public function recordIn(int $version, Fact $fact): void
+    {
+        $this->factRecorder->recordIn($version, $fact);
     }
 
     public function consultOrganization(ConsultOrganization $query): ?OrganizationSheet

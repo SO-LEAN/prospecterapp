@@ -13,6 +13,8 @@ use Prospecter\Core\Prospecting\Application\StartProspecting\StartProspecting;
 use Prospecter\Core\Prospecting\Contract\Event\OrganizationFactsChanged;
 use Prospecter\Core\Reporting\Application\ConsultFigures\ConsultFigures;
 use Prospecter\Core\Reporting\Application\RebuildFigures\RebuildFigures;
+use Prospecter\Core\Reporting\Domain\Model\OrganizationFact;
+use Prospecter\Core\SharedKernel\Domain\OrganizationId;
 use Tests\Core\Acceptance\Expect;
 use Tests\Core\Acceptance\Vocabulary;
 use Tests\Core\Double\RebuildInterrupted;
@@ -35,6 +37,7 @@ final class ReportingContext implements Context
 
     #[Given('les chiffres ont été recalculés')]
     #[When('les chiffres sont recalculés')]
+    #[When('il est relancé jusqu\'au bout')]
     public function theFiguresAreRebuilt(): void
     {
         $this->application->dispatch(new RebuildFigures());
@@ -48,6 +51,15 @@ final class ReportingContext implements Context
         $this->theFiguresAreRebuilt();
     }
 
+    #[Given('un recalcul achevé, et un fait enregistré dans l\'ancienne version après qu\'il l\'a retirée')]
+    public function aRebuildWasCompletedThenAFactRecordedInTheFormerVersion(): void
+    {
+        $former = $this->application->projectionVersions->active() ?? throw new \LogicException('A rebuild was expected to have activated a version');
+        $this->application->projectionVersions->afterTheNextActivation(fn () => $this->application->recordIn($former, $this->aFactOfAnotherOrganization()));
+        $this->theFiguresAreRebuilt();
+    }
+
+    #[Given('un recalcul interrompu')]
     #[Given('un recalcul interrompu, sa version encore en construction')]
     public function aRebuildWasInterrupted(): void
     {
@@ -115,6 +127,11 @@ final class ReportingContext implements Context
     private function factsOf(string $name, string $presence, string $location, int $revision): OrganizationFactsChanged
     {
         return new OrganizationFactsChanged($this->scenario->meAsProspector()->accountId->value, $this->scenario->idOf($name), $revision, 'présente' === $presence, 'géolocalisée' === $location, $this->application->now());
+    }
+
+    private function aFactOfAnotherOrganization(): OrganizationFact
+    {
+        return new OrganizationFact($this->scenario->meAsProspector()->accountId, new OrganizationId($this->application->newIdentity()), 1, true, false);
     }
 
     private function startProspecting(TableNode $table): void
