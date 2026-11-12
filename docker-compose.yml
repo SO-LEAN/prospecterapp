@@ -62,6 +62,9 @@ services:
       LAMBDA_DOCKER_FLAGS: -v ${PROJECT_DIR:-${PWD}}:/var/www/src
       # the code being mounted, a warm function stays up to date: keep it an hour rather than 5 minutes
       LAMBDA_WARM_TTL_SECONDS: "3600"
+      # a burst of reactions starts tens of containers at once, the Docker daemon answering each beyond the 10 s
+      # MiniStack waits by default: the invocation of a rule failing to start is lost, only logged
+      MINISTACK_DOCKER_TIMEOUT: "120"
     volumes:
       - ministack-data:/var/lib/ministack
       - /var/run/docker.sock:/var/run/docker.sock
