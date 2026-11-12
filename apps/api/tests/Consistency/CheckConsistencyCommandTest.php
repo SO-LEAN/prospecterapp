@@ -18,9 +18,9 @@ use Tests\App\Double\InMemorySqs;
  * `app:consistency:check` counts the figures again by reading the tables of the contexts, checks what the reactions
  * between the contexts should have written, and the queues of the failures: it lists each discrepancy with its
  * account, what it concerns and the command correcting it, and fails when there is one; it finds the accounts and the
- * exchanges by their items, so that one missing from its list is shown too. The demonstration: SOLEAN IT
- * prospects Babbage & Co, placed on the map, its contact Ada, and two exchanges with her in October 2026; its figures
- * are counted again before each test.
+ * exchanges by their items, so that one missing from its list is shown too. The demonstration: SOLEAN IT prospects
+ * Babbage & Co, placed on the map, its contact Ada, and two exchanges with her in October 2026; its figures are counted
+ * again before each test.
  */
 class CheckConsistencyCommandTest extends ApiTestCase
 {

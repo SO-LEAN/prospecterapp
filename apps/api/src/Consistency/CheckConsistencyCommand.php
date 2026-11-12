@@ -10,8 +10,9 @@ use Symfony\Component\Console\Style\SymfonyStyle;
 /**
  * Checks the result rather than watching the failures, on demand, reading only: the figures of Reporting counted again
  * from the tables of the other contexts, what the reactions between the contexts should have written, the keys listing
- * the accounts and the exchanges of each, and the queues of the failures. Lists each discrepancy with its account, what it concerns and the command correcting it, and fails
- * when there is one (ADR 0105).
+ * the accounts and the exchanges of each, and the queues of the failures. Lists each discrepancy with its account, what
+ * it concerns and the command correcting it, those of the lists first, their keys written before the figures are counted
+ * again, and fails when there is one (ADR 0105).
  */
 #[AsCommand(name: 'app:consistency:check', description: 'Check that the figures, the reactions between the contexts and the lists of the items agree with the tables, and that no failure waits')]
 final readonly class CheckConsistencyCommand
@@ -57,9 +58,9 @@ final readonly class CheckConsistencyCommand
     private function discrepanciesAmong(array $accountIds): array
     {
         return [
+            ...$this->keysListingTheItems->discrepanciesAmong($accountIds),
             ...$this->figures->discrepanciesAmong($accountIds),
             ...$this->reactions->discrepanciesAmong($accountIds),
-            ...$this->keysListingTheItems->discrepanciesAmong($accountIds),
             ...$this->failureQueues->discrepancies(),
         ];
     }

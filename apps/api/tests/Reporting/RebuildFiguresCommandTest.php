@@ -21,8 +21,8 @@ use Tests\App\Double\ConflictingFactRepository;
 /**
  * `app:reporting:rebuild` counts every account again from the state of the other contexts, in a new version made
  * the active one, the former one removed; it writes only the table of Reporting, and says how many accounts it counted,
- * none included. The demonstration: SOLEAN IT
- * prospects Babbage & Co, placed on the map, its contact Ada, and two exchanges with her in October 2026.
+ * none included. The demonstration: SOLEAN IT prospects Babbage & Co, placed on the map, its contact Ada, and two
+ * exchanges with her in October 2026.
  */
 class RebuildFiguresCommandTest extends ApiTestCase
 {
