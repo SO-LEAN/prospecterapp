@@ -4,5 +4,5 @@ aws_account_id = "123456789012"
 region         = "eu-west-3"
 # when the account requires every role of an app to carry a permissions boundary
 permissions_boundary = "arn:aws:iam::123456789012:policy/my-boundary"
-# sync until the reactions of the instance are put in service, then outbox
-integration_events_delivery = "sync"
+# outbox when absent; sync runs the reactions within the command, for an instance whose reactions are not in service
+# integration_events_delivery = "sync"

@@ -1,7 +1,7 @@
 # The events of the commits leave the tables for the bus (ADR 0098): each command writes its events in an item of
 # outbox of the table of its context, whose stream gives the new items to the relay, a function of the same package
-# publishing them on the bus of the instance, whose rules give them to the worker (below). The delivery stays sync
-# until the reactions are put in service (lambda.tf).
+# publishing them on the bus of the instance, whose rules give them to the worker (below), the delivery of the api
+# being outbox (ADR 0108, lambda.tf).
 locals {
   relay = "${local.name}-relay"
   # only the insertions of the items of outbox wake the relay
