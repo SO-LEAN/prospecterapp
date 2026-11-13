@@ -48,6 +48,8 @@ final readonly class InMemoryExchangeDetailRetriever implements ExchangeDetailRe
             direction: $facts->direction->value,
             missed: $facts->missed,
             occurredAt: $facts->occurredAt,
+            status: $state['status']->value,
+            durationInMinutes: $facts->duration?->minutes,
             text: $facts->text,
             textFlagged: ExchangeReading::isTextFlagged(null !== $facts->text, $reader),
             textToMakeConform: ExchangeConformity::isTextToMakeConform(null !== $facts->text, $contactForgotten, null !== $madeConform),
@@ -61,7 +63,7 @@ final readonly class InMemoryExchangeDetailRetriever implements ExchangeDetailRe
             madeConformAt: $madeConform?->at,
             attachments: array_map(static fn (Attachment $attachment): AttachmentDetail => new AttachmentDetail($attachment->id->value, $attachment->name, $attachment->size, $attachment->mediaType, $attachmentsToMakeConform), $read),
             hiddenAttachments: count($attachments) - count($read),
-            possibleIntents: array_map(static fn (ExchangeIntent $intent): string => $intent->name, ExchangePossibilities::given(count($attachments), ExchangeConformity::awaitsBeingMadeConform($contactForgotten, null !== $madeConform))),
+            possibleIntents: array_map(static fn (ExchangeIntent $intent): string => $intent->name, ExchangePossibilities::given(count($attachments), ExchangeConformity::awaitsBeingMadeConform($contactForgotten, null !== $madeConform), $state['status'])),
         );
     }
 }

@@ -7,10 +7,12 @@ use OpenApi\Attributes as OA;
 use Symfony\Component\Serializer\Attribute\SerializedName;
 
 /**
- * A call, a message or a meeting with a contact, or with the organization itself.
+ * A call, a message or a meeting with a contact, or with the organization itself, done or planned.
  */
 final readonly class ExchangeResource
 {
+    public const array STATUSES = ['planned', 'done'];
+
     /**
      * @param list<string> $organizationIds
      */
@@ -22,8 +24,12 @@ final readonly class ExchangeResource
         public string $direction,
         #[OA\Property(description: 'A call that did not go through')]
         public bool $missed,
-        #[OA\Property(format: 'date-time')]
+        #[OA\Property(format: 'date-time', description: 'When it happened, or is to happen once planned')]
         public string $occurredAt,
+        #[OA\Property(enum: self::STATUSES, description: 'planned: still to come; done: it happened')]
+        public string $status,
+        #[OA\Property(description: 'How long it lasts, once planned')]
+        public ?int $durationInMinutes,
         public ?string $text,
         #[OA\Property(description: 'Its text may hold personal data: flagged to a prospector reading it without the right to manage them')]
         public bool $textFlagged,

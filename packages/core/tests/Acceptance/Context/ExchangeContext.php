@@ -11,11 +11,16 @@ use Behat\Step\Then;
 use Behat\Step\When;
 use Prospecter\Core\Prospecting\Application\ConsultExchangesToMakeConform\ConsultExchangesToMakeConform;
 use Prospecter\Core\Prospecting\Application\ConsultOrganizationTimeline\ConsultOrganizationTimeline;
+use Prospecter\Core\Prospecting\Application\ConsultOrganizationUpcomingExchanges\ConsultOrganizationUpcomingExchanges;
+use Prospecter\Core\Prospecting\Application\ConsultOverlappingExchanges\ConsultOverlappingExchanges;
 use Prospecter\Core\Prospecting\Application\ConsultTimeline\ConsultTimeline;
 use Prospecter\Core\Prospecting\Application\ConsultTimelineIntents\ConsultTimelineIntents;
+use Prospecter\Core\Prospecting\Application\ConsultUpcomingExchanges\ConsultUpcomingExchanges;
 use Prospecter\Core\Prospecting\Application\ExchangeInTimeline;
 use Prospecter\Core\Prospecting\Application\NoteExchange\NoteExchange;
 use Prospecter\Core\Prospecting\Application\NoteOrganizationExchange\NoteOrganizationExchange;
+use Prospecter\Core\Prospecting\Application\PlanExchange\PlanExchange;
+use Prospecter\Core\Prospecting\Application\PlanOrganizationExchange\PlanOrganizationExchange;
 use Prospecter\Core\Prospecting\Application\Timeline;
 use Prospecter\Core\Prospecting\Domain\Event\ExchangeLeftWithoutOrganization;
 use Prospecter\Core\Prospecting\Domain\Model\Channel;
@@ -33,14 +38,15 @@ use Tests\Core\Double\InMemoryPrivateStorage;
 use Tests\Core\Double\StateOf;
 
 /**
- * The exchanges with the contacts and with the organizations, noted and read in their timeline: a timeline is
- * named after its contact or its organization.
+ * The exchanges with the contacts and with the organizations, noted or planned, and read in their timeline: a
+ * timeline is named after its contact or its organization, those to come apart from the past ones.
  */
 final class ExchangeContext implements Context
 {
     use SharesTheScenario;
 
     public const string ANY_EXCHANGE = 'un appel|un SMS|un e-mail|un message LinkedIn|un rendez-vous';
+    private const string ANY_PLANNED = self::ANY_EXCHANGE.'|une visio';
 
     private ?string $lastNoted = null;
     private string $lastNotedWith = '';
@@ -50,6 +56,8 @@ final class ExchangeContext implements Context
     private ?InMemoryDatabase $databaseBeforeDeliveredAgain = null;
     private ?InMemoryPrivateStorage $privateStorageBeforeDeliveredAgain = null;
     private string $timelineOf = '';
+    /** @var list<ExchangeInTimeline>|null */
+    private ?array $overlapping = null;
 
     /**
      * @var list<string>|null
@@ -112,6 +120,94 @@ final class ExchangeContext implements Context
             $this->application->exchanges->save(Exchange::notedWithTheOrganization($prospect, $this->scenario->meAsProspector()->id, new ExchangeId($id), $facts, $this->application->now()));
             $this->notedWithTheOrganization[] = $id;
         }
+    }
+
+    #[Given('/^(?<done>j\'ai planifié|je planifie) (?<exchange>'.self::ANY_PLANNED.') avec "(?<interlocutor>[^"]+)" le (?<day>\S+) à (?<time>\S+)(?: pour (?<duration>.+))?$/')]
+    public function iPlanAnExchange(string $done, string $exchange, string $interlocutor, string $day, string $time, string $duration = ''): void
+    {
+        $minutes = '' === $duration ? null : Vocabulary::minutes($duration);
+        $this->plan($this->application->signedIn(), $interlocutor, $interlocutor, Vocabulary::channelOfAnExchange($exchange), Vocabulary::frenchMoment(sprintf('%s à %s', $day, $time)), $minutes);
+
+        if ('j\'ai planifié' === $done) {
+            $this->expectPlanned();
+        }
+    }
+
+    #[When('/^je planifie depuis "(?<organization>[^"]+)" (?<exchange>'.self::ANY_PLANNED.') avec "(?<contact>[^"]+)" le (?<day>\S+) à (?<time>\S+)$/')]
+    public function iPlanFromTheOrganization(string $organization, string $exchange, string $contact, string $day, string $time): void
+    {
+        $this->plan($this->application->signedIn(), $organization, $contact, Vocabulary::channelOfAnExchange($exchange), Vocabulary::frenchMoment(sprintf('%s à %s', $day, $time)), null);
+    }
+
+    #[Given('/^"(?<member>[^"]+)" a planifié (?<exchange>'.self::ANY_PLANNED.') avec "(?<contact>[^"]+)" le (?<day>\S+) à (?<time>\S+)$/')]
+    public function aMemberPlannedAnExchange(string $member, string $exchange, string $contact, string $day, string $time): void
+    {
+        $this->plan($this->scenario->memberIdOf($member)->value, $contact, $contact, Vocabulary::channelOfAnExchange($exchange), Vocabulary::frenchMoment(sprintf('%s à %s', $day, $time)), null);
+        $this->expectPlanned();
+    }
+
+    #[Then('les échanges à venir de :name sont, du plus proche au plus lointain :')]
+    public function theUpcomingExchangesAre(string $name, TableNode $table): void
+    {
+        $columns = array_flip($table->getRow(0));
+
+        Expect::same($table->getColumnsHash(), array_map(fn (ExchangeInTimeline $exchange): array => array_replace($columns, array_intersect_key($this->describe($exchange, $name), $columns)), $this->upcomingOf($name)));
+    }
+
+    #[Then('cet échange n\'est pas dans ses échanges passés')]
+    public function theExchangeIsNotAmongThePastOnes(): void
+    {
+        $this->expectPlanned();
+
+        Expect::that(!array_any($this->timelineOfNow($this->lastNotedWith), fn (ExchangeInTimeline $exchange): bool => $exchange->id === $this->lastNoted), 'The planned exchange is among the past ones');
+    }
+
+    #[Then('il est dans les échanges à venir de :name')]
+    public function itIsAmongTheUpcomingExchangesOf(string $name): void
+    {
+        $this->expectPlanned();
+
+        Expect::that(array_any($this->upcomingOf($name), fn (ExchangeInTimeline $exchange): bool => $exchange->id === $this->lastNoted), sprintf('The exchange is not among the upcoming ones of %s', $name));
+    }
+
+    #[Then('il dure de :start à :end')]
+    public function itLastsFrom(string $start, string $end): void
+    {
+        $planned = array_find($this->upcomingOf($this->lastNotedWith), fn (ExchangeInTimeline $exchange): bool => $exchange->id === $this->lastNoted);
+        $from = $planned?->occurredAt;
+
+        Expect::same([$start, $end], [$from?->format('G\hi'), $from?->modify(sprintf('+%d minutes', $planned->durationInMinutes))->format('G\hi')]);
+    }
+
+    #[Then('j\'en suis le titulaire')]
+    public function iHoldIt(): void
+    {
+        $this->expectPlanned();
+        $planned = $this->application->database->exchange((string) $this->lastNoted);
+
+        Expect::same($this->application->signedIn(), null === $planned ? null : StateOf::the($planned)['createdBy']->value);
+    }
+
+    #[When('/^je regarde ce qui chevauche le (?<day>\S+) à (?<time>\S+) pour (?<duration>.+)$/')]
+    public function iLookAtWhatOverlaps(string $day, string $time, string $duration): void
+    {
+        $startsAt = Vocabulary::frenchMoment(sprintf('%s à %s', $day, $time));
+        $this->overlapping = $this->application->consultOverlappingExchanges(new ConsultOverlappingExchanges($this->application->signedIn(), $startsAt, Vocabulary::minutes($duration)))?->exchanges;
+    }
+
+    #[Then('je vois ces échanges qui le chevauchent :')]
+    public function iSeeTheseOverlappingExchanges(TableNode $table): void
+    {
+        Expect::that(null !== $this->overlapping, sprintf('The overlapping exchanges were expected, got: %s', $this->application->refusal()?->getMessage()));
+        $columns = array_flip($table->getRow(0));
+
+        Expect::same($table->getColumnsHash(), array_map(fn (ExchangeInTimeline $exchange): array => array_replace($columns, array_intersect_key($this->describe($exchange, ''), $columns)), $this->overlapping));
+    }
+
+    #[Then('rien ne le chevauche')]
+    public function nothingOverlapsIt(): void
+    {
+        Expect::same([], $this->overlapping);
     }
 
     #[When('je consulte la timeline de :name')]
@@ -284,6 +380,39 @@ final class ExchangeContext implements Context
         return $this->timelineIntents;
     }
 
+    /**
+     * With a contact, or from the card of an organization, with it or with one of its contacts.
+     */
+    private function plan(string $prospectorId, string $from, string $interlocutor, string $channel, \DateTimeImmutable $plannedAt, ?int $minutes): void
+    {
+        $id = $this->application->newIdentity();
+        $personId = $this->scenario->isAnOrganization($interlocutor) ? null : $this->scenario->personIdOf($interlocutor);
+        $this->application->dispatch($this->scenario->isAnOrganization($from)
+            ? new PlanOrganizationExchange($prospectorId, $id, $this->scenario->idOf($from), $personId, $channel, $plannedAt, $minutes, null, $this->application->now())
+            : new PlanExchange($prospectorId, $id, (string) $personId, $channel, $plannedAt, $minutes, null, $this->application->now()));
+        $this->lastNoted = null === $this->application->refusal() ? $id : null;
+        $this->lastNotedWith = $interlocutor;
+    }
+
+    private function expectPlanned(): void
+    {
+        Expect::that(null !== $this->lastNoted, sprintf('An exchange was expected to be planned, got: %s', $this->application->refusal()?->getMessage()));
+    }
+
+    /**
+     * @return list<ExchangeInTimeline>
+     */
+    private function upcomingOf(string $name): array
+    {
+        $prospector = $this->application->signedIn();
+        $upcoming = $this->scenario->isAnOrganization($name)
+            ? $this->application->consultOrganizationUpcomingExchanges(new ConsultOrganizationUpcomingExchanges($prospector, $this->scenario->idOf($name), $this->application->now()))
+            : $this->application->consultUpcomingExchanges(new ConsultUpcomingExchanges($prospector, $this->scenario->personIdOf($name), $this->application->now()));
+        Expect::that(null !== $upcoming, sprintf('The upcoming exchanges were expected, got: %s', $this->application->refusal()?->getMessage()));
+
+        return $upcoming->exchanges;
+    }
+
     private function noteFrom(string $organization, ?string $personId, string $channel, string $direction, \DateTimeImmutable $occurredAt): void
     {
         $id = $this->application->newIdentity();
@@ -314,8 +443,8 @@ final class ExchangeContext implements Context
         $prospector = $this->application->signedIn();
 
         return $this->scenario->isAnOrganization($name)
-            ? $this->application->consultOrganizationTimeline(new ConsultOrganizationTimeline($prospector, $this->scenario->idOf($name), $after))
-            : $this->application->consultTimeline(new ConsultTimeline($prospector, $this->scenario->personIdOf($name), $after));
+            ? $this->application->consultOrganizationTimeline(new ConsultOrganizationTimeline($prospector, $this->scenario->idOf($name), $this->application->now(), $after))
+            : $this->application->consultTimeline(new ConsultTimeline($prospector, $this->scenario->personIdOf($name), $this->application->now(), $after));
     }
 
     /**
@@ -361,6 +490,10 @@ final class ExchangeContext implements Context
             'moment' => Vocabulary::describeFrenchMoment($exchange->occurredAt),
             'interlocuteur' => $this->interlocutorOf($exchange, $timelineOf),
             'canal' => Vocabulary::describeChannel($exchange->channel),
+            'durée' => Vocabulary::describeDuration($exchange->durationInMinutes),
+            'statut' => Vocabulary::describeStatus($exchange->status),
+            'de' => Vocabulary::describeFrenchMoment($exchange->occurredAt),
+            'à' => Vocabulary::describeFrenchMoment($exchange->occurredAt->modify(sprintf('+%d minutes', $exchange->durationInMinutes ?? 0))),
             'sens' => Vocabulary::describeDirection($exchange->direction),
             'texte' => (string) $exchange->text,
             'signalé' => Vocabulary::describeYesOrNo($exchange->textFlagged),

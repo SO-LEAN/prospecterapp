@@ -49,7 +49,7 @@ class ExchangeApiTest extends ApiTestCase
         $this->assertResponseStatusCodeSame(201);
         $this->assertResponseHeaderSame('Location', '/api/exchanges/'.$timeline['items'][0]['id']);
         $this->assertSame([['linkedIn', 'inbound', '2026-10-14T12:30:00+00:00', 'Intéressée par une mission en mars'], ['call', 'outbound', '2026-10-10T07:00:00+00:00', null]], array_map(static fn (array $exchange): array => [$exchange['channel'], $exchange['direction'], $exchange['occurredAt'], $exchange['text']], $timeline['items']));
-        $this->assertSame(['self', 'noteExchange'], array_keys($timeline['_links']));
+        $this->assertSame(['self', 'noteExchange', 'planExchange'], array_keys($timeline['_links']));
         $this->assertSame(['href' => '/api/exchanges/'.$timeline['items'][0]['id'], 'method' => 'GET'], $timeline['items'][0]['_links']['self']);
         $this->assertSame(['href' => '/api/contacts/'.$contact.'/exchanges', 'method' => 'POST'], $timeline['_links']['noteExchange']);
         $this->assertSame($timeline, $this->requestJson('GET', '/api/contacts/'.$contact.'/exchanges'));

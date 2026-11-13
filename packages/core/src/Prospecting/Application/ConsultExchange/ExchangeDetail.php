@@ -5,8 +5,9 @@ declare(strict_types=1);
 namespace Prospecter\Core\Prospecting\Application\ConsultExchange;
 
 /**
- * An exchange as its detail shows it; its channel and its direction by the values of `Channel` and
- * `Direction`, who noted and corrected it by their member id, the files joined to it; read without the right to
+ * An exchange as its detail shows it; its channel, its direction and its status by the values of `Channel`,
+ * `Direction` and `ExchangeStatus`, how long it lasts when planned, who noted and corrected it by their member id,
+ * the files joined to it; read without the right to
  * manage personal data, its text flagged and its files hidden, only counted; its contact forgotten, what is to make
  * conform, and who declared it made conform.
  */
@@ -27,6 +28,8 @@ final readonly class ExchangeDetail
         public string $direction,
         public bool $missed,
         public \DateTimeImmutable $occurredAt,
+        public string $status,
+        public ?int $durationInMinutes,
         public ?string $text,
         public bool $textFlagged,
         public bool $textToMakeConform,

@@ -18,6 +18,8 @@ const anExchange = (exchange: Partial<ExchangeDetail>): ExchangeDetail => ({
   direction: 'inbound',
   missed: false,
   occurredAt: '2026-10-15T12:30:00+00:00',
+  status: 'done',
+  durationInMinutes: null,
   text: 'Intéressée par une mission en mars',
   textFlagged: false,
   textToMakeConform: false,

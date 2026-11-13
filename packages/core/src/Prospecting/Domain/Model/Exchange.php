@@ -12,16 +12,19 @@ use Prospecter\Core\Prospecting\Domain\Event\ExchangeLeftWithoutOrganization;
 use Prospecter\Core\Prospecting\Domain\Event\ExchangeMadeConform;
 use Prospecter\Core\Prospecting\Domain\Event\ExchangeNoLongerKeptFor;
 use Prospecter\Core\Prospecting\Domain\Event\ExchangeNoted;
+use Prospecter\Core\Prospecting\Domain\Event\ExchangePlanned;
 use Prospecter\Core\Prospecting\Domain\Event\ExchangeTextCorrected;
 use Prospecter\Core\Prospecting\Domain\Event\FileAttached;
 use Prospecter\Core\Prospecting\Domain\Exception\ExchangeInTheFuture;
 use Prospecter\Core\Prospecting\Domain\Exception\NoRoomForAnAttachment;
 use Prospecter\Core\Prospecting\Domain\Exception\NothingToMakeConform;
+use Prospecter\Core\Prospecting\Domain\Exception\PlannedExchangeInThePast;
 use Prospecter\Core\Prospecting\Domain\Exception\UnknownAttachment;
 use Prospecter\Core\Prospecting\Domain\Policy\ExchangeConformity;
 use Prospecter\Core\Prospecting\Domain\Policy\ExchangePossibilities;
 use Prospecter\Core\Prospecting\Domain\Policy\ExchangeReading;
 use Prospecter\Core\SharedKernel\Domain\AccountId;
+use Prospecter\Core\SharedKernel\Domain\Exception\NotPossibleInItsState;
 use Prospecter\Core\SharedKernel\Domain\Exception\PersonalDataManagersOnly;
 use Prospecter\Core\SharedKernel\Domain\MemberId;
 use Prospecter\Core\SharedKernel\Domain\OrganizationId;
@@ -32,6 +35,7 @@ use Prospecter\Core\SharedKernel\Domain\ReleasesEvents;
 /**
  * Aggregate root: a fact of the real world between a prospector of the account and a contact, or the
  * organization itself, a call, a message or a meeting; not a change made in the application (ADR 0074, 0076).
+ * Planned, it is still to come, held by the member who planned it, its author.
  * Its text may hold personal data: it is kept for the organizations the contact was part of when it was noted, or
  * for the organization itself, and lives as long as one of them is prospected.
  * Its contact forgotten, it stays, to make conform (ADR 0079).
@@ -59,6 +63,7 @@ final class Exchange implements ReleasesEvents
         private readonly ?PersonId $contact,
         private array $keptFor,
         private ExchangeFacts $facts,
+        private readonly ExchangeStatus $status,
         private readonly \DateTimeImmutable $createdAt,
     ) {
         $this->modifiedAt = $createdAt;
@@ -91,8 +96,43 @@ final class Exchange implements ReleasesEvents
     private static function noted(AccountId $accountId, MemberId $by, ExchangeId $id, ?PersonId $contact, array $keptFor, ExchangeFacts $facts, \DateTimeImmutable $at): self
     {
         self::ensureHappenedBefore($facts, $at);
-        $exchange = new self($id, $accountId, $by, $contact, $keptFor, $facts, $at);
+        $exchange = new self($id, $accountId, $by, $contact, $keptFor, $facts, ExchangeStatus::Done, $at);
         $exchange->recordThat(new ExchangeNoted($accountId, $by, $id, $at));
+
+        return $exchange;
+    }
+
+    /**
+     * Kept, like an exchange noted, for the organizations the contact is part of now.
+     *
+     * @param list<OrganizationId> $organizationsOfTheContact
+     *
+     * @throws PlannedExchangeInThePast
+     */
+    public static function plannedWithAContact(AccountId $accountId, MemberId $by, ExchangeId $id, PersonId $contact, array $organizationsOfTheContact, ExchangeFacts $facts, \DateTimeImmutable $at): self
+    {
+        return self::planned($accountId, $by, $id, $contact, $organizationsOfTheContact, $facts, $at);
+    }
+
+    /**
+     * @throws PlannedExchangeInThePast
+     */
+    public static function plannedWithTheOrganization(Organization $organization, MemberId $by, ExchangeId $id, ExchangeFacts $facts, \DateTimeImmutable $at): self
+    {
+        return self::planned($organization->accountId(), $by, $id, null, [$organization->id()], $facts, $at);
+    }
+
+    /**
+     * @param list<OrganizationId> $keptFor
+     */
+    private static function planned(AccountId $accountId, MemberId $by, ExchangeId $id, ?PersonId $contact, array $keptFor, ExchangeFacts $facts, \DateTimeImmutable $at): self
+    {
+        if ($facts->occurredAt <= $at) {
+            throw PlannedExchangeInThePast::because('A planned exchange is in the future', 'occurredAt');
+        }
+
+        $exchange = new self($id, $accountId, $by, $contact, $keptFor, $facts, ExchangeStatus::Planned, $at);
+        $exchange->recordThat(new ExchangePlanned($accountId, $by, $id, $at));
 
         return $exchange;
     }
@@ -173,7 +213,7 @@ final class Exchange implements ReleasesEvents
 
     private function allowsInItsState(ExchangeIntent $intent): bool
     {
-        return in_array($intent, ExchangePossibilities::given(count($this->attachments), $this->awaitsBeingMadeConform()), true);
+        return in_array($intent, ExchangePossibilities::given(count($this->attachments), $this->awaitsBeingMadeConform(), $this->status), true);
     }
 
     public function isTextFlaggedFor(Prospector $prospector): bool
@@ -291,10 +331,14 @@ final class Exchange implements ReleasesEvents
     }
 
     /**
-     * @throws NoRoomForAnAttachment|NothingToMakeConform
+     * @throws NoRoomForAnAttachment|NothingToMakeConform|NotPossibleInItsState
      */
     private function ensurePossible(ExchangeIntent $intent): void
     {
+        if (ExchangeIntent::CorrectExchange === $intent && !$this->allowsInItsState($intent)) {
+            throw NotPossibleInItsState::because('A planned exchange is not corrected');
+        }
+
         if (ExchangeIntent::AttachFile === $intent && !$this->allowsInItsState($intent)) {
             throw NoRoomForAnAttachment::because(sprintf('An exchange holds %d attachments at most', self::MOST_ATTACHMENTS));
         }

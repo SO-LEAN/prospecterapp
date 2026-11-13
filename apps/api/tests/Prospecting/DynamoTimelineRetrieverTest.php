@@ -9,6 +9,7 @@ use Prospecter\Core\Prospecting\Application\Port\TimelineRetriever;
 use Prospecter\Core\Prospecting\Application\Timeline;
 use Prospecter\Core\Prospecting\Domain\Model\Channel;
 use Prospecter\Core\Prospecting\Domain\Model\Direction;
+use Prospecter\Core\Prospecting\Domain\Model\Duration;
 use Prospecter\Core\Prospecting\Domain\Model\Exchange;
 use Prospecter\Core\Prospecting\Domain\Model\ExchangeFacts;
 use Prospecter\Core\Prospecting\Domain\Model\ExchangeId;
@@ -28,7 +29,7 @@ use Tests\App\Base\ApiTestCase;
 /**
  * The timeline of a contact by the moment of its exchanges, the timeline of an organization and those of its
  * exchanges to make conform, read from the indexes the repository writes, without restoring the exchanges
- * (ADR 0074, 0076, 0079, 0088).
+ * (ADR 0074, 0076, 0079, 0088): the past until the moment of the reading, what is to come after it.
  */
 class DynamoTimelineRetrieverTest extends ApiTestCase
 {
@@ -54,19 +55,55 @@ class DynamoTimelineRetrieverTest extends ApiTestCase
         $recent = $this->noted('2026-10-15 14:30 UTC');
         $oldest = $this->noted('2026-10-01 08:00 UTC');
 
-        $first = $this->timelines()->ofContact($this->contact, $this->prospector, null, 2);
-        $following = $this->timelines()->ofContact($this->contact, $this->prospector, $first->next, 2);
+        $first = $this->timelines()->ofContact($this->contact, $this->prospector, $this->asOf(), null, 2);
+        $following = $this->timelines()->ofContact($this->contact, $this->prospector, $this->asOf(), $first->next, 2);
 
         $this->assertSame([self::idOf($recent), self::idOf($older)], self::idsIn($first));
         $this->assertSame([self::idOf($oldest)], self::idsIn($following));
         $this->assertNull($following->next);
     }
 
+    public function testWhatIsToComeGoesFromTheSoonestMomentInSlices(): void
+    {
+        $this->noted('2026-10-10 09:00 UTC');
+        $later = $this->planned('2026-10-25 09:00 UTC');
+        $soonest = $this->planned('2026-10-19 09:00 UTC');
+
+        $first = $this->timelines()->upcomingWithContact($this->contact, $this->prospector, $this->asOf(), null, 1);
+        $following = $this->timelines()->upcomingWithContact($this->contact, $this->prospector, $this->asOf(), $first->next, 1);
+
+        $this->assertSame([[self::idOf($soonest)], [self::idOf($later)]], [self::idsIn($first), self::idsIn($following)]);
+        $this->assertNull($following->next);
+        $this->assertSame(['planned', 45], [$first->exchanges[0]->status, $first->exchanges[0]->durationInMinutes]);
+    }
+
+    public function testThePastIsUntilTheMomentOfTheReadingWhatIsToComeAfterIt(): void
+    {
+        $past = $this->noted('2026-10-10 09:00 UTC');
+        $planned = $this->planned('2026-10-19 09:00 UTC');
+        $atTheMoment = $this->noted(self::NOW);
+
+        $this->assertSame([self::idOf($atTheMoment), self::idOf($past)], self::idsIn($this->timelines()->ofContact($this->contact, $this->prospector, $this->asOf(), null, 20)));
+        $this->assertSame([self::idOf($planned)], self::idsIn($this->timelines()->upcomingWithContact($this->contact, $this->prospector, $this->asOf(), null, 20)));
+        $this->assertSame(['done', null], [$this->timelineOf($this->acme)->exchanges[0]->status, $this->timelineOf($this->acme)->exchanges[0]->durationInMinutes]);
+    }
+
+    public function testWhatIsToComeWithAnOrganizationAndItsContacts(): void
+    {
+        $this->noted('2026-10-10 09:00 UTC');
+        $withTheContact = $this->planned('2026-10-20 09:00 UTC');
+        $withTheOrganization = Exchange::plannedWithTheOrganization($this->acme, $this->prospector->id, new ExchangeId(self::newIdentity()), self::plannedFacts('2026-10-19 09:00 UTC'), new \DateTimeImmutable(self::NOW));
+        $this->exchanges()->save($withTheOrganization);
+
+        $this->assertSame([self::idOf($withTheOrganization), self::idOf($withTheContact)], self::idsIn($this->timelines()->upcomingInOrganization($this->sheetOf($this->acme), $this->prospector, $this->asOf(), null, 20)));
+        $this->assertSame([self::idOf($withTheContact)], self::idsIn($this->timelines()->upcomingInOrganization($this->sheetOf($this->group), $this->prospector, $this->asOf(), null, 20)));
+    }
+
     public function testAnotherAccountHasItsOwnTimeline(): void
     {
         $this->noted('2026-10-10 09:00 UTC');
 
-        $this->assertSame([], $this->timelines()->ofContact($this->contact, new Prospector(new MemberId(self::newIdentity()), new AccountId(self::newIdentity())), null, 20)->exchanges);
+        $this->assertSame([], $this->timelines()->ofContact($this->contact, new Prospector(new MemberId(self::newIdentity()), new AccountId(self::newIdentity())), $this->asOf(), null, 20)->exchanges);
     }
 
     public function testARemovedExchangeIsInNoTimeline(): void
@@ -75,7 +112,7 @@ class DynamoTimelineRetrieverTest extends ApiTestCase
 
         $this->exchanges()->remove($exchange);
 
-        $this->assertSame([], $this->timelines()->ofContact($this->contact, $this->prospector, null, 20)->exchanges);
+        $this->assertSame([], $this->timelines()->ofContact($this->contact, $this->prospector, $this->asOf(), null, 20)->exchanges);
         $this->assertSame([], $this->timelineOf($this->acme)->exchanges);
     }
 
@@ -85,8 +122,8 @@ class DynamoTimelineRetrieverTest extends ApiTestCase
         $withTheOrganization = $this->notedWithTheOrganization('2026-10-15 14:30 UTC');
         $oldest = $this->noted('2026-10-01 08:00 UTC');
 
-        $first = $this->timelines()->ofOrganization($this->sheetOf($this->acme), $this->prospector, null, 2);
-        $following = $this->timelines()->ofOrganization($this->sheetOf($this->acme), $this->prospector, $first->next, 2);
+        $first = $this->timelines()->ofOrganization($this->sheetOf($this->acme), $this->prospector, $this->asOf(), null, 2);
+        $following = $this->timelines()->ofOrganization($this->sheetOf($this->acme), $this->prospector, $this->asOf(), $first->next, 2);
 
         $this->assertSame([self::idOf($withTheOrganization), self::idOf($withTheContact)], self::idsIn($first));
         $this->assertSame([self::idOf($oldest)], self::idsIn($following));
@@ -99,7 +136,7 @@ class DynamoTimelineRetrieverTest extends ApiTestCase
 
         $this->assertSame([null, null], [$this->timelineOf($this->acme)->exchanges[0]->personId, $this->timelineOf($this->acme)->exchanges[0]->contactPresence]);
         $this->assertSame([], $this->timelineOf($this->group)->exchanges);
-        $this->assertSame([], $this->timelines()->ofContact($this->contact, $this->prospector, null, 20)->exchanges);
+        $this->assertSame([], $this->timelines()->ofContact($this->contact, $this->prospector, $this->asOf(), null, 20)->exchanges);
     }
 
     public function testAnExchangeNoLongerKeptForAnOrganizationLeavesItsTimeline(): void
@@ -128,10 +165,10 @@ class DynamoTimelineRetrieverTest extends ApiTestCase
     {
         $this->noted('2026-10-10 09:00 UTC');
 
-        $read = $this->timelines()->ofContact($this->contact, new Prospector(new MemberId(self::newIdentity()), $this->prospector->accountId), null, 20)->exchanges[0];
+        $read = $this->timelines()->ofContact($this->contact, new Prospector(new MemberId(self::newIdentity()), $this->prospector->accountId), $this->asOf(), null, 20)->exchanges[0];
 
         $this->assertSame([true, 'Rappeler lundi'], [$read->textFlagged, $read->text]);
-        $this->assertFalse($this->timelines()->ofContact($this->contact, $this->prospector, null, 20)->exchanges[0]->textFlagged);
+        $this->assertFalse($this->timelines()->ofContact($this->contact, $this->prospector, $this->asOf(), null, 20)->exchanges[0]->textFlagged);
     }
 
     public function testACorrectedMomentMovesTheExchangeInTheTimelines(): void
@@ -143,7 +180,7 @@ class DynamoTimelineRetrieverTest extends ApiTestCase
         $first->correct(new ExchangeFacts(Channel::Call, Direction::Inbound, new \DateTimeImmutable('2026-10-12 09:00 UTC')), by: $this->prospector->id, at: new \DateTimeImmutable(self::NOW));
         $this->exchanges()->save($first);
 
-        $this->assertSame([self::idOf($first), self::idOf($second)], self::idsIn($this->timelines()->ofContact($this->contact, $this->prospector, null, 20)));
+        $this->assertSame([self::idOf($first), self::idOf($second)], self::idsIn($this->timelines()->ofContact($this->contact, $this->prospector, $this->asOf(), null, 20)));
         $this->assertSame([self::idOf($first), self::idOf($third), self::idOf($second)], self::idsIn($this->timelineOf($this->acme)));
     }
 
@@ -195,6 +232,24 @@ class DynamoTimelineRetrieverTest extends ApiTestCase
         return $exchange;
     }
 
+    private function planned(string $at): Exchange
+    {
+        $exchange = Exchange::plannedWithAContact($this->prospector->accountId, $this->prospector->id, new ExchangeId(self::newIdentity()), $this->contact, [$this->acme->id(), $this->group->id()], self::plannedFacts($at), new \DateTimeImmutable(self::NOW));
+        $this->exchanges()->save($exchange);
+
+        return $exchange;
+    }
+
+    private static function plannedFacts(string $at): ExchangeFacts
+    {
+        return ExchangeFacts::planned(Channel::Meeting, new \DateTimeImmutable($at), Duration::inMinutes(45), null);
+    }
+
+    private function asOf(): \DateTimeImmutable
+    {
+        return new \DateTimeImmutable(self::NOW);
+    }
+
     private function notedWithTheOrganization(string $occurredAt): Exchange
     {
         $exchange = Exchange::notedWithTheOrganization($this->acme, $this->prospector->id, new ExchangeId(self::newIdentity()), new ExchangeFacts(Channel::Call, Direction::Inbound, new \DateTimeImmutable($occurredAt)), new \DateTimeImmutable(self::NOW));
@@ -205,7 +260,7 @@ class DynamoTimelineRetrieverTest extends ApiTestCase
 
     private function timelineOf(Organization $organization): Timeline
     {
-        return $this->timelines()->ofOrganization($this->sheetOf($organization), $this->prospector, null, 20);
+        return $this->timelines()->ofOrganization($this->sheetOf($organization), $this->prospector, $this->asOf(), null, 20);
     }
 
     private function sheetOf(Organization $organization): OrganizationSheet

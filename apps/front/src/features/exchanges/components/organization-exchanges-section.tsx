@@ -1,19 +1,25 @@
-import { useInfiniteQuery } from '@tanstack/react-query'
+import { useInfiniteQuery, useQuery } from '@tanstack/react-query'
 import { ShieldAlert } from 'lucide-react'
 import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Button } from '@/shared/ui/button'
-import { attachTheFiles, useAttachFiles, useNoteOrganizationExchange } from '../mutations'
-import { exchangesToMakeConformQuery, organizationTimelineQuery } from '../queries'
+import {
+  attachTheFiles,
+  useAttachFiles,
+  useNoteOrganizationExchange,
+  usePlanOrganizationExchange,
+} from '../mutations'
+import { exchangesToMakeConformQuery, organizationTimelineQuery, organizationUpcomingQuery } from '../queries'
 import { ExchangeForm, type Interlocutors } from './exchange-form'
 import { ExchangeLine } from './exchange-line'
-import { NoteExchangeDialog, TimelineCard } from './timeline-card'
+import { PlanForm } from './plan-form'
+import { NoteExchangeDialog, PlanExchangeDialog, TimelineCard } from './timeline-card'
 
 type Props = { organizationId: string; interlocutors: Interlocutors; className?: string }
 
 /**
- * The timeline of the organization: its exchanges and those of its contacts, each with who communicated, the
- * most recent first (ADR 0076); narrowed to those to make conform, their contact forgotten, by the badge
+ * The timeline of the organization: its exchanges and those of its contacts, each with who communicated, what is
+ * to come the soonest first, then the past, the most recent first (ADR 0076); narrowed to those to make conform, their contact forgotten, by the badge
  * counting them (ADR 0079).
  */
 export function OrganizationExchangesSection({ organizationId, interlocutors, className }: Props) {
@@ -26,7 +32,9 @@ export function OrganizationExchangesSection({ organizationId, interlocutors, cl
     enabled: onlyToMakeConform,
   })
   const timeline = onlyToMakeConform && narrowedTimeline.data ? narrowedTimeline : all
+  const upcoming = useQuery(organizationUpcomingQuery(organizationId))
   const note = useNoteOrganizationExchange()
+  const plan = usePlanOrganizationExchange()
   const attach = useAttachFiles()
 
   if (!timeline.data) {
@@ -34,6 +42,7 @@ export function OrganizationExchangesSection({ organizationId, interlocutors, cl
   }
   const slices = timeline.data.pages
   const mayNote = Boolean(slices[0]?._links.noteExchange)
+  const mayPlan = Boolean(slices[0]?._links.planExchange)
 
   return (
     <TimelineCard
@@ -44,9 +53,29 @@ export function OrganizationExchangesSection({ organizationId, interlocutors, cl
           <ToMakeConformBadge count={toMakeConform} pressed={onlyToMakeConform} onPress={setNarrowed} />
         )
       }
+      upcoming={onlyToMakeConform ? [] : upcoming.data?.items}
       items={slices.flatMap((slice) => slice.items)}
       keyOf={(item) => item.exchange.id}
       renderItem={(item) => <ExchangeLine exchange={item.exchange} interlocutor={item.interlocutor} />}
+      planExchange={
+        mayPlan && (
+          <PlanExchangeDialog name={interlocutors.organization}>
+            {(close) => (
+              <PlanForm
+                interlocutors={interlocutors}
+                onCancel={close}
+                onSubmit={async (exchange, personId) => {
+                  await plan.mutateAsync({
+                    params: { path: { id: organizationId } },
+                    body: { exchange, personId },
+                  })
+                  close()
+                }}
+              />
+            )}
+          </PlanExchangeDialog>
+        )
+      }
       noteExchange={
         mayNote && (
           <NoteExchangeDialog name={interlocutors.organization}>

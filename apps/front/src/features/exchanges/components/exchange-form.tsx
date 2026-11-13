@@ -203,7 +203,15 @@ export function ExchangeForm({
   )
 }
 
-function Choices({ legend, error, children }: { legend: string; error?: string; children: ReactNode }) {
+export function Choices({
+  legend,
+  error,
+  children,
+}: {
+  legend: string
+  error?: string
+  children: ReactNode
+}) {
   return (
     <fieldset className="space-y-2" aria-invalid={error ? true : undefined}>
       <legend className="font-medium text-sm">{legend}</legend>
@@ -216,7 +224,7 @@ function Choices({ legend, error, children }: { legend: string; error?: string; 
 type ChoiceProps = UseFormRegisterReturn & { icon: LucideIcon; label: string; value: string }
 
 /** A radio button looking like a button: the input, transparent over its label, is what is clicked and read. */
-function Choice({ icon: Icon, label, ...radio }: ChoiceProps) {
+export function Choice({ icon: Icon, label, ...radio }: ChoiceProps) {
   return (
     <label className="relative inline-flex cursor-pointer items-center gap-1.5 rounded-md border px-3 py-1.5 text-sm transition-colors hover:bg-accent has-checked:border-primary has-checked:bg-primary has-checked:text-primary-foreground has-focus-visible:ring-[3px] has-focus-visible:ring-ring/50">
       <input type="radio" className="absolute inset-0 cursor-pointer appearance-none opacity-0" {...radio} />

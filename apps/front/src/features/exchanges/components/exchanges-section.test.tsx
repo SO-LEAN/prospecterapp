@@ -3,7 +3,14 @@ import { screen, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { describe, expect, it } from 'vitest'
 import { renderInARouter } from '@/test/render-in-a-router'
-import { type Exchange, type ExchangeDetail, exchangeQuery, type Timeline, timelineQuery } from '../queries'
+import {
+  type Exchange,
+  type ExchangeDetail,
+  exchangeQuery,
+  type Timeline,
+  timelineQuery,
+  upcomingQuery,
+} from '../queries'
 import { ExchangesSection } from './exchanges-section'
 
 const ADA = '0190a1c0-0000-7000-8000-000000000001'
@@ -18,6 +25,8 @@ const anExchange = (exchange: Partial<Exchange>): Exchange => ({
   direction: 'inbound',
   missed: false,
   occurredAt: '2026-10-15T12:30:00+00:00',
+  status: 'done',
+  durationInMinutes: null,
   text: null,
   textFlagged: false,
   textToMakeConform: false,
@@ -28,11 +37,15 @@ const anExchange = (exchange: Partial<Exchange>): Exchange => ({
   ...exchange,
 })
 
-async function renderTheSection(timeline: Timeline, detail?: ExchangeDetail) {
+const upcomingLink = { href: `/api/contacts/${ADA}/upcoming-exchanges`, method: 'GET' }
+const nothingToCome: Timeline = { items: [], _links: { self: upcomingLink } }
+
+async function renderTheSection(timeline: Timeline, detail?: ExchangeDetail, upcoming = nothingToCome) {
   const queryClient = new QueryClient({
     defaultOptions: { queries: { staleTime: Number.POSITIVE_INFINITY } },
   })
   queryClient.setQueryData(timelineQuery(ADA).queryKey, { pages: [timeline], pageParams: [undefined] })
+  queryClient.setQueryData(upcomingQuery(ADA).queryKey, upcoming)
   if (detail) {
     queryClient.setQueryData(exchangeQuery(detail.id).queryKey, detail)
   }
@@ -67,6 +80,34 @@ describe('ExchangesSection', () => {
     expect(linkedIn).toHaveTextContent('Intéressée par une mission en mars')
     expect(within(call as HTMLElement).getByText('Appel, Manqué')).toBeInTheDocument()
     expect(screen.getByRole('button', { name: 'Noter un échange' })).toBeInTheDocument()
+  })
+
+  it('shows what is to come above the past, and offers to plan with the link', async () => {
+    const planned = anExchange({
+      id: '0190a1c0-0000-7000-8000-000000000020',
+      channel: 'videoCall',
+      direction: 'outbound',
+      occurredAt: '2099-11-17T13:00:00+00:00',
+      status: 'planned',
+      durationInMinutes: 60,
+    })
+    await renderTheSection(
+      {
+        items: [anExchange({ channel: 'call' })],
+        _links: { self: timelineLink, planExchange: { href: upcomingLink.href, method: 'POST' } },
+      },
+      undefined,
+      { items: [planned], _links: { self: upcomingLink } },
+    )
+
+    const upcoming = screen.getByRole('list', { name: 'À venir' })
+    expect(within(upcoming).getByText('Visio, À venir')).toBeInTheDocument()
+    expect(within(upcoming).getByText(/, 1 h$/)).toBeInTheDocument()
+    expect(
+      within(screen.getByRole('list', { name: 'Échanges' })).getByText('Appel, Reçu'),
+    ).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: 'Planifier' })).toBeInTheDocument()
+    expect(screen.queryByRole('button', { name: 'Noter un échange' })).not.toBeInTheDocument()
   })
 
   it('shows how many files are joined to an exchange', async () => {
@@ -121,6 +162,8 @@ describe('ExchangesSection', () => {
         direction: 'inbound',
         missed: false,
         occurredAt: '2026-10-15T12:30:00+00:00',
+        status: 'done',
+        durationInMinutes: null,
         text,
         textFlagged: false,
         textToMakeConform: false,

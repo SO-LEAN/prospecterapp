@@ -5,7 +5,8 @@ declare(strict_types=1);
 namespace Prospecter\Core\Prospecting\Application;
 
 /**
- * An exchange in a timeline; its channel and its direction by the values of `Channel` and `Direction`, the
+ * An exchange in a timeline; its channel, its direction and its status by the values of `Channel`, `Direction` and
+ * `ExchangeStatus`, how long it lasts when it was planned, the
  * contact it was with, none when it was with the organization itself, its text flagged when the prospector reads
  * it without the right to manage personal data, and what is to make conform once its contact was forgotten.
  */
@@ -23,6 +24,8 @@ final readonly class ExchangeInTimeline
         public string $direction,
         public bool $missed,
         public \DateTimeImmutable $occurredAt,
+        public string $status,
+        public ?int $durationInMinutes,
         public ?string $text,
         public bool $textFlagged,
         public bool $textToMakeConform,

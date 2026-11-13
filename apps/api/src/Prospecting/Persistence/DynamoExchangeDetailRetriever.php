@@ -57,6 +57,8 @@ final readonly class DynamoExchangeDetailRetriever implements ExchangeDetailRetr
             direction: $facts['direction'],
             missed: $facts['missed'],
             occurredAt: Documents::momentOf($facts['occurredAt']),
+            status: ExchangeDocument::statusOf($document)->value,
+            durationInMinutes: isset($facts['durationInMinutes']) ? (int) $facts['durationInMinutes'] : null,
             text: $facts['text'],
             textFlagged: ExchangeReading::isTextFlagged($hasText, $reader),
             textToMakeConform: ExchangeConformity::isTextToMakeConform($hasText, $contactForgotten, null !== $madeConform),
@@ -70,7 +72,7 @@ final readonly class DynamoExchangeDetailRetriever implements ExchangeDetailRetr
             madeConformAt: null === $madeConform ? null : Documents::momentOf($madeConform['at']),
             attachments: array_map(static fn (array $attachment): AttachmentDetail => new AttachmentDetail($attachment['id'], $attachment['name'], (int) $attachment['size'], $attachment['mediaType'], $attachmentsToMakeConform), $read),
             hiddenAttachments: count($attachments) - count($read),
-            possibleIntents: array_map(static fn (ExchangeIntent $intent): string => $intent->name, ExchangePossibilities::given(count($attachments), ExchangeConformity::awaitsBeingMadeConform($contactForgotten, null !== $madeConform))),
+            possibleIntents: array_map(static fn (ExchangeIntent $intent): string => $intent->name, ExchangePossibilities::given(count($attachments), ExchangeConformity::awaitsBeingMadeConform($contactForgotten, null !== $madeConform), ExchangeDocument::statusOf($document))),
         );
     }
 }

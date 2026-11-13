@@ -24,6 +24,16 @@ Fonctionnalité: Noter un échange avec un contact
       | 15/10/2026 14:30 | LinkedIn | reçu   | Intéressée par une mission en mars | non     |
       | 10/10/2026 09:00 | Appel    | envoyé |                                    | non     |
 
+  Scénario: Une visio passée se note comme les autres échanges
+    Soit je suis connecté en tant que prospecteur de "SOLEAN IT"
+    Quand je note un échange avec "Ada Lovelace" :
+      | canal  | Visio            |
+      | sens   | envoyé           |
+      | moment | 15/10/2026 14:30 |
+    Alors la timeline de "Ada Lovelace" est, du plus récent au plus ancien :
+      | moment           | canal | statut | durée |
+      | 15/10/2026 14:30 | Visio | Fait   |       |
+
   Scénario: Un échange noté après coup prend sa place dans la timeline
     Soit je suis connecté en tant que prospecteur de "SOLEAN IT"
     Et j'ai noté un SMS reçu de "Ada Lovelace" le 15/10/2026 à 14h30
@@ -73,6 +83,7 @@ Fonctionnalité: Noter un échange avec un contact
     Et je peux sur la timeline :
       | consulter la timeline |
       | noter un échange      |
+      | planifier un échange  |
 
   Scénario: La fiche d'un contact mène à sa timeline
     Soit je suis connecté en tant que prospecteur de "SOLEAN IT"
@@ -80,6 +91,7 @@ Fonctionnalité: Noter un échange avec un contact
     Alors je peux sur la timeline :
       | consulter la timeline |
       | noter un échange      |
+      | planifier un échange  |
 
   Scénario: Sans le droit aux données personnelles, je lis la timeline, l'interlocuteur masqué, le texte signalé
     Soit "Michel" est membre de "SOLEAN IT" avec le droit aux données personnelles

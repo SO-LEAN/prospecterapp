@@ -26,6 +26,6 @@ final readonly class ConsultOrganizationTimelineHandler implements QueryHandler
         $prospector = $this->prospectors->prospectorFrom(new MemberId($query->prospectorId));
         $organization = $this->organizationSheetRetriever->get(new OrganizationId($query->organizationId));
 
-        $output->present($this->timelineRetriever->ofOrganization($organization, $prospector, $query->after, $query->max));
+        $output->present($this->timelineRetriever->ofOrganization($organization, $prospector, $query->asOf, $query->after, $query->max));
     }
 }

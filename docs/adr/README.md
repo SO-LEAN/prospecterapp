@@ -114,3 +114,4 @@ Why the project is shaped the way it is: one record per decision, in the order t
 | [0108](0108-the-instances-deliver-outbox-by-default-of-the-code.md) | The instances deliver outbox, by the default of the code | architecture | Accepted | 2026-11-12 |
 | [0109](0109-the-checks-run-together-the-tests-on-a-ministack-of-their-own.md) | The checks of the integration run together, the tests on a MiniStack of their own | architecture | Accepted | 2026-11-13 |
 | [0110](0110-the-integration-runs-the-checks-the-changes-need.md) | The integration runs the checks the changes need, the lint and the tests of a project together | architecture | Accepted | 2026-11-13 |
+| [0111](0111-an-exchange-is-planned-then-done-to-come-after-the-moment-of-the-reading.md) | An exchange is planned, then done; what is to come is read after the moment of the reading | domain | Accepted | 2026-11-13 |

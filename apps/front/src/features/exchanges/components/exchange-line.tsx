@@ -4,6 +4,7 @@ import {
   ArrowUpRight,
   BriefcaseBusiness,
   Building2,
+  CalendarClock,
   CalendarDays,
   type LucideIcon,
   Mail,
@@ -13,10 +14,11 @@ import {
   Phone,
   PhoneMissed,
   UserRound,
+  Video,
 } from 'lucide-react'
 import type { ReactNode } from 'react'
 import { useTranslation } from 'react-i18next'
-import { formatMoment } from '@/shared/lib/format'
+import { formatMoment, formatUpcoming } from '@/shared/lib/format'
 import { cn } from '@/shared/lib/utils'
 import type { Channel, Exchange, Interlocutor } from '../queries'
 import { ExchangeText, PersonalDataWarning } from './exchange-text'
@@ -27,10 +29,14 @@ export const CHANNEL_ICONS: Record<Channel, LucideIcon> = {
   email: Mail,
   linkedIn: BriefcaseBusiness,
   meeting: CalendarDays,
+  videoCall: Video,
   other: MessageCircle,
 }
 
-type Summarized = Pick<Exchange, 'channel' | 'direction' | 'missed' | 'occurredAt'>
+type Summarized = Pick<
+  Exchange,
+  'channel' | 'direction' | 'missed' | 'occurredAt' | 'status' | 'durationInMinutes'
+>
 
 const directionIconOf = (exchange: Summarized) =>
   exchange.missed ? PhoneMissed : exchange.direction === 'inbound' ? ArrowDownLeft : ArrowUpRight
@@ -70,7 +76,7 @@ export function ExchangeLine({
 
 /**
  * Who communicated, when said, a link to their card when given, its channel, its direction (missed for a call
- * that did not go through) and when, then what follows.
+ * that did not go through) and when, then what follows; planned, when it is to come from now and how long it lasts.
  */
 export function ExchangeSummary({
   exchange,
@@ -85,8 +91,9 @@ export function ExchangeSummary({
 }) {
   const { t } = useTranslation()
   const ChannelIcon = CHANNEL_ICONS[exchange.channel]
-  const DirectionIcon = directionIconOf(exchange)
   const direction = exchange.missed ? t('exchanges.missed') : t(`exchanges.directions.${exchange.direction}`)
+  const planned = exchange.status === 'planned'
+  const DirectionIcon = planned ? CalendarClock : directionIconOf(exchange)
 
   return (
     <div className="flex items-start gap-3">
@@ -96,19 +103,46 @@ export function ExchangeSummary({
       <div className="min-w-0 flex-1">
         {interlocutor && <InterlocutorName interlocutor={interlocutor} linkedToTheCard={linkedToTheCard} />}
         <p className="flex items-center gap-1.5 font-medium">
-          {t('exchanges.summary', { channel: t(`exchanges.channels.${exchange.channel}`), direction })}
+          {t('exchanges.summary', {
+            channel: t(`exchanges.channels.${exchange.channel}`),
+            direction: planned ? t('exchanges.statuses.planned') : direction,
+          })}
           <DirectionIcon
             aria-hidden
             className={exchange.missed ? 'size-4 text-destructive' : 'size-4 text-muted-foreground'}
           />
         </p>
         <p className="text-muted-foreground text-xs">
-          <time dateTime={exchange.occurredAt}>{formatMoment(exchange.occurredAt)}</time>
+          {planned ? (
+            <time dateTime={exchange.occurredAt} title={formatMoment(exchange.occurredAt)}>
+              {t('exchanges.lasting', {
+                moment: formatUpcoming(exchange.occurredAt),
+                duration: formatDuration(exchange.durationInMinutes ?? 0, t),
+              })}
+            </time>
+          ) : (
+            <time dateTime={exchange.occurredAt}>{formatMoment(exchange.occurredAt)}</time>
+          )}
         </p>
         {children}
       </div>
     </div>
   )
+}
+
+const MINUTES_IN_AN_HOUR = 60
+
+/** "30 min", "1 h", "1 h 30". */
+export function formatDuration(minutes: number, t: ReturnType<typeof useTranslation>['t']): string {
+  const hours = Math.floor(minutes / MINUTES_IN_AN_HOUR)
+  const rest = minutes % MINUTES_IN_AN_HOUR
+
+  if (hours === 0) {
+    return t('exchanges.minutes', { count: minutes })
+  }
+  return rest === 0
+    ? t('exchanges.hours', { hours })
+    : t('exchanges.hoursAndMinutes', { hours, minutes: String(rest).padStart(2, '0') })
 }
 
 /** Its name, struck through once the contact left the organization; "Contact effacé" once forgotten. */

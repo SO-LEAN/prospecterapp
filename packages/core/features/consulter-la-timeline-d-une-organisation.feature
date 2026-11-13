@@ -58,6 +58,7 @@ Fonctionnalité: La timeline d'une organisation
     Et je peux sur la timeline :
       | consulter la timeline |
       | noter un échange      |
+      | planifier un échange  |
 
   Scénario: Sans le droit aux données personnelles, la timeline de l'organisation masque ses contacts
     Soit j'ai noté un e-mail reçu de "Ada Lovelace" le 10/10/2026 à 9h00

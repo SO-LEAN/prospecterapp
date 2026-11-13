@@ -10,7 +10,8 @@ import {
 import { ForgetContact } from '@/features/contacts/components/forget-contact'
 import { contactQuery, fullNameOf } from '@/features/contacts/queries'
 import { ExchangesSection } from '@/features/exchanges/components/exchanges-section'
-import { timelineQuery } from '@/features/exchanges/queries'
+import { NextExchange } from '@/features/exchanges/components/next-exchange'
+import { timelineQuery, upcomingQuery } from '@/features/exchanges/queries'
 import { notFoundWhenTheApiSaysSo, uuidParams } from '@/shared/lib/route-params'
 import { BackButton } from '@/shared/ui/back-button'
 import { Badge } from '@/shared/ui/badge'
@@ -26,6 +27,7 @@ export const Route = createFileRoute('/_app/contacts/$contactId/')({
       .catch(notFoundWhenTheApiSaysSo)
     if (contact._links.exchanges) {
       void context.queryClient.prefetchInfiniteQuery(timelineQuery(contact.id))
+      void context.queryClient.prefetchQuery(upcomingQuery(contact.id))
     }
     return contact
   },
@@ -51,6 +53,7 @@ function ContactPage() {
           <span className="flex flex-wrap gap-2">
             {contact.jobTitle && <Badge variant="secondary">{contact.jobTitle}</Badge>}
             {contact.masked && <Badge variant="outline">{t('contacts.masked')}</Badge>}
+            {contact._links.exchanges && <NextExchange contactId={contact.id} />}
           </span>
         }
         actions={

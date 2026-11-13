@@ -14,25 +14,30 @@ use Prospecter\Core\Prospecting\Domain\Event\ExchangeLeftWithoutOrganization;
 use Prospecter\Core\Prospecting\Domain\Event\ExchangeMadeConform;
 use Prospecter\Core\Prospecting\Domain\Event\ExchangeNoLongerKeptFor;
 use Prospecter\Core\Prospecting\Domain\Event\ExchangeNoted;
+use Prospecter\Core\Prospecting\Domain\Event\ExchangePlanned;
 use Prospecter\Core\Prospecting\Domain\Event\ExchangeTextCorrected;
 use Prospecter\Core\Prospecting\Domain\Event\FileAttached;
 use Prospecter\Core\Prospecting\Domain\Exception\ExchangeInTheFuture;
 use Prospecter\Core\Prospecting\Domain\Exception\MissedOnlyForACall;
 use Prospecter\Core\Prospecting\Domain\Exception\NoRoomForAnAttachment;
 use Prospecter\Core\Prospecting\Domain\Exception\NothingToMakeConform;
+use Prospecter\Core\Prospecting\Domain\Exception\PlannedExchangeInThePast;
 use Prospecter\Core\Prospecting\Domain\Model\Attachment;
 use Prospecter\Core\Prospecting\Domain\Model\AttachmentId;
 use Prospecter\Core\Prospecting\Domain\Model\Channel;
 use Prospecter\Core\Prospecting\Domain\Model\Correction;
 use Prospecter\Core\Prospecting\Domain\Model\Direction;
+use Prospecter\Core\Prospecting\Domain\Model\Duration;
 use Prospecter\Core\Prospecting\Domain\Model\Exchange;
 use Prospecter\Core\Prospecting\Domain\Model\ExchangeFacts;
 use Prospecter\Core\Prospecting\Domain\Model\ExchangeId;
 use Prospecter\Core\Prospecting\Domain\Model\ExchangeIntent;
+use Prospecter\Core\Prospecting\Domain\Model\ExchangeStatus;
 use Prospecter\Core\Prospecting\Domain\Model\Prospector;
 use Prospecter\Core\Prospecting\Domain\Policy\ExchangeConformity;
 use Prospecter\Core\Prospecting\Domain\Policy\ExchangePossibilities;
 use Prospecter\Core\SharedKernel\Domain\AccountId;
+use Prospecter\Core\SharedKernel\Domain\Exception\NotPossibleInItsState;
 use Prospecter\Core\SharedKernel\Domain\Exception\PersonalDataManagersOnly;
 use Prospecter\Core\SharedKernel\Domain\MemberId;
 use Prospecter\Core\SharedKernel\Domain\OrganizationId;
@@ -56,6 +61,47 @@ class ExchangeTest extends TestCase
         $exchange = $this->noted(new ExchangeFacts(Channel::Sms, Direction::Inbound, new \DateTimeImmutable(self::NOW)));
 
         $this->assertEquals([new ExchangeNoted(new AccountId(self::MINE), $this->me()->id, new ExchangeId(self::EXCHANGE), new \DateTimeImmutable(self::NOW))], $exchange->releaseEvents());
+    }
+
+    public function testPlanningRecordsIt(): void
+    {
+        $exchange = $this->planned();
+
+        $this->assertEquals([new ExchangePlanned(new AccountId(self::MINE), $this->me()->id, new ExchangeId(self::EXCHANGE), new \DateTimeImmutable(self::NOW))], $exchange->releaseEvents());
+        $this->assertSame(ExchangeStatus::Planned, StateOf::the($exchange)['status']);
+    }
+
+    public function testANotedExchangeIsDone(): void
+    {
+        $this->assertSame(ExchangeStatus::Done, StateOf::the($this->anExchange())['status']);
+    }
+
+    public function testAnExchangeAMomentAheadIsPlanned(): void
+    {
+        $this->assertSame(ExchangeStatus::Planned, StateOf::the($this->planned('+1 second'))['status']);
+    }
+
+    public function testAnExchangeForNowIsNotPlanned(): void
+    {
+        $this->expectException(PlannedExchangeInThePast::class);
+
+        $this->planned('+0 second');
+    }
+
+    public function testCorrectingTheTextOfAPlannedExchangeKeepsItsDuration(): void
+    {
+        $exchange = $this->planned();
+
+        $exchange->correctText('Ordre du jour', by: $this->me()->id, at: new \DateTimeImmutable(self::NOW));
+
+        $this->assertSame(45, StateOf::the($exchange)['facts']->duration?->minutes);
+    }
+
+    public function testAPlannedExchangeIsNotCorrected(): void
+    {
+        $this->expectException(NotPossibleInItsState::class);
+
+        $this->planned()->correct(new ExchangeFacts(Channel::Call, Direction::Inbound, new \DateTimeImmutable(self::NOW)), by: $this->me()->id, at: new \DateTimeImmutable(self::NOW));
     }
 
     public function testAnExchangeHappeningNowIsNoted(): void
@@ -271,7 +317,7 @@ class ExchangeTest extends TestCase
         try {
             $this->carryOut($intent, $exchange, $this->me()->id);
             $refused = false;
-        } catch (NoRoomForAnAttachment|NothingToMakeConform) {
+        } catch (NoRoomForAnAttachment|NothingToMakeConform|NotPossibleInItsState) {
             $refused = true;
         }
 
@@ -284,7 +330,7 @@ class ExchangeTest extends TestCase
     public static function intentionsAndStates(): iterable
     {
         foreach (ExchangeIntent::cases() as $intent) {
-            foreach (['withAnAttachment', 'withItsContactForgotten'] as $state) {
+            foreach (['withAnAttachment', 'withItsContactForgotten', 'plannedWithAnAttachment'] as $state) {
                 yield sprintf('%s %s', $intent->name, $state) => [$intent, $state];
             }
         }
@@ -299,7 +345,7 @@ class ExchangeTest extends TestCase
     {
         $awaitsBeingMadeConform = ExchangeConformity::awaitsBeingMadeConform(StateOf::the($exchange)['contactForgotten'], null !== StateOf::the($exchange)['madeConform']);
 
-        return ExchangePossibilities::given(count($exchange->attachments()), $awaitsBeingMadeConform);
+        return ExchangePossibilities::given(count($exchange->attachments()), $awaitsBeingMadeConform, StateOf::the($exchange)['status']);
     }
 
     /**
@@ -422,6 +468,22 @@ class ExchangeTest extends TestCase
     private function anAttachment(string $id): Attachment
     {
         return new Attachment(new AttachmentId($id), 'devis.pdf', 2048, 'application/pdf', self::FILE);
+    }
+
+    private function planned(string $ahead = '+1 day'): Exchange
+    {
+        $now = new \DateTimeImmutable(self::NOW);
+        $facts = ExchangeFacts::planned(Channel::Meeting, $now->modify($ahead), Duration::inMinutes(45), null);
+
+        return Exchange::plannedWithAContact(new AccountId(self::MINE), $this->me()->id, new ExchangeId(self::EXCHANGE), new PersonId(self::CONTACT), [new OrganizationId(self::ACME)], $facts, $now);
+    }
+
+    private function plannedWithAnAttachment(): Exchange
+    {
+        $exchange = $this->planned();
+        $exchange->attach($this->anAttachment(self::ATTACHMENT), by: $this->me()->id, at: new \DateTimeImmutable(self::NOW));
+
+        return $exchange;
     }
 
     private function anExchange(): Exchange

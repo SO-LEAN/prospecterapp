@@ -10,7 +10,7 @@ use Symfony\Component\Validator\Constraints as Assert;
  */
 final readonly class ExchangeInput
 {
-    public const array CHANNELS = ['call', 'sms', 'email', 'linkedIn', 'meeting', 'other'];
+    public const array CHANNELS = ['call', 'sms', 'email', 'linkedIn', 'meeting', 'videoCall', 'other'];
     public const array DIRECTIONS = ['inbound', 'outbound'];
     private const int MAX_TEXT = 5000;
 

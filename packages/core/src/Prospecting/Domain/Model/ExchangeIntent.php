@@ -9,7 +9,7 @@ namespace Prospecter\Core\Prospecting\Domain\Model;
  */
 enum ExchangeIntent
 {
-    /** Correct its channel, its direction, whether a call was missed, its moment and its text. */
+    /** Correct its channel, its direction, whether a call was missed, its moment and its text, once it is done. */
     case CorrectExchange;
     /** Correct its text only. */
     case CorrectText;

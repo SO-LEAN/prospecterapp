@@ -14,5 +14,14 @@ enum Channel: string
     case Email = 'email';
     case LinkedIn = 'linkedIn';
     case Meeting = 'meeting';
+    case VideoCall = 'videoCall';
     case Other = 'other';
+
+    /**
+     * Only a call, a meeting or a video call is agreed upon beforehand: a message is just sent.
+     */
+    public function mayBePlanned(): bool
+    {
+        return in_array($this, [self::Call, self::Meeting, self::VideoCall], true);
+    }
 }

@@ -36,7 +36,7 @@ class OrganizationExchangeApiTest extends ApiTestCase
             [['kind' => 'person', 'id' => $robert, 'name' => 'Robert Noyce', 'presence' => 'present'], 'call', 'outbound'],
             [['kind' => 'person', 'id' => $ada, 'name' => 'Ada Lovelace', 'presence' => 'present'], 'email', 'inbound'],
         ], array_map(static fn (array $item): array => [$item['interlocutor'], $item['exchange']['channel'], $item['exchange']['direction']], $timeline['items']));
-        $this->assertSame(['self', 'noteExchange'], array_keys($timeline['_links']));
+        $this->assertSame(['self', 'noteExchange', 'planExchange'], array_keys($timeline['_links']));
         $this->assertSame(['href' => '/api/organizations/'.$organization.'/exchanges', 'method' => 'POST'], $timeline['_links']['noteExchange']);
         $this->assertSame($timeline, $this->requestJson('GET', '/api/organizations/'.$organization.'/exchanges'));
     }
@@ -143,7 +143,7 @@ class OrganizationExchangeApiTest extends ApiTestCase
         $this->assertSame(['href' => '/api/organizations/'.$organization.'/exchanges-to-make-conform', 'method' => 'GET'], $timeline['_links']['toMakeConform']);
         $toMakeConform = $this->requestJson('GET', $timeline['_links']['toMakeConform']['href']);
         $this->assertSame([[['kind' => 'person', 'id' => $ada, 'name' => null, 'presence' => 'forgotten'], 'Ada, 06 12 34 56 78, attend notre devis', true, true]], array_map(static fn (array $item): array => [$item['interlocutor'], $item['exchange']['text'], $item['exchange']['textToMakeConform'], $item['exchange']['toMakeConform']], $toMakeConform['items']));
-        $this->assertSame(['self', 'noteExchange', 'toMakeConform'], array_keys($toMakeConform['_links']));
+        $this->assertSame(['self', 'noteExchange', 'planExchange', 'toMakeConform'], array_keys($toMakeConform['_links']));
     }
 
     public function testAnExchangeOfAForgottenContactIsMadeConformByCorrectingItsText(): void

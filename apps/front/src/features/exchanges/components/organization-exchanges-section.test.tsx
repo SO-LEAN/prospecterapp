@@ -7,6 +7,7 @@ import {
   exchangesToMakeConformQuery,
   type OrganizationTimeline,
   organizationTimelineQuery,
+  organizationUpcomingQuery,
 } from '../queries'
 import { OrganizationExchangesSection } from './organization-exchanges-section'
 
@@ -21,6 +22,8 @@ const anExchange = (exchange: Partial<Exchange>): Exchange => ({
   direction: 'inbound',
   missed: false,
   occurredAt: '2026-10-15T14:00:00+00:00',
+  status: 'done',
+  durationInMinutes: null,
   text: null,
   textFlagged: false,
   textToMakeConform: false,
@@ -38,6 +41,11 @@ function renderTheSection(timeline: OrganizationTimeline, toMakeConform?: Organi
   queryClient.setQueryData(organizationTimelineQuery(ACME).queryKey, {
     pages: [timeline],
     pageParams: [undefined],
+  })
+  queryClient.setQueryData(organizationUpcomingQuery(ACME).queryKey, {
+    items: [],
+    toMakeConform: 0,
+    _links: { self: { href: `/api/organizations/${ACME}/upcoming-exchanges`, method: 'GET' } },
   })
   if (toMakeConform) {
     queryClient.setQueryData(exchangesToMakeConformQuery(ACME).queryKey, {

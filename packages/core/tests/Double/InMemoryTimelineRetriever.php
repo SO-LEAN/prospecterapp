@@ -19,8 +19,8 @@ use Prospecter\Core\SharedKernel\Domain\PersonId;
 
 /**
  * Reads the exchanges the in-memory repository saved, as the adapter reads the items of the table: a timeline
- * ordered by the moment of the exchanges then their identity, the most recent first, its cursor the moment and
- * the identity of the last exchange of the slice.
+ * ordered by the moment of the exchanges then their identity, the most recent first until the moment of the
+ * reading, the soonest first after it, its cursor the moment and the identity of the last exchange of the slice.
  */
 final readonly class InMemoryTimelineRetriever implements TimelineRetriever
 {
@@ -28,16 +28,24 @@ final readonly class InMemoryTimelineRetriever implements TimelineRetriever
     {
     }
 
-    public function ofContact(PersonId $contact, Prospector $reader, ?string $after, int $max): Timeline
+    public function ofContact(PersonId $contact, Prospector $reader, \DateTimeImmutable $asOf, ?string $after, int $max): Timeline
     {
-        $withTheContact = array_filter($this->database->exchanges(), static fn (Exchange $exchange): bool => true === StateOf::the($exchange)['contact']?->equals($contact) && $exchange->accountId()->equals($reader->accountId));
-
-        return self::timelineOf($withTheContact, $after, $max, 0, static fn (Exchange $exchange): ExchangeInTimeline => self::inTimeline($exchange, ContactPresence::ofTheContact(null !== StateOf::the($exchange)['contact'], StateOf::the($exchange)['contactForgotten']), $reader));
+        return self::timelineOf(self::until($asOf, $this->withContact($contact, $reader)), $after, $max, 0, self::inTheTimelineOfTheContact($reader));
     }
 
-    public function ofOrganization(OrganizationSheet $organization, Prospector $reader, ?string $after, int $max): Timeline
+    public function ofOrganization(OrganizationSheet $organization, Prospector $reader, \DateTimeImmutable $asOf, ?string $after, int $max): Timeline
     {
-        return self::timelineOf($this->keptFor($organization), $after, $max, count($this->keptAndToMakeConform($organization)), self::inTheTimelineOf($organization, $reader));
+        return self::timelineOf(self::until($asOf, $this->keptFor($organization)), $after, $max, count($this->keptAndToMakeConform($organization)), self::inTheTimelineOf($organization, $reader));
+    }
+
+    public function upcomingWithContact(PersonId $contact, Prospector $reader, \DateTimeImmutable $asOf, ?string $after, int $max): Timeline
+    {
+        return self::upcomingOf(self::after($asOf, $this->withContact($contact, $reader)), $after, $max, 0, self::inTheTimelineOfTheContact($reader));
+    }
+
+    public function upcomingInOrganization(OrganizationSheet $organization, Prospector $reader, \DateTimeImmutable $asOf, ?string $after, int $max): Timeline
+    {
+        return self::upcomingOf(self::after($asOf, $this->keptFor($organization)), $after, $max, count($this->keptAndToMakeConform($organization)), self::inTheTimelineOf($organization, $reader));
     }
 
     public function toMakeConformIn(OrganizationSheet $organization, Prospector $reader, ?string $after, int $max): Timeline
@@ -45,6 +53,44 @@ final readonly class InMemoryTimelineRetriever implements TimelineRetriever
         $toMakeConform = $this->keptAndToMakeConform($organization);
 
         return self::timelineOf($toMakeConform, $after, $max, count($toMakeConform), self::inTheTimelineOf($organization, $reader));
+    }
+
+    /**
+     * @return list<Exchange>
+     */
+    private function withContact(PersonId $contact, Prospector $reader): array
+    {
+        return array_values(array_filter($this->database->exchanges(), static fn (Exchange $exchange): bool => true === StateOf::the($exchange)['contact']?->equals($contact) && $exchange->accountId()->equals($reader->accountId)));
+    }
+
+    /**
+     * @param list<Exchange> $exchanges
+     *
+     * @return list<Exchange>
+     */
+    private static function until(\DateTimeImmutable $asOf, array $exchanges): array
+    {
+        return array_values(array_filter($exchanges, static fn (Exchange $exchange): bool => StateOf::the($exchange)['facts']->occurredAt <= $asOf));
+    }
+
+    /**
+     * Those after the moment.
+     *
+     * @param list<Exchange> $exchanges
+     *
+     * @return list<Exchange>
+     */
+    private static function after(\DateTimeImmutable $asOf, array $exchanges): array
+    {
+        return array_values(array_filter($exchanges, static fn (Exchange $exchange): bool => StateOf::the($exchange)['facts']->occurredAt > $asOf));
+    }
+
+    /**
+     * @return \Closure(Exchange): ExchangeInTimeline
+     */
+    private static function inTheTimelineOfTheContact(Prospector $reader): \Closure
+    {
+        return static fn (Exchange $exchange): ExchangeInTimeline => self::inTimeline($exchange, ContactPresence::ofTheContact(null !== StateOf::the($exchange)['contact'], StateOf::the($exchange)['contactForgotten']), $reader);
     }
 
     /**
@@ -95,7 +141,27 @@ final readonly class InMemoryTimelineRetriever implements TimelineRetriever
         );
     }
 
-    private static function inTimeline(Exchange $exchange, ?ContactPresence $presence, Prospector $reader): ExchangeInTimeline
+    /**
+     * The soonest first, after the cursor.
+     *
+     * @param array<Exchange>                        $exchanges
+     * @param \Closure(Exchange): ExchangeInTimeline $read
+     */
+    private static function upcomingOf(array $exchanges, ?string $after, int $max, int $toMakeConform, \Closure $read): Timeline
+    {
+        $upcoming = array_values(array_filter($exchanges, static fn (Exchange $exchange): bool => null === $after || strcmp(self::positionOf($exchange), $after) > 0));
+        usort($upcoming, static fn (Exchange $a, Exchange $b): int => strcmp(self::positionOf($a), self::positionOf($b)));
+        $slice = array_slice($upcoming, 0, $max);
+
+        return new Timeline(
+            array_map($read, $slice),
+            count($upcoming) > $max ? self::positionOf(array_last($slice)) : null,
+            array_map(static fn (TimelineIntent $intent): string => $intent->name, TimelineIntent::cases()),
+            $toMakeConform,
+        );
+    }
+
+    public static function inTimeline(Exchange $exchange, ?ContactPresence $presence, Prospector $reader): ExchangeInTimeline
     {
         $state = StateOf::the($exchange);
         $facts = $state['facts'];
@@ -110,6 +176,8 @@ final readonly class InMemoryTimelineRetriever implements TimelineRetriever
             direction: $facts->direction->value,
             missed: $facts->missed,
             occurredAt: $facts->occurredAt,
+            status: $state['status']->value,
+            durationInMinutes: $facts->duration?->minutes,
             text: $facts->text,
             textFlagged: ExchangeReading::isTextFlagged(null !== $facts->text, $reader),
             textToMakeConform: ExchangeConformity::isTextToMakeConform(null !== $facts->text, $contactForgotten, $declaredConform),

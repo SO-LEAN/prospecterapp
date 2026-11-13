@@ -21,19 +21,20 @@ final readonly class TimelineResourceFactory
     }
 
     /**
-     * Itself, the next slice, and noting an exchange when the signed-in member may (`IntentLinks`).
+     * Itself, the next slice, and noting or planning an exchange when the signed-in member may (`IntentLinks`).
      *
-     * @param array{string, string} $routes  the route of the timeline and the route noting an exchange in it
-     * @param array<string, string> $subject the parameters naming whose timeline it is
+     * @param array{string, string, string} $routes  the route of the timeline, the route noting an exchange in it and the route planning one
+     * @param array<string, string>         $subject the parameters naming whose timeline it is
      */
     public function createLinks(array $routes, array $subject, Timeline $response): TimelineLinksResource
     {
-        [$timeline, $noteExchange] = $routes;
+        [$timeline, $noteExchange, $planExchange] = $routes;
 
         return new TimelineLinksResource(
             $this->links->to($timeline, $subject),
             null === $response->next ? null : $this->links->to($timeline, $subject + ['after' => $response->next]),
             $this->intents->shows('NoteExchange', $response->possibleIntents, User::PERSONAL_DATA) ? $this->links->to($noteExchange, $subject) : null,
+            $this->intents->shows('PlanExchange', $response->possibleIntents, User::PERSONAL_DATA) ? $this->links->to($planExchange, $subject) : null,
         );
     }
 
@@ -45,6 +46,8 @@ final readonly class TimelineResourceFactory
             direction: $exchange->direction,
             missed: $exchange->missed,
             occurredAt: $exchange->occurredAt->format(\DateTimeInterface::ATOM),
+            status: $exchange->status,
+            durationInMinutes: $exchange->durationInMinutes,
             text: $exchange->text,
             textFlagged: $exchange->textFlagged,
             textToMakeConform: $exchange->textToMakeConform,

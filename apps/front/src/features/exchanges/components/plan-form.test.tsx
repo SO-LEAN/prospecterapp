@@ -1,0 +1,138 @@
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
+import { render, screen } from '@testing-library/react'
+import userEvent from '@testing-library/user-event'
+import { afterEach, describe, expect, it, vi } from 'vitest'
+import { overlappingQuery, type PlannedExchanges } from '../queries'
+import { PlanForm } from './plan-form'
+
+const ADA = '0190a1c0-0000-7000-8000-000000000001'
+const ROBERT = '0190a1c0-0000-7000-8000-000000000002'
+
+function renderForm(overlapping?: { startsAt: string; durationInMinutes: number; answer: PlannedExchanges }) {
+  const queryClient = new QueryClient({
+    defaultOptions: { queries: { staleTime: Number.POSITIVE_INFINITY } },
+  })
+  if (overlapping) {
+    queryClient.setQueryData(
+      overlappingQuery(overlapping.startsAt, overlapping.durationInMinutes).queryKey,
+      overlapping.answer,
+    )
+  }
+  const onSubmit = vi.fn().mockResolvedValue(undefined)
+  render(
+    <QueryClientProvider client={queryClient}>
+      <PlanForm
+        onSubmit={onSubmit}
+        onCancel={vi.fn()}
+        interlocutors={{ organization: 'ACME', contacts: [{ id: ROBERT, name: 'Robert Noyce' }] }}
+      />
+    </QueryClientProvider>,
+  )
+  return { onSubmit, user: userEvent.setup() }
+}
+
+const save = () => screen.getByRole('button', { name: 'Enregistrer' })
+
+afterEach(() => {
+  vi.useRealTimers()
+})
+
+describe('PlanForm', () => {
+  it('plans for tomorrow at 9 with a contact, for an hour, in a few clicks', async () => {
+    vi.useFakeTimers({ toFake: ['Date'] })
+    vi.setSystemTime(new Date('2026-11-13T10:05'))
+    const { onSubmit, user } = renderForm()
+
+    await user.click(screen.getByLabelText('Robert Noyce'))
+    await user.click(screen.getByLabelText('Visio'))
+    await user.click(screen.getByRole('button', { name: 'Demain 9h' }))
+    await user.click(screen.getByRole('button', { name: '1 h' }))
+    await user.click(save())
+
+    expect(onSubmit).toHaveBeenCalledWith(
+      {
+        channel: 'videoCall',
+        occurredAt: new Date('2026-11-14T09:00').toISOString(),
+        durationInMinutes: 60,
+        text: null,
+      },
+      ROBERT,
+    )
+  })
+
+  it('starts at the next quarter of an hour, for half an hour, with the organization itself', async () => {
+    vi.useFakeTimers({ toFake: ['Date'] })
+    vi.setSystemTime(new Date('2026-11-13T10:05'))
+    const { onSubmit, user } = renderForm()
+
+    await user.click(screen.getByLabelText('Appel'))
+    await user.click(save())
+
+    expect(onSubmit).toHaveBeenCalledWith(
+      {
+        channel: 'call',
+        occurredAt: new Date('2026-11-13T10:15').toISOString(),
+        durationInMinutes: 30,
+        text: null,
+      },
+      null,
+    )
+  })
+
+  it('offers only a call, a meeting or a video call', () => {
+    renderForm()
+
+    expect(screen.getByLabelText('Rendez-vous')).toBeInTheDocument()
+    expect(screen.queryByLabelText('SMS')).not.toBeInTheDocument()
+  })
+
+  it('refuses a moment already past', async () => {
+    const { onSubmit, user } = renderForm()
+
+    await user.click(screen.getByLabelText('Appel'))
+    await user.clear(screen.getByLabelText('Date'))
+    await user.type(screen.getByLabelText('Date'), '2020-01-01')
+    await user.click(save())
+
+    expect(await screen.findByText('Un échange planifié est dans le futur.')).toBeInTheDocument()
+    expect(onSubmit).not.toHaveBeenCalled()
+  })
+
+  it('warns of an exchange of mine the slot overlaps, without stopping the planning', async () => {
+    vi.useFakeTimers({ toFake: ['Date'] })
+    vi.setSystemTime(new Date('2026-11-13T13:50'))
+    const startsAt = new Date('2026-11-13T14:00').toISOString()
+    const { onSubmit, user } = renderForm({
+      startsAt,
+      durationInMinutes: 30,
+      answer: { items: [anOverlap(new Date('2026-11-13T13:45').toISOString())] },
+    })
+
+    expect(
+      await screen.findByText('Vous avez déjà un rendez-vous avec Ada Lovelace de 13h45 à 14h15.'),
+    ).toBeInTheDocument()
+    await user.click(screen.getByLabelText('Appel'))
+    await user.click(save())
+    expect(onSubmit).toHaveBeenCalled()
+  })
+})
+
+const anOverlap = (occurredAt: string): PlannedExchanges['items'][number] => ({
+  exchange: {
+    id: '0190a1c0-0000-7000-8000-000000000010',
+    channel: 'meeting',
+    direction: 'outbound',
+    missed: false,
+    occurredAt,
+    status: 'planned',
+    durationInMinutes: 30,
+    text: null,
+    textFlagged: false,
+    textToMakeConform: false,
+    toMakeConform: false,
+    organizationIds: [],
+    attachmentCount: 0,
+    _links: { self: { href: '/api/exchanges/0190a1c0-0000-7000-8000-000000000010', method: 'GET' } },
+  },
+  interlocutor: { kind: 'person', id: ADA, name: 'Ada Lovelace', presence: 'present' },
+})

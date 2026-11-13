@@ -1015,6 +1015,153 @@
                 }
             }
         },
+        "/api/contacts/{id}/upcoming-exchanges": {
+            "get": {
+                "tags": [
+                    "Contacts"
+                ],
+                "summary": "The exchanges to come with the contact, the soonest first: the first is the next one",
+                "operationId": "get_api_contacts_upcoming_exchanges",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "pattern": "[0-9a-f]{8}-[0-9a-f]{4}-[13-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}"
+                        }
+                    },
+                    {
+                        "name": "after",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "string",
+                            "nullable": true,
+                            "default": null,
+                            "maxLength": 200
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "A slice of the exchanges to come, the next one at the link next",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/TimelineResource"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Missing or invalid access token"
+                    },
+                    "403": {
+                        "description": "Not a prospector",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ProblemResource"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Unknown contact, or one of another account",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ProblemResource"
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "post": {
+                "tags": [
+                    "Contacts"
+                ],
+                "summary": "Plan a call, a meeting or a video call with the contact, held by the signed-in member, kept for the organizations the contact is part of",
+                "operationId": "post_api_contacts_plan_exchange",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "pattern": "[0-9a-f]{8}-[0-9a-f]{4}-[13-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/PlannedExchangeInput"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "The exchanges to come with the contact, the new one among them",
+                        "headers": {
+                            "Location": {
+                                "description": "The new exchange",
+                                "schema": {
+                                    "type": "string"
+                                }
+                            }
+                        },
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/TimelineResource"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Missing or invalid access token"
+                    },
+                    "403": {
+                        "description": "Not a prospector, or no right to manage personal data",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ProblemResource"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Unknown contact, or one of another account",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ProblemResource"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Invalid exchange: a channel that is not planned, a moment that is not in the future, a duration out of 5 minutes to 8 hours",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ProblemResource"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
         "/api/organizations/{id}/address": {
             "patch": {
                 "tags": [
@@ -2095,6 +2242,163 @@
                 }
             }
         },
+        "/api/organizations/{id}/upcoming-exchanges": {
+            "get": {
+                "tags": [
+                    "Organizations"
+                ],
+                "summary": "The exchanges to come with the organization and with its contacts, the soonest first, each with who it is with",
+                "operationId": "get_api_organizations_upcoming_exchanges",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "pattern": "[0-9a-f]{8}-[0-9a-f]{4}-[13-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}"
+                        }
+                    },
+                    {
+                        "name": "after",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "string",
+                            "nullable": true,
+                            "default": null,
+                            "maxLength": 200
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "A slice of the exchanges to come, the next one at the link next",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/OrganizationTimelineResource"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Missing or invalid access token"
+                    },
+                    "403": {
+                        "description": "Not a prospector",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ProblemResource"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Unknown organization, or one of another account",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ProblemResource"
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "post": {
+                "tags": [
+                    "Organizations"
+                ],
+                "summary": "Plan a call, a meeting or a video call with the organization itself, or with one of its contacts, held by the signed-in member",
+                "operationId": "post_api_organizations_plan_exchange",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "pattern": "[0-9a-f]{8}-[0-9a-f]{4}-[13-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/OrganizationPlannedExchangeInput"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "The exchanges to come with the organization, the new one among them",
+                        "headers": {
+                            "Location": {
+                                "description": "The new exchange",
+                                "schema": {
+                                    "type": "string"
+                                }
+                            }
+                        },
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/OrganizationTimelineResource"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Missing or invalid access token"
+                    },
+                    "403": {
+                        "description": "Not a prospector, or no right to manage personal data",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ProblemResource"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Unknown organization, or one of another account",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ProblemResource"
+                                }
+                            }
+                        }
+                    },
+                    "409": {
+                        "description": "The person is no contact of the organization",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ProblemResource"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Invalid exchange: a channel that is not planned, a moment that is not in the future, a duration out of 5 minutes to 8 hours",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ProblemResource"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
         "/api/phone-numbers/{phoneNumber}": {
             "get": {
                 "tags": [
@@ -2324,6 +2628,75 @@
                     },
                     "403": {
                         "description": "The signed-in user is not a prospector",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ProblemResource"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/me/planned-exchanges": {
+            "get": {
+                "tags": [
+                    "My account"
+                ],
+                "summary": "The exchanges the signed-in member planned that overlap a slot, before planning another one in it",
+                "operationId": "get_api_me_planned_exchanges",
+                "parameters": [
+                    {
+                        "name": "startsAt",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "string",
+                            "format": "date-time",
+                            "nullable": true,
+                            "default": null
+                        }
+                    },
+                    {
+                        "name": "durationInMinutes",
+                        "in": "query",
+                        "description": "From 5 minutes to 8 hours; 30 when left out",
+                        "required": false,
+                        "schema": {
+                            "description": "From 5 minutes to 8 hours; 30 when left out",
+                            "type": "integer",
+                            "nullable": true,
+                            "default": null
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "The exchanges overlapping the slot, the soonest first",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/PlannedExchangesResource"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Missing or invalid access token"
+                    },
+                    "403": {
+                        "description": "Not a prospector",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ProblemResource"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Invalid slot: no start, a duration out of 5 minutes to 8 hours",
                         "content": {
                             "application/json": {
                                 "schema": {
@@ -3095,6 +3468,7 @@
                             "email",
                             "linkedIn",
                             "meeting",
+                            "videoCall",
                             "other"
                         ]
                     },
@@ -3122,6 +3496,45 @@
                     "missed": {
                         "type": "boolean",
                         "default": false
+                    }
+                },
+                "type": "object"
+            },
+            "PlannedExchangeInput": {
+                "properties": {
+                    "channel": {
+                        "description": "Only a call, a meeting or a video call is planned",
+                        "type": "string",
+                        "default": "",
+                        "enum": [
+                            "call",
+                            "sms",
+                            "email",
+                            "linkedIn",
+                            "meeting",
+                            "videoCall",
+                            "other"
+                        ]
+                    },
+                    "occurredAt": {
+                        "description": "When it is to happen; in the future",
+                        "type": "string",
+                        "format": "date-time",
+                        "nullable": true,
+                        "default": null
+                    },
+                    "durationInMinutes": {
+                        "description": "How long it lasts, from 5 minutes to 8 hours; 30 when left out",
+                        "type": "integer",
+                        "nullable": true,
+                        "default": null
+                    },
+                    "text": {
+                        "description": "Its agenda",
+                        "type": "string",
+                        "nullable": true,
+                        "default": null,
+                        "maxLength": 5000
                     }
                 },
                 "type": "object"
@@ -3244,6 +3657,20 @@
                 },
                 "type": "object"
             },
+            "OrganizationPlannedExchangeInput": {
+                "properties": {
+                    "exchange": {
+                        "$ref": "#/components/schemas/PlannedExchangeInput"
+                    },
+                    "personId": {
+                        "description": "The contact of the organization it is planned with; left out, with the organization itself",
+                        "type": "string",
+                        "nullable": true,
+                        "default": null
+                    }
+                },
+                "type": "object"
+            },
             "ContactListQuery": {
                 "properties": {
                     "q": {
@@ -3256,6 +3683,23 @@
                         "nullable": true,
                         "default": null,
                         "maxLength": 200
+                    }
+                },
+                "type": "object"
+            },
+            "SlotQuery": {
+                "properties": {
+                    "startsAt": {
+                        "type": "string",
+                        "format": "date-time",
+                        "nullable": true,
+                        "default": null
+                    },
+                    "durationInMinutes": {
+                        "description": "From 5 minutes to 8 hours; 30 when left out",
+                        "type": "integer",
+                        "nullable": true,
+                        "default": null
                     }
                 },
                 "type": "object"
@@ -3286,6 +3730,7 @@
                             "email",
                             "linkedIn",
                             "meeting",
+                            "videoCall",
                             "other"
                         ]
                     },
@@ -3845,6 +4290,7 @@
                     "direction",
                     "missed",
                     "occurredAt",
+                    "status",
                     "textFlagged",
                     "textToMakeConform",
                     "toMakeConform",
@@ -3864,6 +4310,7 @@
                             "email",
                             "linkedIn",
                             "meeting",
+                            "videoCall",
                             "other"
                         ]
                     },
@@ -3880,8 +4327,22 @@
                         "type": "boolean"
                     },
                     "occurredAt": {
+                        "description": "When it happened, or is to happen once planned",
                         "type": "string",
                         "format": "date-time"
+                    },
+                    "status": {
+                        "description": "planned: still to come; done: it happened",
+                        "type": "string",
+                        "enum": [
+                            "planned",
+                            "done"
+                        ]
+                    },
+                    "durationInMinutes": {
+                        "description": "How long it lasts, once planned",
+                        "type": "integer",
+                        "nullable": true
                     },
                     "text": {
                         "type": "string",
@@ -3928,6 +4389,9 @@
                         "$ref": "#/components/schemas/LinkResource"
                     },
                     "noteExchange": {
+                        "$ref": "#/components/schemas/LinkResource"
+                    },
+                    "planExchange": {
                         "$ref": "#/components/schemas/LinkResource"
                     },
                     "toMakeConform": {
@@ -4336,6 +4800,20 @@
                 },
                 "type": "object"
             },
+            "PlannedExchangesResource": {
+                "required": [
+                    "items"
+                ],
+                "properties": {
+                    "items": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/OrganizationExchangeResource"
+                        }
+                    }
+                },
+                "type": "object"
+            },
             "AuthorResource": {
                 "required": [
                     "name"
@@ -4453,6 +4931,7 @@
                     "direction",
                     "missed",
                     "occurredAt",
+                    "status",
                     "textFlagged",
                     "textToMakeConform",
                     "toMakeConform",
@@ -4477,6 +4956,7 @@
                             "email",
                             "linkedIn",
                             "meeting",
+                            "videoCall",
                             "other"
                         ]
                     },
@@ -4493,8 +4973,22 @@
                         "type": "boolean"
                     },
                     "occurredAt": {
+                        "description": "When it happened, or is to happen once planned",
                         "type": "string",
                         "format": "date-time"
+                    },
+                    "status": {
+                        "description": "planned: still to come; done: it happened",
+                        "type": "string",
+                        "enum": [
+                            "planned",
+                            "done"
+                        ]
+                    },
+                    "durationInMinutes": {
+                        "description": "How long it lasts, once planned",
+                        "type": "integer",
+                        "nullable": true
                     },
                     "text": {
                         "type": "string",

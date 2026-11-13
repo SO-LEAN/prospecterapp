@@ -23,6 +23,29 @@ export function formatMoment(moment: string): string {
   return momentFormat.format(new Date(moment))
 }
 
+const DAY_MS = 86_400_000
+const relativeDayFormat = new Intl.RelativeTimeFormat('fr-FR', { numeric: 'auto' })
+const startOfDay = (moment: Date) =>
+  new Date(moment.getFullYear(), moment.getMonth(), moment.getDate()).getTime()
+
+/** "2026-11-17T13:00:00+00:00" -> "14h00", in the time of the browser */
+export function formatHour(moment: string): string {
+  const date = new Date(moment)
+
+  return `${date.getHours()}h${String(date.getMinutes()).padStart(2, '0')}`
+}
+
+/**
+ * When something is to come, as said from now: "aujourd’hui 14h00", "demain 14h00", then "dans 4 jours", in the
+ * time of the browser.
+ */
+export function formatUpcoming(moment: string, now = new Date()): string {
+  const days = Math.round((startOfDay(new Date(moment)) - startOfDay(now)) / DAY_MS)
+  const when = relativeDayFormat.format(days, 'day')
+
+  return days <= 1 ? `${when} ${formatHour(moment)}` : when
+}
+
 /** The link that dials a number written with spaces: "+33 3 88 11 22 33" -> "tel:+33388112233" */
 export function telUrl(phoneNumber: string): string {
   return `tel:${phoneNumber.replace(/[^\d+]/g, '')}`
