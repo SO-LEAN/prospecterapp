@@ -121,6 +121,7 @@ services:
     Prospecter\Core\Prospecting\Application\Port\ExchangeDetailRetriever: '@App\Prospecting\Persistence\DynamoExchangeDetailRetriever'
     Prospecter\Core\Prospecting\Application\Port\TimelineRetriever: '@App\Prospecting\Persistence\DynamoTimelineRetriever'
     Prospecter\Core\Prospecting\Application\Port\AgendaRetriever: '@App\Prospecting\Persistence\DynamoAgendaRetriever'
+    Prospecter\Core\Prospecting\Application\Port\CalendarRetriever: '@App\Prospecting\Persistence\DynamoCalendarRetriever'
     Prospecter\Core\Prospecting\Application\Port\OrganizationOfContactRetriever: '@App\Prospecting\Persistence\DynamoOrganizationOfContactRetriever'
     Prospecter\Core\Prospecting\Application\Port\OrganizationFactsRetriever: '@App\Prospecting\Persistence\DynamoOrganizationFactsRetriever'
     Prospecter\Core\Prospecting\Application\Port\ExchangeFactsRetriever: '@App\Prospecting\Persistence\DynamoExchangeFactsRetriever'

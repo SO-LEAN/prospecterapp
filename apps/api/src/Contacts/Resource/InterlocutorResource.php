@@ -4,6 +4,7 @@ namespace App\Contacts\Resource;
 
 use OpenApi\Attributes as OA;
 use Prospecter\Core\PersonalData\Application\PersonCard;
+use Prospecter\Core\Prospecting\Application\ExchangeInTimeline;
 use Prospecter\Core\Prospecting\Application\OrganizationSheet;
 
 /**
@@ -26,6 +27,19 @@ final readonly class InterlocutorResource
         #[OA\Property(enum: self::PRESENCES, description: 'A person still a contact of the organization, removed from it, or forgotten; none for the organization itself')]
         public ?string $presence = null,
     ) {
+    }
+
+    /**
+     * Who an exchange is with: the person, or the organization itself.
+     *
+     * @param array<string, PersonCard>        $persons       the persons of the exchanges, by id
+     * @param array<string, OrganizationSheet> $organizations the organizations of the exchanges with them alone, by id
+     */
+    public static function of(ExchangeInTimeline $exchange, array $persons, array $organizations): self
+    {
+        return null === $exchange->personId
+            ? self::ofTheOrganization($organizations[$exchange->organizationIds[0]])
+            : self::ofPerson($exchange->personId, $persons[$exchange->personId] ?? null, $exchange->contactPresence);
     }
 
     public static function ofTheOrganization(OrganizationSheet $organization): self

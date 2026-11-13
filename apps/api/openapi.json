@@ -2669,6 +2669,78 @@
                 }
             }
         },
+        "/api/me/calendar": {
+            "get": {
+                "tags": [
+                    "My account"
+                ],
+                "summary": "The calendar of the signed-in member over a period: the exchanges they planned or noted, whatever their status",
+                "operationId": "get_api_me_calendar",
+                "parameters": [
+                    {
+                        "name": "from",
+                        "in": "query",
+                        "description": "The start of its first day, included",
+                        "required": false,
+                        "schema": {
+                            "description": "The start of its first day, included",
+                            "type": "string",
+                            "format": "date-time",
+                            "nullable": true,
+                            "default": null
+                        }
+                    },
+                    {
+                        "name": "to",
+                        "in": "query",
+                        "description": "The start of the day after its last, excluded; six weeks after `from` at most",
+                        "required": false,
+                        "schema": {
+                            "description": "The start of the day after its last, excluded; six weeks after `from` at most",
+                            "type": "string",
+                            "format": "date-time",
+                            "nullable": true,
+                            "default": null
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "The exchanges of the period, by their moment",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/CalendarResource"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Missing or invalid access token"
+                    },
+                    "403": {
+                        "description": "Not a prospector",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ProblemResource"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Invalid period: a bound missing, an end before the start, longer than six weeks",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ProblemResource"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
         "/api/organizations/{id}/exchanges-to-make-conform": {
             "get": {
                 "tags": [
@@ -4871,6 +4943,25 @@
                 },
                 "type": "object"
             },
+            "PeriodQuery": {
+                "properties": {
+                    "from": {
+                        "description": "The start of its first day, included",
+                        "type": "string",
+                        "format": "date-time",
+                        "nullable": true,
+                        "default": null
+                    },
+                    "to": {
+                        "description": "The start of the day after its last, excluded; six weeks after `from` at most",
+                        "type": "string",
+                        "format": "date-time",
+                        "nullable": true,
+                        "default": null
+                    }
+                },
+                "type": "object"
+            },
             "SlotQuery": {
                 "properties": {
                     "startsAt": {
@@ -6135,6 +6226,20 @@
                         "type": "array",
                         "items": {
                             "$ref": "#/components/schemas/ContactInListResource"
+                        }
+                    }
+                },
+                "type": "object"
+            },
+            "CalendarResource": {
+                "required": [
+                    "items"
+                ],
+                "properties": {
+                    "items": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/OrganizationExchangeResource"
                         }
                     }
                 },

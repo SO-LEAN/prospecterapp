@@ -54,6 +54,25 @@ final class ExchangeKeys
     }
 
     /**
+     * The exchanges a member holds, whatever their status: the PK of their links, and the partition of their
+     * calendar in `GSI1`.
+     */
+    public static function calendar(string $member): string
+    {
+        return 'CALENDAR#'.$member;
+    }
+
+    /**
+     * Where an exchange stands in a calendar: the moment it happens, cancelled or not, then its id.
+     *
+     * @param array<string, mixed> $document
+     */
+    public static function calendarPositionOf(array $document): string
+    {
+        return $document['facts']['occurredAt'].'#'.$document['id'];
+    }
+
+    /**
      * Where a moment stands in a timeline, after every exchange happening then: the bound between the past and
      * what is to come.
      */

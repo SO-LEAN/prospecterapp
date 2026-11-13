@@ -35,15 +35,8 @@ final class OverlappingExchangesPresenter implements ConsultOverlappingExchanges
     public function present(OverlappingExchanges $overlapping): void
     {
         $this->resource = new PlannedExchangesResource(array_map(
-            fn (ExchangeInTimeline $exchange): OrganizationExchangeResource => new OrganizationExchangeResource($this->timelineResourceFactory->createExchange($exchange), $this->interlocutorOf($exchange)),
+            fn (ExchangeInTimeline $exchange): OrganizationExchangeResource => new OrganizationExchangeResource($this->timelineResourceFactory->createExchange($exchange), InterlocutorResource::of($exchange, $this->persons, $this->organizations)),
             $overlapping->exchanges,
         ));
-    }
-
-    private function interlocutorOf(ExchangeInTimeline $exchange): InterlocutorResource
-    {
-        return null === $exchange->personId
-            ? InterlocutorResource::ofTheOrganization($this->organizations[$exchange->organizationIds[0]])
-            : InterlocutorResource::ofPerson($exchange->personId, $this->persons[$exchange->personId] ?? null, $exchange->contactPresence);
     }
 }
