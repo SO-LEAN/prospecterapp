@@ -190,7 +190,9 @@ final readonly class InMemoryTimelineRetriever implements TimelineRetriever
 
     private static function listedAt(Exchange $exchange): \DateTimeImmutable
     {
-        return ExchangeChronology::listedAt(StateOf::the($exchange)['facts']->occurredAt, StateOf::the($exchange)['cancellation']?->at);
+        $state = StateOf::the($exchange);
+
+        return ExchangeChronology::listedAt($state['facts']->occurredAt, $state['cancellation']?->at);
     }
 
     private static function positionOf(Exchange $exchange): string

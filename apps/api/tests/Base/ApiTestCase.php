@@ -75,6 +75,14 @@ abstract class ApiTestCase extends WebTestCase
     }
 
     /**
+     * The id of a member known under this reference, to arrange what they did through the repositories.
+     */
+    protected function memberIdOf(string $reference): string
+    {
+        return $this->members[$reference] ?? throw new \LogicException(sprintf('No member known as %s', $reference));
+    }
+
+    /**
      * The tokens the user pool gives a member signing in with the password of the demonstration, for its
      * client or another one.
      *

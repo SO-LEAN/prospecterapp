@@ -5,6 +5,15 @@ namespace Tests\App\Api;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Group;
 use Prospecter\Core\Accounts\Domain\Model\Role;
+use Prospecter\Core\Prospecting\Domain\Model\Channel;
+use Prospecter\Core\Prospecting\Domain\Model\Duration;
+use Prospecter\Core\Prospecting\Domain\Model\Exchange;
+use Prospecter\Core\Prospecting\Domain\Model\ExchangeFacts;
+use Prospecter\Core\Prospecting\Domain\Model\ExchangeId;
+use Prospecter\Core\Prospecting\Domain\Repository\ExchangeRepository;
+use Prospecter\Core\SharedKernel\Domain\MemberId;
+use Prospecter\Core\SharedKernel\Domain\OrganizationId;
+use Prospecter\Core\SharedKernel\Domain\PersonId;
 use Symfony\Component\Clock\MockClock;
 use Tests\App\Base\ApiTestCase;
 
@@ -19,14 +28,15 @@ class HandlePlannedExchangeApiTest extends ApiTestCase
 
     private string $contact;
     private string $planned;
+    private string $organization;
 
     protected function setUp(): void
     {
         parent::setUp();
         $this->client->disableReboot();
         $this->login();
-        $organization = $this->requestJson('POST', '/api/organizations', ['legalIdentity' => ['corporateName' => 'ACME']])['id'];
-        $this->contact = $this->requestJson('POST', '/api/contacts', ['name' => ['firstName' => 'Ada', 'lastName' => 'Lovelace'], 'organizationIds' => [$organization]])['id'];
+        $this->organization = $this->requestJson('POST', '/api/organizations', ['legalIdentity' => ['corporateName' => 'ACME']])['id'];
+        $this->contact = $this->requestJson('POST', '/api/contacts', ['name' => ['firstName' => 'Ada', 'lastName' => 'Lovelace'], 'organizationIds' => [$this->organization]])['id'];
         $upcoming = $this->requestJson('POST', '/api/contacts/'.$this->contact.'/upcoming-exchanges', ['channel' => 'videoCall', 'occurredAt' => self::NEXT_TUESDAY, 'durationInMinutes' => 45, 'text' => 'Démonstration']);
         $this->planned = $upcoming['items'][0]['id'];
     }
@@ -135,8 +145,46 @@ class HandlePlannedExchangeApiTest extends ApiTestCase
         $this->assertResponseStatusCodeSame(422);
     }
 
+    public function testAnAdministratorHandlesTheExchangeTheyPlanned(): void
+    {
+        $administrator = $this->aMemberOfTheFixtures('administrator', Role::Prospector, Role::Admin);
+        $this->theTokensAreCheckedNow();
+        $this->login($administrator);
+        $planned = $this->requestJson('POST', '/api/contacts/'.$this->contact.'/upcoming-exchanges', ['channel' => 'call', 'occurredAt' => '2026-10-19T09:00:00+00:00'])['items'][0]['id'];
+
+        $this->theHolderHandles($planned);
+    }
+
     /**
-     * Neither an administrator nor a prospector without the right to manage personal data handles the exchange a
+     * Planned while they had the right to manage personal data, the exchange is still theirs to handle.
+     */
+    public function testAHolderWithoutTheRightToManagePersonalDataHandlesTheirExchange(): void
+    {
+        $assistant = $this->aMemberOfTheFixtures('prospector-without-the-right', Role::User, Role::Prospector);
+        $planned = Exchange::plannedWithAContact($this->accountOfTheFixtures(), new MemberId($this->memberIdOf($assistant)), new ExchangeId(self::newIdentity()), new PersonId($this->contact), [new OrganizationId($this->organization)], ExchangeFacts::planned(Channel::Call, new \DateTimeImmutable(self::NEXT_TUESDAY), Duration::inMinutes(null), null), new \DateTimeImmutable('2026-10-15 09:00 UTC'));
+        self::getContainer()->get(ExchangeRepository::class)->save($planned);
+        $this->theTokensAreCheckedNow();
+        $this->login($assistant);
+
+        $this->theHolderHandles($planned->id()->value);
+    }
+
+    /**
+     * Moved and cancelled before its time, marked missed once it has come.
+     */
+    private function theHolderHandles(string $planned): void
+    {
+        $this->assertSame(['move', 'cancel'], array_values(array_intersect(['markDone', 'markMissed', 'move', 'cancel'], array_keys($this->requestJson('GET', '/api/exchanges/'.$planned)['_links']))));
+        $this->requestJson('PATCH', '/api/exchanges/'.$planned.'/moment', ['occurredAt' => '2026-10-21T09:00:00+00:00']);
+        $this->assertResponseStatusCodeSame(200);
+        $this->theClockShows('2026-10-21 10:00 UTC');
+        $this->assertSame(['markDone', 'markMissed', 'move', 'cancel'], array_values(array_intersect(['markDone', 'markMissed', 'move', 'cancel'], array_keys($this->requestJson('GET', '/api/exchanges/'.$planned)['_links']))));
+        $this->assertSame('missed', $this->requestJson('POST', '/api/exchanges/'.$planned.'/missed')['status']);
+        $this->assertResponseStatusCodeSame(200);
+    }
+
+    /**
+     * No colleague, an administrator, a prospector with or without the right to manage personal data, handles the exchange a
      * colleague planned: nothing offered, every gesture refused.
      */
     #[DataProvider('colleagues')]
@@ -165,6 +213,7 @@ class HandlePlannedExchangeApiTest extends ApiTestCase
     {
         yield 'an administrator' => ['administrator', Role::Prospector, Role::Admin];
         yield 'a prospector without the right to manage personal data' => ['prospector-without-the-right', Role::User, Role::Prospector];
+        yield 'another prospector with the right to manage personal data' => ['another-prospector', Role::User, Role::Prospector, Role::PersonalData];
     }
 
     /**

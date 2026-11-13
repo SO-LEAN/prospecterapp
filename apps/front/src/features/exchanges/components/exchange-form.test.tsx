@@ -126,15 +126,23 @@ describe('ExchangeForm', () => {
     await user.click(screen.getByLabelText('E-mail'))
     await user.upload(screen.getByLabelText('choisissez-les'), [devis, photo])
     await user.click(screen.getByRole('button', { name: 'Retirer photo.png' }))
+    expect(screen.queryByText('photo.png')).not.toBeInTheDocument()
     await user.click(save())
 
     expect(onSubmit).toHaveBeenCalledWith(expect.objectContaining({ channel: 'email' }), null, [devis])
+    expect(onSubmit.mock.calls[0]?.[2].map((file: File) => file.name)).toEqual(['devis.pdf'])
   })
 
   it('joins no file to a correction', () => {
     renderForm()
 
     expect(screen.queryByText('Pièces jointes')).not.toBeInTheDocument()
+  })
+
+  it('lists no file before one is chosen', () => {
+    renderForm(undefined, { withFiles: true })
+
+    expect(screen.queryByRole('list')).not.toBeInTheDocument()
   })
 
   it('refuses a moment in the future', async () => {

@@ -1089,7 +1089,7 @@
                         }
                     },
                     "422": {
-                        "description": "Invalid exchange: unknown channel or direction, a missed exchange that is no call, a moment in the future",
+                        "description": "Invalid exchange: unknown channel or direction, a missed exchange that is no call, meeting or video call, a moment in the future",
                         "content": {
                             "application/json": {
                                 "schema": {
@@ -2316,7 +2316,7 @@
                         }
                     },
                     "422": {
-                        "description": "Invalid exchange: unknown channel or direction, a missed exchange that is no call, a moment in the future",
+                        "description": "Invalid exchange: unknown channel or direction, a missed exchange that is no call, meeting or video call, a moment in the future",
                         "content": {
                             "application/json": {
                                 "schema": {
@@ -2969,7 +2969,7 @@
                 "tags": [
                     "Contacts"
                 ],
-                "summary": "Correct the channel, the direction, whether a call was missed, the moment and the text of an exchange; its contact stays",
+                "summary": "Correct the channel, the direction, whether it was missed, the moment and the text of an exchange that took place; its contact stays",
                 "operationId": "patch_api_exchanges_correct",
                 "parameters": [
                     {
@@ -3037,7 +3037,7 @@
                         }
                     },
                     "422": {
-                        "description": "Invalid correction: unknown channel or direction, a missed exchange that is no call, a moment in the future, another contact",
+                        "description": "Invalid correction: unknown channel or direction, a missed exchange that is no call, meeting or video call, a moment in the future, another contact",
                         "content": {
                             "application/json": {
                                 "schema": {
@@ -3915,6 +3915,7 @@
                         "maxLength": 5000
                     },
                     "missed": {
+                        "description": "Missed: the contact did not answer or come; a call, a meeting or a video call only, its status then missed",
                         "type": "boolean",
                         "default": false
                     }
@@ -4192,6 +4193,7 @@
                         "maxLength": 5000
                     },
                     "missed": {
+                        "description": "Missed: the contact did not answer or come; a call, a meeting or a video call only, its status then missed",
                         "type": "boolean",
                         "default": false
                     },

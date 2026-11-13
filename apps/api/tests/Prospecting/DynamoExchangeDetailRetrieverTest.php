@@ -5,6 +5,7 @@ namespace Tests\App\Prospecting;
 use App\Prospecting\Persistence\ExchangeKeys;
 use App\Shared\Persistence\Hydrator;
 use App\Shared\Persistence\Table;
+use PHPUnit\Framework\Attributes\DataProvider;
 use Prospecter\Core\Prospecting\Application\ConsultExchange\ExchangeDetail;
 use Prospecter\Core\Prospecting\Application\Port\ExchangeDetailRetriever;
 use Prospecter\Core\Prospecting\Domain\Model\Attachment;
@@ -125,18 +126,31 @@ class DynamoExchangeDetailRetrieverTest extends ApiTestCase
         $this->assertNotContains('CorrectExchange', $detail->possibleIntents);
     }
 
-    public function testACallNotedMissedBeforeTheStatusesReadsAsMissed(): void
+    /**
+     * Written before the statuses, or done with the fact `missed` before missed was a status.
+     */
+    #[DataProvider('statusesBeforeMissed')]
+    public function testACallNotedMissedBeforeMissedWasAStatusReadsAsMissed(?string $status): void
     {
         $exchange = $this->noted();
         $table = self::getContainer()->get('app.table.prospecting');
         $this->assertInstanceOf(Table::class, $table);
         $item = $table->item(ExchangeKeys::exchange($exchange->id()->value), ExchangeKeys::EXCHANGE);
-        unset($item['exchange']['status']);
+        $item['exchange'] = ['status' => $status] + $item['exchange'];
         $item['exchange']['facts']['missed'] = true;
         $table->batch([$item]);
 
         $this->assertSame('missed', $this->detailOf($exchange, $this->me)->status);
         $this->assertSame(ExchangeStatus::Missed, Hydrator::stateOf($this->exchanges()->get($exchange->id()))['status']);
+    }
+
+    /**
+     * @return iterable<string, array{?string}>
+     */
+    public static function statusesBeforeMissed(): iterable
+    {
+        yield 'without a status' => [null];
+        yield 'done' => ['done'];
     }
 
     private function planned(string $at): Exchange

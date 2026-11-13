@@ -45,7 +45,7 @@ final class NoteOrganizationExchangeController extends AbstractController
     #[OA\Response(response: 403, description: 'Not a prospector, or no right to manage personal data', content: new Model(type: ProblemResource::class))]
     #[OA\Response(response: 404, description: 'Unknown organization, or one of another account', content: new Model(type: ProblemResource::class))]
     #[OA\Response(response: 409, description: 'The person is no contact of the organization', content: new Model(type: ProblemResource::class))]
-    #[OA\Response(response: 422, description: 'Invalid exchange: unknown channel or direction, a missed exchange that is no call, a moment in the future', content: new Model(type: ProblemResource::class))]
+    #[OA\Response(response: 422, description: 'Invalid exchange: unknown channel or direction, a missed exchange that is no call, meeting or video call, a moment in the future', content: new Model(type: ProblemResource::class))]
     public function __invoke(OrganizationSheet $organization, #[MapRequestPayload] OrganizationExchangeInput $input, #[CurrentUser] User $user): JsonResponse
     {
         $exchange = $input->exchange;
