@@ -23,7 +23,7 @@ use Prospecter\Core\SharedKernel\Domain\ReleasesEvents;
 
 /**
  * Aggregate root: work a prospector has to prepare for a contact or an organization, without them in front, due on a
- * day (ADR 0112). Held by the member who noted it, its author. Its text may hold personal data: like an exchange, it
+ * day (ADR 0113). Held by the member who noted it, its author. Its text may hold personal data: like an exchange, it
  * is kept for the organizations the contact is part of when it is noted, or for the organization itself, and lives
  * as long as one of them is prospected; unlike an exchange, it is erased with its contact.
  */

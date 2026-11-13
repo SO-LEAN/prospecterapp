@@ -13,7 +13,7 @@ use Prospecter\Core\SharedKernel\Domain\OrganizationId;
 use Prospecter\Core\SharedKernel\Domain\PersonId;
 
 /**
- * The to-dos in the table of Prospecting (ADR 0048, 0112):
+ * The to-dos in the table of Prospecting (ADR 0048, 0113):
  * - `TODO#<id>` / `TODO`: the to-do, listed in `GSI1` among those of its contact (`CONTACT_TODOS#<account>#<person>`)
  *   when it has one, and in `GSI2` among those its holder still has to do (`STILL_TO_DO#<member>`) until it is done;
  * - `TODOS#<organization>` / `TODO#<id>`: the to-dos kept for an organization, written with it.

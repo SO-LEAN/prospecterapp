@@ -36,7 +36,7 @@ final readonly class OrganizationLinksResource
         public ?LinkResource $exchanges = null,
         #[OA\Property(nullable: false)]
         public ?LinkResource $noteExchange = null,
-        #[OA\Property(nullable: false, description: 'Its to-dos and those of its contacts (ADR 0112)')]
+        #[OA\Property(nullable: false, description: 'Its to-dos and those of its contacts (ADR 0113)')]
         public ?LinkResource $toDos = null,
     ) {
     }

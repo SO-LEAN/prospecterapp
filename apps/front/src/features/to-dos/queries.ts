@@ -5,7 +5,7 @@ export type ToDo = components['schemas']['ToDoResource']
 export type ToDoList = components['schemas']['ToDoListResource']
 export type ToDoInput = components['schemas']['ToDoInput']
 
-/** The to-dos for a contact, read whole: a handful (ADR 0112). */
+/** The to-dos for a contact, read whole: a handful (ADR 0113). */
 export const contactToDosQuery = (contactId: string) =>
   api.queryOptions('get', '/api/contacts/{id}/to-dos', { params: { path: { id: contactId } } })
 
