@@ -28,6 +28,7 @@ test('find a planned exchange in my calendar, by day and by month, the view in t
     await page.getByLabel('Nom', { exact: true }).fill(lastName)
     await page.getByRole('button', { name: 'Enregistrer le contact' }).click()
     await page.getByRole('link', { name: `Test ${lastName}` }).click()
+    await expect(page.getByRole('heading', { name: `Test ${lastName}` })).toBeVisible()
     await page.getByRole('button', { name: 'Planifier' }).click()
     await page.getByLabel('Visio', { exact: true }).check()
     await page.getByRole('button', { name: 'Demain 9h' }).click()
