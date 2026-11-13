@@ -607,7 +607,7 @@ export interface paths {
         delete?: never;
         options?: never;
         head?: never;
-        /** Correct the channel, the direction, whether a call was missed, the moment and the text of an exchange; its contact stays */
+        /** Correct the channel, the direction, whether it was missed, the moment and the text of an exchange that took place; its contact stays */
         patch: operations["patch_api_exchanges_correct"];
         trace?: never;
     };
@@ -873,7 +873,10 @@ export interface components {
             occurredAt: string | null;
             /** @default null */
             text: string | null;
-            /** @default false */
+            /**
+             * @description Missed: the contact did not answer or come; a call, a meeting or a video call only, its status then missed
+             * @default false
+             */
             missed: boolean;
         };
         PlannedExchangeInput: {
@@ -1006,7 +1009,10 @@ export interface components {
             occurredAt: string | null;
             /** @default null */
             text: string | null;
-            /** @default false */
+            /**
+             * @description Missed: the contact did not answer or come; a call, a meeting or a video call only, its status then missed
+             * @default false
+             */
             missed: boolean;
             /**
              * @description Declares the exchange made conform, its contact forgotten; only while the link makeConform is offered
@@ -2416,7 +2422,7 @@ export interface operations {
                     "application/json": components["schemas"]["ProblemResource"];
                 };
             };
-            /** @description Invalid exchange: unknown channel or direction, a missed exchange that is no call, a moment in the future */
+            /** @description Invalid exchange: unknown channel or direction, a missed exchange that is no call, meeting or video call, a moment in the future */
             422: {
                 headers: {
                     [name: string]: unknown;
@@ -3418,7 +3424,7 @@ export interface operations {
                     "application/json": components["schemas"]["ProblemResource"];
                 };
             };
-            /** @description Invalid exchange: unknown channel or direction, a missed exchange that is no call, a moment in the future */
+            /** @description Invalid exchange: unknown channel or direction, a missed exchange that is no call, meeting or video call, a moment in the future */
             422: {
                 headers: {
                     [name: string]: unknown;
@@ -3988,7 +3994,7 @@ export interface operations {
                     "application/json": components["schemas"]["ProblemResource"];
                 };
             };
-            /** @description Invalid correction: unknown channel or direction, a missed exchange that is no call, a moment in the future, another contact */
+            /** @description Invalid correction: unknown channel or direction, a missed exchange that is no call, meeting or video call, a moment in the future, another contact */
             422: {
                 headers: {
                     [name: string]: unknown;

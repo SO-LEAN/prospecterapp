@@ -36,13 +36,13 @@ final class CorrectExchangeController extends AbstractController
     #[Route('/api/exchanges/{id}/facts', name: 'api_exchanges_correct', requirements: ['id' => Requirement::UUID], methods: ['PATCH'])]
     #[IsGranted(ExchangeVoter::ACCESS, subject: 'exchange')]
     #[IsGranted(User::PERSONAL_DATA)]
-    #[OA\Patch(summary: 'Correct the channel, the direction, whether a call was missed, the moment and the text of an exchange; its contact stays')]
+    #[OA\Patch(summary: 'Correct the channel, the direction, whether it was missed, the moment and the text of an exchange that took place; its contact stays')]
     #[OA\Response(response: 200, description: 'The corrected exchange', content: new Model(type: ExchangeDetailResource::class))]
     #[OA\Response(response: 401, description: 'Missing or invalid access token')]
     #[OA\Response(response: 403, description: 'Not a prospector, or no right to manage personal data', content: new Model(type: ProblemResource::class))]
     #[OA\Response(response: 404, description: 'Unknown exchange, or one of another account', content: new Model(type: ProblemResource::class))]
     #[OA\Response(response: 409, description: 'Declared made conform while nothing is to make conform', content: new Model(type: ProblemResource::class))]
-    #[OA\Response(response: 422, description: 'Invalid correction: unknown channel or direction, a missed exchange that is no call, a moment in the future, another contact', content: new Model(type: ProblemResource::class))]
+    #[OA\Response(response: 422, description: 'Invalid correction: unknown channel or direction, a missed exchange that is no call, meeting or video call, a moment in the future, another contact', content: new Model(type: ProblemResource::class))]
     public function __invoke(ExchangeDetail $exchange, #[MapRequestPayload] CorrectionInput $input, #[CurrentUser] User $user): JsonResponse
     {
         $this->commandBus->dispatch(new CorrectExchange(

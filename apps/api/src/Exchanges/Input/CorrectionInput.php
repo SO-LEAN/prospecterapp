@@ -25,6 +25,7 @@ final readonly class CorrectionInput
         public ?\DateTimeImmutable $occurredAt = null,
         #[Assert\Length(max: self::MAX_TEXT)]
         public ?string $text = null,
+        #[OA\Property(description: 'Missed: the contact did not answer or come; a call, a meeting or a video call only, its status then missed')]
         public bool $missed = false,
         #[OA\Property(description: 'Declares the exchange made conform, its contact forgotten; only while the link makeConform is offered')]
         public bool $madeConform = false,

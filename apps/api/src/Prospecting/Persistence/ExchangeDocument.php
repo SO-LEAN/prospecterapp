@@ -24,8 +24,8 @@ use Prospecter\Core\SharedKernel\Domain\PersonId;
 
 /**
  * An exchange as a plain document of its DynamoDB item, and back (ADR 0048): its facts and its attachments as
- * they are, its recorded events never; an item written before an exchange was planned reads as done, or missed
- * when it was a call that did not go through.
+ * they are, its recorded events never; an item written before an exchange was planned reads as done, and one
+ * written done with the fact `missed` of a call that did not go through, before missed was a status, as missed.
  */
 final class ExchangeDocument
 {
@@ -87,13 +87,16 @@ final class ExchangeDocument
     }
 
     /**
-     * Written before an exchange had a status, it is done, or missed when it was a call that did not go through.
+     * Written before an exchange had a status, it is done; before missed was a status, a call that did not go through
+     * was done with its fact `missed`: it is missed.
      *
      * @param array<string, mixed> $document
      */
     public static function statusOf(array $document): ExchangeStatus
     {
-        return ExchangeStatus::tryFrom($document['status'] ?? '') ?? ExchangeStatus::outcome($document['facts']['missed'] ?? false);
+        $status = ExchangeStatus::tryFrom($document['status'] ?? '') ?? ExchangeStatus::Done;
+
+        return ExchangeStatus::Done === $status ? ExchangeStatus::outcome($document['facts']['missed'] ?? false) : $status;
     }
 
     /**

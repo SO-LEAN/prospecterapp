@@ -1,10 +1,11 @@
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
-import { act, screen, within } from '@testing-library/react'
+import { act, screen, waitFor, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import { Toaster } from '@/shared/ui/sonner'
 import { renderInARouter } from '@/test/render-in-a-router'
 import { UNDO_DELAY_MS } from '../mutations'
+import { dateAndTimeOf, SHORTCUTS } from '../planning'
 import { type ExchangeDetail, exchangeQuery } from '../queries'
 import { ExchangeDetailSheet } from './exchange-detail'
 
@@ -96,6 +97,16 @@ async function requestsToTheApi(): Promise<Sent[]> {
       return [sent.method, new URL(sent.url).pathname, body === '' ? null : JSON.parse(body)]
     }),
   )
+}
+
+/** What the API was asked to join to the exchange, once the storage received the file. */
+async function joinedToTheExchange() {
+  const joining = theApi.mock.calls
+    .map(([request]) => request)
+    .find((request) => request instanceof Request && request.url.endsWith('/attachments')) as
+    | Request
+    | undefined
+  return joining && JSON.parse(await joining.clone().text())
 }
 
 afterEach(() => {
@@ -274,19 +285,67 @@ describe('handling a planned exchange', () => {
   })
 
   it('joins the files chosen with its report', async () => {
+    const done = aPlannedExchange({ status: 'done', _links: { self } })
+    theApi.mockImplementation(async (request, init) => {
+      if (!(request instanceof Request)) {
+        return new Response(null, { status: 204 })
+      }
+      const path = new URL(request.url).pathname
+      return path === '/api/uploads'
+        ? Response.json({
+            upload: 'an-upload',
+            url: 'https://storage.test/upload',
+            fields: {},
+            heaviest: 10_000_000,
+          })
+        : Response.json(done, init)
+    })
     const user = await renderTheDetail(aPlannedExchange({ occurredAt: ITS_TIME_HAS_COME }))
-    theApi.mockResolvedValue(Response.json(aPlannedExchange({ status: 'done', _links: { self } })))
 
     await user.click(screen.getByRole('button', { name: 'Fait' }))
+    expect(screen.queryByRole('alert')).not.toBeInTheDocument()
     await user.upload(
       screen.getByLabelText('choisissez-les'),
       new File(['devis'], 'devis.pdf', { type: 'application/pdf' }),
     )
     await user.click(screen.getByRole('button', { name: 'Enregistrer' }))
 
-    await expect
-      .poll(async () => (await requestsToTheApi()).map(([method, path]) => `${method} ${path}`))
-      .toContain('POST /api/uploads')
+    await expect.poll(joinedToTheExchange).toEqual({ upload: 'an-upload', name: 'devis.pdf' })
+  })
+
+  it('writes the report of an exchange without agenda from nothing', async () => {
+    const user = await renderTheDetail(aPlannedExchange({ occurredAt: ITS_TIME_HAS_COME, text: null }))
+
+    await user.click(screen.getByRole('button', { name: 'Fait' }))
+
+    expect(screen.getByLabelText(/Ce qui s’est dit/)).toHaveValue('')
+  })
+
+  it('shows the refusal of the API on the moment of the report', async () => {
+    theApi.mockResolvedValue(
+      Response.json(
+        {
+          type: 'about:blank',
+          title: 'An exchange is never in the future',
+          status: 422,
+          violations: [
+            {
+              propertyPath: 'occurredAt',
+              title: 'An exchange is never in the future',
+              reason: 'exchangeInTheFuture',
+            },
+          ],
+        },
+        { status: 422, headers: { 'Content-Type': 'application/problem+json' } },
+      ),
+    )
+    const user = await renderTheDetail(aPlannedExchange({ occurredAt: ITS_TIME_HAS_COME }))
+
+    await user.click(screen.getByRole('button', { name: 'Fait' }))
+    await user.click(screen.getByRole('button', { name: 'Enregistrer' }))
+
+    expect(await screen.findByText('Un échange ne peut pas être dans le futur.')).toBeInTheDocument()
+    expect(screen.queryByText(/Planifier la suite/)).not.toBeInTheDocument()
   })
 
   it('refuses a report in the future, sending nothing', async () => {
@@ -322,10 +381,9 @@ describe('handling a planned exchange', () => {
     await user.click(screen.getByRole('button', { name: 'Déplacer' }))
     expect(screen.queryByRole('alert')).not.toBeInTheDocument()
     await user.click(screen.getByRole('button', { name: 'Dans 1 semaine' }))
-    const aWeekAhead = new Date(Date.now() + 7 * 24 * 60 * 60_000)
-    expect(screen.getByLabelText('Date')).toHaveValue(
-      `${aWeekAhead.getFullYear()}-${String(aWeekAhead.getMonth() + 1).padStart(2, '0')}-${String(aWeekAhead.getDate()).padStart(2, '0')}`,
-    )
+    const aWeekAhead = dateAndTimeOf(SHORTCUTS.inAWeek(new Date()))
+    expect(screen.getByLabelText('Date')).toHaveValue(aWeekAhead.date)
+    expect(screen.getByLabelText('Heure')).toHaveValue(aWeekAhead.time)
     await user.click(screen.getByRole('button', { name: 'Enregistrer' }))
 
     expect(await screen.findByRole('button', { name: 'Déplacer' })).toBeInTheDocument()
@@ -373,9 +431,11 @@ describe('handling a planned exchange', () => {
     const dialog = await screen.findByRole('dialog', { name: /Annuler cet échange/ })
     expect(within(dialog).getByLabelText('Ne pas préciser')).toBeChecked()
     await user.click(within(dialog).getByRole('button', { name: 'Annuler l’échange' }))
+    await waitFor(() =>
+      expect(screen.queryByRole('dialog', { name: /Annuler cet échange/ })).not.toBeInTheDocument(),
+    )
     await act(() => vi.advanceTimersByTimeAsync(UNDO_DELAY_MS))
 
-    expect(screen.queryByRole('dialog', { name: /Annuler cet échange/ })).not.toBeInTheDocument()
     expect(await requestsToTheApi()).toEqual([
       ['POST', `/api/exchanges/${EXCHANGE}/cancellation`, { canceller: null }],
     ])
