@@ -27,7 +27,7 @@ export const Route = createFileRoute('/_app/contacts/$contactId/')({
       .catch(notFoundWhenTheApiSaysSo)
     if (contact._links.exchanges) {
       void context.queryClient.prefetchInfiniteQuery(timelineQuery(contact.id))
-      void context.queryClient.prefetchQuery(upcomingQuery(contact.id))
+      void context.queryClient.prefetchInfiniteQuery(upcomingQuery(contact.id))
     }
     return contact
   },

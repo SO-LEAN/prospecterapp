@@ -87,14 +87,38 @@ export const exchangesToMakeConformQuery = (organizationId: string) =>
     getNextPageParam: (slice) => nextSliceOf(slice._links),
   })
 
-/** The exchanges to come with a contact, the soonest first: the first is the next one. */
+/** The exchanges to come with a contact, the soonest first, a slice after the other: the first is the next one. */
 export const upcomingQuery = (contactId: string) =>
-  api.queryOptions('get', '/api/contacts/{id}/upcoming-exchanges', { params: { path: { id: contactId } } })
+  infiniteQueryOptions({
+    queryKey: [...timelineKeys.upcomingOfContacts, { params: { path: { id: contactId } } }, 'slices'],
+    queryFn: async ({ pageParam, signal }) =>
+      dataOf(
+        await fetchClient.GET('/api/contacts/{id}/upcoming-exchanges', {
+          params: { path: { id: contactId }, query: { after: pageParam } },
+          signal,
+        }),
+      ),
+    initialPageParam: undefined as string | undefined,
+    getNextPageParam: (slice) => nextSliceOf(slice._links),
+  })
 
-/** The exchanges to come with an organization and with its contacts, the soonest first. */
+/** The exchanges to come with an organization and with its contacts, the soonest first, a slice after the other. */
 export const organizationUpcomingQuery = (organizationId: string) =>
-  api.queryOptions('get', '/api/organizations/{id}/upcoming-exchanges', {
-    params: { path: { id: organizationId } },
+  infiniteQueryOptions({
+    queryKey: [
+      ...timelineKeys.upcomingOfOrganizations,
+      { params: { path: { id: organizationId } } },
+      'slices',
+    ],
+    queryFn: async ({ pageParam, signal }) =>
+      dataOf(
+        await fetchClient.GET('/api/organizations/{id}/upcoming-exchanges', {
+          params: { path: { id: organizationId }, query: { after: pageParam } },
+          signal,
+        }),
+      ),
+    initialPageParam: undefined as string | undefined,
+    getNextPageParam: (slice) => nextSliceOf(slice._links),
   })
 
 /** The exchanges I planned overlapping a slot, before I plan another one in it. */

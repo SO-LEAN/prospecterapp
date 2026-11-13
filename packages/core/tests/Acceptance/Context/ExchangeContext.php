@@ -392,6 +392,7 @@ final class ExchangeContext implements Context
             : new PlanExchange($prospectorId, $id, (string) $personId, $channel, $plannedAt, $minutes, null, $this->application->now()));
         $this->lastNoted = null === $this->application->refusal() ? $id : null;
         $this->lastNotedWith = $interlocutor;
+        $this->scenario->rememberTheExchange($id);
     }
 
     private function expectPlanned(): void

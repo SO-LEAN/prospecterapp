@@ -16,7 +16,7 @@ final readonly class PlannedExchangeInput
     public function __construct(
         #[Assert\NotBlank]
         #[Assert\Choice(choices: ExchangeInput::CHANNELS)]
-        #[OA\Property(enum: ExchangeInput::CHANNELS, description: 'Only a call, a meeting or a video call is planned')]
+        #[OA\Property(enum: self::CHANNELS, description: 'Only a call, a meeting or a video call is planned, any other channel refused by the rule of the core')]
         public string $channel = '',
         #[Assert\NotNull]
         #[OA\Property(format: 'date-time', description: 'When it is to happen; in the future')]

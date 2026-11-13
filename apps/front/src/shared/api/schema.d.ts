@@ -786,7 +786,7 @@ export interface components {
         };
         PlannedExchangeInput: {
             /**
-             * @description Only a call, a meeting or a video call is planned
+             * @description Only a call, a meeting or a video call is planned, any other channel refused by the rule of the core
              * @default
              * @enum {string}
              */

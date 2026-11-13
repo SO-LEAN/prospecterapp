@@ -20,12 +20,8 @@ final readonly class DynamoAgendaRetriever implements AgendaRetriever
 
     public function plannedBy(Prospector $holder, \DateTimeImmutable $from, \DateTimeImmutable $until): array
     {
-        $end = ExchangeKeys::positionBefore($until);
-        $links = array_filter(
-            $this->prospectingTable->queryAfter(ExchangeKeys::agenda($holder->id->value), Table::BY_GSI1, ExchangeKeys::positionAfter($from)),
-            static fn (array $link): bool => strcmp($link['GSI1SK'], $end) < 0,
-        );
-        $items = array_column($this->prospectingTable->items(array_map(static fn (array $link): array => [$link['SK'], ExchangeKeys::EXCHANGE], array_values($links))), null, 'PK');
+        $links = $this->prospectingTable->queryBetween(ExchangeKeys::agenda($holder->id->value), Table::BY_GSI1, ExchangeKeys::positionAfter($from), ExchangeKeys::positionBefore($until));
+        $items = array_column($this->prospectingTable->items(array_map(static fn (array $link): array => [$link['SK'], ExchangeKeys::EXCHANGE], $links)), null, 'PK');
 
         return array_values(array_map(
             static fn (array $link): ExchangeInTimeline => self::inTheAgenda($items[$link['SK']]['exchange'], $holder),

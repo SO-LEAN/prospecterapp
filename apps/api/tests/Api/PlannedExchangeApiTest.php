@@ -113,6 +113,8 @@ class PlannedExchangeApiTest extends ApiTestCase
         $this->login($this->aMemberOfTheFixtures('administrator', Role::Prospector, Role::Admin));
 
         $this->assertArrayHasKey('planExchange', $this->requestJson('GET', '/api/contacts/'.$ada.'/upcoming-exchanges')['_links']);
+        $this->assertArrayHasKey('planExchange', $this->requestJson('GET', '/api/organizations/'.$organization.'/upcoming-exchanges')['_links']);
+        $this->assertResponseStatusCodeSame(200);
         $this->plan($ada, ['channel' => 'call', 'occurredAt' => self::NEXT_TUESDAY]);
         $this->assertResponseStatusCodeSame(201);
         $this->planWith($organization, ['exchange' => ['channel' => 'call', 'occurredAt' => self::NEXT_TUESDAY]]);
@@ -132,6 +134,8 @@ class PlannedExchangeApiTest extends ApiTestCase
         $this->assertSame(['self'], array_keys($upcoming['_links']));
         $this->assertSame(['G***e H***r'], array_column(array_column($this->requestJson('GET', '/api/organizations/'.$organization.'/upcoming-exchanges')['items'], 'interlocutor'), 'name'));
         $this->assertArrayNotHasKey('planExchange', $this->requestJson('GET', '/api/organizations/'.$organization.'/exchanges')['_links']);
+        $this->assertSame([], $this->requestJson('GET', '/api/me/planned-exchanges?startsAt='.urlencode(self::NEXT_TUESDAY))['items']);
+        $this->assertResponseStatusCodeSame(200);
         $this->plan($grace, ['channel' => 'call', 'occurredAt' => self::NEXT_TUESDAY]);
         $this->assertResponseStatusCodeSame(403);
         $this->planWith($organization, ['exchange' => ['channel' => 'call', 'occurredAt' => self::NEXT_TUESDAY]]);
