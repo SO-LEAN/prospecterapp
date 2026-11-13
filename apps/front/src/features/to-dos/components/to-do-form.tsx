@@ -1,6 +1,6 @@
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useState } from 'react'
-import { type UseFormReturn, useForm, useFormState } from 'react-hook-form'
+import { useForm, useFormState } from 'react-hook-form'
 import { useTranslation } from 'react-i18next'
 import { applyViolations } from '@/shared/api/problem'
 import { FormField } from '@/shared/forms/form-field'
@@ -15,13 +15,9 @@ type Props = {
   onSubmit: (toDo: ToDoInput) => Promise<unknown>
   /** The to-do to revise; a new one is due tomorrow by default. */
   defaultValues?: ToDoValues
-  /** A revision is cancelled; the quick entry stays, emptied once noted. */
+  /** A revision is cancelled; the quick entry has no cancel. */
   onCancel?: () => void
 }
-
-/** The quick entry emptied in place, its fields kept registered (`docs/architecture/front.md`, Forms). */
-const emptyForTheNext = (form: UseFormReturn<ToDoValues>) =>
-  form.reset(newToDo(new Date()), { keepFieldsRef: true })
 
 /** Noted in one line: what is to do, then its day, by a shortcut, and an hour when it matters. */
 export function ToDoForm({ onSubmit, defaultValues, onCancel }: Props) {
@@ -37,9 +33,6 @@ export function ToDoForm({ onSubmit, defaultValues, onCancel }: Props) {
     setGlobalErrors([])
     try {
       await onSubmit(toToDoInput(values))
-      if (!onCancel) {
-        emptyForTheNext(form)
-      }
     } catch (error) {
       setGlobalErrors(applyViolations(error, form.setError, toDoFields))
     }

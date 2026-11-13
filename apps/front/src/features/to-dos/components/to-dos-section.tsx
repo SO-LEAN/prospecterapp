@@ -79,6 +79,24 @@ type CardProps = SectionProps & {
   withTheirContact?: boolean
 }
 
+/**
+ * A new form once a to-do is noted, empty and due tomorrow: emptying the same form in place would count on a render
+ * registering its fields again, which the React Compiler skips (`docs/architecture/front.md`, Forms).
+ */
+function QuickEntry({ onNote }: Pick<CardProps, 'onNote'>) {
+  const [noted, setNoted] = useState(0)
+
+  return (
+    <ToDoForm
+      key={noted}
+      onSubmit={async (body) => {
+        await onNote(body)
+        setNoted((count) => count + 1)
+      }}
+    />
+  )
+}
+
 /** What is to do, the soonest due first, those overdue in red; those done folded beneath. */
 export function ToDosCard({ list, onNote, onTickedOff, withTheirContact = false, className }: CardProps) {
   const { t } = useTranslation()
@@ -91,7 +109,7 @@ export function ToDosCard({ list, onNote, onTickedOff, withTheirContact = false,
         <CardTitle className="text-base">{t('toDos.title')}</CardTitle>
       </CardHeader>
       <CardContent className="space-y-4 text-sm">
-        {list._links.noteToDo && <ToDoForm onSubmit={onNote} />}
+        {list._links.noteToDo && <QuickEntry onNote={onNote} />}
         {toDo.length === 0 && <p className="text-muted-foreground">{t('toDos.none')}</p>}
         <ToDoLines
           label={t('toDos.title')}

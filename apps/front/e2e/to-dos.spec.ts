@@ -1,7 +1,7 @@
 import { expect, test } from './fixtures'
 import { signInOnTheSignInScreen } from './sign-in'
 
-/** Two cards, three to-dos and an exchange, each gesture pending until the lists are read again: longer than a journey. */
+/** Two cards, four to-dos and an exchange, each gesture pending until the lists are read again: longer than a journey. */
 const LONGER_THAN_A_JOURNEY_MS = 60_000
 
 test('note a to-do on the card of a contact and of its organization, tick it off, note the exchange, erase it', async ({
@@ -41,6 +41,20 @@ test('note a to-do on the card of a contact and of its organization, tick it off
     await expect(toDos).toHaveCount(2)
   })
 
+  await test.step('emptied again, « Envoyer la plaquette » noted for the day shown', async () => {
+    const theDay = quickEntry.getByLabel('Pour le')
+    await expect(quickEntry.getByLabel('Ce qu’il y a à faire')).toHaveValue('')
+    await quickEntry.getByLabel('Ce qu’il y a à faire').fill('Envoyer la plaquette')
+    await quickEntry.getByRole('button', { name: 'Dans 1 semaine' }).click()
+    const shown = await theDay.inputValue()
+    await quickEntry.getByRole('button', { name: 'Ajouter' }).click()
+    await expect(toDos).toHaveCount(3)
+    await expect(theDay).not.toHaveValue(shown)
+    await expect(toDos.filter({ hasText: 'Envoyer la plaquette' })).toContainText(
+      new Intl.DateTimeFormat('fr-FR', { dateStyle: 'medium' }).format(new Date(`${shown}T12:00:00`)),
+    )
+  })
+
   await test.step('ticked off, the exchange it led to is noted by email', async () => {
     await page.getByRole('checkbox', { name: /^Cocher «\sEnvoyer mon CV/ }).check()
     await page.getByRole('button', { name: 'Noter l’échange' }).click()
@@ -59,16 +73,17 @@ test('note a to-do on the card of a contact and of its organization, tick it off
     await quickEntry.getByLabel('Ce qu’il y a à faire').fill('Préparer la proposition')
     await quickEntry.getByRole('button', { name: 'Dans 1 semaine' }).click()
     await quickEntry.getByRole('button', { name: 'Ajouter' }).click()
-    await expect(toDos.first()).toContainText('Préparer la proposition')
+    const proposal = toDos.filter({ hasText: 'Préparer la proposition' })
+    await expect(proposal).toHaveCount(1)
 
     await page.getByRole('button', { name: /^Actions sur «\sPréparer la proposition\s»/ }).click()
     await page.getByRole('menuitem', { name: 'Modifier' }).click()
     await page.getByRole('dialog').getByLabel('Ce qu’il y a à faire').fill('Préparer la proposition chiffrée')
     await page.getByRole('dialog').getByRole('button', { name: 'Enregistrer' }).click()
-    await expect(toDos.first()).toContainText('Préparer la proposition chiffrée')
+    await expect(proposal).toContainText('Préparer la proposition chiffrée')
 
     await page.getByRole('button', { name: /^Actions sur «\sPréparer la proposition chiffrée/ }).click()
     await page.getByRole('menuitem', { name: 'Supprimer' }).click()
-    await expect(toDos).toHaveCount(0)
+    await expect(proposal).toHaveCount(0)
   })
 })
