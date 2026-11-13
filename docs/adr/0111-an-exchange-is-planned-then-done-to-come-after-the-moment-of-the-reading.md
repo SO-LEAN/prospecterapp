@@ -3,6 +3,7 @@
 - Date: 2026-11-13
 - Type: domain
 - Status: Accepted
+- Supersedes: for an exchange never in the future, noted once it happened, and for the order of a timeline (the most recent first), [0074](0074-an-exchange-with-a-contact-is-an-aggregate-of-prospecting.md)
 - Implemented by: `packages/core/src/Prospecting` (`ExchangeStatus`, `Duration`, `Slot`, `Exchange::plannedWithAContact()`, `plannedWithTheOrganization()`, `PlanExchange`, `PlanOrganizationExchange`, `ConsultUpcomingExchanges`, `ConsultOrganizationUpcomingExchanges`, `ConsultOverlappingExchanges`, `AgendaRetriever`), `features/planifier-un-echange.feature`, `apps/api/src/Prospecting/Persistence` (`ExchangeDocument`, `DynamoExchangeRepository`, `DynamoTimelineRetriever`, `DynamoAgendaRetriever`), `apps/api/src/Shared/Persistence/SortKeyRange.php`
 
 ## Context

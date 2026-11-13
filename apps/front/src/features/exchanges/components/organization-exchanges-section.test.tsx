@@ -43,9 +43,14 @@ function renderTheSection(timeline: OrganizationTimeline, toMakeConform?: Organi
     pageParams: [undefined],
   })
   queryClient.setQueryData(organizationUpcomingQuery(ACME).queryKey, {
-    items: [],
-    toMakeConform: 0,
-    _links: { self: { href: `/api/organizations/${ACME}/upcoming-exchanges`, method: 'GET' } },
+    pages: [
+      {
+        items: [],
+        toMakeConform: 0,
+        _links: { self: { href: `/api/organizations/${ACME}/upcoming-exchanges`, method: 'GET' } },
+      },
+    ],
+    pageParams: [undefined],
   })
   if (toMakeConform) {
     queryClient.setQueryData(exchangesToMakeConformQuery(ACME).queryKey, {

@@ -1,4 +1,4 @@
-import { useQuery } from '@tanstack/react-query'
+import { useInfiniteQuery } from '@tanstack/react-query'
 import { CalendarClock } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import { formatMoment, formatUpcoming } from '@/shared/lib/format'
@@ -8,7 +8,7 @@ import { upcomingQuery } from '../queries'
 /** The next exchange planned with the contact, the first of those to come; nothing while none is. */
 export function NextExchange({ contactId }: { contactId: string }) {
   const { t } = useTranslation()
-  const next = useQuery(upcomingQuery(contactId)).data?.items[0]
+  const next = useInfiniteQuery(upcomingQuery(contactId)).data?.pages[0]?.items[0]
 
   if (!next) {
     return null

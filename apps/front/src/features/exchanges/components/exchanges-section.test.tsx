@@ -45,7 +45,7 @@ async function renderTheSection(timeline: Timeline, detail?: ExchangeDetail, upc
     defaultOptions: { queries: { staleTime: Number.POSITIVE_INFINITY } },
   })
   queryClient.setQueryData(timelineQuery(ADA).queryKey, { pages: [timeline], pageParams: [undefined] })
-  queryClient.setQueryData(upcomingQuery(ADA).queryKey, upcoming)
+  queryClient.setQueryData(upcomingQuery(ADA).queryKey, { pages: [upcoming], pageParams: [undefined] })
   if (detail) {
     queryClient.setQueryData(exchangeQuery(detail.id).queryKey, detail)
   }
@@ -97,12 +97,16 @@ describe('ExchangesSection', () => {
         _links: { self: timelineLink, planExchange: { href: upcomingLink.href, method: 'POST' } },
       },
       undefined,
-      { items: [planned], _links: { self: upcomingLink } },
+      {
+        items: [planned],
+        _links: { self: upcomingLink, next: { href: `${upcomingLink.href}?after=x`, method: 'GET' } },
+      },
     )
 
     const upcoming = screen.getByRole('list', { name: 'À venir' })
     expect(within(upcoming).getByText('Visio, À venir')).toBeInTheDocument()
     expect(within(upcoming).getByText(/, 1 h$/)).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: 'Charger plus' })).toBeInTheDocument()
     expect(
       within(screen.getByRole('list', { name: 'Échanges' })).getByText('Appel, Reçu'),
     ).toBeInTheDocument()

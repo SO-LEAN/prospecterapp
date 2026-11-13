@@ -100,6 +100,16 @@ final readonly class Table
     }
 
     /**
+     * The items of a partition, by sort key ascending, from `lower` to `upper`, both included.
+     *
+     * @return list<array<string, mixed>>
+     */
+    public function queryBetween(string $partition, ?string $index, string $lower, string $upper): array
+    {
+        return $this->queryIn(SortKeyRange::between($lower, $upper), $partition, $index, null);
+    }
+
+    /**
      * @return list<array<string, mixed>>
      */
     private function queryIn(SortKeyRange $range, string $partition, ?string $index, ?int $limit): array
@@ -164,12 +174,12 @@ final readonly class Table
     private function storedItemsOf(string $partition, ?string $index, SortKeyRange $range, ?int $limit): array
     {
         [$pkName, $skName] = self::keyNamesOf($index);
-        $condition = $range->condition('#sk', ':bound');
+        $condition = $range->condition('#sk');
         $request = [
             'TableName' => $this->name,
             'KeyConditionExpression' => null === $condition ? '#pk = :pk' : '#pk = :pk AND '.$condition,
             'ExpressionAttributeNames' => ['#pk' => $pkName] + (null === $condition ? [] : ['#sk' => $skName]),
-            'ExpressionAttributeValues' => $this->marshaler->marshalItem([':pk' => $partition] + (null === $condition ? [] : [':bound' => $range->bound])),
+            'ExpressionAttributeValues' => $this->marshaler->marshalItem([':pk' => $partition] + $range->values()),
             'ScanIndexForward' => $range->ascending,
         ] + (null === $index ? ['ConsistentRead' => true] : ['IndexName' => $index]);
         $found = [];

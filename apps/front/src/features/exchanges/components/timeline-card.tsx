@@ -17,8 +17,9 @@ import { ExchangeDetailSheet } from './exchange-detail'
 
 type Props<Item> = {
   timeline: UseInfiniteQueryResult
-  /** The exchanges to come, the soonest first, above the past ones. */
-  upcoming?: Item[]
+  /** The exchanges to come, the soonest first, above the past ones, a slice after the other. */
+  upcoming?: UseInfiniteQueryResult
+  upcomingItems?: Item[]
   items: Item[]
   /** The id of the exchange of an item, the one its detail opens. */
   keyOf: (item: Item) => string
@@ -38,7 +39,8 @@ type Props<Item> = {
  */
 export function TimelineCard<Item>({
   timeline,
-  upcoming = [],
+  upcoming,
+  upcomingItems = [],
   items,
   keyOf,
   renderItem,
@@ -70,20 +72,31 @@ export function TimelineCard<Item>({
         )}
       </CardHeader>
       <CardContent className="space-y-4 text-sm">
-        {upcoming.length > 0 && (
+        {upcomingItems.length > 0 && (
           <section className="space-y-1">
             <h3 className="font-medium text-muted-foreground text-xs uppercase">{t('exchanges.upcoming')}</h3>
             <Exchanges
               label={t('exchanges.upcoming')}
-              items={upcoming}
+              items={upcomingItems}
               keyOf={keyOf}
               renderItem={renderItem}
               onOpen={setOpened}
             />
+            {upcoming?.hasNextPage && (
+              <div className="flex justify-center pt-1">
+                <Button
+                  variant="outline"
+                  onClick={() => void upcoming.fetchNextPage()}
+                  disabled={upcoming.isFetchingNextPage}
+                >
+                  {t('common.loadMore')}
+                </Button>
+              </div>
+            )}
           </section>
         )}
         <section className="space-y-1">
-          {upcoming.length > 0 && (
+          {upcomingItems.length > 0 && (
             <h3 className="font-medium text-muted-foreground text-xs uppercase">{t('exchanges.past')}</h3>
           )}
           {items.length === 0 && <p className="text-muted-foreground">{t('exchanges.none')}</p>}

@@ -50,7 +50,7 @@ final class PlanExchangeController extends AbstractController
             id: $exchange,
             personId: $id,
             channel: $input->channel,
-            plannedAt: $input->occurredAt ?? $this->clock->now(),
+            plannedAt: $input->occurredAt ?? throw new \LogicException('A planned exchange validated has its moment'),
             durationInMinutes: $input->durationInMinutes,
             agenda: $input->text,
             executedAt: $this->clock->now(),

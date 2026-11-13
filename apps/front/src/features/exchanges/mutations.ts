@@ -97,7 +97,10 @@ export function usePlanExchange() {
   return api.useMutation('post', '/api/contacts/{id}/upcoming-exchanges', {
     meta: { silentValidation: true },
     onSuccess: (upcoming, { params }) => {
-      queryClient.setQueryData(upcomingQuery(params.path.id).queryKey, upcoming)
+      queryClient.setQueryData(upcomingQuery(params.path.id).queryKey, {
+        pages: [upcoming],
+        pageParams: [undefined],
+      })
       void queryClient.invalidateQueries({ queryKey: timelineKeys.upcomingOfOrganizations })
       void queryClient.invalidateQueries({ queryKey: timelineKeys.myPlanned })
       toast.success(t('exchanges.planned'))
@@ -122,7 +125,10 @@ export function usePlanOrganizationExchange() {
         refetchType: 'none',
       })
       void queryClient.invalidateQueries({ queryKey: timelineKeys.myPlanned })
-      queryClient.setQueryData(organizationUpcomingQuery(params.path.id).queryKey, upcoming)
+      queryClient.setQueryData(organizationUpcomingQuery(params.path.id).queryKey, {
+        pages: [upcoming],
+        pageParams: [undefined],
+      })
       toast.success(t('exchanges.planned'))
     },
   })

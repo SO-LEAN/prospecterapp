@@ -1,4 +1,4 @@
-import { useInfiniteQuery, useQuery } from '@tanstack/react-query'
+import { useInfiniteQuery } from '@tanstack/react-query'
 import { ShieldAlert } from 'lucide-react'
 import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
@@ -32,7 +32,7 @@ export function OrganizationExchangesSection({ organizationId, interlocutors, cl
     enabled: onlyToMakeConform,
   })
   const timeline = onlyToMakeConform && narrowedTimeline.data ? narrowedTimeline : all
-  const upcoming = useQuery(organizationUpcomingQuery(organizationId))
+  const upcoming = useInfiniteQuery(organizationUpcomingQuery(organizationId))
   const note = useNoteOrganizationExchange()
   const plan = usePlanOrganizationExchange()
   const attach = useAttachFiles()
@@ -53,7 +53,8 @@ export function OrganizationExchangesSection({ organizationId, interlocutors, cl
           <ToMakeConformBadge count={toMakeConform} pressed={onlyToMakeConform} onPress={setNarrowed} />
         )
       }
-      upcoming={onlyToMakeConform ? [] : upcoming.data?.items}
+      upcoming={upcoming}
+      upcomingItems={onlyToMakeConform ? [] : upcoming.data?.pages.flatMap((slice) => slice.items)}
       items={slices.flatMap((slice) => slice.items)}
       keyOf={(item) => item.exchange.id}
       renderItem={(item) => <ExchangeLine exchange={item.exchange} interlocutor={item.interlocutor} />}

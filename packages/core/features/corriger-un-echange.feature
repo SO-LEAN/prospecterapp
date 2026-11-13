@@ -36,6 +36,20 @@ Fonctionnalité: Corriger un échange
       | moment | 17/10/2026 10:00 |
     Alors c'est refusé : "An exchange is never in the future"
 
+  Scénario: Un échange planifié ne se corrige pas en entier, son texte si
+    Soit nous sommes le 16/10/2026 à 10h00
+    Et "Michel" a planifié un rendez-vous avec "Ada Lovelace" le 20/10/2026 à 9h00
+    Et je suis connecté en tant que "Michel"
+    Quand je consulte cet échange
+    Alors je peux sur l'échange :
+      | corriger le texte        |
+      | supprimer l'échange      |
+      | joindre un fichier       |
+      | retirer une pièce jointe |
+    Quand je corrige cet échange :
+      | canal | Appel |
+    Alors c'est refusé : "A planned exchange is not corrected"
+
   Scénario: Seul un appel corrigé peut ne pas avoir abouti
     Soit je suis connecté en tant que "Michel"
     Quand je corrige cet échange :
