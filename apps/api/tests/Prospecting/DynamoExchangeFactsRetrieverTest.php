@@ -12,6 +12,7 @@ use Prospecter\Core\Prospecting\Domain\Model\Direction;
 use Prospecter\Core\Prospecting\Domain\Model\Exchange;
 use Prospecter\Core\Prospecting\Domain\Model\ExchangeFacts;
 use Prospecter\Core\Prospecting\Domain\Model\ExchangeId;
+use Prospecter\Core\Prospecting\Domain\Model\ExchangeStatus;
 use Prospecter\Core\Prospecting\Domain\Model\Prospector;
 use Prospecter\Core\Prospecting\Domain\Repository\ExchangeRepository;
 use Prospecter\Core\SharedKernel\Domain\AccountId;
@@ -41,7 +42,7 @@ class DynamoExchangeFactsRetrieverTest extends ApiTestCase
         $exchange = $this->noted('2026-10-10 09:00 UTC');
         $this->exchanges()->save($exchange);
 
-        $exchange->correct(new ExchangeFacts(Channel::Call, Direction::Inbound, new \DateTimeImmutable('2026-10-09 08:00 UTC')), by: $this->prospector->id, at: new \DateTimeImmutable(self::NOW));
+        $exchange->correct(new ExchangeFacts(Channel::Call, Direction::Inbound, new \DateTimeImmutable('2026-10-09 08:00 UTC')), ExchangeStatus::Done, by: $this->prospector->id, at: new \DateTimeImmutable(self::NOW));
         $this->exchanges()->save($exchange);
 
         $this->assertEquals(new ExchangeFactsResponse($exchange->id()->value, 2, true, new \DateTimeImmutable('2026-10-09 08:00 UTC')), $this->retriever()->of($exchange->id()));
@@ -98,7 +99,7 @@ class DynamoExchangeFactsRetrieverTest extends ApiTestCase
 
     private function noted(string $occurredAt): Exchange
     {
-        return Exchange::notedWithAContact($this->prospector->accountId, $this->prospector->id, new ExchangeId(self::newIdentity()), new PersonId(self::newIdentity()), [new OrganizationId(self::newIdentity())], new ExchangeFacts(Channel::Call, Direction::Inbound, new \DateTimeImmutable($occurredAt)), new \DateTimeImmutable(self::NOW));
+        return Exchange::notedWithAContact($this->prospector->accountId, $this->prospector->id, new ExchangeId(self::newIdentity()), new PersonId(self::newIdentity()), [new OrganizationId(self::newIdentity())], new ExchangeFacts(Channel::Call, Direction::Inbound, new \DateTimeImmutable($occurredAt)), ExchangeStatus::Done, new \DateTimeImmutable(self::NOW));
     }
 
     private function exchanges(): ExchangeRepository

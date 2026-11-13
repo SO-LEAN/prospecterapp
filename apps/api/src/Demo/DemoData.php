@@ -18,6 +18,7 @@ use Prospecter\Core\Prospecting\Domain\Model\Direction;
 use Prospecter\Core\Prospecting\Domain\Model\Exchange;
 use Prospecter\Core\Prospecting\Domain\Model\ExchangeFacts;
 use Prospecter\Core\Prospecting\Domain\Model\ExchangeId;
+use Prospecter\Core\Prospecting\Domain\Model\ExchangeStatus;
 use Prospecter\Core\Prospecting\Domain\Model\Organization;
 use Prospecter\Core\Prospecting\Domain\Model\Prospector;
 use Prospecter\Core\Prospecting\Domain\Repository\ExchangeRepository;
@@ -123,7 +124,7 @@ final readonly class DemoData
 
     private function anExchange(Prospector $prospector, Person $contact, Organization $organization, ExchangeFacts $facts): void
     {
-        $exchange = Exchange::notedWithAContact($prospector->accountId, $prospector->id, new ExchangeId($this->identities->next()), $contact->id(), [$organization->id()], $facts, $facts->occurredAt);
+        $exchange = Exchange::notedWithAContact($prospector->accountId, $prospector->id, new ExchangeId($this->identities->next()), $contact->id(), [$organization->id()], $facts, ExchangeStatus::Done, $facts->occurredAt);
         $this->exchanges->save($exchange);
         $this->publish($exchange);
     }

@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace Prospecter\Core\Prospecting\Domain\Model;
 
 use Prospecter\Core\Prospecting\Domain\Exception\ChannelNotPlanned;
-use Prospecter\Core\Prospecting\Domain\Exception\MissedOnlyForACall;
 
 /**
  * What happened between the prospector and the contact in the real world, or what they agreed upon: the moment,
@@ -15,21 +14,13 @@ final readonly class ExchangeFacts
 {
     public ?string $text;
 
-    /**
-     * @throws MissedOnlyForACall
-     */
     public function __construct(
         public Channel $channel,
         public Direction $direction,
         public \DateTimeImmutable $occurredAt,
         ?string $text = null,
-        public bool $missed = false,
         public ?Duration $duration = null,
     ) {
-        if ($missed && Channel::Call !== $channel) {
-            throw MissedOnlyForACall::because('Only a call may be missed', 'missed', context: ['channel' => $channel->value]);
-        }
-
         $this->text = null === $text || '' === trim($text) ? null : $text;
     }
 
@@ -44,11 +35,24 @@ final readonly class ExchangeFacts
             throw ChannelNotPlanned::because('Only a call, a meeting or a video call may be planned', 'channel', context: ['channel' => $channel->value]);
         }
 
-        return new self($channel, Direction::Outbound, $at, $agenda, duration: $duration);
+        return new self($channel, Direction::Outbound, $at, $agenda, $duration);
     }
 
     public function withText(?string $text): self
     {
-        return new self($this->channel, $this->direction, $this->occurredAt, $text, $this->missed, $this->duration);
+        return new self($this->channel, $this->direction, $this->occurredAt, $text, $this->duration);
+    }
+
+    /**
+     * As it took place, at the moment it did, with what was said.
+     */
+    public function happened(\DateTimeImmutable $at, ?string $report): self
+    {
+        return new self($this->channel, $this->direction, $at, $report, $this->duration);
+    }
+
+    public function movedTo(\DateTimeImmutable $at): self
+    {
+        return new self($this->channel, $this->direction, $at, $this->text, $this->duration);
     }
 }

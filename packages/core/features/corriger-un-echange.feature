@@ -46,13 +46,24 @@ Fonctionnalité: Corriger un échange
       | supprimer l'échange      |
       | joindre un fichier       |
       | retirer une pièce jointe |
+      | déplacer                 |
+      | annuler                  |
     Quand je corrige cet échange :
       | canal | Appel |
-    Alors c'est refusé : "A planned exchange is not corrected"
+    Alors c'est refusé : "Only an exchange that took place is corrected"
 
-  Scénario: Seul un appel corrigé peut ne pas avoir abouti
+  Scénario: Seuls un appel, un rendez-vous ou une visio corrigés sont manqués
     Soit je suis connecté en tant que "Michel"
     Quand je corrige cet échange :
       | canal      | SMS |
       | non abouti | oui |
-    Alors c'est refusé : "Only a call may be missed"
+    Alors c'est refusé : "Only a call, a meeting or a video call may be missed"
+
+  Scénario: Un échange corrigé non abouti est manqué
+    Soit je suis connecté en tant que "Michel"
+    Quand je corrige cet échange :
+      | canal      | Appel |
+      | non abouti | oui   |
+    Alors la timeline de "Ada Lovelace" est, du plus récent au plus ancien :
+      | canal | statut |
+      | Appel | Manqué |

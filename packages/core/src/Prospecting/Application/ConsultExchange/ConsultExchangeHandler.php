@@ -22,6 +22,6 @@ final readonly class ConsultExchangeHandler implements QueryHandler
     {
         $prospector = $this->prospectors->prospectorFrom(new MemberId($query->prospectorId));
 
-        $output->present($this->exchangeDetailRetriever->get(new ExchangeId($query->id), $prospector));
+        $output->present($this->exchangeDetailRetriever->get(new ExchangeId($query->id), $prospector, $query->asOf));
     }
 }

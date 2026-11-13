@@ -2,7 +2,15 @@ import type { DefaultValues } from 'react-hook-form'
 import { z } from 'zod'
 import { orNull, text } from '@/shared/forms/text'
 import { i18n } from '@/shared/i18n'
-import { CHANNELS, DIRECTIONS, type ExchangeDetail, type ExchangeFacts, type TextCorrection } from './queries'
+import {
+  CHANNELS,
+  DIRECTIONS,
+  type ExchangeDetail,
+  type ExchangeFacts,
+  isAgreedUpon,
+  type Report,
+  type TextCorrection,
+} from './queries'
 
 const MAX_TEXT = 5000
 
@@ -14,7 +22,10 @@ export const localMoment = (moment: Date) => {
 
 const isPast = (moment: string) => new Date(moment).getTime() <= Date.now()
 
-/** Mirrors `ExchangeInput` and `CorrectionInput` of the API: only a call is missed, never in the future. */
+/**
+ * Mirrors `ExchangeInput` and `CorrectionInput` of the API: only a call, a meeting or a video call is missed, never
+ * in the future.
+ */
 export const exchangeSchema = z.object({
   channel: z.enum(CHANNELS, { error: () => i18n.t('exchanges.chooseChannel') }),
   direction: z.enum(DIRECTIONS),
@@ -59,7 +70,7 @@ export const correctionOf = (exchange: ExchangeDetail): ExchangeValues => ({
   direction: exchange.direction,
   occurredAt: localMoment(new Date(exchange.occurredAt)),
   text: exchange.text ?? '',
-  missed: exchange.missed,
+  missed: exchange.status === 'missed',
   personId: ITSELF,
   madeConform: false,
 })
@@ -69,12 +80,36 @@ export const toExchangeFacts = (values: ExchangeValues): ExchangeFacts => ({
   direction: values.direction,
   occurredAt: new Date(values.occurredAt).toISOString(),
   text: orNull(values.text),
-  missed: values.channel === 'call' && values.missed,
+  missed: isAgreedUpon(values.channel) && values.missed,
   ...(values.madeConform && { madeConform: true }),
 })
 
 export const personIdOf = (values: ExchangeValues): string | null =>
   values.personId === ITSELF ? null : values.personId
+
+/** Mirrors `ReportInput` of the API: when it really took place, never in the future, and what was said. */
+export const reportSchema = z.object({
+  occurredAt: z
+    .string()
+    .min(1, { error: () => i18n.t('validation.required') })
+    .refine(isPast, { error: () => i18n.t('exchanges.inTheFuture') }),
+  text: text(MAX_TEXT),
+})
+
+export type ReportValues = z.input<typeof reportSchema>
+
+export const reportFields = ['occurredAt', 'text'] as const
+
+/** Its planned moment and its agenda, to write the report from. */
+export const reportOf = (exchange: ExchangeDetail): ReportValues => ({
+  occurredAt: localMoment(new Date(exchange.occurredAt)),
+  text: exchange.text ?? '',
+})
+
+export const toReport = (values: ReportValues): Report => ({
+  occurredAt: new Date(values.occurredAt).toISOString(),
+  text: orNull(values.text),
+})
 
 /** Mirrors `TextCorrectionInput` of the API. */
 export const textSchema = z.object({ text: text(MAX_TEXT), madeConform: z.boolean() })

@@ -46,12 +46,21 @@ Fonctionnalité: Noter un échange avec un contact
   Scénario: Un appel peut ne pas avoir abouti
     Soit je suis connecté en tant que prospecteur de "SOLEAN IT"
     Quand je note un appel reçu de "Ada Lovelace" qui n'a pas abouti
-    Alors la timeline de "Ada Lovelace" montre un appel reçu manqué
+    Alors la timeline de "Ada Lovelace" est, du plus récent au plus ancien :
+      | canal | sens | statut |
+      | Appel | reçu | Manqué |
 
-  Scénario: Seul un appel aboutit ou non
+  Scénario: Un rendez-vous peut ne pas avoir eu lieu
+    Soit je suis connecté en tant que prospecteur de "SOLEAN IT"
+    Quand je note un rendez-vous envoyé à "Ada Lovelace" qui n'a pas abouti
+    Alors la timeline de "Ada Lovelace" est, du plus récent au plus ancien :
+      | canal       | statut |
+      | Rendez-vous | Manqué |
+
+  Scénario: Seuls un appel, un rendez-vous ou une visio sont manqués
     Soit je suis connecté en tant que prospecteur de "SOLEAN IT"
     Quand je note un SMS envoyé à "Ada Lovelace" qui n'a pas abouti
-    Alors c'est refusé : "Only a call may be missed"
+    Alors c'est refusé : "Only a call, a meeting or a video call may be missed"
 
   Scénario: Un échange n'est jamais dans le futur
     Soit je suis connecté en tant que prospecteur de "SOLEAN IT"

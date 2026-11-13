@@ -2,16 +2,22 @@
 
 namespace Tests\App\Prospecting;
 
+use App\Prospecting\Persistence\ExchangeKeys;
+use App\Shared\Persistence\Hydrator;
+use App\Shared\Persistence\Table;
 use Prospecter\Core\Prospecting\Application\ConsultExchange\ExchangeDetail;
 use Prospecter\Core\Prospecting\Application\Port\ExchangeDetailRetriever;
 use Prospecter\Core\Prospecting\Domain\Model\Attachment;
 use Prospecter\Core\Prospecting\Domain\Model\AttachmentId;
+use Prospecter\Core\Prospecting\Domain\Model\Canceller;
 use Prospecter\Core\Prospecting\Domain\Model\Channel;
 use Prospecter\Core\Prospecting\Domain\Model\Direction;
+use Prospecter\Core\Prospecting\Domain\Model\Duration;
 use Prospecter\Core\Prospecting\Domain\Model\Exchange;
 use Prospecter\Core\Prospecting\Domain\Model\ExchangeFacts;
 use Prospecter\Core\Prospecting\Domain\Model\ExchangeId;
 use Prospecter\Core\Prospecting\Domain\Model\ExchangeIntent;
+use Prospecter\Core\Prospecting\Domain\Model\ExchangeStatus;
 use Prospecter\Core\Prospecting\Domain\Model\Prospector;
 use Prospecter\Core\Prospecting\Domain\Repository\ExchangeRepository;
 use Prospecter\Core\SharedKernel\Domain\AccountId;
@@ -97,6 +103,50 @@ class DynamoExchangeDetailRetrieverTest extends ApiTestCase
         $this->assertContains(ExchangeIntent::AttachFile->name, $this->detailOf($this->withAnAttachment(), $this->me)->possibleIntents);
     }
 
+    public function testItsHolderMarksAPlannedExchangeOnceItsTimeHasComeAndMovesOrCancelsItBefore(): void
+    {
+        $planned = $this->planned('2026-10-20 14:00 UTC');
+        $handling = ['MarkExchangeDone', 'MarkExchangeMissed', 'MoveExchange', 'CancelExchange'];
+
+        $this->assertSame(['MoveExchange', 'CancelExchange'], array_values(array_intersect($handling, $this->detailOf($planned, $this->me)->possibleIntents)));
+        $this->assertSame($handling, array_values(array_intersect($handling, $this->detailOf($planned, $this->me, '2026-10-20 14:00 UTC')->possibleIntents)));
+        $this->assertSame([], array_intersect($handling, $this->detailOf($planned, new Prospector(new MemberId(self::newIdentity()), $this->me->accountId, managesPersonalData: true), '2026-10-20 14:00 UTC')->possibleIntents));
+    }
+
+    public function testACancelledExchangeTellsWhoCalledItOff(): void
+    {
+        $planned = $this->planned('2026-10-20 14:00 UTC');
+        $planned->cancel(Canceller::Contact, by: $this->me->id, at: new \DateTimeImmutable(self::NOW));
+        $this->exchanges()->save($planned);
+
+        $detail = $this->detailOf($planned, $this->me);
+
+        $this->assertSame(['cancelled', 'contact'], [$detail->status, $detail->canceller]);
+        $this->assertNotContains('CorrectExchange', $detail->possibleIntents);
+    }
+
+    public function testACallNotedMissedBeforeTheStatusesReadsAsMissed(): void
+    {
+        $exchange = $this->noted();
+        $table = self::getContainer()->get('app.table.prospecting');
+        $this->assertInstanceOf(Table::class, $table);
+        $item = $table->item(ExchangeKeys::exchange($exchange->id()->value), ExchangeKeys::EXCHANGE);
+        unset($item['exchange']['status']);
+        $item['exchange']['facts']['missed'] = true;
+        $table->batch([$item]);
+
+        $this->assertSame('missed', $this->detailOf($exchange, $this->me)->status);
+        $this->assertSame(ExchangeStatus::Missed, Hydrator::stateOf($this->exchanges()->get($exchange->id()))['status']);
+    }
+
+    private function planned(string $at): Exchange
+    {
+        $exchange = Exchange::plannedWithAContact($this->me->accountId, $this->me->id, new ExchangeId(self::newIdentity()), new PersonId(self::newIdentity()), [new OrganizationId(self::newIdentity())], ExchangeFacts::planned(Channel::VideoCall, new \DateTimeImmutable($at), Duration::inMinutes(null), null), new \DateTimeImmutable(self::NOW));
+        $this->exchanges()->save($exchange);
+
+        return $exchange;
+    }
+
     private function withAnAttachment(): Exchange
     {
         $exchange = $this->noted();
@@ -108,7 +158,7 @@ class DynamoExchangeDetailRetrieverTest extends ApiTestCase
 
     private function noted(): Exchange
     {
-        $exchange = Exchange::notedWithAContact($this->me->accountId, $this->me->id, new ExchangeId(self::newIdentity()), new PersonId(self::newIdentity()), [new OrganizationId(self::newIdentity())], new ExchangeFacts(Channel::Call, Direction::Inbound, new \DateTimeImmutable('2026-10-10 09:00 UTC'), 'Rappeler lundi'), new \DateTimeImmutable(self::NOW));
+        $exchange = Exchange::notedWithAContact($this->me->accountId, $this->me->id, new ExchangeId(self::newIdentity()), new PersonId(self::newIdentity()), [new OrganizationId(self::newIdentity())], new ExchangeFacts(Channel::Call, Direction::Inbound, new \DateTimeImmutable('2026-10-10 09:00 UTC'), 'Rappeler lundi'), ExchangeStatus::Done, new \DateTimeImmutable(self::NOW));
         $this->exchanges()->save($exchange);
 
         return $exchange;
@@ -119,9 +169,9 @@ class DynamoExchangeDetailRetrieverTest extends ApiTestCase
         return new Attachment(new AttachmentId(self::newIdentity()), 'devis.pdf', 2048, 'application/pdf', bin2hex(random_bytes(16)));
     }
 
-    private function detailOf(Exchange $exchange, Prospector $reader): ExchangeDetail
+    private function detailOf(Exchange $exchange, Prospector $reader, string $asOf = self::NOW): ExchangeDetail
     {
-        return self::getContainer()->get(ExchangeDetailRetriever::class)->get($exchange->id(), $reader);
+        return self::getContainer()->get(ExchangeDetailRetriever::class)->get($exchange->id(), $reader, new \DateTimeImmutable($asOf));
     }
 
     private function exchanges(): ExchangeRepository

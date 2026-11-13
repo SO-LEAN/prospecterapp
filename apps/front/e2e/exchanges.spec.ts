@@ -36,12 +36,14 @@ test('note the exchanges with a contact and their files, find them in its timeli
     await page.getByLabel('Envoyé', { exact: true }).check()
     await page.getByLabel('Moment').fill(yesterday.toISOString().slice(0, 16))
     await page.getByRole('button', { name: 'Enregistrer' }).click()
+    await page.getByRole('button', { name: 'Plus tard' }).click()
     await expect(timeline.first()).toContainText('Appel, Envoyé')
 
     await page.getByRole('button', { name: 'Noter un échange' }).click()
     await page.getByLabel('LinkedIn', { exact: true }).check()
     await page.getByLabel(/^Texte/).fill(A_LONG_TEXT)
     await page.getByRole('button', { name: 'Enregistrer' }).click()
+    await page.getByRole('button', { name: 'Plus tard' }).click()
     await expect(timeline.first()).toContainText('LinkedIn, Reçu')
     await expect(timeline.first()).toContainText(A_LONG_TEXT)
     await expect(timeline.nth(1)).toContainText('Appel, Envoyé')
@@ -81,8 +83,9 @@ test('note the exchanges with a contact and their files, find them in its timeli
   await test.step('a received call that did not go through is missed', async () => {
     await page.getByRole('button', { name: 'Noter un échange' }).click()
     await page.getByLabel('Appel', { exact: true }).check()
-    await page.getByLabel('L’appel n’a pas abouti').check()
+    await page.getByLabel(/^Manqué/).check()
     await page.getByRole('button', { name: 'Enregistrer' }).click()
+    await page.getByRole('button', { name: 'Plus tard' }).click()
     await expect(timeline.first()).toContainText('Appel, Manqué')
   })
 
@@ -119,6 +122,7 @@ test('note the exchanges with a contact and their files, find them in its timeli
       buffer: Buffer.from(contents),
     })
     await page.getByRole('button', { name: 'Enregistrer' }).click()
+    await page.getByRole('button', { name: 'Plus tard' }).click()
     await expect(timeline.first()).toContainText('1 pièce jointe')
 
     await timeline.first().getByRole('button').click()

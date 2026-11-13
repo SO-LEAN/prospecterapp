@@ -6,7 +6,8 @@ namespace Prospecter\Core\Prospecting\Application;
 
 /**
  * An exchange in a timeline; its channel, its direction and its status by the values of `Channel`, `Direction` and
- * `ExchangeStatus`, how long it lasts when it was planned, the
+ * `ExchangeStatus`, who called it off once cancelled, when said, by the values of `Canceller`, how long it lasts when
+ * it was planned, the
  * contact it was with, none when it was with the organization itself, its text flagged when the prospector reads
  * it without the right to manage personal data, and what is to make conform once its contact was forgotten.
  */
@@ -22,9 +23,9 @@ final readonly class ExchangeInTimeline
         public ?string $contactPresence,
         public string $channel,
         public string $direction,
-        public bool $missed,
         public \DateTimeImmutable $occurredAt,
         public string $status,
+        public ?string $canceller,
         public ?int $durationInMinutes,
         public ?string $text,
         public bool $textFlagged,

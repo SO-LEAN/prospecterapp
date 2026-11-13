@@ -21,6 +21,9 @@ type Correction = components['schemas']['CorrectionInput']
 export type ExchangeFacts = Omit<Correction, 'madeConform'> & Partial<Pick<Correction, 'madeConform'>>
 export type ExchangeDetail = components['schemas']['ExchangeDetailResource']
 export type TextCorrection = components['schemas']['TextCorrectionInput']
+export type Report = components['schemas']['ReportInput']
+export type Moment = components['schemas']['MomentInput']
+export type Canceller = NonNullable<components['schemas']['CancellationInput']['canceller']>
 export type Channel = Exchange['channel']
 export type Direction = Exchange['direction']
 
@@ -33,8 +36,13 @@ export const CHANNELS = [
   'videoCall',
   'other',
 ] as const satisfies readonly Channel[]
-/** Only a call, a meeting or a video call is planned: a message is just sent. */
+/** Only a call, a meeting or a video call is planned, or missed: a message is just sent. */
 export const PLANNED_CHANNELS = ['call', 'meeting', 'videoCall'] as const satisfies readonly Channel[]
+
+export type PlannedChannel = (typeof PLANNED_CHANNELS)[number]
+
+export const isAgreedUpon = (channel: Channel | undefined): channel is PlannedChannel =>
+  PLANNED_CHANNELS.some((planned) => planned === channel)
 export const DIRECTIONS = ['inbound', 'outbound'] as const satisfies readonly Direction[]
 
 /** The exchanges with a contact, the most recent first, a slice after the other (ADR 0049, 0074). */

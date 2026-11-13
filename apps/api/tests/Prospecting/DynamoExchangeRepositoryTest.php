@@ -10,6 +10,7 @@ use Prospecter\Core\Prospecting\Domain\Model\Direction;
 use Prospecter\Core\Prospecting\Domain\Model\Exchange;
 use Prospecter\Core\Prospecting\Domain\Model\ExchangeFacts;
 use Prospecter\Core\Prospecting\Domain\Model\ExchangeId;
+use Prospecter\Core\Prospecting\Domain\Model\ExchangeStatus;
 use Prospecter\Core\Prospecting\Domain\Model\Organization;
 use Prospecter\Core\Prospecting\Domain\Model\Prospector;
 use Prospecter\Core\Prospecting\Domain\Repository\ExchangeRepository;
@@ -74,7 +75,7 @@ class DynamoExchangeRepositoryTest extends ApiTestCase
     {
         $organization = Organization::prospectedBy($this->prospector, $this->acme, new LegalIdentity('ACME'), new ContactDetails(), new \DateTimeImmutable(self::NOW));
 
-        return Exchange::notedWithTheOrganization($organization, $this->prospector->id, new ExchangeId(self::newIdentity()), new ExchangeFacts(Channel::Call, Direction::Inbound, new \DateTimeImmutable($occurredAt)), new \DateTimeImmutable(self::NOW));
+        return Exchange::notedWithTheOrganization($organization, $this->prospector->id, new ExchangeId(self::newIdentity()), new ExchangeFacts(Channel::Call, Direction::Inbound, new \DateTimeImmutable($occurredAt)), ExchangeStatus::Done, new \DateTimeImmutable(self::NOW));
     }
 
     public function testACorrectedExchangeIsReadWithItsCorrection(): void
@@ -84,7 +85,7 @@ class DynamoExchangeRepositoryTest extends ApiTestCase
         $exchanges->save($exchange);
         $corrected = new ExchangeFacts(Channel::Email, Direction::Outbound, new \DateTimeImmutable('2026-10-12 10:00 UTC'), 'Objet : mission');
 
-        $exchange->correct($corrected, by: $this->prospector->id, at: new \DateTimeImmutable(self::NOW));
+        $exchange->correct($corrected, ExchangeStatus::Done, by: $this->prospector->id, at: new \DateTimeImmutable(self::NOW));
         $exchanges->save($exchange);
 
         $read = $exchanges->get($exchange->id());
@@ -128,7 +129,7 @@ class DynamoExchangeRepositoryTest extends ApiTestCase
 
     private function noted(string $occurredAt): Exchange
     {
-        return Exchange::notedWithAContact($this->prospector->accountId, $this->prospector->id, new ExchangeId(self::newIdentity()), $this->contact, [$this->acme, $this->group], new ExchangeFacts(Channel::Call, Direction::Inbound, new \DateTimeImmutable($occurredAt), 'Rappeler lundi'), new \DateTimeImmutable(self::NOW));
+        return Exchange::notedWithAContact($this->prospector->accountId, $this->prospector->id, new ExchangeId(self::newIdentity()), $this->contact, [$this->acme, $this->group], new ExchangeFacts(Channel::Call, Direction::Inbound, new \DateTimeImmutable($occurredAt), 'Rappeler lundi'), ExchangeStatus::Done, new \DateTimeImmutable(self::NOW));
     }
 
     private function exchanges(): ExchangeRepository

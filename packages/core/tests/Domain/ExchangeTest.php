@@ -7,23 +7,32 @@ namespace Tests\Core\Domain;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Prospecter\Core\Prospecting\Domain\Event\AttachmentRemoved;
+use Prospecter\Core\Prospecting\Domain\Event\ExchangeCancelled;
 use Prospecter\Core\Prospecting\Domain\Event\ExchangeContactForgotten;
 use Prospecter\Core\Prospecting\Domain\Event\ExchangeCorrected;
 use Prospecter\Core\Prospecting\Domain\Event\ExchangeErased;
 use Prospecter\Core\Prospecting\Domain\Event\ExchangeLeftWithoutOrganization;
 use Prospecter\Core\Prospecting\Domain\Event\ExchangeMadeConform;
+use Prospecter\Core\Prospecting\Domain\Event\ExchangeMarkedDone;
+use Prospecter\Core\Prospecting\Domain\Event\ExchangeMarkedMissed;
+use Prospecter\Core\Prospecting\Domain\Event\ExchangeMoved;
 use Prospecter\Core\Prospecting\Domain\Event\ExchangeNoLongerKeptFor;
 use Prospecter\Core\Prospecting\Domain\Event\ExchangeNoted;
 use Prospecter\Core\Prospecting\Domain\Event\ExchangePlanned;
 use Prospecter\Core\Prospecting\Domain\Event\ExchangeTextCorrected;
 use Prospecter\Core\Prospecting\Domain\Event\FileAttached;
+use Prospecter\Core\Prospecting\Domain\Exception\ChannelNotMissed;
 use Prospecter\Core\Prospecting\Domain\Exception\ExchangeInTheFuture;
-use Prospecter\Core\Prospecting\Domain\Exception\MissedOnlyForACall;
 use Prospecter\Core\Prospecting\Domain\Exception\NoRoomForAnAttachment;
 use Prospecter\Core\Prospecting\Domain\Exception\NothingToMakeConform;
+use Prospecter\Core\Prospecting\Domain\Exception\NotTheHolder;
+use Prospecter\Core\Prospecting\Domain\Exception\NotUpcoming;
+use Prospecter\Core\Prospecting\Domain\Exception\NotYetDue;
 use Prospecter\Core\Prospecting\Domain\Exception\PlannedExchangeInThePast;
 use Prospecter\Core\Prospecting\Domain\Model\Attachment;
 use Prospecter\Core\Prospecting\Domain\Model\AttachmentId;
+use Prospecter\Core\Prospecting\Domain\Model\Cancellation;
+use Prospecter\Core\Prospecting\Domain\Model\Canceller;
 use Prospecter\Core\Prospecting\Domain\Model\Channel;
 use Prospecter\Core\Prospecting\Domain\Model\Correction;
 use Prospecter\Core\Prospecting\Domain\Model\Direction;
@@ -32,6 +41,7 @@ use Prospecter\Core\Prospecting\Domain\Model\Exchange;
 use Prospecter\Core\Prospecting\Domain\Model\ExchangeFacts;
 use Prospecter\Core\Prospecting\Domain\Model\ExchangeId;
 use Prospecter\Core\Prospecting\Domain\Model\ExchangeIntent;
+use Prospecter\Core\Prospecting\Domain\Model\ExchangeSituation;
 use Prospecter\Core\Prospecting\Domain\Model\ExchangeStatus;
 use Prospecter\Core\Prospecting\Domain\Model\Prospector;
 use Prospecter\Core\Prospecting\Domain\Policy\ExchangeConformity;
@@ -101,7 +111,7 @@ class ExchangeTest extends TestCase
     {
         $this->expectException(NotPossibleInItsState::class);
 
-        $this->planned()->correct(new ExchangeFacts(Channel::Call, Direction::Inbound, new \DateTimeImmutable(self::NOW)), by: $this->me()->id, at: new \DateTimeImmutable(self::NOW));
+        $this->planned()->correct(new ExchangeFacts(Channel::Call, Direction::Inbound, new \DateTimeImmutable(self::NOW)), ExchangeStatus::Done, by: $this->me()->id, at: new \DateTimeImmutable(self::NOW));
     }
 
     public function testAnExchangeHappeningNowIsNoted(): void
@@ -118,40 +128,178 @@ class ExchangeTest extends TestCase
         $this->noted(new ExchangeFacts(Channel::Email, Direction::Inbound, new \DateTimeImmutable(self::NOW)->modify('+1 second')));
     }
 
-    #[DataProvider('directions')]
-    public function testACallMayBeMissedWhateverItsDirection(Direction $direction): void
+    public function testAMessageMissedIsRefusedNamingItsChannel(): void
     {
-        $this->assertTrue(new ExchangeFacts(Channel::Call, $direction, new \DateTimeImmutable(self::NOW), missed: true)->missed);
-    }
-
-    /**
-     * @return iterable<string, array{Direction}>
-     */
-    public static function directions(): iterable
-    {
-        foreach (Direction::cases() as $direction) {
-            yield $direction->name => [$direction];
+        try {
+            $this->noted(new ExchangeFacts(Channel::Sms, Direction::Inbound, new \DateTimeImmutable(self::NOW)), ExchangeStatus::Missed);
+            $context = null;
+        } catch (ChannelNotMissed $refusal) {
+            $context = $refusal->context;
         }
+
+        $this->assertSame(['channel' => 'sms'], $context);
     }
 
-    #[DataProvider('channelsButTheCall')]
-    public function testOnlyACallIsMissed(Channel $channel): void
+    #[DataProvider('channels')]
+    public function testOnlyACallAMeetingOrAVideoCallIsMissed(Channel $channel): void
     {
-        $this->expectException(MissedOnlyForACall::class);
+        try {
+            $status = StateOf::the($this->noted(new ExchangeFacts($channel, Direction::Inbound, new \DateTimeImmutable(self::NOW)), ExchangeStatus::Missed))['status'];
+        } catch (ChannelNotMissed) {
+            $status = null;
+        }
 
-        new ExchangeFacts($channel, Direction::Outbound, new \DateTimeImmutable(self::NOW), missed: true);
+        $this->assertSame($channel->mayBePlanned() ? ExchangeStatus::Missed : null, $status);
     }
 
     /**
      * @return iterable<string, array{Channel}>
      */
-    public static function channelsButTheCall(): iterable
+    public static function channels(): iterable
     {
         foreach (Channel::cases() as $channel) {
-            if (Channel::Call !== $channel) {
-                yield $channel->name => [$channel];
-            }
+            yield $channel->name => [$channel];
         }
+    }
+
+    public function testACorrectionSaysWhetherItWasMissed(): void
+    {
+        $exchange = $this->noted(new ExchangeFacts(Channel::Call, Direction::Inbound, new \DateTimeImmutable(self::NOW)), ExchangeStatus::Missed);
+
+        $exchange->correct(new ExchangeFacts(Channel::Call, Direction::Inbound, new \DateTimeImmutable(self::NOW)), ExchangeStatus::Done, by: $this->me()->id, at: new \DateTimeImmutable(self::NOW));
+
+        $this->assertSame(ExchangeStatus::Done, StateOf::the($exchange)['status']);
+    }
+
+    public function testAnExchangeCorrectedIntoAMessageIsNotMissed(): void
+    {
+        $this->expectException(ChannelNotMissed::class);
+
+        $this->anExchange()->correct(new ExchangeFacts(Channel::Sms, Direction::Inbound, new \DateTimeImmutable(self::NOW)), ExchangeStatus::Missed, by: $this->me()->id, at: new \DateTimeImmutable(self::NOW));
+    }
+
+    public function testMarkedDoneItTookPlaceAtTheMomentSaidWithItsReport(): void
+    {
+        $exchange = $this->due();
+        $exchange->releaseEvents();
+        $tookPlaceAt = new \DateTimeImmutable(self::NOW)->modify('-50 minutes');
+
+        $exchange->markDone($tookPlaceAt, 'Mission en mars', by: $this->me()->id, at: new \DateTimeImmutable(self::NOW));
+
+        $this->assertEquals([ExchangeStatus::Done, $tookPlaceAt, 'Mission en mars', 45], [StateOf::the($exchange)['status'], StateOf::the($exchange)['facts']->occurredAt, StateOf::the($exchange)['facts']->text, StateOf::the($exchange)['facts']->duration?->minutes]);
+        $this->assertEquals([new ExchangeMarkedDone(new AccountId(self::MINE), $this->me()->id, new ExchangeId(self::EXCHANGE), new \DateTimeImmutable(self::NOW))], $exchange->releaseEvents());
+    }
+
+    public function testMarkedDoneItIsNeverInTheFuture(): void
+    {
+        $this->expectException(ExchangeInTheFuture::class);
+
+        $this->due()->markDone(new \DateTimeImmutable(self::NOW)->modify('+1 second'), null, by: $this->me()->id, at: new \DateTimeImmutable(self::NOW));
+    }
+
+    public function testMarkingMissedRecordsIt(): void
+    {
+        $exchange = $this->due();
+        $exchange->releaseEvents();
+
+        $exchange->markMissed(by: $this->me()->id, at: new \DateTimeImmutable(self::NOW));
+
+        $this->assertSame(ExchangeStatus::Missed, StateOf::the($exchange)['status']);
+        $this->assertEquals([new ExchangeMarkedMissed(new AccountId(self::MINE), $this->me()->id, new ExchangeId(self::EXCHANGE), new \DateTimeImmutable(self::NOW))], $exchange->releaseEvents());
+    }
+
+    public function testAnExchangeIsNotMarkedBeforeItsTime(): void
+    {
+        $this->expectException(NotYetDue::class);
+
+        $this->planned()->markMissed(by: $this->me()->id, at: new \DateTimeImmutable(self::NOW));
+    }
+
+    public function testAnExchangeIsMarkedFromTheMomentItWasPlannedFor(): void
+    {
+        $exchange = $this->planned();
+        $itsTime = StateOf::the($exchange)['facts']->occurredAt;
+
+        $exchange->markMissed(by: $this->me()->id, at: $itsTime);
+
+        $this->assertSame(ExchangeStatus::Missed, StateOf::the($exchange)['status']);
+    }
+
+    public function testForgettingItsContactAtTheMomentOfAPlannedExchangeLeavesItToItsHolder(): void
+    {
+        $exchange = $this->planned();
+
+        $exchange->forgetItsContact(by: $this->me()->id, at: StateOf::the($exchange)['facts']->occurredAt);
+
+        $this->assertSame(ExchangeStatus::Planned, StateOf::the($exchange)['status']);
+    }
+
+    public function testMovedItKeepsItsDuration(): void
+    {
+        $exchange = $this->planned();
+        $exchange->releaseEvents();
+        $later = new \DateTimeImmutable(self::NOW)->modify('+2 days');
+
+        $exchange->moveTo($later, by: $this->me()->id, at: new \DateTimeImmutable(self::NOW));
+
+        $this->assertEquals([$later, 45], [StateOf::the($exchange)['facts']->occurredAt, StateOf::the($exchange)['facts']->duration?->minutes]);
+        $this->assertEquals([new ExchangeMoved(new AccountId(self::MINE), $this->me()->id, new ExchangeId(self::EXCHANGE), new \DateTimeImmutable(self::NOW))], $exchange->releaseEvents());
+    }
+
+    public function testAnExchangeIsNotMovedIntoThePast(): void
+    {
+        $this->expectException(PlannedExchangeInThePast::class);
+
+        $this->planned()->moveTo(new \DateTimeImmutable(self::NOW), by: $this->me()->id, at: new \DateTimeImmutable(self::NOW));
+    }
+
+    public function testCancellingRecordsWhoCalledItOff(): void
+    {
+        $exchange = $this->planned();
+        $exchange->releaseEvents();
+
+        $exchange->cancel(Canceller::Contact, by: $this->me()->id, at: new \DateTimeImmutable(self::NOW));
+
+        $this->assertSame(ExchangeStatus::Cancelled, StateOf::the($exchange)['status']);
+        $this->assertEquals(new Cancellation($this->me()->id, new \DateTimeImmutable(self::NOW), Canceller::Contact), StateOf::the($exchange)['cancellation']);
+        $this->assertEquals([new ExchangeCancelled(new AccountId(self::MINE), $this->me()->id, new ExchangeId(self::EXCHANGE), new \DateTimeImmutable(self::NOW))], $exchange->releaseEvents());
+    }
+
+    public function testAColleagueDoesNotHandleAPlannedExchange(): void
+    {
+        $this->expectException(NotTheHolder::class);
+
+        $this->planned()->cancel(null, by: $this->colleagueWithoutTheRight()->id, at: new \DateTimeImmutable(self::NOW));
+    }
+
+    public function testAnExchangeNoLongerToComeIsNotHandled(): void
+    {
+        $this->expectException(NotUpcoming::class);
+
+        $this->anExchange()->cancel(null, by: $this->me()->id, at: new \DateTimeImmutable(self::NOW));
+    }
+
+    public function testForgettingItsContactCancelsAnExchangeToCome(): void
+    {
+        $exchange = $this->planned();
+        $exchange->releaseEvents();
+
+        $exchange->forgetItsContact(by: $this->colleagueWithoutTheRight()->id, at: new \DateTimeImmutable(self::NOW));
+
+        $this->assertEquals(new Cancellation($this->colleagueWithoutTheRight()->id, new \DateTimeImmutable(self::NOW), null), StateOf::the($exchange)['cancellation']);
+        $this->assertEquals([
+            new ExchangeContactForgotten(new AccountId(self::MINE), $this->colleagueWithoutTheRight()->id, new ExchangeId(self::EXCHANGE), new \DateTimeImmutable(self::NOW)),
+            new ExchangeCancelled(new AccountId(self::MINE), $this->colleagueWithoutTheRight()->id, new ExchangeId(self::EXCHANGE), new \DateTimeImmutable(self::NOW)),
+        ], $exchange->releaseEvents());
+    }
+
+    public function testForgettingItsContactLeavesAPlannedExchangeWhoseTimeHasComeToItsHolder(): void
+    {
+        $exchange = $this->due();
+
+        $exchange->forgetItsContact(by: $this->me()->id, at: new \DateTimeImmutable(self::NOW));
+
+        $this->assertSame(ExchangeStatus::Planned, StateOf::the($exchange)['status']);
     }
 
     public function testABlankTextIsNoText(): void
@@ -186,9 +334,11 @@ class ExchangeTest extends TestCase
         ], $exchange->releaseEvents());
     }
 
-    public function testItsContactForgottenEverythingIsOffered(): void
+    public function testItsContactForgottenEverythingButHandlingAPlannedExchangeIsOffered(): void
     {
-        $this->assertSame(ExchangeIntent::cases(), self::possibleIntentsOf($this->withItsContactForgotten()));
+        $offered = [ExchangeIntent::CorrectExchange, ExchangeIntent::CorrectText, ExchangeIntent::MakeConform, ExchangeIntent::EraseExchange, ExchangeIntent::AttachFile, ExchangeIntent::RemoveAttachment];
+
+        $this->assertSame($offered, $this->possibleIntentsOf($this->withItsContactForgotten(), $this->me()));
     }
 
     public function testAFileIsReadWithTheRightToManagePersonalData(): void
@@ -207,7 +357,7 @@ class ExchangeTest extends TestCase
     {
         $exchange = $this->withAnAttachment();
 
-        $this->assertNotContains(ExchangeIntent::MakeConform, self::possibleIntentsOf($exchange));
+        $this->assertNotContains(ExchangeIntent::MakeConform, $this->possibleIntentsOf($exchange));
         $this->assertFalse($exchange->isToMakeConform());
         $this->assertFalse(StateOf::the($exchange)['contactForgotten']);
     }
@@ -243,7 +393,7 @@ class ExchangeTest extends TestCase
         $exchange->declareConform(by: $this->me()->id, at: new \DateTimeImmutable(self::NOW));
 
         $this->assertSame([false, true], [self::isTextToMakeConform($exchange), $exchange->isToMakeConform()]);
-        $this->assertNotContains(ExchangeIntent::MakeConform, self::possibleIntentsOf($exchange));
+        $this->assertNotContains(ExchangeIntent::MakeConform, $this->possibleIntentsOf($exchange));
     }
 
     public function testDeclaredConformAndItsFilesRemovedNothingIsToMakeConform(): void
@@ -274,7 +424,7 @@ class ExchangeTest extends TestCase
 
     public function testAFullExchangeOffersNoRoomForAnotherFile(): void
     {
-        $this->assertNotContains(ExchangeIntent::AttachFile, self::possibleIntentsOf($this->aFullExchange()));
+        $this->assertNotContains(ExchangeIntent::AttachFile, $this->possibleIntentsOf($this->aFullExchange()));
     }
 
     public function testAFullExchangeRefusesAnotherFile(): void
@@ -308,16 +458,17 @@ class ExchangeTest extends TestCase
     /**
      * Every intention is refused exactly when the exchange does not offer it.
      */
-    #[DataProvider('intentionsAndStates')]
-    public function testAnIntentionIsRefusedExactlyWhenNotOffered(ExchangeIntent $intent, string $state): void
+    #[DataProvider('intentionsStatesAndMembers')]
+    public function testAnIntentionIsRefusedExactlyWhenNotOffered(ExchangeIntent $intent, string $state, string $member): void
     {
         $exchange = $this->{$state}();
-        $offered = in_array($intent, self::possibleIntentsOf($exchange), true);
+        $prospector = $this->{$member}();
+        $offered = in_array($intent, $this->possibleIntentsOf($exchange, $prospector), true);
 
         try {
-            $this->carryOut($intent, $exchange, $this->me()->id);
+            $this->carryOut($intent, $exchange, $prospector->id);
             $refused = false;
-        } catch (NoRoomForAnAttachment|NothingToMakeConform|NotPossibleInItsState) {
+        } catch (NoRoomForAnAttachment|NothingToMakeConform|NotPossibleInItsState|NotTheHolder) {
             $refused = true;
         }
 
@@ -325,27 +476,31 @@ class ExchangeTest extends TestCase
     }
 
     /**
-     * @return iterable<string, array{ExchangeIntent, string}>
+     * @return iterable<string, array{ExchangeIntent, string, string}>
      */
-    public static function intentionsAndStates(): iterable
+    public static function intentionsStatesAndMembers(): iterable
     {
         foreach (ExchangeIntent::cases() as $intent) {
-            foreach (['withAnAttachment', 'withItsContactForgotten', 'plannedWithAnAttachment'] as $state) {
-                yield sprintf('%s %s', $intent->name, $state) => [$intent, $state];
+            foreach (['withAnAttachment', 'withItsContactForgotten', 'plannedWithAnAttachment', 'due', 'cancelled'] as $state) {
+                foreach (['me', 'colleagueWithoutTheRight'] as $member) {
+                    yield sprintf('%s %s by %s', $intent->name, $state, $member) => [$intent, $state, $member];
+                }
             }
         }
     }
 
     /**
-     * What the policy offers given the state of the exchange, as its reading tells it (ADR 0088).
+     * What the policy offers a member now given the state of the exchange, as its reading tells it (ADR 0088).
      *
      * @return list<ExchangeIntent>
      */
-    private static function possibleIntentsOf(Exchange $exchange): array
+    private function possibleIntentsOf(Exchange $exchange, ?Prospector $member = null): array
     {
-        $awaitsBeingMadeConform = ExchangeConformity::awaitsBeingMadeConform(StateOf::the($exchange)['contactForgotten'], null !== StateOf::the($exchange)['madeConform']);
+        $state = StateOf::the($exchange);
+        $awaitsBeingMadeConform = ExchangeConformity::awaitsBeingMadeConform($state['contactForgotten'], null !== $state['madeConform']);
+        $due = $state['facts']->occurredAt <= new \DateTimeImmutable(self::NOW);
 
-        return ExchangePossibilities::given(count($exchange->attachments()), $awaitsBeingMadeConform, StateOf::the($exchange)['status']);
+        return ExchangePossibilities::given(new ExchangeSituation(count($exchange->attachments()), $awaitsBeingMadeConform, $state['status'], $due, $state['createdBy']->equals(($member ?? $this->me())->id)));
     }
 
     /**
@@ -363,12 +518,16 @@ class ExchangeTest extends TestCase
         $now = new \DateTimeImmutable(self::NOW);
 
         match ($intent) {
-            ExchangeIntent::CorrectExchange => $exchange->correct(new ExchangeFacts(Channel::Call, Direction::Inbound, $now), by: $by, at: $now),
+            ExchangeIntent::CorrectExchange => $exchange->correct(new ExchangeFacts(Channel::Call, Direction::Inbound, $now), ExchangeStatus::Done, by: $by, at: $now),
             ExchangeIntent::CorrectText => $exchange->correctText('Rappellera lundi', by: $by, at: $now),
             ExchangeIntent::MakeConform => $exchange->declareConform(by: $by, at: $now),
             ExchangeIntent::EraseExchange => $exchange->erase(by: $by, at: $now),
             ExchangeIntent::AttachFile => $exchange->attach($this->anAttachment('0190a1c0-0000-7000-8000-000000000008'), by: $by, at: $now),
             ExchangeIntent::RemoveAttachment => $exchange->removeAttachment(new AttachmentId(self::ATTACHMENT), by: $by, at: $now),
+            ExchangeIntent::MarkExchangeDone => $exchange->markDone(StateOf::the($exchange)['facts']->occurredAt, 'Compte rendu', by: $by, at: $now),
+            ExchangeIntent::MarkExchangeMissed => $exchange->markMissed(by: $by, at: $now),
+            ExchangeIntent::MoveExchange => $exchange->moveTo($now->modify('+2 days'), by: $by, at: $now),
+            ExchangeIntent::CancelExchange => $exchange->cancel(null, by: $by, at: $now),
         };
     }
 
@@ -379,7 +538,7 @@ class ExchangeTest extends TestCase
         $later = new \DateTimeImmutable(self::NOW)->modify('+1 day');
         $corrected = new ExchangeFacts(Channel::Email, Direction::Outbound, new \DateTimeImmutable(self::NOW), 'Objet : mission');
 
-        $exchange->correct($corrected, by: $this->me()->id, at: $later);
+        $exchange->correct($corrected, ExchangeStatus::Done, by: $this->me()->id, at: $later);
 
         $this->assertSame($corrected, StateOf::the($exchange)['facts']);
         $this->assertEquals(new Correction($this->me()->id, $later), StateOf::the($exchange)['lastCorrection']);
@@ -395,7 +554,7 @@ class ExchangeTest extends TestCase
     {
         $this->expectException(ExchangeInTheFuture::class);
 
-        $this->anExchange()->correct(new ExchangeFacts(Channel::Call, Direction::Inbound, new \DateTimeImmutable(self::NOW)->modify('+1 second')), by: $this->me()->id, at: new \DateTimeImmutable(self::NOW));
+        $this->anExchange()->correct(new ExchangeFacts(Channel::Call, Direction::Inbound, new \DateTimeImmutable(self::NOW)->modify('+1 second')), ExchangeStatus::Done, by: $this->me()->id, at: new \DateTimeImmutable(self::NOW));
     }
 
     public function testCorrectingTheTextKeepsTheOtherFactsAndRecordsWhoCorrected(): void
@@ -486,14 +645,35 @@ class ExchangeTest extends TestCase
         return $exchange;
     }
 
+    /**
+     * Planned the day before for an hour ago, with a file: its time has come.
+     */
+    private function due(): Exchange
+    {
+        $now = new \DateTimeImmutable(self::NOW);
+        $facts = ExchangeFacts::planned(Channel::Meeting, $now->modify('-1 hour'), Duration::inMinutes(45), 'Ordre du jour');
+        $exchange = Exchange::plannedWithAContact(new AccountId(self::MINE), $this->me()->id, new ExchangeId(self::EXCHANGE), new PersonId(self::CONTACT), [new OrganizationId(self::ACME)], $facts, $now->modify('-1 day'));
+        $exchange->attach($this->anAttachment(self::ATTACHMENT), by: $this->me()->id, at: $now);
+
+        return $exchange;
+    }
+
+    private function cancelled(): Exchange
+    {
+        $exchange = $this->plannedWithAnAttachment();
+        $exchange->cancel(null, by: $this->me()->id, at: new \DateTimeImmutable(self::NOW));
+
+        return $exchange;
+    }
+
     private function anExchange(): Exchange
     {
         return $this->noted(new ExchangeFacts(Channel::LinkedIn, Direction::Inbound, new \DateTimeImmutable(self::NOW), 'Intéressée'));
     }
 
-    private function noted(ExchangeFacts $facts): Exchange
+    private function noted(ExchangeFacts $facts, ExchangeStatus $outcome = ExchangeStatus::Done): Exchange
     {
-        return Exchange::notedWithAContact(new AccountId(self::MINE), $this->me()->id, new ExchangeId(self::EXCHANGE), new PersonId(self::CONTACT), [new OrganizationId(self::ACME), new OrganizationId(self::GROUP)], $facts, new \DateTimeImmutable(self::NOW));
+        return Exchange::notedWithAContact(new AccountId(self::MINE), $this->me()->id, new ExchangeId(self::EXCHANGE), new PersonId(self::CONTACT), [new OrganizationId(self::ACME), new OrganizationId(self::GROUP)], $facts, $outcome, new \DateTimeImmutable(self::NOW));
     }
 
     private function me(): Prospector

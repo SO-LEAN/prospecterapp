@@ -65,6 +65,7 @@ use Prospecter\Core\Prospecting\Application\AddContact\AddContactHandler;
 use Prospecter\Core\Prospecting\Application\AttachCollectedContact\AttachCollectedContactHandler;
 use Prospecter\Core\Prospecting\Application\AttachFile\AttachFileHandler;
 use Prospecter\Core\Prospecting\Application\AttachToHolding\AttachToHoldingHandler;
+use Prospecter\Core\Prospecting\Application\CancelExchange\CancelExchangeHandler;
 use Prospecter\Core\Prospecting\Application\ChangeContactDetails\ChangeContactDetailsHandler;
 use Prospecter\Core\Prospecting\Application\ChangeLogo\ChangeLogoHandler;
 use Prospecter\Core\Prospecting\Application\ConsultExchange\ConsultExchange;
@@ -109,6 +110,9 @@ use Prospecter\Core\Prospecting\Application\KeepExchangesOfForgottenContact\Keep
 use Prospecter\Core\Prospecting\Application\KeptTimeline;
 use Prospecter\Core\Prospecting\Application\ListExchangeFacts\ListExchangeFactsHandler;
 use Prospecter\Core\Prospecting\Application\ListOrganizationFacts\ListOrganizationFactsHandler;
+use Prospecter\Core\Prospecting\Application\MarkExchangeDone\MarkExchangeDoneHandler;
+use Prospecter\Core\Prospecting\Application\MarkExchangeMissed\MarkExchangeMissedHandler;
+use Prospecter\Core\Prospecting\Application\MoveExchange\MoveExchangeHandler;
 use Prospecter\Core\Prospecting\Application\NoteExchange\NoteExchangeHandler;
 use Prospecter\Core\Prospecting\Application\NoteOrganizationExchange\NoteOrganizationExchangeHandler;
 use Prospecter\Core\Prospecting\Application\OrganizationSheet;
@@ -620,6 +624,10 @@ final class Application
             new PlanOrganizationExchangeHandler($this->exchanges, $this->organizations, $this->contactOrganizations, $this->events),
             new CorrectExchangeHandler($this->exchanges, $this->events),
             new CorrectExchangeTextHandler($this->exchanges, $this->events),
+            new MarkExchangeDoneHandler($this->exchanges, $this->events),
+            new MarkExchangeMissedHandler($this->exchanges, $this->events),
+            new MoveExchangeHandler($this->exchanges, $this->events),
+            new CancelExchangeHandler($this->exchanges, $this->events),
             new EraseExchangeHandler($this->exchanges, $this->events),
             new AttachFileHandler($this->exchanges, $this->privateStorage, $this->events),
             new RemoveAttachmentHandler($this->exchanges, $this->events),

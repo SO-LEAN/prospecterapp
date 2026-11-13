@@ -17,13 +17,25 @@ import {
 } from '@/shared/ui/dialog'
 import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle } from '@/shared/ui/sheet'
 import { Skeleton } from '@/shared/ui/skeleton'
-import { useCorrectExchange, useCorrectExchangeText, useEraseExchange } from '../mutations'
+import {
+  attachTheFiles,
+  useAttachFiles,
+  useCorrectExchange,
+  useCorrectExchangeText,
+  useEraseExchange,
+  useMarkExchangeDone,
+  useMoveExchange,
+  usePlanExchange,
+  usePlanOrganizationExchange,
+} from '../mutations'
 import { type ExchangeDetail, exchangeQuery } from '../queries'
 import { correctionOf } from '../schema'
 import { ExchangeAttachments } from './exchange-attachments'
 import { ExchangeForm } from './exchange-form'
 import { ExchangeSummary } from './exchange-line'
 import { ExchangeText } from './exchange-text'
+import { FollowUp } from './follow-up'
+import { MoveForm, PlannedExchangeActions, ReportForm } from './planned-exchange-handling'
 import { TextCorrectionForm } from './text-correction-form'
 
 type Props = { exchangeId: string | null; onClose: () => void }
@@ -60,14 +72,20 @@ function ExchangePanel({ exchangeId, onErased }: { exchangeId: string; onErased:
   return <Exchange exchange={exchange.data} onErased={onErased} />
 }
 
-/** What is being corrected: all its facts, its text only, or nothing while it is read. */
-type Correcting = 'facts' | 'text' | null
+/**
+ * What is being done of it: all its facts or its text only corrected, its report written once done, then what follows
+ * planned, its moment moved; or nothing while it is read.
+ */
+type Correcting = 'facts' | 'text' | 'report' | 'followUp' | 'move' | null
 
 function Exchange({ exchange, onErased }: { exchange: ExchangeDetail; onErased: () => void }) {
   const { t } = useTranslation()
   const [correcting, setCorrecting] = useState<Correcting>(null)
   const correct = useCorrectExchange()
   const correctText = useCorrectExchangeText()
+  const markDone = useMarkExchangeDone()
+  const move = useMoveExchange()
+  const attach = useAttachFiles()
   const params = { path: { id: exchange.id } }
   const mayDeclareConform = Boolean(exchange._links.makeConform)
 
@@ -96,6 +114,45 @@ function Exchange({ exchange, onErased }: { exchange: ExchangeDetail; onErased: 
           onCancel={() => setCorrecting(null)}
           onSubmit={async (body) => {
             await correctText.mutateAsync({ params, body })
+            setCorrecting(null)
+          }}
+        />
+      </div>
+    )
+  }
+
+  if (correcting === 'report') {
+    return (
+      <div className="px-4 pb-4">
+        <ReportForm
+          exchange={exchange}
+          onCancel={() => setCorrecting(null)}
+          onSubmit={async (body, files) => {
+            await markDone.mutateAsync({ params, body })
+            attachTheFiles(attach, exchange.id, files)
+            setCorrecting(exchange.interlocutor.presence === 'forgotten' ? null : 'followUp')
+          }}
+        />
+      </div>
+    )
+  }
+
+  if (correcting === 'followUp') {
+    return (
+      <div className="px-4 pb-4">
+        <PlanTheFollowUp exchange={exchange} onDone={() => setCorrecting(null)} />
+      </div>
+    )
+  }
+
+  if (correcting === 'move') {
+    return (
+      <div className="px-4 pb-4">
+        <MoveForm
+          exchange={exchange}
+          onCancel={() => setCorrecting(null)}
+          onSubmit={async (body) => {
+            await move.mutateAsync({ params, body })
             setCorrecting(null)
           }}
         />
@@ -147,6 +204,11 @@ function Exchange({ exchange, onErased }: { exchange: ExchangeDetail; onErased: 
       </div>
       <ExchangeAttachments exchange={exchange} />
       <div className="flex flex-wrap gap-2">
+        <PlannedExchangeActions
+          exchange={exchange}
+          onReport={() => setCorrecting('report')}
+          onMove={() => setCorrecting('move')}
+        />
         {exchange._links.correctExchange ? (
           <Button variant="outline" onClick={() => setCorrecting('facts')}>
             <Pencil aria-hidden /> {t('exchanges.detail.correct')}
@@ -161,6 +223,31 @@ function Exchange({ exchange, onErased }: { exchange: ExchangeDetail; onErased: 
         {exchange._links.eraseExchange && <EraseExchange exchangeId={exchange.id} onErased={onErased} />}
       </div>
     </div>
+  )
+}
+
+/**
+ * Done, what follows is planned with the same interlocutor, on the same channel: the contact, or the organization
+ * itself; a forgotten contact has nobody to plan with.
+ */
+function PlanTheFollowUp({ exchange, onDone }: { exchange: ExchangeDetail; onDone: () => void }) {
+  const planWithTheContact = usePlanExchange()
+  const planWithTheOrganization = usePlanOrganizationExchange()
+  const { interlocutor } = exchange
+
+  return (
+    <FollowUp
+      channel={exchange.channel}
+      onDone={onDone}
+      plan={(planned) =>
+        interlocutor.kind === 'person'
+          ? planWithTheContact.mutateAsync({ params: { path: { id: interlocutor.id } }, body: planned })
+          : planWithTheOrganization.mutateAsync({
+              params: { path: { id: interlocutor.id } },
+              body: { personId: null, exchange: planned },
+            })
+      }
+    />
   )
 }
 

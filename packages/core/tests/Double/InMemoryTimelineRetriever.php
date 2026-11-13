@@ -12,6 +12,7 @@ use Prospecter\Core\Prospecting\Domain\Model\ContactPresence;
 use Prospecter\Core\Prospecting\Domain\Model\Exchange;
 use Prospecter\Core\Prospecting\Domain\Model\Prospector;
 use Prospecter\Core\Prospecting\Domain\Model\TimelineIntent;
+use Prospecter\Core\Prospecting\Domain\Policy\ExchangeChronology;
 use Prospecter\Core\Prospecting\Domain\Policy\ExchangeConformity;
 use Prospecter\Core\Prospecting\Domain\Policy\ExchangeReading;
 use Prospecter\Core\SharedKernel\Domain\OrganizationId;
@@ -19,7 +20,7 @@ use Prospecter\Core\SharedKernel\Domain\PersonId;
 
 /**
  * Reads the exchanges the in-memory repository saved, as the adapter reads the items of the table: a timeline
- * ordered by the moment of the exchanges then their identity, the most recent first until the moment of the
+ * ordered by the moment the exchanges are listed at (`ExchangeChronology`) then their identity, the most recent first until the moment of the
  * reading, the soonest first after it, its cursor the moment and the identity of the last exchange of the slice.
  */
 final readonly class InMemoryTimelineRetriever implements TimelineRetriever
@@ -70,7 +71,7 @@ final readonly class InMemoryTimelineRetriever implements TimelineRetriever
      */
     private static function until(\DateTimeImmutable $asOf, array $exchanges): array
     {
-        return array_values(array_filter($exchanges, static fn (Exchange $exchange): bool => StateOf::the($exchange)['facts']->occurredAt <= $asOf));
+        return array_values(array_filter($exchanges, static fn (Exchange $exchange): bool => self::listedAt($exchange) <= $asOf));
     }
 
     /**
@@ -82,7 +83,7 @@ final readonly class InMemoryTimelineRetriever implements TimelineRetriever
      */
     private static function after(\DateTimeImmutable $asOf, array $exchanges): array
     {
-        return array_values(array_filter($exchanges, static fn (Exchange $exchange): bool => StateOf::the($exchange)['facts']->occurredAt > $asOf));
+        return array_values(array_filter($exchanges, static fn (Exchange $exchange): bool => self::listedAt($exchange) > $asOf));
     }
 
     /**
@@ -174,9 +175,9 @@ final readonly class InMemoryTimelineRetriever implements TimelineRetriever
             contactPresence: $presence?->value,
             channel: $facts->channel->value,
             direction: $facts->direction->value,
-            missed: $facts->missed,
             occurredAt: $facts->occurredAt,
             status: $state['status']->value,
+            canceller: $state['cancellation']?->canceller?->value,
             durationInMinutes: $facts->duration?->minutes,
             text: $facts->text,
             textFlagged: ExchangeReading::isTextFlagged(null !== $facts->text, $reader),
@@ -187,8 +188,13 @@ final readonly class InMemoryTimelineRetriever implements TimelineRetriever
         );
     }
 
+    private static function listedAt(Exchange $exchange): \DateTimeImmutable
+    {
+        return ExchangeChronology::listedAt(StateOf::the($exchange)['facts']->occurredAt, StateOf::the($exchange)['cancellation']?->at);
+    }
+
     private static function positionOf(Exchange $exchange): string
     {
-        return StateOf::the($exchange)['facts']->occurredAt->setTimezone(new \DateTimeZone('UTC'))->format('Y-m-d\TH:i:s.u\Z').'#'.$exchange->id();
+        return self::listedAt($exchange)->setTimezone(new \DateTimeZone('UTC'))->format('Y-m-d\TH:i:s.u\Z').'#'.$exchange->id();
     }
 }

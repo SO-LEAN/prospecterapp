@@ -67,6 +67,7 @@ test('plan exchanges with a contact and with an organization, find them to come,
     await page.getByRole('button', { name: 'Noter un échange' }).click()
     await page.getByLabel('Visio', { exact: true }).check()
     await page.getByRole('button', { name: 'Enregistrer' }).click()
+    await page.getByRole('button', { name: 'Plus tard' }).click()
     await expect(page.getByRole('list', { name: 'Échanges' }).getByRole('listitem').first()).toContainText(
       'Visio, Reçu',
     )

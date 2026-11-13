@@ -21,7 +21,7 @@ use Prospecter\Core\Prospecting\Application\ConsultExchange\ExchangeDetail;
 /**
  * The detail of an exchange, with a link per intention its state offers and the signed-in member may carry out on it
  * and on its attachments (`IntentLinks`, ADR 0081): every prospector retouches its text and declares it conform
- * (ADR 0078), the rest needs the right to manage personal data. Each link names its intention, its route, and the role
+ * (ADR 0078), its holder handles a planned exchange (ADR 0112), the rest needs the right to manage personal data. Each link names its intention, its route, and the role
  * its controller requires beyond reaching the exchange. Built for one call with its participants, it keeps the
  * resource (ADR 0085).
  */
@@ -36,6 +36,10 @@ final class ExchangeDetailPresenter implements ConsultExchangeOutput
         'makeConform' => ['intent' => 'MakeConform', 'route' => 'api_exchanges_correct_text', 'role' => null],
         'eraseExchange' => ['intent' => 'EraseExchange', 'route' => 'api_exchanges_erase', 'role' => User::PERSONAL_DATA],
         'attachFile' => ['intent' => 'AttachFile', 'route' => 'api_exchanges_attach_file', 'role' => User::PERSONAL_DATA],
+        'markDone' => ['intent' => 'MarkExchangeDone', 'route' => 'api_exchanges_mark_done', 'role' => null],
+        'markMissed' => ['intent' => 'MarkExchangeMissed', 'route' => 'api_exchanges_mark_missed', 'role' => null],
+        'move' => ['intent' => 'MoveExchange', 'route' => 'api_exchanges_move', 'role' => null],
+        'cancel' => ['intent' => 'CancelExchange', 'route' => 'api_exchanges_cancel', 'role' => null],
     ];
 
     public private(set) ExchangeDetailResource $resource;
@@ -56,9 +60,9 @@ final class ExchangeDetailPresenter implements ConsultExchangeOutput
             interlocutor: $this->participants->interlocutor,
             channel: $exchange->channel,
             direction: $exchange->direction,
-            missed: $exchange->missed,
             occurredAt: $exchange->occurredAt->format(\DateTimeInterface::ATOM),
             status: $exchange->status,
+            canceller: $exchange->canceller,
             durationInMinutes: $exchange->durationInMinutes,
             text: $exchange->text,
             textFlagged: $exchange->textFlagged,

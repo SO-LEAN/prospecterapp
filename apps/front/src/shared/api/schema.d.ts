@@ -577,6 +577,23 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/exchanges/{id}/cancellation": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Cancel a planned exchange, saying who called it off if wished; it stays in the timelines, cancelled; by its holder */
+        post: operations["post_api_exchanges_cancel"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/exchanges/{id}/facts": {
         parameters: {
             query?: never;
@@ -645,6 +662,57 @@ export interface paths {
         options?: never;
         head?: never;
         patch?: never;
+        trace?: never;
+    };
+    "/api/exchanges/{id}/done": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Mark done a planned exchange whose time has come, with its report and the moment it really took place; by its holder */
+        post: operations["post_api_exchanges_mark_done"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/exchanges/{id}/missed": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Mark missed a planned exchange whose time has come: the contact did not come or answer; by its holder */
+        post: operations["post_api_exchanges_mark_missed"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/exchanges/{id}/moment": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        /** Move a planned exchange to another moment to come, its duration kept; by its holder */
+        patch: operations["patch_api_exchanges_move"];
         trace?: never;
     };
     "/api/uploads": {
@@ -911,6 +979,14 @@ export interface components {
             /** @default  */
             name: string;
         };
+        CancellationInput: {
+            /**
+             * @description Who called it off, when said: the prospector or the contact
+             * @default null
+             * @enum {string|null}
+             */
+            canceller: "prospector" | "contact" | null;
+        };
         CorrectionInput: {
             /**
              * @default
@@ -946,6 +1022,27 @@ export interface components {
              * @default false
              */
             madeConform: boolean;
+        };
+        ReportInput: {
+            /**
+             * Format: date-time
+             * @description When it really took place, its planned moment when left out; never in the future
+             * @default null
+             */
+            occurredAt: string | null;
+            /**
+             * @description Its report, which replaces its agenda
+             * @default null
+             */
+            text: string | null;
+        };
+        MomentInput: {
+            /**
+             * Format: date-time
+             * @description When it is to happen now; in the future
+             * @default null
+             */
+            occurredAt: string | null;
         };
         LoginEmailInput: {
             /** @default  */
@@ -1120,18 +1217,21 @@ export interface components {
              * @enum {string}
              */
             direction: "inbound" | "outbound";
-            /** @description A call that did not go through */
-            missed: boolean;
             /**
              * Format: date-time
              * @description When it happened, or is to happen once planned
              */
             occurredAt: string;
             /**
-             * @description planned: still to come; done: it happened
+             * @description planned: still to come; done: it happened; missed: the contact did not come or answer; cancelled: called off before it happened
              * @enum {string}
              */
-            status: "planned" | "done";
+            status: "planned" | "done" | "missed" | "cancelled";
+            /**
+             * @description Who called it off once cancelled, when said
+             * @enum {string|null}
+             */
+            canceller?: "prospector" | "contact" | null;
             /** @description How long it lasts, once planned */
             durationInMinutes?: number | null;
             text?: string | null;
@@ -1293,6 +1393,10 @@ export interface components {
             makeConform?: components["schemas"]["LinkResource"];
             eraseExchange?: components["schemas"]["LinkResource"];
             attachFile?: components["schemas"]["LinkResource"];
+            markDone?: components["schemas"]["LinkResource"];
+            markMissed?: components["schemas"]["LinkResource"];
+            move?: components["schemas"]["LinkResource"];
+            cancel?: components["schemas"]["LinkResource"];
         };
         ExchangeDetailResource: {
             id: string;
@@ -1304,18 +1408,21 @@ export interface components {
              * @enum {string}
              */
             direction: "inbound" | "outbound";
-            /** @description A call that did not go through */
-            missed: boolean;
             /**
              * Format: date-time
              * @description When it happened, or is to happen once planned
              */
             occurredAt: string;
             /**
-             * @description planned: still to come; done: it happened
+             * @description planned: still to come; done: it happened; missed: the contact did not come or answer; cancelled: called off before it happened
              * @enum {string}
              */
-            status: "planned" | "done";
+            status: "planned" | "done" | "missed" | "cancelled";
+            /**
+             * @description Who called it off once cancelled, when said
+             * @enum {string|null}
+             */
+            canceller?: "prospector" | "contact" | null;
             /** @description How long it lasts, once planned */
             durationInMinutes?: number | null;
             text?: string | null;
@@ -3754,6 +3861,75 @@ export interface operations {
             };
         };
     };
+    post_api_exchanges_cancel: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CancellationInput"];
+            };
+        };
+        responses: {
+            /** @description The exchange, cancelled */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ExchangeDetailResource"];
+                };
+            };
+            /** @description Missing or invalid access token */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Not a prospector, or not the holder of the exchange */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ProblemResource"];
+                };
+            };
+            /** @description Unknown exchange, or one of another account */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ProblemResource"];
+                };
+            };
+            /** @description No longer to come */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ProblemResource"];
+                };
+            };
+            /** @description Unknown canceller */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ProblemResource"];
+                };
+            };
+        };
+    };
     patch_api_exchanges_correct: {
         parameters: {
             query?: never;
@@ -4071,6 +4247,200 @@ export interface operations {
             };
             /** @description Unknown exchange, or one of another account */
             404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ProblemResource"];
+                };
+            };
+        };
+    };
+    post_api_exchanges_mark_done: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ReportInput"];
+            };
+        };
+        responses: {
+            /** @description The exchange, done */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ExchangeDetailResource"];
+                };
+            };
+            /** @description Missing or invalid access token */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Not a prospector, or not the holder of the exchange */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ProblemResource"];
+                };
+            };
+            /** @description Unknown exchange, or one of another account */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ProblemResource"];
+                };
+            };
+            /** @description No longer to come, or its time not come */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ProblemResource"];
+                };
+            };
+            /** @description Invalid report: too long, or a moment in the future */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ProblemResource"];
+                };
+            };
+        };
+    };
+    post_api_exchanges_mark_missed: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description The exchange, missed */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ExchangeDetailResource"];
+                };
+            };
+            /** @description Missing or invalid access token */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Not a prospector, or not the holder of the exchange */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ProblemResource"];
+                };
+            };
+            /** @description Unknown exchange, or one of another account */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ProblemResource"];
+                };
+            };
+            /** @description No longer to come, or its time not come */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ProblemResource"];
+                };
+            };
+        };
+    };
+    patch_api_exchanges_move: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["MomentInput"];
+            };
+        };
+        responses: {
+            /** @description The exchange, moved */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ExchangeDetailResource"];
+                };
+            };
+            /** @description Missing or invalid access token */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Not a prospector, or not the holder of the exchange */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ProblemResource"];
+                };
+            };
+            /** @description Unknown exchange, or one of another account */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ProblemResource"];
+                };
+            };
+            /** @description No longer to come */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ProblemResource"];
+                };
+            };
+            /** @description A moment missing, or in the past */
+            422: {
                 headers: {
                     [name: string]: unknown;
                 };

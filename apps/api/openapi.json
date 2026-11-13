@@ -2879,6 +2879,91 @@
                 }
             }
         },
+        "/api/exchanges/{id}/cancellation": {
+            "post": {
+                "tags": [
+                    "Contacts"
+                ],
+                "summary": "Cancel a planned exchange, saying who called it off if wished; it stays in the timelines, cancelled; by its holder",
+                "operationId": "post_api_exchanges_cancel",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "pattern": "[0-9a-f]{8}-[0-9a-f]{4}-[13-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/CancellationInput"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "The exchange, cancelled",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ExchangeDetailResource"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Missing or invalid access token"
+                    },
+                    "403": {
+                        "description": "Not a prospector, or not the holder of the exchange",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ProblemResource"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Unknown exchange, or one of another account",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ProblemResource"
+                                }
+                            }
+                        }
+                    },
+                    "409": {
+                        "description": "No longer to come",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ProblemResource"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Unknown canceller",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ProblemResource"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
         "/api/exchanges/{id}/facts": {
             "patch": {
                 "tags": [
@@ -3265,6 +3350,241 @@
                     },
                     "404": {
                         "description": "Unknown exchange, or one of another account",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ProblemResource"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/exchanges/{id}/done": {
+            "post": {
+                "tags": [
+                    "Contacts"
+                ],
+                "summary": "Mark done a planned exchange whose time has come, with its report and the moment it really took place; by its holder",
+                "operationId": "post_api_exchanges_mark_done",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "pattern": "[0-9a-f]{8}-[0-9a-f]{4}-[13-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/ReportInput"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "The exchange, done",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ExchangeDetailResource"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Missing or invalid access token"
+                    },
+                    "403": {
+                        "description": "Not a prospector, or not the holder of the exchange",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ProblemResource"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Unknown exchange, or one of another account",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ProblemResource"
+                                }
+                            }
+                        }
+                    },
+                    "409": {
+                        "description": "No longer to come, or its time not come",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ProblemResource"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Invalid report: too long, or a moment in the future",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ProblemResource"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/exchanges/{id}/missed": {
+            "post": {
+                "tags": [
+                    "Contacts"
+                ],
+                "summary": "Mark missed a planned exchange whose time has come: the contact did not come or answer; by its holder",
+                "operationId": "post_api_exchanges_mark_missed",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "pattern": "[0-9a-f]{8}-[0-9a-f]{4}-[13-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "The exchange, missed",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ExchangeDetailResource"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Missing or invalid access token"
+                    },
+                    "403": {
+                        "description": "Not a prospector, or not the holder of the exchange",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ProblemResource"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Unknown exchange, or one of another account",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ProblemResource"
+                                }
+                            }
+                        }
+                    },
+                    "409": {
+                        "description": "No longer to come, or its time not come",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ProblemResource"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/exchanges/{id}/moment": {
+            "patch": {
+                "tags": [
+                    "Contacts"
+                ],
+                "summary": "Move a planned exchange to another moment to come, its duration kept; by its holder",
+                "operationId": "patch_api_exchanges_move",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "pattern": "[0-9a-f]{8}-[0-9a-f]{4}-[13-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/MomentInput"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "The exchange, moved",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ExchangeDetailResource"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Missing or invalid access token"
+                    },
+                    "403": {
+                        "description": "Not a prospector, or not the holder of the exchange",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ProblemResource"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Unknown exchange, or one of another account",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ProblemResource"
+                                }
+                            }
+                        }
+                    },
+                    "409": {
+                        "description": "No longer to come",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ProblemResource"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "A moment missing, or in the past",
                         "content": {
                             "application/json": {
                                 "schema": {
@@ -3820,6 +4140,21 @@
                 },
                 "type": "object"
             },
+            "CancellationInput": {
+                "properties": {
+                    "canceller": {
+                        "description": "Who called it off, when said: the prospector or the contact",
+                        "type": "string",
+                        "nullable": true,
+                        "default": null,
+                        "enum": [
+                            "prospector",
+                            "contact"
+                        ]
+                    }
+                },
+                "type": "object"
+            },
             "CorrectionInput": {
                 "properties": {
                     "channel": {
@@ -3880,6 +4215,37 @@
                         "description": "Declares the exchange made conform, its contact forgotten; only while the link makeConform is offered",
                         "type": "boolean",
                         "default": false
+                    }
+                },
+                "type": "object"
+            },
+            "ReportInput": {
+                "properties": {
+                    "occurredAt": {
+                        "description": "When it really took place, its planned moment when left out; never in the future",
+                        "type": "string",
+                        "format": "date-time",
+                        "nullable": true,
+                        "default": null
+                    },
+                    "text": {
+                        "description": "Its report, which replaces its agenda",
+                        "type": "string",
+                        "nullable": true,
+                        "default": null,
+                        "maxLength": 5000
+                    }
+                },
+                "type": "object"
+            },
+            "MomentInput": {
+                "properties": {
+                    "occurredAt": {
+                        "description": "When it is to happen now; in the future",
+                        "type": "string",
+                        "format": "date-time",
+                        "nullable": true,
+                        "default": null
                     }
                 },
                 "type": "object"
@@ -4431,7 +4797,6 @@
                     "id",
                     "channel",
                     "direction",
-                    "missed",
                     "occurredAt",
                     "status",
                     "textFlagged",
@@ -4465,21 +4830,28 @@
                             "outbound"
                         ]
                     },
-                    "missed": {
-                        "description": "A call that did not go through",
-                        "type": "boolean"
-                    },
                     "occurredAt": {
                         "description": "When it happened, or is to happen once planned",
                         "type": "string",
                         "format": "date-time"
                     },
                     "status": {
-                        "description": "planned: still to come; done: it happened",
+                        "description": "planned: still to come; done: it happened; missed: the contact did not come or answer; cancelled: called off before it happened",
                         "type": "string",
                         "enum": [
                             "planned",
-                            "done"
+                            "done",
+                            "missed",
+                            "cancelled"
+                        ]
+                    },
+                    "canceller": {
+                        "description": "Who called it off once cancelled, when said",
+                        "type": "string",
+                        "nullable": true,
+                        "enum": [
+                            "prospector",
+                            "contact"
                         ]
                     },
                     "durationInMinutes": {
@@ -5062,6 +5434,18 @@
                     },
                     "attachFile": {
                         "$ref": "#/components/schemas/LinkResource"
+                    },
+                    "markDone": {
+                        "$ref": "#/components/schemas/LinkResource"
+                    },
+                    "markMissed": {
+                        "$ref": "#/components/schemas/LinkResource"
+                    },
+                    "move": {
+                        "$ref": "#/components/schemas/LinkResource"
+                    },
+                    "cancel": {
+                        "$ref": "#/components/schemas/LinkResource"
                     }
                 },
                 "type": "object"
@@ -5072,7 +5456,6 @@
                     "interlocutor",
                     "channel",
                     "direction",
-                    "missed",
                     "occurredAt",
                     "status",
                     "textFlagged",
@@ -5111,21 +5494,28 @@
                             "outbound"
                         ]
                     },
-                    "missed": {
-                        "description": "A call that did not go through",
-                        "type": "boolean"
-                    },
                     "occurredAt": {
                         "description": "When it happened, or is to happen once planned",
                         "type": "string",
                         "format": "date-time"
                     },
                     "status": {
-                        "description": "planned: still to come; done: it happened",
+                        "description": "planned: still to come; done: it happened; missed: the contact did not come or answer; cancelled: called off before it happened",
                         "type": "string",
                         "enum": [
                             "planned",
-                            "done"
+                            "done",
+                            "missed",
+                            "cancelled"
+                        ]
+                    },
+                    "canceller": {
+                        "description": "Who called it off once cancelled, when said",
+                        "type": "string",
+                        "nullable": true,
+                        "enum": [
+                            "prospector",
+                            "contact"
                         ]
                     },
                     "durationInMinutes": {

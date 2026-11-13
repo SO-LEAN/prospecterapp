@@ -54,6 +54,10 @@ final class Vocabulary
         'EraseExchange' => 'supprimer l\'échange',
         'AttachFile' => 'joindre un fichier',
         'RemoveAttachment' => 'retirer une pièce jointe',
+        'MarkExchangeDone' => 'marquer fait',
+        'MarkExchangeMissed' => 'marquer manqué',
+        'MoveExchange' => 'déplacer',
+        'CancelExchange' => 'annuler',
     ];
 
     private const string MOMENT = 'Y-m-d H:i';
@@ -82,6 +86,13 @@ final class Vocabulary
     private const array STATUSES = [
         'À venir' => 'planned',
         'Fait' => 'done',
+        'Manqué' => 'missed',
+        'Annulé' => 'cancelled',
+    ];
+
+    private const array CANCELLERS = [
+        'moi' => 'prospector',
+        'le contact' => 'contact',
     ];
 
     private const array DIRECTIONS = [
@@ -310,6 +321,14 @@ final class Vocabulary
     public static function describeStatus(string $status): string
     {
         return (string) array_search($status, self::STATUSES, true);
+    }
+
+    /**
+     * Who called a cancelled exchange off; nothing when it was not said.
+     */
+    public static function describeCanceller(?string $canceller): string
+    {
+        return (string) array_search($canceller, self::CANCELLERS, true);
     }
 
     /**

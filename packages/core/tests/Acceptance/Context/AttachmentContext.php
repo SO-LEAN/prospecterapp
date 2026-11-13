@@ -98,7 +98,7 @@ final class AttachmentContext implements Context
     #[Then('le détail de l\'échange liste :')]
     public function theDetailLists(TableNode $table): void
     {
-        $detail = $this->application->consultExchange(new ConsultExchange($this->application->signedIn(), $this->scenario->theExchange()));
+        $detail = $this->application->consultExchange(new ConsultExchange($this->application->signedIn(), $this->scenario->theExchange(), $this->application->now()));
         Expect::that(null !== $detail, sprintf('The exchange was expected, got: %s', $this->application->refusal()?->getMessage()));
         Expect::same($table->getColumn(0), array_map(static fn (AttachmentDetail $attachment): string => $attachment->name, $detail->attachments));
     }
@@ -106,7 +106,7 @@ final class AttachmentContext implements Context
     #[Then('le détail de l\'échange cache :count pièces jointes')]
     public function theDetailHidesTheAttachments(int $count): void
     {
-        $detail = $this->application->consultExchange(new ConsultExchange($this->application->signedIn(), $this->scenario->theExchange()));
+        $detail = $this->application->consultExchange(new ConsultExchange($this->application->signedIn(), $this->scenario->theExchange(), $this->application->now()));
         Expect::that(null !== $detail, sprintf('The exchange was expected, got: %s', $this->application->refusal()?->getMessage()));
         Expect::same([[], $count], [$detail->attachments, $detail->hiddenAttachments]);
     }
@@ -114,7 +114,7 @@ final class AttachmentContext implements Context
     #[Then(':file est à rendre conforme')]
     public function theFileIsToMakeConform(string $file): void
     {
-        $detail = $this->application->consultExchange(new ConsultExchange($this->application->signedIn(), $this->scenario->theExchange()));
+        $detail = $this->application->consultExchange(new ConsultExchange($this->application->signedIn(), $this->scenario->theExchange(), $this->application->now()));
         $attachment = array_find($detail->attachments ?? [], static fn (AttachmentDetail $attachment): bool => $attachment->name === $file);
         Expect::that(true === $attachment?->toMakeConform, sprintf('%s was expected to be made conform', $file));
     }

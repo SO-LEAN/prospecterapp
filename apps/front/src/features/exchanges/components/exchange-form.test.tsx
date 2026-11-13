@@ -51,20 +51,39 @@ describe('ExchangeForm', () => {
     expect(onSubmit).not.toHaveBeenCalled()
   })
 
-  it('offers to say a call did not go through, and only a call', async () => {
+  it('offers to say a call, a meeting or a video call was missed, and none of the messages', async () => {
     const { onSubmit, user } = renderForm()
 
-    await user.click(screen.getByLabelText('E-mail'))
-    expect(screen.queryByLabelText('L’appel n’a pas abouti')).not.toBeInTheDocument()
+    for (const message of ['E-mail', 'SMS', 'LinkedIn', 'Autre']) {
+      await user.click(screen.getByLabelText(message))
+      expect(screen.queryByLabelText(/Manqué/)).not.toBeInTheDocument()
+    }
+    for (const agreedUpon of ['Rendez-vous', 'Visio']) {
+      await user.click(screen.getByLabelText(agreedUpon))
+      expect(screen.getByLabelText(/Manqué/)).toBeInTheDocument()
+    }
 
     await user.click(screen.getByLabelText('Appel'))
     await user.click(screen.getByLabelText('Envoyé'))
-    await user.click(screen.getByLabelText('L’appel n’a pas abouti'))
+    await user.click(screen.getByLabelText(/Manqué/))
     await user.type(screen.getByLabelText(/Texte/), 'Messagerie')
     await user.click(save())
 
     expect(onSubmit).toHaveBeenCalledWith(
       expect.objectContaining({ channel: 'call', direction: 'outbound', missed: true, text: 'Messagerie' }),
+      null,
+      [],
+    )
+  })
+
+  it('sends a meeting that took place as not missed', async () => {
+    const { onSubmit, user } = renderForm()
+
+    await user.click(screen.getByLabelText('Rendez-vous'))
+    await user.click(save())
+
+    expect(onSubmit).toHaveBeenCalledWith(
+      expect.objectContaining({ channel: 'meeting', missed: false }),
       null,
       [],
     )

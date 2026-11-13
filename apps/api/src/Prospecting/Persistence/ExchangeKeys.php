@@ -71,12 +71,13 @@ final class ExchangeKeys
     }
 
     /**
-     * Where an exchange stands in a timeline, and the cursor of a slice: the moment it happened, then its id.
+     * Where an exchange stands in a timeline, and the cursor of a slice: the moment it is listed at, the moment it
+     * happened but for a planned exchange cancelled before it (`ExchangeChronology`), then its id.
      *
      * @param array<string, mixed> $document
      */
     public static function positionOf(array $document): string
     {
-        return $document['facts']['occurredAt'].'#'.$document['id'];
+        return Documents::moment(ExchangeDocument::listedAt($document)).'#'.$document['id'];
     }
 }

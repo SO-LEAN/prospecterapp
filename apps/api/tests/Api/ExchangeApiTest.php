@@ -13,6 +13,7 @@ use Prospecter\Core\Prospecting\Domain\Model\Direction;
 use Prospecter\Core\Prospecting\Domain\Model\Exchange;
 use Prospecter\Core\Prospecting\Domain\Model\ExchangeFacts;
 use Prospecter\Core\Prospecting\Domain\Model\ExchangeId;
+use Prospecter\Core\Prospecting\Domain\Model\ExchangeStatus;
 use Prospecter\Core\Prospecting\Domain\Model\Organization;
 use Prospecter\Core\Prospecting\Domain\Model\Prospector;
 use Prospecter\Core\Prospecting\Domain\Repository\ExchangeRepository;
@@ -60,7 +61,7 @@ class ExchangeApiTest extends ApiTestCase
         $timeline = $this->note($this->aContactOf($this->anOrganization('ACME')), ['channel' => 'call', 'direction' => 'inbound', 'missed' => true]);
 
         $this->assertSame('2026-10-15T09:00:00+00:00', $timeline['items'][0]['occurredAt']);
-        $this->assertTrue($timeline['items'][0]['missed']);
+        $this->assertSame('missed', $timeline['items'][0]['status']);
     }
 
     public function testTheExchangeIsKeptForTheOrganizationsOfTheContact(): void
@@ -97,7 +98,7 @@ class ExchangeApiTest extends ApiTestCase
 
         $this->assertResponseStatusCodeSame(422);
         $this->assertSame(['missed'], $this->violatedFields($problem));
-        $this->assertSame('missedOnlyForACall', $problem['reason']);
+        $this->assertSame('channelNotMissed', $problem['reason']);
     }
 
     public function testAnExchangeIsNeverInTheFuture(): void
@@ -167,7 +168,7 @@ class ExchangeApiTest extends ApiTestCase
 
         $this->assertResponseStatusCodeSame(200);
         $this->assertSame(['kind' => 'person', 'id' => $contact, 'name' => 'Ada', 'presence' => 'present'], $exchange['interlocutor']);
-        $this->assertSame(['sms', 'inbound', false, '2026-10-14T14:30:00+00:00', "Rappeler lundi\nAprès le salon", false], [$exchange['channel'], $exchange['direction'], $exchange['missed'], $exchange['occurredAt'], $exchange['text'], $exchange['textFlagged']]);
+        $this->assertSame(['sms', 'inbound', 'done', '2026-10-14T14:30:00+00:00', "Rappeler lundi\nAprès le salon", false], [$exchange['channel'], $exchange['direction'], $exchange['status'], $exchange['occurredAt'], $exchange['text'], $exchange['textFlagged']]);
         $this->assertSame(['at' => '2026-10-15T09:00:00+00:00', 'by' => ['name' => ['firstName' => 'Camille', 'lastName' => 'Martin'], 'email' => 'prospector@solean-it.io']], $exchange['noted']);
         $this->assertNull($exchange['corrected']);
         $this->assertSame([], $exchange['attachments']);
@@ -338,7 +339,7 @@ class ExchangeApiTest extends ApiTestCase
         self::getContainer()->get(AccountRepository::class)->save($competitor);
         $theirs = Organization::prospectedBy(new Prospector(new MemberId(self::newIdentity()), $competitor->id()), new OrganizationId(self::newIdentity()), new LegalIdentity('Their prospect'), new ContactDetails(), new \DateTimeImmutable());
         self::getContainer()->get(OrganizationRepository::class)->save($theirs);
-        $exchange = Exchange::notedWithTheOrganization($theirs, new MemberId(self::newIdentity()), new ExchangeId(self::newIdentity()), new ExchangeFacts(Channel::Call, Direction::Inbound, new \DateTimeImmutable('2026-10-14')), new \DateTimeImmutable('2026-10-14'));
+        $exchange = Exchange::notedWithTheOrganization($theirs, new MemberId(self::newIdentity()), new ExchangeId(self::newIdentity()), new ExchangeFacts(Channel::Call, Direction::Inbound, new \DateTimeImmutable('2026-10-14')), ExchangeStatus::Done, new \DateTimeImmutable('2026-10-14'));
         $exchange->attach(new Attachment(new AttachmentId(self::ATTACHMENT), 'devis.pdf', 2048, 'application/pdf', 'their-file'), new MemberId(self::newIdentity()), new \DateTimeImmutable('2026-10-14'));
         self::getContainer()->get(ExchangeRepository::class)->save($exchange);
 
