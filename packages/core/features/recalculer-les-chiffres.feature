@@ -85,3 +85,15 @@ Fonctionnalité: Recalculer les chiffres
     Alors seule la nouvelle version active garde des faits et des chiffres
     Et mes chiffres sont :
       | organisations prospectées | 1 |
+
+  Scénario: Un recalcul ne compte que les échanges qui ont eu lieu
+    Soit l'organisation "ACME" fait partie de mes organisations
+    Et le contact "Ada Lovelace" de "ACME"
+    Et "Michel" a noté le 15/10/2026 à 14h35 un appel reçu de "ACME" elle-même à 14h30 : "Rappeler en mars"
+    Et j'ai planifié une visio avec "Ada Lovelace" le 17/11/2026 à 14h00
+    Et j'ai annulé cette visio
+    Et j'ai planifié une visio avec "Ada Lovelace" le 18/11/2026 à 14h00
+    Quand les chiffres sont recalculés
+    Alors mes chiffres sont :
+      | échanges         | 1 |
+      | échanges du mois | 1 |

@@ -35,7 +35,7 @@ Fonctionnalité: Publier les faits de Prospecting
     Et "Michel" a noté le 15/10/2026 à 14h35 un appel reçu de "ACME" elle-même à 14h30 : "Rappeler en mars"
     Quand je corrige cet échange :
       | moment | 14/10/2026 09:00 |
-    Alors le fait publié de cet échange est présent, noté le "14/10/2026 09:00", révision 2
+    Alors le fait publié de cet échange est présent, fait, noté le "14/10/2026 09:00", révision 2
 
   Scénario: Un échange effacé avec la seule organisation qui le gardait donne un fait terminal
     Soit l'organisation "ACME" fait partie de mes organisations
@@ -43,16 +43,21 @@ Fonctionnalité: Publier les faits de Prospecting
     Quand j'arrête de prospecter "ACME"
     Alors le fait publié de cet échange est absent, révision 0
 
+  Scénario: Un échange planifié publie qu'il est planifié
+    Soit l'organisation "ACME" fait partie de mes organisations
+    Quand je planifie une visio avec "ACME" le 17/11/2026 à 14h00
+    Alors le fait publié de cet échange est présent, planifié, noté le "17/11/2026 14:00", révision 1
+
   Plan du scénario: Un échange planifié qu'on traite publie son état
     Soit l'organisation "ACME" fait partie de mes organisations
     Et j'ai planifié une visio avec "ACME" le 17/11/2026 à 14h00
     Et nous sommes le 17/11/2026 à 15h00
     Quand <geste>
-    Alors le fait publié de cet échange est présent, noté le "<moment>", révision 2
+    Alors le fait publié de cet échange est présent, <statut>, noté le "<moment>", révision 2
 
     Exemples:
-      | geste                                       | moment           |
-      | je marque cette visio faite                 | 17/11/2026 14:00 |
-      | je marque cette visio manquée               | 17/11/2026 14:00 |
-      | je déplace cette visio au 18/11/2026 à 9h00 | 18/11/2026 09:00 |
-      | j'annule cette visio                        | 17/11/2026 14:00 |
+      | geste                                       | statut   | moment           |
+      | je marque cette visio faite                 | fait     | 17/11/2026 14:00 |
+      | je marque cette visio manquée               | manqué   | 17/11/2026 14:00 |
+      | je déplace cette visio au 18/11/2026 à 9h00 | planifié | 18/11/2026 09:00 |
+      | j'annule cette visio                        | annulé   | 17/11/2026 14:00 |

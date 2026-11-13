@@ -19,6 +19,8 @@ final class ProspectingFactsContext implements Context
 {
     use SharesTheScenario;
 
+    private const array STATUSES = ['planifié' => 'planned', 'fait' => 'done', 'manqué' => 'missed', 'annulé' => 'cancelled'];
+
     #[Then('/^le fait publié de "(?<name>[^"]+)" est (?<presence>présente|absente), (?<location>géolocalisée|non géolocalisée), révision (?<revision>\d+)$/')]
     public function theFactsOfTheOrganization(string $name, string $presence, string $location, int $revision): void
     {
@@ -33,20 +35,20 @@ final class ProspectingFactsContext implements Context
         );
     }
 
-    #[Then('le fait publié de cet échange est présent, noté le :moment, révision :revision')]
-    public function theFactsOfThePresentExchange(string $moment, int $revision): void
+    #[Then('/^le fait publié de cet échange est présent, (?<status>planifié|fait|manqué|annulé), noté le "(?<moment>[^"]+)", révision (?<revision>\d+)$/')]
+    public function theFactsOfThePresentExchange(string $status, string $moment, int $revision): void
     {
-        $this->expectTheLastFactsOfTheExchange(['present' => true, 'notedAt' => $moment, 'revision' => $revision]);
+        $this->expectTheLastFactsOfTheExchange(['present' => true, 'status' => self::STATUSES[$status], 'notedAt' => $moment, 'revision' => $revision]);
     }
 
     #[Then('le fait publié de cet échange est absent, révision :revision')]
     public function theFactsOfTheErasedExchange(int $revision): void
     {
-        $this->expectTheLastFactsOfTheExchange(['present' => false, 'notedAt' => null, 'revision' => $revision]);
+        $this->expectTheLastFactsOfTheExchange(['present' => false, 'status' => null, 'notedAt' => null, 'revision' => $revision]);
     }
 
     /**
-     * @param array{present: bool, notedAt: ?string, revision: int} $expected the moment in French
+     * @param array{present: bool, status: ?string, notedAt: ?string, revision: int} $expected the moment in French
      */
     private function expectTheLastFactsOfTheExchange(array $expected): void
     {
@@ -55,6 +57,6 @@ final class ProspectingFactsContext implements Context
         $last = array_last($published);
 
         Expect::that(null !== $last, 'No facts of the exchange were published');
-        Expect::same($expected, ['present' => $last->present, 'notedAt' => null === $last->notedAt ? null : Vocabulary::describeFrenchMoment($last->notedAt), 'revision' => $last->revision]);
+        Expect::same($expected, ['present' => $last->present, 'status' => $last->status, 'notedAt' => null === $last->notedAt ? null : Vocabulary::describeFrenchMoment($last->notedAt), 'revision' => $last->revision]);
     }
 }
