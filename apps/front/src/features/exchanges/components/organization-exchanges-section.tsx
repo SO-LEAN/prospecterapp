@@ -10,13 +10,51 @@ import {
   usePlanOrganizationExchange,
 } from '../mutations'
 import { exchangesToMakeConformQuery, organizationTimelineQuery, organizationUpcomingQuery } from '../queries'
-import type { Interlocutors } from './exchange-form'
+import { ITSELF, newExchange } from '../schema'
+import { ExchangeForm, type Interlocutors } from './exchange-form'
 import { ExchangeLine } from './exchange-line'
 import { NoteThenFollowUp } from './follow-up'
 import { PlanForm } from './plan-form'
-import { NoteExchangeDialog, PlanExchangeDialog, TimelineCard } from './timeline-card'
+import { NoteExchangeDialog, PlanExchangeDialog, ProposedExchangeDialog, TimelineCard } from './timeline-card'
 
 type Props = { organizationId: string; interlocutors: Interlocutors; className?: string }
+
+type ProposedProps = {
+  organizationId: string
+  interlocutors: Interlocutors
+  /** The contact chosen, none for the organization itself. */
+  personId: string | null
+  open: boolean
+  onClose: () => void
+}
+
+/** The exchange with the organization or one of its contacts a gesture led to, noted now when the member accepts to. */
+export function NoteTheExchangeWithTheOrganization({
+  organizationId,
+  interlocutors,
+  personId,
+  open,
+  onClose,
+}: ProposedProps) {
+  const note = useNoteOrganizationExchange()
+  const attach = useAttachFiles()
+
+  return (
+    <ProposedExchangeDialog name={interlocutors.organization} open={open} onClose={onClose}>
+      <ExchangeForm
+        withFiles
+        interlocutors={interlocutors}
+        defaultValues={{ ...newExchange(new Date()), personId: personId ?? ITSELF }}
+        onCancel={onClose}
+        onSubmit={async (exchange, chosen, files) => {
+          const { noted } = await note.mutateAsync({ organizationId, body: { exchange, personId: chosen } })
+          onClose()
+          attachTheFiles(attach, noted, files)
+        }}
+      />
+    </ProposedExchangeDialog>
+  )
+}
 
 /**
  * The timeline of the organization: its exchanges and those of its contacts, each with who communicated, what is

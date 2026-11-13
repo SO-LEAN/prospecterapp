@@ -800,6 +800,96 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/to-dos/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** A to-do, and what may be done with it */
+        get: operations["get_api_to_dos_show"];
+        put?: never;
+        post?: never;
+        /** Erase a to-do */
+        delete: operations["delete_api_to_dos_erase"];
+        options?: never;
+        head?: never;
+        /** Change the text of a to-do and when it is due */
+        patch: operations["patch_api_to_dos_revise"];
+        trace?: never;
+    };
+    "/api/organizations/{id}/to-dos": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** The to-dos kept for the organization, for it or for its contacts, those to do the soonest due first, then those done */
+        get: operations["get_api_organizations_to_dos"];
+        put?: never;
+        /** Note a to-do for the organization itself */
+        post: operations["post_api_organizations_note_to_do"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/contacts/{id}/to-dos": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** The to-dos for the contact, those to do the soonest due first, then those done */
+        get: operations["get_api_contacts_to_dos"];
+        put?: never;
+        /** Note a to-do for the contact, kept for the organizations the contact is part of */
+        post: operations["post_api_contacts_note_to_do"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/me/to-dos": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** The to-dos the signed-in member holds that are still to do, the soonest due first */
+        get: operations["get_api_me_to_dos"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/to-dos/{id}/done": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Tick a to-do off, done now */
+        post: operations["post_api_to_dos_tick_off"];
+        /** Untick a to-do ticked off by mistake: it is to do again */
+        delete: operations["delete_api_to_dos_untick"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
 }
 export type webhooks = Record<string, never>;
 export interface components {
@@ -1058,6 +1148,22 @@ export interface components {
             /** @default  */
             password: string;
         };
+        ToDoInput: {
+            /** @default null */
+            text: string | null;
+            /**
+             * Format: date
+             * @description The day it is due, `Y-m-d`
+             * @default null
+             */
+            dueOn: string | null;
+            /**
+             * @description The hour of that day, `H:i`, when said
+             * @default null
+             * @example 08:30
+             */
+            dueAt: string | null;
+        };
         PersonNameResource: {
             firstName?: string | null;
             lastName?: string | null;
@@ -1193,6 +1299,7 @@ export interface components {
             stopProspecting?: components["schemas"]["LinkResource"];
             exchanges?: components["schemas"]["LinkResource"];
             noteExchange?: components["schemas"]["LinkResource"];
+            toDos?: components["schemas"]["LinkResource"];
         };
         OrganizationResource: {
             id: string;
@@ -1300,6 +1407,7 @@ export interface components {
             changeContactDetails?: components["schemas"]["LinkResource"];
             forget?: components["schemas"]["LinkResource"];
             exchanges?: components["schemas"]["LinkResource"];
+            toDos?: components["schemas"]["LinkResource"];
         };
         ContactResource: {
             id: string;
@@ -1480,6 +1588,48 @@ export interface components {
             userPoolId: string;
             clientId: string;
             endpoint?: string | null;
+        };
+        ToDoContactResource: {
+            id: string;
+            name: components["schemas"]["PersonNameResource"];
+        };
+        ToDoLinksResource: {
+            self: components["schemas"]["LinkResource"];
+            revise?: components["schemas"]["LinkResource"];
+            tickOff?: components["schemas"]["LinkResource"];
+            untick?: components["schemas"]["LinkResource"];
+            erase?: components["schemas"]["LinkResource"];
+        };
+        ToDoResource: {
+            id: string;
+            text: string;
+            /**
+             * Format: date
+             * @description The day it is due, `Y-m-d`
+             */
+            dueOn: string;
+            /**
+             * @description The hour of that day, `H:i`, when said
+             * @example 08:30
+             */
+            dueAt?: string | null;
+            /**
+             * Format: date-time
+             * @description When it was ticked off, none while it is to do
+             */
+            doneAt?: string | null;
+            heldBy: components["schemas"]["AuthorResource"];
+            /** @description Its contact, none for the organization itself */
+            contact?: components["schemas"]["ToDoContactResource"] | null;
+            _links: components["schemas"]["ToDoLinksResource"];
+        };
+        ToDoListLinksResource: {
+            self: components["schemas"]["LinkResource"];
+            noteToDo?: components["schemas"]["LinkResource"];
+        };
+        ToDoListResource: {
+            toDos: components["schemas"]["ToDoResource"][];
+            _links: components["schemas"]["ToDoListLinksResource"];
         };
     };
     responses: never;
@@ -4611,6 +4761,524 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["UserPoolResource"];
+                };
+            };
+        };
+    };
+    get_api_to_dos_show: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description The to-do */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ToDoResource"];
+                };
+            };
+            /** @description Missing or invalid access token */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Not a prospector, or no right to manage personal data */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ProblemResource"];
+                };
+            };
+            /** @description Unknown to-do, or one of another account */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ProblemResource"];
+                };
+            };
+        };
+    };
+    delete_api_to_dos_erase: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Erased */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Missing or invalid access token */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Not a prospector, or no right to manage personal data */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ProblemResource"];
+                };
+            };
+            /** @description Unknown to-do, or one of another account */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ProblemResource"];
+                };
+            };
+        };
+    };
+    patch_api_to_dos_revise: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ToDoInput"];
+            };
+        };
+        responses: {
+            /** @description The revised to-do */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ToDoResource"];
+                };
+            };
+            /** @description Missing or invalid access token */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Not a prospector, or no right to manage personal data */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ProblemResource"];
+                };
+            };
+            /** @description Unknown to-do, or one of another account */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ProblemResource"];
+                };
+            };
+            /** @description Invalid to-do: without a text, due on no day or at no hour */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ProblemResource"];
+                };
+            };
+        };
+    };
+    get_api_organizations_to_dos: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description The to-dos */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ToDoListResource"];
+                };
+            };
+            /** @description Missing or invalid access token */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Not a prospector, or no right to manage personal data */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ProblemResource"];
+                };
+            };
+            /** @description Unknown organization, or one of another account */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ProblemResource"];
+                };
+            };
+        };
+    };
+    post_api_organizations_note_to_do: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ToDoInput"];
+            };
+        };
+        responses: {
+            /** @description The new to-do */
+            201: {
+                headers: {
+                    /** @description The new to-do */
+                    Location?: string;
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ToDoResource"];
+                };
+            };
+            /** @description Missing or invalid access token */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Not a prospector, or no right to manage personal data */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ProblemResource"];
+                };
+            };
+            /** @description Unknown organization, or one of another account */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ProblemResource"];
+                };
+            };
+            /** @description Invalid to-do: without a text, due on no day or at no hour */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ProblemResource"];
+                };
+            };
+        };
+    };
+    get_api_contacts_to_dos: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description The to-dos */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ToDoListResource"];
+                };
+            };
+            /** @description Missing or invalid access token */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Not a prospector, or no right to manage personal data */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ProblemResource"];
+                };
+            };
+            /** @description Unknown contact, or one of another account */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ProblemResource"];
+                };
+            };
+        };
+    };
+    post_api_contacts_note_to_do: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ToDoInput"];
+            };
+        };
+        responses: {
+            /** @description The new to-do */
+            201: {
+                headers: {
+                    /** @description The new to-do */
+                    Location?: string;
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ToDoResource"];
+                };
+            };
+            /** @description Missing or invalid access token */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Not a prospector, or no right to manage personal data */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ProblemResource"];
+                };
+            };
+            /** @description Unknown contact, or one of another account */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ProblemResource"];
+                };
+            };
+            /** @description Invalid to-do: without a text, due on no day or at no hour */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ProblemResource"];
+                };
+            };
+        };
+    };
+    get_api_me_to_dos: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description My to-dos */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ToDoListResource"];
+                };
+            };
+            /** @description Missing or invalid access token */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Not a prospector, or no right to manage personal data */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ProblemResource"];
+                };
+            };
+        };
+    };
+    post_api_to_dos_tick_off: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description The to-do, done */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ToDoResource"];
+                };
+            };
+            /** @description Missing or invalid access token */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Not a prospector, or no right to manage personal data */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ProblemResource"];
+                };
+            };
+            /** @description Unknown to-do, or one of another account */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ProblemResource"];
+                };
+            };
+            /** @description Already done */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ProblemResource"];
+                };
+            };
+        };
+    };
+    delete_api_to_dos_untick: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description The to-do, to do again */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ToDoResource"];
+                };
+            };
+            /** @description Missing or invalid access token */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Not a prospector, or no right to manage personal data */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ProblemResource"];
+                };
+            };
+            /** @description Unknown to-do, or one of another account */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ProblemResource"];
+                };
+            };
+            /** @description Not done */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ProblemResource"];
                 };
             };
         };
