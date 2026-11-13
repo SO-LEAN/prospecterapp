@@ -67,6 +67,15 @@ class CalendarApiTest extends ApiTestCase
         yield 'an administrator' => ['administrator', Role::Prospector, Role::Admin];
     }
 
+    public function testAMemberWhoIsNotAProspectorHasNoCalendar(): void
+    {
+        $this->login($this->aMemberOfTheFixtures('assistant', Role::User));
+
+        $this->requestJson('GET', self::WEEK_OF_THE_DEMONSTRATION);
+
+        $this->assertResponseStatusCodeSame(403);
+    }
+
     public function testAPeriodLastsSixWeeksAtMost(): void
     {
         $tooLong = $this->requestJson('GET', '/api/me/calendar?from=2026-11-01T00:00:00%2B01:00&to=2027-01-01T00:00:00%2B01:00');
