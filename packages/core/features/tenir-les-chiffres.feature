@@ -102,3 +102,42 @@ Fonctionnalité: Tenir les chiffres
     Alors mes chiffres sont :
       | organisations prospectées   | 2 |
       | organisations géolocalisées | 1 |
+
+  Scénario: Un échange planifié ne compte pas
+    Soit l'organisation "ACME" fait partie de mes organisations
+    Et le contact "Ada Lovelace" de "ACME"
+    Et nous sommes le 13/11/2026 à 10h00
+    Quand je planifie une visio avec "Ada Lovelace" le 17/11/2026 à 14h00
+    Alors mes chiffres sont :
+      | échanges         | 0 |
+      | échanges du mois | 0 |
+
+  Plan du scénario: Un échange planifié compte une fois qu'il a eu lieu, dans le mois où il a eu lieu
+    Soit l'organisation "ACME" fait partie de mes organisations
+    Et le contact "Ada Lovelace" de "ACME"
+    Et nous sommes le 13/11/2026 à 10h00
+    Et j'ai planifié une visio avec "Ada Lovelace" le 30/11/2026 à 14h00
+    Et nous sommes le 01/12/2026 à 09h00
+    Quand <geste>
+    Alors mes chiffres sont :
+      | échanges         | 1 |
+      | échanges du mois | 0 |
+    Et nous sommes le 30/11/2026 à 18h00
+    Et mes chiffres sont :
+      | échanges         | 1 |
+      | échanges du mois | 1 |
+
+    Exemples:
+      | geste                                             |
+      | je marque cette visio faite le 30/11/2026 à 15h00 |
+      | je marque cette visio manquée                     |
+
+  Scénario: Un échange annulé ne compte pas
+    Soit l'organisation "ACME" fait partie de mes organisations
+    Et le contact "Ada Lovelace" de "ACME"
+    Et nous sommes le 13/11/2026 à 10h00
+    Et j'ai planifié une visio avec "Ada Lovelace" le 17/11/2026 à 14h00
+    Quand j'annule cette visio
+    Alors mes chiffres sont :
+      | échanges         | 0 |
+      | échanges du mois | 0 |
