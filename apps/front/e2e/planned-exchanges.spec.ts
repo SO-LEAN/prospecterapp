@@ -33,6 +33,14 @@ test('plan exchanges with a contact and with an organization, find them to come,
     await expect(page.getByText('Prochain échange : Visio demain 9h00')).toBeVisible()
   })
 
+  await test.step('its detail says who planned it', async () => {
+    await upcoming.first().getByRole('button').click()
+    const detail = page.getByRole('dialog', { name: 'Échange' })
+    await expect(detail).toContainText(/Planifié le .+ par /)
+    await page.keyboard.press('Escape')
+    await expect(detail).toBeHidden()
+  })
+
   await test.step('a call tomorrow at 9:30 is warned of the video call, and still planned', async () => {
     await page.getByRole('button', { name: 'Planifier' }).click()
     await page.getByLabel('Appel', { exact: true }).check()

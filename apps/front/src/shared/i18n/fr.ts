@@ -289,6 +289,7 @@ export const fr = {
       title: 'Échange',
       description: 'Tout l’échange, qui l’a noté et qui l’a corrigé.',
       noted: 'Noté le {{moment}} par {{author}}',
+      planned: 'Planifié le {{moment}} par {{author}}',
       corrected: 'Modifié le {{moment}} par {{author}}',
       madeConform: 'Rendu conforme le {{moment}} par {{author}}',
       correct: 'Corriger',

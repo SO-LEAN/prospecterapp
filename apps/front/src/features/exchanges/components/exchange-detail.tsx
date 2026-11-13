@@ -123,7 +123,7 @@ function Exchange({ exchange, onErased }: { exchange: ExchangeDetail; onErased: 
       </ExchangeSummary>
       <div className="space-y-1 text-muted-foreground text-xs">
         <p>
-          {t('exchanges.detail.noted', {
+          {t(exchange.status === 'planned' ? 'exchanges.detail.planned' : 'exchanges.detail.noted', {
             moment: formatMoment(exchange.noted.at),
             author: memberName(exchange.noted.by),
           })}
