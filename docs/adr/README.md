@@ -118,3 +118,4 @@ Why the project is shaped the way it is: one record per decision, in the order t
 | [0112](0112-a-planned-exchange-is-done-missed-moved-or-cancelled-by-its-holder.md) | A planned exchange is done, missed, moved or cancelled by its holder; a cancelled one is listed from its cancellation | domain | Accepted | 2026-11-13 |
 | [0113](0113-a-to-do-is-an-aggregate-of-prospecting-erased-with-its-contact.md) | A to-do is an aggregate of Prospecting, kept like an exchange, erased with its contact | domain | Accepted | 2026-11-13 |
 | [0114](0114-the-place-and-the-link-of-an-exchange-are-no-personal-data.md) | The place of a meeting and the link of a video call are no personal data: every prospector corrects them | domain | Accepted | 2026-11-13 |
+| [0115](0115-a-calendar-is-read-a-period-at-a-time-on-a-key-of-the-holder.md) | A calendar is read a period at a time, on a key of its holder; the SPA draws its grid | architecture | Accepted | 2026-11-13 |
