@@ -15,6 +15,8 @@ final readonly class ExchangeDetailLinksResource
         public ?LinkResource $correctExchange = null,
         #[OA\Property(nullable: false, description: 'Its text only, offered without the right to manage personal data too')]
         public ?LinkResource $correctText = null,
+        #[OA\Property(nullable: false, description: 'The place of a meeting or the link of a video call, planned or done; offered without the right to manage personal data too')]
+        public ?LinkResource $correctVenue = null,
         #[OA\Property(nullable: false, description: 'Its contact forgotten, a correction of its facts or of its text with madeConform declares it made conform, until it is; offered without the right to manage personal data too')]
         public ?LinkResource $makeConform = null,
         #[OA\Property(nullable: false)]

@@ -50,6 +50,7 @@ final class Vocabulary
         'PlanExchange' => 'planifier un échange',
         'CorrectExchange' => 'corriger l\'échange',
         'CorrectText' => 'corriger le texte',
+        'CorrectVenue' => 'corriger le lieu ou le lien',
         'MakeConform' => 'rendre conforme',
         'EraseExchange' => 'supprimer l\'échange',
         'AttachFile' => 'joindre un fichier',

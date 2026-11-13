@@ -4,6 +4,7 @@ import { orNull, text } from '@/shared/forms/text'
 import { i18n } from '@/shared/i18n'
 import { type Moment, PLANNED_CHANNELS, type PlannedExchangeInput } from './queries'
 import { ITSELF, localMoment } from './schema'
+import { isTheLinkAWebAddress, linkRefused, venueFields, venueOf } from './venue'
 
 const MAX_TEXT = 5000
 const QUARTER_MS = 15 * 60_000
@@ -35,7 +36,10 @@ export const SHORTCUTS = {
 
 const momentOf = (values: { date: string; time: string }) => new Date(`${values.date}T${values.time}`)
 
-/** Mirrors `PlannedExchangeInput` of the API: a call, a meeting or a video call, to come, from 5 minutes to 8 hours. */
+/**
+ * Mirrors `PlannedExchangeInput` of the API: a call, a meeting or a video call, to come, from 5 minutes to 8 hours;
+ * the place of a meeting, the link of a video call, a web address.
+ */
 export const planSchema = z
   .object({
     channel: z.enum(PLANNED_CHANNELS, { error: () => i18n.t('exchanges.chooseChannel') }),
@@ -47,16 +51,27 @@ export const planSchema = z
       .min(SHORTEST, { error: () => i18n.t('exchanges.chooseDuration') })
       .max(LONGEST, { error: () => i18n.t('exchanges.chooseDuration') }),
     text: text(MAX_TEXT),
+    ...venueFields,
     personId: z.string(),
   })
   .refine((values) => momentOf(values).getTime() > Date.now(), {
     path: ['time'],
     error: () => i18n.t('exchanges.inThePast'),
   })
+  .refine(isTheLinkAWebAddress, linkRefused)
 
 export type PlanValues = z.input<typeof planSchema>
 
-export const planFields = ['channel', 'date', 'time', 'durationInMinutes', 'text', 'personId'] as const
+export const planFields = [
+  'channel',
+  'date',
+  'time',
+  'durationInMinutes',
+  'text',
+  'place',
+  'link',
+  'personId',
+] as const
 
 /** Mirrors `MomentInput` of the API: another moment to come, the duration kept. */
 export const moveSchema = z
@@ -81,11 +96,16 @@ export const dateAndTimeOf = (moment: Date) => {
   return { date, time }
 }
 
-/** Quick to plan: the next quarter of an hour, half an hour; only the channel is to choose. */
-export const newPlan = (now: Date): DefaultValues<PlanValues> => ({
+/**
+ * Quick to plan: the next quarter of an hour, half an hour, the place proposed for a meeting; only the channel is
+ * to choose.
+ */
+export const newPlan = (now: Date, proposedPlace = ''): DefaultValues<PlanValues> => ({
   ...dateAndTimeOf(nextQuarterHour(now)),
   durationInMinutes: USUAL,
   text: '',
+  place: proposedPlace,
+  link: '',
   personId: ITSELF,
 })
 
@@ -107,6 +127,7 @@ export const toPlannedExchange = (values: PlanValues): PlannedExchangeInput => (
   occurredAt: momentOf(values).toISOString(),
   durationInMinutes: Number(values.durationInMinutes),
   text: orNull(values.text),
+  ...venueOf(values),
 })
 
 /** The end of a planned exchange. */

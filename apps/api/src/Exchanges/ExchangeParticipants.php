@@ -6,8 +6,8 @@ use App\Contacts\Resource\InterlocutorResource;
 use Prospecter\Core\PersonalData\Application\PersonCard;
 
 /**
- * Who took part in an exchange, read in the other contexts: its interlocutor, and the persons of the members who
- * noted, corrected and made it conform.
+ * Who took part in an exchange, read in the other contexts: its interlocutor and the number they are called at,
+ * and the persons of the members who noted, corrected and made it conform.
  */
 final readonly class ExchangeParticipants
 {
@@ -19,6 +19,7 @@ final readonly class ExchangeParticipants
         public InterlocutorResource $interlocutor,
         public array $persons,
         public array $personOfMember,
+        public ?string $interlocutorPhoneNumber,
     ) {
     }
 }

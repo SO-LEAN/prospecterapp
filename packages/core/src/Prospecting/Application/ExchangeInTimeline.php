@@ -7,7 +7,7 @@ namespace Prospecter\Core\Prospecting\Application;
 /**
  * An exchange in a timeline; its channel, its direction and its status by the values of `Channel`, `Direction` and
  * `ExchangeStatus`, who called it off once cancelled, when said, by the values of `Canceller`, how long it lasts when
- * it was planned, the
+ * it was planned, where a meeting is held, the link of a video call, the
  * contact it was with, none when it was with the organization itself, its text flagged when the prospector reads
  * it without the right to manage personal data, and what is to make conform once its contact was forgotten.
  */
@@ -28,6 +28,8 @@ final readonly class ExchangeInTimeline
         public ?string $canceller,
         public ?int $durationInMinutes,
         public ?string $text,
+        public ?string $place,
+        public ?string $link,
         public bool $textFlagged,
         public bool $textToMakeConform,
         public bool $toMakeConform,

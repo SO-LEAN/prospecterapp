@@ -66,21 +66,28 @@ final readonly class ExchangeReader
         $persons = new KeptPersons();
         ($this->consultPersons)(new ConsultPersons($prospector, array_values(array_unique(array_filter([$exchange->personId, ...array_values($personOfMember)])))), $persons);
 
-        return new ExchangeParticipants($this->interlocutorOf($exchange, $persons->persons), $persons->persons, $personOfMember);
+        if (null === $exchange->personId) {
+            $organization = $this->organizationOf($exchange->organizationIds[0]);
+
+            return new ExchangeParticipants(InterlocutorResource::ofTheOrganization($organization), $persons->persons, $personOfMember, $organization->phoneNumber);
+        }
+
+        $contact = $persons->persons[$exchange->personId] ?? null;
+
+        return new ExchangeParticipants(InterlocutorResource::ofPerson($exchange->personId, $contact, $exchange->contactPresence), $persons->persons, $personOfMember, self::numberToCall($contact));
     }
 
     /**
-     * The contact it was with, or the organization itself, the only one it is kept for.
-     *
-     * @param array<string, PersonCard> $persons by person id
+     * A contact is called at their number read in clear only: a masked one calls nobody.
      */
-    private function interlocutorOf(ExchangeDetail $exchange, array $persons): InterlocutorResource
+    private static function numberToCall(?PersonCard $contact): ?string
     {
-        return null === $exchange->personId
-            ? InterlocutorResource::ofTheOrganization($this->organizationOf($exchange->organizationIds[0]))
-            : InterlocutorResource::ofPerson($exchange->personId, $persons[$exchange->personId] ?? null, $exchange->contactPresence);
+        return null === $contact || $contact->masked ? null : $contact->phoneNumber;
     }
 
+    /**
+     * The organization itself, the only one an exchange with no contact is kept for.
+     */
     private function organizationOf(string $id): OrganizationSheet
     {
         $kept = new KeptOrganization();

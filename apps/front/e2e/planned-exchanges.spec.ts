@@ -41,6 +41,18 @@ test('plan exchanges with a contact and with an organization, find them to come,
     await expect(detail).toBeHidden()
   })
 
+  await test.step('its link added from its detail, it is joined from what is to come', async () => {
+    const meet = 'https://meet.google.com/abc-defg-hij'
+    await upcoming.first().getByRole('button').click()
+    const detail = page.getByRole('dialog', { name: 'Échange' })
+    await detail.getByRole('button', { name: 'Ajouter le lien' }).click()
+    await detail.getByLabel(/Lien de la visio/).fill(meet)
+    await detail.getByRole('button', { name: 'Enregistrer' }).click()
+    await expect(detail.getByRole('link', { name: 'Rejoindre' })).toHaveAttribute('href', meet)
+    await page.keyboard.press('Escape')
+    await expect(upcoming.first().getByRole('link', { name: 'Rejoindre' })).toHaveAttribute('href', meet)
+  })
+
   await test.step('a call tomorrow at 9:30 is warned of the video call, and still planned', async () => {
     await page.getByRole('button', { name: 'Planifier' }).click()
     await page.getByLabel('Appel', { exact: true }).check()
@@ -82,15 +94,25 @@ test('plan exchanges with a contact and with an organization, find them to come,
     await assistant.close()
   })
 
-  await test.step('a meeting with the organization itself, among what is to come of its card', async () => {
+  await test.step('a meeting with the organization itself at a place, among what is to come of its card', async () => {
     await page.getByRole('link', { name: organization }).click()
     await page.getByRole('button', { name: 'Planifier' }).click()
     await page.getByLabel(organization, { exact: true }).check()
     await page.getByLabel('Rendez-vous', { exact: true }).check()
+    await page.getByLabel(/Lieu/).fill('Café de Flore, Paris')
     await page.getByRole('button', { name: 'Lundi 9h' }).click()
     await page.getByRole('button', { name: 'Enregistrer' }).click()
-    await expect(upcoming.filter({ hasText: 'Rendez-vous, À venir' })).toHaveCount(1)
+    const meeting = upcoming.filter({ hasText: 'Rendez-vous, À venir' })
+    await expect(meeting).toHaveCount(1)
     await expect(upcoming).toHaveCount(3)
+    await meeting.getByRole('button').click()
+    const detail = page.getByRole('dialog', { name: 'Échange' })
+    await expect(detail).toContainText('Café de Flore, Paris')
+    await expect(detail.getByRole('link', { name: 'Itinéraire' })).toHaveAttribute(
+      'href',
+      /to=Caf%C3%A9\+de\+Flore/,
+    )
+    await page.keyboard.press('Escape')
   })
 
   await test.step('stopping to prospect the organization takes everything along', async () => {

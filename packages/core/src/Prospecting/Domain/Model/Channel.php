@@ -24,4 +24,22 @@ enum Channel: string
     {
         return in_array($this, [self::Call, self::Meeting, self::VideoCall], true);
     }
+
+    public function isHeldSomewhere(): bool
+    {
+        return self::Meeting === $this;
+    }
+
+    public function isJoinedByALink(): bool
+    {
+        return self::VideoCall === $this;
+    }
+
+    /**
+     * A meeting has its place, a video call its link.
+     */
+    public function hasAVenue(): bool
+    {
+        return $this->isHeldSomewhere() || $this->isJoinedByALink();
+    }
 }

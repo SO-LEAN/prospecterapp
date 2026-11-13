@@ -4,17 +4,17 @@ import { useTranslation } from 'react-i18next'
 import { toast } from 'sonner'
 import type { components } from '@/shared/api/schema'
 import { i18n } from '@/shared/i18n'
-import { directionsUrl } from '@/shared/lib/address'
+import { type Destination, directionsUrl } from '@/shared/lib/address'
 import { findDevicePosition } from '@/shared/lib/device-position'
 import { Button } from '@/shared/ui/button'
 
 type Location = components['schemas']['LocationResource']
 
 /**
- * The route to `to` on OpenStreetMap, from `start` (my organization) when known, else from where the device is,
+ * The route to `to`, a position or an address written freely, on OpenStreetMap, from `start` (my organization) when known, else from where the device is,
  * asked only on the click.
  */
-export function DirectionsLink({ to, start }: { to: Location; start?: Location | null }) {
+export function DirectionsLink({ to, start }: { to: Destination; start?: Location | null }) {
   const { t } = useTranslation()
   const [locating, setLocating] = useState(false)
 
@@ -48,7 +48,7 @@ export function DirectionsLink({ to, start }: { to: Location; start?: Location |
  * The position is asked from this tab, where the browser shows its question. A tab opened after a late answer is
  * blocked by the browser: the route is then offered, to be opened by a new click.
  */
-async function openTheRouteFromTheDevice(to: Location) {
+async function openTheRouteFromTheDevice(to: Destination) {
   const route = directionsUrl(to, await findDevicePosition())
   if (!openInANewTab(route)) {
     toast(i18n.t('organizations.address.directionsReady'), {

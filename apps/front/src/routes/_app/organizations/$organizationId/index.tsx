@@ -24,6 +24,7 @@ import { OrganizationToDosSection } from '@/features/to-dos/components/to-dos-se
 import { useNoteTheExchangeProposal } from '@/features/to-dos/note-the-exchange'
 import { organizationToDosQuery } from '@/features/to-dos/queries'
 import { ensureSharedQueryData } from '@/shared/api/ensure-shared-query-data'
+import { placeOf } from '@/shared/lib/address'
 import { notFoundWhenTheApiSaysSo, uuidParams } from '@/shared/lib/route-params'
 import { BackButton } from '@/shared/ui/back-button'
 import { Badge } from '@/shared/ui/badge'
@@ -127,7 +128,11 @@ function ToDosAndExchanges({ organization, name }: { organization: Organization;
       {organization._links.toDos && (
         <OrganizationToDosSection organizationId={organization.id} onTickedOff={proposal.propose} />
       )}
-      <OrganizationExchangesSection organizationId={organization.id} interlocutors={interlocutors} />
+      <OrganizationExchangesSection
+        organizationId={organization.id}
+        meetingPlace={placeOf(organization.address)}
+        interlocutors={interlocutors}
+      />
       <NoteTheExchangeWithTheOrganization
         organizationId={organization.id}
         interlocutors={interlocutors}

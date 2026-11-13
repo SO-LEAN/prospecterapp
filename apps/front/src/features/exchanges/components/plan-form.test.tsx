@@ -18,7 +18,10 @@ vi.mock('@/shared/auth/session', () => ({
 const ADA = '0190a1c0-0000-7000-8000-000000000001'
 const ROBERT = '0190a1c0-0000-7000-8000-000000000002'
 
-function renderForm(overlapping?: { startsAt: string; durationInMinutes: number; answer: PlannedExchanges }) {
+function renderForm(
+  overlapping?: { startsAt: string; durationInMinutes: number; answer: PlannedExchanges },
+  proposedPlace?: string,
+) {
   const queryClient = new QueryClient({
     defaultOptions: { queries: { staleTime: Number.POSITIVE_INFINITY } },
   })
@@ -35,6 +38,7 @@ function renderForm(overlapping?: { startsAt: string; durationInMinutes: number;
         onSubmit={onSubmit}
         onCancel={vi.fn()}
         interlocutors={{ organization: 'ACME', contacts: [{ id: ROBERT, name: 'Robert Noyce' }] }}
+        proposedPlace={proposedPlace}
       />
     </QueryClientProvider>,
   )
@@ -75,6 +79,8 @@ describe('PlanForm', () => {
         occurredAt: new Date('2026-11-14T09:00').toISOString(),
         durationInMinutes: 60,
         text: null,
+        place: null,
+        link: null,
       },
       ROBERT,
     )
@@ -94,7 +100,79 @@ describe('PlanForm', () => {
         occurredAt: new Date('2026-11-13T10:15').toISOString(),
         durationInMinutes: 30,
         text: null,
+        place: null,
+        link: null,
       },
+      null,
+    )
+  })
+
+  it('proposes the place of a meeting, sent as written', async () => {
+    const { onSubmit, user } = renderForm(undefined, '12 rue de la Paix, 75002 Paris')
+
+    await user.click(screen.getByLabelText('Rendez-vous'))
+    const place = screen.getByLabelText(/Lieu/)
+    expect(place).toHaveValue('12 rue de la Paix, 75002 Paris')
+    await user.clear(place)
+    await user.type(place, 'Café de Flore')
+    await user.click(save())
+
+    expect(onSubmit).toHaveBeenCalledWith(
+      expect.objectContaining({ channel: 'meeting', place: 'Café de Flore', link: null }),
+      null,
+    )
+  })
+
+  it('takes the Meet link of an invitation pasted whole', async () => {
+    const { onSubmit, user } = renderForm()
+
+    await user.click(screen.getByLabelText('Visio'))
+    await user.click(screen.getByLabelText(/Lien de la visio/))
+    await user.paste(
+      'Démonstration\nRejoindre : https://meet.google.com/abc-defg-hij\nOu par téléphone : +33 1 23 45 67 89',
+    )
+    await user.click(save())
+
+    expect(screen.getByLabelText(/Lien de la visio/)).toHaveValue('https://meet.google.com/abc-defg-hij')
+    expect(onSubmit).toHaveBeenCalledWith(
+      expect.objectContaining({
+        channel: 'videoCall',
+        place: null,
+        link: 'https://meet.google.com/abc-defg-hij',
+      }),
+      null,
+    )
+  })
+
+  it('plans a video call without its link, to add later', async () => {
+    const { onSubmit, user } = renderForm()
+
+    await user.click(screen.getByLabelText('Visio'))
+    await user.click(save())
+
+    expect(onSubmit).toHaveBeenCalledWith(expect.objectContaining({ channel: 'videoCall', link: null }), null)
+  })
+
+  it('refuses a link that is no web address', async () => {
+    const { onSubmit, user } = renderForm()
+
+    await user.click(screen.getByLabelText('Visio'))
+    await user.type(screen.getByLabelText(/Lien de la visio/), 'réunion de mardi')
+    await user.click(save())
+
+    expect(await screen.findByText(/Le lien d’une visio est une adresse web/)).toBeInTheDocument()
+    expect(onSubmit).not.toHaveBeenCalled()
+  })
+
+  it('sends no place for a call, even one proposed', async () => {
+    const { onSubmit, user } = renderForm(undefined, '12 rue de la Paix, 75002 Paris')
+
+    await user.click(screen.getByLabelText('Appel'))
+    await user.click(save())
+
+    expect(screen.queryByLabelText(/Lieu/)).not.toBeInTheDocument()
+    expect(onSubmit).toHaveBeenCalledWith(
+      expect.objectContaining({ channel: 'call', place: null, link: null }),
       null,
     )
   })

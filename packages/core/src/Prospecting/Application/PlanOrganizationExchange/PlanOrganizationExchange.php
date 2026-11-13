@@ -7,7 +7,8 @@ namespace Prospecter\Core\Prospecting\Application\PlanOrganizationExchange;
 /**
  * Plans, from the card of an organization, a call, a meeting or a video call with the organization itself, or
  * with one of its contacts when `personId` names one, held by the prospector who plans it. The channel is named
- * by the values of `Channel`; the duration, in minutes, is half an hour when left out.
+ * by the values of `Channel`; the duration, in minutes, is half an hour when left out; a meeting may have its
+ * place, a video call its link.
  */
 final readonly class PlanOrganizationExchange
 {
@@ -21,6 +22,8 @@ final readonly class PlanOrganizationExchange
         public ?int $durationInMinutes,
         public ?string $agenda,
         public \DateTimeImmutable $executedAt,
+        public ?string $place = null,
+        public ?string $link = null,
     ) {
     }
 }

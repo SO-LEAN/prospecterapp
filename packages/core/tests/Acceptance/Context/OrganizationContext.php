@@ -27,6 +27,7 @@ use Prospecter\Core\Prospecting\Application\StartProspecting\StartProspecting;
 use Prospecter\Core\Prospecting\Application\StopProspecting\StopProspecting;
 use Prospecter\Core\Prospecting\Application\WriteObservations\WriteObservations;
 use Prospecter\Core\Prospecting\Domain\Model\Organization;
+use Prospecter\Core\SharedKernel\Domain\Address;
 use Prospecter\Core\SharedKernel\Domain\ContactDetails;
 use Prospecter\Core\SharedKernel\Domain\Email;
 use Prospecter\Core\SharedKernel\Domain\File;
@@ -70,6 +71,19 @@ final class OrganizationContext implements Context
         $organization = Organization::prospectedBy($this->scenario->prospectorOf($this->scenario->accountIdOf($owner)), new OrganizationId($this->application->newIdentity()), new LegalIdentity($name), new ContactDetails(), $this->application->now());
 
         return $this->scenario->save($name, $organization);
+    }
+
+    /**
+     * The address as written on one line: its street, then its postal code and its city.
+     */
+    #[Given('l\'organisation :name au :address appartient à :owner')]
+    public function anOrganizationAtAnAddressProspectedBy(string $name, string $address, string $owner): void
+    {
+        [$street, $postalCodeAndCity] = explode(', ', $address, 2);
+        [$postalCode, $city] = explode(' ', $postalCodeAndCity, 2);
+        $organization = $this->anOrganizationProspectedBy($name, $owner);
+        $organization->relocateTo(new Address($street, $postalCode, $city), null, by: $this->scenario->managerOf($organization), at: $this->application->now());
+        $this->application->organizations->save($organization);
     }
 
     #[Given('l\'organisation :name appartient à :owner avec :')]

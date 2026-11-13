@@ -14,10 +14,17 @@ import { ITSELF, newExchange } from '../schema'
 import { ExchangeForm, type Interlocutors } from './exchange-form'
 import { ExchangeLine } from './exchange-line'
 import { NoteThenFollowUp } from './follow-up'
+import { JoinTheVideoCall } from './join-the-video-call'
 import { PlanForm } from './plan-form'
 import { NoteExchangeDialog, PlanExchangeDialog, ProposedExchangeDialog, TimelineCard } from './timeline-card'
 
-type Props = { organizationId: string; interlocutors: Interlocutors; className?: string }
+type Props = {
+  organizationId: string
+  interlocutors: Interlocutors
+  /** Its address on one line, where a meeting is proposed to be held. */
+  meetingPlace?: string
+  className?: string
+}
 
 type ProposedProps = {
   organizationId: string
@@ -61,7 +68,12 @@ export function NoteTheExchangeWithTheOrganization({
  * to come the soonest first, then the past, the most recent first (ADR 0076); narrowed to those to make conform, their contact forgotten, by the badge
  * counting them (ADR 0079).
  */
-export function OrganizationExchangesSection({ organizationId, interlocutors, className }: Props) {
+export function OrganizationExchangesSection({
+  organizationId,
+  interlocutors,
+  meetingPlace,
+  className,
+}: Props) {
   const all = useInfiniteQuery(organizationTimelineQuery(organizationId))
   const [narrowed, setNarrowed] = useState(false)
   const toMakeConform = all.data?.pages[0]?.toMakeConform ?? 0
@@ -97,12 +109,14 @@ export function OrganizationExchangesSection({ organizationId, interlocutors, cl
       items={slices.flatMap((slice) => slice.items)}
       keyOf={(item) => item.exchange.id}
       renderItem={(item) => <ExchangeLine exchange={item.exchange} interlocutor={item.interlocutor} />}
+      actionOf={(item) => <JoinTheVideoCall exchange={item.exchange} />}
       planExchange={
         mayPlan && (
           <PlanExchangeDialog name={interlocutors.organization}>
             {(close) => (
               <PlanForm
                 interlocutors={interlocutors}
+                proposedPlace={meetingPlace}
                 onCancel={close}
                 onSubmit={async (exchange, personId) => {
                   await plan.mutateAsync({

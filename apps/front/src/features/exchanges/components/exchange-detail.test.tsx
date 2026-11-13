@@ -21,6 +21,9 @@ const anExchange = (exchange: Partial<ExchangeDetail>): ExchangeDetail => ({
   status: 'done',
   durationInMinutes: null,
   text: 'Intéressée par une mission en mars',
+  place: null,
+  link: null,
+  phoneNumber: null,
   textFlagged: false,
   textToMakeConform: false,
   toMakeConform: false,
@@ -105,6 +108,69 @@ describe('ExchangeDetailSheet', () => {
     await renderTheDetail(anExchange({ status: 'planned', channel: 'videoCall', durationInMinutes: 30 }))
 
     expect(screen.getByText(/^Planifié le 15 oct\. 2026, .* par Michel Maier$/)).toBeInTheDocument()
+  })
+
+  it('offers to join a video call to come in a new tab', async () => {
+    await renderTheDetail(
+      anExchange({ status: 'planned', channel: 'videoCall', link: 'https://meet.google.com/abc-defg-hij' }),
+    )
+
+    const join = screen.getByRole('link', { name: 'Rejoindre' })
+    expect(join).toHaveAttribute('href', 'https://meet.google.com/abc-defg-hij')
+    expect(join).toHaveAttribute('target', '_blank')
+  })
+
+  it('shows the place of a meeting to come and the route to it', async () => {
+    await renderTheDetail(
+      anExchange({ status: 'planned', channel: 'meeting', place: 'Café de Flore, Paris' }),
+    )
+
+    expect(screen.getByText('Café de Flore, Paris')).toBeInTheDocument()
+    expect(screen.getByRole('link', { name: 'Itinéraire' })).toHaveAttribute(
+      'href',
+      'https://www.openstreetmap.org/directions?to=Caf%C3%A9+de+Flore%2C+Paris',
+    )
+  })
+
+  it('offers to call the interlocutor of a call to come at their number', async () => {
+    await renderTheDetail(
+      anExchange({ status: 'planned', channel: 'call', phoneNumber: '+33 3 88 00 00 42' }),
+    )
+
+    expect(screen.getByRole('link', { name: 'Appeler' })).toHaveAttribute('href', 'tel:+33388000042')
+  })
+
+  it('offers neither to join nor to call once the exchange is done', async () => {
+    await renderTheDetail(anExchange({ channel: 'videoCall', link: 'https://meet.google.com/abc-defg-hij' }))
+
+    expect(screen.queryByRole('link', { name: 'Rejoindre' })).not.toBeInTheDocument()
+  })
+
+  it('adds the link of a video call planned without it', async () => {
+    const correctVenue = { href: `${self.href}/venue`, method: 'PATCH' }
+    const user = await renderTheDetail(
+      anExchange({ status: 'planned', channel: 'videoCall', _links: { self, correctVenue } }),
+    )
+
+    await user.click(screen.getByRole('button', { name: 'Ajouter le lien' }))
+
+    expect(screen.getByLabelText(/Lien de la visio/)).toHaveValue('')
+  })
+
+  it('corrects the place of a meeting from what it is', async () => {
+    const correctVenue = { href: `${self.href}/venue`, method: 'PATCH' }
+    const user = await renderTheDetail(
+      anExchange({
+        status: 'planned',
+        channel: 'meeting',
+        place: 'Café de Flore',
+        _links: { self, correctVenue },
+      }),
+    )
+
+    await user.click(screen.getByRole('button', { name: 'Corriger le lieu' }))
+
+    expect(screen.getByLabelText(/Lieu/)).toHaveValue('Café de Flore')
   })
 
   it('shows who noted it as a member without a name while their profile has neither name nor email', async () => {

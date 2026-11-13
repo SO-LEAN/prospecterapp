@@ -1,8 +1,8 @@
 import { useQuery } from '@tanstack/react-query'
-import { Pencil, Trash2 } from 'lucide-react'
+import { MapPin, Pencil, Phone, Trash2 } from 'lucide-react'
 import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { formatMoment } from '@/shared/lib/format'
+import { formatMoment, telUrl } from '@/shared/lib/format'
 import { memberName } from '@/shared/lib/member-name'
 import { Button } from '@/shared/ui/button'
 import {
@@ -15,6 +15,7 @@ import {
   DialogTitle,
   DialogTrigger,
 } from '@/shared/ui/dialog'
+import { DirectionsLink } from '@/shared/ui/directions-link'
 import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle } from '@/shared/ui/sheet'
 import { Skeleton } from '@/shared/ui/skeleton'
 import {
@@ -22,6 +23,7 @@ import {
   useAttachFiles,
   useCorrectExchange,
   useCorrectExchangeText,
+  useCorrectExchangeVenue,
   useEraseExchange,
   useMarkExchangeDone,
   useMoveExchange,
@@ -35,8 +37,10 @@ import { ExchangeForm } from './exchange-form'
 import { ExchangeSummary } from './exchange-line'
 import { ExchangeText } from './exchange-text'
 import { FollowUp } from './follow-up'
+import { JoinTheVideoCall } from './join-the-video-call'
 import { MoveForm, PlannedExchangeActions, ReportForm } from './planned-exchange-handling'
 import { TextCorrectionForm } from './text-correction-form'
+import { VenueCorrectionForm } from './venue-correction-form'
 
 type Props = { exchangeId: string | null; onClose: () => void }
 
@@ -73,10 +77,10 @@ function ExchangePanel({ exchangeId, onErased }: { exchangeId: string; onErased:
 }
 
 /**
- * What is being done of it: all its facts or its text only corrected, its report written once done, then what follows
- * planned, its moment moved; or nothing while it is read.
+ * What is being done of it: all its facts, its text only, its place or its link corrected, its report written once
+ * done, then what follows planned, its moment moved; or nothing while it is read.
  */
-type Correcting = 'facts' | 'text' | 'report' | 'followUp' | 'move' | null
+type Correcting = 'facts' | 'text' | 'venue' | 'report' | 'followUp' | 'move' | null
 
 function Exchange({ exchange, onErased }: { exchange: ExchangeDetail; onErased: () => void }) {
   const { t } = useTranslation()
@@ -86,6 +90,7 @@ function Exchange({ exchange, onErased }: { exchange: ExchangeDetail; onErased: 
   const markDone = useMarkExchangeDone()
   const move = useMoveExchange()
   const attach = useAttachFiles()
+  const correctVenue = useCorrectExchangeVenue()
   const params = { path: { id: exchange.id } }
   const mayDeclareConform = Boolean(exchange._links.makeConform)
 
@@ -160,6 +165,21 @@ function Exchange({ exchange, onErased }: { exchange: ExchangeDetail; onErased: 
     )
   }
 
+  if (correcting === 'venue') {
+    return (
+      <div className="px-4 pb-4">
+        <VenueCorrectionForm
+          exchange={exchange}
+          onCancel={() => setCorrecting(null)}
+          onSubmit={async (body) => {
+            await correctVenue.mutateAsync({ params, body })
+            setCorrecting(null)
+          }}
+        />
+      </div>
+    )
+  }
+
   return (
     <div className="space-y-4 px-4 pb-4 text-sm">
       <ExchangeSummary
@@ -178,6 +198,7 @@ function Exchange({ exchange, onErased }: { exchange: ExchangeDetail; onErased: 
           </div>
         )}
       </ExchangeSummary>
+      <Venue exchange={exchange} />
       <div className="space-y-1 text-muted-foreground text-xs">
         <p>
           {t(exchange.status === 'planned' ? 'exchanges.detail.planned' : 'exchanges.detail.noted', {
@@ -220,6 +241,11 @@ function Exchange({ exchange, onErased }: { exchange: ExchangeDetail; onErased: 
             </Button>
           )
         )}
+        {exchange._links.correctVenue && (
+          <Button variant="outline" onClick={() => setCorrecting('venue')}>
+            <Pencil aria-hidden /> {t(venueCorrectionOf(exchange))}
+          </Button>
+        )}
         {exchange._links.eraseExchange && <EraseExchange exchangeId={exchange.id} onErased={onErased} />}
       </div>
     </div>
@@ -250,6 +276,50 @@ function PlanTheFollowUp({ exchange, onDone }: { exchange: ExchangeDetail; onDon
     />
   )
 }
+
+/**
+ * What is done in one click to hold an exchange to come: the route to the place of a meeting, joining a video call,
+ * calling the number of the interlocutor; the place of a meeting shown even once it is done.
+ */
+function Venue({ exchange }: { exchange: ExchangeDetail }) {
+  const { t } = useTranslation()
+  const planned = exchange.status === 'planned'
+  const numberToCall = planned && exchange.channel === 'call' ? exchange.phoneNumber : null
+
+  if (!exchange.place && !exchange.link && !numberToCall) {
+    return null
+  }
+
+  return (
+    <div className="space-y-2">
+      {exchange.place && (
+        <p className="flex items-start gap-2">
+          <MapPin aria-hidden className="mt-0.5 size-4 shrink-0 text-muted-foreground" />
+          <span className="break-words">{exchange.place}</span>
+        </p>
+      )}
+      <div className="flex flex-wrap gap-2">
+        {planned && exchange.place && <DirectionsLink to={exchange.place} />}
+        <JoinTheVideoCall exchange={exchange} />
+        {numberToCall && (
+          <Button variant="outline" size="sm" asChild>
+            <a href={telUrl(numberToCall)}>
+              <Phone aria-hidden /> {t('exchanges.call')}
+            </a>
+          </Button>
+        )}
+      </div>
+    </div>
+  )
+}
+
+/** Correcting the place of a meeting, the link of a video call, or adding the link it does not have yet. */
+const venueCorrectionOf = (exchange: ExchangeDetail) =>
+  exchange.channel === 'meeting'
+    ? 'exchanges.detail.correctPlace'
+    : exchange.link
+      ? 'exchanges.detail.correctLink'
+      : 'exchanges.detail.addLink'
 
 /** Erasing an exchange cannot be undone: it is confirmed first. */
 function EraseExchange({ exchangeId, onErased }: { exchangeId: string; onErased: () => void }) {

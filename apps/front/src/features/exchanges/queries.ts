@@ -24,6 +24,7 @@ export type TextCorrection = components['schemas']['TextCorrectionInput']
 export type Report = components['schemas']['ReportInput']
 export type Moment = components['schemas']['MomentInput']
 export type Canceller = NonNullable<components['schemas']['CancellationInput']['canceller']>
+export type VenueCorrection = components['schemas']['VenueCorrectionInput']
 export type Channel = Exchange['channel']
 export type Direction = Exchange['direction']
 
@@ -145,3 +146,7 @@ export const timelineKeys = {
 
 export const exchangeQuery = (id: string) =>
   api.queryOptions('get', '/api/exchanges/{id}', { params: { path: { id } } })
+
+/** Where to meet a contact: the address of their organization, proposed while planning a meeting. */
+export const meetingPlaceQuery = (contactId: string) =>
+  api.queryOptions('get', '/api/contacts/{id}/meeting-place', { params: { path: { id: contactId } } })

@@ -26,6 +26,7 @@ final class ExchangePossibilities
 
         return array_values(array_filter(ExchangeIntent::cases(), static fn (ExchangeIntent $intent): bool => match ($intent) {
             ExchangeIntent::CorrectExchange => self::happened($situation->status),
+            ExchangeIntent::CorrectVenue => $situation->channel->hasAVenue(),
             ExchangeIntent::AttachFile => $situation->attachments < Exchange::MOST_ATTACHMENTS,
             ExchangeIntent::MakeConform => $situation->awaitsBeingMadeConform,
             ExchangeIntent::MarkExchangeDone, ExchangeIntent::MarkExchangeMissed => $handled && $situation->due,

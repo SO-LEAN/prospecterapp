@@ -42,12 +42,13 @@ Fonctionnalité: Corriger un échange
     Et je suis connecté en tant que "Michel"
     Quand je consulte cet échange
     Alors je peux sur l'échange :
-      | corriger le texte        |
-      | supprimer l'échange      |
-      | joindre un fichier       |
-      | retirer une pièce jointe |
-      | déplacer                 |
-      | annuler                  |
+      | corriger le texte           |
+      | corriger le lieu ou le lien |
+      | supprimer l'échange         |
+      | joindre un fichier          |
+      | retirer une pièce jointe    |
+      | déplacer                    |
+      | annuler                     |
     Quand je corrige cet échange :
       | canal | Appel |
     Alors c'est refusé : "Only an exchange that took place is corrected"

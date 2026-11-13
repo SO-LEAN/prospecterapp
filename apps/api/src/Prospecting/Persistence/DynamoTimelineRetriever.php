@@ -140,6 +140,8 @@ final readonly class DynamoTimelineRetriever implements TimelineRetriever
             canceller: ExchangeDocument::cancellerOf($document),
             durationInMinutes: isset($facts['durationInMinutes']) ? (int) $facts['durationInMinutes'] : null,
             text: $facts['text'],
+            place: $facts['place'] ?? null,
+            link: $facts['link'] ?? null,
             textFlagged: ExchangeReading::isTextFlagged($hasText, $reader),
             textToMakeConform: ExchangeConformity::isTextToMakeConform($hasText, $contactForgotten, $declaredConform),
             toMakeConform: ExchangeConformity::isToMakeConform($contactForgotten, $declaredConform, [] !== $attachments),

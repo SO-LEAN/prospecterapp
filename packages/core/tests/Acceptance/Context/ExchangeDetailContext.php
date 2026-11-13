@@ -13,6 +13,7 @@ use Prospecter\Core\Prospecting\Application\ConsultExchange\ConsultExchange;
 use Prospecter\Core\Prospecting\Application\ConsultExchange\ExchangeDetail;
 use Prospecter\Core\Prospecting\Application\CorrectExchange\CorrectExchange;
 use Prospecter\Core\Prospecting\Application\CorrectExchangeText\CorrectExchangeText;
+use Prospecter\Core\Prospecting\Application\CorrectExchangeVenue\CorrectExchangeVenue;
 use Prospecter\Core\Prospecting\Application\EraseExchange\EraseExchange;
 use Prospecter\Core\Prospecting\Application\NoteExchange\NoteExchange;
 use Prospecter\Core\Prospecting\Application\NoteOrganizationExchange\NoteOrganizationExchange;
@@ -106,6 +107,30 @@ final class ExchangeDetailContext implements Context
     private function storedStatus(): ExchangeStatus
     {
         return StateOf::the($this->application->exchanges->get(new ExchangeId($this->scenario->theExchange())))['status'];
+    }
+
+    #[When('je corrige le lieu de cet échange en :place')]
+    public function iCorrectThePlace(string $place): void
+    {
+        $this->application->dispatch(new CorrectExchangeVenue($this->application->signedIn(), $this->scenario->theExchange(), $place, null, $this->application->now()));
+    }
+
+    #[When('je corrige le lien de cet échange en :link')]
+    public function iCorrectTheLink(string $link): void
+    {
+        $this->application->dispatch(new CorrectExchangeVenue($this->application->signedIn(), $this->scenario->theExchange(), null, $link, $this->application->now()));
+    }
+
+    #[Then('le détail du rendez-vous propose l\'itinéraire vers :place')]
+    public function theDetailLeadsToThePlace(string $place): void
+    {
+        Expect::same($place, $this->consulted()->place);
+    }
+
+    #[Then('le détail de la visio propose de la rejoindre à :link')]
+    public function theDetailOffersToJoin(string $link): void
+    {
+        Expect::same($link, $this->consulted()->link);
     }
 
     #[When('je supprime cet échange')]
