@@ -8,12 +8,14 @@ Read the document of your subject before working on it: it says the rule in forc
 |---|---|
 | The core: the hexagon, use cases, CQRS, read models, policies, refusals, domain events, dependencies | [architecture/core.md](architecture/core.md) |
 | The bounded contexts, what each publishes to the others, their anticorruption layers | [architecture/contexts.md](architecture/contexts.md) |
+| The messaging between the contexts, end to end: outbox, relay, bus, worker, failures, operations | [architecture/messaging.md](architecture/messaging.md) |
 | Persistence: DynamoDB, documents, keys, retrievers, search, slices | [architecture/persistence.md](architecture/persistence.md) |
 | The API: endpoints, inputs, resources, presenters, links, errors, access, wiring | [architecture/api.md](architecture/api.md) |
 | Authentication: Cognito, tokens, sign-in | [architecture/auth.md](architecture/auth.md) |
 | The files: the storage app, the buckets, the sizes, the private files | [architecture/storage.md](architecture/storage.md) |
 | The front: stack, folders, data, forms, navigation | [architecture/front.md](architecture/front.md), design rules [architecture/design-system.md](architecture/design-system.md) |
 | The local stack: Docker, MiniStack, the Lambdas, the hosts | [architecture/local-stack.md](architecture/local-stack.md) |
+| The local stack and the instances on AWS: where they differ | [architecture/local-vs-aws.md](architecture/local-vs-aws.md) |
 | The infrastructure on AWS: Terraform, instances, deployment | [architecture/infra.md](architecture/infra.md) |
 | The monorepo and its builds | [architecture/monorepo.md](architecture/monorepo.md) |
 | The workflow: branches, pull requests, CI, the backlog | [architecture/workflow.md](architecture/workflow.md) |

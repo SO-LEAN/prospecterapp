@@ -23,6 +23,8 @@ In the API, the anticorruption layers implementing the ports of a context are in
 
 ## How events travel
 
+The whole mechanism, drawn, with its failures and its operations: `messaging.md`.
+
 Every event leaves its context in the shape of an event of EventBridge (ADR 0097). With the delivery `outbox` (`INTEGRATION_EVENTS_DELIVERY`, the local stack and the instances, ADR 0108), it is written with the command and relayed to the bus of EventBridge (ADR 0098, `persistence.md`), whose rules give it to the worker, which runs the reactions after the command, each in its own transaction (ADR 0101, [below](#the-worker)). The tests keep the delivery `sync`, and so does an instance naming it in its value `integration_events_delivery` (`infra.md`): every event delivered at once, within the command, a reaction refusing refusing the gesture.
 
 | Field | Value |
