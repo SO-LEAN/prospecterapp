@@ -1,7 +1,10 @@
 import { useQuery, useSuspenseQuery } from '@tanstack/react-query'
 import { createFileRoute, useNavigate } from '@tanstack/react-router'
 import { accountQuery } from '@/features/account/queries'
-import { OrganizationExchangesSection } from '@/features/exchanges/components/organization-exchanges-section'
+import {
+  NoteTheExchangeWithTheOrganization,
+  OrganizationExchangesSection,
+} from '@/features/exchanges/components/organization-exchanges-section'
 import { organizationTimelineQuery } from '@/features/exchanges/queries'
 import { AddressSection } from '@/features/organizations/components/address-section'
 import { ContactDetailsSection } from '@/features/organizations/components/contact-details-section'
@@ -17,6 +20,9 @@ import {
   organizationContactsQuery,
   organizationQuery,
 } from '@/features/organizations/queries'
+import { OrganizationToDosSection } from '@/features/to-dos/components/to-dos-section'
+import { useNoteTheExchangeProposal } from '@/features/to-dos/note-the-exchange'
+import { organizationToDosQuery } from '@/features/to-dos/queries'
 import { ensureSharedQueryData } from '@/shared/api/ensure-shared-query-data'
 import { notFoundWhenTheApiSaysSo, uuidParams } from '@/shared/lib/route-params'
 import { BackButton } from '@/shared/ui/back-button'
@@ -35,6 +41,9 @@ export const Route = createFileRoute('/_app/organizations/$organizationId/')({
         .then((organization) => {
           if (organization._links.exchanges) {
             void context.queryClient.prefetchInfiniteQuery(organizationTimelineQuery(organization.id))
+          }
+          if (organization._links.toDos) {
+            void context.queryClient.prefetchQuery(organizationToDosQuery(organization.id))
           }
           return organization
         }),
@@ -86,7 +95,7 @@ function OrganizationPage() {
         <div className="space-y-6 lg:col-span-3">
           <LogoSection organization={organization} />
           <AddressSection organization={organization} start={account.organization.location} />
-          {organization._links.exchanges && <Exchanges organization={organization} name={name} />}
+          {organization._links.exchanges && <ToDosAndExchanges organization={organization} name={name} />}
         </div>
       </div>
     </div>
@@ -98,20 +107,34 @@ const nameOf = (organization: Organization) => organization.name || organization
 const fullNameOf = (contact: OrganizationContact) =>
   [contact.name.firstName, contact.name.lastName].filter(Boolean).join(' ')
 
-/** Its timeline, noted with the organization itself or with one of its contacts. */
-function Exchanges({ organization, name }: { organization: Organization; name: string }) {
+/**
+ * Its to-dos then its timeline, noted with the organization itself or with one of its contacts; a to-do ticked off
+ * proposes to note the exchange it led to.
+ */
+function ToDosAndExchanges({ organization, name }: { organization: Organization; name: string }) {
   const contacts = useQuery(organizationContactsQuery(organization.id))
+  const proposal = useNoteTheExchangeProposal()
+  const interlocutors = {
+    organization: name,
+    contacts: (contacts.data?.items ?? []).map((contact) => ({
+      id: contact.id,
+      name: fullNameOf(contact),
+    })),
+  }
 
   return (
-    <OrganizationExchangesSection
-      organizationId={organization.id}
-      interlocutors={{
-        organization: name,
-        contacts: (contacts.data?.items ?? []).map((contact) => ({
-          id: contact.id,
-          name: fullNameOf(contact),
-        })),
-      }}
-    />
+    <>
+      {organization._links.toDos && (
+        <OrganizationToDosSection organizationId={organization.id} onTickedOff={proposal.propose} />
+      )}
+      <OrganizationExchangesSection organizationId={organization.id} interlocutors={interlocutors} />
+      <NoteTheExchangeWithTheOrganization
+        organizationId={organization.id}
+        interlocutors={interlocutors}
+        personId={proposal.accepted?.contact?.id ?? null}
+        open={proposal.accepted !== null}
+        onClose={proposal.close}
+      />
+    </>
   )
 }

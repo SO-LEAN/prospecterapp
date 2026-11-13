@@ -9,9 +9,15 @@ import {
 } from '@/features/contacts/components/contact-sections'
 import { ForgetContact } from '@/features/contacts/components/forget-contact'
 import { contactQuery, fullNameOf } from '@/features/contacts/queries'
-import { ExchangesSection } from '@/features/exchanges/components/exchanges-section'
+import {
+  ExchangesSection,
+  NoteTheExchangeWithTheContact,
+} from '@/features/exchanges/components/exchanges-section'
 import { NextExchange } from '@/features/exchanges/components/next-exchange'
 import { timelineQuery, upcomingQuery } from '@/features/exchanges/queries'
+import { ContactToDosSection } from '@/features/to-dos/components/to-dos-section'
+import { useNoteTheExchangeProposal } from '@/features/to-dos/note-the-exchange'
+import { contactToDosQuery } from '@/features/to-dos/queries'
 import { notFoundWhenTheApiSaysSo, uuidParams } from '@/shared/lib/route-params'
 import { BackButton } from '@/shared/ui/back-button'
 import { Badge } from '@/shared/ui/badge'
@@ -29,6 +35,9 @@ export const Route = createFileRoute('/_app/contacts/$contactId/')({
       void context.queryClient.prefetchInfiniteQuery(timelineQuery(contact.id))
       void context.queryClient.prefetchInfiniteQuery(upcomingQuery(contact.id))
     }
+    if (contact._links.toDos) {
+      void context.queryClient.prefetchQuery(contactToDosQuery(contact.id))
+    }
     return contact
   },
   pendingComponent: () => <PageSkeleton />,
@@ -42,6 +51,7 @@ function ContactPage() {
   const { contactId } = Route.useParams()
   const { data: contact } = useSuspenseQuery(contactQuery(contactId))
   const name = fullNameOf(contact) || t('contacts.unnamed')
+  const proposal = useNoteTheExchangeProposal()
 
   return (
     <div className="space-y-8">
@@ -71,10 +81,23 @@ function ContactPage() {
         <JobTitleSection contact={contact} />
         <ContactDetailsSection contact={contact} />
         <OrganizationsSection contact={contact} />
+        {contact._links.toDos && (
+          <ContactToDosSection
+            contactId={contact.id}
+            onTickedOff={contact._links.exchanges ? proposal.propose : undefined}
+            className="lg:col-span-2"
+          />
+        )}
         {contact._links.exchanges && (
           <ExchangesSection contactId={contact.id} contactName={name} className="lg:col-span-2" />
         )}
       </div>
+      <NoteTheExchangeWithTheContact
+        contactId={contact.id}
+        contactName={name}
+        open={proposal.accepted !== null}
+        onClose={proposal.close}
+      />
     </div>
   )
 }

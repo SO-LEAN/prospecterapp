@@ -165,6 +165,25 @@ export function NoteExchangeDialog({ name, children }: ExchangeDialogProps) {
   )
 }
 
+type ProposedProps = { name: string; open: boolean; onClose: () => void; children: ReactNode }
+
+/** The quick entry of an exchange with this name, opened by the page rather than by a button: proposed after a gesture. */
+export function ProposedExchangeDialog({ name, open, onClose, children }: ProposedProps) {
+  const { t } = useTranslation()
+
+  return (
+    <Dialog open={open} onOpenChange={(opened) => !opened && onClose()}>
+      <DialogContent className="max-h-[calc(100dvh-2rem)] overflow-y-auto">
+        <DialogHeader>
+          <DialogTitle>{t('exchanges.note')}</DialogTitle>
+          <DialogDescription>{t('exchanges.noteDescription', { name })}</DialogDescription>
+        </DialogHeader>
+        {children}
+      </DialogContent>
+    </Dialog>
+  )
+}
+
 /** The button opening the planning of an exchange with this name, in a dialog it closes once planned. */
 export function PlanExchangeDialog({ name, children }: ExchangeDialogProps) {
   const { t } = useTranslation()
