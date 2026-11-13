@@ -2,7 +2,7 @@
 
 What is in force; the reasons are in the records it names (`docs/adr`), read only to know why or before changing it (ADR 0090).
 
-Everything runs in Docker, driven by make (ADR 0015, 0080): MiniStack emulates the AWS services (ADR 0048), the API and the storage run only in their Bref Lambdas on it (ADR 0055), the command line on the PHP of the Lambdas (ADR 0056), nginx serves the hosts. The commands are in the root `CLAUDE.md`, its traps in its Gotchas.
+Everything runs in Docker, driven by make (ADR 0015, 0080): MiniStack emulates the AWS services (ADR 0048), the API and the storage run only in their Bref Lambdas on it (ADR 0055), the command line on the PHP of the Lambdas (ADR 0056), nginx serves the hosts. The commands are in the root `CLAUDE.md`, its traps in its Gotchas; where it differs from an instance on AWS: `local-vs-aws.md`.
 
 ## The API
 
