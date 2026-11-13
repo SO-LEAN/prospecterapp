@@ -1,9 +1,19 @@
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
-import { render, screen } from '@testing-library/react'
+import { render, screen, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import { overlappingQuery, type PlannedExchanges } from '../queries'
 import { PlanForm } from './plan-form'
+
+const theApi = vi.hoisted(() => {
+  const fetch = vi.fn<typeof globalThis.fetch>()
+  globalThis.fetch = fetch
+  return fetch
+})
+
+vi.mock('@/shared/auth/session', () => ({
+  session: { accessToken: async () => null, renewedAccessToken: async () => null },
+}))
 
 const ADA = '0190a1c0-0000-7000-8000-000000000001'
 const ROBERT = '0190a1c0-0000-7000-8000-000000000002'
@@ -35,7 +45,17 @@ const save = () => screen.getByRole('button', { name: 'Enregistrer' })
 
 afterEach(() => {
   vi.useRealTimers()
+  theApi.mockReset()
 })
+
+/** The durations of the overlap checks the form asked the API. */
+const checkedDurations = () =>
+  theApi.mock.calls
+    .map(([request]) => new URL((request as Request).url))
+    .filter((url) => url.pathname === '/api/me/planned-exchanges')
+    .map((url) => url.searchParams.get('durationInMinutes'))
+
+const duration = () => screen.getByLabelText('Durée')
 
 describe('PlanForm', () => {
   it('plans for tomorrow at 9 with a contact, for an hour, in a few clicks', async () => {
@@ -114,6 +134,36 @@ describe('PlanForm', () => {
     await user.click(screen.getByLabelText('Appel'))
     await user.click(save())
     expect(onSubmit).toHaveBeenCalled()
+  })
+
+  it('checks the overlaps only once the duration is typed, not for 12 on the way to 120', async () => {
+    theApi.mockImplementation(async () => Response.json({ items: [] }))
+    const { user } = renderForm()
+    await waitFor(() => expect(checkedDurations()).toEqual(['30']))
+    theApi.mockClear()
+
+    await user.clear(duration())
+    await user.type(duration(), '120')
+
+    await waitFor(() => expect(checkedDurations()).toEqual(['120']))
+    await new Promise((settled) => setTimeout(settled, 400))
+    expect(checkedDurations()).toEqual(['120'])
+  })
+
+  it('marks the quick duration chosen, none when another one is typed', async () => {
+    const { user } = renderForm()
+    const anHour = screen.getByRole('button', { name: '1 h' })
+
+    expect(screen.getByRole('button', { name: '30 min' })).toHaveAttribute('aria-pressed', 'true')
+    await user.click(anHour)
+    expect(anHour).toHaveAttribute('aria-pressed', 'true')
+    expect(screen.getByRole('button', { name: '30 min' })).toHaveAttribute('aria-pressed', 'false')
+
+    await user.clear(duration())
+    await user.type(duration(), '45')
+    for (const quick of ['15 min', '30 min', '1 h', '2 h']) {
+      expect(screen.getByRole('button', { name: quick })).toHaveAttribute('aria-pressed', 'false')
+    }
   })
 })
 

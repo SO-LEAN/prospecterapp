@@ -1,11 +1,12 @@
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useQuery } from '@tanstack/react-query'
 import { TriangleAlert } from 'lucide-react'
-import { useState } from 'react'
+import { useMemo, useState } from 'react'
 import { type UseFormReturn, useForm, useFormState, useWatch } from 'react-hook-form'
 import { useTranslation } from 'react-i18next'
 import { applyViolations } from '@/shared/api/problem'
 import { FormField } from '@/shared/forms/form-field'
+import { useDebouncedValue } from '@/shared/hooks/use-debounced-value'
 import { formatHour } from '@/shared/lib/format'
 import { Alert, AlertDescription } from '@/shared/ui/alert'
 import { Button } from '@/shared/ui/button'
@@ -134,19 +135,7 @@ export function PlanForm({ onSubmit, onCancel, interlocutors }: Props) {
           {...form.register('durationInMinutes', { valueAsNumber: true })}
         />
       </FormField>
-      <div className="flex flex-wrap gap-2">
-        {QUICK_DURATIONS.map((minutes) => (
-          <Button
-            key={minutes}
-            type="button"
-            size="sm"
-            variant="outline"
-            onClick={() => form.setValue('durationInMinutes', minutes, { shouldValidate: true })}
-          >
-            {t(`exchanges.durations.${minutes}`)}
-          </Button>
-        ))}
-      </div>
+      <QuickDurations form={form} />
 
       <Overlaps form={form} />
 
@@ -166,19 +155,49 @@ export function PlanForm({ onSubmit, onCancel, interlocutors }: Props) {
   )
 }
 
-/** The exchanges I planned in the slot being chosen: a warning, the planning still possible. */
+/** The usual durations in a click, the one in force pressed. */
+function QuickDurations({ form }: { form: UseFormReturn<PlanValues> }) {
+  const { t } = useTranslation()
+  const durationInMinutes = useWatch({ control: form.control, name: 'durationInMinutes' })
+
+  return (
+    <div className="flex flex-wrap gap-2">
+      {QUICK_DURATIONS.map((minutes) => {
+        const chosen = durationInMinutes === minutes
+        return (
+          <Button
+            key={minutes}
+            type="button"
+            size="sm"
+            variant={chosen ? 'secondary' : 'outline'}
+            aria-pressed={chosen}
+            onClick={() => form.setValue('durationInMinutes', minutes, { shouldValidate: true })}
+          >
+            {t(`exchanges.durations.${minutes}`)}
+          </Button>
+        )
+      })}
+    </div>
+  )
+}
+
+/**
+ * The exchanges I planned in the slot being chosen: a warning, the planning still possible. Checked once the slot
+ * stopped changing, not for each key typed on the way.
+ */
 function Overlaps({ form }: { form: UseFormReturn<PlanValues> }) {
   const { t } = useTranslation()
   const [date, time, durationInMinutes] = useWatch({
     control: form.control,
     name: ['date', 'time', 'durationInMinutes'],
   })
-  const slot = slotOf({ date, time, durationInMinutes })
+  const slot = useMemo(() => slotOf({ date, time, durationInMinutes }), [date, time, durationInMinutes])
+  const checked = useDebouncedValue(slot)
   const overlapping = useQuery({
-    ...overlappingQuery(slot?.startsAt ?? '', slot?.durationInMinutes ?? 0),
-    enabled: slot !== null,
+    ...overlappingQuery(checked?.startsAt ?? '', checked?.durationInMinutes ?? 0),
+    enabled: checked !== null,
   })
-  const items = slot ? (overlapping.data?.items ?? []) : []
+  const items = slot && checked ? (overlapping.data?.items ?? []) : []
 
   if (items.length === 0) {
     return null

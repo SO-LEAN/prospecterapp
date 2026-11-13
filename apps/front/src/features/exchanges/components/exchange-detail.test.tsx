@@ -101,6 +101,12 @@ describe('ExchangeDetailSheet', () => {
     expect(screen.getByText(/^Modifié le 16 oct\. 2026, .* par assistant@solean-it\.io$/)).toBeInTheDocument()
   })
 
+  it('says who planned an exchange still to come', async () => {
+    await renderTheDetail(anExchange({ status: 'planned', channel: 'videoCall', durationInMinutes: 30 }))
+
+    expect(screen.getByText(/^Planifié le 15 oct\. 2026, .* par Michel Maier$/)).toBeInTheDocument()
+  })
+
   it('shows who noted it as a member without a name while their profile has neither name nor email', async () => {
     await renderTheDetail(
       anExchange({ noted: { at: '2026-10-15T12:35:00+00:00', by: { name: {}, email: null } } }),
