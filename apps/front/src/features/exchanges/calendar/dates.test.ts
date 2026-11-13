@@ -1,4 +1,4 @@
-import { afterAll, beforeAll, describe, expect, it } from 'vitest'
+import { afterEach, describe, expect, it, vi } from 'vitest'
 import {
   addDays,
   byDay,
@@ -55,14 +55,14 @@ describe('periodOf', () => {
   })
 })
 
+/** The time of Paris, which goes from summer to winter at 1:00 UTC on 25 October 2026, whatever the machine runs in. */
+const END_OF_SUMMER_TIME = Date.UTC(2026, 9, 25, 1)
+const PARIS_IN_SUMMER = -120
+const PARIS_IN_WINTER = -60
+
 describe('in a time changing in the period', () => {
-  const timeOfTheMachine = process.env.TZ
-  beforeAll(() => {
-    process.env.TZ = 'Europe/Paris'
-  })
-  afterAll(() => {
-    if (timeOfTheMachine === undefined) delete process.env.TZ
-    else process.env.TZ = timeOfTheMachine
+  afterEach(() => {
+    vi.restoreAllMocks()
   })
 
   it('counts the days of a period by the calendar, not by 24 hours', () => {
@@ -71,6 +71,10 @@ describe('in a time changing in the period', () => {
   })
 
   it('sends each bound at its own offset', () => {
+    vi.spyOn(Date.prototype, 'getTimezoneOffset').mockImplementation(function (this: Date) {
+      return this.getTime() < END_OF_SUMMER_TIME ? PARIS_IN_SUMMER : PARIS_IN_WINTER
+    })
+
     expect(queryOf(periodOf('week', day('2026-10-25')))).toEqual({
       from: '2026-10-19T00:00:00+02:00',
       to: '2026-10-26T00:00:00+01:00',

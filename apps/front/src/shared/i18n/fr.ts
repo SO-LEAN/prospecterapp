@@ -23,7 +23,7 @@ export const fr = {
     views: { month: 'Mois', week: 'Semaine', day: 'Jour', agenda: 'Agenda' },
     view: 'Vue',
     jumpTo: 'Aller à une date',
-    shortcuts: 'Raccourcis : T aujourd’hui, ← → précédent et suivant, M S J A les vues.',
+    shortcuts: 'Raccourcis : T aujourd’hui, ← → précédent et suivant, M S J A les vues.',
     more: '+{{count}}',
     moreOn: '{{count}} de plus le {{day}}, voir la journée',
     toHandle: 'À traiter',
