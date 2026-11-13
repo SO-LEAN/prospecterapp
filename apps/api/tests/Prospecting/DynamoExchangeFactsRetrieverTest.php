@@ -45,7 +45,7 @@ class DynamoExchangeFactsRetrieverTest extends ApiTestCase
         $exchange->correct(new ExchangeFacts(Channel::Call, Direction::Inbound, new \DateTimeImmutable('2026-10-09 08:00 UTC')), ExchangeStatus::Done, by: $this->prospector->id, at: new \DateTimeImmutable(self::NOW));
         $this->exchanges()->save($exchange);
 
-        $this->assertEquals(new ExchangeFactsResponse($exchange->id()->value, 2, true, new \DateTimeImmutable('2026-10-09 08:00 UTC')), $this->retriever()->of($exchange->id()));
+        $this->assertEquals(new ExchangeFactsResponse($exchange->id()->value, 2, true, 'done', new \DateTimeImmutable('2026-10-09 08:00 UTC')), $this->retriever()->of($exchange->id()));
     }
 
     public function testARemovedExchangeIsAbsent(): void

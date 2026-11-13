@@ -31,6 +31,7 @@ final readonly class PublishExchangeFactsHandler implements EventHandler
             $facts->exchangeId,
             $facts->revision,
             $facts->present,
+            $facts->status,
             $facts->notedAt,
             $event->occurredAt,
         ));

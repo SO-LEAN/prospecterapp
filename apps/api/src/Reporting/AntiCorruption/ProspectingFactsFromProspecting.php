@@ -51,7 +51,7 @@ final readonly class ProspectingFactsFromProspecting implements ProspectingFacts
             $kept = new KeptExchangeFacts();
             ($this->listExchangeFactsService)(new ListExchangeFacts($accountId->value, $after, self::SLICE), $kept);
 
-            yield from array_map(static fn (ExchangeFactsResponse $facts): ExchangeFact => new ExchangeFact($accountId, new ExchangeId($facts->exchangeId), $facts->revision, $facts->present, $facts->notedAt), $kept->facts);
+            yield from array_map(static fn (ExchangeFactsResponse $facts): ExchangeFact => ExchangeFact::withStatus($accountId, new ExchangeId($facts->exchangeId), $facts->revision, $facts->present, $facts->status, $facts->notedAt), $kept->facts);
 
             $after = $kept->next;
         } while (null !== $after);

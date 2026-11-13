@@ -12,6 +12,12 @@ abstract readonly class EventTypes
     protected const array TYPES = [];
 
     /**
+     * @var array<string, array<string, class-string>> the former versions of a contract, still read while an outbox
+     *                                                 or a queue of failures may hold them, never written
+     */
+    protected const array FORMER_TYPES = [];
+
+    /**
      * @return array{string, string}|null the source and the detail-type of an event of the class, null when not listed here
      */
     public function typeOf(string $class): ?array
@@ -32,6 +38,6 @@ abstract readonly class EventTypes
      */
     public function classOf(string $source, string $detailType): ?string
     {
-        return static::TYPES[$source][$detailType] ?? null;
+        return static::TYPES[$source][$detailType] ?? static::FORMER_TYPES[$source][$detailType] ?? null;
     }
 }

@@ -24,7 +24,7 @@ use Psr\Clock\ClockInterface;
  * the failures).
  *
  * PK `FACTS#<version>#<account>`, SK `ORGANIZATION#<id>` (`revision`, `present`, `located`), `EXCHANGE#<id>`
- * (`revision`, `present`, `month`, YYYY-MM, null without a moment) or `CONTACT#<id>` (`revision`, `present`),
+ * (`revision`, `present`, `held`, `month`, YYYY-MM, null without a moment) or `CONTACT#<id>` (`revision`, `present`),
  * `expiresAt` the epoch a terminal fact is forgotten at; PK `FIGURES#<version>#<account>`, SK `TOTAL`
  * (`activeOrganizations`, `locatedOrganizations`, `contacts`, `exchanges`) and `MONTH#<YYYY-MM>` (`exchanges`).
  */
@@ -94,14 +94,14 @@ final readonly class DynamoFactRepository implements FactRepository
     {
         return match (true) {
             $fact instanceof OrganizationFact => ['located' => $fact->located],
-            $fact instanceof ExchangeFact => ['month' => null === $fact->notedAt ? null : Month::of($fact->notedAt)->value],
+            $fact instanceof ExchangeFact => ['held' => $fact->held, 'month' => null === $fact->notedAt ? null : Month::of($fact->notedAt)->value],
             default => [],
         };
     }
 
     /**
      * The fact as the version keeps it, of the kind of the one it is about; an exchange noted at the first moment of
-     * its month, the moment Reporting counts.
+     * its month, the moment Reporting counts; kept without `held`, before Reporting told them apart, it was held.
      *
      * @param array<string, mixed> $item
      */
@@ -112,7 +112,7 @@ final readonly class DynamoFactRepository implements FactRepository
 
         return match (true) {
             $about instanceof OrganizationFact => new OrganizationFact($about->accountId, new OrganizationId($about->id->value), $revision, $present, (bool) $item['located']),
-            $about instanceof ExchangeFact => new ExchangeFact($about->accountId, new ExchangeId($about->id->value), $revision, $present, null === $item['month'] ? null : new \DateTimeImmutable($item['month'].'-01T00:00:00Z')),
+            $about instanceof ExchangeFact => new ExchangeFact($about->accountId, new ExchangeId($about->id->value), $revision, $present, (bool) ($item['held'] ?? true), null === $item['month'] ? null : new \DateTimeImmutable($item['month'].'-01T00:00:00Z')),
             $about instanceof ContactFact => new ContactFact($about->accountId, new PersonId($about->id->value), $revision, $present),
             default => throw new \LogicException(sprintf('No item keeps a %s', $about::class)),
         };

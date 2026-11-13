@@ -41,6 +41,6 @@ final readonly class DynamoExchangeFactsRetriever implements ExchangeFactsRetrie
      */
     private static function factsOf(array $item): ExchangeFactsResponse
     {
-        return new ExchangeFactsResponse($item['exchange']['id'], Revision::of($item), true, Documents::momentOf($item['exchange']['facts']['occurredAt']));
+        return new ExchangeFactsResponse($item['exchange']['id'], Revision::of($item), true, ExchangeDocument::statusOf($item['exchange'])->value, Documents::momentOf($item['exchange']['facts']['occurredAt']));
     }
 }

@@ -5,8 +5,9 @@ declare(strict_types=1);
 namespace Prospecter\Core\Prospecting\Contract\Service\ListExchangeFacts;
 
 /**
- * The facts of an exchange, what another context counts of it: whether the account keeps it, the moment it
- * happened, and the revision of its state, incremented at each change.
+ * The facts of an exchange, what another context counts of it: whether the account keeps it, where it stands
+ * (`planned`, `done`, `missed`, `cancelled`), the moment it happens, and the revision of its state, incremented at
+ * each change.
  */
 final readonly class ExchangeFactsResponse
 {
@@ -16,6 +17,7 @@ final readonly class ExchangeFactsResponse
         public string $exchangeId,
         public int $revision,
         public bool $present,
+        public ?string $status,
         public ?\DateTimeImmutable $notedAt,
     ) {
     }
@@ -25,6 +27,6 @@ final readonly class ExchangeFactsResponse
      */
     public static function absent(string $exchangeId): self
     {
-        return new self($exchangeId, self::NO_REVISION, false, null);
+        return new self($exchangeId, self::NO_REVISION, false, null, null);
     }
 }

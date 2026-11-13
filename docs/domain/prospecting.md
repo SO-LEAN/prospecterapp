@@ -33,7 +33,7 @@ The organizations an account prospects, their contacts, the exchanges with them,
 
 - The service `WhichAreProspectedService` (which organizations an account prospects), asked by PersonalData when a contact is collected (ADR 0089).
 - The integration event `ContactsLeftWithoutOrganization` (ADR 0046).
-- The facts of its organizations (present, located) and of its exchanges (present, the moment they happened), each time one changes (`OrganizationFactsChanged`, `ExchangeFactsChanged`), and by slice for an account (`ListOrganizationFactsService`, `ListExchangeFactsService`), for a context counting them without reading its tables (ADR 0099). An organization the account stops prospecting, an erased exchange, give a last fact, absent; an exchange no organization keeps any more is erased like one a member erases.
+- The facts of its organizations (present, located) and of its exchanges (present, their status, the moment they happen), each time one changes (`OrganizationFactsChanged`, `ExchangeFactsChanged`), and by slice for an account (`ListOrganizationFactsService`, `ListExchangeFactsService`), for a context counting them without reading its tables (ADR 0099). An organization the account stops prospecting, an erased exchange, give a last fact, absent; an exchange no organization keeps any more is erased like one a member erases.
 
 ## Features
 

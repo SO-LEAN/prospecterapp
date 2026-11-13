@@ -61,9 +61,9 @@ Fonctionnalité: Le langage publié des contextes
     Soit je suis connecté en tant que prospecteur de "SOLEAN IT"
     Et j'ai noté 3 échanges avec "ACME" elle-même
     Quand un autre contexte demande à Prospecting 2 faits des échanges de "SOLEAN IT"
-    Alors Prospecting répond les faits de 2 échanges, présents, révision 1
+    Alors Prospecting répond les faits de 2 échanges, présents, faits, révision 1
     Quand il demande la suite
-    Alors Prospecting répond les faits de 1 échange, présent, révision 1
+    Alors Prospecting répond les faits de 1 échange, présent, fait, révision 1
     Et Prospecting ne donne pas de suite
 
   Scénario: PersonalData liste les faits des contacts d'un compte, par tranche

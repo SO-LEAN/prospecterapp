@@ -82,7 +82,7 @@ The table of Reporting (`<prefix>-reporting`, ADR 0103, 0104) keeps figures deri
 | Active version | `PROJECTION` | `ACTIVE` | `version` |
 | Version being built | `PROJECTION` | `BUILDING` | `version`, `since` |
 | Fact of an organization | `FACTS#<version>#<account>` | `ORGANIZATION#<id>` | `revision`, `present`, `located` |
-| Fact of an exchange | `FACTS#<version>#<account>` | `EXCHANGE#<id>` | `revision`, `present`, `month` (YYYY-MM, null without a moment) |
+| Fact of an exchange | `FACTS#<version>#<account>` | `EXCHANGE#<id>` | `revision`, `present`, `held` (done or missed; absent from a fact kept before, read as held), `month` (YYYY-MM, null without a moment) |
 | Fact of a contact | `FACTS#<version>#<account>` | `CONTACT#<id>` | `revision`, `present` |
 | Figures of an account | `FIGURES#<version>#<account>` | `TOTAL` | `activeOrganizations`, `locatedOrganizations`, `contacts`, `exchanges` |
 | Figures of a month | `FIGURES#<version>#<account>` | `MONTH#<YYYY-MM>` | `exchanges` |

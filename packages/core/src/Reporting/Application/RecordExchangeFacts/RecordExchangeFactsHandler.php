@@ -22,6 +22,6 @@ final readonly class RecordExchangeFactsHandler implements EventHandler
 
     public function __invoke(ExchangeFactsChanged $event): void
     {
-        $this->recorder->record(new ExchangeFact(new AccountId($event->accountId), new ExchangeId($event->exchangeId), $event->revision, $event->present, $event->notedAt));
+        $this->recorder->record(ExchangeFact::withStatus(new AccountId($event->accountId), new ExchangeId($event->exchangeId), $event->revision, $event->present, $event->status, $event->notedAt));
     }
 }
