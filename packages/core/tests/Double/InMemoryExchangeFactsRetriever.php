@@ -39,6 +39,8 @@ final readonly class InMemoryExchangeFactsRetriever implements ExchangeFactsRetr
 
     private function factsOf(Exchange $exchange): ExchangeFactsResponse
     {
-        return new ExchangeFactsResponse((string) $exchange->id(), $this->database->revisionOf((string) $exchange->id()), true, StateOf::the($exchange)['facts']->occurredAt);
+        $state = StateOf::the($exchange);
+
+        return new ExchangeFactsResponse((string) $exchange->id(), $this->database->revisionOf((string) $exchange->id()), true, $state['status']->value, $state['facts']->occurredAt);
     }
 }

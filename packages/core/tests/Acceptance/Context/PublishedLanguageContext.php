@@ -175,12 +175,12 @@ final class PublishedLanguageContext implements Context
         ], $facts));
     }
 
-    #[Then('/^Prospecting répond les faits de (?<count>\d+) échanges?, (?:présents?), révision (?<revision>\d+)$/')]
+    #[Then('/^Prospecting répond les faits de (?<count>\d+) échanges?, (?:présents?), (?:faits?), révision (?<revision>\d+)$/')]
     public function prospectingAnswersTheExchangeFacts(int $count, int $revision): void
     {
         $facts = $this->facts instanceof KeptExchangeFacts ? $this->facts->facts : [];
 
-        Expect::same(array_fill(0, $count, ['present' => true, 'revision' => $revision]), array_map(static fn (ExchangeFactsResponse $facts): array => ['present' => $facts->present, 'revision' => $facts->revision], $facts));
+        Expect::same(array_fill(0, $count, ['present' => true, 'status' => 'done', 'revision' => $revision]), array_map(static fn (ExchangeFactsResponse $facts): array => ['present' => $facts->present, 'status' => $facts->status, 'revision' => $facts->revision], $facts));
     }
 
     #[Then('PersonalData répond les faits des contacts :')]

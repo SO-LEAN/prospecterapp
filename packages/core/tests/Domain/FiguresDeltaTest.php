@@ -64,9 +64,33 @@ class FiguresDeltaTest extends TestCase
 
     public function testAnErasedExchangeLeavesItsMonth(): void
     {
-        $erased = new ExchangeFact(new AccountId(self::ACCOUNT), new ExchangeId(self::EXCHANGE), 0, false, null);
+        $erased = ExchangeFact::withStatus(new AccountId(self::ACCOUNT), new ExchangeId(self::EXCHANGE), 0, false, null, null);
 
         $this->assertEquals(new FiguresChange(exchanges: -1, exchangesByMonth: ['2026-10' => -1]), FiguresDelta::between(self::exchange(1, '2026-10-15 14:30'), $erased));
+    }
+
+    /**
+     * @param array{int, array<string, int>} $expected the change of the exchanges, then of those of each month
+     */
+    #[DataProvider('statuses')]
+    public function testAnExchangeCountsOnceHeld(?string $known, ?string $received, array $expected): void
+    {
+        $change = FiguresDelta::between(null === $known ? null : self::exchange(1, '2026-11-17 14:00', $known), self::exchange(2, '2026-11-17 14:00', $received));
+
+        $this->assertEquals(new FiguresChange(exchanges: $expected[0], exchangesByMonth: $expected[1]), $change);
+    }
+
+    /**
+     * @return iterable<string, array{?string, ?string, array{int, array<string, int>}}>
+     */
+    public static function statuses(): iterable
+    {
+        yield 'planned' => [null, 'planned', [0, []]];
+        yield 'planned, then done' => ['planned', 'done', [1, ['2026-11' => 1]]];
+        yield 'planned, then missed' => ['planned', 'missed', [1, ['2026-11' => 1]]];
+        yield 'planned, then cancelled' => ['planned', 'cancelled', [0, []]];
+        yield 'done, then planned again' => ['done', 'planned', [-1, ['2026-11' => -1]]];
+        yield 'published before it had a status' => [null, null, [1, ['2026-11' => 1]]];
     }
 
     private static function organization(int $revision, bool $present, bool $located): OrganizationFact
@@ -74,8 +98,8 @@ class FiguresDeltaTest extends TestCase
         return new OrganizationFact(new AccountId(self::ACCOUNT), new OrganizationId(self::ORGANIZATION), $revision, $present, $located);
     }
 
-    private static function exchange(int $revision, string $notedAt): ExchangeFact
+    private static function exchange(int $revision, string $notedAt, ?string $status = 'done'): ExchangeFact
     {
-        return new ExchangeFact(new AccountId(self::ACCOUNT), new ExchangeId(self::EXCHANGE), $revision, true, new \DateTimeImmutable($notedAt, new \DateTimeZone('UTC')));
+        return ExchangeFact::withStatus(new AccountId(self::ACCOUNT), new ExchangeId(self::EXCHANGE), $revision, true, $status, new \DateTimeImmutable($notedAt, new \DateTimeZone('UTC')));
     }
 }

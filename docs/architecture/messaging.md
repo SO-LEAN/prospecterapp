@@ -123,7 +123,7 @@ Every event, domain or integration, travels as an EventBridge event:
 ```
 
 - `source`: `prospecter.<context>` for an integration event, `prospecter.<context>.internal` for a domain event; a domain event and an integration event of the same name (`AccountOpened`) are told apart by it.
-- `detail-type`: the short name of the class and the version of its contract. A change of the payload bumps the version once an outbox or a queue of failures may hold the former shape, which is now always the case on the instances.
+- `detail-type`: the short name of the class and the version of its contract. A change of the payload bumps the version once an outbox or a queue of failures may hold the former shape, which is now always the case on the instances: `ExchangeFactsChanged.v2` carries the status of the exchange, `.v1` is still read (`FORMER_TYPES`).
 - One `EventCodec` encodes both kinds, the classes listed in `DomainEventTypes` and `IntegrationEventTypes`; `EventCodecTest` fails for a class missing there.
 
 ## The subscriptions
@@ -217,7 +217,7 @@ The correlation of a gesture is in every log of the relay and the worker (CloudW
 2. **What another context must know**: an integration event in `Contract/Event` (plain data, importing nothing), its translator `Application/Publish…/Publish…Handler`, listed in `IntegrationEventTypes`, its scenario in the context.
 3. **A reaction**: an `EventHandler` of the reacting context, translating the event into its words and calling an intention method as the member who acted; idempotent (its inbox, a revision, or the state read again); doing nothing when its object is gone; throwing when an earlier fact is missing.
 4. **Its subscription** in `apps/api/config/subscriptions.json`, `<context>-<intent>`, `"inbox": true` unless applying twice is harmless. Locally `make db` or `deploy.sh relay` creates its rule; on AWS the next apply.
-5. **A change of an existing payload**: a new version of the `detail-type`, the former one still read while outboxes or failures may hold it.
+5. **A change of an existing payload**: a new version of the `detail-type` in `TYPES`, the former one moved to `FORMER_TYPES`, still read while outboxes or failures may hold it, a parameter added since read as null; the subscriptions listen to both. A change of what Reporting counts is followed by `app:reporting:rebuild` on each instance once deployed.
 6. **A chain**: check its depth stays well under 5; a reaction publishing what triggers itself again would be stopped there, and refused.
 
 ## Limits and debt
@@ -226,6 +226,7 @@ The correlation of a gesture is in every log of the relay and the worker (CloudW
 - A query on an index within a unit of work sees the table before the commit; only reads by key and partition queries see what the unit is about to write ([persistence.md](persistence.md#the-unit-of-work)).
 - What is not DynamoDB is outside the transaction: a file sent to the storage by a use case whose unit is then discarded stays there, unused; files are removed only by reactions, after the state.
 - No alarm on the queues of the failures: `app:consistency:check` is run by hand.
+- `ExchangeFactsChanged.v1` is still read, and listened to by `reporting-figures`, until no outbox nor queue of failures of an instance holds it (14 days after the deployment of `.v2`, the queues empty).
 - The worker shares the concurrency of the account with the API (no reservation); `BREF_LOOP_MAX` is off, PHP restarting for each invocation.
 - On AWS, the split of a failing batch by the relay is configured but was never seen at work (a poisoned outbox, written on purpose on `dev`, was alone in its batch).
 - A commit publishing in two contexts is refused: a gesture runs one use case (ADR 0100).

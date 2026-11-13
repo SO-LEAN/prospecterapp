@@ -103,20 +103,31 @@ class DynamoFactRepositoryTest extends ApiTestCase
     public function testAnExchangeMovedToAnotherMonthLeavesTheFormerOne(): void
     {
         $exchange = new ExchangeId(self::newIdentity());
-        $this->recorder()->record(new ExchangeFact($this->account, $exchange, 1, true, new \DateTimeImmutable(self::SEPTEMBER)));
+        $this->recorder()->record(new ExchangeFact($this->account, $exchange, 1, true, true, new \DateTimeImmutable(self::SEPTEMBER)));
 
-        $this->recorder()->record(new ExchangeFact($this->account, $exchange, 2, true, new \DateTimeImmutable(self::OCTOBER)));
+        $this->recorder()->record(new ExchangeFact($this->account, $exchange, 2, true, true, new \DateTimeImmutable(self::OCTOBER)));
 
         $this->assertSame([1, 0], [$this->figures()->exchanges, $this->figures(self::SEPTEMBER)->exchangesThisMonth]);
         $this->assertSame(1, $this->figures(self::OCTOBER)->exchangesThisMonth);
+    }
+
+    public function testAPlannedExchangeCountsOnceHeld(): void
+    {
+        $exchange = new ExchangeId(self::newIdentity());
+        $this->recorder()->record(new ExchangeFact($this->account, $exchange, 1, true, false, new \DateTimeImmutable(self::OCTOBER)));
+        $this->assertSame([0, 0], [$this->figures()->exchanges, $this->figures(self::OCTOBER)->exchangesThisMonth]);
+
+        $this->recorder()->record(new ExchangeFact($this->account, $exchange, 2, true, true, new \DateTimeImmutable(self::OCTOBER)));
+
+        $this->assertSame([1, 1], [$this->figures()->exchanges, $this->figures(self::OCTOBER)->exchangesThisMonth]);
     }
 
     public function testSeveralFactsOfAnAccountInOneUnitAllCount(): void
     {
         $unitOfWork = self::getContainer()->get(DynamoUnitOfWork::class);
         $unitOfWork->begin();
-        $this->recorder()->record(new ExchangeFact($this->account, new ExchangeId(self::newIdentity()), 1, true, new \DateTimeImmutable(self::OCTOBER)));
-        $this->recorder()->record(new ExchangeFact($this->account, new ExchangeId(self::newIdentity()), 1, true, new \DateTimeImmutable(self::OCTOBER)));
+        $this->recorder()->record(new ExchangeFact($this->account, new ExchangeId(self::newIdentity()), 1, true, true, new \DateTimeImmutable(self::OCTOBER)));
+        $this->recorder()->record(new ExchangeFact($this->account, new ExchangeId(self::newIdentity()), 1, true, true, new \DateTimeImmutable(self::OCTOBER)));
         $unitOfWork->commit();
         $unitOfWork->discard();
 

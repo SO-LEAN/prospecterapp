@@ -13,6 +13,7 @@ use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Prospecter\Core\Accounts\Contract\Event\AccountOpened;
 use Prospecter\Core\PersonalData\Domain\Event\ContactCollected;
+use Prospecter\Core\Prospecting\Contract\Event\ExchangeFactsChanged;
 use Prospecter\Core\SharedKernel\Domain\AccountId;
 use Prospecter\Core\SharedKernel\Domain\MemberId;
 use Prospecter\Core\SharedKernel\Domain\OrganizationId;
@@ -35,6 +36,7 @@ class EventCodecTest extends TestCase
     private const string MOMENT = '2026-10-15 09:00:00.123456 UTC';
     private const string ID = '0199f1d2-6a3b-7c4d-8e5f-0123456789ab';
     private const int REVISION = 3;
+    private const string MOMENT_OF_THE_BUS = '2026-10-15T09:00:00.123456Z';
 
     #[DataProvider('events')]
     public function testAnEventSurvivesARoundTrip(string $class): void
@@ -53,7 +55,26 @@ class EventCodecTest extends TestCase
         $transported = $this->codec()->encode($this->sampleOf($class), new Cause(self::ID, null, 0));
 
         $this->assertSame('prospecter.'.$context.$internal, $transported->source);
-        $this->assertSame(new \ReflectionClass($class)->getShortName().'.v1', $transported->detailType);
+        $this->assertMatchesRegularExpression('/^'.new \ReflectionClass($class)->getShortName().'\.v\d+$/', $transported->detailType);
+    }
+
+    public function testTheFormerVersionOfAContractIsStillRead(): void
+    {
+        $former = new TransportedEvent('prospecter.prospecting', 'ExchangeFactsChanged.v1', self::ID, self::MOMENT_OF_THE_BUS, self::ID, null, 0, [
+            'accountId' => self::ID, 'exchangeId' => self::ID, 'revision' => self::REVISION, 'present' => true, 'notedAt' => self::MOMENT_OF_THE_BUS, 'occurredAt' => self::MOMENT_OF_THE_BUS,
+        ]);
+
+        $this->assertEquals(
+            new ExchangeFactsChanged(self::ID, self::ID, self::REVISION, true, null, new \DateTimeImmutable(self::MOMENT_OF_THE_BUS), new \DateTimeImmutable(self::MOMENT_OF_THE_BUS)),
+            $this->codec()->decode($former),
+        );
+    }
+
+    public function testTheCurrentVersionOfAContractIsWritten(): void
+    {
+        $facts = new ExchangeFactsChanged(self::ID, self::ID, self::REVISION, true, 'planned', new \DateTimeImmutable(self::MOMENT), new \DateTimeImmutable(self::MOMENT));
+
+        $this->assertSame('ExchangeFactsChanged.v2', $this->codec()->encode($facts, new Cause(self::ID, null, 0))->detailType);
     }
 
     public function testADomainEventAndAnIntegrationEventOfTheSameNameAreToldApartByTheirSource(): void

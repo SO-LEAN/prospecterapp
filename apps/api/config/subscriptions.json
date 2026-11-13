@@ -107,10 +107,11 @@
   "reporting-figures": {
     "context": "reporting",
     "sources": ["prospecter.prospecting", "prospecter.personal-data"],
-    "events": ["OrganizationFactsChanged.v1", "ExchangeFactsChanged.v1", "ContactFactsChanged.v1"],
+    "events": ["OrganizationFactsChanged.v1", "ExchangeFactsChanged.v1", "ExchangeFactsChanged.v2", "ContactFactsChanged.v1"],
     "handlers": {
       "OrganizationFactsChanged.v1": "Prospecter\\Core\\Reporting\\Application\\RecordOrganizationFacts\\RecordOrganizationFactsHandler",
       "ExchangeFactsChanged.v1": "Prospecter\\Core\\Reporting\\Application\\RecordExchangeFacts\\RecordExchangeFactsHandler",
+      "ExchangeFactsChanged.v2": "Prospecter\\Core\\Reporting\\Application\\RecordExchangeFacts\\RecordExchangeFactsHandler",
       "ContactFactsChanged.v1": "Prospecter\\Core\\Reporting\\Application\\RecordContactFacts\\RecordContactFactsHandler"
     },
     "inbox": false
