@@ -27,6 +27,6 @@ final readonly class ConsultTimelineHandler implements QueryHandler
         $contact = new PersonId($query->personId);
         $this->contactOrganizations->ensureIsAContactOfTheAccount($contact, $prospector->accountId);
 
-        $output->present($this->timelineRetriever->ofContact($contact, $prospector, $query->after, $query->max));
+        $output->present($this->timelineRetriever->ofContact($contact, $prospector, $query->asOf, $query->after, $query->max));
     }
 }

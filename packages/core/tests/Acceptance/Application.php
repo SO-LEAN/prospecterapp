@@ -73,12 +73,20 @@ use Prospecter\Core\Prospecting\Application\ConsultOrganization\ConsultOrganizat
 use Prospecter\Core\Prospecting\Application\ConsultOrganization\KeptOrganization;
 use Prospecter\Core\Prospecting\Application\ConsultOrganizationTimeline\ConsultOrganizationTimeline;
 use Prospecter\Core\Prospecting\Application\ConsultOrganizationTimeline\ConsultOrganizationTimelineHandler;
+use Prospecter\Core\Prospecting\Application\ConsultOrganizationUpcomingExchanges\ConsultOrganizationUpcomingExchanges;
+use Prospecter\Core\Prospecting\Application\ConsultOrganizationUpcomingExchanges\ConsultOrganizationUpcomingExchangesHandler;
+use Prospecter\Core\Prospecting\Application\ConsultOverlappingExchanges\ConsultOverlappingExchanges;
+use Prospecter\Core\Prospecting\Application\ConsultOverlappingExchanges\ConsultOverlappingExchangesHandler;
+use Prospecter\Core\Prospecting\Application\ConsultOverlappingExchanges\KeptOverlappingExchanges;
+use Prospecter\Core\Prospecting\Application\ConsultOverlappingExchanges\OverlappingExchanges;
 use Prospecter\Core\Prospecting\Application\ConsultTimeline\ConsultTimeline;
 use Prospecter\Core\Prospecting\Application\ConsultTimeline\ConsultTimelineHandler;
 use Prospecter\Core\Prospecting\Application\ConsultTimelineIntents\ConsultTimelineIntents;
 use Prospecter\Core\Prospecting\Application\ConsultTimelineIntents\ConsultTimelineIntentsHandler;
 use Prospecter\Core\Prospecting\Application\ConsultTimelineIntents\KeptTimelineIntents;
 use Prospecter\Core\Prospecting\Application\ConsultTimelineIntents\TimelineIntentsResponse;
+use Prospecter\Core\Prospecting\Application\ConsultUpcomingExchanges\ConsultUpcomingExchanges;
+use Prospecter\Core\Prospecting\Application\ConsultUpcomingExchanges\ConsultUpcomingExchangesHandler;
 use Prospecter\Core\Prospecting\Application\CorrectExchange\CorrectExchangeHandler;
 use Prospecter\Core\Prospecting\Application\CorrectExchangeText\CorrectExchangeTextHandler;
 use Prospecter\Core\Prospecting\Application\DetachForgottenContact\DetachForgottenContactHandler;
@@ -99,6 +107,8 @@ use Prospecter\Core\Prospecting\Application\ListOrganizationFacts\ListOrganizati
 use Prospecter\Core\Prospecting\Application\NoteExchange\NoteExchangeHandler;
 use Prospecter\Core\Prospecting\Application\NoteOrganizationExchange\NoteOrganizationExchangeHandler;
 use Prospecter\Core\Prospecting\Application\OrganizationSheet;
+use Prospecter\Core\Prospecting\Application\PlanExchange\PlanExchangeHandler;
+use Prospecter\Core\Prospecting\Application\PlanOrganizationExchange\PlanOrganizationExchangeHandler;
 use Prospecter\Core\Prospecting\Application\PublishContactsLeftWithoutOrganization\PublishContactsLeftWithoutOrganizationHandler;
 use Prospecter\Core\Prospecting\Application\PublishExchangeFacts\PublishExchangeFactsHandler;
 use Prospecter\Core\Prospecting\Application\PublishOrganizationFacts\PublishOrganizationFactsHandler;
@@ -159,6 +169,7 @@ use Tests\Core\Double\AccountsReaders;
 use Tests\Core\Double\AccountsSourceAccounts;
 use Tests\Core\Double\InMemoryAccountListRetriever;
 use Tests\Core\Double\InMemoryAccountRepository;
+use Tests\Core\Double\InMemoryAgendaRetriever;
 use Tests\Core\Double\InMemoryContactFactsRetriever;
 use Tests\Core\Double\InMemoryContactPageRetriever;
 use Tests\Core\Double\InMemoryDatabase;
@@ -206,6 +217,7 @@ final class Application
     private readonly InMemoryOrganizationSheetRetriever $organizationSheetRetriever;
     private readonly InMemoryExchangeDetailRetriever $exchangeDetailRetriever;
     private readonly InMemoryTimelineRetriever $timelineRetriever;
+    private readonly InMemoryAgendaRetriever $agendaRetriever;
     private readonly InMemoryMyAccountRetriever $myAccountRetriever;
     private readonly InMemoryMemberRetriever $memberRetriever;
     private readonly InMemoryPersonCardRetriever $personCardRetriever;
@@ -261,6 +273,7 @@ final class Application
         $this->organizationSheetRetriever = new InMemoryOrganizationSheetRetriever($database);
         $this->exchangeDetailRetriever = new InMemoryExchangeDetailRetriever($database);
         $this->timelineRetriever = new InMemoryTimelineRetriever($database);
+        $this->agendaRetriever = new InMemoryAgendaRetriever($database);
         $this->exchanges = new InMemoryExchangeRepository($database);
         $this->accounts = new InMemoryAccountRepository($database);
         $this->members = new InMemoryMemberRepository($database);
@@ -480,6 +493,27 @@ final class Application
         return $this->ask(new ConsultExchangesToMakeConformHandler($this->timelineRetriever, $this->organizationSheetRetriever, $this->prospectors), $query, $kept) ? $kept->timeline : null;
     }
 
+    public function consultUpcomingExchanges(ConsultUpcomingExchanges $query): ?Timeline
+    {
+        $kept = new KeptTimeline();
+
+        return $this->ask(new ConsultUpcomingExchangesHandler($this->timelineRetriever, $this->prospectors, $this->contactOrganizations), $query, $kept) ? $kept->timeline : null;
+    }
+
+    public function consultOrganizationUpcomingExchanges(ConsultOrganizationUpcomingExchanges $query): ?Timeline
+    {
+        $kept = new KeptTimeline();
+
+        return $this->ask(new ConsultOrganizationUpcomingExchangesHandler($this->timelineRetriever, $this->organizationSheetRetriever, $this->prospectors), $query, $kept) ? $kept->timeline : null;
+    }
+
+    public function consultOverlappingExchanges(ConsultOverlappingExchanges $query): ?OverlappingExchanges
+    {
+        $kept = new KeptOverlappingExchanges();
+
+        return $this->ask(new ConsultOverlappingExchangesHandler($this->agendaRetriever, $this->prospectors), $query, $kept) ? $kept->overlapping : null;
+    }
+
     public function consultTimelineIntents(ConsultTimelineIntents $query): ?TimelineIntentsResponse
     {
         $kept = new KeptTimelineIntents();
@@ -566,6 +600,8 @@ final class Application
             new StopProspectingHandler($this->organizations, $this->events, $this->orphans),
             new NoteExchangeHandler($this->exchanges, $this->prospectors, $this->contactOrganizations, $this->events),
             new NoteOrganizationExchangeHandler($this->exchanges, $this->organizations, $this->contactOrganizations, $this->events),
+            new PlanExchangeHandler($this->exchanges, $this->prospectors, $this->contactOrganizations, $this->events),
+            new PlanOrganizationExchangeHandler($this->exchanges, $this->organizations, $this->contactOrganizations, $this->events),
             new CorrectExchangeHandler($this->exchanges, $this->events),
             new CorrectExchangeTextHandler($this->exchanges, $this->events),
             new EraseExchangeHandler($this->exchanges, $this->events),

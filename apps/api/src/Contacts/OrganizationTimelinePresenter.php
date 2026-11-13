@@ -20,14 +20,15 @@ use Prospecter\Core\Prospecting\Application\TimelineOutput;
  */
 final class OrganizationTimelinePresenter implements TimelineOutput
 {
-    private const array ROUTES = ['api_organizations_timeline', 'api_organizations_note_exchange'];
-    private const array TO_MAKE_CONFORM_ROUTES = ['api_organizations_exchanges_to_make_conform', 'api_organizations_note_exchange'];
+    private const array ROUTES = ['api_organizations_timeline', 'api_organizations_note_exchange', 'api_organizations_plan_exchange'];
+    private const array UPCOMING_ROUTES = ['api_organizations_upcoming_exchanges', 'api_organizations_note_exchange', 'api_organizations_plan_exchange'];
+    private const array TO_MAKE_CONFORM_ROUTES = ['api_organizations_exchanges_to_make_conform', 'api_organizations_note_exchange', 'api_organizations_plan_exchange'];
 
     public private(set) OrganizationTimelineResource $resource;
 
     /**
-     * @param array{string, string}     $routes  the route of the list and the route noting an exchange
-     * @param array<string, PersonCard> $persons the persons of the slice, by id
+     * @param array{string, string, string} $routes  the route of the list, the route noting an exchange and the route planning one
+     * @param array<string, PersonCard>     $persons the persons of the slice, by id
      */
     private function __construct(
         private readonly array $routes,
@@ -44,6 +45,14 @@ final class OrganizationTimelinePresenter implements TimelineOutput
     public static function ofTheTimeline(OrganizationSheet $organization, array $persons, TimelineResourceFactory $timelines, Links $links): self
     {
         return new self(self::ROUTES, $organization, $persons, $timelines, $links);
+    }
+
+    /**
+     * @param array<string, PersonCard> $persons the persons of the slice, by id
+     */
+    public static function ofWhatIsToCome(OrganizationSheet $organization, array $persons, TimelineResourceFactory $timelines, Links $links): self
+    {
+        return new self(self::UPCOMING_ROUTES, $organization, $persons, $timelines, $links);
     }
 
     /**

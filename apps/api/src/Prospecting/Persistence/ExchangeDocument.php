@@ -9,9 +9,11 @@ use Prospecter\Core\Prospecting\Domain\Model\AttachmentId;
 use Prospecter\Core\Prospecting\Domain\Model\Channel;
 use Prospecter\Core\Prospecting\Domain\Model\Correction;
 use Prospecter\Core\Prospecting\Domain\Model\Direction;
+use Prospecter\Core\Prospecting\Domain\Model\Duration;
 use Prospecter\Core\Prospecting\Domain\Model\Exchange;
 use Prospecter\Core\Prospecting\Domain\Model\ExchangeFacts;
 use Prospecter\Core\Prospecting\Domain\Model\ExchangeId;
+use Prospecter\Core\Prospecting\Domain\Model\ExchangeStatus;
 use Prospecter\Core\SharedKernel\Domain\AccountId;
 use Prospecter\Core\SharedKernel\Domain\MemberId;
 use Prospecter\Core\SharedKernel\Domain\OrganizationId;
@@ -19,7 +21,7 @@ use Prospecter\Core\SharedKernel\Domain\PersonId;
 
 /**
  * An exchange as a plain document of its DynamoDB item, and back (ADR 0048): its facts and its attachments as
- * they are, its recorded events never.
+ * they are, its recorded events never; an item written before an exchange was planned reads as done.
  */
 final class ExchangeDocument
 {
@@ -43,7 +45,9 @@ final class ExchangeDocument
                 'occurredAt' => Documents::moment($facts->occurredAt),
                 'text' => $facts->text,
                 'missed' => $facts->missed,
+                'durationInMinutes' => $facts->duration?->minutes,
             ],
+            'status' => $state['status']->value,
             'lastCorrection' => self::correctionDocument($state['lastCorrection']),
             'contactForgotten' => $state['contactForgotten'],
             'madeConform' => self::correctionDocument($state['madeConform']),
@@ -66,7 +70,8 @@ final class ExchangeDocument
             'createdBy' => new MemberId($document['createdBy']),
             'contact' => null === $document['contact'] ? null : new PersonId($document['contact']),
             'keptFor' => array_map(static fn (string $organization): OrganizationId => new OrganizationId($organization), $document['keptFor']),
-            'facts' => new ExchangeFacts(Channel::from($facts['channel']), Direction::from($facts['direction']), Documents::momentOf($facts['occurredAt']), $facts['text'], $facts['missed']),
+            'facts' => new ExchangeFacts(Channel::from($facts['channel']), Direction::from($facts['direction']), Documents::momentOf($facts['occurredAt']), $facts['text'], $facts['missed'], self::duration($facts['durationInMinutes'] ?? null)),
+            'status' => self::statusOf($document),
             'lastCorrection' => self::correction($document['lastCorrection'] ?? null),
             'contactForgotten' => $document['contactForgotten'] ?? false,
             'madeConform' => self::correction($document['madeConform'] ?? null),
@@ -74,6 +79,22 @@ final class ExchangeDocument
             'createdAt' => Documents::momentOf($document['createdAt']),
             'modifiedAt' => Documents::momentOf($document['modifiedAt']),
         ]);
+    }
+
+    /**
+     * @param array<string, mixed> $document
+     */
+    public static function statusOf(array $document): ExchangeStatus
+    {
+        return ExchangeStatus::from($document['status'] ?? ExchangeStatus::Done->value);
+    }
+
+    /**
+     * Restored without its constructor: a duration accepted once stays, whatever the limits become.
+     */
+    private static function duration(int|string|null $minutes): ?Duration
+    {
+        return null === $minutes ? null : Hydrator::restore(Duration::class, ['minutes' => (int) $minutes]);
     }
 
     /**

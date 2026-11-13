@@ -12,8 +12,10 @@ import {
   exchangeQuery,
   type OrganizationExchangeInput,
   organizationTimelineQuery,
+  organizationUpcomingQuery,
   timelineKeys,
   timelineQuery,
+  upcomingQuery,
 } from './queries'
 
 /** The new exchange, whose address the API answers in `Location`: files are joined to it. */
@@ -84,16 +86,61 @@ export function useNoteOrganizationExchange() {
   })
 }
 
+/**
+ * The API answers the exchanges to come with the contact, the new one among them; those of its organizations and my
+ * agenda will be read again.
+ */
+export function usePlanExchange() {
+  const queryClient = useQueryClient()
+  const { t } = useTranslation()
+
+  return api.useMutation('post', '/api/contacts/{id}/upcoming-exchanges', {
+    meta: { silentValidation: true },
+    onSuccess: (upcoming, { params }) => {
+      queryClient.setQueryData(upcomingQuery(params.path.id).queryKey, upcoming)
+      void queryClient.invalidateQueries({ queryKey: timelineKeys.upcomingOfOrganizations })
+      void queryClient.invalidateQueries({ queryKey: timelineKeys.myPlanned })
+      toast.success(t('exchanges.planned'))
+    },
+  })
+}
+
+/**
+ * Planned from the card of an organization: its exchanges to come as the API answers them; those of its contacts and
+ * of their other organizations, and my agenda, will be read again.
+ */
+export function usePlanOrganizationExchange() {
+  const queryClient = useQueryClient()
+  const { t } = useTranslation()
+
+  return api.useMutation('post', '/api/organizations/{id}/upcoming-exchanges', {
+    meta: { silentValidation: true },
+    onSuccess: (upcoming, { params }) => {
+      void queryClient.invalidateQueries({ queryKey: timelineKeys.upcomingOfContacts })
+      void queryClient.invalidateQueries({
+        queryKey: timelineKeys.upcomingOfOrganizations,
+        refetchType: 'none',
+      })
+      void queryClient.invalidateQueries({ queryKey: timelineKeys.myPlanned })
+      queryClient.setQueryData(organizationUpcomingQuery(params.path.id).queryKey, upcoming)
+      toast.success(t('exchanges.planned'))
+    },
+  })
+}
+
 /** The dashboard counts the exchanges, those of the month by their moment, once the reactions to the gesture ran. */
 function readTheFiguresAgain(queryClient: QueryClient) {
   readAgainAfterTheReactions(queryClient, queryKeys.dashboard)
 }
 
-/** A corrected or erased exchange may be in several timelines, of contacts and of organizations. */
+/** A corrected or erased exchange may be in several timelines, of contacts and of organizations, past or to come. */
 function readTheTimelinesAgain(queryClient: QueryClient) {
   void queryClient.invalidateQueries({ queryKey: timelineKeys.ofContacts })
   void queryClient.invalidateQueries({ queryKey: timelineKeys.ofOrganizations })
   void queryClient.invalidateQueries({ queryKey: timelineKeys.toMakeConform })
+  void queryClient.invalidateQueries({ queryKey: timelineKeys.upcomingOfContacts })
+  void queryClient.invalidateQueries({ queryKey: timelineKeys.upcomingOfOrganizations })
+  void queryClient.invalidateQueries({ queryKey: timelineKeys.myPlanned })
 }
 
 /** The corrected exchange goes straight into its detail; the timelines showing it read it again. */

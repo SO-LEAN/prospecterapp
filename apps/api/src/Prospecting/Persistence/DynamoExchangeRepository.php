@@ -8,6 +8,7 @@ use App\Shared\Persistence\Write;
 use Prospecter\Core\Prospecting\Domain\Exception\UnknownExchange;
 use Prospecter\Core\Prospecting\Domain\Model\Exchange;
 use Prospecter\Core\Prospecting\Domain\Model\ExchangeId;
+use Prospecter\Core\Prospecting\Domain\Model\ExchangeStatus;
 use Prospecter\Core\Prospecting\Domain\Repository\ExchangeRepository;
 use Prospecter\Core\SharedKernel\Domain\AccountId;
 use Prospecter\Core\SharedKernel\Domain\OrganizationId;
@@ -21,7 +22,9 @@ use Prospecter\Core\SharedKernel\Domain\PersonId;
  * - `EXCHANGES#<organization>` / `EXCHANGE#<id>`: the exchanges kept for an organization, written with it, listed
  *   in `GSI1` in the timeline of the organization (`ORGANIZATION_TIMELINE#<organization>`) under the same position,
  *   and, while the exchange is to make conform, in `GSI2` among those of the organization
- *   (`TO_MAKE_CONFORM#<organization>`, ADR 0079), counted there.
+ *   (`TO_MAKE_CONFORM#<organization>`, ADR 0079), counted there;
+ * - `AGENDA#<member>` / `EXCHANGE#<id>`: while it is planned, the exchange in the agenda of the member who planned
+ *   it, listed in `GSI1` (`AGENDA#<member>`) under the same position.
  * The exchange is listed in `GSI2` among those of its account (`ACCOUNT_EXCHANGES#<account>`, its id), and
  * carries its `revision`, incremented at each save: the revision of its facts, which the aggregate does not know.
  */
@@ -46,6 +49,7 @@ final readonly class DynamoExchangeRepository implements ExchangeRepository
         $this->prospectingTable->transact([
             $this->prospectingTable->putting($this->itemOf($document, Revision::after($stored))),
             ...$this->linksToItsOrganizations($document, $exchange->isToMakeConform(), $stored['exchange']['keptFor'] ?? []),
+            ...$this->linkInTheAgendaOfItsHolder($document, $stored['exchange'] ?? null),
         ]);
     }
 
@@ -57,6 +61,7 @@ final readonly class DynamoExchangeRepository implements ExchangeRepository
         $this->prospectingTable->transact([
             $this->prospectingTable->deleting(ExchangeKeys::exchange($exchange->id()->value), ExchangeKeys::EXCHANGE),
             ...$this->linksToItsOrganizations(['keptFor' => []] + $document, false, $stored['exchange']['keptFor'] ?? []),
+            ...$this->linkInTheAgendaOfItsHolder(['status' => ExchangeStatus::Done->value] + $document, $stored['exchange'] ?? null),
         ]);
     }
 
@@ -133,6 +138,27 @@ final readonly class DynamoExchangeRepository implements ExchangeRepository
             ...array_map(fn (string $organization): Write => $this->prospectingTable->putting($link($organization)), $document['keptFor']),
             ...array_map(fn (string $organization): Write => $this->prospectingTable->deleting(ExchangeKeys::keptFor($organization), $exchange), array_values(array_diff($storedKeptFor, $document['keptFor']))),
         ];
+    }
+
+    /**
+     * While it is planned, the exchange is in the agenda of the member who planned it, at its moment; the link
+     * removed once it no longer is.
+     *
+     * @param array<string, mixed>      $document
+     * @param array<string, mixed>|null $stored
+     *
+     * @return list<Write>
+     */
+    private function linkInTheAgendaOfItsHolder(array $document, ?array $stored): array
+    {
+        $agenda = ExchangeKeys::agenda($document['createdBy']);
+        $exchange = ExchangeKeys::exchange($document['id']);
+
+        return match (true) {
+            ExchangeStatus::Planned === ExchangeDocument::statusOf($document) => [$this->prospectingTable->putting(['PK' => $agenda, 'SK' => $exchange, 'GSI1PK' => $agenda, 'GSI1SK' => ExchangeKeys::positionOf($document)])],
+            null !== $stored && ExchangeStatus::Planned === ExchangeDocument::statusOf($stored) => [$this->prospectingTable->deleting($agenda, $exchange)],
+            default => [],
+        };
     }
 
     /**

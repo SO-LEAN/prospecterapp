@@ -58,6 +58,8 @@ final class ExchangeDetailPresenter implements ConsultExchangeOutput
             direction: $exchange->direction,
             missed: $exchange->missed,
             occurredAt: $exchange->occurredAt->format(\DateTimeInterface::ATOM),
+            status: $exchange->status,
+            durationInMinutes: $exchange->durationInMinutes,
             text: $exchange->text,
             textFlagged: $exchange->textFlagged,
             textToMakeConform: $exchange->textToMakeConform,

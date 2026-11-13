@@ -1,5 +1,5 @@
 import type { UseInfiniteQueryResult } from '@tanstack/react-query'
-import { Plus } from 'lucide-react'
+import { CalendarPlus, type LucideIcon, Plus } from 'lucide-react'
 import { type ReactNode, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useWhenVisible } from '@/shared/hooks/use-when-visible'
@@ -17,27 +17,33 @@ import { ExchangeDetailSheet } from './exchange-detail'
 
 type Props<Item> = {
   timeline: UseInfiniteQueryResult
+  /** The exchanges to come, the soonest first, above the past ones. */
+  upcoming?: Item[]
   items: Item[]
   /** The id of the exchange of an item, the one its detail opens. */
   keyOf: (item: Item) => string
   renderItem: (item: Item) => ReactNode
   /** The quick entry of a new exchange, when the timeline offers it. */
   noteExchange?: ReactNode
+  /** The planning of an exchange to come, when the timeline offers it. */
+  planExchange?: ReactNode
   /** What narrows the timeline, beside its title. */
   filter?: ReactNode
   className?: string
 }
 
 /**
- * A timeline, of a contact or of an organization: the most recent first, what follows loaded on scrolling; an
- * exchange opens its detail beside the card.
+ * A timeline, of a contact or of an organization: what is to come first, the soonest first, then the past, the most
+ * recent first, what follows loaded on scrolling; an exchange opens its detail beside the card.
  */
 export function TimelineCard<Item>({
   timeline,
+  upcoming = [],
   items,
   keyOf,
   renderItem,
   noteExchange,
+  planExchange,
   filter,
   className,
 }: Props<Item>) {
@@ -55,28 +61,40 @@ export function TimelineCard<Item>({
     <Card className={className}>
       <CardHeader>
         <CardTitle className="text-base">{t('exchanges.title')}</CardTitle>
-        {(filter || noteExchange) && (
+        {(filter || noteExchange || planExchange) && (
           <CardAction className="flex flex-wrap justify-end gap-2">
             {filter}
+            {planExchange}
             {noteExchange}
           </CardAction>
         )}
       </CardHeader>
-      <CardContent className="text-sm">
-        {items.length === 0 && <p className="text-muted-foreground">{t('exchanges.none')}</p>}
-        <ol className="divide-y" aria-label={t('exchanges.title')}>
-          {items.map((item) => (
-            <li key={keyOf(item)} className="py-1 first:pt-0 last:pb-0">
-              <button
-                type="button"
-                className="-mx-2 w-[calc(100%+1rem)] rounded-md px-2 py-2 text-left transition-colors hover:bg-accent focus-visible:outline-none focus-visible:ring-[3px] focus-visible:ring-ring/50"
-                onClick={() => setOpened(keyOf(item))}
-              >
-                {renderItem(item)}
-              </button>
-            </li>
-          ))}
-        </ol>
+      <CardContent className="space-y-4 text-sm">
+        {upcoming.length > 0 && (
+          <section className="space-y-1">
+            <h3 className="font-medium text-muted-foreground text-xs uppercase">{t('exchanges.upcoming')}</h3>
+            <Exchanges
+              label={t('exchanges.upcoming')}
+              items={upcoming}
+              keyOf={keyOf}
+              renderItem={renderItem}
+              onOpen={setOpened}
+            />
+          </section>
+        )}
+        <section className="space-y-1">
+          {upcoming.length > 0 && (
+            <h3 className="font-medium text-muted-foreground text-xs uppercase">{t('exchanges.past')}</h3>
+          )}
+          {items.length === 0 && <p className="text-muted-foreground">{t('exchanges.none')}</p>}
+          <Exchanges
+            label={t('exchanges.title')}
+            items={items}
+            keyOf={keyOf}
+            renderItem={renderItem}
+            onOpen={setOpened}
+          />
+        </section>
         <div ref={end} />
         {hasNextPage && (
           <div className="flex justify-center pt-3">
@@ -91,27 +109,87 @@ export function TimelineCard<Item>({
   )
 }
 
-type NoteExchangeDialogProps = {
+type ExchangesProps<Item> = Pick<Props<Item>, 'items' | 'keyOf' | 'renderItem'> & {
+  label: string
+  onOpen: (exchangeId: string) => void
+}
+
+function Exchanges<Item>({ label, items, keyOf, renderItem, onOpen }: ExchangesProps<Item>) {
+  return (
+    <ol className="divide-y" aria-label={label}>
+      {items.map((item) => (
+        <li key={keyOf(item)} className="py-1 first:pt-0 last:pb-0">
+          <button
+            type="button"
+            className="-mx-2 w-[calc(100%+1rem)] rounded-md px-2 py-2 text-left transition-colors hover:bg-accent focus-visible:outline-none focus-visible:ring-[3px] focus-visible:ring-ring/50"
+            onClick={() => onOpen(keyOf(item))}
+          >
+            {renderItem(item)}
+          </button>
+        </li>
+      ))}
+    </ol>
+  )
+}
+
+type ExchangeDialogProps = {
   name: string
   children: (close: () => void) => ReactNode
 }
 
 /** The button opening the quick entry of an exchange with this name, in a dialog it closes once noted. */
-export function NoteExchangeDialog({ name, children }: NoteExchangeDialogProps) {
+export function NoteExchangeDialog({ name, children }: ExchangeDialogProps) {
   const { t } = useTranslation()
+
+  return (
+    <ExchangeDialog
+      icon={Plus}
+      title={t('exchanges.note')}
+      description={t('exchanges.noteDescription', { name })}
+    >
+      {children}
+    </ExchangeDialog>
+  )
+}
+
+/** The button opening the planning of an exchange with this name, in a dialog it closes once planned. */
+export function PlanExchangeDialog({ name, children }: ExchangeDialogProps) {
+  const { t } = useTranslation()
+
+  return (
+    <ExchangeDialog
+      icon={CalendarPlus}
+      variant="outline"
+      title={t('exchanges.plan')}
+      description={t('exchanges.planDescription', { name })}
+    >
+      {children}
+    </ExchangeDialog>
+  )
+}
+
+type DialogProps = {
+  icon: LucideIcon
+  variant?: 'default' | 'outline'
+  title: string
+  description: string
+  children: (close: () => void) => ReactNode
+}
+
+function ExchangeDialog({ icon: Icon, variant = 'default', title, description, children }: DialogProps) {
   const [open, setOpen] = useState(false)
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <Button size="sm">
-          <Plus aria-hidden /> {t('exchanges.note')}
+        <Button size="sm" variant={variant}>
+          <Icon aria-hidden /> {title}
         </Button>
       </DialogTrigger>
       <DialogContent className="max-h-[calc(100dvh-2rem)] overflow-y-auto">
         <DialogHeader>
-          <DialogTitle>{t('exchanges.note')}</DialogTitle>
-          <DialogDescription>{t('exchanges.noteDescription', { name })}</DialogDescription>
+          <DialogTitle>{title}</DialogTitle>
+          <DialogDescription>{description}</DialogDescription>
         </DialogHeader>
         {children(() => setOpen(false))}
       </DialogContent>

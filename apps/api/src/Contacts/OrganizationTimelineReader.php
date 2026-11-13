@@ -10,11 +10,13 @@ use Prospecter\Core\PersonalData\Application\ConsultPersons\KeptPersons;
 use Prospecter\Core\PersonalData\Application\PersonCard;
 use Prospecter\Core\Prospecting\Application\ConsultExchangesToMakeConform\ConsultExchangesToMakeConform;
 use Prospecter\Core\Prospecting\Application\ConsultOrganizationTimeline\ConsultOrganizationTimeline;
+use Prospecter\Core\Prospecting\Application\ConsultOrganizationUpcomingExchanges\ConsultOrganizationUpcomingExchanges;
 use Prospecter\Core\Prospecting\Application\ExchangeInTimeline;
 use Prospecter\Core\Prospecting\Application\KeptTimeline;
 use Prospecter\Core\Prospecting\Application\OrganizationSheet;
 use Prospecter\Core\Prospecting\Application\Timeline;
 use Prospecter\Core\SharedKernel\Application\QueryHandler;
+use Symfony\Component\Clock\ClockInterface;
 
 /**
  * The timeline of an organization, composed of two contexts (ADR 0076): Prospecting knows its exchanges and the
@@ -26,17 +28,32 @@ final readonly class OrganizationTimelineReader
     public function __construct(
         private QueryHandler $consultOrganizationTimeline,
         private QueryHandler $consultExchangesToMakeConform,
+        private QueryHandler $consultOrganizationUpcomingExchanges,
         private QueryHandler $consultPersons,
         private TimelineResourceFactory $timelines,
         private Links $links,
+        private ClockInterface $clock,
     ) {
     }
 
     public function read(string $reader, OrganizationSheet $organization, ?string $after = null): OrganizationTimelineResource
     {
         $timeline = new KeptTimeline();
-        ($this->consultOrganizationTimeline)(new ConsultOrganizationTimeline($reader, $organization->id, $after), $timeline);
+        ($this->consultOrganizationTimeline)(new ConsultOrganizationTimeline($reader, $organization->id, $this->clock->now(), $after), $timeline);
         $presenter = OrganizationTimelinePresenter::ofTheTimeline($organization, $this->personsOf($reader, $timeline->timeline), $this->timelines, $this->links);
+        $presenter->present($timeline->timeline);
+
+        return $presenter->resource;
+    }
+
+    /**
+     * What is to come, the soonest first.
+     */
+    public function readUpcoming(string $reader, OrganizationSheet $organization, ?string $after = null): OrganizationTimelineResource
+    {
+        $timeline = new KeptTimeline();
+        ($this->consultOrganizationUpcomingExchanges)(new ConsultOrganizationUpcomingExchanges($reader, $organization->id, $this->clock->now(), $after), $timeline);
+        $presenter = OrganizationTimelinePresenter::ofWhatIsToCome($organization, $this->personsOf($reader, $timeline->timeline), $this->timelines, $this->links);
         $presenter->present($timeline->timeline);
 
         return $presenter->resource;

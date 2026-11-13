@@ -2,6 +2,8 @@
 
 namespace App\Prospecting\Persistence;
 
+use App\Shared\Persistence\Documents;
+
 /**
  * The keys of the items of the exchanges, written by `DynamoExchangeRepository` and read by the retrievers
  * (ADR 0088): one format for both.
@@ -41,6 +43,31 @@ final class ExchangeKeys
     public static function toMakeConform(string $organization): string
     {
         return 'TO_MAKE_CONFORM#'.$organization;
+    }
+
+    /**
+     * The exchanges a member planned: the PK of their links, and the partition of their agenda in `GSI1`.
+     */
+    public static function agenda(string $member): string
+    {
+        return 'AGENDA#'.$member;
+    }
+
+    /**
+     * Where a moment stands in a timeline, after every exchange happening then: the bound between the past and
+     * what is to come.
+     */
+    public static function positionAfter(\DateTimeImmutable $moment): string
+    {
+        return Documents::moment($moment).'#~';
+    }
+
+    /**
+     * Where a moment stands in a timeline, before every exchange happening then.
+     */
+    public static function positionBefore(\DateTimeImmutable $moment): string
+    {
+        return Documents::moment($moment).'#';
     }
 
     /**

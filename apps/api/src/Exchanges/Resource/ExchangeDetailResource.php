@@ -4,6 +4,7 @@ namespace App\Exchanges\Resource;
 
 use App\Contacts\Resource\InterlocutorResource;
 use App\Prospecting\Input\ExchangeInput;
+use App\Prospecting\Resource\ExchangeResource;
 use OpenApi\Attributes as OA;
 use Symfony\Component\Serializer\Attribute\Context;
 use Symfony\Component\Serializer\Attribute\SerializedName;
@@ -28,8 +29,12 @@ final readonly class ExchangeDetailResource
         public string $direction,
         #[OA\Property(description: 'A call that did not go through')]
         public bool $missed,
-        #[OA\Property(format: 'date-time')]
+        #[OA\Property(format: 'date-time', description: 'When it happened, or is to happen once planned')]
         public string $occurredAt,
+        #[OA\Property(enum: ExchangeResource::STATUSES, description: 'planned: still to come; done: it happened')]
+        public string $status,
+        #[OA\Property(description: 'How long it lasts, once planned')]
+        public ?int $durationInMinutes,
         public ?string $text,
         #[OA\Property(description: 'Its text may hold personal data: flagged to a prospector reading it without the right to manage them')]
         public bool $textFlagged,

@@ -7,6 +7,9 @@ import { dataOf, nextSliceOf } from '@/shared/api/slices'
 export type Timeline = components['schemas']['TimelineResource']
 export type Exchange = components['schemas']['ExchangeResource']
 export type ExchangeInput = components['schemas']['ExchangeInput']
+export type PlannedExchangeInput = components['schemas']['PlannedExchangeInput']
+export type OrganizationPlannedExchangeInput = components['schemas']['OrganizationPlannedExchangeInput']
+export type PlannedExchanges = components['schemas']['PlannedExchangesResource']
 export type OrganizationExchangeInput = components['schemas']['OrganizationExchangeInput']
 export type Attachment = components['schemas']['AttachmentResource']
 export type OrganizationTimeline = components['schemas']['OrganizationTimelineResource']
@@ -27,8 +30,11 @@ export const CHANNELS = [
   'email',
   'linkedIn',
   'meeting',
+  'videoCall',
   'other',
 ] as const satisfies readonly Channel[]
+/** Only a call, a meeting or a video call is planned: a message is just sent. */
+export const PLANNED_CHANNELS = ['call', 'meeting', 'videoCall'] as const satisfies readonly Channel[]
 export const DIRECTIONS = ['inbound', 'outbound'] as const satisfies readonly Direction[]
 
 /** The exchanges with a contact, the most recent first, a slice after the other (ADR 0049, 0074). */
@@ -81,11 +87,28 @@ export const exchangesToMakeConformQuery = (organizationId: string) =>
     getNextPageParam: (slice) => nextSliceOf(slice._links),
   })
 
+/** The exchanges to come with a contact, the soonest first: the first is the next one. */
+export const upcomingQuery = (contactId: string) =>
+  api.queryOptions('get', '/api/contacts/{id}/upcoming-exchanges', { params: { path: { id: contactId } } })
+
+/** The exchanges to come with an organization and with its contacts, the soonest first. */
+export const organizationUpcomingQuery = (organizationId: string) =>
+  api.queryOptions('get', '/api/organizations/{id}/upcoming-exchanges', {
+    params: { path: { id: organizationId } },
+  })
+
+/** The exchanges I planned overlapping a slot, before I plan another one in it. */
+export const overlappingQuery = (startsAt: string, durationInMinutes: number) =>
+  api.queryOptions('get', '/api/me/planned-exchanges', { params: { query: { startsAt, durationInMinutes } } })
+
 /** An exchange noted on one card shows in the timelines of the other cards: those of contacts and of organizations. */
 export const timelineKeys = {
   ofContacts: ['get', '/api/contacts/{id}/exchanges'],
   ofOrganizations: queryKeys.organizationTimelines,
   toMakeConform: queryKeys.exchangesToMakeConform,
+  upcomingOfContacts: ['get', '/api/contacts/{id}/upcoming-exchanges'],
+  upcomingOfOrganizations: queryKeys.organizationUpcomingExchanges,
+  myPlanned: ['get', '/api/me/planned-exchanges'],
 } as const
 
 export const exchangeQuery = (id: string) =>

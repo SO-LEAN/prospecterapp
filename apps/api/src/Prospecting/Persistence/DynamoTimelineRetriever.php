@@ -18,7 +18,8 @@ use Prospecter\Core\SharedKernel\Domain\PersonId;
 /**
  * Reads the timelines in the indexes `DynamoExchangeRepository` writes (`ExchangeKeys`), without restoring the
  * exchanges (ADR 0088): the timeline of a contact in `GSI1` of the exchanges, that of an organization in `GSI1`
- * of its links, those to make conform in `GSI2`, counted there (ADR 0074, 0076, 0079).
+ * of its links, those to make conform in `GSI2`, counted there (ADR 0074, 0076, 0079); the past below the position
+ * of the moment of the reading, the most recent first, what is to come above it, the soonest first.
  */
 final readonly class DynamoTimelineRetriever implements TimelineRetriever
 {
@@ -26,16 +27,30 @@ final readonly class DynamoTimelineRetriever implements TimelineRetriever
     {
     }
 
-    public function ofContact(PersonId $contact, Prospector $reader, ?string $after, int $max): Timeline
+    public function ofContact(PersonId $contact, Prospector $reader, \DateTimeImmutable $asOf, ?string $after, int $max): Timeline
     {
-        $items = $this->prospectingTable->query(ExchangeKeys::timeline($reader->accountId->value, $contact->value), Table::BY_GSI1, $after, $max + 1);
+        $items = $this->prospectingTable->query(ExchangeKeys::timeline($reader->accountId->value, $contact->value), Table::BY_GSI1, $after ?? ExchangeKeys::positionAfter($asOf), $max + 1);
 
-        return $this->timelineOf($items, $max, 0, static fn (array $document): ExchangeInTimeline => self::inTimeline($document, ContactPresence::ofTheContact(null !== $document['contact'], self::contactForgotten($document)), $reader));
+        return $this->timelineOf($items, $max, 0, self::inTheTimelineOfTheContact($reader));
     }
 
-    public function ofOrganization(OrganizationSheet $organization, Prospector $reader, ?string $after, int $max): Timeline
+    public function ofOrganization(OrganizationSheet $organization, Prospector $reader, \DateTimeImmutable $asOf, ?string $after, int $max): Timeline
     {
-        $links = $this->prospectingTable->query(ExchangeKeys::organizationTimeline($organization->id), Table::BY_GSI1, $after, $max + 1);
+        $links = $this->prospectingTable->query(ExchangeKeys::organizationTimeline($organization->id), Table::BY_GSI1, $after ?? ExchangeKeys::positionAfter($asOf), $max + 1);
+
+        return $this->timelineOf($this->itemsListedBy($links), $max, $this->countToMakeConform($organization), self::inTheTimelineOf($organization, $reader));
+    }
+
+    public function upcomingWithContact(PersonId $contact, Prospector $reader, \DateTimeImmutable $asOf, ?string $after, int $max): Timeline
+    {
+        $items = $this->prospectingTable->queryAfter(ExchangeKeys::timeline($reader->accountId->value, $contact->value), Table::BY_GSI1, $after ?? ExchangeKeys::positionAfter($asOf), $max + 1);
+
+        return $this->timelineOf($items, $max, 0, self::inTheTimelineOfTheContact($reader));
+    }
+
+    public function upcomingInOrganization(OrganizationSheet $organization, Prospector $reader, \DateTimeImmutable $asOf, ?string $after, int $max): Timeline
+    {
+        $links = $this->prospectingTable->queryAfter(ExchangeKeys::organizationTimeline($organization->id), Table::BY_GSI1, $after ?? ExchangeKeys::positionAfter($asOf), $max + 1);
 
         return $this->timelineOf($this->itemsListedBy($links), $max, $this->countToMakeConform($organization), self::inTheTimelineOf($organization, $reader));
     }
@@ -85,6 +100,14 @@ final readonly class DynamoTimelineRetriever implements TimelineRetriever
     /**
      * @return \Closure(array<string, mixed>): ExchangeInTimeline
      */
+    private static function inTheTimelineOfTheContact(Prospector $reader): \Closure
+    {
+        return static fn (array $document): ExchangeInTimeline => self::inTimeline($document, ContactPresence::ofTheContact(null !== $document['contact'], self::contactForgotten($document)), $reader);
+    }
+
+    /**
+     * @return \Closure(array<string, mixed>): ExchangeInTimeline
+     */
     private static function inTheTimelineOf(OrganizationSheet $organization, Prospector $reader): \Closure
     {
         return static function (array $document) use ($organization, $reader): ExchangeInTimeline {
@@ -98,7 +121,7 @@ final readonly class DynamoTimelineRetriever implements TimelineRetriever
     /**
      * @param array<string, mixed> $document
      */
-    private static function inTimeline(array $document, ?ContactPresence $presence, Prospector $reader): ExchangeInTimeline
+    public static function inTimeline(array $document, ?ContactPresence $presence, Prospector $reader): ExchangeInTimeline
     {
         $facts = $document['facts'];
         $hasText = null !== $facts['text'];
@@ -114,6 +137,8 @@ final readonly class DynamoTimelineRetriever implements TimelineRetriever
             direction: $facts['direction'],
             missed: $facts['missed'],
             occurredAt: Documents::momentOf($facts['occurredAt']),
+            status: ExchangeDocument::statusOf($document)->value,
+            durationInMinutes: isset($facts['durationInMinutes']) ? (int) $facts['durationInMinutes'] : null,
             text: $facts['text'],
             textFlagged: ExchangeReading::isTextFlagged($hasText, $reader),
             textToMakeConform: ExchangeConformity::isTextToMakeConform($hasText, $contactForgotten, $declaredConform),

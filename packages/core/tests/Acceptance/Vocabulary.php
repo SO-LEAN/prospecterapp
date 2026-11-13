@@ -47,6 +47,7 @@ final class Vocabulary
         'SearchByText' => 'chercher par texte',
         'ConsultTimeline' => 'consulter la timeline',
         'NoteExchange' => 'noter un échange',
+        'PlanExchange' => 'planifier un échange',
         'CorrectExchange' => 'corriger l\'échange',
         'CorrectText' => 'corriger le texte',
         'MakeConform' => 'rendre conforme',
@@ -64,6 +65,7 @@ final class Vocabulary
         'E-mail' => 'email',
         'LinkedIn' => 'linkedIn',
         'Rendez-vous' => 'meeting',
+        'Visio' => 'videoCall',
         'Autre' => 'other',
     ];
 
@@ -74,6 +76,12 @@ final class Vocabulary
         'un e-mail' => 'email',
         'un message LinkedIn' => 'linkedIn',
         'un rendez-vous' => 'meeting',
+        'une visio' => 'videoCall',
+    ];
+
+    private const array STATUSES = [
+        'À venir' => 'planned',
+        'Fait' => 'done',
     ];
 
     private const array DIRECTIONS = [
@@ -297,6 +305,34 @@ final class Vocabulary
     public static function channelOfAnExchange(string $exchange): string
     {
         return self::EXCHANGES[$exchange] ?? throw new \LogicException(sprintf('No channel for "%s"', $exchange));
+    }
+
+    public static function describeStatus(string $status): string
+    {
+        return (string) array_search($status, self::STATUSES, true);
+    }
+
+    /**
+     * "30 min", "1 h", "1 h 30"; nothing for an exchange noted once it happened.
+     */
+    public static function describeDuration(?int $minutes): string
+    {
+        return match (true) {
+            null === $minutes => '',
+            $minutes < 60 => sprintf('%d min', $minutes),
+            0 === $minutes % 60 => sprintf('%d h', intdiv($minutes, 60)),
+            default => sprintf('%d h %02d', intdiv($minutes, 60), $minutes % 60),
+        };
+    }
+
+    /**
+     * "30 minutes", "1 heure", "9 heures": a duration in minutes.
+     */
+    public static function minutes(string $duration): int
+    {
+        preg_match('/^(?<count>\d+) (?<unit>minutes?|heures?)$/', $duration, $parts) ?: throw new \LogicException(sprintf('"%s" is no duration', $duration));
+
+        return (int) $parts['count'] * (str_starts_with($parts['unit'], 'heure') ? 60 : 1);
     }
 
     public static function direction(string $label): string

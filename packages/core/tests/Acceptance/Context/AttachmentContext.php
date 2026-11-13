@@ -145,7 +145,7 @@ final class AttachmentContext implements Context
     #[Then('la timeline de :contact montre que l\'échange a :count pièces jointes')]
     public function theTimelineCountsTheAttachments(string $contact, int $count): void
     {
-        $timeline = $this->application->consultTimeline(new ConsultTimeline($this->application->signedIn(), $this->scenario->personIdOf($contact)));
+        $timeline = $this->application->consultTimeline(new ConsultTimeline($this->application->signedIn(), $this->scenario->personIdOf($contact), $this->application->now()));
         Expect::same([$count], array_map(static fn ($exchange): int => $exchange->attachmentCount, $timeline->exchanges ?? []));
     }
 

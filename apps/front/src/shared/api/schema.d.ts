@@ -212,6 +212,24 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/contacts/{id}/upcoming-exchanges": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** The exchanges to come with the contact, the soonest first: the first is the next one */
+        get: operations["get_api_contacts_upcoming_exchanges"];
+        put?: never;
+        /** Plan a call, a meeting or a video call with the contact, held by the signed-in member, kept for the organizations the contact is part of */
+        post: operations["post_api_contacts_plan_exchange"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/organizations/{id}/address": {
         parameters: {
             query?: never;
@@ -421,6 +439,24 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/organizations/{id}/upcoming-exchanges": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** The exchanges to come with the organization and with its contacts, the soonest first, each with who it is with */
+        get: operations["get_api_organizations_upcoming_exchanges"];
+        put?: never;
+        /** Plan a call, a meeting or a video call with the organization itself, or with one of its contacts, held by the signed-in member */
+        post: operations["post_api_organizations_plan_exchange"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/phone-numbers/{phoneNumber}": {
         parameters: {
             query?: never;
@@ -481,6 +517,23 @@ export interface paths {
         };
         /** The organizations of my organization the contact works for */
         get: operations["get_api_contacts_organizations"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/me/planned-exchanges": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** The exchanges the signed-in member planned that overlap a slot, before planning another one in it */
+        get: operations["get_api_me_planned_exchanges"];
         put?: never;
         post?: never;
         delete?: never;
@@ -714,7 +767,7 @@ export interface components {
              * @default
              * @enum {string}
              */
-            channel: "call" | "sms" | "email" | "linkedIn" | "meeting" | "other";
+            channel: "call" | "sms" | "email" | "linkedIn" | "meeting" | "videoCall" | "other";
             /**
              * @default
              * @enum {string}
@@ -730,6 +783,30 @@ export interface components {
             text: string | null;
             /** @default false */
             missed: boolean;
+        };
+        PlannedExchangeInput: {
+            /**
+             * @description Only a call, a meeting or a video call is planned
+             * @default
+             * @enum {string}
+             */
+            channel: "call" | "sms" | "email" | "linkedIn" | "meeting" | "videoCall" | "other";
+            /**
+             * Format: date-time
+             * @description When it is to happen; in the future
+             * @default null
+             */
+            occurredAt: string | null;
+            /**
+             * @description How long it lasts, from 5 minutes to 8 hours; 30 when left out
+             * @default null
+             */
+            durationInMinutes: number | null;
+            /**
+             * @description Its agenda
+             * @default null
+             */
+            text: string | null;
         };
         OrganizationListQuery: {
             /** @default  */
@@ -775,11 +852,31 @@ export interface components {
              */
             personId: string | null;
         };
+        OrganizationPlannedExchangeInput: {
+            exchange?: components["schemas"]["PlannedExchangeInput"];
+            /**
+             * @description The contact of the organization it is planned with; left out, with the organization itself
+             * @default null
+             */
+            personId: string | null;
+        };
         ContactListQuery: {
             /** @default  */
             q: string;
             /** @default null */
             after: string | null;
+        };
+        SlotQuery: {
+            /**
+             * Format: date-time
+             * @default null
+             */
+            startsAt: string | null;
+            /**
+             * @description From 5 minutes to 8 hours; 30 when left out
+             * @default null
+             */
+            durationInMinutes: number | null;
         };
         AttachmentInput: {
             /**
@@ -795,7 +892,7 @@ export interface components {
              * @default
              * @enum {string}
              */
-            channel: "call" | "sms" | "email" | "linkedIn" | "meeting" | "other";
+            channel: "call" | "sms" | "email" | "linkedIn" | "meeting" | "videoCall" | "other";
             /**
              * @default
              * @enum {string}
@@ -983,7 +1080,7 @@ export interface components {
         ExchangeResource: {
             id: string;
             /** @enum {string} */
-            channel: "call" | "sms" | "email" | "linkedIn" | "meeting" | "other";
+            channel: "call" | "sms" | "email" | "linkedIn" | "meeting" | "videoCall" | "other";
             /**
              * @description inbound: the contact or the organization reached out; outbound: we did
              * @enum {string}
@@ -991,8 +1088,18 @@ export interface components {
             direction: "inbound" | "outbound";
             /** @description A call that did not go through */
             missed: boolean;
-            /** Format: date-time */
+            /**
+             * Format: date-time
+             * @description When it happened, or is to happen once planned
+             */
             occurredAt: string;
+            /**
+             * @description planned: still to come; done: it happened
+             * @enum {string}
+             */
+            status: "planned" | "done";
+            /** @description How long it lasts, once planned */
+            durationInMinutes?: number | null;
             text?: string | null;
             /** @description Its text may hold personal data: flagged to a prospector reading it without the right to manage them */
             textFlagged: boolean;
@@ -1010,6 +1117,7 @@ export interface components {
             self: components["schemas"]["LinkResource"];
             next?: components["schemas"]["LinkResource"];
             noteExchange?: components["schemas"]["LinkResource"];
+            planExchange?: components["schemas"]["LinkResource"];
             toMakeConform?: components["schemas"]["LinkResource"];
         };
         TimelineResource: {
@@ -1115,6 +1223,9 @@ export interface components {
         OrganizationsOfContactResource: {
             items: components["schemas"]["OrganizationOfContactResource"][];
         };
+        PlannedExchangesResource: {
+            items: components["schemas"]["OrganizationExchangeResource"][];
+        };
         AuthorResource: {
             name: components["schemas"]["PersonNameResource"];
             /** @description Their email, to name them while their profile has no name */
@@ -1153,7 +1264,7 @@ export interface components {
             id: string;
             interlocutor: components["schemas"]["InterlocutorResource"];
             /** @enum {string} */
-            channel: "call" | "sms" | "email" | "linkedIn" | "meeting" | "other";
+            channel: "call" | "sms" | "email" | "linkedIn" | "meeting" | "videoCall" | "other";
             /**
              * @description inbound: the contact or the organization reached out; outbound: we did
              * @enum {string}
@@ -1161,8 +1272,18 @@ export interface components {
             direction: "inbound" | "outbound";
             /** @description A call that did not go through */
             missed: boolean;
-            /** Format: date-time */
+            /**
+             * Format: date-time
+             * @description When it happened, or is to happen once planned
+             */
             occurredAt: string;
+            /**
+             * @description planned: still to come; done: it happened
+             * @enum {string}
+             */
+            status: "planned" | "done";
+            /** @description How long it lasts, once planned */
+            durationInMinutes?: number | null;
             text?: string | null;
             /** @description Its text may hold personal data: flagged to a prospector reading it without the right to manage them */
             textFlagged: boolean;
@@ -2080,6 +2201,117 @@ export interface operations {
             };
         };
     };
+    get_api_contacts_upcoming_exchanges: {
+        parameters: {
+            query?: {
+                after?: string | null;
+            };
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description A slice of the exchanges to come, the next one at the link next */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["TimelineResource"];
+                };
+            };
+            /** @description Missing or invalid access token */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Not a prospector */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ProblemResource"];
+                };
+            };
+            /** @description Unknown contact, or one of another account */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ProblemResource"];
+                };
+            };
+        };
+    };
+    post_api_contacts_plan_exchange: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["PlannedExchangeInput"];
+            };
+        };
+        responses: {
+            /** @description The exchanges to come with the contact, the new one among them */
+            201: {
+                headers: {
+                    /** @description The new exchange */
+                    Location?: string;
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["TimelineResource"];
+                };
+            };
+            /** @description Missing or invalid access token */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Not a prospector, or no right to manage personal data */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ProblemResource"];
+                };
+            };
+            /** @description Unknown contact, or one of another account */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ProblemResource"];
+                };
+            };
+            /** @description Invalid exchange: a channel that is not planned, a moment that is not in the future, a duration out of 5 minutes to 8 hours */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ProblemResource"];
+                };
+            };
+        };
+    };
     patch_api_organizations_relocate: {
         parameters: {
             query?: never;
@@ -2971,6 +3203,126 @@ export interface operations {
             };
         };
     };
+    get_api_organizations_upcoming_exchanges: {
+        parameters: {
+            query?: {
+                after?: string | null;
+            };
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description A slice of the exchanges to come, the next one at the link next */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["OrganizationTimelineResource"];
+                };
+            };
+            /** @description Missing or invalid access token */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Not a prospector */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ProblemResource"];
+                };
+            };
+            /** @description Unknown organization, or one of another account */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ProblemResource"];
+                };
+            };
+        };
+    };
+    post_api_organizations_plan_exchange: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["OrganizationPlannedExchangeInput"];
+            };
+        };
+        responses: {
+            /** @description The exchanges to come with the organization, the new one among them */
+            201: {
+                headers: {
+                    /** @description The new exchange */
+                    Location?: string;
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["OrganizationTimelineResource"];
+                };
+            };
+            /** @description Missing or invalid access token */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Not a prospector, or no right to manage personal data */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ProblemResource"];
+                };
+            };
+            /** @description Unknown organization, or one of another account */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ProblemResource"];
+                };
+            };
+            /** @description The person is no contact of the organization */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ProblemResource"];
+                };
+            };
+            /** @description Invalid exchange: a channel that is not planned, a moment that is not in the future, a duration out of 5 minutes to 8 hours */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ProblemResource"];
+                };
+            };
+        };
+    };
     get_api_phone_numbers_recognize: {
         parameters: {
             query?: never;
@@ -3156,6 +3508,55 @@ export interface operations {
             };
             /** @description The signed-in user is not a prospector */
             403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ProblemResource"];
+                };
+            };
+        };
+    };
+    get_api_me_planned_exchanges: {
+        parameters: {
+            query?: {
+                startsAt?: string | null;
+                /** @description From 5 minutes to 8 hours; 30 when left out */
+                durationInMinutes?: number | null;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description The exchanges overlapping the slot, the soonest first */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PlannedExchangesResource"];
+                };
+            };
+            /** @description Missing or invalid access token */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Not a prospector */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ProblemResource"];
+                };
+            };
+            /** @description Invalid slot: no start, a duration out of 5 minutes to 8 hours */
+            422: {
                 headers: {
                     [name: string]: unknown;
                 };

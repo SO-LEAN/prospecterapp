@@ -13,4 +13,6 @@ enum TimelineIntent
     case ConsultTimeline;
     /** Note a new exchange with the contact, or with the organization or one of its contacts. */
     case NoteExchange;
+    /** Plan an exchange to come with the contact, or with the organization or one of its contacts. */
+    case PlanExchange;
 }

@@ -85,30 +85,49 @@ final readonly class Table
      */
     public function query(string $partition, ?string $index = null, ?string $before = null, ?int $limit = null): array
     {
-        $pending = $this->unitOfWork->pendingWritesOn($this->name);
-
-        if ([] === $pending) {
-            return $this->storedItemsOf($partition, $index, $before, $limit);
-        }
-
-        $stored = $this->storedItemsOf($partition, $index, $before, null === $limit ? null : $limit + count($pending));
-
-        return array_slice($this->withPending($pending, $stored, $partition, $index, $before), 0, $limit);
+        return $this->queryIn(SortKeyRange::below($before), $partition, $index, $limit);
     }
 
     /**
-     * The items of a partition as the open unit is about to write them, by sort key descending.
+     * The items of a partition, by sort key ascending (the soonest first for keys beginning with a moment),
+     * above `after`, at most `limit`.
+     *
+     * @return list<array<string, mixed>>
+     */
+    public function queryAfter(string $partition, ?string $index, string $after, ?int $limit = null): array
+    {
+        return $this->queryIn(SortKeyRange::above($after), $partition, $index, $limit);
+    }
+
+    /**
+     * @return list<array<string, mixed>>
+     */
+    private function queryIn(SortKeyRange $range, string $partition, ?string $index, ?int $limit): array
+    {
+        $pending = $this->unitOfWork->pendingWritesOn($this->name);
+
+        if ([] === $pending) {
+            return $this->storedItemsOf($partition, $index, $range, $limit);
+        }
+
+        $stored = $this->storedItemsOf($partition, $index, $range, null === $limit ? null : $limit + count($pending));
+
+        return array_slice($this->withPending($pending, $stored, $partition, $index, $range), 0, $limit);
+    }
+
+    /**
+     * The items of a partition as the open unit is about to write them, in the order of the range.
      *
      * @param list<Write>                $pending
      * @param list<array<string, mixed>> $stored
      *
      * @return list<array<string, mixed>>
      */
-    private function withPending(array $pending, array $stored, string $partition, ?string $index, ?string $before): array
+    private function withPending(array $pending, array $stored, string $partition, ?string $index, SortKeyRange $range): array
     {
         $sortKey = self::keyNamesOf($index)[1];
-        $items = [...$this->notRewritten($stored, $pending), ...$this->putIn($pending, $partition, $index, $before)];
-        usort($items, static fn (array $one, array $other): int => strcmp($other[$sortKey], $one[$sortKey]));
+        $items = [...$this->notRewritten($stored, $pending), ...$this->putIn($pending, $partition, $index, $range)];
+        usort($items, static fn (array $one, array $other): int => $range->compare($one[$sortKey], $other[$sortKey]));
 
         return $items;
     }
@@ -129,28 +148,29 @@ final readonly class Table
     /**
      * @param list<Write> $pending
      *
-     * @return list<array<string, mixed>> the items put in the partition, below `before` when given
+     * @return list<array<string, mixed>> the items put in the partition, within the range
      */
-    private function putIn(array $pending, string $partition, ?string $index, ?string $before): array
+    private function putIn(array $pending, string $partition, ?string $index, SortKeyRange $range): array
     {
         [$partitionKey, $sortKey] = self::keyNamesOf($index);
         $put = array_map($this->documentOf(...), array_values(array_filter(array_map(static fn (Write $write): ?array => $write->itemPut(), $pending))));
 
-        return array_values(array_filter($put, static fn (array $item): bool => $partition === ($item[$partitionKey] ?? null) && isset($item[$sortKey]) && (null === $before || strcmp($item[$sortKey], $before) < 0)));
+        return array_values(array_filter($put, static fn (array $item): bool => $partition === ($item[$partitionKey] ?? null) && isset($item[$sortKey]) && $range->contains($item[$sortKey])));
     }
 
     /**
      * @return list<array<string, mixed>>
      */
-    private function storedItemsOf(string $partition, ?string $index, ?string $before, ?int $limit): array
+    private function storedItemsOf(string $partition, ?string $index, SortKeyRange $range, ?int $limit): array
     {
         [$pkName, $skName] = self::keyNamesOf($index);
+        $condition = $range->condition('#sk', ':bound');
         $request = [
             'TableName' => $this->name,
-            'KeyConditionExpression' => null === $before ? '#pk = :pk' : '#pk = :pk AND #sk < :before',
-            'ExpressionAttributeNames' => ['#pk' => $pkName] + (null === $before ? [] : ['#sk' => $skName]),
-            'ExpressionAttributeValues' => $this->marshaler->marshalItem([':pk' => $partition] + (null === $before ? [] : [':before' => $before])),
-            'ScanIndexForward' => false,
+            'KeyConditionExpression' => null === $condition ? '#pk = :pk' : '#pk = :pk AND '.$condition,
+            'ExpressionAttributeNames' => ['#pk' => $pkName] + (null === $condition ? [] : ['#sk' => $skName]),
+            'ExpressionAttributeValues' => $this->marshaler->marshalItem([':pk' => $partition] + (null === $condition ? [] : [':bound' => $range->bound])),
+            'ScanIndexForward' => $range->ascending,
         ] + (null === $index ? ['ConsistentRead' => true] : ['IndexName' => $index]);
         $found = [];
 
