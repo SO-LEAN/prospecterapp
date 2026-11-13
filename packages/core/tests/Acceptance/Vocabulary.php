@@ -58,6 +58,10 @@ final class Vocabulary
         'MarkExchangeMissed' => 'marquer manqué',
         'MoveExchange' => 'déplacer',
         'CancelExchange' => 'annuler',
+        'ReviseToDo' => 'modifier l\'action',
+        'TickOffToDo' => 'cocher l\'action',
+        'UntickToDo' => 'décocher l\'action',
+        'EraseToDo' => 'supprimer l\'action',
     ];
 
     private const string MOMENT = 'Y-m-d H:i';

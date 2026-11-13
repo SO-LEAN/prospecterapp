@@ -6,6 +6,8 @@ namespace Tests\Core\Double;
 
 use Prospecter\Core\Prospecting\Application\Port\ToDoListRetriever;
 use Prospecter\Core\Prospecting\Application\ToDoInList;
+use Prospecter\Core\Prospecting\Domain\Exception\UnknownToDo;
+use Prospecter\Core\Prospecting\Domain\Model\ToDoId;
 use Prospecter\Core\Prospecting\Domain\Model\ToDoIntent;
 use Prospecter\Core\Prospecting\Domain\Policy\ToDoPossibilities;
 use Prospecter\Core\SharedKernel\Domain\AccountId;
@@ -20,6 +22,11 @@ final readonly class InMemoryToDoListRetriever implements ToDoListRetriever
 {
     public function __construct(private InMemoryDatabase $database)
     {
+    }
+
+    public function get(ToDoId $id): ToDoInList
+    {
+        return $this->inList(static fn (array $state): bool => $state['id']->equals($id))[0] ?? throw UnknownToDo::identifiedBy($id);
     }
 
     public function forContact(PersonId $contact, AccountId $accountId): array
@@ -48,6 +55,7 @@ final readonly class InMemoryToDoListRetriever implements ToDoListRetriever
 
         return array_values(array_map(static fn (array $state): ToDoInList => new ToDoInList(
             $state['id']->value,
+            $state['accountId']->value,
             $state['contact']?->value,
             array_map(static fn (OrganizationId $organization): string => $organization->value, $state['keptFor']),
             $state['text'],

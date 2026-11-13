@@ -19,6 +19,7 @@ final readonly class ToDoInList
      */
     public function __construct(
         public string $id,
+        public string $accountId,
         public ?string $personId,
         public array $organizationIds,
         public string $text,

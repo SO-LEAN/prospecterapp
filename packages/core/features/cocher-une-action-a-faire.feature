@@ -36,3 +36,18 @@ Fonctionnalité: Cocher une action à faire
   Scénario: Une action à faire ne se décoche pas
     Quand je la décoche
     Alors c'est refusé : "Only a to-do done is unticked"
+
+  Scénario: Une action à faire se modifie, se coche ou se supprime
+    Quand je la consulte
+    Alors je peux sur l'action à faire :
+      | modifier l'action  |
+      | cocher l'action    |
+      | supprimer l'action |
+
+  Scénario: Une action faite se modifie, se décoche ou se supprime
+    Soit je l'ai cochée
+    Quand je la consulte
+    Alors je peux sur l'action à faire :
+      | modifier l'action   |
+      | décocher l'action   |
+      | supprimer l'action  |
