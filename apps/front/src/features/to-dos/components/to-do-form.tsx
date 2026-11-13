@@ -1,6 +1,6 @@
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useState } from 'react'
-import { useForm, useFormState } from 'react-hook-form'
+import { type UseFormReturn, useForm, useFormState } from 'react-hook-form'
 import { useTranslation } from 'react-i18next'
 import { applyViolations } from '@/shared/api/problem'
 import { FormField } from '@/shared/forms/form-field'
@@ -19,6 +19,13 @@ type Props = {
   onCancel?: () => void
 }
 
+/**
+ * The quick entry emptied, its fields kept registered: a plain reset forgets them until they register again on the
+ * next render, which the React Compiler skips, the inputs then showing the former text the form no longer reads.
+ */
+const emptyForTheNext = (form: UseFormReturn<ToDoValues>) =>
+  form.reset(newToDo(new Date()), { keepFieldsRef: true })
+
 /** Noted in one line: what is to do, then its day, by a shortcut, and an hour when it matters. */
 export function ToDoForm({ onSubmit, defaultValues, onCancel }: Props) {
   const { t } = useTranslation()
@@ -34,7 +41,7 @@ export function ToDoForm({ onSubmit, defaultValues, onCancel }: Props) {
     try {
       await onSubmit(toToDoInput(values))
       if (!onCancel) {
-        form.reset(newToDo(new Date()))
+        emptyForTheNext(form)
       }
     } catch (error) {
       setGlobalErrors(applyViolations(error, form.setError, toDoFields))

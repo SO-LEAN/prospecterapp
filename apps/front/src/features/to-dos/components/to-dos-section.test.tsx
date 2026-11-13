@@ -124,6 +124,26 @@ describe('ToDosCard', () => {
     expect(screen.getByText('Ce champ est obligatoire.')).toBeInTheDocument()
   })
 
+  it('empties the quick entry once a to-do is noted, ready for the next one', async () => {
+    const onNote = vi.fn(async () => undefined)
+    await renderTheCard(listOf([]), onNote)
+    const entry = screen.getByLabelText('Ce qu’il y a à faire')
+
+    await userEvent.type(entry, 'Envoyer mon CV')
+    await userEvent.type(screen.getByLabelText(/^À\s*\(facultatif/), '08:30')
+    await userEvent.click(screen.getByRole('button', { name: 'Ajouter' }))
+    expect(entry).toHaveValue('')
+    expect(screen.getByLabelText(/^À\s*\(facultatif/)).toHaveValue('')
+
+    await userEvent.type(entry, 'Relancer par e-mail')
+    await userEvent.click(screen.getByRole('button', { name: 'Ajouter' }))
+
+    expect(screen.queryByText('Ce champ est obligatoire.')).not.toBeInTheDocument()
+    expect(onNote).toHaveBeenLastCalledWith(
+      expect.objectContaining({ text: 'Relancer par e-mail', dueAt: null }),
+    )
+  })
+
   it('offers neither the quick entry nor the menu without their links', async () => {
     await renderTheCard(listOf([aToDo({ _links: { self: link(`/api/to-dos/${ID}`) } })], false))
 
