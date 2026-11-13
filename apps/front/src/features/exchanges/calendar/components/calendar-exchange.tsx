@@ -85,6 +85,7 @@ export function CalendarExchangeChip({
     <Link
       to="/organizations/$organizationId"
       params={{ organizationId: interlocutor.id }}
+      aria-label={label}
       className={classes}
     >
       {content}

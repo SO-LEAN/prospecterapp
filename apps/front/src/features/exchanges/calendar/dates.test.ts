@@ -4,6 +4,8 @@ import {
   byDay,
   dayOf,
   daysOf,
+  isDay,
+  isSameDay,
   isToHandle,
   momentWithItsOffset,
   neighbourOf,
@@ -82,6 +84,35 @@ describe('in a time changing in the period', () => {
   })
 })
 
+describe('in a time behind UTC', () => {
+  afterEach(() => {
+    vi.restoreAllMocks()
+  })
+
+  it('writes the offset with its sign', () => {
+    vi.spyOn(Date.prototype, 'getTimezoneOffset').mockReturnValue(300)
+
+    expect(momentWithItsOffset(new Date(2026, 10, 17))).toBe('2026-11-17T00:00:00-05:00')
+  })
+})
+
+describe('a day written', () => {
+  it('is a date alone', () => {
+    expect(isDay('2026-11-17')).toBe(true)
+    expect(isDay('x2026-11-17')).toBe(false)
+    expect(isDay('2026-11-17x')).toBe(false)
+  })
+
+  it('is today when it is none', () => {
+    expect(dayOf(parseDay('demain'))).toBe(dayOf(new Date()))
+  })
+
+  it('is the same day at any hour of it', () => {
+    expect(isSameDay(new Date(2026, 10, 17, 9), new Date(2026, 10, 17, 23))).toBe(true)
+    expect(isSameDay(new Date(2026, 10, 17), new Date(2026, 10, 18))).toBe(false)
+  })
+})
+
 describe('neighbourOf', () => {
   it('goes from a month to the next or the previous one', () => {
     expect(dayOf(neighbourOf('month', day('2026-01-31'), 1))).toBe('2026-02-01')
@@ -120,6 +151,10 @@ describe('isToHandle', () => {
     expect(
       isToHandle({ status: 'planned', occurredAt: new Date(2026, 10, 13, 9, 0).toISOString() }, now),
     ).toBe(true)
+  })
+
+  it('waits for its moment to have passed', () => {
+    expect(isToHandle({ status: 'planned', occurredAt: now.toISOString() }, now)).toBe(false)
   })
 
   it('leaves alone what is to come, and what is done, missed or cancelled', () => {

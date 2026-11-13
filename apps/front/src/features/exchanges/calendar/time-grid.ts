@@ -19,14 +19,10 @@ export function placeInTheDay<Item extends Timed>(items: Item[]): Placed<Item>[]
     .map((item) => ({ item, ...minutesOf(item) }))
     .sort((one, other) => one.from - other.from || other.until - one.until)
   const placed: Placed<Item>[] = []
-  let group: { lanes: number[]; members: Placed<Item>[]; until: number } = {
-    lanes: [],
-    members: [],
-    until: -1,
-  }
+  let group = aNewGroup<Item>()
 
   for (const { item, from, until } of timed) {
-    if (from >= group.until) group = { lanes: [], members: [], until: -1 }
+    if (from >= group.until) group = aNewGroup<Item>()
     const free = group.lanes.findIndex((laneUntil) => laneUntil <= from)
     const lane = free === -1 ? group.lanes.length : free
     group.lanes[lane] = until
@@ -43,6 +39,13 @@ export function placeInTheDay<Item extends Timed>(items: Item[]): Placed<Item>[]
     placed.push(one)
   }
   return placed
+}
+
+/** The exchanges overlapping one another, the moment each lane is free again, the moment all of them are. */
+type Group<Item> = { lanes: number[]; members: Placed<Item>[]; until: number }
+
+function aNewGroup<Item>(): Group<Item> {
+  return { lanes: [], members: [], until: Number.NEGATIVE_INFINITY }
 }
 
 /** The moment in hours from midnight: where the line of now stands. */
