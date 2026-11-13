@@ -24,7 +24,10 @@ use Prospecter\Core\SharedKernel\Domain\PersonId;
  *   and, while the exchange is to make conform, in `GSI2` among those of the organization
  *   (`TO_MAKE_CONFORM#<organization>`, ADR 0079), counted there;
  * - `AGENDA#<member>` / `EXCHANGE#<id>`: while it is planned, the exchange in the agenda of the member who planned
- *   it, listed in `GSI1` (`AGENDA#<member>`) under the same position.
+ *   it, listed in `GSI1` (`AGENDA#<member>`) under the same position;
+ * - `CALENDAR#<member>` / `EXCHANGE#<id>`: the exchange in the calendar of its holder, who planned or noted it,
+ *   whatever its status, listed in `GSI1` (`CALENDAR#<member>`) under the moment it happens, cancelled or not, then
+ *   its id.
  * The exchange is listed in `GSI2` among those of its account (`ACCOUNT_EXCHANGES#<account>`, its id), and
  * carries its `revision`, incremented at each save: the revision of its facts, which the aggregate does not know.
  */
@@ -50,6 +53,7 @@ final readonly class DynamoExchangeRepository implements ExchangeRepository
             $this->prospectingTable->putting($this->itemOf($document, Revision::after($stored))),
             ...$this->linksToItsOrganizations($document, $exchange->isToMakeConform(), $stored['exchange']['keptFor'] ?? []),
             ...$this->linkInTheAgendaOfItsHolder($document, $stored['exchange'] ?? null),
+            $this->prospectingTable->putting(self::linkInTheCalendarOfItsHolder($document)),
         ]);
     }
 
@@ -62,6 +66,7 @@ final readonly class DynamoExchangeRepository implements ExchangeRepository
             $this->prospectingTable->deleting(ExchangeKeys::exchange($exchange->id()->value), ExchangeKeys::EXCHANGE),
             ...$this->linksToItsOrganizations(['keptFor' => []] + $document, false, $stored['exchange']['keptFor'] ?? []),
             ...$this->linkInTheAgendaOfItsHolder(['status' => ExchangeStatus::Done->value] + $document, $stored['exchange'] ?? null),
+            $this->prospectingTable->deleting(ExchangeKeys::calendar($document['createdBy']), ExchangeKeys::exchange($document['id'])),
         ]);
     }
 
@@ -78,13 +83,16 @@ final readonly class DynamoExchangeRepository implements ExchangeRepository
     }
 
     /**
-     * Writes again the item of every exchange, its revision kept: what a table written before the exchanges were
-     * listed by account needs once.
+     * Writes again the item of every exchange, its revision kept, and its link in the calendar of its holder: what a
+     * table written before the exchanges were listed by account, or in the calendars, needs once.
      */
     public function writeTheKeysAgain(): int
     {
         $items = $this->prospectingTable->scan(ExchangeKeys::EXCHANGE.'#');
-        $this->prospectingTable->batch(array_map(fn (array $item): array => $this->itemOf($item['exchange'], Revision::of($item)), $items));
+        $this->prospectingTable->batch([
+            ...array_map(fn (array $item): array => $this->itemOf($item['exchange'], Revision::of($item)), $items),
+            ...array_map(static fn (array $item): array => self::linkInTheCalendarOfItsHolder($item['exchange']), $items),
+        ]);
 
         return count($items);
     }
@@ -159,6 +167,21 @@ final readonly class DynamoExchangeRepository implements ExchangeRepository
             null !== $stored && ExchangeStatus::Planned === ExchangeDocument::statusOf($stored) => [$this->prospectingTable->deleting($agenda, $exchange)],
             default => [],
         };
+    }
+
+    /**
+     * Whatever its status, the exchange is in the calendar of the member who planned or noted it, at the moment it
+     * happens: a move or a correction moves it there.
+     *
+     * @param array<string, mixed> $document
+     *
+     * @return array<string, string>
+     */
+    private static function linkInTheCalendarOfItsHolder(array $document): array
+    {
+        $calendar = ExchangeKeys::calendar($document['createdBy']);
+
+        return ['PK' => $calendar, 'SK' => ExchangeKeys::exchange($document['id']), 'GSI1PK' => $calendar, 'GSI1SK' => ExchangeKeys::calendarPositionOf($document)];
     }
 
     /**
