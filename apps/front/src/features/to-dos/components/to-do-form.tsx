@@ -19,10 +19,7 @@ type Props = {
   onCancel?: () => void
 }
 
-/**
- * The quick entry emptied, its fields kept registered: a plain reset forgets them until they register again on the
- * next render, which the React Compiler skips, the inputs then showing the former text the form no longer reads.
- */
+/** The quick entry emptied in place, its fields kept registered (`docs/architecture/front.md`, Forms). */
 const emptyForTheNext = (form: UseFormReturn<ToDoValues>) =>
   form.reset(newToDo(new Date()), { keepFieldsRef: true })
 
