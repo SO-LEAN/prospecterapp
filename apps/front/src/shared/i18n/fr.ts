@@ -6,6 +6,7 @@ export const fr = {
     organizations: 'Organisations',
     contacts: 'Contacts',
     account: 'Mon compte',
+    settings: 'Configuration',
     signOut: 'Se déconnecter',
     collapse: 'Réduire le menu',
     expand: 'Ouvrir le menu',
@@ -199,6 +200,36 @@ export const fr = {
     notReady: 'Votre profil n’est pas encore prêt',
     tryAgainLater: 'Réessayez plus tard.',
   },
+  settings: {
+    title: 'Configuration',
+    subtitle: 'Vos réglages, les mêmes sur chacun de vos appareils.',
+    sectionsNavigation: 'Sections de la configuration',
+    sections: { reminders: 'Rappels' },
+    reminders: {
+      title: 'Rappels',
+      description: 'Soyez prévenu avant chacun des échanges que vous avez planifiés.',
+      enabled: 'Me rappeler mes échanges planifiés',
+      delay: 'Me prévenir',
+      delays: {
+        onTime: 'À l’heure',
+        fiveMinutes: '5 min avant',
+        tenMinutes: '10 min avant',
+        fifteenMinutes: '15 min avant',
+        halfAnHour: '30 min avant',
+        anHour: '1 h avant',
+      },
+      try: 'Tester',
+      example: {
+        title: 'Rappel : appel avec Ada Lovelace',
+        body: 'Dans 10 minutes, avec Babbage & Co.',
+      },
+      notificationsRefused: {
+        title: 'Les notifications sont bloquées dans ce navigateur',
+        howToAllow:
+          'Les rappels s’affichent dans l’application. Pour les recevoir aussi hors de l’onglet, autorisez les notifications de ce site : cliquez sur l’icône à gauche de l’adresse, puis sur Notifications, choisissez Autoriser et rechargez la page.',
+      },
+    },
+  },
   account: {
     title: 'Mon compte',
     subtitle: 'Vos informations personnelles et celles de votre organisation.',
@@ -342,6 +373,7 @@ export const fr = {
     plannedExchangeInThePast: 'Un échange planifié est dans le futur.',
     channelNotPlanned: 'Seuls un appel, un rendez-vous ou une visio se planifient.',
     durationOutOfRange: 'Un échange planifié dure de 5 minutes à 8 heures.',
+    reminderDelayNotOffered: 'Un rappel vient à l’heure, ou 5, 10, 15, 30 ou 60 minutes avant.',
     attachmentTooHeavy: '« {{name}} » est trop lourd : une pièce jointe pèse 10 Mo au plus.',
     attachmentNotSent: 'Le fichier « {{name}} » n’a pas pu être envoyé.',
     noRoomForAnAttachment: 'Un échange a 10 pièces jointes au plus.',

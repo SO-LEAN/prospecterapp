@@ -1,6 +1,6 @@
 import { useQuery } from '@tanstack/react-query'
 import { Link } from '@tanstack/react-router'
-import { LogOut, Monitor, Moon, Sun, UserRound } from 'lucide-react'
+import { LogOut, Monitor, Moon, Settings, Sun, UserRound } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import { myName } from '@/features/account/me'
 import { accountQuery } from '@/features/account/queries'
@@ -64,6 +64,11 @@ export function UserMenu() {
         <DropdownMenuItem asChild>
           <Link to="/account">
             <UserRound /> {t('nav.account')}
+          </Link>
+        </DropdownMenuItem>
+        <DropdownMenuItem asChild>
+          <Link to="/settings">
+            <Settings /> {t('nav.settings')}
           </Link>
         </DropdownMenuItem>
         <DropdownMenuSeparator />
