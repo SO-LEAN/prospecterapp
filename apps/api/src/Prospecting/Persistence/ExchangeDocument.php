@@ -103,6 +103,16 @@ final class ExchangeDocument
     }
 
     /**
+     * Done or missed, neither still to come nor cancelled.
+     *
+     * @param array<string, mixed> $document
+     */
+    public static function tookPlace(array $document): bool
+    {
+        return in_array(self::statusOf($document), [ExchangeStatus::Done, ExchangeStatus::Missed], true);
+    }
+
+    /**
      * Who called the exchange off, by the values of `Canceller`; none while it is not cancelled, or when not said.
      *
      * @param array<string, mixed> $document

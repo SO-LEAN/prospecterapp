@@ -2,13 +2,14 @@
 
 namespace App\Consistency;
 
+use App\Prospecting\Persistence\ExchangeDocument;
 use App\Reporting\Persistence\ReportingKeys;
 use App\Shared\Persistence\Documents;
 
 /**
  * The figures of each account counted again from the tables of Accounts, PersonalData and Prospecting, against those
- * Reporting keeps in its active version: its organizations, those placed on the map, its contacts, its exchanges, and
- * those of each month.
+ * Reporting keeps in its active version: its organizations, those placed on the map, its contacts, its exchanges that
+ * took place, done or missed, and those of each month.
  */
 final readonly class FiguresAgainstTheTables
 {
@@ -57,22 +58,25 @@ final readonly class FiguresAgainstTheTables
     private function countedInTheTables(string $accountId): array
     {
         $organizations = $this->tables->organizationsOf($accountId);
+        $heldExchanges = array_filter($this->tables->exchangesOf($accountId), ExchangeDocument::tookPlace(...));
 
         return [
             self::ACTIVE_ORGANIZATIONS => $this->tables->countOrganizationsOf($accountId),
             self::LOCATED_ORGANIZATIONS => count(array_filter($organizations, static fn (array $organization): bool => null !== $organization['geoPoint'])),
             self::CONTACTS => $this->tables->countContactsOf($accountId),
-            ReportingKeys::EXCHANGES => $this->tables->countExchangesOf($accountId),
-            ...$this->exchangesByMonth($accountId),
+            ReportingKeys::EXCHANGES => count($heldExchanges),
+            ...self::exchangesByMonth($heldExchanges),
         ];
     }
 
     /**
+     * @param array<array<string, mixed>> $exchanges their documents
+     *
      * @return array<string, int> by figure of a month
      */
-    private function exchangesByMonth(string $accountId): array
+    private static function exchangesByMonth(array $exchanges): array
     {
-        $months = array_map(static fn (array $exchange): string => Documents::momentOf($exchange['facts']['occurredAt'])->format(self::MONTH), $this->tables->exchangesOf($accountId));
+        $months = array_map(static fn (array $exchange): string => Documents::momentOf($exchange['facts']['occurredAt'])->format(self::MONTH), $exchanges);
         $exchangesByMonth = array_count_values($months);
 
         return array_combine(array_map(self::figureOfTheMonth(...), array_keys($exchangesByMonth)), $exchangesByMonth);

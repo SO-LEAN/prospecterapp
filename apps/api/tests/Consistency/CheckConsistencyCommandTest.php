@@ -112,6 +112,17 @@ class CheckConsistencyCommandTest extends ApiTestCase
         $this->assertDiscrepancy(DemoData::SOLEAN_IT, DemoData::SOLEAN_IT, 'account out of the list of the accounts', 'app:keys:rebuild');
     }
 
+    public function testOnlyTheExchangesThatTookPlaceAreCounted(): void
+    {
+        $exchanges = $this->prospectingTable()->query('ACCOUNT_EXCHANGES#'.DemoData::SOLEAN_IT, Table::BY_GSI2);
+        $exchanges[0]['exchange']['status'] = 'planned';
+        $exchanges[1]['exchange']['status'] = 'cancelled';
+        $this->prospectingTable()->batch($exchanges);
+        $this->rebuildTheFigures();
+
+        $this->assertSame(Command::SUCCESS, $this->tester->execute([]));
+    }
+
     public function testAnExchangeOutOfTheListOfItsAccountIsShown(): void
     {
         $exchange = $this->anExchange();
