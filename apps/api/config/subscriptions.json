@@ -62,6 +62,27 @@
     "handler": "Prospecter\\Core\\Prospecting\\Application\\KeepExchangesOfForgottenContact\\KeepExchangesOfForgottenContactHandler",
     "inbox": true
   },
+  "prospecting-stop-keeping-to-dos": {
+    "context": "prospecting",
+    "sources": ["prospecter.prospecting.internal"],
+    "events": ["ProspectingStopped.v1"],
+    "handler": "Prospecter\\Core\\Prospecting\\Application\\StopKeepingToDos\\StopKeepingToDosHandler",
+    "inbox": true
+  },
+  "prospecting-erase-to-do": {
+    "context": "prospecting",
+    "sources": ["prospecter.prospecting.internal"],
+    "events": ["ToDoLeftWithoutOrganization.v1"],
+    "handler": "Prospecter\\Core\\Prospecting\\Application\\EraseToDoLeftWithoutOrganization\\EraseToDoLeftWithoutOrganizationHandler",
+    "inbox": true
+  },
+  "prospecting-erase-to-dos-of-forgotten-contact": {
+    "context": "prospecting",
+    "sources": ["prospecter.personal-data"],
+    "events": ["ContactForgotten.v1"],
+    "handler": "Prospecter\\Core\\Prospecting\\Application\\EraseToDosOfForgottenContact\\EraseToDosOfForgottenContactHandler",
+    "inbox": true
+  },
   "prospecting-discard-removed-logo": {
     "context": "prospecting",
     "sources": ["prospecter.prospecting.internal"],

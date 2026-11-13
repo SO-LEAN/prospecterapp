@@ -3,6 +3,7 @@
 namespace App\Contacts;
 
 use App\Contacts\Resource\ContactResource;
+use App\Security\IntentLinks;
 use App\Shared\Links;
 use Prospecter\Core\PersonalData\Application\ConsultPerson\ConsultPerson;
 use Prospecter\Core\Prospecting\Application\ConsultTimelineIntents\ConsultTimelineIntents;
@@ -20,6 +21,7 @@ final readonly class ContactReader
         private QueryHandler $consultPerson,
         private QueryHandler $consultTimelineIntents,
         private Links $links,
+        private IntentLinks $intentLinks,
     ) {
     }
 
@@ -27,7 +29,7 @@ final readonly class ContactReader
     {
         $timeline = new KeptTimelineIntents();
         ($this->consultTimelineIntents)(new ConsultTimelineIntents($reader, $id), $timeline);
-        $presenter = new ContactResourcePresenter($timeline->intents, $this->links);
+        $presenter = new ContactResourcePresenter($timeline->intents, $this->links, $this->intentLinks);
         ($this->consultPerson)(new ConsultPerson($reader, $id), $presenter);
 
         return $presenter->resource;

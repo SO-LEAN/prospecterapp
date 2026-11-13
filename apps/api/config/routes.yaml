@@ -46,3 +46,10 @@ sign_in:
     type: attribute
     host: '%app_api_host%'
     defaults: { _format: json }
+
+# the to-dos for a contact or an organization read in Prospecting, their holders and contacts named by PersonalData
+to_dos:
+    resource: ../src/ToDos/Controller/
+    type: attribute
+    host: '%app_api_host%'
+    defaults: { _format: json }

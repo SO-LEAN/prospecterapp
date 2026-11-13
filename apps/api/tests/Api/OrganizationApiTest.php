@@ -207,6 +207,7 @@ class OrganizationApiTest extends ApiTestCase
             ['POST', '/contacts', ['personId' => self::newIdentity()]], ['DELETE', '/contacts/'.self::newIdentity(), null], ['DELETE', '', null],
             ['GET', '/contacts', null], ['GET', '/exchanges', null], ['GET', '/exchanges-to-make-conform', null],
             ['POST', '/exchanges', ['exchange' => ['channel' => 'call', 'direction' => 'inbound']]],
+            ['GET', '/to-dos', null], ['POST', '/to-dos', ['text' => 'Appeler', 'dueOn' => '2026-10-16']],
         ];
 
         foreach ($intentions as [$method, $path, $payload]) {
@@ -243,7 +244,7 @@ class OrganizationApiTest extends ApiTestCase
         $this->login($this->aMemberOfTheFixtures('prospector-without-the-right', Role::User, Role::Prospector));
 
         $links = $this->requestJson('GET', '/api/organizations/'.$id)['_links'];
-        $this->assertSame([], array_values(array_intersect(['addContact', 'stopProspecting', 'noteExchange'], array_keys($links))));
+        $this->assertSame([], array_values(array_intersect(['addContact', 'stopProspecting', 'noteExchange', 'toDos'], array_keys($links))));
         $this->assertArrayHasKey('exchanges', $links, 'its timeline is read without the right');
 
         foreach ([['POST', '/contacts', ['personId' => $contact]], ['DELETE', '/contacts/'.$contact, null], ['DELETE', '', null], ['POST', '/exchanges', ['exchange' => ['channel' => 'call', 'direction' => 'inbound']]]] as [$method, $path, $payload]) {
@@ -259,7 +260,7 @@ class OrganizationApiTest extends ApiTestCase
         $this->login($this->aMemberOfTheFixtures('administrator', Role::Prospector, Role::Admin));
 
         $links = $this->requestJson('GET', '/api/organizations/'.$id)['_links'];
-        $this->assertSame(['addContact', 'stopProspecting', 'noteExchange'], array_values(array_intersect(['addContact', 'stopProspecting', 'noteExchange'], array_keys($links))));
+        $this->assertSame(['addContact', 'stopProspecting', 'noteExchange', 'toDos'], array_values(array_intersect(['addContact', 'stopProspecting', 'noteExchange', 'toDos'], array_keys($links))));
 
         $this->requestJson('POST', '/api/organizations/'.$id.'/exchanges', ['exchange' => ['channel' => 'call', 'direction' => 'inbound'], 'personId' => $contact]);
         $this->assertResponseStatusCodeSame(201);
