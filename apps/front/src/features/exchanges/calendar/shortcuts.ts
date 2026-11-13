@@ -14,6 +14,9 @@ const SHORTCUTS: Record<string, Shortcut> = {
   a: { kind: 'view', view: 'agenda' },
 }
 
+const FIELDS = ['INPUT', 'TEXTAREA', 'SELECT']
+const EDITABLE = '[contenteditable=""], [contenteditable="true"]'
+
 /** None while the member types, nor combined with a modifier: those keys belong to the field or to the browser. */
 export function shortcutOf(event: Pick<KeyboardEvent, 'key' | 'target' | 'altKey' | 'ctrlKey' | 'metaKey'>) {
   if (event.altKey || event.ctrlKey || event.metaKey || isTyping(event.target)) return undefined
@@ -35,7 +38,6 @@ export function useCalendarShortcuts(onShortcut: (shortcut: Shortcut) => void) {
 
 function isTyping(target: EventTarget | null): boolean {
   return (
-    target instanceof HTMLElement &&
-    (target.isContentEditable || ['INPUT', 'TEXTAREA', 'SELECT'].includes(target.tagName))
+    target instanceof HTMLElement && (FIELDS.includes(target.tagName) || target.closest(EDITABLE) !== null)
   )
 }

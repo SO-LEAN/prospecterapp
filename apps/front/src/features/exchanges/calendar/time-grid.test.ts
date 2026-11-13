@@ -33,6 +33,14 @@ describe('placeInTheDay', () => {
     ])
   })
 
+  it('places them by their start whatever their order, the longest first when they start together', () => {
+    expect(placed([at(15, 0), at(9, 0, 30), at(9, 0, 120)])).toEqual([
+      [9, 2, 0, 2],
+      [9, 0.5, 1, 2],
+      [15, 0.5, 0, 1],
+    ])
+  })
+
   it('never runs past midnight', () => {
     expect(placed([at(23, 45, 60)])).toEqual([[23.75, 0.25, 0, 1]])
   })
