@@ -1,4 +1,4 @@
-include ../../make/common.mk ../../make/aws.mk ../../make/composer.mk
+include ../../make/common.mk ../../make/aws.mk ../../make/composer.mk ../../make/php.mk
 
 .PHONY: vendor db test lint fix
 
@@ -14,8 +14,7 @@ db: ministack ## Recreate in MiniStack the buckets of the files (destroys local 
 test: ministack-test ## Run the tests of the storage (on MiniStack); FILTER= a test by name
 	@$(PHP) bin/phpunit $(if $(FILTER),--filter='$(FILTER)')
 
-lint: ## Check the code of the storage: PHPStan, php-cs-fixer, Rector; FILTER= paths of the project, for php-cs-fixer and Rector
-	@$(PHP) sh -c '$(PHP_LINT)'
+lint: lint-phpstan lint-style lint-rector ## Check the code of the storage: PHPStan, php-cs-fixer, Rector; FILTER= paths of the project, for php-cs-fixer and Rector
 
 fix: ## Fix the style of the code of the storage: php-cs-fixer
 	@$(PHP) vendor/bin/php-cs-fixer fix

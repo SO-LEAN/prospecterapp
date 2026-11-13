@@ -1,4 +1,4 @@
-include ../../make/common.mk ../../make/mutation.mk
+include ../../make/common.mk ../../make/mutation.mk ../../make/php.mk
 
 .PHONY: vendor test mutation lint fix
 
@@ -20,8 +20,7 @@ test: ## Run the business rules (Behat) and the unit tests of the core; FILTER= 
 mutation: ## Mutate the lines the branch adds in src since BASE (origin/dev), killed by the unit tests and the scenarios; list the survivors
 	$(infection-on-added-lines)
 
-lint: ## Check the code of the core: PHPStan, php-cs-fixer, Rector; FILTER= paths of the project, for php-cs-fixer and Rector
-	@$(PHP) sh -c '$(PHP_LINT)'
+lint: lint-phpstan lint-style lint-rector ## Check the code of the core: PHPStan, php-cs-fixer, Rector; FILTER= paths of the project, for php-cs-fixer and Rector
 
 fix: ## Fix the style of the code of the core: php-cs-fixer
 	@$(PHP) vendor/bin/php-cs-fixer fix
