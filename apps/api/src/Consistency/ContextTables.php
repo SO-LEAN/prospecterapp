@@ -127,11 +127,6 @@ final readonly class ContextTables
         return array_values(array_map(static fn (array $item): array => $item['exchange'], $outOfTheList));
     }
 
-    public function countExchangesOf(string $accountId): int
-    {
-        return $this->prospectingTable->count(ExchangeKeys::ofAccount($accountId), Table::BY_GSI2);
-    }
-
     /**
      * @return list<array<string, mixed>> the items of the figures of the account in the active version of Reporting, its
      *                                    `TOTAL` and its months; none before the first rebuild
