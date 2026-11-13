@@ -89,6 +89,12 @@ describe('in a time behind UTC', () => {
     vi.restoreAllMocks()
   })
 
+  it('writes the offset of UTC as a plus', () => {
+    vi.spyOn(Date.prototype, 'getTimezoneOffset').mockReturnValue(0)
+
+    expect(momentWithItsOffset(new Date(2026, 10, 17))).toBe('2026-11-17T00:00:00+00:00')
+  })
+
   it('writes the offset with its sign', () => {
     vi.spyOn(Date.prototype, 'getTimezoneOffset').mockReturnValue(300)
 

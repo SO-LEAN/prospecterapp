@@ -35,7 +35,16 @@ test('find a planned exchange in my calendar, by day and by month, the view in t
     await expect(page.getByText('Prochain échange : Visio demain 9h00')).toBeVisible()
   })
 
+  await test.step('the calendar opens from the main navigation', async () => {
+    await page
+      .getByRole('navigation', { name: 'Navigation principale' })
+      .getByRole('link', { name: 'Calendrier' })
+      .click()
+    await expect(page.getByRole('heading', { name: 'Calendrier' })).toBeVisible()
+  })
+
   await test.step('the calendar of its day shows it, the days around read ahead', async () => {
+    calendarRequests.length = 0
     await page.goto(`/calendar?view=day&date=${dayOf(tomorrow)}`)
     await expect(theVideoCall).toBeVisible()
     await expect.poll(() => new Set(calendarRequests).size).toBe(7)
