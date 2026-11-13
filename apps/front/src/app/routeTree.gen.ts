@@ -12,6 +12,7 @@ import { Route as rootRouteImport } from './../routes/__root'
 import { Route as AppRouteImport } from './../routes/_app'
 import { Route as AppIndexRouteImport } from './../routes/_app/index'
 import { Route as AppAccountRouteImport } from './../routes/_app/account'
+import { Route as AppCalendarRouteImport } from './../routes/_app/calendar'
 import { Route as AppSettingsRouteImport } from './../routes/_app/settings'
 import { Route as AuthSignInRouteImport } from './../routes/auth/sign-in'
 import { Route as AppContactsIndexRouteImport } from './../routes/_app/contacts/index'
@@ -32,6 +33,11 @@ const AppIndexRoute = AppIndexRouteImport.update({
 const AppAccountRoute = AppAccountRouteImport.update({
   id: '/account',
   path: '/account',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppCalendarRoute = AppCalendarRouteImport.update({
+  id: '/calendar',
+  path: '/calendar',
   getParentRoute: () => AppRoute,
 } as any)
 const AppSettingsRoute = AppSettingsRouteImport.update({
@@ -75,6 +81,7 @@ const AppOrganizationsOrganizationIdIndexRoute =
 export interface FileRoutesByFullPath {
   '/': typeof AppIndexRoute
   '/account': typeof AppAccountRoute
+  '/calendar': typeof AppCalendarRoute
   '/settings': typeof AppSettingsRoute
   '/auth/sign-in': typeof AuthSignInRoute
   '/organizations/new': typeof AppOrganizationsNewRoute
@@ -85,6 +92,7 @@ export interface FileRoutesByFullPath {
 }
 export interface FileRoutesByTo {
   '/account': typeof AppAccountRoute
+  '/calendar': typeof AppCalendarRoute
   '/settings': typeof AppSettingsRoute
   '/auth/sign-in': typeof AuthSignInRoute
   '/': typeof AppIndexRoute
@@ -98,6 +106,7 @@ export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/_app': typeof AppRouteWithChildren
   '/_app/account': typeof AppAccountRoute
+  '/_app/calendar': typeof AppCalendarRoute
   '/_app/settings': typeof AppSettingsRoute
   '/auth/sign-in': typeof AuthSignInRoute
   '/_app/': typeof AppIndexRoute
@@ -112,6 +121,7 @@ export interface FileRouteTypes {
   fullPaths:
     | '/'
     | '/account'
+    | '/calendar'
     | '/settings'
     | '/auth/sign-in'
     | '/organizations/new'
@@ -122,6 +132,7 @@ export interface FileRouteTypes {
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/account'
+    | '/calendar'
     | '/settings'
     | '/auth/sign-in'
     | '/'
@@ -134,6 +145,7 @@ export interface FileRouteTypes {
     | '__root__'
     | '/_app'
     | '/_app/account'
+    | '/_app/calendar'
     | '/_app/settings'
     | '/auth/sign-in'
     | '/_app/'
@@ -170,6 +182,13 @@ declare module '@tanstack/react-router' {
       path: '/account'
       fullPath: '/account'
       preLoaderRoute: typeof AppAccountRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/_app/calendar': {
+      id: '/_app/calendar'
+      path: '/calendar'
+      fullPath: '/calendar'
+      preLoaderRoute: typeof AppCalendarRouteImport
       parentRoute: typeof AppRoute
     }
     '/_app/settings': {
@@ -226,6 +245,7 @@ declare module '@tanstack/react-router' {
 
 interface AppRouteChildren {
   AppAccountRoute: typeof AppAccountRoute
+  AppCalendarRoute: typeof AppCalendarRoute
   AppSettingsRoute: typeof AppSettingsRoute
   AppIndexRoute: typeof AppIndexRoute
   AppOrganizationsNewRoute: typeof AppOrganizationsNewRoute
@@ -237,6 +257,7 @@ interface AppRouteChildren {
 
 const AppRouteChildren: AppRouteChildren = {
   AppAccountRoute: AppAccountRoute,
+  AppCalendarRoute: AppCalendarRoute,
   AppSettingsRoute: AppSettingsRoute,
   AppIndexRoute: AppIndexRoute,
   AppOrganizationsNewRoute: AppOrganizationsNewRoute,

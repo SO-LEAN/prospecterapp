@@ -142,6 +142,7 @@ export const timelineKeys = {
   upcomingOfContacts: ['get', '/api/contacts/{id}/upcoming-exchanges'],
   upcomingOfOrganizations: queryKeys.organizationUpcomingExchanges,
   myPlanned: ['get', '/api/me/planned-exchanges'],
+  myCalendar: queryKeys.myCalendar,
 } as const
 
 export const exchangeQuery = (id: string) =>

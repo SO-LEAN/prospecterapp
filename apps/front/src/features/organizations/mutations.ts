@@ -125,7 +125,10 @@ export function useCollectContact() {
   })
 }
 
-/** The organization is gone; its contacts left alone are erased with it, by the reactions to the gesture. */
+/**
+ * The organization is gone; its contacts left alone are erased with it, and the exchanges it kept alone, by the
+ * reactions to the gesture.
+ */
 export function useStopProspecting() {
   const queryClient = useQueryClient()
 
@@ -137,6 +140,7 @@ export function useStopProspecting() {
         queryKeys.organizationList,
         queryKeys.dashboard,
         queryKeys.contactList,
+        queryKeys.myCalendar,
       )
     },
   })

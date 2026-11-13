@@ -1,6 +1,7 @@
 import { Link } from '@tanstack/react-router'
 import {
   Building2,
+  CalendarDays,
   LayoutDashboard,
   type LucideIcon,
   PanelLeftClose,
@@ -15,8 +16,8 @@ import { Tooltip, TooltipContent, TooltipTrigger } from '@/shared/ui/tooltip'
 import { BrandMark } from './brand'
 
 type Item = {
-  to: '/' | '/organizations' | '/contacts' | '/account'
-  label: 'nav.dashboard' | 'nav.organizations' | 'nav.contacts' | 'nav.account'
+  to: '/' | '/organizations' | '/contacts' | '/calendar' | '/account'
+  label: 'nav.dashboard' | 'nav.organizations' | 'nav.contacts' | 'nav.calendar' | 'nav.account'
   icon: LucideIcon
   exact?: boolean
 }
@@ -25,6 +26,7 @@ const items: Item[] = [
   { to: '/', label: 'nav.dashboard', icon: LayoutDashboard, exact: true },
   { to: '/organizations', label: 'nav.organizations', icon: Building2 },
   { to: '/contacts', label: 'nav.contacts', icon: UsersRound },
+  { to: '/calendar', label: 'nav.calendar', icon: CalendarDays },
   { to: '/account', label: 'nav.account', icon: UserRound },
 ]
 
