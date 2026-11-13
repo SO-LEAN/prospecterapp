@@ -1,4 +1,4 @@
-include ../../make/common.mk ../../make/aws.mk ../../make/composer.mk ../../make/mutation.mk
+include ../../make/common.mk ../../make/aws.mk ../../make/composer.mk ../../make/mutation.mk ../../make/php.mk
 
 .PHONY: vendor db test mutation lint fix openapi console commands profiler-clear shell
 
@@ -30,8 +30,7 @@ mutation: INFECTION_THREADS = 4
 mutation: ministack-test ## Mutate the lines the branch adds in src since BASE (origin/dev), killed by the tests of the API on MiniStack; list the survivors
 	$(infection-on-added-lines)
 
-lint: ## Check the code of the API: PHPStan, php-cs-fixer, Rector; FILTER= paths of the project, for php-cs-fixer and Rector
-	@$(PHP) sh -c '$(PHP_LINT)'
+lint: lint-phpstan lint-style lint-rector ## Check the code of the API: PHPStan, php-cs-fixer, Rector; FILTER= paths of the project, for php-cs-fixer and Rector
 
 fix: ## Fix the style of the code of the API: php-cs-fixer
 	@$(PHP) vendor/bin/php-cs-fixer fix

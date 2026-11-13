@@ -1,6 +1,7 @@
-# Continuous integration (ADR 0057, 0109): what make ci runs locally, in Docker as locally, on the pull requests to
-# dev and main, which cannot be merged while it fails, and on the pushes of dev and main. Its checks run in jobs of
-# their own, together; the job ci sums them up, the check the rulesets require.
+# Continuous integration (ADR 0057, 0109, 0110): what make ci runs locally, in Docker as locally, on the pull requests
+# to dev and main, which cannot be merged while it fails, and on the pushes of dev and main. A pull request runs the
+# checks its changes need, a push every one; each check runs in a job of its own, together, its lint and its tests
+# together too (make -j); the job ci sums them up, the check the rulesets require.
 name: CI
 
 on:
@@ -17,34 +18,37 @@ permissions:
   contents: read
 
 jobs:
+  changes:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    outputs:
+      checks: ${{ steps.checks.outputs.checks }}
+    steps:
+      - uses: actions/checkout@v7.0.1
+        with:
+          fetch-depth: 0
+
+      - name: List the checks the changes need
+        id: checks
+        env:
+          BASE_REF: ${{ github.base_ref }}
+        run: |
+          if [ -n "$BASE_REF" ]; then checks=$(make changed-checks RANGE="origin/$BASE_REF...HEAD"); else checks='["secrets","infra","core","api","storage","front","contract"]'; fi
+          echo "checks=$checks" >> "$GITHUB_OUTPUT"
+          echo "$checks"
+
   check:
+    needs: changes
     name: check ${{ matrix.check }}
     runs-on: ubuntu-24.04
     timeout-minutes: 20
     strategy:
       fail-fast: false
       matrix:
-        include:
-          - check: secrets
-            run: make secrets-branch adr-references
-          - check: infra
-            run: make infra-lint
-          - check: core
-            php: true
-            run: make check-core
-          - check: api
-            php: true
-            run: make check-api
-          - check: storage
-            php: true
-            run: make check-storage
-          - check: front
-            node: true
-            run: make check-front
-          - check: contract
-            php: true
-            node: true
-            run: make contract
+        check: ${{ fromJSON(needs.changes.outputs.checks) }}
+    env:
+      PHP: ${{ contains(fromJSON('["core","api","storage","contract"]'), matrix.check) }}
+      NODE: ${{ contains(fromJSON('["front","contract"]'), matrix.check) }}
     steps:
       - uses: actions/checkout@v7.0.1
         with:
@@ -52,7 +56,7 @@ jobs:
           fetch-depth: ${{ matrix.check == 'secrets' && 0 || 1 }}
 
       - name: Cache the Composer dependencies
-        if: matrix.php
+        if: env.PHP == 'true'
         uses: actions/cache@v6.1.0
         with:
           path: |
@@ -62,33 +66,34 @@ jobs:
           key: composer-${{ hashFiles('apps/api/composer.lock', 'apps/storage/composer.lock', 'packages/core/composer.lock') }}
 
       - name: Cache the pnpm dependencies
-        if: matrix.node
+        if: env.NODE == 'true'
         uses: actions/cache@v6.1.0
         with:
           path: apps/front/node_modules
           key: pnpm-${{ hashFiles('apps/front/pnpm-lock.yaml') }}
 
       - name: Install the Composer dependencies
-        if: matrix.php
+        if: env.PHP == 'true'
         run: make vendor
 
       - name: Install the pnpm dependencies
-        if: matrix.node
+        if: env.NODE == 'true'
         run: make front-install
 
       - name: Check ${{ matrix.check }}
-        run: ${{ matrix.run }}
+        run: make -j --output-sync=recurse check-${{ matrix.check }}
         env:
           # tflint downloads its AWS ruleset from GitHub, beyond the anonymous rate limit of the shared runners
           GITHUB_TOKEN: ${{ matrix.check == 'infra' && github.token || '' }}
 
   ci:
     if: always()
-    needs: check
+    needs: [changes, check]
     runs-on: ubuntu-24.04
     timeout-minutes: 5
     steps:
-      - name: Every check passed
+      - name: Every check needed passed
         env:
-          RESULT: ${{ needs.check.result }}
-        run: test "$RESULT" = success
+          CHANGES: ${{ needs.changes.result }}
+          CHECKS: ${{ needs.check.result }}
+        run: test "$CHANGES" = success -a "$CHECKS" = success

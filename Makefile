@@ -9,7 +9,7 @@ GITLEAKS = docker run --rm -u $(UID):$(GID) -e GIT_INDEX_FILE -v $(CURDIR):$(CUR
 	-w $(CURDIR) ghcr.io/gitleaks/gitleaks:v8.30.1
 INFRA_APPS = api storage front
 
-.PHONY: install hooks build vendor db aws front-install check-core check-api check-storage check-front infra-target infra-init infra-plan infra-apply infra-lint changed-apps package-api package-storage package-front release-front console start deploy stop logs ps ci test test-api test-storage test-front e2e test-core mutation mutation-api lint adr-references fix front-build api-doc contract commands profiler-clear exec-api exec-front secrets secrets-branch
+.PHONY: install hooks build vendor db aws front-install check-secrets check-infra check-contract check-core check-api check-storage check-front front-lint front-tested-build changed-checks infra-target infra-init infra-plan infra-apply infra-lint changed-apps package-api package-storage package-front release-front console start deploy stop logs ps ci test test-api test-storage test-front e2e test-core mutation mutation-api lint adr-references fix front-build api-doc contract commands profiler-clear exec-api exec-front secrets secrets-branch
 
 ##@ Setup
 install: hooks build vendor db front-install ## Build the images, install the dependencies, create the tables, the bucket and the user pool, install the Git hooks
@@ -53,32 +53,48 @@ ps: ## List the containers of the stack
 	@$(DC) ps
 
 ##@ Quality
-# the checks of make ci, independent of one another once the images and the dependencies are there and the contract
-# checked (it writes the types the front reads): run together, each printing its output once it ends; the CI runs
-# them in jobs of their own (.github/workflows/ci.yml)
-CI_CHECKS = secrets-branch adr-references infra-lint check-core check-api check-storage check-front
-ci: ## Run what the continuous integration runs: build, dependencies, contract, then together the secrets of the branch, lint and tests of each project, build of the front
+# the checks of the integration (ADR 0109, 0110): those the changes of the branch since BASE need, committed or not, a
+# new file once known to git or not ignored (make/changed-checks.sh), every one with ALL=1, as the CI on the pushes of
+# dev and main. Independent of one another once the images and the dependencies are there and the contract checked (it
+# writes the types the front reads), they run together, and so do the lint and the tests of a project, each printing
+# its output once it ends; the CI runs them in jobs of their own (.github/workflows/ci.yml)
+BASE ?= origin/dev
+ALL_CHECKS = secrets infra core api storage front contract
+CHANGED_FILES = { git diff --name-only $$(git merge-base $(BASE) HEAD); git ls-files --others --exclude-standard; }
+CHECKS = $(if $(ALL),$(ALL_CHECKS),$(shell $(CHANGED_FILES) | make/changed-checks.sh))
+ci: ## Run the checks of the integration the changes since BASE (origin/dev) need, ALL=1 every one: secrets of the branch, Terraform, lint and tests of each project, build of the front, contract
+	@echo "Checks: $(CHECKS)$(if $(ALL),, (those of the changes since $(BASE); ALL=1 for every one))"
 	@$(MAKE) build vendor front-install
-	@$(MAKE) contract
-	@$(MAKE) -j --output-sync=recurse $(CI_CHECKS)
+	@$(if $(filter contract,$(CHECKS)),$(MAKE) check-contract)
+	@$(MAKE) -j --output-sync=recurse $(addprefix check-,$(filter-out contract,$(CHECKS)))
+
+# make -j runs together the prerequisites of each check, and the targets each runs in its project
+check-secrets: secrets-branch adr-references ## Check the commits of the branch for secrets, the references to the records
+check-infra: infra-lint ## Check the Terraform of the apps
+check-contract: contract ## Check the OpenAPI contract and the front types against the code
 
 check-core: ## Lint and test the core
-	@$(MAKE) -C packages/core lint
-	@$(MAKE) -C packages/core test
+	@$(MAKE) -C packages/core lint test
 
 check-api: ## Lint and test the API
-	@$(MAKE) -C apps/api lint
-	@$(MAKE) -C apps/api test
+	@$(MAKE) -C apps/api lint test
 
 check-storage: ## Lint and test the storage
-	@$(MAKE) -C apps/storage lint
-	@$(MAKE) -C apps/storage test
+	@$(MAKE) -C apps/storage lint test
 
-# one after the other: Vitest and the build both generate the tree of the routes
-check-front: ## Lint, test and build the front
+# the build after the tests: Vitest and the build both generate the tree of the routes
+check-front: front-lint front-tested-build ## Lint, test and build the front
+front-lint:
 	@$(MAKE) -C apps/front lint
+front-tested-build:
 	@$(MAKE) -C apps/front test
 	@$(MAKE) -C apps/front build
+
+CHANGED_RANGE_FILES = git diff --name-only '$(RANGE)'
+changed-checks: ## Print as JSON the checks of the integration a git range needs: make changed-checks RANGE=origin/dev...HEAD
+	@test -n "$(RANGE)" || { echo "Usage: make changed-checks RANGE=<git range>, such as origin/dev...HEAD"; exit 1; }
+	@$(CHANGED_RANGE_FILES) >/dev/null
+	@echo '$(call json-strings,$(shell $(CHANGED_RANGE_FILES) | make/changed-checks.sh))'
 
 test: test-core test-api test-storage test-front ## Run every test suite: core, API, storage, front
 test-core: ## Run the business rules (Behat) and the unit tests of the core; FILTER= a scenario or a test by name
