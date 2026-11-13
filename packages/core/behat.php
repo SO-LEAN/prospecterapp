@@ -17,6 +17,7 @@ use Tests\Core\Acceptance\Context\PersonalDataContext;
 use Tests\Core\Acceptance\Context\PersonalDataFactsContext;
 use Tests\Core\Acceptance\Context\ProspectingFactsContext;
 use Tests\Core\Acceptance\Context\PublishedLanguageContext;
+use Tests\Core\Acceptance\Context\ReminderContext;
 use Tests\Core\Acceptance\Context\ReportingContext;
 use Tests\Core\Acceptance\Context\ScenarioContext;
 
@@ -25,4 +26,4 @@ return new Config()
     ->withProfile(new Profile('default')
         ->withSuite(new Suite('business_rules')
             ->withPaths('%paths.base%/features')
-            ->withContexts(ScenarioContext::class, OrganizationContext::class, AccountContext::class, MemberContext::class, PersonalDataContext::class, PublishedLanguageContext::class, CallerContext::class, ExchangeContext::class, ExchangeDetailContext::class, AttachmentContext::class, AllOrNothingContext::class, ProspectingFactsContext::class, PersonalDataFactsContext::class, ReportingContext::class)));
+            ->withContexts(ScenarioContext::class, OrganizationContext::class, AccountContext::class, MemberContext::class, PersonalDataContext::class, PublishedLanguageContext::class, CallerContext::class, ExchangeContext::class, ExchangeDetailContext::class, AttachmentContext::class, AllOrNothingContext::class, ProspectingFactsContext::class, PersonalDataFactsContext::class, ReportingContext::class, ReminderContext::class)));

@@ -6,11 +6,16 @@ namespace Tests\Core\Acceptance;
 
 use Prospecter\Core\Accounts\Application\ChangeMyOrganizationLogo\ChangeMyOrganizationLogoHandler;
 use Prospecter\Core\Accounts\Application\ConsultMembers\ConsultMembersHandler;
+use Prospecter\Core\Accounts\Application\ChangeMyReminders\ChangeMyRemindersHandler;
 use Prospecter\Core\Accounts\Application\ConsultMyAccount\ConsultMyAccount;
 use Prospecter\Core\Accounts\Application\ConsultMyAccount\ConsultMyAccountHandler;
 use Prospecter\Core\Accounts\Application\ConsultMyAccount\KeptAccount;
+use Prospecter\Core\Accounts\Application\ConsultMyReminders\ConsultMyReminders;
+use Prospecter\Core\Accounts\Application\ConsultMyReminders\ConsultMyRemindersHandler;
+use Prospecter\Core\Accounts\Application\ConsultMyReminders\KeptReminders;
 use Prospecter\Core\Accounts\Application\ListAccounts\ListAccountsHandler;
 use Prospecter\Core\Accounts\Application\MyAccount;
+use Prospecter\Core\Accounts\Application\MyReminders;
 use Prospecter\Core\Accounts\Application\OpenAccount\OpenAccountHandler;
 use Prospecter\Core\Accounts\Application\PublishAccountOpened\PublishAccountOpenedHandler;
 use Prospecter\Core\Accounts\Application\PublishMemberRegistered\PublishMemberRegisteredHandler;
@@ -182,6 +187,7 @@ use Tests\Core\Double\InMemoryFoundOrganizationRetriever;
 use Tests\Core\Double\InMemoryMemberRepository;
 use Tests\Core\Double\InMemoryMemberRetriever;
 use Tests\Core\Double\InMemoryMyAccountRetriever;
+use Tests\Core\Double\InMemoryMyRemindersRetriever;
 use Tests\Core\Double\InMemoryOrganizationFactsRetriever;
 use Tests\Core\Double\InMemoryOrganizationRepository;
 use Tests\Core\Double\InMemoryOrganizationSheetRetriever;
@@ -219,6 +225,7 @@ final class Application
     private readonly InMemoryTimelineRetriever $timelineRetriever;
     private readonly InMemoryAgendaRetriever $agendaRetriever;
     private readonly InMemoryMyAccountRetriever $myAccountRetriever;
+    private readonly InMemoryMyRemindersRetriever $myRemindersRetriever;
     private readonly InMemoryMemberRetriever $memberRetriever;
     private readonly InMemoryPersonCardRetriever $personCardRetriever;
     private readonly InMemoryContactPageRetriever $contactPageRetriever;
@@ -278,6 +285,7 @@ final class Application
         $this->accounts = new InMemoryAccountRepository($database);
         $this->members = new InMemoryMemberRepository($database);
         $this->myAccountRetriever = new InMemoryMyAccountRetriever($database);
+        $this->myRemindersRetriever = new InMemoryMyRemindersRetriever($database);
         $this->memberRetriever = new InMemoryMemberRetriever($database);
         $this->persons = new InMemoryPersonRepository($database);
         $this->personCardRetriever = new InMemoryPersonCardRetriever($database);
@@ -426,6 +434,13 @@ final class Application
         $kept = new KeptAccount();
 
         return $this->ask(new ConsultMyAccountHandler($this->myAccountRetriever), new ConsultMyAccount($this->signedIn()), $kept) ? $kept->account : null;
+    }
+
+    public function consultMyReminders(): ?MyReminders
+    {
+        $kept = new KeptReminders();
+
+        return $this->ask(new ConsultMyRemindersHandler($this->myRemindersRetriever), new ConsultMyReminders($this->signedIn()), $kept) ? $kept->reminders : null;
     }
 
     public function consultPerson(ConsultPerson $query): ?PersonCard
@@ -592,6 +607,7 @@ final class Application
             new ChangeMyOrganizationLogoHandler($this->accounts, $this->members, $this->events, $this->files),
             new OpenAccountHandler($this->accounts, $this->events),
             new RegisterAMemberHandler($this->members, $this->events),
+            new ChangeMyRemindersHandler($this->members, $this->events),
             new CollectContactHandler($this->persons, $this->readers, $this->prospectedOrganizations, $this->events, $this->personEmails),
             new ChangeJobTitleHandler($this->persons, $this->readers, $this->events),
             new ForgetContactHandler($this->persons, $this->readers, $this->events),
