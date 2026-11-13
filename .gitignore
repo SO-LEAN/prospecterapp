@@ -19,3 +19,5 @@ BOOTSTRAP.md
 
 # the packages of the apps for AWS (make package-<app>)
 /build/
+# the downloads the tools keep between their runs (make/aws.mk)
+/.cache/

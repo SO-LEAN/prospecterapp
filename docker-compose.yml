@@ -70,6 +70,17 @@ services:
       - /var/run/docker.sock:/var/run/docker.sock
     container_name: pro-ministack
 
+  # the AWS services of the tests of the API and the storage (.env.test), one per checkout: neither port nor container
+  # name of its own, nor state kept, nor Lambdas, so that the tests never wait for the stack another checkout holds
+  ministack-test:
+    image: ministackorg/ministack:1.5.27
+    environment:
+      MINISTACK_REGION: eu-west-3
+    # the health check of the image, more often: the tests wait for it
+    healthcheck:
+      interval: 1s
+    profiles: [test]
+
   # deploys the Lambdas and their HTTP APIs (docker/lambda/deploy.sh, make start)
   lambda-deploy:
     build: docker/lambda

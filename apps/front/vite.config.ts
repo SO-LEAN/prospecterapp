@@ -20,6 +20,9 @@ const reactCompiler = babel({ presets: [reactCompilerPreset()] })
 /** amazon-cognito-identity-js reads the Node `global`: the browser names it `globalThis`. */
 const nodeGlobalOfTheCognitoLibrary = { global: 'globalThis' }
 
+/** A form typed key by key takes seconds when `make ci` runs the other checks beside the tests (ADR 0109). */
+const TIMEOUT_OF_A_TEST_SHARING_THE_MACHINE = 20_000
+
 export default defineConfig({
   plugins: [typedRoutesSplitByRoute, react(), reactCompiler, tailwindcss()],
   define: nodeGlobalOfTheCognitoLibrary,
@@ -42,5 +45,6 @@ export default defineConfig({
     setupFiles: ['./src/test/setup.ts'],
     include: ['src/**/*.test.{ts,tsx}', 'lint/**/*.test.ts'],
     css: false,
+    testTimeout: TIMEOUT_OF_A_TEST_SHARING_THE_MACHINE,
   },
 })
