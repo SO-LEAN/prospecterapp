@@ -9,6 +9,7 @@ use Prospecter\Core\Accounts\Domain\Model\Member;
 use Prospecter\Core\PersonalData\Domain\Model\Person;
 use Prospecter\Core\Prospecting\Domain\Model\Exchange;
 use Prospecter\Core\Prospecting\Domain\Model\Organization;
+use Prospecter\Core\Prospecting\Domain\Model\ToDo;
 use Prospecter\Core\Reporting\Domain\Model\Fact;
 use Prospecter\Core\SharedKernel\Domain\ReleasesEvents;
 
@@ -29,6 +30,8 @@ final class InMemoryDatabase
     private array $organizations = [];
     /** @var array<string, Exchange> */
     private array $exchanges = [];
+    /** @var array<string, ToDo> */
+    private array $toDos = [];
     /** @var array<string, int> the revision of each aggregate stored, by its identity, as the documents keep it */
     private array $revisions = [];
     /** @var array<int, array<string, Fact>> the facts each version of the figures keeps, by the aggregate they are about */
@@ -40,7 +43,7 @@ final class InMemoryDatabase
 
     public function isEmpty(): bool
     {
-        return [] === [...$this->accounts, ...$this->members, ...$this->persons, ...$this->organizations, ...$this->exchanges];
+        return [] === [...$this->accounts, ...$this->members, ...$this->persons, ...$this->organizations, ...$this->exchanges, ...$this->toDos];
     }
 
     public function snapshot(): self
@@ -58,6 +61,7 @@ final class InMemoryDatabase
         $this->persons = $snapshot->persons;
         $this->organizations = $snapshot->organizations;
         $this->exchanges = $snapshot->exchanges;
+        $this->toDos = $snapshot->toDos;
         $this->facts = $snapshot->facts;
         $this->figures = $snapshot->figures;
         $this->activeVersion = $snapshot->activeVersion;
@@ -87,6 +91,29 @@ final class InMemoryDatabase
     public function exchanges(): array
     {
         return array_values(array_map(static fn (Exchange $exchange): Exchange => clone $exchange, $this->exchanges));
+    }
+
+    public function storeToDo(ToDo $toDo): void
+    {
+        $this->toDos[(string) $toDo->id()] = self::withoutItsEvents($toDo);
+    }
+
+    public function forgetToDo(string $id): void
+    {
+        unset($this->toDos[$id]);
+    }
+
+    public function toDo(string $id): ?ToDo
+    {
+        return isset($this->toDos[$id]) ? clone $this->toDos[$id] : null;
+    }
+
+    /**
+     * @return list<ToDo>
+     */
+    public function toDos(): array
+    {
+        return array_values(array_map(static fn (ToDo $toDo): ToDo => clone $toDo, $this->toDos));
     }
 
     public function storeAccount(Account $account): void
