@@ -11,6 +11,8 @@ use Symfony\Component\Validator\Constraints as Assert;
 final readonly class PlannedExchangeInput
 {
     public const array CHANNELS = ['call', 'meeting', 'videoCall'];
+    public const int MAX_PLACE = 255;
+    public const int MAX_LINK = 2048;
     private const int MAX_TEXT = 5000;
 
     public function __construct(
@@ -26,6 +28,12 @@ final readonly class PlannedExchangeInput
         #[Assert\Length(max: self::MAX_TEXT)]
         #[OA\Property(description: 'Its agenda')]
         public ?string $text = null,
+        #[Assert\Length(max: self::MAX_PLACE)]
+        #[OA\Property(description: 'Where a meeting is held, written freely; a meeting only')]
+        public ?string $place = null,
+        #[Assert\Length(max: self::MAX_LINK)]
+        #[OA\Property(description: 'The web address a video call is joined by, optional: it may be added later; a video call only')]
+        public ?string $link = null,
     ) {
     }
 }

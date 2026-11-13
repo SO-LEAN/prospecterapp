@@ -18,14 +18,17 @@ use Prospecter\Core\Prospecting\Domain\Event\ExchangeNoLongerKeptFor;
 use Prospecter\Core\Prospecting\Domain\Event\ExchangeNoted;
 use Prospecter\Core\Prospecting\Domain\Event\ExchangePlanned;
 use Prospecter\Core\Prospecting\Domain\Event\ExchangeTextCorrected;
+use Prospecter\Core\Prospecting\Domain\Event\ExchangeVenueCorrected;
 use Prospecter\Core\Prospecting\Domain\Event\FileAttached;
 use Prospecter\Core\Prospecting\Domain\Exception\ChannelNotMissed;
 use Prospecter\Core\Prospecting\Domain\Exception\ExchangeInTheFuture;
+use Prospecter\Core\Prospecting\Domain\Exception\LinkOnlyForAVideoCall;
 use Prospecter\Core\Prospecting\Domain\Exception\NoRoomForAnAttachment;
 use Prospecter\Core\Prospecting\Domain\Exception\NothingToMakeConform;
 use Prospecter\Core\Prospecting\Domain\Exception\NotTheHolder;
 use Prospecter\Core\Prospecting\Domain\Exception\NotUpcoming;
 use Prospecter\Core\Prospecting\Domain\Exception\NotYetDue;
+use Prospecter\Core\Prospecting\Domain\Exception\PlaceOnlyForAMeeting;
 use Prospecter\Core\Prospecting\Domain\Exception\PlannedExchangeInThePast;
 use Prospecter\Core\Prospecting\Domain\Exception\UnknownAttachment;
 use Prospecter\Core\Prospecting\Domain\Policy\ExchangeConformity;
@@ -248,7 +251,7 @@ final class Exchange implements ReleasesEvents
 
     /**
      * Once it took place, done or missed. The contact stays: an exchange with somebody else is erased, then noted
-     * again.
+     * again. Its place or its link stay while its channel has one: they are corrected by a gesture of their own.
      *
      * @throws ExchangeInTheFuture|ChannelNotMissed
      */
@@ -257,7 +260,7 @@ final class Exchange implements ReleasesEvents
         $this->ensurePossible(ExchangeIntent::CorrectExchange, $by, $at);
         self::ensureHappenedBefore($facts, $at);
         self::ensureMissable($facts->channel, $outcome);
-        $this->facts = $facts;
+        $this->facts = $facts->keepingTheVenueOf($this->facts);
         $this->status = $outcome;
         $this->correctedBy($by, $at);
         $this->recordThat(new ExchangeCorrected($this->accountId, $by, $this->id, $at));
@@ -272,6 +275,20 @@ final class Exchange implements ReleasesEvents
         $this->facts = $this->facts->withText($text);
         $this->correctedBy($by, $at);
         $this->recordThat(new ExchangeTextCorrected($this->accountId, $by, $this->id, $at));
+    }
+
+    /**
+     * Where a meeting is held, or the link of a video call, planned or done: a link may come once the video call is
+     * planned. Not personal data: every prospector of the account corrects them.
+     *
+     * @throws PlaceOnlyForAMeeting|LinkOnlyForAVideoCall|NotPossibleInItsState
+     */
+    public function correctVenue(?string $place, ?VideoCallLink $link, MemberId $by, \DateTimeImmutable $at): void
+    {
+        $this->ensurePossible(ExchangeIntent::CorrectVenue, $by, $at);
+        $this->facts = $this->facts->withVenue($place, $link);
+        $this->correctedBy($by, $at);
+        $this->recordThat(new ExchangeVenueCorrected($this->accountId, $by, $this->id, $at));
     }
 
     /**
@@ -439,13 +456,14 @@ final class Exchange implements ReleasesEvents
      */
     private function ensurePossible(ExchangeIntent $intent, MemberId $by, \DateTimeImmutable $at): void
     {
-        $situation = new ExchangeSituation(count($this->attachments), $this->awaitsBeingMadeConform(), $this->status, $this->facts->occurredAt <= $at, $this->createdBy->equals($by));
+        $situation = new ExchangeSituation(count($this->attachments), $this->awaitsBeingMadeConform(), $this->status, $this->facts->occurredAt <= $at, $this->createdBy->equals($by), $this->facts->channel);
 
         if (in_array($intent, ExchangePossibilities::given($situation), true)) {
             return;
         }
 
         throw match ($intent) {
+            ExchangeIntent::CorrectVenue => NotPossibleInItsState::because('Only a meeting or a video call takes place somewhere'),
             ExchangeIntent::AttachFile => NoRoomForAnAttachment::because(sprintf('An exchange holds %d attachments at most', self::MOST_ATTACHMENTS)),
             ExchangeIntent::MakeConform => NothingToMakeConform::because('Only an exchange with a forgotten contact is to make conform'),
             ExchangeIntent::MarkExchangeDone, ExchangeIntent::MarkExchangeMissed, ExchangeIntent::MoveExchange, ExchangeIntent::CancelExchange => $this->whyNotHandledBy($by),

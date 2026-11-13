@@ -180,6 +180,8 @@ final readonly class InMemoryTimelineRetriever implements TimelineRetriever
             canceller: $state['cancellation']?->canceller?->value,
             durationInMinutes: $facts->duration?->minutes,
             text: $facts->text,
+            place: $facts->place,
+            link: $facts->link?->url,
             textFlagged: ExchangeReading::isTextFlagged(null !== $facts->text, $reader),
             textToMakeConform: ExchangeConformity::isTextToMakeConform(null !== $facts->text, $contactForgotten, $declaredConform),
             toMakeConform: ExchangeConformity::isToMakeConform($contactForgotten, $declaredConform, [] !== $exchange->attachments()),

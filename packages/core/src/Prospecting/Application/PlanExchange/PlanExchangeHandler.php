@@ -9,6 +9,7 @@ use Prospecter\Core\Prospecting\Domain\Model\Duration;
 use Prospecter\Core\Prospecting\Domain\Model\Exchange;
 use Prospecter\Core\Prospecting\Domain\Model\ExchangeFacts;
 use Prospecter\Core\Prospecting\Domain\Model\ExchangeId;
+use Prospecter\Core\Prospecting\Domain\Model\VideoCallLink;
 use Prospecter\Core\Prospecting\Domain\Port\Prospectors;
 use Prospecter\Core\Prospecting\Domain\Repository\ExchangeRepository;
 use Prospecter\Core\Prospecting\Domain\Service\ContactOrganizations;
@@ -40,7 +41,7 @@ final readonly class PlanExchangeHandler implements CommandHandler
             new ExchangeId($command->id),
             $contact,
             $this->contactOrganizations->of($contact, $prospector->accountId),
-            ExchangeFacts::planned(Channel::from($command->channel), $command->plannedAt, Duration::inMinutes($command->durationInMinutes), $command->agenda),
+            ExchangeFacts::planned(Channel::from($command->channel), $command->plannedAt, Duration::inMinutes($command->durationInMinutes), $command->agenda, $command->place, VideoCallLink::orNone($command->link)),
             $command->executedAt,
         );
         $this->exchanges->save($exchange);

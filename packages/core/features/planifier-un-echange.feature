@@ -6,7 +6,7 @@ Fonctionnalité: Planifier un échange
 
   Contexte:
     Soit l'organisation "SOLEAN IT" qui utilise Prospecter
-    Et l'organisation "ACME" appartient à "SOLEAN IT"
+    Et l'organisation "ACME" au "12 rue de la Paix, 75002 Paris" appartient à "SOLEAN IT"
     Et le contact "Ada Lovelace" de "ACME"
     Et nous sommes le 13/11/2026 à 10h00
     Et je suis connecté en tant que prospecteur de "SOLEAN IT"
@@ -45,6 +45,37 @@ Fonctionnalité: Planifier un échange
   Scénario: Seuls un appel, un rendez-vous ou une visio se planifient
     Quand je planifie un SMS avec "Ada Lovelace" le 17/11/2026 à 9h00
     Alors c'est refusé : "Only a call, a meeting or a video call may be planned"
+
+  Scénario: Le lieu d'un rendez-vous est proposé à l'adresse de l'organisation du contact
+    Quand je commence à planifier un rendez-vous avec "Ada Lovelace"
+    Alors le lieu proposé est "12 rue de la Paix, 75002 Paris"
+
+  Scénario: Sans adresse de son organisation, aucun lieu n'est proposé
+    Soit l'organisation "Globex" appartient à "SOLEAN IT"
+    Et le contact "Grace Hopper" de "Globex"
+    Quand je commence à planifier un rendez-vous avec "Grace Hopper"
+    Alors aucun lieu n'est proposé
+
+  Scénario: Un rendez-vous a son lieu
+    Quand je planifie un rendez-vous avec "Ada Lovelace" le 17/11/2026 à 14h00 au lieu "Café de Flore"
+    Alors le détail du rendez-vous propose l'itinéraire vers "Café de Flore"
+
+  Scénario: Une visio a son lien
+    Quand je planifie une visio avec "Ada Lovelace" le 17/11/2026 à 14h00 au lien "https://meet.google.com/abc-defg-hij"
+    Alors le détail de la visio propose de la rejoindre à "https://meet.google.com/abc-defg-hij"
+    Et les échanges à venir de "Ada Lovelace" proposent de la rejoindre à "https://meet.google.com/abc-defg-hij"
+
+  Scénario: Le lien d'une visio est une adresse web
+    Quand je planifie une visio avec "Ada Lovelace" le 17/11/2026 à 14h00 au lien "réunion de mardi"
+    Alors c'est refusé : "A video call link is a web address"
+
+  Scénario: Seul un rendez-vous a un lieu
+    Quand je planifie un appel avec "Ada Lovelace" le 17/11/2026 à 14h00 au lieu "Café de Flore"
+    Alors c'est refusé : "Only a meeting has a place"
+
+  Scénario: Seule une visio a un lien
+    Quand je planifie un rendez-vous avec "Ada Lovelace" le 17/11/2026 à 14h00 au lien "https://meet.google.com/abc-defg-hij"
+    Alors c'est refusé : "Only a video call has a link"
 
   Scénario: L'échange planifié est à moi
     Quand je planifie un appel avec "Ada Lovelace" le 17/11/2026 à 9h00

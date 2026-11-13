@@ -16,6 +16,7 @@ use Prospecter\Core\Prospecting\Domain\Model\Exchange;
 use Prospecter\Core\Prospecting\Domain\Model\ExchangeFacts;
 use Prospecter\Core\Prospecting\Domain\Model\ExchangeId;
 use Prospecter\Core\Prospecting\Domain\Model\ExchangeStatus;
+use Prospecter\Core\Prospecting\Domain\Model\VideoCallLink;
 use Prospecter\Core\Prospecting\Domain\Policy\ExchangeChronology;
 use Prospecter\Core\SharedKernel\Domain\AccountId;
 use Prospecter\Core\SharedKernel\Domain\MemberId;
@@ -49,6 +50,8 @@ final class ExchangeDocument
                 'occurredAt' => Documents::moment($facts->occurredAt),
                 'text' => $facts->text,
                 'durationInMinutes' => $facts->duration?->minutes,
+                'place' => $facts->place,
+                'link' => $facts->link?->url,
             ],
             'status' => $state['status']->value,
             'lastCorrection' => self::correctionDocument($state['lastCorrection']),
@@ -74,7 +77,7 @@ final class ExchangeDocument
             'createdBy' => new MemberId($document['createdBy']),
             'contact' => null === $document['contact'] ? null : new PersonId($document['contact']),
             'keptFor' => array_map(static fn (string $organization): OrganizationId => new OrganizationId($organization), $document['keptFor']),
-            'facts' => new ExchangeFacts(Channel::from($facts['channel']), Direction::from($facts['direction']), Documents::momentOf($facts['occurredAt']), $facts['text'], self::duration($facts['durationInMinutes'] ?? null)),
+            'facts' => new ExchangeFacts(Channel::from($facts['channel']), Direction::from($facts['direction']), Documents::momentOf($facts['occurredAt']), $facts['text'], self::duration($facts['durationInMinutes'] ?? null), $facts['place'] ?? null, self::link($facts['link'] ?? null)),
             'status' => self::statusOf($document),
             'lastCorrection' => self::correction($document['lastCorrection'] ?? null),
             'contactForgotten' => $document['contactForgotten'] ?? false,
@@ -127,6 +130,14 @@ final class ExchangeDocument
     private static function duration(int|string|null $minutes): ?Duration
     {
         return null === $minutes ? null : Hydrator::restore(Duration::class, ['minutes' => (int) $minutes]);
+    }
+
+    /**
+     * Restored without its constructor, as the duration: a link accepted once stays.
+     */
+    private static function link(?string $url): ?VideoCallLink
+    {
+        return null === $url ? null : Hydrator::restore(VideoCallLink::class, ['url' => $url]);
     }
 
     /**

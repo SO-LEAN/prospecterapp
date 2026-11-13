@@ -1,9 +1,11 @@
-import { useInfiniteQuery } from '@tanstack/react-query'
+import { useInfiniteQuery, useQuery } from '@tanstack/react-query'
+import { placeOf } from '@/shared/lib/address'
 import { attachTheFiles, useAttachFiles, useNoteExchange, usePlanExchange } from '../mutations'
-import { timelineQuery, upcomingQuery } from '../queries'
+import { meetingPlaceQuery, type PlannedExchangeInput, timelineQuery, upcomingQuery } from '../queries'
 import { ExchangeForm } from './exchange-form'
 import { ExchangeLine } from './exchange-line'
 import { NoteThenFollowUp } from './follow-up'
+import { JoinTheVideoCall } from './join-the-video-call'
 import { PlanForm } from './plan-form'
 import { NoteExchangeDialog, PlanExchangeDialog, ProposedExchangeDialog, TimelineCard } from './timeline-card'
 
@@ -55,11 +57,13 @@ export function ExchangesSection({ contactId, contactName, className }: Props) {
       items={slices.flatMap((slice) => slice.items)}
       keyOf={(exchange) => exchange.id}
       renderItem={(exchange) => <ExchangeLine exchange={exchange} />}
+      actionOf={(exchange) => <JoinTheVideoCall exchange={exchange} />}
       planExchange={
         mayPlan && (
           <PlanExchangeDialog name={contactName}>
             {(close) => (
-              <PlanForm
+              <ContactPlanForm
+                contactId={contactId}
                 onCancel={close}
                 onSubmit={async (body) => {
                   await plan.mutateAsync({ params: { path: { id: contactId } }, body })
@@ -91,5 +95,24 @@ export function ExchangesSection({ contactId, contactName, className }: Props) {
         )
       }
     />
+  )
+}
+
+type ContactPlanFormProps = {
+  contactId: string
+  onSubmit: (exchange: PlannedExchangeInput) => Promise<unknown>
+  onCancel: () => void
+}
+
+/** Planned once the place to meet the contact is known: the address of their organization, asked when planning. */
+function ContactPlanForm({ contactId, onSubmit, onCancel }: ContactPlanFormProps) {
+  const meetingPlace = useQuery(meetingPlaceQuery(contactId))
+
+  if (meetingPlace.isPending) {
+    return null
+  }
+
+  return (
+    <PlanForm proposedPlace={placeOf(meetingPlace.data?.address)} onSubmit={onSubmit} onCancel={onCancel} />
   )
 }

@@ -104,6 +104,7 @@ use Prospecter\Core\Prospecting\Application\ConsultUpcomingExchanges\ConsultUpco
 use Prospecter\Core\Prospecting\Application\ConsultUpcomingExchanges\ConsultUpcomingExchangesHandler;
 use Prospecter\Core\Prospecting\Application\CorrectExchange\CorrectExchangeHandler;
 use Prospecter\Core\Prospecting\Application\CorrectExchangeText\CorrectExchangeTextHandler;
+use Prospecter\Core\Prospecting\Application\CorrectExchangeVenue\CorrectExchangeVenueHandler;
 use Prospecter\Core\Prospecting\Application\DetachForgottenContact\DetachForgottenContactHandler;
 use Prospecter\Core\Prospecting\Application\DetachFromHolding\DetachFromHoldingHandler;
 use Prospecter\Core\Prospecting\Application\DiscardAttachmentsOfErasedExchange\DiscardAttachmentsOfErasedExchangeHandler;
@@ -133,6 +134,10 @@ use Prospecter\Core\Prospecting\Application\NoteToDo\NoteToDoHandler;
 use Prospecter\Core\Prospecting\Application\OrganizationSheet;
 use Prospecter\Core\Prospecting\Application\PlanExchange\PlanExchangeHandler;
 use Prospecter\Core\Prospecting\Application\PlanOrganizationExchange\PlanOrganizationExchangeHandler;
+use Prospecter\Core\Prospecting\Application\ProposeMeetingPlace\KeptMeetingPlace;
+use Prospecter\Core\Prospecting\Application\ProposeMeetingPlace\MeetingPlace;
+use Prospecter\Core\Prospecting\Application\ProposeMeetingPlace\ProposeMeetingPlace;
+use Prospecter\Core\Prospecting\Application\ProposeMeetingPlace\ProposeMeetingPlaceHandler;
 use Prospecter\Core\Prospecting\Application\PublishContactsLeftWithoutOrganization\PublishContactsLeftWithoutOrganizationHandler;
 use Prospecter\Core\Prospecting\Application\PublishExchangeFacts\PublishExchangeFactsHandler;
 use Prospecter\Core\Prospecting\Application\PublishOrganizationFacts\PublishOrganizationFactsHandler;
@@ -581,6 +586,16 @@ final class Application
         return $this->ask(new ConsultOrganizationUpcomingExchangesHandler($this->timelineRetriever, $this->organizationSheetRetriever, $this->prospectors), $query, $kept) ? $kept->timeline : null;
     }
 
+    /**
+     * None when nothing is proposed, or when refused: `refusal()` tells them apart.
+     */
+    public function proposeMeetingPlace(ProposeMeetingPlace $query): ?MeetingPlace
+    {
+        $kept = new KeptMeetingPlace();
+
+        return $this->ask(new ProposeMeetingPlaceHandler($this->organizationSheetRetriever, $this->prospectors, $this->contactOrganizations), $query, $kept) ? $kept->place : null;
+    }
+
     public function consultOverlappingExchanges(ConsultOverlappingExchanges $query): ?OverlappingExchanges
     {
         $kept = new KeptOverlappingExchanges();
@@ -683,6 +698,7 @@ final class Application
             new MarkExchangeMissedHandler($this->exchanges, $this->events),
             new MoveExchangeHandler($this->exchanges, $this->events),
             new CancelExchangeHandler($this->exchanges, $this->events),
+            new CorrectExchangeVenueHandler($this->exchanges, $this->events),
             new EraseExchangeHandler($this->exchanges, $this->events),
             new AttachFileHandler($this->exchanges, $this->privateStorage, $this->events),
             new RemoveAttachmentHandler($this->exchanges, $this->events),

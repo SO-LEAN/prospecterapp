@@ -20,14 +20,18 @@ use Prospecter\Core\Prospecting\Domain\Event\ExchangeNoLongerKeptFor;
 use Prospecter\Core\Prospecting\Domain\Event\ExchangeNoted;
 use Prospecter\Core\Prospecting\Domain\Event\ExchangePlanned;
 use Prospecter\Core\Prospecting\Domain\Event\ExchangeTextCorrected;
+use Prospecter\Core\Prospecting\Domain\Event\ExchangeVenueCorrected;
 use Prospecter\Core\Prospecting\Domain\Event\FileAttached;
 use Prospecter\Core\Prospecting\Domain\Exception\ChannelNotMissed;
 use Prospecter\Core\Prospecting\Domain\Exception\ExchangeInTheFuture;
+use Prospecter\Core\Prospecting\Domain\Exception\InvalidVideoCallLink;
+use Prospecter\Core\Prospecting\Domain\Exception\LinkOnlyForAVideoCall;
 use Prospecter\Core\Prospecting\Domain\Exception\NoRoomForAnAttachment;
 use Prospecter\Core\Prospecting\Domain\Exception\NothingToMakeConform;
 use Prospecter\Core\Prospecting\Domain\Exception\NotTheHolder;
 use Prospecter\Core\Prospecting\Domain\Exception\NotUpcoming;
 use Prospecter\Core\Prospecting\Domain\Exception\NotYetDue;
+use Prospecter\Core\Prospecting\Domain\Exception\PlaceOnlyForAMeeting;
 use Prospecter\Core\Prospecting\Domain\Exception\PlannedExchangeInThePast;
 use Prospecter\Core\Prospecting\Domain\Model\Attachment;
 use Prospecter\Core\Prospecting\Domain\Model\AttachmentId;
@@ -44,6 +48,7 @@ use Prospecter\Core\Prospecting\Domain\Model\ExchangeIntent;
 use Prospecter\Core\Prospecting\Domain\Model\ExchangeSituation;
 use Prospecter\Core\Prospecting\Domain\Model\ExchangeStatus;
 use Prospecter\Core\Prospecting\Domain\Model\Prospector;
+use Prospecter\Core\Prospecting\Domain\Model\VideoCallLink;
 use Prospecter\Core\Prospecting\Domain\Policy\ExchangeConformity;
 use Prospecter\Core\Prospecting\Domain\Policy\ExchangePossibilities;
 use Prospecter\Core\SharedKernel\Domain\AccountId;
@@ -65,6 +70,7 @@ class ExchangeTest extends TestCase
     private const string ATTACHMENT = '0190a1c0-0000-7000-8000-000000000007';
     private const string FILE = '6f1c2a9e0b7d4c3a8e5f1b2c3d4e5f60';
     private const string NOW = '2026-10-18 19:00';
+    private const string MEET = 'https://meet.google.com/abc-defg-hij';
 
     public function testNotingRecordsIt(): void
     {
@@ -302,6 +308,127 @@ class ExchangeTest extends TestCase
         $this->assertSame(ExchangeStatus::Planned, StateOf::the($exchange)['status']);
     }
 
+    #[DataProvider('channelsButTheMeeting')]
+    public function testOnlyAMeetingHasAPlace(Channel $channel): void
+    {
+        $this->expectException(PlaceOnlyForAMeeting::class);
+
+        new ExchangeFacts($channel, Direction::Outbound, new \DateTimeImmutable(self::NOW), place: 'Café de Flore');
+    }
+
+    /**
+     * @return iterable<string, array{Channel}>
+     */
+    public static function channelsButTheMeeting(): iterable
+    {
+        foreach (Channel::cases() as $channel) {
+            if (Channel::Meeting !== $channel) {
+                yield $channel->name => [$channel];
+            }
+        }
+    }
+
+    #[DataProvider('channelsButTheVideoCall')]
+    public function testOnlyAVideoCallHasALink(Channel $channel): void
+    {
+        $this->expectException(LinkOnlyForAVideoCall::class);
+
+        new ExchangeFacts($channel, Direction::Outbound, new \DateTimeImmutable(self::NOW), link: new VideoCallLink(self::MEET));
+    }
+
+    /**
+     * @return iterable<string, array{Channel}>
+     */
+    public static function channelsButTheVideoCall(): iterable
+    {
+        foreach (Channel::cases() as $channel) {
+            if (Channel::VideoCall !== $channel) {
+                yield $channel->name => [$channel];
+            }
+        }
+    }
+
+    public function testABlankPlaceIsNoPlace(): void
+    {
+        $this->assertNull(new ExchangeFacts(Channel::Call, Direction::Outbound, new \DateTimeImmutable(self::NOW), place: " \n ")->place);
+    }
+
+    public function testAMeetingKeepsItsPlaceAndAVideoCallItsLink(): void
+    {
+        $this->assertSame('Café de Flore', ExchangeFacts::planned(Channel::Meeting, new \DateTimeImmutable(self::NOW), Duration::inMinutes(null), null, 'Café de Flore')->place);
+        $this->assertEquals(new VideoCallLink(self::MEET), ExchangeFacts::planned(Channel::VideoCall, new \DateTimeImmutable(self::NOW), Duration::inMinutes(null), null, link: new VideoCallLink(self::MEET))->link);
+    }
+
+    #[DataProvider('notWebAddresses')]
+    public function testAVideoCallLinkIsAWebAddress(string $link): void
+    {
+        $this->expectException(InvalidVideoCallLink::class);
+
+        VideoCallLink::orNone($link);
+    }
+
+    /**
+     * @return iterable<string, array{string}>
+     */
+    public static function notWebAddresses(): iterable
+    {
+        yield 'words' => ['réunion de mardi'];
+        yield 'without its scheme' => ['meet.google.com/abc-defg-hij'];
+        yield 'another scheme' => ['ftp://meet.example.com/abc'];
+        yield 'a script' => ['javascript:alert(1)'];
+    }
+
+    public function testAVideoCallLinkLeftBlankIsNone(): void
+    {
+        $this->assertNull(VideoCallLink::orNone('  '));
+        $this->assertNull(VideoCallLink::orNone(null));
+    }
+
+    public function testAVideoCallLinkIsKeptWithoutTheSpacesAround(): void
+    {
+        $this->assertSame(self::MEET, VideoCallLink::orNone(sprintf(' %s ', self::MEET))?->url);
+    }
+
+    public function testCorrectingTheVenueKeepsTheOtherFactsAndRecordsWhoCorrected(): void
+    {
+        $exchange = $this->planned();
+        $exchange->releaseEvents();
+        $later = new \DateTimeImmutable(self::NOW)->modify('+1 hour');
+
+        $exchange->correctVenue('Les Deux Magots', null, by: $this->colleagueWithoutTheRight()->id, at: $later);
+
+        $this->assertEquals(ExchangeFacts::planned(Channel::Meeting, new \DateTimeImmutable(self::NOW)->modify('+1 day'), Duration::inMinutes(45), null, 'Les Deux Magots'), StateOf::the($exchange)['facts']);
+        $this->assertEquals(new Correction($this->colleagueWithoutTheRight()->id, $later), StateOf::the($exchange)['lastCorrection']);
+        $this->assertEquals([new ExchangeVenueCorrected(new AccountId(self::MINE), $this->colleagueWithoutTheRight()->id, new ExchangeId(self::EXCHANGE), $later)], $exchange->releaseEvents());
+    }
+
+    public function testACorrectionOfTheWholeKeepsThePlaceWhileItStaysAMeeting(): void
+    {
+        $exchange = $this->noted(new ExchangeFacts(Channel::Meeting, Direction::Outbound, new \DateTimeImmutable(self::NOW), place: 'Café de Flore'));
+
+        $exchange->correct(new ExchangeFacts(Channel::Meeting, Direction::Outbound, new \DateTimeImmutable(self::NOW), 'Déjeuner'), ExchangeStatus::Done, by: $this->me()->id, at: new \DateTimeImmutable(self::NOW));
+
+        $this->assertSame('Café de Flore', StateOf::the($exchange)['facts']->place);
+    }
+
+    public function testACorrectionOfTheWholeDropsThePlaceOfAMeetingNoLongerOne(): void
+    {
+        $exchange = $this->noted(new ExchangeFacts(Channel::Meeting, Direction::Outbound, new \DateTimeImmutable(self::NOW), place: 'Café de Flore'));
+
+        $exchange->correct(new ExchangeFacts(Channel::Call, Direction::Outbound, new \DateTimeImmutable(self::NOW)), ExchangeStatus::Done, by: $this->me()->id, at: new \DateTimeImmutable(self::NOW));
+
+        $this->assertNull(StateOf::the($exchange)['facts']->place);
+    }
+
+    public function testACorrectionOfTheWholeKeepsTheLinkWhileItStaysAVideoCall(): void
+    {
+        $exchange = $this->noted(new ExchangeFacts(Channel::VideoCall, Direction::Outbound, new \DateTimeImmutable(self::NOW), link: new VideoCallLink(self::MEET)));
+
+        $exchange->correct(new ExchangeFacts(Channel::VideoCall, Direction::Inbound, new \DateTimeImmutable(self::NOW)), ExchangeStatus::Done, by: $this->me()->id, at: new \DateTimeImmutable(self::NOW));
+
+        $this->assertEquals(new VideoCallLink(self::MEET), StateOf::the($exchange)['facts']->link);
+    }
+
     public function testABlankTextIsNoText(): void
     {
         $this->assertNull(new ExchangeFacts(Channel::Other, Direction::Inbound, new \DateTimeImmutable(self::NOW), " \n ")->text);
@@ -334,7 +461,7 @@ class ExchangeTest extends TestCase
         ], $exchange->releaseEvents());
     }
 
-    public function testItsContactForgottenEverythingButHandlingAPlannedExchangeIsOffered(): void
+    public function testItsContactForgottenEverythingItsChannelAllowsButHandlingAPlannedExchangeIsOffered(): void
     {
         $offered = [ExchangeIntent::CorrectExchange, ExchangeIntent::CorrectText, ExchangeIntent::MakeConform, ExchangeIntent::EraseExchange, ExchangeIntent::AttachFile, ExchangeIntent::RemoveAttachment];
 
@@ -500,7 +627,7 @@ class ExchangeTest extends TestCase
         $awaitsBeingMadeConform = ExchangeConformity::awaitsBeingMadeConform($state['contactForgotten'], null !== $state['madeConform']);
         $due = $state['facts']->occurredAt <= new \DateTimeImmutable(self::NOW);
 
-        return ExchangePossibilities::given(new ExchangeSituation(count($exchange->attachments()), $awaitsBeingMadeConform, $state['status'], $due, $state['createdBy']->equals(($member ?? $this->me())->id)));
+        return ExchangePossibilities::given(new ExchangeSituation(count($exchange->attachments()), $awaitsBeingMadeConform, $state['status'], $due, $state['createdBy']->equals(($member ?? $this->me())->id), $state['facts']->channel));
     }
 
     /**
@@ -520,6 +647,7 @@ class ExchangeTest extends TestCase
         match ($intent) {
             ExchangeIntent::CorrectExchange => $exchange->correct(new ExchangeFacts(Channel::Call, Direction::Inbound, $now), ExchangeStatus::Done, by: $by, at: $now),
             ExchangeIntent::CorrectText => $exchange->correctText('Rappellera lundi', by: $by, at: $now),
+            ExchangeIntent::CorrectVenue => $exchange->correctVenue('Café de Flore', null, by: $by, at: $now),
             ExchangeIntent::MakeConform => $exchange->declareConform(by: $by, at: $now),
             ExchangeIntent::EraseExchange => $exchange->erase(by: $by, at: $now),
             ExchangeIntent::AttachFile => $exchange->attach($this->anAttachment('0190a1c0-0000-7000-8000-000000000008'), by: $by, at: $now),
@@ -540,7 +668,7 @@ class ExchangeTest extends TestCase
 
         $exchange->correct($corrected, ExchangeStatus::Done, by: $this->me()->id, at: $later);
 
-        $this->assertSame($corrected, StateOf::the($exchange)['facts']);
+        $this->assertEquals($corrected, StateOf::the($exchange)['facts']);
         $this->assertEquals(new Correction($this->me()->id, $later), StateOf::the($exchange)['lastCorrection']);
         $this->assertEquals([new ExchangeCorrected(new AccountId(self::MINE), $this->me()->id, new ExchangeId(self::EXCHANGE), $later)], $exchange->releaseEvents());
     }

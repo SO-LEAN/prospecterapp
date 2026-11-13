@@ -33,6 +33,7 @@ import {
 import { ITSELF } from '../schema'
 import { Choice, Choices, type Interlocutors } from './exchange-form'
 import { CHANNEL_ICONS, INTERLOCUTOR_ICONS } from './exchange-line'
+import { VideoCallLinkInput } from './video-call-link-input'
 
 type Props = {
   /** The person chosen, null for the organization itself or on the card of a contact. */
@@ -41,18 +42,20 @@ type Props = {
   interlocutors?: Interlocutors
   /** The channel proposed: that of the exchange it follows. */
   channel?: PlannedChannel
+  /** Where a meeting is proposed to be held: the address of the organization, written on one line. */
+  proposedPlace?: string
 }
 
 /**
  * Planned in a few clicks: the next quarter of an hour and half an hour by default, shortcuts for the usual moments
- * and durations; warned, without being stopped, of an exchange of mine it overlaps.
+ * and durations, the place of a meeting proposed; warned, without being stopped, of an exchange of mine it overlaps.
  */
-export function PlanForm({ onSubmit, onCancel, interlocutors, channel }: Props) {
+export function PlanForm({ onSubmit, onCancel, interlocutors, channel, proposedPlace }: Props) {
   const { t } = useTranslation()
   const [globalErrors, setGlobalErrors] = useState<string[]>([])
   const form = useForm<PlanValues>({
     resolver: zodResolver(planSchema),
-    defaultValues: { ...newPlan(new Date()), channel },
+    defaultValues: { ...newPlan(new Date(), proposedPlace), channel },
   })
   const { errors, isSubmitting } = useFormState({ control: form.control })
   const setMoment = (moment: Date) => {
@@ -110,6 +113,8 @@ export function PlanForm({ onSubmit, onCancel, interlocutors, channel }: Props) 
         ))}
       </Choices>
 
+      <Venue form={form} />
+
       <fieldset className="space-y-2">
         <legend className="font-medium text-sm">{t('exchanges.shortcuts')}</legend>
         <div className="flex flex-wrap gap-2">
@@ -163,6 +168,42 @@ export function PlanForm({ onSubmit, onCancel, interlocutors, channel }: Props) 
       </div>
     </form>
   )
+}
+
+/**
+ * Where a meeting is held, written freely; the link of a video call, optional, the first Meet, Teams or Zoom link of
+ * an invitation pasted whole taken from it.
+ */
+function Venue({ form }: { form: UseFormReturn<PlanValues> }) {
+  const { t } = useTranslation()
+  const channel = useWatch({ control: form.control, name: 'channel' })
+
+  if (channel === 'meeting') {
+    return (
+      <FormField form={form} name="place" label={t('exchanges.place')} optional={t('common.optional')}>
+        <Input autoComplete="off" {...form.register('place')} />
+      </FormField>
+    )
+  }
+
+  if (channel === 'videoCall') {
+    return (
+      <FormField
+        form={form}
+        name="link"
+        label={t('exchanges.link')}
+        optional={t('common.optional')}
+        hint={t('exchanges.linkHint')}
+      >
+        <VideoCallLinkInput
+          {...form.register('link')}
+          onLink={(link) => form.setValue('link', link, { shouldValidate: true })}
+        />
+      </FormField>
+    )
+  }
+
+  return null
 }
 
 /** The usual durations in a click, the one in force pressed. */

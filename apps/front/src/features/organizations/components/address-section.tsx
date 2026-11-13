@@ -9,12 +9,12 @@ import {
 } from '@/shared/forms/address'
 import { SectionForm } from '@/shared/forms/section-form'
 import { addressLines } from '@/shared/lib/address'
+import { DirectionsLink } from '@/shared/ui/directions-link'
 import { EditableSection } from '@/shared/ui/editable-section'
 import { GeoMap } from '@/shared/ui/map/geo-map'
 import { ExplainedUnlocatedBadge } from '@/shared/ui/unlocated-badge'
 import { useRelocate } from '../mutations'
 import type { Organization } from '../queries'
-import { DirectionsLink } from './directions-link'
 
 type Location = components['schemas']['LocationResource']
 

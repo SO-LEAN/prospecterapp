@@ -1236,7 +1236,62 @@
                         }
                     },
                     "422": {
-                        "description": "Invalid exchange: a channel that is not planned, a moment that is not in the future, a duration out of 5 minutes to 8 hours",
+                        "description": "Invalid exchange: a channel that is not planned, a moment that is not in the future, a duration out of 5 minutes to 8 hours, a place for another channel than a meeting, a link for another than a video call or a link that is no web address",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ProblemResource"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/contacts/{id}/meeting-place": {
+            "get": {
+                "tags": [
+                    "Contacts"
+                ],
+                "summary": "Where to meet the contact, proposed while planning a meeting with them: the address of their organization",
+                "operationId": "get_api_contacts_meeting_place",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "pattern": "[0-9a-f]{8}-[0-9a-f]{4}-[13-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "The place proposed, or none",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/MeetingPlaceResource"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Missing or invalid access token"
+                    },
+                    "403": {
+                        "description": "Not a prospector",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ProblemResource"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Unknown contact, or one of another account",
                         "content": {
                             "application/json": {
                                 "schema": {
@@ -2473,7 +2528,7 @@
                         }
                     },
                     "422": {
-                        "description": "Invalid exchange: a channel that is not planned, a moment that is not in the future, a duration out of 5 minutes to 8 hours",
+                        "description": "Invalid exchange: a channel that is not planned, a moment that is not in the future, a duration out of 5 minutes to 8 hours, a place for another channel than a meeting, a link for another than a video call or a link that is no web address",
                         "content": {
                             "application/json": {
                                 "schema": {
@@ -3123,6 +3178,91 @@
                     },
                     "422": {
                         "description": "Invalid text: too long, or another fact of the exchange",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ProblemResource"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/exchanges/{id}/venue": {
+            "patch": {
+                "tags": [
+                    "Contacts"
+                ],
+                "summary": "Correct where a meeting is held, or the link of a video call, planned or done; open to every prospector of the account",
+                "operationId": "patch_api_exchanges_correct_venue",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "pattern": "[0-9a-f]{8}-[0-9a-f]{4}-[13-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/VenueCorrectionInput"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "The corrected exchange",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ExchangeDetailResource"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Missing or invalid access token"
+                    },
+                    "403": {
+                        "description": "Not a prospector",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ProblemResource"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Unknown exchange, or one of another account",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ProblemResource"
+                                }
+                            }
+                        }
+                    },
+                    "409": {
+                        "description": "Neither a meeting nor a video call",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ProblemResource"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "A link that is no web address, a place for a video call, a link for a meeting",
                         "content": {
                             "application/json": {
                                 "schema": {
@@ -4565,6 +4705,20 @@
                         "nullable": true,
                         "default": null,
                         "maxLength": 5000
+                    },
+                    "place": {
+                        "description": "Where a meeting is held, written freely; a meeting only",
+                        "type": "string",
+                        "nullable": true,
+                        "default": null,
+                        "maxLength": 255
+                    },
+                    "link": {
+                        "description": "The web address a video call is joined by, optional: it may be added later; a video call only",
+                        "type": "string",
+                        "nullable": true,
+                        "default": null,
+                        "maxLength": 2048
                     }
                 },
                 "type": "object"
@@ -4825,6 +4979,25 @@
                         "description": "Declares the exchange made conform, its contact forgotten; only while the link makeConform is offered",
                         "type": "boolean",
                         "default": false
+                    }
+                },
+                "type": "object"
+            },
+            "VenueCorrectionInput": {
+                "properties": {
+                    "place": {
+                        "description": "Where a meeting is held, written freely; a meeting only",
+                        "type": "string",
+                        "nullable": true,
+                        "default": null,
+                        "maxLength": 255
+                    },
+                    "link": {
+                        "description": "The web address a video call is joined by; a video call only",
+                        "type": "string",
+                        "nullable": true,
+                        "default": null,
+                        "maxLength": 2048
                     }
                 },
                 "type": "object"
@@ -5502,6 +5675,16 @@
                         "type": "string",
                         "nullable": true
                     },
+                    "place": {
+                        "description": "Where a meeting is held, written freely; null for any other channel",
+                        "type": "string",
+                        "nullable": true
+                    },
+                    "link": {
+                        "description": "The web address a video call is joined by; null for any other channel, or until it is known",
+                        "type": "string",
+                        "nullable": true
+                    },
                     "textFlagged": {
                         "description": "Its text may hold personal data: flagged to a prospector reading it without the right to manage them",
                         "type": "boolean"
@@ -5568,6 +5751,20 @@
                     },
                     "_links": {
                         "$ref": "#/components/schemas/TimelineLinksResource"
+                    }
+                },
+                "type": "object"
+            },
+            "MeetingPlaceResource": {
+                "properties": {
+                    "address": {
+                        "description": "The address of the first organization of the contact having one; none when no organization of theirs has",
+                        "nullable": true,
+                        "oneOf": [
+                            {
+                                "$ref": "#/components/schemas/AddressResource"
+                            }
+                        ]
                     }
                 },
                 "type": "object"
@@ -6068,6 +6265,9 @@
                     "correctText": {
                         "$ref": "#/components/schemas/LinkResource"
                     },
+                    "correctVenue": {
+                        "$ref": "#/components/schemas/LinkResource"
+                    },
                     "makeConform": {
                         "$ref": "#/components/schemas/LinkResource"
                     },
@@ -6166,6 +6366,21 @@
                         "nullable": true
                     },
                     "text": {
+                        "type": "string",
+                        "nullable": true
+                    },
+                    "place": {
+                        "description": "Where a meeting is held, written freely; null for any other channel",
+                        "type": "string",
+                        "nullable": true
+                    },
+                    "link": {
+                        "description": "The web address a video call is joined by; null for any other channel, or until it is known",
+                        "type": "string",
+                        "nullable": true
+                    },
+                    "phoneNumber": {
+                        "description": "The number the interlocutor is called at: the contact read in clear, or the organization itself; none when unknown or masked",
                         "type": "string",
                         "nullable": true
                     },

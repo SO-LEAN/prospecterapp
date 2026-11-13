@@ -49,6 +49,7 @@ final readonly class DomainEventTypes extends EventTypes
             'ExchangeNoted.v1' => Prospecting\ExchangeNoted::class,
             'ExchangePlanned.v1' => Prospecting\ExchangePlanned::class,
             'ExchangeTextCorrected.v1' => Prospecting\ExchangeTextCorrected::class,
+            'ExchangeVenueCorrected.v1' => Prospecting\ExchangeVenueCorrected::class,
             'FileAttached.v1' => Prospecting\FileAttached::class,
             'LegalIdentityRevised.v1' => Prospecting\LegalIdentityRevised::class,
             'LogoChanged.v1' => Prospecting\LogoChanged::class,

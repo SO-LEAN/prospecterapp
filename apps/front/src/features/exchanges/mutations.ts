@@ -180,6 +180,15 @@ export function useCorrectExchangeText() {
   })
 }
 
+export function useCorrectExchangeVenue() {
+  const showTheCorrection = useShowTheCorrection()
+
+  return api.useMutation('patch', '/api/exchanges/{id}/venue', {
+    meta: { silentValidation: true },
+    onSuccess: showTheCorrection,
+  })
+}
+
 export function useEraseExchange() {
   const queryClient = useQueryClient()
   const { t } = useTranslation()

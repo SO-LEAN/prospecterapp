@@ -248,6 +248,23 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/contacts/{id}/meeting-place": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Where to meet the contact, proposed while planning a meeting with them: the address of their organization */
+        get: operations["get_api_contacts_meeting_place"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/organizations/{id}/address": {
         parameters: {
             query?: never;
@@ -628,6 +645,23 @@ export interface paths {
         patch: operations["patch_api_exchanges_correct_text"];
         trace?: never;
     };
+    "/api/exchanges/{id}/venue": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        /** Correct where a meeting is held, or the link of a video call, planned or done; open to every prospector of the account */
+        patch: operations["patch_api_exchanges_correct_venue"];
+        trace?: never;
+    };
     "/api/exchanges/{id}/attachments/{attachmentId}": {
         parameters: {
             query?: never;
@@ -992,6 +1026,16 @@ export interface components {
              * @default null
              */
             text: string | null;
+            /**
+             * @description Where a meeting is held, written freely; a meeting only
+             * @default null
+             */
+            place: string | null;
+            /**
+             * @description The web address a video call is joined by, optional: it may be added later; a video call only
+             * @default null
+             */
+            link: string | null;
         };
         OrganizationListQuery: {
             /** @default  */
@@ -1118,6 +1162,18 @@ export interface components {
              * @default false
              */
             madeConform: boolean;
+        };
+        VenueCorrectionInput: {
+            /**
+             * @description Where a meeting is held, written freely; a meeting only
+             * @default null
+             */
+            place: string | null;
+            /**
+             * @description The web address a video call is joined by; a video call only
+             * @default null
+             */
+            link: string | null;
         };
         ReportInput: {
             /**
@@ -1348,6 +1404,10 @@ export interface components {
             /** @description How long it lasts, once planned */
             durationInMinutes?: number | null;
             text?: string | null;
+            /** @description Where a meeting is held, written freely; null for any other channel */
+            place?: string | null;
+            /** @description The web address a video call is joined by; null for any other channel, or until it is known */
+            link?: string | null;
             /** @description Its text may hold personal data: flagged to a prospector reading it without the right to manage them */
             textFlagged: boolean;
             /** @description Its contact forgotten, its text may still hold their personal data, until it is declared made conform */
@@ -1370,6 +1430,10 @@ export interface components {
         TimelineResource: {
             items: components["schemas"]["ExchangeResource"][];
             _links: components["schemas"]["TimelineLinksResource"];
+        };
+        MeetingPlaceResource: {
+            /** @description The address of the first organization of the contact having one; none when no organization of theirs has */
+            address?: components["schemas"]["AddressResource"] | null;
         };
         OrganizationSummaryResource: {
             id: string;
@@ -1504,6 +1568,7 @@ export interface components {
             interlocutor?: components["schemas"]["LinkResource"];
             correctExchange?: components["schemas"]["LinkResource"];
             correctText?: components["schemas"]["LinkResource"];
+            correctVenue?: components["schemas"]["LinkResource"];
             makeConform?: components["schemas"]["LinkResource"];
             eraseExchange?: components["schemas"]["LinkResource"];
             attachFile?: components["schemas"]["LinkResource"];
@@ -1540,6 +1605,12 @@ export interface components {
             /** @description How long it lasts, once planned */
             durationInMinutes?: number | null;
             text?: string | null;
+            /** @description Where a meeting is held, written freely; null for any other channel */
+            place?: string | null;
+            /** @description The web address a video call is joined by; null for any other channel, or until it is known */
+            link?: string | null;
+            /** @description The number the interlocutor is called at: the contact read in clear, or the organization itself; none when unknown or masked */
+            phoneNumber?: string | null;
             /** @description Its text may hold personal data: flagged to a prospector reading it without the right to manage them */
             textFlagged: boolean;
             /** @description Its contact forgotten, its text may still hold their personal data, until it is declared made conform */
@@ -2683,8 +2754,55 @@ export interface operations {
                     "application/json": components["schemas"]["ProblemResource"];
                 };
             };
-            /** @description Invalid exchange: a channel that is not planned, a moment that is not in the future, a duration out of 5 minutes to 8 hours */
+            /** @description Invalid exchange: a channel that is not planned, a moment that is not in the future, a duration out of 5 minutes to 8 hours, a place for another channel than a meeting, a link for another than a video call or a link that is no web address */
             422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ProblemResource"];
+                };
+            };
+        };
+    };
+    get_api_contacts_meeting_place: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description The place proposed, or none */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MeetingPlaceResource"];
+                };
+            };
+            /** @description Missing or invalid access token */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Not a prospector */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ProblemResource"];
+                };
+            };
+            /** @description Unknown contact, or one of another account */
+            404: {
                 headers: {
                     [name: string]: unknown;
                 };
@@ -3694,7 +3812,7 @@ export interface operations {
                     "application/json": components["schemas"]["ProblemResource"];
                 };
             };
-            /** @description Invalid exchange: a channel that is not planned, a moment that is not in the future, a duration out of 5 minutes to 8 hours */
+            /** @description Invalid exchange: a channel that is not planned, a moment that is not in the future, a duration out of 5 minutes to 8 hours, a place for another channel than a meeting, a link for another than a video call or a link that is no web address */
             422: {
                 headers: {
                     [name: string]: unknown;
@@ -4214,6 +4332,75 @@ export interface operations {
                 };
             };
             /** @description Invalid text: too long, or another fact of the exchange */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ProblemResource"];
+                };
+            };
+        };
+    };
+    patch_api_exchanges_correct_venue: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["VenueCorrectionInput"];
+            };
+        };
+        responses: {
+            /** @description The corrected exchange */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ExchangeDetailResource"];
+                };
+            };
+            /** @description Missing or invalid access token */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Not a prospector */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ProblemResource"];
+                };
+            };
+            /** @description Unknown exchange, or one of another account */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ProblemResource"];
+                };
+            };
+            /** @description Neither a meeting nor a video call */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ProblemResource"];
+                };
+            };
+            /** @description A link that is no web address, a place for a video call, a link for a meeting */
             422: {
                 headers: {
                     [name: string]: unknown;

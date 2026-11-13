@@ -14,6 +14,8 @@ enum ExchangeIntent
     case CorrectExchange;
     /** Correct its text only. */
     case CorrectText;
+    /** Correct where a meeting is held, or the link of a video call, planned or done. */
+    case CorrectVenue;
     /** Declare conform the text of an exchange whose contact was forgotten, while it is not yet. */
     case MakeConform;
     /** Erase it from every timeline. */

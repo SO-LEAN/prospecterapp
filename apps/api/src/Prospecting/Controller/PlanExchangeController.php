@@ -41,7 +41,7 @@ final class PlanExchangeController extends AbstractController
     #[OA\Response(response: 401, description: 'Missing or invalid access token')]
     #[OA\Response(response: 403, description: 'Not a prospector, or no right to manage personal data', content: new Model(type: ProblemResource::class))]
     #[OA\Response(response: 404, description: 'Unknown contact, or one of another account', content: new Model(type: ProblemResource::class))]
-    #[OA\Response(response: 422, description: 'Invalid exchange: a channel that is not planned, a moment that is not in the future, a duration out of 5 minutes to 8 hours', content: new Model(type: ProblemResource::class))]
+    #[OA\Response(response: 422, description: 'Invalid exchange: a channel that is not planned, a moment that is not in the future, a duration out of 5 minutes to 8 hours, a place for another channel than a meeting, a link for another than a video call or a link that is no web address', content: new Model(type: ProblemResource::class))]
     public function __invoke(string $id, #[MapRequestPayload] PlannedExchangeInput $input, #[CurrentUser] User $user): JsonResponse
     {
         $exchange = $this->identities->next();
@@ -53,6 +53,8 @@ final class PlanExchangeController extends AbstractController
             plannedAt: $input->occurredAt ?? throw new \LogicException('A planned exchange validated has its moment'),
             durationInMinutes: $input->durationInMinutes,
             agenda: $input->text,
+            place: $input->place,
+            link: $input->link,
             executedAt: $this->clock->now(),
         ));
 

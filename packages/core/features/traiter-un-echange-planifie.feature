@@ -114,43 +114,47 @@ Fonctionnalité: Traiter un échange planifié
   Scénario: Ce que son titulaire peut faire d'un échange à venir, avant son heure
     Soit nous sommes le 17/11/2026 à 10h00
     Alors je peux sur l'échange :
-      | corriger le texte   |
-      | supprimer l'échange |
-      | joindre un fichier       |
-      | retirer une pièce jointe |
-      | déplacer            |
-      | annuler             |
+      | corriger le texte           |
+      | corriger le lieu ou le lien |
+      | supprimer l'échange         |
+      | joindre un fichier          |
+      | retirer une pièce jointe    |
+      | déplacer                    |
+      | annuler                     |
 
   Scénario: Ce que son titulaire peut faire d'un échange à venir, son heure venue
     Soit nous sommes le 17/11/2026 à 14h00
     Alors je peux sur l'échange :
-      | corriger le texte   |
-      | supprimer l'échange |
-      | joindre un fichier       |
-      | retirer une pièce jointe |
-      | marquer fait        |
-      | marquer manqué      |
-      | déplacer            |
-      | annuler             |
+      | corriger le texte           |
+      | corriger le lieu ou le lien |
+      | supprimer l'échange         |
+      | joindre un fichier          |
+      | retirer une pièce jointe    |
+      | marquer fait                |
+      | marquer manqué              |
+      | déplacer                    |
+      | annuler                     |
 
   Scénario: Un autre prospecteur ne traite pas l'échange planifié d'un collègue
     Soit nous sommes le 17/11/2026 à 14h00
     Et je suis connecté en tant qu'un autre prospecteur de "SOLEAN IT"
     Alors je peux sur l'échange :
-      | corriger le texte   |
-      | supprimer l'échange |
-      | joindre un fichier       |
-      | retirer une pièce jointe |
+      | corriger le texte           |
+      | corriger le lieu ou le lien |
+      | supprimer l'échange         |
+      | joindre un fichier          |
+      | retirer une pièce jointe    |
 
   Scénario: Un échange manqué se corrige comme un échange fait
     Soit nous sommes le 17/11/2026 à 15h00
     Et j'ai marqué cette visio manquée
     Alors je peux sur l'échange :
-      | corriger l'échange  |
-      | corriger le texte   |
-      | supprimer l'échange |
-      | joindre un fichier       |
-      | retirer une pièce jointe |
+      | corriger l'échange          |
+      | corriger le texte           |
+      | corriger le lieu ou le lien |
+      | supprimer l'échange         |
+      | joindre un fichier          |
+      | retirer une pièce jointe    |
 
   Scénario: Les échanges à venir d'un contact effacé sont annulés
     Soit nous sommes le 13/11/2026 à 10h00

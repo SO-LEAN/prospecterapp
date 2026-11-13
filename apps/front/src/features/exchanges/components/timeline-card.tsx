@@ -24,6 +24,8 @@ type Props<Item> = {
   /** The id of the exchange of an item, the one its detail opens. */
   keyOf: (item: Item) => string
   renderItem: (item: Item) => ReactNode
+  /** What an exchange to come offers at once beside it, outside the button opening its detail: joining a video call. */
+  actionOf?: (item: Item) => ReactNode
   /** The quick entry of a new exchange, when the timeline offers it. */
   noteExchange?: ReactNode
   /** The planning of an exchange to come, when the timeline offers it. */
@@ -44,6 +46,7 @@ export function TimelineCard<Item>({
   items,
   keyOf,
   renderItem,
+  actionOf,
   noteExchange,
   planExchange,
   filter,
@@ -80,6 +83,7 @@ export function TimelineCard<Item>({
               items={upcomingItems}
               keyOf={keyOf}
               renderItem={renderItem}
+              actionOf={actionOf}
               onOpen={setOpened}
             />
             {upcoming?.hasNextPage && (
@@ -122,23 +126,24 @@ export function TimelineCard<Item>({
   )
 }
 
-type ExchangesProps<Item> = Pick<Props<Item>, 'items' | 'keyOf' | 'renderItem'> & {
+type ExchangesProps<Item> = Pick<Props<Item>, 'items' | 'keyOf' | 'renderItem' | 'actionOf'> & {
   label: string
   onOpen: (exchangeId: string) => void
 }
 
-function Exchanges<Item>({ label, items, keyOf, renderItem, onOpen }: ExchangesProps<Item>) {
+function Exchanges<Item>({ label, items, keyOf, renderItem, actionOf, onOpen }: ExchangesProps<Item>) {
   return (
     <ol className="divide-y" aria-label={label}>
       {items.map((item) => (
-        <li key={keyOf(item)} className="py-1 first:pt-0 last:pb-0">
+        <li key={keyOf(item)} className="flex items-center gap-2 py-1 first:pt-0 last:pb-0">
           <button
             type="button"
-            className="-mx-2 w-[calc(100%+1rem)] rounded-md px-2 py-2 text-left transition-colors hover:bg-accent focus-visible:outline-none focus-visible:ring-[3px] focus-visible:ring-ring/50"
+            className="-mx-2 min-w-0 flex-1 rounded-md px-2 py-2 text-left transition-colors hover:bg-accent focus-visible:outline-none focus-visible:ring-[3px] focus-visible:ring-ring/50"
             onClick={() => onOpen(keyOf(item))}
           >
             {renderItem(item)}
           </button>
+          {actionOf?.(item)}
         </li>
       ))}
     </ol>

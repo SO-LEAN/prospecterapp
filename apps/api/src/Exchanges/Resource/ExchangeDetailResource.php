@@ -36,6 +36,12 @@ final readonly class ExchangeDetailResource
         #[OA\Property(description: 'How long it lasts, once planned')]
         public ?int $durationInMinutes,
         public ?string $text,
+        #[OA\Property(description: 'Where a meeting is held, written freely; null for any other channel')]
+        public ?string $place,
+        #[OA\Property(description: 'The web address a video call is joined by; null for any other channel, or until it is known')]
+        public ?string $link,
+        #[OA\Property(description: 'The number the interlocutor is called at: the contact read in clear, or the organization itself; none when unknown or masked')]
+        public ?string $phoneNumber,
         #[OA\Property(description: 'Its text may hold personal data: flagged to a prospector reading it without the right to manage them')]
         public bool $textFlagged,
         #[OA\Property(description: 'Its contact forgotten, its text may still hold their personal data, until it is declared made conform')]

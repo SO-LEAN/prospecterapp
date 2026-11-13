@@ -49,6 +49,8 @@ final readonly class TimelineResourceFactory
             canceller: $exchange->canceller,
             durationInMinutes: $exchange->durationInMinutes,
             text: $exchange->text,
+            place: $exchange->place,
+            link: $exchange->link,
             textFlagged: $exchange->textFlagged,
             textToMakeConform: $exchange->textToMakeConform,
             toMakeConform: $exchange->toMakeConform,

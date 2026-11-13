@@ -21,7 +21,8 @@ use Prospecter\Core\Prospecting\Application\ConsultExchange\ExchangeDetail;
 /**
  * The detail of an exchange, with a link per intention its state offers and the signed-in member may carry out on it
  * and on its attachments (`IntentLinks`, ADR 0081): every prospector retouches its text and declares it conform
- * (ADR 0078), its holder handles a planned exchange (ADR 0112), the rest needs the right to manage personal data. Each link names its intention, its route, and the role
+ * (ADR 0078), corrects the place of a meeting or the link of a video call (ADR 0114), its holder handles a planned
+ * exchange (ADR 0112), the rest needs the right to manage personal data. Each link names its intention, its route, and the role
  * its controller requires beyond reaching the exchange. Built for one call with its participants, it keeps the
  * resource (ADR 0085).
  */
@@ -33,6 +34,7 @@ final class ExchangeDetailPresenter implements ConsultExchangeOutput
     private const array ROUTES = [
         'correctExchange' => ['intent' => 'CorrectExchange', 'route' => 'api_exchanges_correct', 'role' => User::PERSONAL_DATA],
         'correctText' => ['intent' => 'CorrectText', 'route' => 'api_exchanges_correct_text', 'role' => null],
+        'correctVenue' => ['intent' => 'CorrectVenue', 'route' => 'api_exchanges_correct_venue', 'role' => null],
         'makeConform' => ['intent' => 'MakeConform', 'route' => 'api_exchanges_correct_text', 'role' => null],
         'eraseExchange' => ['intent' => 'EraseExchange', 'route' => 'api_exchanges_erase', 'role' => User::PERSONAL_DATA],
         'attachFile' => ['intent' => 'AttachFile', 'route' => 'api_exchanges_attach_file', 'role' => User::PERSONAL_DATA],
@@ -65,6 +67,9 @@ final class ExchangeDetailPresenter implements ConsultExchangeOutput
             canceller: $exchange->canceller,
             durationInMinutes: $exchange->durationInMinutes,
             text: $exchange->text,
+            place: $exchange->place,
+            link: $exchange->link,
+            phoneNumber: $this->participants->interlocutorPhoneNumber,
             textFlagged: $exchange->textFlagged,
             textToMakeConform: $exchange->textToMakeConform,
             toMakeConform: $exchange->toMakeConform,

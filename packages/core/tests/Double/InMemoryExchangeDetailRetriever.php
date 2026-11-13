@@ -52,6 +52,8 @@ final readonly class InMemoryExchangeDetailRetriever implements ExchangeDetailRe
             canceller: $state['cancellation']?->canceller?->value,
             durationInMinutes: $facts->duration?->minutes,
             text: $facts->text,
+            place: $facts->place,
+            link: $facts->link?->url,
             textFlagged: ExchangeReading::isTextFlagged(null !== $facts->text, $reader),
             textToMakeConform: ExchangeConformity::isTextToMakeConform(null !== $facts->text, $contactForgotten, null !== $madeConform),
             toMakeConform: ExchangeConformity::isToMakeConform($contactForgotten, null !== $madeConform, [] !== $attachments),
@@ -64,7 +66,7 @@ final readonly class InMemoryExchangeDetailRetriever implements ExchangeDetailRe
             madeConformAt: $madeConform?->at,
             attachments: array_map(static fn (Attachment $attachment): AttachmentDetail => new AttachmentDetail($attachment->id->value, $attachment->name, $attachment->size, $attachment->mediaType, $attachmentsToMakeConform), $read),
             hiddenAttachments: count($attachments) - count($read),
-            possibleIntents: array_map(static fn (ExchangeIntent $intent): string => $intent->name, ExchangePossibilities::given(new ExchangeSituation(count($attachments), ExchangeConformity::awaitsBeingMadeConform($contactForgotten, null !== $madeConform), $state['status'], $facts->occurredAt <= $asOf, $state['createdBy']->equals($reader->id)))),
+            possibleIntents: array_map(static fn (ExchangeIntent $intent): string => $intent->name, ExchangePossibilities::given(new ExchangeSituation(count($attachments), ExchangeConformity::awaitsBeingMadeConform($contactForgotten, null !== $madeConform), $state['status'], $facts->occurredAt <= $asOf, $state['createdBy']->equals($reader->id), $facts->channel))),
         );
     }
 }
