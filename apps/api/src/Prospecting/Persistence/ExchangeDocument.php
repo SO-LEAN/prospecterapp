@@ -6,6 +6,8 @@ use App\Shared\Persistence\Documents;
 use App\Shared\Persistence\Hydrator;
 use Prospecter\Core\Prospecting\Domain\Model\Attachment;
 use Prospecter\Core\Prospecting\Domain\Model\AttachmentId;
+use Prospecter\Core\Prospecting\Domain\Model\Cancellation;
+use Prospecter\Core\Prospecting\Domain\Model\Canceller;
 use Prospecter\Core\Prospecting\Domain\Model\Channel;
 use Prospecter\Core\Prospecting\Domain\Model\Correction;
 use Prospecter\Core\Prospecting\Domain\Model\Direction;
@@ -14,6 +16,7 @@ use Prospecter\Core\Prospecting\Domain\Model\Exchange;
 use Prospecter\Core\Prospecting\Domain\Model\ExchangeFacts;
 use Prospecter\Core\Prospecting\Domain\Model\ExchangeId;
 use Prospecter\Core\Prospecting\Domain\Model\ExchangeStatus;
+use Prospecter\Core\Prospecting\Domain\Policy\ExchangeChronology;
 use Prospecter\Core\SharedKernel\Domain\AccountId;
 use Prospecter\Core\SharedKernel\Domain\MemberId;
 use Prospecter\Core\SharedKernel\Domain\OrganizationId;
@@ -21,7 +24,8 @@ use Prospecter\Core\SharedKernel\Domain\PersonId;
 
 /**
  * An exchange as a plain document of its DynamoDB item, and back (ADR 0048): its facts and its attachments as
- * they are, its recorded events never; an item written before an exchange was planned reads as done.
+ * they are, its recorded events never; an item written before an exchange was planned reads as done, or missed
+ * when it was a call that did not go through.
  */
 final class ExchangeDocument
 {
@@ -44,13 +48,13 @@ final class ExchangeDocument
                 'direction' => $facts->direction->value,
                 'occurredAt' => Documents::moment($facts->occurredAt),
                 'text' => $facts->text,
-                'missed' => $facts->missed,
                 'durationInMinutes' => $facts->duration?->minutes,
             ],
             'status' => $state['status']->value,
             'lastCorrection' => self::correctionDocument($state['lastCorrection']),
             'contactForgotten' => $state['contactForgotten'],
             'madeConform' => self::correctionDocument($state['madeConform']),
+            'cancellation' => self::cancellationDocument($state['cancellation']),
             'attachments' => array_map(self::attachmentDocument(...), $state['attachments']),
             'createdAt' => Documents::moment($state['createdAt']),
             'modifiedAt' => Documents::moment($state['modifiedAt']),
@@ -70,11 +74,12 @@ final class ExchangeDocument
             'createdBy' => new MemberId($document['createdBy']),
             'contact' => null === $document['contact'] ? null : new PersonId($document['contact']),
             'keptFor' => array_map(static fn (string $organization): OrganizationId => new OrganizationId($organization), $document['keptFor']),
-            'facts' => new ExchangeFacts(Channel::from($facts['channel']), Direction::from($facts['direction']), Documents::momentOf($facts['occurredAt']), $facts['text'], $facts['missed'], self::duration($facts['durationInMinutes'] ?? null)),
+            'facts' => new ExchangeFacts(Channel::from($facts['channel']), Direction::from($facts['direction']), Documents::momentOf($facts['occurredAt']), $facts['text'], self::duration($facts['durationInMinutes'] ?? null)),
             'status' => self::statusOf($document),
             'lastCorrection' => self::correction($document['lastCorrection'] ?? null),
             'contactForgotten' => $document['contactForgotten'] ?? false,
             'madeConform' => self::correction($document['madeConform'] ?? null),
+            'cancellation' => self::cancellation($document['cancellation'] ?? null),
             'attachments' => array_map(self::attachment(...), $document['attachments'] ?? []),
             'createdAt' => Documents::momentOf($document['createdAt']),
             'modifiedAt' => Documents::momentOf($document['modifiedAt']),
@@ -82,11 +87,35 @@ final class ExchangeDocument
     }
 
     /**
+     * Written before an exchange had a status, it is done, or missed when it was a call that did not go through.
+     *
      * @param array<string, mixed> $document
      */
     public static function statusOf(array $document): ExchangeStatus
     {
-        return ExchangeStatus::from($document['status'] ?? ExchangeStatus::Done->value);
+        return ExchangeStatus::tryFrom($document['status'] ?? '') ?? ExchangeStatus::outcome($document['facts']['missed'] ?? false);
+    }
+
+    /**
+     * Who called the exchange off, by the values of `Canceller`; none while it is not cancelled, or when not said.
+     *
+     * @param array<string, mixed> $document
+     */
+    public static function cancellerOf(array $document): ?string
+    {
+        return $document['cancellation']['canceller'] ?? null;
+    }
+
+    /**
+     * When the exchange stands in its timelines (`ExchangeChronology`).
+     *
+     * @param array<string, mixed> $document
+     */
+    public static function listedAt(array $document): \DateTimeImmutable
+    {
+        $cancelledAt = $document['cancellation']['at'] ?? null;
+
+        return ExchangeChronology::listedAt(Documents::momentOf($document['facts']['occurredAt']), null === $cancelledAt ? null : Documents::momentOf($cancelledAt));
     }
 
     /**
@@ -103,6 +132,22 @@ final class ExchangeDocument
     private static function correctionDocument(?Correction $correction): ?array
     {
         return null === $correction ? null : ['by' => (string) $correction->by, 'at' => Documents::moment($correction->at)];
+    }
+
+    /**
+     * @return array{by: string, at: string, canceller: ?string}|null
+     */
+    private static function cancellationDocument(?Cancellation $cancellation): ?array
+    {
+        return null === $cancellation ? null : ['by' => (string) $cancellation->by, 'at' => Documents::moment($cancellation->at), 'canceller' => $cancellation->canceller?->value];
+    }
+
+    /**
+     * @param array{by: string, at: string, canceller: ?string}|null $document
+     */
+    private static function cancellation(?array $document): ?Cancellation
+    {
+        return null === $document ? null : new Cancellation(new MemberId($document['by']), Documents::momentOf($document['at']), Canceller::tryFrom($document['canceller'] ?? ''));
     }
 
     /**

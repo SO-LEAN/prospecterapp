@@ -8,6 +8,7 @@ use Prospecter\Core\Prospecting\Application\ConsultExchange\ExchangeDetail;
 use Prospecter\Core\Prospecting\Application\ConsultExchange\KeptExchange;
 use Prospecter\Core\SharedKernel\Application\QueryHandler;
 use Symfony\Bundle\SecurityBundle\Security;
+use Symfony\Component\Clock\ClockInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpKernel\Controller\ValueResolverInterface;
 use Symfony\Component\HttpKernel\ControllerMetadata\ArgumentMetadata;
@@ -18,7 +19,7 @@ use Symfony\Component\HttpKernel\ControllerMetadata\ArgumentMetadata;
  */
 final readonly class ExchangeResolver implements ValueResolverInterface
 {
-    public function __construct(private QueryHandler $consultExchange, private Security $security)
+    public function __construct(private QueryHandler $consultExchange, private Security $security, private ClockInterface $clock)
     {
     }
 
@@ -34,7 +35,7 @@ final readonly class ExchangeResolver implements ValueResolverInterface
         }
 
         $kept = new KeptExchange();
-        ($this->consultExchange)(new ConsultExchange($reader->memberId(), $request->attributes->getString('id')), $kept);
+        ($this->consultExchange)(new ConsultExchange($reader->memberId(), $request->attributes->getString('id'), $this->clock->now()), $kept);
 
         return [$kept->exchange];
     }

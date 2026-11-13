@@ -13,6 +13,7 @@ use Prospecter\Core\Prospecting\Domain\Model\Duration;
 use Prospecter\Core\Prospecting\Domain\Model\Exchange;
 use Prospecter\Core\Prospecting\Domain\Model\ExchangeFacts;
 use Prospecter\Core\Prospecting\Domain\Model\ExchangeId;
+use Prospecter\Core\Prospecting\Domain\Model\ExchangeStatus;
 use Prospecter\Core\Prospecting\Domain\Model\Organization;
 use Prospecter\Core\Prospecting\Domain\Model\Prospector;
 use Prospecter\Core\Prospecting\Domain\Repository\ExchangeRepository;
@@ -86,6 +87,20 @@ class DynamoTimelineRetrieverTest extends ApiTestCase
         $this->assertSame([self::idOf($atTheMoment), self::idOf($past)], self::idsIn($this->timelines()->ofContact($this->contact, $this->prospector, $this->asOf(), null, 20)));
         $this->assertSame([self::idOf($planned)], self::idsIn($this->timelines()->upcomingWithContact($this->contact, $this->prospector, $this->asOf(), null, 20)));
         $this->assertSame(['done', null], [$this->timelineOf($this->acme)->exchanges[0]->status, $this->timelineOf($this->acme)->exchanges[0]->durationInMinutes]);
+    }
+
+    public function testACancelledExchangeLeavesWhatIsToComeForThePastAtTheMomentOfItsCancellation(): void
+    {
+        $past = $this->noted('2026-10-10 09:00 UTC');
+        $cancelled = $this->planned('2026-10-25 09:00 UTC');
+        $cancelled->cancel(null, by: $this->prospector->id, at: $this->asOf());
+        $this->exchanges()->save($cancelled);
+        $later = $this->noted('2026-10-15 09:00 UTC');
+
+        $this->assertSame([self::idOf($cancelled), self::idOf($later), self::idOf($past)], self::idsIn($this->timelines()->ofContact($this->contact, $this->prospector, $this->asOf(), null, 20)));
+        $this->assertSame([self::idOf($cancelled), self::idOf($later), self::idOf($past)], self::idsIn($this->timelineOf($this->acme)));
+        $this->assertSame([], self::idsIn($this->timelines()->upcomingWithContact($this->contact, $this->prospector, $this->asOf(), null, 20)));
+        $this->assertSame(['cancelled', '2026-10-25'], [$this->timelineOf($this->acme)->exchanges[0]->status, $this->timelineOf($this->acme)->exchanges[0]->occurredAt->format('Y-m-d')]);
     }
 
     public function testWhatIsToComeWithAnOrganizationAndItsContacts(): void
@@ -177,7 +192,7 @@ class DynamoTimelineRetrieverTest extends ApiTestCase
         $second = $this->noted('2026-10-11 09:00 UTC');
         $third = $this->notedWithTheOrganization('2026-10-11 10:00 UTC');
 
-        $first->correct(new ExchangeFacts(Channel::Call, Direction::Inbound, new \DateTimeImmutable('2026-10-12 09:00 UTC')), by: $this->prospector->id, at: new \DateTimeImmutable(self::NOW));
+        $first->correct(new ExchangeFacts(Channel::Call, Direction::Inbound, new \DateTimeImmutable('2026-10-12 09:00 UTC')), ExchangeStatus::Done, by: $this->prospector->id, at: new \DateTimeImmutable(self::NOW));
         $this->exchanges()->save($first);
 
         $this->assertSame([self::idOf($first), self::idOf($second)], self::idsIn($this->timelines()->ofContact($this->contact, $this->prospector, $this->asOf(), null, 20)));
@@ -226,7 +241,7 @@ class DynamoTimelineRetrieverTest extends ApiTestCase
 
     private function noted(string $occurredAt): Exchange
     {
-        $exchange = Exchange::notedWithAContact($this->prospector->accountId, $this->prospector->id, new ExchangeId(self::newIdentity()), $this->contact, [$this->acme->id(), $this->group->id()], new ExchangeFacts(Channel::Call, Direction::Inbound, new \DateTimeImmutable($occurredAt), 'Rappeler lundi'), new \DateTimeImmutable(self::NOW));
+        $exchange = Exchange::notedWithAContact($this->prospector->accountId, $this->prospector->id, new ExchangeId(self::newIdentity()), $this->contact, [$this->acme->id(), $this->group->id()], new ExchangeFacts(Channel::Call, Direction::Inbound, new \DateTimeImmutable($occurredAt), 'Rappeler lundi'), ExchangeStatus::Done, new \DateTimeImmutable(self::NOW));
         $this->exchanges()->save($exchange);
 
         return $exchange;
@@ -252,7 +267,7 @@ class DynamoTimelineRetrieverTest extends ApiTestCase
 
     private function notedWithTheOrganization(string $occurredAt): Exchange
     {
-        $exchange = Exchange::notedWithTheOrganization($this->acme, $this->prospector->id, new ExchangeId(self::newIdentity()), new ExchangeFacts(Channel::Call, Direction::Inbound, new \DateTimeImmutable($occurredAt)), new \DateTimeImmutable(self::NOW));
+        $exchange = Exchange::notedWithTheOrganization($this->acme, $this->prospector->id, new ExchangeId(self::newIdentity()), new ExchangeFacts(Channel::Call, Direction::Inbound, new \DateTimeImmutable($occurredAt)), ExchangeStatus::Done, new \DateTimeImmutable(self::NOW));
         $this->exchanges()->save($exchange);
 
         return $exchange;

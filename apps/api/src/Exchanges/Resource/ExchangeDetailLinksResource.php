@@ -21,6 +21,14 @@ final readonly class ExchangeDetailLinksResource
         public ?LinkResource $eraseExchange = null,
         #[OA\Property(nullable: false, description: 'Joins a file sent with the form of an upload, while the exchange has room for one')]
         public ?LinkResource $attachFile = null,
+        #[OA\Property(nullable: false, description: 'Marks done, with its report, a planned exchange whose time has come; to its holder only')]
+        public ?LinkResource $markDone = null,
+        #[OA\Property(nullable: false, description: 'Marks missed a planned exchange whose time has come; to its holder only')]
+        public ?LinkResource $markMissed = null,
+        #[OA\Property(nullable: false, description: 'Moves a planned exchange to another moment to come, its duration kept; to its holder only')]
+        public ?LinkResource $move = null,
+        #[OA\Property(nullable: false, description: 'Cancels a planned exchange; to its holder only')]
+        public ?LinkResource $cancel = null,
     ) {
     }
 }

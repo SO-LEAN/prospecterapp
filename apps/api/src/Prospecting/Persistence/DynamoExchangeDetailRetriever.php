@@ -11,6 +11,7 @@ use Prospecter\Core\Prospecting\Domain\Exception\UnknownExchange;
 use Prospecter\Core\Prospecting\Domain\Model\ContactPresence;
 use Prospecter\Core\Prospecting\Domain\Model\ExchangeId;
 use Prospecter\Core\Prospecting\Domain\Model\ExchangeIntent;
+use Prospecter\Core\Prospecting\Domain\Model\ExchangeSituation;
 use Prospecter\Core\Prospecting\Domain\Model\Prospector;
 use Prospecter\Core\Prospecting\Domain\Policy\ExchangeConformity;
 use Prospecter\Core\Prospecting\Domain\Policy\ExchangePossibilities;
@@ -19,7 +20,7 @@ use Prospecter\Core\Prospecting\Domain\Policy\ExchangeReading;
 /**
  * Reads the item `EXCHANGE#<id>` / `EXCHANGE` that `DynamoExchangeRepository` writes as the detail of the
  * exchange, without restoring it (ADR 0088): as its reader may read it, with what is to make conform and what
- * its state offers, asked to the policies of the core.
+ * its state offers its reader at the moment of the reading, asked to the policies of the core.
  */
 final readonly class DynamoExchangeDetailRetriever implements ExchangeDetailRetriever
 {
@@ -27,19 +28,21 @@ final readonly class DynamoExchangeDetailRetriever implements ExchangeDetailRetr
     {
     }
 
-    public function get(ExchangeId $id, Prospector $reader): ExchangeDetail
+    public function get(ExchangeId $id, Prospector $reader, \DateTimeImmutable $asOf): ExchangeDetail
     {
         $item = $this->prospectingTable->item(ExchangeKeys::exchange($id->value), ExchangeKeys::EXCHANGE) ?? throw UnknownExchange::identifiedBy($id);
 
-        return self::detailOf($item['exchange'], $reader);
+        return self::detailOf($item['exchange'], $reader, $asOf);
     }
 
     /**
      * @param array<string, mixed> $document
      */
-    private static function detailOf(array $document, Prospector $reader): ExchangeDetail
+    private static function detailOf(array $document, Prospector $reader, \DateTimeImmutable $asOf): ExchangeDetail
     {
         $facts = $document['facts'];
+        $occurredAt = Documents::momentOf($facts['occurredAt']);
+        $status = ExchangeDocument::statusOf($document);
         $hasText = null !== $facts['text'];
         $correction = $document['lastCorrection'] ?? null;
         $madeConform = $document['madeConform'] ?? null;
@@ -55,9 +58,9 @@ final readonly class DynamoExchangeDetailRetriever implements ExchangeDetailRetr
             contactPresence: ContactPresence::ofTheContact(null !== $document['contact'], $contactForgotten)?->value,
             channel: $facts['channel'],
             direction: $facts['direction'],
-            missed: $facts['missed'],
-            occurredAt: Documents::momentOf($facts['occurredAt']),
-            status: ExchangeDocument::statusOf($document)->value,
+            occurredAt: $occurredAt,
+            status: $status->value,
+            canceller: ExchangeDocument::cancellerOf($document),
             durationInMinutes: isset($facts['durationInMinutes']) ? (int) $facts['durationInMinutes'] : null,
             text: $facts['text'],
             textFlagged: ExchangeReading::isTextFlagged($hasText, $reader),
@@ -72,7 +75,7 @@ final readonly class DynamoExchangeDetailRetriever implements ExchangeDetailRetr
             madeConformAt: null === $madeConform ? null : Documents::momentOf($madeConform['at']),
             attachments: array_map(static fn (array $attachment): AttachmentDetail => new AttachmentDetail($attachment['id'], $attachment['name'], (int) $attachment['size'], $attachment['mediaType'], $attachmentsToMakeConform), $read),
             hiddenAttachments: count($attachments) - count($read),
-            possibleIntents: array_map(static fn (ExchangeIntent $intent): string => $intent->name, ExchangePossibilities::given(count($attachments), ExchangeConformity::awaitsBeingMadeConform($contactForgotten, null !== $madeConform), ExchangeDocument::statusOf($document))),
+            possibleIntents: array_map(static fn (ExchangeIntent $intent): string => $intent->name, ExchangePossibilities::given(new ExchangeSituation(count($attachments), ExchangeConformity::awaitsBeingMadeConform($contactForgotten, null !== $madeConform), $status, $occurredAt <= $asOf, $document['createdBy'] === $reader->id->value))),
         );
     }
 }

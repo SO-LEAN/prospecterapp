@@ -6,6 +6,7 @@ import {
   Building2,
   CalendarClock,
   CalendarDays,
+  CalendarX2,
   type LucideIcon,
   Mail,
   MessageCircle,
@@ -35,11 +36,17 @@ export const CHANNEL_ICONS: Record<Channel, LucideIcon> = {
 
 type Summarized = Pick<
   Exchange,
-  'channel' | 'direction' | 'missed' | 'occurredAt' | 'status' | 'durationInMinutes'
+  'channel' | 'direction' | 'occurredAt' | 'status' | 'canceller' | 'durationInMinutes'
 >
 
-const directionIconOf = (exchange: Summarized) =>
-  exchange.missed ? PhoneMissed : exchange.direction === 'inbound' ? ArrowDownLeft : ArrowUpRight
+const STATUS_ICONS: Partial<Record<Exchange['status'], LucideIcon>> = {
+  planned: CalendarClock,
+  missed: PhoneMissed,
+  cancelled: CalendarX2,
+}
+
+const iconOf = (exchange: Summarized) =>
+  STATUS_ICONS[exchange.status] ?? (exchange.direction === 'inbound' ? ArrowDownLeft : ArrowUpRight)
 
 export const INTERLOCUTOR_ICONS: Record<Interlocutor['kind'], LucideIcon> = {
   organization: Building2,
@@ -75,8 +82,9 @@ export function ExchangeLine({
 }
 
 /**
- * Who communicated, when said, a link to their card when given, its channel, its direction (missed for a call
- * that did not go through) and when, then what follows; planned, when it is to come from now and how long it lasts.
+ * Who communicated, when said, a link to their card when given, its channel, its direction, or what became of it
+ * (missed, cancelled, struck through, by whom when said), and when, then what follows; planned, when it is to come
+ * from now and how long it lasts.
  */
 export function ExchangeSummary({
   exchange,
@@ -91,9 +99,13 @@ export function ExchangeSummary({
 }) {
   const { t } = useTranslation()
   const ChannelIcon = CHANNEL_ICONS[exchange.channel]
-  const direction = exchange.missed ? t('exchanges.missed') : t(`exchanges.directions.${exchange.direction}`)
   const planned = exchange.status === 'planned'
-  const DirectionIcon = planned ? CalendarClock : directionIconOf(exchange)
+  const cancelled = exchange.status === 'cancelled'
+  const direction =
+    exchange.status === 'done'
+      ? t(`exchanges.directions.${exchange.direction}`)
+      : t(`exchanges.statuses.${exchange.status}`)
+  const StatusIcon = iconOf(exchange)
 
   return (
     <div className="flex items-start gap-3">
@@ -102,16 +114,23 @@ export function ExchangeSummary({
       </span>
       <div className="min-w-0 flex-1">
         {interlocutor && <InterlocutorName interlocutor={interlocutor} linkedToTheCard={linkedToTheCard} />}
-        <p className="flex items-center gap-1.5 font-medium">
-          {t('exchanges.summary', {
-            channel: t(`exchanges.channels.${exchange.channel}`),
-            direction: planned ? t('exchanges.statuses.planned') : direction,
-          })}
-          <DirectionIcon
+        <p
+          className={cn(
+            'flex items-center gap-1.5 font-medium',
+            cancelled && 'text-muted-foreground line-through',
+          )}
+        >
+          {t('exchanges.summary', { channel: t(`exchanges.channels.${exchange.channel}`), direction })}
+          <StatusIcon
             aria-hidden
-            className={exchange.missed ? 'size-4 text-destructive' : 'size-4 text-muted-foreground'}
+            className={
+              exchange.status === 'missed' ? 'size-4 text-destructive' : 'size-4 text-muted-foreground'
+            }
           />
         </p>
+        {exchange.canceller && (
+          <p className="text-muted-foreground text-xs">{t(`exchanges.cancelledBy.${exchange.canceller}`)}</p>
+        )}
         <p className="text-muted-foreground text-xs">
           {planned ? (
             <time dateTime={exchange.occurredAt} title={formatMoment(exchange.occurredAt)}>
@@ -121,7 +140,9 @@ export function ExchangeSummary({
               })}
             </time>
           ) : (
-            <time dateTime={exchange.occurredAt}>{formatMoment(exchange.occurredAt)}</time>
+            <time dateTime={exchange.occurredAt} className={cn(cancelled && 'line-through')}>
+              {formatMoment(exchange.occurredAt)}
+            </time>
           )}
         </p>
         {children}

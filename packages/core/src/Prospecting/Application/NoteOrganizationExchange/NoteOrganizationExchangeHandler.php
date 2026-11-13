@@ -9,6 +9,7 @@ use Prospecter\Core\Prospecting\Domain\Model\Direction;
 use Prospecter\Core\Prospecting\Domain\Model\Exchange;
 use Prospecter\Core\Prospecting\Domain\Model\ExchangeFacts;
 use Prospecter\Core\Prospecting\Domain\Model\ExchangeId;
+use Prospecter\Core\Prospecting\Domain\Model\ExchangeStatus;
 use Prospecter\Core\Prospecting\Domain\Model\Organization;
 use Prospecter\Core\Prospecting\Domain\Repository\ExchangeRepository;
 use Prospecter\Core\Prospecting\Domain\Repository\OrganizationRepository;
@@ -37,7 +38,7 @@ final readonly class NoteOrganizationExchangeHandler implements CommandHandler
         $author = new MemberId($command->prospectorId);
         $organization = $this->organizations->get(new OrganizationId($command->organizationId));
         $exchange = null === $command->personId
-            ? Exchange::notedWithTheOrganization($organization, $author, new ExchangeId($command->id), self::factsOf($command), $command->executedAt)
+            ? Exchange::notedWithTheOrganization($organization, $author, new ExchangeId($command->id), self::factsOf($command), ExchangeStatus::outcome($command->missed), $command->executedAt)
             : $this->notedWithAContact($organization, $author, new PersonId($command->personId), $command);
         $this->exchanges->save($exchange);
         $this->publishWhatHappenedTo($exchange);
@@ -50,11 +51,11 @@ final readonly class NoteOrganizationExchangeHandler implements CommandHandler
     {
         $organization->ensureHasContact($contact);
 
-        return Exchange::notedWithAContact($organization->accountId(), $author, new ExchangeId($command->id), $contact, $this->contactOrganizations->of($contact, $organization->accountId()), self::factsOf($command), $command->executedAt);
+        return Exchange::notedWithAContact($organization->accountId(), $author, new ExchangeId($command->id), $contact, $this->contactOrganizations->of($contact, $organization->accountId()), self::factsOf($command), ExchangeStatus::outcome($command->missed), $command->executedAt);
     }
 
     private static function factsOf(NoteOrganizationExchange $command): ExchangeFacts
     {
-        return new ExchangeFacts(Channel::from($command->channel), Direction::from($command->direction), $command->occurredAt, $command->text, $command->missed);
+        return new ExchangeFacts(Channel::from($command->channel), Direction::from($command->direction), $command->occurredAt, $command->text);
     }
 }

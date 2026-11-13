@@ -17,6 +17,7 @@ use Prospecter\Core\Prospecting\Application\EraseExchange\EraseExchange;
 use Prospecter\Core\Prospecting\Application\NoteExchange\NoteExchange;
 use Prospecter\Core\Prospecting\Application\NoteOrganizationExchange\NoteOrganizationExchange;
 use Prospecter\Core\Prospecting\Domain\Model\ExchangeId;
+use Prospecter\Core\Prospecting\Domain\Model\ExchangeStatus;
 use Prospecter\Core\SharedKernel\Domain\MemberId;
 use Prospecter\Core\SharedKernel\Domain\OrganizationId;
 use Prospecter\Core\SharedKernel\Domain\PersonId;
@@ -68,7 +69,7 @@ final class ExchangeDetailContext implements Context
             direction: isset($values['sens']) ? Vocabulary::direction($values['sens']) : $facts->direction->value,
             occurredAt: isset($values['moment']) ? Vocabulary::frenchMoment($values['moment']) : $facts->occurredAt,
             text: $values['texte'] ?? $facts->text,
-            missed: isset($values['non abouti']) ? !in_array($values['non abouti'], self::NO, true) : $facts->missed,
+            missed: isset($values['non abouti']) ? !in_array($values['non abouti'], self::NO, true) : ExchangeStatus::Missed === $this->storedStatus(),
             executedAt: $this->application->now(),
         ));
     }
@@ -96,10 +97,15 @@ final class ExchangeDetailContext implements Context
             direction: $facts->direction->value,
             occurredAt: $facts->occurredAt,
             text: $table->getRowsHash()['texte'],
-            missed: $facts->missed,
+            missed: ExchangeStatus::Missed === $this->storedStatus(),
             executedAt: $this->application->now(),
             madeConform: true,
         ));
+    }
+
+    private function storedStatus(): ExchangeStatus
+    {
+        return StateOf::the($this->application->exchanges->get(new ExchangeId($this->scenario->theExchange())))['status'];
     }
 
     #[When('je supprime cet échange')]
@@ -135,7 +141,7 @@ final class ExchangeDetailContext implements Context
 
     private function consult(): ?ExchangeDetail
     {
-        return $this->application->consultExchange(new ConsultExchange($this->application->signedIn(), $this->scenario->theExchange()));
+        return $this->application->consultExchange(new ConsultExchange($this->application->signedIn(), $this->scenario->theExchange(), $this->application->now()));
     }
 
     /**

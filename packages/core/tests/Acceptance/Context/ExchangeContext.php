@@ -28,6 +28,7 @@ use Prospecter\Core\Prospecting\Domain\Model\Direction;
 use Prospecter\Core\Prospecting\Domain\Model\Exchange;
 use Prospecter\Core\Prospecting\Domain\Model\ExchangeFacts;
 use Prospecter\Core\Prospecting\Domain\Model\ExchangeId;
+use Prospecter\Core\Prospecting\Domain\Model\ExchangeStatus;
 use Prospecter\Core\Prospecting\Domain\Model\Organization;
 use Prospecter\Core\SharedKernel\Domain\OrganizationId;
 use Prospecter\Core\SharedKernel\Domain\PersonId;
@@ -117,7 +118,7 @@ final class ExchangeContext implements Context
         foreach (range(1, $count) as $minutesAgo) {
             $facts = new ExchangeFacts(Channel::Call, Direction::Inbound, $this->application->now()->modify(sprintf('-%d minutes', $minutesAgo)));
             $id = $this->application->newIdentity();
-            $this->application->exchanges->save(Exchange::notedWithTheOrganization($prospect, $this->scenario->meAsProspector()->id, new ExchangeId($id), $facts, $this->application->now()));
+            $this->application->exchanges->save(Exchange::notedWithTheOrganization($prospect, $this->scenario->meAsProspector()->id, new ExchangeId($id), $facts, ExchangeStatus::Done, $this->application->now()));
             $this->notedWithTheOrganization[] = $id;
         }
     }
@@ -210,6 +211,20 @@ final class ExchangeContext implements Context
         Expect::same([], $this->overlapping);
     }
 
+    #[Then('/^je vois ces échanges qui chevauchent le (?<day>\S+) à (?<time>\S+) pour (?<duration>.+) :$/')]
+    public function iSeeTheseExchangesOverlapping(string $day, string $time, string $duration, TableNode $table): void
+    {
+        $this->iLookAtWhatOverlaps($day, $time, $duration);
+        $this->iSeeTheseOverlappingExchanges($table);
+    }
+
+    #[Then('/^rien ne chevauche le (?<day>\S+) à (?<time>\S+) pour (?<duration>.+)$/')]
+    public function nothingOverlaps(string $day, string $time, string $duration): void
+    {
+        $this->iLookAtWhatOverlaps($day, $time, $duration);
+        $this->nothingOverlapsIt();
+    }
+
     #[When('je consulte la timeline de :name')]
     public function iConsultTheTimeline(string $name): void
     {
@@ -253,14 +268,6 @@ final class ExchangeContext implements Context
         $noted = array_find($this->timelineOfNow($organization), fn (ExchangeInTimeline $exchange): bool => $exchange->id === $this->lastNoted);
 
         Expect::same($interlocutor, null === $noted ? null : $this->interlocutorOf($noted, $organization));
-    }
-
-    #[Then('la timeline de :contact montre un appel reçu manqué')]
-    public function theTimelineShowsAMissedInboundCall(string $contact): void
-    {
-        $exchange = $this->timelineOfNow($contact)[0] ?? null;
-
-        Expect::same(['call', 'inbound', true], [$exchange?->channel, $exchange?->direction, $exchange?->missed]);
     }
 
     #[Then('/^l\'échange est gardé pour (?<organizations>.+)$/')]
@@ -435,7 +442,7 @@ final class ExchangeContext implements Context
     private function arrange(string $contact, array $keptFor, ExchangeFacts $facts): void
     {
         $me = $this->scenario->meAsProspector();
-        $exchange = Exchange::notedWithAContact($me->accountId, $me->id, new ExchangeId($this->application->newIdentity()), $this->scenario->personNamed($contact)->id(), $keptFor, $facts, $this->application->now());
+        $exchange = Exchange::notedWithAContact($me->accountId, $me->id, new ExchangeId($this->application->newIdentity()), $this->scenario->personNamed($contact)->id(), $keptFor, $facts, ExchangeStatus::Done, $this->application->now());
         $this->application->exchanges->save($exchange);
     }
 
@@ -493,6 +500,7 @@ final class ExchangeContext implements Context
             'canal' => Vocabulary::describeChannel($exchange->channel),
             'durée' => Vocabulary::describeDuration($exchange->durationInMinutes),
             'statut' => Vocabulary::describeStatus($exchange->status),
+            'annulé par' => Vocabulary::describeCanceller($exchange->canceller),
             'de' => Vocabulary::describeFrenchMoment($exchange->occurredAt),
             'à' => Vocabulary::describeFrenchMoment($exchange->occurredAt->modify(sprintf('+%d minutes', $exchange->durationInMinutes ?? 0))),
             'sens' => Vocabulary::describeDirection($exchange->direction),

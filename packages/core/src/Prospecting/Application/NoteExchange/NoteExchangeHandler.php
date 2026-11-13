@@ -9,6 +9,7 @@ use Prospecter\Core\Prospecting\Domain\Model\Direction;
 use Prospecter\Core\Prospecting\Domain\Model\Exchange;
 use Prospecter\Core\Prospecting\Domain\Model\ExchangeFacts;
 use Prospecter\Core\Prospecting\Domain\Model\ExchangeId;
+use Prospecter\Core\Prospecting\Domain\Model\ExchangeStatus;
 use Prospecter\Core\Prospecting\Domain\Port\Prospectors;
 use Prospecter\Core\Prospecting\Domain\Repository\ExchangeRepository;
 use Prospecter\Core\Prospecting\Domain\Service\ContactOrganizations;
@@ -40,7 +41,8 @@ final readonly class NoteExchangeHandler implements CommandHandler
             new ExchangeId($command->id),
             $contact,
             $this->contactOrganizations->of($contact, $prospector->accountId),
-            new ExchangeFacts(Channel::from($command->channel), Direction::from($command->direction), $command->occurredAt, $command->text, $command->missed),
+            new ExchangeFacts(Channel::from($command->channel), Direction::from($command->direction), $command->occurredAt, $command->text),
+            ExchangeStatus::outcome($command->missed),
             $command->executedAt,
         );
         $this->exchanges->save($exchange);

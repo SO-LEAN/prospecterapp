@@ -24,7 +24,12 @@ import {
   slotOf,
   toPlannedExchange,
 } from '../planning'
-import { overlappingQuery, PLANNED_CHANNELS, type PlannedExchangeInput } from '../queries'
+import {
+  overlappingQuery,
+  PLANNED_CHANNELS,
+  type PlannedChannel,
+  type PlannedExchangeInput,
+} from '../queries'
 import { ITSELF } from '../schema'
 import { Choice, Choices, type Interlocutors } from './exchange-form'
 import { CHANNEL_ICONS, INTERLOCUTOR_ICONS } from './exchange-line'
@@ -34,16 +39,21 @@ type Props = {
   onSubmit: (exchange: PlannedExchangeInput, personId: string | null) => Promise<unknown>
   onCancel: () => void
   interlocutors?: Interlocutors
+  /** The channel proposed: that of the exchange it follows. */
+  channel?: PlannedChannel
 }
 
 /**
  * Planned in a few clicks: the next quarter of an hour and half an hour by default, shortcuts for the usual moments
  * and durations; warned, without being stopped, of an exchange of mine it overlaps.
  */
-export function PlanForm({ onSubmit, onCancel, interlocutors }: Props) {
+export function PlanForm({ onSubmit, onCancel, interlocutors, channel }: Props) {
   const { t } = useTranslation()
   const [globalErrors, setGlobalErrors] = useState<string[]>([])
-  const form = useForm<PlanValues>({ resolver: zodResolver(planSchema), defaultValues: newPlan(new Date()) })
+  const form = useForm<PlanValues>({
+    resolver: zodResolver(planSchema),
+    defaultValues: { ...newPlan(new Date()), channel },
+  })
   const { errors, isSubmitting } = useFormState({ control: form.control })
   const setMoment = (moment: Date) => {
     const { date, time } = dateAndTimeOf(moment)

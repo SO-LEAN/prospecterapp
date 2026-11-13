@@ -6,7 +6,7 @@ namespace Prospecter\Core\Prospecting\Application\ConsultExchange;
 
 /**
  * An exchange as its detail shows it; its channel, its direction and its status by the values of `Channel`,
- * `Direction` and `ExchangeStatus`, how long it lasts when planned, who noted and corrected it by their member id,
+ * `Direction` and `ExchangeStatus`, who called it off once cancelled, when said, by the values of `Canceller`, how long it lasts when planned, who noted and corrected it by their member id,
  * the files joined to it; read without the right to
  * manage personal data, its text flagged and its files hidden, only counted; its contact forgotten, what is to make
  * conform, and who declared it made conform.
@@ -17,7 +17,7 @@ final readonly class ExchangeDetail
      * @param string|null            $contactPresence by the values of `ContactPresence`, none for the organization itself
      * @param list<string>           $organizationIds the organizations it is kept for
      * @param list<AttachmentDetail> $attachments     the files joined to it, in the order they were
-     * @param list<string>           $possibleIntents names of what its state offers now: CorrectExchange, CorrectText, MakeConform, EraseExchange, AttachFile, RemoveAttachment
+     * @param list<string>           $possibleIntents names of what its state offers its reader now: CorrectExchange, CorrectText, MakeConform, EraseExchange, AttachFile, RemoveAttachment, MarkExchangeDone, MarkExchangeMissed, MoveExchange, CancelExchange
      */
     public function __construct(
         public string $id,
@@ -26,9 +26,9 @@ final readonly class ExchangeDetail
         public ?string $contactPresence,
         public string $channel,
         public string $direction,
-        public bool $missed,
         public \DateTimeImmutable $occurredAt,
         public string $status,
+        public ?string $canceller,
         public ?int $durationInMinutes,
         public ?string $text,
         public bool $textFlagged,

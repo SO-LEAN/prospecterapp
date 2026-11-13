@@ -91,6 +91,12 @@ final class ScenarioContext implements Context
         $this->application->signIn($this->aMemberOf('moi', $account, Role::User, Role::Prospector)->id());
     }
 
+    #[Given('je suis connecté en tant qu\'un autre prospecteur de :organization')]
+    public function iAmSignedInAsAnotherProspectorOf(string $account): void
+    {
+        $this->application->signIn($this->aMemberOf('un autre prospecteur', $account, Role::User, Role::Prospector, Role::PersonalData)->id());
+    }
+
     #[Given('je suis connecté en tant que :name')]
     public function iAmSignedInAs(string $name): void
     {

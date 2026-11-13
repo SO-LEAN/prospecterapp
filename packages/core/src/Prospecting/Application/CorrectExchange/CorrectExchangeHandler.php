@@ -8,6 +8,7 @@ use Prospecter\Core\Prospecting\Domain\Model\Channel;
 use Prospecter\Core\Prospecting\Domain\Model\Direction;
 use Prospecter\Core\Prospecting\Domain\Model\ExchangeFacts;
 use Prospecter\Core\Prospecting\Domain\Model\ExchangeId;
+use Prospecter\Core\Prospecting\Domain\Model\ExchangeStatus;
 use Prospecter\Core\Prospecting\Domain\Repository\ExchangeRepository;
 use Prospecter\Core\SharedKernel\Application\CommandHandler;
 use Prospecter\Core\SharedKernel\Application\Port\Events;
@@ -29,7 +30,8 @@ final readonly class CorrectExchangeHandler implements CommandHandler
         $author = new MemberId($command->prospectorId);
         $exchange = $this->exchanges->get(new ExchangeId($command->id));
         $exchange->correct(
-            new ExchangeFacts(Channel::from($command->channel), Direction::from($command->direction), $command->occurredAt, $command->text, $command->missed),
+            new ExchangeFacts(Channel::from($command->channel), Direction::from($command->direction), $command->occurredAt, $command->text),
+            ExchangeStatus::outcome($command->missed),
             by: $author,
             at: $command->executedAt,
         );

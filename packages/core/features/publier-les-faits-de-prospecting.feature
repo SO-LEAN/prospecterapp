@@ -42,3 +42,17 @@ Fonctionnalité: Publier les faits de Prospecting
     Et "Michel" a noté le 15/10/2026 à 14h35 un appel reçu de "ACME" elle-même à 14h30 : "Rappeler en mars"
     Quand j'arrête de prospecter "ACME"
     Alors le fait publié de cet échange est absent, révision 0
+
+  Plan du scénario: Un échange planifié qu'on traite publie son état
+    Soit l'organisation "ACME" fait partie de mes organisations
+    Et j'ai planifié une visio avec "ACME" le 17/11/2026 à 14h00
+    Et nous sommes le 17/11/2026 à 15h00
+    Quand <geste>
+    Alors le fait publié de cet échange est présent, noté le "<moment>", révision 2
+
+    Exemples:
+      | geste                                       | moment           |
+      | je marque cette visio faite                 | 17/11/2026 14:00 |
+      | je marque cette visio manquée               | 17/11/2026 14:00 |
+      | je déplace cette visio au 18/11/2026 à 9h00 | 18/11/2026 09:00 |
+      | j'annule cette visio                        | 17/11/2026 14:00 |

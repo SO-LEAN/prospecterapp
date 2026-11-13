@@ -234,3 +234,72 @@ export function useRemoveAttachment() {
     },
   })
 }
+
+/** A planned exchange marked done goes straight into its detail; its timelines and the figures are read again. */
+export function useMarkExchangeDone() {
+  const queryClient = useQueryClient()
+  const { t } = useTranslation()
+
+  return api.useMutation('post', '/api/exchanges/{id}/done', {
+    meta: { silentValidation: true },
+    onSuccess: (exchange: ExchangeDetail) => {
+      queryClient.setQueryData(exchangeQuery(exchange.id).queryKey, exchange)
+      readTheTimelinesAgain(queryClient)
+      readTheFiguresAgain(queryClient)
+      toast.success(t('exchanges.handling.markedDone'))
+    },
+  })
+}
+
+export function useMoveExchange() {
+  const queryClient = useQueryClient()
+  const { t } = useTranslation()
+
+  return api.useMutation('patch', '/api/exchanges/{id}/moment', {
+    meta: { silentValidation: true },
+    onSuccess: (exchange: ExchangeDetail) => {
+      queryClient.setQueryData(exchangeQuery(exchange.id).queryKey, exchange)
+      readTheTimelinesAgain(queryClient)
+      toast.success(t('exchanges.handling.moved'))
+    },
+  })
+}
+
+/**
+ * Marked missed or cancelled, the exchange goes into its detail and its timelines are read again. Run once the
+ * toast that may take it back is gone, its sheet maybe closed: what follows the gesture is in the options of the
+ * mutation, which run even once its component is gone.
+ */
+function useShowTheHandling() {
+  const queryClient = useQueryClient()
+
+  return (exchange: ExchangeDetail) => {
+    queryClient.setQueryData(exchangeQuery(exchange.id).queryKey, exchange)
+    readTheTimelinesAgain(queryClient)
+    readTheFiguresAgain(queryClient)
+  }
+}
+
+export function useMarkExchangeMissed() {
+  return api.useMutation('post', '/api/exchanges/{id}/missed', { onSuccess: useShowTheHandling() })
+}
+
+export function useCancelExchange() {
+  return api.useMutation('post', '/api/exchanges/{id}/cancellation', { onSuccess: useShowTheHandling() })
+}
+
+/** How long a toast lets the gesture it tells be taken back. */
+export const UNDO_DELAY_MS = 5000
+
+/** A gesture carried out once a few seconds passed, unless « Annuler » of its toast took it back. */
+export function useUndoable() {
+  const { t } = useTranslation()
+
+  return (told: string, gesture: () => void) => {
+    const pending = setTimeout(gesture, UNDO_DELAY_MS)
+    toast(told, {
+      duration: UNDO_DELAY_MS,
+      action: { label: t('common.undo'), onClick: () => clearTimeout(pending) },
+    })
+  }
+}

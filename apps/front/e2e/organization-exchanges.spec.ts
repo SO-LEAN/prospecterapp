@@ -30,6 +30,7 @@ test('the timeline of an organization gathers its exchanges and those of its con
     await expect(page.getByLabel(organization, { exact: true })).toBeChecked()
     await page.getByLabel('Appel', { exact: true }).check()
     await page.getByRole('button', { name: 'Enregistrer' }).click()
+    await page.getByRole('button', { name: 'Plus tard' }).click()
     await expect(timeline.first()).toContainText(organization)
 
     await page.getByRole('button', { name: 'Noter un échange' }).click()
@@ -37,6 +38,7 @@ test('the timeline of an organization gathers its exchanges and those of its con
     await page.getByLabel('E-mail', { exact: true }).check()
     await page.getByLabel('Envoyé', { exact: true }).check()
     await page.getByRole('button', { name: 'Enregistrer' }).click()
+    await page.getByRole('button', { name: 'Plus tard' }).click()
     await expect(timeline.first()).toContainText('Test Un')
   })
 
@@ -46,6 +48,7 @@ test('the timeline of an organization gathers its exchanges and those of its con
     await page.getByRole('button', { name: 'Noter un échange' }).click()
     await page.getByLabel('SMS', { exact: true }).check()
     await page.getByRole('button', { name: 'Enregistrer' }).click()
+    await page.getByRole('button', { name: 'Plus tard' }).click()
     await expect(timeline).toHaveCount(1)
     await expect(timeline.first()).toContainText('SMS, Reçu')
   })

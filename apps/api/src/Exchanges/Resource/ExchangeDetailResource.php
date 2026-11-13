@@ -27,12 +27,12 @@ final readonly class ExchangeDetailResource
         public string $channel,
         #[OA\Property(enum: ExchangeInput::DIRECTIONS, description: 'inbound: the contact or the organization reached out; outbound: we did')]
         public string $direction,
-        #[OA\Property(description: 'A call that did not go through')]
-        public bool $missed,
         #[OA\Property(format: 'date-time', description: 'When it happened, or is to happen once planned')]
         public string $occurredAt,
-        #[OA\Property(enum: ExchangeResource::STATUSES, description: 'planned: still to come; done: it happened')]
+        #[OA\Property(enum: ExchangeResource::STATUSES, description: ExchangeResource::STATUS_DESCRIPTION)]
         public string $status,
+        #[OA\Property(enum: ExchangeResource::CANCELLERS, description: 'Who called it off once cancelled, when said')]
+        public ?string $canceller,
         #[OA\Property(description: 'How long it lasts, once planned')]
         public ?int $durationInMinutes,
         public ?string $text,

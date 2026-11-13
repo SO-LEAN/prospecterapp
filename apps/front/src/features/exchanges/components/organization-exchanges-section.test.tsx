@@ -20,7 +20,7 @@ const anExchange = (exchange: Partial<Exchange>): Exchange => ({
   id: '0190a1c0-0000-7000-8000-000000000010',
   channel: 'call',
   direction: 'inbound',
-  missed: false,
+  canceller: null,
   occurredAt: '2026-10-15T14:00:00+00:00',
   status: 'done',
   durationInMinutes: null,

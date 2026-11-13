@@ -16,7 +16,7 @@ const anExchange = (exchange: Partial<ExchangeDetail>): ExchangeDetail => ({
   interlocutor: { kind: 'person', id: ADA, name: 'Ada Lovelace', presence: 'present' },
   channel: 'linkedIn',
   direction: 'inbound',
-  missed: false,
+  canceller: null,
   occurredAt: '2026-10-15T12:30:00+00:00',
   status: 'done',
   durationInMinutes: null,
@@ -122,6 +122,20 @@ describe('ExchangeDetailSheet', () => {
 
     expect(screen.getByLabelText('LinkedIn')).toBeChecked()
     expect(screen.getByLabelText(/Texte/)).toHaveValue('Intéressée par une mission en mars')
+  })
+
+  it('corrects a missed meeting as missed', async () => {
+    const user = await renderTheDetail(anExchange({ channel: 'meeting', status: 'missed' }))
+
+    await user.click(screen.getByRole('button', { name: 'Corriger' }))
+    expect(screen.getByLabelText(/Manqué/)).toBeChecked()
+  })
+
+  it('corrects a meeting that took place as not missed', async () => {
+    const user = await renderTheDetail(anExchange({ channel: 'meeting', status: 'done' }))
+
+    await user.click(screen.getByRole('button', { name: 'Corriger' }))
+    expect(screen.getByLabelText(/Manqué/)).not.toBeChecked()
   })
 
   it('offers the whole correction rather than the text alone when it may do both', async () => {

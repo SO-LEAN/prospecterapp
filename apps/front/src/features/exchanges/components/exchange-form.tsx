@@ -17,7 +17,7 @@ import { Button } from '@/shared/ui/button'
 import { FileDropZone } from '@/shared/ui/file-drop-zone'
 import { Input } from '@/shared/ui/input'
 import { Textarea } from '@/shared/ui/textarea'
-import { CHANNELS, DIRECTIONS, type ExchangeFacts } from '../queries'
+import { CHANNELS, DIRECTIONS, type ExchangeFacts, isAgreedUpon } from '../queries'
 import {
   type ExchangeValues,
   exchangeFields,
@@ -50,7 +50,7 @@ type Props = {
 const DIRECTION_ICONS = { inbound: ArrowDownLeft, outbound: ArrowUpRight }
 
 /** A file chosen to join, the same file possibly chosen twice. */
-type ChosenFile = { key: string; file: File }
+export type ChosenFile = { key: string; file: File }
 
 /** Noted in a few seconds: received and now by default, the channel to choose, then save; or corrected. */
 export function ExchangeForm({
@@ -136,7 +136,7 @@ export function ExchangeForm({
         ))}
       </Choices>
 
-      {channel === 'call' && (
+      {isAgreedUpon(channel) && (
         <label className="flex items-center gap-2 text-sm">
           <input type="checkbox" className="size-4 accent-primary" {...form.register('missed')} />
           {t('exchanges.missedLabel')}
@@ -157,39 +157,7 @@ export function ExchangeForm({
       </FormField>
       {mayDeclareConform && <MadeConformField {...form.register('madeConform')} />}
 
-      {withFiles && (
-        <fieldset className="space-y-2">
-          <legend className="font-medium text-sm">{t('exchanges.attachments.title')}</legend>
-          {files.length > 0 && (
-            <ul className="space-y-1 text-sm">
-              {files.map(({ key, file }) => (
-                <li key={key} className="flex items-center gap-2">
-                  <Paperclip aria-hidden className="size-4 shrink-0 text-muted-foreground" />
-                  <span className="min-w-0 flex-1 truncate">{file.name}</span>
-                  <span className="shrink-0 text-muted-foreground text-xs">{formatSize(file.size)}</span>
-                  <Button
-                    type="button"
-                    variant="ghost"
-                    size="icon"
-                    aria-label={t('exchanges.attachments.remove', { name: file.name })}
-                    onClick={() => setFiles(files.filter((chosen) => chosen.key !== key))}
-                  >
-                    <X aria-hidden />
-                  </Button>
-                </li>
-              ))}
-            </ul>
-          )}
-          <FileDropZone
-            invitation={t('exchanges.attachments.drop')}
-            choose={t('exchanges.attachments.choose')}
-            hint={t('exchanges.attachments.heaviest')}
-            onFiles={(added) =>
-              setFiles([...files, ...added.map((file) => ({ key: crypto.randomUUID(), file }))])
-            }
-          />
-        </fieldset>
-      )}
+      {withFiles && <FilesField files={files} onChange={setFiles} />}
 
       <div className="flex justify-end gap-2">
         <Button type="button" variant="ghost" onClick={onCancel}>
@@ -231,5 +199,50 @@ export function Choice({ icon: Icon, label, ...radio }: ChoiceProps) {
       <Icon aria-hidden className="size-4" />
       {label}
     </label>
+  )
+}
+
+/** The files chosen to join to an exchange, one removed in a click, more dropped or chosen. */
+export function FilesField({
+  files,
+  onChange,
+}: {
+  files: ChosenFile[]
+  onChange: (files: ChosenFile[]) => void
+}) {
+  const { t } = useTranslation()
+
+  return (
+    <fieldset className="space-y-2">
+      <legend className="font-medium text-sm">{t('exchanges.attachments.title')}</legend>
+      {files.length > 0 && (
+        <ul className="space-y-1 text-sm">
+          {files.map(({ key, file }) => (
+            <li key={key} className="flex items-center gap-2">
+              <Paperclip aria-hidden className="size-4 shrink-0 text-muted-foreground" />
+              <span className="min-w-0 flex-1 truncate">{file.name}</span>
+              <span className="shrink-0 text-muted-foreground text-xs">{formatSize(file.size)}</span>
+              <Button
+                type="button"
+                variant="ghost"
+                size="icon"
+                aria-label={t('exchanges.attachments.remove', { name: file.name })}
+                onClick={() => onChange(files.filter((chosen) => chosen.key !== key))}
+              >
+                <X aria-hidden />
+              </Button>
+            </li>
+          ))}
+        </ul>
+      )}
+      <FileDropZone
+        invitation={t('exchanges.attachments.drop')}
+        choose={t('exchanges.attachments.choose')}
+        hint={t('exchanges.attachments.heaviest')}
+        onFiles={(added) =>
+          onChange([...files, ...added.map((file) => ({ key: crypto.randomUUID(), file }))])
+        }
+      />
+    </fieldset>
   )
 }

@@ -2,7 +2,7 @@ import type { DefaultValues } from 'react-hook-form'
 import { z } from 'zod'
 import { orNull, text } from '@/shared/forms/text'
 import { i18n } from '@/shared/i18n'
-import { PLANNED_CHANNELS, type PlannedExchangeInput } from './queries'
+import { type Moment, PLANNED_CHANNELS, type PlannedExchangeInput } from './queries'
 import { ITSELF, localMoment } from './schema'
 
 const MAX_TEXT = 5000
@@ -57,6 +57,23 @@ export const planSchema = z
 export type PlanValues = z.input<typeof planSchema>
 
 export const planFields = ['channel', 'date', 'time', 'durationInMinutes', 'text', 'personId'] as const
+
+/** Mirrors `MomentInput` of the API: another moment to come, the duration kept. */
+export const moveSchema = z
+  .object({
+    date: z.string().min(1, { error: () => i18n.t('validation.required') }),
+    time: z.string().min(1, { error: () => i18n.t('validation.required') }),
+  })
+  .refine((values) => momentOf(values).getTime() > Date.now(), {
+    path: ['time'],
+    error: () => i18n.t('exchanges.inThePast'),
+  })
+
+export type MoveValues = z.input<typeof moveSchema>
+
+export const moveFields = ['date', 'time'] as const
+
+export const toMoment = (values: MoveValues): Moment => ({ occurredAt: momentOf(values).toISOString() })
 
 /** The date and the time of the inputs of a moment, in the time of the browser. */
 export const dateAndTimeOf = (moment: Date) => {

@@ -20,6 +20,7 @@ use Prospecter\Core\Prospecting\Application\ConsultOrganization\ConsultOrganizat
 use Prospecter\Core\Prospecting\Application\ConsultOrganization\KeptOrganization;
 use Prospecter\Core\Prospecting\Application\OrganizationSheet;
 use Prospecter\Core\SharedKernel\Application\QueryHandler;
+use Symfony\Component\Clock\ClockInterface;
 
 /**
  * An exchange as the API shows it: read in Prospecting, with the organization itself when it was with no contact,
@@ -36,13 +37,14 @@ final readonly class ExchangeReader
         private QueryHandler $consultOrganization,
         private Links $links,
         private IntentLinks $intents,
+        private ClockInterface $clock,
     ) {
     }
 
     public function read(string $prospector, string $id): ExchangeDetailResource
     {
         $kept = new KeptExchange();
-        ($this->consultExchange)(new ConsultExchange($prospector, $id), $kept);
+        ($this->consultExchange)(new ConsultExchange($prospector, $id, $this->clock->now()), $kept);
 
         return $this->resourceOf($prospector, $kept->exchange);
     }

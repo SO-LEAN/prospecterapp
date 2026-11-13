@@ -10,8 +10,9 @@ import {
   usePlanOrganizationExchange,
 } from '../mutations'
 import { exchangesToMakeConformQuery, organizationTimelineQuery, organizationUpcomingQuery } from '../queries'
-import { ExchangeForm, type Interlocutors } from './exchange-form'
+import type { Interlocutors } from './exchange-form'
 import { ExchangeLine } from './exchange-line'
+import { NoteThenFollowUp } from './follow-up'
 import { PlanForm } from './plan-form'
 import { NoteExchangeDialog, PlanExchangeDialog, TimelineCard } from './timeline-card'
 
@@ -81,15 +82,22 @@ export function OrganizationExchangesSection({ organizationId, interlocutors, cl
         mayNote && (
           <NoteExchangeDialog name={interlocutors.organization}>
             {(close) => (
-              <ExchangeForm
-                withFiles
+              <NoteThenFollowUp
                 interlocutors={interlocutors}
-                onCancel={close}
-                onSubmit={async (exchange, personId, files) => {
+                close={close}
+                note={async (exchange, personId, files) => {
                   const { noted } = await note.mutateAsync({ organizationId, body: { exchange, personId } })
-                  close()
                   attachTheFiles(attach, noted, files)
                 }}
+                plan={
+                  mayPlan
+                    ? (exchange, personId) =>
+                        plan.mutateAsync({
+                          params: { path: { id: organizationId } },
+                          body: { exchange, personId },
+                        })
+                    : undefined
+                }
               />
             )}
           </NoteExchangeDialog>

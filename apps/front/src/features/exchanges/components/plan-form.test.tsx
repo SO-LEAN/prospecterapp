@@ -172,7 +172,7 @@ const anOverlap = (occurredAt: string): PlannedExchanges['items'][number] => ({
     id: '0190a1c0-0000-7000-8000-000000000010',
     channel: 'meeting',
     direction: 'outbound',
-    missed: false,
+    canceller: null,
     occurredAt,
     status: 'planned',
     durationInMinutes: 30,
