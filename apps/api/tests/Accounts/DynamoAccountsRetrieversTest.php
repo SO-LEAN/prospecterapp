@@ -2,14 +2,19 @@
 
 namespace Tests\App\Accounts;
 
+use App\Accounts\Persistence\AccountsKeys;
 use App\Shared\Persistence\Hydrator;
+use App\Shared\Persistence\Table;
 use PHPUnit\Framework\Attributes\DataProvider;
 use Prospecter\Core\Accounts\Application\Port\MemberRetriever;
 use Prospecter\Core\Accounts\Application\Port\MyAccountRetriever;
+use Prospecter\Core\Accounts\Application\Port\MyRemindersRetriever;
 use Prospecter\Core\Accounts\Domain\Exception\UnknownMember;
 use Prospecter\Core\Accounts\Domain\Model\Account;
 use Prospecter\Core\Accounts\Domain\Model\AccountIntent;
 use Prospecter\Core\Accounts\Domain\Model\Member;
+use Prospecter\Core\Accounts\Domain\Model\ReminderDelay;
+use Prospecter\Core\Accounts\Domain\Model\Reminders;
 use Prospecter\Core\Accounts\Domain\Model\Role;
 use Prospecter\Core\Accounts\Domain\Repository\AccountRepository;
 use Prospecter\Core\Accounts\Domain\Repository\MemberRepository;
@@ -71,6 +76,29 @@ class DynamoAccountsRetrieversTest extends ApiTestCase
         $this->assertSame([$member->id()->value], array_keys($members));
     }
 
+    public function testTheRemindersOfAMemberAreReadAsTheyWereChanged(): void
+    {
+        $member = $this->aMemberOf($this->anAccount(), Role::User, Role::Prospector);
+        $member->changeReminders(new Reminders(false, ReminderDelay::HalfAnHour), new \DateTimeImmutable());
+        self::getContainer()->get(MemberRepository::class)->save($member);
+
+        $reminders = self::getContainer()->get(MyRemindersRetriever::class)->of($member->id());
+
+        $this->assertSame([false, 30], [$reminders->enabled, $reminders->minutesBefore]);
+        $this->assertEquals(new Reminders(false, ReminderDelay::HalfAnHour), Hydrator::stateOf(self::getContainer()->get(MemberRepository::class)->get($member->id()))['reminders']);
+    }
+
+    public function testAMemberWrittenBeforeTheRemindersHasThoseByDefault(): void
+    {
+        $member = $this->aMemberOf($this->anAccount(), Role::User, Role::Prospector);
+        $this->forgetTheRemindersOf($member);
+
+        $reminders = self::getContainer()->get(MyRemindersRetriever::class)->of($member->id());
+
+        $this->assertSame([true, 10], [$reminders->enabled, $reminders->minutesBefore]);
+        $this->assertEquals(Reminders::byDefault(), Hydrator::stateOf(self::getContainer()->get(MemberRepository::class)->get($member->id()))['reminders']);
+    }
+
     /**
      * @return iterable<string, array{list<Role>, bool}>
      */
@@ -96,5 +124,14 @@ class DynamoAccountsRetrieversTest extends ApiTestCase
         self::getContainer()->get(MemberRepository::class)->save($member);
 
         return $member;
+    }
+
+    private function forgetTheRemindersOf(Member $member): void
+    {
+        $table = self::getContainer()->get('app.table.accounts');
+        \assert($table instanceof Table);
+        $item = $table->item(AccountsKeys::member($member->id()->value), AccountsKeys::MEMBER);
+        unset($item['member']['reminders']);
+        $table->transact([$table->putting($item)]);
     }
 }

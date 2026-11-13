@@ -232,6 +232,92 @@
                 }
             }
         },
+        "/api/me/reminders": {
+            "get": {
+                "tags": [
+                    "My account"
+                ],
+                "summary": "Consult whether and how long before a planned exchange I am reminded of it, ten minutes before by default",
+                "operationId": "get_api_me_reminders",
+                "responses": {
+                    "200": {
+                        "description": "My reminders",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/RemindersResource"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Missing or invalid access token"
+                    },
+                    "403": {
+                        "description": "The signed-in user is not a user",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ProblemResource"
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "patch": {
+                "tags": [
+                    "My account"
+                ],
+                "summary": "Turn my reminders of the exchanges I planned on or off, and choose how long before they come: 0, 5, 10, 15, 30 or 60 minutes",
+                "operationId": "patch_api_me_change_reminders",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/RemindersInput"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "My reminders",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/RemindersResource"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Missing or invalid access token"
+                    },
+                    "403": {
+                        "description": "The signed-in user is not a user",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ProblemResource"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "A delay not offered",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ProblemResource"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
         "/api/me/organization/address": {
             "patch": {
                 "tags": [
@@ -3388,6 +3474,21 @@
                 },
                 "type": "object"
             },
+            "RemindersInput": {
+                "properties": {
+                    "enabled": {
+                        "type": "boolean",
+                        "nullable": true,
+                        "default": null
+                    },
+                    "minutesBefore": {
+                        "type": "integer",
+                        "nullable": true,
+                        "default": null
+                    }
+                },
+                "type": "object"
+            },
             "AddressInput": {
                 "properties": {
                     "street": {
@@ -4086,6 +4187,48 @@
                         "example": "unknownOrganization",
                         "nullable": true,
                         "default": null
+                    }
+                },
+                "type": "object"
+            },
+            "RemindersLinksResource": {
+                "required": [
+                    "self",
+                    "changeMyReminders"
+                ],
+                "properties": {
+                    "self": {
+                        "$ref": "#/components/schemas/LinkResource"
+                    },
+                    "changeMyReminders": {
+                        "$ref": "#/components/schemas/LinkResource"
+                    }
+                },
+                "type": "object"
+            },
+            "RemindersResource": {
+                "required": [
+                    "enabled",
+                    "minutesBefore",
+                    "_links"
+                ],
+                "properties": {
+                    "enabled": {
+                        "type": "boolean"
+                    },
+                    "minutesBefore": {
+                        "type": "integer",
+                        "enum": [
+                            0,
+                            5,
+                            10,
+                            15,
+                            30,
+                            60
+                        ]
+                    },
+                    "_links": {
+                        "$ref": "#/components/schemas/RemindersLinksResource"
                     }
                 },
                 "type": "object"

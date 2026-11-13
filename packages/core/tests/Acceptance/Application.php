@@ -5,8 +5,8 @@ declare(strict_types=1);
 namespace Tests\Core\Acceptance;
 
 use Prospecter\Core\Accounts\Application\ChangeMyOrganizationLogo\ChangeMyOrganizationLogoHandler;
-use Prospecter\Core\Accounts\Application\ConsultMembers\ConsultMembersHandler;
 use Prospecter\Core\Accounts\Application\ChangeMyReminders\ChangeMyRemindersHandler;
+use Prospecter\Core\Accounts\Application\ConsultMembers\ConsultMembersHandler;
 use Prospecter\Core\Accounts\Application\ConsultMyAccount\ConsultMyAccount;
 use Prospecter\Core\Accounts\Application\ConsultMyAccount\ConsultMyAccountHandler;
 use Prospecter\Core\Accounts\Application\ConsultMyAccount\KeptAccount;

@@ -72,6 +72,24 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/me/reminders": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Consult whether and how long before a planned exchange I am reminded of it, ten minutes before by default */
+        get: operations["get_api_me_reminders"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        /** Turn my reminders of the exchanges I planned on or off, and choose how long before they come: 0, 5, 10, 15, 30 or 60 minutes */
+        patch: operations["patch_api_me_change_reminders"];
+        trace?: never;
+    };
     "/api/me/organization/address": {
         parameters: {
             query?: never;
@@ -736,6 +754,12 @@ export interface components {
             /** @default null */
             lastName: string | null;
         };
+        RemindersInput: {
+            /** @default null */
+            enabled: boolean | null;
+            /** @default null */
+            minutesBefore: number | null;
+        };
         AddressInput: {
             /** @default null */
             street: string | null;
@@ -1026,6 +1050,16 @@ export interface components {
              * @example unknownOrganization
              */
             reason: string | null;
+        };
+        RemindersLinksResource: {
+            self: components["schemas"]["LinkResource"];
+            changeMyReminders: components["schemas"]["LinkResource"];
+        };
+        RemindersResource: {
+            enabled: boolean;
+            /** @enum {integer} */
+            minutesBefore: 0 | 5 | 10 | 15 | 30 | 60;
+            _links: components["schemas"]["RemindersLinksResource"];
         };
         OrganizationContactLinksResource: {
             contact: components["schemas"]["LinkResource"];
@@ -1535,6 +1569,91 @@ export interface operations {
                 };
             };
             /** @description Invalid image */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ProblemResource"];
+                };
+            };
+        };
+    };
+    get_api_me_reminders: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description My reminders */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["RemindersResource"];
+                };
+            };
+            /** @description Missing or invalid access token */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description The signed-in user is not a user */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ProblemResource"];
+                };
+            };
+        };
+    };
+    patch_api_me_change_reminders: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["RemindersInput"];
+            };
+        };
+        responses: {
+            /** @description My reminders */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["RemindersResource"];
+                };
+            };
+            /** @description Missing or invalid access token */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description The signed-in user is not a user */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ProblemResource"];
+                };
+            };
+            /** @description A delay not offered */
             422: {
                 headers: {
                     [name: string]: unknown;
