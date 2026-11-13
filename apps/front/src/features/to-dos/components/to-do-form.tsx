@@ -1,5 +1,5 @@
 import { zodResolver } from '@hookform/resolvers/zod'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { useForm, useFormState } from 'react-hook-form'
 import { useTranslation } from 'react-i18next'
 import { applyViolations } from '@/shared/api/problem'
@@ -17,10 +17,12 @@ type Props = {
   defaultValues?: ToDoValues
   /** A revision is cancelled; the quick entry has no cancel. */
   onCancel?: () => void
+  /** Ready for the next to-do: the text takes the focus, never when the card loads. */
+  focusTheText?: boolean
 }
 
 /** Noted in one line: what is to do, then its day, by a shortcut, and an hour when it matters. */
-export function ToDoForm({ onSubmit, defaultValues, onCancel }: Props) {
+export function ToDoForm({ onSubmit, defaultValues, onCancel, focusTheText = false }: Props) {
   const { t } = useTranslation()
   const [globalErrors, setGlobalErrors] = useState<string[]>([])
   const form = useForm<ToDoValues>({
@@ -28,6 +30,12 @@ export function ToDoForm({ onSubmit, defaultValues, onCancel }: Props) {
     defaultValues: defaultValues ?? newToDo(new Date()),
   })
   const { isSubmitting } = useFormState({ control: form.control })
+
+  useEffect(() => {
+    if (focusTheText) {
+      form.setFocus('text')
+    }
+  }, [focusTheText, form])
 
   const submit = form.handleSubmit(async (values) => {
     setGlobalErrors([])

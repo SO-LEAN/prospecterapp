@@ -124,19 +124,21 @@ describe('ToDosCard', () => {
     expect(screen.getByText('Ce champ est obligatoire.')).toBeInTheDocument()
   })
 
-  it('empties the quick entry each time a to-do is noted, the next one noted as shown', async () => {
+  it('empties the quick entry each time a to-do is noted, focused for the next one, noted as shown', async () => {
     const onNote = vi.fn(async () => undefined)
     await renderTheCard(listOf([]), onNote)
     const text = () => screen.getByLabelText('Ce qu’il y a à faire')
     const day = () => screen.getByLabelText(/^Pour/)
     const hour = () => screen.getByLabelText(/^À\s*\(facultatif/)
     const tomorrow = (day() as HTMLInputElement).value
+    expect(text()).not.toHaveFocus()
 
     await userEvent.type(text(), 'Envoyer mon CV')
     await userEvent.type(hour(), '08:30')
     await userEvent.click(screen.getByRole('button', { name: 'Ajouter' }))
     expect(text()).toHaveValue('')
     expect(hour()).toHaveValue('')
+    expect(text()).toHaveFocus()
 
     await userEvent.type(text(), 'Relancer par e-mail')
     await userEvent.click(screen.getByRole('button', { name: 'Dans 1 semaine' }))

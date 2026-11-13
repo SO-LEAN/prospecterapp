@@ -80,7 +80,7 @@ type CardProps = SectionProps & {
 }
 
 /**
- * A new form once a to-do is noted, empty and due tomorrow: emptying the same form in place would count on a render
+ * A new form once a to-do is noted, empty, due tomorrow, its text focused for the next one: emptying the same form in place would count on a render
  * registering its fields again, which the React Compiler skips (`docs/architecture/front.md`, Forms).
  */
 function QuickEntry({ onNote }: Pick<CardProps, 'onNote'>) {
@@ -89,6 +89,7 @@ function QuickEntry({ onNote }: Pick<CardProps, 'onNote'>) {
   return (
     <ToDoForm
       key={noted}
+      focusTheText={noted > 0}
       onSubmit={async (body) => {
         await onNote(body)
         setNoted((count) => count + 1)
