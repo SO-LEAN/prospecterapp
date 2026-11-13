@@ -75,7 +75,7 @@ function ReminderDelaySelect({ minutes, disabled, onChange, ...trigger }: DelayP
   const { t } = useTranslation()
 
   return (
-    <Select value={String(minutes)} disabled={disabled} onValueChange={(next) => onChange(delayOf(next))}>
+    <Select value={String(minutes)} disabled={disabled} onValueChange={(next) => chosen(next, onChange)}>
       <SelectTrigger className="w-full" {...trigger}>
         <SelectValue />
       </SelectTrigger>
@@ -90,8 +90,13 @@ function ReminderDelaySelect({ minutes, disabled, onChange, ...trigger }: DelayP
   )
 }
 
-const delayOf = (value: string): Minutes =>
-  DELAYS.find((delay) => String(delay.minutes) === value)?.minutes ?? 10
+/** The delay of an item of the list: an item is always one of the delays offered. */
+function chosen(value: string, onChange: (minutes: Minutes) => void) {
+  const delay = DELAYS.find((offered) => String(offered.minutes) === value)
+  if (delay) {
+    onChange(delay.minutes)
+  }
+}
 
 /**
  * Shows an example of a reminder in the application, and asks once whether this browser may notify the member; when

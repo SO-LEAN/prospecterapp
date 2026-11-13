@@ -38,7 +38,12 @@ final class ChangeMyRemindersController extends AbstractController
     #[OA\Response(response: 422, description: 'A delay not offered', content: new Model(type: ProblemResource::class))]
     public function __invoke(#[MapRequestPayload] RemindersInput $input, #[CurrentUser] User $user): JsonResponse
     {
-        $this->commandBus->dispatch(new ChangeMyReminders($user->memberId(), (bool) $input->enabled, (int) $input->minutesBefore, $this->clock->now()));
+        $this->commandBus->dispatch(new ChangeMyReminders(
+            memberId: $user->memberId(),
+            enabled: $input->enabled ?? throw new \LogicException('Reminders validated are on or off'),
+            minutesBefore: $input->minutesBefore ?? throw new \LogicException('Reminders validated have their delay'),
+            executedAt: $this->clock->now(),
+        ));
 
         return $this->json($this->myRemindersReader->read($user->memberId()));
     }

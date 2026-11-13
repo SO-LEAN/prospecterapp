@@ -33,9 +33,10 @@ class RemindersApiTest extends ApiTestCase
         yield 'a prospector without the personal data' => ['assistant-user'];
     }
 
-    public function testIChangeMyRemindersAndFindThemAgain(): void
+    #[DataProvider('members')]
+    public function testEveryMemberChangesTheirRemindersAndFindsThemAgain(string $member): void
     {
-        $this->login();
+        $this->login($member);
 
         $changed = $this->requestJson('PATCH', '/api/me/reminders', ['enabled' => false, 'minutesBefore' => 30]);
         $this->assertResponseIsSuccessful();
@@ -77,10 +78,23 @@ class RemindersApiTest extends ApiTestCase
         $this->assertSame(['enabled'], $this->violatedFields($problem));
     }
 
-    public function testAnonymousCallersAreRejected(): void
+    /**
+     * @param array<string, mixed>|null $payload
+     */
+    #[DataProvider('gestures')]
+    public function testAnonymousCallersAreRejected(string $method, ?array $payload): void
     {
-        $this->requestJson('GET', '/api/me/reminders');
+        $this->requestJson($method, '/api/me/reminders', $payload);
 
         $this->assertResponseStatusCodeSame(401);
+    }
+
+    /**
+     * @return iterable<string, array{string, array<string, mixed>|null}>
+     */
+    public static function gestures(): iterable
+    {
+        yield 'consulting' => ['GET', null];
+        yield 'changing' => ['PATCH', ['enabled' => true, 'minutesBefore' => 30]];
     }
 }
