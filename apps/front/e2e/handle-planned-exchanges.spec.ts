@@ -26,7 +26,7 @@ test('handle planned exchanges: moved, cancelled, done once their time has come,
   const past = page.getByRole('list', { name: 'Échanges' }).getByRole('listitem')
   const detail = page.getByRole('dialog', { name: 'Échange' })
   const plan = async (channel: string, choose: () => Promise<void>) => {
-    await page.getByRole('button', { name: 'Planifier' }).click()
+    await page.getByRole('button', { name: 'Planifier', exact: true }).click()
     await page.getByLabel(channel, { exact: true }).check()
     await choose()
     await page.getByRole('button', { name: 'Enregistrer' }).click()
@@ -42,6 +42,7 @@ test('handle planned exchanges: moved, cancelled, done once their time has come,
     await page.getByLabel('Nom', { exact: true }).fill(lastName)
     await page.getByRole('button', { name: 'Enregistrer le contact' }).click()
     await page.getByRole('link', { name: `Test ${lastName}` }).click()
+    await expect(page.getByRole('heading', { name: `Test ${lastName}` })).toBeVisible()
     const { date, time } = await inTwoMinutes(page)
     await plan('Appel', async () => {
       await page.getByLabel('Date').fill(date)
@@ -57,6 +58,7 @@ test('handle planned exchanges: moved, cancelled, done once their time has come,
     await expect(detail.getByRole('button', { name: 'Déplacer' })).toBeVisible()
     await expect(detail.getByRole('button', { name: 'Fait' })).toHaveCount(0)
     await page.keyboard.press('Escape')
+    await expect(detail).toBeHidden()
   })
 
   await test.step('the video call moved to next week, its duration kept', async () => {
@@ -66,7 +68,8 @@ test('handle planned exchanges: moved, cancelled, done once their time has come,
     await detail.getByRole('button', { name: 'Enregistrer' }).click()
     await expect(detail.getByText(/Visio, À venir/)).toBeVisible()
     await page.keyboard.press('Escape')
-    await expect(upcoming.last()).toContainText('Visio')
+    await expect(detail).toBeHidden()
+    await expect(upcoming.filter({ hasText: 'Visio' })).toContainText('dans 7 jours')
   })
 
   await test.step('the meeting cancelled by the contact stays struck through among the past exchanges', async () => {
@@ -76,10 +79,12 @@ test('handle planned exchanges: moved, cancelled, done once their time has come,
     await cancelling.getByLabel('Le contact').check()
     await cancelling.getByRole('button', { name: 'Annuler l’échange' }).click()
     await expect(page.getByText('Échange annulé')).toBeVisible()
-    await page.keyboard.press('Escape')
-    await expect(past.filter({ hasText: 'Rendez-vous, Annulé' })).toHaveCount(1, {
+    await expect(detail.getByText('Rendez-vous, Annulé')).toBeVisible({
       timeout: UNTIL_THE_TOAST_IS_GONE_MS + 5_000,
     })
+    await page.keyboard.press('Escape')
+    await expect(detail).toBeHidden()
+    await expect(past.filter({ hasText: 'Rendez-vous, Annulé' })).toHaveCount(1)
     await expect(past.filter({ hasText: 'Annulé par le contact' })).toHaveCount(1)
     await expect(upcoming).toHaveCount(2)
   })
@@ -120,6 +125,7 @@ test('handle planned exchanges: moved, cancelled, done once their time has come,
     await detail.getByRole('button', { name: 'Demain 9h' }).click()
     await detail.getByRole('button', { name: 'Enregistrer' }).click()
     await page.keyboard.press('Escape')
+    await expect(detail).toBeHidden()
     await expect(past.filter({ hasText: 'Mission de 3 mois en mars' })).toHaveCount(1)
     await expect(upcoming.filter({ hasText: 'Appel, À venir' })).toHaveCount(1)
   })
