@@ -12,4 +12,5 @@ export const queryKeys = {
   organizationUpcomingExchanges: ['get', '/api/organizations/{id}/upcoming-exchanges'],
   exchangesToMakeConform: ['get', '/api/organizations/{id}/exchanges-to-make-conform'],
   exchange: ['get', '/api/exchanges/{id}'],
+  myCalendar: ['get', '/api/me/calendar'],
 } as const

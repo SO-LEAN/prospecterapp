@@ -526,6 +526,23 @@ export interface paths {
         patch: operations["patch_api_contacts_rename"];
         trace?: never;
     };
+    "/api/me/calendar": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** The calendar of the signed-in member over a period: the exchanges they planned or noted, whatever their status */
+        get: operations["get_api_me_calendar"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/organizations/{id}/exchanges-to-make-conform": {
         parameters: {
             query?: never;
@@ -1095,6 +1112,20 @@ export interface components {
             /** @default null */
             after: string | null;
         };
+        PeriodQuery: {
+            /**
+             * Format: date-time
+             * @description The start of its first day, included
+             * @default null
+             */
+            from: string | null;
+            /**
+             * Format: date-time
+             * @description The start of the day after its last, excluded; six weeks after `from` at most
+             * @default null
+             */
+            to: string | null;
+        };
         SlotQuery: {
             /**
              * Format: date-time
@@ -1531,6 +1562,9 @@ export interface components {
         CallerResource: {
             organizations: components["schemas"]["OrganizationResource"][];
             contacts: components["schemas"]["ContactInListResource"][];
+        };
+        CalendarResource: {
+            items: components["schemas"]["OrganizationExchangeResource"][];
         };
         OrganizationsOfContactResource: {
             items: components["schemas"]["OrganizationOfContactResource"][];
@@ -3920,6 +3954,56 @@ export interface operations {
                 };
             };
             /** @description Invalid name */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ProblemResource"];
+                };
+            };
+        };
+    };
+    get_api_me_calendar: {
+        parameters: {
+            query?: {
+                /** @description The start of its first day, included */
+                from?: string | null;
+                /** @description The start of the day after its last, excluded; six weeks after `from` at most */
+                to?: string | null;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description The exchanges of the period, by their moment */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CalendarResource"];
+                };
+            };
+            /** @description Missing or invalid access token */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Not a prospector */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ProblemResource"];
+                };
+            };
+            /** @description Invalid period: a bound missing, an end before the start, longer than six weeks */
             422: {
                 headers: {
                     [name: string]: unknown;
