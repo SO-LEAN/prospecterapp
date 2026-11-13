@@ -62,6 +62,20 @@ describe('useCalendarShortcuts', () => {
     expect(onShortcut).not.toHaveBeenCalled()
   })
 
+  it('calls the latest handler it was given', () => {
+    const first = vi.fn()
+    const latest = vi.fn()
+    const { rerender } = renderHook(({ onShortcut }) => useCalendarShortcuts(onShortcut), {
+      initialProps: { onShortcut: first },
+    })
+    rerender({ onShortcut: latest })
+
+    press('t')
+
+    expect(first).not.toHaveBeenCalled()
+    expect(latest).toHaveBeenCalledWith({ kind: 'today' })
+  })
+
   it('listens no more once gone', () => {
     const onShortcut = vi.fn()
     const { unmount } = renderHook(() => useCalendarShortcuts(onShortcut))

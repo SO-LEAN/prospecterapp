@@ -1,4 +1,4 @@
-import { useEffect } from 'react'
+import { useEffect, useEffectEvent } from 'react'
 import type { View } from './dates'
 
 export type Shortcut = { kind: 'today' } | { kind: 'step'; step: 1 | -1 } | { kind: 'view'; view: View }
@@ -23,17 +23,20 @@ export function shortcutOf(event: Pick<KeyboardEvent, 'key' | 'target' | 'altKey
   return SHORTCUTS[event.key.length === 1 ? event.key.toLowerCase() : event.key]
 }
 
+/** Listens once, the latest `onShortcut` called. */
 export function useCalendarShortcuts(onShortcut: (shortcut: Shortcut) => void) {
+  const onShortcutNow = useEffectEvent(onShortcut)
+
   useEffect(() => {
     const listener = (event: KeyboardEvent) => {
       const shortcut = shortcutOf(event)
       if (!shortcut || event.defaultPrevented) return
       event.preventDefault()
-      onShortcut(shortcut)
+      onShortcutNow(shortcut)
     }
     window.addEventListener('keydown', listener)
     return () => window.removeEventListener('keydown', listener)
-  }, [onShortcut])
+  }, [])
 }
 
 function isTyping(target: EventTarget | null): boolean {
