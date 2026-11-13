@@ -4,6 +4,7 @@ namespace Tests\App\Architecture;
 
 use App\Exchanges\ExchangeVoter;
 use App\Prospecting\OrganizationVoter;
+use App\ToDos\ToDoVoter;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 use Symfony\Component\Routing\Route;
 use Symfony\Component\Routing\RouterInterface;
@@ -19,6 +20,7 @@ class ResourcesAreReachedThroughTheirVoterTest extends KernelTestCase
     private const array VOTERS = [
         '/api/organizations/{id}' => OrganizationVoter::ACCESS,
         '/api/exchanges/{id}' => ExchangeVoter::ACCESS,
+        '/api/to-dos/{id}' => ToDoVoter::ACCESS,
     ];
 
     public function testEveryEndpointOfAResourceIsGrantedByItsVoter(): void

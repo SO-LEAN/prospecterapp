@@ -5,6 +5,8 @@ namespace App\Contacts;
 use App\Contacts\Resource\ContactLinksResource;
 use App\Contacts\Resource\ContactResource;
 use App\PersonalData\Resource\PersonNameResource;
+use App\Security\IntentLinks;
+use App\Security\User;
 use App\Shared\Links;
 use App\Shared\Resource\ContactDetailsResource;
 use App\Shared\Resource\LinkResource;
@@ -31,7 +33,7 @@ final class ContactResourcePresenter implements ConsultPersonOutput
 
     public private(set) ContactResource $resource;
 
-    public function __construct(private readonly TimelineIntentsResponse $timeline, private readonly Links $links)
+    public function __construct(private readonly TimelineIntentsResponse $timeline, private readonly Links $links, private readonly IntentLinks $intentLinks)
     {
     }
 
@@ -53,9 +55,22 @@ final class ContactResourcePresenter implements ConsultPersonOutput
         $possible = [
             ...$this->possible(self::ROUTES, $contact->possibleIntents, $id),
             ...$this->possible(self::TIMELINE_ROUTES, $this->timeline->possibleIntents, $id),
+            ...$this->toDosOf($id),
         ];
 
         return new ContactLinksResource($this->links->to('api_contacts_show', $id), ...$possible);
+    }
+
+    /**
+     * The to-dos of a contact are read with the right to manage personal data, their text possibly holding some.
+     *
+     * @param array<string, string> $id
+     *
+     * @return array<string, LinkResource>
+     */
+    private function toDosOf(array $id): array
+    {
+        return $this->intentLinks->shows('ConsultTimeline', $this->timeline->possibleIntents, User::PERSONAL_DATA) ? ['toDos' => $this->links->to('api_contacts_to_dos', $id)] : [];
     }
 
     /**

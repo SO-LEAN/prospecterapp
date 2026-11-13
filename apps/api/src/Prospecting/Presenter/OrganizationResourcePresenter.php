@@ -40,13 +40,15 @@ final class OrganizationResourcePresenter implements ConsultOrganizationOutput
     ];
 
     /**
-     * Every member reaching the organization reads its timeline; noting in it needs the right to manage personal data.
+     * Every member reaching the organization reads its timeline; noting in it needs the right to manage personal data,
+     * as reading its to-dos, whose text may hold some (ADR 0112).
      *
      * @var array<string, array{route: string, role: ?string}>
      */
     private const array TIMELINE_ROUTES = [
         'exchanges' => ['route' => 'api_organizations_timeline', 'role' => null],
         'noteExchange' => ['route' => 'api_organizations_note_exchange', 'role' => User::PERSONAL_DATA],
+        'toDos' => ['route' => 'api_organizations_to_dos', 'role' => User::PERSONAL_DATA],
     ];
 
     public private(set) OrganizationResource $resource;

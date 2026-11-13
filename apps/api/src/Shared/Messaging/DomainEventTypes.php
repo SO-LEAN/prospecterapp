@@ -57,6 +57,13 @@ final readonly class DomainEventTypes extends EventTypes
             'ProspectingStarted.v1' => Prospecting\ProspectingStarted::class,
             'ProspectingStopped.v1' => Prospecting\ProspectingStopped::class,
             'Relocated.v1' => Prospecting\Relocated::class,
+            'ToDoErased.v1' => Prospecting\ToDoErased::class,
+            'ToDoLeftWithoutOrganization.v1' => Prospecting\ToDoLeftWithoutOrganization::class,
+            'ToDoNoLongerKeptFor.v1' => Prospecting\ToDoNoLongerKeptFor::class,
+            'ToDoNoted.v1' => Prospecting\ToDoNoted::class,
+            'ToDoRevised.v1' => Prospecting\ToDoRevised::class,
+            'ToDoTickedOff.v1' => Prospecting\ToDoTickedOff::class,
+            'ToDoUnticked.v1' => Prospecting\ToDoUnticked::class,
         ],
     ];
 }

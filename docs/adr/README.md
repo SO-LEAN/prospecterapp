@@ -116,3 +116,4 @@ Why the project is shaped the way it is: one record per decision, in the order t
 | [0110](0110-the-integration-runs-the-checks-the-changes-need.md) | The integration runs the checks the changes need, the lint and the tests of a project together | architecture | Accepted | 2026-11-13 |
 | [0111](0111-an-exchange-is-planned-then-done-to-come-after-the-moment-of-the-reading.md) | An exchange is planned, then done; what is to come is read after the moment of the reading | domain | Accepted | 2026-11-13 |
 | [0112](0112-a-planned-exchange-is-done-missed-moved-or-cancelled-by-its-holder.md) | A planned exchange is done, missed, moved or cancelled by its holder; a cancelled one is listed from its cancellation | domain | Accepted | 2026-11-13 |
+| [0113](0113-a-to-do-is-an-aggregate-of-prospecting-erased-with-its-contact.md) | A to-do is an aggregate of Prospecting, kept like an exchange, erased with its contact | domain | Accepted | 2026-11-13 |
