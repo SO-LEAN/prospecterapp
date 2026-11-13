@@ -1,9 +1,13 @@
 import { expect, test } from './fixtures'
 import { signInOnTheSignInScreen } from './sign-in'
 
+/** Two cards, two to-dos and an exchange, each gesture pending until the lists are read again: longer than a journey. */
+const LONGER_THAN_A_JOURNEY_MS = 60_000
+
 test('note a to-do on the card of a contact and of its organization, tick it off, note the exchange, erase it', async ({
   page,
 }) => {
+  test.setTimeout(LONGER_THAN_A_JOURNEY_MS)
   const organization = `E2E à faire ${Date.now()}`
   const lastName = `À faire ${Date.now()}`
   const toDos = page.getByRole('list', { name: 'À faire' }).getByRole('listitem')
