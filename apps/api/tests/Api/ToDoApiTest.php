@@ -21,7 +21,7 @@ use Prospecter\Core\SharedKernel\Domain\OrganizationId;
 use Tests\App\Base\ApiTestCase;
 
 /**
- * The to-dos for a contact or an organization (ADR 0112): the clock of the tests says it is 2026-10-15 09:00 UTC.
+ * The to-dos for a contact or an organization (ADR 0113): the clock of the tests says it is 2026-10-15 09:00 UTC.
  */
 #[Group('api')]
 class ToDoApiTest extends ApiTestCase

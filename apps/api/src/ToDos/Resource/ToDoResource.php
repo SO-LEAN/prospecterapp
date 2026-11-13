@@ -9,7 +9,7 @@ use Symfony\Component\Serializer\Attribute\SerializedName;
 use Symfony\Component\Serializer\Normalizer\AbstractObjectNormalizer;
 
 /**
- * A to-do for a contact or for an organization (ADR 0112).
+ * A to-do for a contact or for an organization (ADR 0113).
  */
 final readonly class ToDoResource
 {

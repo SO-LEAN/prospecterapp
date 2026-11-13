@@ -19,7 +19,7 @@ final readonly class ContactLinksResource
         public ?LinkResource $forget = null,
         #[OA\Property(description: 'The exchanges with the contact, the most recent first (ADR 0074)', nullable: false)]
         public ?LinkResource $exchanges = null,
-        #[OA\Property(description: 'The to-dos for the contact (ADR 0112)', nullable: false)]
+        #[OA\Property(description: 'The to-dos for the contact (ADR 0113)', nullable: false)]
         public ?LinkResource $toDos = null,
     ) {
     }

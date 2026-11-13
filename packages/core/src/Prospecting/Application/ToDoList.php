@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Prospecter\Core\Prospecting\Application;
 
 /**
- * The to-dos of a contact, of an organization or of a prospector, a handful each, read whole (ADR 0112): those to do
+ * The to-dos of a contact, of an organization or of a prospector, a handful each, read whole (ADR 0113): those to do
  * the soonest due first, a day without an hour before its hours, then those done, the last done first.
  */
 final readonly class ToDoList

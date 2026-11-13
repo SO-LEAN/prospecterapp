@@ -15,7 +15,7 @@ use Prospecter\Core\SharedKernel\Domain\PersonId;
 
 /**
  * The to-dos of an erased contact are erased, by the member who erased it: unlike its exchanges, they are no
- * commercial history to keep, and their text may hold its personal data (ADR 0112).
+ * commercial history to keep, and their text may hold its personal data (ADR 0113).
  */
 final readonly class EraseToDosOfForgottenContactHandler implements EventHandler
 {

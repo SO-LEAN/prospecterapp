@@ -41,7 +41,7 @@ final class OrganizationResourcePresenter implements ConsultOrganizationOutput
 
     /**
      * Every member reaching the organization reads its timeline; noting in it needs the right to manage personal data,
-     * as reading its to-dos, whose text may hold some (ADR 0112).
+     * as reading its to-dos, whose text may hold some (ADR 0113).
      *
      * @var array<string, array{route: string, role: ?string}>
      */
