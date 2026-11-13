@@ -4,7 +4,7 @@ import babel from '@rolldown/plugin-babel'
 import tailwindcss from '@tailwindcss/vite'
 import { tanstackRouter } from '@tanstack/router-plugin/vite'
 import react, { reactCompilerPreset } from '@vitejs/plugin-react'
-import { defineConfig } from 'vite'
+import { defineConfig, type Rolldown } from 'vite'
 
 const PUBLIC_HOST = 'local.prospecter.io'
 
@@ -23,6 +23,20 @@ const nodeGlobalOfTheCognitoLibrary = { global: 'globalThis' }
 /** A form typed key by key takes seconds when `make ci` runs the other checks beside the tests (ADR 0109). */
 const TIMEOUT_OF_A_TEST_SHARING_THE_MACHINE = 20_000
 
+/** The chunk of the map, MapLibre itself, loaded with the map only (`geo-map.tsx`): beyond it, a chunk is warned. */
+const SIZE_OF_THE_MAP_LOADED_ON_DEMAND_KB = 1_200
+
+/** Tailwind generates the stylesheet without a sourcemap, by design: the warning of any other plugin is kept. */
+const keepAllButTheMissingSourcemapOfTailwind: NonNullable<Rolldown.InputOptions['onLog']> = (
+  level,
+  log,
+  handler,
+) => {
+  const missingSourcemapOfTailwind =
+    log.code === 'SOURCEMAP_BROKEN' && log.plugin?.startsWith('@tailwindcss/vite')
+  if (!missingSourcemapOfTailwind) handler(level, log)
+}
+
 export default defineConfig({
   plugins: [typedRoutesSplitByRoute, react(), reactCompiler, tailwindcss()],
   define: nodeGlobalOfTheCognitoLibrary,
@@ -39,6 +53,11 @@ export default defineConfig({
   build: {
     target: 'es2024',
     sourcemap: true,
+    chunkSizeWarningLimit: SIZE_OF_THE_MAP_LOADED_ON_DEMAND_KB,
+    rolldownOptions: {
+      checks: { bundlerTimings: false },
+      onLog: keepAllButTheMissingSourcemapOfTailwind,
+    },
   },
   test: {
     environment: 'jsdom',

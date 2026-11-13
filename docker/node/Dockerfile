@@ -1,6 +1,7 @@
 FROM node:24-alpine
 
-RUN npm install --global pnpm@12.11.2 \
+# the install scripts of pnpm allowed (npm runs none it was not told of), without the notice of a new npm
+RUN npm install --global --no-update-notifier --allow-scripts=pnpm pnpm@12.11.2 \
     && mkdir -p /pnpm-store /tmp/home && chmod 777 /pnpm-store /tmp/home
 
 ENV npm_config_store_dir=/pnpm-store \

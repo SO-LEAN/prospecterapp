@@ -12,9 +12,11 @@ ARG UID=1000
 ARG GID=1000
 
 COPY --from=imagick /opt /opt
+# the volume composer-cache, created empty, takes the owner of its mount point: the developer, who writes in it
 RUN dnf install -y git unzip zip tar make shadow-utils >/dev/null && dnf clean all \
     && /usr/sbin/groupadd -g ${GID} developer \
-    && /usr/sbin/useradd -m -u ${UID} -g ${GID} -s /bin/bash developer
+    && /usr/sbin/useradd -m -u ${UID} -g ${GID} -s /bin/bash developer \
+    && install -d -o developer -g developer /home/developer/.cache/composer
 
 COPY php.ini /opt/bref/etc/php/conf.d/zz-cli.ini
 
