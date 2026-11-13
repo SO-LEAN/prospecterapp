@@ -11,6 +11,7 @@ use Behat\Step\Then;
 use Behat\Step\When;
 use Prospecter\Core\Prospecting\Application\ConsultMyToDos\ConsultMyToDos;
 use Prospecter\Core\Prospecting\Application\ConsultOrganizationToDos\ConsultOrganizationToDos;
+use Prospecter\Core\Prospecting\Application\ConsultToDo\ConsultToDo;
 use Prospecter\Core\Prospecting\Application\ConsultToDos\ConsultToDos;
 use Prospecter\Core\Prospecting\Application\EraseToDo\EraseToDo;
 use Prospecter\Core\Prospecting\Application\NoteOrganizationToDo\NoteOrganizationToDo;
@@ -38,6 +39,7 @@ final class ToDoContext implements Context
     private array $noted = [];
     /** @var list<ToDoInList>|null */
     private ?array $mine = null;
+    private ?ToDoInList $consulted = null;
 
     #[Given('/^(?<done>j\'ai noté|je note) à faire pour "(?<for>[^"]+)" "(?<text>[^"]*)" pour le (?<day>\S+)(?: à (?<time>\S+))?$/')]
     public function iNoteAToDo(string $done, string $for, string $text, string $day, string $time = ''): void
@@ -98,6 +100,20 @@ final class ToDoContext implements Context
     public function iConsultMyToDos(): void
     {
         $this->mine = $this->application->consultMyToDos(new ConsultMyToDos($this->application->signedIn()))?->toDos;
+    }
+
+    #[When('je la consulte')]
+    public function iConsultIt(): void
+    {
+        $this->consulted = $this->application->consultToDo(new ConsultToDo($this->theToDo()));
+    }
+
+    #[Then('je peux sur l\'action à faire :')]
+    public function iMayOnTheToDo(TableNode $table): void
+    {
+        Expect::that(null !== $this->consulted, sprintf('The to-do was expected, got: %s', $this->application->refusal()?->getMessage()));
+
+        Expect::same($table->getColumn(0), Vocabulary::describeIntents($this->consulted->possibleIntents));
     }
 
     #[When('l\'action à faire à effacer est publiée de nouveau')]

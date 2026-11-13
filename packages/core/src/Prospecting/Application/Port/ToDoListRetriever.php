@@ -5,6 +5,8 @@ declare(strict_types=1);
 namespace Prospecter\Core\Prospecting\Application\Port;
 
 use Prospecter\Core\Prospecting\Application\ToDoInList;
+use Prospecter\Core\Prospecting\Domain\Exception\UnknownToDo;
+use Prospecter\Core\Prospecting\Domain\Model\ToDoId;
 use Prospecter\Core\SharedKernel\Domain\AccountId;
 use Prospecter\Core\SharedKernel\Domain\MemberId;
 use Prospecter\Core\SharedKernel\Domain\OrganizationId;
@@ -16,6 +18,11 @@ use Prospecter\Core\SharedKernel\Domain\PersonId;
  */
 interface ToDoListRetriever
 {
+    /**
+     * @throws UnknownToDo
+     */
+    public function get(ToDoId $id): ToDoInList;
+
     /**
      * The to-dos of the account for the contact, done or not.
      *

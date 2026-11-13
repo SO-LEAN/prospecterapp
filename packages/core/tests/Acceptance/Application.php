@@ -95,6 +95,9 @@ use Prospecter\Core\Prospecting\Application\ConsultTimelineIntents\ConsultTimeli
 use Prospecter\Core\Prospecting\Application\ConsultTimelineIntents\ConsultTimelineIntentsHandler;
 use Prospecter\Core\Prospecting\Application\ConsultTimelineIntents\KeptTimelineIntents;
 use Prospecter\Core\Prospecting\Application\ConsultTimelineIntents\TimelineIntentsResponse;
+use Prospecter\Core\Prospecting\Application\ConsultToDo\ConsultToDo;
+use Prospecter\Core\Prospecting\Application\ConsultToDo\ConsultToDoHandler;
+use Prospecter\Core\Prospecting\Application\ConsultToDo\KeptToDo;
 use Prospecter\Core\Prospecting\Application\ConsultToDos\ConsultToDos;
 use Prospecter\Core\Prospecting\Application\ConsultToDos\ConsultToDosHandler;
 use Prospecter\Core\Prospecting\Application\ConsultUpcomingExchanges\ConsultUpcomingExchanges;
@@ -152,6 +155,7 @@ use Prospecter\Core\Prospecting\Application\StopKeepingToDos\StopKeepingToDosHan
 use Prospecter\Core\Prospecting\Application\StopProspecting\StopProspectingHandler;
 use Prospecter\Core\Prospecting\Application\TickOffToDo\TickOffToDoHandler;
 use Prospecter\Core\Prospecting\Application\Timeline;
+use Prospecter\Core\Prospecting\Application\ToDoInList;
 use Prospecter\Core\Prospecting\Application\ToDoList;
 use Prospecter\Core\Prospecting\Application\UntickToDo\UntickToDoHandler;
 use Prospecter\Core\Prospecting\Application\WhichAreProspected\WhichAreProspectedHandler;
@@ -512,6 +516,13 @@ final class Application
         $kept = new KeptCallingOrganizations();
 
         return $this->ask(new RecognizeCallingOrganizationHandler($this->organizationSheetRetriever, $this->prospectors), $query, $kept) ? $kept->organizations : null;
+    }
+
+    public function consultToDo(ConsultToDo $query): ?ToDoInList
+    {
+        $kept = new KeptToDo();
+
+        return $this->ask(new ConsultToDoHandler($this->toDoListRetriever), $query, $kept) ? $kept->toDo : null;
     }
 
     public function consultToDos(ConsultToDos $query): ?ToDoList

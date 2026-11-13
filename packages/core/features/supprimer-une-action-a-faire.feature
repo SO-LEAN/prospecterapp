@@ -16,3 +16,9 @@ Fonctionnalité: Supprimer une action à faire
     Quand je la supprime
     Alors "Ada Lovelace" n'a plus d'action à faire
     Et "ACME" n'a plus d'action à faire
+
+  Scénario: Une action à faire supprimée est introuvable
+    Soit j'ai noté à faire pour "ACME" "Préparer la proposition" pour le 20/11/2026
+    Et je la supprime
+    Quand je la consulte
+    Alors c'est introuvable
