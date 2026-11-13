@@ -124,23 +124,35 @@ describe('ToDosCard', () => {
     expect(screen.getByText('Ce champ est obligatoire.')).toBeInTheDocument()
   })
 
-  it('empties the quick entry once a to-do is noted, ready for the next one', async () => {
+  it('empties the quick entry each time a to-do is noted, the next one noted as shown', async () => {
     const onNote = vi.fn(async () => undefined)
     await renderTheCard(listOf([]), onNote)
-    const entry = screen.getByLabelText('Ce qu’il y a à faire')
+    const text = () => screen.getByLabelText('Ce qu’il y a à faire')
+    const day = () => screen.getByLabelText(/^Pour/)
+    const hour = () => screen.getByLabelText(/^À\s*\(facultatif/)
+    const tomorrow = (day() as HTMLInputElement).value
 
-    await userEvent.type(entry, 'Envoyer mon CV')
-    await userEvent.type(screen.getByLabelText(/^À\s*\(facultatif/), '08:30')
+    await userEvent.type(text(), 'Envoyer mon CV')
+    await userEvent.type(hour(), '08:30')
     await userEvent.click(screen.getByRole('button', { name: 'Ajouter' }))
-    expect(entry).toHaveValue('')
-    expect(screen.getByLabelText(/^À\s*\(facultatif/)).toHaveValue('')
+    expect(text()).toHaveValue('')
+    expect(hour()).toHaveValue('')
 
-    await userEvent.type(entry, 'Relancer par e-mail')
+    await userEvent.type(text(), 'Relancer par e-mail')
+    await userEvent.click(screen.getByRole('button', { name: 'Dans 1 semaine' }))
+    const inAWeek = (day() as HTMLInputElement).value
     await userEvent.click(screen.getByRole('button', { name: 'Ajouter' }))
+    expect(onNote).toHaveBeenLastCalledWith(
+      expect.objectContaining({ text: 'Relancer par e-mail', dueOn: inAWeek }),
+    )
+    expect(text()).toHaveValue('')
+    expect(day()).toHaveValue(tomorrow)
 
+    await userEvent.type(text(), 'Envoyer la plaquette')
+    await userEvent.click(screen.getByRole('button', { name: 'Ajouter' }))
     expect(screen.queryByText('Ce champ est obligatoire.')).not.toBeInTheDocument()
     expect(onNote).toHaveBeenLastCalledWith(
-      expect.objectContaining({ text: 'Relancer par e-mail', dueAt: null }),
+      expect.objectContaining({ text: 'Envoyer la plaquette', dueOn: tomorrow, dueAt: null }),
     )
   })
 
