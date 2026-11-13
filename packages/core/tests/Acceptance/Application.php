@@ -74,11 +74,15 @@ use Prospecter\Core\Prospecting\Application\ConsultExchange\ExchangeDetail;
 use Prospecter\Core\Prospecting\Application\ConsultExchange\KeptExchange;
 use Prospecter\Core\Prospecting\Application\ConsultExchangesToMakeConform\ConsultExchangesToMakeConform;
 use Prospecter\Core\Prospecting\Application\ConsultExchangesToMakeConform\ConsultExchangesToMakeConformHandler;
+use Prospecter\Core\Prospecting\Application\ConsultMyToDos\ConsultMyToDos;
+use Prospecter\Core\Prospecting\Application\ConsultMyToDos\ConsultMyToDosHandler;
 use Prospecter\Core\Prospecting\Application\ConsultOrganization\ConsultOrganization;
 use Prospecter\Core\Prospecting\Application\ConsultOrganization\ConsultOrganizationHandler;
 use Prospecter\Core\Prospecting\Application\ConsultOrganization\KeptOrganization;
 use Prospecter\Core\Prospecting\Application\ConsultOrganizationTimeline\ConsultOrganizationTimeline;
 use Prospecter\Core\Prospecting\Application\ConsultOrganizationTimeline\ConsultOrganizationTimelineHandler;
+use Prospecter\Core\Prospecting\Application\ConsultOrganizationToDos\ConsultOrganizationToDos;
+use Prospecter\Core\Prospecting\Application\ConsultOrganizationToDos\ConsultOrganizationToDosHandler;
 use Prospecter\Core\Prospecting\Application\ConsultOrganizationUpcomingExchanges\ConsultOrganizationUpcomingExchanges;
 use Prospecter\Core\Prospecting\Application\ConsultOrganizationUpcomingExchanges\ConsultOrganizationUpcomingExchangesHandler;
 use Prospecter\Core\Prospecting\Application\ConsultOverlappingExchanges\ConsultOverlappingExchanges;
@@ -91,6 +95,8 @@ use Prospecter\Core\Prospecting\Application\ConsultTimelineIntents\ConsultTimeli
 use Prospecter\Core\Prospecting\Application\ConsultTimelineIntents\ConsultTimelineIntentsHandler;
 use Prospecter\Core\Prospecting\Application\ConsultTimelineIntents\KeptTimelineIntents;
 use Prospecter\Core\Prospecting\Application\ConsultTimelineIntents\TimelineIntentsResponse;
+use Prospecter\Core\Prospecting\Application\ConsultToDos\ConsultToDos;
+use Prospecter\Core\Prospecting\Application\ConsultToDos\ConsultToDosHandler;
 use Prospecter\Core\Prospecting\Application\ConsultUpcomingExchanges\ConsultUpcomingExchanges;
 use Prospecter\Core\Prospecting\Application\ConsultUpcomingExchanges\ConsultUpcomingExchangesHandler;
 use Prospecter\Core\Prospecting\Application\CorrectExchange\CorrectExchangeHandler;
@@ -106,8 +112,12 @@ use Prospecter\Core\Prospecting\Application\DownloadAttachment\DownloadAttachmen
 use Prospecter\Core\Prospecting\Application\DownloadAttachment\KeptDownload;
 use Prospecter\Core\Prospecting\Application\EraseExchange\EraseExchangeHandler;
 use Prospecter\Core\Prospecting\Application\EraseExchangeLeftWithoutOrganization\EraseExchangeLeftWithoutOrganizationHandler;
+use Prospecter\Core\Prospecting\Application\EraseToDo\EraseToDoHandler;
+use Prospecter\Core\Prospecting\Application\EraseToDoLeftWithoutOrganization\EraseToDoLeftWithoutOrganizationHandler;
+use Prospecter\Core\Prospecting\Application\EraseToDosOfForgottenContact\EraseToDosOfForgottenContactHandler;
 use Prospecter\Core\Prospecting\Application\KeepExchangesOfForgottenContact\KeepExchangesOfForgottenContactHandler;
 use Prospecter\Core\Prospecting\Application\KeptTimeline;
+use Prospecter\Core\Prospecting\Application\KeptToDoList;
 use Prospecter\Core\Prospecting\Application\ListExchangeFacts\ListExchangeFactsHandler;
 use Prospecter\Core\Prospecting\Application\ListOrganizationFacts\ListOrganizationFactsHandler;
 use Prospecter\Core\Prospecting\Application\MarkExchangeDone\MarkExchangeDoneHandler;
@@ -115,6 +125,8 @@ use Prospecter\Core\Prospecting\Application\MarkExchangeMissed\MarkExchangeMisse
 use Prospecter\Core\Prospecting\Application\MoveExchange\MoveExchangeHandler;
 use Prospecter\Core\Prospecting\Application\NoteExchange\NoteExchangeHandler;
 use Prospecter\Core\Prospecting\Application\NoteOrganizationExchange\NoteOrganizationExchangeHandler;
+use Prospecter\Core\Prospecting\Application\NoteOrganizationToDo\NoteOrganizationToDoHandler;
+use Prospecter\Core\Prospecting\Application\NoteToDo\NoteToDoHandler;
 use Prospecter\Core\Prospecting\Application\OrganizationSheet;
 use Prospecter\Core\Prospecting\Application\PlanExchange\PlanExchangeHandler;
 use Prospecter\Core\Prospecting\Application\PlanOrganizationExchange\PlanOrganizationExchangeHandler;
@@ -129,14 +141,19 @@ use Prospecter\Core\Prospecting\Application\RemoveAttachment\RemoveAttachmentHan
 use Prospecter\Core\Prospecting\Application\RemoveContact\RemoveContactHandler;
 use Prospecter\Core\Prospecting\Application\RemoveLogo\RemoveLogoHandler;
 use Prospecter\Core\Prospecting\Application\ReviseLegalIdentity\ReviseLegalIdentityHandler;
+use Prospecter\Core\Prospecting\Application\ReviseToDo\ReviseToDoHandler;
 use Prospecter\Core\Prospecting\Application\SearchProspectedOrganizations\FoundOrganizationPage;
 use Prospecter\Core\Prospecting\Application\SearchProspectedOrganizations\KeptOrganizationPage;
 use Prospecter\Core\Prospecting\Application\SearchProspectedOrganizations\SearchProspectedOrganizations;
 use Prospecter\Core\Prospecting\Application\SearchProspectedOrganizations\SearchProspectedOrganizationsHandler;
 use Prospecter\Core\Prospecting\Application\StartProspecting\StartProspectingHandler;
 use Prospecter\Core\Prospecting\Application\StopKeepingExchanges\StopKeepingExchangesHandler;
+use Prospecter\Core\Prospecting\Application\StopKeepingToDos\StopKeepingToDosHandler;
 use Prospecter\Core\Prospecting\Application\StopProspecting\StopProspectingHandler;
+use Prospecter\Core\Prospecting\Application\TickOffToDo\TickOffToDoHandler;
 use Prospecter\Core\Prospecting\Application\Timeline;
+use Prospecter\Core\Prospecting\Application\ToDoList;
+use Prospecter\Core\Prospecting\Application\UntickToDo\UntickToDoHandler;
 use Prospecter\Core\Prospecting\Application\WhichAreProspected\WhichAreProspectedHandler;
 use Prospecter\Core\Prospecting\Application\WriteObservations\WriteObservationsHandler;
 use Prospecter\Core\Prospecting\Contract\Service\ListExchangeFacts\KeptExchangeFacts;
@@ -201,6 +218,8 @@ use Tests\Core\Double\InMemoryPrivateStorage;
 use Tests\Core\Double\InMemoryProjectionVersions;
 use Tests\Core\Double\InMemoryStorage;
 use Tests\Core\Double\InMemoryTimelineRetriever;
+use Tests\Core\Double\InMemoryToDoListRetriever;
+use Tests\Core\Double\InMemoryToDoRepository;
 use Tests\Core\Double\InMemoryUnitOfWork;
 use Tests\Core\Double\KnownPlacesGeoLocation;
 use Tests\Core\Double\NoRecordingsInFlight;
@@ -244,6 +263,8 @@ final class Application
     private readonly ListContactFactsHandler $listContactFactsService;
     private readonly ListAccountsHandler $listAccountsService;
     public readonly InMemoryExchangeRepository $exchanges;
+    public readonly InMemoryToDoRepository $toDos;
+    private readonly InMemoryToDoListRetriever $toDoListRetriever;
     public readonly InMemoryAccountRepository $accounts;
     public readonly InMemoryMemberRepository $members;
     public readonly InMemoryPersonRepository $persons;
@@ -286,6 +307,8 @@ final class Application
         $this->timelineRetriever = new InMemoryTimelineRetriever($database);
         $this->agendaRetriever = new InMemoryAgendaRetriever($database);
         $this->exchanges = new InMemoryExchangeRepository($database);
+        $this->toDos = new InMemoryToDoRepository($database);
+        $this->toDoListRetriever = new InMemoryToDoListRetriever($database);
         $this->accounts = new InMemoryAccountRepository($database);
         $this->members = new InMemoryMemberRepository($database);
         $this->myAccountRetriever = new InMemoryMyAccountRetriever($database);
@@ -491,6 +514,27 @@ final class Application
         return $this->ask(new RecognizeCallingOrganizationHandler($this->organizationSheetRetriever, $this->prospectors), $query, $kept) ? $kept->organizations : null;
     }
 
+    public function consultToDos(ConsultToDos $query): ?ToDoList
+    {
+        $kept = new KeptToDoList();
+
+        return $this->ask(new ConsultToDosHandler($this->toDoListRetriever, $this->prospectors, $this->contactOrganizations), $query, $kept) ? $kept->toDos : null;
+    }
+
+    public function consultOrganizationToDos(ConsultOrganizationToDos $query): ?ToDoList
+    {
+        $kept = new KeptToDoList();
+
+        return $this->ask(new ConsultOrganizationToDosHandler($this->toDoListRetriever, $this->organizationSheetRetriever), $query, $kept) ? $kept->toDos : null;
+    }
+
+    public function consultMyToDos(ConsultMyToDos $query): ?ToDoList
+    {
+        $kept = new KeptToDoList();
+
+        return $this->ask(new ConsultMyToDosHandler($this->toDoListRetriever), $query, $kept) ? $kept->toDos : null;
+    }
+
     public function consultTimeline(ConsultTimeline $query): ?Timeline
     {
         $kept = new KeptTimeline();
@@ -631,6 +675,12 @@ final class Application
             new EraseExchangeHandler($this->exchanges, $this->events),
             new AttachFileHandler($this->exchanges, $this->privateStorage, $this->events),
             new RemoveAttachmentHandler($this->exchanges, $this->events),
+            new NoteToDoHandler($this->toDos, $this->prospectors, $this->contactOrganizations, $this->events),
+            new NoteOrganizationToDoHandler($this->toDos, $this->organizations, $this->events),
+            new ReviseToDoHandler($this->toDos, $this->events),
+            new TickOffToDoHandler($this->toDos, $this->events),
+            new UntickToDoHandler($this->toDos, $this->events),
+            new EraseToDoHandler($this->toDos, $this->events),
         ];
     }
 
@@ -740,6 +790,9 @@ final class Application
             new CollectTheMemberProfileHandler($this->persons),
             new StopKeepingExchangesHandler($this->exchanges, $this->events),
             new EraseExchangeLeftWithoutOrganizationHandler($this->exchanges, $this->events),
+            new StopKeepingToDosHandler($this->toDos, $this->events),
+            new EraseToDoLeftWithoutOrganizationHandler($this->toDos, $this->events),
+            new EraseToDosOfForgottenContactHandler($this->toDos, $this->events),
             new DiscardRemovedLogoHandler($this->storage),
             new DiscardRemovedAttachmentHandler($this->privateStorage),
             new DiscardAttachmentsOfErasedExchangeHandler($this->privateStorage),
