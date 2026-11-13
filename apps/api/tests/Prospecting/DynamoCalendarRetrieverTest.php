@@ -29,7 +29,7 @@ use Tests\App\Base\ApiTestCase;
  */
 class DynamoCalendarRetrieverTest extends ApiTestCase
 {
-    private const string NOW = '2026-11-13 09:00 UTC';
+    private const string NOW = '2026-11-16 12:00 UTC';
 
     private Prospector $prospector;
 
