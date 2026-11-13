@@ -1,7 +1,7 @@
 import { expect, test } from './fixtures'
 import { signInOnTheSignInScreen } from './sign-in'
 
-/** Two cards, two to-dos and an exchange, each gesture pending until the lists are read again: longer than a journey. */
+/** Two cards, three to-dos and an exchange, each gesture pending until the lists are read again: longer than a journey. */
 const LONGER_THAN_A_JOURNEY_MS = 60_000
 
 test('note a to-do on the card of a contact and of its organization, tick it off, note the exchange, erase it', async ({
@@ -31,6 +31,14 @@ test('note a to-do on the card of a contact and of its organization, tick it off
     await quickEntry.getByRole('button', { name: 'Demain' }).click()
     await quickEntry.getByRole('button', { name: 'Ajouter' }).click()
     await expect(toDos.first()).toContainText('Envoyer mon CV')
+  })
+
+  await test.step('the quick entry emptied, « Relancer par e-mail » noted next', async () => {
+    await expect(quickEntry.getByLabel('Ce qu’il y a à faire')).toHaveValue('')
+    await quickEntry.getByLabel('Ce qu’il y a à faire').fill('Relancer par e-mail')
+    await quickEntry.getByRole('button', { name: 'Dans 1 semaine' }).click()
+    await quickEntry.getByRole('button', { name: 'Ajouter' }).click()
+    await expect(toDos).toHaveCount(2)
   })
 
   await test.step('ticked off, the exchange it led to is noted by email', async () => {
