@@ -20,7 +20,7 @@ class RemindersApiTest extends ApiTestCase
         $reminders = $this->requestJson('GET', '/api/me/reminders');
 
         $this->assertResponseIsSuccessful();
-        $this->assertSame(['enabled' => true, 'minutesBefore' => 10], [$reminders['enabled'], $reminders['minutesBefore']]);
+        $this->assertSame([true, 10], [$reminders['enabled'], $reminders['minutesBefore']]);
         $this->assertSame(['href' => '/api/me/reminders', 'method' => 'PATCH'], $reminders['_links']['changeMyReminders']);
     }
 
