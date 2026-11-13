@@ -1,10 +1,11 @@
-# Continuous integration (ADR 0057): what make ci runs locally, in Docker as locally, on every branch of work and
-# on the pull requests to dev and main, which cannot be merged while it fails.
+# Continuous integration (ADR 0057, 0109): what make ci runs locally, in Docker as locally, on the pull requests to
+# dev and main, which cannot be merged while it fails, and on the pushes of dev and main. Its checks run in jobs of
+# their own, together; the job ci sums them up, the check the rulesets require.
 name: CI
 
 on:
   push:
-    branches: [main, dev, 'feature/**', 'fix/**', 'hotfix/**']
+    branches: [main, dev]
   pull_request:
     branches: [dev, main]
 
@@ -16,16 +17,42 @@ permissions:
   contents: read
 
 jobs:
-  ci:
+  check:
+    name: check ${{ matrix.check }}
     runs-on: ubuntu-24.04
-    timeout-minutes: 30
+    timeout-minutes: 20
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - check: secrets
+            run: make secrets-branch adr-references
+          - check: infra
+            run: make infra-lint
+          - check: core
+            php: true
+            run: make check-core
+          - check: api
+            php: true
+            run: make check-api
+          - check: storage
+            php: true
+            run: make check-storage
+          - check: front
+            node: true
+            run: make check-front
+          - check: contract
+            php: true
+            node: true
+            run: make contract
     steps:
       - uses: actions/checkout@v7.0.1
         with:
           # make secrets-branch scans the commits since dev
-          fetch-depth: 0
+          fetch-depth: ${{ matrix.check == 'secrets' && 0 || 1 }}
 
       - name: Cache the Composer dependencies
+        if: matrix.php
         uses: actions/cache@v6.1.0
         with:
           path: |
@@ -35,13 +62,33 @@ jobs:
           key: composer-${{ hashFiles('apps/api/composer.lock', 'apps/storage/composer.lock', 'packages/core/composer.lock') }}
 
       - name: Cache the pnpm dependencies
+        if: matrix.node
         uses: actions/cache@v6.1.0
         with:
           path: apps/front/node_modules
           key: pnpm-${{ hashFiles('apps/front/pnpm-lock.yaml') }}
 
-      - name: Build, lint, test, check the contract, build the front
-        run: make ci
+      - name: Install the Composer dependencies
+        if: matrix.php
+        run: make vendor
+
+      - name: Install the pnpm dependencies
+        if: matrix.node
+        run: make front-install
+
+      - name: Check ${{ matrix.check }}
+        run: ${{ matrix.run }}
         env:
           # tflint downloads its AWS ruleset from GitHub, beyond the anonymous rate limit of the shared runners
-          GITHUB_TOKEN: ${{ github.token }}
+          GITHUB_TOKEN: ${{ matrix.check == 'infra' && github.token || '' }}
+
+  ci:
+    if: always()
+    needs: check
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    steps:
+      - name: Every check passed
+        env:
+          RESULT: ${{ needs.check.result }}
+        run: test "$RESULT" = success

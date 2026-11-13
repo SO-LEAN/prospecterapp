@@ -9,7 +9,7 @@ GITLEAKS = docker run --rm -u $(UID):$(GID) -e GIT_INDEX_FILE -v $(CURDIR):$(CUR
 	-w $(CURDIR) ghcr.io/gitleaks/gitleaks:v8.30.1
 INFRA_APPS = api storage front
 
-.PHONY: install hooks build vendor db aws front-install infra-target infra-init infra-plan infra-apply infra-lint changed-apps package-api package-storage package-front release-front console start deploy stop logs ps ci test test-api test-storage test-front e2e test-core mutation mutation-api lint adr-references fix front-build api-doc contract commands profiler-clear exec-api exec-front secrets secrets-branch
+.PHONY: install hooks build vendor db aws front-install check-core check-api check-storage check-front infra-target infra-init infra-plan infra-apply infra-lint changed-apps package-api package-storage package-front release-front console start deploy stop logs ps ci test test-api test-storage test-front e2e test-core mutation mutation-api lint adr-references fix front-build api-doc contract commands profiler-clear exec-api exec-front secrets secrets-branch
 
 ##@ Setup
 install: hooks build vendor db front-install ## Build the images, install the dependencies, create the tables, the bucket and the user pool, install the Git hooks
@@ -53,7 +53,33 @@ ps: ## List the containers of the stack
 	@$(DC) ps
 
 ##@ Quality
-ci: build vendor front-install secrets-branch lint test contract front-build ## Run what the continuous integration runs: secrets of the branch, build, lint, tests, contract, build of the front
+# the checks of make ci, independent of one another once the images and the dependencies are there and the contract
+# checked (it writes the types the front reads): run together, each printing its output once it ends; the CI runs
+# them in jobs of their own (.github/workflows/ci.yml)
+CI_CHECKS = secrets-branch adr-references infra-lint check-core check-api check-storage check-front
+ci: ## Run what the continuous integration runs: build, dependencies, contract, then together the secrets of the branch, lint and tests of each project, build of the front
+	@$(MAKE) build vendor front-install
+	@$(MAKE) contract
+	@$(MAKE) -j --output-sync=recurse $(CI_CHECKS)
+
+check-core: ## Lint and test the core
+	@$(MAKE) -C packages/core lint
+	@$(MAKE) -C packages/core test
+
+check-api: ## Lint and test the API
+	@$(MAKE) -C apps/api lint
+	@$(MAKE) -C apps/api test
+
+check-storage: ## Lint and test the storage
+	@$(MAKE) -C apps/storage lint
+	@$(MAKE) -C apps/storage test
+
+# one after the other: Vitest and the build both generate the tree of the routes
+check-front: ## Lint, test and build the front
+	@$(MAKE) -C apps/front lint
+	@$(MAKE) -C apps/front test
+	@$(MAKE) -C apps/front build
+
 test: test-core test-api test-storage test-front ## Run every test suite: core, API, storage, front
 test-core: ## Run the business rules (Behat) and the unit tests of the core; FILTER= a scenario or a test by name
 	@$(MAKE) -C packages/core test

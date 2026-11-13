@@ -19,12 +19,15 @@ db: ministack ## Recreate in MiniStack the tables and the user pool, with the de
 	@echo "API/Counting the figures of the demonstration..."
 	@$(PHP) bin/console app:reporting:rebuild
 
-test: ministack ## Run the tests of the API (on MiniStack: tables, user pool); FILTER= a test by name
-	@$(PHP) bin/phpunit $(if $(FILTER),--filter='$(FILTER)')
+# the tests recreate their tables and their user pool before each test: shared among a few processes, each with its own
+# on MiniStack (TEST_TOKEN, .env.test), the cache of the kernel warmed once before they start it together
+TEST_PROCESSES ?= 4
+test: ministack-test ## Run the tests of the API (on MiniStack: tables, user pool), in TEST_PROCESSES processes; FILTER= a test by name
+	@$(PHP) sh -c 'bin/console cache:warmup --env=test >/dev/null && vendor/bin/paratest --processes=$(TEST_PROCESSES) $(if $(FILTER),--filter="$(FILTER)")'
 
 # a few processes only, each with its own tables and user pool on MiniStack (TEST_TOKEN, .env.test)
 mutation: INFECTION_THREADS = 4
-mutation: ministack ## Mutate the lines the branch adds in src since BASE (origin/dev), killed by the tests of the API on MiniStack; list the survivors
+mutation: ministack-test ## Mutate the lines the branch adds in src since BASE (origin/dev), killed by the tests of the API on MiniStack; list the survivors
 	$(infection-on-added-lines)
 
 lint: ## Check the code of the API: PHPStan, php-cs-fixer, Rector; FILTER= paths of the project, for php-cs-fixer and Rector

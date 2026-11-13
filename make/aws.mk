@@ -35,10 +35,15 @@ code-version = $(shell cd $(ROOT) && git ls-files -s -- apps/$(1) $(if $(call re
 TERRAFORM_IMAGE = hashicorp/terraform:$(shell cat $(ROOT)/.terraform-version)
 TFLINT_IMAGE = ghcr.io/terraform-linters/tflint:v0.64.0
 
+# the providers of Terraform and the rulesets of tflint the lint downloads, hundreds of megabytes, kept from one run to
+# the next in the checkout, out of git (minutes locally; the runners of the CI download them faster than a cache)
+INFRA_LINT_CACHE = $(ROOT)/.cache/infra-lint
+
 # format, validity and tflint of the Terraform roots of the apps given
 define infra-lint
-@docker run --rm -u $(UID):$(GID) -e HOME=/tmp -e TF_PLUGIN_CACHE_DIR=/tmp/plugins -v $(ROOT):/src -w /src --entrypoint sh $(TERRAFORM_IMAGE) -c \
-		'mkdir -p /tmp/plugins && { [ ! -d /src/infra ] || terraform fmt -check -diff -recursive /src/infra; } && for app in $(1); do cd /src/apps/$$app/infra && terraform fmt -check -diff && TF_DATA_DIR=/tmp/data/$$app terraform init -backend=false -input=false >/dev/null && TF_DATA_DIR=/tmp/data/$$app terraform validate -no-color >/dev/null || exit 1; done'
-@docker run --rm -u $(UID):$(GID) -e HOME=/tmp -e GITHUB_TOKEN -v $(ROOT):/src -w /src --entrypoint sh $(TFLINT_IMAGE) -c \
+@mkdir -p $(INFRA_LINT_CACHE)/terraform $(INFRA_LINT_CACHE)/tflint
+@docker run --rm -u $(UID):$(GID) -e HOME=/tmp -e TF_PLUGIN_CACHE_DIR=/cache/terraform -v $(ROOT):/src -v $(INFRA_LINT_CACHE):/cache -w /src --entrypoint sh $(TERRAFORM_IMAGE) -c \
+		'{ [ ! -d /src/infra ] || terraform fmt -check -diff -recursive /src/infra; } && for app in $(1); do cd /src/apps/$$app/infra && terraform fmt -check -diff && TF_DATA_DIR=/tmp/data/$$app terraform init -backend=false -input=false >/dev/null && TF_DATA_DIR=/tmp/data/$$app terraform validate -no-color >/dev/null || exit 1; done'
+@docker run --rm -u $(UID):$(GID) -e HOME=/tmp -e GITHUB_TOKEN -e TFLINT_PLUGIN_DIR=/cache/tflint -v $(ROOT):/src -v $(INFRA_LINT_CACHE):/cache -w /src --entrypoint sh $(TFLINT_IMAGE) -c \
 		'for app in $(1); do tflint --chdir=apps/$$app/infra --init >/dev/null && tflint --chdir=apps/$$app/infra || exit 1; done'
 endef

@@ -23,7 +23,7 @@ GIT_COMMON_DIR = $(shell git rev-parse --path-format=absolute --git-common-dir)
 export PROJECT_DIR := $(ROOT)
 
 .DEFAULT_GOAL := help
-.PHONY: help ministack
+.PHONY: help ministack ministack-test
 
 ##@ Help
 help: ## List the commands (the default target)
@@ -33,3 +33,7 @@ help: ## List the commands (the default target)
 START_MINISTACK = $(DC) up -d ministack >/dev/null 2>&1
 ministack:
 	@$(START_MINISTACK)
+
+# those of the tests of the API and the storage (.env.test): MiniStack again, of this checkout only, out of the stack
+ministack-test:
+	@$(DC) --progress quiet up -d --wait ministack-test
