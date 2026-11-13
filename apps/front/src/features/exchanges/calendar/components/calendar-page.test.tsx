@@ -96,6 +96,9 @@ describe('CalendarPage', () => {
     ])
 
     const today = screen.getByRole('listitem', { name: 'vendredi 13 novembre 2026' })
+    expect(
+      within(today).getByRole('link', { name: '9h00, Visio avec Ada Lovelace, À traiter' }),
+    ).toHaveAttribute('href', '/contacts/0190a1c0-0000-7000-8000-00000000a000')
     expect(within(today).getByRole('link', { name: '9h00, Visio avec Ada Lovelace, À traiter' })).toHaveClass(
       'bg-warning',
     )
@@ -124,6 +127,7 @@ describe('CalendarPage', () => {
 
     const cell = screen.getByRole('listitem', { name: 'mardi 17 novembre 2026' })
     expect(within(cell).getAllByRole('link')).toHaveLength(3)
+    expect(within(cell).getByRole('button', { name: /de plus/ })).toHaveTextContent('+2')
     await userEvent.click(
       within(cell).getByRole('button', { name: '2 de plus le mardi 17 novembre 2026, voir la journée' }),
     )
@@ -135,9 +139,9 @@ describe('CalendarPage', () => {
     const onShow = await showTheCalendar('month', TODAY)
 
     await userEvent.hover(screen.getByRole('button', { name: 'Suivant' }))
+    await vi.waitFor(() => expect(periodsAsked()).toEqual(['2026-11-30']))
     await userEvent.click(screen.getByRole('button', { name: 'Suivant' }))
 
-    expect(periodsAsked()).toEqual(['2026-11-30'])
     expect(onShow).toHaveBeenCalledWith('month', new Date(2026, 11, 1))
   })
 
@@ -227,7 +231,11 @@ describe('CalendarPage', () => {
     const onShow = await showTheCalendar('month', parseDay('2026-12-20'))
 
     expect(screen.getByRole('button', { name: 'Mois' })).toHaveAttribute('aria-pressed', 'true')
+    expect(screen.getByRole('button', { name: 'Mois' })).toHaveAttribute('data-variant', 'secondary')
     expect(screen.getByRole('button', { name: 'Agenda' })).toHaveAttribute('aria-pressed', 'false')
+    expect(screen.getByRole('button', { name: 'Agenda' })).toHaveAttribute('data-variant', 'ghost')
+    expect(screen.getByRole('heading', { level: 1, name: 'Calendrier' })).toBeInTheDocument()
+    expect(screen.getByText('Mes échanges, passés et à venir.')).toBeInTheDocument()
     await userEvent.click(screen.getByRole('button', { name: 'Agenda' }))
     await userEvent.click(screen.getByRole('button', { name: 'Aujourd’hui' }))
     await userEvent.click(screen.getByRole('button', { name: 'Précédent' }))
@@ -252,6 +260,7 @@ describe('CalendarPage', () => {
 
     await userEvent.click(screen.getByRole('button', { name: /Aller à une date/ }))
     const small = screen.getByRole('dialog')
+    expect(small).toHaveTextContent(/LMMJVSD/)
     expect(within(small).getByRole('button', { name: 'vendredi 13 novembre 2026' })).toHaveAttribute(
       'aria-pressed',
       'true',
@@ -294,6 +303,7 @@ describe('CalendarPage', () => {
   it('opens a day of the week by its header, not the day shown', async () => {
     const onShow = await showTheCalendar('week', TODAY)
 
+    expect(screen.getByRole('button', { name: 'mardi 10 novembre 2026' })).toHaveTextContent('mar. 10')
     await userEvent.click(screen.getByRole('button', { name: 'mardi 10 novembre 2026' }))
     expect(onShow).toHaveBeenCalledWith('day', parseDay('2026-11-10'))
     expect(screen.getByRole('button', { name: 'vendredi 13 novembre 2026' })).toHaveClass('text-primary')
