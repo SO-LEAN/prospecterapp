@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Prospecter\Core\Accounts\Domain\Model;
 
 use Prospecter\Core\Accounts\Domain\Event\MemberRegistered;
+use Prospecter\Core\Accounts\Domain\Event\RemindersChanged;
 use Prospecter\Core\Accounts\Domain\Exception\AdministratorsOnly;
 use Prospecter\Core\Accounts\Domain\Exception\MemberWithoutRole;
 use Prospecter\Core\SharedKernel\Domain\AccountId;
@@ -23,6 +24,7 @@ final class Member implements ReleasesEvents
 
     /** @var list<Role> */
     private readonly array $roles;
+    private Reminders $reminders;
 
     private function __construct(
         private readonly MemberId $id,
@@ -31,6 +33,7 @@ final class Member implements ReleasesEvents
         Role ...$roles,
     ) {
         $this->roles = array_values($roles);
+        $this->reminders = Reminders::byDefault();
     }
 
     public static function register(MemberId $id, AccountId $accountId, PersonId $personId, Role ...$roles): self
@@ -74,6 +77,15 @@ final class Member implements ReleasesEvents
     private static function signingInWith(array $roles): array
     {
         return array_values(array_filter(Role::cases(), static fn (Role $role): bool => Role::User === $role || in_array($role, $roles, true)));
+    }
+
+    /**
+     * The member chooses for themselves whether and how long before a planned exchange they are reminded of it.
+     */
+    public function changeReminders(Reminders $reminders, \DateTimeImmutable $at): void
+    {
+        $this->reminders = $reminders;
+        $this->recordThat(new RemindersChanged($this->accountId, $this->id, $at));
     }
 
     public function id(): MemberId
