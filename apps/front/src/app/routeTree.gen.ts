@@ -12,6 +12,7 @@ import { Route as rootRouteImport } from './../routes/__root'
 import { Route as AppRouteImport } from './../routes/_app'
 import { Route as AppIndexRouteImport } from './../routes/_app/index'
 import { Route as AppAccountRouteImport } from './../routes/_app/account'
+import { Route as AppSettingsRouteImport } from './../routes/_app/settings'
 import { Route as AuthSignInRouteImport } from './../routes/auth/sign-in'
 import { Route as AppContactsIndexRouteImport } from './../routes/_app/contacts/index'
 import { Route as AppOrganizationsIndexRouteImport } from './../routes/_app/organizations/index'
@@ -31,6 +32,11 @@ const AppIndexRoute = AppIndexRouteImport.update({
 const AppAccountRoute = AppAccountRouteImport.update({
   id: '/account',
   path: '/account',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppSettingsRoute = AppSettingsRouteImport.update({
+  id: '/settings',
+  path: '/settings',
   getParentRoute: () => AppRoute,
 } as any)
 const AuthSignInRoute = AuthSignInRouteImport.update({
@@ -69,6 +75,7 @@ const AppOrganizationsOrganizationIdIndexRoute =
 export interface FileRoutesByFullPath {
   '/': typeof AppIndexRoute
   '/account': typeof AppAccountRoute
+  '/settings': typeof AppSettingsRoute
   '/auth/sign-in': typeof AuthSignInRoute
   '/organizations/new': typeof AppOrganizationsNewRoute
   '/contacts/': typeof AppContactsIndexRoute
@@ -78,6 +85,7 @@ export interface FileRoutesByFullPath {
 }
 export interface FileRoutesByTo {
   '/account': typeof AppAccountRoute
+  '/settings': typeof AppSettingsRoute
   '/auth/sign-in': typeof AuthSignInRoute
   '/': typeof AppIndexRoute
   '/organizations/new': typeof AppOrganizationsNewRoute
@@ -90,6 +98,7 @@ export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/_app': typeof AppRouteWithChildren
   '/_app/account': typeof AppAccountRoute
+  '/_app/settings': typeof AppSettingsRoute
   '/auth/sign-in': typeof AuthSignInRoute
   '/_app/': typeof AppIndexRoute
   '/_app/organizations/new': typeof AppOrganizationsNewRoute
@@ -103,6 +112,7 @@ export interface FileRouteTypes {
   fullPaths:
     | '/'
     | '/account'
+    | '/settings'
     | '/auth/sign-in'
     | '/organizations/new'
     | '/contacts/'
@@ -112,6 +122,7 @@ export interface FileRouteTypes {
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/account'
+    | '/settings'
     | '/auth/sign-in'
     | '/'
     | '/organizations/new'
@@ -123,6 +134,7 @@ export interface FileRouteTypes {
     | '__root__'
     | '/_app'
     | '/_app/account'
+    | '/_app/settings'
     | '/auth/sign-in'
     | '/_app/'
     | '/_app/organizations/new'
@@ -158,6 +170,13 @@ declare module '@tanstack/react-router' {
       path: '/account'
       fullPath: '/account'
       preLoaderRoute: typeof AppAccountRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/_app/settings': {
+      id: '/_app/settings'
+      path: '/settings'
+      fullPath: '/settings'
+      preLoaderRoute: typeof AppSettingsRouteImport
       parentRoute: typeof AppRoute
     }
     '/auth/sign-in': {
@@ -207,6 +226,7 @@ declare module '@tanstack/react-router' {
 
 interface AppRouteChildren {
   AppAccountRoute: typeof AppAccountRoute
+  AppSettingsRoute: typeof AppSettingsRoute
   AppIndexRoute: typeof AppIndexRoute
   AppOrganizationsNewRoute: typeof AppOrganizationsNewRoute
   AppContactsIndexRoute: typeof AppContactsIndexRoute
@@ -217,6 +237,7 @@ interface AppRouteChildren {
 
 const AppRouteChildren: AppRouteChildren = {
   AppAccountRoute: AppAccountRoute,
+  AppSettingsRoute: AppSettingsRoute,
   AppIndexRoute: AppIndexRoute,
   AppOrganizationsNewRoute: AppOrganizationsNewRoute,
   AppContactsIndexRoute: AppContactsIndexRoute,
