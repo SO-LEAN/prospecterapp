@@ -68,6 +68,10 @@ use Prospecter\Core\Prospecting\Application\AttachToHolding\AttachToHoldingHandl
 use Prospecter\Core\Prospecting\Application\CancelExchange\CancelExchangeHandler;
 use Prospecter\Core\Prospecting\Application\ChangeContactDetails\ChangeContactDetailsHandler;
 use Prospecter\Core\Prospecting\Application\ChangeLogo\ChangeLogoHandler;
+use Prospecter\Core\Prospecting\Application\ConsultCalendar\Calendar;
+use Prospecter\Core\Prospecting\Application\ConsultCalendar\ConsultCalendar;
+use Prospecter\Core\Prospecting\Application\ConsultCalendar\ConsultCalendarHandler;
+use Prospecter\Core\Prospecting\Application\ConsultCalendar\KeptCalendar;
 use Prospecter\Core\Prospecting\Application\ConsultExchange\ConsultExchange;
 use Prospecter\Core\Prospecting\Application\ConsultExchange\ConsultExchangeHandler;
 use Prospecter\Core\Prospecting\Application\ConsultExchange\ExchangeDetail;
@@ -205,6 +209,7 @@ use Tests\Core\Double\AccountsSourceAccounts;
 use Tests\Core\Double\InMemoryAccountListRetriever;
 use Tests\Core\Double\InMemoryAccountRepository;
 use Tests\Core\Double\InMemoryAgendaRetriever;
+use Tests\Core\Double\InMemoryCalendarRetriever;
 use Tests\Core\Double\InMemoryContactFactsRetriever;
 use Tests\Core\Double\InMemoryContactPageRetriever;
 use Tests\Core\Double\InMemoryDatabase;
@@ -256,6 +261,7 @@ final class Application
     private readonly InMemoryExchangeDetailRetriever $exchangeDetailRetriever;
     private readonly InMemoryTimelineRetriever $timelineRetriever;
     private readonly InMemoryAgendaRetriever $agendaRetriever;
+    private readonly InMemoryCalendarRetriever $calendarRetriever;
     private readonly InMemoryMyAccountRetriever $myAccountRetriever;
     private readonly InMemoryMyRemindersRetriever $myRemindersRetriever;
     private readonly InMemoryMemberRetriever $memberRetriever;
@@ -315,6 +321,7 @@ final class Application
         $this->exchangeDetailRetriever = new InMemoryExchangeDetailRetriever($database);
         $this->timelineRetriever = new InMemoryTimelineRetriever($database);
         $this->agendaRetriever = new InMemoryAgendaRetriever($database);
+        $this->calendarRetriever = new InMemoryCalendarRetriever($database);
         $this->exchanges = new InMemoryExchangeRepository($database);
         $this->toDos = new InMemoryToDoRepository($database);
         $this->toDoListRetriever = new InMemoryToDoListRetriever($database);
@@ -601,6 +608,13 @@ final class Application
         $kept = new KeptOverlappingExchanges();
 
         return $this->ask(new ConsultOverlappingExchangesHandler($this->agendaRetriever, $this->prospectors), $query, $kept) ? $kept->overlapping : null;
+    }
+
+    public function consultCalendar(ConsultCalendar $query): ?Calendar
+    {
+        $kept = new KeptCalendar();
+
+        return $this->ask(new ConsultCalendarHandler($this->calendarRetriever, $this->prospectors), $query, $kept) ? $kept->calendar : null;
     }
 
     public function consultTimelineIntents(ConsultTimelineIntents $query): ?TimelineIntentsResponse
