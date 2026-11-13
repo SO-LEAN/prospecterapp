@@ -31,6 +31,7 @@ final readonly class DynamoMemberRepository implements MemberRepository
             'accountId' => new AccountId($document['accountId']),
             'personId' => new PersonId($document['personId']),
             'roles' => array_map(Role::from(...), $document['roles']),
+            'reminders' => RemindersDocument::restore($document['reminders'] ?? null),
         ]);
     }
 
@@ -43,6 +44,7 @@ final readonly class DynamoMemberRepository implements MemberRepository
             'accountId' => (string) $state['accountId'],
             'personId' => (string) $state['personId'],
             'roles' => array_map(static fn (Role $role): string => $role->value, $state['roles']),
+            'reminders' => RemindersDocument::of($state['reminders']),
         ]])]);
     }
 }

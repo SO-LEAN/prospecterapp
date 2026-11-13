@@ -104,6 +104,7 @@ services:
     Prospecter\Core\Accounts\Domain\Repository\AccountRepository: '@App\Accounts\Persistence\DynamoAccountRepository'
     Prospecter\Core\Accounts\Domain\Repository\MemberRepository: '@App\Accounts\Persistence\DynamoMemberRepository'
     Prospecter\Core\Accounts\Application\Port\MyAccountRetriever: '@App\Accounts\Persistence\DynamoMyAccountRetriever'
+    Prospecter\Core\Accounts\Application\Port\MyRemindersRetriever: '@App\Accounts\Persistence\DynamoMyRemindersRetriever'
     Prospecter\Core\Accounts\Application\Port\MemberRetriever: '@App\Accounts\Persistence\DynamoMemberRetriever'
     Prospecter\Core\Accounts\Application\Port\AccountListRetriever: '@App\Accounts\Persistence\DynamoAccountListRetriever'
     Prospecter\Core\PersonalData\Domain\Repository\PersonRepository: '@App\PersonalData\Persistence\DynamoPersonRepository'

@@ -18,6 +18,7 @@ final readonly class DomainEventTypes extends EventTypes
             'AccountOpened.v1' => Accounts\AccountOpened::class,
             'AccountRelocated.v1' => Accounts\AccountRelocated::class,
             'MemberRegistered.v1' => Accounts\MemberRegistered::class,
+            'RemindersChanged.v1' => Accounts\RemindersChanged::class,
         ],
         'prospecter.personal-data.internal' => [
             'ContactCollected.v1' => PersonalData\ContactCollected::class,
