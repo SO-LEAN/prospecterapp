@@ -22,7 +22,7 @@
 
 ## Consequences
 
-- 26 journeys in 12 files; `make check-e2e` lasts 137 s on the stack as it runs (twice), against some four minutes, and some six minutes from nothing, against seven. The two minutes the ticket aimed at are not reached, a duration the user accepted: the journeys alone take some 120 s, MiniStack the bottleneck while the reactions of stopping to prospect run, and taking the steps of the screens out of the main journey was set aside.
+- 26 journeys in 12 files; `make check-e2e` lasts some 130 s on the stack as it runs (130 s and 133 s), against some four minutes, and some five and a half minutes from nothing (324 s), against seven. The two minutes the ticket aimed at are not reached, a duration the user accepted: the journeys alone take some 120 s, MiniStack the bottleneck while the reactions of stopping to prospect run, and taking the steps of the screens out of the main journey was set aside.
 - A screen is tested where it is written, in seconds and without a stack; a change of a screen runs `make test-front`, the journeys only when it crosses one of the parts above.
 - The journeys no longer prove that the screens are wired to the API they double: the contract typed in the front (0008) and the main journey do.
 - Ten functions of the API stay warm while the journeys run.
