@@ -28,7 +28,19 @@ Then:
 - Application: https://local.prospecter.io, sign in with `prospector@solean-it.io` / `password` (or `assistant@solean-it.io`, who sees the contacts masked)
 - API documentation: https://api.local.prospecter.io/api/doc
 
-The certificate is self-signed: accept the browser warning once for each host (`local.`, `api.local.` and `static.local.prospecter.io`).
+Without a local authority (below), the certificate is self-signed: accept the browser warning once for each host (`local.`, `api.local.` and `static.local.prospecter.io`), and again for the port of each worktree.
+
+## Certificat local
+
+A local authority, created once per machine, signs the certificate of the local hosts; imported once in Chrome, it makes it trust the stack of every checkout, the main one on 443 and each worktree on its own port, without a warning.
+
+1. `make ca`, from the main checkout or a worktree: it creates the authority in `docker/data/ssl` of the main checkout (`ca.pem`, valid twenty years, its key `ca-key.pem` readable by you alone), then the certificate of `local.prospecter.io`, `api.local.prospecter.io` and `static.local.prospecter.io` it signs (`docker/data/ssl/signed`, valid ten years). Run again, it keeps both.
+2. Import the authority in Chrome: Settings › Privacy and security › Security › Manage certificates › Authorities (on Linux: Manage imported certificates from Linux) › Import, choose `docker/data/ssl/ca.pem`, tick "Trust this certificate for identifying websites", OK.
+3. Restart each stack (`make stop`, `make start`): nginx serves the signed certificate when it exists, the self-signed one otherwise. A port changes nothing to it.
+
+Firefox keeps its own authorities: Settings › Privacy & Security › Certificates › View Certificates › Authorities › Import.
+
+The authority may sign only for `local.prospecter.io` and its subdomains: a critical name constraint, which a browser enforces, so that it vouches for no other site. Its key never leaves the machine: it is never shared, nor committed (`docker/data` is ignored by git; the repository is public), since whoever holds it signs certificates your browser accepts for these hosts. Lost or leaked, remove `docker/data/ssl/ca.pem`, `ca-key.pem` and `signed/`, run `make ca` again, and import the new authority in place of the former one.
 
 ## Develop
 

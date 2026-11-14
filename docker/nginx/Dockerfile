@@ -8,3 +8,4 @@ COPY templates/ /etc/nginx/templates/
 COPY storage-lambda.conf /etc/nginx/storage-lambda.conf
 COPY private-files.conf /etc/nginx/private-files.conf
 COPY 05-generate-certificate.sh /docker-entrypoint.d/
+COPY local-ca.sh /usr/local/bin/local-ca
