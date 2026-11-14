@@ -65,7 +65,7 @@ Never copy server data into Zustand or `useState`: read it from the query, the c
 ## Data flow and performance
 
 - Queries are declared once as options (`organizationQuery(id)` in `features/*/queries.ts`) and reused by route loaders and components.
-- Route loaders call `queryClient.ensureQueryData(...)`: the data is fetched before the page renders (no loading waterfall), and with `defaultPreload: 'intent'` hovering a link starts loading its code and data.
+- Route loaders call `queryClient.ensureQueryData(...)`: the data is fetched before the page renders (no loading waterfall), and with `defaultPreload: 'intent'` hovering a link starts loading its code and data. A loader that sends a command or makes the API call a service outside (the check of the connectors with their providers) does it only on the load, never on a preload (its argument `preload`); the SPA of the Vitest tests preloads like the app (`app/preloading.ts`).
 - A query a loader shares with the app shell (the account, read by the user menu) is loaded by `ensureSharedQueryData` (`shared/api`): the menu, mounted twice by StrictMode while the request runs, makes TanStack Query cancel it, and `ensureQueryData` would fail the page on that cancellation; it waits for the request started again.
 - Pages read with `useSuspenseQuery`: no undefined checks, the route `pendingComponent` shows a skeleton when loading takes time. Lists are the exception: `useInfiniteQuery` with `keepPreviousData` (below).
 - `staleTime` 30 s: navigating back and forth does not refetch; data refreshes in the background when the window regains focus.
