@@ -34,6 +34,12 @@ class EmailTest extends TestCase
         yield 'spaces' => ['contact @acme.test'];
     }
 
+    public function testAnAddressIsTheSameWhateverItsCase(): void
+    {
+        $this->assertTrue(new Email('Michel@Exemple.fr')->equals(new Email('michel@exemple.fr')));
+        $this->assertFalse(new Email('michel@exemple.fr')->equals(new Email('autre@exemple.fr')));
+    }
+
     public function testNoAddressIsNoEmail(): void
     {
         $this->assertNull(Email::orNone(null));
