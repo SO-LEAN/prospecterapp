@@ -1,0 +1,137 @@
+import { CircleAlert, CircleCheck, Link2, RefreshCw, Unlink } from 'lucide-react'
+import { useState } from 'react'
+import { useTranslation } from 'react-i18next'
+import { toast } from 'sonner'
+import { formatMoment } from '@/shared/lib/format'
+import { Button } from '@/shared/ui/button'
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/shared/ui/card'
+import {
+  Dialog,
+  DialogClose,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from '@/shared/ui/dialog'
+import { useConnectGoogle, useDisconnectGoogle } from '../mutations'
+import type { Connection } from '../queries'
+import { GoogleLogo } from './google-logo'
+
+type Props = {
+  connection: Connection | undefined
+  goTo?: (address: string) => void
+}
+
+/** Google Calendar: connected, to reconnect once Google refused its access, or to connect. */
+export function GoogleCalendarCard({ connection, goTo }: Props) {
+  const { t } = useTranslation()
+
+  return (
+    <Card>
+      <CardHeader className="flex flex-row items-start gap-4 space-y-0">
+        <span className="flex size-10 shrink-0 items-center justify-center rounded-lg border bg-card">
+          <GoogleLogo className="size-6" />
+        </span>
+        <div className="min-w-0 space-y-1.5">
+          <CardTitle className="text-base">{t('settings.connectors.google.title')}</CardTitle>
+          <CardDescription>{t('settings.connectors.google.description')}</CardDescription>
+        </div>
+      </CardHeader>
+      <CardContent className="space-y-4 text-sm">
+        {connection && <ConnectionState connection={connection} />}
+        <div className="flex flex-wrap gap-2">
+          <ConnectButton connection={connection} goTo={goTo} />
+          {connection && <DisconnectButton />}
+        </div>
+      </CardContent>
+    </Card>
+  )
+}
+
+function ConnectionState({ connection }: { connection: Connection }) {
+  const { t } = useTranslation()
+
+  if (connection.state === 'toReconnect') {
+    return (
+      <p className="flex items-center gap-2">
+        <CircleAlert aria-hidden className="size-4 shrink-0 text-warning" />
+        <span>{t('settings.connectors.toReconnect', { account: connection.account })}</span>
+      </p>
+    )
+  }
+
+  return (
+    <p className="flex items-center gap-2">
+      <CircleCheck aria-hidden className="size-4 shrink-0 text-success" />
+      <span>
+        {t('settings.connectors.connected', {
+          account: connection.account,
+          since: formatMoment(connection.connectedAt),
+        })}
+      </span>
+    </p>
+  )
+}
+
+function ConnectButton({ connection, goTo }: Props) {
+  const { t } = useTranslation()
+  const connect = useConnectGoogle(goTo)
+  const ask = () => connect.mutate({})
+
+  if (!connection) {
+    return (
+      <Button disabled={connect.isPending} onClick={ask}>
+        <Link2 aria-hidden /> {t('settings.connectors.connect')}
+      </Button>
+    )
+  }
+
+  return (
+    <Button
+      variant={connection.state === 'toReconnect' ? 'default' : 'outline'}
+      disabled={connect.isPending}
+      onClick={ask}
+    >
+      <RefreshCw aria-hidden /> {t('settings.connectors.reconnect')}
+    </Button>
+  )
+}
+
+/** Disconnecting revokes the access at Google: it is confirmed first. */
+function DisconnectButton() {
+  const { t } = useTranslation()
+  const disconnect = useDisconnectGoogle()
+  const [open, setOpen] = useState(false)
+
+  const confirm = async () => {
+    await disconnect.mutateAsync({})
+    setOpen(false)
+    toast.success(t('settings.connectors.disconnected'))
+  }
+
+  return (
+    <Dialog open={open} onOpenChange={setOpen}>
+      <DialogTrigger asChild>
+        <Button variant="ghost">
+          <Unlink aria-hidden /> {t('settings.connectors.disconnect.action')}
+        </Button>
+      </DialogTrigger>
+      <DialogContent>
+        <DialogHeader>
+          <DialogTitle>{t('settings.connectors.disconnect.title')}</DialogTitle>
+          <DialogDescription>{t('settings.connectors.disconnect.description')}</DialogDescription>
+        </DialogHeader>
+        <DialogFooter>
+          <DialogClose asChild>
+            <Button variant="ghost">{t('common.cancel')}</Button>
+          </DialogClose>
+          <Button variant="destructive" disabled={disconnect.isPending} onClick={() => void confirm()}>
+            {t('settings.connectors.disconnect.confirm')}
+          </Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
+  )
+}

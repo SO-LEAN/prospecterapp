@@ -9,6 +9,7 @@ import { MyProfileBeingPrepared } from '@/features/account/components/my-profile
 import { hasAProfileToComplete, isMyProfileBeingPrepared } from '@/features/account/me'
 import type { Account } from '@/features/account/mutations'
 import { accountQuery, myAccountBeingPreparedQuery, signInQuery } from '@/features/account/queries'
+import { ReconnectBanner } from '@/features/connectors/components/reconnect-banner'
 import { ensureSharedQueryData } from '@/shared/api/ensure-shared-query-data'
 import { session } from '@/shared/auth/session'
 import { PageError } from '@/shared/ui/feedback/page-error'
@@ -67,6 +68,7 @@ function SignedIn() {
 
   return (
     <AppShell>
+      <ReconnectBanner />
       <Outlet />
     </AppShell>
   )

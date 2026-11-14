@@ -20,6 +20,7 @@ import { Route as AppOrganizationsIndexRouteImport } from './../routes/_app/orga
 import { Route as AppOrganizationsNewRouteImport } from './../routes/_app/organizations/new'
 import { Route as AppContactsContactIdIndexRouteImport } from './../routes/_app/contacts/$contactId/index'
 import { Route as AppOrganizationsOrganizationIdIndexRouteImport } from './../routes/_app/organizations/$organizationId/index'
+import { Route as AppSettingsConnectorsGoogleRouteImport } from './../routes/_app/settings_.connectors.google'
 
 const AppRoute = AppRouteImport.update({
   id: '/_app',
@@ -77,6 +78,12 @@ const AppOrganizationsOrganizationIdIndexRoute =
     path: '/organizations/$organizationId/',
     getParentRoute: () => AppRoute,
   } as any)
+const AppSettingsConnectorsGoogleRoute =
+  AppSettingsConnectorsGoogleRouteImport.update({
+    id: '/settings_/connectors/google',
+    path: '/settings/connectors/google',
+    getParentRoute: () => AppRoute,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof AppIndexRoute
@@ -87,6 +94,7 @@ export interface FileRoutesByFullPath {
   '/organizations/new': typeof AppOrganizationsNewRoute
   '/contacts/': typeof AppContactsIndexRoute
   '/organizations/': typeof AppOrganizationsIndexRoute
+  '/settings/connectors/google': typeof AppSettingsConnectorsGoogleRoute
   '/contacts/$contactId/': typeof AppContactsContactIdIndexRoute
   '/organizations/$organizationId/': typeof AppOrganizationsOrganizationIdIndexRoute
 }
@@ -99,6 +107,7 @@ export interface FileRoutesByTo {
   '/organizations/new': typeof AppOrganizationsNewRoute
   '/contacts': typeof AppContactsIndexRoute
   '/organizations': typeof AppOrganizationsIndexRoute
+  '/settings/connectors/google': typeof AppSettingsConnectorsGoogleRoute
   '/contacts/$contactId': typeof AppContactsContactIdIndexRoute
   '/organizations/$organizationId': typeof AppOrganizationsOrganizationIdIndexRoute
 }
@@ -113,6 +122,7 @@ export interface FileRoutesById {
   '/_app/organizations/new': typeof AppOrganizationsNewRoute
   '/_app/contacts/': typeof AppContactsIndexRoute
   '/_app/organizations/': typeof AppOrganizationsIndexRoute
+  '/_app/settings_/connectors/google': typeof AppSettingsConnectorsGoogleRoute
   '/_app/contacts/$contactId/': typeof AppContactsContactIdIndexRoute
   '/_app/organizations/$organizationId/': typeof AppOrganizationsOrganizationIdIndexRoute
 }
@@ -127,6 +137,7 @@ export interface FileRouteTypes {
     | '/organizations/new'
     | '/contacts/'
     | '/organizations/'
+    | '/settings/connectors/google'
     | '/contacts/$contactId/'
     | '/organizations/$organizationId/'
   fileRoutesByTo: FileRoutesByTo
@@ -139,6 +150,7 @@ export interface FileRouteTypes {
     | '/organizations/new'
     | '/contacts'
     | '/organizations'
+    | '/settings/connectors/google'
     | '/contacts/$contactId'
     | '/organizations/$organizationId'
   id:
@@ -152,6 +164,7 @@ export interface FileRouteTypes {
     | '/_app/organizations/new'
     | '/_app/contacts/'
     | '/_app/organizations/'
+    | '/_app/settings_/connectors/google'
     | '/_app/contacts/$contactId/'
     | '/_app/organizations/$organizationId/'
   fileRoutesById: FileRoutesById
@@ -240,6 +253,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppOrganizationsOrganizationIdIndexRouteImport
       parentRoute: typeof AppRoute
     }
+    '/_app/settings_/connectors/google': {
+      id: '/_app/settings_/connectors/google'
+      path: '/settings/connectors/google'
+      fullPath: '/settings/connectors/google'
+      preLoaderRoute: typeof AppSettingsConnectorsGoogleRouteImport
+      parentRoute: typeof AppRoute
+    }
   }
 }
 
@@ -251,6 +271,7 @@ interface AppRouteChildren {
   AppOrganizationsNewRoute: typeof AppOrganizationsNewRoute
   AppContactsIndexRoute: typeof AppContactsIndexRoute
   AppOrganizationsIndexRoute: typeof AppOrganizationsIndexRoute
+  AppSettingsConnectorsGoogleRoute: typeof AppSettingsConnectorsGoogleRoute
   AppContactsContactIdIndexRoute: typeof AppContactsContactIdIndexRoute
   AppOrganizationsOrganizationIdIndexRoute: typeof AppOrganizationsOrganizationIdIndexRoute
 }
@@ -263,6 +284,7 @@ const AppRouteChildren: AppRouteChildren = {
   AppOrganizationsNewRoute: AppOrganizationsNewRoute,
   AppContactsIndexRoute: AppContactsIndexRoute,
   AppOrganizationsIndexRoute: AppOrganizationsIndexRoute,
+  AppSettingsConnectorsGoogleRoute: AppSettingsConnectorsGoogleRoute,
   AppContactsContactIdIndexRoute: AppContactsContactIdIndexRoute,
   AppOrganizationsOrganizationIdIndexRoute:
     AppOrganizationsOrganizationIdIndexRoute,

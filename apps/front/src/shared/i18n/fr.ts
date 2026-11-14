@@ -226,7 +226,33 @@ export const fr = {
     title: 'Configuration',
     subtitle: 'Vos réglages, les mêmes sur chacun de vos appareils.',
     sectionsNavigation: 'Sections de la configuration',
-    sections: { reminders: 'Rappels' },
+    sections: { reminders: 'Rappels', connectors: 'Connecteurs' },
+    connectors: {
+      google: {
+        title: 'Google Agenda',
+        description: 'Vos échanges planifiés sont ajoutés à votre agenda Google.',
+      },
+      connected: 'Connecté au compte {{account}} depuis le {{since}}.',
+      toReconnect: 'Google n’accorde plus l’accès au compte {{account}} : reconnectez-le.',
+      connect: 'Connecter',
+      reconnect: 'Reconnecter',
+      disconnected: 'Votre compte Google est déconnecté.',
+      disconnect: {
+        action: 'Déconnecter',
+        title: 'Déconnecter votre compte Google ?',
+        description:
+          'Prospecter n’aura plus accès à votre agenda Google. L’agenda « Prospecter » reste dans votre compte : supprimez-le depuis Google Agenda si vous le souhaitez.',
+        confirm: 'Déconnecter',
+      },
+      answer: {
+        connected: 'Votre compte Google est connecté.',
+        refused: 'La connexion à Google a été annulée : rien n’est connecté.',
+        failed: 'La connexion à Google a échoué : réessayez.',
+      },
+      banner: {
+        text: 'Google n’accorde plus l’accès à votre agenda : vos échanges planifiés n’y sont plus ajoutés.',
+      },
+    },
     reminders: {
       title: 'Rappels',
       description: 'Soyez prévenu avant chacun des échanges que vous avez planifiés.',
@@ -489,10 +515,10 @@ export const fr = {
     unknownUpload: 'Fichier introuvable : envoyez-le à nouveau.',
     unknownReader: 'Membre introuvable.',
     unknownProspector: 'Prospecteur introuvable.',
-    unknownAuthorization: 'La demande de connexion a expiré : connectez votre compte à nouveau.',
+    unknownAuthorization: 'La demande de connexion a expiré : connectez votre compte à nouveau.',
     noConnection: 'Aucun compte n’est connecté.',
-    accessNotGranted: 'Google n’a pas accordé l’accès : connectez votre compte à nouveau.',
-    incompleteGrant: 'L’accès à l’agenda n’a pas été accordé : cochez-le lors de la connexion.',
+    accessNotGranted: 'Google n’a pas accordé l’accès : connectez votre compte à nouveau.',
+    incompleteGrant: 'L’accès à l’agenda n’a pas été accordé : cochez-le lors de la connexion.',
   },
   validation: {
     required: 'Ce champ est obligatoire.',
