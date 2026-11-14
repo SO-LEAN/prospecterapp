@@ -1,5 +1,5 @@
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
-import { screen, within } from '@testing-library/react'
+import { screen, waitFor, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import { renderInARouter } from '@/test/render-in-a-router'
@@ -184,6 +184,25 @@ describe('ToDosCard', () => {
       ['get', '/api/organizations/{id}/to-dos'],
       ['get', '/api/me/to-dos'],
     ])
+  })
+
+  it('revises a to-do from its menu, from what it was', async () => {
+    theApi.mockResolvedValue(Response.json(aToDo({ text: 'Envoyer mon CV à jour' })))
+    await renderTheCard(listOf([aToDo({})]))
+
+    await userEvent.click(screen.getByRole('button', { name: 'Actions sur « Envoyer mon CV »' }))
+    await userEvent.click(await screen.findByRole('menuitem', { name: 'Modifier' }))
+    const revision = await screen.findByRole('dialog')
+    const text = within(revision).getByLabelText('Ce qu’il y a à faire')
+    expect(text).toHaveValue('Envoyer mon CV')
+    await userEvent.clear(text)
+    await userEvent.type(text, 'Envoyer mon CV à jour')
+    await userEvent.click(within(revision).getByRole('button', { name: 'Enregistrer' }))
+
+    await waitFor(() => expect(screen.queryByRole('dialog')).not.toBeInTheDocument())
+    const request = theApi.mock.calls[0]?.[0] as Request
+    expect([request.method, new URL(request.url).pathname]).toEqual(['PATCH', `/api/to-dos/${ID}`])
+    expect(await request.json()).toMatchObject({ text: 'Envoyer mon CV à jour', dueOn: '2099-11-14' })
   })
 
   it('erases a to-do from its menu', async () => {

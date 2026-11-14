@@ -90,6 +90,34 @@ describe('RemindersSection', () => {
     )
   })
 
+  it('saves at once my reminders turned on again with their delay, and says it is saved', async () => {
+    theApi.mockResolvedValue(Response.json(reminders(true, 30)))
+    const { user } = renderTheSection(reminders(false, 30))
+
+    await user.click(screen.getByRole('switch', { name: 'Me rappeler mes échanges planifiés' }))
+
+    expect(await sent()).toEqual({
+      path: '/api/me/reminders',
+      method: 'PATCH',
+      body: { enabled: true, minutesBefore: 30 },
+    })
+    expect(await screen.findByText('Modification enregistrée')).toBeInTheDocument()
+  })
+
+  it('saves at once the delay chosen', async () => {
+    theApi.mockResolvedValue(Response.json(reminders(true, 30)))
+    const { user } = renderTheSection(reminders(true, 10))
+
+    await user.click(screen.getByRole('combobox', { name: 'Me prévenir' }))
+    await user.click(await screen.findByRole('option', { name: '30 min avant' }))
+
+    expect(await sent()).toEqual({
+      path: '/api/me/reminders',
+      method: 'PATCH',
+      body: { enabled: true, minutesBefore: 30 },
+    })
+  })
+
   it('offers no delay to choose while the reminders are off', () => {
     renderTheSection(reminders(false, 10))
 

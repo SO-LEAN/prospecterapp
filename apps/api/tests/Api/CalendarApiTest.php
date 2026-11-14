@@ -41,6 +41,19 @@ class CalendarApiTest extends ApiTestCase
         ], array_map(self::described(...), $calendar['items']));
     }
 
+    public function testTheExchangesOfAnOrganizationNoLongerProspectedLeaveTheCalendar(): void
+    {
+        $organization = $this->requestJson('POST', '/api/organizations', ['legalIdentity' => ['corporateName' => 'ACME']])['id'];
+        $ada = $this->requestJson('POST', '/api/contacts', ['name' => ['firstName' => 'Ada', 'lastName' => 'Lovelace'], 'organizationIds' => [$organization]])['id'];
+        $this->requestJson('POST', '/api/contacts/'.$ada.'/upcoming-exchanges', ['channel' => 'videoCall', 'occurredAt' => '2026-10-20T12:00:00+00:00']);
+        $this->requestJson('POST', '/api/organizations/'.$organization.'/upcoming-exchanges', ['exchange' => ['channel' => 'meeting', 'occurredAt' => '2026-10-21T08:00:00+00:00']]);
+
+        $this->requestJson('DELETE', '/api/organizations/'.$organization);
+        $this->assertResponseStatusCodeSame(204);
+
+        $this->assertSame([], $this->requestJson('GET', self::NEXT_WEEK)['items']);
+    }
+
     public function testTheExchangesNotedAreInTheCalendarOfTheirAuthor(): void
     {
         $this->assertSame(['done', 'done'], array_column(array_column($this->requestJson('GET', self::WEEK_OF_THE_DEMONSTRATION)['items'], 'exchange'), 'status'));
