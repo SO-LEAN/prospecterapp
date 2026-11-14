@@ -56,10 +56,11 @@ final class ConnectionTest extends TestCase
 
     public function testATokenRefusedRecordsTheConnectionLostOnce(): void
     {
-        $connection = $this->establish();
-        $connection->releaseEvents();
         $google = new InMemoryProviderAccess();
-        $google->revoke(Provider::Google, new RefreshToken('a-token'));
+        $grant = $google->exchange(Provider::Google, $google->grant('michel@exemple.fr'), 'a-verifier');
+        $connection = Connection::establish(new MemberId(self::MEMBER), new AccountId(self::ACCOUNT), Provider::Google, $grant, new \DateTimeImmutable(self::AT));
+        $connection->releaseEvents();
+        $google->refuseEveryToken();
 
         $connection->check($google, new \DateTimeImmutable(self::AT));
         $connection->check($google, new \DateTimeImmutable(self::AT));

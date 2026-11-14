@@ -4,6 +4,7 @@ namespace Tests\App\Api;
 
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Group;
+use Prospecter\Core\Accounts\Domain\Model\Role;
 use Tests\App\Base\ApiTestCase;
 use Tests\App\Double\GoogleDouble;
 
@@ -46,9 +47,9 @@ class ConnectorsApiTest extends ApiTestCase
     }
 
     #[DataProvider('members')]
-    public function testEveryMemberConnectsTheirGoogleAccount(string $member): void
+    public function testEveryMemberConnectsChecksAndDisconnectsTheirGoogleAccount(string $member, Role ...$roles): void
     {
-        $this->login($member);
+        $this->login([] === $roles ? $member : $this->aMemberOfTheFixtures($member, ...$roles));
 
         $connections = $this->connect('michel@exemple.fr', 'a-refresh-token');
 
@@ -56,15 +57,19 @@ class ConnectorsApiTest extends ApiTestCase
         $this->assertSame([['google', 'connected', 'michel@exemple.fr']], $this->seen($connections));
         $this->assertSame(['href' => '/api/me/connections/google', 'method' => 'DELETE'], $connections['connections'][0]['_links']['disconnect']);
         $this->assertSame([['google', 'connected', 'michel@exemple.fr']], $this->seen($this->requestJson('GET', '/api/me/connections')));
+        $this->assertSame([['google', 'connected', 'michel@exemple.fr']], $this->seen($this->requestJson('POST', '/api/me/connections/checks')));
+        $this->assertSame([], $this->requestJson('DELETE', '/api/me/connections/google')['connections']);
+        $this->assertResponseIsSuccessful();
     }
 
     /**
-     * @return iterable<string, array{string}>
+     * @return iterable<string, list<mixed>>
      */
     public static function members(): iterable
     {
         yield 'a prospector with the personal data' => ['prospector-user'];
         yield 'a prospector without the personal data' => ['assistant-user'];
+        yield 'an administrator' => ['administrator', Role::User, Role::Admin];
     }
 
     public function testAConnectionGoogleStillGrantsStaysConnected(): void
@@ -99,6 +104,17 @@ class ConnectorsApiTest extends ApiTestCase
 
         $this->assertSame([['google', 'connected', 'autre@exemple.fr']], $this->seen($connections));
         $this->assertSame(['the-former-token'], $this->google()->revoked());
+    }
+
+    public function testReconnectingTheSameAccountKeepsTheAccessGoogleJustGranted(): void
+    {
+        $this->login();
+        $this->connect('michel@exemple.fr', 'the-former-token');
+
+        $this->connect('michel@exemple.fr', 'the-new-token');
+
+        $this->assertSame([], $this->google()->revoked());
+        $this->assertSame([['google', 'connected', 'michel@exemple.fr']], $this->seen($this->requestJson('POST', '/api/me/connections/checks')));
     }
 
     public function testDisconnectingRevokesTheAccessAtGoogle(): void

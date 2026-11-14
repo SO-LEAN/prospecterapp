@@ -26,6 +26,11 @@ final readonly class Email implements \Stringable
         return null === $value || '' === $value ? null : new self($value);
     }
 
+    public function equals(self $other): bool
+    {
+        return $this->value === $other->value;
+    }
+
     public function __toString(): string
     {
         return $this->value;

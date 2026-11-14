@@ -98,7 +98,9 @@ final readonly class GoogleProviderAccess implements ProviderAccess
     {
         try {
             $response = $this->httpClient->request('POST', $this->client->revokeUrl, ['body' => ['token' => $refreshToken->value], 'timeout' => self::TIMEOUT]);
-            $response->getStatusCode();
+            if (self::OK !== $response->getStatusCode()) {
+                $this->logger->warning('Google refused to revoke an access: it is forgotten all the same', ['status' => $response->getStatusCode()]);
+            }
         } catch (ExceptionInterface $failure) {
             $this->logger->warning('An access to Google could not be revoked: it is forgotten all the same', ['exception' => $failure]);
         }

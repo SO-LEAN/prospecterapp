@@ -57,19 +57,27 @@ final class Connection implements ReleasesEvents
     }
 
     /**
-     * Connected again, maybe to another account: the former access is revoked, the provider keeping it otherwise.
+     * Connected again: the former access to another account is revoked, the provider keeping it otherwise; that of
+     * the same account is not, Google revoking with a token the whole grant of its account, the new token with it.
      *
      * @throws IncompleteGrant
      */
     public function renew(Grant $grant, ProviderAccess $access, \DateTimeImmutable $at): void
     {
         self::ensureComplete($grant);
-        $access->revoke($this->provider, $this->refreshToken);
+        $this->revokeTheAccessToAnotherAccount($grant->account, $access);
         $this->externalAccount = $grant->account;
         $this->refreshToken = $grant->refreshToken;
         $this->state = ConnectionState::Connected;
         $this->connectedAt = $this->modifiedAt = $at;
         $this->recordThat(new Connected($this->accountId, $this->member, $at));
+    }
+
+    private function revokeTheAccessToAnotherAccount(Email $account, ProviderAccess $access): void
+    {
+        if (!$account->equals($this->externalAccount)) {
+            $access->revoke($this->provider, $this->refreshToken);
+        }
     }
 
     /**
