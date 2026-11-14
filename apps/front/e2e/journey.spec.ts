@@ -5,10 +5,13 @@ import { SPA_URL } from './stack'
 /** Where the double of the geocoder places Strasbourg, each time; a place it does not know, it places nowhere. */
 const IN_STRASBOURG = '48.5834%2C7.7456'
 const AN_UNKNOWN_PLACE = 'Nulle-Part'
+/** Fourteen steps, some thirty screens, a reaction and the sign-out: some 25 seconds, longer than a journey. */
+const LONGER_THAN_A_JOURNEY_MS = 60_000
 
 test('sign in, start prospecting an organization, change it section by section, find it and sign out', async ({
   page,
 }) => {
+  test.setTimeout(LONGER_THAN_A_JOURNEY_MS)
   const name = `E2E ${Date.now()}`
   const organizationPage = page.getByRole('heading', { name })
   let organizationUrl = ''
@@ -172,26 +175,4 @@ test('sign in, start prospecting an organization, change it section by section, 
     await page.goto(organizationUrl)
     await expect(page, 'signed out of the tab').toHaveURL(SIGN_IN_PAGE)
   })
-})
-
-test('signed in, the logo keeps its size in the sidebar and in the mobile header', async ({ page }) => {
-  const SIDEBAR_LOGO_SIDE = 32
-  const MOBILE_HEADER_LOGO_SIDE = 28
-  await signInOnTheSignInScreen(page)
-
-  const sidebarLogo = page.getByRole('link', { name: 'Prospecter', exact: true }).locator('svg')
-  await expect(sidebarLogo).toHaveCSS('width', `${SIDEBAR_LOGO_SIDE}px`)
-
-  await page.setViewportSize({ width: 375, height: 812 })
-  const mobileHeaderLogo = page.getByRole('banner').locator('svg[viewBox="385 65 300 300"]')
-  await expect(mobileHeaderLogo).toHaveCSS('width', `${MOBILE_HEADER_LOGO_SIDE}px`)
-})
-
-test('rejects a wrong password', async ({ page }) => {
-  await page.goto('/')
-  await page.getByLabel('E-mail').fill('prospector@solean-it.io')
-  await page.getByLabel('Mot de passe').fill('wrong password')
-  await page.getByRole('button', { name: 'Se connecter' }).click()
-
-  await expect(page.getByRole('alert')).toHaveText('E-mail ou mot de passe incorrect.')
 })

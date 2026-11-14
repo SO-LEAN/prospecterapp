@@ -1,6 +1,8 @@
 import { devices, type Locator, type Page } from '@playwright/test'
 import { expect, test } from './fixtures'
-import { signInOnTheSignInScreen } from './sign-in'
+import { signInOncePerFile } from './sign-in'
+
+const openSignedIn = signInOncePerFile()
 
 /*
  * Headless Chromium hands the synthesized touches to the page but never scrolls or zooms the page itself: the
@@ -69,7 +71,7 @@ function widthBeyondTheScreen(page: Page) {
 }
 
 async function theDashboardWithItsMap(page: Page) {
-  await signInOnTheSignInScreen(page)
+  await openSignedIn(page)
   await expect(page.locator('.maplibregl-marker').first()).toBeVisible()
   await page.waitForLoadState('networkidle')
 }
@@ -101,8 +103,7 @@ test('on a phone, the page never zooms, on the map or out of it, and a finger on
 })
 
 test('on a phone, a double tap while scrolling a list does not zoom the page', async ({ page }) => {
-  await signInOnTheSignInScreen(page)
-  await page.goto('/organizations')
+  await openSignedIn(page, '/organizations')
 
   await expect(page.getByRole('main').getByRole('link').first()).toHaveCSS('touch-action', PAGE_SCROLL_ONLY)
 })
@@ -139,8 +140,7 @@ test('on a phone, the list of the organizations fits the width of the screen, wh
   page,
 }) => {
   await organizationsWithALongName(page)
-  await signInOnTheSignInScreen(page)
-  await page.goto('/organizations')
+  await openSignedIn(page, '/organizations')
 
   await expect(page.getByText(A_LONG_NAME).first()).toBeVisible()
   expect(await widthBeyondTheScreen(page)).toBeLessThanOrEqual(0)

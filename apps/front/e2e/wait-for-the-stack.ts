@@ -4,8 +4,11 @@ import { API_URL, SPA_URL, STATIC_URL, WORKERS } from './stack'
 /** How long the stack may take to answer: a function of MiniStack starting, or rebuilding the cache after a change. */
 const PATIENCE_MS = 120_000
 const PAUSE_MS = 1_000
-/** A page of the SPA asks several resources at once, each in a function of its own. */
-const FUNCTIONS_PER_PAGE = 3
+/**
+ * A page of the SPA asks several resources at once, each in a function of its own: the card of an organization the
+ * most, itself, its contacts, its to-dos, its exchanges and those to come (ADR 0122).
+ */
+const FUNCTIONS_PER_PAGE = 5
 /**
  * As many functions are warmed as the journeys running together ask at once: one more would start its container
  * during a journey, longer than the journey waits for its screen.

@@ -67,6 +67,13 @@ async function refuseTheHostsOutsideTheStack(context: BrowserContext, asked: Set
   })
 }
 
+/** The pages of the context ask the stack only, the style of the maps from its double; the hosts refused are kept. */
+export async function keepToTheStack(context: BrowserContext, asked = new Set<string>()) {
+  await refuseTheHostsOutsideTheStack(context, asked)
+  await context.route(OPENFREEMAP_STYLES, (route) => route.fulfill({ json: MAP_STYLE }))
+  return asked
+}
+
 /**
  * The journeys depend on no service outside the stack: the maps get their style from a double, and a journey whose
  * pages ask another host fails, naming it. A journey doubles a service it needs by its own route, which wins.
@@ -74,9 +81,7 @@ async function refuseTheHostsOutsideTheStack(context: BrowserContext, asked: Set
 export const test = base.extend<{ outsideTheStack: undefined }>({
   outsideTheStack: [
     async ({ context }, use) => {
-      const asked = new Set<string>()
-      await refuseTheHostsOutsideTheStack(context, asked)
-      await context.route(OPENFREEMAP_STYLES, (route) => route.fulfill({ json: MAP_STYLE }))
+      const asked = await keepToTheStack(context)
       await use(undefined)
       expect([...asked], 'hosts outside the stack asked by the journey').toEqual([])
     },

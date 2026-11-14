@@ -72,3 +72,12 @@ test('on a phone, the sign-in screen fits the width without scrolling', async ({
 
   expect(overflow).toBeLessThanOrEqual(0)
 })
+
+test('rejects a wrong password', async ({ page }) => {
+  await page.goto('/')
+  await page.getByLabel('E-mail').fill('prospector@solean-it.io')
+  await page.getByLabel('Mot de passe').fill('wrong password')
+  await page.getByRole('button', { name: 'Se connecter' }).click()
+
+  await expect(page.getByRole('alert')).toHaveText('E-mail ou mot de passe incorrect.')
+})

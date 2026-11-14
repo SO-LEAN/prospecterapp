@@ -18,7 +18,7 @@ A React single page application talking to the API (`apps/api`) over JSON, its m
 | UI kit | shadcn/ui (Radix) + Tailwind CSS 4 | Accessible primitives, code owned by the project (see `design-system.md`). |
 | Maps | MapLibre + OpenFreeMap | Open source vector maps, no API key; loaded lazily. |
 | i18n | react-i18next, typed keys | French today, other languages without touching the screens. |
-| Quality | Biome, Vitest + Testing Library, Playwright | One fast linter/formatter; component tests as a user would act; real end-to-end journeys. |
+| Quality | Biome, Vitest + Testing Library, Playwright | One fast linter/formatter; component tests as a user would act, the screens tested there; end-to-end journeys only for what no other test links (ADR 0122, `docs/architecture/tests.md`). |
 
 ## Folders
 
@@ -42,9 +42,9 @@ src/
     i18n/               setup, fr.ts, de.ts (the elision of « de »)
     forms/              section form, FormField, CountryField, shared field groups (AddressFields, ContactDetailsFields, LegalIdentityFields, PersonNameFields)
     lib/ hooks/ stores/ utilities (route-params.ts: UUID route params, a 404 of the API as a not found page; member-name.ts: how a member is shown, their name, else the email of their profile, else « Membre sans nom »), hooks, Zustand stores
-  test/                 setup.ts: the Vitest setup; render-in-a-router.tsx: renders a component holding links in a memory router
+  test/                 setup.ts: the Vitest setup; render-in-a-router.tsx: renders a component holding links in a memory router; render-the-spa.tsx: the SPA on its routes, opened at a path
 lint/                   translated-texts.grit: the plugin of Biome refusing a text written in the code (ADR 0093), and its test
-e2e/                    Playwright journeys, together but those that must run alone (docs/architecture/tests.md); fixtures.ts, their test: the maps on a double, no host outside the stack; wait-for-the-stack.ts, their global setup, waits for the SPA, the api and the storage; sign-in.ts signs the demonstration member in; colors.ts reads the painted colors and their WCAG contrast
+e2e/                    Playwright journeys, only what no other test links (ADR 0122), together but the one that must run alone (docs/architecture/tests.md); fixtures.ts, their test: the maps on a double, no host outside the stack; wait-for-the-stack.ts, their global setup, waits for the SPA, the api and the storage, its functions warm; sign-in.ts signs the demonstration member in, or once for the journeys of a file; colors.ts reads the painted colors and their WCAG contrast
 ```
 
 Dependency rule: `shared` depends on nothing of the app; a `feature` depends only on `shared`; `routes` and `app` compose features. Query key prefixes used by several features live in `shared/api/keys.ts`.
@@ -110,7 +110,7 @@ See `docs/architecture/auth.md`. In the SPA: `shared/auth/session.ts` signs in o
 2. In `features/<feature>/`: query options, mutations (update the cache), zod schema mirroring the API input, components.
 3. A route file in `routes/_app/...` with a `loader` (`ensureQueryData`), `pendingComponent`, `errorComponent`, and the page component.
 4. Texts in `shared/i18n/fr.ts`.
-5. A component test for the behaviour, and a Playwright step if it is a main journey.
+5. A component test for the behaviour (the SPA on its routes when it crosses the router or the layout); a Playwright journey only for what no other test links (ADR 0122).
 
 ## Rules
 

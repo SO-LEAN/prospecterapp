@@ -1,7 +1,9 @@
 import type { Page } from '@playwright/test'
 import { colorOf, contrastBetween, READABLE_GRAPHIC_CONTRAST, READABLE_TEXT_CONTRAST } from './colors'
 import { expect, test } from './fixtures'
-import { signInOnTheSignInScreen } from './sign-in'
+import { signInOncePerFile } from './sign-in'
+
+const openSignedIn = signInOncePerFile()
 
 type ThemeName = 'Clair' | 'Sombre'
 
@@ -105,7 +107,7 @@ async function expectThePopupToLookLikeTheFloatingSurfaces(page: Page) {
 test('in the dark theme, the popup of an organization on the map is a dark floating surface', async ({
   page,
 }) => {
-  await signInOnTheSignInScreen(page)
+  await openSignedIn(page)
   await choose(page, 'Sombre')
   await openThePopupOfAnOrganizationOnTheMap(page)
 
@@ -113,7 +115,7 @@ test('in the dark theme, the popup of an organization on the map is a dark float
 })
 
 test('in the light theme, MapLibre adds no padding around the content of the popup', async ({ page }) => {
-  await signInOnTheSignInScreen(page)
+  await openSignedIn(page)
   await choose(page, 'Clair')
   await openThePopupOfAnOrganizationOnTheMap(page)
 
@@ -122,7 +124,7 @@ test('in the light theme, MapLibre adds no padding around the content of the pop
 })
 
 test('the popup open follows a change of theme without closing', async ({ page }) => {
-  await signInOnTheSignInScreen(page)
+  await openSignedIn(page)
   await choose(page, 'Clair')
   await openThePopupOfAnOrganizationOnTheMap(page)
 
@@ -135,7 +137,7 @@ test('the popup open follows a change of theme without closing', async ({ page }
 
 test('with the system theme on a dark system, the popup is dark', async ({ page }) => {
   await page.emulateMedia({ colorScheme: 'dark' })
-  await signInOnTheSignInScreen(page)
+  await openSignedIn(page)
   await openThePopupOfAnOrganizationOnTheMap(page)
 
   await expect(page.locator('html'), 'the dark theme on').toHaveClass(/\bdark\b/)
