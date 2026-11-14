@@ -78,7 +78,7 @@ describe('GoogleCalendarCard', () => {
 
     expect(screen.getByText('Google Agenda')).toBeInTheDocument()
     expect(screen.getByText('Vos échanges planifiés sont ajoutés à votre agenda Google.')).toBeInTheDocument()
-    expect(screen.getByText(/Connecté au compte michel@solean-it\.com depuis le/)).toBeInTheDocument()
+    expect(screen.getByText(/Connecté au compte michel@exemple\.fr depuis le/)).toBeInTheDocument()
     expect(screen.getByRole('button', { name: 'Reconnecter' })).toBeInTheDocument()
     expect(screen.getByRole('button', { name: 'Déconnecter' })).toBeInTheDocument()
     expect(screen.queryByRole('button', { name: 'Connecter' })).not.toBeInTheDocument()
@@ -87,9 +87,7 @@ describe('GoogleCalendarCard', () => {
   it('says a connection Google refuses is to reconnect', () => {
     renderTheCard(connection('toReconnect'))
 
-    expect(
-      screen.getByText(/Google n’accorde plus l’accès au compte michel@solean-it\.com/),
-    ).toBeInTheDocument()
+    expect(screen.getByText(/Google n’accorde plus l’accès au compte michel@exemple\.fr/)).toBeInTheDocument()
     expect(screen.getByRole('button', { name: 'Reconnecter' })).toBeInTheDocument()
   })
 
