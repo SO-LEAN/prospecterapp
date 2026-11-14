@@ -145,6 +145,9 @@ services:
         arguments: { $clock: '@app.commit_clock' }
     Prospecter\Core\Connectors\Domain\Repository\ConnectionRepository: '@App\Connectors\Persistence\DynamoConnectionRepository'
     Prospecter\Core\Connectors\Domain\Repository\AuthorizationRepository: '@App\Connectors\Persistence\DynamoAuthorizationRepository'
+    # the moment an authorization is forgotten at counted from now, the real one
+    App\Connectors\Persistence\DynamoAuthorizationRepository:
+        arguments: { $clock: '@app.commit_clock' }
     Prospecter\Core\Connectors\Application\Port\MyConnectionsRetriever: '@App\Connectors\Persistence\DynamoMyConnectionsRetriever'
     Prospecter\Core\Connectors\Domain\Port\Members: '@App\Connectors\AntiCorruption\AccountsMembers'
     Prospecter\Core\Connectors\Domain\Port\ProviderAccess: '@App\Connectors\Google\GoogleProviderAccess'

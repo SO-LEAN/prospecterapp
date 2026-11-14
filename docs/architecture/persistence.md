@@ -102,4 +102,4 @@ The table of Connectors (`<prefix>-connectors`, ADR 0120) keeps the connections 
 | Item | PK | SK | Attributes |
 |---|---|---|---|
 | Connection | `MEMBER#<member>` | `CONNECTION#<provider>` | `connection`: the member, their account, the provider, the external account, the refresh token (encrypted at rest by DynamoDB only), the state, `connectedAt`, `modifiedAt` |
-| Authorization waiting for its answer | `AUTHORIZATION#<state>` | `AUTHORIZATION` | `authorization`: the state, the member, the provider, the verifier of the code, its expiry; `expiresAt` the epoch the table forgets it at, ten minutes after it was asked, the rule refusing it from then on |
+| Authorization waiting for its answer | `AUTHORIZATION#<state>` | `AUTHORIZATION` | `authorization`: the state, the member, the provider, the verifier of the code, its expiry; `expiresAt` the epoch the table forgets it at, an hour after it was kept (the real clock, `app.commit_clock`), the rule of the core refusing it ten minutes after it was asked |
