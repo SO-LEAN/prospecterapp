@@ -1,19 +1,15 @@
-import type { Page } from '@playwright/test'
 import { expect, test } from './fixtures'
-import { ASSISTANT, signInOnTheSignInScreen } from './sign-in'
+import { ASSISTANT, authorizationOf, signInOnTheSignInScreen } from './sign-in'
+import { API_URL as API } from './stack'
 
-/** The journey waits for the time of a call planned two minutes ahead. */
-const LONGER_THAN_A_JOURNEY_MS = 240_000
-const UNTIL_THE_CALL_IS_DUE_MS = 180_000
+/**
+ * The journey waits for the time of a call: planned through the API to the second, it comes in half a minute, where
+ * the minutes of the screen would have it wait two (the screen plans in `planned-exchanges.spec.ts`).
+ */
+const CALL_DUE_IN_MS = 30_000
+const UNTIL_THE_CALL_IS_DUE_MS = CALL_DUE_IN_MS + 30_000
+const LONGER_THAN_A_JOURNEY_MS = 120_000
 const UNTIL_THE_TOAST_IS_GONE_MS = 6_000
-
-/** The date and the time, in the time of the browser, two minutes from now. */
-const inTwoMinutes = (page: Page) =>
-  page.evaluate(() => {
-    const moment = new Date(Date.now() + 2 * 60_000)
-    const local = new Date(moment.getTime() - moment.getTimezoneOffset() * 60_000).toISOString()
-    return { date: local.slice(0, 10), time: local.slice(11, 16) }
-  })
 
 test('handle planned exchanges: moved, cancelled, done once their time has come, then what follows planned', async ({
   page,
@@ -32,7 +28,7 @@ test('handle planned exchanges: moved, cancelled, done once their time has come,
     await page.getByRole('button', { name: 'Enregistrer' }).click()
   }
 
-  await test.step('a contact with a call in two minutes, a video call tomorrow and a meeting in a week', async () => {
+  await test.step('a contact with a call in half a minute, a video call tomorrow and a meeting in a week', async () => {
     await signInOnTheSignInScreen(page)
     await page.goto('/organizations/new')
     await page.getByLabel('Raison sociale').fill(organization)
@@ -43,13 +39,15 @@ test('handle planned exchanges: moved, cancelled, done once their time has come,
     await page.getByRole('button', { name: 'Enregistrer le contact' }).click()
     await page.getByRole('link', { name: `Test ${lastName}` }).click()
     await expect(page.getByRole('heading', { name: `Test ${lastName}` })).toBeVisible()
-    const { date, time } = await inTwoMinutes(page)
-    await plan('Appel', async () => {
-      await page.getByLabel('Date').fill(date)
-      await page.getByLabel('Heure').fill(time)
-    })
     await plan('Visio', () => page.getByRole('button', { name: 'Demain 9h' }).click())
     await plan('Rendez-vous', () => page.getByRole('button', { name: 'Dans 1 semaine' }).click())
+    const contact = new URL(page.url()).pathname.split('/').pop()
+    const planned = await page.request.post(`${API}/api/contacts/${contact}/upcoming-exchanges`, {
+      headers: { authorization: await authorizationOf(page) },
+      data: { channel: 'call', occurredAt: new Date(Date.now() + CALL_DUE_IN_MS).toISOString() },
+    })
+    expect(planned.status()).toBe(201)
+    await page.reload()
     await expect(upcoming).toHaveCount(3)
   })
 
@@ -116,7 +114,7 @@ test('handle planned exchanges: moved, cancelled, done once their time has come,
         .getByRole('button')
         .click()
       await expect(detail.getByRole('button', { name: 'Fait' })).toBeVisible({ timeout: 2_000 })
-    }).toPass({ timeout: UNTIL_THE_CALL_IS_DUE_MS, intervals: [10_000] })
+    }).toPass({ timeout: UNTIL_THE_CALL_IS_DUE_MS, intervals: [5_000] })
     await detail.getByRole('button', { name: 'Fait' }).click()
     await detail.getByLabel(/Ce qui s’est dit/).fill('Mission de 3 mois en mars, TJM à envoyer')
     await detail.getByRole('button', { name: 'Enregistrer' }).click()

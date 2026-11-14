@@ -1,6 +1,5 @@
-import type { Page } from '@playwright/test'
 import { expect, test } from './fixtures'
-import { signInOnTheSignInScreen } from './sign-in'
+import { authorizationOf, signInOnTheSignInScreen } from './sign-in'
 import { API_URL as API } from './stack'
 
 /** More exchanges than one transaction could erase along with the organization, some three writes each. */
@@ -8,17 +7,6 @@ const MANY_EXCHANGES = 36
 /** Noting the exchanges, then a reaction per exchange, each an invocation of the worker, take longer than a journey. */
 const LONGER_THAN_A_JOURNEY_MS = 120_000
 const ERASED_WITHIN_MS = 60_000
-
-/** The access token the SPA keeps in the session of its tab (`shared/auth/session.ts`). */
-function accessTokenOf(page: Page): Promise<string> {
-  return page.evaluate(() => {
-    const key = Object.keys(sessionStorage).find((name) => name.endsWith('.accessToken'))
-    if (!key) {
-      throw new Error('No access token in the session: is the member signed in?')
-    }
-    return sessionStorage.getItem(key) ?? ''
-  })
-}
 
 test('stopping to prospect an organization of many exchanges erases each in a reaction of its own', async ({
   page,
@@ -38,7 +26,7 @@ test('stopping to prospect an organization of many exchanges erases each in a re
     organizationUrl = page.url()
 
     const id = new URL(organizationUrl).pathname.split('/').pop()
-    authorization = `Bearer ${await accessTokenOf(page)}`
+    authorization = await authorizationOf(page)
     for (let exchange = 0; exchange < MANY_EXCHANGES; exchange += 1) {
       const noted = await page.request.post(`${API}/api/organizations/${id}/exchanges`, {
         headers: { authorization },

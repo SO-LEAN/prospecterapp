@@ -9,7 +9,7 @@ GITLEAKS = docker run --rm -u $(UID):$(GID) -e GIT_INDEX_FILE -v $(CURDIR):$(CUR
 	-w $(CURDIR) ghcr.io/gitleaks/gitleaks:v8.30.1
 INFRA_APPS = api storage front
 
-.PHONY: install hooks build vendor db aws front-install check-secrets check-infra check-contract check-core check-api check-storage check-front check-e2e front-lint front-tested-build changed-checks infra-target infra-init infra-plan infra-apply infra-lint changed-apps package-api package-storage package-front release-front console start deploy stop down agents-slice logs ps ci test test-api test-storage test-front e2e test-core mutation mutation-api lint adr-references fix front-build api-doc contract commands profiler-clear exec-api exec-front secrets secrets-branch
+.PHONY: install hooks build vendor db aws front-install check-secrets check-infra check-contract check-core check-api check-storage check-front check-e2e check-e2e-locked e2e-locked front-lint front-tested-build changed-checks infra-target infra-init infra-plan infra-apply infra-lint changed-apps package-api package-storage package-front release-front console start deploy stop down agents-slice logs ps ci test test-api test-storage test-front e2e test-core mutation mutation-api lint adr-references fix front-build api-doc contract commands profiler-clear exec-api exec-front secrets secrets-branch
 
 ##@ Setup
 install: hooks build vendor db front-install ## Build the images, install the dependencies, create the tables, the bucket and the user pool, install the Git hooks
@@ -45,9 +45,9 @@ deploy: ## Start the stack and (re)deploy the Lambdas of the API and the storage
 # the functions a MiniStack runs carry its host name: those of the stacks of the other checkouts stay up
 STACK_FUNCTIONS = for ministack in $$($(DC) ps -aq ministack); do \
 	docker ps -aq --filter label=ministack.instance=$$(docker inspect -f '{{.Config.Hostname}}' $$ministack):4566; done
-stop: ## Stop the stack of this checkout and the functions its MiniStack runs
+stop: ## Stop the stack of this checkout, the MiniStack of its tests and the functions its MiniStack runs
 	@$(STACK_FUNCTIONS) | xargs -r docker rm -f >/dev/null
-	@$(DC) stop
+	@$(DC) --profile test stop
 
 down: ## Remove the stack of this checkout, its functions and its data: once a worktree is done with (ADR 0116)
 	@$(STACK_FUNCTIONS) | xargs -r docker rm -f >/dev/null
@@ -84,40 +84,55 @@ ps: ## List the containers of the stack
 # new file once known to git or not ignored (make/changed-checks.sh), every one with ALL=1, as the CI on the pushes of
 # dev and main. Independent of one another once the images and the dependencies are there and the contract checked (it
 # writes the types the front reads), they run together, and so do the lint and the tests of a project, each printing
-# its output once it ends; the CI runs them in jobs of their own (.github/workflows/ci.yml). The journeys are no check
-# of the CI (ADR 0118): make ci runs them in a worktree, after the others, on its stack deployed and its data recreated;
-# in the main checkout, whose data it would recreate, make e2e runs them on the running stack
+# its output once it ends, the first failing stopping the others (FAIL_FAST); the CI runs them in jobs of their own
+# (.github/workflows/ci.yml). The journeys are neither a check of the CI nor of make ci (ADR 0118, 0121): make check-e2e
+# runs them, in a worktree, once its development is done
 BASE ?= origin/dev
 ALL_CHECKS = secrets infra core api storage front contract e2e
 CHANGED_FILES = { git diff --name-only $$(git merge-base $(BASE) HEAD); git ls-files --others --exclude-standard; }
 CHECKS = $(if $(ALL),$(ALL_CHECKS),$(shell $(CHANGED_FILES) | make/changed-checks.sh))
-ci: ## Run the checks of the integration the changes since BASE (origin/dev) need, ALL=1 every one: secrets of the branch, Terraform, lint and tests of each project, build of the front, contract
+ci: export FAIL_FAST = 1
+ci: ## Run the checks of the integration the changes since BASE (origin/dev) need, ALL=1 every one: secrets of the branch, Terraform, lint and tests of each project, build of the front, contract; the journeys apart (check-e2e)
 	@echo "Checks: $(CHECKS)$(if $(ALL),, (those of the changes since $(BASE); ALL=1 for every one))"
 	@$(MAKE) build vendor front-install
 	@$(if $(filter contract,$(CHECKS)),$(MAKE) check-contract)
 # the MiniStack of the tests, shared by those of the API and the storage: started once, before they would both create it
 	@$(if $(filter api storage,$(CHECKS)),$(MAKE) ministack-test)
 	@$(MAKE) -j --output-sync=recurse $(addprefix check-,$(filter-out contract e2e,$(CHECKS)))
-	@$(if $(filter e2e,$(CHECKS)),$(if $(IN_WORKTREE),$(MAKE) check-e2e,echo "The journeys are not run in the main checkout: make e2e on the running stack"))
+	@$(if $(filter e2e,$(CHECKS)),echo "These changes need the journeys too: make check-e2e in a worktree once the development is done")
 
 # make -j runs together the prerequisites of each check, and the targets each runs in its project
 check-secrets: secrets-branch adr-references ## Check the commits of the branch for secrets, the references to the records
 check-infra: infra-lint ## Check the Terraform of the apps
 check-contract: contract ## Check the OpenAPI contract and the front types against the code
 
-# a stack deployed again, its data recreated: in a worktree, never on the data of the main checkout (ADR 0118).
-# The figures are counted (two minutes, ADR 0106) while the journeys reading none run together; those running alone,
-# the dashboard among them, once both are done (ADR 0117)
+# The journeys of the machine run one checkout at a time (ADR 0121): beside those of another, they outlast their waits.
+# The lock is in the git directory every checkout shares; a run waiting for it says so
+E2E_LOCK = $(GIT_COMMON_DIR)/prospecter-e2e.lock
+WITH_E2E_LOCK = { flock -n $(E2E_LOCK) true || echo "The journeys of another checkout run: waiting for them..."; } && flock $(E2E_LOCK)
+
+# In a worktree, never on the data of the main checkout (ADR 0118, 0121). On the stack running, as it is: the code is
+# mounted in the functions, a journey passes whatever the data. With FRESH=1, or no stack running, from nothing: the
+# stack started again (MiniStack without the memory a former run left it), deployed, its data recreated, the figures
+# counted (two minutes, ADR 0106) while the journeys reading none run together; FRESH=1 after a change of the
+# functions, of their settings or of the subscriptions. Those running alone, the dashboard among them, run once the
+# others are done (ADR 0117), and not when one running together failed: the first failure stops them (FAIL_FAST). The
+# relay and the worker warmed, the gestures of the console made and the geocoder doubled once for both
 FIGURES_LOG = $(ROOT)/.cache/reporting-rebuild.log
-check-e2e: ## Run the journeys on the stack of this worktree, deployed and its data recreated first: make ci (ADR 0117, 0118)
+STACK_RUNNING = $(shell $(DC) ps -q --status running nginx 2>/dev/null)
+FROM_NOTHING = $(or $(FRESH),$(if $(STACK_RUNNING),,1))
+check-e2e: ## Run the journeys on the stack of this worktree as it runs, stopping at the first failure; FRESH=1 (or no stack running): started again, deployed and its data recreated first (ADR 0117, 0121)
 	@test -n "$(IN_WORKTREE)" || { echo "check-e2e recreates the data of the stack: in a worktree only; make e2e on the running stack"; exit 1; }
-	@$(MAKE) deploy
-	@$(MAKE) db FIGURES=later
-	@mkdir -p $(dir $(FIGURES_LOG))
-	@{ $(API_CONSOLE)app:reporting:rebuild >$(FIGURES_LOG) 2>&1; } & figures=$$!; \
-	$(MAKE) e2e E2E_ARGS=--project=together E2E_RESULTS=together; together=$$?; \
-	wait $$figures || { echo "The figures were not counted:"; cat $(FIGURES_LOG); exit 1; }; \
-	$(MAKE) e2e E2E_ARGS="--project=alone --no-deps" E2E_RESULTS=alone && exit $$together
+	@$(WITH_E2E_LOCK) $(MAKE) check-e2e-locked FROM_NOTHING=$(FROM_NOTHING)
+
+check-e2e-locked: export FAIL_FAST = 1
+check-e2e-locked:
+	@$(if $(FROM_NOTHING),$(MAKE) stop && $(MAKE) deploy && $(MAKE) db FIGURES=later && mkdir -p $(dir $(FIGURES_LOG)),echo "On the stack running, as it is (FRESH=1 from nothing)")
+	@$(if $(FROM_NOTHING),{ $(API_CONSOLE)app:reporting:rebuild >$(FIGURES_LOG) 2>&1; } & figures=$$!;,figures=;) \
+	$(E2E_SETUP) && $(FRONT_E2E) E2E_ARGS=--project=together E2E_RESULTS=together; together=$$?; \
+	test -z "$$figures" || wait $$figures || { echo "The figures were not counted:"; cat $(FIGURES_LOG); exit 1; }; \
+	test $$together -eq 0 || { echo "A journey running together failed: those running alone are not run"; exit $$together; }; \
+	$(FRONT_E2E) E2E_ARGS="--project=alone --no-deps" E2E_RESULTS=alone
 
 check-core: ## Lint and test the core
 	@$(MAKE) -C packages/core lint test
@@ -143,16 +158,16 @@ changed-checks: ## Print as JSON the checks of the integration a git range needs
 	@echo '$(call json-strings,$(shell $(CHANGED_RANGE_FILES) | make/changed-checks.sh))'
 
 test: test-core test-api test-storage test-front ## Run every test suite: core, API, storage, front
-test-core: ## Run the business rules (Behat) and the unit tests of the core; FILTER= a scenario or a test by name
+test-core: ## Run the business rules (Behat) and the unit tests of the core; FILTER= a scenario or a test by name; FAILED=1 those that failed last first, FAIL_FAST=1 stops at the first failure
 	@$(MAKE) -C packages/core test
 
-test-api: ## Run the tests of the API (on MiniStack: tables, user pool); FILTER= a test by name
+test-api: ## Run the tests of the API (on MiniStack: tables, user pool); FILTER= a test by name; FAILED=1 those that failed last first, FAIL_FAST=1 stops at the first failure
 	@$(MAKE) -C apps/api test
 
-test-storage: ## Run the tests of the storage (on MiniStack); FILTER= a test by name
+test-storage: ## Run the tests of the storage (on MiniStack); FILTER= a test by name; FAILED=1 those that failed last first, FAIL_FAST=1 stops at the first failure
 	@$(MAKE) -C apps/storage test
 
-test-front: ## Run the tests of the front (Vitest); FILTER= a test file by its path or a part of it
+test-front: ## Run the tests of the front (Vitest); FILTER= a test file by its path or a part of it, FAIL_FAST=1 stops at the first failure
 	@$(MAKE) -C apps/front test
 
 # the journeys depend on no service outside the stack: the API asks the double of the geocoder of nginx while they
@@ -168,8 +183,13 @@ API_CONSOLE = $(MAKE) -s -C apps/api console CMD=
 CONSOLE_GESTURES = $(API_CONSOLE)"app:account:open 'E2E $(E2E_RUN)' founder-$(E2E_RUN)@e2e.test --password=password" >/dev/null \
 	&& tries=0 && until $(API_CONSOLE)"app:member:register founder-$(E2E_RUN)@e2e.test member-$(E2E_RUN)@e2e.test --password=password" >/dev/null 2>&1; \
 	do tries=$$((tries + 1)); test $$tries -lt 15 || { echo "The founder of the journeys is not a member: is the worker running?"; exit 1; }; sleep 1; done
-e2e: ## Run the Playwright journeys against the running stack, the API on the double of the geocoder meanwhile
-	@$(WARM_REACTIONS) && $(CONSOLE_GESTURES) && $(API_GEOCODER) $(GEOCODER_DOUBLE) && trap '$(API_GEOCODER)' EXIT && trap 'exit 130' INT TERM && $(MAKE) -C apps/front e2e E2E_RUN=$(E2E_RUN)
+E2E_SETUP = $(WARM_REACTIONS) && $(CONSOLE_GESTURES) && $(API_GEOCODER) $(GEOCODER_DOUBLE) && trap '$(API_GEOCODER)' EXIT && trap 'exit 130' INT TERM
+FRONT_E2E = $(MAKE) -C apps/front e2e E2E_RUN=$(E2E_RUN)
+e2e: ## Run the Playwright journeys against the running stack, the API on the double of the geocoder meanwhile, once those of another checkout are done; FAILED=1 those that failed last, FAIL_FAST=1 stops at the first failure
+	@$(WITH_E2E_LOCK) $(MAKE) e2e-locked
+
+e2e-locked:
+	@$(E2E_SETUP) && $(FRONT_E2E)
 
 mutation: ## Mutate the lines the branch adds since BASE (origin/dev) in the core and the front, list the mutants their tests let survive (ADR 0091)
 	@$(MAKE) -C packages/core mutation
