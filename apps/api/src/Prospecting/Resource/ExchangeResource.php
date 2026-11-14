@@ -4,7 +4,9 @@ namespace App\Prospecting\Resource;
 
 use App\Prospecting\Input\ExchangeInput;
 use OpenApi\Attributes as OA;
+use Symfony\Component\Serializer\Attribute\Context;
 use Symfony\Component\Serializer\Attribute\SerializedName;
+use Symfony\Component\Serializer\Normalizer\AbstractObjectNormalizer;
 
 /**
  * A call, a message or a meeting with a contact, or with the organization itself, done or planned.
@@ -48,6 +50,7 @@ final readonly class ExchangeResource
         #[OA\Property(description: 'How many files are joined to it')]
         public int $attachmentCount,
         #[SerializedName('_links')]
+        #[Context([AbstractObjectNormalizer::SKIP_NULL_VALUES => true])]
         public ExchangeLinksResource $links,
     ) {
     }

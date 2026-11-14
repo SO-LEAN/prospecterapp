@@ -8,6 +8,7 @@ use App\Prospecting\Resource\TimelineLinksResource;
 use App\Security\IntentLinks;
 use App\Security\User;
 use App\Shared\Links;
+use Prospecter\Core\Prospecting\Application\ConsultCalendar\Calendar;
 use Prospecter\Core\Prospecting\Application\ExchangeInTimeline;
 use Prospecter\Core\Prospecting\Application\Timeline;
 
@@ -40,6 +41,21 @@ final readonly class TimelineResourceFactory
 
     public function createExchange(ExchangeInTimeline $exchange): ExchangeResource
     {
+        return $this->exchangeWith($exchange, new ExchangeLinksResource($this->links->to('api_exchanges_show', ['id' => $exchange->id])));
+    }
+
+    /**
+     * In the calendar of its holder, it is moved by dragging it when the calendar says it may be.
+     */
+    public function createCalendarExchange(ExchangeInTimeline $exchange, Calendar $calendar): ExchangeResource
+    {
+        $move = in_array($exchange->id, $calendar->movable, true) ? $this->links->to('api_exchanges_move', ['id' => $exchange->id]) : null;
+
+        return $this->exchangeWith($exchange, new ExchangeLinksResource($this->links->to('api_exchanges_show', ['id' => $exchange->id]), $move));
+    }
+
+    private function exchangeWith(ExchangeInTimeline $exchange, ExchangeLinksResource $links): ExchangeResource
+    {
         return new ExchangeResource(
             id: $exchange->id,
             channel: $exchange->channel,
@@ -56,7 +72,7 @@ final readonly class TimelineResourceFactory
             toMakeConform: $exchange->toMakeConform,
             organizationIds: $exchange->organizationIds,
             attachmentCount: $exchange->attachmentCount,
-            links: new ExchangeLinksResource($this->links->to('api_exchanges_show', ['id' => $exchange->id])),
+            links: $links,
         );
     }
 }

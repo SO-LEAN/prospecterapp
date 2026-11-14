@@ -1487,6 +1487,7 @@ export interface components {
         };
         ExchangeLinksResource: {
             self: components["schemas"]["LinkResource"];
+            move?: components["schemas"]["LinkResource"];
         };
         ExchangeResource: {
             id: string;

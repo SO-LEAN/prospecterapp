@@ -35,7 +35,7 @@ final class CalendarPresenter implements ConsultCalendarOutput
     public function present(Calendar $calendar): void
     {
         $this->resource = new CalendarResource(array_map(
-            fn (ExchangeInTimeline $exchange): OrganizationExchangeResource => new OrganizationExchangeResource($this->timelineResourceFactory->createExchange($exchange), InterlocutorResource::of($exchange, $this->persons, $this->organizations)),
+            fn (ExchangeInTimeline $exchange): OrganizationExchangeResource => new OrganizationExchangeResource($this->timelineResourceFactory->createCalendarExchange($exchange, $calendar), InterlocutorResource::of($exchange, $this->persons, $this->organizations)),
             $calendar->exchanges,
         ));
     }
