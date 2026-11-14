@@ -73,7 +73,7 @@ agents-slice: ## Give the stacks of the worktrees their budget, with sudo: AGENT
 	@sudo systemctl daemon-reload
 	@systemctl show $(AGENTS_SLICE) -p CPUQuotaPerSecUSec -p CPUWeight -p MemoryHigh -p MemoryMax
 
-# openssl in the image of nginx, nothing on the host; the authority of the machine, whatever the checkout running it
+# openssl in the image of nginx, nothing on the host; the authority of the machine, whatever the checkout running it (ADR 0123)
 ca: ## Create once the local authority of the machine and the certificate of local.prospecter.io it signs, served by the stack of every checkout: import docker/data/ssl/ca.pem in the browser once (README)
 	@$(DC) --progress quiet build nginx
 	@docker run --rm -e OWNER=$(UID):$(GID) -e SHOWN_DIR=$(LOCAL_CA_DIR) -v $(LOCAL_CA_DIR):/etc/ssl/local $(NGINX_IMAGE) local-ca
