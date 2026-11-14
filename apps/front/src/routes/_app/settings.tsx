@@ -18,14 +18,14 @@ const searchSchema = z.object({
 
 /**
  * The configuration of the member, section by section, the section shown in the URL; the connectors are checked with
- * their providers each time their section opens.
+ * their providers each time their section opens, never on a preload (a link hovered): a check calls the provider.
  */
 export const Route = createFileRoute('/_app/settings')({
   validateSearch: zodValidator(searchSchema),
   loaderDeps: ({ search }) => ({ section: search.section }),
-  loader: async ({ context: { queryClient }, deps: { section } }) => {
+  loader: async ({ context: { queryClient }, deps: { section }, preload }) => {
     if (section === 'connectors') {
-      await checkMyConnections(queryClient)
+      if (!preload) await checkMyConnections(queryClient)
       return
     }
     await queryClient.ensureQueryData(remindersQuery())

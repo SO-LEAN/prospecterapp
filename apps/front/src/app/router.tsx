@@ -1,5 +1,6 @@
 import type { QueryClient } from '@tanstack/react-query'
 import { createRouter } from '@tanstack/react-router'
+import { PRELOADING } from './preloading'
 import { queryClient } from './query-client'
 import { routeTree } from './routeTree.gen'
 
@@ -10,8 +11,7 @@ export type RouterContext = {
 export const router = createRouter({
   routeTree,
   context: { queryClient },
-  defaultPreload: 'intent',
-  defaultPreloadStaleTime: 0,
+  ...PRELOADING,
   scrollRestoration: true,
 })
 
