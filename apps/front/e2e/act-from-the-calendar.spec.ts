@@ -2,6 +2,8 @@ import type { Locator, Page } from '@playwright/test'
 import { expect, test } from './fixtures'
 import { signInOnTheSignInScreen } from './sign-in'
 
+/** Six steps, each reading the calendar again after its gesture. */
+const LONGER_THAN_A_JOURNEY_MS = 120_000
 /** The height of an hour of the grid: 3rem. */
 const HOUR_PX = 48
 
@@ -22,6 +24,7 @@ async function dragDown(page: Page, target: Locator, pixels: number, grabbedAt: 
 }
 
 test('act from the calendar: an exchange dragged, stretched, opened, a slot planned', async ({ page }) => {
+  test.setTimeout(LONGER_THAN_A_JOURNEY_MS)
   const organization = `E2E rendez-vous ${Date.now()}`
   const lastName = `Rendez-vous ${Date.now()}`
   const tomorrow = new Date()
