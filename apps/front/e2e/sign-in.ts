@@ -36,7 +36,8 @@ type StorageOfTheTab = Record<string, string>
 
 /**
  * The member signed in once for the journeys of a file (ADR 0122), on a page of its own: each journey opens its page
- * with their session, given to the storage of its tab before the SPA loads, instead of signing in again on Cognito.
+ * with their session, given to the storage of its tab before the SPA loads, instead of signing in again on Cognito,
+ * once the page shows the menu of the member, as once signed in.
  */
 export function signInOncePerFile(email = PROSPECTOR) {
   let session: StorageOfTheTab = {}
@@ -55,5 +56,9 @@ export function signInOncePerFile(email = PROSPECTOR) {
       for (const [key, value] of Object.entries(kept)) sessionStorage.setItem(key, value)
     }, session)
     await page.goto(path)
+    await expect(
+      page.getByRole('button', { name: /menu du compte/ }),
+      'signed in by the session kept',
+    ).toBeVisible()
   }
 }
