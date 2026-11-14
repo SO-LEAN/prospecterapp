@@ -2,8 +2,8 @@ import { Link } from '@tanstack/react-router'
 import { useTranslation } from 'react-i18next'
 import { cn } from '@/shared/lib/utils'
 
-/** The sections of the configuration, in their order; the connectors come next. */
-export const SETTINGS_SECTIONS = ['reminders'] as const
+/** The sections of the configuration, in their order. */
+export const SETTINGS_SECTIONS = ['reminders', 'connectors'] as const
 export type SettingsSection = (typeof SETTINGS_SECTIONS)[number]
 
 type Props = { current: SettingsSection }
