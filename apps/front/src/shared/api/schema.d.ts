@@ -762,7 +762,7 @@ export interface paths {
         delete?: never;
         options?: never;
         head?: never;
-        /** Move a planned exchange to another moment to come, its duration kept; by its holder */
+        /** Move a planned exchange to another moment to come, for a new duration or its own; by its holder */
         patch: operations["patch_api_exchanges_move"];
         trace?: never;
     };
@@ -1295,6 +1295,11 @@ export interface components {
              * @default null
              */
             occurredAt: string | null;
+            /**
+             * @description How long it lasts now, from 5 minutes to 8 hours; its own when left out
+             * @default null
+             */
+            durationInMinutes: number | null;
         };
         LoginEmailInput: {
             /** @default  */
@@ -4972,7 +4977,7 @@ export interface operations {
                     "application/json": components["schemas"]["ProblemResource"];
                 };
             };
-            /** @description A moment missing, or in the past */
+            /** @description A moment missing, or in the past; a duration out of range */
             422: {
                 headers: {
                     [name: string]: unknown;

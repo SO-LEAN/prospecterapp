@@ -56,7 +56,7 @@ class DynamoCalendarRetrieverTest extends ApiTestCase
         $exchange = $this->planned('2026-11-17 13:00 UTC');
         $this->exchanges()->save($exchange);
 
-        $exchange->moveTo(new \DateTimeImmutable('2026-11-24 08:00 UTC'), $this->prospector->id, new \DateTimeImmutable(self::NOW));
+        $exchange->moveTo(new \DateTimeImmutable('2026-11-24 08:00 UTC'), null, $this->prospector->id, new \DateTimeImmutable(self::NOW));
         $this->exchanges()->save($exchange);
 
         $this->assertSame([], $this->calendarOf($this->prospector, '2026-11-16 00:00 UTC', '2026-11-23 00:00 UTC'));

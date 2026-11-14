@@ -107,6 +107,18 @@ class HandlePlannedExchangeApiTest extends ApiTestCase
         $this->assertSame(['2026-10-21T09:00:00+00:00'], array_column(array_column($this->requestJson('GET', '/api/me/planned-exchanges?startsAt='.urlencode('2026-10-21T09:15:00+00:00'))['items'], 'exchange'), 'occurredAt'));
     }
 
+    public function testMovedForANewDurationItLastsIt(): void
+    {
+        $stretched = $this->requestJson('PATCH', '/api/exchanges/'.$this->planned.'/moment', ['occurredAt' => '2026-10-21T09:00:00+00:00', 'durationInMinutes' => 90]);
+
+        $this->assertResponseStatusCodeSame(200);
+        $this->assertSame(['2026-10-21T09:00:00+00:00', 90], [$stretched['occurredAt'], $stretched['durationInMinutes']]);
+        $this->assertSame(['2026-10-21T09:00:00+00:00'], array_column(array_column($this->requestJson('GET', '/api/me/planned-exchanges?startsAt='.urlencode('2026-10-21T10:15:00+00:00'))['items'], 'exchange'), 'occurredAt'));
+        $tooLong = $this->requestJson('PATCH', '/api/exchanges/'.$this->planned.'/moment', ['occurredAt' => '2026-10-21T09:00:00+00:00', 'durationInMinutes' => 481]);
+        $this->assertResponseStatusCodeSame(422);
+        $this->assertSame([['duration'], 'durationOutOfRange'], [$this->violatedFields($tooLong), $tooLong['reason']]);
+    }
+
     public function testItIsMovedOnlyToAMomentToCome(): void
     {
         $past = $this->requestJson('PATCH', '/api/exchanges/'.$this->planned.'/moment', ['occurredAt' => '2026-10-14T09:00:00+00:00']);

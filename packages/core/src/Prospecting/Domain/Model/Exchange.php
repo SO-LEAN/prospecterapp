@@ -338,15 +338,15 @@ final class Exchange implements ReleasesEvents
     }
 
     /**
-     * To another moment to come, its duration kept.
+     * To another moment to come, for another duration when one is given, else its own (ADR 0119).
      *
      * @throws NotUpcoming|NotTheHolder|PlannedExchangeInThePast
      */
-    public function moveTo(\DateTimeImmutable $plannedAt, MemberId $by, \DateTimeImmutable $at): void
+    public function moveTo(\DateTimeImmutable $plannedAt, ?Duration $duration, MemberId $by, \DateTimeImmutable $at): void
     {
         $this->ensurePossible(ExchangeIntent::MoveExchange, $by, $at);
         self::ensureToCome($plannedAt, $at);
-        $this->facts = $this->facts->movedTo($plannedAt);
+        $this->facts = $this->facts->movedTo($plannedAt, $duration);
         $this->modifiedAt = $at;
         $this->recordThat(new ExchangeMoved($this->accountId, $by, $this->id, $at));
     }

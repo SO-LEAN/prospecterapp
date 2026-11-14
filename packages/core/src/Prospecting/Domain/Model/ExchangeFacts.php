@@ -81,9 +81,9 @@ final readonly class ExchangeFacts
         return new self($this->channel, $this->direction, $at, $report, $this->duration, $this->place, $this->link);
     }
 
-    public function movedTo(\DateTimeImmutable $at): self
+    public function movedTo(\DateTimeImmutable $at, ?Duration $duration): self
     {
-        return new self($this->channel, $this->direction, $at, $this->text, $this->duration, $this->place, $this->link);
+        return new self($this->channel, $this->direction, $at, $this->text, $duration ?? $this->duration, $this->place, $this->link);
     }
 
     /**

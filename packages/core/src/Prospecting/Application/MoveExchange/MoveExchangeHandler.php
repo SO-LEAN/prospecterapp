@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Prospecter\Core\Prospecting\Application\MoveExchange;
 
+use Prospecter\Core\Prospecting\Domain\Model\Duration;
 use Prospecter\Core\Prospecting\Domain\Model\ExchangeId;
 use Prospecter\Core\Prospecting\Domain\Repository\ExchangeRepository;
 use Prospecter\Core\SharedKernel\Application\CommandHandler;
@@ -24,7 +25,8 @@ final readonly class MoveExchangeHandler implements CommandHandler
     public function __invoke(MoveExchange $command): void
     {
         $exchange = $this->exchanges->get(new ExchangeId($command->id));
-        $exchange->moveTo($command->plannedAt, by: new MemberId($command->prospectorId), at: $command->executedAt);
+        $duration = null === $command->durationInMinutes ? null : Duration::inMinutes($command->durationInMinutes);
+        $exchange->moveTo($command->plannedAt, $duration, by: new MemberId($command->prospectorId), at: $command->executedAt);
         $this->exchanges->save($exchange);
         $this->publishWhatHappenedTo($exchange);
     }

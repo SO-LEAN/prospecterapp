@@ -67,10 +67,11 @@ final class PlannedExchangeContext implements Context
         $this->cancel(Canceller::Contact);
     }
 
-    #[When('/^je (?:déplace cette visio|la déplace) au (?<day>\S+) à (?<time>\S+)$/')]
-    public function iMoveIt(string $day, string $time): void
+    #[When('/^je (?:déplace cette visio|la déplace) au (?<day>\S+) à (?<time>\S+)(?: pour (?<duration>.+))?$/')]
+    public function iMoveIt(string $day, string $time, string $duration = ''): void
     {
-        $this->application->dispatch(new MoveExchange($this->application->signedIn(), $this->scenario->theExchange(), Vocabulary::frenchMoment(sprintf('%s à %s', $day, $time)), $this->application->now()));
+        $minutes = '' === $duration ? null : Vocabulary::minutes($duration);
+        $this->application->dispatch(new MoveExchange($this->application->signedIn(), $this->scenario->theExchange(), Vocabulary::frenchMoment(sprintf('%s à %s', $day, $time)), $this->application->now(), $minutes));
     }
 
     #[Then('elle n\'est plus dans ses échanges à venir')]
