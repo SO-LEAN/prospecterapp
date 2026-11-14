@@ -33,7 +33,9 @@ const A_DAY = '2026-11-16'
 function theApiAnswersAnEmptyCalendar() {
   theApi.mockImplementation(async (input) => {
     const { pathname } = new URL(input instanceof Request ? input.url : String(input))
-    return Response.json(pathname === '/api/me' ? me : { items: [] })
+    return Response.json(
+      pathname === '/api/me' ? me : { items: [], _links: { self: { href: pathname, method: 'GET' } } },
+    )
   })
 }
 

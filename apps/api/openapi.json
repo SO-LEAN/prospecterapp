@@ -6463,9 +6463,24 @@
                 },
                 "type": "object"
             },
+            "CalendarLinksResource": {
+                "required": [
+                    "self"
+                ],
+                "properties": {
+                    "self": {
+                        "$ref": "#/components/schemas/LinkResource"
+                    },
+                    "searchContacts": {
+                        "$ref": "#/components/schemas/LinkResource"
+                    }
+                },
+                "type": "object"
+            },
             "CalendarResource": {
                 "required": [
-                    "items"
+                    "items",
+                    "_links"
                 ],
                 "properties": {
                     "items": {
@@ -6473,6 +6488,9 @@
                         "items": {
                             "$ref": "#/components/schemas/OrganizationExchangeResource"
                         }
+                    },
+                    "_links": {
+                        "$ref": "#/components/schemas/CalendarLinksResource"
                     }
                 },
                 "type": "object"

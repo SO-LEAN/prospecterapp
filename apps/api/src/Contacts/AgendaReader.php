@@ -2,9 +2,13 @@
 
 namespace App\Contacts;
 
+use App\Contacts\Resource\CalendarLinksResource;
 use App\Contacts\Resource\CalendarResource;
 use App\Contacts\Resource\PlannedExchangesResource;
 use App\Prospecting\TimelineResourceFactory;
+use App\Security\IntentLinks;
+use App\Security\User;
+use App\Shared\Links;
 use Prospecter\Core\PersonalData\Application\ConsultPersons\ConsultPersons;
 use Prospecter\Core\PersonalData\Application\ConsultPersons\KeptPersons;
 use Prospecter\Core\PersonalData\Application\PersonCard;
@@ -31,6 +35,8 @@ final readonly class AgendaReader
         private QueryHandler $consultPersons,
         private QueryHandler $consultOrganization,
         private TimelineResourceFactory $timelines,
+        private Links $links,
+        private IntentLinks $intents,
     ) {
     }
 
@@ -50,10 +56,21 @@ final readonly class AgendaReader
         $calendar = new KeptCalendar();
         ($this->consultCalendar)(new ConsultCalendar($holder, $from, $until, $at), $calendar);
         $exchanges = $calendar->calendar->exchanges;
-        $presenter = new CalendarPresenter($this->personsOf($holder, $exchanges), $this->organizationsPlannedWithAlone($exchanges), $this->timelines);
+        $presenter = new CalendarPresenter($this->personsOf($holder, $exchanges), $this->organizationsPlannedWithAlone($exchanges), $this->timelines, $this->calendarLinks($from, $until));
         $presenter->present($calendar->calendar);
 
         return $presenter->resource;
+    }
+
+    /**
+     * A free slot plans with a contact searched by text, which needs the right to manage personal data, as planning does.
+     */
+    private function calendarLinks(\DateTimeImmutable $from, \DateTimeImmutable $until): CalendarLinksResource
+    {
+        return new CalendarLinksResource(
+            $this->links->to('api_me_calendar', ['from' => $from->format(\DATE_ATOM), 'to' => $until->format(\DATE_ATOM)]),
+            $this->intents->holds(User::PERSONAL_DATA) ? $this->links->to('api_contacts_search') : null,
+        );
     }
 
     /**

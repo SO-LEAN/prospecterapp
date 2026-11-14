@@ -30,13 +30,15 @@ type Props = {
   onOpenDay?: (day: Date) => void
   onOpen: (item: CalendarExchange) => void
   onMove: (move: CalendarMove) => void
-  onChooseSlot: (slot: Slot) => void
+  /** Absent when the member may not plan: no free slot is chosen. */
+  onChooseSlot?: (slot: Slot) => void
 }
 
 /**
  * The hours of a week or of a day, each exchange at its moment for its duration, those overlapping side by side; the
  * line of now on today. It opens on the working hours, the others a scroll away. An exchange the API lets move is
- * dragged to another moment or stretched by its end; a free slot clicked, or dragged for its duration, is planned.
+ * dragged to another moment or stretched by its end; a free slot clicked, or dragged for its duration, is planned
+ * when the member may plan.
  */
 export function TimeGridView({ period, items, now, onOpenDay, onOpen, onMove, onChooseSlot }: Props) {
   const { t } = useTranslation()
@@ -90,7 +92,10 @@ export function TimeGridView({ period, items, now, onOpenDay, onOpen, onMove, on
               {...{ [DAY_ATTRIBUTE]: dayOf(day) }}
               data-hours=""
               {...gestures.slotHandlers(day)}
-              className="relative min-w-0 flex-1 cursor-cell border-l bg-[repeating-linear-gradient(to_bottom,transparent_0_calc(var(--hour)-1px),var(--color-border)_calc(var(--hour)-1px)_var(--hour))]"
+              className={cn(
+                'relative min-w-0 flex-1 border-l bg-[repeating-linear-gradient(to_bottom,transparent_0_calc(var(--hour)-1px),var(--color-border)_calc(var(--hour)-1px)_var(--hour))]',
+                onChooseSlot && 'cursor-cell',
+              )}
             >
               {placeInTheDay(exchangesOf.get(dayOf(day)) ?? []).map(
                 ({ item, start, length, lane, lanes }) => (

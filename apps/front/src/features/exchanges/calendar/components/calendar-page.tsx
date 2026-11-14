@@ -64,7 +64,7 @@ type Props = {
 /**
  * My calendar: the view and the day shown come from the URL, each change goes back to it; the period shown is read
  * alone, the next and the previous ones read on the hover of their arrow, the days around a day read ahead. An
- * exchange opens in a dialog; one to come is dragged, a free slot planned.
+ * exchange opens in a dialog; one to come is dragged, a free slot planned when the API offers the search of the contacts to plan with.
  */
 export function CalendarPage({ view, day, onShow, contactSummary, interlocutorSearch }: Props) {
   const { t } = useTranslation()
@@ -165,7 +165,7 @@ export function CalendarPage({ view, day, onShow, contactSummary, interlocutorSe
           items={data.items}
           now={now}
           onOpenDay={view === 'week' ? openDay : undefined}
-          onChooseSlot={setSlot}
+          onChooseSlot={data._links.searchContacts ? setSlot : undefined}
           {...gestures}
         />
       )}
