@@ -10,7 +10,7 @@ final readonly class ExchangeLinksResource
     public function __construct(
         #[OA\Property(description: 'The whole of the exchange, who noted it and who corrected it')]
         public LinkResource $self,
-        #[OA\Property(nullable: false, description: 'Moves it to another moment to come, for a new duration or its own; in the calendar of its holder only, while it is to come')]
+        #[OA\Property(nullable: false, description: 'Moves it to another moment to come, for a new duration or its own; in the calendar of its holder only, while it is planned')]
         public ?LinkResource $move = null,
     ) {
     }

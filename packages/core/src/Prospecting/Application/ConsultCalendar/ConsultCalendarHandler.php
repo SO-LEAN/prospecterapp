@@ -50,6 +50,6 @@ final readonly class ConsultCalendarHandler implements QueryHandler
 
     private static function situationOf(ExchangeInTimeline $exchange, \DateTimeImmutable $at): ExchangeSituation
     {
-        return new ExchangeSituation($exchange->attachmentCount, $exchange->toMakeConform, ExchangeStatus::from($exchange->status), $exchange->occurredAt <= $at, true, Channel::from($exchange->channel));
+        return new ExchangeSituation($exchange->attachmentCount, $exchange->toMakeConform, ExchangeStatus::from($exchange->status), $exchange->occurredAt <= $at, heldByTheMember: true, channel: Channel::from($exchange->channel));
     }
 }

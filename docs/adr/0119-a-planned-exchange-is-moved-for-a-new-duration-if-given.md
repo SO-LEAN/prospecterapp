@@ -12,13 +12,13 @@ A planned exchange is moved to a moment to come by its holder, its duration kept
 
 ## Decision
 
-Moving a planned exchange takes a new duration if one is given, within the bounds of a planned exchange (`Duration`: 5 minutes to 8 hours, `DurationOutOfRange`), else it keeps its own. Stretching it in the calendar is moving it to its own moment for another duration: one intention, `MoveExchange` (`PATCH /api/exchanges/{id}/moment`, `durationInMinutes` beside `occurredAt`), with the rules of a move: by its holder, still to come, to a moment to come.
+Moving a planned exchange takes a new duration if one is given, within the bounds of a planned exchange (`Duration`: 5 minutes to 8 hours, `DurationOutOfRange`), else it keeps its own. Stretching it in the calendar is moving it to its own moment for another duration: one intention, `MoveExchange` (`PATCH /api/exchanges/{id}/moment`, `durationInMinutes` beside `occurredAt`), with the rules of a move: by its holder, while it is planned, to a moment to come.
 
 The calendar tells, at the moment of its reading, which of its exchanges its holder may move (`Calendar::$movable`, from `ExchangePossibilities`): each carries then the link `move`, the one the SPA lets drag and stretch.
 
 ## Consequences
 
-- An exchange whose time has come, still planned, is neither moved nor stretched: it is to mark done or missed.
+- An exchange whose time has come, still planned, is moved to a moment to come as before (ADR 0112), dragged in the calendar too; it is not stretched where it is, its moment passed.
 - A duration changed alone, without a calendar, would be a move to its own moment.
 - Dragging and stretching stay code of the project on the grid it owns (ADR 0115), on the events of the pointer, without a library.
 
