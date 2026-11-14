@@ -3,6 +3,7 @@
 - Date: 2026-11-14
 - Type: architecture
 - Status: Accepted
+- Supersedes: for the address of the account a member connects at a provider, the single place of the personal data of [0031](0031-personal-data-context.md)
 - Implemented by: `packages/core/src/Connectors`, `packages/core/features/connecter-mon-compte-google.feature`, `apps/api/src/Connectors`, `docker/nginx/conf.d/google-double.conf`, `apps/front/src/features/connectors`, a step of `apps/front/e2e/journey.spec.ts`
 
 ## Context
