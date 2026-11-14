@@ -9,15 +9,18 @@ use Symfony\Contracts\Service\ResetInterface;
 
 /**
  * The services outside the API, as the tests see them (`framework.http_client.mock_response_factory`): no network,
- * every request gets an empty answer (a geocoding finds nothing), unless a test makes the geocoder place an address.
+ * every request gets an empty answer (a geocoding finds nothing), unless a test makes the geocoder place an address,
+ * but Google, answered by its double.
  */
 final class OutsideServices implements ResetInterface
 {
     /** @var array<string, mixed>|null */
     private ?array $placement = null;
 
-    public function __construct(private readonly string $geocoderUrl)
-    {
+    public function __construct(
+        private readonly string $geocoderUrl,
+        private readonly GoogleDouble $google,
+    ) {
     }
 
     public function geocoderPlaces(float $longitude, float $latitude): void
@@ -32,13 +35,16 @@ final class OutsideServices implements ResetInterface
         ];
     }
 
-    public function __invoke(string $method, string $url): ResponseInterface
+    /**
+     * @param array<string, mixed> $options
+     */
+    public function __invoke(string $method, string $url, array $options = []): ResponseInterface
     {
-        if (null !== $this->placement && str_starts_with($url, $this->geocoderUrl)) {
-            return new JsonMockResponse($this->placement);
-        }
-
-        return new MockResponse();
+        return match (true) {
+            null !== $this->placement && str_starts_with($url, $this->geocoderUrl) => new JsonMockResponse($this->placement),
+            $this->google->serves($url) => $this->google->answer($url, $options),
+            default => new MockResponse(),
+        };
     }
 
     public function reset(): void

@@ -53,3 +53,10 @@ to_dos:
     type: attribute
     host: '%app_api_host%'
     defaults: { _format: json }
+
+# the connections of the member to the services outside (ADR 0120)
+connectors:
+    resource: ../src/Connectors/Controller/
+    type: attribute
+    host: '%app_api_host%'
+    defaults: { _format: json }

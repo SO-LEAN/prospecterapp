@@ -16,10 +16,14 @@ class TablePerContextTest extends TestCase
 
     private const array TABLES = [
         'Accounts' => 'accountsTable',
+        'Connectors' => 'connectorsTable',
         'PersonalData' => 'personalDataTable',
         'Prospecting' => 'prospectingTable',
         'Reporting' => 'reportingTable',
     ];
+
+    /** nothing of Connectors follows from the gestures of another context yet: no consistency to check there (ADR 0120) */
+    private const array UNCHECKED = ['connectorsTable'];
 
     /** the only code reading the tables of several contexts */
     private const string READING_EVERY_TABLE = 'Consistency/ContextTables.php';
@@ -43,9 +47,9 @@ class TablePerContextTest extends TestCase
         $this->assertSame([], array_values($outsideThePersistence));
     }
 
-    public function testTheCheckOfTheConsistencyReadsEveryTableAndWritesNone(): void
+    public function testTheCheckOfTheConsistencyReadsEveryTableItChecksAndWritesNone(): void
     {
-        $this->assertSame(array_values(self::TABLES), $this->tablesIn('Consistency')[self::READING_EVERY_TABLE]);
+        $this->assertSame(array_values(array_diff(self::TABLES, self::UNCHECKED)), $this->tablesIn('Consistency')[self::READING_EVERY_TABLE]);
         $code = (string) file_get_contents(dirname(__DIR__, 2).'/src/'.self::READING_EVERY_TABLE);
 
         foreach (self::WRITES as $write) {
