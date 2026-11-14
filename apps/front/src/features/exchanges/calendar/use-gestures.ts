@@ -99,10 +99,9 @@ export function useGestures({ items, onMove, onChooseSlot }: Props) {
   }
 
   /** A drag may end with a click on what was dragged: it must not open it; the next press is a click again. */
-  const clickedAfterADrag = () => {
-    const dragged = draggedJustNow.current
+  const unlessDraggedJustNow = (click: () => void) => {
+    if (!draggedJustNow.current) click()
     draggedJustNow.current = false
-    return dragged
   }
 
   const startChoosing = (day: Date) => (event: PointerEvent<HTMLElement>) => {
@@ -131,7 +130,7 @@ export function useGestures({ items, onMove, onChooseSlot }: Props) {
     /** The free slot being chosen, as it shows. */
     choosing: choosing && slotBetween(choosing.day, choosing.from, choosing.to),
     choosingDay: choosing?.day ?? null,
-    clickedAfterADrag,
+    unlessDraggedJustNow,
     grab,
     slotHandlers: (day: Date) => ({
       onPointerDown: startChoosing(day),

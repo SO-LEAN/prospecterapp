@@ -21,8 +21,9 @@ type Calendar = { items: CalendarExchange[] }
 
 /**
  * An exchange dragged or stretched in the calendar: shown at once where it was dropped, set back where it was when
- * the API refuses, the refusal told by the toast of every mutation (`query-client.ts`); once moved, its toast offers
- * to move it back. What follows is in the options of the mutation, the toast outliving any component.
+ * the API refuses, the refusal told by the toast of every mutation (`query-client.ts`), the calendar read again
+ * either way; once moved, its toast offers to move it back. What follows is in the options of the mutation, the
+ * toast outliving any component.
  */
 export function useMoveInTheCalendar() {
   const queryClient = useQueryClient()
@@ -45,6 +46,7 @@ export function useMoveInTheCalendar() {
     onError: (_error, _moved, context) => {
       for (const [queryKey, calendar] of context?.before ?? []) queryClient.setQueryData(queryKey, calendar)
     },
+    onSettled: () => queryClient.invalidateQueries({ queryKey: queryKeys.myCalendar }),
     onSuccess: (exchange, { item, undoing }) => {
       queryClient.setQueryData(exchangeQuery(exchange.id).queryKey, exchange)
       readTheTimelinesAgain(queryClient)
@@ -62,11 +64,11 @@ export function useMoveInTheCalendar() {
   return move
 }
 
-function backWhereItWas({ exchange, ...item }: CalendarExchange): CalendarMove {
+function backWhereItWas(item: CalendarExchange): CalendarMove {
   return {
-    item: { exchange, ...item },
-    occurredAt: new Date(exchange.occurredAt),
-    durationInMinutes: exchange.durationInMinutes ?? null,
+    item,
+    occurredAt: new Date(item.exchange.occurredAt),
+    durationInMinutes: item.exchange.durationInMinutes ?? null,
     undoing: true,
   }
 }

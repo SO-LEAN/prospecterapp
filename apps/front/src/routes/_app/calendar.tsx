@@ -7,6 +7,7 @@ import { CalendarSkeleton } from '@/features/exchanges/calendar/components/calen
 import { dayOf, isDay, parseDay, periodOf, VIEWS, type View } from '@/features/exchanges/calendar/dates'
 import { calendarQuery } from '@/features/exchanges/calendar/queries'
 import { defaultView } from '@/features/exchanges/calendar/view'
+import { InterlocutorSearch } from '@/features/organizations/components/interlocutor-search'
 import { ErrorState } from '@/shared/ui/feedback/error-state'
 
 const searchSchema = z.object({
@@ -45,6 +46,7 @@ function Calendar() {
       day={day}
       onShow={(shownView, shownDay) => navigate({ search: { view: shownView, date: dayOf(shownDay) } })}
       contactSummary={(contactId) => <ContactSummary contactId={contactId} />}
+      interlocutorSearch={(onChoose) => <InterlocutorSearch onChoose={onChoose} />}
     />
   )
 }

@@ -21,14 +21,12 @@ import { Input } from '@/shared/ui/input'
 import { useAddContact, useCollectContact, useRemoveContact } from '../mutations'
 import {
   contactCandidatesQuery,
+  fullNameOf,
   type Organization,
   type OrganizationContact,
   organizationContactsQuery,
 } from '../queries'
 import { CollectContactForm } from './collect-contact-form'
-
-const fullNameOf = (contact: Pick<OrganizationContact, 'name'>) =>
-  [contact.name.firstName, contact.name.lastName].filter(Boolean).join(' ')
 
 /** The persons prospected in the organization, read in PersonalData (ADR 0041). */
 export function ContactsSection({ organization }: { organization: Organization }) {

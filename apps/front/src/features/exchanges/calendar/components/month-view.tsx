@@ -78,7 +78,7 @@ export function MonthView({ period, month, items, now, onOpenDay, onOpen, onMove
                   now={now}
                   movable
                   dragged={gestures.draggedId === item.exchange.id}
-                  onClick={() => gestures.clickedAfterADrag() || onOpen(item)}
+                  onClick={() => gestures.unlessDraggedJustNow(() => onOpen(item))}
                   onPointerDown={gestures.grab(item, 'move')}
                 />
               ))}

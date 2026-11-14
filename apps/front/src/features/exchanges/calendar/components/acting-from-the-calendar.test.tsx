@@ -122,6 +122,11 @@ async function showTheCalendar(view: View, items: CalendarExchange[]) {
         day={TUESDAY}
         onShow={onShow}
         contactSummary={(id) => <p>{`Résumé du contact ${id}`}</p>}
+        interlocutorSearch={(onChoose) => (
+          <button type="button" onClick={() => onChoose({ kind: 'person', id: ADA, name: 'Ada Lovelace' })}>
+            Ada Lovelace
+          </button>
+        )}
       />
       <Toaster />
     </QueryClientProvider>,
@@ -276,23 +281,8 @@ describe('an exchange opened from the calendar', () => {
 })
 
 describe('a free slot', () => {
-  it('plans there with a contact searched by the start of their name', async () => {
+  it('plans there with the contact chosen, at its moment, for half an hour', async () => {
     theApiAnswers({
-      'GET /api/contacts': () => ({
-        body: {
-          items: [
-            {
-              id: ADA,
-              name: { firstName: 'Ada', lastName: 'Lovelace' },
-              contactDetails: {},
-              masked: false,
-              organizations: [],
-              contact: { href: `/api/contacts/${ADA}`, method: 'GET' },
-            },
-          ],
-          _links: { self: { href: '/api/contacts', method: 'GET' } },
-        },
-      }),
       [`GET /api/contacts/${ADA}/exchanges`]: () => ({
         body: {
           items: [],
@@ -311,10 +301,31 @@ describe('a free slot', () => {
     fireEvent.pointerUp(thursday, { pointerId: 1, clientX: 350, clientY: 1010 })
 
     const dialog = await screen.findByRole('dialog', { name: 'Planifier' })
-    await userEvent.type(within(dialog).getByLabelText('Chercher un contact ou une organisation'), 'Ada')
-    await userEvent.click(await within(dialog).findByRole('button', { name: 'Ada Lovelace' }))
+    await userEvent.click(within(dialog).getByRole('button', { name: 'Ada Lovelace' }))
+    expect(await within(dialog).findByText('Avec Ada Lovelace')).toBeInTheDocument()
     expect(await within(dialog).findByLabelText('Date')).toHaveValue('2026-11-19')
     expect(within(dialog).getByLabelText('Heure')).toHaveValue('10:00')
     expect(within(dialog).getByLabelText('Durée')).toHaveValue(30)
+  })
+
+  it('says when the contact chosen may not be planned with, and goes back to the search', async () => {
+    theApiAnswers({
+      [`GET /api/contacts/${ADA}/exchanges`]: () => ({
+        body: { items: [], _links: { self: { href: `/api/contacts/${ADA}/exchanges`, method: 'GET' } } },
+      }),
+    })
+    await showTheCalendar('week', [])
+    const thursday = screen.getByRole('list', { name: 'jeudi 19 novembre 2026' })
+    fireEvent.pointerDown(thursday, { button: 0, pointerId: 1, clientX: 350, clientY: 1010 })
+    fireEvent.pointerUp(thursday, { pointerId: 1, clientX: 350, clientY: 1010 })
+    const dialog = await screen.findByRole('dialog', { name: 'Planifier' })
+
+    await userEvent.click(within(dialog).getByRole('button', { name: 'Ada Lovelace' }))
+
+    expect(
+      await within(dialog).findByText('Vous ne pouvez pas planifier d’échange avec Ada Lovelace.'),
+    ).toBeInTheDocument()
+    await userEvent.click(within(dialog).getByRole('button', { name: 'Retour' }))
+    expect(within(dialog).getByRole('button', { name: 'Ada Lovelace' })).toBeInTheDocument()
   })
 })

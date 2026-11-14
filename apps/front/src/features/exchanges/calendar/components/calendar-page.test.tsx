@@ -69,7 +69,13 @@ async function showTheCalendar(view: View, day: Date, items: CalendarExchange[] 
   const onShow = vi.fn()
   await renderInARouter(
     <QueryClientProvider client={queryClient}>
-      <CalendarPage view={view} day={day} onShow={onShow} contactSummary={() => null} />
+      <CalendarPage
+        view={view}
+        day={day}
+        onShow={onShow}
+        contactSummary={() => null}
+        interlocutorSearch={() => null}
+      />
     </QueryClientProvider>,
   )
   return onShow
