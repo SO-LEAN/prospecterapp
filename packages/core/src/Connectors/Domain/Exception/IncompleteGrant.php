@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Prospecter\Core\Connectors\Domain\Exception;
 
-use Prospecter\Core\Connectors\Domain\Model\Provider;
 use Prospecter\Core\SharedKernel\Domain\Exception\BusinessRuleViolation;
 
 /**
@@ -12,8 +11,8 @@ use Prospecter\Core\SharedKernel\Domain\Exception\BusinessRuleViolation;
  */
 final class IncompleteGrant extends BusinessRuleViolation
 {
-    public static function of(Provider $provider): self
+    public static function ofTheCalendar(): self
     {
-        return self::because('The access to the calendar was not granted', context: ['provider' => $provider->value]);
+        return self::because('The access to the calendar was not granted');
     }
 }

@@ -42,17 +42,17 @@ final class Connection implements ReleasesEvents
      */
     public static function establish(MemberId $member, AccountId $accountId, Provider $provider, Grant $grant, \DateTimeImmutable $at): self
     {
-        self::ensureComplete($grant, $provider);
+        self::ensureComplete($grant);
         $connection = new self($member, $accountId, $provider, $grant->account, $grant->refreshToken, $at);
         $connection->recordThat(new Connected($accountId, $member, $at));
 
         return $connection;
     }
 
-    private static function ensureComplete(Grant $grant, Provider $provider): void
+    private static function ensureComplete(Grant $grant): void
     {
         if (!$grant->complete) {
-            throw IncompleteGrant::of($provider);
+            throw IncompleteGrant::ofTheCalendar();
         }
     }
 
@@ -63,7 +63,7 @@ final class Connection implements ReleasesEvents
      */
     public function renew(Grant $grant, ProviderAccess $access, \DateTimeImmutable $at): void
     {
-        self::ensureComplete($grant, $this->provider);
+        self::ensureComplete($grant);
         $access->revoke($this->provider, $this->refreshToken);
         $this->externalAccount = $grant->account;
         $this->refreshToken = $grant->refreshToken;
