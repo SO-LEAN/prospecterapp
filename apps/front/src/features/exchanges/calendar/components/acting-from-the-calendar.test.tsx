@@ -1,7 +1,8 @@
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
+import { MutationCache, QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { fireEvent, screen, waitFor, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
+import { queryClient as theAppQueryClient } from '@/app/query-client'
 import { Toaster } from '@/shared/ui/sonner'
 import { renderInARouter } from '@/test/render-in-a-router'
 import type { ExchangeDetail } from '../../queries'
@@ -34,8 +35,20 @@ const NOW = new Date(2026, 10, 13, 10, 0)
 const TUESDAY = parseDay('2026-11-17')
 const EXCHANGE = '0190a1c0-0000-7000-8000-000000000010'
 const ADA = '0190a1c0-0000-7000-8000-00000000a000'
+const ACME = '0190a1c0-0000-7000-8000-00000000ac00'
 const self = { href: `/api/exchanges/${EXCHANGE}`, method: 'GET' }
 const move = { href: `/api/exchanges/${EXCHANGE}/moment`, method: 'PATCH' }
+const searchContacts = { href: '/api/contacts', method: 'GET' }
+const CALENDAR_SELF = { href: '/api/me/calendar', method: 'GET' }
+
+/** The calendar as the API answers it to a member who may plan, unless told otherwise. */
+const aCalendarOf = (
+  items: CalendarExchange[],
+  links: { searchContacts?: typeof searchContacts } = { searchContacts },
+) => ({
+  items,
+  _links: { self: CALENDAR_SELF, ...links },
+})
 
 const aVideoCall = (
   occurredAt: Date,
@@ -73,13 +86,14 @@ const theDetail = (item: CalendarExchange): ExchangeDetail => ({
 })
 
 type Answer = { status?: number; body: unknown }
+type Answering = (url: URL) => Answer | Promise<Answer>
 
 /** The API by method and path; what it was sent with a change. */
-function theApiAnswers(answers: Record<string, (url: URL) => Answer>) {
+function theApiAnswers(answers: Record<string, Answering>) {
   theApi.mockImplementation(async (input) => {
     const request = input as Request
     const url = new URL(request.url)
-    const answer = answers[`${request.method} ${url.pathname}`]?.(url) ?? { body: { items: [] } }
+    const answer = (await answers[`${request.method} ${url.pathname}`]?.(url)) ?? { body: aCalendarOf([]) }
     return Response.json(answer.body, { status: answer.status ?? 200 })
   })
 }
@@ -109,11 +123,13 @@ function drag(element: Element, from: { x: number; y: number }, to: { x: number;
   fireEvent.pointerUp(window, { pointerId: 1, clientX: to.x, clientY: to.y })
 }
 
-async function showTheCalendar(view: View, items: CalendarExchange[]) {
+/** The refusals of the API told by the toast of every mutation, as in the app. */
+async function showTheCalendar(view: View, calendar: ReturnType<typeof aCalendarOf>) {
   const queryClient = new QueryClient({
     defaultOptions: { queries: { staleTime: Number.POSITIVE_INFINITY } },
+    mutationCache: new MutationCache(theAppQueryClient.getMutationCache().config),
   })
-  queryClient.setQueryData(calendarQuery(periodOf(view, TUESDAY)).queryKey, { items })
+  queryClient.setQueryData(calendarQuery(periodOf(view, TUESDAY)).queryKey, calendar)
   const onShow = vi.fn()
   await renderInARouter(
     <QueryClientProvider client={queryClient}>
@@ -152,9 +168,9 @@ describe('dragging an exchange to come', () => {
     const moved = aVideoCall(new Date(2026, 10, 18, 9, 0))
     theApiAnswers({
       [`PATCH ${move.href}`]: () => ({ body: theDetail(moved) }),
-      'GET /api/me/calendar': () => ({ body: { items: [moved] } }),
+      'GET /api/me/calendar': () => ({ body: aCalendarOf([moved]) }),
     })
-    await showTheCalendar('week', [visio])
+    await showTheCalendar('week', aCalendarOf([visio]))
 
     drag(screen.getByRole('button', { name: /14h00, Visio/ }), { x: 150, y: 1400 }, { x: 250, y: 900 })
 
@@ -172,24 +188,36 @@ describe('dragging an exchange to come', () => {
     ])
   })
 
-  it('goes back to its place when the API refuses to move it', async () => {
-    theApiAnswers({
-      [`PATCH ${move.href}`]: () => ({
-        status: 409,
-        body: { type: 'about:blank', title: 'Only an upcoming exchange may change', status: 409 },
-      }),
+  it('shows it where it is dropped, then back at its place, the refusal told, when the API refuses', async () => {
+    const visio = aVideoCall(new Date(2026, 10, 17, 14, 0))
+    let refuse: () => void = () => undefined
+    const refused = new Promise<void>((resolve) => {
+      refuse = () => resolve()
     })
-    await showTheCalendar('week', [aVideoCall(new Date(2026, 10, 17, 14, 0))])
+    theApiAnswers({
+      [`PATCH ${move.href}`]: async () => {
+        await refused
+        return {
+          status: 409,
+          body: { type: 'about:blank', title: 'Only an upcoming exchange may change', status: 409 },
+        }
+      },
+      'GET /api/me/calendar': () => ({ body: aCalendarOf([visio]) }),
+    })
+    await showTheCalendar('week', aCalendarOf([visio]))
+    const theDayOf = (name: string) => screen.getByRole('list', { name })
 
     drag(screen.getByRole('button', { name: /14h00, Visio/ }), { x: 150, y: 1400 }, { x: 250, y: 900 })
 
-    await waitFor(() =>
-      expect(
-        within(screen.getByRole('list', { name: 'mardi 17 novembre 2026' })).getByRole('button', {
-          name: /14h00, Visio/,
-        }),
-      ).toBeInTheDocument(),
-    )
+    expect(
+      await within(theDayOf('mercredi 18 novembre 2026')).findByRole('button', { name: /9h00, Visio/ }),
+    ).toBeInTheDocument()
+    refuse()
+    expect(await screen.findByText('Only an upcoming exchange may change')).toBeInTheDocument()
+    expect(
+      await within(theDayOf('mardi 17 novembre 2026')).findByRole('button', { name: /14h00, Visio/ }),
+    ).toBeInTheDocument()
+    expect(within(theDayOf('mercredi 18 novembre 2026')).queryByRole('button')).not.toBeInTheDocument()
     expect(await sent('PATCH')).toHaveLength(1)
   })
 
@@ -198,10 +226,10 @@ describe('dragging an exchange to come', () => {
     const stretchedVisio = aVideoCall(new Date(2026, 10, 17, 14, 0), { durationInMinutes: 60 })
     theApiAnswers({
       [`PATCH ${move.href}`]: () => ({ body: theDetail(stretchedVisio) }),
-      'GET /api/me/calendar': () => ({ body: { items: [stretchedVisio] } }),
+      'GET /api/me/calendar': () => ({ body: aCalendarOf([stretchedVisio]) }),
       [`GET ${self.href}`]: () => ({ body: theDetail(stretchedVisio) }),
     })
-    await showTheCalendar('week', [visio])
+    await showTheCalendar('week', aCalendarOf([visio]))
     const chip = screen.getByRole('button', { name: /14h00, Visio/ })
 
     drag(chip.querySelector('[data-stretch]') as Element, { x: 150, y: 1450 }, { x: 150, y: 1490 })
@@ -218,7 +246,7 @@ describe('dragging an exchange to come', () => {
   it('changes its day alone in the month, its hour kept', async () => {
     const visio = aVideoCall(new Date(2026, 10, 17, 14, 0))
     theApiAnswers({ [`PATCH ${move.href}`]: () => ({ body: theDetail(visio) }) })
-    await showTheCalendar('month', [visio])
+    await showTheCalendar('month', aCalendarOf([visio]))
     document.elementFromPoint = () => theCellOf('2026-11-20')
 
     drag(screen.getByRole('button', { name: /14h00, Visio/ }), { x: 10, y: 10 }, { x: 300, y: 200 })
@@ -231,9 +259,10 @@ describe('dragging an exchange to come', () => {
   })
 
   it('leaves an exchange past where it is: the API does not let it move', async () => {
-    await showTheCalendar('week', [
-      aVideoCall(new Date(2026, 10, 17, 14, 0), { status: 'done', _links: { self } }),
-    ])
+    await showTheCalendar(
+      'week',
+      aCalendarOf([aVideoCall(new Date(2026, 10, 17, 14, 0), { status: 'done', _links: { self } })]),
+    )
     const done = screen.getByRole('button', { name: /14h00, Visio/ })
 
     drag(done, { x: 150, y: 1400 }, { x: 250, y: 900 })
@@ -260,7 +289,7 @@ describe('an exchange opened from the calendar', () => {
         },
       }),
     })
-    const onShow = await showTheCalendar('week', [visio])
+    const onShow = await showTheCalendar('week', aCalendarOf([visio]))
 
     await userEvent.click(screen.getByRole('button', { name: /14h00, Visio/ }))
 
@@ -280,7 +309,53 @@ describe('an exchange opened from the calendar', () => {
   })
 })
 
+describe('an exchange opened from the calendar, with no contact to show', () => {
+  it('leads an exchange with an organization to its card, without a contact', async () => {
+    const meeting = {
+      ...aVideoCall(new Date(2026, 10, 17, 14, 0)),
+      interlocutor: { kind: 'organization', id: ACME, name: 'ACME', presence: null },
+    } satisfies CalendarExchange
+    theApiAnswers({ [`GET ${self.href}`]: () => ({ body: theDetail(meeting) }) })
+    await showTheCalendar('week', aCalendarOf([meeting]))
+
+    await userEvent.click(screen.getByRole('button', { name: /14h00, Visio avec ACME/ }))
+
+    const dialog = await screen.findByRole('dialog', { name: 'Échange' })
+    expect(await within(dialog).findByRole('link', { name: 'Ouvrir la fiche' })).toHaveAttribute(
+      'href',
+      `/organizations/${ACME}`,
+    )
+    expect(within(dialog).queryByRole('region', { name: 'Le contact' })).not.toBeInTheDocument()
+  })
+
+  it('leads an exchange with a forgotten contact nowhere', async () => {
+    const forgotten = aVideoCall(new Date(2026, 10, 17, 14, 0), { status: 'done', _links: { self } })
+    forgotten.interlocutor = { kind: 'person', id: ADA, name: null, presence: 'forgotten' }
+    const { interlocutor: _none, ...links } = theDetail(forgotten)._links
+    theApiAnswers({ [`GET ${self.href}`]: () => ({ body: { ...theDetail(forgotten), _links: links } }) })
+    await showTheCalendar('week', aCalendarOf([forgotten]))
+
+    await userEvent.click(screen.getByRole('button', { name: /14h00, Visio/ }))
+
+    const dialog = await screen.findByRole('dialog', { name: 'Échange' })
+    expect(await within(dialog).findByText('Démonstration')).toBeInTheDocument()
+    expect(within(dialog).queryByRole('region', { name: 'Le contact' })).not.toBeInTheDocument()
+    expect(within(dialog).queryByRole('link', { name: 'Ouvrir la fiche' })).not.toBeInTheDocument()
+  })
+})
+
 describe('a free slot', () => {
+  it('is not chosen by a member who may not plan: the API offers no search of the contacts', async () => {
+    await showTheCalendar('week', aCalendarOf([], {}))
+    const thursday = screen.getByRole('list', { name: 'jeudi 19 novembre 2026' })
+
+    fireEvent.pointerDown(thursday, { button: 0, pointerId: 1, clientX: 350, clientY: 1010 })
+    fireEvent.pointerUp(thursday, { pointerId: 1, clientX: 350, clientY: 1010 })
+
+    expect(screen.queryByRole('dialog', { name: 'Planifier' })).not.toBeInTheDocument()
+    expect(thursday).not.toHaveClass('cursor-cell')
+  })
+
   it('plans there with the contact chosen, at its moment, for half an hour', async () => {
     theApiAnswers({
       [`GET /api/contacts/${ADA}/exchanges`]: () => ({
@@ -294,7 +369,7 @@ describe('a free slot', () => {
       }),
       [`GET /api/contacts/${ADA}/meeting-place`]: () => ({ body: { address: null } }),
     })
-    await showTheCalendar('week', [])
+    await showTheCalendar('week', aCalendarOf([]))
     const thursday = screen.getByRole('list', { name: 'jeudi 19 novembre 2026' })
 
     fireEvent.pointerDown(thursday, { button: 0, pointerId: 1, clientX: 350, clientY: 1010 })
@@ -314,7 +389,7 @@ describe('a free slot', () => {
         body: { items: [], _links: { self: { href: `/api/contacts/${ADA}/exchanges`, method: 'GET' } } },
       }),
     })
-    await showTheCalendar('week', [])
+    await showTheCalendar('week', aCalendarOf([]))
     const thursday = screen.getByRole('list', { name: 'jeudi 19 novembre 2026' })
     fireEvent.pointerDown(thursday, { button: 0, pointerId: 1, clientX: 350, clientY: 1010 })
     fireEvent.pointerUp(thursday, { pointerId: 1, clientX: 350, clientY: 1010 })

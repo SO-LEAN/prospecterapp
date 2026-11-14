@@ -43,8 +43,9 @@ export function useMoveInTheCalendar() {
       showMoved(queryClient, moved)
       return { before }
     },
-    onError: (_error, _moved, context) => {
-      for (const [queryKey, calendar] of context?.before ?? []) queryClient.setQueryData(queryKey, calendar)
+    onError: (_error, _moved, onMutateResult) => {
+      for (const [queryKey, calendar] of onMutateResult?.before ?? [])
+        queryClient.setQueryData(queryKey, calendar)
     },
     onSettled: () => queryClient.invalidateQueries({ queryKey: queryKeys.myCalendar }),
     onSuccess: (exchange, { item, undoing }) => {

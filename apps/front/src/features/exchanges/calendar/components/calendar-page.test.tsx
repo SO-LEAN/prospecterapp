@@ -61,11 +61,13 @@ const periodsAsked = () =>
     return dayOf(new Date(url.searchParams.get('from') ?? ''))
   })
 
+const CALENDAR_LINKS = { self: { href: '/api/me/calendar', method: 'GET' } }
+
 async function showTheCalendar(view: View, day: Date, items: CalendarExchange[] = []) {
   const queryClient = new QueryClient({
     defaultOptions: { queries: { staleTime: Number.POSITIVE_INFINITY } },
   })
-  queryClient.setQueryData(calendarQuery(periodOf(view, day)).queryKey, { items })
+  queryClient.setQueryData(calendarQuery(periodOf(view, day)).queryKey, { items, _links: CALENDAR_LINKS })
   const onShow = vi.fn()
   await renderInARouter(
     <QueryClientProvider client={queryClient}>
@@ -84,7 +86,7 @@ async function showTheCalendar(view: View, day: Date, items: CalendarExchange[] 
 beforeEach(() => {
   vi.useFakeTimers({ toFake: ['Date'] })
   vi.setSystemTime(NOW)
-  theApi.mockImplementation(async () => Response.json({ items: [] }))
+  theApi.mockImplementation(async () => Response.json({ items: [], _links: CALENDAR_LINKS }))
 })
 
 afterEach(() => {

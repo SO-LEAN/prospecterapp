@@ -2,6 +2,7 @@
 
 namespace App\Contacts;
 
+use App\Contacts\Resource\CalendarLinksResource;
 use App\Contacts\Resource\CalendarResource;
 use App\Contacts\Resource\InterlocutorResource;
 use App\Contacts\Resource\OrganizationExchangeResource;
@@ -14,7 +15,7 @@ use Prospecter\Core\Prospecting\Application\OrganizationSheet;
 
 /**
  * The calendar of the signed-in member over a period, each exchange with who it is with: the person, or the
- * organization itself. Built for one call with the persons and the organizations they are with, it keeps the
+ * organization itself, and its links. Built for one call with the persons and the organizations they are with, it keeps the
  * resource (ADR 0085).
  */
 final class CalendarPresenter implements ConsultCalendarOutput
@@ -29,6 +30,7 @@ final class CalendarPresenter implements ConsultCalendarOutput
         private readonly array $persons,
         private readonly array $organizations,
         private readonly TimelineResourceFactory $timelineResourceFactory,
+        private readonly CalendarLinksResource $links,
     ) {
     }
 
@@ -37,6 +39,6 @@ final class CalendarPresenter implements ConsultCalendarOutput
         $this->resource = new CalendarResource(array_map(
             fn (ExchangeInTimeline $exchange): OrganizationExchangeResource => new OrganizationExchangeResource($this->timelineResourceFactory->createCalendarExchange($exchange, $calendar), InterlocutorResource::of($exchange, $this->persons, $this->organizations)),
             $calendar->exchanges,
-        ));
+        ), $this->links);
     }
 }

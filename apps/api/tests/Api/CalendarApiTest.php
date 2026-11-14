@@ -5,6 +5,15 @@ namespace Tests\App\Api;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Group;
 use Prospecter\Core\Accounts\Domain\Model\Role;
+use Prospecter\Core\Prospecting\Domain\Model\Channel;
+use Prospecter\Core\Prospecting\Domain\Model\Duration;
+use Prospecter\Core\Prospecting\Domain\Model\Exchange;
+use Prospecter\Core\Prospecting\Domain\Model\ExchangeFacts;
+use Prospecter\Core\Prospecting\Domain\Model\ExchangeId;
+use Prospecter\Core\Prospecting\Domain\Repository\ExchangeRepository;
+use Prospecter\Core\SharedKernel\Domain\MemberId;
+use Prospecter\Core\SharedKernel\Domain\OrganizationId;
+use Prospecter\Core\SharedKernel\Domain\PersonId;
 use Tests\App\Base\ApiTestCase;
 
 /**
@@ -55,8 +64,8 @@ class CalendarApiTest extends ApiTestCase
     }
 
     /**
-     * Its holder moves an exchange of their calendar while it is to come, whoever planned it having the right to manage
-     * personal data; what is done, missed or cancelled stays where it is.
+     * Its holder moves an exchange of their calendar while it is to come; what is done, missed or cancelled stays where
+     * it is.
      */
     #[DataProvider('holders')]
     public function testOnlyAnExchangeToComeIsMovedFromTheCalendar(string $reference, Role ...$roles): void
@@ -67,7 +76,7 @@ class CalendarApiTest extends ApiTestCase
         $cancelled = $this->requestJson('POST', '/api/organizations/'.$organization.'/upcoming-exchanges', ['exchange' => ['channel' => 'meeting', 'occurredAt' => '2026-10-19T08:00:00+00:00']])['items'][0]['exchange']['id'];
         $this->requestJson('POST', '/api/exchanges/'.$cancelled.'/cancellation', []);
 
-        $links = array_column(array_column($this->requestJson('GET', self::NEXT_WEEK)['items'], 'exchange'), '_links', 'id');
+        $links = $this->linksOfTheExchanges($this->requestJson('GET', self::NEXT_WEEK));
 
         $this->assertSame(['href' => '/api/exchanges/'.$planned.'/moment', 'method' => 'PATCH'], $links[$planned]['move'] ?? null);
         $this->assertArrayNotHasKey('move', $links[$cancelled]);
@@ -82,9 +91,56 @@ class CalendarApiTest extends ApiTestCase
         yield 'an administrator' => ['administrator', Role::Prospector, Role::Admin];
     }
 
+    /**
+     * Planned while they had the right to manage personal data, the exchange is still theirs to move.
+     */
+    public function testAHolderWithoutTheRightToManagePersonalDataMovesTheirExchangeFromTheCalendar(): void
+    {
+        $organization = $this->requestJson('POST', '/api/organizations', ['legalIdentity' => ['corporateName' => 'ACME']])['id'];
+        $ada = $this->requestJson('POST', '/api/contacts', ['name' => ['firstName' => 'Ada', 'lastName' => 'Lovelace'], 'organizationIds' => [$organization]])['id'];
+        $assistant = $this->aMemberOfTheFixtures('prospector-without-the-right', Role::User, Role::Prospector);
+        $planned = Exchange::plannedWithAContact($this->accountOfTheFixtures(), new MemberId($this->memberIdOf($assistant)), new ExchangeId(self::newIdentity()), new PersonId($ada), [new OrganizationId($organization)], ExchangeFacts::planned(Channel::Call, new \DateTimeImmutable('2026-10-20T12:00:00+00:00'), Duration::inMinutes(null), null), new \DateTimeImmutable('2026-10-15 09:00 UTC'));
+        self::getContainer()->get(ExchangeRepository::class)->save($planned);
+        $this->login($assistant);
+
+        $links = $this->linksOfTheExchanges($this->requestJson('GET', self::NEXT_WEEK));
+
+        $this->assertSame(['href' => '/api/exchanges/'.$planned->id()->value.'/moment', 'method' => 'PATCH'], $links[$planned->id()->value]['move'] ?? null);
+    }
+
     public function testADoneExchangeIsNotMovedFromTheCalendar(): void
     {
-        $this->assertSame([[], []], array_map(static fn (array $links): array => array_diff(array_keys($links), ['self']), array_column(array_column($this->requestJson('GET', self::WEEK_OF_THE_DEMONSTRATION)['items'], 'exchange'), '_links')));
+        $links = $this->linksOfTheExchanges($this->requestJson('GET', self::WEEK_OF_THE_DEMONSTRATION));
+
+        $this->assertSame([[], []], array_values(array_map(static fn (array $links): array => array_diff(array_keys($links), ['self']), $links)));
+    }
+
+    /**
+     * A free slot plans with a contact searched by text: a member with the right to manage personal data, as planning.
+     */
+    #[DataProvider('holders')]
+    public function testAMemberWhoMayPlanIsOfferedTheSearchOfTheContacts(string $reference, Role ...$roles): void
+    {
+        $this->login($this->aMemberOfTheFixtures($reference, ...$roles));
+
+        $this->assertSame(['href' => '/api/contacts', 'method' => 'GET'], $this->requestJson('GET', self::NEXT_WEEK)['_links']['searchContacts'] ?? null);
+    }
+
+    public function testAMemberWithoutTheRightToManagePersonalDataIsNotOfferedTheSearchOfTheContacts(): void
+    {
+        $this->login($this->aMemberOfTheFixtures('prospector-without-the-right', Role::User, Role::Prospector));
+
+        $this->assertSame(['self'], array_keys($this->requestJson('GET', self::NEXT_WEEK)['_links']));
+    }
+
+    /**
+     * @param array{items: list<array{exchange: array{id: string, _links: array<string, mixed>}}>} $calendar
+     *
+     * @return array<string, array<string, mixed>> the links of each exchange, by its id
+     */
+    private function linksOfTheExchanges(array $calendar): array
+    {
+        return array_column(array_column($calendar['items'], 'exchange'), '_links', 'id');
     }
 
     public function testTheExchangesNotedAreInTheCalendarOfTheirAuthor(): void

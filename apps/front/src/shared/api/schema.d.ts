@@ -1644,8 +1644,13 @@ export interface components {
             organizations: components["schemas"]["OrganizationResource"][];
             contacts: components["schemas"]["ContactInListResource"][];
         };
+        CalendarLinksResource: {
+            self: components["schemas"]["LinkResource"];
+            searchContacts?: components["schemas"]["LinkResource"];
+        };
         CalendarResource: {
             items: components["schemas"]["OrganizationExchangeResource"][];
+            _links: components["schemas"]["CalendarLinksResource"];
         };
         OrganizationsOfContactResource: {
             items: components["schemas"]["OrganizationOfContactResource"][];
