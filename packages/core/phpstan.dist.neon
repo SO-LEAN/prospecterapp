@@ -6,3 +6,6 @@ parameters:
     paths:
         - src/
         - tests/
+    # as many workers as the php container has processors (2, docker-compose.agents.yml), not as the host shows it
+    parallel:
+        maximumNumberOfProcesses: 2
