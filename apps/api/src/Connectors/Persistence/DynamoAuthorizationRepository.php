@@ -9,14 +9,18 @@ use Prospecter\Core\Connectors\Domain\Model\PendingAuthorization;
 use Prospecter\Core\Connectors\Domain\Model\Provider;
 use Prospecter\Core\Connectors\Domain\Repository\AuthorizationRepository;
 use Prospecter\Core\SharedKernel\Domain\MemberId;
+use Psr\Clock\ClockInterface;
 
 /**
  * The authorizations waiting for the answer of their provider in the table of Connectors (ADR 0120):
- * `AUTHORIZATION#<state>` / `AUTHORIZATION`, `expiresAt` the epoch the table forgets it at, once expired.
+ * `AUTHORIZATION#<state>` / `AUTHORIZATION`, `expiresAt` the epoch the table forgets it at, counted from now, the real
+ * one: the rule refusing it once expired is that of the core.
  */
 final readonly class DynamoAuthorizationRepository implements AuthorizationRepository
 {
-    public function __construct(private Table $connectorsTable)
+    private const string KEPT_FOR = '+1 hour';
+
+    public function __construct(private Table $connectorsTable, private ClockInterface $clock)
     {
     }
 
@@ -32,7 +36,7 @@ final readonly class DynamoAuthorizationRepository implements AuthorizationRepos
                 'codeVerifier' => $authorization->codeVerifier,
                 'expiresAt' => Documents::moment($authorization->expiresAt),
             ],
-            'expiresAt' => $authorization->expiresAt->getTimestamp(),
+            'expiresAt' => $this->clock->now()->modify(self::KEPT_FOR)->getTimestamp(),
         ])]);
     }
 
