@@ -26,6 +26,12 @@ server {
         proxy_pass http://$ministack;
     }
 
+    # the authorization page of the double of Google (conf.d/google-double.conf, ADR 0120): the member grants at
+    # once, the browser sent back to the SPA with a fixed code and the state it brought
+    location = /google/authorize {
+        return 302 https://${NGINX_HOST}:${PUBLIC_PORT}/settings/connectors/google?code=code-of-the-double&state=$arg_state;
+    }
+
     location / {
         proxy_set_header Host $host;
         proxy_set_header X-Forwarded-Proto https;

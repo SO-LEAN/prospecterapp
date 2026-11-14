@@ -941,6 +941,75 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/me/connections/google/authorizations": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Ask Google for the access to my calendar: the browser goes to the address answered, Google brings it back to the SPA with a code to give to POST /api/me/connections/google within ten minutes */
+        post: operations["post_api_me_connections_google_authorize"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/me/connections/checks": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Check my connections with their providers: one whose access the provider refuses is to reconnect */
+        post: operations["post_api_me_connections_check"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/me/connections/google": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Connect my Google account with the code Google brought the SPA back with, replacing the account connected before */
+        post: operations["post_api_me_connections_google_connect"];
+        /** Disconnect my Google account: the access is revoked at Google, then forgotten */
+        delete: operations["delete_api_me_connections_google_disconnect"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/me/connections": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Consult my connections to the services outside, in the state last seen, without asking them */
+        get: operations["get_api_me_connections"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
 }
 export type webhooks = Record<string, never>;
 export interface components {
@@ -1250,6 +1319,12 @@ export interface components {
              * @example 08:30
              */
             dueAt: string | null;
+        };
+        GoogleAnswerInput: {
+            /** @default null */
+            code: string | null;
+            /** @default null */
+            state: string | null;
         };
         PersonNameResource: {
             firstName?: string | null;
@@ -1735,6 +1810,37 @@ export interface components {
         ToDoListResource: {
             toDos: components["schemas"]["ToDoResource"][];
             _links: components["schemas"]["ToDoListLinksResource"];
+        };
+        AuthorizationResource: {
+            /** Format: uri */
+            address: string;
+        };
+        ConnectionLinksResource: {
+            disconnect: components["schemas"]["LinkResource"];
+            reconnect: components["schemas"]["LinkResource"];
+        };
+        ConnectionResource: {
+            /** @enum {string} */
+            provider: "google";
+            /** @enum {string} */
+            state: "connected" | "toReconnect";
+            /**
+             * Format: email
+             * @description The account connected at the provider
+             */
+            account: string;
+            /** Format: date-time */
+            connectedAt: string;
+            _links: components["schemas"]["ConnectionLinksResource"];
+        };
+        ConnectionsLinksResource: {
+            self: components["schemas"]["LinkResource"];
+            check: components["schemas"]["LinkResource"];
+            connectGoogle: components["schemas"]["LinkResource"];
+        };
+        ConnectionsResource: {
+            connections: components["schemas"]["ConnectionResource"][];
+            _links: components["schemas"]["ConnectionsLinksResource"];
         };
     };
     responses: never;
@@ -5545,6 +5651,217 @@ export interface operations {
             };
             /** @description Not done */
             409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ProblemResource"];
+                };
+            };
+        };
+    };
+    post_api_me_connections_google_authorize: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description The authorization asked */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AuthorizationResource"];
+                };
+            };
+            /** @description Missing or invalid access token */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description The signed-in user is not a user */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ProblemResource"];
+                };
+            };
+        };
+    };
+    post_api_me_connections_check: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description My connections, as their providers see them now */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ConnectionsResource"];
+                };
+            };
+            /** @description Missing or invalid access token */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description The signed-in user is not a user */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ProblemResource"];
+                };
+            };
+        };
+    };
+    post_api_me_connections_google_connect: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["GoogleAnswerInput"];
+            };
+        };
+        responses: {
+            /** @description My connections, Google connected */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ConnectionsResource"];
+                };
+            };
+            /** @description Missing or invalid access token */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Google did not grant the access for this code */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ProblemResource"];
+                };
+            };
+            /** @description No authorization of mine waits for this state: unknown, expired, or asked by another member */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ProblemResource"];
+                };
+            };
+            /** @description The access to the calendar was not granted, or the answer is incomplete */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ProblemResource"];
+                };
+            };
+        };
+    };
+    delete_api_me_connections_google_disconnect: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description My connections, Google no longer among them */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ConnectionsResource"];
+                };
+            };
+            /** @description Missing or invalid access token */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description The signed-in user is not a user */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ProblemResource"];
+                };
+            };
+            /** @description No connection to Google */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ProblemResource"];
+                };
+            };
+        };
+    };
+    get_api_me_connections: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description My connections */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ConnectionsResource"];
+                };
+            };
+            /** @description Missing or invalid access token */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description The signed-in user is not a user */
+            403: {
                 headers: {
                     [name: string]: unknown;
                 };

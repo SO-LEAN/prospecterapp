@@ -140,5 +140,13 @@ locals {
     STORAGE_INTERNAL_URL        = nonsensitive(lookup(local.storage_parameters, "internal-url", ""))
     STORAGE_TOKEN               = "bref-ssm:${local.storage_ssm_path}/token"
     INTEGRATION_EVENTS_DELIVERY = var.integration_events_delivery
+    # the OAuth client of the instance at Google (ADR 0120): its id and its secret set by hand in SSM before the
+    # apply, Google bringing the member back to the page of the connectors of the SPA
+    GOOGLE_CLIENT_ID         = "bref-ssm:${local.ssm_path}/google-client-id"
+    GOOGLE_CLIENT_SECRET     = "bref-ssm:${local.ssm_path}/google-client-secret"
+    GOOGLE_REDIRECT_URI      = "${local.front_url}/settings/connectors/google"
+    GOOGLE_AUTHORIZATION_URL = "https://accounts.google.com/o/oauth2/v2/auth"
+    GOOGLE_TOKEN_URL         = "https://oauth2.googleapis.com/token"
+    GOOGLE_REVOKE_URL        = "https://oauth2.googleapis.com/revoke"
   }
 }

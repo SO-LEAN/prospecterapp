@@ -9,6 +9,7 @@ parameters:
     # subscription are written
     app.context_tables:
         accounts: '%env(DYNAMODB_TABLE_PREFIX)%-accounts'
+        connectors: '%env(DYNAMODB_TABLE_PREFIX)%-connectors'
         personal-data: '%env(DYNAMODB_TABLE_PREFIX)%-personal-data'
         prospecting: '%env(DYNAMODB_TABLE_PREFIX)%-prospecting'
 
@@ -40,6 +41,7 @@ services:
             - '../src/*/Presenter/'
             - '../src/*/*Presenter.php'
             - '../src/Exchanges/ExchangeParticipants.php'
+            - '../src/Connectors/Google/AuthorizationRequest.php'
             - '../src/Dashboard/DashboardResource.php'
             - '../src/Security/User.php'
             - '../src/Kernel.php'
@@ -49,7 +51,7 @@ services:
     # Handlers of the core: commands go through the command bus, queries are called by the controllers, the
     # published services by the anticorruption layers of the other contexts (ADR 0045, 0089)
     Prospecter\Core\:
-        resource: '../vendor/prospecter/core/src/{Accounts,PersonalData,Prospecting,Reporting}/Application/*/*Handler.php'
+        resource: '../vendor/prospecter/core/src/{Accounts,Connectors,PersonalData,Prospecting,Reporting}/Application/*/*Handler.php'
         exclude: '../vendor/prospecter/core/src/Reporting/Application/RebuildFigures/RebuildFiguresHandler.php'
     # its steps commit their own units (ADR 0103): called by app:reporting:rebuild, out of the command bus
     Prospecter\Core\Reporting\Application\RebuildFigures\RebuildFiguresHandler:
@@ -86,10 +88,14 @@ services:
     app.table.reporting:
         class: App\Shared\Persistence\Table
         arguments: { $name: '%env(DYNAMODB_TABLE_PREFIX)%-reporting' }
+    app.table.connectors:
+        class: App\Shared\Persistence\Table
+        arguments: { $name: '%env(DYNAMODB_TABLE_PREFIX)%-connectors' }
     App\Shared\Persistence\Table $accountsTable: '@app.table.accounts'
     App\Shared\Persistence\Table $personalDataTable: '@app.table.personal_data'
     App\Shared\Persistence\Table $prospectingTable: '@app.table.prospecting'
     App\Shared\Persistence\Table $reportingTable: '@app.table.reporting'
+    App\Shared\Persistence\Table $connectorsTable: '@app.table.connectors'
 
     # The services the contexts offer each other, answered in process by the handlers of their Contracts (ADR 0089)
     Prospecter\Core\Accounts\Contract\Service\ConsultMembers\ConsultMembersService: '@Prospecter\Core\Accounts\Application\ConsultMembers\ConsultMembersHandler'
@@ -137,6 +143,11 @@ services:
         arguments: { $clock: '@app.commit_clock' }
     App\Reporting\Persistence\DynamoProjectionVersions:
         arguments: { $clock: '@app.commit_clock' }
+    Prospecter\Core\Connectors\Domain\Repository\ConnectionRepository: '@App\Connectors\Persistence\DynamoConnectionRepository'
+    Prospecter\Core\Connectors\Domain\Repository\AuthorizationRepository: '@App\Connectors\Persistence\DynamoAuthorizationRepository'
+    Prospecter\Core\Connectors\Application\Port\MyConnectionsRetriever: '@App\Connectors\Persistence\DynamoMyConnectionsRetriever'
+    Prospecter\Core\Connectors\Domain\Port\Members: '@App\Connectors\AntiCorruption\AccountsMembers'
+    Prospecter\Core\Connectors\Domain\Port\ProviderAccess: '@App\Connectors\Google\GoogleProviderAccess'
     Prospecter\Core\Prospecting\Domain\Port\Prospectors: '@App\Prospecting\AntiCorruption\AccountsProspectors'
     Prospecter\Core\Prospecting\Domain\Port\KnownContacts: '@App\Prospecting\AntiCorruption\PersonalDataKnownContacts'
     Prospecter\Core\PersonalData\Domain\Port\ProspectedOrganizations: '@App\PersonalData\AntiCorruption\ProspectingOrganizations'
@@ -237,7 +248,11 @@ when@test:
     services:
         # no network in tests: the services outside the API answer by this double (config/packages/framework.yaml)
         Tests\App\Double\OutsideServices:
-            arguments: ['%env(APP_GEOCODER_URL)%']
+            arguments: ['%env(APP_GEOCODER_URL)%', '@Tests\App\Double\GoogleDouble']
+            public: true
+        # Google, its tokens and its revocations, by its double behind OutsideServices
+        Tests\App\Double\GoogleDouble:
+            arguments: ['%env(GOOGLE_TOKEN_URL)%', '%env(GOOGLE_REVOKE_URL)%']
             public: true
         # the files stay in memory: the storage app is tested on its own
         Prospecter\Core\SharedKernel\Application\Port\Storage: '@Tests\App\Double\InMemoryStorage'

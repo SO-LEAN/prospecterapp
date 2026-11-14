@@ -4569,6 +4569,214 @@
                     }
                 }
             }
+        },
+        "/api/me/connections/google/authorizations": {
+            "post": {
+                "tags": [
+                    "Connectors"
+                ],
+                "summary": "Ask Google for the access to my calendar: the browser goes to the address answered, Google brings it back to the SPA with a code to give to POST /api/me/connections/google within ten minutes",
+                "operationId": "post_api_me_connections_google_authorize",
+                "responses": {
+                    "201": {
+                        "description": "The authorization asked",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/AuthorizationResource"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Missing or invalid access token"
+                    },
+                    "403": {
+                        "description": "The signed-in user is not a user",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ProblemResource"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/me/connections/checks": {
+            "post": {
+                "tags": [
+                    "Connectors"
+                ],
+                "summary": "Check my connections with their providers: one whose access the provider refuses is to reconnect",
+                "operationId": "post_api_me_connections_check",
+                "responses": {
+                    "200": {
+                        "description": "My connections, as their providers see them now",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ConnectionsResource"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Missing or invalid access token"
+                    },
+                    "403": {
+                        "description": "The signed-in user is not a user",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ProblemResource"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/me/connections/google": {
+            "post": {
+                "tags": [
+                    "Connectors"
+                ],
+                "summary": "Connect my Google account with the code Google brought the SPA back with, replacing the account connected before",
+                "operationId": "post_api_me_connections_google_connect",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/GoogleAnswerInput"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "My connections, Google connected",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ConnectionsResource"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Missing or invalid access token"
+                    },
+                    "403": {
+                        "description": "Google did not grant the access for this code",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ProblemResource"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "No authorization of mine waits for this state: unknown, expired, or asked by another member",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ProblemResource"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "The access to the calendar was not granted, or the answer is incomplete",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ProblemResource"
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "tags": [
+                    "Connectors"
+                ],
+                "summary": "Disconnect my Google account: the access is revoked at Google, then forgotten",
+                "operationId": "delete_api_me_connections_google_disconnect",
+                "responses": {
+                    "200": {
+                        "description": "My connections, Google no longer among them",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ConnectionsResource"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Missing or invalid access token"
+                    },
+                    "403": {
+                        "description": "The signed-in user is not a user",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ProblemResource"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "No connection to Google",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ProblemResource"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/me/connections": {
+            "get": {
+                "tags": [
+                    "Connectors"
+                ],
+                "summary": "Consult my connections to the services outside, in the state last seen, without asking them",
+                "operationId": "get_api_me_connections",
+                "responses": {
+                    "200": {
+                        "description": "My connections",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ConnectionsResource"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Missing or invalid access token"
+                    },
+                    "403": {
+                        "description": "The signed-in user is not a user",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ProblemResource"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
         }
     },
     "components": {
@@ -5165,6 +5373,21 @@
                         "type": "string",
                         "pattern": ".*(^([01]\\d|2[0-3]):[0-5]\\d$).*",
                         "example": "08:30",
+                        "nullable": true,
+                        "default": null
+                    }
+                },
+                "type": "object"
+            },
+            "GoogleAnswerInput": {
+                "properties": {
+                    "code": {
+                        "type": "string",
+                        "nullable": true,
+                        "default": null
+                    },
+                    "state": {
+                        "type": "string",
                         "nullable": true,
                         "default": null
                     }
@@ -6766,6 +6989,107 @@
                     }
                 },
                 "type": "object"
+            },
+            "AuthorizationResource": {
+                "required": [
+                    "address"
+                ],
+                "properties": {
+                    "address": {
+                        "type": "string",
+                        "format": "uri"
+                    }
+                },
+                "type": "object"
+            },
+            "ConnectionLinksResource": {
+                "required": [
+                    "disconnect",
+                    "reconnect"
+                ],
+                "properties": {
+                    "disconnect": {
+                        "$ref": "#/components/schemas/LinkResource"
+                    },
+                    "reconnect": {
+                        "$ref": "#/components/schemas/LinkResource"
+                    }
+                },
+                "type": "object"
+            },
+            "ConnectionResource": {
+                "required": [
+                    "provider",
+                    "state",
+                    "account",
+                    "connectedAt",
+                    "_links"
+                ],
+                "properties": {
+                    "provider": {
+                        "type": "string",
+                        "enum": [
+                            "google"
+                        ]
+                    },
+                    "state": {
+                        "type": "string",
+                        "enum": [
+                            "connected",
+                            "toReconnect"
+                        ]
+                    },
+                    "account": {
+                        "description": "The account connected at the provider",
+                        "type": "string",
+                        "format": "email"
+                    },
+                    "connectedAt": {
+                        "type": "string",
+                        "format": "date-time"
+                    },
+                    "_links": {
+                        "$ref": "#/components/schemas/ConnectionLinksResource"
+                    }
+                },
+                "type": "object"
+            },
+            "ConnectionsLinksResource": {
+                "required": [
+                    "self",
+                    "check",
+                    "connectGoogle"
+                ],
+                "properties": {
+                    "self": {
+                        "$ref": "#/components/schemas/LinkResource"
+                    },
+                    "check": {
+                        "$ref": "#/components/schemas/LinkResource"
+                    },
+                    "connectGoogle": {
+                        "$ref": "#/components/schemas/LinkResource"
+                    }
+                },
+                "type": "object"
+            },
+            "ConnectionsResource": {
+                "required": [
+                    "connections",
+                    "_links"
+                ],
+                "properties": {
+                    "connections": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/ConnectionResource"
+                        }
+                    },
+                    "_links": {
+                        "$ref": "#/components/schemas/ConnectionsLinksResource"
+                    }
+                },
+                "type": "object"
             }
         },
         "securitySchemes": {
@@ -6800,6 +7124,9 @@
         },
         {
             "name": "To-dos"
+        },
+        {
+            "name": "Connectors"
         }
     ]
 }

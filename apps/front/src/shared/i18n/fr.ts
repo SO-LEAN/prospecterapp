@@ -489,6 +489,10 @@ export const fr = {
     unknownUpload: 'Fichier introuvable : envoyez-le à nouveau.',
     unknownReader: 'Membre introuvable.',
     unknownProspector: 'Prospecteur introuvable.',
+    unknownAuthorization: 'La demande de connexion a expiré : connectez votre compte à nouveau.',
+    noConnection: 'Aucun compte n’est connecté.',
+    accessNotGranted: 'Google n’a pas accordé l’accès : connectez votre compte à nouveau.',
+    incompleteGrant: 'L’accès à l’agenda n’a pas été accordé : cochez-le lors de la connexion.',
   },
   validation: {
     required: 'Ce champ est obligatoire.',

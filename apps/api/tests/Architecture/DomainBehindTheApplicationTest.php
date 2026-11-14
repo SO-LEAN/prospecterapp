@@ -21,6 +21,8 @@ class DomainBehindTheApplicationTest extends TestCase
         'Reporting/AntiCorruption/AccountsSourceAccounts.php',
         'Reporting/AntiCorruption/ProspectingFactsFromProspecting.php',
         'Reporting/AntiCorruption/PersonalDataFactsFromPersonalData.php',
+        'Connectors/AntiCorruption/AccountsMembers.php',
+        'Connectors/Google/GoogleProviderAccess.php',
         'Shared/GeoplateformeGeoLocation.php',
         'Shared/PrivateStorageClient.php',
         'Demo/DemoData.php',
