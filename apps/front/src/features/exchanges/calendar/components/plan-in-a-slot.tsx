@@ -1,30 +1,29 @@
-import { useInfiniteQuery, useQuery } from '@tanstack/react-query'
-import { Building2, Search, User } from 'lucide-react'
+import { useInfiniteQuery } from '@tanstack/react-query'
 import { type ReactNode, useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { useDebouncedValue } from '@/shared/hooks/use-debounced-value'
 import { formatMoment } from '@/shared/lib/format'
 import { Alert, AlertDescription } from '@/shared/ui/alert'
 import { Button } from '@/shared/ui/button'
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/shared/ui/dialog'
-import { Input } from '@/shared/ui/input'
 import { ContactPlanForm } from '../../components/exchanges-section'
 import { PlanForm } from '../../components/plan-form'
 import { usePlanExchange, usePlanOrganizationExchange } from '../../mutations'
 import type { Slot } from '../../planning'
 import { organizationTimelineQuery, timelineQuery } from '../../queries'
-import { contactsFoundQuery, organizationsFoundQuery } from '../queries'
 
 /** Who the exchange planned in the slot is with: a contact, or the organization itself. */
-type Chosen = { kind: 'person' | 'organization'; id: string; name: string }
+export type Chosen = { kind: 'person' | 'organization'; id: string; name: string }
 
-type Props = { slot: Slot | null; onClose: () => void }
+/** The search of a contact or of an organization: given by the page composing the calendar with them. */
+export type InterlocutorSearch = (onChoose: (chosen: Chosen) => void) => ReactNode
+
+type Props = { slot: Slot | null; onClose: () => void; interlocutorSearch: InterlocutorSearch }
 
 /**
  * A free slot of the calendar, clicked or dragged: the contact or the organization searched as everywhere (the
  * start of the name or of the email), then planned in it, its moment and its duration proposed.
  */
-export function PlanInASlot({ slot, onClose }: Props) {
+export function PlanInASlot({ slot, onClose, interlocutorSearch }: Props) {
   const { t } = useTranslation()
   const [chosen, setChosen] = useState<Chosen | null>(null)
   const close = () => {
@@ -45,63 +44,10 @@ export function PlanInASlot({ slot, onClose }: Props) {
           (chosen ? (
             <PlanWith chosen={chosen} slot={slot} onCancel={() => setChosen(null)} onPlanned={close} />
           ) : (
-            <SearchTheInterlocutor onChoose={setChosen} />
+            interlocutorSearch(setChosen)
           ))}
       </DialogContent>
     </Dialog>
-  )
-}
-
-function SearchTheInterlocutor({ onChoose }: { onChoose: (chosen: Chosen) => void }) {
-  const { t } = useTranslation()
-  const [text, setText] = useState('')
-  const q = useDebouncedValue(text.trim())
-  const contacts = useQuery({ ...contactsFoundQuery(q), enabled: q !== '' })
-  const organizations = useQuery({ ...organizationsFoundQuery(q), enabled: q !== '' })
-  const found: Chosen[] = [
-    ...(contacts.data?.items ?? []).map((contact) => ({
-      kind: 'person' as const,
-      id: contact.id,
-      name:
-        [contact.name.firstName, contact.name.lastName].filter(Boolean).join(' ') || t('contacts.unnamed'),
-    })),
-    ...(organizations.data?.items ?? []).map((organization) => ({
-      kind: 'organization' as const,
-      id: organization.id,
-      name: organization.name,
-    })),
-  ]
-
-  return (
-    <div className="space-y-3">
-      <div className="relative">
-        <Search aria-hidden className="absolute top-2.5 left-2.5 size-4 text-muted-foreground" />
-        <Input
-          type="search"
-          autoFocus
-          className="pl-8"
-          aria-label={t('calendar.searchInterlocutor')}
-          placeholder={t('calendar.searchInterlocutor')}
-          value={text}
-          onChange={(event) => setText(event.target.value)}
-        />
-      </div>
-      {q !== '' && contacts.isSuccess && organizations.isSuccess && found.length === 0 && (
-        <p className="text-muted-foreground text-sm">{t('calendar.nobodyFound')}</p>
-      )}
-      <ul className="space-y-1" aria-label={t('calendar.found')}>
-        {found.map((one) => {
-          const Icon = one.kind === 'person' ? User : Building2
-          return (
-            <li key={`${one.kind}-${one.id}`}>
-              <Button variant="ghost" className="w-full justify-start" onClick={() => onChoose(one)}>
-                <Icon aria-hidden /> {one.name}
-              </Button>
-            </li>
-          )
-        })}
-      </ul>
-    </div>
   )
 }
 

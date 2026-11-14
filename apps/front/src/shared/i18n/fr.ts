@@ -39,9 +39,6 @@ export const fr = {
     moveUndone: 'Déplacement annulé',
     planIn: 'Le {{moment}}, avec un contact ou une organisation.',
     planWith: 'Avec {{name}}',
-    searchInterlocutor: 'Chercher un contact ou une organisation',
-    found: 'Contacts et organisations trouvés',
-    nobodyFound: 'Aucun contact ni organisation ne commence ainsi.',
     mayNotPlan: 'Vous ne pouvez pas planifier d’échange avec {{name}}.',
   },
   theme: { label: 'Thème', light: 'Clair', dark: 'Sombre', system: 'Système' },
@@ -154,6 +151,11 @@ export const fr = {
       holding: 'Holding',
       logo: 'Logo',
       contacts: 'Contacts',
+    },
+    interlocutorSearch: {
+      label: 'Chercher un contact ou une organisation',
+      found: 'Contacts et organisations trouvés',
+      nobody: 'Aucun contact ni organisation ne commence ainsi.',
     },
     contacts: {
       none: 'Aucun contact rattaché.',

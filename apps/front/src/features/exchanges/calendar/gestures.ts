@@ -1,4 +1,4 @@
-import type { Slot } from '../planning'
+import { LONGEST, type Slot } from '../planning'
 import { parseDay } from './dates'
 import type { CalendarExchange } from './queries'
 
@@ -6,8 +6,6 @@ import type { CalendarExchange } from './queries'
 export const STEP_IN_MINUTES = 15
 /** What a click on a free slot plans for, before a drag says otherwise. */
 export const USUAL_DURATION_IN_MINUTES = 30
-/** The bounds of a planned exchange (ADR 0111). */
-const LONGEST_IN_MINUTES = 8 * 60
 const MINUTES_IN_A_DAY = 24 * 60
 /** Below it, the pointer only clicked: the exchange opens rather than moves. */
 export const DRAG_THRESHOLD_PX = 4
@@ -56,7 +54,7 @@ export function landing(occurredAt: Date, spot: Spot, grabbedMinutes: number): D
 export function stretched(occurredAt: Date, endMinutes: number): number {
   const start = minutesOfTheDay(occurredAt)
   const end = snapDown(endMinutes) + STEP_IN_MINUTES
-  return clamp(end - start, STEP_IN_MINUTES, Math.min(LONGEST_IN_MINUTES, MINUTES_IN_A_DAY - start))
+  return clamp(end - start, STEP_IN_MINUTES, Math.min(LONGEST, MINUTES_IN_A_DAY - start))
 }
 
 /** A free slot chosen from a quarter to another, either way, through the last; clicked, half an hour. */
@@ -65,7 +63,7 @@ export function slotBetween(day: Date, from: number, to: number): Slot {
   const end = Math.max(from, to) + STEP_IN_MINUTES
   return {
     startsAt: atMinutes(day, start),
-    durationInMinutes: from === to ? USUAL_DURATION_IN_MINUTES : Math.min(end - start, LONGEST_IN_MINUTES),
+    durationInMinutes: from === to ? USUAL_DURATION_IN_MINUTES : Math.min(end - start, LONGEST),
   }
 }
 

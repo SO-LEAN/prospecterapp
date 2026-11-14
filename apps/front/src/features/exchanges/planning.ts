@@ -9,7 +9,8 @@ import { isTheLinkAWebAddress, linkRefused, venueFields, venueOf } from './venue
 const MAX_TEXT = 5000
 const QUARTER_MS = 15 * 60_000
 const SHORTEST = 5
-const LONGEST = 8 * 60
+/** The longest a planned exchange lasts, in minutes (ADR 0111). */
+export const LONGEST = 8 * 60
 const USUAL = 30
 const NINE = 9
 const MONDAY = 1

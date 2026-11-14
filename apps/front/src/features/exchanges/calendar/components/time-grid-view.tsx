@@ -105,7 +105,7 @@ export function TimeGridView({ period, items, now, onOpenDay, onOpen, onMove, on
                       movable
                       dragged={gestures.draggedId === item.exchange.id}
                       className="h-full"
-                      onClick={() => gestures.clickedAfterADrag() || onOpen(item)}
+                      onClick={() => gestures.unlessDraggedJustNow(() => onOpen(item))}
                       onPointerDown={gestures.grab(item, 'move')}
                     >
                       {item.exchange._links.move && (

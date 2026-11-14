@@ -19,7 +19,7 @@ import { AgendaView } from './agenda-view'
 import { ExchangeDialog } from './exchange-dialog'
 import { MiniMonth } from './mini-month'
 import { MonthView } from './month-view'
-import { PlanInASlot } from './plan-in-a-slot'
+import { type InterlocutorSearch, PlanInASlot } from './plan-in-a-slot'
 import { TimeGridView } from './time-grid-view'
 
 const MINUTE_MS = 60_000
@@ -57,6 +57,8 @@ type Props = {
   onShow: (view: View, day: Date) => void
   /** Who a contact is, their card in short, in the exchange opened: told by the page composing the contacts. */
   contactSummary: (contactId: string) => ReactNode
+  /** The search of who to plan with in a free slot: told by the page composing the contacts and organizations. */
+  interlocutorSearch: InterlocutorSearch
 }
 
 /**
@@ -64,7 +66,7 @@ type Props = {
  * alone, the next and the previous ones read on the hover of their arrow, the days around a day read ahead. An
  * exchange opens in a dialog; one to come is dragged, a free slot planned.
  */
-export function CalendarPage({ view, day, onShow, contactSummary }: Props) {
+export function CalendarPage({ view, day, onShow, contactSummary, interlocutorSearch }: Props) {
   const { t } = useTranslation()
   const queryClient = useQueryClient()
   const now = useNow()
@@ -169,7 +171,7 @@ export function CalendarPage({ view, day, onShow, contactSummary }: Props) {
       )}
       {view === 'agenda' && <AgendaView items={data.items} now={now} onOpen={setOpened} />}
       <ExchangeDialog item={opened} onClose={() => setOpened(null)} contactSummary={contactSummary} />
-      <PlanInASlot slot={slot} onClose={() => setSlot(null)} />
+      <PlanInASlot slot={slot} onClose={() => setSlot(null)} interlocutorSearch={interlocutorSearch} />
 
       <p className="hidden text-muted-foreground text-xs md:block">{t('calendar.shortcuts')}</p>
     </div>

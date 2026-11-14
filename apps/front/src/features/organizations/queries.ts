@@ -29,6 +29,10 @@ export type OrganizationContact = components['schemas']['OrganizationContactReso
 export const organizationContactsQuery = (id: string) =>
   api.queryOptions('get', '/api/organizations/{id}/contacts', { params: { path: { id } } })
 
+/** The name of a contact, first then last, empty when they have none. */
+export const fullNameOf = (contact: Pick<OrganizationContact, 'name'>) =>
+  [contact.name.firstName, contact.name.lastName].filter(Boolean).join(' ')
+
 /** The contacts the picker offers: the persons my organization prospects, searched by text. */
 export const contactCandidatesQuery = (q: string) =>
   api.queryOptions('get', '/api/contacts', { params: { query: { q } } })
