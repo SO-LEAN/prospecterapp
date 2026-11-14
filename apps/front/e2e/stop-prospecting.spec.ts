@@ -1,10 +1,10 @@
 import type { Page } from '@playwright/test'
 import { expect, test } from './fixtures'
 import { signInOnTheSignInScreen } from './sign-in'
+import { API_URL as API } from './stack'
 
 /** More exchanges than one transaction could erase along with the organization, some three writes each. */
 const MANY_EXCHANGES = 36
-const API = 'https://api.local.prospecter.io'
 /** Noting the exchanges, then a reaction per exchange, each an invocation of the worker, take longer than a journey. */
 const LONGER_THAN_A_JOURNEY_MS = 120_000
 const ERASED_WITHIN_MS = 60_000

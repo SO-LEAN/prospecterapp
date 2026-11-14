@@ -1,4 +1,5 @@
 import { request } from '@playwright/test'
+import { API_URL, SPA_URL, STATIC_URL } from './stack'
 
 /** How long the stack may take to answer: a function of MiniStack starting, or rebuilding the cache after a change. */
 const PATIENCE_MS = 120_000
@@ -8,15 +9,15 @@ const FUNCTIONS_AT_ONCE = 3
 
 /** What each part answers once it is up: the SPA its page, the api the user pool, the storage a missing size. */
 const parts = [
-  { name: 'the SPA', url: 'https://local.prospecter.io/', up: (status: number) => status === 200 },
+  { name: 'the SPA', url: `${SPA_URL}/`, up: (status: number) => status === 200 },
   {
     name: 'the api',
-    url: 'https://api.local.prospecter.io/api/user-pool',
+    url: `${API_URL}/api/user-pool`,
     up: (status: number) => status === 200,
   },
   {
     name: 'the storage',
-    url: 'https://static.local.prospecter.io/storage/small/none',
+    url: `${STATIC_URL}/storage/small/none`,
     up: (status: number) => status < 500,
   },
 ]

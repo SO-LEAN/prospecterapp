@@ -23,6 +23,9 @@ services:
       - ./:/var/www/src
       - pnpm-store:/pnpm-store
     command: pnpm dev
+    environment:
+      # the port of the host the browser reaches the stack on (ADR 0116), for the live reload of Vite
+      PUBLIC_PORT: ${PUBLIC_PORT:-443}
   # the ports of the host are published by the main checkout only (docker-compose.host.yml, ADR 0116): the stack of
   # a worktree is reached in its Docker network, by its journeys
   nginx:
@@ -35,6 +38,8 @@ services:
       - ./docker/data/ssl/certs/:/etc/ssl/certs
     environment:
       NGINX_HOST: local.prospecter.io
+      # the port its hosts listen on, that of the host the browser reaches (ADR 0116)
+      PUBLIC_PORT: ${PUBLIC_PORT:-443}
       FRONT_HOST: node
       # MiniStack, behind the API and static hosts: the HTTP APIs of the Lambdas, the buckets of the files and of the
       # private files (apps/storage/.env) and Cognito
@@ -87,6 +92,8 @@ services:
       AWS_ACCESS_KEY_ID: test
       AWS_SECRET_ACCESS_KEY: test
       API_HOST: api.local.prospecter.io
+      # in the addresses the functions give the browser (ADR 0116)
+      PUBLIC_PORT: ${PUBLIC_PORT:-443}
     # the subscriptions the rules of the worker are made of
     volumes:
       - ./apps/api/config/subscriptions.json:/build/subscriptions.json:ro

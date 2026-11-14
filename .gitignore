@@ -21,3 +21,5 @@ BOOTSTRAP.md
 /build/
 # the downloads the tools keep between their runs (make/aws.mk)
 /.cache/
+# the port of the host the stack of a worktree is published on (make/stack-port.sh, ADR 0116)
+/.stack-port

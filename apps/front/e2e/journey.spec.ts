@@ -1,5 +1,6 @@
 import { expect, test } from './fixtures'
 import { SIGN_IN_PAGE, signInOnTheSignInScreen } from './sign-in'
+import { SPA_URL } from './stack'
 
 /** Where the double of the geocoder places Strasbourg, each time; a place it does not know, it places nowhere. */
 const IN_STRASBOURG = '48.5834%2C7.7456'
@@ -22,7 +23,7 @@ test('sign in, start prospecting an organization, change it section by section, 
 
   await test.step('sign in', async () => {
     await signInOnTheSignInScreen(page)
-    await expect(page).toHaveURL('https://local.prospecter.io/')
+    await expect(page).toHaveURL(`${SPA_URL}/`)
   })
 
   await test.step('start prospecting an organization', async () => {

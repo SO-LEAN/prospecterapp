@@ -8,7 +8,7 @@ export GID := $(shell id -g)
 MAKEFLAGS += --no-print-directory
 
 # each checkout runs its own stack, its project named after its directory (ADR 0116): the main checkout publishes it on
-# the ports of the host, a worktree, where an agent works, keeps it in its Docker network, in the budget of the agents.
+# the ports of the host 80, 443 and 4566, a worktree, where an agent works, on a port of its own, in the budget of the agents.
 # In a worktree, .git only points to the common git directory, out of the checkout mounted in the containers
 GIT_DIR := $(shell git rev-parse --path-format=absolute --git-dir 2>/dev/null)
 GIT_COMMON_DIR := $(shell git rev-parse --path-format=absolute --git-common-dir 2>/dev/null)
@@ -16,6 +16,9 @@ IN_WORKTREE := $(filter-out $(GIT_COMMON_DIR),$(GIT_DIR))
 AGENTS_SLICE = prospecter-agents.slice
 STACK_FILES = docker-compose.yml $(if $(IN_WORKTREE),docker-compose.agents.yml,docker-compose.host.yml)
 DC = docker compose --project-directory $(ROOT) $(foreach file,$(STACK_FILES),-f $(ROOT)/$(file))
+# the port of the host its hosts are published on: 443 for the main checkout, one of its own for a worktree
+export PUBLIC_PORT := $(if $(IN_WORKTREE),$(shell $(ROOT)/make/stack-port.sh $(ROOT)),443)
+PUBLIC_PORT_SUFFIX = $(if $(filter-out 443,$(PUBLIC_PORT)),:$(PUBLIC_PORT))
 # a container run beside the stack goes where its stack is
 STACK_CGROUP = $(if $(IN_WORKTREE),--cgroup-parent=$(AGENTS_SLICE))
 # the images are shared by the checkouts, tagged with a digest of their build context: a checkout changing one builds its

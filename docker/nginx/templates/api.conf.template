@@ -9,7 +9,7 @@ map "$request_method $http_x_amz_target" $cognito_call {
 }
 
 server {
-    listen 443 ssl;
+    listen ${PUBLIC_PORT} ssl;
     http2 on;
     ssl_certificate /etc/ssl/certs/project.crt;
     ssl_certificate_key /etc/ssl/certs/project.key;
@@ -29,7 +29,7 @@ server {
     location / {
         proxy_set_header Host $host;
         proxy_set_header X-Forwarded-Proto https;
-        proxy_set_header X-Forwarded-Port 443;
+        proxy_set_header X-Forwarded-Port ${PUBLIC_PORT};
         proxy_read_timeout 60s;
         proxy_pass http://$ministack/_aws/execute-api/prospecter-dev-api/local$request_uri;
     }

@@ -4,7 +4,7 @@
 - Type: architecture
 - Status: Accepted
 - Supersedes: for the journeys staying out of the integration, [0057](0057-continuous-integration-around-dev.md)
-- Implemented by: `docker-compose.yml`, `docker-compose.host.yml`, `docker-compose.agents.yml`, `make/common.mk`, `Makefile` (`stop`, `down`, `agents-slice`, `check-e2e`, `ci`), `apps/front/Makefile` (`e2e`), `make/changed-checks.sh`, `.github/workflows/ci.yml`
+- Implemented by: `docker-compose.yml`, `docker-compose.host.yml`, `docker-compose.agents.yml`, `make/common.mk`, `make/stack-port.sh`, `docker/lambda/deploy.sh`, `docker/nginx`, the `.env` of the apps, `apps/front/e2e/stack.ts`, `Makefile` (`stop`, `down`, `agents-slice`, `check-e2e`, `ci`), `apps/front/Makefile` (`e2e`), `make/changed-checks.sh`, `.github/workflows/ci.yml`
 
 ## Context
 
@@ -12,7 +12,7 @@ Several agents work at once, each in a worktree, but the machine ran one stack: 
 
 ## Decision
 
-- The stack of a checkout is its own Compose project, named after its directory, without a fixed container name. The main checkout publishes it on the ports of the host (`docker-compose.host.yml`); a worktree publishes nothing (`docker-compose.agents.yml`): its journeys already run in its Docker network, the local hosts resolved to its nginx (0084), so that the domains, the certificate, the CORS and Cognito stay the same. make picks the file (`make/common.mk`).
+- The stack of a checkout is its own Compose project, named after its directory, without a fixed container name. The main checkout publishes it on the ports 80, 443 and 4566 of the host (`docker-compose.host.yml`); a worktree on a port of its own, from 8443, kept in its `.stack-port` (`docker-compose.agents.yml`, `make/stack-port.sh`), so that an agent opens its stack in Chrome too. Its hosts are the same, its nginx listening on that port: its journeys, in its Docker network (0084), and the browser on the host reach the same addresses, which the apps give with the port (`PUBLIC_PORT_SUFFIX` in their `.env`, given to the functions), the CORS of the API accepting any port of the SPA. make picks the file (`make/common.mk`).
 - `make stop` removes only the functions of its MiniStack (the label `ministack.instance`); `make down` removes the stack of a worktree done with, and its data.
 - The images are shared by the checkouts, tagged with a digest of their build context: a checkout changing one builds its own, the others keep theirs; so are the caches of Composer and pnpm.
 - The containers of a worktree join the slice of systemd `prospecter-agents.slice`, whose budget together (10 CPUs, 40 GB, a lower weight than the rest of the machine) `make agents-slice` writes once with sudo; each container is bounded too (`cpus`, `mem_limit`), the functions to the 1024 MB of AWS, kept warm 10 minutes instead of an hour.
@@ -24,13 +24,14 @@ Several agents work at once, each in a worktree, but the machine ran one stack: 
 - A pull request touching the code lasts its journeys, after the stack started on the runner, its data recreated and its figures counted (two minutes, 0106).
 - MiniStack 1.5.27 passes the memory to the functions it starts, neither their CPU nor their cgroup: they stay out of the slice, bounded by their memory and their warm TTL only.
 - A worktree removed without `make down` leaves its volumes and its containers.
-- The wrapper serialising the shared stack in the tooling of the agents, outside this repository, has to give each worktree its own stack.
+- The wrapper serialising the shared stack in the tooling of the agents, outside this repository, has no reason any more.
+- Chrome asks to accept the self-signed certificate once per port.
 
 ## Alternatives considered
 
 - One MiniStack shared, its resources prefixed per worktree: less memory, but the API, the deployment and the commands would take a prefix, one MiniStack stays the bottleneck, and the `make db` of an agent touches the others. Weighed by the assistant and the user, set aside.
 - A pool of stacks lent to the agents: a MiniStack mounts the code of one checkout in its functions, lending it means restarting it. Set aside.
-- Ports of the host varying per stack: useless to the journeys, in the network of their stack, and the CORS, Cognito and the domains would take the port. Set aside.
+- A worktree on no port of the host, its journeys reaching it in its network only: simpler, but an agent could no longer open its stack in Chrome, which the development of a ticket does to walk its QA. Weighed by the assistant and the user, set aside.
 - Bounding the functions running at once (`LAMBDA_ACCOUNT_CONCURRENCY`): MiniStack refuses an invocation beyond it without waiting, and a rule does not retry it: a reaction would be lost. Set to unbounded instead, its default being derived from the memory of its container.
 
 ## Revisit when

@@ -38,8 +38,13 @@ environment() {
     echo "Variables={BREF_RUNTIME=fpm,BREF_LOCAL_HANDLER=public/index.php,BREF_LOCAL_ROOT=/var/www/src/apps/$1$2}"
 }
 
+# the port of the host the stack is published on, in the addresses the browser is given (ADR 0116): none on 443, the
+# stack of the main checkout, :<port> for that of a worktree, read by the .env of the apps
+PUBLIC_PORT_SUFFIX=$([ "${PUBLIC_PORT:-443}" = 443 ] || echo ":$PUBLIC_PORT")
+PUBLIC_VARIABLES=${PUBLIC_PORT_SUFFIX:+,PUBLIC_PORT_SUFFIX=$PUBLIC_PORT_SUFFIX}
+
 # the API trusts the gateway in front of it; the geocoder of its .env unless one is given
-API_VARIABLES=,TRUSTED_PROXIES=REMOTE_ADDR
+API_VARIABLES=,TRUSTED_PROXIES=REMOTE_ADDR$PUBLIC_VARIABLES
 api_variables() {
     echo "$API_VARIABLES${1:+,APP_GEOCODER_URL=$1}"
 }
@@ -166,9 +171,9 @@ deploy_apps() {
     # MiniStack answers every preflight from the CORS of the HTTP API, never passing it to the function as AWS does
     # without one: the API gets the same CORS as its nelmio_cors in dev
     http_api api "$(lambda_function api "$(api_variables)" "$php")" \
-        'AllowOrigins=https://local.prospecter.io,AllowMethods=GET,OPTIONS,POST,PATCH,DELETE,AllowHeaders=content-type,authorization,ExposeHeaders=location,x-debug-token,x-debug-token-link,MaxAge=3600'
+        "AllowOrigins=https://local.prospecter.io$PUBLIC_PORT_SUFFIX,AllowMethods=GET,OPTIONS,POST,PATCH,DELETE,AllowHeaders=content-type,authorization,ExposeHeaders=location,x-debug-token,x-debug-token-link,MaxAge=3600"
     # the storage answers images: Bref sends them base64-encoded only when asked
-    http_api storage "$(lambda_function storage ,BREF_BINARY_RESPONSES=1 "$php" "$imagick")"
+    http_api storage "$(lambda_function storage ",BREF_BINARY_RESPONSES=1$PUBLIC_VARIABLES" "$php" "$imagick")"
 
     # warm a few functions and the caches of Symfony: the SPA asks several resources at once, each in a function
     for warm in 1 2 3; do
