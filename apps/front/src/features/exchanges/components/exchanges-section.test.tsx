@@ -114,6 +114,23 @@ describe('ExchangesSection', () => {
     expect(screen.queryByRole('button', { name: 'Noter un échange' })).not.toBeInTheDocument()
   })
 
+  it('offers to join a video call to come from its line, by its link', async () => {
+    const meet = 'https://meet.google.com/abc-defg-hij'
+    const planned = anExchange({
+      channel: 'videoCall',
+      status: 'planned',
+      occurredAt: '2099-11-17T13:00:00+00:00',
+      link: meet,
+    })
+    await renderTheSection({ items: [], _links: { self: timelineLink } }, undefined, {
+      items: [planned],
+      _links: { self: upcomingLink },
+    })
+
+    const upcoming = screen.getByRole('list', { name: 'À venir' })
+    expect(within(upcoming).getByRole('link', { name: 'Rejoindre' })).toHaveAttribute('href', meet)
+  })
+
   it('shows how many files are joined to an exchange', async () => {
     await renderTheSection({
       items: [anExchange({ attachmentCount: 2 })],

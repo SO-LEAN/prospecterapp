@@ -42,7 +42,7 @@ SPA (local.prospecter.io)                                   API (api.local.prosp
 ## Tests
 
 - API: `ApiTestCase` recreates the test pool for each test with the members of the demonstration, and `login()` signs in for real (`ADMIN_USER_PASSWORD_AUTH`); `tests/Api/AccessTokenTest` (no token, expired by moving the clock `app.token_clock`, another client, an id token, a forged signature, a user naming no member), `tests/Api/SignInTest` (the pool for the SPA, the links, login email changed then signed in with, unique, password changed then signed in with, too short), `tests/SignIn/RsaPublicKeyTest`.
-- Front: `features/sign-in/components/sign-in-form.test.tsx`; `e2e/journey.spec.ts` signs in through the real screen and SRP, signs out, and checks a wrong password.
+- Front: `features/sign-in/components/sign-in-form.test.tsx`; `e2e/journey.spec.ts` signs in through the real screen and SRP and signs out; `e2e/sign-in-screen.spec.ts` checks a wrong password.
 
 ## In the code of the API
 
