@@ -17,4 +17,6 @@ return RectorConfig::configure()
     ->withComposerBased(phpunit: true, symfony: true)
     ->withImportNames(importShortClasses: false, removeUnusedImports: true)
     // type docblocks only where the signature cannot say it (project convention)
-    ->withSkip([AddReturnDocblockForCommonObjectDenominatorRector::class]);
+    ->withSkip([AddReturnDocblockForCommonObjectDenominatorRector::class])
+    // as many workers as the php container has processors (2, docker-compose.agents.yml), not as the host shows it
+    ->withParallel(maxNumberOfProcess: 2);

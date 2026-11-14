@@ -2,34 +2,37 @@
 # hosts of the stack listening on it, so that its journeys in its Docker network and a browser on the host reach the
 # same addresses; every container in the slice of the agents (make agents-slice sets its budget), each bounded, so
 # that an agent neither takes the machine nor the share of the others. Added by make (make/common.mk) in a worktree.
+# Each bound is about twice the peak measured during a whole make ci, journeys included
+# (docs/architecture/local-stack.md): a bound reserves nothing, it stops a container running away.
 x-agents: &agents
   cgroup_parent: prospecter-agents.slice
 
 services:
-  # the command line: tests, PHPStan, Composer
+  # the command line: tests, PHPStan, Composer; PHPStan and Rector in as many workers as it has processors (their
+  # configurations), which see those of the host otherwise
   php:
     <<: *agents
     cpus: 2
-    mem_limit: 4g
+    mem_limit: 2g
   # the dev server of Vite, and the command line: Vitest, TypeScript, the build
   node:
     <<: *agents
     cpus: 2
-    mem_limit: 3g
+    mem_limit: 2g
     environment:
       VITE_API_URL: https://api.local.prospecter.io:${PUBLIC_PORT}
   nginx:
     <<: *agents
     ports:
       - "127.0.0.1:${PUBLIC_PORT}:${PUBLIC_PORT}"
-    cpus: 0.5
-    mem_limit: 256m
+    cpus: 0.25
+    mem_limit: 64m
   ministack:
     <<: *agents
     cpus: 2
-    # the tens of reactions of a gesture (the journey stopping to prospect) take it beyond 2 GB at once: killed there,
-    # it loses them with its functions (ADR 0118)
-    mem_limit: 4g
+    # the tens of reactions of a gesture (the journey stopping to prospect, some 85 functions at once) take it to 5.4 GB,
+    # kept until it stops: killed at its bound, it loses them with its functions (ADR 0118)
+    mem_limit: 8g
     environment:
       # MiniStack 1.5.27 passes the memory to the functions it starts, neither their CPU nor their cgroup: bounded as on
       # AWS (1024 MB, docker/lambda/deploy.sh), they go back to their warm TTL sooner than in the main checkout
@@ -41,6 +44,9 @@ services:
   ministack-test:
     <<: *agents
     cpus: 2
-    mem_limit: 1g
+    mem_limit: 512m
+  # deploys the functions: it took up to seven processors at once
   lambda-deploy:
     <<: *agents
+    cpus: 2
+    mem_limit: 1g

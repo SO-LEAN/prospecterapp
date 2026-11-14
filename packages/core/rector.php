@@ -18,4 +18,6 @@ return RectorConfig::configure()
     )
     ->withComposerBased(phpunit: true)
     ->withImportNames(importShortClasses: false, removeUnusedImports: true)
-    ->withSkip([AddReturnDocblockForCommonObjectDenominatorRector::class]);
+    ->withSkip([AddReturnDocblockForCommonObjectDenominatorRector::class])
+    // as many workers as the php container has processors (2, docker-compose.agents.yml), not as the host shows it
+    ->withParallel(maxNumberOfProcess: 2);
