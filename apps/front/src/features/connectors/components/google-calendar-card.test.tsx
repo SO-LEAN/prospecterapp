@@ -76,6 +76,8 @@ describe('GoogleCalendarCard', () => {
   it('shows the account connected and since when, to reconnect or disconnect', () => {
     renderTheCard(connection('connected'))
 
+    expect(screen.getByText('Google Agenda')).toBeInTheDocument()
+    expect(screen.getByText('Vos échanges planifiés sont ajoutés à votre agenda Google.')).toBeInTheDocument()
     expect(screen.getByText(/Connecté au compte michel@solean-it\.com depuis le/)).toBeInTheDocument()
     expect(screen.getByRole('button', { name: 'Reconnecter' })).toBeInTheDocument()
     expect(screen.getByRole('button', { name: 'Déconnecter' })).toBeInTheDocument()
@@ -102,5 +104,6 @@ describe('GoogleCalendarCard', () => {
     await waitFor(() => expect(sent()).toEqual({ path: '/api/me/connections/google', method: 'DELETE' }))
     await waitFor(() => expect(queryClient.getQueryData(connectionsQuery().queryKey)).toEqual(noConnection))
     expect(await screen.findByText('Votre compte Google est déconnecté.')).toBeInTheDocument()
+    expect(screen.queryByRole('dialog')).not.toBeInTheDocument()
   })
 })
