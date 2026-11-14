@@ -33,6 +33,19 @@ Fonctionnalité: Connecter mon compte Google
     Alors c'est refusé : "No authorization is waiting for this answer"
     Et je n'ai pas de connexion Google
 
+  Scénario: Une réponse de Google ne sert qu'une fois
+    Soit mon compte Google "michel@exemple.fr" est connecté
+    Et je déconnecte mon compte Google
+    Quand Google me ramène avec l'accès accordé
+    Alors c'est refusé : "No authorization is waiting for this answer"
+    Et je n'ai pas de connexion Google
+
+  Scénario: Une reconnexion sans l'agenda garde la connexion précédente
+    Soit mon compte Google "michel@exemple.fr" est connecté
+    Quand je connecte mon compte Google "autre@exemple.fr" sans accorder l'accès à l'agenda
+    Alors c'est refusé : "The access to the calendar was not granted"
+    Et ma connexion Google est "connectée", au compte "michel@exemple.fr"
+
   Scénario: Une autorisation demandée par un autre membre ne me connecte pas
     Soit un autre membre de "SOLEAN IT" a demandé à connecter son compte Google "autre@exemple.fr"
     Quand j'apporte la réponse de Google à sa demande
