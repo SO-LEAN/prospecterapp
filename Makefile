@@ -36,7 +36,7 @@ hooks: ## Install the Git hooks of the repository: gitleaks before each commit
 aws: ministack ## Start the AWS services emulated locally (MiniStack)
 
 start: deploy ## Start the stack, the API and the storage in their Lambdas: https://local.prospecter.io
-	@echo "SPA: https://local.prospecter.io  API doc: https://api.local.prospecter.io/api/doc"
+	@echo "SPA: https://local.prospecter.io$(PUBLIC_PORT_SUFFIX)  API doc: https://api.local.prospecter.io$(PUBLIC_PORT_SUFFIX)/api/doc"
 
 deploy: ## Start the stack and (re)deploy the Lambdas of the API and the storage on MiniStack
 	@$(DC) up -d --build

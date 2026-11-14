@@ -1,11 +1,12 @@
 #!/bin/sh
-# Generates a self-signed certificate for the SPA, API and static hosts on first start.
+# Generates a self-signed certificate for the SPA, API and static hosts on first start, and again when its key is
+# missing: a worktree may get the certificate of the main checkout without the key, written by root (ADR 0116).
 set -e
 
 CRT=/etc/ssl/certs/project.crt
 KEY=/etc/ssl/certs/project.key
 
-if [ -f "$CRT" ]; then
+if [ -f "$CRT" ] && [ -f "$KEY" ]; then
     echo "certificate already generated"
     exit 0
 fi

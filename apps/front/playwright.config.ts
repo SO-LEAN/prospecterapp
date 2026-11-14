@@ -1,4 +1,5 @@
 import { defineConfig, devices } from '@playwright/test'
+import { SPA_URL } from './e2e/stack'
 
 /** End-to-end journeys against the running local stack (`make start`), real sign-in on Cognito (MiniStack) included. */
 export default defineConfig({
@@ -11,7 +12,7 @@ export default defineConfig({
   workers: 1,
   reporter: [['dot'], ['html', { open: 'never' }]],
   use: {
-    baseURL: 'https://local.prospecter.io',
+    baseURL: SPA_URL,
     ignoreHTTPSErrors: true,
     locale: 'fr-FR',
     trace: 'retain-on-failure',

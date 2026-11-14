@@ -1,6 +1,6 @@
 import { expect, type Page } from '@playwright/test'
 
-export const SIGN_IN_PAGE = /local\.prospecter\.io\/auth\/sign-in/
+export const SIGN_IN_PAGE = /local\.prospecter\.io(:\d+)?\/auth\/sign-in/
 
 export const PROSPECTOR = 'prospector@solean-it.io'
 /** A prospector without the right to manage personal data. */

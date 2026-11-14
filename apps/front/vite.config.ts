@@ -7,6 +7,8 @@ import react, { reactCompilerPreset } from '@vitejs/plugin-react'
 import { defineConfig, type Rolldown } from 'vite'
 
 const PUBLIC_HOST = 'local.prospecter.io'
+/** The port of the host the stack is published on: 443 for the main checkout, its own for a worktree (ADR 0116). */
+const PUBLIC_PORT = Number(process.env.PUBLIC_PORT ?? 443)
 
 const typedRoutesSplitByRoute = tanstackRouter({
   target: 'react',
@@ -48,7 +50,7 @@ export default defineConfig({
     port: 5173,
     strictPort: true,
     allowedHosts: [PUBLIC_HOST],
-    hmr: { host: PUBLIC_HOST, protocol: 'wss', clientPort: 443 },
+    hmr: { host: PUBLIC_HOST, protocol: 'wss', clientPort: PUBLIC_PORT },
   },
   build: {
     target: 'es2024',

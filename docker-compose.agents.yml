@@ -1,6 +1,7 @@
-# The stack of a worktree, where an agent works (ADR 0116): no port of the host, its journeys reach it in its Docker
-# network; every container in the slice of the agents (make agents-slice sets its budget), each bounded, so that an
-# agent neither takes the machine nor the share of the others. Added by make (make/common.mk) in a worktree.
+# The stack of a worktree, where an agent works (ADR 0116): published on a port of its own (make/stack-port.sh), the
+# hosts of the stack listening on it, so that its journeys in its Docker network and a browser on the host reach the
+# same addresses; every container in the slice of the agents (make agents-slice sets its budget), each bounded, so
+# that an agent neither takes the machine nor the share of the others. Added by make (make/common.mk) in a worktree.
 x-agents: &agents
   cgroup_parent: prospecter-agents.slice
 
@@ -15,8 +16,12 @@ services:
     <<: *agents
     cpus: 2
     mem_limit: 3g
+    environment:
+      VITE_API_URL: https://api.local.prospecter.io:${PUBLIC_PORT}
   nginx:
     <<: *agents
+    ports:
+      - "127.0.0.1:${PUBLIC_PORT}:${PUBLIC_PORT}"
     cpus: 0.5
     mem_limit: 256m
   ministack:

@@ -2,7 +2,7 @@
 # (MiniStack locally, by path); a size missing from the bucket goes to the app in its Lambda (ADR 0055), which
 # makes it once.
 server {
-    listen 443 ssl;
+    listen ${PUBLIC_PORT} ssl;
     http2 on;
     ssl_certificate /etc/ssl/certs/project.crt;
     ssl_certificate_key /etc/ssl/certs/project.key;
