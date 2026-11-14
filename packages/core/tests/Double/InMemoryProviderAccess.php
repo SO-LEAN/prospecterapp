@@ -13,7 +13,8 @@ use Prospecter\Core\SharedKernel\Domain\Email;
 
 /**
  * A provider as the scenarios script it: a code it gave for an account, granting a token of its own once, the
- * tokens it refuses since, and those it revoked.
+ * tokens it refuses since, and those it revoked: as Google does, revoking a token revokes the grant of its account,
+ * every token given for it so far.
  */
 final class InMemoryProviderAccess implements ProviderAccess
 {
@@ -23,6 +24,8 @@ final class InMemoryProviderAccess implements ProviderAccess
     private array $refused = [];
     /** @var list<string> */
     private array $revoked = [];
+    /** @var array<string, string> the account each token was given for, by token */
+    private array $accounts = [];
     private int $tokens = 0;
 
     /**
@@ -31,7 +34,9 @@ final class InMemoryProviderAccess implements ProviderAccess
     public function grant(string $account, bool $withTheCalendar = true): string
     {
         $code = sprintf('code-%d', ++$this->tokens);
-        $this->codes[$code] = new Grant(new Email($account), new RefreshToken(sprintf('token-%d', $this->tokens)), $withTheCalendar);
+        $token = sprintf('token-%d', $this->tokens);
+        $this->codes[$code] = new Grant(new Email($account), new RefreshToken($token), $withTheCalendar);
+        $this->accounts[$token] = $account;
 
         return $code;
     }
@@ -63,7 +68,8 @@ final class InMemoryProviderAccess implements ProviderAccess
 
     public function revoke(Provider $provider, RefreshToken $refreshToken): void
     {
-        $this->revoked[] = $refreshToken->value;
+        $account = $this->accounts[$refreshToken->value] ?? null;
+        $this->revoked = [...$this->revoked, ...array_keys(array_filter($this->accounts, static fn (string $of): bool => $of === $account))];
     }
 
     public function hasRevoked(string $token): bool
