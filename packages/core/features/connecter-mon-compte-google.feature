@@ -66,6 +66,7 @@ Fonctionnalité: Connecter mon compte Google
     Soit mon compte Google "michel@exemple.fr" est connecté
     Et Google refuse mon jeton
     Quand je connecte mon compte Google "michel@exemple.fr" et que Google accorde l'accès
+    Et mes connexions sont vérifiées
     Alors ma connexion Google est "connectée", au compte "michel@exemple.fr"
 
   Scénario: Reconnecter le même compte garde l'accès que Google vient d'accorder
