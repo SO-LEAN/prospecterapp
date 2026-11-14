@@ -1,11 +1,16 @@
 import { request } from '@playwright/test'
-import { API_URL, SPA_URL, STATIC_URL } from './stack'
+import { API_URL, SPA_URL, STATIC_URL, WORKERS } from './stack'
 
 /** How long the stack may take to answer: a function of MiniStack starting, or rebuilding the cache after a change. */
 const PATIENCE_MS = 120_000
 const PAUSE_MS = 1_000
-/** The SPA asks several resources at once, each in a function of its own: as many are warmed. */
-const FUNCTIONS_AT_ONCE = 3
+/** A page of the SPA asks several resources at once, each in a function of its own. */
+const FUNCTIONS_PER_PAGE = 3
+/**
+ * As many functions are warmed as the journeys running together ask at once: one more would start its container
+ * during a journey, longer than the journey waits for its screen.
+ */
+const FUNCTIONS_AT_ONCE = FUNCTIONS_PER_PAGE * WORKERS
 
 /** What each part answers once it is up: the SPA its page, the api the user pool, the storage a missing size. */
 const parts = [

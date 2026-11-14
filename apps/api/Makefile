@@ -16,8 +16,7 @@ db: ministack ## Recreate in MiniStack the tables and the user pool, with the de
 	@$(PHP) bin/console app:user-pool:recreate --demo
 	@echo "API/Relaying the outbox of the new tables to the bus..."
 	@$(DC) --progress quiet run --rm --build lambda-deploy relay
-	@echo "API/Counting the figures of the demonstration..."
-	@$(PHP) bin/console app:reporting:rebuild
+	@$(if $(filter later,$(FIGURES)),echo "API/The figures are counted later (FIGURES=later)",echo "API/Counting the figures of the demonstration..." && $(PHP) bin/console app:reporting:rebuild)
 
 # the tests recreate their tables and their user pool before each test: shared among a few processes, each with its own
 # on MiniStack (TEST_TOKEN, .env.test), the cache of the kernel warmed once before they start it together

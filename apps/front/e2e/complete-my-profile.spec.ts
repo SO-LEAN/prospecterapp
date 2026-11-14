@@ -18,7 +18,7 @@ test('a member signing in for the first time completes their profile, then prosp
     await page.getByRole('button', { name: 'Continuer' }).click()
 
     await expect(page.getByRole('heading', { name: 'Bonjour Ada' })).toBeVisible()
-    await expect(page).toHaveURL(/local\.prospecter\.io\/$/)
+    await expect(page).toHaveURL(/local\.prospecter\.io(:\d+)?\/$/)
     await expect(page.getByRole('button', { name: 'Ada Lovelace, menu du compte' })).toBeVisible()
   })
 

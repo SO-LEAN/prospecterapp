@@ -120,3 +120,5 @@ Why the project is shaped the way it is: one record per decision, in the order t
 | [0114](0114-the-place-and-the-link-of-an-exchange-are-no-personal-data.md) | The place of a meeting and the link of a video call are no personal data: every prospector corrects them | domain | Accepted | 2026-11-13 |
 | [0115](0115-a-calendar-is-read-a-period-at-a-time-on-a-key-of-the-holder.md) | A calendar is read a period at a time, on a key of its holder; the SPA draws its grid | architecture | Accepted | 2026-11-13 |
 | [0116](0116-each-checkout-runs-its-own-stack-the-journeys-run-in-the-ci.md) | Each checkout runs its own stack, the worktrees within a budget; the journeys run in the integration | architecture | Accepted | 2026-11-14 |
+| [0117](0117-the-journeys-run-together-but-those-that-must-run-alone.md) | The journeys run together, but those that must run alone; the figures are counted meanwhile | architecture | Accepted | 2026-11-14 |
+| [0118](0118-the-journeys-run-in-the-worktree-of-the-agent-not-in-the-ci.md) | The journeys run in the worktree of the agent developing, not in the CI | architecture | Accepted | 2026-11-14 |

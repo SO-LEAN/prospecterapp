@@ -42,10 +42,10 @@ NGINX = $(shell $(DC) ps -q nginx 2>/dev/null)
 E2E_NETWORK = $(if $(NGINX),$(shell docker inspect -f '{{range $$name, $$network := .NetworkSettings.Networks}}{{$$name}}{{end}}' $(NGINX)))
 NGINX_IP = $(if $(NGINX),$(shell docker inspect -f '{{range .NetworkSettings.Networks}}{{.IPAddress}}{{end}}' $(NGINX)))
 
-e2e: ## Run the Playwright journeys against the running stack
+e2e: ## Run the Playwright journeys against the running stack; E2E_WORKERS= the journeys at once (2), E2E_ARGS= of Playwright, E2E_RESULTS= the folder of its report
 	@ip=$(NGINX_IP); test -n "$$ip" || { echo "No nginx in the stack of this checkout: is it running (make start)?"; exit 1; }; \
 	docker run --rm --init --ipc=host $(STACK_CGROUP) --network $(E2E_NETWORK) $(foreach host,local api.local static.local,--add-host $(host).prospecter.io:$$ip) \
-		-u $(UID):$(GID) -e HOME=/tmp -e PUBLIC_PORT $(if $(E2E_RUN),-e E2E_RUN=$(E2E_RUN)) -v $(CURDIR):/work -w /work mcr.microsoft.com/playwright:v1.64.0-noble npx playwright test
+		-u $(UID):$(GID) -e HOME=/tmp -e PUBLIC_PORT -e E2E_WORKERS -e E2E_RESULTS $(if $(E2E_RUN),-e E2E_RUN=$(E2E_RUN)) -v $(CURDIR):/work -w /work mcr.microsoft.com/playwright:v1.64.0-noble npx playwright test $(E2E_ARGS)
 
 shell: ## Open a shell in the Node container
 	@$(NODE) sh
