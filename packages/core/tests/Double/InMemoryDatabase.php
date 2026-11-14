@@ -6,6 +6,8 @@ namespace Tests\Core\Double;
 
 use Prospecter\Core\Accounts\Domain\Model\Account;
 use Prospecter\Core\Accounts\Domain\Model\Member;
+use Prospecter\Core\Connectors\Domain\Model\Connection;
+use Prospecter\Core\Connectors\Domain\Model\PendingAuthorization;
 use Prospecter\Core\PersonalData\Domain\Model\Person;
 use Prospecter\Core\Prospecting\Domain\Model\Exchange;
 use Prospecter\Core\Prospecting\Domain\Model\Organization;
@@ -40,6 +42,10 @@ final class InMemoryDatabase
     private array $figures = [];
     private ?int $activeVersion = null;
     private ?int $versionBuilding = null;
+    /** @var array<string, Connection> by the member and the provider */
+    private array $connections = [];
+    /** @var array<string, PendingAuthorization> by their state */
+    private array $authorizations = [];
 
     public function isEmpty(): bool
     {
@@ -67,6 +73,56 @@ final class InMemoryDatabase
         $this->activeVersion = $snapshot->activeVersion;
         $this->versionBuilding = $snapshot->versionBuilding;
         $this->revisions = $snapshot->revisions;
+        $this->connections = $snapshot->connections;
+        $this->authorizations = $snapshot->authorizations;
+    }
+
+    public function storeConnection(Connection $connection): void
+    {
+        $this->connections[self::connectionKey($connection->member()->value, $connection->provider()->value)] = self::withoutItsEvents($connection);
+    }
+
+    public function forgetConnection(Connection $connection): void
+    {
+        unset($this->connections[self::connectionKey($connection->member()->value, $connection->provider()->value)]);
+    }
+
+    public function connection(string $member, string $provider): ?Connection
+    {
+        $connection = $this->connections[self::connectionKey($member, $provider)] ?? null;
+
+        return null === $connection ? null : clone $connection;
+    }
+
+    /**
+     * @return list<Connection>
+     */
+    public function connectionsOf(string $member): array
+    {
+        return array_values(array_map(
+            static fn (Connection $connection): Connection => clone $connection,
+            array_filter($this->connections, static fn (Connection $connection): bool => $connection->member()->value === $member),
+        ));
+    }
+
+    private static function connectionKey(string $member, string $provider): string
+    {
+        return $member.'#'.$provider;
+    }
+
+    public function keepAuthorization(PendingAuthorization $authorization): void
+    {
+        $this->authorizations[$authorization->state] = $authorization;
+    }
+
+    public function forgetAuthorization(string $state): void
+    {
+        unset($this->authorizations[$state]);
+    }
+
+    public function authorization(string $state): ?PendingAuthorization
+    {
+        return $this->authorizations[$state] ?? null;
     }
 
     public function storeExchange(Exchange $exchange): void

@@ -28,6 +28,14 @@ use Prospecter\Core\Accounts\Contract\Service\ConsultMembers\KeptMembers;
 use Prospecter\Core\Accounts\Contract\Service\ConsultMembers\MemberResponse;
 use Prospecter\Core\Accounts\Contract\Service\ListAccounts\KeptAccounts;
 use Prospecter\Core\Accounts\Contract\Service\ListAccounts\ListAccounts;
+use Prospecter\Core\Connectors\Application\AskForAuthorization\AskForAuthorizationHandler;
+use Prospecter\Core\Connectors\Application\CheckMyConnections\CheckMyConnectionsHandler;
+use Prospecter\Core\Connectors\Application\Connect\ConnectHandler;
+use Prospecter\Core\Connectors\Application\ConsultMyConnections\ConsultMyConnections;
+use Prospecter\Core\Connectors\Application\ConsultMyConnections\ConsultMyConnectionsHandler;
+use Prospecter\Core\Connectors\Application\ConsultMyConnections\KeptConnections;
+use Prospecter\Core\Connectors\Application\Disconnect\DisconnectHandler;
+use Prospecter\Core\Connectors\Application\MyConnection;
 use Prospecter\Core\PersonalData\Application\ChangeJobTitle\ChangeJobTitleHandler;
 use Prospecter\Core\PersonalData\Application\ChangePersonContactDetails\ChangePersonContactDetailsHandler;
 use Prospecter\Core\PersonalData\Application\ChangePersonPicture\ChangePersonPictureHandler;
@@ -203,13 +211,16 @@ use Prospecter\Core\SharedKernel\Application\TransactionalCommandHandler;
 use Prospecter\Core\SharedKernel\Application\TransactionalEventHandler;
 use Prospecter\Core\SharedKernel\Domain\Exception\BusinessException;
 use Prospecter\Core\SharedKernel\Domain\MemberId;
+use Tests\Core\Double\AccountsMembers;
 use Tests\Core\Double\AccountsProspectors;
 use Tests\Core\Double\AccountsReaders;
 use Tests\Core\Double\AccountsSourceAccounts;
 use Tests\Core\Double\InMemoryAccountListRetriever;
 use Tests\Core\Double\InMemoryAccountRepository;
 use Tests\Core\Double\InMemoryAgendaRetriever;
+use Tests\Core\Double\InMemoryAuthorizationRepository;
 use Tests\Core\Double\InMemoryCalendarRetriever;
+use Tests\Core\Double\InMemoryConnectionRepository;
 use Tests\Core\Double\InMemoryContactFactsRetriever;
 use Tests\Core\Double\InMemoryContactPageRetriever;
 use Tests\Core\Double\InMemoryDatabase;
@@ -222,6 +233,7 @@ use Tests\Core\Double\InMemoryFoundOrganizationRetriever;
 use Tests\Core\Double\InMemoryMemberRepository;
 use Tests\Core\Double\InMemoryMemberRetriever;
 use Tests\Core\Double\InMemoryMyAccountRetriever;
+use Tests\Core\Double\InMemoryMyConnectionsRetriever;
 use Tests\Core\Double\InMemoryMyRemindersRetriever;
 use Tests\Core\Double\InMemoryOrganizationFactsRetriever;
 use Tests\Core\Double\InMemoryOrganizationRepository;
@@ -230,6 +242,7 @@ use Tests\Core\Double\InMemoryPersonCardRetriever;
 use Tests\Core\Double\InMemoryPersonRepository;
 use Tests\Core\Double\InMemoryPrivateStorage;
 use Tests\Core\Double\InMemoryProjectionVersions;
+use Tests\Core\Double\InMemoryProviderAccess;
 use Tests\Core\Double\InMemoryStorage;
 use Tests\Core\Double\InMemoryTimelineRetriever;
 use Tests\Core\Double\InMemoryToDoListRetriever;
@@ -303,6 +316,11 @@ final class Application
     private readonly AccountsSourceAccounts $sourceAccounts;
     private readonly InMemoryFiguresRetriever $figuresRetriever;
     private readonly FactRecorder $factRecorder;
+    private readonly InMemoryConnectionRepository $connections;
+    private readonly InMemoryAuthorizationRepository $authorizations;
+    private readonly InMemoryMyConnectionsRetriever $myConnectionsRetriever;
+    public readonly InMemoryProviderAccess $providerAccess;
+    private readonly AccountsMembers $connectingMembers;
     /** @var array<class-string, CommandHandler> */
     private array $handlers = [];
     private ?string $signedIn = null;
@@ -362,6 +380,11 @@ final class Application
         $this->sourceAccounts = new AccountsSourceAccounts($this->listAccountsService, $this->consultMembersService);
         $this->figuresRetriever = new InMemoryFiguresRetriever($database);
         $this->factRecorder = new FactRecorder(new InMemoryFactRepository($database), $this->projectionVersions);
+        $this->connections = new InMemoryConnectionRepository($database);
+        $this->authorizations = new InMemoryAuthorizationRepository($database);
+        $this->myConnectionsRetriever = new InMemoryMyConnectionsRetriever($database);
+        $this->providerAccess = new InMemoryProviderAccess();
+        $this->connectingMembers = new AccountsMembers($this->consultMembersService);
 
         foreach ($this->translators() as $translator) {
             $this->events->translateWith($translator, calledThrough: new RefusalTranslatingEventHandler(new TransactionalEventHandler($translator, $this->unitOfWork)));
@@ -484,6 +507,16 @@ final class Application
         $kept = new KeptReminders();
 
         return $this->ask(new ConsultMyRemindersHandler($this->myRemindersRetriever), new ConsultMyReminders($this->signedIn()), $kept) ? $kept->reminders : null;
+    }
+
+    /**
+     * @return list<MyConnection>|null
+     */
+    public function consultMyConnections(): ?array
+    {
+        $kept = new KeptConnections();
+
+        return $this->ask(new ConsultMyConnectionsHandler($this->myConnectionsRetriever), new ConsultMyConnections($this->signedIn()), $kept) ? $kept->connections : null;
     }
 
     public function consultPerson(ConsultPerson $query): ?PersonCard
@@ -722,6 +755,10 @@ final class Application
             new TickOffToDoHandler($this->toDos, $this->events),
             new UntickToDoHandler($this->toDos, $this->events),
             new EraseToDoHandler($this->toDos, $this->events),
+            new AskForAuthorizationHandler($this->authorizations),
+            new ConnectHandler($this->authorizations, $this->connections, $this->providerAccess, $this->connectingMembers, $this->events),
+            new CheckMyConnectionsHandler($this->connections, $this->providerAccess, $this->events),
+            new DisconnectHandler($this->connections, $this->providerAccess, $this->events),
         ];
     }
 
