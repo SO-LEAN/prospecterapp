@@ -8,13 +8,16 @@ vendor: ## Install the Composer dependencies of the core
 	@$(PHP) composer install
 
 # with FILTER, only the scenarios and the unit tests whose name matches it: one filter for both suites, so a suite
-# where nothing matches is passed over
-BEHAT = vendor/bin/behat --strict -f progress $(if $(FILTER),--name="$(FILTER)")
+# where nothing matches is passed over. FAILED=1: the scenarios that failed last only (all of them when none did),
+# their list kept in var/ (the temporary directory of the container is gone with it), and the unit tests that failed
+# first; FAIL_FAST=1: both stop at the first failure
+BEHAT = TMPDIR=var vendor/bin/behat --strict -f progress $(if $(FILTER),--name="$(FILTER)") $(if $(FAILED),--rerun) $(if $(FAIL_FAST),--stop-on-failure)
 UNLESS_NO_SCENARIO_MATCHES = $(if $(FILTER),vendor/bin/behat --dry-run -f progress --name="$(FILTER)" | grep -q "No scenarios" ||)
-PHPUNIT = vendor/bin/phpunit $(if $(FILTER),--filter="$(FILTER)" --do-not-fail-on-empty-test-suite)
+PHPUNIT = vendor/bin/phpunit $(if $(FILTER),--filter="$(FILTER)" --do-not-fail-on-empty-test-suite) $(PHPUNIT_FAILED_FAST)
 
 # business rules (Gherkin scenarios on the use cases, in-memory ports) then the unit tests
-test: ## Run the business rules (Behat) and the unit tests of the core; FILTER= a scenario or a test by name
+test: ## Run the business rules (Behat) and the unit tests of the core; FILTER= a scenario or a test by name; FAILED=1, FAIL_FAST=1
+	@mkdir -p var
 	@$(PHP) sh -c '{ $(UNLESS_NO_SCENARIO_MATCHES) $(BEHAT); } && $(PHPUNIT)'
 
 mutation: ## Mutate the lines the branch adds in src since BASE (origin/dev), killed by the unit tests and the scenarios; list the survivors

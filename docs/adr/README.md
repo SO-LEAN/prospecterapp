@@ -122,3 +122,4 @@ Why the project is shaped the way it is: one record per decision, in the order t
 | [0116](0116-each-checkout-runs-its-own-stack-the-journeys-run-in-the-ci.md) | Each checkout runs its own stack, the worktrees within a budget; the journeys run in the integration | architecture | Accepted | 2026-11-14 |
 | [0117](0117-the-journeys-run-together-but-those-that-must-run-alone.md) | The journeys run together, but those that must run alone; the figures are counted meanwhile | architecture | Accepted | 2026-11-14 |
 | [0118](0118-the-journeys-run-in-the-worktree-of-the-agent-not-in-the-ci.md) | The journeys run in the worktree of the agent developing, not in the CI | architecture | Accepted | 2026-11-14 |
+| [0121](0121-the-journeys-run-apart-from-make-ci-and-stop-at-the-first-failure.md) | The journeys run apart from make ci, once a development is done, and stop at the first failure | architecture | Accepted | 2026-11-14 |

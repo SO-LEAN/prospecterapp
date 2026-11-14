@@ -31,8 +31,8 @@ services:
     <<: *agents
     cpus: 2
     # the tens of reactions of a gesture (the journey stopping to prospect, some 85 functions at once) take it to 5.4 GB,
-    # kept until it stops: killed at its bound, it loses them with its functions (ADR 0118)
-    mem_limit: 8g
+    # beyond 8 once, kept until it stops: killed at its bound, it loses them with its functions (ADR 0118, 0121)
+    mem_limit: 12g
     environment:
       # MiniStack 1.5.27 passes the memory to the functions it starts, neither their CPU nor their cgroup: bounded as on
       # AWS (1024 MB, docker/lambda/deploy.sh), they go back to their warm TTL sooner than in the main checkout

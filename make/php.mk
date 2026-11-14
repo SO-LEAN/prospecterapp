@@ -4,6 +4,10 @@
 # it may not be given.
 .PHONY: lint-phpstan lint-style lint-rector
 
+# the options of PHPUnit and Paratest: FAILED=1 the tests that failed last first (the cache of PHPUnit, .phpunit.cache),
+# FAIL_FAST=1 stopping at the first failure
+PHPUNIT_FAILED_FAST = $(if $(FAILED),--order-by=defects) $(if $(FAIL_FAST),--stop-on-failure)
+
 lint-phpstan:
 	@$(PHP) vendor/bin/phpstan analyse --no-progress
 

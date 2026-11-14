@@ -7,8 +7,8 @@ install: ## Install the pnpm dependencies of the front
 	@echo "Front/Installing pnpm dependencies..."
 	@$(NODE) pnpm install
 
-test: ## Run the tests of the front (Vitest); FILTER= a test file by its path or a part of it
-	@$(NODE) pnpm test --reporter=dot --silent=passed-only $(if $(FILTER),'$(FILTER)')
+test: ## Run the tests of the front (Vitest); FILTER= a test file by its path or a part of it; FAIL_FAST=1 stops at the first failure
+	@$(NODE) pnpm test --reporter=dot --silent=passed-only $(if $(FAIL_FAST),--bail=1) $(if $(FILTER),'$(FILTER)')
 
 # the code of the front a branch may change and a test may protect: neither the tests, the generated files, nor the
 # components of shadcn, whose class names no test reads
@@ -44,10 +44,10 @@ NGINX_IP = $(if $(NGINX),$(shell docker inspect -f '{{range .NetworkSettings.Net
 # in a worktree, bounded as the containers of its stack: two Chromium took 1.7 GB and five processors
 E2E_BOUNDS = $(if $(IN_WORKTREE),--cpus=4 --memory=3g)
 
-e2e: ## Run the Playwright journeys against the running stack; E2E_WORKERS= the journeys at once (2), E2E_ARGS= of Playwright, E2E_RESULTS= the folder of its report
+e2e: ## Run the Playwright journeys against the running stack; E2E_WORKERS= the journeys at once (2), E2E_ARGS= of Playwright, E2E_RESULTS= the folder of its report; FAILED=1 those that failed last (in that folder), FAIL_FAST=1 stops at the first failure
 	@ip=$(NGINX_IP); test -n "$$ip" || { echo "No nginx in the stack of this checkout: is it running (make start)?"; exit 1; }; \
 	docker run --rm --init --ipc=host $(STACK_CGROUP) $(E2E_BOUNDS) --network $(E2E_NETWORK) $(foreach host,local api.local static.local,--add-host $(host).prospecter.io:$$ip) \
-		-u $(UID):$(GID) -e HOME=/tmp -e PUBLIC_PORT -e E2E_WORKERS -e E2E_RESULTS $(if $(E2E_RUN),-e E2E_RUN=$(E2E_RUN)) -v $(CURDIR):/work -w /work mcr.microsoft.com/playwright:v1.64.0-noble npx playwright test $(E2E_ARGS)
+		-u $(UID):$(GID) -e HOME=/tmp -e PUBLIC_PORT -e E2E_WORKERS -e E2E_RESULTS $(if $(E2E_RUN),-e E2E_RUN=$(E2E_RUN)) -v $(CURDIR):/work -w /work mcr.microsoft.com/playwright:v1.64.0-noble npx playwright test $(if $(FAILED),--last-failed) $(if $(FAIL_FAST),--max-failures=1) $(E2E_ARGS)
 
 shell: ## Open a shell in the Node container
 	@$(NODE) sh

@@ -13,6 +13,18 @@ export async function signInOnTheSignInScreen(page: Page, email = PROSPECTOR) {
   await expect(page.getByRole('heading', { name: /Bonjour/ })).toBeVisible()
 }
 
+/** The header a journey calls the API with, from the access token the SPA keeps in its tab (`shared/auth/session.ts`). */
+export async function authorizationOf(page: Page): Promise<string> {
+  const token = await page.evaluate(() => {
+    const key = Object.keys(sessionStorage).find((name) => name.endsWith('.accessToken'))
+    if (!key) {
+      throw new Error('No access token in the session: is the member signed in?')
+    }
+    return sessionStorage.getItem(key) ?? ''
+  })
+  return `Bearer ${token}`
+}
+
 export async function submitTheSignInScreen(page: Page, email: string) {
   await page.goto('/')
   await expect(page).toHaveURL(SIGN_IN_PAGE)
