@@ -1,3 +1,4 @@
+import type { Page } from '@playwright/test'
 import { expect, test } from './fixtures'
 import { SIGN_IN_PAGE, signInOnTheSignInScreen } from './sign-in'
 import { SPA_URL } from './stack'
@@ -5,7 +6,18 @@ import { SPA_URL } from './stack'
 /** Where the double of the geocoder places Strasbourg, each time; a place it does not know, it places nowhere. */
 const IN_STRASBOURG = '48.5834%2C7.7456'
 const AN_UNKNOWN_PLACE = 'Nulle-Part'
-/** Fourteen steps, some thirty screens, a reaction and the sign-out: some 25 seconds, longer than a journey. */
+/** The account the double of Google connects (docker/nginx/conf.d/google-double.conf). */
+const ACCOUNT_OF_THE_DOUBLE = 'agenda@solean-it.io'
+const theConnectButton = (page: Page) => page.getByRole('button', { name: 'Connecter', exact: true })
+const theDisconnectButton = (page: Page) => page.getByRole('button', { name: 'Déconnecter' })
+
+async function disconnectGoogle(page: Page) {
+  await theDisconnectButton(page).click()
+  await page.getByRole('dialog').getByRole('button', { name: 'Déconnecter' }).click()
+  await expect(theConnectButton(page)).toBeVisible()
+}
+
+/** Fifteen steps, some thirty screens, a reaction and the sign-out: some 25 seconds, longer than a journey. */
 const LONGER_THAN_A_JOURNEY_MS = 60_000
 
 test('sign in, start prospecting an organization, change it section by section, find it and sign out', async ({
@@ -166,6 +178,26 @@ test('sign in, start prospecting an organization, change it section by section, 
     await expect(page.getByRole('button', { name: 'Modifier : Nom' })).toBeVisible()
     await expect(page.getByRole('main').getByText('Paul', { exact: true })).toBeVisible()
     await expect(page.getByRole('main').getByText('SOLEAN IT', { exact: true })).toBeVisible()
+  })
+
+  await test.step('my Google account connects through Google, its double, then disconnects', async () => {
+    await page.goto('/settings?section=connectors')
+    await expect(theConnectButton(page).or(theDisconnectButton(page))).toBeVisible()
+    if (await theDisconnectButton(page).isVisible()) {
+      await disconnectGoogle(page)
+    }
+
+    await theConnectButton(page).click()
+    await expect(page.getByText('Votre compte Google est connecté.')).toBeVisible()
+    await expect(page).toHaveURL(/\/settings\?section=connectors/)
+    await page.reload()
+    await expect(
+      page.getByText(`Connecté au compte ${ACCOUNT_OF_THE_DOUBLE}`),
+      'checked again with Google',
+    ).toBeVisible()
+
+    await disconnectGoogle(page)
+    await expect(page.getByText('Votre compte Google est déconnecté.')).toBeVisible()
   })
 
   await test.step('sign out', async () => {
