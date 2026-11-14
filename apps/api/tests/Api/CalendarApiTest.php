@@ -54,6 +54,39 @@ class CalendarApiTest extends ApiTestCase
         $this->assertSame([], $this->requestJson('GET', self::NEXT_WEEK)['items']);
     }
 
+    /**
+     * Its holder moves an exchange of their calendar while it is to come, whoever planned it having the right to manage
+     * personal data; what is done, missed or cancelled stays where it is.
+     */
+    #[DataProvider('holders')]
+    public function testOnlyAnExchangeToComeIsMovedFromTheCalendar(string $reference, Role ...$roles): void
+    {
+        $this->login($this->aMemberOfTheFixtures($reference, ...$roles));
+        $organization = $this->requestJson('POST', '/api/organizations', ['legalIdentity' => ['corporateName' => 'ACME']])['id'];
+        $planned = $this->requestJson('POST', '/api/organizations/'.$organization.'/upcoming-exchanges', ['exchange' => ['channel' => 'call', 'occurredAt' => '2026-10-20T12:00:00+00:00']])['items'][0]['exchange']['id'];
+        $cancelled = $this->requestJson('POST', '/api/organizations/'.$organization.'/upcoming-exchanges', ['exchange' => ['channel' => 'meeting', 'occurredAt' => '2026-10-19T08:00:00+00:00']])['items'][0]['exchange']['id'];
+        $this->requestJson('POST', '/api/exchanges/'.$cancelled.'/cancellation', []);
+
+        $links = array_column(array_column($this->requestJson('GET', self::NEXT_WEEK)['items'], 'exchange'), '_links', 'id');
+
+        $this->assertSame(['href' => '/api/exchanges/'.$planned.'/moment', 'method' => 'PATCH'], $links[$planned]['move'] ?? null);
+        $this->assertArrayNotHasKey('move', $links[$cancelled]);
+    }
+
+    /**
+     * @return iterable<string, list<mixed>>
+     */
+    public static function holders(): iterable
+    {
+        yield 'a prospector with the right to manage personal data' => ['prospector-with-the-right', Role::User, Role::Prospector, Role::PersonalData];
+        yield 'an administrator' => ['administrator', Role::Prospector, Role::Admin];
+    }
+
+    public function testADoneExchangeIsNotMovedFromTheCalendar(): void
+    {
+        $this->assertSame([[], []], array_map(static fn (array $links): array => array_diff(array_keys($links), ['self']), array_column(array_column($this->requestJson('GET', self::WEEK_OF_THE_DEMONSTRATION)['items'], 'exchange'), '_links')));
+    }
+
     public function testTheExchangesNotedAreInTheCalendarOfTheirAuthor(): void
     {
         $this->assertSame(['done', 'done'], array_column(array_column($this->requestJson('GET', self::WEEK_OF_THE_DEMONSTRATION)['items'], 'exchange'), 'status'));

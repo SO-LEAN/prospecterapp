@@ -4,7 +4,7 @@
 - Type: domain
 - Status: Accepted
 - Supersedes: for the duration of a planned exchange kept when it is moved, [0112](0112-a-planned-exchange-is-done-missed-moved-or-cancelled-by-its-holder.md)
-- Implemented by: `packages/core/src/Prospecting` (`MoveExchange`, `Exchange::moveTo()`, `ExchangeFacts::movedTo()`), `features/traiter-un-echange-planifie.feature`, `apps/api/src/Exchanges` (`MoveExchangeController`, `MomentInput`), `apps/front/src/features/exchanges/calendar`
+- Implemented by: `packages/core/src/Prospecting` (`MoveExchange`, `Exchange::moveTo()`, `ExchangeFacts::movedTo()`, `ConsultCalendar`, `Calendar`), `features/traiter-un-echange-planifie.feature`, `features/consulter-mon-calendrier.feature`, `apps/api/src/Exchanges` (`MoveExchangeController`, `MomentInput`), `apps/api/src/Contacts/CalendarPresenter.php`, `apps/front/src/features/exchanges/calendar`
 
 ## Context
 
@@ -13,6 +13,8 @@ A planned exchange is moved to a moment to come by its holder, its duration kept
 ## Decision
 
 Moving a planned exchange takes a new duration if one is given, within the bounds of a planned exchange (`Duration`: 5 minutes to 8 hours, `DurationOutOfRange`), else it keeps its own. Stretching it in the calendar is moving it to its own moment for another duration: one intention, `MoveExchange` (`PATCH /api/exchanges/{id}/moment`, `durationInMinutes` beside `occurredAt`), with the rules of a move: by its holder, still to come, to a moment to come.
+
+The calendar tells, at the moment of its reading, which of its exchanges its holder may move (`Calendar::$movable`, from `ExchangePossibilities`): each carries then the link `move`, the one the SPA lets drag and stretch.
 
 ## Consequences
 

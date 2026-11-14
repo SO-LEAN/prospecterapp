@@ -11,6 +11,7 @@ use Behat\Step\Then;
 use Behat\Step\When;
 use Prospecter\Core\Accounts\Domain\Model\Role;
 use Prospecter\Core\Prospecting\Application\CancelExchange\CancelExchange;
+use Prospecter\Core\Prospecting\Application\ConsultCalendar\Calendar;
 use Prospecter\Core\Prospecting\Application\ConsultCalendar\ConsultCalendar;
 use Prospecter\Core\Prospecting\Application\ExchangeInTimeline;
 use Prospecter\Core\Prospecting\Application\NoteExchange\NoteExchange;
@@ -29,8 +30,7 @@ final class CalendarContext implements Context
 
     private const string ANY_PLANNED = 'un appel|un rendez-vous|une visio';
 
-    /** @var list<ExchangeInTimeline>|null */
-    private ?array $calendar = null;
+    private ?Calendar $calendar = null;
 
     #[Given('/^j\'ai noté (?<exchange>'.ExchangeContext::ANY_EXCHANGE.') avec "(?<contact>[^"]+)" le (?<day>\S+) à (?<time>\S+)$/')]
     public function iNotedAnExchange(string $exchange, string $contact, string $day, string $time): void
@@ -57,7 +57,7 @@ final class CalendarContext implements Context
     #[When('/^je consulte mon calendrier du (?<first>\S+) au (?<last>\S+)$/')]
     public function iConsultMyCalendar(string $first, string $last): void
     {
-        $this->calendar = $this->application->consultCalendar(new ConsultCalendar($this->application->signedIn(), self::moment($first, '0h00'), self::moment($last, '0h00')->modify('+1 day')))?->exchanges;
+        $this->calendar = $this->application->consultCalendar(new ConsultCalendar($this->application->signedIn(), self::moment($first, '0h00'), self::moment($last, '0h00')->modify('+1 day'), $this->application->now()));
     }
 
     #[Then('il montre, dans l\'ordre :')]
@@ -65,19 +65,16 @@ final class CalendarContext implements Context
     {
         $columns = array_flip($table->getRow(0));
 
-        Expect::same($table->getColumnsHash(), array_map(fn (ExchangeInTimeline $exchange): array => array_replace($columns, array_intersect_key($this->describe($exchange), $columns)), $this->calendar()));
+        Expect::same($table->getColumnsHash(), array_map(fn (ExchangeInTimeline $exchange): array => array_replace($columns, array_intersect_key($this->describe($exchange), $columns)), $this->calendar()->exchanges));
     }
 
     #[Then('il ne montre rien')]
     public function itShowsNothing(): void
     {
-        Expect::same([], $this->calendar());
+        Expect::same([], $this->calendar()->exchanges);
     }
 
-    /**
-     * @return list<ExchangeInTimeline>
-     */
-    private function calendar(): array
+    private function calendar(): Calendar
     {
         Expect::that(null !== $this->calendar, sprintf('A calendar was expected, got: %s', $this->application->refusal()?->getMessage()));
 
@@ -114,6 +111,7 @@ final class CalendarContext implements Context
             'canal' => Vocabulary::describeChannel($exchange->channel),
             'avec' => null === $exchange->personId ? '' : $this->scenario->nameOfPersonAsRead(new PersonId($exchange->personId)),
             'statut' => Vocabulary::describeStatus($exchange->status),
+            'déplaçable' => in_array($exchange->id, $this->calendar()->movable, true) ? 'oui' : 'non',
         ];
     }
 }

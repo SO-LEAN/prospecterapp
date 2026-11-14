@@ -45,10 +45,10 @@ final readonly class AgendaReader
         return $presenter->resource;
     }
 
-    public function readCalendar(string $holder, \DateTimeImmutable $from, \DateTimeImmutable $until): CalendarResource
+    public function readCalendar(string $holder, \DateTimeImmutable $from, \DateTimeImmutable $until, \DateTimeImmutable $at): CalendarResource
     {
         $calendar = new KeptCalendar();
-        ($this->consultCalendar)(new ConsultCalendar($holder, $from, $until), $calendar);
+        ($this->consultCalendar)(new ConsultCalendar($holder, $from, $until, $at), $calendar);
         $exchanges = $calendar->calendar->exchanges;
         $presenter = new CalendarPresenter($this->personsOf($holder, $exchanges), $this->organizationsPlannedWithAlone($exchanges), $this->timelines);
         $presenter->present($calendar->calendar);

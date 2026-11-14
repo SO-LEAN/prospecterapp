@@ -5920,6 +5920,9 @@
                 "properties": {
                     "self": {
                         "$ref": "#/components/schemas/LinkResource"
+                    },
+                    "move": {
+                        "$ref": "#/components/schemas/LinkResource"
                     }
                 },
                 "type": "object"
