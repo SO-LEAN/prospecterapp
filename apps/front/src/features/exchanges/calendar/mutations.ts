@@ -4,7 +4,7 @@ import { toast } from 'sonner'
 import { fetchClient } from '@/shared/api/client'
 import { queryKeys } from '@/shared/api/keys'
 import { dataOf } from '@/shared/api/slices'
-import { readTheTimelinesAgain } from '../mutations'
+import { readTheTimelinesAgain, UNDO_DELAY_MS } from '../mutations'
 import { exchangeQuery } from '../queries'
 import { withTheGesture } from './gestures'
 import type { CalendarExchange } from './queries'
@@ -53,6 +53,7 @@ export function useMoveInTheCalendar() {
         return
       }
       toast.success(t('exchanges.handling.moved'), {
+        duration: UNDO_DELAY_MS,
         action: { label: t('common.undo'), onClick: () => move.mutate(backWhereItWas(item)) },
       })
     },
