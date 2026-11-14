@@ -79,6 +79,19 @@ Fonctionnalité: Traiter un échange planifié
       | moment           | canal | durée  | statut  |
       | 18/11/2026 09:00 | Visio | 30 min | À venir |
 
+  Scénario: Un échange déplacé prend la durée qu'on lui donne
+    Quand je déplace cette visio au 17/11/2026 à 14h00 pour 1 heure
+    Alors les échanges à venir de "Ada Lovelace" sont, du plus proche au plus lointain :
+      | moment           | canal | durée  | statut  |
+      | 17/11/2026 14:00 | Visio | 1 h    | À venir |
+    Et je vois ces échanges qui chevauchent le 17/11/2026 à 14h45 pour 5 minutes :
+      | interlocuteur | canal | de               | à                |
+      | Ada Lovelace  | Visio | 17/11/2026 14:00 | 17/11/2026 15:00 |
+
+  Scénario: Un échange déplacé dure de 5 minutes à 8 heures
+    Quand je déplace cette visio au 18/11/2026 à 9h00 pour 9 heures
+    Alors c'est refusé : "A planned exchange lasts from 5 minutes to 8 hours"
+
   Scénario: Un échange déplacé change de place dans mon agenda
     Quand je déplace cette visio au 18/11/2026 à 9h00
     Alors je vois ces échanges qui chevauchent le 18/11/2026 à 9h15 pour 30 minutes :

@@ -246,17 +246,27 @@ class ExchangeTest extends TestCase
         $exchange->releaseEvents();
         $later = new \DateTimeImmutable(self::NOW)->modify('+2 days');
 
-        $exchange->moveTo($later, by: $this->me()->id, at: new \DateTimeImmutable(self::NOW));
+        $exchange->moveTo($later, null, by: $this->me()->id, at: new \DateTimeImmutable(self::NOW));
 
         $this->assertEquals([$later, 45], [StateOf::the($exchange)['facts']->occurredAt, StateOf::the($exchange)['facts']->duration?->minutes]);
         $this->assertEquals([new ExchangeMoved(new AccountId(self::MINE), $this->me()->id, new ExchangeId(self::EXCHANGE), new \DateTimeImmutable(self::NOW))], $exchange->releaseEvents());
+    }
+
+    public function testMovedForAnotherDurationItLastsIt(): void
+    {
+        $exchange = $this->planned();
+        $later = new \DateTimeImmutable(self::NOW)->modify('+2 days');
+
+        $exchange->moveTo($later, Duration::inMinutes(90), by: $this->me()->id, at: new \DateTimeImmutable(self::NOW));
+
+        $this->assertSame(90, StateOf::the($exchange)['facts']->duration?->minutes);
     }
 
     public function testAnExchangeIsNotMovedIntoThePast(): void
     {
         $this->expectException(PlannedExchangeInThePast::class);
 
-        $this->planned()->moveTo(new \DateTimeImmutable(self::NOW), by: $this->me()->id, at: new \DateTimeImmutable(self::NOW));
+        $this->planned()->moveTo(new \DateTimeImmutable(self::NOW), null, by: $this->me()->id, at: new \DateTimeImmutable(self::NOW));
     }
 
     public function testCancellingRecordsWhoCalledItOff(): void
@@ -654,7 +664,7 @@ class ExchangeTest extends TestCase
             ExchangeIntent::RemoveAttachment => $exchange->removeAttachment(new AttachmentId(self::ATTACHMENT), by: $by, at: $now),
             ExchangeIntent::MarkExchangeDone => $exchange->markDone(StateOf::the($exchange)['facts']->occurredAt, 'Compte rendu', by: $by, at: $now),
             ExchangeIntent::MarkExchangeMissed => $exchange->markMissed(by: $by, at: $now),
-            ExchangeIntent::MoveExchange => $exchange->moveTo($now->modify('+2 days'), by: $by, at: $now),
+            ExchangeIntent::MoveExchange => $exchange->moveTo($now->modify('+2 days'), null, by: $by, at: $now),
             ExchangeIntent::CancelExchange => $exchange->cancel(null, by: $by, at: $now),
         };
     }

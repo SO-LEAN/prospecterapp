@@ -27,7 +27,7 @@ final readonly class ExchangeDetailLinksResource
         public ?LinkResource $markDone = null,
         #[OA\Property(nullable: false, description: 'Marks missed a planned exchange whose time has come; to its holder only')]
         public ?LinkResource $markMissed = null,
-        #[OA\Property(nullable: false, description: 'Moves a planned exchange to another moment to come, its duration kept; to its holder only')]
+        #[OA\Property(nullable: false, description: 'Moves a planned exchange to another moment to come, for a new duration or its own; to its holder only')]
         public ?LinkResource $move = null,
         #[OA\Property(nullable: false, description: 'Cancels a planned exchange; to its holder only')]
         public ?LinkResource $cancel = null,
