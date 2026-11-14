@@ -152,9 +152,8 @@ class ConnectorsApiTest extends ApiTestCase
     {
         $this->login('assistant-user');
         $theirs = $this->stateOfANewAuthorization();
-        $this->google()->grants(self::CODE, 'autre@exemple.fr', 'a-refresh-token');
 
-        $this->login();
+        $this->signInAnotherMember('prospector-user');
         $problem = $this->requestJson('POST', '/api/me/connections/google', ['code' => self::CODE, 'state' => $theirs]);
 
         $this->assertResponseStatusCodeSame(404);
@@ -166,9 +165,11 @@ class ConnectorsApiTest extends ApiTestCase
         $this->login();
         $this->connect('michel@exemple.fr', 'a-refresh-token');
 
-        $this->login('assistant-user');
+        $this->signInAnotherMember('assistant-user');
+        $theirs = $this->requestJson('GET', '/api/me/connections');
 
-        $this->assertSame([], $this->requestJson('GET', '/api/me/connections')['connections']);
+        $this->assertResponseIsSuccessful();
+        $this->assertSame([], $theirs['connections']);
     }
 
     public function testTheAnswerOfGoogleNeedsItsCodeAndItsState(): void
@@ -186,6 +187,16 @@ class ConnectorsApiTest extends ApiTestCase
         $this->requestJson('POST', '/api/me/connections/google/authorizations');
 
         $this->assertResponseStatusCodeSame(401);
+    }
+
+    /**
+     * The client reboots again for another member, as the other tests of the API sign them in: the double of Google
+     * is no longer needed then.
+     */
+    private function signInAnotherMember(string $member): void
+    {
+        $this->client->enableReboot();
+        $this->login($member);
     }
 
     /**
