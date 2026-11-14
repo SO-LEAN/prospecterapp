@@ -134,7 +134,7 @@ check-e2e-locked: export FAIL_FAST = 1
 check-e2e-locked:
 	@$(if $(FROM_NOTHING),$(MAKE) stop && $(MAKE) deploy && $(MAKE) db FIGURES=later && mkdir -p $(dir $(FIGURES_LOG)),echo "On the stack running, as it is (FRESH=1 from nothing)")
 	@$(if $(FROM_NOTHING),{ $(API_CONSOLE)app:reporting:rebuild >$(FIGURES_LOG) 2>&1; } & figures=$$!;,figures=;) \
-	$(E2E_SETUP) && $(FRONT_E2E) E2E_ARGS=--project=together E2E_RESULTS=together; together=$$?; \
+	$(E2E_SETUP) && $(FRONT_E2E) E2E_ARGS="--project='together*'" E2E_RESULTS=together; together=$$?; \
 	test -z "$$figures" || wait $$figures || { echo "The figures were not counted:"; cat $(FIGURES_LOG); exit 1; }; \
 	test $$together -eq 0 || { echo "A journey running together failed: those running alone are not run"; exit $$together; }; \
 	$(FRONT_E2E) E2E_ARGS="--project=alone --no-deps" E2E_RESULTS=alone

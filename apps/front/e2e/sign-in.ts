@@ -1,12 +1,10 @@
-import { expect, type Page } from '@playwright/test'
+import type { Page } from '@playwright/test'
+import { expect, keepToTheStack, test } from './fixtures'
+import { SPA_URL } from './stack'
 
 export const SIGN_IN_PAGE = /local\.prospecter\.io(:\d+)?\/auth\/sign-in/
 
 export const PROSPECTOR = 'prospector@solean-it.io'
-/** A prospector without the right to manage personal data. */
-export const ASSISTANT = 'assistant@solean-it.io'
-/** A prospector whose profile is empty, completed when they sign in. */
-export const NEWCOMER = 'newcomer@solean-it.io'
 
 export async function signInOnTheSignInScreen(page: Page, email = PROSPECTOR) {
   await submitTheSignInScreen(page, email)
@@ -31,4 +29,31 @@ export async function submitTheSignInScreen(page: Page, email: string) {
   await page.getByLabel('E-mail').fill(email)
   await page.getByLabel('Mot de passe').fill('password')
   await page.getByRole('button', { name: 'Se connecter' }).click()
+}
+
+/** What the SPA keeps in the storage of its tab: the tokens of the member signed in (`shared/auth/session.ts`). */
+type StorageOfTheTab = Record<string, string>
+
+/**
+ * The member signed in once for the journeys of a file (ADR 0122), on a page of its own: each journey opens its page
+ * with their session, given to the storage of its tab before the SPA loads, instead of signing in again on Cognito.
+ */
+export function signInOncePerFile(email = PROSPECTOR) {
+  let session: StorageOfTheTab = {}
+
+  test.beforeAll(async ({ browser }) => {
+    const context = await browser.newContext({ baseURL: SPA_URL, ignoreHTTPSErrors: true, locale: 'fr-FR' })
+    await keepToTheStack(context)
+    const page = await context.newPage()
+    await signInOnTheSignInScreen(page, email)
+    session = await page.evaluate(() => ({ ...sessionStorage }))
+    await context.close()
+  })
+
+  return async function openSignedIn(page: Page, path = '/') {
+    await page.addInitScript((kept: StorageOfTheTab) => {
+      for (const [key, value] of Object.entries(kept)) sessionStorage.setItem(key, value)
+    }, session)
+    await page.goto(path)
+  }
 }

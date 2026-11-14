@@ -1,13 +1,15 @@
 import type { Page } from '@playwright/test'
 import { expect, test } from './fixtures'
-import { signInOnTheSignInScreen } from './sign-in'
+import { signInOncePerFile } from './sign-in'
+
+const openSignedIn = signInOncePerFile()
 
 function mapOf(page: Page) {
   return page.locator('.maplibregl-map')
 }
 
 async function theDashboardWithItsMap(page: Page) {
-  await signInOnTheSignInScreen(page)
+  await openSignedIn(page)
   await expect(page.locator('.maplibregl-marker').first()).toBeVisible()
 }
 
