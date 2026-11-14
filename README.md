@@ -23,12 +23,15 @@ Add to `/etc/hosts`:
 Then:
 
     make install
+    make ca
     make start
+
+`make ca` creates, once per machine, the local authority signing the certificate of the local hosts; import it once in Chrome ([Certificat local](#certificat-local)) and no stack shows a certificate warning.
 
 - Application: https://local.prospecter.io, sign in with `prospector@solean-it.io` / `password` (or `assistant@solean-it.io`, who sees the contacts masked)
 - API documentation: https://api.local.prospecter.io/api/doc
 
-Without a local authority (below), the certificate is self-signed: accept the browser warning once for each host (`local.`, `api.local.` and `static.local.prospecter.io`), and again for the port of each worktree.
+Without `make ca`, nginx falls back to a self-signed certificate: the browser then warns once for each host (`local.`, `api.local.` and `static.local.prospecter.io`), and again for the port of each worktree.
 
 ## Certificat local
 
