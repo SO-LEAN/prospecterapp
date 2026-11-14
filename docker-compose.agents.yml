@@ -27,7 +27,9 @@ services:
   ministack:
     <<: *agents
     cpus: 2
-    mem_limit: 2g
+    # the tens of reactions of a gesture (the journey stopping to prospect) take it beyond 2 GB at once: killed there,
+    # it loses them with its functions (ADR 0118)
+    mem_limit: 4g
     environment:
       # MiniStack 1.5.27 passes the memory to the functions it starts, neither their CPU nor their cgroup: bounded as on
       # AWS (1024 MB, docker/lambda/deploy.sh), they go back to their warm TTL sooner than in the main checkout

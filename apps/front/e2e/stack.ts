@@ -8,3 +8,6 @@ const PORT_SUFFIX = PUBLIC_PORT === '443' ? '' : `:${PUBLIC_PORT}`
 export const SPA_URL = `https://local.prospecter.io${PORT_SUFFIX}`
 export const API_URL = `https://api.local.prospecter.io${PORT_SUFFIX}`
 export const STATIC_URL = `https://static.local.prospecter.io${PORT_SUFFIX}`
+
+/** The journeys running together, each in a worker of its own (ADR 0117): E2E_WORKERS, two by default. */
+export const WORKERS = Number(process.env.E2E_WORKERS || 2)

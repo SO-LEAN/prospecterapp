@@ -84,8 +84,9 @@ ps: ## List the containers of the stack
 # new file once known to git or not ignored (make/changed-checks.sh), every one with ALL=1, as the CI on the pushes of
 # dev and main. Independent of one another once the images and the dependencies are there and the contract checked (it
 # writes the types the front reads), they run together, and so do the lint and the tests of a project, each printing
-# its output once it ends; the CI runs them in jobs of their own (.github/workflows/ci.yml). The journeys run in the
-# CI only, on a stack of their own (ADR 0116): locally, make e2e on the stack of the checkout
+# its output once it ends; the CI runs them in jobs of their own (.github/workflows/ci.yml). The journeys are no check
+# of the CI (ADR 0118): make ci runs them in a worktree, after the others, on its stack deployed and its data recreated;
+# in the main checkout, whose data it would recreate, make e2e runs them on the running stack
 BASE ?= origin/dev
 ALL_CHECKS = secrets infra core api storage front contract e2e
 CHANGED_FILES = { git diff --name-only $$(git merge-base $(BASE) HEAD); git ls-files --others --exclude-standard; }
@@ -97,19 +98,26 @@ ci: ## Run the checks of the integration the changes since BASE (origin/dev) nee
 # the MiniStack of the tests, shared by those of the API and the storage: started once, before they would both create it
 	@$(if $(filter api storage,$(CHECKS)),$(MAKE) ministack-test)
 	@$(MAKE) -j --output-sync=recurse $(addprefix check-,$(filter-out contract e2e,$(CHECKS)))
-	@$(if $(filter e2e,$(CHECKS)),echo "The journeys run in the CI: make e2e runs them on the stack of this checkout")
+	@$(if $(filter e2e,$(CHECKS)),$(if $(IN_WORKTREE),$(MAKE) check-e2e,echo "The journeys are not run in the main checkout: make e2e on the running stack"))
 
 # make -j runs together the prerequisites of each check, and the targets each runs in its project
 check-secrets: secrets-branch adr-references ## Check the commits of the branch for secrets, the references to the records
 check-infra: infra-lint ## Check the Terraform of the apps
 check-contract: contract ## Check the OpenAPI contract and the front types against the code
 
-# a stack started from nothing, its data recreated: in the CI, or in a worktree, never on the data of the main checkout
-check-e2e: ## Run the journeys on the stack of this checkout, deployed and its data recreated first: the CI (ADR 0116)
-	@test -n "$(CI)$(IN_WORKTREE)" || { echo "check-e2e recreates the data of the stack: in the CI or a worktree only; make e2e on the running stack"; exit 1; }
+# a stack deployed again, its data recreated: in a worktree, never on the data of the main checkout (ADR 0118).
+# The figures are counted (two minutes, ADR 0106) while the journeys reading none run together; those running alone,
+# the dashboard among them, once both are done (ADR 0117)
+FIGURES_LOG = $(ROOT)/.cache/reporting-rebuild.log
+check-e2e: ## Run the journeys on the stack of this worktree, deployed and its data recreated first: make ci (ADR 0117, 0118)
+	@test -n "$(IN_WORKTREE)" || { echo "check-e2e recreates the data of the stack: in a worktree only; make e2e on the running stack"; exit 1; }
 	@$(MAKE) deploy
-	@$(MAKE) db
-	@$(MAKE) e2e
+	@$(MAKE) db FIGURES=later
+	@mkdir -p $(dir $(FIGURES_LOG))
+	@{ $(API_CONSOLE)app:reporting:rebuild >$(FIGURES_LOG) 2>&1; } & figures=$$!; \
+	$(MAKE) e2e E2E_ARGS=--project=together E2E_RESULTS=together; together=$$?; \
+	wait $$figures || { echo "The figures were not counted:"; cat $(FIGURES_LOG); exit 1; }; \
+	$(MAKE) e2e E2E_ARGS="--project=alone --no-deps" E2E_RESULTS=alone && exit $$together
 
 check-core: ## Lint and test the core
 	@$(MAKE) -C packages/core lint test
