@@ -188,9 +188,14 @@ describe('dragging an exchange to come', () => {
     expect(await sent('PATCH')).toHaveLength(1)
   })
 
-  it('stretches it by its end to the quarter the pointer reaches', async () => {
+  it('stretches it by its end to the quarter the pointer reaches, a click opening it again', async () => {
     const visio = aVideoCall(new Date(2026, 10, 17, 14, 0))
-    theApiAnswers({ [`PATCH ${move.href}`]: () => ({ body: theDetail(visio) }) })
+    const stretchedVisio = aVideoCall(new Date(2026, 10, 17, 14, 0), { durationInMinutes: 60 })
+    theApiAnswers({
+      [`PATCH ${move.href}`]: () => ({ body: theDetail(stretchedVisio) }),
+      'GET /api/me/calendar': () => ({ body: { items: [stretchedVisio] } }),
+      [`GET ${self.href}`]: () => ({ body: theDetail(stretchedVisio) }),
+    })
     await showTheCalendar('week', [visio])
     const chip = screen.getByRole('button', { name: /14h00, Visio/ })
 
@@ -201,6 +206,8 @@ describe('dragging an exchange to come', () => {
         [move.href, { occurredAt: new Date(2026, 10, 17, 14, 0).toISOString(), durationInMinutes: 60 }],
       ]),
     )
+    await userEvent.click(screen.getByRole('button', { name: /14h00, Visio/ }))
+    expect(await screen.findByRole('dialog', { name: 'Échange' })).toBeInTheDocument()
   })
 
   it('changes its day alone in the month, its hour kept', async () => {

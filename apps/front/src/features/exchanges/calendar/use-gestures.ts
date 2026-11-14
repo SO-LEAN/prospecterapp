@@ -81,6 +81,7 @@ export function useGestures({ items, onMove, onChooseSlot }: Props) {
   }, [grabbing])
 
   const grab = (item: CalendarExchange, handling: Handling) => (event: PointerEvent<HTMLElement>) => {
+    draggedJustNow.current = false
     if (!item.exchange._links.move || event.button !== 0) return
     event.stopPropagation()
     const occurredAt = new Date(item.exchange.occurredAt)
@@ -97,7 +98,7 @@ export function useGestures({ items, onMove, onChooseSlot }: Props) {
     })
   }
 
-  /** A drag ends with a click on what was dragged: it must not open it. */
+  /** A drag may end with a click on what was dragged: it must not open it; the next press is a click again. */
   const clickedAfterADrag = () => {
     const dragged = draggedJustNow.current
     draggedJustNow.current = false
