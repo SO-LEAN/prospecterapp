@@ -15,8 +15,8 @@ import { LogoSection } from '@/features/organizations/components/logo-section'
 import { ObservationsSection } from '@/features/organizations/components/observations-section'
 import { StopProspecting } from '@/features/organizations/components/stop-prospecting'
 import {
+  fullNameOf,
   type Organization,
-  type OrganizationContact,
   organizationContactsQuery,
   organizationQuery,
 } from '@/features/organizations/queries'
@@ -104,9 +104,6 @@ function OrganizationPage() {
 }
 
 const nameOf = (organization: Organization) => organization.name || organization.contactDetails.email || ''
-
-const fullNameOf = (contact: OrganizationContact) =>
-  [contact.name.firstName, contact.name.lastName].filter(Boolean).join(' ')
 
 /**
  * Its to-dos then its timeline, noted with the organization itself or with one of its contacts; a to-do ticked off
