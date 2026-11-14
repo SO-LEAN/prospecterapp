@@ -69,7 +69,7 @@ async function showTheCalendar(view: View, day: Date, items: CalendarExchange[] 
   const onShow = vi.fn()
   await renderInARouter(
     <QueryClientProvider client={queryClient}>
-      <CalendarPage view={view} day={day} onShow={onShow} />
+      <CalendarPage view={view} day={day} onShow={onShow} contactSummary={() => null} />
     </QueryClientProvider>,
   )
   return onShow
@@ -97,21 +97,18 @@ describe('CalendarPage', () => {
 
     const today = screen.getByRole('listitem', { name: 'vendredi 13 novembre 2026' })
     expect(
-      within(today).getByRole('link', { name: '9h00, Visio avec Ada Lovelace, À traiter' }),
-    ).toHaveAttribute('href', '/contacts/0190a1c0-0000-7000-8000-00000000a000')
-    expect(within(today).getByRole('link', { name: '9h00, Visio avec Ada Lovelace, À traiter' })).toHaveClass(
-      'bg-warning',
-    )
-    expect(within(today).getByRole('link', { name: '16h00, Appel avec Ada Lovelace, À venir' })).toHaveClass(
-      'bg-primary',
-    )
+      within(today).getByRole('button', { name: '9h00, Visio avec Ada Lovelace, À traiter' }),
+    ).toHaveClass('bg-warning')
     expect(
-      within(screen.getByRole('listitem', { name: 'mardi 3 novembre 2026' })).getByRole('link', {
+      within(today).getByRole('button', { name: '16h00, Appel avec Ada Lovelace, À venir' }),
+    ).toHaveClass('bg-primary')
+    expect(
+      within(screen.getByRole('listitem', { name: 'mardi 3 novembre 2026' })).getByRole('button', {
         name: /Fait/,
       }),
     ).toHaveClass('bg-muted')
     expect(
-      within(screen.getByRole('listitem', { name: 'vendredi 20 novembre 2026' })).getByRole('link', {
+      within(screen.getByRole('listitem', { name: 'vendredi 20 novembre 2026' })).getByRole('button', {
         name: /Annulé/,
       }),
     ).toHaveClass('line-through')
@@ -126,7 +123,7 @@ describe('CalendarPage', () => {
     )
 
     const cell = screen.getByRole('listitem', { name: 'mardi 17 novembre 2026' })
-    expect(within(cell).getAllByRole('link')).toHaveLength(3)
+    expect(within(cell).getAllByRole('button', { name: /avec Ada Lovelace/ })).toHaveLength(3)
     expect(within(cell).getByRole('button', { name: /de plus/ })).toHaveTextContent('+2')
     await userEvent.click(
       within(cell).getByRole('button', { name: '2 de plus le mardi 17 novembre 2026, voir la journée' }),
@@ -184,7 +181,7 @@ describe('CalendarPage', () => {
     const thursday = screen.getByRole('list', { name: 'jeudi 12 novembre 2026' })
     expect(
       within(thursday)
-        .getByRole('link', { name: /14h30, Visio avec Ada Lovelace/ })
+        .getByRole('button', { name: /14h30, Visio avec Ada Lovelace/ })
         .closest('li'),
     ).toHaveStyle({
       '--start': '14.5',
@@ -210,7 +207,7 @@ describe('CalendarPage', () => {
     const [today, tuesday] = screen.getAllByRole('heading', { level: 2 })
     expect(today).toHaveTextContent('vendredi 13 novembreAujourd’hui')
     expect(tuesday).toHaveTextContent('mardi 17 novembre')
-    expect(screen.getByRole('link', { name: '9h00, Appel avec Ada Lovelace, À venir' })).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: '9h00, Appel avec Ada Lovelace, À venir' })).toBeInTheDocument()
   })
 
   it('titles each view by its period', async () => {
@@ -323,7 +320,7 @@ describe('CalendarPage', () => {
     expect(screen.getByLabelText('Maintenant')).toHaveStyle({ '--now': '10' })
   })
 
-  it('leads an exchange with an organization to its card, one with a forgotten contact nowhere', async () => {
+  it('names an exchange with an organization by it, one with a forgotten contact as unknown', async () => {
     await showTheCalendar('week', TODAY, [
       anExchange(new Date(2026, 10, 10, 9, 0), {}, 'ACME', {
         kind: 'organization',
@@ -333,24 +330,20 @@ describe('CalendarPage', () => {
       anExchange(new Date(2026, 10, 11, 9, 0), { status: 'done' }, null, { presence: 'forgotten' }),
     ])
 
-    expect(screen.getByRole('link', { name: /Visio avec ACME/ })).toHaveAttribute(
-      'href',
-      '/organizations/acme',
-    )
+    expect(screen.getByRole('button', { name: /Visio avec ACME/ })).toBeInTheDocument()
     expect(
-      screen.getByRole('note', { name: '9h00, Visio avec Interlocuteur inconnu, Fait' }),
+      screen.getByRole('button', { name: '9h00, Visio avec Interlocuteur inconnu, Fait' }),
     ).toBeInTheDocument()
-    expect(screen.queryByRole('link', { name: /Interlocuteur inconnu/ })).not.toBeInTheDocument()
   })
 
   it('makes a planned exchange to handle once its minute passed', async () => {
     vi.useFakeTimers({ toFake: ['Date', 'setInterval', 'clearInterval'] })
     vi.setSystemTime(new Date(2026, 10, 13, 9, 59, 30))
     await showTheCalendar('day', TODAY, [anExchange(new Date(2026, 10, 13, 10, 0))])
-    expect(screen.getByRole('link', { name: /À venir/ })).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: /À venir/ })).toBeInTheDocument()
 
     act(() => vi.advanceTimersByTime(60_000))
 
-    expect(screen.getByRole('link', { name: /À traiter/ })).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: /À traiter/ })).toBeInTheDocument()
   })
 })

@@ -20,6 +20,7 @@ The calendar tells, at the moment of its reading, which of its exchanges its hol
 
 - An exchange whose time has come, still planned, is neither moved nor stretched: it is to mark done or missed.
 - A duration changed alone, without a calendar, would be a move to its own moment.
+- Dragging and stretching stay code of the project on the grid it owns (ADR 0115), on the events of the pointer, without a library.
 
 ## Alternatives considered
 

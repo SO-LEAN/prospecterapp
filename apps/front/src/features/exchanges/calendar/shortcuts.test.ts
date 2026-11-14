@@ -25,6 +25,13 @@ describe('shortcutOf', () => {
     expect(pressed('a', editable)).toBeUndefined()
   })
 
+  it('leaves the keys to a dialog open over the calendar', () => {
+    const dialog = document.createElement('div')
+    dialog.setAttribute('data-slot', 'dialog-content')
+    const button = dialog.appendChild(document.createElement('button'))
+    expect(pressed('m', button)).toBeUndefined()
+  })
+
   it('leaves the keys combined with a modifier to the browser', () => {
     expect(pressed('t', document.body, true)).toBeUndefined()
   })

@@ -1,16 +1,25 @@
 import { useQueryClient, useSuspenseQuery } from '@tanstack/react-query'
 import { CalendarSearch, ChevronLeft, ChevronRight } from 'lucide-react'
-import { useEffect, useState } from 'react'
+import { type ReactNode, useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Button } from '@/shared/ui/button'
 import { PageHeader } from '@/shared/ui/page-header'
 import { Popover, PopoverContent, PopoverTrigger } from '@/shared/ui/popover'
+import type { Slot } from '../../planning'
 import { neighbourOf, type Period, periodOf, startOfDay, VIEWS, type View } from '../dates'
-import { calendarQuery, readTheDaysAroundAhead, readTheNeighbourAhead } from '../queries'
+import { useMoveInTheCalendar } from '../mutations'
+import {
+  type CalendarExchange,
+  calendarQuery,
+  readTheDaysAroundAhead,
+  readTheNeighbourAhead,
+} from '../queries'
 import { type Shortcut, useCalendarShortcuts } from '../shortcuts'
 import { AgendaView } from './agenda-view'
+import { ExchangeDialog } from './exchange-dialog'
 import { MiniMonth } from './mini-month'
 import { MonthView } from './month-view'
+import { PlanInASlot } from './plan-in-a-slot'
 import { TimeGridView } from './time-grid-view'
 
 const MINUTE_MS = 60_000
@@ -42,25 +51,30 @@ function useNow(): Date {
   return now
 }
 
-/**
- * My calendar: the view and the day shown come from the URL, each change goes back to it; the period shown is read
- * alone, the next and the previous ones read on the hover of their arrow, the days around a day read ahead.
- */
-export function CalendarPage({
-  view,
-  day,
-  onShow,
-}: {
+type Props = {
   view: View
   day: Date
   onShow: (view: View, day: Date) => void
-}) {
+  /** Who a contact is, their card in short, in the exchange opened: told by the page composing the contacts. */
+  contactSummary: (contactId: string) => ReactNode
+}
+
+/**
+ * My calendar: the view and the day shown come from the URL, each change goes back to it; the period shown is read
+ * alone, the next and the previous ones read on the hover of their arrow, the days around a day read ahead. An
+ * exchange opens in a dialog; one to come is dragged, a free slot planned.
+ */
+export function CalendarPage({ view, day, onShow, contactSummary }: Props) {
   const { t } = useTranslation()
   const queryClient = useQueryClient()
   const now = useNow()
   const period = periodOf(view, day)
   const { data } = useSuspenseQuery(calendarQuery(period))
   const [jumping, setJumping] = useState(false)
+  const [opened, setOpened] = useState<CalendarExchange | null>(null)
+  const [slot, setSlot] = useState<Slot | null>(null)
+  const move = useMoveInTheCalendar()
+  const gestures = { onOpen: setOpened, onMove: move.mutate }
 
   useEffect(() => {
     if (view === 'day') readTheDaysAroundAhead(queryClient, day)
@@ -133,11 +147,29 @@ export function CalendarPage({
       </div>
 
       {view === 'month' && (
-        <MonthView period={period} month={day.getMonth()} items={data.items} now={now} onOpenDay={openDay} />
+        <MonthView
+          period={period}
+          month={day.getMonth()}
+          items={data.items}
+          now={now}
+          onOpenDay={openDay}
+          {...gestures}
+        />
       )}
-      {view === 'week' && <TimeGridView period={period} items={data.items} now={now} onOpenDay={openDay} />}
-      {view === 'day' && <TimeGridView period={period} items={data.items} now={now} />}
-      {view === 'agenda' && <AgendaView items={data.items} now={now} />}
+      {(view === 'week' || view === 'day') && (
+        <TimeGridView
+          key={view}
+          period={period}
+          items={data.items}
+          now={now}
+          onOpenDay={view === 'week' ? openDay : undefined}
+          onChooseSlot={setSlot}
+          {...gestures}
+        />
+      )}
+      {view === 'agenda' && <AgendaView items={data.items} now={now} onOpen={setOpened} />}
+      <ExchangeDialog item={opened} onClose={() => setOpened(null)} contactSummary={contactSummary} />
+      <PlanInASlot slot={slot} onClose={() => setSlot(null)} />
 
       <p className="hidden text-muted-foreground text-xs md:block">{t('calendar.shortcuts')}</p>
     </div>

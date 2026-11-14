@@ -144,7 +144,7 @@ function readTheFiguresAgain(queryClient: QueryClient) {
 }
 
 /** A corrected or erased exchange may be in several timelines, of contacts and of organizations, past or to come. */
-function readTheTimelinesAgain(queryClient: QueryClient) {
+export function readTheTimelinesAgain(queryClient: QueryClient) {
   void queryClient.invalidateQueries({ queryKey: timelineKeys.ofContacts })
   void queryClient.invalidateQueries({ queryKey: timelineKeys.ofOrganizations })
   void queryClient.invalidateQueries({ queryKey: timelineKeys.toMakeConform })

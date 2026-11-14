@@ -9,7 +9,15 @@ import { CalendarExchangeChip } from './calendar-exchange'
 const longDayFormat = new Intl.DateTimeFormat('fr-FR', { weekday: 'long', day: 'numeric', month: 'long' })
 
 /** The days of the period holding exchanges, one under the other, today marked: what a phone shows first. */
-export function AgendaView({ items, now }: { items: CalendarExchange[]; now: Date }) {
+export function AgendaView({
+  items,
+  now,
+  onOpen,
+}: {
+  items: CalendarExchange[]
+  now: Date
+  onOpen: (item: CalendarExchange) => void
+}) {
   const { t } = useTranslation()
   const days = [...byDay(items).entries()]
 
@@ -38,7 +46,12 @@ export function AgendaView({ items, now }: { items: CalendarExchange[]; now: Dat
             <ul className="space-y-1.5 p-2">
               {ofTheDay.map((item) => (
                 <li key={item.exchange.id}>
-                  <CalendarExchangeChip item={item} now={now} className="px-3 py-1.5 text-sm" />
+                  <CalendarExchangeChip
+                    item={item}
+                    now={now}
+                    className="px-3 py-1.5 text-sm"
+                    onClick={() => onOpen(item)}
+                  />
                 </li>
               ))}
             </ul>
