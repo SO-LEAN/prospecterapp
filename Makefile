@@ -9,7 +9,7 @@ GITLEAKS = docker run --rm -u $(UID):$(GID) -e GIT_INDEX_FILE -v $(CURDIR):$(CUR
 	-w $(CURDIR) ghcr.io/gitleaks/gitleaks:v8.30.1
 INFRA_APPS = api storage front
 
-.PHONY: install hooks build vendor db aws front-install check-secrets check-infra check-contract check-core check-api check-storage check-front check-e2e check-e2e-locked e2e-locked front-lint front-tested-build changed-checks infra-target infra-init infra-plan infra-apply infra-lint changed-apps package-api package-storage package-front release-front console start deploy stop down agents-slice logs ps ci test test-api test-storage test-front e2e test-core mutation mutation-api lint adr-references fix front-build api-doc contract commands profiler-clear exec-api exec-front secrets secrets-branch
+.PHONY: install hooks build vendor db aws ca front-install check-secrets check-infra check-contract check-core check-api check-storage check-front check-e2e check-e2e-locked e2e-locked front-lint front-tested-build changed-checks infra-target infra-init infra-plan infra-apply infra-lint changed-apps package-api package-storage package-front release-front console start deploy stop down agents-slice logs ps ci test test-api test-storage test-front e2e test-core mutation mutation-api lint adr-references fix front-build api-doc contract commands profiler-clear exec-api exec-front secrets secrets-branch
 
 ##@ Setup
 install: hooks build vendor db front-install ## Build the images, install the dependencies, create the tables, the bucket and the user pool, install the Git hooks
@@ -72,6 +72,11 @@ agents-slice: ## Give the stacks of the worktrees their budget, with sudo: AGENT
 	@echo "$$AGENTS_SLICE_UNIT" | sudo tee /etc/systemd/system/$(AGENTS_SLICE) >/dev/null
 	@sudo systemctl daemon-reload
 	@systemctl show $(AGENTS_SLICE) -p CPUQuotaPerSecUSec -p CPUWeight -p MemoryHigh -p MemoryMax
+
+# openssl in the image of nginx, nothing on the host; the authority of the machine, whatever the checkout running it
+ca: ## Create once the local authority of the machine and the certificate of local.prospecter.io it signs, served by the stack of every checkout: import docker/data/ssl/ca.pem in the browser once (README)
+	@$(DC) --progress quiet build nginx
+	@docker run --rm -e OWNER=$(UID):$(GID) -e SHOWN_DIR=$(LOCAL_CA_DIR) -v $(LOCAL_CA_DIR):/etc/ssl/local $(NGINX_IMAGE) local-ca
 
 logs: ## Follow the logs of the stack
 	@$(DC) logs -f

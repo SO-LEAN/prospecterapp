@@ -36,6 +36,9 @@ services:
       - ministack
     volumes:
       - ./docker/data/ssl/certs/:/etc/ssl/certs
+      # the certificate the local authority of the machine signed (make ca), served by the stack of every checkout:
+      # that of the main checkout, its authority key never mounted
+      - ${LOCAL_CA_DIR:-./docker/data/ssl}/signed/:/etc/ssl/signed:ro
     environment:
       NGINX_HOST: local.prospecter.io
       # the port its hosts listen on, that of the host the browser reaches (ADR 0116)
