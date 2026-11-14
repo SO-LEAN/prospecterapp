@@ -26,12 +26,15 @@ export LOCAL_CA_DIR := $(MAIN_CHECKOUT)/docker/data/ssl
 # a container run beside the stack goes where its stack is
 STACK_CGROUP = $(if $(IN_WORKTREE),--cgroup-parent=$(AGENTS_SLICE))
 # the images are shared by the checkouts, tagged with a digest of their build context: a checkout changing one builds its
-# own, the others keep theirs
+# own, the others keep theirs; named on the host only, a make run in a container starting none (the image of php has no
+# find)
+ifeq ($(wildcard /.dockerenv),)
 image-tag = $(shell cd $(ROOT) && { find docker/$(1) -type f | LC_ALL=C sort | xargs sha256sum; echo $(UID):$(GID); } | sha256sum | cut -c1-12)
 export PHP_IMAGE := prospecter-php:$(call image-tag,php)
 export NODE_IMAGE := prospecter-node:$(call image-tag,node)
 export NGINX_IMAGE := prospecter-nginx:$(call image-tag,nginx)
 export LAMBDA_DEPLOY_IMAGE := prospecter-lambda-deploy:$(call image-tag,lambda)
+endif
 # the whole repository is mounted in the containers: a project runs in its own directory there
 WORKDIR = /var/www/src$(patsubst $(ROOT)%,%,$(CURDIR))
 # a command prints its own output only, not the creation of its container: what the agents read stays short
