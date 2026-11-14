@@ -38,7 +38,7 @@ Without `make ca`, nginx falls back to a self-signed certificate: the browser th
 A local authority, created once per machine, signs the certificate of the local hosts; imported once in Chrome, it makes it trust the stack of every checkout, the main one on 443 and each worktree on its own port, without a warning.
 
 1. `make ca`, from the main checkout or a worktree: it creates the authority in `docker/data/ssl` of the main checkout (`ca.pem`, valid twenty years, its key `ca-key.pem` readable by you alone), then the certificate of `local.prospecter.io`, `api.local.prospecter.io` and `static.local.prospecter.io` it signs (`docker/data/ssl/signed`, valid ten years). Run again, it keeps both.
-2. Import the authority in Chrome: Settings › Privacy and security › Security › Manage certificates › Authorities (on Linux: Manage imported certificates from Linux) › Import, choose `docker/data/ssl/ca.pem`, tick "Trust this certificate for identifying websites", OK.
+2. Import the authority in Chrome, which keeps it in its own store, per profile, not in the one of the system: `chrome://certificate-manager` › Local certificates › Installed by you › Trusted certificates › Import, choose `docker/data/ssl/ca.pem`. Then quit Chrome entirely (Ctrl+Q), not only its window: until then it keeps the exceptions accepted for the self-signed certificate and its connections, and still says "Not secure".
 3. Restart each stack (`make stop`, `make start`): nginx serves the signed certificate when it exists, the self-signed one otherwise. A port changes nothing to it.
 
 Firefox keeps its own authorities: Settings › Privacy & Security › Certificates › View Certificates › Authorities › Import.
