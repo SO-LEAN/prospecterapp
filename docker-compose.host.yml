@@ -1,0 +1,10 @@
+# The stack of the main checkout, on the ports of the host (ADR 0116): https://local.prospecter.io in the browser,
+# MiniStack at http://localhost:4566 for the IDE and the AWS CLI. Added by make (make/common.mk) out of a worktree.
+services:
+  nginx:
+    ports:
+      - "127.0.0.1:80:80"
+      - "127.0.0.1:443:443"
+  ministack:
+    ports:
+      - "127.0.0.1:4566:4566"

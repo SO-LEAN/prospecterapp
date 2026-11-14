@@ -7,14 +7,29 @@ export UID := $(shell id -u)
 export GID := $(shell id -g)
 MAKEFLAGS += --no-print-directory
 
-DC = docker compose --project-directory $(ROOT)
+# each checkout runs its own stack, its project named after its directory (ADR 0116): the main checkout publishes it on
+# the ports of the host, a worktree, where an agent works, keeps it in its Docker network, in the budget of the agents.
+# In a worktree, .git only points to the common git directory, out of the checkout mounted in the containers
+GIT_DIR := $(shell git rev-parse --path-format=absolute --git-dir 2>/dev/null)
+GIT_COMMON_DIR := $(shell git rev-parse --path-format=absolute --git-common-dir 2>/dev/null)
+IN_WORKTREE := $(filter-out $(GIT_COMMON_DIR),$(GIT_DIR))
+AGENTS_SLICE = prospecter-agents.slice
+STACK_FILES = docker-compose.yml $(if $(IN_WORKTREE),docker-compose.agents.yml,docker-compose.host.yml)
+DC = docker compose --project-directory $(ROOT) $(foreach file,$(STACK_FILES),-f $(ROOT)/$(file))
+# a container run beside the stack goes where its stack is
+STACK_CGROUP = $(if $(IN_WORKTREE),--cgroup-parent=$(AGENTS_SLICE))
+# the images are shared by the checkouts, tagged with a digest of their build context: a checkout changing one builds its
+# own, the others keep theirs
+image-tag = $(shell cd $(ROOT) && { find docker/$(1) -type f | LC_ALL=C sort | xargs sha256sum; echo $(UID):$(GID); } | sha256sum | cut -c1-12)
+export PHP_IMAGE := prospecter-php:$(call image-tag,php)
+export NODE_IMAGE := prospecter-node:$(call image-tag,node)
+export NGINX_IMAGE := prospecter-nginx:$(call image-tag,nginx)
+export LAMBDA_DEPLOY_IMAGE := prospecter-lambda-deploy:$(call image-tag,lambda)
 # the whole repository is mounted in the containers: a project runs in its own directory there
 WORKDIR = /var/www/src$(patsubst $(ROOT)%,%,$(CURDIR))
 # a command prints its own output only, not the creation of its container: what the agents read stays short
 PHP  = $(DC) --progress quiet run --rm --no-deps -w $(WORKDIR) php
 NODE = $(DC) --progress quiet run --rm --no-deps -w $(WORKDIR) node
-# the common git directory: in a worktree, .git only points to it, out of the checkout mounted in the containers
-GIT_COMMON_DIR = $(shell git rev-parse --path-format=absolute --git-common-dir)
 # the API and the storage run in Lambdas with the Bref layers (ADR 0055): the repository is mounted in the
 # functions by its absolute path
 export PROJECT_DIR := $(ROOT)

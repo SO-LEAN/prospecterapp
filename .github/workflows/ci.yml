@@ -1,7 +1,8 @@
 # Continuous integration (ADR 0057, 0109, 0110): what make ci runs locally, in Docker as locally, on the pull requests
 # to dev and main, which cannot be merged while it fails, and on the pushes of dev and main. A pull request runs the
 # checks its changes need, a push every one; each check runs in a job of its own, together, its lint and its tests
-# together too (make -j); the job ci sums them up, the check the rulesets require.
+# together too (make -j); the journeys on a stack of their own, started on the runner (ADR 0116); the job ci sums them
+# up, the check the rulesets require.
 name: CI
 
 on:
@@ -33,7 +34,7 @@ jobs:
         env:
           BASE_REF: ${{ github.base_ref }}
         run: |
-          if [ -n "$BASE_REF" ]; then checks=$(make changed-checks RANGE="origin/$BASE_REF...HEAD"); else checks='["secrets","infra","core","api","storage","front","contract"]'; fi
+          if [ -n "$BASE_REF" ]; then checks=$(make changed-checks RANGE="origin/$BASE_REF...HEAD"); else checks='["secrets","infra","core","api","storage","front","contract","e2e"]'; fi
           echo "checks=$checks" >> "$GITHUB_OUTPUT"
           echo "$checks"
 
@@ -41,14 +42,15 @@ jobs:
     needs: changes
     name: check ${{ matrix.check }}
     runs-on: ubuntu-24.04
-    timeout-minutes: 20
+    # the journeys start the stack and recreate its data first (the figures counted after two minutes, ADR 0106)
+    timeout-minutes: ${{ matrix.check == 'e2e' && 40 || 20 }}
     strategy:
       fail-fast: false
       matrix:
         check: ${{ fromJSON(needs.changes.outputs.checks) }}
     env:
-      PHP: ${{ contains(fromJSON('["core","api","storage","contract"]'), matrix.check) }}
-      NODE: ${{ contains(fromJSON('["front","contract"]'), matrix.check) }}
+      PHP: ${{ contains(fromJSON('["core","api","storage","contract","e2e"]'), matrix.check) }}
+      NODE: ${{ contains(fromJSON('["front","contract","e2e"]'), matrix.check) }}
     steps:
       - uses: actions/checkout@v7.0.1
         with:
@@ -85,6 +87,16 @@ jobs:
         env:
           # tflint downloads its AWS ruleset from GitHub, beyond the anonymous rate limit of the shared runners
           GITHUB_TOKEN: ${{ matrix.check == 'infra' && github.token || '' }}
+
+      - name: Keep the report of the journeys that failed
+        if: failure() && matrix.check == 'e2e'
+        uses: actions/upload-artifact@v7.0.2
+        with:
+          name: playwright-report
+          path: |
+            apps/front/playwright-report
+            apps/front/test-results
+          retention-days: 7
 
   ci:
     if: always()

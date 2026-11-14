@@ -60,7 +60,7 @@ Why the project is shaped the way it is: one record per decision, in the order t
 | [0054](0054-the-storage-in-a-local-lambda-with-the-imagick-layer.md) | Locally, the storage runs in a Lambda too, with the imagick layer of Bref | architecture | Accepted | 2026-10-16 |
 | [0055](0055-locally-the-apps-run-only-in-their-lambdas.md) | Locally, the API and the storage run only in their Bref Lambdas | architecture | Accepted | 2026-10-16 |
 | [0056](0056-the-command-line-on-the-php-of-the-lambdas.md) | The command line runs on the PHP of the Lambdas | architecture | Accepted | 2026-10-16 |
-| [0057](0057-continuous-integration-around-dev.md) | Continuous integration around `dev`: branches of work by pull request, `main` and `dev` protected | architecture | Accepted | 2026-10-16 |
+| [0057](0057-continuous-integration-around-dev.md) | Continuous integration around `dev`: branches of work by pull request, `main` and `dev` protected | architecture | Accepted, the journeys out of the integration superseded by [0116](0116-each-checkout-runs-its-own-stack-the-journeys-run-in-the-ci.md) | 2026-10-16 |
 | [0058](0058-main-receives-dev-and-hotfixes-by-merge-commits.md) | `main` receives `dev` and the hotfixes by merge commits | architecture | Accepted | 2026-10-16 |
 | [0059](0059-terraform-per-app-values-out-of-the-repository.md) | Each app keeps its Terraform; the values of an installation stay out of the repository | architecture | Accepted | 2026-10-16 |
 | [0060](0060-terraform-plans-every-pull-request.md) | Terraform plans every pull request touching the infrastructure, with a read-only role | architecture | Accepted | 2026-10-17 |
@@ -119,3 +119,4 @@ Why the project is shaped the way it is: one record per decision, in the order t
 | [0113](0113-a-to-do-is-an-aggregate-of-prospecting-erased-with-its-contact.md) | A to-do is an aggregate of Prospecting, kept like an exchange, erased with its contact | domain | Accepted | 2026-11-13 |
 | [0114](0114-the-place-and-the-link-of-an-exchange-are-no-personal-data.md) | The place of a meeting and the link of a video call are no personal data: every prospector corrects them | domain | Accepted | 2026-11-13 |
 | [0115](0115-a-calendar-is-read-a-period-at-a-time-on-a-key-of-the-holder.md) | A calendar is read a period at a time, on a key of its holder; the SPA draws its grid | architecture | Accepted | 2026-11-13 |
+| [0116](0116-each-checkout-runs-its-own-stack-the-journeys-run-in-the-ci.md) | Each checkout runs its own stack, the worktrees within a budget; the journeys run in the integration | architecture | Accepted | 2026-11-14 |
