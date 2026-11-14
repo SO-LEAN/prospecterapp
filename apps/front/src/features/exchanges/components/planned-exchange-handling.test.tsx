@@ -176,7 +176,7 @@ describe('handling a planned exchange', () => {
       [
         'PATCH',
         `/api/exchanges/${EXCHANGE}/moment`,
-        { occurredAt: new Date(2099, 10, 18, 9, 0).toISOString() },
+        { occurredAt: new Date(2099, 10, 18, 9, 0).toISOString(), durationInMinutes: null },
       ],
     ])
   })

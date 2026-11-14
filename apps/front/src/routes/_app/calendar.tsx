@@ -1,6 +1,7 @@
 import { createFileRoute, useNavigate } from '@tanstack/react-router'
 import { zodValidator } from '@tanstack/zod-adapter'
 import { z } from 'zod'
+import { ContactSummary } from '@/features/contacts/components/contact-summary'
 import { CalendarPage } from '@/features/exchanges/calendar/components/calendar-page'
 import { CalendarSkeleton } from '@/features/exchanges/calendar/components/calendar-skeleton'
 import { dayOf, isDay, parseDay, periodOf, VIEWS, type View } from '@/features/exchanges/calendar/dates'
@@ -43,6 +44,7 @@ function Calendar() {
       view={view}
       day={day}
       onShow={(shownView, shownDay) => navigate({ search: { view: shownView, date: dayOf(shownDay) } })}
+      contactSummary={(contactId) => <ContactSummary contactId={contactId} />}
     />
   )
 }

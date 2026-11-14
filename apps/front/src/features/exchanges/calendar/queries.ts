@@ -12,6 +12,14 @@ const DAYS_READ_AHEAD = 3
 export const calendarQuery = (period: Period) =>
   api.queryOptions('get', '/api/me/calendar', { params: { query: queryOf(period) } })
 
+/** The contacts whose name or email starts with the text, to plan with one in a slot of the calendar. */
+export const contactsFoundQuery = (q: string) =>
+  api.queryOptions('get', '/api/contacts', { params: { query: { q } } })
+
+/** The organizations whose name starts with the text, to plan with one in a slot of the calendar. */
+export const organizationsFoundQuery = (q: string) =>
+  api.queryOptions('get', '/api/organizations', { params: { query: { q } } })
+
 /** The period before or after the one shown, read before it is asked for: on the hover of its arrow. */
 export function readTheNeighbourAhead(queryClient: QueryClient, view: View, day: Date, step: 1 | -1) {
   void queryClient.prefetchQuery(calendarQuery(periodOf(view, neighbourOf(view, day, step))))

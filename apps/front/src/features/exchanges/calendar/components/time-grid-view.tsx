@@ -1,15 +1,19 @@
 import { type CSSProperties, useEffect, useRef } from 'react'
 import { useTranslation } from 'react-i18next'
 import { cn } from '@/shared/lib/utils'
+import type { Slot } from '../../planning'
 import { byDay, dayOf, daysOf, isSameDay, type Period } from '../dates'
+import { DAY_ATTRIBUTE } from '../gestures'
+import type { CalendarMove } from '../mutations'
 import type { CalendarExchange } from '../queries'
 import { hoursFromMidnight, placeInTheDay } from '../time-grid'
+import { useGestures } from '../use-gestures'
 import { CalendarExchangeChip } from './calendar-exchange'
 
 const HOURS = Array.from({ length: 24 }, (_, hour) => hour)
+const MINUTES_IN_AN_HOUR = 60
 /** The working day the grid opens on, the other hours a scroll away. */
 const FIRST_HOUR_SHOWN = 8
-
 const dayFormat = new Intl.DateTimeFormat('fr-FR', { weekday: 'short', day: 'numeric' })
 const longDayFormat = new Intl.DateTimeFormat('fr-FR', { dateStyle: 'full' })
 
@@ -19,24 +23,26 @@ const longDayFormat = new Intl.DateTimeFormat('fr-FR', { dateStyle: 'full' })
  */
 const placed = (properties: Record<`--${string}`, number>) => properties as CSSProperties
 
-/**
- * The hours of a week or of a day, each exchange at its moment for its duration, those overlapping side by side; the
- * line of now on today. It opens on the working hours, the others a scroll away.
- */
-export function TimeGridView({
-  period,
-  items,
-  now,
-  onOpenDay,
-}: {
+type Props = {
   period: Period
   items: CalendarExchange[]
   now: Date
   onOpenDay?: (day: Date) => void
-}) {
+  onOpen: (item: CalendarExchange) => void
+  onMove: (move: CalendarMove) => void
+  onChooseSlot: (slot: Slot) => void
+}
+
+/**
+ * The hours of a week or of a day, each exchange at its moment for its duration, those overlapping side by side; the
+ * line of now on today. It opens on the working hours, the others a scroll away. An exchange the API lets move is
+ * dragged to another moment or stretched by its end; a free slot clicked, or dragged for its duration, is planned.
+ */
+export function TimeGridView({ period, items, now, onOpenDay, onOpen, onMove, onChooseSlot }: Props) {
   const { t } = useTranslation()
   const days = daysOf(period)
-  const exchangesOf = byDay(items)
+  const gestures = useGestures({ items, onMove, onChooseSlot })
+  const exchangesOf = byDay(gestures.shown)
   const scrolled = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
@@ -81,7 +87,10 @@ export function TimeGridView({
             <ol
               key={dayOf(day)}
               aria-label={longDayFormat.format(day)}
-              className="relative min-w-0 flex-1 border-l bg-[repeating-linear-gradient(to_bottom,transparent_0_calc(var(--hour)-1px),var(--color-border)_calc(var(--hour)-1px)_var(--hour))]"
+              {...{ [DAY_ATTRIBUTE]: dayOf(day) }}
+              data-hours=""
+              {...gestures.slotHandlers(day)}
+              className="relative min-w-0 flex-1 cursor-cell border-l bg-[repeating-linear-gradient(to_bottom,transparent_0_calc(var(--hour)-1px),var(--color-border)_calc(var(--hour)-1px)_var(--hour))]"
             >
               {placeInTheDay(exchangesOf.get(dayOf(day)) ?? []).map(
                 ({ item, start, length, lane, lanes }) => (
@@ -90,9 +99,36 @@ export function TimeGridView({
                     style={placed({ '--start': start, '--length': length, '--lane': lane, '--lanes': lanes })}
                     className="absolute top-[calc(var(--start)*var(--hour))] left-[calc(var(--lane)*100%/var(--lanes))] h-[calc(var(--length)*var(--hour))] w-[calc(100%/var(--lanes))] p-px"
                   >
-                    <CalendarExchangeChip item={item} now={now} className="h-full" />
+                    <CalendarExchangeChip
+                      item={item}
+                      now={now}
+                      movable
+                      dragged={gestures.draggedId === item.exchange.id}
+                      className="h-full"
+                      onClick={() => gestures.clickedAfterADrag() || onOpen(item)}
+                      onPointerDown={gestures.grab(item, 'move')}
+                    >
+                      {item.exchange._links.move && (
+                        <span
+                          aria-hidden
+                          data-stretch=""
+                          onPointerDown={gestures.grab(item, 'stretch')}
+                          className="absolute inset-x-0 bottom-0 h-1.5 cursor-ns-resize"
+                        />
+                      )}
+                    </CalendarExchangeChip>
                   </li>
                 ),
+              )}
+              {gestures.choosing && gestures.choosingDay && isSameDay(gestures.choosingDay, day) && (
+                <li
+                  aria-hidden
+                  style={placed({
+                    '--start': hoursFromMidnight(gestures.choosing.startsAt),
+                    '--length': gestures.choosing.durationInMinutes / MINUTES_IN_AN_HOUR,
+                  })}
+                  className="pointer-events-none absolute inset-x-0 top-[calc(var(--start)*var(--hour))] h-[calc(var(--length)*var(--hour))] rounded-md border-2 border-primary border-dashed bg-primary/10"
+                />
               )}
               {isSameDay(day, now) && (
                 <li

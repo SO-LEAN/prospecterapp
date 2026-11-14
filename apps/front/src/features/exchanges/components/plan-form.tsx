@@ -21,6 +21,7 @@ import {
   planSchema,
   QUICK_DURATIONS,
   SHORTCUTS,
+  type Slot,
   slotOf,
   toPlannedExchange,
 } from '../planning'
@@ -44,18 +45,20 @@ type Props = {
   channel?: PlannedChannel
   /** Where a meeting is proposed to be held: the address of the organization, written on one line. */
   proposedPlace?: string
+  /** The slot proposed, chosen in the calendar, rather than the next quarter of an hour for half an hour. */
+  slot?: Slot
 }
 
 /**
  * Planned in a few clicks: the next quarter of an hour and half an hour by default, shortcuts for the usual moments
  * and durations, the place of a meeting proposed; warned, without being stopped, of an exchange of mine it overlaps.
  */
-export function PlanForm({ onSubmit, onCancel, interlocutors, channel, proposedPlace }: Props) {
+export function PlanForm({ onSubmit, onCancel, interlocutors, channel, proposedPlace, slot }: Props) {
   const { t } = useTranslation()
   const [globalErrors, setGlobalErrors] = useState<string[]>([])
   const form = useForm<PlanValues>({
     resolver: zodResolver(planSchema),
-    defaultValues: { ...newPlan(new Date(), proposedPlace), channel },
+    defaultValues: { ...newPlan(new Date(), proposedPlace, slot), channel },
   })
   const { errors, isSubmitting } = useFormState({ control: form.control })
   const setMoment = (moment: Date) => {

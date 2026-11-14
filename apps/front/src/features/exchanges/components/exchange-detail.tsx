@@ -61,7 +61,8 @@ export function ExchangeDetailSheet({ exchangeId, onClose }: Props) {
   )
 }
 
-function ExchangePanel({ exchangeId, onErased }: { exchangeId: string; onErased: () => void }) {
+/** The whole of an exchange and what it offers, read from the API: in its sheet, or in the calendar. */
+export function ExchangePanel({ exchangeId, onErased }: { exchangeId: string; onErased: () => void }) {
   const exchange = useQuery(exchangeQuery(exchangeId))
 
   if (!exchange.data) {

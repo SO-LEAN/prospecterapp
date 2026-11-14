@@ -16,10 +16,16 @@ const SHORTCUTS: Record<string, Shortcut> = {
 
 const FIELDS = ['INPUT', 'TEXTAREA', 'SELECT']
 const EDITABLE = '[contenteditable=""], [contenteditable="true"]'
+/** A dialog over the calendar, not the popover of its small month, which its keys drive too. */
+const A_DIALOG = '[data-slot="dialog-content"], [data-slot="alert-dialog-content"]'
 
-/** None while the member types, nor combined with a modifier: those keys belong to the field or to the browser. */
+/**
+ * None while the member types, nor combined with a modifier: those keys belong to the field or to the browser; none
+ * in a dialog open over the calendar, an exchange or a planning, whose keys are its own.
+ */
 export function shortcutOf(event: Pick<KeyboardEvent, 'key' | 'target' | 'altKey' | 'ctrlKey' | 'metaKey'>) {
-  if (event.altKey || event.ctrlKey || event.metaKey || isTyping(event.target)) return undefined
+  if (event.altKey || event.ctrlKey || event.metaKey || isTyping(event.target) || inADialog(event.target))
+    return undefined
   return SHORTCUTS[event.key.length === 1 ? event.key.toLowerCase() : event.key]
 }
 
@@ -37,6 +43,10 @@ export function useCalendarShortcuts(onShortcut: (shortcut: Shortcut) => void) {
     window.addEventListener('keydown', listener)
     return () => window.removeEventListener('keydown', listener)
   }, [])
+}
+
+function inADialog(target: EventTarget | null): boolean {
+  return target instanceof Element && target.closest(A_DIALOG) !== null
 }
 
 function isTyping(target: EventTarget | null): boolean {

@@ -1,6 +1,7 @@
 import { useInfiniteQuery, useQuery } from '@tanstack/react-query'
 import { placeOf } from '@/shared/lib/address'
 import { attachTheFiles, useAttachFiles, useNoteExchange, usePlanExchange } from '../mutations'
+import type { Slot } from '../planning'
 import { meetingPlaceQuery, type PlannedExchangeInput, timelineQuery, upcomingQuery } from '../queries'
 import { ExchangeForm } from './exchange-form'
 import { ExchangeLine } from './exchange-line'
@@ -102,10 +103,11 @@ type ContactPlanFormProps = {
   contactId: string
   onSubmit: (exchange: PlannedExchangeInput) => Promise<unknown>
   onCancel: () => void
+  slot?: Slot
 }
 
 /** Planned once the place to meet the contact is known: the address of their organization, asked when planning. */
-function ContactPlanForm({ contactId, onSubmit, onCancel }: ContactPlanFormProps) {
+export function ContactPlanForm({ contactId, onSubmit, onCancel, slot }: ContactPlanFormProps) {
   const meetingPlace = useQuery(meetingPlaceQuery(contactId))
 
   if (meetingPlace.isPending) {
@@ -113,6 +115,11 @@ function ContactPlanForm({ contactId, onSubmit, onCancel }: ContactPlanFormProps
   }
 
   return (
-    <PlanForm proposedPlace={placeOf(meetingPlace.data?.address)} onSubmit={onSubmit} onCancel={onCancel} />
+    <PlanForm
+      proposedPlace={placeOf(meetingPlace.data?.address)}
+      slot={slot}
+      onSubmit={onSubmit}
+      onCancel={onCancel}
+    />
   )
 }

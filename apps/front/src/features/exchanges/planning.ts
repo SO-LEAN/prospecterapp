@@ -73,7 +73,7 @@ export const planFields = [
   'personId',
 ] as const
 
-/** Mirrors `MomentInput` of the API: another moment to come, the duration kept. */
+/** Mirrors `MomentInput` of the API: another moment to come, its duration kept (none sent). */
 export const moveSchema = z
   .object({
     date: z.string().min(1, { error: () => i18n.t('validation.required') }),
@@ -88,7 +88,10 @@ export type MoveValues = z.input<typeof moveSchema>
 
 export const moveFields = ['date', 'time'] as const
 
-export const toMoment = (values: MoveValues): Moment => ({ occurredAt: momentOf(values).toISOString() })
+export const toMoment = (values: MoveValues): Moment => ({
+  occurredAt: momentOf(values).toISOString(),
+  durationInMinutes: null,
+})
 
 /** The date and the time of the inputs of a moment, in the time of the browser. */
 export const dateAndTimeOf = (moment: Date) => {
@@ -96,13 +99,20 @@ export const dateAndTimeOf = (moment: Date) => {
   return { date, time }
 }
 
+/** A moment and how long from it: what is chosen in the calendar to plan. */
+export type Slot = { startsAt: Date; durationInMinutes: number }
+
 /**
- * Quick to plan: the next quarter of an hour, half an hour, the place proposed for a meeting; only the channel is
- * to choose.
+ * Quick to plan: the next quarter of an hour, half an hour, or the slot chosen; the place proposed for a meeting;
+ * only the channel is to choose.
  */
-export const newPlan = (now: Date, proposedPlace = ''): DefaultValues<PlanValues> => ({
-  ...dateAndTimeOf(nextQuarterHour(now)),
-  durationInMinutes: USUAL,
+export const newPlan = (
+  now: Date,
+  proposedPlace = '',
+  slot: Slot = { startsAt: nextQuarterHour(now), durationInMinutes: USUAL },
+): DefaultValues<PlanValues> => ({
+  ...dateAndTimeOf(slot.startsAt),
+  durationInMinutes: slot.durationInMinutes,
   text: '',
   place: proposedPlace,
   link: '',
