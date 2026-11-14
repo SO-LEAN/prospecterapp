@@ -1,0 +1,39 @@
+# The stack of a worktree, where an agent works (ADR 0116): no port of the host, its journeys reach it in its Docker
+# network; every container in the slice of the agents (make agents-slice sets its budget), each bounded, so that an
+# agent neither takes the machine nor the share of the others. Added by make (make/common.mk) in a worktree.
+x-agents: &agents
+  cgroup_parent: prospecter-agents.slice
+
+services:
+  # the command line: tests, PHPStan, Composer
+  php:
+    <<: *agents
+    cpus: 2
+    mem_limit: 4g
+  # the dev server of Vite, and the command line: Vitest, TypeScript, the build
+  node:
+    <<: *agents
+    cpus: 2
+    mem_limit: 3g
+  nginx:
+    <<: *agents
+    cpus: 0.5
+    mem_limit: 256m
+  ministack:
+    <<: *agents
+    cpus: 2
+    mem_limit: 2g
+    environment:
+      # MiniStack 1.5.27 passes the memory to the functions it starts, neither their CPU nor their cgroup: bounded as on
+      # AWS (1024 MB, docker/lambda/deploy.sh), they go back to their warm TTL sooner than in the main checkout
+      LAMBDA_DOCKER_FLAGS: -v ${PROJECT_DIR:-${PWD}}:/var/www/src --memory=1g
+      LAMBDA_WARM_TTL_SECONDS: "600"
+      # its limit of memory would otherwise bound the functions running at once: those of a rule beyond it would be
+      # lost (docs/architecture/local-stack.md)
+      LAMBDA_ACCOUNT_CONCURRENCY: "0"
+  ministack-test:
+    <<: *agents
+    cpus: 2
+    mem_limit: 1g
+  lambda-deploy:
+    <<: *agents

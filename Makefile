@@ -9,7 +9,7 @@ GITLEAKS = docker run --rm -u $(UID):$(GID) -e GIT_INDEX_FILE -v $(CURDIR):$(CUR
 	-w $(CURDIR) ghcr.io/gitleaks/gitleaks:v8.30.1
 INFRA_APPS = api storage front
 
-.PHONY: install hooks build vendor db aws front-install check-secrets check-infra check-contract check-core check-api check-storage check-front front-lint front-tested-build changed-checks infra-target infra-init infra-plan infra-apply infra-lint changed-apps package-api package-storage package-front release-front console start deploy stop logs ps ci test test-api test-storage test-front e2e test-core mutation mutation-api lint adr-references fix front-build api-doc contract commands profiler-clear exec-api exec-front secrets secrets-branch
+.PHONY: install hooks build vendor db aws front-install check-secrets check-infra check-contract check-core check-api check-storage check-front check-e2e front-lint front-tested-build changed-checks infra-target infra-init infra-plan infra-apply infra-lint changed-apps package-api package-storage package-front release-front console start deploy stop down agents-slice logs ps ci test test-api test-storage test-front e2e test-core mutation mutation-api lint adr-references fix front-build api-doc contract commands profiler-clear exec-api exec-front secrets secrets-branch
 
 ##@ Setup
 install: hooks build vendor db front-install ## Build the images, install the dependencies, create the tables, the bucket and the user pool, install the Git hooks
@@ -42,9 +42,36 @@ deploy: ## Start the stack and (re)deploy the Lambdas of the API and the storage
 	@$(DC) up -d --build
 	@$(DC) run --rm --build lambda-deploy
 
-stop: ## Stop the stack and the functions MiniStack runs
+# the functions a MiniStack runs carry its host name: those of the stacks of the other checkouts stay up
+STACK_FUNCTIONS = for ministack in $$($(DC) ps -aq ministack); do \
+	docker ps -aq --filter label=ministack.instance=$$(docker inspect -f '{{.Config.Hostname}}' $$ministack):4566; done
+stop: ## Stop the stack of this checkout and the functions its MiniStack runs
+	@$(STACK_FUNCTIONS) | xargs -r docker rm -f >/dev/null
 	@$(DC) stop
-	@docker ps -aq --filter label=ministack=lambda | xargs -r docker rm -f >/dev/null
+
+down: ## Remove the stack of this checkout, its functions and its data: once a worktree is done with (ADR 0116)
+	@$(STACK_FUNCTIONS) | xargs -r docker rm -f >/dev/null
+	@$(DC) --profile cli --profile test --profile deploy down --volumes --remove-orphans
+
+# the budget of the stacks of the worktrees together (ADR 0116), out of reach of the agents: a slice of systemd, written
+# once with sudo, which the containers of the worktrees join; without it, only the bounds of each stack apply
+AGENTS_CPUS ?= 10
+AGENTS_MEMORY_GB ?= 40
+define AGENTS_SLICE_UNIT
+[Unit]
+Description=The stacks of the worktrees of Prospecter, where the agents work (ADR 0116)
+
+[Slice]
+CPUQuota=$(AGENTS_CPUS)00%
+CPUWeight=50
+MemoryHigh=$(shell echo $$(( $(AGENTS_MEMORY_GB) * 4 / 5 )))G
+MemoryMax=$(AGENTS_MEMORY_GB)G
+endef
+export AGENTS_SLICE_UNIT
+agents-slice: ## Give the stacks of the worktrees their budget, with sudo: AGENTS_CPUS (10) CPUs and AGENTS_MEMORY_GB (40) together, behind the rest of the machine
+	@echo "$$AGENTS_SLICE_UNIT" | sudo tee /etc/systemd/system/$(AGENTS_SLICE) >/dev/null
+	@sudo systemctl daemon-reload
+	@systemctl show $(AGENTS_SLICE) -p CPUQuotaPerSecUSec -p CPUWeight -p MemoryHigh -p MemoryMax
 
 logs: ## Follow the logs of the stack
 	@$(DC) logs -f
@@ -57,21 +84,32 @@ ps: ## List the containers of the stack
 # new file once known to git or not ignored (make/changed-checks.sh), every one with ALL=1, as the CI on the pushes of
 # dev and main. Independent of one another once the images and the dependencies are there and the contract checked (it
 # writes the types the front reads), they run together, and so do the lint and the tests of a project, each printing
-# its output once it ends; the CI runs them in jobs of their own (.github/workflows/ci.yml)
+# its output once it ends; the CI runs them in jobs of their own (.github/workflows/ci.yml). The journeys run in the
+# CI only, on a stack of their own (ADR 0116): locally, make e2e on the stack of the checkout
 BASE ?= origin/dev
-ALL_CHECKS = secrets infra core api storage front contract
+ALL_CHECKS = secrets infra core api storage front contract e2e
 CHANGED_FILES = { git diff --name-only $$(git merge-base $(BASE) HEAD); git ls-files --others --exclude-standard; }
 CHECKS = $(if $(ALL),$(ALL_CHECKS),$(shell $(CHANGED_FILES) | make/changed-checks.sh))
 ci: ## Run the checks of the integration the changes since BASE (origin/dev) need, ALL=1 every one: secrets of the branch, Terraform, lint and tests of each project, build of the front, contract
 	@echo "Checks: $(CHECKS)$(if $(ALL),, (those of the changes since $(BASE); ALL=1 for every one))"
 	@$(MAKE) build vendor front-install
 	@$(if $(filter contract,$(CHECKS)),$(MAKE) check-contract)
-	@$(MAKE) -j --output-sync=recurse $(addprefix check-,$(filter-out contract,$(CHECKS)))
+# the MiniStack of the tests, shared by those of the API and the storage: started once, before they would both create it
+	@$(if $(filter api storage,$(CHECKS)),$(MAKE) ministack-test)
+	@$(MAKE) -j --output-sync=recurse $(addprefix check-,$(filter-out contract e2e,$(CHECKS)))
+	@$(if $(filter e2e,$(CHECKS)),echo "The journeys run in the CI: make e2e runs them on the stack of this checkout")
 
 # make -j runs together the prerequisites of each check, and the targets each runs in its project
 check-secrets: secrets-branch adr-references ## Check the commits of the branch for secrets, the references to the records
 check-infra: infra-lint ## Check the Terraform of the apps
 check-contract: contract ## Check the OpenAPI contract and the front types against the code
+
+# a stack started from nothing, its data recreated: in the CI, or in a worktree, never on the data of the main checkout
+check-e2e: ## Run the journeys on the stack of this checkout, deployed and its data recreated first: the CI (ADR 0116)
+	@test -n "$(CI)$(IN_WORKTREE)" || { echo "check-e2e recreates the data of the stack: in the CI or a worktree only; make e2e on the running stack"; exit 1; }
+	@$(MAKE) deploy
+	@$(MAKE) db
+	@$(MAKE) e2e
 
 check-core: ## Lint and test the core
 	@$(MAKE) -C packages/core lint test

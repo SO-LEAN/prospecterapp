@@ -37,13 +37,14 @@ api-types: ## Generate the types of the API from its OpenAPI contract (src/share
 
 # Playwright runs in its official image, in the network of the stack, the local hosts resolved to its nginx: on the
 # network of the host, its Chromium would drop its requests each time a function starts its container there
-# (net::ERR_NETWORK_CHANGED)
-E2E_NETWORK = $(or $(COMPOSE_PROJECT_NAME),prospecterapp)_default
-NGINX_IP = $(shell docker inspect -f '{{(index .NetworkSettings.Networks "$(E2E_NETWORK)").IPAddress}}' pro-nginx 2>/dev/null)
+# (net::ERR_NETWORK_CHANGED). The nginx of the stack of this checkout (ADR 0116): its network and its address
+NGINX = $(shell $(DC) ps -q nginx 2>/dev/null)
+E2E_NETWORK = $(if $(NGINX),$(shell docker inspect -f '{{range $$name, $$network := .NetworkSettings.Networks}}{{$$name}}{{end}}' $(NGINX)))
+NGINX_IP = $(if $(NGINX),$(shell docker inspect -f '{{range .NetworkSettings.Networks}}{{.IPAddress}}{{end}}' $(NGINX)))
 
 e2e: ## Run the Playwright journeys against the running stack
-	@ip=$(NGINX_IP); test -n "$$ip" || { echo "No nginx in the network $(E2E_NETWORK): is the stack running (make start)?"; exit 1; }; \
-	docker run --rm --init --ipc=host --network $(E2E_NETWORK) $(foreach host,local api.local static.local,--add-host $(host).prospecter.io:$$ip) \
+	@ip=$(NGINX_IP); test -n "$$ip" || { echo "No nginx in the stack of this checkout: is it running (make start)?"; exit 1; }; \
+	docker run --rm --init --ipc=host $(STACK_CGROUP) --network $(E2E_NETWORK) $(foreach host,local api.local static.local,--add-host $(host).prospecter.io:$$ip) \
 		-u $(UID):$(GID) -e HOME=/tmp $(if $(E2E_RUN),-e E2E_RUN=$(E2E_RUN)) -v $(CURDIR):/work -w /work mcr.microsoft.com/playwright:v1.64.0-noble npx playwright test
 
 shell: ## Open a shell in the Node container

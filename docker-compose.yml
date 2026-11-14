@@ -1,6 +1,7 @@
 services:
   # the command line of the PHP apps (tests, Composer, console): the apps themselves run in their Lambdas
   php:
+    image: ${PHP_IMAGE:-prospecter-php:local}
     build:
       context: docker/php
       args:
@@ -14,20 +15,19 @@ services:
     extra_hosts:
       - host.docker.internal:host-gateway
     profiles: [cli]
-    container_name: pro-php
   node:
+    image: ${NODE_IMAGE:-prospecter-node:local}
     build: docker/node
     user: "${UID:-1000}:${GID:-1000}"
     volumes:
       - ./:/var/www/src
       - pnpm-store:/pnpm-store
     command: pnpm dev
-    container_name: pro-node
+  # the ports of the host are published by the main checkout only (docker-compose.host.yml, ADR 0116): the stack of
+  # a worktree is reached in its Docker network, by its journeys
   nginx:
+    image: ${NGINX_IMAGE:-prospecter-nginx:local}
     build: docker/nginx
-    ports:
-      - "127.0.0.1:80:80"
-      - "127.0.0.1:443:443"
     depends_on:
       - node
       - ministack
@@ -41,7 +41,6 @@ services:
       MINISTACK_HOST: ministack:4566
       FILES_BUCKET: prospecter-dev-files
       PRIVATE_FILES_BUCKET: prospecter-dev-private-files
-    container_name: pro-nginx
 
   # the AWS services emulated locally, kept between restarts: DynamoDB for the API (ADR 0048), S3 for the storage
   # (ADR 0051), Cognito for the sign-in (ADR 0052), and the Lambdas of the API and the storage behind their HTTP
@@ -49,8 +48,6 @@ services:
   # rights of root on the host, accepted locally. The repository is mounted in the functions as in php.
   ministack:
     image: ministackorg/ministack:1.5.27
-    ports:
-      - "127.0.0.1:4566:4566"
     environment:
       MINISTACK_REGION: eu-west-3
       PERSIST_STATE: "1"
@@ -68,7 +65,6 @@ services:
     volumes:
       - ministack-data:/var/lib/ministack
       - /var/run/docker.sock:/var/run/docker.sock
-    container_name: pro-ministack
 
   # the AWS services of the tests of the API and the storage (.env.test), one per checkout: neither port nor container
   # name of its own, nor state kept, nor Lambdas, so that the tests never wait for the stack another checkout holds
@@ -83,6 +79,7 @@ services:
 
   # deploys the Lambdas and their HTTP APIs (docker/lambda/deploy.sh, make start)
   lambda-deploy:
+    image: ${LAMBDA_DEPLOY_IMAGE:-prospecter-lambda-deploy:local}
     build: docker/lambda
     environment:
       AWS_ENDPOINT_URL: http://ministack:4566
@@ -97,6 +94,10 @@ services:
       - ministack
     profiles: [deploy]
 volumes:
+  # the downloads of Composer and pnpm, shared by the stacks of every checkout (ADR 0116): a new worktree installs its
+  # dependencies from them; the data of MiniStack stay those of the stack
   composer-cache:
+    name: prospecter-composer-cache
   pnpm-store:
+    name: prospecter-pnpm-store
   ministack-data:
