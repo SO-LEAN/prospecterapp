@@ -22,7 +22,7 @@ Fonctionnalité: Consulter mon calendrier
       | 17/11/2026 14:00 | 14:30 | Visio       | Ada Lovelace | À venir |
       | 20/11/2026 10:00 | 10:30 | Rendez-vous | Ada Lovelace | Annulé  |
 
-  Scénario: Seuls mes échanges à venir se déplacent depuis mon calendrier
+  Scénario: Seuls mes échanges planifiés se déplacent depuis mon calendrier
     Soit j'ai noté un appel avec "Ada Lovelace" le 03/11/2026 à 9h00
     Et j'ai planifié une visio avec "Ada Lovelace" le 17/11/2026 à 14h00
     Et j'ai annulé un rendez-vous avec "Ada Lovelace" le 20/11/2026 à 10h00
@@ -32,6 +32,14 @@ Fonctionnalité: Consulter mon calendrier
       | 03/11/2026 09:00 | Fait    | non        |
       | 17/11/2026 14:00 | À venir | oui        |
       | 20/11/2026 10:00 | Annulé  | non        |
+
+  Scénario: Un échange planifié dont l'heure est passée se déplace encore depuis mon calendrier
+    Soit j'ai planifié une visio avec "Ada Lovelace" le 17/11/2026 à 14h00
+    Et nous sommes le 17/11/2026 à 15h00
+    Quand je consulte mon calendrier du 16/11/2026 au 22/11/2026
+    Alors il montre, dans l'ordre :
+      | moment           | déplaçable |
+      | 17/11/2026 14:00 | oui        |
 
   Scénario: Le calendrier ne montre que les échanges de la période
     Soit j'ai planifié un appel avec "Ada Lovelace" le 16/11/2026 à 0h00
