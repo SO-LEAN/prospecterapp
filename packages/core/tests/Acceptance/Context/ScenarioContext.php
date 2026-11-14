@@ -73,6 +73,12 @@ final class ScenarioContext implements Context
         $this->application->itIs(new \DateTimeImmutable($moment));
     }
 
+    #[Given(':minutes minutes ont passé')]
+    public function minutesPassed(int $minutes): void
+    {
+        $this->application->itIs($this->application->now()->modify(sprintf('+%d minutes', $minutes)));
+    }
+
     #[Given('/^nous sommes le (?<moment>\\d{2}\\/\\d{2}\\/\\d{4} à \\d{1,2}h\\d{2})$/')]
     public function itIsInFrench(string $moment): void
     {

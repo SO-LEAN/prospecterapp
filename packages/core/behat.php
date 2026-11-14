@@ -10,6 +10,7 @@ use Tests\Core\Acceptance\Context\AllOrNothingContext;
 use Tests\Core\Acceptance\Context\AttachmentContext;
 use Tests\Core\Acceptance\Context\CalendarContext;
 use Tests\Core\Acceptance\Context\CallerContext;
+use Tests\Core\Acceptance\Context\ConnectorContext;
 use Tests\Core\Acceptance\Context\ExchangeContext;
 use Tests\Core\Acceptance\Context\ExchangeDetailContext;
 use Tests\Core\Acceptance\Context\MemberContext;
@@ -29,4 +30,4 @@ return new Config()
     ->withProfile(new Profile('default')
         ->withSuite(new Suite('business_rules')
             ->withPaths('%paths.base%/features')
-            ->withContexts(ScenarioContext::class, OrganizationContext::class, AccountContext::class, MemberContext::class, PersonalDataContext::class, PublishedLanguageContext::class, CallerContext::class, ExchangeContext::class, ExchangeDetailContext::class, PlannedExchangeContext::class, ToDoContext::class, AttachmentContext::class, AllOrNothingContext::class, ProspectingFactsContext::class, PersonalDataFactsContext::class, ReportingContext::class, ReminderContext::class, CalendarContext::class)));
+            ->withContexts(ScenarioContext::class, OrganizationContext::class, AccountContext::class, MemberContext::class, PersonalDataContext::class, PublishedLanguageContext::class, CallerContext::class, ExchangeContext::class, ExchangeDetailContext::class, PlannedExchangeContext::class, ToDoContext::class, AttachmentContext::class, AllOrNothingContext::class, ProspectingFactsContext::class, PersonalDataFactsContext::class, ReportingContext::class, ReminderContext::class, CalendarContext::class, ConnectorContext::class)));

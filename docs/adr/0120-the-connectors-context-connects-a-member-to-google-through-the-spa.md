@@ -1,0 +1,45 @@
+# 0120. The Connectors context keeps the connections of the members to Google, authorized by OAuth through the SPA, their refresh tokens useless without the client secret
+
+- Date: 2026-11-14
+- Type: architecture
+- Status: Accepted
+- Implemented by: `packages/core/src/Connectors`, `packages/core/features/connecter-mon-compte-google.feature`, `apps/api/src/Connectors`, `docker/nginx/conf.d/google-double.conf`, `apps/front/src/features/connectors`
+
+## Context
+
+A member wants their planned exchanges in their Google calendar (#93 to #95), pushed one way, Prospecter being the reference. Prospecter must hold, per member, a lasting access to their calendar while they are away: an OAuth 2 refresh token of Google. The members sign in with Cognito (ADR 0052), the SPA holding the tokens: a navigation of the browser reaches the API without them. The pushes will run in the worker (ADR 0101), at least once and in no order. The tests depend on no service outside the stack (ADR 0092). The repository describes the platform, never an installation (ADR 0059). The spike #92 tried the flow and the push on a Google Workspace account, and an encryption of the token by the KMS of MiniStack (a prototype, not merged).
+
+## Decision
+
+- **A fifth context, Connectors**, downstream like Reporting: it keeps the connections of the members to services outside (a member, a provider, the external account, a state: connected, to reconnect), Google first. It sees the others only by their contracts (the account of a member, from `ConsultMembersService`); what it asks of the provider is a port of its domain (`ProviderAccess`: exchange a code, tell whether a token still grants, revoke it), implemented in the API. Its table `<prefix>-connectors` (ADR 0048): the connection of a member under `MEMBER#<member>` / `CONNECTION#<provider>`, an authorization being given under `AUTHORIZATION#<state>`, forgotten by the TTL of the table. It publishes nothing yet; its domain events (`Connected`, `ConnectionLost`, `Disconnected`) go through the outbox of its table like those of the other contexts.
+- **The OAuth app** is a project of Google Cloud in the Workspace of the publisher, of user type *internal* (no verification by Google; no expiry of the refresh tokens after 7 days, which strikes only the external apps in testing), the Calendar API enabled, one web client per instance (local, dev, prod), each with the single redirect URI of its SPA, `/settings/connectors/google`.
+- **Scopes**: `openid email` (the address of the external account, read in the `id_token` received from the token endpoint over TLS) and `https://www.googleapis.com/auth/calendar.app.created`: Prospecter creates its own calendar « Prospecter » in the account of the member and can touch no other. A grant without it (the member unticked it at the consent) connects nothing: `IncompleteGrant`.
+- **The flow is an authorization code with PKCE, exchanged by the API with the client secret**, the SPA carrying it:
+  1. the SPA asks the API for an authorization (`POST /api/me/connections/google/authorizations`, its Cognito token): the API draws a `state` and a `code_verifier`, the core keeps them 10 minutes bound to the member (`AskForAuthorization`), the API answers the address of Google (`access_type=offline`, `prompt=consent`, `code_challenge` S256);
+  2. Google brings the browser back to the SPA (`/settings/connectors/google`) with `code` and `state`, or `error=access_denied`, which connects nothing;
+  3. the SPA gives `code` and `state` to the API (`POST /api/me/connections/google`, its Cognito token): the core takes the authorization of that `state`, refuses one unknown, expired, or given to another member (`UnknownAuthorization`, 404), has the API exchange the code with the verifier and the secret (Google refuses an exchange without it: a web client is confidential), and connects (`Connect`).
+  The client secret never leaves the API; the `state` bound to the member refuses a code brought by another one.
+- **The refresh token is kept in the table of Connectors**, encrypted at rest by DynamoDB only, no encryption of the application: it opens only the « Prospecter » calendar of its member, and is useless without the client secret, kept apart in SSM; whoever reads both reads already the whole instance. The access token (an hour) is never kept.
+- **Checked, reconnected, disconnected**: the page of the connectors checks the connections of the member when it opens (`POST /api/me/connections/checks`, `CheckMyConnections`): a refresh answered `invalid_grant` (access revoked by the member or their administrator, token unused for six months, 100 tokens of the client for the account exceeded) makes the connection « to reconnect », no retry; the banner of the app reads only the state kept (`GET /api/me/connections`). A member has one connection per provider: connecting again replaces its account and its token, the former token revoked once the new one is taken (Google keeps the former otherwise, up to 100 per account and client). Disconnecting revokes the token at Google (`/revoke`), then forgets the connection; a revocation failing does not keep it.
+- **The secrets**: the client id and secret of an instance are values of the installation, out of the repository: on AWS a parameter `/prospecter/<instance>/api/google-client-id` and a `SecureString` `/prospecter/<instance>/api/google-client-secret`, set by hand, read at the start (`bref-ssm:`); locally `apps/api/.env.local`, for a developer trying a real client.
+- **The double of Google** (ADR 0092): a server of nginx (`docker/nginx/conf.d/google-double.conf`) answering as Google does: its authorization page, on the host of the API (`/google/authorize`, the browser of a journey reaching nothing outside the stack), sends the browser straight back to the SPA with a fixed `code` and the `state` received; its token endpoint, on the Docker network, gives fixed tokens and an `id_token` of a fixed account with the scopes asked, for the exchange as for a refresh; its revocation answers 200. The local stack talks to it by default (`apps/api/.env`), the journeys with it; the tests of the API double the HTTP client (`OutsideServices`), the scenarios the port (`InMemoryProviderAccess`). The addresses of Google are configuration (`GOOGLE_AUTHORIZATION_URL`, `GOOGLE_TOKEN_URL`, `GOOGLE_REVOKE_URL`, `GOOGLE_REDIRECT_URI`).
+
+## Consequences
+
+- Only the members of the Workspace that owns the Google project may connect: an internal app refuses any other Google account. Enough while Prospecter serves its publisher; a customer on another Workspace needs an external app in production; its scopes being non-sensitive (`calendar.app.created` is classified so by the console), Google checks only its brand: its consent screen, its privacy policy, its domain.
+- Nothing to pay nor to manage for the token: no key, no port of encryption.
+- Whoever reads the table and SSM together can push into the « Prospecter » calendars of the members until they disconnect.
+- The former token of a connection made again is revoked before the commit of the new one: a commit failing then leaves the former connection with a token revoked, « to reconnect » at its next check.
+- Opening the page of the connectors costs a refresh at Google per connection; the other pages read the state kept, a revocation seen at the next opening of that page, or at the next push (#94).
+- The redirect URI is a path of the SPA in English, like its other routes (`/settings`), not the `/configuration/connecteurs/google` the spike named: the clients of Google Cloud are registered with it.
+
+## Alternatives considered
+
+- Scope `calendar.events`, weighed by the spike: it pushes into the primary calendar, but reads and changes every event of the member; refused for the least privilege.
+- Encrypting the token by a key of KMS of the instance (an encryption context per member, checked on MiniStack by the spike), or by libsodium with a key in SSM, weighed by Michel: a second lock costing $1 a month per instance for KMS, a key to manage for both; refused, the token opening only the calendar of Prospecter and needing the secret kept apart, the publisher being the only developer and the only Workspace.
+- One secret of Secrets Manager per member, weighed by the spike: $0.40 a month per member; refused for the same reasons.
+- The redirect URI on the API, weighed in the spike: the browser coming back from Google reaches the API without the Cognito token of the member, the API could not know who connects but by a cookie of its own; refused for the SPA carrying the code.
+
+## Revisit when
+
+A member of another Workspace wants to connect (an external app, its verification, an encryption of the tokens by the application), a second provider arrives (Outlook), or the pushes meet the quotas.
