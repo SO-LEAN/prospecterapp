@@ -3,7 +3,7 @@
 The members sign in with a Cognito user pool (ADR 0052); locally MiniStack emulates it (`ministack` service). The SPA (`apps/front`) keeps its own sign-in screen and signs in by SRP: the password never leaves the browser. The API (`apps/api`) is a resource server: it checks the access tokens with the public keys of the pool, and keeps through the admin API of Cognito what a member signs in with.
 
 ```
-SPA (local.prospecter.io)                                   API (api.local.prospecter.io, apps/api)
+SPA (prospecter.localhost)                                   API (api.prospecter.localhost, apps/api)
  1. GET /api/user-pool ─────────────────────────────────────▶  {region, userPoolId, clientId, endpoint}
                                                                 (the pool and its client found by name)
                                                             Cognito (MiniStack, through /cognito/ locally)
@@ -37,7 +37,7 @@ SPA (local.prospecter.io)                                   API (api.local.prosp
 - The tokens are kept in `sessionStorage`: per tab, gone when the tab closes, readable by scripts of the page. Keep the Content Security Policy strict in production.
 - `routes/_app.tsx` guards every page: without an access token, to `/auth/sign-in?returnTo=<the page>`. `routes/auth/sign-in.tsx` (`features/sign-in`) signs in, then goes back to `returnTo` (a path of the SPA only, `shared/auth/sign-in-page.ts`). The form tells a wrong email or password (`NotAuthorizedException`, `UserNotFoundException`) from too many attempts.
 - `shared/api/client.ts`: `api` adds the access token, and on a 401 renews it once and sends the request again, or sends the member to the sign-in screen.
-- Locally the SPA, served in https, reaches MiniStack through nginx: `https://api.local.prospecter.io/cognito/` passes the calls of Cognito only (`X-Amz-Target: AWSCognitoIdentityProviderService.*` and the preflights), never DynamoDB or S3 (`docker/nginx/templates/api.conf.template`).
+- Locally the SPA, served in https, reaches MiniStack through nginx: `https://api.prospecter.localhost/cognito/` passes the calls of Cognito only (`X-Amz-Target: AWSCognitoIdentityProviderService.*` and the preflights), never DynamoDB or S3 (`docker/nginx/templates/api.conf.template`).
 
 ## Tests
 

@@ -171,7 +171,7 @@ deploy_apps() {
     # MiniStack answers every preflight from the CORS of the HTTP API, never passing it to the function as AWS does
     # without one: the API gets the same CORS as its nelmio_cors in dev
     http_api api "$(lambda_function api "$(api_variables)" "$php")" \
-        "AllowOrigins=https://local.prospecter.io$PUBLIC_PORT_SUFFIX,AllowMethods=GET,OPTIONS,POST,PATCH,DELETE,AllowHeaders=content-type,authorization,ExposeHeaders=location,x-debug-token,x-debug-token-link,MaxAge=3600"
+        "AllowOrigins=https://prospecter.localhost$PUBLIC_PORT_SUFFIX,AllowMethods=GET,OPTIONS,POST,PATCH,DELETE,AllowHeaders=content-type,authorization,ExposeHeaders=location,x-debug-token,x-debug-token-link,MaxAge=3600"
     # the storage answers images: Bref sends them base64-encoded only when asked
     http_api storage "$(lambda_function storage ",BREF_BINARY_RESPONSES=1$PUBLIC_VARIABLES" "$php" "$imagick")"
 

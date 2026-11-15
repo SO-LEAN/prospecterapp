@@ -1,11 +1,8 @@
 import { type BrowserContext, test as base, expect, type Route, type WebSocketRoute } from '@playwright/test'
+import { API_URL, SPA_URL, STATIC_URL } from './stack'
 
 /** The hosts of the local stack: a journey asks nothing else, a service outside it doubled. */
-const HOSTS_OF_THE_STACK = new Set([
-  'local.prospecter.io',
-  'api.local.prospecter.io',
-  'static.local.prospecter.io',
-])
+const HOSTS_OF_THE_STACK = new Set([SPA_URL, API_URL, STATIC_URL].map((address) => new URL(address).hostname))
 const OPENFREEMAP_STYLES = 'https://tiles.openfreemap.org/styles/**'
 
 const FRANCE = { west: -5, east: 9, south: 41, north: 51 }

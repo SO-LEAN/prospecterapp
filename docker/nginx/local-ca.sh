@@ -1,9 +1,9 @@
 #!/bin/sh
 # The local authority of the machine and the certificate of the local hosts it signs (make ca): created once, kept when
-# run again, the certificate signed again only when it is missing or no longer from that authority. The authority may
-# sign for local.prospecter.io and its subdomains only (a critical name constraint): imported once in a browser, it
-# vouches for no other site. Run as root, the directory possibly created by Docker; its files given to OWNER, the keys
-# readable by OWNER alone.
+# run again unless it may not sign for the local hosts (an authority made for former names), the certificate signed
+# again only when it is missing or no longer from that authority. The authority may sign for prospecter.localhost and
+# its subdomains only (a critical name constraint): imported once in a browser, it vouches for no other site. Run as
+# root, the directory possibly created by Docker; its files given to OWNER, the keys readable by OWNER alone.
 set -eu
 
 DIR=/etc/ssl/local
@@ -12,7 +12,7 @@ CA_KEY=$DIR/ca-key.pem
 SIGNED_DIR=$DIR/signed
 CRT=$SIGNED_DIR/project.crt
 KEY=$SIGNED_DIR/project.key
-DOMAIN=local.prospecter.io
+DOMAIN=prospecter.localhost
 CA_DAYS=7305
 CERTIFICATE_DAYS=3653
 
@@ -48,6 +48,11 @@ EOF
     give_to_owner "$CA_CRT"
 }
 
+authority_for_the_local_hosts() {
+    [ -f "$CA_CRT" ] && [ -f "$CA_KEY" ] &&
+        openssl x509 -in "$CA_CRT" -noout -ext nameConstraints 2>/dev/null | tr -d ' ' | grep -Fqx "DNS:$DOMAIN"
+}
+
 signed_by_authority() {
     [ -f "$CRT" ] && [ -f "$KEY" ] && openssl verify -CAfile "$CA_CRT" "$CRT" >/dev/null 2>&1
 }
@@ -73,8 +78,11 @@ EOF
     give_to_owner "$CRT" "$SIGNED_DIR"
 }
 
-if [ -f "$CA_CRT" ] && [ -f "$CA_KEY" ]; then
+if authority_for_the_local_hosts; then
     echo "local authority kept: ${SHOWN_DIR:-$DIR}/ca.pem"
+elif [ -f "$CA_CRT" ]; then
+    create_authority
+    echo "local authority replaced, the former one not signing for $DOMAIN: import ${SHOWN_DIR:-$DIR}/ca.pem in the browser in place of it (README)"
 else
     create_authority
     echo "local authority created: ${SHOWN_DIR:-$DIR}/ca.pem, to import once in the browser (README)"

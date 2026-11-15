@@ -24,7 +24,7 @@ const connections = (forAnAdministrator: boolean): Connections => ({
 const theClient: GoogleClient = {
   clientId: 'client-of-solean',
   secretSet: true,
-  redirectUri: 'https://local.prospecter.io/settings/connectors/google',
+  redirectUri: 'https://prospecter.localhost/settings/connectors/google',
   _links: { self: { href: THE_CLIENT, method: 'GET' }, configure: { href: THE_CLIENT, method: 'PATCH' } },
 }
 

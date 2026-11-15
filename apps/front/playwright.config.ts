@@ -1,5 +1,5 @@
 import { defineConfig, devices } from '@playwright/test'
-import { SPA_URL, WORKERS } from './e2e/stack'
+import { PUBLIC_HOST, SPA_URL, WORKERS } from './e2e/stack'
 
 /**
  * The journeys that run once the others are done (ADR 0117, 0122): the main journey signs the demonstration member
@@ -17,7 +17,15 @@ const LONGEST = /\/stop-prospecting\.spec\.ts$/
  * (E2E_RESULTS, check-e2e), so that the second does not erase those of the first.
  */
 const RESULTS = process.env.E2E_RESULTS ? `/${process.env.E2E_RESULTS}` : ''
-const CHROME = { ...devices['Desktop Chrome'] }
+/**
+ * Chromium resolves the names in `.localhost` to its own loopback, whatever /etc/hosts says: in the network of the
+ * stack, they go to its nginx, whose address `make e2e` gives (STACK_ADDRESS).
+ */
+const STACK_ADDRESS = process.env.STACK_ADDRESS
+const HOSTS_TO_THE_STACK = STACK_ADDRESS
+  ? [`--host-resolver-rules=MAP ${PUBLIC_HOST} ${STACK_ADDRESS}, MAP *.${PUBLIC_HOST} ${STACK_ADDRESS}`]
+  : []
+const CHROME = { ...devices['Desktop Chrome'], launchOptions: { args: HOSTS_TO_THE_STACK } }
 
 /** End-to-end journeys against the running local stack (`make start`), real sign-in on Cognito (MiniStack) included. */
 export default defineConfig({

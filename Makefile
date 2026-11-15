@@ -35,8 +35,8 @@ hooks: ## Install the Git hooks of the repository: gitleaks before each commit
 ##@ Stack
 aws: ministack ## Start the AWS services emulated locally (MiniStack)
 
-start: deploy ## Start the stack, the API and the storage in their Lambdas: https://local.prospecter.io
-	@echo "SPA: https://local.prospecter.io$(PUBLIC_PORT_SUFFIX)  API doc: https://api.local.prospecter.io$(PUBLIC_PORT_SUFFIX)/api/doc"
+start: deploy ## Start the stack, the API and the storage in their Lambdas: https://prospecter.localhost
+	@echo "SPA: https://prospecter.localhost$(PUBLIC_PORT_SUFFIX)  API doc: https://api.prospecter.localhost$(PUBLIC_PORT_SUFFIX)/api/doc"
 
 deploy: ## Start the stack and (re)deploy the Lambdas of the API and the storage on MiniStack
 	@$(DC) up -d --build
@@ -74,7 +74,7 @@ agents-slice: ## Give the stacks of the worktrees their budget, with sudo: AGENT
 	@systemctl show $(AGENTS_SLICE) -p CPUQuotaPerSecUSec -p CPUWeight -p MemoryHigh -p MemoryMax
 
 # openssl in the image of nginx, nothing on the host; the authority of the machine, whatever the checkout running it (ADR 0123)
-ca: ## Create once the local authority of the machine and the certificate of local.prospecter.io it signs, served by the stack of every checkout: import docker/data/ssl/ca.pem in the browser once (README)
+ca: ## Create once the local authority of the machine and the certificate of prospecter.localhost it signs, served by the stack of every checkout: import docker/data/ssl/ca.pem in the browser once (README)
 	@$(DC) --progress quiet build nginx
 	@docker run --rm -e OWNER=$(UID):$(GID) -e SHOWN_DIR=$(LOCAL_CA_DIR) -v $(LOCAL_CA_DIR):/etc/ssl/local $(NGINX_IMAGE) local-ca
 
@@ -293,7 +293,7 @@ contract: api-doc ## Fail when the committed OpenAPI contract or the front types
 commands: ## List the commands of the core and their handlers
 	@$(MAKE) -C apps/api commands
 
-profiler-clear: ## Empty the history of the requests kept by the profiler of the API, locally: https://api.local.prospecter.io/_profiler
+profiler-clear: ## Empty the history of the requests kept by the profiler of the API, locally: https://api.prospecter.localhost/_profiler
 	@$(MAKE) -C apps/api profiler-clear
 
 exec-api: ## Open a shell in the PHP container

@@ -37,5 +37,5 @@ It lists each discrepancy with its account, what it concerns (a figure, an ident
 
 ## Hosts
 
-- `APP_API_HOST` (`api.local.prospecter.io`), routes in `src/{Me,Prospecting,PersonalData,SignIn,Dashboard,Contacts,Exchanges,ToDos,Connectors}/Controller` (`config/routes.yaml`), and `src/Doc` (`/favicon.ico`, `config/routes/nelmio_api_doc.yaml`; `VersionedNelmioAssets` asks the files of Swagger UI on the CDN at the installed version of NelmioApiDocBundle); locally nginx passes `/cognito/` of the same host to the Cognito of MiniStack, for the SPA.
-- Files are not the API's business: the storage app (`apps/storage`, `static.local.prospecter.io`) keeps and serves them, and `Shared\ImageResourceFactory` names their sizes by its convention (`<public url>/<size>/<path>`, ADR 0033).
+- `APP_API_HOST` (`api.prospecter.localhost`), routes in `src/{Me,Prospecting,PersonalData,SignIn,Dashboard,Contacts,Exchanges,ToDos,Connectors}/Controller` (`config/routes.yaml`), and `src/Doc` (`/favicon.ico`, `config/routes/nelmio_api_doc.yaml`; `VersionedNelmioAssets` asks the files of Swagger UI on the CDN at the installed version of NelmioApiDocBundle); locally nginx passes `/cognito/` of the same host to the Cognito of MiniStack, for the SPA.
+- Files are not the API's business: the storage app (`apps/storage`, `static.prospecter.localhost`) keeps and serves them, and `Shared\ImageResourceFactory` names their sizes by its convention (`<public url>/<size>/<path>`, ADR 0033).

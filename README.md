@@ -16,34 +16,28 @@ Documentation: [what is in force, by subject](docs/README.md), [decision records
 
 ## Setup
 
-Add to `/etc/hosts`:
-
-    127.0.0.1 local.prospecter.io api.local.prospecter.io static.local.prospecter.io
-
-Then:
-
     make install
     make ca
     make start
 
-`make ca` creates, once per machine, the local authority signing the certificate of the local hosts; import it once in Chrome ([Certificat local](#certificat-local)) and no stack shows a certificate warning.
+`make ca` creates, once per machine, the local authority signing the certificate of the local hosts; import it once in Chrome ([Certificat local](#certificat-local)) and no stack shows a certificate warning. The hosts are names in `.localhost`, which Chrome, Firefox and curl resolve to the loopback themselves: nothing to add to `/etc/hosts`.
 
-- Application: https://local.prospecter.io, sign in with `prospector@solean-it.io` / `password` (or `assistant@solean-it.io`, who sees the contacts masked)
-- API documentation: https://api.local.prospecter.io/api/doc
+- Application: https://prospecter.localhost, sign in with `prospector@solean-it.io` / `password` (or `assistant@solean-it.io`, who sees the contacts masked)
+- API documentation: https://api.prospecter.localhost/api/doc
 
-Without `make ca`, nginx falls back to a self-signed certificate: the browser then warns once for each host (`local.`, `api.local.` and `static.local.prospecter.io`), and again for the port of each worktree.
+Without `make ca`, nginx falls back to a self-signed certificate: the browser then warns once for each host (`prospecter.localhost`, `api.` and `static.prospecter.localhost`), and again for the port of each worktree.
 
 ## Certificat local
 
 A local authority, created once per machine, signs the certificate of the local hosts; imported once in Chrome, it makes it trust the stack of every checkout, the main one on 443 and each worktree on its own port, without a warning.
 
-1. `make ca`, from the main checkout or a worktree: it creates the authority in `docker/data/ssl` of the main checkout (`ca.pem`, valid twenty years, its key `ca-key.pem` readable by you alone), then the certificate of `local.prospecter.io`, `api.local.prospecter.io` and `static.local.prospecter.io` it signs (`docker/data/ssl/signed`, valid ten years). Run again, it keeps both.
+1. `make ca`, from the main checkout or a worktree: it creates the authority in `docker/data/ssl` of the main checkout (`ca.pem`, valid twenty years, its key `ca-key.pem` readable by you alone), then the certificate of `prospecter.localhost`, `api.prospecter.localhost` and `static.prospecter.localhost` it signs (`docker/data/ssl/signed`, valid ten years). Run again, it keeps both, and replaces an authority that may not sign for `prospecter.localhost` (the former one, made for other names): import the new one in place of it.
 2. Import the authority in Chrome, which keeps it in its own store, per profile, not in the one of the system: `chrome://certificate-manager` › Local certificates › Installed by you › Trusted certificates › Import, choose `docker/data/ssl/ca.pem`. Then quit Chrome entirely (Ctrl+Q), not only its window: until then it keeps the exceptions accepted for the self-signed certificate and its connections, and still says "Not secure".
 3. Restart each stack (`make stop`, `make start`): nginx serves the signed certificate when it exists, the self-signed one otherwise. A port changes nothing to it.
 
 Firefox keeps its own authorities: Settings › Privacy & Security › Certificates › View Certificates › Authorities › Import.
 
-The authority may sign only for `local.prospecter.io` and its subdomains: a critical name constraint, which a browser enforces, so that it vouches for no other site. Its key never leaves the machine: it is never shared, nor committed (`docker/data` is ignored by git; the repository is public), since whoever holds it signs certificates your browser accepts for these hosts. Lost or leaked, remove `docker/data/ssl/ca.pem`, `ca-key.pem` and `signed/`, run `make ca` again, and import the new authority in place of the former one.
+The authority may sign only for `prospecter.localhost` and its subdomains: a critical name constraint, which a browser enforces, so that it vouches for no other site. Its key never leaves the machine: it is never shared, nor committed (`docker/data` is ignored by git; the repository is public), since whoever holds it signs certificates your browser accepts for these hosts. Lost or leaked, remove `docker/data/ssl/ca.pem`, `ca-key.pem` and `signed/`, run `make ca` again, and import the new authority in place of the former one.
 
 ## Develop
 

@@ -18,7 +18,7 @@ class ProfilerTest extends WebTestCase
     public function testOutOfDevTheCorsExposesTheLocationOnly(): void
     {
         $client = static::createClient([], ['HTTP_HOST' => 'api.test.prospecter.io']);
-        $client->request('GET', '/api/user-pool', server: ['HTTP_ORIGIN' => 'https://local.prospecter.io']);
+        $client->request('GET', '/api/user-pool', server: ['HTTP_ORIGIN' => 'https://prospecter.localhost']);
 
         $this->assertResponseHeaderSame('Access-Control-Expose-Headers', 'location');
     }
