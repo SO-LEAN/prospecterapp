@@ -72,7 +72,8 @@ api_geocoder() {
     echo "The API asks the geocoder ${1:-of apps/api/.env}"
 }
 
-# warm_api <functions>: as many containers of the API started as requests sent at once
+# warm_api <functions>: as many containers of the API started as requests sent at once: the SPA asks several
+# resources at once, each in a function
 warm_api() {
     for warm in $(seq 1 "$1"); do
         curl -s -o /dev/null -H "Host: $API_HOST" "$AWS_ENDPOINT_URL/_aws/execute-api/prospecter-dev-api/local/api/user-pool" &
@@ -183,10 +184,8 @@ deploy_apps() {
     # the storage answers images: Bref sends them base64-encoded only when asked
     http_api storage "$(lambda_function storage ",BREF_BINARY_RESPONSES=1$PUBLIC_VARIABLES" "$php" "$imagick")"
 
-    # warm a few functions and the caches of Symfony: the SPA asks several resources at once, each in a function
-    for warm in 1 2 3; do
-        curl -s -o /dev/null -H "Host: $API_HOST" "$AWS_ENDPOINT_URL/_aws/execute-api/prospecter-dev-api/local/api/user-pool" &
-    done
+    # warm a few functions and the caches of Symfony
+    warm_api 3 &
     curl -s -o /dev/null "$AWS_ENDPOINT_URL/_aws/execute-api/prospecter-dev-storage/local/storage/small/none" &
     wait
 
