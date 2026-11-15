@@ -1,5 +1,6 @@
 import { useSuspenseQuery } from '@tanstack/react-query'
 import { createFileRoute, useNavigate } from '@tanstack/react-router'
+import { zodValidator } from '@tanstack/zod-adapter'
 import { useTranslation } from 'react-i18next'
 import {
   ContactDetailsSection,
@@ -9,6 +10,7 @@ import {
 } from '@/features/contacts/components/contact-sections'
 import { ForgetContact } from '@/features/contacts/components/forget-contact'
 import { contactQuery, fullNameOf } from '@/features/contacts/queries'
+import { ExchangeDetailSheet } from '@/features/exchanges/components/exchange-detail'
 import {
   ExchangesSection,
   NoteTheExchangeWithTheContact,
@@ -18,7 +20,7 @@ import { timelineQuery, upcomingQuery } from '@/features/exchanges/queries'
 import { ContactToDosSection } from '@/features/to-dos/components/to-dos-section'
 import { useNoteTheExchangeProposal } from '@/features/to-dos/note-the-exchange'
 import { contactToDosQuery } from '@/features/to-dos/queries'
-import { notFoundWhenTheApiSaysSo, uuidParams } from '@/shared/lib/route-params'
+import { notFoundWhenTheApiSaysSo, openedExchangeSearch, uuidParams } from '@/shared/lib/route-params'
 import { BackButton } from '@/shared/ui/back-button'
 import { Badge } from '@/shared/ui/badge'
 import { ErrorState } from '@/shared/ui/feedback/error-state'
@@ -27,6 +29,7 @@ import { PageSkeleton } from '@/shared/ui/page-skeleton'
 
 export const Route = createFileRoute('/_app/contacts/$contactId/')({
   params: uuidParams('contactId'),
+  validateSearch: zodValidator(openedExchangeSearch),
   loader: async ({ context, params }) => {
     const contact = await context.queryClient
       .ensureQueryData(contactQuery(params.contactId))
@@ -49,6 +52,7 @@ function ContactPage() {
   const { t } = useTranslation()
   const navigate = useNavigate()
   const { contactId } = Route.useParams()
+  const { exchange: opened } = Route.useSearch()
   const { data: contact } = useSuspenseQuery(contactQuery(contactId))
   const name = fullNameOf(contact) || t('contacts.unnamed')
   const proposal = useNoteTheExchangeProposal()
@@ -97,6 +101,10 @@ function ContactPage() {
         contactName={name}
         open={proposal.accepted !== null}
         onClose={proposal.close}
+      />
+      <ExchangeDetailSheet
+        exchangeId={opened ?? null}
+        onClose={() => void navigate({ to: '/contacts/$contactId', params: { contactId }, replace: true })}
       />
     </div>
   )

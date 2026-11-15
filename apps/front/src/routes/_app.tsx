@@ -10,6 +10,8 @@ import { hasAProfileToComplete, isMyProfileBeingPrepared } from '@/features/acco
 import type { Account } from '@/features/account/mutations'
 import { accountQuery, myAccountBeingPreparedQuery, signInQuery } from '@/features/account/queries'
 import { ReconnectBanner } from '@/features/connectors/components/reconnect-banner'
+import { ExchangeReminders } from '@/features/exchanges/reminders/components/exchange-reminders'
+import { remindersQuery } from '@/features/settings/queries'
 import { ensureSharedQueryData } from '@/shared/api/ensure-shared-query-data'
 import { session } from '@/shared/auth/session'
 import { PageError } from '@/shared/ui/feedback/page-error'
@@ -70,8 +72,16 @@ function SignedIn() {
     <AppShell>
       <ReconnectBanner />
       <Outlet />
+      <MyReminders />
     </AppShell>
   )
+}
+
+/** The reminders of my exchanges, on whatever page, as my settings ask: none until they are read. */
+function MyReminders() {
+  const { data: reminders } = useQuery(remindersQuery())
+
+  return reminders?.enabled ? <ExchangeReminders settings={reminders} /> : null
 }
 
 function CompleteMyProfile({ account }: { account: Account }) {

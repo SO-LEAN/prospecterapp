@@ -1,9 +1,9 @@
-import { useQuery, useSuspenseQuery } from '@tanstack/react-query'
+import { useSuspenseQuery } from '@tanstack/react-query'
 import { Link } from '@tanstack/react-router'
-import { ArrowRight, CalendarPlus, CircleCheck, Phone, PhoneMissed } from 'lucide-react'
+import { ArrowRight, CalendarPlus, CircleCheck, PhoneMissed } from 'lucide-react'
 import { type ReactNode, useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { formatHour, telUrl } from '@/shared/lib/format'
+import { formatHour } from '@/shared/lib/format'
 import { cn } from '@/shared/lib/utils'
 import { Badge } from '@/shared/ui/badge'
 import { Button } from '@/shared/ui/button'
@@ -11,10 +11,10 @@ import { Card, CardAction, CardContent, CardHeader, CardTitle } from '@/shared/u
 import { Skeleton } from '@/shared/ui/skeleton'
 import { ExchangeDialog } from '../../calendar/components/exchange-dialog'
 import { isToHandle, startOfDay } from '../../calendar/dates'
+import { CallTheInterlocutor } from '../../components/call-the-interlocutor'
 import { CHANNEL_ICONS } from '../../components/exchange-line'
 import { JoinTheVideoCall } from '../../components/join-the-video-call'
 import { useMarkExchangeMissed, useUndoable } from '../../mutations'
-import { exchangeQuery } from '../../queries'
 import { useNow } from '../../use-now'
 import { isInProgress, startsIn, whenToCome } from '../moments'
 import { type DayExchange, myDayQuery } from '../queries'
@@ -141,22 +141,6 @@ function TodayExchange({ item, now, onOpen }: { item: DayExchange; now: Date; on
         {exchange._links.markMissed && <MarkMissed exchangeId={exchange.id} />}
       </div>
     </div>
-  )
-}
-
-/** The number of the interlocutor, as the detail of the exchange gives it to its reader; nothing without one. */
-function CallTheInterlocutor({ exchangeId }: { exchangeId: string }) {
-  const { t } = useTranslation()
-  const numberToCall = useQuery(exchangeQuery(exchangeId)).data?.phoneNumber
-
-  if (!numberToCall) return null
-
-  return (
-    <Button variant="outline" size="sm" asChild>
-      <a href={telUrl(numberToCall)}>
-        <Phone aria-hidden /> {t('exchanges.call')}
-      </a>
-    </Button>
   )
 }
 

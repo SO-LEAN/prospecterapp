@@ -1,6 +1,8 @@
 import { useQuery, useSuspenseQuery } from '@tanstack/react-query'
 import { createFileRoute, useNavigate } from '@tanstack/react-router'
+import { zodValidator } from '@tanstack/zod-adapter'
 import { accountQuery } from '@/features/account/queries'
+import { ExchangeDetailSheet } from '@/features/exchanges/components/exchange-detail'
 import {
   NoteTheExchangeWithTheOrganization,
   OrganizationExchangesSection,
@@ -25,7 +27,7 @@ import { useNoteTheExchangeProposal } from '@/features/to-dos/note-the-exchange'
 import { organizationToDosQuery } from '@/features/to-dos/queries'
 import { ensureSharedQueryData } from '@/shared/api/ensure-shared-query-data'
 import { placeOf } from '@/shared/lib/address'
-import { notFoundWhenTheApiSaysSo, uuidParams } from '@/shared/lib/route-params'
+import { notFoundWhenTheApiSaysSo, openedExchangeSearch, uuidParams } from '@/shared/lib/route-params'
 import { BackButton } from '@/shared/ui/back-button'
 import { Badge } from '@/shared/ui/badge'
 import { ErrorState } from '@/shared/ui/feedback/error-state'
@@ -34,6 +36,7 @@ import { PageSkeleton } from '@/shared/ui/page-skeleton'
 
 export const Route = createFileRoute('/_app/organizations/$organizationId/')({
   params: uuidParams('organizationId'),
+  validateSearch: zodValidator(openedExchangeSearch),
   loader: ({ context, params }) =>
     Promise.all([
       context.queryClient
@@ -57,6 +60,7 @@ export const Route = createFileRoute('/_app/organizations/$organizationId/')({
 
 function OrganizationPage() {
   const { organizationId } = Route.useParams()
+  const { exchange: opened } = Route.useSearch()
   const { data: organization } = useSuspenseQuery(organizationQuery(organizationId))
   const { data: account } = useSuspenseQuery(accountQuery())
   const { form, type } = organization.legalIdentity
@@ -99,6 +103,12 @@ function OrganizationPage() {
           {organization._links.exchanges && <ToDosAndExchanges organization={organization} name={name} />}
         </div>
       </div>
+      <ExchangeDetailSheet
+        exchangeId={opened ?? null}
+        onClose={() =>
+          void navigate({ to: '/organizations/$organizationId', params: { organizationId }, replace: true })
+        }
+      />
     </div>
   )
 }

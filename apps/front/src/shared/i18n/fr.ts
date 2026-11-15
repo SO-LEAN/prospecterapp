@@ -108,6 +108,12 @@ export const fr = {
     map: { title: 'Carte des organisations', empty: 'Aucune organisation géolocalisée pour l’instant.' },
     recent: { title: 'Dernières organisations', viewAll: 'Tout voir', empty: 'Aucune organisation.' },
   },
+  reminders: {
+    title: '{{channel}} avec {{interlocutor}} à {{hour}}',
+    again: 'Dans 5 min',
+    blinking: '🔔 {{channel}} dans {{minutes}} min',
+    blinkingNow: '🔔 {{channel}} maintenant',
+  },
   myDay: {
     today: 'Aujourd’hui',
     nothingToday: 'Rien de prévu aujourd’hui',
