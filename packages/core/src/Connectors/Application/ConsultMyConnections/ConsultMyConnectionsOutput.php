@@ -11,6 +11,7 @@ interface ConsultMyConnectionsOutput extends OutputPort
 {
     /**
      * @param list<MyConnection> $connections
+     * @param list<string>       $offered     the providers I may connect to (`google`), those a client serves
      */
-    public function present(array $connections): void;
+    public function present(array $connections, array $offered): void;
 }
