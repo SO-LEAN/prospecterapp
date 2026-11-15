@@ -20,6 +20,12 @@ records() {
 	done
 }
 
+twice=$(ls [0-9][0-9][0-9][0-9]-*.md | cut -c1-4 | uniq -d)
+if [ -n "$twice" ]; then
+	echo "Two records of the same number, the branch rebased second takes the next one: $twice" >&2
+	exit 1
+fi
+
 written=$(records | awk -F'\t' '
 	FNR == NR {
 		if ($0 ~ /^\| \[[0-9][0-9][0-9][0-9]\]/) {
