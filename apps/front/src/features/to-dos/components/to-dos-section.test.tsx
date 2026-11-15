@@ -58,6 +58,15 @@ async function renderTheCard(
   )
 }
 
+const inDays = (days: number) => {
+  const day = new Date()
+  day.setDate(day.getDate() + days)
+  return day
+}
+
+const dayOf = (date: Date) =>
+  [date.getFullYear(), date.getMonth() + 1, date.getDate()].map((part) => String(part).padStart(2, '0')).join('-')
+
 afterEach(() => {
   vi.restoreAllMocks()
   theApi.mockReset()
@@ -98,20 +107,41 @@ describe('ToDosCard', () => {
     expect(screen.getByRole('listitem')).toHaveTextContent('Ada Lovelace')
   })
 
-  it('notes a to-do in one line, due on the day of a shortcut', async () => {
+  it('says there is nothing to do, the button adding one in its middle, no form shown', async () => {
+    await renderTheCard(listOf([]))
+
+    expect(screen.getByText('Aucune action à faire')).toBeInTheDocument()
+    expect(screen.getAllByRole('button', { name: 'Ajouter' })).toHaveLength(1)
+    expect(screen.queryByLabelText('Ce qu’il y a à faire')).not.toBeInTheDocument()
+  })
+
+  it('adds a to-do from the button of its header, in a dialog the text focused, due on the day of a shortcut', async () => {
+    const onNote = vi.fn(async () => undefined)
+    await renderTheCard(listOf([aToDo({})]), onNote)
+    expect(screen.queryByLabelText('Ce qu’il y a à faire')).not.toBeInTheDocument()
+
+    await userEvent.click(screen.getByRole('button', { name: 'Ajouter' }))
+    const dialog = await screen.findByRole('dialog', { name: 'Nouvelle action à faire' })
+    const text = within(dialog).getByLabelText('Ce qu’il y a à faire')
+    expect(text).toHaveFocus()
+    expect(within(dialog).getByLabelText(/^Pour/)).toHaveValue(dayOf(inDays(1)))
+    await userEvent.click(within(dialog).getByRole('button', { name: 'Aujourd’hui' }))
+    await userEvent.type(text, 'Relancer pour le devis{Enter}')
+
+    expect(onNote).toHaveBeenCalledWith({ text: 'Relancer pour le devis', dueOn: dayOf(inDays(0)), dueAt: null })
+    await waitFor(() => expect(screen.queryByRole('dialog')).not.toBeInTheDocument())
+  })
+
+  it('closes the dialog on Escape, adding nothing', async () => {
     const onNote = vi.fn(async () => undefined)
     await renderTheCard(listOf([]), onNote)
-    expect(screen.getByText('Rien à faire pour le moment.')).toBeInTheDocument()
 
-    await userEvent.type(screen.getByLabelText('Ce qu’il y a à faire'), 'Relancer pour le devis')
-    await userEvent.click(screen.getByRole('button', { name: 'Aujourd’hui' }))
     await userEvent.click(screen.getByRole('button', { name: 'Ajouter' }))
+    await userEvent.type(await screen.findByLabelText('Ce qu’il y a à faire'), 'Relancer')
+    await userEvent.keyboard('{Escape}')
 
-    const today = new Date()
-    const day = [today.getFullYear(), today.getMonth() + 1, today.getDate()]
-      .map((part) => String(part).padStart(2, '0'))
-      .join('-')
-    expect(onNote).toHaveBeenCalledWith({ text: 'Relancer pour le devis', dueOn: day, dueAt: null })
+    await waitFor(() => expect(screen.queryByRole('dialog')).not.toBeInTheDocument())
+    expect(onNote).not.toHaveBeenCalled()
   })
 
   it('refuses a to-do without a text', async () => {
@@ -119,46 +149,44 @@ describe('ToDosCard', () => {
     await renderTheCard(listOf([]), onNote)
 
     await userEvent.click(screen.getByRole('button', { name: 'Ajouter' }))
+    await userEvent.click(within(await screen.findByRole('dialog')).getByRole('button', { name: 'Ajouter' }))
 
     expect(onNote).not.toHaveBeenCalled()
     expect(screen.getByText('Ce champ est obligatoire.')).toBeInTheDocument()
   })
 
-  it('empties the quick entry each time a to-do is noted, focused for the next one, noted as shown', async () => {
+  it('adds one and notes another, the dialog kept open, emptied, focused for the next one, noted as shown', async () => {
     const onNote = vi.fn(async () => undefined)
     await renderTheCard(listOf([]), onNote)
-    const text = () => screen.getByLabelText('Ce qu’il y a à faire')
-    const day = () => screen.getByLabelText(/^Pour/)
-    const hour = () => screen.getByLabelText(/^À\s*\(facultatif/)
-    const tomorrow = (day() as HTMLInputElement).value
-    expect(text()).not.toHaveFocus()
+    await userEvent.click(screen.getByRole('button', { name: 'Ajouter' }))
+    const dialog = await screen.findByRole('dialog')
+    const text = () => within(dialog).getByLabelText('Ce qu’il y a à faire')
+    const day = () => within(dialog).getByLabelText(/^Pour/)
+    const hour = () => within(dialog).getByLabelText(/^À\s*\(facultatif/)
+    const addAnother = () => within(dialog).getByRole('button', { name: 'Ajouter et en noter une autre' })
 
     await userEvent.type(text(), 'Envoyer mon CV')
     await userEvent.type(hour(), '08:30')
-    await userEvent.click(screen.getByRole('button', { name: 'Ajouter' }))
+    await userEvent.click(addAnother())
+    expect(onNote).toHaveBeenLastCalledWith({ text: 'Envoyer mon CV', dueOn: dayOf(inDays(1)), dueAt: '08:30' })
+    expect(screen.getByRole('dialog')).toBeInTheDocument()
     expect(text()).toHaveValue('')
     expect(hour()).toHaveValue('')
     expect(text()).toHaveFocus()
 
     await userEvent.type(text(), 'Relancer par e-mail')
-    await userEvent.click(screen.getByRole('button', { name: 'Dans 1 semaine' }))
-    const inAWeek = (day() as HTMLInputElement).value
-    await userEvent.click(screen.getByRole('button', { name: 'Ajouter' }))
-    expect(onNote).toHaveBeenLastCalledWith(
-      expect.objectContaining({ text: 'Relancer par e-mail', dueOn: inAWeek }),
-    )
-    expect(text()).toHaveValue('')
-    expect(day()).toHaveValue(tomorrow)
+    await userEvent.click(within(dialog).getByRole('button', { name: 'Dans 1 semaine' }))
+    await userEvent.click(addAnother())
+    expect(onNote).toHaveBeenLastCalledWith(expect.objectContaining({ text: 'Relancer par e-mail', dueOn: dayOf(inDays(7)) }))
+    expect(day()).toHaveValue(dayOf(inDays(1)))
 
-    await userEvent.type(text(), 'Envoyer la plaquette')
-    await userEvent.click(screen.getByRole('button', { name: 'Ajouter' }))
+    await userEvent.type(text(), 'Envoyer la plaquette{Enter}')
     expect(screen.queryByText('Ce champ est obligatoire.')).not.toBeInTheDocument()
-    expect(onNote).toHaveBeenLastCalledWith(
-      expect.objectContaining({ text: 'Envoyer la plaquette', dueOn: tomorrow, dueAt: null }),
-    )
+    expect(onNote).toHaveBeenLastCalledWith({ text: 'Envoyer la plaquette', dueOn: dayOf(inDays(1)), dueAt: null })
+    await waitFor(() => expect(screen.queryByRole('dialog')).not.toBeInTheDocument())
   })
 
-  it('offers neither the quick entry nor the menu without their links', async () => {
+  it('offers neither the adding nor the menu without their links', async () => {
     await renderTheCard(listOf([aToDo({ _links: { self: link(`/api/to-dos/${ID}`) } })], false))
 
     expect(screen.queryByRole('button', { name: 'Ajouter' })).not.toBeInTheDocument()
