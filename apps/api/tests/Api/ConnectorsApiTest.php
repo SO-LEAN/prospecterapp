@@ -2,9 +2,12 @@
 
 namespace Tests\App\Api;
 
+use App\Shared\CommandBus;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Group;
 use Prospecter\Core\Accounts\Domain\Model\Role;
+use Prospecter\Core\Connectors\Application\ConfigureClient\ConfigureClient;
+use Prospecter\Core\Connectors\Application\RemoveClient\RemoveClient;
 use Tests\App\Base\ApiTestCase;
 use Tests\App\Double\GoogleDouble;
 
@@ -17,11 +20,11 @@ use Tests\App\Double\GoogleDouble;
 class ConnectorsApiTest extends ApiTestCase
 {
     private const string CODE = 'a-code-of-google';
-    private const string THE_CLIENT_OF_THE_ACCOUNT = '/api/me/organization/clients/google';
 
     protected function setUp(): void
     {
         parent::setUp();
+        $this->aMemberOfTheFixtures('client-administrator', Role::User, Role::Admin);
         $this->client->disableReboot();
     }
 
@@ -102,7 +105,7 @@ class ConnectorsApiTest extends ApiTestCase
         $this->connect('michel@exemple.fr', 'a-refresh-token');
         $this->assertSame(['client-of-the-double', 'secret-of-the-double'], $this->google()->clientOfTheLastToken());
 
-        $this->asAnAdministrator(fn (): array => $this->requestJson('PUT', self::THE_CLIENT_OF_THE_ACCOUNT, ['clientId' => 'client-of-the-double', 'clientSecret' => 'a-new-secret']));
+        $this->theAdministrator(new ConfigureClient($this->memberIdOf('client-administrator'), 'google', 'client-of-the-double', 'a-new-secret', new \DateTimeImmutable()));
         $checked = $this->requestJson('POST', '/api/me/connections/checks');
 
         $this->assertSame([['google', 'connected', 'michel@exemple.fr']], $this->seen($checked));
@@ -114,7 +117,7 @@ class ConnectorsApiTest extends ApiTestCase
         $this->login();
         $this->connect('michel@exemple.fr', 'a-refresh-token');
 
-        $this->asAnAdministrator(fn (): array => $this->requestJson('PUT', self::THE_CLIENT_OF_THE_ACCOUNT, ['clientId' => 'another-client', 'clientSecret' => 'its-secret']));
+        $this->theAdministrator(new ConfigureClient($this->memberIdOf('client-administrator'), 'google', 'another-client', 'its-secret', new \DateTimeImmutable()));
         $checked = $this->requestJson('POST', '/api/me/connections/checks');
 
         $this->assertSame([['google', 'toReconnect', 'michel@exemple.fr']], $this->seen($checked));
@@ -279,23 +282,20 @@ class ConnectorsApiTest extends ApiTestCase
     }
 
     /**
-     * The administrator of the account removes its client (ADR 0125), the member signed in before signed in again.
+     * The administrator of the account removes its client (ADR 0125).
      */
     private function withoutAGoogleClient(): void
     {
-        $this->asAnAdministrator(fn (): array => $this->requestJson('DELETE', self::THE_CLIENT_OF_THE_ACCOUNT));
+        $this->theAdministrator(new RemoveClient($this->memberIdOf('client-administrator'), 'google', new \DateTimeImmutable()));
     }
 
     /**
-     * A gesture of an administrator of the account, between two requests of the member signed in.
+     * A gesture of the administrator of the account, arranged through its use case between two requests of the member
+     * signed in: its endpoints are those of GoogleClientApiTest.
      */
-    private function asAnAdministrator(\Closure $gesture): void
+    private function theAdministrator(object $gesture): void
     {
-        $member = $this->client->getServerParameter('HTTP_AUTHORIZATION');
-        $this->login($this->aMemberOfTheFixtures('administrator', Role::User, Role::Admin));
-        $gesture();
-        $this->assertResponseIsSuccessful();
-        $this->client->setServerParameter('HTTP_AUTHORIZATION', $member);
+        self::getContainer()->get(CommandBus::class)->dispatch($gesture);
     }
 
     /**

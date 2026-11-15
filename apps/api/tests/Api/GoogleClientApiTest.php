@@ -19,6 +19,12 @@ class GoogleClientApiTest extends ApiTestCase
     private const string THE_CLIENT = '/api/me/organization/clients/google';
     private const string REDIRECT_URI = 'https://front.test.prospecter.io/settings/connectors/google';
 
+    protected function setUp(): void
+    {
+        parent::setUp();
+        $this->aMemberOfTheFixtures('administrator', Role::User, Role::Admin);
+    }
+
     public function testAnAdministratorSeesTheClientOfTheAccountWithoutItsSecret(): void
     {
         $this->loginAnAdministrator();
@@ -135,6 +141,6 @@ class GoogleClientApiTest extends ApiTestCase
 
     private function loginAnAdministrator(): void
     {
-        $this->login($this->aMemberOfTheFixtures('administrator', Role::User, Role::Admin));
+        $this->login('administrator');
     }
 }
