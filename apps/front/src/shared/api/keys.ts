@@ -13,4 +13,5 @@ export const queryKeys = {
   exchangesToMakeConform: ['get', '/api/organizations/{id}/exchanges-to-make-conform'],
   exchange: ['get', '/api/exchanges/{id}'],
   myCalendar: ['get', '/api/me/calendar'],
+  myDay: ['get', '/api/me/day'],
 } as const

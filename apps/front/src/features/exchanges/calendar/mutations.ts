@@ -58,7 +58,11 @@ export function useMoveInTheCalendar() {
       for (const [queryKey, calendar] of onMutateResult?.before ?? [])
         queryClient.setQueryData(queryKey, calendar)
     },
-    onSettled: () => queryClient.invalidateQueries({ queryKey: queryKeys.myCalendar }),
+    onSettled: () =>
+      Promise.all([
+        queryClient.invalidateQueries({ queryKey: queryKeys.myCalendar }),
+        queryClient.invalidateQueries({ queryKey: queryKeys.myDay }),
+      ]),
     onSuccess: (exchange, { item, undoing }) => {
       queryClient.setQueryData(exchangeQuery(exchange.id).queryKey, exchange)
       readTheTimelinesAgain(queryClient)

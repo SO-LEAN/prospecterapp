@@ -108,6 +108,15 @@ export const fr = {
     map: { title: 'Carte des organisations', empty: 'Aucune organisation géolocalisée pour l’instant.' },
     recent: { title: 'Dernières organisations', viewAll: 'Tout voir', empty: 'Aucune organisation.' },
   },
+  myDay: {
+    today: 'Aujourd’hui',
+    nothingToday: 'Rien de prévu aujourd’hui',
+    plan: 'Planifier',
+    upcoming: 'À venir',
+    nothingUpcoming: 'Rien de prévu les jours suivants',
+    seeTheCalendar: 'Voir le calendrier',
+    inProgress: 'En cours',
+  },
   fields: {
     jobTitle: 'Fonction',
     corporateName: 'Raison sociale',

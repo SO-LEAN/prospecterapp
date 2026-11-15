@@ -4,8 +4,12 @@ import { ArrowRight } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import { myFirstName } from '@/features/account/me'
 import { accountQuery } from '@/features/account/queries'
+import { ContactSummary } from '@/features/contacts/components/contact-summary'
 import { DashboardFigures } from '@/features/dashboard/components/dashboard-figures'
 import { dashboardQuery } from '@/features/dashboard/queries'
+import { startOfDay } from '@/features/exchanges/calendar/dates'
+import { MyDayCards } from '@/features/exchanges/my-day/components/my-day-cards'
+import { myDayQuery } from '@/features/exchanges/my-day/queries'
 import { OrganizationCard } from '@/features/organizations/components/organization-card'
 import { OrganizationPreview } from '@/features/organizations/components/organization-preview'
 import { organizationsQuery } from '@/features/organizations/queries'
@@ -26,6 +30,7 @@ export const Route = createFileRoute('/_app/')({
       queryClient.ensureQueryData(dashboardQuery()),
       ensureSharedQueryData(queryClient, accountQuery()),
       queryClient.ensureQueryData(recentQuery()),
+      queryClient.ensureQueryData(myDayQuery(startOfDay(new Date()))),
     ]),
   pendingComponent: () => <PageSkeleton />,
   errorComponent: ({ error, reset }) => <ErrorState error={error} reset={reset} />,
@@ -59,6 +64,10 @@ function Dashboard() {
       />
 
       <DashboardFigures stats={dashboard.stats} />
+
+      <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
+        <MyDayCards contactSummary={(contactId) => <ContactSummary contactId={contactId} />} />
+      </div>
 
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-5">
         <Card className="lg:col-span-3">

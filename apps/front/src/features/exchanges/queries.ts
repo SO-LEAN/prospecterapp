@@ -143,6 +143,7 @@ export const timelineKeys = {
   upcomingOfOrganizations: queryKeys.organizationUpcomingExchanges,
   myPlanned: ['get', '/api/me/planned-exchanges'],
   myCalendar: queryKeys.myCalendar,
+  myDay: queryKeys.myDay,
 } as const
 
 export const exchangeQuery = (id: string) =>
