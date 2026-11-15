@@ -20,7 +20,7 @@ services:
     cpus: 2
     mem_limit: 2g
     environment:
-      VITE_API_URL: https://api.local.prospecter.io:${PUBLIC_PORT}
+      VITE_API_URL: https://api.prospecter.localhost:${PUBLIC_PORT}
   nginx:
     <<: *agents
     ports:

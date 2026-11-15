@@ -6,7 +6,7 @@ import { tanstackRouter } from '@tanstack/router-plugin/vite'
 import react, { reactCompilerPreset } from '@vitejs/plugin-react'
 import { defineConfig, type Rolldown } from 'vite'
 
-const PUBLIC_HOST = 'local.prospecter.io'
+const PUBLIC_HOST = 'prospecter.localhost'
 /** The port of the host the stack is published on: 443 for the main checkout, its own for a worktree (ADR 0116). */
 const PUBLIC_PORT = Number(process.env.PUBLIC_PORT ?? 443)
 

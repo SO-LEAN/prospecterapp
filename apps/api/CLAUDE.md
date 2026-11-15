@@ -2,7 +2,7 @@
 
 ## Role
 
-A JSON API that exposes the use cases of `packages/core`, a resource server for the SPA (`apps/front`): the members sign in with a Cognito user pool, whose tokens the API checks and whose credentials it adapts (ADR 0052). No server-rendered page. Full contract: `openapi.json` (generated, do not edit) and Swagger UI on `https://api.local.prospecter.io/api/doc`.
+A JSON API that exposes the use cases of `packages/core`, a resource server for the SPA (`apps/front`): the members sign in with a Cognito user pool, whose tokens the API checks and whose credentials it adapts (ADR 0052). No server-rendered page. Full contract: `openapi.json` (generated, do not edit) and Swagger UI on `https://api.prospecter.localhost/api/doc`.
 
 ## Project rules
 

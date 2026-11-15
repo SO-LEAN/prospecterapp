@@ -6,7 +6,7 @@ Read before working on it: `docs/architecture/front.md` (stack, folders, state, 
 
 ## Commands
 
-Run through Docker from the repository root (no Node on the host): `docker compose run --rm --no-deps node pnpm <script>`, or the Makefile (`make test-front`, `make lint`, `make fix`, `make e2e`, `make api-doc`). The dev server runs in the `node` service (`make start`) behind https://local.prospecter.io.
+Run through Docker from the repository root (no Node on the host): `docker compose run --rm --no-deps node pnpm <script>`, or the Makefile (`make test-front`, `make lint`, `make fix`, `make e2e`, `make api-doc`). The dev server runs in the `node` service (`make start`) behind https://prospecter.localhost.
 
 Scripts: `dev`, `build`, `preview`, `typecheck` (tsc 7), `lint` / `format` (Biome), `test` / `test:watch` (Vitest), `e2e` (Playwright, use `make e2e`: its global setup `e2e/wait-for-the-stack.ts` waits for the stack to answer), `api:types`.
 

@@ -40,7 +40,7 @@ services:
       # that of the main checkout, its authority key never mounted
       - ${LOCAL_CA_DIR:-./docker/data/ssl}/signed/:/etc/ssl/signed:ro
     environment:
-      NGINX_HOST: local.prospecter.io
+      NGINX_HOST: prospecter.localhost
       # the port its hosts listen on, that of the host the browser reaches (ADR 0116)
       PUBLIC_PORT: ${PUBLIC_PORT:-443}
       FRONT_HOST: node
@@ -94,7 +94,7 @@ services:
       AWS_REGION: eu-west-3
       AWS_ACCESS_KEY_ID: test
       AWS_SECRET_ACCESS_KEY: test
-      API_HOST: api.local.prospecter.io
+      API_HOST: api.prospecter.localhost
       # in the addresses the functions give the browser (ADR 0116)
       PUBLIC_PORT: ${PUBLIC_PORT:-443}
     # the subscriptions the rules of the worker are made of

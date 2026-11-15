@@ -17,7 +17,7 @@ vi.mock('@/shared/auth/session', () => ({
 }))
 
 const THE_CLIENT = '/api/me/organization/clients/google'
-const REDIRECT_URI = 'https://local.prospecter.io/settings/connectors/google'
+const REDIRECT_URI = 'https://prospecter.localhost/settings/connectors/google'
 
 const configured = (clientId: string): GoogleClient => ({
   clientId,

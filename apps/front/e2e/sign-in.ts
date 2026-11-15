@@ -2,7 +2,7 @@ import type { Page } from '@playwright/test'
 import { expect, keepToTheStack, test } from './fixtures'
 import { SPA_URL } from './stack'
 
-export const SIGN_IN_PAGE = /local\.prospecter\.io(:\d+)?\/auth\/sign-in/
+export const SIGN_IN_PAGE = /prospecter\.localhost(:\d+)?\/auth\/sign-in/
 
 export const PROSPECTOR = 'prospector@solean-it.io'
 
