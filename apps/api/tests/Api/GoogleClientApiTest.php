@@ -8,6 +8,7 @@ use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Group;
 use Prospecter\Core\Accounts\Domain\Model\Role;
 use Tests\App\Base\ApiTestCase;
+use Tests\App\Double\RefusingSsm;
 
 /**
  * The client of Google an administrator configures for their account (ADR 0125): its id shown, its secret never, the
@@ -66,6 +67,41 @@ class GoogleClientApiTest extends ApiTestCase
 
         $this->assertResponseStatusCodeSame(422);
         $this->assertSame(['clientId', 'clientSecret'], $this->violatedFields($problem));
+        $this->assertSame('client-of-the-double', $this->requestJson('GET', self::THE_CLIENT)['clientId']);
+    }
+
+    #[DataProvider('gesturesWhoseSecretSsmRefuses')]
+    public function testAGestureWhoseSecretSsmRefusesIsAServiceUnavailable(string $method, string $uri, string $operation): void
+    {
+        $this->client->disableReboot();
+        $this->loginAnAdministrator();
+        self::getContainer()->get(RefusingSsm::class)->refuse($operation);
+
+        $problem = $this->requestJson($method, $uri, 'PATCH' === $method ? ['clientId' => 'client-of-solean', 'clientSecret' => 'secret-of-solean'] : null);
+
+        $this->assertResponseStatusCodeSame(503);
+        $this->assertSame(['Service Unavailable', 'secretsUnavailable'], [$problem['title'], $problem['reason']]);
+        $this->assertStringNotContainsString('secret-of-solean', (string) $this->client->getResponse()->getContent());
+    }
+
+    /**
+     * @return iterable<string, array{string, string, string}>
+     */
+    public static function gesturesWhoseSecretSsmRefuses(): iterable
+    {
+        yield 'the client configured, its secret not put' => ['PATCH', self::THE_CLIENT, 'PutParameter'];
+        yield 'the client removed, its secret not deleted' => ['DELETE', self::THE_CLIENT, 'DeleteParameter'];
+        yield 'an authorization asked, the secret of the client not read' => ['POST', '/api/me/connections/google/authorizations', 'GetParameter'];
+    }
+
+    public function testAClientWhoseSecretSsmRefusesToPutKeepsTheFormerOne(): void
+    {
+        $this->client->disableReboot();
+        $this->loginAnAdministrator();
+        self::getContainer()->get(RefusingSsm::class)->refuse('PutParameter');
+
+        $this->requestJson('PATCH', self::THE_CLIENT, ['clientId' => 'client-of-solean', 'clientSecret' => 'secret-of-solean']);
+
         $this->assertSame('client-of-the-double', $this->requestJson('GET', self::THE_CLIENT)['clientId']);
     }
 
