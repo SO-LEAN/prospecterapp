@@ -58,6 +58,24 @@ Fonctionnalité: Pousser mes échanges planifiés dans Google Agenda
     Quand j'efface la fiche de "Ada Lovelace"
     Alors l'événement n'est plus dans mon agenda Google
 
+  Scénario: Le nom d'un contact effacé quitte l'événement d'un échange fait, qui mène à son organisation
+    Soit j'ai planifié une visio avec "Ada Lovelace" le 17/11/2026 à 14h00
+    Et nous sommes le 17/11/2026 à 15h00
+    Et j'ai marqué cette visio faite
+    Quand j'efface la fiche de "Ada Lovelace"
+    Alors mon agenda Google a l'événement « Visio · ACME » le 17/11/2026 de 14h00 à 14h30
+    Et l'événement mène à la fiche de "ACME"
+
+  Scénario: Sans le droit aux données personnelles, mon agenda Google masque le contact
+    Soit je suis connecté en tant que prospecteur de "SOLEAN IT" sans le droit aux données personnelles
+    Et mon compte Google est connecté
+    Quand je planifie une visio avec "Ada Lovelace" le 17/11/2026 à 14h00
+    Alors mon agenda Google a l'événement « Visio · A***a L***e (ACME) » le 17/11/2026 de 14h00 à 14h30
+
+  Scénario: L'échange planifié par un autre membre n'est pas poussé dans mon agenda
+    Quand un autre prospecteur de "SOLEAN IT" a planifié une visio avec "Ada Lovelace" le 17/11/2026 à 14h00
+    Alors rien n'est poussé dans Google
+
   Scénario: Sans connexion Google, rien n'est poussé
     Soit je déconnecte mon compte Google
     Quand je planifie une visio avec "Ada Lovelace" le 17/11/2026 à 14h00
