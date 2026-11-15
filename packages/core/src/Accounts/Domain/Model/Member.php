@@ -8,6 +8,7 @@ use Prospecter\Core\Accounts\Domain\Event\MemberRegistered;
 use Prospecter\Core\Accounts\Domain\Event\RemindersChanged;
 use Prospecter\Core\Accounts\Domain\Exception\AdministratorsOnly;
 use Prospecter\Core\Accounts\Domain\Exception\MemberWithoutRole;
+use Prospecter\Core\Accounts\Domain\Policy\AdministrationRight;
 use Prospecter\Core\SharedKernel\Domain\AccountId;
 use Prospecter\Core\SharedKernel\Domain\MemberId;
 use Prospecter\Core\SharedKernel\Domain\PersonId;
@@ -100,7 +101,7 @@ final class Member implements ReleasesEvents
 
     private function isAdministrator(): bool
     {
-        return in_array(Role::Admin, $this->roles, true);
+        return AdministrationRight::isGrantedBy(...$this->roles);
     }
 
     private function ensureAdministrator(): void

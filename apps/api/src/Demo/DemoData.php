@@ -8,6 +8,10 @@ use Prospecter\Core\Accounts\Domain\Model\Member;
 use Prospecter\Core\Accounts\Domain\Model\Role;
 use Prospecter\Core\Accounts\Domain\Repository\AccountRepository;
 use Prospecter\Core\Accounts\Domain\Repository\MemberRepository;
+use Prospecter\Core\Connectors\Domain\Model\ClientCredentials;
+use Prospecter\Core\Connectors\Domain\Model\Provider;
+use Prospecter\Core\Connectors\Domain\Model\ProviderClient;
+use Prospecter\Core\Connectors\Domain\Repository\ProviderClientRepository;
 use Prospecter\Core\PersonalData\Domain\Model\Person;
 use Prospecter\Core\PersonalData\Domain\Model\PersonName;
 use Prospecter\Core\PersonalData\Domain\Model\Purpose;
@@ -41,7 +45,8 @@ use Prospecter\Core\SharedKernel\Domain\ReleasesEvents;
  * the domain and the repositories, each aggregate then publishing what happened to it, so that the other
  * contexts react and the search finds it. The account SOLEAN IT, its prospector Camille Martin, its assistant
  * Louis Petit and a newcomer whose profile is empty (who sign in with DemoCredentials), and Babbage & Co with its
- * contact Ada Lovelace and two exchanges with her. The identities are fixed: the tests name them.
+ * contact Ada Lovelace and two exchanges with her; SOLEAN IT connects to Google through the client of its double. The
+ * identities are fixed: the tests name them.
  */
 final readonly class DemoData
 {
@@ -52,6 +57,9 @@ final readonly class DemoData
     /** A prospector signing in for the first time: their profile is empty, theirs to complete. */
     public const string NEWCOMER = '01900000-0000-7000-8000-000000000003';
     private const string OPENED_AT = '2026-10-13 09:00';
+    /** the client of the double of Google (docker/nginx/conf.d/google-double.conf), which grants every code (ADR 0125) */
+    private const string CLIENT_OF_THE_DOUBLE = 'client-of-the-double';
+    private const string SECRET_OF_THE_DOUBLE = 'secret-of-the-double';
 
     public function __construct(
         private AccountRepository $accounts,
@@ -59,6 +67,7 @@ final readonly class DemoData
         private PersonRepository $persons,
         private OrganizationRepository $organizations,
         private ExchangeRepository $exchanges,
+        private ProviderClientRepository $clients,
         private Identities $identities,
         private Events $events,
     ) {
@@ -74,6 +83,15 @@ final readonly class DemoData
         $this->accounts->save($soleanIt);
         $this->publish($soleanIt);
         $this->aContact($soleanIt);
+        $this->theClientOfTheDoubleOfGoogle($soleanIt, $prospector);
+    }
+
+    private function theClientOfTheDoubleOfGoogle(Account $account, Member $configuredBy): void
+    {
+        $credentials = new ClientCredentials(Provider::Google, self::CLIENT_OF_THE_DOUBLE, self::SECRET_OF_THE_DOUBLE);
+        $client = ProviderClient::configure($account->id(), $credentials, $configuredBy->id(), new \DateTimeImmutable(self::OPENED_AT));
+        $this->clients->save($client);
+        $this->publish($client);
     }
 
     private function aProfileIn(Account $account, PersonName $name, string $email): Person

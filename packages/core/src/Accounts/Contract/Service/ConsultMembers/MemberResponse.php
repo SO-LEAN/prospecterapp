@@ -15,6 +15,7 @@ final readonly class MemberResponse
         public string $accountId,
         public string $personId,
         public bool $readsPersonalData,
+        public bool $administers,
     ) {
     }
 }

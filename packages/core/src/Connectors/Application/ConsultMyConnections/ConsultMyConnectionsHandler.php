@@ -4,33 +4,28 @@ declare(strict_types=1);
 
 namespace Prospecter\Core\Connectors\Application\ConsultMyConnections;
 
+use Prospecter\Core\Connectors\Application\Port\AccountClientsRetriever;
 use Prospecter\Core\Connectors\Application\Port\MyConnectionsRetriever;
-use Prospecter\Core\Connectors\Domain\Model\Provider;
-use Prospecter\Core\Connectors\Domain\Port\ProviderAccess;
+use Prospecter\Core\Connectors\Domain\Port\Members;
 use Prospecter\Core\SharedKernel\Application\QueryHandler;
 use Prospecter\Core\SharedKernel\Domain\MemberId;
 
+/**
+ * My connections, and the providers offered to me: those a client of my account serves.
+ */
 final readonly class ConsultMyConnectionsHandler implements QueryHandler
 {
     public function __construct(
         private MyConnectionsRetriever $myConnectionsRetriever,
-        private ProviderAccess $providerAccess,
+        private AccountClientsRetriever $accountClientsRetriever,
+        private Members $members,
     ) {
     }
 
     public function __invoke(ConsultMyConnections $query, ConsultMyConnectionsOutput $output): void
     {
-        $output->present($this->myConnectionsRetriever->of(new MemberId($query->memberId)), $this->offeredProviders());
-    }
+        $me = new MemberId($query->memberId);
 
-    /**
-     * @return list<string>
-     */
-    private function offeredProviders(): array
-    {
-        return array_map(
-            static fn (Provider $provider): string => $provider->value,
-            array_filter(Provider::cases(), $this->providerAccess->hasClient(...)),
-        );
+        $output->present($this->myConnectionsRetriever->of($me), $this->accountClientsRetriever->of($this->members->get($me)->accountId));
     }
 }

@@ -12,6 +12,11 @@ locals {
   logs_retained = 30
 }
 
+# the secrets the accounts give the api, which it puts, reads and deletes itself (ADR 0125)
+locals {
+  account_secrets_path = "${local.ssm_path}/accounts"
+}
+
 resource "aws_iam_role" "lambda" {
   name                 = "${local.name}-lambda"
   description          = "The function of the api"
@@ -65,6 +70,13 @@ locals {
       ]
     },
     {
+      # the client of each account at Google, its secret put by its administrator (ADR 0125)
+      Sid      = "KeepTheSecretsOfTheAccounts"
+      Effect   = "Allow"
+      Action   = ["ssm:PutParameter", "ssm:GetParameter", "ssm:DeleteParameter"]
+      Resource = "arn:aws:ssm:${var.region}:${var.aws_account_id}:parameter${local.account_secrets_path}/*"
+    },
+    {
       # the internal entry of the storage, a function URL signed by this role (ADR 0068)
       Sid      = "CallTheStorage"
       Effect   = "Allow"
@@ -72,9 +84,9 @@ locals {
       Resource = "arn:aws:lambda:${var.region}:${var.aws_account_id}:function:prospecter-${var.instance}-storage"
     },
     {
-      Sid       = "DecryptItsSecretParameters"
+      Sid       = "EncryptAndDecryptItsSecretParameters"
       Effect    = "Allow"
-      Action    = "kms:Decrypt"
+      Action    = ["kms:Decrypt", "kms:Encrypt", "kms:GenerateDataKey"]
       Resource  = "*"
       Condition = { StringEquals = { "kms:ViaService" = "ssm.${var.region}.amazonaws.com" } }
     },
@@ -140,10 +152,10 @@ locals {
     STORAGE_INTERNAL_URL        = nonsensitive(lookup(local.storage_parameters, "internal-url", ""))
     STORAGE_TOKEN               = "bref-ssm:${local.storage_ssm_path}/token"
     INTEGRATION_EVENTS_DELIVERY = var.integration_events_delivery
-    # the OAuth client of the instance at Google, empty while it is not in SSM (google.tf), Google bringing the
-    # member back to the page of the connectors of the SPA
-    GOOGLE_CLIENT_ID         = local.has_google_client ? "bref-ssm:${local.google_client_id_parameter}" : ""
-    GOOGLE_CLIENT_SECRET     = local.has_google_client ? "bref-ssm:${local.google_client_secret_parameter}" : ""
+    SSM_ENDPOINT                = ""
+    ACCOUNT_SECRETS_PATH        = local.account_secrets_path
+    # Google bringing the member back to the page of the connectors of the SPA, the redirect URI the client of each
+    # account declares (ADR 0125)
     GOOGLE_REDIRECT_URI      = "${local.front_url}/settings/connectors/google"
     GOOGLE_AUTHORIZATION_URL = "https://accounts.google.com/o/oauth2/v2/auth"
     GOOGLE_TOKEN_URL         = "https://oauth2.googleapis.com/token"

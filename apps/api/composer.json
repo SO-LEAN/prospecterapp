@@ -104,7 +104,8 @@
             "DynamoDb",
             "EventBridge",
             "Lambda",
-            "Sqs"
+            "Sqs",
+            "Ssm"
         ]
     },
     "require-dev": {

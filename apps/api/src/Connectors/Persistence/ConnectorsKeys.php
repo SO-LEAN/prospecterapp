@@ -11,6 +11,8 @@ final class ConnectorsKeys
     public const string AUTHORIZATION = 'AUTHORIZATION';
     private const string MEMBER = 'MEMBER';
     private const string CONNECTION = 'CONNECTION';
+    private const string ACCOUNT = 'ACCOUNT';
+    private const string CLIENT = 'CLIENT';
 
     public static function member(string $id): string
     {
@@ -20,6 +22,16 @@ final class ConnectorsKeys
     public static function connection(string $provider): string
     {
         return self::CONNECTION.'#'.$provider;
+    }
+
+    public static function account(string $id): string
+    {
+        return self::ACCOUNT.'#'.$id;
+    }
+
+    public static function client(string $provider): string
+    {
+        return self::CLIENT.'#'.$provider;
     }
 
     public static function authorization(string $state): string

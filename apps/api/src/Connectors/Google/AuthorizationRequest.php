@@ -11,7 +11,6 @@ final readonly class AuthorizationRequest
     public function __construct(
         public string $state,
         public string $codeVerifier,
-        public string $address,
     ) {
     }
 }

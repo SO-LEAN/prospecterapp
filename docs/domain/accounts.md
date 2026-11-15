@@ -16,11 +16,12 @@ An organization using Prospecter, and the members working in it. Code: `packages
 - A member is registered by an administrator of the account, under a profile of their own, with at least one role among prospector, personal data and administrator; every member signs in (`RegisterAMember`, `Member::registerBy()`; ADR 0075) and completes their empty profile at their first sign-in (ADR 0100). The right to register is decided by the aggregate.
 - A member may change everything of their account, nothing of another one: the account of another is unknown to them (`AccountPossibilities`; ADR 0088).
 - A member reads and manages the personal data with the right to, or as an administrator (`PersonalDataRight`; ADR 0031).
+- An administrator administers their account: registers its members, configures its clients at the providers (`AdministrationRight`; ADR 0125, the clients themselves kept by Connectors).
 - A member chooses their own reminders: ten minutes before by default, one of the delays offered (`ReminderDelayNotOffered` otherwise), turned off without losing the delay chosen (`ChangeMyReminders`, `Member::changeReminders()`, read by `ConsultMyReminders`).
 
 ## What it publishes
 
-- The service `ConsultMembersService` (who the members are: their account, their profile, their right to the personal data), asked by Prospecting and PersonalData (ADR 0089).
+- The service `ConsultMembersService` (who the members are: their account, their profile, their right to the personal data, whether they administer their account, `AdministrationRight`), asked by Prospecting, PersonalData and Connectors (ADR 0089, 0125).
 - The service `ListAccountsService` (the identities of the accounts, by slice), for a context counting by account which accounts there are (ADR 0099).
 - The integration events `AccountOpened` and `MemberRegistered`, on which PersonalData collects the profile of the founder or of the member (ADR 0046).
 

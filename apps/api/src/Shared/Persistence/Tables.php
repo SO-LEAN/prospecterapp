@@ -23,14 +23,18 @@ final readonly class Tables
         private Table $prospectingTable,
         private Table $reportingTable,
         private Table $connectorsTable,
+        private AccountSecrets $accountSecrets,
     ) {
     }
 
     /**
-     * Drops the tables and creates them empty.
+     * Drops the tables and creates them empty, and forgets the secrets the accounts gave (ADR 0125), whose items are
+     * gone with them.
      */
     public function recreate(): void
     {
+        $this->accountSecrets->forgetEvery();
+
         foreach ($this->names() as $name) {
             $this->drop($name);
         }
