@@ -28,8 +28,8 @@ final class PlannedExchangeContext implements Context
 {
     use SharesTheScenario;
 
-    #[Given('/^(?<done>j\'ai marqué|je marque) cette visio faite$/')]
-    public function iMarkItDone(string $done): void
+    #[Given('/^(?:(?<done>j\'ai marqué|je marque) cette visio|je la marque) faite$/')]
+    public function iMarkItDone(string $done = ''): void
     {
         $this->markDone($this->planned()['facts']->occurredAt, null);
         $this->expectAcceptedWhen($done, 'j\'ai marqué');
