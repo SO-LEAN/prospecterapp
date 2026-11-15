@@ -46,7 +46,7 @@ function useKeepTheGoogleClient() {
 export function useConfigureGoogleClient() {
   const keep = useKeepTheGoogleClient()
 
-  return api.useMutation('put', '/api/me/organization/clients/google', { onSuccess: keep })
+  return api.useMutation('patch', '/api/me/organization/clients/google', { onSuccess: keep })
 }
 
 export function useRemoveGoogleClient() {

@@ -4681,12 +4681,54 @@
                     }
                 }
             },
-            "put": {
+            "delete": {
+                "tags": [
+                    "Connectors"
+                ],
+                "summary": "Remove the client of Google of my account: Google is no longer offered to its members",
+                "operationId": "delete_api_me_remove_google_client",
+                "responses": {
+                    "200": {
+                        "description": "My account without its client of Google",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/GoogleClientResource"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Missing or invalid access token"
+                    },
+                    "403": {
+                        "description": "The signed-in user is no administrator of the account",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ProblemResource"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "My account has no client of Google",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ProblemResource"
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "patch": {
                 "tags": [
                     "Connectors"
                 ],
                 "summary": "Configure the client of Google of my account, or another one: the members connect through it from now on, those connected through another client reconnect",
-                "operationId": "put_api_me_configure_google_client",
+                "operationId": "patch_api_me_configure_google_client",
                 "requestBody": {
                     "required": true,
                     "content": {
@@ -4723,48 +4765,6 @@
                     },
                     "422": {
                         "description": "A client without its id or its secret",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/ProblemResource"
-                                }
-                            }
-                        }
-                    }
-                }
-            },
-            "delete": {
-                "tags": [
-                    "Connectors"
-                ],
-                "summary": "Remove the client of Google of my account: Google is no longer offered to its members",
-                "operationId": "delete_api_me_remove_google_client",
-                "responses": {
-                    "200": {
-                        "description": "My account without its client of Google",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/GoogleClientResource"
-                                }
-                            }
-                        }
-                    },
-                    "401": {
-                        "description": "Missing or invalid access token"
-                    },
-                    "403": {
-                        "description": "The signed-in user is no administrator of the account",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/ProblemResource"
-                                }
-                            }
-                        }
-                    },
-                    "404": {
-                        "description": "My account has no client of Google",
                         "content": {
                             "application/json": {
                                 "schema": {

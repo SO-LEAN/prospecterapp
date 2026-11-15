@@ -984,14 +984,14 @@ export interface paths {
         };
         /** Consult the client of Google of my account, its secret never answered, and the redirect URI to declare in it */
         get: operations["get_api_me_google_client"];
-        /** Configure the client of Google of my account, or another one: the members connect through it from now on, those connected through another client reconnect */
-        put: operations["put_api_me_configure_google_client"];
+        put?: never;
         post?: never;
         /** Remove the client of Google of my account: Google is no longer offered to its members */
         delete: operations["delete_api_me_remove_google_client"];
         options?: never;
         head?: never;
-        patch?: never;
+        /** Configure the client of Google of my account, or another one: the members connect through it from now on, those connected through another client reconnect */
+        patch: operations["patch_api_me_configure_google_client"];
         trace?: never;
     };
     "/api/me/connections/google": {
@@ -5831,7 +5831,52 @@ export interface operations {
             };
         };
     };
-    put_api_me_configure_google_client: {
+    delete_api_me_remove_google_client: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description My account without its client of Google */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["GoogleClientResource"];
+                };
+            };
+            /** @description Missing or invalid access token */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description The signed-in user is no administrator of the account */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ProblemResource"];
+                };
+            };
+            /** @description My account has no client of Google */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ProblemResource"];
+                };
+            };
+        };
+    };
+    patch_api_me_configure_google_client: {
         parameters: {
             query?: never;
             header?: never;
@@ -5871,51 +5916,6 @@ export interface operations {
             };
             /** @description A client without its id or its secret */
             422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ProblemResource"];
-                };
-            };
-        };
-    };
-    delete_api_me_remove_google_client: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description My account without its client of Google */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["GoogleClientResource"];
-                };
-            };
-            /** @description Missing or invalid access token */
-            401: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description The signed-in user is no administrator of the account */
-            403: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ProblemResource"];
-                };
-            };
-            /** @description My account has no client of Google */
-            404: {
                 headers: {
                     [name: string]: unknown;
                 };
