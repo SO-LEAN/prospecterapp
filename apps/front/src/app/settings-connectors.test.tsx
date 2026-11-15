@@ -50,14 +50,19 @@ const myReminders = {
   },
 }
 
-function theApiAnswers() {
+const googleNotOffered: Connections = {
+  connections: [],
+  _links: { self: noConnection._links.self, check: noConnection._links.check },
+}
+
+function theApiAnswers(connections: Connections = noConnection) {
   theApi.mockImplementation(async (input) => {
     const { pathname } = new URL(input instanceof Request ? input.url : String(input))
     const answers: Record<string, unknown> = {
       '/api/me': me,
       '/api/me/reminders': myReminders,
-      '/api/me/connections': noConnection,
-      [CHECKS]: noConnection,
+      '/api/me/connections': connections,
+      [CHECKS]: connections,
     }
     return Response.json(answers[pathname] ?? { items: [], _links: {} })
   })
@@ -83,5 +88,15 @@ describe('the section of the connectors', () => {
 
     expect(await screen.findByText('Google Agenda')).toBeInTheDocument()
     await waitFor(() => expect(checksSent()).toBe(1))
+  })
+
+  it('says Google is unavailable, without offering to connect it, while the API does not offer it', async () => {
+    theApiAnswers(googleNotOffered)
+    const router = await renderTheSpaAt('/settings')
+
+    await router.navigate({ to: '/settings', search: { section: 'connectors' } })
+
+    expect(await screen.findByText('Google Agenda n’est pas disponible pour le moment.')).toBeInTheDocument()
+    expect(screen.queryByRole('button', { name: 'Connecter' })).not.toBeInTheDocument()
   })
 })
