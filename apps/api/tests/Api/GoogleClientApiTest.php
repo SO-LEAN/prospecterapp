@@ -38,7 +38,7 @@ class GoogleClientApiTest extends ApiTestCase
             'redirectUri' => self::REDIRECT_URI,
             '_links' => [
                 'self' => ['href' => self::THE_CLIENT, 'method' => 'GET'],
-                'configure' => ['href' => self::THE_CLIENT, 'method' => 'PUT'],
+                'configure' => ['href' => self::THE_CLIENT, 'method' => 'PATCH'],
                 'remove' => ['href' => self::THE_CLIENT, 'method' => 'DELETE'],
             ],
         ], $client);
@@ -49,7 +49,7 @@ class GoogleClientApiTest extends ApiTestCase
     {
         $this->loginAnAdministrator();
 
-        $client = $this->requestJson('PUT', self::THE_CLIENT, ['clientId' => 'client-of-solean', 'clientSecret' => 'secret-of-solean']);
+        $client = $this->requestJson('PATCH', self::THE_CLIENT, ['clientId' => 'client-of-solean', 'clientSecret' => 'secret-of-solean']);
 
         $this->assertResponseIsSuccessful();
         $this->assertSame(['client-of-solean', true], [$client['clientId'], $client['secretSet']]);
@@ -62,7 +62,7 @@ class GoogleClientApiTest extends ApiTestCase
     {
         $this->loginAnAdministrator();
 
-        $problem = $this->requestJson('PUT', self::THE_CLIENT, ['clientId' => '', 'clientSecret' => '']);
+        $problem = $this->requestJson('PATCH', self::THE_CLIENT, ['clientId' => '', 'clientSecret' => '']);
 
         $this->assertResponseStatusCodeSame(422);
         $this->assertSame(['clientId', 'clientSecret'], $this->violatedFields($problem));
@@ -82,7 +82,7 @@ class GoogleClientApiTest extends ApiTestCase
             'redirectUri' => self::REDIRECT_URI,
             '_links' => [
                 'self' => ['href' => self::THE_CLIENT, 'method' => 'GET'],
-                'configure' => ['href' => self::THE_CLIENT, 'method' => 'PUT'],
+                'configure' => ['href' => self::THE_CLIENT, 'method' => 'PATCH'],
             ],
         ], $client);
         $this->assertArrayNotHasKey('connectGoogle', $this->requestJson('GET', '/api/me/connections')['_links']);
@@ -104,7 +104,7 @@ class GoogleClientApiTest extends ApiTestCase
     {
         $this->login($member);
 
-        $this->requestJson($method, self::THE_CLIENT, 'PUT' === $method ? ['clientId' => 'client-of-solean', 'clientSecret' => 'secret-of-solean'] : null);
+        $this->requestJson($method, self::THE_CLIENT, 'PATCH' === $method ? ['clientId' => 'client-of-solean', 'clientSecret' => 'secret-of-solean'] : null);
 
         $this->assertResponseStatusCodeSame(403);
         $this->loginAnAdministrator();
@@ -117,7 +117,7 @@ class GoogleClientApiTest extends ApiTestCase
     public static function gesturesOfAMemberWhoIsNoAdministrator(): iterable
     {
         foreach (['a prospector with the personal data' => 'prospector-user', 'a prospector without the personal data' => 'assistant-user'] as $who => $member) {
-            foreach (['sees' => 'GET', 'configures' => 'PUT', 'removes' => 'DELETE'] as $gesture => $method) {
+            foreach (['sees' => 'GET', 'configures' => 'PATCH', 'removes' => 'DELETE'] as $gesture => $method) {
                 yield sprintf('%s %s', $who, $gesture) => [$member, $method];
             }
         }

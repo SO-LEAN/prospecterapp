@@ -25,7 +25,7 @@ const configured = (clientId: string): GoogleClient => ({
   redirectUri: REDIRECT_URI,
   _links: {
     self: { href: THE_CLIENT, method: 'GET' },
-    configure: { href: THE_CLIENT, method: 'PUT' },
+    configure: { href: THE_CLIENT, method: 'PATCH' },
     remove: { href: THE_CLIENT, method: 'DELETE' },
   },
 })
@@ -34,7 +34,7 @@ const none: GoogleClient = {
   clientId: null,
   secretSet: false,
   redirectUri: REDIRECT_URI,
-  _links: { self: { href: THE_CLIENT, method: 'GET' }, configure: { href: THE_CLIENT, method: 'PUT' } },
+  _links: { self: { href: THE_CLIENT, method: 'GET' }, configure: { href: THE_CLIENT, method: 'PATCH' } },
 }
 
 function renderTheCard(client: GoogleClient) {
@@ -55,7 +55,7 @@ const sent = async () => {
   return {
     path: new URL(request.url).pathname,
     method: request.method,
-    body: request.method === 'PUT' ? await request.clone().json() : undefined,
+    body: request.method === 'PATCH' ? await request.clone().json() : undefined,
   }
 }
 
@@ -100,7 +100,7 @@ describe('GoogleClientCard', () => {
     await waitFor(async () =>
       expect(await sent()).toEqual({
         path: THE_CLIENT,
-        method: 'PUT',
+        method: 'PATCH',
         body: { clientId: 'another-client', clientSecret: 'its-secret' },
       }),
     )

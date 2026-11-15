@@ -25,7 +25,7 @@ const theClient: GoogleClient = {
   clientId: 'client-of-solean',
   secretSet: true,
   redirectUri: 'https://local.prospecter.io/settings/connectors/google',
-  _links: { self: { href: THE_CLIENT, method: 'GET' }, configure: { href: THE_CLIENT, method: 'PUT' } },
+  _links: { self: { href: THE_CLIENT, method: 'GET' }, configure: { href: THE_CLIENT, method: 'PATCH' } },
 }
 
 function renderTheSection(forAnAdministrator: boolean) {
