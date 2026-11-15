@@ -126,3 +126,4 @@ Why the project is shaped the way it is: one record per decision, in the order t
 | [0121](0121-the-journeys-run-apart-from-make-ci-and-stop-at-the-first-failure.md) | The journeys run apart from make ci, once a development is done, and stop at the first failure | architecture | Accepted | 2026-11-14 |
 | [0122](0122-the-journeys-keep-only-what-no-other-test-links.md) | The journeys keep only what no other test links; the screens are tested by Vitest | architecture | Accepted | 2026-11-14 |
 | [0123](0123-a-local-authority-signs-the-certificate-of-every-local-stack.md) | A local authority of the machine, restricted to local.prospecter.io, signs the certificate every local stack serves | architecture | Accepted | 2026-11-14 |
+| [0124](0124-the-api-starts-without-the-google-client-of-its-instance.md) | The api starts without the Google client of its instance, reading it only once it is in SSM | architecture | Accepted | 2026-11-15 |
