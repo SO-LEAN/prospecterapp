@@ -1696,13 +1696,19 @@ export interface components {
             items: components["schemas"]["OrganizationExchangeResource"][];
             _links: components["schemas"]["CalendarLinksResource"];
         };
+        DayExchangeResource: {
+            exchange: components["schemas"]["ExchangeResource"];
+            interlocutor: components["schemas"]["InterlocutorResource"];
+            /** @description The organization of the contact the exchange is kept for; none with the organization itself, or for a contact no longer part of it */
+            organization?: components["schemas"]["OrganizationOfContactResource"] | null;
+        };
         MyDayLinksResource: {
             self: components["schemas"]["LinkResource"];
             searchContacts?: components["schemas"]["LinkResource"];
         };
         MyDayResource: {
-            today: components["schemas"]["OrganizationExchangeResource"][];
-            next: components["schemas"]["OrganizationExchangeResource"][];
+            today: components["schemas"]["DayExchangeResource"][];
+            next: components["schemas"]["DayExchangeResource"][];
             _links: components["schemas"]["MyDayLinksResource"];
         };
         OrganizationsOfContactResource: {
