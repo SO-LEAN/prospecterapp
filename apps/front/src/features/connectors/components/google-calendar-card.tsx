@@ -1,4 +1,4 @@
-import { CircleAlert, CircleCheck, Link2, RefreshCw, Unlink } from 'lucide-react'
+import { CircleAlert, CircleCheck, CircleSlash, Link2, RefreshCw, Unlink } from 'lucide-react'
 import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { toast } from 'sonner'
@@ -21,11 +21,13 @@ import { GoogleLogo } from './google-logo'
 
 type Props = {
   connection: Connection | undefined
+  /** False while no client of Prospecter at Google serves the account: Google is neither connected nor reconnected. */
+  offered: boolean
   goTo?: (address: string) => void
 }
 
-/** Google Calendar: connected, to reconnect once Google refused its access, or to connect. */
-export function GoogleCalendarCard({ connection, goTo }: Props) {
+/** Google Calendar: connected, to reconnect once Google refused its access, or to connect; unavailable unless offered. */
+export function GoogleCalendarCard({ connection, offered, goTo }: Props) {
   const { t } = useTranslation()
 
   return (
@@ -41,8 +43,9 @@ export function GoogleCalendarCard({ connection, goTo }: Props) {
       </CardHeader>
       <CardContent className="space-y-4 text-sm">
         {connection && <ConnectionState connection={connection} />}
+        {!offered && <Unavailable />}
         <div className="flex flex-wrap gap-2">
-          <ConnectButton connection={connection} goTo={goTo} />
+          {offered && <ConnectButton connection={connection} goTo={goTo} />}
           {connection && <DisconnectButton />}
         </div>
       </CardContent>
@@ -75,7 +78,18 @@ function ConnectionState({ connection }: { connection: Connection }) {
   )
 }
 
-function ConnectButton({ connection, goTo }: Props) {
+function Unavailable() {
+  const { t } = useTranslation()
+
+  return (
+    <p className="flex items-center gap-2 text-muted-foreground">
+      <CircleSlash aria-hidden className="size-4 shrink-0" />
+      <span>{t('settings.connectors.unavailable')}</span>
+    </p>
+  )
+}
+
+function ConnectButton({ connection, goTo }: Pick<Props, 'connection' | 'goTo'>) {
   const { t } = useTranslation()
   const connect = useConnectGoogle(goTo)
   const ask = () => connect.mutate({})
