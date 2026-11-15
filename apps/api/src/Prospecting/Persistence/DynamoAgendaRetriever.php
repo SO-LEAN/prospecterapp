@@ -5,6 +5,7 @@ namespace App\Prospecting\Persistence;
 use App\Shared\Persistence\Table;
 use Prospecter\Core\Prospecting\Application\ExchangeInTimeline;
 use Prospecter\Core\Prospecting\Application\Port\AgendaRetriever;
+use Prospecter\Core\Prospecting\Domain\Model\CalendarPeriod;
 use Prospecter\Core\Prospecting\Domain\Model\ContactPresence;
 use Prospecter\Core\Prospecting\Domain\Model\Prospector;
 
@@ -20,7 +21,26 @@ final readonly class DynamoAgendaRetriever implements AgendaRetriever
 
     public function plannedBy(Prospector $holder, \DateTimeImmutable $from, \DateTimeImmutable $until): array
     {
-        $links = $this->prospectingTable->queryBetween(ExchangeKeys::agenda($holder->id->value), Table::BY_GSI1, ExchangeKeys::positionAfter($from), ExchangeKeys::positionBefore($until));
+        return $this->plannedAt($this->prospectingTable->queryBetween(ExchangeKeys::agenda($holder->id->value), Table::BY_GSI1, ExchangeKeys::positionAfter($from), ExchangeKeys::positionBefore($until)), $holder);
+    }
+
+    public function plannedIn(Prospector $holder, CalendarPeriod $period): array
+    {
+        return $this->plannedAt($this->prospectingTable->queryBetween(ExchangeKeys::agenda($holder->id->value), Table::BY_GSI1, ExchangeKeys::positionBefore($period->from), ExchangeKeys::positionBefore($period->until)), $holder);
+    }
+
+    public function firstPlannedFrom(Prospector $holder, \DateTimeImmutable $from, int $count): array
+    {
+        return $this->plannedAt($this->prospectingTable->queryAfter(ExchangeKeys::agenda($holder->id->value), Table::BY_GSI1, ExchangeKeys::positionBefore($from), $count), $holder);
+    }
+
+    /**
+     * @param list<array<string, mixed>> $links
+     *
+     * @return list<ExchangeInTimeline>
+     */
+    private function plannedAt(array $links, Prospector $holder): array
+    {
         $items = array_column($this->prospectingTable->items(array_map(static fn (array $link): array => [$link['SK'], ExchangeKeys::EXCHANGE], $links)), null, 'PK');
 
         return array_values(array_map(

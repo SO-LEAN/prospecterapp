@@ -4,16 +4,21 @@ namespace App\Contacts;
 
 use App\Contacts\Resource\CalendarLinksResource;
 use App\Contacts\Resource\CalendarResource;
+use App\Contacts\Resource\MyDayLinksResource;
+use App\Contacts\Resource\MyDayResource;
 use App\Contacts\Resource\PlannedExchangesResource;
 use App\Prospecting\TimelineResourceFactory;
 use App\Security\IntentLinks;
 use App\Security\User;
 use App\Shared\Links;
+use App\Shared\Resource\LinkResource;
 use Prospecter\Core\PersonalData\Application\ConsultPersons\ConsultPersons;
 use Prospecter\Core\PersonalData\Application\ConsultPersons\KeptPersons;
 use Prospecter\Core\PersonalData\Application\PersonCard;
 use Prospecter\Core\Prospecting\Application\ConsultCalendar\ConsultCalendar;
 use Prospecter\Core\Prospecting\Application\ConsultCalendar\KeptCalendar;
+use Prospecter\Core\Prospecting\Application\ConsultMyDay\ConsultMyDay;
+use Prospecter\Core\Prospecting\Application\ConsultMyDay\KeptMyDay;
 use Prospecter\Core\Prospecting\Application\ConsultOrganization\ConsultOrganization;
 use Prospecter\Core\Prospecting\Application\ConsultOrganization\KeptOrganization;
 use Prospecter\Core\Prospecting\Application\ConsultOverlappingExchanges\ConsultOverlappingExchanges;
@@ -23,7 +28,7 @@ use Prospecter\Core\Prospecting\Application\OrganizationSheet;
 use Prospecter\Core\SharedKernel\Application\QueryHandler;
 
 /**
- * The agenda and the calendar of the signed-in member, composed of two contexts: Prospecting knows the exchanges they
+ * The agenda, the calendar and the day of the signed-in member, composed of two contexts: Prospecting knows the exchanges they
  * planned or noted, PersonalData names the persons they are with in one batch, Prospecting the organizations they
  * are with alone; the answer kept, then presented with them (ADR 0085).
  */
@@ -32,6 +37,7 @@ final readonly class AgendaReader
     public function __construct(
         private QueryHandler $consultOverlappingExchanges,
         private QueryHandler $consultCalendar,
+        private QueryHandler $consultMyDay,
         private QueryHandler $consultPersons,
         private QueryHandler $consultOrganization,
         private TimelineResourceFactory $timelines,
@@ -62,15 +68,37 @@ final readonly class AgendaReader
         return $presenter->resource;
     }
 
-    /**
-     * A free slot plans with a contact searched by text, which needs the right to manage personal data, as planning does.
-     */
+    public function readMyDay(string $holder, \DateTimeImmutable $from, \DateTimeImmutable $until, \DateTimeImmutable $at): MyDayResource
+    {
+        $myDay = new KeptMyDay();
+        ($this->consultMyDay)(new ConsultMyDay($holder, $from, $until, $at), $myDay);
+        $exchanges = [...$myDay->myDay->today, ...$myDay->myDay->next];
+        $links = new MyDayLinksResource($this->links->to('api_me_day', self::period($from, $until)), $this->searchContacts());
+        $presenter = new MyDayPresenter($this->personsOf($holder, $exchanges), $this->organizationsPlannedWithAlone($exchanges), $this->timelines, $links);
+        $presenter->present($myDay->myDay);
+
+        return $presenter->resource;
+    }
+
     private function calendarLinks(\DateTimeImmutable $from, \DateTimeImmutable $until): CalendarLinksResource
     {
-        return new CalendarLinksResource(
-            $this->links->to('api_me_calendar', ['from' => $from->format(\DATE_ATOM), 'to' => $until->format(\DATE_ATOM)]),
-            $this->intents->holds(User::PERSONAL_DATA) ? $this->links->to('api_contacts_search') : null,
-        );
+        return new CalendarLinksResource($this->links->to('api_me_calendar', self::period($from, $until)), $this->searchContacts());
+    }
+
+    /**
+     * @return array{from: string, to: string}
+     */
+    private static function period(\DateTimeImmutable $from, \DateTimeImmutable $until): array
+    {
+        return ['from' => $from->format(\DATE_ATOM), 'to' => $until->format(\DATE_ATOM)];
+    }
+
+    /**
+     * One plans with a contact searched by text, which needs the right to manage personal data, as planning does.
+     */
+    private function searchContacts(): ?LinkResource
+    {
+        return $this->intents->holds(User::PERSONAL_DATA) ? $this->links->to('api_contacts_search') : null;
     }
 
     /**

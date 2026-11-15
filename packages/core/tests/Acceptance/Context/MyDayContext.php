@@ -76,7 +76,7 @@ final class MyDayContext implements Context
     #[Then('/^(?<toHandle>'.self::ANY_SHOWN.') de (?<toHandleTime>\S+) est à traiter, (?<notToHandle>'.self::ANY_SHOWN.') de (?<notToHandleTime>\S+) ne l\'est pas$/')]
     public function oneIsToHandle(string $toHandle, string $toHandleTime, string $notToHandle, string $notToHandleTime): void
     {
-        $toHandleNow = array_map(fn (ExchangeInTimeline $exchange): string => self::describe($exchange), array_filter($this->myDay()->today, fn (ExchangeInTimeline $exchange): bool => in_array($exchange->id, $this->myDay()->toHandle, true)));
+        $toHandleNow = array_map(self::describe(...), array_filter($this->myDay()->today, fn (ExchangeInTimeline $exchange): bool => in_array($exchange->id, $this->myDay()->toHandle, true)));
 
         Expect::same([sprintf('%s de %s', $toHandle, $toHandleTime)], array_values($toHandleNow));
         Expect::that(!in_array(sprintf('%s de %s', $notToHandle, $notToHandleTime), $toHandleNow, true), sprintf('%s de %s is not to handle', $notToHandle, $notToHandleTime));
