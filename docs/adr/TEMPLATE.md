@@ -11,7 +11,7 @@ A decision is worth a record when it shapes the structure (where code lives, how
 - A record is written once: never edited after it is accepted, not even its status.
 - A decision changing a former one is a new record, naming in its `Supersedes` line the points of the former records it replaces.
 - In the same change, the new record updates the documents of its subjects (`docs/architecture/`, `docs/domain/`): they say what is in force, the records why.
-- The index gets the line of the new record; a record entirely replaced is marked so on its line in the index, its file staying as it was.
+- The index is written from the headers (`make adr-index`, ADR 0127): the number, the title, the type and the date of each line are those of its record, its status begins with the status of the record; a record entirely replaced is marked so on its line in the index (`Superseded by`), and a point replaced may be said after its status, its file staying as it was.
 
 ## Template
 
@@ -46,5 +46,7 @@ The signal that should reopen this decision.
 
 1. Copy the template to `NNNN-title-in-kebab-case.md`, with the next number.
 2. Fill it from what was really said and weighed; leave nothing to make the template look complete.
-3. Update the documents of its subjects, and add its line to the index of `README.md`.
+3. Update the documents of its subjects, then `make adr-index` writes its line in the index of `README.md`; again when its status changes. `make lint` and `make ci` fail while the index differs from the headers (`make adr-index-check`).
 4. `make adr-references` checks that no reference names a record entirely replaced.
+
+Two branches adding a record each keep both lines of the index at a rebase (`merge=union` in `.gitattributes`): no conflict to resolve; `make adr-index` puts them in order if needed. Two records of the same number: the branch rebased second takes the next one, its references with it.

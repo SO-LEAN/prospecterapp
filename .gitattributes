@@ -1,0 +1,2 @@
+# the index of the decision records: two branches adding a record each keep both lines, make adr-index orders them (ADR 0127)
+docs/adr/README.md merge=union
