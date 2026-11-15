@@ -17,10 +17,7 @@ use Tests\App\Double\GoogleDouble;
 class ConnectorsApiTest extends ApiTestCase
 {
     private const string CODE = 'a-code-of-google';
-    private const array GOOGLE_CLIENT = ['GOOGLE_CLIENT_ID', 'GOOGLE_CLIENT_SECRET'];
-
-    /** @var array<string, string|null> the variables of the Google client a test emptied, by name */
-    private array $formerVariables = [];
+    private const string THE_CLIENT_OF_THE_ACCOUNT = '/api/me/organization/clients/google';
 
     protected function setUp(): void
     {
@@ -36,7 +33,7 @@ class ConnectorsApiTest extends ApiTestCase
 
         $this->assertResponseStatusCodeSame(201);
         $this->assertStringStartsWith('https://accounts.google.test/o/oauth2/v2/auth?', $authorization['address']);
-        parse_str((string) parse_url($authorization['address'], \PHP_URL_QUERY), $query);
+        $query = $this->addressQueryOf($authorization);
         $this->assertSame([
             'client_id' => 'client-of-the-double',
             'redirect_uri' => 'https://front.test.prospecter.io/settings/connectors/google',
@@ -97,6 +94,31 @@ class ConnectorsApiTest extends ApiTestCase
 
         $this->assertSame([['google', 'toReconnect', 'michel@exemple.fr']], $this->seen($checked));
         $this->assertSame([['google', 'toReconnect', 'michel@exemple.fr']], $this->seen($this->requestJson('GET', '/api/me/connections')));
+    }
+
+    public function testGoogleIsAskedThroughTheClientOfTheAccount(): void
+    {
+        $this->login();
+        $this->connect('michel@exemple.fr', 'a-refresh-token');
+        $this->assertSame(['client-of-the-double', 'secret-of-the-double'], $this->google()->clientOfTheLastToken());
+
+        $this->asAnAdministrator(fn () => $this->requestJson('PUT', self::THE_CLIENT_OF_THE_ACCOUNT, ['clientId' => 'client-of-the-double', 'clientSecret' => 'a-new-secret']));
+        $checked = $this->requestJson('POST', '/api/me/connections/checks');
+
+        $this->assertSame([['google', 'connected', 'michel@exemple.fr']], $this->seen($checked));
+        $this->assertSame(['client-of-the-double', 'a-new-secret'], $this->google()->clientOfTheLastToken());
+    }
+
+    public function testTheConnectionsOfAFormerClientAreToReconnect(): void
+    {
+        $this->login();
+        $this->connect('michel@exemple.fr', 'a-refresh-token');
+
+        $this->asAnAdministrator(fn () => $this->requestJson('PUT', self::THE_CLIENT_OF_THE_ACCOUNT, ['clientId' => 'another-client', 'clientSecret' => 'its-secret']));
+        $checked = $this->requestJson('POST', '/api/me/connections/checks');
+
+        $this->assertSame([['google', 'toReconnect', 'michel@exemple.fr']], $this->seen($checked));
+        $this->assertSame(['client_id' => 'another-client'], array_intersect_key($this->addressQueryOf($this->requestJson('POST', '/api/me/connections/google/authorizations')), ['client_id' => true]));
     }
 
     public function testConnectingAnotherAccountRevokesTheFormerAccess(): void
@@ -257,23 +279,23 @@ class ConnectorsApiTest extends ApiTestCase
     }
 
     /**
-     * As an instance installed without its Google client (ADR 0124): the variables are read as the client of Google
-     * is first built, the next request of a client that reboots.
+     * The administrator of the account removes its client (ADR 0125), the member signed in before signed in again.
      */
     private function withoutAGoogleClient(): void
     {
-        foreach (self::GOOGLE_CLIENT as $variable) {
-            $this->formerVariables[$variable] = $_SERVER[$variable] ?? null;
-            $_SERVER[$variable] = $_ENV[$variable] = '';
-        }
+        $this->asAnAdministrator(fn () => $this->requestJson('DELETE', self::THE_CLIENT_OF_THE_ACCOUNT));
     }
 
-    protected function tearDown(): void
+    /**
+     * A gesture of an administrator of the account, between two requests of the member signed in.
+     */
+    private function asAnAdministrator(\Closure $gesture): void
     {
-        foreach ($this->formerVariables as $variable => $value) {
-            $_SERVER[$variable] = $_ENV[$variable] = $value;
-        }
-        parent::tearDown();
+        $member = $this->client->getServerParameter('HTTP_AUTHORIZATION');
+        $this->login($this->aMemberOfTheFixtures('administrator', Role::User, Role::Admin));
+        $gesture();
+        $this->assertResponseIsSuccessful();
+        $this->client->setServerParameter('HTTP_AUTHORIZATION', $member);
     }
 
     /**
@@ -299,9 +321,21 @@ class ConnectorsApiTest extends ApiTestCase
 
     private function stateOfANewAuthorization(): string
     {
-        parse_str((string) parse_url($this->requestJson('POST', '/api/me/connections/google/authorizations')['address'], \PHP_URL_QUERY), $query);
+        $query = $this->addressQueryOf($this->requestJson('POST', '/api/me/connections/google/authorizations'));
 
         return is_string($query['state'] ?? null) ? $query['state'] : throw new \LogicException('An authorization without state');
+    }
+
+    /**
+     * @param array<string, mixed> $authorization
+     *
+     * @return array<int|string, mixed>
+     */
+    private function addressQueryOf(array $authorization): array
+    {
+        parse_str((string) parse_url(is_string($authorization['address'] ?? null) ? $authorization['address'] : '', \PHP_URL_QUERY), $query);
+
+        return $query;
     }
 
     /**
