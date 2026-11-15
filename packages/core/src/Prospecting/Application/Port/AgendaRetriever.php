@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Prospecter\Core\Prospecting\Application\Port;
 
 use Prospecter\Core\Prospecting\Application\ExchangeInTimeline;
+use Prospecter\Core\Prospecting\Domain\Model\CalendarPeriod;
 use Prospecter\Core\Prospecting\Domain\Model\Prospector;
 
 /**
@@ -19,4 +20,18 @@ interface AgendaRetriever
      * @return list<ExchangeInTimeline>
      */
     public function plannedBy(Prospector $holder, \DateTimeImmutable $from, \DateTimeImmutable $until): array;
+
+    /**
+     * The exchanges the prospector planned happening in the period, its start included, the soonest first.
+     *
+     * @return list<ExchangeInTimeline>
+     */
+    public function plannedIn(Prospector $holder, CalendarPeriod $period): array;
+
+    /**
+     * The first `count` exchanges the prospector planned happening from `from` on, the soonest first.
+     *
+     * @return list<ExchangeInTimeline>
+     */
+    public function firstPlannedFrom(Prospector $holder, \DateTimeImmutable $from, int $count): array;
 }
