@@ -83,6 +83,10 @@ use Prospecter\Core\Prospecting\Application\ChangeLogo\ChangeLogoHandler;
 use Prospecter\Core\Prospecting\Application\ConsultCalendar\Calendar;
 use Prospecter\Core\Prospecting\Application\ConsultCalendar\ConsultCalendar;
 use Prospecter\Core\Prospecting\Application\ConsultCalendar\ConsultCalendarHandler;
+use Prospecter\Core\Prospecting\Application\ConsultMyDay\ConsultMyDay;
+use Prospecter\Core\Prospecting\Application\ConsultMyDay\ConsultMyDayHandler;
+use Prospecter\Core\Prospecting\Application\ConsultMyDay\KeptMyDay;
+use Prospecter\Core\Prospecting\Application\ConsultMyDay\MyDay;
 use Prospecter\Core\Prospecting\Application\ConsultCalendar\KeptCalendar;
 use Prospecter\Core\Prospecting\Application\ConsultExchange\ConsultExchange;
 use Prospecter\Core\Prospecting\Application\ConsultExchange\ConsultExchangeHandler;
@@ -664,6 +668,13 @@ final class Application
         $kept = new KeptCalendar();
 
         return $this->ask(new ConsultCalendarHandler($this->calendarRetriever, $this->prospectors), $query, $kept) ? $kept->calendar : null;
+    }
+
+    public function consultMyDay(ConsultMyDay $query): ?MyDay
+    {
+        $kept = new KeptMyDay();
+
+        return $this->ask(new ConsultMyDayHandler($this->agendaRetriever, $this->prospectors), $query, $kept) ? $kept->myDay : null;
     }
 
     public function consultTimelineIntents(ConsultTimelineIntents $query): ?TimelineIntentsResponse
