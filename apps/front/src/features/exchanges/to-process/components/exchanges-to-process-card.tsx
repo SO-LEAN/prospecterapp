@@ -163,7 +163,7 @@ function ExchangeToProcessLine({ item, leaving, onOpen, onLeave }: LineProps) {
 
 type GestureProps = { exchangeId: string; onLeave: LineProps['onLeave'] }
 
-/** Marked missed once its toast no longer lets it be taken back, the line taken away meanwhile. */
+/** Marked missed once its toast no longer lets it be taken back, the line taken away meanwhile, back when refused. */
 function MarkMissed({ exchangeId, onLeave }: GestureProps) {
   const { t } = useTranslation()
   const markMissed = useMarkExchangeMissed()
@@ -173,20 +173,24 @@ function MarkMissed({ exchangeId, onLeave }: GestureProps) {
     <Button
       variant="outline"
       size="sm"
-      onClick={() =>
+      onClick={() => {
+        const back = onLeave()
         undoable(
           t('exchanges.handling.markedMissed'),
-          () => markMissed.mutate({ params: { path: { id: exchangeId } } }),
-          onLeave(),
+          () => markMissed.mutate({ params: { path: { id: exchangeId } } }, { onError: back }),
+          back,
         )
-      }
+      }}
     >
       <PhoneMissed aria-hidden /> {t('exchanges.handling.missed')}
     </Button>
   )
 }
 
-/** Cancelled without saying by whom, once its toast no longer lets it be taken back, the line taken away meanwhile. */
+/**
+ * Cancelled without saying by whom, once its toast no longer lets it be taken back, the line taken away meanwhile,
+ * back when refused.
+ */
 function Cancel({ exchangeId, onLeave }: GestureProps) {
   const { t } = useTranslation()
   const cancel = useCancelExchange()
@@ -196,13 +200,18 @@ function Cancel({ exchangeId, onLeave }: GestureProps) {
     <Button
       variant="outline"
       size="sm"
-      onClick={() =>
+      onClick={() => {
+        const back = onLeave()
         undoable(
           t('exchanges.handling.cancelled'),
-          () => cancel.mutate({ params: { path: { id: exchangeId } }, body: { canceller: null } }),
-          onLeave(),
+          () =>
+            cancel.mutate(
+              { params: { path: { id: exchangeId } }, body: { canceller: null } },
+              { onError: back },
+            ),
+          back,
         )
-      }
+      }}
     >
       <Ban aria-hidden /> {t('toProcess.cancelled')}
     </Button>

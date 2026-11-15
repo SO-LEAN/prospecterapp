@@ -9,6 +9,7 @@ import {
   UserRound,
   UsersRound,
 } from 'lucide-react'
+import type { ComponentType } from 'react'
 import { useTranslation } from 'react-i18next'
 import { ToProcessCount } from '@/features/exchanges/to-process/components/to-process-count'
 import { cn } from '@/shared/lib/utils'
@@ -22,7 +23,7 @@ type Item = {
   icon: LucideIcon
   exact?: boolean
   /** What is left to do there, told beside it. */
-  count?: typeof ToProcessCount
+  count?: ComponentType<{ className?: string }>
 }
 
 const items: Item[] = [

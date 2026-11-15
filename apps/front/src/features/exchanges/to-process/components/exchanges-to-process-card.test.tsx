@@ -239,6 +239,24 @@ describe('the exchanges to process on the dashboard', () => {
     expect(sent('POST')).toEqual([])
   })
 
+  it('gives a line back when its gesture is refused', async () => {
+    const user = letTimeRun()
+    const call = ended('call', new Date(2026, 10, 13, 9, 0))
+    theApi.mockImplementation(async () =>
+      Response.json(
+        { type: 'about:blank', title: 'Refused', status: 409, reason: 'notPossibleInItsState' },
+        { status: 409, headers: { 'Content-Type': 'application/problem+json' } },
+      ),
+    )
+    await showTheCard([call])
+
+    await user.click(screen.getByRole('button', { name: 'Manqué' }))
+    await act(() => vi.advanceTimersByTimeAsync(UNDO_DELAY_MS))
+
+    await waitFor(() => expect(sent('POST')).toEqual([`/api/exchanges/${call.exchange.id}/missed`]))
+    expect(await screen.findByRole('button', { name: /Ada Lovelace/ })).toBeInTheDocument()
+  })
+
   it('tells that everything is up to date once the last one is processed', async () => {
     const user = letTimeRun()
     const call = ended('call', new Date(2026, 10, 13, 9, 0))
@@ -278,7 +296,14 @@ describe('the count of the exchanges to process in the menu', () => {
     expect(screen.queryByText(/à traiter/)).not.toBeInTheDocument()
   })
 
-  it('reads them again every five minutes', () => {
-    expect(exchangesToProcessQuery().refetchInterval).toBe(5 * 60_000)
+  it('reads them again every five minutes', async () => {
+    vi.useFakeTimers({ shouldAdvanceTime: true })
+    vi.setSystemTime(NOW)
+    theApiAnswers({}, [ended('call', new Date(2026, 10, 13, 8, 0))])
+    await showTheCount([])
+
+    await act(() => vi.advanceTimersByTimeAsync(5 * 60_000))
+
+    expect(await screen.findByText('1 échange à traiter')).toBeInTheDocument()
   })
 })
