@@ -38,6 +38,7 @@ final class ConnectGoogleController extends AbstractController
     #[OA\Response(response: 403, description: 'Google did not grant the access for this code', content: new Model(type: ProblemResource::class))]
     #[OA\Response(response: 404, description: 'No authorization of mine waits for this state: unknown, expired, or asked by another member', content: new Model(type: ProblemResource::class))]
     #[OA\Response(response: 422, description: 'The access to the calendar was not granted, or the answer is incomplete', content: new Model(type: ProblemResource::class))]
+    #[OA\Response(response: 503, description: 'The secret of the client cannot be kept nor read for now (`secretsUnavailable`)', content: new Model(type: ProblemResource::class))]
     public function __invoke(#[MapRequestPayload] GoogleAnswerInput $input, #[CurrentUser] User $user): JsonResponse
     {
         $this->commandBus->dispatch(new Connect(

@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Shared\Persistence;
 
+use App\Shared\ServiceUnavailable;
 use Aws\Ssm\Exception\SsmException;
 use Aws\Ssm\SsmClient;
 
@@ -11,6 +12,7 @@ use Aws\Ssm\SsmClient;
  * The secrets the accounts give the api, each a `SecureString` of SSM under the path of the instance, encrypted by
  * the key `aws/ssm` (ADR 0125). SSM is out of the unit of work: a secret is put at a new version, which the item
  * of its aggregate names, and read at that version only, so that a commit failing after the put keeps the former one.
+ * SSM refusing or failing, a role whose permissions do not allow it for instance, leaves the secrets out of reach.
  */
 final readonly class AccountSecrets
 {
@@ -26,7 +28,11 @@ final readonly class AccountSecrets
      */
     public function put(string $account, string $name, #[\SensitiveParameter] string $secret): int
     {
-        return (int) $this->ssm->putParameter(['Name' => $this->nameOf($account, $name), 'Value' => $secret, 'Type' => 'SecureString', 'Overwrite' => true])['Version'];
+        try {
+            return (int) $this->ssm->putParameter(['Name' => $this->nameOf($account, $name), 'Value' => $secret, 'Type' => 'SecureString', 'Overwrite' => true])['Version'];
+        } catch (SsmException $failure) {
+            throw ServiceUnavailable::secrets($failure);
+        }
     }
 
     public function find(string $account, string $name, int $version): ?string
@@ -34,7 +40,7 @@ final readonly class AccountSecrets
         try {
             return $this->ssm->getParameter(['Name' => sprintf('%s:%d', $this->nameOf($account, $name), $version), 'WithDecryption' => true])['Parameter']['Value'];
         } catch (SsmException $failure) {
-            return self::isMissing($failure) ? null : throw $failure;
+            return self::isMissing($failure) ? null : throw ServiceUnavailable::secrets($failure);
         }
     }
 
@@ -47,7 +53,7 @@ final readonly class AccountSecrets
             $this->ssm->deleteParameter(['Name' => $this->nameOf($account, $name)]);
         } catch (SsmException $failure) {
             if (!self::isMissing($failure)) {
-                throw $failure;
+                throw ServiceUnavailable::secrets($failure);
             }
         }
     }

@@ -5757,6 +5757,15 @@ export interface operations {
                     "application/json": components["schemas"]["ProblemResource"];
                 };
             };
+            /** @description The secret of the client cannot be kept nor read for now (`secretsUnavailable`) */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ProblemResource"];
+                };
+            };
         };
     };
     post_api_me_connections_check: {
@@ -5786,6 +5795,15 @@ export interface operations {
             };
             /** @description The signed-in user is not a user */
             403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ProblemResource"];
+                };
+            };
+            /** @description The secret of the client cannot be kept nor read for now (`secretsUnavailable`) */
+            503: {
                 headers: {
                     [name: string]: unknown;
                 };
@@ -5874,6 +5892,15 @@ export interface operations {
                     "application/json": components["schemas"]["ProblemResource"];
                 };
             };
+            /** @description The secret of the client cannot be kept nor read for now (`secretsUnavailable`) */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ProblemResource"];
+                };
+            };
         };
     };
     patch_api_me_configure_google_client: {
@@ -5916,6 +5943,15 @@ export interface operations {
             };
             /** @description A client without its id or its secret */
             422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ProblemResource"];
+                };
+            };
+            /** @description The secret of the client cannot be kept nor read for now (`secretsUnavailable`) */
+            503: {
                 headers: {
                     [name: string]: unknown;
                 };
@@ -5974,6 +6010,15 @@ export interface operations {
             };
             /** @description The access to the calendar was not granted, or the answer is incomplete */
             422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ProblemResource"];
+                };
+            };
+            /** @description The secret of the client cannot be kept nor read for now (`secretsUnavailable`) */
+            503: {
                 headers: {
                     [name: string]: unknown;
                 };
