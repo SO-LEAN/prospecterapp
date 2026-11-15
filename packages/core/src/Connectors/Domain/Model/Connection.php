@@ -198,6 +198,14 @@ final class Connection implements ReleasesEvents
         $this->recordThat(new Disconnected($this->accountId, $this->member, $at));
     }
 
+    /**
+     * Still connected, it reached its calendar at its last push; to reconnect, it reached nothing.
+     */
+    public function isConnected(): bool
+    {
+        return ConnectionState::Connected === $this->state;
+    }
+
     public function member(): MemberId
     {
         return $this->member;

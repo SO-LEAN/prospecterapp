@@ -101,7 +101,7 @@ The table of Reporting (`<prefix>-reporting`, ADR 0103, 0104) keeps figures deri
 
 ## Connectors
 
-The table of Connectors (`<prefix>-connectors`, ADR 0120) keeps the connections of the members to the services outside, the clients of the accounts at them (ADR 0125) and the exchanges pushed into the calendars of their holders (ADR 0127); nothing of it follows from another context, `app:consistency:check` leaves it out.
+The table of Connectors (`<prefix>-connectors`, ADR 0120) keeps the connections of the members to the services outside, the clients of the accounts at them (ADR 0125) and the exchanges pushed into the calendars of their holders (ADR 0127); only those entries follow from another context, the exchanges of Prospecting, and `app:consistency:check` leaves the table out, an entry left behind costing a withdrawal answered as done.
 
 | Item | PK | SK | Attributes |
 |---|---|---|---|
