@@ -6,10 +6,14 @@ namespace Prospecter\Core\Prospecting\Application\ConsultHeldExchanges;
 
 /**
  * An exchange as its holder holds it, read without restoring it: its status and its channel by the values of
- * `ExchangeStatus` and `Channel`, the first organization it is kept for.
+ * `ExchangeStatus` and `Channel`, the organizations it is kept for, none once it is left without one, about to be
+ * erased.
  */
 final readonly class HeldExchange
 {
+    /**
+     * @param list<string> $organizationIds
+     */
     public function __construct(
         public string $id,
         public string $holderId,
@@ -20,7 +24,7 @@ final readonly class HeldExchange
         public ?string $place,
         public ?string $link,
         public ?string $contactId,
-        public string $organizationId,
+        public array $organizationIds,
     ) {
     }
 }

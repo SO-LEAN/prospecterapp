@@ -27,6 +27,6 @@ final readonly class AccountsMembers implements Members
         ($this->consultMembersService)(new ConsultMembers([$member->value]), $kept);
         $consulted = $kept->members[$member->value] ?? throw UnknownMember::identifiedBy($member);
 
-        return new Member($member, new AccountId($consulted->accountId), $consulted->administers);
+        return new Member($member, new AccountId($consulted->accountId), $consulted->administers, $consulted->reminderMinutesBefore);
     }
 }
