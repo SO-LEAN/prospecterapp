@@ -5,6 +5,8 @@ import { Field } from './field'
 
 /** jsdom computes no layout: the class packing the rows of the grid at its top is what keeps them there. */
 const ROWS_PACKED_AT_THE_TOP = 'content-start'
+/** The smaller text of the optional mention would otherwise bring its taller line, the label two pixels higher. */
+const LINE_AS_HIGH_AS_THE_LABEL = 'leading-none'
 
 function fieldOf(label: string): HTMLElement {
   const field = screen.getByLabelText(label).parentElement
@@ -27,6 +29,21 @@ describe('Field', () => {
 
     expect(fieldOf('Identifiant du client')).toHaveClass(ROWS_PACKED_AT_THE_TOP)
     expect(fieldOf('Secret du client')).toHaveClass(ROWS_PACKED_AT_THE_TOP)
+  })
+
+  it('keeps its control at the height of the one beside it when it is optional', () => {
+    render(
+      <div className="grid sm:grid-cols-2">
+        <Field label="E-mail">
+          <Input />
+        </Field>
+        <Field label="Téléphone" optional="facultatif">
+          <Input />
+        </Field>
+      </div>,
+    )
+
+    expect(screen.getByText('(facultatif)')).toHaveClass(LINE_AS_HIGH_AS_THE_LABEL)
   })
 
   it('keeps its hint under its control', () => {
