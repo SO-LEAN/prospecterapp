@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Prospecter\Core\Connectors\Application\PushExchange;
 
 use Prospecter\Core\Connectors\Domain\Model\CalendarEntry;
+use Prospecter\Core\Connectors\Domain\Model\Connection;
 use Prospecter\Core\Connectors\Domain\Model\ExchangeId;
 use Prospecter\Core\Connectors\Domain\Model\HeldExchange;
 use Prospecter\Core\Connectors\Domain\Model\Provider;
@@ -25,8 +26,8 @@ use Prospecter\Core\SharedKernel\Domain\MemberId;
 /**
  * Reacts to each change of an exchange by reading it again as it is now, whatever the order the changes arrive in
  * (ADR 0127): planned, it is pushed into the calendar of its holder; cancelled or erased, it is withdrawn from it;
- * done or missed, it stays there as it was. Nothing is asked of the provider without a connection of the holder, nor
- * without the client of their account.
+ * done or missed, it stays there as it was, but for the name of its contact once forgotten. Nothing is asked of the
+ * provider without a connection of the holder, nor without the client of their account.
  */
 final readonly class PushExchangeHandler implements EventHandler
 {
@@ -52,11 +53,19 @@ final readonly class PushExchangeHandler implements EventHandler
         $accountId = new AccountId($fact->accountId);
         $exchange = $this->exchanges->find($accountId, $id);
 
-        if (null !== $exchange && $exchange->belongsInTheCalendar()) {
+        if (null !== $exchange && ($exchange->belongsInTheCalendar() || $this->namesAContactForgotten($exchange))) {
             $this->push($exchange, $fact->occurredAt);
         } elseif (null === $exchange || $exchange->isCalledOff()) {
             $this->withdraw($id, $accountId, $exchange?->holder, $fact->occurredAt);
         }
+    }
+
+    /**
+     * The event of an exchange done or missed, pushed while planned, names a contact PersonalData no longer names.
+     */
+    private function namesAContactForgotten(HeldExchange $exchange): bool
+    {
+        return $exchange->staysInTheCalendar() && null !== $exchange->contact && null === $this->contactNameOf($exchange) && null !== $this->entries->find($exchange->id);
     }
 
     private function push(HeldExchange $exchange, \DateTimeImmutable $at): void
@@ -70,8 +79,18 @@ final readonly class PushExchangeHandler implements EventHandler
         $holder = $this->members->get($exchange->holder);
         $connection->push($exchange->asCalendarEvent($this->contactNameOf($exchange), $holder->reminderMinutesBefore), $client->credentials(), $this->calendars, $at);
         $this->connections->save($connection);
-        $this->entries->save(CalendarEntry::of($exchange, self::PROVIDER));
+        $this->keepTheEntryOf($exchange, $connection);
         $this->publishWhatHappenedTo($connection);
+    }
+
+    /**
+     * Only an exchange the push reached the calendar with: a connection to reconnect pushed nothing.
+     */
+    private function keepTheEntryOf(HeldExchange $exchange, Connection $connection): void
+    {
+        if ($connection->isConnected()) {
+            $this->entries->save(CalendarEntry::of($exchange, self::PROVIDER));
+        }
     }
 
     private function contactNameOf(HeldExchange $exchange): ?string

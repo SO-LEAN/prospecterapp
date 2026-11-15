@@ -47,7 +47,16 @@ final readonly class HeldExchange
     }
 
     /**
-     * Its event, its contact named as its holder reads them, reminding them as they chose.
+     * Done or missed, its event stays; its contact forgotten, it no longer names them.
+     */
+    public function staysInTheCalendar(): bool
+    {
+        return in_array($this->status, [ExchangeStatus::Done, ExchangeStatus::Missed], true) && null !== $this->channel;
+    }
+
+    /**
+     * Its event, its contact named as its holder reads them, reminding them as they chose; a contact nobody names any
+     * more, forgotten, leaves it, the event leading to the organization.
      */
     public function asCalendarEvent(?string $contactName, ?int $reminderMinutesBefore): CalendarEvent
     {
@@ -57,7 +66,7 @@ final readonly class HeldExchange
             $this->startsAt,
             $this->startsAt->modify(sprintf('+%d minutes', $this->durationInMinutes ?? 0)),
             $this->venue,
-            $this->contact,
+            null === $contactName ? null : $this->contact,
             $contactName,
             $this->organization,
             $this->organizationName,
