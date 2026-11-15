@@ -16,5 +16,8 @@ export const checkedConnectionsQuery = () => ({
 export const googleConnectionOf = (connections: Connections): Connection | undefined =>
   connections.connections.find((connection) => connection.provider === 'google')
 
+/** The API offers to connect Google only while a client of Prospecter at Google serves the account. */
+export const isGoogleOffered = (connections: Connections) => connections._links.connectGoogle !== undefined
+
 export const isAnyToReconnect = (connections: Connections) =>
   connections.connections.some((connection) => connection.state === 'toReconnect')

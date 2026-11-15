@@ -248,6 +248,7 @@ export const fr = {
       toReconnect: 'Google n’accorde plus l’accès au compte {{account}} : reconnectez-le.',
       connect: 'Connecter',
       reconnect: 'Reconnecter',
+      unavailable: 'Google Agenda n’est pas disponible pour le moment.',
       disconnected: 'Votre compte Google est déconnecté.',
       disconnect: {
         action: 'Déconnecter',
