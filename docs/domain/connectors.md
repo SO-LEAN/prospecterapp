@@ -1,6 +1,6 @@
 # Connectors
 
-The connections of the members to the services outside Prospecter, Google Calendar first (ADR 0120), through the client each account made at the provider (ADR 0125). Code: `packages/core/src/Connectors`.
+The connections of the members to the services outside Prospecter, Google Calendar first (ADR 0120), through the client each account made at the provider (ADR 0125), and the planned exchanges pushed into the calendars of their holders there (ADR 0127). Code: `packages/core/src/Connectors`.
 
 ## Language
 
@@ -9,6 +9,10 @@ The connections of the members to the services outside Prospecter, Google Calend
 - **Provider** (`Provider`): the service outside, `google` the one so far.
 - **Authorization** (`PendingAuthorization`): what a member asked a provider, waiting for its answer: the `state` the provider gives back, the verifier of its code (PKCE), bound to the member for ten minutes.
 - **Grant** (`Grant`): what the provider granted for a code: the external account, its token, and whether it granted everything asked (the calendar).
+- **Calendar « Prospecter »**: the calendar Prospecter creates in the account of the member at the provider, and can touch alone (`calendar.app.created`); its id kept with the connection once created.
+- **Held exchange** (`HeldExchange`): an exchange as Prospecting tells it now, its holder, where it stands (`ExchangeStatus`), its channel (`Channel`), its moment, its duration, its place or link, its contact and its organization.
+- **Event** (`CalendarEvent`): a planned exchange as its holder finds it in their calendar: when, how and where, with whom, the card it leads to, the reminder before it; worded by the adapter of the provider.
+- **Entry** (`CalendarEntry`): an exchange pushed into the calendar of its holder, kept to withdraw it once Prospecting erased it.
 
 ## Rules
 
@@ -18,18 +22,19 @@ The connections of the members to the services outside Prospecter, Google Calend
 - Connecting again replaces the account and the token of the connection, connected again; the former access to another account is revoked at the provider, that of the same account is not, Google revoking with a token the whole grant of its account (`Connection::renew()`).
 - A connection is checked with its provider through the client of the account (`CheckMyConnections`, as the page of the connectors opens): a token the provider refuses, or a token granted to another client than that of the account (the administrator changed it), makes it **to reconnect** (`Connection::check()`), once; a new secret of the same client keeps it; without a client of the account it is not checked, kept as last seen.
 - Disconnecting revokes the access at the provider, then forgets the connection (`Disconnect`), refused without a connection (`NoConnection`); a revocation failing does not keep it.
+- Each change of an exchange is pushed (`PushExchange`, reacting to `ExchangeFactsChanged`), the exchange read again from Prospecting, the latest state winning whatever the order of the deliveries (ADR 0127): planned, a call, a meeting or a video call is put into the calendar « Prospecter » of its holder, created at the first push and again once its member deleted it, its contact named as its holder reads them (`ContactNames`), reminded at the delay of the holder, none when they turned their reminders off; done or missed, its event stays as it was; cancelled, or erased (its contact forgotten cancels it, ADR 0112), it is withdrawn, an erased one from the calendar of its entry. Without a connection of the holder, connected, nor a client of their account, nothing is asked of the provider; a token of another client, or one the provider refuses, makes the connection **to reconnect**, nothing tried again; a push the provider refuses for good is refused (`CalendarRefusedThePush`).
 - A member reads their own connections only (`ConsultMyConnections`); the address of their external account, personal data kept outside PersonalData, is theirs alone and forgotten when they disconnect (ADR 0120).
 
 ## What it publishes
 
-Nothing yet; its domain events (`Connected`, `ConnectionLost`, `Disconnected`, `ClientConfigured`, `ClientRemoved`) stay in the context. It reads the account of a member, and whether they administer it, from Accounts (`Members`, `ConsultMembersService`).
+Nothing yet; its domain events (`Connected`, `ConnectionLost`, `Disconnected`, `ClientConfigured`, `ClientRemoved`) stay in the context. It reads the account of a member, whether they administer it and their reminder, from Accounts (`Members`, `ConsultMembersService`), the exchanges from Prospecting (`HeldExchanges`, `ConsultHeldExchangesService`), the names of the contacts from PersonalData (`ContactNames`, `NameContactsService`), and reacts to the facts of the exchanges (`ExchangeFactsChanged`).
 
 ## Features
 
-`connecter-mon-compte-google`, `configurer-le-client-google`.
+`connecter-mon-compte-google`, `configurer-le-client-google`, `pousser-mes-echanges-dans-google-agenda`.
 
 ## In the code
 
-- `src/Connectors/Domain`: `Connection`, `ProviderClient`, `ClientCredentials`, `Member`, `PendingAuthorization`, `Grant`, `RefreshToken`, `Provider`, `ConnectionState`; the repositories `ConnectionRepository`, `AuthorizationRepository`, `ProviderClientRepository`; the ports `ProviderAccess` (exchange a code and tell whether a token still grants, through the credentials of a client; revoke a token) and `Members`, implemented by the API.
-- `src/Connectors/Application`: `AskForAuthorization`, `Connect`, `CheckMyConnections`, `Disconnect`, `ConsultMyConnections` (`MyConnection`, the port `MyConnectionsRetriever`), `ConfigureClient`, `RemoveClient`, `ConsultMyAccountClients` (`AccountClient`, the port `AccountClientsRetriever`).
+- `src/Connectors/Domain`: `Connection` (its `push()` and `withdraw()`), `ProviderClient`, `ClientCredentials`, `Member`, `PendingAuthorization`, `Grant`, `RefreshToken`, `Provider`, `ConnectionState`, `HeldExchange`, `CalendarEvent`, `CalendarEntry`, `ExchangeId`, `ExchangeStatus`, `Channel`; the repositories `ConnectionRepository`, `AuthorizationRepository`, `ProviderClientRepository`, `CalendarEntryRepository`; the ports `ProviderAccess` (exchange a code and tell whether a token still grants, through the credentials of a client; revoke a token), `ProviderCalendar` (create the calendar « Prospecter », put an event, remove it: `AccessRevoked`, `CalendarGone`, `CalendarRefusedThePush`), `Members`, `HeldExchanges` and `ContactNames`, implemented by the API.
+- `src/Connectors/Application`: `AskForAuthorization`, `Connect`, `CheckMyConnections`, `Disconnect`, `ConsultMyConnections` (`MyConnection`, the port `MyConnectionsRetriever`), `ConfigureClient`, `RemoveClient`, `ConsultMyAccountClients` (`AccountClient`, the port `AccountClientsRetriever`), `PushExchange` (the reaction to `ExchangeFactsChanged`, the subscription `connectors-push-exchange`).
 - In the API: the table and its items in `docs/architecture/persistence.md`, the endpoints in `docs/architecture/api.md`, Google and its double in `docs/architecture/local-stack.md` and `infra.md`.

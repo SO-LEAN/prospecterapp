@@ -21,7 +21,7 @@ An organization using Prospecter, and the members working in it. Code: `packages
 
 ## What it publishes
 
-- The service `ConsultMembersService` (who the members are: their account, their profile, their right to the personal data, whether they administer their account, `AdministrationRight`), asked by Prospecting, PersonalData and Connectors (ADR 0089, 0125).
+- The service `ConsultMembersService` (who the members are: their account, their profile, their right to the personal data, whether they administer their account, `AdministrationRight`, and how long before their planned exchanges they are reminded, none when they turned their reminders off), asked by Prospecting, PersonalData and Connectors (ADR 0089, 0125, 0127).
 - The service `ListAccountsService` (the identities of the accounts, by slice), for a context counting by account which accounts there are (ADR 0099).
 - The integration events `AccountOpened` and `MemberRegistered`, on which PersonalData collects the profile of the founder or of the member (ADR 0046).
 
