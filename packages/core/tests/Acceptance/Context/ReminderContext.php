@@ -29,6 +29,7 @@ final class ReminderContext implements Context
     }
 
     #[When('je règle mes rappels à :minutes minutes avant')]
+    #[Given('mes rappels sont réglés à :minutes minutes avant')]
     public function iSetMyRemindersTo(int $minutes): void
     {
         $this->application->dispatch(new ChangeMyReminders($this->application->signedIn(), true, $minutes, $this->application->now()));

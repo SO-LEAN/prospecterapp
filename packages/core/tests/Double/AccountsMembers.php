@@ -15,7 +15,7 @@ use Prospecter\Core\SharedKernel\Domain\MemberId;
 
 /**
  * Anticorruption layer of the API, in the scenarios (ADR 0045, 0089): Connectors knows the account of a member, and
- * whether they administer it, from Accounts, asked about a set of one.
+ * whether they administer it, and how long before their exchanges they are reminded, from Accounts, asked about a set of one.
  */
 final readonly class AccountsMembers implements Members
 {
@@ -29,6 +29,6 @@ final readonly class AccountsMembers implements Members
         ($this->consultMembersService)(new ConsultMembers([$member->value]), $kept);
         $consulted = $kept->members[$member->value] ?? throw UnknownMember::identifiedBy($member);
 
-        return new Member($member, new AccountId($consulted->accountId), $consulted->administers);
+        return new Member($member, new AccountId($consulted->accountId), $consulted->administers, $consulted->reminderMinutesBefore);
     }
 }
