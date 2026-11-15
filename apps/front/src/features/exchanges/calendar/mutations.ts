@@ -1,10 +1,11 @@
 import { type QueryClient, useMutation, useQueryClient } from '@tanstack/react-query'
+import { useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 import { toast } from 'sonner'
 import { fetchClient } from '@/shared/api/client'
 import { queryKeys } from '@/shared/api/keys'
 import { dataOf } from '@/shared/api/slices'
-import { readTheTimelinesAgain, UNDO_DELAY_MS } from '../mutations'
+import { readTheTimelinesAgain } from '../mutations'
 import { exchangeQuery } from '../queries'
 import { withTheGesture } from './gestures'
 import type { CalendarExchange } from './queries'
@@ -19,11 +20,14 @@ export type CalendarMove = {
 
 type Calendar = { items: CalendarExchange[] }
 
+/** The one toast offering to move back the last exchange moved: the next move takes its place. */
+const LAST_MOVE_TOAST = 'last-move-in-the-calendar'
+
 /**
  * An exchange dragged or stretched in the calendar: shown at once where it was dropped, set back where it was when
  * the API refuses, the refusal told by the toast of every mutation (`query-client.ts`), the calendar read again
- * either way; once moved, its toast offers to move it back. What follows is in the options of the mutation, the
- * toast outliving any component.
+ * either way; once moved, its toast offers to move it back, however long the member takes, until another exchange is
+ * moved or the calendar is left. What follows is in the options of the mutation, the toast outliving any component.
  */
 export function useMoveInTheCalendar() {
   const queryClient = useQueryClient()
@@ -56,11 +60,14 @@ export function useMoveInTheCalendar() {
         return
       }
       toast.success(t('exchanges.handling.moved'), {
-        duration: UNDO_DELAY_MS,
+        id: LAST_MOVE_TOAST,
+        duration: Number.POSITIVE_INFINITY,
         action: { label: t('common.undo'), onClick: () => move.mutate(backWhereItWas(item)) },
       })
     },
   })
+
+  useEffect(() => () => void toast.dismiss(LAST_MOVE_TOAST), [])
 
   return move
 }
