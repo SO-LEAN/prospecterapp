@@ -42,7 +42,7 @@ src/
     i18n/               setup, fr.ts, de.ts (the elision of « de »)
     forms/              section form, FormField, CountryField, shared field groups (AddressFields, ContactDetailsFields, LegalIdentityFields, PersonNameFields)
     lib/ hooks/ stores/ utilities (route-params.ts: UUID route params, a 404 of the API as a not found page; member-name.ts: how a member is shown, their name, else the email of their profile, else « Membre sans nom »), hooks, Zustand stores
-  test/                 setup.ts: the Vitest setup; render-in-a-router.tsx: renders a component holding links in a memory router; render-the-spa.tsx: the SPA on its routes, opened at a path
+  test/                 setup.ts: the Vitest setup; render-in-a-router.tsx: renders a component holding links in a memory router; render-the-spa.tsx: the SPA on its routes, opened at a path, the refusals of its mutations told in toasts as in the app
 lint/                   translated-texts.grit: the plugin of Biome refusing a text written in the code (ADR 0093), and its test
 e2e/                    Playwright journeys, only what no other test links (ADR 0122), together but those that must run after them, the main journey and the dashboard (docs/architecture/tests.md); fixtures.ts, their test: the maps on a double, no host outside the stack; wait-for-the-stack.ts, their global setup, waits for the SPA, the api and the storage, its functions warm; sign-in.ts signs the demonstration member in, or once for the journeys of a file; colors.ts reads the painted colors and their WCAG contrast
 ```
