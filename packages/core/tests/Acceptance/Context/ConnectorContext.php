@@ -196,7 +196,7 @@ final class ConnectorContext implements Context
 
     private function myGoogleConnection(): ?MyConnection
     {
-        return array_find($this->myConnections()?->connections ?? [], static fn (MyConnection $connection): bool => self::GOOGLE === $connection->provider);
+        return array_find($this->myConnections()->connections ?? [], static fn (MyConnection $connection): bool => self::GOOGLE === $connection->provider);
     }
 
     private function myConnections(): ?KeptConnections

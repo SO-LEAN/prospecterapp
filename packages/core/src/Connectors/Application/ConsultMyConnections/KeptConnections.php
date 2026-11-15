@@ -13,9 +13,12 @@ final class KeptConnections implements ConsultMyConnectionsOutput
 {
     /** @var list<MyConnection> */
     public private(set) array $connections = [];
+    /** @var list<string> */
+    public private(set) array $offered = [];
 
-    public function present(array $connections): void
+    public function present(array $connections, array $offered): void
     {
         $this->connections = $connections;
+        $this->offered = $offered;
     }
 }

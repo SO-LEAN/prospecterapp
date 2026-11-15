@@ -16,6 +16,11 @@ use Prospecter\Core\Connectors\Domain\Model\RefreshToken;
 interface ProviderAccess
 {
     /**
+     * False while no client of Prospecter at the provider is configured: nothing can be asked of it then.
+     */
+    public function hasClient(Provider $provider): bool;
+
+    /**
      * The access the provider grants for the code of authorization it gave the member, with its verifier (PKCE).
      *
      * @throws AccessNotGranted
