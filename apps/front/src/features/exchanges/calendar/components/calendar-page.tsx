@@ -7,7 +7,7 @@ import { PageHeader } from '@/shared/ui/page-header'
 import { Popover, PopoverContent, PopoverTrigger } from '@/shared/ui/popover'
 import type { Slot } from '../../planning'
 import { neighbourOf, type Period, periodOf, startOfDay, VIEWS, type View } from '../dates'
-import { useMoveInTheCalendar } from '../mutations'
+import { useMoveInTheCalendar, withdrawTheOfferToMoveBack } from '../mutations'
 import {
   type CalendarExchange,
   calendarQuery,
@@ -76,7 +76,11 @@ export function CalendarPage({ view, day, onShow, contactSummary, interlocutorSe
   const [opened, setOpened] = useState<CalendarExchange | null>(null)
   const [slot, setSlot] = useState<Slot | null>(null)
   const move = useMoveInTheCalendar()
-  const gestures = { onOpen: setOpened, onMove: move.mutate }
+  const open = (item: CalendarExchange) => {
+    withdrawTheOfferToMoveBack()
+    setOpened(item)
+  }
+  const gestures = { onOpen: open, onMove: move.mutate }
 
   useEffect(() => {
     if (view === 'day') readTheDaysAroundAhead(queryClient, day)
@@ -169,7 +173,7 @@ export function CalendarPage({ view, day, onShow, contactSummary, interlocutorSe
           {...gestures}
         />
       )}
-      {view === 'agenda' && <AgendaView items={data.items} now={now} onOpen={setOpened} />}
+      {view === 'agenda' && <AgendaView items={data.items} now={now} onOpen={open} />}
       <ExchangeDialog item={opened} onClose={() => setOpened(null)} contactSummary={contactSummary} />
       <PlanInASlot slot={slot} onClose={() => setSlot(null)} interlocutorSearch={interlocutorSearch} />
 

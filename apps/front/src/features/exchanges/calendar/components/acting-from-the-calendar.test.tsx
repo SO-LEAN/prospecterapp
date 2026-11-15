@@ -125,6 +125,11 @@ function drag(element: Element, from: { x: number; y: number }, to: { x: number;
   fireEvent.pointerUp(window, { pointerId: 1, clientX: to.x, clientY: to.y })
 }
 
+/** As in the app, the toaster is beside the page, not in it: a toast outlives the page it was raised on. */
+function theToasterOutlivesThePage() {
+  render(<Toaster />)
+}
+
 /** The refusals of the API told by the toast of every mutation, as in the app. */
 async function showTheCalendar(view: View, calendar: ReturnType<typeof aCalendarOf>) {
   const queryClient = new QueryClient({
@@ -133,7 +138,7 @@ async function showTheCalendar(view: View, calendar: ReturnType<typeof aCalendar
   })
   queryClient.setQueryData(calendarQuery(periodOf(view, TUESDAY)).queryKey, calendar)
   const onShow = vi.fn()
-  render(<Toaster />)
+  theToasterOutlivesThePage()
   const page = await renderInARouter(
     <QueryClientProvider client={queryClient}>
       <CalendarPage
@@ -153,7 +158,6 @@ async function showTheCalendar(view: View, calendar: ReturnType<typeof aCalendar
   return { onShow, leave: page.unmount }
 }
 
-/** The toasts outlive the page, as in the app: the toaster is beside it, not in it. */
 const theToastSaying = async (text: string) => (await screen.findByText(text)).closest('li') as HTMLElement
 
 /** The timers of the toasts too, still running on their own, so that minutes pass in an instant. */
@@ -262,6 +266,47 @@ describe('dragging an exchange to come', () => {
     drag(screen.getByRole('button', { name: /14h00, Visio/ }), { x: 150, y: 1400 }, { x: 250, y: 900 })
     await theToastSaying('Échange déplacé')
     leave()
+
+    await waitForElementToBeRemoved(() => screen.queryByText('Échange déplacé'))
+  })
+
+  it('tells a move the API answers once the calendar is left, without offering to move it back', async () => {
+    const visio = aVideoCall(new Date(2026, 10, 17, 14, 0))
+    const moved = aVideoCall(new Date(2026, 10, 18, 9, 0))
+    let answer: () => void = () => undefined
+    const answered = new Promise<void>((resolve) => {
+      answer = () => resolve()
+    })
+    theApiAnswers({
+      [`PATCH ${move.href}`]: async () => {
+        await answered
+        return { body: theDetail(moved) }
+      },
+      'GET /api/me/calendar': () => ({ body: aCalendarOf([moved]) }),
+    })
+    const { leave } = await showTheCalendar('week', aCalendarOf([visio]))
+
+    drag(screen.getByRole('button', { name: /14h00, Visio/ }), { x: 150, y: 1400 }, { x: 250, y: 900 })
+    leave()
+    answer()
+
+    const told = await theToastSaying('Échange déplacé')
+    expect(within(told).queryByRole('button', { name: 'Annuler' })).not.toBeInTheDocument()
+  })
+
+  it('no longer offers to move it back once an exchange is opened, which may be moved from there', async () => {
+    const visio = aVideoCall(new Date(2026, 10, 17, 14, 0))
+    const moved = aVideoCall(new Date(2026, 10, 18, 9, 0))
+    theApiAnswers({
+      [`PATCH ${move.href}`]: () => ({ body: theDetail(moved) }),
+      [`GET ${self.href}`]: () => ({ body: theDetail(moved) }),
+      'GET /api/me/calendar': () => ({ body: aCalendarOf([moved]) }),
+    })
+    await showTheCalendar('week', aCalendarOf([visio]))
+
+    drag(screen.getByRole('button', { name: /14h00, Visio/ }), { x: 150, y: 1400 }, { x: 250, y: 900 })
+    await theToastSaying('Échange déplacé')
+    await userEvent.click(await screen.findByRole('button', { name: /9h00, Visio/ }))
 
     await waitForElementToBeRemoved(() => screen.queryByText('Échange déplacé'))
   })
