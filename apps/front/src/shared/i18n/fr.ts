@@ -532,6 +532,7 @@ export const fr = {
     noConnection: 'Aucun compte n’est connecté.',
     accessNotGranted: 'Google n’a pas accordé l’accès : connectez votre compte à nouveau.',
     incompleteGrant: 'L’accès à l’agenda n’a pas été accordé : cochez-le lors de la connexion.',
+    providerUnavailable: 'Google n’est pas disponible pour le moment.',
   },
   validation: {
     required: 'Ce champ est obligatoire.',
