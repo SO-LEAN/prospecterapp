@@ -37,6 +37,12 @@ export function ToDoForm({ onSubmit, submitLabel, onCancel, defaultValues, onSub
     form.setFocus('text')
   }, [form])
 
+  /** The day chosen, the text takes the focus back, for Enter to add the to-do rather than press the shortcut again. */
+  const dueOnTheDayOf = (shortcut: DueShortcut) => {
+    form.setValue('dueOn', DUE_SHORTCUTS[shortcut](new Date()), { shouldValidate: true })
+    form.setFocus('text')
+  }
+
   const submitBy = (send: Submit) =>
     form.handleSubmit(async (values) => {
       setGlobalErrors([])
@@ -73,9 +79,7 @@ export function ToDoForm({ onSubmit, submitLabel, onCancel, defaultValues, onSub
             type="button"
             size="sm"
             variant="ghost"
-            onClick={() =>
-              form.setValue('dueOn', DUE_SHORTCUTS[shortcut](new Date()), { shouldValidate: true })
-            }
+            onClick={() => dueOnTheDayOf(shortcut)}
           >
             {t(`toDos.shortcut.${shortcut}`)}
           </Button>
