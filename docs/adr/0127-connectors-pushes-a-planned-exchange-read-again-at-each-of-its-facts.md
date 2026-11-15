@@ -28,7 +28,6 @@ A member connected to Google wants each exchange they plan in their « Prospecte
 - An exchange pushed then erased while the commit of its entry failed stays in Google: the entry is written by the same unit as the connection, after a push that reached the calendar.
 - The entries of a member disconnected stay until their exchanges are withdrawn, asking Google nothing then.
 - The state of the push shown to the member, a push tried again by hand, and the exchanges to come pushed at the connection are #95; they read the entries.
-
 - Without the filter, each fact of an exchange invoked the worker once more: from nothing, the local stack of `dev` peaked at 5.7 GiB of MiniStack and passed every journey, that of this branch peaked at 8.5 GiB, failed the reading of the organizations after a stop of prospecting, and its MiniStack was killed twice at 12.5 GiB.
 - A contact forgotten as their last organization is left: if the event of an exchange done is put again without the name while the exchange is being erased, it may stay in Google, nameless, its entry written again; #95, reading the entries, will weigh it.
 
@@ -36,7 +35,6 @@ A member connected to Google wants each exchange they plan in their « Prospecte
 
 - `ExchangeFactsChanged` enriched (v3) with the holder, the duration, the channel, the venue and the contact, named by the ticket: Connectors would have kept the last revision pushed of each exchange to ignore an older one delivered after it, and Reporting would have read a new version; the event would still lack the name of the contact. Refused for reading the state again.
 - The name of the contact carried by Prospecting in its fact, named by the ticket: Prospecting does not know it, and the outbox and the failures would keep it after the contact is forgotten. Refused for the published service of PersonalData.
-
 - The push without an inbox, its put and its removal being idempotent, weighed with the filter to lighten MiniStack: refused by Michel, the inbox being the rule of the reactions (`messaging.md`); the filter alone spares the invocations.
 
 ## Revisit when
