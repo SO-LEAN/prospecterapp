@@ -3,13 +3,15 @@
 namespace Tests\App\Double;
 
 use Symfony\Component\HttpClient\Response\JsonMockResponse;
+use Symfony\Component\HttpClient\Response\MockResponse;
 use Symfony\Contracts\HttpClient\ResponseInterface;
 
 /**
  * The OAuth 2 endpoints of Google as the tests see them (ADR 0092, 0120): its token endpoint refuses every call
  * without the id of a client and every code but the one a test makes it grant, grants every refresh until a test
- * makes it refuse them or the token was revoked, and its revocation keeps the tokens it revoked. Not reset between the requests of a client that does not reboot, so
- * that a test arranges it before its gestures.
+ * makes it refuse them or the token was revoked, and its revocation keeps the tokens it revoked; its calendars keep the
+ * events put into them (ADR 0127), an event Google does not know answered 404 to a `PUT`, created by a `POST` with its
+ * id. Not reset between the requests of a client that does not reboot, so that a test arranges it before its gestures.
  */
 final class GoogleDouble
 {
@@ -22,10 +24,13 @@ final class GoogleDouble
     private array $revoked = [];
     /** @var array{string, string}|null the id and the secret of the client the last token was asked by */
     private ?array $lastClient = null;
+    /** @var array<string, array<string, array<string, mixed>>> the events of each calendar, by their id */
+    private array $calendars = [];
 
     public function __construct(
         private readonly string $tokenUrl,
         private readonly string $revokeUrl,
+        private readonly string $calendarUrl,
     ) {
     }
 
@@ -55,19 +60,79 @@ final class GoogleDouble
         return $this->lastClient;
     }
 
+    /**
+     * @return array<string, array<string, mixed>> the events of every calendar, by their id
+     */
+    public function events(): array
+    {
+        return array_merge([], ...array_values($this->calendars));
+    }
+
     public function serves(string $url): bool
     {
-        return str_starts_with($url, $this->tokenUrl) || str_starts_with($url, $this->revokeUrl);
+        return str_starts_with($url, $this->tokenUrl) || str_starts_with($url, $this->revokeUrl) || str_starts_with($url, $this->calendarUrl);
     }
 
     /**
      * @param array<string, mixed> $options
      */
-    public function answer(string $url, array $options): ResponseInterface
+    public function answer(string $method, string $url, array $options): ResponseInterface
     {
-        $form = self::formOf($options);
+        return match (true) {
+            str_starts_with($url, $this->calendarUrl) => $this->calendar($method, (string) parse_url(substr($url, strlen($this->calendarUrl)), \PHP_URL_PATH), $options),
+            str_starts_with($url, $this->tokenUrl) => $this->token(self::formOf($options)),
+            default => $this->revoke(self::formOf($options)),
+        };
+    }
 
-        return str_starts_with($url, $this->tokenUrl) ? $this->token($form) : $this->revoke($form);
+    /**
+     * @param array<string, mixed> $options
+     */
+    private function calendar(string $method, string $path, array $options): ResponseInterface
+    {
+        $body = is_string($options['body'] ?? null) && '' !== $options['body'] ? (array) json_decode($options['body'], true) : [];
+        $segments = explode('/', trim($path, '/'));
+        $calendar = $segments[1] ?? '';
+        $event = $segments[3] ?? null;
+
+        if ('POST' === $method && ['calendars'] === $segments) {
+            $id = sprintf('calendar-of-the-double-%d', count($this->calendars) + 1);
+            $this->calendars[$id] = [];
+
+            return new JsonMockResponse(['id' => $id]);
+        }
+
+        if (!isset($this->calendars[$calendar])) {
+            return new MockResponse('', ['http_code' => 404]);
+        }
+
+        return match ($method) {
+            'PUT' => isset($this->calendars[$calendar][$event]) ? $this->put($calendar, (string) $event, $body) : new MockResponse('', ['http_code' => 404]),
+            'POST' => $this->put($calendar, (string) ($body['id'] ?? ''), $body),
+            'DELETE' => $this->delete($calendar, (string) $event),
+            default => new MockResponse('', ['http_code' => 405]),
+        };
+    }
+
+    /**
+     * @param array<string, mixed> $event
+     */
+    private function put(string $calendar, string $id, array $event): ResponseInterface
+    {
+        $this->calendars[$calendar][$id] = $event;
+
+        return new JsonMockResponse($event);
+    }
+
+    private function delete(string $calendar, string $event): ResponseInterface
+    {
+        if (!isset($this->calendars[$calendar][$event])) {
+            return new MockResponse('', ['http_code' => 410]);
+        }
+
+        unset($this->calendars[$calendar][$event]);
+
+        return new MockResponse('', ['http_code' => 204]);
     }
 
     /**

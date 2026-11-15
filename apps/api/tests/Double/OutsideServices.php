@@ -42,7 +42,7 @@ final class OutsideServices implements ResetInterface
     {
         return match (true) {
             null !== $this->placement && str_starts_with($url, $this->geocoderUrl) => new JsonMockResponse($this->placement),
-            $this->google->serves($url) => $this->google->answer($url, $options),
+            $this->google->serves($url) => $this->google->answer($method, $url, $options),
             default => new MockResponse(),
         };
     }
