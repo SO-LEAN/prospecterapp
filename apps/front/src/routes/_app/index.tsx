@@ -1,6 +1,7 @@
 import { useSuspenseQuery } from '@tanstack/react-query'
 import { createFileRoute, Link } from '@tanstack/react-router'
 import { ArrowRight } from 'lucide-react'
+import { Suspense } from 'react'
 import { useTranslation } from 'react-i18next'
 import { myFirstName } from '@/features/account/me'
 import { accountQuery } from '@/features/account/queries'
@@ -8,7 +9,7 @@ import { ContactSummary } from '@/features/contacts/components/contact-summary'
 import { DashboardFigures } from '@/features/dashboard/components/dashboard-figures'
 import { dashboardQuery } from '@/features/dashboard/queries'
 import { startOfDay } from '@/features/exchanges/calendar/dates'
-import { MyDayCards } from '@/features/exchanges/my-day/components/my-day-cards'
+import { MyDayCards, MyDaySkeleton } from '@/features/exchanges/my-day/components/my-day-cards'
 import { myDayQuery } from '@/features/exchanges/my-day/queries'
 import { OrganizationCard } from '@/features/organizations/components/organization-card'
 import { OrganizationPreview } from '@/features/organizations/components/organization-preview'
@@ -25,13 +26,14 @@ const RECENT = 4
 const recentQuery = () => organizationsQuery('')
 
 export const Route = createFileRoute('/_app/')({
-  loader: ({ context: { queryClient } }) =>
-    Promise.all([
+  loader: ({ context: { queryClient } }) => {
+    void queryClient.prefetchQuery(myDayQuery(startOfDay(new Date())))
+    return Promise.all([
       queryClient.ensureQueryData(dashboardQuery()),
       ensureSharedQueryData(queryClient, accountQuery()),
       queryClient.ensureQueryData(recentQuery()),
-      queryClient.ensureQueryData(myDayQuery(startOfDay(new Date()))),
-    ]),
+    ])
+  },
   pendingComponent: () => <PageSkeleton />,
   errorComponent: ({ error, reset }) => <ErrorState error={error} reset={reset} />,
   component: Dashboard,
@@ -66,7 +68,9 @@ function Dashboard() {
       <DashboardFigures stats={dashboard.stats} />
 
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
-        <MyDayCards contactSummary={(contactId) => <ContactSummary contactId={contactId} />} />
+        <Suspense fallback={<MyDaySkeleton />}>
+          <MyDayCards contactSummary={(contactId) => <ContactSummary contactId={contactId} />} />
+        </Suspense>
       </div>
 
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-5">

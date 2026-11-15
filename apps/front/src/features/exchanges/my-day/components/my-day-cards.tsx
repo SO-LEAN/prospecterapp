@@ -8,6 +8,7 @@ import { cn } from '@/shared/lib/utils'
 import { Badge } from '@/shared/ui/badge'
 import { Button } from '@/shared/ui/button'
 import { Card, CardAction, CardContent, CardHeader, CardTitle } from '@/shared/ui/card'
+import { Skeleton } from '@/shared/ui/skeleton'
 import { ExchangeDialog } from '../../calendar/components/exchange-dialog'
 import { isToHandle, startOfDay } from '../../calendar/dates'
 import { CHANNEL_ICONS } from '../../components/exchange-line'
@@ -51,6 +52,23 @@ export function MyDayCards({ contactSummary }: Props) {
       />
     </>
   )
+}
+
+const CARDS = ['today', 'upcoming'] as const
+
+/** The two cards while my day is read, the rest of the dashboard already shown. */
+export function MyDaySkeleton() {
+  return CARDS.map((card) => (
+    <Card key={card}>
+      <CardHeader>
+        <Skeleton className="h-5 w-24" />
+      </CardHeader>
+      <CardContent className="space-y-2">
+        <Skeleton className="h-16 w-full" />
+        <Skeleton className="h-16 w-full" />
+      </CardContent>
+    </Card>
+  ))
 }
 
 type CardProps = {
