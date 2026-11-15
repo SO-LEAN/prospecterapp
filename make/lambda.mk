@@ -5,10 +5,10 @@ LAMBDA_APP := $(notdir $(CURDIR))
 LAMBDA_BUILD = $(ROOT)/build/$(LAMBDA_APP)
 LAMBDA_LEFT_OUT = vendor var tests infra .env.* phpunit.xml.dist phpunit.dist.xml phpstan.dist.neon rector.php AGENTS.md \
 	CLAUDE.md Makefile
-# what the core needs for its own tests; the doc of the api loads Swagger UI from its CDN (assets_mode of
-# nelmio_api_doc): its copies are of no use
+# what the core needs for its own tests, and the caches of its lint and of its mutations (its var/); the doc of the
+# api loads Swagger UI from its CDN (assets_mode of nelmio_api_doc): its copies are of no use
 LAMBDA_DEV_FILES = vendor/prospecter/core/vendor vendor/prospecter/core/tests vendor/prospecter/core/features \
-	vendor/prospecter/core/Makefile vendor/nelmio/api-doc-bundle/public public/bundles
+	vendor/prospecter/core/Makefile vendor/prospecter/core/var vendor/nelmio/api-doc-bundle/public public/bundles
 # the routes of the api are bound to the host of the instance (APP_API_HOST), unknown here: the router is compiled at
 # the first request, in /tmp
 LAMBDA_ROUTERS = var/cache/prod/url_matching_routes.php* var/cache/prod/url_generating_routes.php*

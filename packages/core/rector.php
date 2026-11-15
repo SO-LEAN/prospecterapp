@@ -10,6 +10,8 @@ return RectorConfig::configure()
         __DIR__.'/src',
         __DIR__.'/tests',
     ])
+    // its cache in the checkout, kept from one run to the next (the /tmp of the container goes with it)
+    ->withCache(__DIR__.'/var/cache/rector')
     ->withPhpSets()
     ->withPreparedSets(
         deadCode: true,
