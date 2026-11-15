@@ -3,7 +3,9 @@
 namespace App\Connectors\Resource;
 
 use OpenApi\Attributes as OA;
+use Symfony\Component\Serializer\Attribute\Context;
 use Symfony\Component\Serializer\Attribute\SerializedName;
+use Symfony\Component\Serializer\Normalizer\AbstractObjectNormalizer;
 
 /**
  * A connection of mine to a provider: connected, or to reconnect once the provider refused its access.
@@ -19,6 +21,7 @@ final readonly class ConnectionResource
         public string $account,
         public \DateTimeImmutable $connectedAt,
         #[SerializedName('_links')]
+        #[Context([AbstractObjectNormalizer::SKIP_NULL_VALUES => true])]
         public ConnectionLinksResource $links,
     ) {
     }

@@ -6,9 +6,9 @@ use Symfony\Component\HttpClient\Response\JsonMockResponse;
 use Symfony\Contracts\HttpClient\ResponseInterface;
 
 /**
- * The OAuth 2 endpoints of Google as the tests see them (ADR 0092, 0120): its token endpoint refuses every code but
- * the one a test makes it grant, grants every refresh until a test makes it refuse them or the token was revoked, and
- * its revocation keeps the tokens it revoked. Not reset between the requests of a client that does not reboot, so
+ * The OAuth 2 endpoints of Google as the tests see them (ADR 0092, 0120): its token endpoint refuses every call
+ * without the id of a client and every code but the one a test makes it grant, grants every refresh until a test
+ * makes it refuse them or the token was revoked, and its revocation keeps the tokens it revoked. Not reset between the requests of a client that does not reboot, so
  * that a test arranges it before its gestures.
  */
 final class GoogleDouble
@@ -78,6 +78,10 @@ final class GoogleDouble
      */
     private function token(array $form): ResponseInterface
     {
+        if ('' === ($form['client_id'] ?? '')) {
+            return new JsonMockResponse(['error' => 'invalid_client'], ['http_code' => 401]);
+        }
+
         return match ($form['grant_type'] ?? null) {
             'authorization_code' => $this->exchange($form['code'] ?? ''),
             'refresh_token' => $this->refuses($form['refresh_token'] ?? '') ? self::invalidGrant() : new JsonMockResponse(['access_token' => 'an-access-token']),

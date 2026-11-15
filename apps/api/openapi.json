@@ -4600,6 +4600,16 @@
                                 }
                             }
                         }
+                    },
+                    "409": {
+                        "description": "No client of Prospecter at Google serves the account (`providerUnavailable`): the link `connectGoogle` is missing",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ProblemResource"
+                                }
+                            }
+                        }
                     }
                 }
             }
@@ -7031,8 +7041,7 @@
             },
             "ConnectionLinksResource": {
                 "required": [
-                    "disconnect",
-                    "reconnect"
+                    "disconnect"
                 ],
                 "properties": {
                     "disconnect": {
@@ -7084,8 +7093,7 @@
             "ConnectionsLinksResource": {
                 "required": [
                     "self",
-                    "check",
-                    "connectGoogle"
+                    "check"
                 ],
                 "properties": {
                     "self": {

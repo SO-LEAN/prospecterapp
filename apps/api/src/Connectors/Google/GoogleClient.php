@@ -25,4 +25,12 @@ final readonly class GoogleClient
         public string $revokeUrl,
     ) {
     }
+
+    /**
+     * An instance installed without its client at Google has both values empty (ADR 0124).
+     */
+    public function isConfigured(): bool
+    {
+        return '' !== $this->id && '' !== $this->secret;
+    }
 }

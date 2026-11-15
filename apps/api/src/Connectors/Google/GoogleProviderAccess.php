@@ -33,6 +33,11 @@ final readonly class GoogleProviderAccess implements ProviderAccess
     ) {
     }
 
+    public function hasClient(Provider $provider): bool
+    {
+        return $this->client->isConfigured();
+    }
+
     public function exchange(Provider $provider, string $code, string $codeVerifier): Grant
     {
         $response = $this->token([
