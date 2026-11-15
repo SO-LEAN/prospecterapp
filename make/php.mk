@@ -12,7 +12,7 @@ lint-phpstan:
 	@$(PHP) vendor/bin/phpstan analyse --no-progress
 
 lint-style:
-	@$(PHP) vendor/bin/php-cs-fixer fix --dry-run --diff --show-progress=none $(if $(FILTER),--path-mode=intersection $(FILTER))
+	@$(PHP) vendor/bin/php-cs-fixer fix --config=.php-cs-fixer.dist.php --dry-run --diff --show-progress=none $(if $(FILTER),--path-mode=intersection $(FILTER))
 
 lint-rector:
 	@$(PHP) vendor/bin/rector process --dry-run $(FILTER)
