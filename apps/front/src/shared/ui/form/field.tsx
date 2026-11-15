@@ -23,7 +23,9 @@ export function Field({ label, error, hint, optional, className, children }: Pro
     <div className={cn('grid content-start gap-2', className)}>
       <Label htmlFor={id} className="flex items-baseline gap-1.5">
         {label}
-        {optional && <span className="font-normal text-muted-foreground text-xs">({optional})</span>}
+        {optional && (
+          <span className="font-normal text-muted-foreground text-xs leading-none">({optional})</span>
+        )}
       </Label>
       {cloneElement(children, {
         id,
