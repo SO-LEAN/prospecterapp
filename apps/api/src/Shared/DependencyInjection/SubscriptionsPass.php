@@ -14,12 +14,12 @@ use Symfony\Component\DependencyInjection\Reference;
  * event bus (RefusalTranslatingHandlersPass); every other one is the reaction of a subscription of
  * `config/subscriptions.json`, the list the infrastructure reads too, taken off the event bus and reached through
  * its decorators by the delivery (Subscriptions). A subscription names its reaction (`handler`), or one per event it
- * listens to (`handlers`, by detail-type). A reaction the list does not name fails the build. A service tagged
+ * listens to (`handlers`, by detail-type), and the payloads it listens to when not all (`payload`). A reaction the list does not name fails the build. A service tagged
  * app.subscription is a subscription too, declared by its tag, unknown to the infrastructure: a reaction of the
  * tests.
  *
- * @phpstan-type Listed array{context: string, sources: list<string>, events: list<string>, handler?: string, handlers?: array<string, string>, inbox: bool}
- * @phpstan-type Declared array{context: string, sources: list<string>, events: list<string>, handlers: array<string, string>, inbox: bool}
+ * @phpstan-type Listed array{context: string, sources: list<string>, events: list<string>, payload?: array<string, mixed>, handler?: string, handlers?: array<string, string>, inbox: bool}
+ * @phpstan-type Declared array{context: string, sources: list<string>, events: list<string>, payload?: array<string, mixed>, handlers: array<string, string>, inbox: bool}
  */
 final class SubscriptionsPass implements CompilerPassInterface
 {

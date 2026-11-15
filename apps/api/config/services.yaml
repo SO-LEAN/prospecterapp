@@ -66,6 +66,7 @@ services:
     Prospecter\Core\PersonalData\Domain\Service\EmailUniqueness: ~
     Prospecter\Core\Reporting\Application\FactRecorder: ~
     Prospecter\Core\Reporting\Application\RebuildFigures\SourceFacts: ~
+    Prospecter\Core\Connectors\Application\CalendarPusher: ~
 
     # DynamoDB (ADR 0048): MiniStack locally (DYNAMODB_ENDPOINT), AWS in production (DYNAMODB_ENDPOINT empty);
     # one table per bounded context, injected by name in its repositories only (Table $prospectingTable)

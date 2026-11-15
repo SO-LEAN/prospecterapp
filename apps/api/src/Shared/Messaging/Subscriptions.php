@@ -7,9 +7,10 @@ use Psr\Container\ContainerInterface;
 
 /**
  * The subscriptions of `config/subscriptions.json`, and their reactions to each event they listen to, through their
- * decorators (`App\Shared\DependencyInjection\SubscriptionsPass`).
+ * decorators (`App\Shared\DependencyInjection\SubscriptionsPass`); a subscription naming the payloads it listens to
+ * reacts to those only, as its rule of the bus passes them (`PayloadPattern`, ADR 0127).
  *
- * @phpstan-type Declared array{context: string, sources: list<string>, events: list<string>, inbox: bool}
+ * @phpstan-type Declared array{context: string, sources: list<string>, events: list<string>, payload?: array<string, mixed>, inbox: bool}
  */
 final readonly class Subscriptions
 {
@@ -36,7 +37,7 @@ final readonly class Subscriptions
     {
         $listening = array_filter(
             $this->subscriptions,
-            static fn (array $subscription): bool => in_array($event->source, $subscription['sources'], true) && in_array($event->detailType, $subscription['events'], true),
+            static fn (array $subscription): bool => in_array($event->source, $subscription['sources'], true) && in_array($event->detailType, $subscription['events'], true) && PayloadPattern::matches($event->payload, $subscription['payload'] ?? []),
         );
 
         return array_map(fn (string $name): EventHandler => $this->reactions->get(self::reactionKey($name, $event->detailType)), array_keys($listening));

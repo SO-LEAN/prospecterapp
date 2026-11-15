@@ -162,7 +162,7 @@ deploy_worker() {
     done
     for subscription in $(jq -r 'keys[]' /build/subscriptions.json); do
         aws events put-rule --name "$subscription" --event-bus-name prospecter-dev-integration \
-            --event-pattern "$(jq -c --arg name "$subscription" '.[$name] | {source: .sources, "detail-type": .events}' /build/subscriptions.json)" >/dev/null
+            --event-pattern "$(jq -c --arg name "$subscription" '.[$name] | {source: .sources, "detail-type": .events} + (if .payload then {detail: {payload: .payload}} else {} end)' /build/subscriptions.json)" >/dev/null
         aws events put-targets --rule "$subscription" --event-bus-name prospecter-dev-integration \
             --targets "$(jq -c -n --arg name "$subscription" --arg worker "$worker" '[{Id: "worker", Arn: $worker, InputTransformer: {
                 InputPathsMap: {source: "$.source", detailType: "$.detail-type", detail: "$.detail"},

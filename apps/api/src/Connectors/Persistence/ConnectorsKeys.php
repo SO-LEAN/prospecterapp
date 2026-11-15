@@ -15,6 +15,7 @@ final class ConnectorsKeys
     private const string CLIENT = 'CLIENT';
     private const string EXCHANGE = 'EXCHANGE';
     private const string ENTRY = 'ENTRY';
+    private const string CONTACT = 'CONTACT';
 
     public static function member(string $id): string
     {
@@ -44,6 +45,16 @@ final class ConnectorsKeys
     public static function entry(string $provider): string
     {
         return self::ENTRY.'#'.$provider;
+    }
+
+    public static function entryOf(string $exchange, string $provider): string
+    {
+        return self::ENTRY.'#'.$exchange.'#'.$provider;
+    }
+
+    public static function contact(string $person): string
+    {
+        return self::CONTACT.'#'.$person;
     }
 
     public static function authorization(string $state): string

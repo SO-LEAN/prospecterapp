@@ -247,7 +247,11 @@ resource "aws_cloudwatch_event_rule" "subscription" {
   name           = each.key
   description    = "The subscription ${each.key}"
   event_bus_name = aws_cloudwatch_event_bus.integration.name
-  event_pattern  = jsonencode({ source = each.value.sources, "detail-type" = each.value.events })
+  # the payloads a subscription listens to, when not all, under the detail (ADR 0127)
+  event_pattern = jsonencode(merge(
+    { source = each.value.sources, "detail-type" = each.value.events },
+    can(each.value.payload) ? { detail = { payload = each.value.payload } } : {},
+  ))
 }
 
 # the worker given the name of the subscription and the event; retried by EventBridge for a day when it cannot be
