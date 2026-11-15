@@ -19,6 +19,12 @@ final readonly class Slot
         return $this->duration->endOf($this->start);
     }
 
+    #[\NoDiscard]
+    public function hasEndedBy(\DateTimeImmutable $moment): bool
+    {
+        return $this->end() <= $moment;
+    }
+
     /**
      * One ending when the other starts does not overlap it.
      */
