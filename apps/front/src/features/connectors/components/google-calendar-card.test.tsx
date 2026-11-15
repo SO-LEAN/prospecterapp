@@ -36,12 +36,12 @@ const noConnection: Connections = {
   },
 }
 
-function renderTheCard(shown: Connection | undefined) {
+function renderTheCard(shown: Connection | undefined, offered = true) {
   const queryClient = new QueryClient()
   const goTo = vi.fn()
   render(
     <QueryClientProvider client={queryClient}>
-      <GoogleCalendarCard connection={shown} goTo={goTo} />
+      <GoogleCalendarCard connection={shown} offered={offered} goTo={goTo} />
       <Toaster />
     </QueryClientProvider>,
   )
@@ -103,5 +103,21 @@ describe('GoogleCalendarCard', () => {
     await waitFor(() => expect(queryClient.getQueryData(connectionsQuery().queryKey)).toEqual(noConnection))
     expect(await screen.findByText('Votre compte Google est déconnecté.')).toBeInTheDocument()
     expect(screen.queryByRole('dialog')).not.toBeInTheDocument()
+  })
+
+  it('says Google is unavailable and offers no connection while it is not offered', () => {
+    renderTheCard(undefined, false)
+
+    expect(screen.getByText('Google Agenda n’est pas disponible pour le moment.')).toBeInTheDocument()
+    expect(screen.queryByRole('button', { name: 'Connecter' })).not.toBeInTheDocument()
+  })
+
+  it('keeps disconnecting, but no longer reconnecting, a connection while Google is not offered', () => {
+    renderTheCard(connection('connected'), false)
+
+    expect(screen.getByText(/Connecté au compte michel@exemple\.fr/)).toBeInTheDocument()
+    expect(screen.getByText('Google Agenda n’est pas disponible pour le moment.')).toBeInTheDocument()
+    expect(screen.queryByRole('button', { name: 'Reconnecter' })).not.toBeInTheDocument()
+    expect(screen.getByRole('button', { name: 'Déconnecter' })).toBeInTheDocument()
   })
 })
