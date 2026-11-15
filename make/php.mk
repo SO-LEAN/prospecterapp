@@ -14,5 +14,6 @@ lint-phpstan:
 lint-style:
 	@$(PHP) vendor/bin/php-cs-fixer fix --config=.php-cs-fixer.dist.php --dry-run --diff --show-progress=none $(if $(FILTER),--path-mode=intersection $(FILTER))
 
+# with FILTER, in one process (rector.php)
 lint-rector:
-	@$(PHP) vendor/bin/rector process --dry-run $(FILTER)
+	@$(PHP) $(if $(FILTER),env RECTOR_IN_ONE_PROCESS=1) vendor/bin/rector process --dry-run $(FILTER)
