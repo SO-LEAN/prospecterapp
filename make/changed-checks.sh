@@ -20,7 +20,7 @@ checks_of() {
 	docker/nginx/* | docker/lambda/*) echo e2e ;;
 	# the deployments (their own workflows), the documentation
 	.github/actions/* | .github/workflows/terraform-* | .github/workflows/backlog-*) ;;
-	docs/* | *.md | LICENSE | .editorconfig | .gitignore | .gitleaks.toml | .githooks/* | .claude/*) ;;
+	docs/* | *.md | LICENSE | .editorconfig | .gitignore | .gitattributes | .gitleaks.toml | .githooks/* | .claude/*) ;;
 	*) echo "$ALL" ;;
 	esac
 }

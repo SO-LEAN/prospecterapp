@@ -9,7 +9,7 @@ GITLEAKS = docker run --rm -u $(UID):$(GID) -e GIT_INDEX_FILE -v $(CURDIR):$(CUR
 	-w $(CURDIR) ghcr.io/gitleaks/gitleaks:v8.30.1
 INFRA_APPS = api storage front
 
-.PHONY: install hooks build vendor db aws ca front-install check-secrets check-infra check-contract check-core check-api check-storage check-front check-e2e check-e2e-locked e2e-locked front-lint front-tested-build changed-checks infra-target infra-init infra-plan infra-apply infra-lint changed-apps package-api package-storage package-front release-front console start deploy stop down images-prune agents-slice logs ps ci test test-api test-storage test-front e2e test-core mutation mutation-api lint adr-references fix front-build api-doc contract commands profiler-clear exec-api exec-front secrets secrets-branch
+.PHONY: install hooks build vendor db aws ca front-install check-secrets check-infra check-contract check-core check-api check-storage check-front check-e2e check-e2e-locked e2e-locked front-lint front-tested-build changed-checks infra-target infra-init infra-plan infra-apply infra-lint changed-apps package-api package-storage package-front release-front console start deploy stop down images-prune agents-slice logs ps ci test test-api test-storage test-front e2e test-core mutation mutation-api lint adr-references adr-index adr-index-check fix front-build api-doc contract commands profiler-clear exec-api exec-front secrets secrets-branch
 
 ##@ Setup
 install: hooks build vendor db front-install ## Build the images, install the dependencies, create the tables, the bucket and the user pool, install the Git hooks
@@ -120,7 +120,7 @@ ci: ## Run the checks of the integration the changes since BASE (origin/dev) nee
 	@$(if $(filter e2e,$(CHECKS)),echo "These changes need the journeys too: make check-e2e in a worktree once the development is done")
 
 # make -j runs together the prerequisites of each check, and the targets each runs in its project
-check-secrets: secrets-branch adr-references ## Check the commits of the branch for secrets, the references to the records
+check-secrets: secrets-branch adr-references adr-index-check ## Check the commits of the branch for secrets, the references to the records, their index
 check-infra: infra-lint ## Check the Terraform of the apps
 check-contract: contract ## Check the OpenAPI contract and the front types against the code
 
@@ -229,7 +229,7 @@ paths-in = $(patsubst $(1)/%,%,$(filter $(1)/%,$(FILTER)))
 lint-in = $(MAKE) -j --output-sync=recurse -C $(1) lint
 lint-project = $(if $(FILTER),$(if $(call paths-in,$(1)),$(call lint-in,$(1)) FILTER="$(call paths-in,$(1))"),$(call lint-in,$(1)))
 
-lint: $(if $(FILTER),,infra-lint) adr-references ## Check the code: PHPStan, php-cs-fixer, Rector, Biome, TypeScript, Terraform, the references to the records; FILTER= paths from the root
+lint: $(if $(FILTER),,infra-lint) adr-references adr-index-check ## Check the code: PHPStan, php-cs-fixer, Rector, Biome, TypeScript, Terraform, the references to the records, their index; FILTER= paths from the root
 	@$(call lint-project,packages/core)
 	@$(call lint-project,apps/api)
 	@$(call lint-project,apps/storage)
@@ -241,6 +241,14 @@ adr-references: ## Check that no reference names a decision record entirely repl
 	@superseded=$$(grep -E '^\| \[[0-9]{4}\].*\| Superseded by' docs/adr/README.md | grep -oE '^\| \[[0-9]{4}' | grep -oE '[0-9]{4}' | paste -sd'|'); \
 	found=$$( { git grep -nE "ADRs?[ ,0-9and]*\b($$superseded)\b" -- . $(ADR_HISTORY); git grep -nE "adr/($$superseded)-" -- . $(ADR_HISTORY); } ); \
 	if [ -n "$$found" ]; then echo "References to records entirely replaced: cite the record in force (docs/adr/README.md)"; echo "$$found"; exit 1; fi
+
+# the index of the records is written from their headers (ADR 0127): two branches adding a record each merge their
+# lines by the union of .gitattributes, the index written again putting them in order
+adr-index: ## Write the index of the decision records again from their headers, after adding a record or changing its status
+	@make/adr-index.sh
+
+adr-index-check: ## Fail while the index of the decision records differs from their headers
+	@make/adr-index.sh --check
 
 front-build: ## Build the front for production (TypeScript, Vite)
 	@$(MAKE) -C apps/front build

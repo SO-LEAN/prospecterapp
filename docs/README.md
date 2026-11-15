@@ -36,6 +36,6 @@ The business rules themselves are the scenarios of the core (`packages/core/feat
 
 ## History
 
-- The decision records: [adr/README.md](adr/README.md).
+- The decision records: [adr/README.md](adr/README.md), its index written from their headers by `make adr-index`; adding one: [adr/TEMPLATE.md](adr/TEMPLATE.md).
 - The upgrade of 2026, step by step, and its traps: [upgrade-2026.md](upgrade-2026.md).
 - The documents moved by ADR 0090 (the records before it name their former paths): `docs/auth.md`, `docs/clean-code.md`, `docs/design-system.md`, `docs/infra.md` and `docs/monorepo.md` are in `docs/architecture/` under the same name, `docs/core-tests.md` is `docs/architecture/tests.md`, `docs/front-architecture.md` is `docs/architecture/front.md`.
