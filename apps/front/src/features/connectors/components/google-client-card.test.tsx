@@ -131,7 +131,7 @@ describe('GoogleClientCard', () => {
 
     expect(
       await screen.findByText(
-        'Le secret du client ne peut être ni enregistré ni lu pour le moment : réessayez plus tard.',
+        /^Le secret du client ne peut être ni enregistré ni lu pour le moment.: réessayez plus tard\.$/,
       ),
     ).toBeInTheDocument()
     expect(screen.queryByText('Le client Google du compte est enregistré.')).not.toBeInTheDocument()
