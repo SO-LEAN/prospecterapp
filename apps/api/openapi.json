@@ -4610,6 +4610,16 @@
                                 }
                             }
                         }
+                    },
+                    "503": {
+                        "description": "The secret of the client cannot be kept nor read for now (`secretsUnavailable`)",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ProblemResource"
+                                }
+                            }
+                        }
                     }
                 }
             }
@@ -4637,6 +4647,16 @@
                     },
                     "403": {
                         "description": "The signed-in user is not a user",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ProblemResource"
+                                }
+                            }
+                        }
+                    },
+                    "503": {
+                        "description": "The secret of the client cannot be kept nor read for now (`secretsUnavailable`)",
                         "content": {
                             "application/json": {
                                 "schema": {
@@ -4720,6 +4740,16 @@
                                 }
                             }
                         }
+                    },
+                    "503": {
+                        "description": "The secret of the client cannot be kept nor read for now (`secretsUnavailable`)",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ProblemResource"
+                                }
+                            }
+                        }
                     }
                 }
             },
@@ -4765,6 +4795,16 @@
                     },
                     "422": {
                         "description": "A client without its id or its secret",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ProblemResource"
+                                }
+                            }
+                        }
+                    },
+                    "503": {
+                        "description": "The secret of the client cannot be kept nor read for now (`secretsUnavailable`)",
                         "content": {
                             "application/json": {
                                 "schema": {
@@ -4829,6 +4869,16 @@
                     },
                     "422": {
                         "description": "The access to the calendar was not granted, or the answer is incomplete",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ProblemResource"
+                                }
+                            }
+                        }
+                    },
+                    "503": {
+                        "description": "The secret of the client cannot be kept nor read for now (`secretsUnavailable`)",
                         "content": {
                             "application/json": {
                                 "schema": {

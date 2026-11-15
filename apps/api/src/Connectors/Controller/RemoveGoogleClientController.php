@@ -36,6 +36,7 @@ final class RemoveGoogleClientController extends AbstractController
     #[OA\Response(response: 401, description: 'Missing or invalid access token')]
     #[OA\Response(response: 403, description: 'The signed-in user is no administrator of the account', content: new Model(type: ProblemResource::class))]
     #[OA\Response(response: 404, description: 'My account has no client of Google', content: new Model(type: ProblemResource::class))]
+    #[OA\Response(response: 503, description: 'The secret of the client cannot be kept nor read for now (`secretsUnavailable`)', content: new Model(type: ProblemResource::class))]
     public function __invoke(#[CurrentUser] User $user): JsonResponse
     {
         $this->commandBus->dispatch(new RemoveClient($user->memberId(), self::GOOGLE, $this->clock->now()));
