@@ -4648,6 +4648,134 @@
                 }
             }
         },
+        "/api/me/organization/clients/google": {
+            "get": {
+                "tags": [
+                    "Connectors"
+                ],
+                "summary": "Consult the client of Google of my account, its secret never answered, and the redirect URI to declare in it",
+                "operationId": "get_api_me_google_client",
+                "responses": {
+                    "200": {
+                        "description": "The client of Google of my account",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/GoogleClientResource"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Missing or invalid access token"
+                    },
+                    "403": {
+                        "description": "The signed-in user is no administrator of the account",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ProblemResource"
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "put": {
+                "tags": [
+                    "Connectors"
+                ],
+                "summary": "Configure the client of Google of my account, or another one: the members connect through it from now on, those connected through another client reconnect",
+                "operationId": "put_api_me_configure_google_client",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/GoogleClientInput"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "The client of Google of my account",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/GoogleClientResource"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Missing or invalid access token"
+                    },
+                    "403": {
+                        "description": "The signed-in user is no administrator of the account",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ProblemResource"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "A client without its id or its secret",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ProblemResource"
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "tags": [
+                    "Connectors"
+                ],
+                "summary": "Remove the client of Google of my account: Google is no longer offered to its members",
+                "operationId": "delete_api_me_remove_google_client",
+                "responses": {
+                    "200": {
+                        "description": "My account without its client of Google",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/GoogleClientResource"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Missing or invalid access token"
+                    },
+                    "403": {
+                        "description": "The signed-in user is no administrator of the account",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ProblemResource"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "My account has no client of Google",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ProblemResource"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
         "/api/me/connections/google": {
             "post": {
                 "tags": [
@@ -5389,6 +5517,21 @@
                         "type": "string",
                         "pattern": ".*(^([01]\\d|2[0-3]):[0-5]\\d$).*",
                         "example": "08:30",
+                        "nullable": true,
+                        "default": null
+                    }
+                },
+                "type": "object"
+            },
+            "GoogleClientInput": {
+                "properties": {
+                    "clientId": {
+                        "type": "string",
+                        "nullable": true,
+                        "default": null
+                    },
+                    "clientSecret": {
+                        "type": "string",
                         "nullable": true,
                         "default": null
                     }
@@ -7104,6 +7247,9 @@
                     },
                     "connectGoogle": {
                         "$ref": "#/components/schemas/LinkResource"
+                    },
+                    "googleClient": {
+                        "$ref": "#/components/schemas/LinkResource"
                     }
                 },
                 "type": "object"
@@ -7122,6 +7268,51 @@
                     },
                     "_links": {
                         "$ref": "#/components/schemas/ConnectionsLinksResource"
+                    }
+                },
+                "type": "object"
+            },
+            "GoogleClientLinksResource": {
+                "required": [
+                    "self",
+                    "configure"
+                ],
+                "properties": {
+                    "self": {
+                        "$ref": "#/components/schemas/LinkResource"
+                    },
+                    "configure": {
+                        "$ref": "#/components/schemas/LinkResource"
+                    },
+                    "remove": {
+                        "$ref": "#/components/schemas/LinkResource"
+                    }
+                },
+                "type": "object"
+            },
+            "GoogleClientResource": {
+                "required": [
+                    "secretSet",
+                    "redirectUri",
+                    "_links"
+                ],
+                "properties": {
+                    "clientId": {
+                        "description": "The id of the client at Google, none while the account has no client",
+                        "type": "string",
+                        "nullable": true
+                    },
+                    "secretSet": {
+                        "description": "Whether its secret is set: it is never answered",
+                        "type": "boolean"
+                    },
+                    "redirectUri": {
+                        "description": "The redirect URI to declare in the client at Google",
+                        "type": "string",
+                        "format": "uri"
+                    },
+                    "_links": {
+                        "$ref": "#/components/schemas/GoogleClientLinksResource"
                     }
                 },
                 "type": "object"

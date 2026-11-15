@@ -265,6 +265,29 @@ export const fr = {
       banner: {
         text: 'Google n’accorde plus l’accès à votre agenda : vos échanges planifiés n’y sont plus ajoutés.',
       },
+      client: {
+        title: 'Client Google du compte',
+        description:
+          'Les membres du compte connectent leur agenda par le client OAuth que votre organisation a créé dans son Google Cloud.',
+        redirectUri: 'Adresse de retour à déclarer dans le client',
+        copy: 'Copier l’adresse',
+        copied: 'Adresse copiée.',
+        configured: 'Client {{clientId}}, secret renseigné.',
+        none: 'Aucun client : Google Agenda est indisponible pour les membres du compte.',
+        clientId: 'Identifiant du client',
+        clientSecret: 'Secret du client',
+        secretHint: 'Le secret enregistré n’est jamais réaffiché : saisissez-le pour enregistrer le client.',
+        save: 'Enregistrer le client',
+        saved: 'Le client Google du compte est enregistré.',
+        removed: 'Le client Google du compte est retiré.',
+        remove: {
+          action: 'Retirer le client',
+          title: 'Retirer le client Google du compte ?',
+          description:
+            'Google Agenda deviendra indisponible pour les membres du compte ; leurs connexions seront à refaire avec un nouveau client.',
+          confirm: 'Retirer',
+        },
+      },
     },
     reminders: {
       title: 'Rappels',
@@ -533,6 +556,9 @@ export const fr = {
     accessNotGranted: 'Google n’a pas accordé l’accès : connectez votre compte à nouveau.',
     incompleteGrant: 'L’accès à l’agenda n’a pas été accordé : cochez-le lors de la connexion.',
     providerUnavailable: 'Google n’est pas disponible pour le moment.',
+    notTheAdministrator: 'Seul un administrateur du compte configure ses connecteurs.',
+    noClient: 'Le compte n’a pas de client Google.',
+    incompleteClient: 'Un client Google a besoin de son identifiant et de son secret.',
   },
   validation: {
     required: 'Ce champ est obligatoire.',

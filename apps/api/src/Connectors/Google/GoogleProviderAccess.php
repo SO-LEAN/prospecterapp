@@ -3,6 +3,7 @@
 namespace App\Connectors\Google;
 
 use Prospecter\Core\Connectors\Domain\Exception\AccessNotGranted;
+use Prospecter\Core\Connectors\Domain\Model\ClientCredentials;
 use Prospecter\Core\Connectors\Domain\Model\Grant;
 use Prospecter\Core\Connectors\Domain\Model\Provider;
 use Prospecter\Core\Connectors\Domain\Model\RefreshToken;
@@ -28,30 +29,25 @@ final readonly class GoogleProviderAccess implements ProviderAccess
 
     public function __construct(
         private HttpClientInterface $httpClient,
-        private GoogleClient $client,
+        private GoogleEndpoints $endpoints,
         private LoggerInterface $logger,
     ) {
     }
 
-    public function hasClient(Provider $provider): bool
+    public function exchange(ClientCredentials $client, string $code, string $codeVerifier): Grant
     {
-        return $this->client->isConfigured();
-    }
-
-    public function exchange(Provider $provider, string $code, string $codeVerifier): Grant
-    {
-        $response = $this->token([
+        $response = $this->token($client, [
             'grant_type' => 'authorization_code',
             'code' => $code,
             'code_verifier' => $codeVerifier,
-            'redirect_uri' => $this->client->redirectUri,
+            'redirect_uri' => $this->endpoints->redirectUri,
         ]);
 
         if (self::OK !== $response->getStatusCode()) {
-            throw AccessNotGranted::by($provider);
+            throw AccessNotGranted::by($client->provider);
         }
 
-        return self::grantOf($response->toArray(), $provider);
+        return self::grantOf($response->toArray(), $client->provider);
     }
 
     /**
@@ -81,9 +77,9 @@ final readonly class GoogleProviderAccess implements ProviderAccess
         return is_array($claims) && is_string($claims['email'] ?? null) ? $claims['email'] : throw new \UnexpectedValueException('Google gave an identity token without email');
     }
 
-    public function stillGrants(Provider $provider, RefreshToken $refreshToken): bool
+    public function stillGrants(ClientCredentials $client, RefreshToken $refreshToken): bool
     {
-        $response = $this->token(['grant_type' => 'refresh_token', 'refresh_token' => $refreshToken->value]);
+        $response = $this->token($client, ['grant_type' => 'refresh_token', 'refresh_token' => $refreshToken->value]);
 
         if (self::OK === $response->getStatusCode()) {
             return true;
@@ -102,7 +98,7 @@ final readonly class GoogleProviderAccess implements ProviderAccess
     public function revoke(Provider $provider, RefreshToken $refreshToken): void
     {
         try {
-            $response = $this->httpClient->request('POST', $this->client->revokeUrl, ['body' => ['token' => $refreshToken->value], 'timeout' => self::TIMEOUT]);
+            $response = $this->httpClient->request('POST', $this->endpoints->revokeUrl, ['body' => ['token' => $refreshToken->value], 'timeout' => self::TIMEOUT]);
             if (self::OK !== $response->getStatusCode()) {
                 $this->logger->warning('Google refused to revoke an access: it is forgotten all the same', ['status' => $response->getStatusCode()]);
             }
@@ -114,10 +110,10 @@ final readonly class GoogleProviderAccess implements ProviderAccess
     /**
      * @param array<string, string> $grant
      */
-    private function token(array $grant): ResponseInterface
+    private function token(ClientCredentials $client, array $grant): ResponseInterface
     {
-        return $this->httpClient->request('POST', $this->client->tokenUrl, [
-            'body' => [...$grant, 'client_id' => $this->client->id, 'client_secret' => $this->client->secret],
+        return $this->httpClient->request('POST', $this->endpoints->tokenUrl, [
+            'body' => [...$grant, 'client_id' => $client->id, 'client_secret' => $client->secret],
             'timeout' => self::TIMEOUT,
         ]);
     }

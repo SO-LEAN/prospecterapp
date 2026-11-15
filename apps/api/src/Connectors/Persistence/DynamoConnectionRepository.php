@@ -21,6 +21,9 @@ use Prospecter\Core\SharedKernel\Domain\MemberId;
  */
 final readonly class DynamoConnectionRepository implements ConnectionRepository
 {
+    /** the client of the instance the connections made before ADR 0125 were granted to, which no account has */
+    private const string CLIENT_OF_THE_INSTANCE = 'the-client-of-the-instance';
+
     public function __construct(private Table $connectorsTable)
     {
     }
@@ -53,6 +56,7 @@ final readonly class DynamoConnectionRepository implements ConnectionRepository
             'provider' => Provider::from($document['provider']),
             'externalAccount' => new Email($document['externalAccount']),
             'refreshToken' => new RefreshToken($document['refreshToken']),
+            'clientId' => $document['clientId'] ?? self::CLIENT_OF_THE_INSTANCE,
             'state' => ConnectionState::from($document['state']),
             'connectedAt' => Documents::momentOf($document['connectedAt']),
             'modifiedAt' => Documents::momentOf($document['modifiedAt']),
@@ -72,6 +76,7 @@ final readonly class DynamoConnectionRepository implements ConnectionRepository
                 'provider' => $state['provider']->value,
                 'externalAccount' => (string) $state['externalAccount'],
                 'refreshToken' => (string) $state['refreshToken'],
+                'clientId' => $state['clientId'],
                 'state' => $state['state']->value,
                 'connectedAt' => Documents::moment($state['connectedAt']),
                 'modifiedAt' => Documents::moment($state['modifiedAt']),

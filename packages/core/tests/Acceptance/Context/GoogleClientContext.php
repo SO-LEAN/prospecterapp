@@ -34,7 +34,6 @@ final class GoogleClientContext implements Context
         $this->application->clients->save($client);
     }
 
-    #[Given('je configure le client Google :id de secret :secret')]
     #[When('je configure le client Google :id de secret :secret')]
     public function iConfigureTheClient(string $id, string $secret): void
     {
@@ -70,7 +69,7 @@ final class GoogleClientContext implements Context
 
     private function myGoogleClient(): ?AccountClient
     {
-        $clients = $this->application->consultMyAccountClients()?->clients ?? [];
+        $clients = $this->application->consultMyAccountClients()->clients ?? [];
 
         return array_find($clients, static fn (AccountClient $client): bool => self::GOOGLE === $client->provider);
     }

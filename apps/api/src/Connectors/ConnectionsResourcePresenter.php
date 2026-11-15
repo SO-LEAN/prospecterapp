@@ -6,8 +6,10 @@ use App\Connectors\Resource\ConnectionLinksResource;
 use App\Connectors\Resource\ConnectionResource;
 use App\Connectors\Resource\ConnectionsLinksResource;
 use App\Connectors\Resource\ConnectionsResource;
+use App\Security\IntentLinks;
 use App\Shared\Links;
 use App\Shared\Resource\LinkResource;
+use Prospecter\Core\Connectors\Application\AccountClient;
 use Prospecter\Core\Connectors\Application\ConsultMyConnections\ConsultMyConnectionsOutput;
 use Prospecter\Core\Connectors\Application\MyConnection;
 
@@ -18,20 +20,22 @@ use Prospecter\Core\Connectors\Application\MyConnection;
 final class ConnectionsResourcePresenter implements ConsultMyConnectionsOutput
 {
     private const string GOOGLE = 'google';
+    /** the role the controller of the client of the account requires (ADR 0081, 0125) */
+    private const string CLIENT_OF_THE_ACCOUNT_ROLE = 'ROLE_ADMIN';
 
     public private(set) ConnectionsResource $resource;
 
-    public function __construct(private readonly Links $links)
+    public function __construct(private readonly Links $links, private readonly IntentLinks $intentLinks)
     {
     }
 
     /**
-     * @param list<MyConnection> $connections
-     * @param list<string>       $offered
+     * @param list<MyConnection>  $connections
+     * @param list<AccountClient> $offered
      */
     public function present(array $connections, array $offered): void
     {
-        $authorizeGoogle = in_array(self::GOOGLE, $offered, true) ? $this->links->to('api_me_connections_google_authorize') : null;
+        $authorizeGoogle = array_any($offered, static fn (AccountClient $client): bool => self::GOOGLE === $client->provider) ? $this->links->to('api_me_connections_google_authorize') : null;
 
         $this->resource = new ConnectionsResource(
             array_map(fn (MyConnection $connection): ConnectionResource => $this->connection($connection, $authorizeGoogle), $connections),
@@ -39,6 +43,7 @@ final class ConnectionsResourcePresenter implements ConsultMyConnectionsOutput
                 $this->links->to('api_me_connections'),
                 $this->links->to('api_me_connections_check'),
                 $authorizeGoogle,
+                $this->intentLinks->holds(self::CLIENT_OF_THE_ACCOUNT_ROLE) ? $this->links->to('api_me_google_client') : null,
             ),
         );
     }

@@ -102,7 +102,7 @@ class ConnectorsApiTest extends ApiTestCase
         $this->connect('michel@exemple.fr', 'a-refresh-token');
         $this->assertSame(['client-of-the-double', 'secret-of-the-double'], $this->google()->clientOfTheLastToken());
 
-        $this->asAnAdministrator(fn () => $this->requestJson('PUT', self::THE_CLIENT_OF_THE_ACCOUNT, ['clientId' => 'client-of-the-double', 'clientSecret' => 'a-new-secret']));
+        $this->asAnAdministrator(fn (): array => $this->requestJson('PUT', self::THE_CLIENT_OF_THE_ACCOUNT, ['clientId' => 'client-of-the-double', 'clientSecret' => 'a-new-secret']));
         $checked = $this->requestJson('POST', '/api/me/connections/checks');
 
         $this->assertSame([['google', 'connected', 'michel@exemple.fr']], $this->seen($checked));
@@ -114,7 +114,7 @@ class ConnectorsApiTest extends ApiTestCase
         $this->login();
         $this->connect('michel@exemple.fr', 'a-refresh-token');
 
-        $this->asAnAdministrator(fn () => $this->requestJson('PUT', self::THE_CLIENT_OF_THE_ACCOUNT, ['clientId' => 'another-client', 'clientSecret' => 'its-secret']));
+        $this->asAnAdministrator(fn (): array => $this->requestJson('PUT', self::THE_CLIENT_OF_THE_ACCOUNT, ['clientId' => 'another-client', 'clientSecret' => 'its-secret']));
         $checked = $this->requestJson('POST', '/api/me/connections/checks');
 
         $this->assertSame([['google', 'toReconnect', 'michel@exemple.fr']], $this->seen($checked));
@@ -283,7 +283,7 @@ class ConnectorsApiTest extends ApiTestCase
      */
     private function withoutAGoogleClient(): void
     {
-        $this->asAnAdministrator(fn () => $this->requestJson('DELETE', self::THE_CLIENT_OF_THE_ACCOUNT));
+        $this->asAnAdministrator(fn (): array => $this->requestJson('DELETE', self::THE_CLIENT_OF_THE_ACCOUNT));
     }
 
     /**

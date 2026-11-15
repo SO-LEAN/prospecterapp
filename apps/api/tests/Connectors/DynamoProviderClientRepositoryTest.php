@@ -110,7 +110,7 @@ class DynamoProviderClientRepositoryTest extends ApiTestCase
 
     private function secretOf(AccountId $account): string
     {
-        return sprintf('%s/%s/google-client-secret', $_SERVER['CLIENT_SECRETS_PATH'], $account->value);
+        return sprintf('%s/%s/google-client-secret', $_SERVER['ACCOUNT_SECRETS_PATH'], $account->value);
     }
 
     private function hasItsSecret(AccountId $account): bool

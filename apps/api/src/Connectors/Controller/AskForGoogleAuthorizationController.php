@@ -9,7 +9,11 @@ use App\Shared\CommandBus;
 use App\Shared\Resource\ProblemResource;
 use Nelmio\ApiDocBundle\Attribute\Model;
 use OpenApi\Attributes as OA;
+use Prospecter\Core\Connectors\Application\AccountClient;
 use Prospecter\Core\Connectors\Application\AskForAuthorization\AskForAuthorization;
+use Prospecter\Core\Connectors\Application\ConsultMyConnections\ConsultMyConnections;
+use Prospecter\Core\Connectors\Application\ConsultMyConnections\KeptConnections;
+use Prospecter\Core\SharedKernel\Application\QueryHandler;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\Clock\ClockInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -28,6 +32,7 @@ final class AskForGoogleAuthorizationController extends AbstractController
         private readonly CommandBus $commandBus,
         private readonly ClockInterface $clock,
         private readonly GoogleAuthorization $googleAuthorization,
+        private readonly QueryHandler $consultMyConnections,
     ) {
     }
 
@@ -42,6 +47,18 @@ final class AskForGoogleAuthorizationController extends AbstractController
         $request = $this->googleAuthorization->newRequest();
         $this->commandBus->dispatch(new AskForAuthorization($user->memberId(), self::GOOGLE, $request->state, $request->codeVerifier, $this->clock->now()));
 
-        return $this->json(new AuthorizationResource($request->address), Response::HTTP_CREATED);
+        return $this->json(new AuthorizationResource($this->googleAuthorization->addressOf($request, $this->clientOfMyAccount($user))), Response::HTTP_CREATED);
+    }
+
+    /**
+     * The id of the client of Google of my account, read with the providers offered to me (ADR 0125).
+     */
+    private function clientOfMyAccount(User $user): string
+    {
+        $kept = new KeptConnections();
+        ($this->consultMyConnections)(new ConsultMyConnections($user->memberId()), $kept);
+        $google = array_find($kept->offered, static fn (AccountClient $client): bool => self::GOOGLE === $client->provider);
+
+        return $google->clientId ?? throw new \LogicException('The client of Google of the account was removed while the authorization was asked');
     }
 }

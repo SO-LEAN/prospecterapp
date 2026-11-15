@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Prospecter\Core\Connectors\Application\ConsultMyConnections;
 
+use Prospecter\Core\Connectors\Application\AccountClient;
 use Prospecter\Core\Connectors\Application\MyConnection;
 
 /**
@@ -13,7 +14,7 @@ final class KeptConnections implements ConsultMyConnectionsOutput
 {
     /** @var list<MyConnection> */
     public private(set) array $connections = [];
-    /** @var list<string> */
+    /** @var list<AccountClient> */
     public private(set) array $offered = [];
 
     public function present(array $connections, array $offered): void

@@ -149,6 +149,8 @@ services:
     App\Connectors\Persistence\DynamoAuthorizationRepository:
         arguments: { $clock: '@app.commit_clock' }
     Prospecter\Core\Connectors\Application\Port\MyConnectionsRetriever: '@App\Connectors\Persistence\DynamoMyConnectionsRetriever'
+    Prospecter\Core\Connectors\Domain\Repository\ProviderClientRepository: '@App\Connectors\Persistence\DynamoProviderClientRepository'
+    Prospecter\Core\Connectors\Application\Port\AccountClientsRetriever: '@App\Connectors\Persistence\DynamoAccountClientsRetriever'
     Prospecter\Core\Connectors\Domain\Port\Members: '@App\Connectors\AntiCorruption\AccountsMembers'
     Prospecter\Core\Connectors\Domain\Port\ProviderAccess: '@App\Connectors\Google\GoogleProviderAccess'
     Prospecter\Core\Prospecting\Domain\Port\Prospectors: '@App\Prospecting\AntiCorruption\AccountsProspectors'
@@ -199,6 +201,15 @@ services:
             - region: '%env(AWS_REGION)%'
               endpoint: '%env(default::SQS_ENDPOINT)%'
               credentials: '%app.aws_credentials%'
+    # the secrets the accounts give the api, SecureStrings of SSM under the path of the instance (ADR 0125): the SSM of
+    # MiniStack locally (SSM_ENDPOINT), that of AWS in production (SSM_ENDPOINT empty)
+    Aws\Ssm\SsmClient:
+        arguments:
+            - region: '%env(AWS_REGION)%'
+              endpoint: '%env(default::SSM_ENDPOINT)%'
+              credentials: '%app.aws_credentials%'
+    App\Shared\Persistence\AccountSecrets:
+        arguments: { $path: '%env(ACCOUNT_SECRETS_PATH)%' }
     App\Shared\Messaging\IntegrationFailures:
         arguments: { $name: '%env(INTEGRATION_FAILURES_QUEUE)%', $clock: '@app.commit_clock' }
     # app:consistency:check counts what waits in the failures of the worker and in those of the relay (ADR 0105)
