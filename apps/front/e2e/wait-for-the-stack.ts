@@ -1,4 +1,4 @@
-import { request } from '@playwright/test'
+import { chromium, type FullConfig, request } from '@playwright/test'
 import { API_URL, SPA_URL, STATIC_URL, WORKERS } from './stack'
 
 /** How long the stack may take to answer: a function of MiniStack starting, or rebuilding the cache after a change. */
@@ -32,12 +32,18 @@ const parts = [
 ]
 
 /**
- * Global setup of the journeys: they start once every part of the stack answers, its functions warm, so that a
- * journey never meets a function still starting after a change of the code.
+ * Global setup of the journeys: they start once every part of the stack answers, its functions warm, and the SPA
+ * renders in the browser, so that a journey never meets a function still starting after a change of the code, nor a
+ * dev server still transforming the modules of the SPA after a deployment.
  */
-export default async function waitForTheStack() {
-  const client = await request.newContext({ ignoreHTTPSErrors: true })
+export default async function waitForTheStack(config: FullConfig) {
   const deadline = Date.now() + PATIENCE_MS
+  await everyPartAnswers(deadline)
+  await theSpaRenders(config, deadline)
+}
+
+async function everyPartAnswers(deadline: number) {
+  const client = await request.newContext({ ignoreHTTPSErrors: true })
   try {
     for (const part of parts) {
       while (!(await answersAtOnce(client, part))) {
@@ -65,4 +71,18 @@ async function answersAtOnce(
     ),
   )
   return answers.every(Boolean)
+}
+
+/** The sign-in screen shown in the browser of the journeys, its hosts resolved as theirs (`playwright.config.ts`). */
+async function theSpaRenders(config: FullConfig, deadline: number) {
+  const browser = await chromium.launch(config.projects[0]?.use.launchOptions)
+  try {
+    const page = await browser.newPage({ ignoreHTTPSErrors: true, locale: 'fr-FR' })
+    await page.goto(`${SPA_URL}/`)
+    await page
+      .getByRole('button', { name: 'Se connecter' })
+      .waitFor({ timeout: Math.max(deadline - Date.now(), PAUSE_MS) })
+  } finally {
+    await browser.close()
+  }
 }

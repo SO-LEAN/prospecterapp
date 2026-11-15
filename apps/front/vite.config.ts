@@ -28,6 +28,16 @@ const TIMEOUT_OF_A_TEST_SHARING_THE_MACHINE = 20_000
 /** The chunk of the map, MapLibre itself, loaded with the map only (`geo-map.tsx`): beyond it, a chunk is warned. */
 const SIZE_OF_THE_MAP_LOADED_ON_DEMAND_KB = 1_200
 
+/**
+ * The modules of the SPA transformed as the dev server starts, the components the routes load on demand among them:
+ * the first page a stack serves, after a deployment, renders in a second instead of waiting for each of them.
+ */
+const MODULES_OF_THE_SPA = [
+  './src/main.tsx',
+  './src/{app,features,routes,shared}/**/*.tsx',
+  '!./src/**/*.test.tsx',
+]
+
 /** Tailwind generates the stylesheet without a sourcemap, by design: the warning of any other plugin is kept. */
 const keepAllButTheMissingSourcemapOfTailwind: NonNullable<Rolldown.InputOptions['onLog']> = (
   level,
@@ -51,6 +61,7 @@ export default defineConfig({
     strictPort: true,
     allowedHosts: [PUBLIC_HOST],
     hmr: { host: PUBLIC_HOST, protocol: 'wss', clientPort: PUBLIC_PORT },
+    warmup: { clientFiles: MODULES_OF_THE_SPA },
   },
   build: {
     target: 'es2024',
