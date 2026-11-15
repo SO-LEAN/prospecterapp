@@ -213,7 +213,8 @@ mutation-api: ## Mutate the lines the branch adds in the API since BASE (origin/
 # over, and so is the Terraform. The checks of a project run together, as in make ci, each printing its output once it
 # ends
 paths-in = $(patsubst $(1)/%,%,$(filter $(1)/%,$(FILTER)))
-lint-project = $(if $(FILTER),$(if $(call paths-in,$(1)),$(MAKE) -j --output-sync=recurse -C $(1) lint FILTER="$(call paths-in,$(1))"),$(MAKE) -j --output-sync=recurse -C $(1) lint)
+lint-in = $(MAKE) -j --output-sync=recurse -C $(1) lint
+lint-project = $(if $(FILTER),$(if $(call paths-in,$(1)),$(call lint-in,$(1)) FILTER="$(call paths-in,$(1))"),$(call lint-in,$(1)))
 
 lint: $(if $(FILTER),,infra-lint) adr-references ## Check the code: PHPStan, php-cs-fixer, Rector, Biome, TypeScript, Terraform, the references to the records; FILTER= paths from the root
 	@$(call lint-project,packages/core)
