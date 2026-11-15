@@ -10,7 +10,7 @@ The same code runs in both: the API and the storage in Bref Lambdas, on DynamoDB
 flowchart LR
   subgraph LOCAL["Local stack (Docker, make start)"]
     B1["Browser"] --> NG["nginx<br/>*.prospecter.localhost<br/>TLS of the local authority (ADR 0123)"]
-    NG -- "local." --> VITE["Vite dev server<br/>(node)"]
+    NG -- "prospecter.localhost" --> VITE["Vite dev server<br/>(node)"]
     NG -- "api." --> MS_API["MiniStack HTTP API<br/>→ Lambda API (FPM)"]
     NG -- "api./cognito/" --> MS_COG["MiniStack Cognito"]
     NG -- "static." --> MS_S3["MiniStack S3<br/>→ Lambda storage for a size"]

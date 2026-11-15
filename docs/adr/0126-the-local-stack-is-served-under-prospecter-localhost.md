@@ -20,6 +20,7 @@ The local stack was served under `local.prospecter.io` and its subdomains, which
 
 - Nothing to add to `/etc/hosts`; the hosts read as local by their name, so an agent signs in on them alone.
 - Every machine imports a new authority once, after `make ca`: the former one cannot sign for the new names.
+- The files uploaded before keep the former host in their address, which the API keeps whole (`StorageClient`): their images no longer load and their removal misses them. `make db` starts again from the data of the demonstration, which has no file.
 - A checkout still on the former names, its branch older than this change, serves a certificate for names it does not answer: the journeys accept it (`ignoreHTTPSErrors`), the browser warns.
 
 ## Alternatives considered
