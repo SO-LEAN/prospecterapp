@@ -1,9 +1,9 @@
 import { MutationCache, QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { fireEvent, render, screen, waitFor, waitForElementToBeRemoved, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
+import { toast } from 'sonner'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { queryClient as theAppQueryClient } from '@/app/query-client'
-import { toast } from 'sonner'
 import { Toaster } from '@/shared/ui/sonner'
 import { renderInARouter } from '@/test/render-in-a-router'
 import type { ExchangeDetail } from '../../queries'
@@ -241,8 +241,8 @@ describe('dragging an exchange to come', () => {
     await screen.findByRole('button', { name: /10h00, Visio/ })
 
     await waitFor(() => expect(screen.getAllByText('Échange déplacé')).toHaveLength(1))
-    const toasts = screen.getAllByText('Échange déplacé')
-    await userEvent.click(within(toasts[0].closest('li') as HTMLElement).getByRole('button', { name: 'Annuler' }))
+    const lastMove = await theToastSaying('Échange déplacé')
+    await userEvent.click(within(lastMove).getByRole('button', { name: 'Annuler' }))
     await screen.findByText('Déplacement annulé')
     expect((await sent('PATCH'))[2]).toEqual([
       move.href,
