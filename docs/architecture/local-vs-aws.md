@@ -9,7 +9,7 @@ The same code runs in both: the API and the storage in Bref Lambdas, on DynamoDB
 ```mermaid
 flowchart LR
   subgraph LOCAL["Local stack (Docker, make start)"]
-    B1["Browser"] --> NG["nginx<br/>*.local.prospecter.io<br/>TLS of the local authority (ADR 0123)"]
+    B1["Browser"] --> NG["nginx<br/>*.prospecter.localhost<br/>TLS of the local authority (ADR 0123)"]
     NG -- "local." --> VITE["Vite dev server<br/>(node)"]
     NG -- "api." --> MS_API["MiniStack HTTP API<br/>→ Lambda API (FPM)"]
     NG -- "api./cognito/" --> MS_COG["MiniStack Cognito"]
@@ -44,12 +44,12 @@ flowchart LR
 
 | | Local stack | Instance on AWS |
 |---|---|---|
-| Entry | nginx in Docker, the hosts `local.`, `api.`, `static.local.prospecter.io` in `/etc/hosts`, the certificate the local authority of the machine signed (`make ca`, ADR 0123), a self-signed one without it | an edge proxy on the domains of the instance (ADR 0067), the AWS addresses refusing what lacks its secret (`X-Origin-Verify`) |
+| Entry | nginx in Docker, the hosts `prospecter.localhost`, `api.` and `static.prospecter.localhost`, which the browser resolves to the loopback (ADR 0126), the certificate the local authority of the machine signed (`make ca`, ADR 0123), a self-signed one without it | an edge proxy on the domains of the instance (ADR 0067), the AWS addresses refusing what lacks its secret (`X-Origin-Verify`) |
 | SPA | the dev server of Vite, a request per module, hot reload | a release built once (`make package-front`), in a bucket behind CloudFront, its `config.js` answered by a CloudFront Function (ADR 0066) |
 | API | a Lambda of MiniStack, the repository mounted, the `dev` environment, the profiler, OPcache revalidating every 2 s, a local `bootstrap` making up for MiniStack (ADR 0055, 0082) | `build/api.zip`, the `prod` environment, read-only (`BrefKernel`), its secrets read from SSM at the start (`bref-ssm:`) (ADR 0063) |
 | CORS | MiniStack answers the preflights itself, from the CORS `deploy.sh` gives the HTTP API (to keep equal to `nelmio_cors`) | the HTTP API and `nelmio_cors`, the origin the address of the front |
 | Storage | nginx proxies the bucket of MiniStack, the internal entry `http://nginx:8080` with a token only | CloudFront on the bucket, failing over to a function URL that answers only requests signed by the role of the API or by CloudFront (ADR 0065, 0068), removed files invalidated (ADR 0070) |
-| Cognito | MiniStack, reached by the SPA through `https://api.local.prospecter.io/cognito/`; it does not refuse a second holder of a login email (the API checks it first) | Cognito, the SPA calling it directly; a duplicate alias refused as a safety net too |
+| Cognito | MiniStack, reached by the SPA through `https://api.prospecter.localhost/cognito/`; it does not refuse a second holder of a login email (the API checks it first) | Cognito, the SPA calling it directly; a duplicate alias refused as a safety net too |
 | DynamoDB | tables `prospecter-dev-<context>`, recreated by `make db` with the demonstration; TTL applied within seconds | tables `prospecter-<instance>-api-<context>`, protected from deletion, recoverable to the second; TTL within days (AWS deletes expired items in the background) |
 | Geocoder | the IGN, but a double of nginx while `make e2e` runs (ADR 0092) | the IGN |
 | Google | a double of nginx (`docker/nginx/conf.d/google-double.conf`, ADR 0120): its authorization page on the host of the API, every code granting the account `agenda@solean-it.io` the scopes asked; the account of the demonstration served by the client of the double; the addresses of Google in `apps/api/.env.local` and a real client configured by an administrator to reach Google itself | accounts.google.com and oauth2.googleapis.com, the client of each account configured by its administrator, its secret in SSM (ADR 0125) |
