@@ -3,6 +3,8 @@ includes:
 
 parameters:
     level: 5
+    # its result cache in the checkout, kept from one run to the next (the /tmp of the container goes with it)
+    tmpDir: var/cache/phpstan
     paths:
         - src/
         - tests/
