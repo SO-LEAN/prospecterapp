@@ -46,6 +46,11 @@ const refused = (status: number, reason: string) =>
 
 type Answer = () => Response
 
+const anEmptyDay = () =>
+  Promise.resolve(json({ today: [], next: [], _links: { self: { href: '/api/me/day', method: 'GET' } } }, 200))
+const aDayNeverRead = () => new Promise<Response>(() => {})
+let myDay: () => Promise<Response> = anEmptyDay
+
 const anEmptyDashboard = {
   organizationName: 'Babbage & Co',
   markers: [],
@@ -86,7 +91,7 @@ function theApiAnswers(...myAccount: Answer[]) {
       return json({ items: [], _links: {} }, 200)
     }
     if (pathname === '/api/me/day') {
-      return json({ today: [], next: [], _links: { self: { href: '/api/me/day', method: 'GET' } } }, 200)
+      return myDay()
     }
     return refused(404, 'notFound')
   })
@@ -104,6 +109,7 @@ const myProfileNamed = () => json(myNamedProfile, 200)
 describe('the layout of a member signed in', () => {
   beforeEach(() => {
     theApi.mockReset()
+    myDay = anEmptyDay
   })
 
   it('tells a member whose profile is not created yet that it is being prepared, and lets them sign out', async () => {
@@ -146,6 +152,15 @@ describe('the layout of a member signed in', () => {
       '/settings',
     )
     expect(screen.getByRole('menuitem', { name: 'Se déconnecter' })).toBeInTheDocument()
+  })
+
+  it('greets a member while their day is still being read', async () => {
+    myDay = aDayNeverRead
+    theApiAnswers(myProfileNamed)
+    await signIn()
+
+    expect(await screen.findByRole('heading', { name: 'Bonjour Ada' })).toBeInTheDocument()
+    expect(screen.queryByText('Aujourd’hui')).not.toBeInTheDocument()
   })
 
   it('leads by the main navigation to the dashboard, the organizations, the contacts and the calendar', async () => {
