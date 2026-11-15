@@ -74,6 +74,12 @@ final class PublishedLanguageContext implements Context
         $this->members[$name] = $this->scenario->aMemberOf($name, $account, Role::User, Role::Prospector)->id();
     }
 
+    #[Given(':name est membre de :account qui l\'administre')]
+    public function anAdministrator(string $name, string $account): void
+    {
+        $this->members[$name] = $this->scenario->aMemberOf($name, $account, ...Role::cases())->id();
+    }
+
     #[When('un autre contexte demande à Accounts qui sont les membres :')]
     public function anotherContextConsultsTheMembers(TableNode $names): void
     {
@@ -91,6 +97,18 @@ final class PublishedLanguageContext implements Context
     public function accountsAnswersAMemberNotManagingPersonalData(string $name, string $account): void
     {
         $this->expectTheMember($name, $account, false);
+    }
+
+    #[Then('Accounts répond que :name administre son compte')]
+    public function accountsAnswersAnAdministrator(string $name): void
+    {
+        Expect::same(true, $this->consulted[$this->memberIdOf($name)]->administers ?? null);
+    }
+
+    #[Then('Accounts répond que :name n\'administre pas son compte')]
+    public function accountsAnswersAMemberNotAdministering(string $name): void
+    {
+        Expect::same(false, $this->consulted[$this->memberIdOf($name)]->administers ?? null);
     }
 
     #[Then('Accounts ne répond rien de :name')]

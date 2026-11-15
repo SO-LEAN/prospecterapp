@@ -6,6 +6,7 @@ Fonctionnalité: Connecter mon compte Google
 
   Contexte:
     Soit l'organisation "SOLEAN IT" qui utilise Prospecter
+    Et le client Google "client-solean" de secret "secret-solean" sert "SOLEAN IT"
     Et je suis connecté en tant que prospecteur de "SOLEAN IT"
 
   Scénario: Une fois l'accès accordé par Google, mon compte est connecté

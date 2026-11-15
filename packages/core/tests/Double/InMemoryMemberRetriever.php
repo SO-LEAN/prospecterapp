@@ -7,6 +7,7 @@ namespace Tests\Core\Double;
 use Prospecter\Core\Accounts\Application\Port\MemberRetriever;
 use Prospecter\Core\Accounts\Contract\Service\ConsultMembers\MemberResponse;
 use Prospecter\Core\Accounts\Domain\Model\Member;
+use Prospecter\Core\Accounts\Domain\Policy\AdministrationRight;
 use Prospecter\Core\Accounts\Domain\Policy\PersonalDataRight;
 use Prospecter\Core\SharedKernel\Domain\MemberId;
 
@@ -29,7 +30,7 @@ final readonly class InMemoryMemberRetriever implements MemberRetriever
 
         foreach ($found as $member) {
             $state = StateOf::the($member);
-            $members[$member->id()->value] = new MemberResponse($member->id()->value, $member->accountId()->value, $state['personId']->value, PersonalDataRight::isGrantedBy(...$state['roles']));
+            $members[$member->id()->value] = new MemberResponse($member->id()->value, $member->accountId()->value, $state['personId']->value, PersonalDataRight::isGrantedBy(...$state['roles']), AdministrationRight::isGrantedBy(...$state['roles']));
         }
 
         return $members;

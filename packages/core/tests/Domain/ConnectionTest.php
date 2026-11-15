@@ -8,6 +8,7 @@ use PHPUnit\Framework\TestCase;
 use Prospecter\Core\Connectors\Domain\Event\Connected;
 use Prospecter\Core\Connectors\Domain\Event\ConnectionLost;
 use Prospecter\Core\Connectors\Domain\Event\Disconnected;
+use Prospecter\Core\Connectors\Domain\Model\ClientCredentials;
 use Prospecter\Core\Connectors\Domain\Model\Connection;
 use Prospecter\Core\Connectors\Domain\Model\Grant;
 use Prospecter\Core\Connectors\Domain\Model\PendingAuthorization;
@@ -39,7 +40,7 @@ final class ConnectionTest extends TestCase
         $connection = $this->establish();
         $connection->releaseEvents();
 
-        $connection->renew(self::grant(), new InMemoryProviderAccess(), new \DateTimeImmutable(self::AT));
+        $connection->renew(self::grant(), self::client(), new InMemoryProviderAccess(), new \DateTimeImmutable(self::AT));
 
         $this->assertEquals([new Connected(new AccountId(self::ACCOUNT), new MemberId(self::MEMBER), new \DateTimeImmutable(self::AT))], $connection->releaseEvents());
     }
@@ -49,21 +50,33 @@ final class ConnectionTest extends TestCase
         $connection = $this->establish();
         $connection->releaseEvents();
 
-        $connection->check(new InMemoryProviderAccess(), new \DateTimeImmutable(self::AT));
+        $connection->check(self::client(), new InMemoryProviderAccess(), new \DateTimeImmutable(self::AT));
 
         $this->assertSame([], $connection->releaseEvents());
+    }
+
+    public function testAConnectionOfAnotherClientRecordsTheConnectionLostOnce(): void
+    {
+        $connection = $this->establish();
+        $connection->releaseEvents();
+        $anotherClient = new ClientCredentials(Provider::Google, 'another-client', 'its-secret');
+
+        $connection->check($anotherClient, new InMemoryProviderAccess(), new \DateTimeImmutable(self::AT));
+        $connection->check($anotherClient, new InMemoryProviderAccess(), new \DateTimeImmutable(self::AT));
+
+        $this->assertEquals([new ConnectionLost(new AccountId(self::ACCOUNT), new MemberId(self::MEMBER), new \DateTimeImmutable(self::AT))], $connection->releaseEvents());
     }
 
     public function testATokenRefusedRecordsTheConnectionLostOnce(): void
     {
         $google = new InMemoryProviderAccess();
-        $grant = $google->exchange(Provider::Google, $google->grant('michel@exemple.fr'), 'a-verifier');
-        $connection = Connection::establish(new MemberId(self::MEMBER), new AccountId(self::ACCOUNT), Provider::Google, $grant, new \DateTimeImmutable(self::AT));
+        $grant = $google->exchange(self::client(), $google->grant('michel@exemple.fr'), 'a-verifier');
+        $connection = Connection::establish(new MemberId(self::MEMBER), new AccountId(self::ACCOUNT), self::client(), $grant, new \DateTimeImmutable(self::AT));
         $connection->releaseEvents();
         $google->refuseEveryToken();
 
-        $connection->check($google, new \DateTimeImmutable(self::AT));
-        $connection->check($google, new \DateTimeImmutable(self::AT));
+        $connection->check(self::client(), $google, new \DateTimeImmutable(self::AT));
+        $connection->check(self::client(), $google, new \DateTimeImmutable(self::AT));
 
         $this->assertEquals([new ConnectionLost(new AccountId(self::ACCOUNT), new MemberId(self::MEMBER), new \DateTimeImmutable(self::AT))], $connection->releaseEvents());
     }
@@ -88,7 +101,12 @@ final class ConnectionTest extends TestCase
 
     private function establish(): Connection
     {
-        return Connection::establish(new MemberId(self::MEMBER), new AccountId(self::ACCOUNT), Provider::Google, self::grant(), new \DateTimeImmutable(self::AT));
+        return Connection::establish(new MemberId(self::MEMBER), new AccountId(self::ACCOUNT), self::client(), self::grant(), new \DateTimeImmutable(self::AT));
+    }
+
+    private static function client(): ClientCredentials
+    {
+        return new ClientCredentials(Provider::Google, 'the-client', 'its-secret');
     }
 
     private static function grant(): Grant

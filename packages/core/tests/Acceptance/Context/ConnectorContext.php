@@ -9,13 +9,16 @@ use Behat\Step\Given;
 use Behat\Step\Then;
 use Behat\Step\When;
 use Prospecter\Core\Accounts\Domain\Model\Role;
+use Prospecter\Core\Connectors\Application\AccountClient;
 use Prospecter\Core\Connectors\Application\AskForAuthorization\AskForAuthorization;
 use Prospecter\Core\Connectors\Application\CheckMyConnections\CheckMyConnections;
 use Prospecter\Core\Connectors\Application\Connect\Connect;
 use Prospecter\Core\Connectors\Application\ConsultMyConnections\KeptConnections;
 use Prospecter\Core\Connectors\Application\Disconnect\Disconnect;
 use Prospecter\Core\Connectors\Application\MyConnection;
+use Prospecter\Core\Connectors\Domain\Model\ClientCredentials;
 use Prospecter\Core\Connectors\Domain\Model\Provider;
+use Prospecter\Core\SharedKernel\Domain\MemberId;
 use Tests\Core\Acceptance\Expect;
 
 /**
@@ -36,6 +39,8 @@ final class ConnectorContext implements Context
     /** @var list<string> the tokens Google granted me, the latest last */
     private array $myTokens = [];
     private ?KeptConnections $myConnections = null;
+    /** @var array<string, string> the prospector of each account, by its name, who connects in the scenario */
+    private array $prospectors = [];
 
     #[When('je connecte mon compte Google :account et que Google accorde l\'accès')]
     #[Given('mon compte Google :account est connecté')]
@@ -207,7 +212,8 @@ final class ConnectorContext implements Context
     #[Given('aucun client Google ne sert mon compte')]
     public function noGoogleClientServesMyAccount(): void
     {
-        $this->application->providerAccess->withoutClient();
+        $myAccount = $this->application->members->get(new MemberId($this->application->signedIn()))->accountId();
+        $this->application->clients->remove($this->application->clients->get($myAccount, Provider::Google));
     }
 
     #[When('je demande à connecter mon compte Google')]
@@ -219,13 +225,82 @@ final class ConnectorContext implements Context
     #[Then('Google m\'est proposé')]
     public function googleIsOffered(): void
     {
-        Expect::same([self::GOOGLE], $this->myConnections()?->offered);
+        Expect::same([self::GOOGLE], self::providersOffered($this->myConnections()));
     }
 
     #[Then('Google ne m\'est pas proposé')]
     public function googleIsNotOffered(): void
     {
-        Expect::same([], $this->myConnections()?->offered);
+        Expect::same([], self::providersOffered($this->myConnections()));
+    }
+
+    /**
+     * @return list<string>|null
+     */
+    private static function providersOffered(?KeptConnections $connections): ?array
+    {
+        return null === $connections ? null : array_map(static fn (AccountClient $client): string => $client->provider, $connections->offered);
+    }
+
+    #[Then('Google est proposé à un prospecteur de :account')]
+    public function googleIsOfferedToAProspector(string $account): void
+    {
+        Expect::same([self::GOOGLE], self::providersOffered($this->application->consultMyConnections($this->prospectorOf($account))));
+    }
+
+    #[Then('Google n\'est pas proposé à un prospecteur de :account')]
+    public function googleIsNotOfferedToAProspector(string $account): void
+    {
+        Expect::same([], self::providersOffered($this->application->consultMyConnections($this->prospectorOf($account))));
+    }
+
+    #[Given('un prospecteur de :account a connecté son compte Google')]
+    #[When('un prospecteur de :account connecte son compte Google')]
+    public function aProspectorConnects(string $account): void
+    {
+        $prospector = $this->prospectorOf($account);
+        $this->askToConnect($prospector, 'prospecteur@exemple.fr', withTheCalendar: true);
+        $this->connect($prospector, $this->pending()['state'], $this->pending()['code']);
+    }
+
+    #[When('les connexions du prospecteur de :account sont vérifiées')]
+    public function theConnectionsOfTheProspectorAreChecked(string $account): void
+    {
+        $this->application->dispatch(new CheckMyConnections($this->prospectorOf($account), $this->application->now()));
+    }
+
+    #[Then('la connexion Google du prospecteur de :account est :state')]
+    public function theConnectionOfTheProspectorIs(string $account, string $state): void
+    {
+        $connections = $this->application->consultMyConnections($this->prospectorOf($account))->connections ?? [];
+        $connection = array_find($connections, static fn (MyConnection $connection): bool => self::GOOGLE === $connection->provider);
+
+        Expect::same(self::STATES[$state], $connection?->state);
+    }
+
+    private function prospectorOf(string $account): string
+    {
+        return $this->prospectors[$account] ??= $this->scenario->aMemberOf('le prospecteur de '.$account, $account, Role::User, Role::Prospector)->id()->value;
+    }
+
+    #[Then('Google a accordé l\'accès au client :id de secret :secret')]
+    public function googleGrantedTheClient(string $id, string $secret): void
+    {
+        Expect::same([self::GOOGLE, $id, $secret], self::credentialsOf($this->application->providerAccess->lastExchangedBy()));
+    }
+
+    #[Then('Google a vérifié l\'accès avec le client :id de secret :secret')]
+    public function googleCheckedWithTheClient(string $id, string $secret): void
+    {
+        Expect::same([self::GOOGLE, $id, $secret], self::credentialsOf($this->application->providerAccess->lastCheckedBy()));
+    }
+
+    /**
+     * @return list<?string>
+     */
+    private static function credentialsOf(?ClientCredentials $client): array
+    {
+        return [$client?->provider->value, $client?->id, $client?->secret];
     }
 
     #[Then('l\'accès est révoqué chez Google')]
