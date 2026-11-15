@@ -29,11 +29,20 @@ STACK_CGROUP = $(if $(IN_WORKTREE),--cgroup-parent=$(AGENTS_SLICE))
 # own, the others keep theirs; named on the host only, a make run in a container starting none (the image of php has no
 # find)
 ifeq ($(wildcard /.dockerenv),)
-image-tag = $(shell cd $(ROOT) && { find docker/$(1) -type f | LC_ALL=C sort | xargs sha256sum; echo $(UID):$(GID); } | sha256sum | cut -c1-12)
+image-digest = cd $(1) && { find docker/$(2) -type f | LC_ALL=C sort | xargs sha256sum; echo $(UID):$(GID); } | sha256sum | cut -c1-12
+image-tag = $(shell $(call image-digest,$(ROOT),$(1)))
 export PHP_IMAGE := prospecter-php:$(call image-tag,php)
 export NODE_IMAGE := prospecter-node:$(call image-tag,node)
 export NGINX_IMAGE := prospecter-nginx:$(call image-tag,nginx)
 export LAMBDA_DEPLOY_IMAGE := prospecter-lambda-deploy:$(call image-tag,lambda)
+# the downloads of Composer and pnpm, shared by the stacks of every checkout (ADR 0116): volumes of no Compose project
+# (external in docker-compose.yml), which make down keeps; created when missing, once per run of make, before its first
+# docker compose
+SHARED_CACHES = prospecter-composer-cache prospecter-pnpm-store
+ifndef SHARED_CACHES_CREATED
+export SHARED_CACHES_CREATED := $(shell for volume in $(SHARED_CACHES); do \
+	docker volume inspect $$volume >/dev/null 2>&1 || docker volume create $$volume >/dev/null; done; echo 1)
+endif
 endif
 # the whole repository is mounted in the containers: a project runs in its own directory there
 WORKDIR = /var/www/src$(patsubst $(ROOT)%,%,$(CURDIR))

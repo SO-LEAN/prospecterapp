@@ -9,7 +9,7 @@ GITLEAKS = docker run --rm -u $(UID):$(GID) -e GIT_INDEX_FILE -v $(CURDIR):$(CUR
 	-w $(CURDIR) ghcr.io/gitleaks/gitleaks:v8.30.1
 INFRA_APPS = api storage front
 
-.PHONY: install hooks build vendor db aws ca front-install check-secrets check-infra check-contract check-core check-api check-storage check-front check-e2e check-e2e-locked e2e-locked front-lint front-tested-build changed-checks infra-target infra-init infra-plan infra-apply infra-lint changed-apps package-api package-storage package-front release-front console start deploy stop down agents-slice logs ps ci test test-api test-storage test-front e2e test-core mutation mutation-api lint adr-references fix front-build api-doc contract commands profiler-clear exec-api exec-front secrets secrets-branch
+.PHONY: install hooks build vendor db aws ca front-install check-secrets check-infra check-contract check-core check-api check-storage check-front check-e2e check-e2e-locked e2e-locked front-lint front-tested-build changed-checks infra-target infra-init infra-plan infra-apply infra-lint changed-apps package-api package-storage package-front release-front console start deploy stop down images-prune agents-slice logs ps ci test test-api test-storage test-front e2e test-core mutation mutation-api lint adr-references fix front-build api-doc contract commands profiler-clear exec-api exec-front secrets secrets-branch
 
 ##@ Setup
 install: hooks build vendor db front-install ## Build the images, install the dependencies, create the tables, the bucket and the user pool, install the Git hooks
@@ -49,9 +49,22 @@ stop: ## Stop the stack of this checkout, the MiniStack of its tests and the fun
 	@$(STACK_FUNCTIONS) | xargs -r docker rm -f >/dev/null
 	@$(DC) --profile test stop
 
-down: ## Remove the stack of this checkout, its functions and its data: once a worktree is done with (ADR 0116)
+down: ## Remove the stack of this checkout, its functions and its data, the caches shared by the checkouts kept: once a worktree is done with (ADR 0116)
 	@$(STACK_FUNCTIONS) | xargs -r docker rm -f >/dev/null
 	@$(DC) --profile cli --profile test --profile deploy down --volumes --remove-orphans
+
+# the images of the stack by the directory of their build context, and the tags the checkouts of the repository expect
+# of them, each by its own docker/ (make/common.mk); the tag local, of a Compose run by hand, kept. On demand only: a
+# former tag stays until then, no command of the stack removing it
+STACK_IMAGES = php:php node:node nginx:nginx lambda-deploy:lambda
+image-name = $(word 1,$(subst :, ,$(1)))
+image-context = $(word 2,$(subst :, ,$(1)))
+EXPECTED_IMAGES = git worktree list --porcelain | sed -n 's/^worktree //p' | while read -r tree; do \
+	$(foreach image,$(STACK_IMAGES),echo "prospecter-$(call image-name,$(image)):$$({ $(call image-digest,"$$tree",$(call image-context,$(image))); } 2>/dev/null)";) done
+images-prune: ## Remove the images of the stack no checkout of the repository expects any more: those of a former docker/<image>, of a worktree removed
+	@expected=$$($(EXPECTED_IMAGES)); \
+	docker image ls $(foreach image,$(STACK_IMAGES),--filter reference=prospecter-$(call image-name,$(image))) --format '{{.Repository}}:{{.Tag}}' \
+		| grep -v ':local$$' | grep -vxF "$$expected" | xargs -r docker image rm
 
 # the budget of the stacks of the worktrees together (ADR 0116), out of reach of the agents: a slice of systemd, written
 # once with sudo, which the containers of the worktrees join; without it, only the bounds of each stack apply

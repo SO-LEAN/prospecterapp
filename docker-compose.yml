@@ -108,9 +108,12 @@ services:
     profiles: [deploy]
 volumes:
   # the downloads of Composer and pnpm, shared by the stacks of every checkout (ADR 0116): a new worktree installs its
-  # dependencies from them; the data of MiniStack stay those of the stack
+  # dependencies from them; of no project, created by make (make/common.mk), so that make down keeps them and no stack
+  # warns they belong to another; the data of MiniStack stay those of the stack
   composer-cache:
     name: prospecter-composer-cache
+    external: true
   pnpm-store:
     name: prospecter-pnpm-store
+    external: true
   ministack-data:
