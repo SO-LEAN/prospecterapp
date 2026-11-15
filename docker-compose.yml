@@ -58,6 +58,9 @@ services:
     image: ministackorg/ministack:1.5.27
     environment:
       MINISTACK_REGION: eu-west-3
+      # the host it is reached under in the network of the stack: by default localhost, which made it read the hosts
+      # of the stack in .localhost as virtual-hosted buckets (static.prospecter.localhost the bucket static, ADR 0126)
+      MINISTACK_HOST: ministack
       PERSIST_STATE: "1"
       S3_PERSIST: "1"
       S3_DATA_DIR: /var/lib/ministack/s3
