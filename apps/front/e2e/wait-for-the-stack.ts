@@ -78,10 +78,9 @@ async function theSpaRenders(config: FullConfig, deadline: number) {
   const browser = await chromium.launch(config.projects[0]?.use.launchOptions)
   try {
     const page = await browser.newPage({ ignoreHTTPSErrors: true, locale: 'fr-FR' })
-    await page.goto(`${SPA_URL}/`)
-    await page
-      .getByRole('button', { name: 'Se connecter' })
-      .waitFor({ timeout: Math.max(deadline - Date.now(), PAUSE_MS) })
+    const patience = () => ({ timeout: Math.max(deadline - Date.now(), PAUSE_MS) })
+    await page.goto(`${SPA_URL}/`, patience())
+    await page.getByRole('button', { name: 'Se connecter' }).waitFor(patience())
   } finally {
     await browser.close()
   }

@@ -177,9 +177,9 @@ test-front: ## Run the tests of the front (Vitest); FILTER= a test file by its p
 
 # the journeys depend on no service outside the stack: the API asks the double of the geocoder of nginx while they
 # run, and the service of the IGN again afterwards, whatever their result. Its containers recycled by the change, as
-# many are started again as the journeys ask at once (e2e/wait-for-the-stack.ts: six a page, two workers)
+# many are started again as the journeys ask at once (e2e/wait-for-the-stack.ts: six a page per worker)
 GEOCODER_DOUBLE = http://nginx:8081/search
-API_FUNCTIONS_AT_ONCE = 12
+API_FUNCTIONS_AT_ONCE = $$((6 * $${E2E_WORKERS:-2}))
 API_GEOCODER = $(DC) --progress quiet run --rm --build lambda-deploy geocoder
 # the relay and the worker warmed first: a journey waits a second or so for a reaction
 WARM_REACTIONS = $(DC) --progress quiet run --rm --build lambda-deploy warm
@@ -190,8 +190,9 @@ API_CONSOLE = $(MAKE) -s -C apps/api console CMD=
 CONSOLE_GESTURES = $(API_CONSOLE)"app:account:open 'E2E $(E2E_RUN)' founder-$(E2E_RUN)@e2e.test --password=password" >/dev/null \
 	&& tries=0 && until $(API_CONSOLE)"app:member:register founder-$(E2E_RUN)@e2e.test member-$(E2E_RUN)@e2e.test --password=password" >/dev/null 2>&1; \
 	do tries=$$((tries + 1)); test $$tries -lt 15 || { echo "The founder of the journeys is not a member: is the worker running?"; exit 1; }; sleep 1; done
-# the three at once: the double of the geocoder, and the functions of the API it recycled, beside the others
-E2E_SETUP = trap '$(API_GEOCODER)' EXIT && trap 'exit 130' INT TERM \
+# the three at once: the double of the geocoder, and the functions of the API it recycled, beside the others; the
+# service of the IGN given back once the double is set, whatever stops the journeys
+E2E_SETUP = geocoder= && trap 'test -z "$$geocoder" || wait $$geocoder 2>/dev/null; $(API_GEOCODER)' EXIT && trap 'exit 130' INT TERM \
 	&& { $(API_GEOCODER) $(GEOCODER_DOUBLE) $(API_FUNCTIONS_AT_ONCE) & geocoder=$$!; } \
 	&& $(WARM_REACTIONS) && $(CONSOLE_GESTURES) && wait $$geocoder
 FRONT_E2E = $(MAKE) -C apps/front e2e E2E_RUN=$(E2E_RUN)
