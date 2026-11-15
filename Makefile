@@ -64,7 +64,7 @@ EXPECTED_IMAGES = git worktree list --porcelain | sed -n 's/^worktree //p' | whi
 images-prune: ## Remove the images of the stack no checkout of the repository expects any more: those of a former docker/<image>, of a worktree removed
 	@expected=$$($(EXPECTED_IMAGES)); \
 	docker image ls $(foreach image,$(STACK_IMAGES),--filter reference=prospecter-$(call image-name,$(image))) --format '{{.Repository}}:{{.Tag}}' \
-		| grep -v ':local$$' | grep -vxF "$$expected" | xargs -r docker image rm
+		| grep -v ':local$$' | grep -vxF "$$expected" | xargs -r -n1 sh -c 'docker image rm "$$0" || echo "Kept $$0: a container uses it"'
 
 # the budget of the stacks of the worktrees together (ADR 0116), out of reach of the agents: a slice of systemd, written
 # once with sudo, which the containers of the worktrees join; without it, only the bounds of each stack apply
