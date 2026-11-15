@@ -1,5 +1,5 @@
 import { type QueryClient, useMutation, useQueryClient } from '@tanstack/react-query'
-import { useEffect } from 'react'
+import { useEffect, useRef } from 'react'
 import { useTranslation } from 'react-i18next'
 import { toast } from 'sonner'
 import { fetchClient } from '@/shared/api/client'
@@ -23,15 +23,22 @@ type Calendar = { items: CalendarExchange[] }
 /** The one toast offering to move back the last exchange moved: the next move takes its place. */
 const LAST_MOVE_TOAST = 'last-move-in-the-calendar'
 
+/** An exchange opened may be moved from its dialog: moving it back from before would undo that move unsaid. */
+export function withdrawTheOfferToMoveBack() {
+  toast.dismiss(LAST_MOVE_TOAST)
+}
+
 /**
  * An exchange dragged or stretched in the calendar: shown at once where it was dropped, set back where it was when
  * the API refuses, the refusal told by the toast of every mutation (`query-client.ts`), the calendar read again
  * either way; once moved, its toast offers to move it back, however long the member takes, until another exchange is
- * moved or the calendar is left. What follows is in the options of the mutation, the toast outliving any component.
+ * moved or opened or the calendar is left, a move answered once it is left told without the offer. What follows is in
+ * the options of the mutation, the toast outliving any component.
  */
 export function useMoveInTheCalendar() {
   const queryClient = useQueryClient()
   const { t } = useTranslation()
+  const calendarLeft = useRef(false)
 
   const move = useMutation({
     mutationFn: async ({ item, occurredAt, durationInMinutes }: CalendarMove) =>
@@ -59,6 +66,10 @@ export function useMoveInTheCalendar() {
         toast.success(t('calendar.moveUndone'))
         return
       }
+      if (calendarLeft.current) {
+        toast.success(t('exchanges.handling.moved'))
+        return
+      }
       toast.success(t('exchanges.handling.moved'), {
         id: LAST_MOVE_TOAST,
         duration: Number.POSITIVE_INFINITY,
@@ -67,7 +78,13 @@ export function useMoveInTheCalendar() {
     },
   })
 
-  useEffect(() => () => void toast.dismiss(LAST_MOVE_TOAST), [])
+  useEffect(() => {
+    calendarLeft.current = false
+    return () => {
+      calendarLeft.current = true
+      withdrawTheOfferToMoveBack()
+    }
+  }, [])
 
   return move
 }
