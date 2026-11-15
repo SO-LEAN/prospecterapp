@@ -3,6 +3,7 @@ import { act, screen, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { toast } from 'sonner'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
+import { queryKeys } from '@/shared/api/keys'
 import { Toaster } from '@/shared/ui/sonner'
 import { renderInARouter } from '@/test/render-in-a-router'
 import { startOfDay } from '../../calendar/dates'
@@ -133,8 +134,13 @@ async function openTheApplication(today: DayExchange[], settings: Settings = TEN
       myDay = aDayOf(changed)
       act(() => queryClient.setQueryData(myDayQuery(startOfDay(new Date())).queryKey, myDay))
     },
+    /** A gesture on an exchange, reading my day again with the page, as its mutation does. */
+    aGestureChangedMyDay: () => act(() => queryClient.invalidateQueries({ queryKey: queryKeys.myDay })),
   }
 }
+
+const readsOfMyDay = () =>
+  theApi.mock.calls.filter(([request]) => new URL((request as Request).url).pathname === '/api/me/day').length
 
 const itIs = (hours: number, minutes: number) =>
   act(() => vi.advanceTimersByTimeAsync(at(hours, minutes).getTime() - Date.now()))
@@ -258,6 +264,23 @@ describe('the reminders of my exchanges', () => {
     await itIs(13, 46)
     await itIs(13, 50)
     await itIs(13, 51)
+
+    expect(screen.queryByText(THE_REMINDER)).not.toBeInTheDocument()
+  })
+
+  it('reads my day again once the reactions to a gesture ran, never along with the reads of the page', async () => {
+    const videoCall = aVideoCallAt14()
+    const { aGestureChangedMyDay } = await openTheApplication([videoCall])
+    await act(() => vi.advanceTimersByTimeAsync(1_000))
+    theApi.mockClear()
+
+    myDay = aDayOf([{ ...videoCall, exchange: { ...videoCall.exchange, status: 'cancelled' } }])
+    await aGestureChangedMyDay()
+    await act(() => vi.advanceTimersByTimeAsync(2_500))
+    expect(readsOfMyDay()).toBe(0)
+    await act(() => vi.advanceTimersByTimeAsync(1_000))
+    expect(readsOfMyDay()).toBe(1)
+    await itIs(13, 50)
 
     expect(screen.queryByText(THE_REMINDER)).not.toBeInTheDocument()
   })
