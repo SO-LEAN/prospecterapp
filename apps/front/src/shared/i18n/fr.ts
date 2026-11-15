@@ -559,6 +559,8 @@ export const fr = {
     notTheAdministrator: 'Seul un administrateur du compte configure ses connecteurs.',
     noClient: 'Le compte n’a pas de client Google.',
     incompleteClient: 'Un client Google a besoin de son identifiant et de son secret.',
+    secretsUnavailable:
+      'Le secret du client ne peut être ni enregistré ni lu pour le moment : réessayez plus tard.',
   },
   validation: {
     required: 'Ce champ est obligatoire.',
