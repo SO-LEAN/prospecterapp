@@ -1,4 +1,3 @@
-import { useQuery } from '@tanstack/react-query'
 import { useNavigate } from '@tanstack/react-router'
 import { useEffect, useEffectEvent, useReducer } from 'react'
 import { useTranslation } from 'react-i18next'
@@ -7,9 +6,10 @@ import { blinkTheTitleWhileHidden } from '@/shared/lib/blinking-title'
 import { notificationsPermission, notify } from '@/shared/lib/browser-notifications'
 import { formatHour } from '@/shared/lib/format'
 import { addDays, startOfDay } from '../../calendar/dates'
-import { type DayExchange, myDayToRemindQuery } from '../../my-day/queries'
+import type { DayExchange } from '../../my-day/queries'
 import { markShown, readReminded, remindAgain, whenRemindedInAnotherTab } from '../reminded'
 import { nextReminderAt, type ReminderSettings, reminderOf, remindersDue, SNOOZE_MS } from '../schedule'
+import { useMyDayToRemind } from '../use-my-day-to-remind'
 import { ReminderToast } from './reminder-toast'
 
 /** A tab in the background lets one in front show a reminder due in both: the member sees it where they are. */
@@ -25,7 +25,7 @@ type Props = { settings: ReminderSettings }
  */
 export function ExchangeReminders({ settings }: Props) {
   const today = startOfDay(new Date())
-  const { data: myDay } = useQuery(myDayToRemindQuery(today))
+  const myDay = useMyDayToRemind(today)
   const [wakings, wakeUp] = useReducer((count: number) => count + 1, 0)
   const remind = useRemind(wakeUp)
   const remindOfThoseDue = useEffectEvent(() => {
