@@ -81,11 +81,12 @@ final class Connection implements ReleasesEvents
     }
 
     /**
-     * Asks the provider whether it still grants the access: once it refuses, the member is to connect again.
+     * Asks the provider whether it still grants the access: once it refuses, the member is to connect again. Without
+     * a client at the provider, it cannot be asked: the connection stays as last seen.
      */
     public function check(ProviderAccess $access, \DateTimeImmutable $at): void
     {
-        if (ConnectionState::Connected !== $this->state || $access->stillGrants($this->provider, $this->refreshToken)) {
+        if (ConnectionState::Connected !== $this->state || !$access->hasClient($this->provider) || $access->stillGrants($this->provider, $this->refreshToken)) {
             return;
         }
 
