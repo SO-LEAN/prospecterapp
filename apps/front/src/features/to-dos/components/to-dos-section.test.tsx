@@ -117,7 +117,7 @@ describe('ToDosCard', () => {
     expect(screen.queryByLabelText('Ce qu’il y a à faire')).not.toBeInTheDocument()
   })
 
-  it('adds a to-do from the button of its header, in a dialog the text focused, due on the day of a shortcut', async () => {
+  it('adds a to-do from the button of its header, in a dialog the text focused, due on the day of a shortcut, by Enter', async () => {
     const onNote = vi.fn(async () => undefined)
     await renderTheCard(listOf([aToDo({})]), onNote)
     expect(screen.queryByLabelText('Ce qu’il y a à faire')).not.toBeInTheDocument()
@@ -127,8 +127,10 @@ describe('ToDosCard', () => {
     const text = within(dialog).getByLabelText('Ce qu’il y a à faire')
     expect(text).toHaveFocus()
     expect(within(dialog).getByLabelText(/^Pour/)).toHaveValue(dayOf(inDays(1)))
+    await userEvent.type(text, 'Relancer pour le devis')
     await userEvent.click(within(dialog).getByRole('button', { name: 'Aujourd’hui' }))
-    await userEvent.type(text, 'Relancer pour le devis{Enter}')
+    expect(text).toHaveFocus()
+    await userEvent.keyboard('{Enter}')
 
     expect(onNote).toHaveBeenCalledWith({
       text: 'Relancer pour le devis',
