@@ -110,6 +110,33 @@ describe('GoogleClientCard', () => {
     expect(await screen.findByText('Le client Google du compte est enregistré.')).toBeInTheDocument()
   })
 
+  it('says the client could not be saved while the secrets of the account are out of reach', async () => {
+    theApi.mockResolvedValue(
+      Response.json(
+        {
+          type: 'about:blank',
+          title: 'Service Unavailable',
+          status: 503,
+          reason: 'secretsUnavailable',
+          detail: 'The secrets of the accounts cannot be kept nor read for now',
+        },
+        { status: 503, headers: { 'Content-Type': 'application/problem+json' } },
+      ),
+    )
+    const { user } = renderTheCard(none)
+
+    await user.type(screen.getByLabelText('Identifiant du client'), 'another-client')
+    await user.type(screen.getByLabelText('Secret du client'), 'its-secret')
+    await user.click(screen.getByRole('button', { name: 'Enregistrer le client' }))
+
+    expect(
+      await screen.findByText(
+        'Le secret du client ne peut être ni enregistré ni lu pour le moment : réessayez plus tard.',
+      ),
+    ).toBeInTheDocument()
+    expect(screen.queryByText('Le client Google du compte est enregistré.')).not.toBeInTheDocument()
+  })
+
   it('asks the id and the secret before sending anything', async () => {
     const { user } = renderTheCard(none)
 
