@@ -6,6 +6,7 @@ import { Button } from '@/shared/ui/button'
 import { PageHeader } from '@/shared/ui/page-header'
 import { Popover, PopoverContent, PopoverTrigger } from '@/shared/ui/popover'
 import type { Slot } from '../../planning'
+import { useNow } from '../../use-now'
 import { neighbourOf, type Period, periodOf, startOfDay, VIEWS, type View } from '../dates'
 import { useMoveInTheCalendar, withdrawTheOfferToMoveBack } from '../mutations'
 import {
@@ -22,8 +23,6 @@ import { MonthView } from './month-view'
 import { type InterlocutorSearch, PlanInASlot } from './plan-in-a-slot'
 import { TimeGridView } from './time-grid-view'
 
-const MINUTE_MS = 60_000
-
 const monthFormat = new Intl.DateTimeFormat('fr-FR', { month: 'long', year: 'numeric' })
 const dayFormat = new Intl.DateTimeFormat('fr-FR', { dateStyle: 'full' })
 const rangeFormat = new Intl.DateTimeFormat('fr-FR', { day: 'numeric', month: 'short', year: 'numeric' })
@@ -39,16 +38,6 @@ function titleOf(view: View, day: Date, period: Period): string {
     case 'day':
       return dayFormat.format(day)
   }
-}
-
-/** The moment of the screen, again each minute: the line of now moves, what passed becomes to handle. */
-function useNow(): Date {
-  const [now, setNow] = useState(() => new Date())
-  useEffect(() => {
-    const ticking = window.setInterval(() => setNow(new Date()), MINUTE_MS)
-    return () => window.clearInterval(ticking)
-  }, [])
-  return now
 }
 
 type Props = {

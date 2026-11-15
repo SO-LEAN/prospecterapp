@@ -14,5 +14,6 @@ export function readTheExchangesAgain(queryClient: QueryClient) {
     queryKeys.exchangesToMakeConform,
     queryKeys.exchange,
     queryKeys.myCalendar,
+    queryKeys.myDay,
   )
 }

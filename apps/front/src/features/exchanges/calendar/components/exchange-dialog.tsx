@@ -18,13 +18,15 @@ type Props = {
   onClose: () => void
   /** Who the contact is, their card in short: told by the page composing the calendar with the contacts. */
   contactSummary: (contactId: string) => ReactNode
+  /** Opened on its report, to mark it done at once. */
+  startWith?: 'report'
 }
 
 /**
- * An exchange opened from the calendar, past or to come: all of it and what it offers, as in its detail, then who it
+ * An exchange opened from the calendar or the day, past or to come: all of it and what it offers, as in its detail, then who it
  * is with and their last exchanges, and their card; closed by Échap, its controls reached by the keyboard.
  */
-export function ExchangeDialog({ item, onClose, contactSummary }: Props) {
+export function ExchangeDialog({ item, onClose, contactSummary, startWith }: Props) {
   const { t } = useTranslation()
 
   return (
@@ -36,7 +38,7 @@ export function ExchangeDialog({ item, onClose, contactSummary }: Props) {
         </DialogHeader>
         {item && (
           <>
-            <ExchangePanel exchangeId={item.exchange.id} onErased={onClose} />
+            <ExchangePanel exchangeId={item.exchange.id} onErased={onClose} startWith={startWith} />
             {item.interlocutor.kind === 'person' && item.interlocutor.presence !== 'forgotten' && (
               <section aria-label={t('calendar.theContact')} className="space-y-3 border-t px-4 pt-3">
                 {contactSummary(item.interlocutor.id)}

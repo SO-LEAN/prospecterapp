@@ -45,6 +45,7 @@ export function useNoteExchange() {
       })
       void queryClient.invalidateQueries({ queryKey: timelineKeys.ofOrganizations })
       void queryClient.invalidateQueries({ queryKey: timelineKeys.myCalendar })
+      void queryClient.invalidateQueries({ queryKey: timelineKeys.myDay })
       readTheFiguresAgain(queryClient)
       toast.success(t('exchanges.noted'))
     },
@@ -78,6 +79,7 @@ export function useNoteOrganizationExchange() {
       void queryClient.invalidateQueries({ queryKey: timelineKeys.ofContacts, refetchType: 'none' })
       void queryClient.invalidateQueries({ queryKey: timelineKeys.ofOrganizations, refetchType: 'none' })
       void queryClient.invalidateQueries({ queryKey: timelineKeys.myCalendar })
+      void queryClient.invalidateQueries({ queryKey: timelineKeys.myDay })
       queryClient.setQueryData(organizationTimelineQuery(organizationId).queryKey, {
         pages: [timeline],
         pageParams: [undefined],
@@ -106,6 +108,7 @@ export function usePlanExchange() {
       void queryClient.invalidateQueries({ queryKey: timelineKeys.upcomingOfOrganizations })
       void queryClient.invalidateQueries({ queryKey: timelineKeys.myPlanned })
       void queryClient.invalidateQueries({ queryKey: timelineKeys.myCalendar })
+      void queryClient.invalidateQueries({ queryKey: timelineKeys.myDay })
       toast.success(t('exchanges.planned'))
     },
   })
@@ -129,6 +132,7 @@ export function usePlanOrganizationExchange() {
       })
       void queryClient.invalidateQueries({ queryKey: timelineKeys.myPlanned })
       void queryClient.invalidateQueries({ queryKey: timelineKeys.myCalendar })
+      void queryClient.invalidateQueries({ queryKey: timelineKeys.myDay })
       queryClient.setQueryData(organizationUpcomingQuery(params.path.id).queryKey, {
         pages: [upcoming],
         pageParams: [undefined],
@@ -152,6 +156,7 @@ export function readTheTimelinesAgain(queryClient: QueryClient) {
   void queryClient.invalidateQueries({ queryKey: timelineKeys.upcomingOfOrganizations })
   void queryClient.invalidateQueries({ queryKey: timelineKeys.myPlanned })
   void queryClient.invalidateQueries({ queryKey: timelineKeys.myCalendar })
+  void queryClient.invalidateQueries({ queryKey: timelineKeys.myDay })
 }
 
 /** The corrected exchange goes straight into its detail; the timelines showing it read it again. */

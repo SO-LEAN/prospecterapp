@@ -61,8 +61,15 @@ export function ExchangeDetailSheet({ exchangeId, onClose }: Props) {
   )
 }
 
-/** The whole of an exchange and what it offers, read from the API: in its sheet, or in the calendar. */
-export function ExchangePanel({ exchangeId, onErased }: { exchangeId: string; onErased: () => void }) {
+type PanelProps = {
+  exchangeId: string
+  onErased: () => void
+  /** Opened on its report, to mark it done at once: from the day of the dashboard. */
+  startWith?: 'report'
+}
+
+/** The whole of an exchange and what it offers, read from the API: in its sheet, in the calendar or the day. */
+export function ExchangePanel({ exchangeId, onErased, startWith }: PanelProps) {
   const exchange = useQuery(exchangeQuery(exchangeId))
 
   if (!exchange.data) {
@@ -74,7 +81,7 @@ export function ExchangePanel({ exchangeId, onErased }: { exchangeId: string; on
     )
   }
 
-  return <Exchange exchange={exchange.data} onErased={onErased} />
+  return <Exchange exchange={exchange.data} onErased={onErased} startWith={startWith} />
 }
 
 /**
@@ -83,9 +90,15 @@ export function ExchangePanel({ exchangeId, onErased }: { exchangeId: string; on
  */
 type Correcting = 'facts' | 'text' | 'venue' | 'report' | 'followUp' | 'move' | null
 
-function Exchange({ exchange, onErased }: { exchange: ExchangeDetail; onErased: () => void }) {
+function Exchange({
+  exchange,
+  onErased,
+  startWith,
+}: { exchange: ExchangeDetail } & Omit<PanelProps, 'exchangeId'>) {
   const { t } = useTranslation()
-  const [correcting, setCorrecting] = useState<Correcting>(null)
+  const [correcting, setCorrecting] = useState<Correcting>(
+    startWith && exchange._links.markDone ? startWith : null,
+  )
   const correct = useCorrectExchange()
   const correctText = useCorrectExchangeText()
   const markDone = useMarkExchangeDone()
