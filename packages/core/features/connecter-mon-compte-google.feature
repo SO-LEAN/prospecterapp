@@ -110,3 +110,9 @@ Fonctionnalité: Connecter mon compte Google
     Quand je demande à connecter mon compte Google
     Alors c'est refusé : "Google is not available"
     Et je n'ai pas de connexion Google
+
+  Scénario: Sans client Google, ma connexion n'est pas vérifiée
+    Soit mon compte Google est connecté
+    Et aucun client Google ne sert mon compte
+    Quand Google refuse mon jeton
+    Alors ma connexion Google est "connectée"
