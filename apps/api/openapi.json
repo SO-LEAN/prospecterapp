@@ -2807,6 +2807,78 @@
                 }
             }
         },
+        "/api/me/day": {
+            "get": {
+                "tags": [
+                    "My account"
+                ],
+                "summary": "The day of the signed-in member: the exchanges they planned today, then the next five to come",
+                "operationId": "get_api_me_day",
+                "parameters": [
+                    {
+                        "name": "from",
+                        "in": "query",
+                        "description": "The start of its first day, included",
+                        "required": false,
+                        "schema": {
+                            "description": "The start of its first day, included",
+                            "type": "string",
+                            "format": "date-time",
+                            "nullable": true,
+                            "default": null
+                        }
+                    },
+                    {
+                        "name": "to",
+                        "in": "query",
+                        "description": "The start of the day after its last, excluded; six weeks after `from` at most",
+                        "required": false,
+                        "schema": {
+                            "description": "The start of the day after its last, excluded; six weeks after `from` at most",
+                            "type": "string",
+                            "format": "date-time",
+                            "nullable": true,
+                            "default": null
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "The exchanges of the day still planned, then the next ones, the soonest first",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/MyDayResource"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Missing or invalid access token"
+                    },
+                    "403": {
+                        "description": "Not a prospector",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ProblemResource"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Invalid day: a bound missing, an end before the start",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ProblemResource"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
         "/api/contacts/{id}/organizations": {
             "get": {
                 "tags": [
@@ -6126,6 +6198,12 @@
                     },
                     "move": {
                         "$ref": "#/components/schemas/LinkResource"
+                    },
+                    "markDone": {
+                        "$ref": "#/components/schemas/LinkResource"
+                    },
+                    "markMissed": {
+                        "$ref": "#/components/schemas/LinkResource"
                     }
                 },
                 "type": "object"
@@ -6694,6 +6772,45 @@
                     },
                     "_links": {
                         "$ref": "#/components/schemas/CalendarLinksResource"
+                    }
+                },
+                "type": "object"
+            },
+            "MyDayLinksResource": {
+                "required": [
+                    "self"
+                ],
+                "properties": {
+                    "self": {
+                        "$ref": "#/components/schemas/LinkResource"
+                    },
+                    "searchContacts": {
+                        "$ref": "#/components/schemas/LinkResource"
+                    }
+                },
+                "type": "object"
+            },
+            "MyDayResource": {
+                "required": [
+                    "today",
+                    "next",
+                    "_links"
+                ],
+                "properties": {
+                    "today": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/OrganizationExchangeResource"
+                        }
+                    },
+                    "next": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/OrganizationExchangeResource"
+                        }
+                    },
+                    "_links": {
+                        "$ref": "#/components/schemas/MyDayLinksResource"
                     }
                 },
                 "type": "object"

@@ -560,6 +560,23 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/me/day": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** The day of the signed-in member: the exchanges they planned today, then the next five to come */
+        get: operations["get_api_me_day"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/contacts/{id}/organizations": {
         parameters: {
             query?: never;
@@ -1513,6 +1530,8 @@ export interface components {
         ExchangeLinksResource: {
             self: components["schemas"]["LinkResource"];
             move?: components["schemas"]["LinkResource"];
+            markDone?: components["schemas"]["LinkResource"];
+            markMissed?: components["schemas"]["LinkResource"];
         };
         ExchangeResource: {
             id: string;
@@ -1676,6 +1695,15 @@ export interface components {
         CalendarResource: {
             items: components["schemas"]["OrganizationExchangeResource"][];
             _links: components["schemas"]["CalendarLinksResource"];
+        };
+        MyDayLinksResource: {
+            self: components["schemas"]["LinkResource"];
+            searchContacts?: components["schemas"]["LinkResource"];
+        };
+        MyDayResource: {
+            today: components["schemas"]["OrganizationExchangeResource"][];
+            next: components["schemas"]["OrganizationExchangeResource"][];
+            _links: components["schemas"]["MyDayLinksResource"];
         };
         OrganizationsOfContactResource: {
             items: components["schemas"]["OrganizationOfContactResource"][];
@@ -4214,6 +4242,56 @@ export interface operations {
             };
             /** @description Unknown organization, or one of another account */
             404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ProblemResource"];
+                };
+            };
+        };
+    };
+    get_api_me_day: {
+        parameters: {
+            query?: {
+                /** @description The start of its first day, included */
+                from?: string | null;
+                /** @description The start of the day after its last, excluded; six weeks after `from` at most */
+                to?: string | null;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description The exchanges of the day still planned, then the next ones, the soonest first */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MyDayResource"];
+                };
+            };
+            /** @description Missing or invalid access token */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Not a prospector */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ProblemResource"];
+                };
+            };
+            /** @description Invalid day: a bound missing, an end before the start */
+            422: {
                 headers: {
                     [name: string]: unknown;
                 };

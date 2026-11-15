@@ -12,6 +12,10 @@ final readonly class ExchangeLinksResource
         public LinkResource $self,
         #[OA\Property(nullable: false, description: 'Moves it to another moment to come, for a new duration or its own; in the calendar of its holder only, while it is planned')]
         public ?LinkResource $move = null,
+        #[OA\Property(nullable: false, description: 'Marks it done, with its report; in the day of its holder only, once its time has come')]
+        public ?LinkResource $markDone = null,
+        #[OA\Property(nullable: false, description: 'Marks it missed: the contact did not come or answer; in the day of its holder only, once its time has come')]
+        public ?LinkResource $markMissed = null,
     ) {
     }
 }

@@ -9,6 +9,7 @@ use App\Security\IntentLinks;
 use App\Security\User;
 use App\Shared\Links;
 use Prospecter\Core\Prospecting\Application\ConsultCalendar\Calendar;
+use Prospecter\Core\Prospecting\Application\ConsultMyDay\MyDay;
 use Prospecter\Core\Prospecting\Application\ExchangeInTimeline;
 use Prospecter\Core\Prospecting\Application\Timeline;
 
@@ -52,6 +53,20 @@ final readonly class TimelineResourceFactory
         $move = in_array($exchange->id, $calendar->movable, true) ? $this->links->to('api_exchanges_move', ['id' => $exchange->id]) : null;
 
         return $this->exchangeWith($exchange, new ExchangeLinksResource($this->links->to('api_exchanges_show', ['id' => $exchange->id]), $move));
+    }
+
+    /**
+     * In the day of its holder, it is marked done or missed when its time has come.
+     */
+    public function createDayExchange(ExchangeInTimeline $exchange, MyDay $myDay): ExchangeResource
+    {
+        $toHandle = in_array($exchange->id, $myDay->toHandle, true);
+
+        return $this->exchangeWith($exchange, new ExchangeLinksResource(
+            $this->links->to('api_exchanges_show', ['id' => $exchange->id]),
+            markDone: $toHandle ? $this->links->to('api_exchanges_mark_done', ['id' => $exchange->id]) : null,
+            markMissed: $toHandle ? $this->links->to('api_exchanges_mark_missed', ['id' => $exchange->id]) : null,
+        ));
     }
 
     private function exchangeWith(ExchangeInTimeline $exchange, ExchangeLinksResource $links): ExchangeResource
