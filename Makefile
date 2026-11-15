@@ -242,7 +242,7 @@ adr-references: ## Check that no reference names a decision record entirely repl
 	found=$$( { git grep -nE "ADRs?[ ,0-9and]*\b($$superseded)\b" -- . $(ADR_HISTORY); git grep -nE "adr/($$superseded)-" -- . $(ADR_HISTORY); } ); \
 	if [ -n "$$found" ]; then echo "References to records entirely replaced: cite the record in force (docs/adr/README.md)"; echo "$$found"; exit 1; fi
 
-# the index of the records is written from their headers (ADR 0127): two branches adding a record each merge their
+# the index of the records is written from their headers (ADR 0128): two branches adding a record each merge their
 # lines by the union of .gitattributes, the index written again putting them in order
 adr-index: ## Write the index of the decision records again from their headers, after adding a record or changing its status
 	@make/adr-index.sh

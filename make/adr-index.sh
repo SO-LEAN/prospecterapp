@@ -1,5 +1,5 @@
 #!/bin/sh
-# The index of the decision records (docs/adr/README.md) written from their headers (ADR 0127): one line per record in
+# The index of the decision records (docs/adr/README.md) written from their headers (ADR 0128): one line per record in
 # the order of their numbers, its title, its type and its date those of its header. Its status column begins with the
 # status of the header, or says that a later record superseded it: what the journal, immutable, cannot say in the
 # record itself (ADR 0090). A record written before the type was asked keeps the type of its line. With --check, writes
