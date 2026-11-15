@@ -1,11 +1,11 @@
 import { useQuery } from '@tanstack/react-query'
-import { EllipsisVertical, Pencil, Trash2 } from 'lucide-react'
+import { EllipsisVertical, Pencil, Plus, Trash2 } from 'lucide-react'
 import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { memberName } from '@/shared/lib/member-name'
 import { cn } from '@/shared/lib/utils'
 import { Button } from '@/shared/ui/button'
-import { Card, CardContent, CardHeader, CardTitle } from '@/shared/ui/card'
+import { Card, CardAction, CardContent, CardHeader, CardTitle } from '@/shared/ui/card'
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/shared/ui/dialog'
 import {
   DropdownMenu,
@@ -79,22 +79,49 @@ type CardProps = SectionProps & {
   withTheirContact?: boolean
 }
 
+type AddProps = Pick<CardProps, 'onNote'> & { open: boolean; onOpenChange: (open: boolean) => void }
+
 /**
- * A new form once a to-do is noted, empty, due tomorrow, its text focused for the next one: emptying the same form in place would count on a render
- * registering its fields again, which the React Compiler skips (`docs/architecture/front.md`, Forms).
+ * A new to-do, in a dialog closed once it is added, or kept open for another: a new form then, empty, due tomorrow, its
+ * text focused: emptying the same form in place would count on a render registering its fields again, which the React
+ * Compiler skips (`docs/architecture/front.md`, Forms).
  */
-function QuickEntry({ onNote }: Pick<CardProps, 'onNote'>) {
-  const [noted, setNoted] = useState(0)
+function AddToDoDialog({ onNote, open, onOpenChange }: AddProps) {
+  const { t } = useTranslation()
+  const [added, setAdded] = useState(0)
 
   return (
-    <ToDoForm
-      key={noted}
-      focusTheText={noted > 0}
-      onSubmit={async (body) => {
-        await onNote(body)
-        setNoted((count) => count + 1)
-      }}
-    />
+    <Dialog open={open} onOpenChange={onOpenChange}>
+      <DialogContent className="max-h-[calc(100dvh-2rem)] overflow-y-auto">
+        <DialogHeader>
+          <DialogTitle>{t('toDos.new')}</DialogTitle>
+          <DialogDescription>{t('toDos.newDescription')}</DialogDescription>
+        </DialogHeader>
+        <ToDoForm
+          key={added}
+          submitLabel={t('toDos.add')}
+          onCancel={() => onOpenChange(false)}
+          onSubmit={async (body) => {
+            await onNote(body)
+            onOpenChange(false)
+          }}
+          onSubmitThenAnother={async (body) => {
+            await onNote(body)
+            setAdded((count) => count + 1)
+          }}
+        />
+      </DialogContent>
+    </Dialog>
+  )
+}
+
+function AddButton({ onClick }: { onClick: () => void }) {
+  const { t } = useTranslation()
+
+  return (
+    <Button size="sm" onClick={onClick}>
+      <Plus aria-hidden /> {t('toDos.add')}
+    </Button>
   )
 }
 
@@ -103,15 +130,28 @@ export function ToDosCard({ list, onNote, onTickedOff, withTheirContact = false,
   const { t } = useTranslation()
   const { toDo, done } = split(list.toDos)
   const now = new Date()
+  const [adding, setAdding] = useState(false)
+  const mayAdd = Boolean(list._links.noteToDo)
+  const nothingToDo = toDo.length === 0
+  const add = () => setAdding(true)
 
   return (
     <Card className={className}>
       <CardHeader>
         <CardTitle className="text-base">{t('toDos.title')}</CardTitle>
+        {mayAdd && !nothingToDo && (
+          <CardAction>
+            <AddButton onClick={add} />
+          </CardAction>
+        )}
       </CardHeader>
       <CardContent className="space-y-4 text-sm">
-        {list._links.noteToDo && <QuickEntry onNote={onNote} />}
-        {toDo.length === 0 && <p className="text-muted-foreground">{t('toDos.none')}</p>}
+        {nothingToDo && (
+          <div className="flex flex-col items-center gap-3 py-4 text-center">
+            <p className="text-muted-foreground">{t('toDos.none')}</p>
+            {mayAdd && <AddButton onClick={add} />}
+          </div>
+        )}
         <ToDoLines
           label={t('toDos.title')}
           toDos={toDo}
@@ -133,6 +173,7 @@ export function ToDosCard({ list, onNote, onTickedOff, withTheirContact = false,
             />
           </details>
         )}
+        {mayAdd && <AddToDoDialog onNote={onNote} open={adding} onOpenChange={setAdding} />}
       </CardContent>
     </Card>
   )
@@ -237,6 +278,7 @@ export function ToDoLine({ toDo, now, withTheirContact, onTickedOff }: LineProps
           </DialogHeader>
           <ToDoForm
             defaultValues={revisionOf(toDo)}
+            submitLabel={t('common.save')}
             onCancel={() => setRevising(false)}
             onSubmit={async (body) => {
               await revise.mutateAsync({ ...params, body })

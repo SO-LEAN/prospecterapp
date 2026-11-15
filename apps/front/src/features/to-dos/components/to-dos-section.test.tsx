@@ -65,7 +65,9 @@ const inDays = (days: number) => {
 }
 
 const dayOf = (date: Date) =>
-  [date.getFullYear(), date.getMonth() + 1, date.getDate()].map((part) => String(part).padStart(2, '0')).join('-')
+  [date.getFullYear(), date.getMonth() + 1, date.getDate()]
+    .map((part) => String(part).padStart(2, '0'))
+    .join('-')
 
 afterEach(() => {
   vi.restoreAllMocks()
@@ -128,7 +130,11 @@ describe('ToDosCard', () => {
     await userEvent.click(within(dialog).getByRole('button', { name: 'Aujourd’hui' }))
     await userEvent.type(text, 'Relancer pour le devis{Enter}')
 
-    expect(onNote).toHaveBeenCalledWith({ text: 'Relancer pour le devis', dueOn: dayOf(inDays(0)), dueAt: null })
+    expect(onNote).toHaveBeenCalledWith({
+      text: 'Relancer pour le devis',
+      dueOn: dayOf(inDays(0)),
+      dueAt: null,
+    })
     await waitFor(() => expect(screen.queryByRole('dialog')).not.toBeInTheDocument())
   })
 
@@ -168,7 +174,11 @@ describe('ToDosCard', () => {
     await userEvent.type(text(), 'Envoyer mon CV')
     await userEvent.type(hour(), '08:30')
     await userEvent.click(addAnother())
-    expect(onNote).toHaveBeenLastCalledWith({ text: 'Envoyer mon CV', dueOn: dayOf(inDays(1)), dueAt: '08:30' })
+    expect(onNote).toHaveBeenLastCalledWith({
+      text: 'Envoyer mon CV',
+      dueOn: dayOf(inDays(1)),
+      dueAt: '08:30',
+    })
     expect(screen.getByRole('dialog')).toBeInTheDocument()
     expect(text()).toHaveValue('')
     expect(hour()).toHaveValue('')
@@ -177,12 +187,18 @@ describe('ToDosCard', () => {
     await userEvent.type(text(), 'Relancer par e-mail')
     await userEvent.click(within(dialog).getByRole('button', { name: 'Dans 1 semaine' }))
     await userEvent.click(addAnother())
-    expect(onNote).toHaveBeenLastCalledWith(expect.objectContaining({ text: 'Relancer par e-mail', dueOn: dayOf(inDays(7)) }))
+    expect(onNote).toHaveBeenLastCalledWith(
+      expect.objectContaining({ text: 'Relancer par e-mail', dueOn: dayOf(inDays(7)) }),
+    )
     expect(day()).toHaveValue(dayOf(inDays(1)))
 
     await userEvent.type(text(), 'Envoyer la plaquette{Enter}')
     expect(screen.queryByText('Ce champ est obligatoire.')).not.toBeInTheDocument()
-    expect(onNote).toHaveBeenLastCalledWith({ text: 'Envoyer la plaquette', dueOn: dayOf(inDays(1)), dueAt: null })
+    expect(onNote).toHaveBeenLastCalledWith({
+      text: 'Envoyer la plaquette',
+      dueOn: dayOf(inDays(1)),
+      dueAt: null,
+    })
     await waitFor(() => expect(screen.queryByRole('dialog')).not.toBeInTheDocument())
   })
 
