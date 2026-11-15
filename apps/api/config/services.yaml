@@ -317,6 +317,15 @@ when@test:
                   handler: '@Tests\App\Double\InMemoryLambda'
         Tests\App\Double\InMemoryLambda:
             public: true
+        # the SSM of MiniStack, refusing the operations a test names
+        Aws\Ssm\SsmClient:
+            arguments:
+                - region: '%env(AWS_REGION)%'
+                  endpoint: '%env(default::SSM_ENDPOINT)%'
+                  credentials: '%app.aws_credentials%'
+            configurator: ['@Tests\App\Double\RefusingSsm', 'refuseThrough']
+        Tests\App\Double\RefusingSsm:
+            public: true
         # the bus in memory: the relay is tested on its own
         Aws\EventBridge\EventBridgeClient:
             arguments:
