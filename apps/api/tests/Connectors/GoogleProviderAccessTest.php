@@ -4,6 +4,7 @@ namespace Tests\App\Connectors;
 
 use App\Connectors\Google\GoogleClient;
 use App\Connectors\Google\GoogleProviderAccess;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\DoesNotPerformAssertions;
 use PHPUnit\Framework\TestCase;
 use Prospecter\Core\Connectors\Domain\Exception\AccessNotGranted;
@@ -86,9 +87,30 @@ class GoogleProviderAccessTest extends TestCase
         $this->access(new MockHttpClient(static fn (): never => throw new TransportException('Google does not answer')))->revoke(Provider::Google, new RefreshToken('a-token'));
     }
 
-    private function access(MockHttpClient $google): GoogleProviderAccess
+    public function testGoogleHasAClientOnceItsIdAndSecretAreGiven(): void
     {
-        return new GoogleProviderAccess($google, new GoogleClient('an-id', 'a-secret', 'https://front.test/settings/connectors/google', 'https://accounts.google.test/auth', self::TOKEN_URL, 'https://oauth2.google.test/revoke'), new NullLogger());
+        $this->assertTrue($this->access(new MockHttpClient())->hasClient(Provider::Google));
+    }
+
+    #[DataProvider('clientsLackingAValue')]
+    public function testGoogleHasNoClientWhileItsIdOrSecretIsEmpty(string $id, string $secret): void
+    {
+        $this->assertFalse($this->access(new MockHttpClient(), $id, $secret)->hasClient(Provider::Google));
+    }
+
+    /**
+     * @return iterable<string, array{string, string}>
+     */
+    public static function clientsLackingAValue(): iterable
+    {
+        yield 'neither' => ['', ''];
+        yield 'no id' => ['', 'a-secret'];
+        yield 'no secret' => ['an-id', ''];
+    }
+
+    private function access(MockHttpClient $google, string $id = 'an-id', string $secret = 'a-secret'): GoogleProviderAccess
+    {
+        return new GoogleProviderAccess($google, new GoogleClient($id, $secret, 'https://front.test/settings/connectors/google', 'https://accounts.google.test/auth', self::TOKEN_URL, 'https://oauth2.google.test/revoke'), new NullLogger());
     }
 
     /**

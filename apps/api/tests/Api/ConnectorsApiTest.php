@@ -17,6 +17,10 @@ use Tests\App\Double\GoogleDouble;
 class ConnectorsApiTest extends ApiTestCase
 {
     private const string CODE = 'a-code-of-google';
+    private const array GOOGLE_CLIENT = ['GOOGLE_CLIENT_ID', 'GOOGLE_CLIENT_SECRET'];
+
+    /** @var array<string, string|null> the variables of the Google client a test emptied, by name */
+    private array $formerVariables = [];
 
     protected function setUp(): void
     {
@@ -198,11 +202,76 @@ class ConnectorsApiTest extends ApiTestCase
         $this->assertSame(['code', 'state'], $this->violatedFields($problem));
     }
 
+    public function testGoogleIsOfferedWhileItsClientIsConfigured(): void
+    {
+        $this->login();
+
+        $connections = $this->requestJson('GET', '/api/me/connections');
+
+        $this->assertSame(['href' => '/api/me/connections/google/authorizations', 'method' => 'POST'], $connections['_links']['connectGoogle']);
+    }
+
+    public function testWithoutAGoogleClientGoogleIsNotOffered(): void
+    {
+        $this->login();
+        $this->withoutAGoogleClient();
+
+        $connections = $this->requestJson('GET', '/api/me/connections');
+
+        $this->assertResponseIsSuccessful();
+        $this->assertArrayNotHasKey('connectGoogle', $connections['_links']);
+    }
+
+    public function testWithoutAGoogleClientAnAuthorizationIsRefused(): void
+    {
+        $this->login();
+        $this->withoutAGoogleClient();
+
+        $problem = $this->requestJson('POST', '/api/me/connections/google/authorizations');
+
+        $this->assertResponseStatusCodeSame(409);
+        $this->assertSame('providerUnavailable', $problem['reason']);
+        $this->assertArrayNotHasKey('address', $problem);
+    }
+
+    public function testWithoutAGoogleClientAConnectionIsNoLongerReconnected(): void
+    {
+        $this->login();
+        $this->connect('michel@exemple.fr', 'a-refresh-token');
+
+        $this->signInAnotherMember('prospector-user');
+        $this->withoutAGoogleClient();
+        $connections = $this->requestJson('GET', '/api/me/connections');
+
+        $this->assertSame([['google', 'connected', 'michel@exemple.fr']], $this->seen($connections));
+        $this->assertSame(['disconnect'], array_keys($connections['connections'][0]['_links']));
+    }
+
     public function testAnAnonymousVisitorConnectsNothing(): void
     {
         $this->requestJson('POST', '/api/me/connections/google/authorizations');
 
         $this->assertResponseStatusCodeSame(401);
+    }
+
+    /**
+     * As an instance installed without its Google client (ADR 0124): the variables are read as the client of Google
+     * is first built, the next request of a client that reboots.
+     */
+    private function withoutAGoogleClient(): void
+    {
+        foreach (self::GOOGLE_CLIENT as $variable) {
+            $this->formerVariables[$variable] = $_SERVER[$variable] ?? null;
+            $_SERVER[$variable] = $_ENV[$variable] = '';
+        }
+    }
+
+    protected function tearDown(): void
+    {
+        foreach ($this->formerVariables as $variable => $value) {
+            $_SERVER[$variable] = $_ENV[$variable] = $value;
+        }
+        parent::tearDown();
     }
 
     /**
