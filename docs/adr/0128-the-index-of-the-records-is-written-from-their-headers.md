@@ -13,7 +13,7 @@ Each branch taking a decision added its line at the end of the table of `docs/ad
 
 - The index is written from the headers of the records by `make adr-index` (`make/adr-index.sh`): one line per record, in the order of the numbers, its title, its type and its date those of its header. The status of a line begins with the status of its header, or says that a later record superseded it: what the journal, immutable (0090), cannot write in the record itself; the index keeps that part of the line. A record written before the type was asked keeps the type of its line.
 - `make adr-index-check`, part of `make lint` and of `check-secrets` (always run by `make ci` and the CI), fails while the index differs from the headers, as the contract does from the code (0008).
-- `.gitattributes` merges the index by union (`merge=union`): at a rebase, the lines both branches added are kept, without conflict; `make adr-index` puts them back in order when needed.
+- `.gitattributes` merges the index by union (`merge=union`): at a rebase, the lines both branches added are kept, without conflict; `make adr-index` puts them back in order when needed. Two records of the same number fail the check: the branch rebased second takes the next one.
 
 ## Consequences
 
