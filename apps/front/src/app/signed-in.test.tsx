@@ -47,7 +47,9 @@ const refused = (status: number, reason: string) =>
 type Answer = () => Response
 
 const anEmptyDay = () =>
-  Promise.resolve(json({ today: [], next: [], _links: { self: { href: '/api/me/day', method: 'GET' } } }, 200))
+  Promise.resolve(
+    json({ today: [], next: [], _links: { self: { href: '/api/me/day', method: 'GET' } } }, 200),
+  )
 const aDayNeverRead = () => new Promise<Response>(() => {})
 let myDay: () => Promise<Response> = anEmptyDay
 
