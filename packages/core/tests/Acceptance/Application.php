@@ -86,6 +86,10 @@ use Prospecter\Core\Prospecting\Application\ConsultCalendar\ConsultCalendarHandl
 use Prospecter\Core\Prospecting\Application\ConsultCalendar\KeptCalendar;
 use Prospecter\Core\Prospecting\Application\ConsultExchange\ConsultExchange;
 use Prospecter\Core\Prospecting\Application\ConsultExchange\ConsultExchangeHandler;
+use Prospecter\Core\Prospecting\Application\ConsultExchangesToProcess\ConsultExchangesToProcess;
+use Prospecter\Core\Prospecting\Application\ConsultExchangesToProcess\ConsultExchangesToProcessHandler;
+use Prospecter\Core\Prospecting\Application\ConsultExchangesToProcess\ExchangesToProcess;
+use Prospecter\Core\Prospecting\Application\ConsultExchangesToProcess\KeptExchangesToProcess;
 use Prospecter\Core\Prospecting\Application\ConsultExchange\ExchangeDetail;
 use Prospecter\Core\Prospecting\Application\ConsultExchange\KeptExchange;
 use Prospecter\Core\Prospecting\Application\ConsultExchangesToMakeConform\ConsultExchangesToMakeConform;
@@ -675,6 +679,13 @@ final class Application
         $kept = new KeptMyDay();
 
         return $this->ask(new ConsultMyDayHandler($this->agendaRetriever, $this->prospectors), $query, $kept) ? $kept->myDay : null;
+    }
+
+    public function consultExchangesToProcess(ConsultExchangesToProcess $query): ?ExchangesToProcess
+    {
+        $kept = new KeptExchangesToProcess();
+
+        return $this->ask(new ConsultExchangesToProcessHandler($this->agendaRetriever, $this->prospectors), $query, $kept) ? $kept->toProcess : null;
     }
 
     public function consultTimelineIntents(ConsultTimelineIntents $query): ?TimelineIntentsResponse
