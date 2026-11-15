@@ -101,6 +101,14 @@ Fonctionnalité: Pousser mes échanges planifiés dans Google Agenda
     Alors ma connexion Google est "à reconnecter"
     Et rien n'est poussé dans Google
 
+  Scénario: Un échange planifié pendant que ma connexion était à reconnecter n'est retiré de rien une fois effacé
+    Soit j'ai planifié une visio avec "Ada Lovelace" le 17/11/2026 à 14h00
+    Et Google refuse désormais mon jeton
+    Et j'ai planifié un appel avec "Ada Lovelace" le 18/11/2026 à 9h00
+    Et mon compte Google est connecté
+    Quand j'arrête de prospecter "ACME"
+    Alors rien n'est retiré de Google pour cet appel
+
   Scénario: Mon agenda « Prospecter » supprimé dans Google est recréé au changement suivant
     Soit j'ai planifié une visio avec "Ada Lovelace" le 17/11/2026 à 14h00
     Et j'ai supprimé l'agenda « Prospecter » de Google

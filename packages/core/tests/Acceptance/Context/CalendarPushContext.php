@@ -90,6 +90,13 @@ final class CalendarPushContext implements Context
         Expect::that($this->application->calendars->wasWithdrawn($this->scenario->theExchange()), 'The event was expected to have been pushed, then withdrawn');
     }
 
+    #[Then('rien n\'est retiré de Google pour cet appel')]
+    public function nothingIsWithdrawnForIt(): void
+    {
+        Expect::that(null === $this->application->refusal(), sprintf('Refused: %s', $this->application->refusal()?->getMessage()));
+        Expect::that(!$this->application->calendars->wasWithdrawn($this->scenario->theExchange()), 'Nothing was pushed for it: nothing was expected to be withdrawn');
+    }
+
     #[Then('rien n\'est poussé dans Google')]
     public function nothingIsPushed(): void
     {
