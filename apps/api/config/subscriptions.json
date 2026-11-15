@@ -120,7 +120,15 @@
     "context": "connectors",
     "sources": ["prospecter.prospecting"],
     "events": ["ExchangeFactsChanged.v2"],
+    "payload": {"$or": [{"status": ["planned", "cancelled"]}, {"present": [false]}]},
     "handler": "Prospecter\\Core\\Connectors\\Application\\PushExchange\\PushExchangeHandler",
+    "inbox": true
+  },
+  "connectors-unname-forgotten-contact": {
+    "context": "connectors",
+    "sources": ["prospecter.personal-data"],
+    "events": ["ContactForgotten.v1"],
+    "handler": "Prospecter\\Core\\Connectors\\Application\\UnnameForgottenContact\\UnnameForgottenContactHandler",
     "inbox": true
   }
 }
