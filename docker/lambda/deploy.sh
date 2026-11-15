@@ -2,8 +2,8 @@
 # Deploys the API and the storage to MiniStack (ADR 0053, 0054): the layers of Bref, a function per app running the
 # mounted repository in the dev environment, and an HTTP API in front of each, whose id is fixed so that nginx
 # knows where to send the hosts. Run again any time: the functions are recreated, the rest kept.
-# deploy geocoder <url>: only the geocoder the API asks, its double while the journeys run (make e2e), the service
-# of the IGN of apps/api/.env with no url.
+# deploy geocoder <url> [functions]: only the geocoder the API asks, its double while the journeys run (make e2e), the
+# service of the IGN of apps/api/.env with no url; then as many functions of the API warmed as asked.
 # deploy relay: only the bus, the relay of the outbox and the mappings of the streams of the tables, which make db
 # recreates, and the worker with the rules of the subscriptions.
 # deploy warm: only a first call to the relay and to the worker, before the journeys.
@@ -70,6 +70,14 @@ api_geocoder() {
         --environment "$(environment api "$(api_variables "${1:-}")")" >/dev/null
     aws lambda wait function-updated --function-name prospecter-dev-api
     echo "The API asks the geocoder ${1:-of apps/api/.env}"
+}
+
+# warm_api <functions>: as many containers of the API started as requests sent at once
+warm_api() {
+    for warm in $(seq 1 "$1"); do
+        curl -s -o /dev/null -H "Host: $API_HOST" "$AWS_ENDPOINT_URL/_aws/execute-api/prospecter-dev-api/local/api/user-pool" &
+    done
+    wait
 }
 
 # http_api <app> <function arn> [cors]: the HTTP API of an app, stage local
@@ -214,6 +222,7 @@ purge_failures() {
 
 if [ "${1:-}" = geocoder ]; then
     api_geocoder "${2:-}"
+    warm_api "${3:-0}"
 elif [ "${1:-}" = relay ]; then
     deploy_relay
 elif [ "${1:-}" = purge ]; then
