@@ -2,10 +2,11 @@
 
 namespace App\Contacts;
 
+use App\Contacts\Resource\DayExchangeResource;
 use App\Contacts\Resource\InterlocutorResource;
 use App\Contacts\Resource\MyDayLinksResource;
 use App\Contacts\Resource\MyDayResource;
-use App\Contacts\Resource\OrganizationExchangeResource;
+use App\Contacts\Resource\OrganizationOfContactResource;
 use App\Prospecting\TimelineResourceFactory;
 use Prospecter\Core\PersonalData\Application\PersonCard;
 use Prospecter\Core\Prospecting\Application\ConsultMyDay\ConsultMyDayOutput;
@@ -14,22 +15,25 @@ use Prospecter\Core\Prospecting\Application\ExchangeInTimeline;
 use Prospecter\Core\Prospecting\Application\OrganizationSheet;
 
 /**
- * The day of the signed-in member, each exchange with who it is with: the person, or the organization itself, and its
- * links. Built for one call with the persons and the organizations they are with, it keeps the resource (ADR 0085).
+ * The day of the signed-in member, each exchange with who it is with: the person and their organization, or the
+ * organization itself, and its links. Built for one call with the persons and the organizations they are with, it
+ * keeps the resource (ADR 0085).
  */
 final class MyDayPresenter implements ConsultMyDayOutput
 {
     public private(set) MyDayResource $resource;
 
     /**
-     * @param array<string, PersonCard>        $persons       the persons of the exchanges, by id
-     * @param array<string, OrganizationSheet> $organizations the organizations of the exchanges with them alone, by id
+     * @param array<string, PersonCard>                          $persons                 the persons of the exchanges, by id
+     * @param array<string, OrganizationSheet>                   $organizations           the organizations of the exchanges with them alone, by id
+     * @param array<string, list<OrganizationOfContactResource>> $organizationsOfContacts by contact id
      */
     public function __construct(
         private readonly array $persons,
         private readonly array $organizations,
         private readonly TimelineResourceFactory $timelineResourceFactory,
         private readonly MyDayLinksResource $links,
+        private readonly array $organizationsOfContacts,
     ) {
     }
 
@@ -41,13 +45,18 @@ final class MyDayPresenter implements ConsultMyDayOutput
     /**
      * @param list<ExchangeInTimeline> $exchanges
      *
-     * @return list<OrganizationExchangeResource>
+     * @return list<DayExchangeResource>
      */
     private function shown(array $exchanges, MyDay $myDay): array
     {
         return array_map(
-            fn (ExchangeInTimeline $exchange): OrganizationExchangeResource => new OrganizationExchangeResource($this->timelineResourceFactory->createDayExchange($exchange, $myDay), InterlocutorResource::of($exchange, $this->persons, $this->organizations)),
+            fn (ExchangeInTimeline $exchange): DayExchangeResource => new DayExchangeResource($this->timelineResourceFactory->createDayExchange($exchange, $myDay), InterlocutorResource::of($exchange, $this->persons, $this->organizations), $this->organizationOfTheContact($exchange)),
             $exchanges,
         );
+    }
+
+    private function organizationOfTheContact(ExchangeInTimeline $exchange): ?OrganizationOfContactResource
+    {
+        return null === $exchange->personId ? null : array_find($this->organizationsOfContacts[$exchange->personId] ?? [], static fn (OrganizationOfContactResource $organization): bool => in_array($organization->id, $exchange->organizationIds, true));
     }
 }

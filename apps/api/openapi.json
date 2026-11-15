@@ -6776,6 +6776,30 @@
                 },
                 "type": "object"
             },
+            "DayExchangeResource": {
+                "required": [
+                    "exchange",
+                    "interlocutor"
+                ],
+                "properties": {
+                    "exchange": {
+                        "$ref": "#/components/schemas/ExchangeResource"
+                    },
+                    "interlocutor": {
+                        "$ref": "#/components/schemas/InterlocutorResource"
+                    },
+                    "organization": {
+                        "description": "The organization of the contact the exchange is kept for; none with the organization itself, or for a contact no longer part of it",
+                        "nullable": true,
+                        "oneOf": [
+                            {
+                                "$ref": "#/components/schemas/OrganizationOfContactResource"
+                            }
+                        ]
+                    }
+                },
+                "type": "object"
+            },
             "MyDayLinksResource": {
                 "required": [
                     "self"
@@ -6800,13 +6824,13 @@
                     "today": {
                         "type": "array",
                         "items": {
-                            "$ref": "#/components/schemas/OrganizationExchangeResource"
+                            "$ref": "#/components/schemas/DayExchangeResource"
                         }
                     },
                     "next": {
                         "type": "array",
                         "items": {
-                            "$ref": "#/components/schemas/OrganizationExchangeResource"
+                            "$ref": "#/components/schemas/DayExchangeResource"
                         }
                     },
                     "_links": {

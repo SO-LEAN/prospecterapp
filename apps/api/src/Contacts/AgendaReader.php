@@ -30,7 +30,7 @@ use Prospecter\Core\SharedKernel\Application\QueryHandler;
 /**
  * The agenda, the calendar and the day of the signed-in member, composed of two contexts: Prospecting knows the exchanges they
  * planned or noted, PersonalData names the persons they are with in one batch, Prospecting the organizations they
- * are with alone; the answer kept, then presented with them (ADR 0085).
+ * are with alone, and in the day those of the contacts, in one batch; the answer kept, then presented with them (ADR 0085).
  */
 final readonly class AgendaReader
 {
@@ -43,6 +43,7 @@ final readonly class AgendaReader
         private TimelineResourceFactory $timelines,
         private Links $links,
         private IntentLinks $intents,
+        private OrganizationsOfContacts $organizationsOfContacts,
     ) {
     }
 
@@ -74,7 +75,7 @@ final readonly class AgendaReader
         ($this->consultMyDay)(new ConsultMyDay($holder, $from, $until, $at), $myDay);
         $exchanges = [...$myDay->myDay->today, ...$myDay->myDay->next];
         $links = new MyDayLinksResource($this->links->to('api_me_day', self::period($from, $until)), $this->searchContacts());
-        $presenter = new MyDayPresenter($this->personsOf($holder, $exchanges), $this->organizationsPlannedWithAlone($exchanges), $this->timelines, $links);
+        $presenter = new MyDayPresenter($this->personsOf($holder, $exchanges), $this->organizationsPlannedWithAlone($exchanges), $this->timelines, $links, $this->organizationsOfContacts->read($holder, self::contactsOf($exchanges)));
         $presenter->present($myDay->myDay);
 
         return $presenter->resource;
@@ -109,9 +110,19 @@ final readonly class AgendaReader
     private function personsOf(string $reader, array $exchanges): array
     {
         $persons = new KeptPersons();
-        ($this->consultPersons)(new ConsultPersons($reader, array_values(array_unique(array_filter(array_map(static fn (ExchangeInTimeline $exchange): ?string => $exchange->personId, $exchanges))))), $persons);
+        ($this->consultPersons)(new ConsultPersons($reader, self::contactsOf($exchanges)), $persons);
 
         return $persons->persons;
+    }
+
+    /**
+     * @param list<ExchangeInTimeline> $exchanges
+     *
+     * @return list<string> the ids of the persons they are with, once each
+     */
+    private static function contactsOf(array $exchanges): array
+    {
+        return array_values(array_unique(array_filter(array_map(static fn (ExchangeInTimeline $exchange): ?string => $exchange->personId, $exchanges))));
     }
 
     /**
