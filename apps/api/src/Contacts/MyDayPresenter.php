@@ -50,13 +50,8 @@ final class MyDayPresenter implements ConsultMyDayOutput
     private function shown(array $exchanges, MyDay $myDay): array
     {
         return array_map(
-            fn (ExchangeInTimeline $exchange): DayExchangeResource => new DayExchangeResource($this->timelineResourceFactory->createDayExchange($exchange, $myDay), InterlocutorResource::of($exchange, $this->persons, $this->organizations), $this->organizationOfTheContact($exchange)),
+            fn (ExchangeInTimeline $exchange): DayExchangeResource => new DayExchangeResource($this->timelineResourceFactory->createDayExchange($exchange, $myDay), InterlocutorResource::of($exchange, $this->persons, $this->organizations), OrganizationOfContactResource::keptFor($exchange, $this->organizationsOfContacts)),
             $exchanges,
         );
-    }
-
-    private function organizationOfTheContact(ExchangeInTimeline $exchange): ?OrganizationOfContactResource
-    {
-        return null === $exchange->personId ? null : array_find($this->organizationsOfContacts[$exchange->personId] ?? [], static fn (OrganizationOfContactResource $organization): bool => in_array($organization->id, $exchange->organizationIds, true));
     }
 }

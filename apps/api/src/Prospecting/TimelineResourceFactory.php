@@ -8,7 +8,9 @@ use App\Prospecting\Resource\TimelineLinksResource;
 use App\Security\IntentLinks;
 use App\Security\User;
 use App\Shared\Links;
+use App\Shared\Resource\LinkResource;
 use Prospecter\Core\Prospecting\Application\ConsultCalendar\Calendar;
+use Prospecter\Core\Prospecting\Application\ConsultExchangesToProcess\ExchangesToProcess;
 use Prospecter\Core\Prospecting\Application\ConsultMyDay\MyDay;
 use Prospecter\Core\Prospecting\Application\ExchangeInTimeline;
 use Prospecter\Core\Prospecting\Application\Timeline;
@@ -66,6 +68,24 @@ final readonly class TimelineResourceFactory
             $this->links->to('api_exchanges_show', ['id' => $exchange->id]),
             markDone: $toHandle ? $this->links->to('api_exchanges_mark_done', ['id' => $exchange->id]) : null,
             markMissed: $toHandle ? $this->links->to('api_exchanges_mark_missed', ['id' => $exchange->id]) : null,
+        ));
+    }
+
+    /**
+     * Among the exchanges its holder has to process, it is handled from there: marked done or missed, moved or
+     * cancelled, as its state offers.
+     */
+    public function createExchangeToProcess(ExchangeInTimeline $exchange, ExchangesToProcess $toProcess): ExchangeResource
+    {
+        $offered = $toProcess->possibleIntents[$exchange->id] ?? [];
+        $link = fn (string $intent, string $route): ?LinkResource => $this->intents->shows($intent, $offered) ? $this->links->to($route, ['id' => $exchange->id]) : null;
+
+        return $this->exchangeWith($exchange, new ExchangeLinksResource(
+            $this->links->to('api_exchanges_show', ['id' => $exchange->id]),
+            move: $link('MoveExchange', 'api_exchanges_move'),
+            markDone: $link('MarkExchangeDone', 'api_exchanges_mark_done'),
+            markMissed: $link('MarkExchangeMissed', 'api_exchanges_mark_missed'),
+            cancel: $link('CancelExchange', 'api_exchanges_cancel'),
         ));
     }
 

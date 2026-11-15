@@ -2807,6 +2807,40 @@
                 }
             }
         },
+        "/api/me/exchanges-to-process": {
+            "get": {
+                "tags": [
+                    "My account"
+                ],
+                "summary": "The exchanges the signed-in member planned whose end has passed, not yet marked done, missed nor cancelled",
+                "operationId": "get_api_me_exchanges_to_process",
+                "responses": {
+                    "200": {
+                        "description": "The exchanges to process, the oldest first, each with the links handling it",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ExchangesToProcessResource"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Missing or invalid access token"
+                    },
+                    "403": {
+                        "description": "Not a prospector",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ProblemResource"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
         "/api/me/day": {
             "get": {
                 "tags": [
@@ -6204,6 +6238,9 @@
                     },
                     "markMissed": {
                         "$ref": "#/components/schemas/LinkResource"
+                    },
+                    "cancel": {
+                        "$ref": "#/components/schemas/LinkResource"
                     }
                 },
                 "type": "object"
@@ -6796,6 +6833,35 @@
                                 "$ref": "#/components/schemas/OrganizationOfContactResource"
                             }
                         ]
+                    }
+                },
+                "type": "object"
+            },
+            "ExchangesToProcessLinksResource": {
+                "required": [
+                    "self"
+                ],
+                "properties": {
+                    "self": {
+                        "$ref": "#/components/schemas/LinkResource"
+                    }
+                },
+                "type": "object"
+            },
+            "ExchangesToProcessResource": {
+                "required": [
+                    "items",
+                    "_links"
+                ],
+                "properties": {
+                    "items": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/DayExchangeResource"
+                        }
+                    },
+                    "_links": {
+                        "$ref": "#/components/schemas/ExchangesToProcessLinksResource"
                     }
                 },
                 "type": "object"

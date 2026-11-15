@@ -4,6 +4,8 @@ namespace App\Contacts;
 
 use App\Contacts\Resource\CalendarLinksResource;
 use App\Contacts\Resource\CalendarResource;
+use App\Contacts\Resource\ExchangesToProcessLinksResource;
+use App\Contacts\Resource\ExchangesToProcessResource;
 use App\Contacts\Resource\MyDayLinksResource;
 use App\Contacts\Resource\MyDayResource;
 use App\Contacts\Resource\PlannedExchangesResource;
@@ -17,6 +19,8 @@ use Prospecter\Core\PersonalData\Application\ConsultPersons\KeptPersons;
 use Prospecter\Core\PersonalData\Application\PersonCard;
 use Prospecter\Core\Prospecting\Application\ConsultCalendar\ConsultCalendar;
 use Prospecter\Core\Prospecting\Application\ConsultCalendar\KeptCalendar;
+use Prospecter\Core\Prospecting\Application\ConsultExchangesToProcess\ConsultExchangesToProcess;
+use Prospecter\Core\Prospecting\Application\ConsultExchangesToProcess\KeptExchangesToProcess;
 use Prospecter\Core\Prospecting\Application\ConsultMyDay\ConsultMyDay;
 use Prospecter\Core\Prospecting\Application\ConsultMyDay\KeptMyDay;
 use Prospecter\Core\Prospecting\Application\ConsultOrganization\ConsultOrganization;
@@ -28,7 +32,7 @@ use Prospecter\Core\Prospecting\Application\OrganizationSheet;
 use Prospecter\Core\SharedKernel\Application\QueryHandler;
 
 /**
- * The agenda, the calendar and the day of the signed-in member, composed of two contexts: Prospecting knows the exchanges they
+ * The agenda, the calendar, the day and the exchanges to process of the signed-in member, composed of two contexts: Prospecting knows the exchanges they
  * planned or noted, PersonalData names the persons they are with in one batch, Prospecting the organizations they
  * are with alone, and in the day those of the contacts, in one batch; the answer kept, then presented with them (ADR 0085).
  */
@@ -38,6 +42,7 @@ final readonly class AgendaReader
         private QueryHandler $consultOverlappingExchanges,
         private QueryHandler $consultCalendar,
         private QueryHandler $consultMyDay,
+        private QueryHandler $consultExchangesToProcess,
         private QueryHandler $consultPersons,
         private QueryHandler $consultOrganization,
         private TimelineResourceFactory $timelines,
@@ -77,6 +82,18 @@ final readonly class AgendaReader
         $links = new MyDayLinksResource($this->links->to('api_me_day', self::period($from, $until)), $this->searchContacts());
         $presenter = new MyDayPresenter($this->personsOf($holder, $exchanges), $this->organizationsPlannedWithAlone($exchanges), $this->timelines, $links, $this->organizationsOfContacts->read($holder, self::contactsOf($exchanges)));
         $presenter->present($myDay->myDay);
+
+        return $presenter->resource;
+    }
+
+    public function readExchangesToProcess(string $holder, \DateTimeImmutable $at): ExchangesToProcessResource
+    {
+        $toProcess = new KeptExchangesToProcess();
+        ($this->consultExchangesToProcess)(new ConsultExchangesToProcess($holder, $at), $toProcess);
+        $exchanges = $toProcess->toProcess->exchanges;
+        $links = new ExchangesToProcessLinksResource($this->links->to('api_me_exchanges_to_process'));
+        $presenter = new ExchangesToProcessPresenter($this->personsOf($holder, $exchanges), $this->organizationsPlannedWithAlone($exchanges), $this->timelines, $links, $this->organizationsOfContacts->read($holder, self::contactsOf($exchanges)));
+        $presenter->present($toProcess->toProcess);
 
         return $presenter->resource;
     }

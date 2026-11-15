@@ -56,11 +56,11 @@ class ExchangesToProcessApiTest extends ApiTestCase
         $links = $this->requestJson('GET', self::TO_PROCESS)['items'][0]['exchange']['_links'];
 
         $this->assertSame([
+            'move' => ['href' => '/api/exchanges/'.$passed.'/moment', 'method' => 'PATCH'],
             'markDone' => ['href' => '/api/exchanges/'.$passed.'/done', 'method' => 'POST'],
             'markMissed' => ['href' => '/api/exchanges/'.$passed.'/missed', 'method' => 'POST'],
-            'move' => ['href' => '/api/exchanges/'.$passed.'/moment', 'method' => 'PATCH'],
             'cancel' => ['href' => '/api/exchanges/'.$passed.'/cancellation', 'method' => 'POST'],
-        ], array_intersect_key($links, ['markDone' => true, 'markMissed' => true, 'move' => true, 'cancel' => true]));
+        ], array_intersect_key($links, ['move' => true, 'markDone' => true, 'markMissed' => true, 'cancel' => true]));
     }
 
     public function testAnExchangeHandledIsNoLongerToProcess(): void
