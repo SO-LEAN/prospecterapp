@@ -1,10 +1,18 @@
 #!/bin/sh
 # The port of the host the stack of a worktree is published on (ADR 0116): kept in .stack-port at its root once
-# chosen, the first from 8443 that no other worktree of the repository keeps and nothing listens on.
+# chosen, the first from 8443 that no other worktree of the repository keeps and nothing listens on. Chosen under a lock
+# of the git directory every checkout shares: two worktrees starting together never take the same port
 set -eu
 root=$1
 file="$root/.stack-port"
 
+if [ -s "$file" ]; then
+	cat "$file"
+	exit 0
+fi
+
+exec 9>"$(git -C "$root" rev-parse --path-format=absolute --git-common-dir)/prospecter-stack-port.lock"
+flock 9
 if [ -s "$file" ]; then
 	cat "$file"
 	exit 0
