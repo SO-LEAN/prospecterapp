@@ -49,6 +49,21 @@ class MyDayApiTest extends ApiTestCase
         $this->assertSame(array_map(static fn (int $day): array => ['ACME', 'call', sprintf('2026-10-%dT08:00:00+00:00', $day)], range(16, 20)), array_map(self::described(...), $myDay['next']));
     }
 
+    /**
+     * A contact is shown with the organization the exchange is kept for; the organization itself needs none.
+     */
+    public function testAnExchangeWithAContactShowsTheirOrganization(): void
+    {
+        $organization = $this->requestJson('POST', '/api/organizations', ['legalIdentity' => ['corporateName' => 'ACME']])['id'];
+        $ada = $this->requestJson('POST', '/api/contacts', ['name' => ['firstName' => 'Ada', 'lastName' => 'Lovelace'], 'organizationIds' => [$organization]])['id'];
+        $this->requestJson('POST', '/api/contacts/'.$ada.'/upcoming-exchanges', ['channel' => 'videoCall', 'occurredAt' => '2026-10-15T14:00:00+00:00']);
+        $this->requestJson('POST', '/api/organizations/'.$organization.'/upcoming-exchanges', ['exchange' => ['channel' => 'meeting', 'occurredAt' => '2026-10-15T16:00:00+00:00']]);
+
+        $today = $this->requestJson('GET', self::TODAY)['today'];
+
+        $this->assertSame([['id' => $organization, 'name' => 'ACME'], null], array_map(static fn (array $item): ?array => isset($item['organization']) ? ['id' => $item['organization']['id'], 'name' => $item['organization']['name']] : null, $today));
+    }
+
     public function testAnExchangeWhoseTimeHasComeIsMarkedDoneOrMissedFromTheDay(): void
     {
         $organization = $this->requestJson('POST', '/api/organizations', ['legalIdentity' => ['corporateName' => 'ACME']])['id'];
