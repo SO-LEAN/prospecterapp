@@ -2,12 +2,12 @@
 
 namespace Tests\App\Connectors;
 
-use App\Connectors\Google\GoogleClient;
+use App\Connectors\Google\GoogleEndpoints;
 use App\Connectors\Google\GoogleProviderAccess;
-use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\DoesNotPerformAssertions;
 use PHPUnit\Framework\TestCase;
 use Prospecter\Core\Connectors\Domain\Exception\AccessNotGranted;
+use Prospecter\Core\Connectors\Domain\Model\ClientCredentials;
 use Prospecter\Core\Connectors\Domain\Model\Grant;
 use Prospecter\Core\Connectors\Domain\Model\Provider;
 use Prospecter\Core\Connectors\Domain\Model\RefreshToken;
@@ -19,7 +19,8 @@ use Symfony\Component\HttpClient\Response\JsonMockResponse;
 use Symfony\Component\HttpClient\Response\MockResponse;
 
 /**
- * The OAuth 2 endpoints of Google as the spike #92 saw them answer (ADR 0120).
+ * The OAuth 2 endpoints of Google as the spike #92 saw them answer (ADR 0120), asked with the client of the account of
+ * the member (ADR 0125).
  */
 class GoogleProviderAccessTest extends TestCase
 {
@@ -36,7 +37,7 @@ class GoogleProviderAccessTest extends TestCase
             return new JsonMockResponse(['refresh_token' => 'a-token', 'scope' => self::EVERY_SCOPE, 'id_token' => self::idToken(['email' => 'michel@exemple.fr', 'hd' => 'exemple.fr'])]);
         });
 
-        $grant = $this->access($google)->exchange(Provider::Google, 'a-code', 'a-verifier');
+        $grant = $this->access($google)->exchange(self::client(), 'a-code', 'a-verifier');
 
         $this->assertEquals(new Grant(new Email('michel@exemple.fr'), new RefreshToken('a-token'), true), $grant);
     }
@@ -45,40 +46,40 @@ class GoogleProviderAccessTest extends TestCase
     {
         $google = new MockHttpClient(new JsonMockResponse(['refresh_token' => 'a-token', 'scope' => 'openid https://www.googleapis.com/auth/userinfo.email', 'id_token' => self::idToken(['email' => 'michel@exemple.fr'])]));
 
-        $this->assertFalse($this->access($google)->exchange(Provider::Google, 'a-code', 'a-verifier')->complete);
+        $this->assertFalse($this->access($google)->exchange(self::client(), 'a-code', 'a-verifier')->complete);
     }
 
     public function testACodeGoogleRefusesGrantsNothing(): void
     {
         $this->expectException(AccessNotGranted::class);
 
-        $this->access(new MockHttpClient(new JsonMockResponse(['error' => 'invalid_grant'], ['http_code' => 400])))->exchange(Provider::Google, 'a-code', 'a-verifier');
+        $this->access(new MockHttpClient(new JsonMockResponse(['error' => 'invalid_grant'], ['http_code' => 400])))->exchange(self::client(), 'a-code', 'a-verifier');
     }
 
     public function testAnAnswerWithoutRefreshTokenGrantsNothing(): void
     {
         $this->expectException(AccessNotGranted::class);
 
-        $this->access(new MockHttpClient(new JsonMockResponse(['scope' => self::EVERY_SCOPE, 'id_token' => self::idToken(['email' => 'michel@exemple.fr'])])))->exchange(Provider::Google, 'a-code', 'a-verifier');
+        $this->access(new MockHttpClient(new JsonMockResponse(['scope' => self::EVERY_SCOPE, 'id_token' => self::idToken(['email' => 'michel@exemple.fr'])])))->exchange(self::client(), 'a-code', 'a-verifier');
     }
 
     public function testARefreshAcceptedStillGrants(): void
     {
-        $this->assertTrue($this->access(new MockHttpClient(new JsonMockResponse(['access_token' => 'an-access'])))->stillGrants(Provider::Google, new RefreshToken('a-token')));
+        $this->assertTrue($this->access(new MockHttpClient(new JsonMockResponse(['access_token' => 'an-access'])))->stillGrants(self::client(), new RefreshToken('a-token')));
     }
 
     public function testARefreshAnsweredInvalidGrantNoLongerGrants(): void
     {
         $refused = new JsonMockResponse(['error' => 'invalid_grant', 'error_description' => 'Token has been expired or revoked.'], ['http_code' => 400]);
 
-        $this->assertFalse($this->access(new MockHttpClient($refused))->stillGrants(Provider::Google, new RefreshToken('a-token')));
+        $this->assertFalse($this->access(new MockHttpClient($refused))->stillGrants(self::client(), new RefreshToken('a-token')));
     }
 
     public function testAnotherFailureOfARefreshIsNoAnswer(): void
     {
         $this->expectException(\RuntimeException::class);
 
-        $this->access(new MockHttpClient(new MockResponse('', ['http_code' => 503])))->stillGrants(Provider::Google, new RefreshToken('a-token'));
+        $this->access(new MockHttpClient(new MockResponse('', ['http_code' => 503])))->stillGrants(self::client(), new RefreshToken('a-token'));
     }
 
     #[DoesNotPerformAssertions]
@@ -87,30 +88,14 @@ class GoogleProviderAccessTest extends TestCase
         $this->access(new MockHttpClient(static fn (): never => throw new TransportException('Google does not answer')))->revoke(Provider::Google, new RefreshToken('a-token'));
     }
 
-    public function testGoogleHasAClientOnceItsIdAndSecretAreGiven(): void
+    private function access(MockHttpClient $google): GoogleProviderAccess
     {
-        $this->assertTrue($this->access(new MockHttpClient())->hasClient(Provider::Google));
+        return new GoogleProviderAccess($google, new GoogleEndpoints('https://front.test/settings/connectors/google', 'https://accounts.google.test/auth', self::TOKEN_URL, 'https://oauth2.google.test/revoke'), new NullLogger());
     }
 
-    #[DataProvider('clientsLackingAValue')]
-    public function testGoogleHasNoClientWhileItsIdOrSecretIsEmpty(string $id, string $secret): void
+    private static function client(): ClientCredentials
     {
-        $this->assertFalse($this->access(new MockHttpClient(), $id, $secret)->hasClient(Provider::Google));
-    }
-
-    /**
-     * @return iterable<string, array{string, string}>
-     */
-    public static function clientsLackingAValue(): iterable
-    {
-        yield 'neither' => ['', ''];
-        yield 'no id' => ['', 'a-secret'];
-        yield 'no secret' => ['an-id', ''];
-    }
-
-    private function access(MockHttpClient $google, string $id = 'an-id', string $secret = 'a-secret'): GoogleProviderAccess
-    {
-        return new GoogleProviderAccess($google, new GoogleClient($id, $secret, 'https://front.test/settings/connectors/google', 'https://accounts.google.test/auth', self::TOKEN_URL, 'https://oauth2.google.test/revoke'), new NullLogger());
+        return new ClientCredentials(Provider::Google, 'an-id', 'a-secret');
     }
 
     /**

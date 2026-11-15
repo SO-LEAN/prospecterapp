@@ -20,6 +20,8 @@ final class GoogleDouble
     private bool $refusesTheTokens = false;
     /** @var list<string> */
     private array $revoked = [];
+    /** @var array{string, string}|null the id and the secret of the client the last token was asked by */
+    private ?array $lastClient = null;
 
     public function __construct(
         private readonly string $tokenUrl,
@@ -43,6 +45,14 @@ final class GoogleDouble
     public function revoked(): array
     {
         return $this->revoked;
+    }
+
+    /**
+     * @return array{string, string}|null
+     */
+    public function clientOfTheLastToken(): ?array
+    {
+        return $this->lastClient;
     }
 
     public function serves(string $url): bool
@@ -81,6 +91,8 @@ final class GoogleDouble
         if ('' === ($form['client_id'] ?? '')) {
             return new JsonMockResponse(['error' => 'invalid_client'], ['http_code' => 401]);
         }
+
+        $this->lastClient = [$form['client_id'], $form['client_secret'] ?? ''];
 
         return match ($form['grant_type'] ?? null) {
             'authorization_code' => $this->exchange($form['code'] ?? ''),
