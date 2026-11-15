@@ -7,13 +7,10 @@ import { blinkTheTitleWhileHidden } from '@/shared/lib/blinking-title'
 import { notificationsPermission, notify } from '@/shared/lib/browser-notifications'
 import { formatHour } from '@/shared/lib/format'
 import { addDays, startOfDay } from '../../calendar/dates'
-import { type DayExchange, myDayQuery } from '../../my-day/queries'
+import { type DayExchange, myDayToRemindQuery } from '../../my-day/queries'
 import { markShown, readReminded, remindAgain, whenRemindedInAnotherTab } from '../reminded'
 import { nextReminderAt, type ReminderSettings, reminderOf, remindersDue, SNOOZE_MS } from '../schedule'
 import { ReminderToast } from './reminder-toast'
-
-/** My exchanges to come are read again that often, besides after each gesture on one of them. */
-const READ_AGAIN_MS = 5 * 60_000
 
 /** A tab in the background lets one in front show a reminder due in both: the member sees it where they are. */
 const HIDDEN_TAB_LETS_THE_OTHERS_MS = 2_000
@@ -28,9 +25,7 @@ type Props = { settings: ReminderSettings }
  */
 export function ExchangeReminders({ settings }: Props) {
   const today = startOfDay(new Date())
-  const { data: myDay } = useQuery(
-    myDayQuery(today, { enabled: settings.enabled, refetchInterval: READ_AGAIN_MS }),
-  )
+  const { data: myDay } = useQuery(myDayToRemindQuery(today))
   const [wakings, wakeUp] = useReducer((count: number) => count + 1, 0)
   const remind = useRemind(wakeUp)
   const remindOfThoseDue = useEffectEvent(() => {
