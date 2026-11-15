@@ -11,7 +11,7 @@ A decision is worth a record when it shapes the structure (where code lives, how
 - A record is written once: never edited after it is accepted, not even its status.
 - A decision changing a former one is a new record, naming in its `Supersedes` line the points of the former records it replaces.
 - In the same change, the new record updates the documents of its subjects (`docs/architecture/`, `docs/domain/`): they say what is in force, the records why.
-- The index is written from the headers (`make adr-index`, ADR 0127): the number, the title, the type and the date of each line are those of its record, its status begins with the status of the record; a record entirely replaced is marked so on its line in the index (`Superseded by`), and a point replaced may be said after its status, its file staying as it was.
+- The index is written from the headers (`make adr-index`, ADR 0128): the number, the title, the type and the date of each line are those of its record, its status begins with the status of the record; a record entirely replaced is marked so on its line in the index (`Superseded by`), and a point replaced may be said after its status, its file staying as it was.
 
 ## Template
 

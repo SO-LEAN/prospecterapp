@@ -1,6 +1,6 @@
 # Decision records
 
-Why the project is shaped the way it is: one record per decision, in the order they were made, typed `architecture` or `domain`. The journal is immutable (ADR 0090): a record is never edited once accepted, and a later decision replacing part of a former one says so in its own `Supersedes` line. What is in force is not read here but in the documents by subject, `docs/README.md`; read the records only to know why a rule is, or before changing it ([TEMPLATE.md](TEMPLATE.md)). The index below is written from the headers of the records by `make adr-index` (ADR 0127), checked by `make ci`.
+Why the project is shaped the way it is: one record per decision, in the order they were made, typed `architecture` or `domain`. The journal is immutable (ADR 0090): a record is never edited once accepted, and a later decision replacing part of a former one says so in its own `Supersedes` line. What is in force is not read here but in the documents by subject, `docs/README.md`; read the records only to know why a rule is, or before changing it ([TEMPLATE.md](TEMPLATE.md)). The index below is written from the headers of the records by `make adr-index` (ADR 0128), checked by `make ci`.
 
 | # | Decision | Type | Status | Date |
 |---|---|---|---|---|
@@ -130,3 +130,4 @@ Why the project is shaped the way it is: one record per decision, in the order t
 | [0124](0124-the-api-starts-without-the-google-client-of-its-instance.md) | The api starts without the Google client of its instance, reading it only once it is in SSM | architecture | Superseded by [0125](0125-each-account-configures-its-own-google-client.md) | 2026-11-15 |
 | [0125](0125-each-account-configures-its-own-google-client.md) | Each account configures its own Google client, its secret a parameter of SSM written by the api | architecture | Accepted | 2026-11-15 |
 | [0126](0126-the-local-stack-is-served-under-prospecter-localhost.md) | The local stack is served under prospecter.localhost, nothing in /etc/hosts | architecture | Accepted | 2026-11-15 |
+| [0128](0128-the-index-of-the-records-is-written-from-their-headers.md) | The index of the records is written from their headers and merged by union | architecture | Accepted | 2026-11-15 |
