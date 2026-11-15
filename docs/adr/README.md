@@ -131,3 +131,4 @@ Why the project is shaped the way it is: one record per decision, in the order t
 | [0125](0125-each-account-configures-its-own-google-client.md) | Each account configures its own Google client, its secret a parameter of SSM written by the api | architecture | Accepted | 2026-11-15 |
 | [0126](0126-the-local-stack-is-served-under-prospecter-localhost.md) | The local stack is served under prospecter.localhost, nothing in /etc/hosts | architecture | Accepted | 2026-11-15 |
 | [0128](0128-the-index-of-the-records-is-written-from-their-headers.md) | The index of the records is written from their headers and merged by union | architecture | Accepted | 2026-11-15 |
+| [0127](0127-connectors-pushes-a-planned-exchange-read-again-at-each-of-its-facts.md) | Connectors pushes a planned exchange into the calendar of its holder, read again from Prospecting at each of its facts | architecture | Accepted | 2026-11-15 |
