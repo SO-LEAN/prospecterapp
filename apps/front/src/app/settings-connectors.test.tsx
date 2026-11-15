@@ -1,4 +1,5 @@
 import { screen, waitFor } from '@testing-library/react'
+import userEvent from '@testing-library/user-event'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import type { Account } from '@/features/account/mutations'
 import type { Connections } from '@/features/connectors/queries'
@@ -24,6 +25,7 @@ vi.mock('@/shared/auth/session', () => ({
 }))
 
 const CHECKS = '/api/me/connections/checks'
+const AUTHORIZATIONS = '/api/me/connections/google/authorizations'
 
 const me: Account = {
   name: { firstName: 'Grace', lastName: 'Hopper' },
@@ -37,7 +39,7 @@ const noConnection: Connections = {
   _links: {
     self: { href: '/api/me/connections', method: 'GET' },
     check: { href: CHECKS, method: 'POST' },
-    connectGoogle: { href: '/api/me/connections/google/authorizations', method: 'POST' },
+    connectGoogle: { href: AUTHORIZATIONS, method: 'POST' },
   },
 }
 
@@ -65,6 +67,27 @@ function theApiAnswers(connections: Connections = noConnection) {
       [CHECKS]: connections,
     }
     return Response.json(answers[pathname] ?? { items: [], _links: {} })
+  })
+}
+
+/** The client of Google was removed since the section was shown: the API refuses the authorization. */
+function theApiNoLongerOffersGoogle() {
+  const answerAsBefore = theApi.getMockImplementation()
+  theApi.mockImplementation(async (input, init) => {
+    const { pathname } = new URL(input instanceof Request ? input.url : String(input))
+    if (pathname !== AUTHORIZATIONS) {
+      return answerAsBefore?.(input, init) ?? Response.error()
+    }
+    return Response.json(
+      {
+        type: 'about:blank',
+        title: 'Conflict',
+        status: 409,
+        reason: 'providerUnavailable',
+        detail: 'Google is not available',
+      },
+      { status: 409, headers: { 'Content-Type': 'application/problem+json' } },
+    )
   })
 }
 
@@ -98,5 +121,16 @@ describe('the section of the connectors', () => {
 
     expect(await screen.findByText('Google Agenda n’est pas disponible pour le moment.')).toBeInTheDocument()
     expect(screen.queryByRole('button', { name: 'Connecter' })).not.toBeInTheDocument()
+  })
+
+  it('says in French that Google is no longer available when the API refuses to connect it', async () => {
+    theApiAnswers()
+    const router = await renderTheSpaAt('/settings')
+    await router.navigate({ to: '/settings', search: { section: 'connectors' } })
+    theApiNoLongerOffersGoogle()
+
+    await userEvent.setup().click(await screen.findByRole('button', { name: 'Connecter' }))
+
+    expect(await screen.findByText('Google n’est pas disponible pour le moment.')).toBeInTheDocument()
   })
 })
