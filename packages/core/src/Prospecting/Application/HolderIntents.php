@@ -27,6 +27,19 @@ final class HolderIntents
         return array_values(array_map(static fn (ExchangeInTimeline $exchange): string => $exchange->id, $offering));
     }
 
+    /**
+     * @param list<ExchangeInTimeline> $exchanges held by the prospector
+     *
+     * @return array<string, list<string>> by exchange id, the names of the intents each offers
+     */
+    public static function offeredBy(array $exchanges, \DateTimeImmutable $at): array
+    {
+        return array_combine(
+            array_map(static fn (ExchangeInTimeline $exchange): string => $exchange->id, $exchanges),
+            array_map(static fn (ExchangeInTimeline $exchange): array => array_map(static fn (ExchangeIntent $intent): string => $intent->name, ExchangePossibilities::given(self::situationOf($exchange, $at))), $exchanges),
+        );
+    }
+
     private static function situationOf(ExchangeInTimeline $exchange, \DateTimeImmutable $at): ExchangeSituation
     {
         return new ExchangeSituation($exchange->attachmentCount, $exchange->toMakeConform, ExchangeStatus::from($exchange->status), $exchange->occurredAt <= $at, heldByTheMember: true, channel: Channel::from($exchange->channel));

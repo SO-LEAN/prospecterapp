@@ -45,6 +45,13 @@ final class SlotTest extends TestCase
         $this->assertSame([false, true], [new Slot($earliest, Duration::inMinutes(Duration::LONGEST))->overlaps($slot), new Slot($earliest->modify('+1 minute'), Duration::inMinutes(Duration::LONGEST))->overlaps($slot)]);
     }
 
+    public function testHasEndedOnceItsEndIsReached(): void
+    {
+        $slot = self::slot(self::AFTERNOON, 30);
+
+        $this->assertSame([false, true, true], [$slot->hasEndedBy(new \DateTimeImmutable('2026-11-17 14:29')), $slot->hasEndedBy(new \DateTimeImmutable('2026-11-17 14:30')), $slot->hasEndedBy(new \DateTimeImmutable('2026-11-17 15:00'))]);
+    }
+
     #[DataProvider('channels')]
     public function testOnlyACallAMeetingOrAVideoCallIsPlanned(Channel $channel, bool $planned): void
     {

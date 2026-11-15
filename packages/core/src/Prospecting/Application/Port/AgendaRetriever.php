@@ -34,4 +34,11 @@ interface AgendaRetriever
      * @return list<ExchangeInTimeline>
      */
     public function firstPlannedFrom(Prospector $holder, \DateTimeImmutable $from, int $count): array;
+
+    /**
+     * The exchanges the prospector planned starting before `until`, the oldest first.
+     *
+     * @return list<ExchangeInTimeline>
+     */
+    public function plannedBefore(Prospector $holder, \DateTimeImmutable $until): array;
 }

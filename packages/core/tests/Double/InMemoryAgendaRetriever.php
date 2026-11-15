@@ -37,6 +37,11 @@ final readonly class InMemoryAgendaRetriever implements AgendaRetriever
         return array_slice($this->planned($holder, static fn (\DateTimeImmutable $at): bool => $at >= $from), 0, $count);
     }
 
+    public function plannedBefore(Prospector $holder, \DateTimeImmutable $until): array
+    {
+        return $this->planned($holder, static fn (\DateTimeImmutable $at): bool => $at < $until);
+    }
+
     /**
      * @param \Closure(\DateTimeImmutable): bool $happensWhenAsked
      *
