@@ -249,6 +249,19 @@ describe('the reminders of my exchanges', () => {
     expect(screen.queryByText(THE_REMINDER)).not.toBeInTheDocument()
   })
 
+  it('reads my day again every five minutes, even in a tab in the background', async () => {
+    const videoCall = aVideoCallAt14()
+    await openTheApplication([videoCall])
+    theTabIs('hidden')
+
+    myDay = aDayOf([{ ...videoCall, exchange: { ...videoCall.exchange, status: 'cancelled' } }])
+    await itIs(13, 46)
+    await itIs(13, 50)
+    await itIs(13, 51)
+
+    expect(screen.queryByText(THE_REMINDER)).not.toBeInTheDocument()
+  })
+
   it('reminds of nothing when my reminders are off', async () => {
     await openTheApplication([aVideoCallAt14()], { enabled: false, minutesBefore: 10 })
 
