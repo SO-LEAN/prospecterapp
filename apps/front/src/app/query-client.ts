@@ -17,6 +17,18 @@ const isShownByItsForm = (error: unknown, mutation: Mutation<unknown, unknown, u
   )
 }
 
+/** A refusal of a mutation, or its failure, is told in a toast, unless its form shows it. */
+export function mutationsToastingTheirRefusals() {
+  return new MutationCache({
+    onError: (error, _variables, _context, mutation) => {
+      if (isShownByItsForm(error, mutation)) {
+        return
+      }
+      toast.error(isProblem(error) ? messageOf(error) : i18n.t('errors.network'))
+    },
+  })
+}
+
 /**
  * Server state cache. Defaults favour a snappy UI: data is fresh for 30 s (no refetch on every
  * mount), kept 5 min after its last use, refetched in background on window focus.
@@ -36,14 +48,7 @@ export const queryClient = new QueryClient({
       }
     },
   }),
-  mutationCache: new MutationCache({
-    onError: (error, _variables, _context, mutation) => {
-      if (isShownByItsForm(error, mutation)) {
-        return
-      }
-      toast.error(isProblem(error) ? messageOf(error) : i18n.t('errors.network'))
-    },
-  }),
+  mutationCache: mutationsToastingTheirRefusals(),
 })
 
 declare module '@tanstack/react-query' {
