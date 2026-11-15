@@ -21,7 +21,7 @@ final class CalendarPushContext implements Context
 {
     use SharesTheScenario;
 
-    private const string TITLE = '/^mon agenda Google a l\'événement « (?<title>[^»]+) » le (?<day>\S+) de (?<from>\S+) à (?<until>\S+)$/';
+    private const string TITLE = '/^mon agenda Google a l\'événement « (?<title>[^»]+) » le (?<day>\S+) de (?<from>\S+) à (?<until>\S+)$/u';
 
     #[Given('Google refuse désormais mon jeton')]
     public function googleRefusesMyTokenFromNowOn(): void
@@ -48,8 +48,8 @@ final class CalendarPushContext implements Context
     {
         $event = $this->theEvent();
         Expect::same(
-            ['title' => $title, 'from' => Vocabulary::frenchMoment(sprintf('%s à %s', $day, $from)), 'until' => Vocabulary::frenchMoment(sprintf('%s à %s', $day, $until))],
-            ['title' => $this->titleOf($event), 'from' => $event->startsAt, 'until' => $event->endsAt],
+            ['title' => $title, 'from' => Vocabulary::frenchMoment(sprintf('%s à %s', $day, $from))->format(\DATE_ATOM), 'until' => Vocabulary::frenchMoment(sprintf('%s à %s', $day, $until))->format(\DATE_ATOM)],
+            ['title' => $this->titleOf($event), 'from' => $event->startsAt->format(\DATE_ATOM), 'until' => $event->endsAt->format(\DATE_ATOM)],
         );
     }
 
@@ -96,7 +96,7 @@ final class CalendarPushContext implements Context
         Expect::same([], $this->application->calendars->events());
     }
 
-    #[Then('mon agenda Google a un seul événement, « :title »')]
+    #[Then('/^mon agenda Google a un seul événement, « (?<title>[^»]+) »$/u')]
     public function myCalendarHasASingleEvent(string $title): void
     {
         Expect::same([$title], array_values(array_map($this->titleOf(...), $this->application->calendars->events())));

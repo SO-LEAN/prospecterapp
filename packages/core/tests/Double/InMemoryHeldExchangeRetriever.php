@@ -19,6 +19,9 @@ final readonly class InMemoryHeldExchangeRetriever implements HeldExchangeRetrie
     {
     }
 
+    /**
+     * @param list<ExchangeId> $ids
+     */
     public function ofIds(AccountId $accountId, array $ids): array
     {
         $kept = array_filter(

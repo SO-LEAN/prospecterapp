@@ -9,7 +9,8 @@ use Prospecter\Core\SharedKernel\Domain\AccountId;
 use Prospecter\Core\SharedKernel\Domain\MemberId;
 
 /**
- * A member as Connectors knows them from Accounts: their account, and whether they administer it.
+ * A member as Connectors knows them from Accounts: their account, whether they administer it, and how long before
+ * their planned exchanges they are reminded, none when they turned their reminders off.
  */
 final readonly class Member
 {
@@ -17,6 +18,7 @@ final readonly class Member
         public MemberId $id,
         public AccountId $accountId,
         private bool $administers,
+        public ?int $reminderMinutesBefore,
     ) {
     }
 
