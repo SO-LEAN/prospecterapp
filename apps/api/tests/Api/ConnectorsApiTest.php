@@ -234,7 +234,7 @@ class ConnectorsApiTest extends ApiTestCase
         $this->assertArrayNotHasKey('address', $problem);
     }
 
-    public function testWithoutAGoogleClientAConnectionIsNoLongerReconnected(): void
+    public function testWithoutAGoogleClientAConnectionIsNeitherReconnectedNorChecked(): void
     {
         $this->login();
         $this->connect('michel@exemple.fr', 'a-refresh-token');
@@ -245,6 +245,8 @@ class ConnectorsApiTest extends ApiTestCase
 
         $this->assertSame([['google', 'connected', 'michel@exemple.fr']], $this->seen($connections));
         $this->assertSame(['disconnect'], array_keys($connections['connections'][0]['_links']));
+        $this->assertSame([['google', 'connected', 'michel@exemple.fr']], $this->seen($this->requestJson('POST', '/api/me/connections/checks')));
+        $this->assertResponseIsSuccessful();
     }
 
     public function testAnAnonymousVisitorConnectsNothing(): void

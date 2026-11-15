@@ -1828,7 +1828,7 @@ export interface components {
         };
         ConnectionLinksResource: {
             disconnect: components["schemas"]["LinkResource"];
-            reconnect: components["schemas"]["LinkResource"];
+            reconnect?: components["schemas"]["LinkResource"];
         };
         ConnectionResource: {
             /** @enum {string} */
@@ -1847,7 +1847,7 @@ export interface components {
         ConnectionsLinksResource: {
             self: components["schemas"]["LinkResource"];
             check: components["schemas"]["LinkResource"];
-            connectGoogle: components["schemas"]["LinkResource"];
+            connectGoogle?: components["schemas"]["LinkResource"];
         };
         ConnectionsResource: {
             connections: components["schemas"]["ConnectionResource"][];
@@ -5698,6 +5698,15 @@ export interface operations {
             };
             /** @description The signed-in user is not a user */
             403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ProblemResource"];
+                };
+            };
+            /** @description No client of Prospecter at Google serves the account (`providerUnavailable`): the link `connectGoogle` is missing */
+            409: {
                 headers: {
                     [name: string]: unknown;
                 };

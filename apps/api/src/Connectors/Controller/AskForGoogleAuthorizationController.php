@@ -36,6 +36,7 @@ final class AskForGoogleAuthorizationController extends AbstractController
     #[OA\Response(response: 201, description: 'The authorization asked', content: new Model(type: AuthorizationResource::class))]
     #[OA\Response(response: 401, description: 'Missing or invalid access token')]
     #[OA\Response(response: 403, description: 'The signed-in user is not a user', content: new Model(type: ProblemResource::class))]
+    #[OA\Response(response: 409, description: 'No client of Prospecter at Google serves the account (`providerUnavailable`): the link `connectGoogle` is missing', content: new Model(type: ProblemResource::class))]
     public function __invoke(#[CurrentUser] User $user): JsonResponse
     {
         $request = $this->googleAuthorization->newRequest();
