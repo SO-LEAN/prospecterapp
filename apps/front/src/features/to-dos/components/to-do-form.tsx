@@ -85,24 +85,26 @@ export function ToDoForm({ onSubmit, submitLabel, onCancel, defaultValues, onSub
           </Button>
         ))}
       </fieldset>
-      <div className="flex flex-wrap items-center justify-end gap-2">
+      <div className="flex flex-wrap items-center gap-2">
         {onSubmitThenAnother && (
           <Button
             type="button"
             variant="link"
-            className="mr-auto px-0"
+            className="px-0"
             disabled={isSubmitting}
             onClick={submitBy(onSubmitThenAnother)}
           >
             {t('toDos.addAnother')}
           </Button>
         )}
-        <Button type="button" variant="ghost" onClick={onCancel}>
-          {t('common.cancel')}
-        </Button>
-        <Button type="submit" disabled={isSubmitting}>
-          {isSubmitting ? t('common.saving') : submitLabel}
-        </Button>
+        <div className="ml-auto flex gap-2">
+          <Button type="button" variant="ghost" onClick={onCancel}>
+            {t('common.cancel')}
+          </Button>
+          <Button type="submit" disabled={isSubmitting}>
+            {isSubmitting ? t('common.saving') : submitLabel}
+          </Button>
+        </div>
       </div>
     </form>
   )
