@@ -71,6 +71,17 @@ class DynamoAgendaRetrieverTest extends ApiTestCase
         $this->assertSame([self::idOf($first), self::idOf($second), self::idOf($third)], self::idsOf($next));
     }
 
+    public function testTheExchangesIPlannedStartingBeforeAMomentTheOldestFirst(): void
+    {
+        $this->plannedBy($this->me, '2026-11-17 14:00 UTC');
+        $recent = $this->plannedBy($this->me, '2026-11-17 13:59 UTC');
+        $old = $this->plannedBy($this->me, '2026-10-02 09:00 UTC');
+
+        $started = self::getContainer()->get(AgendaRetriever::class)->plannedBefore($this->me, new \DateTimeImmutable('2026-11-17 14:00 UTC'));
+
+        $this->assertSame([self::idOf($old), self::idOf($recent)], self::idsOf($started));
+    }
+
     public function testTheExchangesPlannedByAColleagueAreNotInMyAgenda(): void
     {
         $this->plannedBy(new Prospector(new MemberId(self::newIdentity()), $this->me->accountId, managesPersonalData: true), '2026-11-17 14:00 UTC');
