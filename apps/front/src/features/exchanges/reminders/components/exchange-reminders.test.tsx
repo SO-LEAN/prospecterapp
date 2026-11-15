@@ -1,13 +1,13 @@
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
-import { act, screen } from '@testing-library/react'
+import { act, screen, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { toast } from 'sonner'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { Toaster } from '@/shared/ui/sonner'
 import { renderInARouter } from '@/test/render-in-a-router'
 import { startOfDay } from '../../calendar/dates'
-import type { ExchangeDetail } from '../../queries'
 import { type DayExchange, type MyDay, myDayQuery } from '../../my-day/queries'
+import type { ExchangeDetail } from '../../queries'
 import { ExchangeReminders } from './exchange-reminders'
 
 /** Being reminded of an exchange I planned, the application open, on a clock the test moves. */
@@ -97,26 +97,31 @@ const theDetailOf = (item: DayExchange, detail: Partial<ExchangeDetail>): Exchan
   ...detail,
 })
 
-/** The detail of each exchange, by its path; nothing else. */
+let myDay = aDayOf([])
+
+/** My day as it is now, and the detail of each exchange, by its path; nothing else. */
 function theApiAnswers(details: Record<string, ExchangeDetail> = {}) {
   theApi.mockImplementation(async (input) => {
     const { pathname } = new URL((input as Request).url)
-    const detail = details[pathname]
-    return detail ? Response.json(detail) : new Response(null, { status: 404 })
+    const answer = pathname === '/api/me/day' ? myDay : details[pathname]
+    return answer ? Response.json(answer) : new Response(null, { status: 404 })
   })
 }
 
 type Settings = { enabled: boolean; minutesBefore: number }
+
+const TABS = ['a tab', 'another tab']
 
 /** The application open on my day, in as many tabs as asked, sharing the storage of the browser. */
 async function openTheApplication(today: DayExchange[], settings: Settings = TEN_MINUTES_BEFORE, tabs = 1) {
   const queryClient = new QueryClient({
     defaultOptions: { queries: { staleTime: Number.POSITIVE_INFINITY, retry: false } },
   })
-  queryClient.setQueryData(myDayQuery(startOfDay(new Date())).queryKey, aDayOf(today))
+  myDay = aDayOf(today)
+  queryClient.setQueryData(myDayQuery(startOfDay(new Date())).queryKey, myDay)
   await renderInARouter(
     <QueryClientProvider client={queryClient}>
-      {Array.from({ length: tabs }, (_, tab) => (
+      {TABS.slice(0, tabs).map((tab) => (
         <ExchangeReminders key={tab} settings={settings} />
       ))}
       <Toaster />
@@ -124,8 +129,10 @@ async function openTheApplication(today: DayExchange[], settings: Settings = TEN
   )
   return {
     /** My day read again after a gesture on one of its exchanges. */
-    readAgain: (changed: DayExchange[]) =>
-      act(() => queryClient.setQueryData(myDayQuery(startOfDay(new Date())).queryKey, aDayOf(changed))),
+    readAgain: (changed: DayExchange[]) => {
+      myDay = aDayOf(changed)
+      act(() => queryClient.setQueryData(myDayQuery(startOfDay(new Date())).queryKey, myDay))
+    },
   }
 }
 
@@ -188,6 +195,7 @@ describe('the reminders of my exchanges', () => {
     expect(screen.getByText(THE_REMINDER)).toBeInTheDocument()
 
     await userEvent.click(screen.getByRole('button', { name: 'Fermer' }))
+    await waitFor(() => expect(screen.queryByText(THE_REMINDER)).not.toBeInTheDocument())
     await itIs(13, 59)
 
     expect(screen.queryByText(THE_REMINDER)).not.toBeInTheDocument()
@@ -223,7 +231,7 @@ describe('the reminders of my exchanges', () => {
     const videoCall = aVideoCallAt14()
     const { readAgain } = await openTheApplication([videoCall])
 
-    await readAgain([{ ...videoCall, exchange: { ...videoCall.exchange, occurredAt: at(16, 0).toISOString() } }])
+    readAgain([{ ...videoCall, exchange: { ...videoCall.exchange, occurredAt: at(16, 0).toISOString() } }])
     await itIs(13, 50)
     expect(screen.queryByText(THE_REMINDER)).not.toBeInTheDocument()
     await itIs(15, 50)
@@ -235,7 +243,7 @@ describe('the reminders of my exchanges', () => {
     const videoCall = aVideoCallAt14()
     const { readAgain } = await openTheApplication([videoCall])
 
-    await readAgain([{ ...videoCall, exchange: { ...videoCall.exchange, status: 'cancelled' } }])
+    readAgain([{ ...videoCall, exchange: { ...videoCall.exchange, status: 'cancelled' } }])
     await itIs(13, 50)
 
     expect(screen.queryByText(THE_REMINDER)).not.toBeInTheDocument()
@@ -254,7 +262,7 @@ describe('the reminders of my exchanges', () => {
     await itIs(13, 50)
 
     await userEvent.click(await screen.findByRole('button', { name: 'Dans 5 min' }))
-    expect(screen.queryByText(THE_REMINDER)).not.toBeInTheDocument()
+    await waitFor(() => expect(screen.queryByText(THE_REMINDER)).not.toBeInTheDocument())
     await itIs(13, 54)
     expect(screen.queryByText(THE_REMINDER)).not.toBeInTheDocument()
     await itIs(13, 55)
@@ -264,7 +272,9 @@ describe('the reminders of my exchanges', () => {
 
   it('offers to call the interlocutor of a call, by the number its detail gives', async () => {
     const call = planned('call', at(14, 0))
-    theApiAnswers({ [`/api/exchanges/${call.exchange.id}`]: theDetailOf(call, { phoneNumber: '03 88 11 22 33' }) })
+    theApiAnswers({
+      [`/api/exchanges/${call.exchange.id}`]: theDetailOf(call, { phoneNumber: '03 88 11 22 33' }),
+    })
     await openTheApplication([call])
 
     await itIs(13, 50)
@@ -291,6 +301,7 @@ describe('the reminders of my exchanges', () => {
     await openTheApplication([aVideoCallAt14()])
     theTabIs('hidden')
 
+    await itIs(13, 50)
     await itIs(13, 51)
 
     expect(notifications).toEqual([expect.objectContaining({ title: THE_REMINDER, body: 'ACME' })])

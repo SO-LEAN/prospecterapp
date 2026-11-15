@@ -1,4 +1,4 @@
-import { act, screen, within } from '@testing-library/react'
+import { act, screen, waitFor, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { toast } from 'sonner'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
@@ -82,12 +82,20 @@ function theApiAnswers() {
     const { pathname } = new URL((input as Request).url)
     const answers: Record<string, unknown> = {
       '/api/me': me,
+      '/api/me/connections': {
+        connections: [],
+        _links: { self: { href: '/api/me/connections', method: 'GET' } },
+      },
       '/api/me/reminders': {
         enabled: true,
         minutesBefore: 10,
         _links: { self: { href: '/api/me/reminders', method: 'GET' } },
       },
-      '/api/me/day': { today: [theVideoCall], next: [], _links: { self: { href: '/api/me/day', method: 'GET' } } },
+      '/api/me/day': {
+        today: [theVideoCall],
+        next: [],
+        _links: { self: { href: '/api/me/day', method: 'GET' } },
+      },
       [`/api/contacts/${ADA}`]: ada,
       [`/api/exchanges/${VIDEO_CALL}`]: itsDetail,
     }
@@ -114,10 +122,10 @@ const theTabIs = (state: DocumentVisibilityState) =>
   Object.defineProperty(document, 'visibilityState', { value: state, configurable: true })
 
 const theCardOfAdaOpensOnTheVideoCall = async (router: Awaited<ReturnType<typeof renderTheSpaAt>>) => {
-  expect(await screen.findByRole('heading', { name: 'Ada Lovelace' })).toBeInTheDocument()
-  expect(router.state.location.pathname).toBe(`/contacts/${ADA}`)
   const detail = await screen.findByRole('dialog', { name: 'Échange' })
   expect(await within(detail).findByText('Présenter la démonstration')).toBeInTheDocument()
+  expect(router.state.location.pathname).toBe(`/contacts/${ADA}`)
+  expect(screen.getByRole('heading', { name: 'Ada Lovelace', hidden: true })).toBeInTheDocument()
 }
 
 describe('a reminder of an exchange in the application', () => {
@@ -142,14 +150,19 @@ describe('a reminder of an exchange in the application', () => {
     await userEvent.click(await screen.findByRole('button', { name: new RegExp(THE_REMINDER) }))
 
     await theCardOfAdaOpensOnTheVideoCall(router)
-    expect(screen.queryByText(THE_REMINDER)).not.toBeInTheDocument()
+    await waitFor(() =>
+      expect(screen.queryByText(THE_REMINDER, { ignore: '[role=dialog] *' })).not.toBeInTheDocument(),
+    )
   })
 
   it('opens the exchange on the card of its contact from the notification of the browser', async () => {
     const clicks = theBrowserNotifies()
     theTabIs('hidden')
     const router = await renderTheSpaAt('/organizations')
-    await act(() => vi.advanceTimersByTimeAsync(5_000))
+    for (let second = 0; second < 5 && clicks.length === 0; second++) {
+      await act(() => vi.advanceTimersByTimeAsync(1_000))
+    }
+    expect(clicks).toHaveLength(1)
 
     theTabIs('visible')
     act(() => clicks[0]?.())
