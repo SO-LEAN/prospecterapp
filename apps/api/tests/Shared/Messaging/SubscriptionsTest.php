@@ -92,4 +92,3 @@ class SubscriptionsTest extends TestCase
         return ['accountId' => 'an-account', 'exchangeId' => 'an-exchange', 'revision' => 2, 'present' => $present, 'status' => $status, 'notedAt' => null, 'occurredAt' => '2026-11-16T09:00:00.000000Z'];
     }
 }
-
