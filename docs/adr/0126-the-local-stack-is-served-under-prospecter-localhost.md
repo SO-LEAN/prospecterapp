@@ -14,6 +14,7 @@ The local stack was served under `local.prospecter.io` and its subdomains, which
 
 - The stack is served under `prospecter.localhost` (the SPA), `api.prospecter.localhost` (the API, its doc, the Cognito of MiniStack under `/cognito/`) and `static.prospecter.localhost` (the files), on 443 for the main checkout and on its own port for a worktree (0116). The former names are not kept beside them: one configuration.
 - The local authority (0123) may sign only for `prospecter.localhost` and its subdomains. `make ca` replaces an authority whose constraint does not permit that domain, which could not sign for it, and keeps it otherwise; the new one is imported in the browser in place of the former.
+- MiniStack is told the host it is reached under in the network of the stack (`MINISTACK_HOST`, `ministack`): by default `localhost`, it read a host of the stack in `.localhost` as a virtual-hosted bucket (`static.prospecter.localhost` the bucket `static`), and refused the uploads of the private files the static host passes it.
 - The journeys, in the network of the stack (0084), resolve the names to its nginx: Node by the `/etc/hosts` of the container of Playwright, Chromium, which resolves a name in `.localhost` to its own loopback whatever that file says, by a rule of its resolver (`--host-resolver-rules`) given the address of nginx.
 
 ## Consequences
