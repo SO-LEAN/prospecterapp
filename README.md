@@ -20,7 +20,7 @@ Documentation: [what is in force, by subject](docs/README.md), [decision records
     make ca
     make start
 
-`make ca` creates, once per machine, the local authority signing the certificate of the local hosts; import it once in Chrome ([Certificat local](#certificat-local)) and no stack shows a certificate warning. The hosts are names in `.localhost`, which Chrome, Firefox and curl resolve to the loopback themselves: nothing to add to `/etc/hosts`.
+`make ca` creates, once per machine, the local authority signing the certificate of the local hosts; import it once in Chrome ([Certificat local](#certificat-local)) and no stack shows a certificate warning. The hosts are names in `.localhost`, which Chrome, Firefox and curl resolve to the loopback themselves: nothing to add to `/etc/hosts`. A stack whose data date from the former hosts (`local.prospecter.io`) keeps them in the addresses of its files: `make db` gives it those of the demonstration again, and the lines of those hosts can leave `/etc/hosts`.
 
 - Application: https://prospecter.localhost, sign in with `prospector@solean-it.io` / `password` (or `assistant@solean-it.io`, who sees the contacts masked)
 - API documentation: https://api.prospecter.localhost/api/doc

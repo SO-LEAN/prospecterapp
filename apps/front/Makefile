@@ -36,8 +36,8 @@ api-types: ## Generate the types of the API from its OpenAPI contract (src/share
 	@$(NODE) pnpm api:types
 
 # Playwright runs in its official image, in the network of the stack, the local hosts resolved to its nginx (by its
-# /etc/hosts for Node, by STACK_ADDRESS for Chromium, playwright.config.ts): on the network of the host, its Chromium would drop its requests each time a function starts its container there
-# (net::ERR_NETWORK_CHANGED). The nginx of the stack of this checkout (ADR 0116): its network and its address
+# /etc/hosts for Node, by STACK_ADDRESS for Chromium, playwright.config.ts): on the network of the host, its Chromium
+# would drop its requests each time a function starts its container there (net::ERR_NETWORK_CHANGED). The nginx of the stack of this checkout (ADR 0116): its network and its address
 NGINX = $(shell $(DC) ps -q nginx 2>/dev/null)
 E2E_NETWORK = $(if $(NGINX),$(shell docker inspect -f '{{range $$name, $$network := .NetworkSettings.Networks}}{{$$name}}{{end}}' $(NGINX)))
 NGINX_IP = $(if $(NGINX),$(shell docker inspect -f '{{range .NetworkSettings.Networks}}{{.IPAddress}}{{end}}' $(NGINX)))
