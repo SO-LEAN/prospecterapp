@@ -223,6 +223,20 @@ use Prospecter\Core\SharedKernel\Application\TransactionalCommandHandler;
 use Prospecter\Core\SharedKernel\Application\TransactionalEventHandler;
 use Prospecter\Core\SharedKernel\Domain\Exception\BusinessException;
 use Prospecter\Core\SharedKernel\Domain\MemberId;
+use Prospecter\Core\Connectors\Application\PushExchange\PushExchangeHandler;
+use Prospecter\Core\PersonalData\Application\NameContacts\NameContactsHandler;
+use Prospecter\Core\PersonalData\Contract\Service\NameContacts\ContactNameResponse;
+use Prospecter\Core\PersonalData\Contract\Service\NameContacts\KeptContactNames;
+use Prospecter\Core\PersonalData\Contract\Service\NameContacts\NameContacts;
+use Prospecter\Core\Prospecting\Application\ConsultHeldExchanges\ConsultHeldExchangesHandler;
+use Prospecter\Core\Prospecting\Contract\Service\ConsultHeldExchanges\ConsultHeldExchanges;
+use Prospecter\Core\Prospecting\Contract\Service\ConsultHeldExchanges\HeldExchangeResponse;
+use Prospecter\Core\Prospecting\Contract\Service\ConsultHeldExchanges\KeptHeldExchanges;
+use Tests\Core\Double\InMemoryCalendarEntryRepository;
+use Tests\Core\Double\InMemoryHeldExchangeRetriever;
+use Tests\Core\Double\InMemoryProviderCalendar;
+use Tests\Core\Double\PersonalDataContactNames;
+use Tests\Core\Double\ProspectingHeldExchanges;
 use Tests\Core\Double\AccountsMembers;
 use Tests\Core\Double\AccountsProspectors;
 use Tests\Core\Double\AccountsReaders;
@@ -337,6 +351,9 @@ final class Application
     public readonly InMemoryProviderClientRepository $clients;
     private readonly InMemoryAccountClientsRetriever $accountClientsRetriever;
     private readonly AccountsMembers $connectingMembers;
+    public readonly InMemoryProviderCalendar $calendars;
+    private readonly ConsultHeldExchangesHandler $consultHeldExchangesService;
+    private readonly NameContactsHandler $nameContactsService;
     /** @var array<class-string, CommandHandler> */
     private array $handlers = [];
     private ?string $signedIn = null;
@@ -403,6 +420,9 @@ final class Application
         $this->clients = new InMemoryProviderClientRepository($database);
         $this->accountClientsRetriever = new InMemoryAccountClientsRetriever($database);
         $this->connectingMembers = new AccountsMembers($this->consultMembersService);
+        $this->calendars = new InMemoryProviderCalendar($this->providerAccess);
+        $this->consultHeldExchangesService = new ConsultHeldExchangesHandler(new InMemoryHeldExchangeRetriever($database), $this->organizationSheetRetriever);
+        $this->nameContactsService = new NameContactsHandler($this->personCardRetriever, $this->readers);
 
         foreach ($this->translators() as $translator) {
             $this->events->translateWith($translator, calledThrough: new RefusalTranslatingEventHandler(new TransactionalEventHandler($translator, $this->unitOfWork)));
@@ -817,6 +837,28 @@ final class Application
     }
 
     /**
+     * @return list<ContactNameResponse>
+     */
+    public function nameContacts(NameContacts $query): array
+    {
+        $kept = new KeptContactNames();
+        ($this->nameContactsService)($query, $kept);
+
+        return $kept->names;
+    }
+
+    /**
+     * @return list<HeldExchangeResponse>
+     */
+    public function consultHeldExchanges(ConsultHeldExchanges $query): array
+    {
+        $kept = new KeptHeldExchanges();
+        ($this->consultHeldExchangesService)($query, $kept);
+
+        return $kept->exchanges;
+    }
+
+    /**
      * @return list<string>
      */
     public function whichAreContacts(WhichAreContacts $query): array
@@ -917,6 +959,16 @@ final class Application
             new RecordOrganizationFactsHandler($this->factRecorder),
             new RecordExchangeFactsHandler($this->factRecorder),
             new RecordContactFactsHandler($this->factRecorder),
+            new PushExchangeHandler(
+                new ProspectingHeldExchanges($this->consultHeldExchangesService),
+                new InMemoryCalendarEntryRepository($this->database),
+                $this->connections,
+                $this->clients,
+                $this->connectingMembers,
+                new PersonalDataContactNames($this->nameContactsService),
+                $this->calendars,
+                $this->events,
+            ),
         ];
     }
 

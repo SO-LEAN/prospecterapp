@@ -6,6 +6,7 @@ namespace Tests\Core\Double;
 
 use Prospecter\Core\Accounts\Domain\Model\Account;
 use Prospecter\Core\Accounts\Domain\Model\Member;
+use Prospecter\Core\Connectors\Domain\Model\CalendarEntry;
 use Prospecter\Core\Connectors\Domain\Model\Connection;
 use Prospecter\Core\Connectors\Domain\Model\PendingAuthorization;
 use Prospecter\Core\Connectors\Domain\Model\ProviderClient;
@@ -49,6 +50,8 @@ final class InMemoryDatabase
     private array $authorizations = [];
     /** @var array<string, ProviderClient> by the account and the provider */
     private array $clients = [];
+    /** @var array<string, CalendarEntry> by the exchange pushed */
+    private array $calendarEntries = [];
 
     public function isEmpty(): bool
     {
@@ -79,6 +82,24 @@ final class InMemoryDatabase
         $this->connections = $snapshot->connections;
         $this->authorizations = $snapshot->authorizations;
         $this->clients = $snapshot->clients;
+        $this->calendarEntries = $snapshot->calendarEntries;
+    }
+
+    public function storeCalendarEntry(CalendarEntry $entry): void
+    {
+        $this->calendarEntries[$entry->exchange()->value] = clone $entry;
+    }
+
+    public function forgetCalendarEntry(CalendarEntry $entry): void
+    {
+        unset($this->calendarEntries[$entry->exchange()->value]);
+    }
+
+    public function calendarEntry(string $exchange): ?CalendarEntry
+    {
+        $entry = $this->calendarEntries[$exchange] ?? null;
+
+        return null === $entry ? null : clone $entry;
     }
 
     public function storeClient(ProviderClient $client): void

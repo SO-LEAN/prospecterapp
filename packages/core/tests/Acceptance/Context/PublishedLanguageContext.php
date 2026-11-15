@@ -9,6 +9,7 @@ use Behat\Gherkin\Node\TableNode;
 use Behat\Step\Given;
 use Behat\Step\Then;
 use Behat\Step\When;
+use Prospecter\Core\Accounts\Application\ChangeMyReminders\ChangeMyReminders;
 use Prospecter\Core\Accounts\Contract\Service\ConsultMembers\ConsultMembers;
 use Prospecter\Core\Accounts\Contract\Service\ConsultMembers\MemberResponse;
 use Prospecter\Core\Accounts\Contract\Service\ListAccounts\KeptAccounts;
@@ -17,7 +18,11 @@ use Prospecter\Core\Accounts\Domain\Model\Role;
 use Prospecter\Core\PersonalData\Contract\Service\ListContactFacts\ContactFactsResponse;
 use Prospecter\Core\PersonalData\Contract\Service\ListContactFacts\KeptContactFacts;
 use Prospecter\Core\PersonalData\Contract\Service\ListContactFacts\ListContactFacts;
+use Prospecter\Core\PersonalData\Contract\Service\NameContacts\ContactNameResponse;
+use Prospecter\Core\PersonalData\Contract\Service\NameContacts\NameContacts;
 use Prospecter\Core\PersonalData\Contract\Service\WhichAreContacts\WhichAreContacts;
+use Prospecter\Core\Prospecting\Contract\Service\ConsultHeldExchanges\ConsultHeldExchanges;
+use Prospecter\Core\Prospecting\Contract\Service\ConsultHeldExchanges\HeldExchangeResponse;
 use Prospecter\Core\Prospecting\Contract\Service\ListExchangeFacts\ExchangeFactsResponse;
 use Prospecter\Core\Prospecting\Contract\Service\ListExchangeFacts\KeptExchangeFacts;
 use Prospecter\Core\Prospecting\Contract\Service\ListExchangeFacts\ListExchangeFacts;
@@ -61,6 +66,14 @@ final class PublishedLanguageContext implements Context
      */
     private \Closure $askFacts;
     private KeptOrganizationFacts|KeptExchangeFacts|KeptContactFacts|KeptAccounts|null $facts = null;
+    /**
+     * @var list<ContactNameResponse>
+     */
+    private array $names = [];
+    /**
+     * @var list<HeldExchangeResponse>
+     */
+    private array $heldExchanges = [];
 
     #[Given(':name est membre de :account avec le droit aux données personnelles')]
     public function aMemberManagingPersonalData(string $name, string $account): void
@@ -290,6 +303,82 @@ final class PublishedLanguageContext implements Context
     /**
      * A member nobody named in the scenario has an identity nobody has.
      */
+    #[Given(':name a réglé ses rappels à :minutes minutes avant')]
+    public function aMemberSetTheirReminders(string $name, int $minutes): void
+    {
+        $this->application->dispatch(new ChangeMyReminders($this->memberIdOf($name), true, $minutes, $this->application->now()));
+    }
+
+    #[Given(':name a désactivé ses rappels')]
+    public function aMemberTurnedTheirRemindersOff(string $name): void
+    {
+        $this->application->dispatch(new ChangeMyReminders($this->memberIdOf($name), false, 10, $this->application->now()));
+    }
+
+    #[Then('Accounts répond que :name veut être rappelée :minutes minutes avant')]
+    #[Then('Accounts répond que :name veut être rappelé :minutes minutes avant')]
+    public function accountsAnswersTheReminderOf(string $name, int $minutes): void
+    {
+        Expect::same($minutes, $this->consulted[$this->memberIdOf($name)]->reminderMinutesBefore ?? null);
+    }
+
+    #[Then('Accounts répond que :name ne veut pas être rappelé')]
+    #[Then('Accounts répond que :name ne veut pas être rappelée')]
+    public function accountsAnswersNoReminderOf(string $name): void
+    {
+        $member = $this->consulted[$this->memberIdOf($name)] ?? null;
+        Expect::that(null !== $member, sprintf('Accounts did not answer about "%s"', $name));
+        Expect::same(null, $member->reminderMinutesBefore);
+    }
+
+    #[When('un autre contexte demande à PersonalData les noms, comme :reader les lit, de :')]
+    public function anotherContextAsksTheNames(string $reader, TableNode $persons): void
+    {
+        $this->names = $this->application->nameContacts(new NameContacts($this->memberIdOf($reader), array_map($this->scenario->personIdOf(...), $persons->getColumn(0))));
+    }
+
+    #[Then('PersonalData répond les noms :')]
+    public function personalDataAnswersTheNames(TableNode $names): void
+    {
+        Expect::same($names->getColumn(0), array_map(static fn (ContactNameResponse $name): string => trim(sprintf('%s %s', $name->firstName, $name->lastName)), $this->names));
+    }
+
+    #[Then('PersonalData ne répond aucun nom')]
+    public function personalDataAnswersNoName(): void
+    {
+        Expect::same([], $this->names);
+    }
+
+    #[When('un autre contexte demande à Prospecting, de :account, cet échange et un échange inconnu')]
+    public function anotherContextAsksTheHeldExchanges(string $account): void
+    {
+        $this->heldExchanges = $this->application->consultHeldExchanges(new ConsultHeldExchanges($this->scenario->accountIdOf($account)->value, [$this->scenario->theExchange(), $this->application->newIdentity()]));
+    }
+
+    #[Then('Prospecting répond l\'échange :')]
+    public function prospectingAnswersTheExchange(TableNode $exchanges): void
+    {
+        $expected = array_map(fn (array $row): array => [...$row, 'titulaire' => 'moi' === $row['titulaire'] ? $this->application->signedIn() : $row['titulaire']], $exchanges->getColumnsHash());
+
+        Expect::same($expected, array_map(fn (HeldExchangeResponse $exchange): array => [
+            'titulaire' => $exchange->holderId,
+            'statut' => Vocabulary::describeStatus($exchange->status),
+            'canal' => Vocabulary::describeChannel($exchange->channel),
+            'moment' => $exchange->startsAt->format('d/m/Y H:i'),
+            'durée' => sprintf('%d min', $exchange->durationInMinutes),
+            'lieu' => (string) $exchange->place,
+            'lien' => (string) $exchange->link,
+            'contact' => null === $exchange->contactId ? '' : $this->scenario->nameOfPerson(new PersonId($exchange->contactId)),
+            'organisation' => $exchange->organizationName,
+        ], $this->heldExchanges));
+    }
+
+    #[Then('Prospecting ne répond aucun échange')]
+    public function prospectingAnswersNoExchange(): void
+    {
+        Expect::same([], $this->heldExchanges);
+    }
+
     private function memberIdOf(string $name): string
     {
         return isset($this->members[$name]) ? $this->members[$name]->value : $this->application->newIdentity();

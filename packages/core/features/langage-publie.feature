@@ -30,6 +30,36 @@ Fonctionnalité: Le langage publié des contextes
     Alors Accounts répond que "Ada Byron" administre son compte
     Et Accounts répond que "Alan Turing" n'administre pas son compte
 
+  Scénario: Accounts dit combien de temps avant ses échanges un membre veut être rappelé
+    Soit "Grace Hopper" est membre de "SOLEAN IT" avec le droit aux données personnelles
+    Et "Alan Turing" est membre de "SOLEAN IT" sans le droit aux données personnelles
+    Et "Ada Byron" est membre de "SOLEAN IT" qui l'administre
+    Et "Grace Hopper" a réglé ses rappels à 15 minutes avant
+    Et "Alan Turing" a désactivé ses rappels
+    Quand un autre contexte demande à Accounts qui sont les membres :
+      | Grace Hopper |
+      | Alan Turing  |
+      | Ada Byron    |
+    Alors Accounts répond que "Grace Hopper" veut être rappelée 15 minutes avant
+    Et Accounts répond que "Alan Turing" ne veut pas être rappelé
+    Et Accounts répond que "Ada Byron" veut être rappelée 10 minutes avant
+
+  Scénario: PersonalData nomme des contacts comme un membre les lit
+    Soit "Grace Hopper" est membre de "SOLEAN IT" avec le droit aux données personnelles
+    Et "Alan Turing" est membre de "SOLEAN IT" sans le droit aux données personnelles
+    Quand un autre contexte demande à PersonalData les noms, comme "Grace Hopper" les lit, de :
+      | Ada Lovelace |
+      | Personne     |
+    Alors PersonalData répond les noms :
+      | Ada Lovelace |
+    Quand un autre contexte demande à PersonalData les noms, comme "Alan Turing" les lit, de :
+      | Ada Lovelace |
+    Alors PersonalData répond les noms :
+      | A***a L***e |
+    Quand un autre contexte demande à PersonalData les noms, comme "Personne" les lit, de :
+      | Ada Lovelace |
+    Alors PersonalData ne répond aucun nom
+
   Scénario: PersonalData dit lesquelles de plusieurs personnes sont des contacts d'un compte
     Soit "Grace Hopper" est membre de "SOLEAN IT" avec le droit aux données personnelles
     Quand un autre contexte demande à PersonalData lesquelles sont des contacts de "SOLEAN IT" :
@@ -74,6 +104,27 @@ Fonctionnalité: Le langage publié des contextes
     Quand il demande la suite
     Alors Prospecting répond les faits de 1 échange, présent, fait, révision 1
     Et Prospecting ne donne pas de suite
+
+  Scénario: Prospecting dit qui tient des échanges, quand et comment
+    Soit je suis connecté en tant que prospecteur de "SOLEAN IT"
+    Et nous sommes le 13/11/2026 à 10h00
+    Et j'ai planifié un rendez-vous avec "Ada Lovelace" le 17/11/2026 à 14h00 pour 1 heure au lieu "Café de Flore"
+    Quand un autre contexte demande à Prospecting, de "SOLEAN IT", cet échange et un échange inconnu
+    Alors Prospecting répond l'échange :
+      | titulaire | statut  | canal       | moment           | durée  | lieu          | lien | contact      | organisation |
+      | moi       | À venir | Rendez-vous | 17/11/2026 14:00 | 60 min | Café de Flore |      | Ada Lovelace | ACME         |
+    Quand un autre contexte demande à Prospecting, de "Concurrent", cet échange et un échange inconnu
+    Alors Prospecting ne répond aucun échange
+
+  Scénario: Prospecting dit un échange avec l'organisation elle-même, sans contact
+    Soit je suis connecté en tant que prospecteur de "SOLEAN IT"
+    Et nous sommes le 13/11/2026 à 10h00
+    Et j'ai planifié une visio avec "ACME" le 17/11/2026 à 9h00 au lien "https://meet.example/acme"
+    Et j'annule cette visio
+    Quand un autre contexte demande à Prospecting, de "SOLEAN IT", cet échange et un échange inconnu
+    Alors Prospecting répond l'échange :
+      | titulaire | statut  | canal | moment           | durée  | lieu | lien                      | contact | organisation |
+      | moi       | Annulé  | Visio | 17/11/2026 09:00 | 30 min |      | https://meet.example/acme |         | ACME         |
 
   Scénario: PersonalData liste les faits des contacts d'un compte, par tranche
     Soit le contact "Alan Turing" de "ACME"
