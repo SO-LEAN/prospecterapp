@@ -8,8 +8,11 @@ use PHPUnit\Framework\TestCase;
 use Prospecter\Core\Connectors\Domain\Event\Connected;
 use Prospecter\Core\Connectors\Domain\Event\ConnectionLost;
 use Prospecter\Core\Connectors\Domain\Event\Disconnected;
+use Prospecter\Core\Connectors\Domain\Model\CalendarEvent;
+use Prospecter\Core\Connectors\Domain\Model\Channel;
 use Prospecter\Core\Connectors\Domain\Model\ClientCredentials;
 use Prospecter\Core\Connectors\Domain\Model\Connection;
+use Prospecter\Core\Connectors\Domain\Model\ExchangeId;
 use Prospecter\Core\Connectors\Domain\Model\Grant;
 use Prospecter\Core\Connectors\Domain\Model\PendingAuthorization;
 use Prospecter\Core\Connectors\Domain\Model\Provider;
@@ -17,13 +20,17 @@ use Prospecter\Core\Connectors\Domain\Model\RefreshToken;
 use Prospecter\Core\SharedKernel\Domain\AccountId;
 use Prospecter\Core\SharedKernel\Domain\Email;
 use Prospecter\Core\SharedKernel\Domain\MemberId;
+use Prospecter\Core\SharedKernel\Domain\OrganizationId;
 use Tests\Core\Double\InMemoryProviderAccess;
+use Tests\Core\Double\InMemoryProviderCalendar;
 
 /**
- * Each gesture on a connection records what happened; an authorization waits ten minutes, not one more.
+ * Each gesture on a connection records what happened; an authorization waits ten minutes, not one more; a push
+ * reaches the calendar only through the client its token was granted to, while connected.
  */
 final class ConnectionTest extends TestCase
 {
+    private const string EXCHANGE = '0190a1c0-0000-7000-8000-0000000000ee';
     private const string ACCOUNT = '0190a1c0-0000-7000-8000-000000000001';
     private const string MEMBER = '0190a1c0-0000-7000-8000-0000000000aa';
     private const string AT = '2026-11-14 10:00';
@@ -91,6 +98,56 @@ final class ConnectionTest extends TestCase
         $this->assertEquals([new Disconnected(new AccountId(self::ACCOUNT), new MemberId(self::MEMBER), new \DateTimeImmutable(self::AT))], $connection->releaseEvents());
     }
 
+    public function testAPushThroughAnotherClientPushesNothingAndRecordsTheConnectionLostOnce(): void
+    {
+        $calendars = new InMemoryProviderCalendar(new InMemoryProviderAccess());
+        $connection = $this->establish();
+        $connection->releaseEvents();
+        $anotherClient = new ClientCredentials(Provider::Google, 'another-client', 'its-secret');
+
+        $connection->push(self::event(), $anotherClient, $calendars, new \DateTimeImmutable(self::AT));
+        $connection->push(self::event(), $anotherClient, $calendars, new \DateTimeImmutable(self::AT));
+
+        $this->assertSame([], $calendars->events());
+        $this->assertEquals([new ConnectionLost(new AccountId(self::ACCOUNT), new MemberId(self::MEMBER), new \DateTimeImmutable(self::AT))], $connection->releaseEvents());
+    }
+
+    public function testAPushIsKeptInTheCalendarCreatedOnce(): void
+    {
+        $calendars = new InMemoryProviderCalendar(new InMemoryProviderAccess());
+        $connection = $this->establish();
+
+        $connection->push(self::event(), self::client(), $calendars, new \DateTimeImmutable(self::AT));
+        $connection->push(self::event(), self::client(), $calendars, new \DateTimeImmutable(self::AT));
+
+        $this->assertSame([self::EXCHANGE], array_keys($calendars->events()));
+        $this->assertSame('calendar-2', $calendars->create(self::client(), new RefreshToken('a-token')), 'One calendar was expected to be created before');
+    }
+
+    public function testNothingIsWithdrawnBeforeAPush(): void
+    {
+        $calendars = new InMemoryProviderCalendar(new InMemoryProviderAccess());
+        $connection = $this->establish();
+        $connection->releaseEvents();
+
+        $connection->withdraw(new ExchangeId(self::EXCHANGE), self::client(), $calendars, new \DateTimeImmutable(self::AT));
+
+        $this->assertFalse($calendars->wasWithdrawn(self::EXCHANGE));
+        $this->assertSame([], $connection->releaseEvents());
+    }
+
+    public function testAnEventWithdrawnLeavesTheCalendar(): void
+    {
+        $calendars = new InMemoryProviderCalendar(new InMemoryProviderAccess());
+        $connection = $this->establish();
+        $connection->push(self::event(), self::client(), $calendars, new \DateTimeImmutable(self::AT));
+
+        $connection->withdraw(new ExchangeId(self::EXCHANGE), self::client(), $calendars, new \DateTimeImmutable(self::AT));
+
+        $this->assertSame([], $calendars->events());
+        $this->assertTrue($calendars->wasWithdrawn(self::EXCHANGE));
+    }
+
     public function testAnAuthorizationWaitsTenMinutes(): void
     {
         $authorization = PendingAuthorization::askedBy(new MemberId(self::MEMBER), Provider::Google, 'a-state', 'a-verifier', new \DateTimeImmutable(self::AT));
@@ -107,6 +164,13 @@ final class ConnectionTest extends TestCase
     private static function client(): ClientCredentials
     {
         return new ClientCredentials(Provider::Google, 'the-client', 'its-secret');
+    }
+
+    private static function event(): CalendarEvent
+    {
+        $at = new \DateTimeImmutable('2026-11-17 14:00');
+
+        return new CalendarEvent(new ExchangeId(self::EXCHANGE), Channel::VideoCall, $at, $at->modify('+30 minutes'), null, null, null, new OrganizationId(self::ACCOUNT), 'ACME', 10);
     }
 
     private static function grant(): Grant

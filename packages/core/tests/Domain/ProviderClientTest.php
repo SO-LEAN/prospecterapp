@@ -70,14 +70,14 @@ final class ProviderClientTest extends TestCase
 
     public function testAnAdministratorAdministersTheirAccount(): void
     {
-        $administrator = new Member(new MemberId(self::ADMINISTRATOR), new AccountId(self::ACCOUNT), administers: true);
+        $administrator = new Member(new MemberId(self::ADMINISTRATOR), new AccountId(self::ACCOUNT), administers: true, reminderMinutesBefore: null);
 
         $this->assertEquals(new AccountId(self::ACCOUNT), $administrator->administeredAccount());
     }
 
     public function testAMemberWhoIsNoAdministratorAdministersNothing(): void
     {
-        $prospector = new Member(new MemberId(self::ADMINISTRATOR), new AccountId(self::ACCOUNT), administers: false);
+        $prospector = new Member(new MemberId(self::ADMINISTRATOR), new AccountId(self::ACCOUNT), administers: false, reminderMinutesBefore: null);
 
         $this->expectExceptionObject(NotTheAdministrator::ofTheClients());
 
