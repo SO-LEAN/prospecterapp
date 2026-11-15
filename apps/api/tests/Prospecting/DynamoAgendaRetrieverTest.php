@@ -4,6 +4,7 @@ namespace Tests\App\Prospecting;
 
 use Prospecter\Core\Prospecting\Application\ExchangeInTimeline;
 use Prospecter\Core\Prospecting\Application\Port\AgendaRetriever;
+use Prospecter\Core\Prospecting\Domain\Model\CalendarPeriod;
 use Prospecter\Core\Prospecting\Domain\Model\Channel;
 use Prospecter\Core\Prospecting\Domain\Model\Direction;
 use Prospecter\Core\Prospecting\Domain\Model\Duration;
@@ -45,6 +46,31 @@ class DynamoAgendaRetrieverTest extends ApiTestCase
         $this->assertSame([self::idOf($sooner), self::idOf($later)], $this->idsInMyAgendaBetween('2026-11-17 08:00 UTC', '2026-11-17 16:00 UTC'));
     }
 
+    public function testTheExchangesIPlannedInADayItsStartIncludedItsEndExcluded(): void
+    {
+        $atMidnight = $this->plannedBy($this->me, '2026-11-17 00:00 UTC');
+        $atNoon = $this->plannedBy($this->me, '2026-11-17 12:00 UTC');
+        $this->plannedBy($this->me, '2026-11-18 00:00 UTC');
+        $this->plannedBy($this->me, '2026-11-16 23:59 UTC');
+
+        $inTheDay = self::getContainer()->get(AgendaRetriever::class)->plannedIn($this->me, new CalendarPeriod(new \DateTimeImmutable('2026-11-17 00:00 UTC'), new \DateTimeImmutable('2026-11-18 00:00 UTC')));
+
+        $this->assertSame([self::idOf($atMidnight), self::idOf($atNoon)], self::idsOf($inTheDay));
+    }
+
+    public function testTheFirstExchangesIPlannedFromAMomentOnTheSoonestFirst(): void
+    {
+        $this->plannedBy($this->me, '2026-11-17 23:59 UTC');
+        $third = $this->plannedBy($this->me, '2026-11-20 09:00 UTC');
+        $first = $this->plannedBy($this->me, '2026-11-18 00:00 UTC');
+        $second = $this->plannedBy($this->me, '2026-11-19 09:00 UTC');
+        $this->plannedBy($this->me, '2026-11-21 09:00 UTC');
+
+        $next = self::getContainer()->get(AgendaRetriever::class)->firstPlannedFrom($this->me, new \DateTimeImmutable('2026-11-18 00:00 UTC'), 3);
+
+        $this->assertSame([self::idOf($first), self::idOf($second), self::idOf($third)], self::idsOf($next));
+    }
+
     public function testTheExchangesPlannedByAColleagueAreNotInMyAgenda(): void
     {
         $this->plannedBy(new Prospector(new MemberId(self::newIdentity()), $this->me->accountId, managesPersonalData: true), '2026-11-17 14:00 UTC');
@@ -83,9 +109,17 @@ class DynamoAgendaRetrieverTest extends ApiTestCase
      */
     private function idsInMyAgendaBetween(string $from, string $until): array
     {
-        $planned = self::getContainer()->get(AgendaRetriever::class)->plannedBy($this->me, new \DateTimeImmutable($from), new \DateTimeImmutable($until));
+        return self::idsOf(self::getContainer()->get(AgendaRetriever::class)->plannedBy($this->me, new \DateTimeImmutable($from), new \DateTimeImmutable($until)));
+    }
 
-        return array_map(static fn (ExchangeInTimeline $exchange): string => $exchange->id, $planned);
+    /**
+     * @param list<ExchangeInTimeline> $exchanges
+     *
+     * @return list<string>
+     */
+    private static function idsOf(array $exchanges): array
+    {
+        return array_map(static fn (ExchangeInTimeline $exchange): string => $exchange->id, $exchanges);
     }
 
     private static function idOf(Exchange $exchange): string
