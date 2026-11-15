@@ -6,6 +6,7 @@ import type { Account } from '@/features/account/mutations'
 import type { Contact } from '@/features/contacts/queries'
 import type { DayExchange } from '@/features/exchanges/my-day/queries'
 import type { ExchangeDetail } from '@/features/exchanges/queries'
+import type { Organization } from '@/features/organizations/queries'
 import { renderTheSpaAt } from '@/test/render-the-spa'
 
 /** A reminder of an exchange, on the routes of the SPA: whatever the page, a click opens the exchange on the card of its contact. */
@@ -25,6 +26,7 @@ vi.mock('@/shared/auth/session', () => ({
 }))
 
 const ADA = '0190a1c0-0000-7000-8000-000000000001'
+const ACME = '0190a1c0-0000-7000-8000-00000000ac00'
 const VIDEO_CALL = '0190a1c0-0000-7000-8000-000000000020'
 const AT_14 = new Date(2026, 10, 13, 14, 0)
 const THE_REMINDER = 'Visio avec Ada Lovelace à 14h00'
@@ -76,8 +78,27 @@ const itsDetail: ExchangeDetail = {
   hiddenAttachments: 0,
 }
 
-/** The api: my account, my reminders ten minutes before, my day with the video call, Ada and the detail of the call. */
-function theApiAnswers() {
+const theVideoCallWithAcme: DayExchange = {
+  ...theVideoCall,
+  interlocutor: { kind: 'organization', id: ACME, name: 'ACME', presence: null },
+}
+
+const acme: Organization = {
+  id: ACME,
+  name: 'ACME',
+  legalIdentity: { corporateName: 'ACME' },
+  contactDetails: {},
+  contactIds: [],
+  createdAt: '2026-10-26T09:00:00+00:00',
+  modifiedAt: '2026-10-26T09:00:00+00:00',
+  _links: { self: { href: `/api/organizations/${ACME}`, method: 'GET' } },
+}
+
+/**
+ * The api: my account, my reminders ten minutes before, my day with the video call, Ada, ACME and the detail of the
+ * call.
+ */
+function theApiAnswers(today: DayExchange = theVideoCall) {
   theApi.mockImplementation(async (input) => {
     const { pathname } = new URL((input as Request).url)
     const answers: Record<string, unknown> = {
@@ -92,12 +113,13 @@ function theApiAnswers() {
         _links: { self: { href: '/api/me/reminders', method: 'GET' } },
       },
       '/api/me/day': {
-        today: [theVideoCall],
+        today: [today],
         next: [],
         _links: { self: { href: '/api/me/day', method: 'GET' } },
       },
       [`/api/contacts/${ADA}`]: ada,
-      [`/api/exchanges/${VIDEO_CALL}`]: itsDetail,
+      [`/api/organizations/${ACME}`]: acme,
+      [`/api/exchanges/${VIDEO_CALL}`]: { ...itsDetail, interlocutor: today.interlocutor },
     }
     return Response.json(answers[pathname] ?? { items: [], _links: {} })
   })
@@ -168,5 +190,33 @@ describe('a reminder of an exchange in the application', () => {
     act(() => clicks[0]?.())
 
     await theCardOfAdaOpensOnTheVideoCall(router)
+  })
+
+  it('opens an exchange with an organization on its card', async () => {
+    theApiAnswers(theVideoCallWithAcme)
+    const router = await renderTheSpaAt('/contacts')
+
+    await userEvent.click(await screen.findByRole('button', { name: /Visio avec ACME à 14h00/ }))
+
+    const detail = await screen.findByRole('dialog', { name: 'Échange' })
+    expect(await within(detail).findByText('Présenter la démonstration')).toBeInTheDocument()
+    expect(router.state.location.pathname).toBe(`/organizations/${ACME}`)
+  })
+
+  it('leaves the card as it was once the exchange opened over it is closed', async () => {
+    const router = await renderTheSpaAt(`/contacts/${ADA}?exchange=${VIDEO_CALL}`)
+    await screen.findByRole('dialog', { name: 'Échange' })
+
+    await userEvent.keyboard('{Escape}')
+
+    await waitFor(() => expect(screen.queryByRole('dialog', { name: 'Échange' })).not.toBeInTheDocument())
+    expect(router.state.location.search).toEqual({})
+  })
+
+  it('opens no exchange over the card for an address that names none', async () => {
+    await renderTheSpaAt(`/contacts/${ADA}?exchange=not-an-exchange`)
+
+    expect(await screen.findByRole('heading', { name: 'Ada Lovelace' })).toBeInTheDocument()
+    expect(screen.queryByRole('dialog', { name: 'Échange' })).not.toBeInTheDocument()
   })
 })
