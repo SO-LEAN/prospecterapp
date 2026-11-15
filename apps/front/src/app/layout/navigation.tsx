@@ -10,6 +10,7 @@ import {
   UsersRound,
 } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
+import { ToProcessCount } from '@/features/exchanges/to-process/components/to-process-count'
 import { cn } from '@/shared/lib/utils'
 import { usePreferences } from '@/shared/stores/preferences'
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/shared/ui/tooltip'
@@ -20,10 +21,12 @@ type Item = {
   label: 'nav.dashboard' | 'nav.organizations' | 'nav.contacts' | 'nav.calendar' | 'nav.account'
   icon: LucideIcon
   exact?: boolean
+  /** What is left to do there, told beside it. */
+  count?: typeof ToProcessCount
 }
 
 const items: Item[] = [
-  { to: '/', label: 'nav.dashboard', icon: LayoutDashboard, exact: true },
+  { to: '/', label: 'nav.dashboard', icon: LayoutDashboard, exact: true, count: ToProcessCount },
   { to: '/organizations', label: 'nav.organizations', icon: Building2 },
   { to: '/contacts', label: 'nav.contacts', icon: UsersRound },
   { to: '/calendar', label: 'nav.calendar', icon: CalendarDays },
@@ -49,7 +52,7 @@ export function Navigation({ collapsed = false, onNavigate }: Props) {
       </Link>
 
       <nav aria-label={t('nav.mainNavigation')} className="flex flex-1 flex-col gap-1">
-        {items.map(({ to, label, icon: Icon, exact }) => {
+        {items.map(({ to, label, icon: Icon, exact, count: Count }) => {
           const link = (
             <Link
               key={to}
@@ -57,7 +60,7 @@ export function Navigation({ collapsed = false, onNavigate }: Props) {
               onClick={onNavigate}
               activeOptions={{ exact }}
               className={cn(
-                'group flex h-9 items-center gap-3 rounded-lg px-2.5 font-medium text-muted-foreground text-sm transition-colors',
+                'group relative flex h-9 items-center gap-3 rounded-lg px-2.5 font-medium text-muted-foreground text-sm transition-colors',
                 'hover:bg-sidebar-accent hover:text-sidebar-accent-foreground',
                 'data-[status=active]:bg-sidebar-accent data-[status=active]:text-foreground',
                 collapsed && 'justify-center px-0',
@@ -65,6 +68,9 @@ export function Navigation({ collapsed = false, onNavigate }: Props) {
             >
               <Icon className="size-[18px] shrink-0 group-data-[status=active]:text-primary" aria-hidden />
               {collapsed ? <span className="sr-only">{t(label)}</span> : t(label)}
+              {Count && (
+                <Count className={cn(collapsed && 'absolute -top-1 -right-1 h-4 min-w-4 px-1 text-[10px]')} />
+              )}
             </Link>
           )
           return collapsed ? (

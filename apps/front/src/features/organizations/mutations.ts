@@ -142,6 +142,7 @@ export function useStopProspecting() {
         queryKeys.contactList,
         queryKeys.myCalendar,
         queryKeys.myDay,
+        queryKeys.exchangesToProcess,
       )
     },
   })

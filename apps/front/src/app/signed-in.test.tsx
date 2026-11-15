@@ -67,7 +67,7 @@ const anEmptyDashboard = {
 
 /**
  * The api: my account answered in turn by `myAccount`, the last one kept, named once my name is given; what I sign
- * in with; my contact details given; an empty dashboard and an empty day; nothing else.
+ * in with; my contact details given; an empty dashboard, an empty day and nothing to process; nothing else.
  */
 function theApiAnswers(...myAccount: Answer[]) {
   theApi.mockImplementation(async (input) => {
@@ -94,6 +94,9 @@ function theApiAnswers(...myAccount: Answer[]) {
     }
     if (pathname === '/api/me/day') {
       return myDay()
+    }
+    if (pathname === '/api/me/exchanges-to-process') {
+      return json({ items: [], _links: { self: { href: pathname, method: 'GET' } } }, 200)
     }
     return refused(404, 'notFound')
   })
