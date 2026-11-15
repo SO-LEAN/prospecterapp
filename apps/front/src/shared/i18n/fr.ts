@@ -480,7 +480,7 @@ export const fr = {
   },
   toDos: {
     title: 'À faire',
-    none: 'Rien à faire pour le moment.',
+    none: 'Aucune action à faire',
     text: 'Ce qu’il y a à faire',
     textPlaceholder: 'Envoyer mon CV',
     dueOn: 'Pour le',
@@ -493,6 +493,9 @@ export const fr = {
       inAWeek: 'Dans 1 semaine',
     },
     add: 'Ajouter',
+    addAnother: 'Ajouter et en noter une autre',
+    new: 'Nouvelle action à faire',
+    newDescription: 'Ce qu’il y a à faire, pour quel jour, et à quelle heure si elle compte.',
     noted: 'Action à faire notée',
     erased: 'Action à faire supprimée',
     done: 'Faites',

@@ -11,18 +11,20 @@ import { DUE_SHORTCUTS, type DueShortcut } from '../due'
 import type { ToDoInput } from '../queries'
 import { newToDo, type ToDoValues, toDoFields, toDoSchema, toToDoInput } from '../schema'
 
+type Submit = (toDo: ToDoInput) => Promise<unknown>
+
 type Props = {
-  onSubmit: (toDo: ToDoInput) => Promise<unknown>
+  onSubmit: Submit
+  submitLabel: string
+  onCancel: () => void
   /** The to-do to revise; a new one is due tomorrow by default. */
   defaultValues?: ToDoValues
-  /** A revision is cancelled; the quick entry has no cancel. */
-  onCancel?: () => void
-  /** Ready for the next to-do: the text takes the focus, never when the card loads. */
-  focusTheText?: boolean
+  /** A new one noted, the form ready for another: offered beside the submit. */
+  onSubmitThenAnother?: Submit
 }
 
-/** Noted in one line: what is to do, then its day, by a shortcut, and an hour when it matters. */
-export function ToDoForm({ onSubmit, defaultValues, onCancel, focusTheText = false }: Props) {
+/** What is to do, then its day, by a shortcut, and an hour when it matters; the text focused once opened. */
+export function ToDoForm({ onSubmit, submitLabel, onCancel, defaultValues, onSubmitThenAnother }: Props) {
   const { t } = useTranslation()
   const [globalErrors, setGlobalErrors] = useState<string[]>([])
   const form = useForm<ToDoValues>({
@@ -32,22 +34,21 @@ export function ToDoForm({ onSubmit, defaultValues, onCancel, focusTheText = fal
   const { isSubmitting } = useFormState({ control: form.control })
 
   useEffect(() => {
-    if (focusTheText) {
-      form.setFocus('text')
-    }
-  }, [focusTheText, form])
+    form.setFocus('text')
+  }, [form])
 
-  const submit = form.handleSubmit(async (values) => {
-    setGlobalErrors([])
-    try {
-      await onSubmit(toToDoInput(values))
-    } catch (error) {
-      setGlobalErrors(applyViolations(error, form.setError, toDoFields))
-    }
-  })
+  const submitBy = (send: Submit) =>
+    form.handleSubmit(async (values) => {
+      setGlobalErrors([])
+      try {
+        await send(toToDoInput(values))
+      } catch (error) {
+        setGlobalErrors(applyViolations(error, form.setError, toDoFields))
+      }
+    })
 
   return (
-    <form onSubmit={submit} noValidate className="space-y-2">
+    <form onSubmit={submitBy(onSubmit)} noValidate className="space-y-2">
       {globalErrors.length > 0 && (
         <Alert variant="destructive">
           <AlertDescription>{globalErrors.join(' ')}</AlertDescription>
@@ -64,33 +65,40 @@ export function ToDoForm({ onSubmit, defaultValues, onCancel, focusTheText = fal
           <Input type="time" {...form.register('dueAt')} />
         </FormField>
       </div>
-      <div className="flex flex-wrap items-center justify-between gap-2">
-        <fieldset className="flex flex-wrap gap-1">
-          <legend className="sr-only">{t('toDos.shortcuts')}</legend>
-          {(Object.keys(DUE_SHORTCUTS) as DueShortcut[]).map((shortcut) => (
-            <Button
-              key={shortcut}
-              type="button"
-              size="sm"
-              variant="ghost"
-              onClick={() =>
-                form.setValue('dueOn', DUE_SHORTCUTS[shortcut](new Date()), { shouldValidate: true })
-              }
-            >
-              {t(`toDos.shortcut.${shortcut}`)}
-            </Button>
-          ))}
-        </fieldset>
-        <div className="flex gap-2">
-          {onCancel && (
-            <Button type="button" variant="ghost" onClick={onCancel}>
-              {t('common.cancel')}
-            </Button>
-          )}
-          <Button type="submit" size="sm" disabled={isSubmitting}>
-            {isSubmitting ? t('common.saving') : onCancel ? t('common.save') : t('toDos.add')}
+      <fieldset className="flex flex-wrap gap-1">
+        <legend className="sr-only">{t('toDos.shortcuts')}</legend>
+        {(Object.keys(DUE_SHORTCUTS) as DueShortcut[]).map((shortcut) => (
+          <Button
+            key={shortcut}
+            type="button"
+            size="sm"
+            variant="ghost"
+            onClick={() =>
+              form.setValue('dueOn', DUE_SHORTCUTS[shortcut](new Date()), { shouldValidate: true })
+            }
+          >
+            {t(`toDos.shortcut.${shortcut}`)}
           </Button>
-        </div>
+        ))}
+      </fieldset>
+      <div className="flex flex-wrap items-center justify-end gap-2">
+        {onSubmitThenAnother && (
+          <Button
+            type="button"
+            variant="link"
+            className="mr-auto px-0"
+            disabled={isSubmitting}
+            onClick={submitBy(onSubmitThenAnother)}
+          >
+            {t('toDos.addAnother')}
+          </Button>
+        )}
+        <Button type="button" variant="ghost" onClick={onCancel}>
+          {t('common.cancel')}
+        </Button>
+        <Button type="submit" disabled={isSubmitting}>
+          {isSubmitting ? t('common.saving') : submitLabel}
+        </Button>
       </div>
     </form>
   )
