@@ -75,7 +75,7 @@ class DynamoAgendaRetrieverTest extends ApiTestCase
     {
         $this->plannedBy($this->me, '2026-11-17 14:00 UTC');
         $recent = $this->plannedBy($this->me, '2026-11-17 13:59 UTC');
-        $old = $this->plannedBy($this->me, '2026-10-02 09:00 UTC');
+        $old = $this->plannedBy($this->me, '2026-11-14 09:00 UTC');
 
         $started = self::getContainer()->get(AgendaRetriever::class)->plannedBefore($this->me, new \DateTimeImmutable('2026-11-17 14:00 UTC'));
 

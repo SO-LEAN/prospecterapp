@@ -560,6 +560,23 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/me/exchanges-to-process": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** The exchanges the signed-in member planned whose end has passed, not yet marked done, missed nor cancelled */
+        get: operations["get_api_me_exchanges_to_process"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/me/day": {
         parameters: {
             query?: never;
@@ -1532,6 +1549,7 @@ export interface components {
             move?: components["schemas"]["LinkResource"];
             markDone?: components["schemas"]["LinkResource"];
             markMissed?: components["schemas"]["LinkResource"];
+            cancel?: components["schemas"]["LinkResource"];
         };
         ExchangeResource: {
             id: string;
@@ -1701,6 +1719,13 @@ export interface components {
             interlocutor: components["schemas"]["InterlocutorResource"];
             /** @description The organization of the contact the exchange is kept for; none with the organization itself, or for a contact no longer part of it */
             organization?: components["schemas"]["OrganizationOfContactResource"] | null;
+        };
+        ExchangesToProcessLinksResource: {
+            self: components["schemas"]["LinkResource"];
+        };
+        ExchangesToProcessResource: {
+            items: components["schemas"]["DayExchangeResource"][];
+            _links: components["schemas"]["ExchangesToProcessLinksResource"];
         };
         MyDayLinksResource: {
             self: components["schemas"]["LinkResource"];
@@ -4248,6 +4273,42 @@ export interface operations {
             };
             /** @description Unknown organization, or one of another account */
             404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ProblemResource"];
+                };
+            };
+        };
+    };
+    get_api_me_exchanges_to_process: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description The exchanges to process, the oldest first, each with the links handling it */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ExchangesToProcessResource"];
+                };
+            };
+            /** @description Missing or invalid access token */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Not a prospector */
+            403: {
                 headers: {
                     [name: string]: unknown;
                 };

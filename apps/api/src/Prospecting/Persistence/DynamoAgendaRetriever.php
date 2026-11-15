@@ -35,6 +35,14 @@ final readonly class DynamoAgendaRetriever implements AgendaRetriever
     }
 
     /**
+     * Read below the position of `until`, the latest first, then given back the oldest first.
+     */
+    public function plannedBefore(Prospector $holder, \DateTimeImmutable $until): array
+    {
+        return array_reverse($this->plannedAt($this->prospectingTable->query(ExchangeKeys::agenda($holder->id->value), Table::BY_GSI1, ExchangeKeys::positionBefore($until)), $holder));
+    }
+
+    /**
      * @param list<array<string, mixed>> $links
      *
      * @return list<ExchangeInTimeline>
