@@ -1,8 +1,9 @@
 import { MutationCache, QueryClient, QueryClientProvider } from '@tanstack/react-query'
-import { fireEvent, screen, waitFor, within } from '@testing-library/react'
+import { fireEvent, render, screen, waitFor, waitForElementToBeRemoved, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { queryClient as theAppQueryClient } from '@/app/query-client'
+import { toast } from 'sonner'
 import { Toaster } from '@/shared/ui/sonner'
 import { renderInARouter } from '@/test/render-in-a-router'
 import type { ExchangeDetail } from '../../queries'
@@ -32,6 +33,7 @@ vi.mock('@/shared/auth/session', () => ({
 }))
 
 const NOW = new Date(2026, 10, 13, 10, 0)
+const A_MINUTE_MS = 60_000
 const TUESDAY = parseDay('2026-11-17')
 const EXCHANGE = '0190a1c0-0000-7000-8000-000000000010'
 const ADA = '0190a1c0-0000-7000-8000-00000000a000'
@@ -131,7 +133,8 @@ async function showTheCalendar(view: View, calendar: ReturnType<typeof aCalendar
   })
   queryClient.setQueryData(calendarQuery(periodOf(view, TUESDAY)).queryKey, calendar)
   const onShow = vi.fn()
-  await renderInARouter(
+  render(<Toaster />)
+  const page = await renderInARouter(
     <QueryClientProvider client={queryClient}>
       <CalendarPage
         view={view}
@@ -144,11 +147,20 @@ async function showTheCalendar(view: View, calendar: ReturnType<typeof aCalendar
           </button>
         )}
       />
-      <Toaster />
     </QueryClientProvider>,
   )
   theGridIsLaidOut()
-  return onShow
+  return { onShow, leave: page.unmount }
+}
+
+/** The toasts outlive the page, as in the app: the toaster is beside it, not in it. */
+const theToastSaying = async (text: string) => (await screen.findByText(text)).closest('li') as HTMLElement
+
+/** The timers of the toasts too, still running on their own, so that minutes pass in an instant. */
+function theClockRunsTheTimers() {
+  vi.useFakeTimers({ toFake: ['Date', 'setTimeout', 'clearTimeout'], shouldAdvanceTime: true })
+  vi.setSystemTime(NOW)
+  return userEvent.setup({ advanceTimers: vi.advanceTimersByTime })
 }
 
 beforeEach(() => {
@@ -157,6 +169,7 @@ beforeEach(() => {
 })
 
 afterEach(() => {
+  toast.dismiss()
   vi.useRealTimers()
   vi.restoreAllMocks()
   theApi.mockReset()
@@ -186,6 +199,71 @@ describe('dragging an exchange to come', () => {
       [move.href, { occurredAt: new Date(2026, 10, 18, 9, 0).toISOString(), durationInMinutes: 30 }],
       [move.href, { occurredAt: new Date(2026, 10, 17, 14, 0).toISOString(), durationInMinutes: 30 }],
     ])
+  })
+
+  it('keeps offering to move it back long after it was moved, however long the member takes', async () => {
+    const user = theClockRunsTheTimers()
+    const visio = aVideoCall(new Date(2026, 10, 17, 14, 0))
+    const moved = aVideoCall(new Date(2026, 10, 18, 9, 0))
+    theApiAnswers({
+      [`PATCH ${move.href}`]: () => ({ body: theDetail(moved) }),
+      'GET /api/me/calendar': () => ({ body: aCalendarOf([moved]) }),
+    })
+    await showTheCalendar('week', aCalendarOf([visio]))
+
+    drag(screen.getByRole('button', { name: /14h00, Visio/ }), { x: 150, y: 1400 }, { x: 250, y: 900 })
+    const toast = await theToastSaying('Échange déplacé')
+    await vi.advanceTimersByTimeAsync(A_MINUTE_MS)
+    await user.click(within(toast).getByRole('button', { name: 'Annuler' }))
+
+    await screen.findByText('Déplacement annulé')
+    expect((await sent('PATCH'))[1]).toEqual([
+      move.href,
+      { occurredAt: new Date(2026, 10, 17, 14, 0).toISOString(), durationInMinutes: 30 },
+    ])
+  })
+
+  it('offers to move back the last exchange moved only, where it was before its last move', async () => {
+    const visio = aVideoCall(new Date(2026, 10, 17, 14, 0))
+    const moved = aVideoCall(new Date(2026, 10, 18, 9, 0))
+    const movedAgain = aVideoCall(new Date(2026, 10, 19, 10, 0))
+    let shown = moved
+    theApiAnswers({
+      [`PATCH ${move.href}`]: () => ({ body: theDetail(shown) }),
+      'GET /api/me/calendar': () => ({ body: aCalendarOf([shown]) }),
+    })
+    await showTheCalendar('week', aCalendarOf([visio]))
+
+    drag(screen.getByRole('button', { name: /14h00, Visio/ }), { x: 150, y: 1400 }, { x: 250, y: 900 })
+    await theToastSaying('Échange déplacé')
+    shown = movedAgain
+    drag(await screen.findByRole('button', { name: /9h00, Visio/ }), { x: 250, y: 900 }, { x: 350, y: 1000 })
+    await screen.findByRole('button', { name: /10h00, Visio/ })
+
+    await waitFor(() => expect(screen.getAllByText('Échange déplacé')).toHaveLength(1))
+    const toasts = screen.getAllByText('Échange déplacé')
+    await userEvent.click(within(toasts[0].closest('li') as HTMLElement).getByRole('button', { name: 'Annuler' }))
+    await screen.findByText('Déplacement annulé')
+    expect((await sent('PATCH'))[2]).toEqual([
+      move.href,
+      { occurredAt: new Date(2026, 10, 18, 9, 0).toISOString(), durationInMinutes: 30 },
+    ])
+  })
+
+  it('no longer offers to move it back once the calendar is left', async () => {
+    const visio = aVideoCall(new Date(2026, 10, 17, 14, 0))
+    const moved = aVideoCall(new Date(2026, 10, 18, 9, 0))
+    theApiAnswers({
+      [`PATCH ${move.href}`]: () => ({ body: theDetail(moved) }),
+      'GET /api/me/calendar': () => ({ body: aCalendarOf([moved]) }),
+    })
+    const { leave } = await showTheCalendar('week', aCalendarOf([visio]))
+
+    drag(screen.getByRole('button', { name: /14h00, Visio/ }), { x: 150, y: 1400 }, { x: 250, y: 900 })
+    await theToastSaying('Échange déplacé')
+    leave()
+
+    await waitForElementToBeRemoved(() => screen.queryByText('Échange déplacé'))
   })
 
   it('shows it where it is dropped, then back at its place, the refusal told, when the API refuses', async () => {
@@ -289,7 +367,7 @@ describe('an exchange opened from the calendar', () => {
         },
       }),
     })
-    const onShow = await showTheCalendar('week', aCalendarOf([visio]))
+    const { onShow } = await showTheCalendar('week', aCalendarOf([visio]))
 
     await userEvent.click(screen.getByRole('button', { name: /14h00, Visio/ }))
 
