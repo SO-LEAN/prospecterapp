@@ -64,8 +64,17 @@ export function ExchangeDetailSheet({ exchangeId, onClose }: Props) {
 type PanelProps = {
   exchangeId: string
   onErased: () => void
-  /** Opened on its report, to mark it done at once: from the day of the dashboard. */
-  startWith?: 'report'
+  /** Opened on its report, to mark it done at once, or on its move: from the dashboard. */
+  startWith?: StartWith
+}
+
+export type StartWith = 'report' | 'move'
+
+/** What it is opened on, when it offers it. */
+function offered(startWith: StartWith | undefined, { _links }: ExchangeDetail): StartWith | null {
+  if (startWith === 'report') return _links.markDone ? startWith : null
+  if (startWith === 'move') return _links.move ? startWith : null
+  return null
 }
 
 /** The whole of an exchange and what it offers, read from the API: in its sheet, in the calendar or the day. */
@@ -96,9 +105,7 @@ function Exchange({
   startWith,
 }: { exchange: ExchangeDetail } & Omit<PanelProps, 'exchangeId'>) {
   const { t } = useTranslation()
-  const [correcting, setCorrecting] = useState<Correcting>(
-    startWith && exchange._links.markDone ? startWith : null,
-  )
+  const [correcting, setCorrecting] = useState<Correcting>(offered(startWith, exchange))
   const correct = useCorrectExchange()
   const correctText = useCorrectExchangeText()
   const markDone = useMarkExchangeDone()

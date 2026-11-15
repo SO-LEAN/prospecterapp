@@ -14,4 +14,5 @@ export const queryKeys = {
   exchange: ['get', '/api/exchanges/{id}'],
   myCalendar: ['get', '/api/me/calendar'],
   myDay: ['get', '/api/me/day'],
+  exchangesToProcess: ['get', '/api/me/exchanges-to-process'],
 } as const

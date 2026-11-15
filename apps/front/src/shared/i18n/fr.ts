@@ -117,6 +117,13 @@ export const fr = {
     seeTheCalendar: 'Voir le calendrier',
     inProgress: 'En cours',
   },
+  toProcess: {
+    title: 'À traiter',
+    cancelled: 'Annulé',
+    allDone: 'Tout est à jour 🎉',
+    count_one: '{{count}} échange à traiter',
+    count_other: '{{count}} échanges à traiter',
+  },
   fields: {
     jobTitle: 'Fonction',
     corporateName: 'Raison sociale',

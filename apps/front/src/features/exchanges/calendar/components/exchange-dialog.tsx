@@ -5,7 +5,7 @@ import type { ReactNode } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Button } from '@/shared/ui/button'
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/shared/ui/dialog'
-import { ExchangePanel } from '../../components/exchange-detail'
+import { ExchangePanel, type StartWith } from '../../components/exchange-detail'
 import { ExchangeLine } from '../../components/exchange-line'
 import { exchangeQuery, timelineQuery } from '../../queries'
 import type { CalendarExchange } from '../queries'
@@ -18,8 +18,8 @@ type Props = {
   onClose: () => void
   /** Who the contact is, their card in short: told by the page composing the calendar with the contacts. */
   contactSummary: (contactId: string) => ReactNode
-  /** Opened on its report, to mark it done at once. */
-  startWith?: 'report'
+  /** Opened on its report, to mark it done at once, or on its move. */
+  startWith?: StartWith
 }
 
 /**

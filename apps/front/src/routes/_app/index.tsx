@@ -11,6 +11,8 @@ import { dashboardQuery } from '@/features/dashboard/queries'
 import { startOfDay } from '@/features/exchanges/calendar/dates'
 import { MyDayCards, MyDaySkeleton } from '@/features/exchanges/my-day/components/my-day-cards'
 import { myDayQuery } from '@/features/exchanges/my-day/queries'
+import { ExchangesToProcessCard } from '@/features/exchanges/to-process/components/exchanges-to-process-card'
+import { exchangesToProcessQuery } from '@/features/exchanges/to-process/queries'
 import { OrganizationCard } from '@/features/organizations/components/organization-card'
 import { OrganizationPreview } from '@/features/organizations/components/organization-preview'
 import { organizationsQuery } from '@/features/organizations/queries'
@@ -28,6 +30,7 @@ const recentQuery = () => organizationsQuery('')
 export const Route = createFileRoute('/_app/')({
   loader: ({ context: { queryClient } }) => {
     void queryClient.prefetchQuery(myDayQuery(startOfDay(new Date())))
+    void queryClient.prefetchQuery(exchangesToProcessQuery())
     return Promise.all([
       queryClient.ensureQueryData(dashboardQuery()),
       ensureSharedQueryData(queryClient, accountQuery()),
@@ -64,6 +67,10 @@ function Dashboard() {
         title={t('dashboard.greeting', { name: myFirstName(account) })}
         description={t('dashboard.subtitle', { organization: dashboard.organizationName })}
       />
+
+      <Suspense>
+        <ExchangesToProcessCard contactSummary={(contactId) => <ContactSummary contactId={contactId} />} />
+      </Suspense>
 
       <DashboardFigures stats={dashboard.stats} />
 

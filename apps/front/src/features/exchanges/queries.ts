@@ -144,6 +144,7 @@ export const timelineKeys = {
   myPlanned: ['get', '/api/me/planned-exchanges'],
   myCalendar: queryKeys.myCalendar,
   myDay: queryKeys.myDay,
+  toProcess: queryKeys.exchangesToProcess,
 } as const
 
 export const exchangeQuery = (id: string) =>

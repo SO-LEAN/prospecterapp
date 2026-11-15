@@ -151,16 +151,21 @@ afterEach(() => {
 
 describe('the exchanges to process on the dashboard', () => {
   it('lists the planned exchanges whose end has passed, the oldest first, with their moment, channel and contact', async () => {
-    await showTheCard([ended('videoCall', new Date(2026, 10, 10, 14, 0)), ended('call', new Date(2026, 10, 13, 9, 0))])
+    await showTheCard([
+      ended('videoCall', new Date(2026, 10, 10, 14, 0)),
+      ended('call', new Date(2026, 10, 13, 9, 0)),
+    ])
 
     const lines = within(theCard()).getAllByRole('listitem')
     expect(lines.map((line) => line.textContent)).toEqual([
       expect.stringMatching(/10 nov\. 2026, 14:00.*Visio.*Ada Lovelace.*ACME/),
       expect.stringMatching(/13 nov\. 2026, 09:00.*Appel.*Ada Lovelace.*ACME/),
     ])
-    expect(within(lines[0] as HTMLElement).getAllByRole('button').map((button) => button.textContent)).toEqual(
-      expect.arrayContaining(['Fait', 'Manqué', 'Annulé', 'Déplacer']),
-    )
+    expect(
+      within(lines[0] as HTMLElement)
+        .getAllByRole('button')
+        .map((button) => button.textContent?.trim()),
+    ).toEqual(expect.arrayContaining(['Fait', 'Manqué', 'Annulé', 'Déplacer']))
   })
 
   it('is not shown when nothing is to process', async () => {
@@ -186,7 +191,9 @@ describe('the exchanges to process on the dashboard', () => {
 
     await userEvent.click(screen.getByRole('button', { name: 'Déplacer' }))
 
-    expect(await within(await screen.findByRole('dialog')).findByText('Déplacer l’échange')).toBeInTheDocument()
+    expect(
+      await within(await screen.findByRole('dialog')).findByText('Déplacer l’échange'),
+    ).toBeInTheDocument()
   })
 
   it('takes a line away at once when marked missed, the gesture sent once its toast no longer takes it back', async () => {
@@ -222,7 +229,10 @@ describe('the exchanges to process on the dashboard', () => {
     await showTheCard([ended('call', new Date(2026, 10, 13, 9, 0))])
 
     await user.click(screen.getByRole('button', { name: 'Manqué' }))
-    await user.click(await screen.findByRole('button', { name: 'Annuler' }))
+    /** Those of the tests before still leave the toaster, shared by them all: the newest comes first. */
+    const toasts = await screen.findAllByText('Échange marqué manqué')
+    const toast = toasts[0]?.closest('[data-sonner-toast]') as HTMLElement
+    await user.click(within(toast).getByRole('button', { name: 'Annuler' }))
     await act(() => vi.advanceTimersByTimeAsync(UNDO_DELAY_MS))
 
     expect(screen.getByRole('button', { name: /Ada Lovelace/ })).toBeInTheDocument()
@@ -253,7 +263,10 @@ describe('the count of the exchanges to process in the menu', () => {
   }
 
   it('tells how many are left to process', async () => {
-    await showTheCount([ended('call', new Date(2026, 10, 13, 8, 0)), ended('call', new Date(2026, 10, 13, 9, 0))])
+    await showTheCount([
+      ended('call', new Date(2026, 10, 13, 8, 0)),
+      ended('call', new Date(2026, 10, 13, 9, 0)),
+    ])
 
     expect(screen.getByText('2')).toBeInTheDocument()
     expect(screen.getByText('2 échanges à traiter')).toHaveClass('sr-only')

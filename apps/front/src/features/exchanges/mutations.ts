@@ -157,6 +157,7 @@ export function readTheTimelinesAgain(queryClient: QueryClient) {
   void queryClient.invalidateQueries({ queryKey: timelineKeys.myPlanned })
   void queryClient.invalidateQueries({ queryKey: timelineKeys.myCalendar })
   void queryClient.invalidateQueries({ queryKey: timelineKeys.myDay })
+  void queryClient.invalidateQueries({ queryKey: timelineKeys.toProcess })
 }
 
 /** The corrected exchange goes straight into its detail; the timelines showing it read it again. */
@@ -310,15 +311,24 @@ export function useCancelExchange() {
 /** How long a toast lets the gesture it tells be taken back. */
 export const UNDO_DELAY_MS = 5000
 
-/** A gesture carried out once a few seconds passed, unless « Annuler » of its toast took it back. */
+/**
+ * A gesture carried out once a few seconds passed, unless « Annuler » of its toast took it back, which `takenBack`
+ * then follows.
+ */
 export function useUndoable() {
   const { t } = useTranslation()
 
-  return (told: string, gesture: () => void) => {
+  return (told: string, gesture: () => void, takenBack?: () => void) => {
     const pending = setTimeout(gesture, UNDO_DELAY_MS)
     toast(told, {
       duration: UNDO_DELAY_MS,
-      action: { label: t('common.undo'), onClick: () => clearTimeout(pending) },
+      action: {
+        label: t('common.undo'),
+        onClick: () => {
+          clearTimeout(pending)
+          takenBack?.()
+        },
+      },
     })
   }
 }
