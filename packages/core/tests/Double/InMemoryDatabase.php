@@ -8,6 +8,7 @@ use Prospecter\Core\Accounts\Domain\Model\Account;
 use Prospecter\Core\Accounts\Domain\Model\Member;
 use Prospecter\Core\Connectors\Domain\Model\Connection;
 use Prospecter\Core\Connectors\Domain\Model\PendingAuthorization;
+use Prospecter\Core\Connectors\Domain\Model\ProviderClient;
 use Prospecter\Core\PersonalData\Domain\Model\Person;
 use Prospecter\Core\Prospecting\Domain\Model\Exchange;
 use Prospecter\Core\Prospecting\Domain\Model\Organization;
@@ -46,6 +47,8 @@ final class InMemoryDatabase
     private array $connections = [];
     /** @var array<string, PendingAuthorization> by their state */
     private array $authorizations = [];
+    /** @var array<string, ProviderClient> by the account and the provider */
+    private array $clients = [];
 
     public function isEmpty(): bool
     {
@@ -75,6 +78,40 @@ final class InMemoryDatabase
         $this->revisions = $snapshot->revisions;
         $this->connections = $snapshot->connections;
         $this->authorizations = $snapshot->authorizations;
+        $this->clients = $snapshot->clients;
+    }
+
+    public function storeClient(ProviderClient $client): void
+    {
+        $this->clients[self::clientKey($client->accountId()->value, $client->provider()->value)] = self::withoutItsEvents($client);
+    }
+
+    public function forgetClient(ProviderClient $client): void
+    {
+        unset($this->clients[self::clientKey($client->accountId()->value, $client->provider()->value)]);
+    }
+
+    public function client(string $account, string $provider): ?ProviderClient
+    {
+        $client = $this->clients[self::clientKey($account, $provider)] ?? null;
+
+        return null === $client ? null : clone $client;
+    }
+
+    /**
+     * @return list<ProviderClient>
+     */
+    public function clientsOf(string $account): array
+    {
+        return array_values(array_map(
+            static fn (ProviderClient $client): ProviderClient => clone $client,
+            array_filter($this->clients, static fn (ProviderClient $client): bool => $client->accountId()->value === $account),
+        ));
+    }
+
+    private static function clientKey(string $account, string $provider): string
+    {
+        return $account.'#'.$provider;
     }
 
     public function storeConnection(Connection $connection): void

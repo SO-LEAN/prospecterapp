@@ -21,6 +21,15 @@ Fonctionnalité: Le langage publié des contextes
     Et Accounts répond que "Alan Turing" est membre de "SOLEAN IT" sans le droit aux données personnelles
     Et Accounts ne répond rien de "Personne"
 
+  Scénario: Accounts dit si un membre administre son compte
+    Soit "Ada Byron" est membre de "SOLEAN IT" qui l'administre
+    Et "Alan Turing" est membre de "SOLEAN IT" sans le droit aux données personnelles
+    Quand un autre contexte demande à Accounts qui sont les membres :
+      | Ada Byron   |
+      | Alan Turing |
+    Alors Accounts répond que "Ada Byron" administre son compte
+    Et Accounts répond que "Alan Turing" n'administre pas son compte
+
   Scénario: PersonalData dit lesquelles de plusieurs personnes sont des contacts d'un compte
     Soit "Grace Hopper" est membre de "SOLEAN IT" avec le droit aux données personnelles
     Quand un autre contexte demande à PersonalData lesquelles sont des contacts de "SOLEAN IT" :

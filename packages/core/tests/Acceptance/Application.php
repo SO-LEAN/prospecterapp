@@ -30,11 +30,16 @@ use Prospecter\Core\Accounts\Contract\Service\ListAccounts\KeptAccounts;
 use Prospecter\Core\Accounts\Contract\Service\ListAccounts\ListAccounts;
 use Prospecter\Core\Connectors\Application\AskForAuthorization\AskForAuthorizationHandler;
 use Prospecter\Core\Connectors\Application\CheckMyConnections\CheckMyConnectionsHandler;
+use Prospecter\Core\Connectors\Application\ConfigureClient\ConfigureClientHandler;
 use Prospecter\Core\Connectors\Application\Connect\ConnectHandler;
+use Prospecter\Core\Connectors\Application\ConsultMyAccountClients\ConsultMyAccountClients;
+use Prospecter\Core\Connectors\Application\ConsultMyAccountClients\ConsultMyAccountClientsHandler;
+use Prospecter\Core\Connectors\Application\ConsultMyAccountClients\KeptAccountClients;
 use Prospecter\Core\Connectors\Application\ConsultMyConnections\ConsultMyConnections;
 use Prospecter\Core\Connectors\Application\ConsultMyConnections\ConsultMyConnectionsHandler;
 use Prospecter\Core\Connectors\Application\ConsultMyConnections\KeptConnections;
 use Prospecter\Core\Connectors\Application\Disconnect\DisconnectHandler;
+use Prospecter\Core\Connectors\Application\RemoveClient\RemoveClientHandler;
 use Prospecter\Core\PersonalData\Application\ChangeJobTitle\ChangeJobTitleHandler;
 use Prospecter\Core\PersonalData\Application\ChangePersonContactDetails\ChangePersonContactDetailsHandler;
 use Prospecter\Core\PersonalData\Application\ChangePersonPicture\ChangePersonPictureHandler;
@@ -217,6 +222,7 @@ use Tests\Core\Double\AccountsSourceAccounts;
 use Tests\Core\Double\InMemoryAccountListRetriever;
 use Tests\Core\Double\InMemoryAccountRepository;
 use Tests\Core\Double\InMemoryAgendaRetriever;
+use Tests\Core\Double\InMemoryAccountClientsRetriever;
 use Tests\Core\Double\InMemoryAuthorizationRepository;
 use Tests\Core\Double\InMemoryCalendarRetriever;
 use Tests\Core\Double\InMemoryConnectionRepository;
@@ -242,6 +248,7 @@ use Tests\Core\Double\InMemoryPersonRepository;
 use Tests\Core\Double\InMemoryPrivateStorage;
 use Tests\Core\Double\InMemoryProjectionVersions;
 use Tests\Core\Double\InMemoryProviderAccess;
+use Tests\Core\Double\InMemoryProviderClientRepository;
 use Tests\Core\Double\InMemoryStorage;
 use Tests\Core\Double\InMemoryTimelineRetriever;
 use Tests\Core\Double\InMemoryToDoListRetriever;
@@ -319,6 +326,8 @@ final class Application
     private readonly InMemoryAuthorizationRepository $authorizations;
     private readonly InMemoryMyConnectionsRetriever $myConnectionsRetriever;
     public readonly InMemoryProviderAccess $providerAccess;
+    public readonly InMemoryProviderClientRepository $clients;
+    private readonly InMemoryAccountClientsRetriever $accountClientsRetriever;
     private readonly AccountsMembers $connectingMembers;
     /** @var array<class-string, CommandHandler> */
     private array $handlers = [];
@@ -383,6 +392,8 @@ final class Application
         $this->authorizations = new InMemoryAuthorizationRepository($database);
         $this->myConnectionsRetriever = new InMemoryMyConnectionsRetriever($database);
         $this->providerAccess = new InMemoryProviderAccess();
+        $this->clients = new InMemoryProviderClientRepository($database);
+        $this->accountClientsRetriever = new InMemoryAccountClientsRetriever($database);
         $this->connectingMembers = new AccountsMembers($this->consultMembersService);
 
         foreach ($this->translators() as $translator) {
@@ -508,11 +519,20 @@ final class Application
         return $this->ask(new ConsultMyRemindersHandler($this->myRemindersRetriever), new ConsultMyReminders($this->signedIn()), $kept) ? $kept->reminders : null;
     }
 
-    public function consultMyConnections(): ?KeptConnections
+    public function consultMyConnections(?string $member = null): ?KeptConnections
     {
         $kept = new KeptConnections();
+        $handler = new ConsultMyConnectionsHandler($this->myConnectionsRetriever, $this->accountClientsRetriever, $this->connectingMembers);
 
-        return $this->ask(new ConsultMyConnectionsHandler($this->myConnectionsRetriever, $this->providerAccess), new ConsultMyConnections($this->signedIn()), $kept) ? $kept : null;
+        return $this->ask($handler, new ConsultMyConnections($member ?? $this->signedIn()), $kept) ? $kept : null;
+    }
+
+    public function consultMyAccountClients(): ?KeptAccountClients
+    {
+        $kept = new KeptAccountClients();
+        $handler = new ConsultMyAccountClientsHandler($this->accountClientsRetriever, $this->connectingMembers);
+
+        return $this->ask($handler, new ConsultMyAccountClients($this->signedIn()), $kept) ? $kept : null;
     }
 
     public function consultPerson(ConsultPerson $query): ?PersonCard
@@ -751,10 +771,12 @@ final class Application
             new TickOffToDoHandler($this->toDos, $this->events),
             new UntickToDoHandler($this->toDos, $this->events),
             new EraseToDoHandler($this->toDos, $this->events),
-            new AskForAuthorizationHandler($this->authorizations, $this->providerAccess),
-            new ConnectHandler($this->authorizations, $this->connections, $this->providerAccess, $this->connectingMembers, $this->events),
-            new CheckMyConnectionsHandler($this->connections, $this->providerAccess, $this->events),
+            new AskForAuthorizationHandler($this->authorizations, $this->clients, $this->connectingMembers),
+            new ConnectHandler($this->authorizations, $this->connections, $this->clients, $this->providerAccess, $this->connectingMembers, $this->events),
+            new CheckMyConnectionsHandler($this->connections, $this->clients, $this->providerAccess, $this->connectingMembers, $this->events),
             new DisconnectHandler($this->connections, $this->providerAccess, $this->events),
+            new ConfigureClientHandler($this->clients, $this->connectingMembers, $this->events),
+            new RemoveClientHandler($this->clients, $this->connectingMembers, $this->events),
         ];
     }
 
