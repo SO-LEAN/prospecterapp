@@ -126,6 +126,21 @@ Fonctionnalité: Le langage publié des contextes
       | titulaire | statut  | canal | moment           | durée  | lieu | lien                      | contact | organisation |
       | moi       | Annulé  | Visio | 17/11/2026 09:00 | 30 min |      | https://meet.example/acme |         | ACME         |
 
+  Scénario: Prospecting nomme un échange par la première organisation qui le garde encore, et tait celui qu'aucune ne garde plus
+    Soit je suis connecté en tant que prospecteur de "SOLEAN IT"
+    Et nous sommes le 13/11/2026 à 10h00
+    Et l'organisation "Globex" appartient à "SOLEAN IT"
+    Et le contact "Ada Lovelace" de "ACME" est aussi contact de "Globex"
+    Et j'ai planifié un appel avec "Ada Lovelace" le 17/11/2026 à 14h00
+    Et "ACME" n'est plus prospectée, l'échange encore gardé pour elle
+    Quand un autre contexte demande à Prospecting, de "SOLEAN IT", cet échange et un échange inconnu
+    Alors Prospecting répond l'échange :
+      | titulaire | statut  | canal | moment           | durée  | lieu | lien | contact      | organisation |
+      | moi       | À venir | Appel | 17/11/2026 14:00 | 30 min |      |      | Ada Lovelace | Globex       |
+    Quand "Globex" n'est plus prospectée, l'échange encore gardé pour elle
+    Et un autre contexte demande à Prospecting, de "SOLEAN IT", cet échange et un échange inconnu
+    Alors Prospecting ne répond aucun échange
+
   Scénario: PersonalData liste les faits des contacts d'un compte, par tranche
     Soit le contact "Alan Turing" de "ACME"
     Et le contact "Linus Torvalds" de "ACME"

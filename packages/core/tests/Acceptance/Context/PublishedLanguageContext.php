@@ -373,6 +373,15 @@ final class PublishedLanguageContext implements Context
         ], $this->heldExchanges));
     }
 
+    /**
+     * As between the commit of a stop of the prospecting and the reaction that stops keeping its exchanges for it.
+     */
+    #[Given(':organization n\'est plus prospectée, l\'échange encore gardé pour elle')]
+    public function anOrganizationIsGoneBeforeItsExchanges(string $organization): void
+    {
+        $this->application->organizations->remove($this->scenario->organizationNamed($organization));
+    }
+
     #[Then('Prospecting ne répond aucun échange')]
     public function prospectingAnswersNoExchange(): void
     {
