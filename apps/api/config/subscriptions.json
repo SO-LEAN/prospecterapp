@@ -115,5 +115,12 @@
       "ContactFactsChanged.v1": "Prospecter\\Core\\Reporting\\Application\\RecordContactFacts\\RecordContactFactsHandler"
     },
     "inbox": false
+  },
+  "connectors-push-exchange": {
+    "context": "connectors",
+    "sources": ["prospecter.prospecting"],
+    "events": ["ExchangeFactsChanged.v2"],
+    "handler": "Prospecter\\Core\\Connectors\\Application\\PushExchange\\PushExchangeHandler",
+    "inbox": true
   }
 }

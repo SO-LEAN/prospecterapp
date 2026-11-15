@@ -47,7 +47,7 @@ final readonly class InMemoryHeldExchangeRetriever implements HeldExchangeRetrie
             $facts->place,
             $facts->link?->url,
             $state['contact']?->value,
-            (string) $state['keptFor'][0],
+            array_map(strval(...), $state['keptFor']),
         );
     }
 }

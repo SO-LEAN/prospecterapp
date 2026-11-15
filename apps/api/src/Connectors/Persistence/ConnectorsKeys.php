@@ -13,6 +13,8 @@ final class ConnectorsKeys
     private const string CONNECTION = 'CONNECTION';
     private const string ACCOUNT = 'ACCOUNT';
     private const string CLIENT = 'CLIENT';
+    private const string EXCHANGE = 'EXCHANGE';
+    private const string ENTRY = 'ENTRY';
 
     public static function member(string $id): string
     {
@@ -32,6 +34,16 @@ final class ConnectorsKeys
     public static function client(string $provider): string
     {
         return self::CLIENT.'#'.$provider;
+    }
+
+    public static function exchange(string $id): string
+    {
+        return self::EXCHANGE.'#'.$id;
+    }
+
+    public static function entry(string $provider): string
+    {
+        return self::ENTRY.'#'.$provider;
     }
 
     public static function authorization(string $state): string

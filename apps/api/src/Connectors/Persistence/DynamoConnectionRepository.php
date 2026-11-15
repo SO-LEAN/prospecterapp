@@ -17,7 +17,8 @@ use Prospecter\Core\SharedKernel\Domain\MemberId;
 
 /**
  * The connections in the table of Connectors (ADR 0120): `MEMBER#<member>` / `CONNECTION#<provider>`, the
- * connection as a document, its refresh token encrypted at rest by DynamoDB only.
+ * connection as a document, its refresh token encrypted at rest by DynamoDB only, the calendar « Prospecter » once
+ * created (ADR 0127).
  */
 final readonly class DynamoConnectionRepository implements ConnectionRepository
 {
@@ -58,6 +59,7 @@ final readonly class DynamoConnectionRepository implements ConnectionRepository
             'refreshToken' => new RefreshToken($document['refreshToken']),
             'clientId' => $document['clientId'] ?? self::CLIENT_OF_THE_INSTANCE,
             'state' => ConnectionState::from($document['state']),
+            'calendar' => $document['calendar'] ?? null,
             'connectedAt' => Documents::momentOf($document['connectedAt']),
             'modifiedAt' => Documents::momentOf($document['modifiedAt']),
         ]);
@@ -78,6 +80,7 @@ final readonly class DynamoConnectionRepository implements ConnectionRepository
                 'refreshToken' => (string) $state['refreshToken'],
                 'clientId' => $state['clientId'],
                 'state' => $state['state']->value,
+                'calendar' => $state['calendar'],
                 'connectedAt' => Documents::moment($state['connectedAt']),
                 'modifiedAt' => Documents::moment($state['modifiedAt']),
             ],

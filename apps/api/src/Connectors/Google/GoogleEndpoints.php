@@ -19,6 +19,8 @@ final readonly class GoogleEndpoints
         public string $tokenUrl,
         #[Autowire(env: 'GOOGLE_REVOKE_URL')]
         public string $revokeUrl,
+        #[Autowire(env: 'GOOGLE_CALENDAR_URL')]
+        public string $calendarUrl,
     ) {
     }
 }

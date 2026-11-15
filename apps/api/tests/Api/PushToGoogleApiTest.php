@@ -63,7 +63,7 @@ class PushToGoogleApiTest extends ApiTestCase
     {
         $this->connectGoogle();
         $organization = $this->anOrganization('ACME');
-        $this->planWith($organization, ['channel' => 'meeting', 'occurredAt' => self::NEXT_TUESDAY, 'place' => 'Café de Flore']);
+        $this->planWith($organization, ['exchange' => ['channel' => 'meeting', 'occurredAt' => self::NEXT_TUESDAY, 'place' => 'Café de Flore']]);
         $this->assertSame(['Rendez-vous · ACME'], array_map(static fn (array $event): string => $event['summary'], array_values($this->google()->events())));
 
         $this->requestJson('DELETE', '/api/organizations/'.$organization);

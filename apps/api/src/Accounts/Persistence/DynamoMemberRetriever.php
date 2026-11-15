@@ -30,7 +30,8 @@ final readonly class DynamoMemberRetriever implements MemberRetriever
         foreach ($this->accountsTable->items(array_map(static fn (MemberId $id): array => [AccountsKeys::member($id->value), AccountsKeys::MEMBER], $ids)) as $item) {
             $document = $item['member'];
             $roles = array_map(Role::from(...), $document['roles']);
-            $members[$document['id']] = new MemberResponse($document['id'], $document['accountId'], $document['personId'], PersonalDataRight::isGrantedBy(...$roles), AdministrationRight::isGrantedBy(...$roles));
+            $reminders = RemindersDocument::restore($document['reminders'] ?? null);
+            $members[$document['id']] = new MemberResponse($document['id'], $document['accountId'], $document['personId'], PersonalDataRight::isGrantedBy(...$roles), AdministrationRight::isGrantedBy(...$roles), $reminders->enabled ? $reminders->delay->value : null);
         }
 
         return $members;
