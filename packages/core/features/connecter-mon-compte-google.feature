@@ -95,3 +95,18 @@ Fonctionnalité: Connecter mon compte Google
     Soit un autre membre de "SOLEAN IT" a connecté son compte Google
     Quand je consulte mes connecteurs
     Alors je n'ai pas de connexion Google
+
+  Scénario: Google m'est proposé quand un client Google sert mon compte
+    Quand je consulte mes connecteurs
+    Alors Google m'est proposé
+
+  Scénario: Sans client Google, Google ne m'est pas proposé
+    Soit aucun client Google ne sert mon compte
+    Quand je consulte mes connecteurs
+    Alors Google ne m'est pas proposé
+
+  Scénario: Sans client Google, une autorisation est refusée
+    Soit aucun client Google ne sert mon compte
+    Quand je demande à connecter mon compte Google
+    Alors c'est refusé : "Google is not available"
+    Et je n'ai pas de connexion Google

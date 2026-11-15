@@ -12,7 +12,7 @@ use Prospecter\Core\Connectors\Domain\Port\ProviderAccess;
 use Prospecter\Core\SharedKernel\Domain\Email;
 
 /**
- * A provider as the scenarios script it: a code it gave for an account, granting a token of its own once, the
+ * A provider as the scenarios script it: a client serving the account unless a scenario takes it away, a code it gave for an account, granting a token of its own once, the
  * tokens it refuses since, and those it revoked: as Google does, revoking a token revokes the grant of its account,
  * every token given for it so far.
  */
@@ -27,6 +27,17 @@ final class InMemoryProviderAccess implements ProviderAccess
     /** @var array<string, string> the account each token was given for, by token */
     private array $accounts = [];
     private int $tokens = 0;
+    private bool $hasClient = true;
+
+    public function withoutClient(): void
+    {
+        $this->hasClient = false;
+    }
+
+    public function hasClient(Provider $provider): bool
+    {
+        return $this->hasClient;
+    }
 
     /**
      * The code the provider gives the browser of the member who grants the access to their account.

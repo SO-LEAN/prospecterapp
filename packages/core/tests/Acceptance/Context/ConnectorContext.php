@@ -12,6 +12,7 @@ use Prospecter\Core\Accounts\Domain\Model\Role;
 use Prospecter\Core\Connectors\Application\AskForAuthorization\AskForAuthorization;
 use Prospecter\Core\Connectors\Application\CheckMyConnections\CheckMyConnections;
 use Prospecter\Core\Connectors\Application\Connect\Connect;
+use Prospecter\Core\Connectors\Application\ConsultMyConnections\KeptConnections;
 use Prospecter\Core\Connectors\Application\Disconnect\Disconnect;
 use Prospecter\Core\Connectors\Application\MyConnection;
 use Prospecter\Core\Connectors\Domain\Model\Provider;
@@ -34,8 +35,7 @@ final class ConnectorContext implements Context
     private ?array $pending = null;
     /** @var list<string> the tokens Google granted me, the latest last */
     private array $myTokens = [];
-    /** @var list<MyConnection>|null */
-    private ?array $myConnections = null;
+    private ?KeptConnections $myConnections = null;
 
     #[When('je connecte mon compte Google :account et que Google accorde l\'accès')]
     #[Given('mon compte Google :account est connecté')]
@@ -99,9 +99,15 @@ final class ConnectorContext implements Context
 
     private function askToConnect(string $member, string $account, bool $withTheCalendar): void
     {
+        $this->pending = ['state' => $this->askForAnAuthorization($member), 'code' => $this->application->providerAccess->grant($account, $withTheCalendar)];
+    }
+
+    private function askForAnAuthorization(string $member): string
+    {
         $state = $this->application->newIdentity();
         $this->application->dispatch(new AskForAuthorization($member, self::GOOGLE, $state, 'a-verifier-of-'.$state, $this->application->now()));
-        $this->pending = ['state' => $state, 'code' => $this->application->providerAccess->grant($account, $withTheCalendar)];
+
+        return $state;
     }
 
     #[When('Google me ramène avec l\'accès accordé')]
@@ -190,9 +196,36 @@ final class ConnectorContext implements Context
 
     private function myGoogleConnection(): ?MyConnection
     {
-        $this->myConnections ??= $this->application->consultMyConnections();
+        return array_find($this->myConnections()?->connections ?? [], static fn (MyConnection $connection): bool => self::GOOGLE === $connection->provider);
+    }
 
-        return array_find($this->myConnections ?? [], static fn (MyConnection $connection): bool => self::GOOGLE === $connection->provider);
+    private function myConnections(): ?KeptConnections
+    {
+        return $this->myConnections ??= $this->application->consultMyConnections();
+    }
+
+    #[Given('aucun client Google ne sert mon compte')]
+    public function noGoogleClientServesMyAccount(): void
+    {
+        $this->application->providerAccess->withoutClient();
+    }
+
+    #[When('je demande à connecter mon compte Google')]
+    public function iAskForAnAuthorization(): void
+    {
+        $this->askForAnAuthorization($this->application->signedIn());
+    }
+
+    #[Then('Google m\'est proposé')]
+    public function googleIsOffered(): void
+    {
+        Expect::same([self::GOOGLE], $this->myConnections()?->offered);
+    }
+
+    #[Then('Google ne m\'est pas proposé')]
+    public function googleIsNotOffered(): void
+    {
+        Expect::same([], $this->myConnections()?->offered);
     }
 
     #[Then('l\'accès est révoqué chez Google')]

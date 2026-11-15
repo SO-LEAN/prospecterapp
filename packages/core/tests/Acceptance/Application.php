@@ -35,7 +35,6 @@ use Prospecter\Core\Connectors\Application\ConsultMyConnections\ConsultMyConnect
 use Prospecter\Core\Connectors\Application\ConsultMyConnections\ConsultMyConnectionsHandler;
 use Prospecter\Core\Connectors\Application\ConsultMyConnections\KeptConnections;
 use Prospecter\Core\Connectors\Application\Disconnect\DisconnectHandler;
-use Prospecter\Core\Connectors\Application\MyConnection;
 use Prospecter\Core\PersonalData\Application\ChangeJobTitle\ChangeJobTitleHandler;
 use Prospecter\Core\PersonalData\Application\ChangePersonContactDetails\ChangePersonContactDetailsHandler;
 use Prospecter\Core\PersonalData\Application\ChangePersonPicture\ChangePersonPictureHandler;
@@ -509,14 +508,11 @@ final class Application
         return $this->ask(new ConsultMyRemindersHandler($this->myRemindersRetriever), new ConsultMyReminders($this->signedIn()), $kept) ? $kept->reminders : null;
     }
 
-    /**
-     * @return list<MyConnection>|null
-     */
-    public function consultMyConnections(): ?array
+    public function consultMyConnections(): ?KeptConnections
     {
         $kept = new KeptConnections();
 
-        return $this->ask(new ConsultMyConnectionsHandler($this->myConnectionsRetriever), new ConsultMyConnections($this->signedIn()), $kept) ? $kept->connections : null;
+        return $this->ask(new ConsultMyConnectionsHandler($this->myConnectionsRetriever, $this->providerAccess), new ConsultMyConnections($this->signedIn()), $kept) ? $kept : null;
     }
 
     public function consultPerson(ConsultPerson $query): ?PersonCard
@@ -755,7 +751,7 @@ final class Application
             new TickOffToDoHandler($this->toDos, $this->events),
             new UntickToDoHandler($this->toDos, $this->events),
             new EraseToDoHandler($this->toDos, $this->events),
-            new AskForAuthorizationHandler($this->authorizations),
+            new AskForAuthorizationHandler($this->authorizations, $this->providerAccess),
             new ConnectHandler($this->authorizations, $this->connections, $this->providerAccess, $this->connectingMembers, $this->events),
             new CheckMyConnectionsHandler($this->connections, $this->providerAccess, $this->events),
             new DisconnectHandler($this->connections, $this->providerAccess, $this->events),
