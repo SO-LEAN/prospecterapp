@@ -4,10 +4,15 @@ import { formatHour, formatSize, formatUpcoming, telUrl } from './format'
 describe('formatUpcoming', () => {
   const now = new Date('2026-11-13T10:00')
 
-  it('says the hour today and tomorrow, the days afterwards', () => {
+  it('says the day from now with the hour until the day after tomorrow', () => {
     expect(formatUpcoming(new Date('2026-11-13T16:30').toISOString(), now)).toBe('aujourd’hui 16h30')
     expect(formatUpcoming(new Date('2026-11-14T14:00').toISOString(), now)).toBe('demain 14h00')
-    expect(formatUpcoming(new Date('2026-11-17T09:00').toISOString(), now)).toBe('dans 4 jours')
+    expect(formatUpcoming(new Date('2026-11-15T10:00').toISOString(), now)).toBe('après-demain 10h00')
+  })
+
+  it('says the date with the hour afterwards, read without counting the days', () => {
+    expect(formatUpcoming(new Date('2026-11-16T09:00').toISOString(), now)).toBe('lun. 16 nov., 9h00')
+    expect(formatUpcoming(new Date('2026-11-30T09:00').toISOString(), now)).toBe('lun. 30 nov., 9h00')
   })
 
   it('writes the hour the French way', () => {
