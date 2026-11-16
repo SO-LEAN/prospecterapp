@@ -107,6 +107,30 @@ class HandlePlannedExchangeApiTest extends ApiTestCase
         $this->assertSame(['2026-10-21T09:00:00+00:00'], array_column(array_column($this->requestJson('GET', '/api/me/planned-exchanges?startsAt='.urlencode('2026-10-21T09:15:00+00:00'))['items'], 'exchange'), 'occurredAt'));
     }
 
+    public function testMovedItIsMovedBackWhileItsFormerMomentIsToCome(): void
+    {
+        $moved = $this->requestJson('PATCH', '/api/exchanges/'.$this->planned.'/moment', ['occurredAt' => '2026-10-21T09:00:00+00:00']);
+
+        $this->assertSame(['href' => '/api/exchanges/'.$this->planned.'/moment', 'method' => 'PATCH'], $moved['_links']['moveBack']);
+        $this->assertArrayNotHasKey('moveBack', $this->requestJson('GET', '/api/exchanges/'.$this->planned)['_links']);
+        $movedBack = $this->requestJson('PATCH', '/api/exchanges/'.$this->planned.'/moment', ['occurredAt' => self::NEXT_TUESDAY, 'durationInMinutes' => 45]);
+        $this->assertResponseStatusCodeSame(200);
+        $this->assertSame(self::NEXT_TUESDAY, $movedBack['occurredAt']);
+    }
+
+    public function testMovedOnceItsTimeHasComeItIsNotMovedBack(): void
+    {
+        $this->theClockShows('2026-10-20 15:00 UTC');
+
+        $moved = $this->requestJson('PATCH', '/api/exchanges/'.$this->planned.'/moment', ['occurredAt' => '2026-10-21T09:00:00+00:00']);
+
+        $this->assertResponseStatusCodeSame(200);
+        $this->assertArrayHasKey('move', $moved['_links']);
+        $this->assertArrayNotHasKey('moveBack', $moved['_links']);
+        $this->requestJson('PATCH', '/api/exchanges/'.$this->planned.'/moment', ['occurredAt' => self::NEXT_TUESDAY]);
+        $this->assertResponseStatusCodeSame(422);
+    }
+
     public function testMovedForANewDurationItLastsIt(): void
     {
         $stretched = $this->requestJson('PATCH', '/api/exchanges/'.$this->planned.'/moment', ['occurredAt' => '2026-10-21T09:00:00+00:00', 'durationInMinutes' => 90]);
@@ -182,13 +206,14 @@ class HandlePlannedExchangeApiTest extends ApiTestCase
     }
 
     /**
-     * Moved and cancelled before its time, marked missed once it has come.
+     * Moved, and offered to move it back, and cancelled before its time, marked missed once it has come.
      */
     private function theHolderHandles(string $planned): void
     {
         $this->assertSame(['move', 'cancel'], array_values(array_intersect(['markDone', 'markMissed', 'move', 'cancel'], array_keys($this->requestJson('GET', '/api/exchanges/'.$planned)['_links']))));
-        $this->requestJson('PATCH', '/api/exchanges/'.$planned.'/moment', ['occurredAt' => '2026-10-21T09:00:00+00:00']);
+        $moved = $this->requestJson('PATCH', '/api/exchanges/'.$planned.'/moment', ['occurredAt' => '2026-10-21T09:00:00+00:00']);
         $this->assertResponseStatusCodeSame(200);
+        $this->assertArrayHasKey('moveBack', $moved['_links']);
         $this->theClockShows('2026-10-21 10:00 UTC');
         $this->assertSame(['markDone', 'markMissed', 'move', 'cancel'], array_values(array_intersect(['markDone', 'markMissed', 'move', 'cancel'], array_keys($this->requestJson('GET', '/api/exchanges/'.$planned)['_links']))));
         $this->assertSame('missed', $this->requestJson('POST', '/api/exchanges/'.$planned.'/missed')['status']);
