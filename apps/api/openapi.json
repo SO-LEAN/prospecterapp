@@ -3899,7 +3899,7 @@
                 },
                 "responses": {
                     "200": {
-                        "description": "The exchange, moved",
+                        "description": "The exchange, moved, linking moving it back while the moment it was moved from is to come",
                         "content": {
                             "application/json": {
                                 "schema": {
@@ -7256,6 +7256,9 @@
                         "$ref": "#/components/schemas/LinkResource"
                     },
                     "move": {
+                        "$ref": "#/components/schemas/LinkResource"
+                    },
+                    "moveBack": {
                         "$ref": "#/components/schemas/LinkResource"
                     },
                     "cancel": {

@@ -26,7 +26,8 @@ use Symfony\Component\Clock\ClockInterface;
  * An exchange as the API shows it: read in Prospecting, with the organization itself when it was with no contact,
  * its contact and the members who noted, corrected and made it conform named by PersonalData under the person ids
  * Accounts gives them, then presented to the presenter it builds for the call (ADR 0085). A controller calls it after
- * a command, which returns nothing, to answer with the fresh resource.
+ * a command, which returns nothing, to answer with the fresh resource; after a move, from the moment it was moved
+ * from, to offer moving it back there.
  */
 final readonly class ExchangeReader
 {
@@ -41,10 +42,10 @@ final readonly class ExchangeReader
     ) {
     }
 
-    public function read(string $prospector, string $id): ExchangeDetailResource
+    public function read(string $prospector, string $id, ?\DateTimeImmutable $movedFrom = null): ExchangeDetailResource
     {
         $kept = new KeptExchange();
-        ($this->consultExchange)(new ConsultExchange($prospector, $id, $this->clock->now()), $kept);
+        ($this->consultExchange)(new ConsultExchange($prospector, $id, $this->clock->now(), $movedFrom), $kept);
 
         return $this->resourceOf($prospector, $kept->exchange);
     }

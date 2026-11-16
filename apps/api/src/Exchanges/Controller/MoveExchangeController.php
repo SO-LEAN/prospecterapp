@@ -36,7 +36,7 @@ final class MoveExchangeController extends AbstractController
     #[Route('/api/exchanges/{id}/moment', name: 'api_exchanges_move', requirements: ['id' => Requirement::UUID], methods: ['PATCH'])]
     #[IsGranted(ExchangeVoter::ACCESS, subject: 'exchange')]
     #[OA\Patch(summary: 'Move a planned exchange to another moment to come, for a new duration or its own; by its holder')]
-    #[OA\Response(response: 200, description: 'The exchange, moved', content: new Model(type: ExchangeDetailResource::class))]
+    #[OA\Response(response: 200, description: 'The exchange, moved, linking moving it back while the moment it was moved from is to come', content: new Model(type: ExchangeDetailResource::class))]
     #[OA\Response(response: 401, description: 'Missing or invalid access token')]
     #[OA\Response(response: 403, description: 'Not a prospector, or not the holder of the exchange', content: new Model(type: ProblemResource::class))]
     #[OA\Response(response: 404, description: 'Unknown exchange, or one of another account', content: new Model(type: ProblemResource::class))]
@@ -46,6 +46,6 @@ final class MoveExchangeController extends AbstractController
     {
         $this->commandBus->dispatch(new MoveExchange($user->memberId(), $exchange->id, $input->occurredAt ?? throw new \LogicException('The moment is validated'), $this->clock->now(), $input->durationInMinutes));
 
-        return $this->json($this->exchangeReader->read($user->memberId(), $exchange->id));
+        return $this->json($this->exchangeReader->read($user->memberId(), $exchange->id, movedFrom: $exchange->occurredAt));
     }
 }

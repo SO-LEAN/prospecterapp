@@ -1852,6 +1852,7 @@ export interface components {
             markDone?: components["schemas"]["LinkResource"];
             markMissed?: components["schemas"]["LinkResource"];
             move?: components["schemas"]["LinkResource"];
+            moveBack?: components["schemas"]["LinkResource"];
             cancel?: components["schemas"]["LinkResource"];
         };
         ExchangeDetailResource: {
@@ -5187,7 +5188,7 @@ export interface operations {
             };
         };
         responses: {
-            /** @description The exchange, moved */
+            /** @description The exchange, moved, linking moving it back while the moment it was moved from is to come */
             200: {
                 headers: {
                     [name: string]: unknown;
