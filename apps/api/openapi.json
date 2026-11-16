@@ -6783,8 +6783,7 @@
             },
             "CalendarLinksResource": {
                 "required": [
-                    "self",
-                    "searchContacts"
+                    "self"
                 ],
                 "properties": {
                     "self": {
@@ -6869,8 +6868,7 @@
             },
             "MyDayLinksResource": {
                 "required": [
-                    "self",
-                    "searchContacts"
+                    "self"
                 ],
                 "properties": {
                     "self": {

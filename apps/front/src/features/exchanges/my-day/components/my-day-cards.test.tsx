@@ -96,10 +96,10 @@ const theDetail = (item: DayExchange, detail: Partial<ExchangeDetail> = {}): Exc
   _links: { ...item.exchange._links, interlocutor: { href: `/api/contacts/${ADA}`, method: 'GET' } },
 })
 
-const aDayOf = (today: DayExchange[], next: DayExchange[] = []): MyDay => ({
+const aDayOf = (today: DayExchange[], next: DayExchange[] = [], links = { searchContacts }): MyDay => ({
   today,
   next,
-  _links: { self: DAY_SELF, searchContacts },
+  _links: { self: DAY_SELF, ...links },
 })
 
 /** The detail of each exchange, by its path; my day read again, empty; an empty timeline for any other reading. */
@@ -232,11 +232,17 @@ describe('my day on the dashboard', () => {
     expect(upcoming.getByRole('link', { name: 'Voir le calendrier' })).toHaveAttribute('href', '/calendar')
   })
 
-  it('tells a day with nothing planned, and proposes to plan', async () => {
+  it('tells a day with nothing planned, and proposes to plan to a member who may', async () => {
     await showMyDay(aDayOf([]))
 
     expect(screen.getByText('Rien de prévu aujourd’hui')).toBeInTheDocument()
     expect(screen.getByText('Rien de prévu les jours suivants')).toBeInTheDocument()
     expect(screen.getByRole('link', { name: 'Planifier' })).toHaveAttribute('href', '/calendar?view=day')
+  })
+
+  it('does not propose to plan to a member who may not', async () => {
+    await showMyDay({ today: [], next: [], _links: { self: DAY_SELF } })
+
+    expect(screen.queryByRole('link', { name: 'Planifier' })).not.toBeInTheDocument()
   })
 })
