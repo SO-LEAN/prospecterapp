@@ -39,7 +39,7 @@ final readonly class TimelineResourceFactory
             $this->links->to($timeline, $subject),
             null === $response->next ? null : $this->links->to($timeline, $subject + ['after' => $response->next]),
             $this->intents->shows('NoteExchange', $response->possibleIntents, User::PERSONAL_DATA) ? $this->links->to($noteExchange, $subject) : null,
-            $this->intents->shows('PlanExchange', $response->possibleIntents, null) ? $this->links->to($planExchange, $subject) : null,
+            $this->intents->shows('PlanExchange', $response->possibleIntents) ? $this->links->to($planExchange, $subject) : null,
         );
     }
 
