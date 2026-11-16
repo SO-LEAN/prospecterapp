@@ -8,6 +8,7 @@ final readonly class ConsultMyConnections
 {
     public function __construct(
         public string $memberId,
+        public \DateTimeImmutable $readAt,
     ) {
     }
 }

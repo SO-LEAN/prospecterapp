@@ -11,7 +11,8 @@ use Prospecter\Core\SharedKernel\Application\QueryHandler;
 use Prospecter\Core\SharedKernel\Domain\MemberId;
 
 /**
- * My connections, and the providers offered to me: those a client of my account serves.
+ * My connections, with my exchanges to come synced and failed there, and the providers offered to me: those a client
+ * of my account serves.
  */
 final readonly class ConsultMyConnectionsHandler implements QueryHandler
 {
@@ -26,6 +27,6 @@ final readonly class ConsultMyConnectionsHandler implements QueryHandler
     {
         $me = new MemberId($query->memberId);
 
-        $output->present($this->myConnectionsRetriever->of($me), $this->accountClientsRetriever->of($this->members->get($me)->accountId));
+        $output->present($this->myConnectionsRetriever->of($me, $query->readAt), $this->accountClientsRetriever->of($this->members->get($me)->accountId));
     }
 }

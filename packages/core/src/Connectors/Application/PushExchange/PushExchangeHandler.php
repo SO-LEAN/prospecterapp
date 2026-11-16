@@ -6,7 +6,6 @@ namespace Prospecter\Core\Connectors\Application\PushExchange;
 
 use Prospecter\Core\Connectors\Application\CalendarPusher;
 use Prospecter\Core\Connectors\Domain\Model\ExchangeId;
-use Prospecter\Core\Connectors\Domain\Port\HeldExchanges;
 use Prospecter\Core\Prospecting\Contract\Event\ExchangeFactsChanged;
 use Prospecter\Core\SharedKernel\Application\EventHandler;
 use Prospecter\Core\SharedKernel\Domain\AccountId;
@@ -19,22 +18,12 @@ use Prospecter\Core\SharedKernel\Domain\AccountId;
  */
 final readonly class PushExchangeHandler implements EventHandler
 {
-    public function __construct(
-        private HeldExchanges $exchanges,
-        private CalendarPusher $pusher,
-    ) {
+    public function __construct(private CalendarPusher $pusher)
+    {
     }
 
     public function __invoke(ExchangeFactsChanged $fact): void
     {
-        $id = new ExchangeId($fact->exchangeId);
-        $accountId = new AccountId($fact->accountId);
-        $exchange = $this->exchanges->find($accountId, $id);
-
-        if (null !== $exchange && $exchange->belongsInTheCalendar()) {
-            $this->pusher->push($exchange, $fact->occurredAt);
-        } elseif (null === $exchange || $exchange->isCalledOff()) {
-            $this->pusher->withdraw($id, $accountId, $exchange?->holder, $fact->occurredAt);
-        }
+        $this->pusher->follow(new ExchangeId($fact->exchangeId), new AccountId($fact->accountId), $fact->occurredAt);
     }
 }

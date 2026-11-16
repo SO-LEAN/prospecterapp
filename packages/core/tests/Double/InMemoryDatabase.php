@@ -106,6 +106,17 @@ final class InMemoryDatabase
         ));
     }
 
+    /**
+     * @return list<CalendarEntry>
+     */
+    public function calendarEntriesOfMember(string $member): array
+    {
+        return array_values(array_map(
+            static fn (CalendarEntry $entry): CalendarEntry => clone $entry,
+            array_filter($this->calendarEntries, static fn (CalendarEntry $entry): bool => $entry->member()->value === $member),
+        ));
+    }
+
     public function calendarEntry(string $exchange): ?CalendarEntry
     {
         $entry = $this->calendarEntries[$exchange] ?? null;

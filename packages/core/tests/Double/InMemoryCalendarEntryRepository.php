@@ -7,6 +7,7 @@ namespace Tests\Core\Double;
 use Prospecter\Core\Connectors\Domain\Model\CalendarEntry;
 use Prospecter\Core\Connectors\Domain\Model\ExchangeId;
 use Prospecter\Core\Connectors\Domain\Repository\CalendarEntryRepository;
+use Prospecter\Core\SharedKernel\Domain\MemberId;
 use Prospecter\Core\SharedKernel\Domain\PersonId;
 
 final readonly class InMemoryCalendarEntryRepository implements CalendarEntryRepository
@@ -23,6 +24,11 @@ final readonly class InMemoryCalendarEntryRepository implements CalendarEntryRep
     public function ofContact(PersonId $contact): array
     {
         return $this->database->calendarEntriesOf($contact->value);
+    }
+
+    public function ofMember(MemberId $member): array
+    {
+        return $this->database->calendarEntriesOfMember($member->value);
     }
 
     public function save(CalendarEntry $entry): void

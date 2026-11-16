@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Prospecter\Core\Connectors\Domain\Model;
 
+use Prospecter\Core\Connectors\Domain\Event\CalendarRecreated;
 use Prospecter\Core\Connectors\Domain\Event\Connected;
 use Prospecter\Core\Connectors\Domain\Event\ConnectionLost;
 use Prospecter\Core\Connectors\Domain\Event\Disconnected;
@@ -116,7 +117,7 @@ final class Connection implements ReleasesEvents
 
     /**
      * The event of a planned exchange put into the calendar « Prospecter », created at the first push, and again
-     * once its member deleted it (ADR 0127).
+     * once its member deleted it (ADR 0127), its exchanges to come to push into it again (ADR 0133).
      *
      * @throws CalendarRefusedThePush
      */
@@ -128,6 +129,7 @@ final class Connection implements ReleasesEvents
             } catch (CalendarGone) {
                 $this->calendar = null;
                 $calendars->put($client, $this->refreshToken, $this->calendarIn($calendars, $client, $at), $event);
+                $this->recordThat(new CalendarRecreated($this->accountId, $this->member, $at));
             }
         });
     }

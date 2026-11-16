@@ -104,8 +104,6 @@ use Prospecter\Core\Prospecting\Application\ConsultExchange\KeptExchange;
 use Prospecter\Core\Prospecting\Application\ConsultExchangesToMakeConform\ConsultExchangesToMakeConform;
 use Prospecter\Core\Prospecting\Application\ConsultExchangesToMakeConform\ConsultExchangesToMakeConformHandler;
 use Prospecter\Core\Prospecting\Application\ConsultHeldExchanges\ConsultHeldExchangesHandler;
-use Prospecter\Core\Prospecting\Application\ConsultUpcomingExchanges\ConsultUpcomingExchangesHandler;
-use Prospecter\Core\Prospecting\Application\PublishedHeldExchanges;
 use Prospecter\Core\Prospecting\Application\ConsultMyDay\ConsultMyDay;
 use Prospecter\Core\Prospecting\Application\ConsultMyDay\ConsultMyDayHandler;
 use Prospecter\Core\Prospecting\Application\ConsultMyDay\KeptMyDay;
@@ -125,6 +123,7 @@ use Prospecter\Core\Prospecting\Application\ConsultOverlappingExchanges\ConsultO
 use Prospecter\Core\Prospecting\Application\ConsultOverlappingExchanges\ConsultOverlappingExchangesHandler;
 use Prospecter\Core\Prospecting\Application\ConsultOverlappingExchanges\KeptOverlappingExchanges;
 use Prospecter\Core\Prospecting\Application\ConsultOverlappingExchanges\OverlappingExchanges;
+use Prospecter\Core\Prospecting\Application\ConsultPlannedExchanges\ConsultPlannedExchangesHandler;
 use Prospecter\Core\Prospecting\Application\ConsultTimeline\ConsultTimeline;
 use Prospecter\Core\Prospecting\Application\ConsultTimeline\ConsultTimelineHandler;
 use Prospecter\Core\Prospecting\Application\ConsultTimelineIntents\ConsultTimelineIntents;
@@ -179,6 +178,7 @@ use Prospecter\Core\Prospecting\Application\ProposeMeetingPlace\MeetingPlace;
 use Prospecter\Core\Prospecting\Application\ProposeMeetingPlace\ProposeMeetingPlace;
 use Prospecter\Core\Prospecting\Application\ProposeMeetingPlace\ProposeMeetingPlaceHandler;
 use Prospecter\Core\Prospecting\Application\PublishContactsLeftWithoutOrganization\PublishContactsLeftWithoutOrganizationHandler;
+use Prospecter\Core\Prospecting\Application\PublishedHeldExchanges;
 use Prospecter\Core\Prospecting\Application\PublishExchangeFacts\PublishExchangeFactsHandler;
 use Prospecter\Core\Prospecting\Application\PublishOrganizationFacts\PublishOrganizationFactsHandler;
 use Prospecter\Core\Prospecting\Application\RecognizeCallingOrganization\KeptCallingOrganizations;
@@ -206,9 +206,9 @@ use Prospecter\Core\Prospecting\Application\UntickToDo\UntickToDoHandler;
 use Prospecter\Core\Prospecting\Application\WhichAreProspected\WhichAreProspectedHandler;
 use Prospecter\Core\Prospecting\Application\WriteObservations\WriteObservationsHandler;
 use Prospecter\Core\Prospecting\Contract\Service\ConsultHeldExchanges\ConsultHeldExchanges;
+use Prospecter\Core\Prospecting\Contract\Service\ConsultHeldExchanges\ConsultPlannedExchanges;
 use Prospecter\Core\Prospecting\Contract\Service\ConsultHeldExchanges\HeldExchangeResponse;
 use Prospecter\Core\Prospecting\Contract\Service\ConsultHeldExchanges\KeptHeldExchanges;
-use Prospecter\Core\Prospecting\Contract\Service\ConsultUpcomingExchanges\ConsultUpcomingExchanges;
 use Prospecter\Core\Prospecting\Contract\Service\ListExchangeFacts\KeptExchangeFacts;
 use Prospecter\Core\Prospecting\Contract\Service\ListExchangeFacts\ListExchangeFacts;
 use Prospecter\Core\Prospecting\Contract\Service\ListOrganizationFacts\KeptOrganizationFacts;
@@ -261,6 +261,7 @@ use Tests\Core\Double\InMemoryDatabase;
 use Tests\Core\Double\InMemoryExchangeDetailRetriever;
 use Tests\Core\Double\InMemoryExchangeFactsRetriever;
 use Tests\Core\Double\InMemoryExchangeRepository;
+use Tests\Core\Double\InMemoryExchangeSyncRetriever;
 use Tests\Core\Double\InMemoryFactRepository;
 use Tests\Core\Double\InMemoryFiguresRetriever;
 use Tests\Core\Double\InMemoryFoundOrganizationRetriever;
@@ -364,7 +365,7 @@ final class Application
     private readonly AccountsMembers $connectingMembers;
     public readonly InMemoryProviderCalendar $calendars;
     private readonly ConsultHeldExchangesHandler $consultHeldExchangesService;
-    private readonly ConsultUpcomingExchangesHandler $consultUpcomingExchangesService;
+    private readonly ConsultPlannedExchangesHandler $consultPlannedExchangesService;
     private readonly NameContactsHandler $nameContactsService;
     private readonly ProspectingHeldExchanges $heldExchanges;
     private readonly InMemoryCalendarEntryRepository $calendarEntries;
@@ -440,9 +441,9 @@ final class Application
         $heldExchangeRetriever = new InMemoryHeldExchangeRetriever($database);
         $publishedHeldExchanges = new PublishedHeldExchanges($this->organizationSheetRetriever);
         $this->consultHeldExchangesService = new ConsultHeldExchangesHandler($heldExchangeRetriever, $publishedHeldExchanges);
-        $this->consultUpcomingExchangesService = new ConsultUpcomingExchangesHandler($heldExchangeRetriever, $publishedHeldExchanges);
+        $this->consultPlannedExchangesService = new ConsultPlannedExchangesHandler($heldExchangeRetriever, $publishedHeldExchanges);
         $this->nameContactsService = new NameContactsHandler($this->personCardRetriever, $this->readers);
-        $this->heldExchanges = new ProspectingHeldExchanges($this->consultHeldExchangesService, $this->consultUpcomingExchangesService);
+        $this->heldExchanges = new ProspectingHeldExchanges($this->consultHeldExchangesService, $this->consultPlannedExchangesService);
         $this->calendarEntries = new InMemoryCalendarEntryRepository($database);
         $this->calendarPusher = new CalendarPusher($this->heldExchanges, $this->calendarEntries, $this->connections, $this->clients, $this->connectingMembers, new PersonalDataContactNames($this->nameContactsService), $this->calendars, $this->events);
 
@@ -601,7 +602,7 @@ final class Application
     public function consultExchangeSync(string $exchange): ?KeptExchangeSync
     {
         $kept = new KeptExchangeSync();
-        $handler = new ConsultExchangeSyncHandler($this->heldExchanges, $this->calendarEntries, $this->connections, $this->connectingMembers);
+        $handler = new ConsultExchangeSyncHandler($this->heldExchanges, new InMemoryExchangeSyncRetriever($this->database), $this->connections, $this->connectingMembers);
 
         return $this->ask($handler, new ConsultExchangeSync($this->signedIn(), $exchange, $this->now), $kept) ? $kept : null;
     }
@@ -914,10 +915,10 @@ final class Application
     /**
      * @return list<HeldExchangeResponse>
      */
-    public function consultUpcomingExchanges(ConsultUpcomingExchanges $query): array
+    public function consultPlannedExchanges(ConsultPlannedExchanges $query): array
     {
         $kept = new KeptHeldExchanges();
-        ($this->consultUpcomingExchangesService)($query, $kept);
+        ($this->consultPlannedExchangesService)($query, $kept);
 
         return $kept->exchanges;
     }

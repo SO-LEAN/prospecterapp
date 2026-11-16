@@ -21,7 +21,7 @@ final readonly class HeldExchange
         public MemberId $holder,
         private ExchangeStatus $status,
         private ?Channel $channel,
-        private \DateTimeImmutable $startsAt,
+        public \DateTimeImmutable $startsAt,
         private ?int $durationInMinutes,
         private ?string $venue,
         public ?PersonId $contact,
@@ -36,6 +36,19 @@ final readonly class HeldExchange
     public function belongsInTheCalendar(): bool
     {
         return ExchangeStatus::Planned === $this->status && null !== $this->channel;
+    }
+
+    /**
+     * Planned and still to come at the moment: its state is pending until a push reaches the calendar (ADR 0133).
+     */
+    public function awaitsItsPushAt(\DateTimeImmutable $at): bool
+    {
+        return $this->belongsInTheCalendar() && $this->startsAt >= $at;
+    }
+
+    public function isHeldBy(MemberId $member): bool
+    {
+        return $this->holder->equals($member);
     }
 
     /**

@@ -6,6 +6,7 @@ namespace Prospecter\Core\Connectors\Domain\Repository;
 
 use Prospecter\Core\Connectors\Domain\Model\CalendarEntry;
 use Prospecter\Core\Connectors\Domain\Model\ExchangeId;
+use Prospecter\Core\SharedKernel\Domain\MemberId;
 use Prospecter\Core\SharedKernel\Domain\PersonId;
 
 /**
@@ -21,6 +22,13 @@ interface CalendarEntryRepository
      * @return list<CalendarEntry>
      */
     public function ofContact(PersonId $contact): array;
+
+    /**
+     * Those of the exchanges pushed into the calendar of the member.
+     *
+     * @return list<CalendarEntry>
+     */
+    public function ofMember(MemberId $member): array;
 
     public function save(CalendarEntry $entry): void;
 

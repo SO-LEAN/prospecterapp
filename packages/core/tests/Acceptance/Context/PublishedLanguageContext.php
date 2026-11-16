@@ -22,8 +22,8 @@ use Prospecter\Core\PersonalData\Contract\Service\NameContacts\ContactNameRespon
 use Prospecter\Core\PersonalData\Contract\Service\NameContacts\NameContacts;
 use Prospecter\Core\PersonalData\Contract\Service\WhichAreContacts\WhichAreContacts;
 use Prospecter\Core\Prospecting\Contract\Service\ConsultHeldExchanges\ConsultHeldExchanges;
+use Prospecter\Core\Prospecting\Contract\Service\ConsultHeldExchanges\ConsultPlannedExchanges;
 use Prospecter\Core\Prospecting\Contract\Service\ConsultHeldExchanges\HeldExchangeResponse;
-use Prospecter\Core\Prospecting\Contract\Service\ConsultUpcomingExchanges\ConsultUpcomingExchanges;
 use Prospecter\Core\Prospecting\Contract\Service\ListExchangeFacts\ExchangeFactsResponse;
 use Prospecter\Core\Prospecting\Contract\Service\ListExchangeFacts\KeptExchangeFacts;
 use Prospecter\Core\Prospecting\Contract\Service\ListExchangeFacts\ListExchangeFacts;
@@ -359,7 +359,7 @@ final class PublishedLanguageContext implements Context
     #[When('un autre contexte demande à Prospecting, de :account, les échanges que je tiens à venir')]
     public function anotherContextAsksMyUpcomingExchanges(string $account): void
     {
-        $this->heldExchanges = $this->application->consultUpcomingExchanges(new ConsultUpcomingExchanges($this->scenario->accountIdOf($account)->value, $this->application->signedIn(), $this->application->now()));
+        $this->heldExchanges = $this->application->consultPlannedExchanges(new ConsultPlannedExchanges($this->scenario->accountIdOf($account)->value, $this->application->signedIn(), $this->application->now()));
     }
 
     #[Then('Prospecting répond l\'échange :')]
