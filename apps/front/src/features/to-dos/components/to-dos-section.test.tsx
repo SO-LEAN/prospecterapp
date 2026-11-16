@@ -212,7 +212,7 @@ describe('ToDosCard', () => {
     expect(screen.getByRole('checkbox', { name: 'Cocher « Envoyer mon CV »' })).toBeDisabled()
   })
 
-  it('ticks a to-do off, the lists read again, then tells the page, for it to propose noting the exchange', async () => {
+  it('ticks a to-do off, the lists, the calendar and what is to process read again, then tells the page, for it to propose noting the exchange', async () => {
     const toDo = aToDo({})
     theApi.mockResolvedValue(Response.json({ ...toDo, doneAt: '2026-11-13T10:00:00+00:00' }))
     const queryClient = new QueryClient()
@@ -229,6 +229,8 @@ describe('ToDosCard', () => {
       ['get', '/api/contacts/{id}/to-dos'],
       ['get', '/api/organizations/{id}/to-dos'],
       ['get', '/api/me/to-dos'],
+      ['get', '/api/me/calendar'],
+      ['get', '/api/me/exchanges-to-process'],
     ])
   })
 

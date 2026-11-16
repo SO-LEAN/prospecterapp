@@ -3,6 +3,7 @@ import { Ban, CalendarClock, CircleCheck, PhoneMissed } from 'lucide-react'
 import { type ReactNode, useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { toast } from 'sonner'
+import { ToDoLine } from '@/features/to-dos/components/to-dos-section'
 import { formatMoment } from '@/shared/lib/format'
 import { cn } from '@/shared/lib/utils'
 import { Button } from '@/shared/ui/button'
@@ -11,7 +12,8 @@ import { ExchangeDialog } from '../../calendar/components/exchange-dialog'
 import type { StartWith } from '../../components/exchange-detail'
 import { CHANNEL_ICONS } from '../../components/exchange-line'
 import { useCancelExchange, useMarkExchangeMissed, useUndoable } from '../../mutations'
-import { type ExchangeToProcess, exchangesToProcessQuery } from '../queries'
+import { useNow } from '../../use-now'
+import { countOf, type ExchangeToProcess, exchangesToProcessQuery, type ToDoToProcess } from '../queries'
 
 type Opened = { item: ExchangeToProcess; startWith?: StartWith }
 
@@ -21,16 +23,17 @@ type Props = {
 }
 
 /**
- * What I planned whose end has passed and I have not handled yet, on the dashboard while there is some: each line
- * marked done from its report, missed or cancelled at once, taken back by its toast, or moved; the dialog of an
- * exchange outlives the card, so that what follows its report is planned once the last one is done.
+ * What I planned whose end has passed and I have not handled yet, and my to-dos of the day and late, on the dashboard
+ * while there is some: each exchange marked done from its report, missed or cancelled at once, taken back by its
+ * toast, or moved; each to-do ticked off in place. The dialog of an exchange outlives the card, so that what follows
+ * its report is planned once the last one is done.
  */
 export function ExchangesToProcessCard({ contactSummary }: Props) {
   const { t } = useTranslation()
   const { data: toProcess } = useSuspenseQuery(exchangesToProcessQuery())
   const [opened, setOpened] = useState<Opened | null>(null)
   const leaving = useLeavingLines()
-  const processed = useEverythingProcessedTold(toProcess.items.length === 0)
+  const processed = useEverythingProcessedTold(countOf(toProcess) === 0)
 
   const open = (item: ExchangeToProcess, startWith?: StartWith) => {
     processed.started()
@@ -39,7 +42,7 @@ export function ExchangesToProcessCard({ contactSummary }: Props) {
 
   return (
     <>
-      {toProcess.items.length > 0 && (
+      {countOf(toProcess) > 0 && (
         <Card className="border-warning">
           <CardHeader>
             <CardTitle className="text-base">{t('toProcess.title')}</CardTitle>
@@ -59,6 +62,7 @@ export function ExchangesToProcessCard({ contactSummary }: Props) {
                 />
               ))}
             </ul>
+            <ToDosToProcess toDos={toProcess.toDos} onTickedOff={processed.started} />
           </CardContent>
         </Card>
       )}
@@ -69,6 +73,36 @@ export function ExchangesToProcessCard({ contactSummary }: Props) {
         contactSummary={contactSummary}
       />
     </>
+  )
+}
+
+/** My to-dos of the day and late, the most overdue first, each saying since when. */
+function ToDosToProcess({ toDos, onTickedOff }: { toDos: ToDoToProcess[]; onTickedOff: () => void }) {
+  const { t } = useTranslation()
+  const now = useNow()
+
+  if (toDos.length === 0) return null
+  return (
+    <section aria-label={t('toProcess.toDos')} className="mt-3 space-y-2">
+      <h3 className="font-medium text-muted-foreground text-sm">{t('toProcess.toDos')}</h3>
+      <ul className="space-y-2">
+        {toDos.map(({ toDo, daysOverdue }) => (
+          <li
+            key={toDo.id}
+            data-late={daysOverdue > 0 ? '' : undefined}
+            className={cn(
+              'space-y-1 rounded-lg border p-3',
+              daysOverdue > 0 && 'border-l-4 border-l-warning',
+            )}
+          >
+            <p className="font-medium text-xs">
+              {daysOverdue > 0 ? t('toProcess.overdue', { count: daysOverdue }) : t('toProcess.forToday')}
+            </p>
+            <ToDoLine toDo={toDo} now={now} withTheirContact onTickedOff={onTickedOff} />
+          </li>
+        ))}
+      </ul>
+    </section>
   )
 }
 

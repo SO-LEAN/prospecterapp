@@ -8,7 +8,12 @@ import { Toaster } from '@/shared/ui/sonner'
 import { renderInARouter } from '@/test/render-in-a-router'
 import { UNDO_DELAY_MS } from '../../mutations'
 import type { ExchangeDetail } from '../../queries'
-import { type ExchangesToProcess, type ExchangeToProcess, exchangesToProcessQuery } from '../queries'
+import {
+  type ExchangesToProcess,
+  type ExchangeToProcess,
+  exchangesToProcessQuery,
+  type ToDoToProcess,
+} from '../queries'
 import { ExchangesToProcessCard } from './exchanges-to-process-card'
 import { ToProcessCount } from './to-process-count'
 
@@ -88,8 +93,12 @@ const theDetail = (item: ExchangeToProcess): ExchangeDetail => ({
   _links: { ...item.exchange._links, interlocutor: { href: `/api/contacts/${ADA}`, method: 'GET' } },
 })
 
-const toProcess = (items: ExchangeToProcess[]): ExchangesToProcess => ({
+const toProcess = (
+  items: ExchangeToProcess[],
+  toDos: ExchangesToProcess['toDos'] = [],
+): ExchangesToProcess => ({
   items,
+  toDos,
   _links: { self: { href: TO_PROCESS, method: 'GET' } },
 })
 
@@ -108,18 +117,39 @@ const sent = (method: string) =>
     .filter((request) => request.method === method)
     .map((request) => new URL(request.url).pathname)
 
-function aQueryClientWith(items: ExchangeToProcess[]) {
+/** A to-do of mine for Ada Lovelace, to tick off, `daysOverdue` days after its day. */
+function aToDoToProcess(text: string, dueOn: string, daysOverdue: number): ToDoToProcess {
+  const id = nextId()
+  return {
+    toDo: {
+      id,
+      text,
+      dueOn,
+      dueAt: null,
+      doneAt: null,
+      heldBy: { name: { firstName: 'Grace', lastName: 'Hopper' } },
+      contact: { id: ADA, name: { firstName: 'Ada', lastName: 'Lovelace' } },
+      _links: {
+        self: { href: `/api/to-dos/${id}`, method: 'GET' },
+        tickOff: { href: `/api/to-dos/${id}/done`, method: 'POST' },
+      },
+    },
+    daysOverdue,
+  }
+}
+
+function aQueryClientWith(items: ExchangeToProcess[], toDos: ToDoToProcess[] = []) {
   const queryClient = new QueryClient({
     defaultOptions: { queries: { staleTime: Number.POSITIVE_INFINITY, retry: false } },
     mutationCache: new MutationCache(theAppQueryClient.getMutationCache().config),
   })
-  queryClient.setQueryData(exchangesToProcessQuery().queryKey, toProcess(items))
+  queryClient.setQueryData(exchangesToProcessQuery().queryKey, toProcess(items, toDos))
   return queryClient
 }
 
-async function showTheCard(items: ExchangeToProcess[]) {
+async function showTheCard(items: ExchangeToProcess[], toDos: ToDoToProcess[] = []) {
   await renderInARouter(
-    <QueryClientProvider client={aQueryClientWith(items)}>
+    <QueryClientProvider client={aQueryClientWith(items, toDos)}>
       <Suspense>
         <ExchangesToProcessCard contactSummary={(id) => <p>{`Résumé du contact ${id}`}</p>} />
       </Suspense>
@@ -271,10 +301,41 @@ describe('the exchanges to process on the dashboard', () => {
   })
 })
 
+describe('my to-dos to process', () => {
+  it('are listed, the most overdue first, each saying since when', async () => {
+    await showTheCard(
+      [],
+      [
+        aToDoToProcess('Relancer', '2026-11-10', 3),
+        aToDoToProcess('Envoyer mon CV', '2026-11-12', 1),
+        aToDoToProcess('Préparer la proposition', '2026-11-13', 0),
+      ],
+    )
+
+    const toDos = within(screen.getByRole('region', { name: 'Actions à faire' })).getAllByRole('listitem')
+    expect(toDos.map((toDo) => toDo.textContent)).toEqual([
+      expect.stringMatching(/^En retard de 3 joursRelancer/),
+      expect.stringMatching(/^En retard d’un jourEnvoyer mon CV/),
+      expect.stringMatching(/^Pour aujourd’huiPréparer la proposition/),
+    ])
+    expect(toDos.map((toDo) => toDo.hasAttribute('data-late'))).toEqual([true, true, false])
+  })
+
+  it('are ticked off in place', async () => {
+    const toDo = aToDoToProcess('Envoyer mon CV', '2026-11-12', 1)
+    theApiAnswers()
+    await showTheCard([], [toDo])
+
+    await userEvent.click(screen.getByRole('checkbox', { name: 'Cocher « Envoyer mon CV »' }))
+
+    await waitFor(() => expect(sent('POST')).toEqual([`/api/to-dos/${toDo.toDo.id}/done`]))
+  })
+})
+
 describe('the count of the exchanges to process in the menu', () => {
-  async function showTheCount(items: ExchangeToProcess[]) {
+  async function showTheCount(items: ExchangeToProcess[], toDos: ToDoToProcess[] = []) {
     await renderInARouter(
-      <QueryClientProvider client={aQueryClientWith(items)}>
+      <QueryClientProvider client={aQueryClientWith(items, toDos)}>
         <ToProcessCount />
       </QueryClientProvider>,
     )
@@ -287,7 +348,16 @@ describe('the count of the exchanges to process in the menu', () => {
     ])
 
     expect(screen.getByText('2')).toBeInTheDocument()
-    expect(screen.getByText('2 échanges à traiter')).toHaveClass('sr-only')
+    expect(screen.getByText('2 éléments à traiter')).toHaveClass('sr-only')
+  })
+
+  it('counts the to-dos too', async () => {
+    await showTheCount(
+      [ended('call', new Date(2026, 10, 13, 8, 0))],
+      [aToDoToProcess('Relancer', '2026-11-13', 0)],
+    )
+
+    expect(screen.getByText('2 éléments à traiter')).toHaveClass('sr-only')
   })
 
   it('tells nothing when none is left', async () => {
@@ -304,6 +374,6 @@ describe('the count of the exchanges to process in the menu', () => {
 
     await act(() => vi.advanceTimersByTimeAsync(5 * 60_000))
 
-    expect(await screen.findByText('1 échange à traiter')).toBeInTheDocument()
+    expect(await screen.findByText('1 élément à traiter')).toBeInTheDocument()
   })
 })

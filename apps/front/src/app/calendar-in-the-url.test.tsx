@@ -34,7 +34,9 @@ function theApiAnswersAnEmptyCalendar() {
   theApi.mockImplementation(async (input) => {
     const { pathname } = new URL(input instanceof Request ? input.url : String(input))
     return Response.json(
-      pathname === '/api/me' ? me : { items: [], _links: { self: { href: pathname, method: 'GET' } } },
+      pathname === '/api/me'
+        ? me
+        : { items: [], toDos: [], late: [], _links: { self: { href: pathname, method: 'GET' } } },
     )
   })
 }

@@ -49,6 +49,8 @@ const aCalendarOf = (
   links: { searchContacts?: typeof searchContacts } = { searchContacts },
 ) => ({
   items,
+  toDos: [],
+  late: [],
   _links: { self: CALENDAR_SELF, ...links },
 })
 

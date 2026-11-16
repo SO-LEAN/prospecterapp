@@ -2,17 +2,21 @@ import { type QueryClient, useQueryClient } from '@tanstack/react-query'
 import { useTranslation } from 'react-i18next'
 import { toast } from 'sonner'
 import { api } from '@/shared/api/client'
+import { queryKeys } from '@/shared/api/keys'
 import { toDoKeys } from './queries'
 
 /**
- * A to-do shows on the cards of its contact, of its organizations, and among mine: each is read again, the gesture
- * pending until they are, so that a list never shows the former state once the gesture is over.
+ * A to-do shows on the cards of its contact, of its organizations, among mine, in my calendar and in what I have to
+ * process: each is read again, the gesture pending until they are, so that a list never shows the former state once
+ * the gesture is over.
  */
 const readTheListsAgain = (queryClient: QueryClient) =>
   Promise.all([
     queryClient.invalidateQueries({ queryKey: toDoKeys.ofContacts }),
     queryClient.invalidateQueries({ queryKey: toDoKeys.ofOrganizations }),
     queryClient.invalidateQueries({ queryKey: toDoKeys.mine }),
+    queryClient.invalidateQueries({ queryKey: queryKeys.myCalendar }),
+    queryClient.invalidateQueries({ queryKey: queryKeys.exchangesToProcess }),
   ])
 
 export function useNoteToDo() {
