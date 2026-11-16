@@ -229,6 +229,7 @@ The correlation of a gesture is in every log of the relay and the worker (CloudW
 - What is not DynamoDB is outside the transaction: a file sent to the storage by a use case whose unit is then discarded stays there, unused; files are removed only by reactions, after the state.
 - No alarm on the queues of the failures: `app:consistency:check` is run by hand.
 - `ExchangeFactsChanged.v1` is still read, and listened to by `reporting-figures`, until no outbox nor queue of failures of an instance holds it (14 days after the deployment of `.v2`, the queues empty).
-- The worker runs 10 invocations at once at most (its reserved concurrency, `worker_concurrency` on AWS, ADR 0131): a burst of reactions waits for room, its last reaction coming some seconds later; `BREF_LOOP_MAX` is off, PHP restarting for each invocation.
+- The worker runs 10 invocations at once at most locally (`WORKER_CONCURRENCY`, ADR 0131), on AWS as many as its reserved concurrency when its instance sets `worker_concurrency` (ADR 0132): a burst of reactions waits for room, its last reaction coming some seconds later; `BREF_LOOP_MAX` is off, PHP restarting for each invocation.
+- On AWS, until the quota of its account allows its instance to set `worker_concurrency` (#101, ADR 0132), the worker reserves nothing: a burst of reactions may take every execution of the account from the api.
 - On AWS, the split of a failing batch by the relay is configured but was never seen at work (a poisoned outbox, written on purpose on `dev`, was alone in its batch).
 - A commit publishing in two contexts is refused: a gesture runs one use case (ADR 0100).

@@ -205,8 +205,9 @@ resource "aws_cloudwatch_log_group" "worker" {
 }
 
 # the package and the environment of the api, its handler a service of its container; its reactions publish what
-# they cause through the outbox of their commit. Its reserved concurrency bounds a burst of reactions (ADR 0131): an
-# invocation beyond it is throttled, kept by Lambda and retried, the executions left to the api
+# they cause through the outbox of their commit. When its instance sets it (ADR 0132), its reserved concurrency bounds
+# a burst of reactions (ADR 0131): an invocation beyond it is throttled, kept by Lambda and retried, the executions left
+# to the api
 resource "aws_lambda_function" "worker" {
   function_name                  = local.worker
   role                           = aws_iam_role.worker.arn
