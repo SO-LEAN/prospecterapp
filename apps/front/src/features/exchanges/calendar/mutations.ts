@@ -31,8 +31,9 @@ export function withdrawTheOfferToMoveBack() {
 /**
  * An exchange dragged or stretched in the calendar: shown at once where it was dropped, set back where it was when
  * the API refuses, the refusal told by the toast of every mutation (`query-client.ts`), the calendar read again
- * either way; once moved, its toast offers to move it back, however long the member takes, until another exchange is
- * moved or opened or the calendar is left, a move answered once it is left told without the offer. What follows is in
+ * either way; once moved, its toast offers to move it back when the API links it (`_links.moveBack`, its former moment
+ * to come), however long the member takes, until another exchange is moved or opened or the calendar is left, a move
+ * answered once it is left told without the offer. What follows is in
  * the options of the mutation, the toast outliving any component.
  */
 export function useMoveInTheCalendar() {
@@ -70,7 +71,8 @@ export function useMoveInTheCalendar() {
         toast.success(t('calendar.moveUndone'))
         return
       }
-      if (calendarLeft.current) {
+      if (calendarLeft.current || !exchange._links.moveBack) {
+        withdrawTheOfferToMoveBack()
         toast.success(t('exchanges.handling.moved'))
         return
       }
