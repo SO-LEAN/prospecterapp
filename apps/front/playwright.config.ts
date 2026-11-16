@@ -2,11 +2,13 @@ import { defineConfig, devices } from '@playwright/test'
 import { PUBLIC_HOST, SPA_URL, WORKERS } from './e2e/stack'
 
 /**
- * The journeys that run once the others are done (ADR 0117, 0122): the main journey signs the demonstration member
- * out, everywhere (Cognito global sign-out); the dashboard reads a figure, which a run from nothing counts only then
- * (no figure before the first count). In two accounts, they run beside each other.
+ * The journeys that run once the others are done, one after the other (ADR 0117, 0122, 0136): the main journey signs
+ * the demonstration member out, everywhere (Cognito global sign-out), and beside another journey outlasted its minute;
+ * the dashboard, after it, reads a figure, which a run from nothing counts only once the journeys running together are
+ * done (no figure before the first count).
  */
-const ALONE = /\/(journey|dashboard-figures)\.spec\.ts$/
+const MAIN_JOURNEY = /\/journey\.spec\.ts$/
+const DASHBOARD = /\/dashboard-figures\.spec\.ts$/
 /**
  * The longest of the journeys running together, started first, its project listed before theirs (Playwright runs the
  * projects of a phase in the order of the configuration): last, its reactions alone would outlast the others.
@@ -45,12 +47,13 @@ export default defineConfig({
   },
   projects: [
     { name: 'together-longest', use: CHROME, testMatch: LONGEST },
-    { name: 'together', use: CHROME, testIgnore: [ALONE, LONGEST] },
+    { name: 'together', use: CHROME, testIgnore: [MAIN_JOURNEY, DASHBOARD, LONGEST] },
     {
       name: 'alone',
       use: CHROME,
-      testMatch: ALONE,
+      testMatch: MAIN_JOURNEY,
       dependencies: ['together-longest', 'together'],
     },
+    { name: 'alone-dashboard', use: CHROME, testMatch: DASHBOARD, dependencies: ['alone'] },
   ],
 })

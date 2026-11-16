@@ -141,8 +141,9 @@ WITH_E2E_LOCK = { flock -n $(E2E_LOCK) true || echo "The journeys of another che
 # mounted in the functions, a journey passes whatever the data. With FRESH=1, or no stack running, from nothing: the
 # stack started again (MiniStack without the memory a former run left it), deployed, its data recreated, the figures
 # counted (two minutes, ADR 0106) while the journeys reading none run together; FRESH=1 after a change of the
-# functions, of their settings or of the subscriptions. Those running alone, the dashboard among them, run once the
-# others are done (ADR 0117), and not when one running together failed: the first failure stops them (FAIL_FAST). The
+# functions, of their settings or of the subscriptions. Those running alone run once the others are done (ADR 0117), the
+# main journey then the dashboard, one after the other (ADR 0136), and not when one before failed: the first failure
+# stops them (FAIL_FAST). The
 # relay and the worker warmed, the gestures of the console made and the geocoder doubled once for both
 FIGURES_LOG = $(ROOT)/.cache/reporting-rebuild.log
 STACK_RUNNING = $(shell $(DC) ps -q --status running nginx 2>/dev/null)
@@ -158,7 +159,8 @@ check-e2e-locked:
 	$(E2E_SETUP) && $(FRONT_E2E) E2E_ARGS="--project='together*'" E2E_RESULTS=together; together=$$?; \
 	test -z "$$figures" || wait $$figures || { echo "The figures were not counted:"; cat $(FIGURES_LOG); exit 1; }; \
 	test $$together -eq 0 || { echo "A journey running together failed: those running alone are not run"; exit $$together; }; \
-	$(FRONT_E2E) E2E_ARGS="--project=alone --no-deps" E2E_RESULTS=alone
+	$(FRONT_E2E) E2E_ARGS="--project=alone --no-deps" E2E_RESULTS=alone && \
+	$(FRONT_E2E) E2E_ARGS="--project=alone-dashboard --no-deps" E2E_RESULTS=alone-dashboard
 
 check-core: ## Lint and test the core
 	@$(MAKE) -C packages/core lint test

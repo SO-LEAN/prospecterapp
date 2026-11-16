@@ -139,3 +139,4 @@ Why the project is shaped the way it is: one record per decision, in the order t
 | [0133](0133-the-calendar-entry-keeps-the-state-of-the-push-of-its-exchange.md) | The calendar entry keeps the state of the push of its exchange, a refusal kept there, the exchanges to come pushed at the connection | architecture | Accepted | 2026-11-16 |
 | [0134](0134-a-calendar-holds-the-exchanges-and-the-to-dos-of-its-holder-a-day-never-an-instant.md) | A calendar holds the exchanges and the to-dos of its holder, a day without an hour never an instant | architecture | Accepted | 2026-11-16 |
 | [0135](0135-a-moved-exchange-is-offered-to-move-back-while-its-former-moment-is-to-come.md) | A moved exchange is offered to move back while its former moment is to come | domain | Accepted | 2026-11-16 |
+| [0136](0136-the-main-journey-runs-alone-the-dashboard-after-it.md) | The main journey runs alone, the dashboard after it | architecture | Accepted | 2026-11-16 |

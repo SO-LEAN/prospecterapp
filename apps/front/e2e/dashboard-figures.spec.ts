@@ -4,7 +4,8 @@ import { submitTheSignInScreen } from './sign-in'
 
 /**
  * The run of `make e2e`, which opens an account by the console before the journeys: its founder, whose figures no
- * other journey changes, lets this one run beside them (ADR 0122).
+ * other journey changes, lets this one read them as they were counted (ADR 0122); it runs after the main journey, alone
+ * (ADR 0136).
  */
 const RUN = process.env.E2E_RUN
 const ACTIVE_ORGANIZATIONS = 'Organisations actives'
