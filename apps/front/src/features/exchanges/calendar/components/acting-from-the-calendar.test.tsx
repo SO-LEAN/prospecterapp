@@ -228,6 +228,30 @@ describe('dragging an exchange to come', () => {
     expect(within(told).queryByRole('button', { name: 'Annuler' })).not.toBeInTheDocument()
   })
 
+  it('withdraws the offer of the move before when the next one cannot be moved back', async () => {
+    const visio = aVideoCall(new Date(2026, 10, 17, 14, 0))
+    const moved = aVideoCall(new Date(2026, 10, 18, 9, 0))
+    const movedAgain = aVideoCall(new Date(2026, 10, 19, 10, 0))
+    let answered = theDetail(moved)
+    let shown = moved
+    theApiAnswers({
+      [`PATCH ${move.href}`]: () => ({ body: answered }),
+      'GET /api/me/calendar': () => ({ body: aCalendarOf([shown]) }),
+    })
+    await showTheCalendar('week', aCalendarOf([visio]))
+
+    drag(screen.getByRole('button', { name: /14h00, Visio/ }), { x: 150, y: 1400 }, { x: 250, y: 900 })
+    const firstMove = await theToastSaying('Échange déplacé')
+    expect(within(firstMove).getByRole('button', { name: 'Annuler' })).toBeInTheDocument()
+    answered = theDetail(movedAgain, {})
+    shown = movedAgain
+    drag(await screen.findByRole('button', { name: /9h00, Visio/ }), { x: 250, y: 900 }, { x: 350, y: 1000 })
+    await screen.findByRole('button', { name: /10h00, Visio/ })
+
+    await waitFor(() => expect(screen.queryByRole('button', { name: 'Annuler' })).not.toBeInTheDocument())
+    expect(await sent('PATCH')).toHaveLength(2)
+  })
+
   it('keeps offering to move it back long after it was moved, however long the member takes', async () => {
     const user = theClockRunsTheTimers()
     const visio = aVideoCall(new Date(2026, 10, 17, 14, 0))
