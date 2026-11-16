@@ -47,6 +47,14 @@ export const isAgreedUpon = (channel: Channel | undefined): channel is PlannedCh
   PLANNED_CHANNELS.some((planned) => planned === channel)
 export const DIRECTIONS = ['inbound', 'outbound'] as const satisfies readonly Direction[]
 
+/** The words saying who made the first move: a message is sent, a call is made, a meeting or a video call is someone's initiative. */
+export type DirectionWords = 'message' | 'call' | 'encounter'
+
+export const directionWordsOf = (channel: Channel | undefined): DirectionWords => {
+  if (channel === 'call') return 'call'
+  return isAgreedUpon(channel) ? 'encounter' : 'message'
+}
+
 /** The exchanges with a contact, the most recent first, a slice after the other (ADR 0049, 0074). */
 export const timelineQuery = (contactId: string) =>
   infiniteQueryOptions({
