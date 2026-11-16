@@ -533,7 +533,7 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        /** The calendar of the signed-in member over a period: the exchanges they planned or noted, whatever their status */
+        /** The calendar of the signed-in member over a period: the exchanges they planned or noted, whatever their status, and their to-dos due in it, done or not; what is late, on their clock, at the offset of the period unless their time zone is given */
         get: operations["get_api_me_calendar"];
         put?: never;
         post?: never;
@@ -567,7 +567,7 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        /** The exchanges the signed-in member planned whose end has passed, not yet marked done, missed nor cancelled */
+        /** What the signed-in member has to process: the exchanges they planned whose end has passed, not yet marked done, missed nor cancelled, and their to-dos still to do of the day and before, on their clock, UTC unless their time zone is given */
         get: operations["get_api_me_exchanges_to_process"];
         put?: never;
         post?: never;
@@ -1234,6 +1234,34 @@ export interface components {
             /** @default null */
             after: string | null;
         };
+        CalendarQuery: {
+            /**
+             * Format: date-time
+             * @description The start of its first day, included
+             * @default null
+             */
+            from: string | null;
+            /**
+             * Format: date-time
+             * @description The start of the day after its last, excluded; six weeks after `from` at most
+             * @default null
+             */
+            to: string | null;
+            /**
+             * @description The time zone of the reader, by its name in the database of the time zones; the offset of `from` otherwise
+             * @default null
+             * @example Europe/Paris
+             */
+            timeZone: string | null;
+        };
+        ReaderClockQuery: {
+            /**
+             * @description The time zone of the reader, by its name in the database of the time zones; UTC otherwise
+             * @default null
+             * @example Europe/Paris
+             */
+            timeZone: string | null;
+        };
         PeriodQuery: {
             /**
              * Format: date-time
@@ -1706,12 +1734,55 @@ export interface components {
             organizations: components["schemas"]["OrganizationResource"][];
             contacts: components["schemas"]["ContactInListResource"][];
         };
+        AuthorResource: {
+            name: components["schemas"]["PersonNameResource"];
+            /** @description Their email, to name them while their profile has no name */
+            email?: string | null;
+        };
+        ToDoContactResource: {
+            id: string;
+            name: components["schemas"]["PersonNameResource"];
+        };
+        ToDoLinksResource: {
+            self: components["schemas"]["LinkResource"];
+            revise?: components["schemas"]["LinkResource"];
+            tickOff?: components["schemas"]["LinkResource"];
+            untick?: components["schemas"]["LinkResource"];
+            erase?: components["schemas"]["LinkResource"];
+        };
+        ToDoResource: {
+            id: string;
+            text: string;
+            /**
+             * Format: date
+             * @description The day it is due, `Y-m-d`
+             */
+            dueOn: string;
+            /**
+             * @description The hour of that day, `H:i`, when said
+             * @example 08:30
+             */
+            dueAt?: string | null;
+            /**
+             * Format: date-time
+             * @description When it was ticked off, none while it is to do
+             */
+            doneAt?: string | null;
+            heldBy: components["schemas"]["AuthorResource"];
+            /** @description Its contact, none for the organization itself */
+            contact?: components["schemas"]["ToDoContactResource"] | null;
+            _links: components["schemas"]["ToDoLinksResource"];
+        };
         CalendarLinksResource: {
             self: components["schemas"]["LinkResource"];
             searchContacts?: components["schemas"]["LinkResource"];
         };
         CalendarResource: {
             items: components["schemas"]["OrganizationExchangeResource"][];
+            /** @description The to-dos the member holds due on a day of the period, done or not, by their due as written: a day without an hour before its hours; none without the right to manage personal data */
+            toDos: components["schemas"]["ToDoResource"][];
+            /** @description The ids of the exchanges and of the to-dos late at the moment of the reading, on the clock of the reader: a planned exchange whose slot has ended, a to-do not done whose hour, or day, has passed */
+            late: string[];
             _links: components["schemas"]["CalendarLinksResource"];
         };
         DayExchangeResource: {
@@ -1720,11 +1791,18 @@ export interface components {
             /** @description The organization of the contact the exchange is kept for; none with the organization itself, or for a contact no longer part of it */
             organization?: components["schemas"]["OrganizationOfContactResource"] | null;
         };
+        ToDoToProcessResource: {
+            toDo: components["schemas"]["ToDoResource"];
+            /** @description The days since its day, on the clock of the reader: 0 for a to-do of the day */
+            daysOverdue: number;
+        };
         ExchangesToProcessLinksResource: {
             self: components["schemas"]["LinkResource"];
         };
         ExchangesToProcessResource: {
             items: components["schemas"]["DayExchangeResource"][];
+            /** @description The to-dos still to do of the day of the reading, on the clock of the reader, and of the days before, the most overdue first; none without the right to manage personal data */
+            toDos: components["schemas"]["ToDoToProcessResource"][];
             _links: components["schemas"]["ExchangesToProcessLinksResource"];
         };
         MyDayLinksResource: {
@@ -1741,11 +1819,6 @@ export interface components {
         };
         PlannedExchangesResource: {
             items: components["schemas"]["OrganizationExchangeResource"][];
-        };
-        AuthorResource: {
-            name: components["schemas"]["PersonNameResource"];
-            /** @description Their email, to name them while their profile has no name */
-            email?: string | null;
         };
         StampResource: {
             /** Format: date-time */
@@ -1863,40 +1936,6 @@ export interface components {
             userPoolId: string;
             clientId: string;
             endpoint?: string | null;
-        };
-        ToDoContactResource: {
-            id: string;
-            name: components["schemas"]["PersonNameResource"];
-        };
-        ToDoLinksResource: {
-            self: components["schemas"]["LinkResource"];
-            revise?: components["schemas"]["LinkResource"];
-            tickOff?: components["schemas"]["LinkResource"];
-            untick?: components["schemas"]["LinkResource"];
-            erase?: components["schemas"]["LinkResource"];
-        };
-        ToDoResource: {
-            id: string;
-            text: string;
-            /**
-             * Format: date
-             * @description The day it is due, `Y-m-d`
-             */
-            dueOn: string;
-            /**
-             * @description The hour of that day, `H:i`, when said
-             * @example 08:30
-             */
-            dueAt?: string | null;
-            /**
-             * Format: date-time
-             * @description When it was ticked off, none while it is to do
-             */
-            doneAt?: string | null;
-            heldBy: components["schemas"]["AuthorResource"];
-            /** @description Its contact, none for the organization itself */
-            contact?: components["schemas"]["ToDoContactResource"] | null;
-            _links: components["schemas"]["ToDoLinksResource"];
         };
         ToDoListLinksResource: {
             self: components["schemas"]["LinkResource"];
@@ -4190,6 +4229,11 @@ export interface operations {
                 from?: string | null;
                 /** @description The start of the day after its last, excluded; six weeks after `from` at most */
                 to?: string | null;
+                /**
+                 * @description The time zone of the reader, by its name in the database of the time zones; the offset of `from` otherwise
+                 * @example Europe/Paris
+                 */
+                timeZone?: string | null;
             };
             header?: never;
             path?: never;
@@ -4222,7 +4266,7 @@ export interface operations {
                     "application/json": components["schemas"]["ProblemResource"];
                 };
             };
-            /** @description Invalid period: a bound missing, an end before the start, longer than six weeks */
+            /** @description Invalid period: a bound missing, an end before the start, longer than six weeks; or a time zone unknown */
             422: {
                 headers: {
                     [name: string]: unknown;
@@ -4284,14 +4328,20 @@ export interface operations {
     };
     get_api_me_exchanges_to_process: {
         parameters: {
-            query?: never;
+            query?: {
+                /**
+                 * @description The time zone of the reader, by its name in the database of the time zones; UTC otherwise
+                 * @example Europe/Paris
+                 */
+                timeZone?: string | null;
+            };
             header?: never;
             path?: never;
             cookie?: never;
         };
         requestBody?: never;
         responses: {
-            /** @description The exchanges to process, the oldest first, each with the links handling it */
+            /** @description The exchanges to process, the oldest first, each with the links handling it, and the to-dos, the most overdue first */
             200: {
                 headers: {
                     [name: string]: unknown;
@@ -4309,6 +4359,15 @@ export interface operations {
             };
             /** @description Not a prospector */
             403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ProblemResource"];
+                };
+            };
+            /** @description A time zone unknown */
+            422: {
                 headers: {
                     [name: string]: unknown;
                 };

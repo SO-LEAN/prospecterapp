@@ -16,7 +16,9 @@ use Prospecter\Core\SharedKernel\Domain\PersonId;
  * The to-dos in the table of Prospecting (ADR 0048, 0113):
  * - `TODO#<id>` / `TODO`: the to-do, listed in `GSI1` among those of its contact (`CONTACT_TODOS#<account>#<person>`)
  *   when it has one, and in `GSI2` among those its holder still has to do (`STILL_TO_DO#<member>`) until it is done;
- * - `TODOS#<organization>` / `TODO#<id>`: the to-dos kept for an organization, written with it.
+ * - `TODOS#<organization>` / `TODO#<id>`: the to-dos kept for an organization, written with it;
+ * - `TODO_CALENDAR#<member>` / `TODO#<id>`: the to-do in the calendar of its holder, done or not, listed in `GSI1`
+ *   (`TODO_CALENDAR#<member>`) under its due as written, its day, then its hour, then its id (ADR 0134).
  * A list of to-dos is read whole: a handful each.
  */
 final readonly class DynamoToDoRepository implements ToDoRepository
@@ -40,6 +42,7 @@ final readonly class DynamoToDoRepository implements ToDoRepository
         $this->prospectingTable->transact([
             $this->prospectingTable->putting($this->itemOf($document)),
             ...$this->linksToItsOrganizations($document['id'], $document['keptFor'], $stored['toDo']['keptFor'] ?? []),
+            $this->prospectingTable->putting(self::linkInTheCalendarOfItsHolder($document)),
         ]);
     }
 
@@ -51,6 +54,7 @@ final readonly class DynamoToDoRepository implements ToDoRepository
         $this->prospectingTable->transact([
             $this->prospectingTable->deleting(ToDoKeys::toDo($id), ToDoKeys::TO_DO),
             ...$this->linksToItsOrganizations($id, [], $stored['toDo']['keptFor'] ?? []),
+            $this->prospectingTable->deleting(ToDoKeys::calendar(ToDoDocument::of($toDo)['createdBy']), ToDoKeys::toDo($id)),
         ]);
     }
 
@@ -62,6 +66,18 @@ final readonly class DynamoToDoRepository implements ToDoRepository
     public function forContact(PersonId $contact, AccountId $accountId): array
     {
         return array_map(static fn (array $item): ToDo => ToDoDocument::toDo($item['toDo']), $this->prospectingTable->query(ToDoKeys::ofContact($accountId->value, $contact->value), Table::BY_GSI1));
+    }
+
+    /**
+     * Writes again the link of every to-do in the calendar of its holder: what a table written before the to-dos were
+     * in the calendars needs once.
+     */
+    public function writeTheKeysAgain(): int
+    {
+        $items = $this->prospectingTable->scan(ToDoKeys::TO_DO.'#');
+        $this->prospectingTable->batch(array_map(static fn (array $item): array => self::linkInTheCalendarOfItsHolder($item['toDo']), $items));
+
+        return count($items);
     }
 
     /**
@@ -99,6 +115,18 @@ final readonly class DynamoToDoRepository implements ToDoRepository
             ...$stillToDoByItsHolder,
             'toDo' => $document,
         ];
+    }
+
+    /**
+     * @param array<string, mixed> $document
+     *
+     * @return array<string, mixed>
+     */
+    private static function linkInTheCalendarOfItsHolder(array $document): array
+    {
+        $calendar = ToDoKeys::calendar($document['createdBy']);
+
+        return ['PK' => $calendar, 'SK' => ToDoKeys::toDo($document['id']), 'GSI1PK' => $calendar, 'GSI1SK' => ToDoKeys::calendarPositionOf($document)];
     }
 
     /**

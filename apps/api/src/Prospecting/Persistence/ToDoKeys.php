@@ -31,4 +31,39 @@ final class ToDoKeys
     {
         return 'STILL_TO_DO#'.$member;
     }
+
+    /**
+     * The to-dos a member holds, done or not: the PK of their links, and the partition of their calendar in `GSI1`
+     * (ADR 0134).
+     */
+    public static function calendar(string $member): string
+    {
+        return 'TODO_CALENDAR#'.$member;
+    }
+
+    /**
+     * Where a to-do stands in a calendar: its due as written, its day, then its hour, none before any, then its id.
+     *
+     * @param array<string, mixed> $document
+     */
+    public static function calendarPositionOf(array $document): string
+    {
+        return sprintf('%s#%s#%s', $document['due']['day'], $document['due']['time'] ?? '', $document['id']);
+    }
+
+    /**
+     * Where a day starts in a calendar, before every to-do due on it.
+     */
+    public static function dayStart(string $day): string
+    {
+        return $day;
+    }
+
+    /**
+     * Where a day ends in a calendar, after every to-do due on it.
+     */
+    public static function dayEnd(string $day): string
+    {
+        return $day.'#~';
+    }
 }

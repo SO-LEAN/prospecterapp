@@ -172,14 +172,14 @@ class ExchangesToProcessApiTest extends ApiTestCase
     }
 
     /**
-     * 9:00 UTC on the 15th is still the 14th in Los Angeles.
+     * 9:00 UTC on the 15th is still the 14th in Honolulu.
      */
     public function testTheDayIsThatOfTheClockOfItsReader(): void
     {
         $this->noteToDo($this->ada(), 'Envoyer mon CV', '2026-10-15');
 
         $this->assertCount(1, $this->requestJson('GET', self::TO_PROCESS.'?timeZone=Europe/Paris')['toDos']);
-        $this->assertSame([], $this->requestJson('GET', self::TO_PROCESS.'?timeZone=America/Los_Angeles')['toDos']);
+        $this->assertSame([], $this->requestJson('GET', self::TO_PROCESS.'?timeZone=Pacific/Honolulu')['toDos']);
     }
 
     public function testTheTimeZoneOfTheReaderIsOneOfTheWorld(): void

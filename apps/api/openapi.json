@@ -2674,7 +2674,7 @@
                 "tags": [
                     "My account"
                 ],
-                "summary": "The calendar of the signed-in member over a period: the exchanges they planned or noted, whatever their status",
+                "summary": "The calendar of the signed-in member over a period: the exchanges they planned or noted, whatever their status, and their to-dos due in it, done or not; what is late, on their clock, at the offset of the period unless their time zone is given",
                 "operationId": "get_api_me_calendar",
                 "parameters": [
                     {
@@ -2702,6 +2702,20 @@
                             "nullable": true,
                             "default": null
                         }
+                    },
+                    {
+                        "name": "timeZone",
+                        "in": "query",
+                        "description": "The time zone of the reader, by its name in the database of the time zones; the offset of `from` otherwise",
+                        "required": false,
+                        "schema": {
+                            "description": "The time zone of the reader, by its name in the database of the time zones; the offset of `from` otherwise",
+                            "type": "string",
+                            "example": "Europe/Paris",
+                            "nullable": true,
+                            "default": null
+                        },
+                        "example": "Europe/Paris"
                     }
                 ],
                 "responses": {
@@ -2729,7 +2743,7 @@
                         }
                     },
                     "422": {
-                        "description": "Invalid period: a bound missing, an end before the start, longer than six weeks",
+                        "description": "Invalid period: a bound missing, an end before the start, longer than six weeks; or a time zone unknown",
                         "content": {
                             "application/json": {
                                 "schema": {
@@ -2812,11 +2826,27 @@
                 "tags": [
                     "My account"
                 ],
-                "summary": "The exchanges the signed-in member planned whose end has passed, not yet marked done, missed nor cancelled",
+                "summary": "What the signed-in member has to process: the exchanges they planned whose end has passed, not yet marked done, missed nor cancelled, and their to-dos still to do of the day and before, on their clock, UTC unless their time zone is given",
                 "operationId": "get_api_me_exchanges_to_process",
+                "parameters": [
+                    {
+                        "name": "timeZone",
+                        "in": "query",
+                        "description": "The time zone of the reader, by its name in the database of the time zones; UTC otherwise",
+                        "required": false,
+                        "schema": {
+                            "description": "The time zone of the reader, by its name in the database of the time zones; UTC otherwise",
+                            "type": "string",
+                            "example": "Europe/Paris",
+                            "nullable": true,
+                            "default": null
+                        },
+                        "example": "Europe/Paris"
+                    }
+                ],
                 "responses": {
                     "200": {
-                        "description": "The exchanges to process, the oldest first, each with the links handling it",
+                        "description": "The exchanges to process, the oldest first, each with the links handling it, and the to-dos, the most overdue first",
                         "content": {
                             "application/json": {
                                 "schema": {
@@ -2830,6 +2860,16 @@
                     },
                     "403": {
                         "description": "Not a prospector",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ProblemResource"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "A time zone unknown",
                         "content": {
                             "application/json": {
                                 "schema": {
@@ -5445,6 +5485,44 @@
                 },
                 "type": "object"
             },
+            "CalendarQuery": {
+                "properties": {
+                    "from": {
+                        "description": "The start of its first day, included",
+                        "type": "string",
+                        "format": "date-time",
+                        "nullable": true,
+                        "default": null
+                    },
+                    "to": {
+                        "description": "The start of the day after its last, excluded; six weeks after `from` at most",
+                        "type": "string",
+                        "format": "date-time",
+                        "nullable": true,
+                        "default": null
+                    },
+                    "timeZone": {
+                        "description": "The time zone of the reader, by its name in the database of the time zones; the offset of `from` otherwise",
+                        "type": "string",
+                        "example": "Europe/Paris",
+                        "nullable": true,
+                        "default": null
+                    }
+                },
+                "type": "object"
+            },
+            "ReaderClockQuery": {
+                "properties": {
+                    "timeZone": {
+                        "description": "The time zone of the reader, by its name in the database of the time zones; UTC otherwise",
+                        "type": "string",
+                        "example": "Europe/Paris",
+                        "nullable": true,
+                        "default": null
+                    }
+                },
+                "type": "object"
+            },
             "PeriodQuery": {
                 "properties": {
                     "from": {
@@ -6781,6 +6859,110 @@
                 },
                 "type": "object"
             },
+            "AuthorResource": {
+                "required": [
+                    "name"
+                ],
+                "properties": {
+                    "name": {
+                        "$ref": "#/components/schemas/PersonNameResource"
+                    },
+                    "email": {
+                        "description": "Their email, to name them while their profile has no name",
+                        "type": "string",
+                        "nullable": true
+                    }
+                },
+                "type": "object"
+            },
+            "ToDoContactResource": {
+                "required": [
+                    "id",
+                    "name"
+                ],
+                "properties": {
+                    "id": {
+                        "type": "string"
+                    },
+                    "name": {
+                        "$ref": "#/components/schemas/PersonNameResource"
+                    }
+                },
+                "type": "object"
+            },
+            "ToDoLinksResource": {
+                "required": [
+                    "self"
+                ],
+                "properties": {
+                    "self": {
+                        "$ref": "#/components/schemas/LinkResource"
+                    },
+                    "revise": {
+                        "$ref": "#/components/schemas/LinkResource"
+                    },
+                    "tickOff": {
+                        "$ref": "#/components/schemas/LinkResource"
+                    },
+                    "untick": {
+                        "$ref": "#/components/schemas/LinkResource"
+                    },
+                    "erase": {
+                        "$ref": "#/components/schemas/LinkResource"
+                    }
+                },
+                "type": "object"
+            },
+            "ToDoResource": {
+                "required": [
+                    "id",
+                    "text",
+                    "dueOn",
+                    "heldBy",
+                    "_links"
+                ],
+                "properties": {
+                    "id": {
+                        "type": "string"
+                    },
+                    "text": {
+                        "type": "string"
+                    },
+                    "dueOn": {
+                        "description": "The day it is due, `Y-m-d`",
+                        "type": "string",
+                        "format": "date"
+                    },
+                    "dueAt": {
+                        "description": "The hour of that day, `H:i`, when said",
+                        "type": "string",
+                        "example": "08:30",
+                        "nullable": true
+                    },
+                    "doneAt": {
+                        "description": "When it was ticked off, none while it is to do",
+                        "type": "string",
+                        "format": "date-time",
+                        "nullable": true
+                    },
+                    "heldBy": {
+                        "$ref": "#/components/schemas/AuthorResource"
+                    },
+                    "contact": {
+                        "description": "Its contact, none for the organization itself",
+                        "nullable": true,
+                        "oneOf": [
+                            {
+                                "$ref": "#/components/schemas/ToDoContactResource"
+                            }
+                        ]
+                    },
+                    "_links": {
+                        "$ref": "#/components/schemas/ToDoLinksResource"
+                    }
+                },
+                "type": "object"
+            },
             "CalendarLinksResource": {
                 "required": [
                     "self"
@@ -6798,6 +6980,8 @@
             "CalendarResource": {
                 "required": [
                     "items",
+                    "toDos",
+                    "late",
                     "_links"
                 ],
                 "properties": {
@@ -6805,6 +6989,20 @@
                         "type": "array",
                         "items": {
                             "$ref": "#/components/schemas/OrganizationExchangeResource"
+                        }
+                    },
+                    "toDos": {
+                        "description": "The to-dos the member holds due on a day of the period, done or not, by their due as written: a day without an hour before its hours; none without the right to manage personal data",
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/ToDoResource"
+                        }
+                    },
+                    "late": {
+                        "description": "The ids of the exchanges and of the to-dos late at the moment of the reading, on the clock of the reader: a planned exchange whose slot has ended, a to-do not done whose hour, or day, has passed",
+                        "type": "array",
+                        "items": {
+                            "type": "string"
                         }
                     },
                     "_links": {
@@ -6837,6 +7035,23 @@
                 },
                 "type": "object"
             },
+            "ToDoToProcessResource": {
+                "required": [
+                    "toDo",
+                    "daysOverdue"
+                ],
+                "properties": {
+                    "toDo": {
+                        "$ref": "#/components/schemas/ToDoResource"
+                    },
+                    "daysOverdue": {
+                        "description": "The days since its day, on the clock of the reader: 0 for a to-do of the day",
+                        "type": "integer",
+                        "minimum": 0
+                    }
+                },
+                "type": "object"
+            },
             "ExchangesToProcessLinksResource": {
                 "required": [
                     "self"
@@ -6851,6 +7066,7 @@
             "ExchangesToProcessResource": {
                 "required": [
                     "items",
+                    "toDos",
                     "_links"
                 ],
                 "properties": {
@@ -6858,6 +7074,13 @@
                         "type": "array",
                         "items": {
                             "$ref": "#/components/schemas/DayExchangeResource"
+                        }
+                    },
+                    "toDos": {
+                        "description": "The to-dos still to do of the day of the reading, on the clock of the reader, and of the days before, the most overdue first; none without the right to manage personal data",
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/ToDoToProcessResource"
                         }
                     },
                     "_links": {
@@ -6929,22 +7152,6 @@
                         "items": {
                             "$ref": "#/components/schemas/OrganizationExchangeResource"
                         }
-                    }
-                },
-                "type": "object"
-            },
-            "AuthorResource": {
-                "required": [
-                    "name"
-                ],
-                "properties": {
-                    "name": {
-                        "$ref": "#/components/schemas/PersonNameResource"
-                    },
-                    "email": {
-                        "description": "Their email, to name them while their profile has no name",
-                        "type": "string",
-                        "nullable": true
                     }
                 },
                 "type": "object"
@@ -7303,94 +7510,6 @@
                     "endpoint": {
                         "type": "string",
                         "nullable": true
-                    }
-                },
-                "type": "object"
-            },
-            "ToDoContactResource": {
-                "required": [
-                    "id",
-                    "name"
-                ],
-                "properties": {
-                    "id": {
-                        "type": "string"
-                    },
-                    "name": {
-                        "$ref": "#/components/schemas/PersonNameResource"
-                    }
-                },
-                "type": "object"
-            },
-            "ToDoLinksResource": {
-                "required": [
-                    "self"
-                ],
-                "properties": {
-                    "self": {
-                        "$ref": "#/components/schemas/LinkResource"
-                    },
-                    "revise": {
-                        "$ref": "#/components/schemas/LinkResource"
-                    },
-                    "tickOff": {
-                        "$ref": "#/components/schemas/LinkResource"
-                    },
-                    "untick": {
-                        "$ref": "#/components/schemas/LinkResource"
-                    },
-                    "erase": {
-                        "$ref": "#/components/schemas/LinkResource"
-                    }
-                },
-                "type": "object"
-            },
-            "ToDoResource": {
-                "required": [
-                    "id",
-                    "text",
-                    "dueOn",
-                    "heldBy",
-                    "_links"
-                ],
-                "properties": {
-                    "id": {
-                        "type": "string"
-                    },
-                    "text": {
-                        "type": "string"
-                    },
-                    "dueOn": {
-                        "description": "The day it is due, `Y-m-d`",
-                        "type": "string",
-                        "format": "date"
-                    },
-                    "dueAt": {
-                        "description": "The hour of that day, `H:i`, when said",
-                        "type": "string",
-                        "example": "08:30",
-                        "nullable": true
-                    },
-                    "doneAt": {
-                        "description": "When it was ticked off, none while it is to do",
-                        "type": "string",
-                        "format": "date-time",
-                        "nullable": true
-                    },
-                    "heldBy": {
-                        "$ref": "#/components/schemas/AuthorResource"
-                    },
-                    "contact": {
-                        "description": "Its contact, none for the organization itself",
-                        "nullable": true,
-                        "oneOf": [
-                            {
-                                "$ref": "#/components/schemas/ToDoContactResource"
-                            }
-                        ]
-                    },
-                    "_links": {
-                        "$ref": "#/components/schemas/ToDoLinksResource"
                     }
                 },
                 "type": "object"

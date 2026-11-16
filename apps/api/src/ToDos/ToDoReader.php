@@ -90,7 +90,7 @@ final readonly class ToDoReader
      *
      * @return list<ToDoResource>
      */
-    private function resourcesOf(string $reader, array $toDos): array
+    public function resourcesOf(string $reader, array $toDos): array
     {
         $personOfMember = $this->personsOfMembers(array_map(static fn (ToDoInList $toDo): string => $toDo->heldBy, $toDos));
         $persons = new KeptPersons();
