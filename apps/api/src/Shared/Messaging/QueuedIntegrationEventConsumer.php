@@ -14,7 +14,7 @@ use Bref\Event\Sqs\SqsRecord;
  * as the rule gives it on AWS, and an invocation given directly (app:integration:redrive) as it comes.
  *
  * A failure the worker throws is given again by the queue, then, at its last receive, kept in the failures as Lambda
- * keeps what it gives up after its two retries.
+ * keeps what it gives up after its two retries; a body it cannot decode is given to the worker as null, which refuses it.
  */
 final readonly class QueuedIntegrationEventConsumer implements Handler
 {
