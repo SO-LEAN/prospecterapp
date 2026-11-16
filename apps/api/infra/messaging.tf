@@ -204,17 +204,19 @@ resource "aws_cloudwatch_log_group" "worker" {
 }
 
 # the package and the environment of the api, its handler a service of its container; its reactions publish what
-# they cause through the outbox of their commit
+# they cause through the outbox of their commit. Its reserved concurrency bounds a burst of reactions (ADR 0129): an
+# invocation beyond it is throttled, kept by Lambda and retried, the executions left to the api
 resource "aws_lambda_function" "worker" {
-  function_name    = local.worker
-  role             = aws_iam_role.worker.arn
-  runtime          = "provided.al2023"
-  handler          = "App\\Shared\\Messaging\\IntegrationEventConsumer"
-  layers           = [local.bref_php]
-  memory_size      = 1024
-  timeout          = 28
-  filename         = local.package
-  source_code_hash = base64sha256(var.code_version)
+  function_name                  = local.worker
+  role                           = aws_iam_role.worker.arn
+  runtime                        = "provided.al2023"
+  handler                        = "App\\Shared\\Messaging\\IntegrationEventConsumer"
+  layers                         = [local.bref_php]
+  memory_size                    = 1024
+  timeout                        = 28
+  reserved_concurrent_executions = var.worker_concurrency
+  filename                       = local.package
+  source_code_hash               = base64sha256(var.code_version)
 
   environment {
     variables = merge(local.environment, {
