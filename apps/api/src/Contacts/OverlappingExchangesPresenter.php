@@ -36,7 +36,7 @@ final class OverlappingExchangesPresenter implements ConsultOverlappingExchanges
     {
         $this->resource = new PlannedExchangesResource(array_map(
             fn (ExchangeInTimeline $exchange): OrganizationExchangeResource => new OrganizationExchangeResource($this->timelineResourceFactory->createExchange($exchange), InterlocutorResource::of($exchange, $this->persons, $this->organizations)),
-            $overlapping->exchanges,
+            InterlocutorResource::known($overlapping->exchanges, $this->organizations),
         ));
     }
 }

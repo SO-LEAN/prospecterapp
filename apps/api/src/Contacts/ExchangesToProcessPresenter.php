@@ -41,7 +41,7 @@ final class ExchangesToProcessPresenter implements ConsultExchangesToProcessOutp
     {
         $this->resource = new ExchangesToProcessResource(array_map(
             fn (ExchangeInTimeline $exchange): DayExchangeResource => new DayExchangeResource($this->timelineResourceFactory->createExchangeToProcess($exchange, $toProcess), InterlocutorResource::of($exchange, $this->persons, $this->organizations), OrganizationOfContactResource::keptFor($exchange, $this->organizationsOfContacts)),
-            $toProcess->exchanges,
+            InterlocutorResource::known($toProcess->exchanges, $this->organizations),
         ), $this->links);
     }
 }
