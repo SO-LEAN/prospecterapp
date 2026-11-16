@@ -2,7 +2,7 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { act, screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { afterEach, describe, expect, it, vi } from 'vitest'
-import { contactQuery } from '@/features/contacts/queries'
+import { contactQuery, organizationsOfContactQuery } from '@/features/contacts/queries'
 import { renderInARouter } from '@/test/render-in-a-router'
 import { type Organization, organizationContactsQuery, organizationQuery } from '../queries'
 import { ContactsSection } from './contacts-section'
@@ -84,6 +84,7 @@ async function renderTheContactsOf(organization: Organization) {
   queryClient.setQueryData(organizationQuery(organization.id).queryKey, organization)
   queryClient.setQueryData(organizationContactsQuery(organization.id).queryKey, { items: [] })
   queryClient.setQueryData(contactQuery(ADA).queryKey, ada)
+  queryClient.setQueryData(organizationsOfContactQuery(ADA).queryKey, { items: [] })
   await renderInARouter(
     <QueryClientProvider client={queryClient}>
       <ContactsSection organization={organization} />
@@ -125,5 +126,6 @@ describe('ContactsSection', () => {
     expect(screen.getByRole('button', { name: 'Retirer Ada Lovelace des contacts' })).toBeInTheDocument()
     expect(queryClient.getQueryState(organizationQuery(QA_CONTACTS).queryKey)?.isInvalidated).toBe(true)
     expect(queryClient.getQueryState(contactQuery(ADA).queryKey)?.isInvalidated).toBe(true)
+    expect(queryClient.getQueryState(organizationsOfContactQuery(ADA).queryKey)?.isInvalidated).toBe(true)
   })
 })

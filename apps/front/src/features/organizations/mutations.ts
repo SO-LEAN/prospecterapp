@@ -151,8 +151,8 @@ const UNTIL_THE_CONTACT_IS_ATTACHED_MS = [1_000, 1_500, 2_500, 5_000, 10_000] as
 /**
  * The contacts of the organization, read apart from their cache until they hold the new contact: a reading without
  * it would erase it from the card, a reading failing is tried again at the next wait. Then the cache takes them, with
- * what the attachment offers (removing the contact, its exchanges and to-dos), and the organization and the contact
- * are read again.
+ * what the attachment offers (removing the contact, its exchanges and to-dos), and the organization, the contact and
+ * its organizations are read again.
  */
 async function readAgainOnceAttached(
   queryClient: QueryClient,
@@ -167,11 +167,15 @@ async function readAgainOnceAttached(
     if (data?.items.some(({ id }) => id === contact.id)) {
       queryClient.setQueryData(organizationContactsQuery(organizationId).queryKey, data)
       void queryClient.invalidateQueries({ queryKey: organizationQuery(organizationId).queryKey })
-      void queryClient.invalidateQueries({
-        queryKey: [...queryKeys.contact, { params: { path: { id: contact.id } } }],
-      })
+      readTheContactAgain(queryClient, contact.id)
       return
     }
+  }
+}
+
+function readTheContactAgain(queryClient: QueryClient, id: string) {
+  for (const queryKey of [queryKeys.contact, queryKeys.organizationsOfContact]) {
+    void queryClient.invalidateQueries({ queryKey: [...queryKey, { params: { path: { id } } }] })
   }
 }
 
