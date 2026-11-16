@@ -22,6 +22,7 @@ final class GoogleDouble
     private ?array $grant = null;
     private bool $refusesTheTokens = false;
     private bool $answers = true;
+    private bool $refusesTheEvents = false;
     /** @var list<string> */
     private array $revoked = [];
     /** @var array{string, string}|null the id and the secret of the client the last token was asked by */
@@ -44,6 +45,19 @@ final class GoogleDouble
     public function refusesTheTokens(): void
     {
         $this->refusesTheTokens = true;
+    }
+
+    /**
+     * Every event pushed refused for good, as a 400 of Google, until it accepts them again (ADR 0133).
+     */
+    public function refusesTheEvents(): void
+    {
+        $this->refusesTheEvents = true;
+    }
+
+    public function acceptsTheEvents(): void
+    {
+        $this->refusesTheEvents = false;
     }
 
     /**
@@ -130,6 +144,10 @@ final class GoogleDouble
      */
     private function put(string $calendar, string $id, array $event): ResponseInterface
     {
+        if ($this->refusesTheEvents) {
+            return new JsonMockResponse(['error' => ['code' => 400, 'message' => 'Invalid event']], ['http_code' => 400]);
+        }
+
         $this->calendars[$calendar][$id] = $event;
 
         return new JsonMockResponse($event);
