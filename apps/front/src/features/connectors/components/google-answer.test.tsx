@@ -23,6 +23,8 @@ const connected: Connections = {
       state: 'connected',
       account: 'michel@exemple.fr',
       connectedAt: '2026-11-14T09:30:00+00:00',
+      synced: 0,
+      failed: 0,
       _links: {
         disconnect: { href: '/api/me/connections/google', method: 'DELETE' },
         reconnect: { href: '/api/me/connections/google/authorizations', method: 'POST' },
