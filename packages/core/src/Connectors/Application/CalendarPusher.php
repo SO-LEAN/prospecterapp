@@ -27,7 +27,7 @@ use Prospecter\Core\SharedKernel\Domain\MemberId;
  * Puts an exchange into the calendar of its holder at the provider, or withdraws it, for the reactions and the
  * retries that push (ADR 0127, 0133): nothing is asked of the provider without a connection of the holder, nor
  * without the client of their account; an entry keeps where the push of each exchange stands, a refusal of the
- * provider kept there rather than thrown.
+ * provider kept there rather than thrown; a connection its member disconnected meanwhile is never written again.
  */
 final readonly class CalendarPusher
 {
@@ -82,7 +82,7 @@ final readonly class CalendarPusher
             $this->keepTheRefusal($entry ?? CalendarEntry::of($exchange, self::PROVIDER, $at), $at);
         }
 
-        $this->connections->save($connection);
+        $this->connections->replace($connection);
         $this->publishWhatHappenedTo($connection);
     }
 
@@ -140,7 +140,7 @@ final readonly class CalendarPusher
         }
 
         $this->withdrawFrom($connection, $id, $client->credentials(), $entry, $at);
-        $this->connections->save($connection);
+        $this->connections->replace($connection);
         $this->publishWhatHappenedTo($connection);
     }
 
