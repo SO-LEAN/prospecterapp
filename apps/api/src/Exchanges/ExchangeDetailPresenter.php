@@ -22,9 +22,9 @@ use Prospecter\Core\Prospecting\Application\ConsultExchange\ExchangeDetail;
  * The detail of an exchange, with a link per intention its state offers and the signed-in member may carry out on it
  * and on its attachments (`IntentLinks`, ADR 0081): every prospector retouches its text and declares it conform
  * (ADR 0078), corrects the place of a meeting or the link of a video call (ADR 0114), its holder handles a planned
- * exchange (ADR 0112), the rest needs the right to manage personal data. Each link names its intention, its route, and the role
- * its controller requires beyond reaching the exchange. Built for one call with its participants, it keeps the
- * resource (ADR 0085).
+ * exchange (ADR 0112) and, just moved, moves it back while its former moment is to come, the rest needs the right to
+ * manage personal data. Each link names its intention, its route, and the role its controller requires beyond
+ * reaching the exchange. Built for one call with its participants, it keeps the resource (ADR 0085).
  */
 final class ExchangeDetailPresenter implements ConsultExchangeOutput
 {
@@ -41,6 +41,7 @@ final class ExchangeDetailPresenter implements ConsultExchangeOutput
         'markDone' => ['intent' => 'MarkExchangeDone', 'route' => 'api_exchanges_mark_done', 'role' => null],
         'markMissed' => ['intent' => 'MarkExchangeMissed', 'route' => 'api_exchanges_mark_missed', 'role' => null],
         'move' => ['intent' => 'MoveExchange', 'route' => 'api_exchanges_move', 'role' => null],
+        'moveBack' => ['intent' => 'MoveExchangeBack', 'route' => 'api_exchanges_move', 'role' => null],
         'cancel' => ['intent' => 'CancelExchange', 'route' => 'api_exchanges_cancel', 'role' => null],
     ];
 
