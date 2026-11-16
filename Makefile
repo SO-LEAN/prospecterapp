@@ -9,7 +9,7 @@ GITLEAKS = docker run --rm -u $(UID):$(GID) -e GIT_INDEX_FILE -v $(CURDIR):$(CUR
 	-w $(CURDIR) ghcr.io/gitleaks/gitleaks:v8.30.1
 INFRA_APPS = api storage front
 
-.PHONY: install hooks build vendor db aws ca front-install check-secrets check-infra check-contract check-core check-api check-storage check-front check-e2e check-e2e-locked e2e-locked front-lint front-tested-build changed-checks infra-target infra-init infra-plan infra-apply infra-lint changed-apps package-api package-storage package-front release-front console start deploy stop down images-prune agents-slice logs ps ci test test-api test-storage test-front e2e test-core mutation mutation-api lint adr-references adr-index adr-index-check fix front-build api-doc contract commands profiler-clear exec-api exec-front secrets secrets-branch
+.PHONY: install hooks build vendor db aws ca front-install check-secrets check-infra check-contract check-core check-api check-storage check-front check-e2e check-e2e-locked e2e-locked front-lint front-tested-build changed-checks infra-target infra-init infra-plan infra-apply infra-lint changed-apps package-api package-storage package-front release-front console start deploy stop down images-prune agents-slice logs ps google-down google-up ci test test-api test-storage test-front e2e test-core mutation mutation-api lint adr-references adr-index adr-index-check fix front-build api-doc contract commands profiler-clear exec-api exec-front secrets secrets-branch
 
 ##@ Setup
 install: hooks build vendor db front-install ## Build the images, install the dependencies, create the tables, the bucket and the user pool, install the Git hooks
@@ -96,6 +96,14 @@ logs: ## Follow the logs of the stack
 
 ps: ## List the containers of the stack
 	@$(DC) ps
+
+# the double of Google of nginx answering 503 to every call, as Google out of reach (docker/nginx/conf.d/google-double.conf)
+GOOGLE_DOWN_FLAG = /tmp/google-down
+google-down: ## Make the double of Google of the running stack stop answering (503), to try the connectors during an outage
+	@$(DC) exec nginx touch $(GOOGLE_DOWN_FLAG)
+
+google-up: ## Make the double of Google of the running stack answer again
+	@$(DC) exec nginx rm -f $(GOOGLE_DOWN_FLAG)
 
 ##@ Quality
 # the checks of the integration (ADR 0109, 0110): those the changes of the branch since BASE need, committed or not, a
