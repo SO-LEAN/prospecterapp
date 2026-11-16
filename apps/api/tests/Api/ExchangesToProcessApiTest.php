@@ -6,12 +6,16 @@ use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Group;
 use Prospecter\Core\Accounts\Domain\Model\Role;
 use Prospecter\Core\Prospecting\Domain\Model\Channel;
+use Prospecter\Core\Prospecting\Domain\Model\Due;
 use Prospecter\Core\Prospecting\Domain\Model\Duration;
 use Prospecter\Core\Prospecting\Domain\Model\Exchange;
 use Prospecter\Core\Prospecting\Domain\Model\ExchangeFacts;
 use Prospecter\Core\Prospecting\Domain\Model\ExchangeId;
 use Prospecter\Core\Prospecting\Domain\Repository\ExchangeRepository;
+use Prospecter\Core\Prospecting\Domain\Model\ToDo;
+use Prospecter\Core\Prospecting\Domain\Model\ToDoId;
 use Prospecter\Core\Prospecting\Domain\Repository\OrganizationRepository;
+use Prospecter\Core\Prospecting\Domain\Repository\ToDoRepository;
 use Prospecter\Core\SharedKernel\Domain\MemberId;
 use Prospecter\Core\SharedKernel\Domain\OrganizationId;
 use Tests\App\Base\ApiTestCase;
@@ -122,6 +126,78 @@ class ExchangesToProcessApiTest extends ApiTestCase
     {
         yield 'a prospector without the right to manage personal data' => ['prospector-without-the-right', Role::User, Role::Prospector];
         yield 'an administrator' => ['administrator', Role::Prospector, Role::Admin];
+    }
+
+    /**
+     * At the clock of the tests, 9:00 UTC on the 15th: the to-dos of the 15th, whatever their hour, and those before it.
+     */
+    #[DataProvider('readersOfTheToDos')]
+    public function testMyToDosOfTheDayAndLateAreToProcessTheMostOverdueFirst(string $reference, Role ...$roles): void
+    {
+        $this->login($this->aMemberOfTheFixtures($reference, ...$roles));
+        $ada = $this->ada();
+        $today = $this->noteToDo($ada, 'Appeler la RH', '2026-10-15', '17:00');
+        $late = $this->noteToDo($ada, 'Envoyer mon CV', '2026-10-13');
+        $done = $this->noteToDo($ada, 'Relancer', '2026-10-14');
+        $this->requestJson('POST', '/api/to-dos/'.$done.'/done', []);
+        $this->noteToDo($ada, 'Rappeler', '2026-10-16');
+
+        $toDos = $this->requestJson('GET', self::TO_PROCESS)['toDos'];
+
+        $this->assertSame([[$late, 'Envoyer mon CV', 2], [$today, 'Appeler la RH', 0]], array_map(static fn (array $item): array => [$item['toDo']['id'], $item['toDo']['text'], $item['daysOverdue']], $toDos));
+        $this->assertArrayHasKey('tickOff', $toDos[0]['toDo']['_links']);
+    }
+
+    /**
+     * @return iterable<string, list<mixed>>
+     */
+    public static function readersOfTheToDos(): iterable
+    {
+        yield 'a prospector with the right to manage personal data' => ['prospector-with-the-right', Role::User, Role::Prospector, Role::PersonalData];
+        yield 'an administrator' => ['administrator', Role::Prospector, Role::Admin];
+    }
+
+    /**
+     * Its text may hold personal data: a to-do noted while they had the right is not shown to them without it.
+     */
+    public function testAMemberWithoutTheRightToManagePersonalDataHasNoToDoToProcess(): void
+    {
+        $assistant = $this->aMemberOfTheFixtures('prospector-without-the-right', Role::User, Role::Prospector);
+        $toDo = ToDo::forTheOrganization(self::getContainer()->get(OrganizationRepository::class)->get(new OrganizationId($this->organization)), new MemberId($this->memberIdOf($assistant)), new ToDoId(self::newIdentity()), 'Envoyer mon CV', new Due('2026-10-14'), new \DateTimeImmutable('2026-10-13 09:00 UTC'));
+        self::getContainer()->get(ToDoRepository::class)->save($toDo);
+        $this->login($assistant);
+
+        $this->assertSame([], $this->requestJson('GET', self::TO_PROCESS)['toDos']);
+        $this->assertResponseStatusCodeSame(200);
+    }
+
+    /**
+     * 9:00 UTC on the 15th is still the 14th in Los Angeles.
+     */
+    public function testTheDayIsThatOfTheClockOfItsReader(): void
+    {
+        $this->noteToDo($this->ada(), 'Envoyer mon CV', '2026-10-15');
+
+        $this->assertCount(1, $this->requestJson('GET', self::TO_PROCESS.'?timeZone=Europe/Paris')['toDos']);
+        $this->assertSame([], $this->requestJson('GET', self::TO_PROCESS.'?timeZone=America/Los_Angeles')['toDos']);
+    }
+
+    public function testTheTimeZoneOfTheReaderIsOneOfTheWorld(): void
+    {
+        $refused = $this->requestJson('GET', self::TO_PROCESS.'?timeZone=Mars/Olympus');
+
+        $this->assertResponseStatusCodeSame(422);
+        $this->assertSame(['timeZone'], $this->violatedFields($refused));
+    }
+
+    private function ada(): string
+    {
+        return $this->requestJson('POST', '/api/contacts', ['name' => ['firstName' => 'Ada', 'lastName' => 'Lovelace'], 'organizationIds' => [$this->organization]])['id'];
+    }
+
+    private function noteToDo(string $contact, string $text, string $dueOn, ?string $dueAt = null): string
+    {
+        return $this->requestJson('POST', '/api/contacts/'.$contact.'/to-dos', ['text' => $text, 'dueOn' => $dueOn, 'dueAt' => $dueAt])['id'];
     }
 
     public function testAMemberWhoIsNotAProspectorHasNoExchangeToProcess(): void

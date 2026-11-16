@@ -6,6 +6,7 @@ use App\Shared\Persistence\Table;
 use Prospecter\Core\Prospecting\Application\Port\ToDoListRetriever;
 use Prospecter\Core\Prospecting\Application\ToDoInList;
 use Prospecter\Core\Prospecting\Domain\Exception\UnknownToDo;
+use Prospecter\Core\Prospecting\Domain\Model\CalendarPeriod;
 use Prospecter\Core\Prospecting\Domain\Model\ToDoId;
 use Prospecter\Core\SharedKernel\Domain\AccountId;
 use Prospecter\Core\SharedKernel\Domain\MemberId;
@@ -41,6 +42,11 @@ final readonly class DynamoToDoListRetriever implements ToDoListRetriever
     public function stillToDoBy(MemberId $holder): array
     {
         return self::inList($this->prospectingTable->query(ToDoKeys::stillToDoBy($holder->value), Table::BY_GSI2));
+    }
+
+    public function dueIn(MemberId $holder, CalendarPeriod $period): array
+    {
+        return [];
     }
 
     /**
