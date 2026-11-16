@@ -23,6 +23,7 @@ final readonly class DomainEventTypes extends EventTypes
         ],
         'prospecter.connectors.internal' => [
             'Connected.v1' => Connectors\Connected::class,
+            'CalendarRecreated.v1' => Connectors\CalendarRecreated::class,
             'ConnectionLost.v1' => Connectors\ConnectionLost::class,
             'Disconnected.v1' => Connectors\Disconnected::class,
             'ClientConfigured.v1' => Connectors\ClientConfigured::class,

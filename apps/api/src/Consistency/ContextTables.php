@@ -3,6 +3,7 @@
 namespace App\Consistency;
 
 use App\Accounts\Persistence\AccountsKeys;
+use App\Connectors\Persistence\ConnectorsKeys;
 use App\PersonalData\Persistence\PersonalDataKeys;
 use App\Prospecting\Persistence\ExchangeKeys;
 use App\Prospecting\Persistence\OrganizationKeys;
@@ -16,11 +17,15 @@ use App\Shared\Persistence\Table;
  */
 final readonly class ContextTables
 {
+    private const string CONNECTED = 'connected';
+    private const string SYNCED = 'synced';
+
     public function __construct(
         private Table $accountsTable,
         private Table $personalDataTable,
         private Table $prospectingTable,
         private Table $reportingTable,
+        private Table $connectorsTable,
     ) {
     }
 
@@ -125,6 +130,27 @@ final readonly class ContextTables
         $outOfTheList = array_filter($this->prospectingTable->scan(ExchangeKeys::exchange('')), static fn (array $item): bool => ExchangeKeys::ofAccount($item['exchange']['accountId']) !== ($item['GSI2PK'] ?? null));
 
         return array_values(array_map(static fn (array $item): array => $item['exchange'], $outOfTheList));
+    }
+
+    /**
+     * @return array<string, string> the provider each member of the account is connected to, by member; none to
+     *                               reconnect
+     */
+    public function connectedMembersOf(string $accountId): array
+    {
+        $connections = array_filter(
+            array_column($this->connectorsTable->scan(ConnectorsKeys::member('')), 'connection'),
+            static fn (array $connection): bool => $accountId === $connection['accountId'] && self::CONNECTED === $connection['state'],
+        );
+
+        return array_column($connections, 'provider', 'member');
+    }
+
+    public function isSynced(string $exchangeId, string $provider): bool
+    {
+        $entry = $this->connectorsTable->item(ConnectorsKeys::exchange($exchangeId), ConnectorsKeys::entry($provider))['entry'] ?? null;
+
+        return null !== $entry && self::SYNCED === ($entry['state'] ?? self::SYNCED);
     }
 
     /**

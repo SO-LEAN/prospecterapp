@@ -1046,6 +1046,23 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/exchanges/{id}/google-sync": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Consult where the push of an exchange into my calendar at Google stands: pending, synced or failed; none while it is not pushed into mine */
+        get: operations["get_api_exchanges_google_sync"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/me/connections": {
         parameters: {
             query?: never;
@@ -1057,6 +1074,40 @@ export interface paths {
         get: operations["get_api_me_connections"];
         put?: never;
         post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/me/connections/google/retries": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Push again into my calendar at Google every exchange of mine Google refused */
+        post: operations["post_api_me_connections_google_retry_failed"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/exchanges/{id}/google-sync/retries": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Push an exchange into my calendar at Google again, as it is now; by its holder */
+        post: operations["post_api_exchanges_google_sync_retry"];
         delete?: never;
         options?: never;
         head?: never;
@@ -1953,6 +2004,7 @@ export interface components {
         ConnectionLinksResource: {
             disconnect: components["schemas"]["LinkResource"];
             reconnect?: components["schemas"]["LinkResource"];
+            retryFailed?: components["schemas"]["LinkResource"];
         };
         ConnectionResource: {
             /** @enum {string} */
@@ -1966,6 +2018,10 @@ export interface components {
             account: string;
             /** Format: date-time */
             connectedAt: string;
+            /** @description My exchanges to come in my calendar at the provider */
+            synced: number;
+            /** @description My exchanges to come the provider refused */
+            failed: number;
             _links: components["schemas"]["ConnectionLinksResource"];
         };
         ConnectionsLinksResource: {
@@ -1994,6 +2050,32 @@ export interface components {
              */
             redirectUri: string;
             _links: components["schemas"]["GoogleClientLinksResource"];
+        };
+        SyncResource: {
+            /** @enum {string} */
+            provider: "google";
+            /** @enum {string} */
+            state: "pending" | "synced" | "failed";
+            /**
+             * Format: date-time
+             * @description Since when it stands so; none for an exchange never pushed
+             * @default null
+             */
+            at: string;
+            /**
+             * @description Why: the provider refused it (`calendarRefusedThePush`), or my connection is to reconnect (`toReconnect`)
+             * @default null
+             * @enum {string}
+             */
+            reason: "calendarRefusedThePush" | "toReconnect";
+        };
+        ExchangeSyncLinksResource: {
+            self: components["schemas"]["LinkResource"];
+            retry?: components["schemas"]["LinkResource"];
+        };
+        ExchangeSyncResource: {
+            sync?: components["schemas"]["SyncResource"] | null;
+            _links: components["schemas"]["ExchangeSyncLinksResource"];
         };
     };
     responses: never;
@@ -6278,6 +6360,53 @@ export interface operations {
             };
         };
     };
+    get_api_exchanges_google_sync: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Where its push stands */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ExchangeSyncResource"];
+                };
+            };
+            /** @description Missing or invalid access token */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Not a prospector */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ProblemResource"];
+                };
+            };
+            /** @description Unknown exchange, or one of another account */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ProblemResource"];
+                };
+            };
+        };
+    };
     get_api_me_connections: {
         parameters: {
             query?: never;
@@ -6305,6 +6434,89 @@ export interface operations {
             };
             /** @description The signed-in user is not a user */
             403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ProblemResource"];
+                };
+            };
+        };
+    };
+    post_api_me_connections_google_retry_failed: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description My connections, counting my exchanges to come synced and failed now */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ConnectionsResource"];
+                };
+            };
+            /** @description Missing or invalid access token */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description The signed-in user is not a user */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ProblemResource"];
+                };
+            };
+        };
+    };
+    post_api_exchanges_google_sync_retry: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Where its push stands now */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ExchangeSyncResource"];
+                };
+            };
+            /** @description Missing or invalid access token */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Not a prospector, or not the holder of the exchange */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ProblemResource"];
+                };
+            };
+            /** @description Unknown exchange, or one of another account */
+            404: {
                 headers: {
                     [name: string]: unknown;
                 };

@@ -124,6 +124,13 @@
     "handler": "Prospecter\\Core\\Connectors\\Application\\PushExchange\\PushExchangeHandler",
     "inbox": true
   },
+  "connectors-push-upcoming-exchanges": {
+    "context": "connectors",
+    "sources": ["prospecter.connectors.internal"],
+    "events": ["Connected.v1", "CalendarRecreated.v1"],
+    "handler": "Prospecter\\Core\\Connectors\\Application\\PushUpcomingExchanges\\PushUpcomingExchangesHandler",
+    "inbox": true
+  },
   "connectors-unname-forgotten-contact": {
     "context": "connectors",
     "sources": ["prospecter.personal-data"],

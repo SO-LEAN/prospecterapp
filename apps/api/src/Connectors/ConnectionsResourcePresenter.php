@@ -55,7 +55,13 @@ final class ConnectionsResourcePresenter implements ConsultMyConnectionsOutput
             $connection->state,
             $connection->account,
             $connection->connectedAt,
-            new ConnectionLinksResource($this->links->to('api_me_connections_google_disconnect'), $reconnect),
+            $connection->synced,
+            $connection->failed,
+            new ConnectionLinksResource(
+                $this->links->to('api_me_connections_google_disconnect'),
+                $reconnect,
+                $connection->failed > 0 ? $this->links->to('api_me_connections_google_retry_failed') : null,
+            ),
         );
     }
 }

@@ -8,10 +8,12 @@ use Prospecter\Core\Prospecting\Application\ConsultHeldExchanges\HeldExchange;
 use Prospecter\Core\Prospecting\Application\Port\HeldExchangeRetriever;
 use Prospecter\Core\Prospecting\Domain\Model\ExchangeId;
 use Prospecter\Core\SharedKernel\Domain\AccountId;
+use Prospecter\Core\SharedKernel\Domain\MemberId;
 
 /**
  * Reads the items `EXCHANGE#<id>` / `EXCHANGE` that `DynamoExchangeRepository` writes as their holders hold them, in
- * one batch, without restoring them (ADR 0088, 0127).
+ * one batch, without restoring them (ADR 0088, 0127); those a holder still has planned by the links of their agenda
+ * (`AGENDA#<member>` in `GSI1`, ADR 0133).
  */
 final readonly class DynamoHeldExchangeRetriever implements HeldExchangeRetriever
 {
@@ -28,6 +30,18 @@ final readonly class DynamoHeldExchangeRetriever implements HeldExchangeRetrieve
         $ofTheAccount = array_filter($items, static fn (array $item): bool => $accountId->value === $item['exchange']['accountId']);
 
         return array_values(array_map(static fn (array $item): HeldExchange => self::heldExchangeOf($item['exchange']), $ofTheAccount));
+    }
+
+    public function plannedBy(AccountId $accountId, MemberId $holder, \DateTimeImmutable $from): array
+    {
+        $links = $this->prospectingTable->queryAfter(ExchangeKeys::agenda($holder->value), Table::BY_GSI1, ExchangeKeys::positionBefore($from));
+        $items = array_column($this->prospectingTable->items(array_map(static fn (array $link): array => [$link['SK'], ExchangeKeys::EXCHANGE], $links)), null, 'PK');
+        $planned = array_filter(
+            array_map(static fn (array $link): ?array => $items[$link['SK']]['exchange'] ?? null, $links),
+            static fn (?array $document): bool => null !== $document && $accountId->value === $document['accountId'],
+        );
+
+        return array_values(array_map(self::heldExchangeOf(...), $planned));
     }
 
     /**
