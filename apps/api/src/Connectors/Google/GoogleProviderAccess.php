@@ -2,6 +2,7 @@
 
 namespace App\Connectors\Google;
 
+use App\Shared\ServiceUnavailable;
 use Prospecter\Core\Connectors\Domain\Exception\AccessNotGranted;
 use Prospecter\Core\Connectors\Domain\Model\ClientCredentials;
 use Prospecter\Core\Connectors\Domain\Model\Grant;
@@ -11,6 +12,7 @@ use Prospecter\Core\Connectors\Domain\Port\ProviderAccess;
 use Prospecter\Core\SharedKernel\Domain\Email;
 use Psr\Log\LoggerInterface;
 use Symfony\Contracts\HttpClient\Exception\ExceptionInterface;
+use Symfony\Contracts\HttpClient\Exception\TransportExceptionInterface;
 use Symfony\Contracts\HttpClient\HttpClientInterface;
 use Symfony\Contracts\HttpClient\ResponseInterface;
 
@@ -23,6 +25,7 @@ use Symfony\Contracts\HttpClient\ResponseInterface;
 final readonly class GoogleProviderAccess implements ProviderAccess
 {
     private const int OK = 200;
+    private const int SERVER_ERROR = 500;
     /** what Google answers for a token revoked, expired or replaced too many times */
     private const string INVALID_GRANT = 'invalid_grant';
     private const float TIMEOUT = 10;
@@ -77,15 +80,30 @@ final readonly class GoogleProviderAccess implements ProviderAccess
         return is_array($claims) && is_string($claims['email'] ?? null) ? $claims['email'] : throw new \UnexpectedValueException('Google gave an identity token without email');
     }
 
+    /**
+     * @throws ServiceUnavailable when Google does not answer, or fails to: nothing is known of the access then
+     */
     public function stillGrants(ClientCredentials $client, RefreshToken $refreshToken): bool
     {
         $response = $this->token($client, ['grant_type' => 'refresh_token', 'refresh_token' => $refreshToken->value]);
+        $status = self::statusOf($response);
 
-        if (self::OK === $response->getStatusCode()) {
+        if (self::OK === $status) {
             return true;
         }
 
-        return self::isInvalidGrant($response) ? false : throw new \RuntimeException(sprintf('Google answered %d to a refresh', $response->getStatusCode()));
+        return self::isInvalidGrant($response) ? false : throw new \RuntimeException(sprintf('Google answered %d to a refresh', $status));
+    }
+
+    private static function statusOf(ResponseInterface $response): int
+    {
+        try {
+            $status = $response->getStatusCode();
+        } catch (TransportExceptionInterface $failure) {
+            throw ServiceUnavailable::google($failure);
+        }
+
+        return $status >= self::SERVER_ERROR ? throw ServiceUnavailable::google(new \RuntimeException(sprintf('Google answered %d to a refresh', $status))) : $status;
     }
 
     private static function isInvalidGrant(ResponseInterface $response): bool

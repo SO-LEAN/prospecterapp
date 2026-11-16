@@ -96,7 +96,7 @@ class GoogleProviderAccessTest extends TestCase
     public function testARefreshGoogleRefusesForAnotherReasonIsAFailure(): void
     {
         $this->expectException(\RuntimeException::class);
-        $this->expectExceptionMessage('Google answered 401 to a refresh');
+        $this->expectExceptionMessageIsOrContains('Google answered 401 to a refresh');
 
         $this->access(new MockHttpClient(new JsonMockResponse(['error' => 'invalid_client'], ['http_code' => 401])))->stillGrants(self::client(), new RefreshToken('a-token'));
     }

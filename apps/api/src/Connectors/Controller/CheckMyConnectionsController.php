@@ -33,7 +33,7 @@ final class CheckMyConnectionsController extends AbstractController
     #[OA\Response(response: 200, description: 'My connections, as their providers see them now', content: new Model(type: ConnectionsResource::class))]
     #[OA\Response(response: 401, description: 'Missing or invalid access token')]
     #[OA\Response(response: 403, description: 'The signed-in user is not a user', content: new Model(type: ProblemResource::class))]
-    #[OA\Response(response: 503, description: 'The secret of the client cannot be kept nor read for now (`secretsUnavailable`)', content: new Model(type: ProblemResource::class))]
+    #[OA\Response(response: 503, description: 'The secret of the client cannot be kept nor read for now (`secretsUnavailable`), or Google does not answer: the connections stay as last seen (`googleUnreachable`)', content: new Model(type: ProblemResource::class))]
     public function __invoke(#[CurrentUser] User $user): JsonResponse
     {
         $this->commandBus->dispatch(new CheckMyConnections($user->memberId(), $this->clock->now()));
