@@ -4,7 +4,7 @@
 - Type: domain
 - Status: Accepted
 - Supersedes: for the name of a contact and searching the contacts by their name, the masking and the refusal of [0031](0031-personal-data-context.md) for a member without the right; for planning an exchange, the right to manage personal data noting one needs of [0078](0078-every-prospector-reads-the-exchanges-and-corrects-their-text.md)
-- Implemented by: `packages/core/src/PersonalData` (`PersonReading::ofTheName()`, `Reader::searchesTheEmails()`), `features/consulter-une-personne.feature`, `features/rechercher-mes-contacts.feature`, `features/planifier-un-echange.feature`, `features/traiter-un-echange-planifie.feature`, `features/consulter-mon-calendrier.feature`, `apps/api/src/{Prospecting,Contacts}` (`PlanExchangeController`, `PlanOrganizationExchangeController`, `AgendaReader`, `TimelineResourceFactory`), `apps/front/src/features/exchanges`
+- Implemented by: `packages/core/src/PersonalData` (`PersonReading::ofTheName()`, `Reader::searchesTheEmails()`), `features/consulter-une-personne.feature`, `features/rechercher-mes-contacts.feature`, `features/planifier-un-echange.feature`, `features/traiter-un-echange-planifie.feature`, `features/consulter-mon-calendrier.feature`, `apps/api/src/{Prospecting,Contacts,PersonalData,Shared}` (`PlanExchangeController`, `PlanOrganizationExchangeController`, `AgendaReader`, `TimelineResourceFactory`, `PersonCards`, `SearchIndexes::foundByName()`), `apps/front/src/features/{exchanges,contacts}` (`ContactSummary`)
 
 ## Context
 

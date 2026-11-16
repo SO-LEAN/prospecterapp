@@ -158,7 +158,7 @@ export function CalendarPage({ view, day, onShow, contactSummary, interlocutorSe
           items={data.items}
           now={now}
           onOpenDay={view === 'week' ? openDay : undefined}
-          onChooseSlot={data._links.searchContacts ? setSlot : undefined}
+          onChooseSlot={setSlot}
           {...gestures}
         />
       )}
