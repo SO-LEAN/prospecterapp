@@ -22,7 +22,7 @@ use Prospecter\Core\Prospecting\Application\ConsultExchange\ExchangeDetail;
  * The detail of an exchange, with a link per intention its state offers and the signed-in member may carry out on it
  * and on its attachments (`IntentLinks`, ADR 0081): every prospector retouches its text and declares it conform
  * (ADR 0078), corrects the place of a meeting or the link of a video call (ADR 0114), its holder handles a planned
- * exchange (ADR 0112) and, just moved, moves it back while its former moment is to come, the rest needs the right to
+ * exchange (ADR 0112) and, just moved, moves it back while its former moment is to come (ADR 0135), the rest needs the right to
  * manage personal data. Each link names its intention, its route, and the role its controller requires beyond
  * reaching the exchange. Built for one call with its participants, it keeps the resource (ADR 0085).
  */
