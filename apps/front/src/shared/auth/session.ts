@@ -30,13 +30,13 @@ const NEW_PASSWORD_REQUIRED: SignInRefusal = {
 
 const whereToSignIn = createFetchClient<paths>({ baseUrl: env.apiUrl })
 
-let userPool: Promise<void> | null = null
+let configured: Promise<void> | null = null
 
 /** Amplify configured once with the user pool the API names, its tokens kept in the storage of the tab. */
 function onTheUserPool(): Promise<void> {
-  userPool ??= whereToSignIn.GET('/api/user-pool').then(({ data, error }) => {
+  configured ??= whereToSignIn.GET('/api/user-pool').then(({ data, error }) => {
     if (!data) {
-      userPool = null
+      configured = null
       throw error
     }
     Amplify.configure({
@@ -50,7 +50,7 @@ function onTheUserPool(): Promise<void> {
     })
     cognitoUserPoolsTokenProvider.setKeyValueStorage(sessionStorage)
   })
-  return userPool
+  return configured
 }
 
 const refusalOf = (error: unknown): unknown =>
@@ -79,6 +79,12 @@ export const session: Session = {
     })
     if (nextStep.signInStep === 'CONFIRM_SIGN_IN_WITH_NEW_PASSWORD_REQUIRED') {
       throw NEW_PASSWORD_REQUIRED
+    }
+    if (nextStep.signInStep !== 'DONE') {
+      throw {
+        code: nextStep.signInStep,
+        message: 'Another step is required to sign in',
+      } satisfies SignInRefusal
     }
   },
 

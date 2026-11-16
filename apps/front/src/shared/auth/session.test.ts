@@ -122,6 +122,18 @@ describe('session', () => {
     })
   })
 
+  it('refuses to sign in a member Cognito asks another step of', async () => {
+    vi.mocked(signIn).mockResolvedValue({
+      isSignedIn: false,
+      nextStep: { signInStep: 'RESET_PASSWORD' },
+    })
+    const session = await theSession()
+
+    await expect(session.signIn('prospector@solean-it.io', 'password')).rejects.toMatchObject({
+      code: 'RESET_PASSWORD',
+    })
+  })
+
   it('asks the user pool once', async () => {
     const session = await theSession()
 
