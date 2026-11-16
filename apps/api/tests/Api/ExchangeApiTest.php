@@ -241,14 +241,14 @@ class ExchangeApiTest extends ApiTestCase
         $this->assertResponseStatusCodeSame(404);
     }
 
-    public function testWithoutTheRightAnExchangeIsReadMaskedAndOnlyItsTextCorrected(): void
+    public function testWithoutTheRightAnExchangeIsReadNamedAndOnlyItsTextCorrected(): void
     {
         $id = $this->note($this->aContactOf($this->anOrganization('ACME'), 'Grace'), ['channel' => 'sms', 'direction' => 'inbound', 'text' => 'Grace rappellera lundi'])['items'][0]['id'];
         $this->login($this->aMemberOfTheFixtures('prospector-without-the-right', Role::User, Role::Prospector));
 
         $exchange = $this->requestJson('GET', '/api/exchanges/'.$id);
         $this->assertResponseStatusCodeSame(200);
-        $this->assertSame('G***e', $exchange['interlocutor']['name']);
+        $this->assertSame('Grace', $exchange['interlocutor']['name']);
         $this->assertSame(['Grace rappellera lundi', true], [$exchange['text'], $exchange['textFlagged']]);
         $this->assertSame(['self', 'interlocutor', 'correctText'], array_keys($exchange['_links']));
         $this->correct($id, ['channel' => 'call', 'direction' => 'inbound', 'occurredAt' => '2026-10-15T08:00:00+00:00']);

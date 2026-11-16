@@ -139,7 +139,7 @@ class PlannedExchangeApiTest extends ApiTestCase
         $this->assertResponseStatusCodeSame(201);
     }
 
-    public function testWithoutTheRightTheExchangesToComeAreReadButNothingPlanned(): void
+    public function testWithoutTheRightTheExchangesToComeAreReadAndPlanned(): void
     {
         $organization = $this->anOrganization('ACME');
         $grace = $this->aContactOf($organization, 'Grace', 'Hopper');
@@ -149,15 +149,26 @@ class PlannedExchangeApiTest extends ApiTestCase
         $upcoming = $this->requestJson('GET', '/api/contacts/'.$grace.'/upcoming-exchanges');
         $this->assertResponseStatusCodeSame(200);
         $this->assertSame([[true, 'planned']], array_map(static fn (array $exchange): array => [$exchange['textFlagged'], $exchange['status']], $upcoming['items']));
-        $this->assertSame(['self'], array_keys($upcoming['_links']));
-        $this->assertSame(['G***e H***r'], array_column(array_column($this->requestJson('GET', '/api/organizations/'.$organization.'/upcoming-exchanges')['items'], 'interlocutor'), 'name'));
-        $this->assertArrayNotHasKey('planExchange', $this->requestJson('GET', '/api/organizations/'.$organization.'/exchanges')['_links']);
-        $this->assertSame([], $this->requestJson('GET', '/api/me/planned-exchanges?startsAt='.urlencode(self::NEXT_TUESDAY))['items']);
-        $this->assertResponseStatusCodeSame(200);
+        $this->assertSame(['href' => '/api/contacts/'.$grace.'/upcoming-exchanges', 'method' => 'POST'], $upcoming['_links']['planExchange'] ?? null);
+        $this->assertSame(['Grace Hopper'], array_column(array_column($this->requestJson('GET', '/api/organizations/'.$organization.'/upcoming-exchanges')['items'], 'interlocutor'), 'name'));
+        $this->assertArrayHasKey('planExchange', $this->requestJson('GET', '/api/organizations/'.$organization.'/exchanges')['_links']);
         $this->plan($grace, ['channel' => 'call', 'occurredAt' => self::NEXT_TUESDAY]);
-        $this->assertResponseStatusCodeSame(403);
-        $this->planWith($organization, ['exchange' => ['channel' => 'call', 'occurredAt' => self::NEXT_TUESDAY]]);
-        $this->assertResponseStatusCodeSame(403);
+        $this->assertResponseStatusCodeSame(201);
+        $this->assertSame(['Grace Hopper'], array_column(array_column($this->requestJson('GET', '/api/me/planned-exchanges?startsAt='.urlencode(self::NEXT_TUESDAY))['items'], 'interlocutor'), 'name'));
+        $this->planWith($organization, ['exchange' => ['channel' => 'meeting', 'occurredAt' => self::NEXT_TUESDAY]]);
+        $this->assertResponseStatusCodeSame(201);
+    }
+
+    public function testWithoutTheRightAPlannedCallGivesNoNumberToCall(): void
+    {
+        $grace = $this->requestJson('POST', '/api/contacts', ['name' => ['firstName' => 'Grace', 'lastName' => 'Hopper'], 'contactDetails' => ['phoneNumber' => '03 88 00 00 42'], 'organizationIds' => [$this->anOrganization('ACME')]])['id'];
+        $this->login($this->aMemberOfTheFixtures('prospector-without-the-right', Role::User, Role::Prospector));
+        $id = $this->plan($grace, ['channel' => 'call', 'occurredAt' => self::NEXT_TUESDAY])['items'][0]['id'];
+
+        $exchange = $this->requestJson('GET', '/api/exchanges/'.$id);
+
+        $this->assertSame(['Grace', null], [$exchange['interlocutor']['name'], $exchange['phoneNumber']]);
+        $this->assertSame(['self', 'interlocutor', 'correctText', 'markDone', 'markMissed', 'move', 'cancel'], array_keys(array_filter($exchange['_links'])));
     }
 
     /**

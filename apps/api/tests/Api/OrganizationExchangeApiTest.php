@@ -98,7 +98,7 @@ class OrganizationExchangeApiTest extends ApiTestCase
         $this->assertSame(['href' => '/api/organizations/'.$organization.'/exchanges', 'method' => 'POST'], $links['noteExchange']);
     }
 
-    public function testWithoutTheRightTheTimelineIsReadItsContactsMaskedButNothingNoted(): void
+    public function testWithoutTheRightTheTimelineIsReadItsContactsNamedButNothingNoted(): void
     {
         $organization = $this->anOrganization('ACME');
         $grace = $this->aContactOf($organization, 'Grace', 'Hopper');
@@ -110,8 +110,8 @@ class OrganizationExchangeApiTest extends ApiTestCase
         $this->assertArrayNotHasKey('noteExchange', $links);
         $timeline = $this->requestJson('GET', '/api/organizations/'.$organization.'/exchanges');
         $this->assertResponseStatusCodeSame(200);
-        $this->assertSame([['G***e H***r', true]], array_map(static fn (array $item): array => [$item['interlocutor']['name'], $item['exchange']['textFlagged']], $timeline['items']));
-        $this->assertSame(['self'], array_keys($timeline['_links']));
+        $this->assertSame([['Grace Hopper', true]], array_map(static fn (array $item): array => [$item['interlocutor']['name'], $item['exchange']['textFlagged']], $timeline['items']));
+        $this->assertSame(['self', 'planExchange'], array_keys($timeline['_links']));
         $this->note($organization, ['exchange' => ['channel' => 'call', 'direction' => 'inbound']]);
         $this->assertResponseStatusCodeSame(403);
     }

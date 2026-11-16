@@ -172,11 +172,11 @@ class MyDayApiTest extends ApiTestCase
         yield 'an administrator' => ['administrator', Role::Prospector, Role::Admin];
     }
 
-    public function testAMemberWithoutTheRightToManagePersonalDataIsNotOfferedTheSearchOfTheContacts(): void
+    public function testAMemberWithoutTheRightToManagePersonalDataIsOfferedTheSearchOfTheContacts(): void
     {
         $this->login($this->aMemberOfTheFixtures('prospector-without-the-right', Role::User, Role::Prospector));
 
-        $this->assertSame(['self'], array_keys($this->requestJson('GET', self::TODAY)['_links']));
+        $this->assertSame(['href' => '/api/contacts', 'method' => 'GET'], $this->requestJson('GET', self::TODAY)['_links']['searchContacts'] ?? null);
     }
 
     public function testAMemberWhoIsNotAProspectorHasNoDay(): void
