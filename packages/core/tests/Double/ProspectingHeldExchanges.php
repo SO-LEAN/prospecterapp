@@ -11,10 +11,10 @@ use Prospecter\Core\Connectors\Domain\Model\HeldExchange;
 use Prospecter\Core\Connectors\Domain\Port\HeldExchanges;
 use Prospecter\Core\Prospecting\Contract\Service\ConsultHeldExchanges\ConsultHeldExchanges;
 use Prospecter\Core\Prospecting\Contract\Service\ConsultHeldExchanges\ConsultHeldExchangesService;
+use Prospecter\Core\Prospecting\Contract\Service\ConsultHeldExchanges\ConsultPlannedExchanges;
+use Prospecter\Core\Prospecting\Contract\Service\ConsultHeldExchanges\ConsultPlannedExchangesService;
 use Prospecter\Core\Prospecting\Contract\Service\ConsultHeldExchanges\HeldExchangeResponse;
 use Prospecter\Core\Prospecting\Contract\Service\ConsultHeldExchanges\KeptHeldExchanges;
-use Prospecter\Core\Prospecting\Contract\Service\ConsultUpcomingExchanges\ConsultUpcomingExchanges;
-use Prospecter\Core\Prospecting\Contract\Service\ConsultUpcomingExchanges\ConsultUpcomingExchangesService;
 use Prospecter\Core\SharedKernel\Domain\AccountId;
 use Prospecter\Core\SharedKernel\Domain\MemberId;
 use Prospecter\Core\SharedKernel\Domain\OrganizationId;
@@ -28,7 +28,7 @@ final readonly class ProspectingHeldExchanges implements HeldExchanges
 {
     public function __construct(
         private ConsultHeldExchangesService $consultHeldExchangesService,
-        private ConsultUpcomingExchangesService $consultUpcomingExchangesService,
+        private ConsultPlannedExchangesService $consultPlannedExchangesService,
     ) {
     }
 
@@ -44,7 +44,7 @@ final readonly class ProspectingHeldExchanges implements HeldExchanges
     public function plannedBy(AccountId $accountId, MemberId $holder, \DateTimeImmutable $from): array
     {
         $kept = new KeptHeldExchanges();
-        ($this->consultUpcomingExchangesService)(new ConsultUpcomingExchanges($accountId->value, $holder->value, $from), $kept);
+        ($this->consultPlannedExchangesService)(new ConsultPlannedExchanges($accountId->value, $holder->value, $from), $kept);
 
         return array_map(static fn (HeldExchangeResponse $held): HeldExchange => self::heldExchangeOf($held, $accountId), $kept->exchanges);
     }

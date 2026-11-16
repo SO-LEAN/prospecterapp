@@ -4,12 +4,15 @@ declare(strict_types=1);
 
 namespace Prospecter\Core\Connectors\Application;
 
+use Prospecter\Core\Connectors\Domain\Exception\CalendarRefusedThePush;
 use Prospecter\Core\Connectors\Domain\Model\CalendarEntry;
+use Prospecter\Core\Connectors\Domain\Model\ClientCredentials;
 use Prospecter\Core\Connectors\Domain\Model\Connection;
 use Prospecter\Core\Connectors\Domain\Model\ExchangeId;
 use Prospecter\Core\Connectors\Domain\Model\HeldExchange;
 use Prospecter\Core\Connectors\Domain\Model\Provider;
 use Prospecter\Core\Connectors\Domain\Port\ContactNames;
+use Prospecter\Core\Connectors\Domain\Port\HeldExchanges;
 use Prospecter\Core\Connectors\Domain\Port\Members;
 use Prospecter\Core\Connectors\Domain\Port\ProviderCalendar;
 use Prospecter\Core\Connectors\Domain\Repository\CalendarEntryRepository;
@@ -21,17 +24,20 @@ use Prospecter\Core\SharedKernel\Domain\AccountId;
 use Prospecter\Core\SharedKernel\Domain\MemberId;
 
 /**
- * Puts an exchange into the calendar of its holder at the provider, or withdraws it, for the reactions that push
- * (ADR 0127): nothing is asked of the provider without a connection of the holder, nor without the client of their
- * account; an entry is kept of each exchange the push reached the calendar with.
+ * Puts an exchange into the calendar of its holder at the provider, or withdraws it, for the reactions and the
+ * retries that push (ADR 0127, 0133): nothing is asked of the provider without a connection of the holder, nor
+ * without the client of their account; an entry keeps where the push of each exchange stands, a refusal of the
+ * provider kept there rather than thrown.
  */
 final readonly class CalendarPusher
 {
     use PublishesEvents;
 
     private const Provider PROVIDER = Provider::Google;
+    private const string REFUSED = 'calendarRefusedThePush';
 
     public function __construct(
+        private HeldExchanges $exchanges,
         private CalendarEntryRepository $entries,
         private ConnectionRepository $connections,
         private ProviderClientRepository $clients,
@@ -40,6 +46,21 @@ final readonly class CalendarPusher
         private ProviderCalendar $calendars,
         private Events $events,
     ) {
+    }
+
+    /**
+     * The exchange read again as it is now, whatever the order its changes arrive in (ADR 0127): planned, it is
+     * pushed; cancelled or erased, it is withdrawn; done or missed, it stays as it was.
+     */
+    public function follow(ExchangeId $id, AccountId $accountId, \DateTimeImmutable $at): void
+    {
+        $exchange = $this->exchanges->find($accountId, $id);
+
+        if (null !== $exchange && $exchange->belongsInTheCalendar()) {
+            $this->push($exchange, $at);
+        } elseif (null === $exchange || $exchange->isCalledOff()) {
+            $this->withdraw($id, $accountId, $exchange?->holder, $at);
+        }
     }
 
     /**
@@ -53,21 +74,22 @@ final readonly class CalendarPusher
             return;
         }
 
-        $holder = $this->members->get($exchange->holder);
-        $connection->push($exchange->asCalendarEvent($this->contactNameOf($exchange), $holder->reminderMinutesBefore), $client->credentials(), $this->calendars, $at);
+        $entry = $this->entries->find($exchange->id);
+        try {
+            $this->putInto($connection, $exchange, $client->credentials(), $at);
+            $this->keepThePushOf($exchange, $entry, $connection, $at);
+        } catch (CalendarRefusedThePush) {
+            $this->keepTheRefusal($entry ?? CalendarEntry::of($exchange, self::PROVIDER, $at), $at);
+        }
+
         $this->connections->save($connection);
-        $this->keepTheEntryOf($exchange, $connection);
         $this->publishWhatHappenedTo($connection);
     }
 
-    /**
-     * Only an exchange the push reached the calendar with: a connection to reconnect pushed nothing.
-     */
-    private function keepTheEntryOf(HeldExchange $exchange, Connection $connection): void
+    private function putInto(Connection $connection, HeldExchange $exchange, ClientCredentials $client, \DateTimeImmutable $at): void
     {
-        if ($connection->isConnected()) {
-            $this->entries->save(CalendarEntry::of($exchange, self::PROVIDER));
-        }
+        $holder = $this->members->get($exchange->holder);
+        $connection->push($exchange->asCalendarEvent($this->contactNameOf($exchange), $holder->reminderMinutesBefore), $client, $this->calendars, $at);
     }
 
     private function contactNameOf(HeldExchange $exchange): ?string
@@ -76,7 +98,30 @@ final readonly class CalendarPusher
     }
 
     /**
-     * Erased, the exchange is withdrawn from the calendar it was pushed into, Prospecting no longer knowing its holder.
+     * Synced once the push reached the calendar; a connection to reconnect reached nothing, an exchange already
+     * pushed then awaiting the push of what changed.
+     */
+    private function keepThePushOf(HeldExchange $exchange, ?CalendarEntry $entry, Connection $connection, \DateTimeImmutable $at): void
+    {
+        if ($connection->isConnected()) {
+            $entry ??= CalendarEntry::of($exchange, self::PROVIDER, $at);
+            $entry->pushed($exchange, $at);
+            $this->entries->save($entry);
+        } elseif (null !== $entry) {
+            $entry->awaits($at);
+            $this->entries->save($entry);
+        }
+    }
+
+    private function keepTheRefusal(CalendarEntry $entry, \DateTimeImmutable $at): void
+    {
+        $entry->refused(self::REFUSED, $at);
+        $this->entries->save($entry);
+    }
+
+    /**
+     * Erased, the exchange is withdrawn from the calendar it was pushed into, Prospecting no longer knowing its holder;
+     * its entry forgotten, unless the provider refused the withdrawal.
      */
     public function withdraw(ExchangeId $id, AccountId $accountId, ?MemberId $holder, \DateTimeImmutable $at): void
     {
@@ -88,12 +133,29 @@ final readonly class CalendarPusher
 
         $connection = $this->connections->find($member, self::PROVIDER);
         $client = $this->clients->find($accountId, self::PROVIDER);
-        if (null !== $connection && null !== $client) {
-            $connection->withdraw($id, $client->credentials(), $this->calendars, $at);
-            $this->connections->save($connection);
-            $this->publishWhatHappenedTo($connection);
+        if (null === $connection || null === $client) {
+            $this->forget($entry);
+
+            return;
         }
 
+        $this->withdrawFrom($connection, $id, $client->credentials(), $entry, $at);
+        $this->connections->save($connection);
+        $this->publishWhatHappenedTo($connection);
+    }
+
+    private function withdrawFrom(Connection $connection, ExchangeId $id, ClientCredentials $client, ?CalendarEntry $entry, \DateTimeImmutable $at): void
+    {
+        try {
+            $connection->withdraw($id, $client, $this->calendars, $at);
+            $this->forget($entry);
+        } catch (CalendarRefusedThePush $refusal) {
+            null === $entry ? throw $refusal : $this->keepTheRefusal($entry, $at);
+        }
+    }
+
+    private function forget(?CalendarEntry $entry): void
+    {
         if (null !== $entry) {
             $this->entries->remove($entry);
         }
