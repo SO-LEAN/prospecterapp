@@ -139,22 +139,37 @@ deploy_relay() {
     echo "Lambda prospecter-dev-relay relaying the outbox of the tables to the bus prospecter-dev-integration"
 }
 
-# deploy_worker <php layer>: the worker running the reactions (ADR 0101), invoked by a rule of the bus per
-# subscription of apps/api/config/subscriptions.json, with the name of the subscription and the event; what it refuses,
-# and what Lambda gives up after its 2 retries, in the queue of the failures. MiniStack invokes the target of a rule
-# without the retries of Lambda nor its destination (spike of MiniStack 1.5.27): a failure coming from a rule is only
-# logged; invoked asynchronously directly (app:integration:redrive), the worker gets both.
+# deploy_worker <php layer>: the worker running the reactions (ADR 0101), WORKER_CONCURRENCY at once (ADR 0129), given
+# by a rule of the bus per subscription of apps/api/config/subscriptions.json the name of the subscription and the
+# event; what it refuses, and what Lambda gives up after its 2 retries, in the queue of the failures. MiniStack refuses
+# an invocation beyond the reserved concurrency without waiting, and invokes the target of a rule without the retries
+# of Lambda nor its destination (spike of MiniStack 1.5.27), where AWS keeps it until the worker has room: the rules
+# put the invocations in a queue instead, whose mapping gives them to the worker as many at once as its concurrency,
+# again until their third receive when it fails, then into the failures (QueuedIntegrationEventConsumer); invoked
+# asynchronously directly (app:integration:redrive), the worker gets the retries and the destination of Lambda.
+WORKER_CONCURRENCY=10
 deploy_worker() {
     failures=$(aws sqs create-queue --queue-name prospecter-dev-integration-failures --attributes MessageRetentionPeriod=1209600 --query QueueUrl)
     failures=$(aws sqs get-queue-attributes --queue-url "$failures" --attribute-names QueueArn --query Attributes.QueueArn)
 
+    invocations=$(aws sqs create-queue --queue-name prospecter-dev-worker-invocations --attributes VisibilityTimeout=30 --query QueueUrl)
+    invocations=$(aws sqs get-queue-attributes --queue-url "$invocations" --attribute-names QueueArn --query Attributes.QueueArn)
+
     aws lambda delete-function --function-name prospecter-dev-worker >/dev/null 2>&1 || true
     worker=$(aws lambda create-function --function-name prospecter-dev-worker --runtime provided.al2023 --handler bootstrap \
         --role "$role" --zip-file fileb:///build/function.zip --layers "$1" --memory-size 1024 --timeout 28 \
-        --environment 'Variables={BREF_RUNTIME=function,BREF_LOCAL_HANDLER=App\Shared\Messaging\IntegrationEventConsumer,BREF_LOCAL_ROOT=/var/www/src/apps/api}' \
+        --environment 'Variables={BREF_RUNTIME=function,BREF_LOCAL_HANDLER=App\Shared\Messaging\QueuedIntegrationEventConsumer,BREF_LOCAL_ROOT=/var/www/src/apps/api}' \
         --query FunctionArn)
+    aws lambda put-function-concurrency --function-name prospecter-dev-worker \
+        --reserved-concurrent-executions "$WORKER_CONCURRENCY" >/dev/null
     aws lambda put-function-event-invoke-config --function-name prospecter-dev-worker --maximum-retry-attempts 2 \
         --maximum-event-age-in-seconds 21600 --destination-config "OnFailure={Destination=$failures}" >/dev/null
+    # the invocations of the rules waiting in their queue for the worker to have room, one at a time
+    for mapping in $(aws lambda list-event-source-mappings --function-name prospecter-dev-worker --query 'EventSourceMappings[].UUID'); do
+        aws lambda delete-event-source-mapping --uuid "$mapping" >/dev/null
+    done
+    aws lambda create-event-source-mapping --function-name "$worker" --event-source-arn "$invocations" --batch-size 1 \
+        --scaling-config "MaximumConcurrency=$WORKER_CONCURRENCY" >/dev/null
 
     for rule in $(aws events list-rules --event-bus-name prospecter-dev-integration --query 'Rules[].Name'); do
         aws events remove-targets --rule "$rule" --event-bus-name prospecter-dev-integration --ids worker >/dev/null 2>&1 || true
@@ -164,7 +179,7 @@ deploy_worker() {
         aws events put-rule --name "$subscription" --event-bus-name prospecter-dev-integration \
             --event-pattern "$(jq -c --arg name "$subscription" '.[$name] | {source: .sources, "detail-type": .events} + (if .payload then {detail: {payload: .payload}} else {} end)' /build/subscriptions.json)" >/dev/null
         aws events put-targets --rule "$subscription" --event-bus-name prospecter-dev-integration \
-            --targets "$(jq -c -n --arg name "$subscription" --arg worker "$worker" '[{Id: "worker", Arn: $worker, InputTransformer: {
+            --targets "$(jq -c -n --arg name "$subscription" --arg invocations "$invocations" '[{Id: "worker", Arn: $invocations, InputTransformer: {
                 InputPathsMap: {source: "$.source", detailType: "$.detail-type", detail: "$.detail"},
                 InputTemplate: ("{\"subscription\": \"" + $name + "\", \"source\": <source>, \"detailType\": <detailType>, \"detail\": <detail>}")}}]')" >/dev/null
     done
@@ -195,14 +210,14 @@ deploy_apps() {
 
 # warm_reactions: the relay and the worker started, their first call taking some 16 seconds, before the journeys
 # count on a reaction within a second: the relay given an empty batch, the worker an exchange erased without a file,
-# to which its subscription reacts by removing nothing, without an inbox, several at once: a gesture has several
-# reactions, those of its facts counted by Reporting among them, and a container of a function starting meanwhile may
-# fail the requests of the journey in flight
+# to which its subscription reacts by removing nothing, without an inbox, as many at once as its concurrency: a gesture
+# has several reactions, those of its facts counted by Reporting among them, and a container of a function starting
+# meanwhile may fail the requests of the journey in flight
 warm_reactions() {
     erased='{"subscription": "prospecting-discard-attachments-of-erased-exchange", "source": "prospecter.prospecting.internal", "detailType": "ExchangeErased.v1", "detail": {"eventId": "01900000-0000-7000-8000-00000000f001", "occurredAt": "2026-10-15T09:00:00.000000Z", "correlationId": "01900000-0000-7000-8000-00000000f002", "causationId": null, "depth": 0, "payload": {"accountId": "01900000-0000-7000-8000-00000000f003", "by": "01900000-0000-7000-8000-00000000f004", "exchange": "01900000-0000-7000-8000-00000000f005", "files": [], "occurredAt": "2026-10-15T09:00:00.000000Z"}}}'
     aws lambda invoke --function-name prospecter-dev-relay --cli-binary-format raw-in-base64-out --cli-read-timeout 120 \
         --payload '{"Records": []}' /dev/null >/dev/null &
-    for warm in 1 2 3 4 5 6 7 8; do
+    for warm in $(seq 1 "$WORKER_CONCURRENCY"); do
         aws lambda invoke --function-name prospecter-dev-worker --cli-binary-format raw-in-base64-out --cli-read-timeout 120 \
             --payload "$erased" /dev/null >/dev/null &
     done
@@ -210,9 +225,10 @@ warm_reactions() {
     echo "Lambdas prospecter-dev-relay and prospecter-dev-worker warm"
 }
 
-# purge_failures: the queues of the failures of the relay and the worker emptied, those not created yet skipped
+# purge_failures: the queues of the failures of the relay and the worker, and the invocations waiting for the worker,
+# emptied, those not created yet skipped
 purge_failures() {
-    for queue in prospecter-dev-relay-failures prospecter-dev-integration-failures; do
+    for queue in prospecter-dev-relay-failures prospecter-dev-integration-failures prospecter-dev-worker-invocations; do
         url=$(aws sqs get-queue-url --queue-name "$queue" --query QueueUrl 2>/dev/null) || continue
         aws sqs purge-queue --queue-url "$url"
         echo "Queue $queue emptied"

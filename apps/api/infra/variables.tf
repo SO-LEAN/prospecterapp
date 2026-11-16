@@ -46,3 +46,14 @@ variable "integration_events_delivery" {
     error_message = "The delivery is sync or outbox."
   }
 }
+
+variable "worker_concurrency" {
+  description = "How many invocations of the worker run at once at most (ADR 0129): its reserved concurrency, taken from the executions of the account, which keeps 10 unreserved; a burst of reactions waits for room instead of taking the executions of the api"
+  type        = number
+  default     = 10
+
+  validation {
+    condition     = var.worker_concurrency >= 1
+    error_message = "The worker runs at least one invocation at once."
+  }
+}
