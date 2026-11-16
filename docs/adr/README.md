@@ -134,3 +134,4 @@ Why the project is shaped the way it is: one record per decision, in the order t
 | [0128](0128-the-index-of-the-records-is-written-from-their-headers.md) | The index of the records is written from their headers and merged by union | architecture | Accepted | 2026-11-15 |
 | [0130](0130-the-spa-signs-in-on-cognito-with-amplify-v6.md) | The SPA signs in on Cognito with Amplify v6 | architecture | Accepted | 2026-11-16 |
 | [0131](0131-the-worker-runs-a-bounded-number-of-invocations-at-once.md) | The worker runs a bounded number of invocations at once, locally through a queue of its invocations | architecture | Accepted | 2026-11-16 |
+| [0129](0129-a-prospector-without-the-right-plans-and-reads-the-names-of-the-contacts.md) | A prospector without the right to manage personal data reads the names of the contacts and plans their own exchanges | domain | Accepted | 2026-11-16 |
