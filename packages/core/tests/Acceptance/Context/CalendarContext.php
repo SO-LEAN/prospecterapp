@@ -53,7 +53,7 @@ final class CalendarContext implements Context
     public function anotherProspectorPlanned(string $account, string $exchange, string $contact, string $day, string $time): void
     {
         $colleague = $this->scenario->aMemberOf('un autre prospecteur', $account, Role::User, Role::Prospector, Role::PersonalData);
-        $this->plan($colleague->id()->value, $exchange, $contact, self::moment($day, $time));
+        $this->scenario->rememberTheExchange($this->plan($colleague->id()->value, $exchange, $contact, self::moment($day, $time)));
     }
 
     #[When('/^je consulte mon calendrier du (?<first>\S+) au (?<last>\S+)$/')]

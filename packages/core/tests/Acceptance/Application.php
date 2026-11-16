@@ -33,6 +33,9 @@ use Prospecter\Core\Connectors\Application\CalendarPusher;
 use Prospecter\Core\Connectors\Application\CheckMyConnections\CheckMyConnectionsHandler;
 use Prospecter\Core\Connectors\Application\ConfigureClient\ConfigureClientHandler;
 use Prospecter\Core\Connectors\Application\Connect\ConnectHandler;
+use Prospecter\Core\Connectors\Application\ConsultExchangeSync\ConsultExchangeSync;
+use Prospecter\Core\Connectors\Application\ConsultExchangeSync\ConsultExchangeSyncHandler;
+use Prospecter\Core\Connectors\Application\ConsultExchangeSync\KeptExchangeSync;
 use Prospecter\Core\Connectors\Application\ConsultMyAccountClients\ConsultMyAccountClients;
 use Prospecter\Core\Connectors\Application\ConsultMyAccountClients\ConsultMyAccountClientsHandler;
 use Prospecter\Core\Connectors\Application\ConsultMyAccountClients\KeptAccountClients;
@@ -41,7 +44,10 @@ use Prospecter\Core\Connectors\Application\ConsultMyConnections\ConsultMyConnect
 use Prospecter\Core\Connectors\Application\ConsultMyConnections\KeptConnections;
 use Prospecter\Core\Connectors\Application\Disconnect\DisconnectHandler;
 use Prospecter\Core\Connectors\Application\PushExchange\PushExchangeHandler;
+use Prospecter\Core\Connectors\Application\PushUpcomingExchanges\PushUpcomingExchangesHandler;
 use Prospecter\Core\Connectors\Application\RemoveClient\RemoveClientHandler;
+use Prospecter\Core\Connectors\Application\RetryFailedPushes\RetryFailedPushesHandler;
+use Prospecter\Core\Connectors\Application\RetryPush\RetryPushHandler;
 use Prospecter\Core\Connectors\Application\UnnameForgottenContact\UnnameForgottenContactHandler;
 use Prospecter\Core\PersonalData\Application\ChangeJobTitle\ChangeJobTitleHandler;
 use Prospecter\Core\PersonalData\Application\ChangePersonContactDetails\ChangePersonContactDetailsHandler;
@@ -98,6 +104,8 @@ use Prospecter\Core\Prospecting\Application\ConsultExchange\KeptExchange;
 use Prospecter\Core\Prospecting\Application\ConsultExchangesToMakeConform\ConsultExchangesToMakeConform;
 use Prospecter\Core\Prospecting\Application\ConsultExchangesToMakeConform\ConsultExchangesToMakeConformHandler;
 use Prospecter\Core\Prospecting\Application\ConsultHeldExchanges\ConsultHeldExchangesHandler;
+use Prospecter\Core\Prospecting\Application\ConsultUpcomingExchanges\ConsultUpcomingExchangesHandler;
+use Prospecter\Core\Prospecting\Application\PublishedHeldExchanges;
 use Prospecter\Core\Prospecting\Application\ConsultMyDay\ConsultMyDay;
 use Prospecter\Core\Prospecting\Application\ConsultMyDay\ConsultMyDayHandler;
 use Prospecter\Core\Prospecting\Application\ConsultMyDay\KeptMyDay;
@@ -200,6 +208,7 @@ use Prospecter\Core\Prospecting\Application\WriteObservations\WriteObservationsH
 use Prospecter\Core\Prospecting\Contract\Service\ConsultHeldExchanges\ConsultHeldExchanges;
 use Prospecter\Core\Prospecting\Contract\Service\ConsultHeldExchanges\HeldExchangeResponse;
 use Prospecter\Core\Prospecting\Contract\Service\ConsultHeldExchanges\KeptHeldExchanges;
+use Prospecter\Core\Prospecting\Contract\Service\ConsultUpcomingExchanges\ConsultUpcomingExchanges;
 use Prospecter\Core\Prospecting\Contract\Service\ListExchangeFacts\KeptExchangeFacts;
 use Prospecter\Core\Prospecting\Contract\Service\ListExchangeFacts\ListExchangeFacts;
 use Prospecter\Core\Prospecting\Contract\Service\ListOrganizationFacts\KeptOrganizationFacts;
@@ -355,6 +364,7 @@ final class Application
     private readonly AccountsMembers $connectingMembers;
     public readonly InMemoryProviderCalendar $calendars;
     private readonly ConsultHeldExchangesHandler $consultHeldExchangesService;
+    private readonly ConsultUpcomingExchangesHandler $consultUpcomingExchangesService;
     private readonly NameContactsHandler $nameContactsService;
     private readonly ProspectingHeldExchanges $heldExchanges;
     private readonly InMemoryCalendarEntryRepository $calendarEntries;
@@ -427,11 +437,14 @@ final class Application
         $this->accountClientsRetriever = new InMemoryAccountClientsRetriever($database);
         $this->connectingMembers = new AccountsMembers($this->consultMembersService);
         $this->calendars = new InMemoryProviderCalendar($this->providerAccess);
-        $this->consultHeldExchangesService = new ConsultHeldExchangesHandler(new InMemoryHeldExchangeRetriever($database), $this->organizationSheetRetriever);
+        $heldExchangeRetriever = new InMemoryHeldExchangeRetriever($database);
+        $publishedHeldExchanges = new PublishedHeldExchanges($this->organizationSheetRetriever);
+        $this->consultHeldExchangesService = new ConsultHeldExchangesHandler($heldExchangeRetriever, $publishedHeldExchanges);
+        $this->consultUpcomingExchangesService = new ConsultUpcomingExchangesHandler($heldExchangeRetriever, $publishedHeldExchanges);
         $this->nameContactsService = new NameContactsHandler($this->personCardRetriever, $this->readers);
-        $this->heldExchanges = new ProspectingHeldExchanges($this->consultHeldExchangesService);
+        $this->heldExchanges = new ProspectingHeldExchanges($this->consultHeldExchangesService, $this->consultUpcomingExchangesService);
         $this->calendarEntries = new InMemoryCalendarEntryRepository($database);
-        $this->calendarPusher = new CalendarPusher($this->calendarEntries, $this->connections, $this->clients, $this->connectingMembers, new PersonalDataContactNames($this->nameContactsService), $this->calendars, $this->events);
+        $this->calendarPusher = new CalendarPusher($this->heldExchanges, $this->calendarEntries, $this->connections, $this->clients, $this->connectingMembers, new PersonalDataContactNames($this->nameContactsService), $this->calendars, $this->events);
 
         foreach ($this->translators() as $translator) {
             $this->events->translateWith($translator, calledThrough: new RefusalTranslatingEventHandler(new TransactionalEventHandler($translator, $this->unitOfWork)));
@@ -582,7 +595,15 @@ final class Application
         $kept = new KeptConnections();
         $handler = new ConsultMyConnectionsHandler($this->myConnectionsRetriever, $this->accountClientsRetriever, $this->connectingMembers);
 
-        return $this->ask($handler, new ConsultMyConnections($member ?? $this->signedIn()), $kept) ? $kept : null;
+        return $this->ask($handler, new ConsultMyConnections($member ?? $this->signedIn(), $this->now), $kept) ? $kept : null;
+    }
+
+    public function consultExchangeSync(string $exchange): ?KeptExchangeSync
+    {
+        $kept = new KeptExchangeSync();
+        $handler = new ConsultExchangeSyncHandler($this->heldExchanges, $this->calendarEntries, $this->connections, $this->connectingMembers);
+
+        return $this->ask($handler, new ConsultExchangeSync($this->signedIn(), $exchange, $this->now), $kept) ? $kept : null;
     }
 
     public function consultMyAccountClients(): ?KeptAccountClients
@@ -849,6 +870,8 @@ final class Application
             new DisconnectHandler($this->connections, $this->providerAccess, $this->events),
             new ConfigureClientHandler($this->clients, $this->connectingMembers, $this->events),
             new RemoveClientHandler($this->clients, $this->connectingMembers, $this->events),
+            new RetryPushHandler($this->heldExchanges, $this->calendarEntries, $this->connectingMembers, $this->calendarPusher),
+            new RetryFailedPushesHandler($this->calendarEntries, $this->connectingMembers, $this->calendarPusher),
         ];
     }
 
@@ -884,6 +907,17 @@ final class Application
     {
         $kept = new KeptHeldExchanges();
         ($this->consultHeldExchangesService)($query, $kept);
+
+        return $kept->exchanges;
+    }
+
+    /**
+     * @return list<HeldExchangeResponse>
+     */
+    public function consultUpcomingExchanges(ConsultUpcomingExchanges $query): array
+    {
+        $kept = new KeptHeldExchanges();
+        ($this->consultUpcomingExchangesService)($query, $kept);
 
         return $kept->exchanges;
     }
@@ -989,7 +1023,8 @@ final class Application
             new RecordOrganizationFactsHandler($this->factRecorder),
             new RecordExchangeFactsHandler($this->factRecorder),
             new RecordContactFactsHandler($this->factRecorder),
-            new PushExchangeHandler($this->heldExchanges, $this->calendarPusher),
+            new PushExchangeHandler($this->calendarPusher),
+            new PushUpcomingExchangesHandler($this->heldExchanges, $this->calendarPusher),
             new UnnameForgottenContactHandler($this->heldExchanges, $this->calendarEntries, $this->calendarPusher),
         ];
     }
