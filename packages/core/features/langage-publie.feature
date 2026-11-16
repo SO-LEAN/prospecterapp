@@ -141,6 +141,24 @@ Fonctionnalité: Le langage publié des contextes
     Et un autre contexte demande à Prospecting, de "SOLEAN IT", cet échange et un échange inconnu
     Alors Prospecting ne répond aucun échange
 
+  Scénario: Prospecting dit les échanges planifiés à venir de leur titulaire, du plus proche au plus lointain
+    Soit je suis connecté en tant que prospecteur de "SOLEAN IT"
+    Et nous sommes le 13/11/2026 à 10h00
+    Et j'ai planifié un appel avec "Ada Lovelace" le 13/11/2026 à 11h00
+    Et j'ai planifié un rendez-vous avec "Ada Lovelace" le 18/11/2026 à 9h00 pour 1 heure au lieu "Café de Flore"
+    Et j'ai planifié une visio avec "Ada Lovelace" le 19/11/2026 à 9h00
+    Et j'annule cette visio
+    Et j'ai planifié un appel avec "Ada Lovelace" le 17/11/2026 à 14h00
+    Et un autre prospecteur de "SOLEAN IT" a planifié une visio avec "Ada Lovelace" le 17/11/2026 à 15h00
+    Et nous sommes le 13/11/2026 à 15h00
+    Quand un autre contexte demande à Prospecting, de "SOLEAN IT", les échanges que je tiens à venir
+    Alors Prospecting répond les échanges :
+      | titulaire | statut  | canal       | moment           | durée  | lieu          | lien | contact      | organisation |
+      | moi       | À venir | Appel       | 17/11/2026 14:00 | 30 min |               |      | Ada Lovelace | ACME         |
+      | moi       | À venir | Rendez-vous | 18/11/2026 09:00 | 60 min | Café de Flore |      | Ada Lovelace | ACME         |
+    Quand un autre contexte demande à Prospecting, de "Concurrent", les échanges que je tiens à venir
+    Alors Prospecting ne répond aucun échange
+
   Scénario: PersonalData liste les faits des contacts d'un compte, par tranche
     Soit le contact "Alan Turing" de "ACME"
     Et le contact "Linus Torvalds" de "ACME"

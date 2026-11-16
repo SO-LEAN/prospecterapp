@@ -51,6 +51,8 @@ final class ConnectorContext implements Context
     }
 
     #[Given('mon compte Google est connecté')]
+    #[When('je connecte mon compte Google')]
+    #[When('je reconnecte mon compte Google')]
     public function myGoogleAccountIsConnected(): void
     {
         $this->iConnectMyGoogleAccount(self::MY_ACCOUNT);
