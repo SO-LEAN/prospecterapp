@@ -50,6 +50,25 @@ class MyDayApiTest extends ApiTestCase
     }
 
     /**
+     * The organization is erased at once, its exchanges by a reaction after it: in between, the day is read all the
+     * same, without them.
+     */
+    public function testAnExchangeWithAnOrganizationErasedBeforeItLeavesTheDayReadable(): void
+    {
+        $ada = $this->requestJson('POST', '/api/contacts', ['name' => ['firstName' => 'Ada', 'lastName' => 'Lovelace'], 'organizationIds' => [$this->requestJson('POST', '/api/organizations', ['legalIdentity' => ['corporateName' => 'ACME']])['id']]])['id'];
+        $this->requestJson('POST', '/api/contacts/'.$ada.'/upcoming-exchanges', ['channel' => 'videoCall', 'occurredAt' => '2026-10-15T14:00:00+00:00']);
+        $erased = $this->requestJson('POST', '/api/organizations', ['legalIdentity' => ['corporateName' => 'QA rendez-vous']])['id'];
+        $this->requestJson('POST', '/api/organizations/'.$erased.'/upcoming-exchanges', ['exchange' => ['channel' => 'meeting', 'occurredAt' => '2026-10-15T16:00:00+00:00']]);
+        $this->requestJson('POST', '/api/organizations/'.$erased.'/upcoming-exchanges', ['exchange' => ['channel' => 'call', 'occurredAt' => '2026-10-16T08:00:00+00:00']]);
+        $this->eraseBeforeItsExchanges($erased);
+
+        $myDay = $this->requestJson('GET', self::TODAY);
+
+        $this->assertResponseStatusCodeSame(200);
+        $this->assertSame([[['Ada Lovelace', 'videoCall', '2026-10-15T14:00:00+00:00']], []], [array_map(self::described(...), $myDay['today']), $myDay['next']]);
+    }
+
+    /**
      * A contact is shown with the organization the exchange is kept for; the organization itself needs none.
      */
     public function testAnExchangeWithAContactShowsTheirOrganization(): void

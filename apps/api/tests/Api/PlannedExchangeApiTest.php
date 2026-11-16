@@ -97,6 +97,24 @@ class PlannedExchangeApiTest extends ApiTestCase
         $this->assertSame([['Ada Lovelace', '2026-10-20T14:00:00+00:00', 30], ['ACME', '2026-10-20T14:20:00+00:00', 30]], array_map(static fn (array $item): array => [$item['interlocutor']['name'], $item['exchange']['occurredAt'], $item['exchange']['durationInMinutes']], $overlapping['items']));
     }
 
+    /**
+     * The organization is erased at once, its exchanges by a reaction after it: in between, the overlap is read all
+     * the same, without them.
+     */
+    public function testAnExchangeWithAnOrganizationErasedBeforeItDoesNotOverlap(): void
+    {
+        $ada = $this->aContactOf($this->anOrganization('ACME'), 'Ada', 'Lovelace');
+        $this->plan($ada, ['channel' => 'meeting', 'occurredAt' => self::NEXT_TUESDAY]);
+        $erased = $this->anOrganization('QA rendez-vous');
+        $this->planWith($erased, ['exchange' => ['channel' => 'call', 'occurredAt' => self::NEXT_TUESDAY]]);
+        $this->eraseBeforeItsExchanges($erased);
+
+        $overlapping = $this->requestJson('GET', '/api/me/planned-exchanges?startsAt='.urlencode(self::NEXT_TUESDAY));
+
+        $this->assertResponseStatusCodeSame(200);
+        $this->assertSame(['Ada Lovelace'], array_map(static fn (array $item): ?string => $item['interlocutor']['name'], $overlapping['items']));
+    }
+
     public function testTheExchangesPlannedByAColleagueDoNotOverlapMine(): void
     {
         $ada = $this->aContactOf($this->anOrganization('ACME'), 'Ada', 'Lovelace');
