@@ -8,7 +8,7 @@ An organization using Prospecter, and the members working in it. Code: `packages
 - **Member** (`Member`): a person working in an account, under a profile of their own in PersonalData (a `PersonId`), with their roles. Signing in, with a login email, is the business of authentication, outside the core (ADR 0011, 0052).
 - **Roles** (`Role`): the right to sign in (`ROLE_USER`, every member has it), to prospect (`ROLE_PROSPECTOR`), to manage the personal data (`ROLE_PERSONAL_DATA`), to administer the account (`ROLE_ADMIN`, holding all the others).
 - **Founder**: the member who opens an account.
-- **Reminders** (`Reminders`): whether a member is reminded of the exchanges they planned, and how long before (`ReminderDelay`: on time, 5, 10, 15, 30 or 60 minutes); theirs, whatever the device.
+- **Reminders** (`Reminders`): whether a member is reminded of the exchanges they planned, and how long before (`ReminderDelay`: on time, 5, 10, 15, 30 or 60 minutes); theirs, whatever the device, shown by the application while it is open (`docs/architecture/front.md`).
 
 ## Rules
 
