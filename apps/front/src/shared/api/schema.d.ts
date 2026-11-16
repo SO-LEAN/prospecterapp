@@ -2061,13 +2061,13 @@ export interface components {
              * @description Since when it stands so; none for an exchange never pushed
              * @default null
              */
-            at: string;
+            at: string | null;
             /**
              * @description Why: the provider refused it (`calendarRefusedThePush`), or my connection is to reconnect (`toReconnect`)
              * @default null
-             * @enum {string}
+             * @enum {string|null}
              */
-            reason: "calendarRefusedThePush" | "toReconnect";
+            reason: "calendarRefusedThePush" | "toReconnect" | null;
         };
         ExchangeSyncLinksResource: {
             self: components["schemas"]["LinkResource"];

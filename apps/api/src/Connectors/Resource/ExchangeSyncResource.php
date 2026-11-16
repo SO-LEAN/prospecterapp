@@ -14,8 +14,6 @@ use Symfony\Component\Serializer\Normalizer\AbstractObjectNormalizer;
 final readonly class ExchangeSyncResource
 {
     public function __construct(
-        #[OA\Property(nullable: true)]
-        #[Context([AbstractObjectNormalizer::SKIP_NULL_VALUES => true])]
         public ?SyncResource $sync,
         #[SerializedName('_links')]
         #[Context([AbstractObjectNormalizer::SKIP_NULL_VALUES => true])]

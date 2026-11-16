@@ -7877,11 +7877,13 @@
                         "description": "Since when it stands so; none for an exchange never pushed",
                         "type": "string",
                         "format": "date-time",
+                        "nullable": true,
                         "default": null
                     },
                     "reason": {
                         "description": "Why: the provider refused it (`calendarRefusedThePush`), or my connection is to reconnect (`toReconnect`)",
                         "type": "string",
+                        "nullable": true,
                         "default": null,
                         "enum": [
                             "calendarRefusedThePush",
