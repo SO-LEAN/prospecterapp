@@ -24,25 +24,22 @@ final readonly class Reader
     }
 
     /**
-     * Searching contacts by text needs the right to manage personal data; reading them masked does not.
+     * Every member searches the contacts, by their name at least (ADR 0129).
      *
      * @return list<ContactsIntent>
      */
     public function contactsIntents(): array
     {
-        return $this->readsPersonalData ? ContactsIntent::cases() : [];
+        return ContactsIntent::cases();
     }
 
     /**
-     * A reader of masked data could guess them by filtering on what they cannot read.
-     *
-     * @throws PersonalDataManagersOnly
+     * A reader of masked emails could guess them by searching in what they cannot read: they search the names only
+     * (ADR 0129).
      */
-    public function ensureMaySearchByText(string $text): void
+    public function searchesTheEmails(): bool
     {
-        if ('' !== $text && !$this->readsPersonalData) {
-            throw PersonalDataManagersOnly::because('Only a member allowed to manage personal data may search persons by text', 'q');
-        }
+        return $this->readsPersonalData;
     }
 
     /**

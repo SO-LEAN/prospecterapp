@@ -59,14 +59,15 @@ final readonly class InMemoryPersonCardRetriever implements PersonCardRetriever
     {
         $state = StateOf::the($person);
         $masked = Reading::Masked === PersonReading::by($reader, $person->id());
+        $nameMasked = Reading::Masked === PersonReading::ofTheName($reader, $person->id(), $person->purpose());
         $name = $state['name'];
         $contact = $person->contactDetails();
 
         return new PersonCard(
             id: $person->id()->value,
             masked: $masked,
-            firstName: $masked ? Masking::name($name->firstName) : $name->firstName,
-            lastName: $masked ? Masking::name($name->lastName) : $name->lastName,
+            firstName: $nameMasked ? Masking::name($name->firstName) : $name->firstName,
+            lastName: $nameMasked ? Masking::name($name->lastName) : $name->lastName,
             jobTitle: $masked ? Masking::jobTitle($state['jobTitle']) : $state['jobTitle'],
             email: $masked ? Masking::email($contact->email?->value) : $contact->email?->value,
             phoneNumber: $masked ? Masking::phoneNumber($contact->phoneNumber) : $contact->phoneNumber?->international(),

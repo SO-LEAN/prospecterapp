@@ -6,7 +6,7 @@ namespace Prospecter\Core\PersonalData\Application\SearchContacts;
 
 /**
  * The persons the account of the reader prospects, newest first, a slice after the cursor `after` (ADR 0049);
- * a text search needs the right to read them in clear.
+ * searched by the beginning of their name, and of their email with the right to read them in clear (ADR 0129).
  */
 final readonly class SearchContacts
 {

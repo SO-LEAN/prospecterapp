@@ -62,6 +62,6 @@ Fonctionnalité: Rechercher mes contacts
 
   Scénario: Sans le droit, je ne cherche pas dans les e-mails, qui me sont masqués
     Soit je suis connecté en tant que prospecteur de "SOLEAN IT" sans le droit aux données personnelles
-    Quand je cherche "navy" dans mes contacts
+    Quand je cherche "ada@" dans mes contacts
     Alors la liste des contacts affiche :
       | prénom | nom |
