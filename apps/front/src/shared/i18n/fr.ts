@@ -391,7 +391,11 @@ export const fr = {
       other: 'Autre',
     },
     direction: 'Sens',
-    directions: { inbound: 'Reçu', outbound: 'Envoyé' },
+    directions: {
+      message: { inbound: 'Reçu', outbound: 'Envoyé' },
+      call: { inbound: 'Reçu', outbound: 'Émis' },
+      encounter: { inbound: 'À son initiative', outbound: 'À mon initiative' },
+    },
     missedLabel: 'Manqué : le contact n’a pas répondu ou n’est pas venu',
     occurredAt: 'Moment',
     text: 'Texte',

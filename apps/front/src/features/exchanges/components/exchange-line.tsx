@@ -21,7 +21,7 @@ import type { ReactNode } from 'react'
 import { useTranslation } from 'react-i18next'
 import { formatMoment, formatUpcoming } from '@/shared/lib/format'
 import { cn } from '@/shared/lib/utils'
-import type { Channel, Exchange, Interlocutor } from '../queries'
+import { type Channel, directionWordsOf, type Exchange, type Interlocutor } from '../queries'
 import { ExchangeText, PersonalDataWarning } from './exchange-text'
 
 export const CHANNEL_ICONS: Record<Channel, LucideIcon> = {
@@ -103,7 +103,7 @@ export function ExchangeSummary({
   const cancelled = exchange.status === 'cancelled'
   const direction =
     exchange.status === 'done'
-      ? t(`exchanges.directions.${exchange.direction}`)
+      ? t(`exchanges.directions.${directionWordsOf(exchange.channel)}.${exchange.direction}`)
       : t(`exchanges.statuses.${exchange.status}`)
   const StatusIcon = iconOf(exchange)
 

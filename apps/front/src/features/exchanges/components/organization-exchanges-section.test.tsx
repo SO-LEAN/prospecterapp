@@ -131,7 +131,9 @@ describe('OrganizationExchangesSection', () => {
     ]
     const items = screen.getAllByRole('listitem')
     expect(items).toHaveLength(summaries.length)
-    summaries.forEach((summary, index) => expect(items[index]).toHaveTextContent(summary))
+    for (const [index, summary] of summaries.entries()) {
+      expect(items[index]).toHaveTextContent(summary)
+    }
   })
 
   it('strikes the name of a contact who left the organization', () => {

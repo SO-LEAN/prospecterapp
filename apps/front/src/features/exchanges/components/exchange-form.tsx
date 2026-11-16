@@ -17,7 +17,7 @@ import { Button } from '@/shared/ui/button'
 import { FileDropZone } from '@/shared/ui/file-drop-zone'
 import { Input } from '@/shared/ui/input'
 import { Textarea } from '@/shared/ui/textarea'
-import { CHANNELS, DIRECTIONS, type ExchangeFacts, isAgreedUpon } from '../queries'
+import { CHANNELS, DIRECTIONS, directionWordsOf, type ExchangeFacts, isAgreedUpon } from '../queries'
 import {
   type ExchangeValues,
   exchangeFields,
@@ -129,7 +129,7 @@ export function ExchangeForm({
           <Choice
             key={value}
             icon={DIRECTION_ICONS[value]}
-            label={t(`exchanges.directions.${value}`)}
+            label={t(`exchanges.directions.${directionWordsOf(channel)}.${value}`)}
             value={value}
             {...form.register('direction')}
           />
