@@ -10,7 +10,8 @@ import { contactQuery, fullNameOf, organizationsOfContactQuery } from '../querie
 
 /**
  * A contact in short, beside one of their exchanges: who they are, what they do and where, called or written to in a
- * click. A contact has no picture: their initials stand for it.
+ * click. A contact has no picture: their initials stand for it. Read without the right to their personal data, only
+ * their name and organizations: the rest comes masked.
  */
 export function ContactSummary({ contactId }: { contactId: string }) {
   const { t } = useTranslation()
@@ -20,7 +21,9 @@ export function ContactSummary({ contactId }: { contactId: string }) {
   if (!contact.data) return <Skeleton className="h-14 w-full" />
 
   const name = fullNameOf(contact.data) || t('contacts.unnamed')
-  const { email, phoneNumber } = contact.data.contactDetails
+  const { masked } = contact.data
+  const email = masked ? null : contact.data.contactDetails.email
+  const phoneNumber = masked ? null : contact.data.contactDetails.phoneNumber
 
   return (
     <div className="space-y-2 text-sm">
@@ -30,7 +33,9 @@ export function ContactSummary({ contactId }: { contactId: string }) {
         </Avatar>
         <div className="min-w-0">
           <p className="truncate font-medium">{name}</p>
-          {contact.data.jobTitle && <p className="truncate text-muted-foreground">{contact.data.jobTitle}</p>}
+          {!masked && contact.data.jobTitle && (
+            <p className="truncate text-muted-foreground">{contact.data.jobTitle}</p>
+          )}
         </div>
       </div>
       {(organizations.data?.items.length ?? 0) > 0 && (

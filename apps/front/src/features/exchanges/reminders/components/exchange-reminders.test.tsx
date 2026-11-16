@@ -82,7 +82,10 @@ const aVideoCallAt14 = () =>
 const aDayOf = (today: DayExchange[]): MyDay => ({
   today,
   next: [],
-  _links: { self: { href: '/api/me/day', method: 'GET' } },
+  _links: {
+    self: { href: '/api/me/day', method: 'GET' },
+    searchContacts: { href: '/api/contacts', method: 'GET' },
+  },
 })
 
 const theDetailOf = (item: DayExchange, detail: Partial<ExchangeDetail>): ExchangeDetail => ({

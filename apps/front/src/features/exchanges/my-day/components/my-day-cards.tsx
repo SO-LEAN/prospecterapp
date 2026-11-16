@@ -37,12 +37,7 @@ export function MyDayCards({ contactSummary }: Props) {
 
   return (
     <>
-      <TodayCard
-        items={myDay.today}
-        now={now}
-        mayPlan={Boolean(myDay._links.searchContacts)}
-        onOpen={(item, startWith) => setOpened({ item, startWith })}
-      />
+      <TodayCard items={myDay.today} now={now} onOpen={(item, startWith) => setOpened({ item, startWith })} />
       <UpcomingCard items={myDay.next} now={now} onOpen={(item) => setOpened({ item })} />
       <ExchangeDialog
         item={opened?.item ?? null}
@@ -77,7 +72,7 @@ type CardProps = {
   onOpen: (item: DayExchange, startWith?: 'report') => void
 }
 
-function TodayCard({ items, now, mayPlan, onOpen }: CardProps & { mayPlan: boolean }) {
+function TodayCard({ items, now, onOpen }: CardProps) {
   const { t } = useTranslation()
 
   return (
@@ -89,13 +84,11 @@ function TodayCard({ items, now, mayPlan, onOpen }: CardProps & { mayPlan: boole
         {items.length === 0 ? (
           <div className="flex flex-col items-start gap-3">
             <p className="text-muted-foreground text-sm">{t('myDay.nothingToday')}</p>
-            {mayPlan && (
-              <Button variant="outline" size="sm" asChild>
-                <Link to="/calendar" search={{ view: 'day' }}>
-                  <CalendarPlus aria-hidden /> {t('myDay.plan')}
-                </Link>
-              </Button>
-            )}
+            <Button variant="outline" size="sm" asChild>
+              <Link to="/calendar" search={{ view: 'day' }}>
+                <CalendarPlus aria-hidden /> {t('myDay.plan')}
+              </Link>
+            </Button>
           </div>
         ) : (
           <ul className="space-y-2">
