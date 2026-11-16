@@ -168,7 +168,7 @@ flowchart TD
 - **In doubt, a failure is retried**: a reaction missing an earlier fact (the order is no promise) throws and comes again later.
 - **A reaction with nothing left to do ends without throwing**: an exchange erased already, an organization gone.
 - **The relay** fails a whole batch when `PutEvents` refuses an entry; the mapping splits it, tries 5 times, keeps a record a day at most, then sends the metadata of the batch (not the events) to `relay-failures`; `app:outbox:republish --since=<moment>` publishes again the outboxes the tables still keep (a week).
-- **A rule unable to invoke the worker** (permission, throttling) retries for a day, then puts the event in `integration-failures` too.
+- **A rule unable to invoke the worker** (permission, throttling) retries for a day, then puts the event in `integration-failures` too; an invocation beyond the reserved concurrency of the worker is kept by Lambda and retried within the 6 hours of an event (ADR 0131). Locally, the invocations of the rules wait in a queue for the worker to have room ([local-stack.md](local-stack.md)).
 - No alarm watches the queues: `app:consistency:check` checks the result instead (below).
 
 ## Sync and outbox
@@ -229,6 +229,6 @@ The correlation of a gesture is in every log of the relay and the worker (CloudW
 - What is not DynamoDB is outside the transaction: a file sent to the storage by a use case whose unit is then discarded stays there, unused; files are removed only by reactions, after the state.
 - No alarm on the queues of the failures: `app:consistency:check` is run by hand.
 - `ExchangeFactsChanged.v1` is still read, and listened to by `reporting-figures`, until no outbox nor queue of failures of an instance holds it (14 days after the deployment of `.v2`, the queues empty).
-- The worker shares the concurrency of the account with the API (no reservation); `BREF_LOOP_MAX` is off, PHP restarting for each invocation.
+- The worker runs 10 invocations at once at most (its reserved concurrency, `worker_concurrency` on AWS, ADR 0131): a burst of reactions waits for room, its last reaction coming some seconds later; `BREF_LOOP_MAX` is off, PHP restarting for each invocation.
 - On AWS, the split of a failing batch by the relay is configured but was never seen at work (a poisoned outbox, written on purpose on `dev`, was alone in its batch).
 - A commit publishing in two contexts is refused: a gesture runs one use case (ADR 0100).
