@@ -6,5 +6,6 @@ region         = "eu-west-3"
 permissions_boundary = "arn:aws:iam::123456789012:policy/my-boundary"
 # outbox when absent; sync runs the reactions within the command, for an instance whose reactions are not in service
 # integration_events_delivery = "sync"
-# the invocations of the worker running at once, 10 when absent, reserved: the account keeps 10 executions unreserved
+# the invocations of the worker running at once, 10 when absent, reserved: AWS keeps a minimum of the executions of the
+# account unreserved (100 by its documentation), an account limited to 10 refusing any reservation
 # worker_concurrency = 10

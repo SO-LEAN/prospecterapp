@@ -22,7 +22,7 @@ MiniStack 1.5.27 (its sources read for #140) refuses an invocation beyond the re
 
 - Measured from nothing (`make check-e2e FRESH=1`, every journey passing, two other stacks running on the machine, MiniStack sampled every 10 s): MiniStack peaks at 3.8 GiB with a cap of 10, against 5.7 GiB on `dev` before it, the journeys taking 353 s in all; a cap of 3 peaks at 3.8 GiB too, in 336 s: below 10, the peak no longer comes from the worker.
 - A burst of reactions takes longer to drain: 72 reactions at 10 at once, each some 0.5 to 1 s warm, take some seconds more than when they all ran together. The SPA reads the queries the reactions change again while they run (`readAgainAfterTheReactions`), and the journeys rely on the retried assertions of Playwright.
-- AWS keeps 10 executions of an account unreserved: a reservation of 10 needs an account accepting more than 20 executions at once; on an account limited to 10 (#101), the apply is refused.
+- AWS keeps a minimum of the executions of an account unreserved, 100 by its documentation: a reservation of 10 needs an account accepting some 110 executions at once; on an account limited to 10 (#101), the apply is refused.
 - The local stack differs from AWS by one queue between the rules and the worker, and by the retries of a failure coming from a rule (the visibility timeout of the queue rather than the backoff of Lambda). The handler of AWS stays `IntegrationEventConsumer`.
 - An invocation refused locally by the reserved concurrency while the warming or a redrive takes the worker is received again after 30 s, its receive counted: it may be kept in the failures after a first failure only.
 

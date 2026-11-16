@@ -48,7 +48,7 @@ variable "integration_events_delivery" {
 }
 
 variable "worker_concurrency" {
-  description = "How many invocations of the worker run at once at most (ADR 0131): its reserved concurrency, taken from the executions of the account, which keeps 10 unreserved; a burst of reactions waits for room instead of taking the executions of the api"
+  description = "How many invocations of the worker run at once at most (ADR 0131): its reserved concurrency, taken from the executions of the account, of which AWS keeps a minimum unreserved (100 by its documentation, all 10 of an account limited to 10); a burst of reactions waits for room instead of taking the executions of the api"
   type        = number
   default     = 10
 
