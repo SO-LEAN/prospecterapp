@@ -2,12 +2,12 @@
 
 declare(strict_types=1);
 
-namespace Prospecter\Core\Prospecting\Application\ConsultExchangesToProcess;
+namespace Prospecter\Core\Prospecting\Application\ConsultWhatIsToProcess;
 
 use Prospecter\Core\Prospecting\Application\ExchangeInTimeline;
 use Prospecter\Core\Prospecting\Application\ToDoInList;
 
-final readonly class ExchangesToProcess
+final readonly class WhatIsToProcess
 {
     /**
      * @param list<ExchangeInTimeline>    $exchanges       those the prospector planned, ended and still planned, the

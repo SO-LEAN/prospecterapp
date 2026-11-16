@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Prospecter\Core\Prospecting\Application\ConsultExchangesToProcess;
+namespace Prospecter\Core\Prospecting\Application\ConsultWhatIsToProcess;
 
 use Prospecter\Core\Prospecting\Application\ExchangeInTimeline;
 use Prospecter\Core\Prospecting\Application\HolderIntents;
@@ -16,7 +16,7 @@ use Prospecter\Core\Prospecting\Domain\Port\Prospectors;
 use Prospecter\Core\SharedKernel\Application\QueryHandler;
 use Prospecter\Core\SharedKernel\Domain\MemberId;
 
-final readonly class ConsultExchangesToProcessHandler implements QueryHandler
+final readonly class ConsultWhatIsToProcessHandler implements QueryHandler
 {
     public function __construct(
         private AgendaRetriever $agendaRetriever,
@@ -25,14 +25,14 @@ final readonly class ConsultExchangesToProcessHandler implements QueryHandler
     ) {
     }
 
-    public function __invoke(ConsultExchangesToProcess $query, ConsultExchangesToProcessOutput $output): void
+    public function __invoke(ConsultWhatIsToProcess $query, ConsultWhatIsToProcessOutput $output): void
     {
         $holder = $this->prospectors->prospectorFrom(new MemberId($query->prospectorId));
 
         $exchanges = $this->endedExchanges($holder, $query->at);
         $toDos = $this->toDosDueBy($holder, $query->at);
 
-        $output->present(new ExchangesToProcess(
+        $output->present(new WhatIsToProcess(
             $exchanges,
             HolderIntents::offeredBy($exchanges, $query->at),
             $toDos,
@@ -47,7 +47,9 @@ final readonly class ConsultExchangesToProcessHandler implements QueryHandler
      */
     private function endedExchanges(Prospector $holder, \DateTimeImmutable $at): array
     {
-        return array_values(array_filter($this->agendaRetriever->plannedBefore($holder, $at), static fn (ExchangeInTimeline $exchange): bool => Overdue::hasEnded($exchange, $at)));
+        $ended = array_filter($this->agendaRetriever->plannedBefore($holder, $at), static fn (ExchangeInTimeline $exchange): bool => Overdue::hasEnded($exchange, $at));
+
+        return array_values($ended);
     }
 
     /**

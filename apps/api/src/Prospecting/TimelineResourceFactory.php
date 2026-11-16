@@ -10,7 +10,7 @@ use App\Security\User;
 use App\Shared\Links;
 use App\Shared\Resource\LinkResource;
 use Prospecter\Core\Prospecting\Application\ConsultCalendar\Calendar;
-use Prospecter\Core\Prospecting\Application\ConsultExchangesToProcess\ExchangesToProcess;
+use Prospecter\Core\Prospecting\Application\ConsultWhatIsToProcess\WhatIsToProcess;
 use Prospecter\Core\Prospecting\Application\ConsultMyDay\MyDay;
 use Prospecter\Core\Prospecting\Application\ExchangeInTimeline;
 use Prospecter\Core\Prospecting\Application\Timeline;
@@ -76,7 +76,7 @@ final readonly class TimelineResourceFactory
      * Among the exchanges its holder has to process, it is handled from there: marked done or missed, moved or
      * cancelled, as its state offers.
      */
-    public function createExchangeToProcess(ExchangeInTimeline $exchange, ExchangesToProcess $toProcess): ExchangeResource
+    public function createExchangeToProcess(ExchangeInTimeline $exchange, WhatIsToProcess $toProcess): ExchangeResource
     {
         $offered = $toProcess->possibleIntents[$exchange->id] ?? [];
         $link = fn (string $intent, string $route): ?LinkResource => $this->intents->shows($intent, $offered) ? $this->links->to($route, ['id' => $exchange->id]) : null;

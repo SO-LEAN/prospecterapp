@@ -8,8 +8,8 @@ use Behat\Behat\Context\Context;
 use Behat\Gherkin\Node\TableNode;
 use Behat\Step\Then;
 use Behat\Step\When;
-use Prospecter\Core\Prospecting\Application\ConsultExchangesToProcess\ConsultExchangesToProcess;
-use Prospecter\Core\Prospecting\Application\ConsultExchangesToProcess\ExchangesToProcess;
+use Prospecter\Core\Prospecting\Application\ConsultWhatIsToProcess\ConsultWhatIsToProcess;
+use Prospecter\Core\Prospecting\Application\ConsultWhatIsToProcess\WhatIsToProcess;
 use Prospecter\Core\Prospecting\Application\ExchangeInTimeline;
 use Prospecter\Core\Prospecting\Application\ToDoInList;
 use Prospecter\Core\SharedKernel\Domain\PersonId;
@@ -19,16 +19,16 @@ use Tests\Core\Acceptance\Vocabulary;
 /**
  * The exchanges the signed-in prospector planned, whose end has passed, still to mark done, missed or cancelled.
  */
-final class ExchangesToProcessContext implements Context
+final class WhatIsToProcessContext implements Context
 {
     use SharesTheScenario;
 
-    private ?ExchangesToProcess $toProcess = null;
+    private ?WhatIsToProcess $toProcess = null;
 
     #[When('/^je consulte (?:mes échanges|ce que j\'ai) à traiter$/')]
     public function iConsultMyExchangesToProcess(): void
     {
-        $this->toProcess = $this->application->consultExchangesToProcess(new ConsultExchangesToProcess($this->application->signedIn(), $this->application->readingNow()));
+        $this->toProcess = $this->application->consultWhatIsToProcess(new ConsultWhatIsToProcess($this->application->signedIn(), $this->application->readingNow()));
     }
 
     #[Then('/^il y a "(?<text>[^"]+)", (?<overdue>pour aujourd\'hui|en retard d\'un jour|en retard de \d+ jours)$/')]
@@ -80,7 +80,7 @@ final class ExchangesToProcessContext implements Context
         Expect::same([], $this->toProcess()->exchanges);
     }
 
-    private function toProcess(): ExchangesToProcess
+    private function toProcess(): WhatIsToProcess
     {
         Expect::that(null !== $this->toProcess, sprintf('The exchanges to process were expected, got: %s', $this->application->refusal()?->getMessage()));
 

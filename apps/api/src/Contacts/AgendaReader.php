@@ -21,8 +21,8 @@ use Prospecter\Core\PersonalData\Application\ConsultPersons\KeptPersons;
 use Prospecter\Core\PersonalData\Application\PersonCard;
 use Prospecter\Core\Prospecting\Application\ConsultCalendar\ConsultCalendar;
 use Prospecter\Core\Prospecting\Application\ConsultCalendar\KeptCalendar;
-use Prospecter\Core\Prospecting\Application\ConsultExchangesToProcess\ConsultExchangesToProcess;
-use Prospecter\Core\Prospecting\Application\ConsultExchangesToProcess\KeptExchangesToProcess;
+use Prospecter\Core\Prospecting\Application\ConsultWhatIsToProcess\ConsultWhatIsToProcess;
+use Prospecter\Core\Prospecting\Application\ConsultWhatIsToProcess\KeptWhatIsToProcess;
 use Prospecter\Core\Prospecting\Application\ConsultMyDay\ConsultMyDay;
 use Prospecter\Core\Prospecting\Application\ConsultMyDay\KeptMyDay;
 use Prospecter\Core\Prospecting\Application\ConsultOrganization\ConsultOrganization;
@@ -49,7 +49,7 @@ final readonly class AgendaReader
         private QueryHandler $consultOverlappingExchanges,
         private QueryHandler $consultCalendar,
         private QueryHandler $consultMyDay,
-        private QueryHandler $consultExchangesToProcess,
+        private QueryHandler $consultWhatIsToProcess,
         private QueryHandler $consultPersons,
         private QueryHandler $consultOrganization,
         private TimelineResourceFactory $timelines,
@@ -96,8 +96,8 @@ final readonly class AgendaReader
 
     public function readExchangesToProcess(string $holder, \DateTimeImmutable $at): ExchangesToProcessResource
     {
-        $toProcess = new KeptExchangesToProcess();
-        ($this->consultExchangesToProcess)(new ConsultExchangesToProcess($holder, $at), $toProcess);
+        $toProcess = new KeptWhatIsToProcess();
+        ($this->consultWhatIsToProcess)(new ConsultWhatIsToProcess($holder, $at), $toProcess);
         $exchanges = $toProcess->toProcess->exchanges;
         $links = new ExchangesToProcessLinksResource($this->links->to('api_me_exchanges_to_process'));
         $presenter = new ExchangesToProcessPresenter($this->personsOf($holder, $exchanges), $this->organizationsPlannedWithAlone($exchanges), $this->timelines, $links, $this->organizationsOfContacts->read($holder, self::contactsOf($exchanges)), $this->toDosReadBy($holder, $toProcess->toProcess->toDos));
