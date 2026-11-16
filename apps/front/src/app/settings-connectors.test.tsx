@@ -101,6 +101,8 @@ const connectedToGoogle: Connections = {
       state: 'connected',
       account: 'agenda@exemple.fr',
       connectedAt: '2026-11-02T09:30:00+00:00',
+      synced: 0,
+      failed: 0,
       _links: { disconnect: { href: DISCONNECT, method: 'DELETE' } },
     },
   ],

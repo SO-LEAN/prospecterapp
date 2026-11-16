@@ -16,14 +16,17 @@ vi.mock('@/shared/auth/session', () => ({
   session: { accessToken: async () => null, renewedAccessToken: async () => null },
 }))
 
-const connection = (state: Connection['state']): Connection => ({
+const connection = (state: Connection['state'], synced = 0, failed = 0): Connection => ({
   provider: 'google',
   state,
   account: 'michel@exemple.fr',
   connectedAt: '2026-11-14T09:30:00+00:00',
+  synced,
+  failed,
   _links: {
     disconnect: { href: '/api/me/connections/google', method: 'DELETE' },
     reconnect: { href: '/api/me/connections/google/authorizations', method: 'POST' },
+    ...(failed > 0 ? { retryFailed: { href: '/api/me/connections/google/retries', method: 'POST' } } : {}),
   },
 })
 
@@ -103,6 +106,25 @@ describe('GoogleCalendarCard', () => {
     await waitFor(() => expect(queryClient.getQueryData(connectionsQuery().queryKey)).toEqual(noConnection))
     expect(await screen.findByText('Votre compte Google est déconnecté.')).toBeInTheDocument()
     expect(screen.queryByRole('dialog')).not.toBeInTheDocument()
+  })
+
+  it('counts my exchanges to come synced and failed, and pushes the failed again', async () => {
+    const allSynced = { ...noConnection, connections: [connection('connected', 13, 0)] }
+    theApi.mockResolvedValue(Response.json(allSynced))
+    const { user, queryClient } = renderTheCard(connection('connected', 12, 1))
+
+    expect(screen.getByText('12 échanges synchronisés, 1 en échec')).toBeInTheDocument()
+    await user.click(screen.getByRole('button', { name: 'Tout réessayer' }))
+
+    await waitFor(() => expect(sent()).toEqual({ path: '/api/me/connections/google/retries', method: 'POST' }))
+    await waitFor(() => expect(queryClient.getQueryData(connectionsQuery().queryKey)).toEqual(allSynced))
+  })
+
+  it('counts nothing failed and offers no retry while every exchange is synced', () => {
+    renderTheCard(connection('connected', 1, 0))
+
+    expect(screen.getByText('1 échange synchronisé')).toBeInTheDocument()
+    expect(screen.queryByRole('button', { name: 'Tout réessayer' })).not.toBeInTheDocument()
   })
 
   it('says Google is unavailable and offers no connection while it is not offered', () => {
