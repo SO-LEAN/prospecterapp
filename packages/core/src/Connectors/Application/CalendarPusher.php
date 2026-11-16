@@ -150,7 +150,11 @@ final readonly class CalendarPusher
             $connection->withdraw($id, $client, $this->calendars, $at);
             $this->forget($entry);
         } catch (CalendarRefusedThePush $refusal) {
-            null === $entry ? throw $refusal : $this->keepTheRefusal($entry, $at);
+            if (null === $entry) {
+                throw $refusal;
+            }
+
+            $this->keepTheRefusal($entry, $at);
         }
     }
 

@@ -185,7 +185,7 @@ class CheckConsistencyCommandTest extends ApiTestCase
 
         $this->assertSame(Command::FAILURE, $this->tester->execute([]));
         $this->assertSame(1, substr_count($this->tester->getDisplay(), 'not synced in the calendar of its holder'));
-        $this->assertDiscrepancy(DemoData::SOLEAN_IT, $planned, 'exchange to come not synced in the calendar of its holder at google', 'its holder pushes it again');
+        $this->assertDiscrepancy(DemoData::SOLEAN_IT, $planned, 'exchange to come not synced in the calendar of its holder at google', 'its holder pushes it again from Prospecter once failed');
     }
 
     public function testTheCheckWritesNothing(): void

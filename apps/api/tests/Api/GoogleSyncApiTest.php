@@ -5,6 +5,22 @@ namespace Tests\App\Api;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Group;
 use Prospecter\Core\Accounts\Domain\Model\Role;
+use Prospecter\Core\Connectors\Domain\Model\CalendarEntry;
+use Prospecter\Core\Connectors\Domain\Model\Channel as ConnectorsChannel;
+use Prospecter\Core\Connectors\Domain\Model\ExchangeId as ConnectorsExchangeId;
+use Prospecter\Core\Connectors\Domain\Model\ExchangeStatus as ConnectorsExchangeStatus;
+use Prospecter\Core\Connectors\Domain\Model\HeldExchange;
+use Prospecter\Core\Connectors\Domain\Model\Provider;
+use Prospecter\Core\Connectors\Domain\Repository\CalendarEntryRepository;
+use Prospecter\Core\Prospecting\Domain\Model\Channel;
+use Prospecter\Core\Prospecting\Domain\Model\Duration;
+use Prospecter\Core\Prospecting\Domain\Model\Exchange;
+use Prospecter\Core\Prospecting\Domain\Model\ExchangeFacts;
+use Prospecter\Core\Prospecting\Domain\Model\ExchangeId;
+use Prospecter\Core\Prospecting\Domain\Repository\ExchangeRepository;
+use Prospecter\Core\Prospecting\Domain\Repository\OrganizationRepository;
+use Prospecter\Core\SharedKernel\Domain\MemberId;
+use Prospecter\Core\SharedKernel\Domain\OrganizationId;
 use Tests\App\Base\ApiTestCase;
 use Tests\App\Double\GoogleDouble;
 
@@ -50,6 +66,55 @@ class GoogleSyncApiTest extends ApiTestCase
         yield 'an administrator prospecting' => ['administrator', Role::User, Role::Prospector, Role::Admin];
     }
 
+    #[DataProvider('prospectors')]
+    public function testEveryProspectorPushesAgainTheirExchangeGoogleRefused(string $member, Role ...$roles): void
+    {
+        $this->login([] === $roles ? $member : $this->aMemberOfTheFixtures($member, ...$roles));
+        $this->connectGoogle();
+        $this->google()->refusesTheEvents();
+        $planned = $this->plan(self::NEXT_TUESDAY);
+        $this->google()->acceptsTheEvents();
+
+        $sync = $this->requestJson('POST', '/api/exchanges/'.$planned.'/google-sync/retries');
+
+        $this->assertResponseIsSuccessful();
+        $this->assertSame('synced', $sync['sync']['state']);
+    }
+
+    #[DataProvider('members')]
+    public function testEveryMemberPushesAgainTheirExchangesGoogleRefused(string $member, Role ...$roles): void
+    {
+        $this->login([] === $roles ? $member : $this->aMemberOfTheFixtures($member, ...$roles));
+        $this->connectGoogle();
+
+        $google = $this->requestJson('POST', '/api/me/connections/google/retries')['connections'][0];
+
+        $this->assertResponseIsSuccessful();
+        $this->assertSame(['synced' => 0, 'failed' => 0], ['synced' => $google['synced'], 'failed' => $google['failed']]);
+    }
+
+    /**
+     * @return iterable<string, list<mixed>>
+     */
+    public static function members(): iterable
+    {
+        yield from self::prospectors();
+        yield 'an administrator not prospecting' => ['administrator', Role::User, Role::Admin];
+    }
+
+    public function testAMemberNotProspectingNeitherReadsNorPushesAgainTheStateOfAnExchange(): void
+    {
+        $this->login();
+        $planned = $this->plan(self::NEXT_TUESDAY);
+        $this->login($this->aMemberOfTheFixtures('not-prospecting', Role::User));
+
+        $this->requestJson('GET', '/api/exchanges/'.$planned.'/google-sync');
+        $this->assertResponseStatusCodeSame(403);
+
+        $this->requestJson('POST', '/api/exchanges/'.$planned.'/google-sync/retries');
+        $this->assertResponseStatusCodeSame(403);
+    }
+
     public function testAPushGoogleRefusesIsFailedThenPushedAgainByItsHolder(): void
     {
         $this->login();
@@ -75,6 +140,7 @@ class GoogleSyncApiTest extends ApiTestCase
     {
         $this->login();
         $this->connectGoogle();
+        $this->anEntryOfMinePushedOn('2026-10-14 14:00 UTC');
         $this->plan(self::NEXT_TUESDAY);
         $this->google()->refusesTheEvents();
         $this->plan(self::NEXT_WEDNESDAY);
@@ -97,11 +163,12 @@ class GoogleSyncApiTest extends ApiTestCase
     {
         $this->login();
         $planned = $this->plan(self::NEXT_TUESDAY);
+        $this->anExchangeOfMinePlannedOn('2026-10-14 14:00 UTC');
         $this->assertSame([], $this->google()->events());
 
         $this->connectGoogle();
 
-        $this->assertCount(1, $this->google()->events());
+        $this->assertSame(['2026-10-20T16:00:00+02:00'], array_values(array_map(static fn (array $event): string => $event['start']['dateTime'], $this->google()->events())));
         $this->assertSame('synced', $this->requestJson('GET', '/api/exchanges/'.$planned.'/google-sync')['sync']['state']);
     }
 
@@ -170,6 +237,25 @@ class GoogleSyncApiTest extends ApiTestCase
         $this->assertResponseStatusCodeSame(201);
 
         return $exchange['items'][0]['exchange']['id'];
+    }
+
+    /**
+     * Planned the day before the clock of the tests, as the API refuses to plan in the past.
+     */
+    private function anExchangeOfMinePlannedOn(string $moment): void
+    {
+        $organization = $this->requestJson('POST', '/api/organizations', ['legalIdentity' => ['corporateName' => 'Globex']])['id'];
+        $facts = ExchangeFacts::planned(Channel::Call, new \DateTimeImmutable($moment), Duration::inMinutes(null), null);
+        $planned = Exchange::plannedWithTheOrganization(self::getContainer()->get(OrganizationRepository::class)->get(new OrganizationId($organization)), new MemberId($this->memberIdOf('prospector-user')), new ExchangeId(self::newIdentity()), $facts, new \DateTimeImmutable('2026-10-13 09:00 UTC'));
+        self::getContainer()->get(ExchangeRepository::class)->save($planned);
+    }
+
+    private function anEntryOfMinePushedOn(string $moment): void
+    {
+        $exchange = new HeldExchange(new ConnectorsExchangeId(self::newIdentity()), $this->accountOfTheFixtures(), new MemberId($this->memberIdOf('prospector-user')), ConnectorsExchangeStatus::Done, ConnectorsChannel::Call, new \DateTimeImmutable($moment), 30, null, null, new OrganizationId(self::newIdentity()), 'Globex');
+        $entry = CalendarEntry::of($exchange, Provider::Google, new \DateTimeImmutable($moment));
+        $entry->pushed($exchange, new \DateTimeImmutable($moment));
+        self::getContainer()->get(CalendarEntryRepository::class)->save($entry);
     }
 
     private function google(): GoogleDouble
