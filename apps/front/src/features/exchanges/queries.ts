@@ -20,6 +20,7 @@ type Correction = components['schemas']['CorrectionInput']
 /** What happened, all of it: what noting and correcting an exchange send; a correction may declare it made conform. */
 export type ExchangeFacts = Omit<Correction, 'madeConform'> & Partial<Pick<Correction, 'madeConform'>>
 export type ExchangeDetail = components['schemas']['ExchangeDetailResource']
+export type GoogleSync = components['schemas']['ExchangeSyncResource']
 export type TextCorrection = components['schemas']['TextCorrectionInput']
 export type Report = components['schemas']['ReportInput']
 export type Moment = components['schemas']['MomentInput']
@@ -146,6 +147,12 @@ export const timelineKeys = {
   myDay: queryKeys.myDay,
   toProcess: queryKeys.exchangesToProcess,
 } as const
+
+/** Where the push of an exchange into my Google calendar stands, changed by the reactions to its gestures. */
+export const googleSyncKey = ['get', '/api/exchanges/{id}/google-sync'] as const
+
+export const googleSyncQuery = (id: string) =>
+  api.queryOptions('get', '/api/exchanges/{id}/google-sync', { params: { path: { id } } })
 
 export const exchangeQuery = (id: string) =>
   api.queryOptions('get', '/api/exchanges/{id}', { params: { path: { id } } })

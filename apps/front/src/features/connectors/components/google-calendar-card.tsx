@@ -15,9 +15,9 @@ import {
   DialogTitle,
   DialogTrigger,
 } from '@/shared/ui/dialog'
-import { useConnectGoogle, useDisconnectGoogle } from '../mutations'
+import { GoogleLogo } from '@/shared/ui/google-logo'
+import { useConnectGoogle, useDisconnectGoogle, useRetryFailedPushes } from '../mutations'
 import type { Connection } from '../queries'
-import { GoogleLogo } from './google-logo'
 
 type Props = {
   connection: Connection | undefined
@@ -45,6 +45,7 @@ export function GoogleCalendarCard({ connection, offered, unchecked = false, goT
       </CardHeader>
       <CardContent className="space-y-4 text-sm">
         {connection && <ConnectionState connection={connection} />}
+        {connection && <ExchangesSynced connection={connection} />}
         {connection && unchecked && <Unchecked />}
         {!offered && <Unavailable />}
         <div className="flex flex-wrap gap-2">
@@ -78,6 +79,28 @@ function ConnectionState({ connection }: { connection: Connection }) {
         })}
       </span>
     </p>
+  )
+}
+
+/** How many of my exchanges to come are in Google, and failed, pushed again all at once (ADR 0133). */
+function ExchangesSynced({ connection }: { connection: Connection }) {
+  const { t } = useTranslation()
+  const retry = useRetryFailedPushes()
+  const synced = t('settings.connectors.synced', { count: connection.synced })
+
+  return (
+    <div className="flex flex-wrap items-center gap-2">
+      <span>
+        {connection.failed > 0
+          ? t('settings.connectors.syncedAndFailed', { synced, count: connection.failed })
+          : synced}
+      </span>
+      {connection._links.retryFailed && (
+        <Button variant="outline" size="sm" disabled={retry.isPending} onClick={() => retry.mutate({})}>
+          <RefreshCw aria-hidden /> {t('settings.connectors.retryFailed')}
+        </Button>
+      )}
+    </div>
   )
 }
 

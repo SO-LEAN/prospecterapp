@@ -6,7 +6,7 @@ import { Toaster } from '@/shared/ui/sonner'
 import { renderInARouter } from '@/test/render-in-a-router'
 import { UNDO_DELAY_MS } from '../mutations'
 import { dateAndTimeOf, SHORTCUTS } from '../planning'
-import { type ExchangeDetail, exchangeQuery } from '../queries'
+import { type ExchangeDetail, exchangeQuery, googleSyncQuery } from '../queries'
 import { ExchangeDetailSheet } from './exchange-detail'
 
 const theApi = vi.hoisted(() => {
@@ -70,6 +70,7 @@ async function renderTheDetail(exchange: ExchangeDetail) {
     defaultOptions: { queries: { staleTime: Number.POSITIVE_INFINITY } },
   })
   queryClient.setQueryData(exchangeQuery(exchange.id).queryKey, exchange)
+  queryClient.setQueryData(googleSyncQuery(exchange.id).queryKey, { sync: null, _links: { self } })
   await renderInARouter(
     <QueryClientProvider client={queryClient}>
       <ExchangeDetailSheet exchangeId={exchange.id} onClose={vi.fn()} />
@@ -86,12 +87,18 @@ async function renderTheDetail(exchange: ExchangeDetail) {
   })
 }
 
-/** The requests the API received: their method, their path and their body. */
+/**
+ * The requests the API received for the gestures: their method, their path and their body; where the push into Google
+ * stands, read again while the reactions to a gesture run, is no gesture.
+ */
 type Sent = [method: string, path: string, body: Record<string, unknown> | null]
+
+const isAGesture = ([request]: Parameters<typeof globalThis.fetch>) =>
+  !(request instanceof Request && request.url.endsWith('/google-sync'))
 
 async function requestsToTheApi(): Promise<Sent[]> {
   return Promise.all(
-    theApi.mock.calls.map(async ([request]): Promise<Sent> => {
+    theApi.mock.calls.filter(isAGesture).map(async ([request]): Promise<Sent> => {
       const sent = request as Request
       const body = await sent.clone().text()
       return [sent.method, new URL(sent.url).pathname, body === '' ? null : JSON.parse(body)]

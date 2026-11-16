@@ -2,6 +2,7 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { render, screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { afterEach, describe, expect, it, vi } from 'vitest'
+import { TooltipProvider } from '@/shared/ui/tooltip'
 import type { GoogleSync as Sync } from '../queries'
 import { GoogleSync } from './google-sync'
 
@@ -24,7 +25,9 @@ const answered = (sync: Sync['sync'], links: Sync['_links'] = { self }): Sync =>
 function renderTheSync() {
   render(
     <QueryClientProvider client={new QueryClient()}>
-      <GoogleSync exchangeId={EXCHANGE} />
+      <TooltipProvider>
+        <GoogleSync exchangeId={EXCHANGE} />
+      </TooltipProvider>
     </QueryClientProvider>,
   )
 
@@ -42,20 +45,26 @@ afterEach(() => theApi.mockReset())
 describe('GoogleSync', () => {
   it('says the exchange is in my Google calendar, and since when', async () => {
     theApi.mockResolvedValue(
-      Response.json(answered({ provider: 'google', state: 'synced', at: '2026-11-16T09:00:00+00:00', reason: null })),
+      Response.json(
+        answered({ provider: 'google', state: 'synced', at: '2026-11-16T09:00:00+00:00', reason: null }),
+      ),
     )
     renderTheSync()
 
-    expect(await screen.findByLabelText(/^Synchronisé avec Google le 16\/11\/2026/)).toBeInTheDocument()
+    expect(await screen.findByLabelText(/^Synchronisé avec Google le 16 nov\. 2026/)).toBeInTheDocument()
     expect(screen.queryByRole('button', { name: 'Réessayer' })).not.toBeInTheDocument()
   })
 
   it('says the exchange awaits my connection to Google, to reconnect', async () => {
-    theApi.mockResolvedValue(Response.json(answered({ provider: 'google', state: 'pending', at: null, reason: 'toReconnect' })))
+    theApi.mockResolvedValue(
+      Response.json(answered({ provider: 'google', state: 'pending', at: null, reason: 'toReconnect' })),
+    )
     renderTheSync()
 
     expect(
-      await screen.findByLabelText('En attente de synchronisation avec Google : votre compte Google est à reconnecter.'),
+      await screen.findByLabelText(
+        /^En attente de synchronisation avec Google.: votre compte Google est à reconnecter\.$/,
+      ),
     ).toBeInTheDocument()
   })
 
@@ -64,17 +73,24 @@ describe('GoogleSync', () => {
       .mockResolvedValueOnce(
         Response.json(
           answered(
-            { provider: 'google', state: 'failed', at: '2026-11-16T09:00:00+00:00', reason: 'calendarRefusedThePush' },
+            {
+              provider: 'google',
+              state: 'failed',
+              at: '2026-11-16T09:00:00+00:00',
+              reason: 'calendarRefusedThePush',
+            },
             { self, retry },
           ),
         ),
       )
       .mockResolvedValueOnce(
-        Response.json(answered({ provider: 'google', state: 'synced', at: '2026-11-16T09:05:00+00:00', reason: null })),
+        Response.json(
+          answered({ provider: 'google', state: 'synced', at: '2026-11-16T09:05:00+00:00', reason: null }),
+        ),
       )
     const user = renderTheSync()
 
-    expect(await screen.findByLabelText(/^Google a refusé l’événement le 16\/11\/2026/)).toBeInTheDocument()
+    expect(await screen.findByLabelText(/^Google a refusé l’événement le 16 nov\. 2026/)).toBeInTheDocument()
     await user.click(screen.getByRole('button', { name: 'Réessayer' }))
 
     expect(sent(1)).toEqual({ path: `/api/exchanges/${EXCHANGE}/google-sync/retries`, method: 'POST' })
@@ -86,11 +102,13 @@ describe('GoogleSync', () => {
     theApi.mockResolvedValue(Response.json(answered(null)))
     const { container } = render(
       <QueryClientProvider client={new QueryClient()}>
-        <GoogleSync exchangeId={EXCHANGE} />
+        <TooltipProvider>
+          <GoogleSync exchangeId={EXCHANGE} />
+        </TooltipProvider>
       </QueryClientProvider>,
     )
 
     await vi.waitFor(() => expect(theApi).toHaveBeenCalled())
-    expect(container).toBeEmptyDOMElement()
+    expect(container.querySelector('[role="img"]')).toBeNull()
   })
 })

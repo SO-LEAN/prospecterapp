@@ -10,6 +10,9 @@ import {
   type ExchangeDetail,
   type ExchangeInput,
   exchangeQuery,
+  type GoogleSync,
+  googleSyncKey,
+  googleSyncQuery,
   type OrganizationExchangeInput,
   organizationTimelineQuery,
   organizationUpcomingQuery,
@@ -158,6 +161,7 @@ export function readTheTimelinesAgain(queryClient: QueryClient) {
   void queryClient.invalidateQueries({ queryKey: timelineKeys.myCalendar })
   void queryClient.invalidateQueries({ queryKey: timelineKeys.myDay })
   void queryClient.invalidateQueries({ queryKey: timelineKeys.toProcess })
+  readAgainAfterTheReactions(queryClient, googleSyncKey)
 }
 
 /** The corrected exchange goes straight into its detail; the timelines showing it read it again. */
@@ -252,6 +256,16 @@ export function useRemoveAttachment() {
       readTheTimelinesAgain(queryClient)
       toast.success(t('exchanges.attachments.removed'))
     },
+  })
+}
+
+/** Pushed again into my Google calendar by its holder, the exchange shows where its push stands now (ADR 0133). */
+export function useRetryGooglePush() {
+  const queryClient = useQueryClient()
+
+  return api.useMutation('post', '/api/exchanges/{id}/google-sync/retries', {
+    onSuccess: (sync: GoogleSync, { params }) =>
+      queryClient.setQueryData(googleSyncQuery(params.path.id).queryKey, sync),
   })
 }
 
