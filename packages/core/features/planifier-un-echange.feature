@@ -121,4 +121,4 @@ Fonctionnalité: Planifier un échange
     Et je suis connecté en tant que prospecteur de "SOLEAN IT" sans le droit aux données personnelles
     Alors les échanges à venir de "Ada Lovelace" sont, du plus proche au plus lointain :
       | interlocuteur | canal       | statut  |
-      | A***a L***e   | Rendez-vous | À venir |
+      | Ada Lovelace  | Rendez-vous | À venir |

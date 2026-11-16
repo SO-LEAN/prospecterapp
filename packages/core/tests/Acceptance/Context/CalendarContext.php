@@ -17,6 +17,7 @@ use Prospecter\Core\Prospecting\Application\ExchangeInTimeline;
 use Prospecter\Core\Prospecting\Application\NoteExchange\NoteExchange;
 use Prospecter\Core\Prospecting\Application\PlanExchange\PlanExchange;
 use Prospecter\Core\Prospecting\Domain\Model\Direction;
+use Prospecter\Core\SharedKernel\Domain\OrganizationId;
 use Prospecter\Core\SharedKernel\Domain\PersonId;
 use Tests\Core\Acceptance\Expect;
 use Tests\Core\Acceptance\Vocabulary;
@@ -110,6 +111,8 @@ final class CalendarContext implements Context
             'fin' => $exchange->occurredAt->modify(sprintf('+%d minutes', $exchange->durationInMinutes ?? 0))->format('H:i'),
             'canal' => Vocabulary::describeChannel($exchange->channel),
             'avec' => null === $exchange->personId ? '' : $this->scenario->nameOfPersonAsRead(new PersonId($exchange->personId)),
+            'de' => $this->scenario->nameOf(new OrganizationId($exchange->organizationIds[0])),
+            'signalé' => $exchange->textFlagged ? 'oui' : 'non',
             'statut' => Vocabulary::describeStatus($exchange->status),
             'déplaçable' => in_array($exchange->id, $this->calendar()->movable, true) ? 'oui' : 'non',
         ];

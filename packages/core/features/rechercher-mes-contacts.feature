@@ -43,16 +43,25 @@ Fonctionnalité: Rechercher mes contacts
     Alors la liste des contacts affiche :
       | prénom | nom |
 
-  Scénario: Sans le droit, je vois mes contacts masqués
+  Scénario: Sans le droit, je vois le nom de mes contacts, leurs coordonnées masquées
     Soit je suis connecté en tant que prospecteur de "SOLEAN IT" sans le droit aux données personnelles
     Quand je liste mes contacts
     Alors la liste des contacts affiche :
-      | prénom | nom    | masquée |
-      | G***e  | H***r  | oui     |
-      | A***a  | L***e  | oui     |
-    Et je ne peux rien faire sur mes contacts
+      | prénom | nom      | masquée |
+      | Grace  | Hopper   | oui     |
+      | Ada    | Lovelace | oui     |
+    Et je peux sur mes contacts :
+      | chercher par texte |
 
-  Scénario: Sans le droit, je ne peux pas chercher dans ce qui m'est masqué
+  Scénario: Sans le droit, je cherche par le début du nom
+    Soit je suis connecté en tant que prospecteur de "SOLEAN IT" sans le droit aux données personnelles
+    Quand je cherche "hop" dans mes contacts
+    Alors la liste des contacts affiche :
+      | prénom | nom    |
+      | Grace  | Hopper |
+
+  Scénario: Sans le droit, je ne cherche pas dans les e-mails, qui me sont masqués
     Soit je suis connecté en tant que prospecteur de "SOLEAN IT" sans le droit aux données personnelles
     Quand je cherche "navy" dans mes contacts
-    Alors c'est refusé : "Only a member allowed to manage personal data may search persons by text"
+    Alors la liste des contacts affiche :
+      | prénom | nom |

@@ -43,10 +43,10 @@ Fonctionnalité: Consulter le détail d'un échange
       | noté          | le 16/10/2026 à 09:05 par Michel |
       | modifié       |                                  |
 
-  Scénario: Sans le droit aux données personnelles, je lis l'échange, l'interlocuteur masqué, le texte signalé
+  Scénario: Sans le droit aux données personnelles, je lis l'échange, le nom de l'interlocuteur, le texte signalé
     Soit je suis connecté en tant que prospecteur de "SOLEAN IT" sans le droit aux données personnelles
     Quand je consulte cet échange
     Alors je vois l'échange :
-      | interlocuteur | A***a L***e                        |
+      | interlocuteur | Ada Lovelace                       |
       | texte         | Intéressée par une mission en mars |
       | signalé       | oui                                |
