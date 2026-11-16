@@ -13,7 +13,7 @@ SPA (prospecter.localhost)                                   API (api.prospecter
                                                             API
  4. GET /api/me  Authorization: Bearer <access token> ──────▶  signature (JWKS key of the kid), issuer,
                                                                 client, token_use, expiry; member loaded by id
- 5. expired, or 401: InitiateAuth REFRESH_TOKEN_AUTH ───────▶  (Cognito) a new access token, the request sent again
+ 5. expired, or 401: GetTokensFromRefreshToken ────────────▶  (Cognito) a new access token, the request sent again
 ```
 
 ## User pool
@@ -33,7 +33,7 @@ SPA (prospecter.localhost)                                   API (api.prospecter
 
 ## SPA side
 
-- `src/shared/auth/session.ts` (`amazon-cognito-identity-js`): `signIn` (SRP), `signOut` (global sign-out, then the tokens of the tab forgotten), `accessToken` (renewed with the refresh token once expired), `renewedAccessToken`. The pool comes from `GET /api/user-pool`. The library reads the Node `global`: `vite.config.ts` defines it as `globalThis`.
+- `src/shared/auth/session.ts` (`aws-amplify` v6, its `auth` category, ADR 0130): `signIn` (SRP, the session of the tab ended first; a refusal of Cognito given as its code, a new password required as `NewPasswordRequired`), `signOut` (global sign-out, then the tokens of the tab forgotten), `accessToken` (renewed with the refresh token once expired), `renewedAccessToken` (renewal forced). The pool comes from `GET /api/user-pool`: Amplify is configured once with it, its `endpoint` as `userPoolEndpoint` when the API names one (MiniStack), and its tokens kept by `cognitoUserPoolsTokenProvider` in the `sessionStorage` of Amplify.
 - The tokens are kept in `sessionStorage`: per tab, gone when the tab closes, readable by scripts of the page. Keep the Content Security Policy strict in production.
 - `routes/_app.tsx` guards every page: without an access token, to `/auth/sign-in?returnTo=<the page>`. `routes/auth/sign-in.tsx` (`features/sign-in`) signs in, then goes back to `returnTo` (a path of the SPA only, `shared/auth/sign-in-page.ts`). The form tells a wrong email or password (`NotAuthorizedException`, `UserNotFoundException`) from too many attempts.
 - `shared/api/client.ts`: `api` adds the access token, and on a 401 renews it once and sends the request again, or sends the member to the sign-in screen.
