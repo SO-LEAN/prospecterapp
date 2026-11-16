@@ -76,7 +76,11 @@ const aVideoCall = (
   interlocutor: { kind: 'person', id: ADA, name: 'Ada Lovelace', presence: 'present' },
 })
 
-const theDetail = (item: CalendarExchange): ExchangeDetail => ({
+/** As the API answers it, a move answered offering to move it back unless told otherwise. */
+const theDetail = (
+  item: CalendarExchange,
+  links: { moveBack?: typeof move } = { moveBack: move },
+): ExchangeDetail => ({
   ...item.exchange,
   interlocutor: item.interlocutor,
   canceller: null,
@@ -86,7 +90,7 @@ const theDetail = (item: CalendarExchange): ExchangeDetail => ({
   madeConform: null,
   attachments: [],
   hiddenAttachments: 0,
-  _links: { self, move, interlocutor: { href: `/api/contacts/${ADA}`, method: 'GET' } },
+  _links: { self, move, interlocutor: { href: `/api/contacts/${ADA}`, method: 'GET' }, ...links },
 })
 
 type Answer = { status?: number; body: unknown }
@@ -207,6 +211,21 @@ describe('dragging an exchange to come', () => {
       [move.href, { occurredAt: new Date(2026, 10, 18, 9, 0).toISOString(), durationInMinutes: 30 }],
       [move.href, { occurredAt: new Date(2026, 10, 17, 14, 0).toISOString(), durationInMinutes: 30 }],
     ])
+  })
+
+  it('does not offer to move it back when the API does not link it, its former moment passed', async () => {
+    const visio = aVideoCall(new Date(2026, 10, 17, 14, 0))
+    const moved = aVideoCall(new Date(2026, 10, 18, 9, 0))
+    theApiAnswers({
+      [`PATCH ${move.href}`]: () => ({ body: theDetail(moved, {}) }),
+      'GET /api/me/calendar': () => ({ body: aCalendarOf([moved]) }),
+    })
+    await showTheCalendar('week', aCalendarOf([visio]))
+
+    drag(screen.getByRole('button', { name: /14h00, Visio/ }), { x: 150, y: 1400 }, { x: 250, y: 900 })
+
+    const told = await theToastSaying('Échange déplacé')
+    expect(within(told).queryByRole('button', { name: 'Annuler' })).not.toBeInTheDocument()
   })
 
   it('keeps offering to move it back long after it was moved, however long the member takes', async () => {
