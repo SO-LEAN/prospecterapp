@@ -11,8 +11,8 @@ use App\Contacts\Resource\ToDoToProcessResource;
 use App\Prospecting\TimelineResourceFactory;
 use App\ToDos\Resource\ToDoResource;
 use Prospecter\Core\PersonalData\Application\PersonCard;
-use Prospecter\Core\Prospecting\Application\ConsultExchangesToProcess\ConsultExchangesToProcessOutput;
-use Prospecter\Core\Prospecting\Application\ConsultExchangesToProcess\ExchangesToProcess;
+use Prospecter\Core\Prospecting\Application\ConsultWhatIsToProcess\ConsultWhatIsToProcessOutput;
+use Prospecter\Core\Prospecting\Application\ConsultWhatIsToProcess\WhatIsToProcess;
 use Prospecter\Core\Prospecting\Application\ExchangeInTimeline;
 use Prospecter\Core\Prospecting\Application\OrganizationSheet;
 use Prospecter\Core\Prospecting\Application\ToDoInList;
@@ -22,7 +22,7 @@ use Prospecter\Core\Prospecting\Application\ToDoInList;
  * the organization itself, and the links handling it; the to-dos to process they may read. Built for one call with the
  * persons and the organizations they are with and the to-dos as the API shows them, it keeps the resource (ADR 0085).
  */
-final class ExchangesToProcessPresenter implements ConsultExchangesToProcessOutput
+final class ExchangesToProcessPresenter implements ConsultWhatIsToProcessOutput
 {
     public private(set) ExchangesToProcessResource $resource;
 
@@ -42,7 +42,7 @@ final class ExchangesToProcessPresenter implements ConsultExchangesToProcessOutp
     ) {
     }
 
-    public function present(ExchangesToProcess $toProcess): void
+    public function present(WhatIsToProcess $toProcess): void
     {
         $this->resource = new ExchangesToProcessResource(array_map(
             fn (ExchangeInTimeline $exchange): DayExchangeResource => new DayExchangeResource($this->timelineResourceFactory->createExchangeToProcess($exchange, $toProcess), InterlocutorResource::of($exchange, $this->persons, $this->organizations), OrganizationOfContactResource::keptFor($exchange, $this->organizationsOfContacts)),
@@ -53,7 +53,7 @@ final class ExchangesToProcessPresenter implements ConsultExchangesToProcessOutp
     /**
      * @return list<ToDoToProcessResource>
      */
-    private function toDosOf(ExchangesToProcess $toProcess): array
+    private function toDosOf(WhatIsToProcess $toProcess): array
     {
         $readable = array_values(array_filter($toProcess->toDos, fn (ToDoInList $toDo): bool => isset($this->toDos[$toDo->id])));
 

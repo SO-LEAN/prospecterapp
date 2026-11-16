@@ -97,10 +97,10 @@ use Prospecter\Core\Prospecting\Application\ConsultExchange\ExchangeDetail;
 use Prospecter\Core\Prospecting\Application\ConsultExchange\KeptExchange;
 use Prospecter\Core\Prospecting\Application\ConsultExchangesToMakeConform\ConsultExchangesToMakeConform;
 use Prospecter\Core\Prospecting\Application\ConsultExchangesToMakeConform\ConsultExchangesToMakeConformHandler;
-use Prospecter\Core\Prospecting\Application\ConsultExchangesToProcess\ConsultExchangesToProcess;
-use Prospecter\Core\Prospecting\Application\ConsultExchangesToProcess\ConsultExchangesToProcessHandler;
-use Prospecter\Core\Prospecting\Application\ConsultExchangesToProcess\ExchangesToProcess;
-use Prospecter\Core\Prospecting\Application\ConsultExchangesToProcess\KeptExchangesToProcess;
+use Prospecter\Core\Prospecting\Application\ConsultWhatIsToProcess\ConsultWhatIsToProcess;
+use Prospecter\Core\Prospecting\Application\ConsultWhatIsToProcess\ConsultWhatIsToProcessHandler;
+use Prospecter\Core\Prospecting\Application\ConsultWhatIsToProcess\WhatIsToProcess;
+use Prospecter\Core\Prospecting\Application\ConsultWhatIsToProcess\KeptWhatIsToProcess;
 use Prospecter\Core\Prospecting\Application\ConsultHeldExchanges\ConsultHeldExchangesHandler;
 use Prospecter\Core\Prospecting\Application\ConsultMyDay\ConsultMyDay;
 use Prospecter\Core\Prospecting\Application\ConsultMyDay\ConsultMyDayHandler;
@@ -731,11 +731,11 @@ final class Application
         return $this->ask(new ConsultMyDayHandler($this->agendaRetriever, $this->prospectors), $query, $kept) ? $kept->myDay : null;
     }
 
-    public function consultExchangesToProcess(ConsultExchangesToProcess $query): ?ExchangesToProcess
+    public function consultWhatIsToProcess(ConsultWhatIsToProcess $query): ?WhatIsToProcess
     {
-        $kept = new KeptExchangesToProcess();
+        $kept = new KeptWhatIsToProcess();
 
-        return $this->ask(new ConsultExchangesToProcessHandler($this->agendaRetriever, $this->toDoListRetriever, $this->prospectors), $query, $kept) ? $kept->toProcess : null;
+        return $this->ask(new ConsultWhatIsToProcessHandler($this->agendaRetriever, $this->toDoListRetriever, $this->prospectors), $query, $kept) ? $kept->toProcess : null;
     }
 
     public function consultTimelineIntents(ConsultTimelineIntents $query): ?TimelineIntentsResponse
