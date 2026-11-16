@@ -152,8 +152,7 @@ class MyDayApiTest extends ApiTestCase
     }
 
     /**
-     * A day with nothing planned proposes to plan, with a contact searched by text: as planning, with the right to
-     * manage personal data.
+     * A day with nothing planned proposes to plan, with a contact searched by their name.
      */
     #[DataProvider('planners')]
     public function testAMemberWhoMayPlanIsOfferedTheSearchOfTheContacts(string $reference, Role ...$roles): void

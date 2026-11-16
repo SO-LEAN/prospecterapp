@@ -167,8 +167,8 @@ class PlannedExchangeApiTest extends ApiTestCase
 
         $exchange = $this->requestJson('GET', '/api/exchanges/'.$id);
 
-        $this->assertSame(['Grace', null], [$exchange['interlocutor']['name'], $exchange['phoneNumber']]);
-        $this->assertSame(['self', 'interlocutor', 'correctText', 'markDone', 'markMissed', 'move', 'cancel'], array_keys(array_filter($exchange['_links'])));
+        $this->assertSame(['Grace Hopper', null], [$exchange['interlocutor']['name'], $exchange['phoneNumber']]);
+        $this->assertSame(['self', 'interlocutor', 'correctText', 'move', 'cancel'], array_keys(array_filter($exchange['_links'])));
     }
 
     /**

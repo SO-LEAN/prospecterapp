@@ -44,10 +44,27 @@ final class SearchIndexes
      */
     public static function found(Table $table, string $scope, SearchKey $search, ?string $before, int $max): array
     {
-        $keys = array_unique([
-            ...$table->keysBeginningWith(Table::BY_NAME, $scope, (string) $search),
-            ...$table->keysBeginningWith(Table::BY_EMAIL, $scope, (string) $search),
-        ]);
+        return self::foundIn([Table::BY_NAME, Table::BY_EMAIL], $table, $scope, $search, $before, $max);
+    }
+
+    /**
+     * As `found()`, by the name alone: for a reader who does not search the emails (ADR 0129).
+     *
+     * @return list<string>
+     */
+    public static function foundByName(Table $table, string $scope, SearchKey $search, ?string $before, int $max): array
+    {
+        return self::foundIn([Table::BY_NAME], $table, $scope, $search, $before, $max);
+    }
+
+    /**
+     * @param list<string> $indexes
+     *
+     * @return list<string>
+     */
+    private static function foundIn(array $indexes, Table $table, string $scope, SearchKey $search, ?string $before, int $max): array
+    {
+        $keys = array_unique(array_merge(...array_map(static fn (string $index): array => $table->keysBeginningWith($index, $scope, (string) $search), $indexes)));
         rsort($keys, SORT_STRING);
 
         return array_slice(array_values(array_filter($keys, static fn (string $key): bool => null === $before || $key < $before)), 0, $max);

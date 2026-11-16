@@ -10,8 +10,6 @@ use App\Contacts\Resource\MyDayLinksResource;
 use App\Contacts\Resource\MyDayResource;
 use App\Contacts\Resource\PlannedExchangesResource;
 use App\Prospecting\TimelineResourceFactory;
-use App\Security\IntentLinks;
-use App\Security\User;
 use App\Shared\Links;
 use App\Shared\Resource\LinkResource;
 use Prospecter\Core\PersonalData\Application\ConsultPersons\ConsultPersons;
@@ -49,7 +47,6 @@ final readonly class AgendaReader
         private QueryHandler $consultOrganization,
         private TimelineResourceFactory $timelines,
         private Links $links,
-        private IntentLinks $intents,
         private OrganizationsOfContacts $organizationsOfContacts,
     ) {
     }
@@ -114,11 +111,11 @@ final readonly class AgendaReader
     }
 
     /**
-     * One plans with a contact searched by text, which needs the right to manage personal data, as planning does.
+     * One plans with a contact searched by their name, as every prospector may (ADR 0129).
      */
-    private function searchContacts(): ?LinkResource
+    private function searchContacts(): LinkResource
     {
-        return $this->intents->holds(User::PERSONAL_DATA) ? $this->links->to('api_contacts_search') : null;
+        return $this->links->to('api_contacts_search');
     }
 
     /**

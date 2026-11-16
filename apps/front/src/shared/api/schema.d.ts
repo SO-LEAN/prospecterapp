@@ -445,7 +445,7 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        /** Search the persons my organization prospects, by name or email, with their organizations; a search by text needs the right to manage personal data */
+        /** Search the persons my organization prospects, by name, or by email with the right to manage personal data, with their organizations */
         get: operations["get_api_contacts_search"];
         put?: never;
         /** Collect a person my organization prospects, as a contact of the organizations they work for (at least one) */
@@ -1652,7 +1652,7 @@ export interface components {
             name: components["schemas"]["PersonNameResource"];
             jobTitle?: string | null;
             contactDetails: components["schemas"]["ContactDetailsResource"];
-            /** @description The data are masked: the reader has no right to read personal data in clear */
+            /** @description The data are masked, but the name of a contact: the reader has no right to read personal data in clear */
             masked: boolean;
             _links: components["schemas"]["ContactLinksResource"];
         };
@@ -1708,7 +1708,7 @@ export interface components {
         };
         CalendarLinksResource: {
             self: components["schemas"]["LinkResource"];
-            searchContacts?: components["schemas"]["LinkResource"];
+            searchContacts: components["schemas"]["LinkResource"];
         };
         CalendarResource: {
             items: components["schemas"]["OrganizationExchangeResource"][];
@@ -1729,7 +1729,7 @@ export interface components {
         };
         MyDayLinksResource: {
             self: components["schemas"]["LinkResource"];
-            searchContacts?: components["schemas"]["LinkResource"];
+            searchContacts: components["schemas"]["LinkResource"];
         };
         MyDayResource: {
             today: components["schemas"]["DayExchangeResource"][];
@@ -2989,7 +2989,7 @@ export interface operations {
                 };
                 content?: never;
             };
-            /** @description Not a prospector, or no right to manage personal data */
+            /** @description Not a prospector */
             403: {
                 headers: {
                     [name: string]: unknown;
@@ -3767,7 +3767,7 @@ export interface operations {
                 };
                 content?: never;
             };
-            /** @description Not a prospector, or a search by text without the right to manage personal data */
+            /** @description Not a prospector */
             403: {
                 headers: {
                     [name: string]: unknown;
@@ -4038,7 +4038,7 @@ export interface operations {
                 };
                 content?: never;
             };
-            /** @description Not a prospector, or no right to manage personal data */
+            /** @description Not a prospector */
             403: {
                 headers: {
                     [name: string]: unknown;

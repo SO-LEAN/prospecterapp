@@ -73,7 +73,7 @@ final class RegisterMemberCommandTest extends ApiTestCase
         $this->signInAs(self::MEMBER);
         $this->requestJson('GET', '/api/organizations');
         $this->assertResponseIsSuccessful('the member prospects');
-        $this->requestJson('GET', '/api/contacts?q=ada');
+        $this->requestJson('GET', '/api/phone-numbers/0388000042');
         $this->assertResponseStatusCodeSame(403);
     }
 
@@ -82,7 +82,7 @@ final class RegisterMemberCommandTest extends ApiTestCase
         $this->register(self::FOUNDER, self::MEMBER, '--personal-data');
 
         $this->signInAs(self::MEMBER);
-        $this->requestJson('GET', '/api/contacts?q=ada');
+        $this->requestJson('GET', '/api/phone-numbers/0388000042');
         $this->assertResponseIsSuccessful();
     }
 

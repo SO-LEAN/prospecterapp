@@ -20,7 +20,7 @@ final readonly class ContactResource
         public PersonNameResource $name,
         public ?string $jobTitle,
         public ContactDetailsResource $contactDetails,
-        #[OA\Property(description: 'The data are masked: the reader has no right to read personal data in clear')]
+        #[OA\Property(description: 'The data are masked, but the name of a contact: the reader has no right to read personal data in clear')]
         public bool $masked,
         #[SerializedName('_links')]
         #[Context([AbstractObjectNormalizer::SKIP_NULL_VALUES => true])]
