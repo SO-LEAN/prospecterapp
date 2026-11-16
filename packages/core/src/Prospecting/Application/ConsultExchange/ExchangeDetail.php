@@ -19,7 +19,7 @@ final readonly class ExchangeDetail
      * @param string|null            $contactPresence by the values of `ContactPresence`, none for the organization itself
      * @param list<string>           $organizationIds the organizations it is kept for
      * @param list<AttachmentDetail> $attachments     the files joined to it, in the order they were
-     * @param list<string>           $possibleIntents names of what its state offers its reader now: CorrectExchange, CorrectText, CorrectVenue, MakeConform, EraseExchange, AttachFile, RemoveAttachment, MarkExchangeDone, MarkExchangeMissed, MoveExchange, CancelExchange
+     * @param list<string>           $possibleIntents names of what its state offers its reader now: CorrectExchange, CorrectText, CorrectVenue, MakeConform, EraseExchange, AttachFile, RemoveAttachment, MarkExchangeDone, MarkExchangeMissed, MoveExchange, MoveExchangeBack, CancelExchange
      */
     public function __construct(
         public string $id,

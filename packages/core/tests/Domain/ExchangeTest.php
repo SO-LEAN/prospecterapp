@@ -613,17 +613,46 @@ class ExchangeTest extends TestCase
     }
 
     /**
+     * Moving back is a move to the moment the exchange was just moved from, offered by its reading after that move
+     * only: the aggregate does not know that moment.
+     *
      * @return iterable<string, array{ExchangeIntent, string, string}>
      */
     public static function intentionsStatesAndMembers(): iterable
     {
-        foreach (ExchangeIntent::cases() as $intent) {
+        foreach (array_filter(ExchangeIntent::cases(), static fn (ExchangeIntent $intent): bool => ExchangeIntent::MoveExchangeBack !== $intent) as $intent) {
             foreach (['withAnAttachment', 'withItsContactForgotten', 'plannedWithAnAttachment', 'due', 'cancelled'] as $state) {
                 foreach (['me', 'colleagueWithoutTheRight'] as $member) {
                     yield sprintf('%s %s by %s', $intent->name, $state, $member) => [$intent, $state, $member];
                 }
             }
         }
+    }
+
+    /**
+     * @return iterable<string, array{bool, bool, bool}>
+     */
+    public static function holdersAndFormerMoments(): iterable
+    {
+        yield 'its holder, its former moment to come' => [true, true, true];
+        yield 'its holder, its former moment passed' => [true, false, false];
+        yield 'a colleague, its former moment to come' => [false, true, false];
+    }
+
+    #[DataProvider('holdersAndFormerMoments')]
+    public function testAnExchangeJustMovedIsMovedBackByItsHolderWhileItsFormerMomentIsToCome(bool $heldByTheMember, bool $formerMomentToCome, bool $offered): void
+    {
+        $situation = new ExchangeSituation(0, false, ExchangeStatus::Planned, false, $heldByTheMember, Channel::VideoCall, $formerMomentToCome);
+
+        $this->assertSame($offered, in_array(ExchangeIntent::MoveExchangeBack, ExchangePossibilities::given($situation), true));
+    }
+
+    public function testAMomentIsToComeOnlyAfterNow(): void
+    {
+        $now = new \DateTimeImmutable(self::NOW);
+
+        $this->assertTrue(Exchange::isAMomentToCome($now->modify('+1 second'), $now));
+        $this->assertFalse(Exchange::isAMomentToCome($now, $now));
     }
 
     /**
@@ -664,7 +693,7 @@ class ExchangeTest extends TestCase
             ExchangeIntent::RemoveAttachment => $exchange->removeAttachment(new AttachmentId(self::ATTACHMENT), by: $by, at: $now),
             ExchangeIntent::MarkExchangeDone => $exchange->markDone(StateOf::the($exchange)['facts']->occurredAt, 'Compte rendu', by: $by, at: $now),
             ExchangeIntent::MarkExchangeMissed => $exchange->markMissed(by: $by, at: $now),
-            ExchangeIntent::MoveExchange => $exchange->moveTo($now->modify('+2 days'), null, by: $by, at: $now),
+            ExchangeIntent::MoveExchange, ExchangeIntent::MoveExchangeBack => $exchange->moveTo($now->modify('+2 days'), null, by: $by, at: $now),
             ExchangeIntent::CancelExchange => $exchange->cancel(null, by: $by, at: $now),
         };
     }

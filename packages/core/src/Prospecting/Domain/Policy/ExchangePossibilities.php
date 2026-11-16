@@ -12,7 +12,7 @@ use Prospecter\Core\Prospecting\Domain\Model\ExchangeStatus;
 /**
  * What the state of an exchange offers now (ADR 0088): the exchange refuses the rest, the reading of an exchange
  * tells it. A planned exchange is handled by its holder: moved or cancelled while it is to come, marked done or
- * missed once its time has come.
+ * missed once its time has come; just moved, moved back while its former moment is to come.
  */
 final class ExchangePossibilities
 {
@@ -31,6 +31,7 @@ final class ExchangePossibilities
             ExchangeIntent::MakeConform => $situation->awaitsBeingMadeConform,
             ExchangeIntent::MarkExchangeDone, ExchangeIntent::MarkExchangeMissed => $handled && $situation->due,
             ExchangeIntent::MoveExchange, ExchangeIntent::CancelExchange => $handled,
+            ExchangeIntent::MoveExchangeBack => $handled && $situation->formerMomentToCome,
             default => true,
         }));
     }

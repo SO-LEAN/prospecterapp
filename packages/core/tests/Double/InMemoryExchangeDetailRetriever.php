@@ -10,6 +10,7 @@ use Prospecter\Core\Prospecting\Application\Port\ExchangeDetailRetriever;
 use Prospecter\Core\Prospecting\Domain\Exception\UnknownExchange;
 use Prospecter\Core\Prospecting\Domain\Model\Attachment;
 use Prospecter\Core\Prospecting\Domain\Model\ContactPresence;
+use Prospecter\Core\Prospecting\Domain\Model\Exchange;
 use Prospecter\Core\Prospecting\Domain\Model\ExchangeId;
 use Prospecter\Core\Prospecting\Domain\Model\ExchangeIntent;
 use Prospecter\Core\Prospecting\Domain\Model\ExchangeSituation;
@@ -28,7 +29,7 @@ final readonly class InMemoryExchangeDetailRetriever implements ExchangeDetailRe
     {
     }
 
-    public function get(ExchangeId $id, Prospector $reader, \DateTimeImmutable $asOf): ExchangeDetail
+    public function get(ExchangeId $id, Prospector $reader, \DateTimeImmutable $asOf, ?\DateTimeImmutable $movedFrom = null): ExchangeDetail
     {
         $exchange = $this->database->exchange((string) $id) ?? throw UnknownExchange::identifiedBy($id);
         $state = StateOf::the($exchange);
@@ -66,7 +67,7 @@ final readonly class InMemoryExchangeDetailRetriever implements ExchangeDetailRe
             madeConformAt: $madeConform?->at,
             attachments: array_map(static fn (Attachment $attachment): AttachmentDetail => new AttachmentDetail($attachment->id->value, $attachment->name, $attachment->size, $attachment->mediaType, $attachmentsToMakeConform), $read),
             hiddenAttachments: count($attachments) - count($read),
-            possibleIntents: array_map(static fn (ExchangeIntent $intent): string => $intent->name, ExchangePossibilities::given(new ExchangeSituation(count($attachments), ExchangeConformity::awaitsBeingMadeConform($contactForgotten, null !== $madeConform), $state['status'], $facts->occurredAt <= $asOf, $state['createdBy']->equals($reader->id), $facts->channel))),
+            possibleIntents: array_map(static fn (ExchangeIntent $intent): string => $intent->name, ExchangePossibilities::given(new ExchangeSituation(count($attachments), ExchangeConformity::awaitsBeingMadeConform($contactForgotten, null !== $madeConform), $state['status'], $facts->occurredAt <= $asOf, $state['createdBy']->equals($reader->id), $facts->channel, null !== $movedFrom && Exchange::isAMomentToCome($movedFrom, $asOf)))),
         );
     }
 }

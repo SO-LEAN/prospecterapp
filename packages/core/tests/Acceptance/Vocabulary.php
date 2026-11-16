@@ -58,6 +58,7 @@ final class Vocabulary
         'MarkExchangeDone' => 'marquer fait',
         'MarkExchangeMissed' => 'marquer manqué',
         'MoveExchange' => 'déplacer',
+        'MoveExchangeBack' => 'remettre à son ancien moment',
         'CancelExchange' => 'annuler',
         'ReviseToDo' => 'modifier l\'action',
         'TickOffToDo' => 'cocher l\'action',
