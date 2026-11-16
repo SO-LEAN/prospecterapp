@@ -30,6 +30,6 @@ final readonly class ConsultCalendarHandler implements QueryHandler
 
         $exchanges = $this->calendarRetriever->heldBy($holder, $period);
 
-        $output->present(new Calendar($exchanges, HolderIntents::offering(ExchangeIntent::MoveExchange, $exchanges, $query->at)));
+        $output->present(new Calendar($exchanges, HolderIntents::offering(ExchangeIntent::MoveExchange, $exchanges, $query->at), [], []));
     }
 }

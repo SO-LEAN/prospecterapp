@@ -11,6 +11,7 @@ use Behat\Step\When;
 use Prospecter\Core\Prospecting\Application\ConsultExchangesToProcess\ConsultExchangesToProcess;
 use Prospecter\Core\Prospecting\Application\ConsultExchangesToProcess\ExchangesToProcess;
 use Prospecter\Core\Prospecting\Application\ExchangeInTimeline;
+use Prospecter\Core\Prospecting\Application\ToDoInList;
 use Prospecter\Core\SharedKernel\Domain\PersonId;
 use Tests\Core\Acceptance\Expect;
 use Tests\Core\Acceptance\Vocabulary;
@@ -24,10 +25,42 @@ final class ExchangesToProcessContext implements Context
 
     private ?ExchangesToProcess $toProcess = null;
 
-    #[When('je consulte mes échanges à traiter')]
+    #[When('/^je consulte (?:mes échanges|ce que j\'ai) à traiter$/')]
     public function iConsultMyExchangesToProcess(): void
     {
-        $this->toProcess = $this->application->consultExchangesToProcess(new ConsultExchangesToProcess($this->application->signedIn(), $this->application->now()));
+        $this->toProcess = $this->application->consultExchangesToProcess(new ConsultExchangesToProcess($this->application->signedIn(), $this->application->readingNow()));
+    }
+
+    #[Then('/^il y a "(?<text>[^"]+)", (?<overdue>pour aujourd\'hui|en retard d\'un jour|en retard de \d+ jours)$/')]
+    public function thereIs(string $text, string $overdue): void
+    {
+        $toDo = array_find($this->toProcess()->toDos, static fn (ToDoInList $toDo): bool => $toDo->text === $text);
+        Expect::that(null !== $toDo, sprintf('"%s" is not to process', $text));
+
+        Expect::same($overdue, match ($days = $this->toProcess()->daysOverdue[$toDo->id] ?? null) {
+            0 => 'pour aujourd\'hui',
+            1 => 'en retard d\'un jour',
+            default => sprintf('en retard de %s jours', $days ?? 'aucun'),
+        });
+    }
+
+    #[Then('mes actions à traiter sont :')]
+    public function myToDosToProcessAre(TableNode $table): void
+    {
+        Expect::same($table->getColumnsHash(), array_map(fn (ToDoInList $toDo): array => [
+            'texte' => $toDo->text,
+            'retard' => match ($days = $this->toProcess()->daysOverdue[$toDo->id] ?? null) {
+                0 => 'aujourd\'hui',
+                1 => '1 jour',
+                default => sprintf('%s jours', $days ?? 'aucun'),
+            },
+        ], $this->toProcess()->toDos));
+    }
+
+    #[Then('je n\'ai rien à traiter')]
+    public function iHaveNothingToProcess(): void
+    {
+        Expect::same([[], []], [$this->toProcess()->exchanges, $this->toProcess()->toDos]);
     }
 
     #[Then('ils sont, du plus ancien au plus récent :')]

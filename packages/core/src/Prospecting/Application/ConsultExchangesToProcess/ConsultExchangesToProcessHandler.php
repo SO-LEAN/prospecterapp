@@ -31,7 +31,7 @@ final readonly class ConsultExchangesToProcessHandler implements QueryHandler
         $started = $this->agendaRetriever->plannedBefore($holder, $query->at);
         $ended = array_values(array_filter($started, static fn (ExchangeInTimeline $exchange): bool => self::slotOf($exchange)->hasEndedBy($query->at)));
 
-        $output->present(new ExchangesToProcess($ended, HolderIntents::offeredBy($ended, $query->at)));
+        $output->present(new ExchangesToProcess($ended, HolderIntents::offeredBy($ended, $query->at), [], []));
     }
 
     private static function slotOf(ExchangeInTimeline $exchange): Slot

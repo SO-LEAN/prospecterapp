@@ -73,6 +73,12 @@ final class ScenarioContext implements Context
         $this->application->itIs(new \DateTimeImmutable($moment));
     }
 
+    #[Given('je lis l\'heure de :timeZone')]
+    public function iReadTheClockOf(string $timeZone): void
+    {
+        $this->application->readTheClockOf(new \DateTimeZone($timeZone));
+    }
+
     #[Given(':minutes minutes ont passé')]
     public function minutesPassed(int $minutes): void
     {
