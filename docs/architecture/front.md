@@ -14,7 +14,7 @@ A React single page application talking to the API (`apps/api`) over JSON, its m
 | API client | openapi-fetch + openapi-react-query | Types generated from the API contract: a renamed field breaks the build, not production. |
 | Client state | Zustand | Tiny store for UI preferences only (theme, sidebar). |
 | Forms | react-hook-form + zod | Uncontrolled inputs (no re-render per key), schema validation mirroring the API. |
-| Auth | amazon-cognito-identity-js | SRP on the Cognito user pool from our own screen (the password never leaves the browser), token refresh. |
+| Auth | aws-amplify v6 (`aws-amplify/auth`) | SRP on the Cognito user pool from our own screen (the password never leaves the browser), token refresh. |
 | UI kit | shadcn/ui (Radix) + Tailwind CSS 4 | Accessible primitives, code owned by the project (see `design-system.md`). |
 | Maps | MapLibre + OpenFreeMap | Open source vector maps, no API key; loaded lazily. |
 | i18n | react-i18next, typed keys | French today, other languages without touching the screens. |
@@ -57,7 +57,7 @@ Dependency rule: `shared` depends on nothing of the app; a `feature` depends onl
 | URL | Router search params, validated by zod | `?q=acme` on the organizations list |
 | UI preferences | Zustand, persisted in localStorage | theme, collapsed sidebar |
 | Form | react-hook-form | the section being edited |
-| Session | amazon-cognito-identity-js (sessionStorage) | access, id and refresh tokens |
+| Session | aws-amplify v6 (sessionStorage) | access, id and refresh tokens |
 | Local UI | `useState` | a dialog being open |
 
 Never copy server data into Zustand or `useState`: read it from the query, the cache is the single source of truth.
