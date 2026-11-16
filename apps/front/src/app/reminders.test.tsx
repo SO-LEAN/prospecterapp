@@ -118,6 +118,7 @@ function theApiAnswers(today: DayExchange = theVideoCall) {
         _links: { self: { href: '/api/me/day', method: 'GET' } },
       },
       [`/api/contacts/${ADA}`]: ada,
+      '/api/me/exchanges-to-process': { items: [], toDos: [], _links: {} },
       [`/api/organizations/${ACME}`]: acme,
       [`/api/exchanges/${VIDEO_CALL}`]: { ...itsDetail, interlocutor: today.interlocutor },
     }

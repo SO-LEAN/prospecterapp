@@ -82,6 +82,22 @@
   --brand-ink: #c3d0e8;
 }
 
+/* What is late pulses once when shown, never on and on (WCAG 2.2.2), and not at all under prefers-reduced-motion (ADR 0134). */
+@theme {
+  --animate-late-once: late-once 0.9s ease-out 1;
+
+  @keyframes late-once {
+    0%,
+    100% {
+      transform: none;
+    }
+    40% {
+      transform: scale(1.04);
+      box-shadow: 0 0 0 3px var(--warning);
+    }
+  }
+}
+
 @theme inline {
   --font-sans: "Inter Variable", ui-sans-serif, system-ui, sans-serif;
 

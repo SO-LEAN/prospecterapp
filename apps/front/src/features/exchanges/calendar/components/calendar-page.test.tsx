@@ -67,7 +67,12 @@ async function showTheCalendar(view: View, day: Date, items: CalendarExchange[] 
   const queryClient = new QueryClient({
     defaultOptions: { queries: { staleTime: Number.POSITIVE_INFINITY } },
   })
-  queryClient.setQueryData(calendarQuery(periodOf(view, day)).queryKey, { items, _links: CALENDAR_LINKS })
+  queryClient.setQueryData(calendarQuery(periodOf(view, day)).queryKey, {
+    items,
+    toDos: [],
+    late: [],
+    _links: CALENDAR_LINKS,
+  })
   const onShow = vi.fn()
   await renderInARouter(
     <QueryClientProvider client={queryClient}>
@@ -86,7 +91,9 @@ async function showTheCalendar(view: View, day: Date, items: CalendarExchange[] 
 beforeEach(() => {
   vi.useFakeTimers({ toFake: ['Date'] })
   vi.setSystemTime(NOW)
-  theApi.mockImplementation(async () => Response.json({ items: [], _links: CALENDAR_LINKS }))
+  theApi.mockImplementation(async () =>
+    Response.json({ items: [], toDos: [], late: [], _links: CALENDAR_LINKS }),
+  )
 })
 
 afterEach(() => {
@@ -203,7 +210,7 @@ describe('CalendarPage', () => {
   it('says when the agenda holds no exchange', async () => {
     await showTheCalendar('agenda', TODAY)
 
-    expect(screen.getByText('Aucun échange sur cette période.')).toBeInTheDocument()
+    expect(screen.getByText('Rien sur cette période.')).toBeInTheDocument()
   })
 
   it('lists the days holding exchanges in the agenda, today said', async () => {
@@ -240,7 +247,7 @@ describe('CalendarPage', () => {
     expect(screen.getByRole('button', { name: 'Agenda' })).toHaveAttribute('aria-pressed', 'false')
     expect(screen.getByRole('button', { name: 'Agenda' })).toHaveAttribute('data-variant', 'ghost')
     expect(screen.getByRole('heading', { level: 1, name: 'Calendrier' })).toBeInTheDocument()
-    expect(screen.getByText('Mes échanges, passés et à venir.')).toBeInTheDocument()
+    expect(screen.getByText('Mes échanges, passés et à venir, et mes actions à faire.')).toBeInTheDocument()
     await userEvent.click(screen.getByRole('button', { name: 'Agenda' }))
     await userEvent.click(screen.getByRole('button', { name: 'Aujourd’hui' }))
     await userEvent.click(screen.getByRole('button', { name: 'Précédent' }))

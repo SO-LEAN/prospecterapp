@@ -16,7 +16,9 @@ import {
   readTheNeighbourAhead,
 } from '../queries'
 import { type Shortcut, useCalendarShortcuts } from '../shortcuts'
+import { SHOWN, type Shown, shownOf } from '../to-dos'
 import { AgendaView } from './agenda-view'
+import { useToDoDrop } from './calendar-to-do'
 import { ExchangeDialog } from './exchange-dialog'
 import { MiniMonth } from './mini-month'
 import { MonthView } from './month-view'
@@ -52,8 +54,9 @@ type Props = {
 
 /**
  * My calendar: the view and the day shown come from the URL, each change goes back to it; the period shown is read
- * alone, the next and the previous ones read on the hover of their arrow, the days around a day read ahead. An
- * exchange opens in a dialog; one to come is dragged, a free slot planned when the API offers the search of the contacts to plan with.
+ * alone, the next and the previous ones read on the hover of their arrow, the days around a day read ahead. It shows
+ * my exchanges and my to-dos, or one of them, what is late flagged. An exchange opens in a dialog; one to come is
+ * dragged, a to-do to another day, a free slot planned when the API offers the search of the contacts to plan with.
  */
 export function CalendarPage({ view, day, onShow, contactSummary, interlocutorSearch }: Props) {
   const { t } = useTranslation()
@@ -64,6 +67,10 @@ export function CalendarPage({ view, day, onShow, contactSummary, interlocutorSe
   const [jumping, setJumping] = useState(false)
   const [opened, setOpened] = useState<CalendarExchange | null>(null)
   const [slot, setSlot] = useState<Slot | null>(null)
+  const [shown, setShown] = useState<Shown>('both')
+  const { items, toDos } = shownOf(data, shown)
+  const late = new Set(data.late)
+  const dropOn = useToDoDrop(data.toDos)
   const move = useMoveInTheCalendar()
   const open = (item: CalendarExchange) => {
     withdrawTheOfferToMoveBack()
@@ -126,6 +133,20 @@ export function CalendarPage({ view, day, onShow, contactSummary, interlocutorSe
           </PopoverContent>
         </Popover>
         <fieldset className="ml-auto flex rounded-lg border p-0.5">
+          <legend className="sr-only">{t('calendar.shown.label')}</legend>
+          {SHOWN.map((filter) => (
+            <Button
+              key={filter}
+              variant={filter === shown ? 'secondary' : 'ghost'}
+              size="sm"
+              aria-pressed={filter === shown}
+              onClick={() => setShown(filter)}
+            >
+              {t(`calendar.shown.${filter}`)}
+            </Button>
+          ))}
+        </fieldset>
+        <fieldset className="flex rounded-lg border p-0.5">
           <legend className="sr-only">{t('calendar.view')}</legend>
           {VIEWS.map((shown) => (
             <Button
@@ -145,7 +166,10 @@ export function CalendarPage({ view, day, onShow, contactSummary, interlocutorSe
         <MonthView
           period={period}
           month={day.getMonth()}
-          items={data.items}
+          items={items}
+          toDos={toDos}
+          late={late}
+          dropOn={dropOn}
           now={now}
           onOpenDay={openDay}
           {...gestures}
@@ -155,14 +179,17 @@ export function CalendarPage({ view, day, onShow, contactSummary, interlocutorSe
         <TimeGridView
           key={view}
           period={period}
-          items={data.items}
+          items={items}
+          toDos={toDos}
+          late={late}
+          dropOn={dropOn}
           now={now}
           onOpenDay={view === 'week' ? openDay : undefined}
           onChooseSlot={data._links.searchContacts ? setSlot : undefined}
           {...gestures}
         />
       )}
-      {view === 'agenda' && <AgendaView items={data.items} now={now} onOpen={open} />}
+      {view === 'agenda' && <AgendaView items={items} toDos={toDos} late={late} now={now} onOpen={open} />}
       <ExchangeDialog item={opened} onClose={() => setOpened(null)} contactSummary={contactSummary} />
       <PlanInASlot slot={slot} onClose={() => setSlot(null)} interlocutorSearch={interlocutorSearch} />
 

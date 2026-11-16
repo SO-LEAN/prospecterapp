@@ -14,14 +14,7 @@ import {
   DropdownMenuTrigger,
 } from '@/shared/ui/dropdown-menu'
 import { formatDue, isOverdue, split } from '../due'
-import {
-  useEraseToDo,
-  useNoteOrganizationToDo,
-  useNoteToDo,
-  useReviseToDo,
-  useTickOffToDo,
-  useUntickToDo,
-} from '../mutations'
+import { useEraseToDo, useNoteOrganizationToDo, useNoteToDo, useReviseToDo } from '../mutations'
 import {
   contactToDosQuery,
   organizationToDosQuery,
@@ -30,6 +23,7 @@ import {
   type ToDoList,
 } from '../queries'
 import { revisionOf } from '../schema'
+import { useToggle } from '../use-toggle'
 import { ToDoForm } from './to-do-form'
 
 /** Told once a to-do is ticked off: the page may propose to note the exchange it led to. */
@@ -204,41 +198,19 @@ type LineProps = Omit<LinesProps, 'label' | 'toDos'> & { toDo: ToDo }
 /** Ticked off or unticked in one click, revised or erased from its menu, as its links allow. */
 export function ToDoLine({ toDo, now, withTheirContact, onTickedOff }: LineProps) {
   const { t } = useTranslation()
-  const tickOff = useTickOffToDo()
-  const untick = useUntickToDo()
+  const toggle = useToggle(toDo, onTickedOff)
   const erase = useEraseToDo()
   const revise = useReviseToDo()
   const [revising, setRevising] = useState(false)
   const done = Boolean(toDo.doneAt)
-  const toggle = done ? toDo._links.untick : toDo._links.tickOff
-  const [clicked, setClicked] = useState<boolean | null>(null)
   const overdue = isOverdue(toDo, now)
   const contactName =
     toDo.contact && [toDo.contact.name.firstName, toDo.contact.name.lastName].filter(Boolean).join(' ')
   const params = { params: { path: { id: toDo.id } } }
 
-  /** The box shows the click at once, until the lists read again tell the new state, or the refusal the former one. */
-  const onToggle = () => {
-    setClicked(!done)
-    const shownAsItIs = { onSettled: () => setClicked(null) }
-
-    if (done) {
-      untick.mutate(params, shownAsItIs)
-      return
-    }
-    tickOff.mutate(params, { ...shownAsItIs, onSuccess: () => onTickedOff?.(toDo) })
-  }
-
   return (
     <div className="flex items-start gap-3">
-      <input
-        type="checkbox"
-        className="mt-1 size-4 shrink-0 accent-primary"
-        checked={clicked ?? done}
-        disabled={!toggle || tickOff.isPending || untick.isPending}
-        aria-label={t(done ? 'toDos.untick' : 'toDos.tickOff', { text: toDo.text })}
-        onChange={onToggle}
-      />
+      <input type="checkbox" className="mt-1 size-4 shrink-0 accent-primary" {...toggle} />
       <div className="min-w-0 flex-1">
         <p className={cn('break-words', done && 'text-muted-foreground line-through')}>{toDo.text}</p>
         <p className="flex flex-wrap gap-x-1 text-muted-foreground text-xs">

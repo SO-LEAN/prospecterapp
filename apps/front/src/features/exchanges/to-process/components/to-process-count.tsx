@@ -2,12 +2,13 @@ import { useQuery } from '@tanstack/react-query'
 import { useTranslation } from 'react-i18next'
 import { cn } from '@/shared/lib/utils'
 import { Badge } from '@/shared/ui/badge'
-import { exchangesToProcessQuery } from '../queries'
+import { countOf, exchangesToProcessQuery } from '../queries'
 
-/** How many exchanges are left to process, beside the entry of the dashboard; nothing when none is. */
+/** How many exchanges and to-dos are left to process, beside the entry of the dashboard; nothing when none is. */
 export function ToProcessCount({ className }: { className?: string }) {
   const { t } = useTranslation()
-  const count = useQuery(exchangesToProcessQuery()).data?.items.length ?? 0
+  const { data } = useQuery(exchangesToProcessQuery())
+  const count = data ? countOf(data) : 0
 
   if (count === 0) return null
 

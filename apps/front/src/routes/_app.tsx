@@ -11,6 +11,7 @@ import type { Account } from '@/features/account/mutations'
 import { accountQuery, myAccountBeingPreparedQuery, signInQuery } from '@/features/account/queries'
 import { ReconnectBanner } from '@/features/connectors/components/reconnect-banner'
 import { ExchangeReminders } from '@/features/exchanges/reminders/components/exchange-reminders'
+import { ToDoReminders } from '@/features/exchanges/reminders/components/to-do-reminders'
 import { remindersQuery } from '@/features/settings/queries'
 import { ensureSharedQueryData } from '@/shared/api/ensure-shared-query-data'
 import { session } from '@/shared/auth/session'
@@ -77,11 +78,16 @@ function SignedIn() {
   )
 }
 
-/** The reminders of my exchanges, on whatever page, as my settings ask: none until they are read. */
+/** The reminders of my exchanges and of my to-dos, on whatever page, as my settings ask: none until they are read. */
 function MyReminders() {
   const { data: reminders } = useQuery(remindersQuery())
 
-  return reminders?.enabled ? <ExchangeReminders settings={reminders} /> : null
+  return reminders?.enabled ? (
+    <>
+      <ExchangeReminders settings={reminders} />
+      <ToDoReminders settings={reminders} />
+    </>
+  ) : null
 }
 
 function CompleteMyProfile({ account }: { account: Account }) {
