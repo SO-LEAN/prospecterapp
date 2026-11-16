@@ -98,9 +98,40 @@ describe('OrganizationExchangesSection', () => {
     expect(itself).toHaveTextContent(/Organisation :\s*ACME/)
     expect(itself).toHaveTextContent('Appel, Reçu')
     expect(robert).toHaveTextContent(/Contact :\s*Robert Noyce/)
-    expect(robert).toHaveTextContent('Appel, Envoyé')
+    expect(robert).toHaveTextContent('Appel, Émis')
     expect(erased).toHaveTextContent(/Contact :\s*Contact effacé/)
     expect(screen.getByRole('button', { name: 'Noter un échange' })).toBeInTheDocument()
+  })
+
+  it('reads the direction of each exchange in the words of its channel', () => {
+    const directions = [
+      ['call', 'outbound'],
+      ['call', 'inbound'],
+      ['email', 'outbound'],
+      ['email', 'inbound'],
+      ['meeting', 'outbound'],
+      ['videoCall', 'inbound'],
+    ] as const
+    renderTheSection({
+      items: directions.map(([channel, direction], index) => ({
+        exchange: anExchange({ id: `0190a1c0-0000-7000-8000-00000000002${index}`, channel, direction }),
+        interlocutor: { kind: 'organization', id: ACME, name: 'ACME', presence: null },
+      })),
+      toMakeConform: 0,
+      _links: { self: timelineLink, noteExchange: noteLink },
+    })
+
+    const summaries = [
+      'Appel, Émis',
+      'Appel, Reçu',
+      'E-mail, Envoyé',
+      'E-mail, Reçu',
+      'Rendez-vous, À mon initiative',
+      'Visio, À son initiative',
+    ]
+    const items = screen.getAllByRole('listitem')
+    expect(items).toHaveLength(summaries.length)
+    summaries.forEach((summary, index) => expect(items[index]).toHaveTextContent(summary))
   })
 
   it('strikes the name of a contact who left the organization', () => {

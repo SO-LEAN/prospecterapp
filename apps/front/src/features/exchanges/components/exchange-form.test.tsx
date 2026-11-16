@@ -64,7 +64,7 @@ describe('ExchangeForm', () => {
     }
 
     await user.click(screen.getByLabelText('Appel'))
-    await user.click(screen.getByLabelText('Envoyé'))
+    await user.click(screen.getByLabelText('Émis'))
     await user.click(screen.getByLabelText(/Manqué/))
     await user.type(screen.getByLabelText(/Texte/), 'Messagerie')
     await user.click(save())
@@ -74,6 +74,21 @@ describe('ExchangeForm', () => {
       null,
       [],
     )
+  })
+
+  it('names the direction in the words of the channel chosen', async () => {
+    const { user } = renderForm()
+
+    expect(screen.getByLabelText('Envoyé')).toBeInTheDocument()
+    await user.click(screen.getByLabelText('Appel'))
+    expect(screen.getByLabelText('Émis')).toBeInTheDocument()
+    expect(screen.getByLabelText('Reçu')).toBeInTheDocument()
+    await user.click(screen.getByLabelText('Visio'))
+    expect(screen.getByLabelText('À mon initiative')).toBeInTheDocument()
+    expect(screen.getByLabelText('À son initiative')).toBeInTheDocument()
+    await user.click(screen.getByLabelText('E-mail'))
+    expect(screen.getByLabelText('Envoyé')).toBeInTheDocument()
+    expect(screen.getByLabelText('Reçu')).toBeInTheDocument()
   })
 
   it('sends a meeting that took place as not missed', async () => {
