@@ -153,6 +153,8 @@ async function showTheCalendar(view: View, calendar: ReturnType<typeof aCalendar
             Ada Lovelace
           </button>
         )}
+        toDoBox={() => null}
+        reviseToDo={() => undefined}
       />
     </QueryClientProvider>,
   )

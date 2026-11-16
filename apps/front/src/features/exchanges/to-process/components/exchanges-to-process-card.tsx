@@ -3,7 +3,6 @@ import { Ban, CalendarClock, CircleCheck, PhoneMissed } from 'lucide-react'
 import { type ReactNode, useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { toast } from 'sonner'
-import { ToDoLine } from '@/features/to-dos/components/to-dos-section'
 import { formatMoment } from '@/shared/lib/format'
 import { cn } from '@/shared/lib/utils'
 import { Button } from '@/shared/ui/button'
@@ -17,9 +16,13 @@ import { countOf, type ExchangeToProcess, exchangesToProcessQuery, type ToDoToPr
 
 type Opened = { item: ExchangeToProcess; startWith?: StartWith }
 
+/** The line of a to-do, ticked off in place, told by the page composing the to-dos: a feature never imports another. */
+export type ToDoLineOf = (toDo: ToDoToProcess['toDo'], now: Date, onTickedOff: () => void) => ReactNode
+
 type Props = {
   /** Who a contact is, their card in short, in the exchange opened: told by the page composing the contacts. */
   contactSummary: (contactId: string) => ReactNode
+  toDoLine: ToDoLineOf
 }
 
 /**
@@ -28,7 +31,7 @@ type Props = {
  * toast, or moved; each to-do ticked off in place. The dialog of an exchange outlives the card, so that what follows
  * its report is planned once the last one is done.
  */
-export function ExchangesToProcessCard({ contactSummary }: Props) {
+export function ExchangesToProcessCard({ contactSummary, toDoLine }: Props) {
   const { t } = useTranslation()
   const { data: toProcess } = useSuspenseQuery(exchangesToProcessQuery())
   const [opened, setOpened] = useState<Opened | null>(null)
@@ -62,7 +65,7 @@ export function ExchangesToProcessCard({ contactSummary }: Props) {
                 />
               ))}
             </ul>
-            <ToDosToProcess toDos={toProcess.toDos} onTickedOff={processed.started} />
+            <ToDosToProcess toDos={toProcess.toDos} toDoLine={toDoLine} onTickedOff={processed.started} />
           </CardContent>
         </Card>
       )}
@@ -77,7 +80,9 @@ export function ExchangesToProcessCard({ contactSummary }: Props) {
 }
 
 /** My to-dos of the day and late, the most overdue first, each saying since when. */
-function ToDosToProcess({ toDos, onTickedOff }: { toDos: ToDoToProcess[]; onTickedOff: () => void }) {
+type ToDosProps = { toDos: ToDoToProcess[]; toDoLine: ToDoLineOf; onTickedOff: () => void }
+
+function ToDosToProcess({ toDos, toDoLine, onTickedOff }: ToDosProps) {
   const { t } = useTranslation()
   const now = useNow()
 
@@ -98,7 +103,7 @@ function ToDosToProcess({ toDos, onTickedOff }: { toDos: ToDoToProcess[]; onTick
             <p className="font-medium text-xs">
               {daysOverdue > 0 ? t('toProcess.overdue', { count: daysOverdue }) : t('toProcess.forToday')}
             </p>
-            <ToDoLine toDo={toDo} now={now} withTheirContact onTickedOff={onTickedOff} />
+            {toDoLine(toDo, now, onTickedOff)}
           </li>
         ))}
       </ul>

@@ -1,14 +1,18 @@
 import { TriangleAlert } from 'lucide-react'
-import type { ComponentProps, DragEvent } from 'react'
+import { type ComponentProps, createContext, type DragEvent, type ReactNode, use } from 'react'
 import { useTranslation } from 'react-i18next'
-import { useReviseToDo } from '@/features/to-dos/mutations'
-import { useToggle } from '@/features/to-dos/use-toggle'
 import { cn } from '@/shared/lib/utils'
 import type { CalendarToDo } from '../queries'
-import { movedTo } from '../to-dos'
+import { movedTo, type ToDoRevision } from '../to-dos'
 
 /** What a to-do dragged carries, told apart from the exchanges the grid moves by its own gestures. */
 const TO_DO_DRAGGED = 'application/x-prospecter-to-do'
+
+/**
+ * The box ticking a to-do off or unticking it, told by the route composing the to-dos: a feature never imports
+ * another.
+ */
+export const ToDoBoxOf = createContext<(toDo: CalendarToDo) => ReactNode>(() => null)
 
 type Props = Omit<ComponentProps<'div'>, 'children'> & {
   toDo: CalendarToDo
@@ -18,13 +22,13 @@ type Props = Omit<ComponentProps<'div'>, 'children'> & {
 }
 
 /**
- * A to-do of the calendar: its box ticked off or unticked in place, its hour when said, its text; done, it stays,
- * greyed. Late, its edge, an icon and « En retard » say it, never the colour alone, with one pulse when shown. One the
- * API lets revise is dragged to another day.
+ * A to-do of the calendar: its box, its hour when said, its text; done, it stays, greyed. Late, its edge, an icon and
+ * « En retard » say it, never the colour alone, with one pulse when shown. One the API lets revise is dragged to
+ * another day.
  */
 export function CalendarToDoChip({ toDo, late, withTheLateLabel = false, className, ...props }: Props) {
   const { t } = useTranslation()
-  const toggle = useToggle(toDo)
+  const boxOf = use(ToDoBoxOf)
   const done = Boolean(toDo.doneAt)
 
   return (
@@ -42,7 +46,7 @@ export function CalendarToDoChip({ toDo, late, withTheLateLabel = false, classNa
       )}
       {...props}
     >
-      <input type="checkbox" className="size-3.5 shrink-0 accent-primary" {...toggle} />
+      {boxOf(toDo)}
       {toDo.dueAt && <span className="shrink-0 tabular-nums">{toDo.dueAt.replace(':', 'h')}</span>}
       <span className={cn('min-w-0 truncate', done && 'line-through')}>{toDo.text}</span>
       {late && (
@@ -55,13 +59,14 @@ export function CalendarToDoChip({ toDo, late, withTheLateLabel = false, classNa
   )
 }
 
+/** Revises a to-do: told by the route composing the to-dos. */
+export type ReviseToDo = (id: string, revision: ToDoRevision) => void
+
 /**
  * Where a to-do is dropped to change its day, its hour kept: a day of the grid, of the month, or its band of the whole
  * day. A drop on its own day changes nothing.
  */
-export function useToDoDrop(toDos: CalendarToDo[]) {
-  const revise = useReviseToDo()
-
+export function toDoDrop(toDos: CalendarToDo[], reviseToDo: ReviseToDo) {
   return (day: string) => ({
     onDragOver: (event: DragEvent) => {
       if (event.dataTransfer.types.includes(TO_DO_DRAGGED)) event.preventDefault()
@@ -70,7 +75,7 @@ export function useToDoDrop(toDos: CalendarToDo[]) {
       const toDo = toDos.find(({ id }) => id === event.dataTransfer.getData(TO_DO_DRAGGED))
       if (!toDo?._links.revise || toDo.dueOn === day) return
       event.preventDefault()
-      revise.mutate({ params: { path: { id: toDo.id } }, body: movedTo(toDo, day) })
+      reviseToDo(toDo.id, movedTo(toDo, day))
     },
   })
 }

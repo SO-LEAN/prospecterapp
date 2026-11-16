@@ -1,4 +1,4 @@
-import type { ToDo } from '@/features/to-dos/queries'
+import type { components } from '@/shared/api/schema'
 import { dayOf } from '../calendar/dates'
 import { type Reminded, type ReminderSettings, reminderOf } from './schedule'
 
@@ -10,7 +10,10 @@ const REMINDED_AT_WITHOUT_AN_HOUR = { hours: 9, minutes: 0 }
 /** A reminder comes late by this much at most after the hour of its to-do. */
 const LATE_AT_MOST_MS = MINUTE_MS
 
-export type RemindedToDo = Pick<ToDo, 'id' | 'text' | 'dueOn' | 'dueAt' | 'doneAt'>
+export type RemindedToDo = Pick<
+  components['schemas']['ToDoResource'],
+  'id' | 'text' | 'dueOn' | 'dueAt' | 'doneAt'
+>
 
 /**
  * The moment its due stands for in the time of the browser: its hour on its day, or the start of its day; a due

@@ -10,7 +10,7 @@ import { hoursFromMidnight, placeInTheDay } from '../time-grid'
 import { hoursOfDue, toDosByDay } from '../to-dos'
 import { useGestures } from '../use-gestures'
 import { CalendarExchangeChip } from './calendar-exchange'
-import { CalendarToDoChip, type useToDoDrop } from './calendar-to-do'
+import { CalendarToDoChip, type toDoDrop } from './calendar-to-do'
 
 const HOURS = Array.from({ length: 24 }, (_, hour) => hour)
 const MINUTES_IN_AN_HOUR = 60
@@ -32,7 +32,7 @@ type Props = {
   /** The ids of the exchanges and of the to-dos late, as the API says. */
   late: ReadonlySet<string>
   /** Where a to-do is dropped to change its day. */
-  dropOn: ReturnType<typeof useToDoDrop>
+  dropOn: ReturnType<typeof toDoDrop>
   now: Date
   onOpenDay?: (day: Date) => void
   onOpen: (item: CalendarExchange) => void

@@ -7,7 +7,7 @@ import type { CalendarExchange, CalendarToDo } from '../queries'
 import { toDosByDay } from '../to-dos'
 import { useGestures } from '../use-gestures'
 import { CalendarExchangeChip } from './calendar-exchange'
-import { CalendarToDoChip, type useToDoDrop } from './calendar-to-do'
+import { CalendarToDoChip, type toDoDrop } from './calendar-to-do'
 
 /** Beyond them, a day of the month tells how many more it holds, and opens on its own. */
 export const SHOWN_IN_A_DAY_OF_THE_MONTH = 3
@@ -23,7 +23,7 @@ type Props = {
   /** The ids of the exchanges and of the to-dos late, as the API says. */
   late: ReadonlySet<string>
   /** Where a to-do is dropped to change its day. */
-  dropOn: ReturnType<typeof useToDoDrop>
+  dropOn: ReturnType<typeof toDoDrop>
   now: Date
   onOpenDay: (day: Date) => void
   onOpen: (item: CalendarExchange) => void

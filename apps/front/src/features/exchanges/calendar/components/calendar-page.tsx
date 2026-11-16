@@ -11,6 +11,7 @@ import { neighbourOf, type Period, periodOf, startOfDay, VIEWS, type View } from
 import { useMoveInTheCalendar, withdrawTheOfferToMoveBack } from '../mutations'
 import {
   type CalendarExchange,
+  type CalendarToDo,
   calendarQuery,
   readTheDaysAroundAhead,
   readTheNeighbourAhead,
@@ -18,7 +19,7 @@ import {
 import { type Shortcut, useCalendarShortcuts } from '../shortcuts'
 import { SHOWN, type Shown, shownOf } from '../to-dos'
 import { AgendaView } from './agenda-view'
-import { useToDoDrop } from './calendar-to-do'
+import { type ReviseToDo, ToDoBoxOf, toDoDrop } from './calendar-to-do'
 import { ExchangeDialog } from './exchange-dialog'
 import { MiniMonth } from './mini-month'
 import { MonthView } from './month-view'
@@ -50,6 +51,10 @@ type Props = {
   contactSummary: (contactId: string) => ReactNode
   /** The search of who to plan with in a free slot: told by the page composing the contacts and organizations. */
   interlocutorSearch: InterlocutorSearch
+  /** The box ticking a to-do off or unticking it: told by the page composing the to-dos. */
+  toDoBox: (toDo: CalendarToDo) => ReactNode
+  /** Revises a to-do dropped on another day: told by the page composing the to-dos. */
+  reviseToDo: ReviseToDo
 }
 
 /**
@@ -58,7 +63,15 @@ type Props = {
  * my exchanges and my to-dos, or one of them, what is late flagged. An exchange opens in a dialog; one to come is
  * dragged, a to-do to another day, a free slot planned when the API offers the search of the contacts to plan with.
  */
-export function CalendarPage({ view, day, onShow, contactSummary, interlocutorSearch }: Props) {
+export function CalendarPage({
+  view,
+  day,
+  onShow,
+  contactSummary,
+  interlocutorSearch,
+  toDoBox,
+  reviseToDo,
+}: Props) {
   const { t } = useTranslation()
   const queryClient = useQueryClient()
   const now = useNow()
@@ -70,7 +83,7 @@ export function CalendarPage({ view, day, onShow, contactSummary, interlocutorSe
   const [shown, setShown] = useState<Shown>('both')
   const { items, toDos } = shownOf(data, shown)
   const late = new Set(data.late)
-  const dropOn = useToDoDrop(data.toDos)
+  const dropOn = toDoDrop(data.toDos, reviseToDo)
   const move = useMoveInTheCalendar()
   const open = (item: CalendarExchange) => {
     withdrawTheOfferToMoveBack()
@@ -96,104 +109,106 @@ export function CalendarPage({ view, day, onShow, contactSummary, interlocutorSe
   })
 
   return (
-    <div className="space-y-4">
-      <PageHeader title={t('calendar.title')} description={t('calendar.subtitle')} />
+    <ToDoBoxOf value={toDoBox}>
+      <div className="space-y-4">
+        <PageHeader title={t('calendar.title')} description={t('calendar.subtitle')} />
 
-      <div className="flex flex-wrap items-center gap-2">
-        <Button variant="outline" size="sm" onClick={() => onShow(view, startOfDay(new Date()))}>
-          {t('calendar.today')}
-        </Button>
-        <div className="flex">
-          <Button variant="ghost" size="icon-sm" {...arrow(-1)}>
-            <ChevronLeft aria-hidden />
-            <span className="sr-only">{t('calendar.previous')}</span>
+        <div className="flex flex-wrap items-center gap-2">
+          <Button variant="outline" size="sm" onClick={() => onShow(view, startOfDay(new Date()))}>
+            {t('calendar.today')}
           </Button>
-          <Button variant="ghost" size="icon-sm" {...arrow(1)}>
-            <ChevronRight aria-hidden />
-            <span className="sr-only">{t('calendar.next')}</span>
-          </Button>
+          <div className="flex">
+            <Button variant="ghost" size="icon-sm" {...arrow(-1)}>
+              <ChevronLeft aria-hidden />
+              <span className="sr-only">{t('calendar.previous')}</span>
+            </Button>
+            <Button variant="ghost" size="icon-sm" {...arrow(1)}>
+              <ChevronRight aria-hidden />
+              <span className="sr-only">{t('calendar.next')}</span>
+            </Button>
+          </div>
+          <Popover open={jumping} onOpenChange={setJumping}>
+            <PopoverTrigger asChild>
+              <Button variant="ghost" size="sm" className="font-semibold text-base capitalize">
+                {titleOf(view, day, period)}
+                <CalendarSearch aria-hidden className="text-muted-foreground" />
+                <span className="sr-only">{t('calendar.jumpTo')}</span>
+              </Button>
+            </PopoverTrigger>
+            <PopoverContent align="start" className="w-auto p-3">
+              <MiniMonth
+                selected={day}
+                today={now}
+                onPick={(picked) => {
+                  setJumping(false)
+                  onShow(view, picked)
+                }}
+              />
+            </PopoverContent>
+          </Popover>
+          <fieldset className="ml-auto flex rounded-lg border p-0.5">
+            <legend className="sr-only">{t('calendar.shown.label')}</legend>
+            {SHOWN.map((filter) => (
+              <Button
+                key={filter}
+                variant={filter === shown ? 'secondary' : 'ghost'}
+                size="sm"
+                aria-pressed={filter === shown}
+                onClick={() => setShown(filter)}
+              >
+                {t(`calendar.shown.${filter}`)}
+              </Button>
+            ))}
+          </fieldset>
+          <fieldset className="flex rounded-lg border p-0.5">
+            <legend className="sr-only">{t('calendar.view')}</legend>
+            {VIEWS.map((shown) => (
+              <Button
+                key={shown}
+                variant={shown === view ? 'secondary' : 'ghost'}
+                size="sm"
+                aria-pressed={shown === view}
+                onClick={() => onShow(shown, day)}
+              >
+                {t(`calendar.views.${shown}`)}
+              </Button>
+            ))}
+          </fieldset>
         </div>
-        <Popover open={jumping} onOpenChange={setJumping}>
-          <PopoverTrigger asChild>
-            <Button variant="ghost" size="sm" className="font-semibold text-base capitalize">
-              {titleOf(view, day, period)}
-              <CalendarSearch aria-hidden className="text-muted-foreground" />
-              <span className="sr-only">{t('calendar.jumpTo')}</span>
-            </Button>
-          </PopoverTrigger>
-          <PopoverContent align="start" className="w-auto p-3">
-            <MiniMonth
-              selected={day}
-              today={now}
-              onPick={(picked) => {
-                setJumping(false)
-                onShow(view, picked)
-              }}
-            />
-          </PopoverContent>
-        </Popover>
-        <fieldset className="ml-auto flex rounded-lg border p-0.5">
-          <legend className="sr-only">{t('calendar.shown.label')}</legend>
-          {SHOWN.map((filter) => (
-            <Button
-              key={filter}
-              variant={filter === shown ? 'secondary' : 'ghost'}
-              size="sm"
-              aria-pressed={filter === shown}
-              onClick={() => setShown(filter)}
-            >
-              {t(`calendar.shown.${filter}`)}
-            </Button>
-          ))}
-        </fieldset>
-        <fieldset className="flex rounded-lg border p-0.5">
-          <legend className="sr-only">{t('calendar.view')}</legend>
-          {VIEWS.map((shown) => (
-            <Button
-              key={shown}
-              variant={shown === view ? 'secondary' : 'ghost'}
-              size="sm"
-              aria-pressed={shown === view}
-              onClick={() => onShow(shown, day)}
-            >
-              {t(`calendar.views.${shown}`)}
-            </Button>
-          ))}
-        </fieldset>
+
+        {view === 'month' && (
+          <MonthView
+            period={period}
+            month={day.getMonth()}
+            items={items}
+            toDos={toDos}
+            late={late}
+            dropOn={dropOn}
+            now={now}
+            onOpenDay={openDay}
+            {...gestures}
+          />
+        )}
+        {(view === 'week' || view === 'day') && (
+          <TimeGridView
+            key={view}
+            period={period}
+            items={items}
+            toDos={toDos}
+            late={late}
+            dropOn={dropOn}
+            now={now}
+            onOpenDay={view === 'week' ? openDay : undefined}
+            onChooseSlot={data._links.searchContacts ? setSlot : undefined}
+            {...gestures}
+          />
+        )}
+        {view === 'agenda' && <AgendaView items={items} toDos={toDos} late={late} now={now} onOpen={open} />}
+        <ExchangeDialog item={opened} onClose={() => setOpened(null)} contactSummary={contactSummary} />
+        <PlanInASlot slot={slot} onClose={() => setSlot(null)} interlocutorSearch={interlocutorSearch} />
+
+        <p className="hidden text-muted-foreground text-xs md:block">{t('calendar.shortcuts')}</p>
       </div>
-
-      {view === 'month' && (
-        <MonthView
-          period={period}
-          month={day.getMonth()}
-          items={items}
-          toDos={toDos}
-          late={late}
-          dropOn={dropOn}
-          now={now}
-          onOpenDay={openDay}
-          {...gestures}
-        />
-      )}
-      {(view === 'week' || view === 'day') && (
-        <TimeGridView
-          key={view}
-          period={period}
-          items={items}
-          toDos={toDos}
-          late={late}
-          dropOn={dropOn}
-          now={now}
-          onOpenDay={view === 'week' ? openDay : undefined}
-          onChooseSlot={data._links.searchContacts ? setSlot : undefined}
-          {...gestures}
-        />
-      )}
-      {view === 'agenda' && <AgendaView items={items} toDos={toDos} late={late} now={now} onOpen={open} />}
-      <ExchangeDialog item={opened} onClose={() => setOpened(null)} contactSummary={contactSummary} />
-      <PlanInASlot slot={slot} onClose={() => setSlot(null)} interlocutorSearch={interlocutorSearch} />
-
-      <p className="hidden text-muted-foreground text-xs md:block">{t('calendar.shortcuts')}</p>
-    </div>
+    </ToDoBoxOf>
   )
 }
