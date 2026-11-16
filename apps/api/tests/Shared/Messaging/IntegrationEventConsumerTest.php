@@ -3,8 +3,6 @@
 namespace Tests\App\Shared\Messaging;
 
 use App\Demo\DemoData;
-use App\Shared\Messaging\Cause;
-use App\Shared\Messaging\EventCodec;
 use App\Shared\Messaging\EventLoop;
 use App\Shared\Messaging\IntegrationEventConsumer;
 use App\Shared\Messaging\IntegrationFailures;
@@ -32,9 +30,7 @@ use Prospecter\Core\SharedKernel\Domain\OrganizationId;
 use Psr\Log\LogLevel;
 use Tests\App\Base\ApiTestCase;
 use Tests\App\Base\DeliversThroughTheOutbox;
-use Tests\App\Double\FailingReaction;
 use Tests\App\Double\InMemoryLogger;
-use Tests\App\Double\InMemorySqs;
 
 /**
  * The worker applies an event given by the rule of a subscription, in the shape of its input transformer, once: its
@@ -44,10 +40,7 @@ use Tests\App\Double\InMemorySqs;
 class IntegrationEventConsumerTest extends ApiTestCase
 {
     use DeliversThroughTheOutbox;
-
-    private const string FAILURES = 'prospecter-test-integration-failures';
-    private const string CORRELATION = '0199f1d2-6a3b-7c4d-8e5f-0123456789ab';
-    private const string CAUSE = '0199f1d2-6a3b-7c4d-8e5f-0123456789ac';
+    use InvokesTheWorker;
 
     private string $organization;
     private string $contact;
@@ -259,19 +252,6 @@ class IntegrationEventConsumerTest extends ApiTestCase
     }
 
     /**
-     * The invocation the rule of the subscription gives the worker, by its input transformer.
-     *
-     * @return array{subscription: string, source: string, detailType: string, detail: array<string, mixed>}
-     */
-    private function invocationOf(string $subscription, object $event, int $depth = 0): array
-    {
-        $transported = self::getContainer()->get(EventCodec::class)->encode($event, new Cause(self::CORRELATION, self::CAUSE, $depth));
-        $carried = json_decode(json_encode($transported->toEventBridge(), \JSON_THROW_ON_ERROR), true, flags: \JSON_THROW_ON_ERROR);
-
-        return ['subscription' => $subscription, 'source' => $carried['source'], 'detailType' => $carried['detail-type'], 'detail' => $carried['detail']];
-    }
-
-    /**
      * A transaction cancelled by a condition carrying no refusal, or by another transaction on its items.
      */
     private static function conflict(): ConditionFailed
@@ -304,26 +284,5 @@ class IntegrationEventConsumerTest extends ApiTestCase
     private function contactForgotten(): ContactForgotten
     {
         return new ContactForgotten(DemoData::SOLEAN_IT, DemoData::PROSPECTOR, $this->contact, new \DateTimeImmutable());
-    }
-
-    /**
-     * @return list<array<string, mixed>>
-     */
-    private function inboxOf(string $table, string $subscription): array
-    {
-        return self::getContainer()->get('app.table.'.$table)->query('INBOX#'.$subscription);
-    }
-
-    /**
-     * @return list<array<string, mixed>>
-     */
-    private function failures(): array
-    {
-        return self::getContainer()->get(InMemorySqs::class)->messagesOf(self::FAILURES);
-    }
-
-    private function reaction(): FailingReaction
-    {
-        return self::getContainer()->get(FailingReaction::class);
     }
 }
