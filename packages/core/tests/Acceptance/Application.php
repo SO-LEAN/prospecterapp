@@ -364,6 +364,7 @@ final class Application
     private ?string $signedIn = null;
     private ?UseCaseRefused $refusal = null;
     private \DateTimeImmutable $now;
+    private ?\DateTimeZone $readerClock = null;
     private readonly TimeOrderedUuids $uuids;
 
     public function __construct()
@@ -485,6 +486,27 @@ final class Application
     public function itIs(\DateTimeImmutable $now): void
     {
         $this->now = $now;
+    }
+
+    /**
+     * The time zone of the clock the signed-in member reads, that of the scenarios unless one is said.
+     */
+    public function readerClock(): \DateTimeZone
+    {
+        return $this->readerClock ?? new \DateTimeZone(date_default_timezone_get());
+    }
+
+    public function readTheClockOf(\DateTimeZone $timeZone): void
+    {
+        $this->readerClock = $timeZone;
+    }
+
+    /**
+     * The moment of a reading, on the clock of its reader.
+     */
+    public function readingNow(): \DateTimeImmutable
+    {
+        return $this->now->setTimezone($this->readerClock());
     }
 
     /**

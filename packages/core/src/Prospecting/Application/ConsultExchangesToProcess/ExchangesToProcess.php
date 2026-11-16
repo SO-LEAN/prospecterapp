@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Prospecter\Core\Prospecting\Application\ConsultExchangesToProcess;
 
 use Prospecter\Core\Prospecting\Application\ExchangeInTimeline;
+use Prospecter\Core\Prospecting\Application\ToDoInList;
 
 final readonly class ExchangesToProcess
 {
@@ -14,8 +15,11 @@ final readonly class ExchangesToProcess
      * @param array<string, list<string>> $possibleIntents by exchange id, the names of what each offers its holder
      *                                                     now: MarkExchangeDone, MarkExchangeMissed, MoveExchange,
      *                                                     CancelExchange...
+     * @param list<ToDoInList>            $toDos           those the prospector still has to do, due on the day of the
+     *                                                     reading on their clock or before, the most overdue first
+     * @param array<string, int>          $daysOverdue     by to-do id, the days since its day, none for one of the day
      */
-    public function __construct(public array $exchanges, public array $possibleIntents)
+    public function __construct(public array $exchanges, public array $possibleIntents, public array $toDos, public array $daysOverdue)
     {
     }
 }

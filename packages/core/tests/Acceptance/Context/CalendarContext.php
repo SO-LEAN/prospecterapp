@@ -16,6 +16,7 @@ use Prospecter\Core\Prospecting\Application\ConsultCalendar\ConsultCalendar;
 use Prospecter\Core\Prospecting\Application\ExchangeInTimeline;
 use Prospecter\Core\Prospecting\Application\NoteExchange\NoteExchange;
 use Prospecter\Core\Prospecting\Application\PlanExchange\PlanExchange;
+use Prospecter\Core\Prospecting\Application\ToDoInList;
 use Prospecter\Core\Prospecting\Domain\Model\Direction;
 use Prospecter\Core\SharedKernel\Domain\OrganizationId;
 use Prospecter\Core\SharedKernel\Domain\PersonId;
@@ -58,7 +59,7 @@ final class CalendarContext implements Context
     #[When('/^je consulte mon calendrier du (?<first>\S+) au (?<last>\S+)$/')]
     public function iConsultMyCalendar(string $first, string $last): void
     {
-        $this->calendar = $this->application->consultCalendar(new ConsultCalendar($this->application->signedIn(), self::moment($first, '0h00'), self::moment($last, '0h00')->modify('+1 day'), $this->application->now()));
+        $this->calendar = $this->application->consultCalendar(new ConsultCalendar($this->application->signedIn(), $this->startOf($first), $this->startOf($last)->modify('+1 day'), $this->application->readingNow()));
     }
 
     #[Then('il montre, dans l\'ordre :')]
@@ -72,7 +73,30 @@ final class CalendarContext implements Context
     #[Then('il ne montre rien')]
     public function itShowsNothing(): void
     {
-        Expect::same([], $this->calendar()->exchanges);
+        Expect::same([[], []], [$this->calendar()->exchanges, $this->calendar()->toDos]);
+    }
+
+    #[Then('/^il montre "(?<text>[^"]+)" le (?<day>\S+?)(?: à (?<time>\S+?))?(?:, (?<state>toute la journée|faite, que je peux décocher|en retard|pas en retard))?$/')]
+    public function itShowsTheToDo(string $text, string $day, string $time = '', string $state = ''): void
+    {
+        $toDo = array_find($this->calendar()->toDos, static fn (ToDoInList $toDo): bool => $toDo->text === $text);
+        Expect::that(null !== $toDo, sprintf('The calendar does not show "%s"', $text));
+
+        Expect::same([self::dayOf($day), '' === $time ? null : self::timeOf($time)], [$toDo->dueOn, $toDo->dueAt]);
+        match ($state) {
+            'faite, que je peux décocher' => Expect::same([true, true], [$toDo->isDone(), in_array('UntickToDo', $toDo->possibleIntents, true)]),
+            'en retard', 'pas en retard' => Expect::same('en retard' === $state, in_array($toDo->id, $this->calendar()->late, true)),
+            default => null,
+        };
+    }
+
+    #[Then('/^il montre (?<exchange>l\'appel|le rendez-vous|la visio) avec "(?<contact>[^"]+)" le (?<day>\S+) à (?<time>\S+), (?<state>en retard|pas en retard)$/')]
+    public function itShowsTheExchange(string $exchange, string $contact, string $day, string $time, string $state): void
+    {
+        $shown = array_find($this->calendar()->exchanges, fn (ExchangeInTimeline $shown): bool => $shown->personId === $this->scenario->personIdOf($contact) && $shown->occurredAt == self::moment($day, $time));
+        Expect::that(null !== $shown, sprintf('The calendar does not show %s with %s on %s at %s', $exchange, $contact, $day, $time));
+
+        Expect::same('en retard' === $state, in_array($shown->id, $this->calendar()->late, true));
     }
 
     private function calendar(): Calendar
@@ -94,6 +118,24 @@ final class CalendarContext implements Context
     private function expectAccepted(): void
     {
         Expect::that(null === $this->application->refusal(), sprintf('Refused: %s', $this->application->refusal()?->getMessage()));
+    }
+
+    /**
+     * The start of a day on the clock of the reader.
+     */
+    private function startOf(string $day): \DateTimeImmutable
+    {
+        return \DateTimeImmutable::createFromFormat('!d/m/Y', $day, $this->application->readerClock()) ?: throw new \LogicException(sprintf('"%s" is no day', $day));
+    }
+
+    private static function dayOf(string $frenchDay): string
+    {
+        return self::moment($frenchDay, '0h00')->format('Y-m-d');
+    }
+
+    private static function timeOf(string $frenchTime): string
+    {
+        return self::moment('01/01/2026', $frenchTime)->format('H:i');
     }
 
     private static function moment(string $day, string $time): \DateTimeImmutable

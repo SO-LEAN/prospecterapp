@@ -1,7 +1,8 @@
 # language: fr
-Fonctionnalité: Consulter mes échanges à traiter
+Fonctionnalité: Consulter ce que j'ai à traiter
   En tant que prospecteur
-  Je veux voir les échanges planifiés dont l'heure est passée et que je n'ai marqués ni faits, ni manqués, ni annulés
+  Je veux voir les échanges planifiés dont l'heure est passée et que je n'ai marqués ni faits, ni manqués, ni annulés,
+  et mes actions à faire du jour et en retard
   Afin d'avoir une vue claire sur le travail à faire et de ne rien laisser traîner
 
   Contexte:
@@ -28,3 +29,42 @@ Fonctionnalité: Consulter mes échanges à traiter
     Soit j'ai planifié une visio avec "Ada Lovelace" le 13/11/2026 à 9h45
     Et nous sommes le 13/11/2026 à 10h00
     Alors je n'ai pas d'échange à traiter
+
+  Scénario: Une action échue et pas faite est à traiter
+    Soit j'ai noté à faire pour "Ada Lovelace" "Envoyer mon CV" pour le 12/11/2026
+    Et nous sommes le 13/11/2026 à 10h00
+    Quand je consulte ce que j'ai à traiter
+    Alors il y a "Envoyer mon CV", en retard d'un jour
+
+  Scénario: Une action du jour est à traiter dès le matin
+    Soit j'ai noté à faire pour "Ada Lovelace" "Envoyer mon CV" pour le 13/11/2026
+    Et nous sommes le 13/11/2026 à 8h00
+    Quand je consulte ce que j'ai à traiter
+    Alors il y a "Envoyer mon CV", pour aujourd'hui
+
+  Scénario: Les actions à traiter vont de la plus en retard à celles du jour
+    Soit j'ai noté à faire pour "Ada Lovelace" "Envoyer mon CV" pour le 13/11/2026 à 9h00
+    Et j'ai noté à faire pour "Ada Lovelace" "Relancer" pour le 10/11/2026
+    Et j'ai noté à faire pour "Ada Lovelace" "Préparer la proposition" pour le 13/11/2026
+    Et nous sommes le 13/11/2026 à 8h00
+    Quand je consulte ce que j'ai à traiter
+    Alors mes actions à traiter sont :
+      | texte                   | retard        |
+      | Relancer                | 3 jours       |
+      | Préparer la proposition | aujourd'hui   |
+      | Envoyer mon CV          | aujourd'hui   |
+
+  Scénario: Une action à venir ou faite n'est pas à traiter
+    Soit j'ai noté à faire pour "Ada Lovelace" "Envoyer mon CV" pour le 14/11/2026
+    Et j'ai noté à faire pour "Ada Lovelace" "Relancer" pour le 10/11/2026
+    Et j'ai coché "Relancer"
+    Et nous sommes le 13/11/2026 à 23h00
+    Quand je consulte ce que j'ai à traiter
+    Alors je n'ai rien à traiter
+
+  Scénario: Le jour d'une action à traiter est celui du lecteur
+    Soit j'ai noté à faire pour "Ada Lovelace" "Envoyer mon CV" pour le 13/11/2026
+    Et nous sommes le 13/11/2026 à 3h00
+    Et je lis l'heure de "America/New_York"
+    Quand je consulte ce que j'ai à traiter
+    Alors je n'ai rien à traiter
