@@ -42,18 +42,40 @@ const ada = {
   _links: { self: { href: `/api/contacts/${ADA}`, method: 'GET' } },
 }
 
-/** The reaction attaching the contact to the organization has not run yet: the organization still has none. */
-function givenTheApiCollectsAdaBeforeTheReactionAttachesHer() {
+const adaAttached = {
+  ...ada,
+  _links: {
+    contact: { href: `/api/contacts/${ADA}`, method: 'GET' },
+    removeFromOrganization: { href: `/api/organizations/${QA_CONTACTS}/contacts/${ADA}`, method: 'DELETE' },
+  },
+}
+
+/** The reaction attaching the contact to the organization runs once the organization was read these many times. */
+function givenTheApiCollectsAdaAndAttachesHerAfter(readings: number) {
+  let contactsRead = 0
   theApi.mockImplementation(async (input) => {
     const request = input as Request
-    if (request.method === 'POST' && new URL(request.url).pathname === '/api/contacts') {
+    const path = new URL(request.url).pathname
+    if (request.method === 'POST' && path === '/api/contacts') {
       return Response.json(ada, { status: 201 })
     }
-    if (new URL(request.url).pathname === `/api/organizations/${QA_CONTACTS}`) {
+    if (path === `/api/organizations/${QA_CONTACTS}/contacts`) {
+      contactsRead += 1
+      return Response.json({ items: contactsRead > readings ? [adaAttached] : [] })
+    }
+    if (path === `/api/organizations/${QA_CONTACTS}`) {
       return Response.json(qaContacts)
     }
     return Response.json({ items: [] })
   })
+}
+
+async function collectAda(user: ReturnType<typeof userEvent.setup>) {
+  await user.click(screen.getByRole('button', { name: /Modifier.*Contacts/ }))
+  await user.click(screen.getByRole('button', { name: 'Nouveau contact' }))
+  await user.type(screen.getByLabelText('Prénom'), 'Ada')
+  await user.type(screen.getByLabelText('Nom'), 'Lovelace')
+  await user.click(screen.getByRole('button', { name: 'Enregistrer le contact' }))
 }
 
 async function renderTheContactsOf(organization: Organization) {
@@ -76,17 +98,26 @@ afterEach(() => {
 describe('ContactsSection', () => {
   it('shows the new contact as soon as it is saved, without waiting for the reaction attaching it', async () => {
     vi.useFakeTimers({ shouldAdvanceTime: true })
-    givenTheApiCollectsAdaBeforeTheReactionAttachesHer()
+    givenTheApiCollectsAdaAndAttachesHerAfter(Number.POSITIVE_INFINITY)
     const user = await renderTheContactsOf(qaContacts)
 
-    await user.click(screen.getByRole('button', { name: /Modifier.*Contacts/ }))
-    await user.click(screen.getByRole('button', { name: 'Nouveau contact' }))
-    await user.type(screen.getByLabelText('Prénom'), 'Ada')
-    await user.type(screen.getByLabelText('Nom'), 'Lovelace')
-    await user.click(screen.getByRole('button', { name: 'Enregistrer le contact' }))
+    await collectAda(user)
     await act(() => vi.advanceTimersByTimeAsync(3_000))
 
     expect(screen.getByRole('link', { name: 'Ada Lovelace' })).toBeInTheDocument()
     expect(screen.queryByText('Aucun contact rattaché.')).not.toBeInTheDocument()
+  })
+
+  it('offers to remove the new contact once the reaction attached it, however late', async () => {
+    vi.useFakeTimers({ shouldAdvanceTime: true })
+    givenTheApiCollectsAdaAndAttachesHerAfter(3)
+    const user = await renderTheContactsOf(qaContacts)
+
+    await collectAda(user)
+    expect(screen.queryByRole('button', { name: 'Retirer Ada Lovelace des contacts' })).not.toBeInTheDocument()
+    await act(() => vi.advanceTimersByTimeAsync(20_000))
+
+    expect(screen.getByRole('link', { name: 'Ada Lovelace' })).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: 'Retirer Ada Lovelace des contacts' })).toBeInTheDocument()
   })
 })
