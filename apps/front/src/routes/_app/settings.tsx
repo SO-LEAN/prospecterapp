@@ -25,10 +25,10 @@ export const Route = createFileRoute('/_app/settings')({
   loaderDeps: ({ search }) => ({ section: search.section }),
   loader: async ({ context: { queryClient }, deps: { section }, preload }) => {
     if (section === 'connectors') {
-      if (!preload) await checkMyConnections(queryClient)
-      return
+      return { connectionsCheck: preload ? undefined : await checkMyConnections(queryClient) }
     }
     await queryClient.ensureQueryData(remindersQuery())
+    return { connectionsCheck: undefined }
   },
   pendingComponent: () => <PageSkeleton />,
   errorComponent: ({ error, reset }) => <ErrorState error={error} reset={reset} />,
@@ -38,6 +38,7 @@ export const Route = createFileRoute('/_app/settings')({
 function SettingsPage() {
   const { t } = useTranslation()
   const { section } = Route.useSearch()
+  const { connectionsCheck } = Route.useLoaderData()
 
   return (
     <div className="space-y-8">
@@ -46,7 +47,9 @@ function SettingsPage() {
         <SettingsNavigation current={section} />
         <div className="max-w-2xl">
           {section === 'reminders' && <MyReminders />}
-          {section === 'connectors' && <ConnectorsSection />}
+          {section === 'connectors' && (
+            <ConnectorsSection googleUnreachable={connectionsCheck === 'googleUnreachable'} />
+          )}
         </div>
       </div>
     </div>

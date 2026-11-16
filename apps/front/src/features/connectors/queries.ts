@@ -8,10 +8,15 @@ export type GoogleClient = components['schemas']['GoogleClientResource']
 /** My connections in the state last seen, read by the banner of the app without asking the providers. */
 export const connectionsQuery = () => api.queryOptions('get', '/api/me/connections')
 
-/** My connections as their providers see them now: asked each time the page of the connectors opens. */
+/**
+ * My connections as their providers see them now: asked each time the page of the connectors opens, never again on a
+ * failure (a provider out of reach answers after its timeout), nor kept once read (the connections keep the answer).
+ */
 export const checkedConnectionsQuery = () => ({
   ...api.queryOptions('post', '/api/me/connections/checks'),
   staleTime: 0,
+  gcTime: 0,
+  retry: false,
 })
 
 export const googleConnectionOf = (connections: Connections): Connection | undefined =>

@@ -271,6 +271,7 @@ export const fr = {
       connect: 'Connecter',
       reconnect: 'Reconnecter',
       unavailable: 'Google Agenda n’est pas disponible pour le moment.',
+      unchecked: 'Google ne répond pas : l’état de votre accès n’a pas pu être vérifié.',
       disconnected: 'Votre compte Google est déconnecté.',
       disconnect: {
         action: 'Déconnecter',
@@ -589,6 +590,7 @@ export const fr = {
     calendarRefusedThePush: 'Google a refusé l’événement de l’échange.',
     secretsUnavailable:
       'Le secret du client ne peut être ni enregistré ni lu pour le moment : réessayez plus tard.',
+    googleUnreachable: 'Google ne répond pas pour le moment : réessayez plus tard.',
   },
   validation: {
     required: 'Ce champ est obligatoire.',

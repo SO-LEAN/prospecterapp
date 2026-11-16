@@ -183,7 +183,7 @@ describe('the section of the connectors', () => {
 
     expect(await screen.findByText(/Connecté au compte agenda@exemple\.fr/)).toBeInTheDocument()
     expect(
-      screen.getByText('Google ne répond pas : l’état de votre accès n’a pas pu être vérifié.'),
+      screen.getByText(/^Google ne répond pas.: l’état de votre accès n’a pas pu être vérifié\.$/),
     ).toBeInTheDocument()
     expect(checksSent()).toBe(1)
   })

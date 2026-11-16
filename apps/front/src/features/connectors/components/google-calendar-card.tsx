@@ -1,4 +1,4 @@
-import { CircleAlert, CircleCheck, CircleSlash, Link2, RefreshCw, Unlink } from 'lucide-react'
+import { CircleAlert, CircleCheck, CircleSlash, CloudOff, Link2, RefreshCw, Unlink } from 'lucide-react'
 import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { toast } from 'sonner'
@@ -23,11 +23,13 @@ type Props = {
   connection: Connection | undefined
   /** False while no client of Prospecter at Google serves the account: Google is neither connected nor reconnected. */
   offered: boolean
+  /** Google did not answer the check: the state of the connection is the one last seen. */
+  unchecked?: boolean
   goTo?: (address: string) => void
 }
 
 /** Google Calendar: connected, to reconnect once Google refused its access, or to connect; unavailable unless offered. */
-export function GoogleCalendarCard({ connection, offered, goTo }: Props) {
+export function GoogleCalendarCard({ connection, offered, unchecked = false, goTo }: Props) {
   const { t } = useTranslation()
 
   return (
@@ -43,6 +45,7 @@ export function GoogleCalendarCard({ connection, offered, goTo }: Props) {
       </CardHeader>
       <CardContent className="space-y-4 text-sm">
         {connection && <ConnectionState connection={connection} />}
+        {connection && unchecked && <Unchecked />}
         {!offered && <Unavailable />}
         <div className="flex flex-wrap gap-2">
           {offered && <ConnectButton connection={connection} goTo={goTo} />}
@@ -74,6 +77,17 @@ function ConnectionState({ connection }: { connection: Connection }) {
           since: formatMoment(connection.connectedAt),
         })}
       </span>
+    </p>
+  )
+}
+
+function Unchecked() {
+  const { t } = useTranslation()
+
+  return (
+    <p className="flex items-center gap-2 text-muted-foreground">
+      <CloudOff aria-hidden className="size-4 shrink-0" />
+      <span>{t('settings.connectors.unchecked')}</span>
     </p>
   )
 }
