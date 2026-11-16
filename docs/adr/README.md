@@ -136,3 +136,4 @@ Why the project is shaped the way it is: one record per decision, in the order t
 | [0130](0130-the-spa-signs-in-on-cognito-with-amplify-v6.md) | The SPA signs in on Cognito with Amplify v6 | architecture | Accepted | 2026-11-16 |
 | [0131](0131-the-worker-runs-a-bounded-number-of-invocations-at-once.md) | The worker runs a bounded number of invocations at once, locally through a queue of its invocations | architecture | Accepted | 2026-11-16 |
 | [0132](0132-the-worker-reserves-no-concurrency-unless-its-instance-sets-it.md) | The worker reserves no concurrency on AWS unless its instance sets it | architecture | Accepted | 2026-11-16 |
+| [0134](0134-a-calendar-holds-the-exchanges-and-the-to-dos-of-its-holder-a-day-never-an-instant.md) | A calendar holds the exchanges and the to-dos of its holder, a day without an hour never an instant | architecture | Accepted | 2026-11-16 |
