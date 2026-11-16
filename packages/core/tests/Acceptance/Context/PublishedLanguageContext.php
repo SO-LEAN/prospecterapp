@@ -390,6 +390,12 @@ final class PublishedLanguageContext implements Context
         $this->application->organizations->remove($this->scenario->organizationNamed($organization));
     }
 
+    #[Then('Prospecting répond que cet échange demande son lien')]
+    public function prospectingAnswersTheExchangeRequestsItsLink(): void
+    {
+        Expect::same([true], array_map(static fn (HeldExchangeResponse $exchange): bool => $exchange->linkRequested, $this->heldExchanges));
+    }
+
     #[Then('Prospecting ne répond aucun échange')]
     public function prospectingAnswersNoExchange(): void
     {

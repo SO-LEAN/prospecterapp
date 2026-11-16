@@ -29,6 +29,9 @@ final class InMemoryProviderCalendar implements ProviderCalendar
     private array $withdrawn = [];
     private bool $answering = true;
     private bool $acceptingEvents = true;
+    /** @var array<string, string> the Meet links created, by exchange */
+    private array $links = [];
+    private int $linksAsked = 0;
 
     public function __construct(private readonly InMemoryProviderAccess $access)
     {
@@ -132,6 +135,19 @@ final class InMemoryProviderCalendar implements ProviderCalendar
     public function eventOf(string $exchange): ?CalendarEvent
     {
         return $this->events()[$exchange] ?? null;
+    }
+
+    public function linkCreatedFor(string $exchange): ?string
+    {
+        return $this->links[$exchange] ?? null;
+    }
+
+    /**
+     * How many times a push asked Google for a conference.
+     */
+    public function linksAsked(): int
+    {
+        return $this->linksAsked;
     }
 
     public function wasWithdrawn(string $exchange): bool

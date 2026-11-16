@@ -126,6 +126,13 @@ Fonctionnalité: Le langage publié des contextes
       | titulaire | statut  | canal | moment           | durée  | lieu | lien                      | contact | organisation |
       | moi       | Annulé  | Visio | 17/11/2026 09:00 | 30 min |      | https://meet.example/acme |         | ACME         |
 
+  Scénario: Prospecting dit qu'une visio demande son lien au calendrier de son titulaire
+    Soit je suis connecté en tant que prospecteur de "SOLEAN IT"
+    Et nous sommes le 13/11/2026 à 10h00
+    Et j'ai planifié une visio avec "Ada Lovelace" le 17/11/2026 à 14h00, sans lien, en demandant un lien Meet
+    Quand un autre contexte demande à Prospecting, de "SOLEAN IT", cet échange et un échange inconnu
+    Alors Prospecting répond que cet échange demande son lien
+
   Scénario: Prospecting nomme un échange par la première organisation qui le garde encore, et tait celui qu'aucune ne garde plus
     Soit je suis connecté en tant que prospecteur de "SOLEAN IT"
     Et nous sommes le 13/11/2026 à 10h00
