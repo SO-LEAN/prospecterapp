@@ -6,11 +6,16 @@ use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Group;
 use Prospecter\Core\Accounts\Domain\Model\Role;
 use Prospecter\Core\Prospecting\Domain\Model\Channel;
+use Prospecter\Core\Prospecting\Domain\Model\Due;
 use Prospecter\Core\Prospecting\Domain\Model\Duration;
 use Prospecter\Core\Prospecting\Domain\Model\Exchange;
 use Prospecter\Core\Prospecting\Domain\Model\ExchangeFacts;
 use Prospecter\Core\Prospecting\Domain\Model\ExchangeId;
+use Prospecter\Core\Prospecting\Domain\Model\ToDo;
+use Prospecter\Core\Prospecting\Domain\Model\ToDoId;
 use Prospecter\Core\Prospecting\Domain\Repository\ExchangeRepository;
+use Prospecter\Core\Prospecting\Domain\Repository\OrganizationRepository;
+use Prospecter\Core\Prospecting\Domain\Repository\ToDoRepository;
 use Prospecter\Core\SharedKernel\Domain\MemberId;
 use Prospecter\Core\SharedKernel\Domain\OrganizationId;
 use Prospecter\Core\SharedKernel\Domain\PersonId;
@@ -195,6 +200,103 @@ class CalendarApiTest extends ApiTestCase
         $this->requestJson('GET', self::WEEK_OF_THE_DEMONSTRATION);
 
         $this->assertResponseStatusCodeSame(403);
+    }
+
+    /**
+     * At the clock of the tests, on the offset of the period, the 14th is gone, the hour of 8:00 of the 15th passed.
+     */
+    #[DataProvider('readersOfTheToDos')]
+    public function testThePeriodShowsMyToDosAtTheirDueAndWhatIsLate(string $reference, Role ...$roles): void
+    {
+        $this->login($this->aMemberOfTheFixtures($reference, ...$roles));
+        $ada = $this->ada();
+        $late = $this->noteToDo($ada, 'Envoyer mon CV', '2026-10-14');
+        $atEight = $this->noteToDo($ada, 'Appeler la RH', '2026-10-15', '08:00');
+        $done = $this->noteToDo($ada, 'Relancer', '2026-10-13');
+        $this->requestJson('POST', '/api/to-dos/'.$done.'/done', []);
+        $this->noteToDo($ada, 'Rappeler', '2026-10-19');
+
+        $calendar = $this->requestJson('GET', self::WEEK_OF_THE_DEMONSTRATION);
+
+        $this->assertResponseStatusCodeSame(200);
+        $this->assertSame([
+            [$done, 'Relancer', '2026-10-13', null, ['firstName' => 'Ada', 'lastName' => 'Lovelace'], true],
+            [$late, 'Envoyer mon CV', '2026-10-14', null, ['firstName' => 'Ada', 'lastName' => 'Lovelace'], false],
+            [$atEight, 'Appeler la RH', '2026-10-15', '08:00', ['firstName' => 'Ada', 'lastName' => 'Lovelace'], false],
+        ], array_map(static fn (array $toDo): array => [$toDo['id'], $toDo['text'], $toDo['dueOn'], $toDo['dueAt'], $toDo['contact']['name'], null !== $toDo['doneAt']], $calendar['toDos']));
+        $this->assertSame([$late, $atEight], $calendar['late']);
+        $this->assertArrayHasKey('tickOff', $calendar['toDos'][1]['_links']);
+        $this->assertArrayHasKey('revise', $calendar['toDos'][1]['_links']);
+        $this->assertArrayHasKey('untick', $calendar['toDos'][0]['_links']);
+    }
+
+    /**
+     * @return iterable<string, list<mixed>>
+     */
+    public static function readersOfTheToDos(): iterable
+    {
+        yield 'a prospector with the right to manage personal data' => ['prospector-with-the-right', Role::User, Role::Prospector, Role::PersonalData];
+        yield 'an administrator' => ['administrator', Role::Prospector, Role::Admin];
+    }
+
+    /**
+     * Its text may hold personal data: a to-do noted while they had the right is not shown to them without it.
+     */
+    public function testAMemberWithoutTheRightToManagePersonalDataSeesNoToDoInTheCalendar(): void
+    {
+        $assistant = $this->aMemberOfTheFixtures('prospector-without-the-right', Role::User, Role::Prospector);
+        $toDo = ToDo::forAContact($this->accountOfTheFixtures(), new MemberId($this->memberIdOf($assistant)), new ToDoId(self::newIdentity()), new PersonId(self::newIdentity()), [new OrganizationId(self::newIdentity())], 'Envoyer mon CV', new Due('2026-10-14'), new \DateTimeImmutable('2026-10-13 09:00 UTC'));
+        self::getContainer()->get(ToDoRepository::class)->save($toDo);
+        $this->login($assistant);
+
+        $calendar = $this->requestJson('GET', self::WEEK_OF_THE_DEMONSTRATION);
+
+        $this->assertResponseStatusCodeSame(200);
+        $this->assertSame([[], []], [$calendar['toDos'], $calendar['late']]);
+    }
+
+    /**
+     * 9:00 UTC is 2:00 in Los Angeles: a to-do of 8:00 is late on the clock of a reader in Paris, not yet on theirs.
+     */
+    public function testWhatIsLateIsReadOnTheClockOfItsReader(): void
+    {
+        $this->noteToDo($this->ada(), 'Appeler la RH', '2026-10-15', '08:00');
+
+        $this->assertCount(1, $this->requestJson('GET', self::WEEK_OF_THE_DEMONSTRATION.'&timeZone=Europe/Paris')['late']);
+        $this->assertSame([], $this->requestJson('GET', '/api/me/calendar?from=2026-10-12T00:00:00-07:00&to=2026-10-19T00:00:00-07:00&timeZone=America/Los_Angeles')['late']);
+    }
+
+    public function testTheTimeZoneOfTheReaderIsOneOfTheWorld(): void
+    {
+        $refused = $this->requestJson('GET', self::WEEK_OF_THE_DEMONSTRATION.'&timeZone=Mars/Olympus');
+
+        $this->assertResponseStatusCodeSame(422);
+        $this->assertSame(['timeZone'], $this->violatedFields($refused));
+    }
+
+    /**
+     * A planned exchange whose slot has ended and not processed is late; one to come is not.
+     */
+    public function testAnExchangePlannedEndedAndNotProcessedIsLate(): void
+    {
+        $organization = $this->requestJson('POST', '/api/organizations', ['legalIdentity' => ['corporateName' => 'ACME']])['id'];
+        $passed = Exchange::plannedWithTheOrganization(self::getContainer()->get(OrganizationRepository::class)->get(new OrganizationId($organization)), new MemberId($this->memberIdOf('prospector-user')), new ExchangeId(self::newIdentity()), ExchangeFacts::planned(Channel::Call, new \DateTimeImmutable('2026-10-14T16:00:00+00:00'), Duration::inMinutes(null), null), new \DateTimeImmutable('2026-10-13 09:00 UTC'));
+        self::getContainer()->get(ExchangeRepository::class)->save($passed);
+        $this->requestJson('POST', '/api/organizations/'.$organization.'/upcoming-exchanges', ['exchange' => ['channel' => 'meeting', 'occurredAt' => '2026-10-16T08:00:00+00:00']]);
+
+        $this->assertSame([$passed->id()->value], $this->requestJson('GET', self::WEEK_OF_THE_DEMONSTRATION)['late']);
+    }
+
+    private function ada(): string
+    {
+        $organization = $this->requestJson('POST', '/api/organizations', ['legalIdentity' => ['corporateName' => 'ACME']])['id'];
+
+        return $this->requestJson('POST', '/api/contacts', ['name' => ['firstName' => 'Ada', 'lastName' => 'Lovelace'], 'organizationIds' => [$organization]])['id'];
+    }
+
+    private function noteToDo(string $contact, string $text, string $dueOn, ?string $dueAt = null): string
+    {
+        return $this->requestJson('POST', '/api/contacts/'.$contact.'/to-dos', ['text' => $text, 'dueOn' => $dueOn, 'dueAt' => $dueAt])['id'];
     }
 
     public function testAPeriodLastsSixWeeksAtMost(): void
