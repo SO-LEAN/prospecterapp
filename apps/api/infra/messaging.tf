@@ -9,6 +9,7 @@ locals {
     eventName = ["INSERT"]
     dynamodb  = { Keys = { PK = { S = [{ prefix = "OUTBOX#" }] } } }
   })
+  unreserved_concurrency = -1
 }
 
 resource "aws_cloudwatch_event_bus" "integration" {
@@ -214,7 +215,7 @@ resource "aws_lambda_function" "worker" {
   layers                         = [local.bref_php]
   memory_size                    = 1024
   timeout                        = 28
-  reserved_concurrent_executions = var.worker_concurrency
+  reserved_concurrent_executions = coalesce(var.worker_concurrency, local.unreserved_concurrency)
   filename                       = local.package
   source_code_hash               = base64sha256(var.code_version)
 

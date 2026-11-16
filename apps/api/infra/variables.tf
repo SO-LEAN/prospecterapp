@@ -48,12 +48,12 @@ variable "integration_events_delivery" {
 }
 
 variable "worker_concurrency" {
-  description = "How many invocations of the worker run at once at most (ADR 0131): its reserved concurrency, taken from the executions of the account, of which AWS keeps a minimum unreserved (100 by its documentation, all 10 of an account limited to 10); a burst of reactions waits for room instead of taking the executions of the api"
+  description = "How many invocations of the worker run at once at most (ADR 0131, 0132): its reserved concurrency, taken from the executions of the account, a burst of reactions waiting for room instead of taking the executions of the api; null, the default, reserves nothing. An instance sets it once the quota of its account allows it (#101): AWS keeps a minimum of the executions of the account unreserved (100 by its documentation, all 10 of an account limited to 10)"
   type        = number
-  default     = 10
+  default     = null
 
   validation {
-    condition     = var.worker_concurrency >= 1
-    error_message = "The worker runs at least one invocation at once."
+    condition     = var.worker_concurrency == null || var.worker_concurrency >= 1
+    error_message = "The worker runs at least one invocation at once, or reserves nothing (null)."
   }
 }
