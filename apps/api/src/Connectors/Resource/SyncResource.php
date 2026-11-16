@@ -15,9 +15,9 @@ final readonly class SyncResource
         public string $provider,
         #[OA\Property(enum: ['pending', 'synced', 'failed'])]
         public string $state,
-        #[OA\Property(description: 'Since when it stands so; none for an exchange never pushed', nullable: false)]
+        #[OA\Property(description: 'Since when it stands so; none for an exchange never pushed')]
         public ?\DateTimeImmutable $at = null,
-        #[OA\Property(description: 'Why: the provider refused it (`calendarRefusedThePush`), or my connection is to reconnect (`toReconnect`)', enum: ['calendarRefusedThePush', 'toReconnect'], nullable: false)]
+        #[OA\Property(description: 'Why: the provider refused it (`calendarRefusedThePush`), or my connection is to reconnect (`toReconnect`)', enum: ['calendarRefusedThePush', 'toReconnect'])]
         public ?string $reason = null,
     ) {
     }

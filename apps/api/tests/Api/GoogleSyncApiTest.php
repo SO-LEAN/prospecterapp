@@ -36,7 +36,7 @@ class GoogleSyncApiTest extends ApiTestCase
         $sync = $this->requestJson('GET', '/api/exchanges/'.$planned.'/google-sync');
 
         $this->assertResponseIsSuccessful();
-        $this->assertSame(['provider' => 'google', 'state' => 'synced', 'at' => '2026-10-15T09:00:00+00:00'], $sync['sync']);
+        $this->assertSame(['provider' => 'google', 'state' => 'synced', 'at' => '2026-10-15T09:00:00+00:00', 'reason' => null], $sync['sync']);
         $this->assertSame(['self'], array_keys($sync['_links']));
     }
 
@@ -113,7 +113,7 @@ class GoogleSyncApiTest extends ApiTestCase
 
         $planned = $this->plan(self::NEXT_TUESDAY);
 
-        $this->assertSame(['provider' => 'google', 'state' => 'pending', 'reason' => 'toReconnect'], $this->requestJson('GET', '/api/exchanges/'.$planned.'/google-sync')['sync']);
+        $this->assertSame(['provider' => 'google', 'state' => 'pending', 'at' => null, 'reason' => 'toReconnect'], $this->requestJson('GET', '/api/exchanges/'.$planned.'/google-sync')['sync']);
     }
 
     public function testWithoutAConnectionAnExchangeHasNoSync(): void
