@@ -26,6 +26,7 @@
     "@tanstack/react-router": "^1.170.43",
     "@tanstack/zod-adapter": "^1.167.0",
     "amazon-cognito-identity-js": "^6.3.22",
+    "aws-amplify": "^6.22.2",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
     "i18next": "^26.4.4",
