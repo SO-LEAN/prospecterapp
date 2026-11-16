@@ -143,8 +143,8 @@ WITH_E2E_LOCK = { flock -n $(E2E_LOCK) true || echo "The journeys of another che
 # counted (two minutes, ADR 0106) while the journeys reading none run together; FRESH=1 after a change of the
 # functions, of their settings or of the subscriptions. Those running alone run once the others are done (ADR 0117), the
 # main journey then the dashboard, one after the other (ADR 0136), and not when one before failed: the first failure
-# stops them (FAIL_FAST). The
-# relay and the worker warmed, the gestures of the console made and the geocoder doubled once for both
+# stops them (FAIL_FAST). The relay and the worker warmed, the gestures of the console made and the geocoder doubled
+# once for both
 FIGURES_LOG = $(ROOT)/.cache/reporting-rebuild.log
 STACK_RUNNING = $(shell $(DC) ps -q --status running nginx 2>/dev/null)
 FROM_NOTHING = $(or $(FRESH),$(if $(STACK_RUNNING),,1))
