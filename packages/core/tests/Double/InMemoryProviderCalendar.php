@@ -47,13 +47,25 @@ final class InMemoryProviderCalendar implements ProviderCalendar
         return $calendar;
     }
 
-    public function put(ClientCredentials $client, RefreshToken $refreshToken, string $calendar, CalendarEvent $event): void
+    public function put(ClientCredentials $client, RefreshToken $refreshToken, string $calendar, CalendarEvent $event): ?string
     {
         $this->ensureAnswering();
         $this->ensureGranted($client, $refreshToken);
         $this->ensureThere($calendar);
         $this->ensureAccepted($client);
         $this->calendars[$calendar][$event->exchange->value] = $event;
+
+        return $event->createsALink ? $this->conferenceOf($event->exchange) : null;
+    }
+
+    /**
+     * As Google does for the request of a conference identified by its exchange: created once, answered each time.
+     */
+    private function conferenceOf(ExchangeId $exchange): string
+    {
+        ++$this->linksAsked;
+
+        return $this->links[$exchange->value] ??= sprintf('https://meet.google.com/%s', substr(md5($exchange->value), 0, 10));
     }
 
     public function remove(ClientCredentials $client, RefreshToken $refreshToken, string $calendar, ExchangeId $exchange): void

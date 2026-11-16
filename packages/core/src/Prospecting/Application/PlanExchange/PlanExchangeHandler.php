@@ -41,7 +41,7 @@ final readonly class PlanExchangeHandler implements CommandHandler
             new ExchangeId($command->id),
             $contact,
             $this->contactOrganizations->of($contact, $prospector->accountId),
-            ExchangeFacts::planned(Channel::from($command->channel), $command->plannedAt, Duration::inMinutes($command->durationInMinutes), $command->agenda, $command->place, VideoCallLink::orNone($command->link)),
+            ExchangeFacts::planned(Channel::from($command->channel), $command->plannedAt, Duration::inMinutes($command->durationInMinutes), $command->agenda, $command->place, VideoCallLink::orNone($command->link), $command->linkRequested),
             $command->executedAt,
         );
         $this->exchanges->save($exchange);

@@ -55,6 +55,7 @@ final readonly class InMemoryExchangeDetailRetriever implements ExchangeDetailRe
             text: $facts->text,
             place: $facts->place,
             link: $facts->link?->url,
+            linkAwaited: $facts->linkRequested,
             textFlagged: ExchangeReading::isTextFlagged(null !== $facts->text, $reader),
             textToMakeConform: ExchangeConformity::isTextToMakeConform(null !== $facts->text, $contactForgotten, null !== $madeConform),
             toMakeConform: ExchangeConformity::isToMakeConform($contactForgotten, null !== $madeConform, [] !== $attachments),

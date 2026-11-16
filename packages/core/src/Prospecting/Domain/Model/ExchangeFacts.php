@@ -11,12 +11,14 @@ use Prospecter\Core\Prospecting\Domain\Exception\PlaceOnlyForAMeeting;
 /**
  * What happened between the prospector and the contact in the real world, or what they agreed upon: the moment,
  * and how long it lasts, of a planned exchange; where a meeting is held, written freely, and the link a video
- * call is joined by; the subject of an email, if any, is in the text.
+ * call is joined by, or asked of the calendar of its holder while it has none (ADR 0137); the subject of an email,
+ * if any, is in the text.
  */
 final readonly class ExchangeFacts
 {
     public ?string $text;
     public ?string $place;
+    public bool $linkRequested;
 
     /**
      * @throws PlaceOnlyForAMeeting|LinkOnlyForAVideoCall
@@ -29,10 +31,12 @@ final readonly class ExchangeFacts
         public ?Duration $duration = null,
         ?string $place = null,
         public ?VideoCallLink $link = null,
+        bool $linkRequested = false,
     ) {
         $this->text = self::orNone($text);
         $this->place = self::orNone($place);
-        self::ensureTheVenueFits($channel, $this->place, $link);
+        self::ensureTheVenueFits($channel, $this->place, $link, $linkRequested);
+        $this->linkRequested = $linkRequested && null === $link;
     }
 
     private static function orNone(?string $written): ?string
@@ -43,13 +47,13 @@ final readonly class ExchangeFacts
     /**
      * @throws PlaceOnlyForAMeeting|LinkOnlyForAVideoCall
      */
-    private static function ensureTheVenueFits(Channel $channel, ?string $place, ?VideoCallLink $link): void
+    private static function ensureTheVenueFits(Channel $channel, ?string $place, ?VideoCallLink $link, bool $linkRequested): void
     {
         if (null !== $place && !$channel->isHeldSomewhere()) {
             throw PlaceOnlyForAMeeting::because('Only a meeting has a place', 'place', context: ['channel' => $channel->value]);
         }
 
-        if (null !== $link && !$channel->isJoinedByALink()) {
+        if ((null !== $link || $linkRequested) && !$channel->isJoinedByALink()) {
             throw LinkOnlyForAVideoCall::because('Only a video call has a link', 'link', context: ['channel' => $channel->value]);
         }
     }
@@ -59,18 +63,18 @@ final readonly class ExchangeFacts
      *
      * @throws ChannelNotPlanned|PlaceOnlyForAMeeting|LinkOnlyForAVideoCall
      */
-    public static function planned(Channel $channel, \DateTimeImmutable $at, Duration $duration, ?string $agenda, ?string $place = null, ?VideoCallLink $link = null): self
+    public static function planned(Channel $channel, \DateTimeImmutable $at, Duration $duration, ?string $agenda, ?string $place = null, ?VideoCallLink $link = null, bool $linkRequested = false): self
     {
         if (!$channel->mayBePlanned()) {
             throw ChannelNotPlanned::because('Only a call, a meeting or a video call may be planned', 'channel', context: ['channel' => $channel->value]);
         }
 
-        return new self($channel, Direction::Outbound, $at, $agenda, $duration, $place, $link);
+        return new self($channel, Direction::Outbound, $at, $agenda, $duration, $place, $link, $linkRequested);
     }
 
     public function withText(?string $text): self
     {
-        return new self($this->channel, $this->direction, $this->occurredAt, $text, $this->duration, $this->place, $this->link);
+        return new self($this->channel, $this->direction, $this->occurredAt, $text, $this->duration, $this->place, $this->link, $this->linkRequested);
     }
 
     /**
@@ -78,28 +82,32 @@ final readonly class ExchangeFacts
      */
     public function happened(\DateTimeImmutable $at, ?string $report): self
     {
-        return new self($this->channel, $this->direction, $at, $report, $this->duration, $this->place, $this->link);
+        return new self($this->channel, $this->direction, $at, $report, $this->duration, $this->place, $this->link, $this->linkRequested);
     }
 
     public function movedTo(\DateTimeImmutable $at, ?Duration $duration): self
     {
-        return new self($this->channel, $this->direction, $at, $this->text, $duration ?? $this->duration, $this->place, $this->link);
+        return new self($this->channel, $this->direction, $at, $this->text, $duration ?? $this->duration, $this->place, $this->link, $this->linkRequested);
     }
 
     /**
+     * A link given ends the request of one.
+     *
      * @throws PlaceOnlyForAMeeting|LinkOnlyForAVideoCall
      */
     public function withVenue(?string $place, ?VideoCallLink $link): self
     {
-        return new self($this->channel, $this->direction, $this->occurredAt, $this->text, $this->duration, $place, $link);
+        return new self($this->channel, $this->direction, $this->occurredAt, $this->text, $this->duration, $place, $link, $this->linkRequested);
     }
 
     /**
-     * Corrected as a whole, the facts keep where the exchange was held, or its link, while their channel still has
-     * one.
+     * Corrected as a whole, the facts keep where the exchange was held, or its link, or the request of one, while
+     * their channel still has one.
      */
     public function keepingTheVenueOf(self $former): self
     {
+        $joinedByALink = $this->channel->isJoinedByALink();
+
         return new self(
             $this->channel,
             $this->direction,
@@ -107,7 +115,8 @@ final readonly class ExchangeFacts
             $this->text,
             $this->duration,
             $this->channel->isHeldSomewhere() ? $former->place : null,
-            $this->channel->isJoinedByALink() ? $former->link : null,
+            $joinedByALink ? $former->link : null,
+            $joinedByALink && $former->linkRequested,
         );
     }
 }

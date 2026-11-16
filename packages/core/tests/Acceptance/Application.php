@@ -43,6 +43,7 @@ use Prospecter\Core\Connectors\Application\ConsultMyConnections\ConsultMyConnect
 use Prospecter\Core\Connectors\Application\ConsultMyConnections\ConsultMyConnectionsHandler;
 use Prospecter\Core\Connectors\Application\ConsultMyConnections\KeptConnections;
 use Prospecter\Core\Connectors\Application\Disconnect\DisconnectHandler;
+use Prospecter\Core\Connectors\Application\PublishVideoCallLinkCreated\PublishVideoCallLinkCreatedHandler;
 use Prospecter\Core\Connectors\Application\PushExchange\PushExchangeHandler;
 use Prospecter\Core\Connectors\Application\PushUpcomingExchanges\PushUpcomingExchangesHandler;
 use Prospecter\Core\Connectors\Application\RemoveClient\RemoveClientHandler;
@@ -158,6 +159,7 @@ use Prospecter\Core\Prospecting\Application\EraseExchangeLeftWithoutOrganization
 use Prospecter\Core\Prospecting\Application\EraseToDo\EraseToDoHandler;
 use Prospecter\Core\Prospecting\Application\EraseToDoLeftWithoutOrganization\EraseToDoLeftWithoutOrganizationHandler;
 use Prospecter\Core\Prospecting\Application\EraseToDosOfForgottenContact\EraseToDosOfForgottenContactHandler;
+use Prospecter\Core\Prospecting\Application\KeepCreatedVideoCallLink\KeepCreatedVideoCallLinkHandler;
 use Prospecter\Core\Prospecting\Application\KeepExchangesOfForgottenContact\KeepExchangesOfForgottenContactHandler;
 use Prospecter\Core\Prospecting\Application\KeptTimeline;
 use Prospecter\Core\Prospecting\Application\KeptToDoList;
@@ -994,6 +996,7 @@ final class Application
             new PublishContactCollectedHandler($this->events),
             new PublishContactForgottenHandler($this->events),
             new PublishContactsLeftWithoutOrganizationHandler($this->events),
+            new PublishVideoCallLinkCreatedHandler($this->events),
         ];
     }
 
@@ -1009,6 +1012,7 @@ final class Application
             new AttachCollectedContactHandler($this->organizations, $this->events),
             new DetachForgottenContactHandler($this->organizations, $this->events, $this->orphans),
             new KeepExchangesOfForgottenContactHandler($this->exchanges, $this->events),
+            new KeepCreatedVideoCallLinkHandler($this->exchanges, $this->events),
             new ForgetContactsLeftWithoutOrganizationHandler($this->persons, $this->readers, $this->events),
             new RegisterTheFounderHandler($this->members),
             new CollectTheFounderProfileHandler($this->persons),

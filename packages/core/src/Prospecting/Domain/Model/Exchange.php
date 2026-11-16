@@ -20,6 +20,7 @@ use Prospecter\Core\Prospecting\Domain\Event\ExchangePlanned;
 use Prospecter\Core\Prospecting\Domain\Event\ExchangeTextCorrected;
 use Prospecter\Core\Prospecting\Domain\Event\ExchangeVenueCorrected;
 use Prospecter\Core\Prospecting\Domain\Event\FileAttached;
+use Prospecter\Core\Prospecting\Domain\Event\VideoCallLinkReceived;
 use Prospecter\Core\Prospecting\Domain\Exception\ChannelNotMissed;
 use Prospecter\Core\Prospecting\Domain\Exception\ExchangeInTheFuture;
 use Prospecter\Core\Prospecting\Domain\Exception\LinkOnlyForAVideoCall;
@@ -297,6 +298,21 @@ final class Exchange implements ReleasesEvents
         $this->facts = $this->facts->withVenue($place, $link);
         $this->correctedBy($by, $at);
         $this->recordThat(new ExchangeVenueCorrected($this->accountId, $by, $this->id, $at));
+    }
+
+    /**
+     * The link the calendar of its holder created for it, while it still asks one: a link given meanwhile wins. A
+     * correction by the system, without an author: its last correction stays that of a member (ADR 0137).
+     */
+    public function receiveLink(VideoCallLink $link, \DateTimeImmutable $at): void
+    {
+        if (!$this->facts->linkRequested) {
+            return;
+        }
+
+        $this->facts = $this->facts->withVenue($this->facts->place, $link);
+        $this->modifiedAt = $at;
+        $this->recordThat(new VideoCallLinkReceived($this->accountId, $this->createdBy, $this->id, $at));
     }
 
     /**

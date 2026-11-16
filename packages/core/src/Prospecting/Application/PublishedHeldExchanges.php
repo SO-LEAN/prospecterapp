@@ -47,6 +47,7 @@ final readonly class PublishedHeldExchanges
             $exchange->durationInMinutes,
             $exchange->place,
             $exchange->link,
+            $exchange->linkRequested,
             $exchange->contactId,
             $organization->id,
             $organization->corporateName ?? $organization->fullName,
