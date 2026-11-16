@@ -64,6 +64,25 @@ class CalendarApiTest extends ApiTestCase
     }
 
     /**
+     * The organization is erased at once, its exchanges by a reaction after it: in between, the calendar is read all
+     * the same, without them.
+     */
+    public function testAnExchangeWithAnOrganizationErasedBeforeItLeavesTheCalendarReadable(): void
+    {
+        $organization = $this->requestJson('POST', '/api/organizations', ['legalIdentity' => ['corporateName' => 'ACME']])['id'];
+        $ada = $this->requestJson('POST', '/api/contacts', ['name' => ['firstName' => 'Ada', 'lastName' => 'Lovelace'], 'organizationIds' => [$organization]])['id'];
+        $this->requestJson('POST', '/api/contacts/'.$ada.'/upcoming-exchanges', ['channel' => 'videoCall', 'occurredAt' => '2026-10-20T12:00:00+00:00']);
+        $erased = $this->requestJson('POST', '/api/organizations', ['legalIdentity' => ['corporateName' => 'QA rendez-vous']])['id'];
+        $this->requestJson('POST', '/api/organizations/'.$erased.'/upcoming-exchanges', ['exchange' => ['channel' => 'meeting', 'occurredAt' => '2026-10-21T08:00:00+00:00']]);
+        $this->eraseBeforeItsExchanges($erased);
+
+        $calendar = $this->requestJson('GET', self::NEXT_WEEK);
+
+        $this->assertResponseStatusCodeSame(200);
+        $this->assertSame([['Ada Lovelace', 'videoCall', '2026-10-20T12:00:00+00:00', 'planned', 30]], array_map(self::described(...), $calendar['items']));
+    }
+
+    /**
      * Its holder moves an exchange of their calendar while it is to come; what is done, missed or cancelled stays where
      * it is.
      */

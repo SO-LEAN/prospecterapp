@@ -49,6 +49,19 @@ class ExchangesToProcessApiTest extends ApiTestCase
         $this->assertSame(['href' => self::TO_PROCESS, 'method' => 'GET'], $toProcess['_links']['self']);
     }
 
+    /**
+     * The organization is erased at once, its exchanges by a reaction after it: in between, the exchanges to process
+     * are read all the same, without them.
+     */
+    public function testAnExchangeWithAnOrganizationErasedBeforeItIsNoLongerToProcess(): void
+    {
+        $this->plannedBy($this->memberIdOf('prospector-user'), '2026-10-14T16:00:00+00:00');
+        $this->eraseBeforeItsExchanges($this->organization);
+
+        $this->assertSame([], $this->requestJson('GET', self::TO_PROCESS)['items']);
+        $this->assertResponseStatusCodeSame(200);
+    }
+
     public function testAnExchangeToProcessIsMarkedDoneOrMissedCancelledOrMovedFromTheList(): void
     {
         $passed = $this->plannedBy($this->memberIdOf('prospector-user'), '2026-10-15T08:00:00+00:00');

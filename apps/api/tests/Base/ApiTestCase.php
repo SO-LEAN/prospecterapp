@@ -15,8 +15,10 @@ use Prospecter\Core\Accounts\Domain\Repository\MemberRepository;
 use Prospecter\Core\PersonalData\Domain\Model\Person;
 use Prospecter\Core\PersonalData\Domain\Model\Purpose;
 use Prospecter\Core\PersonalData\Domain\Repository\PersonRepository;
+use Prospecter\Core\Prospecting\Domain\Repository\OrganizationRepository;
 use Prospecter\Core\SharedKernel\Domain\AccountId;
 use Prospecter\Core\SharedKernel\Domain\MemberId;
+use Prospecter\Core\SharedKernel\Domain\OrganizationId;
 use Prospecter\Core\SharedKernel\Domain\PersonId;
 use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
@@ -151,5 +153,14 @@ abstract class ApiTestCase extends WebTestCase
     protected function violatedFields(array $problem): array
     {
         return array_map(static fn (array $violation): string => $violation['propertyPath'], $problem['violations'] ?? []);
+    }
+
+    /**
+     * Stopping prospecting erases the organization at once, its exchanges by a reaction after it: the state in between.
+     */
+    protected function eraseBeforeItsExchanges(string $organization): void
+    {
+        $organizations = self::getContainer()->get(OrganizationRepository::class);
+        $organizations->remove($organizations->get(new OrganizationId($organization)));
     }
 }
