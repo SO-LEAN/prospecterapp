@@ -282,6 +282,10 @@ export const fr = {
       toReconnect: 'Google n’accorde plus l’accès au compte {{account}} : reconnectez-le.',
       connect: 'Connecter',
       reconnect: 'Reconnecter',
+      synced_one: '{{count}} échange synchronisé',
+      synced_other: '{{count}} échanges synchronisés',
+      syncedAndFailed: '{{synced}}, {{count}} en échec',
+      retryFailed: 'Tout réessayer',
       unavailable: 'Google Agenda n’est pas disponible pour le moment.',
       unchecked: 'Google ne répond pas : l’état de votre accès n’a pas pu être vérifié.',
       disconnected: 'Votre compte Google est déconnecté.',
@@ -472,6 +476,14 @@ export const fr = {
     },
     lasting: '{{moment}}, {{duration}}',
     nextExchange: 'Prochain échange : {{channel}} {{moment}}',
+    googleSync: {
+      synced: 'Synchronisé avec Google le {{at}}.',
+      pending: 'En attente de synchronisation avec Google.',
+      pendingToReconnect:
+        'En attente de synchronisation avec Google : votre compte Google est à reconnecter.',
+      failed: 'Google a refusé l’événement le {{at}}.',
+      retry: 'Réessayer',
+    },
     detail: {
       title: 'Échange',
       description: 'Tout l’échange, qui l’a noté et qui l’a corrigé.',

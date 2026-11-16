@@ -21,6 +21,15 @@ export function useGiveGoogleItsAnswer() {
   })
 }
 
+/** Every exchange Google refused pushed again: the connections answer how many are synced and failed now (ADR 0133). */
+export function useRetryFailedPushes() {
+  const queryClient = useQueryClient()
+
+  return api.useMutation('post', '/api/me/connections/google/retries', {
+    onSuccess: (connections) => queryClient.setQueryData(connectionsQuery().queryKey, connections),
+  })
+}
+
 export function useDisconnectGoogle() {
   const queryClient = useQueryClient()
 

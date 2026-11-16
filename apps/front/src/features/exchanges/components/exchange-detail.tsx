@@ -37,6 +37,7 @@ import { ExchangeForm } from './exchange-form'
 import { ExchangeSummary } from './exchange-line'
 import { ExchangeText } from './exchange-text'
 import { FollowUp } from './follow-up'
+import { GoogleSync } from './google-sync'
 import { JoinTheVideoCall } from './join-the-video-call'
 import { MoveForm, PlannedExchangeActions, ReportForm } from './planned-exchange-handling'
 import { TextCorrectionForm } from './text-correction-form'
@@ -220,6 +221,7 @@ function Exchange({
         )}
       </ExchangeSummary>
       <Venue exchange={exchange} />
+      {exchange.status === 'planned' && <GoogleSync exchangeId={exchange.id} />}
       <div className="space-y-1 text-muted-foreground text-xs">
         <p>
           {t(exchange.status === 'planned' ? 'exchanges.detail.planned' : 'exchanges.detail.noted', {

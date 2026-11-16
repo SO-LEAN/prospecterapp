@@ -116,7 +116,9 @@ describe('GoogleCalendarCard', () => {
     expect(screen.getByText('12 échanges synchronisés, 1 en échec')).toBeInTheDocument()
     await user.click(screen.getByRole('button', { name: 'Tout réessayer' }))
 
-    await waitFor(() => expect(sent()).toEqual({ path: '/api/me/connections/google/retries', method: 'POST' }))
+    await waitFor(() =>
+      expect(sent()).toEqual({ path: '/api/me/connections/google/retries', method: 'POST' }),
+    )
     await waitFor(() => expect(queryClient.getQueryData(connectionsQuery().queryKey)).toEqual(allSynced))
   })
 
