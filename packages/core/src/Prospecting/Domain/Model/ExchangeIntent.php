@@ -30,6 +30,8 @@ enum ExchangeIntent
     case MarkExchangeMissed;
     /** Move a planned exchange to another moment to come. */
     case MoveExchange;
+    /** Move a planned exchange just moved back to its former moment, while that moment is to come. */
+    case MoveExchangeBack;
     /** Cancel a planned exchange. */
     case CancelExchange;
 }

@@ -10,6 +10,7 @@ use Prospecter\Core\Prospecting\Application\Port\ExchangeDetailRetriever;
 use Prospecter\Core\Prospecting\Domain\Exception\UnknownExchange;
 use Prospecter\Core\Prospecting\Domain\Model\Channel;
 use Prospecter\Core\Prospecting\Domain\Model\ContactPresence;
+use Prospecter\Core\Prospecting\Domain\Model\Exchange;
 use Prospecter\Core\Prospecting\Domain\Model\ExchangeId;
 use Prospecter\Core\Prospecting\Domain\Model\ExchangeIntent;
 use Prospecter\Core\Prospecting\Domain\Model\ExchangeSituation;
@@ -29,17 +30,17 @@ final readonly class DynamoExchangeDetailRetriever implements ExchangeDetailRetr
     {
     }
 
-    public function get(ExchangeId $id, Prospector $reader, \DateTimeImmutable $asOf): ExchangeDetail
+    public function get(ExchangeId $id, Prospector $reader, \DateTimeImmutable $asOf, ?\DateTimeImmutable $movedFrom = null): ExchangeDetail
     {
         $item = $this->prospectingTable->item(ExchangeKeys::exchange($id->value), ExchangeKeys::EXCHANGE) ?? throw UnknownExchange::identifiedBy($id);
 
-        return self::detailOf($item['exchange'], $reader, $asOf);
+        return self::detailOf($item['exchange'], $reader, $asOf, $movedFrom);
     }
 
     /**
      * @param array<string, mixed> $document
      */
-    private static function detailOf(array $document, Prospector $reader, \DateTimeImmutable $asOf): ExchangeDetail
+    private static function detailOf(array $document, Prospector $reader, \DateTimeImmutable $asOf, ?\DateTimeImmutable $movedFrom): ExchangeDetail
     {
         $facts = $document['facts'];
         $occurredAt = Documents::momentOf($facts['occurredAt']);
@@ -78,7 +79,7 @@ final readonly class DynamoExchangeDetailRetriever implements ExchangeDetailRetr
             madeConformAt: null === $madeConform ? null : Documents::momentOf($madeConform['at']),
             attachments: array_map(static fn (array $attachment): AttachmentDetail => new AttachmentDetail($attachment['id'], $attachment['name'], (int) $attachment['size'], $attachment['mediaType'], $attachmentsToMakeConform), $read),
             hiddenAttachments: count($attachments) - count($read),
-            possibleIntents: array_map(static fn (ExchangeIntent $intent): string => $intent->name, ExchangePossibilities::given(new ExchangeSituation(count($attachments), ExchangeConformity::awaitsBeingMadeConform($contactForgotten, null !== $madeConform), $status, $occurredAt <= $asOf, $document['createdBy'] === $reader->id->value, Channel::from($facts['channel'])))),
+            possibleIntents: array_map(static fn (ExchangeIntent $intent): string => $intent->name, ExchangePossibilities::given(new ExchangeSituation(count($attachments), ExchangeConformity::awaitsBeingMadeConform($contactForgotten, null !== $madeConform), $status, $occurredAt <= $asOf, $document['createdBy'] === $reader->id->value, Channel::from($facts['channel']), null !== $movedFrom && Exchange::isAMomentToCome($movedFrom, $asOf)))),
         );
     }
 }

@@ -175,9 +175,17 @@ final class Exchange implements ReleasesEvents
      */
     private static function ensureToCome(\DateTimeImmutable $plannedAt, \DateTimeImmutable $at): void
     {
-        if ($plannedAt <= $at) {
+        if (!self::isAMomentToCome($plannedAt, $at)) {
             throw PlannedExchangeInThePast::because('A planned exchange is in the future', 'occurredAt');
         }
+    }
+
+    /**
+     * The only moments an exchange is planned at, or moved to.
+     */
+    public static function isAMomentToCome(\DateTimeImmutable $moment, \DateTimeImmutable $at): bool
+    {
+        return $moment > $at;
     }
 
     public function id(): ExchangeId

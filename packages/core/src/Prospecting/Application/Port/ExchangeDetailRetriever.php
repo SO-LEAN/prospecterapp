@@ -12,12 +12,13 @@ use Prospecter\Core\Prospecting\Domain\Model\Prospector;
 /**
  * Reads the detail of an exchange without restoring it (ADR 0088), as its reader may read it
  * (`ExchangeReading`), with what is to make conform (`ExchangeConformity`) and what its state offers now
- * (`ExchangePossibilities`) to its reader, at the moment of the reading.
+ * (`ExchangePossibilities`) to its reader, at the moment of the reading; read just after its move, from the moment it
+ * was moved from, whether it is moved back there (`Exchange::isAMomentToCome`).
  */
 interface ExchangeDetailRetriever
 {
     /**
      * @throws UnknownExchange
      */
-    public function get(ExchangeId $id, Prospector $reader, \DateTimeImmutable $asOf): ExchangeDetail;
+    public function get(ExchangeId $id, Prospector $reader, \DateTimeImmutable $asOf, ?\DateTimeImmutable $movedFrom = null): ExchangeDetail;
 }
