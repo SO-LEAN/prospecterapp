@@ -137,7 +137,7 @@ describe('session', () => {
     const session = await theSession()
 
     expect(await session.accessToken()).toBe('the access token')
-    expect(fetchAuthSession).toHaveBeenCalledWith()
+    expect(fetchAuthSession).toHaveBeenCalledWith({ forceRefresh: false })
   })
 
   it('gives no access token when nobody is signed in', async () => {

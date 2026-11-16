@@ -1,9 +1,7 @@
-import {
-  AuthenticationDetails,
-  CognitoUser,
-  CognitoUserPool,
-  type CognitoUserSession,
-} from 'amazon-cognito-identity-js'
+import { Amplify } from 'aws-amplify'
+import { AuthError, fetchAuthSession, signIn, signOut } from 'aws-amplify/auth'
+import { cognitoUserPoolsTokenProvider } from 'aws-amplify/auth/cognito'
+import { sessionStorage } from 'aws-amplify/utils'
 import createFetchClient from 'openapi-fetch'
 import type { paths } from '@/shared/api/schema'
 import { env } from '@/shared/config/env'
@@ -25,85 +23,71 @@ export interface Session {
 /** A refusal of Cognito: its code tells why (`NotAuthorizedException`, `TooManyRequestsException`…). */
 export type SignInRefusal = { code: string; message: string }
 
+const NEW_PASSWORD_REQUIRED: SignInRefusal = {
+  code: 'NewPasswordRequired',
+  message: 'A new password is required',
+}
+
 const whereToSignIn = createFetchClient<paths>({ baseUrl: env.apiUrl })
 
-let userPool: Promise<CognitoUserPool> | null = null
+let userPool: Promise<void> | null = null
 
-function theUserPool(): Promise<CognitoUserPool> {
+/** Amplify configured once with the user pool the API names, its tokens kept in the storage of the tab. */
+function onTheUserPool(): Promise<void> {
   userPool ??= whereToSignIn.GET('/api/user-pool').then(({ data, error }) => {
     if (!data) {
       userPool = null
       throw error
     }
-    return new CognitoUserPool({
-      UserPoolId: data.userPoolId,
-      ClientId: data.clientId,
-      endpoint: data.endpoint ?? undefined,
-      Storage: window.sessionStorage,
+    Amplify.configure({
+      Auth: {
+        Cognito: {
+          userPoolId: data.userPoolId,
+          userPoolClientId: data.clientId,
+          ...(data.endpoint ? { userPoolEndpoint: data.endpoint } : {}),
+        },
+      },
     })
+    cognitoUserPoolsTokenProvider.setKeyValueStorage(sessionStorage)
   })
   return userPool
 }
 
-const sessionOf = (user: CognitoUser) =>
-  new Promise<CognitoUserSession | null>((resolve) => {
-    user.getSession((error: Error | null, session: CognitoUserSession | null) =>
-      resolve(error ? null : session),
-    )
-  })
+const refusalOf = (error: unknown): unknown =>
+  error instanceof AuthError ? ({ code: error.name, message: error.message } satisfies SignInRefusal) : error
 
-const renewed = (user: CognitoUser, session: CognitoUserSession) =>
-  new Promise<CognitoUserSession | null>((resolve) => {
-    user.refreshSession(session.getRefreshToken(), (error: Error | null, fresh: CognitoUserSession | null) =>
-      resolve(error ? null : fresh),
-    )
-  })
-
-async function signedInUser(): Promise<CognitoUser | null> {
-  return (await theUserPool()).getCurrentUser()
+async function accessTokenOfTheTab(forceRefresh: boolean): Promise<string | null> {
+  await onTheUserPool()
+  try {
+    const { tokens } = await fetchAuthSession({ forceRefresh })
+    return tokens?.accessToken.toString() ?? null
+  } catch {
+    return null
+  }
 }
 
 export const session: Session = {
   async signIn(email, password) {
-    const user = new CognitoUser({
-      Username: email,
-      Pool: await theUserPool(),
-      Storage: window.sessionStorage,
+    await onTheUserPool()
+    await signOut()
+    const { nextStep } = await signIn({
+      username: email,
+      password,
+      options: { authFlowType: 'USER_SRP_AUTH' },
+    }).catch((error: unknown) => {
+      throw refusalOf(error)
     })
-    await new Promise<void>((resolve, reject) => {
-      user.authenticateUser(new AuthenticationDetails({ Username: email, Password: password }), {
-        onSuccess: () => resolve(),
-        onFailure: (refusal: SignInRefusal) => reject(refusal),
-        newPasswordRequired: () =>
-          reject({
-            code: 'NewPasswordRequired',
-            message: 'A new password is required',
-          } satisfies SignInRefusal),
-      })
-    })
+    if (nextStep.signInStep === 'CONFIRM_SIGN_IN_WITH_NEW_PASSWORD_REQUIRED') {
+      throw NEW_PASSWORD_REQUIRED
+    }
   },
 
   async signOut() {
-    const user = await signedInUser()
-    if (!user) {
-      return
-    }
-    await new Promise<void>((resolve) => {
-      user.globalSignOut({ onSuccess: () => resolve(), onFailure: () => resolve() })
-    })
-    user.signOut()
+    await onTheUserPool()
+    await signOut({ global: true })
   },
 
-  async accessToken() {
-    const user = await signedInUser()
-    const current = user ? await sessionOf(user) : null
-    return current?.getAccessToken().getJwtToken() ?? null
-  },
+  accessToken: () => accessTokenOfTheTab(false),
 
-  async renewedAccessToken() {
-    const user = await signedInUser()
-    const current = user ? await sessionOf(user) : null
-    const fresh = user && current ? await renewed(user, current) : null
-    return fresh?.getAccessToken().getJwtToken() ?? null
-  },
+  renewedAccessToken: () => accessTokenOfTheTab(true),
 }
