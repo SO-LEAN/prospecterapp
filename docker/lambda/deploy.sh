@@ -139,7 +139,7 @@ deploy_relay() {
     echo "Lambda prospecter-dev-relay relaying the outbox of the tables to the bus prospecter-dev-integration"
 }
 
-# deploy_worker <php layer>: the worker running the reactions (ADR 0101), WORKER_CONCURRENCY at once (ADR 0129), given
+# deploy_worker <php layer>: the worker running the reactions (ADR 0101), WORKER_CONCURRENCY at once (ADR 0131), given
 # by a rule of the bus per subscription of apps/api/config/subscriptions.json the name of the subscription and the
 # event; what it refuses, and what Lambda gives up after its 2 retries, in the queue of the failures. MiniStack refuses
 # an invocation beyond the reserved concurrency without waiting, and invokes the target of a rule without the retries

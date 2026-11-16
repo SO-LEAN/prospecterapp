@@ -8,7 +8,7 @@ use Bref\Event\Sqs\SqsEvent;
 use Bref\Event\Sqs\SqsRecord;
 
 /**
- * The worker of the local stack (ADR 0129): MiniStack refuses an invocation beyond the reserved concurrency of the
+ * The worker of the local stack (ADR 0131): MiniStack refuses an invocation beyond the reserved concurrency of the
  * worker, and a rule does not retry it, where AWS keeps it until the worker has room. Locally, the rules put the
  * invocations in a queue, whose mapping gives them to the worker as many at once as its concurrency: each is applied
  * as the rule gives it on AWS, and an invocation given directly (app:integration:redrive) as it comes.
