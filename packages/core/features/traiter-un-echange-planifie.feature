@@ -114,6 +114,16 @@ Fonctionnalité: Traiter un échange planifié
     Quand je déplace cette visio au 10/11/2026 à 9h00
     Alors c'est refusé : "A planned exchange is in the future"
 
+  Scénario: Un échange déplacé se remet à son ancien moment tant qu'il est à venir
+    Soit nous sommes le 17/11/2026 à 10h00
+    Quand je déplace cette visio au 18/11/2026 à 9h00
+    Alors je peux remettre cette visio à son ancien moment
+
+  Scénario: Un échange déplacé ne revient pas à un ancien moment passé
+    Soit nous sommes le 17/11/2026 à 15h00
+    Quand je déplace cette visio au 18/11/2026 à 9h00
+    Alors je ne peux pas remettre cette visio à son ancien moment
+
   Scénario: Un échange annulé n'est plus dans mon agenda
     Quand j'annule cette visio
     Alors rien ne chevauche le 17/11/2026 à 14h00 pour 30 minutes
