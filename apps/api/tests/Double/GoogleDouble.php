@@ -11,7 +11,8 @@ use Symfony\Contracts\HttpClient\ResponseInterface;
  * without the id of a client and every code but the one a test makes it grant, grants every refresh until a test
  * makes it refuse them or the token was revoked, and its revocation keeps the tokens it revoked; its calendars keep the
  * events put into them (ADR 0127), an event Google does not know answered 404 to a `PUT`, created by a `POST` with its
- * id. Not reset between the requests of a client that does not reboot, so that a test arranges it before its gestures.
+ * id; out of reach once a test says so. Not reset between the requests of a client that does not reboot, so that a
+ * test arranges it before its gestures.
  */
 final class GoogleDouble
 {
@@ -20,6 +21,7 @@ final class GoogleDouble
     /** @var array{code: string, email: string, scope: string, refreshToken: string}|null */
     private ?array $grant = null;
     private bool $refusesTheTokens = false;
+    private bool $answers = true;
     /** @var list<string> */
     private array $revoked = [];
     /** @var array{string, string}|null the id and the secret of the client the last token was asked by */
@@ -42,6 +44,14 @@ final class GoogleDouble
     public function refusesTheTokens(): void
     {
         $this->refusesTheTokens = true;
+    }
+
+    /**
+     * Google out of reach: every call fails before any answer, as a timeout does.
+     */
+    public function doesNotAnswer(): void
+    {
+        $this->answers = false;
     }
 
     /**
@@ -79,6 +89,7 @@ final class GoogleDouble
     public function answer(string $method, string $url, array $options): ResponseInterface
     {
         return match (true) {
+            !$this->answers => new MockResponse('', ['error' => 'Google does not answer']),
             str_starts_with($url, $this->calendarUrl) => $this->calendar($method, (string) parse_url(substr($url, strlen($this->calendarUrl)), \PHP_URL_PATH), $options),
             str_starts_with($url, $this->tokenUrl) => $this->token(self::formOf($options)),
             default => $this->revoke(self::formOf($options)),

@@ -158,6 +158,32 @@ class ConnectorsApiTest extends ApiTestCase
         $this->assertSame(['a-refresh-token'], $this->google()->revoked());
     }
 
+    public function testWhileGoogleDoesNotAnswerTheCheckIsUnavailableAndTheConnectionKeptAsLastSeen(): void
+    {
+        $this->login();
+        $this->connect('michel@exemple.fr', 'a-refresh-token');
+        $this->google()->doesNotAnswer();
+
+        $problem = $this->requestJson('POST', '/api/me/connections/checks');
+
+        $this->assertResponseStatusCodeSame(503);
+        $this->assertSame(['Service Unavailable', 'googleUnreachable'], [$problem['title'], $problem['reason']]);
+        $this->assertSame([['google', 'connected', 'michel@exemple.fr']], $this->seen($this->requestJson('GET', '/api/me/connections')));
+    }
+
+    public function testWhileGoogleDoesNotAnswerTheMemberDisconnects(): void
+    {
+        $this->login();
+        $this->connect('michel@exemple.fr', 'a-refresh-token');
+        $this->google()->doesNotAnswer();
+
+        $connections = $this->requestJson('DELETE', '/api/me/connections/google');
+
+        $this->assertResponseIsSuccessful();
+        $this->assertSame([], $connections['connections']);
+        $this->assertSame([], $this->requestJson('GET', '/api/me/connections')['connections']);
+    }
+
     public function testNoConnectionToDisconnect(): void
     {
         $this->login();
