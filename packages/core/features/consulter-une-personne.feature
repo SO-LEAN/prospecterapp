@@ -33,6 +33,20 @@ Fonctionnalité: Consulter les données personnelles d'une personne
       | photo     | aucune   |
       | masquée   | oui      |
 
+  Scénario: Sans le droit, je lis le nom d'un contact en clair, ses coordonnées masquées
+    Soit l'organisation "ACME" appartient à "SOLEAN IT"
+    Et le contact "Ada Lovelace" de "ACME" a l'adresse e-mail "ada@acme.test"
+    Et le contact "Ada Lovelace" de "ACME" a le téléphone "06 12 34 56 78"
+    Et je suis connecté en tant que prospecteur de "SOLEAN IT" sans le droit aux données personnelles
+    Quand je consulte la fiche de "Ada Lovelace"
+    Alors je vois la fiche :
+      | prénom    | Ada      |
+      | nom       | Lovelace |
+      | e-mail    | a***@*** |
+      | téléphone | ******78 |
+      | photo     | aucune   |
+      | masquée   | oui      |
+
   Scénario: Je me lis toujours en clair, même sans le droit
     Soit je suis connecté en tant que prospecteur de "SOLEAN IT" sans le droit aux données personnelles
     Et mon profil est :

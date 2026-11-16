@@ -55,6 +55,14 @@ Fonctionnalité: Consulter mon calendrier
     Quand je consulte mon calendrier du 16/11/2026 au 22/11/2026
     Alors il ne montre rien
 
+  Scénario: Sans le droit aux données personnelles, je vois avec qui, le texte signalé
+    Soit je suis connecté en tant que prospecteur de "SOLEAN IT" sans le droit aux données personnelles
+    Et j'ai planifié un appel avec "Ada Lovelace" le 17/11/2026 à 9h00 avec le texte "Parler de son salaire actuel"
+    Quand je consulte mon calendrier du 16/11/2026 au 22/11/2026
+    Alors il montre, dans l'ordre :
+      | moment           | canal | avec         | de   | signalé |
+      | 17/11/2026 09:00 | Appel | Ada Lovelace | ACME | oui     |
+
   Scénario: Mon calendrier ne montre que mes échanges
     Soit un autre prospecteur de "SOLEAN IT" a planifié un appel avec "Ada Lovelace" le 17/11/2026 à 9h00
     Quand je consulte mon calendrier du 16/11/2026 au 22/11/2026

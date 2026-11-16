@@ -55,7 +55,7 @@ Fonctionnalité: Le langage publié des contextes
     Quand un autre contexte demande à PersonalData les noms, comme "Alan Turing" les lit, de :
       | Ada Lovelace |
     Alors PersonalData répond les noms :
-      | A***a L***e |
+      | Ada Lovelace |
     Quand un autre contexte demande à PersonalData les noms, comme "Personne" les lit, de :
       | Ada Lovelace |
     Alors PersonalData ne répond aucun nom

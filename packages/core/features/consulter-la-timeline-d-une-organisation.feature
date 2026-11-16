@@ -60,7 +60,7 @@ Fonctionnalité: La timeline d'une organisation
       | noter un échange      |
       | planifier un échange  |
 
-  Scénario: Sans le droit aux données personnelles, la timeline de l'organisation masque ses contacts
+  Scénario: Sans le droit aux données personnelles, la timeline de l'organisation nomme ses contacts
     Soit j'ai noté un e-mail reçu de "Ada Lovelace" le 10/10/2026 à 9h00
     Et j'ai noté un appel reçu de "ACME" elle-même le 15/10/2026 à 16h00
     Et je suis connecté en tant que prospecteur de "SOLEAN IT" sans le droit aux données personnelles
@@ -68,4 +68,4 @@ Fonctionnalité: La timeline d'une organisation
     Alors la timeline de "ACME" est, du plus récent au plus ancien :
       | moment           | interlocuteur | canal  |
       | 15/10/2026 16:00 | ACME          | Appel  |
-      | 10/10/2026 09:00 | A***a L***e   | E-mail |
+      | 10/10/2026 09:00 | Ada Lovelace  | E-mail |

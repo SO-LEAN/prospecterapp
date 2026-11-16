@@ -26,6 +26,16 @@ Fonctionnalité: Traiter un échange planifié
       | moment           | statut |
       | 17/11/2026 14:20 | Fait   |
 
+  Scénario: Sans le droit aux données personnelles, je traite les échanges que j'ai planifiés
+    Soit je suis connecté en tant que prospecteur de "SOLEAN IT" sans le droit aux données personnelles
+    Et j'ai planifié une visio avec "Ada Lovelace" le 18/11/2026 à 9h00
+    Et nous sommes le 18/11/2026 à 10h00
+    Quand je marque cette visio faite
+    Alors la timeline de "Ada Lovelace" est, du plus récent au plus ancien :
+      | moment           | interlocuteur | statut  |
+      | 18/11/2026 09:00 | Ada Lovelace  | Fait    |
+      | 17/11/2026 14:00 | Ada Lovelace  | À venir |
+
   Scénario: Un échange marqué fait n'est jamais dans le futur
     Soit nous sommes le 17/11/2026 à 15h00
     Quand je marque cette visio faite le 17/11/2026 à 16h00

@@ -102,7 +102,7 @@ Fonctionnalité: Noter un échange avec un contact
       | noter un échange      |
       | planifier un échange  |
 
-  Scénario: Sans le droit aux données personnelles, je lis la timeline, l'interlocuteur masqué, le texte signalé
+  Scénario: Sans le droit aux données personnelles, je lis la timeline, le nom de l'interlocuteur, le texte signalé
     Soit "Michel" est membre de "SOLEAN IT" avec le droit aux données personnelles
     Et le contact "Grace Hopper" de "ACME"
     Et "Michel" a noté le 15/10/2026 à 09h05 un appel reçu de "Grace Hopper" à 09h00 : "Grace rappellera lundi"
@@ -110,7 +110,7 @@ Fonctionnalité: Noter un échange avec un contact
     Quand je consulte la timeline de "Grace Hopper"
     Alors la timeline de "Grace Hopper" est, du plus récent au plus ancien :
       | interlocuteur | canal | texte                  | signalé |
-      | G***e H***r   | Appel | Grace rappellera lundi | oui     |
+      | Grace Hopper  | Appel | Grace rappellera lundi | oui     |
 
   Scénario: Le contact d'un autre compte est introuvable
     Soit l'organisation "Concurrent" qui utilise Prospecter

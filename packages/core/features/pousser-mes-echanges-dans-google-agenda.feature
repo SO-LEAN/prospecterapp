@@ -66,11 +66,11 @@ Fonctionnalité: Pousser mes échanges planifiés dans Google Agenda
     Alors mon agenda Google a l'événement « Visio · ACME » le 17/11/2026 de 14h00 à 14h30
     Et l'événement mène à la fiche de "ACME"
 
-  Scénario: Sans le droit aux données personnelles, mon agenda Google masque le contact
+  Scénario: Sans le droit aux données personnelles, mon agenda Google nomme le contact
     Soit je suis connecté en tant que prospecteur de "SOLEAN IT" sans le droit aux données personnelles
     Et mon compte Google est connecté
     Quand je planifie une visio avec "Ada Lovelace" le 17/11/2026 à 14h00
-    Alors mon agenda Google a l'événement « Visio · A***a L***e (ACME) » le 17/11/2026 de 14h00 à 14h30
+    Alors mon agenda Google a l'événement « Visio · Ada Lovelace (ACME) » le 17/11/2026 de 14h00 à 14h30
 
   Scénario: L'échange planifié par un autre membre n'est pas poussé dans mon agenda
     Quand un autre prospecteur de "SOLEAN IT" a planifié une visio avec "Ada Lovelace" le 17/11/2026 à 14h00

@@ -126,11 +126,11 @@ final class ExchangeContext implements Context
         }
     }
 
-    #[Given('/^(?<done>j\'ai planifié|je planifie) (?<exchange>'.self::ANY_PLANNED.') avec "(?<interlocutor>[^"]+)" le (?<day>\S+) à (?<time>\S+)(?: pour (?<duration>.+?))?(?: au (?<venue>lieu|lien) "(?<where>[^"]*)")?$/')]
-    public function iPlanAnExchange(string $done, string $exchange, string $interlocutor, string $day, string $time, string $duration = '', string $venue = '', string $where = ''): void
+    #[Given('/^(?<done>j\'ai planifié|je planifie) (?<exchange>'.self::ANY_PLANNED.') avec "(?<interlocutor>[^"]+)" le (?<day>\S+) à (?<time>\S+)(?: pour (?<duration>.+?))?(?: au (?<venue>lieu|lien) "(?<where>[^"]*)")?(?: avec le texte "(?<agenda>[^"]*)")?$/')]
+    public function iPlanAnExchange(string $done, string $exchange, string $interlocutor, string $day, string $time, string $duration = '', string $venue = '', string $where = '', string $agenda = ''): void
     {
         $minutes = '' === $duration ? null : Vocabulary::minutes($duration);
-        $this->plan($this->application->signedIn(), $interlocutor, $interlocutor, Vocabulary::channelOfAnExchange($exchange), Vocabulary::frenchMoment(sprintf('%s à %s', $day, $time)), $minutes, 'lieu' === $venue ? $where : null, 'lien' === $venue ? $where : null);
+        $this->plan($this->application->signedIn(), $interlocutor, $interlocutor, Vocabulary::channelOfAnExchange($exchange), Vocabulary::frenchMoment(sprintf('%s à %s', $day, $time)), $minutes, 'lieu' === $venue ? $where : null, 'lien' === $venue ? $where : null, '' === $agenda ? null : $agenda);
 
         if ('j\'ai planifié' === $done) {
             $this->expectPlanned();
@@ -424,13 +424,13 @@ final class ExchangeContext implements Context
     /**
      * With a contact, or from the card of an organization, with it or with one of its contacts.
      */
-    private function plan(string $prospectorId, string $from, string $interlocutor, string $channel, \DateTimeImmutable $plannedAt, ?int $minutes, ?string $place = null, ?string $link = null): void
+    private function plan(string $prospectorId, string $from, string $interlocutor, string $channel, \DateTimeImmutable $plannedAt, ?int $minutes, ?string $place = null, ?string $link = null, ?string $agenda = null): void
     {
         $id = $this->application->newIdentity();
         $personId = $this->scenario->isAnOrganization($interlocutor) ? null : $this->scenario->personIdOf($interlocutor);
         $this->application->dispatch($this->scenario->isAnOrganization($from)
-            ? new PlanOrganizationExchange($prospectorId, $id, $this->scenario->idOf($from), $personId, $channel, $plannedAt, $minutes, null, $this->application->now(), $place, $link)
-            : new PlanExchange($prospectorId, $id, (string) $personId, $channel, $plannedAt, $minutes, null, $this->application->now(), $place, $link));
+            ? new PlanOrganizationExchange($prospectorId, $id, $this->scenario->idOf($from), $personId, $channel, $plannedAt, $minutes, $agenda, $this->application->now(), $place, $link)
+            : new PlanExchange($prospectorId, $id, (string) $personId, $channel, $plannedAt, $minutes, $agenda, $this->application->now(), $place, $link));
         $this->lastNoted = null === $this->application->refusal() ? $id : null;
         $this->lastNotedWith = $interlocutor;
         $this->scenario->rememberTheExchange($id);
