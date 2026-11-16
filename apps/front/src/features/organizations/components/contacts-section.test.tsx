@@ -2,6 +2,7 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { act, screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { afterEach, describe, expect, it, vi } from 'vitest'
+import { contactQuery } from '@/features/contacts/queries'
 import { renderInARouter } from '@/test/render-in-a-router'
 import { type Organization, organizationContactsQuery, organizationQuery } from '../queries'
 import { ContactsSection } from './contacts-section'
@@ -82,12 +83,13 @@ async function renderTheContactsOf(organization: Organization) {
   const queryClient = new QueryClient()
   queryClient.setQueryData(organizationQuery(organization.id).queryKey, organization)
   queryClient.setQueryData(organizationContactsQuery(organization.id).queryKey, { items: [] })
+  queryClient.setQueryData(contactQuery(ADA).queryKey, ada)
   await renderInARouter(
     <QueryClientProvider client={queryClient}>
       <ContactsSection organization={organization} />
     </QueryClientProvider>,
   )
-  return userEvent.setup({ advanceTimers: vi.advanceTimersByTime })
+  return { queryClient, user: userEvent.setup({ advanceTimers: vi.advanceTimersByTime }) }
 }
 
 afterEach(() => {
@@ -99,7 +101,7 @@ describe('ContactsSection', () => {
   it('shows the new contact as soon as it is saved, without waiting for the reaction attaching it', async () => {
     vi.useFakeTimers({ shouldAdvanceTime: true })
     givenTheApiCollectsAdaAndAttachesHerAfter(Number.POSITIVE_INFINITY)
-    const user = await renderTheContactsOf(qaContacts)
+    const { user } = await renderTheContactsOf(qaContacts)
 
     await collectAda(user)
     await act(() => vi.advanceTimersByTimeAsync(3_000))
@@ -108,10 +110,10 @@ describe('ContactsSection', () => {
     expect(screen.queryByText('Aucun contact rattaché.')).not.toBeInTheDocument()
   })
 
-  it('offers to remove the new contact once the reaction attached it, however late', async () => {
+  it('offers what the attachment of the new contact allows once the reaction attached it, however late', async () => {
     vi.useFakeTimers({ shouldAdvanceTime: true })
     givenTheApiCollectsAdaAndAttachesHerAfter(3)
-    const user = await renderTheContactsOf(qaContacts)
+    const { queryClient, user } = await renderTheContactsOf(qaContacts)
 
     await collectAda(user)
     expect(
@@ -121,5 +123,7 @@ describe('ContactsSection', () => {
 
     expect(screen.getByRole('link', { name: 'Ada Lovelace' })).toBeInTheDocument()
     expect(screen.getByRole('button', { name: 'Retirer Ada Lovelace des contacts' })).toBeInTheDocument()
+    expect(queryClient.getQueryState(organizationQuery(QA_CONTACTS).queryKey)?.isInvalidated).toBe(true)
+    expect(queryClient.getQueryState(contactQuery(ADA).queryKey)?.isInvalidated).toBe(true)
   })
 })
