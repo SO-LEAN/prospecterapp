@@ -29,6 +29,36 @@ final readonly class Due
         }
     }
 
+    /**
+     * Its hour, or else its whole day, has passed at the moment, read on the clock of its reader: never converted to
+     * an instant, a to-do of the 14th is on the 14th wherever it is read.
+     */
+    #[\NoDiscard]
+    public function hasPassedBy(\DateTimeImmutable $moment): bool
+    {
+        return null === $this->time
+            ? $this->day < $moment->format(self::DAY)
+            : sprintf('%s %s', $this->day, $this->time) < $moment->format(self::DAY.' H:i');
+    }
+
+    /**
+     * The days from its day to that of the moment, read on the clock of its reader: none on its day, fewer than none
+     * before it.
+     */
+    #[\NoDiscard]
+    public function daysOverdueAt(\DateTimeImmutable $moment): int
+    {
+        $today = self::dayAsDate($moment->format(self::DAY));
+        $days = self::dayAsDate($this->day)->diff($today)->days;
+
+        return $today < self::dayAsDate($this->day) ? -$days : $days;
+    }
+
+    private static function dayAsDate(string $day): \DateTimeImmutable
+    {
+        return new \DateTimeImmutable($day, new \DateTimeZone('UTC'));
+    }
+
     private static function isADay(string $day): bool
     {
         $read = \DateTimeImmutable::createFromFormat('!'.self::DAY, $day);

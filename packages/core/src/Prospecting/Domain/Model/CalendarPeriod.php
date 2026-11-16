@@ -16,6 +16,7 @@ final readonly class CalendarPeriod
 {
     public const int LONGEST_IN_DAYS = 6 * 7;
     private const int SECONDS_IN_A_DAY = 24 * 60 * 60;
+    private const string DAY = 'Y-m-d';
 
     /**
      * @throws CalendarPeriodReversed
@@ -30,6 +31,24 @@ final readonly class CalendarPeriod
         if (self::onTheClockOfItsReader($until) - self::onTheClockOfItsReader($from) > self::LONGEST_IN_DAYS * self::SECONDS_IN_A_DAY) {
             throw CalendarPeriodTooLong::because('A calendar period lasts six weeks at most', 'to');
         }
+    }
+
+    /**
+     * Its first day, `Y-m-d`, on the clock of its reader.
+     */
+    #[\NoDiscard]
+    public function firstDay(): string
+    {
+        return $this->from->format(self::DAY);
+    }
+
+    /**
+     * Its last day, `Y-m-d`, on the clock of its reader: the one before it ends.
+     */
+    #[\NoDiscard]
+    public function lastDay(): string
+    {
+        return $this->until->modify('-1 second')->format(self::DAY);
     }
 
     private static function onTheClockOfItsReader(\DateTimeImmutable $moment): int

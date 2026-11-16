@@ -7,6 +7,7 @@ namespace Tests\Core\Double;
 use Prospecter\Core\Prospecting\Application\Port\ToDoListRetriever;
 use Prospecter\Core\Prospecting\Application\ToDoInList;
 use Prospecter\Core\Prospecting\Domain\Exception\UnknownToDo;
+use Prospecter\Core\Prospecting\Domain\Model\CalendarPeriod;
 use Prospecter\Core\Prospecting\Domain\Model\ToDoId;
 use Prospecter\Core\Prospecting\Domain\Model\ToDoIntent;
 use Prospecter\Core\Prospecting\Domain\Policy\ToDoPossibilities;
@@ -42,6 +43,14 @@ final readonly class InMemoryToDoListRetriever implements ToDoListRetriever
     public function stillToDoBy(MemberId $holder): array
     {
         return $this->inList(static fn (array $state): bool => null === $state['doneAt'] && $state['createdBy']->equals($holder));
+    }
+
+    public function dueIn(MemberId $holder, CalendarPeriod $period): array
+    {
+        $due = $this->inList(static fn (array $state): bool => $state['createdBy']->equals($holder) && $state['due']->day >= $period->firstDay() && $state['due']->day <= $period->lastDay());
+        usort($due, static fn (ToDoInList $a, ToDoInList $b): int => [$a->dueOn, $a->dueAt ?? '', $a->id] <=> [$b->dueOn, $b->dueAt ?? '', $b->id]);
+
+        return $due;
     }
 
     /**

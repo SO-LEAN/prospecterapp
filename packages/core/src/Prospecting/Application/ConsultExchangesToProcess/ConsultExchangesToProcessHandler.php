@@ -6,9 +6,12 @@ namespace Prospecter\Core\Prospecting\Application\ConsultExchangesToProcess;
 
 use Prospecter\Core\Prospecting\Application\ExchangeInTimeline;
 use Prospecter\Core\Prospecting\Application\HolderIntents;
+use Prospecter\Core\Prospecting\Application\Overdue;
 use Prospecter\Core\Prospecting\Application\Port\AgendaRetriever;
-use Prospecter\Core\Prospecting\Domain\Model\Duration;
-use Prospecter\Core\Prospecting\Domain\Model\Slot;
+use Prospecter\Core\Prospecting\Application\Port\ToDoListRetriever;
+use Prospecter\Core\Prospecting\Application\ToDoInList;
+use Prospecter\Core\Prospecting\Application\ToDoList;
+use Prospecter\Core\Prospecting\Domain\Model\Prospector;
 use Prospecter\Core\Prospecting\Domain\Port\Prospectors;
 use Prospecter\Core\SharedKernel\Application\QueryHandler;
 use Prospecter\Core\SharedKernel\Domain\MemberId;
@@ -17,25 +20,58 @@ final readonly class ConsultExchangesToProcessHandler implements QueryHandler
 {
     public function __construct(
         private AgendaRetriever $agendaRetriever,
+        private ToDoListRetriever $toDoListRetriever,
         private Prospectors $prospectors,
     ) {
     }
 
-    /**
-     * The agenda holds only what is still planned: one started is to process once it has ended.
-     */
     public function __invoke(ConsultExchangesToProcess $query, ConsultExchangesToProcessOutput $output): void
     {
         $holder = $this->prospectors->prospectorFrom(new MemberId($query->prospectorId));
 
-        $started = $this->agendaRetriever->plannedBefore($holder, $query->at);
-        $ended = array_values(array_filter($started, static fn (ExchangeInTimeline $exchange): bool => self::slotOf($exchange)->hasEndedBy($query->at)));
+        $exchanges = $this->endedExchanges($holder, $query->at);
+        $toDos = $this->toDosDueBy($holder, $query->at);
 
-        $output->present(new ExchangesToProcess($ended, HolderIntents::offeredBy($ended, $query->at), [], []));
+        $output->present(new ExchangesToProcess(
+            $exchanges,
+            HolderIntents::offeredBy($exchanges, $query->at),
+            $toDos,
+            self::daysOverdue($toDos, $query->at),
+        ));
     }
 
-    private static function slotOf(ExchangeInTimeline $exchange): Slot
+    /**
+     * The agenda holds only what is still planned: one started is to process once it has ended.
+     *
+     * @return list<ExchangeInTimeline>
+     */
+    private function endedExchanges(Prospector $holder, \DateTimeImmutable $at): array
     {
-        return new Slot($exchange->occurredAt, Duration::inMinutes($exchange->durationInMinutes));
+        return array_values(array_filter($this->agendaRetriever->plannedBefore($holder, $at), static fn (ExchangeInTimeline $exchange): bool => Overdue::hasEnded($exchange, $at)));
+    }
+
+    /**
+     * Those still to do of the day of the reading, whatever their hour, and of the days before: the most overdue first.
+     *
+     * @return list<ToDoInList>
+     */
+    private function toDosDueBy(Prospector $holder, \DateTimeImmutable $at): array
+    {
+        $due = array_filter($this->toDoListRetriever->stillToDoBy($holder->id), static fn (ToDoInList $toDo): bool => Overdue::daysSince($toDo, $at) >= 0);
+
+        return ToDoList::inOrder(array_values($due))->toDos;
+    }
+
+    /**
+     * @param list<ToDoInList> $toDos
+     *
+     * @return array<string, int> by to-do id
+     */
+    private static function daysOverdue(array $toDos, \DateTimeImmutable $at): array
+    {
+        return array_combine(
+            array_map(static fn (ToDoInList $toDo): string => $toDo->id, $toDos),
+            array_map(static fn (ToDoInList $toDo): int => Overdue::daysSince($toDo, $at), $toDos),
+        );
     }
 }

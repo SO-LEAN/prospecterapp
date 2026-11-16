@@ -5,7 +5,8 @@ declare(strict_types=1);
 namespace Prospecter\Core\Prospecting\Application\ConsultExchangesToProcess;
 
 /**
- * The exchanges the prospector planned whose end has passed at the moment of the reading, still planned.
+ * What the prospector has to process at the moment of the reading, given on their clock: the exchanges they planned
+ * whose end has passed, still planned, and the to-dos they still have to do of that day or of the days before.
  */
 final readonly class ConsultExchangesToProcess
 {
