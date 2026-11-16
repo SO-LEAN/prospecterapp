@@ -5,7 +5,9 @@ declare(strict_types=1);
 namespace Prospecter\Core\Prospecting\Application\ConsultExchange;
 
 /**
- * The whole of an exchange, who noted it and who corrected it last, and what it offers at the moment of the reading.
+ * The whole of an exchange, who noted it and who corrected it last, and what it offers at the moment of the reading;
+ * read just after its move, from the moment it was moved from, it offers then to move it back there while that moment
+ * is to come.
  */
 final readonly class ConsultExchange
 {
@@ -13,6 +15,7 @@ final readonly class ConsultExchange
         public string $prospectorId,
         public string $id,
         public \DateTimeImmutable $asOf,
+        public ?\DateTimeImmutable $movedFrom = null,
     ) {
     }
 }

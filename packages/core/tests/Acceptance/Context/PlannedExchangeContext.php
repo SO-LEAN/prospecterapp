@@ -9,6 +9,7 @@ use Behat\Step\Given;
 use Behat\Step\Then;
 use Behat\Step\When;
 use Prospecter\Core\Prospecting\Application\CancelExchange\CancelExchange;
+use Prospecter\Core\Prospecting\Application\ConsultExchange\ConsultExchange;
 use Prospecter\Core\Prospecting\Application\ConsultUpcomingExchanges\ConsultUpcomingExchanges;
 use Prospecter\Core\Prospecting\Application\ExchangeInTimeline;
 use Prospecter\Core\Prospecting\Application\MarkExchangeDone\MarkExchangeDone;
@@ -27,6 +28,8 @@ use Tests\Core\Double\StateOf;
 final class PlannedExchangeContext implements Context
 {
     use SharesTheScenario;
+
+    private ?\DateTimeImmutable $movedFrom = null;
 
     #[Given('/^(?:(?<done>j\'ai marqué|je marque) cette visio|je la marque) faite$/')]
     public function iMarkItDone(string $done = ''): void
@@ -71,7 +74,17 @@ final class PlannedExchangeContext implements Context
     public function iMoveIt(string $day, string $time, string $duration = ''): void
     {
         $minutes = '' === $duration ? null : Vocabulary::minutes($duration);
+        $this->movedFrom = $this->planned()['facts']->occurredAt;
         $this->application->dispatch(new MoveExchange($this->application->signedIn(), $this->scenario->theExchange(), Vocabulary::frenchMoment(sprintf('%s à %s', $day, $time)), $this->application->now(), $minutes));
+    }
+
+    #[Then('/^je (?<may>peux|ne peux pas) remettre cette visio à son ancien moment$/')]
+    public function iMayMoveItBack(string $may): void
+    {
+        $detail = $this->application->consultExchange(new ConsultExchange($this->application->signedIn(), $this->scenario->theExchange(), $this->application->now(), $this->movedFrom));
+        Expect::that(null !== $detail, sprintf('The exchange was expected, got: %s', $this->application->refusal()?->getMessage()));
+
+        Expect::same('peux' === $may, in_array('MoveExchangeBack', $detail->possibleIntents, true));
     }
 
     #[Then('elle n\'est plus dans ses échanges à venir')]
