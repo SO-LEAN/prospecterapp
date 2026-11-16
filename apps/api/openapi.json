@@ -5078,6 +5078,61 @@
                 }
             }
         },
+        "/api/exchanges/{id}/google-sync": {
+            "get": {
+                "tags": [
+                    "Connectors"
+                ],
+                "summary": "Consult where the push of an exchange into my calendar at Google stands: pending, synced or failed; none while it is not pushed into mine",
+                "operationId": "get_api_exchanges_google_sync",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "pattern": "[0-9a-f]{8}-[0-9a-f]{4}-[13-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Where its push stands",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ExchangeSyncResource"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Missing or invalid access token"
+                    },
+                    "403": {
+                        "description": "Not a prospector",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ProblemResource"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Unknown exchange, or one of another account",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ProblemResource"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
         "/api/me/connections": {
             "get": {
                 "tags": [
@@ -5101,6 +5156,95 @@
                     },
                     "403": {
                         "description": "The signed-in user is not a user",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ProblemResource"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/me/connections/google/retries": {
+            "post": {
+                "tags": [
+                    "Connectors"
+                ],
+                "summary": "Push again into my calendar at Google every exchange of mine Google refused",
+                "operationId": "post_api_me_connections_google_retry_failed",
+                "responses": {
+                    "200": {
+                        "description": "My connections, counting my exchanges to come synced and failed now",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ConnectionsResource"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Missing or invalid access token"
+                    },
+                    "403": {
+                        "description": "The signed-in user is not a user",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ProblemResource"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/exchanges/{id}/google-sync/retries": {
+            "post": {
+                "tags": [
+                    "Connectors"
+                ],
+                "summary": "Push an exchange into my calendar at Google again, as it is now; by its holder",
+                "operationId": "post_api_exchanges_google_sync_retry",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "pattern": "[0-9a-f]{8}-[0-9a-f]{4}-[13-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Where its push stands now",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ExchangeSyncResource"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Missing or invalid access token"
+                    },
+                    "403": {
+                        "description": "Not a prospector, or not the holder of the exchange",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ProblemResource"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Unknown exchange, or one of another account",
                         "content": {
                             "application/json": {
                                 "schema": {
@@ -7571,6 +7715,9 @@
                     },
                     "reconnect": {
                         "$ref": "#/components/schemas/LinkResource"
+                    },
+                    "retryFailed": {
+                        "$ref": "#/components/schemas/LinkResource"
                     }
                 },
                 "type": "object"
@@ -7581,6 +7728,8 @@
                     "state",
                     "account",
                     "connectedAt",
+                    "synced",
+                    "failed",
                     "_links"
                 ],
                 "properties": {
@@ -7605,6 +7754,14 @@
                     "connectedAt": {
                         "type": "string",
                         "format": "date-time"
+                    },
+                    "synced": {
+                        "description": "My exchanges to come in my calendar at the provider",
+                        "type": "integer"
+                    },
+                    "failed": {
+                        "description": "My exchanges to come the provider refused",
+                        "type": "integer"
                     },
                     "_links": {
                         "$ref": "#/components/schemas/ConnectionLinksResource"
@@ -7692,6 +7849,77 @@
                     },
                     "_links": {
                         "$ref": "#/components/schemas/GoogleClientLinksResource"
+                    }
+                },
+                "type": "object"
+            },
+            "SyncResource": {
+                "required": [
+                    "provider",
+                    "state"
+                ],
+                "properties": {
+                    "provider": {
+                        "type": "string",
+                        "enum": [
+                            "google"
+                        ]
+                    },
+                    "state": {
+                        "type": "string",
+                        "enum": [
+                            "pending",
+                            "synced",
+                            "failed"
+                        ]
+                    },
+                    "at": {
+                        "description": "Since when it stands so; none for an exchange never pushed",
+                        "type": "string",
+                        "format": "date-time",
+                        "default": null
+                    },
+                    "reason": {
+                        "description": "Why: the provider refused it (`calendarRefusedThePush`), or my connection is to reconnect (`toReconnect`)",
+                        "type": "string",
+                        "default": null,
+                        "enum": [
+                            "calendarRefusedThePush",
+                            "toReconnect"
+                        ]
+                    }
+                },
+                "type": "object"
+            },
+            "ExchangeSyncLinksResource": {
+                "required": [
+                    "self"
+                ],
+                "properties": {
+                    "self": {
+                        "$ref": "#/components/schemas/LinkResource"
+                    },
+                    "retry": {
+                        "$ref": "#/components/schemas/LinkResource"
+                    }
+                },
+                "type": "object"
+            },
+            "ExchangeSyncResource": {
+                "required": [
+                    "_links"
+                ],
+                "properties": {
+                    "sync": {
+                        "nullable": true,
+                        "oneOf": [
+                            {
+                                "$ref": "#/components/schemas/SyncResource"
+                            }
+                        ]
+                    },
+                    "_links": {
+                        "$ref": "#/components/schemas/ExchangeSyncLinksResource"
                     }
                 },
                 "type": "object"

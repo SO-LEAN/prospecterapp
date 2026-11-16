@@ -10,7 +10,8 @@ use Symfony\Component\Console\Style\SymfonyStyle;
 /**
  * Checks the result rather than watching the failures, on demand, reading only: the figures of Reporting counted again
  * from the tables of the other contexts, what the reactions between the contexts should have written, the keys listing
- * the accounts and the exchanges of each, and the queues of the failures. Lists each discrepancy with its account, what
+ * the accounts and the exchanges of each, the exchanges to come in the calendars of their holders connected to a
+ * provider (ADR 0133), and the queues of the failures. Lists each discrepancy with its account, what
  * it concerns and the command correcting it, those of the lists first, their keys written before the figures are counted
  * again, and fails when there is one (ADR 0105).
  */
@@ -25,6 +26,7 @@ final readonly class CheckConsistencyCommand
         private ReactionsBetweenContexts $reactions,
         private KeysListingTheItems $keysListingTheItems,
         private FailureQueues $failureQueues,
+        private ExchangesInTheCalendars $exchangesInTheCalendars,
     ) {
     }
 
@@ -61,6 +63,7 @@ final readonly class CheckConsistencyCommand
             ...$this->keysListingTheItems->discrepanciesAmong($accountIds),
             ...$this->figures->discrepanciesAmong($accountIds),
             ...$this->reactions->discrepanciesAmong($accountIds),
+            ...$this->exchangesInTheCalendars->discrepanciesAmong($accountIds),
             ...$this->failureQueues->discrepancies(),
         ];
     }

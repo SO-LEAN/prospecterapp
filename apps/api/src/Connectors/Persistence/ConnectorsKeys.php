@@ -16,6 +16,7 @@ final class ConnectorsKeys
     private const string EXCHANGE = 'EXCHANGE';
     private const string ENTRY = 'ENTRY';
     private const string CONTACT = 'CONTACT';
+    private const string ENTRIES = 'ENTRIES';
 
     public static function member(string $id): string
     {
@@ -50,6 +51,14 @@ final class ConnectorsKeys
     public static function entryOf(string $exchange, string $provider): string
     {
         return self::ENTRY.'#'.$exchange.'#'.$provider;
+    }
+
+    /**
+     * The entries of a member, in `GSI1`, by the moment their exchange starts (ADR 0133).
+     */
+    public static function entriesOf(string $member): string
+    {
+        return self::ENTRIES.'#'.$member;
     }
 
     public static function contact(string $person): string

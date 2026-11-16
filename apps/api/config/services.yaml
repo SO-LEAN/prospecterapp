@@ -67,6 +67,7 @@ services:
     Prospecter\Core\Reporting\Application\FactRecorder: ~
     Prospecter\Core\Reporting\Application\RebuildFigures\SourceFacts: ~
     Prospecter\Core\Connectors\Application\CalendarPusher: ~
+    Prospecter\Core\Prospecting\Application\PublishedHeldExchanges: ~
 
     # DynamoDB (ADR 0048): MiniStack locally (DYNAMODB_ENDPOINT), AWS in production (DYNAMODB_ENDPOINT empty);
     # one table per bounded context, injected by name in its repositories only (Table $prospectingTable)
@@ -107,6 +108,7 @@ services:
     Prospecter\Core\PersonalData\Contract\Service\ListContactFacts\ListContactFactsService: '@Prospecter\Core\PersonalData\Application\ListContactFacts\ListContactFactsHandler'
     Prospecter\Core\Accounts\Contract\Service\ListAccounts\ListAccountsService: '@Prospecter\Core\Accounts\Application\ListAccounts\ListAccountsHandler'
     Prospecter\Core\Prospecting\Contract\Service\ConsultHeldExchanges\ConsultHeldExchangesService: '@Prospecter\Core\Prospecting\Application\ConsultHeldExchanges\ConsultHeldExchangesHandler'
+    Prospecter\Core\Prospecting\Contract\Service\ConsultHeldExchanges\ConsultPlannedExchangesService: '@Prospecter\Core\Prospecting\Application\ConsultPlannedExchanges\ConsultPlannedExchangesHandler'
     Prospecter\Core\PersonalData\Contract\Service\NameContacts\NameContactsService: '@Prospecter\Core\PersonalData\Application\NameContacts\NameContactsHandler'
 
     # Ports of the core, implemented by the application
@@ -153,6 +155,7 @@ services:
     App\Connectors\Persistence\DynamoAuthorizationRepository:
         arguments: { $clock: '@app.commit_clock' }
     Prospecter\Core\Connectors\Application\Port\MyConnectionsRetriever: '@App\Connectors\Persistence\DynamoMyConnectionsRetriever'
+    Prospecter\Core\Connectors\Application\Port\ExchangeSyncRetriever: '@App\Connectors\Persistence\DynamoExchangeSyncRetriever'
     Prospecter\Core\Connectors\Domain\Repository\ProviderClientRepository: '@App\Connectors\Persistence\DynamoProviderClientRepository'
     Prospecter\Core\Connectors\Application\Port\AccountClientsRetriever: '@App\Connectors\Persistence\DynamoAccountClientsRetriever'
     Prospecter\Core\Connectors\Domain\Port\Members: '@App\Connectors\AntiCorruption\AccountsMembers'
