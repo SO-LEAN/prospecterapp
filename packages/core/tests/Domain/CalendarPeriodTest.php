@@ -63,4 +63,22 @@ final class CalendarPeriodTest extends TestCase
         yield 'when it starts' => ['2026-11-17T00:00:00+01:00'];
         yield 'before' => ['2026-11-16T00:00:00+01:00'];
     }
+
+    #[DataProvider('days')]
+    public function testItsDaysOnTheClockOfItsReader(string $from, string $until, string $first, string $last): void
+    {
+        $period = new CalendarPeriod(new \DateTimeImmutable($from), new \DateTimeImmutable($until));
+
+        $this->assertSame([$first, $last], [$period->firstDay(), $period->lastDay()]);
+    }
+
+    /**
+     * @return iterable<string, array{string, string, string, string}>
+     */
+    public static function days(): iterable
+    {
+        yield 'a day' => ['2026-11-17T00:00:00+01:00', '2026-11-18T00:00:00+01:00', '2026-11-17', '2026-11-17'];
+        yield 'a week read in New York' => ['2026-11-09T00:00:00-05:00', '2026-11-16T00:00:00-05:00', '2026-11-09', '2026-11-15'];
+        yield 'over a change of time' => ['2026-10-19T00:00:00+02:00', '2026-11-02T00:00:00+01:00', '2026-10-19', '2026-11-01'];
+    }
 }

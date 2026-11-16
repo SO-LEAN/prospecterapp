@@ -721,7 +721,7 @@ final class Application
     {
         $kept = new KeptCalendar();
 
-        return $this->ask(new ConsultCalendarHandler($this->calendarRetriever, $this->prospectors), $query, $kept) ? $kept->calendar : null;
+        return $this->ask(new ConsultCalendarHandler($this->calendarRetriever, $this->toDoListRetriever, $this->prospectors), $query, $kept) ? $kept->calendar : null;
     }
 
     public function consultMyDay(ConsultMyDay $query): ?MyDay
@@ -735,7 +735,7 @@ final class Application
     {
         $kept = new KeptExchangesToProcess();
 
-        return $this->ask(new ConsultExchangesToProcessHandler($this->agendaRetriever, $this->prospectors), $query, $kept) ? $kept->toProcess : null;
+        return $this->ask(new ConsultExchangesToProcessHandler($this->agendaRetriever, $this->toDoListRetriever, $this->prospectors), $query, $kept) ? $kept->toProcess : null;
     }
 
     public function consultTimelineIntents(ConsultTimelineIntents $query): ?TimelineIntentsResponse

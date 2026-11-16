@@ -6,7 +6,8 @@ namespace Prospecter\Core\Prospecting\Application\ConsultCalendar;
 
 /**
  * The calendar of the prospector over a period: from the start of its first day, until the start of the day after
- * its last, six weeks at most; what each exchange offers is told at the moment of the reading.
+ * its last, six weeks at most; what each exchange offers, and what is late, is told at the moment of the reading, given
+ * on the clock of its reader.
  */
 final readonly class ConsultCalendar
 {

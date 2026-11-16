@@ -70,4 +70,47 @@ final class DueTest extends TestCase
         yield 'past the hour' => ['08:60'];
         yield 'with seconds' => ['08:30:00'];
     }
+
+    #[DataProvider('passed')]
+    public function testItHasPassedOnTheClockOfItsReader(?string $time, string $moment, bool $passed): void
+    {
+        $this->assertSame($passed, new Due('2026-11-13', $time)->hasPassedBy(new \DateTimeImmutable($moment)));
+    }
+
+    /**
+     * @return iterable<string, array{?string, string, bool}>
+     */
+    public static function passed(): iterable
+    {
+        yield 'a day, the day before' => [null, '2026-11-12T23:59:00+01:00', false];
+        yield 'a day, all along it' => [null, '2026-11-13T23:59:00+01:00', false];
+        yield 'a day, the day after' => [null, '2026-11-14T00:00:00+01:00', true];
+        yield 'a day, read elsewhere still on it' => [null, '2026-11-13T18:00:00-05:00', false];
+        yield 'an hour, before it' => ['09:00', '2026-11-13T08:59:00+01:00', false];
+        yield 'an hour, at it' => ['09:00', '2026-11-13T09:00:00+01:00', false];
+        yield 'an hour, after it' => ['09:00', '2026-11-13T09:01:00+01:00', true];
+        yield 'an hour, read in New York before it, after it in Paris' => ['09:00', '2026-11-13T08:30:00-05:00', false];
+        yield 'an hour, the day after' => ['23:00', '2026-11-14T00:00:00+01:00', true];
+    }
+
+    #[DataProvider('overdue')]
+    public function testTheDaysSinceItsDayOnTheClockOfItsReader(string $moment, int $days): void
+    {
+        $this->assertSame($days, new Due('2026-11-13', '18:00')->daysOverdueAt(new \DateTimeImmutable($moment)));
+    }
+
+    /**
+     * @return iterable<string, array{string, int}>
+     */
+    public static function overdue(): iterable
+    {
+        yield 'the day before' => ['2026-11-12T10:00:00+01:00', -1];
+        yield 'its morning' => ['2026-11-13T00:00:00+01:00', 0];
+        yield 'its evening' => ['2026-11-13T23:59:00+01:00', 0];
+        yield 'the day after' => ['2026-11-14T00:00:00+01:00', 1];
+        yield 'a month after' => ['2026-12-13T10:00:00+01:00', 30];
+        yield 'over a change of time' => ['2027-04-13T10:00:00+02:00', 151];
+        yield 'still its day for a reader behind' => ['2026-11-14T03:00:00+01:00', 1];
+        yield 'still its day where it is read' => ['2026-11-13T21:00:00-05:00', 0];
+    }
 }
