@@ -328,7 +328,11 @@ export const fr = {
       try: 'Tester',
       example: {
         title: 'Rappel : appel avec Ada Lovelace',
-        body: 'Dans 10 minutes, avec Babbage & Co.',
+        body: {
+          now: 'Maintenant, avec Babbage & Co.',
+          inMinutes: 'Dans {{minutes}} minutes, avec Babbage & Co.',
+          inAnHour: 'Dans 1 heure, avec Babbage & Co.',
+        },
       },
       notificationsRefused: {
         title: 'Les notifications sont bloquées dans ce navigateur',
