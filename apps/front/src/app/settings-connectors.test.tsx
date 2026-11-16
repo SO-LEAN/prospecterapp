@@ -1,4 +1,4 @@
-import { screen, waitFor } from '@testing-library/react'
+import { screen, waitFor, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import type { Account } from '@/features/account/mutations'
@@ -91,6 +91,46 @@ function theApiNoLongerOffersGoogle() {
   })
 }
 
+const DISCONNECT = '/api/me/connections/google'
+
+const connectedToGoogle: Connections = {
+  connections: [
+    {
+      provider: 'google',
+      state: 'connected',
+      account: 'agenda@exemple.fr',
+      connectedAt: '2026-11-02T09:30:00+00:00',
+      _links: { disconnect: { href: DISCONNECT, method: 'DELETE' } },
+    },
+  ],
+  _links: noConnection._links,
+}
+
+/** Google does not answer: the API cannot check the connections, it still tells them as last seen and forgets one. */
+function googleDoesNotAnswer() {
+  const answerAsBefore = theApi.getMockImplementation()
+  theApi.mockImplementation(async (input, init) => {
+    const request = input instanceof Request ? input : new Request(String(input), init)
+    const { pathname } = new URL(request.url)
+    if (pathname === DISCONNECT && request.method === 'DELETE') {
+      return Response.json(noConnection)
+    }
+    if (pathname !== CHECKS) {
+      return answerAsBefore?.(input, init) ?? Response.error()
+    }
+    return Response.json(
+      {
+        type: 'about:blank',
+        title: 'Service Unavailable',
+        status: 503,
+        reason: 'googleUnreachable',
+        detail: 'Google does not answer for now',
+      },
+      { status: 503, headers: { 'Content-Type': 'application/problem+json' } },
+    )
+  })
+}
+
 const checksSent = () =>
   theApi.mock.calls.filter(([input]) => input instanceof Request && new URL(input.url).pathname === CHECKS)
     .length
@@ -132,5 +172,33 @@ describe('the section of the connectors', () => {
     await userEvent.setup().click(await screen.findByRole('button', { name: 'Connecter' }))
 
     expect(await screen.findByText('Google n’est pas disponible pour le moment.')).toBeInTheDocument()
+  })
+
+  it('shows the connection as last seen and says Google does not answer while the check fails', async () => {
+    theApiAnswers(connectedToGoogle)
+    googleDoesNotAnswer()
+    const router = await renderTheSpaAt('/settings')
+
+    await router.navigate({ to: '/settings', search: { section: 'connectors' } })
+
+    expect(await screen.findByText(/Connecté au compte agenda@exemple\.fr/)).toBeInTheDocument()
+    expect(
+      screen.getByText('Google ne répond pas : l’état de votre accès n’a pas pu être vérifié.'),
+    ).toBeInTheDocument()
+    expect(checksSent()).toBe(1)
+  })
+
+  it('disconnects the member while Google does not answer', async () => {
+    theApiAnswers(connectedToGoogle)
+    googleDoesNotAnswer()
+    const router = await renderTheSpaAt('/settings')
+    await router.navigate({ to: '/settings', search: { section: 'connectors' } })
+    const user = userEvent.setup()
+
+    await user.click(await screen.findByRole('button', { name: 'Déconnecter' }))
+    await user.click(within(await screen.findByRole('dialog')).getByRole('button', { name: 'Déconnecter' }))
+
+    expect(await screen.findByRole('button', { name: 'Connecter' })).toBeInTheDocument()
+    expect(screen.queryByText(/Connecté au compte agenda@exemple\.fr/)).not.toBeInTheDocument()
   })
 })
