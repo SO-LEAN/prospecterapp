@@ -44,9 +44,16 @@ final readonly class DynamoToDoListRetriever implements ToDoListRetriever
         return self::inList($this->prospectingTable->query(ToDoKeys::stillToDoBy($holder->value), Table::BY_GSI2));
     }
 
+    /**
+     * The links of the calendar of the holder between the first and the last days of the period, in one query; a
+     * to-do erased meanwhile is left out.
+     */
     public function dueIn(MemberId $holder, CalendarPeriod $period): array
     {
-        return [];
+        $links = $this->prospectingTable->queryBetween(ToDoKeys::calendar($holder->value), Table::BY_GSI1, ToDoKeys::dayStart($period->firstDay()), ToDoKeys::dayEnd($period->lastDay()));
+        $items = array_column($this->prospectingTable->items(array_map(static fn (array $link): array => [$link['SK'], ToDoKeys::TO_DO], $links)), null, 'PK');
+
+        return self::inList(array_values(array_filter(array_map(static fn (array $link): ?array => $items[$link['SK']] ?? null, $links))));
     }
 
     /**

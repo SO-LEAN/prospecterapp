@@ -3,7 +3,7 @@
 namespace App\Contacts\Controller;
 
 use App\Contacts\AgendaReader;
-use App\Contacts\Input\PeriodQuery;
+use App\Contacts\Input\CalendarQuery;
 use App\Contacts\Resource\CalendarResource;
 use App\Security\User;
 use App\Shared\Resource\ProblemResource;
@@ -29,13 +29,13 @@ final class ShowCalendarController extends AbstractController
     }
 
     #[Route('/api/me/calendar', name: 'api_me_calendar', methods: ['GET'])]
-    #[OA\Get(summary: 'The calendar of the signed-in member over a period: the exchanges they planned or noted, whatever their status')]
+    #[OA\Get(summary: 'The calendar of the signed-in member over a period: the exchanges they planned or noted, whatever their status, and their to-dos due in it, done or not; what is late, on their clock, at the offset of the period unless their time zone is given')]
     #[OA\Response(response: 200, description: 'The exchanges of the period, by their moment', content: new Model(type: CalendarResource::class))]
     #[OA\Response(response: 401, description: 'Missing or invalid access token')]
     #[OA\Response(response: 403, description: 'Not a prospector', content: new Model(type: ProblemResource::class))]
-    #[OA\Response(response: 422, description: 'Invalid period: a bound missing, an end before the start, longer than six weeks', content: new Model(type: ProblemResource::class))]
-    public function __invoke(#[CurrentUser] User $user, #[MapQueryString(validationFailedStatusCode: Response::HTTP_UNPROCESSABLE_ENTITY, mapWhenEmpty: true)] PeriodQuery $period): JsonResponse
+    #[OA\Response(response: 422, description: 'Invalid period: a bound missing, an end before the start, longer than six weeks; or a time zone unknown', content: new Model(type: ProblemResource::class))]
+    public function __invoke(#[CurrentUser] User $user, #[MapQueryString(validationFailedStatusCode: Response::HTTP_UNPROCESSABLE_ENTITY, mapWhenEmpty: true)] CalendarQuery $period): JsonResponse
     {
-        return $this->json($this->agendaReader->readCalendar($user->memberId(), $period->from, $period->to, $this->clock->now()));
+        return $this->json($this->agendaReader->readCalendar($user->memberId(), $period->from, $period->to, $period->read($this->clock->now())));
     }
 }

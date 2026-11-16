@@ -18,7 +18,7 @@ class RebuildKeysCommandTest extends ApiTestCase
         $tester = new CommandTester(new Application(self::$kernel)->find('app:keys:rebuild'));
 
         $this->assertSame(Command::SUCCESS, $tester->execute([]));
-        $this->assertMatchesRegularExpression('/Wrote the keys of \d+ organizations, \d+ persons, \d+ exchanges and \d+ accounts\./', $tester->getDisplay());
+        $this->assertMatchesRegularExpression('/Wrote the keys of \d+ organizations, \d+ persons, \d+ exchanges, \d+ accounts and \d+ to-dos\./', (string) preg_replace('/\s+/', ' ', $tester->getDisplay()));
         $this->assertSame(Command::SUCCESS, $tester->execute([]));
     }
 

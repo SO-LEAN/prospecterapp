@@ -10,8 +10,12 @@ use App\Contacts\Resource\MyDayLinksResource;
 use App\Contacts\Resource\MyDayResource;
 use App\Contacts\Resource\PlannedExchangesResource;
 use App\Prospecting\TimelineResourceFactory;
+use App\Security\IntentLinks;
+use App\Security\User;
 use App\Shared\Links;
 use App\Shared\Resource\LinkResource;
+use App\ToDos\Resource\ToDoResource;
+use App\ToDos\ToDoReader;
 use Prospecter\Core\PersonalData\Application\ConsultPersons\ConsultPersons;
 use Prospecter\Core\PersonalData\Application\ConsultPersons\KeptPersons;
 use Prospecter\Core\PersonalData\Application\PersonCard;
@@ -27,6 +31,7 @@ use Prospecter\Core\Prospecting\Application\ConsultOverlappingExchanges\ConsultO
 use Prospecter\Core\Prospecting\Application\ConsultOverlappingExchanges\KeptOverlappingExchanges;
 use Prospecter\Core\Prospecting\Application\ExchangeInTimeline;
 use Prospecter\Core\Prospecting\Application\OrganizationSheet;
+use Prospecter\Core\Prospecting\Application\ToDoInList;
 use Prospecter\Core\SharedKernel\Application\Exception\ErrorType;
 use Prospecter\Core\SharedKernel\Application\Exception\UseCaseRefused;
 use Prospecter\Core\SharedKernel\Application\QueryHandler;
@@ -34,7 +39,9 @@ use Prospecter\Core\SharedKernel\Application\QueryHandler;
 /**
  * The agenda, the calendar, the day and the exchanges to process of the signed-in member, composed of two contexts: Prospecting knows the exchanges they
  * planned or noted, PersonalData names the persons they are with in one batch, Prospecting the organizations they
- * are with alone, and in the day those of the contacts, in one batch; the answer kept, then presented with them (ADR 0085).
+ * are with alone, and in the day those of the contacts, in one batch; the to-dos of the calendar and those to process
+ * shown as the to-dos are, to a member with the right to manage personal data only, their text possibly holding some;
+ * the answer kept, then presented with them (ADR 0085).
  */
 final readonly class AgendaReader
 {
@@ -48,6 +55,8 @@ final readonly class AgendaReader
         private TimelineResourceFactory $timelines,
         private Links $links,
         private OrganizationsOfContacts $organizationsOfContacts,
+        private ToDoReader $toDoReader,
+        private IntentLinks $intentLinks,
     ) {
     }
 
@@ -67,7 +76,7 @@ final readonly class AgendaReader
         $calendar = new KeptCalendar();
         ($this->consultCalendar)(new ConsultCalendar($holder, $from, $until, $at), $calendar);
         $exchanges = $calendar->calendar->exchanges;
-        $presenter = new CalendarPresenter($this->personsOf($holder, $exchanges), $this->organizationsPlannedWithAlone($exchanges), $this->timelines, $this->calendarLinks($from, $until));
+        $presenter = new CalendarPresenter($this->personsOf($holder, $exchanges), $this->organizationsPlannedWithAlone($exchanges), $this->timelines, $this->calendarLinks($from, $until), $this->toDosReadBy($holder, $calendar->calendar->toDos));
         $presenter->present($calendar->calendar);
 
         return $presenter->resource;
@@ -91,10 +100,24 @@ final readonly class AgendaReader
         ($this->consultExchangesToProcess)(new ConsultExchangesToProcess($holder, $at), $toProcess);
         $exchanges = $toProcess->toProcess->exchanges;
         $links = new ExchangesToProcessLinksResource($this->links->to('api_me_exchanges_to_process'));
-        $presenter = new ExchangesToProcessPresenter($this->personsOf($holder, $exchanges), $this->organizationsPlannedWithAlone($exchanges), $this->timelines, $links, $this->organizationsOfContacts->read($holder, self::contactsOf($exchanges)));
+        $presenter = new ExchangesToProcessPresenter($this->personsOf($holder, $exchanges), $this->organizationsPlannedWithAlone($exchanges), $this->timelines, $links, $this->organizationsOfContacts->read($holder, self::contactsOf($exchanges)), $this->toDosReadBy($holder, $toProcess->toProcess->toDos));
         $presenter->present($toProcess->toProcess);
 
         return $presenter->resource;
+    }
+
+    /**
+     * @param list<ToDoInList> $toDos
+     *
+     * @return array<string, ToDoResource> by id, none without the right to manage personal data
+     */
+    private function toDosReadBy(string $reader, array $toDos): array
+    {
+        if ([] === $toDos || !$this->intentLinks->holds(User::PERSONAL_DATA)) {
+            return [];
+        }
+
+        return array_column($this->toDoReader->resourcesOf($reader, $toDos), null, 'id');
     }
 
     private function calendarLinks(\DateTimeImmutable $from, \DateTimeImmutable $until): CalendarLinksResource
