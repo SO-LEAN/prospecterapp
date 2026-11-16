@@ -51,7 +51,7 @@ final class MyDayPresenter implements ConsultMyDayOutput
     {
         return array_map(
             fn (ExchangeInTimeline $exchange): DayExchangeResource => new DayExchangeResource($this->timelineResourceFactory->createDayExchange($exchange, $myDay), InterlocutorResource::of($exchange, $this->persons, $this->organizations), OrganizationOfContactResource::keptFor($exchange, $this->organizationsOfContacts)),
-            $exchanges,
+            InterlocutorResource::known($exchanges, $this->organizations),
         );
     }
 }

@@ -29,6 +29,8 @@ use Prospecter\Core\Prospecting\Application\ConsultOverlappingExchanges\ConsultO
 use Prospecter\Core\Prospecting\Application\ConsultOverlappingExchanges\KeptOverlappingExchanges;
 use Prospecter\Core\Prospecting\Application\ExchangeInTimeline;
 use Prospecter\Core\Prospecting\Application\OrganizationSheet;
+use Prospecter\Core\SharedKernel\Application\Exception\ErrorType;
+use Prospecter\Core\SharedKernel\Application\Exception\UseCaseRefused;
 use Prospecter\Core\SharedKernel\Application\QueryHandler;
 
 /**
@@ -143,7 +145,9 @@ final readonly class AgendaReader
     }
 
     /**
-     * One reading per organization: few in a slot or a period, most exchanges being with a contact.
+     * One reading per organization: few in a slot or a period, most exchanges being with a contact. Stopping
+     * prospecting erases the organization at once, its exchanges by a reaction after it: one no longer known is left
+     * out, and its exchanges with it.
      *
      * @param list<ExchangeInTimeline> $exchanges
      *
@@ -153,13 +157,18 @@ final readonly class AgendaReader
     {
         $ids = array_unique(array_map(static fn (ExchangeInTimeline $exchange): string => $exchange->organizationIds[0], array_filter($exchanges, static fn (ExchangeInTimeline $exchange): bool => null === $exchange->personId)));
 
-        return array_combine($ids, array_map($this->organization(...), $ids));
+        return array_filter(array_combine($ids, array_map($this->organization(...), $ids)));
     }
 
-    private function organization(string $id): OrganizationSheet
+    private function organization(string $id): ?OrganizationSheet
     {
         $kept = new KeptOrganization();
-        ($this->consultOrganization)(new ConsultOrganization($id), $kept);
+
+        try {
+            ($this->consultOrganization)(new ConsultOrganization($id), $kept);
+        } catch (UseCaseRefused $refusal) {
+            return ErrorType::NotFound === $refusal->type ? null : throw $refusal;
+        }
 
         return $kept->organization;
     }

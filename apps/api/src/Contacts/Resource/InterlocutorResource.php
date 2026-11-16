@@ -42,6 +42,20 @@ final readonly class InterlocutorResource
             : self::ofPerson($exchange->personId, $persons[$exchange->personId] ?? null, $exchange->contactPresence);
     }
 
+    /**
+     * The exchanges whose interlocutor is still known: a person always is, by their id; an organization erased before
+     * its exchanges is not.
+     *
+     * @param list<ExchangeInTimeline>         $exchanges
+     * @param array<string, OrganizationSheet> $organizations the organizations of the exchanges with them alone, by id
+     *
+     * @return list<ExchangeInTimeline>
+     */
+    public static function known(array $exchanges, array $organizations): array
+    {
+        return array_values(array_filter($exchanges, static fn (ExchangeInTimeline $exchange): bool => null !== $exchange->personId || isset($organizations[$exchange->organizationIds[0]])));
+    }
+
     public static function ofTheOrganization(OrganizationSheet $organization): self
     {
         return new self(self::ORGANIZATION, $organization->id, $organization->fullName);
