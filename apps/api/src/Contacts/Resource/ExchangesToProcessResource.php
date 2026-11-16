@@ -13,7 +13,7 @@ use Symfony\Component\Serializer\Attribute\SerializedName;
 final readonly class ExchangesToProcessResource
 {
     /**
-     * @param list<DayExchangeResource>    $items
+     * @param list<DayExchangeResource>   $items
      * @param list<ToDoToProcessResource> $toDos
      */
     public function __construct(

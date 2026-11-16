@@ -14,7 +14,6 @@ use Tests\Core\Acceptance\Context\CallerContext;
 use Tests\Core\Acceptance\Context\ConnectorContext;
 use Tests\Core\Acceptance\Context\ExchangeContext;
 use Tests\Core\Acceptance\Context\ExchangeDetailContext;
-use Tests\Core\Acceptance\Context\WhatIsToProcessContext;
 use Tests\Core\Acceptance\Context\GoogleClientContext;
 use Tests\Core\Acceptance\Context\MemberContext;
 use Tests\Core\Acceptance\Context\MyDayContext;
@@ -28,6 +27,7 @@ use Tests\Core\Acceptance\Context\ReminderContext;
 use Tests\Core\Acceptance\Context\ReportingContext;
 use Tests\Core\Acceptance\Context\ScenarioContext;
 use Tests\Core\Acceptance\Context\ToDoContext;
+use Tests\Core\Acceptance\Context\WhatIsToProcessContext;
 
 // Acceptance tests at the entrance of the hexagon: the use cases with in-memory ports (tests/Double)
 return new Config()
