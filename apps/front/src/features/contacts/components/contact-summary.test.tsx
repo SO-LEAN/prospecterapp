@@ -50,4 +50,30 @@ describe('ContactSummary', () => {
       'mailto:ada@acme.test',
     )
   })
+
+  it('names a contact read without the right to their personal data, nothing else of them', async () => {
+    const queryClient = new QueryClient({
+      defaultOptions: { queries: { staleTime: Number.POSITIVE_INFINITY } },
+    })
+    queryClient.setQueryData(contactQuery(ADA).queryKey, {
+      id: ADA,
+      name: { firstName: 'Ada', lastName: 'Lovelace' },
+      jobTitle: 'C***O',
+      contactDetails: { email: 'a***@***', phoneNumber: '******33' },
+      masked: true,
+      _links: { self: { href: `/api/contacts/${ADA}`, method: 'GET' } },
+    })
+    queryClient.setQueryData(organizationsOfContactQuery(ADA).queryKey, { items: [] })
+
+    await renderInARouter(
+      <QueryClientProvider client={queryClient}>
+        <ContactSummary contactId={ADA} />
+      </QueryClientProvider>,
+    )
+
+    expect(screen.getByText('Ada Lovelace')).toBeInTheDocument()
+    expect(screen.queryByText('C***O')).not.toBeInTheDocument()
+    expect(screen.queryByText('******33')).not.toBeInTheDocument()
+    expect(screen.queryByText('a***@***')).not.toBeInTheDocument()
+  })
 })
