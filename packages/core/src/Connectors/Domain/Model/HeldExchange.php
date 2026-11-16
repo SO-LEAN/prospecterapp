@@ -11,7 +11,8 @@ use Prospecter\Core\SharedKernel\Domain\PersonId;
 
 /**
  * An exchange as Connectors knows it from Prospecting, read as it is now (ADR 0127): who holds it, where it stands,
- * when, how and where it is held, with whom. Noted once it happened, it has no channel to plan.
+ * when, how and where it is held, with whom, whether a video call without a link asks its calendar for one (ADR
+ * 0137). Noted once it happened, it has no channel to plan.
  */
 final readonly class HeldExchange
 {
@@ -27,6 +28,7 @@ final readonly class HeldExchange
         public ?PersonId $contact,
         private OrganizationId $organization,
         private string $organizationName,
+        private bool $linkRequested = false,
     ) {
     }
 
@@ -84,6 +86,12 @@ final readonly class HeldExchange
             $this->organization,
             $this->organizationName,
             $reminderMinutesBefore,
+            $this->asksForALink(),
         );
+    }
+
+    private function asksForALink(): bool
+    {
+        return $this->linkRequested && Channel::VideoCall === $this->channel && null === $this->venue;
     }
 }

@@ -8,6 +8,7 @@ use Prospecter\Core\Connectors\Domain\Event\CalendarRecreated;
 use Prospecter\Core\Connectors\Domain\Event\Connected;
 use Prospecter\Core\Connectors\Domain\Event\ConnectionLost;
 use Prospecter\Core\Connectors\Domain\Event\Disconnected;
+use Prospecter\Core\Connectors\Domain\Event\VideoCallLinkCreated;
 use Prospecter\Core\Connectors\Domain\Exception\AccessRevoked;
 use Prospecter\Core\Connectors\Domain\Exception\CalendarGone;
 use Prospecter\Core\Connectors\Domain\Exception\CalendarRefusedThePush;
@@ -117,21 +118,41 @@ final class Connection implements ReleasesEvents
 
     /**
      * The event of a planned exchange put into the calendar « Prospecter », created at the first push, and again
-     * once its member deleted it (ADR 0127), its exchanges to come to push into it again (ADR 0133).
+     * once its member deleted it (ADR 0127), its exchanges to come to push into it again (ADR 0133); the link the
+     * provider created for a video call asking one told to its exchange (ADR 0137).
      *
      * @throws CalendarRefusedThePush
      */
     public function push(CalendarEvent $event, ClientCredentials $client, ProviderCalendar $calendars, \DateTimeImmutable $at): void
     {
         $this->reachTheCalendar($client, $at, function () use ($event, $client, $calendars, $at): void {
-            try {
-                $calendars->put($client, $this->refreshToken, $this->calendarIn($calendars, $client, $at), $event);
-            } catch (CalendarGone) {
-                $this->calendar = null;
-                $calendars->put($client, $this->refreshToken, $this->calendarIn($calendars, $client, $at), $event);
-                $this->recordThat(new CalendarRecreated($this->accountId, $this->member, $at));
-            }
+            $this->tellTheLinkCreated($event, $this->put($event, $client, $calendars, $at), $at);
         });
+    }
+
+    /**
+     * @return string|null the link the provider created for the event
+     *
+     * @throws AccessRevoked|CalendarRefusedThePush
+     */
+    private function put(CalendarEvent $event, ClientCredentials $client, ProviderCalendar $calendars, \DateTimeImmutable $at): ?string
+    {
+        try {
+            return $calendars->put($client, $this->refreshToken, $this->calendarIn($calendars, $client, $at), $event);
+        } catch (CalendarGone) {
+            $this->calendar = null;
+            $link = $calendars->put($client, $this->refreshToken, $this->calendarIn($calendars, $client, $at), $event);
+            $this->recordThat(new CalendarRecreated($this->accountId, $this->member, $at));
+
+            return $link;
+        }
+    }
+
+    private function tellTheLinkCreated(CalendarEvent $event, ?string $link, \DateTimeImmutable $at): void
+    {
+        if (null !== $link) {
+            $this->recordThat(new VideoCallLinkCreated($this->accountId, $this->member, $event->exchange, $link, $at));
+        }
     }
 
     /**

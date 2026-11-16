@@ -61,6 +61,7 @@ final readonly class InMemoryHeldExchangeRetriever implements HeldExchangeRetrie
             $facts->duration?->minutes,
             $facts->place,
             $facts->link?->url,
+            $facts->linkRequested,
             $state['contact']?->value,
             array_map(strval(...), $state['keptFor']),
         );

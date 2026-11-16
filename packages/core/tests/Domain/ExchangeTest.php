@@ -22,6 +22,7 @@ use Prospecter\Core\Prospecting\Domain\Event\ExchangePlanned;
 use Prospecter\Core\Prospecting\Domain\Event\ExchangeTextCorrected;
 use Prospecter\Core\Prospecting\Domain\Event\ExchangeVenueCorrected;
 use Prospecter\Core\Prospecting\Domain\Event\FileAttached;
+use Prospecter\Core\Prospecting\Domain\Event\VideoCallLinkReceived;
 use Prospecter\Core\Prospecting\Domain\Exception\ChannelNotMissed;
 use Prospecter\Core\Prospecting\Domain\Exception\ExchangeInTheFuture;
 use Prospecter\Core\Prospecting\Domain\Exception\InvalidVideoCallLink;
@@ -439,6 +440,57 @@ class ExchangeTest extends TestCase
         $this->assertEquals(new VideoCallLink(self::MEET), StateOf::the($exchange)['facts']->link);
     }
 
+    public function testALinkGivenEndsTheRequestOfOne(): void
+    {
+        $this->assertFalse(ExchangeFacts::planned(Channel::VideoCall, new \DateTimeImmutable(self::NOW), Duration::inMinutes(null), null, link: new VideoCallLink(self::MEET), linkRequested: true)->linkRequested);
+    }
+
+    public function testCorrectingItsTextKeepsTheRequestOfALink(): void
+    {
+        $exchange = $this->aVideoCallAskingItsLink();
+
+        $exchange->correctText('Ordre du jour', by: $this->me()->id, at: new \DateTimeImmutable(self::NOW));
+
+        $this->assertTrue(StateOf::the($exchange)['facts']->linkRequested);
+    }
+
+    public function testAVideoCallAskingItsLinkReceivesItWithoutAnAuthor(): void
+    {
+        $exchange = $this->aVideoCallAskingItsLink();
+        $exchange->releaseEvents();
+        $later = new \DateTimeImmutable(self::NOW)->modify('+1 minute');
+
+        $exchange->receiveLink(new VideoCallLink(self::MEET), at: $later);
+
+        $facts = StateOf::the($exchange)['facts'];
+        $this->assertEquals([new VideoCallLink(self::MEET), false], [$facts->link, $facts->linkRequested]);
+        $this->assertNull(StateOf::the($exchange)['lastCorrection']);
+        $this->assertEquals([new VideoCallLinkReceived(new AccountId(self::MINE), $this->me()->id, new ExchangeId(self::EXCHANGE), $later)], $exchange->releaseEvents());
+    }
+
+    public function testALinkGivenMeanwhileWinsOverTheLinkReceived(): void
+    {
+        $exchange = $this->aVideoCallAskingItsLink();
+        $exchange->correctVenue(null, new VideoCallLink('https://teams.microsoft.com/l/meetup-join/xyz'), by: $this->me()->id, at: new \DateTimeImmutable(self::NOW));
+        $exchange->releaseEvents();
+
+        $exchange->receiveLink(new VideoCallLink(self::MEET), at: new \DateTimeImmutable(self::NOW));
+
+        $this->assertEquals(new VideoCallLink('https://teams.microsoft.com/l/meetup-join/xyz'), StateOf::the($exchange)['facts']->link);
+        $this->assertSame([], $exchange->releaseEvents());
+    }
+
+    public function testALinkRemovedIsNotReceivedAgain(): void
+    {
+        $exchange = $this->aVideoCallAskingItsLink();
+        $exchange->receiveLink(new VideoCallLink(self::MEET), at: new \DateTimeImmutable(self::NOW));
+        $exchange->correctVenue(null, null, by: $this->me()->id, at: new \DateTimeImmutable(self::NOW));
+
+        $exchange->receiveLink(new VideoCallLink(self::MEET), at: new \DateTimeImmutable(self::NOW));
+
+        $this->assertNull(StateOf::the($exchange)['facts']->link);
+    }
+
     public function testABlankTextIsNoText(): void
     {
         $this->assertNull(new ExchangeFacts(Channel::Other, Direction::Inbound, new \DateTimeImmutable(self::NOW), " \n ")->text);
@@ -800,6 +852,14 @@ class ExchangeTest extends TestCase
     {
         $now = new \DateTimeImmutable(self::NOW);
         $facts = ExchangeFacts::planned(Channel::Meeting, $now->modify($ahead), Duration::inMinutes(45), null);
+
+        return Exchange::plannedWithAContact(new AccountId(self::MINE), $this->me()->id, new ExchangeId(self::EXCHANGE), new PersonId(self::CONTACT), [new OrganizationId(self::ACME)], $facts, $now);
+    }
+
+    private function aVideoCallAskingItsLink(): Exchange
+    {
+        $now = new \DateTimeImmutable(self::NOW);
+        $facts = ExchangeFacts::planned(Channel::VideoCall, $now->modify('+1 day'), Duration::inMinutes(30), null, linkRequested: true);
 
         return Exchange::plannedWithAContact(new AccountId(self::MINE), $this->me()->id, new ExchangeId(self::EXCHANGE), new PersonId(self::CONTACT), [new OrganizationId(self::ACME)], $facts, $now);
     }

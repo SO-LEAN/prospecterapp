@@ -23,6 +23,7 @@ final readonly class HeldExchange
         public ?int $durationInMinutes,
         public ?string $place,
         public ?string $link,
+        public bool $linkRequested,
         public ?string $contactId,
         public array $organizationIds,
     ) {

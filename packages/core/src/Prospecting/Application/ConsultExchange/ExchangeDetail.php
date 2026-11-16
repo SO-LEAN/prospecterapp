@@ -7,7 +7,8 @@ namespace Prospecter\Core\Prospecting\Application\ConsultExchange;
 /**
  * An exchange as its detail shows it; its channel, its direction and its status by the values of `Channel`,
  * `Direction` and `ExchangeStatus`, who called it off once cancelled, when said, by the values of `Canceller`, how long
- * it lasts when planned, where a meeting is held, the link a video call is joined by, who noted and corrected it by
+ * it lasts when planned, where a meeting is held, the link a video call is joined by, or awaits from the calendar of
+ * its holder (ADR 0137), who noted and corrected it by
  * their member id,
  * the files joined to it; read without the right to
  * manage personal data, its text flagged and its files hidden, only counted; its contact forgotten, what is to make
@@ -35,6 +36,7 @@ final readonly class ExchangeDetail
         public ?string $text,
         public ?string $place,
         public ?string $link,
+        public bool $linkAwaited,
         public bool $textFlagged,
         public bool $textToMakeConform,
         public bool $toMakeConform,

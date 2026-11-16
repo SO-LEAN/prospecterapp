@@ -27,11 +27,14 @@ interface ProviderCalendar
     public function create(ClientCredentials $client, RefreshToken $refreshToken): string;
 
     /**
-     * The event created, or put in place of the one of its exchange, brought back if it was removed.
+     * The event created, or put in place of the one of its exchange, brought back if it was removed; asking a link,
+     * the conference of the event created once, whatever the number of pushes (ADR 0137).
+     *
+     * @return string|null the link of the conference of an event asking one, none otherwise
      *
      * @throws AccessRevoked|CalendarGone|CalendarRefusedThePush
      */
-    public function put(ClientCredentials $client, RefreshToken $refreshToken, string $calendar, CalendarEvent $event): void;
+    public function put(ClientCredentials $client, RefreshToken $refreshToken, string $calendar, CalendarEvent $event): ?string;
 
     /**
      * The event of the exchange removed, nothing done when there is none.
