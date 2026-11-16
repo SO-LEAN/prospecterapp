@@ -164,7 +164,7 @@ describe('handling a planned exchange', () => {
     await user.click(screen.getByRole('button', { name: 'Enregistrer' }))
     await user.click(await screen.findByRole('button', { name: 'Plus tard' }))
 
-    expect(screen.getByText('Visio, Envoyé')).toBeInTheDocument()
+    expect(screen.getByText('Visio, À mon initiative')).toBeInTheDocument()
   })
 
   it('moves it to another moment, its duration kept', async () => {
@@ -245,7 +245,7 @@ describe('handling a planned exchange', () => {
       aPlannedExchange({ status: 'done', occurredAt: ITS_TIME_HAS_COME, _links: { self } }),
     )
 
-    expect(screen.getByText('Visio, Envoyé')).not.toHaveClass('line-through')
+    expect(screen.getByText('Visio, À mon initiative')).not.toHaveClass('line-through')
     expect(screen.getByRole('time')).not.toHaveClass('line-through')
     expect(screen.queryByText(/^Annulé par/)).not.toBeInTheDocument()
   })
