@@ -25,6 +25,7 @@ A member connected to Google wants to know whether each exchange they planned is
 - A connection pushes the exchanges to come of its member, one call or two per exchange: a member with many waits for them a moment after connecting; beyond the 40 soonest, an exchange stays pending until its next change or the next connection, and `app:consistency:check` reports it.
 - An exchange planned while the connection was to reconnect is pushed at the reconnection, then withdrawn once erased: the scenario of ADR 0127 saying it was withdrawn from nothing holds only while the connection stays to reconnect.
 - An exchange planned in the past and never pushed has no state: only an exchange to come is pending.
+- A push writes the connection again only while it is kept (`ConnectionRepository::replace()`): the push at the connection runs a moment after it, and a member disconnecting meanwhile is not connected again. A member disconnecting then connecting again within that moment may still find the former connection written over the new one, to reconnect at the next push: without an optimistic lock on the aggregates (`persistence.md`), that race stays, as two pushes of one member writing at once did before.
 - An entry written before this record has neither state nor moment: read as synced, it is listed under its member, and counted, only once pushed again.
 
 ## Alternatives considered

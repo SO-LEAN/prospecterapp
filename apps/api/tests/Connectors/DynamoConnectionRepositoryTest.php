@@ -2,6 +2,7 @@
 
 namespace Tests\App\Connectors;
 
+use App\Shared\Persistence\ConditionFailed;
 use Prospecter\Core\Connectors\Domain\Model\ClientCredentials;
 use Prospecter\Core\Connectors\Domain\Model\Connection;
 use Prospecter\Core\Connectors\Domain\Model\Grant;
@@ -38,7 +39,7 @@ class DynamoConnectionRepositoryTest extends ApiTestCase
         try {
             $this->connections()->replace($connection);
             $this->fail('A connection forgotten meanwhile was expected to be refused');
-        } catch (\RuntimeException) {
+        } catch (ConditionFailed) {
             $this->assertNull($this->connections()->find($connection->member(), Provider::Google));
         }
     }
