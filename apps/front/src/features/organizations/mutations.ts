@@ -113,8 +113,8 @@ function useStoreOrganizationAndItsContacts() {
 }
 
 /**
- * A new contact names its organizations, which a reaction attaches it to, maybe after the last moment the reactions
- * are awaited: it is shown in each of them at once, from the answer, and they are read again once their cache is stale.
+ * A new contact names its organizations, which a reaction attaches it to, maybe later than the reactions are awaited
+ * on an instance: it is shown in each of them at once, from the answer, until it is read there attached.
  */
 export function useCollectContact() {
   const queryClient = useQueryClient()
@@ -125,6 +125,7 @@ export function useCollectContact() {
     onSuccess: (contact, { body }) => {
       for (const organizationId of body.organizationIds ?? []) {
         showInTheOrganization(queryClient, organizationId, contact)
+        void readAgainOnceAttached(queryClient, organizationId, contact)
       }
       readAgainAfterTheReactions(queryClient, queryKeys.contactList, queryKeys.dashboard)
       toast.success(t('common.saved'))
@@ -142,6 +143,35 @@ function showInTheOrganization(queryClient: QueryClient, organizationId: string,
     organizationContactsQuery(organizationId).queryKey,
     (contacts) => contacts && { ...contacts, items: [...contacts.items, asOrganizationContact(contact)] },
   )
+}
+
+/** The waits between two readings of the contacts of the organization, until the reaction attached the new one. */
+const UNTIL_THE_CONTACT_IS_ATTACHED_MS = [1_000, 1_500, 2_500, 5_000, 10_000] as const
+
+/**
+ * The contacts of the organization, read apart from their cache until they hold the new contact: a reading without
+ * it would erase it from the card. Then the cache takes them, with what the attachment offers (removing the contact,
+ * its exchanges and to-dos), and the organization and the contact are read again.
+ */
+async function readAgainOnceAttached(
+  queryClient: QueryClient,
+  organizationId: string,
+  contact: CollectedContact,
+) {
+  for (const wait of UNTIL_THE_CONTACT_IS_ATTACHED_MS) {
+    await new Promise((resolve) => setTimeout(resolve, wait))
+    const { data } = await fetchClient.GET('/api/organizations/{id}/contacts', {
+      params: { path: { id: organizationId } },
+    })
+    if (data?.items.some(({ id }) => id === contact.id)) {
+      queryClient.setQueryData(organizationContactsQuery(organizationId).queryKey, data)
+      void queryClient.invalidateQueries({ queryKey: organizationQuery(organizationId).queryKey })
+      void queryClient.invalidateQueries({
+        queryKey: [...queryKeys.contact, { params: { path: { id: contact.id } } }],
+      })
+      return
+    }
+  }
 }
 
 /**

@@ -114,7 +114,9 @@ describe('ContactsSection', () => {
     const user = await renderTheContactsOf(qaContacts)
 
     await collectAda(user)
-    expect(screen.queryByRole('button', { name: 'Retirer Ada Lovelace des contacts' })).not.toBeInTheDocument()
+    expect(
+      screen.queryByRole('button', { name: 'Retirer Ada Lovelace des contacts' }),
+    ).not.toBeInTheDocument()
     await act(() => vi.advanceTimersByTimeAsync(20_000))
 
     expect(screen.getByRole('link', { name: 'Ada Lovelace' })).toBeInTheDocument()
