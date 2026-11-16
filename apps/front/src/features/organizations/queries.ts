@@ -25,9 +25,18 @@ export const organizationSlicesQuery = (q: string) =>
   })
 
 export type OrganizationContact = components['schemas']['OrganizationContactResource']
+export type OrganizationContacts = components['schemas']['OrganizationContactsResource']
 
 export const organizationContactsQuery = (id: string) =>
   api.queryOptions('get', '/api/organizations/{id}/contacts', { params: { path: { id } } })
+
+export type CollectedContact = components['schemas']['ContactResource']
+
+/** A contact just collected, as the list of the contacts of its organization shows it, before the API attaches it. */
+export const asOrganizationContact = ({ _links, ...contact }: CollectedContact): OrganizationContact => ({
+  ...contact,
+  _links: { contact: _links.self },
+})
 
 /** The name of a contact, first then last, empty when they have none. */
 export const fullNameOf = (contact: Pick<OrganizationContact, 'name'>) =>

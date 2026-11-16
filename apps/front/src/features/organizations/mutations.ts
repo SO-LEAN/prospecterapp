@@ -1,4 +1,4 @@
-import { useMutation, useQueryClient } from '@tanstack/react-query'
+import { type QueryClient, useMutation, useQueryClient } from '@tanstack/react-query'
 import { useTranslation } from 'react-i18next'
 import { toast } from 'sonner'
 import { api, fetchClient } from '@/shared/api/client'
@@ -6,7 +6,14 @@ import { readTheExchangesAgain } from '@/shared/api/exchanges'
 import { queryKeys } from '@/shared/api/keys'
 import { readAgainAfterTheReactions } from '@/shared/api/reactions'
 import { fileBody } from '@/shared/api/upload'
-import { type Organization, organizationQuery } from './queries'
+import {
+  asOrganizationContact,
+  type CollectedContact,
+  type Organization,
+  type OrganizationContacts,
+  organizationContactsQuery,
+  organizationQuery,
+} from './queries'
 
 /**
  * Every intention returns the fresh organization: it goes straight into the detail cache (no refetch),
@@ -105,24 +112,36 @@ function useStoreOrganizationAndItsContacts() {
   }
 }
 
-/** A new contact names the organization, which a reaction attaches it to: the organization and its contacts are read again. */
+/**
+ * A new contact names its organizations, which a reaction attaches it to, maybe after the last moment the reactions
+ * are awaited: it is shown in each of them at once, from the answer, and they are read again once their cache is stale.
+ */
 export function useCollectContact() {
   const queryClient = useQueryClient()
   const { t } = useTranslation()
 
   return api.useMutation('post', '/api/contacts', {
     ...formIntention,
-    onSuccess: () => {
-      readAgainAfterTheReactions(
-        queryClient,
-        queryKeys.organization,
-        queryKeys.organizationContacts,
-        queryKeys.contactList,
-        queryKeys.dashboard,
-      )
+    onSuccess: (contact, { body }) => {
+      for (const organizationId of body.organizationIds ?? []) {
+        showInTheOrganization(queryClient, organizationId, contact)
+      }
+      readAgainAfterTheReactions(queryClient, queryKeys.contactList, queryKeys.dashboard)
       toast.success(t('common.saved'))
     },
   })
+}
+
+function showInTheOrganization(queryClient: QueryClient, organizationId: string, contact: CollectedContact) {
+  queryClient.setQueryData<Organization>(
+    organizationQuery(organizationId).queryKey,
+    (organization) =>
+      organization && { ...organization, contactIds: [...organization.contactIds, contact.id] },
+  )
+  queryClient.setQueryData<OrganizationContacts>(
+    organizationContactsQuery(organizationId).queryKey,
+    (contacts) => contacts && { ...contacts, items: [...contacts.items, asOrganizationContact(contact)] },
+  )
 }
 
 /**
