@@ -77,7 +77,7 @@ class ContactApiTest extends ApiTestCase
         $this->assertSame(['self', 'search'], array_keys($page['_links']));
     }
 
-    public function testWithoutTheRightContactsAreMaskedAndOfferOnlyTheirTimeline(): void
+    public function testWithoutTheRightContactsAreNamedTheirDetailsMaskedAndOfferOnlyTheirTimeline(): void
     {
         $organization = $this->anOrganization('ACME');
         $id = $this->collect(self::ADA, $organization)['id'];
@@ -85,16 +85,24 @@ class ContactApiTest extends ApiTestCase
 
         $contact = $this->requestJson('GET', '/api/contacts/'.$id);
         $this->assertTrue($contact['masked']);
-        $this->assertSame('A***a', $contact['name']['firstName']);
+        $this->assertSame(['Ada', 'Lovelace'], [$contact['name']['firstName'], $contact['name']['lastName']]);
+        $this->assertSame(['a***@***', '******42', 'D***e'], [$contact['contactDetails']['email'], $contact['contactDetails']['phoneNumber'], $contact['jobTitle']]);
         $this->assertSame(['self', 'exchanges'], array_keys($contact['_links']));
-        $this->assertSame(['self'], array_keys($this->requestJson('GET', '/api/contacts')['_links']));
+        $this->assertSame(['self', 'search'], array_keys($this->requestJson('GET', '/api/contacts')['_links']));
 
-        $this->requestJson('GET', '/api/contacts?q=ada');
-        $this->assertResponseStatusCodeSame(403);
         $this->collect(self::ADA, $organization);
         $this->assertResponseStatusCodeSame(403);
         $this->requestJson('DELETE', '/api/organizations/'.$organization);
         $this->assertResponseStatusCodeSame(403);
+    }
+
+    public function testWithoutTheRightContactsAreSearchedByTheirNameNotTheirEmail(): void
+    {
+        $this->collect(self::ADA, $this->anOrganization('ACME'));
+        $this->login($this->aMemberOfTheFixtures('prospector-without-the-right', Role::User, Role::Prospector));
+
+        $this->assertSame(['Lovelace'], array_column(array_column($this->requestJson('GET', '/api/contacts?q=lovel')['items'], 'name'), 'lastName'));
+        $this->assertSame([], $this->requestJson('GET', '/api/contacts?q=ada@')['items']);
     }
 
     public function testTwoContactsDoNotShareAnEmail(): void
