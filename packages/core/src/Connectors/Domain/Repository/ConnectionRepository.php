@@ -25,5 +25,11 @@ interface ConnectionRepository
 
     public function save(Connection $connection): void;
 
+    /**
+     * Puts the connection in place of itself while it is still kept: one its member disconnected meanwhile is not
+     * brought back, the failure thrown for the reaction to be tried again, which then finds none (ADR 0133).
+     */
+    public function replace(Connection $connection): void;
+
     public function remove(Connection $connection): void;
 }

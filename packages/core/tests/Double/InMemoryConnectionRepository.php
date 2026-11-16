@@ -36,6 +36,15 @@ final readonly class InMemoryConnectionRepository implements ConnectionRepositor
         $this->database->storeConnection($connection);
     }
 
+    public function replace(Connection $connection): void
+    {
+        if (null === $this->find($connection->member(), $connection->provider())) {
+            throw new \RuntimeException('The connection was forgotten meanwhile');
+        }
+
+        $this->save($connection);
+    }
+
     public function remove(Connection $connection): void
     {
         $this->database->forgetConnection($connection);

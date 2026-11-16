@@ -67,9 +67,25 @@ final readonly class DynamoConnectionRepository implements ConnectionRepository
 
     public function save(Connection $connection): void
     {
+        $this->connectorsTable->transact([$this->connectorsTable->putting(self::itemOf($connection))]);
+    }
+
+    /**
+     * Conditioned on the item still there: a connection removed meanwhile fails the commit (`ConditionFailed`).
+     */
+    public function replace(Connection $connection): void
+    {
+        $this->connectorsTable->transact([$this->connectorsTable->replacing(self::itemOf($connection), 'attribute_exists(PK)')]);
+    }
+
+    /**
+     * @return array{PK: string, SK: string, connection: array<string, mixed>}
+     */
+    private static function itemOf(Connection $connection): array
+    {
         $state = Hydrator::stateOf($connection);
 
-        $this->connectorsTable->transact([$this->connectorsTable->putting([
+        return [
             'PK' => ConnectorsKeys::member($connection->member()->value),
             'SK' => ConnectorsKeys::connection($connection->provider()->value),
             'connection' => [
@@ -84,7 +100,7 @@ final readonly class DynamoConnectionRepository implements ConnectionRepository
                 'connectedAt' => Documents::moment($state['connectedAt']),
                 'modifiedAt' => Documents::moment($state['modifiedAt']),
             ],
-        ])]);
+        ];
     }
 
     public function remove(Connection $connection): void
