@@ -5947,7 +5947,7 @@ export interface operations {
                     "application/json": components["schemas"]["ProblemResource"];
                 };
             };
-            /** @description The secret of the client cannot be kept nor read for now (`secretsUnavailable`) */
+            /** @description The secret of the client cannot be kept nor read for now (`secretsUnavailable`), or Google does not answer: the connections stay as last seen (`googleUnreachable`) */
             503: {
                 headers: {
                     [name: string]: unknown;
