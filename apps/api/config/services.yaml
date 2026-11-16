@@ -200,6 +200,9 @@ services:
     # production (empty)
     App\Shared\Messaging\IntegrationEventConsumer:
         public: true
+    # the worker of the local stack, taking the invocations of the rules from a queue (docker/lambda/deploy.sh)
+    App\Shared\Messaging\QueuedIntegrationEventConsumer:
+        public: true
     App\Shared\Messaging\Inbox:
         arguments:
             $tables: '%app.context_tables%'

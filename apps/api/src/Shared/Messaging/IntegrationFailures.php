@@ -15,6 +15,7 @@ use Psr\Clock\ClockInterface;
 final readonly class IntegrationFailures
 {
     public const string REFUSED = 'Refused';
+    public const string RETRIES_EXHAUSTED = 'RetriesExhausted';
     private const int MOST_MESSAGES_OF_A_RECEIVE = 10;
     /** long enough for the redrive to give each one again before it is received again */
     private const int HIDDEN_FOR_SECONDS = 300;
@@ -26,9 +27,9 @@ final readonly class IntegrationFailures
     }
 
     /**
-     * Keeps an invocation the worker refused, as Lambda keeps one it gave up.
+     * Keeps an invocation the worker refused, or the local stack gave up, as Lambda keeps one it gave up.
      */
-    public function keep(mixed $invocation, \Throwable $refusal, Context $context): void
+    public function keep(mixed $invocation, \Throwable $refusal, Context $context, string $condition = self::REFUSED): void
     {
         $this->client->sendMessage(['QueueUrl' => $this->url(), 'MessageBody' => json_encode([
             'version' => '1.0',
@@ -36,7 +37,7 @@ final readonly class IntegrationFailures
             'requestContext' => [
                 'requestId' => $context->getAwsRequestId(),
                 'functionArn' => $context->getInvokedFunctionArn(),
-                'condition' => self::REFUSED,
+                'condition' => $condition,
                 'approximateInvokeCount' => 1,
             ],
             'requestPayload' => $invocation,
