@@ -106,7 +106,7 @@ class GoogleSyncApiTest extends ApiTestCase
     {
         $this->login();
         $planned = $this->plan(self::NEXT_TUESDAY);
-        $this->login($this->aMemberOfTheFixtures('not-prospecting', Role::User));
+        $this->signInAnotherMember($this->aMemberOfTheFixtures('not-prospecting', Role::User));
 
         $this->requestJson('GET', '/api/exchanges/'.$planned.'/google-sync');
         $this->assertResponseStatusCodeSame(403);
@@ -199,7 +199,7 @@ class GoogleSyncApiTest extends ApiTestCase
         $this->connectGoogle();
         $this->google()->refusesTheEvents();
         $planned = $this->plan(self::NEXT_TUESDAY);
-        $this->login($this->aMemberOfTheFixtures('colleague', Role::User, Role::Prospector, Role::PersonalData));
+        $this->signInAnotherMember('assistant-user');
         $this->connectGoogle();
 
         $this->assertNull($this->requestJson('GET', '/api/exchanges/'.$planned.'/google-sync')['sync']);
@@ -222,7 +222,17 @@ class GoogleSyncApiTest extends ApiTestCase
         $this->assertResponseStatusCodeSame(404);
     }
 
-    private function connectGoogle(): void
+    /**
+     * Another member signs in on a kernel booted again: the services of the former, kept between the requests of a
+     * client that does not reboot, are left behind.
+     */
+    private function signInAnotherMember(string $reference): void
+    {
+        $this->client->getKernel()->reboot(null);
+        $this->login($reference);
+    }
+
+        private function connectGoogle(): void
     {
         parse_str((string) parse_url($this->requestJson('POST', '/api/me/connections/google/authorizations')['address'], \PHP_URL_QUERY), $query);
         $this->google()->grants(self::CODE, 'michel@exemple.fr', 'a-refresh-token-'.$query['state']);
