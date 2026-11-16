@@ -28,10 +28,22 @@ final readonly class DynamoContactPageRetriever implements ContactPageRetriever
     {
         $items = null === $search
             ? $this->personalDataTable->query(PersonalDataKeys::contactsOf($reader->accountId->value), Table::BY_GSI1, $after, $max + 1)
-            : $this->inTheOrderOf(SearchIndexes::found($this->personalDataTable, PersonalDataKeys::scopeOf($reader->accountId, Purpose::Prospecting), $search, null === $after ? null : PersonalDataKeys::person($after), $max + 1));
+            : $this->inTheOrderOf($this->found($reader, $search, null === $after ? null : PersonalDataKeys::person($after), $max + 1));
         $slice = Documents::slice(array_map(static fn (array $item): PersonCard => PersonCards::of($item['person'], $reader), $items), $max, static fn (PersonCard $contact): string => $contact->id);
 
         return new ContactPage($slice->content, $slice->next, array_map(static fn (ContactsIntent $intent): string => $intent->name, $reader->contactsIntents()));
+    }
+
+    /**
+     * @return list<string> partition keys of persons
+     */
+    private function found(Reader $reader, SearchKey $search, ?string $before, int $max): array
+    {
+        $scope = PersonalDataKeys::scopeOf($reader->accountId, Purpose::Prospecting);
+
+        return $reader->searchesTheEmails()
+            ? SearchIndexes::found($this->personalDataTable, $scope, $search, $before, $max)
+            : SearchIndexes::foundByName($this->personalDataTable, $scope, $search, $before, $max);
     }
 
     /**

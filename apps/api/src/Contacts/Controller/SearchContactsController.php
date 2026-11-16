@@ -42,10 +42,10 @@ final class SearchContactsController extends AbstractController
     }
 
     #[Route('/api/contacts', name: 'api_contacts_search', methods: ['GET'])]
-    #[OA\Get(summary: 'Search the persons my organization prospects, by name or email, with their organizations; a search by text needs the right to manage personal data')]
+    #[OA\Get(summary: 'Search the persons my organization prospects, by name, or by email with the right to manage personal data, with their organizations')]
     #[OA\Response(response: 200, description: 'A slice of contacts, most recent first, the next one at the link next', content: new Model(type: ContactListResource::class))]
     #[OA\Response(response: 401, description: 'Missing or invalid access token')]
-    #[OA\Response(response: 403, description: 'Not a prospector, or a search by text without the right to manage personal data', content: new Model(type: ProblemResource::class))]
+    #[OA\Response(response: 403, description: 'Not a prospector', content: new Model(type: ProblemResource::class))]
     public function __invoke(#[CurrentUser] User $user, #[MapQueryString] ContactListQuery $query = new ContactListQuery()): JsonResponse
     {
         $kept = new KeptContactPage();

@@ -48,12 +48,14 @@ class DynamoPersonalDataRetrieversTest extends ApiTestCase
         $this->assertSame(self::names(PersonIntent::cases()), $card->possibleIntents);
     }
 
-    public function testAMemberWithoutTheRightReadsAContactMaskedAndMayDoNothing(): void
+    public function testAMemberWithoutTheRightReadsTheNameOfAContactTheRestMaskedAndMayDoNothing(): void
     {
         $card = $this->cardOf($this->aContact('Ada', 'Lovelace'), $this->readerWithoutTheRight());
 
         $this->assertTrue($card->masked);
-        $this->assertNotSame('Lovelace', $card->lastName);
+        $this->assertSame(['Ada', 'Lovelace'], [$card->firstName, $card->lastName]);
+        $this->assertNotSame('ada@lovelace.test', $card->email);
+        $this->assertNotSame('+33 3 88 00 00 00', $card->phoneNumber);
         $this->assertNull($card->picture);
         $this->assertSame([], $card->possibleIntents);
     }
@@ -111,7 +113,16 @@ class DynamoPersonalDataRetrieversTest extends ApiTestCase
         $this->assertNotNull($all->next);
         $this->assertSame([$grace->id()->value], array_map(static fn (PersonCard $card): string => $card->id, $found->contacts));
         $this->assertSame(self::names(ContactsIntent::cases()), $found->possibleIntents);
-        $this->assertSame([], self::getContainer()->get(ContactPageRetriever::class)->sliceFor($this->readerWithoutTheRight(), null, null, 20)->possibleIntents);
+    }
+
+    public function testAMemberWithoutTheRightFindsTheContactsByTheirNameNotTheirEmail(): void
+    {
+        $ada = $this->aContact('Ada', 'Lovelace');
+        $reader = $this->readerWithoutTheRight();
+        $retriever = self::getContainer()->get(ContactPageRetriever::class);
+
+        $this->assertSame([$ada->id()->value], array_map(static fn (PersonCard $card): string => $card->id, $retriever->sliceFor($reader, SearchKey::of('lovel'), null, 20)->contacts));
+        $this->assertSame([], $retriever->sliceFor($reader, SearchKey::of('ada@'), null, 20)->contacts);
     }
 
     private function aContact(string $firstName, string $lastName): Person

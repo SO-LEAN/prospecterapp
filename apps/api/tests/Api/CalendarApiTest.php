@@ -135,7 +135,7 @@ class CalendarApiTest extends ApiTestCase
     }
 
     /**
-     * A free slot plans with a contact searched by text: a member with the right to manage personal data, as planning.
+     * A free slot plans with a contact searched by their name.
      */
     #[DataProvider('holders')]
     public function testAMemberWhoMayPlanIsOfferedTheSearchOfTheContacts(string $reference, Role ...$roles): void

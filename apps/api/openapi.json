@@ -1216,7 +1216,7 @@
                         "description": "Missing or invalid access token"
                     },
                     "403": {
-                        "description": "Not a prospector, or no right to manage personal data",
+                        "description": "Not a prospector",
                         "content": {
                             "application/json": {
                                 "schema": {
@@ -2112,7 +2112,7 @@
                 "tags": [
                     "Contacts"
                 ],
-                "summary": "Search the persons my organization prospects, by name or email, with their organizations; a search by text needs the right to manage personal data",
+                "summary": "Search the persons my organization prospects, by name, or by email with the right to manage personal data, with their organizations",
                 "operationId": "get_api_contacts_search",
                 "parameters": [
                     {
@@ -2152,7 +2152,7 @@
                         "description": "Missing or invalid access token"
                     },
                     "403": {
-                        "description": "Not a prospector, or a search by text without the right to manage personal data",
+                        "description": "Not a prospector",
                         "content": {
                             "application/json": {
                                 "schema": {
@@ -2498,7 +2498,7 @@
                         "description": "Missing or invalid access token"
                     },
                     "403": {
-                        "description": "Not a prospector, or no right to manage personal data",
+                        "description": "Not a prospector",
                         "content": {
                             "application/json": {
                                 "schema": {
@@ -6586,7 +6586,7 @@
                         "$ref": "#/components/schemas/ContactDetailsResource"
                     },
                     "masked": {
-                        "description": "The data are masked: the reader has no right to read personal data in clear",
+                        "description": "The data are masked, but the name of a contact: the reader has no right to read personal data in clear",
                         "type": "boolean"
                     },
                     "_links": {
@@ -6783,7 +6783,8 @@
             },
             "CalendarLinksResource": {
                 "required": [
-                    "self"
+                    "self",
+                    "searchContacts"
                 ],
                 "properties": {
                     "self": {
@@ -6868,7 +6869,8 @@
             },
             "MyDayLinksResource": {
                 "required": [
-                    "self"
+                    "self",
+                    "searchContacts"
                 ],
                 "properties": {
                     "self": {

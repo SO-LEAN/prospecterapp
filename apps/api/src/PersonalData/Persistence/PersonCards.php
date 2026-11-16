@@ -17,7 +17,8 @@ use Prospecter\Core\SharedKernel\Domain\PersonId;
 
 /**
  * The card of a person from the document `DynamoPersonRepository` writes, as the reader may read it, asked to
- * the policies of PersonalData (ADR 0031, 0088): in clear, or masked and without picture.
+ * the policies of PersonalData (ADR 0031, 0088): in clear, or masked and without picture, the name of a contact
+ * in clear (ADR 0129).
  */
 final class PersonCards
 {
@@ -37,16 +38,18 @@ final class PersonCards
     public static function of(array $document, Reader $reader): PersonCard
     {
         $id = new PersonId($document['id']);
+        $purpose = Purpose::from($document['purpose']);
         $masked = Reading::Masked === PersonReading::by($reader, $id);
+        $nameMasked = Reading::Masked === PersonReading::ofTheName($reader, $id, $purpose);
         $name = $document['name'];
         $contact = Documents::contactDetailsOf($document['contactDetails']);
-        $possibleIntents = PersonPossibilities::given($reader, $id, new AccountId($document['accountId']), Purpose::from($document['purpose']));
+        $possibleIntents = PersonPossibilities::given($reader, $id, new AccountId($document['accountId']), $purpose);
 
         return new PersonCard(
             id: $document['id'],
             masked: $masked,
-            firstName: $masked ? Masking::name($name['firstName'] ?? null) : $name['firstName'] ?? null,
-            lastName: $masked ? Masking::name($name['lastName'] ?? null) : $name['lastName'] ?? null,
+            firstName: $nameMasked ? Masking::name($name['firstName'] ?? null) : $name['firstName'] ?? null,
+            lastName: $nameMasked ? Masking::name($name['lastName'] ?? null) : $name['lastName'] ?? null,
             jobTitle: $masked ? Masking::jobTitle($document['jobTitle']) : $document['jobTitle'],
             email: $masked ? Masking::email($contact->email?->value) : $contact->email?->value,
             phoneNumber: $masked ? Masking::phoneNumber($contact->phoneNumber) : $contact->phoneNumber?->international(),

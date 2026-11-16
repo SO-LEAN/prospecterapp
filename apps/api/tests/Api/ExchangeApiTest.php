@@ -126,7 +126,7 @@ class ExchangeApiTest extends ApiTestCase
         $this->assertResponseStatusCodeSame(404);
     }
 
-    public function testWithoutTheRightTheTimelineIsReadItsTextsFlaggedButNoExchangeIsNoted(): void
+    public function testWithoutTheRightTheTimelineIsReadItsTextsFlaggedButNoExchangeIsNotedOnlyPlanned(): void
     {
         $contact = $this->aContactOf($this->anOrganization('ACME'));
         $this->note($contact, ['channel' => 'call', 'direction' => 'inbound', 'text' => 'Ada rappellera lundi']);
@@ -135,7 +135,7 @@ class ExchangeApiTest extends ApiTestCase
         $timeline = $this->requestJson('GET', '/api/contacts/'.$contact.'/exchanges');
         $this->assertResponseStatusCodeSame(200);
         $this->assertSame([['Ada rappellera lundi', true]], array_map(static fn (array $exchange): array => [$exchange['text'], $exchange['textFlagged']], $timeline['items']));
-        $this->assertSame(['self'], array_keys($timeline['_links']));
+        $this->assertSame(['self', 'planExchange'], array_keys($timeline['_links']));
         $this->note($contact, ['channel' => 'sms', 'direction' => 'inbound']);
         $this->assertResponseStatusCodeSame(403);
     }

@@ -98,11 +98,11 @@ class ContactApiTest extends ApiTestCase
 
     public function testWithoutTheRightContactsAreSearchedByTheirNameNotTheirEmail(): void
     {
-        $this->collect(self::ADA, $this->anOrganization('ACME'));
+        $ada = $this->collect(self::ADA, $this->anOrganization('ACME'))['id'];
         $this->login($this->aMemberOfTheFixtures('prospector-without-the-right', Role::User, Role::Prospector));
 
-        $this->assertSame(['Lovelace'], array_column(array_column($this->requestJson('GET', '/api/contacts?q=lovel')['items'], 'name'), 'lastName'));
-        $this->assertSame([], $this->requestJson('GET', '/api/contacts?q=ada@')['items']);
+        $this->assertContains($ada, array_column($this->requestJson('GET', '/api/contacts?q=lovel')['items'], 'id'));
+        $this->assertNotContains($ada, array_column($this->requestJson('GET', '/api/contacts?q=ada@analytical')['items'], 'id'));
     }
 
     public function testTwoContactsDoNotShareAnEmail(): void

@@ -38,11 +38,10 @@ final class PlanOrganizationExchangeController extends AbstractController
 
     #[Route('/api/organizations/{id}/upcoming-exchanges', name: 'api_organizations_plan_exchange', requirements: ['id' => Requirement::UUID], methods: ['POST'])]
     #[IsGranted(OrganizationVoter::ACCESS, subject: 'organization')]
-    #[IsGranted(User::PERSONAL_DATA)]
     #[OA\Post(summary: 'Plan a call, a meeting or a video call with the organization itself, or with one of its contacts, held by the signed-in member')]
     #[OA\Response(response: 201, description: 'The exchanges to come with the organization, the new one among them', content: new Model(type: OrganizationTimelineResource::class), headers: [new OA\Header(header: 'Location', description: 'The new exchange', schema: new OA\Schema(type: 'string'))])]
     #[OA\Response(response: 401, description: 'Missing or invalid access token')]
-    #[OA\Response(response: 403, description: 'Not a prospector, or no right to manage personal data', content: new Model(type: ProblemResource::class))]
+    #[OA\Response(response: 403, description: 'Not a prospector', content: new Model(type: ProblemResource::class))]
     #[OA\Response(response: 404, description: 'Unknown organization, or one of another account', content: new Model(type: ProblemResource::class))]
     #[OA\Response(response: 409, description: 'The person is no contact of the organization', content: new Model(type: ProblemResource::class))]
     #[OA\Response(response: 422, description: 'Invalid exchange: a channel that is not planned, a moment that is not in the future, a duration out of 5 minutes to 8 hours, a place for another channel than a meeting, a link for another than a video call or a link that is no web address', content: new Model(type: ProblemResource::class))]
