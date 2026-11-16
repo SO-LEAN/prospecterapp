@@ -1,7 +1,10 @@
-import type { ToDoInput } from '@/features/to-dos/queries'
+import type { components } from '@/shared/api/schema'
 import type { CalendarToDo } from './queries'
 
 const MINUTES_IN_AN_HOUR = 60
+
+/** What revises a to-do: its text, its day, its hour. */
+export type ToDoRevision = components['schemas']['ToDoInput']
 
 /** What the calendar shows: the exchanges and the to-dos, or one of them. */
 export const SHOWN = ['both', 'exchanges', 'toDos'] as const
@@ -35,6 +38,6 @@ export function hoursOfDue(dueAt: string): number {
 }
 
 /** What revises a to-do dropped on another day: its text and its hour kept. */
-export function movedTo(toDo: Pick<CalendarToDo, 'text' | 'dueAt'>, day: string): ToDoInput {
+export function movedTo(toDo: Pick<CalendarToDo, 'text' | 'dueAt'>, day: string): ToDoRevision {
   return { text: toDo.text, dueOn: day, dueAt: toDo.dueAt ?? null }
 }

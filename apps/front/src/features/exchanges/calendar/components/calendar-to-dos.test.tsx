@@ -64,7 +64,13 @@ const aPlannedCall = (occurredAt: Date): CalendarExchange => ({
   },
 })
 
+/** The box the route gives each to-do: a feature never imports another. */
+const theBoxOf = (toDo: CalendarToDo) => (
+  <input type="checkbox" aria-label={`La case de ${toDo.text}`} defaultChecked={Boolean(toDo.doneAt)} />
+)
+
 async function showTheCalendar(view: View, calendar: Partial<Calendar>) {
+  const reviseToDo = vi.fn()
   const queryClient = new QueryClient({
     defaultOptions: { queries: { staleTime: Number.POSITIVE_INFINITY } },
   })
@@ -83,9 +89,12 @@ async function showTheCalendar(view: View, calendar: Partial<Calendar>) {
         onShow={vi.fn()}
         contactSummary={() => null}
         interlocutorSearch={() => null}
+        toDoBox={theBoxOf}
+        reviseToDo={reviseToDo}
       />
     </QueryClientProvider>,
   )
+  return reviseToDo
 }
 
 /** What a browser carries from the to-do dragged to where it is dropped. */
@@ -99,10 +108,6 @@ function aDrag() {
     getData: (type: string) => carried.get(type) ?? '',
   }
 }
-
-/** The requests sent to the API, but the readings of the calendar. */
-const gestures = () =>
-  theApi.mock.calls.map(([request]) => request as Request).filter((request) => request.method !== 'GET')
 
 beforeEach(() => {
   vi.useFakeTimers({ toFake: ['Date'] })
@@ -132,35 +137,14 @@ describe('the to-dos of my calendar', () => {
     expect(within(hours).getByText('10h00')).toBeInTheDocument()
   })
 
-  it('stay done, greyed, their box ticked, to untick', async () => {
+  it('stay done, greyed, with the box the page gives them', async () => {
     await showTheCalendar('month', {
-      toDos: [
-        aToDo('Envoyer mon CV', '2026-11-12', {
-          doneAt: '2026-11-12T09:00:00+01:00',
-          _links: {
-            self: { href: '/api/to-dos/1', method: 'GET' },
-            untick: { href: '/api/to-dos/1/done', method: 'DELETE' },
-          },
-        }),
-      ],
+      toDos: [aToDo('Envoyer mon CV', '2026-11-12', { doneAt: '2026-11-12T09:00:00+01:00' })],
     })
 
-    const box = screen.getByRole('checkbox', { name: 'Décocher « Envoyer mon CV »' })
-    expect(box).toBeChecked()
+    expect(screen.getByRole('checkbox', { name: 'La case de Envoyer mon CV' })).toBeChecked()
     expect(screen.getByText('Envoyer mon CV')).toHaveClass('line-through')
-  })
-
-  it('are ticked off in place', async () => {
-    const toDo = aToDo('Envoyer mon CV', '2026-11-13')
-    await showTheCalendar('month', { toDos: [toDo] })
-
-    await userEvent.click(screen.getByRole('checkbox', { name: 'Cocher « Envoyer mon CV »' }))
-
-    await vi.waitFor(() =>
-      expect(gestures().map((request) => [request.method, new URL(request.url).pathname])).toEqual([
-        ['POST', `/api/to-dos/${toDo.id}/done`],
-      ]),
-    )
+    expect(screen.getByText('Envoyer mon CV').closest('[draggable]')).toHaveClass('bg-muted')
   })
 
   it('flag what is late by an icon and its words, never the colour alone', async () => {
@@ -190,7 +174,7 @@ describe('the to-dos of my calendar', () => {
 
   it('are dropped on another day, their hour kept', async () => {
     const toDo = aToDo('Appeler la RH', '2026-11-14', { dueAt: '10:00' })
-    await showTheCalendar('month', { toDos: [toDo] })
+    const reviseToDo = await showTheCalendar('month', { toDos: [toDo] })
     const drag = aDrag()
 
     fireEvent.dragStart(screen.getByText('Appeler la RH'), { dataTransfer: drag })
@@ -199,13 +183,22 @@ describe('the to-dos of my calendar', () => {
     })
     fireEvent.drop(screen.getByRole('listitem', { name: 'lundi 16 novembre 2026' }), { dataTransfer: drag })
 
-    await vi.waitFor(() => expect(gestures()).toHaveLength(1))
-    const [revision] = gestures()
-    expect([revision?.method, new URL(revision?.url ?? '').pathname, await revision?.json()]).toEqual([
-      'PATCH',
-      `/api/to-dos/${toDo.id}`,
-      { text: 'Appeler la RH', dueOn: '2026-11-16', dueAt: '10:00' },
-    ])
+    expect(reviseToDo).toHaveBeenCalledWith(toDo.id, {
+      text: 'Appeler la RH',
+      dueOn: '2026-11-16',
+      dueAt: '10:00',
+    })
+  })
+
+  it('stay on their day when dropped there', async () => {
+    const toDo = aToDo('Appeler la RH', '2026-11-14')
+    const reviseToDo = await showTheCalendar('month', { toDos: [toDo] })
+    const drag = aDrag()
+
+    fireEvent.dragStart(screen.getByText('Appeler la RH'), { dataTransfer: drag })
+    fireEvent.drop(screen.getByRole('listitem', { name: 'samedi 14 novembre 2026' }), { dataTransfer: drag })
+
+    expect(reviseToDo).not.toHaveBeenCalled()
   })
 
   it('show the exchanges, the to-dos or both, as filtered', async () => {

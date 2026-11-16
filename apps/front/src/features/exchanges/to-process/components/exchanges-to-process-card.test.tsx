@@ -151,7 +151,14 @@ async function showTheCard(items: ExchangeToProcess[], toDos: ToDoToProcess[] = 
   await renderInARouter(
     <QueryClientProvider client={aQueryClientWith(items, toDos)}>
       <Suspense>
-        <ExchangesToProcessCard contactSummary={(id) => <p>{`Résumé du contact ${id}`}</p>} />
+        <ExchangesToProcessCard
+          contactSummary={(id) => <p>{`Résumé du contact ${id}`}</p>}
+          toDoLine={(toDo, _now, onTickedOff) => (
+            <button type="button" onClick={onTickedOff}>
+              {toDo.text}
+            </button>
+          )}
+        />
       </Suspense>
       <Toaster />
     </QueryClientProvider>,
@@ -321,14 +328,10 @@ describe('my to-dos to process', () => {
     expect(toDos.map((toDo) => toDo.hasAttribute('data-late'))).toEqual([true, true, false])
   })
 
-  it('are ticked off in place', async () => {
-    const toDo = aToDoToProcess('Envoyer mon CV', '2026-11-12', 1)
-    theApiAnswers()
-    await showTheCard([], [toDo])
+  it('are shown by the line the page gives them', async () => {
+    await showTheCard([], [aToDoToProcess('Envoyer mon CV', '2026-11-12', 1)])
 
-    await userEvent.click(screen.getByRole('checkbox', { name: 'Cocher « Envoyer mon CV »' }))
-
-    await waitFor(() => expect(sent('POST')).toEqual([`/api/to-dos/${toDo.toDo.id}/done`]))
+    expect(screen.getByRole('button', { name: 'Envoyer mon CV' })).toBeInTheDocument()
   })
 })
 

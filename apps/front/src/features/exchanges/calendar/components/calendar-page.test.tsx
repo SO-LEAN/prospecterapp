@@ -82,6 +82,8 @@ async function showTheCalendar(view: View, day: Date, items: CalendarExchange[] 
         onShow={onShow}
         contactSummary={() => null}
         interlocutorSearch={() => null}
+        toDoBox={() => null}
+        reviseToDo={() => undefined}
       />
     </QueryClientProvider>,
   )

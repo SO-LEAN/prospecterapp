@@ -8,6 +8,8 @@ import { dayOf, isDay, parseDay, periodOf, VIEWS, type View } from '@/features/e
 import { calendarQuery } from '@/features/exchanges/calendar/queries'
 import { defaultView } from '@/features/exchanges/calendar/view'
 import { InterlocutorSearch } from '@/features/organizations/components/interlocutor-search'
+import { ToDoBox } from '@/features/to-dos/components/to-do-box'
+import { useReviseToDo } from '@/features/to-dos/mutations'
 import { ErrorState } from '@/shared/ui/feedback/error-state'
 
 const searchSchema = z.object({
@@ -39,6 +41,7 @@ export const Route = createFileRoute('/_app/calendar')({
 function Calendar() {
   const { view, day } = shownBy(Route.useSearch())
   const navigate = useNavigate({ from: Route.fullPath })
+  const revise = useReviseToDo()
 
   return (
     <CalendarPage
@@ -47,6 +50,8 @@ function Calendar() {
       onShow={(shownView, shownDay) => navigate({ search: { view: shownView, date: dayOf(shownDay) } })}
       contactSummary={(contactId) => <ContactSummary contactId={contactId} />}
       interlocutorSearch={(onChoose) => <InterlocutorSearch onChoose={onChoose} />}
+      toDoBox={(toDo) => <ToDoBox toDo={toDo} />}
+      reviseToDo={(id, body) => revise.mutate({ params: { path: { id } }, body })}
     />
   )
 }
