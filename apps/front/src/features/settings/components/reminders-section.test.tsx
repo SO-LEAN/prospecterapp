@@ -145,6 +145,19 @@ describe('RemindersSection', () => {
     expect(screen.queryByText(NOTIFICATIONS_REFUSED)).not.toBeInTheDocument()
   })
 
+  it.each([
+    [5, 'Dans 5 minutes, avec Babbage & Co.'],
+    [0, 'Maintenant, avec Babbage & Co.'],
+    [60, 'Dans 1 heure, avec Babbage & Co.'],
+  ] as const)('announces the delay I chose in the example: %i minutes', async (minutesBefore, announced) => {
+    theBrowserNotifications('default', 'denied')
+    const { user } = renderTheSection(reminders(true, minutesBefore))
+
+    await user.click(screen.getByRole('button', { name: 'Tester' }))
+
+    expect(await screen.findByText(announced)).toBeInTheDocument()
+  })
+
   it('says how to allow the notifications the member refused', async () => {
     const notification = theBrowserNotifications('default', 'denied')
     const { user } = renderTheSection(reminders(true, 10))
