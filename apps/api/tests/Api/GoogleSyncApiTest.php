@@ -228,11 +228,13 @@ class GoogleSyncApiTest extends ApiTestCase
      */
     private function signInAnotherMember(string $reference): void
     {
-        $this->client->getKernel()->reboot(null);
+        $kernel = $this->client->getKernel();
+        $kernel->shutdown();
+        $kernel->boot();
         $this->login($reference);
     }
 
-        private function connectGoogle(): void
+    private function connectGoogle(): void
     {
         parse_str((string) parse_url($this->requestJson('POST', '/api/me/connections/google/authorizations')['address'], \PHP_URL_QUERY), $query);
         $this->google()->grants(self::CODE, 'michel@exemple.fr', 'a-refresh-token-'.$query['state']);
