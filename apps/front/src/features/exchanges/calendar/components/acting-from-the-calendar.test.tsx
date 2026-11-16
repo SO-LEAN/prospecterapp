@@ -43,10 +43,13 @@ const move = { href: `/api/exchanges/${EXCHANGE}/moment`, method: 'PATCH' }
 const searchContacts = { href: '/api/contacts', method: 'GET' }
 const CALENDAR_SELF = { href: '/api/me/calendar', method: 'GET' }
 
-/** The calendar as the API answers it. */
-const aCalendarOf = (items: CalendarExchange[]) => ({
+/** The calendar as the API answers it to a member who may plan, unless told otherwise. */
+const aCalendarOf = (
+  items: CalendarExchange[],
+  links: { searchContacts?: typeof searchContacts } = { searchContacts },
+) => ({
   items,
-  _links: { self: CALENDAR_SELF, searchContacts },
+  _links: { self: CALENDAR_SELF, ...links },
 })
 
 const aVideoCall = (
@@ -465,6 +468,17 @@ describe('an exchange opened from the calendar, with no contact to show', () => 
 })
 
 describe('a free slot', () => {
+  it('is not chosen by a member who may not plan: the API offers no search of the contacts', async () => {
+    await showTheCalendar('week', aCalendarOf([], {}))
+    const thursday = screen.getByRole('list', { name: 'jeudi 19 novembre 2026' })
+
+    fireEvent.pointerDown(thursday, { button: 0, pointerId: 1, clientX: 350, clientY: 1010 })
+    fireEvent.pointerUp(thursday, { pointerId: 1, clientX: 350, clientY: 1010 })
+
+    expect(screen.queryByRole('dialog', { name: 'Planifier' })).not.toBeInTheDocument()
+    expect(thursday).not.toHaveClass('cursor-cell')
+  })
+
   it('plans there with the contact chosen, at its moment, for half an hour', async () => {
     theApiAnswers({
       [`GET /api/contacts/${ADA}/exchanges`]: () => ({

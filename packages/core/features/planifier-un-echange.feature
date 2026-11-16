@@ -96,6 +96,15 @@ Fonctionnalité: Planifier un échange
     Quand je planifie depuis "ACME" une visio avec "Ada Lovelace" le 17/11/2026 à 9h00
     Alors il est dans les échanges à venir de "Ada Lovelace"
 
+  Scénario: Sans le droit aux données personnelles, je planifie avec un contact ou avec l'organisation elle-même
+    Soit je suis connecté en tant que prospecteur de "SOLEAN IT" sans le droit aux données personnelles
+    Quand je planifie un appel avec "Ada Lovelace" le 17/11/2026 à 9h00
+    Et je planifie un rendez-vous avec "ACME" le 18/11/2026 à 9h00
+    Alors les échanges à venir de "ACME" sont, du plus proche au plus lointain :
+      | moment           | interlocuteur | canal       | statut  |
+      | 17/11/2026 09:00 | Ada Lovelace  | Appel       | À venir |
+      | 18/11/2026 09:00 | ACME          | Rendez-vous | À venir |
+
   Scénario: Je vois mes échanges planifiés qui chevauchent un créneau
     Soit le contact "Grace Hopper" de "ACME"
     Et j'ai planifié un rendez-vous avec "Ada Lovelace" le 17/11/2026 à 14h00

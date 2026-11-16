@@ -1708,7 +1708,7 @@ export interface components {
         };
         CalendarLinksResource: {
             self: components["schemas"]["LinkResource"];
-            searchContacts: components["schemas"]["LinkResource"];
+            searchContacts?: components["schemas"]["LinkResource"];
         };
         CalendarResource: {
             items: components["schemas"]["OrganizationExchangeResource"][];
@@ -1729,7 +1729,7 @@ export interface components {
         };
         MyDayLinksResource: {
             self: components["schemas"]["LinkResource"];
-            searchContacts: components["schemas"]["LinkResource"];
+            searchContacts?: components["schemas"]["LinkResource"];
         };
         MyDayResource: {
             today: components["schemas"]["DayExchangeResource"][];
