@@ -57,7 +57,7 @@ export function RemindersSection({ reminders }: Props) {
             onChange={(minutesBefore) => change({ enabled: reminders.enabled, minutesBefore })}
           />
         </Field>
-        <TryAReminder />
+        <TryAReminder minutesBefore={reminders.minutesBefore} />
       </CardContent>
     </Card>
   )
@@ -102,13 +102,13 @@ function chosen(value: string, onChange: (minutes: Minutes) => void) {
  * Shows an example of a reminder in the application, and asks once whether this browser may notify the member; when
  * it was refused, says how to allow it again, which only the browser can.
  */
-function TryAReminder() {
+function TryAReminder({ minutesBefore }: { minutesBefore: Minutes }) {
   const { t } = useTranslation()
   const [permission, setPermission] = useState(notificationsPermission)
 
   const tryAReminder = async () => {
     const title = t('settings.reminders.example.title')
-    const body = t('settings.reminders.example.body')
+    const body = exampleBodyOf(t, minutesBefore)
     toast.info(title, { description: body })
     const answer = await askToNotify()
     setPermission(answer)
@@ -130,4 +130,17 @@ function TryAReminder() {
       )}
     </div>
   )
+}
+
+const AN_HOUR = 60
+
+/** The example announces the exchange as a real reminder would, `minutesBefore` it. */
+function exampleBodyOf(t: ReturnType<typeof useTranslation>['t'], minutesBefore: Minutes): string {
+  if (minutesBefore === 0) {
+    return t('settings.reminders.example.body.now')
+  }
+  if (minutesBefore === AN_HOUR) {
+    return t('settings.reminders.example.body.inAnHour')
+  }
+  return t('settings.reminders.example.body.inMinutes', { minutes: minutesBefore })
 }
