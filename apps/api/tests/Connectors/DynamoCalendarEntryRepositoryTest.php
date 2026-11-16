@@ -16,8 +16,8 @@ use Prospecter\Core\SharedKernel\Domain\PersonId;
 use Tests\App\Base\ApiTestCase;
 
 /**
- * The exchanges pushed, in the table of Connectors (ADR 0127): found by their exchange, and those with a contact by
- * the contact, forgotten with them.
+ * The exchanges pushed, in the table of Connectors (ADR 0127): found by their exchange, those with a contact by the
+ * contact, those of a member by the member, forgotten with them; where their push stands kept (ADR 0133).
  */
 class DynamoCalendarEntryRepositoryTest extends ApiTestCase
 {
@@ -33,16 +33,33 @@ class DynamoCalendarEntryRepositoryTest extends ApiTestCase
         $this->assertEquals($withTheContact, $this->entries()->find($withTheContact->exchange()));
         $this->assertEquals($withTheOrganization, $this->entries()->find($withTheOrganization->exchange()));
         $this->assertEquals([$withTheContact], $this->entries()->ofContact($contact));
+        $this->assertEquals([$withTheContact], $this->entries()->ofMember($withTheContact->member()));
 
         $this->entries()->remove($withTheContact);
 
         $this->assertNull($this->entries()->find($withTheContact->exchange()));
         $this->assertSame([], $this->entries()->ofContact($contact));
+        $this->assertSame([], $this->entries()->ofMember($withTheContact->member()));
+    }
+
+    public function testWhereItsPushStandsIsKept(): void
+    {
+        $exchange = self::heldExchange(null);
+        $entry = self::entryOf($exchange);
+        $entry->pushed($exchange, new \DateTimeImmutable('2026-10-15 09:00 UTC'));
+        $this->entries()->save($entry);
+        $this->assertEquals($entry, $this->entries()->find($entry->exchange()));
+
+        $entry->refused('calendarRefusedThePush', new \DateTimeImmutable('2026-10-15 10:00 UTC'));
+        $this->entries()->save($entry);
+
+        $this->assertEquals($entry, $this->entries()->find($entry->exchange()));
+        $this->assertTrue($this->entries()->find($entry->exchange())?->hasFailed());
     }
 
     private static function entryOf(HeldExchange $exchange): CalendarEntry
     {
-        return CalendarEntry::of($exchange, Provider::Google);
+        return CalendarEntry::of($exchange, Provider::Google, new \DateTimeImmutable('2026-10-15 09:00 UTC'));
     }
 
     private static function heldExchange(?PersonId $contact): HeldExchange

@@ -6,8 +6,24 @@ use App\Demo\DemoData;
 use App\Shared\Persistence\Table;
 use Prospecter\Core\Accounts\Domain\Model\Account;
 use Prospecter\Core\Accounts\Domain\Repository\AccountRepository;
+use Prospecter\Core\Connectors\Domain\Model\ClientCredentials;
+use Prospecter\Core\Connectors\Domain\Model\Connection;
+use Prospecter\Core\Connectors\Domain\Model\Grant;
+use Prospecter\Core\Connectors\Domain\Model\Provider;
+use Prospecter\Core\Connectors\Domain\Model\RefreshToken;
+use Prospecter\Core\Connectors\Domain\Repository\ConnectionRepository;
+use Prospecter\Core\Prospecting\Domain\Model\Channel;
+use Prospecter\Core\Prospecting\Domain\Model\Duration;
+use Prospecter\Core\Prospecting\Domain\Model\Exchange;
+use Prospecter\Core\Prospecting\Domain\Model\ExchangeFacts;
+use Prospecter\Core\Prospecting\Domain\Model\ExchangeId;
+use Prospecter\Core\Prospecting\Domain\Repository\ExchangeRepository;
+use Prospecter\Core\Prospecting\Domain\Repository\OrganizationRepository;
 use Prospecter\Core\SharedKernel\Domain\AccountId;
+use Prospecter\Core\SharedKernel\Domain\Email;
 use Prospecter\Core\SharedKernel\Domain\LegalIdentity;
+use Prospecter\Core\SharedKernel\Domain\MemberId;
+use Prospecter\Core\SharedKernel\Domain\OrganizationId;
 use Symfony\Bundle\FrameworkBundle\Console\Application;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Tester\CommandTester;
@@ -161,6 +177,17 @@ class CheckConsistencyCommandTest extends ApiTestCase
         $this->assertStringContainsString('No account', $this->tester->getDisplay());
     }
 
+    public function testAnExchangeToComeOfAMemberConnectedNotSyncedInTheirCalendarIsShown(): void
+    {
+        $this->connectTheProspectorToGoogle();
+        $planned = $this->anExchangePlannedByTheProspectorOn('2026-10-20 14:00 UTC');
+        $this->anExchangePlannedByTheProspectorOn('2026-10-14 14:00 UTC');
+
+        $this->assertSame(Command::FAILURE, $this->tester->execute([]));
+        $this->assertSame(1, substr_count($this->tester->getDisplay(), 'not synced in the calendar of its holder'));
+        $this->assertDiscrepancy(DemoData::SOLEAN_IT, $planned, 'exchange to come not synced in the calendar of its holder at google', 'its holder pushes it again');
+    }
+
     public function testTheCheckWritesNothing(): void
     {
         $before = $this->everyTable();
@@ -176,6 +203,22 @@ class CheckConsistencyCommandTest extends ApiTestCase
 
         $display = preg_replace('/\s+/', ' ', $this->tester->getDisplay());
         $this->assertMatchesRegularExpression(sprintf('/%s %s %s .*%s/', preg_quote($account, '/'), preg_quote($concerns, '/'), preg_quote($discrepancy, '/'), preg_quote($correction, '/')), $display);
+    }
+
+    private function connectTheProspectorToGoogle(): void
+    {
+        $grant = new Grant(new Email('prospector@exemple.fr'), new RefreshToken('a-refresh-token'), true);
+        $connection = Connection::establish(new MemberId(DemoData::PROSPECTOR), new AccountId(DemoData::SOLEAN_IT), new ClientCredentials(Provider::Google, 'client-of-the-double', 'secret-of-the-double'), $grant, new \DateTimeImmutable('2026-10-14 09:00 UTC'));
+        self::getContainer()->get(ConnectionRepository::class)->save($connection);
+    }
+
+    private function anExchangePlannedByTheProspectorOn(string $moment): string
+    {
+        $babbage = self::getContainer()->get(OrganizationRepository::class)->get(new OrganizationId($this->babbage()['organization']['id']));
+        $planned = Exchange::plannedWithTheOrganization($babbage, new MemberId(DemoData::PROSPECTOR), new ExchangeId(self::newIdentity()), ExchangeFacts::planned(Channel::Call, new \DateTimeImmutable($moment), Duration::inMinutes(null), null), new \DateTimeImmutable('2026-10-13 09:00 UTC'));
+        self::getContainer()->get(ExchangeRepository::class)->save($planned);
+
+        return $planned->id()->value;
     }
 
     private function rebuildTheFigures(): void
@@ -226,6 +269,7 @@ class CheckConsistencyCommandTest extends ApiTestCase
             'personal_data' => $this->personalDataTable(),
             'prospecting' => $this->prospectingTable(),
             'reporting' => $this->reportingTable(),
+            'connectors' => $this->table('connectors'),
         ]);
     }
 
