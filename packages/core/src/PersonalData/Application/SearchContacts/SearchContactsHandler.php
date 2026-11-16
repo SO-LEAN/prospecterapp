@@ -19,7 +19,6 @@ final readonly class SearchContactsHandler implements QueryHandler
     public function __invoke(SearchContacts $query, SearchContactsOutput $output): void
     {
         $reader = $this->readers->readerFrom(new MemberId($query->readerId));
-        $reader->ensureMaySearchByText($query->query);
 
         $output->present($this->contactPageRetriever->sliceFor($reader, SearchKey::of($query->query), $query->after, $query->max));
     }

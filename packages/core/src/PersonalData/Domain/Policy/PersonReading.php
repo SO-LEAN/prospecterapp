@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Prospecter\Core\PersonalData\Domain\Policy;
 
+use Prospecter\Core\PersonalData\Domain\Model\Purpose;
 use Prospecter\Core\PersonalData\Domain\Model\Reader;
 use Prospecter\Core\PersonalData\Domain\Model\Reading;
 use Prospecter\Core\SharedKernel\Domain\AccountId;
@@ -26,5 +27,15 @@ final class PersonReading
     public static function by(Reader $reader, PersonId $person): Reading
     {
         return $person->equals($reader->personId) || $reader->readsPersonalData ? Reading::Clear : Reading::Masked;
+    }
+
+    /**
+     * The name of a contact is read in clear by every member, to know with whom they have an exchange; the
+     * profile of a member as the rest of the person (ADR 0129).
+     */
+    #[\NoDiscard]
+    public static function ofTheName(Reader $reader, PersonId $person, Purpose $purpose): Reading
+    {
+        return Purpose::Prospecting === $purpose ? Reading::Clear : self::by($reader, $person);
     }
 }

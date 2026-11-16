@@ -26,12 +26,22 @@ final readonly class InMemoryContactPageRetriever implements ContactPageRetrieve
     public function sliceFor(Reader $reader, ?SearchKey $search, ?string $after, int $max): ContactPage
     {
         $contacts = array_values(array_filter($this->database->persons(), static fn (Person $person): bool => $person->accountId()->equals($reader->accountId) && Purpose::Prospecting === $person->purpose()));
-        $slice = NewestFirst::slice($contacts, static fn (Person $person): string => (string) $person->id(), static fn (Person $person): SearchKeys => $person->searchKeys(), $search, $after, $max);
+        $slice = NewestFirst::slice($contacts, static fn (Person $person): string => (string) $person->id(), static fn (Person $person): SearchKeys => self::searchKeysOf($person, $reader), $search, $after, $max);
 
         return new ContactPage(
             array_map(static fn (Person $contact): PersonCard => InMemoryPersonCardRetriever::cardOf($contact, $reader), $slice->content),
             $slice->next,
             array_map(static fn (ContactsIntent $intent): string => $intent->name, $reader->contactsIntents()),
         );
+    }
+
+    /**
+     * As the adapter reads the index of the names alone for a reader who does not search the emails.
+     */
+    private static function searchKeysOf(Person $person, Reader $reader): SearchKeys
+    {
+        $keys = $person->searchKeys();
+
+        return $reader->searchesTheEmails() ? $keys : new SearchKeys($keys->name?->value, null);
     }
 }
