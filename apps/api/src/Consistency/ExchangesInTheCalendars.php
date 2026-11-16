@@ -4,7 +4,6 @@ namespace App\Consistency;
 
 use App\Prospecting\Persistence\ExchangeDocument;
 use App\Shared\Persistence\Documents;
-use Prospecter\Core\Prospecting\Domain\Model\ExchangeStatus;
 use Symfony\Component\Clock\ClockInterface;
 
 /**
@@ -24,15 +23,18 @@ final readonly class ExchangesInTheCalendars
      */
     public function discrepanciesAmong(array $accountIds): array
     {
-        return array_merge([], ...array_map($this->notSyncedIn(...), $accountIds));
+        $connectedByAccount = $this->tables->connectedMembersByAccount();
+
+        return array_merge([], ...array_map(fn (string $accountId): array => $this->notSyncedIn($accountId, $connectedByAccount[$accountId] ?? []), $accountIds));
     }
 
     /**
+     * @param array<string, string> $connected the provider each member of the account is connected to, by member
+     *
      * @return list<Discrepancy>
      */
-    private function notSyncedIn(string $accountId): array
+    private function notSyncedIn(string $accountId, array $connected): array
     {
-        $connected = $this->tables->connectedMembersOf($accountId);
         if ([] === $connected) {
             return [];
         }
@@ -54,6 +56,6 @@ final readonly class ExchangesInTheCalendars
      */
     private function isToCome(array $exchange): bool
     {
-        return ExchangeStatus::Planned === ExchangeDocument::statusOf($exchange) && Documents::momentOf($exchange['facts']['occurredAt']) >= $this->clock->now();
+        return ExchangeDocument::isPlanned($exchange) && Documents::momentOf($exchange['facts']['occurredAt']) >= $this->clock->now();
     }
 }

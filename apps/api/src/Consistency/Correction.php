@@ -14,5 +14,5 @@ enum Correction: string
     case RedriveTheFailures = 'app:integration:redrive';
     case RepublishTheOutbox = 'app:outbox:republish --since=<moment of the first failure>';
     case WriteTheKeysAgain = 'app:keys:rebuild';
-    case PushTheExchangeAgain = 'its holder pushes it again from Prospecter, or reconnects';
+    case PushTheExchangeAgain = 'its holder pushes it again from Prospecter once failed, reconnects, or changes it';
 }

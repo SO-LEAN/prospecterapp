@@ -109,6 +109,6 @@ describe('GoogleSync', () => {
     )
 
     await vi.waitFor(() => expect(theApi).toHaveBeenCalled())
-    expect(container.querySelector('[role="img"]')).toBeNull()
+    expect(container).toBeEmptyDOMElement()
   })
 })

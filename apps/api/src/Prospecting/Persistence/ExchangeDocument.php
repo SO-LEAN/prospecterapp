@@ -103,6 +103,16 @@ final class ExchangeDocument
     }
 
     /**
+     * Still to come, neither held nor cancelled.
+     *
+     * @param array<string, mixed> $document
+     */
+    public static function isPlanned(array $document): bool
+    {
+        return ExchangeStatus::Planned === self::statusOf($document);
+    }
+
+    /**
      * Done or missed, neither still to come nor cancelled.
      *
      * @param array<string, mixed> $document

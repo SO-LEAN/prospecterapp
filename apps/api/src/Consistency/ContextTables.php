@@ -22,10 +22,10 @@ final readonly class ContextTables
 
     public function __construct(
         private Table $accountsTable,
+        private Table $connectorsTable,
         private Table $personalDataTable,
         private Table $prospectingTable,
         private Table $reportingTable,
-        private Table $connectorsTable,
     ) {
     }
 
@@ -133,17 +133,19 @@ final readonly class ContextTables
     }
 
     /**
-     * @return array<string, string> the provider each member of the account is connected to, by member; none to
-     *                               reconnect
+     * @return array<string, array<string, string>> the provider each member is connected to, by member, by account;
+     *                                              none to reconnect
      */
-    public function connectedMembersOf(string $accountId): array
+    public function connectedMembersByAccount(): array
     {
-        $connections = array_filter(
-            array_column($this->connectorsTable->scan(ConnectorsKeys::member('')), 'connection'),
-            static fn (array $connection): bool => $accountId === $connection['accountId'] && self::CONNECTED === $connection['state'],
-        );
+        $connected = [];
+        foreach (array_column($this->connectorsTable->scan(ConnectorsKeys::member('')), 'connection') as $connection) {
+            if (self::CONNECTED === $connection['state']) {
+                $connected[$connection['accountId']][$connection['member']] = $connection['provider'];
+            }
+        }
 
-        return array_column($connections, 'provider', 'member');
+        return $connected;
     }
 
     public function isSynced(string $exchangeId, string $provider): bool
