@@ -1,8 +1,9 @@
-import { infiniteQueryOptions } from '@tanstack/react-query'
+import { infiniteQueryOptions, queryOptions } from '@tanstack/react-query'
 import { api, fetchClient } from '@/shared/api/client'
 import { queryKeys } from '@/shared/api/keys'
 import type { components } from '@/shared/api/schema'
 import { dataOf, nextSliceOf } from '@/shared/api/slices'
+import { pauseBeforeReadingAgain } from './awaited-link'
 
 export type Timeline = components['schemas']['TimelineResource']
 export type Exchange = components['schemas']['ExchangeResource']
@@ -21,6 +22,7 @@ type Correction = components['schemas']['CorrectionInput']
 export type ExchangeFacts = Omit<Correction, 'madeConform'> & Partial<Pick<Correction, 'madeConform'>>
 export type ExchangeDetail = components['schemas']['ExchangeDetailResource']
 export type GoogleSync = components['schemas']['ExchangeSyncResource']
+export type Connections = components['schemas']['ConnectionsResource']
 export type TextCorrection = components['schemas']['TextCorrectionInput']
 export type Report = components['schemas']['ReportInput']
 export type Moment = components['schemas']['MomentInput']
@@ -162,8 +164,26 @@ export const googleSyncKey = ['get', '/api/exchanges/{id}/google-sync'] as const
 export const googleSyncQuery = (id: string) =>
   api.queryOptions('get', '/api/exchanges/{id}/google-sync', { params: { path: { id } } })
 
+/** An exchange, read again a few times while it awaits the link its calendar creates (ADR 0137). */
 export const exchangeQuery = (id: string) =>
-  api.queryOptions('get', '/api/exchanges/{id}', { params: { path: { id } } })
+  queryOptions({
+    ...api.queryOptions('get', '/api/exchanges/{id}', { params: { path: { id } } }),
+    refetchInterval: (query) =>
+      pauseBeforeReadingAgain(query.state.data?.linkAwaited ?? false, query.state.dataUpdateCount),
+  })
+
+/**
+ * My connections as the banner of the app keeps them, the same query, read from its cache and never asked again by a
+ * form: a Meet link is offered while Google is connected.
+ */
+export const myConnectionsQuery = () => ({
+  ...api.queryOptions('get', '/api/me/connections'),
+  enabled: false,
+})
+
+export const isGoogleConnected = (connections: Connections | undefined) =>
+  connections?.connections.some(({ provider, state }) => provider === 'google' && state === 'connected') ??
+  false
 
 /** Where to meet a contact: the address of their organization, proposed while planning a meeting. */
 export const meetingPlaceQuery = (contactId: string) =>

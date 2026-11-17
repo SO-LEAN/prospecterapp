@@ -84,6 +84,7 @@ const theDetail = (
   ...item.exchange,
   interlocutor: item.interlocutor,
   canceller: null,
+  linkAwaited: false,
   text: 'Démonstration',
   noted: { at: NOW.toISOString(), by: { name: { firstName: 'Michel', lastName: 'Maier' } } },
   corrected: null,

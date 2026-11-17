@@ -429,6 +429,7 @@ export const fr = {
     link: 'Lien de la visio',
     linkHint: 'Collez l’invitation entière : son lien Meet, Teams ou Zoom en est extrait.',
     linkPlaceholder: 'https://meet.google.com/…',
+    meetLink: 'Créer un lien Google Meet',
     linkIsAWebAddress: 'Le lien d’une visio est une adresse web, comme https://meet.google.com/…',
     join: 'Rejoindre',
     call: 'Appeler',
