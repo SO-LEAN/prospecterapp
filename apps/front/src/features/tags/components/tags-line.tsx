@@ -33,7 +33,7 @@ export function TagsLine({ tags, onTag, onTakeOff }: Props) {
               className="rounded-full p-0.5 hover:bg-background/60 focus-visible:ring-[3px] focus-visible:ring-ring/50 focus-visible:outline-none"
               onClick={() => onTakeOff(tag)}
             >
-              <X aria-hidden />
+              <X className="size-3" aria-hidden />
             </button>
           </Badge>
         </li>
