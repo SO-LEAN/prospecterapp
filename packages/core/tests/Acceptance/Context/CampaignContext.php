@@ -13,6 +13,8 @@ use Prospecter\Core\Accounts\Domain\Model\Role;
 use Prospecter\Core\Campaigns\Application\AddRecipient\AddRecipient;
 use Prospecter\Core\Campaigns\Application\AddRecipientsByTags\AddRecipientsByTags;
 use Prospecter\Core\Campaigns\Application\CampaignSheet;
+use Prospecter\Core\Campaigns\Application\RecipientInSheet;
+use Prospecter\Core\Campaigns\Application\DismissRecipient\DismissRecipient;
 use Prospecter\Core\Campaigns\Application\ConsultCampaign\ConsultCampaign;
 use Prospecter\Core\Campaigns\Application\DiscardCampaign\DiscardCampaign;
 use Prospecter\Core\Campaigns\Application\EraseCampaign\EraseCampaign;
@@ -27,7 +29,11 @@ use Prospecter\Core\Campaigns\Application\ReviseCampaign\ReviseCampaign;
 use Prospecter\Core\Campaigns\Application\SearchContactsByTags\SearchContactsByTags;
 use Prospecter\Core\Campaigns\Application\StartCampaign\StartCampaign;
 use Prospecter\Core\Campaigns\Application\StopCampaign\StopCampaign;
+use Prospecter\Core\Campaigns\Contract\Service\NameCampaigns\NameCampaigns;
+use Prospecter\Core\Campaigns\Contract\Service\WhichRecipientsArePending\PendingRecipientsResponse;
+use Prospecter\Core\Campaigns\Contract\Service\WhichRecipientsArePending\WhichRecipientsArePending;
 use Prospecter\Core\Campaigns\Domain\Model\Campaign;
+use Prospecter\Core\SharedKernel\Domain\CampaignId;
 use Prospecter\Core\Campaigns\Domain\Model\CampaignName;
 use Prospecter\Core\Campaigns\Domain\Model\Channel;
 use Prospecter\Core\Campaigns\Domain\Model\MessageTemplate;
@@ -35,8 +41,11 @@ use Prospecter\Core\Campaigns\Domain\Model\Targeting;
 use Prospecter\Core\PersonalData\Application\ChangePersonContactDetails\ChangePersonContactDetails;
 use Prospecter\Core\PersonalData\Application\ConsultPersons\ConsultPersons;
 use Prospecter\Core\PersonalData\Application\PersonCard;
+use Prospecter\Core\Prospecting\Application\ConsultTimeline\ConsultTimeline;
+use Prospecter\Core\Prospecting\Application\ExchangeInTimeline;
+use Prospecter\Core\Prospecting\Application\NoteCampaignExchange\NoteCampaignExchange;
+use Prospecter\Core\Prospecting\Contract\Event\ExchangeFactsChanged;
 use Prospecter\Core\SharedKernel\Domain\AccountId;
-use Prospecter\Core\SharedKernel\Domain\CampaignId;
 use Prospecter\Core\SharedKernel\Domain\MemberId;
 use Tests\Core\Acceptance\Expect;
 use Tests\Core\Acceptance\Vocabulary;
@@ -50,8 +59,8 @@ final class CampaignContext implements Context
     use SharesTheScenario;
 
     private const array CHANNELS = ['E-mail' => 'email', 'Appel' => 'call', 'SMS' => 'sms', 'LinkedIn' => 'linkedIn'];
-    private const array STATUSES = ['draft' => 'brouillon', 'frozen' => 'figée', 'started' => 'démarrée', 'stopped' => 'arrêtée'];
-    private const array RECIPIENT_STATUSES = ['pending' => 'à traiter', 'erased' => 'plus à traiter'];
+    private const array STATUSES = ['draft' => 'brouillon', 'frozen' => 'figée', 'started' => 'démarrée', 'stopped' => 'arrêtée', 'ended' => 'terminée'];
+    private const array RECIPIENT_STATUSES = ['pending' => 'à traiter', 'erased' => 'plus à traiter', 'processed' => 'traité', 'dismissed' => 'écarté'];
     private const string NOBODY_CARRIES = '#PERSONNE';
     private const string A_MESSAGE = 'Bonjour {prénom}';
     private const string REVISED_MESSAGE = 'Bonjour {prénom}, je reviens vers vous';
@@ -61,6 +70,11 @@ final class CampaignContext implements Context
     private array $campaignIds = [];
     private ?string $current = null;
     private ?ReviseCampaign $revision = null;
+    private ?string $noted = null;
+    private ?string $notedWith = null;
+    private ?PendingRecipientsResponse $pending = null;
+    /** @var array<string, string> */
+    private array $campaignNames = [];
     private ?CampaignMessage $rendered = null;
     /** @var list<CampaignSheet> */
     private array $listed = [];
@@ -209,6 +223,167 @@ final class CampaignContext implements Context
         $this->itsRecipientsAre($contact);
     }
 
+    #[Given('la campagne :name démarrée, canal :channel, avec :one et :other')]
+    public function theCampaignStartedByWith(string $name, string $channel, string $one, string $other): void
+    {
+        $this->application->dispatch(new RebuildTags(null));
+        $this->arrange($name, $channel, self::SOME_TAGS, self::A_MESSAGE);
+        $this->theFrozenCampaign($name);
+        $this->itsRecipientsAreInAnyOrder($one, $other);
+        $this->theStartedCampaign($name);
+    }
+
+    #[When('je note pour :contact dans la campagne :name l\'échange :')]
+    public function iNoteForTheRecipientTheExchange(string $contact, string $name, TableNode $table): void
+    {
+        $row = $table->getRowsHash();
+        $this->noteForTheRecipient($contact, $name, Vocabulary::frenchMoment($row['moment']), $row['texte'], missed: false);
+    }
+
+    #[When('je note pour :contact dans la campagne :name un échange')]
+    public function iNoteForTheRecipientAnExchange(string $contact, string $name): void
+    {
+        $this->noteForTheRecipient($contact, $name, $this->application->now(), self::A_MESSAGE, missed: false);
+    }
+
+    #[When('je note pour :contact dans la campagne :name un appel manqué')]
+    public function iNoteForTheRecipientAMissedCall(string $contact, string $name): void
+    {
+        $this->noteForTheRecipient($contact, $name, $this->application->now(), null, missed: true);
+    }
+
+    #[Given(':contact est traitée dans la campagne :name')]
+    public function theRecipientIsProcessed(string $contact, string $name): void
+    {
+        if (null === $this->noted) {
+            $this->iNoteForTheRecipientAnExchange($contact, $name);
+        }
+
+        $this->expectTheRecipient($contact, $name, ['status' => 'traité', 'missed' => false, 'reason' => null]);
+    }
+
+    #[Then(':contact est traitée dans la campagne :name, appel manqué')]
+    public function theRecipientIsProcessedMissed(string $contact, string $name): void
+    {
+        $this->expectTheRecipient($contact, $name, ['status' => 'traité', 'missed' => true, 'reason' => null]);
+    }
+
+    #[When('j\'écarte :contact de la campagne :name, pour :reason')]
+    public function iDismissTheRecipientFor(string $contact, string $name, string $reason): void
+    {
+        $this->dismiss($contact, $name, $reason);
+    }
+
+    #[When('j\'écarte :contact de la campagne :name')]
+    public function iDismissTheRecipient(string $contact, string $name): void
+    {
+        $this->dismiss($contact, $name, null);
+    }
+
+    #[Given(':contact est écarté de la campagne :name')]
+    public function theRecipientIsDismissed(string $contact, string $name): void
+    {
+        $this->dismiss($contact, $name, null);
+        $this->expectTheRecipient($contact, $name, ['status' => 'écarté', 'missed' => false, 'reason' => null]);
+    }
+
+    #[Then(':contact est écarté dans la campagne :name, pour :reason')]
+    public function theRecipientIsDismissedFor(string $contact, string $name, string $reason): void
+    {
+        $this->expectTheRecipient($contact, $name, ['status' => 'écarté', 'missed' => false, 'reason' => $reason]);
+    }
+
+    #[Then('/^la campagne "(?<name>[^"]+)" est terminée le (?<moment>.+)$/')]
+    public function theCampaignIsEndedOn(string $name, string $moment): void
+    {
+        $this->current = $name;
+        $sheet = $this->sheet();
+
+        Expect::same(['ended', Vocabulary::frenchMoment($moment)->getTimestamp()], [$sheet->status, $sheet->endedAt?->getTimestamp()]);
+    }
+
+    #[Then('son avancement est :processed traité sur :recipients, :dismissed écarté')]
+    public function itsProgressIs(int $processed, int $recipients, int $dismissed): void
+    {
+        $sheet = $this->sheet();
+
+        Expect::same([$processed, $recipients, $dismissed], [$sheet->processed, count($sheet->recipients), $sheet->dismissed]);
+    }
+
+    #[Then('c\'est un appel émis')]
+    public function itIsAnOutboundCall(): void
+    {
+        $exchange = $this->notedExchange();
+
+        Expect::same(['call', 'outbound', 'done'], [$exchange->channel, $exchange->direction, $exchange->status]);
+    }
+
+    #[Then('la timeline de :contact montre l\'appel, de la campagne :name')]
+    public function theTimelineShowsTheCallOfTheCampaign(string $contact, string $name): void
+    {
+        $exchange = $this->notedExchange();
+
+        Expect::same(['call', $this->campaignIds[$name], $name], [$exchange->channel, $exchange->campaignId, $exchange->campaignName]);
+    }
+
+    #[Then('le fait publié de cet échange nomme la campagne :name et le contact :contact')]
+    public function theFactsOfTheExchangeNameTheCampaign(string $name, string $contact): void
+    {
+        $exchangeId = $this->noted ?? throw new \LogicException('No exchange noted in the scenario');
+        $last = array_last(array_filter($this->application->events->published(ExchangeFactsChanged::class), static fn (ExchangeFactsChanged $facts): bool => $facts->exchangeId === $exchangeId));
+
+        Expect::that(null !== $last, 'No facts of the exchange were published');
+        Expect::same([$this->campaignIds[$name], $this->scenario->personIdOf($contact)], [$last?->campaignId, $last?->contactId]);
+    }
+
+    public function campaignIdOf(string $name): string
+    {
+        return $this->campaignIds[$name] ?? throw new \LogicException(sprintf('No campaign "%s" in the scenario', $name));
+    }
+
+    #[When('un autre contexte demande à Campaigns, de :account, lesquels sont des destinataires à traiter de :name :')]
+    public function anotherContextAsksThePendingRecipients(string $account, string $name, TableNode $contacts): void
+    {
+        $this->pending = $this->application->whichRecipientsArePending(new WhichRecipientsArePending(
+            $this->scenario->accountIdOf($account)->value,
+            $this->campaignIdOf($name),
+            array_map($this->scenario->personIdOf(...), $contacts->getColumn(0)),
+        ));
+    }
+
+    #[Then('Campaigns répond que :name est démarrée, par :channel, avec les destinataires :one et :other, :pending à traiter')]
+    public function campaignsAnswersThePendingRecipients(string $name, string $channel, string $one, string $other, string $pending): void
+    {
+        Expect::same(
+            [$this->campaignIdOf($name), $channel, true, [$this->scenario->personIdOf($one), $this->scenario->personIdOf($other)], [$this->scenario->personIdOf($pending)]],
+            [$this->pending?->campaignId, $this->pending?->channel, $this->pending?->started, $this->pending?->recipientIds, $this->pending?->pendingIds],
+        );
+    }
+
+    #[Then('Campaigns ne répond aucune campagne')]
+    public function campaignsAnswersNoCampaign(): void
+    {
+        Expect::same(null, $this->pending);
+    }
+
+    #[When('un autre contexte demande à Campaigns, de :account, le nom de :name et d\'une campagne inconnue')]
+    public function anotherContextAsksTheNames(string $account, string $name): void
+    {
+        $this->campaignNames = $this->application->nameCampaigns(new NameCampaigns($this->scenario->accountIdOf($account)->value, [$this->campaignIdOf($name), $this->application->newIdentity()]));
+    }
+
+    #[Then('Campaigns nomme seulement :name')]
+    public function campaignsNamesOnly(string $name): void
+    {
+        Expect::same([$this->campaignIdOf($name) => $name], $this->campaignNames);
+    }
+
+    #[Then('Campaigns ne nomme aucune campagne')]
+    public function campaignsNamesNoCampaign(): void
+    {
+        Expect::same([], $this->campaignNames);
+    }
+
     #[When('je démarre la campagne :name')]
     public function iStartTheCampaign(string $name): void
     {
@@ -351,6 +526,16 @@ final class CampaignContext implements Context
         Expect::same([$this->scenario->personIdOf($one), $this->scenario->personIdOf($other)], array_keys($this->sheet()->recipients));
     }
 
+    private function itsRecipientsAreInAnyOrder(string $one, string $other): void
+    {
+        $expected = [$this->scenario->personIdOf($one), $this->scenario->personIdOf($other)];
+        $recipients = array_map(strval(...), array_keys($this->sheet()->recipients));
+        sort($expected);
+        sort($recipients);
+
+        Expect::same($expected, $recipients);
+    }
+
     #[Then(':contact est un destinataire')]
     public function isARecipient(string $contact): void
     {
@@ -472,6 +657,49 @@ final class CampaignContext implements Context
         ], $this->listed);
 
         Expect::same($table->getColumnsHash(), $listed);
+    }
+
+    private function noteForTheRecipient(string $contact, string $name, \DateTimeImmutable $occurredAt, ?string $text, bool $missed): void
+    {
+        $this->current = $name;
+        $id = $this->application->newIdentity();
+        $this->application->dispatch(new NoteCampaignExchange(
+            $this->application->signedIn(),
+            $id,
+            $this->currentId(),
+            $this->scenario->personIdOf($contact),
+            $occurredAt,
+            $text,
+            $missed,
+            $this->application->now(),
+        ));
+        $this->noted = null === $this->application->refusal() ? $id : null;
+        $this->notedWith = $contact;
+    }
+
+    private function dismiss(string $contact, string $name, ?string $reason): void
+    {
+        $this->current = $name;
+        $this->application->dispatch(new DismissRecipient($this->application->signedIn(), $this->currentId(), $this->scenario->personIdOf($contact), $reason, $this->application->now()));
+    }
+
+    /**
+     * @param array{status: string, missed: bool, reason: ?string} $expected
+     */
+    private function expectTheRecipient(string $contact, string $name, array $expected): void
+    {
+        $this->current = $name;
+        $recipient = $this->sheet()->recipients[$this->scenario->personIdOf($contact)] ?? throw new \LogicException(sprintf('%s is no recipient', $contact));
+
+        Expect::same($expected, ['status' => self::RECIPIENT_STATUSES[$recipient->status], 'missed' => $recipient->missed, 'reason' => $recipient->reason]);
+    }
+
+    private function notedExchange(): ExchangeInTimeline
+    {
+        $id = $this->noted ?? throw new \LogicException(sprintf('No exchange noted: %s', $this->application->refusal()?->getMessage()));
+        $timeline = $this->application->consultTimeline(new ConsultTimeline($this->application->signedIn(), $this->scenario->personIdOf($this->notedWith ?? ''), $this->application->now()));
+
+        return array_find($timeline->exchanges ?? [], static fn (ExchangeInTimeline $exchange): bool => $exchange->id === $id) ?? throw new \LogicException('The timeline does not show the exchange noted');
     }
 
     private function prepare(string $name, string $channel, string $tags, string $message, ?string $subject = null): void
