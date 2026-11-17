@@ -8,7 +8,7 @@ import { Badge } from '@/shared/ui/badge'
 import { Button } from '@/shared/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/shared/ui/card'
 import { useRemoveRecipient } from '../mutations'
-import { type Campaign, campaignRecipientsQuery } from '../queries'
+import { type Campaign, campaignRecipientsQuery, type RecipientList as Recipients } from '../queries'
 import { AddRecipients } from './add-recipients'
 import { MessagePreview } from './campaign-target'
 
@@ -27,7 +27,6 @@ type Props = {
 export function CampaignRecipients({ campaign, changed }: Props) {
   const { t } = useTranslation()
   const { data: recipients } = useSuspenseQuery(campaignRecipientsQuery(campaign.id))
-  const remove = useRemoveRecipient(campaign.id)
   const kept = recipients.items.flatMap(({ contact }) => (contact ? [contact.id] : []))
   const [hovered, setPreviewed] = useState<string | null>(null)
   const previewed = hovered !== null && kept.includes(hovered) ? hovered : (kept[0] ?? null)
@@ -50,55 +49,75 @@ export function CampaignRecipients({ campaign, changed }: Props) {
           {recipients.items.length === 0 ? (
             <p className="text-muted-foreground text-sm">{t('campaigns.recipients.emptied')}</p>
           ) : (
-            <ul aria-label={t('campaigns.recipients.title')} className="divide-y">
-              {recipients.items.map(({ contact, status, _links }, index) =>
-                !contact ? (
-                  // biome-ignore lint/suspicious/noArrayIndexKey: an erased recipient keeps no identity, its place is its key
-                  <li key={`erased-${index}`} className="flex items-center gap-2">
-                    <span className="flex-1 px-2 py-2 text-muted-foreground text-sm italic">
-                      {t('campaigns.recipients.erased')}
-                    </span>
-                    <Badge variant="outline">{t(`campaigns.recipients.status.${status}`)}</Badge>
-                  </li>
-                ) : (
-                  <li key={contact.id} className="flex items-center gap-2">
-                    <button
-                      type="button"
-                      aria-pressed={previewed === contact.id}
-                      onMouseEnter={() => setPreviewed(contact.id)}
-                      onFocus={() => setPreviewed(contact.id)}
-                      className={cn(
-                        'flex min-w-0 flex-1 flex-col items-start rounded-md px-2 py-2 text-left text-sm hover:bg-muted',
-                        previewed === contact.id && 'bg-muted',
-                      )}
-                    >
-                      <span className="font-medium">{fullNameOf(contact)}</span>
-                      <span className="text-muted-foreground text-xs">
-                        {contact.organizations.map((organization) => organization.name).join(', ')}
-                      </span>
-                    </button>
-                    <Badge variant="secondary">{t(`campaigns.recipients.status.${status}`)}</Badge>
-                    {_links.remove && (
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        aria-label={t('campaigns.recipients.remove', { name: fullNameOf(contact) })}
-                        disabled={remove.isPending}
-                        onClick={() =>
-                          remove.mutate({ params: { path: { id: campaign.id, contactId: contact.id } } })
-                        }
-                      >
-                        <X aria-hidden />
-                      </Button>
-                    )}
-                  </li>
-                ),
-              )}
-            </ul>
+            <RecipientList
+              campaignId={campaign.id}
+              recipients={recipients}
+              previewed={previewed}
+              onPreview={setPreviewed}
+            />
           )}
         </CardContent>
       </Card>
       {previewed && <MessagePreview campaignId={campaign.id} contactId={previewed} changed={changed} />}
     </div>
+  )
+}
+
+type RecipientListProps = {
+  campaignId: string
+  recipients: Recipients
+  previewed: string | null
+  onPreview: (contactId: string) => void
+}
+
+/** Each recipient with its status, its cross while it may be taken off; one erased named « Contact effacé ». */
+function RecipientList({ campaignId, recipients, previewed, onPreview }: RecipientListProps) {
+  const { t } = useTranslation()
+  const remove = useRemoveRecipient(campaignId)
+
+  return (
+    <ul aria-label={t('campaigns.recipients.title')} className="divide-y">
+      {recipients.items.map(({ contact, status, _links }, index) =>
+        !contact ? (
+          // biome-ignore lint/suspicious/noArrayIndexKey: an erased recipient keeps no identity, its place is its key
+          <li key={`erased-${index}`} className="flex items-center gap-2">
+            <span className="flex-1 px-2 py-2 text-muted-foreground text-sm italic">
+              {t('campaigns.recipients.erased')}
+            </span>
+            <Badge variant="outline">{t(`campaigns.recipients.status.${status}`)}</Badge>
+          </li>
+        ) : (
+          <li key={contact.id} className="flex items-center gap-2">
+            <button
+              type="button"
+              aria-pressed={previewed === contact.id}
+              onMouseEnter={() => onPreview(contact.id)}
+              onFocus={() => onPreview(contact.id)}
+              className={cn(
+                'flex min-w-0 flex-1 flex-col items-start rounded-md px-2 py-2 text-left text-sm hover:bg-muted',
+                previewed === contact.id && 'bg-muted',
+              )}
+            >
+              <span className="font-medium">{fullNameOf(contact)}</span>
+              <span className="text-muted-foreground text-xs">
+                {contact.organizations.map((organization) => organization.name).join(', ')}
+              </span>
+            </button>
+            <Badge variant="secondary">{t(`campaigns.recipients.status.${status}`)}</Badge>
+            {_links.remove && (
+              <Button
+                variant="ghost"
+                size="icon"
+                aria-label={t('campaigns.recipients.remove', { name: fullNameOf(contact) })}
+                disabled={remove.isPending}
+                onClick={() => remove.mutate({ params: { path: { id: campaignId, contactId: contact.id } } })}
+              >
+                <X aria-hidden />
+              </Button>
+            )}
+          </li>
+        ),
+      )}
+    </ul>
   )
 }
