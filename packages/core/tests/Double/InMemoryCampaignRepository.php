@@ -25,6 +25,11 @@ final readonly class InMemoryCampaignRepository implements CampaignRepository
         return $this->database->campaign($accountId->value, $id->value) ?? throw UnknownCampaign::identifiedBy($id);
     }
 
+    public function find(AccountId $accountId, CampaignId $id): ?Campaign
+    {
+        return $this->database->campaign($accountId->value, $id->value);
+    }
+
     public function withRecipient(AccountId $accountId, PersonId $contact): array
     {
         return array_values(array_filter($this->database->campaignsOf($accountId->value), static fn (Campaign $campaign): bool => $campaign->hasRecipient($contact)));

@@ -9,10 +9,15 @@ use Prospecter\Core\Campaigns\Domain\Event\CampaignFrozen;
 use Prospecter\Core\Campaigns\Domain\Event\CampaignPrepared;
 use Prospecter\Core\Campaigns\Domain\Event\CampaignRecipientsChanged;
 use Prospecter\Core\Campaigns\Domain\Event\CampaignRevised;
+use Prospecter\Core\Campaigns\Domain\Event\CampaignStarted;
+use Prospecter\Core\Campaigns\Domain\Event\CampaignStopped;
+use Prospecter\Core\Campaigns\Domain\Exception\CampaignNotFrozen;
 use Prospecter\Core\Campaigns\Domain\Exception\CampaignWithoutRecipient;
 use Prospecter\Core\Campaigns\Domain\Exception\FrozenSearch;
 use Prospecter\Core\Campaigns\Domain\Exception\InvalidTag;
 use Prospecter\Core\Campaigns\Domain\Exception\InvalidTagSelection;
+use Prospecter\Core\Campaigns\Domain\Exception\StartedCampaign;
+use Prospecter\Core\Campaigns\Domain\Exception\StartedCampaignNotDiscarded;
 use Prospecter\Core\Campaigns\Domain\Exception\TooManyRecipients;
 use Prospecter\Core\Campaigns\Domain\Exception\UnknownRecipient;
 use Prospecter\Core\Campaigns\Domain\Exception\UnreachableContact;
@@ -28,7 +33,7 @@ use Prospecter\Core\SharedKernel\Domain\ReleasesEvents;
  * Aggregate root: a campaign of communication the team of an account prepares (ADR 0144), its members contacting each
  * person it targets themselves, by its channel, the message it keeps reminding them; Prospecter sends nothing. Shared
  * by the team, prepared by its author. A draft targets the contacts carrying its tags as they are now; frozen, it keeps
- * its recipients, changed by hand only.
+ * its recipients, changed by hand only; started, it is led as it was frozen, then stopped, never discarded.
  */
 final class Campaign implements ReleasesEvents
 {
@@ -37,6 +42,8 @@ final class Campaign implements ReleasesEvents
     private CampaignStatus $status = CampaignStatus::Draft;
     private Recipients $recipients;
     private \DateTimeImmutable $modifiedAt;
+    private ?\DateTimeImmutable $startedAt = null;
+    private ?\DateTimeImmutable $stoppedAt = null;
 
     private function __construct(
         private readonly CampaignId $id,
@@ -120,6 +127,34 @@ final class Campaign implements ReleasesEvents
     }
 
     /**
+     * Leads it as it was frozen: nothing of it changes any more.
+     *
+     * @throws CampaignNotFrozen
+     */
+    public function start(MemberId $by, \DateTimeImmutable $at): void
+    {
+        $this->ensurePossible(CampaignIntent::StartCampaign);
+        $this->status = CampaignStatus::Started;
+        $this->startedAt = $at;
+        $this->modifiedAt = $at;
+        $this->recordThat(new CampaignStarted($this->accountId, $by, $this->id, $at));
+    }
+
+    /**
+     * Stops leading it, kept for the team to read.
+     *
+     * @throws NotPossibleInItsState
+     */
+    public function stop(MemberId $by, \DateTimeImmutable $at): void
+    {
+        $this->ensurePossible(CampaignIntent::StopCampaign);
+        $this->status = CampaignStatus::Stopped;
+        $this->stoppedAt = $at;
+        $this->modifiedAt = $at;
+        $this->recordThat(new CampaignStopped($this->accountId, $by, $this->id, $at));
+    }
+
+    /**
      * Adds the contacts carrying the tags typed and that of its channel, those already recipients kept once.
      *
      * @param list<string>               $typed
@@ -164,11 +199,12 @@ final class Campaign implements ReleasesEvents
     }
 
     /**
-     * A contact PersonalData forgot leaves its recipients, even the last one.
+     * A contact PersonalData forgot leaves its recipients, even the last one; started, it stays, without its name, no
+     * longer to handle.
      */
     public function forget(PersonId $contact): void
     {
-        $this->recipients = $this->recipients->forgetting($contact);
+        $this->recipients = $this->status->hasStarted() ? $this->recipients->erasing($contact) : $this->recipients->forgetting($contact);
     }
 
     #[\NoDiscard]
@@ -205,7 +241,20 @@ final class Campaign implements ReleasesEvents
     private function ensurePossible(CampaignIntent $intent): void
     {
         if (!in_array($intent, CampaignPossibilities::given($this->status), true)) {
-            throw NotPossibleInItsState::because(sprintf('A %s campaign does not offer it', $this->status->value));
+            throw $this->refusalOf($intent);
         }
+    }
+
+    /**
+     * Started, a campaign tells why it no longer changes; any other state refuses what it does not offer.
+     */
+    private function refusalOf(CampaignIntent $intent): NotPossibleInItsState
+    {
+        return match (true) {
+            CampaignIntent::StartCampaign === $intent => CampaignNotFrozen::toStart(),
+            CampaignIntent::DiscardCampaign === $intent && $this->status->hasStarted() => StartedCampaignNotDiscarded::stoppedInstead(),
+            CampaignIntent::StopCampaign !== $intent && $this->status->hasStarted() => StartedCampaign::unchanged(),
+            default => NotPossibleInItsState::because(sprintf('A %s campaign does not offer it', $this->status->value)),
+        };
     }
 }

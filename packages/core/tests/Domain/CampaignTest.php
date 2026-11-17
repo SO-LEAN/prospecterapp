@@ -11,6 +11,8 @@ use Prospecter\Core\Campaigns\Domain\Event\CampaignFrozen;
 use Prospecter\Core\Campaigns\Domain\Event\CampaignPrepared;
 use Prospecter\Core\Campaigns\Domain\Event\CampaignRecipientsChanged;
 use Prospecter\Core\Campaigns\Domain\Event\CampaignRevised;
+use Prospecter\Core\Campaigns\Domain\Event\CampaignStarted;
+use Prospecter\Core\Campaigns\Domain\Event\CampaignStopped;
 use Prospecter\Core\Campaigns\Domain\Model\Addressee;
 use Prospecter\Core\Campaigns\Domain\Model\Campaign;
 use Prospecter\Core\Campaigns\Domain\Model\CampaignId;
@@ -57,9 +59,19 @@ final class CampaignTest extends TestCase
         $this->assertSame([CampaignIntent::ReviseCampaign, CampaignIntent::DiscardCampaign, CampaignIntent::FreezeCampaign], CampaignPossibilities::given(CampaignStatus::Draft));
     }
 
-    public function testAFrozenCampaignChangesItsRecipientsAndIsStillRevisedAndDiscarded(): void
+    public function testAFrozenCampaignChangesItsRecipientsIsStillRevisedAndDiscardedAndStarts(): void
     {
-        $this->assertSame([CampaignIntent::ReviseCampaign, CampaignIntent::DiscardCampaign, CampaignIntent::AddRecipients, CampaignIntent::RemoveRecipient], CampaignPossibilities::given(CampaignStatus::Frozen));
+        $this->assertSame([CampaignIntent::ReviseCampaign, CampaignIntent::DiscardCampaign, CampaignIntent::AddRecipients, CampaignIntent::RemoveRecipient, CampaignIntent::StartCampaign], CampaignPossibilities::given(CampaignStatus::Frozen));
+    }
+
+    public function testAStartedCampaignIsOnlyStopped(): void
+    {
+        $this->assertSame([CampaignIntent::StopCampaign], CampaignPossibilities::given(CampaignStatus::Started));
+    }
+
+    public function testAStoppedCampaignOffersNothing(): void
+    {
+        $this->assertSame([], CampaignPossibilities::given(CampaignStatus::Stopped));
     }
 
     #[DataProvider('offered')]
@@ -84,6 +96,8 @@ final class CampaignTest extends TestCase
             CampaignIntent::FreezeCampaign->name => CampaignFrozen::class,
             CampaignIntent::AddRecipients->name => CampaignRecipientsChanged::class,
             CampaignIntent::RemoveRecipient->name => CampaignRecipientsChanged::class,
+            CampaignIntent::StartCampaign->name => CampaignStarted::class,
+            CampaignIntent::StopCampaign->name => CampaignStopped::class,
         ];
 
         foreach (CampaignStatus::cases() as $status) {
@@ -156,6 +170,8 @@ final class CampaignTest extends TestCase
             CampaignIntent::FreezeCampaign => $campaign->freeze([self::ADA => $this->reachedByEmail('#ESN')], $me, $this->now()),
             CampaignIntent::AddRecipients => $campaign->addRecipient(new PersonId(self::ALAN), $this->reachedByEmail(), new Addressee('Alan', 'Turing', null, null), $me, $this->now()),
             CampaignIntent::RemoveRecipient => $campaign->removeRecipient(new PersonId(self::ADA), $me, $this->now()),
+            CampaignIntent::StartCampaign => $campaign->start($me, $this->now()),
+            CampaignIntent::StopCampaign => $campaign->stop($me, $this->now()),
         };
     }
 
@@ -165,9 +181,18 @@ final class CampaignTest extends TestCase
     private function in(CampaignStatus $status): Campaign
     {
         $campaign = $this->prepared();
+        $me = new MemberId(self::ME);
 
-        if (CampaignStatus::Frozen === $status) {
-            $campaign->freeze([self::ADA => $this->reachedByEmail('#ESN'), self::ALAN => $this->reachedByEmail('#ESN')], new MemberId(self::ME), $this->now());
+        if (CampaignStatus::Draft !== $status) {
+            $campaign->freeze([self::ADA => $this->reachedByEmail('#ESN'), self::ALAN => $this->reachedByEmail('#ESN')], $me, $this->now());
+        }
+
+        if ($status->hasStarted()) {
+            $campaign->start($me, $this->now());
+        }
+
+        if (CampaignStatus::Stopped === $status) {
+            $campaign->stop($me, $this->now());
         }
 
         return $campaign;

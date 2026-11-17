@@ -19,4 +19,8 @@ enum CampaignIntent
     case AddRecipients;
     /** Take a recipient off. */
     case RemoveRecipient;
+    /** Lead it, its recipients and its message as they were frozen. */
+    case StartCampaign;
+    /** Stop leading it, kept for the team to read. */
+    case StopCampaign;
 }

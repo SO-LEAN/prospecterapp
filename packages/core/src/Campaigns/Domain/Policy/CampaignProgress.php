@@ -15,7 +15,7 @@ final class CampaignProgress
     public static function contactedIn(CampaignStatus $status): int
     {
         return match ($status) {
-            CampaignStatus::Draft, CampaignStatus::Frozen => 0,
+            CampaignStatus::Draft, CampaignStatus::Frozen, CampaignStatus::Started, CampaignStatus::Stopped => 0,
         };
     }
 }

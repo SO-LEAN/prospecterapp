@@ -6,12 +6,14 @@ namespace Prospecter\Core\Campaigns\Domain\Model;
 
 /**
  * Where a campaign is in its life (ADR 0144): prepared as a draft, whose target follows the tags of the contacts, then
- * frozen, its recipients kept and changed by hand only.
+ * frozen, its recipients kept and changed by hand only, then started, led as it was frozen, and stopped.
  */
 enum CampaignStatus: string
 {
     case Draft = 'draft';
     case Frozen = 'frozen';
+    case Started = 'started';
+    case Stopped = 'stopped';
 
     /**
      * Whom it targets is the search by its tags as the contacts carry them now, nobody kept.
@@ -20,5 +22,14 @@ enum CampaignStatus: string
     public function followsTheTags(): bool
     {
         return self::Draft === $this;
+    }
+
+    /**
+     * Led, or led once: it no longer changes, and keeps every recipient it had.
+     */
+    #[\NoDiscard]
+    public function hasStarted(): bool
+    {
+        return in_array($this, [self::Started, self::Stopped], true);
     }
 }

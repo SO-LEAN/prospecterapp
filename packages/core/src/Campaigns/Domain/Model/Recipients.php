@@ -86,6 +86,16 @@ final readonly class Recipients
         return new self(array_values(array_filter($this->recipients, static fn (Recipient $recipient): bool => !$recipient->is($contact))));
     }
 
+    /**
+     * A contact PersonalData erased stays among the recipients of a started campaign, without its name, no longer to
+     * handle: what the team did stays told.
+     */
+    #[\NoDiscard]
+    public function erasing(PersonId $contact): self
+    {
+        return new self(array_map(static fn (Recipient $recipient): Recipient => $recipient->is($contact) ? $recipient->erased() : $recipient, $this->recipients));
+    }
+
     #[\NoDiscard]
     public function includes(PersonId $contact): bool
     {
