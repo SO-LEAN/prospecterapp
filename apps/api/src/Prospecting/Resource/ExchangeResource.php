@@ -49,6 +49,8 @@ final readonly class ExchangeResource
         public array $organizationIds,
         #[OA\Property(description: 'How many files are joined to it')]
         public int $attachmentCount,
+        #[OA\Property(description: 'The campaign it was noted in, none for an exchange of no campaign')]
+        public ?CampaignOfExchangeResource $campaign,
         #[SerializedName('_links')]
         #[Context([AbstractObjectNormalizer::SKIP_NULL_VALUES => true])]
         public ExchangeLinksResource $links,

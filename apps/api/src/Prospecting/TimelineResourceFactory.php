@@ -2,6 +2,7 @@
 
 namespace App\Prospecting;
 
+use App\Prospecting\Resource\CampaignOfExchangeResource;
 use App\Prospecting\Resource\ExchangeLinksResource;
 use App\Prospecting\Resource\ExchangeResource;
 use App\Prospecting\Resource\TimelineLinksResource;
@@ -108,6 +109,7 @@ final readonly class TimelineResourceFactory
             toMakeConform: $exchange->toMakeConform,
             organizationIds: $exchange->organizationIds,
             attachmentCount: $exchange->attachmentCount,
+            campaign: null === $exchange->campaignId ? null : new CampaignOfExchangeResource($exchange->campaignId, $exchange->campaignName),
             links: $links,
         );
     }

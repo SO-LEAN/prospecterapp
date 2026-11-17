@@ -212,6 +212,23 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/campaigns/{id}/recipients/{contactId}/exchanges": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Note the exchange had with a recipient of a started campaign, by its channel: the recipient is processed, the campaign ended once nobody is left to handle */
+        post: operations["post_api_campaigns_note_exchange"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/contacts/{id}/exchanges": {
         parameters: {
             query?: never;
@@ -1289,6 +1306,23 @@ export interface paths {
         patch: operations["patch_api_campaigns_revise"];
         trace?: never;
     };
+    "/api/campaigns/{id}/recipients/{contactId}/dismissal": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Dismiss a recipient of a started campaign without an exchange: the campaign ends once nobody is left to handle */
+        post: operations["post_api_campaigns_dismiss_recipient"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/campaigns/{id}/freezing": {
         parameters: {
             query?: never;
@@ -1463,6 +1497,21 @@ export interface components {
             phoneNumber: string | null;
             /** @default null */
             language: string | null;
+        };
+        CampaignExchangeInput: {
+            /**
+             * Format: date-time
+             * @description When it happened, now when left out; never in the future
+             * @default null
+             */
+            occurredAt: string | null;
+            /** @default null */
+            text: string | null;
+            /**
+             * @description Missed: the contact did not answer; a call only, its status then missed
+             * @default false
+             */
+            missed: boolean;
         };
         ExchangeInput: {
             /**
@@ -1820,6 +1869,13 @@ export interface components {
              */
             tags: string[] | null;
         };
+        DismissalInput: {
+            /**
+             * @description Why, when said
+             * @default null
+             */
+            reason: string | null;
+        };
         CampaignInput: {
             /** @default null */
             name: string | null;
@@ -2020,6 +2076,11 @@ export interface components {
             modifiedAt: string;
             _links: components["schemas"]["OrganizationLinksResource"];
         };
+        CampaignOfExchangeResource: {
+            id: string;
+            /** @description Its name, none once the campaign was erased */
+            name?: string | null;
+        };
         ExchangeLinksResource: {
             self: components["schemas"]["LinkResource"];
             move?: components["schemas"]["LinkResource"];
@@ -2068,6 +2129,8 @@ export interface components {
             organizationIds: string[];
             /** @description How many files are joined to it */
             attachmentCount: number;
+            /** @description The campaign it was noted in, none for an exchange of no campaign */
+            campaign?: components["schemas"]["CampaignOfExchangeResource"] | null;
             _links: components["schemas"]["ExchangeLinksResource"];
         };
         TimelineLinksResource: {
@@ -2580,6 +2643,8 @@ export interface components {
         };
         RecipientLinksResource: {
             remove?: components["schemas"]["LinkResource"];
+            noteExchange?: components["schemas"]["LinkResource"];
+            dismiss?: components["schemas"]["LinkResource"];
         };
         RecipientResource: {
             /** @description The contact, none once erased */
@@ -3501,6 +3566,78 @@ export interface operations {
             };
             /** @description The organization has no logo (no removeLogo link) */
             409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ProblemResource"];
+                };
+            };
+        };
+    };
+    post_api_campaigns_note_exchange: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+                contactId: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CampaignExchangeInput"];
+            };
+        };
+        responses: {
+            /** @description The timeline of the contact with the new exchange */
+            201: {
+                headers: {
+                    /** @description The new exchange */
+                    Location?: string;
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["TimelineResource"];
+                };
+            };
+            /** @description Missing or invalid access token */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Not a prospector, or no right to manage personal data */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ProblemResource"];
+                };
+            };
+            /** @description Unknown campaign or of another account, or no recipient of it */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ProblemResource"];
+                };
+            };
+            /** @description The campaign is not started, or the recipient is handled already */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ProblemResource"];
+                };
+            };
+            /** @description A moment in the future, or a missed exchange that is no call */
+            422: {
                 headers: {
                     [name: string]: unknown;
                 };
@@ -7922,6 +8059,65 @@ export interface operations {
             };
             /** @description Without a name or too long, an unknown channel, no tag or more than five with that of the channel, a message too long, a subject for another channel than an e-mail */
             422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ProblemResource"];
+                };
+            };
+        };
+    };
+    post_api_campaigns_dismiss_recipient: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+                contactId: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["DismissalInput"];
+            };
+        };
+        responses: {
+            /** @description Dismissed */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Missing or invalid access token */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Not a prospector, or no right to manage personal data */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ProblemResource"];
+                };
+            };
+            /** @description Unknown campaign or of another account, or no recipient of it */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ProblemResource"];
+                };
+            };
+            /** @description The campaign is not started, or the recipient is handled already */
+            409: {
                 headers: {
                     [name: string]: unknown;
                 };

@@ -954,6 +954,108 @@
                 }
             }
         },
+        "/api/campaigns/{id}/recipients/{contactId}/exchanges": {
+            "post": {
+                "tags": [
+                    "Campaigns"
+                ],
+                "summary": "Note the exchange had with a recipient of a started campaign, by its channel: the recipient is processed, the campaign ended once nobody is left to handle",
+                "operationId": "post_api_campaigns_note_exchange",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "pattern": "[0-9a-f]{8}-[0-9a-f]{4}-[13-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}"
+                        }
+                    },
+                    {
+                        "name": "contactId",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "pattern": "[0-9a-f]{8}-[0-9a-f]{4}-[13-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/CampaignExchangeInput"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "The timeline of the contact with the new exchange",
+                        "headers": {
+                            "Location": {
+                                "description": "The new exchange",
+                                "schema": {
+                                    "type": "string"
+                                }
+                            }
+                        },
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/TimelineResource"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Missing or invalid access token"
+                    },
+                    "403": {
+                        "description": "Not a prospector, or no right to manage personal data",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ProblemResource"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Unknown campaign or of another account, or no recipient of it",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ProblemResource"
+                                }
+                            }
+                        }
+                    },
+                    "409": {
+                        "description": "The campaign is not started, or the recipient is handled already",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ProblemResource"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "A moment in the future, or a missed exchange that is no call",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ProblemResource"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
         "/api/contacts/{id}/exchanges": {
             "get": {
                 "tags": [
@@ -6235,6 +6337,83 @@
                 }
             }
         },
+        "/api/campaigns/{id}/recipients/{contactId}/dismissal": {
+            "post": {
+                "tags": [
+                    "Campaigns"
+                ],
+                "summary": "Dismiss a recipient of a started campaign without an exchange: the campaign ends once nobody is left to handle",
+                "operationId": "post_api_campaigns_dismiss_recipient",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "pattern": "[0-9a-f]{8}-[0-9a-f]{4}-[13-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}"
+                        }
+                    },
+                    {
+                        "name": "contactId",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "pattern": "[0-9a-f]{8}-[0-9a-f]{4}-[13-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/DismissalInput"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "204": {
+                        "description": "Dismissed"
+                    },
+                    "401": {
+                        "description": "Missing or invalid access token"
+                    },
+                    "403": {
+                        "description": "Not a prospector, or no right to manage personal data",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ProblemResource"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Unknown campaign or of another account, or no recipient of it",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ProblemResource"
+                                }
+                            }
+                        }
+                    },
+                    "409": {
+                        "description": "The campaign is not started, or the recipient is handled already",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ProblemResource"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
         "/api/campaigns/{id}/freezing": {
             "post": {
                 "tags": [
@@ -6833,6 +7012,29 @@
                         "type": "string",
                         "nullable": true,
                         "default": null
+                    }
+                },
+                "type": "object"
+            },
+            "CampaignExchangeInput": {
+                "properties": {
+                    "occurredAt": {
+                        "description": "When it happened, now when left out; never in the future",
+                        "type": "string",
+                        "format": "date-time",
+                        "nullable": true,
+                        "default": null
+                    },
+                    "text": {
+                        "type": "string",
+                        "nullable": true,
+                        "default": null,
+                        "maxLength": 5000
+                    },
+                    "missed": {
+                        "description": "Missed: the contact did not answer; a call only, its status then missed",
+                        "type": "boolean",
+                        "default": false
                     }
                 },
                 "type": "object"
@@ -7479,6 +7681,18 @@
                 },
                 "type": "object"
             },
+            "DismissalInput": {
+                "properties": {
+                    "reason": {
+                        "description": "Why, when said",
+                        "type": "string",
+                        "nullable": true,
+                        "default": null,
+                        "maxLength": 500
+                    }
+                },
+                "type": "object"
+            },
             "CampaignInput": {
                 "properties": {
                     "name": {
@@ -8076,6 +8290,22 @@
                 },
                 "type": "object"
             },
+            "CampaignOfExchangeResource": {
+                "required": [
+                    "id"
+                ],
+                "properties": {
+                    "id": {
+                        "type": "string"
+                    },
+                    "name": {
+                        "description": "Its name, none once the campaign was erased",
+                        "type": "string",
+                        "nullable": true
+                    }
+                },
+                "type": "object"
+            },
             "ExchangeLinksResource": {
                 "required": [
                     "self"
@@ -8203,6 +8433,15 @@
                     "attachmentCount": {
                         "description": "How many files are joined to it",
                         "type": "integer"
+                    },
+                    "campaign": {
+                        "description": "The campaign it was noted in, none for an exchange of no campaign",
+                        "nullable": true,
+                        "oneOf": [
+                            {
+                                "$ref": "#/components/schemas/CampaignOfExchangeResource"
+                            }
+                        ]
                     },
                     "_links": {
                         "$ref": "#/components/schemas/ExchangeLinksResource"
@@ -9843,6 +10082,12 @@
                 "properties": {
                     "remove": {
                         "$ref": "#/components/schemas/LinkResource"
+                    },
+                    "noteExchange": {
+                        "$ref": "#/components/schemas/LinkResource"
+                    },
+                    "dismiss": {
+                        "$ref": "#/components/schemas/LinkResource"
                     }
                 },
                 "type": "object"
@@ -10141,6 +10386,9 @@
             "name": "Organizations"
         },
         {
+            "name": "Campaigns"
+        },
+        {
             "name": "Contacts"
         },
         {
@@ -10157,9 +10405,6 @@
         },
         {
             "name": "Tags"
-        },
-        {
-            "name": "Campaigns"
         }
     ]
 }
