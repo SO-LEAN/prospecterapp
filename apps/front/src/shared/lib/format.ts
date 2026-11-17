@@ -37,10 +37,20 @@ export function formatHour(moment: string): string {
 
 const LAST_DAY_SAID_FROM_NOW = 2
 const dayFormat = new Intl.DateTimeFormat('fr-FR', { weekday: 'short', day: 'numeric', month: 'short' })
+const dayOfAnotherYearFormat = new Intl.DateTimeFormat('fr-FR', {
+  weekday: 'short',
+  day: 'numeric',
+  month: 'short',
+  year: 'numeric',
+})
+
+const formatDay = (date: Date, now: Date) =>
+  (date.getFullYear() === now.getFullYear() ? dayFormat : dayOfAnotherYearFormat).format(date)
 
 /**
  * When something is to come, with its hour, in the time of the browser: "aujourd’hui 14h00", "demain 14h00",
- * "après-demain 14h00", then its date, read without counting the days: "lun. 30 nov., 9h00".
+ * "après-demain 14h00", then its date, read without counting the days: "lun. 30 nov., 9h00", its year when it is
+ * not the current one: "jeu. 7 janv. 2027, 9h00".
  */
 export function formatUpcoming(moment: string, now = new Date()): string {
   const date = new Date(moment)
@@ -48,7 +58,7 @@ export function formatUpcoming(moment: string, now = new Date()): string {
 
   return days <= LAST_DAY_SAID_FROM_NOW
     ? `${relativeDayFormat.format(days, 'day')} ${formatHour(moment)}`
-    : `${dayFormat.format(date)}, ${formatHour(moment)}`
+    : `${formatDay(date, now)}, ${formatHour(moment)}`
 }
 
 /** The link that dials a number written with spaces: "+33 3 88 11 22 33" -> "tel:+33388112233" */
