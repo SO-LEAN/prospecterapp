@@ -162,6 +162,13 @@
     "handler": "Prospecter\\Core\\Campaigns\\Application\\ForgetTagsOfForgottenContact\\ForgetTagsOfForgottenContactHandler",
     "inbox": false
   },
+  "campaigns-forget-recipient-of-forgotten-contact": {
+    "context": "campaigns",
+    "sources": ["prospecter.personal-data"],
+    "events": ["ContactForgotten.v1"],
+    "handler": "Prospecter\\Core\\Campaigns\\Application\\ForgetRecipientOfForgottenContact\\ForgetRecipientOfForgottenContactHandler",
+    "inbox": false
+  },
   "campaigns-record-facts": {
     "context": "campaigns",
     "sources": ["prospecter.prospecting", "prospecter.personal-data"],

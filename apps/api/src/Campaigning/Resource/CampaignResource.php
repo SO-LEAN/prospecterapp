@@ -30,13 +30,13 @@ final readonly class CampaignResource
         public string $message,
         #[OA\Property(description: 'The subject of an e-mail')]
         public ?string $subject,
-        #[OA\Property(enum: ['draft'])]
+        #[OA\Property(enum: ['draft', 'frozen'])]
         public string $status,
         #[OA\Property(description: 'Who prepared it')]
         public AuthorResource $author,
-        #[OA\Property(description: 'How many contacts of its target were contacted, none in a draft')]
+        #[OA\Property(description: 'How many contacts of its target were contacted, none before it is started')]
         public int $contacted,
-        #[OA\Property(description: 'How many contacts it targets now')]
+        #[OA\Property(description: 'How many contacts it targets: those its search finds now while a draft, its recipients once frozen')]
         public int $targeted,
         #[SerializedName('_links')]
         #[Context([AbstractObjectNormalizer::SKIP_NULL_VALUES => true])]

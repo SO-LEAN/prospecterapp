@@ -148,6 +148,7 @@ Every event, domain or integration, travels as an EventBridge event:
 | `connectors-push-upcoming-exchanges` | `Connected`, `CalendarRecreated` (.internal) | yes | the exchanges the member still has planned pushed into their calendar « Prospecter » at Google, the 40 soonest (ADR 0133) |
 | `campaigns-forget-tags-of-unprospected-organization` | `OrganizationFactsChanged`, only the terminal ones (`payload`) | no | the tags of an organization no longer prospected forgotten (ADR 0138) |
 | `campaigns-forget-tags-of-forgotten-contact` | `ContactForgotten` | no | the tags of the contact forgotten (ADR 0138) |
+| `campaigns-forget-recipient-of-forgotten-contact` | `ContactForgotten` | no | the contact forgotten leaves the recipients of the frozen campaigns keeping it |
 | `campaigns-record-facts` | `OrganizationFactsChanged` (.v2), `ContactFactsChanged` (.v2) | no | the facts the tags of the contacts derive from, a reaction per detail-type: the contacts an organization names, how a contact is reached (ADR 0141) |
 | `connectors-push-exchange` | `ExchangeFactsChanged` (.v2), only those of an exchange planned, cancelled or erased (`payload`) | yes | the exchange read again from Prospecting, pushed into or withdrawn from the calendar « Prospecter » of its holder at Google (ADR 0127) |
 
