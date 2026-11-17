@@ -11,6 +11,7 @@ use Behat\Step\Then;
 use Behat\Step\When;
 use Prospecter\Core\Accounts\Domain\Model\Role;
 use Prospecter\Core\Campaigns\Application\SearchContactsByTags\SearchContactsByTags;
+use Prospecter\Core\PersonalData\Application\ChangeCivility\ChangeCivility;
 use Prospecter\Core\PersonalData\Application\ChangeJobTitle\ChangeJobTitle;
 use Prospecter\Core\PersonalData\Application\CollectContact\CollectContact;
 use Prospecter\Core\PersonalData\Application\ConsultPerson\ConsultPerson;
@@ -20,6 +21,7 @@ use Prospecter\Core\PersonalData\Application\PersonCard;
 use Prospecter\Core\PersonalData\Application\RenamePerson\RenamePerson;
 use Prospecter\Core\PersonalData\Application\SearchContacts\ContactPage;
 use Prospecter\Core\PersonalData\Application\SearchContacts\SearchContacts;
+use Prospecter\Core\PersonalData\Domain\Model\Civility;
 use Prospecter\Core\PersonalData\Domain\Model\LinkedInProfile;
 use Prospecter\Core\PersonalData\Domain\Model\Person;
 use Prospecter\Core\PersonalData\Domain\Model\PersonName;
@@ -97,6 +99,14 @@ final class PersonalDataContext implements Context
     {
         $person = $this->scenario->personNamed($name);
         $person->changeContactDetails($person->contactDetails(), new LinkedInProfile($profile), by: $this->scenario->managerOfPersonalDataOf($person->accountId()), at: $this->application->now());
+        $this->application->persons->save($person);
+    }
+
+    #[Given(':name a la civilité :civility')]
+    public function aPersonWithTheCivility(string $name, string $civility): void
+    {
+        $person = $this->scenario->personNamed($name);
+        $person->changeCivility(Civility::from((string) Vocabulary::civility($civility)), by: $this->scenario->managerOfPersonalDataOf($person->accountId()), at: $this->application->now());
         $this->application->persons->save($person);
     }
 
@@ -191,6 +201,18 @@ final class PersonalDataContext implements Context
         $this->application->dispatch(new ChangeJobTitle($this->application->signedIn(), $this->scenario->personIdOf($name), $jobTitle, $this->application->now()));
     }
 
+    #[When('je change la civilité de :name en :civility')]
+    public function iChangeTheCivility(string $name, string $civility): void
+    {
+        $this->application->dispatch(new ChangeCivility($this->application->signedIn(), $this->scenario->personIdOf($name), Vocabulary::civility($civility), $this->application->now()));
+    }
+
+    #[When('je retire la civilité de :name')]
+    public function iRemoveTheCivility(string $name): void
+    {
+        $this->application->dispatch(new ChangeCivility($this->application->signedIn(), $this->scenario->personIdOf($name), null, $this->application->now()));
+    }
+
     #[When('j\'efface la fiche de :name')]
     #[When('j\'efface le contact :name')]
     public function iForget(string $name): void
@@ -238,6 +260,13 @@ final class PersonalDataContext implements Context
         Expect::that(null !== $this->consulted, 'The person was expected');
         Expect::that($this->consulted->masked, 'The person was expected masked');
         Expect::same('***', $this->consulted->linkedInProfile);
+    }
+
+    #[Then('sa civilité n\'est pas renseignée')]
+    public function theCivilityIsNotNoted(): void
+    {
+        Expect::that(null !== $this->consulted, sprintf('The person was expected, got: %s', $this->application->refusal()?->getMessage()));
+        Expect::same(null, $this->consulted->civility);
     }
 
     #[Then('je vois les fiches :')]
@@ -303,6 +332,13 @@ final class PersonalDataContext implements Context
         Expect::same($table->getColumn(0), Vocabulary::describeIntents($this->consulted->possibleIntents));
     }
 
+    #[Then('je ne peux pas sur sa fiche :intent')]
+    public function iMayNotOnThePerson(string $intent): void
+    {
+        Expect::that(null !== $this->consulted, 'The person was expected');
+        Expect::that(!in_array($intent, Vocabulary::describeIntents($this->consulted->possibleIntents), true), sprintf('"%s" was not expected', $intent));
+    }
+
     /**
      * @param list<string> $organizationIds
      */
@@ -310,7 +346,7 @@ final class PersonalDataContext implements Context
     {
         $values = Vocabulary::values($table->getRowsHash());
         $id = $this->application->newIdentity();
-        $this->application->dispatch(new CollectContact($this->application->signedIn(), $id, $values['prénom'], $values['nom'], $values['fonction'], $values['e-mail'], $values['téléphone'], $values['langue'], $values['LinkedIn'], $organizationIds, $this->application->now()));
+        $this->application->dispatch(new CollectContact($this->application->signedIn(), $id, $values['prénom'], $values['nom'], Vocabulary::civility($values['Civilité']), $values['fonction'], $values['e-mail'], $values['téléphone'], $values['langue'], $values['LinkedIn'], $organizationIds, $this->application->now()));
 
         if (null === $this->application->refusal()) {
             $this->scenario->rememberPerson($name, new PersonId($id));
@@ -323,6 +359,7 @@ final class PersonalDataContext implements Context
     private function describe(PersonCard $person): array
     {
         return [
+            'Civilité' => Vocabulary::describeCivility($person->civility),
             'prénom' => (string) $person->firstName,
             'nom' => (string) $person->lastName,
             'fonction' => (string) $person->jobTitle,
