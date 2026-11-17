@@ -27,6 +27,7 @@ final readonly class ContactInListResourceFactory
         return new ContactInListResource(
             id: $contact->id,
             name: new PersonNameResource($contact->firstName, $contact->lastName),
+            civility: $contact->civility,
             jobTitle: $contact->jobTitle,
             contactDetails: PersonContactDetailsResource::of($contact),
             masked: $contact->masked,

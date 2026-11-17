@@ -14,6 +14,8 @@ final readonly class ContactLinksResource
         #[OA\Property(nullable: false)]
         public ?LinkResource $changeJobTitle = null,
         #[OA\Property(nullable: false)]
+        public ?LinkResource $changeCivility = null,
+        #[OA\Property(nullable: false)]
         public ?LinkResource $changeContactDetails = null,
         #[OA\Property(nullable: false)]
         public ?LinkResource $forget = null,

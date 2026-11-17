@@ -19,6 +19,8 @@ final readonly class ContactInListResource
     public function __construct(
         public string $id,
         public PersonNameResource $name,
+        #[OA\Property(description: 'How one addresses the contact, read in clear like their name', enum: ['madame', 'monsieur'], nullable: true)]
+        public ?string $civility,
         public ?string $jobTitle,
         public PersonContactDetailsResource $contactDetails,
         public bool $masked,

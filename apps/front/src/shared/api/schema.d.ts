@@ -404,6 +404,23 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/contacts/{id}/civility": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        /** Note how one addresses a contact, Madame or Monsieur, or no longer */
+        patch: operations["patch_api_contacts_change_civility"];
+        trace?: never;
+    };
     "/api/contacts/{id}/contact-details": {
         parameters: {
             query?: never;
@@ -1535,12 +1552,26 @@ export interface components {
             /** @default null */
             observations: string | null;
         };
+        CivilityInput: {
+            /**
+             * @description How one addresses the contact, null to no longer note it
+             * @default null
+             * @enum {string|null}
+             */
+            civility: "madame" | "monsieur" | null;
+        };
         JobTitleInput: {
             /** @default null */
             jobTitle: string | null;
         };
         CollectContactInput: {
             name?: components["schemas"]["PersonNameInput"];
+            /**
+             * @description How one addresses the contact, never required
+             * @default null
+             * @enum {string|null}
+             */
+            civility: "madame" | "monsieur" | null;
             /** @default null */
             jobTitle: string | null;
             contactDetails?: components["schemas"]["PersonContactDetailsInput"];
@@ -1933,6 +1964,11 @@ export interface components {
         OrganizationContactResource: {
             id: string;
             name: components["schemas"]["PersonNameResource"];
+            /**
+             * @description How one addresses the contact, read in clear like their name
+             * @enum {string|null}
+             */
+            civility?: "madame" | "monsieur" | null;
             jobTitle?: string | null;
             contactDetails: components["schemas"]["PersonContactDetailsResource"];
             masked: boolean;
@@ -2082,6 +2118,7 @@ export interface components {
             self: components["schemas"]["LinkResource"];
             rename?: components["schemas"]["LinkResource"];
             changeJobTitle?: components["schemas"]["LinkResource"];
+            changeCivility?: components["schemas"]["LinkResource"];
             changeContactDetails?: components["schemas"]["LinkResource"];
             forget?: components["schemas"]["LinkResource"];
             exchanges?: components["schemas"]["LinkResource"];
@@ -2091,6 +2128,11 @@ export interface components {
         ContactResource: {
             id: string;
             name: components["schemas"]["PersonNameResource"];
+            /**
+             * @description How one addresses the contact, read in clear like their name
+             * @enum {string|null}
+             */
+            civility?: "madame" | "monsieur" | null;
             jobTitle?: string | null;
             contactDetails: components["schemas"]["PersonContactDetailsResource"];
             /** @description The data are masked, but the name of a contact: the reader has no right to read personal data in clear */
@@ -2105,6 +2147,11 @@ export interface components {
         ContactInListResource: {
             id: string;
             name: components["schemas"]["PersonNameResource"];
+            /**
+             * @description How one addresses the contact, read in clear like their name
+             * @enum {string|null}
+             */
+            civility?: "madame" | "monsieur" | null;
             jobTitle?: string | null;
             contactDetails: components["schemas"]["PersonContactDetailsResource"];
             masked: boolean;
@@ -4263,6 +4310,66 @@ export interface operations {
             };
             /** @description Unknown contact, or one of another account */
             404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ProblemResource"];
+                };
+            };
+        };
+    };
+    patch_api_contacts_change_civility: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CivilityInput"];
+            };
+        };
+        responses: {
+            /** @description The contact */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ContactResource"];
+                };
+            };
+            /** @description Missing or invalid access token */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Not a prospector, or no right to manage personal data */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ProblemResource"];
+                };
+            };
+            /** @description Unknown contact, or one of another account */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ProblemResource"];
+                };
+            };
+            /** @description Unknown civility */
+            422: {
                 headers: {
                     [name: string]: unknown;
                 };
