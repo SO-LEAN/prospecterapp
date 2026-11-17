@@ -24,6 +24,16 @@ Fonctionnalité: Publier les faits de Prospecting
       | ville | Nulle-part |
     Alors le fait publié de "ACME" est présente, non géolocalisée, révision 2
 
+  Scénario: Une organisation publie la commune où le géocodeur la trouve et le pays de son adresse
+    Soit le géocodeur connaît les communes :
+      | lieu   | commune |
+      | Colmar | 68066   |
+    Quand je commence à prospecter l'organisation :
+      | raison sociale | ACME   |
+      | ville          | Colmar |
+      | pays           | FR     |
+    Alors la commune publiée de "ACME" est "68066", en "FR"
+
   Scénario: Une organisation qu'on arrête de prospecter donne un fait terminal
     Soit l'organisation "ACME" fait partie de mes organisations avec :
       | ville | Strasbourg |

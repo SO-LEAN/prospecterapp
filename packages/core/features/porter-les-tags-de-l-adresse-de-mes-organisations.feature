@@ -6,15 +6,14 @@ Fonctionnalité: Les tags géographiques
 
   Contexte:
     Soit le géocodeur connaît les communes :
-      | lieu                             | commune |
-      | Strasbourg                       | 67482   |
-      | Illkirch-Graffenstaden           | 67218   |
-      | Boulogne-Billancourt             | 92012   |
-      | Paris                            | 75102   |
-      | Toulouse                         | 31555   |
-      | Wissembourg                      | 67544   |
-      | Lyon                             | 69382   |
-      | Rue de la Loi 16, 1000 Bruxelles | 44109   |
+      | lieu                   | commune |
+      | Strasbourg             | 67482   |
+      | Illkirch-Graffenstaden | 67218   |
+      | Boulogne-Billancourt   | 92012   |
+      | Paris                  | 75102   |
+      | Toulouse               | 31555   |
+      | Wissembourg            | 67544   |
+      | Lyon                   | 69382   |
     Et l'organisation "SOLEAN IT" qui utilise Prospecter
     Et l'organisation "ACME" appartient à "SOLEAN IT"
     Et le contact "Ada Lovelace" de "ACME"
@@ -54,6 +53,7 @@ Fonctionnalité: Les tags géographiques
     Alors "ACME" n'a aucun tag géographique
 
   Scénario: Une adresse d'un autre pays ne donne aucun tag géographique, même si le géocodeur la trouve en France
+    Soit le géocodeur trouve "Rue de la Loi 16" à Nantes (44109)
     Quand je déménage "ACME" au "Rue de la Loi 16, 1000 Bruxelles, BE"
     Alors "ACME" n'a aucun tag géographique
 
@@ -90,6 +90,17 @@ Fonctionnalité: Les tags géographiques
     Et "Ada Lovelace" porte "#STRASBOURG #67 #GRAND_EST"
     Quand les organisations situées sans code commune sont géocodées à nouveau
     Alors aucune organisation n'a été géocodée à nouveau
+
+  Scénario: Une organisation qui a son code commune ne le reçoit pas à nouveau
+    Soit "ACME" est située à Strasbourg
+    Et le géocodeur trouve "Strasbourg" à Toulouse (31555)
+    Quand "ACME" est géocodée à nouveau
+    Alors "ACME" est située "#STRASBOURG #67 #GRAND_EST"
+
+  Scénario: Les tags géographiques de mes organisations sont ceux de mon compte, à chercher
+    Soit "ACME" est située à Strasbourg
+    Et l'organisation "Globex" appartient à "SOLEAN IT", située à Toulouse
+    Alors les tags automatiques de mon compte sont "#EMAIL #PHONE #SMS #LINKEDIN #31 #67 #GRAND_EST #OCCITANIE #STRASBOURG #TOULOUSE"
 
   Scénario: Le nom d'une grande aire est un tag automatique
     Quand je tague "ACME" avec "#STRASBOURG"

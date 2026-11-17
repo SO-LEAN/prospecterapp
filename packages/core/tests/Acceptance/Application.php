@@ -210,6 +210,8 @@ use Prospecter\Core\Prospecting\Application\KeptTimeline;
 use Prospecter\Core\Prospecting\Application\KeptToDoList;
 use Prospecter\Core\Prospecting\Application\ListExchangeFacts\ListExchangeFactsHandler;
 use Prospecter\Core\Prospecting\Application\ListOrganizationFacts\ListOrganizationFactsHandler;
+use Prospecter\Core\Prospecting\Application\LocateAgain\LocateAgain;
+use Prospecter\Core\Prospecting\Application\LocateAgain\LocateAgainHandler;
 use Prospecter\Core\Prospecting\Application\MarkExchangeDone\MarkExchangeDoneHandler;
 use Prospecter\Core\Prospecting\Application\MarkExchangeMissed\MarkExchangeMissedHandler;
 use Prospecter\Core\Prospecting\Application\MoveExchange\MoveExchangeHandler;
@@ -333,6 +335,7 @@ use Tests\Core\Double\InMemoryOrganizationFactsRetriever;
 use Tests\Core\Double\InMemoryOrganizationOfContactRetriever;
 use Tests\Core\Double\InMemoryOrganizationRepository;
 use Tests\Core\Double\InMemoryOrganizationSheetRetriever;
+use Tests\Core\Double\InMemoryOrganizationsToLocateAgainRetriever;
 use Tests\Core\Double\InMemoryPersonCardRetriever;
 use Tests\Core\Double\InMemoryPersonRepository;
 use Tests\Core\Double\InMemoryPrivateStorage;
@@ -720,14 +723,29 @@ final class Application
         return $this->ask($handler, new ConsultMyAccountClients($this->signedIn()), $kept) ? $kept : null;
     }
 
-    /**
-     * @return list<string>|null
-     */
-    public function consultOrganizationTags(ConsultOrganizationTags $query): ?array
+    public function consultOrganizationTags(ConsultOrganizationTags $query): ?KeptOrganizationTags
     {
         $kept = new KeptOrganizationTags();
 
-        return $this->ask(new ConsultOrganizationTagsHandler($this->tagsRetriever, $this->taggers, $this->taggableHolders), $query, $kept) ? $kept->tags : null;
+        return $this->ask(new ConsultOrganizationTagsHandler($this->tagsRetriever, $this->taggers, $this->taggableHolders), $query, $kept) ? $kept : null;
+    }
+
+    /**
+     * Each organization located without its municipality geocoded again, as the command of the console does it (ADR
+     * 0142).
+     *
+     * @return int how many were
+     */
+    public function locateOrganizationsAgain(): int
+    {
+        $located = 0;
+
+        foreach (new InMemoryOrganizationsToLocateAgainRetriever($this->database)->all() as $organization) {
+            $this->dispatch(new LocateAgain($organization, $this->now));
+            ++$located;
+        }
+
+        return $located;
     }
 
     public function consultContactTags(ConsultContactTags $query): ?KeptContactTags
@@ -985,6 +1003,7 @@ final class Application
             new ReviseLegalIdentityHandler($this->organizations, $this->events),
             new ChangeContactDetailsHandler($this->organizations, $this->events, $this->organizationEmails),
             new RelocateHandler($this->organizations, $this->events, $this->geoLocalizer),
+            new LocateAgainHandler($this->organizations, $this->events, $this->geoLocalizer),
             new WriteObservationsHandler($this->organizations, $this->events),
             new AttachToHoldingHandler($this->organizations, $this->events),
             new DetachFromHoldingHandler($this->organizations, $this->events),

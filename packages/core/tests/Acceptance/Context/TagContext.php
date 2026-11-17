@@ -156,7 +156,7 @@ final class TagContext implements Context
     private function tagsOf(string $holder): array
     {
         if ($this->scenario->isAnOrganization($holder)) {
-            return $this->application->consultOrganizationTags(new ConsultOrganizationTags($this->application->signedIn(), $this->scenario->idOf($holder))) ?? [];
+            return $this->application->consultOrganizationTags(new ConsultOrganizationTags($this->application->signedIn(), $this->scenario->idOf($holder)))->tags ?? [];
         }
 
         return $this->application->consultContactTags(new ConsultContactTags($this->application->signedIn(), [$this->scenario->personIdOf($holder)]))?->contacts[0]->own ?? [];

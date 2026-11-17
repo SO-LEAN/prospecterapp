@@ -35,10 +35,12 @@ final readonly class InMemoryContactTagsRetriever implements ContactTagsRetrieve
     {
         $facts = $this->database->campaignsFactsOf($accountId->value);
         $byOrganization = [];
+        $localities = [];
 
         foreach ($facts as $fact) {
             if ($fact instanceof OrganizationFact && array_any($fact->contacts, $contact->equals(...))) {
                 $byOrganization[$fact->id->value] = $this->tagNamesOf($accountId, Holder::organization($fact->id));
+                $localities[$fact->id->value] = ['municipalityCode' => $fact->locality->municipalityCode, 'country' => $fact->locality->country];
             }
         }
 
@@ -49,6 +51,7 @@ final readonly class InMemoryContactTagsRetriever implements ContactTagsRetrieve
             $this->tagNamesOf($accountId, Holder::contact($contact)),
             $byOrganization,
             null === $reach ? null : ['email' => $reach->email, 'phone' => $reach->phone, 'mobile' => $reach->mobile, 'linkedIn' => $reach->linkedIn],
+            $localities,
         );
     }
 

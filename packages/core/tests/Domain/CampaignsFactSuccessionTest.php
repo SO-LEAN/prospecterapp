@@ -6,6 +6,7 @@ namespace Tests\Core\Domain;
 
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
+use Prospecter\Core\Campaigns\Domain\Model\Locality;
 use Prospecter\Core\Campaigns\Domain\Model\OrganizationFact;
 use Prospecter\Core\Campaigns\Domain\Policy\FactSuccession;
 use Prospecter\Core\SharedKernel\Domain\AccountId;
@@ -42,11 +43,11 @@ final class CampaignsFactSuccessionTest extends TestCase
 
     private static function present(int $revision): OrganizationFact
     {
-        return new OrganizationFact(new AccountId(self::ACCOUNT), new OrganizationId(self::ACME), $revision, true, []);
+        return new OrganizationFact(new AccountId(self::ACCOUNT), new OrganizationId(self::ACME), $revision, true, [], Locality::unknown());
     }
 
     private static function terminal(): OrganizationFact
     {
-        return new OrganizationFact(new AccountId(self::ACCOUNT), new OrganizationId(self::ACME), self::TERMINAL, false, []);
+        return new OrganizationFact(new AccountId(self::ACCOUNT), new OrganizationId(self::ACME), self::TERMINAL, false, [], Locality::unknown());
     }
 }
