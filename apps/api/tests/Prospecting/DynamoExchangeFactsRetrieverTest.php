@@ -14,8 +14,10 @@ use Prospecter\Core\Prospecting\Domain\Model\ExchangeFacts;
 use Prospecter\Core\Prospecting\Domain\Model\ExchangeId;
 use Prospecter\Core\Prospecting\Domain\Model\ExchangeStatus;
 use Prospecter\Core\Prospecting\Domain\Model\Prospector;
+use Prospecter\Core\Prospecting\Domain\Model\RecipientInCampaign;
 use Prospecter\Core\Prospecting\Domain\Repository\ExchangeRepository;
 use Prospecter\Core\SharedKernel\Domain\AccountId;
+use Prospecter\Core\SharedKernel\Domain\CampaignId;
 use Prospecter\Core\SharedKernel\Domain\MemberId;
 use Prospecter\Core\SharedKernel\Domain\OrganizationId;
 use Prospecter\Core\SharedKernel\Domain\PersonId;
@@ -28,6 +30,7 @@ use Tests\App\Base\ApiTestCase;
 class DynamoExchangeFactsRetrieverTest extends ApiTestCase
 {
     private const string NOW = '2026-10-18 19:00 UTC';
+    private const string CONTACT = '0190a1c0-0000-7000-8000-00000000c0c0';
 
     private Prospector $prospector;
 
@@ -45,7 +48,18 @@ class DynamoExchangeFactsRetrieverTest extends ApiTestCase
         $exchange->correct(new ExchangeFacts(Channel::Call, Direction::Inbound, new \DateTimeImmutable('2026-10-09 08:00 UTC')), ExchangeStatus::Done, by: $this->prospector->id, at: new \DateTimeImmutable(self::NOW));
         $this->exchanges()->save($exchange);
 
-        $this->assertEquals(new ExchangeFactsResponse($exchange->id()->value, 2, true, 'done', new \DateTimeImmutable('2026-10-09 08:00 UTC')), $this->retriever()->of($exchange->id()));
+        $this->assertEquals(new ExchangeFactsResponse($exchange->id()->value, 2, true, 'done', new \DateTimeImmutable('2026-10-09 08:00 UTC'), self::CONTACT), $this->retriever()->of($exchange->id()));
+    }
+
+    public function testAnExchangeNotedInACampaignNamesItsCampaignAndItsContact(): void
+    {
+        $campaign = new CampaignId(self::newIdentity());
+        $recipient = new RecipientInCampaign($campaign, new PersonId(self::CONTACT), Channel::Call, running: true, recipient: true, pending: true);
+        $exchange = Exchange::notedInACampaign($this->prospector->accountId, $this->prospector->id, new ExchangeId(self::newIdentity()), $recipient, [new OrganizationId(self::newIdentity())], new \DateTimeImmutable('2026-10-10 09:00 UTC'), null, true, new \DateTimeImmutable(self::NOW));
+
+        $this->exchanges()->save($exchange);
+
+        $this->assertEquals(new ExchangeFactsResponse($exchange->id()->value, 1, true, 'missed', new \DateTimeImmutable('2026-10-10 09:00 UTC'), self::CONTACT, $campaign->value), $this->retriever()->of($exchange->id()));
     }
 
     public function testARemovedExchangeIsAbsent(): void
@@ -99,7 +113,7 @@ class DynamoExchangeFactsRetrieverTest extends ApiTestCase
 
     private function noted(string $occurredAt): Exchange
     {
-        return Exchange::notedWithAContact($this->prospector->accountId, $this->prospector->id, new ExchangeId(self::newIdentity()), new PersonId(self::newIdentity()), [new OrganizationId(self::newIdentity())], new ExchangeFacts(Channel::Call, Direction::Inbound, new \DateTimeImmutable($occurredAt)), ExchangeStatus::Done, new \DateTimeImmutable(self::NOW));
+        return Exchange::notedWithAContact($this->prospector->accountId, $this->prospector->id, new ExchangeId(self::newIdentity()), new PersonId(self::CONTACT), [new OrganizationId(self::newIdentity())], new ExchangeFacts(Channel::Call, Direction::Inbound, new \DateTimeImmutable($occurredAt)), ExchangeStatus::Done, new \DateTimeImmutable(self::NOW));
     }
 
     private function exchanges(): ExchangeRepository

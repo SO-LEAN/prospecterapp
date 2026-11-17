@@ -76,7 +76,19 @@ class EventCodecTest extends TestCase
     {
         $facts = new ExchangeFactsChanged(self::ID, self::ID, self::REVISION, true, 'planned', new \DateTimeImmutable(self::MOMENT), new \DateTimeImmutable(self::MOMENT));
 
-        $this->assertSame('ExchangeFactsChanged.v2', $this->codec()->encode($facts, new Cause(self::ID, null, 0))->detailType);
+        $this->assertSame('ExchangeFactsChanged.v3', $this->codec()->encode($facts, new Cause(self::ID, null, 0))->detailType);
+    }
+
+    public function testTheFactsOfAnExchangePublishedBeforeTheyNamedItsContactAndItsCampaignAreReadWithoutThem(): void
+    {
+        $former = new TransportedEvent('prospecter.prospecting', 'ExchangeFactsChanged.v2', self::ID, self::MOMENT_OF_THE_BUS, self::ID, null, 0, [
+            'accountId' => self::ID, 'exchangeId' => self::ID, 'revision' => self::REVISION, 'present' => true, 'status' => 'done', 'notedAt' => self::MOMENT_OF_THE_BUS, 'occurredAt' => self::MOMENT_OF_THE_BUS,
+        ]);
+
+        $this->assertEquals(
+            new ExchangeFactsChanged(self::ID, self::ID, self::REVISION, true, 'done', new \DateTimeImmutable(self::MOMENT_OF_THE_BUS), new \DateTimeImmutable(self::MOMENT_OF_THE_BUS)),
+            $this->codec()->decode($former),
+        );
     }
 
     public function testTheFactsPublishedBeforeTheyToldTheContactsAndTheReachAreReadWithoutThem(): void

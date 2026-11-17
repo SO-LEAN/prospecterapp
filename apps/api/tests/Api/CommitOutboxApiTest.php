@@ -68,7 +68,7 @@ class CommitOutboxApiTest extends ApiTestCase
         $this->requestJson('POST', '/api/contacts/'.$this->contact.'/exchanges', ['channel' => 'call', 'direction' => 'inbound', 'occurredAt' => '2026-10-10T09:00:00+00:00']);
 
         $events = json_decode($this->outboxOf('prospecting')[0]['events'], true, flags: \JSON_THROW_ON_ERROR);
-        $facts = array_values(array_filter($events, static fn (array $event): bool => 'ExchangeFactsChanged.v2' === $event['detailType']));
+        $facts = array_values(array_filter($events, static fn (array $event): bool => 'ExchangeFactsChanged.v3' === $event['detailType']));
         $this->assertCount(1, $facts);
         $this->assertSame(
             ['revision' => 1, 'present' => true, 'status' => 'done', 'notedAt' => '2026-10-10T09:00:00.000000Z'],

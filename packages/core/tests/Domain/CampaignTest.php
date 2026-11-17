@@ -13,6 +13,7 @@ use Prospecter\Core\Campaigns\Domain\Event\CampaignRecipientsChanged;
 use Prospecter\Core\Campaigns\Domain\Event\CampaignRevised;
 use Prospecter\Core\Campaigns\Domain\Event\CampaignStarted;
 use Prospecter\Core\Campaigns\Domain\Event\CampaignStopped;
+use Prospecter\Core\Campaigns\Domain\Event\RecipientDismissed;
 use Prospecter\Core\Campaigns\Domain\Exception\CampaignWithoutRecipient;
 use Prospecter\Core\Campaigns\Domain\Model\Addressee;
 use Prospecter\Core\Campaigns\Domain\Model\Campaign;
@@ -23,6 +24,8 @@ use Prospecter\Core\Campaigns\Domain\Model\Channel;
 use Prospecter\Core\Campaigns\Domain\Model\ContactTags;
 use Prospecter\Core\Campaigns\Domain\Model\MessageTemplate;
 use Prospecter\Core\Campaigns\Domain\Model\Reach;
+use Prospecter\Core\Campaigns\Domain\Model\Recipient;
+use Prospecter\Core\Campaigns\Domain\Model\RecipientStatus;
 use Prospecter\Core\Campaigns\Domain\Model\Tag;
 use Prospecter\Core\Campaigns\Domain\Model\Targeting;
 use Prospecter\Core\Campaigns\Domain\Policy\CampaignPossibilities;
@@ -80,14 +83,48 @@ final class CampaignTest extends TestCase
         $campaign->start(new MemberId(self::ME), $this->now());
     }
 
-    public function testAStartedCampaignIsOnlyStopped(): void
+    public function testAStartedCampaignIsRunAndStopped(): void
     {
-        $this->assertSame([CampaignIntent::StopCampaign], CampaignPossibilities::given(CampaignStatus::Started, hasRecipients: true));
+        $this->assertSame([CampaignIntent::RunCampaign, CampaignIntent::StopCampaign], CampaignPossibilities::given(CampaignStatus::Started, hasRecipients: true));
     }
 
     public function testAStoppedCampaignOffersNothing(): void
     {
         $this->assertSame([], CampaignPossibilities::given(CampaignStatus::Stopped, hasRecipients: true));
+    }
+
+    public function testAnEndedCampaignOffersNothing(): void
+    {
+        $this->assertSame([], CampaignPossibilities::given(CampaignStatus::Ended, hasRecipients: true));
+    }
+
+    public function testDismissingTheLastRecipientToHandleEndsTheCampaign(): void
+    {
+        $campaign = $this->in(CampaignStatus::Started);
+        $campaign->process(new PersonId(self::ADA), missed: true, at: $this->now());
+
+        $campaign->dismiss(new PersonId(self::ALAN), 'Parti', new MemberId(self::ME), $this->later());
+
+        $this->assertEquals([CampaignStatus::Ended, $this->later()], [StateOf::the($campaign)['status'], StateOf::the($campaign)['endedAt']]);
+    }
+
+    public function testProcessingARecipientHandledAlreadyChangesNothing(): void
+    {
+        $campaign = $this->in(CampaignStatus::Started);
+        $campaign->dismiss(new PersonId(self::ADA), null, new MemberId(self::ME), $this->now());
+
+        $campaign->process(new PersonId(self::ADA), missed: true, at: $this->now());
+
+        $this->assertEquals([new Recipient(new PersonId(self::ADA), RecipientStatus::Dismissed), Recipient::pending(new PersonId(self::ALAN))], StateOf::the($campaign)['recipients']->recipients);
+    }
+
+    public function testAStoppedCampaignProcessesNobody(): void
+    {
+        $campaign = $this->in(CampaignStatus::Stopped);
+
+        $campaign->process(new PersonId(self::ADA), missed: false, at: $this->now());
+
+        $this->assertTrue(StateOf::the($campaign)['recipients']->recipients[0]->isPending());
     }
 
     #[DataProvider('offered')]
@@ -98,7 +135,11 @@ final class CampaignTest extends TestCase
 
         $this->exercise($campaign, $intent);
 
-        $this->assertEquals([new $event(new AccountId(self::ACCOUNT), new MemberId(self::ME), new CampaignId(self::CAMPAIGN), $this->now())], $campaign->releaseEvents());
+        $expected = RecipientDismissed::class === $event
+            ? new RecipientDismissed(new AccountId(self::ACCOUNT), new MemberId(self::ME), new CampaignId(self::CAMPAIGN), new PersonId(self::ADA), $this->now())
+            : new $event(new AccountId(self::ACCOUNT), new MemberId(self::ME), new CampaignId(self::CAMPAIGN), $this->now());
+
+        $this->assertEquals([$expected], $campaign->releaseEvents());
     }
 
     /**
@@ -114,6 +155,7 @@ final class CampaignTest extends TestCase
             CampaignIntent::RemoveRecipient->name => CampaignRecipientsChanged::class,
             CampaignIntent::StartCampaign->name => CampaignStarted::class,
             CampaignIntent::StopCampaign->name => CampaignStopped::class,
+            CampaignIntent::RunCampaign->name => RecipientDismissed::class,
         ];
 
         foreach (CampaignStatus::cases() as $status) {
@@ -188,6 +230,7 @@ final class CampaignTest extends TestCase
             CampaignIntent::RemoveRecipient => $campaign->removeRecipient(new PersonId(self::ADA), $me, $this->now()),
             CampaignIntent::StartCampaign => $campaign->start($me, $this->now()),
             CampaignIntent::StopCampaign => $campaign->stop($me, $this->now()),
+            CampaignIntent::RunCampaign => $campaign->dismiss(new PersonId(self::ADA), null, $me, $this->now()),
         };
     }
 
@@ -209,6 +252,11 @@ final class CampaignTest extends TestCase
 
         if (CampaignStatus::Stopped === $status) {
             $campaign->stop($me, $this->now());
+        }
+
+        if (CampaignStatus::Ended === $status) {
+            $campaign->dismiss(new PersonId(self::ADA), null, $me, $this->now());
+            $campaign->dismiss(new PersonId(self::ALAN), null, $me, $this->now());
         }
 
         return $campaign;
@@ -235,5 +283,10 @@ final class CampaignTest extends TestCase
     private function now(): \DateTimeImmutable
     {
         return new \DateTimeImmutable(self::NOW);
+    }
+
+    private function later(): \DateTimeImmutable
+    {
+        return $this->now()->modify('+1 hour');
     }
 }
