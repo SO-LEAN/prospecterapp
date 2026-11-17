@@ -44,8 +44,10 @@ const dayOfAnotherYearFormat = new Intl.DateTimeFormat('fr-FR', {
   year: 'numeric',
 })
 
-const formatDay = (date: Date, now: Date) =>
-  (date.getFullYear() === now.getFullYear() ? dayFormat : dayOfAnotherYearFormat).format(date)
+/** "jeu. 26 nov.", its year when it is not the current one: "jeu. 7 janv. 2027", in the time of the browser */
+export function formatDay(date: Date, now: Date): string {
+  return (date.getFullYear() === now.getFullYear() ? dayFormat : dayOfAnotherYearFormat).format(date)
+}
 
 /**
  * When something is to come, with its hour, in the time of the browser: "aujourd’hui 14h00", "demain 14h00",

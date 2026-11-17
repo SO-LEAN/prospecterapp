@@ -1,4 +1,4 @@
-import { formatHour } from '@/shared/lib/format'
+import { formatDay, formatHour } from '@/shared/lib/format'
 import { addDays, isSameDay, startOfDay } from '../calendar/dates'
 import type { Exchange } from '../queries'
 
@@ -8,7 +8,6 @@ const DAYS_IN_A_WEEK = 7
 
 const relativeFormat = new Intl.RelativeTimeFormat('fr-FR', { style: 'short' })
 const weekdayFormat = new Intl.DateTimeFormat('fr-FR', { weekday: 'long' })
-const dateFormat = new Intl.DateTimeFormat('fr-FR', { weekday: 'short', day: 'numeric', month: 'short' })
 
 /** "dans 25 min", "dans 2 h": what is left before it starts; nothing once it started. */
 export function startsIn(occurredAt: string, now: Date): string | null {
@@ -32,7 +31,7 @@ export function isInProgress(
   return start <= now.getTime() && now.getTime() < end
 }
 
-/** "demain 9h00", "lundi 14h00" within the week, then "ven. 20 nov. 14h00", in the time of the browser. */
+/** "demain 9h00", "lundi 14h00" within the week, then "ven. 20 nov. 14h00" ("jeu. 7 janv. 2027 9h00" in another year), in the time of the browser. */
 export function whenToCome(occurredAt: string, now: Date): string {
   const moment = new Date(occurredAt)
   const today = startOfDay(now)
@@ -41,7 +40,7 @@ export function whenToCome(occurredAt: string, now: Date): string {
   if (isSameDay(moment, addDays(today, 1))) return `${relativeDayOf(1)} ${hour}`
   if (moment < addDays(today, DAYS_IN_A_WEEK)) return `${weekdayFormat.format(moment)} ${hour}`
 
-  return `${dateFormat.format(moment)} ${hour}`
+  return `${formatDay(moment, now)} ${hour}`
 }
 
 const relativeDayFormat = new Intl.RelativeTimeFormat('fr-FR', { numeric: 'auto' })
