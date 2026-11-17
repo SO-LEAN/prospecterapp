@@ -8,7 +8,7 @@ import { Badge } from '@/shared/ui/badge'
 import { Button } from '@/shared/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/shared/ui/card'
 import { useRemoveRecipient } from '../mutations'
-import { type Campaign, campaignRecipientsQuery, type RecipientList as Recipients } from '../queries'
+import { type Campaign, campaignRecipientsQuery, type RecipientList } from '../queries'
 import { AddRecipients } from './add-recipients'
 import { MessagePreview } from './campaign-target'
 
@@ -49,7 +49,7 @@ export function CampaignRecipients({ campaign, changed }: Props) {
           {recipients.items.length === 0 ? (
             <p className="text-muted-foreground text-sm">{t('campaigns.recipients.emptied')}</p>
           ) : (
-            <RecipientList
+            <RecipientItems
               campaignId={campaign.id}
               recipients={recipients}
               previewed={previewed}
@@ -63,15 +63,15 @@ export function CampaignRecipients({ campaign, changed }: Props) {
   )
 }
 
-type RecipientListProps = {
+type RecipientItemsProps = {
   campaignId: string
-  recipients: Recipients
+  recipients: RecipientList
   previewed: string | null
   onPreview: (contactId: string) => void
 }
 
 /** Each recipient with its status, its cross while it may be taken off; one erased named « Contact effacé ». */
-function RecipientList({ campaignId, recipients, previewed, onPreview }: RecipientListProps) {
+function RecipientItems({ campaignId, recipients, previewed, onPreview }: RecipientItemsProps) {
   const { t } = useTranslation()
   const remove = useRemoveRecipient(campaignId)
 
