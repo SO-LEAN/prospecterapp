@@ -15,7 +15,7 @@ class ContactApiTest extends ApiTestCase
     private const array ADA = [
         'name' => ['firstName' => 'Ada', 'lastName' => 'Lovelace'],
         'jobTitle' => 'Directrice commerciale',
-        'contactDetails' => ['email' => 'ada@analytical-engine.test', 'phoneNumber' => '03 88 00 00 42', 'language' => 'FR'],
+        'contactDetails' => ['email' => 'ada@analytical-engine.test', 'phoneNumber' => '03 88 00 00 42', 'language' => 'FR', 'linkedInProfile' => 'linkedin.com/in/ada-lovelace?utm_source=share'],
     ];
 
     protected function setUp(): void
@@ -64,6 +64,22 @@ class ContactApiTest extends ApiTestCase
         $this->assertSame('Directrice générale', $renamed['jobTitle']);
     }
 
+    public function testTheLinkedInProfileIsNotedWithTheContactDetailsInOneForm(): void
+    {
+        $organization = $this->anOrganization('ACME');
+        $collected = $this->collect(self::ADA, $organization);
+        $this->assertSame('https://www.linkedin.com/in/ada-lovelace', $collected['contactDetails']['linkedInProfile']);
+        $this->assertSame(['https://www.linkedin.com/in/ada-lovelace'], array_column(array_column($this->requestJson('GET', '/api/organizations/'.$organization.'/contacts')['items'], 'contactDetails'), 'linkedInProfile'));
+
+        $changed = $this->requestJson('PATCH', '/api/contacts/'.$collected['id'].'/contact-details', ['email' => 'ada@analytical-engine.test', 'linkedInProfile' => 'https://fr.linkedin.com/in/Augusta-Ada/']);
+        $this->assertSame('https://www.linkedin.com/in/augusta-ada', $changed['contactDetails']['linkedInProfile']);
+        $this->assertSame(['https://www.linkedin.com/in/augusta-ada'], array_column(array_column($this->requestJson('GET', '/api/contacts?q=lovel')['items'], 'contactDetails'), 'linkedInProfile'));
+
+        $problem = $this->requestJson('PATCH', '/api/contacts/'.$collected['id'].'/contact-details', ['linkedInProfile' => 'https://example.test/ada']);
+        $this->assertResponseStatusCodeSame(422);
+        $this->assertSame(['linkedInProfile'], $this->violatedFields($problem), 'the field the core names');
+    }
+
     public function testTheListShowsTheOrganizationsOfEachContact(): void
     {
         $organization = $this->anOrganization('Navy');
@@ -86,7 +102,7 @@ class ContactApiTest extends ApiTestCase
         $contact = $this->requestJson('GET', '/api/contacts/'.$id);
         $this->assertTrue($contact['masked']);
         $this->assertSame(['Ada', 'Lovelace'], [$contact['name']['firstName'], $contact['name']['lastName']]);
-        $this->assertSame(['a***@***', '******42', 'D***e'], [$contact['contactDetails']['email'], $contact['contactDetails']['phoneNumber'], $contact['jobTitle']]);
+        $this->assertSame(['a***@***', '******42', '***', 'D***e'], [$contact['contactDetails']['email'], $contact['contactDetails']['phoneNumber'], $contact['contactDetails']['linkedInProfile'], $contact['jobTitle']]);
         $this->assertSame(['self', 'exchanges'], array_keys($contact['_links']));
         $this->assertSame(['self', 'search'], array_keys($this->requestJson('GET', '/api/contacts')['_links']));
 
