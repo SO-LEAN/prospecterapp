@@ -9,11 +9,15 @@ use Prospecter\Core\Campaigns\Domain\Model\Campaign;
 use Prospecter\Core\Campaigns\Domain\Model\CampaignId;
 use Prospecter\Core\Campaigns\Domain\Model\CampaignName;
 use Prospecter\Core\Campaigns\Domain\Model\Channel;
+use Prospecter\Core\Campaigns\Domain\Model\ContactTags;
 use Prospecter\Core\Campaigns\Domain\Model\MessageTemplate;
+use Prospecter\Core\Campaigns\Domain\Model\Reach;
+use Prospecter\Core\Campaigns\Domain\Model\Tag;
 use Prospecter\Core\Campaigns\Domain\Model\Targeting;
 use Prospecter\Core\Campaigns\Domain\Repository\CampaignRepository;
 use Prospecter\Core\SharedKernel\Domain\AccountId;
 use Prospecter\Core\SharedKernel\Domain\MemberId;
+use Prospecter\Core\SharedKernel\Domain\PersonId;
 use Tests\App\Base\ApiTestCase;
 
 /**
@@ -22,6 +26,9 @@ use Tests\App\Base\ApiTestCase;
  */
 class DynamoCampaignRepositoryTest extends ApiTestCase
 {
+    private const string ADA = '0190a1c0-0000-7000-8000-000000000a0a';
+    private const string ALAN = '0190a1c0-0000-7000-8000-000000000a1a';
+
     private AccountId $account;
 
     protected function setUp(): void
@@ -47,9 +54,30 @@ class DynamoCampaignRepositoryTest extends ApiTestCase
         $sheet = $this->retriever()->get($this->account, $campaign->id());
 
         $this->assertSame(
-            ['Relance ESN', 'email', ['#ESN'], ['#ESN', '#EMAIL'], 'Bonjour {prénom}', 'Une question', 'draft', ['ReviseCampaign', 'DiscardCampaign']],
+            ['Relance ESN', 'email', ['#ESN'], ['#ESN', '#EMAIL'], 'Bonjour {prénom}', 'Une question', 'draft', ['ReviseCampaign', 'DiscardCampaign', 'FreezeCampaign']],
             [$sheet->name, $sheet->channel, $sheet->tags, $sheet->targetedTags, $sheet->message, $sheet->subject, $sheet->status, $sheet->possibleIntents],
         );
+    }
+
+    public function testAFrozenCampaignIsRestoredWithItsRecipientsInTheirOrder(): void
+    {
+        $campaign = $this->aFrozenCampaign(self::ADA, self::ALAN);
+        $this->repository()->save($campaign);
+        $campaign->releaseEvents();
+
+        $this->assertEquals($campaign, $this->repository()->get($this->account, $campaign->id()));
+        $this->assertSame([self::ADA => 'pending', self::ALAN => 'pending'], $this->retriever()->get($this->account, $campaign->id())->recipients);
+    }
+
+    public function testTheCampaignsKeepingAContactAreFoundInItsAccount(): void
+    {
+        $keeping = $this->aFrozenCampaign(self::ADA);
+        $this->repository()->save($keeping);
+        $this->repository()->save($this->aFrozenCampaign(self::ALAN));
+        $this->repository()->save($this->aCampaign('Brouillon'));
+
+        $this->assertSame([$keeping->id()->value], array_map(static fn (Campaign $campaign): string => $campaign->id()->value, $this->repository()->withRecipient($this->account, new PersonId(self::ADA))));
+        $this->assertSame([], $this->repository()->withRecipient(new AccountId(self::newIdentity()), new PersonId(self::ADA)));
     }
 
     public function testTheCampaignsOfTheAccountAreReadAtOnceTheNewestFirst(): void
@@ -91,6 +119,15 @@ class DynamoCampaignRepositoryTest extends ApiTestCase
             new MemberId(self::newIdentity()),
             new \DateTimeImmutable('2026-11-17 10:00:00'),
         );
+    }
+
+    private function aFrozenCampaign(string ...$contacts): Campaign
+    {
+        $campaign = $this->aCampaign('Relance figée');
+        $reached = ContactTags::of([Tag::written('#ESN')], [], new Reach(true, false, false, false));
+        $campaign->freeze(array_fill_keys(array_values($contacts), $reached), new MemberId(self::newIdentity()), new \DateTimeImmutable('2026-11-17 11:00:00'));
+
+        return $campaign;
     }
 
     private function repository(): CampaignRepository
