@@ -75,6 +75,7 @@ function ByTags({ campaign, kept, onAdded }: Props & { onAdded: () => void }) {
   const loaded = found.data?.pages.flatMap((slice) => slice.items) ?? []
   const toAdd = loaded.filter((contact) => !kept.includes(contact.id))
   const counted = (found.data?.pages[0]?.found ?? 0) - (loaded.length - toAdd.length)
+  const wording = found.hasNextPage ? 'atMost' : 'exactly'
 
   const confirm = async () => {
     await add.mutateAsync({ params: { path: { id: campaign.id } }, body: { tags: chosen } })
@@ -90,7 +91,7 @@ function ByTags({ campaign, kept, onAdded }: Props & { onAdded: () => void }) {
         <p className="text-muted-foreground text-sm">{t('campaigns.recipients.dialog.noneToAdd')}</p>
       ) : (
         <>
-          <p className="text-sm">{t('campaigns.recipients.dialog.toAdd', { count: counted })}</p>
+          <p className="text-sm">{t(`campaigns.recipients.dialog.toAdd.${wording}`, { count: counted })}</p>
           <ContactLines contacts={toAdd} />
           {found.hasNextPage && (
             <Button variant="outline" className="w-full" onClick={() => void found.fetchNextPage()}>
@@ -102,7 +103,7 @@ function ByTags({ campaign, kept, onAdded }: Props & { onAdded: () => void }) {
             disabled={add.isPending}
             onClick={() => void confirm().catch(() => undefined)}
           >
-            {t('campaigns.recipients.dialog.addFound', { count: counted })}
+            {t(`campaigns.recipients.dialog.addFound.${wording}`, { count: counted })}
           </Button>
         </>
       )}
