@@ -48,7 +48,7 @@ final class ExchangeContext implements Context
 {
     use SharesTheScenario;
 
-    public const string ANY_EXCHANGE = 'un appel|un SMS|un e-mail|un message LinkedIn|un rendez-vous';
+    public const string ANY_EXCHANGE = 'un appel|un SMS|un e-mail|un message LinkedIn|un message Malt|un rendez-vous';
     private const string ANY_PLANNED = self::ANY_EXCHANGE.'|une visio';
 
     private ?string $lastNoted = null;

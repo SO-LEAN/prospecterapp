@@ -1,7 +1,7 @@
 # language: fr
 Fonctionnalité: Noter un échange avec un contact
   En tant que prospecteur
-  Je veux noter chaque appel, SMS, e-mail, message LinkedIn ou rendez-vous avec un contact
+  Je veux noter chaque appel, SMS, e-mail, message LinkedIn ou Malt, ou rendez-vous avec un contact
   Afin de retrouver dans sa timeline tout ce que nous nous sommes dit
 
   Contexte:
@@ -34,6 +34,24 @@ Fonctionnalité: Noter un échange avec un contact
       | moment           | canal | statut | durée |
       | 15/10/2026 14:30 | Visio | Fait   |       |
 
+  Scénario: Un message Malt se note comme les autres échanges
+    Soit je suis connecté en tant que prospecteur de "SOLEAN IT"
+    Quand je note un échange avec "Ada Lovelace" :
+      | canal  | Malt                           |
+      | sens   | reçu                           |
+      | moment | 15/10/2026 14:30               |
+      | texte  | Proposition de mission en mars |
+    Alors la timeline de "Ada Lovelace" est, du plus récent au plus ancien :
+      | moment           | canal | sens | texte                          | statut |
+      | 15/10/2026 14:30 | Malt  | reçu | Proposition de mission en mars | Fait   |
+
+  Scénario: Un message Malt se note aussi avec l'organisation elle-même
+    Soit je suis connecté en tant que prospecteur de "SOLEAN IT"
+    Quand je note un message Malt envoyé à "ACME" elle-même le 15/10/2026 à 14h30
+    Alors la timeline de "ACME" est, du plus récent au plus ancien :
+      | canal | sens   |
+      | Malt  | envoyé |
+
   Scénario: Un échange noté après coup prend sa place dans la timeline
     Soit je suis connecté en tant que prospecteur de "SOLEAN IT"
     Et j'ai noté un SMS reçu de "Ada Lovelace" le 15/10/2026 à 14h30
@@ -60,6 +78,11 @@ Fonctionnalité: Noter un échange avec un contact
   Scénario: Seuls un appel, un rendez-vous ou une visio sont manqués
     Soit je suis connecté en tant que prospecteur de "SOLEAN IT"
     Quand je note un SMS envoyé à "Ada Lovelace" qui n'a pas abouti
+    Alors c'est refusé : "Only a call, a meeting or a video call may be missed"
+
+  Scénario: Un message Malt n'est jamais manqué
+    Soit je suis connecté en tant que prospecteur de "SOLEAN IT"
+    Quand je note un message Malt reçu de "Ada Lovelace" qui n'a pas abouti
     Alors c'est refusé : "Only a call, a meeting or a video call may be missed"
 
   Scénario: Un échange n'est jamais dans le futur

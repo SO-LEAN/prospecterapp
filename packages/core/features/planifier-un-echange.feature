@@ -46,6 +46,10 @@ Fonctionnalité: Planifier un échange
     Quand je planifie un SMS avec "Ada Lovelace" le 17/11/2026 à 9h00
     Alors c'est refusé : "Only a call, a meeting or a video call may be planned"
 
+  Scénario: Un message Malt ne se planifie pas
+    Quand je planifie un message Malt avec "Ada Lovelace" le 17/11/2026 à 9h00
+    Alors c'est refusé : "Only a call, a meeting or a video call may be planned"
+
   Scénario: Le lieu d'un rendez-vous est proposé à l'adresse de l'organisation du contact
     Quand je commence à planifier un rendez-vous avec "Ada Lovelace"
     Alors le lieu proposé est "12 rue de la Paix, 75002 Paris"
