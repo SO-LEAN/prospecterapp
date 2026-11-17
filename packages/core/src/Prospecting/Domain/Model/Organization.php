@@ -11,6 +11,7 @@ use Prospecter\Core\Prospecting\Domain\Event\ContactRemoved;
 use Prospecter\Core\Prospecting\Domain\Event\ContactsLeftWithoutOrganization;
 use Prospecter\Core\Prospecting\Domain\Event\DetachedFromHolding;
 use Prospecter\Core\Prospecting\Domain\Event\LegalIdentityRevised;
+use Prospecter\Core\Prospecting\Domain\Event\LocatedAgain;
 use Prospecter\Core\Prospecting\Domain\Event\LogoChanged;
 use Prospecter\Core\Prospecting\Domain\Event\LogoRemoved;
 use Prospecter\Core\Prospecting\Domain\Event\ObservationsWritten;
@@ -33,6 +34,7 @@ use Prospecter\Core\SharedKernel\Domain\Exception\NotPossibleInItsState;
 use Prospecter\Core\SharedKernel\Domain\File;
 use Prospecter\Core\SharedKernel\Domain\GeoPoint;
 use Prospecter\Core\SharedKernel\Domain\LegalIdentity;
+use Prospecter\Core\SharedKernel\Domain\Location;
 use Prospecter\Core\SharedKernel\Domain\MemberId;
 use Prospecter\Core\SharedKernel\Domain\OrganizationId;
 use Prospecter\Core\SharedKernel\Domain\PersonId;
@@ -50,6 +52,7 @@ final class Organization implements ReleasesEvents
     private ?OrganizationId $holdingId = null;
     private ?Address $address = null;
     private ?GeoPoint $geoPoint = null;
+    private ?string $municipalityCode = null;
     private ?string $observations = null;
     private ?File $logo = null;
     /** @var list<PersonId> */
@@ -126,13 +129,46 @@ final class Organization implements ReleasesEvents
         $this->recordThat(new ContactDetailsChanged($this->accountId, $by, $this->id, $at));
     }
 
-    public function relocateTo(?Address $address, ?GeoPoint $geoPoint, MemberId $by, \DateTimeImmutable $at): void
+    public function relocateTo(?Address $address, ?Location $location, MemberId $by, \DateTimeImmutable $at): void
     {
         $this->ensurePossible(OrganizationIntent::Relocate);
         $this->address = null === $address || $address->isEmpty() ? null : $address;
-        $this->geoPoint = $geoPoint;
+        $this->locateAt($location);
         $this->modifiedAt = $at;
         $this->recordThat(new Relocated($this->accountId, $by, $this->id, $at));
+    }
+
+    /**
+     * Located before its municipality was kept (ADR 0142): its address geocoded again gives it, once. No member moved
+     * it: the event names the one who started prospecting it, and it keeps the moment it was last modified.
+     */
+    public function locateAgain(?Location $location, \DateTimeImmutable $at): void
+    {
+        if (!$this->awaitsItsMunicipality() || null === $location) {
+            return;
+        }
+
+        $this->locateAt($location);
+        $this->recordThat(new LocatedAgain($this->accountId, $this->createdBy, $this->id, $at));
+    }
+
+    /**
+     * The address to geocode again, while it is located without its municipality; null once it has it.
+     */
+    public function addressToLocateAgain(): ?Address
+    {
+        return $this->awaitsItsMunicipality() ? $this->address : null;
+    }
+
+    private function awaitsItsMunicipality(): bool
+    {
+        return null !== $this->geoPoint && null === $this->municipalityCode;
+    }
+
+    private function locateAt(?Location $location): void
+    {
+        $this->geoPoint = $location?->point;
+        $this->municipalityCode = $location?->municipalityCode;
     }
 
     public function writeObservations(?string $observations, MemberId $by, \DateTimeImmutable $at): void

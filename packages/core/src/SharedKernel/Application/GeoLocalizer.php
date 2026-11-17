@@ -6,7 +6,7 @@ namespace Prospecter\Core\SharedKernel\Application;
 
 use Prospecter\Core\SharedKernel\Application\Port\GeoLocation;
 use Prospecter\Core\SharedKernel\Domain\Address;
-use Prospecter\Core\SharedKernel\Domain\GeoPoint;
+use Prospecter\Core\SharedKernel\Domain\Location;
 
 final readonly class GeoLocalizer
 {
@@ -14,7 +14,7 @@ final readonly class GeoLocalizer
     {
     }
 
-    public function locate(Address $address): ?GeoPoint
+    public function locate(Address $address): ?Location
     {
         return $address->isEmpty() ? null : $this->geoLocation->find((string) $address);
     }

@@ -33,6 +33,8 @@ final readonly class PublishOrganizationFactsHandler implements EventHandler
             $facts->present,
             $facts->located,
             $facts->contacts,
+            $facts->municipalityCode,
+            $facts->country,
             $event->occurredAt,
         ));
     }

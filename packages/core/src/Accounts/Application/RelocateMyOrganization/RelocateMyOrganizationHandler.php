@@ -30,7 +30,7 @@ final readonly class RelocateMyOrganizationHandler implements CommandHandler
         $me = $this->members->get(new MemberId($command->memberId));
         $myAccount = $this->accounts->get($me->accountId());
         $address = new Address($command->street, $command->postalCode, $command->city, $command->country);
-        $myAccount->relocateTo($address, $this->geoLocalizer->locate($address), by: $me, at: $command->executedAt);
+        $myAccount->relocateTo($address, $this->geoLocalizer->locate($address)?->point, by: $me, at: $command->executedAt);
         $this->accounts->save($myAccount);
         $this->publishWhatHappenedTo($myAccount);
     }
