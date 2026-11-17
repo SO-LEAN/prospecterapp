@@ -276,6 +276,38 @@ describe('the recipients of a campaign', () => {
     expect(within(list).getByText('Ada Lovelace')).toBeInTheDocument()
   })
 
+  it('say once the campaign ended which were processed, by a missed call, and which were dismissed', async () => {
+    theApiAnswers({ ...started, status: 'ended', endedAt: '2026-11-17T10:00:00+00:00' }, twoContacts, {
+      ...recipients,
+      items: [
+        {
+          contact: aContact(ADA, 'Ada', 'Lovelace'),
+          status: 'processed',
+          missed: true,
+          reason: null,
+          _links: {},
+        },
+        {
+          contact: aContact(GRACE, 'Grace', 'Hopper'),
+          status: 'dismissed',
+          missed: false,
+          reason: 'Partie',
+          _links: {},
+        },
+      ],
+    })
+    await renderTheSpaAt(`/campaigns/${CAMPAIGN}`)
+
+    const list = await screen.findByRole('list', { name: 'Destinataires' })
+    expect(
+      within(within(list).getByText('Ada Lovelace').closest('li') as HTMLElement).getByText('Manqué'),
+    ).toBeInTheDocument()
+    expect(
+      within(within(list).getByText('Grace Hopper').closest('li') as HTMLElement).getByText('Écarté'),
+    ).toBeInTheDocument()
+    expect(screen.getByText('Terminée')).toBeInTheDocument()
+  })
+
   it('are listed once frozen, to handle, its tags and its channel shown but no longer changed', async () => {
     theApiAnswers(frozen)
     await renderTheSpaAt(`/campaigns/${CAMPAIGN}`)
