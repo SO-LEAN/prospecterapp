@@ -11,7 +11,7 @@ const suggested: SuggestedTags = {
     { family: 'technology', tags: ['#PHP', '#SYMFONY'] },
   ],
   own: ['#SALON_2026'],
-  automatic: ['#EMAIL', '#PHONE', '#SMS', '#LINKEDIN'],
+  automatic: ['#EMAIL', '#PHONE', '#SMS', '#LINKEDIN', '#67', '#GRAND_EST', '#STRASBOURG'],
 }
 
 function renderThePicker(carried: string[] = [], onPick = vi.fn()) {
@@ -43,7 +43,15 @@ describe('the picker of a tag', () => {
   it('proposes the automatic tags last to search the contacts, and creates none', async () => {
     render(<TagPicker searching suggested={suggested} carried={['#ESN']} onPick={vi.fn()} />)
 
-    expect(optionsOf('Automatiques')).toEqual(['#EMAIL', '#PHONE', '#SMS', '#LINKEDIN'])
+    expect(optionsOf('Automatiques')).toEqual([
+      '#EMAIL',
+      '#PHONE',
+      '#SMS',
+      '#LINKEDIN',
+      '#67',
+      '#GRAND_EST',
+      '#STRASBOURG',
+    ])
     await userEvent.type(screen.getByRole('combobox', { name: 'Tag' }), 'salon pro')
     expect(screen.queryByRole('option', { name: /Créer/ })).not.toBeInTheDocument()
   })
