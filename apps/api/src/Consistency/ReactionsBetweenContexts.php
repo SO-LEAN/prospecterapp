@@ -6,7 +6,7 @@ namespace App\Consistency;
  * What the reactions between the contexts should have written, read in the tables: each account has a member at
  * least, its founder registered, and each member their profile in PersonalData; each contact collected is attached to
  * organizations, none forgotten still is; no organization no longer prospected still keeps exchanges; neither keeps
- * its tags.
+ * its tags; no campaign keeps a forgotten contact among its recipients.
  */
 final readonly class ReactionsBetweenContexts
 {
@@ -81,6 +81,7 @@ final readonly class ReactionsBetweenContexts
             ...$this->forgottenContactsAttached($accountId, $contacts, $organizations),
             ...$this->exchangesOfOrganizationsGone($accountId, $organizations),
             ...$this->tagsOfWhatIsGone($accountId, $contacts, $organizations),
+            ...$this->recipientsForgotten($accountId, $contacts),
         ];
     }
 
@@ -133,6 +134,24 @@ final readonly class ReactionsBetweenContexts
 
             if ([] === $exchange['keptFor']) {
                 $discrepancies[] = new Discrepancy($accountId, $exchange['id'], 'exchange kept for no organization, not erased', Correction::GiveTheReactionAgain);
+            }
+        }
+
+        return $discrepancies;
+    }
+
+    /**
+     * @param list<string> $contacts
+     *
+     * @return list<Discrepancy>
+     */
+    private function recipientsForgotten(string $accountId, array $contacts): array
+    {
+        $discrepancies = [];
+
+        foreach ($this->tables->recipientsOf($accountId) as $campaign => $recipients) {
+            foreach (array_diff($recipients, $contacts) as $forgotten) {
+                $discrepancies[] = new Discrepancy($accountId, (string) $campaign, 'recipient kept for a forgotten contact '.$forgotten, Correction::GiveTheReactionAgain);
             }
         }
 
