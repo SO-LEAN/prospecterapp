@@ -38,6 +38,10 @@ use Prospecter\Core\Campaigns\Application\ConsultSuggestedTags\ConsultSuggestedT
 use Prospecter\Core\Campaigns\Application\ConsultSuggestedTags\ConsultSuggestedTagsHandler;
 use Prospecter\Core\Campaigns\Application\ConsultSuggestedTags\KeptSuggestedTags;
 use Prospecter\Core\Campaigns\Application\FactRecorder as CampaignsFactRecorder;
+use Prospecter\Core\Campaigns\Application\SearchContactsByTags\KeptTaggedContactPage;
+use Prospecter\Core\Campaigns\Application\SearchContactsByTags\SearchContactsByTags;
+use Prospecter\Core\Campaigns\Application\SearchContactsByTags\SearchContactsByTagsHandler;
+use Prospecter\Core\Campaigns\Application\SearchContactsByTags\TaggedContactPage;
 use Prospecter\Core\Campaigns\Application\ForgetTagsOfForgottenContact\ForgetTagsOfForgottenContactHandler;
 use Prospecter\Core\Campaigns\Application\ForgetTagsOfUnprospectedOrganization\ForgetTagsOfUnprospectedOrganizationHandler;
 use Prospecter\Core\Campaigns\Application\PutTags\PutTagsHandler;
@@ -284,6 +288,7 @@ use Tests\Core\Double\InMemoryContactFactsRetriever;
 use Tests\Core\Double\InMemoryContactPageRetriever;
 use Tests\Core\Double\InMemoryContactTagsRetriever;
 use Tests\Core\Double\InMemoryDatabase;
+use Tests\Core\Double\InMemoryTaggedContactsRetriever;
 use Tests\Core\Double\InMemoryExchangeDetailRetriever;
 use Tests\Core\Double\InMemoryExchangeFactsRetriever;
 use Tests\Core\Double\InMemoryExchangeRepository;
@@ -409,6 +414,7 @@ final class Application
     public readonly InMemoryCampaignsFactRepository $campaignsFacts;
     private readonly CampaignsFactRecorder $campaignsFactRecorder;
     private readonly InMemoryContactTagsRetriever $contactTagsRetriever;
+    private readonly InMemoryTaggedContactsRetriever $taggedContactsRetriever;
     /** @var array<class-string, CommandHandler> */
     private array $handlers = [];
     private ?string $signedIn = null;
@@ -493,6 +499,7 @@ final class Application
         $this->campaignsFacts = new InMemoryCampaignsFactRepository($database);
         $this->campaignsFactRecorder = new CampaignsFactRecorder($this->campaignsFacts);
         $this->contactTagsRetriever = new InMemoryContactTagsRetriever($database);
+        $this->taggedContactsRetriever = new InMemoryTaggedContactsRetriever($database, $this->contactTagsRetriever);
 
         foreach ($this->translators() as $translator) {
             $this->events->translateWith($translator, calledThrough: new RefusalTranslatingEventHandler(new TransactionalEventHandler($translator, $this->unitOfWork)));
@@ -684,6 +691,13 @@ final class Application
         $kept = new KeptContactTags();
 
         return $this->ask(new ConsultContactTagsHandler($this->contactTagsRetriever, $this->taggers, $this->taggableHolders), $query, $kept) ? $kept : null;
+    }
+
+    public function searchContactsByTags(SearchContactsByTags $query): ?TaggedContactPage
+    {
+        $kept = new KeptTaggedContactPage();
+
+        return $this->ask(new SearchContactsByTagsHandler($this->taggedContactsRetriever, $this->taggers), $query, $kept) ? $kept->page : null;
     }
 
     public function consultSuggestedTags(ConsultSuggestedTags $query): ?SuggestedTags

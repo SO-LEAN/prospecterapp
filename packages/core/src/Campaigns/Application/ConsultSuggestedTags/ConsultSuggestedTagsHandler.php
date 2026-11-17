@@ -6,6 +6,7 @@ namespace Prospecter\Core\Campaigns\Application\ConsultSuggestedTags;
 
 use Prospecter\Core\Campaigns\Application\Port\TagsRetriever;
 use Prospecter\Core\Campaigns\Application\SuggestedTags;
+use Prospecter\Core\Campaigns\Domain\Model\Reach;
 use Prospecter\Core\Campaigns\Domain\Policy\PredefinedTags;
 use Prospecter\Core\Campaigns\Domain\Port\Taggers;
 use Prospecter\Core\SharedKernel\Application\QueryHandler;
@@ -28,6 +29,6 @@ final readonly class ConsultSuggestedTagsHandler implements QueryHandler
         $carried = $this->tagsRetriever->carriedIn($this->taggers->accountOf(new MemberId($query->memberId)));
         $own = array_values(array_filter(array_unique($carried), static fn (string $tag): bool => !PredefinedTags::include($tag)));
         sort($own);
-        $output->present(new SuggestedTags(PredefinedTags::byFamily(), $own));
+        $output->present(new SuggestedTags(PredefinedTags::byFamily(), $own, array_map(strval(...), Reach::everyAutomaticTag())));
     }
 }

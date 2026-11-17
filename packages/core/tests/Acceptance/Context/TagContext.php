@@ -71,6 +71,24 @@ final class TagContext implements Context
         $this->tag($accountId, Holder::organization($organization->id()), $tag);
     }
 
+    #[Given('l\'organisation :name appartient à :owner, taguée :tags')]
+    public function aTaggedOrganizationProspectedBy(string $name, string $owner, string $tags): void
+    {
+        $accountId = $this->scenario->accountIdOf($owner);
+        $organization = Organization::prospectedBy($this->scenario->prospectorOf($accountId), new OrganizationId($this->application->newIdentity()), new LegalIdentity($name), new ContactDetails(), $this->application->now());
+        $this->scenario->save($name, $organization);
+
+        foreach (explode(' ', $tags) as $tag) {
+            $this->tag($accountId, Holder::organization($organization->id()), $tag);
+        }
+    }
+
+    #[Then('les tags automatiques proposés de mon compte sont :tags')]
+    public function theProposedAutomaticTagsAre(string $tags): void
+    {
+        Expect::same($tags, implode(' ', $this->suggested()->automatic));
+    }
+
     #[Then('les tags de :holder sont :tags')]
     public function theTagsAre(string $holder, string $tags): void
     {
