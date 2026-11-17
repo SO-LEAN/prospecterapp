@@ -35,7 +35,7 @@ final class TagSelectionTest extends TestCase
     public function testFromOneToFiveTagsAreChosen(array $typed): void
     {
         $this->expectException(InvalidTagSelection::class);
-        $this->expectExceptionMessage('Choose from 1 to 5 tags');
+        $this->expectExceptionMessageIsOrContains('Choose from 1 to 5 tags');
 
         TagSelection::of($typed);
     }
