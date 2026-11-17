@@ -137,6 +137,7 @@ Every event, domain or integration, travels as an EventBridge event:
 | `prospecting-attach-collected-contact` | `ContactCollected` | yes | the contact attached to its organizations |
 | `prospecting-detach-forgotten-contact` | `ContactForgotten` | yes | the contact detached from its organizations |
 | `prospecting-keep-exchanges-of-forgotten-contact` | `ContactForgotten` | yes | its exchanges kept, to make conform |
+| `prospecting-keep-created-video-call-link` | `VideoCallLinkCreated` (Connectors) | yes | the link Google created kept on the video call still asking one, which is pushed again (ADR 0137) |
 | `prospecting-stop-keeping-exchanges` | `ProspectingStopped` (.internal) | yes | an `ExchangeLeftWithoutOrganization` per exchange |
 | `prospecting-erase-exchange` | `ExchangeLeftWithoutOrganization` (.internal) | yes | the exchange erased |
 | `prospecting-discard-removed-logo` | `LogoRemoved` (.internal) | no | the file leaves the storage |
