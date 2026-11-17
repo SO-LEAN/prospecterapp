@@ -141,7 +141,6 @@ Why the project is shaped the way it is: one record per decision, in the order t
 | [0135](0135-a-moved-exchange-is-offered-to-move-back-while-its-former-moment-is-to-come.md) | A moved exchange is offered to move back while its former moment is to come | domain | Accepted | 2026-11-16 |
 | [0136](0136-the-main-journey-runs-alone-the-dashboard-after-it.md) | The main journey runs alone, the dashboard after it | architecture | Accepted | 2026-11-16 |
 | [0137](0137-the-calendar-of-the-holder-creates-the-link-of-a-video-call-asked-for-it.md) | The calendar of the holder creates the link of a video call planned asking for one, Connectors publishing it to Prospecting | architecture | Accepted | 2026-11-17 |
-| [0139](0139-the-linkedin-profile-is-a-persons-own-kept-in-one-form.md) | The LinkedIn profile is a person's own, kept in one form | domain | Accepted | 2026-11-17 |
-| [0140](0140-a-push-writes-the-connection-only-while-it-is-the-one-connected-at-the-moment-it-read.md) | A push writes the connection only while it is the one connected at the moment it read | architecture | Accepted | 2026-11-17 |
 | [0138](0138-the-campaigns-context-keeps-the-tags-put-by-hand-the-automatic-ones-reserved.md) | The Campaigns context keeps the tags put by hand on an organization or a contact, the automatic ones reserved | domain | Accepted | 2026-11-17 |
 | [0139](0139-the-linkedin-profile-is-a-persons-own-kept-in-one-form.md) | The LinkedIn profile is a person's own, kept in one form | domain | Accepted | 2026-11-17 |
+| [0140](0140-a-push-writes-the-connection-only-while-it-is-the-one-connected-at-the-moment-it-read.md) | A push writes the connection only while it is the one connected at the moment it read | architecture | Accepted | 2026-11-17 |
