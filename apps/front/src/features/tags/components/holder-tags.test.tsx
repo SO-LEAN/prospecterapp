@@ -81,6 +81,15 @@ describe('the tags of an organization or of a contact', () => {
     })
   })
 
+  it('lets the member type at once in the picker, the tags proposed read once it opens', async () => {
+    theApiAnswers(`/api/organizations/${ACME}`, [], [])
+    renderWithACache(<OrganizationTags organizationId={ACME} />)
+
+    await userEvent.click(await screen.findByRole('button', { name: 'Ajouter un tag' }))
+
+    expect(await screen.findByRole('combobox', { name: 'Tag' })).toHaveFocus()
+  })
+
   it('takes a tag off the contact by its cross', async () => {
     const calls = theApiAnswers(`/api/contacts/${ADA}`, ['#CLIENT'], [])
     renderWithACache(<ContactTags contactId={ADA} />)
