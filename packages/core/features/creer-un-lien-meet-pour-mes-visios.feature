@@ -30,17 +30,17 @@ Fonctionnalité: Créer un lien Meet pour mes visios
   Scénario: Une visio avec son lien le garde
     Quand je planifie une visio avec "Ada Lovelace" le 17/11/2026 à 14h00 au lien "https://teams.microsoft.com/l/meetup-join/xyz", en demandant un lien Meet
     Alors son lien reste "https://teams.microsoft.com/l/meetup-join/xyz"
-    Et Google n'a créé aucun lien Meet
+    Et Google n'a été prié de créer aucun lien Meet
 
   Scénario: Sans le demander, une visio sans lien n'en reçoit pas
     Quand je planifie une visio avec "Ada Lovelace" le 17/11/2026 à 14h00
     Alors la visio n'a pas de lien
-    Et Google n'a créé aucun lien Meet
+    Et Google n'a été prié de créer aucun lien Meet
 
   Scénario: Le lien n'est créé qu'une fois
     Soit j'ai planifié une visio avec "Ada Lovelace" le 17/11/2026 à 14h00, sans lien, en demandant un lien Meet
     Quand je la déplace au 18/11/2026 à 9h00
-    Alors Google a créé un seul lien Meet
+    Alors Google n'a été prié qu'une fois de créer un lien Meet
 
   Scénario: Un lien Meet retiré ne revient pas
     Soit j'ai planifié une visio avec "Ada Lovelace" le 17/11/2026 à 14h00, sans lien, en demandant un lien Meet
@@ -53,6 +53,12 @@ Fonctionnalité: Créer un lien Meet pour mes visios
     Quand je planifie une visio avec "Ada Lovelace" le 17/11/2026 à 14h00, sans lien, en demandant un lien Meet
     Alors la visio n'a pas de lien
     Et elle attend son lien
+
+  Scénario: Une visio annulée n'attend plus son lien
+    Soit je déconnecte mon compte Google
+    Et j'ai planifié une visio avec "Ada Lovelace" le 17/11/2026 à 14h00, sans lien, en demandant un lien Meet
+    Quand j'annule cette visio
+    Alors elle n'attend plus son lien
 
   Scénario: Seule une visio demande un lien
     Quand je planifie un appel avec "Ada Lovelace" le 17/11/2026 à 14h00, sans lien, en demandant un lien Meet
