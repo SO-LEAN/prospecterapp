@@ -67,3 +67,10 @@ tags:
     type: attribute
     host: '%app_api_host%'
     defaults: { _format: json }
+
+# the campaigns of a team, kept by Campaigns, their authors named by Accounts and PersonalData (ADR 0144)
+campaigning:
+    resource: ../src/Campaigning/Controller/
+    type: attribute
+    host: '%app_api_host%'
+    defaults: { _format: json }

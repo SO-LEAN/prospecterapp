@@ -7,6 +7,8 @@ use App\Me\Resource\AccountOrganizationResource;
 use App\Me\Resource\AccountResource;
 use App\PersonalData\Resource\PersonContactDetailsResource;
 use App\PersonalData\Resource\PersonNameResource;
+use App\Security\IntentLinks;
+use App\Security\User;
 use App\Shared\ImageResourceFactory;
 use App\Shared\Links;
 use App\Shared\Resource\AddressResource;
@@ -37,7 +39,14 @@ final class AccountResourcePresenter implements ConsultPersonOutput
 
     public private(set) AccountResource $resource;
 
-    public function __construct(private readonly MyAccount $account, private readonly ImageResourceFactory $imageResourceFactory, private readonly Links $links)
+    /**
+     * The links to the gestures of the team, by the role their controller requires.
+     */
+    private const array TEAM_ROUTES = [
+        'campaigns' => ['api_campaigns_list', User::PERSONAL_DATA],
+    ];
+
+    public function __construct(private readonly MyAccount $account, private readonly ImageResourceFactory $imageResourceFactory, private readonly Links $links, private readonly IntentLinks $intentLinks)
     {
     }
 
@@ -72,6 +81,12 @@ final class AccountResourcePresenter implements ConsultPersonOutput
             ...$this->linked($this->account->accountIntents, self::ORGANIZATION_ROUTES),
         ] as [$name, $route]) {
             $possible[$name] = $this->links->to($route);
+        }
+
+        foreach (self::TEAM_ROUTES as $name => [$route, $role]) {
+            if ($this->intentLinks->holds($role)) {
+                $possible[$name] = $this->links->to($route);
+            }
         }
 
         return new AccountLinksResource($this->links->to('api_me_show'), ...$possible);
