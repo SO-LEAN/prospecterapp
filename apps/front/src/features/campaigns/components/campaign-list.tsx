@@ -1,8 +1,8 @@
 import { Link } from '@tanstack/react-router'
 import { useTranslation } from 'react-i18next'
 import { memberName } from '@/shared/lib/member-name'
-import { Badge } from '@/shared/ui/badge'
 import type { Campaign } from '../queries'
+import { CampaignStatusBadge } from './campaign-status-badge'
 
 /** The campaigns of the team: their status, their channel, their author and how far they went. */
 export function CampaignList({ campaigns }: { campaigns: Campaign[] }) {
@@ -19,7 +19,7 @@ export function CampaignList({ campaigns }: { campaigns: Campaign[] }) {
           >
             {campaign.name}
           </Link>
-          <Badge variant="secondary">{t(`campaigns.status.${campaign.status}`)}</Badge>
+          <CampaignStatusBadge status={campaign.status} />
           <span className="text-muted-foreground text-sm">{t(`campaigns.channels.${campaign.channel}`)}</span>
           <span className="text-muted-foreground text-sm">
             {t('campaigns.by', { name: memberName(campaign.author) })}
