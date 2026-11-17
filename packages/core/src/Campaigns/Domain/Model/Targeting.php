@@ -47,4 +47,47 @@ final readonly class Targeting
     {
         return $contact->carriesAll($this->targeted());
     }
+
+    /**
+     * The tags of a search adding contacts to the campaign: those typed and that of its channel.
+     *
+     * @param list<string> $typed
+     *
+     * @throws InvalidTag
+     * @throws InvalidTagSelection
+     */
+    #[\NoDiscard]
+    public function searching(array $typed): self
+    {
+        return self::by($this->channel, $typed);
+    }
+
+    /**
+     * Whether the contact has the means its channel needs.
+     */
+    #[\NoDiscard]
+    public function reaches(ContactTags $contact): bool
+    {
+        return $contact->carriesAll(TagSelection::of([(string) $this->channel->tag()]));
+    }
+
+    /**
+     * The same channel and the same tags chosen, whatever their order.
+     */
+    #[\NoDiscard]
+    public function searchesAs(self $other): bool
+    {
+        return $this->channel === $other->channel && self::namesOf($this->chosen) === self::namesOf($other->chosen);
+    }
+
+    /**
+     * @return list<string> sorted
+     */
+    private static function namesOf(TagSelection $selection): array
+    {
+        $names = array_map(static fn (Tag $tag): string => $tag->name, $selection->tags);
+        sort($names);
+
+        return $names;
+    }
 }

@@ -7,7 +7,7 @@ namespace Prospecter\Core\Campaigns\Domain\Policy;
 use Prospecter\Core\Campaigns\Domain\Model\CampaignStatus;
 
 /**
- * How far a campaign went (ADR 0144): nobody is contacted while it is a draft, its target not frozen yet.
+ * How far a campaign went (ADR 0144): nobody is contacted before it is started.
  */
 final class CampaignProgress
 {
@@ -15,7 +15,7 @@ final class CampaignProgress
     public static function contactedIn(CampaignStatus $status): int
     {
         return match ($status) {
-            CampaignStatus::Draft => 0,
+            CampaignStatus::Draft, CampaignStatus::Frozen => 0,
         };
     }
 }

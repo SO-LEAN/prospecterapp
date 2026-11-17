@@ -72,7 +72,7 @@ Fonctionnalité: Figer les destinataires d'une campagne
 
   Scénario: Une campagne figée se supprime encore
     Soit la campagne "Relance" est figée
-    Quand je la supprime
+    Quand je supprime la campagne "Relance"
     Alors je n'ai plus de campagne
 
   Scénario: Figée, elle dit les destinataires comptés

@@ -1,0 +1,18 @@
+<?php
+
+declare(strict_types=1);
+
+namespace Prospecter\Core\Campaigns\Domain\Exception;
+
+use Prospecter\Core\SharedKernel\Domain\Exception\BusinessRuleViolation;
+
+/**
+ * A team contacts a few hundred persons by hand in a campaign, not more.
+ */
+final class TooManyRecipients extends BusinessRuleViolation
+{
+    public static function beyond(int $max): self
+    {
+        return self::because(sprintf('A campaign has %d recipients at most', $max), context: ['max' => (string) $max]);
+    }
+}

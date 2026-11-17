@@ -16,4 +16,13 @@ final readonly class Addressee
         public ?string $jobTitle,
     ) {
     }
+
+    /**
+     * Their first name and their last name, those known.
+     */
+    #[\NoDiscard]
+    public function name(): string
+    {
+        return trim(sprintf('%s %s', $this->firstName, $this->lastName));
+    }
 }

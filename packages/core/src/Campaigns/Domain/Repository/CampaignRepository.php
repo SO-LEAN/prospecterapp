@@ -8,6 +8,7 @@ use Prospecter\Core\Campaigns\Domain\Exception\UnknownCampaign;
 use Prospecter\Core\Campaigns\Domain\Model\Campaign;
 use Prospecter\Core\Campaigns\Domain\Model\CampaignId;
 use Prospecter\Core\SharedKernel\Domain\AccountId;
+use Prospecter\Core\SharedKernel\Domain\PersonId;
 
 interface CampaignRepository
 {
@@ -15,6 +16,11 @@ interface CampaignRepository
      * @throws UnknownCampaign when the account has no campaign of this identity
      */
     public function get(AccountId $accountId, CampaignId $id): Campaign;
+
+    /**
+     * @return list<Campaign> the campaigns of the account keeping this contact among their recipients
+     */
+    public function withRecipient(AccountId $accountId, PersonId $contact): array;
 
     public function save(Campaign $campaign): void;
 
