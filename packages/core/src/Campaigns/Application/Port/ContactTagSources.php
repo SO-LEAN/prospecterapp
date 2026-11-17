@@ -28,7 +28,7 @@ final readonly class ContactTagSources
         public array $own,
         public array $byOrganization,
         public ?array $reach,
-        public array $localities = [],
+        public array $localities,
     ) {
     }
 
