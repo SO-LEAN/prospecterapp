@@ -13,6 +13,7 @@ use Prospecter\Core\Campaigns\Domain\Event\CampaignRecipientsChanged;
 use Prospecter\Core\Campaigns\Domain\Event\CampaignRevised;
 use Prospecter\Core\Campaigns\Domain\Event\CampaignStarted;
 use Prospecter\Core\Campaigns\Domain\Event\CampaignStopped;
+use Prospecter\Core\Campaigns\Domain\Exception\CampaignWithoutRecipient;
 use Prospecter\Core\Campaigns\Domain\Model\Addressee;
 use Prospecter\Core\Campaigns\Domain\Model\Campaign;
 use Prospecter\Core\Campaigns\Domain\Model\CampaignId;
@@ -56,22 +57,37 @@ final class CampaignTest extends TestCase
 
     public function testADraftIsRevisedDiscardedAndFrozen(): void
     {
-        $this->assertSame([CampaignIntent::ReviseCampaign, CampaignIntent::DiscardCampaign, CampaignIntent::FreezeCampaign], CampaignPossibilities::given(CampaignStatus::Draft));
+        $this->assertSame([CampaignIntent::ReviseCampaign, CampaignIntent::DiscardCampaign, CampaignIntent::FreezeCampaign], CampaignPossibilities::given(CampaignStatus::Draft, hasRecipients: false));
     }
 
     public function testAFrozenCampaignChangesItsRecipientsIsStillRevisedAndDiscardedAndStarts(): void
     {
-        $this->assertSame([CampaignIntent::ReviseCampaign, CampaignIntent::DiscardCampaign, CampaignIntent::AddRecipients, CampaignIntent::RemoveRecipient, CampaignIntent::StartCampaign], CampaignPossibilities::given(CampaignStatus::Frozen));
+        $this->assertSame([CampaignIntent::ReviseCampaign, CampaignIntent::DiscardCampaign, CampaignIntent::AddRecipients, CampaignIntent::RemoveRecipient, CampaignIntent::StartCampaign], CampaignPossibilities::given(CampaignStatus::Frozen, hasRecipients: true));
+    }
+
+    public function testAFrozenCampaignItsErasedContactsEmptiedNoLongerStarts(): void
+    {
+        $this->assertSame([CampaignIntent::ReviseCampaign, CampaignIntent::DiscardCampaign, CampaignIntent::AddRecipients, CampaignIntent::RemoveRecipient], CampaignPossibilities::given(CampaignStatus::Frozen, hasRecipients: false));
+    }
+
+    public function testStartingAFrozenCampaignItsErasedContactsEmptiedIsRefusedForWantOfRecipient(): void
+    {
+        $campaign = $this->in(CampaignStatus::Frozen);
+        $campaign->forget(new PersonId(self::ADA));
+        $campaign->forget(new PersonId(self::ALAN));
+
+        $this->expectExceptionObject(CampaignWithoutRecipient::left());
+        $campaign->start(new MemberId(self::ME), $this->now());
     }
 
     public function testAStartedCampaignIsOnlyStopped(): void
     {
-        $this->assertSame([CampaignIntent::StopCampaign], CampaignPossibilities::given(CampaignStatus::Started));
+        $this->assertSame([CampaignIntent::StopCampaign], CampaignPossibilities::given(CampaignStatus::Started, hasRecipients: true));
     }
 
     public function testAStoppedCampaignOffersNothing(): void
     {
-        $this->assertSame([], CampaignPossibilities::given(CampaignStatus::Stopped));
+        $this->assertSame([], CampaignPossibilities::given(CampaignStatus::Stopped, hasRecipients: true));
     }
 
     #[DataProvider('offered')]
@@ -101,7 +117,7 @@ final class CampaignTest extends TestCase
         ];
 
         foreach (CampaignStatus::cases() as $status) {
-            foreach (CampaignPossibilities::given($status) as $intent) {
+            foreach (CampaignPossibilities::given($status, hasRecipients: CampaignStatus::Draft !== $status) as $intent) {
                 yield $status->value.' '.$intent->name => [$status, $intent, $events[$intent->name]];
             }
         }
@@ -122,7 +138,7 @@ final class CampaignTest extends TestCase
     public static function notOffered(): iterable
     {
         foreach (CampaignStatus::cases() as $status) {
-            foreach (array_udiff(CampaignIntent::cases(), CampaignPossibilities::given($status), static fn (CampaignIntent $one, CampaignIntent $other): int => strcmp($one->name, $other->name)) as $intent) {
+            foreach (array_udiff(CampaignIntent::cases(), CampaignPossibilities::given($status, hasRecipients: CampaignStatus::Draft !== $status), static fn (CampaignIntent $one, CampaignIntent $other): int => strcmp($one->name, $other->name)) as $intent) {
                 yield $status->value.' '.$intent->name => [$status, $intent];
             }
         }
