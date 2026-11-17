@@ -40,6 +40,7 @@ final class StartCampaignController extends AbstractController
     #[OA\Response(response: 403, description: 'Not a prospector, or no right to manage personal data', content: new Model(type: ProblemResource::class))]
     #[OA\Response(response: 404, description: 'Unknown campaign, or one of another account', content: new Model(type: ProblemResource::class))]
     #[OA\Response(response: 409, description: 'Not frozen: a draft, or already started', content: new Model(type: ProblemResource::class))]
+    #[OA\Response(response: 422, description: 'Frozen, but emptied by the erasure of its contacts', content: new Model(type: ProblemResource::class))]
     public function __invoke(CampaignSheet $campaign, #[CurrentUser] User $user): JsonResponse
     {
         $this->commandBus->dispatch(new StartCampaign($user->memberId(), $campaign->id, $this->clock->now()));
