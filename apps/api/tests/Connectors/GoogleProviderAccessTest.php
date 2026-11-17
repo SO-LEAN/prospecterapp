@@ -5,6 +5,7 @@ namespace Tests\App\Connectors;
 use App\Connectors\Google\GoogleEndpoints;
 use App\Connectors\Google\GoogleProviderAccess;
 use App\Shared\ServiceUnavailable;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\DoesNotPerformAssertions;
 use PHPUnit\Framework\TestCase;
 use Prospecter\Core\Connectors\Domain\Exception\AccessNotGranted;
@@ -64,6 +65,22 @@ class GoogleProviderAccessTest extends TestCase
         $this->access(new MockHttpClient(new JsonMockResponse(['scope' => self::EVERY_SCOPE, 'id_token' => self::idToken(['email' => 'michel@exemple.fr'])])))->exchange(self::client(), 'a-code', 'a-verifier');
     }
 
+    #[DataProvider('googleOutOfReach')]
+    public function testACodeExchangedWhileGoogleIsOutOfReachLeavesGoogleUnreachable(MockResponse $outOfReach): void
+    {
+        $this->assertGoogleUnreachable(fn (): Grant => $this->access(new MockHttpClient($outOfReach))->exchange(self::client(), 'a-code', 'a-verifier'));
+    }
+
+    /**
+     * @return iterable<string, array{MockResponse}>
+     */
+    public static function googleOutOfReach(): iterable
+    {
+        yield 'no answer' => [new MockResponse('', ['error' => 'Google does not answer'])];
+        yield 'an error of Google' => [new MockResponse('', ['http_code' => 503])];
+        yield 'too many requests' => [new MockResponse('', ['http_code' => 429])];
+    }
+
     public function testARefreshAcceptedStillGrants(): void
     {
         $this->assertTrue($this->access(new MockHttpClient(new JsonMockResponse(['access_token' => 'an-access'])))->stillGrants(self::client(), new RefreshToken('a-token')));
@@ -93,6 +110,11 @@ class GoogleProviderAccessTest extends TestCase
         }
     }
 
+    public function testARefreshWhileGoogleLimitsTheRequestsLeavesGoogleUnreachable(): void
+    {
+        $this->assertGoogleUnreachable(fn (): bool => $this->access(new MockHttpClient(new MockResponse('', ['http_code' => 429])))->stillGrants(self::client(), new RefreshToken('a-token')));
+    }
+
     public function testARefreshGoogleRefusesForAnotherReasonIsAFailure(): void
     {
         $this->expectException(\RuntimeException::class);
@@ -105,6 +127,16 @@ class GoogleProviderAccessTest extends TestCase
     public function testARevocationFailingIsForgottenAllTheSame(): void
     {
         $this->access(new MockHttpClient(static fn (): never => throw new TransportException('Google does not answer')))->revoke(Provider::Google, new RefreshToken('a-token'));
+    }
+
+    private function assertGoogleUnreachable(\Closure $askingGoogle): void
+    {
+        try {
+            $askingGoogle();
+            $this->fail('Google out of reach was expected to leave it unreachable');
+        } catch (ServiceUnavailable $unreachable) {
+            $this->assertSame('googleUnreachable', $unreachable->reason);
+        }
     }
 
     private function access(MockHttpClient $google): GoogleProviderAccess

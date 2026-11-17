@@ -11,7 +11,7 @@ use Symfony\Contracts\HttpClient\ResponseInterface;
  * without the id of a client and every code but the one a test makes it grant, grants every refresh until a test
  * makes it refuse them or the token was revoked, and its revocation keeps the tokens it revoked; its calendars keep the
  * events put into them (ADR 0127), an event Google does not know answered 404 to a `PUT`, created by a `POST` with its
- * id; out of reach once a test says so. Not reset between the requests of a client that does not reboot, so that a
+ * id; out of reach, failing or limiting the requests once a test says so. Not reset between the requests of a client that does not reboot, so that a
  * test arranges it before its gestures.
  */
 final class GoogleDouble
@@ -22,6 +22,8 @@ final class GoogleDouble
     private ?array $grant = null;
     private bool $refusesTheTokens = false;
     private bool $answers = true;
+    /** the status Google answers every call with while it fails or limits them */
+    private ?int $failure = null;
     private bool $refusesTheEvents = false;
     /** @var list<string> */
     private array $revoked = [];
@@ -69,6 +71,22 @@ final class GoogleDouble
     }
 
     /**
+     * Google failing on its side: every call answered by an error of its own, a 503.
+     */
+    public function fails(): void
+    {
+        $this->failure = 503;
+    }
+
+    /**
+     * Google limiting the requests: every call answered 429, too many requests.
+     */
+    public function limits(): void
+    {
+        $this->failure = 429;
+    }
+
+    /**
      * @return list<string>
      */
     public function revoked(): array
@@ -104,6 +122,7 @@ final class GoogleDouble
     {
         return match (true) {
             !$this->answers => new MockResponse('', ['error' => 'Google does not answer']),
+            null !== $this->failure => new MockResponse('', ['http_code' => $this->failure]),
             str_starts_with($url, $this->calendarUrl) => $this->calendar($method, substr($url, strlen($this->calendarUrl)), $options),
             str_starts_with($url, $this->tokenUrl) => $this->token(self::formOf($options)),
             default => $this->revoke(self::formOf($options)),
