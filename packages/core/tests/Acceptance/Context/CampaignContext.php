@@ -15,14 +15,18 @@ use Prospecter\Core\Campaigns\Application\AddRecipientsByTags\AddRecipientsByTag
 use Prospecter\Core\Campaigns\Application\CampaignSheet;
 use Prospecter\Core\Campaigns\Application\ConsultCampaign\ConsultCampaign;
 use Prospecter\Core\Campaigns\Application\DiscardCampaign\DiscardCampaign;
+use Prospecter\Core\Campaigns\Application\EraseCampaign\EraseCampaign;
 use Prospecter\Core\Campaigns\Application\FreezeCampaign\FreezeCampaign;
 use Prospecter\Core\Campaigns\Application\ListCampaigns\ListCampaigns;
 use Prospecter\Core\Campaigns\Application\PrepareCampaign\PrepareCampaign;
+use Prospecter\Core\Campaigns\Application\RebuildTags\RebuildTags;
 use Prospecter\Core\Campaigns\Application\RemoveRecipient\RemoveRecipient;
 use Prospecter\Core\Campaigns\Application\RenderCampaignMessage\CampaignMessage;
 use Prospecter\Core\Campaigns\Application\RenderCampaignMessage\RenderCampaignMessage;
 use Prospecter\Core\Campaigns\Application\ReviseCampaign\ReviseCampaign;
 use Prospecter\Core\Campaigns\Application\SearchContactsByTags\SearchContactsByTags;
+use Prospecter\Core\Campaigns\Application\StartCampaign\StartCampaign;
+use Prospecter\Core\Campaigns\Application\StopCampaign\StopCampaign;
 use Prospecter\Core\Campaigns\Domain\Model\Campaign;
 use Prospecter\Core\Campaigns\Domain\Model\CampaignId;
 use Prospecter\Core\Campaigns\Domain\Model\CampaignName;
@@ -35,6 +39,7 @@ use Prospecter\Core\PersonalData\Application\PersonCard;
 use Prospecter\Core\SharedKernel\Domain\AccountId;
 use Prospecter\Core\SharedKernel\Domain\MemberId;
 use Tests\Core\Acceptance\Expect;
+use Tests\Core\Acceptance\Vocabulary;
 
 /**
  * The campaigns a team prepares, whom they target and the message they render for each contact (Campaigns,
@@ -45,8 +50,8 @@ final class CampaignContext implements Context
     use SharesTheScenario;
 
     private const array CHANNELS = ['E-mail' => 'email', 'Appel' => 'call', 'SMS' => 'sms', 'LinkedIn' => 'linkedIn'];
-    private const array STATUSES = ['draft' => 'brouillon', 'frozen' => 'figée'];
-    private const array RECIPIENT_STATUSES = ['pending' => 'à traiter'];
+    private const array STATUSES = ['draft' => 'brouillon', 'frozen' => 'figée', 'started' => 'démarrée', 'stopped' => 'arrêtée'];
+    private const array RECIPIENT_STATUSES = ['pending' => 'à traiter', 'erased' => 'plus à traiter'];
     private const string NOBODY_CARRIES = '#PERSONNE';
     private const string A_MESSAGE = 'Bonjour {prénom}';
     private const string REVISED_MESSAGE = 'Bonjour {prénom}, je reviens vers vous';
@@ -193,6 +198,84 @@ final class CampaignContext implements Context
         $this->theFrozenCampaign($name);
         $this->iAddTheContact($other);
         Expect::same([$this->scenario->personIdOf($one), $this->scenario->personIdOf($other)], array_keys($this->sheet()->recipients));
+    }
+
+    #[Given('la campagne :name figée, canal :channel, avec :contact')]
+    public function theCampaignFrozenByWith(string $name, string $channel, string $contact): void
+    {
+        $this->application->dispatch(new RebuildTags(null));
+        $this->arrange($name, $channel, self::SOME_TAGS, self::A_MESSAGE);
+        $this->theFrozenCampaign($name);
+        $this->itsRecipientsAre($contact);
+    }
+
+    #[When('je démarre la campagne :name')]
+    public function iStartTheCampaign(string $name): void
+    {
+        $this->current = $name;
+        $this->application->dispatch(new StartCampaign($this->application->signedIn(), $this->currentId(), $this->application->now()));
+    }
+
+    #[Given('la campagne :name est démarrée')]
+    public function theStartedCampaign(string $name): void
+    {
+        $this->iStartTheCampaign($name);
+        Expect::same('started', $this->sheet()->status);
+    }
+
+    #[When('j\'arrête la campagne :name')]
+    public function iStopTheCampaign(string $name): void
+    {
+        $this->current = $name;
+        $this->application->dispatch(new StopCampaign($this->application->signedIn(), $this->currentId(), $this->application->now()));
+    }
+
+    #[Given('la campagne :name est arrêtée')]
+    public function theStoppedCampaign(string $name): void
+    {
+        $this->theStartedCampaign($name);
+        $this->iStopTheCampaign($name);
+        Expect::same('stopped', $this->sheet()->status);
+    }
+
+    #[When('l\'exploitation efface la campagne :name')]
+    public function theOperationsEraseTheCampaign(string $name): void
+    {
+        $this->current = $name;
+        $this->application->dispatch(new EraseCampaign($this->currentId()));
+    }
+
+    #[Then('/^elle est démarrée le (?<moment>.+)$/')]
+    public function itIsStartedOn(string $moment): void
+    {
+        $sheet = $this->sheet();
+
+        Expect::same(['started', Vocabulary::frenchMoment($moment)->getTimestamp()], [$sheet->status, $sheet->startedAt?->getTimestamp()]);
+    }
+
+    #[Then('/^elle est arrêtée le (?<moment>.+)$/')]
+    public function itIsStoppedOn(string $moment): void
+    {
+        $sheet = $this->sheet();
+
+        Expect::same(['stopped', Vocabulary::frenchMoment($moment)->getTimestamp()], [$sheet->status, $sheet->stoppedAt?->getTimestamp()]);
+    }
+
+    #[Then('elle est toujours dans la liste des campagnes')]
+    public function itIsStillListed(): void
+    {
+        $this->iListTheCampaigns();
+        Expect::same([$this->currentName()], array_map(static fn (CampaignSheet $campaign): string => $campaign->name, $this->listed));
+    }
+
+    #[Then('son destinataire est « Contact effacé », plus à traiter')]
+    public function itsRecipientIsAnErasedContact(): void
+    {
+        $recipients = $this->sheet()->recipients;
+        $read = $this->application->consultPersons(new ConsultPersons($this->application->signedIn(), array_map(strval(...), array_keys($recipients)))) ?? [];
+
+        Expect::same(['plus à traiter'], array_values(array_map(static fn (string $status): string => self::RECIPIENT_STATUSES[$status], $recipients)));
+        Expect::same([], $read);
     }
 
     #[When('je fige la campagne :name')]
