@@ -27,15 +27,19 @@ final readonly class CampaignTargets
     #[\NoDiscard]
     public function counted(AccountId $accountId, array $campaigns): array
     {
-        $drafts = array_filter($campaigns, static fn (CampaignSheet $campaign): bool => CampaignStatus::from($campaign->status)->followsTheTags());
-        $contacts = [] === $drafts ? [] : $this->tagsOfEveryContact->of($accountId);
+        $contacts = array_any($campaigns, self::followsTheTags(...)) ? $this->tagsOfEveryContact->of($accountId) : [];
         $counted = [];
 
         foreach ($campaigns as $campaign) {
-            $counted[$campaign->id] = in_array($campaign, $drafts, true) ? self::carryingAll($campaign->targetedTags, $contacts) : count($campaign->recipients);
+            $counted[$campaign->id] = self::followsTheTags($campaign) ? self::carryingAll($campaign->targetedTags, $contacts) : count($campaign->recipients);
         }
 
         return $counted;
+    }
+
+    private static function followsTheTags(CampaignSheet $campaign): bool
+    {
+        return CampaignStatus::from($campaign->status)->followsTheTags();
     }
 
     /**
