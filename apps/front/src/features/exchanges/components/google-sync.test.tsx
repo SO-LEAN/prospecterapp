@@ -1,5 +1,5 @@
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
-import { render, screen } from '@testing-library/react'
+import { act, render, screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import { TooltipProvider } from '@/shared/ui/tooltip'
@@ -96,6 +96,60 @@ describe('GoogleSync', () => {
     expect(sent(1)).toEqual({ path: `/api/exchanges/${EXCHANGE}/google-sync/retries`, method: 'POST' })
     expect(await screen.findByLabelText(/^Synchronisé avec Google/)).toBeInTheDocument()
     expect(screen.queryByRole('button', { name: 'Réessayer' })).not.toBeInTheDocument()
+  })
+
+  describe('pushed a few seconds after it is planned', () => {
+    afterEach(() => vi.useRealTimers())
+
+    it('reads it again until it says it is in my Google calendar, without reloading', async () => {
+      vi.useFakeTimers({ shouldAdvanceTime: true })
+      theApi
+        .mockResolvedValueOnce(
+          Response.json(answered({ provider: 'google', state: 'pending', at: null, reason: null })),
+        )
+        .mockResolvedValueOnce(
+          Response.json(answered({ provider: 'google', state: 'pending', at: null, reason: null })),
+        )
+        .mockResolvedValue(
+          Response.json(
+            answered({ provider: 'google', state: 'synced', at: '2026-11-17T10:49:00+00:00', reason: null }),
+          ),
+        )
+      renderTheSync()
+
+      expect(await screen.findByLabelText(/^En attente de synchronisation avec Google/)).toBeInTheDocument()
+      await act(() => vi.advanceTimersByTimeAsync(3_000))
+
+      expect(await screen.findByLabelText(/^Synchronisé avec Google le 17 nov\. 2026/)).toBeInTheDocument()
+      await act(() => vi.advanceTimersByTimeAsync(30_000))
+      expect(theApi).toHaveBeenCalledTimes(3)
+    })
+
+    it('stops reading it again after a few readings, still pending', async () => {
+      vi.useFakeTimers({ shouldAdvanceTime: true })
+      theApi.mockImplementation(async () =>
+        Response.json(answered({ provider: 'google', state: 'pending', at: null, reason: null })),
+      )
+      renderTheSync()
+
+      await screen.findByLabelText(/^En attente de synchronisation avec Google/)
+      await act(() => vi.advanceTimersByTimeAsync(120_000))
+
+      expect(theApi).toHaveBeenCalledTimes(6)
+    })
+
+    it('never reads it again while it awaits my reconnection to Google', async () => {
+      vi.useFakeTimers({ shouldAdvanceTime: true })
+      theApi.mockResolvedValue(
+        Response.json(answered({ provider: 'google', state: 'pending', at: null, reason: 'toReconnect' })),
+      )
+      renderTheSync()
+
+      await screen.findByLabelText(/^En attente de synchronisation avec Google/)
+      await act(() => vi.advanceTimersByTimeAsync(30_000))
+
+      expect(theApi).toHaveBeenCalledTimes(1)
+    })
   })
 
   it('shows nothing while the exchange is not pushed into my calendar', async () => {
