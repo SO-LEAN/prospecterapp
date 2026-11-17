@@ -139,6 +139,18 @@ Fonctionnalité: Consulter mon calendrier
     Quand je consulte mon calendrier du 09/11/2026 au 15/11/2026
     Alors il montre l'appel avec "Ada Lovelace" le 13/11/2026 à 9h45, pas en retard
 
+  Scénario: Un échange passé fait, manqué ou annulé n'est pas en retard
+    Soit nous sommes le 11/11/2026 à 9h00
+    Et j'ai planifié une visio avec "Ada Lovelace" le 11/11/2026 à 14h00
+    Et j'ai annulé un rendez-vous avec "Ada Lovelace" le 12/11/2026 à 11h00
+    Et nous sommes le 13/11/2026 à 10h00
+    Et j'ai marqué cette visio manquée
+    Et j'ai noté un appel avec "Ada Lovelace" le 12/11/2026 à 9h00
+    Quand je consulte mon calendrier du 09/11/2026 au 15/11/2026
+    Alors il montre la visio avec "Ada Lovelace" le 11/11/2026 à 14h00, pas en retard
+    Et il montre le rendez-vous avec "Ada Lovelace" le 12/11/2026 à 11h00, pas en retard
+    Et il montre l'appel avec "Ada Lovelace" le 12/11/2026 à 9h00, pas en retard
+
   Scénario: Mon calendrier ne montre que mes actions à faire
     Soit "Grace Hopper" est membre de "SOLEAN IT" avec le droit aux données personnelles
     Et "Grace Hopper" a noté à faire pour "Ada Lovelace" "Envoyer mon CV" pour le 14/11/2026
