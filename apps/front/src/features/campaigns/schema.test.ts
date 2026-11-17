@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { newCampaign, searchOf, targetedTagsOf, toCampaignInput } from './schema'
+import { newCampaign, targetedTagsOf, toCampaignInput } from './schema'
 
 describe('the input of a campaign', () => {
   it('sends the subject of an e-mail, trimmed', () => {
@@ -23,9 +23,5 @@ describe('the tags a campaign targets while it is typed', () => {
     expect(targetedTagsOf(['#ESN', '#PHONE'], 'call')).toEqual(['#ESN', '#PHONE'])
     expect(targetedTagsOf([], 'sms')).toEqual(['#SMS'])
     expect(targetedTagsOf([], 'email')).toEqual(['#EMAIL'])
-  })
-
-  it('are searched by their names without their mark', () => {
-    expect(searchOf(['#ESN', '#EMAIL'])).toBe('ESN,EMAIL')
   })
 })

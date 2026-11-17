@@ -6,10 +6,11 @@ import { CampaignForm } from '@/features/campaigns/components/campaign-form'
 import { CampaignMenu } from '@/features/campaigns/components/campaign-menu'
 import { CampaignTarget } from '@/features/campaigns/components/campaign-target'
 import { useReviseCampaign } from '@/features/campaigns/mutations'
-import { campaignQuery, campaignTargetQuery } from '@/features/campaigns/queries'
-import { revisionOf, searchOf } from '@/features/campaigns/schema'
+import { campaignQuery } from '@/features/campaigns/queries'
+import { revisionOf } from '@/features/campaigns/schema'
 import { useLiveTarget } from '@/features/campaigns/use-live-target'
 import { TagsFilter } from '@/features/tags/components/tags-filter'
+import { searchOfTags, taggedContactSlicesQuery } from '@/shared/api/tagged-contacts'
 import { notFoundWhenTheApiSaysSo, uuidParams } from '@/shared/lib/route-params'
 import { BackButton } from '@/shared/ui/back-button'
 import { ErrorState } from '@/shared/ui/feedback/error-state'
@@ -26,7 +27,9 @@ export const Route = createFileRoute('/_app/campaigns/$campaignId')({
     const campaign = await context.queryClient
       .ensureQueryData(campaignQuery(params.campaignId))
       .catch(notFoundWhenTheApiSaysSo)
-    void context.queryClient.prefetchInfiniteQuery(campaignTargetQuery(searchOf(campaign.targetedTags)))
+    void context.queryClient.prefetchInfiniteQuery(
+      taggedContactSlicesQuery(searchOfTags(campaign.targetedTags)),
+    )
   },
   pendingComponent: () => <PageSkeleton rows={6} />,
   errorComponent: ({ error, reset }) => <ErrorState error={error} reset={reset} />,

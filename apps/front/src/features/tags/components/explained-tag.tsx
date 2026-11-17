@@ -1,8 +1,8 @@
 import { Link } from '@tanstack/react-router'
 import { Sparkles } from 'lucide-react'
+import { searchOfTags } from '@/shared/api/tagged-contacts'
 import { Badge } from '@/shared/ui/badge'
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/shared/ui/tooltip'
-import { searchOfTags } from '../chosen-tags'
 
 type Props = {
   tag: string
