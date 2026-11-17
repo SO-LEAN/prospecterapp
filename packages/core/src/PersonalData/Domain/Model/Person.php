@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Prospecter\Core\PersonalData\Domain\Model;
 
+use Prospecter\Core\PersonalData\Domain\Event\CivilityChanged;
 use Prospecter\Core\PersonalData\Domain\Event\ContactCollected;
 use Prospecter\Core\PersonalData\Domain\Event\ContactForgotten;
 use Prospecter\Core\PersonalData\Domain\Event\JobTitleChanged;
@@ -36,6 +37,7 @@ final class Person implements ReleasesEvents
 
     private ?File $picture = null;
     private ?string $jobTitle = null;
+    private ?Civility $civility = null;
     private ?LinkedInProfile $linkedInProfile = null;
     private \DateTimeImmutable $modifiedAt;
 
@@ -64,7 +66,7 @@ final class Person implements ReleasesEvents
      * @throws PersonalDataManagersOnly
      * @throws ContactWithoutOrganization
      */
-    public static function collectAsContact(Reader $by, PersonId $id, PersonName $name, ?string $jobTitle, ContactDetails $contactDetails, ?LinkedInProfile $linkedInProfile, array $organizations, \DateTimeImmutable $at): self
+    public static function collectAsContact(Reader $by, PersonId $id, PersonName $name, ?Civility $civility, ?string $jobTitle, ContactDetails $contactDetails, ?LinkedInProfile $linkedInProfile, array $organizations, \DateTimeImmutable $at): self
     {
         if (!$by->readsPersonalData) {
             throw PersonalDataManagersOnly::because('Only a member allowed to manage personal data may collect a contact');
@@ -75,6 +77,7 @@ final class Person implements ReleasesEvents
         }
 
         $contact = new self($id, $by->accountId, Purpose::Prospecting, $name, $contactDetails, $at);
+        $contact->civility = $civility;
         $contact->jobTitle = $jobTitle;
         $contact->linkedInProfile = $linkedInProfile;
         $contact->recordThat(new ContactCollected($by->accountId, $by->id, $id, $organizations, $at));
@@ -107,6 +110,11 @@ final class Person implements ReleasesEvents
         return $this->contactDetails;
     }
 
+    public function civility(): ?Civility
+    {
+        return $this->civility;
+    }
+
     public function linkedInProfile(): ?LinkedInProfile
     {
         return $this->linkedInProfile;
@@ -134,6 +142,17 @@ final class Person implements ReleasesEvents
         $this->jobTitle = $jobTitle;
         $this->modifiedAt = $at;
         $this->recordThat(new JobTitleChanged($this->accountId, $by->id, $this->id, $at));
+    }
+
+    /**
+     * Only for a contact: the civility of the profile of a member is not noted.
+     */
+    public function changeCivility(?Civility $civility, Reader $by, \DateTimeImmutable $at): void
+    {
+        $this->ensurePossible(PersonIntent::ChangeCivility, $by);
+        $this->civility = $civility;
+        $this->modifiedAt = $at;
+        $this->recordThat(new CivilityChanged($this->accountId, $by->id, $this->id, $at));
     }
 
     public function changeContactDetails(ContactDetails $contactDetails, ?LinkedInProfile $linkedInProfile, Reader $by, \DateTimeImmutable $at): void
@@ -177,7 +196,11 @@ final class Person implements ReleasesEvents
         $this->ensureReachableBy($by);
 
         if (!PersonPossibilities::allows($intent, $by, $this->id, $this->purpose)) {
-            throw PersonIntent::Forget === $intent ? PersonalDataManagersOnly::because('Only a member allowed to manage personal data may forget a prospected person') : ThePersonOrAPersonalDataManagerOnly::because('Only the person or a member allowed to manage personal data may change them');
+            throw match ($intent) {
+                PersonIntent::Forget => PersonalDataManagersOnly::because('Only a member allowed to manage personal data may forget a prospected person'),
+                PersonIntent::ChangeCivility => PersonalDataManagersOnly::because('Only a member allowed to manage personal data may change the civility of a contact'),
+                default => ThePersonOrAPersonalDataManagerOnly::because('Only the person or a member allowed to manage personal data may change them'),
+            };
         }
     }
 }

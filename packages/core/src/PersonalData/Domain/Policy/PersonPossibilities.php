@@ -13,7 +13,7 @@ use Prospecter\Core\SharedKernel\Domain\PersonId;
 /**
  * What a reader may do of a person (ADR 0088): a person changes their own data; a member with the right
  * changes the persons their account prospects, not the profile of a colleague, and only a prospected person is
- * forgotten. The person refuses the rest, the reading of a person tells it.
+ * forgotten, or has a civility. The person refuses the rest, the reading of a person tells it.
  */
 final class PersonPossibilities
 {
@@ -38,6 +38,6 @@ final class PersonPossibilities
     {
         $isAContactManagedByTheReader = Purpose::Prospecting === $purpose && $reader->readsPersonalData;
 
-        return PersonIntent::Forget === $intent ? $isAContactManagedByTheReader : $person->equals($reader->personId) || $isAContactManagedByTheReader;
+        return $intent->concernsAContactOnly() ? $isAContactManagedByTheReader : $person->equals($reader->personId) || $isAContactManagedByTheReader;
     }
 }
