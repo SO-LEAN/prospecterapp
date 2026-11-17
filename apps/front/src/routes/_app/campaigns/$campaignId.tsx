@@ -5,8 +5,11 @@ import { useTranslation } from 'react-i18next'
 import { CampaignForm } from '@/features/campaigns/components/campaign-form'
 import { CampaignMenu } from '@/features/campaigns/components/campaign-menu'
 import { CampaignRecipients } from '@/features/campaigns/components/campaign-recipients'
+import { CampaignStatusBadge } from '@/features/campaigns/components/campaign-status-badge'
+import { CampaignSummary } from '@/features/campaigns/components/campaign-summary'
 import { CampaignTarget } from '@/features/campaigns/components/campaign-target'
 import { FreezeCampaign } from '@/features/campaigns/components/freeze-campaign'
+import { StartCampaign } from '@/features/campaigns/components/start-campaign'
 import { useReviseCampaign } from '@/features/campaigns/mutations'
 import { type Campaign, campaignQuery, campaignRecipientsQuery } from '@/features/campaigns/queries'
 import { revisionOf } from '@/features/campaigns/schema'
@@ -22,8 +25,8 @@ import { PageSkeleton } from '@/shared/ui/page-skeleton'
 
 /**
  * A campaign: its form at the left, revised whole; at the right, while a draft, the contacts it targets as it is
- * typed, until it is frozen; frozen, its recipients changed by hand, its channel and its tags no longer; and the
- * message saved rendered by the api for the contact hovered (ADR 0144).
+ * typed, until it is frozen; frozen, its recipients changed by hand, its channel and its tags no longer; started,
+ * nothing of it changes, read only; and the message saved rendered by the api for the contact hovered (ADR 0144).
  */
 export const Route = createFileRoute('/_app/campaigns/$campaignId')({
   params: uuidParams('campaignId'),
@@ -45,7 +48,6 @@ export const Route = createFileRoute('/_app/campaigns/$campaignId')({
 })
 
 function CampaignPage() {
-  const { t } = useTranslation()
   const navigate = useNavigate()
   const { campaignId } = Route.useParams()
   const { data: campaign } = useSuspenseQuery(campaignQuery(campaignId))
@@ -55,10 +57,11 @@ function CampaignPage() {
       <BackButton fallback="/campaigns" />
       <PageHeader
         title={campaign.name}
-        description={t(`campaigns.status.${campaign.status}`)}
+        description={<CampaignStatusBadge status={campaign.status} />}
         actions={
           <div className="flex items-center gap-2">
             <FreezeCampaign campaign={campaign} />
+            <StartCampaign campaign={campaign} />
             <CampaignMenu
               campaign={campaign}
               onDiscarded={() => navigate({ to: '/campaigns', replace: true })}
@@ -66,13 +69,19 @@ function CampaignPage() {
           </div>
         }
       />
-      {campaign._links.recipients ? (
-        <FrozenCampaign key="frozen" campaign={campaign} />
-      ) : (
-        <DraftCampaign key="draft" campaign={campaign} />
-      )}
+      <CampaignInItsState campaign={campaign} />
     </div>
   )
+}
+
+function CampaignInItsState({ campaign }: { campaign: Campaign }) {
+  if (!campaign._links.recipients) {
+    return <DraftCampaign key="draft" campaign={campaign} />
+  }
+  if (!campaign._links.revise) {
+    return <StartedCampaign key="started" campaign={campaign} />
+  }
+  return <FrozenCampaign key="frozen" campaign={campaign} />
 }
 
 function DraftCampaign({ campaign }: { campaign: Campaign }) {
@@ -120,6 +129,15 @@ function FrozenCampaign({ campaign }: { campaign: Campaign }) {
         onSubmit={(body) => revise.mutateAsync({ params: { path: { id: campaign.id } }, body })}
       />
       <CampaignRecipients campaign={campaign} changed={changed} />
+    </div>
+  )
+}
+
+function StartedCampaign({ campaign }: { campaign: Campaign }) {
+  return (
+    <div className="grid gap-6 lg:grid-cols-2">
+      <CampaignSummary campaign={campaign} />
+      <CampaignRecipients campaign={campaign} changed={false} />
     </div>
   )
 }

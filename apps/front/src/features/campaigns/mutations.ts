@@ -102,6 +102,32 @@ export function useRemoveRecipient(campaignId: string) {
   })
 }
 
+/** Started, the campaign no longer changes: it answers itself, read again with the list and its recipients. */
+export function useStartCampaign() {
+  const { t } = useTranslation()
+  const recipientsChanged = useRecipientsChanged()
+
+  return api.useMutation('post', '/api/campaigns/{id}/starting', {
+    onSuccess: async (campaign) => {
+      await recipientsChanged(campaign)
+      toast.success(t('campaigns.start.done'))
+    },
+  })
+}
+
+/** Stopped, the campaign stays listed: it answers itself, read again with the list. */
+export function useStopCampaign() {
+  const { t } = useTranslation()
+  const recipientsChanged = useRecipientsChanged()
+
+  return api.useMutation('post', '/api/campaigns/{id}/stopping', {
+    onSuccess: async (campaign) => {
+      await recipientsChanged(campaign)
+      toast.success(t('campaigns.stop.done'))
+    },
+  })
+}
+
 function useRecipientsChanged() {
   const queryClient = useQueryClient()
 

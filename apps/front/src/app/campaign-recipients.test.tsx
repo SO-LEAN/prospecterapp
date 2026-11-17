@@ -122,7 +122,11 @@ const twoContacts = {
   _links: {},
 }
 
-function theApiAnswers(campaign: Campaign, taggedContacts: unknown = twoContacts, keeping: RecipientList = recipients) {
+function theApiAnswers(
+  campaign: Campaign,
+  taggedContacts: unknown = twoContacts,
+  keeping: RecipientList = recipients,
+) {
   const calls: Call[] = []
   let kept = keeping
   theApi.mockImplementation(async (input) => {
@@ -131,7 +135,10 @@ function theApiAnswers(campaign: Campaign, taggedContacts: unknown = twoContacts
     const body = request.method === 'GET' || request.method === 'DELETE' ? null : await request.text()
     calls.push({ method: request.method, pathname, search, body: body ? JSON.parse(body) : null })
     if (request.method === 'DELETE') {
-      kept = { ...kept, items: kept.items.filter((recipient) => !pathname.endsWith(recipient.contact?.id ?? '')) }
+      kept = {
+        ...kept,
+        items: kept.items.filter((recipient) => !pathname.endsWith(recipient.contact?.id ?? '')),
+      }
       return new Response(null, { status: 204 })
     }
     if (request.method === 'POST') {
@@ -191,7 +198,9 @@ describe('the recipients of a campaign', () => {
 
     await userEvent.click(await screen.findByRole('button', { name: 'Démarrer la campagne' }))
     const confirmation = await screen.findByRole('dialog')
-    expect(within(confirmation).getByText(/La liste et le message ne pourront plus changer/)).toBeInTheDocument()
+    expect(
+      within(confirmation).getByText(/La liste et le message ne pourront plus changer/),
+    ).toBeInTheDocument()
     expect(calls.filter((call) => call.method === 'POST')).toEqual([])
 
     await userEvent.click(within(confirmation).getByRole('button', { name: 'Démarrer la campagne' }))
@@ -242,11 +251,10 @@ describe('the recipients of a campaign', () => {
   })
 
   it('name a contact erased from a started campaign « Contact effacé », no longer to handle', async () => {
-    const [ada] = recipients.items
     theApiAnswers(started, twoContacts, {
       ...recipients,
       items: [
-        { ...ada, _links: {} },
+        { contact: aContact(ADA, 'Ada', 'Lovelace'), status: 'pending', _links: {} },
         { contact: null, status: 'erased', _links: {} },
       ],
     })

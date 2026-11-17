@@ -116,7 +116,11 @@ function theApiAnswers({
   me = meAllowedToRunCampaigns,
   refusal,
   campaigns = list,
-}: { me?: Account; refusal?: unknown; campaigns?: CampaignList } = {}) {
+}: {
+  me?: Account
+  refusal?: unknown
+  campaigns?: CampaignList
+} = {}) {
   const calls: Call[] = []
   theApi.mockImplementation(async (input) => {
     const request = input as Request
