@@ -42,6 +42,8 @@ class CheckConsistencyCommandTest extends ApiTestCase
 {
     private const string INTEGRATION_FAILURES = 'prospecter-test-integration-failures';
     private const string RELAY_FAILURES = 'prospecter-test-relay-failures';
+    /** where Babbage & Co is, in the demonstration */
+    private const string COLMAR = '68066';
 
     private CommandTester $tester;
 
@@ -158,6 +160,14 @@ class CheckConsistencyCommandTest extends ApiTestCase
         $this->campaignsTable()->batch([$this->organizationFactItem($babbage, [])]);
 
         $this->assertDiscrepancy(DemoData::SOLEAN_IT, $babbage, 'contacts of the organization out of date in Campaigns', 'app:tags:rebuild --account=<account>');
+    }
+
+    public function testAnOrganizationWhoseLocalityCampaignsKeepsOutOfDateIsShown(): void
+    {
+        $babbage = $this->babbage()['organization'];
+        $this->campaignsTable()->batch([$this->organizationFactItem($babbage['id'], $babbage['contacts'], null)]);
+
+        $this->assertDiscrepancy(DemoData::SOLEAN_IT, $babbage['id'], 'locality of the organization out of date in Campaigns', 'app:tags:rebuild --account=<account>');
     }
 
     public function testAContactWhoseReachCampaignsLacksIsShown(): void
@@ -311,9 +321,9 @@ class CheckConsistencyCommandTest extends ApiTestCase
      *
      * @return array<string, mixed> the item of the fact Campaigns keeps of an organization of the account of the demonstration
      */
-    private function organizationFactItem(string $id, array $contacts): array
+    private function organizationFactItem(string $id, array $contacts, ?string $municipalityCode = self::COLMAR): array
     {
-        return ['PK' => 'ACCOUNT#'.DemoData::SOLEAN_IT, 'SK' => 'FACT#ORGANIZATION#'.$id, 'revision' => 9, 'present' => true, 'contacts' => $contacts];
+        return ['PK' => 'ACCOUNT#'.DemoData::SOLEAN_IT, 'SK' => 'FACT#ORGANIZATION#'.$id, 'revision' => 9, 'present' => true, 'contacts' => $contacts, 'municipalityCode' => $municipalityCode, 'country' => 'FR'];
     }
 
     private function rebuildTheFigures(): void
