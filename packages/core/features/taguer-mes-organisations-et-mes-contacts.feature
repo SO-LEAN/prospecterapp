@@ -41,6 +41,15 @@ Fonctionnalité: Taguer mes organisations et mes contacts
     Quand je retire le tag "#PHP" de "ACME"
     Alors les tags de "ACME" sont "#ESN"
 
+  Scénario: Un tag que l'organisation ne porte pas ne se retire pas
+    Soit "ACME" est tagué "#ESN"
+    Quand je retire le tag "#PHP" de "ACME"
+    Alors c'est introuvable
+
+  Scénario: Rien ne se retire de ce qui n'a jamais été tagué
+    Quand je retire le tag "#CLIENT" de "Ada Lovelace"
+    Alors c'est introuvable
+
   Scénario: Je crée mon propre tag, il m'est ensuite proposé
     Quand je tague "ACME" avec "#SALON_2026"
     Alors "#SALON_2026" fait partie des tags proposés de mon compte
