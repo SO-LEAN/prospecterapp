@@ -64,7 +64,7 @@ class CampaignsApiTest extends ApiTestCase
 
         $this->assertResponseStatusCodeSame(200);
         $mine = array_find($listed['items'], static fn (array $item): bool => $item['id'] === $campaign['id']);
-        $this->assertSame(['Relance ESN', 'email', 'draft', 1], [$mine['name'], $mine['channel'], $mine['status'], $mine['targeted']]);
+        $this->assertSame(['Relance ESN', 'email', 'draft', 0, 1], [$mine['name'], $mine['channel'], $mine['status'], $mine['contacted'], $mine['targeted']]);
         $this->assertSame($campaign['author'], $mine['author']);
         $this->assertSame(['href' => '/api/campaigns', 'method' => 'POST'], $listed['_links']['prepare']);
     }
@@ -134,6 +134,25 @@ class CampaignsApiTest extends ApiTestCase
     public function testMyAccountLinksTheCampaignsOfMyTeam(): void
     {
         $this->assertSame(['href' => '/api/campaigns', 'method' => 'GET'], $this->requestJson('GET', '/api/me')['_links']['campaigns']);
+    }
+
+    public function testAnAdministratorRunsTheCampaignsOfTheTeam(): void
+    {
+        $this->login($this->aMemberOfTheFixtures('administrator', Role::Prospector, Role::Admin));
+
+        $this->assertArrayHasKey('campaigns', $this->requestJson('GET', '/api/me')['_links']);
+        $id = $this->requestJson('POST', '/api/campaigns', $this->aCampaign())['id'];
+        $this->assertResponseStatusCodeSame(201);
+        $gestures = [
+            ['GET', '/api/campaigns', null, 200], ['GET', '/api/campaigns/'.$id, null, 200],
+            ['PATCH', '/api/campaigns/'.$id, $this->aCampaign(), 200], ['GET', '/api/campaigns/'.$id.'/messages/'.$this->ada, null, 200],
+            ['DELETE', '/api/campaigns/'.$id, null, 204],
+        ];
+
+        foreach ($gestures as [$method, $path, $payload, $status]) {
+            $this->requestJson($method, $path, $payload);
+            $this->assertResponseStatusCodeSame($status, $method.' '.$path);
+        }
     }
 
     public function testWithoutTheRightToManagePersonalDataNoCampaignIsRun(): void
