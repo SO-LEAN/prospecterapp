@@ -27,7 +27,9 @@ function renderTheSection(account: Account) {
 
 describe('my contact details', () => {
   it('open my LinkedIn profile in a new tab', () => {
-    renderTheSection(myAccount({ email: 'ada@solean-it.test', linkedInProfile: 'https://www.linkedin.com/in/ada' }))
+    renderTheSection(
+      myAccount({ email: 'ada@solean-it.test', linkedInProfile: 'https://www.linkedin.com/in/ada' }),
+    )
 
     const profile = screen.getByRole('link', { name: 'linkedin.com/in/ada' })
     expect(profile).toHaveAttribute('href', 'https://www.linkedin.com/in/ada')
@@ -38,8 +40,8 @@ describe('my contact details', () => {
     const user = userEvent.setup()
     renderTheSection(myAccount({ email: 'ada@solean-it.test', linkedInProfile: null }))
 
-    await user.click(screen.getByRole('button', { name: 'Modifier : Coordonnées' }))
+    await user.click(screen.getByRole('button', { name: /^Modifier\s:\sCoordonnées$/ }))
 
-    expect(screen.getByLabelText('Profil LinkedIn (facultatif)')).toHaveValue('')
+    expect(screen.getByLabelText(/^Profil LinkedIn/)).toHaveValue('')
   })
 })

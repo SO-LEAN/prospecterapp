@@ -1,5 +1,5 @@
 import { z } from 'zod'
-import { contactDetailsSchema, toContactDetails } from '@/shared/forms/contact-details'
+import { personContactDetailsSchema, toPersonContactDetails } from '@/shared/forms/person-contact-details'
 import { personNameSchema, toPersonName } from '@/shared/forms/person-name'
 import { orNull, text } from '@/shared/forms/text'
 import type { CollectContactInput } from './queries'
@@ -8,7 +8,7 @@ import type { CollectContactInput } from './queries'
 export const collectContactSchema = z.object({
   name: personNameSchema,
   jobTitle: text(100),
-  contactDetails: contactDetailsSchema,
+  contactDetails: personContactDetailsSchema,
 })
 
 export type CollectContactValues = z.infer<typeof collectContactSchema>
@@ -21,12 +21,13 @@ export const collectContactFields = [
   'contactDetails.email',
   'contactDetails.phoneNumber',
   'contactDetails.language',
+  'contactDetails.linkedInProfile',
 ] as const
 
 export const emptyCollectContact = (): CollectContactValues => ({
   name: { firstName: '', lastName: '' },
   jobTitle: '',
-  contactDetails: { email: '', phoneNumber: '', language: null },
+  contactDetails: { email: '', phoneNumber: '', language: null, linkedInProfile: '' },
 })
 
 export const toCollectContactInput = (
@@ -35,6 +36,6 @@ export const toCollectContactInput = (
 ): CollectContactInput => ({
   name: toPersonName(values.name),
   jobTitle: orNull(values.jobTitle),
-  contactDetails: toContactDetails(values.contactDetails),
+  contactDetails: toPersonContactDetails(values.contactDetails),
   organizationIds: [organizationId],
 })

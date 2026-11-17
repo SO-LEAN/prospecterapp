@@ -9,7 +9,7 @@ import { accountQuery, signInQuery } from './queries'
 
 export type Account = components['schemas']['AccountResource']
 type PersonNameInput = components['schemas']['PersonNameInput']
-type ContactDetailsInput = components['schemas']['ContactDetailsInput']
+type PersonContactDetailsInput = components['schemas']['PersonContactDetailsInput']
 
 const refreshTheDashboardShowingMyOrganization = (queryClient: QueryClient) =>
   queryClient.invalidateQueries({ queryKey: queryKeys.dashboard })
@@ -35,7 +35,7 @@ export function useChangeMyName() {
 }
 
 /** What a member gives of themselves to complete their profile: their name and the email of their profile. */
-export type MyProfile = { name: PersonNameInput; contactDetails: ContactDetailsInput }
+export type MyProfile = { name: PersonNameInput; contactDetails: PersonContactDetailsInput }
 
 /**
  * Completes the profile of the signed-in member with the intentions of their account, each its own use case: the

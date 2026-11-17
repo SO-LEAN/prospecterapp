@@ -151,6 +151,8 @@ export const fr = {
     email: 'E-mail',
     phoneNumber: 'Téléphone',
     language: 'Pays de la langue',
+    linkedInProfile: 'Profil LinkedIn',
+    linkedInProfileHint: 'L’adresse de la page du profil : linkedin.com/in/…',
     street: 'Rue',
     postalCode: 'Code postal',
     city: 'Ville',

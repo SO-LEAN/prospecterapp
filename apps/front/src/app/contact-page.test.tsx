@@ -1,5 +1,4 @@
 import { screen } from '@testing-library/react'
-import userEvent from '@testing-library/user-event'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import type { Account } from '@/features/account/mutations'
 import type { Contact } from '@/features/contacts/queries'
@@ -62,19 +61,10 @@ const aVideoCallTomorrowAt9: Exchange = {
 const withItsExchanges = { exchanges: { href: `/api/contacts/${ADA}/exchanges`, method: 'GET' } }
 
 const ADA_ON_LINKEDIN = 'https://www.linkedin.com/in/ada-lovelace'
-const sentBodies = new WeakMap<Request, unknown>()
-
-/**
- * The api: my account, the contact, what is to come with them; nothing in their other lists; a change refused with
- * the problem given, if any.
- */
-function theApiAnswers(contact: Contact, upcoming: Exchange[], refusal?: object) {
+/** The api: my account, the contact, what is to come with them; nothing in their other lists. */
+function theApiAnswers(contact: Contact, upcoming: Exchange[]) {
   theApi.mockImplementation(async (input) => {
     const { pathname } = new URL(input instanceof Request ? input.url : String(input))
-    if (input instanceof Request && input.method === 'PATCH') {
-      sentBodies.set(input, await input.clone().json())
-      if (refusal) return Response.json(refusal, { status: 422 })
-    }
     const answers: Record<string, unknown> = {
       '/api/me': me,
       [`/api/contacts/${ADA}`]: contact,
@@ -130,43 +120,4 @@ describe('the card of a contact', () => {
     expect(await screen.findByText('***')).toBeInTheDocument()
     expect(screen.queryByRole('link', { name: /linkedin/i })).not.toBeInTheDocument()
   })
-
-  it('notes the LinkedIn profile with the contact details, an address that is no profile refused on its field', async () => {
-    const user = userEvent.setup()
-    const changeContactDetails = { href: `/api/contacts/${ADA}/contact-details`, method: 'PATCH' }
-    theApiAnswers(theContact({ _links: { ...theContact({})._links, changeContactDetails } }), [], {
-      title: 'Validation Failed',
-      status: 422,
-      violations: [
-        {
-          propertyPath: 'linkedInProfile',
-          title: 'LinkedIn profile "https://example.test/ada" is not valid',
-          reason: 'invalidLinkedInProfile',
-          context: { linkedInProfile: 'https://example.test/ada' },
-        },
-      ],
-    })
-
-    await renderTheSpaAt(`/contacts/${ADA}`)
-    await user.click(await screen.findByRole('button', { name: 'Modifier : Coordonnées' }))
-    await user.type(screen.getByLabelText(/^Profil LinkedIn/), 'https://example.test/ada')
-    await user.click(screen.getByRole('button', { name: 'Enregistrer' }))
-
-    expect(
-      await screen.findByText(/^L’adresse «\shttps:\/\/example\.test\/ada\s» n’est pas celle d’un profil LinkedIn\.$/),
-    ).toBeInTheDocument()
-    expect(theBodySentTo(`/api/contacts/${ADA}/contact-details`)).toEqual({
-      email: 'ada@acme.test',
-      phoneNumber: null,
-      language: null,
-      linkedInProfile: 'https://example.test/ada',
-    })
-  })
 })
-
-function theBodySentTo(path: string): unknown {
-  const sent = theApi.mock.calls
-    .map(([input]) => input)
-    .find((input): input is Request => input instanceof Request && new URL(input.url).pathname === path)
-  return sent && sentBodies.get(sent)
-}

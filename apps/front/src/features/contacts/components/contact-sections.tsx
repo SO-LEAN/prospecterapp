@@ -1,14 +1,14 @@
 import { useQuery } from '@tanstack/react-query'
 import { Link } from '@tanstack/react-router'
 import { useTranslation } from 'react-i18next'
-import {
-  ContactDetailsFields,
-  contactDetailsFields,
-  contactDetailsSchema,
-  toContactDetails,
-  toContactDetailsValues,
-} from '@/shared/forms/contact-details'
 import { FormField } from '@/shared/forms/form-field'
+import {
+  PersonContactDetailsFields,
+  personContactDetailsFields,
+  personContactDetailsSchema,
+  toPersonContactDetails,
+  toPersonContactDetailsValues,
+} from '@/shared/forms/person-contact-details'
 import {
   PersonNameFields,
   personNameFields,
@@ -22,6 +22,7 @@ import { countryName } from '@/shared/lib/countries'
 import { Detail } from '@/shared/ui/detail'
 import { EditableSection } from '@/shared/ui/editable-section'
 import { Input } from '@/shared/ui/input'
+import { LinkedInProfile } from '@/shared/ui/linkedin-profile'
 import { useChangeContactDetailsOfContact, useChangeJobTitle, useRenameContact } from '../mutations'
 import { type Contact, organizationsOfContactQuery } from '../queries'
 import { jobTitleSchema } from '../schema'
@@ -99,15 +100,15 @@ export function ContactDetailsSection({ contact }: { contact: Contact }) {
       editable={Boolean(contact._links.changeContactDetails)}
       editor={(close) => (
         <SectionForm
-          schema={contactDetailsSchema}
-          defaultValues={toContactDetailsValues(details)}
-          fields={contactDetailsFields}
+          schema={personContactDetailsSchema}
+          defaultValues={toPersonContactDetailsValues(details)}
+          fields={personContactDetailsFields}
           save={(values) =>
-            change.mutateAsync({ params: { path: { id: contact.id } }, body: toContactDetails(values) })
+            change.mutateAsync({ params: { path: { id: contact.id } }, body: toPersonContactDetails(values) })
           }
           onDone={close}
         >
-          {(form) => <ContactDetailsFields form={form} />}
+          {(form) => <PersonContactDetailsFields form={form} />}
         </SectionForm>
       )}
     >
@@ -123,6 +124,11 @@ export function ContactDetailsSection({ contact }: { contact: Contact }) {
       </Detail>
       <Detail label={t('fields.phoneNumber')}>{details.phoneNumber}</Detail>
       <Detail label={t('fields.language')}>{countryName(details.language)}</Detail>
+      <Detail label={t('fields.linkedInProfile')}>
+        {details.linkedInProfile && (
+          <LinkedInProfile profile={details.linkedInProfile} masked={contact.masked} />
+        )}
+      </Detail>
     </EditableSection>
   )
 }
