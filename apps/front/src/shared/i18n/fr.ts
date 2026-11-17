@@ -144,6 +144,7 @@ export const fr = {
     overdue_other: 'En retard de {{count}} jours',
   },
   fields: {
+    civility: 'Civilité',
     jobTitle: 'Fonction',
     corporateName: 'Raison sociale',
     form: 'Forme juridique',
@@ -266,6 +267,8 @@ export const fr = {
     },
   },
   members: { unnamed: 'Membre sans nom' },
+  /** How one addresses a contact, by its value in the API. */
+  civilities: { madame: 'Madame', monsieur: 'Monsieur', none: 'Non renseignée' },
   tags: {
     title: 'Tags',
     tag: 'Tag',
@@ -712,6 +715,7 @@ export const fr = {
     invalidEmail: 'L’adresse « {{email}} » n’est pas une adresse e-mail valide.',
     invalidPhoneNumber: 'Le numéro « {{phoneNumber}} » n’est pas un numéro de téléphone valide.',
     invalidLinkedInProfile: 'L’adresse « {{linkedInProfile}} » n’est pas celle d’un profil LinkedIn.',
+    invalidCivility: 'La civilité « {{civility}} » n’est ni Madame ni Monsieur.',
     emailAlreadyUsed: 'Cette adresse e-mail est déjà utilisée.',
     loginEmailTaken: 'Cette adresse e-mail de connexion est déjà utilisée.',
     accountWithoutCorporateName: 'Un compte a besoin de la raison sociale de son organisation.',

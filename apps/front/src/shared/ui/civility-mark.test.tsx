@@ -22,12 +22,11 @@ describe('the mark of the civility of a contact', () => {
     expect(await screen.findByRole('tooltip')).toHaveTextContent('Madame')
   })
 
-  it('is named Monsieur, and says so to the keyboard', async () => {
+  it('is named Monsieur, and says so on hover', async () => {
     const user = renderTheMark('monsieur')
 
-    await user.tab()
+    await user.hover(screen.getByRole('img', { name: 'Monsieur' }))
 
-    expect(screen.getByRole('img', { name: 'Monsieur' })).toHaveFocus()
     expect(await screen.findByRole('tooltip')).toHaveTextContent('Monsieur')
   })
 

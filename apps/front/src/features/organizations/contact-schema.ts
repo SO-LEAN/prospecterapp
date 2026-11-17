@@ -1,4 +1,5 @@
 import { z } from 'zod'
+import { civilitySchema } from '@/shared/forms/civility'
 import { personContactDetailsSchema, toPersonContactDetails } from '@/shared/forms/person-contact-details'
 import { personNameSchema, toPersonName } from '@/shared/forms/person-name'
 import { orNull, text } from '@/shared/forms/text'
@@ -7,6 +8,7 @@ import type { CollectContactInput } from './queries'
 /** A new contact of the organization: a contact never comes without one (ADR 0042). */
 export const collectContactSchema = z.object({
   name: personNameSchema,
+  civility: civilitySchema,
   jobTitle: text(100),
   contactDetails: personContactDetailsSchema,
 })
@@ -17,6 +19,7 @@ export type CollectContactValues = z.infer<typeof collectContactSchema>
 export const collectContactFields = [
   'name.firstName',
   'name.lastName',
+  'civility',
   'jobTitle',
   'contactDetails.email',
   'contactDetails.phoneNumber',
@@ -26,6 +29,7 @@ export const collectContactFields = [
 
 export const emptyCollectContact = (): CollectContactValues => ({
   name: { firstName: '', lastName: '' },
+  civility: null,
   jobTitle: '',
   contactDetails: { email: '', phoneNumber: '', language: null, linkedInProfile: '' },
 })
@@ -35,6 +39,7 @@ export const toCollectContactInput = (
   organizationId: string,
 ): CollectContactInput => ({
   name: toPersonName(values.name),
+  civility: values.civility,
   jobTitle: orNull(values.jobTitle),
   contactDetails: toPersonContactDetails(values.contactDetails),
   organizationIds: [organizationId],
