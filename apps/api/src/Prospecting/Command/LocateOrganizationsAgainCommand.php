@@ -28,15 +28,14 @@ final readonly class LocateOrganizationsAgainCommand
 
     public function __invoke(SymfonyStyle $io): int
     {
-        $toLocate = 0;
+        $toLocate = [...$this->organizations->all()];
 
-        foreach ($this->organizations->all() as $organization) {
+        foreach ($toLocate as $organization) {
             $this->commands->dispatch(new LocateAgain($organization, $this->clock->now()));
-            ++$toLocate;
         }
 
-        $notFound = iterator_count($this->organizations->all());
-        $io->success(sprintf('%d organization(s) located again, %d whose address the geocoder no longer finds.', $toLocate - $notFound, $notFound));
+        $notFound = count(array_intersect($toLocate, [...$this->organizations->all()]));
+        $io->success(sprintf('%d organization(s) located again, %d whose address the geocoder no longer finds.', count($toLocate) - $notFound, $notFound));
 
         return Command::SUCCESS;
     }
