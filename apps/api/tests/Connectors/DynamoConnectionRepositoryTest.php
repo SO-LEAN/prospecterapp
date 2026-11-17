@@ -44,11 +44,27 @@ class DynamoConnectionRepositoryTest extends ApiTestCase
         }
     }
 
-    private static function aConnection(): Connection
+    public function testAConnectionMadeAgainMeanwhileIsNotOverwritten(): void
     {
-        $grant = new Grant(new Email('michel@exemple.fr'), new RefreshToken('a-refresh-token'), true);
+        $read = self::aConnection();
+        $this->connections()->save($read);
+        $this->connections()->remove($read);
+        $madeAgain = self::aConnection($read->member(), new RefreshToken('a-new-refresh-token'), '2026-10-15 09:05 UTC');
+        $this->connections()->save($madeAgain);
 
-        return Connection::establish(new MemberId(self::newIdentity()), new AccountId(self::newIdentity()), new ClientCredentials(Provider::Google, 'a-client', 'a-secret'), $grant, new \DateTimeImmutable('2026-10-15 09:00 UTC'));
+        try {
+            $this->connections()->replace($read);
+            $this->fail('A connection made again meanwhile was expected to be kept');
+        } catch (ConditionFailed) {
+            $this->assertTrue($madeAgain->isTheSameAs($this->connections()->get($read->member(), Provider::Google)));
+        }
+    }
+
+    private static function aConnection(?MemberId $member = null, RefreshToken $token = new RefreshToken('a-refresh-token'), string $at = '2026-10-15 09:00 UTC'): Connection
+    {
+        $grant = new Grant(new Email('michel@exemple.fr'), $token, true);
+
+        return Connection::establish($member ?? new MemberId(self::newIdentity()), new AccountId(self::newIdentity()), new ClientCredentials(Provider::Google, 'a-client', 'a-secret'), $grant, new \DateTimeImmutable($at));
     }
 
     private function connections(): ConnectionRepository
