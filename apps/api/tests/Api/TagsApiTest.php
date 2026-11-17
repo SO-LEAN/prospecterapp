@@ -54,6 +54,49 @@ class TagsApiTest extends ApiTestCase
         $this->assertSame($tagged, $this->requestJson('GET', '/api/contacts/'.$ada.'/tags'));
     }
 
+    public function testAContactCarriesItsOwnTagsThoseOfItsOrganizationsAndThoseOfHowItIsReached(): void
+    {
+        $organization = $this->anOrganization('ACME');
+        $ada = $this->aReachedContactOf($organization);
+        $this->requestJson('POST', '/api/organizations/'.$organization.'/tags', ['tags' => ['#ESN', '#PHP']]);
+
+        $tagged = $this->requestJson('POST', '/api/contacts/'.$ada.'/tags', ['tags' => ['#PHP']]);
+
+        $this->assertResponseStatusCodeSame(200);
+        $this->assertSame(['#PHP'], array_column($tagged['tags'], 'name'));
+        $this->assertSame([['name' => '#ESN', 'from' => [$organization]]], $tagged['inherited']);
+        $this->assertSame(['#EMAIL', '#LINKEDIN', '#PHONE', '#SMS'], $tagged['automatic']);
+        $this->assertSame($tagged, $this->requestJson('GET', '/api/contacts/'.$ada.'/tags'));
+
+        $takenOff = $this->requestJson('DELETE', '/api/contacts/'.$ada.'/tags/PHP');
+
+        $this->assertResponseStatusCodeSame(200);
+        $this->assertSame([], $takenOff['tags']);
+        $this->assertSame([['name' => '#ESN', 'from' => [$organization]], ['name' => '#PHP', 'from' => [$organization]]], $takenOff['inherited']);
+    }
+
+    public function testTheListOfTheContactsShowsTheTagsEachCarries(): void
+    {
+        $organization = $this->anOrganization('ACME');
+        $ada = $this->aReachedContactOf($organization);
+        $this->requestJson('POST', '/api/organizations/'.$organization.'/tags', ['tags' => ['#ESN']]);
+
+        $list = $this->requestJson('GET', '/api/contacts?q=Lovelace');
+
+        $this->assertResponseStatusCodeSame(200);
+        $this->assertSame(['#EMAIL', '#ESN', '#LINKEDIN', '#PHONE', '#SMS'], array_find($list['items'], static fn (array $contact): bool => $contact['id'] === $ada)['tags'] ?? null);
+    }
+
+    public function testTheTagsOfAContactRequireAnAccessToken(): void
+    {
+        $ada = $this->aContactOf($this->anOrganization('ACME'), 'Ada', 'Lovelace');
+        $this->client->setServerParameter('HTTP_AUTHORIZATION', '');
+
+        $this->requestJson('GET', '/api/contacts/'.$ada.'/tags');
+
+        $this->assertResponseStatusCodeSame(401);
+    }
+
     public function testTheCardsLeadToTheirTags(): void
     {
         $organization = $this->anOrganization('ACME');
@@ -146,6 +189,8 @@ class TagsApiTest extends ApiTestCase
         $this->assertResponseStatusCodeSame(200);
         $this->requestJson('GET', '/api/tags');
         $this->assertResponseStatusCodeSame(200);
+        $this->assertSame([['name' => '#ESN', 'from' => [$organization]]], $this->requestJson('GET', '/api/contacts/'.$ada.'/tags')['inherited']);
+        $this->assertResponseStatusCodeSame(200);
     }
 
     /**
@@ -188,6 +233,15 @@ class TagsApiTest extends ApiTestCase
     private function aContactOf(string $organization, string $firstName, string $lastName): string
     {
         return $this->requestJson('POST', '/api/contacts', ['name' => ['firstName' => $firstName, 'lastName' => $lastName], 'organizationIds' => [$organization]])['id'];
+    }
+
+    private function aReachedContactOf(string $organization): string
+    {
+        return $this->requestJson('POST', '/api/contacts', [
+            'name' => ['firstName' => 'Ada', 'lastName' => 'Lovelace'],
+            'contactDetails' => ['email' => 'ada@acme.test', 'phoneNumber' => '06 12 34 56 78', 'linkedInProfile' => 'https://www.linkedin.com/in/ada-lovelace'],
+            'organizationIds' => [$organization],
+        ])['id'];
     }
 
     private function anOrganization(string $name): string
