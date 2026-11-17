@@ -188,6 +188,31 @@ Fonctionnalité: Le langage publié des contextes
     Quand un autre contexte demande à Prospecting, de "Concurrent", les échanges que je tiens à venir
     Alors Prospecting ne répond aucun échange
 
+  Scénario: Campaigns dit lesquels de plusieurs contacts sont des destinataires d'une campagne, et lesquels sont à traiter
+    Soit je suis connecté en tant que prospecteur de "SOLEAN IT"
+    Et le contact "Alan Turing" de "ACME" a l'adresse e-mail "alan@acme.test"
+    Et le contact "Grace Hopper" de "ACME"
+    Et "ACME" est tagué "#ESN"
+    Et la campagne "Relance" démarrée, canal "E-mail", avec "Ada Lovelace" et "Alan Turing"
+    Et "Alan Turing" est écarté de la campagne "Relance"
+    Quand un autre contexte demande à Campaigns, de "SOLEAN IT", lesquels sont des destinataires à traiter de "Relance" :
+      | Ada Lovelace |
+      | Alan Turing  |
+      | Grace Hopper |
+    Alors Campaigns répond que "Relance" est démarrée, par "email", avec les destinataires "Ada Lovelace" et "Alan Turing", "Ada Lovelace" à traiter
+    Quand un autre contexte demande à Campaigns, de "Concurrent", lesquels sont des destinataires à traiter de "Relance" :
+      | Ada Lovelace |
+    Alors Campaigns ne répond aucune campagne
+
+  Scénario: Campaigns nomme des campagnes d'un compte, et tait une campagne inconnue
+    Soit je suis connecté en tant que prospecteur de "SOLEAN IT"
+    Et "ACME" est tagué "#ESN"
+    Et la campagne "Relance" figée, canal "E-mail", avec "Ada Lovelace"
+    Quand un autre contexte demande à Campaigns, de "SOLEAN IT", le nom de "Relance" et d'une campagne inconnue
+    Alors Campaigns nomme seulement "Relance"
+    Quand un autre contexte demande à Campaigns, de "Concurrent", le nom de "Relance" et d'une campagne inconnue
+    Alors Campaigns ne nomme aucune campagne
+
   Scénario: PersonalData liste les faits des contacts d'un compte, par tranche
     Soit le contact "Alan Turing" de "ACME"
     Et le contact "Linus Torvalds" de "ACME"
