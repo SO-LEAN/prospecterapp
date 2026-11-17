@@ -28,6 +28,7 @@ final readonly class DomainEventTypes extends EventTypes
             'Disconnected.v1' => Connectors\Disconnected::class,
             'ClientConfigured.v1' => Connectors\ClientConfigured::class,
             'ClientRemoved.v1' => Connectors\ClientRemoved::class,
+            'VideoCallLinkCreated.v1' => Connectors\VideoCallLinkCreated::class,
         ],
         'prospecter.personal-data.internal' => [
             'ContactCollected.v1' => PersonalData\ContactCollected::class,
@@ -74,6 +75,7 @@ final readonly class DomainEventTypes extends EventTypes
             'ToDoRevised.v1' => Prospecting\ToDoRevised::class,
             'ToDoTickedOff.v1' => Prospecting\ToDoTickedOff::class,
             'ToDoUnticked.v1' => Prospecting\ToDoUnticked::class,
+            'VideoCallLinkReceived.v1' => Prospecting\VideoCallLinkReceived::class,
         ],
     ];
 }

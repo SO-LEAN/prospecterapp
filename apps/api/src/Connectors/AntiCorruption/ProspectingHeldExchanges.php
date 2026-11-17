@@ -61,6 +61,7 @@ final readonly class ProspectingHeldExchanges implements HeldExchanges
             null === $held->contactId ? null : new PersonId($held->contactId),
             new OrganizationId($held->organizationId),
             $held->organizationName,
+            $held->linkRequested,
         );
     }
 }

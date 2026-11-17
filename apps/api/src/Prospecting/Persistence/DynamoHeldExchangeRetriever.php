@@ -60,6 +60,7 @@ final readonly class DynamoHeldExchangeRetriever implements HeldExchangeRetrieve
             isset($facts['durationInMinutes']) ? (int) $facts['durationInMinutes'] : null,
             $facts['place'] ?? null,
             $facts['link'] ?? null,
+            ExchangeDocument::linkRequestedOf($document),
             $document['contact'],
             $document['keptFor'],
         );

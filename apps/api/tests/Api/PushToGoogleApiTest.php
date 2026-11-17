@@ -64,7 +64,7 @@ class PushToGoogleApiTest extends ApiTestCase
 
         $this->planWith($organization, ['exchange' => ['channel' => 'videoCall', 'occurredAt' => self::NEXT_TUESDAY, 'linkRequested' => true]]);
 
-        $this->assertStringStartsWith('https://meet.google.com/', array_values($this->google()->events())[0]['location'] ?? '');
+        $this->assertStringStartsWith('https://meet.google.com/', array_first($this->google()->events())['location'] ?? '');
     }
 
     public function testAVideoCallAskingForALinkAwaitsItWithoutAConnection(): void

@@ -60,6 +60,7 @@ final class PlanOrganizationExchangeController extends AbstractController
             agenda: $exchange->text,
             place: $exchange->place,
             link: $exchange->link,
+            linkRequested: $exchange->linkRequested,
             executedAt: $this->clock->now(),
         ));
 

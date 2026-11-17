@@ -80,7 +80,7 @@ class GoogleCalendarTest extends TestCase
         $this->assertSame('https://meet.google.com/kpq-wxyz-abc', $link);
         $this->assertSame([['PUT', self::eventUrl().'&conferenceDataVersion=1']], self::methodsAndUrls($this->calls));
         $this->assertSame(['createRequest' => ['requestId' => self::EXCHANGE, 'conferenceSolutionKey' => ['type' => 'hangoutsMeet']]], $this->calls[0][2]['conferenceData'] ?? null);
-        $this->assertArrayNotHasKey('location', $this->calls[0][2] ?? []);
+        $this->assertArrayNotHasKey('location', $this->calls[0][2]);
     }
 
     public function testAVideoCallAskingALinkGoogleDoesNotKnowIsCreatedWithItsConference(): void

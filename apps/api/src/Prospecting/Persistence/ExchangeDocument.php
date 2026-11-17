@@ -52,6 +52,7 @@ final class ExchangeDocument
                 'durationInMinutes' => $facts->duration?->minutes,
                 'place' => $facts->place,
                 'link' => $facts->link?->url,
+                'linkRequested' => $facts->linkRequested,
             ],
             'status' => $state['status']->value,
             'lastCorrection' => self::correctionDocument($state['lastCorrection']),
@@ -77,7 +78,7 @@ final class ExchangeDocument
             'createdBy' => new MemberId($document['createdBy']),
             'contact' => null === $document['contact'] ? null : new PersonId($document['contact']),
             'keptFor' => array_map(static fn (string $organization): OrganizationId => new OrganizationId($organization), $document['keptFor']),
-            'facts' => new ExchangeFacts(Channel::from($facts['channel']), Direction::from($facts['direction']), Documents::momentOf($facts['occurredAt']), $facts['text'], self::duration($facts['durationInMinutes'] ?? null), $facts['place'] ?? null, self::link($facts['link'] ?? null)),
+            'facts' => new ExchangeFacts(Channel::from($facts['channel']), Direction::from($facts['direction']), Documents::momentOf($facts['occurredAt']), $facts['text'], self::duration($facts['durationInMinutes'] ?? null), $facts['place'] ?? null, self::link($facts['link'] ?? null), self::linkRequestedOf($document)),
             'status' => self::statusOf($document),
             'lastCorrection' => self::correction($document['lastCorrection'] ?? null),
             'contactForgotten' => $document['contactForgotten'] ?? false,
@@ -100,6 +101,16 @@ final class ExchangeDocument
         $status = ExchangeStatus::tryFrom($document['status'] ?? '') ?? ExchangeStatus::Done;
 
         return ExchangeStatus::Done === $status ? ExchangeStatus::outcome($document['facts']['missed'] ?? false) : $status;
+    }
+
+    /**
+     * Written before a video call could ask its link of the calendar of its holder (ADR 0137), it asks none.
+     *
+     * @param array<string, mixed> $document
+     */
+    public static function linkRequestedOf(array $document): bool
+    {
+        return true === ($document['facts']['linkRequested'] ?? false);
     }
 
     /**

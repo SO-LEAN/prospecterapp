@@ -54,6 +54,7 @@ final class PlanExchangeController extends AbstractController
             agenda: $input->text,
             place: $input->place,
             link: $input->link,
+            linkRequested: $input->linkRequested,
             executedAt: $this->clock->now(),
         ));
 

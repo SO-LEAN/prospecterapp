@@ -70,6 +70,7 @@ final class ExchangeDetailPresenter implements ConsultExchangeOutput
             text: $exchange->text,
             place: $exchange->place,
             link: $exchange->link,
+            linkAwaited: $exchange->linkAwaited,
             phoneNumber: $this->participants->interlocutorPhoneNumber,
             textFlagged: $exchange->textFlagged,
             textToMakeConform: $exchange->textToMakeConform,
