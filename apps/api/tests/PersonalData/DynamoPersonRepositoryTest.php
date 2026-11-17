@@ -2,13 +2,17 @@
 
 namespace Tests\App\PersonalData;
 
+use App\PersonalData\Persistence\PersonDocument;
+use Prospecter\Core\PersonalData\Domain\Model\LinkedInProfile;
 use Prospecter\Core\PersonalData\Domain\Model\Person;
 use Prospecter\Core\PersonalData\Domain\Model\Purpose;
+use Prospecter\Core\PersonalData\Domain\Model\Reader;
 use Prospecter\Core\PersonalData\Domain\Repository\PersonRepository;
 use Prospecter\Core\SharedKernel\Domain\AccountId;
 use Prospecter\Core\SharedKernel\Domain\ContactDetails;
 use Prospecter\Core\SharedKernel\Domain\Email;
 use Prospecter\Core\SharedKernel\Domain\Exception\EmailAlreadyUsed;
+use Prospecter\Core\SharedKernel\Domain\MemberId;
 use Prospecter\Core\SharedKernel\Domain\PersonId;
 use Tests\App\Base\ApiTestCase;
 
@@ -61,6 +65,20 @@ class DynamoPersonRepositoryTest extends ApiTestCase
         $persons->save($ada);
 
         $this->assertEquals([$ada], $persons->ofIds([$ada->id(), new PersonId(self::newIdentity())]));
+    }
+
+    public function testTheLinkedInProfileOfAPersonIsReadBackAndAPersonSavedBeforeHasNone(): void
+    {
+        $persons = self::getContainer()->get(PersonRepository::class);
+        $ada = $this->personWithTheEmail(new AccountId(self::newIdentity()), 'ada@solean-it.io');
+        $ada->changeContactDetails($ada->contactDetails(), new LinkedInProfile('linkedin.com/in/ada'), by: new Reader(new MemberId(self::newIdentity()), $ada->accountId(), $ada->id(), readsPersonalData: true), at: new \DateTimeImmutable());
+        $ada->releaseEvents();
+        $persons->save($ada);
+
+        $this->assertEquals([$ada], $persons->ofIds([$ada->id()]));
+        $savedBefore = PersonDocument::of($ada);
+        unset($savedBefore['linkedInProfile']);
+        $this->assertNull(PersonDocument::person($savedBefore)->linkedInProfile());
     }
 
     private function personWithTheEmail(AccountId $account, string $email): Person
