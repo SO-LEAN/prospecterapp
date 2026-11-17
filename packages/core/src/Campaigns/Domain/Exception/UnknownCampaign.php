@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Prospecter\Core\Campaigns\Domain\Exception;
 
-use Prospecter\Core\Campaigns\Domain\Model\CampaignId;
+use Prospecter\Core\SharedKernel\Domain\CampaignId;
 use Prospecter\Core\SharedKernel\Domain\Exception\NotFound;
 
 /**

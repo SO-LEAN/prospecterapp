@@ -8,13 +8,13 @@ use Prospecter\Core\Campaigns\Application\CampaignSheet;
 use Prospecter\Core\Campaigns\Application\Port\CampaignSheetRetriever;
 use Prospecter\Core\Campaigns\Domain\Exception\UnknownCampaign;
 use Prospecter\Core\Campaigns\Domain\Model\Campaign;
-use Prospecter\Core\Campaigns\Domain\Model\CampaignId;
 use Prospecter\Core\Campaigns\Domain\Model\CampaignIntent;
 use Prospecter\Core\Campaigns\Domain\Model\Recipients;
 use Prospecter\Core\Campaigns\Domain\Model\TagSelection;
 use Prospecter\Core\Campaigns\Domain\Policy\CampaignPossibilities;
 use Prospecter\Core\Campaigns\Domain\Policy\CampaignProgress;
 use Prospecter\Core\SharedKernel\Domain\AccountId;
+use Prospecter\Core\SharedKernel\Domain\CampaignId;
 
 /**
  * The DynamoDB retriever in the scenarios: the campaigns the repository saved, read without their getters, the newest

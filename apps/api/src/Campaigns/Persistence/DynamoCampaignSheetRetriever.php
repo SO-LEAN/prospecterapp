@@ -6,8 +6,8 @@ use App\Shared\Persistence\Table;
 use Prospecter\Core\Campaigns\Application\CampaignSheet;
 use Prospecter\Core\Campaigns\Application\Port\CampaignSheetRetriever;
 use Prospecter\Core\Campaigns\Domain\Exception\UnknownCampaign;
-use Prospecter\Core\Campaigns\Domain\Model\CampaignId;
 use Prospecter\Core\SharedKernel\Domain\AccountId;
+use Prospecter\Core\SharedKernel\Domain\CampaignId;
 
 /**
  * The campaigns read from the items of `DynamoCampaignRepository`, without restoring them (ADR 0088): one, or every

@@ -6,10 +6,10 @@ namespace Prospecter\Core\Campaigns\Application\EraseCampaign;
 
 use Prospecter\Core\Campaigns\Domain\Exception\UnknownCampaign;
 use Prospecter\Core\Campaigns\Domain\Model\Campaign;
-use Prospecter\Core\Campaigns\Domain\Model\CampaignId;
 use Prospecter\Core\Campaigns\Domain\Port\TaggedAccounts;
 use Prospecter\Core\Campaigns\Domain\Repository\CampaignRepository;
 use Prospecter\Core\SharedKernel\Application\CommandHandler;
+use Prospecter\Core\SharedKernel\Domain\CampaignId;
 
 /**
  * The operations erase a campaign whatever its status, known by its identity alone (the cleaning of a test, a request

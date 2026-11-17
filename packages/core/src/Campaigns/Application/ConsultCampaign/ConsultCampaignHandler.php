@@ -6,9 +6,9 @@ namespace Prospecter\Core\Campaigns\Application\ConsultCampaign;
 
 use Prospecter\Core\Campaigns\Application\CampaignTargets;
 use Prospecter\Core\Campaigns\Application\Port\CampaignSheetRetriever;
-use Prospecter\Core\Campaigns\Domain\Model\CampaignId;
 use Prospecter\Core\Campaigns\Domain\Port\Campaigners;
 use Prospecter\Core\SharedKernel\Application\QueryHandler;
+use Prospecter\Core\SharedKernel\Domain\CampaignId;
 use Prospecter\Core\SharedKernel\Domain\MemberId;
 
 final readonly class ConsultCampaignHandler implements QueryHandler
