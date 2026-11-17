@@ -269,6 +269,7 @@ export const fr = {
     create: 'Créer « {{tag}} »',
     own: 'Mes tags',
     inheritedFrom: 'Hérité de {{organizations}}',
+    inheritedFromAnOrganization: 'Hérité d’une organisation',
     automatic: 'Automatique',
     families: {
       organizationType: 'Type d’organisation',

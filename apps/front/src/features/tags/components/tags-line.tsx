@@ -46,7 +46,11 @@ export function TagsLine({ tags, inherited = [], automatic = [], onTag, onTakeOf
         <li key={tag.name}>
           <ExplainedTag
             tag={tag.name}
-            explanation={t('tags.inheritedFrom', { organizations: tag.from.join(', ') })}
+            explanation={
+              tag.from.length > 0
+                ? t('tags.inheritedFrom', { organizations: tag.from.join(', ') })
+                : t('tags.inheritedFromAnOrganization')
+            }
           />
         </li>
       ))}
