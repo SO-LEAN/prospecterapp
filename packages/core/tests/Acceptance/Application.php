@@ -358,7 +358,7 @@ final class Application
     private readonly AccountsSourceAccounts $sourceAccounts;
     private readonly InMemoryFiguresRetriever $figuresRetriever;
     private readonly FactRecorder $factRecorder;
-    private readonly InMemoryConnectionRepository $connections;
+    public readonly InMemoryConnectionRepository $connections;
     private readonly InMemoryAuthorizationRepository $authorizations;
     private readonly InMemoryMyConnectionsRetriever $myConnectionsRetriever;
     public readonly InMemoryProviderAccess $providerAccess;

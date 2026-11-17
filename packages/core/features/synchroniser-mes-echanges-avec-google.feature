@@ -49,6 +49,23 @@ Fonctionnalité: L'état de synchronisation de mes échanges planifiés
     Quand je connecte mon compte Google
     Alors mon agenda Google a les événements du 17/11/2026 à 14h00, du 18/11/2026 à 9h00 et du 19/11/2026 à 9h00
 
+  Scénario: Me reconnecter pendant la poussée de mes échanges à venir garde ma nouvelle connexion
+    Soit j'ai planifié une visio avec "Ada Lovelace" le 17/11/2026 à 14h00
+    Et mes échanges à venir sont en cours de poussée
+    Et nous sommes le 13/11/2026 à 10h05
+    Quand je déconnecte mon compte Google
+    Et je reconnecte mon compte Google
+    Et la poussée de mes échanges à venir se termine
+    Alors ma connexion Google est connectée depuis le 13/11/2026 à 10h05
+    Et elle est "synchronisée"
+
+  Scénario: Sans changement de ma connexion pendant la poussée de mes échanges à venir, la poussée l'écrit
+    Soit j'ai planifié une visio avec "Ada Lovelace" le 17/11/2026 à 14h00
+    Et mes échanges à venir sont en cours de poussée
+    Et Google refuse désormais mon jeton
+    Quand la poussée de mes échanges à venir se termine
+    Alors ma connexion Google est "à reconnecter"
+
   Scénario: Une connexion à reconnecter laisse les échanges en attente
     Soit Google refuse désormais mon jeton
     Quand je planifie une visio avec "Ada Lovelace" le 17/11/2026 à 14h00

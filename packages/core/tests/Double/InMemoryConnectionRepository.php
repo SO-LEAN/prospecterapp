@@ -10,10 +10,24 @@ use Prospecter\Core\Connectors\Domain\Model\Provider;
 use Prospecter\Core\Connectors\Domain\Repository\ConnectionRepository;
 use Prospecter\Core\SharedKernel\Domain\MemberId;
 
-final readonly class InMemoryConnectionRepository implements ConnectionRepository
+/**
+ * The connections as the scenarios keep them, a read answering a connection as it was read before when a scenario
+ * says so: a push that read it before a change writes after it.
+ */
+final class InMemoryConnectionRepository implements ConnectionRepository
 {
-    public function __construct(private InMemoryDatabase $database)
+    private ?Connection $readBefore = null;
+
+    public function __construct(private readonly InMemoryDatabase $database)
     {
+    }
+
+    /**
+     * The next read of this connection answers it as given, read before what happens since.
+     */
+    public function answerTheNextReadWith(Connection $readBefore): void
+    {
+        $this->readBefore = clone $readBefore;
     }
 
     public function get(MemberId $member, Provider $provider): Connection
@@ -23,7 +37,9 @@ final readonly class InMemoryConnectionRepository implements ConnectionRepositor
 
     public function find(MemberId $member, Provider $provider): ?Connection
     {
-        return $this->database->connection($member->value, $provider->value);
+        [$readBefore, $this->readBefore] = [$this->readBefore, null];
+
+        return $readBefore ?? $this->database->connection($member->value, $provider->value);
     }
 
     public function of(MemberId $member): array
