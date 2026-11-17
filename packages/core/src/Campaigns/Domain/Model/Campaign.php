@@ -240,11 +240,15 @@ final class Campaign implements ReleasesEvents
 
     /**
      * A contact PersonalData forgot leaves its recipients, even the last one; started, it stays, without its name, no
-     * longer to handle.
+     * longer to handle, the campaign led ending once nobody is left to handle.
      */
-    public function forget(PersonId $contact): void
+    public function forget(PersonId $contact, \DateTimeImmutable $at): void
     {
         $this->recipients = $this->status->hasStarted() ? $this->recipients->erasing($contact) : $this->recipients->forgetting($contact);
+
+        if ($this->status->isRunning()) {
+            $this->endOnceNobodyIsPending($at);
+        }
     }
 
     #[\NoDiscard]
