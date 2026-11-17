@@ -119,6 +119,29 @@ class CheckConsistencyCommandTest extends ApiTestCase
         $this->assertDiscrepancy(DemoData::SOLEAN_IT, $this->anExchange(), 'exchange kept for '.$babbage.', no longer prospected', 'app:integration:redrive');
     }
 
+    public function testTheTagsOfAnOrganizationNoLongerProspectedAreShown(): void
+    {
+        $gone = self::newIdentity();
+        $this->campaignsTable()->batch([$this->taggingItem('organization', $gone)]);
+
+        $this->assertDiscrepancy(DemoData::SOLEAN_IT, $gone, 'tags kept for an organization no longer prospected', 'app:integration:redrive');
+    }
+
+    public function testTheTagsOfAForgottenContactAreShown(): void
+    {
+        $forgotten = self::newIdentity();
+        $this->campaignsTable()->batch([$this->taggingItem('contact', $forgotten)]);
+
+        $this->assertDiscrepancy(DemoData::SOLEAN_IT, $forgotten, 'tags kept for a forgotten contact', 'app:integration:redrive');
+    }
+
+    public function testTheTagsOfWhatTheAccountKeepsAreNoDiscrepancy(): void
+    {
+        $this->campaignsTable()->batch([$this->taggingItem('organization', $this->babbage()['organization']['id']), $this->taggingItem('contact', $this->ada())]);
+
+        $this->assertSame(Command::SUCCESS, $this->tester->execute([]));
+    }
+
     public function testAnAccountOutOfTheListOfTheAccountsIsShown(): void
     {
         $soleanIt = $this->accountsTable()->item('ACCOUNT#'.DemoData::SOLEAN_IT, 'ACCOUNT');
@@ -221,6 +244,14 @@ class CheckConsistencyCommandTest extends ApiTestCase
         return $planned->id()->value;
     }
 
+    /**
+     * @return array<string, mixed> the item of a tagging of the account of the demonstration
+     */
+    private function taggingItem(string $kind, string $id): array
+    {
+        return ['PK' => 'ACCOUNT#'.DemoData::SOLEAN_IT, 'SK' => 'TAGGING#'.$kind.'#'.$id, 'tagging' => ['accountId' => DemoData::SOLEAN_IT, 'holder' => $kind, 'holderId' => $id, 'tags' => ['ESN'], 'createdAt' => '2026-10-14T09:00:00.000000Z', 'modifiedAt' => '2026-10-14T09:00:00.000000Z']];
+    }
+
     private function rebuildTheFigures(): void
     {
         $tester = new CommandTester(new Application(self::$kernel)->find('app:reporting:rebuild'));
@@ -270,6 +301,7 @@ class CheckConsistencyCommandTest extends ApiTestCase
             'prospecting' => $this->prospectingTable(),
             'reporting' => $this->reportingTable(),
             'connectors' => $this->table('connectors'),
+            'campaigns' => $this->campaignsTable(),
         ]);
     }
 
@@ -286,6 +318,11 @@ class CheckConsistencyCommandTest extends ApiTestCase
     private function prospectingTable(): Table
     {
         return $this->table('prospecting');
+    }
+
+    private function campaignsTable(): Table
+    {
+        return $this->table('campaigns');
     }
 
     private function reportingTable(): Table
