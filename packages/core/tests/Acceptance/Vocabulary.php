@@ -41,6 +41,7 @@ final class Vocabulary
         'Rename' => 'changer le nom',
         'ChangePicture' => 'changer la photo',
         'ChangeJobTitle' => 'changer la fonction',
+        'ChangeCivility' => 'changer la civilité',
         'Forget' => 'effacer la fiche',
         'AddContact' => 'rattacher un contact',
         'RemoveContact' => 'retirer un contact',
@@ -118,9 +119,15 @@ final class Vocabulary
         'administrateur' => 'ROLE_ADMIN',
     ];
 
+    /** The civilities as a table names them, by their value in the requests. */
+    private const array CIVILITIES = [
+        'Madame' => 'madame',
+        'Monsieur' => 'monsieur',
+    ];
+
     private const array LABELS = [
         'raison sociale', 'forme juridique', 'type', 'e-mail', 'téléphone', 'langue', 'LinkedIn',
-        'rue', 'code postal', 'ville', 'pays', 'observations', 'holding', 'prénom', 'nom', 'fonction', 'rôles',
+        'rue', 'code postal', 'ville', 'pays', 'observations', 'holding', 'prénom', 'nom', 'fonction', 'rôles', 'Civilité',
     ];
 
     /**
@@ -147,6 +154,19 @@ final class Vocabulary
     public static function describeIntents(array $intents): array
     {
         return array_map(static fn (string $intent): string => self::INTENTS[$intent], $intents);
+    }
+
+    /**
+     * A civility the scenarios do not know is given as it is written, for the use case to refuse it.
+     */
+    public static function civility(?string $label): ?string
+    {
+        return null === $label ? null : self::CIVILITIES[$label] ?? $label;
+    }
+
+    public static function describeCivility(?string $civility): string
+    {
+        return (string) array_search($civility, self::CIVILITIES, true);
     }
 
     /**
