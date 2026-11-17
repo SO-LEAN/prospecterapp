@@ -1,4 +1,4 @@
-import { useSuspenseQuery } from '@tanstack/react-query'
+import { useQuery, useSuspenseQuery } from '@tanstack/react-query'
 import { createFileRoute, useNavigate } from '@tanstack/react-router'
 import { zodValidator } from '@tanstack/zod-adapter'
 import { useTranslation } from 'react-i18next'
@@ -9,7 +9,7 @@ import {
   OrganizationsSection,
 } from '@/features/contacts/components/contact-sections'
 import { ForgetContact } from '@/features/contacts/components/forget-contact'
-import { contactQuery, fullNameOf } from '@/features/contacts/queries'
+import { contactQuery, fullNameOf, organizationsOfContactQuery } from '@/features/contacts/queries'
 import { ExchangeDetailSheet } from '@/features/exchanges/components/exchange-detail'
 import {
   ExchangesSection,
@@ -55,6 +55,7 @@ function ContactPage() {
   const { contactId } = Route.useParams()
   const { exchange: opened } = Route.useSearch()
   const { data: contact } = useSuspenseQuery(contactQuery(contactId))
+  const organizations = useQuery(organizationsOfContactQuery(contactId))
   const name = fullNameOf(contact) || t('contacts.unnamed')
   const proposal = useNoteTheExchangeProposal()
 
@@ -80,7 +81,9 @@ function ContactPage() {
           )
         }
       />
-      {contact._links.tags && <ContactTags contactId={contact.id} />}
+      {contact._links.tags && (
+        <ContactTags contactId={contact.id} organizations={organizations.data?.items ?? []} />
+      )}
 
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
         <NameSection contact={contact} />

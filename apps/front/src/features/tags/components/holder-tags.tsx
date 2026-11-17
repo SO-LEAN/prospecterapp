@@ -32,16 +32,32 @@ export function OrganizationTags({ organizationId }: { organizationId: string })
   )
 }
 
-/** The tags of a contact, on their card. */
-export function ContactTags({ contactId }: { contactId: string }) {
+/**
+ * The tags of a contact, on their card: its own, then those it inherits, named after the organizations it works for,
+ * given by the route, and the automatic ones.
+ */
+export function ContactTags({
+  contactId,
+  organizations,
+}: {
+  contactId: string
+  organizations: { id: string; name: string }[]
+}) {
   const { data } = useQuery(contactTagsQuery(contactId))
   const tag = useTagContact()
   const takeOff = useTakeOffContactTag()
+  const organizationNamed = (organizationId: string) =>
+    organizations.find((organization) => organization.id === organizationId)?.name
 
   return (
     data && (
       <TagsLine
         tags={namesOf(data)}
+        inherited={data.inherited.map(({ name, from }) => ({
+          name,
+          from: from.map(organizationNamed).filter((organization) => organization !== undefined),
+        }))}
+        automatic={data.automatic}
         onTag={(typed) => tag.mutate({ params: { path: { id: contactId } }, body: { tags: [typed] } })}
         onTakeOff={(name) => takeOff.mutate({ params: { path: { id: contactId, tag: nameOf(name) } } })}
       />

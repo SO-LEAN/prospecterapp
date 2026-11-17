@@ -21,13 +21,17 @@ describe('a contact of the list', () => {
   it('shows every tag it carries, in small', async () => {
     await renderInARouter(<ContactCard contact={ada(['#EMAIL', '#ESN', '#SMS'])} />)
 
-    const tags = screen.getByRole('list', { name: 'Tags de Ada Lovelace' })
-    expect(within(tags).getAllByRole('listitem').map((tag) => tag.textContent)).toEqual(['#EMAIL', '#ESN', '#SMS'])
+    const tags = screen.getByRole('list', { name: 'Tags d’Ada Lovelace' })
+    expect(
+      within(tags)
+        .getAllByRole('listitem')
+        .map((tag) => tag.textContent),
+    ).toEqual(['#EMAIL', '#ESN', '#SMS'])
   })
 
   it('shows no list of tags when it carries none', async () => {
     await renderInARouter(<ContactCard contact={ada([])} />)
 
-    expect(screen.queryByRole('list', { name: 'Tags de Ada Lovelace' })).not.toBeInTheDocument()
+    expect(screen.queryByRole('list', { name: 'Tags d’Ada Lovelace' })).not.toBeInTheDocument()
   })
 })

@@ -49,10 +49,17 @@ export function useChangeJobTitle() {
   })
 }
 
+/** How the contact is reached sets its automatic tags, by the reactions to the gesture (ADR 0141). */
 export function useChangeContactDetailsOfContact() {
+  const queryClient = useQueryClient()
+  const store = useStoreContact()
+
   return api.useMutation('patch', '/api/contacts/{id}/contact-details', {
     ...formIntention,
-    onSuccess: useStoreContact(),
+    onSuccess: (contact) => {
+      store(contact)
+      readAgainAfterTheReactions(queryClient, queryKeys.contactTags, queryKeys.contactList)
+    },
   })
 }
 

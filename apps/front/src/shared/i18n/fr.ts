@@ -243,6 +243,7 @@ export const fr = {
     unnamed: 'Contact sans nom',
     masked: 'Données masquées',
     organizationsOf: 'Organisations {{name, de}}',
+    tagsOf: 'Tags {{name, de}}',
     sections: {
       name: 'Nom',
       jobTitle: 'Fonction',
@@ -267,6 +268,8 @@ export const fr = {
     proposed: 'Tags proposés',
     create: 'Créer « {{tag}} »',
     own: 'Mes tags',
+    inheritedFrom: 'Hérité de {{organizations}}',
+    automatic: 'Automatique',
     families: {
       organizationType: 'Type d’organisation',
       relationship: 'Relation avec le contact',
