@@ -88,6 +88,23 @@ class StartedCampaignsApiTest extends ApiTestCase
         $this->assertSame(1, $this->requestJson('GET', '/api/campaigns/'.$id)['targeted']);
     }
 
+    public function testAFrozenCampaignItsErasedContactsEmptiedNoLongerStartsAndIsStillDiscarded(): void
+    {
+        $id = $this->aFrozenCampaign();
+        $this->requestJson('DELETE', '/api/contacts/'.$this->ada);
+
+        $emptied = $this->requestJson('GET', '/api/campaigns/'.$id);
+        $this->assertSame(['frozen', 0], [$emptied['status'], $emptied['targeted']]);
+        $this->assertArrayNotHasKey('start', $emptied['_links']);
+        $this->assertArrayHasKey('discard', $emptied['_links']);
+        $this->assertSame('campaignWithoutRecipient', $this->requestJson('POST', '/api/campaigns/'.$id.'/starting')['reason']);
+        $this->assertResponseStatusCodeSame(422);
+
+        $this->requestJson('DELETE', '/api/campaigns/'.$id);
+        $this->assertResponseIsSuccessful();
+        $this->assertNotContains($id, array_column($this->requestJson('GET', '/api/campaigns')['items'], 'id'));
+    }
+
     public function testAnAdministratorStartsAndStopsACampaign(): void
     {
         $this->login($this->aMemberOfTheFixtures('administrator', Role::Prospector, Role::Admin));
