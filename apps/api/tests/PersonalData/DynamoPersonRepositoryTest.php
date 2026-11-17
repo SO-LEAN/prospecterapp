@@ -3,6 +3,7 @@
 namespace Tests\App\PersonalData;
 
 use App\PersonalData\Persistence\PersonDocument;
+use Prospecter\Core\PersonalData\Domain\Model\Civility;
 use Prospecter\Core\PersonalData\Domain\Model\LinkedInProfile;
 use Prospecter\Core\PersonalData\Domain\Model\Person;
 use Prospecter\Core\PersonalData\Domain\Model\Purpose;
@@ -79,6 +80,20 @@ class DynamoPersonRepositoryTest extends ApiTestCase
         $savedBefore = PersonDocument::of($ada);
         unset($savedBefore['linkedInProfile']);
         $this->assertNull(PersonDocument::person($savedBefore)->linkedInProfile());
+    }
+
+    public function testTheCivilityOfAContactIsReadBackAndAPersonSavedBeforeHasNone(): void
+    {
+        $persons = self::getContainer()->get(PersonRepository::class);
+        $camille = $this->personWithTheEmail(new AccountId(self::newIdentity()), 'camille@solean-it.io');
+        $camille->changeCivility(Civility::Monsieur, by: new Reader(new MemberId(self::newIdentity()), $camille->accountId(), new PersonId(self::newIdentity()), readsPersonalData: true), at: new \DateTimeImmutable());
+        $camille->releaseEvents();
+        $persons->save($camille);
+
+        $this->assertEquals([$camille], $persons->ofIds([$camille->id()]));
+        $savedBefore = PersonDocument::of($camille);
+        unset($savedBefore['civility']);
+        $this->assertNull(PersonDocument::person($savedBefore)->civility());
     }
 
     private function personWithTheEmail(AccountId $account, string $email): Person
