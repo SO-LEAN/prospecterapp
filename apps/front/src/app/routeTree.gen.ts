@@ -15,6 +15,9 @@ import { Route as AppAccountRouteImport } from './../routes/_app/account'
 import { Route as AppCalendarRouteImport } from './../routes/_app/calendar'
 import { Route as AppSettingsRouteImport } from './../routes/_app/settings'
 import { Route as AuthSignInRouteImport } from './../routes/auth/sign-in'
+import { Route as AppCampaignsIndexRouteImport } from './../routes/_app/campaigns/index'
+import { Route as AppCampaignsCampaignIdRouteImport } from './../routes/_app/campaigns/$campaignId'
+import { Route as AppCampaignsNewRouteImport } from './../routes/_app/campaigns/new'
 import { Route as AppContactsIndexRouteImport } from './../routes/_app/contacts/index'
 import { Route as AppOrganizationsIndexRouteImport } from './../routes/_app/organizations/index'
 import { Route as AppOrganizationsNewRouteImport } from './../routes/_app/organizations/new'
@@ -50,6 +53,21 @@ const AuthSignInRoute = AuthSignInRouteImport.update({
   id: '/auth/sign-in',
   path: '/auth/sign-in',
   getParentRoute: () => rootRouteImport,
+} as any)
+const AppCampaignsIndexRoute = AppCampaignsIndexRouteImport.update({
+  id: '/campaigns/',
+  path: '/campaigns/',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppCampaignsCampaignIdRoute = AppCampaignsCampaignIdRouteImport.update({
+  id: '/campaigns/$campaignId',
+  path: '/campaigns/$campaignId',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppCampaignsNewRoute = AppCampaignsNewRouteImport.update({
+  id: '/campaigns/new',
+  path: '/campaigns/new',
+  getParentRoute: () => AppRoute,
 } as any)
 const AppContactsIndexRoute = AppContactsIndexRouteImport.update({
   id: '/contacts/',
@@ -91,7 +109,10 @@ export interface FileRoutesByFullPath {
   '/calendar': typeof AppCalendarRoute
   '/settings': typeof AppSettingsRoute
   '/auth/sign-in': typeof AuthSignInRoute
+  '/campaigns/$campaignId': typeof AppCampaignsCampaignIdRoute
+  '/campaigns/new': typeof AppCampaignsNewRoute
   '/organizations/new': typeof AppOrganizationsNewRoute
+  '/campaigns/': typeof AppCampaignsIndexRoute
   '/contacts/': typeof AppContactsIndexRoute
   '/organizations/': typeof AppOrganizationsIndexRoute
   '/settings/connectors/google': typeof AppSettingsConnectorsGoogleRoute
@@ -104,7 +125,10 @@ export interface FileRoutesByTo {
   '/settings': typeof AppSettingsRoute
   '/auth/sign-in': typeof AuthSignInRoute
   '/': typeof AppIndexRoute
+  '/campaigns/$campaignId': typeof AppCampaignsCampaignIdRoute
+  '/campaigns/new': typeof AppCampaignsNewRoute
   '/organizations/new': typeof AppOrganizationsNewRoute
+  '/campaigns': typeof AppCampaignsIndexRoute
   '/contacts': typeof AppContactsIndexRoute
   '/organizations': typeof AppOrganizationsIndexRoute
   '/settings/connectors/google': typeof AppSettingsConnectorsGoogleRoute
@@ -119,7 +143,10 @@ export interface FileRoutesById {
   '/_app/settings': typeof AppSettingsRoute
   '/auth/sign-in': typeof AuthSignInRoute
   '/_app/': typeof AppIndexRoute
+  '/_app/campaigns/$campaignId': typeof AppCampaignsCampaignIdRoute
+  '/_app/campaigns/new': typeof AppCampaignsNewRoute
   '/_app/organizations/new': typeof AppOrganizationsNewRoute
+  '/_app/campaigns/': typeof AppCampaignsIndexRoute
   '/_app/contacts/': typeof AppContactsIndexRoute
   '/_app/organizations/': typeof AppOrganizationsIndexRoute
   '/_app/settings_/connectors/google': typeof AppSettingsConnectorsGoogleRoute
@@ -134,7 +161,10 @@ export interface FileRouteTypes {
     | '/calendar'
     | '/settings'
     | '/auth/sign-in'
+    | '/campaigns/$campaignId'
+    | '/campaigns/new'
     | '/organizations/new'
+    | '/campaigns/'
     | '/contacts/'
     | '/organizations/'
     | '/settings/connectors/google'
@@ -147,7 +177,10 @@ export interface FileRouteTypes {
     | '/settings'
     | '/auth/sign-in'
     | '/'
+    | '/campaigns/$campaignId'
+    | '/campaigns/new'
     | '/organizations/new'
+    | '/campaigns'
     | '/contacts'
     | '/organizations'
     | '/settings/connectors/google'
@@ -161,7 +194,10 @@ export interface FileRouteTypes {
     | '/_app/settings'
     | '/auth/sign-in'
     | '/_app/'
+    | '/_app/campaigns/$campaignId'
+    | '/_app/campaigns/new'
     | '/_app/organizations/new'
+    | '/_app/campaigns/'
     | '/_app/contacts/'
     | '/_app/organizations/'
     | '/_app/settings_/connectors/google'
@@ -218,6 +254,27 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthSignInRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/_app/campaigns/': {
+      id: '/_app/campaigns/'
+      path: '/campaigns'
+      fullPath: '/campaigns/'
+      preLoaderRoute: typeof AppCampaignsIndexRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/_app/campaigns/$campaignId': {
+      id: '/_app/campaigns/$campaignId'
+      path: '/campaigns/$campaignId'
+      fullPath: '/campaigns/$campaignId'
+      preLoaderRoute: typeof AppCampaignsCampaignIdRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/_app/campaigns/new': {
+      id: '/_app/campaigns/new'
+      path: '/campaigns/new'
+      fullPath: '/campaigns/new'
+      preLoaderRoute: typeof AppCampaignsNewRouteImport
+      parentRoute: typeof AppRoute
+    }
     '/_app/contacts/': {
       id: '/_app/contacts/'
       path: '/contacts'
@@ -268,7 +325,10 @@ interface AppRouteChildren {
   AppCalendarRoute: typeof AppCalendarRoute
   AppSettingsRoute: typeof AppSettingsRoute
   AppIndexRoute: typeof AppIndexRoute
+  AppCampaignsCampaignIdRoute: typeof AppCampaignsCampaignIdRoute
+  AppCampaignsNewRoute: typeof AppCampaignsNewRoute
   AppOrganizationsNewRoute: typeof AppOrganizationsNewRoute
+  AppCampaignsIndexRoute: typeof AppCampaignsIndexRoute
   AppContactsIndexRoute: typeof AppContactsIndexRoute
   AppOrganizationsIndexRoute: typeof AppOrganizationsIndexRoute
   AppSettingsConnectorsGoogleRoute: typeof AppSettingsConnectorsGoogleRoute
@@ -281,7 +341,10 @@ const AppRouteChildren: AppRouteChildren = {
   AppCalendarRoute: AppCalendarRoute,
   AppSettingsRoute: AppSettingsRoute,
   AppIndexRoute: AppIndexRoute,
+  AppCampaignsCampaignIdRoute: AppCampaignsCampaignIdRoute,
+  AppCampaignsNewRoute: AppCampaignsNewRoute,
   AppOrganizationsNewRoute: AppOrganizationsNewRoute,
+  AppCampaignsIndexRoute: AppCampaignsIndexRoute,
   AppContactsIndexRoute: AppContactsIndexRoute,
   AppOrganizationsIndexRoute: AppOrganizationsIndexRoute,
   AppSettingsConnectorsGoogleRoute: AppSettingsConnectorsGoogleRoute,
