@@ -24,6 +24,8 @@ final readonly class DynamoConnectionRepository implements ConnectionRepository
 {
     /** the client of the instance the connections made before ADR 0125 were granted to, which no account has */
     private const string CLIENT_OF_THE_INSTANCE = 'the-client-of-the-instance';
+    /** `connection` a reserved word of DynamoDB, named by a placeholder */
+    private const string STILL_THE_SAME = 'attribute_exists(PK) AND #connection.connectedAt = :connectedAt';
 
     public function __construct(private Table $connectorsTable)
     {
@@ -71,11 +73,14 @@ final readonly class DynamoConnectionRepository implements ConnectionRepository
     }
 
     /**
-     * Conditioned on the item still there: a connection removed meanwhile fails the commit (`ConditionFailed`).
+     * Conditioned on the item still there, connected at the same moment: a connection removed meanwhile, or made
+     * again, fails the commit (`ConditionFailed`).
      */
     public function replace(Connection $connection): void
     {
-        $this->connectorsTable->transact([$this->connectorsTable->replacing(self::itemOf($connection), 'attribute_exists(PK)')]);
+        $item = self::itemOf($connection);
+
+        $this->connectorsTable->transact([$this->connectorsTable->replacing($item, self::STILL_THE_SAME, [':connectedAt' => $item['connection']['connectedAt']], ['#connection' => 'connection'])]);
     }
 
     /**
