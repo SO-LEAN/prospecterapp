@@ -2458,6 +2458,8 @@ export interface components {
         };
         TagsResource: {
             tags: components["schemas"]["TagResource"][];
+            /** @description Set from where the organization is: the big city around, its department and its region, the city first */
+            automatic: string[];
             _links: components["schemas"]["TagsLinksResource"];
         };
         TagFamilyResource: {
@@ -2482,12 +2484,15 @@ export interface components {
              */
             own: string[];
             /**
-             * @description The tags set by how a contact is reached, to search the contacts by, never put by hand
+             * @description The tags set by Prospecter, to search the contacts by, never put by hand: those of how a contact is reached, then the geographic tags its organizations carry, in the order of their names
              * @example [
              *       "#EMAIL",
              *       "#PHONE",
              *       "#SMS",
-             *       "#LINKEDIN"
+             *       "#LINKEDIN",
+             *       "#67",
+             *       "#GRAND_EST",
+             *       "#STRASBOURG"
              *     ]
              */
             automatic: string[];

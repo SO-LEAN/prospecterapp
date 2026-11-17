@@ -19,11 +19,13 @@ final class TagsResourcePresenter implements ConsultOrganizationTagsOutput
 
     /**
      * @param list<string> $tags
+     * @param list<string> $automatic
      */
-    public function present(array $tags): void
+    public function present(array $tags, array $automatic): void
     {
         $this->resource = new TagsResource(
             array_map(fn (string $name): TagResource => $this->tags->putByHand(TagRoutes::Organization, $this->organizationId, $name), $tags),
+            $automatic,
             $this->tags->linksOf(TagRoutes::Organization, $this->organizationId),
         );
     }

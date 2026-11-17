@@ -4,6 +4,7 @@ namespace App\Consistency;
 
 use App\Accounts\Persistence\AccountsKeys;
 use App\Campaigns\Persistence\CampaignsKeys;
+use App\Campaigns\Persistence\OrganizationFactItem;
 use App\Connectors\Persistence\ConnectorsKeys;
 use App\PersonalData\Persistence\PersonalDataKeys;
 use App\Prospecting\Persistence\ExchangeKeys;
@@ -149,9 +150,28 @@ final readonly class ContextTables
      */
     public function organizationFactsOf(string $accountId): array
     {
-        $facts = array_filter($this->campaignsTable->queryBetween(CampaignsKeys::account($accountId), null, ...CampaignsKeys::organizationFacts()), static fn (array $item): bool => $item['present']);
+        $facts = $this->presentOrganizationFactsOf($accountId);
 
-        return array_combine(array_map(static fn (array $item): string => substr($item['SK'], strlen(CampaignsKeys::organizationFact(''))), $facts), array_column($facts, 'contacts'));
+        return array_combine(array_map(static fn (array $item): string => CampaignsKeys::organizationOfFact($item['SK']), $facts), array_column($facts, 'contacts'));
+    }
+
+    /**
+     * @return array<string, array{municipalityCode: ?string, country: ?string}> where each organization is, by its id, as
+     *                                                                           the facts Campaigns keeps of those still present say (ADR 0142)
+     */
+    public function organizationLocalitiesOf(string $accountId): array
+    {
+        $facts = $this->presentOrganizationFactsOf($accountId);
+
+        return array_combine(array_map(static fn (array $item): string => CampaignsKeys::organizationOfFact($item['SK']), $facts), array_map(OrganizationFactItem::localityIn(...), $facts));
+    }
+
+    /**
+     * @return list<array<string, mixed>>
+     */
+    private function presentOrganizationFactsOf(string $accountId): array
+    {
+        return array_values(array_filter($this->campaignsTable->queryBetween(CampaignsKeys::account($accountId), null, ...CampaignsKeys::organizationFacts()), static fn (array $item): bool => $item['present']));
     }
 
     /**

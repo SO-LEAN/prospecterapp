@@ -9467,6 +9467,7 @@
             "TagsResource": {
                 "required": [
                     "tags",
+                    "automatic",
                     "_links"
                 ],
                 "properties": {
@@ -9474,6 +9475,14 @@
                         "type": "array",
                         "items": {
                             "$ref": "#/components/schemas/TagResource"
+                        }
+                    },
+                    "automatic": {
+                        "description": "Set from where the organization is: the big city around, its department and its region, the city first",
+                        "type": "array",
+                        "items": {
+                            "type": "string",
+                            "example": "#STRASBOURG"
                         }
                     },
                     "_links": {
@@ -9534,7 +9543,7 @@
                         ]
                     },
                     "automatic": {
-                        "description": "The tags set by how a contact is reached, to search the contacts by, never put by hand",
+                        "description": "The tags set by Prospecter, to search the contacts by, never put by hand: those of how a contact is reached, then the geographic tags its organizations carry, in the order of their names",
                         "type": "array",
                         "items": {
                             "type": "string"
@@ -9543,7 +9552,10 @@
                             "#EMAIL",
                             "#PHONE",
                             "#SMS",
-                            "#LINKEDIN"
+                            "#LINKEDIN",
+                            "#67",
+                            "#GRAND_EST",
+                            "#STRASBOURG"
                         ]
                     }
                 },

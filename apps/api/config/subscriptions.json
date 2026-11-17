@@ -114,10 +114,11 @@
   "reporting-figures": {
     "context": "reporting",
     "sources": ["prospecter.prospecting", "prospecter.personal-data"],
-    "events": ["OrganizationFactsChanged.v1", "OrganizationFactsChanged.v2", "ExchangeFactsChanged.v1", "ExchangeFactsChanged.v2", "ContactFactsChanged.v1", "ContactFactsChanged.v2"],
+    "events": ["OrganizationFactsChanged.v1", "OrganizationFactsChanged.v2", "OrganizationFactsChanged.v3", "ExchangeFactsChanged.v1", "ExchangeFactsChanged.v2", "ContactFactsChanged.v1", "ContactFactsChanged.v2"],
     "handlers": {
       "OrganizationFactsChanged.v1": "Prospecter\\Core\\Reporting\\Application\\RecordOrganizationFacts\\RecordOrganizationFactsHandler",
       "OrganizationFactsChanged.v2": "Prospecter\\Core\\Reporting\\Application\\RecordOrganizationFacts\\RecordOrganizationFactsHandler",
+      "OrganizationFactsChanged.v3": "Prospecter\\Core\\Reporting\\Application\\RecordOrganizationFacts\\RecordOrganizationFactsHandler",
       "ExchangeFactsChanged.v1": "Prospecter\\Core\\Reporting\\Application\\RecordExchangeFacts\\RecordExchangeFactsHandler",
       "ExchangeFactsChanged.v2": "Prospecter\\Core\\Reporting\\Application\\RecordExchangeFacts\\RecordExchangeFactsHandler",
       "ContactFactsChanged.v1": "Prospecter\\Core\\Reporting\\Application\\RecordContactFacts\\RecordContactFactsHandler",
@@ -150,7 +151,7 @@
   "campaigns-forget-tags-of-unprospected-organization": {
     "context": "campaigns",
     "sources": ["prospecter.prospecting"],
-    "events": ["OrganizationFactsChanged.v1", "OrganizationFactsChanged.v2"],
+    "events": ["OrganizationFactsChanged.v1", "OrganizationFactsChanged.v2", "OrganizationFactsChanged.v3"],
     "payload": {"present": [false]},
     "handler": "Prospecter\\Core\\Campaigns\\Application\\ForgetTagsOfUnprospectedOrganization\\ForgetTagsOfUnprospectedOrganizationHandler",
     "inbox": false
@@ -172,9 +173,10 @@
   "campaigns-record-facts": {
     "context": "campaigns",
     "sources": ["prospecter.prospecting", "prospecter.personal-data"],
-    "events": ["OrganizationFactsChanged.v2", "ContactFactsChanged.v2"],
+    "events": ["OrganizationFactsChanged.v2", "OrganizationFactsChanged.v3", "ContactFactsChanged.v2"],
     "handlers": {
       "OrganizationFactsChanged.v2": "Prospecter\\Core\\Campaigns\\Application\\RecordOrganizationFacts\\RecordOrganizationFactsHandler",
+      "OrganizationFactsChanged.v3": "Prospecter\\Core\\Campaigns\\Application\\RecordOrganizationFacts\\RecordOrganizationFactsHandler",
       "ContactFactsChanged.v2": "Prospecter\\Core\\Campaigns\\Application\\RecordContactFacts\\RecordContactFactsHandler"
     },
     "inbox": false

@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Campaigns\AntiCorruption;
 
+use Prospecter\Core\Campaigns\Domain\Model\Locality;
 use Prospecter\Core\Campaigns\Domain\Model\OrganizationFact;
 use Prospecter\Core\Campaigns\Domain\Port\OrganizationsAndTheirContacts;
 use Prospecter\Core\Prospecting\Contract\Service\ListOrganizationFacts\KeptOrganizationFacts;
@@ -40,6 +41,7 @@ final readonly class ProspectingOrganizationsAndTheirContacts implements Organiz
                 $facts->revision,
                 $facts->present,
                 array_map(static fn (string $contact): PersonId => new PersonId($contact), $facts->contacts),
+                new Locality($facts->municipalityCode, $facts->country),
             ), $kept->facts);
 
             $after = $kept->next;

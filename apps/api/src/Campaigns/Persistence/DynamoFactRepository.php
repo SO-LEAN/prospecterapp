@@ -6,6 +6,7 @@ use App\Shared\Persistence\Table;
 use App\Shared\Persistence\Write;
 use Prospecter\Core\Campaigns\Domain\Model\ContactFact;
 use Prospecter\Core\Campaigns\Domain\Model\Fact;
+use Prospecter\Core\Campaigns\Domain\Model\Locality;
 use Prospecter\Core\Campaigns\Domain\Model\OrganizationFact;
 use Prospecter\Core\Campaigns\Domain\Model\Reach;
 use Prospecter\Core\Campaigns\Domain\Repository\FactRepository;
@@ -21,7 +22,8 @@ use Psr\Clock\ClockInterface;
  * A terminal fact is forgotten 15 days later, longer than an event may wait (6 hours in the worker, a day of retries of
  * EventBridge, 14 days in the failures).
  *
- * PK `ACCOUNT#<account>`, SK `FACT#ORGANIZATION#<id>` (`revision`, `present`, `contacts`), `FACT#CONTACT#<id>`
+ * PK `ACCOUNT#<account>`, SK `FACT#ORGANIZATION#<id>` (`revision`, `present`, `contacts`, `municipalityCode` and
+ * `country`, ADR 0142, absent from the facts recorded before), `FACT#CONTACT#<id>`
  * (`revision`, `present`, `hasEmail`, `hasPhone`, `hasMobile`, `hasLinkedIn`) and its links
  * `FACT#CONTACT#<id>#ORGANIZATION#<organization>` (`organization`), `expiresAt` the epoch a terminal fact is forgotten at.
  */
@@ -106,7 +108,7 @@ final readonly class DynamoFactRepository implements FactRepository
     private static function attributesOf(Fact $fact): array
     {
         return match (true) {
-            $fact instanceof OrganizationFact => ['contacts' => self::contactsNamedBy($fact)],
+            $fact instanceof OrganizationFact => ['contacts' => self::contactsNamedBy($fact), 'municipalityCode' => $fact->locality->municipalityCode, 'country' => $fact->locality->country],
             $fact instanceof ContactFact => ['hasEmail' => $fact->reach->email, 'hasPhone' => $fact->reach->phone, 'hasMobile' => $fact->reach->mobile, 'hasLinkedIn' => $fact->reach->linkedIn],
             default => [],
         };
@@ -121,7 +123,7 @@ final readonly class DynamoFactRepository implements FactRepository
         $present = (bool) $item['present'];
 
         return match (true) {
-            $about instanceof OrganizationFact => new OrganizationFact($about->accountId, new OrganizationId($about->id->value), $revision, $present, array_map(static fn (string $contact): PersonId => new PersonId($contact), $item['contacts'])),
+            $about instanceof OrganizationFact => new OrganizationFact($about->accountId, new OrganizationId($about->id->value), $revision, $present, array_map(static fn (string $contact): PersonId => new PersonId($contact), $item['contacts']), Locality::read(OrganizationFactItem::localityIn($item))),
             $about instanceof ContactFact => new ContactFact($about->accountId, new PersonId($about->id->value), $revision, $present, new Reach((bool) $item['hasEmail'], (bool) $item['hasPhone'], (bool) $item['hasMobile'], (bool) $item['hasLinkedIn'])),
             default => throw new \LogicException(sprintf('No item keeps a %s', $about::class)),
         };

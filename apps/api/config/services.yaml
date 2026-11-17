@@ -150,6 +150,7 @@ services:
     Prospecter\Core\Prospecting\Application\Port\CalendarRetriever: '@App\Prospecting\Persistence\DynamoCalendarRetriever'
     Prospecter\Core\Prospecting\Application\Port\OrganizationOfContactRetriever: '@App\Prospecting\Persistence\DynamoOrganizationOfContactRetriever'
     Prospecter\Core\Prospecting\Application\Port\OrganizationFactsRetriever: '@App\Prospecting\Persistence\DynamoOrganizationFactsRetriever'
+    Prospecter\Core\Prospecting\Application\Port\OrganizationsToLocateAgainRetriever: '@App\Prospecting\Persistence\DynamoOrganizationsToLocateAgainRetriever'
     Prospecter\Core\Prospecting\Application\Port\ExchangeFactsRetriever: '@App\Prospecting\Persistence\DynamoExchangeFactsRetriever'
     Prospecter\Core\Prospecting\Application\Port\HeldExchangeRetriever: '@App\Prospecting\Persistence\DynamoHeldExchangeRetriever'
     Prospecter\Core\Reporting\Domain\Repository\FactRepository: '@App\Reporting\Persistence\DynamoFactRepository'

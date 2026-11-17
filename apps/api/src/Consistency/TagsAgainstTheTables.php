@@ -7,9 +7,9 @@ use App\Shared\Persistence\Documents;
 
 /**
  * The facts the tags of the contacts derive from, kept by Campaigns, against the tables of Prospecting and PersonalData
- * (ADR 0141): an organization whose contacts, or a contact whose reach, Campaigns lacks or keeps out of date is
- * corrected by a rebuild of the tags of its account; a fact kept for what is gone, a terminal fact missed, by the
- * reaction given again.
+ * (ADR 0141): an organization whose contacts or whose locality (ADR 0142), or a contact whose reach, Campaigns lacks or
+ * keeps out of date is corrected by a rebuild of the tags of its account; a fact kept for what is gone, a terminal fact
+ * missed, by the reaction given again.
  */
 final readonly class TagsAgainstTheTables
 {
@@ -32,7 +32,9 @@ final readonly class TagsAgainstTheTables
      */
     private function discrepanciesOf(string $accountId): array
     {
-        $organizations = array_column($this->tables->organizationsOf($accountId), 'contacts', 'id');
+        $organizationDocuments = $this->tables->organizationsOf($accountId);
+        $organizations = array_column($organizationDocuments, 'contacts', 'id');
+        $localities = array_combine(array_column($organizationDocuments, 'id'), array_map(self::localityOf(...), $organizationDocuments));
         $persons = $this->tables->contactDocumentsOf($accountId);
         $contacts = array_combine(array_column($persons, 'id'), array_map(self::reachOf(...), $persons));
         $organizationFacts = $this->tables->organizationFactsOf($accountId);
@@ -40,6 +42,7 @@ final readonly class TagsAgainstTheTables
 
         return [
             ...self::outOfDate($accountId, $organizations, $organizationFacts, self::sorted(...), 'contacts of the organization out of date in Campaigns'),
+            ...self::outOfDate($accountId, $localities, $this->tables->organizationLocalitiesOf($accountId), static fn (array $locality): array => $locality, 'locality of the organization out of date in Campaigns'),
             ...self::keptForWhatIsGone($accountId, $organizations, $organizationFacts, 'facts kept in Campaigns for an organization no longer prospected'),
             ...self::outOfDate($accountId, $contacts, $contactFacts, static fn (array $reach): array => $reach, 'reach of the contact out of date in Campaigns'),
             ...self::keptForWhatIsGone($accountId, $contacts, $contactFacts, 'facts kept in Campaigns for a forgotten contact'),
@@ -69,6 +72,16 @@ final readonly class TagsAgainstTheTables
     private static function keptForWhatIsGone(string $accountId, array $state, array $facts, string $description): array
     {
         return array_map(static fn (string|int $id): Discrepancy => new Discrepancy($accountId, (string) $id, $description, Correction::GiveTheReactionAgain), array_keys(array_diff_key($facts, $state)));
+    }
+
+    /**
+     * @param array<string, mixed> $organization
+     *
+     * @return array{municipalityCode: ?string, country: ?string}
+     */
+    private static function localityOf(array $organization): array
+    {
+        return ['municipalityCode' => $organization['municipalityCode'] ?? null, 'country' => $organization['address']['country'] ?? null];
     }
 
     /**
