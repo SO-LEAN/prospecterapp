@@ -6,9 +6,7 @@ namespace Prospecter\Core\Campaigns\Application\ConsultContactTags;
 
 use Prospecter\Core\Campaigns\Application\Port\ContactTagSources;
 use Prospecter\Core\Campaigns\Application\Port\ContactTagsRetriever;
-use Prospecter\Core\Campaigns\Domain\Model\ContactTags;
 use Prospecter\Core\Campaigns\Domain\Model\InheritedTag;
-use Prospecter\Core\Campaigns\Domain\Model\Reach;
 use Prospecter\Core\Campaigns\Domain\Model\Tag;
 use Prospecter\Core\Campaigns\Domain\Port\Taggers;
 use Prospecter\Core\Campaigns\Domain\Service\TaggableHolders;
@@ -40,7 +38,7 @@ final readonly class ConsultContactTagsHandler implements QueryHandler
 
     private static function responseOf(ContactTagSources $sources): ContactTagsResponse
     {
-        $tags = ContactTags::of(self::tagsNamed($sources->own), array_map(self::tagsNamed(...), $sources->byOrganization), self::reachOf($sources));
+        $tags = $sources->tags();
 
         return new ContactTagsResponse(
             $sources->contactId,
@@ -48,23 +46,6 @@ final readonly class ConsultContactTagsHandler implements QueryHandler
             array_map(static fn (InheritedTag $inherited): InheritedTagResponse => new InheritedTagResponse((string) $inherited->tag, array_map(static fn (OrganizationId $organization): string => $organization->value, $inherited->from)), $tags->inherited),
             self::written($tags->automatic),
         );
-    }
-
-    private static function reachOf(ContactTagSources $sources): Reach
-    {
-        return null === $sources->reach
-            ? Reach::none()
-            : new Reach($sources->reach['email'], $sources->reach['phone'], $sources->reach['mobile'], $sources->reach['linkedIn']);
-    }
-
-    /**
-     * @param list<string> $names
-     *
-     * @return list<Tag>
-     */
-    private static function tagsNamed(array $names): array
-    {
-        return array_map(static fn (string $name): Tag => Tag::written(Tag::MARK.$name), $names);
     }
 
     /**

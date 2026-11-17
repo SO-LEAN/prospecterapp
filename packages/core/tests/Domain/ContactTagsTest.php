@@ -10,6 +10,7 @@ use Prospecter\Core\Campaigns\Domain\Model\ContactTags;
 use Prospecter\Core\Campaigns\Domain\Model\InheritedTag;
 use Prospecter\Core\Campaigns\Domain\Model\Reach;
 use Prospecter\Core\Campaigns\Domain\Model\Tag;
+use Prospecter\Core\Campaigns\Domain\Model\TagSelection;
 use Prospecter\Core\SharedKernel\Domain\OrganizationId;
 
 final class ContactTagsTest extends TestCase
@@ -44,6 +45,27 @@ final class ContactTagsTest extends TestCase
     public function testAnOrganizationWithoutTagsGivesNone(): void
     {
         $this->assertSame([], ContactTags::of([], [self::ACME => []], Reach::none())->inherited);
+    }
+
+    #[DataProvider('selections')]
+    public function testItsOwnInheritedAndAutomaticTagsCountAlikeForASelection(string $chosen, bool $carried): void
+    {
+        $tags = ContactTags::of(self::tags('#DECIDEUR'), [self::ACME => self::tags('#ESN')], new Reach(true, false, false, false));
+
+        $this->assertSame($carried, $tags->carriesAll(TagSelection::of(explode(' ', $chosen))));
+    }
+
+    /**
+     * @return iterable<string, array{string, bool}>
+     */
+    public static function selections(): iterable
+    {
+        yield 'its own' => ['#DECIDEUR', true];
+        yield 'inherited' => ['#ESN', true];
+        yield 'automatic' => ['#EMAIL', true];
+        yield 'all three' => ['#DECIDEUR #ESN #EMAIL', true];
+        yield 'one missing' => ['#ESN #PHONE', false];
+        yield 'none carried' => ['#RH', false];
     }
 
     #[DataProvider('reaches')]

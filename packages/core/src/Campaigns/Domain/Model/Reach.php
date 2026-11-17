@@ -25,6 +25,17 @@ final readonly class Reach
     }
 
     /**
+     * Every tag a reach may set, in the order of the means: #EMAIL, #PHONE, #SMS, #LINKEDIN.
+     *
+     * @return list<Tag>
+     */
+    #[\NoDiscard]
+    public static function everyAutomaticTag(): array
+    {
+        return array_map(Tag::written(...), array_values(self::TAGS));
+    }
+
+    /**
      * #EMAIL with an e-mail, #PHONE with a phone, #SMS when it is a mobile, #LINKEDIN with a LinkedIn profile.
      *
      * @return list<Tag>

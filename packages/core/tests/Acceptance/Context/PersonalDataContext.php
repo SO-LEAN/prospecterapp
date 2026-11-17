@@ -10,6 +10,7 @@ use Behat\Step\Given;
 use Behat\Step\Then;
 use Behat\Step\When;
 use Prospecter\Core\Accounts\Domain\Model\Role;
+use Prospecter\Core\Campaigns\Application\SearchContactsByTags\SearchContactsByTags;
 use Prospecter\Core\PersonalData\Application\ChangeJobTitle\ChangeJobTitle;
 use Prospecter\Core\PersonalData\Application\CollectContact\CollectContact;
 use Prospecter\Core\PersonalData\Application\ConsultPerson\ConsultPerson;
@@ -39,6 +40,8 @@ final class PersonalDataContext implements Context
 
     private ?PersonCard $consulted = null;
     private ?ContactPage $found = null;
+    private ?int $foundInAll = null;
+    private ?SearchContactsByTags $searchedByTags = null;
     /** @var array<string, PersonCard>|null */
     private ?array $batch = null;
 
@@ -133,6 +136,47 @@ final class PersonalDataContext implements Context
         $this->found = $this->application->searchContacts(new SearchContacts($this->application->signedIn(), query: $text));
     }
 
+    /**
+     * As the API composes them: Campaigns finds the contacts carrying the tags, PersonalData reads them.
+     */
+    #[When('je cherche mes contacts tagués :tags')]
+    public function iSearchMyContactsTagged(string $tags): void
+    {
+        $this->searchByTags(new SearchContactsByTags($this->application->signedIn(), explode(' ', $tags)));
+    }
+
+    #[When('je cherche mes contacts tagués :tags par tranches de :max')]
+    public function iSearchMyContactsTaggedBySlicesOf(string $tags, int $max): void
+    {
+        $this->searchByTags(new SearchContactsByTags($this->application->signedIn(), explode(' ', $tags), max: $max));
+    }
+
+    #[When('je demande la tranche suivante')]
+    public function iAskTheNextSlice(): void
+    {
+        Expect::that(null !== $this->searchedByTags && null !== $this->found?->next, 'A next slice was expected');
+        $this->searchByTags(new SearchContactsByTags($this->searchedByTags->memberId, $this->searchedByTags->tags, $this->found->next, $this->searchedByTags->max));
+    }
+
+    #[Then('c\'est la dernière tranche')]
+    public function itIsTheLastSlice(): void
+    {
+        Expect::that(null !== $this->found && null === $this->found->next, 'The last slice was expected');
+    }
+
+    private function searchByTags(SearchContactsByTags $query): void
+    {
+        $this->searchedByTags = $query;
+        $page = $this->application->searchContactsByTags($query);
+        $this->found = null;
+        $this->foundInAll = $page?->found;
+
+        if (null !== $page) {
+            $read = $this->application->consultPersons(new ConsultPersons($this->application->signedIn(), $page->contactIds)) ?? [];
+            $this->found = new ContactPage(array_values(array_filter(array_map(static fn (string $id): ?PersonCard => $read[$id] ?? null, $page->contactIds))), $page->next, []);
+        }
+    }
+
     #[When('je change la fonction de :name : :jobTitle')]
     public function iChangeTheJobTitle(string $name, string $jobTitle): void
     {
@@ -206,6 +250,27 @@ final class PersonalDataContext implements Context
         $shown = array_map(fn (PersonCard $contact): array => array_intersect_key($this->describe($contact), $columns), $this->found->contacts);
 
         Expect::same($table->getColumnsHash(), $shown);
+    }
+
+    #[Then('la liste des contacts est vide')]
+    public function theListOfContactsIsEmpty(): void
+    {
+        Expect::that(null !== $this->found, sprintf('Contacts were expected, got: %s', $this->application->refusal()?->getMessage()));
+        Expect::same([], $this->found->contacts);
+    }
+
+    #[Then(':name n\'est pas dans la liste')]
+    public function isNotInTheList(string $name): void
+    {
+        Expect::that(null !== $this->found, sprintf('Contacts were expected, got: %s', $this->application->refusal()?->getMessage()));
+        $absent = $this->scenario->personIdOf($name);
+        Expect::that(!array_any($this->found->contacts, static fn (PersonCard $contact): bool => $contact->id === $absent), sprintf('%s is in the list', $name));
+    }
+
+    #[Then(':count contacts sont trouvés')]
+    public function contactsAreFound(int $count): void
+    {
+        Expect::same($count, $this->foundInAll);
     }
 
     #[Then('je peux sur mes contacts :')]

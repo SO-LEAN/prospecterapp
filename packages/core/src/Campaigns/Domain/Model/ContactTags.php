@@ -35,6 +35,15 @@ final readonly class ContactTags
     }
 
     /**
+     * Its own, inherited and automatic tags count alike.
+     */
+    #[\NoDiscard]
+    public function carriesAll(TagSelection $selection): bool
+    {
+        return $selection->isAllAmong([...$this->own, ...array_map(static fn (InheritedTag $inherited): Tag => $inherited->tag, $this->inherited), ...$this->automatic]);
+    }
+
+    /**
      * @param list<Tag>                $own
      * @param array<string, list<Tag>> $byOrganization
      *
