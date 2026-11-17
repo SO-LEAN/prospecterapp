@@ -1,6 +1,7 @@
 import { useQueryClient } from '@tanstack/react-query'
 import { useTranslation } from 'react-i18next'
 import { toast } from 'sonner'
+import { timelineKeys } from '@/features/exchanges/queries'
 import { api } from '@/shared/api/client'
 import { type Campaign, campaignKeys, campaignQuery } from './queries'
 
@@ -126,6 +127,51 @@ export function useStopCampaign() {
       toast.success(t('campaigns.stop.done'))
     },
   })
+}
+
+/**
+ * The exchange of a recipient noted in the campaign: Campaigns processes them a moment later, reacting to the facts of
+ * the exchange (ADR 0145), so the page moves on at once and the campaign, its recipients and the timelines are read
+ * again behind.
+ */
+export function useNoteCampaignExchange(campaignId: string) {
+  const { t } = useTranslation()
+  const recipientHandled = useRecipientHandled(campaignId)
+
+  return api.useMutation('post', '/api/campaigns/{id}/recipients/{contactId}/exchanges', {
+    meta: { silentValidation: true },
+    onSuccess: async () => {
+      await recipientHandled()
+      toast.success(t('exchanges.noted'))
+    },
+  })
+}
+
+export function useDismissRecipient(campaignId: string) {
+  const { t } = useTranslation()
+  const recipientHandled = useRecipientHandled(campaignId)
+
+  return api.useMutation('post', '/api/campaigns/{id}/recipients/{contactId}/dismissal', {
+    meta: { silentValidation: true },
+    onSuccess: async () => {
+      await recipientHandled()
+      toast.success(t('campaigns.run.dismissed'))
+    },
+  })
+}
+
+function useRecipientHandled(campaignId: string) {
+  const queryClient = useQueryClient()
+
+  return async () => {
+    await Promise.all([
+      queryClient.invalidateQueries({ queryKey: campaignQuery(campaignId).queryKey }),
+      queryClient.invalidateQueries({ queryKey: campaignKeys.recipients }),
+      queryClient.invalidateQueries({ queryKey: campaignKeys.list }),
+      queryClient.invalidateQueries({ queryKey: timelineKeys.ofContacts }),
+      queryClient.invalidateQueries({ queryKey: timelineKeys.ofOrganizations }),
+    ])
+  }
 }
 
 function useRecipientsChanged() {

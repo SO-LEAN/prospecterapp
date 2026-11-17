@@ -153,6 +153,21 @@ describe('ExchangesSection', () => {
     expect(screen.getByText('2 pièces jointes')).toBeInTheDocument()
   })
 
+  it('names the campaign an exchange was noted in', async () => {
+    await renderTheSection({
+      items: [
+        anExchange({
+          channel: 'call',
+          direction: 'outbound',
+          campaign: { id: EXCHANGE, name: 'Appels ESN' },
+        }),
+      ],
+      _links: { self: timelineLink, noteExchange: noteLink },
+    })
+
+    expect(screen.getByText('Appels ESN')).toBeInTheDocument()
+  })
+
   it('flags a text that may hold personal data the reader may not manage, and offers no quick entry', async () => {
     await renderTheSection({
       items: [anExchange({ text: 'Grace rappellera lundi', textFlagged: true })],

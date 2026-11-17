@@ -642,6 +642,15 @@ export const fr = {
       confirm: 'Arrêter la campagne',
       done: 'Campagne arrêtée',
     },
+    run: {
+      copy: 'Copier',
+      copied: 'Message copié',
+      reason: 'Motif de l’écart',
+      dismiss: 'Écarter',
+      dismissed: 'Destinataire écarté',
+      nextHint: 'Touche N : passer au suivant sans rien noter',
+      nobodyLeft: 'Plus personne à traiter : la campagne est menée.',
+    },
     recipients: {
       title: 'Destinataires',
       count_one: '{{count}} destinataire',
