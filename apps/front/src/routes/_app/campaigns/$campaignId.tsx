@@ -1,4 +1,4 @@
-import { useSuspenseInfiniteQuery, useSuspenseQuery } from '@tanstack/react-query'
+import { useSuspenseQuery } from '@tanstack/react-query'
 import { createFileRoute, useNavigate } from '@tanstack/react-router'
 import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
@@ -6,10 +6,9 @@ import { CampaignForm } from '@/features/campaigns/components/campaign-form'
 import { CampaignMenu } from '@/features/campaigns/components/campaign-menu'
 import { CampaignTarget } from '@/features/campaigns/components/campaign-target'
 import { useReviseCampaign } from '@/features/campaigns/mutations'
-import { campaignQuery } from '@/features/campaigns/queries'
-import { revisionOf } from '@/features/campaigns/schema'
-import { taggedContactSlicesQuery } from '@/features/contacts/queries'
-import { searchOfTags } from '@/features/tags/chosen-tags'
+import { campaignQuery, campaignTargetQuery } from '@/features/campaigns/queries'
+import { revisionOf, searchOf } from '@/features/campaigns/schema'
+import { useLiveTarget } from '@/features/campaigns/use-live-target'
 import { TagsFilter } from '@/features/tags/components/tags-filter'
 import { notFoundWhenTheApiSaysSo, uuidParams } from '@/shared/lib/route-params'
 import { BackButton } from '@/shared/ui/back-button'
@@ -18,8 +17,8 @@ import { PageHeader } from '@/shared/ui/page-header'
 import { PageSkeleton } from '@/shared/ui/page-skeleton'
 
 /**
- * A draft: its form at the left, revised whole; at the right the contacts it targets now, the search by its targeted
- * tags as the api links it, and the message saved rendered for the contact hovered (ADR 0144).
+ * A draft: its form at the left, revised whole; at the right the contacts it targets as it is typed, and the message
+ * saved rendered by the api for the contact hovered (ADR 0144).
  */
 export const Route = createFileRoute('/_app/campaigns/$campaignId')({
   params: uuidParams('campaignId'),
@@ -27,9 +26,7 @@ export const Route = createFileRoute('/_app/campaigns/$campaignId')({
     const campaign = await context.queryClient
       .ensureQueryData(campaignQuery(params.campaignId))
       .catch(notFoundWhenTheApiSaysSo)
-    await context.queryClient.ensureInfiniteQueryData(
-      taggedContactSlicesQuery(searchOfTags(campaign.targetedTags)),
-    )
+    void context.queryClient.prefetchInfiniteQuery(campaignTargetQuery(searchOf(campaign.targetedTags)))
   },
   pendingComponent: () => <PageSkeleton rows={6} />,
   errorComponent: ({ error, reset }) => <ErrorState error={error} reset={reset} />,
@@ -41,7 +38,7 @@ function CampaignPage() {
   const navigate = useNavigate()
   const { campaignId } = Route.useParams()
   const { data: campaign } = useSuspenseQuery(campaignQuery(campaignId))
-  const target = useSuspenseInfiniteQuery(taggedContactSlicesQuery(searchOfTags(campaign.targetedTags)))
+  const target = useLiveTarget(campaign.tags, campaign.channel)
   const revise = useReviseCampaign()
   const [changed, setChanged] = useState(false)
 
@@ -64,16 +61,10 @@ function CampaignPage() {
           submitLabel={t('common.save')}
           tagsField={(chosen, onChange) => <TagsFilter chosen={chosen} onChange={onChange} />}
           onChanged={setChanged}
+          onTargetingChange={target.follow}
           onSubmit={(body) => revise.mutateAsync({ params: { path: { id: campaign.id } }, body })}
         />
-        <CampaignTarget
-          key={campaign.targetedTags.join(' ')}
-          campaignId={campaign.id}
-          contacts={target.data.pages.flatMap((slice) => slice.items)}
-          found={target.data.pages[0]?.found ?? 0}
-          changed={changed}
-          loadMore={target.hasNextPage ? () => void target.fetchNextPage() : undefined}
-        />
+        <CampaignTarget target={target} campaignId={campaign.id} changed={changed} />
       </div>
     </div>
   )

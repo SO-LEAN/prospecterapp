@@ -2,9 +2,8 @@ import { screen, waitFor, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import type { Account } from '@/features/account/mutations'
-import type { Campaign, CampaignList, CampaignMessage } from '@/features/campaigns/queries'
+import type { Campaign, CampaignList, CampaignMessage, TargetedContact } from '@/features/campaigns/queries'
 import type { SuggestedTags } from '@/features/tags/queries'
-import type { components } from '@/shared/api/schema'
 import { renderTheSpaAt } from '@/test/render-the-spa'
 
 /** The campaigns of the team, on the routes of the SPA (ADR 0144): the list, a draft prepared, revised and discarded. */
@@ -44,6 +43,7 @@ const relance: Campaign = {
   subject: null,
   status: 'draft',
   author: { name: { firstName: 'Alan', lastName: 'Turing' }, email: null },
+  contacted: 0,
   targeted: 2,
   _links: {
     self: { href: `/api/campaigns/${CAMPAIGN}`, method: 'GET' },
@@ -61,23 +61,22 @@ const list: CampaignList = {
   },
 }
 
-const aContact = (id: string, firstName: string): components['schemas']['ContactInListResource'] =>
-  ({
-    id,
-    name: { firstName, lastName: 'de ACME' },
-    jobTitle: null,
-    contactDetails: { email: `${firstName}@acme.test`, phoneNumber: null, language: null },
-    masked: false,
-    organizations: [
-      {
-        id: '0190a1c0-0000-7000-8000-00000000ac00',
-        name: 'ACME',
-        _links: { self: { href: '/', method: 'GET' } },
-      },
-    ],
-    tags: ['#ESN', '#EMAIL'],
-    _links: { contact: { href: `/api/contacts/${id}`, method: 'GET' } },
-  }) as components['schemas']['ContactInListResource']
+const aContact = (id: string, firstName: string): TargetedContact => ({
+  id,
+  name: { firstName, lastName: 'de ACME' },
+  jobTitle: null,
+  contactDetails: { email: `${firstName}@acme.test`, phoneNumber: null, language: null },
+  masked: false,
+  organizations: [
+    {
+      id: '0190a1c0-0000-7000-8000-00000000ac00',
+      name: 'ACME',
+      organization: { href: '/api/organizations/0190a1c0-0000-7000-8000-00000000ac00', method: 'GET' },
+    },
+  ],
+  tags: ['#ESN', '#EMAIL'],
+  contact: { href: `/api/contacts/${id}`, method: 'GET' },
+})
 
 const messageFor = (firstName: string): CampaignMessage => ({ subject: null, text: `Bonjour ${firstName}` })
 
@@ -195,6 +194,31 @@ describe('the campaigns of the team', () => {
     expect(await screen.findByRole('heading', { name: 'Relance ESN' })).toBeInTheDocument()
   })
 
+  it('shows the contacts targeted as the tags and the channel of a new campaign are chosen, before preparing it', async () => {
+    const calls = theApiAnswers()
+    await renderTheSpaAt('/campaigns/new')
+
+    expect(
+      await screen.findByText('Choisissez au moins un tag pour voir les contacts ciblés.'),
+    ).toBeInTheDocument()
+    await userEvent.click(screen.getByRole('button', { name: 'Filtrer par tag' }))
+    await userEvent.click(await screen.findByRole('option', { name: '#ESN' }))
+    expect(await screen.findByText('2 contacts ciblés')).toBeInTheDocument()
+    expect(calls).toContainEqual(
+      expect.objectContaining({ pathname: '/api/tagged-contacts', search: '?tags=ESN%2CEMAIL' }),
+    )
+
+    await userEvent.click(screen.getByLabelText('Canal'))
+    await userEvent.click(await screen.findByRole('option', { name: 'Appel' }))
+
+    await waitFor(() =>
+      expect(calls).toContainEqual(
+        expect.objectContaining({ pathname: '/api/tagged-contacts', search: '?tags=ESN%2CPHONE' }),
+      ),
+    )
+    expect(calls.filter((call) => call.method === 'POST')).toEqual([])
+  })
+
   it('tells a refusal of the api on its field', async () => {
     theApiAnswers({
       refusal: {
@@ -246,7 +270,7 @@ describe('the campaigns of the team', () => {
     const calls = theApiAnswers()
     await renderTheSpaAt(`/campaigns/${CAMPAIGN}`)
 
-    await userEvent.click(await screen.findByRole('button', { name: 'Actions sur « Relance ESN »' }))
+    await userEvent.click(await screen.findByRole('button', { name: /^Actions sur «\s*Relance ESN\s*»$/ }))
     await userEvent.click(await screen.findByRole('menuitem', { name: 'Supprimer' }))
 
     await waitFor(() =>

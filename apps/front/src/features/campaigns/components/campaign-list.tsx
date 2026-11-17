@@ -4,9 +4,6 @@ import { memberName } from '@/shared/lib/member-name'
 import { Badge } from '@/shared/ui/badge'
 import type { Campaign } from '../queries'
 
-/** Nobody is contacted yet while a campaign is a draft. */
-const CONTACTED_IN_DRAFT = 0
-
 /** The campaigns of the team: their status, their channel, their author and how far they went. */
 export function CampaignList({ campaigns }: { campaigns: Campaign[] }) {
   const { t } = useTranslation()
@@ -30,11 +27,11 @@ export function CampaignList({ campaigns }: { campaigns: Campaign[] }) {
           <span
             className="text-sm tabular-nums"
             title={t('campaigns.progressLabel', {
-              contacted: CONTACTED_IN_DRAFT,
+              contacted: campaign.contacted,
               targeted: campaign.targeted,
             })}
           >
-            {t('campaigns.progress', { contacted: CONTACTED_IN_DRAFT, targeted: campaign.targeted })}
+            {t('campaigns.progress', { contacted: campaign.contacted, targeted: campaign.targeted })}
           </span>
         </li>
       ))}

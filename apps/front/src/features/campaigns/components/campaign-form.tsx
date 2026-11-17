@@ -1,6 +1,6 @@
 import { zodResolver } from '@hookform/resolvers/zod'
 import { type ReactNode, useEffect, useState } from 'react'
-import { Controller, useForm } from 'react-hook-form'
+import { Controller, useForm, useWatch } from 'react-hook-form'
 import { useTranslation } from 'react-i18next'
 import { applyViolations } from '@/shared/api/problem'
 import { FormField } from '@/shared/forms/form-field'
@@ -9,7 +9,7 @@ import { Button } from '@/shared/ui/button'
 import { Input } from '@/shared/ui/input'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/shared/ui/select'
 import { Textarea } from '@/shared/ui/textarea'
-import type { CampaignInput } from '../queries'
+import type { CampaignInput, Channel } from '../queries'
 import { type CampaignValues, CHANNELS, campaignFields, campaignSchema, toCampaignInput } from '../schema'
 
 type Props = {
@@ -21,20 +21,32 @@ type Props = {
   tagsField: (chosen: string[], onChange: (tags: string[]) => void) => ReactNode
   /** Told whether the form differs from the campaign as saved. */
   onChanged?: (changed: boolean) => void
+  /** Told the tags and the channel as they are typed, for the target to follow them. */
+  onTargetingChange: (tags: string[], channel: Channel) => void
 }
 
 /**
  * A campaign as the member leaves it: its name, its channel, the tags of the contacts it targets and its message, the
  * variables of the message explained; the subject only for an e-mail.
  */
-export function CampaignForm({ values, submitLabel, onSubmit, onCancel, tagsField, onChanged }: Props) {
+export function CampaignForm({
+  values,
+  submitLabel,
+  onSubmit,
+  onCancel,
+  tagsField,
+  onChanged,
+  onTargetingChange,
+}: Props) {
   const { t } = useTranslation()
   const [globalErrors, setGlobalErrors] = useState<string[]>([])
   const form = useForm<CampaignValues>({ resolver: zodResolver(campaignSchema), values })
   const { isSubmitting, isDirty } = form.formState
-  const channel = form.watch('channel')
+  const channel = useWatch({ control: form.control, name: 'channel' })
+  const tags = useWatch({ control: form.control, name: 'tags' })
 
   useEffect(() => onChanged?.(isDirty), [isDirty, onChanged])
+  useEffect(() => onTargetingChange(tags, channel), [tags, channel, onTargetingChange])
 
   const submit = form.handleSubmit(async (submitted) => {
     setGlobalErrors([])
@@ -60,18 +72,7 @@ export function CampaignForm({ values, submitLabel, onSubmit, onCancel, tagsFiel
         name="channel"
         render={({ field }) => (
           <FormField form={form} name="channel" label={t('campaigns.fields.channel')}>
-            <Select value={field.value} onValueChange={field.onChange}>
-              <SelectTrigger className="w-full">
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                {CHANNELS.map((option) => (
-                  <SelectItem key={option} value={option}>
-                    {t(`campaigns.channels.${option}`)}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
+            <ChannelSelect channel={field.value} onChange={field.onChange} />
           </FormField>
         )}
       />
@@ -119,4 +120,38 @@ export function CampaignForm({ values, submitLabel, onSubmit, onCancel, tagsFiel
       </div>
     </form>
   )
+}
+
+type ChannelProps = {
+  id?: string
+  channel: Channel
+  onChange: (channel: Channel) => void
+  'aria-describedby'?: string
+}
+
+/** The channels, the props of its field given to its trigger, the control its label names. */
+function ChannelSelect({ channel, onChange, ...trigger }: ChannelProps) {
+  const { t } = useTranslation()
+
+  return (
+    <Select value={channel} onValueChange={(chosen) => channelNamed(chosen, onChange)}>
+      <SelectTrigger className="w-full" {...trigger}>
+        <SelectValue />
+      </SelectTrigger>
+      <SelectContent>
+        {CHANNELS.map((option) => (
+          <SelectItem key={option} value={option}>
+            {t(`campaigns.channels.${option}`)}
+          </SelectItem>
+        ))}
+      </SelectContent>
+    </Select>
+  )
+}
+
+function channelNamed(value: string, onChange: (channel: Channel) => void) {
+  const channel = CHANNELS.find((offered) => offered === value)
+  if (channel) {
+    onChange(channel)
+  }
 }
