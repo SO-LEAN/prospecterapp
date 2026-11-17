@@ -27,6 +27,17 @@ describe('readAgainAfterTheReactions', () => {
     expect(readsOfTheContacts()).toBe(3)
   })
 
+  it('reads again after the reactions a query whose read at once is still under way', async () => {
+    const queryClient = new QueryClient()
+    const readsOfTheContacts = aDisplayedQuery(queryClient, ['contacts'], 2 * AFTER_THE_REACTIONS_MS)
+    await vi.runAllTimersAsync()
+
+    readAgainAfterTheReactions(queryClient, ['contacts'])
+    await vi.advanceTimersByTimeAsync(AFTER_THE_REACTIONS_MS)
+
+    expect(readsOfTheContacts()).toBe(3)
+  })
+
   it('reads a query a gesture names twice once at each moment', async () => {
     const queryClient = new QueryClient()
     const readsOfTheContacts = aDisplayedQuery(queryClient, ['contacts'])
