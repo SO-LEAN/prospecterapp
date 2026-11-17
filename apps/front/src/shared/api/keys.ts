@@ -10,6 +10,7 @@ export const queryKeys = {
   contactList: ['get', '/api/contacts'],
   contact: ['get', '/api/contacts/{id}'],
   organizationsOfContact: ['get', '/api/contacts/{id}/organizations'],
+  organizationTags: ['get', '/api/organizations/{id}/tags'],
   contactTags: ['get', '/api/contacts/{id}/tags'],
   organizationTimelines: ['get', '/api/organizations/{id}/exchanges'],
   organizationUpcomingExchanges: ['get', '/api/organizations/{id}/upcoming-exchanges'],

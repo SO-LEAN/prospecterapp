@@ -1,4 +1,5 @@
 import { useQuery } from '@tanstack/react-query'
+import { useTranslation } from 'react-i18next'
 import {
   useTagContact,
   useTagOrganization,
@@ -15,8 +16,9 @@ const nameOf = (tag: string) => (tag.startsWith(MARK) ? tag.slice(MARK.length) :
 
 const namesOf = (tags: Tags) => tags.tags.map((tag) => tag.name)
 
-/** The tags of an organization, on its card. */
+/** The tags of an organization, on its card: those put by hand, then those of where it is, deduced from its address. */
 export function OrganizationTags({ organizationId }: { organizationId: string }) {
+  const { t } = useTranslation()
   const { data } = useQuery(organizationTagsQuery(organizationId))
   const tag = useTagOrganization()
   const takeOff = useTakeOffOrganizationTag()
@@ -25,6 +27,8 @@ export function OrganizationTags({ organizationId }: { organizationId: string })
     data && (
       <TagsLine
         tags={namesOf(data)}
+        automatic={data.automatic}
+        automaticFrom={t('tags.fromTheAddress')}
         onTag={(typed) => tag.mutate({ params: { path: { id: organizationId } }, body: { tags: [typed] } })}
         onTakeOff={(name) => takeOff.mutate({ params: { path: { id: organizationId, tag: nameOf(name) } } })}
       />
