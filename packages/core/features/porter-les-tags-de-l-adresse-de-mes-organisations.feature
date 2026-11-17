@@ -102,6 +102,16 @@ Fonctionnalité: Les tags géographiques
     Et l'organisation "Globex" appartient à "SOLEAN IT", située à Toulouse
     Alors les tags automatiques de mon compte sont "#EMAIL #PHONE #SMS #LINKEDIN #31 #67 #GRAND_EST #OCCITANIE #STRASBOURG #TOULOUSE"
 
+  Scénario: Je trouve mes contacts par la grande ville de leurs organisations
+    Soit "ACME" est située à Strasbourg
+    Et l'organisation "Globex" appartient à "SOLEAN IT", située à Paris
+    Et le contact "Grace Hopper" de "Globex"
+    Et les tags calculés ont été reconstruits
+    Quand je cherche mes contacts tagués "#STRASBOURG #67"
+    Alors la liste des contacts affiche :
+      | prénom | nom      |
+      | Ada    | Lovelace |
+
   Scénario: Le nom d'une grande aire est un tag automatique
     Quand je tague "ACME" avec "#STRASBOURG"
     Alors c'est refusé : "The tag #STRASBOURG is set automatically"
