@@ -79,6 +79,17 @@ class GoogleProviderAccessTest extends TestCase
         yield 'no answer' => [new MockResponse('', ['error' => 'Google does not answer'])];
         yield 'an error of Google' => [new MockResponse('', ['http_code' => 503])];
         yield 'too many requests' => [new MockResponse('', ['http_code' => 429])];
+        yield 'an answer cut off' => [new MockResponse(self::bodyCutOff())];
+    }
+
+    /**
+     * @return \Generator<string>
+     */
+    private static function bodyCutOff(): \Generator
+    {
+        yield '{"refresh_token": "a-to';
+
+        throw new TransportException('Google stopped answering');
     }
 
     public function testARefreshAcceptedStillGrants(): void
