@@ -54,8 +54,9 @@ final class InMemoryConnectionRepository implements ConnectionRepository
 
     public function replace(Connection $connection): void
     {
-        if (null === $this->find($connection->member(), $connection->provider())) {
-            throw new \RuntimeException('The connection was forgotten meanwhile');
+        $kept = $this->database->connection($connection->member()->value, $connection->provider()->value);
+        if (null === $kept || !$kept->isTheSameAs($connection)) {
+            throw new \RuntimeException('The connection was forgotten, or made again, meanwhile');
         }
 
         $this->save($connection);
