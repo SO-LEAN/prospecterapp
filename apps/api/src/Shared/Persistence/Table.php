@@ -289,10 +289,11 @@ final readonly class Table
      *
      * @param array{PK: string, SK: string, ...} $item
      * @param array<string, mixed>               $values the values the condition names
+     * @param array<string, string>              $names  the attributes the condition names by a placeholder, a reserved word among them
      */
-    public function replacing(array $item, string $condition, array $values = []): Write
+    public function replacing(array $item, string $condition, array $values = [], array $names = []): Write
     {
-        return $this->replacingUnder($item, $this->conditionOf($condition, $values));
+        return $this->replacingUnder($item, $this->conditionOf($condition, $values, $names));
     }
 
     /**
@@ -317,7 +318,7 @@ final readonly class Table
     {
         $operation = $write->operation['Put'] ?? $write->operation['Delete'] ?? [];
 
-        return array_intersect_key($operation, array_flip(['ConditionExpression', 'ExpressionAttributeValues']));
+        return array_intersect_key($operation, array_flip(['ConditionExpression', 'ExpressionAttributeValues', 'ExpressionAttributeNames']));
     }
 
     /**
@@ -447,17 +448,20 @@ final readonly class Table
     }
 
     /**
-     * @param array<string, mixed> $values
+     * @param array<string, mixed>  $values
+     * @param array<string, string> $names
      *
      * @return array<string, mixed>
      */
-    private function conditionOf(?string $condition, array $values): array
+    private function conditionOf(?string $condition, array $values, array $names = []): array
     {
         if (null === $condition) {
             return [];
         }
 
-        return ['ConditionExpression' => $condition] + ([] === $values ? [] : ['ExpressionAttributeValues' => $this->marshaler->marshalItem($values)]);
+        return ['ConditionExpression' => $condition]
+            + ([] === $values ? [] : ['ExpressionAttributeValues' => $this->marshaler->marshalItem($values)])
+            + ([] === $names ? [] : ['ExpressionAttributeNames' => $names]);
     }
 
     /**
