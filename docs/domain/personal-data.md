@@ -5,7 +5,7 @@ The personal data of natural persons, and who reads them. Code: `packages/core/s
 ## Language
 
 - **Person** (`Person`): the personal data of a natural person, kept for one account and one purpose: their name (`PersonName`), their job title, their contact details, their LinkedIn profile, their picture.
-- **LinkedIn profile** (`LinkedInProfile`): the address of the profile of a person on LinkedIn, noted with their contact details, kept in one form however it was typed (`https://www.linkedin.com/in/<identifier>`, the identifier in lower case), refused when it is no profile of a person; a contact's or a member's own, never required. A person's only: the organizations and the accounts, whose contact details the shared kernel holds (`ContactDetails`), have none.
+- **LinkedIn profile** (`LinkedInProfile`): the address of the profile of a person on LinkedIn, noted with their contact details, kept in one form however it was typed (`https://www.linkedin.com/in/<identifier>`, the identifier in lower case), refused when it is no profile of a person; a contact's or a member's own, never required. A person's only: the organizations and the accounts, whose contact details the shared kernel holds (`ContactDetails`), have none (ADR 0139).
 - **Purpose** (`Purpose`): why the account keeps them: a member's own profile (`Membership`), or a person it prospects (`Prospecting`).
 - **Contact**: a person an account prospects, working in at least one of the organizations it prospects.
 - **Reader** (`Reader`): a member as PersonalData sees them: their account, their own person, and whether they hold the right to read personal data in clear.
