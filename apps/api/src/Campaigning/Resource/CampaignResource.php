@@ -34,6 +34,8 @@ final readonly class CampaignResource
         public string $status,
         #[OA\Property(description: 'Who prepared it')]
         public AuthorResource $author,
+        #[OA\Property(description: 'How many contacts of its target were contacted, none in a draft')]
+        public int $contacted,
         #[OA\Property(description: 'How many contacts it targets now')]
         public int $targeted,
         #[SerializedName('_links')]

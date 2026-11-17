@@ -44,6 +44,7 @@ final readonly class CampaignResourceFactory
             subject: $campaign->subject,
             status: $campaign->status,
             author: new AuthorResource(new PersonNameResource($author?->firstName, $author?->lastName), $author?->email),
+            contacted: $campaign->contacted,
             targeted: $targeted,
             links: $this->linksOf($campaign),
         );
