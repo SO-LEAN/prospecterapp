@@ -171,6 +171,44 @@ class ConnectorsApiTest extends ApiTestCase
         $this->assertSame([['google', 'connected', 'michel@exemple.fr']], $this->seen($this->requestJson('GET', '/api/me/connections')));
     }
 
+    public function testWhileGoogleLimitsTheRequestsTheCheckIsUnavailableAndTheConnectionKeptAsLastSeen(): void
+    {
+        $this->login();
+        $this->connect('michel@exemple.fr', 'a-refresh-token');
+        $this->google()->limits();
+
+        $problem = $this->requestJson('POST', '/api/me/connections/checks');
+
+        $this->assertResponseStatusCodeSame(503);
+        $this->assertSame('googleUnreachable', $problem['reason']);
+        $this->assertSame([['google', 'connected', 'michel@exemple.fr']], $this->seen($this->requestJson('GET', '/api/me/connections')));
+    }
+
+    /**
+     * @return iterable<string, array{\Closure(GoogleDouble): void}>
+     */
+    public static function googleOutOfReach(): iterable
+    {
+        yield 'Google does not answer' => [static fn (GoogleDouble $google) => $google->doesNotAnswer()];
+        yield 'Google fails on its side' => [static fn (GoogleDouble $google) => $google->fails()];
+        yield 'Google limits the requests' => [static fn (GoogleDouble $google) => $google->limits()];
+    }
+
+    #[DataProvider('googleOutOfReach')]
+    public function testWhileGoogleIsOutOfReachTheCodeConnectsNothingAndIsToTryAgain(\Closure $outOfReach): void
+    {
+        $this->login();
+        $state = $this->stateOfANewAuthorization();
+        $this->google()->grants(self::CODE, 'michel@exemple.fr', 'a-refresh-token');
+        $outOfReach($this->google());
+
+        $problem = $this->requestJson('POST', '/api/me/connections/google', ['code' => self::CODE, 'state' => $state]);
+
+        $this->assertResponseStatusCodeSame(503);
+        $this->assertSame('googleUnreachable', $problem['reason']);
+        $this->assertSame([], $this->requestJson('GET', '/api/me/connections')['connections']);
+    }
+
     public function testWhileGoogleDoesNotAnswerTheMemberDisconnects(): void
     {
         $this->login();
