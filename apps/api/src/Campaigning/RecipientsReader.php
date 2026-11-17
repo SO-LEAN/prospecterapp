@@ -21,10 +21,13 @@ use Prospecter\Core\SharedKernel\Application\QueryHandler;
 /**
  * The recipients of a frozen campaign composed of three contexts: Campaigns keeps them by their identities,
  * PersonalData reads them, Prospecting tells the organizations of each and Campaigns the tags each carries, in one
- * batch each, as the search by tags shows its contacts.
+ * batch each, as the search by tags shows its contacts. A recipient PersonalData no longer reads is left out, but one
+ * a started campaign keeps erased, shown without its contact.
  */
 final readonly class RecipientsReader
 {
+    private const string ERASED = 'erased';
+
     public function __construct(
         private QueryHandler $consultPersons,
         private OrganizationsOfContacts $organizationsOfContacts,
@@ -38,16 +41,19 @@ final readonly class RecipientsReader
     public function read(string $reader, CampaignSheet $campaign): RecipientListResource
     {
         $contactIds = array_map(strval(...), array_keys($campaign->recipients));
-        $organizations = $this->organizationsOfContacts->read($reader, $contactIds);
-        $tags = $this->tagsOfContacts->read($reader, $contactIds);
+        $persons = $this->personsOf($reader, $contactIds);
+        $read = array_map(strval(...), array_keys($persons));
+        $organizations = $this->organizationsOfContacts->read($reader, $read);
+        $tags = $this->tagsOfContacts->read($reader, $read);
         $removable = $this->intentLinks->shows('RemoveRecipient', $campaign->possibleIntents, User::PERSONAL_DATA);
+        $shown = array_filter($contactIds, static fn (string $id): bool => isset($persons[$id]) || self::ERASED === $campaign->recipients[$id]);
 
         return new RecipientListResource(
-            array_map(fn (PersonCard $contact): RecipientResource => new RecipientResource(
-                $this->contactInListResourceFactory->create($contact, $organizations[$contact->id] ?? [], $tags[$contact->id] ?? []),
-                $campaign->recipients[$contact->id],
-                new RecipientLinksResource($removable ? $this->links->to('api_campaigns_remove_recipient', ['id' => $campaign->id, 'contactId' => $contact->id]) : null),
-            ), $this->personsOf($reader, $contactIds)),
+            array_values(array_map(fn (string $id): RecipientResource => new RecipientResource(
+                isset($persons[$id]) ? $this->contactInListResourceFactory->create($persons[$id], $organizations[$id] ?? [], $tags[$id] ?? []) : null,
+                $campaign->recipients[$id],
+                new RecipientLinksResource($removable ? $this->links->to('api_campaigns_remove_recipient', ['id' => $campaign->id, 'contactId' => $id]) : null),
+            ), $shown)),
             new RecipientListLinksResource($this->links->to('api_campaigns_recipients', ['id' => $campaign->id])),
         );
     }
@@ -55,13 +61,13 @@ final readonly class RecipientsReader
     /**
      * @param list<string> $contactIds
      *
-     * @return list<PersonCard> in their order, those PersonalData no longer reads left out
+     * @return array<string, PersonCard> those PersonalData reads, by identity
      */
     private function personsOf(string $reader, array $contactIds): array
     {
         $kept = new KeptPersons();
         ($this->consultPersons)(new ConsultPersons($reader, $contactIds), $kept);
 
-        return array_values(array_filter(array_map(static fn (string $id): ?PersonCard => $kept->persons[$id] ?? null, $contactIds)));
+        return $kept->persons;
     }
 }

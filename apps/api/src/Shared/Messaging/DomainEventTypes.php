@@ -28,6 +28,8 @@ final readonly class DomainEventTypes extends EventTypes
             'CampaignPrepared.v1' => Campaigns\CampaignPrepared::class,
             'CampaignRecipientsChanged.v1' => Campaigns\CampaignRecipientsChanged::class,
             'CampaignRevised.v1' => Campaigns\CampaignRevised::class,
+            'CampaignStarted.v1' => Campaigns\CampaignStarted::class,
+            'CampaignStopped.v1' => Campaigns\CampaignStopped::class,
             'ContactTagsChanged.v1' => Campaigns\ContactTagsChanged::class,
             'OrganizationTagsChanged.v1' => Campaigns\OrganizationTagsChanged::class,
         ],

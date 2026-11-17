@@ -31,12 +31,12 @@ final class DiscardCampaignController extends AbstractController
     #[Route('/api/campaigns/{id}', name: 'api_campaigns_discard', requirements: ['id' => Requirement::UUID], methods: ['DELETE'])]
     #[IsGranted(CampaignVoter::ACCESS, subject: 'campaign')]
     #[IsGranted(User::PERSONAL_DATA)]
-    #[OA\Delete(summary: 'Discard a draft campaign')]
+    #[OA\Delete(summary: 'Discard a campaign never started')]
     #[OA\Response(response: 204, description: 'Discarded')]
     #[OA\Response(response: 401, description: 'Missing or invalid access token')]
     #[OA\Response(response: 403, description: 'Not a prospector, or no right to manage personal data', content: new Model(type: ProblemResource::class))]
     #[OA\Response(response: 404, description: 'Unknown campaign, or one of another account', content: new Model(type: ProblemResource::class))]
-    #[OA\Response(response: 409, description: 'No longer a draft', content: new Model(type: ProblemResource::class))]
+    #[OA\Response(response: 409, description: 'Started: stopped, never discarded', content: new Model(type: ProblemResource::class))]
     public function __invoke(CampaignSheet $campaign, #[CurrentUser] User $user): Response
     {
         $this->commandBus->dispatch(new DiscardCampaign($user->memberId(), $campaign->id, $this->clock->now()));
