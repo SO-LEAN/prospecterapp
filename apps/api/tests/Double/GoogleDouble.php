@@ -104,7 +104,7 @@ final class GoogleDouble
     {
         return match (true) {
             !$this->answers => new MockResponse('', ['error' => 'Google does not answer']),
-            str_starts_with($url, $this->calendarUrl) => $this->calendar($method, (string) parse_url(substr($url, strlen($this->calendarUrl)), \PHP_URL_PATH), $options),
+            str_starts_with($url, $this->calendarUrl) => $this->calendar($method, substr($url, strlen($this->calendarUrl)), $options),
             str_starts_with($url, $this->tokenUrl) => $this->token(self::formOf($options)),
             default => $this->revoke(self::formOf($options)),
         };
@@ -113,10 +113,12 @@ final class GoogleDouble
     /**
      * @param array<string, mixed> $options
      */
-    private function calendar(string $method, string $path, array $options): ResponseInterface
+    private function calendar(string $method, string $address, array $options): ResponseInterface
     {
         $body = is_string($options['body'] ?? null) && '' !== $options['body'] ? (array) json_decode($options['body'], true) : [];
-        $segments = explode('/', trim($path, '/'));
+        $segments = explode('/', trim((string) parse_url($address, \PHP_URL_PATH), '/'));
+        parse_str((string) parse_url($address, \PHP_URL_QUERY), $query);
+        $body = '1' === ($query['conferenceDataVersion'] ?? null) ? $body : array_diff_key($body, ['conferenceData' => true]);
         $calendar = $segments[1] ?? '';
         $event = $segments[3] ?? null;
 
@@ -140,6 +142,9 @@ final class GoogleDouble
     }
 
     /**
+     * The conference of the event kept, created once for the request of one (the spike #92): its link answered in
+     * `hangoutLink`.
+     *
      * @param array<string, mixed> $event
      */
     private function put(string $calendar, string $id, array $event): ResponseInterface
@@ -148,9 +153,20 @@ final class GoogleDouble
             return new JsonMockResponse(['error' => ['code' => 400, 'message' => 'Invalid event']], ['http_code' => 400]);
         }
 
-        $this->calendars[$calendar][$id] = $event;
+        $conference = $this->calendars[$calendar][$id]['hangoutLink'] ?? self::conferenceAskedBy($event);
+        $this->calendars[$calendar][$id] = [...array_diff_key($event, ['conferenceData' => true]), ...(null === $conference ? [] : ['hangoutLink' => $conference])];
 
-        return new JsonMockResponse($event);
+        return new JsonMockResponse($this->calendars[$calendar][$id]);
+    }
+
+    /**
+     * @param array<string, mixed> $event
+     */
+    private static function conferenceAskedBy(array $event): ?string
+    {
+        $requestId = $event['conferenceData']['createRequest']['requestId'] ?? null;
+
+        return is_string($requestId) ? sprintf('https://meet.google.com/%s', substr(md5($requestId), 0, 10)) : null;
     }
 
     private function delete(string $calendar, string $event): ResponseInterface
