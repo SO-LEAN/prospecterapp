@@ -75,6 +75,7 @@ final class Vocabulary
         'SMS' => 'sms',
         'E-mail' => 'email',
         'LinkedIn' => 'linkedIn',
+        'Malt' => 'malt',
         'Rendez-vous' => 'meeting',
         'Visio' => 'videoCall',
         'Autre' => 'other',
@@ -86,6 +87,7 @@ final class Vocabulary
         'un SMS' => 'sms',
         'un e-mail' => 'email',
         'un message LinkedIn' => 'linkedIn',
+        'un message Malt' => 'malt',
         'un rendez-vous' => 'meeting',
         'une visio' => 'videoCall',
     ];

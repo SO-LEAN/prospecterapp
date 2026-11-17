@@ -29,6 +29,15 @@ Fonctionnalité: Corriger un échange
       | moment           | canal  | sens | texte                                               |
       | 15/10/2026 14:30 | E-mail | reçu | Objet : mission. Intéressée par une mission en mars |
 
+  Scénario: Un échange corrigé peut devenir un message Malt
+    Soit je suis connecté en tant que "Michel"
+    Et nous sommes le 16/10/2026 à 10h00
+    Quand je corrige cet échange :
+      | canal | Malt |
+    Alors la timeline de "Ada Lovelace" est, du plus récent au plus ancien :
+      | canal | sens |
+      | Malt  | reçu |
+
   Scénario: Une correction respecte les règles d'un échange
     Soit je suis connecté en tant que "Michel"
     Et nous sommes le 16/10/2026 à 10h00
