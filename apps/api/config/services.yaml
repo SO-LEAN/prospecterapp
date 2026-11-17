@@ -9,6 +9,7 @@ parameters:
     # subscription are written
     app.context_tables:
         accounts: '%env(DYNAMODB_TABLE_PREFIX)%-accounts'
+        campaigns: '%env(DYNAMODB_TABLE_PREFIX)%-campaigns'
         connectors: '%env(DYNAMODB_TABLE_PREFIX)%-connectors'
         personal-data: '%env(DYNAMODB_TABLE_PREFIX)%-personal-data'
         prospecting: '%env(DYNAMODB_TABLE_PREFIX)%-prospecting'
@@ -51,7 +52,7 @@ services:
     # Handlers of the core: commands go through the command bus, queries are called by the controllers, the
     # published services by the anticorruption layers of the other contexts (ADR 0045, 0089)
     Prospecter\Core\:
-        resource: '../vendor/prospecter/core/src/{Accounts,Connectors,PersonalData,Prospecting,Reporting}/Application/*/*Handler.php'
+        resource: '../vendor/prospecter/core/src/{Accounts,Campaigns,Connectors,PersonalData,Prospecting,Reporting}/Application/*/*Handler.php'
         exclude: '../vendor/prospecter/core/src/Reporting/Application/RebuildFigures/RebuildFiguresHandler.php'
     # its steps commit their own units (ADR 0103): called by app:reporting:rebuild, out of the command bus
     Prospecter\Core\Reporting\Application\RebuildFigures\RebuildFiguresHandler:
@@ -68,6 +69,7 @@ services:
     Prospecter\Core\Reporting\Application\RebuildFigures\SourceFacts: ~
     Prospecter\Core\Connectors\Application\CalendarPusher: ~
     Prospecter\Core\Prospecting\Application\PublishedHeldExchanges: ~
+    Prospecter\Core\Campaigns\Domain\Service\TaggableHolders: ~
 
     # DynamoDB (ADR 0048): MiniStack locally (DYNAMODB_ENDPOINT), AWS in production (DYNAMODB_ENDPOINT empty);
     # one table per bounded context, injected by name in its repositories only (Table $prospectingTable)
@@ -93,11 +95,15 @@ services:
     app.table.connectors:
         class: App\Shared\Persistence\Table
         arguments: { $name: '%env(DYNAMODB_TABLE_PREFIX)%-connectors' }
+    app.table.campaigns:
+        class: App\Shared\Persistence\Table
+        arguments: { $name: '%env(DYNAMODB_TABLE_PREFIX)%-campaigns' }
     App\Shared\Persistence\Table $accountsTable: '@app.table.accounts'
     App\Shared\Persistence\Table $personalDataTable: '@app.table.personal_data'
     App\Shared\Persistence\Table $prospectingTable: '@app.table.prospecting'
     App\Shared\Persistence\Table $reportingTable: '@app.table.reporting'
     App\Shared\Persistence\Table $connectorsTable: '@app.table.connectors'
+    App\Shared\Persistence\Table $campaignsTable: '@app.table.campaigns'
 
     # The services the contexts offer each other, answered in process by the handlers of their Contracts (ADR 0089)
     Prospecter\Core\Accounts\Contract\Service\ConsultMembers\ConsultMembersService: '@Prospecter\Core\Accounts\Application\ConsultMembers\ConsultMembersHandler'
@@ -164,6 +170,11 @@ services:
     Prospecter\Core\Connectors\Domain\Port\HeldExchanges: '@App\Connectors\AntiCorruption\ProspectingHeldExchanges'
     Prospecter\Core\Connectors\Domain\Port\ContactNames: '@App\Connectors\AntiCorruption\PersonalDataContactNames'
     Prospecter\Core\Connectors\Domain\Repository\CalendarEntryRepository: '@App\Connectors\Persistence\DynamoCalendarEntryRepository'
+    Prospecter\Core\Campaigns\Domain\Repository\TaggingRepository: '@App\Campaigns\Persistence\DynamoTaggingRepository'
+    Prospecter\Core\Campaigns\Application\Port\TagsRetriever: '@App\Campaigns\Persistence\DynamoTagsRetriever'
+    Prospecter\Core\Campaigns\Domain\Port\Taggers: '@App\Campaigns\AntiCorruption\AccountsTaggers'
+    Prospecter\Core\Campaigns\Domain\Port\TaggableOrganizations: '@App\Campaigns\AntiCorruption\ProspectingTaggableOrganizations'
+    Prospecter\Core\Campaigns\Domain\Port\TaggableContacts: '@App\Campaigns\AntiCorruption\PersonalDataTaggableContacts'
     Prospecter\Core\Prospecting\Domain\Port\Prospectors: '@App\Prospecting\AntiCorruption\AccountsProspectors'
     Prospecter\Core\Prospecting\Domain\Port\KnownContacts: '@App\Prospecting\AntiCorruption\PersonalDataKnownContacts'
     Prospecter\Core\PersonalData\Domain\Port\ProspectedOrganizations: '@App\PersonalData\AntiCorruption\ProspectingOrganizations'

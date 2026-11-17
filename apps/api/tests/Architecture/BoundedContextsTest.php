@@ -18,6 +18,7 @@ class BoundedContextsTest extends TestCase
         'Accounts' => ['Prospecter\Core\PersonalData\\', 'Prospecter\Core\Prospecting\\', 'App\PersonalData\\', 'App\Prospecting\\'],
         'PersonalData' => ['Prospecter\Core\Accounts\\', 'Prospecter\Core\Prospecting\\', 'App\Accounts\\', 'App\Prospecting\\'],
         'Prospecting' => ['Prospecter\Core\Accounts\\', 'Prospecter\Core\PersonalData\\', 'App\Accounts\\', 'App\PersonalData\\'],
+        'Campaigns' => ['Prospecter\Core\Accounts\\', 'Prospecter\Core\PersonalData\\', 'Prospecter\Core\Prospecting\\', 'App\Accounts\\', 'App\PersonalData\\', 'App\Prospecting\\'],
         'Shared' => ['Prospecter\Core\Accounts\\', 'Prospecter\Core\PersonalData\\', 'Prospecter\Core\Prospecting\\', 'App\Accounts\\', 'App\PersonalData\\', 'App\Prospecting\\'],
     ];
 

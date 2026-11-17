@@ -60,3 +60,10 @@ connectors:
     type: attribute
     host: '%app_api_host%'
     defaults: { _format: json }
+
+# the tags put by hand on the organizations and the contacts, kept by Campaigns (ADR 0138)
+tags:
+    resource: ../src/Tags/Controller/
+    type: attribute
+    host: '%app_api_host%'
+    defaults: { _format: json }

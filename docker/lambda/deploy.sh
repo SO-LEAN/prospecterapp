@@ -124,7 +124,7 @@ deploy_relay() {
     for mapping in $(aws lambda list-event-source-mappings --function-name prospecter-dev-relay --query 'EventSourceMappings[].UUID'); do
         aws lambda delete-event-source-mapping --uuid "$mapping" >/dev/null
     done
-    for context in accounts connectors personal-data prospecting; do
+    for context in accounts campaigns connectors personal-data prospecting; do
         stream=$(aws dynamodb describe-table --table-name "prospecter-dev-$context" --query Table.LatestStreamArn 2>/dev/null) || stream=None
         if [ "$stream" = None ]; then
             echo "No stream of the table prospecter-dev-$context: make db creates the tables, then relays them" >&2

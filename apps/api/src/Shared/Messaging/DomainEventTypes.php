@@ -3,6 +3,7 @@
 namespace App\Shared\Messaging;
 
 use Prospecter\Core\Accounts\Domain\Event as Accounts;
+use Prospecter\Core\Campaigns\Domain\Event as Campaigns;
 use Prospecter\Core\Connectors\Domain\Event as Connectors;
 use Prospecter\Core\PersonalData\Domain\Event as PersonalData;
 use Prospecter\Core\Prospecting\Domain\Event as Prospecting;
@@ -20,6 +21,10 @@ final readonly class DomainEventTypes extends EventTypes
             'AccountRelocated.v1' => Accounts\AccountRelocated::class,
             'MemberRegistered.v1' => Accounts\MemberRegistered::class,
             'RemindersChanged.v1' => Accounts\RemindersChanged::class,
+        ],
+        'prospecter.campaigns.internal' => [
+            'ContactTagsChanged.v1' => Campaigns\ContactTagsChanged::class,
+            'OrganizationTagsChanged.v1' => Campaigns\OrganizationTagsChanged::class,
         ],
         'prospecter.connectors.internal' => [
             'Connected.v1' => Connectors\Connected::class,

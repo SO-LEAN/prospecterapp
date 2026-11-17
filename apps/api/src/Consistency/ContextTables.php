@@ -3,6 +3,7 @@
 namespace App\Consistency;
 
 use App\Accounts\Persistence\AccountsKeys;
+use App\Campaigns\Persistence\CampaignsKeys;
 use App\Connectors\Persistence\ConnectorsKeys;
 use App\PersonalData\Persistence\PersonalDataKeys;
 use App\Prospecting\Persistence\ExchangeKeys;
@@ -22,6 +23,7 @@ final readonly class ContextTables
 
     public function __construct(
         private Table $accountsTable,
+        private Table $campaignsTable,
         private Table $connectorsTable,
         private Table $personalDataTable,
         private Table $prospectingTable,
@@ -112,6 +114,14 @@ final readonly class ContextTables
     public function countOrganizationsOf(string $accountId): int
     {
         return $this->prospectingTable->count(OrganizationKeys::ofAccount($accountId), Table::BY_GSI1);
+    }
+
+    /**
+     * @return list<array{holder: string, holderId: string}> the organizations and the contacts the account tagged
+     */
+    public function taggingsOf(string $accountId): array
+    {
+        return array_map(static fn (array $item): array => $item['tagging'], $this->campaignsTable->query(CampaignsKeys::account($accountId)));
     }
 
     /**

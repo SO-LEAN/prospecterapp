@@ -56,6 +56,7 @@ final class ContactResourcePresenter implements ConsultPersonOutput
             ...$this->possible(self::ROUTES, $contact->possibleIntents, $id),
             ...$this->possible(self::TIMELINE_ROUTES, $this->timeline->possibleIntents, $id),
             ...$this->toDosOf($id),
+            'tags' => $this->links->to('api_contacts_tags', $id),
         ];
 
         return new ContactLinksResource($this->links->to('api_contacts_show', $id), ...$possible);

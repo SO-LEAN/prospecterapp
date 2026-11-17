@@ -19,7 +19,7 @@ class ReactionsAreSubscribedTest extends TestCase
     private const string INTERNAL = '.internal';
 
     /** The contexts the API serves, whose handlers `config/services.yaml` loads. */
-    private const string SERVED_CONTEXTS = '{Accounts,Connectors,PersonalData,Prospecting,Reporting}';
+    private const string SERVED_CONTEXTS = '{Accounts,Campaigns,Connectors,PersonalData,Prospecting,Reporting}';
 
     public function testEveryEventHandlerIsATranslatorOrASubscription(): void
     {

@@ -5,10 +5,18 @@ namespace App\Consistency;
 /**
  * What the reactions between the contexts should have written, read in the tables: each account has a member at
  * least, its founder registered, and each member their profile in PersonalData; each contact collected is attached to
- * organizations, none forgotten still is; no organization no longer prospected still keeps exchanges.
+ * organizations, none forgotten still is; no organization no longer prospected still keeps exchanges; neither keeps
+ * its tags.
  */
 final readonly class ReactionsBetweenContexts
 {
+    private const string ORGANIZATION = 'organization';
+    private const string CONTACT = 'contact';
+    private const array TAGS_KEPT_FOR = [
+        self::ORGANIZATION => 'tags kept for an organization no longer prospected',
+        self::CONTACT => 'tags kept for a forgotten contact',
+    ];
+
     public function __construct(private ContextTables $tables)
     {
     }
@@ -72,6 +80,7 @@ final readonly class ReactionsBetweenContexts
             ...$this->contactsNotAttached($accountId, $contacts, $organizations),
             ...$this->forgottenContactsAttached($accountId, $contacts, $organizations),
             ...$this->exchangesOfOrganizationsGone($accountId, $organizations),
+            ...$this->tagsOfWhatIsGone($accountId, $contacts, $organizations),
         ];
     }
 
@@ -128,5 +137,19 @@ final readonly class ReactionsBetweenContexts
         }
 
         return $discrepancies;
+    }
+
+    /**
+     * @param list<string>               $contacts
+     * @param list<array<string, mixed>> $organizations
+     *
+     * @return list<Discrepancy>
+     */
+    private function tagsOfWhatIsGone(string $accountId, array $contacts, array $organizations): array
+    {
+        $kept = [self::ORGANIZATION => array_column($organizations, 'id'), self::CONTACT => $contacts];
+        $gone = array_filter($this->tables->taggingsOf($accountId), static fn (array $tagging): bool => !in_array($tagging['holderId'], $kept[$tagging['holder']] ?? [], true));
+
+        return array_values(array_map(static fn (array $tagging): Discrepancy => new Discrepancy($accountId, $tagging['holderId'], self::TAGS_KEPT_FOR[$tagging['holder']], Correction::GiveTheReactionAgain), $gone));
     }
 }

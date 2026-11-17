@@ -38,6 +38,8 @@ final readonly class OrganizationLinksResource
         public ?LinkResource $noteExchange = null,
         #[OA\Property(nullable: false, description: 'Its to-dos and those of its contacts (ADR 0113)')]
         public ?LinkResource $toDos = null,
+        #[OA\Property(nullable: false, description: 'The tags put on it by hand, kept by Campaigns (ADR 0138)')]
+        public ?LinkResource $tags = null,
     ) {
     }
 }
