@@ -33,4 +33,9 @@ describe('the moments of my day', () => {
     expect(whenToCome('2026-11-19T14:00:00', friday)).toBe('jeudi 14h00')
     expect(whenToCome('2026-11-20T14:00:00', friday)).toBe('ven. 20 nov. 14h00')
   })
+
+  it('says the year of an exchange to come in another year, never of a day of the week', () => {
+    expect(whenToCome('2027-01-07T09:00:00', at('2026-12-17T10:00:00'))).toBe('jeu. 7 janv. 2027 9h00')
+    expect(whenToCome('2027-01-04T09:00:00', at('2026-12-31T10:00:00'))).toBe('lundi 9h00')
+  })
 })
