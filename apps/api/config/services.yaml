@@ -76,6 +76,7 @@ services:
     Prospecter\Core\Prospecting\Application\PublishedHeldExchanges: ~
     Prospecter\Core\Campaigns\Domain\Service\TaggableHolders: ~
     Prospecter\Core\Campaigns\Application\FactRecorder: ~
+    Prospecter\Core\Campaigns\Application\TagsOfEveryContact: ~
     Prospecter\Core\Campaigns\Application\CampaignTargets: ~
 
     # DynamoDB (ADR 0048): MiniStack locally (DYNAMODB_ENDPOINT), AWS in production (DYNAMODB_ENDPOINT empty);

@@ -5743,6 +5743,229 @@
                 }
             }
         },
+        "/api/campaigns/{id}/recipients": {
+            "get": {
+                "tags": [
+                    "Campaigns"
+                ],
+                "summary": "The recipients a campaign keeps, in the order they were added, none in a draft",
+                "operationId": "get_api_campaigns_recipients",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "pattern": "[0-9a-f]{8}-[0-9a-f]{4}-[13-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Every recipient",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/RecipientListResource"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Missing or invalid access token"
+                    },
+                    "403": {
+                        "description": "Not a prospector, or no right to manage personal data",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ProblemResource"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Unknown campaign, or one of another account",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ProblemResource"
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "post": {
+                "tags": [
+                    "Campaigns"
+                ],
+                "summary": "Add a contact chosen to the recipients of a frozen campaign, kept once",
+                "operationId": "post_api_campaigns_add_recipient",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "pattern": "[0-9a-f]{8}-[0-9a-f]{4}-[13-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/RecipientInput"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "The campaign, its recipients counted",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/CampaignResource"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Missing or invalid access token"
+                    },
+                    "403": {
+                        "description": "Not a prospector, or no right to manage personal data",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ProblemResource"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Unknown campaign or of another account, or no contact of my organization",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ProblemResource"
+                                }
+                            }
+                        }
+                    },
+                    "409": {
+                        "description": "Not frozen",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ProblemResource"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "A contact without the means of its channel, or more than 500 recipients",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ProblemResource"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/campaigns/{id}/recipients/by-tags": {
+            "post": {
+                "tags": [
+                    "Campaigns"
+                ],
+                "summary": "Add to the recipients of a frozen campaign the contacts carrying every tag chosen and that of its channel, those already kept kept once",
+                "operationId": "post_api_campaigns_add_recipients_by_tags",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "pattern": "[0-9a-f]{8}-[0-9a-f]{4}-[13-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/RecipientSearchInput"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "The campaign, its recipients counted",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/CampaignResource"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Missing or invalid access token"
+                    },
+                    "403": {
+                        "description": "Not a prospector, or no right to manage personal data",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ProblemResource"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Unknown campaign, or one of another account",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ProblemResource"
+                                }
+                            }
+                        }
+                    },
+                    "409": {
+                        "description": "Not frozen",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ProblemResource"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "No tag, more than five with that of the channel, or more than 500 recipients",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ProblemResource"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
         "/api/campaigns/{id}": {
             "get": {
                 "tags": [
@@ -5937,6 +6160,81 @@
                 }
             }
         },
+        "/api/campaigns/{id}/freezing": {
+            "post": {
+                "tags": [
+                    "Campaigns"
+                ],
+                "summary": "Keep the contacts a draft campaign targets now as its recipients, for good: its channel and its tags no longer change",
+                "operationId": "post_api_campaigns_freeze",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "pattern": "[0-9a-f]{8}-[0-9a-f]{4}-[13-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "The frozen campaign",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/CampaignResource"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Missing or invalid access token"
+                    },
+                    "403": {
+                        "description": "Not a prospector, or no right to manage personal data",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ProblemResource"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Unknown campaign, or one of another account",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ProblemResource"
+                                }
+                            }
+                        }
+                    },
+                    "409": {
+                        "description": "No longer a draft",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ProblemResource"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Nobody targeted, or more than 500",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ProblemResource"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
         "/api/campaigns": {
             "get": {
                 "tags": [
@@ -6012,6 +6310,83 @@
                     },
                     "422": {
                         "description": "Without a name or too long, an unknown channel, no tag or more than five with that of the channel, a message too long, a subject for another channel than an e-mail",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ProblemResource"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/campaigns/{id}/recipients/{contactId}": {
+            "delete": {
+                "tags": [
+                    "Campaigns"
+                ],
+                "summary": "Take a recipient off a frozen campaign, never the last one",
+                "operationId": "delete_api_campaigns_remove_recipient",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "pattern": "[0-9a-f]{8}-[0-9a-f]{4}-[13-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}"
+                        }
+                    },
+                    {
+                        "name": "contactId",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "pattern": "[0-9a-f]{8}-[0-9a-f]{4}-[13-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}"
+                        }
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "Taken off"
+                    },
+                    "401": {
+                        "description": "Missing or invalid access token"
+                    },
+                    "403": {
+                        "description": "Not a prospector, or no right to manage personal data",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ProblemResource"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Unknown campaign or of another account, or no recipient of it",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ProblemResource"
+                                }
+                            }
+                        }
+                    },
+                    "409": {
+                        "description": "Not frozen",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ProblemResource"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Its last recipient",
                         "content": {
                             "application/json": {
                                 "schema": {
@@ -6831,6 +7206,32 @@
                         ],
                         "default": [],
                         "minItems": 1
+                    }
+                },
+                "type": "object"
+            },
+            "RecipientInput": {
+                "properties": {
+                    "contactId": {
+                        "description": "A contact of my organization",
+                        "type": "string",
+                        "format": "uuid",
+                        "nullable": true,
+                        "default": null
+                    }
+                },
+                "type": "object"
+            },
+            "RecipientSearchInput": {
+                "properties": {
+                    "tags": {
+                        "description": "The tags chosen, the tag of the channel of the campaign counting with them in the 5 tags of the search",
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        },
+                        "nullable": true,
+                        "default": null
                     }
                 },
                 "type": "object"
@@ -9148,6 +9549,66 @@
                 },
                 "type": "object"
             },
+            "RecipientLinksResource": {
+                "properties": {
+                    "remove": {
+                        "$ref": "#/components/schemas/LinkResource"
+                    }
+                },
+                "type": "object"
+            },
+            "RecipientResource": {
+                "required": [
+                    "contact",
+                    "status",
+                    "_links"
+                ],
+                "properties": {
+                    "contact": {
+                        "$ref": "#/components/schemas/ContactInListResource"
+                    },
+                    "status": {
+                        "description": "To handle",
+                        "type": "string",
+                        "enum": [
+                            "pending"
+                        ]
+                    },
+                    "_links": {
+                        "$ref": "#/components/schemas/RecipientLinksResource"
+                    }
+                },
+                "type": "object"
+            },
+            "RecipientListLinksResource": {
+                "required": [
+                    "self"
+                ],
+                "properties": {
+                    "self": {
+                        "$ref": "#/components/schemas/LinkResource"
+                    }
+                },
+                "type": "object"
+            },
+            "RecipientListResource": {
+                "required": [
+                    "items",
+                    "_links"
+                ],
+                "properties": {
+                    "items": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/RecipientResource"
+                        }
+                    },
+                    "_links": {
+                        "$ref": "#/components/schemas/RecipientListLinksResource"
+                    }
+                },
+                "type": "object"
+            },
             "CampaignLinksResource": {
                 "required": [
                     "self"
@@ -9162,7 +9623,19 @@
                     "discard": {
                         "$ref": "#/components/schemas/LinkResource"
                     },
+                    "freeze": {
+                        "$ref": "#/components/schemas/LinkResource"
+                    },
+                    "addRecipient": {
+                        "$ref": "#/components/schemas/LinkResource"
+                    },
+                    "addRecipientsByTags": {
+                        "$ref": "#/components/schemas/LinkResource"
+                    },
                     "target": {
+                        "$ref": "#/components/schemas/LinkResource"
+                    },
+                    "recipients": {
                         "$ref": "#/components/schemas/LinkResource"
                     }
                 },
@@ -9224,18 +9697,19 @@
                     "status": {
                         "type": "string",
                         "enum": [
-                            "draft"
+                            "draft",
+                            "frozen"
                         ]
                     },
                     "author": {
                         "$ref": "#/components/schemas/AuthorResource"
                     },
                     "contacted": {
-                        "description": "How many contacts of its target were contacted, none in a draft",
+                        "description": "How many contacts of its target were contacted, none before it is started",
                         "type": "integer"
                     },
                     "targeted": {
-                        "description": "How many contacts it targets now",
+                        "description": "How many contacts it targets: those its search finds now while a draft, its recipients once frozen",
                         "type": "integer"
                     },
                     "_links": {

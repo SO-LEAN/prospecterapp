@@ -24,7 +24,9 @@ final readonly class DomainEventTypes extends EventTypes
         ],
         'prospecter.campaigns.internal' => [
             'CampaignDiscarded.v1' => Campaigns\CampaignDiscarded::class,
+            'CampaignFrozen.v1' => Campaigns\CampaignFrozen::class,
             'CampaignPrepared.v1' => Campaigns\CampaignPrepared::class,
+            'CampaignRecipientsChanged.v1' => Campaigns\CampaignRecipientsChanged::class,
             'CampaignRevised.v1' => Campaigns\CampaignRevised::class,
             'ContactTagsChanged.v1' => Campaigns\ContactTagsChanged::class,
             'OrganizationTagsChanged.v1' => Campaigns\OrganizationTagsChanged::class,

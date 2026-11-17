@@ -14,6 +14,7 @@ use Tests\App\Base\ApiTestCase;
 class CampaignRecipientsApiTest extends ApiTestCase
 {
     private const string TAG = '#CAMPAIGN_152';
+    private const string OTHER_TAG = '#CAMPAIGN_152_GLOBEX';
 
     private string $ada;
     private string $alan;
@@ -26,6 +27,7 @@ class CampaignRecipientsApiTest extends ApiTestCase
         $acme = $this->requestJson('POST', '/api/organizations', ['legalIdentity' => ['corporateName' => 'ACME']])['id'];
         $this->requestJson('POST', '/api/organizations/'.$acme.'/tags', ['tags' => [self::TAG]]);
         $globex = $this->requestJson('POST', '/api/organizations', ['legalIdentity' => ['corporateName' => 'Globex']])['id'];
+        $this->requestJson('POST', '/api/organizations/'.$globex.'/tags', ['tags' => [self::OTHER_TAG]]);
         $this->ada = $this->aContact('Ada', 'Lovelace', $acme, 'ada@acme.test');
         $this->alan = $this->aContact('Alan', 'Turing', $globex, 'alan@globex.test');
         $this->grace = $this->aContact('Grace', 'Hopper', $globex);
@@ -74,7 +76,7 @@ class CampaignRecipientsApiTest extends ApiTestCase
     {
         $id = $this->aFrozenCampaign();
 
-        $campaign = $this->requestJson('POST', '/api/campaigns/'.$id.'/recipients/by-tags', ['tags' => ['#EMAIL']]);
+        $campaign = $this->requestJson('POST', '/api/campaigns/'.$id.'/recipients/by-tags', ['tags' => [self::OTHER_TAG]]);
 
         $this->assertResponseStatusCodeSame(200);
         $this->assertSame(2, $campaign['targeted']);
@@ -93,7 +95,7 @@ class CampaignRecipientsApiTest extends ApiTestCase
         $problem = $this->requestJson('POST', '/api/campaigns/'.$id.'/recipients', ['contactId' => $this->grace]);
 
         $this->assertResponseStatusCodeSame(422);
-        $this->assertSame(['unreachableContact', ['contact' => 'Grace Hopper', 'channel' => 'email']], [$problem['reason'], $problem['context']]);
+        $this->assertSame(['unreachableContact', ['contact' => 'Grace Hopper', 'channel' => 'email']], [$problem['reason'], $problem['violations'][0]['context']]);
     }
 
     public function testAPersonWhoIsNoContactOfTheAccountIsNotAdded(): void
@@ -183,7 +185,7 @@ class CampaignRecipientsApiTest extends ApiTestCase
         return [
             ['POST', '/api/campaigns/'.$id.'/freezing', null, 200],
             ['GET', '/api/campaigns/'.$id.'/recipients', null, 200],
-            ['POST', '/api/campaigns/'.$id.'/recipients/by-tags', ['tags' => ['#EMAIL']], 200],
+            ['POST', '/api/campaigns/'.$id.'/recipients/by-tags', ['tags' => [self::OTHER_TAG]], 200],
             ['POST', '/api/campaigns/'.$id.'/recipients', ['contactId' => $contact], 200],
             ['DELETE', '/api/campaigns/'.$id.'/recipients/'.$this->ada, null, 204],
         ];

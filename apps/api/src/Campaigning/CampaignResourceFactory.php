@@ -11,11 +11,12 @@ use App\Security\User;
 use App\Shared\Links;
 use App\Shared\Resource\LinkResource;
 use Prospecter\Core\Campaigns\Application\CampaignSheet;
+use Prospecter\Core\Campaigns\Domain\Model\CampaignStatus;
 use Prospecter\Core\PersonalData\Application\PersonCard;
 
 /**
  * A campaign as the API answers it, its links those its state offers, every one needing the right to manage personal
- * data (ADR 0081, 0144); its target, the search by its targeted tags.
+ * data (ADR 0081, 0144); its target, the search by its targeted tags while a draft, its recipients once frozen.
  */
 final readonly class CampaignResourceFactory
 {
@@ -25,6 +26,9 @@ final readonly class CampaignResourceFactory
     private const array ROUTES = [
         'revise' => ['intent' => 'ReviseCampaign', 'route' => 'api_campaigns_revise'],
         'discard' => ['intent' => 'DiscardCampaign', 'route' => 'api_campaigns_discard'],
+        'freeze' => ['intent' => 'FreezeCampaign', 'route' => 'api_campaigns_freeze'],
+        'addRecipient' => ['intent' => 'AddRecipients', 'route' => 'api_campaigns_add_recipient'],
+        'addRecipientsByTags' => ['intent' => 'AddRecipients', 'route' => 'api_campaigns_add_recipients_by_tags'],
     ];
     private const string TAG_MARK = '#';
 
@@ -59,9 +63,19 @@ final readonly class CampaignResourceFactory
             $this->links->to('api_campaigns_show', $id),
             ...[
                 ...array_map(fn (array $link): LinkResource => $this->links->to($link['route'], $id), $granted),
-                'target' => $this->links->to('api_contacts_search_by_tags', ['tags' => implode(',', array_map(self::nameOf(...), $campaign->targetedTags))]),
+                ...$this->whomItTargets($campaign),
             ],
         );
+    }
+
+    /**
+     * @return array{target: LinkResource}|array{recipients: LinkResource}
+     */
+    private function whomItTargets(CampaignSheet $campaign): array
+    {
+        return CampaignStatus::from($campaign->status)->followsTheTags()
+            ? ['target' => $this->links->to('api_contacts_search_by_tags', ['tags' => implode(',', array_map(self::nameOf(...), $campaign->targetedTags))])]
+            : ['recipients' => $this->links->to('api_campaigns_recipients', ['id' => $campaign->id])];
     }
 
     private static function nameOf(string $tag): string
