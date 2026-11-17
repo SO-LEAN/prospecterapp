@@ -1,4 +1,4 @@
-import { useEffect, useId, useRef, useState } from 'react'
+import { useId, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Input } from '@/shared/ui/input'
 import { isTheTag, matches } from '../matching'
@@ -20,8 +20,6 @@ export function TagPicker({ suggested, carried, onPick }: Props) {
   const { t } = useTranslation()
   const [typed, setTyped] = useState('')
   const listId = useId()
-  const search = useRef<HTMLInputElement>(null)
-  useEffect(() => search.current?.focus(), [])
   const groups = groupsOf(suggested, t)
     .map((group) => ({ ...group, tags: group.tags.filter((tag) => isOffered(tag, carried, typed)) }))
     .filter((group) => group.tags.length > 0)
@@ -36,7 +34,7 @@ export function TagPicker({ suggested, carried, onPick }: Props) {
   return (
     <div className="space-y-2">
       <Input
-        ref={search}
+        autoFocus
         role="combobox"
         aria-label={t('tags.tag')}
         aria-controls={listId}
