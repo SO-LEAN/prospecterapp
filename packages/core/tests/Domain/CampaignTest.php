@@ -76,8 +76,8 @@ final class CampaignTest extends TestCase
     public function testStartingAFrozenCampaignItsErasedContactsEmptiedIsRefusedForWantOfRecipient(): void
     {
         $campaign = $this->in(CampaignStatus::Frozen);
-        $campaign->forget(new PersonId(self::ADA));
-        $campaign->forget(new PersonId(self::ALAN));
+        $campaign->forget(new PersonId(self::ADA), $this->now());
+        $campaign->forget(new PersonId(self::ALAN), $this->now());
 
         $this->expectExceptionObject(CampaignWithoutRecipient::left());
         $campaign->start(new MemberId(self::ME), $this->now());

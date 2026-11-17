@@ -74,7 +74,7 @@ class DynamoCampaignRepositoryTest extends ApiTestCase
     {
         $campaign = $this->aFrozenCampaign(self::ADA, self::ALAN);
         $campaign->start(new MemberId(self::newIdentity()), new \DateTimeImmutable('2026-11-17 12:00:00'));
-        $campaign->forget(new PersonId(self::ALAN));
+        $campaign->forget(new PersonId(self::ALAN), new \DateTimeImmutable('2026-11-17 12:30:00'));
         $campaign->stop(new MemberId(self::newIdentity()), new \DateTimeImmutable('2026-11-17 13:00:00'));
         $this->repository()->save($campaign);
         $campaign->releaseEvents();
