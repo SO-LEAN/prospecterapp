@@ -18,14 +18,21 @@ const toReadAfterTheReactions = new WeakMap<
  * it, the gestures following each other read once after the reactions to the last.
  */
 export function readAgainAfterTheReactions(queryClient: QueryClient, ...queryKeys: readonly QueryKey[]) {
-  readTheDisplayedOnes(queryClient, queryKeys)
+  readTheDisplayedOnes(queryClient, queryKeys, { cancelRefetch: false })
   readOnceTheReactionsRan(queryClient, queryKeys)
 }
 
-/** A query being read already is not read again at the same moment: its read is the one awaited. */
-function readTheDisplayedOnes(queryClient: QueryClient, queryKeys: Iterable<QueryKey>) {
+/**
+ * At once, a query being read already is not read again: its read is the one awaited. Once the reactions ran, a read
+ * still under way started before them: it is read anew.
+ */
+function readTheDisplayedOnes(
+  queryClient: QueryClient,
+  queryKeys: Iterable<QueryKey>,
+  { cancelRefetch }: { cancelRefetch: boolean },
+) {
   for (const queryKey of queryKeys) {
-    void queryClient.invalidateQueries({ queryKey, refetchType: 'active' }, { cancelRefetch: false })
+    void queryClient.invalidateQueries({ queryKey, refetchType: 'active' }, { cancelRefetch })
   }
 }
 
@@ -38,7 +45,7 @@ function readOnceTheReactionsRan(queryClient: QueryClient, queryKeys: readonly Q
   }
   const timer = window.setTimeout(() => {
     toReadAfterTheReactions.delete(queryClient)
-    readTheDisplayedOnes(queryClient, toRead.values())
+    readTheDisplayedOnes(queryClient, toRead.values(), { cancelRefetch: true })
   }, AFTER_THE_REACTIONS_MS)
   toReadAfterTheReactions.set(queryClient, { queryKeys: toRead, timer })
 }
