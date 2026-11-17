@@ -141,3 +141,4 @@ Why the project is shaped the way it is: one record per decision, in the order t
 | [0135](0135-a-moved-exchange-is-offered-to-move-back-while-its-former-moment-is-to-come.md) | A moved exchange is offered to move back while its former moment is to come | domain | Accepted | 2026-11-16 |
 | [0136](0136-the-main-journey-runs-alone-the-dashboard-after-it.md) | The main journey runs alone, the dashboard after it | architecture | Accepted | 2026-11-16 |
 | [0137](0137-the-calendar-of-the-holder-creates-the-link-of-a-video-call-asked-for-it.md) | The calendar of the holder creates the link of a video call planned asking for one, Connectors publishing it to Prospecting | architecture | Proposed | 2026-11-17 |
+| [0137](0137-the-calendar-of-the-holder-creates-the-link-of-a-video-call-asked-for-it.md) | The calendar of the holder creates the link of a video call planned asking for one, Connectors publishing it to Prospecting | architecture | Accepted | 2026-11-17 |
