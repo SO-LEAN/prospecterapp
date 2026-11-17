@@ -4,7 +4,7 @@ import { Badge } from '@/shared/ui/badge'
 import { Card, CardContent } from '@/shared/ui/card'
 import { type ContactInList, fullNameOf } from '../queries'
 
-/** A contact of the list, with links to the organizations it works for. */
+/** A contact of the list, with links to the organizations it works for, and the tags it carries in small. */
 export function ContactCard({ contact }: { contact: ContactInList }) {
   const { t } = useTranslation()
 
@@ -41,6 +41,16 @@ export function ContactCard({ contact }: { contact: ContactInList }) {
             </li>
           ))}
         </ul>
+        {contact.tags.length > 0 && (
+          <ul
+            className="flex flex-wrap gap-1 text-muted-foreground text-xs"
+            aria-label={t('contacts.tagsOf', { name: fullNameOf(contact) })}
+          >
+            {contact.tags.map((tag) => (
+              <li key={tag}>{tag}</li>
+            ))}
+          </ul>
+        )}
       </CardContent>
     </Card>
   )

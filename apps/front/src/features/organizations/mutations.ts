@@ -99,7 +99,7 @@ export function useRemoveLogo() {
 
 /**
  * The organization changes, and so do the list of its contacts and the contacts: one left alone is erased by the
- * reactions to the gesture.
+ * reactions to the gesture, one attached or removed inherits its tags or loses them.
  */
 function useStoreOrganizationAndItsContacts() {
   const queryClient = useQueryClient()
@@ -107,7 +107,12 @@ function useStoreOrganizationAndItsContacts() {
 
   return (organization: Organization | undefined) => {
     store(organization)
-    readAgainAfterTheReactions(queryClient, queryKeys.organizationContacts, queryKeys.contactList)
+    readAgainAfterTheReactions(
+      queryClient,
+      queryKeys.organizationContacts,
+      queryKeys.contactList,
+      queryKeys.contactTags,
+    )
     readTheExchangesAgain(queryClient)
   }
 }

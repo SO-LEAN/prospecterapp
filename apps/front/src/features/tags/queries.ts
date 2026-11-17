@@ -2,6 +2,7 @@ import { api } from '@/shared/api/client'
 import type { components } from '@/shared/api/schema'
 
 export type Tags = components['schemas']['TagsResource']
+export type ContactTags = components['schemas']['ContactTagsResource']
 export type SuggestedTags = components['schemas']['SuggestedTagsResource']
 export type TagFamily = components['schemas']['TagFamilyResource']['family']
 
@@ -9,7 +10,7 @@ export type TagFamily = components['schemas']['TagFamilyResource']['family']
 export const organizationTagsQuery = (organizationId: string) =>
   api.queryOptions('get', '/api/organizations/{id}/tags', { params: { path: { id: organizationId } } })
 
-/** The tags put by hand on a contact. */
+/** The tags of a contact: its own, those it inherits from its organizations, the automatic ones (ADR 0141). */
 export const contactTagsQuery = (contactId: string) =>
   api.queryOptions('get', '/api/contacts/{id}/tags', { params: { path: { id: contactId } } })
 

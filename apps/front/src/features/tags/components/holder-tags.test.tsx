@@ -36,7 +36,11 @@ const tagsOf = (base: string, names: string[]): Tags => ({
   _links: { self: { href: `${base}/tags`, method: 'GET' }, tag: { href: `${base}/tags`, method: 'POST' } },
 })
 
-const contactTagsOf = (own: string[], inherited: ContactTagsResource['inherited'] = [], automatic: string[] = []): ContactTagsResource => ({
+const contactTagsOf = (
+  own: string[],
+  inherited: ContactTagsResource['inherited'] = [],
+  automatic: string[] = [],
+): ContactTagsResource => ({
   ...tagsOf(`/api/contacts/${ADA}`, own),
   inherited,
   automatic,
@@ -59,18 +63,13 @@ function theApiAnswers(base: string, carried: string[], afterTheGesture: string[
   return calls
 }
 
-/** The api: the tags of Ada, and the organization ACME she works for. */
+/** The api: the tags of Ada. */
 function adaCarries(tags: ContactTagsResource) {
-  theApi.mockImplementation(async (input) => {
-    const { pathname } = new URL((input as Request).url)
-    if (pathname === `/api/contacts/${ADA}/organizations`) {
-      return Response.json({
-        items: [{ id: ACME, name: 'ACME', organization: { href: `/api/organizations/${ACME}`, method: 'GET' } }],
-      })
-    }
-    return Response.json(tags)
-  })
+  theApi.mockImplementation(async () => Response.json(tags))
 }
+
+/** The organizations Ada works for, as the route gives them. */
+const ADA_WORKS_FOR = [{ id: ACME, name: 'ACME' }]
 
 const renderWithACache = (node: React.ReactNode) =>
   render(
@@ -117,7 +116,7 @@ describe('the tags of an organization or of a contact', () => {
 
   it('takes a tag off the contact by its cross', async () => {
     const calls = theApiAnswers(`/api/contacts/${ADA}`, ['#CLIENT'], [])
-    renderWithACache(<ContactTags contactId={ADA} />)
+    renderWithACache(<ContactTags contactId={ADA} organizations={ADA_WORKS_FOR} />)
 
     await userEvent.click(await screen.findByRole('button', { name: 'Retirer le tag #CLIENT' }))
 
@@ -132,17 +131,15 @@ describe('the tags of an organization or of a contact', () => {
   it('shows the tags the contact inherits and the automatic ones after its own, none taken off', async () => {
     adaCarries(contactTagsOf(['#CLIENT'], [{ name: '#ESN', from: [ACME] }], ['#EMAIL', '#SMS']))
 
-    renderWithACache(<ContactTags contactId={ADA} />)
+    renderWithACache(<ContactTags contactId={ADA} organizations={ADA_WORKS_FOR} />)
 
     const tags = await screen.findByRole('list', { name: 'Tags' })
     await waitFor(() =>
-      expect(within(tags).getAllByRole('listitem').map((tag) => tag.textContent)).toEqual([
-        '#CLIENT',
-        '#ESN',
-        '#EMAIL',
-        '#SMS',
-        'Ajouter un tag',
-      ]),
+      expect(
+        within(tags)
+          .getAllByRole('listitem')
+          .map((tag) => tag.textContent),
+      ).toEqual(['#CLIENT', '#ESN', '#EMAIL', '#SMS', 'Ajouter un tag']),
     )
     expect(screen.getByRole('button', { name: 'Retirer le tag #CLIENT' })).toBeInTheDocument()
     expect(screen.queryByRole('button', { name: 'Retirer le tag #ESN' })).not.toBeInTheDocument()
@@ -151,7 +148,7 @@ describe('the tags of an organization or of a contact', () => {
 
   it('says which organization an inherited tag comes from', async () => {
     adaCarries(contactTagsOf([], [{ name: '#ESN', from: [ACME] }]))
-    renderWithACache(<ContactTags contactId={ADA} />)
+    renderWithACache(<ContactTags contactId={ADA} organizations={ADA_WORKS_FOR} />)
 
     await userEvent.click(await screen.findByRole('button', { name: '#ESN' }))
 
@@ -160,7 +157,7 @@ describe('the tags of an organization or of a contact', () => {
 
   it('says an automatic tag is set automatically', async () => {
     adaCarries(contactTagsOf([], [], ['#EMAIL']))
-    renderWithACache(<ContactTags contactId={ADA} />)
+    renderWithACache(<ContactTags contactId={ADA} organizations={ADA_WORKS_FOR} />)
 
     await userEvent.click(await screen.findByRole('button', { name: '#EMAIL' }))
 

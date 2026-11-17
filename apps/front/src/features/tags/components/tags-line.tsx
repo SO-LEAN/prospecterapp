@@ -6,19 +6,23 @@ import { Badge } from '@/shared/ui/badge'
 import { Button } from '@/shared/ui/button'
 import { Popover, PopoverContent, PopoverTrigger } from '@/shared/ui/popover'
 import { suggestedTagsQuery } from '../queries'
+import { ExplainedTag } from './explained-tag'
 import { TagPicker } from './tag-picker'
 
 type Props = {
   tags: string[]
+  inherited?: { name: string; from: string[] }[]
+  automatic?: string[]
   onTag: (typed: string) => void
   onTakeOff: (tag: string) => void
 }
 
 /**
- * A line of chips, one per tag put by hand, each taken off by its cross, and « Ajouter un tag » opening the picker of
- * the tags proposed to the account. The predefined tags and those of the account look alike (ADR 0138).
+ * A line of chips, one per tag put by hand, each taken off by its cross, then those a contact inherits from the
+ * organizations named, and the automatic ones, neither taken off (ADR 0141), and « Ajouter un tag » opening the
+ * picker of the tags proposed to the account. The predefined tags and those of the account look alike (ADR 0138).
  */
-export function TagsLine({ tags, onTag, onTakeOff }: Props) {
+export function TagsLine({ tags, inherited = [], automatic = [], onTag, onTakeOff }: Props) {
   const { t } = useTranslation()
 
   return (
@@ -36,6 +40,19 @@ export function TagsLine({ tags, onTag, onTakeOff }: Props) {
               <X className="size-3" aria-hidden />
             </button>
           </Badge>
+        </li>
+      ))}
+      {inherited.map((tag) => (
+        <li key={tag.name}>
+          <ExplainedTag
+            tag={tag.name}
+            explanation={t('tags.inheritedFrom', { organizations: tag.from.join(', ') })}
+          />
+        </li>
+      ))}
+      {automatic.map((tag) => (
+        <li key={tag}>
+          <ExplainedTag tag={tag} explanation={t('tags.automatic')} automatic />
         </li>
       ))}
       <li>
