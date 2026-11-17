@@ -63,7 +63,8 @@ final readonly class PhoneNumber implements \Stringable
     }
 
     /**
-     * A mobile receives text messages; a number kept before the numbers were checked is none.
+     * A mobile receives text messages; a number kept before the numbers were checked is none, and so is one whose plan
+     * does not tell a mobile from a landline (`FIXED_LINE_OR_MOBILE`, in North America).
      */
     #[\NoDiscard]
     public function isMobile(): bool

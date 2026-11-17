@@ -7,6 +7,11 @@ use PHPUnit\Framework\Attributes\Group;
 use Prospecter\Core\Accounts\Domain\Model\Role;
 use Prospecter\Core\Campaigns\Domain\Model\Holder;
 use Prospecter\Core\Campaigns\Domain\Repository\TaggingRepository;
+use Prospecter\Core\PersonalData\Domain\Model\Person;
+use Prospecter\Core\PersonalData\Domain\Model\PersonName;
+use Prospecter\Core\PersonalData\Domain\Model\Purpose;
+use Prospecter\Core\PersonalData\Domain\Repository\PersonRepository;
+use Prospecter\Core\SharedKernel\Domain\AccountId;
 use Prospecter\Core\SharedKernel\Domain\OrganizationId;
 use Prospecter\Core\SharedKernel\Domain\PersonId;
 use Tests\App\Base\ApiTestCase;
@@ -167,6 +172,20 @@ class TagsApiTest extends ApiTestCase
         $problem = $this->requestJson('POST', '/api/contacts/'.self::newIdentity().'/tags', ['tags' => ['#CLIENT']]);
         $this->assertResponseStatusCodeSame(404);
         $this->assertSame('unknownContact', $problem['reason']);
+    }
+
+    public function testTheTagsOfAPersonTheAccountKeepsNotAsAContactAreNotFound(): void
+    {
+        $unknown = $this->requestJson('GET', '/api/contacts/'.self::newIdentity().'/tags');
+        $this->assertResponseStatusCodeSame(404);
+        $this->assertSame('unknownContact', $unknown['reason']);
+
+        $ofAnotherAccount = Person::collect(new PersonId(self::newIdentity()), new AccountId(self::newIdentity()), Purpose::Prospecting, new \DateTimeImmutable(), new PersonName('Linus', 'Torvalds'));
+        self::getContainer()->get(PersonRepository::class)->save($ofAnotherAccount);
+        $theirs = $this->requestJson('GET', '/api/contacts/'.$ofAnotherAccount->id()->value.'/tags');
+
+        $this->assertResponseStatusCodeSame(404);
+        $this->assertSame('unknownContact', $theirs['reason']);
     }
 
     /**
