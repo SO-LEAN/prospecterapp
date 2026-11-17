@@ -19,9 +19,13 @@ final readonly class CampaignLinksResource
         public ?LinkResource $addRecipient = null,
         #[OA\Property(description: 'Add the contacts of a search by tags to its recipients, once frozen', nullable: false)]
         public ?LinkResource $addRecipientsByTags = null,
+        #[OA\Property(description: 'Start it, once frozen: nothing of it changes any more', nullable: false)]
+        public ?LinkResource $start = null,
+        #[OA\Property(description: 'Stop it, once started: kept, never discarded', nullable: false)]
+        public ?LinkResource $stop = null,
         #[OA\Property(description: 'The contacts it targets while a draft: the search by its targeted tags', nullable: false)]
         public ?LinkResource $target = null,
-        #[OA\Property(description: 'The contacts it keeps once frozen', nullable: false)]
+        #[OA\Property(description: 'The contacts it keeps once frozen, started and stopped', nullable: false)]
         public ?LinkResource $recipients = null,
     ) {
     }

@@ -1264,7 +1264,7 @@ export interface paths {
         get: operations["get_api_campaigns_show"];
         put?: never;
         post?: never;
-        /** Discard a draft campaign */
+        /** Discard a campaign never started */
         delete: operations["delete_api_campaigns_discard"];
         options?: never;
         head?: never;
@@ -1335,6 +1335,40 @@ export interface paths {
         get: operations["get_api_campaigns_message"];
         put?: never;
         post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/campaigns/{id}/starting": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Start a frozen campaign: its recipients, its message and its channel no longer change, and it is stopped, never discarded */
+        post: operations["post_api_campaigns_start"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/campaigns/{id}/stopping": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Stop a started campaign, kept for the team to read */
+        post: operations["post_api_campaigns_stop"];
         delete?: never;
         options?: never;
         head?: never;
@@ -2501,12 +2535,13 @@ export interface components {
             remove?: components["schemas"]["LinkResource"];
         };
         RecipientResource: {
-            contact: components["schemas"]["ContactInListResource"];
+            /** @description The contact, none once erased */
+            contact?: components["schemas"]["ContactInListResource"] | null;
             /**
-             * @description To handle
+             * @description To handle, or no longer once erased
              * @enum {string}
              */
-            status: "pending";
+            status: "pending" | "erased";
             _links: components["schemas"]["RecipientLinksResource"];
         };
         RecipientListLinksResource: {
@@ -2523,6 +2558,8 @@ export interface components {
             freeze?: components["schemas"]["LinkResource"];
             addRecipient?: components["schemas"]["LinkResource"];
             addRecipientsByTags?: components["schemas"]["LinkResource"];
+            start?: components["schemas"]["LinkResource"];
+            stop?: components["schemas"]["LinkResource"];
             target?: components["schemas"]["LinkResource"];
             recipients?: components["schemas"]["LinkResource"];
         };
@@ -2540,12 +2577,22 @@ export interface components {
             /** @description The subject of an e-mail */
             subject?: string | null;
             /** @enum {string} */
-            status: "draft" | "frozen";
+            status: "draft" | "frozen" | "started" | "stopped";
             author: components["schemas"]["AuthorResource"];
             /** @description How many contacts of its target were contacted, none before it is started */
             contacted: number;
             /** @description How many contacts it targets: those its search finds now while a draft, its recipients once frozen */
             targeted: number;
+            /**
+             * Format: date-time
+             * @description When it was started, none before
+             */
+            startedAt?: string | null;
+            /**
+             * Format: date-time
+             * @description When it was stopped, none before
+             */
+            stoppedAt?: string | null;
             _links: components["schemas"]["CampaignLinksResource"];
         };
         CampaignListLinksResource: {
@@ -7683,7 +7730,7 @@ export interface operations {
                     "application/json": components["schemas"]["ProblemResource"];
                 };
             };
-            /** @description No longer a draft */
+            /** @description Started: stopped, never discarded */
             409: {
                 headers: {
                     [name: string]: unknown;
@@ -7743,7 +7790,7 @@ export interface operations {
                     "application/json": components["schemas"]["ProblemResource"];
                 };
             };
-            /** @description No longer a draft */
+            /** @description Started */
             409: {
                 headers: {
                     [name: string]: unknown;
@@ -8016,6 +8063,118 @@ export interface operations {
             };
             /** @description Unknown campaign or contact, or one of another account */
             404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ProblemResource"];
+                };
+            };
+        };
+    };
+    post_api_campaigns_start: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description The started campaign */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CampaignResource"];
+                };
+            };
+            /** @description Missing or invalid access token */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Not a prospector, or no right to manage personal data */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ProblemResource"];
+                };
+            };
+            /** @description Unknown campaign, or one of another account */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ProblemResource"];
+                };
+            };
+            /** @description Not frozen: a draft, or already started */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ProblemResource"];
+                };
+            };
+        };
+    };
+    post_api_campaigns_stop: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description The stopped campaign */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CampaignResource"];
+                };
+            };
+            /** @description Missing or invalid access token */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Not a prospector, or no right to manage personal data */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ProblemResource"];
+                };
+            };
+            /** @description Unknown campaign, or one of another account */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ProblemResource"];
+                };
+            };
+            /** @description Not started */
+            409: {
                 headers: {
                     [name: string]: unknown;
                 };

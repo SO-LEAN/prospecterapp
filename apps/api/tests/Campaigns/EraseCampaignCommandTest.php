@@ -35,10 +35,12 @@ class EraseCampaignCommandTest extends ApiTestCase
 
     public function testAnUnknownCampaignIsSaidSo(): void
     {
-        $tester = $this->erase(self::newIdentity());
+        $unknown = self::newIdentity();
+
+        $tester = $this->erase($unknown);
 
         $this->assertSame(Command::FAILURE, $tester->getStatusCode());
-        $this->assertStringContainsString('Unknown campaign', $tester->getDisplay());
+        $this->assertStringContainsString(sprintf('Campaign %s not found', $unknown), $tester->getDisplay());
     }
 
     private function erase(string $id): CommandTester

@@ -6024,7 +6024,7 @@
                 "tags": [
                     "Campaigns"
                 ],
-                "summary": "Discard a draft campaign",
+                "summary": "Discard a campaign never started",
                 "operationId": "delete_api_campaigns_discard",
                 "parameters": [
                     {
@@ -6065,7 +6065,7 @@
                         }
                     },
                     "409": {
-                        "description": "No longer a draft",
+                        "description": "Started: stopped, never discarded",
                         "content": {
                             "application/json": {
                                 "schema": {
@@ -6138,7 +6138,7 @@
                         }
                     },
                     "409": {
-                        "description": "No longer a draft",
+                        "description": "Started",
                         "content": {
                             "application/json": {
                                 "schema": {
@@ -6451,6 +6451,136 @@
                     },
                     "404": {
                         "description": "Unknown campaign or contact, or one of another account",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ProblemResource"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/campaigns/{id}/starting": {
+            "post": {
+                "tags": [
+                    "Campaigns"
+                ],
+                "summary": "Start a frozen campaign: its recipients, its message and its channel no longer change, and it is stopped, never discarded",
+                "operationId": "post_api_campaigns_start",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "pattern": "[0-9a-f]{8}-[0-9a-f]{4}-[13-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "The started campaign",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/CampaignResource"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Missing or invalid access token"
+                    },
+                    "403": {
+                        "description": "Not a prospector, or no right to manage personal data",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ProblemResource"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Unknown campaign, or one of another account",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ProblemResource"
+                                }
+                            }
+                        }
+                    },
+                    "409": {
+                        "description": "Not frozen: a draft, or already started",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ProblemResource"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/campaigns/{id}/stopping": {
+            "post": {
+                "tags": [
+                    "Campaigns"
+                ],
+                "summary": "Stop a started campaign, kept for the team to read",
+                "operationId": "post_api_campaigns_stop",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "pattern": "[0-9a-f]{8}-[0-9a-f]{4}-[13-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "The stopped campaign",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/CampaignResource"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Missing or invalid access token"
+                    },
+                    "403": {
+                        "description": "Not a prospector, or no right to manage personal data",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ProblemResource"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Unknown campaign, or one of another account",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ProblemResource"
+                                }
+                            }
+                        }
+                    },
+                    "409": {
+                        "description": "Not started",
                         "content": {
                             "application/json": {
                                 "schema": {
@@ -9571,19 +9701,25 @@
             },
             "RecipientResource": {
                 "required": [
-                    "contact",
                     "status",
                     "_links"
                 ],
                 "properties": {
                     "contact": {
-                        "$ref": "#/components/schemas/ContactInListResource"
+                        "description": "The contact, none once erased",
+                        "nullable": true,
+                        "oneOf": [
+                            {
+                                "$ref": "#/components/schemas/ContactInListResource"
+                            }
+                        ]
                     },
                     "status": {
-                        "description": "To handle",
+                        "description": "To handle, or no longer once erased",
                         "type": "string",
                         "enum": [
-                            "pending"
+                            "pending",
+                            "erased"
                         ]
                     },
                     "_links": {
@@ -9642,6 +9778,12 @@
                         "$ref": "#/components/schemas/LinkResource"
                     },
                     "addRecipientsByTags": {
+                        "$ref": "#/components/schemas/LinkResource"
+                    },
+                    "start": {
+                        "$ref": "#/components/schemas/LinkResource"
+                    },
+                    "stop": {
                         "$ref": "#/components/schemas/LinkResource"
                     },
                     "target": {
@@ -9710,7 +9852,9 @@
                         "type": "string",
                         "enum": [
                             "draft",
-                            "frozen"
+                            "frozen",
+                            "started",
+                            "stopped"
                         ]
                     },
                     "author": {
@@ -9723,6 +9867,18 @@
                     "targeted": {
                         "description": "How many contacts it targets: those its search finds now while a draft, its recipients once frozen",
                         "type": "integer"
+                    },
+                    "startedAt": {
+                        "description": "When it was started, none before",
+                        "type": "string",
+                        "format": "date-time",
+                        "nullable": true
+                    },
+                    "stoppedAt": {
+                        "description": "When it was stopped, none before",
+                        "type": "string",
+                        "format": "date-time",
+                        "nullable": true
                     },
                     "_links": {
                         "$ref": "#/components/schemas/CampaignLinksResource"

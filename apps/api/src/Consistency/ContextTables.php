@@ -21,6 +21,7 @@ final readonly class ContextTables
 {
     private const string CONNECTED = 'connected';
     private const string SYNCED = 'synced';
+    private const string ERASED = 'erased';
 
     public function __construct(
         private Table $accountsTable,
@@ -135,13 +136,25 @@ final readonly class ContextTables
 
     /**
      * @return array<string, list<string>> the contacts each campaign keeps among its recipients, by its id, none for a
-     *                                     draft (ADR 0144)
+     *                                     draft (ADR 0144), those a started campaign keeps erased left out
      */
     public function recipientsOf(string $accountId): array
     {
         $campaigns = array_column($this->campaignsTable->queryBetween(CampaignsKeys::account($accountId), null, ...CampaignsKeys::campaigns()), 'campaign');
 
-        return array_combine(array_column($campaigns, 'id'), array_map(static fn (array $campaign): array => array_column($campaign['recipients'] ?? [], 'contactId'), $campaigns));
+        return array_combine(array_column($campaigns, 'id'), array_map(self::notErased(...), $campaigns));
+    }
+
+    /**
+     * @param array<string, mixed> $campaign
+     *
+     * @return list<string>
+     */
+    private static function notErased(array $campaign): array
+    {
+        $kept = array_filter($campaign['recipients'] ?? [], static fn (array $recipient): bool => self::ERASED !== $recipient['status']);
+
+        return array_column($kept, 'contactId');
     }
 
     /**

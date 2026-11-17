@@ -28,6 +28,8 @@ final readonly class CampaignResourceFactory
         'freeze' => ['intent' => 'FreezeCampaign', 'route' => 'api_campaigns_freeze'],
         'addRecipient' => ['intent' => 'AddRecipients', 'route' => 'api_campaigns_add_recipient'],
         'addRecipientsByTags' => ['intent' => 'AddRecipients', 'route' => 'api_campaigns_add_recipients_by_tags'],
+        'start' => ['intent' => 'StartCampaign', 'route' => 'api_campaigns_start'],
+        'stop' => ['intent' => 'StopCampaign', 'route' => 'api_campaigns_stop'],
     ];
     private const string TAG_MARK = '#';
 
@@ -49,6 +51,8 @@ final readonly class CampaignResourceFactory
             author: new AuthorResource(new PersonNameResource($author?->firstName, $author?->lastName), $author?->email),
             contacted: $campaign->contacted,
             targeted: $targeted,
+            startedAt: $campaign->startedAt?->format(\DateTimeInterface::ATOM),
+            stoppedAt: $campaign->stoppedAt?->format(\DateTimeInterface::ATOM),
             links: $this->linksOf($campaign),
         );
     }
