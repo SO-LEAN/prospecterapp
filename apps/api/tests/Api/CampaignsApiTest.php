@@ -64,7 +64,7 @@ class CampaignsApiTest extends ApiTestCase
 
         $this->assertResponseStatusCodeSame(200);
         $mine = array_find($listed['items'], static fn (array $item): bool => $item['id'] === $campaign['id']);
-        $this->assertSame(['Relance ESN', 'email', 'draft', 0, 1], [$mine['name'], $mine['channel'], $mine['status'], $mine['contacted'], $mine['targeted']]);
+        $this->assertSame(['Relance ESN', 'email', 'draft', ['processed' => 0, 'dismissed' => 0], 1], [$mine['name'], $mine['channel'], $mine['status'], $mine['progress'], $mine['targeted']]);
         $this->assertSame($campaign['author'], $mine['author']);
         $this->assertSame(['href' => '/api/campaigns', 'method' => 'POST'], $listed['_links']['prepare']);
     }

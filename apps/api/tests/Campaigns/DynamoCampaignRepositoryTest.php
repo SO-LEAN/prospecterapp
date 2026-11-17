@@ -4,6 +4,7 @@ namespace Tests\App\Campaigns;
 
 use Prospecter\Core\Campaigns\Application\CampaignSheet;
 use Prospecter\Core\Campaigns\Application\Port\CampaignSheetRetriever;
+use Prospecter\Core\Campaigns\Application\RecipientInSheet;
 use Prospecter\Core\Campaigns\Domain\Exception\UnknownCampaign;
 use Prospecter\Core\Campaigns\Domain\Model\Campaign;
 use Prospecter\Core\Campaigns\Domain\Model\CampaignName;
@@ -66,7 +67,7 @@ class DynamoCampaignRepositoryTest extends ApiTestCase
         $campaign->releaseEvents();
 
         $this->assertEquals($campaign, $this->repository()->get($this->account, $campaign->id()));
-        $this->assertSame([self::ADA => 'pending', self::ALAN => 'pending'], $this->retriever()->get($this->account, $campaign->id())->recipients);
+        $this->assertSame([self::ADA => 'pending', self::ALAN => 'pending'], self::statusesOf($this->retriever()->get($this->account, $campaign->id())));
     }
 
     public function testAStartedThenStoppedCampaignIsRestoredWithItsMomentsAndItsErasedRecipients(): void
@@ -82,8 +83,44 @@ class DynamoCampaignRepositoryTest extends ApiTestCase
         $sheet = $this->retriever()->get($this->account, $campaign->id());
         $this->assertEquals(
             ['stopped', [self::ADA => 'pending', self::ALAN => 'erased'], new \DateTimeImmutable('2026-11-17 12:00:00'), new \DateTimeImmutable('2026-11-17 13:00:00'), []],
-            [$sheet->status, $sheet->recipients, $sheet->startedAt, $sheet->stoppedAt, $sheet->possibleIntents],
+            [$sheet->status, self::statusesOf($sheet), $sheet->startedAt, $sheet->stoppedAt, $sheet->possibleIntents],
         );
+    }
+
+    public function testACampaignLedToItsEndIsRestoredWithItsRecipientsHandledAndItsProgress(): void
+    {
+        $campaign = $this->aFrozenCampaign(self::ADA, self::ALAN);
+        $campaign->start(new MemberId(self::newIdentity()), new \DateTimeImmutable('2026-11-17 12:00:00'));
+        $campaign->process(new PersonId(self::ADA), missed: true, at: new \DateTimeImmutable('2026-11-17 12:30:00'));
+        $campaign->dismiss(new PersonId(self::ALAN), 'Parti', new MemberId(self::newIdentity()), new \DateTimeImmutable('2026-11-17 13:00:00'));
+        $this->repository()->save($campaign);
+        $campaign->releaseEvents();
+
+        $this->assertEquals($campaign, $this->repository()->get($this->account, $campaign->id()));
+        $sheet = $this->retriever()->get($this->account, $campaign->id());
+        $this->assertEquals(
+            ['ended', [self::ADA => new RecipientInSheet('processed', false, true, null), self::ALAN => new RecipientInSheet('dismissed', false, false, 'Parti')], 1, 1, new \DateTimeImmutable('2026-11-17 13:00:00'), false],
+            [$sheet->status, $sheet->recipients, $sheet->processed, $sheet->dismissed, $sheet->endedAt, $sheet->running],
+        );
+    }
+
+    public function testTheCampaignsOfTheAccountAreNamedAndFound(): void
+    {
+        $campaign = $this->aFrozenCampaign(self::ADA);
+        $this->repository()->save($campaign);
+
+        $this->assertSame([$campaign->id()->value => 'Relance figée'], $this->retriever()->namesOf($this->account, [$campaign->id(), new CampaignId(self::newIdentity())]));
+        $this->assertSame([], $this->retriever()->namesOf(new AccountId(self::newIdentity()), [$campaign->id()]));
+        $this->assertSame('Relance figée', $this->retriever()->find($this->account, $campaign->id())?->name);
+        $this->assertNull($this->retriever()->find(new AccountId(self::newIdentity()), $campaign->id()));
+    }
+
+    /**
+     * @return array<string, string>
+     */
+    private static function statusesOf(CampaignSheet $sheet): array
+    {
+        return array_map(static fn (RecipientInSheet $recipient): string => $recipient->status, $sheet->recipients);
     }
 
     public function testACampaignIsFoundInItsAccountOnly(): void
