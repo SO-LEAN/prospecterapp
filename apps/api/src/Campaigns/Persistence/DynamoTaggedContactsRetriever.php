@@ -11,7 +11,8 @@ use Prospecter\Core\SharedKernel\Domain\AccountId;
 /**
  * What the tags of every contact of an account derive from, read from the items of `DynamoFactRepository` and
  * `DynamoTaggingRepository` without restoring them (ADR 0088, 0141): the partition of the account at once, the facts
- * of the contacts each followed by its links, then its taggings, two `Query`.
+ * of the contacts each followed by its links, its taggings, then the facts of its organizations, where they are (ADR
+ * 0142), three `Query`.
  */
 final readonly class DynamoTaggedContactsRetriever implements TaggedContactsRetriever
 {
@@ -27,6 +28,7 @@ final readonly class DynamoTaggedContactsRetriever implements TaggedContactsRetr
         $account = CampaignsKeys::account($accountId->value);
         [$facts, $links] = self::factsAndLinksOf($this->campaignsTable->queryBetween($account, null, ...CampaignsKeys::contactFacts()));
         $tags = $this->tagsIn($account);
+        $localities = $this->localitiesIn($account);
         $sources = [];
 
         foreach ($facts as $contact => $fact) {
@@ -36,6 +38,7 @@ final readonly class DynamoTaggedContactsRetriever implements TaggedContactsRetr
                 $tags[HolderKind::Contact->value][$contact] ?? [],
                 array_combine($organizations, array_map(static fn (string $organization): array => $tags[HolderKind::Organization->value][$organization] ?? [], $organizations)),
                 ['email' => (bool) $fact['hasEmail'], 'phone' => (bool) $fact['hasPhone'], 'mobile' => (bool) $fact['hasMobile'], 'linkedIn' => (bool) $fact['hasLinkedIn']],
+                array_intersect_key($localities, array_flip($organizations)),
             );
         }
 
@@ -73,6 +76,20 @@ final readonly class DynamoTaggedContactsRetriever implements TaggedContactsRetr
     private static function contactOf(string $key): string
     {
         return explode('#', substr($key, strlen(CampaignsKeys::contactFact(''))), 2)[0];
+    }
+
+    /**
+     * @return array<string, array{municipalityCode: ?string, country: ?string}> where each organization is, by its identity
+     */
+    private function localitiesIn(string $account): array
+    {
+        $localities = [];
+
+        foreach ($this->campaignsTable->queryBetween($account, null, ...CampaignsKeys::organizationFacts()) as $item) {
+            $localities[CampaignsKeys::organizationOfFact((string) $item['SK'])] = OrganizationFactItem::localityIn($item);
+        }
+
+        return $localities;
     }
 
     /**
