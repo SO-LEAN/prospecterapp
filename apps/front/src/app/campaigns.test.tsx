@@ -45,12 +45,32 @@ const relance: Campaign = {
   author: { name: { firstName: 'Alan', lastName: 'Turing' }, email: null },
   contacted: 0,
   targeted: 2,
+  startedAt: null,
+  stoppedAt: null,
   _links: {
     self: { href: `/api/campaigns/${CAMPAIGN}`, method: 'GET' },
     revise: { href: `/api/campaigns/${CAMPAIGN}`, method: 'PATCH' },
     discard: { href: `/api/campaigns/${CAMPAIGN}`, method: 'DELETE' },
     target: { href: '/api/tagged-contacts?tags=ESN,EMAIL', method: 'GET' },
   },
+}
+
+const started: Campaign = {
+  ...relance,
+  id: '0190a1c0-0000-7000-8000-00000000ca01',
+  name: 'Appels PHP',
+  status: 'started',
+  startedAt: '2026-11-16T17:00:00+00:00',
+  _links: { self: { href: '/api/campaigns/0190a1c0-0000-7000-8000-00000000ca01', method: 'GET' } },
+}
+
+const stopped: Campaign = {
+  ...started,
+  id: '0190a1c0-0000-7000-8000-00000000ca02',
+  name: 'Salon 2026',
+  status: 'stopped',
+  stoppedAt: '2026-11-17T09:00:00+00:00',
+  _links: { self: { href: '/api/campaigns/0190a1c0-0000-7000-8000-00000000ca02', method: 'GET' } },
 }
 
 const list: CampaignList = {
@@ -92,7 +112,11 @@ const suggested: SuggestedTags = {
 
 type Call = { method: string; pathname: string; search: string; body: unknown }
 
-function theApiAnswers({ me = meAllowedToRunCampaigns, refusal }: { me?: Account; refusal?: unknown } = {}) {
+function theApiAnswers({
+  me = meAllowedToRunCampaigns,
+  refusal,
+  campaigns = list,
+}: { me?: Account; refusal?: unknown; campaigns?: CampaignList } = {}) {
   const calls: Call[] = []
   theApi.mockImplementation(async (input) => {
     const request = input as Request
@@ -119,7 +143,7 @@ function theApiAnswers({ me = meAllowedToRunCampaigns, refusal }: { me?: Account
       '/api/me/day': { today: [], next: [], _links: { self: { href: '/api/me/day', method: 'GET' } } },
       '/api/me/exchanges-to-process': { items: [], toDos: [], _links: {} },
       '/api/tags': suggested,
-      '/api/campaigns': request.method === 'POST' ? relance : list,
+      '/api/campaigns': request.method === 'POST' ? relance : campaigns,
       [`/api/campaigns/${CAMPAIGN}`]: relance,
       '/api/tagged-contacts': {
         items: [aContact(ADA, 'Ada'), aContact(GRACE, 'Grace')],
@@ -163,6 +187,34 @@ describe('the campaigns of the team', () => {
     expect(within(item).getByText('E-mail')).toBeInTheDocument()
     expect(within(item).getByText('par Alan Turing')).toBeInTheDocument()
     expect(within(item).getByText('0 / 2')).toBeInTheDocument()
+  })
+
+  it('are listed while they run by default, drafts, frozen and started, the stopped ones when the member filters them', async () => {
+    theApiAnswers({ campaigns: { ...list, items: [relance, started, stopped] } })
+    await renderTheSpaAt('/campaigns')
+
+    const running = (await screen.findByRole('link', { name: 'Appels PHP' })).closest('li') as HTMLElement
+    expect(within(running).getByText('Démarrée')).toBeInTheDocument()
+    expect(screen.getByRole('link', { name: 'Relance ESN' })).toBeInTheDocument()
+    expect(screen.queryByRole('link', { name: 'Salon 2026' })).not.toBeInTheDocument()
+
+    await userEvent.click(screen.getByRole('tab', { name: 'Arrêtées' }))
+
+    const kept = (await screen.findByRole('link', { name: 'Salon 2026' })).closest('li') as HTMLElement
+    expect(within(kept).getByText('Arrêtée')).toBeInTheDocument()
+    expect(screen.queryByRole('link', { name: 'Relance ESN' })).not.toBeInTheDocument()
+
+    await userEvent.click(screen.getByRole('tab', { name: 'Toutes' }))
+
+    expect(await screen.findByRole('link', { name: 'Relance ESN' })).toBeInTheDocument()
+    expect(screen.getByRole('link', { name: 'Salon 2026' })).toBeInTheDocument()
+  })
+
+  it('says none is stopped while the filter finds none', async () => {
+    theApiAnswers()
+    await renderTheSpaAt('/campaigns?status=stopped')
+
+    expect(await screen.findByText('Aucune campagne arrêtée.')).toBeInTheDocument()
   })
 
   it('prepares a draft from the tags chosen and opens it, the subject sent for an e-mail only', async () => {

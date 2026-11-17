@@ -48,6 +48,8 @@ const draft: Campaign = {
   author: { name: { firstName: 'Alan', lastName: 'Turing' }, email: null },
   contacted: 0,
   targeted: 2,
+  startedAt: null,
+  stoppedAt: null,
   _links: {
     self,
     revise: { href: `/api/campaigns/${CAMPAIGN}`, method: 'PATCH' },
@@ -66,6 +68,18 @@ const frozen: Campaign = {
     discard: { href: `/api/campaigns/${CAMPAIGN}`, method: 'DELETE' },
     addRecipient: { href: `/api/campaigns/${CAMPAIGN}/recipients`, method: 'POST' },
     addRecipientsByTags: { href: `/api/campaigns/${CAMPAIGN}/recipients/by-tags`, method: 'POST' },
+    start: { href: `/api/campaigns/${CAMPAIGN}/starting`, method: 'POST' },
+    recipients: { href: `/api/campaigns/${CAMPAIGN}/recipients`, method: 'GET' },
+  },
+}
+
+const started: Campaign = {
+  ...frozen,
+  status: 'started',
+  startedAt: '2026-11-16T17:00:00+00:00',
+  _links: {
+    self,
+    stop: { href: `/api/campaigns/${CAMPAIGN}/stopping`, method: 'POST' },
     recipients: { href: `/api/campaigns/${CAMPAIGN}/recipients`, method: 'GET' },
   },
 }
@@ -108,16 +122,16 @@ const twoContacts = {
   _links: {},
 }
 
-function theApiAnswers(campaign: Campaign, taggedContacts: unknown = twoContacts) {
+function theApiAnswers(campaign: Campaign, taggedContacts: unknown = twoContacts, keeping: RecipientList = recipients) {
   const calls: Call[] = []
-  let kept = recipients
+  let kept = keeping
   theApi.mockImplementation(async (input) => {
     const request = input as Request
     const { pathname, search } = new URL(request.url)
     const body = request.method === 'GET' || request.method === 'DELETE' ? null : await request.text()
     calls.push({ method: request.method, pathname, search, body: body ? JSON.parse(body) : null })
     if (request.method === 'DELETE') {
-      kept = { ...kept, items: kept.items.filter((recipient) => !pathname.endsWith(recipient.contact.id)) }
+      kept = { ...kept, items: kept.items.filter((recipient) => !pathname.endsWith(recipient.contact?.id ?? '')) }
       return new Response(null, { status: 204 })
     }
     if (request.method === 'POST') {
@@ -169,6 +183,79 @@ describe('the recipients of a campaign', () => {
       ),
     )
     expect(await screen.findByRole('heading', { name: 'Destinataires' })).toBeInTheDocument()
+  })
+
+  it('start once the member confirms its list and its message will no longer change', async () => {
+    const calls = theApiAnswers(frozen)
+    await renderTheSpaAt(`/campaigns/${CAMPAIGN}`)
+
+    await userEvent.click(await screen.findByRole('button', { name: 'Démarrer la campagne' }))
+    const confirmation = await screen.findByRole('dialog')
+    expect(within(confirmation).getByText(/La liste et le message ne pourront plus changer/)).toBeInTheDocument()
+    expect(calls.filter((call) => call.method === 'POST')).toEqual([])
+
+    await userEvent.click(within(confirmation).getByRole('button', { name: 'Démarrer la campagne' }))
+
+    await waitFor(() =>
+      expect(calls).toContainEqual(
+        expect.objectContaining({ method: 'POST', pathname: `/api/campaigns/${CAMPAIGN}/starting` }),
+      ),
+    )
+  })
+
+  it('no longer change once started: neither cross, nor « Ajouter », nor a form to save, nor « Supprimer »', async () => {
+    theApiAnswers(started, twoContacts, {
+      ...recipients,
+      items: recipients.items.map((recipient) => ({ ...recipient, _links: {} })),
+    })
+    await renderTheSpaAt(`/campaigns/${CAMPAIGN}`)
+
+    const list = await screen.findByRole('list', { name: 'Destinataires' })
+    expect(within(list).getByText('Ada Lovelace')).toBeInTheDocument()
+    expect(screen.getByText('Démarrée')).toBeInTheDocument()
+    expect(screen.getByText('Bonjour {prénom}')).toBeInTheDocument()
+    expect(screen.queryByRole('button', { name: /^Retirer/ })).not.toBeInTheDocument()
+    expect(screen.queryByRole('button', { name: 'Ajouter' })).not.toBeInTheDocument()
+    expect(screen.queryByRole('button', { name: 'Enregistrer' })).not.toBeInTheDocument()
+    expect(screen.queryByRole('button', { name: 'Démarrer la campagne' })).not.toBeInTheDocument()
+
+    await userEvent.click(screen.getByRole('button', { name: /^Actions sur «\s*Relance ESN\s*»$/ }))
+    expect(screen.queryByRole('menuitem', { name: 'Supprimer' })).not.toBeInTheDocument()
+  })
+
+  it('are kept when the campaign is stopped from its menu, once the member confirms', async () => {
+    const calls = theApiAnswers(started)
+    await renderTheSpaAt(`/campaigns/${CAMPAIGN}`)
+
+    await userEvent.click(await screen.findByRole('button', { name: /^Actions sur «\s*Relance ESN\s*»$/ }))
+    await userEvent.click(await screen.findByRole('menuitem', { name: 'Arrêter' }))
+    const confirmation = await screen.findByRole('dialog')
+    expect(within(confirmation).getByText(/Elle restera dans la liste des campagnes/)).toBeInTheDocument()
+
+    await userEvent.click(within(confirmation).getByRole('button', { name: 'Arrêter la campagne' }))
+
+    await waitFor(() =>
+      expect(calls).toContainEqual(
+        expect.objectContaining({ method: 'POST', pathname: `/api/campaigns/${CAMPAIGN}/stopping` }),
+      ),
+    )
+  })
+
+  it('name a contact erased from a started campaign « Contact effacé », no longer to handle', async () => {
+    const [ada] = recipients.items
+    theApiAnswers(started, twoContacts, {
+      ...recipients,
+      items: [
+        { ...ada, _links: {} },
+        { contact: null, status: 'erased', _links: {} },
+      ],
+    })
+    await renderTheSpaAt(`/campaigns/${CAMPAIGN}`)
+
+    const list = await screen.findByRole('list', { name: 'Destinataires' })
+    expect(within(list).getByText('Contact effacé')).toBeInTheDocument()
+    expect(within(list).getByText('Plus à traiter')).toBeInTheDocument()
+    expect(within(list).getByText('Ada Lovelace')).toBeInTheDocument()
   })
 
   it('are listed once frozen, to handle, its tags and its channel shown but no longer changed', async () => {
