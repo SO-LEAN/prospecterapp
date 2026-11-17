@@ -23,6 +23,7 @@ vi.mock('@/shared/auth/session', () => ({
 }))
 
 const ACME = '0190a1c0-0000-7000-8000-000000000001'
+const THE_PAGE_OF_THE_ORGANIZATION_LOADED = { timeout: 3_000 }
 
 const me: Account = {
   name: { firstName: 'Grace', lastName: 'Hopper' },
@@ -117,7 +118,7 @@ describe('starting to prospect an organization', () => {
     await userEvent.type(await screen.findByLabelText('Raison sociale'), 'QA campagnes')
     await userEvent.click(screen.getByRole('button', { name: 'Commencer à prospecter' }))
 
-    await screen.findByRole('heading', { name: 'QA campagnes' })
+    await screen.findByRole('heading', { name: 'QA campagnes' }, THE_PAGE_OF_THE_ORGANIZATION_LOADED)
     expect(calls.filter((call) => call.method === 'POST' && call.pathname.endsWith('/tags'))).toEqual([])
   })
 })
