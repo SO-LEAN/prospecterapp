@@ -21,9 +21,14 @@ final readonly class DynamoCampaignRepository implements CampaignRepository
 
     public function get(AccountId $accountId, CampaignId $id): Campaign
     {
-        $document = $this->campaignsTable->item(CampaignsKeys::account($accountId->value), CampaignsKeys::campaign($id->value))['campaign'] ?? throw UnknownCampaign::identifiedBy($id);
+        return $this->find($accountId, $id) ?? throw UnknownCampaign::identifiedBy($id);
+    }
 
-        return CampaignDocument::campaign($document);
+    public function find(AccountId $accountId, CampaignId $id): ?Campaign
+    {
+        $document = $this->campaignsTable->item(CampaignsKeys::account($accountId->value), CampaignsKeys::campaign($id->value))['campaign'] ?? null;
+
+        return null === $document ? null : CampaignDocument::campaign($document);
     }
 
     /**

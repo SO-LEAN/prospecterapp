@@ -27,7 +27,7 @@ use Prospecter\Core\SharedKernel\Domain\PersonId;
 /**
  * A campaign as its item keeps it (ADR 0048, 0144): its tags by their names without their mark, those of its target
  * derived from them and from its channel, never kept; frozen, its recipients by their identities and their statuses,
- * in the order they were added, none in a draft.
+ * in the order they were added, none in a draft; the moments it was started and stopped, none before.
  */
 final class CampaignDocument
 {
@@ -52,6 +52,8 @@ final class CampaignDocument
             'recipients' => array_map(static fn (Recipient $recipient): array => ['contactId' => $recipient->contact->value, 'status' => $recipient->status->value], $state['recipients']->recipients),
             'createdAt' => Documents::moment($state['createdAt']),
             'modifiedAt' => Documents::moment($state['modifiedAt']),
+            'startedAt' => self::momentOrNone($state['startedAt']),
+            'stoppedAt' => self::momentOrNone($state['stoppedAt']),
         ];
     }
 
@@ -76,6 +78,8 @@ final class CampaignDocument
             )]),
             'createdAt' => Documents::momentOf($document['createdAt']),
             'modifiedAt' => Documents::momentOf($document['modifiedAt']),
+            'startedAt' => self::momentOfOrNone($document, 'startedAt'),
+            'stoppedAt' => self::momentOfOrNone($document, 'stoppedAt'),
         ]);
     }
 
@@ -105,6 +109,8 @@ final class CampaignDocument
             possibleIntents: array_map(static fn (CampaignIntent $intent): string => $intent->name, CampaignPossibilities::given(CampaignStatus::from($document['status']))),
             createdAt: Documents::momentOf($document['createdAt']),
             modifiedAt: Documents::momentOf($document['modifiedAt']),
+            startedAt: self::momentOfOrNone($document, 'startedAt'),
+            stoppedAt: self::momentOfOrNone($document, 'stoppedAt'),
         );
     }
 
@@ -116,6 +122,23 @@ final class CampaignDocument
     private static function recipientsOf(array $document): array
     {
         return $document['recipients'] ?? [];
+    }
+
+    private static function momentOrNone(?\DateTimeImmutable $moment): ?string
+    {
+        return null === $moment ? null : Documents::moment($moment);
+    }
+
+    /**
+     * None for a campaign saved before it could be started.
+     *
+     * @param array<string, mixed> $document
+     */
+    private static function momentOfOrNone(array $document, string $field): ?\DateTimeImmutable
+    {
+        $moment = $document[$field] ?? null;
+
+        return null === $moment ? null : Documents::momentOf($moment);
     }
 
     /**
