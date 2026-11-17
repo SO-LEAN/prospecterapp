@@ -6,6 +6,7 @@ namespace Prospecter\Core\Campaigns\Application\ConsultOrganizationTags;
 
 use Prospecter\Core\Campaigns\Application\Port\TagsRetriever;
 use Prospecter\Core\Campaigns\Domain\Model\Holder;
+use Prospecter\Core\Campaigns\Domain\Model\Locality;
 use Prospecter\Core\Campaigns\Domain\Port\Taggers;
 use Prospecter\Core\Campaigns\Domain\Service\TaggableHolders;
 use Prospecter\Core\SharedKernel\Application\QueryHandler;
@@ -13,8 +14,8 @@ use Prospecter\Core\SharedKernel\Domain\MemberId;
 use Prospecter\Core\SharedKernel\Domain\OrganizationId;
 
 /**
- * The tags put by hand on an organization the account of the member prospects; those of the contacts are
- * `ConsultContactTags`.
+ * The tags of an organization the account of the member prospects: those put by hand, and the automatic ones of where
+ * it is (ADR 0142); those of the contacts are `ConsultContactTags`.
  */
 final readonly class ConsultOrganizationTagsHandler implements QueryHandler
 {
@@ -28,8 +29,10 @@ final readonly class ConsultOrganizationTagsHandler implements QueryHandler
     public function __invoke(ConsultOrganizationTags $query, ConsultOrganizationTagsOutput $output): void
     {
         $accountId = $this->taggers->accountOf(new MemberId($query->memberId));
-        $holder = Holder::organization(new OrganizationId($query->organizationId));
+        $organizationId = new OrganizationId($query->organizationId);
+        $holder = Holder::organization($organizationId);
         $this->holders->ensureKnownBy($accountId, $holder);
-        $output->present($this->tagsRetriever->of($accountId, $holder));
+        $automatic = Locality::read($this->tagsRetriever->localityOf($accountId, $organizationId))->geographicTags();
+        $output->present($this->tagsRetriever->of($accountId, $holder), array_map(strval(...), $automatic));
     }
 }

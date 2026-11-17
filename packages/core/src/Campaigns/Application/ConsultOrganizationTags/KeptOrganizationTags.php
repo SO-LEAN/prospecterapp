@@ -9,8 +9,12 @@ final class KeptOrganizationTags implements ConsultOrganizationTagsOutput
     /** @var list<string> */
     public private(set) array $tags = [];
 
-    public function present(array $tags): void
+    /** @var list<string> */
+    public private(set) array $automatic = [];
+
+    public function present(array $tags, array $automatic): void
     {
         $this->tags = $tags;
+        $this->automatic = $automatic;
     }
 }

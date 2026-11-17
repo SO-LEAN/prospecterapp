@@ -11,7 +11,8 @@ final readonly class ContactTagsResponse
 {
     /**
      * @param list<string>               $own       put on it by hand, the only ones taken off
-     * @param list<InheritedTagResponse> $inherited from the organizations naming it, its own excluded
+     * @param list<InheritedTagResponse> $inherited from the organizations naming it, put on them by hand or set by
+     *                                              where they are, its own excluded
      * @param list<string>               $automatic set by Prospecter from how it is reached
      */
     public function __construct(

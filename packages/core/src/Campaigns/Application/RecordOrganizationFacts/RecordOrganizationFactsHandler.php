@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Prospecter\Core\Campaigns\Application\RecordOrganizationFacts;
 
 use Prospecter\Core\Campaigns\Application\FactRecorder;
+use Prospecter\Core\Campaigns\Domain\Model\Locality;
 use Prospecter\Core\Campaigns\Domain\Model\OrganizationFact;
 use Prospecter\Core\Prospecting\Contract\Event\OrganizationFactsChanged;
 use Prospecter\Core\SharedKernel\Application\EventHandler;
@@ -13,8 +14,9 @@ use Prospecter\Core\SharedKernel\Domain\OrganizationId;
 use Prospecter\Core\SharedKernel\Domain\PersonId;
 
 /**
- * Keeps the contacts an organization names, who inherit its tags (ADR 0141). A fact published before its contacts
- * were tells none: the rebuild reads them again.
+ * Keeps the contacts an organization names, who inherit its tags (ADR 0141), and where it is (ADR 0142). A fact
+ * published before its contacts were tells none: the rebuild reads them again; one published before its municipality
+ * was tells it unknown until the next.
  */
 final readonly class RecordOrganizationFactsHandler implements EventHandler
 {
@@ -34,6 +36,7 @@ final readonly class RecordOrganizationFactsHandler implements EventHandler
             $event->revision,
             $event->present,
             array_map(static fn (string $contact): PersonId => new PersonId($contact), $event->contacts),
+            new Locality($event->municipalityCode, $event->country),
         ));
     }
 }
