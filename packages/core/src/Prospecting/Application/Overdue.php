@@ -23,7 +23,7 @@ final class Overdue
      */
     public static function among(array $exchanges, array $toDos, \DateTimeImmutable $at): array
     {
-        $lateExchanges = array_filter($exchanges, static fn (ExchangeInTimeline $exchange): bool => self::isLateExchange($exchange, $at));
+        $lateExchanges = array_filter($exchanges, static fn (ExchangeInTimeline $exchange): bool => self::isLate($exchange, $at));
         $lateToDos = array_filter($toDos, static fn (ToDoInList $toDo): bool => Lateness::ofToDo(self::dueOf($toDo), $toDo->isDone(), $at));
 
         return [
@@ -32,12 +32,9 @@ final class Overdue
         ];
     }
 
-    /**
-     * Its slot has ended, whatever its status.
-     */
-    public static function hasEnded(ExchangeInTimeline $exchange, \DateTimeImmutable $at): bool
+    public static function isLate(ExchangeInTimeline $exchange, \DateTimeImmutable $at): bool
     {
-        return self::slotOf($exchange)->hasEndedBy($at);
+        return Lateness::ofExchange(ExchangeStatus::from($exchange->status), self::slotOf($exchange), $at);
     }
 
     /**
@@ -46,11 +43,6 @@ final class Overdue
     public static function daysSince(ToDoInList $toDo, \DateTimeImmutable $at): int
     {
         return self::dueOf($toDo)->daysOverdueAt($at);
-    }
-
-    private static function isLateExchange(ExchangeInTimeline $exchange, \DateTimeImmutable $at): bool
-    {
-        return Lateness::ofExchange(ExchangeStatus::from($exchange->status), self::slotOf($exchange), $at);
     }
 
     private static function slotOf(ExchangeInTimeline $exchange): Slot

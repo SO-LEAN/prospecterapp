@@ -29,7 +29,7 @@ final readonly class ConsultWhatIsToProcessHandler implements QueryHandler
     {
         $holder = $this->prospectors->prospectorFrom(new MemberId($query->prospectorId));
 
-        $exchanges = $this->endedExchanges($holder, $query->at);
+        $exchanges = $this->lateExchanges($holder, $query->at);
         $toDos = $this->toDosDueBy($holder, $query->at);
 
         $output->present(new WhatIsToProcess(
@@ -41,15 +41,15 @@ final readonly class ConsultWhatIsToProcessHandler implements QueryHandler
     }
 
     /**
-     * The agenda holds only what is still planned: one started is to process once it has ended.
+     * What the prospector planned and let pass: one started is to process once it is late.
      *
      * @return list<ExchangeInTimeline>
      */
-    private function endedExchanges(Prospector $holder, \DateTimeImmutable $at): array
+    private function lateExchanges(Prospector $holder, \DateTimeImmutable $at): array
     {
-        $ended = array_filter($this->agendaRetriever->plannedBefore($holder, $at), static fn (ExchangeInTimeline $exchange): bool => Overdue::hasEnded($exchange, $at));
+        $late = array_filter($this->agendaRetriever->plannedBefore($holder, $at), static fn (ExchangeInTimeline $exchange): bool => Overdue::isLate($exchange, $at));
 
-        return array_values($ended);
+        return array_values($late);
     }
 
     /**
