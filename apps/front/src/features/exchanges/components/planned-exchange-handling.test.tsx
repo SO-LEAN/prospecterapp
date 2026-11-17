@@ -35,6 +35,8 @@ const ADA = '0190a1c0-0000-7000-8000-000000000001'
 const ACME = '0190a1c0-0000-7000-8000-000000000002'
 const self = { href: `/api/exchanges/${EXCHANGE}`, method: 'GET' }
 const ITS_TIME_HAS_COME = '2026-11-10T13:00:00+00:00'
+/** A moment before the one of the planned exchange: moved to its own moment, it is still to come. */
+const BEFORE_ITS_MOMENT = '2026-11-16T09:00:00+00:00'
 const handling = {
   markDone: { href: `${self.href}/done`, method: 'POST' },
   markMissed: { href: `${self.href}/missed`, method: 'POST' },
@@ -411,6 +413,7 @@ describe('handling a planned exchange', () => {
   })
 
   it('tells the refusal of the API when the exchange no longer moves', async () => {
+    vi.useFakeTimers({ shouldAdvanceTime: true, now: new Date(BEFORE_ITS_MOMENT) })
     theApi.mockResolvedValue(
       Response.json(
         {
