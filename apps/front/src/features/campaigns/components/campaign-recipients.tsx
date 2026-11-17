@@ -77,7 +77,7 @@ function RecipientItems({ campaignId, recipients, previewed, onPreview }: Recipi
 
   return (
     <ul aria-label={t('campaigns.recipients.title')} className="divide-y">
-      {recipients.items.map(({ contact, status, _links }, index) =>
+      {recipients.items.map(({ contact, status, missed, _links }, index) =>
         !contact ? (
           // biome-ignore lint/suspicious/noArrayIndexKey: an erased recipient keeps no identity, its place is its key
           <li key={`erased-${index}`} className="flex items-center gap-2">
@@ -103,7 +103,9 @@ function RecipientItems({ campaignId, recipients, previewed, onPreview }: Recipi
                 {contact.organizations.map((organization) => organization.name).join(', ')}
               </span>
             </button>
-            <Badge variant="secondary">{t(`campaigns.recipients.status.${status}`)}</Badge>
+            <Badge variant="secondary">
+              {missed ? t('exchanges.statuses.missed') : t(`campaigns.recipients.status.${status}`)}
+            </Badge>
             {_links.remove && (
               <Button
                 variant="ghost"
