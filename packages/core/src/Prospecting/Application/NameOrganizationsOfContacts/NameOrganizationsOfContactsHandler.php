@@ -24,10 +24,10 @@ final readonly class NameOrganizationsOfContactsHandler implements QueryHandler,
         $contacts = array_map(static fn (string $id): PersonId => new PersonId($id), $query->personIds);
         $named = array_filter($this->organizationOfContactRetriever->ofContacts($contacts, new AccountId($query->accountId)));
 
-        $output->present(array_values(array_map(
+        $output->present(array_map(
             static fn (string $personId, array $organizations): OrganizationsOfContactResponse => new OrganizationsOfContactResponse($personId, array_column($organizations, 'fullName')),
             array_keys($named),
             $named,
-        )));
+        ));
     }
 }

@@ -28,6 +28,11 @@ use Prospecter\Core\Accounts\Contract\Service\ConsultMembers\KeptMembers;
 use Prospecter\Core\Accounts\Contract\Service\ConsultMembers\MemberResponse;
 use Prospecter\Core\Accounts\Contract\Service\ListAccounts\KeptAccounts;
 use Prospecter\Core\Accounts\Contract\Service\ListAccounts\ListAccounts;
+use Prospecter\Core\Campaigns\Application\CampaignSheet;
+use Prospecter\Core\Campaigns\Application\CampaignTargets;
+use Prospecter\Core\Campaigns\Application\ConsultCampaign\ConsultCampaign;
+use Prospecter\Core\Campaigns\Application\ConsultCampaign\ConsultCampaignHandler;
+use Prospecter\Core\Campaigns\Application\ConsultCampaign\KeptCampaign;
 use Prospecter\Core\Campaigns\Application\ConsultContactTags\ConsultContactTags;
 use Prospecter\Core\Campaigns\Application\ConsultContactTags\ConsultContactTagsHandler;
 use Prospecter\Core\Campaigns\Application\ConsultContactTags\KeptContactTags;
@@ -37,14 +42,24 @@ use Prospecter\Core\Campaigns\Application\ConsultOrganizationTags\KeptOrganizati
 use Prospecter\Core\Campaigns\Application\ConsultSuggestedTags\ConsultSuggestedTags;
 use Prospecter\Core\Campaigns\Application\ConsultSuggestedTags\ConsultSuggestedTagsHandler;
 use Prospecter\Core\Campaigns\Application\ConsultSuggestedTags\KeptSuggestedTags;
+use Prospecter\Core\Campaigns\Application\DiscardCampaign\DiscardCampaignHandler;
 use Prospecter\Core\Campaigns\Application\FactRecorder as CampaignsFactRecorder;
 use Prospecter\Core\Campaigns\Application\ForgetTagsOfForgottenContact\ForgetTagsOfForgottenContactHandler;
 use Prospecter\Core\Campaigns\Application\ForgetTagsOfUnprospectedOrganization\ForgetTagsOfUnprospectedOrganizationHandler;
+use Prospecter\Core\Campaigns\Application\ListCampaigns\KeptCampaigns;
+use Prospecter\Core\Campaigns\Application\ListCampaigns\ListCampaigns;
+use Prospecter\Core\Campaigns\Application\ListCampaigns\ListCampaignsHandler;
+use Prospecter\Core\Campaigns\Application\PrepareCampaign\PrepareCampaignHandler;
 use Prospecter\Core\Campaigns\Application\PutTags\PutTagsHandler;
 use Prospecter\Core\Campaigns\Application\RebuildTags\RebuildTags;
 use Prospecter\Core\Campaigns\Application\RebuildTags\RebuildTagsHandler;
 use Prospecter\Core\Campaigns\Application\RecordContactFacts\RecordContactFactsHandler as RecordContactFactsInCampaignsHandler;
 use Prospecter\Core\Campaigns\Application\RecordOrganizationFacts\RecordOrganizationFactsHandler as RecordOrganizationFactsInCampaignsHandler;
+use Prospecter\Core\Campaigns\Application\RenderCampaignMessage\CampaignMessage;
+use Prospecter\Core\Campaigns\Application\RenderCampaignMessage\KeptCampaignMessage;
+use Prospecter\Core\Campaigns\Application\RenderCampaignMessage\RenderCampaignMessage;
+use Prospecter\Core\Campaigns\Application\RenderCampaignMessage\RenderCampaignMessageHandler;
+use Prospecter\Core\Campaigns\Application\ReviseCampaign\ReviseCampaignHandler;
 use Prospecter\Core\Campaigns\Application\SearchContactsByTags\KeptTaggedContactPage;
 use Prospecter\Core\Campaigns\Application\SearchContactsByTags\SearchContactsByTags;
 use Prospecter\Core\Campaigns\Application\SearchContactsByTags\SearchContactsByTagsHandler;
@@ -192,6 +207,7 @@ use Prospecter\Core\Prospecting\Application\ListOrganizationFacts\ListOrganizati
 use Prospecter\Core\Prospecting\Application\MarkExchangeDone\MarkExchangeDoneHandler;
 use Prospecter\Core\Prospecting\Application\MarkExchangeMissed\MarkExchangeMissedHandler;
 use Prospecter\Core\Prospecting\Application\MoveExchange\MoveExchangeHandler;
+use Prospecter\Core\Prospecting\Application\NameOrganizationsOfContacts\NameOrganizationsOfContactsHandler;
 use Prospecter\Core\Prospecting\Application\NoteExchange\NoteExchangeHandler;
 use Prospecter\Core\Prospecting\Application\NoteOrganizationExchange\NoteOrganizationExchangeHandler;
 use Prospecter\Core\Prospecting\Application\NoteOrganizationToDo\NoteOrganizationToDoHandler;
@@ -229,11 +245,7 @@ use Prospecter\Core\Prospecting\Application\Timeline;
 use Prospecter\Core\Prospecting\Application\ToDoInList;
 use Prospecter\Core\Prospecting\Application\ToDoList;
 use Prospecter\Core\Prospecting\Application\UntickToDo\UntickToDoHandler;
-use Prospecter\Core\Prospecting\Application\NameOrganizationsOfContacts\NameOrganizationsOfContactsHandler;
 use Prospecter\Core\Prospecting\Application\WhichAreProspected\WhichAreProspectedHandler;
-use Prospecter\Core\Prospecting\Contract\Service\NameOrganizationsOfContacts\KeptOrganizationsOfContacts;
-use Prospecter\Core\Prospecting\Contract\Service\NameOrganizationsOfContacts\NameOrganizationsOfContacts;
-use Prospecter\Core\Prospecting\Contract\Service\NameOrganizationsOfContacts\OrganizationsOfContactResponse;
 use Prospecter\Core\Prospecting\Application\WriteObservations\WriteObservationsHandler;
 use Prospecter\Core\Prospecting\Contract\Service\ConsultHeldExchanges\ConsultHeldExchanges;
 use Prospecter\Core\Prospecting\Contract\Service\ConsultHeldExchanges\ConsultPlannedExchanges;
@@ -243,6 +255,9 @@ use Prospecter\Core\Prospecting\Contract\Service\ListExchangeFacts\KeptExchangeF
 use Prospecter\Core\Prospecting\Contract\Service\ListExchangeFacts\ListExchangeFacts;
 use Prospecter\Core\Prospecting\Contract\Service\ListOrganizationFacts\KeptOrganizationFacts;
 use Prospecter\Core\Prospecting\Contract\Service\ListOrganizationFacts\ListOrganizationFacts;
+use Prospecter\Core\Prospecting\Contract\Service\NameOrganizationsOfContacts\KeptOrganizationsOfContacts;
+use Prospecter\Core\Prospecting\Contract\Service\NameOrganizationsOfContacts\NameOrganizationsOfContacts;
+use Prospecter\Core\Prospecting\Contract\Service\NameOrganizationsOfContacts\OrganizationsOfContactResponse;
 use Prospecter\Core\Prospecting\Contract\Service\WhichAreProspected\KeptProspected;
 use Prospecter\Core\Prospecting\Contract\Service\WhichAreProspected\WhichAreProspected;
 use Prospecter\Core\Prospecting\Domain\Service\ContactOrganizations;
@@ -273,6 +288,7 @@ use Prospecter\Core\SharedKernel\Application\TransactionalCommandHandler;
 use Prospecter\Core\SharedKernel\Application\TransactionalEventHandler;
 use Prospecter\Core\SharedKernel\Domain\Exception\BusinessException;
 use Prospecter\Core\SharedKernel\Domain\MemberId;
+use Tests\Core\Double\AccountsCampaigners;
 use Tests\Core\Double\AccountsMembers;
 use Tests\Core\Double\AccountsProspectors;
 use Tests\Core\Double\AccountsReaders;
@@ -286,7 +302,9 @@ use Tests\Core\Double\InMemoryAgendaRetriever;
 use Tests\Core\Double\InMemoryAuthorizationRepository;
 use Tests\Core\Double\InMemoryCalendarEntryRepository;
 use Tests\Core\Double\InMemoryCalendarRetriever;
+use Tests\Core\Double\InMemoryCampaignRepository;
 use Tests\Core\Double\InMemoryCampaignsFactRepository;
+use Tests\Core\Double\InMemoryCampaignSheetRetriever;
 use Tests\Core\Double\InMemoryConnectionRepository;
 use Tests\Core\Double\InMemoryContactFactsRetriever;
 use Tests\Core\Double\InMemoryContactPageRetriever;
@@ -326,6 +344,7 @@ use Tests\Core\Double\InMemoryToDoRepository;
 use Tests\Core\Double\InMemoryUnitOfWork;
 use Tests\Core\Double\KnownPlacesGeoLocation;
 use Tests\Core\Double\NoRecordingsInFlight;
+use Tests\Core\Double\PersonalDataAndProspectingAddressees;
 use Tests\Core\Double\PersonalDataContactNames;
 use Tests\Core\Double\PersonalDataContactsReach;
 use Tests\Core\Double\PersonalDataFactsFromPersonalData;
@@ -421,6 +440,11 @@ final class Application
     private readonly CampaignsFactRecorder $campaignsFactRecorder;
     private readonly InMemoryContactTagsRetriever $contactTagsRetriever;
     private readonly InMemoryTaggedContactsRetriever $taggedContactsRetriever;
+    public readonly InMemoryCampaignRepository $campaigns;
+    private readonly InMemoryCampaignSheetRetriever $campaignSheetRetriever;
+    private readonly AccountsCampaigners $campaigners;
+    private readonly PersonalDataAndProspectingAddressees $addressees;
+    private readonly CampaignTargets $campaignTargets;
     /** @var array<class-string, CommandHandler> */
     private array $handlers = [];
     private ?string $signedIn = null;
@@ -507,6 +531,11 @@ final class Application
         $this->campaignsFactRecorder = new CampaignsFactRecorder($this->campaignsFacts);
         $this->contactTagsRetriever = new InMemoryContactTagsRetriever($database);
         $this->taggedContactsRetriever = new InMemoryTaggedContactsRetriever($database, $this->contactTagsRetriever);
+        $this->campaigns = new InMemoryCampaignRepository($database);
+        $this->campaignSheetRetriever = new InMemoryCampaignSheetRetriever($database);
+        $this->campaigners = new AccountsCampaigners($this->consultMembersService);
+        $this->addressees = new PersonalDataAndProspectingAddressees($this->nameContactsService, $this->nameOrganizationsOfContactsService);
+        $this->campaignTargets = new CampaignTargets($this->taggedContactsRetriever);
 
         foreach ($this->translators() as $translator) {
             $this->events->translateWith($translator, calledThrough: new RefusalTranslatingEventHandler(new TransactionalEventHandler($translator, $this->unitOfWork)));
@@ -698,6 +727,30 @@ final class Application
         $kept = new KeptContactTags();
 
         return $this->ask(new ConsultContactTagsHandler($this->contactTagsRetriever, $this->taggers, $this->taggableHolders), $query, $kept) ? $kept : null;
+    }
+
+    /**
+     * @return array{list<CampaignSheet>, array<string, int>}|null the campaigns, and the contacts each targets
+     */
+    public function listCampaigns(ListCampaigns $query): ?array
+    {
+        $kept = new KeptCampaigns();
+
+        return $this->ask(new ListCampaignsHandler($this->campaignSheetRetriever, $this->campaigners, $this->campaignTargets), $query, $kept) ? [$kept->campaigns, $kept->targeted] : null;
+    }
+
+    public function consultCampaign(ConsultCampaign $query): ?KeptCampaign
+    {
+        $kept = new KeptCampaign();
+
+        return $this->ask(new ConsultCampaignHandler($this->campaignSheetRetriever, $this->campaigners, $this->campaignTargets), $query, $kept) ? $kept : null;
+    }
+
+    public function renderCampaignMessage(RenderCampaignMessage $query): ?CampaignMessage
+    {
+        $kept = new KeptCampaignMessage();
+
+        return $this->ask(new RenderCampaignMessageHandler($this->campaigns, $this->campaigners, $this->addressees), $query, $kept) ? $kept->message : null;
     }
 
     public function searchContactsByTags(SearchContactsByTags $query): ?TaggedContactPage
@@ -974,6 +1027,9 @@ final class Application
             new RetryFailedPushesHandler($this->calendarEntries, $this->connectingMembers, $this->calendarPusher),
             new PutTagsHandler($this->taggings, $this->taggers, $this->taggableHolders, $this->events),
             new TakeOffTagHandler($this->taggings, $this->taggers, $this->taggableHolders, $this->events),
+            new PrepareCampaignHandler($this->campaigns, $this->campaigners, $this->events),
+            new ReviseCampaignHandler($this->campaigns, $this->campaigners, $this->events),
+            new DiscardCampaignHandler($this->campaigns, $this->campaigners, $this->events),
         ];
     }
 
