@@ -1,6 +1,7 @@
 import { useQuery } from '@tanstack/react-query'
 import { Link } from '@tanstack/react-router'
 import { useTranslation } from 'react-i18next'
+import { CivilityField, civilitySchema } from '@/shared/forms/civility'
 import { FormField } from '@/shared/forms/form-field'
 import {
   PersonContactDetailsFields,
@@ -23,13 +24,26 @@ import { Detail } from '@/shared/ui/detail'
 import { EditableSection } from '@/shared/ui/editable-section'
 import { Input } from '@/shared/ui/input'
 import { LinkedInProfile } from '@/shared/ui/linkedin-profile'
-import { useChangeContactDetailsOfContact, useChangeJobTitle, useRenameContact } from '../mutations'
+import {
+  useChangeCivility,
+  useChangeContactDetailsOfContact,
+  useChangeJobTitle,
+  useRenameContact,
+} from '../mutations'
 import { type Contact, organizationsOfContactQuery } from '../queries'
 import { jobTitleSchema } from '../schema'
 
+const nameAndCivilitySchema = personNameSchema.extend({ civility: civilitySchema })
+
+const nameAndCivilityFields = [...personNameFields, 'civility'] as const
+
+/** The name of a contact and how one addresses them, beside it: the civility sent only when it changed. */
 export function NameSection({ contact }: { contact: Contact }) {
   const { t } = useTranslation()
   const rename = useRenameContact()
+  const changeCivility = useChangeCivility()
+  const civility = contact.civility ?? null
+  const path = { path: { id: contact.id } }
 
   return (
     <EditableSection
@@ -37,18 +51,27 @@ export function NameSection({ contact }: { contact: Contact }) {
       editable={Boolean(contact._links.rename)}
       editor={(close) => (
         <SectionForm
-          schema={personNameSchema}
-          defaultValues={toPersonNameValues(contact.name)}
-          fields={personNameFields}
-          save={(values) =>
-            rename.mutateAsync({ params: { path: { id: contact.id } }, body: toPersonName(values) })
-          }
+          schema={nameAndCivilitySchema}
+          defaultValues={{ ...toPersonNameValues(contact.name), civility }}
+          fields={nameAndCivilityFields}
+          save={async (values) => {
+            await rename.mutateAsync({ params: path, body: toPersonName(values) })
+            if (contact._links.changeCivility && values.civility !== civility) {
+              await changeCivility.mutateAsync({ params: path, body: { civility: values.civility } })
+            }
+          }}
           onDone={close}
         >
-          {(form) => <PersonNameFields form={form} />}
+          {(form) => (
+            <>
+              <PersonNameFields form={form} />
+              {contact._links.changeCivility && <CivilityField form={form} name="civility" />}
+            </>
+          )}
         </SectionForm>
       )}
     >
+      <Detail label={t('fields.civility')}>{civility && t(`civilities.${civility}`)}</Detail>
       <Detail label={t('fields.firstName')}>{contact.name.firstName}</Detail>
       <Detail label={t('fields.lastName')}>{contact.name.lastName}</Detail>
     </EditableSection>

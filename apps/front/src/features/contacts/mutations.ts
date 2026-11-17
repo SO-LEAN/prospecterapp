@@ -42,6 +42,13 @@ export function useRenameContact() {
   })
 }
 
+export function useChangeCivility() {
+  return api.useMutation('patch', '/api/contacts/{id}/civility', {
+    ...formIntention,
+    onSuccess: useStoreContact(),
+  })
+}
+
 export function useChangeJobTitle() {
   return api.useMutation('patch', '/api/contacts/{id}/job-title', {
     ...formIntention,

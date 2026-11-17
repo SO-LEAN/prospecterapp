@@ -3,6 +3,7 @@ import { useTranslation } from 'react-i18next'
 import { searchOfTags } from '@/shared/api/tagged-contacts'
 import { Badge } from '@/shared/ui/badge'
 import { Card, CardContent } from '@/shared/ui/card'
+import { CivilityMark } from '@/shared/ui/civility-mark'
 import { type ContactInList, fullNameOf } from '../queries'
 
 /**
@@ -17,13 +18,16 @@ export function ContactCard({ contact }: { contact: ContactInList }) {
       <CardContent className="space-y-2">
         <div className="flex items-start justify-between gap-3">
           <div className="min-w-0 space-y-1">
-            <Link
-              to="/contacts/$contactId"
-              params={{ contactId: contact.id }}
-              className="block truncate font-medium text-primary hover:underline"
-            >
-              {fullNameOf(contact) || t('contacts.unnamed')}
-            </Link>
+            <div className="flex min-w-0 items-center gap-1.5">
+              <Link
+                to="/contacts/$contactId"
+                params={{ contactId: contact.id }}
+                className="block truncate font-medium text-primary hover:underline"
+              >
+                {fullNameOf(contact) || t('contacts.unnamed')}
+              </Link>
+              <CivilityMark civility={contact.civility} />
+            </div>
             {contact.jobTitle && <p className="truncate text-muted-foreground text-sm">{contact.jobTitle}</p>}
             {contact.contactDetails.email && (
               <p className="truncate text-muted-foreground text-sm">{contact.contactDetails.email}</p>

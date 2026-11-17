@@ -3,6 +3,7 @@ import { useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { useTranslation } from 'react-i18next'
 import { applyViolations } from '@/shared/api/problem'
+import { CivilityField } from '@/shared/forms/civility'
 import { FormField } from '@/shared/forms/form-field'
 import { PersonContactDetailsFields } from '@/shared/forms/person-contact-details'
 import { PersonNameFields } from '@/shared/forms/person-name'
@@ -55,6 +56,7 @@ export function CollectContactForm({ organizationId, onSubmit, onCancel }: Props
       <fieldset className="grid grid-cols-1 gap-4 sm:grid-cols-2">
         <legend className="mb-2 font-medium text-sm">{t('organizations.contacts.identity')}</legend>
         <PersonNameFields form={form} path={under<CollectContactValues>('name')} />
+        <CivilityField form={form} name="civility" />
         <FormField
           form={form}
           name="jobTitle"

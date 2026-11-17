@@ -24,6 +24,7 @@ import { contactToDosQuery } from '@/features/to-dos/queries'
 import { notFoundWhenTheApiSaysSo, openedExchangeSearch, uuidParams } from '@/shared/lib/route-params'
 import { BackButton } from '@/shared/ui/back-button'
 import { Badge } from '@/shared/ui/badge'
+import { CivilityMark } from '@/shared/ui/civility-mark'
 import { ErrorState } from '@/shared/ui/feedback/error-state'
 import { PageHeader } from '@/shared/ui/page-header'
 import { PageSkeleton } from '@/shared/ui/page-skeleton'
@@ -64,7 +65,12 @@ function ContactPage() {
       <BackButton fallback="/contacts" />
 
       <PageHeader
-        title={name}
+        title={
+          <span className="inline-flex max-w-full items-center gap-2">
+            <span className="truncate">{name}</span>
+            <CivilityMark civility={contact.civility} />
+          </span>
+        }
         description={
           <span className="flex flex-wrap gap-2">
             {contact.jobTitle && <Badge variant="secondary">{contact.jobTitle}</Badge>}
