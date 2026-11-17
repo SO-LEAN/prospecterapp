@@ -41,6 +41,8 @@ final readonly class DynamoOrganizationFactsRetriever implements OrganizationFac
      */
     private static function factsOf(array $item): OrganizationFactsResponse
     {
-        return new OrganizationFactsResponse($item['organization']['id'], Revision::of($item), true, null !== $item['organization']['geoPoint'], $item['organization']['contacts']);
+        $organization = $item['organization'];
+
+        return new OrganizationFactsResponse($organization['id'], Revision::of($item), true, null !== $organization['geoPoint'], $organization['contacts'], $organization['municipalityCode'] ?? null, $organization['address']['country'] ?? null);
     }
 }

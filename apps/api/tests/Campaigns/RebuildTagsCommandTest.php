@@ -11,7 +11,8 @@ use Tests\App\Base\ApiTestCase;
 /**
  * `app:tags:rebuild` records again the facts the tags of the contacts derive from, as Prospecting and PersonalData give
  * them, for every account or one (ADR 0141); it writes only the table of Campaigns. The demonstration, its facts lost
- * first: SOLEAN IT prospects Babbage & Co, whose contact Ada has an e-mail, a landline and a LinkedIn profile.
+ * first: SOLEAN IT prospects Babbage & Co, in Colmar (ADR 0142), whose contact Ada has an e-mail, a landline and a
+ * LinkedIn profile.
  */
 class RebuildTagsCommandTest extends ApiTestCase
 {
@@ -21,7 +22,7 @@ class RebuildTagsCommandTest extends ApiTestCase
         $this->login();
     }
 
-    public function testTheRebuildGivesTheContactsTheTagsOfTheirOrganizationsAndOfHowTheyAreReached(): void
+    public function testTheRebuildGivesTheContactsTheTagsOfTheirOrganizationsOfWhereTheyAreAndOfHowTheyAreReached(): void
     {
         [$babbage, $ada] = $this->babbageAndAda();
         $this->requestJson('POST', '/api/organizations/'.$babbage.'/tags', ['tags' => ['#ESN']]);
@@ -31,7 +32,8 @@ class RebuildTagsCommandTest extends ApiTestCase
         $this->assertStringContainsString('rebuilt for 1 account(s)', $this->rebuild());
 
         $tags = $this->requestJson('GET', '/api/contacts/'.$ada.'/tags');
-        $this->assertSame([['name' => '#ESN', 'from' => [$babbage]]], $tags['inherited']);
+        $this->assertSame(['#68', '#COLMAR', '#ESN', '#GRAND_EST'], array_column($tags['inherited'], 'name'));
+        $this->assertSame([[$babbage]], array_values(array_unique(array_column($tags['inherited'], 'from'), SORT_REGULAR)));
         $this->assertSame(['#EMAIL', '#LINKEDIN', '#PHONE'], $tags['automatic']);
     }
 

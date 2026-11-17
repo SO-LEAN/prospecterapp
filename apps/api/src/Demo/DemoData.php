@@ -35,6 +35,7 @@ use Prospecter\Core\SharedKernel\Domain\ContactDetails;
 use Prospecter\Core\SharedKernel\Domain\Email;
 use Prospecter\Core\SharedKernel\Domain\GeoPoint;
 use Prospecter\Core\SharedKernel\Domain\LegalIdentity;
+use Prospecter\Core\SharedKernel\Domain\Location;
 use Prospecter\Core\SharedKernel\Domain\MemberId;
 use Prospecter\Core\SharedKernel\Domain\OrganizationId;
 use Prospecter\Core\SharedKernel\Domain\PersonId;
@@ -58,6 +59,8 @@ final readonly class DemoData
     /** A prospector signing in for the first time: their profile is empty, theirs to complete. */
     public const string NEWCOMER = '01900000-0000-7000-8000-000000000003';
     private const string OPENED_AT = '2026-10-13 09:00';
+    /** The INSEE code of the municipality of Colmar, where Babbage & Co is (ADR 0142). */
+    private const string COLMAR = '68066';
     /** the client of the double of Google (docker/nginx/conf.d/google-double.conf), which grants every code (ADR 0125) */
     private const string CLIENT_OF_THE_DOUBLE = 'client-of-the-double';
     private const string SECRET_OF_THE_DOUBLE = 'secret-of-the-double';
@@ -130,7 +133,7 @@ final readonly class DemoData
         $openedAt = new \DateTimeImmutable(self::OPENED_AT);
         $prospector = new Prospector(new MemberId(self::PROSPECTOR), $account->id(), managesPersonalData: true);
         $babbage = Organization::prospectedBy($prospector, new OrganizationId($this->identities->next()), new LegalIdentity('Babbage & Co', 'SAS'), new ContactDetails(new Email('contact@babbage.test')), $openedAt);
-        $babbage->relocateTo(new Address('2 rue des Clefs', '68000', 'Colmar', 'FR'), new GeoPoint(7.3585, 48.0794), $prospector->id, $openedAt);
+        $babbage->relocateTo(new Address('2 rue des Clefs', '68000', 'Colmar', 'FR'), new Location(new GeoPoint(7.3585, 48.0794), self::COLMAR), $prospector->id, $openedAt);
         $manager = new Reader($prospector->id, $account->id(), new PersonId($this->identities->next()), true);
         $ada = Person::collectAsContact($manager, new PersonId($this->identities->next()), new PersonName('Ada', 'Lovelace'), 'Directrice commerciale', new ContactDetails(new Email('ada@babbage.test'), PhoneNumber::of('03 88 00 00 42'), 'FR'), new LinkedInProfile('https://www.linkedin.com/in/ada-lovelace'), [$babbage->id()], $openedAt);
         $this->organizations->save($babbage);

@@ -9,10 +9,12 @@ use Prospecter\Core\Campaigns\Application\Port\TagsRetriever;
 use Prospecter\Core\Campaigns\Domain\Model\Holder;
 use Prospecter\Core\Campaigns\Domain\Model\Tag;
 use Prospecter\Core\SharedKernel\Domain\AccountId;
+use Prospecter\Core\SharedKernel\Domain\OrganizationId;
 
 /**
  * The tags put by hand, read from the items of `DynamoTaggingRepository` without restoring them (ADR 0088): those of
- * an organization or of a contact, and all those of an account, its partition read at once.
+ * an organization or of a contact, and all those of an account, its partition read at once; where the organizations
+ * are, from the items of their facts (`DynamoFactRepository`, ADR 0142).
  */
 final readonly class DynamoTagsRetriever implements TagsRetriever
 {
@@ -32,6 +34,20 @@ final readonly class DynamoTagsRetriever implements TagsRetriever
         $taggings = array_column($this->campaignsTable->queryBetween(CampaignsKeys::account($accountId->value), null, ...CampaignsKeys::taggings()), 'tagging');
 
         return array_values(array_unique(self::marked(array_merge([], ...array_column($taggings, 'tags')))));
+    }
+
+    public function localityOf(AccountId $accountId, OrganizationId $organizationId): ?array
+    {
+        $item = $this->campaignsTable->item(CampaignsKeys::account($accountId->value), CampaignsKeys::organizationFact($organizationId->value));
+
+        return null === $item ? null : OrganizationFactItem::localityIn($item);
+    }
+
+    public function localitiesIn(AccountId $accountId): array
+    {
+        $facts = $this->campaignsTable->queryBetween(CampaignsKeys::account($accountId->value), null, ...CampaignsKeys::organizationFacts());
+
+        return array_values(array_map(OrganizationFactItem::localityIn(...), array_filter($facts, static fn (array $fact): bool => (bool) $fact['present'])));
     }
 
     /**

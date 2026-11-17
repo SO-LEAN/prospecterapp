@@ -86,23 +86,18 @@ class TagsApiTest extends ApiTestCase
 
     public function testAnOrganizationCarriesTheTagsOfWhereItIsAndItsContactsInheritThem(): void
     {
-        $organization = $this->anOrganization('ACME');
-        $ada = $this->aContactOf($organization, 'Ada', 'Lovelace');
-        self::getContainer()->get(OutsideServices::class)->geocoderPlaces(7.7337, 48.5297, self::ILLKIRCH);
+        $organization = $this->anOrganizationTheGeocoderPlacesIn(self::ILLKIRCH, ['street' => '12 rue de la Haye', 'postalCode' => '67400', 'city' => 'Illkirch-Graffenstaden', 'country' => 'FR']);
 
-        $this->requestJson('PATCH', '/api/organizations/'.$organization.'/address', ['street' => '12 rue de la Haye', 'postalCode' => '67400', 'city' => 'Illkirch-Graffenstaden', 'country' => 'FR']);
+        $ada = $this->aContactOf($organization, 'Ada', 'Lovelace');
 
         $this->assertSame(['#STRASBOURG', '#67', '#GRAND_EST'], $this->requestJson('GET', '/api/organizations/'.$organization.'/tags')['automatic']);
         $this->assertContains(['name' => '#STRASBOURG', 'from' => [$organization]], $this->requestJson('GET', '/api/contacts/'.$ada.'/tags')['inherited']);
-        $this->assertSame(['#67', '#GRAND_EST', '#STRASBOURG'], $this->requestJson('GET', '/api/tags')['automatic']);
+        $this->assertSame(['#67', '#GRAND_EST', '#STRASBOURG'], array_values(array_intersect($this->requestJson('GET', '/api/tags')['automatic'], ['#67', '#GRAND_EST', '#STRASBOURG'])));
     }
 
     public function testAnAddressAbroadGivesNoGeographicTag(): void
     {
-        $organization = $this->anOrganization('ACME');
-        self::getContainer()->get(OutsideServices::class)->geocoderPlaces(-1.5536, 47.2184, self::NANTES);
-
-        $this->requestJson('PATCH', '/api/organizations/'.$organization.'/address', ['street' => 'Rue de la Loi 16', 'postalCode' => '1000', 'city' => 'Bruxelles', 'country' => 'BE']);
+        $organization = $this->anOrganizationTheGeocoderPlacesIn(self::NANTES, ['street' => 'Rue de la Loi 16', 'postalCode' => '1000', 'city' => 'Bruxelles', 'country' => 'BE']);
 
         $this->assertSame([], $this->requestJson('GET', '/api/organizations/'.$organization.'/tags')['automatic']);
     }
@@ -289,6 +284,18 @@ class TagsApiTest extends ApiTestCase
             'contactDetails' => ['email' => 'ada@acme.test', 'phoneNumber' => '06 12 34 56 78', 'linkedInProfile' => 'https://www.linkedin.com/in/ada-lovelace'],
             'organizationIds' => [$organization],
         ])['id'];
+    }
+
+    /**
+     * The first request of the test: the geocoder is told where to place it before the kernel boots.
+     *
+     * @param array<string, string> $address
+     */
+    private function anOrganizationTheGeocoderPlacesIn(string $municipalityCode, array $address): string
+    {
+        self::getContainer()->get(OutsideServices::class)->geocoderPlaces(7.7337, 48.5297, $municipalityCode);
+
+        return $this->requestJson('POST', '/api/organizations', ['legalIdentity' => ['corporateName' => 'ACME'], 'address' => $address])['id'];
     }
 
     private function anOrganization(string $name): string

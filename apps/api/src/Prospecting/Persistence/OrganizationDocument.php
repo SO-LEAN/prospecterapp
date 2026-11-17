@@ -12,7 +12,8 @@ use Prospecter\Core\SharedKernel\Domain\PersonId;
 
 /**
  * An organization as a plain document of its DynamoDB item, and back (ADR 0048): its value objects as they
- * are, its recorded events never.
+ * are, its recorded events never; the code of its municipality is absent from the documents written before it was
+ * kept (ADR 0142).
  */
 final class OrganizationDocument
 {
@@ -32,6 +33,7 @@ final class OrganizationDocument
             'contactDetails' => Documents::contactDetails($state['contactDetails']),
             'address' => Documents::address($state['address']),
             'geoPoint' => Documents::geoPoint($state['geoPoint']),
+            'municipalityCode' => $state['municipalityCode'],
             'observations' => $state['observations'],
             'logo' => Documents::file($state['logo']),
             'contacts' => array_map(static fn (PersonId $contact): string => (string) $contact, $state['contacts']),
@@ -54,6 +56,7 @@ final class OrganizationDocument
             'contactDetails' => Documents::contactDetailsOf($document['contactDetails']),
             'address' => Documents::addressOf($document['address']),
             'geoPoint' => Documents::geoPointOf($document['geoPoint']),
+            'municipalityCode' => $document['municipalityCode'] ?? null,
             'observations' => $document['observations'],
             'logo' => Documents::fileOf($document['logo']),
             'contacts' => array_map(static fn (string $contact): PersonId => new PersonId($contact), $document['contacts']),

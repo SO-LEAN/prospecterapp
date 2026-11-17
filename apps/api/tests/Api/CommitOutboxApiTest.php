@@ -45,7 +45,7 @@ class CommitOutboxApiTest extends ApiTestCase
             'prospecter.prospecting.internal ProspectingStopped.v1',
             'prospecter.prospecting.internal ContactsLeftWithoutOrganization.v1',
             'prospecter.prospecting ContactsLeftWithoutOrganization.v1',
-            'prospecter.prospecting OrganizationFactsChanged.v2',
+            'prospecter.prospecting OrganizationFactsChanged.v3',
         ], array_map(static fn (array $event): string => $event['source'].' '.$event['detailType'], json_decode($items[0]['events'], true, flags: \JSON_THROW_ON_ERROR)));
         $this->assertSame([], $this->outboxOf('accounts'));
         $this->assertSame([], $this->outboxOf('personal_data'));
@@ -56,7 +56,7 @@ class CommitOutboxApiTest extends ApiTestCase
         $this->requestJson('DELETE', '/api/organizations/'.$this->organization);
 
         $events = json_decode($this->outboxOf('prospecting')[0]['events'], true, flags: \JSON_THROW_ON_ERROR);
-        $facts = array_values(array_filter($events, static fn (array $event): bool => 'OrganizationFactsChanged.v2' === $event['detailType']));
+        $facts = array_values(array_filter($events, static fn (array $event): bool => 'OrganizationFactsChanged.v3' === $event['detailType']));
         $this->assertSame(
             ['organizationId' => $this->organization, 'revision' => 0, 'present' => false, 'located' => false, 'contacts' => []],
             array_intersect_key($facts[0]['detail']['payload'], ['organizationId' => true, 'revision' => true, 'present' => true, 'located' => true, 'contacts' => true]),

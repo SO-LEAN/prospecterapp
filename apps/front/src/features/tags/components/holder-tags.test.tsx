@@ -35,6 +35,7 @@ const tagsOf = (base: string, names: string[]): Tags => ({
     name,
     _links: { takeOff: { href: `${base}/tags/${name.slice(1)}`, method: 'DELETE' } },
   })),
+  automatic: [],
   _links: { self: { href: `${base}/tags`, method: 'GET' }, tag: { href: `${base}/tags`, method: 'POST' } },
 })
 

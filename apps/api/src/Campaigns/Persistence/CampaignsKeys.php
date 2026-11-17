@@ -48,6 +48,14 @@ final class CampaignsKeys
     }
 
     /**
+     * The organization whose fact the key is.
+     */
+    public static function organizationOfFact(string $key): string
+    {
+        return substr($key, strlen(self::organizationFact('')));
+    }
+
+    /**
      * The fact of a contact, the first of its keys: its links follow it.
      */
     public static function contactFact(string $id): string

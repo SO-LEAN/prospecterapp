@@ -2,6 +2,8 @@
 
 namespace Tests\App\Prospecting;
 
+use App\Campaigns\Persistence\CampaignsKeys;
+use App\Demo\DemoData;
 use App\Prospecting\Persistence\OrganizationKeys;
 use App\Shared\Persistence\Table;
 use Symfony\Bundle\FrameworkBundle\Console\Application;
@@ -34,8 +36,12 @@ class LocateOrganizationsAgainCommandTest extends ApiTestCase
         $this->assertStringContainsString('0 organization(s) located again', $this->locateAgain());
     }
 
+    /**
+     * The command runs in the kernel of the last request, the geocoder told again where to place the address.
+     */
     private function locateAgain(): string
     {
+        self::getContainer()->get(OutsideServices::class)->geocoderPlaces(7.7456, 48.5834);
         $tester = new CommandTester(new Application(self::$kernel)->find('app:organizations:locate-again'));
         $tester->execute([]);
         $tester->assertCommandIsSuccessful();
@@ -44,15 +50,26 @@ class LocateOrganizationsAgainCommandTest extends ApiTestCase
     }
 
     /**
-     * Its item as written before the organizations kept their municipality.
+     * Its items as written before the organizations kept their municipality: in Prospecting, and its fact in Campaigns.
      */
     private function forgetTheMunicipalityOf(string $organization): void
     {
-        $table = self::getContainer()->get('app.table.prospecting');
-        $this->assertInstanceOf(Table::class, $table);
-        $item = $table->item(OrganizationKeys::organization($organization), OrganizationKeys::ORGANIZATION);
+        $item = $this->table('prospecting')->item(OrganizationKeys::organization($organization), OrganizationKeys::ORGANIZATION);
         $this->assertNotNull($item);
         unset($item['organization']['municipalityCode']);
-        $table->batch([$item]);
+        $this->table('prospecting')->batch([$item]);
+
+        $fact = $this->table('campaigns')->item(CampaignsKeys::account(DemoData::SOLEAN_IT), CampaignsKeys::organizationFact($organization));
+        $this->assertNotNull($fact);
+        unset($fact['municipalityCode'], $fact['country']);
+        $this->table('campaigns')->batch([$fact]);
+    }
+
+    private function table(string $context): Table
+    {
+        $table = self::getContainer()->get('app.table.'.$context);
+        $this->assertInstanceOf(Table::class, $table);
+
+        return $table;
     }
 }
