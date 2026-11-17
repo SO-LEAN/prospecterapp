@@ -96,7 +96,7 @@ Fonctionnalité: Préparer une campagne
 
   Scénario: Je supprime un brouillon
     Soit la campagne "Relance ESN" en brouillon
-    Quand je la supprime
+    Quand je supprime ce brouillon
     Alors je n'ai plus de campagne
 
   Scénario: Les campagnes sont partagées par l'équipe

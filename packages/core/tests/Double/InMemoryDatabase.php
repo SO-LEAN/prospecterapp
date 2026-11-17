@@ -6,6 +6,7 @@ namespace Tests\Core\Double;
 
 use Prospecter\Core\Accounts\Domain\Model\Account;
 use Prospecter\Core\Accounts\Domain\Model\Member;
+use Prospecter\Core\Campaigns\Domain\Model\Campaign;
 use Prospecter\Core\Campaigns\Domain\Model\Fact as CampaignsFact;
 use Prospecter\Core\Campaigns\Domain\Model\Holder;
 use Prospecter\Core\Campaigns\Domain\Model\Tagging;
@@ -59,6 +60,8 @@ final class InMemoryDatabase
     private array $taggings = [];
     /** @var array<string, array<string, CampaignsFact>> the facts Campaigns keeps, by account, then by the aggregate they are about */
     private array $campaignsFacts = [];
+    /** @var array<string, Campaign> by the account and its identity */
+    private array $campaigns = [];
 
     public function isEmpty(): bool
     {
@@ -92,6 +95,7 @@ final class InMemoryDatabase
         $this->calendarEntries = $snapshot->calendarEntries;
         $this->taggings = $snapshot->taggings;
         $this->campaignsFacts = $snapshot->campaignsFacts;
+        $this->campaigns = $snapshot->campaigns;
     }
 
     public function campaignsFact(string $account, string $aggregate): ?CampaignsFact
@@ -143,6 +147,39 @@ final class InMemoryDatabase
             static fn (Tagging $tagging): Tagging => clone $tagging,
             array_filter($this->taggings, static fn (Tagging $tagging): bool => $tagging->accountId()->value === $account),
         ));
+    }
+
+    public function storeCampaign(Campaign $campaign): void
+    {
+        $this->campaigns[self::campaignKey($campaign->accountId()->value, $campaign->id()->value)] = self::withoutItsEvents($campaign);
+    }
+
+    public function forgetCampaign(Campaign $campaign): void
+    {
+        unset($this->campaigns[self::campaignKey($campaign->accountId()->value, $campaign->id()->value)]);
+    }
+
+    public function campaign(string $account, string $id): ?Campaign
+    {
+        $campaign = $this->campaigns[self::campaignKey($account, $id)] ?? null;
+
+        return null === $campaign ? null : clone $campaign;
+    }
+
+    /**
+     * @return list<Campaign>
+     */
+    public function campaignsOf(string $account): array
+    {
+        return array_values(array_map(
+            static fn (Campaign $campaign): Campaign => clone $campaign,
+            array_filter($this->campaigns, static fn (Campaign $campaign): bool => $campaign->accountId()->value === $account),
+        ));
+    }
+
+    private static function campaignKey(string $account, string $id): string
+    {
+        return $account.'#'.$id;
     }
 
     private static function taggingKey(string $account, Holder $holder): string
