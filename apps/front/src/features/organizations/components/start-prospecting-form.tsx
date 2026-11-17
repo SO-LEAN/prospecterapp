@@ -24,9 +24,11 @@ import {
 type Props = {
   onSubmit: (input: StartProspectingInput) => Promise<unknown>
   onCancel: () => void
+  /** The tags to put on the organization once created, chosen by the field the page gives. */
+  tags?: React.ReactNode
 }
 
-export function StartProspectingForm({ onSubmit, onCancel }: Props) {
+export function StartProspectingForm({ onSubmit, onCancel, tags }: Props) {
   const { t } = useTranslation()
   const [globalErrors, setGlobalErrors] = useState<string[]>([])
   const form = useForm<StartProspectingValues>({
@@ -61,6 +63,7 @@ export function StartProspectingForm({ onSubmit, onCancel }: Props) {
       <Section title={t('organizations.sections.address')}>
         <AddressFields form={form} path={under<StartProspectingValues>('address')} />
       </Section>
+      {tags && <Section title={t('organizations.sections.tags')}>{tags}</Section>}
       <Section title={t('organizations.sections.observations')}>
         <FormField
           form={form}

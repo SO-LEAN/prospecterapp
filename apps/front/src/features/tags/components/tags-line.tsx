@@ -1,0 +1,75 @@
+import { useQuery } from '@tanstack/react-query'
+import { Plus, X } from 'lucide-react'
+import { useState } from 'react'
+import { useTranslation } from 'react-i18next'
+import { Badge } from '@/shared/ui/badge'
+import { Button } from '@/shared/ui/button'
+import { Popover, PopoverContent, PopoverTrigger } from '@/shared/ui/popover'
+import { suggestedTagsQuery } from '../queries'
+import { TagPicker } from './tag-picker'
+
+type Props = {
+  tags: string[]
+  onTag: (typed: string) => void
+  onTakeOff: (tag: string) => void
+}
+
+/**
+ * A line of chips, one per tag put by hand, each taken off by its cross, and « Ajouter un tag » opening the picker of
+ * the tags proposed to the account. The predefined tags and those of the account look alike (ADR 0138).
+ */
+export function TagsLine({ tags, onTag, onTakeOff }: Props) {
+  const { t } = useTranslation()
+
+  return (
+    <ul aria-label={t('tags.title')} className="flex flex-wrap items-center gap-1.5">
+      {tags.map((tag) => (
+        <li key={tag}>
+          <Badge variant="secondary" className="gap-0.5 pr-1">
+            {tag}
+            <button
+              type="button"
+              aria-label={t('tags.takeOff', { tag })}
+              className="rounded-full p-0.5 hover:bg-background/60 focus-visible:ring-[3px] focus-visible:ring-ring/50 focus-visible:outline-none"
+              onClick={() => onTakeOff(tag)}
+            >
+              <X aria-hidden />
+            </button>
+          </Badge>
+        </li>
+      ))}
+      <li>
+        <AddATag carried={tags} onPick={onTag} />
+      </li>
+    </ul>
+  )
+}
+
+function AddATag({ carried, onPick }: { carried: string[]; onPick: (typed: string) => void }) {
+  const { t } = useTranslation()
+  const [open, setOpen] = useState(false)
+  const suggested = useQuery({ ...suggestedTagsQuery(), enabled: open })
+
+  return (
+    <Popover open={open} onOpenChange={setOpen}>
+      <PopoverTrigger asChild>
+        <Button type="button" variant="ghost" size="sm" className="h-6 px-2 text-xs">
+          <Plus aria-hidden />
+          {t('tags.add')}
+        </Button>
+      </PopoverTrigger>
+      <PopoverContent align="start" className="w-80">
+        {suggested.data && (
+          <TagPicker
+            suggested={suggested.data}
+            carried={carried}
+            onPick={(typed) => {
+              onPick(typed)
+              setOpen(false)
+            }}
+          />
+        )}
+      </PopoverContent>
+    </Popover>
+  )
+}

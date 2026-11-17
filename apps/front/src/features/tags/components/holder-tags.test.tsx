@@ -74,7 +74,11 @@ describe('the tags of an organization or of a contact', () => {
     await userEvent.click(await screen.findByRole('option', { name: '#ESN' }))
 
     expect(await screen.findByText('#ESN')).toBeInTheDocument()
-    expect(calls).toContainEqual({ method: 'POST', pathname: `/api/organizations/${ACME}/tags`, body: { tags: ['#ESN'] } })
+    expect(calls).toContainEqual({
+      method: 'POST',
+      pathname: `/api/organizations/${ACME}/tags`,
+      body: { tags: ['#ESN'] },
+    })
   })
 
   it('takes a tag off the contact by its cross', async () => {
@@ -84,6 +88,10 @@ describe('the tags of an organization or of a contact', () => {
     await userEvent.click(await screen.findByRole('button', { name: 'Retirer le tag #CLIENT' }))
 
     await waitFor(() => expect(screen.queryByText('#CLIENT')).not.toBeInTheDocument())
-    expect(calls).toContainEqual({ method: 'DELETE', pathname: `/api/contacts/${ADA}/tags/CLIENT`, body: null })
+    expect(calls).toContainEqual({
+      method: 'DELETE',
+      pathname: `/api/contacts/${ADA}/tags/CLIENT`,
+      body: null,
+    })
   })
 })

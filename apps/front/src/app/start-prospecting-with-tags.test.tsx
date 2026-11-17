@@ -62,6 +62,17 @@ function theApiAnswers() {
     calls.push({ method: request.method, pathname, body: body ? JSON.parse(body) : null })
     const answers: Record<string, unknown> = {
       '/api/me': me,
+      '/api/me/connections': {
+        connections: [],
+        _links: { self: { href: '/api/me/connections', method: 'GET' } },
+      },
+      '/api/me/reminders': {
+        enabled: false,
+        minutesBefore: 10,
+        _links: { self: { href: '/api/me/reminders', method: 'GET' } },
+      },
+      '/api/me/day': { today: [], next: [], _links: { self: { href: '/api/me/day', method: 'GET' } } },
+      '/api/me/exchanges-to-process': { items: [], toDos: [], _links: {} },
       '/api/tags': suggested,
       '/api/organizations': acme,
       [`/api/organizations/${ACME}`]: acme,
@@ -86,9 +97,15 @@ describe('starting to prospect an organization', () => {
     await userEvent.click(screen.getByRole('button', { name: 'Commencer à prospecter' }))
 
     await waitFor(() =>
-      expect(calls).toContainEqual({ method: 'POST', pathname: `/api/organizations/${ACME}/tags`, body: { tags: ['#ESN'] } }),
+      expect(calls).toContainEqual({
+        method: 'POST',
+        pathname: `/api/organizations/${ACME}/tags`,
+        body: { tags: ['#ESN'] },
+      }),
     )
-    const creation = calls.findIndex((call) => call.method === 'POST' && call.pathname === '/api/organizations')
+    const creation = calls.findIndex(
+      (call) => call.method === 'POST' && call.pathname === '/api/organizations',
+    )
     const tagging = calls.findIndex((call) => call.method === 'POST' && call.pathname.endsWith('/tags'))
     expect(creation).toBeLessThan(tagging)
   })
