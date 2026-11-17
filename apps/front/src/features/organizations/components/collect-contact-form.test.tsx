@@ -39,7 +39,12 @@ describe('CollectContactForm', () => {
 
     expect(onSubmit).toHaveBeenCalledWith(
       expect.objectContaining({
-        contactDetails: { email: null, phoneNumber: null, language: null, linkedInProfile: 'linkedin.com/in/ada-lovelace' },
+        contactDetails: {
+          email: null,
+          phoneNumber: null,
+          language: null,
+          linkedInProfile: 'linkedin.com/in/ada-lovelace',
+        },
       }),
     )
   })

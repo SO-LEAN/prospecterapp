@@ -3,8 +3,8 @@ import { useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { useTranslation } from 'react-i18next'
 import { applyViolations } from '@/shared/api/problem'
-import { ContactDetailsFields } from '@/shared/forms/contact-details'
 import { FormField } from '@/shared/forms/form-field'
+import { PersonContactDetailsFields } from '@/shared/forms/person-contact-details'
 import { PersonNameFields } from '@/shared/forms/person-name'
 import { under } from '@/shared/forms/section-form'
 import { Alert, AlertDescription } from '@/shared/ui/alert'
@@ -67,7 +67,7 @@ export function CollectContactForm({ organizationId, onSubmit, onCancel }: Props
       </fieldset>
       <fieldset className="grid grid-cols-1 gap-4 sm:grid-cols-2">
         <legend className="mb-2 font-medium text-sm">{t('organizations.sections.contactDetails')}</legend>
-        <ContactDetailsFields form={form} path={under<CollectContactValues>('contactDetails')} />
+        <PersonContactDetailsFields form={form} path={under<CollectContactValues>('contactDetails')} />
       </fieldset>
 
       <div className="flex justify-end gap-2">

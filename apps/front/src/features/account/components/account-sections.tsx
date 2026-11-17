@@ -8,13 +8,6 @@ import {
   toAddress,
   toAddressValues,
 } from '@/shared/forms/address'
-import {
-  ContactDetailsFields,
-  contactDetailsFields,
-  contactDetailsSchema,
-  toContactDetails,
-  toContactDetailsValues,
-} from '@/shared/forms/contact-details'
 import { FormField } from '@/shared/forms/form-field'
 import {
   LegalIdentityFields,
@@ -23,6 +16,13 @@ import {
   toLegalIdentity,
   toLegalIdentityValues,
 } from '@/shared/forms/legal-identity'
+import {
+  PersonContactDetailsFields,
+  personContactDetailsFields,
+  personContactDetailsSchema,
+  toPersonContactDetails,
+  toPersonContactDetailsValues,
+} from '@/shared/forms/person-contact-details'
 import {
   PersonNameFields,
   personNameFields,
@@ -40,6 +40,7 @@ import { Detail } from '@/shared/ui/detail'
 import { EditableSection } from '@/shared/ui/editable-section'
 import { ImageUpload } from '@/shared/ui/form/image-upload'
 import { Input } from '@/shared/ui/input'
+import { LinkedInProfile } from '@/shared/ui/linkedin-profile'
 import { ExplainedUnlocatedBadge } from '@/shared/ui/unlocated-badge'
 import { myName } from '../me'
 import {
@@ -156,19 +157,22 @@ export function ContactDetailsSection({ account }: { account: Account }) {
       editable={Boolean(account._links.changeMyContactDetails)}
       editor={(close) => (
         <SectionForm
-          schema={contactDetailsSchema}
-          defaultValues={toContactDetailsValues(contact)}
-          fields={contactDetailsFields}
-          save={(values) => change.mutateAsync({ body: toContactDetails(values) })}
+          schema={personContactDetailsSchema}
+          defaultValues={toPersonContactDetailsValues(contact)}
+          fields={personContactDetailsFields}
+          save={(values) => change.mutateAsync({ body: toPersonContactDetails(values) })}
           onDone={close}
         >
-          {(form) => <ContactDetailsFields form={form} />}
+          {(form) => <PersonContactDetailsFields form={form} />}
         </SectionForm>
       )}
     >
       <Detail label={t('fields.email')}>{contact.email}</Detail>
       <Detail label={t('fields.phoneNumber')}>{contact.phoneNumber}</Detail>
       <Detail label={t('fields.language')}>{countryName(contact.language)}</Detail>
+      <Detail label={t('fields.linkedInProfile')}>
+        {contact.linkedInProfile && <LinkedInProfile profile={contact.linkedInProfile} masked={false} />}
+      </Detail>
     </EditableSection>
   )
 }

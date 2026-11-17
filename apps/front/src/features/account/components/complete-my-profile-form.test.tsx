@@ -96,7 +96,12 @@ describe('CompleteMyProfileForm', () => {
 
     await waitFor(() => expect(onCompleted).toHaveBeenCalled())
     expect(sent(0)).toMatchObject({ path: '/api/me/contact-details', method: 'PATCH' })
-    await expect(sent(0).body).resolves.toEqual({ email: LOGIN_EMAIL, phoneNumber: null, language: null })
+    await expect(sent(0).body).resolves.toEqual({
+      email: LOGIN_EMAIL,
+      phoneNumber: null,
+      language: null,
+      linkedInProfile: null,
+    })
     expect(sent(1)).toMatchObject({ path: '/api/me/name', method: 'PATCH' })
     await expect(sent(1).body).resolves.toEqual({ firstName: 'Ada', lastName: 'Lovelace' })
     expect(queryClient.getQueryData<Account>(accountQuery().queryKey)?.name).toEqual({
