@@ -6,14 +6,14 @@ import type { Campaign, CampaignInput, Channel } from './queries'
 const MAX_NAME = 100
 const MAX_MESSAGE = 5000
 
-export const CHANNELS: Channel[] = ['email', 'call', 'sms', 'linkedIn']
+export const CHANNELS = ['email', 'call', 'sms', 'linkedIn'] as const satisfies readonly Channel[]
 
 const required = () => i18n.t('validation.required')
 
 /** Mirrors `CampaignInput` of the API; the core decides the rest, the tag of the channel among the 5 included. */
 export const campaignSchema = z.object({
   name: text(MAX_NAME).min(1, { error: required }),
-  channel: z.enum(['email', 'call', 'sms', 'linkedIn']),
+  channel: z.enum(CHANNELS),
   tags: z.array(z.string()).min(1, { error: required }),
   message: z.string().max(MAX_MESSAGE, { error: () => i18n.t('validation.max', { max: MAX_MESSAGE }) }),
   subject: z.string(),
@@ -48,3 +48,22 @@ export const toCampaignInput = (values: CampaignValues): CampaignInput => ({
   message: values.message,
   subject: values.channel === 'email' && values.subject.trim() !== '' ? values.subject.trim() : null,
 })
+
+/** The automatic tag a contact carries when the channel reaches them (ADR 0144), as the api names them. */
+const TAG_OF_THE_CHANNEL: Record<Channel, string> = {
+  email: '#EMAIL',
+  call: '#PHONE',
+  sms: '#SMS',
+  linkedIn: '#LINKEDIN',
+}
+
+/** The most tags a search takes at once, the tag of the channel among them (ADR 0143, 0144). */
+export const MAX_TARGETED_TAGS = 5
+
+/** The tags a contact carries to be targeted while the campaign is typed: those chosen and that of its channel. */
+export const targetedTagsOf = (tags: string[], channel: Channel): string[] => [
+  ...new Set([...tags, TAG_OF_THE_CHANNEL[channel]]),
+]
+
+/** The targeted tags as the search by tags takes them: their names without their mark, separated by commas. */
+export const searchOf = (targeted: string[]): string => targeted.map((tag) => tag.replace(/^#/, '')).join(',')

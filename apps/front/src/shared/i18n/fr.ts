@@ -562,11 +562,11 @@ export const fr = {
   campaigns: {
     title: 'Campagnes',
     subtitle:
-      'Les campagnes de votre équipe : vous contactez vous-même chaque personne ciblée, rien n’est envoyé.',
+      'Les campagnes de votre équipe : vous contactez vous-même chaque personne ciblée, rien n’est envoyé.',
     prepare: 'Nouvelle campagne',
     empty: {
       title: 'Aucune campagne',
-      description: 'Préparez une campagne : un canal, des tags pour cibler vos contacts, un message type.',
+      description: 'Préparez une campagne : un canal, des tags pour cibler vos contacts, un message type.',
     },
     status: { draft: 'Brouillon' },
     channels: { email: 'E-mail', call: 'Appel', sms: 'SMS', linkedIn: 'LinkedIn' },
@@ -576,7 +576,7 @@ export const fr = {
     new: { title: 'Nouvelle campagne', submit: 'Préparer la campagne' },
     prepared: 'Campagne préparée',
     discarded: 'Campagne supprimée',
-    menu: 'Actions sur « {{name}} »',
+    menu: 'Actions sur « {{name}} »',
     fields: {
       name: 'Nom',
       channel: 'Canal',
@@ -586,21 +586,22 @@ export const fr = {
       subject: 'Objet',
       message: 'Message type',
       messageHint:
-        'Variables : {prénom}, {nom}, {organisation}, {fonction}. Une variable sans valeur reste vide.',
+        'Variables : {prénom}, {nom}, {organisation}, {fonction}. Une variable sans valeur reste vide.',
     },
     target: {
       title: 'Contacts ciblés',
       count_one: '{{count}} contact ciblé',
       count_other: '{{count}} contacts ciblés',
       none: 'Aucun contact ne porte tous ces tags.',
-      beforePreparing:
-        'Les contacts ciblés et l’aperçu du message s’affichent une fois la campagne préparée.',
+      noTag: 'Choisissez au moins un tag pour voir les contacts ciblés.',
+      tooManyTags: 'Au plus 5 tags avec celui du canal : retirez-en un pour voir les contacts ciblés.',
+      beforePreparing: 'L’aperçu du message s’affiche une fois la campagne préparée.',
     },
     preview: {
       title: 'Aperçu du message',
       hint: 'Survolez un contact pour voir son message.',
-      ofTheSaved: 'Aperçu du message enregistré : enregistrez vos modifications pour le mettre à jour.',
-      subject: 'Objet : {{subject}}',
+      ofTheSaved: 'Aperçu du message enregistré : enregistrez vos modifications pour le mettre à jour.',
+      subject: 'Objet : {{subject}}',
     },
   },
   toDos: {

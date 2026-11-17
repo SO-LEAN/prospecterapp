@@ -1,29 +1,26 @@
 import { useQuery } from '@tanstack/react-query'
 import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import type { components } from '@/shared/api/schema'
 import { cn } from '@/shared/lib/utils'
 import { Button } from '@/shared/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/shared/ui/card'
 import { campaignMessageQuery } from '../queries'
-
-type TargetedContact = components['schemas']['ContactInListResource']
+import type { LiveTarget } from '../use-live-target'
 
 type Props = {
-  campaignId: string
-  contacts: TargetedContact[]
-  found: number
+  target: LiveTarget
+  /** The campaign once prepared, whose message saved the preview renders; none before. */
+  campaignId?: string
   /** The message typed differs from the one saved, the only one the preview renders. */
   changed: boolean
-  /** Asks the next slice of the contacts targeted, while there is one. */
-  loadMore?: () => void
 }
 
 /**
- * The contacts the draft targets as their tags are now, and the message of the draft saved, rendered by the api for
- * the contact hovered or focused.
+ * The contacts the campaign targets as it is typed and as their tags are now, and the message of the draft saved,
+ * rendered by the api for the contact hovered or focused.
  */
-export function CampaignTarget({ campaignId, contacts, found, changed, loadMore }: Props) {
+export function CampaignTarget({ target, campaignId, changed }: Props) {
+  const { contacts, found, noTarget, loadMore } = target
   const { t } = useTranslation()
   const [previewed, setPreviewed] = useState<string | null>(contacts[0]?.id ?? null)
 
@@ -32,10 +29,14 @@ export function CampaignTarget({ campaignId, contacts, found, changed, loadMore 
       <Card>
         <CardHeader>
           <CardTitle>{t('campaigns.target.title')}</CardTitle>
-          <p className="text-muted-foreground text-sm">{t('campaigns.target.count', { count: found })}</p>
+          {noTarget === null && (
+            <p className="text-muted-foreground text-sm">{t('campaigns.target.count', { count: found })}</p>
+          )}
         </CardHeader>
         <CardContent>
-          {contacts.length === 0 ? (
+          {noTarget !== null ? (
+            <p className="text-muted-foreground text-sm">{t(`campaigns.target.${noTarget}`)}</p>
+          ) : contacts.length === 0 ? (
             <p className="text-muted-foreground text-sm">{t('campaigns.target.none')}</p>
           ) : (
             <ul className="divide-y">
@@ -69,7 +70,9 @@ export function CampaignTarget({ campaignId, contacts, found, changed, loadMore 
           )}
         </CardContent>
       </Card>
-      {previewed && <MessagePreview campaignId={campaignId} contactId={previewed} changed={changed} />}
+      {campaignId && previewed && (
+        <MessagePreview campaignId={campaignId} contactId={previewed} changed={changed} />
+      )}
     </div>
   )
 }
