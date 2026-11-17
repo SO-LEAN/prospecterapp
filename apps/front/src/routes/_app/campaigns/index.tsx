@@ -6,7 +6,7 @@ import { useTranslation } from 'react-i18next'
 import { z } from 'zod'
 import { CampaignList } from '@/features/campaigns/components/campaign-list'
 import { campaignsQuery } from '@/features/campaigns/queries'
-import { CAMPAIGN_FILTERS, type CampaignFilter, shownBy } from '@/features/campaigns/status-filter'
+import { CAMPAIGN_FILTERS, shownBy } from '@/features/campaigns/status-filter'
 import { Button } from '@/shared/ui/button'
 import { EmptyState } from '@/shared/ui/feedback/empty-state'
 import { ErrorState } from '@/shared/ui/feedback/error-state'
@@ -58,9 +58,12 @@ function Campaigns() {
         <div className="space-y-4">
           <Tabs
             value={status}
-            onValueChange={(chosen) =>
-              navigate({ search: { status: chosen as CampaignFilter }, replace: true })
-            }
+            onValueChange={(chosen) => {
+              const filter = CAMPAIGN_FILTERS.find((offered) => offered === chosen)
+              if (filter) {
+                void navigate({ search: { status: filter }, replace: true })
+              }
+            }}
           >
             <TabsList aria-label={t('campaigns.filter.label')}>
               {CAMPAIGN_FILTERS.map((filter) => (
