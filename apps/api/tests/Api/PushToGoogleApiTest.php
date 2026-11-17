@@ -75,6 +75,16 @@ class PushToGoogleApiTest extends ApiTestCase
         $this->assertSame([null, true], [$exchange['link'], $exchange['linkAwaited']]);
     }
 
+    public function testAVideoCallCancelledAwaitsNoLink(): void
+    {
+        $planned = $this->plan($this->aContactOf($this->anOrganization('ACME'), 'Ada', 'Lovelace'), ['channel' => 'videoCall', 'occurredAt' => self::NEXT_TUESDAY, 'linkRequested' => true])['items'][0]['id'];
+
+        $this->requestJson('POST', '/api/exchanges/'.$planned.'/cancellation', []);
+
+        $this->assertResponseIsSuccessful();
+        $this->assertFalse($this->requestJson('GET', '/api/exchanges/'.$planned)['linkAwaited']);
+    }
+
     public function testACallAskingForALinkIsRefused(): void
     {
         $this->plan($this->aContactOf($this->anOrganization('ACME'), 'Ada', 'Lovelace'), ['channel' => 'call', 'occurredAt' => self::NEXT_TUESDAY, 'linkRequested' => true]);
