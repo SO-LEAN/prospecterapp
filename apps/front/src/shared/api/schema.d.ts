@@ -1226,6 +1226,11 @@ export interface components {
              * @default null
              */
             link: string | null;
+            /**
+             * @description A video call without a link asks one of the calendar of the member it is pushed into, a Google Meet link; a video call only
+             * @default false
+             */
+            linkRequested: boolean;
         };
         OrganizationListQuery: {
             /** @default  */
@@ -1938,6 +1943,8 @@ export interface components {
             place?: string | null;
             /** @description The web address a video call is joined by; null for any other channel, or until it is known */
             link?: string | null;
+            /** @description A video call without a link awaiting the one the calendar of its holder creates, read again until it comes */
+            linkAwaited: boolean;
             /** @description The number the interlocutor is called at: the contact read in clear, or the organization itself; none when unknown or masked */
             phoneNumber?: string | null;
             /** @description Its text may hold personal data: flagged to a prospector reading it without the right to manage them */

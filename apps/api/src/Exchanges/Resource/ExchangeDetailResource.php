@@ -40,6 +40,8 @@ final readonly class ExchangeDetailResource
         public ?string $place,
         #[OA\Property(description: 'The web address a video call is joined by; null for any other channel, or until it is known')]
         public ?string $link,
+        #[OA\Property(description: 'A video call without a link awaiting the one the calendar of its holder creates, read again until it comes')]
+        public bool $linkAwaited,
         #[OA\Property(description: 'The number the interlocutor is called at: the contact read in clear, or the organization itself; none when unknown or masked')]
         public ?string $phoneNumber,
         #[OA\Property(description: 'Its text may hold personal data: flagged to a prospector reading it without the right to manage them')]

@@ -20,7 +20,8 @@ use Symfony\Contracts\HttpClient\ResponseInterface;
  * an event `p` and the id of its exchange without its dashes (base32hex), put first with `status: confirmed`, which
  * brings back an event removed, created with its id when Google does not know it, put again when it was created
  * meanwhile; no guest, nobody told. The words of the event are those of the member: the channel, the contact, the
- * organization, the link to the card in the SPA.
+ * organization, the link to the card in the SPA. A video call asking a link is put with the request of a Meet
+ * conference, its link answered at once (ADR 0137).
  *
  * @see https://developers.google.com/calendar/api/v3/reference/events
  */
@@ -39,6 +40,9 @@ final readonly class GoogleCalendar implements ProviderCalendar
     private const array RATE_LIMITS = ['rateLimitExceeded', 'userRateLimitExceeded'];
     private const array CHANNELS = [Channel::Call->value => 'Appel', Channel::Meeting->value => 'Rendez-vous', Channel::VideoCall->value => 'Visio'];
     private const float TIMEOUT = 10;
+    /** without it, Google ignores the conference of the body and keeps that of the event as it is */
+    private const string WITH_CONFERENCE = '&conferenceDataVersion=1';
+    private const string MEET = 'hangoutsMeet';
 
     public function __construct(
         private HttpClientInterface $httpClient,
@@ -57,18 +61,19 @@ final readonly class GoogleCalendar implements ProviderCalendar
         return $response->toArray()['id'];
     }
 
-    public function put(ClientCredentials $client, RefreshToken $refreshToken, string $calendar, CalendarEvent $event): void
+    public function put(ClientCredentials $client, RefreshToken $refreshToken, string $calendar, CalendarEvent $event): ?string
     {
         $accessToken = $this->tokens->accessTokenFor($client, $refreshToken);
         $body = $this->bodyOf($event);
-        $response = $this->request($accessToken, 'PUT', self::eventPath($calendar, $event->exchange), $body);
+        $conference = $event->createsALink ? self::WITH_CONFERENCE : '';
+        $response = $this->request($accessToken, 'PUT', self::eventPath($calendar, $event->exchange).$conference, $body);
 
         if (self::NOT_FOUND === $response->getStatusCode()) {
-            $response = $this->request($accessToken, 'POST', sprintf('/calendars/%s/events?sendUpdates=none', rawurlencode($calendar)), $body);
+            $response = $this->request($accessToken, 'POST', sprintf('/calendars/%s/events?sendUpdates=none', rawurlencode($calendar)).$conference, $body);
         }
 
         if (self::CONFLICT === $response->getStatusCode()) {
-            $response = $this->request($accessToken, 'PUT', self::eventPath($calendar, $event->exchange), $body);
+            $response = $this->request($accessToken, 'PUT', self::eventPath($calendar, $event->exchange).$conference, $body);
         }
 
         if (self::NOT_FOUND === $response->getStatusCode()) {
@@ -76,6 +81,18 @@ final readonly class GoogleCalendar implements ProviderCalendar
         }
 
         $this->ensureDone($response, $client);
+
+        return $event->createsALink ? self::conferenceLinkOf($response) : null;
+    }
+
+    /**
+     * The link of the conference Google created for the event, at once (the spike #92).
+     */
+    private static function conferenceLinkOf(ResponseInterface $response): ?string
+    {
+        $link = $response->toArray(false)['hangoutLink'] ?? null;
+
+        return is_string($link) ? $link : null;
     }
 
     public function remove(ClientCredentials $client, RefreshToken $refreshToken, string $calendar, ExchangeId $exchange): void
@@ -154,7 +171,19 @@ final readonly class GoogleCalendar implements ProviderCalendar
             'start' => self::momentOf($event->startsAt),
             'end' => self::momentOf($event->endsAt),
             'reminders' => ['useDefault' => false, 'overrides' => null === $event->reminderMinutesBefore ? [] : [['method' => 'popup', 'minutes' => $event->reminderMinutesBefore]]],
+            ...($event->createsALink ? ['conferenceData' => self::conferenceRequestOf($event->exchange)] : []),
         ];
+    }
+
+    /**
+     * Identified by its exchange: a request Google already answered is ignored, the conference created once, however
+     * many times its event is pushed (ADR 0137).
+     *
+     * @return array{createRequest: array{requestId: string, conferenceSolutionKey: array{type: string}}}
+     */
+    private static function conferenceRequestOf(ExchangeId $exchange): array
+    {
+        return ['createRequest' => ['requestId' => $exchange->value, 'conferenceSolutionKey' => ['type' => self::MEET]]];
     }
 
     /**

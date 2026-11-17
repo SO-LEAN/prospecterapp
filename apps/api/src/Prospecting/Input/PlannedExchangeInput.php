@@ -34,6 +34,8 @@ final readonly class PlannedExchangeInput
         #[Assert\Length(max: self::MAX_LINK)]
         #[OA\Property(description: 'The web address a video call is joined by, optional: it may be added later; a video call only')]
         public ?string $link = null,
+        #[OA\Property(description: 'A video call without a link asks one of the calendar of the member it is pushed into, a Google Meet link; a video call only')]
+        public bool $linkRequested = false,
     ) {
     }
 }
