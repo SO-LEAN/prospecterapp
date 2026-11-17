@@ -110,12 +110,14 @@ const twoContacts = {
 
 function theApiAnswers(campaign: Campaign, taggedContacts: unknown = twoContacts) {
   const calls: Call[] = []
+  let kept = recipients
   theApi.mockImplementation(async (input) => {
     const request = input as Request
     const { pathname, search } = new URL(request.url)
     const body = request.method === 'GET' || request.method === 'DELETE' ? null : await request.text()
     calls.push({ method: request.method, pathname, search, body: body ? JSON.parse(body) : null })
     if (request.method === 'DELETE') {
+      kept = { ...kept, items: kept.items.filter((recipient) => !pathname.endsWith(recipient.contact.id)) }
       return new Response(null, { status: 204 })
     }
     if (request.method === 'POST') {
@@ -136,10 +138,11 @@ function theApiAnswers(campaign: Campaign, taggedContacts: unknown = twoContacts
       '/api/me/exchanges-to-process': { items: [], toDos: [], _links: {} },
       '/api/tags': suggested,
       [`/api/campaigns/${CAMPAIGN}`]: campaign,
-      [`/api/campaigns/${CAMPAIGN}/recipients`]: recipients,
+      [`/api/campaigns/${CAMPAIGN}/recipients`]: kept,
       '/api/tagged-contacts': taggedContacts,
       '/api/contacts': { items: [aContact(ALAN, 'Alan', 'Turing')], _links: {} },
       [`/api/campaigns/${CAMPAIGN}/messages/${ADA}`]: { subject: null, text: 'Bonjour Ada' },
+      [`/api/campaigns/${CAMPAIGN}/messages/${GRACE}`]: { subject: null, text: 'Bonjour Grace' },
     }
     return Response.json(answers[pathname] ?? { items: [], _links: {} })
   })
@@ -196,6 +199,19 @@ describe('the recipients of a campaign', () => {
         }),
       ),
     )
+  })
+
+  it('preview the message of a recipient still kept once the one previewed is taken off', async () => {
+    theApiAnswers(frozen)
+    await renderTheSpaAt(`/campaigns/${CAMPAIGN}`)
+
+    const list = await screen.findByRole('list', { name: 'Destinataires' })
+    await userEvent.hover(within(list).getByRole('button', { name: 'Grace Hopper' }))
+    expect(await screen.findByText('Bonjour Grace')).toBeInTheDocument()
+    await userEvent.click(screen.getByRole('button', { name: 'Retirer Grace Hopper' }))
+
+    expect(await screen.findByText('Bonjour Ada')).toBeInTheDocument()
+    expect(screen.queryByText('Bonjour Grace')).not.toBeInTheDocument()
   })
 
   it('gain those of another search by tags, the preview leaving out those already kept', async () => {
