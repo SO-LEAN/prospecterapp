@@ -64,6 +64,3 @@ export const MAX_TARGETED_TAGS = 5
 export const targetedTagsOf = (tags: string[], channel: Channel): string[] => [
   ...new Set([...tags, TAG_OF_THE_CHANNEL[channel]]),
 ]
-
-/** The targeted tags as the search by tags takes them: their names without their mark, separated by commas. */
-export const searchOf = (targeted: string[]): string => targeted.map((tag) => tag.replace(/^#/, '')).join(',')

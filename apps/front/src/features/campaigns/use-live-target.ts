@@ -1,7 +1,8 @@
 import { keepPreviousData, useInfiniteQuery } from '@tanstack/react-query'
 import { useState } from 'react'
-import { type Channel, campaignTargetQuery, type TargetedContact } from './queries'
-import { MAX_TARGETED_TAGS, searchOf, targetedTagsOf } from './schema'
+import { searchOfTags, taggedContactSlicesQuery } from '@/shared/api/tagged-contacts'
+import type { Channel, TargetedContact } from './queries'
+import { MAX_TARGETED_TAGS, targetedTagsOf } from './schema'
 
 /** Why there is no target to show: no tag chosen yet, or more than a search takes. */
 export type NoTarget = 'noTag' | 'tooManyTags'
@@ -23,9 +24,9 @@ export function useLiveTarget(tags: string[], channel: Channel): LiveTarget {
   const [targeting, setTargeting] = useState({ tags, channel })
   const targeted = targetedTagsOf(targeting.tags, targeting.channel)
   const noTarget = noTargetFor(targeting.tags, targeted)
-  const search = searchOf(targeted)
+  const search = searchOfTags(targeted)
   const target = useInfiniteQuery({
-    ...campaignTargetQuery(search),
+    ...taggedContactSlicesQuery(search),
     placeholderData: keepPreviousData,
     enabled: noTarget === null,
   })

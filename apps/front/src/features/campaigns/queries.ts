@@ -1,7 +1,5 @@
-import { infiniteQueryOptions } from '@tanstack/react-query'
-import { api, fetchClient } from '@/shared/api/client'
+import { api } from '@/shared/api/client'
 import type { components } from '@/shared/api/schema'
-import { dataOf, nextSliceOf } from '@/shared/api/slices'
 
 export type Campaign = components['schemas']['CampaignResource']
 export type CampaignList = components['schemas']['CampaignListResource']
@@ -26,21 +24,3 @@ export const campaignKeys = {
   list: ['get', '/api/campaigns'],
   messages: ['get', '/api/campaigns/{id}/messages/{contactId}'],
 } as const
-
-/**
- * The contacts carrying every targeted tag, a slice after the other: the search by tags (ADR 0143), the same request
- * and the same key as the list of the contacts filtered by them, `tags` their names without their mark.
- */
-export const campaignTargetQuery = (tags: string) =>
-  infiniteQueryOptions({
-    queryKey: ['get', '/api/tagged-contacts', { params: { query: { tags } } }, 'slices'],
-    queryFn: async ({ pageParam, signal }) =>
-      dataOf(
-        await fetchClient.GET('/api/tagged-contacts', {
-          params: { query: { tags, after: pageParam } },
-          signal,
-        }),
-      ),
-    initialPageParam: undefined as string | undefined,
-    getNextPageParam: (slice) => nextSliceOf(slice._links),
-  })

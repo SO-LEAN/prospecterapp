@@ -1,6 +1,6 @@
 import { Link } from '@tanstack/react-router'
 import { useTranslation } from 'react-i18next'
-import { searchOfTags } from '@/features/tags/chosen-tags'
+import { searchOfTags } from '@/shared/api/tagged-contacts'
 import { Badge } from '@/shared/ui/badge'
 import { Card, CardContent } from '@/shared/ui/card'
 import { type ContactInList, fullNameOf } from '../queries'
