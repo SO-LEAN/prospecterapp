@@ -89,6 +89,7 @@ const theDetailOf = (item: DayExchange, detail: Partial<ExchangeDetail>): Exchan
   ...item.exchange,
   interlocutor: item.interlocutor,
   canceller: null,
+  linkAwaited: false,
   text: null,
   noted: { at: TODAY.toISOString(), by: { name: { firstName: 'Michel', lastName: 'Maier' } } },
   corrected: null,

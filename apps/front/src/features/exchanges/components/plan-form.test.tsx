@@ -195,12 +195,18 @@ describe('PlanForm', () => {
     const { onSubmit, user } = renderForm(undefined, undefined, 'connected')
 
     await user.click(screen.getByLabelText('Visio'))
-    await user.type(screen.getByLabelText(/Lien de la visio/), 'https://teams.microsoft.com/l/meetup-join/xyz')
+    await user.type(
+      screen.getByLabelText(/Lien de la visio/),
+      'https://teams.microsoft.com/l/meetup-join/xyz',
+    )
     expect(screen.queryByLabelText('Créer un lien Google Meet')).not.toBeInTheDocument()
     await user.click(save())
 
     expect(onSubmit).toHaveBeenCalledWith(
-      expect.objectContaining({ link: 'https://teams.microsoft.com/l/meetup-join/xyz', linkRequested: false }),
+      expect.objectContaining({
+        link: 'https://teams.microsoft.com/l/meetup-join/xyz',
+        linkRequested: false,
+      }),
       null,
     )
   })

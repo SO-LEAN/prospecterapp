@@ -15,6 +15,7 @@ import { Textarea } from '@/shared/ui/textarea'
 import {
   dateAndTimeOf,
   endOf,
+  isAMeetLinkOffered,
   newPlan,
   type PlanValues,
   planFields,
@@ -26,6 +27,8 @@ import {
   toPlannedExchange,
 } from '../planning'
 import {
+  isGoogleConnected,
+  myConnectionsQuery,
   overlappingQuery,
   PLANNED_CHANNELS,
   type PlannedChannel,
@@ -61,6 +64,7 @@ export function PlanForm({ onSubmit, onCancel, interlocutors, channel, proposedP
     defaultValues: { ...newPlan(new Date(), proposedPlace, slot), channel },
   })
   const { errors, isSubmitting } = useFormState({ control: form.control })
+  const googleConnected = isGoogleConnected(useQuery(myConnectionsQuery()).data)
   const setMoment = (moment: Date) => {
     const { date, time } = dateAndTimeOf(moment)
     form.setValue('date', date, { shouldValidate: true })
@@ -70,7 +74,10 @@ export function PlanForm({ onSubmit, onCancel, interlocutors, channel, proposedP
   const submit = form.handleSubmit(async (values) => {
     setGlobalErrors([])
     try {
-      await onSubmit(toPlannedExchange(values), values.personId === ITSELF ? null : values.personId)
+      await onSubmit(
+        toPlannedExchange(values, googleConnected),
+        values.personId === ITSELF ? null : values.personId,
+      )
     } catch (error) {
       setGlobalErrors(applyViolations(error, form.setError, planFields))
     }
@@ -117,6 +124,7 @@ export function PlanForm({ onSubmit, onCancel, interlocutors, channel, proposedP
       </Choices>
 
       <Venue form={form} />
+      <MeetLink form={form} googleConnected={googleConnected} />
 
       <fieldset className="space-y-2">
         <legend className="font-medium text-sm">{t('exchanges.shortcuts')}</legend>
@@ -207,6 +215,23 @@ function Venue({ form }: { form: UseFormReturn<PlanValues> }) {
   }
 
   return null
+}
+
+/** A Google Meet link created for a video call without a link, while Google is connected, checked by default. */
+function MeetLink({ form, googleConnected }: { form: UseFormReturn<PlanValues>; googleConnected: boolean }) {
+  const { t } = useTranslation()
+  const [channel, link] = useWatch({ control: form.control, name: ['channel', 'link'] })
+
+  if (!isAMeetLinkOffered({ channel, link: link ?? '' }, googleConnected)) {
+    return null
+  }
+
+  return (
+    <label className="flex items-center gap-2 text-sm">
+      <input type="checkbox" className="size-4 accent-primary" {...form.register('meetLink')} />
+      {t('exchanges.meetLink')}
+    </label>
+  )
 }
 
 /** The usual durations in a click, the one in force pressed. */

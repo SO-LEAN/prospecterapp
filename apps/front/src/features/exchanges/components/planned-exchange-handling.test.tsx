@@ -46,6 +46,7 @@ const aPlannedExchange = (exchange: Partial<ExchangeDetail>): ExchangeDetail => 
   id: EXCHANGE,
   interlocutor: { kind: 'person', id: ADA, name: 'Ada Lovelace', presence: 'present' },
   channel: 'videoCall',
+  linkAwaited: false,
   direction: 'outbound',
   canceller: null,
   occurredAt: '2026-11-17T13:00:00+00:00',

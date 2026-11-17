@@ -84,6 +84,7 @@ const theDetail = (item: ExchangeToProcess): ExchangeDetail => ({
   ...item.exchange,
   interlocutor: item.interlocutor,
   canceller: null,
+  linkAwaited: false,
   text: null,
   noted: { at: NOW.toISOString(), by: { name: { firstName: 'Michel', lastName: 'Maier' } } },
   corrected: null,

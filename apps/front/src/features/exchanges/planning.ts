@@ -53,6 +53,7 @@ export const planSchema = z
       .max(LONGEST, { error: () => i18n.t('exchanges.chooseDuration') }),
     text: text(MAX_TEXT),
     ...venueFields,
+    meetLink: z.boolean(),
     personId: z.string(),
   })
   .refine((values) => momentOf(values).getTime() > Date.now(), {
@@ -104,8 +105,8 @@ export const dateAndTimeOf = (moment: Date) => {
 export type Slot = { startsAt: Date; durationInMinutes: number }
 
 /**
- * Quick to plan: the next quarter of an hour, half an hour, or the slot chosen; the place proposed for a meeting;
- * only the channel is to choose.
+ * Quick to plan: the next quarter of an hour, half an hour, or the slot chosen; the place proposed for a meeting, a
+ * Meet link for a video call; only the channel is to choose.
  */
 export const newPlan = (
   now: Date,
@@ -117,6 +118,7 @@ export const newPlan = (
   text: '',
   place: proposedPlace,
   link: '',
+  meetLink: true,
   personId: ITSELF,
 })
 
@@ -133,12 +135,19 @@ export const slotOf = (values: Partial<PlanValues>) => {
     : { startsAt: startsAt.toISOString(), durationInMinutes: minutes }
 }
 
-export const toPlannedExchange = (values: PlanValues): PlannedExchangeInput => ({
+/**
+ * A Meet link is asked only for a video call without a link, its box offered while Google is connected (ADR 0137).
+ */
+export const isAMeetLinkOffered = (values: Pick<PlanValues, 'channel' | 'link'>, googleConnected: boolean) =>
+  googleConnected && values.channel === 'videoCall' && values.link.trim() === ''
+
+export const toPlannedExchange = (values: PlanValues, googleConnected: boolean): PlannedExchangeInput => ({
   channel: values.channel,
   occurredAt: momentOf(values).toISOString(),
   durationInMinutes: Number(values.durationInMinutes),
   text: orNull(values.text),
   ...venueOf(values),
+  linkRequested: values.meetLink && isAMeetLinkOffered(values, googleConnected),
 })
 
 /** The end of a planned exchange. */

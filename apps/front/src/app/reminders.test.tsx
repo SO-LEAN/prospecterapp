@@ -70,6 +70,7 @@ const itsDetail: ExchangeDetail = {
   ...theVideoCall.exchange,
   interlocutor: theVideoCall.interlocutor,
   canceller: null,
+  linkAwaited: false,
   text: 'Présenter la démonstration',
   noted: { at: AT_14.toISOString(), by: { name: { firstName: 'Grace', lastName: 'Hopper' } } },
   corrected: null,

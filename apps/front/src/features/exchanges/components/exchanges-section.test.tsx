@@ -182,6 +182,7 @@ describe('ExchangesSection', () => {
         channel: 'sms',
         direction: 'inbound',
         canceller: null,
+        linkAwaited: false,
         occurredAt: '2026-10-15T12:30:00+00:00',
         status: 'done',
         durationInMinutes: null,
