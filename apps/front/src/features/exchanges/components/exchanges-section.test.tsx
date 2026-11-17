@@ -82,6 +82,17 @@ describe('ExchangesSection', () => {
     expect(screen.getByRole('button', { name: 'Noter un échange' })).toBeInTheDocument()
   })
 
+  it('shows a Malt message by its own label and icon', async () => {
+    await renderTheSection({
+      items: [anExchange({ id: '0190a1c0-0000-7000-8000-000000000013', channel: 'malt', direction: 'outbound' })],
+      _links: { self: timelineLink, noteExchange: noteLink },
+    })
+
+    const malt = screen.getByRole('listitem')
+    expect(malt).toHaveTextContent('Malt, Envoyé')
+    expect(malt.querySelector('svg.lucide-handshake')).not.toBeNull()
+  })
+
   it('shows what is to come above the past, and offers to plan with the link', async () => {
     const planned = anExchange({
       id: '0190a1c0-0000-7000-8000-000000000020',
