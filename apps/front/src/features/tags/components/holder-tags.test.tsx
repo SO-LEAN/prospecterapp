@@ -30,12 +30,12 @@ const suggested: SuggestedTags = {
   automatic: ['#EMAIL', '#PHONE', '#SMS', '#LINKEDIN'],
 }
 
-const tagsOf = (base: string, names: string[]): Tags => ({
+const tagsOf = (base: string, names: string[], automatic: string[] = []): Tags => ({
   tags: names.map((name) => ({
     name,
     _links: { takeOff: { href: `${base}/tags/${name.slice(1)}`, method: 'DELETE' } },
   })),
-  automatic: [],
+  automatic,
   _links: { self: { href: `${base}/tags`, method: 'GET' }, tag: { href: `${base}/tags`, method: 'POST' } },
 })
 
@@ -91,6 +91,27 @@ describe('the tags of an organization or of a contact', () => {
 
     expect(await screen.findByText('#APPORTEUR')).toBeInTheDocument()
     expect(screen.getByText('#ESN')).toBeInTheDocument()
+  })
+
+  it('shows the tags of where the organization is after its own, deduced from its address, none taken off', async () => {
+    theApi.mockImplementation(async () =>
+      Response.json(tagsOf(`/api/organizations/${ACME}`, ['#ESN'], ['#STRASBOURG', '#67', '#GRAND_EST'])),
+    )
+    await renderWithACache(<OrganizationTags organizationId={ACME} />)
+
+    const tags = await screen.findByRole('list', { name: 'Tags' })
+    await waitFor(() =>
+      expect(
+        within(tags)
+          .getAllByRole('listitem')
+          .map((tag) => tag.textContent),
+      ).toEqual(['#ESN', '#STRASBOURG', '#67', '#GRAND_EST', 'Ajouter un tag']),
+    )
+    expect(screen.queryByRole('button', { name: 'Retirer le tag #STRASBOURG' })).not.toBeInTheDocument()
+
+    await userEvent.hover(await screen.findByRole('link', { name: '#STRASBOURG' }))
+
+    expect(await screen.findByRole('tooltip')).toHaveTextContent('Déduit de l’adresse')
   })
 
   it('puts a tag picked on the organization, and shows the tags the api answers', async () => {
