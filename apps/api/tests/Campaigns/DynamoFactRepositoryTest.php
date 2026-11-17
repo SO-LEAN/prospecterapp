@@ -6,6 +6,7 @@ use App\Shared\Persistence\ConditionFailed;
 use App\Shared\Persistence\Table;
 use Prospecter\Core\Campaigns\Application\FactRecorder;
 use Prospecter\Core\Campaigns\Domain\Model\ContactFact;
+use Prospecter\Core\Campaigns\Domain\Model\Locality;
 use Prospecter\Core\Campaigns\Domain\Model\OrganizationFact;
 use Prospecter\Core\Campaigns\Domain\Model\Reach;
 use Prospecter\Core\Campaigns\Domain\Repository\FactRepository;
@@ -49,13 +50,22 @@ class DynamoFactRepositoryTest extends ApiTestCase
         $ada = new PersonId(self::newIdentity());
         $this->recorder()->record($this->organizationNaming(1, $ada));
 
-        $this->recorder()->record(new OrganizationFact($this->account, $this->organization, 0, false, []));
+        $this->recorder()->record(new OrganizationFact($this->account, $this->organization, 0, false, [], Locality::unknown()));
         $this->recorder()->record($this->organizationNaming(2, $ada));
 
         $this->assertSame([], $this->linksOf($ada));
         $item = $this->campaignsTable()->item('ACCOUNT#'.$this->account->value, 'FACT#ORGANIZATION#'.$this->organization->value);
         $this->assertFalse($item['present']);
         $this->assertEqualsWithDelta(new \DateTimeImmutable('+15 days')->getTimestamp(), $item['expiresAt'], 60);
+    }
+
+    public function testAnOrganizationFactKeepsWhereTheOrganizationIs(): void
+    {
+        $fact = new OrganizationFact($this->account, $this->organization, 1, true, [], new Locality('67218', 'FR'));
+
+        $this->recorder()->record($fact);
+
+        $this->assertEquals($fact, $this->repository()->find($fact));
     }
 
     public function testAContactFactKeepsHowTheContactIsReached(): void
@@ -80,7 +90,7 @@ class DynamoFactRepositoryTest extends ApiTestCase
 
     private function organizationNaming(int $revision, PersonId ...$contacts): OrganizationFact
     {
-        return new OrganizationFact($this->account, $this->organization, $revision, true, array_values($contacts));
+        return new OrganizationFact($this->account, $this->organization, $revision, true, array_values($contacts), Locality::unknown());
     }
 
     /**

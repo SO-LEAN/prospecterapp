@@ -2,7 +2,9 @@
 
 namespace Tests\App\Prospecting;
 
+use App\Prospecting\Persistence\OrganizationKeys;
 use App\Shared\Persistence\DynamoUnitOfWork;
+use App\Shared\Persistence\Table;
 use Prospecter\Core\Prospecting\Application\Port\OrganizationFactsRetriever;
 use Prospecter\Core\Prospecting\Contract\Service\ListOrganizationFacts\OrganizationFactsResponse;
 use Prospecter\Core\Prospecting\Domain\Model\Organization;
@@ -13,6 +15,7 @@ use Prospecter\Core\SharedKernel\Domain\Address;
 use Prospecter\Core\SharedKernel\Domain\ContactDetails;
 use Prospecter\Core\SharedKernel\Domain\GeoPoint;
 use Prospecter\Core\SharedKernel\Domain\LegalIdentity;
+use Prospecter\Core\SharedKernel\Domain\Location;
 use Prospecter\Core\SharedKernel\Domain\MemberId;
 use Prospecter\Core\SharedKernel\Domain\OrganizationId;
 use Prospecter\Core\SharedKernel\Domain\PersonId;
@@ -39,10 +42,21 @@ class DynamoOrganizationFactsRetrieverTest extends ApiTestCase
         $organization = $this->prospected('ACME');
         $this->organizations()->save($organization);
 
-        $organization->relocateTo(new Address(city: 'Strasbourg'), new GeoPoint(7.75, 48.58), by: $this->prospector->id, at: new \DateTimeImmutable(self::NOW));
+        $organization->relocateTo(new Address(city: 'Strasbourg', country: 'FR'), new Location(new GeoPoint(7.75, 48.58), '67482'), by: $this->prospector->id, at: new \DateTimeImmutable(self::NOW));
         $this->organizations()->save($organization);
 
-        $this->assertEquals(new OrganizationFactsResponse($organization->id()->value, 2, true, true, []), $this->retriever()->of($organization->id()));
+        $this->assertEquals(new OrganizationFactsResponse($organization->id()->value, 2, true, true, [], '67482', 'FR'), $this->retriever()->of($organization->id()));
+    }
+
+    public function testAnOrganizationLocatedBeforeItsMunicipalityWasKeptHasNone(): void
+    {
+        $organization = $this->prospected('ACME');
+        $organization->relocateTo(new Address(city: 'Strasbourg'), new Location(new GeoPoint(7.75, 48.58), '67482'), by: $this->prospector->id, at: new \DateTimeImmutable(self::NOW));
+        $this->organizations()->save($organization);
+        $this->forgetTheMunicipalityOf($organization);
+
+        $this->assertEquals(new OrganizationFactsResponse($organization->id()->value, 1, true, true, [], null, null), $this->retriever()->of($organization->id()));
+        $this->assertEquals(new Address(city: 'Strasbourg'), $this->organizations()->get($organization->id())->addressToLocateAgain());
     }
 
     public function testTheFactsNameTheContactsOfTheOrganization(): void
@@ -52,7 +66,7 @@ class DynamoOrganizationFactsRetrieverTest extends ApiTestCase
         $organization->addContact($ada, by: $this->prospector->id, at: new \DateTimeImmutable(self::NOW));
         $this->organizations()->save($organization);
 
-        $this->assertEquals(new OrganizationFactsResponse($organization->id()->value, 1, true, false, [$ada->value]), $this->retriever()->of($organization->id()));
+        $this->assertEquals(new OrganizationFactsResponse($organization->id()->value, 1, true, false, [$ada->value], null, null), $this->retriever()->of($organization->id()));
     }
 
     public function testTheFactsAreReadAsTheUnitOfWorkIsAboutToWriteThem(): void
@@ -65,7 +79,7 @@ class DynamoOrganizationFactsRetrieverTest extends ApiTestCase
         $facts = $this->retriever()->of($organization->id());
         $unitOfWork->discard();
 
-        $this->assertEquals(new OrganizationFactsResponse($organization->id()->value, 1, true, false, []), $facts);
+        $this->assertEquals(new OrganizationFactsResponse($organization->id()->value, 1, true, false, [], null, null), $facts);
     }
 
     public function testARemovedOrganizationIsAbsent(): void
@@ -94,6 +108,19 @@ class DynamoOrganizationFactsRetrieverTest extends ApiTestCase
     public function testAnUnknownAccountHasNoFacts(): void
     {
         $this->assertSame([], $this->retriever()->sliceOf(new AccountId(self::newIdentity()), null, 10)->content);
+    }
+
+    /**
+     * Its item as written before the organizations kept their municipality.
+     */
+    private function forgetTheMunicipalityOf(Organization $organization): void
+    {
+        $table = self::getContainer()->get('app.table.prospecting');
+        $this->assertInstanceOf(Table::class, $table);
+        $item = $table->item(OrganizationKeys::organization($organization->id()->value), OrganizationKeys::ORGANIZATION);
+        $this->assertNotNull($item);
+        unset($item['organization']['municipalityCode']);
+        $table->batch([$item]);
     }
 
     private function prospected(string $name): Organization

@@ -5,6 +5,7 @@ namespace Tests\App\Shared;
 use App\Shared\GeoplateformeGeoLocation;
 use PHPUnit\Framework\TestCase;
 use Prospecter\Core\SharedKernel\Domain\GeoPoint;
+use Prospecter\Core\SharedKernel\Domain\Location;
 use Symfony\Component\HttpClient\MockHttpClient;
 use Symfony\Component\HttpClient\Response\JsonMockResponse;
 use Symfony\Component\HttpClient\Response\MockResponse;
@@ -13,7 +14,7 @@ class GeoplateformeGeoLocationTest extends TestCase
 {
     private const string URL = 'https://geocoder.test/search';
 
-    public function testFindsTheBestMatch(): void
+    public function testFindsTheBestMatchAndItsMunicipality(): void
     {
         $client = new MockHttpClient(function (string $method, string $url): JsonMockResponse {
             $this->assertSame('GET', $method);
@@ -22,9 +23,17 @@ class GeoplateformeGeoLocationTest extends TestCase
             return new JsonMockResponse($this->featureCollection(0.96));
         });
 
-        $geoPoint = new GeoplateformeGeoLocation($client, self::URL)->find('1 rue de la Paix 75002 Paris');
+        $location = new GeoplateformeGeoLocation($client, self::URL)->find('1 rue de la Paix 75002 Paris');
 
-        $this->assertEquals(new GeoPoint(2.33031, 48.868546), $geoPoint);
+        $this->assertEquals(new Location(new GeoPoint(2.33031, 48.868546), '75102'), $location);
+    }
+
+    public function testAMatchWithoutItsMunicipalityIsNotFound(): void
+    {
+        $collection = $this->featureCollection(0.96);
+        unset($collection['features'][0]['properties']['citycode']);
+
+        $this->assertNull(new GeoplateformeGeoLocation(new MockHttpClient(new JsonMockResponse($collection)), self::URL)->find('1 rue de la Paix 75002 Paris'));
     }
 
     public function testAnUnlikelyMatchIsNotAPosition(): void
@@ -52,7 +61,7 @@ class GeoplateformeGeoLocationTest extends TestCase
             'features' => [[
                 'type' => 'Feature',
                 'geometry' => ['type' => 'Point', 'coordinates' => [2.33031, 48.868546]],
-                'properties' => ['label' => '1 Rue de la Paix 75002 Paris', 'score' => $score],
+                'properties' => ['label' => '1 Rue de la Paix 75002 Paris', 'score' => $score, 'citycode' => '75102'],
             ]],
         ];
     }

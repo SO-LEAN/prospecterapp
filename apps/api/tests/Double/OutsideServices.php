@@ -14,6 +14,9 @@ use Symfony\Contracts\Service\ResetInterface;
  */
 final class OutsideServices implements ResetInterface
 {
+    /** The INSEE code of the municipality of Strasbourg, where the geocoder places an address unless told another. */
+    public const string STRASBOURG = '67482';
+
     /** @var array<string, mixed>|null */
     private ?array $placement = null;
 
@@ -23,14 +26,14 @@ final class OutsideServices implements ResetInterface
     ) {
     }
 
-    public function geocoderPlaces(float $longitude, float $latitude): void
+    public function geocoderPlaces(float $longitude, float $latitude, string $municipalityCode = self::STRASBOURG): void
     {
         $this->placement = [
             'type' => 'FeatureCollection',
             'features' => [[
                 'type' => 'Feature',
                 'geometry' => ['type' => 'Point', 'coordinates' => [$longitude, $latitude]],
-                'properties' => ['score' => 1.0],
+                'properties' => ['score' => 1.0, 'citycode' => $municipalityCode],
             ]],
         ];
     }
