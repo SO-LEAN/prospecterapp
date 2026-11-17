@@ -7,6 +7,7 @@ use Prospecter\Core\Campaigns\Application\Port\ContactTagSources;
 use Prospecter\Core\Campaigns\Application\Port\TaggedContactsRetriever;
 use Prospecter\Core\Campaigns\Domain\Model\ContactFact;
 use Prospecter\Core\Campaigns\Domain\Model\Holder;
+use Prospecter\Core\Campaigns\Domain\Model\Locality;
 use Prospecter\Core\Campaigns\Domain\Model\OrganizationFact;
 use Prospecter\Core\Campaigns\Domain\Model\Reach;
 use Prospecter\Core\Campaigns\Domain\Model\Tag;
@@ -20,10 +21,13 @@ use Tests\App\Base\ApiTestCase;
 
 /**
  * What the tags of every contact of an account derive from, read in its partition at once to search them by their
- * tags: each contact its fact keeps, its tagging, the taggings of the organizations linked, its reach.
+ * tags: each contact its fact keeps, its tagging, the taggings of the organizations linked and where they are (ADR
+ * 0142), its reach.
  */
 class DynamoTaggedContactsRetrieverTest extends ApiTestCase
 {
+    private const string ILLKIRCH = '67218';
+
     private AccountId $account;
 
     protected function setUp(): void
@@ -37,15 +41,16 @@ class DynamoTaggedContactsRetrieverTest extends ApiTestCase
         $acme = new OrganizationId(self::newIdentity());
         $ada = new PersonId(self::newIdentity());
         $grace = new PersonId(self::newIdentity());
-        $this->recorder()->record(new OrganizationFact($this->account, $acme, 1, true, [$ada, $grace]));
+        $this->recorder()->record(new OrganizationFact($this->account, $acme, 1, true, [$ada, $grace], new Locality(self::ILLKIRCH, 'FR')));
         $this->recorder()->record(new ContactFact($this->account, $ada, 1, true, new Reach(true, false, false, false)));
         $this->recorder()->record(new ContactFact($this->account, $grace, 1, true, Reach::none()));
         $this->tag(Holder::organization($acme), '#ESN');
         $this->tag(Holder::contact($grace), '#DECIDEUR');
+        $illkirch = ['municipalityCode' => self::ILLKIRCH, 'country' => 'FR'];
 
         $this->assertEquals([
-            new ContactTagSources($ada->value, [], [$acme->value => ['ESN']], ['email' => true, 'phone' => false, 'mobile' => false, 'linkedIn' => false]),
-            new ContactTagSources($grace->value, ['DECIDEUR'], [$acme->value => ['ESN']], ['email' => false, 'phone' => false, 'mobile' => false, 'linkedIn' => false]),
+            new ContactTagSources($ada->value, [], [$acme->value => ['ESN']], ['email' => true, 'phone' => false, 'mobile' => false, 'linkedIn' => false], [$acme->value => $illkirch]),
+            new ContactTagSources($grace->value, ['DECIDEUR'], [$acme->value => ['ESN']], ['email' => false, 'phone' => false, 'mobile' => false, 'linkedIn' => false], [$acme->value => $illkirch]),
         ], $this->sorted($this->retriever()->sourcesOfEveryContact($this->account)));
     }
 
