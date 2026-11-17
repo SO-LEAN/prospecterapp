@@ -102,6 +102,24 @@ describe('the intentions on an organization', () => {
     expect(await dashboard.isReadAgainAfterTheReactions()).toBe(true)
   })
 
+  it('have the tags of a new organization read again once the reactions recorded where it is', async () => {
+    vi.useFakeTimers({ shouldAdvanceTime: true })
+    givenTheApiAnswers(acme)
+    const queryClient = new QueryClient()
+    const organizationTags = ['get', '/api/organizations/{id}/tags', { params: { path: { id: ACME } } }]
+    const { result } = renderHook(useStartProspecting, { wrapper: withTheCache(queryClient) })
+
+    await act(() =>
+      result.current.mutateAsync({
+        body: { legalIdentity, address: null, observations: null, holdingId: null },
+      }),
+    )
+    queryClient.setQueryData(organizationTags, { tags: [], automatic: [] })
+    await vi.advanceTimersByTimeAsync(AFTER_THE_REACTIONS_MS)
+
+    expect(queryClient.getQueryState(organizationTags)?.isInvalidated).toBe(true)
+  })
+
   it('have the tags of the organization and of the contacts read again once the reactions recorded where it moved', async () => {
     vi.useFakeTimers({ shouldAdvanceTime: true })
     givenTheApiAnswers(acme)
