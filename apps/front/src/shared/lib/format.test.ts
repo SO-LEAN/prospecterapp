@@ -15,6 +15,18 @@ describe('formatUpcoming', () => {
     expect(formatUpcoming(new Date('2026-11-30T09:00').toISOString(), now)).toBe('lun. 30 nov., 9h00')
   })
 
+  it('says the year of a date of another year, never of the day said from now', () => {
+    expect(formatUpcoming(new Date('2026-11-26T09:00').toISOString(), new Date('2026-11-17T10:00'))).toBe(
+      'jeu. 26 nov., 9h00',
+    )
+    expect(formatUpcoming(new Date('2027-01-07T09:00').toISOString(), new Date('2026-12-17T10:00'))).toBe(
+      'jeu. 7 janv. 2027, 9h00',
+    )
+    expect(formatUpcoming(new Date('2027-01-01T10:00').toISOString(), new Date('2026-12-31T10:00'))).toBe(
+      'demain 10h00',
+    )
+  })
+
   it('writes the hour the French way', () => {
     expect(formatHour(new Date('2026-11-17T09:05').toISOString())).toBe('9h05')
   })
