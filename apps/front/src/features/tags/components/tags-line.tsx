@@ -1,10 +1,12 @@
 import { useQuery } from '@tanstack/react-query'
+import { Link } from '@tanstack/react-router'
 import { Plus, X } from 'lucide-react'
 import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Badge } from '@/shared/ui/badge'
 import { Button } from '@/shared/ui/button'
 import { Popover, PopoverContent, PopoverTrigger } from '@/shared/ui/popover'
+import { searchOfTags } from '../chosen-tags'
 import { suggestedTagsQuery } from '../queries'
 import { ExplainedTag } from './explained-tag'
 import { TagPicker } from './tag-picker'
@@ -30,7 +32,9 @@ export function TagsLine({ tags, inherited = [], automatic = [], onTag, onTakeOf
       {tags.map((tag) => (
         <li key={tag}>
           <Badge variant="secondary" className="gap-0.5 pr-1">
-            {tag}
+            <Link to="/contacts" search={{ tags: searchOfTags([tag]) }} className="hover:underline">
+              {tag}
+            </Link>
             <button
               type="button"
               aria-label={t('tags.takeOff', { tag })}

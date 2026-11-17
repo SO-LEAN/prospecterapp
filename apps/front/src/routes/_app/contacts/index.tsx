@@ -5,7 +5,9 @@ import { Search, SearchX, UsersRound } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import { z } from 'zod'
 import { ContactCard } from '@/features/contacts/components/contact-card'
-import { contactSlicesQuery } from '@/features/contacts/queries'
+import { type ContactInList, contactSlicesQuery, taggedContactSlicesQuery } from '@/features/contacts/queries'
+import { chosenTagsIn, searchOfTags } from '@/features/tags/chosen-tags'
+import { TagsFilter } from '@/features/tags/components/tags-filter'
 import { useSearchAsYouType } from '@/shared/hooks/use-search-as-you-type'
 import { cn } from '@/shared/lib/utils'
 import { Button } from '@/shared/ui/button'
@@ -17,17 +19,21 @@ import { PageSkeleton } from '@/shared/ui/page-skeleton'
 
 const searchSchema = z.object({
   q: z.string().catch('').default(''),
+  tags: z.string().catch('').default(''),
 })
 
 /**
- * The persons my organization prospects, with their organizations, a slice after the other. The search lives in the URL;
- * searching is offered only with the right to manage personal data (the links of the page). A contact is
- * collected from an organization, never here.
+ * The persons my organization prospects, with their organizations, a slice after the other. The search lives in the
+ * URL: by text, offered only with the right to manage personal data (the links of the page), or by the tags the
+ * contacts must all carry, counted, never both at once. A contact is collected from an organization, never here.
  */
 export const Route = createFileRoute('/_app/contacts/')({
   validateSearch: zodValidator(searchSchema),
   loaderDeps: ({ search }) => search,
-  loader: ({ context, deps }) => context.queryClient.ensureInfiniteQueryData(contactSlicesQuery(deps.q)),
+  loader: ({ context, deps }) =>
+    deps.tags
+      ? context.queryClient.ensureInfiniteQueryData(taggedContactSlicesQuery(deps.tags))
+      : context.queryClient.ensureInfiniteQueryData(contactSlicesQuery(deps.q)),
   pendingComponent: () => <PageSkeleton rows={6} />,
   errorComponent: ({ error, reset }) => <ErrorState error={error} reset={reset} />,
   component: Contacts,
@@ -37,56 +43,52 @@ function Contacts() {
   const { t } = useTranslation()
   const search = Route.useSearch()
   const navigate = useNavigate({ from: Route.fullPath })
-  const { data, isPlaceholderData, hasNextPage, fetchNextPage, isFetchingNextPage } = useInfiniteQuery({
-    ...contactSlicesQuery(search.q),
-    placeholderData: keepPreviousData,
-  })
-  const items = data?.pages.flatMap((slice) => slice.items) ?? []
+  const chosen = chosenTagsIn(search.tags)
+  const list = useContactList(search.q, search.tags)
   const [query, setQuery] = useSearchAsYouType(search.q, (q) => navigate({ search: { q }, replace: true }))
 
   return (
     <div className="space-y-6">
       <PageHeader title={t('contacts.title')} description={t('contacts.subtitle')} />
 
-      {data?.pages[0]?._links.search && (
-        <div className="relative max-w-md">
-          <Search
-            className="-translate-y-1/2 pointer-events-none absolute top-1/2 left-3 size-4 text-muted-foreground"
-            aria-hidden
+      <div className="space-y-3">
+        {list.searchesByText && (
+          <div className="relative max-w-md">
+            <Search
+              className="-translate-y-1/2 pointer-events-none absolute top-1/2 left-3 size-4 text-muted-foreground"
+              aria-hidden
+            />
+            <Input
+              type="search"
+              value={query}
+              onChange={(event) => setQuery(event.target.value)}
+              placeholder={t('contacts.searchPlaceholder')}
+              aria-label={t('contacts.searchPlaceholder')}
+              className="pl-9"
+            />
+          </div>
+        )}
+        {(list.searchesByTags || chosen.length > 0) && (
+          <TagsFilter
+            chosen={chosen}
+            onChange={(tags) => navigate({ search: tags.length > 0 ? { tags: searchOfTags(tags) } : {} })}
           />
-          <Input
-            type="search"
-            value={query}
-            onChange={(event) => setQuery(event.target.value)}
-            placeholder={t('contacts.searchPlaceholder')}
-            aria-label={t('contacts.searchPlaceholder')}
-            className="pl-9"
-          />
-        </div>
-      )}
+        )}
+        {list.found !== undefined && (
+          <p className="text-muted-foreground text-sm">{t('contacts.found', { count: list.found })}</p>
+        )}
+      </div>
 
-      {data && items.length === 0 ? (
-        search.q ? (
-          <EmptyState
-            icon={SearchX}
-            title={t('contacts.noResult.title')}
-            description={t('contacts.noResult.description', { query: search.q })}
-          />
-        ) : (
-          <EmptyState
-            icon={UsersRound}
-            title={t('contacts.empty.title')}
-            description={t('contacts.empty.description')}
-          />
-        )
+      {list.loaded && list.items.length === 0 ? (
+        <NoContact query={search.q} tagged={chosen.length > 0} />
       ) : (
         <ul
           className={cn(
             'grid grid-cols-1 gap-3 transition-opacity md:grid-cols-2',
-            isPlaceholderData && 'opacity-60',
+            list.isPlaceholderData && 'opacity-60',
           )}
         >
-          {items.map((contact) => (
+          {list.items.map((contact) => (
             <li key={contact.id}>
               <ContactCard contact={contact} />
             </li>
@@ -94,13 +96,76 @@ function Contacts() {
         </ul>
       )}
 
-      {hasNextPage && (
+      {list.hasNextPage && (
         <div className="flex justify-center">
-          <Button variant="outline" onClick={() => void fetchNextPage()} disabled={isFetchingNextPage}>
+          <Button
+            variant="outline"
+            onClick={() => void list.fetchNextPage()}
+            disabled={list.isFetchingNextPage}
+          >
             {t('common.loadMore')}
           </Button>
         </div>
       )}
     </div>
+  )
+}
+
+/**
+ * The contacts by text, or those carrying every tag chosen once one is, then counted; the search by text is offered
+ * while no tag is chosen, as the links of the whole list say.
+ */
+function useContactList(q: string, tags: string) {
+  const byText = useInfiniteQuery({
+    ...contactSlicesQuery(q),
+    placeholderData: keepPreviousData,
+    enabled: !tags,
+  })
+  const byTags = useInfiniteQuery({
+    ...taggedContactSlicesQuery(tags),
+    placeholderData: keepPreviousData,
+    enabled: !!tags,
+  })
+  const shown = tags ? byTags : byText
+  const links = byText.data?.pages[0]?._links
+  const items: ContactInList[] = shown.data?.pages.flatMap((slice) => slice.items) ?? []
+
+  return {
+    items,
+    loaded: shown.data !== undefined,
+    found: tags ? byTags.data?.pages[0]?.found : undefined,
+    searchesByText: !tags && links?.search !== undefined,
+    searchesByTags: links?.searchByTags !== undefined,
+    isPlaceholderData: shown.isPlaceholderData,
+    hasNextPage: shown.hasNextPage,
+    fetchNextPage: shown.fetchNextPage,
+    isFetchingNextPage: shown.isFetchingNextPage,
+  }
+}
+
+function NoContact({ query, tagged }: { query: string; tagged: boolean }) {
+  const { t } = useTranslation()
+
+  if (tagged) {
+    return (
+      <EmptyState
+        icon={SearchX}
+        title={t('contacts.noneTagged.title')}
+        description={t('contacts.noneTagged.description')}
+      />
+    )
+  }
+  return query ? (
+    <EmptyState
+      icon={SearchX}
+      title={t('contacts.noResult.title')}
+      description={t('contacts.noResult.description', { query })}
+    />
+  ) : (
+    <EmptyState
+      icon={UsersRound}
+      title={t('contacts.empty.title')}
+      description={t('contacts.empty.description')}
+    />
   )
 }

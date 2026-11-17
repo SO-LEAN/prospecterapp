@@ -16,6 +16,24 @@ export const contactSlicesQuery = (q: string) =>
     getNextPageParam: (slice) => nextSliceOf(slice._links),
   })
 
+/**
+ * The contacts carrying every tag chosen (`ESN,EMAIL`, their names without their mark), a slice after the other,
+ * each slice saying how many there are in all.
+ */
+export const taggedContactSlicesQuery = (tags: string) =>
+  infiniteQueryOptions({
+    queryKey: ['get', '/api/tagged-contacts', { params: { query: { tags } } }, 'slices'],
+    queryFn: async ({ pageParam, signal }) =>
+      dataOf(
+        await fetchClient.GET('/api/tagged-contacts', {
+          params: { query: { tags, after: pageParam } },
+          signal,
+        }),
+      ),
+    initialPageParam: undefined as string | undefined,
+    getNextPageParam: (slice) => nextSliceOf(slice._links),
+  })
+
 export const contactQuery = (id: string) =>
   api.queryOptions('get', '/api/contacts/{id}', { params: { path: { id } } })
 
