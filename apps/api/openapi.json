@@ -2669,6 +2669,77 @@
                 }
             }
         },
+        "/api/tagged-contacts": {
+            "get": {
+                "tags": [
+                    "Contacts"
+                ],
+                "summary": "Search the contacts of my organization carrying every tag chosen, their own, inherited or automatic, counted",
+                "operationId": "get_api_contacts_search_by_tags",
+                "parameters": [
+                    {
+                        "name": "tags",
+                        "in": "query",
+                        "description": "The tags chosen, 1 to 5, by their names without their mark, separated by commas",
+                        "required": false,
+                        "schema": {
+                            "description": "The tags chosen, 1 to 5, by their names without their mark, separated by commas",
+                            "type": "string",
+                            "example": "ESN,EMAIL",
+                            "default": "",
+                            "maxLength": 200
+                        },
+                        "example": "ESN,EMAIL"
+                    },
+                    {
+                        "name": "after",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "string",
+                            "nullable": true,
+                            "default": null,
+                            "maxLength": 200
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "A slice of contacts, most recent first, the next one at the link next",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/TaggedContactListResource"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Missing or invalid access token"
+                    },
+                    "403": {
+                        "description": "Not a prospector",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ProblemResource"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "No tag, more than five, or one that makes no tag",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ProblemResource"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
         "/api/me/calendar": {
             "get": {
                 "tags": [
@@ -6066,6 +6137,24 @@
                 },
                 "type": "object"
             },
+            "TaggedContactsQuery": {
+                "properties": {
+                    "tags": {
+                        "description": "The tags chosen, 1 to 5, by their names without their mark, separated by commas",
+                        "type": "string",
+                        "example": "ESN,EMAIL",
+                        "default": "",
+                        "maxLength": 200
+                    },
+                    "after": {
+                        "type": "string",
+                        "nullable": true,
+                        "default": null,
+                        "maxLength": 200
+                    }
+                },
+                "type": "object"
+            },
             "ContactListQuery": {
                 "properties": {
                     "q": {
@@ -7398,6 +7487,9 @@
                     },
                     "next": {
                         "$ref": "#/components/schemas/LinkResource"
+                    },
+                    "searchByTags": {
+                        "$ref": "#/components/schemas/LinkResource"
                     }
                 },
                 "type": "object"
@@ -7510,6 +7602,44 @@
                         "items": {
                             "$ref": "#/components/schemas/ContactInListResource"
                         }
+                    }
+                },
+                "type": "object"
+            },
+            "TaggedContactListLinksResource": {
+                "required": [
+                    "self"
+                ],
+                "properties": {
+                    "self": {
+                        "$ref": "#/components/schemas/LinkResource"
+                    },
+                    "next": {
+                        "$ref": "#/components/schemas/LinkResource"
+                    }
+                },
+                "type": "object"
+            },
+            "TaggedContactListResource": {
+                "required": [
+                    "items",
+                    "found",
+                    "_links"
+                ],
+                "properties": {
+                    "items": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/ContactInListResource"
+                        }
+                    },
+                    "found": {
+                        "description": "How many contacts carry every tag chosen, in all the slices",
+                        "type": "integer",
+                        "example": 12
+                    },
+                    "_links": {
+                        "$ref": "#/components/schemas/TaggedContactListLinksResource"
                     }
                 },
                 "type": "object"
@@ -8592,7 +8722,8 @@
             "SuggestedTagsResource": {
                 "required": [
                     "families",
-                    "own"
+                    "own",
+                    "automatic"
                 ],
                 "properties": {
                     "families": {
@@ -8609,6 +8740,19 @@
                         },
                         "example": [
                             "#SALON_2026"
+                        ]
+                    },
+                    "automatic": {
+                        "description": "The tags set by how a contact is reached, to search the contacts by, never put by hand",
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        },
+                        "example": [
+                            "#EMAIL",
+                            "#PHONE",
+                            "#SMS",
+                            "#LINKEDIN"
                         ]
                     }
                 },

@@ -22,6 +22,6 @@ final class SuggestedTagsPresenter implements ConsultSuggestedTagsOutput
             $families[] = new TagFamilyResource($family, $tags);
         }
 
-        $this->resource = new SuggestedTagsResource($families, $suggested->own);
+        $this->resource = new SuggestedTagsResource($families, $suggested->own, $suggested->automatic);
     }
 }

@@ -630,6 +630,7 @@ export const fr = {
     invalidTag: '« {{tag}} » ne fait pas un tag : de 1 à 30 lettres, chiffres ou « _ ».',
     automaticTag: 'Le tag {{tag}} est posé automatiquement par Prospecter : il ne se pose pas à la main.',
     tagNotCarried: 'Ce tag n’est pas posé.',
+    invalidTagSelection: 'Choisissez de 1 à 5 tags.',
     unknownExchange: 'Échange introuvable.',
     unknownAttachment: 'Pièce jointe introuvable.',
     unknownToDo: 'Action à faire introuvable.',

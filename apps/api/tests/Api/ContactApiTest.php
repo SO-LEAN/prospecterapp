@@ -90,7 +90,7 @@ class ContactApiTest extends ApiTestCase
         $this->assertCount(1, $page['items']);
         $this->assertSame('Grace', $page['items'][0]['name']['firstName']);
         $this->assertSame([['id' => $organization, 'name' => 'Navy', 'organization' => ['href' => '/api/organizations/'.$organization, 'method' => 'GET']]], $page['items'][0]['organizations']);
-        $this->assertSame(['self', 'search'], array_keys($page['_links']));
+        $this->assertSame(['self', 'search', 'searchByTags'], array_keys($page['_links']));
     }
 
     public function testWithoutTheRightContactsAreNamedTheirDetailsMaskedAndOfferOnlyTheirTimeline(): void
@@ -104,7 +104,7 @@ class ContactApiTest extends ApiTestCase
         $this->assertSame(['Ada', 'Lovelace'], [$contact['name']['firstName'], $contact['name']['lastName']]);
         $this->assertSame(['a***@***', '******42', '***', 'D***e'], [$contact['contactDetails']['email'], $contact['contactDetails']['phoneNumber'], $contact['contactDetails']['linkedInProfile'], $contact['jobTitle']]);
         $this->assertSame(['self', 'exchanges', 'tags'], array_keys($contact['_links']));
-        $this->assertSame(['self', 'search'], array_keys($this->requestJson('GET', '/api/contacts')['_links']));
+        $this->assertSame(['self', 'search', 'searchByTags'], array_keys($this->requestJson('GET', '/api/contacts')['_links']));
 
         $this->collect(self::ADA, $organization);
         $this->assertResponseStatusCodeSame(403);
