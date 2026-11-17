@@ -42,6 +42,16 @@ describe('ExchangeForm', () => {
     expect(screen.queryByText('Interlocuteur')).not.toBeInTheDocument()
   })
 
+  it('notes a Malt message received or sent, as any message', async () => {
+    const { onSubmit, user } = renderForm()
+
+    await user.click(screen.getByLabelText('Malt'))
+    await user.click(screen.getByLabelText('Envoyé'))
+    await user.click(save())
+
+    expect(onSubmit).toHaveBeenCalledWith(expect.objectContaining({ channel: 'malt', direction: 'outbound' }), null, [])
+  })
+
   it('asks for the channel before sending', async () => {
     const { onSubmit, user } = renderForm()
 
@@ -54,7 +64,7 @@ describe('ExchangeForm', () => {
   it('offers to say a call, a meeting or a video call was missed, and none of the messages', async () => {
     const { onSubmit, user } = renderForm()
 
-    for (const message of ['E-mail', 'SMS', 'LinkedIn', 'Autre']) {
+    for (const message of ['E-mail', 'SMS', 'LinkedIn', 'Malt', 'Autre']) {
       await user.click(screen.getByLabelText(message))
       expect(screen.queryByLabelText(/Manqué/)).not.toBeInTheDocument()
     }

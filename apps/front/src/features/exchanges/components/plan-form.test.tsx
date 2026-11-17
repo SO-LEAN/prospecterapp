@@ -109,6 +109,14 @@ describe('PlanForm', () => {
     )
   })
 
+  it('offers no message to plan, a Malt message no more than the others', () => {
+    renderForm()
+
+    for (const message of ['E-mail', 'SMS', 'LinkedIn', 'Malt', 'Autre']) {
+      expect(screen.queryByLabelText(message)).not.toBeInTheDocument()
+    }
+  })
+
   it('starts at the next quarter of an hour, for half an hour, with the organization itself', async () => {
     vi.useFakeTimers({ toFake: ['Date'] })
     vi.setSystemTime(new Date('2026-11-13T10:05'))
