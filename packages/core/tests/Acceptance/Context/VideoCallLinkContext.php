@@ -53,14 +53,20 @@ final class VideoCallLinkContext implements Context
         Expect::that($this->theVideoCall()->linkAwaited, 'The video call was expected to await its link');
     }
 
-    #[Then('Google n\'a créé aucun lien Meet')]
-    public function googleCreatedNoMeetLink(): void
+    #[Then('elle n\'attend plus son lien')]
+    public function itNoLongerAwaitsItsLink(): void
+    {
+        Expect::that(!$this->theVideoCall()->linkAwaited, 'The video call was expected to await no link');
+    }
+
+    #[Then('Google n\'a été prié de créer aucun lien Meet')]
+    public function googleWasAskedNoMeetLink(): void
     {
         Expect::same(0, $this->application->calendars->linksAsked());
     }
 
-    #[Then('Google a créé un seul lien Meet')]
-    public function googleCreatedASingleMeetLink(): void
+    #[Then('Google n\'a été prié qu\'une fois de créer un lien Meet')]
+    public function googleWasAskedOnceForAMeetLink(): void
     {
         Expect::same(1, $this->application->calendars->linksAsked());
     }
