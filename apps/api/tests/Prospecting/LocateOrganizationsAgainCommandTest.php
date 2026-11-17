@@ -36,12 +36,29 @@ class LocateOrganizationsAgainCommandTest extends ApiTestCase
         $this->assertStringContainsString('0 organization(s) located again', $this->locateAgain());
     }
 
-    /**
-     * The command runs in the kernel of the last request, the geocoder told again where to place the address.
-     */
-    private function locateAgain(): string
+    public function testAnOrganizationWhoseAddressTheGeocoderNoLongerFindsIsCountedApart(): void
     {
         self::getContainer()->get(OutsideServices::class)->geocoderPlaces(7.7456, 48.5834);
+        $organization = $this->requestJson('POST', '/api/organizations', ['legalIdentity' => ['corporateName' => 'ACME'], 'address' => ['city' => 'Strasbourg']])['id'];
+        $this->forgetTheMunicipalityOf($organization);
+
+        $this->assertStringContainsString('0 organization(s) located again, 1 whose address the geocoder no longer finds', $this->locateAgain(placed: false));
+
+        $this->assertSame([], $this->requestJson('GET', '/api/organizations/'.$organization.'/tags')['automatic']);
+    }
+
+    /**
+     * The command runs in the kernel of the last request, the geocoder told again where to place the address, or
+     * finding nothing.
+     */
+    private function locateAgain(bool $placed = true): string
+    {
+        $geocoder = self::getContainer()->get(OutsideServices::class);
+        $geocoder->reset();
+
+        if ($placed) {
+            $geocoder->geocoderPlaces(7.7456, 48.5834);
+        }
         $tester = new CommandTester(new Application(self::$kernel)->find('app:organizations:locate-again'));
         $tester->execute([]);
         $tester->assertCommandIsSuccessful();
