@@ -45,6 +45,7 @@ use Prospecter\Core\Campaigns\Application\ConsultSuggestedTags\ConsultSuggestedT
 use Prospecter\Core\Campaigns\Application\ConsultSuggestedTags\ConsultSuggestedTagsHandler;
 use Prospecter\Core\Campaigns\Application\ConsultSuggestedTags\KeptSuggestedTags;
 use Prospecter\Core\Campaigns\Application\DiscardCampaign\DiscardCampaignHandler;
+use Prospecter\Core\Campaigns\Application\EraseCampaign\EraseCampaignHandler;
 use Prospecter\Core\Campaigns\Application\FactRecorder as CampaignsFactRecorder;
 use Prospecter\Core\Campaigns\Application\ForgetRecipientOfForgottenContact\ForgetRecipientOfForgottenContactHandler;
 use Prospecter\Core\Campaigns\Application\ForgetTagsOfForgottenContact\ForgetTagsOfForgottenContactHandler;
@@ -69,6 +70,8 @@ use Prospecter\Core\Campaigns\Application\SearchContactsByTags\KeptTaggedContact
 use Prospecter\Core\Campaigns\Application\SearchContactsByTags\SearchContactsByTags;
 use Prospecter\Core\Campaigns\Application\SearchContactsByTags\SearchContactsByTagsHandler;
 use Prospecter\Core\Campaigns\Application\SearchContactsByTags\TaggedContactPage;
+use Prospecter\Core\Campaigns\Application\StartCampaign\StartCampaignHandler;
+use Prospecter\Core\Campaigns\Application\StopCampaign\StopCampaignHandler;
 use Prospecter\Core\Campaigns\Application\SuggestedTags;
 use Prospecter\Core\Campaigns\Application\TagsOfEveryContact;
 use Prospecter\Core\Campaigns\Application\TakeOffTag\TakeOffTagHandler;
@@ -1061,6 +1064,9 @@ final class Application
             new AddRecipientsByTagsHandler($this->campaigns, $this->campaigners, $this->tagsOfEveryContact, $this->events),
             new AddRecipientHandler($this->campaigns, $this->campaigners, $this->addressees, $this->contactTagsRetriever, $this->events),
             new RemoveRecipientHandler($this->campaigns, $this->campaigners, $this->events),
+            new StartCampaignHandler($this->campaigns, $this->campaigners, $this->events),
+            new StopCampaignHandler($this->campaigns, $this->campaigners, $this->events),
+            new EraseCampaignHandler($this->campaigns, new AccountsTaggedAccounts($this->listAccountsService)),
         ];
     }
 

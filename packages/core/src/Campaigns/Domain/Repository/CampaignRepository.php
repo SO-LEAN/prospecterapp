@@ -18,6 +18,11 @@ interface CampaignRepository
     public function get(AccountId $accountId, CampaignId $id): Campaign;
 
     /**
+     * None when the account has no campaign of this identity.
+     */
+    public function find(AccountId $accountId, CampaignId $id): ?Campaign;
+
+    /**
      * @return list<Campaign> the campaigns of the account keeping this contact among their recipients
      */
     public function withRecipient(AccountId $accountId, PersonId $contact): array;

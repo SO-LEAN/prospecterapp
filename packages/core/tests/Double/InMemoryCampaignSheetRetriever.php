@@ -61,6 +61,8 @@ final readonly class InMemoryCampaignSheetRetriever implements CampaignSheetRetr
             possibleIntents: array_map(static fn (CampaignIntent $intent): string => $intent->name, CampaignPossibilities::given($state['status'])),
             createdAt: $state['createdAt'],
             modifiedAt: $state['modifiedAt'],
+            startedAt: $state['startedAt'],
+            stoppedAt: $state['stoppedAt'],
         );
     }
 

@@ -21,6 +21,12 @@ final readonly class Recipient
     }
 
     #[\NoDiscard]
+    public function erased(): self
+    {
+        return new self($this->contact, RecipientStatus::Erased);
+    }
+
+    #[\NoDiscard]
     public function is(PersonId $contact): bool
     {
         return $this->contact->equals($contact);
