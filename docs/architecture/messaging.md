@@ -149,7 +149,7 @@ Every event, domain or integration, travels as an EventBridge event:
 | `campaigns-forget-tags-of-unprospected-organization` | `OrganizationFactsChanged`, only the terminal ones (`payload`) | no | the tags of an organization no longer prospected forgotten (ADR 0138) |
 | `campaigns-forget-tags-of-forgotten-contact` | `ContactForgotten` | no | the tags of the contact forgotten (ADR 0138) |
 | `campaigns-forget-recipient-of-forgotten-contact` | `ContactForgotten` | no | the contact forgotten leaves the recipients of the frozen campaigns keeping it |
-| `campaigns-record-facts` | `OrganizationFactsChanged` (.v2), `ContactFactsChanged` (.v2) | no | the facts the tags of the contacts derive from, a reaction per detail-type: the contacts an organization names, how a contact is reached (ADR 0141) |
+| `campaigns-record-facts` | `OrganizationFactsChanged` (.v2, .v3), `ContactFactsChanged` (.v2) | no | the facts the tags of the contacts derive from, a reaction per detail-type: the contacts an organization names, how a contact is reached (ADR 0141) |
 | `connectors-push-exchange` | `ExchangeFactsChanged` (.v2), only those of an exchange planned, cancelled or erased (`payload`) | yes | the exchange read again from Prospecting, pushed into or withdrawn from the calendar « Prospecter » of its holder at Google (ADR 0127) |
 
 A subscription goes without inbox when applying its event twice changes nothing: a file removed again is absent, a fact of a revision known already is ignored, a tagging forgotten again is not there. Two subscriptions to one event are two rules, two invocations, two inboxes: one never replays nor hides the other. `ReactionsAreSubscribedTest` keeps the list and the code together (every reaction subscribed, every subscription naming a known reaction and events its sources publish, an `.internal` source listened to by its own context only).
@@ -208,12 +208,13 @@ Every command runs locally with `make console CMD="…"`, on an instance with `I
 | `app:outbox:republish --since=<moment>` | Publishes again the outboxes of the commits since the moment (a week at most). Safe: the reactions are idempotent. |
 | `app:reporting:rebuild` | Counts every account again in a new version, then activates it: about two minutes of waits for the recordings in flight (ADR 0103, 0104, 0106). |
 | `app:keys:rebuild` | Writes again the keys the tables derive from the aggregates, among them those listing the accounts and the exchanges the rebuild reads: before `app:reporting:rebuild` on an instance holding older items. |
+| `app:organizations:locate-again` | Geocodes again the address of the organizations located before their municipality was kept, each by a command of its own, so that their facts carry it (ADR 0142). Once on an instance, after the deployment of `OrganizationFactsChanged.v3`, before `app:tags:rebuild`; run again, it finds only those whose address the geocoder no longer finds. |
 | `app:tags:rebuild [--account=<id>]` | Records again the facts the tags of the contacts derive from, as Prospecting and PersonalData give them, through the succession of the worker: no version, no wait (ADR 0141). Once Campaigns derives them on an instance, then when the check finds them out of date. |
 
 | Symptom | Correction |
 |---|---|
 | A figure differs from the tables | `app:reporting:rebuild` |
-| The contacts of an organization, or the reach of a contact, missing or out of date in Campaigns | `app:tags:rebuild --account=<id>` |
+| The contacts or the locality of an organization, or the reach of a contact, missing or out of date in Campaigns | `app:tags:rebuild --account=<id>` |
 | An account or an exchange missing from its list | `app:keys:rebuild`, then `app:reporting:rebuild` |
 | A reaction missed, its event in `integration-failures` | fix the cause if it was refused, deploy, `app:integration:redrive` |
 | A reaction missed, nothing in the failures | `app:outbox:republish --since=<moment of the gesture>` |
@@ -236,7 +237,7 @@ The correlation of a gesture is in every log of the relay and the worker (CloudW
 - A query on an index within a unit of work sees the table before the commit; only reads by key and partition queries see what the unit is about to write ([persistence.md](persistence.md#the-unit-of-work)).
 - What is not DynamoDB is outside the transaction: a file sent to the storage by a use case whose unit is then discarded stays there, unused; files are removed only by reactions, after the state.
 - No alarm on the queues of the failures: `app:consistency:check` is run by hand.
-- `ExchangeFactsChanged.v1` is still read, and listened to by `reporting-figures`, until no outbox nor queue of failures of an instance holds it (14 days after the deployment of `.v2`, the queues empty); so are `OrganizationFactsChanged.v1` and `ContactFactsChanged.v1`, by `reporting-figures` and `campaigns-forget-tags-of-unprospected-organization`, Campaigns recording none of them: `app:tags:rebuild` runs on each instance once their `.v2` is deployed (ADR 0141).
+- `ExchangeFactsChanged.v1` is still read, and listened to by `reporting-figures`, until no outbox nor queue of failures of an instance holds it (14 days after the deployment of `.v2`, the queues empty); so are `OrganizationFactsChanged.v1` and `ContactFactsChanged.v1`, by `reporting-figures` and `campaigns-forget-tags-of-unprospected-organization`, Campaigns recording none of them: `app:tags:rebuild` runs on each instance once their `.v2` is deployed (ADR 0141). `OrganizationFactsChanged.v2` likewise, Campaigns recording it without the municipality: `app:organizations:locate-again` then `app:tags:rebuild` run on each instance once `.v3` is deployed (ADR 0142).
 - The worker runs 10 invocations at once at most locally (`WORKER_CONCURRENCY`, ADR 0131), on AWS as many as its reserved concurrency when its instance sets `worker_concurrency` (ADR 0132): a burst of reactions waits for room, its last reaction coming some seconds later; `BREF_LOOP_MAX` is off, PHP restarting for each invocation.
 - On AWS, until the quota of its account allows its instance to set `worker_concurrency` (#101, ADR 0132), the worker reserves nothing: a burst of reactions may take every execution of the account from the api.
 - On AWS, the split of a failing batch by the relay is configured but was never seen at work (a poisoned outbox, written on purpose on `dev`, was alone in its batch).
