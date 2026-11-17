@@ -272,6 +272,7 @@ final class CampaignContext implements Context
             'nom' => $campaign->name,
             'canal' => (string) array_search($campaign->channel, self::CHANNELS, true),
             'statut' => self::STATUSES[$campaign->status],
+            'contactés' => (string) $campaign->contacted,
             'ciblés' => (string) ($this->targeted[$campaign->id] ?? 0),
         ], $this->listed);
 

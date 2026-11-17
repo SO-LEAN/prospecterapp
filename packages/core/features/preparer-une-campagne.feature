@@ -104,14 +104,14 @@ Fonctionnalité: Préparer une campagne
     Quand je liste les campagnes
     Alors j'y vois "Éditeurs", préparée par lui
 
-  Scénario: Chaque campagne listée compte les contacts qu'elle cible
+  Scénario: Chaque campagne listée dit les contacts qu'elle cible et ceux déjà contactés, aucun en brouillon
     Soit la campagne "Relance ESN" en brouillon cible les tags "#ESN"
     Et la campagne "Appels ESN" en brouillon cible les tags "#ESN" par "Appel"
     Quand je liste les campagnes
     Alors les campagnes listées sont :
-      | nom         | canal  | statut    | ciblés |
-      | Appels ESN  | Appel  | brouillon | 0      |
-      | Relance ESN | E-mail | brouillon | 1      |
+      | nom         | canal  | statut    | contactés | ciblés |
+      | Appels ESN  | Appel  | brouillon | 0         | 0      |
+      | Relance ESN | E-mail | brouillon | 0         | 1      |
 
   Scénario: La campagne d'un autre compte m'est inconnue
     Soit l'organisation "Concurrent" qui utilise Prospecter
