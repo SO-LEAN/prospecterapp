@@ -41,8 +41,15 @@ final readonly class ConsultSuggestedTagsHandler implements QueryHandler
      */
     private function geographicTagsIn(AccountId $accountId): array
     {
-        $tags = array_map(strval(...), array_merge([], ...array_map(static fn (array $locality): array => Locality::read($locality)->geographicTags(), $this->tagsRetriever->localitiesIn($accountId))));
-        $tags = array_values(array_unique($tags));
+        $carried = [];
+
+        foreach ($this->tagsRetriever->localitiesIn($accountId) as $locality) {
+            foreach (Locality::read($locality)->geographicTags() as $tag) {
+                $carried[(string) $tag] = true;
+            }
+        }
+
+        $tags = array_map(strval(...), array_keys($carried));
         sort($tags);
 
         return $tags;

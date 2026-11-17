@@ -30,7 +30,7 @@ class LocateOrganizationsAgainCommandTest extends ApiTestCase
         $this->forgetTheMunicipalityOf($organization);
         $this->assertSame([], $this->requestJson('GET', '/api/organizations/'.$organization.'/tags')['automatic']);
 
-        $this->assertStringContainsString('1 organization(s) located again', $this->locateAgain());
+        $this->assertStringContainsString('1 organization(s) located again, 0 whose address the geocoder no longer finds', $this->locateAgain());
 
         $this->assertSame(['#STRASBOURG', '#67', '#GRAND_EST'], $this->requestJson('GET', '/api/organizations/'.$organization.'/tags')['automatic']);
         $this->assertStringContainsString('0 organization(s) located again', $this->locateAgain());
