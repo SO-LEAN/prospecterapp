@@ -35,4 +35,18 @@ enum Channel: string
             self::LinkedIn => '#LINKEDIN',
         });
     }
+
+    /**
+     * The means a contact needs to be reached this way, in words.
+     */
+    #[\NoDiscard]
+    public function means(): string
+    {
+        return match ($this) {
+            self::Email => 'email',
+            self::Call => 'phone',
+            self::Sms => 'SMS',
+            self::LinkedIn => 'LinkedIn',
+        };
+    }
 }

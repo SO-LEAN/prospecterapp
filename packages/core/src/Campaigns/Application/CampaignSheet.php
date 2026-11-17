@@ -10,12 +10,17 @@ namespace Prospecter\Core\Campaigns\Application;
 final readonly class CampaignSheet
 {
     /**
-     * @param string       $channel         `email`, `call`, `sms` or `linkedIn`
-     * @param list<string> $tags            the tags chosen, with their mark
-     * @param list<string> $targetedTags    the tags a contact carries to be targeted: those chosen and that of the channel
-     * @param string       $status          `draft`
-     * @param int          $contacted       the contacts of its target the team contacted, none in a draft
-     * @param list<string> $possibleIntents the names of the intents its state offers (`ReviseCampaign`, `DiscardCampaign`)
+     * @param string                $channel         `email`, `call`, `sms` or `linkedIn`
+     * @param list<string>          $tags            the tags chosen, with their mark
+     * @param list<string>          $targetedTags    the tags a contact carries to be targeted: those chosen and that of the channel
+     * @param string                $status          `draft` or `frozen`
+     * @param int                   $contacted       the contacts of its target the team contacted, none before it is
+     *                                               started
+     * @param array<string, string> $recipients      the status of each recipient (`pending`), by contact identity, in
+     *                                               the order they were added; none in a draft
+     * @param list<string>          $possibleIntents the names of the intents its state offers (`ReviseCampaign`,
+     *                                               `DiscardCampaign`, `FreezeCampaign`, `AddRecipients`,
+     *                                               `RemoveRecipient`)
      */
     public function __construct(
         public string $id,
@@ -28,6 +33,7 @@ final readonly class CampaignSheet
         public ?string $subject,
         public string $status,
         public int $contacted,
+        public array $recipients,
         public string $authorId,
         public array $possibleIntents,
         public \DateTimeImmutable $createdAt,

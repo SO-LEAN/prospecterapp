@@ -192,6 +192,7 @@ final class PersonalDataContext implements Context
     }
 
     #[When('j\'efface la fiche de :name')]
+    #[When('j\'efface le contact :name')]
     public function iForget(string $name): void
     {
         $this->application->dispatch(new ForgetContact($this->application->signedIn(), $this->scenario->personIdOf($name), $this->application->now()));

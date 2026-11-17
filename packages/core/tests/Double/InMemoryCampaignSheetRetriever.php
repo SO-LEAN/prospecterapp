@@ -10,6 +10,7 @@ use Prospecter\Core\Campaigns\Domain\Exception\UnknownCampaign;
 use Prospecter\Core\Campaigns\Domain\Model\Campaign;
 use Prospecter\Core\Campaigns\Domain\Model\CampaignId;
 use Prospecter\Core\Campaigns\Domain\Model\CampaignIntent;
+use Prospecter\Core\Campaigns\Domain\Model\Recipients;
 use Prospecter\Core\Campaigns\Domain\Model\TagSelection;
 use Prospecter\Core\Campaigns\Domain\Policy\CampaignPossibilities;
 use Prospecter\Core\Campaigns\Domain\Policy\CampaignProgress;
@@ -54,11 +55,26 @@ final readonly class InMemoryCampaignSheetRetriever implements CampaignSheetRetr
             subject: $state['message']->subject,
             status: $state['status']->value,
             contacted: CampaignProgress::contactedIn($state['status']),
+            recipients: self::statusesOf($state['recipients']),
             authorId: $state['createdBy']->value,
             possibleIntents: array_map(static fn (CampaignIntent $intent): string => $intent->name, CampaignPossibilities::given($state['status'])),
             createdAt: $state['createdAt'],
             modifiedAt: $state['modifiedAt'],
         );
+    }
+
+    /**
+     * @return array<string, string>
+     */
+    private static function statusesOf(Recipients $recipients): array
+    {
+        $statuses = [];
+
+        foreach ($recipients->recipients as $recipient) {
+            $statuses[$recipient->contact->value] = $recipient->status->value;
+        }
+
+        return $statuses;
     }
 
     /**

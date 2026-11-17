@@ -10,11 +10,15 @@ use Behat\Step\Given;
 use Behat\Step\Then;
 use Behat\Step\When;
 use Prospecter\Core\Accounts\Domain\Model\Role;
+use Prospecter\Core\Campaigns\Application\AddRecipient\AddRecipient;
+use Prospecter\Core\Campaigns\Application\AddRecipientsByTags\AddRecipientsByTags;
 use Prospecter\Core\Campaigns\Application\CampaignSheet;
 use Prospecter\Core\Campaigns\Application\ConsultCampaign\ConsultCampaign;
 use Prospecter\Core\Campaigns\Application\DiscardCampaign\DiscardCampaign;
+use Prospecter\Core\Campaigns\Application\FreezeCampaign\FreezeCampaign;
 use Prospecter\Core\Campaigns\Application\ListCampaigns\ListCampaigns;
 use Prospecter\Core\Campaigns\Application\PrepareCampaign\PrepareCampaign;
+use Prospecter\Core\Campaigns\Application\RemoveRecipient\RemoveRecipient;
 use Prospecter\Core\Campaigns\Application\RenderCampaignMessage\CampaignMessage;
 use Prospecter\Core\Campaigns\Application\RenderCampaignMessage\RenderCampaignMessage;
 use Prospecter\Core\Campaigns\Application\ReviseCampaign\ReviseCampaign;
@@ -41,7 +45,9 @@ final class CampaignContext implements Context
     use SharesTheScenario;
 
     private const array CHANNELS = ['E-mail' => 'email', 'Appel' => 'call', 'SMS' => 'sms', 'LinkedIn' => 'linkedIn'];
-    private const array STATUSES = ['draft' => 'brouillon'];
+    private const array STATUSES = ['draft' => 'brouillon', 'frozen' => 'figée'];
+    private const array RECIPIENT_STATUSES = ['pending' => 'à traiter'];
+    private const string NOBODY_CARRIES = '#PERSONNE';
     private const string A_MESSAGE = 'Bonjour {prénom}';
     private const string REVISED_MESSAGE = 'Bonjour {prénom}, je reviens vers vous';
     private const string SOME_TAGS = '#ESN';
@@ -160,6 +166,112 @@ final class CampaignContext implements Context
     public function iDiscardIt(): void
     {
         $this->application->dispatch(new DiscardCampaign($this->application->signedIn(), $this->currentId(), $this->application->now()));
+    }
+
+    #[Given('la campagne :name en brouillon, canal :channel, tags :tags')]
+    public function theDraftByWithTags(string $name, string $channel, string $tags): void
+    {
+        $this->arrange($name, $channel, $tags, self::A_MESSAGE);
+    }
+
+    #[Given('la campagne :name en brouillon ne cible personne')]
+    public function theDraftTargetingNobody(string $name): void
+    {
+        $this->arrange($name, 'E-mail', self::NOBODY_CARRIES, self::A_MESSAGE);
+    }
+
+    #[Given('la campagne :name est figée')]
+    public function theFrozenCampaign(string $name): void
+    {
+        $this->iFreezeTheCampaign($name);
+        $this->itIsFrozen();
+    }
+
+    #[Given('la campagne :name est figée avec :one et :other')]
+    public function theCampaignFrozenWith(string $name, string $one, string $other): void
+    {
+        $this->theFrozenCampaign($name);
+        $this->iAddTheContact($other);
+        Expect::same([$this->scenario->personIdOf($one), $this->scenario->personIdOf($other)], array_keys($this->sheet()->recipients));
+    }
+
+    #[When('je fige la campagne :name')]
+    public function iFreezeTheCampaign(string $name): void
+    {
+        $this->current = $name;
+        $this->application->dispatch(new FreezeCampaign($this->application->signedIn(), $this->currentId(), $this->application->now()));
+    }
+
+    #[When('je change ses tags en :tags')]
+    public function iChangeItsTags(string $tags): void
+    {
+        $sheet = $this->sheet();
+        $this->application->dispatch(new ReviseCampaign($this->application->signedIn(), $sheet->id, $sheet->name, $sheet->channel, self::listed($tags), $sheet->message, $sheet->subject, $this->application->now()));
+    }
+
+    #[When('je la renomme :name et change son message')]
+    public function iRenameItAndChangeItsMessage(string $name): void
+    {
+        $sheet = $this->sheet();
+        $this->campaignIds[$name] = $sheet->id;
+        $this->revision = new ReviseCampaign($this->application->signedIn(), $sheet->id, $name, $sheet->channel, $sheet->tags, self::REVISED_MESSAGE, $sheet->subject, $this->application->now());
+        $this->application->dispatch($this->revision);
+    }
+
+    #[When('j\'y ajoute les contacts tagués :tags')]
+    public function iAddTheContactsTagged(string $tags): void
+    {
+        $this->application->dispatch(new AddRecipientsByTags($this->application->signedIn(), $this->currentId(), self::listed($tags), $this->application->now()));
+    }
+
+    #[When('j\'y ajoute :contact')]
+    public function iAddTheContact(string $contact): void
+    {
+        $this->application->dispatch(new AddRecipient($this->application->signedIn(), $this->currentId(), $this->scenario->personIdOf($contact), $this->application->now()));
+    }
+
+    #[When('j\'en retire :contact')]
+    public function iRemoveTheRecipient(string $contact): void
+    {
+        $this->application->dispatch(new RemoveRecipient($this->application->signedIn(), $this->currentId(), $this->scenario->personIdOf($contact), $this->application->now()));
+    }
+
+    #[When('je supprime la campagne :name')]
+    public function iDiscardTheCampaign(string $name): void
+    {
+        $this->current = $name;
+        $this->iDiscardIt();
+    }
+
+    #[Then('elle est figée')]
+    public function itIsFrozen(): void
+    {
+        Expect::same('frozen', $this->sheet()->status);
+    }
+
+    #[Then('ses destinataires sont :contact, à traiter')]
+    public function itsRecipientsArePending(string $contact): void
+    {
+        Expect::same([$this->scenario->personIdOf($contact) => 'à traiter'], array_map(static fn (string $status): string => self::RECIPIENT_STATUSES[$status], $this->sheet()->recipients));
+    }
+
+    #[Then('ses destinataires sont :contact')]
+    #[Then('ses destinataires sont toujours :contact')]
+    public function itsRecipientsAre(string $contact): void
+    {
+        Expect::same([$this->scenario->personIdOf($contact)], array_keys($this->sheet()->recipients));
+    }
+
+    #[Then('ses destinataires sont :one et :other')]
+    public function itsRecipientsAreBoth(string $one, string $other): void
+    {
+        Expect::same([$this->scenario->personIdOf($one), $this->scenario->personIdOf($other)], array_keys($this->sheet()->recipients));
+    }
+
+    #[Then(':contact est un destinataire')]
+    public function isARecipient(string $contact): void
+    {
+        Expect::that(array_key_exists($this->scenario->personIdOf($contact), $this->sheet()->recipients), sprintf('%s is no recipient', $contact));
     }
 
     #[When('je lis le message pour :contact')]

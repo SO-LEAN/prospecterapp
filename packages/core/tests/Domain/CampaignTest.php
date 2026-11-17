@@ -7,29 +7,39 @@ namespace Tests\Core\Domain;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Prospecter\Core\Campaigns\Domain\Event\CampaignDiscarded;
+use Prospecter\Core\Campaigns\Domain\Event\CampaignFrozen;
 use Prospecter\Core\Campaigns\Domain\Event\CampaignPrepared;
+use Prospecter\Core\Campaigns\Domain\Event\CampaignRecipientsChanged;
 use Prospecter\Core\Campaigns\Domain\Event\CampaignRevised;
+use Prospecter\Core\Campaigns\Domain\Model\Addressee;
 use Prospecter\Core\Campaigns\Domain\Model\Campaign;
 use Prospecter\Core\Campaigns\Domain\Model\CampaignId;
 use Prospecter\Core\Campaigns\Domain\Model\CampaignIntent;
 use Prospecter\Core\Campaigns\Domain\Model\CampaignName;
 use Prospecter\Core\Campaigns\Domain\Model\CampaignStatus;
 use Prospecter\Core\Campaigns\Domain\Model\Channel;
+use Prospecter\Core\Campaigns\Domain\Model\ContactTags;
 use Prospecter\Core\Campaigns\Domain\Model\MessageTemplate;
+use Prospecter\Core\Campaigns\Domain\Model\Reach;
+use Prospecter\Core\Campaigns\Domain\Model\Tag;
 use Prospecter\Core\Campaigns\Domain\Model\Targeting;
 use Prospecter\Core\Campaigns\Domain\Policy\CampaignPossibilities;
 use Prospecter\Core\SharedKernel\Domain\AccountId;
+use Prospecter\Core\SharedKernel\Domain\Exception\NotPossibleInItsState;
 use Prospecter\Core\SharedKernel\Domain\MemberId;
+use Prospecter\Core\SharedKernel\Domain\PersonId;
 use Tests\Core\Double\StateOf;
 
 /**
- * Every intention of a campaign is offered by its state, and records its event.
+ * Every intention of a campaign is refused exactly when its state does not offer it, and records its event.
  */
 final class CampaignTest extends TestCase
 {
     private const string ACCOUNT = '0190a1c0-0000-7000-8000-000000000001';
     private const string ME = '0190a1c0-0000-7000-8000-000000000002';
     private const string CAMPAIGN = '0190a1c0-0000-7000-8000-000000000003';
+    private const string ADA = '0190a1c0-0000-7000-8000-000000000004';
+    private const string ALAN = '0190a1c0-0000-7000-8000-000000000005';
     private const string NOW = '2026-11-17 10:00';
 
     public function testPreparingRecordsIt(): void
@@ -42,32 +52,66 @@ final class CampaignTest extends TestCase
         $this->assertSame(CampaignStatus::Draft, StateOf::the($this->prepared())['status']);
     }
 
-    public function testADraftOffersEveryIntent(): void
+    public function testADraftIsRevisedDiscardedAndFrozen(): void
     {
-        $this->assertSame(CampaignIntent::cases(), CampaignPossibilities::given(CampaignStatus::Draft));
+        $this->assertSame([CampaignIntent::ReviseCampaign, CampaignIntent::DiscardCampaign, CampaignIntent::FreezeCampaign], CampaignPossibilities::given(CampaignStatus::Draft));
     }
 
-    #[DataProvider('intents')]
-    public function testAnIntentRecordsItsEvent(CampaignIntent $intent, string $event): void
+    public function testAFrozenCampaignChangesItsRecipientsAndIsStillRevisedAndDiscarded(): void
     {
-        $campaign = $this->prepared();
+        $this->assertSame([CampaignIntent::ReviseCampaign, CampaignIntent::DiscardCampaign, CampaignIntent::AddRecipients, CampaignIntent::RemoveRecipient], CampaignPossibilities::given(CampaignStatus::Frozen));
+    }
+
+    #[DataProvider('offered')]
+    public function testAnIntentOfferedRecordsItsEvent(CampaignStatus $status, CampaignIntent $intent, string $event): void
+    {
+        $campaign = $this->in($status);
         $campaign->releaseEvents();
 
-        match ($intent) {
-            CampaignIntent::ReviseCampaign => $campaign->revise(CampaignName::of('Relance'), Targeting::by(Channel::Call, ['#ESN']), MessageTemplate::of('Bonjour', null, Channel::Call), new MemberId(self::ME), $this->now()),
-            CampaignIntent::DiscardCampaign => $campaign->discard(new MemberId(self::ME), $this->now()),
-        };
+        $this->exercise($campaign, $intent);
 
         $this->assertEquals([new $event(new AccountId(self::ACCOUNT), new MemberId(self::ME), new CampaignId(self::CAMPAIGN), $this->now())], $campaign->releaseEvents());
     }
 
     /**
-     * @return iterable<string, array{CampaignIntent, class-string}>
+     * @return iterable<string, array{CampaignStatus, CampaignIntent, class-string}>
      */
-    public static function intents(): iterable
+    public static function offered(): iterable
     {
-        yield 'revise' => [CampaignIntent::ReviseCampaign, CampaignRevised::class];
-        yield 'discard' => [CampaignIntent::DiscardCampaign, CampaignDiscarded::class];
+        $events = [
+            CampaignIntent::ReviseCampaign->name => CampaignRevised::class,
+            CampaignIntent::DiscardCampaign->name => CampaignDiscarded::class,
+            CampaignIntent::FreezeCampaign->name => CampaignFrozen::class,
+            CampaignIntent::AddRecipients->name => CampaignRecipientsChanged::class,
+            CampaignIntent::RemoveRecipient->name => CampaignRecipientsChanged::class,
+        ];
+
+        foreach (CampaignStatus::cases() as $status) {
+            foreach (CampaignPossibilities::given($status) as $intent) {
+                yield $status->value.' '.$intent->name => [$status, $intent, $events[$intent->name]];
+            }
+        }
+    }
+
+    #[DataProvider('notOffered')]
+    public function testAnIntentNotOfferedIsRefused(CampaignStatus $status, CampaignIntent $intent): void
+    {
+        $campaign = $this->in($status);
+
+        $this->expectException(NotPossibleInItsState::class);
+        $this->exercise($campaign, $intent);
+    }
+
+    /**
+     * @return iterable<string, array{CampaignStatus, CampaignIntent}>
+     */
+    public static function notOffered(): iterable
+    {
+        foreach (CampaignStatus::cases() as $status) {
+            foreach (array_udiff(CampaignIntent::cases(), CampaignPossibilities::given($status), static fn (CampaignIntent $one, CampaignIntent $other): int => strcmp($one->name, $other->name)) as $intent) {
+                yield $status->value.' '.$intent->name => [$status, $intent];
+            }
+        }
     }
 
     public function testRevisingChangesEverythingButItsAuthor(): void
@@ -79,6 +123,59 @@ final class CampaignTest extends TestCase
         $state = StateOf::the($campaign);
 
         $this->assertEquals([CampaignName::of('Relance PHP'), $targeting, $message, new MemberId(self::ME)], [$state['name'], $state['targeting'], $state['message'], $state['createdBy']]);
+    }
+
+    public function testFrozenItsSearchIsTheSameWhateverTheOrderOfItsTags(): void
+    {
+        $campaign = $this->prepared();
+        $campaign->revise(CampaignName::of('Relance'), Targeting::by(Channel::Email, ['#ESN', '#PHP']), MessageTemplate::of('Bonjour', null, Channel::Email), new MemberId(self::ME), $this->now());
+        $campaign->freeze([self::ADA => $this->reachedByEmail('#ESN', '#PHP')], new MemberId(self::ME), $this->now());
+
+        $campaign->revise(CampaignName::of('Relance PHP'), Targeting::by(Channel::Email, ['#php', '#ESN']), MessageTemplate::of('Salut', null, Channel::Email), new MemberId(self::ME), $this->now());
+
+        $this->assertEquals(CampaignName::of('Relance PHP'), StateOf::the($campaign)['name']);
+    }
+
+    public function testFreezingKeepsOnlyTheContactsItsSearchFinds(): void
+    {
+        $campaign = $this->prepared();
+
+        $campaign->freeze([self::ADA => $this->reachedByEmail('#ESN'), self::ALAN => $this->reachedByEmail('#PHP')], new MemberId(self::ME), $this->now());
+
+        $this->assertTrue($campaign->hasRecipient(new PersonId(self::ADA)));
+        $this->assertFalse($campaign->hasRecipient(new PersonId(self::ALAN)));
+    }
+
+    private function exercise(Campaign $campaign, CampaignIntent $intent): void
+    {
+        $me = new MemberId(self::ME);
+
+        match ($intent) {
+            CampaignIntent::ReviseCampaign => $campaign->revise(CampaignName::of('Relance'), Targeting::by(Channel::Email, ['#ESN']), MessageTemplate::of('Bonjour', null, Channel::Email), $me, $this->now()),
+            CampaignIntent::DiscardCampaign => $campaign->discard($me, $this->now()),
+            CampaignIntent::FreezeCampaign => $campaign->freeze([self::ADA => $this->reachedByEmail('#ESN')], $me, $this->now()),
+            CampaignIntent::AddRecipients => $campaign->addRecipient(new PersonId(self::ALAN), $this->reachedByEmail(), new Addressee('Alan', 'Turing', null, null), $me, $this->now()),
+            CampaignIntent::RemoveRecipient => $campaign->removeRecipient(new PersonId(self::ADA), $me, $this->now()),
+        };
+    }
+
+    /**
+     * A frozen campaign keeps Ada and Alan, so that one of them may be taken off.
+     */
+    private function in(CampaignStatus $status): Campaign
+    {
+        $campaign = $this->prepared();
+
+        if (CampaignStatus::Frozen === $status) {
+            $campaign->freeze([self::ADA => $this->reachedByEmail('#ESN'), self::ALAN => $this->reachedByEmail('#ESN')], new MemberId(self::ME), $this->now());
+        }
+
+        return $campaign;
+    }
+
+    private function reachedByEmail(string ...$own): ContactTags
+    {
+        return ContactTags::of(array_map(Tag::written(...), array_values($own)), [], new Reach(true, false, false, false));
     }
 
     private function prepared(): Campaign

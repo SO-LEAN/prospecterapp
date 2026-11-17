@@ -28,6 +28,8 @@ use Prospecter\Core\Accounts\Contract\Service\ConsultMembers\KeptMembers;
 use Prospecter\Core\Accounts\Contract\Service\ConsultMembers\MemberResponse;
 use Prospecter\Core\Accounts\Contract\Service\ListAccounts\KeptAccounts;
 use Prospecter\Core\Accounts\Contract\Service\ListAccounts\ListAccounts;
+use Prospecter\Core\Campaigns\Application\AddRecipient\AddRecipientHandler;
+use Prospecter\Core\Campaigns\Application\AddRecipientsByTags\AddRecipientsByTagsHandler;
 use Prospecter\Core\Campaigns\Application\CampaignSheet;
 use Prospecter\Core\Campaigns\Application\CampaignTargets;
 use Prospecter\Core\Campaigns\Application\ConsultCampaign\ConsultCampaign;
@@ -44,8 +46,10 @@ use Prospecter\Core\Campaigns\Application\ConsultSuggestedTags\ConsultSuggestedT
 use Prospecter\Core\Campaigns\Application\ConsultSuggestedTags\KeptSuggestedTags;
 use Prospecter\Core\Campaigns\Application\DiscardCampaign\DiscardCampaignHandler;
 use Prospecter\Core\Campaigns\Application\FactRecorder as CampaignsFactRecorder;
+use Prospecter\Core\Campaigns\Application\ForgetRecipientOfForgottenContact\ForgetRecipientOfForgottenContactHandler;
 use Prospecter\Core\Campaigns\Application\ForgetTagsOfForgottenContact\ForgetTagsOfForgottenContactHandler;
 use Prospecter\Core\Campaigns\Application\ForgetTagsOfUnprospectedOrganization\ForgetTagsOfUnprospectedOrganizationHandler;
+use Prospecter\Core\Campaigns\Application\FreezeCampaign\FreezeCampaignHandler;
 use Prospecter\Core\Campaigns\Application\ListCampaigns\KeptCampaigns;
 use Prospecter\Core\Campaigns\Application\ListCampaigns\ListCampaigns;
 use Prospecter\Core\Campaigns\Application\ListCampaigns\ListCampaignsHandler;
@@ -55,6 +59,7 @@ use Prospecter\Core\Campaigns\Application\RebuildTags\RebuildTags;
 use Prospecter\Core\Campaigns\Application\RebuildTags\RebuildTagsHandler;
 use Prospecter\Core\Campaigns\Application\RecordContactFacts\RecordContactFactsHandler as RecordContactFactsInCampaignsHandler;
 use Prospecter\Core\Campaigns\Application\RecordOrganizationFacts\RecordOrganizationFactsHandler as RecordOrganizationFactsInCampaignsHandler;
+use Prospecter\Core\Campaigns\Application\RemoveRecipient\RemoveRecipientHandler;
 use Prospecter\Core\Campaigns\Application\RenderCampaignMessage\CampaignMessage;
 use Prospecter\Core\Campaigns\Application\RenderCampaignMessage\KeptCampaignMessage;
 use Prospecter\Core\Campaigns\Application\RenderCampaignMessage\RenderCampaignMessage;
@@ -65,6 +70,7 @@ use Prospecter\Core\Campaigns\Application\SearchContactsByTags\SearchContactsByT
 use Prospecter\Core\Campaigns\Application\SearchContactsByTags\SearchContactsByTagsHandler;
 use Prospecter\Core\Campaigns\Application\SearchContactsByTags\TaggedContactPage;
 use Prospecter\Core\Campaigns\Application\SuggestedTags;
+use Prospecter\Core\Campaigns\Application\TagsOfEveryContact;
 use Prospecter\Core\Campaigns\Application\TakeOffTag\TakeOffTagHandler;
 use Prospecter\Core\Campaigns\Domain\Service\TaggableHolders;
 use Prospecter\Core\Connectors\Application\AskForAuthorization\AskForAuthorizationHandler;
@@ -444,6 +450,7 @@ final class Application
     private readonly InMemoryCampaignSheetRetriever $campaignSheetRetriever;
     private readonly AccountsCampaigners $campaigners;
     private readonly PersonalDataAndProspectingAddressees $addressees;
+    private readonly TagsOfEveryContact $tagsOfEveryContact;
     private readonly CampaignTargets $campaignTargets;
     /** @var array<class-string, CommandHandler> */
     private array $handlers = [];
@@ -535,7 +542,8 @@ final class Application
         $this->campaignSheetRetriever = new InMemoryCampaignSheetRetriever($database);
         $this->campaigners = new AccountsCampaigners($this->consultMembersService);
         $this->addressees = new PersonalDataAndProspectingAddressees($this->nameContactsService, $this->nameOrganizationsOfContactsService);
-        $this->campaignTargets = new CampaignTargets($this->taggedContactsRetriever);
+        $this->tagsOfEveryContact = new TagsOfEveryContact($this->taggedContactsRetriever);
+        $this->campaignTargets = new CampaignTargets($this->tagsOfEveryContact);
 
         foreach ($this->translators() as $translator) {
             $this->events->translateWith($translator, calledThrough: new RefusalTranslatingEventHandler(new TransactionalEventHandler($translator, $this->unitOfWork)));
@@ -1030,6 +1038,10 @@ final class Application
             new PrepareCampaignHandler($this->campaigns, $this->campaigners, $this->events),
             new ReviseCampaignHandler($this->campaigns, $this->campaigners, $this->events),
             new DiscardCampaignHandler($this->campaigns, $this->campaigners, $this->events),
+            new FreezeCampaignHandler($this->campaigns, $this->campaigners, $this->tagsOfEveryContact, $this->events),
+            new AddRecipientsByTagsHandler($this->campaigns, $this->campaigners, $this->tagsOfEveryContact, $this->events),
+            new AddRecipientHandler($this->campaigns, $this->campaigners, $this->addressees, $this->contactTagsRetriever, $this->events),
+            new RemoveRecipientHandler($this->campaigns, $this->campaigners, $this->events),
         ];
     }
 
@@ -1199,6 +1211,7 @@ final class Application
             new UnnameForgottenContactHandler($this->heldExchanges, $this->calendarEntries, $this->calendarPusher),
             new ForgetTagsOfUnprospectedOrganizationHandler($this->taggings),
             new ForgetTagsOfForgottenContactHandler($this->taggings),
+            new ForgetRecipientOfForgottenContactHandler($this->campaigns),
             new RecordOrganizationFactsInCampaignsHandler($this->campaignsFactRecorder),
             new RecordContactFactsInCampaignsHandler($this->campaignsFactRecorder),
         ];
