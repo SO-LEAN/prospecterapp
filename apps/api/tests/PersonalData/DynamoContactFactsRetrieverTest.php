@@ -12,8 +12,8 @@ use Prospecter\Core\PersonalData\Domain\Repository\PersonRepository;
 use Prospecter\Core\SharedKernel\Domain\AccountId;
 use Prospecter\Core\SharedKernel\Domain\ContactDetails;
 use Prospecter\Core\SharedKernel\Domain\Email;
-use Prospecter\Core\SharedKernel\Domain\PhoneNumber;
 use Prospecter\Core\SharedKernel\Domain\PersonId;
+use Prospecter\Core\SharedKernel\Domain\PhoneNumber;
 use Tests\App\Base\ApiTestCase;
 
 /**

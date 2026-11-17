@@ -50,7 +50,7 @@ class CheckConsistencyCommandTest extends ApiTestCase
         parent::setUp();
         $this->rebuildTheFigures();
         $this->rebuildTheTags();
-        $this->tester =new CommandTester(new Application(self::$kernel)->find('app:consistency:check'));
+        $this->tester = new CommandTester(new Application(self::$kernel)->find('app:consistency:check'));
     }
 
     public function testConsistentDataShowNoDiscrepancy(): void

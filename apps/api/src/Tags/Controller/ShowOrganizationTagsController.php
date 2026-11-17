@@ -6,7 +6,6 @@ use App\Prospecting\OrganizationVoter;
 use App\Security\User;
 use App\Shared\Resource\ProblemResource;
 use App\Tags\Resource\TagsResource;
-use App\Tags\TagRoutes;
 use App\Tags\TagsReader;
 use Nelmio\ApiDocBundle\Attribute\Model;
 use OpenApi\Attributes as OA;
@@ -35,6 +34,6 @@ final class ShowOrganizationTagsController extends AbstractController
     #[OA\Response(response: 404, description: 'Unknown organization, or one of another account', content: new Model(type: ProblemResource::class))]
     public function __invoke(OrganizationSheet $organization, #[CurrentUser] User $user): JsonResponse
     {
-        return $this->json($this->tagsReader->read($user->memberId(), TagRoutes::Organization, $organization->id));
+        return $this->json($this->tagsReader->read($user->memberId(), $organization->id));
     }
 }

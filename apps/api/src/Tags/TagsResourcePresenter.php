@@ -2,38 +2,29 @@
 
 namespace App\Tags;
 
-use App\Shared\Links;
-use App\Tags\Resource\TagLinksResource;
 use App\Tags\Resource\TagResource;
-use App\Tags\Resource\TagsLinksResource;
 use App\Tags\Resource\TagsResource;
-use Prospecter\Core\Campaigns\Application\ConsultTags\ConsultTagsOutput;
+use Prospecter\Core\Campaigns\Application\ConsultOrganizationTags\ConsultOrganizationTagsOutput;
 
 /**
- * Presents the tags of an organization or of a contact as the API shows them, an object of the call (ADR 0085): each
- * taken off by its name without its mark.
+ * Presents the tags of an organization as the API shows them, an object of the call (ADR 0085).
  */
-final class TagsResourcePresenter implements ConsultTagsOutput
+final class TagsResourcePresenter implements ConsultOrganizationTagsOutput
 {
     public private(set) TagsResource $resource;
 
-    public function __construct(private readonly Links $links, private readonly TagRoutes $routes, private readonly string $holderId)
+    public function __construct(private readonly TagResourceFactory $tags, private readonly string $organizationId)
     {
     }
 
+    /**
+     * @param list<string> $tags
+     */
     public function present(array $tags): void
     {
         $this->resource = new TagsResource(
-            array_map($this->tag(...), $tags),
-            new TagsLinksResource(
-                $this->links->to($this->routes->show(), ['id' => $this->holderId]),
-                $this->links->to($this->routes->tag(), ['id' => $this->holderId]),
-            ),
+            array_map(fn (string $name): TagResource => $this->tags->putByHand(TagRoutes::Organization, $this->organizationId, $name), $tags),
+            $this->tags->linksOf(TagRoutes::Organization, $this->organizationId),
         );
-    }
-
-    private function tag(string $name): TagResource
-    {
-        return new TagResource($name, new TagLinksResource($this->links->to($this->routes->takeOff(), ['id' => $this->holderId, 'tag' => ltrim($name, '#')])));
     }
 }

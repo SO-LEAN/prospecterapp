@@ -4,9 +4,8 @@ namespace App\Tags\Controller;
 
 use App\Security\User;
 use App\Shared\Resource\ProblemResource;
-use App\Tags\Resource\TagsResource;
-use App\Tags\TagRoutes;
-use App\Tags\TagsReader;
+use App\Tags\ContactTagsReader;
+use App\Tags\Resource\ContactTagsResource;
 use Nelmio\ApiDocBundle\Attribute\Model;
 use OpenApi\Attributes as OA;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -20,18 +19,18 @@ use Symfony\Component\Security\Http\Attribute\IsGranted;
 #[IsGranted('ROLE_PROSPECTOR')]
 final class ShowContactTagsController extends AbstractController
 {
-    public function __construct(private readonly TagsReader $tagsReader)
+    public function __construct(private readonly ContactTagsReader $contactTagsReader)
     {
     }
 
     #[Route('/api/contacts/{id}/tags', name: 'api_contacts_tags', requirements: ['id' => Requirement::UUID], methods: ['GET'])]
-    #[OA\Get(summary: 'The tags put by hand on the contact')]
-    #[OA\Response(response: 200, description: 'Its tags', content: new Model(type: TagsResource::class))]
+    #[OA\Get(summary: 'The tags of the contact: put on it by hand, inherited from its organizations, set from how it is reached')]
+    #[OA\Response(response: 200, description: 'Its tags', content: new Model(type: ContactTagsResource::class))]
     #[OA\Response(response: 401, description: 'Missing or invalid access token')]
     #[OA\Response(response: 403, description: 'Not a prospector', content: new Model(type: ProblemResource::class))]
     #[OA\Response(response: 404, description: 'No contact of my account (`unknownContact`)', content: new Model(type: ProblemResource::class))]
     public function __invoke(string $id, #[CurrentUser] User $user): JsonResponse
     {
-        return $this->json($this->tagsReader->read($user->memberId(), TagRoutes::Contact, $id));
+        return $this->json($this->contactTagsReader->read($user->memberId(), $id));
     }
 }

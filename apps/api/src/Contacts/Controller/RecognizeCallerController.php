@@ -6,6 +6,7 @@ use App\Contacts\ContactInListResourceFactory;
 use App\Contacts\OrganizationsOfContacts;
 use App\Contacts\Resource\CallerResource;
 use App\Contacts\Resource\ContactInListResource;
+use App\Contacts\TagsOfContacts;
 use App\Prospecting\OrganizationReader;
 use App\Security\User;
 use App\Shared\Resource\ProblemResource;
@@ -24,8 +25,8 @@ use Symfony\Component\Security\Http\Attribute\CurrentUser;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
 
 /**
- * Who calls (ADR 0072), composed of two contexts: Prospecting tells the organizations having the number,
- * PersonalData the contacts, read in clear; Prospecting then the organizations of each contact.
+ * Who calls (ADR 0072), composed of three contexts: Prospecting tells the organizations having the number,
+ * PersonalData the contacts, read in clear; Prospecting then the organizations of each contact, Campaigns its tags.
  */
 #[OA\Tag('Contacts')]
 #[IsGranted('ROLE_PROSPECTOR')]
@@ -35,6 +36,7 @@ final class RecognizeCallerController extends AbstractController
         private readonly QueryHandler $recognizeCallingOrganization,
         private readonly QueryHandler $recognizeCallingContact,
         private readonly OrganizationsOfContacts $organizationsOfContacts,
+        private readonly TagsOfContacts $tagsOfContacts,
         private readonly OrganizationReader $organizationReader,
         private readonly ContactInListResourceFactory $contactInListResourceFactory,
     ) {
@@ -53,11 +55,13 @@ final class RecognizeCallerController extends AbstractController
         $callingContacts = new KeptCallingContacts();
         ($this->recognizeCallingContact)(new RecognizeCallingContact($user->memberId(), $phoneNumber), $callingContacts);
         $contacts = $callingContacts->contacts;
-        $organizationsOfContacts = $this->organizationsOfContacts->read($user->memberId(), array_map(static fn (PersonCard $contact): string => $contact->id, $contacts));
+        $contactIds = array_map(static fn (PersonCard $contact): string => $contact->id, $contacts);
+        $organizationsOfContacts = $this->organizationsOfContacts->read($user->memberId(), $contactIds);
+        $tagsOfContacts = $this->tagsOfContacts->read($user->memberId(), $contactIds);
 
         return $this->json(new CallerResource(
             array_map($this->organizationReader->resourceOf(...), $organizations->organizations),
-            array_map(fn (PersonCard $contact): ContactInListResource => $this->contactInListResourceFactory->create($contact, $organizationsOfContacts[$contact->id] ?? []), $contacts),
+            array_map(fn (PersonCard $contact): ContactInListResource => $this->contactInListResourceFactory->create($contact, $organizationsOfContacts[$contact->id] ?? [], $tagsOfContacts[$contact->id] ?? []), $contacts),
         ));
     }
 }

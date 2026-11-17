@@ -23,17 +23,21 @@ final readonly class IntegrationEventTypes extends EventTypes
         'prospecter.personal-data' => [
             'ContactCollected.v1' => PersonalData\ContactCollected::class,
             'ContactForgotten.v1' => PersonalData\ContactForgotten::class,
-            'ContactFactsChanged.v1' => PersonalData\ContactFactsChanged::class,
+            'ContactFactsChanged.v2' => PersonalData\ContactFactsChanged::class,
         ],
         'prospecter.prospecting' => [
             'ContactsLeftWithoutOrganization.v1' => Prospecting\ContactsLeftWithoutOrganization::class,
-            'OrganizationFactsChanged.v1' => Prospecting\OrganizationFactsChanged::class,
+            'OrganizationFactsChanged.v2' => Prospecting\OrganizationFactsChanged::class,
             'ExchangeFactsChanged.v2' => Prospecting\ExchangeFactsChanged::class,
         ],
     ];
 
     protected const array FORMER_TYPES = [
+        'prospecter.personal-data' => [
+            'ContactFactsChanged.v1' => PersonalData\ContactFactsChanged::class,
+        ],
         'prospecter.prospecting' => [
+            'OrganizationFactsChanged.v1' => Prospecting\OrganizationFactsChanged::class,
             'ExchangeFactsChanged.v1' => Prospecting\ExchangeFactsChanged::class,
         ],
     ];

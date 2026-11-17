@@ -1121,7 +1121,7 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        /** The tags put by hand on the contact */
+        /** The tags of the contact: put on it by hand, inherited from its organizations, set from how it is reached */
         get: operations["get_api_contacts_tags"];
         put?: never;
         /** Put tags on the contact, a tag it carries already carried once; every prospector, with or without the right to manage personal data */
@@ -1884,6 +1884,8 @@ export interface components {
             contactDetails: components["schemas"]["PersonContactDetailsResource"];
             masked: boolean;
             organizations: components["schemas"]["OrganizationOfContactResource"][];
+            /** @description Every tag it carries, its own, inherited and automatic, in the order of their names */
+            tags: string[];
             contact: components["schemas"]["LinkResource"];
         };
         ContactListLinksResource: {
@@ -2227,9 +2229,27 @@ export interface components {
             name: string;
             _links: components["schemas"]["TagLinksResource"];
         };
+        InheritedTagResource: {
+            /**
+             * @description Written with its mark
+             * @example #ESN
+             */
+            name: string;
+            /** @description The organizations it comes from, in the order of their identities */
+            from: string[];
+        };
         TagsLinksResource: {
             self: components["schemas"]["LinkResource"];
             tag: components["schemas"]["LinkResource"];
+        };
+        ContactTagsResource: {
+            /** @description Put on the contact by hand */
+            tags: components["schemas"]["TagResource"][];
+            /** @description Put by hand on organizations naming the contact, its own left out */
+            inherited: components["schemas"]["InheritedTagResource"][];
+            /** @description Set from how the contact is reached: #EMAIL, #PHONE, #SMS for a mobile, #LINKEDIN */
+            automatic: string[];
+            _links: components["schemas"]["TagsLinksResource"];
         };
         TagsResource: {
             tags: components["schemas"]["TagResource"][];
@@ -6723,7 +6743,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["TagsResource"];
+                    "application/json": components["schemas"]["ContactTagsResource"];
                 };
             };
             /** @description Missing or invalid access token */
@@ -6774,7 +6794,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["TagsResource"];
+                    "application/json": components["schemas"]["ContactTagsResource"];
                 };
             };
             /** @description Missing or invalid access token */
@@ -6974,7 +6994,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["TagsResource"];
+                    "application/json": components["schemas"]["ContactTagsResource"];
                 };
             };
             /** @description Missing or invalid access token */
