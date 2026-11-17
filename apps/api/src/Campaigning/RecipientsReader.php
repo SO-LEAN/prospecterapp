@@ -22,7 +22,8 @@ use Prospecter\Core\SharedKernel\Application\QueryHandler;
  * The recipients of a frozen campaign composed of three contexts: Campaigns keeps them by their identities,
  * PersonalData reads them, Prospecting tells the organizations of each and Campaigns the tags each carries, in one
  * batch each, as the search by tags shows its contacts. A recipient PersonalData no longer reads is left out, but one
- * a started campaign keeps erased, shown without its contact.
+ * a started campaign keeps erased, shown without its contact. A recipient to handle of a started campaign links the
+ * exchange to note for them and their dismissal (ADR 0145).
  */
 final readonly class RecipientsReader
 {
@@ -46,6 +47,7 @@ final readonly class RecipientsReader
         $organizations = $this->organizationsOfContacts->read($reader, $read);
         $tags = $this->tagsOfContacts->read($reader, $read);
         $removable = $this->intentLinks->shows('RemoveRecipient', $campaign->possibleIntents, User::PERSONAL_DATA);
+        $running = $this->intentLinks->shows('RunCampaign', $campaign->possibleIntents, User::PERSONAL_DATA);
         $shown = array_filter($contactIds, static fn (string $id): bool => isset($persons[$id]) || self::ERASED === $campaign->recipients[$id]->status);
 
         return new RecipientListResource(
@@ -54,9 +56,20 @@ final readonly class RecipientsReader
                 $campaign->recipients[$id]->status,
                 $campaign->recipients[$id]->missed,
                 $campaign->recipients[$id]->reason,
-                new RecipientLinksResource($removable ? $this->links->to('api_campaigns_remove_recipient', ['id' => $campaign->id, 'contactId' => $id]) : null),
+                $this->linksOf($campaign, $id, $removable, $running && $campaign->recipients[$id]->pending),
             ), $shown)),
             new RecipientListLinksResource($this->links->to('api_campaigns_recipients', ['id' => $campaign->id])),
+        );
+    }
+
+    private function linksOf(CampaignSheet $campaign, string $contactId, bool $removable, bool $toHandle): RecipientLinksResource
+    {
+        $recipient = ['id' => $campaign->id, 'contactId' => $contactId];
+
+        return new RecipientLinksResource(
+            remove: $removable ? $this->links->to('api_campaigns_remove_recipient', $recipient) : null,
+            noteExchange: $toHandle ? $this->links->to('api_campaigns_note_exchange', $recipient) : null,
+            dismiss: $toHandle ? $this->links->to('api_campaigns_dismiss_recipient', $recipient) : null,
         );
     }
 

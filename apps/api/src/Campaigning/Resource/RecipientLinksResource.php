@@ -10,6 +10,10 @@ final readonly class RecipientLinksResource
     public function __construct(
         #[OA\Property(description: 'Take them off the campaign, while it is frozen', nullable: false)]
         public ?LinkResource $remove = null,
+        #[OA\Property(description: 'Note the exchange had with them, while the campaign is started and they are to handle', nullable: false)]
+        public ?LinkResource $noteExchange = null,
+        #[OA\Property(description: 'Dismiss them without an exchange, while the campaign is started and they are to handle', nullable: false)]
+        public ?LinkResource $dismiss = null,
     ) {
     }
 }

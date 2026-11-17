@@ -37,7 +37,7 @@ class StartedCampaignsApiTest extends ApiTestCase
         $this->assertNotNull($started['startedAt']);
         $this->assertSame(['self', 'stop', 'recipients'], array_keys($started['_links']));
         $this->assertSame(['href' => '/api/campaigns/'.$id.'/stopping', 'method' => 'POST'], $started['_links']['stop']);
-        $this->assertSame([[]], array_map(static fn (array $recipient): array => $recipient['_links'], $this->requestJson('GET', '/api/campaigns/'.$id.'/recipients')['items']));
+        $this->assertSame([['noteExchange', 'dismiss']], array_map(static fn (array $recipient): array => array_keys($recipient['_links']), $this->requestJson('GET', '/api/campaigns/'.$id.'/recipients')['items']));
     }
 
     public function testAStartedCampaignNoLongerChangesAndIsNotDiscarded(): void
