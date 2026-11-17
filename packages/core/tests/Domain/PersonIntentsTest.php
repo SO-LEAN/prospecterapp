@@ -85,7 +85,7 @@ class PersonIntentsTest extends TestCase
             match ($intent) {
                 PersonIntent::Rename => $person->rename(new PersonName('Ada'), $by, new \DateTimeImmutable()),
                 PersonIntent::ChangeJobTitle => $person->changeJobTitle('Directrice commerciale', $by, new \DateTimeImmutable()),
-                PersonIntent::ChangeContactDetails => $person->changeContactDetails(new ContactDetails(phoneNumber: PhoneNumber::of('03 88 00 00 00')), $by, new \DateTimeImmutable()),
+                PersonIntent::ChangeContactDetails => $person->changeContactDetails(new ContactDetails(phoneNumber: PhoneNumber::of('03 88 00 00 00')), null, $by, new \DateTimeImmutable()),
                 PersonIntent::ChangePicture => $person->changePicture(new File('https://storage.test/ada.png', 'png', 1024), $by, new \DateTimeImmutable()),
                 PersonIntent::Forget => $person->forget($by, new \DateTimeImmutable()),
             };

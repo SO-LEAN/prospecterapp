@@ -72,6 +72,7 @@ final readonly class InMemoryPersonCardRetriever implements PersonCardRetriever
             email: $masked ? Masking::email($contact->email?->value) : $contact->email?->value,
             phoneNumber: $masked ? Masking::phoneNumber($contact->phoneNumber) : $contact->phoneNumber?->international(),
             language: $contact->language,
+            linkedInProfile: $masked ? Masking::linkedInProfile($person->linkedInProfile()) : $person->linkedInProfile()?->value,
             picture: $masked ? null : FileResponse::orNone($state['picture']),
             possibleIntents: array_map(static fn (PersonIntent $intent): string => $intent->name, PersonPossibilities::given($reader, $person->id(), $person->accountId(), $person->purpose())),
             createdAt: $state['createdAt'],

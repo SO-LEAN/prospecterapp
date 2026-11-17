@@ -23,6 +23,7 @@ final readonly class PersonCard
         public ?string $email,
         public ?string $phoneNumber,
         public ?string $language,
+        public ?string $linkedInProfile,
         public ?FileResponse $picture,
         public array $possibleIntents,
         public \DateTimeImmutable $createdAt,

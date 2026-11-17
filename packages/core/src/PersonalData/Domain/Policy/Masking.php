@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Prospecter\Core\PersonalData\Domain\Policy;
 
+use Prospecter\Core\PersonalData\Domain\Model\LinkedInProfile;
 use Prospecter\Core\SharedKernel\Domain\PhoneNumber;
 
 /**
@@ -34,6 +35,12 @@ final class Masking
     public static function email(?string $email): ?string
     {
         return null === $email ? null : mb_substr($email, 0, 1).self::STARS.'@'.self::STARS;
+    }
+
+    #[\NoDiscard]
+    public static function linkedInProfile(?LinkedInProfile $linkedInProfile): ?string
+    {
+        return null === $linkedInProfile ? null : self::STARS;
     }
 
     #[\NoDiscard]
