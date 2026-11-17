@@ -34,6 +34,8 @@ use Prospecter\Core\Prospecting\Contract\Service\WhichAreProspected\WhichArePros
 use Prospecter\Core\SharedKernel\Domain\AccountId;
 use Prospecter\Core\SharedKernel\Domain\MemberId;
 use Prospecter\Core\SharedKernel\Domain\OrganizationId;
+use Prospecter\Core\Prospecting\Contract\Service\NameOrganizationsOfContacts\NameOrganizationsOfContacts;
+use Prospecter\Core\Prospecting\Contract\Service\NameOrganizationsOfContacts\OrganizationsOfContactResponse;
 use Prospecter\Core\SharedKernel\Domain\PersonId;
 use Tests\Core\Acceptance\Expect;
 use Tests\Core\Acceptance\Vocabulary;
@@ -75,6 +77,10 @@ final class PublishedLanguageContext implements Context
      * @var list<HeldExchangeResponse>
      */
     private array $heldExchanges = [];
+    /**
+     * @var list<OrganizationsOfContactResponse>
+     */
+    private array $organizationsOfContacts = [];
 
     #[Given(':name est membre de :account avec le droit aux données personnelles')]
     public function aMemberManagingPersonalData(string $name, string $account): void
@@ -344,6 +350,38 @@ final class PublishedLanguageContext implements Context
     public function personalDataAnswersTheNames(TableNode $names): void
     {
         Expect::same($names->getColumn(0), array_map(static fn (ContactNameResponse $name): string => trim(sprintf('%s %s', $name->firstName, $name->lastName)), $this->names));
+    }
+
+    #[Then('PersonalData répond que :name est :jobTitle')]
+    public function personalDataAnswersTheJobTitle(string $name, string $jobTitle): void
+    {
+        $person = $this->scenario->personIdOf($name);
+        $answered = array_find($this->names, static fn (ContactNameResponse $named): bool => $named->personId === $person);
+        Expect::same($jobTitle, $answered?->jobTitle);
+    }
+
+    #[When('un autre contexte demande à Prospecting les organisations, pour :account, de :')]
+    public function anotherContextAsksTheOrganizationsOfContacts(string $account, TableNode $contacts): void
+    {
+        $this->asked = array_combine(array_map($this->scenario->personIdOf(...), $contacts->getColumn(0)), $contacts->getColumn(0));
+        $this->organizationsOfContacts = $this->application->nameOrganizationsOfContacts(new NameOrganizationsOfContacts($this->scenario->accountIdOf($account)->value, array_keys($this->asked)));
+    }
+
+    #[Then('Prospecting répond les organisations :')]
+    public function prospectingAnswersTheOrganizations(TableNode $table): void
+    {
+        $answered = array_map(fn (OrganizationsOfContactResponse $contact): array => [
+            'contact' => $this->asked[$contact->personId] ?? $contact->personId,
+            'organisations' => implode(', ', $contact->organizationNames),
+        ], $this->organizationsOfContacts);
+
+        Expect::same($table->getColumnsHash(), $answered);
+    }
+
+    #[Then('Prospecting ne répond aucune organisation')]
+    public function prospectingAnswersNoOrganization(): void
+    {
+        Expect::same([], $this->organizationsOfContacts);
     }
 
     #[Then('PersonalData ne répond aucun nom')]
