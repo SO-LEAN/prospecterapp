@@ -1,21 +1,44 @@
-import type { QueryClient, QueryKey } from '@tanstack/react-query'
+import { hashKey, type QueryClient, type QueryKey } from '@tanstack/react-query'
 
 /**
  * The reactions to a gesture run after it, in the worker of the API (ADR 0101), a second or so later: what they
- * change is read again at once, then at these moments, while they run.
+ * change is read again at once, then once at this moment, when they ran.
  */
-export const WHILE_THE_REACTIONS_RUN_MS = [1_000, 2_500] as const
+export const AFTER_THE_REACTIONS_MS = 2_500
 
-/** The queries showing what the reactions to a gesture change are read again, now and while they run. */
+/** The queries to read again once the reactions to the last gestures ran, by the client caching them. */
+const toReadAfterTheReactions = new WeakMap<
+  QueryClient,
+  { queryKeys: Map<string, QueryKey>; timer: number }
+>()
+
+/**
+ * The queries showing what the reactions to a gesture change are read again, now and once they ran: only those
+ * displayed, the others when they are shown again; each once at each moment, however many times the gesture names
+ * it, the gestures following each other read once after the reactions to the last.
+ */
 export function readAgainAfterTheReactions(queryClient: QueryClient, ...queryKeys: readonly QueryKey[]) {
-  const readAgain = () => {
-    for (const queryKey of queryKeys) {
-      void queryClient.invalidateQueries({ queryKey })
-    }
-  }
+  readTheDisplayedOnes(queryClient, queryKeys)
+  readOnceTheReactionsRan(queryClient, queryKeys)
+}
 
-  readAgain()
-  for (const moment of WHILE_THE_REACTIONS_RUN_MS) {
-    setTimeout(readAgain, moment)
+/** A query being read already is not read again at the same moment: its read is the one awaited. */
+function readTheDisplayedOnes(queryClient: QueryClient, queryKeys: Iterable<QueryKey>) {
+  for (const queryKey of queryKeys) {
+    void queryClient.invalidateQueries({ queryKey, refetchType: 'active' }, { cancelRefetch: false })
   }
+}
+
+function readOnceTheReactionsRan(queryClient: QueryClient, queryKeys: readonly QueryKey[]) {
+  const awaiting = toReadAfterTheReactions.get(queryClient)
+  window.clearTimeout(awaiting?.timer)
+  const toRead = awaiting?.queryKeys ?? new Map<string, QueryKey>()
+  for (const queryKey of queryKeys) {
+    toRead.set(hashKey(queryKey), queryKey)
+  }
+  const timer = window.setTimeout(() => {
+    toReadAfterTheReactions.delete(queryClient)
+    readTheDisplayedOnes(queryClient, toRead.values())
+  }, AFTER_THE_REACTIONS_MS)
+  toReadAfterTheReactions.set(queryClient, { queryKeys: toRead, timer })
 }

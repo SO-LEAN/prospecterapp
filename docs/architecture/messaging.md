@@ -79,7 +79,7 @@ sequenceDiagram
   R->>W: prospecting-erase-exchange, once per exchange
   W->>P: exchange erased + inbox + OUTBOX# (depth 2): ExchangeErased, ExchangeFactsChanged
   R->>W: prospecting-discard-attachments-of-erased-exchange, reporting-figures, …
-  Note over SPA: the SPA reads again the queries the reactions change<br/>while they run (readAgainAfterTheReactions)
+  Note over SPA: the SPA reads again the queries the reactions change<br/>once they ran (readAgainAfterTheReactions)
 ```
 
 Each exchange is erased by its own reaction, so that a gesture never exceeds the 100 writes of a transaction, whatever the number of exchanges (ADR 0095). On AWS a warm chain takes about 0.7 s from the answer of the API to the reaction written, about 3 s when the relay and the worker start cold (measured on dev, 2026-11-12).
@@ -191,7 +191,7 @@ The scenarios of the core reproduce the asynchronous order without a bus: `Synch
 ## What the members see
 
 - **A command is not slower**: it stops at its commit, no reaction runs in the request.
-- **What follows from a gesture comes about a second later**: a contact collected appears on its organization, the exchanges of an organization no longer prospected disappear, a figure of the dashboard moves. The SPA reads the queries a gesture's reactions change again at once and while they run (`readAgainAfterTheReactions`, `shared/api/reactions.ts`, [front.md](front.md)); the e2e journeys rely on the retried assertions of Playwright, never on a fixed pause.
+- **What follows from a gesture comes about a second later**: a contact collected appears on its organization, the exchanges of an organization no longer prospected disappear, a figure of the dashboard moves. The SPA reads the queries a gesture's reactions change again at once and once they ran (`readAgainAfterTheReactions`, `shared/api/reactions.ts`, [front.md](front.md)); the e2e journeys rely on the retried assertions of Playwright, never on a fixed pause.
 - **A member signing in right after their registration** may find their profile not yet collected: the SPA shows « Votre profil est en cours de préparation… », reads it again with a growing delay, and after a minute « Réessayez plus tard »; then « Complétez votre profil » (ADR 0100).
 - **A refusal of a reaction no longer refuses the gesture**: it is logged with its `reason`, kept in the failures, shown by `app:consistency:check`.
 
