@@ -102,7 +102,13 @@ const suggested: SuggestedTags = {
 
 type Call = { method: string; pathname: string; search: string; body: unknown }
 
-function theApiAnswers(campaign: Campaign) {
+const twoContacts = {
+  items: [aContact(ADA, 'Ada', 'Lovelace'), aContact(ALAN, 'Alan', 'Turing')],
+  found: 2,
+  _links: {},
+}
+
+function theApiAnswers(campaign: Campaign, taggedContacts: unknown = twoContacts) {
   const calls: Call[] = []
   theApi.mockImplementation(async (input) => {
     const request = input as Request
@@ -131,11 +137,7 @@ function theApiAnswers(campaign: Campaign) {
       '/api/tags': suggested,
       [`/api/campaigns/${CAMPAIGN}`]: campaign,
       [`/api/campaigns/${CAMPAIGN}/recipients`]: recipients,
-      '/api/tagged-contacts': {
-        items: [aContact(ADA, 'Ada', 'Lovelace'), aContact(ALAN, 'Alan', 'Turing')],
-        found: 2,
-        _links: {},
-      },
+      '/api/tagged-contacts': taggedContacts,
       '/api/contacts': { items: [aContact(ALAN, 'Alan', 'Turing')], _links: {} },
       [`/api/campaigns/${CAMPAIGN}/messages/${ADA}`]: { subject: null, text: 'Bonjour Ada' },
     }
@@ -222,6 +224,23 @@ describe('the recipients of a campaign', () => {
         }),
       ),
     )
+  })
+
+  it('are previewed as a bound while the search spans more slices than those read', async () => {
+    theApiAnswers(frozen, {
+      ...twoContacts,
+      found: 30,
+      _links: { next: { href: `/api/tagged-contacts?tags=EDITEUR,EMAIL&after=${ALAN}`, method: 'GET' } },
+    })
+    await renderTheSpaAt(`/campaigns/${CAMPAIGN}`)
+
+    await userEvent.click(await screen.findByRole('button', { name: 'Ajouter' }))
+    const dialog = await screen.findByRole('dialog', { name: 'Ajouter des destinataires' })
+    await userEvent.click(within(dialog).getByRole('button', { name: 'Filtrer par tag' }))
+    await userEvent.click(await screen.findByRole('option', { name: '#EDITEUR' }))
+
+    expect(await within(dialog).findByText('Au plus 29 contacts seront ajoutés')).toBeInTheDocument()
+    expect(within(dialog).getByRole('button', { name: 'Ajouter ces contacts' })).toBeInTheDocument()
   })
 
   it('gain a contact chosen by their name', async () => {
