@@ -4,6 +4,7 @@ namespace App\PersonalData\Persistence;
 
 use App\Shared\Persistence\Documents;
 use App\Shared\Persistence\Hydrator;
+use Prospecter\Core\PersonalData\Domain\Model\Civility;
 use Prospecter\Core\PersonalData\Domain\Model\LinkedInProfile;
 use Prospecter\Core\PersonalData\Domain\Model\Person;
 use Prospecter\Core\PersonalData\Domain\Model\PersonName;
@@ -32,6 +33,7 @@ final class PersonDocument
             'contactDetails' => Documents::contactDetails($state['contactDetails']),
             'linkedInProfile' => $state['linkedInProfile']?->value,
             'jobTitle' => $state['jobTitle'],
+            'civility' => $state['civility']?->value,
             'picture' => Documents::file($state['picture']),
             'createdAt' => Documents::moment($state['createdAt']),
             'modifiedAt' => Documents::moment($state['modifiedAt']),
@@ -51,10 +53,21 @@ final class PersonDocument
             'contactDetails' => Documents::contactDetailsOf($document['contactDetails']),
             'linkedInProfile' => self::linkedInProfileOf($document),
             'jobTitle' => $document['jobTitle'],
+            'civility' => self::civilityOf($document),
             'picture' => Documents::fileOf($document['picture']),
             'createdAt' => Documents::momentOf($document['createdAt']),
             'modifiedAt' => Documents::momentOf($document['modifiedAt']),
         ]);
+    }
+
+    /**
+     * A person saved before the civilities were noted has none.
+     *
+     * @param array<string, mixed> $document
+     */
+    public static function civilityOf(array $document): ?Civility
+    {
+        return Civility::tryFrom($document['civility'] ?? '');
     }
 
     /**

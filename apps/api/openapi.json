@@ -1957,6 +1957,81 @@
                 }
             }
         },
+        "/api/contacts/{id}/civility": {
+            "patch": {
+                "tags": [
+                    "Contacts"
+                ],
+                "summary": "Note how one addresses a contact, Madame or Monsieur, or no longer",
+                "operationId": "patch_api_contacts_change_civility",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "pattern": "[0-9a-f]{8}-[0-9a-f]{4}-[13-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/CivilityInput"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "The contact",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ContactResource"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Missing or invalid access token"
+                    },
+                    "403": {
+                        "description": "Not a prospector, or no right to manage personal data",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ProblemResource"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Unknown contact, or one of another account",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ProblemResource"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Unknown civility",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ProblemResource"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
         "/api/contacts/{id}/contact-details": {
             "patch": {
                 "tags": [
@@ -6935,6 +7010,21 @@
                 },
                 "type": "object"
             },
+            "CivilityInput": {
+                "properties": {
+                    "civility": {
+                        "description": "How one addresses the contact, null to no longer note it",
+                        "type": "string",
+                        "nullable": true,
+                        "default": null,
+                        "enum": [
+                            "madame",
+                            "monsieur"
+                        ]
+                    }
+                },
+                "type": "object"
+            },
             "JobTitleInput": {
                 "properties": {
                     "jobTitle": {
@@ -6950,6 +7040,16 @@
                 "properties": {
                     "name": {
                         "$ref": "#/components/schemas/PersonNameInput"
+                    },
+                    "civility": {
+                        "description": "How one addresses the contact, never required",
+                        "type": "string",
+                        "nullable": true,
+                        "default": null,
+                        "enum": [
+                            "madame",
+                            "monsieur"
+                        ]
                     },
                     "jobTitle": {
                         "type": "string",
@@ -7788,6 +7888,15 @@
                     "name": {
                         "$ref": "#/components/schemas/PersonNameResource"
                     },
+                    "civility": {
+                        "description": "How one addresses the contact, read in clear like their name",
+                        "type": "string",
+                        "nullable": true,
+                        "enum": [
+                            "madame",
+                            "monsieur"
+                        ]
+                    },
                     "jobTitle": {
                         "type": "string",
                         "nullable": true
@@ -8293,6 +8402,9 @@
                     "changeJobTitle": {
                         "$ref": "#/components/schemas/LinkResource"
                     },
+                    "changeCivility": {
+                        "$ref": "#/components/schemas/LinkResource"
+                    },
                     "changeContactDetails": {
                         "$ref": "#/components/schemas/LinkResource"
                     },
@@ -8325,6 +8437,15 @@
                     },
                     "name": {
                         "$ref": "#/components/schemas/PersonNameResource"
+                    },
+                    "civility": {
+                        "description": "How one addresses the contact, read in clear like their name",
+                        "type": "string",
+                        "nullable": true,
+                        "enum": [
+                            "madame",
+                            "monsieur"
+                        ]
                     },
                     "jobTitle": {
                         "type": "string",
@@ -8378,6 +8499,15 @@
                     },
                     "name": {
                         "$ref": "#/components/schemas/PersonNameResource"
+                    },
+                    "civility": {
+                        "description": "How one addresses the contact, read in clear like their name",
+                        "type": "string",
+                        "nullable": true,
+                        "enum": [
+                            "madame",
+                            "monsieur"
+                        ]
                     },
                     "jobTitle": {
                         "type": "string",

@@ -48,6 +48,7 @@ final class CollectContactController extends AbstractController
             id: $id,
             firstName: $input->name->firstName,
             lastName: $input->name->lastName,
+            civility: $input->civility,
             jobTitle: $input->jobTitle,
             email: $input->contactDetails->email,
             phoneNumber: $input->contactDetails->phoneNumber,

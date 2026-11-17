@@ -18,7 +18,7 @@ use Prospecter\Core\SharedKernel\Domain\PersonId;
 /**
  * The card of a person from the document `DynamoPersonRepository` writes, as the reader may read it, asked to
  * the policies of PersonalData (ADR 0031, 0088): in clear, or masked and without picture, the name of a contact
- * in clear (ADR 0129).
+ * and its civility in clear (ADR 0129).
  */
 final class PersonCards
 {
@@ -51,6 +51,7 @@ final class PersonCards
             masked: $masked,
             firstName: $nameMasked ? Masking::name($name['firstName'] ?? null) : $name['firstName'] ?? null,
             lastName: $nameMasked ? Masking::name($name['lastName'] ?? null) : $name['lastName'] ?? null,
+            civility: PersonDocument::civilityOf($document)?->value,
             jobTitle: $masked ? Masking::jobTitle($document['jobTitle']) : $document['jobTitle'],
             email: $masked ? Masking::email($contact->email?->value) : $contact->email?->value,
             phoneNumber: $masked ? Masking::phoneNumber($contact->phoneNumber) : $contact->phoneNumber?->international(),
