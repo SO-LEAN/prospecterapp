@@ -9,6 +9,7 @@ use Behat\Gherkin\Node\TableNode;
 use Behat\Step\Given;
 use Behat\Step\Then;
 use Behat\Step\When;
+use Prospecter\Core\PersonalData\Application\ChangePersonContactDetails\ChangePersonContactDetails;
 use Prospecter\Core\Prospecting\Application\AddContact\AddContact;
 use Prospecter\Core\Prospecting\Application\AttachToHolding\AttachToHolding;
 use Prospecter\Core\Prospecting\Application\ChangeContactDetails\ChangeContactDetails;
@@ -151,7 +152,9 @@ final class OrganizationContext implements Context
     public function iChangeTheContactDetails(string $name, TableNode $table): void
     {
         $values = Vocabulary::values($table->getRowsHash());
-        $this->application->dispatch(new ChangeContactDetails($this->me(), $this->scenario->idOf($name), $values['e-mail'], $values['téléphone'], $values['langue'], $this->application->now()));
+        $this->application->dispatch($this->scenario->isAnOrganization($name)
+            ? new ChangeContactDetails($this->me(), $this->scenario->idOf($name), $values['e-mail'], $values['téléphone'], $values['langue'], $this->application->now())
+            : new ChangePersonContactDetails($this->me(), $this->scenario->personIdOf($name), $values['e-mail'], $values['téléphone'], $values['langue'], $values['LinkedIn'], $this->application->now()));
     }
 
     #[When('je déménage :name à l\'adresse :')]
