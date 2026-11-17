@@ -229,6 +229,15 @@ final class Connection implements ReleasesEvents
         return ConnectionState::Connected === $this->state;
     }
 
+    /**
+     * The same connection: of the same member, to the same provider, connected at the same moment; connected again,
+     * it is another.
+     */
+    public function isTheSameAs(self $other): bool
+    {
+        return $this->member->equals($other->member) && $this->provider === $other->provider && $this->connectedAt == $other->connectedAt;
+    }
+
     public function member(): MemberId
     {
         return $this->member;

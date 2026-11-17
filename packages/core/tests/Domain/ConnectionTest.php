@@ -148,6 +148,32 @@ final class ConnectionTest extends TestCase
         $this->assertTrue($calendars->wasWithdrawn(self::EXCHANGE));
     }
 
+    public function testAConnectionChangedByAPushIsStillTheSame(): void
+    {
+        $read = $this->establish();
+        $pushed = clone $read;
+        $pushed->push(self::event(), self::client(), new InMemoryProviderCalendar(new InMemoryProviderAccess()), new \DateTimeImmutable('2026-11-14 10:05'));
+
+        $this->assertTrue($pushed->isTheSameAs($read));
+    }
+
+    public function testAConnectionMadeAgainIsAnother(): void
+    {
+        $read = $this->establish();
+        $renewed = clone $read;
+        $renewed->renew(self::grant(), self::client(), new InMemoryProviderAccess(), new \DateTimeImmutable('2026-11-14 10:05'));
+
+        $this->assertFalse($read->isTheSameAs($renewed));
+        $this->assertFalse($read->isTheSameAs(Connection::establish(new MemberId(self::MEMBER), new AccountId(self::ACCOUNT), self::client(), self::grant(), new \DateTimeImmutable('2026-11-14 10:05'))));
+    }
+
+    public function testTheConnectionOfAnotherMemberIsAnother(): void
+    {
+        $another = Connection::establish(new MemberId('0190a1c0-0000-7000-8000-0000000000bb'), new AccountId(self::ACCOUNT), self::client(), self::grant(), new \DateTimeImmutable(self::AT));
+
+        $this->assertFalse($this->establish()->isTheSameAs($another));
+    }
+
     public function testAnAuthorizationWaitsTenMinutes(): void
     {
         $authorization = PendingAuthorization::askedBy(new MemberId(self::MEMBER), Provider::Google, 'a-state', 'a-verifier', new \DateTimeImmutable(self::AT));
