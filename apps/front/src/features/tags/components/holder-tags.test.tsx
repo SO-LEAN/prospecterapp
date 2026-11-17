@@ -155,6 +155,15 @@ describe('the tags of an organization or of a contact', () => {
     expect(await screen.findByRole('tooltip')).toHaveTextContent('Hérité de ACME')
   })
 
+  it('says an inherited tag comes from an organization while their names are not read yet', async () => {
+    adaCarries(contactTagsOf([], [{ name: '#ESN', from: [ACME] }]))
+    renderWithACache(<ContactTags contactId={ADA} organizations={[]} />)
+
+    await userEvent.click(await screen.findByRole('button', { name: '#ESN' }))
+
+    expect(await screen.findByRole('tooltip')).toHaveTextContent('Hérité d’une organisation')
+  })
+
   it('says an automatic tag is set automatically', async () => {
     adaCarries(contactTagsOf([], [], ['#EMAIL']))
     renderWithACache(<ContactTags contactId={ADA} organizations={ADA_WORKS_FOR} />)

@@ -231,7 +231,7 @@ The correlation of a gesture is in every log of the relay and the worker (CloudW
 
 ## Limits and debt
 
-- A reaction writes 100 items at most, its inbox and outbox included: a reaction on a set publishes an event per element instead (`ExchangeLeftWithoutOrganization`).
+- A reaction writes 100 items at most, its inbox and outbox included: a reaction on a set publishes an event per element instead (`ExchangeLeftWithoutOrganization`). The fact of an organization naming close to a hundred contacts more, or fewer, than the one it replaces writes as many links of Campaigns (ADR 0141): its recording is refused, kept in the failures, and `app:tags:rebuild` stops at it.
 - A query on an index within a unit of work sees the table before the commit; only reads by key and partition queries see what the unit is about to write ([persistence.md](persistence.md#the-unit-of-work)).
 - What is not DynamoDB is outside the transaction: a file sent to the storage by a use case whose unit is then discarded stays there, unused; files are removed only by reactions, after the state.
 - No alarm on the queues of the failures: `app:consistency:check` is run by hand.
