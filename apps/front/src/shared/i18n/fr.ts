@@ -244,6 +244,12 @@ export const fr = {
     masked: 'Données masquées',
     organizationsOf: 'Organisations {{name, de}}',
     tagsOf: 'Tags {{name, de}}',
+    found_one: '{{count}} contact trouvé',
+    found_other: '{{count}} contacts trouvés',
+    noneTagged: {
+      title: 'Aucun contact',
+      description: 'Aucun contact ne porte tous les tags choisis.',
+    },
     sections: {
       name: 'Nom',
       jobTitle: 'Fonction',
@@ -271,6 +277,11 @@ export const fr = {
     inheritedFrom: 'Hérité de {{organizations}}',
     inheritedFromAnOrganization: 'Hérité d’une organisation',
     automatic: 'Automatique',
+    automaticOnes: 'Automatiques',
+    filterPlaceholder: 'Rechercher un tag',
+    filter: 'Filtrer par tag',
+    chosen: 'Tags choisis',
+    takeOffFilter: 'Retirer le filtre {{tag}}',
     families: {
       organizationType: 'Type d’organisation',
       relationship: 'Relation avec le contact',

@@ -72,7 +72,10 @@ const itsTags: ContactTags = {
   tags: [],
   inherited: [{ name: '#ESN', from: [] }],
   automatic: ['#EMAIL'],
-  _links: { self: { href: `/api/contacts/${ADA}/tags`, method: 'GET' } },
+  _links: {
+    self: { href: `/api/contacts/${ADA}/tags`, method: 'GET' },
+    tag: { href: `/api/contacts/${ADA}/tags`, method: 'POST' },
+  },
 }
 
 /** The api: my account, the whole list of the contacts, those tagged, the tags proposed, the card of Ada. */
@@ -92,6 +95,17 @@ function theApiAnswers() {
     }
     const answers: Record<string, unknown> = {
       '/api/me': me,
+      '/api/me/connections': {
+        connections: [],
+        _links: { self: { href: '/api/me/connections', method: 'GET' } },
+      },
+      '/api/me/reminders': {
+        enabled: false,
+        minutesBefore: 10,
+        _links: { self: { href: '/api/me/reminders', method: 'GET' } },
+      },
+      '/api/me/day': { today: [], next: [], _links: { self: { href: '/api/me/day', method: 'GET' } } },
+      '/api/me/exchanges-to-process': { items: [], toDos: [], _links: {} },
       '/api/contacts': {
         items: [linus, grace, ada],
         _links: {
@@ -110,9 +124,7 @@ function theApiAnswers() {
 }
 
 const namesListed = () =>
-  screen
-    .getAllByRole('link', { name: /Lovelace|Hopper|Torvalds/ })
-    .map((link) => link.textContent)
+  screen.getAllByRole('link', { name: /Lovelace|Hopper|Torvalds/ }).map((link) => link.textContent)
 
 describe('my contacts by their tags', () => {
   afterEach(() => theApi.mockReset())
@@ -139,7 +151,7 @@ describe('my contacts by their tags', () => {
 
     expect(await screen.findByText('1 contact trouvé')).toBeInTheDocument()
     expect(namesListed()).toEqual(['Ada Lovelace'])
-    expect(router.state.location.search).toEqual({ tags: 'ESN,EMAIL' })
+    expect(router.state.location.search.tags).toBe('ESN,EMAIL')
     expect(tagsAsked).toContain('ESN,EMAIL')
   })
 
@@ -152,7 +164,7 @@ describe('my contacts by their tags', () => {
 
     await waitFor(() => expect(namesListed()).toEqual(['Linus Torvalds', 'Grace Hopper', 'Ada Lovelace']))
     expect(screen.queryByText(/trouvés?$/)).not.toBeInTheDocument()
-    expect(router.state.location.search).toEqual({})
+    expect(router.state.location.search.tags ?? '').toBe('')
   })
 
   it('leaves the search by text aside while tags are chosen', async () => {
@@ -164,7 +176,7 @@ describe('my contacts by their tags', () => {
     await userEvent.click(await screen.findByRole('option', { name: '#ESN' }))
 
     await screen.findByText('2 contacts trouvés')
-    expect(router.state.location.search).toEqual({ tags: 'ESN' })
+    expect(router.state.location.search).toMatchObject({ tags: 'ESN', q: '' })
   })
 
   it('opens the list of the contacts carrying a tag pressed on the card of a contact', async () => {
@@ -175,6 +187,6 @@ describe('my contacts by their tags', () => {
 
     expect(await screen.findByText('1 contact trouvé')).toBeInTheDocument()
     expect(router.state.location.pathname).toBe('/contacts')
-    expect(router.state.location.search).toEqual({ tags: 'EMAIL' })
+    expect(router.state.location.search.tags).toBe('EMAIL')
   })
 })

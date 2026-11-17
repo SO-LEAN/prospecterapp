@@ -1,10 +1,14 @@
 import { Link } from '@tanstack/react-router'
 import { useTranslation } from 'react-i18next'
+import { searchOfTags } from '@/features/tags/chosen-tags'
 import { Badge } from '@/shared/ui/badge'
 import { Card, CardContent } from '@/shared/ui/card'
 import { type ContactInList, fullNameOf } from '../queries'
 
-/** A contact of the list, with links to the organizations it works for, and the tags it carries in small. */
+/**
+ * A contact of the list, with links to the organizations it works for, and the tags it carries in small, each
+ * opening the contacts carrying it.
+ */
 export function ContactCard({ contact }: { contact: ContactInList }) {
   const { t } = useTranslation()
 
@@ -47,7 +51,11 @@ export function ContactCard({ contact }: { contact: ContactInList }) {
             aria-label={t('contacts.tagsOf', { name: fullNameOf(contact) })}
           >
             {contact.tags.map((tag) => (
-              <li key={tag}>{tag}</li>
+              <li key={tag}>
+                <Link to="/contacts" search={{ tags: searchOfTags([tag]) }} className="hover:underline">
+                  {tag}
+                </Link>
+              </li>
             ))}
           </ul>
         )}

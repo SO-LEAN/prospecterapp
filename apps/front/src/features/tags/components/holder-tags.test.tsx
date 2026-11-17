@@ -1,8 +1,9 @@
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
-import { render, screen, waitFor, within } from '@testing-library/react'
+import { screen, waitFor, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import { TooltipProvider } from '@/shared/ui/tooltip'
+import { renderInARouter } from '@/test/render-in-a-router'
 import type { ContactTags as ContactTagsResource, SuggestedTags, Tags } from '../queries'
 import { ContactTags, OrganizationTags } from './holder-tags'
 
@@ -26,6 +27,7 @@ const suggested: SuggestedTags = {
     { family: 'technology', tags: ['#PHP'] },
   ],
   own: [],
+  automatic: ['#EMAIL', '#PHONE', '#SMS', '#LINKEDIN'],
 }
 
 const tagsOf = (base: string, names: string[]): Tags => ({
@@ -72,7 +74,7 @@ function adaCarries(tags: ContactTagsResource) {
 const ADA_WORKS_FOR = [{ id: ACME, name: 'ACME' }]
 
 const renderWithACache = (node: React.ReactNode) =>
-  render(
+  renderInARouter(
     <QueryClientProvider client={new QueryClient()}>
       <TooltipProvider>{node}</TooltipProvider>
     </QueryClientProvider>,
@@ -84,7 +86,7 @@ describe('the tags of an organization or of a contact', () => {
   it('shows the tags of the organization', async () => {
     theApiAnswers(`/api/organizations/${ACME}`, ['#APPORTEUR', '#ESN'], [])
 
-    renderWithACache(<OrganizationTags organizationId={ACME} />)
+    await renderWithACache(<OrganizationTags organizationId={ACME} />)
 
     expect(await screen.findByText('#APPORTEUR')).toBeInTheDocument()
     expect(screen.getByText('#ESN')).toBeInTheDocument()
@@ -92,7 +94,7 @@ describe('the tags of an organization or of a contact', () => {
 
   it('puts a tag picked on the organization, and shows the tags the api answers', async () => {
     const calls = theApiAnswers(`/api/organizations/${ACME}`, [], ['#ESN'])
-    renderWithACache(<OrganizationTags organizationId={ACME} />)
+    await renderWithACache(<OrganizationTags organizationId={ACME} />)
 
     await userEvent.click(await screen.findByRole('button', { name: 'Ajouter un tag' }))
     await userEvent.click(await screen.findByRole('option', { name: '#ESN' }))
@@ -107,7 +109,7 @@ describe('the tags of an organization or of a contact', () => {
 
   it('lets the member type at once in the picker, the tags proposed read once it opens', async () => {
     theApiAnswers(`/api/organizations/${ACME}`, [], [])
-    renderWithACache(<OrganizationTags organizationId={ACME} />)
+    await renderWithACache(<OrganizationTags organizationId={ACME} />)
 
     await userEvent.click(await screen.findByRole('button', { name: 'Ajouter un tag' }))
 
@@ -116,7 +118,7 @@ describe('the tags of an organization or of a contact', () => {
 
   it('takes a tag off the contact by its cross', async () => {
     const calls = theApiAnswers(`/api/contacts/${ADA}`, ['#CLIENT'], [])
-    renderWithACache(<ContactTags contactId={ADA} organizations={ADA_WORKS_FOR} />)
+    await renderWithACache(<ContactTags contactId={ADA} organizations={ADA_WORKS_FOR} />)
 
     await userEvent.click(await screen.findByRole('button', { name: 'Retirer le tag #CLIENT' }))
 
@@ -131,7 +133,7 @@ describe('the tags of an organization or of a contact', () => {
   it('shows the tags the contact inherits and the automatic ones after its own, none taken off', async () => {
     adaCarries(contactTagsOf(['#CLIENT'], [{ name: '#ESN', from: [ACME] }], ['#EMAIL', '#SMS']))
 
-    renderWithACache(<ContactTags contactId={ADA} organizations={ADA_WORKS_FOR} />)
+    await renderWithACache(<ContactTags contactId={ADA} organizations={ADA_WORKS_FOR} />)
 
     const tags = await screen.findByRole('list', { name: 'Tags' })
     await waitFor(() =>
@@ -148,28 +150,40 @@ describe('the tags of an organization or of a contact', () => {
 
   it('says which organization an inherited tag comes from', async () => {
     adaCarries(contactTagsOf([], [{ name: '#ESN', from: [ACME] }]))
-    renderWithACache(<ContactTags contactId={ADA} organizations={ADA_WORKS_FOR} />)
+    await renderWithACache(<ContactTags contactId={ADA} organizations={ADA_WORKS_FOR} />)
 
-    await userEvent.click(await screen.findByRole('button', { name: '#ESN' }))
+    await userEvent.hover(await screen.findByRole('link', { name: '#ESN' }))
 
     expect(await screen.findByRole('tooltip')).toHaveTextContent('Hérité de ACME')
   })
 
   it('says an inherited tag comes from an organization while their names are not read yet', async () => {
     adaCarries(contactTagsOf([], [{ name: '#ESN', from: [ACME] }]))
-    renderWithACache(<ContactTags contactId={ADA} organizations={[]} />)
+    await renderWithACache(<ContactTags contactId={ADA} organizations={[]} />)
 
-    await userEvent.click(await screen.findByRole('button', { name: '#ESN' }))
+    await userEvent.hover(await screen.findByRole('link', { name: '#ESN' }))
 
     expect(await screen.findByRole('tooltip')).toHaveTextContent('Hérité d’une organisation')
   })
 
   it('says an automatic tag is set automatically', async () => {
     adaCarries(contactTagsOf([], [], ['#EMAIL']))
-    renderWithACache(<ContactTags contactId={ADA} organizations={ADA_WORKS_FOR} />)
+    await renderWithACache(<ContactTags contactId={ADA} organizations={ADA_WORKS_FOR} />)
 
-    await userEvent.click(await screen.findByRole('button', { name: '#EMAIL' }))
+    await userEvent.hover(await screen.findByRole('link', { name: '#EMAIL' }))
 
     expect(await screen.findByRole('tooltip')).toHaveTextContent('Automatique')
+  })
+
+  it('leads from each tag, its own, inherited or automatic, to the contacts carrying it', async () => {
+    adaCarries(contactTagsOf(['#CLIENT'], [{ name: '#ESN', from: [ACME] }], ['#EMAIL']))
+    await renderWithACache(<ContactTags contactId={ADA} organizations={ADA_WORKS_FOR} />)
+
+    expect(await screen.findByRole('link', { name: '#CLIENT' })).toHaveAttribute(
+      'href',
+      '/contacts?tags=CLIENT',
+    )
+    expect(screen.getByRole('link', { name: '#ESN' })).toHaveAttribute('href', '/contacts?tags=ESN')
+    expect(screen.getByRole('link', { name: '#EMAIL' })).toHaveAttribute('href', '/contacts?tags=EMAIL')
   })
 })

@@ -11,6 +11,7 @@ const suggested: SuggestedTags = {
     { family: 'technology', tags: ['#PHP', '#SYMFONY'] },
   ],
   own: ['#SALON_2026'],
+  automatic: ['#EMAIL', '#PHONE', '#SMS', '#LINKEDIN'],
 }
 
 function renderThePicker(carried: string[] = [], onPick = vi.fn()) {
@@ -31,6 +32,20 @@ describe('the picker of a tag', () => {
     expect(optionsOf('Relation avec le contact')).toEqual(['#CLIENT', '#DECIDEUR'])
     expect(optionsOf('Technos')).toEqual(['#PHP', '#SYMFONY'])
     expect(optionsOf('Mes tags')).toEqual(['#SALON_2026'])
+  })
+
+  it('never proposes an automatic tag to put by hand', () => {
+    renderThePicker()
+
+    expect(screen.queryByRole('group', { name: 'Automatiques' })).not.toBeInTheDocument()
+  })
+
+  it('proposes the automatic tags last to search the contacts, and creates none', async () => {
+    render(<TagPicker searching suggested={suggested} carried={['#ESN']} onPick={vi.fn()} />)
+
+    expect(optionsOf('Automatiques')).toEqual(['#EMAIL', '#PHONE', '#SMS', '#LINKEDIN'])
+    await userEvent.type(screen.getByRole('combobox', { name: 'Tag' }), 'salon pro')
+    expect(screen.queryByRole('option', { name: /Créer/ })).not.toBeInTheDocument()
   })
 
   it('keeps the tags matching what is typed, whatever its case, accents and mark', async () => {

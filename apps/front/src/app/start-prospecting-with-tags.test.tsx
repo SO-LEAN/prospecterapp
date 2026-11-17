@@ -50,6 +50,7 @@ const suggested: SuggestedTags = {
     { family: 'technology', tags: [] },
   ],
   own: [],
+  automatic: ['#EMAIL', '#PHONE', '#SMS', '#LINKEDIN'],
 }
 
 type Call = { method: string; pathname: string; body: unknown }
