@@ -42,7 +42,7 @@ class CampaignRecipientsApiTest extends ApiTestCase
 
         $this->assertResponseStatusCodeSame(200);
         $this->assertSame(['frozen', 1], [$frozen['status'], $frozen['targeted']]);
-        $this->assertSame(['self', 'revise', 'discard', 'addRecipient', 'addRecipientsByTags', 'recipients'], array_keys($frozen['_links']));
+        $this->assertSame(['self', 'revise', 'discard', 'addRecipient', 'addRecipientsByTags', 'start', 'recipients'], array_keys($frozen['_links']));
         $recipients = $this->requestJson('GET', $frozen['_links']['recipients']['href']);
         $this->assertResponseStatusCodeSame(200);
         $this->assertSame([[$this->ada, 'Ada', 'pending']], array_map(static fn (array $recipient): array => [$recipient['contact']['id'], $recipient['contact']['name']['firstName'], $recipient['status']], $recipients['items']));
