@@ -26,8 +26,9 @@ export function CampaignRecipients({ campaign, changed }: Props) {
   const { t } = useTranslation()
   const { data: recipients } = useSuspenseQuery(campaignRecipientsQuery(campaign.id))
   const remove = useRemoveRecipient(campaign.id)
-  const [previewed, setPreviewed] = useState<string | null>(recipients.items[0]?.contact.id ?? null)
   const kept = recipients.items.map((recipient) => recipient.contact.id)
+  const [hovered, setPreviewed] = useState<string | null>(null)
+  const previewed = hovered !== null && kept.includes(hovered) ? hovered : (kept[0] ?? null)
 
   return (
     <div className="space-y-4">
