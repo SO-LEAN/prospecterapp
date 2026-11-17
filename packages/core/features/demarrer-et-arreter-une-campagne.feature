@@ -51,3 +51,20 @@ Fonctionnalité: Démarrer et arrêter une campagne
     Soit la campagne "Relance" est démarrée
     Quand l'exploitation efface la campagne "Relance"
     Alors je n'ai plus de campagne
+
+  Scénario: Une campagne figée vidée par l'effacement de ses contacts ne démarre plus
+    Soit j'efface le contact "Ada Lovelace"
+    Quand je démarre la campagne "Relance"
+    Alors c'est refusé : "A campaign has at least one recipient"
+
+  Scénario: Une campagne figée vidée par l'effacement de ses contacts se supprime encore
+    Soit j'efface le contact "Ada Lovelace"
+    Quand je supprime la campagne "Relance"
+    Alors je n'ai plus de campagne
+
+  Scénario: Une campagne figée vidée par l'effacement de ses contacts dit qu'elle n'a plus de destinataire
+    Soit j'efface le contact "Ada Lovelace"
+    Quand je liste les campagnes
+    Alors les campagnes listées sont :
+      | nom     | canal  | statut | contactés | ciblés |
+      | Relance | E-mail | figée  | 0         | 0      |
