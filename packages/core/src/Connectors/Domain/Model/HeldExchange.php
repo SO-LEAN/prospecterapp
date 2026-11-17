@@ -92,6 +92,6 @@ final readonly class HeldExchange
 
     private function asksForALink(): bool
     {
-        return $this->linkRequested && Channel::VideoCall === $this->channel && null === $this->venue;
+        return $this->linkRequested && $this->belongsInTheCalendar() && Channel::VideoCall === $this->channel && null === $this->venue;
     }
 }
