@@ -6,6 +6,16 @@ import { renderInARouter } from '@/test/render-in-a-router'
 import { type ExchangeDetail, exchangeQuery } from '../queries'
 import { ExchangeDetailSheet } from './exchange-detail'
 
+const theApi = vi.hoisted(() => {
+  const fetch = vi.fn<typeof globalThis.fetch>()
+  globalThis.fetch = fetch
+  return fetch
+})
+
+vi.mock('@/shared/auth/session', () => ({
+  session: { accessToken: async () => null, renewedAccessToken: async () => null },
+}))
+
 const EXCHANGE = '0190a1c0-0000-7000-8000-000000000010'
 const ADA = '0190a1c0-0000-7000-8000-000000000001'
 const ACME = '0190a1c0-0000-7000-8000-000000000002'
@@ -23,6 +33,7 @@ const anExchange = (exchange: Partial<ExchangeDetail>): ExchangeDetail => ({
   text: 'Intéressée par une mission en mars',
   place: null,
   link: null,
+  linkAwaited: false,
   phoneNumber: null,
   textFlagged: false,
   textToMakeConform: false,
@@ -108,6 +119,23 @@ describe('ExchangeDetailSheet', () => {
     await renderTheDetail(anExchange({ status: 'planned', channel: 'videoCall', durationInMinutes: 30 }))
 
     expect(screen.getByText(/^Planifié le 15 oct\. 2026, .* par Michel Maier$/)).toBeInTheDocument()
+  })
+
+  it('shows the link its calendar created once it comes, without reloading the page', async () => {
+    const awaiting = anExchange({ status: 'planned', channel: 'videoCall', linkAwaited: true })
+    const created = { ...awaiting, link: 'https://meet.google.com/kpq-wxyz-abc', linkAwaited: false }
+    theApi.mockImplementation(async (request) =>
+      new URL((request as Request).url).pathname === `/api/exchanges/${EXCHANGE}`
+        ? Response.json(created)
+        : Response.json({}, { status: 404 }),
+    )
+    await renderTheDetail(awaiting)
+
+    expect(screen.queryByRole('link', { name: 'Rejoindre' })).not.toBeInTheDocument()
+    expect(await screen.findByRole('link', { name: 'Rejoindre' }, { timeout: 3_000 })).toHaveAttribute(
+      'href',
+      'https://meet.google.com/kpq-wxyz-abc',
+    )
   })
 
   it('offers to join a video call to come in a new tab', async () => {

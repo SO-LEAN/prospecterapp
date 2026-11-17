@@ -2,7 +2,7 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { render, screen, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { afterEach, describe, expect, it, vi } from 'vitest'
-import { overlappingQuery, type PlannedExchanges } from '../queries'
+import { type Connections, myConnectionsQuery, overlappingQuery, type PlannedExchanges } from '../queries'
 import { PlanForm } from './plan-form'
 
 const theApi = vi.hoisted(() => {
@@ -18,13 +18,35 @@ vi.mock('@/shared/auth/session', () => ({
 const ADA = '0190a1c0-0000-7000-8000-000000000001'
 const ROBERT = '0190a1c0-0000-7000-8000-000000000002'
 
+const connectionsWithGoogle = (state: 'connected' | 'toReconnect'): Connections => ({
+  connections: [
+    {
+      provider: 'google',
+      state,
+      account: 'michel@exemple.fr',
+      connectedAt: '2026-11-13T09:00:00+00:00',
+      synced: 0,
+      failed: 0,
+      _links: { disconnect: { href: '/api/me/connections/google', method: 'DELETE' } },
+    },
+  ],
+  _links: {
+    self: { href: '/api/me/connections', method: 'GET' },
+    check: { href: '/api/me/connections/checks', method: 'POST' },
+  },
+})
+
 function renderForm(
   overlapping?: { startsAt: string; durationInMinutes: number; answer: PlannedExchanges },
   proposedPlace?: string,
+  google?: 'connected' | 'toReconnect',
 ) {
   const queryClient = new QueryClient({
     defaultOptions: { queries: { staleTime: Number.POSITIVE_INFINITY } },
   })
+  if (google) {
+    queryClient.setQueryData(myConnectionsQuery().queryKey, connectionsWithGoogle(google))
+  }
   if (overlapping) {
     queryClient.setQueryData(
       overlappingQuery(overlapping.startsAt, overlapping.durationInMinutes).queryKey,
@@ -81,6 +103,7 @@ describe('PlanForm', () => {
         text: null,
         place: null,
         link: null,
+        linkRequested: false,
       },
       ROBERT,
     )
@@ -102,6 +125,7 @@ describe('PlanForm', () => {
         text: null,
         place: null,
         link: null,
+        linkRequested: false,
       },
       null,
     )
@@ -142,6 +166,61 @@ describe('PlanForm', () => {
       }),
       null,
     )
+  })
+
+  it('asks a Google Meet link for a video call without a link while Google is connected', async () => {
+    const { onSubmit, user } = renderForm(undefined, undefined, 'connected')
+
+    await user.click(screen.getByLabelText('Visio'))
+    expect(screen.getByLabelText('Créer un lien Google Meet')).toBeChecked()
+    await user.click(save())
+
+    expect(onSubmit).toHaveBeenCalledWith(
+      expect.objectContaining({ channel: 'videoCall', link: null, linkRequested: true }),
+      null,
+    )
+  })
+
+  it('asks no Meet link once unchecked', async () => {
+    const { onSubmit, user } = renderForm(undefined, undefined, 'connected')
+
+    await user.click(screen.getByLabelText('Visio'))
+    await user.click(screen.getByLabelText('Créer un lien Google Meet'))
+    await user.click(save())
+
+    expect(onSubmit).toHaveBeenCalledWith(expect.objectContaining({ linkRequested: false }), null)
+  })
+
+  it('offers no Meet link once a link is written', async () => {
+    const { onSubmit, user } = renderForm(undefined, undefined, 'connected')
+
+    await user.click(screen.getByLabelText('Visio'))
+    await user.type(screen.getByLabelText(/Lien de la visio/), 'https://teams.microsoft.com/l/meetup-join/xyz')
+    expect(screen.queryByLabelText('Créer un lien Google Meet')).not.toBeInTheDocument()
+    await user.click(save())
+
+    expect(onSubmit).toHaveBeenCalledWith(
+      expect.objectContaining({ link: 'https://teams.microsoft.com/l/meetup-join/xyz', linkRequested: false }),
+      null,
+    )
+  })
+
+  it('offers no Meet link while Google is not connected', async () => {
+    const { onSubmit, user } = renderForm(undefined, undefined, 'toReconnect')
+
+    await user.click(screen.getByLabelText('Visio'))
+    expect(screen.queryByLabelText('Créer un lien Google Meet')).not.toBeInTheDocument()
+    await user.click(save())
+
+    expect(onSubmit).toHaveBeenCalledWith(expect.objectContaining({ linkRequested: false }), null)
+  })
+
+  it('offers no Meet link for a meeting', async () => {
+    const { user } = renderForm(undefined, undefined, 'connected')
+
+    await user.click(screen.getByLabelText('Rendez-vous'))
+
+    expect(screen.queryByLabelText('Créer un lien Google Meet')).not.toBeInTheDocument()
   })
 
   it('plans a video call without its link, to add later', async () => {
