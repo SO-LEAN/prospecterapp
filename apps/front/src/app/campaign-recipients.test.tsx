@@ -280,6 +280,22 @@ describe('the recipients of a campaign', () => {
     expect(screen.queryByRole('button', { name: 'Figer la liste' })).not.toBeInTheDocument()
   })
 
+  it('say none is left once the erasure of its contacts emptied a frozen campaign, which no longer starts but is still discarded', async () => {
+    const { start: _start, ...withoutStart } = frozen._links
+    theApiAnswers({ ...frozen, targeted: 0, _links: withoutStart }, twoContacts, { ...recipients, items: [] })
+    await renderTheSpaAt(`/campaigns/${CAMPAIGN}`)
+
+    expect(
+      await screen.findByText('Ses destinataires ont tous été effacés : la campagne ne démarre plus.'),
+    ).toBeInTheDocument()
+    expect(screen.getByText('0 destinataire')).toBeInTheDocument()
+    expect(screen.queryByRole('list', { name: 'Destinataires' })).not.toBeInTheDocument()
+    expect(screen.queryByRole('button', { name: 'Démarrer la campagne' })).not.toBeInTheDocument()
+
+    await userEvent.click(screen.getByRole('button', { name: /^Actions sur «\s*Relance ESN\s*»$/ }))
+    expect(screen.getByRole('menuitem', { name: 'Supprimer' })).toBeInTheDocument()
+  })
+
   it('loses one by its cross', async () => {
     const calls = theApiAnswers(frozen)
     await renderTheSpaAt(`/campaigns/${CAMPAIGN}`)
