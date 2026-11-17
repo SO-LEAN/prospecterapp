@@ -5,11 +5,11 @@ namespace App\Me;
 use App\Me\Resource\AccountLinksResource;
 use App\Me\Resource\AccountOrganizationResource;
 use App\Me\Resource\AccountResource;
+use App\PersonalData\Resource\PersonContactDetailsResource;
 use App\PersonalData\Resource\PersonNameResource;
 use App\Shared\ImageResourceFactory;
 use App\Shared\Links;
 use App\Shared\Resource\AddressResource;
-use App\Shared\Resource\ContactDetailsResource;
 use App\Shared\Resource\LegalIdentityResource;
 use App\Shared\Resource\LocationResource;
 use Prospecter\Core\Accounts\Application\MyAccount;
@@ -45,7 +45,7 @@ final class AccountResourcePresenter implements ConsultPersonOutput
     {
         $this->resource = new AccountResource(
             name: new PersonNameResource($me->firstName, $me->lastName),
-            contactDetails: new ContactDetailsResource($me->email, $me->phoneNumber, $me->language),
+            contactDetails: PersonContactDetailsResource::of($me),
             picture: $this->imageResourceFactory->create($me->picture?->url),
             organization: $this->organization(),
             links: $this->linksOf($me),

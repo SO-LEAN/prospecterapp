@@ -73,7 +73,7 @@ class ContactApiTest extends ApiTestCase
 
         $changed = $this->requestJson('PATCH', '/api/contacts/'.$collected['id'].'/contact-details', ['email' => 'ada@analytical-engine.test', 'linkedInProfile' => 'https://fr.linkedin.com/in/Augusta-Ada/']);
         $this->assertSame('https://www.linkedin.com/in/augusta-ada', $changed['contactDetails']['linkedInProfile']);
-        $this->assertSame(['https://www.linkedin.com/in/augusta-ada'], array_column(array_column($this->requestJson('GET', '/api/contacts?q=lovel')['items'], 'contactDetails'), 'linkedInProfile'));
+        $this->assertSame(['https://www.linkedin.com/in/augusta-ada'], array_column(array_column($this->requestJson('GET', '/api/contacts?q=ada@analytical')['items'], 'contactDetails'), 'linkedInProfile'));
 
         $problem = $this->requestJson('PATCH', '/api/contacts/'.$collected['id'].'/contact-details', ['linkedInProfile' => 'https://example.test/ada']);
         $this->assertResponseStatusCodeSame(422);

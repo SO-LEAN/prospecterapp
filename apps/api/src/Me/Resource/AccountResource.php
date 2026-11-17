@@ -2,8 +2,8 @@
 
 namespace App\Me\Resource;
 
+use App\PersonalData\Resource\PersonContactDetailsResource;
 use App\PersonalData\Resource\PersonNameResource;
-use App\Shared\Resource\ContactDetailsResource;
 use App\Shared\Resource\ImageResource;
 use Symfony\Component\Serializer\Attribute\Context;
 use Symfony\Component\Serializer\Attribute\SerializedName;
@@ -16,7 +16,7 @@ final readonly class AccountResource
 {
     public function __construct(
         public PersonNameResource $name,
-        public ContactDetailsResource $contactDetails,
+        public PersonContactDetailsResource $contactDetails,
         public ?ImageResource $picture,
         public AccountOrganizationResource $organization,
         #[SerializedName('_links')]

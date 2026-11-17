@@ -562,6 +562,7 @@ export const fr = {
   refusals: {
     invalidEmail: 'L’adresse « {{email}} » n’est pas une adresse e-mail valide.',
     invalidPhoneNumber: 'Le numéro « {{phoneNumber}} » n’est pas un numéro de téléphone valide.',
+    invalidLinkedInProfile: 'L’adresse « {{linkedInProfile}} » n’est pas celle d’un profil LinkedIn.',
     emailAlreadyUsed: 'Cette adresse e-mail est déjà utilisée.',
     loginEmailTaken: 'Cette adresse e-mail de connexion est déjà utilisée.',
     accountWithoutCorporateName: 'Un compte a besoin de la raison sociale de son organisation.',

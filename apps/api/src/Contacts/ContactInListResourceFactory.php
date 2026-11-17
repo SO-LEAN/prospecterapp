@@ -4,9 +4,9 @@ namespace App\Contacts;
 
 use App\Contacts\Resource\ContactInListResource;
 use App\Contacts\Resource\OrganizationOfContactResource;
+use App\PersonalData\Resource\PersonContactDetailsResource;
 use App\PersonalData\Resource\PersonNameResource;
 use App\Shared\Links;
-use App\Shared\Resource\ContactDetailsResource;
 use Prospecter\Core\PersonalData\Application\PersonCard;
 
 /**
@@ -27,7 +27,7 @@ final readonly class ContactInListResourceFactory
             id: $contact->id,
             name: new PersonNameResource($contact->firstName, $contact->lastName),
             jobTitle: $contact->jobTitle,
-            contactDetails: new ContactDetailsResource($contact->email, $contact->phoneNumber, $contact->language),
+            contactDetails: PersonContactDetailsResource::of($contact),
             masked: $contact->masked,
             organizations: $organizations,
             contact: $this->links->to('api_contacts_show', ['id' => $contact->id]),

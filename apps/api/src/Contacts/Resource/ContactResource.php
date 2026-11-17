@@ -2,8 +2,8 @@
 
 namespace App\Contacts\Resource;
 
+use App\PersonalData\Resource\PersonContactDetailsResource;
 use App\PersonalData\Resource\PersonNameResource;
-use App\Shared\Resource\ContactDetailsResource;
 use OpenApi\Attributes as OA;
 use Symfony\Component\Serializer\Attribute\Context;
 use Symfony\Component\Serializer\Attribute\SerializedName;
@@ -19,7 +19,7 @@ final readonly class ContactResource
         public string $id,
         public PersonNameResource $name,
         public ?string $jobTitle,
-        public ContactDetailsResource $contactDetails,
+        public PersonContactDetailsResource $contactDetails,
         #[OA\Property(description: 'The data are masked, but the name of a contact: the reader has no right to read personal data in clear')]
         public bool $masked,
         #[SerializedName('_links')]

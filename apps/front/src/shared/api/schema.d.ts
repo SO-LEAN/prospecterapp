@@ -17,7 +17,7 @@ export interface paths {
         delete?: never;
         options?: never;
         head?: never;
-        /** Change my email, phone number and language, nothing else changes */
+        /** Change my email, phone number, language and LinkedIn profile, nothing else changes */
         patch: operations["patch_api_me_change_contact_details"];
         trace?: never;
     };
@@ -417,7 +417,7 @@ export interface paths {
         delete?: never;
         options?: never;
         head?: never;
-        /** Change the email, phone number and language of a contact */
+        /** Change the email, phone number, language and LinkedIn profile of a contact */
         patch: operations["patch_api_contacts_change_contact_details"];
         trace?: never;
     };
@@ -1118,7 +1118,7 @@ export interface paths {
 export type webhooks = Record<string, never>;
 export interface components {
     schemas: {
-        ContactDetailsInput: {
+        PersonContactDetailsInput: {
             /** @default null */
             email: string | null;
             /**
@@ -1129,6 +1129,12 @@ export interface components {
             phoneNumber: string | null;
             /** @default null */
             language: string | null;
+            /**
+             * @description The address of a profile on LinkedIn, with or without its scheme, its subdomain or what follows its identifier; kept in one form (https://www.linkedin.com/in/<identifier>), refused when it is no profile of a person
+             * @default null
+             * @example linkedin.com/in/ada-lovelace
+             */
+            linkedInProfile: string | null;
         };
         PersonNameInput: {
             /** @default null */
@@ -1167,6 +1173,18 @@ export interface components {
         HoldingInput: {
             /** @default  */
             holdingId: string;
+        };
+        ContactDetailsInput: {
+            /** @default null */
+            email: string | null;
+            /**
+             * @description In the international format (+33 3 88 11 22 33) or in the national format of France (03 88 11 22 33); kept in E.164, refused when it is no valid number
+             * @default null
+             * @example 03 88 11 22 33
+             */
+            phoneNumber: string | null;
+            /** @default null */
+            language: string | null;
         };
         ExchangeInput: {
             /**
@@ -1264,7 +1282,7 @@ export interface components {
             name?: components["schemas"]["PersonNameInput"];
             /** @default null */
             jobTitle: string | null;
-            contactDetails?: components["schemas"]["ContactDetailsInput"];
+            contactDetails?: components["schemas"]["PersonContactDetailsInput"];
             /** @default [] */
             organizationIds: string[];
         };
@@ -1478,7 +1496,7 @@ export interface components {
             firstName?: string | null;
             lastName?: string | null;
         };
-        ContactDetailsResource: {
+        PersonContactDetailsResource: {
             email?: string | null;
             /**
              * @description In the international format
@@ -1486,6 +1504,11 @@ export interface components {
              */
             phoneNumber?: string | null;
             language?: string | null;
+            /**
+             * @description In one form, its identifier in lower case; stars when masked
+             * @example https://www.linkedin.com/in/ada-lovelace
+             */
+            linkedInProfile?: string | null;
         };
         ImageResource: {
             url: string;
@@ -1530,7 +1553,7 @@ export interface components {
         };
         AccountResource: {
             name: components["schemas"]["PersonNameResource"];
-            contactDetails: components["schemas"]["ContactDetailsResource"];
+            contactDetails: components["schemas"]["PersonContactDetailsResource"];
             picture?: components["schemas"]["ImageResource"] | null;
             organization: components["schemas"]["AccountOrganizationResource"];
             _links: components["schemas"]["AccountLinksResource"];
@@ -1588,12 +1611,21 @@ export interface components {
             id: string;
             name: components["schemas"]["PersonNameResource"];
             jobTitle?: string | null;
-            contactDetails: components["schemas"]["ContactDetailsResource"];
+            contactDetails: components["schemas"]["PersonContactDetailsResource"];
             masked: boolean;
             _links: components["schemas"]["OrganizationContactLinksResource"];
         };
         OrganizationContactsResource: {
             items: components["schemas"]["OrganizationContactResource"][];
+        };
+        ContactDetailsResource: {
+            email?: string | null;
+            /**
+             * @description In the international format
+             * @example +33 3 88 11 22 33
+             */
+            phoneNumber?: string | null;
+            language?: string | null;
         };
         OrganizationLinksResource: {
             self: components["schemas"]["LinkResource"];
@@ -1735,7 +1767,7 @@ export interface components {
             id: string;
             name: components["schemas"]["PersonNameResource"];
             jobTitle?: string | null;
-            contactDetails: components["schemas"]["ContactDetailsResource"];
+            contactDetails: components["schemas"]["PersonContactDetailsResource"];
             /** @description The data are masked, but the name of a contact: the reader has no right to read personal data in clear */
             masked: boolean;
             _links: components["schemas"]["ContactLinksResource"];
@@ -1749,7 +1781,7 @@ export interface components {
             id: string;
             name: components["schemas"]["PersonNameResource"];
             jobTitle?: string | null;
-            contactDetails: components["schemas"]["ContactDetailsResource"];
+            contactDetails: components["schemas"]["PersonContactDetailsResource"];
             masked: boolean;
             organizations: components["schemas"]["OrganizationOfContactResource"][];
             contact: components["schemas"]["LinkResource"];
@@ -2102,7 +2134,7 @@ export interface operations {
         };
         requestBody: {
             content: {
-                "application/json": components["schemas"]["ContactDetailsInput"];
+                "application/json": components["schemas"]["PersonContactDetailsInput"];
             };
         };
         responses: {
@@ -3759,7 +3791,7 @@ export interface operations {
         };
         requestBody: {
             content: {
-                "application/json": components["schemas"]["ContactDetailsInput"];
+                "application/json": components["schemas"]["PersonContactDetailsInput"];
             };
         };
         responses: {

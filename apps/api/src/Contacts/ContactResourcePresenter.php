@@ -4,11 +4,11 @@ namespace App\Contacts;
 
 use App\Contacts\Resource\ContactLinksResource;
 use App\Contacts\Resource\ContactResource;
+use App\PersonalData\Resource\PersonContactDetailsResource;
 use App\PersonalData\Resource\PersonNameResource;
 use App\Security\IntentLinks;
 use App\Security\User;
 use App\Shared\Links;
-use App\Shared\Resource\ContactDetailsResource;
 use App\Shared\Resource\LinkResource;
 use Prospecter\Core\PersonalData\Application\ConsultPerson\ConsultPersonOutput;
 use Prospecter\Core\PersonalData\Application\PersonCard;
@@ -43,7 +43,7 @@ final class ContactResourcePresenter implements ConsultPersonOutput
             id: $contact->id,
             name: new PersonNameResource($contact->firstName, $contact->lastName),
             jobTitle: $contact->jobTitle,
-            contactDetails: new ContactDetailsResource($contact->email, $contact->phoneNumber, $contact->language),
+            contactDetails: PersonContactDetailsResource::of($contact),
             masked: $contact->masked,
             links: $this->linksOf($contact),
         );

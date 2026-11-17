@@ -5,12 +5,12 @@ namespace App\Contacts\Controller;
 use App\Contacts\Resource\OrganizationContactLinksResource;
 use App\Contacts\Resource\OrganizationContactResource;
 use App\Contacts\Resource\OrganizationContactsResource;
+use App\PersonalData\Resource\PersonContactDetailsResource;
 use App\PersonalData\Resource\PersonNameResource;
 use App\Prospecting\OrganizationVoter;
 use App\Security\IntentLinks;
 use App\Security\User;
 use App\Shared\Links;
-use App\Shared\Resource\ContactDetailsResource;
 use App\Shared\Resource\ProblemResource;
 use Nelmio\ApiDocBundle\Attribute\Model;
 use OpenApi\Attributes as OA;
@@ -63,7 +63,7 @@ final class ShowOrganizationContactsController extends AbstractController
             id: $contact->id,
             name: new PersonNameResource($contact->firstName, $contact->lastName),
             jobTitle: $contact->jobTitle,
-            contactDetails: new ContactDetailsResource($contact->email, $contact->phoneNumber, $contact->language),
+            contactDetails: PersonContactDetailsResource::of($contact),
             masked: $contact->masked,
             links: new OrganizationContactLinksResource(
                 $this->links->to('api_contacts_show', ['id' => $contact->id]),
