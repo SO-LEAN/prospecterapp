@@ -6,6 +6,7 @@ export const fr = {
     organizations: 'Organisations',
     contacts: 'Contacts',
     calendar: 'Calendrier',
+    campaigns: 'Campagnes',
     account: 'Mon compte',
     settings: 'Configuration',
     signOut: 'Se déconnecter',
@@ -556,6 +557,50 @@ export const fr = {
       attached_other: '{{count}} fichiers joints',
       removed: 'Pièce jointe retirée',
       sending: 'Envoi…',
+    },
+  },
+  campaigns: {
+    title: 'Campagnes',
+    subtitle:
+      'Les campagnes de votre équipe : vous contactez vous-même chaque personne ciblée, rien n’est envoyé.',
+    prepare: 'Nouvelle campagne',
+    empty: {
+      title: 'Aucune campagne',
+      description: 'Préparez une campagne : un canal, des tags pour cibler vos contacts, un message type.',
+    },
+    status: { draft: 'Brouillon' },
+    channels: { email: 'E-mail', call: 'Appel', sms: 'SMS', linkedIn: 'LinkedIn' },
+    progress: '{{contacted}} / {{targeted}}',
+    progressLabel: '{{contacted}} contactés sur {{targeted}} ciblés',
+    by: 'par {{name}}',
+    new: { title: 'Nouvelle campagne', submit: 'Préparer la campagne' },
+    prepared: 'Campagne préparée',
+    discarded: 'Campagne supprimée',
+    menu: 'Actions sur « {{name}} »',
+    fields: {
+      name: 'Nom',
+      channel: 'Canal',
+      tags: 'Tags ciblés',
+      tagsHint:
+        'Les contacts portant tous ces tags et le tag de leur canal, qui compte dans les 5 tags au plus.',
+      subject: 'Objet',
+      message: 'Message type',
+      messageHint:
+        'Variables : {prénom}, {nom}, {organisation}, {fonction}. Une variable sans valeur reste vide.',
+    },
+    target: {
+      title: 'Contacts ciblés',
+      count_one: '{{count}} contact ciblé',
+      count_other: '{{count}} contacts ciblés',
+      none: 'Aucun contact ne porte tous ces tags.',
+      beforePreparing:
+        'Les contacts ciblés et l’aperçu du message s’affichent une fois la campagne préparée.',
+    },
+    preview: {
+      title: 'Aperçu du message',
+      hint: 'Survolez un contact pour voir son message.',
+      ofTheSaved: 'Aperçu du message enregistré : enregistrez vos modifications pour le mettre à jour.',
+      subject: 'Objet : {{subject}}',
     },
   },
   toDos: {

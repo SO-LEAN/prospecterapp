@@ -1,9 +1,11 @@
+import { useQuery } from '@tanstack/react-query'
 import { Link } from '@tanstack/react-router'
 import {
   Building2,
   CalendarDays,
   LayoutDashboard,
   type LucideIcon,
+  Megaphone,
   PanelLeftClose,
   PanelLeftOpen,
   UserRound,
@@ -11,6 +13,8 @@ import {
 } from 'lucide-react'
 import type { ComponentType } from 'react'
 import { useTranslation } from 'react-i18next'
+import type { Account } from '@/features/account/mutations'
+import { accountQuery } from '@/features/account/queries'
 import { ToProcessCount } from '@/features/exchanges/to-process/components/to-process-count'
 import { cn } from '@/shared/lib/utils'
 import { usePreferences } from '@/shared/stores/preferences'
@@ -18,12 +22,20 @@ import { Tooltip, TooltipContent, TooltipTrigger } from '@/shared/ui/tooltip'
 import { BrandMark } from './brand'
 
 type Item = {
-  to: '/' | '/organizations' | '/contacts' | '/calendar' | '/account'
-  label: 'nav.dashboard' | 'nav.organizations' | 'nav.contacts' | 'nav.calendar' | 'nav.account'
+  to: '/' | '/organizations' | '/contacts' | '/calendar' | '/campaigns' | '/account'
+  label:
+    | 'nav.dashboard'
+    | 'nav.organizations'
+    | 'nav.contacts'
+    | 'nav.calendar'
+    | 'nav.campaigns'
+    | 'nav.account'
   icon: LucideIcon
   exact?: boolean
   /** What is left to do there, told beside it. */
   count?: ComponentType<{ className?: string }>
+  /** Shown only when my account carries this link: the api says what I may reach. */
+  link?: keyof Account['_links']
 }
 
 const items: Item[] = [
@@ -31,6 +43,7 @@ const items: Item[] = [
   { to: '/organizations', label: 'nav.organizations', icon: Building2 },
   { to: '/contacts', label: 'nav.contacts', icon: UsersRound },
   { to: '/calendar', label: 'nav.calendar', icon: CalendarDays },
+  { to: '/campaigns', label: 'nav.campaigns', icon: Megaphone, link: 'campaigns' },
   { to: '/account', label: 'nav.account', icon: UserRound },
 ]
 
@@ -40,6 +53,8 @@ type Props = { collapsed?: boolean; onNavigate?: () => void }
 export function Navigation({ collapsed = false, onNavigate }: Props) {
   const { t } = useTranslation()
   const toggleSidebar = usePreferences((state) => state.toggleSidebar)
+  const account = useQuery(accountQuery())
+  const reachable = items.filter((item) => !item.link || account.data?._links[item.link] !== undefined)
 
   return (
     <div className="flex h-full flex-col gap-6 p-3">
@@ -53,7 +68,7 @@ export function Navigation({ collapsed = false, onNavigate }: Props) {
       </Link>
 
       <nav aria-label={t('nav.mainNavigation')} className="flex flex-1 flex-col gap-1">
-        {items.map(({ to, label, icon: Icon, exact, count: Count }) => {
+        {reachable.map(({ to, label, icon: Icon, exact, count: Count }) => {
           const link = (
             <Link
               key={to}
