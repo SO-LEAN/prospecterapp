@@ -3,6 +3,7 @@ import userEvent from '@testing-library/user-event'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import type { Account } from '@/features/account/mutations'
 import type { Campaign, Recipient, RecipientList, TargetedContact } from '@/features/campaigns/queries'
+import { AFTER_THE_REACTIONS_MS } from '@/shared/api/reactions'
 import { renderTheSpaAt } from '@/test/render-the-spa'
 
 /** A started campaign led contact by contact (ADR 0145): a recipient chosen, reached, then noted or dismissed. */
@@ -144,6 +145,7 @@ function theApiAnswers({ refusing }: { refusing?: string } = {}) {
 
 describe('a started campaign', () => {
   afterEach(() => {
+    vi.useRealTimers()
     theApi.mockReset()
   })
 
@@ -196,6 +198,23 @@ describe('a started campaign', () => {
       .getByText('Ada Lovelace')
       .closest('li') as HTMLElement
     expect(within(ada).getByText('Traité')).toBeInTheDocument()
+  })
+
+  it('reads the campaign again once the reactions processed the recipient', async () => {
+    vi.useFakeTimers({ shouldAdvanceTime: true })
+    const calls = theApiAnswers()
+    await renderTheSpaAt(`/campaigns/${CAMPAIGN}`)
+    await screen.findByText('Pitch pour Ada')
+    const readings = () =>
+      calls.filter((call) => call.method === 'GET' && call.pathname === `/api/campaigns/${CAMPAIGN}`).length
+
+    await userEvent.click(screen.getByRole('button', { name: 'Enregistrer' }))
+    await screen.findByRole('heading', { name: 'Alan Turing' })
+    const before = readings()
+    await vi.advanceTimersByTimeAsync(AFTER_THE_REACTIONS_MS)
+
+    await waitFor(() => expect(readings()).toBeGreaterThan(before))
+    vi.useRealTimers()
   })
 
   it('dismisses the recipient for the reason typed, then moves to the next one', async () => {

@@ -3,6 +3,8 @@ import { useTranslation } from 'react-i18next'
 import { toast } from 'sonner'
 import { timelineKeys } from '@/features/exchanges/queries'
 import { api } from '@/shared/api/client'
+import { queryKeys } from '@/shared/api/keys'
+import { readAgainAfterTheReactions } from '@/shared/api/reactions'
 import { type Campaign, campaignKeys, campaignQuery } from './queries'
 
 export function usePrepareCampaign() {
@@ -130,48 +132,47 @@ export function useStopCampaign() {
 }
 
 /**
- * The exchange of a recipient noted in the campaign: Campaigns processes them a moment later, reacting to the facts of
- * the exchange (ADR 0145), so the page moves on at once and the campaign, its recipients and the timelines are read
- * again behind.
+ * The exchange of a recipient noted in the campaign: Campaigns processes them once the reactions ran, reacting to the
+ * facts of the exchange (ADR 0145), so the page moves on at once; the campaign, its recipients, the list and the
+ * figures are read now and again once the reactions ran, the timelines now.
  */
 export function useNoteCampaignExchange(campaignId: string) {
+  const queryClient = useQueryClient()
   const { t } = useTranslation()
-  const recipientHandled = useRecipientHandled(campaignId)
 
   return api.useMutation('post', '/api/campaigns/{id}/recipients/{contactId}/exchanges', {
     meta: { silentValidation: true },
-    onSuccess: async () => {
-      await recipientHandled()
+    onSuccess: () => {
+      readAgainAfterTheReactions(
+        queryClient,
+        campaignQuery(campaignId).queryKey,
+        campaignKeys.recipients,
+        campaignKeys.list,
+        queryKeys.dashboard,
+      )
+      void queryClient.invalidateQueries({ queryKey: timelineKeys.ofContacts })
+      void queryClient.invalidateQueries({ queryKey: timelineKeys.ofOrganizations })
       toast.success(t('exchanges.noted'))
     },
   })
 }
 
+/** Dismissed within the gesture: the campaign, its recipients and the list are read again at once. */
 export function useDismissRecipient(campaignId: string) {
+  const queryClient = useQueryClient()
   const { t } = useTranslation()
-  const recipientHandled = useRecipientHandled(campaignId)
 
   return api.useMutation('post', '/api/campaigns/{id}/recipients/{contactId}/dismissal', {
     meta: { silentValidation: true },
     onSuccess: async () => {
-      await recipientHandled()
+      await Promise.all([
+        queryClient.invalidateQueries({ queryKey: campaignQuery(campaignId).queryKey }),
+        queryClient.invalidateQueries({ queryKey: campaignKeys.recipients }),
+        queryClient.invalidateQueries({ queryKey: campaignKeys.list }),
+      ])
       toast.success(t('campaigns.run.dismissed'))
     },
   })
-}
-
-function useRecipientHandled(campaignId: string) {
-  const queryClient = useQueryClient()
-
-  return async () => {
-    await Promise.all([
-      queryClient.invalidateQueries({ queryKey: campaignQuery(campaignId).queryKey }),
-      queryClient.invalidateQueries({ queryKey: campaignKeys.recipients }),
-      queryClient.invalidateQueries({ queryKey: campaignKeys.list }),
-      queryClient.invalidateQueries({ queryKey: timelineKeys.ofContacts }),
-      queryClient.invalidateQueries({ queryKey: timelineKeys.ofOrganizations }),
-    ])
-  }
 }
 
 function useRecipientsChanged() {
