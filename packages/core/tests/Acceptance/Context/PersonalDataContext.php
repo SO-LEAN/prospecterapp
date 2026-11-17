@@ -19,6 +19,7 @@ use Prospecter\Core\PersonalData\Application\PersonCard;
 use Prospecter\Core\PersonalData\Application\RenamePerson\RenamePerson;
 use Prospecter\Core\PersonalData\Application\SearchContacts\ContactPage;
 use Prospecter\Core\PersonalData\Application\SearchContacts\SearchContacts;
+use Prospecter\Core\PersonalData\Domain\Model\LinkedInProfile;
 use Prospecter\Core\PersonalData\Domain\Model\Person;
 use Prospecter\Core\PersonalData\Domain\Model\PersonName;
 use Prospecter\Core\SharedKernel\Domain\ContactDetails;
@@ -49,7 +50,7 @@ final class PersonalDataContext implements Context
         $person = $this->application->persons->get($this->scenario->profileOf($member));
         $theColleague = $this->application->readers->readerFrom($member->id());
         $person->rename(Vocabulary::personName($values), by: $theColleague, at: $this->application->now());
-        $person->changeContactDetails(Vocabulary::contactDetails($values), by: $theColleague, at: $this->application->now());
+        $person->changeContactDetails(Vocabulary::contactDetails($values), Vocabulary::linkedInProfile($values), by: $theColleague, at: $this->application->now());
         $this->application->persons->save($person);
     }
 
@@ -78,6 +79,14 @@ final class PersonalDataContext implements Context
     public function aContactWithThePhoneNumber(string $name, string $organization, string $phoneNumber): void
     {
         $this->aContactWith($name, $organization, new ContactDetails(phoneNumber: PhoneNumber::of($phoneNumber)));
+    }
+
+    #[Given(':name a le profil LinkedIn :profile')]
+    public function aPersonWithTheLinkedInProfile(string $name, string $profile): void
+    {
+        $person = $this->scenario->personNamed($name);
+        $person->changeContactDetails($person->contactDetails(), new LinkedInProfile($profile), by: $this->scenario->managerOfPersonalDataOf($person->accountId()), at: $this->application->now());
+        $this->application->persons->save($person);
     }
 
     private function aContactWith(string $name, string $organization, ContactDetails $contactDetails): void
@@ -162,6 +171,21 @@ final class PersonalDataContext implements Context
         Expect::describes($table->getRowsHash(), $this->describe($this->consulted));
     }
 
+    #[Then('je vois la fiche de :name avec :')]
+    public function iSeeThePersonOf(string $name, TableNode $table): void
+    {
+        $this->iConsultThePersonOf($name);
+        $this->iSeeThePerson($table);
+    }
+
+    #[Then('son profil LinkedIn est masqué')]
+    public function theLinkedInProfileIsMasked(): void
+    {
+        Expect::that(null !== $this->consulted, 'The person was expected');
+        Expect::that($this->consulted->masked, 'The person was expected masked');
+        Expect::same('***', $this->consulted->linkedInProfile);
+    }
+
     #[Then('je vois les fiches :')]
     public function iSeeThePersons(TableNode $table): void
     {
@@ -211,7 +235,7 @@ final class PersonalDataContext implements Context
     {
         $values = Vocabulary::values($table->getRowsHash());
         $id = $this->application->newIdentity();
-        $this->application->dispatch(new CollectContact($this->application->signedIn(), $id, $values['prénom'], $values['nom'], $values['fonction'], $values['e-mail'], $values['téléphone'], $values['langue'], $organizationIds, $this->application->now()));
+        $this->application->dispatch(new CollectContact($this->application->signedIn(), $id, $values['prénom'], $values['nom'], $values['fonction'], $values['e-mail'], $values['téléphone'], $values['langue'], $values['LinkedIn'], $organizationIds, $this->application->now()));
 
         if (null === $this->application->refusal()) {
             $this->scenario->rememberPerson($name, new PersonId($id));
@@ -229,6 +253,7 @@ final class PersonalDataContext implements Context
             'fonction' => (string) $person->jobTitle,
             'e-mail' => (string) $person->email,
             'téléphone' => (string) $person->phoneNumber,
+            'LinkedIn' => (string) $person->linkedInProfile,
             'photo' => null === $person->picture ? 'aucune' : basename($person->picture->url),
             'masquée' => Vocabulary::describeYesOrNo($person->masked),
             'modifiée le' => Vocabulary::describeMoment($person->modifiedAt),

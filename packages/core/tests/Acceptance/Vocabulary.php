@@ -6,6 +6,7 @@ namespace Tests\Core\Acceptance;
 
 use Prospecter\Core\Accounts\Domain\Model\Account;
 use Prospecter\Core\Accounts\Domain\Model\Member;
+use Prospecter\Core\PersonalData\Domain\Model\LinkedInProfile;
 use Prospecter\Core\PersonalData\Domain\Model\Person;
 use Prospecter\Core\PersonalData\Domain\Model\PersonName;
 use Prospecter\Core\Prospecting\Domain\Model\ContactPresence;
@@ -116,7 +117,7 @@ final class Vocabulary
     ];
 
     private const array LABELS = [
-        'raison sociale', 'forme juridique', 'type', 'e-mail', 'téléphone', 'langue',
+        'raison sociale', 'forme juridique', 'type', 'e-mail', 'téléphone', 'langue', 'LinkedIn',
         'rue', 'code postal', 'ville', 'pays', 'observations', 'holding', 'prénom', 'nom', 'fonction', 'rôles',
     ];
 
@@ -160,6 +161,14 @@ final class Vocabulary
     public static function contactDetails(array $values): ContactDetails
     {
         return new ContactDetails(Email::orNone($values['e-mail']), PhoneNumber::orNone($values['téléphone']), $values['langue']);
+    }
+
+    /**
+     * @param array<string, string|null> $values
+     */
+    public static function linkedInProfile(array $values): ?LinkedInProfile
+    {
+        return LinkedInProfile::orNone($values['LinkedIn']);
     }
 
     /**
@@ -236,6 +245,7 @@ final class Vocabulary
             'e-mail' => (string) $myPerson->contactDetails()->email,
             'téléphone' => (string) $myPerson->contactDetails()->phoneNumber?->international(),
             'langue' => (string) $myPerson->contactDetails()->language,
+            'LinkedIn' => (string) $myPerson->linkedInProfile(),
             'photo' => self::describeFile(StateOf::the($myPerson)['picture']),
             'raison sociale de mon organisation' => (string) StateOf::the($account)['legalIdentity']->corporateName,
             'forme juridique de mon organisation' => (string) StateOf::the($account)['legalIdentity']->form,
