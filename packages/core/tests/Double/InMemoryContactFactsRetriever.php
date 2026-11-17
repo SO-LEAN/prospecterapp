@@ -44,6 +44,17 @@ final readonly class InMemoryContactFactsRetriever implements ContactFactsRetrie
 
     private function factsOf(Person $person): ContactFactsResponse
     {
-        return new ContactFactsResponse((string) $person->id(), $this->database->revisionOf((string) $person->id()), true);
+        $state = StateOf::the($person);
+        $contactDetails = $state['contactDetails'];
+
+        return new ContactFactsResponse(
+            (string) $person->id(),
+            $this->database->revisionOf((string) $person->id()),
+            true,
+            null !== $contactDetails->email,
+            null !== $contactDetails->phoneNumber,
+            true === $contactDetails->phoneNumber?->isMobile(),
+            null !== $state['linkedInProfile'],
+        );
     }
 }

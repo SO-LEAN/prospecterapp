@@ -36,6 +36,10 @@ final readonly class PublishContactFactsHandler implements EventHandler
             $facts->personId,
             $facts->revision,
             $facts->present,
+            $facts->hasEmail,
+            $facts->hasPhone,
+            $facts->hasMobile,
+            $facts->hasLinkedIn,
             $event->occurredAt,
         ));
     }

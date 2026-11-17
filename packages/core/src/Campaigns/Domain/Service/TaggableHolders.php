@@ -34,7 +34,22 @@ final readonly class TaggableHolders
     {
         match ($holder->kind) {
             HolderKind::Organization => $this->organizations->isProspectedBy(new OrganizationId($holder->id->value), $accountId) ?: throw UnknownOrganization::identifiedBy($holder->id),
-            HolderKind::Contact => $this->contacts->isAContactOf(new PersonId($holder->id->value), $accountId) ?: throw UnknownContact::identifiedBy($holder->id),
+            HolderKind::Contact => $this->ensureContactsOf($accountId, [new PersonId($holder->id->value)]),
         };
+    }
+
+    /**
+     * @param list<PersonId> $persons
+     *
+     * @throws UnknownContact for the first that is no contact of the account
+     */
+    public function ensureContactsOf(AccountId $accountId, array $persons): void
+    {
+        $contacts = $this->contacts->contactsAmong($persons, $accountId);
+        $unknown = array_find($persons, static fn (PersonId $person): bool => !array_any($contacts, $person->equals(...)));
+
+        if (null !== $unknown) {
+            throw UnknownContact::identifiedBy($unknown);
+        }
     }
 }

@@ -32,6 +32,7 @@ final readonly class PublishOrganizationFactsHandler implements EventHandler
             $facts->revision,
             $facts->present,
             $facts->located,
+            $facts->contacts,
             $event->occurredAt,
         ));
     }

@@ -6,6 +6,7 @@ namespace Tests\Core\Double;
 
 use Prospecter\Core\Accounts\Domain\Model\Account;
 use Prospecter\Core\Accounts\Domain\Model\Member;
+use Prospecter\Core\Campaigns\Domain\Model\Fact as CampaignsFact;
 use Prospecter\Core\Campaigns\Domain\Model\Holder;
 use Prospecter\Core\Campaigns\Domain\Model\Tagging;
 use Prospecter\Core\Connectors\Domain\Model\CalendarEntry;
@@ -56,6 +57,8 @@ final class InMemoryDatabase
     private array $calendarEntries = [];
     /** @var array<string, Tagging> by the account and what it tags */
     private array $taggings = [];
+    /** @var array<string, array<string, CampaignsFact>> the facts Campaigns keeps, by account, then by the aggregate they are about */
+    private array $campaignsFacts = [];
 
     public function isEmpty(): bool
     {
@@ -88,6 +91,30 @@ final class InMemoryDatabase
         $this->clients = $snapshot->clients;
         $this->calendarEntries = $snapshot->calendarEntries;
         $this->taggings = $snapshot->taggings;
+        $this->campaignsFacts = $snapshot->campaignsFacts;
+    }
+
+    public function campaignsFact(string $account, string $aggregate): ?CampaignsFact
+    {
+        return $this->campaignsFacts[$account][$aggregate] ?? null;
+    }
+
+    public function storeCampaignsFact(string $account, string $aggregate, CampaignsFact $fact): void
+    {
+        $this->campaignsFacts[$account][$aggregate] = $fact;
+    }
+
+    /**
+     * @return list<CampaignsFact>
+     */
+    public function campaignsFactsOf(string $account): array
+    {
+        return array_values($this->campaignsFacts[$account] ?? []);
+    }
+
+    public function loseCampaignsFactsOf(string $account): void
+    {
+        unset($this->campaignsFacts[$account]);
     }
 
     public function storeTagging(Tagging $tagging): void
