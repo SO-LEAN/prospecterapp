@@ -26,9 +26,22 @@ describe('CollectContactForm', () => {
     expect(onSubmit).toHaveBeenCalledWith({
       name: { firstName: 'Ada', lastName: 'Lovelace' },
       jobTitle: 'Directrice commerciale',
-      contactDetails: { email: null, phoneNumber: null, language: null },
+      contactDetails: { email: null, phoneNumber: null, language: null, linkedInProfile: null },
       organizationIds: ['0190a1c0-0000-7000-8000-000000000001'],
     })
+  })
+
+  it('sends the LinkedIn profile as typed, the API keeping it in one form', async () => {
+    const { onSubmit, user } = renderForm()
+
+    await user.type(screen.getByLabelText(/^Profil LinkedIn/), 'linkedin.com/in/ada-lovelace')
+    await user.click(screen.getByRole('button', { name: 'Enregistrer le contact' }))
+
+    expect(onSubmit).toHaveBeenCalledWith(
+      expect.objectContaining({
+        contactDetails: { email: null, phoneNumber: null, language: null, linkedInProfile: 'linkedin.com/in/ada-lovelace' },
+      }),
+    )
   })
 
   it('checks the email before sending', async () => {
