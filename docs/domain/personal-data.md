@@ -24,7 +24,7 @@ The personal data of natural persons, and who reads them. Code: `packages/core/s
 ## What it publishes
 
 - The service `WhichAreContactsService` (which persons are contacts of an account), asked by Prospecting (ADR 0089).
-- The service `NameContactsService` (the names of persons as a member reads them, in clear or masked; a forgotten person, or one the member does not reach, absent), asked by Connectors to name the contact of an exchange it pushes (ADR 0127).
+- The service `NameContactsService` (the names and the job titles of persons as a member reads them, in clear or masked; a forgotten person, or one the member does not reach, absent), asked by Connectors to name the contact of an exchange it pushes (ADR 0127), and by Campaigns to render the message of a campaign for a contact (ADR 0144).
 - The integration events `ContactCollected` and `ContactForgotten` (ADR 0046).
 - The facts of its contacts (present, and how each is reached: an e-mail, a phone, a mobile among them as libphonenumber types the number, a LinkedIn profile, booleans and never the details, ADR 0141), each time one changes (`ContactFactsChanged`), and by slice for an account (`ListContactFactsService`), for a context counting them or deriving from them without reading its tables (ADR 0099). A forgotten contact gives a last fact, absent, reached by no means; the profile of a member, no contact, publishes none.
 
