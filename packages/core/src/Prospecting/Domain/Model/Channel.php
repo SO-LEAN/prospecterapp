@@ -13,6 +13,7 @@ enum Channel: string
     case Sms = 'sms';
     case Email = 'email';
     case LinkedIn = 'linkedIn';
+    case Malt = 'malt';
     case Meeting = 'meeting';
     case VideoCall = 'videoCall';
     case Other = 'other';
