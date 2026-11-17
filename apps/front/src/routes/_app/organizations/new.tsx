@@ -1,7 +1,10 @@
 import { createFileRoute, useNavigate } from '@tanstack/react-router'
+import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { StartProspectingForm } from '@/features/organizations/components/start-prospecting-form'
 import { useStartProspecting } from '@/features/organizations/mutations'
+import { TagsField } from '@/features/tags/components/tags-field'
+import { useTagTheNewOrganization } from '@/features/tags/mutations'
 import { useGoBack } from '@/shared/hooks/use-go-back'
 import { PageHeader } from '@/shared/ui/page-header'
 
@@ -9,11 +12,16 @@ export const Route = createFileRoute('/_app/organizations/new')({
   component: NewOrganization,
 })
 
+/** A tag refused once the organization exists is told by the toast of its refusal: the page of the organization opens all the same. */
+const keepingTheOrganization = () => undefined
+
 function NewOrganization() {
   const { t } = useTranslation()
   const navigate = useNavigate()
   const cancel = useGoBack(() => navigate({ to: '/organizations', replace: true }))
   const start = useStartProspecting()
+  const tagTheNewOrganization = useTagTheNewOrganization()
+  const [tags, setTags] = useState<string[]>([])
   const showInsteadOfTheForm = (organizationId: string) =>
     navigate({ to: '/organizations/$organizationId', params: { organizationId }, replace: true })
 
@@ -22,8 +30,10 @@ function NewOrganization() {
       <PageHeader title={t('organizations.start.title')} />
       <StartProspectingForm
         onCancel={cancel}
+        tags={<TagsField value={tags} onChange={setTags} />}
         onSubmit={async (body) => {
           const organization = await start.mutateAsync({ body })
+          await tagTheNewOrganization(organization.id, tags).catch(keepingTheOrganization)
           await showInsteadOfTheForm(organization.id)
         }}
       />

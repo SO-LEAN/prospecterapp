@@ -22,6 +22,7 @@ import {
   organizationContactsQuery,
   organizationQuery,
 } from '@/features/organizations/queries'
+import { OrganizationTags } from '@/features/tags/components/holder-tags'
 import { OrganizationToDosSection } from '@/features/to-dos/components/to-dos-section'
 import { useNoteTheExchangeProposal } from '@/features/to-dos/note-the-exchange'
 import { organizationToDosQuery } from '@/features/to-dos/queries'
@@ -88,6 +89,7 @@ function OrganizationPage() {
           )
         }
       />
+      {organization._links.tags && <OrganizationTags organizationId={organization.id} />}
 
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-5">
         <div className="space-y-6 lg:col-span-2">

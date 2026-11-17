@@ -40,7 +40,7 @@ describe('the picker of a tag', () => {
 
     expect(screen.getAllByRole('option').map((option) => option.textContent)).toEqual([
       '#EDITEUR',
-      'Créer « #édi »',
+      'Créer « #édi »',
     ])
   })
 
@@ -56,8 +56,8 @@ describe('the picker of a tag', () => {
     const onPick = renderThePicker()
 
     await userEvent.type(screen.getByRole('combobox', { name: 'Tag' }), 'salon pro')
-    await userEvent.click(screen.getByRole('option', { name: 'Créer « salon pro »' }))
-    await userEvent.type(screen.getByRole('combobox', { name: 'Tag' }), '{Enter}')
+    await userEvent.click(screen.getByRole('option', { name: 'Créer « salon pro »' }))
+    await userEvent.type(screen.getByRole('combobox', { name: 'Tag' }), 'salon pro{Enter}')
 
     expect(onPick.mock.calls).toEqual([['salon pro'], ['salon pro']])
   })

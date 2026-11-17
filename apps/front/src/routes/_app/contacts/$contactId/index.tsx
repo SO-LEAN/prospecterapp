@@ -17,6 +17,7 @@ import {
 } from '@/features/exchanges/components/exchanges-section'
 import { NextExchange } from '@/features/exchanges/components/next-exchange'
 import { timelineQuery, upcomingQuery } from '@/features/exchanges/queries'
+import { ContactTags } from '@/features/tags/components/holder-tags'
 import { ContactToDosSection } from '@/features/to-dos/components/to-dos-section'
 import { useNoteTheExchangeProposal } from '@/features/to-dos/note-the-exchange'
 import { contactToDosQuery } from '@/features/to-dos/queries'
@@ -79,6 +80,7 @@ function ContactPage() {
           )
         }
       />
+      {contact._links.tags && <ContactTags contactId={contact.id} />}
 
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
         <NameSection contact={contact} />
