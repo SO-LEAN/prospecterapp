@@ -34,6 +34,8 @@ final readonly class PublishExchangeFactsHandler implements EventHandler
             $facts->status,
             $facts->notedAt,
             $event->occurredAt,
+            $facts->contactId,
+            $facts->campaignId,
         ));
     }
 }

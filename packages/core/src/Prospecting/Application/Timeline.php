@@ -23,4 +23,22 @@ final readonly class Timeline
         public int $toMakeConform,
     ) {
     }
+
+    /**
+     * @return list<string> the identities of the campaigns its exchanges were noted in, each once
+     */
+    #[\NoDiscard]
+    public function campaignIds(): array
+    {
+        return array_values(array_unique(array_filter(array_map(static fn (ExchangeInTimeline $exchange): ?string => $exchange->campaignId, $this->exchanges))));
+    }
+
+    /**
+     * @param array<string, string> $names of campaigns, by identity
+     */
+    #[\NoDiscard]
+    public function withCampaignsNamed(array $names): self
+    {
+        return clone ($this, ['exchanges' => array_map(static fn (ExchangeInTimeline $exchange): ExchangeInTimeline => $exchange->withCampaignNamed($names), $this->exchanges)]);
+    }
 }

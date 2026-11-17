@@ -7,17 +7,34 @@ namespace Prospecter\Core\Campaigns\Domain\Model;
 use Prospecter\Core\SharedKernel\Domain\PersonId;
 
 /**
- * A contact a frozen campaign keeps to be contacted, by its identity only: its name is PersonalData's.
+ * A contact a frozen campaign keeps to be contacted, by its identity only: its name is PersonalData's. Processed,
+ * whether the call noted for them did not go through; dismissed, why, when said.
  */
 final readonly class Recipient
 {
-    public function __construct(public PersonId $contact, public RecipientStatus $status)
-    {
+    public function __construct(
+        public PersonId $contact,
+        public RecipientStatus $status,
+        public bool $missed = false,
+        public ?string $reason = null,
+    ) {
     }
 
     public static function pending(PersonId $contact): self
     {
         return new self($contact, RecipientStatus::Pending);
+    }
+
+    #[\NoDiscard]
+    public function processed(bool $missed): self
+    {
+        return new self($this->contact, RecipientStatus::Processed, $missed);
+    }
+
+    #[\NoDiscard]
+    public function dismissed(?string $reason): self
+    {
+        return new self($this->contact, RecipientStatus::Dismissed, reason: $reason);
     }
 
     #[\NoDiscard]
@@ -30,5 +47,11 @@ final readonly class Recipient
     public function is(PersonId $contact): bool
     {
         return $this->contact->equals($contact);
+    }
+
+    #[\NoDiscard]
+    public function isPending(): bool
+    {
+        return RecipientStatus::Pending === $this->status;
     }
 }

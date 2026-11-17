@@ -43,10 +43,11 @@ const relance: Campaign = {
   subject: null,
   status: 'draft',
   author: { name: { firstName: 'Alan', lastName: 'Turing' }, email: null },
-  contacted: 0,
+  progress: { processed: 0, dismissed: 0 },
   targeted: 2,
   startedAt: null,
   stoppedAt: null,
+  endedAt: null,
   _links: {
     self: { href: `/api/campaigns/${CAMPAIGN}`, method: 'GET' },
     revise: { href: `/api/campaigns/${CAMPAIGN}`, method: 'PATCH' },
@@ -71,6 +72,17 @@ const stopped: Campaign = {
   status: 'stopped',
   stoppedAt: '2026-11-17T09:00:00+00:00',
   _links: { self: { href: '/api/campaigns/0190a1c0-0000-7000-8000-00000000ca02', method: 'GET' } },
+}
+
+const ended: Campaign = {
+  ...started,
+  id: '0190a1c0-0000-7000-8000-00000000ca03',
+  name: 'Appels Java',
+  status: 'ended',
+  progress: { processed: 1, dismissed: 1 },
+  targeted: 2,
+  endedAt: '2026-11-17T10:00:00+00:00',
+  _links: { self: { href: '/api/campaigns/0190a1c0-0000-7000-8000-00000000ca03', method: 'GET' } },
 }
 
 const list: CampaignList = {
@@ -194,8 +206,8 @@ describe('the campaigns of the team', () => {
     expect(within(item).getByText('0 / 2')).toBeInTheDocument()
   })
 
-  it('are listed while they run by default, drafts, frozen and started, the stopped ones when the member filters them', async () => {
-    theApiAnswers({ campaigns: { ...list, items: [relance, started, stopped] } })
+  it('are listed while they run by default, drafts, frozen and started, the stopped or ended ones when the member filters them', async () => {
+    theApiAnswers({ campaigns: { ...list, items: [relance, started, stopped, ended] } })
     await renderTheSpaAt('/campaigns')
 
     const running = (await screen.findByRole('link', { name: 'Appels PHP' })).closest('li') as HTMLElement
@@ -203,10 +215,13 @@ describe('the campaigns of the team', () => {
     expect(screen.getByRole('link', { name: 'Relance ESN' })).toBeInTheDocument()
     expect(screen.queryByRole('link', { name: 'Salon 2026' })).not.toBeInTheDocument()
 
-    await userEvent.click(screen.getByRole('tab', { name: 'Arrêtées' }))
+    await userEvent.click(screen.getByRole('tab', { name: 'Arrêtées ou terminées' }))
 
     const kept = (await screen.findByRole('link', { name: 'Salon 2026' })).closest('li') as HTMLElement
     expect(within(kept).getByText('Arrêtée')).toBeInTheDocument()
+    const over = screen.getByRole('link', { name: 'Appels Java' }).closest('li') as HTMLElement
+    expect(within(over).getByText('Terminée')).toBeInTheDocument()
+    expect(within(over).getByTitle('2 traités sur 2 ciblés')).toHaveTextContent('2 / 2')
     expect(screen.queryByRole('link', { name: 'Relance ESN' })).not.toBeInTheDocument()
 
     await userEvent.click(screen.getByRole('tab', { name: 'Toutes' }))
@@ -215,11 +230,11 @@ describe('the campaigns of the team', () => {
     expect(screen.getByRole('link', { name: 'Salon 2026' })).toBeInTheDocument()
   })
 
-  it('says none is stopped while the filter finds none', async () => {
+  it('says none is stopped nor ended while the filter finds none', async () => {
     theApiAnswers()
     await renderTheSpaAt('/campaigns?status=stopped')
 
-    expect(await screen.findByText('Aucune campagne arrêtée.')).toBeInTheDocument()
+    expect(await screen.findByText('Aucune campagne arrêtée ni terminée.')).toBeInTheDocument()
   })
 
   it('prepares a draft from the tags chosen and opens it, the subject sent for an e-mail only', async () => {

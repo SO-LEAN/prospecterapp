@@ -5,6 +5,7 @@ namespace App\Campaigns\Persistence;
 use App\Shared\Persistence\Documents;
 use App\Shared\Persistence\Hydrator;
 use Prospecter\Core\Campaigns\Application\CampaignSheet;
+use Prospecter\Core\Campaigns\Application\RecipientInSheet;
 use Prospecter\Core\Campaigns\Domain\Model\Campaign;
 use Prospecter\Core\Campaigns\Domain\Model\CampaignIntent;
 use Prospecter\Core\Campaigns\Domain\Model\CampaignName;
@@ -27,7 +28,8 @@ use Prospecter\Core\SharedKernel\Domain\PersonId;
 /**
  * A campaign as its item keeps it (ADR 0048, 0144): its tags by their names without their mark, those of its target
  * derived from them and from its channel, never kept; frozen, its recipients by their identities and their statuses,
- * in the order they were added, none in a draft; the moments it was started and stopped, none before.
+ * whether the call of one processed did not go through, why one was dismissed (ADR 0145), in the order they were
+ * added, none in a draft; the moments it was started, stopped and ended, none before.
  */
 final class CampaignDocument
 {
@@ -49,11 +51,12 @@ final class CampaignDocument
             'message' => $state['message']->text,
             'subject' => $state['message']->subject,
             'status' => $state['status']->value,
-            'recipients' => array_map(static fn (Recipient $recipient): array => ['contactId' => $recipient->contact->value, 'status' => $recipient->status->value], $state['recipients']->recipients),
+            'recipients' => array_map(self::recipientDocument(...), $state['recipients']->recipients),
             'createdAt' => Documents::moment($state['createdAt']),
             'modifiedAt' => Documents::moment($state['modifiedAt']),
             'startedAt' => self::momentOrNone($state['startedAt']),
             'stoppedAt' => self::momentOrNone($state['stoppedAt']),
+            'endedAt' => self::momentOrNone($state['endedAt']),
         ];
     }
 
@@ -73,13 +76,14 @@ final class CampaignDocument
             'message' => MessageTemplate::of($document['message'], $document['subject'], $channel),
             'status' => CampaignStatus::from($document['status']),
             'recipients' => Hydrator::restore(Recipients::class, ['recipients' => array_map(
-                static fn (array $recipient): Recipient => new Recipient(new PersonId($recipient['contactId']), RecipientStatus::from($recipient['status'])),
+                self::recipient(...),
                 self::recipientsOf($document),
             )]),
             'createdAt' => Documents::momentOf($document['createdAt']),
             'modifiedAt' => Documents::momentOf($document['modifiedAt']),
             'startedAt' => self::momentOfOrNone($document, 'startedAt'),
             'stoppedAt' => self::momentOfOrNone($document, 'stoppedAt'),
+            'endedAt' => self::momentOfOrNone($document, 'endedAt'),
         ]);
     }
 
@@ -91,6 +95,9 @@ final class CampaignDocument
     public static function sheet(array $document): CampaignSheet
     {
         $targeting = self::targetingOf($document);
+        $status = CampaignStatus::from($document['status']);
+        $recipients = array_map(self::recipient(...), self::recipientsOf($document));
+        $statuses = array_map(static fn (Recipient $recipient): RecipientStatus => $recipient->status, $recipients);
 
         return new CampaignSheet(
             id: $document['id'],
@@ -102,26 +109,50 @@ final class CampaignDocument
             message: $document['message'],
             subject: $document['subject'],
             status: $document['status'],
-            followsTheTags: CampaignStatus::from($document['status'])->followsTheTags(),
-            contacted: CampaignProgress::contactedIn(CampaignStatus::from($document['status'])),
-            recipients: array_column(self::recipientsOf($document), 'status', 'contactId'),
+            followsTheTags: $status->followsTheTags(),
+            running: $status->isRunning(),
+            processed: CampaignProgress::processedAmong($statuses),
+            dismissed: CampaignProgress::dismissedAmong($statuses),
+            recipients: array_combine(
+                array_map(static fn (Recipient $recipient): string => $recipient->contact->value, $recipients),
+                array_map(static fn (Recipient $recipient): RecipientInSheet => new RecipientInSheet($recipient->status->value, $recipient->isPending(), $recipient->missed, $recipient->reason), $recipients),
+            ),
             authorId: $document['createdBy'],
-            possibleIntents: array_map(static fn (CampaignIntent $intent): string => $intent->name, CampaignPossibilities::given(CampaignStatus::from($document['status']), [] !== self::recipientsOf($document))),
+            possibleIntents: array_map(static fn (CampaignIntent $intent): string => $intent->name, CampaignPossibilities::given($status, [] !== $recipients)),
             createdAt: Documents::momentOf($document['createdAt']),
             modifiedAt: Documents::momentOf($document['modifiedAt']),
             startedAt: self::momentOfOrNone($document, 'startedAt'),
             stoppedAt: self::momentOfOrNone($document, 'stoppedAt'),
+            endedAt: self::momentOfOrNone($document, 'endedAt'),
         );
     }
 
     /**
      * @param array<string, mixed> $document
      *
-     * @return list<array{contactId: string, status: string}> none for a campaign saved before it could be frozen
+     * @return list<array{contactId: string, status: string, missed?: bool, reason?: ?string}> none for a campaign saved before it could be frozen
      */
     private static function recipientsOf(array $document): array
     {
         return $document['recipients'] ?? [];
+    }
+
+    /**
+     * @return array{contactId: string, status: string, missed: bool, reason: ?string}
+     */
+    private static function recipientDocument(Recipient $recipient): array
+    {
+        return ['contactId' => $recipient->contact->value, 'status' => $recipient->status->value, 'missed' => $recipient->missed, 'reason' => $recipient->reason];
+    }
+
+    /**
+     * Without whether it was missed nor why it was dismissed when saved before a campaign was led.
+     *
+     * @param array{contactId: string, status: string, missed?: bool, reason?: ?string} $document
+     */
+    private static function recipient(array $document): Recipient
+    {
+        return new Recipient(new PersonId($document['contactId']), RecipientStatus::from($document['status']), $document['missed'] ?? false, $document['reason'] ?? null);
     }
 
     private static function momentOrNone(?\DateTimeImmutable $moment): ?string

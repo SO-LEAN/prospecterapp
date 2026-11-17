@@ -21,6 +21,18 @@ interface CampaignSheetRetriever
     public function get(AccountId $accountId, CampaignId $id): CampaignSheet;
 
     /**
+     * None when the account has no campaign of this identity.
+     */
+    public function find(AccountId $accountId, CampaignId $id): ?CampaignSheet;
+
+    /**
+     * @param list<CampaignId> $ids
+     *
+     * @return array<string, string> the name of each campaign the account has among them, by identity
+     */
+    public function namesOf(AccountId $accountId, array $ids): array;
+
+    /**
      * @return list<CampaignSheet> every campaign of the account, the newest first (ADR 0144)
      */
     public function ofAccount(AccountId $accountId): array;

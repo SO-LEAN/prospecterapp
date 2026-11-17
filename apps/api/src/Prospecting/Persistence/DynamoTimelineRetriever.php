@@ -147,6 +147,7 @@ final readonly class DynamoTimelineRetriever implements TimelineRetriever
             toMakeConform: ExchangeConformity::isToMakeConform($contactForgotten, $declaredConform, [] !== $attachments),
             organizationIds: $document['keptFor'],
             attachmentCount: count($attachments),
+            campaignId: $document['campaignId'] ?? null,
         );
     }
 

@@ -1,6 +1,7 @@
 import { Link } from '@tanstack/react-router'
 import { useTranslation } from 'react-i18next'
 import { memberName } from '@/shared/lib/member-name'
+import { handledIn } from '../progress'
 import type { Campaign } from '../queries'
 import { CampaignStatusBadge } from './campaign-status-badge'
 
@@ -27,11 +28,11 @@ export function CampaignList({ campaigns }: { campaigns: Campaign[] }) {
           <span
             className="text-sm tabular-nums"
             title={t('campaigns.progressLabel', {
-              contacted: campaign.contacted,
+              handled: handledIn(campaign),
               targeted: campaign.targeted,
             })}
           >
-            {t('campaigns.progress', { contacted: campaign.contacted, targeted: campaign.targeted })}
+            {t('campaigns.progress', { handled: handledIn(campaign), targeted: campaign.targeted })}
           </span>
         </li>
       ))}

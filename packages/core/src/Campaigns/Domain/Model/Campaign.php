@@ -11,11 +11,14 @@ use Prospecter\Core\Campaigns\Domain\Event\CampaignRecipientsChanged;
 use Prospecter\Core\Campaigns\Domain\Event\CampaignRevised;
 use Prospecter\Core\Campaigns\Domain\Event\CampaignStarted;
 use Prospecter\Core\Campaigns\Domain\Event\CampaignStopped;
+use Prospecter\Core\Campaigns\Domain\Event\RecipientDismissed;
 use Prospecter\Core\Campaigns\Domain\Exception\CampaignNotFrozen;
+use Prospecter\Core\Campaigns\Domain\Exception\CampaignNotRunning;
 use Prospecter\Core\Campaigns\Domain\Exception\CampaignWithoutRecipient;
 use Prospecter\Core\Campaigns\Domain\Exception\FrozenSearch;
 use Prospecter\Core\Campaigns\Domain\Exception\InvalidTag;
 use Prospecter\Core\Campaigns\Domain\Exception\InvalidTagSelection;
+use Prospecter\Core\Campaigns\Domain\Exception\RecipientAlreadyProcessed;
 use Prospecter\Core\Campaigns\Domain\Exception\StartedCampaign;
 use Prospecter\Core\Campaigns\Domain\Exception\StartedCampaignNotDiscarded;
 use Prospecter\Core\Campaigns\Domain\Exception\TooManyRecipients;
@@ -35,7 +38,9 @@ use Prospecter\Core\SharedKernel\Domain\ReleasesEvents;
  * Aggregate root: a campaign of communication the team of an account prepares (ADR 0144), its members contacting each
  * person it targets themselves, by its channel, the message it keeps reminding them; Prospecter sends nothing. Shared
  * by the team, prepared by its author. A draft targets the contacts carrying its tags as they are now; frozen, it keeps
- * its recipients, changed by hand only; started, it is led as it was frozen, then stopped, never discarded.
+ * its recipients, changed by hand only; started, it is led as it was frozen, recipient after recipient, each processed
+ * by the exchange noted for them or dismissed, until it ends once nobody is left to handle, or is stopped; never
+ * discarded once started (ADR 0145).
  */
 final class Campaign implements ReleasesEvents
 {
@@ -46,6 +51,7 @@ final class Campaign implements ReleasesEvents
     private \DateTimeImmutable $modifiedAt;
     private ?\DateTimeImmutable $startedAt = null;
     private ?\DateTimeImmutable $stoppedAt = null;
+    private ?\DateTimeImmutable $endedAt = null;
 
     private function __construct(
         private readonly CampaignId $id,
@@ -159,6 +165,36 @@ final class Campaign implements ReleasesEvents
     }
 
     /**
+     * The exchange noted for a recipient in the campaign processes them, as Prospecting tells it: a reaction of the
+     * system, recording nothing; a recipient handled already, or a campaign no longer led, stays as it is.
+     */
+    public function process(PersonId $contact, bool $missed, \DateTimeImmutable $at): void
+    {
+        if (!$this->status->isRunning()) {
+            return;
+        }
+
+        $this->recipients = $this->recipients->processing($contact, $missed);
+        $this->endOnceNobodyIsPending($at);
+    }
+
+    /**
+     * Without an exchange, for a reason when said.
+     *
+     * @throws CampaignNotRunning
+     * @throws UnknownRecipient
+     * @throws RecipientAlreadyProcessed
+     */
+    public function dismiss(PersonId $contact, ?string $reason, MemberId $by, \DateTimeImmutable $at): void
+    {
+        $this->ensurePossible(CampaignIntent::RunCampaign);
+        $this->recipients = $this->recipients->dismissing($contact, $reason);
+        $this->modifiedAt = $at;
+        $this->recordThat(new RecipientDismissed($this->accountId, $by, $this->id, $contact, $at));
+        $this->endOnceNobodyIsPending($at);
+    }
+
+    /**
      * Adds the contacts carrying the tags typed and that of its channel, those already recipients kept once.
      *
      * @param list<string>               $typed
@@ -223,6 +259,15 @@ final class Campaign implements ReleasesEvents
         return $this->message->renderedFor($addressee);
     }
 
+    private function endOnceNobodyIsPending(\DateTimeImmutable $at): void
+    {
+        if ($this->recipients->nonePending()) {
+            $this->status = CampaignStatus::Ended;
+            $this->endedAt = $at;
+            $this->modifiedAt = $at;
+        }
+    }
+
     private function changeRecipients(Recipients $recipients, MemberId $by, \DateTimeImmutable $at): void
     {
         $this->recipients = $recipients;
@@ -258,6 +303,7 @@ final class Campaign implements ReleasesEvents
         return match (true) {
             CampaignIntent::StartCampaign === $intent && CampaignStatus::Frozen === $this->status => CampaignWithoutRecipient::left(),
             CampaignIntent::StartCampaign === $intent => CampaignNotFrozen::toStart(),
+            CampaignIntent::RunCampaign === $intent => CampaignNotRunning::toRun(),
             CampaignIntent::DiscardCampaign === $intent && $this->status->hasStarted() => StartedCampaignNotDiscarded::stoppedInstead(),
             CampaignIntent::StopCampaign !== $intent && $this->status->hasStarted() => StartedCampaign::unchanged(),
             default => NotPossibleInItsState::because(sprintf('A %s campaign does not offer it', $this->status->value)),

@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Prospecter\Core\Prospecting\Application\ConsultOrganizationTimeline;
 
+use Prospecter\Core\Prospecting\Application\CampaignsOfTimeline;
 use Prospecter\Core\Prospecting\Application\Port\OrganizationSheetRetriever;
 use Prospecter\Core\Prospecting\Application\Port\TimelineRetriever;
 use Prospecter\Core\Prospecting\Application\TimelineOutput;
@@ -18,6 +19,7 @@ final readonly class ConsultOrganizationTimelineHandler implements QueryHandler
         private TimelineRetriever $timelineRetriever,
         private OrganizationSheetRetriever $organizationSheetRetriever,
         private Prospectors $prospectors,
+        private CampaignsOfTimeline $campaignsOfTimeline,
     ) {
     }
 
@@ -26,6 +28,6 @@ final readonly class ConsultOrganizationTimelineHandler implements QueryHandler
         $prospector = $this->prospectors->prospectorFrom(new MemberId($query->prospectorId));
         $organization = $this->organizationSheetRetriever->get(new OrganizationId($query->organizationId));
 
-        $output->present($this->timelineRetriever->ofOrganization($organization, $prospector, $query->asOf, $query->after, $query->max));
+        $output->present($this->campaignsOfTimeline->named($this->timelineRetriever->ofOrganization($organization, $prospector, $query->asOf, $query->after, $query->max), $prospector->accountId));
     }
 }

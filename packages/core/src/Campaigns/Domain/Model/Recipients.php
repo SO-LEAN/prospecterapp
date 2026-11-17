@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Prospecter\Core\Campaigns\Domain\Model;
 
 use Prospecter\Core\Campaigns\Domain\Exception\CampaignWithoutRecipient;
+use Prospecter\Core\Campaigns\Domain\Exception\RecipientAlreadyProcessed;
 use Prospecter\Core\Campaigns\Domain\Exception\TooManyRecipients;
 use Prospecter\Core\Campaigns\Domain\Exception\UnknownRecipient;
 use Prospecter\Core\SharedKernel\Domain\PersonId;
@@ -93,7 +94,35 @@ final readonly class Recipients
     #[\NoDiscard]
     public function erasing(PersonId $contact): self
     {
-        return new self(array_map(static fn (Recipient $recipient): Recipient => $recipient->is($contact) ? $recipient->erased() : $recipient, $this->recipients));
+        return $this->handling($contact, static fn (Recipient $recipient): Recipient => $recipient->erased());
+    }
+
+    /**
+     * A recipient still to handle is processed by the exchange noted for them; one handled already stays as it is,
+     * the first exchange winning.
+     */
+    #[\NoDiscard]
+    public function processing(PersonId $contact, bool $missed): self
+    {
+        return $this->handling($contact, static fn (Recipient $recipient): Recipient => $recipient->isPending() ? $recipient->processed($missed) : $recipient);
+    }
+
+    /**
+     * @throws UnknownRecipient
+     * @throws RecipientAlreadyProcessed when no longer to handle
+     */
+    #[\NoDiscard]
+    public function dismissing(PersonId $contact, ?string $reason): self
+    {
+        $recipient = array_find($this->recipients, static fn (Recipient $recipient): bool => $recipient->is($contact)) ?? throw UnknownRecipient::identifiedBy($contact);
+
+        return $recipient->isPending() ? $this->handling($contact, static fn (Recipient $pending): Recipient => $pending->dismissed($reason)) : throw RecipientAlreadyProcessed::once();
+    }
+
+    #[\NoDiscard]
+    public function nonePending(): bool
+    {
+        return !array_any($this->recipients, static fn (Recipient $recipient): bool => $recipient->isPending());
     }
 
     #[\NoDiscard]
@@ -106,5 +135,13 @@ final readonly class Recipients
     public function includes(PersonId $contact): bool
     {
         return array_any($this->recipients, static fn (Recipient $recipient): bool => $recipient->is($contact));
+    }
+
+    /**
+     * @param \Closure(Recipient): Recipient $change
+     */
+    private function handling(PersonId $contact, \Closure $change): self
+    {
+        return new self(array_map(static fn (Recipient $recipient): Recipient => $recipient->is($contact) ? $change($recipient) : $recipient, $this->recipients));
     }
 }

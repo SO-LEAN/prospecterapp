@@ -8,7 +8,8 @@ namespace Prospecter\Core\Prospecting\Contract\Event;
  * Integration event published to the other contexts (ADR 0046, 0047): the state of an exchange once it changed,
  * as its facts count it: where it stands (`planned`, `done`, `missed`, `cancelled`) and its moment. The highest
  * revision is the latest; an erased exchange is absent, at the revision 0, without its status nor its moment.
- * Published before it had a status (`ExchangeFactsChanged.v1`), a present exchange has none.
+ * Published before it had a status (`ExchangeFactsChanged.v1`), a present exchange has none; before it named its
+ * contact and its campaign (`ExchangeFactsChanged.v2`), it names none (ADR 0145).
  */
 final readonly class ExchangeFactsChanged
 {
@@ -20,6 +21,8 @@ final readonly class ExchangeFactsChanged
         public ?string $status,
         public ?\DateTimeImmutable $notedAt,
         public \DateTimeImmutable $occurredAt,
+        public ?string $contactId = null,
+        public ?string $campaignId = null,
     ) {
     }
 }

@@ -9850,6 +9850,7 @@
             "RecipientResource": {
                 "required": [
                     "status",
+                    "missed",
                     "_links"
                 ],
                 "properties": {
@@ -9863,12 +9864,23 @@
                         ]
                     },
                     "status": {
-                        "description": "To handle, or no longer once erased",
+                        "description": "To handle, processed by an exchange, dismissed without one, or no longer once erased",
                         "type": "string",
                         "enum": [
                             "pending",
+                            "processed",
+                            "dismissed",
                             "erased"
                         ]
+                    },
+                    "missed": {
+                        "description": "Processed by a call that did not go through",
+                        "type": "boolean"
+                    },
+                    "reason": {
+                        "description": "Why they were dismissed, when said",
+                        "type": "string",
+                        "nullable": true
                     },
                     "_links": {
                         "$ref": "#/components/schemas/RecipientLinksResource"
@@ -9901,6 +9913,23 @@
                     },
                     "_links": {
                         "$ref": "#/components/schemas/RecipientListLinksResource"
+                    }
+                },
+                "type": "object"
+            },
+            "CampaignProgressResource": {
+                "required": [
+                    "processed",
+                    "dismissed"
+                ],
+                "properties": {
+                    "processed": {
+                        "description": "Its recipients processed by an exchange noted for them in it",
+                        "type": "integer"
+                    },
+                    "dismissed": {
+                        "description": "Its recipients dismissed without an exchange",
+                        "type": "integer"
                     }
                 },
                 "type": "object"
@@ -9953,7 +9982,7 @@
                     "message",
                     "status",
                     "author",
-                    "contacted",
+                    "progress",
                     "targeted",
                     "_links"
                 ],
@@ -10002,15 +10031,15 @@
                             "draft",
                             "frozen",
                             "started",
-                            "stopped"
+                            "stopped",
+                            "ended"
                         ]
                     },
                     "author": {
                         "$ref": "#/components/schemas/AuthorResource"
                     },
-                    "contacted": {
-                        "description": "How many contacts of its target were contacted, none before it is started",
-                        "type": "integer"
+                    "progress": {
+                        "$ref": "#/components/schemas/CampaignProgressResource"
                     },
                     "targeted": {
                         "description": "How many contacts it targets: those its search finds now while a draft, its recipients once frozen",
@@ -10024,6 +10053,12 @@
                     },
                     "stoppedAt": {
                         "description": "When it was stopped, none before",
+                        "type": "string",
+                        "format": "date-time",
+                        "nullable": true
+                    },
+                    "endedAt": {
+                        "description": "When it ended, nobody left to handle, none before",
                         "type": "string",
                         "format": "date-time",
                         "nullable": true

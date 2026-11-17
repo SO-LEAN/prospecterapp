@@ -13,15 +13,15 @@ use Prospecter\Core\Accounts\Domain\Model\Role;
 use Prospecter\Core\Campaigns\Application\AddRecipient\AddRecipient;
 use Prospecter\Core\Campaigns\Application\AddRecipientsByTags\AddRecipientsByTags;
 use Prospecter\Core\Campaigns\Application\CampaignSheet;
-use Prospecter\Core\Campaigns\Application\RecipientInSheet;
-use Prospecter\Core\Campaigns\Application\DismissRecipient\DismissRecipient;
 use Prospecter\Core\Campaigns\Application\ConsultCampaign\ConsultCampaign;
 use Prospecter\Core\Campaigns\Application\DiscardCampaign\DiscardCampaign;
+use Prospecter\Core\Campaigns\Application\DismissRecipient\DismissRecipient;
 use Prospecter\Core\Campaigns\Application\EraseCampaign\EraseCampaign;
 use Prospecter\Core\Campaigns\Application\FreezeCampaign\FreezeCampaign;
 use Prospecter\Core\Campaigns\Application\ListCampaigns\ListCampaigns;
 use Prospecter\Core\Campaigns\Application\PrepareCampaign\PrepareCampaign;
 use Prospecter\Core\Campaigns\Application\RebuildTags\RebuildTags;
+use Prospecter\Core\Campaigns\Application\RecipientInSheet;
 use Prospecter\Core\Campaigns\Application\RemoveRecipient\RemoveRecipient;
 use Prospecter\Core\Campaigns\Application\RenderCampaignMessage\CampaignMessage;
 use Prospecter\Core\Campaigns\Application\RenderCampaignMessage\RenderCampaignMessage;
@@ -33,7 +33,6 @@ use Prospecter\Core\Campaigns\Contract\Service\NameCampaigns\NameCampaigns;
 use Prospecter\Core\Campaigns\Contract\Service\WhichRecipientsArePending\PendingRecipientsResponse;
 use Prospecter\Core\Campaigns\Contract\Service\WhichRecipientsArePending\WhichRecipientsArePending;
 use Prospecter\Core\Campaigns\Domain\Model\Campaign;
-use Prospecter\Core\SharedKernel\Domain\CampaignId;
 use Prospecter\Core\Campaigns\Domain\Model\CampaignName;
 use Prospecter\Core\Campaigns\Domain\Model\Channel;
 use Prospecter\Core\Campaigns\Domain\Model\MessageTemplate;
@@ -46,6 +45,7 @@ use Prospecter\Core\Prospecting\Application\ExchangeInTimeline;
 use Prospecter\Core\Prospecting\Application\NoteCampaignExchange\NoteCampaignExchange;
 use Prospecter\Core\Prospecting\Contract\Event\ExchangeFactsChanged;
 use Prospecter\Core\SharedKernel\Domain\AccountId;
+use Prospecter\Core\SharedKernel\Domain\CampaignId;
 use Prospecter\Core\SharedKernel\Domain\MemberId;
 use Tests\Core\Acceptance\Expect;
 use Tests\Core\Acceptance\Vocabulary;
@@ -449,7 +449,7 @@ final class CampaignContext implements Context
         $recipients = $this->sheet()->recipients;
         $read = $this->application->consultPersons(new ConsultPersons($this->application->signedIn(), array_map(strval(...), array_keys($recipients)))) ?? [];
 
-        Expect::same(['plus à traiter'], array_values(array_map(static fn (string $status): string => self::RECIPIENT_STATUSES[$status], $recipients)));
+        Expect::same(['plus à traiter'], array_values(array_map(static fn (RecipientInSheet $recipient): string => self::RECIPIENT_STATUSES[$recipient->status], $recipients)));
         Expect::same([], $read);
     }
 
@@ -510,7 +510,7 @@ final class CampaignContext implements Context
     #[Then('ses destinataires sont :contact, à traiter')]
     public function itsRecipientsArePending(string $contact): void
     {
-        Expect::same([$this->scenario->personIdOf($contact) => 'à traiter'], array_map(static fn (string $status): string => self::RECIPIENT_STATUSES[$status], $this->sheet()->recipients));
+        Expect::same([$this->scenario->personIdOf($contact) => 'à traiter'], array_map(static fn (RecipientInSheet $recipient): string => self::RECIPIENT_STATUSES[$recipient->status], $this->sheet()->recipients));
     }
 
     #[Then('ses destinataires sont :contact')]
@@ -652,7 +652,7 @@ final class CampaignContext implements Context
             'nom' => $campaign->name,
             'canal' => (string) array_search($campaign->channel, self::CHANNELS, true),
             'statut' => self::STATUSES[$campaign->status],
-            'contactés' => (string) $campaign->contacted,
+            'contactés' => (string) ($campaign->processed + $campaign->dismissed),
             'ciblés' => (string) ($this->targeted[$campaign->id] ?? 0),
         ], $this->listed);
 

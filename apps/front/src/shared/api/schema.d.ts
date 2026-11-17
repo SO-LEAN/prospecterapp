@@ -2585,10 +2585,14 @@ export interface components {
             /** @description The contact, none once erased */
             contact?: components["schemas"]["ContactInListResource"] | null;
             /**
-             * @description To handle, or no longer once erased
+             * @description To handle, processed by an exchange, dismissed without one, or no longer once erased
              * @enum {string}
              */
-            status: "pending" | "erased";
+            status: "pending" | "processed" | "dismissed" | "erased";
+            /** @description Processed by a call that did not go through */
+            missed: boolean;
+            /** @description Why they were dismissed, when said */
+            reason?: string | null;
             _links: components["schemas"]["RecipientLinksResource"];
         };
         RecipientListLinksResource: {
@@ -2597,6 +2601,12 @@ export interface components {
         RecipientListResource: {
             items: components["schemas"]["RecipientResource"][];
             _links: components["schemas"]["RecipientListLinksResource"];
+        };
+        CampaignProgressResource: {
+            /** @description Its recipients processed by an exchange noted for them in it */
+            processed: number;
+            /** @description Its recipients dismissed without an exchange */
+            dismissed: number;
         };
         CampaignLinksResource: {
             self: components["schemas"]["LinkResource"];
@@ -2624,10 +2634,9 @@ export interface components {
             /** @description The subject of an e-mail */
             subject?: string | null;
             /** @enum {string} */
-            status: "draft" | "frozen" | "started" | "stopped";
+            status: "draft" | "frozen" | "started" | "stopped" | "ended";
             author: components["schemas"]["AuthorResource"];
-            /** @description How many contacts of its target were contacted, none before it is started */
-            contacted: number;
+            progress: components["schemas"]["CampaignProgressResource"];
             /** @description How many contacts it targets: those its search finds now while a draft, its recipients once frozen */
             targeted: number;
             /**
@@ -2640,6 +2649,11 @@ export interface components {
              * @description When it was stopped, none before
              */
             stoppedAt?: string | null;
+            /**
+             * Format: date-time
+             * @description When it ended, nobody left to handle, none before
+             */
+            endedAt?: string | null;
             _links: components["schemas"]["CampaignLinksResource"];
         };
         CampaignListLinksResource: {

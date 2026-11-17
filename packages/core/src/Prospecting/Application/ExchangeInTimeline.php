@@ -9,7 +9,8 @@ namespace Prospecter\Core\Prospecting\Application;
  * `ExchangeStatus`, who called it off once cancelled, when said, by the values of `Canceller`, how long it lasts when
  * it was planned, where a meeting is held, the link of a video call, the
  * contact it was with, none when it was with the organization itself, its text flagged when the prospector reads
- * it without the right to manage personal data, and what is to make conform once its contact was forgotten.
+ * it without the right to manage personal data, what is to make conform once its contact was forgotten, and the
+ * campaign it was noted in, named as Campaigns names it now, none once erased (ADR 0145).
  */
 final readonly class ExchangeInTimeline
 {
@@ -35,6 +36,17 @@ final readonly class ExchangeInTimeline
         public bool $toMakeConform,
         public array $organizationIds,
         public int $attachmentCount,
+        public ?string $campaignId = null,
+        public ?string $campaignName = null,
     ) {
+    }
+
+    /**
+     * @param array<string, string> $names of campaigns, by identity
+     */
+    #[\NoDiscard]
+    public function withCampaignNamed(array $names): self
+    {
+        return null === $this->campaignId ? $this : clone ($this, ['campaignName' => $names[$this->campaignId] ?? null]);
     }
 }

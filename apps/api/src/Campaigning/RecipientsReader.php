@@ -46,12 +46,14 @@ final readonly class RecipientsReader
         $organizations = $this->organizationsOfContacts->read($reader, $read);
         $tags = $this->tagsOfContacts->read($reader, $read);
         $removable = $this->intentLinks->shows('RemoveRecipient', $campaign->possibleIntents, User::PERSONAL_DATA);
-        $shown = array_filter($contactIds, static fn (string $id): bool => isset($persons[$id]) || self::ERASED === $campaign->recipients[$id]);
+        $shown = array_filter($contactIds, static fn (string $id): bool => isset($persons[$id]) || self::ERASED === $campaign->recipients[$id]->status);
 
         return new RecipientListResource(
             array_values(array_map(fn (string $id): RecipientResource => new RecipientResource(
                 isset($persons[$id]) ? $this->contactInListResourceFactory->create($persons[$id], $organizations[$id] ?? [], $tags[$id] ?? []) : null,
-                $campaign->recipients[$id],
+                $campaign->recipients[$id]->status,
+                $campaign->recipients[$id]->missed,
+                $campaign->recipients[$id]->reason,
                 new RecipientLinksResource($removable ? $this->links->to('api_campaigns_remove_recipient', ['id' => $campaign->id, 'contactId' => $id]) : null),
             ), $shown)),
             new RecipientListLinksResource($this->links->to('api_campaigns_recipients', ['id' => $campaign->id])),
