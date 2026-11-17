@@ -4,7 +4,8 @@ import type { ReactNode } from 'react'
 import { Toaster, toast } from 'sonner'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import { theDashboardInTheCacheOf } from '@/test/the-dashboard'
-import { useReviseLegalIdentity, useStartProspecting } from './mutations'
+import { AFTER_THE_REACTIONS_MS } from '@/shared/api/reactions'
+import { useRelocate, useReviseLegalIdentity, useStartProspecting } from './mutations'
 import type { Organization } from './queries'
 
 const theApi = vi.hoisted(() => {
@@ -99,5 +100,24 @@ describe('the intentions on an organization', () => {
     )
 
     expect(await dashboard.isReadAgainAfterTheReactions()).toBe(true)
+  })
+
+  it('have the tags of the organization and of the contacts read again once the reactions recorded where it moved', async () => {
+    vi.useFakeTimers({ shouldAdvanceTime: true })
+    givenTheApiAnswers(acme)
+    const queryClient = new QueryClient()
+    const organizationTags = ['get', '/api/organizations/{id}/tags', { params: { path: { id: ACME } } }]
+    const contactTags = ['get', '/api/contacts/{id}/tags', { params: { path: { id: ACME } } }]
+    const { result } = renderHook(useRelocate, { wrapper: withTheCache(queryClient) })
+
+    await act(() =>
+      result.current.mutateAsync({ params: { path: { id: ACME } }, body: { city: 'Illkirch-Graffenstaden' } }),
+    )
+    queryClient.setQueryData(organizationTags, { tags: [], automatic: [] })
+    queryClient.setQueryData(contactTags, { tags: [], inherited: [], automatic: [] })
+    await vi.advanceTimersByTimeAsync(AFTER_THE_REACTIONS_MS)
+
+    expect(queryClient.getQueryState(organizationTags)?.isInvalidated).toBe(true)
+    expect(queryClient.getQueryState(contactTags)?.isInvalidated).toBe(true)
   })
 })
