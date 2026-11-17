@@ -54,7 +54,19 @@ final readonly class GoogleProviderAccess implements ProviderAccess
             throw AccessNotGranted::by($client->provider);
         }
 
-        return self::grantOf($response->toArray(), $client->provider);
+        return self::grantOf(self::tokensIn($response), $client->provider);
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
+    private static function tokensIn(ResponseInterface $response): array
+    {
+        try {
+            return $response->toArray();
+        } catch (TransportExceptionInterface $failure) {
+            throw ServiceUnavailable::google($failure);
+        }
     }
 
     /**
