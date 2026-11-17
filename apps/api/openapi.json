@@ -6523,6 +6523,16 @@
                                 }
                             }
                         }
+                    },
+                    "422": {
+                        "description": "Frozen, but emptied by the erasure of its contacts",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ProblemResource"
+                                }
+                            }
+                        }
                     }
                 }
             }

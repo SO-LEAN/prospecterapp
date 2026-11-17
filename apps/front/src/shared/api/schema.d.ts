@@ -8126,6 +8126,15 @@ export interface operations {
                     "application/json": components["schemas"]["ProblemResource"];
                 };
             };
+            /** @description Frozen, but emptied by the erasure of its contacts */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ProblemResource"];
+                };
+            };
         };
     };
     post_api_campaigns_stop: {
