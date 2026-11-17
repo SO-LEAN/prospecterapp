@@ -3,7 +3,7 @@ import { api, fetchClient } from '@/shared/api/client'
 import { queryKeys } from '@/shared/api/keys'
 import type { components } from '@/shared/api/schema'
 import { dataOf, nextSliceOf } from '@/shared/api/slices'
-import { pauseBeforeReadingAgain } from './awaited-link'
+import { pauseBeforeReadingAgain } from './awaited-push'
 
 export type Timeline = components['schemas']['TimelineResource']
 export type Exchange = components['schemas']['ExchangeResource']
@@ -161,8 +161,17 @@ export const timelineKeys = {
 /** Where the push of an exchange into my Google calendar stands, changed by the reactions to its gestures. */
 export const googleSyncKey = ['get', '/api/exchanges/{id}/google-sync'] as const
 
+/** Where the push of an exchange stands, read again a few times while it awaits its push, as its link (ADR 0137). */
 export const googleSyncQuery = (id: string) =>
-  api.queryOptions('get', '/api/exchanges/{id}/google-sync', { params: { path: { id } } })
+  queryOptions({
+    ...api.queryOptions('get', '/api/exchanges/{id}/google-sync', { params: { path: { id } } }),
+    refetchInterval: (query) =>
+      pauseBeforeReadingAgain(awaitsItsPush(query.state.data), query.state.dataUpdateCount),
+  })
+
+/** Pending for no reason of mine, its push is on its way; awaiting my reconnection, nothing comes until I act. */
+const awaitsItsPush = (sync: GoogleSync | undefined) =>
+  sync?.sync?.state === 'pending' && sync.sync.reason === null
 
 /** An exchange, read again a few times while it awaits the link its calendar creates (ADR 0137). */
 export const exchangeQuery = (id: string) =>
