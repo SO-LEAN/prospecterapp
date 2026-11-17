@@ -146,9 +146,11 @@ Every event, domain or integration, travels as an EventBridge event:
 | `reporting-figures` | `OrganizationFactsChanged`, `ExchangeFactsChanged`, `ContactFactsChanged` | no | the facts and the figures of Reporting, a reaction per detail-type |
 | `connectors-unname-forgotten-contact` | `ContactForgotten` | yes | the events of the exchanges done or missed with the contact put again without their name (ADR 0127) |
 | `connectors-push-upcoming-exchanges` | `Connected`, `CalendarRecreated` (.internal) | yes | the exchanges the member still has planned pushed into their calendar « Prospecter » at Google, the 40 soonest (ADR 0133) |
+| `campaigns-forget-tags-of-unprospected-organization` | `OrganizationFactsChanged`, only the terminal ones (`payload`) | no | the tags of an organization no longer prospected forgotten (ADR 0138) |
+| `campaigns-forget-tags-of-forgotten-contact` | `ContactForgotten` | no | the tags of the contact forgotten (ADR 0138) |
 | `connectors-push-exchange` | `ExchangeFactsChanged` (.v2), only those of an exchange planned, cancelled or erased (`payload`) | yes | the exchange read again from Prospecting, pushed into or withdrawn from the calendar « Prospecter » of its holder at Google (ADR 0127) |
 
-A subscription goes without inbox when applying its event twice changes nothing: a file removed again is absent, a fact of a revision known already is ignored. Two subscriptions to one event are two rules, two invocations, two inboxes: one never replays nor hides the other. `ReactionsAreSubscribedTest` keeps the list and the code together (every reaction subscribed, every subscription naming a known reaction and events its sources publish, an `.internal` source listened to by its own context only).
+A subscription goes without inbox when applying its event twice changes nothing: a file removed again is absent, a fact of a revision known already is ignored, a tagging forgotten again is not there. Two subscriptions to one event are two rules, two invocations, two inboxes: one never replays nor hides the other. `ReactionsAreSubscribedTest` keeps the list and the code together (every reaction subscribed, every subscription naming a known reaction and events its sources publish, an `.internal` source listened to by its own context only).
 
 ## When something fails
 
