@@ -8,10 +8,10 @@ use Prospecter\Core\Prospecting\Domain\Model\Due;
 use Prospecter\Core\Prospecting\Domain\Model\Duration;
 use Prospecter\Core\Prospecting\Domain\Model\ExchangeStatus;
 use Prospecter\Core\Prospecting\Domain\Model\Slot;
+use Prospecter\Core\Prospecting\Domain\Policy\Lateness;
 
 /**
- * What a prospector let pass at the moment of a reading, on their clock: a planned exchange whose slot has ended,
- * still to mark done, missed or cancelled; a to-do not done whose hour, or else whose day, has passed.
+ * The read models of the exchanges and the to-dos told in the terms of the domain, asking it what is late.
  */
 final class Overdue
 {
@@ -24,7 +24,7 @@ final class Overdue
     public static function among(array $exchanges, array $toDos, \DateTimeImmutable $at): array
     {
         $lateExchanges = array_filter($exchanges, static fn (ExchangeInTimeline $exchange): bool => self::isLateExchange($exchange, $at));
-        $lateToDos = array_filter($toDos, static fn (ToDoInList $toDo): bool => !$toDo->isDone() && self::dueOf($toDo)->hasPassedBy($at));
+        $lateToDos = array_filter($toDos, static fn (ToDoInList $toDo): bool => Lateness::ofToDo(self::dueOf($toDo), $toDo->isDone(), $at));
 
         return [
             ...array_values(array_map(static fn (ExchangeInTimeline $exchange): string => $exchange->id, $lateExchanges)),
@@ -37,7 +37,7 @@ final class Overdue
      */
     public static function hasEnded(ExchangeInTimeline $exchange, \DateTimeImmutable $at): bool
     {
-        return new Slot($exchange->occurredAt, Duration::inMinutes($exchange->durationInMinutes))->hasEndedBy($at);
+        return self::slotOf($exchange)->hasEndedBy($at);
     }
 
     /**
@@ -50,7 +50,12 @@ final class Overdue
 
     private static function isLateExchange(ExchangeInTimeline $exchange, \DateTimeImmutable $at): bool
     {
-        return ExchangeStatus::Planned->value === $exchange->status && self::hasEnded($exchange, $at);
+        return Lateness::ofExchange(ExchangeStatus::from($exchange->status), self::slotOf($exchange), $at);
+    }
+
+    private static function slotOf(ExchangeInTimeline $exchange): Slot
+    {
+        return new Slot($exchange->occurredAt, Duration::inMinutes($exchange->durationInMinutes));
     }
 
     private static function dueOf(ToDoInList $toDo): Due
