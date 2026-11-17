@@ -117,8 +117,15 @@ function theApiAnswers(campaign: Campaign) {
     }
     const answers: Record<string, unknown> = {
       '/api/me': me,
-      '/api/me/connections': { connections: [], _links: { self: { href: '/api/me/connections', method: 'GET' } } },
-      '/api/me/reminders': { enabled: false, minutesBefore: 10, _links: { self: { href: '/api/me/reminders', method: 'GET' } } },
+      '/api/me/connections': {
+        connections: [],
+        _links: { self: { href: '/api/me/connections', method: 'GET' } },
+      },
+      '/api/me/reminders': {
+        enabled: false,
+        minutesBefore: 10,
+        _links: { self: { href: '/api/me/reminders', method: 'GET' } },
+      },
       '/api/me/day': { today: [], next: [], _links: { self: { href: '/api/me/day', method: 'GET' } } },
       '/api/me/exchanges-to-process': { items: [], toDos: [], _links: {} },
       '/api/tags': suggested,
@@ -181,7 +188,10 @@ describe('the recipients of a campaign', () => {
 
     await waitFor(() =>
       expect(calls).toContainEqual(
-        expect.objectContaining({ method: 'DELETE', pathname: `/api/campaigns/${CAMPAIGN}/recipients/${GRACE}` }),
+        expect.objectContaining({
+          method: 'DELETE',
+          pathname: `/api/campaigns/${CAMPAIGN}/recipients/${GRACE}`,
+        }),
       ),
     )
   })
