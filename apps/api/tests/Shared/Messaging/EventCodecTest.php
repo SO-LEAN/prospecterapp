@@ -88,16 +88,25 @@ class EventCodecTest extends TestCase
             'accountId' => self::ID, 'personId' => self::ID, 'revision' => self::REVISION, 'present' => true, 'occurredAt' => self::MOMENT_OF_THE_BUS,
         ]);
 
-        $this->assertEquals(new OrganizationFactsChanged(self::ID, self::ID, self::REVISION, true, false, null, new \DateTimeImmutable(self::MOMENT_OF_THE_BUS)), $this->codec()->decode($organization));
+        $this->assertEquals(new OrganizationFactsChanged(self::ID, self::ID, self::REVISION, true, false, null, null, null, new \DateTimeImmutable(self::MOMENT_OF_THE_BUS)), $this->codec()->decode($organization));
         $this->assertEquals(new ContactFactsChanged(self::ID, self::ID, self::REVISION, true, null, null, null, null, new \DateTimeImmutable(self::MOMENT_OF_THE_BUS)), $this->codec()->decode($contact));
     }
 
-    public function testTheFactsAreWrittenWithTheContactsAndTheReach(): void
+    public function testTheFactsOfAnOrganizationPublishedBeforeTheyToldItsMunicipalityAreReadWithoutIt(): void
     {
-        $organization = new OrganizationFactsChanged(self::ID, self::ID, self::REVISION, true, false, [self::ID], new \DateTimeImmutable(self::MOMENT));
+        $organization = new TransportedEvent('prospecter.prospecting', 'OrganizationFactsChanged.v2', self::ID, self::MOMENT_OF_THE_BUS, self::ID, null, 0, [
+            'accountId' => self::ID, 'organizationId' => self::ID, 'revision' => self::REVISION, 'present' => true, 'located' => true, 'contacts' => [self::ID], 'occurredAt' => self::MOMENT_OF_THE_BUS,
+        ]);
+
+        $this->assertEquals(new OrganizationFactsChanged(self::ID, self::ID, self::REVISION, true, true, [self::ID], null, null, new \DateTimeImmutable(self::MOMENT_OF_THE_BUS)), $this->codec()->decode($organization));
+    }
+
+    public function testTheFactsAreWrittenWithTheContactsTheMunicipalityAndTheReach(): void
+    {
+        $organization = new OrganizationFactsChanged(self::ID, self::ID, self::REVISION, true, true, [self::ID], '67482', 'FR', new \DateTimeImmutable(self::MOMENT));
         $contact = new ContactFactsChanged(self::ID, self::ID, self::REVISION, true, true, true, false, true, new \DateTimeImmutable(self::MOMENT));
 
-        $this->assertSame('OrganizationFactsChanged.v2', $this->codec()->encode($organization, new Cause(self::ID, null, 0))->detailType);
+        $this->assertSame('OrganizationFactsChanged.v3', $this->codec()->encode($organization, new Cause(self::ID, null, 0))->detailType);
         $this->assertSame('ContactFactsChanged.v2', $this->codec()->encode($contact, new Cause(self::ID, null, 0))->detailType);
     }
 

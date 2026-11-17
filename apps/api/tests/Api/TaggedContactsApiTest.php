@@ -92,7 +92,7 @@ class TaggedContactsApiTest extends ApiTestCase
     public function testTheListOfTheContactsLeadsToTheSearchByTagsAndTheTagsProposedNameTheAutomaticOnes(): void
     {
         $this->assertSame(['href' => '/api/tagged-contacts', 'method' => 'GET'], $this->requestJson('GET', '/api/contacts')['_links']['searchByTags']);
-        $this->assertSame(['#EMAIL', '#PHONE', '#SMS', '#LINKEDIN'], $this->requestJson('GET', '/api/tags')['automatic']);
+        $this->assertSame(['#EMAIL', '#PHONE', '#SMS', '#LINKEDIN', '#68', '#COLMAR', '#GRAND_EST'], $this->requestJson('GET', '/api/tags')['automatic'], 'those of a reach, then those of where Babbage & Co is, in Colmar');
     }
 
     /**

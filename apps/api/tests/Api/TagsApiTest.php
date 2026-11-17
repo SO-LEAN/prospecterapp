@@ -15,6 +15,7 @@ use Prospecter\Core\SharedKernel\Domain\AccountId;
 use Prospecter\Core\SharedKernel\Domain\OrganizationId;
 use Prospecter\Core\SharedKernel\Domain\PersonId;
 use Tests\App\Base\ApiTestCase;
+use Tests\App\Double\OutsideServices;
 
 /**
  * The tags the members put by hand on their organizations and their contacts, and those proposed to their account
@@ -23,6 +24,9 @@ use Tests\App\Base\ApiTestCase;
 #[Group('api')]
 class TagsApiTest extends ApiTestCase
 {
+    private const string ILLKIRCH = '67218';
+    private const string NANTES = '44109';
+
     protected function setUp(): void
     {
         parent::setUp();
@@ -78,6 +82,29 @@ class TagsApiTest extends ApiTestCase
         $this->assertResponseStatusCodeSame(200);
         $this->assertSame([], $takenOff['tags']);
         $this->assertSame([['name' => '#ESN', 'from' => [$organization]], ['name' => '#PHP', 'from' => [$organization]]], $takenOff['inherited']);
+    }
+
+    public function testAnOrganizationCarriesTheTagsOfWhereItIsAndItsContactsInheritThem(): void
+    {
+        $organization = $this->anOrganization('ACME');
+        $ada = $this->aContactOf($organization, 'Ada', 'Lovelace');
+        self::getContainer()->get(OutsideServices::class)->geocoderPlaces(7.7337, 48.5297, self::ILLKIRCH);
+
+        $this->requestJson('PATCH', '/api/organizations/'.$organization.'/address', ['street' => '12 rue de la Haye', 'postalCode' => '67400', 'city' => 'Illkirch-Graffenstaden', 'country' => 'FR']);
+
+        $this->assertSame(['#STRASBOURG', '#67', '#GRAND_EST'], $this->requestJson('GET', '/api/organizations/'.$organization.'/tags')['automatic']);
+        $this->assertContains(['name' => '#STRASBOURG', 'from' => [$organization]], $this->requestJson('GET', '/api/contacts/'.$ada.'/tags')['inherited']);
+        $this->assertSame(['#67', '#GRAND_EST', '#STRASBOURG'], $this->requestJson('GET', '/api/tags')['automatic']);
+    }
+
+    public function testAnAddressAbroadGivesNoGeographicTag(): void
+    {
+        $organization = $this->anOrganization('ACME');
+        self::getContainer()->get(OutsideServices::class)->geocoderPlaces(-1.5536, 47.2184, self::NANTES);
+
+        $this->requestJson('PATCH', '/api/organizations/'.$organization.'/address', ['street' => 'Rue de la Loi 16', 'postalCode' => '1000', 'city' => 'Bruxelles', 'country' => 'BE']);
+
+        $this->assertSame([], $this->requestJson('GET', '/api/organizations/'.$organization.'/tags')['automatic']);
     }
 
     public function testTheListOfTheContactsShowsTheTagsEachCarries(): void
@@ -142,6 +169,7 @@ class TagsApiTest extends ApiTestCase
     public static function refusedTags(): iterable
     {
         yield 'an automatic tag' => ['#EMAIL', 'automaticTag'];
+        yield 'the name of a big city around' => ['#STRASBOURG', 'automaticTag'];
         yield 'no tag at all' => ['#!?', 'invalidTag'];
     }
 
