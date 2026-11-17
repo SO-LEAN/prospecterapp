@@ -7,6 +7,7 @@ import { AFTER_THE_REACTIONS_MS } from './reactions'
 
 const WHAT_A_GESTURE_ON_MY_EXCHANGES_CHANGES = [
   queryKeys.organizationTimelines,
+  queryKeys.organizationUpcomingExchanges,
   queryKeys.exchangesToMakeConform,
   queryKeys.exchange,
   queryKeys.myCalendar,
