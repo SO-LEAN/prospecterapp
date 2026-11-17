@@ -1,0 +1,237 @@
+import { screen, waitFor, within } from '@testing-library/react'
+import userEvent from '@testing-library/user-event'
+import { afterEach, describe, expect, it, vi } from 'vitest'
+import type { Account } from '@/features/account/mutations'
+import type { Campaign, RecipientList, TargetedContact } from '@/features/campaigns/queries'
+import type { SuggestedTags } from '@/features/tags/queries'
+import { renderTheSpaAt } from '@/test/render-the-spa'
+
+/** The recipients of a campaign (ADR 0144): a draft frozen once confirmed, then its list changed by hand. */
+
+const theApi = vi.hoisted(() => {
+  const fetch = vi.fn<typeof globalThis.fetch>()
+  globalThis.fetch = fetch
+  return fetch
+})
+
+vi.mock('@/shared/auth/session', () => ({
+  session: {
+    accessToken: async () => 'an access token',
+    renewedAccessToken: async () => null,
+    signOut: async () => {},
+  },
+}))
+
+const CAMPAIGN = '0190a1c0-0000-7000-8000-00000000ca00'
+const ADA = '0190a1c0-0000-7000-8000-000000000001'
+const GRACE = '0190a1c0-0000-7000-8000-000000000002'
+const ALAN = '0190a1c0-0000-7000-8000-000000000003'
+
+const me: Account = {
+  name: { firstName: 'Grace', lastName: 'Hopper' },
+  contactDetails: { email: null, phoneNumber: null, language: null },
+  organization: { legalIdentity: { corporateName: 'Babbage & Co' } },
+  _links: { self: { href: '/api/me', method: 'GET' }, campaigns: { href: '/api/campaigns', method: 'GET' } },
+}
+
+const self = { href: `/api/campaigns/${CAMPAIGN}`, method: 'GET' }
+
+const draft: Campaign = {
+  id: CAMPAIGN,
+  name: 'Relance ESN',
+  channel: 'email',
+  tags: ['#ESN'],
+  targetedTags: ['#ESN', '#EMAIL'],
+  message: 'Bonjour {prénom}',
+  subject: null,
+  status: 'draft',
+  author: { name: { firstName: 'Alan', lastName: 'Turing' }, email: null },
+  contacted: 0,
+  targeted: 2,
+  _links: {
+    self,
+    revise: { href: `/api/campaigns/${CAMPAIGN}`, method: 'PATCH' },
+    discard: { href: `/api/campaigns/${CAMPAIGN}`, method: 'DELETE' },
+    freeze: { href: `/api/campaigns/${CAMPAIGN}/freezing`, method: 'POST' },
+    target: { href: '/api/tagged-contacts?tags=ESN,EMAIL', method: 'GET' },
+  },
+}
+
+const frozen: Campaign = {
+  ...draft,
+  status: 'frozen',
+  _links: {
+    self,
+    revise: { href: `/api/campaigns/${CAMPAIGN}`, method: 'PATCH' },
+    discard: { href: `/api/campaigns/${CAMPAIGN}`, method: 'DELETE' },
+    addRecipient: { href: `/api/campaigns/${CAMPAIGN}/recipients`, method: 'POST' },
+    addRecipientsByTags: { href: `/api/campaigns/${CAMPAIGN}/recipients/by-tags`, method: 'POST' },
+    recipients: { href: `/api/campaigns/${CAMPAIGN}/recipients`, method: 'GET' },
+  },
+}
+
+const aContact = (id: string, firstName: string, lastName: string): TargetedContact => ({
+  id,
+  name: { firstName, lastName },
+  jobTitle: null,
+  contactDetails: { email: `${firstName}@acme.test`, phoneNumber: null, language: null },
+  masked: false,
+  organizations: [],
+  tags: ['#ESN', '#EMAIL'],
+  contact: { href: `/api/contacts/${id}`, method: 'GET' },
+})
+
+const recipients: RecipientList = {
+  items: [ADA, GRACE].map((id, index) => ({
+    contact: aContact(id, index === 0 ? 'Ada' : 'Grace', index === 0 ? 'Lovelace' : 'Hopper'),
+    status: 'pending' as const,
+    _links: { remove: { href: `/api/campaigns/${CAMPAIGN}/recipients/${id}`, method: 'DELETE' } },
+  })),
+  _links: { self: { href: `/api/campaigns/${CAMPAIGN}/recipients`, method: 'GET' } },
+}
+
+const suggested: SuggestedTags = {
+  families: [
+    { family: 'organizationType', tags: ['#ESN', '#EDITEUR'] },
+    { family: 'relationship', tags: [] },
+    { family: 'technology', tags: [] },
+  ],
+  own: [],
+  automatic: ['#EMAIL', '#PHONE', '#SMS', '#LINKEDIN'],
+}
+
+type Call = { method: string; pathname: string; search: string; body: unknown }
+
+function theApiAnswers(campaign: Campaign) {
+  const calls: Call[] = []
+  theApi.mockImplementation(async (input) => {
+    const request = input as Request
+    const { pathname, search } = new URL(request.url)
+    const body = request.method === 'GET' || request.method === 'DELETE' ? null : await request.text()
+    calls.push({ method: request.method, pathname, search, body: body ? JSON.parse(body) : null })
+    if (request.method === 'DELETE') {
+      return new Response(null, { status: 204 })
+    }
+    if (request.method === 'POST') {
+      return Response.json(frozen)
+    }
+    const answers: Record<string, unknown> = {
+      '/api/me': me,
+      '/api/me/connections': { connections: [], _links: { self: { href: '/api/me/connections', method: 'GET' } } },
+      '/api/me/reminders': { enabled: false, minutesBefore: 10, _links: { self: { href: '/api/me/reminders', method: 'GET' } } },
+      '/api/me/day': { today: [], next: [], _links: { self: { href: '/api/me/day', method: 'GET' } } },
+      '/api/me/exchanges-to-process': { items: [], toDos: [], _links: {} },
+      '/api/tags': suggested,
+      [`/api/campaigns/${CAMPAIGN}`]: campaign,
+      [`/api/campaigns/${CAMPAIGN}/recipients`]: recipients,
+      '/api/tagged-contacts': {
+        items: [aContact(ADA, 'Ada', 'Lovelace'), aContact(ALAN, 'Alan', 'Turing')],
+        found: 2,
+        _links: {},
+      },
+      '/api/contacts': { items: [aContact(ALAN, 'Alan', 'Turing')], _links: {} },
+      [`/api/campaigns/${CAMPAIGN}/messages/${ADA}`]: { subject: null, text: 'Bonjour Ada' },
+    }
+    return Response.json(answers[pathname] ?? { items: [], _links: {} })
+  })
+  return calls
+}
+
+describe('the recipients of a campaign', () => {
+  afterEach(() => theApi.mockReset())
+
+  it('are frozen from a draft once the member confirms its search no longer changes', async () => {
+    const calls = theApiAnswers(draft)
+    await renderTheSpaAt(`/campaigns/${CAMPAIGN}`)
+
+    await userEvent.click(await screen.findByRole('button', { name: 'Figer la liste' }))
+    const confirmation = await screen.findByRole('dialog')
+    expect(within(confirmation).getByText(/La recherche ne pourra plus changer/)).toBeInTheDocument()
+    expect(calls.filter((call) => call.method === 'POST')).toEqual([])
+
+    await userEvent.click(within(confirmation).getByRole('button', { name: 'Figer la liste' }))
+
+    await waitFor(() =>
+      expect(calls).toContainEqual(
+        expect.objectContaining({ method: 'POST', pathname: `/api/campaigns/${CAMPAIGN}/freezing` }),
+      ),
+    )
+    expect(await screen.findByRole('heading', { name: 'Destinataires' })).toBeInTheDocument()
+  })
+
+  it('are listed once frozen, to handle, its tags and its channel shown but no longer changed', async () => {
+    theApiAnswers(frozen)
+    await renderTheSpaAt(`/campaigns/${CAMPAIGN}`)
+
+    const list = await screen.findByRole('list', { name: 'Destinataires' })
+    expect(within(list).getByText('Ada Lovelace')).toBeInTheDocument()
+    expect(within(list).getAllByText('À traiter')).toHaveLength(2)
+    expect(screen.getByText('2 destinataires')).toBeInTheDocument()
+    expect(screen.getByText('#ESN')).toBeInTheDocument()
+    expect(screen.queryByRole('button', { name: 'Filtrer par tag' })).not.toBeInTheDocument()
+    expect(screen.getByLabelText('Canal')).toBeDisabled()
+    expect(screen.queryByRole('button', { name: 'Figer la liste' })).not.toBeInTheDocument()
+  })
+
+  it('loses one by its cross', async () => {
+    const calls = theApiAnswers(frozen)
+    await renderTheSpaAt(`/campaigns/${CAMPAIGN}`)
+
+    await userEvent.click(await screen.findByRole('button', { name: 'Retirer Grace Hopper' }))
+
+    await waitFor(() =>
+      expect(calls).toContainEqual(
+        expect.objectContaining({ method: 'DELETE', pathname: `/api/campaigns/${CAMPAIGN}/recipients/${GRACE}` }),
+      ),
+    )
+  })
+
+  it('gain those of another search by tags, the preview leaving out those already kept', async () => {
+    const calls = theApiAnswers(frozen)
+    await renderTheSpaAt(`/campaigns/${CAMPAIGN}`)
+
+    await userEvent.click(await screen.findByRole('button', { name: 'Ajouter' }))
+    const dialog = await screen.findByRole('dialog', { name: 'Ajouter des destinataires' })
+    await userEvent.click(within(dialog).getByRole('button', { name: 'Filtrer par tag' }))
+    await userEvent.click(await screen.findByRole('option', { name: '#EDITEUR' }))
+
+    expect(await within(dialog).findByText('1 contact sera ajouté')).toBeInTheDocument()
+    expect(within(dialog).getByText('Alan Turing')).toBeInTheDocument()
+    expect(within(dialog).queryByText('Ada Lovelace')).not.toBeInTheDocument()
+    expect(calls).toContainEqual(
+      expect.objectContaining({ pathname: '/api/tagged-contacts', search: '?tags=EDITEUR%2CEMAIL' }),
+    )
+    await userEvent.click(within(dialog).getByRole('button', { name: 'Ajouter 1 contact' }))
+
+    await waitFor(() =>
+      expect(calls).toContainEqual(
+        expect.objectContaining({
+          method: 'POST',
+          pathname: `/api/campaigns/${CAMPAIGN}/recipients/by-tags`,
+          body: { tags: ['#EDITEUR'] },
+        }),
+      ),
+    )
+  })
+
+  it('gain a contact chosen by their name', async () => {
+    const calls = theApiAnswers(frozen)
+    await renderTheSpaAt(`/campaigns/${CAMPAIGN}`)
+
+    await userEvent.click(await screen.findByRole('button', { name: 'Ajouter' }))
+    const dialog = await screen.findByRole('dialog', { name: 'Ajouter des destinataires' })
+    await userEvent.click(within(dialog).getByRole('tab', { name: 'Un contact' }))
+    await userEvent.type(within(dialog).getByLabelText('Rechercher un contact par son nom'), 'Alan')
+    await userEvent.click(await within(dialog).findByRole('button', { name: 'Ajouter Alan Turing' }))
+
+    await waitFor(() =>
+      expect(calls).toContainEqual(
+        expect.objectContaining({
+          method: 'POST',
+          pathname: `/api/campaigns/${CAMPAIGN}/recipients`,
+          body: { contactId: ALAN },
+        }),
+      ),
+    )
+  })
+})
