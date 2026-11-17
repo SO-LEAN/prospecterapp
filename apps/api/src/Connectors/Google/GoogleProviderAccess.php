@@ -25,6 +25,7 @@ use Symfony\Contracts\HttpClient\ResponseInterface;
 final readonly class GoogleProviderAccess implements ProviderAccess
 {
     private const int OK = 200;
+    private const int TOO_MANY_REQUESTS = 429;
     private const int SERVER_ERROR = 500;
     /** what Google answers for a token revoked, expired or replaced too many times */
     private const string INVALID_GRANT = 'invalid_grant';
@@ -37,6 +38,9 @@ final readonly class GoogleProviderAccess implements ProviderAccess
     ) {
     }
 
+    /**
+     * @throws ServiceUnavailable when Google does not answer, fails or limits the requests: it refused nothing then
+     */
     public function exchange(ClientCredentials $client, string $code, string $codeVerifier): Grant
     {
         $response = $this->token($client, [
@@ -46,7 +50,7 @@ final readonly class GoogleProviderAccess implements ProviderAccess
             'redirect_uri' => $this->endpoints->redirectUri,
         ]);
 
-        if (self::OK !== $response->getStatusCode()) {
+        if (self::OK !== self::statusOf($response)) {
             throw AccessNotGranted::by($client->provider);
         }
 
@@ -81,7 +85,7 @@ final readonly class GoogleProviderAccess implements ProviderAccess
     }
 
     /**
-     * @throws ServiceUnavailable when Google does not answer, or fails to: nothing is known of the access then
+     * @throws ServiceUnavailable when Google does not answer, fails or limits the requests: nothing is known of the access then
      */
     public function stillGrants(ClientCredentials $client, RefreshToken $refreshToken): bool
     {
@@ -103,7 +107,12 @@ final readonly class GoogleProviderAccess implements ProviderAccess
             throw ServiceUnavailable::google($failure);
         }
 
-        return $status >= self::SERVER_ERROR ? throw ServiceUnavailable::google(new \RuntimeException(sprintf('Google answered %d to a refresh', $status))) : $status;
+        return self::isOutOfReach($status) ? throw ServiceUnavailable::google(new \RuntimeException(sprintf('Google answered %d', $status))) : $status;
+    }
+
+    private static function isOutOfReach(int $status): bool
+    {
+        return self::TOO_MANY_REQUESTS === $status || $status >= self::SERVER_ERROR;
     }
 
     private static function isInvalidGrant(ResponseInterface $response): bool
