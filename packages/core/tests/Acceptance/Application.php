@@ -229,7 +229,11 @@ use Prospecter\Core\Prospecting\Application\Timeline;
 use Prospecter\Core\Prospecting\Application\ToDoInList;
 use Prospecter\Core\Prospecting\Application\ToDoList;
 use Prospecter\Core\Prospecting\Application\UntickToDo\UntickToDoHandler;
+use Prospecter\Core\Prospecting\Application\NameOrganizationsOfContacts\NameOrganizationsOfContactsHandler;
 use Prospecter\Core\Prospecting\Application\WhichAreProspected\WhichAreProspectedHandler;
+use Prospecter\Core\Prospecting\Contract\Service\NameOrganizationsOfContacts\KeptOrganizationsOfContacts;
+use Prospecter\Core\Prospecting\Contract\Service\NameOrganizationsOfContacts\NameOrganizationsOfContacts;
+use Prospecter\Core\Prospecting\Contract\Service\NameOrganizationsOfContacts\OrganizationsOfContactResponse;
 use Prospecter\Core\Prospecting\Application\WriteObservations\WriteObservationsHandler;
 use Prospecter\Core\Prospecting\Contract\Service\ConsultHeldExchanges\ConsultHeldExchanges;
 use Prospecter\Core\Prospecting\Contract\Service\ConsultHeldExchanges\ConsultPlannedExchanges;
@@ -302,6 +306,7 @@ use Tests\Core\Double\InMemoryMyAccountRetriever;
 use Tests\Core\Double\InMemoryMyConnectionsRetriever;
 use Tests\Core\Double\InMemoryMyRemindersRetriever;
 use Tests\Core\Double\InMemoryOrganizationFactsRetriever;
+use Tests\Core\Double\InMemoryOrganizationOfContactRetriever;
 use Tests\Core\Double\InMemoryOrganizationRepository;
 use Tests\Core\Double\InMemoryOrganizationSheetRetriever;
 use Tests\Core\Double\InMemoryPersonCardRetriever;
@@ -360,6 +365,7 @@ final class Application
     private readonly ConsultMembersHandler $consultMembersService;
     private readonly WhichAreContactsHandler $whichAreContactsService;
     private readonly WhichAreProspectedHandler $whichAreProspectedService;
+    private readonly NameOrganizationsOfContactsHandler $nameOrganizationsOfContactsService;
     private readonly InMemoryOrganizationFactsRetriever $organizationFactsRetriever;
     private readonly InMemoryExchangeFactsRetriever $exchangeFactsRetriever;
     private readonly ListOrganizationFactsHandler $listOrganizationFactsService;
@@ -449,6 +455,7 @@ final class Application
         $this->consultMembersService = new ConsultMembersHandler($this->memberRetriever);
         $this->whichAreContactsService = new WhichAreContactsHandler($this->persons);
         $this->whichAreProspectedService = new WhichAreProspectedHandler($this->organizations);
+        $this->nameOrganizationsOfContactsService = new NameOrganizationsOfContactsHandler(new InMemoryOrganizationOfContactRetriever($database));
         $this->organizationFactsRetriever = new InMemoryOrganizationFactsRetriever($database);
         $this->exchangeFactsRetriever = new InMemoryExchangeFactsRetriever($database);
         $this->listOrganizationFactsService = new ListOrganizationFactsHandler($this->organizationFactsRetriever);
@@ -1031,6 +1038,17 @@ final class Application
     /**
      * @return list<string>
      */
+    /**
+     * @return list<OrganizationsOfContactResponse>
+     */
+    public function nameOrganizationsOfContacts(NameOrganizationsOfContacts $query): array
+    {
+        $kept = new KeptOrganizationsOfContacts();
+        ($this->nameOrganizationsOfContactsService)($query, $kept);
+
+        return $kept->contacts;
+    }
+
     public function whichAreProspected(WhichAreProspected $query): array
     {
         $kept = new KeptProspected();

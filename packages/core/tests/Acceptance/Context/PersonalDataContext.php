@@ -84,6 +84,14 @@ final class PersonalDataContext implements Context
         $this->aContactWith($name, $organization, new ContactDetails(phoneNumber: PhoneNumber::of($phoneNumber)));
     }
 
+    #[Given('la fonction de :name est :jobTitle')]
+    public function theJobTitleIs(string $name, string $jobTitle): void
+    {
+        $person = $this->scenario->personNamed($name);
+        $person->changeJobTitle($jobTitle, by: $this->scenario->managerOfPersonalDataOf($person->accountId()), at: $this->application->now());
+        $this->application->persons->save($person);
+    }
+
     #[Given(':name a le profil LinkedIn :profile')]
     public function aPersonWithTheLinkedInProfile(string $name, string $profile): void
     {
