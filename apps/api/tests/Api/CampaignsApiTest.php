@@ -176,7 +176,11 @@ class CampaignsApiTest extends ApiTestCase
     public function testACampaignOfAnotherAccountIsNotFoundForEveryIntention(): void
     {
         $id = $this->aCampaignOfAnotherAccount();
-        $intentions = [['GET', '', null], ['PATCH', '', $this->aCampaign()], ['DELETE', '', null], ['GET', '/messages/'.$this->ada, null]];
+        $intentions = [
+            ['GET', '', null], ['PATCH', '', $this->aCampaign()], ['DELETE', '', null], ['GET', '/messages/'.$this->ada, null],
+            ['POST', '/freezing', null], ['GET', '/recipients', null], ['POST', '/recipients/by-tags', ['tags' => [self::TAG]]],
+            ['POST', '/recipients', ['contactId' => $this->ada]], ['DELETE', '/recipients/'.$this->ada, null],
+        ];
 
         foreach ($intentions as [$method, $path, $payload]) {
             $problem = $this->requestJson($method, '/api/campaigns/'.$id.$path, $payload);
