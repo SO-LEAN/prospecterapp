@@ -25,10 +25,21 @@ describe('CollectContactForm', () => {
 
     expect(onSubmit).toHaveBeenCalledWith({
       name: { firstName: 'Ada', lastName: 'Lovelace' },
+      civility: null,
       jobTitle: 'Directrice commerciale',
       contactDetails: { email: null, phoneNumber: null, language: null, linkedInProfile: null },
       organizationIds: ['0190a1c0-0000-7000-8000-000000000001'],
     })
+  })
+
+  it('sends the civility chosen beside the name', async () => {
+    const { onSubmit, user } = renderForm()
+
+    await user.click(screen.getByRole('combobox', { name: /^Civilité/ }))
+    await user.click(screen.getByRole('option', { name: 'Madame' }))
+    await user.click(screen.getByRole('button', { name: 'Enregistrer le contact' }))
+
+    expect(onSubmit).toHaveBeenCalledWith(expect.objectContaining({ civility: 'madame' }))
   })
 
   it('sends the LinkedIn profile as typed, the API keeping it in one form', async () => {

@@ -1,14 +1,16 @@
 import { screen, within } from '@testing-library/react'
 import { describe, expect, it } from 'vitest'
+import { TooltipProvider } from '@/shared/ui/tooltip'
 import { renderInARouter } from '@/test/render-in-a-router'
 import type { ContactInList } from '../queries'
 import { ContactCard } from './contact-card'
 
 const ADA = '0190a1c0-0000-7000-8000-000000000002'
 
-const ada = (tags: string[]): ContactInList => ({
+const ada = (tags: string[], civility: ContactInList['civility'] = null): ContactInList => ({
   id: ADA,
   name: { firstName: 'Ada', lastName: 'Lovelace' },
+  civility,
   jobTitle: null,
   contactDetails: { email: 'ada@acme.test' },
   masked: false,
@@ -33,5 +35,21 @@ describe('a contact of the list', () => {
     await renderInARouter(<ContactCard contact={ada([])} />)
 
     expect(screen.queryByRole('list', { name: 'Tags d’Ada Lovelace' })).not.toBeInTheDocument()
+  })
+
+  it('marks the civility beside the name', async () => {
+    await renderInARouter(
+      <TooltipProvider>
+        <ContactCard contact={ada([], 'madame')} />
+      </TooltipProvider>,
+    )
+
+    expect(screen.getByRole('img', { name: 'Madame' })).toBeInTheDocument()
+  })
+
+  it('marks nothing when the civility is not noted', async () => {
+    await renderInARouter(<ContactCard contact={ada([])} />)
+
+    expect(screen.queryByRole('img')).not.toBeInTheDocument()
   })
 })
