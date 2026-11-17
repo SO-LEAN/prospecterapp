@@ -101,6 +101,20 @@ class ExchangeApiTest extends ApiTestCase
         $this->assertSame('channelNotMissed', $problem['reason']);
     }
 
+    public function testAMaltMessageIsNotedAndCorrectedLikeAnyMessageButNeverMissed(): void
+    {
+        $contact = $this->aContactOf($this->anOrganization('ACME'));
+        $id = $this->note($contact, ['channel' => 'malt', 'direction' => 'inbound', 'occurredAt' => '2026-10-14T14:30:00+00:00'])['items'][0]['id'];
+        $this->assertResponseStatusCodeSame(201);
+
+        $exchange = $this->correct($id, ['channel' => 'malt', 'direction' => 'outbound', 'occurredAt' => '2026-10-14T14:30:00+00:00']);
+        $this->assertSame(['malt', 'outbound'], [$exchange['channel'], $exchange['direction']]);
+
+        $problem = $this->note($contact, ['channel' => 'malt', 'direction' => 'inbound', 'missed' => true]);
+        $this->assertResponseStatusCodeSame(422);
+        $this->assertSame('channelNotMissed', $problem['reason']);
+    }
+
     public function testAnExchangeIsNeverInTheFuture(): void
     {
         $problem = $this->note($this->aContactOf($this->anOrganization('ACME')), ['channel' => 'email', 'direction' => 'inbound', 'occurredAt' => '2026-10-15T09:00:01+00:00']);
