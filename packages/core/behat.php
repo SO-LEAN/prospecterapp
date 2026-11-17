@@ -27,6 +27,7 @@ use Tests\Core\Acceptance\Context\PublishedLanguageContext;
 use Tests\Core\Acceptance\Context\ReminderContext;
 use Tests\Core\Acceptance\Context\ReportingContext;
 use Tests\Core\Acceptance\Context\ScenarioContext;
+use Tests\Core\Acceptance\Context\TagContext;
 use Tests\Core\Acceptance\Context\ToDoContext;
 use Tests\Core\Acceptance\Context\VideoCallLinkContext;
 use Tests\Core\Acceptance\Context\WhatIsToProcessContext;
@@ -36,4 +37,4 @@ return new Config()
     ->withProfile(new Profile('default')
         ->withSuite(new Suite('business_rules')
             ->withPaths('%paths.base%/features')
-            ->withContexts(ScenarioContext::class, OrganizationContext::class, AccountContext::class, MemberContext::class, PersonalDataContext::class, PublishedLanguageContext::class, CallerContext::class, ExchangeContext::class, ExchangeDetailContext::class, PlannedExchangeContext::class, ToDoContext::class, AttachmentContext::class, AllOrNothingContext::class, ProspectingFactsContext::class, PersonalDataFactsContext::class, ReportingContext::class, ReminderContext::class, CalendarContext::class, MyDayContext::class, WhatIsToProcessContext::class, ConnectorContext::class, GoogleClientContext::class, CalendarPushContext::class, CalendarSyncContext::class, VideoCallLinkContext::class)));
+            ->withContexts(ScenarioContext::class, OrganizationContext::class, AccountContext::class, MemberContext::class, PersonalDataContext::class, PublishedLanguageContext::class, CallerContext::class, ExchangeContext::class, ExchangeDetailContext::class, PlannedExchangeContext::class, ToDoContext::class, AttachmentContext::class, AllOrNothingContext::class, ProspectingFactsContext::class, PersonalDataFactsContext::class, ReportingContext::class, ReminderContext::class, CalendarContext::class, MyDayContext::class, WhatIsToProcessContext::class, ConnectorContext::class, GoogleClientContext::class, CalendarPushContext::class, CalendarSyncContext::class, VideoCallLinkContext::class, TagContext::class)));
