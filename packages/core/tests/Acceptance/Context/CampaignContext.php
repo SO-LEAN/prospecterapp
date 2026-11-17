@@ -28,7 +28,6 @@ use Prospecter\Core\Campaigns\Application\SearchContactsByTags\SearchContactsByT
 use Prospecter\Core\Campaigns\Application\StartCampaign\StartCampaign;
 use Prospecter\Core\Campaigns\Application\StopCampaign\StopCampaign;
 use Prospecter\Core\Campaigns\Domain\Model\Campaign;
-use Prospecter\Core\Campaigns\Domain\Model\CampaignId;
 use Prospecter\Core\Campaigns\Domain\Model\CampaignName;
 use Prospecter\Core\Campaigns\Domain\Model\Channel;
 use Prospecter\Core\Campaigns\Domain\Model\MessageTemplate;
@@ -37,6 +36,7 @@ use Prospecter\Core\PersonalData\Application\ChangePersonContactDetails\ChangePe
 use Prospecter\Core\PersonalData\Application\ConsultPersons\ConsultPersons;
 use Prospecter\Core\PersonalData\Application\PersonCard;
 use Prospecter\Core\SharedKernel\Domain\AccountId;
+use Prospecter\Core\SharedKernel\Domain\CampaignId;
 use Prospecter\Core\SharedKernel\Domain\MemberId;
 use Tests\Core\Acceptance\Expect;
 use Tests\Core\Acceptance\Vocabulary;
