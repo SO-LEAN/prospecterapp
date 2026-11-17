@@ -29,15 +29,16 @@ const me: Account = {
 
 const A_DAY = '2026-11-16'
 
-/** The api: my account, an empty calendar for any period. */
+/** The api: my account, no connection, an empty calendar for any period. */
 function theApiAnswersAnEmptyCalendar() {
   theApi.mockImplementation(async (input) => {
     const { pathname } = new URL(input instanceof Request ? input.url : String(input))
-    return Response.json(
-      pathname === '/api/me'
-        ? me
-        : { items: [], toDos: [], late: [], _links: { self: { href: pathname, method: 'GET' } } },
-    )
+    const self = { self: { href: pathname, method: 'GET' } }
+    const answers: Record<string, unknown> = {
+      '/api/me': me,
+      '/api/me/connections': { connections: [], _links: self },
+    }
+    return Response.json(answers[pathname] ?? { items: [], toDos: [], late: [], _links: self })
   })
 }
 
