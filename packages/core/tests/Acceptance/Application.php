@@ -28,6 +28,18 @@ use Prospecter\Core\Accounts\Contract\Service\ConsultMembers\KeptMembers;
 use Prospecter\Core\Accounts\Contract\Service\ConsultMembers\MemberResponse;
 use Prospecter\Core\Accounts\Contract\Service\ListAccounts\KeptAccounts;
 use Prospecter\Core\Accounts\Contract\Service\ListAccounts\ListAccounts;
+use Prospecter\Core\Campaigns\Application\ConsultSuggestedTags\ConsultSuggestedTags;
+use Prospecter\Core\Campaigns\Application\ConsultSuggestedTags\ConsultSuggestedTagsHandler;
+use Prospecter\Core\Campaigns\Application\ConsultSuggestedTags\KeptSuggestedTags;
+use Prospecter\Core\Campaigns\Application\ConsultTags\ConsultTags;
+use Prospecter\Core\Campaigns\Application\ConsultTags\ConsultTagsHandler;
+use Prospecter\Core\Campaigns\Application\ConsultTags\KeptTags;
+use Prospecter\Core\Campaigns\Application\ForgetTagsOfForgottenContact\ForgetTagsOfForgottenContactHandler;
+use Prospecter\Core\Campaigns\Application\ForgetTagsOfUnprospectedOrganization\ForgetTagsOfUnprospectedOrganizationHandler;
+use Prospecter\Core\Campaigns\Application\PutTags\PutTagsHandler;
+use Prospecter\Core\Campaigns\Application\SuggestedTags;
+use Prospecter\Core\Campaigns\Application\TakeOffTag\TakeOffTagHandler;
+use Prospecter\Core\Campaigns\Domain\Service\TaggableHolders;
 use Prospecter\Core\Connectors\Application\AskForAuthorization\AskForAuthorizationHandler;
 use Prospecter\Core\Connectors\Application\CalendarPusher;
 use Prospecter\Core\Connectors\Application\CheckMyConnections\CheckMyConnectionsHandler;
@@ -249,6 +261,7 @@ use Tests\Core\Double\AccountsMembers;
 use Tests\Core\Double\AccountsProspectors;
 use Tests\Core\Double\AccountsReaders;
 use Tests\Core\Double\AccountsSourceAccounts;
+use Tests\Core\Double\AccountsTaggers;
 use Tests\Core\Double\InMemoryAccountClientsRetriever;
 use Tests\Core\Double\InMemoryAccountListRetriever;
 use Tests\Core\Double\InMemoryAccountRepository;
@@ -284,6 +297,8 @@ use Tests\Core\Double\InMemoryProviderAccess;
 use Tests\Core\Double\InMemoryProviderCalendar;
 use Tests\Core\Double\InMemoryProviderClientRepository;
 use Tests\Core\Double\InMemoryStorage;
+use Tests\Core\Double\InMemoryTaggingRepository;
+use Tests\Core\Double\InMemoryTagsRetriever;
 use Tests\Core\Double\InMemoryTimelineRetriever;
 use Tests\Core\Double\InMemoryToDoListRetriever;
 use Tests\Core\Double\InMemoryToDoRepository;
@@ -293,9 +308,11 @@ use Tests\Core\Double\NoRecordingsInFlight;
 use Tests\Core\Double\PersonalDataContactNames;
 use Tests\Core\Double\PersonalDataFactsFromPersonalData;
 use Tests\Core\Double\PersonalDataKnownContacts;
+use Tests\Core\Double\PersonalDataTaggableContacts;
 use Tests\Core\Double\ProspectingFactsFromProspecting;
 use Tests\Core\Double\ProspectingHeldExchanges;
 use Tests\Core\Double\ProspectingOrganizations;
+use Tests\Core\Double\ProspectingTaggableOrganizations;
 use Tests\Core\Double\SynchronousEvents;
 use Tests\Core\Double\TimeOrderedUuids;
 
@@ -372,6 +389,10 @@ final class Application
     private readonly ProspectingHeldExchanges $heldExchanges;
     private readonly InMemoryCalendarEntryRepository $calendarEntries;
     private readonly CalendarPusher $calendarPusher;
+    public readonly InMemoryTaggingRepository $taggings;
+    private readonly InMemoryTagsRetriever $tagsRetriever;
+    private readonly AccountsTaggers $taggers;
+    private readonly TaggableHolders $taggableHolders;
     /** @var array<class-string, CommandHandler> */
     private array $handlers = [];
     private ?string $signedIn = null;
@@ -448,6 +469,11 @@ final class Application
         $this->heldExchanges = new ProspectingHeldExchanges($this->consultHeldExchangesService, $this->consultPlannedExchangesService);
         $this->calendarEntries = new InMemoryCalendarEntryRepository($database);
         $this->calendarPusher = new CalendarPusher($this->heldExchanges, $this->calendarEntries, $this->connections, $this->clients, $this->connectingMembers, new PersonalDataContactNames($this->nameContactsService), $this->calendars, $this->events);
+
+        $this->taggings = new InMemoryTaggingRepository($database);
+        $this->tagsRetriever = new InMemoryTagsRetriever($database);
+        $this->taggers = new AccountsTaggers($this->consultMembersService);
+        $this->taggableHolders = new TaggableHolders(new ProspectingTaggableOrganizations($this->whichAreProspectedService), new PersonalDataTaggableContacts($this->whichAreContactsService));
 
         foreach ($this->translators() as $translator) {
             $this->events->translateWith($translator, calledThrough: new RefusalTranslatingEventHandler(new TransactionalEventHandler($translator, $this->unitOfWork)));
@@ -615,6 +641,23 @@ final class Application
         $handler = new ConsultMyAccountClientsHandler($this->accountClientsRetriever, $this->connectingMembers);
 
         return $this->ask($handler, new ConsultMyAccountClients($this->signedIn()), $kept) ? $kept : null;
+    }
+
+    /**
+     * @return list<string>|null
+     */
+    public function consultTags(ConsultTags $query): ?array
+    {
+        $kept = new KeptTags();
+
+        return $this->ask(new ConsultTagsHandler($this->tagsRetriever, $this->taggers, $this->taggableHolders), $query, $kept) ? $kept->tags : null;
+    }
+
+    public function consultSuggestedTags(ConsultSuggestedTags $query): ?SuggestedTags
+    {
+        $kept = new KeptSuggestedTags();
+
+        return $this->ask(new ConsultSuggestedTagsHandler($this->tagsRetriever, $this->taggers), $query, $kept) ? $kept->suggested : null;
     }
 
     public function consultPerson(ConsultPerson $query): ?PersonCard
@@ -875,6 +918,8 @@ final class Application
             new RemoveClientHandler($this->clients, $this->connectingMembers, $this->events),
             new RetryPushHandler($this->heldExchanges, $this->calendarEntries, $this->connectingMembers, $this->calendarPusher),
             new RetryFailedPushesHandler($this->calendarEntries, $this->connectingMembers, $this->calendarPusher),
+            new PutTagsHandler($this->taggings, $this->taggers, $this->taggableHolders, $this->events),
+            new TakeOffTagHandler($this->taggings, $this->taggers, $this->taggableHolders, $this->events),
         ];
     }
 
@@ -1031,6 +1076,8 @@ final class Application
             new PushExchangeHandler($this->calendarPusher),
             new PushUpcomingExchangesHandler($this->heldExchanges, $this->calendarPusher),
             new UnnameForgottenContactHandler($this->heldExchanges, $this->calendarEntries, $this->calendarPusher),
+            new ForgetTagsOfUnprospectedOrganizationHandler($this->taggings),
+            new ForgetTagsOfForgottenContactHandler($this->taggings),
         ];
     }
 

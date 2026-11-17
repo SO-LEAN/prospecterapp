@@ -6,6 +6,8 @@ namespace Tests\Core\Double;
 
 use Prospecter\Core\Accounts\Domain\Model\Account;
 use Prospecter\Core\Accounts\Domain\Model\Member;
+use Prospecter\Core\Campaigns\Domain\Model\Holder;
+use Prospecter\Core\Campaigns\Domain\Model\Tagging;
 use Prospecter\Core\Connectors\Domain\Model\CalendarEntry;
 use Prospecter\Core\Connectors\Domain\Model\Connection;
 use Prospecter\Core\Connectors\Domain\Model\PendingAuthorization;
@@ -52,6 +54,8 @@ final class InMemoryDatabase
     private array $clients = [];
     /** @var array<string, CalendarEntry> by the exchange pushed */
     private array $calendarEntries = [];
+    /** @var array<string, Tagging> by the account and what it tags */
+    private array $taggings = [];
 
     public function isEmpty(): bool
     {
@@ -83,6 +87,40 @@ final class InMemoryDatabase
         $this->authorizations = $snapshot->authorizations;
         $this->clients = $snapshot->clients;
         $this->calendarEntries = $snapshot->calendarEntries;
+        $this->taggings = $snapshot->taggings;
+    }
+
+    public function storeTagging(Tagging $tagging): void
+    {
+        $this->taggings[self::taggingKey($tagging->accountId()->value, $tagging->holder())] = self::withoutItsEvents($tagging);
+    }
+
+    public function forgetTagging(Tagging $tagging): void
+    {
+        unset($this->taggings[self::taggingKey($tagging->accountId()->value, $tagging->holder())]);
+    }
+
+    public function tagging(string $account, Holder $holder): ?Tagging
+    {
+        $tagging = $this->taggings[self::taggingKey($account, $holder)] ?? null;
+
+        return null === $tagging ? null : clone $tagging;
+    }
+
+    /**
+     * @return list<Tagging>
+     */
+    public function taggingsOf(string $account): array
+    {
+        return array_values(array_map(
+            static fn (Tagging $tagging): Tagging => clone $tagging,
+            array_filter($this->taggings, static fn (Tagging $tagging): bool => $tagging->accountId()->value === $account),
+        ));
+    }
+
+    private static function taggingKey(string $account, Holder $holder): string
+    {
+        return $account.'#'.$holder->kind->value.'#'.$holder->id->value;
     }
 
     public function storeCalendarEntry(CalendarEntry $entry): void
