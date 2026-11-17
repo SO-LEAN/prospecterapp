@@ -36,6 +36,7 @@ final class Person implements ReleasesEvents
 
     private ?File $picture = null;
     private ?string $jobTitle = null;
+    private ?LinkedInProfile $linkedInProfile = null;
     private \DateTimeImmutable $modifiedAt;
 
     private function __construct(
@@ -63,7 +64,7 @@ final class Person implements ReleasesEvents
      * @throws PersonalDataManagersOnly
      * @throws ContactWithoutOrganization
      */
-    public static function collectAsContact(Reader $by, PersonId $id, PersonName $name, ?string $jobTitle, ContactDetails $contactDetails, array $organizations, \DateTimeImmutable $at): self
+    public static function collectAsContact(Reader $by, PersonId $id, PersonName $name, ?string $jobTitle, ContactDetails $contactDetails, ?LinkedInProfile $linkedInProfile, array $organizations, \DateTimeImmutable $at): self
     {
         if (!$by->readsPersonalData) {
             throw PersonalDataManagersOnly::because('Only a member allowed to manage personal data may collect a contact');
@@ -75,6 +76,7 @@ final class Person implements ReleasesEvents
 
         $contact = new self($id, $by->accountId, Purpose::Prospecting, $name, $contactDetails, $at);
         $contact->jobTitle = $jobTitle;
+        $contact->linkedInProfile = $linkedInProfile;
         $contact->recordThat(new ContactCollected($by->accountId, $by->id, $id, $organizations, $at));
 
         return $contact;
@@ -105,6 +107,11 @@ final class Person implements ReleasesEvents
         return $this->contactDetails;
     }
 
+    public function linkedInProfile(): ?LinkedInProfile
+    {
+        return $this->linkedInProfile;
+    }
+
     /**
      * A person is found by the beginning of their last name or of their email.
      */
@@ -129,10 +136,11 @@ final class Person implements ReleasesEvents
         $this->recordThat(new JobTitleChanged($this->accountId, $by->id, $this->id, $at));
     }
 
-    public function changeContactDetails(ContactDetails $contactDetails, Reader $by, \DateTimeImmutable $at): void
+    public function changeContactDetails(ContactDetails $contactDetails, ?LinkedInProfile $linkedInProfile, Reader $by, \DateTimeImmutable $at): void
     {
         $this->ensurePossible(PersonIntent::ChangeContactDetails, $by);
         $this->contactDetails = $contactDetails;
+        $this->linkedInProfile = $linkedInProfile;
         $this->modifiedAt = $at;
         $this->recordThat(new PersonContactDetailsChanged($this->accountId, $by->id, $this->id, $at));
     }

@@ -22,6 +22,7 @@ final readonly class CollectContact
         public ?string $email,
         public ?string $phoneNumber,
         public ?string $language,
+        public ?string $linkedInProfile,
         public array $organizationIds,
         public \DateTimeImmutable $executedAt,
     ) {

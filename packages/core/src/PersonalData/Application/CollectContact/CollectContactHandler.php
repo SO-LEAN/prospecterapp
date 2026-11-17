@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Prospecter\Core\PersonalData\Application\CollectContact;
 
 use Prospecter\Core\PersonalData\Domain\Exception\UnknownOrganization;
+use Prospecter\Core\PersonalData\Domain\Model\LinkedInProfile;
 use Prospecter\Core\PersonalData\Domain\Model\Person;
 use Prospecter\Core\PersonalData\Domain\Model\PersonName;
 use Prospecter\Core\PersonalData\Domain\Model\Reader;
@@ -50,6 +51,7 @@ final readonly class CollectContactHandler implements CommandHandler
             name: new PersonName($command->firstName, $command->lastName),
             jobTitle: $command->jobTitle,
             contactDetails: new ContactDetails(Email::orNone($command->email), PhoneNumber::orNone($command->phoneNumber), $command->language),
+            linkedInProfile: LinkedInProfile::orNone($command->linkedInProfile),
             organizations: $organizations,
             at: $command->executedAt,
         );

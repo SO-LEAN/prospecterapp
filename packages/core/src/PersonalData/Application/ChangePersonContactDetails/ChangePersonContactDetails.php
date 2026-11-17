@@ -12,6 +12,7 @@ final readonly class ChangePersonContactDetails
         public ?string $email,
         public ?string $phoneNumber,
         public ?string $language,
+        public ?string $linkedInProfile,
         public \DateTimeImmutable $executedAt,
     ) {
     }
