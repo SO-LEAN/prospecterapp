@@ -97,6 +97,12 @@ final readonly class Recipients
     }
 
     #[\NoDiscard]
+    public function keepsSomeone(): bool
+    {
+        return [] !== $this->recipients;
+    }
+
+    #[\NoDiscard]
     public function includes(PersonId $contact): bool
     {
         return array_any($this->recipients, static fn (Recipient $recipient): bool => $recipient->is($contact));

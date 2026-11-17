@@ -23,6 +23,7 @@ use Prospecter\Core\Campaigns\Domain\Exception\UnknownRecipient;
 use Prospecter\Core\Campaigns\Domain\Exception\UnreachableContact;
 use Prospecter\Core\Campaigns\Domain\Policy\CampaignPossibilities;
 use Prospecter\Core\SharedKernel\Domain\AccountId;
+use Prospecter\Core\SharedKernel\Domain\Exception\BusinessRuleViolation;
 use Prospecter\Core\SharedKernel\Domain\Exception\NotPossibleInItsState;
 use Prospecter\Core\SharedKernel\Domain\MemberId;
 use Prospecter\Core\SharedKernel\Domain\PersonId;
@@ -127,9 +128,11 @@ final class Campaign implements ReleasesEvents
     }
 
     /**
-     * Leads it as it was frozen: nothing of it changes any more.
+     * Leads it as it was frozen: nothing of it changes any more. Frozen but emptied by the erasure of its contacts,
+     * it is cancelled in fact: it no longer starts.
      *
      * @throws CampaignNotFrozen
+     * @throws CampaignWithoutRecipient
      */
     public function start(MemberId $by, \DateTimeImmutable $at): void
     {
@@ -240,17 +243,19 @@ final class Campaign implements ReleasesEvents
 
     private function ensurePossible(CampaignIntent $intent): void
     {
-        if (!in_array($intent, CampaignPossibilities::given($this->status), true)) {
+        if (!in_array($intent, CampaignPossibilities::given($this->status, $this->recipients->keepsSomeone()), true)) {
             throw $this->refusalOf($intent);
         }
     }
 
     /**
-     * Started, a campaign tells why it no longer changes; any other state refuses what it does not offer.
+     * Started, a campaign tells why it no longer changes; frozen, why it does not start; any other state refuses what
+     * it does not offer.
      */
-    private function refusalOf(CampaignIntent $intent): NotPossibleInItsState
+    private function refusalOf(CampaignIntent $intent): BusinessRuleViolation
     {
         return match (true) {
+            CampaignIntent::StartCampaign === $intent && CampaignStatus::Frozen === $this->status => CampaignWithoutRecipient::left(),
             CampaignIntent::StartCampaign === $intent => CampaignNotFrozen::toStart(),
             CampaignIntent::DiscardCampaign === $intent && $this->status->hasStarted() => StartedCampaignNotDiscarded::stoppedInstead(),
             CampaignIntent::StopCampaign !== $intent && $this->status->hasStarted() => StartedCampaign::unchanged(),

@@ -58,7 +58,7 @@ final readonly class InMemoryCampaignSheetRetriever implements CampaignSheetRetr
             contacted: CampaignProgress::contactedIn($state['status']),
             recipients: self::statusesOf($state['recipients']),
             authorId: $state['createdBy']->value,
-            possibleIntents: array_map(static fn (CampaignIntent $intent): string => $intent->name, CampaignPossibilities::given($state['status'])),
+            possibleIntents: array_map(static fn (CampaignIntent $intent): string => $intent->name, CampaignPossibilities::given($state['status'], $state['recipients']->keepsSomeone())),
             createdAt: $state['createdAt'],
             modifiedAt: $state['modifiedAt'],
             startedAt: $state['startedAt'],

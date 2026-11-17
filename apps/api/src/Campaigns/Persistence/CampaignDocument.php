@@ -106,7 +106,7 @@ final class CampaignDocument
             contacted: CampaignProgress::contactedIn(CampaignStatus::from($document['status'])),
             recipients: array_column(self::recipientsOf($document), 'status', 'contactId'),
             authorId: $document['createdBy'],
-            possibleIntents: array_map(static fn (CampaignIntent $intent): string => $intent->name, CampaignPossibilities::given(CampaignStatus::from($document['status']))),
+            possibleIntents: array_map(static fn (CampaignIntent $intent): string => $intent->name, CampaignPossibilities::given(CampaignStatus::from($document['status']), [] !== self::recipientsOf($document))),
             createdAt: Documents::momentOf($document['createdAt']),
             modifiedAt: Documents::momentOf($document['modifiedAt']),
             startedAt: self::momentOfOrNone($document, 'startedAt'),
