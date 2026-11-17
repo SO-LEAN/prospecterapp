@@ -54,6 +54,7 @@ final readonly class InMemoryCampaignSheetRetriever implements CampaignSheetRetr
             message: $state['message']->text,
             subject: $state['message']->subject,
             status: $state['status']->value,
+            followsTheTags: $state['status']->followsTheTags(),
             contacted: CampaignProgress::contactedIn($state['status']),
             recipients: self::statusesOf($state['recipients']),
             authorId: $state['createdBy']->value,

@@ -14,6 +14,8 @@ final readonly class CampaignSheet
      * @param list<string>          $tags            the tags chosen, with their mark
      * @param list<string>          $targetedTags    the tags a contact carries to be targeted: those chosen and that of the channel
      * @param string                $status          `draft` or `frozen`
+     * @param bool                  $followsTheTags  whether whom it targets is the search by its tags as the contacts
+     *                                               carry them now, as the domain says of its status: a draft
      * @param int                   $contacted       the contacts of its target the team contacted, none before it is
      *                                               started
      * @param array<string, string> $recipients      the status of each recipient (`pending`), by contact identity, in
@@ -32,6 +34,7 @@ final readonly class CampaignSheet
         public string $message,
         public ?string $subject,
         public string $status,
+        public bool $followsTheTags,
         public int $contacted,
         public array $recipients,
         public string $authorId,
