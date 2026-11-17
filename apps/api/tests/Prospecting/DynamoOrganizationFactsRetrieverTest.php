@@ -15,6 +15,7 @@ use Prospecter\Core\SharedKernel\Domain\GeoPoint;
 use Prospecter\Core\SharedKernel\Domain\LegalIdentity;
 use Prospecter\Core\SharedKernel\Domain\MemberId;
 use Prospecter\Core\SharedKernel\Domain\OrganizationId;
+use Prospecter\Core\SharedKernel\Domain\PersonId;
 use Tests\App\Base\ApiTestCase;
 
 /**
@@ -41,7 +42,17 @@ class DynamoOrganizationFactsRetrieverTest extends ApiTestCase
         $organization->relocateTo(new Address(city: 'Strasbourg'), new GeoPoint(7.75, 48.58), by: $this->prospector->id, at: new \DateTimeImmutable(self::NOW));
         $this->organizations()->save($organization);
 
-        $this->assertEquals(new OrganizationFactsResponse($organization->id()->value, 2, true, true), $this->retriever()->of($organization->id()));
+        $this->assertEquals(new OrganizationFactsResponse($organization->id()->value, 2, true, true, []), $this->retriever()->of($organization->id()));
+    }
+
+    public function testTheFactsNameTheContactsOfTheOrganization(): void
+    {
+        $organization = $this->prospected('ACME');
+        $ada = new PersonId(self::newIdentity());
+        $organization->addContact($ada, by: $this->prospector->id, at: new \DateTimeImmutable(self::NOW));
+        $this->organizations()->save($organization);
+
+        $this->assertEquals(new OrganizationFactsResponse($organization->id()->value, 1, true, false, [$ada->value]), $this->retriever()->of($organization->id()));
     }
 
     public function testTheFactsAreReadAsTheUnitOfWorkIsAboutToWriteThem(): void
@@ -54,7 +65,7 @@ class DynamoOrganizationFactsRetrieverTest extends ApiTestCase
         $facts = $this->retriever()->of($organization->id());
         $unitOfWork->discard();
 
-        $this->assertEquals(new OrganizationFactsResponse($organization->id()->value, 1, true, false), $facts);
+        $this->assertEquals(new OrganizationFactsResponse($organization->id()->value, 1, true, false, []), $facts);
     }
 
     public function testARemovedOrganizationIsAbsent(): void

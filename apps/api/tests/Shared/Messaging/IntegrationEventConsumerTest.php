@@ -190,8 +190,8 @@ class IntegrationEventConsumerTest extends ApiTestCase
     {
         $this->rebuildTheFigures();
         $before = $this->figures();
-        $organization = new OrganizationFactsChanged(DemoData::SOLEAN_IT, self::newIdentity(), 1, true, true, new \DateTimeImmutable());
-        $contact = new ContactFactsChanged(DemoData::SOLEAN_IT, self::newIdentity(), 1, true, new \DateTimeImmutable());
+        $organization = new OrganizationFactsChanged(DemoData::SOLEAN_IT, self::newIdentity(), 1, true, true, [], new \DateTimeImmutable());
+        $contact = new ContactFactsChanged(DemoData::SOLEAN_IT, self::newIdentity(), 1, true, false, false, false, false, new \DateTimeImmutable());
 
         $this->consume($this->invocationOf('reporting-figures', $organization));
         $this->consume($this->invocationOf('reporting-figures', $contact));

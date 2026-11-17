@@ -10,6 +10,9 @@ use Prospecter\Core\PersonalData\Domain\Model\PersonName;
 use Prospecter\Core\PersonalData\Domain\Model\Purpose;
 use Prospecter\Core\PersonalData\Domain\Repository\PersonRepository;
 use Prospecter\Core\SharedKernel\Domain\AccountId;
+use Prospecter\Core\SharedKernel\Domain\ContactDetails;
+use Prospecter\Core\SharedKernel\Domain\Email;
+use Prospecter\Core\SharedKernel\Domain\PhoneNumber;
 use Prospecter\Core\SharedKernel\Domain\PersonId;
 use Tests\App\Base\ApiTestCase;
 
@@ -35,7 +38,7 @@ class DynamoContactFactsRetrieverTest extends ApiTestCase
 
         $this->persons()->save($contact);
 
-        $this->assertEquals(new ContactFactsResponse($contact->id()->value, 2, true), $this->retriever()->of($contact->id()));
+        $this->assertEquals(new ContactFactsResponse($contact->id()->value, 2, true, false, false, false, false), $this->retriever()->of($contact->id()));
     }
 
     public function testTheFactsAreReadAsTheUnitOfWorkIsAboutToWriteThem(): void
@@ -48,7 +51,15 @@ class DynamoContactFactsRetrieverTest extends ApiTestCase
         $facts = $this->retriever()->of($contact->id());
         $unitOfWork->discard();
 
-        $this->assertEquals(new ContactFactsResponse($contact->id()->value, 1, true), $facts);
+        $this->assertEquals(new ContactFactsResponse($contact->id()->value, 1, true, false, false, false, false), $facts);
+    }
+
+    public function testTheFactsSayHowTheContactIsReachedNeverItsDetails(): void
+    {
+        $contact = Person::collect(new PersonId(self::newIdentity()), $this->account, Purpose::Prospecting, new \DateTimeImmutable(), new PersonName(lastName: 'Lovelace'), new ContactDetails(new Email('ada@acme.test'), PhoneNumber::of('06 12 34 56 78')));
+        $this->persons()->save($contact);
+
+        $this->assertEquals(new ContactFactsResponse($contact->id()->value, 1, true, true, true, true, false), $this->retriever()->of($contact->id()));
     }
 
     public function testAForgottenContactIsAbsent(): void

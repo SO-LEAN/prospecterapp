@@ -49,7 +49,8 @@ class CheckConsistencyCommandTest extends ApiTestCase
     {
         parent::setUp();
         $this->rebuildTheFigures();
-        $this->tester = new CommandTester(new Application(self::$kernel)->find('app:consistency:check'));
+        $this->rebuildTheTags();
+        $this->tester =new CommandTester(new Application(self::$kernel)->find('app:consistency:check'));
     }
 
     public function testConsistentDataShowNoDiscrepancy(): void
@@ -140,6 +141,38 @@ class CheckConsistencyCommandTest extends ApiTestCase
         $this->campaignsTable()->batch([$this->taggingItem('organization', $this->babbage()['organization']['id']), $this->taggingItem('contact', $this->ada())]);
 
         $this->assertSame(Command::SUCCESS, $this->tester->execute([]));
+    }
+
+    public function testAnOrganizationWhoseContactsCampaignsKeepsOutOfDateIsShown(): void
+    {
+        $babbage = $this->babbage()['organization']['id'];
+        $this->campaignsTable()->batch([$this->organizationFactItem($babbage, [])]);
+
+        $this->assertDiscrepancy(DemoData::SOLEAN_IT, $babbage, 'contacts of the organization out of date in Campaigns', 'app:tags:rebuild --account=<account>');
+    }
+
+    public function testAContactWhoseReachCampaignsLacksIsShown(): void
+    {
+        $ada = $this->ada();
+        $this->campaignsTable()->batch([], [['ACCOUNT#'.DemoData::SOLEAN_IT, 'FACT#CONTACT#'.$ada]]);
+
+        $this->assertDiscrepancy(DemoData::SOLEAN_IT, $ada, 'reach of the contact out of date in Campaigns', 'app:tags:rebuild --account=<account>');
+    }
+
+    public function testTheFactsKeptInCampaignsForAnOrganizationNoLongerProspectedAreShown(): void
+    {
+        $gone = self::newIdentity();
+        $this->campaignsTable()->batch([$this->organizationFactItem($gone, [$this->ada()])]);
+
+        $this->assertDiscrepancy(DemoData::SOLEAN_IT, $gone, 'facts kept in Campaigns for an organization no longer prospected', 'app:integration:redrive');
+    }
+
+    public function testTheFactsKeptInCampaignsForAForgottenContactAreShown(): void
+    {
+        $forgotten = self::newIdentity();
+        $this->campaignsTable()->batch([['PK' => 'ACCOUNT#'.DemoData::SOLEAN_IT, 'SK' => 'FACT#CONTACT#'.$forgotten, 'revision' => 1, 'present' => true, 'hasEmail' => true, 'hasPhone' => false, 'hasMobile' => false, 'hasLinkedIn' => false]]);
+
+        $this->assertDiscrepancy(DemoData::SOLEAN_IT, $forgotten, 'facts kept in Campaigns for a forgotten contact', 'app:integration:redrive');
     }
 
     public function testAnAccountOutOfTheListOfTheAccountsIsShown(): void
@@ -252,9 +285,26 @@ class CheckConsistencyCommandTest extends ApiTestCase
         return ['PK' => 'ACCOUNT#'.DemoData::SOLEAN_IT, 'SK' => 'TAGGING#'.$kind.'#'.$id, 'tagging' => ['accountId' => DemoData::SOLEAN_IT, 'holder' => $kind, 'holderId' => $id, 'tags' => ['ESN'], 'createdAt' => '2026-10-14T09:00:00.000000Z', 'modifiedAt' => '2026-10-14T09:00:00.000000Z']];
     }
 
+    /**
+     * @param list<string> $contacts
+     *
+     * @return array<string, mixed> the item of the fact Campaigns keeps of an organization of the account of the demonstration
+     */
+    private function organizationFactItem(string $id, array $contacts): array
+    {
+        return ['PK' => 'ACCOUNT#'.DemoData::SOLEAN_IT, 'SK' => 'FACT#ORGANIZATION#'.$id, 'revision' => 9, 'present' => true, 'contacts' => $contacts];
+    }
+
     private function rebuildTheFigures(): void
     {
         $tester = new CommandTester(new Application(self::$kernel)->find('app:reporting:rebuild'));
+        $tester->execute([]);
+        $tester->assertCommandIsSuccessful();
+    }
+
+    private function rebuildTheTags(): void
+    {
+        $tester = new CommandTester(new Application(self::$kernel)->find('app:tags:rebuild'));
         $tester->execute([]);
         $tester->assertCommandIsSuccessful();
     }

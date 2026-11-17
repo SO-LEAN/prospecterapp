@@ -13,7 +13,9 @@ use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Prospecter\Core\Accounts\Contract\Event\AccountOpened;
 use Prospecter\Core\PersonalData\Domain\Event\ContactCollected;
+use Prospecter\Core\PersonalData\Contract\Event\ContactFactsChanged;
 use Prospecter\Core\Prospecting\Contract\Event\ExchangeFactsChanged;
+use Prospecter\Core\Prospecting\Contract\Event\OrganizationFactsChanged;
 use Prospecter\Core\SharedKernel\Domain\AccountId;
 use Prospecter\Core\SharedKernel\Domain\MemberId;
 use Prospecter\Core\SharedKernel\Domain\OrganizationId;
@@ -75,6 +77,28 @@ class EventCodecTest extends TestCase
         $facts = new ExchangeFactsChanged(self::ID, self::ID, self::REVISION, true, 'planned', new \DateTimeImmutable(self::MOMENT), new \DateTimeImmutable(self::MOMENT));
 
         $this->assertSame('ExchangeFactsChanged.v2', $this->codec()->encode($facts, new Cause(self::ID, null, 0))->detailType);
+    }
+
+    public function testTheFactsPublishedBeforeTheyToldTheContactsAndTheReachAreReadWithoutThem(): void
+    {
+        $organization = new TransportedEvent('prospecter.prospecting', 'OrganizationFactsChanged.v1', self::ID, self::MOMENT_OF_THE_BUS, self::ID, null, 0, [
+            'accountId' => self::ID, 'organizationId' => self::ID, 'revision' => self::REVISION, 'present' => true, 'located' => false, 'occurredAt' => self::MOMENT_OF_THE_BUS,
+        ]);
+        $contact = new TransportedEvent('prospecter.personal-data', 'ContactFactsChanged.v1', self::ID, self::MOMENT_OF_THE_BUS, self::ID, null, 0, [
+            'accountId' => self::ID, 'personId' => self::ID, 'revision' => self::REVISION, 'present' => true, 'occurredAt' => self::MOMENT_OF_THE_BUS,
+        ]);
+
+        $this->assertEquals(new OrganizationFactsChanged(self::ID, self::ID, self::REVISION, true, false, null, new \DateTimeImmutable(self::MOMENT_OF_THE_BUS)), $this->codec()->decode($organization));
+        $this->assertEquals(new ContactFactsChanged(self::ID, self::ID, self::REVISION, true, null, null, null, null, new \DateTimeImmutable(self::MOMENT_OF_THE_BUS)), $this->codec()->decode($contact));
+    }
+
+    public function testTheFactsAreWrittenWithTheContactsAndTheReach(): void
+    {
+        $organization = new OrganizationFactsChanged(self::ID, self::ID, self::REVISION, true, false, [self::ID], new \DateTimeImmutable(self::MOMENT));
+        $contact = new ContactFactsChanged(self::ID, self::ID, self::REVISION, true, true, true, false, true, new \DateTimeImmutable(self::MOMENT));
+
+        $this->assertSame('OrganizationFactsChanged.v2', $this->codec()->encode($organization, new Cause(self::ID, null, 0))->detailType);
+        $this->assertSame('ContactFactsChanged.v2', $this->codec()->encode($contact, new Cause(self::ID, null, 0))->detailType);
     }
 
     public function testADomainEventAndAnIntegrationEventOfTheSameNameAreToldApartByTheirSource(): void
