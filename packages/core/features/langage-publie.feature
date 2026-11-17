@@ -60,6 +60,13 @@ Fonctionnalité: Le langage publié des contextes
       | Ada Lovelace |
     Alors PersonalData ne répond aucun nom
 
+  Scénario: PersonalData dit la fonction des contacts qu'il nomme
+    Soit "Grace Hopper" est membre de "SOLEAN IT" avec le droit aux données personnelles
+    Et la fonction de "Ada Lovelace" est "CTO"
+    Quand un autre contexte demande à PersonalData les noms, comme "Grace Hopper" les lit, de :
+      | Ada Lovelace |
+    Alors PersonalData répond que "Ada Lovelace" est "CTO"
+
   Scénario: PersonalData dit lesquelles de plusieurs personnes sont des contacts d'un compte
     Soit "Grace Hopper" est membre de "SOLEAN IT" avec le droit aux données personnelles
     Quand un autre contexte demande à PersonalData lesquelles sont des contacts de "SOLEAN IT" :
@@ -81,6 +88,21 @@ Fonctionnalité: Le langage publié des contextes
     Quand un autre contexte demande à Prospecting lesquelles sont prospectées par "Concurrent" :
       | ACME |
     Alors Prospecting ne répond aucune
+
+  Scénario: Prospecting nomme les organisations de contacts d'un compte, de la première à la dernière
+    Soit l'organisation "Globex" appartient à "SOLEAN IT"
+    Et le contact "Alan Turing" de "ACME" est aussi contact de "Globex"
+    Quand un autre contexte demande à Prospecting les organisations, pour "SOLEAN IT", de :
+      | Ada Lovelace |
+      | Alan Turing  |
+      | Personne     |
+    Alors Prospecting répond les organisations :
+      | contact      | organisations |
+      | Ada Lovelace | ACME          |
+      | Alan Turing  | ACME, Globex  |
+    Quand un autre contexte demande à Prospecting les organisations, pour "Concurrent", de :
+      | Ada Lovelace |
+    Alors Prospecting ne répond aucune organisation
 
   Scénario: Prospecting liste les faits des organisations d'un compte, par tranche
     Soit l'organisation "Globex" appartient à "SOLEAN IT"
