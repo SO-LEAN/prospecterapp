@@ -52,7 +52,7 @@ Why the project is shaped the way it is: one record per decision, in the order t
 | [0046](0046-integration-events-between-contexts.md) | Contexts exchange published integration events; domain events stay in their context | architecture | Accepted | 2026-10-16 |
 | [0047](0047-a-contract-per-context.md) | Each context keeps what it publishes in a Contract of plain data | architecture | Accepted | 2026-10-16 |
 | [0048](0048-dynamodb-one-table-per-context-on-ministack.md) | DynamoDB, one table per bounded context, emulated locally by MiniStack | architecture | Accepted | 2026-10-16 |
-| [0049](0049-lists-in-slices-after-a-cursor.md) | Lists come in slices after a cursor, never in numbered pages | architecture | Accepted | 2026-10-16 |
+| [0049](0049-lists-in-slices-after-a-cursor.md) | Lists come in slices after a cursor, never in numbered pages | architecture | Accepted, the contacts found by tags counted since [0143](0143-the-contacts-are-searched-by-tags-in-the-partition-of-their-account-counted.md) | 2026-10-16 |
 | [0050](0050-text-search-by-a-projection-of-word-beginnings.md) | The text search is a projection of word beginnings, kept by the events, rebuildable | architecture | Superseded by [0071](0071-search-by-the-beginning-of-the-name-or-of-the-email.md) | 2026-10-16 |
 | [0051](0051-files-in-an-s3-bucket.md) | The files are in an S3 bucket, served from it; PHP only makes the missing sizes | architecture | Accepted | 2026-10-16 |
 | [0052](0052-cognito-signs-the-members-in.md) | Cognito signs the members in; the SPA keeps its screen and signs in by SRP; the API checks the tokens | architecture | Accepted | 2026-10-16 |
@@ -145,3 +145,4 @@ Why the project is shaped the way it is: one record per decision, in the order t
 | [0139](0139-the-linkedin-profile-is-a-persons-own-kept-in-one-form.md) | The LinkedIn profile is a person's own, kept in one form | domain | Accepted | 2026-11-17 |
 | [0140](0140-a-push-writes-the-connection-only-while-it-is-the-one-connected-at-the-moment-it-read.md) | A push writes the connection only while it is the one connected at the moment it read | architecture | Accepted | 2026-11-17 |
 | [0141](0141-the-tags-of-a-contact-are-derived-from-the-facts-campaigns-keeps-rebuilt-without-versions.md) | The tags of a contact are derived from the facts Campaigns keeps of its organizations and of its reach, rebuilt without versions | architecture | Accepted | 2026-11-17 |
+| [0143](0143-the-contacts-are-searched-by-tags-in-the-partition-of-their-account-counted.md) | The contacts are searched by tags in the partition of their account, read once, counted | architecture | Accepted | 2026-11-17 |

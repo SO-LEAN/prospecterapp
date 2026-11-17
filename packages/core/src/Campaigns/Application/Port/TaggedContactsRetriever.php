@@ -8,7 +8,7 @@ use Prospecter\Core\SharedKernel\Domain\AccountId;
 
 /**
  * Reads what the tags of every contact of an account are derived from, at once, to search them by their tags
- * (ADR 0088, 0141).
+ * (ADR 0088, 0141, 0143).
  */
 interface TaggedContactsRetriever
 {
