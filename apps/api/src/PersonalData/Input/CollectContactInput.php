@@ -2,7 +2,6 @@
 
 namespace App\PersonalData\Input;
 
-use App\Shared\Input\ContactDetailsInput;
 use Symfony\Component\Validator\Constraints as Assert;
 
 /**
@@ -20,7 +19,7 @@ final readonly class CollectContactInput
         #[Assert\Length(max: 100)]
         public ?string $jobTitle = null,
         #[Assert\Valid]
-        public ContactDetailsInput $contactDetails = new ContactDetailsInput(),
+        public PersonContactDetailsInput $contactDetails = new PersonContactDetailsInput(),
         #[Assert\All([new Assert\Uuid()])]
         public array $organizationIds = [],
     ) {

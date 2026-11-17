@@ -43,6 +43,7 @@ final class PersonCards
         $nameMasked = Reading::Masked === PersonReading::ofTheName($reader, $id, $purpose);
         $name = $document['name'];
         $contact = Documents::contactDetailsOf($document['contactDetails']);
+        $linkedInProfile = PersonDocument::linkedInProfileOf($document);
         $possibleIntents = PersonPossibilities::given($reader, $id, new AccountId($document['accountId']), $purpose);
 
         return new PersonCard(
@@ -54,6 +55,7 @@ final class PersonCards
             email: $masked ? Masking::email($contact->email?->value) : $contact->email?->value,
             phoneNumber: $masked ? Masking::phoneNumber($contact->phoneNumber) : $contact->phoneNumber?->international(),
             language: $contact->language,
+            linkedInProfile: $masked ? Masking::linkedInProfile($linkedInProfile) : $linkedInProfile?->value,
             picture: $masked ? null : FileResponse::orNone(Documents::fileOf($document['picture'])),
             possibleIntents: array_map(static fn (PersonIntent $intent): string => $intent->name, $possibleIntents),
             createdAt: Documents::momentOf($document['createdAt']),

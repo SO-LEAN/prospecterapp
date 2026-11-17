@@ -12,6 +12,7 @@ use Prospecter\Core\Connectors\Domain\Model\ClientCredentials;
 use Prospecter\Core\Connectors\Domain\Model\Provider;
 use Prospecter\Core\Connectors\Domain\Model\ProviderClient;
 use Prospecter\Core\Connectors\Domain\Repository\ProviderClientRepository;
+use Prospecter\Core\PersonalData\Domain\Model\LinkedInProfile;
 use Prospecter\Core\PersonalData\Domain\Model\Person;
 use Prospecter\Core\PersonalData\Domain\Model\PersonName;
 use Prospecter\Core\PersonalData\Domain\Model\Purpose;
@@ -131,7 +132,7 @@ final readonly class DemoData
         $babbage = Organization::prospectedBy($prospector, new OrganizationId($this->identities->next()), new LegalIdentity('Babbage & Co', 'SAS'), new ContactDetails(new Email('contact@babbage.test')), $openedAt);
         $babbage->relocateTo(new Address('2 rue des Clefs', '68000', 'Colmar', 'FR'), new GeoPoint(7.3585, 48.0794), $prospector->id, $openedAt);
         $manager = new Reader($prospector->id, $account->id(), new PersonId($this->identities->next()), true);
-        $ada = Person::collectAsContact($manager, new PersonId($this->identities->next()), new PersonName('Ada', 'Lovelace'), 'Directrice commerciale', new ContactDetails(new Email('ada@babbage.test'), PhoneNumber::of('03 88 00 00 42'), 'FR'), null, [$babbage->id()], $openedAt);
+        $ada = Person::collectAsContact($manager, new PersonId($this->identities->next()), new PersonName('Ada', 'Lovelace'), 'Directrice commerciale', new ContactDetails(new Email('ada@babbage.test'), PhoneNumber::of('03 88 00 00 42'), 'FR'), new LinkedInProfile('https://www.linkedin.com/in/ada-lovelace'), [$babbage->id()], $openedAt);
         $this->organizations->save($babbage);
         $this->publish($babbage);
         $this->persons->save($ada);

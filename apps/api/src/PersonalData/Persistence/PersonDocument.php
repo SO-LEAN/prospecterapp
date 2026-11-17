@@ -4,6 +4,7 @@ namespace App\PersonalData\Persistence;
 
 use App\Shared\Persistence\Documents;
 use App\Shared\Persistence\Hydrator;
+use Prospecter\Core\PersonalData\Domain\Model\LinkedInProfile;
 use Prospecter\Core\PersonalData\Domain\Model\Person;
 use Prospecter\Core\PersonalData\Domain\Model\PersonName;
 use Prospecter\Core\PersonalData\Domain\Model\Purpose;
@@ -29,6 +30,7 @@ final class PersonDocument
             'purpose' => $state['purpose']->value,
             'name' => ['firstName' => $state['name']->firstName, 'lastName' => $state['name']->lastName],
             'contactDetails' => Documents::contactDetails($state['contactDetails']),
+            'linkedInProfile' => $state['linkedInProfile']?->value,
             'jobTitle' => $state['jobTitle'],
             'picture' => Documents::file($state['picture']),
             'createdAt' => Documents::moment($state['createdAt']),
@@ -47,10 +49,21 @@ final class PersonDocument
             'purpose' => Purpose::from($document['purpose']),
             'name' => new PersonName($document['name']['firstName'] ?? null, $document['name']['lastName'] ?? null),
             'contactDetails' => Documents::contactDetailsOf($document['contactDetails']),
+            'linkedInProfile' => self::linkedInProfileOf($document),
             'jobTitle' => $document['jobTitle'],
             'picture' => Documents::fileOf($document['picture']),
             'createdAt' => Documents::momentOf($document['createdAt']),
             'modifiedAt' => Documents::momentOf($document['modifiedAt']),
         ]);
+    }
+
+    /**
+     * A person saved before the profiles were noted has none.
+     *
+     * @param array<string, mixed> $document
+     */
+    public static function linkedInProfileOf(array $document): ?LinkedInProfile
+    {
+        return LinkedInProfile::orNone($document['linkedInProfile'] ?? null);
     }
 }

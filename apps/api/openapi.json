@@ -11,14 +11,14 @@
                 "tags": [
                     "My account"
                 ],
-                "summary": "Change my email, phone number and language, nothing else changes",
+                "summary": "Change my email, phone number, language and LinkedIn profile, nothing else changes",
                 "operationId": "patch_api_me_change_contact_details",
                 "requestBody": {
                     "required": true,
                     "content": {
                         "application/json": {
                             "schema": {
-                                "$ref": "#/components/schemas/ContactDetailsInput"
+                                "$ref": "#/components/schemas/PersonContactDetailsInput"
                             }
                         }
                     }
@@ -1962,7 +1962,7 @@
                 "tags": [
                     "Contacts"
                 ],
-                "summary": "Change the email, phone number and language of a contact",
+                "summary": "Change the email, phone number, language and LinkedIn profile of a contact",
                 "operationId": "patch_api_contacts_change_contact_details",
                 "parameters": [
                     {
@@ -1980,7 +1980,7 @@
                     "content": {
                         "application/json": {
                             "schema": {
-                                "$ref": "#/components/schemas/ContactDetailsInput"
+                                "$ref": "#/components/schemas/PersonContactDetailsInput"
                             }
                         }
                     }
@@ -5259,7 +5259,7 @@
     },
     "components": {
         "schemas": {
-            "ContactDetailsInput": {
+            "PersonContactDetailsInput": {
                 "properties": {
                     "email": {
                         "type": "string",
@@ -5279,6 +5279,14 @@
                         "type": "string",
                         "nullable": true,
                         "default": null
+                    },
+                    "linkedInProfile": {
+                        "description": "The address of a profile on LinkedIn, with or without its scheme, its subdomain or what follows its identifier; kept in one form (https://www.linkedin.com/in/<identifier>), refused when it is no profile of a person",
+                        "type": "string",
+                        "example": "linkedin.com/in/ada-lovelace",
+                        "nullable": true,
+                        "default": null,
+                        "maxLength": 255
                     }
                 },
                 "type": "object"
@@ -5380,6 +5388,30 @@
                     "holdingId": {
                         "type": "string",
                         "default": ""
+                    }
+                },
+                "type": "object"
+            },
+            "ContactDetailsInput": {
+                "properties": {
+                    "email": {
+                        "type": "string",
+                        "nullable": true,
+                        "default": null,
+                        "maxLength": 255
+                    },
+                    "phoneNumber": {
+                        "description": "In the international format (+33 3 88 11 22 33) or in the national format of France (03 88 11 22 33); kept in E.164, refused when it is no valid number",
+                        "type": "string",
+                        "example": "03 88 11 22 33",
+                        "nullable": true,
+                        "default": null,
+                        "maxLength": 255
+                    },
+                    "language": {
+                        "type": "string",
+                        "nullable": true,
+                        "default": null
                     }
                 },
                 "type": "object"
@@ -5578,7 +5610,7 @@
                         "maxLength": 100
                     },
                     "contactDetails": {
-                        "$ref": "#/components/schemas/ContactDetailsInput"
+                        "$ref": "#/components/schemas/PersonContactDetailsInput"
                     },
                     "organizationIds": {
                         "type": "array",
@@ -5949,7 +5981,7 @@
                 },
                 "type": "object"
             },
-            "ContactDetailsResource": {
+            "PersonContactDetailsResource": {
                 "properties": {
                     "email": {
                         "type": "string",
@@ -5963,6 +5995,12 @@
                     },
                     "language": {
                         "type": "string",
+                        "nullable": true
+                    },
+                    "linkedInProfile": {
+                        "description": "In one form, its identifier in lower case; stars when masked",
+                        "type": "string",
+                        "example": "https://www.linkedin.com/in/ada-lovelace",
                         "nullable": true
                     }
                 },
@@ -6133,7 +6171,7 @@
                         "$ref": "#/components/schemas/PersonNameResource"
                     },
                     "contactDetails": {
-                        "$ref": "#/components/schemas/ContactDetailsResource"
+                        "$ref": "#/components/schemas/PersonContactDetailsResource"
                     },
                     "picture": {
                         "nullable": true,
@@ -6298,7 +6336,7 @@
                         "nullable": true
                     },
                     "contactDetails": {
-                        "$ref": "#/components/schemas/ContactDetailsResource"
+                        "$ref": "#/components/schemas/PersonContactDetailsResource"
                     },
                     "masked": {
                         "type": "boolean"
@@ -6319,6 +6357,25 @@
                         "items": {
                             "$ref": "#/components/schemas/OrganizationContactResource"
                         }
+                    }
+                },
+                "type": "object"
+            },
+            "ContactDetailsResource": {
+                "properties": {
+                    "email": {
+                        "type": "string",
+                        "nullable": true
+                    },
+                    "phoneNumber": {
+                        "description": "In the international format",
+                        "type": "string",
+                        "example": "+33 3 88 11 22 33",
+                        "nullable": true
+                    },
+                    "language": {
+                        "type": "string",
+                        "nullable": true
                     }
                 },
                 "type": "object"
@@ -6810,7 +6867,7 @@
                         "nullable": true
                     },
                     "contactDetails": {
-                        "$ref": "#/components/schemas/ContactDetailsResource"
+                        "$ref": "#/components/schemas/PersonContactDetailsResource"
                     },
                     "masked": {
                         "description": "The data are masked, but the name of a contact: the reader has no right to read personal data in clear",
@@ -6862,7 +6919,7 @@
                         "nullable": true
                     },
                     "contactDetails": {
-                        "$ref": "#/components/schemas/ContactDetailsResource"
+                        "$ref": "#/components/schemas/PersonContactDetailsResource"
                     },
                     "masked": {
                         "type": "boolean"

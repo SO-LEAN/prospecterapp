@@ -2,8 +2,8 @@
 
 namespace App\Contacts\Resource;
 
+use App\PersonalData\Resource\PersonContactDetailsResource;
 use App\PersonalData\Resource\PersonNameResource;
-use App\Shared\Resource\ContactDetailsResource;
 use App\Shared\Resource\LinkResource;
 use OpenApi\Attributes as OA;
 
@@ -19,7 +19,7 @@ final readonly class ContactInListResource
         public string $id,
         public PersonNameResource $name,
         public ?string $jobTitle,
-        public ContactDetailsResource $contactDetails,
+        public PersonContactDetailsResource $contactDetails,
         public bool $masked,
         public array $organizations,
         #[OA\Property(description: 'The contact, GET /api/contacts/{id}')]
