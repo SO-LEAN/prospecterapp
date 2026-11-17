@@ -16,6 +16,7 @@ use Prospecter\Core\Campaigns\Domain\Model\Tag;
 use Prospecter\Core\Campaigns\Domain\Model\TagSelection;
 use Prospecter\Core\Campaigns\Domain\Model\Targeting;
 use Prospecter\Core\Campaigns\Domain\Policy\CampaignPossibilities;
+use Prospecter\Core\Campaigns\Domain\Policy\CampaignProgress;
 use Prospecter\Core\SharedKernel\Domain\AccountId;
 use Prospecter\Core\SharedKernel\Domain\MemberId;
 
@@ -87,6 +88,7 @@ final class CampaignDocument
             message: $document['message'],
             subject: $document['subject'],
             status: $document['status'],
+            contacted: CampaignProgress::contactedIn(CampaignStatus::from($document['status'])),
             authorId: $document['createdBy'],
             possibleIntents: array_map(static fn (CampaignIntent $intent): string => $intent->name, CampaignPossibilities::given(CampaignStatus::from($document['status']))),
             createdAt: Documents::momentOf($document['createdAt']),

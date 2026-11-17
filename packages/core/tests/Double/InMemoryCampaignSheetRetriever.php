@@ -12,6 +12,7 @@ use Prospecter\Core\Campaigns\Domain\Model\CampaignId;
 use Prospecter\Core\Campaigns\Domain\Model\CampaignIntent;
 use Prospecter\Core\Campaigns\Domain\Model\TagSelection;
 use Prospecter\Core\Campaigns\Domain\Policy\CampaignPossibilities;
+use Prospecter\Core\Campaigns\Domain\Policy\CampaignProgress;
 use Prospecter\Core\SharedKernel\Domain\AccountId;
 
 /**
@@ -52,6 +53,7 @@ final readonly class InMemoryCampaignSheetRetriever implements CampaignSheetRetr
             message: $state['message']->text,
             subject: $state['message']->subject,
             status: $state['status']->value,
+            contacted: CampaignProgress::contactedIn($state['status']),
             authorId: $state['createdBy']->value,
             possibleIntents: array_map(static fn (CampaignIntent $intent): string => $intent->name, CampaignPossibilities::given($state['status'])),
             createdAt: $state['createdAt'],
