@@ -1,21 +1,7 @@
-import { QueryClient, QueryObserver } from '@tanstack/react-query'
+import { QueryClient } from '@tanstack/react-query'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
-import { readAgainAfterTheReactions, WHILE_THE_REACTIONS_RUN_MS } from './reactions'
-
-/** A displayed query counting how many times it was read. */
-function aDisplayedQuery(queryClient: QueryClient, queryKey: readonly string[]) {
-  let reads = 0
-  new QueryObserver(queryClient, {
-    queryKey,
-    queryFn: () => {
-      reads += 1
-      return reads
-    },
-    staleTime: Number.POSITIVE_INFINITY,
-  }).subscribe(() => {})
-
-  return () => reads
-}
+import { aDisplayedQuery, aQueryNoLongerDisplayed } from '@/test/displayed-queries'
+import { AFTER_THE_REACTIONS_MS, readAgainAfterTheReactions } from './reactions'
 
 describe('readAgainAfterTheReactions', () => {
   beforeEach(() => {
@@ -26,7 +12,7 @@ describe('readAgainAfterTheReactions', () => {
     vi.useRealTimers()
   })
 
-  it('reads the queries again at once, then at each moment the reactions may have run', async () => {
+  it('reads the queries again at once, then once after the reactions, and no more', async () => {
     const queryClient = new QueryClient()
     const readsOfTheContacts = aDisplayedQuery(queryClient, ['contacts'])
     await vi.runAllTimersAsync()
@@ -35,10 +21,38 @@ describe('readAgainAfterTheReactions', () => {
     await vi.advanceTimersByTimeAsync(0)
     expect(readsOfTheContacts()).toBe(2)
 
-    const [first, second] = WHILE_THE_REACTIONS_RUN_MS
-    await vi.advanceTimersByTimeAsync(first)
+    await vi.advanceTimersByTimeAsync(AFTER_THE_REACTIONS_MS)
     expect(readsOfTheContacts()).toBe(3)
-    await vi.advanceTimersByTimeAsync(second - first)
+    await vi.runAllTimersAsync()
+    expect(readsOfTheContacts()).toBe(3)
+  })
+
+  it('reads a query a gesture names twice once at each moment', async () => {
+    const queryClient = new QueryClient()
+    const readsOfTheContacts = aDisplayedQuery(queryClient, ['contacts'])
+    await vi.runAllTimersAsync()
+
+    readAgainAfterTheReactions(queryClient, ['contacts'], ['organizations'])
+    readAgainAfterTheReactions(queryClient, ['contacts'])
+    await vi.advanceTimersByTimeAsync(0)
+    expect(readsOfTheContacts()).toBe(2)
+
+    await vi.runAllTimersAsync()
+    expect(readsOfTheContacts()).toBe(3)
+  })
+
+  it('reads the queries once after the reactions to the last of gestures following each other', async () => {
+    const queryClient = new QueryClient()
+    const readsOfTheContacts = aDisplayedQuery(queryClient, ['contacts'])
+    await vi.runAllTimersAsync()
+
+    readAgainAfterTheReactions(queryClient, ['contacts'])
+    await vi.advanceTimersByTimeAsync(AFTER_THE_REACTIONS_MS / 2)
+    readAgainAfterTheReactions(queryClient, ['contacts'])
+    await vi.advanceTimersByTimeAsync(AFTER_THE_REACTIONS_MS / 2)
+    expect(readsOfTheContacts()).toBe(3)
+
+    await vi.advanceTimersByTimeAsync(AFTER_THE_REACTIONS_MS / 2)
     expect(readsOfTheContacts()).toBe(4)
   })
 
@@ -51,5 +65,18 @@ describe('readAgainAfterTheReactions', () => {
     await vi.runAllTimersAsync()
 
     expect(readsOfTheOrganizations()).toBe(1)
+  })
+
+  it('leaves a query no longer displayed to be read at its opening', async () => {
+    const queryClient = new QueryClient()
+    const theCalendar = aQueryNoLongerDisplayed(queryClient, ['calendar'])
+    await vi.runAllTimersAsync()
+    theCalendar.hide()
+
+    readAgainAfterTheReactions(queryClient, ['calendar'])
+    await vi.advanceTimersByTimeAsync(AFTER_THE_REACTIONS_MS)
+
+    expect(theCalendar.reads()).toBe(1)
+    expect(theCalendar.isToReadAtItsOpening()).toBe(true)
   })
 })
