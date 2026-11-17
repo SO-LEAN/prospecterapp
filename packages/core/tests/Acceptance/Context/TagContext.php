@@ -11,9 +11,9 @@ use Behat\Step\Then;
 use Behat\Step\When;
 use Prospecter\Core\Campaigns\Application\ConsultSuggestedTags\ConsultSuggestedTags;
 use Prospecter\Core\Campaigns\Application\ConsultTags\ConsultTags;
+use Prospecter\Core\Campaigns\Application\PutTags\PutTags;
 use Prospecter\Core\Campaigns\Application\SuggestedTags;
-use Prospecter\Core\Campaigns\Application\Tag\Tag as TagCommand;
-use Prospecter\Core\Campaigns\Application\Untag\Untag;
+use Prospecter\Core\Campaigns\Application\TakeOffTag\TakeOffTag;
 use Prospecter\Core\Campaigns\Domain\Model\Holder;
 use Prospecter\Core\Campaigns\Domain\Model\Tag;
 use Prospecter\Core\Campaigns\Domain\Model\Tagging;
@@ -45,14 +45,14 @@ final class TagContext implements Context
     public function iTag(string $holder, string $tags): void
     {
         [$kind, $id] = $this->holderNamed($holder);
-        $this->application->dispatch(new TagCommand($this->application->signedIn(), $kind, $id, self::listed($tags), $this->application->now()));
+        $this->application->dispatch(new PutTags($this->application->signedIn(), $kind, $id, self::listed($tags), $this->application->now()));
     }
 
     #[When('je retire le tag :tag de :holder')]
     public function iUntag(string $tag, string $holder): void
     {
         [$kind, $id] = $this->holderNamed($holder);
-        $this->application->dispatch(new Untag($this->application->signedIn(), $kind, $id, $tag, $this->application->now()));
+        $this->application->dispatch(new TakeOffTag($this->application->signedIn(), $kind, $id, $tag, $this->application->now()));
     }
 
     #[Given(':holder est tagué :tag')]

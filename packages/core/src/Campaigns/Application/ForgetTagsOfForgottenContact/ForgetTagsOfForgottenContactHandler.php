@@ -1,0 +1,31 @@
+<?php
+
+declare(strict_types=1);
+
+namespace Prospecter\Core\Campaigns\Application\ForgetTagsOfForgottenContact;
+
+use Prospecter\Core\Campaigns\Domain\Model\Holder;
+use Prospecter\Core\Campaigns\Domain\Repository\TaggingRepository;
+use Prospecter\Core\PersonalData\Contract\Event\ContactForgotten;
+use Prospecter\Core\SharedKernel\Application\EventHandler;
+use Prospecter\Core\SharedKernel\Domain\AccountId;
+use Prospecter\Core\SharedKernel\Domain\PersonId;
+
+/**
+ * A contact PersonalData forgot takes its tags with it (ADR 0138); delivered again, nothing is left to forget.
+ */
+final readonly class ForgetTagsOfForgottenContactHandler implements EventHandler
+{
+    public function __construct(private TaggingRepository $taggings)
+    {
+    }
+
+    public function __invoke(ContactForgotten $event): void
+    {
+        $tagging = $this->taggings->find(new AccountId($event->accountId), Holder::contact(new PersonId($event->personId)));
+
+        if (null !== $tagging) {
+            $this->taggings->remove($tagging);
+        }
+    }
+}
