@@ -136,6 +136,15 @@ class CheckConsistencyCommandTest extends ApiTestCase
         $this->assertDiscrepancy(DemoData::SOLEAN_IT, $forgotten, 'tags kept for a forgotten contact', 'app:integration:redrive');
     }
 
+    public function testARecipientKeptForAForgottenContactIsShown(): void
+    {
+        $forgotten = self::newIdentity();
+        $campaign = self::newIdentity();
+        $this->campaignsTable()->batch([$this->frozenCampaignItem($campaign, $forgotten)]);
+
+        $this->assertDiscrepancy(DemoData::SOLEAN_IT, $campaign, 'recipient kept for a forgotten contact '.$forgotten, 'app:integration:redrive');
+    }
+
     public function testTheTagsOfWhatTheAccountKeepsAreNoDiscrepancy(): void
     {
         $this->campaignsTable()->batch([$this->taggingItem('organization', $this->babbage()['organization']['id']), $this->taggingItem('contact', $this->ada())]);
@@ -275,6 +284,18 @@ class CheckConsistencyCommandTest extends ApiTestCase
         self::getContainer()->get(ExchangeRepository::class)->save($planned);
 
         return $planned->id()->value;
+    }
+
+    /**
+     * @return array<string, mixed> the item of a frozen campaign of the account of the demonstration keeping the contact
+     */
+    private function frozenCampaignItem(string $id, string $contact): array
+    {
+        return ['PK' => 'ACCOUNT#'.DemoData::SOLEAN_IT, 'SK' => 'CAMPAIGN#'.$id, 'campaign' => [
+            'id' => $id, 'accountId' => DemoData::SOLEAN_IT, 'createdBy' => self::newIdentity(), 'name' => 'Relance', 'channel' => 'email', 'tags' => ['ESN'],
+            'message' => 'Bonjour', 'subject' => null, 'status' => 'frozen', 'recipients' => [['contactId' => $contact, 'status' => 'pending']],
+            'createdAt' => '2026-10-14T09:00:00.000000Z', 'modifiedAt' => '2026-10-14T09:00:00.000000Z',
+        ]];
     }
 
     /**
