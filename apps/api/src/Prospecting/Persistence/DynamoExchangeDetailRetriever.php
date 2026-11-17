@@ -67,7 +67,7 @@ final readonly class DynamoExchangeDetailRetriever implements ExchangeDetailRetr
             text: $facts['text'],
             place: $facts['place'] ?? null,
             link: $facts['link'] ?? null,
-            linkAwaited: ExchangeDocument::linkRequestedOf($document),
+            linkAwaited: Exchange::awaitsALink(ExchangeDocument::linkRequestedOf($document), $status),
             textFlagged: ExchangeReading::isTextFlagged($hasText, $reader),
             textToMakeConform: ExchangeConformity::isTextToMakeConform($hasText, $contactForgotten, null !== $madeConform),
             toMakeConform: ExchangeConformity::isToMakeConform($contactForgotten, null !== $madeConform, [] !== $attachments),
