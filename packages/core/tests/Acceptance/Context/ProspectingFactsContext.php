@@ -36,6 +36,16 @@ final class ProspectingFactsContext implements Context
         );
     }
 
+    #[Then('la commune publiée de :name est :municipality, en :country')]
+    public function theMunicipalityPublishedOf(string $name, string $municipality, string $country): void
+    {
+        $organizationId = $this->scenario->idOf($name);
+        $last = array_last(array_filter($this->application->events->published(OrganizationFactsChanged::class), static fn (OrganizationFactsChanged $facts): bool => $facts->organizationId === $organizationId));
+
+        Expect::that(null !== $last, sprintf('No facts of "%s" were published', $name));
+        Expect::same([$municipality, $country], [$last->municipalityCode, $last->country]);
+    }
+
     #[Then('les contacts publiés de :name sont :contacts')]
     public function theContactsPublishedOf(string $name, string $contacts): void
     {

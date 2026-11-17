@@ -11,6 +11,8 @@ use Behat\Step\Then;
 use Behat\Step\When;
 use Prospecter\Core\Campaigns\Application\ConsultContactTags\ConsultContactTags;
 use Prospecter\Core\Campaigns\Application\ConsultOrganizationTags\ConsultOrganizationTags;
+use Prospecter\Core\Campaigns\Application\ConsultSuggestedTags\ConsultSuggestedTags;
+use Prospecter\Core\Prospecting\Application\LocateAgain\LocateAgain;
 use Prospecter\Core\Prospecting\Application\Relocate\Relocate;
 use Prospecter\Core\Prospecting\Domain\Model\Organization;
 use Prospecter\Core\SharedKernel\Domain\Address;
@@ -35,6 +37,12 @@ final class GeographicTagsContext implements Context
         foreach ($table->getHash() as $row) {
             $this->application->geoLocation->know($row['lieu'], 0.0, 0.0, $row['commune']);
         }
+    }
+
+    #[Given('/^le géocodeur trouve "(?<place>[^"]+)" à [^(]+ \\((?<code>\\w+)\\)$/')]
+    public function theGeocoderFinds(string $place, string $code): void
+    {
+        $this->application->geoLocation->know($place, 0.0, 0.0, $code);
     }
 
     /**
@@ -104,6 +112,20 @@ final class GeographicTagsContext implements Context
         $this->locatedAgain = $this->application->locateOrganizationsAgain();
     }
 
+    #[When(':name est géocodée à nouveau')]
+    public function isLocatedAgain(string $name): void
+    {
+        $this->application->dispatch(new LocateAgain($this->scenario->idOf($name), $this->application->now()));
+    }
+
+    #[Then('les tags automatiques de mon compte sont :tags')]
+    public function theAutomaticTagsOfMyAccountAre(string $tags): void
+    {
+        $suggested = $this->application->consultSuggestedTags(new ConsultSuggestedTags($this->application->signedIn()));
+
+        Expect::same($tags, implode(' ', $suggested->automatic ?? []));
+    }
+
     #[Then('aucune organisation n\'a été géocodée à nouveau')]
     public function noOrganizationWasLocatedAgain(): void
     {
@@ -141,7 +163,7 @@ final class GeographicTagsContext implements Context
     {
         $kept = $this->application->consultOrganizationTags(new ConsultOrganizationTags($this->application->signedIn(), $this->scenario->idOf($name)));
 
-        return $kept?->automatic ?? throw new \LogicException(sprintf('The tags of %s were refused: %s', $name, $this->application->refusal()?->getMessage()));
+        return $kept->automatic ?? throw new \LogicException(sprintf('The tags of %s were refused: %s', $name, $this->application->refusal()?->getMessage()));
     }
 
     private function relocate(string $name, ?string $street, ?string $postalCode, ?string $city, ?string $country): void

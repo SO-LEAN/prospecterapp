@@ -48,6 +48,8 @@ final readonly class InMemoryOrganizationFactsRetriever implements OrganizationF
             true,
             null !== $state['geoPoint'],
             array_map(static fn (PersonId $contact): string => (string) $contact, $state['contacts']),
+            $state['municipalityCode'],
+            $state['address']?->country,
         );
     }
 }
