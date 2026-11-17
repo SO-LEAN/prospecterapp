@@ -204,6 +204,7 @@ final class PublishedLanguageContext implements Context
             'révision' => (string) $facts->revision,
             'présente' => Vocabulary::describeYesOrNo($facts->present),
             'géolocalisée' => Vocabulary::describeYesOrNo($facts->located),
+            'contacts' => implode(', ', array_map(fn (string $id): string => $this->scenario->nameOfPerson(new PersonId($id)), $facts->contacts)),
         ], $facts));
     }
 
@@ -224,6 +225,7 @@ final class PublishedLanguageContext implements Context
             'contact' => $this->scenario->nameOfPerson(new PersonId($facts->personId)),
             'révision' => (string) $facts->revision,
             'présent' => Vocabulary::describeYesOrNo($facts->present),
+            'joignable par' => Vocabulary::describeReach($facts->hasEmail, $facts->hasPhone, $facts->hasMobile, $facts->hasLinkedIn),
         ], $facts));
     }
 

@@ -61,3 +61,18 @@ Fonctionnalité: Publier les faits de Prospecting
       | je marque cette visio manquée               | manqué   | 17/11/2026 14:00 |
       | je déplace cette visio au 18/11/2026 à 9h00 | planifié | 18/11/2026 09:00 |
       | j'annule cette visio                        | annulé   | 17/11/2026 14:00 |
+
+  Scénario: Une organisation publie ses contacts, à chaque contact rattaché ou retiré
+    Soit l'organisation "ACME" fait partie de mes organisations
+    Et l'organisation "Globex" fait partie de mes organisations
+    Et le contact "Ada Lovelace" de "ACME"
+    Quand je rattache le contact "Ada Lovelace" à "Globex"
+    Alors les contacts publiés de "Globex" sont "Ada Lovelace"
+    Quand je retire le contact "Ada Lovelace" de "Globex"
+    Alors les contacts publiés de "Globex" sont ""
+
+  Scénario: Une organisation qu'on arrête de prospecter ne publie plus aucun contact
+    Soit l'organisation "ACME" fait partie de mes organisations
+    Et le contact "Ada Lovelace" de "ACME"
+    Quand j'arrête de prospecter "ACME"
+    Alors les contacts publiés de "ACME" sont ""

@@ -10,7 +10,8 @@ use Behat\Step\Given;
 use Behat\Step\Then;
 use Behat\Step\When;
 use Prospecter\Core\Campaigns\Application\ConsultSuggestedTags\ConsultSuggestedTags;
-use Prospecter\Core\Campaigns\Application\ConsultTags\ConsultTags;
+use Prospecter\Core\Campaigns\Application\ConsultContactTags\ConsultContactTags;
+use Prospecter\Core\Campaigns\Application\ConsultOrganizationTags\ConsultOrganizationTags;
 use Prospecter\Core\Campaigns\Application\PutTags\PutTags;
 use Prospecter\Core\Campaigns\Application\SuggestedTags;
 use Prospecter\Core\Campaigns\Application\TakeOffTag\TakeOffTag;
@@ -136,9 +137,11 @@ final class TagContext implements Context
      */
     private function tagsOf(string $holder): array
     {
-        [$kind, $id] = $this->holderNamed($holder);
+        if ($this->scenario->isAnOrganization($holder)) {
+            return $this->application->consultOrganizationTags(new ConsultOrganizationTags($this->application->signedIn(), $this->scenario->idOf($holder))) ?? [];
+        }
 
-        return $this->application->consultTags(new ConsultTags($this->application->signedIn(), $kind, $id)) ?? [];
+        return $this->application->consultContactTags(new ConsultContactTags($this->application->signedIn(), [$this->scenario->personIdOf($holder)]))?->contacts[0]->own ?? [];
     }
 
     /**

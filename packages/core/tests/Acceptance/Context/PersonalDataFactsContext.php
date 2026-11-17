@@ -8,6 +8,7 @@ use Behat\Behat\Context\Context;
 use Behat\Step\Then;
 use Prospecter\Core\PersonalData\Contract\Event\ContactFactsChanged;
 use Tests\Core\Acceptance\Expect;
+use Tests\Core\Acceptance\Vocabulary;
 
 /**
  * The facts PersonalData publishes each time a contact changes (ADR 0046, 0099): the event is the contract, the
@@ -29,6 +30,16 @@ final class PersonalDataFactsContext implements Context
             ['present' => 'présent' === $presence, 'revision' => $revision, 'accountId' => $this->scenario->meAsProspector()->accountId->value],
             ['present' => $last->present, 'revision' => $last->revision, 'accountId' => $last->accountId],
         );
+    }
+
+    #[Then('le fait publié du contact :name le dit joignable par :reach')]
+    public function theFactsOfTheContactSayItIsReachedBy(string $name, string $reach): void
+    {
+        $personId = $this->scenario->personIdOf($name);
+        $last = array_last(array_filter($this->application->events->published(ContactFactsChanged::class), static fn (ContactFactsChanged $facts): bool => $facts->personId === $personId));
+
+        Expect::that(null !== $last, sprintf('No facts of "%s" were published', $name));
+        Expect::same($reach, Vocabulary::describeReach($last->hasEmail, $last->hasPhone, $last->hasMobile, $last->hasLinkedIn));
     }
 
     #[Then('aucun fait de contact n\'est publié')]

@@ -309,6 +309,14 @@ final class Vocabulary
     }
 
     /**
+     * How a contact is reached, as the facts of PersonalData say it: "téléphone, mobile".
+     */
+    public static function describeReach(?bool $email, ?bool $phone, ?bool $mobile, ?bool $linkedIn): string
+    {
+        return implode(', ', array_keys(array_filter(['e-mail' => $email, 'téléphone' => $phone, 'mobile' => $mobile, 'LinkedIn' => $linkedIn])));
+    }
+
+    /**
      * Who did something and when, as a sentence says it: "le 15/10/2026 à 14:35 par Michel".
      */
     public static function describeDoneBy(\DateTimeImmutable $at, string $by): string
