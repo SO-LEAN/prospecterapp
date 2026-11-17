@@ -69,6 +69,33 @@ class DynamoCampaignRepositoryTest extends ApiTestCase
         $this->assertSame([self::ADA => 'pending', self::ALAN => 'pending'], $this->retriever()->get($this->account, $campaign->id())->recipients);
     }
 
+    public function testAStartedThenStoppedCampaignIsRestoredWithItsMomentsAndItsErasedRecipients(): void
+    {
+        $campaign = $this->aFrozenCampaign(self::ADA, self::ALAN);
+        $campaign->start(new MemberId(self::newIdentity()), new \DateTimeImmutable('2026-11-17 12:00:00'));
+        $campaign->forget(new PersonId(self::ALAN));
+        $campaign->stop(new MemberId(self::newIdentity()), new \DateTimeImmutable('2026-11-17 13:00:00'));
+        $this->repository()->save($campaign);
+        $campaign->releaseEvents();
+
+        $this->assertEquals($campaign, $this->repository()->get($this->account, $campaign->id()));
+        $sheet = $this->retriever()->get($this->account, $campaign->id());
+        $this->assertEquals(
+            ['stopped', [self::ADA => 'pending', self::ALAN => 'erased'], new \DateTimeImmutable('2026-11-17 12:00:00'), new \DateTimeImmutable('2026-11-17 13:00:00'), []],
+            [$sheet->status, $sheet->recipients, $sheet->startedAt, $sheet->stoppedAt, $sheet->possibleIntents],
+        );
+    }
+
+    public function testACampaignIsFoundInItsAccountOnly(): void
+    {
+        $campaign = $this->aCampaign('Relance ESN');
+        $this->repository()->save($campaign);
+        $campaign->releaseEvents();
+
+        $this->assertEquals($campaign, $this->repository()->find($this->account, $campaign->id()));
+        $this->assertNull($this->repository()->find(new AccountId(self::newIdentity()), $campaign->id()));
+    }
+
     public function testTheCampaignsKeepingAContactAreFoundInItsAccount(): void
     {
         $keeping = $this->aFrozenCampaign(self::ADA);
