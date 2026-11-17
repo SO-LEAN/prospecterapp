@@ -77,7 +77,8 @@ export function CampaignTarget({ target, campaignId, changed }: Props) {
   )
 }
 
-function MessagePreview({
+/** The message of the campaign as saved, rendered by the api for one contact. */
+export function MessagePreview({
   campaignId,
   contactId,
   changed,

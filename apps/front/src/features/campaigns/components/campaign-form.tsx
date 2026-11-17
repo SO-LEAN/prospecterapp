@@ -21,8 +21,10 @@ type Props = {
   tagsField: (chosen: string[], onChange: (tags: string[]) => void) => ReactNode
   /** Told whether the form differs from the campaign as saved. */
   onChanged?: (changed: boolean) => void
-  /** Told the tags and the channel as they are typed, for the target to follow them. */
-  onTargetingChange: (tags: string[], channel: Channel) => void
+  /** Told the tags and the channel as they are typed, for the target to follow them; none once frozen. */
+  onTargetingChange?: (tags: string[], channel: Channel) => void
+  /** Frozen, its channel and its tags are shown without being changed. */
+  searchFrozen?: boolean
 }
 
 /**
@@ -37,6 +39,7 @@ export function CampaignForm({
   tagsField,
   onChanged,
   onTargetingChange,
+  searchFrozen = false,
 }: Props) {
   const { t } = useTranslation()
   const [globalErrors, setGlobalErrors] = useState<string[]>([])
@@ -46,7 +49,7 @@ export function CampaignForm({
   const tags = useWatch({ control: form.control, name: 'tags' })
 
   useEffect(() => onChanged?.(isDirty), [isDirty, onChanged])
-  useEffect(() => onTargetingChange(tags, channel), [tags, channel, onTargetingChange])
+  useEffect(() => onTargetingChange?.(tags, channel), [tags, channel, onTargetingChange])
 
   const submit = form.handleSubmit(async (submitted) => {
     setGlobalErrors([])
@@ -72,7 +75,7 @@ export function CampaignForm({
         name="channel"
         render={({ field }) => (
           <FormField form={form} name="channel" label={t('campaigns.fields.channel')}>
-            <ChannelSelect channel={field.value} onChange={field.onChange} />
+            <ChannelSelect channel={field.value} onChange={field.onChange} disabled={searchFrozen} />
           </FormField>
         )}
       />
@@ -84,7 +87,7 @@ export function CampaignForm({
             form={form}
             name="tags"
             label={t('campaigns.fields.tags')}
-            hint={t('campaigns.fields.tagsHint')}
+            hint={t(searchFrozen ? 'campaigns.fields.tagsFrozen' : 'campaigns.fields.tagsHint')}
           >
             <div>{tagsField(field.value, field.onChange)}</div>
           </FormField>
@@ -126,15 +129,16 @@ type ChannelProps = {
   id?: string
   channel: Channel
   onChange: (channel: Channel) => void
+  disabled: boolean
   'aria-describedby'?: string
 }
 
 /** The channels, the props of its field given to its trigger, the control its label names. */
-function ChannelSelect({ channel, onChange, ...trigger }: ChannelProps) {
+function ChannelSelect({ channel, onChange, disabled, ...trigger }: ChannelProps) {
   const { t } = useTranslation()
 
   return (
-    <Select value={channel} onValueChange={(chosen) => channelNamed(chosen, onChange)}>
+    <Select value={channel} disabled={disabled} onValueChange={(chosen) => channelNamed(chosen, onChange)}>
       <SelectTrigger className="w-full" {...trigger}>
         <SelectValue />
       </SelectTrigger>
