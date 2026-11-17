@@ -189,6 +189,15 @@ final class Exchange implements ReleasesEvents
         return $moment > $at;
     }
 
+    /**
+     * A video call awaits the link it asked of the calendar of its holder while it is planned: done, missed or
+     * cancelled, it is no longer pushed there (ADR 0137).
+     */
+    public static function awaitsALink(bool $linkRequested, ExchangeStatus $status): bool
+    {
+        return $linkRequested && ExchangeStatus::Planned === $status;
+    }
+
     public function id(): ExchangeId
     {
         return $this->id;

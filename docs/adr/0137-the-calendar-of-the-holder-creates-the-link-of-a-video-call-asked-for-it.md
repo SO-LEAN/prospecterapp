@@ -21,6 +21,8 @@ A member connected to Google plans a video call without its link and wants Prosp
 - Connectors publishes an integration event: the table of `contexts.md` names it, and Prospecting reacts to Connectors, the two contexts now answering each other; the chain (planned, pushed, link received, pushed again) stays at depth 3, under the bound of ADR 0097.
 - The link comes a few seconds after the planning, through the relay and the worker twice: the SPA waits for it by reading the exchange again; a member whose push fails, or who is not connected, never gets it, the request kept until a push reaches the calendar or a link is given.
 - The Meet link removed by a member does not come back: the request ended with the link received.
+- Only a planned video call awaits its link and asks the provider for it (`Exchange::awaitsALink()`, `HeldExchange::asksForALink()`): done, missed or cancelled before any push, it asks nothing more, its request left in its facts.
+- Google may answer a conference still being created (`createRequest.status` pending, no `hangoutLink`): the link then comes at the next push of the exchange; the spike #92 saw it answered at once.
 - Google keeps the conference of an event put again without `conferenceDataVersion` (version 0 ignores the conference of the body): the pushes after the link keep it.
 
 ## Alternatives considered
