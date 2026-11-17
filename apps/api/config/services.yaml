@@ -53,9 +53,14 @@ services:
     # published services by the anticorruption layers of the other contexts (ADR 0045, 0089)
     Prospecter\Core\:
         resource: '../vendor/prospecter/core/src/{Accounts,Campaigns,Connectors,PersonalData,Prospecting,Reporting}/Application/*/*Handler.php'
-        exclude: '../vendor/prospecter/core/src/Reporting/Application/RebuildFigures/RebuildFiguresHandler.php'
+        exclude:
+            - '../vendor/prospecter/core/src/Reporting/Application/RebuildFigures/RebuildFiguresHandler.php'
+            - '../vendor/prospecter/core/src/Campaigns/Application/RebuildTags/RebuildTagsHandler.php'
     # its steps commit their own units (ADR 0103): called by app:reporting:rebuild, out of the command bus
     Prospecter\Core\Reporting\Application\RebuildFigures\RebuildFiguresHandler:
+        autoconfigure: false
+    # each fact commits its own unit (ADR 0141): called by app:tags:rebuild, out of the command bus
+    Prospecter\Core\Campaigns\Application\RebuildTags\RebuildTagsHandler:
         autoconfigure: false
 
     # Services of the hexagon, injected in its handlers (ADR 0044)
@@ -70,6 +75,7 @@ services:
     Prospecter\Core\Connectors\Application\CalendarPusher: ~
     Prospecter\Core\Prospecting\Application\PublishedHeldExchanges: ~
     Prospecter\Core\Campaigns\Domain\Service\TaggableHolders: ~
+    Prospecter\Core\Campaigns\Application\FactRecorder: ~
 
     # DynamoDB (ADR 0048): MiniStack locally (DYNAMODB_ENDPOINT), AWS in production (DYNAMODB_ENDPOINT empty);
     # one table per bounded context, injected by name in its repositories only (Table $prospectingTable)
@@ -175,6 +181,14 @@ services:
     Prospecter\Core\Campaigns\Domain\Port\Taggers: '@App\Campaigns\AntiCorruption\AccountsTaggers'
     Prospecter\Core\Campaigns\Domain\Port\TaggableOrganizations: '@App\Campaigns\AntiCorruption\ProspectingTaggableOrganizations'
     Prospecter\Core\Campaigns\Domain\Port\TaggableContacts: '@App\Campaigns\AntiCorruption\PersonalDataTaggableContacts'
+    Prospecter\Core\Campaigns\Domain\Repository\FactRepository: '@App\Campaigns\Persistence\DynamoFactRepository'
+    Prospecter\Core\Campaigns\Application\Port\ContactTagsRetriever: '@App\Campaigns\Persistence\DynamoContactTagsRetriever'
+    Prospecter\Core\Campaigns\Domain\Port\TaggedAccounts: '@App\Campaigns\AntiCorruption\AccountsTaggedAccounts'
+    Prospecter\Core\Campaigns\Domain\Port\OrganizationsAndTheirContacts: '@App\Campaigns\AntiCorruption\ProspectingOrganizationsAndTheirContacts'
+    Prospecter\Core\Campaigns\Domain\Port\ContactsReach: '@App\Campaigns\AntiCorruption\PersonalDataContactsReach'
+    # the moment a terminal fact is forgotten at counted from now, the real one
+    App\Campaigns\Persistence\DynamoFactRepository:
+        arguments: { $clock: '@app.commit_clock' }
     Prospecter\Core\Prospecting\Domain\Port\Prospectors: '@App\Prospecting\AntiCorruption\AccountsProspectors'
     Prospecter\Core\Prospecting\Domain\Port\KnownContacts: '@App\Prospecting\AntiCorruption\PersonalDataKnownContacts'
     Prospecter\Core\PersonalData\Domain\Port\ProspectedOrganizations: '@App\PersonalData\AntiCorruption\ProspectingOrganizations'

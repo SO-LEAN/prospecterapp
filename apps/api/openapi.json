@@ -5261,7 +5261,7 @@
                 "tags": [
                     "Tags"
                 ],
-                "summary": "The tags put by hand on the contact",
+                "summary": "The tags of the contact: put on it by hand, inherited from its organizations, set from how it is reached",
                 "operationId": "get_api_contacts_tags",
                 "parameters": [
                     {
@@ -5280,7 +5280,7 @@
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "$ref": "#/components/schemas/TagsResource"
+                                    "$ref": "#/components/schemas/ContactTagsResource"
                                 }
                             }
                         }
@@ -5343,7 +5343,7 @@
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "$ref": "#/components/schemas/TagsResource"
+                                    "$ref": "#/components/schemas/ContactTagsResource"
                                 }
                             }
                         }
@@ -5578,7 +5578,7 @@
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "$ref": "#/components/schemas/TagsResource"
+                                    "$ref": "#/components/schemas/ContactTagsResource"
                                 }
                             }
                         }
@@ -7345,6 +7345,7 @@
                     "contactDetails",
                     "masked",
                     "organizations",
+                    "tags",
                     "contact"
                 ],
                 "properties": {
@@ -7368,6 +7369,14 @@
                         "type": "array",
                         "items": {
                             "$ref": "#/components/schemas/OrganizationOfContactResource"
+                        }
+                    },
+                    "tags": {
+                        "description": "Every tag it carries, its own, inherited and automatic, in the order of their names",
+                        "type": "array",
+                        "items": {
+                            "type": "string",
+                            "example": "#ESN"
                         }
                     },
                     "contact": {
@@ -8461,6 +8470,28 @@
                 },
                 "type": "object"
             },
+            "InheritedTagResource": {
+                "required": [
+                    "name",
+                    "from"
+                ],
+                "properties": {
+                    "name": {
+                        "description": "Written with its mark",
+                        "type": "string",
+                        "example": "#ESN"
+                    },
+                    "from": {
+                        "description": "The organizations it comes from, in the order of their identities",
+                        "type": "array",
+                        "items": {
+                            "type": "string",
+                            "format": "uuid"
+                        }
+                    }
+                },
+                "type": "object"
+            },
             "TagsLinksResource": {
                 "required": [
                     "self",
@@ -8472,6 +8503,42 @@
                     },
                     "tag": {
                         "$ref": "#/components/schemas/LinkResource"
+                    }
+                },
+                "type": "object"
+            },
+            "ContactTagsResource": {
+                "required": [
+                    "tags",
+                    "inherited",
+                    "automatic",
+                    "_links"
+                ],
+                "properties": {
+                    "tags": {
+                        "description": "Put on the contact by hand",
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/TagResource"
+                        }
+                    },
+                    "inherited": {
+                        "description": "Put by hand on organizations naming the contact, its own left out",
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/InheritedTagResource"
+                        }
+                    },
+                    "automatic": {
+                        "description": "Set from how the contact is reached: #EMAIL, #PHONE, #SMS for a mobile, #LINKEDIN",
+                        "type": "array",
+                        "items": {
+                            "type": "string",
+                            "example": "#EMAIL"
+                        }
+                    },
+                    "_links": {
+                        "$ref": "#/components/schemas/TagsLinksResource"
                     }
                 },
                 "type": "object"

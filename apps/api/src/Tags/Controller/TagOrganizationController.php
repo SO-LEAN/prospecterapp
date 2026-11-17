@@ -46,6 +46,6 @@ final class TagOrganizationController extends AbstractController
     {
         $this->commandBus->dispatch(new PutTags($user->memberId(), TagRoutes::Organization->value, $organization->id, $input->tags, $this->clock->now()));
 
-        return $this->json($this->tagsReader->read($user->memberId(), TagRoutes::Organization, $organization->id));
+        return $this->json($this->tagsReader->read($user->memberId(), $organization->id));
     }
 }

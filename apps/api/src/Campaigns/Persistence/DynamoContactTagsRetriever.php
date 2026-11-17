@@ -1,0 +1,88 @@
+<?php
+
+namespace App\Campaigns\Persistence;
+
+use App\Shared\Persistence\Table;
+use Prospecter\Core\Campaigns\Application\Port\ContactTagSources;
+use Prospecter\Core\Campaigns\Application\Port\ContactTagsRetriever;
+use Prospecter\Core\Campaigns\Domain\Model\HolderKind;
+use Prospecter\Core\SharedKernel\Domain\AccountId;
+use Prospecter\Core\SharedKernel\Domain\PersonId;
+
+/**
+ * What the tags of contacts derive from, read from the items of `DynamoFactRepository` and `DynamoTaggingRepository`
+ * without restoring them (ADR 0088, 0141), by the keys of each contact, never the whole partition: its fact and its
+ * links (a `Query` of their range), then the taggings of the contacts and of the organizations their links name (one
+ * `BatchGetItem`).
+ */
+final readonly class DynamoContactTagsRetriever implements ContactTagsRetriever
+{
+    public function __construct(private Table $campaignsTable)
+    {
+    }
+
+    /**
+     * @param list<PersonId> $contacts
+     */
+    public function sourcesOf(AccountId $accountId, array $contacts): array
+    {
+        $account = CampaignsKeys::account($accountId->value);
+        $factsAndLinks = array_map(fn (PersonId $contact): array => $this->campaignsTable->queryBetween($account, null, ...CampaignsKeys::factAndLinksOf($contact->value)), $contacts);
+        $organizations = array_values(array_unique(array_merge([], ...array_map(self::organizationsLinked(...), $factsAndLinks))));
+        $tags = $this->tagsOf($account, $contacts, $organizations);
+
+        return array_map(
+            static fn (PersonId $contact, array $items): ContactTagSources => new ContactTagSources(
+                $contact->value,
+                $tags[HolderKind::Contact->value][$contact->value] ?? [],
+                array_map(static fn (string $organization): array => $tags[HolderKind::Organization->value][$organization] ?? [], array_combine(self::organizationsLinked($items), self::organizationsLinked($items))),
+                self::reachOf($contact, $items),
+            ),
+            $contacts,
+            $factsAndLinks,
+        );
+    }
+
+    /**
+     * @param list<array<string, mixed>> $items the fact of a contact and its links
+     *
+     * @return list<string>
+     */
+    private static function organizationsLinked(array $items): array
+    {
+        return array_column($items, 'organization');
+    }
+
+    /**
+     * @param list<array<string, mixed>> $items
+     *
+     * @return array{email: bool, phone: bool, mobile: bool, linkedIn: bool}|null
+     */
+    private static function reachOf(PersonId $contact, array $items): ?array
+    {
+        $fact = array_find($items, static fn (array $item): bool => CampaignsKeys::contactFact($contact->value) === $item['SK']);
+
+        return null === $fact ? null : ['email' => (bool) $fact['hasEmail'], 'phone' => (bool) $fact['hasPhone'], 'mobile' => (bool) $fact['hasMobile'], 'linkedIn' => (bool) $fact['hasLinkedIn']];
+    }
+
+    /**
+     * @param list<PersonId> $contacts
+     * @param list<string>   $organizations
+     *
+     * @return array<string, array<string, list<string>>> the names of the tags put by hand, by kind of holder then by its identity
+     */
+    private function tagsOf(string $account, array $contacts, array $organizations): array
+    {
+        $keys = [
+            ...array_map(static fn (PersonId $contact): array => [$account, CampaignsKeys::tagging(HolderKind::Contact->value, $contact->value)], $contacts),
+            ...array_map(static fn (string $organization): array => [$account, CampaignsKeys::tagging(HolderKind::Organization->value, $organization)], $organizations),
+        ];
+        $tags = [];
+
+        foreach ($this->campaignsTable->items($keys) as $item) {
+            $tags[$item['tagging']['holder']][$item['tagging']['holderId']] = $item['tagging']['tags'];
+        }
+
+        return $tags;
+    }
+}

@@ -43,6 +43,6 @@ final class TakeOrganizationTagOffController extends AbstractController
     {
         $this->commandBus->dispatch(new TakeOffTag($user->memberId(), TagRoutes::Organization->value, $organization->id, $tag, $this->clock->now()));
 
-        return $this->json($this->tagsReader->read($user->memberId(), TagRoutes::Organization, $organization->id));
+        return $this->json($this->tagsReader->read($user->memberId(), $organization->id));
     }
 }

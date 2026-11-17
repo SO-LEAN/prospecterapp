@@ -10,9 +10,8 @@ use Tests\App\Base\ApiTestCase;
 
 /**
  * `app:tags:rebuild` records again the facts the tags of the contacts derive from, as Prospecting and PersonalData give
- * them, for every account or one (ADR 0141); it writes only the table of Campaigns. The demonstration is written
- * without its facts: SOLEAN IT prospects Babbage & Co, whose contact Ada has an e-mail, a landline and a LinkedIn
- * profile.
+ * them, for every account or one (ADR 0141); it writes only the table of Campaigns. The demonstration, its facts lost
+ * first: SOLEAN IT prospects Babbage & Co, whose contact Ada has an e-mail, a landline and a LinkedIn profile.
  */
 class RebuildTagsCommandTest extends ApiTestCase
 {
@@ -26,6 +25,7 @@ class RebuildTagsCommandTest extends ApiTestCase
     {
         [$babbage, $ada] = $this->babbageAndAda();
         $this->requestJson('POST', '/api/organizations/'.$babbage.'/tags', ['tags' => ['#ESN']]);
+        $this->loseTheFacts();
         $this->assertSame([], $this->requestJson('GET', '/api/contacts/'.$ada.'/tags')['inherited']);
 
         $this->assertStringContainsString('rebuilt for 1 account(s)', $this->rebuild());
@@ -38,6 +38,7 @@ class RebuildTagsCommandTest extends ApiTestCase
     public function testTheRebuildOfOneAccount(): void
     {
         [, $ada] = $this->babbageAndAda();
+        $this->loseTheFacts();
 
         $this->assertStringContainsString('rebuilt for 1 account(s)', $this->rebuild(['--account' => DemoData::SOLEAN_IT]));
 
@@ -73,6 +74,14 @@ class RebuildTagsCommandTest extends ApiTestCase
         $ada = $this->requestJson('GET', '/api/contacts?q=Lovelace')['items'][0];
 
         return [$ada['organizations'][0]['id'], $ada['id']];
+    }
+
+    private function loseTheFacts(): void
+    {
+        $table = self::getContainer()->get('app.table.campaigns');
+        $this->assertInstanceOf(Table::class, $table);
+        $facts = array_filter($table->scan('ACCOUNT#'), static fn (array $item): bool => str_starts_with($item['SK'], 'FACT#'));
+        $table->batch([], array_values(array_map(static fn (array $item): array => [$item['PK'], $item['SK']], $facts)));
     }
 
     /**

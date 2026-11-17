@@ -95,7 +95,15 @@ final readonly class ContextTables
      */
     public function contactsOf(string $accountId): array
     {
-        return array_map(static fn (array $item): string => $item['person']['id'], $this->personalDataTable->query(PersonalDataKeys::contactsOf($accountId), Table::BY_GSI1));
+        return array_column($this->contactDocumentsOf($accountId), 'id');
+    }
+
+    /**
+     * @return list<array<string, mixed>> the documents of the persons the account keeps for its prospecting
+     */
+    public function contactDocumentsOf(string $accountId): array
+    {
+        return array_map(static fn (array $item): array => $item['person'], $this->personalDataTable->query(PersonalDataKeys::contactsOf($accountId), Table::BY_GSI1));
     }
 
     public function countContactsOf(string $accountId): int
@@ -121,7 +129,35 @@ final readonly class ContextTables
      */
     public function taggingsOf(string $accountId): array
     {
-        return array_map(static fn (array $item): array => $item['tagging'], $this->campaignsTable->query(CampaignsKeys::account($accountId)));
+        return array_map(static fn (array $item): array => $item['tagging'], $this->campaignsTable->queryBetween(CampaignsKeys::account($accountId), null, ...CampaignsKeys::taggings()));
+    }
+
+    /**
+     * @return array<string, list<string>> the contacts each organization names, by its id, as the facts Campaigns keeps
+     *                                     of those still present say (ADR 0141)
+     */
+    public function organizationFactsOf(string $accountId): array
+    {
+        $facts = array_filter($this->campaignsTable->queryBetween(CampaignsKeys::account($accountId), null, ...CampaignsKeys::organizationFacts()), static fn (array $item): bool => $item['present']);
+
+        return array_combine(array_map(static fn (array $item): string => substr($item['SK'], strlen(CampaignsKeys::organizationFact(''))), $facts), array_column($facts, 'contacts'));
+    }
+
+    /**
+     * @return array<string, array{hasEmail: bool, hasPhone: bool, hasMobile: bool, hasLinkedIn: bool}> how each contact
+     *                                                                                                  is reached, by its id, as the facts Campaigns keeps of those still present say, their links left out
+     */
+    public function contactFactsOf(string $accountId): array
+    {
+        $reaches = [];
+
+        foreach ($this->campaignsTable->queryBetween(CampaignsKeys::account($accountId), null, ...CampaignsKeys::contactFacts()) as $item) {
+            if (array_key_exists('hasEmail', $item) && $item['present']) {
+                $reaches[substr($item['SK'], strlen(CampaignsKeys::contactFact('')))] = ['hasEmail' => $item['hasEmail'], 'hasPhone' => $item['hasPhone'], 'hasMobile' => $item['hasMobile'], 'hasLinkedIn' => $item['hasLinkedIn']];
+            }
+        }
+
+        return $reaches;
     }
 
     /**

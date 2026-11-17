@@ -29,7 +29,7 @@ final readonly class DynamoTagsRetriever implements TagsRetriever
 
     public function carriedIn(AccountId $accountId): array
     {
-        $taggings = array_column($this->campaignsTable->query(CampaignsKeys::account($accountId->value)), 'tagging');
+        $taggings = array_column($this->campaignsTable->queryBetween(CampaignsKeys::account($accountId->value), null, ...CampaignsKeys::taggings()), 'tagging');
 
         return array_values(array_unique(self::marked(array_merge([], ...array_column($taggings, 'tags')))));
     }

@@ -20,8 +20,9 @@ final readonly class ContactInListResourceFactory
 
     /**
      * @param list<OrganizationOfContactResource> $organizations
+     * @param list<string>                        $tags
      */
-    public function create(PersonCard $contact, array $organizations): ContactInListResource
+    public function create(PersonCard $contact, array $organizations, array $tags): ContactInListResource
     {
         return new ContactInListResource(
             id: $contact->id,
@@ -30,6 +31,7 @@ final readonly class ContactInListResourceFactory
             contactDetails: PersonContactDetailsResource::of($contact),
             masked: $contact->masked,
             organizations: $organizations,
+            tags: $tags,
             contact: $this->links->to('api_contacts_show', ['id' => $contact->id]),
         );
     }

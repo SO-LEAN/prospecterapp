@@ -7,7 +7,7 @@ vendor: ## Install the Composer dependencies of the API
 	@echo "API/Installing Composer dependencies..."
 	@$(PHP) make composer-install
 
-db: ministack ## Recreate in MiniStack the tables and the user pool, with the demo data (destroys local data), the queues of the failures emptied, the relay of the outbox on their new streams, the figures counted
+db: ministack ## Recreate in MiniStack the tables and the user pool, with the demo data (destroys local data), the queues of the failures emptied, the relay of the outbox on their new streams, the tags of the contacts rebuilt, the figures counted
 	@echo "API/Emptying the queues of the failures, whose messages are about the data recreated..."
 	@$(DC) --progress quiet run --rm --build lambda-deploy purge
 	@echo "API/Creating the DynamoDB table of each bounded context with the data of the demonstration..."
@@ -16,6 +16,8 @@ db: ministack ## Recreate in MiniStack the tables and the user pool, with the de
 	@$(PHP) bin/console app:user-pool:recreate --demo
 	@echo "API/Relaying the outbox of the new tables to the bus..."
 	@$(DC) --progress quiet run --rm --build lambda-deploy relay
+	@echo "API/Rebuilding the tags of the contacts of the demonstration..."
+	@$(PHP) bin/console app:tags:rebuild
 	@$(if $(filter later,$(FIGURES)),echo "API/The figures are counted later (FIGURES=later)",echo "API/Counting the figures of the demonstration..." && $(PHP) bin/console app:reporting:rebuild)
 
 # the tests recreate their tables and their user pool before each test: shared among a few processes, each with its own
