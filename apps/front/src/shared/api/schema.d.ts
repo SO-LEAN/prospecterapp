@@ -1218,6 +1218,60 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/campaigns/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** A campaign of my team, and what may be done with it */
+        get: operations["get_api_campaigns_show"];
+        put?: never;
+        post?: never;
+        /** Discard a draft campaign */
+        delete: operations["delete_api_campaigns_discard"];
+        options?: never;
+        head?: never;
+        /** Change the name, the channel, the tags and the message of a draft campaign */
+        patch: operations["patch_api_campaigns_revise"];
+        trace?: never;
+    };
+    "/api/campaigns": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** The campaigns of my team, the newest first, each with the contacts it targets counted */
+        get: operations["get_api_campaigns_list"];
+        put?: never;
+        /** Prepare a campaign of my team, as a draft */
+        post: operations["post_api_campaigns_prepare"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/campaigns/{id}/messages/{contactId}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** The message of a campaign as I send or say it to one of my contacts */
+        get: operations["get_api_campaigns_message"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
 }
 export type webhooks = Record<string, never>;
 export interface components {
@@ -1617,6 +1671,31 @@ export interface components {
              */
             tags: string[];
         };
+        CampaignInput: {
+            /** @default null */
+            name: string | null;
+            /**
+             * @description How each contact is contacted
+             * @default null
+             * @enum {string|null}
+             */
+            channel: "email" | "call" | "sms" | "linkedIn" | null;
+            /**
+             * @description The tags chosen, the tag of the channel counting with them in the 5 tags of the target
+             * @default null
+             */
+            tags: string[] | null;
+            /**
+             * @description The message reminded for each contact, its variables {prénom}, {nom}, {organisation} and {fonction}
+             * @default null
+             */
+            message: string | null;
+            /**
+             * @description The subject of an e-mail
+             * @default null
+             */
+            subject: string | null;
+        };
         PersonNameResource: {
             firstName?: string | null;
             lastName?: string | null;
@@ -1675,6 +1754,7 @@ export interface components {
             reviseMyOrganizationIdentity?: components["schemas"]["LinkResource"];
             changeMyOrganizationLogo?: components["schemas"]["LinkResource"];
             relocateMyOrganization?: components["schemas"]["LinkResource"];
+            campaigns?: components["schemas"]["LinkResource"];
         };
         AccountResource: {
             name: components["schemas"]["PersonNameResource"];
@@ -2327,6 +2407,45 @@ export interface components {
              *     ]
              */
             automatic: string[];
+        };
+        CampaignLinksResource: {
+            self: components["schemas"]["LinkResource"];
+            revise?: components["schemas"]["LinkResource"];
+            discard?: components["schemas"]["LinkResource"];
+            target?: components["schemas"]["LinkResource"];
+        };
+        CampaignResource: {
+            id: string;
+            name: string;
+            /** @enum {string} */
+            channel: "email" | "call" | "sms" | "linkedIn";
+            /** @description The tags chosen */
+            tags: string[];
+            /** @description The tags a contact carries to be targeted: those chosen and that of the channel */
+            targetedTags: string[];
+            /** @description The message, its variables {prénom}, {nom}, {organisation} and {fonction} not rendered */
+            message: string;
+            /** @description The subject of an e-mail */
+            subject?: string | null;
+            /** @enum {string} */
+            status: "draft";
+            author: components["schemas"]["AuthorResource"];
+            /** @description How many contacts it targets now */
+            targeted: number;
+            _links: components["schemas"]["CampaignLinksResource"];
+        };
+        CampaignListLinksResource: {
+            self: components["schemas"]["LinkResource"];
+            prepare: components["schemas"]["LinkResource"];
+        };
+        CampaignListResource: {
+            items: components["schemas"]["CampaignResource"][];
+            _links: components["schemas"]["CampaignListLinksResource"];
+        };
+        CampaignMessageResource: {
+            /** @description The subject of an e-mail */
+            subject?: string | null;
+            text: string;
         };
     };
     responses: never;
@@ -7165,6 +7284,309 @@ export interface operations {
                 };
             };
             /** @description Unknown organization, one of another account, or a tag it does not carry */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ProblemResource"];
+                };
+            };
+        };
+    };
+    get_api_campaigns_show: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description The campaign */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CampaignResource"];
+                };
+            };
+            /** @description Missing or invalid access token */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Not a prospector, or no right to manage personal data */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ProblemResource"];
+                };
+            };
+            /** @description Unknown campaign, or one of another account */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ProblemResource"];
+                };
+            };
+        };
+    };
+    delete_api_campaigns_discard: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Discarded */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Missing or invalid access token */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Not a prospector, or no right to manage personal data */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ProblemResource"];
+                };
+            };
+            /** @description Unknown campaign, or one of another account */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ProblemResource"];
+                };
+            };
+            /** @description No longer a draft */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ProblemResource"];
+                };
+            };
+        };
+    };
+    patch_api_campaigns_revise: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CampaignInput"];
+            };
+        };
+        responses: {
+            /** @description The revised campaign */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CampaignResource"];
+                };
+            };
+            /** @description Missing or invalid access token */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Not a prospector, or no right to manage personal data */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ProblemResource"];
+                };
+            };
+            /** @description Unknown campaign, or one of another account */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ProblemResource"];
+                };
+            };
+            /** @description No longer a draft */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ProblemResource"];
+                };
+            };
+            /** @description Without a name or too long, an unknown channel, no tag or more than five with that of the channel, a message too long, a subject for another channel than an e-mail */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ProblemResource"];
+                };
+            };
+        };
+    };
+    get_api_campaigns_list: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Every campaign of my team */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CampaignListResource"];
+                };
+            };
+            /** @description Missing or invalid access token */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Not a prospector, or no right to manage personal data */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ProblemResource"];
+                };
+            };
+        };
+    };
+    post_api_campaigns_prepare: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CampaignInput"];
+            };
+        };
+        responses: {
+            /** @description The draft prepared */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CampaignResource"];
+                };
+            };
+            /** @description Missing or invalid access token */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Not a prospector, or no right to manage personal data */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ProblemResource"];
+                };
+            };
+            /** @description Without a name or too long, an unknown channel, no tag or more than five with that of the channel, a message too long, a subject for another channel than an e-mail */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ProblemResource"];
+                };
+            };
+        };
+    };
+    get_api_campaigns_message: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+                contactId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description The message rendered for the contact */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CampaignMessageResource"];
+                };
+            };
+            /** @description Missing or invalid access token */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Not a prospector, or no right to manage personal data */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ProblemResource"];
+                };
+            };
+            /** @description Unknown campaign or contact, or one of another account */
             404: {
                 headers: {
                     [name: string]: unknown;

@@ -3,6 +3,7 @@
 namespace App\Me;
 
 use App\Me\Resource\AccountResource;
+use App\Security\IntentLinks;
 use App\Shared\ImageResourceFactory;
 use App\Shared\Links;
 use Prospecter\Core\Accounts\Application\ConsultMyAccount\ConsultMyAccount;
@@ -23,6 +24,7 @@ final readonly class MyAccountReader
         private QueryHandler $consultPerson,
         private ImageResourceFactory $images,
         private Links $links,
+        private IntentLinks $intentLinks,
     ) {
     }
 
@@ -30,7 +32,7 @@ final readonly class MyAccountReader
     {
         $account = new KeptAccount();
         ($this->consultMyAccount)(new ConsultMyAccount($me), $account);
-        $presenter = new AccountResourcePresenter($account->account, $this->images, $this->links);
+        $presenter = new AccountResourcePresenter($account->account, $this->images, $this->links, $this->intentLinks);
         ($this->consultPerson)(new ConsultPerson($me, $account->account->personId), $presenter);
 
         return $presenter->resource;

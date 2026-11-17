@@ -5,12 +5,14 @@ namespace App\Campaigns\Persistence;
 /**
  * The keys of the items of the table of Campaigns, written by the repository and read by the retriever (ADR 0088):
  * one format for both. The taggings of an account share its partition, read at once to propose its tags; beside
- * them, the facts the tags of its contacts derive from (ADR 0141), the fact of a contact followed by its links.
+ * them, the facts the tags of its contacts derive from (ADR 0141), the fact of a contact followed by its links, and
+ * its campaigns, read at once (ADR 0144).
  */
 final class CampaignsKeys
 {
     private const string ACCOUNT = 'ACCOUNT';
     private const string TAGGING = 'TAGGING';
+    private const string CAMPAIGN = 'CAMPAIGN';
     private const string ORGANIZATION = 'ORGANIZATION';
     private const string ORGANIZATION_FACT = 'FACT#ORGANIZATION';
     private const string CONTACT_FACT = 'FACT#CONTACT';
@@ -25,6 +27,19 @@ final class CampaignsKeys
     public static function tagging(string $kind, string $id): string
     {
         return self::TAGGING.'#'.$kind.'#'.$id;
+    }
+
+    public static function campaign(string $id): string
+    {
+        return self::CAMPAIGN.'#'.$id;
+    }
+
+    /**
+     * @return array{string, string} the first and the last sort keys of the campaigns
+     */
+    public static function campaigns(): array
+    {
+        return [self::CAMPAIGN.'#', self::CAMPAIGN.self::AFTER_EVERY_LINK];
     }
 
     public static function organizationFact(string $id): string

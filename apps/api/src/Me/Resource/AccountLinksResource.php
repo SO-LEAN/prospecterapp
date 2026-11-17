@@ -24,6 +24,8 @@ final readonly class AccountLinksResource
         public ?LinkResource $changeMyOrganizationLogo = null,
         #[OA\Property(nullable: false)]
         public ?LinkResource $relocateMyOrganization = null,
+        #[OA\Property(description: 'The campaigns of my team, with the right to manage personal data', nullable: false)]
+        public ?LinkResource $campaigns = null,
     ) {
     }
 }

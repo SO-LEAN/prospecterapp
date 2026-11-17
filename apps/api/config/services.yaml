@@ -76,6 +76,7 @@ services:
     Prospecter\Core\Prospecting\Application\PublishedHeldExchanges: ~
     Prospecter\Core\Campaigns\Domain\Service\TaggableHolders: ~
     Prospecter\Core\Campaigns\Application\FactRecorder: ~
+    Prospecter\Core\Campaigns\Application\CampaignTargets: ~
 
     # DynamoDB (ADR 0048): MiniStack locally (DYNAMODB_ENDPOINT), AWS in production (DYNAMODB_ENDPOINT empty);
     # one table per bounded context, injected by name in its repositories only (Table $prospectingTable)
@@ -122,6 +123,7 @@ services:
     Prospecter\Core\Prospecting\Contract\Service\ConsultHeldExchanges\ConsultHeldExchangesService: '@Prospecter\Core\Prospecting\Application\ConsultHeldExchanges\ConsultHeldExchangesHandler'
     Prospecter\Core\Prospecting\Contract\Service\ConsultHeldExchanges\ConsultPlannedExchangesService: '@Prospecter\Core\Prospecting\Application\ConsultPlannedExchanges\ConsultPlannedExchangesHandler'
     Prospecter\Core\PersonalData\Contract\Service\NameContacts\NameContactsService: '@Prospecter\Core\PersonalData\Application\NameContacts\NameContactsHandler'
+    Prospecter\Core\Prospecting\Contract\Service\NameOrganizationsOfContacts\NameOrganizationsOfContactsService: '@Prospecter\Core\Prospecting\Application\NameOrganizationsOfContacts\NameOrganizationsOfContactsHandler'
 
     # Ports of the core, implemented by the application
     Prospecter\Core\Accounts\Domain\Repository\AccountRepository: '@App\Accounts\Persistence\DynamoAccountRepository'
@@ -187,6 +189,10 @@ services:
     Prospecter\Core\Campaigns\Domain\Port\TaggedAccounts: '@App\Campaigns\AntiCorruption\AccountsTaggedAccounts'
     Prospecter\Core\Campaigns\Domain\Port\OrganizationsAndTheirContacts: '@App\Campaigns\AntiCorruption\ProspectingOrganizationsAndTheirContacts'
     Prospecter\Core\Campaigns\Domain\Port\ContactsReach: '@App\Campaigns\AntiCorruption\PersonalDataContactsReach'
+    Prospecter\Core\Campaigns\Domain\Repository\CampaignRepository: '@App\Campaigns\Persistence\DynamoCampaignRepository'
+    Prospecter\Core\Campaigns\Application\Port\CampaignSheetRetriever: '@App\Campaigns\Persistence\DynamoCampaignSheetRetriever'
+    Prospecter\Core\Campaigns\Domain\Port\Campaigners: '@App\Campaigns\AntiCorruption\AccountsCampaigners'
+    Prospecter\Core\Campaigns\Domain\Port\Addressees: '@App\Campaigns\AntiCorruption\PersonalDataAndProspectingAddressees'
     # the moment a terminal fact is forgotten at counted from now, the real one
     App\Campaigns\Persistence\DynamoFactRepository:
         arguments: { $clock: '@app.commit_clock' }
