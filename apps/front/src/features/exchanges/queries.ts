@@ -36,6 +36,7 @@ export const CHANNELS = [
   'sms',
   'email',
   'linkedIn',
+  'malt',
   'meeting',
   'videoCall',
   'other',

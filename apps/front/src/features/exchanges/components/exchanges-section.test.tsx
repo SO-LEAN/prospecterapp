@@ -84,7 +84,9 @@ describe('ExchangesSection', () => {
 
   it('shows a Malt message by its own label and icon', async () => {
     await renderTheSection({
-      items: [anExchange({ id: '0190a1c0-0000-7000-8000-000000000013', channel: 'malt', direction: 'outbound' })],
+      items: [
+        anExchange({ id: '0190a1c0-0000-7000-8000-000000000013', channel: 'malt', direction: 'outbound' }),
+      ],
       _links: { self: timelineLink, noteExchange: noteLink },
     })
 

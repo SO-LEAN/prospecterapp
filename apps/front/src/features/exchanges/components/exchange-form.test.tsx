@@ -49,7 +49,11 @@ describe('ExchangeForm', () => {
     await user.click(screen.getByLabelText('Envoyé'))
     await user.click(save())
 
-    expect(onSubmit).toHaveBeenCalledWith(expect.objectContaining({ channel: 'malt', direction: 'outbound' }), null, [])
+    expect(onSubmit).toHaveBeenCalledWith(
+      expect.objectContaining({ channel: 'malt', direction: 'outbound' }),
+      null,
+      [],
+    )
   })
 
   it('asks for the channel before sending', async () => {
