@@ -73,6 +73,34 @@ class GoogleCalendarTest extends TestCase
         $this->assertArrayNotHasKey('location', $body);
     }
 
+    public function testAVideoCallAskingALinkAsksGoogleForAMeetConferenceAndAnswersItsLink(): void
+    {
+        $link = $this->calendar(new JsonMockResponse(['hangoutLink' => 'https://meet.google.com/kpq-wxyz-abc']))->put(self::client(), new RefreshToken('a-token'), 'the-calendar', self::eventAskingALink());
+
+        $this->assertSame('https://meet.google.com/kpq-wxyz-abc', $link);
+        $this->assertSame([['PUT', self::eventUrl().'&conferenceDataVersion=1']], self::methodsAndUrls($this->calls));
+        $this->assertSame(['createRequest' => ['requestId' => self::EXCHANGE, 'conferenceSolutionKey' => ['type' => 'hangoutsMeet']]], $this->calls[0][2]['conferenceData'] ?? null);
+        $this->assertArrayNotHasKey('location', $this->calls[0][2] ?? []);
+    }
+
+    public function testAVideoCallAskingALinkGoogleDoesNotKnowIsCreatedWithItsConference(): void
+    {
+        $link = $this->calendar(new MockResponse('', ['http_code' => 404]), new JsonMockResponse(['hangoutLink' => 'https://meet.google.com/kpq-wxyz-abc']))->put(self::client(), new RefreshToken('a-token'), 'the-calendar', self::eventAskingALink());
+
+        $this->assertSame('https://meet.google.com/kpq-wxyz-abc', $link);
+        $this->assertSame(['POST', self::CALENDAR_URL.'/calendars/the-calendar/events?sendUpdates=none&conferenceDataVersion=1'], self::methodsAndUrls($this->calls)[1]);
+        $this->assertArrayHasKey('conferenceData', $this->calls[1][2] ?? []);
+    }
+
+    public function testAnEventAskingNoLinkLeavesTheConferenceOfGoogleAsItIsAndAnswersNone(): void
+    {
+        $link = $this->calendar(new JsonMockResponse(['hangoutLink' => 'https://meet.google.com/kpq-wxyz-abc']))->put(self::client(), new RefreshToken('a-token'), 'the-calendar', self::event());
+
+        $this->assertNull($link);
+        $this->assertSame([['PUT', self::eventUrl()]], self::methodsAndUrls($this->calls));
+        $this->assertArrayNotHasKey('conferenceData', $this->calls[0][2] ?? []);
+    }
+
     public function testAnEventGoogleDoesNotKnowIsCreatedWithItsId(): void
     {
         $this->calendar(new MockResponse('', ['http_code' => 404]), new JsonMockResponse([]))->put(self::client(), new RefreshToken('a-token'), 'the-calendar', self::event());
@@ -190,6 +218,11 @@ class GoogleCalendarTest extends TestCase
     private static function event(?int $reminder = null): CalendarEvent
     {
         return new CalendarEvent(new ExchangeId(self::EXCHANGE), Channel::VideoCall, new \DateTimeImmutable('2026-11-17 13:00 UTC'), new \DateTimeImmutable('2026-11-17 13:30 UTC'), 'https://meet.google.com/abc-defg-hij', new PersonId(self::CONTACT), 'Ada Lovelace', new OrganizationId(self::ORGANIZATION), 'ACME', $reminder);
+    }
+
+    private static function eventAskingALink(): CalendarEvent
+    {
+        return new CalendarEvent(new ExchangeId(self::EXCHANGE), Channel::VideoCall, new \DateTimeImmutable('2026-11-17 13:00 UTC'), new \DateTimeImmutable('2026-11-17 13:30 UTC'), null, new PersonId(self::CONTACT), 'Ada Lovelace', new OrganizationId(self::ORGANIZATION), 'ACME', null, createsALink: true);
     }
 
     private static function eventId(): string

@@ -43,6 +43,45 @@ class PushToGoogleApiTest extends ApiTestCase
         ]], array_map(self::described(...), $this->google()->events()));
     }
 
+    public function testAVideoCallPlannedAskingForALinkReceivesTheMeetLinkGoogleCreated(): void
+    {
+        $this->connectGoogle();
+
+        $planned = $this->plan($this->aContactOf($this->anOrganization('ACME'), 'Ada', 'Lovelace'), ['channel' => 'videoCall', 'occurredAt' => self::NEXT_TUESDAY, 'linkRequested' => true])['items'][0]['id'];
+
+        $this->assertResponseStatusCodeSame(201);
+        $event = $this->google()->events()[self::eventIdOf($planned)] ?? [];
+        $this->assertStringStartsWith('https://meet.google.com/', $event['hangoutLink'] ?? '');
+        $this->assertSame($event['hangoutLink'], $event['location'] ?? null);
+        $exchange = $this->requestJson('GET', '/api/exchanges/'.$planned);
+        $this->assertSame([$event['hangoutLink'], false], [$exchange['link'], $exchange['linkAwaited']]);
+    }
+
+    public function testAVideoCallPlannedFromTheOrganizationAskingForALinkReceivesItToo(): void
+    {
+        $this->connectGoogle();
+        $organization = $this->anOrganization('ACME');
+
+        $this->planWith($organization, ['exchange' => ['channel' => 'videoCall', 'occurredAt' => self::NEXT_TUESDAY, 'linkRequested' => true]]);
+
+        $this->assertStringStartsWith('https://meet.google.com/', array_values($this->google()->events())[0]['location'] ?? '');
+    }
+
+    public function testAVideoCallAskingForALinkAwaitsItWithoutAConnection(): void
+    {
+        $planned = $this->plan($this->aContactOf($this->anOrganization('ACME'), 'Ada', 'Lovelace'), ['channel' => 'videoCall', 'occurredAt' => self::NEXT_TUESDAY, 'linkRequested' => true])['items'][0]['id'];
+
+        $exchange = $this->requestJson('GET', '/api/exchanges/'.$planned);
+        $this->assertSame([null, true], [$exchange['link'], $exchange['linkAwaited']]);
+    }
+
+    public function testACallAskingForALinkIsRefused(): void
+    {
+        $this->plan($this->aContactOf($this->anOrganization('ACME'), 'Ada', 'Lovelace'), ['channel' => 'call', 'occurredAt' => self::NEXT_TUESDAY, 'linkRequested' => true]);
+
+        $this->assertResponseStatusCodeSame(422);
+    }
+
     public function testAnExchangeMovedIsMovedThenCancelledLeavesTheCalendar(): void
     {
         $this->connectGoogle();
