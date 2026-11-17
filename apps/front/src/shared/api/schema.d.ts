@@ -526,6 +526,23 @@ export interface paths {
         patch: operations["patch_api_contacts_rename"];
         trace?: never;
     };
+    "/api/tagged-contacts": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Search the contacts of my organization carrying every tag chosen, their own, inherited or automatic, counted */
+        get: operations["get_api_contacts_search_by_tags"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/me/calendar": {
         parameters: {
             query?: never;
@@ -1389,6 +1406,16 @@ export interface components {
              */
             personId: string | null;
         };
+        TaggedContactsQuery: {
+            /**
+             * @description The tags chosen, 1 to 5, by their names without their mark, separated by commas
+             * @default
+             * @example ESN,EMAIL
+             */
+            tags: string;
+            /** @default null */
+            after: string | null;
+        };
         ContactListQuery: {
             /** @default  */
             q: string;
@@ -1892,6 +1919,7 @@ export interface components {
             self: components["schemas"]["LinkResource"];
             search?: components["schemas"]["LinkResource"];
             next?: components["schemas"]["LinkResource"];
+            searchByTags?: components["schemas"]["LinkResource"];
         };
         ContactListResource: {
             items: components["schemas"]["ContactInListResource"][];
@@ -1923,6 +1951,19 @@ export interface components {
         CallerResource: {
             organizations: components["schemas"]["OrganizationResource"][];
             contacts: components["schemas"]["ContactInListResource"][];
+        };
+        TaggedContactListLinksResource: {
+            self: components["schemas"]["LinkResource"];
+            next?: components["schemas"]["LinkResource"];
+        };
+        TaggedContactListResource: {
+            items: components["schemas"]["ContactInListResource"][];
+            /**
+             * @description How many contacts carry every tag chosen, in all the slices
+             * @example 12
+             */
+            found: number;
+            _links: components["schemas"]["TaggedContactListLinksResource"];
         };
         AuthorResource: {
             name: components["schemas"]["PersonNameResource"];
@@ -2276,6 +2317,16 @@ export interface components {
              *     ]
              */
             own: string[];
+            /**
+             * @description The tags set by how a contact is reached, to search the contacts by, never put by hand
+             * @example [
+             *       "#EMAIL",
+             *       "#PHONE",
+             *       "#SMS",
+             *       "#LINKEDIN"
+             *     ]
+             */
+            automatic: string[];
         };
     };
     responses: never;
@@ -4495,6 +4546,58 @@ export interface operations {
                 };
             };
             /** @description Invalid name */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ProblemResource"];
+                };
+            };
+        };
+    };
+    get_api_contacts_search_by_tags: {
+        parameters: {
+            query?: {
+                /**
+                 * @description The tags chosen, 1 to 5, by their names without their mark, separated by commas
+                 * @example ESN,EMAIL
+                 */
+                tags?: string;
+                after?: string | null;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description A slice of contacts, most recent first, the next one at the link next */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["TaggedContactListResource"];
+                };
+            };
+            /** @description Missing or invalid access token */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Not a prospector */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ProblemResource"];
+                };
+            };
+            /** @description No tag, more than five, or one that makes no tag */
             422: {
                 headers: {
                     [name: string]: unknown;

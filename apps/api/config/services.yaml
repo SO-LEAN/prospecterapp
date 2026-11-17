@@ -183,6 +183,7 @@ services:
     Prospecter\Core\Campaigns\Domain\Port\TaggableContacts: '@App\Campaigns\AntiCorruption\PersonalDataTaggableContacts'
     Prospecter\Core\Campaigns\Domain\Repository\FactRepository: '@App\Campaigns\Persistence\DynamoFactRepository'
     Prospecter\Core\Campaigns\Application\Port\ContactTagsRetriever: '@App\Campaigns\Persistence\DynamoContactTagsRetriever'
+    Prospecter\Core\Campaigns\Application\Port\TaggedContactsRetriever: '@App\Campaigns\Persistence\DynamoTaggedContactsRetriever'
     Prospecter\Core\Campaigns\Domain\Port\TaggedAccounts: '@App\Campaigns\AntiCorruption\AccountsTaggedAccounts'
     Prospecter\Core\Campaigns\Domain\Port\OrganizationsAndTheirContacts: '@App\Campaigns\AntiCorruption\ProspectingOrganizationsAndTheirContacts'
     Prospecter\Core\Campaigns\Domain\Port\ContactsReach: '@App\Campaigns\AntiCorruption\PersonalDataContactsReach'

@@ -69,6 +69,7 @@ final class SearchContactsController extends AbstractController
             $this->links->to('api_contacts_search', array_filter(['q' => $query])),
             in_array('SearchByText', $page->possibleIntents, true) ? $this->links->to('api_contacts_search') : null,
             null === $page->next ? null : $this->links->to('api_contacts_search', array_filter(['q' => $query, 'after' => $page->next])),
+            $this->links->to('api_contacts_search_by_tags'),
         );
     }
 }
