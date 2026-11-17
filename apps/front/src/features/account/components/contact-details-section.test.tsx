@@ -42,6 +42,6 @@ describe('my contact details', () => {
 
     await user.click(screen.getByRole('button', { name: /^Modifier\s:\sCoordonnées$/ }))
 
-    expect(screen.getByLabelText(/^Profil LinkedIn/)).toHaveValue('')
+    expect(screen.getByLabelText(/^Profil LinkedIn\s?\(facultatif\)$/)).toHaveValue('')
   })
 })
