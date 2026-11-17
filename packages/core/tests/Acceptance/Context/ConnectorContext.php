@@ -20,6 +20,7 @@ use Prospecter\Core\Connectors\Domain\Model\ClientCredentials;
 use Prospecter\Core\Connectors\Domain\Model\Provider;
 use Prospecter\Core\SharedKernel\Domain\MemberId;
 use Tests\Core\Acceptance\Expect;
+use Tests\Core\Acceptance\Vocabulary;
 
 /**
  * The connections of the members to Google: the authorization asked, Google answering with a code, as the SPA
@@ -176,6 +177,17 @@ final class ConnectorContext implements Context
     public function myConnectionIsInState(string $state): void
     {
         Expect::same(self::STATES[$state], $this->myGoogleConnectionAsSeen()['state']);
+    }
+
+    #[Then('/^ma connexion Google est connectée depuis le (?<day>\S+) à (?<time>\S+)$/')]
+    public function myConnectionIsConnectedSince(string $day, string $time): void
+    {
+        $connection = $this->myGoogleConnection();
+
+        Expect::same(
+            ['state' => 'connected', 'since' => Vocabulary::frenchMoment(sprintf('%s à %s', $day, $time))->format(\DATE_ATOM)],
+            ['state' => $connection?->state, 'since' => $connection?->connectedAt->format(\DATE_ATOM)],
+        );
     }
 
     #[Then('ma connexion Google est au compte :account')]

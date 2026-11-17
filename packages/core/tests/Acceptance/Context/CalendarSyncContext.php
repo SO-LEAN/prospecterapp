@@ -12,8 +12,12 @@ use Prospecter\Core\Connectors\Application\ExchangeSync;
 use Prospecter\Core\Connectors\Application\MyConnection;
 use Prospecter\Core\Connectors\Application\RetryFailedPushes\RetryFailedPushes;
 use Prospecter\Core\Connectors\Application\RetryPush\RetryPush;
+use Prospecter\Core\Connectors\Domain\Event\CalendarToFill;
 use Prospecter\Core\Connectors\Domain\Model\CalendarEvent;
+use Prospecter\Core\Connectors\Domain\Model\Connection;
+use Prospecter\Core\Connectors\Domain\Model\Provider;
 use Prospecter\Core\Prospecting\Contract\Event\ExchangeFactsChanged;
+use Prospecter\Core\SharedKernel\Domain\MemberId;
 use Tests\Core\Acceptance\Expect;
 use Tests\Core\Acceptance\Vocabulary;
 
@@ -26,6 +30,30 @@ final class CalendarSyncContext implements Context
     use SharesTheScenario;
 
     private const array STATES = ['en attente' => 'pending', 'synchronisée' => 'synced', 'en échec' => 'failed'];
+
+    /** @var array{CalendarToFill, Connection}|null the push of my exchanges to come under way: what it fills, the connection it read */
+    private ?array $pushUnderWay = null;
+
+    #[Given('mes échanges à venir sont en cours de poussée')]
+    public function myUpcomingExchangesAreBeingPushed(): void
+    {
+        $filled = $this->application->events->published(CalendarToFill::class);
+        $connection = $this->application->connections->find(new MemberId($this->application->signedIn()), Provider::Google);
+        Expect::that([] !== $filled && null !== $connection, 'A connection whose calendar is to fill was expected');
+
+        $this->pushUnderWay = [array_last($filled), $connection];
+    }
+
+    /**
+     * The push under way writes what it did with the connection it read when it started.
+     */
+    #[When('la poussée de mes échanges à venir se termine')]
+    public function thePushOfMyUpcomingExchangesEnds(): void
+    {
+        [$filled, $connection] = $this->pushUnderWay ?? throw new \LogicException('No push of my exchanges to come is under way');
+        $this->application->connections->answerTheNextReadWith($connection);
+        $this->application->publishAgain($filled);
+    }
 
     #[Given('Google ne répond pas')]
     public function googleDoesNotAnswer(): void
