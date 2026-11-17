@@ -639,6 +639,7 @@ export const fr = {
       count_other: '{{count}} destinataires',
       status: { pending: 'À traiter', erased: 'Plus à traiter' },
       erased: 'Contact effacé',
+      emptied: 'Ses destinataires ont tous été effacés : la campagne ne démarre plus.',
       remove: 'Retirer {{name}}',
       removed: 'Destinataire retiré',
       add: 'Ajouter',
