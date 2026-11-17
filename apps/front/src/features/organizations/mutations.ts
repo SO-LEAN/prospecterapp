@@ -42,12 +42,25 @@ function useStoreChangedOrganization() {
 
 const formIntention = { meta: { silentValidation: true } }
 
+/**
+ * Where an organization is sets its geographic tags and those its contacts inherit (ADR 0142): the reactions to its
+ * creation or to its move record it.
+ */
+function readTheTagsOfWhereItIsAgain(queryClient: QueryClient) {
+  readAgainAfterTheReactions(queryClient, queryKeys.organizationTags, queryKeys.contactTags)
+}
+
 export function useStartProspecting() {
   const { t } = useTranslation()
+  const queryClient = useQueryClient()
+  const store = useStoreOrganization(({ name }) => t('organizations.start.started', { name }))
 
   return api.useMutation('post', '/api/organizations', {
     ...formIntention,
-    onSuccess: useStoreOrganization(({ name }) => t('organizations.start.started', { name })),
+    onSuccess: (organization) => {
+      store(organization)
+      readTheTagsOfWhereItIsAgain(queryClient)
+    },
   })
 }
 
@@ -65,10 +78,6 @@ export function useChangeContactDetails() {
   })
 }
 
-/**
- * The organization moves; the reactions to the gesture record where it is, which sets its geographic tags and those
- * its contacts inherit (ADR 0142).
- */
 export function useRelocate() {
   const queryClient = useQueryClient()
   const store = useStoreChangedOrganization()
@@ -77,7 +86,7 @@ export function useRelocate() {
     ...formIntention,
     onSuccess: (organization) => {
       store(organization)
-      readAgainAfterTheReactions(queryClient, queryKeys.organizationTags, queryKeys.contactTags)
+      readTheTagsOfWhereItIsAgain(queryClient)
     },
   })
 }
