@@ -6762,6 +6762,7 @@
                             "sms",
                             "email",
                             "linkedIn",
+                            "malt",
                             "meeting",
                             "videoCall",
                             "other"
@@ -6807,6 +6808,7 @@
                             "sms",
                             "email",
                             "linkedIn",
+                            "malt",
                             "meeting",
                             "videoCall",
                             "other"
@@ -7134,6 +7136,7 @@
                             "sms",
                             "email",
                             "linkedIn",
+                            "malt",
                             "meeting",
                             "videoCall",
                             "other"
@@ -8001,6 +8004,7 @@
                             "sms",
                             "email",
                             "linkedIn",
+                            "malt",
                             "meeting",
                             "videoCall",
                             "other"
@@ -9005,6 +9009,7 @@
                             "sms",
                             "email",
                             "linkedIn",
+                            "malt",
                             "meeting",
                             "videoCall",
                             "other"

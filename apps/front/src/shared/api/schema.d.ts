@@ -1452,7 +1452,7 @@ export interface components {
              * @default
              * @enum {string}
              */
-            channel: "call" | "sms" | "email" | "linkedIn" | "meeting" | "videoCall" | "other";
+            channel: "call" | "sms" | "email" | "linkedIn" | "malt" | "meeting" | "videoCall" | "other";
             /**
              * @default
              * @enum {string}
@@ -1478,7 +1478,7 @@ export interface components {
              * @default
              * @enum {string}
              */
-            channel: "call" | "sms" | "email" | "linkedIn" | "meeting" | "videoCall" | "other";
+            channel: "call" | "sms" | "email" | "linkedIn" | "malt" | "meeting" | "videoCall" | "other";
             /**
              * Format: date-time
              * @description When it is to happen; in the future
@@ -1655,7 +1655,7 @@ export interface components {
              * @default
              * @enum {string}
              */
-            channel: "call" | "sms" | "email" | "linkedIn" | "meeting" | "videoCall" | "other";
+            channel: "call" | "sms" | "email" | "linkedIn" | "malt" | "meeting" | "videoCall" | "other";
             /**
              * @default
              * @enum {string}
@@ -1994,7 +1994,7 @@ export interface components {
         ExchangeResource: {
             id: string;
             /** @enum {string} */
-            channel: "call" | "sms" | "email" | "linkedIn" | "meeting" | "videoCall" | "other";
+            channel: "call" | "sms" | "email" | "linkedIn" | "malt" | "meeting" | "videoCall" | "other";
             /**
              * @description inbound: the contact or the organization reached out; outbound: we did
              * @enum {string}
@@ -2288,7 +2288,7 @@ export interface components {
             id: string;
             interlocutor: components["schemas"]["InterlocutorResource"];
             /** @enum {string} */
-            channel: "call" | "sms" | "email" | "linkedIn" | "meeting" | "videoCall" | "other";
+            channel: "call" | "sms" | "email" | "linkedIn" | "malt" | "meeting" | "videoCall" | "other";
             /**
              * @description inbound: the contact or the organization reached out; outbound: we did
              * @enum {string}
