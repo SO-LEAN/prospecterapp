@@ -98,6 +98,7 @@ use Prospecter\Core\Connectors\Application\RemoveClient\RemoveClientHandler;
 use Prospecter\Core\Connectors\Application\RetryFailedPushes\RetryFailedPushesHandler;
 use Prospecter\Core\Connectors\Application\RetryPush\RetryPushHandler;
 use Prospecter\Core\Connectors\Application\UnnameForgottenContact\UnnameForgottenContactHandler;
+use Prospecter\Core\PersonalData\Application\ChangeCivility\ChangeCivilityHandler;
 use Prospecter\Core\PersonalData\Application\ChangeJobTitle\ChangeJobTitleHandler;
 use Prospecter\Core\PersonalData\Application\ChangePersonContactDetails\ChangePersonContactDetailsHandler;
 use Prospecter\Core\PersonalData\Application\ChangePersonPicture\ChangePersonPictureHandler;
@@ -1023,6 +1024,7 @@ final class Application
             new ChangeMyRemindersHandler($this->members, $this->events),
             new CollectContactHandler($this->persons, $this->readers, $this->prospectedOrganizations, $this->events, $this->personEmails),
             new ChangeJobTitleHandler($this->persons, $this->readers, $this->events),
+            new ChangeCivilityHandler($this->persons, $this->readers, $this->events),
             new ForgetContactHandler($this->persons, $this->readers, $this->events),
             new AddContactHandler($this->organizations, $this->knownContacts, $this->events),
             new RemoveContactHandler($this->organizations, $this->events, $this->orphans),

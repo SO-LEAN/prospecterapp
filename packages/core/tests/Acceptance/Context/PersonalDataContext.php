@@ -119,6 +119,7 @@ final class PersonalDataContext implements Context
             new PersonId($this->application->newIdentity()),
             new PersonName($firstName, $lastName),
             null,
+            null,
             $contactDetails,
             null,
             [$prospect->id()],
