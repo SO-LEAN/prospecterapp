@@ -9,6 +9,7 @@ use Prospecter\Core\Prospecting\Contract\Service\ListOrganizationFacts\Organizat
 use Prospecter\Core\Prospecting\Domain\Model\Organization;
 use Prospecter\Core\SharedKernel\Domain\AccountId;
 use Prospecter\Core\SharedKernel\Domain\OrganizationId;
+use Prospecter\Core\SharedKernel\Domain\PersonId;
 use Prospecter\Core\SharedKernel\Domain\SearchKeys;
 use Prospecter\Core\SharedKernel\Domain\Slice;
 
@@ -39,6 +40,14 @@ final readonly class InMemoryOrganizationFactsRetriever implements OrganizationF
 
     private function factsOf(Organization $organization): OrganizationFactsResponse
     {
-        return new OrganizationFactsResponse((string) $organization->id(), $this->database->revisionOf((string) $organization->id()), true, null !== StateOf::the($organization)['geoPoint']);
+        $state = StateOf::the($organization);
+
+        return new OrganizationFactsResponse(
+            (string) $organization->id(),
+            $this->database->revisionOf((string) $organization->id()),
+            true,
+            null !== $state['geoPoint'],
+            array_map(static fn (PersonId $contact): string => (string) $contact, $state['contacts']),
+        );
     }
 }

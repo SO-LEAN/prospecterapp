@@ -50,6 +50,25 @@ class PhoneNumberTest extends TestCase
         yield 'a French number missing a digit' => ['03 88 11 22 3'];
     }
 
+    #[DataProvider('kinds')]
+    public function testAMobileReceivesTextMessages(string $typed, bool $mobile): void
+    {
+        $this->assertSame($mobile, PhoneNumber::of($typed)->isMobile());
+    }
+
+    /**
+     * @return iterable<string, array{string, bool}>
+     */
+    public static function kinds(): iterable
+    {
+        yield 'French mobile, 06' => ['06 12 34 56 78', true];
+        yield 'French mobile, 07' => ['07 56 12 34 56', true];
+        yield 'French landline' => ['03 88 11 22 33', false];
+        yield 'French non-geographic' => ['09 72 12 34 56', false];
+        yield 'German mobile' => ['+49 151 23456789', true];
+        yield 'German landline' => ['+49 30 1234567', false];
+    }
+
     public function testNothingTypedIsNoNumber(): void
     {
         $this->assertNull(PhoneNumber::orNone(null));

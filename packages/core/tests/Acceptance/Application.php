@@ -28,15 +28,23 @@ use Prospecter\Core\Accounts\Contract\Service\ConsultMembers\KeptMembers;
 use Prospecter\Core\Accounts\Contract\Service\ConsultMembers\MemberResponse;
 use Prospecter\Core\Accounts\Contract\Service\ListAccounts\KeptAccounts;
 use Prospecter\Core\Accounts\Contract\Service\ListAccounts\ListAccounts;
+use Prospecter\Core\Campaigns\Application\ConsultContactTags\ConsultContactTags;
+use Prospecter\Core\Campaigns\Application\ConsultContactTags\ConsultContactTagsHandler;
+use Prospecter\Core\Campaigns\Application\ConsultContactTags\KeptContactTags;
+use Prospecter\Core\Campaigns\Application\ConsultOrganizationTags\ConsultOrganizationTags;
+use Prospecter\Core\Campaigns\Application\ConsultOrganizationTags\ConsultOrganizationTagsHandler;
+use Prospecter\Core\Campaigns\Application\ConsultOrganizationTags\KeptOrganizationTags;
 use Prospecter\Core\Campaigns\Application\ConsultSuggestedTags\ConsultSuggestedTags;
 use Prospecter\Core\Campaigns\Application\ConsultSuggestedTags\ConsultSuggestedTagsHandler;
 use Prospecter\Core\Campaigns\Application\ConsultSuggestedTags\KeptSuggestedTags;
-use Prospecter\Core\Campaigns\Application\ConsultTags\ConsultTags;
-use Prospecter\Core\Campaigns\Application\ConsultTags\ConsultTagsHandler;
-use Prospecter\Core\Campaigns\Application\ConsultTags\KeptTags;
+use Prospecter\Core\Campaigns\Application\FactRecorder as CampaignsFactRecorder;
 use Prospecter\Core\Campaigns\Application\ForgetTagsOfForgottenContact\ForgetTagsOfForgottenContactHandler;
 use Prospecter\Core\Campaigns\Application\ForgetTagsOfUnprospectedOrganization\ForgetTagsOfUnprospectedOrganizationHandler;
 use Prospecter\Core\Campaigns\Application\PutTags\PutTagsHandler;
+use Prospecter\Core\Campaigns\Application\RebuildTags\RebuildTags;
+use Prospecter\Core\Campaigns\Application\RebuildTags\RebuildTagsHandler;
+use Prospecter\Core\Campaigns\Application\RecordContactFacts\RecordContactFactsHandler as RecordContactFactsInCampaignsHandler;
+use Prospecter\Core\Campaigns\Application\RecordOrganizationFacts\RecordOrganizationFactsHandler as RecordOrganizationFactsInCampaignsHandler;
 use Prospecter\Core\Campaigns\Application\SuggestedTags;
 use Prospecter\Core\Campaigns\Application\TakeOffTag\TakeOffTagHandler;
 use Prospecter\Core\Campaigns\Domain\Service\TaggableHolders;
@@ -261,6 +269,7 @@ use Tests\Core\Double\AccountsMembers;
 use Tests\Core\Double\AccountsProspectors;
 use Tests\Core\Double\AccountsReaders;
 use Tests\Core\Double\AccountsSourceAccounts;
+use Tests\Core\Double\AccountsTaggedAccounts;
 use Tests\Core\Double\AccountsTaggers;
 use Tests\Core\Double\InMemoryAccountClientsRetriever;
 use Tests\Core\Double\InMemoryAccountListRetriever;
@@ -269,9 +278,11 @@ use Tests\Core\Double\InMemoryAgendaRetriever;
 use Tests\Core\Double\InMemoryAuthorizationRepository;
 use Tests\Core\Double\InMemoryCalendarEntryRepository;
 use Tests\Core\Double\InMemoryCalendarRetriever;
+use Tests\Core\Double\InMemoryCampaignsFactRepository;
 use Tests\Core\Double\InMemoryConnectionRepository;
 use Tests\Core\Double\InMemoryContactFactsRetriever;
 use Tests\Core\Double\InMemoryContactPageRetriever;
+use Tests\Core\Double\InMemoryContactTagsRetriever;
 use Tests\Core\Double\InMemoryDatabase;
 use Tests\Core\Double\InMemoryExchangeDetailRetriever;
 use Tests\Core\Double\InMemoryExchangeFactsRetriever;
@@ -306,12 +317,14 @@ use Tests\Core\Double\InMemoryUnitOfWork;
 use Tests\Core\Double\KnownPlacesGeoLocation;
 use Tests\Core\Double\NoRecordingsInFlight;
 use Tests\Core\Double\PersonalDataContactNames;
+use Tests\Core\Double\PersonalDataContactsReach;
 use Tests\Core\Double\PersonalDataFactsFromPersonalData;
 use Tests\Core\Double\PersonalDataKnownContacts;
 use Tests\Core\Double\PersonalDataTaggableContacts;
 use Tests\Core\Double\ProspectingFactsFromProspecting;
 use Tests\Core\Double\ProspectingHeldExchanges;
 use Tests\Core\Double\ProspectingOrganizations;
+use Tests\Core\Double\ProspectingOrganizationsAndTheirContacts;
 use Tests\Core\Double\ProspectingTaggableOrganizations;
 use Tests\Core\Double\SynchronousEvents;
 use Tests\Core\Double\TimeOrderedUuids;
@@ -393,6 +406,9 @@ final class Application
     private readonly InMemoryTagsRetriever $tagsRetriever;
     private readonly AccountsTaggers $taggers;
     private readonly TaggableHolders $taggableHolders;
+    public readonly InMemoryCampaignsFactRepository $campaignsFacts;
+    private readonly CampaignsFactRecorder $campaignsFactRecorder;
+    private readonly InMemoryContactTagsRetriever $contactTagsRetriever;
     /** @var array<class-string, CommandHandler> */
     private array $handlers = [];
     private ?string $signedIn = null;
@@ -474,6 +490,9 @@ final class Application
         $this->tagsRetriever = new InMemoryTagsRetriever($database);
         $this->taggers = new AccountsTaggers($this->consultMembersService);
         $this->taggableHolders = new TaggableHolders(new ProspectingTaggableOrganizations($this->whichAreProspectedService), new PersonalDataTaggableContacts($this->whichAreContactsService));
+        $this->campaignsFacts = new InMemoryCampaignsFactRepository($database);
+        $this->campaignsFactRecorder = new CampaignsFactRecorder($this->campaignsFacts);
+        $this->contactTagsRetriever = new InMemoryContactTagsRetriever($database);
 
         foreach ($this->translators() as $translator) {
             $this->events->translateWith($translator, calledThrough: new RefusalTranslatingEventHandler(new TransactionalEventHandler($translator, $this->unitOfWork)));
@@ -488,6 +507,13 @@ final class Application
         }
 
         $this->handlers[RebuildFigures::class] = new RefusalTranslatingCommandHandler($this->rebuildFigures());
+        $this->handlers[RebuildTags::class] = new RefusalTranslatingCommandHandler(new RebuildTagsHandler(
+            new AccountsTaggedAccounts($this->listAccountsService),
+            new ProspectingOrganizationsAndTheirContacts($this->listOrganizationFactsService),
+            new PersonalDataContactsReach($this->listContactFactsService),
+            $this->campaignsFactRecorder,
+            $this->unitOfWork,
+        ));
     }
 
     /**
@@ -646,11 +672,18 @@ final class Application
     /**
      * @return list<string>|null
      */
-    public function consultTags(ConsultTags $query): ?array
+    public function consultOrganizationTags(ConsultOrganizationTags $query): ?array
     {
-        $kept = new KeptTags();
+        $kept = new KeptOrganizationTags();
 
-        return $this->ask(new ConsultTagsHandler($this->tagsRetriever, $this->taggers, $this->taggableHolders), $query, $kept) ? $kept->tags : null;
+        return $this->ask(new ConsultOrganizationTagsHandler($this->tagsRetriever, $this->taggers, $this->taggableHolders), $query, $kept) ? $kept->tags : null;
+    }
+
+    public function consultContactTags(ConsultContactTags $query): ?KeptContactTags
+    {
+        $kept = new KeptContactTags();
+
+        return $this->ask(new ConsultContactTagsHandler($this->contactTagsRetriever, $this->taggers, $this->taggableHolders), $query, $kept) ? $kept : null;
     }
 
     public function consultSuggestedTags(ConsultSuggestedTags $query): ?SuggestedTags
@@ -1078,6 +1111,8 @@ final class Application
             new UnnameForgottenContactHandler($this->heldExchanges, $this->calendarEntries, $this->calendarPusher),
             new ForgetTagsOfUnprospectedOrganizationHandler($this->taggings),
             new ForgetTagsOfForgottenContactHandler($this->taggings),
+            new RecordOrganizationFactsInCampaignsHandler($this->campaignsFactRecorder),
+            new RecordContactFactsInCampaignsHandler($this->campaignsFactRecorder),
         ];
     }
 

@@ -6,6 +6,7 @@ namespace Prospecter\Core\SharedKernel\Domain;
 
 use libphonenumber\NumberParseException;
 use libphonenumber\PhoneNumberFormat;
+use libphonenumber\PhoneNumberType;
 use libphonenumber\PhoneNumberUtil;
 use Prospecter\Core\SharedKernel\Domain\Exception\InvalidPhoneNumber;
 
@@ -58,6 +59,21 @@ final readonly class PhoneNumber implements \Stringable
             return $numbers->format($numbers->parse($this->value, self::DIALED_FROM), PhoneNumberFormat::INTERNATIONAL);
         } catch (NumberParseException) {
             return $this->value;
+        }
+    }
+
+    /**
+     * A mobile receives text messages; a number kept before the numbers were checked is none.
+     */
+    #[\NoDiscard]
+    public function isMobile(): bool
+    {
+        $numbers = PhoneNumberUtil::getInstance();
+
+        try {
+            return PhoneNumberType::MOBILE === $numbers->getNumberType($numbers->parse($this->value, self::DIALED_FROM));
+        } catch (NumberParseException) {
+            return false;
         }
     }
 

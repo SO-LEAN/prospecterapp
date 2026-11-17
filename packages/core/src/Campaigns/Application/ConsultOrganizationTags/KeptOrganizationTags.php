@@ -2,9 +2,9 @@
 
 declare(strict_types=1);
 
-namespace Prospecter\Core\Campaigns\Application\ConsultTags;
+namespace Prospecter\Core\Campaigns\Application\ConsultOrganizationTags;
 
-final class KeptTags implements ConsultTagsOutput
+final class KeptOrganizationTags implements ConsultOrganizationTagsOutput
 {
     /** @var list<string> */
     public private(set) array $tags = [];

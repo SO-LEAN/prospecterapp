@@ -126,7 +126,7 @@ final class ReportingContext implements Context
 
     private function factsOf(string $name, string $presence, string $location, int $revision): OrganizationFactsChanged
     {
-        return new OrganizationFactsChanged($this->scenario->meAsProspector()->accountId->value, $this->scenario->idOf($name), $revision, 'présente' === $presence, 'géolocalisée' === $location, $this->application->now());
+        return new OrganizationFactsChanged($this->scenario->meAsProspector()->accountId->value, $this->scenario->idOf($name), $revision, 'présente' === $presence, 'géolocalisée' === $location, [], $this->application->now());
     }
 
     private function aFactOfAnotherOrganization(): OrganizationFact
