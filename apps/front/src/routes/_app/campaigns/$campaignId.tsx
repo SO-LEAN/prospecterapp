@@ -4,7 +4,9 @@ import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { CampaignForm } from '@/features/campaigns/components/campaign-form'
 import { CampaignMenu } from '@/features/campaigns/components/campaign-menu'
+import { CampaignProgress } from '@/features/campaigns/components/campaign-progress'
 import { CampaignRecipients } from '@/features/campaigns/components/campaign-recipients'
+import { CampaignRun } from '@/features/campaigns/components/campaign-run'
 import { CampaignStatusBadge } from '@/features/campaigns/components/campaign-status-badge'
 import { CampaignSummary } from '@/features/campaigns/components/campaign-summary'
 import { CampaignTarget } from '@/features/campaigns/components/campaign-target'
@@ -26,7 +28,8 @@ import { PageSkeleton } from '@/shared/ui/page-skeleton'
 /**
  * A campaign: its form at the left, revised whole; at the right, while a draft, the contacts it targets as it is
  * typed, until it is frozen; frozen, its recipients changed by hand, its channel and its tags no longer; started,
- * nothing of it changes, read only; and the message saved rendered by the api for the contact hovered (ADR 0144).
+ * nothing of it changes, led recipient after recipient (ADR 0145), its progress in its header; stopped or ended, read
+ * only; and the message saved rendered by the api for the contact hovered (ADR 0144).
  */
 export const Route = createFileRoute('/_app/campaigns/$campaignId')({
   params: uuidParams('campaignId'),
@@ -57,7 +60,12 @@ function CampaignPage() {
       <BackButton fallback="/campaigns" />
       <PageHeader
         title={campaign.name}
-        description={<CampaignStatusBadge status={campaign.status} />}
+        description={
+          <span className="flex items-center gap-3">
+            <CampaignStatusBadge status={campaign.status} />
+            {campaign.startedAt && <CampaignProgress campaign={campaign} />}
+          </span>
+        }
         actions={
           <div className="flex items-center gap-2">
             <FreezeCampaign campaign={campaign} />
@@ -134,6 +142,9 @@ function FrozenCampaign({ campaign }: { campaign: Campaign }) {
 }
 
 function StartedCampaign({ campaign }: { campaign: Campaign }) {
+  if (campaign.status === 'started') {
+    return <CampaignRun campaign={campaign} />
+  }
   return (
     <div className="grid gap-6 lg:grid-cols-2">
       <CampaignSummary campaign={campaign} />

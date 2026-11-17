@@ -10,6 +10,7 @@ import {
   Handshake,
   type LucideIcon,
   Mail,
+  Megaphone,
   MessageCircle,
   MessageSquareText,
   Paperclip,
@@ -79,6 +80,7 @@ export function ExchangeLine({
       )}
       {exchange.toMakeConform && !exchange.textToMakeConform && <ToMakeConform />}
       {exchange.attachmentCount > 0 && <AttachmentCount count={exchange.attachmentCount} />}
+      {exchange.campaign?.name && <CampaignOfTheExchange name={exchange.campaign.name} />}
     </ExchangeSummary>
   )
 }
@@ -222,6 +224,16 @@ function ToMakeConform() {
   const { t } = useTranslation()
 
   return <PersonalDataWarning warning={t('exchanges.toMakeConform')} />
+}
+
+/** The campaign it was noted in, as Campaigns names it now (ADR 0145). */
+function CampaignOfTheExchange({ name }: { name: string }) {
+  return (
+    <p className="mt-1 flex items-center gap-1 text-muted-foreground text-xs">
+      <Megaphone aria-hidden className="size-3.5" />
+      {name}
+    </p>
+  )
 }
 
 function AttachmentCount({ count }: { count: number }) {
