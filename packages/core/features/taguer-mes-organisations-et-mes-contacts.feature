@@ -67,6 +67,10 @@ Fonctionnalité: Taguer mes organisations et mes contacts
       | technos                | #PHP #SYMFONY #LARAVEL #JAVASCRIPT #TYPESCRIPT #REACT #VUE #ANGULAR #NODE #JAVA #DOTNET #PYTHON #GO #AWS #AZURE #GCP #DOCKER #KUBERNETES #DEVOPS #DATA #IA |
       | mes tags               |                                                                                                                                                   |
 
+  Scénario: Les tags automatiques de comment joindre un contact sont proposés à part, pour chercher mes contacts
+    Alors les tags automatiques proposés de mon compte sont "#EMAIL #PHONE #SMS #LINKEDIN"
+    Et "#EMAIL" ne fait pas partie des tags proposés de mon compte
+
   Scénario: Un tag prédéfini posé n'est pas proposé une seconde fois parmi les miens
     Soit "ACME" est tagué "#ESN"
     Et "Ada Lovelace" est tagué "#SALON_2026"
