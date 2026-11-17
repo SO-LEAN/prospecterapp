@@ -8,6 +8,7 @@ use Behat\Behat\Context\Context;
 use Behat\Step\Then;
 use Prospecter\Core\Prospecting\Contract\Event\ExchangeFactsChanged;
 use Prospecter\Core\Prospecting\Contract\Event\OrganizationFactsChanged;
+use Prospecter\Core\SharedKernel\Domain\PersonId;
 use Tests\Core\Acceptance\Expect;
 use Tests\Core\Acceptance\Vocabulary;
 
@@ -33,6 +34,16 @@ final class ProspectingFactsContext implements Context
             ['present' => 'présente' === $presence, 'located' => 'géolocalisée' === $location, 'revision' => $revision, 'accountId' => $this->scenario->meAsProspector()->accountId->value],
             ['present' => $last->present, 'located' => $last->located, 'revision' => $last->revision, 'accountId' => $last->accountId],
         );
+    }
+
+    #[Then('les contacts publiés de :name sont :contacts')]
+    public function theContactsPublishedOf(string $name, string $contacts): void
+    {
+        $organizationId = $this->scenario->idOf($name);
+        $last = array_last(array_filter($this->application->events->published(OrganizationFactsChanged::class), static fn (OrganizationFactsChanged $facts): bool => $facts->organizationId === $organizationId));
+
+        Expect::that(null !== $last, sprintf('No facts of "%s" were published', $name));
+        Expect::same($contacts, implode(', ', array_map(fn (string $id): string => $this->scenario->nameOfPerson(new PersonId($id)), $last->contacts ?? [])));
     }
 
     #[Then('/^le fait publié de cet échange est présent, (?<status>planifié|fait|manqué|annulé), noté le "(?<moment>[^"]+)", révision (?<revision>\d+)$/')]

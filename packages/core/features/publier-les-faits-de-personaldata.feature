@@ -39,3 +39,24 @@ Fonctionnalité: Publier les faits de PersonalData
     Soit le contact "Ada Lovelace" de "ACME"
     Quand j'arrête de prospecter "ACME"
     Alors le fait publié du contact "Ada Lovelace" est absent, révision 0
+
+  Plan du scénario: Un contact publie comment le joindre, jamais ses coordonnées
+    Soit le contact "Ada Lovelace" de "ACME"
+    Quand je change les coordonnées de "Ada Lovelace" :
+      | e-mail    | <e-mail>    |
+      | téléphone | <téléphone> |
+      | LinkedIn  | <LinkedIn>  |
+    Alors le fait publié du contact "Ada Lovelace" le dit joignable par "<joignable par>"
+
+    Exemples:
+      | e-mail        | téléphone      | LinkedIn                                 | joignable par     |
+      | ada@acme.test |                |                                          | e-mail            |
+      |               | 03 88 11 22 33 |                                          | téléphone         |
+      |               | 06 12 34 56 78 |                                          | téléphone, mobile |
+      |               |                | https://www.linkedin.com/in/ada-lovelace | LinkedIn          |
+      |               |                |                                          |                   |
+
+  Scénario: Un contact oublié n'est plus joignable
+    Soit le contact "Ada Lovelace" de "ACME" a l'adresse e-mail "ada@acme.test"
+    Quand j'efface la fiche de "Ada Lovelace"
+    Alors le fait publié du contact "Ada Lovelace" le dit joignable par ""

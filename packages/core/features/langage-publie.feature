@@ -87,13 +87,13 @@ Fonctionnalité: Le langage publié des contextes
     Et l'organisation "Initech" appartient à "SOLEAN IT"
     Quand un autre contexte demande à Prospecting 2 faits des organisations de "SOLEAN IT"
     Alors Prospecting répond les faits des organisations :
-      | organisation | révision | présente | géolocalisée |
-      | Initech      | 1        | oui      | non          |
-      | Globex       | 1        | oui      | non          |
+      | organisation | révision | présente | géolocalisée | contacts |
+      | Initech      | 1        | oui      | non          |          |
+      | Globex       | 1        | oui      | non          |          |
     Quand il demande la suite
     Alors Prospecting répond les faits des organisations :
-      | organisation | révision | présente | géolocalisée |
-      | ACME         | 2        | oui      | non          |
+      | organisation | révision | présente | géolocalisée | contacts     |
+      | ACME         | 2        | oui      | non          | Ada Lovelace |
     Et Prospecting ne donne pas de suite
 
   Scénario: Prospecting liste les faits des échanges d'un compte, par tranche
@@ -172,13 +172,13 @@ Fonctionnalité: Le langage publié des contextes
     Et "Grace Hopper" est membre de "SOLEAN IT" avec le droit aux données personnelles
     Quand un autre contexte demande à PersonalData 2 faits des contacts de "SOLEAN IT"
     Alors PersonalData répond les faits des contacts :
-      | contact        | révision | présent |
-      | Linus Torvalds | 1        | oui     |
-      | Alan Turing    | 1        | oui     |
+      | contact        | révision | présent | joignable par |
+      | Linus Torvalds | 1        | oui     |               |
+      | Alan Turing    | 1        | oui     |               |
     Quand il demande la suite
     Alors PersonalData répond les faits des contacts :
-      | contact      | révision | présent |
-      | Ada Lovelace | 1        | oui     |
+      | contact      | révision | présent | joignable par |
+      | Ada Lovelace | 1        | oui     | e-mail        |
     Et PersonalData ne donne pas de suite
 
   Scénario: Accounts liste les comptes, par tranche
