@@ -105,4 +105,26 @@ describe('GoogleAnswerPage', () => {
     ).toBeInTheDocument()
     await waitFor(() => expect(onDone).toHaveBeenCalled())
   })
+
+  it('says Google does not answer, for me to try again later, while it is out of reach', async () => {
+    theApi.mockResolvedValue(
+      Response.json(
+        {
+          type: 'about:blank',
+          title: 'Service Unavailable',
+          status: 503,
+          reason: 'googleUnreachable',
+          detail: 'Google does not answer for now',
+        },
+        { status: 503, headers: { 'Content-Type': 'application/problem+json' } },
+      ),
+    )
+    const { queryClient, onDone } = renderTheAnswer({ code: 'a-code', state: 'a-state' })
+
+    expect(
+      await screen.findByText('Google ne répond pas pour le moment : réessayez plus tard.'),
+    ).toBeInTheDocument()
+    expect(queryClient.getQueryData(connectionsQuery().queryKey)).toBeUndefined()
+    await waitFor(() => expect(onDone).toHaveBeenCalled())
+  })
 })
