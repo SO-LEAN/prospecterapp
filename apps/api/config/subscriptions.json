@@ -144,5 +144,20 @@
     "events": ["ContactForgotten.v1"],
     "handler": "Prospecter\\Core\\Connectors\\Application\\UnnameForgottenContact\\UnnameForgottenContactHandler",
     "inbox": true
+  },
+  "campaigns-forget-tags-of-unprospected-organization": {
+    "context": "campaigns",
+    "sources": ["prospecter.prospecting"],
+    "events": ["OrganizationFactsChanged.v1"],
+    "payload": {"present": [false]},
+    "handler": "Prospecter\\Core\\Campaigns\\Application\\ForgetTagsOfUnprospectedOrganization\\ForgetTagsOfUnprospectedOrganizationHandler",
+    "inbox": false
+  },
+  "campaigns-forget-tags-of-forgotten-contact": {
+    "context": "campaigns",
+    "sources": ["prospecter.personal-data"],
+    "events": ["ContactForgotten.v1"],
+    "handler": "Prospecter\\Core\\Campaigns\\Application\\ForgetTagsOfForgottenContact\\ForgetTagsOfForgottenContactHandler",
+    "inbox": false
   }
 }

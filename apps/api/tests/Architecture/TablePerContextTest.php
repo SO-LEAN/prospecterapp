@@ -16,6 +16,7 @@ class TablePerContextTest extends TestCase
 
     private const array TABLES = [
         'Accounts' => 'accountsTable',
+        'Campaigns' => 'campaignsTable',
         'Connectors' => 'connectorsTable',
         'PersonalData' => 'personalDataTable',
         'Prospecting' => 'prospectingTable',

@@ -21,6 +21,8 @@ final readonly class ContactLinksResource
         public ?LinkResource $exchanges = null,
         #[OA\Property(description: 'The to-dos for the contact (ADR 0113)', nullable: false)]
         public ?LinkResource $toDos = null,
+        #[OA\Property(description: 'The tags put on the contact by hand, kept by Campaigns (ADR 0138)', nullable: false)]
+        public ?LinkResource $tags = null,
     ) {
     }
 }

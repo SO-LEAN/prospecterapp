@@ -1114,6 +1114,93 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/contacts/{id}/tags": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** The tags put by hand on the contact */
+        get: operations["get_api_contacts_tags"];
+        put?: never;
+        /** Put tags on the contact, a tag it carries already carried once; every prospector, with or without the right to manage personal data */
+        post: operations["post_api_contacts_tag"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/organizations/{id}/tags": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** The tags put by hand on the organization */
+        get: operations["get_api_organizations_tags"];
+        put?: never;
+        /** Put tags on the organization, a tag it carries already carried once */
+        post: operations["post_api_organizations_tag"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/tags": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** The tags proposed to my account: the predefined ones by family, then those its organizations and contacts carry */
+        get: operations["get_api_tags"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/contacts/{id}/tags/{tag}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        /** Take a tag off the contact, named without its mark */
+        delete: operations["delete_api_contacts_take_off_tag"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/organizations/{id}/tags/{tag}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        /** Take a tag off the organization, named without its mark */
+        delete: operations["delete_api_organizations_take_off_tag"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
 }
 export type webhooks = Record<string, never>;
 export interface components {
@@ -1492,6 +1579,17 @@ export interface components {
             /** @default null */
             state: string | null;
         };
+        TagsInput: {
+            /**
+             * @description Each written one way: `éditeur logiciel` is #EDITEUR_LOGICIEL
+             * @default []
+             * @example [
+             *       "#ESN",
+             *       "éditeur logiciel"
+             *     ]
+             */
+            tags: string[];
+        };
         PersonNameResource: {
             firstName?: string | null;
             lastName?: string | null;
@@ -1642,6 +1740,7 @@ export interface components {
             exchanges?: components["schemas"]["LinkResource"];
             noteExchange?: components["schemas"]["LinkResource"];
             toDos?: components["schemas"]["LinkResource"];
+            tags?: components["schemas"]["LinkResource"];
         };
         OrganizationResource: {
             id: string;
@@ -1762,6 +1861,7 @@ export interface components {
             forget?: components["schemas"]["LinkResource"];
             exchanges?: components["schemas"]["LinkResource"];
             toDos?: components["schemas"]["LinkResource"];
+            tags?: components["schemas"]["LinkResource"];
         };
         ContactResource: {
             id: string;
@@ -2115,6 +2215,47 @@ export interface components {
         ExchangeSyncResource: {
             sync?: components["schemas"]["SyncResource"] | null;
             _links: components["schemas"]["ExchangeSyncLinksResource"];
+        };
+        TagLinksResource: {
+            takeOff: components["schemas"]["LinkResource"];
+        };
+        TagResource: {
+            /**
+             * @description Written with its mark
+             * @example #ESN
+             */
+            name: string;
+            _links: components["schemas"]["TagLinksResource"];
+        };
+        TagsLinksResource: {
+            self: components["schemas"]["LinkResource"];
+            tag: components["schemas"]["LinkResource"];
+        };
+        TagsResource: {
+            tags: components["schemas"]["TagResource"][];
+            _links: components["schemas"]["TagsLinksResource"];
+        };
+        TagFamilyResource: {
+            /** @enum {string} */
+            family: "organizationType" | "relationship" | "technology";
+            /**
+             * @description In the order they are proposed
+             * @example [
+             *       "#APPORTEUR",
+             *       "#ESN"
+             *     ]
+             */
+            tags: string[];
+        };
+        SuggestedTagsResource: {
+            families: components["schemas"]["TagFamilyResource"][];
+            /**
+             * @description The tags its organizations and contacts carry that are not predefined, in the order of their names
+             * @example [
+             *       "#SALON_2026"
+             *     ]
+             */
+            own: string[];
         };
     };
     responses: never;
@@ -6555,6 +6696,352 @@ export interface operations {
                 };
             };
             /** @description Unknown exchange, or one of another account */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ProblemResource"];
+                };
+            };
+        };
+    };
+    get_api_contacts_tags: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Its tags */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["TagsResource"];
+                };
+            };
+            /** @description Missing or invalid access token */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Not a prospector */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ProblemResource"];
+                };
+            };
+            /** @description No contact of my account (`unknownContact`) */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ProblemResource"];
+                };
+            };
+        };
+    };
+    post_api_contacts_tag: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["TagsInput"];
+            };
+        };
+        responses: {
+            /** @description Its tags now */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["TagsResource"];
+                };
+            };
+            /** @description Missing or invalid access token */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Not a prospector */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ProblemResource"];
+                };
+            };
+            /** @description No contact of my account (`unknownContact`) */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ProblemResource"];
+                };
+            };
+            /** @description No tag, one that makes no tag (`invalidTag`), or an automatic one (`automaticTag`) */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ProblemResource"];
+                };
+            };
+        };
+    };
+    get_api_organizations_tags: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Its tags */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["TagsResource"];
+                };
+            };
+            /** @description Missing or invalid access token */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Not a prospector */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ProblemResource"];
+                };
+            };
+            /** @description Unknown organization, or one of another account */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ProblemResource"];
+                };
+            };
+        };
+    };
+    post_api_organizations_tag: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["TagsInput"];
+            };
+        };
+        responses: {
+            /** @description Its tags now */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["TagsResource"];
+                };
+            };
+            /** @description Missing or invalid access token */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Not a prospector */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ProblemResource"];
+                };
+            };
+            /** @description Unknown organization, or one of another account */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ProblemResource"];
+                };
+            };
+            /** @description No tag, one that makes no tag (`invalidTag`), or an automatic one (`automaticTag`) */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ProblemResource"];
+                };
+            };
+        };
+    };
+    get_api_tags: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description The tags proposed */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SuggestedTagsResource"];
+                };
+            };
+            /** @description Missing or invalid access token */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Not a prospector */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ProblemResource"];
+                };
+            };
+        };
+    };
+    delete_api_contacts_take_off_tag: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+                tag: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Its tags now */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["TagsResource"];
+                };
+            };
+            /** @description Missing or invalid access token */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Not a prospector */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ProblemResource"];
+                };
+            };
+            /** @description No contact of my account (`unknownContact`), or a tag it does not carry (`tagNotCarried`) */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ProblemResource"];
+                };
+            };
+        };
+    };
+    delete_api_organizations_take_off_tag: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+                tag: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Its tags now */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["TagsResource"];
+                };
+            };
+            /** @description Missing or invalid access token */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Not a prospector */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ProblemResource"];
+                };
+            };
+            /** @description Unknown organization, one of another account, or a tag it does not carry */
             404: {
                 headers: {
                     [name: string]: unknown;

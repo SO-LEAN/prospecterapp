@@ -33,7 +33,7 @@ class ContactApiTest extends ApiTestCase
         $this->assertResponseStatusCodeSame(201);
         $this->assertResponseHeaderSame('Location', '/api/contacts/'.$collected['id']);
         $this->assertSame('Directrice commerciale', $collected['jobTitle']);
-        $this->assertSame(['self', 'rename', 'changeJobTitle', 'changeContactDetails', 'forget', 'exchanges', 'toDos'], array_keys($collected['_links']));
+        $this->assertSame(['self', 'rename', 'changeJobTitle', 'changeContactDetails', 'forget', 'exchanges', 'toDos', 'tags'], array_keys($collected['_links']));
         $this->assertSame(['href' => '/api/contacts/'.$collected['id'].'/exchanges', 'method' => 'GET'], $collected['_links']['exchanges']);
         $this->assertSame([$collected['id']], $this->requestJson('GET', '/api/organizations/'.$organization)['contactIds']);
         $this->assertSame(['ACME'], array_column($this->requestJson('GET', '/api/contacts/'.$collected['id'].'/organizations')['items'], 'name'));
@@ -103,7 +103,7 @@ class ContactApiTest extends ApiTestCase
         $this->assertTrue($contact['masked']);
         $this->assertSame(['Ada', 'Lovelace'], [$contact['name']['firstName'], $contact['name']['lastName']]);
         $this->assertSame(['a***@***', '******42', '***', 'D***e'], [$contact['contactDetails']['email'], $contact['contactDetails']['phoneNumber'], $contact['contactDetails']['linkedInProfile'], $contact['jobTitle']]);
-        $this->assertSame(['self', 'exchanges'], array_keys($contact['_links']));
+        $this->assertSame(['self', 'exchanges', 'tags'], array_keys($contact['_links']));
         $this->assertSame(['self', 'search'], array_keys($this->requestJson('GET', '/api/contacts')['_links']));
 
         $this->collect(self::ADA, $organization);
