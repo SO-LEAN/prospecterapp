@@ -114,13 +114,14 @@
   "reporting-figures": {
     "context": "reporting",
     "sources": ["prospecter.prospecting", "prospecter.personal-data"],
-    "events": ["OrganizationFactsChanged.v1", "OrganizationFactsChanged.v2", "OrganizationFactsChanged.v3", "ExchangeFactsChanged.v1", "ExchangeFactsChanged.v2", "ContactFactsChanged.v1", "ContactFactsChanged.v2"],
+    "events": ["OrganizationFactsChanged.v1", "OrganizationFactsChanged.v2", "OrganizationFactsChanged.v3", "ExchangeFactsChanged.v1", "ExchangeFactsChanged.v2", "ExchangeFactsChanged.v3", "ContactFactsChanged.v1", "ContactFactsChanged.v2"],
     "handlers": {
       "OrganizationFactsChanged.v1": "Prospecter\\Core\\Reporting\\Application\\RecordOrganizationFacts\\RecordOrganizationFactsHandler",
       "OrganizationFactsChanged.v2": "Prospecter\\Core\\Reporting\\Application\\RecordOrganizationFacts\\RecordOrganizationFactsHandler",
       "OrganizationFactsChanged.v3": "Prospecter\\Core\\Reporting\\Application\\RecordOrganizationFacts\\RecordOrganizationFactsHandler",
       "ExchangeFactsChanged.v1": "Prospecter\\Core\\Reporting\\Application\\RecordExchangeFacts\\RecordExchangeFactsHandler",
       "ExchangeFactsChanged.v2": "Prospecter\\Core\\Reporting\\Application\\RecordExchangeFacts\\RecordExchangeFactsHandler",
+      "ExchangeFactsChanged.v3": "Prospecter\\Core\\Reporting\\Application\\RecordExchangeFacts\\RecordExchangeFactsHandler",
       "ContactFactsChanged.v1": "Prospecter\\Core\\Reporting\\Application\\RecordContactFacts\\RecordContactFactsHandler",
       "ContactFactsChanged.v2": "Prospecter\\Core\\Reporting\\Application\\RecordContactFacts\\RecordContactFactsHandler"
     },
@@ -129,7 +130,7 @@
   "connectors-push-exchange": {
     "context": "connectors",
     "sources": ["prospecter.prospecting"],
-    "events": ["ExchangeFactsChanged.v2"],
+    "events": ["ExchangeFactsChanged.v2", "ExchangeFactsChanged.v3"],
     "payload": {"$or": [{"status": ["planned", "cancelled"]}, {"present": [false]}]},
     "handler": "Prospecter\\Core\\Connectors\\Application\\PushExchange\\PushExchangeHandler",
     "inbox": true
@@ -168,6 +169,14 @@
     "sources": ["prospecter.personal-data"],
     "events": ["ContactForgotten.v1"],
     "handler": "Prospecter\\Core\\Campaigns\\Application\\ForgetRecipientOfForgottenContact\\ForgetRecipientOfForgottenContactHandler",
+    "inbox": false
+  },
+  "campaigns-process-recipient": {
+    "context": "campaigns",
+    "sources": ["prospecter.prospecting"],
+    "events": ["ExchangeFactsChanged.v3"],
+    "payload": {"present": [true], "status": ["done", "missed"]},
+    "handler": "Prospecter\\Core\\Campaigns\\Application\\ProcessRecipientOfCampaignExchange\\ProcessRecipientOfCampaignExchangeHandler",
     "inbox": false
   },
   "campaigns-record-facts": {

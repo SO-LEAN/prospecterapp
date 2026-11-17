@@ -21,6 +21,7 @@ use Prospecter\Core\Prospecting\Domain\Event\ExchangeTextCorrected;
 use Prospecter\Core\Prospecting\Domain\Event\ExchangeVenueCorrected;
 use Prospecter\Core\Prospecting\Domain\Event\FileAttached;
 use Prospecter\Core\Prospecting\Domain\Event\VideoCallLinkReceived;
+use Prospecter\Core\Prospecting\Domain\Exception\CampaignNotRunning;
 use Prospecter\Core\Prospecting\Domain\Exception\ChannelNotMissed;
 use Prospecter\Core\Prospecting\Domain\Exception\ExchangeInTheFuture;
 use Prospecter\Core\Prospecting\Domain\Exception\LinkOnlyForAVideoCall;
@@ -31,11 +32,14 @@ use Prospecter\Core\Prospecting\Domain\Exception\NotUpcoming;
 use Prospecter\Core\Prospecting\Domain\Exception\NotYetDue;
 use Prospecter\Core\Prospecting\Domain\Exception\PlaceOnlyForAMeeting;
 use Prospecter\Core\Prospecting\Domain\Exception\PlannedExchangeInThePast;
+use Prospecter\Core\Prospecting\Domain\Exception\RecipientAlreadyProcessed;
 use Prospecter\Core\Prospecting\Domain\Exception\UnknownAttachment;
+use Prospecter\Core\Prospecting\Domain\Exception\UnknownRecipient;
 use Prospecter\Core\Prospecting\Domain\Policy\ExchangeConformity;
 use Prospecter\Core\Prospecting\Domain\Policy\ExchangePossibilities;
 use Prospecter\Core\Prospecting\Domain\Policy\ExchangeReading;
 use Prospecter\Core\SharedKernel\Domain\AccountId;
+use Prospecter\Core\SharedKernel\Domain\CampaignId;
 use Prospecter\Core\SharedKernel\Domain\Exception\NotPossibleInItsState;
 use Prospecter\Core\SharedKernel\Domain\Exception\PersonalDataManagersOnly;
 use Prospecter\Core\SharedKernel\Domain\MemberId;
@@ -51,7 +55,8 @@ use Prospecter\Core\SharedKernel\Domain\ReleasesEvents;
  * once its time has come, moves it or cancels it (ADR 0111, 0112).
  * Its text may hold personal data: it is kept for the organizations the contact was part of when it was noted, or
  * for the organization itself, and lives as long as one of them is prospected.
- * Its contact forgotten, it stays, to make conform (ADR 0079).
+ * Its contact forgotten, it stays, to make conform (ADR 0079). Noted for a recipient of a campaign, it keeps the
+ * campaign (ADR 0145).
  */
 final class Exchange implements ReleasesEvents
 {
@@ -64,6 +69,7 @@ final class Exchange implements ReleasesEvents
     private bool $contactForgotten = false;
     private ?Correction $madeConform = null;
     private ?Cancellation $cancellation = null;
+    private ?CampaignId $campaign = null;
     /** @var list<Attachment> */
     private array $attachments = [];
 
@@ -93,6 +99,24 @@ final class Exchange implements ReleasesEvents
     public static function notedWithAContact(AccountId $accountId, MemberId $by, ExchangeId $id, PersonId $contact, array $organizationsOfTheContact, ExchangeFacts $facts, ExchangeStatus $outcome, \DateTimeImmutable $at): self
     {
         return self::noted($accountId, $by, $id, $contact, $organizationsOfTheContact, $facts, $outcome, $at);
+    }
+
+    /**
+     * For a recipient of a campaign still to handle, while it is led: outbound, by the channel of the campaign, done, or
+     * missed when the call did not go through; it keeps its campaign (ADR 0145).
+     *
+     * @param list<OrganizationId> $organizationsOfTheContact
+     *
+     * @throws CampaignNotRunning|UnknownRecipient|RecipientAlreadyProcessed
+     * @throws ExchangeInTheFuture|ChannelNotMissed
+     */
+    public static function notedInACampaign(AccountId $accountId, MemberId $by, ExchangeId $id, RecipientInCampaign $recipient, array $organizationsOfTheContact, \DateTimeImmutable $occurredAt, ?string $text, bool $missed, \DateTimeImmutable $at): self
+    {
+        $recipient->ensureToHandle();
+        $exchange = self::noted($accountId, $by, $id, $recipient->contact, $organizationsOfTheContact, new ExchangeFacts($recipient->channel, Direction::Outbound, $occurredAt, $text), ExchangeStatus::outcome($missed), $at);
+        $exchange->campaign = $recipient->campaign;
+
+        return $exchange;
     }
 
     /**

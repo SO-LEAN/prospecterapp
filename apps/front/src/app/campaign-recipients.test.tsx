@@ -46,10 +46,11 @@ const draft: Campaign = {
   subject: null,
   status: 'draft',
   author: { name: { firstName: 'Alan', lastName: 'Turing' }, email: null },
-  contacted: 0,
+  progress: { processed: 0, dismissed: 0 },
   targeted: 2,
   startedAt: null,
   stoppedAt: null,
+  endedAt: null,
   _links: {
     self,
     revise: { href: `/api/campaigns/${CAMPAIGN}`, method: 'PATCH' },
@@ -100,6 +101,8 @@ const recipients: RecipientList = {
   items: [ADA, GRACE].map((id, index) => ({
     contact: aContact(id, index === 0 ? 'Ada' : 'Grace', index === 0 ? 'Lovelace' : 'Hopper'),
     status: 'pending' as const,
+    missed: false,
+    reason: null,
     _links: { remove: { href: `/api/campaigns/${CAMPAIGN}/recipients/${id}`, method: 'DELETE' } },
   })),
   _links: { self: { href: `/api/campaigns/${CAMPAIGN}/recipients`, method: 'GET' } },
@@ -255,8 +258,14 @@ describe('the recipients of a campaign', () => {
     theApiAnswers(started, twoContacts, {
       ...recipients,
       items: [
-        { contact: aContact(ADA, 'Ada', 'Lovelace'), status: 'pending', _links: {} },
-        { contact: null, status: 'erased', _links: {} },
+        {
+          contact: aContact(ADA, 'Ada', 'Lovelace'),
+          status: 'pending',
+          missed: false,
+          reason: null,
+          _links: {},
+        },
+        { contact: null, status: 'erased', missed: false, reason: null, _links: {} },
       ],
     })
     await renderTheSpaAt(`/campaigns/${CAMPAIGN}`)

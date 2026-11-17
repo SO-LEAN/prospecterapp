@@ -23,4 +23,6 @@ enum CampaignIntent
     case StartCampaign;
     /** Stop leading it, kept for the team to read. */
     case StopCampaign;
+    /** Lead it: note the exchange of a recipient, or dismiss them. */
+    case RunCampaign;
 }

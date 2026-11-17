@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Prospecter\Core\Prospecting\Application\ConsultTimeline;
 
+use Prospecter\Core\Prospecting\Application\CampaignsOfTimeline;
 use Prospecter\Core\Prospecting\Application\Port\TimelineRetriever;
 use Prospecter\Core\Prospecting\Application\TimelineOutput;
 use Prospecter\Core\Prospecting\Domain\Port\Prospectors;
@@ -17,6 +18,7 @@ final readonly class ConsultTimelineHandler implements QueryHandler
     public function __construct(
         private TimelineRetriever $timelineRetriever,
         private Prospectors $prospectors,
+        private CampaignsOfTimeline $campaignsOfTimeline,
         private ContactOrganizations $contactOrganizations,
     ) {
     }
@@ -27,6 +29,6 @@ final readonly class ConsultTimelineHandler implements QueryHandler
         $contact = new PersonId($query->personId);
         $this->contactOrganizations->ensureIsAContactOfTheAccount($contact, $prospector->accountId);
 
-        $output->present($this->timelineRetriever->ofContact($contact, $prospector, $query->asOf, $query->after, $query->max));
+        $output->present($this->campaignsOfTimeline->named($this->timelineRetriever->ofContact($contact, $prospector, $query->asOf, $query->after, $query->max), $prospector->accountId));
     }
 }

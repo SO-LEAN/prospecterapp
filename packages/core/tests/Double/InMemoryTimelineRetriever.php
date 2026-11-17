@@ -187,6 +187,7 @@ final readonly class InMemoryTimelineRetriever implements TimelineRetriever
             toMakeConform: ExchangeConformity::isToMakeConform($contactForgotten, $declaredConform, [] !== $exchange->attachments()),
             organizationIds: array_map(static fn (OrganizationId $organization): string => $organization->value, $state['keptFor']),
             attachmentCount: count($exchange->attachments()),
+            campaignId: $state['campaign']?->value,
         );
     }
 

@@ -3,6 +3,7 @@
 namespace App\Campaigning;
 
 use App\Campaigning\Resource\CampaignLinksResource;
+use App\Campaigning\Resource\CampaignProgressResource;
 use App\Campaigning\Resource\CampaignResource;
 use App\Exchanges\Resource\AuthorResource;
 use App\PersonalData\Resource\PersonNameResource;
@@ -49,10 +50,11 @@ final readonly class CampaignResourceFactory
             subject: $campaign->subject,
             status: $campaign->status,
             author: new AuthorResource(new PersonNameResource($author?->firstName, $author?->lastName), $author?->email),
-            contacted: $campaign->contacted,
+            progress: new CampaignProgressResource($campaign->processed, $campaign->dismissed),
             targeted: $targeted,
             startedAt: $campaign->startedAt?->format(\DateTimeInterface::ATOM),
             stoppedAt: $campaign->stoppedAt?->format(\DateTimeInterface::ATOM),
+            endedAt: $campaign->endedAt?->format(\DateTimeInterface::ATOM),
             links: $this->linksOf($campaign),
         );
     }

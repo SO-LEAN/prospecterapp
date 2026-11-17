@@ -11,7 +11,8 @@ use Prospecter\Core\SharedKernel\Domain\CampaignId;
 
 /**
  * The campaigns read from the items of `DynamoCampaignRepository`, without restoring them (ADR 0088): one, or every
- * campaign of the account at once, the range `CAMPAIGN#` of its partition (ADR 0144).
+ * campaign of the account at once, the range `CAMPAIGN#` of its partition (ADR 0144); the names of some, in one batch
+ * (ADR 0145).
  */
 final readonly class DynamoCampaignSheetRetriever implements CampaignSheetRetriever
 {
@@ -24,6 +25,23 @@ final readonly class DynamoCampaignSheetRetriever implements CampaignSheetRetrie
         $document = $this->campaignsTable->item(CampaignsKeys::account($accountId->value), CampaignsKeys::campaign($id->value))['campaign'] ?? throw UnknownCampaign::identifiedBy($id);
 
         return CampaignDocument::sheet($document);
+    }
+
+    public function find(AccountId $accountId, CampaignId $id): ?CampaignSheet
+    {
+        $document = $this->campaignsTable->item(CampaignsKeys::account($accountId->value), CampaignsKeys::campaign($id->value))['campaign'] ?? null;
+
+        return null === $document ? null : CampaignDocument::sheet($document);
+    }
+
+    /**
+     * @param list<CampaignId> $ids
+     */
+    public function namesOf(AccountId $accountId, array $ids): array
+    {
+        $items = [] === $ids ? [] : $this->campaignsTable->items(array_map(static fn (CampaignId $id): array => [CampaignsKeys::account($accountId->value), CampaignsKeys::campaign($id->value)], $ids));
+
+        return array_column(array_column($items, 'campaign'), 'name', 'id');
     }
 
     public function ofAccount(AccountId $accountId): array
