@@ -65,10 +65,20 @@ export function useChangeContactDetails() {
   })
 }
 
+/**
+ * The organization moves; the reactions to the gesture record where it is, which sets its geographic tags and those
+ * its contacts inherit (ADR 0142).
+ */
 export function useRelocate() {
+  const queryClient = useQueryClient()
+  const store = useStoreChangedOrganization()
+
   return api.useMutation('patch', '/api/organizations/{id}/address', {
     ...formIntention,
-    onSuccess: useStoreChangedOrganization(),
+    onSuccess: (organization) => {
+      store(organization)
+      readAgainAfterTheReactions(queryClient, queryKeys.organizationTags, queryKeys.contactTags)
+    },
   })
 }
 

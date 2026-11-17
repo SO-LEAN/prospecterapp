@@ -15,16 +15,18 @@ type Props = {
   tags: string[]
   inherited?: { name: string; from: string[] }[]
   automatic?: string[]
+  /** Where the automatic tags come from, said on each: automatic, unless told otherwise. */
+  automaticFrom?: string
   onTag: (typed: string) => void
   onTakeOff: (tag: string) => void
 }
 
 /**
  * A line of chips, one per tag put by hand, each taken off by its cross, then those a contact inherits from the
- * organizations named, and the automatic ones, neither taken off (ADR 0141), and « Ajouter un tag » opening the
+ * organizations named, and the automatic ones, neither taken off (ADR 0141, 0142), and « Ajouter un tag » opening the
  * picker of the tags proposed to the account. The predefined tags and those of the account look alike (ADR 0138).
  */
-export function TagsLine({ tags, inherited = [], automatic = [], onTag, onTakeOff }: Props) {
+export function TagsLine({ tags, inherited = [], automatic = [], automaticFrom, onTag, onTakeOff }: Props) {
   const { t } = useTranslation()
 
   return (
@@ -60,7 +62,7 @@ export function TagsLine({ tags, inherited = [], automatic = [], onTag, onTakeOf
       ))}
       {automatic.map((tag) => (
         <li key={tag}>
-          <ExplainedTag tag={tag} explanation={t('tags.automatic')} automatic />
+          <ExplainedTag tag={tag} explanation={automaticFrom ?? t('tags.automatic')} automatic />
         </li>
       ))}
       <li>

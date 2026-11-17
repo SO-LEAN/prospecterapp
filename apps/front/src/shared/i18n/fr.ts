@@ -283,6 +283,7 @@ export const fr = {
     filter: 'Filtrer par tag',
     chosen: 'Tags choisis',
     takeOffFilter: 'Retirer le filtre {{tag}}',
+    fromTheAddress: 'Déduit de l’adresse',
     families: {
       organizationType: 'Type d’organisation',
       relationship: 'Relation avec le contact',

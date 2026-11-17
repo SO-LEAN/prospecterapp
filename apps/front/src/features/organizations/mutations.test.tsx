@@ -3,8 +3,8 @@ import { act, render, renderHook, screen, waitFor } from '@testing-library/react
 import type { ReactNode } from 'react'
 import { Toaster, toast } from 'sonner'
 import { afterEach, describe, expect, it, vi } from 'vitest'
-import { theDashboardInTheCacheOf } from '@/test/the-dashboard'
 import { AFTER_THE_REACTIONS_MS } from '@/shared/api/reactions'
+import { theDashboardInTheCacheOf } from '@/test/the-dashboard'
 import { useRelocate, useReviseLegalIdentity, useStartProspecting } from './mutations'
 import type { Organization } from './queries'
 
@@ -111,7 +111,10 @@ describe('the intentions on an organization', () => {
     const { result } = renderHook(useRelocate, { wrapper: withTheCache(queryClient) })
 
     await act(() =>
-      result.current.mutateAsync({ params: { path: { id: ACME } }, body: { city: 'Illkirch-Graffenstaden' } }),
+      result.current.mutateAsync({
+        params: { path: { id: ACME } },
+        body: { street: null, postalCode: null, city: 'Illkirch-Graffenstaden', country: null },
+      }),
     )
     queryClient.setQueryData(organizationTags, { tags: [], automatic: [] })
     queryClient.setQueryData(contactTags, { tags: [], inherited: [], automatic: [] })
