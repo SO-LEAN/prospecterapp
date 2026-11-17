@@ -20,10 +20,6 @@ Fonctionnalité: Mener une campagne
     Alors "Ada Lovelace" est traitée dans la campagne "Appels ESN"
     Et la timeline de "Ada Lovelace" montre l'appel, de la campagne "Appels ESN"
 
-  Scénario: L'échange d'une campagne publie sa campagne et son contact
-    Quand je note pour "Ada Lovelace" dans la campagne "Appels ESN" un échange
-    Alors le fait publié de cet échange nomme la campagne "Appels ESN" et le contact "Ada Lovelace"
-
   Scénario: L'échange prend le canal de la campagne
     Quand je note pour "Ada Lovelace" dans la campagne "Appels ESN" un échange
     Alors c'est un appel émis
@@ -54,6 +50,11 @@ Fonctionnalité: Mener une campagne
   Scénario: Le dernier échange noté termine la campagne
     Soit "Alan Turing" est écarté de la campagne "Appels ESN"
     Quand je note pour "Ada Lovelace" dans la campagne "Appels ESN" un échange
+    Alors la campagne "Appels ESN" est terminée le 16/11/2026 à 17h00
+
+  Scénario: Le dernier destinataire à traiter effacé termine la campagne
+    Soit "Ada Lovelace" est traitée dans la campagne "Appels ESN"
+    Quand j'efface le contact "Alan Turing"
     Alors la campagne "Appels ESN" est terminée le 16/11/2026 à 17h00
 
   Scénario: On ne mène pas une campagne arrêtée

@@ -86,3 +86,11 @@ Fonctionnalité: Publier les faits de Prospecting
     Et le contact "Ada Lovelace" de "ACME"
     Quand j'arrête de prospecter "ACME"
     Alors les contacts publiés de "ACME" sont ""
+
+  Scénario: L'échange d'une campagne publie sa campagne et son contact
+    Soit l'organisation "ACME" appartient à "SOLEAN IT", taguée "#ESN"
+    Et le contact "Ada Lovelace" de "ACME" a le téléphone "06 12 34 56 78"
+    Et le contact "Alan Turing" de "ACME" a le téléphone "06 98 76 54 32"
+    Et la campagne "Appels ESN" démarrée, canal "Appel", avec "Ada Lovelace" et "Alan Turing"
+    Quand je note pour "Ada Lovelace" dans la campagne "Appels ESN" un échange
+    Alors le fait publié de cet échange nomme la campagne "Appels ESN" et le contact "Ada Lovelace"
