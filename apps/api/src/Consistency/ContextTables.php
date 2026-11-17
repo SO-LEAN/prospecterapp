@@ -133,6 +133,17 @@ final readonly class ContextTables
     }
 
     /**
+     * @return array<string, list<string>> the contacts each campaign keeps among its recipients, by its id, none for a
+     *                                     draft (ADR 0144)
+     */
+    public function recipientsOf(string $accountId): array
+    {
+        $campaigns = array_column($this->campaignsTable->queryBetween(CampaignsKeys::account($accountId), null, ...CampaignsKeys::campaigns()), 'campaign');
+
+        return array_combine(array_column($campaigns, 'id'), array_map(static fn (array $campaign): array => array_column($campaign['recipients'] ?? [], 'contactId'), $campaigns));
+    }
+
+    /**
      * @return array<string, list<string>> the contacts each organization names, by its id, as the facts Campaigns keeps
      *                                     of those still present say (ADR 0141)
      */
