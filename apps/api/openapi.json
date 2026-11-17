@@ -9178,6 +9178,7 @@
                     "message",
                     "status",
                     "author",
+                    "contacted",
                     "targeted",
                     "_links"
                 ],
@@ -9228,6 +9229,10 @@
                     },
                     "author": {
                         "$ref": "#/components/schemas/AuthorResource"
+                    },
+                    "contacted": {
+                        "description": "How many contacts of its target were contacted, none in a draft",
+                        "type": "integer"
                     },
                     "targeted": {
                         "description": "How many contacts it targets now",

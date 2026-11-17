@@ -2430,6 +2430,8 @@ export interface components {
             /** @enum {string} */
             status: "draft";
             author: components["schemas"]["AuthorResource"];
+            /** @description How many contacts of its target were contacted, none in a draft */
+            contacted: number;
             /** @description How many contacts it targets now */
             targeted: number;
             _links: components["schemas"]["CampaignLinksResource"];
