@@ -11,7 +11,6 @@ use App\Security\User;
 use App\Shared\Links;
 use App\Shared\Resource\LinkResource;
 use Prospecter\Core\Campaigns\Application\CampaignSheet;
-use Prospecter\Core\Campaigns\Domain\Model\CampaignStatus;
 use Prospecter\Core\PersonalData\Application\PersonCard;
 
 /**
@@ -73,7 +72,7 @@ final readonly class CampaignResourceFactory
      */
     private function whomItTargets(CampaignSheet $campaign): array
     {
-        return CampaignStatus::from($campaign->status)->followsTheTags()
+        return $campaign->followsTheTags
             ? ['target' => $this->links->to('api_contacts_search_by_tags', ['tags' => implode(',', array_map(self::nameOf(...), $campaign->targetedTags))])]
             : ['recipients' => $this->links->to('api_campaigns_recipients', ['id' => $campaign->id])];
     }

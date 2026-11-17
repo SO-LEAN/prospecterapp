@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Prospecter\Core\Campaigns\Application;
 
-use Prospecter\Core\Campaigns\Domain\Model\CampaignStatus;
 use Prospecter\Core\Campaigns\Domain\Model\ContactTags;
 use Prospecter\Core\Campaigns\Domain\Model\TagSelection;
 use Prospecter\Core\SharedKernel\Domain\AccountId;
@@ -27,19 +26,14 @@ final readonly class CampaignTargets
     #[\NoDiscard]
     public function counted(AccountId $accountId, array $campaigns): array
     {
-        $contacts = array_any($campaigns, self::followsTheTags(...)) ? $this->tagsOfEveryContact->of($accountId) : [];
+        $contacts = array_any($campaigns, static fn (CampaignSheet $campaign): bool => $campaign->followsTheTags) ? $this->tagsOfEveryContact->of($accountId) : [];
         $counted = [];
 
         foreach ($campaigns as $campaign) {
-            $counted[$campaign->id] = self::followsTheTags($campaign) ? self::carryingAll($campaign->targetedTags, $contacts) : count($campaign->recipients);
+            $counted[$campaign->id] = $campaign->followsTheTags ? self::carryingAll($campaign->targetedTags, $contacts) : count($campaign->recipients);
         }
 
         return $counted;
-    }
-
-    private static function followsTheTags(CampaignSheet $campaign): bool
-    {
-        return CampaignStatus::from($campaign->status)->followsTheTags();
     }
 
     /**

@@ -98,6 +98,7 @@ final class CampaignDocument
             message: $document['message'],
             subject: $document['subject'],
             status: $document['status'],
+            followsTheTags: CampaignStatus::from($document['status'])->followsTheTags(),
             contacted: CampaignProgress::contactedIn(CampaignStatus::from($document['status'])),
             recipients: array_column(self::recipientsOf($document), 'status', 'contactId'),
             authorId: $document['createdBy'],
