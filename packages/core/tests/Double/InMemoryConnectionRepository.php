@@ -23,7 +23,7 @@ final class InMemoryConnectionRepository implements ConnectionRepository
     }
 
     /**
-     * The next read of this connection answers it as given, read before what happens since.
+     * The next read of a connection of its member answers it as given, read before what happens since.
      */
     public function answerTheNextReadWith(Connection $readBefore): void
     {
@@ -37,9 +37,13 @@ final class InMemoryConnectionRepository implements ConnectionRepository
 
     public function find(MemberId $member, Provider $provider): ?Connection
     {
-        [$readBefore, $this->readBefore] = [$this->readBefore, null];
+        if (null !== $this->readBefore && $this->readBefore->member()->equals($member)) {
+            [$readBefore, $this->readBefore] = [$this->readBefore, null];
 
-        return $readBefore ?? $this->database->connection($member->value, $provider->value);
+            return $readBefore;
+        }
+
+        return $this->database->connection($member->value, $provider->value);
     }
 
     public function of(MemberId $member): array
