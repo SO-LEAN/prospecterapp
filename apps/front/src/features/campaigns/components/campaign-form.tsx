@@ -145,7 +145,7 @@ function ChannelSelect({ channel, onChange, disabled, ...trigger }: ChannelProps
       <SelectContent>
         {CHANNELS.map((option) => (
           <SelectItem key={option} value={option}>
-            {t(`campaigns.channels.${option}`)}
+            {t(`exchanges.channels.${option}`)}
           </SelectItem>
         ))}
       </SelectContent>

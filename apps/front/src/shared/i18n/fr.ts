@@ -592,7 +592,6 @@ export const fr = {
         all: 'Aucune campagne.',
       },
     },
-    channels: { email: 'E-mail', call: 'Appel', sms: 'SMS', linkedIn: 'LinkedIn' },
     progress: '{{handled}} / {{targeted}}',
     progressLabel: '{{handled}} traités sur {{targeted}} ciblés',
     by: 'par {{name}}',
@@ -646,7 +645,6 @@ export const fr = {
       copy: 'Copier',
       reason: 'Motif de l’écart',
       dismiss: 'Écarter',
-      nextHint: 'Touche N : passer au suivant sans rien noter',
     },
     recipients: {
       title: 'Destinataires',

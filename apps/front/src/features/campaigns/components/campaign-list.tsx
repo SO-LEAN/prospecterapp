@@ -21,7 +21,7 @@ export function CampaignList({ campaigns }: { campaigns: Campaign[] }) {
             {campaign.name}
           </Link>
           <CampaignStatusBadge status={campaign.status} />
-          <span className="text-muted-foreground text-sm">{t(`campaigns.channels.${campaign.channel}`)}</span>
+          <span className="text-muted-foreground text-sm">{t(`exchanges.channels.${campaign.channel}`)}</span>
           <span className="text-muted-foreground text-sm">
             {t('campaigns.by', { name: memberName(campaign.author) })}
           </span>

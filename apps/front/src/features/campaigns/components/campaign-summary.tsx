@@ -16,7 +16,7 @@ export function CampaignSummary({ campaign }: { campaign: Campaign }) {
         </CardTitle>
       </CardHeader>
       <CardContent className="text-sm">
-        <Detail label={t('campaigns.fields.channel')}>{t(`campaigns.channels.${campaign.channel}`)}</Detail>
+        <Detail label={t('campaigns.fields.channel')}>{t(`exchanges.channels.${campaign.channel}`)}</Detail>
         <Detail label={t('campaigns.fields.tags')}>
           <span className="flex flex-wrap gap-1.5">
             {campaign.tags.map((tag) => (
