@@ -18,7 +18,7 @@ What the administrator of an account sets up in the Google Cloud of their organi
 
 ## 2. The import of Gmail
 
-Planned (ADR 0154, proposed): the steps below are those the import will ask once it is delivered.
+The steps the import of the e-mails asks (ADR 0154).
 
 1. *APIs & Services › Library*: enable the **Gmail API** and the **Cloud Pub/Sub API**.
 2. *Google Auth Platform › Data Access*: add the scope `.../auth/gmail.readonly` (read the messages and their bodies; `gmail.metadata` would give no body). The members already connected keep their connection: they give Gmail its consent when they activate the import, which adds it to their calendar.
@@ -26,10 +26,10 @@ Planned (ADR 0154, proposed): the steps below are those the import will ask once
 4. On that topic, *Permissions › Add principal*: `gmail-api-push@system.gserviceaccount.com`, role **Pub/Sub Publisher**: Gmail publishes there the changes of the mailboxes. An organization policy restricting the domains allowed in IAM (*domain restricted sharing*) refuses that principal: allow it as an exception for this project.
 5. *IAM & Admin › Service accounts › Create service account*: `<push service account>`, with no role. Pub/Sub signs with it the token Prospecter checks on each notification. The administrator creating the subscription needs **Service Account User** on it (an Owner of the project has it).
 6. *Pub/Sub › Subscriptions › Create subscription*, on the topic:
-   - delivery type **Push**, endpoint `<address of the API>/api/accounts/<account id>/gmail-notifications`, the address Prospecter shows with the client;
+   - delivery type **Push**, endpoint `<address of the API>/api/accounts/<account id>/gmail-notifications`, the address Prospecter shows on the card of the client (« Adresse des notifications à déclarer dans l’abonnement »);
    - **Enable authentication**, service account `<push service account>`, audience left empty (Pub/Sub takes the endpoint itself, which Prospecter expects);
    - acknowledgement deadline 10 seconds (Prospecter answers at once), retention of 1 day, retry policy *exponential backoff*.
-7. In Prospecter, on the card of the Google client, the **full name of the topic** and the **email of the push service account** (`<push service account>@<project id>.iam.gserviceaccount.com`).
+7. In Prospecter, on the card of the Google client, the **full name of the topic** (« Topic Pub/Sub (import Gmail) ») and the **email of the push service account** (« Compte de service des notifications », `<push service account>@<project id>.iam.gserviceaccount.com`).
 
 Each member having the right to manage the personal data then activates the import in *Configuration › Connecteurs*: Google asks their consent for Gmail, and Prospecter watches their mailbox, all but Spam, Trash and Drafts.
 

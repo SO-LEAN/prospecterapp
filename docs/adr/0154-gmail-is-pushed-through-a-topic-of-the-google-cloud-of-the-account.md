@@ -4,7 +4,7 @@
 - Type: architecture
 - Status: Proposed
 - Supersedes: for the function of its own of the erasure of the contacts left unattached, [0147](0147-a-schedule-calls-a-function-of-the-api-every-hour-to-erase-the-contacts-left-unattached.md)
-- Implemented by: the import of the e-mails of Gmail, to come; `docs/google-client.md` (the procedure at Google)
+- Implemented by: the activation of the import, the topic of the account, the endpoint of the notifications, the watch and its daily renewal: `packages/core/features/importer-mes-e-mails-gmail.feature`, `apps/api/src/Connectors/Google/GmailPushAuthenticator.php`, `apps/api/src/Connectors/Google/GoogleMailbox.php`, `apps/api/src/Shared/ScheduledTasksFunction.php`, `apps/api/infra/schedule.tf`; the reading of the e-mails, to come; `docs/google-client.md` (the procedure at Google)
 
 ## Context
 
