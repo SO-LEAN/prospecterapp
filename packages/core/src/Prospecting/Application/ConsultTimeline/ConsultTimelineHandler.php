@@ -7,6 +7,7 @@ namespace Prospecter\Core\Prospecting\Application\ConsultTimeline;
 use Prospecter\Core\Prospecting\Application\CampaignsOfTimeline;
 use Prospecter\Core\Prospecting\Application\Port\TimelineRetriever;
 use Prospecter\Core\Prospecting\Application\TimelineOutput;
+use Prospecter\Core\Prospecting\Domain\Model\TimelineIntent;
 use Prospecter\Core\Prospecting\Domain\Port\Prospectors;
 use Prospecter\Core\Prospecting\Domain\Service\ContactOrganizations;
 use Prospecter\Core\SharedKernel\Application\QueryHandler;
@@ -29,6 +30,9 @@ final readonly class ConsultTimelineHandler implements QueryHandler
         $contact = new PersonId($query->personId);
         $this->contactOrganizations->ensureIsAContactOfTheAccount($contact, $prospector->accountId);
 
-        $output->present($this->campaignsOfTimeline->named($this->timelineRetriever->ofContact($contact, $prospector, $query->asOf, $query->after, $query->max), $prospector->accountId));
+        $timeline = $this->timelineRetriever->ofContact($contact, $prospector, $query->asOf, $query->after, $query->max);
+        $offered = array_map(static fn (TimelineIntent $intent): string => $intent->name, $this->contactOrganizations->timelineIntentsOf($contact, $prospector));
+
+        $output->present($this->campaignsOfTimeline->named($timeline->offering($offered), $prospector->accountId));
     }
 }

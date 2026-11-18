@@ -41,4 +41,13 @@ final readonly class Timeline
     {
         return clone ($this, ['exchanges' => array_map(static fn (ExchangeInTimeline $exchange): ExchangeInTimeline => $exchange->withCampaignNamed($names), $this->exchanges)]);
     }
+
+    /**
+     * @param list<string> $possibleIntents what the timeline offers its reader, by name
+     */
+    #[\NoDiscard]
+    public function offering(array $possibleIntents): self
+    {
+        return clone ($this, ['possibleIntents' => $possibleIntents]);
+    }
 }
