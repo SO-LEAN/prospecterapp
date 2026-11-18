@@ -179,6 +179,14 @@
     "handler": "Prospecter\\Core\\Campaigns\\Application\\ProcessRecipientOfCampaignExchange\\ProcessRecipientOfCampaignExchangeHandler",
     "inbox": false
   },
+  "campaigns-reopen-recipient": {
+    "context": "campaigns",
+    "sources": ["prospecter.prospecting"],
+    "events": ["ExchangeFactsChanged.v3"],
+    "payload": {"present": [false]},
+    "handler": "Prospecter\\Core\\Campaigns\\Application\\ReopenRecipientOfErasedExchange\\ReopenRecipientOfErasedExchangeHandler",
+    "inbox": false
+  },
   "campaigns-record-facts": {
     "context": "campaigns",
     "sources": ["prospecter.prospecting", "prospecter.personal-data"],

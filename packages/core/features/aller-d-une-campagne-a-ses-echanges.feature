@@ -21,6 +21,28 @@ Fonctionnalité: Le lien entre une campagne et ses échanges
     Quand je consulte l'échange de "Ada Lovelace"
     Alors il vient de la campagne "Relance", avec un lien vers elle
 
+  Scénario: Supprimer l'échange remet le destinataire à traiter
+    Quand je supprime l'échange de "Ada Lovelace"
+    Alors "Ada Lovelace" est à traiter dans la campagne "Relance"
+
+  Scénario: Une campagne terminée reprend si un échange est supprimé
+    Soit "Alan Turing" est écarté de la campagne "Relance"
+    Et la campagne "Relance" est terminée
+    Quand je supprime l'échange de "Ada Lovelace"
+    Alors la campagne "Relance" est de nouveau démarrée
+    Et "Ada Lovelace" est à traiter dans la campagne "Relance"
+
+  Scénario: Une campagne arrêtée reste arrêtée
+    Soit la campagne "Relance" est arrêtée
+    Quand je supprime l'échange de "Ada Lovelace"
+    Alors la campagne "Relance" est toujours arrêtée
+    Et "Ada Lovelace" est à traiter dans la campagne "Relance"
+
+  Scénario: Supprimer un autre échange du destinataire ne le remet pas à traiter
+    Soit j'ai noté un autre e-mail envoyé à "Ada Lovelace", hors de la campagne
+    Quand je supprime cet autre échange
+    Alors "Ada Lovelace" est traitée, avec un lien vers son échange
+
   Scénario: Le fait publié d'un échange effacé nomme encore son contact et sa campagne
     Quand je supprime l'échange de "Ada Lovelace"
     Alors le fait publié de cet échange, absent, nomme la campagne "Relance" et le contact "Ada Lovelace"

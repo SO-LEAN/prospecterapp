@@ -377,6 +377,8 @@ final class CampaignContext implements Context
     public function iEraseTheOtherExchange(): void
     {
         $this->application->dispatch(new EraseExchange($this->application->signedIn(), $this->other ?? throw new \LogicException('No other exchange noted'), $this->application->now()));
+
+        Expect::same([], array_map(static fn (\Throwable $failure): string => $failure->getMessage(), $this->application->events->failuresOf(ExchangeFactsChanged::class)));
     }
 
     #[Then('il vient de la campagne :name, avec un lien vers elle')]
