@@ -102,9 +102,25 @@ final readonly class Recipients
      * the first exchange winning.
      */
     #[\NoDiscard]
-    public function processing(PersonId $contact, bool $missed): self
+    public function processing(PersonId $contact, string $exchangeId, bool $missed): self
     {
-        return $this->handling($contact, static fn (Recipient $recipient): Recipient => $recipient->isPending() ? $recipient->processed($missed) : $recipient);
+        return $this->handling($contact, static fn (Recipient $recipient): Recipient => $recipient->isPending() ? $recipient->processed($exchangeId, $missed) : $recipient);
+    }
+
+    /**
+     * The recipient the erased exchange processed is to handle again; another exchange of theirs changes nothing
+     * (ADR 0152).
+     */
+    #[\NoDiscard]
+    public function reopening(string $exchangeId): self
+    {
+        return new self(array_map(static fn (Recipient $recipient): Recipient => $recipient->isProcessedBy($exchangeId) ? Recipient::pending($recipient->contact) : $recipient, $this->recipients));
+    }
+
+    #[\NoDiscard]
+    public function processedBy(string $exchangeId): bool
+    {
+        return array_any($this->recipients, static fn (Recipient $recipient): bool => $recipient->isProcessedBy($exchangeId));
     }
 
     /**

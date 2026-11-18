@@ -33,7 +33,7 @@ final readonly class ProcessRecipientOfCampaignExchangeHandler implements EventH
         $campaign = $this->campaigns->find(new AccountId($event->accountId), new CampaignId($event->campaignId));
 
         if (null !== $campaign) {
-            $campaign->process(new PersonId($event->contactId), self::OUTCOMES[(string) $event->status], $event->occurredAt);
+            $campaign->process(new PersonId($event->contactId), $event->exchangeId, self::OUTCOMES[(string) $event->status], $event->occurredAt);
             $this->campaigns->save($campaign);
         }
     }

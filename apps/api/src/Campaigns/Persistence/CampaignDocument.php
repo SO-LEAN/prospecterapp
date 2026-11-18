@@ -28,8 +28,8 @@ use Prospecter\Core\SharedKernel\Domain\PersonId;
 /**
  * A campaign as its item keeps it (ADR 0048, 0144): its tags by their names without their mark, those of its target
  * derived from them and from its channel, never kept; frozen, its recipients by their identities and their statuses,
- * whether the call of one processed did not go through, why one was dismissed (ADR 0145), in the order they were
- * added, none in a draft; the moments it was started, stopped and ended, none before.
+ * whether the call of one processed did not go through and the exchange that processed it (ADR 0145, 0152), why one
+ * was dismissed, in the order they were added, none in a draft; the moments it was started, stopped and ended, none before.
  */
 final class CampaignDocument
 {
@@ -130,7 +130,7 @@ final class CampaignDocument
     /**
      * @param array<string, mixed> $document
      *
-     * @return list<array{contactId: string, status: string, missed?: bool, reason?: ?string}> none for a campaign saved before it could be frozen
+     * @return list<array{contactId: string, status: string, missed?: bool, reason?: ?string, exchangeId?: ?string}> none for a campaign saved before it could be frozen
      */
     private static function recipientsOf(array $document): array
     {
@@ -138,21 +138,22 @@ final class CampaignDocument
     }
 
     /**
-     * @return array{contactId: string, status: string, missed: bool, reason: ?string}
+     * @return array{contactId: string, status: string, missed: bool, reason: ?string, exchangeId: ?string}
      */
     private static function recipientDocument(Recipient $recipient): array
     {
-        return ['contactId' => $recipient->contact->value, 'status' => $recipient->status->value, 'missed' => $recipient->missed, 'reason' => $recipient->reason];
+        return ['contactId' => $recipient->contact->value, 'status' => $recipient->status->value, 'missed' => $recipient->missed, 'reason' => $recipient->reason, 'exchangeId' => $recipient->exchangeId];
     }
 
     /**
-     * Without whether it was missed nor why it was dismissed when saved before a campaign was led.
+     * Without whether it was missed nor why it was dismissed when saved before a campaign was led, without its exchange
+     * when processed before the recipient kept it (ADR 0152).
      *
-     * @param array{contactId: string, status: string, missed?: bool, reason?: ?string} $document
+     * @param array{contactId: string, status: string, missed?: bool, reason?: ?string, exchangeId?: ?string} $document
      */
     private static function recipient(array $document): Recipient
     {
-        return new Recipient(new PersonId($document['contactId']), RecipientStatus::from($document['status']), $document['missed'] ?? false, $document['reason'] ?? null);
+        return new Recipient(new PersonId($document['contactId']), RecipientStatus::from($document['status']), $document['missed'] ?? false, $document['reason'] ?? null, $document['exchangeId'] ?? null);
     }
 
     private static function momentOrNone(?\DateTimeImmutable $moment): ?string
