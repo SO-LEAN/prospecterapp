@@ -9,6 +9,7 @@ use Prospecter\Core\Connectors\Domain\Event\Connected;
 use Prospecter\Core\Connectors\Domain\Event\ConnectionLost;
 use Prospecter\Core\Connectors\Domain\Event\Disconnected;
 use Prospecter\Core\Connectors\Domain\Event\MailImportStarted;
+use Prospecter\Core\Connectors\Domain\Event\MailImportStopped;
 use Prospecter\Core\Connectors\Domain\Model\CalendarEvent;
 use Prospecter\Core\Connectors\Domain\Model\Channel;
 use Prospecter\Core\Connectors\Domain\Model\ClientCredentials;
@@ -188,6 +189,21 @@ final class ConnectionTest extends TestCase
         $connection->importMail(self::client(), self::notifications(), new InMemoryProviderMailbox($google, static fn (): \DateTimeImmutable => new \DateTimeImmutable(self::AT)), new \DateTimeImmutable(self::AT));
 
         $this->assertEquals([new MailImportStarted(new AccountId(self::ACCOUNT), new MemberId(self::MEMBER), new \DateTimeImmutable(self::AT))], $connection->releaseEvents());
+    }
+
+    public function testAnImportOfTheMailStoppedRecordsItOnce(): void
+    {
+        $google = new InMemoryProviderAccess();
+        $mailbox = new InMemoryProviderMailbox($google, static fn (): \DateTimeImmutable => new \DateTimeImmutable(self::AT));
+        $grant = $google->exchange(self::client(), $google->grant('michel@exemple.fr', Scope::Calendar, Scope::Mailbox), 'a-verifier');
+        $connection = Connection::establish(new MemberId(self::MEMBER), new AccountId(self::ACCOUNT), self::client(), $grant, new \DateTimeImmutable(self::AT));
+        $connection->importMail(self::client(), self::notifications(), $mailbox, new \DateTimeImmutable(self::AT));
+        $connection->releaseEvents();
+
+        $connection->stopMailImport(self::client(), $mailbox, new \DateTimeImmutable(self::AT));
+        $connection->stopMailImport(self::client(), $mailbox, new \DateTimeImmutable(self::AT));
+
+        $this->assertEquals([new MailImportStopped(new AccountId(self::ACCOUNT), new MemberId(self::MEMBER), new \DateTimeImmutable(self::AT))], $connection->releaseEvents());
     }
 
     public function testAnAuthorizationWaitsTenMinutes(): void

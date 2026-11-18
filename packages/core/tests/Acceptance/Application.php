@@ -126,6 +126,7 @@ use Prospecter\Core\Connectors\Application\RemoveClient\RemoveClientHandler;
 use Prospecter\Core\Connectors\Application\RemoveMailboxNotifications\RemoveMailboxNotificationsHandler;
 use Prospecter\Core\Connectors\Application\RetryFailedPushes\RetryFailedPushesHandler;
 use Prospecter\Core\Connectors\Application\RetryPush\RetryPushHandler;
+use Prospecter\Core\Connectors\Application\StopMailImport\StopMailImportHandler;
 use Prospecter\Core\Connectors\Application\UnnameForgottenContact\UnnameForgottenContactHandler;
 use Prospecter\Core\Connectors\Application\WhichHaveAConnectedCalendar\WhichHaveAConnectedCalendarHandler;
 use Prospecter\Core\Connectors\Contract\Service\WhichHaveAConnectedCalendar\KeptConnectedCalendars;
@@ -1182,6 +1183,7 @@ final class Application
             new EraseToDoHandler($this->toDos, $this->events),
             new AskForAuthorizationHandler($this->authorizations, $this->clients, $this->connectingMembers),
             new AskToImportMailHandler($this->authorizations, $this->clients, $this->connectingMembers),
+            new StopMailImportHandler($this->connections, $this->clients, $this->mailboxes, $this->connectingMembers, $this->events),
             new ConnectHandler($this->authorizations, $this->connections, $this->clients, $this->providerAccess, $this->mailboxes, $this->connectingMembers, $this->events),
             new CheckMyConnectionsHandler($this->connections, $this->clients, $this->providerAccess, $this->connectingMembers, $this->events),
             new DisconnectHandler($this->connections, $this->providerAccess, $this->events),

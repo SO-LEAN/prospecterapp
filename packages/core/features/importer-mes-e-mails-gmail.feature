@@ -35,6 +35,14 @@ Fonctionnalité: Activer l'import de mes e-mails Gmail
     Et Gmail ne prévient pas Prospecter des nouveaux e-mails de "michel@exemple.fr"
     Et ma connexion Google est "connectée"
 
+  Scénario: Couper l'import
+    Soit le client Google de "SOLEAN IT" a le topic Pub/Sub "projects/solean/topics/gmail"
+    Et j'ai activé l'import de mes e-mails Gmail
+    Quand je coupe l'import de mes e-mails Gmail
+    Alors l'import de mes e-mails Gmail est "coupé"
+    Et Gmail ne prévient plus Prospecter des nouveaux e-mails de "michel@exemple.fr"
+    Et ma connexion Google est "connectée"
+
   Scénario: Sans topic du compte, l'import est refusé
     Quand j'active l'import de mes e-mails Gmail et que Google accorde l'accès à Gmail
     Alors c'est refusé : "The import of the e-mails is not available"
