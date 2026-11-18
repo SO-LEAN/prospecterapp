@@ -41,6 +41,6 @@ final class RemoveGoogleClientController extends AbstractController
     {
         $this->commandBus->dispatch(new RemoveClient($user->memberId(), self::GOOGLE, $this->clock->now()));
 
-        return $this->json($this->googleClientReader->read($user->memberId()));
+        return $this->json($this->googleClientReader->read($user));
     }
 }

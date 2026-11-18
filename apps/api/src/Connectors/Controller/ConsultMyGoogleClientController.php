@@ -30,6 +30,6 @@ final class ConsultMyGoogleClientController extends AbstractController
     #[OA\Response(response: 403, description: 'The signed-in user is no administrator of the account', content: new Model(type: ProblemResource::class))]
     public function __invoke(#[CurrentUser] User $user): JsonResponse
     {
-        return $this->json($this->googleClientReader->read($user->memberId()));
+        return $this->json($this->googleClientReader->read($user));
     }
 }

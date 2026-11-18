@@ -1077,6 +1077,24 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/me/organization/clients/google/gmail-notifications": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        /** Name the topic of the Google Cloud of my account the mailboxes of its members notify Prospecter through, and the account of service pushing them: the import of the e-mails of Gmail is offered from now on */
+        put: operations["put_api_me_configure_gmail_notifications"];
+        post?: never;
+        /** Remove the topic of my account: the import of the e-mails of Gmail is no longer offered, the watches of the mailboxes expiring within their week */
+        delete: operations["delete_api_me_remove_gmail_notifications"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/me/organization/clients/google": {
         parameters: {
             query?: never;
@@ -1985,6 +2003,12 @@ export interface components {
              */
             dueAt: string | null;
         };
+        GmailNotificationsInput: {
+            /** @default null */
+            topic: string | null;
+            /** @default null */
+            pushAccount: string | null;
+        };
         GoogleClientInput: {
             /** @default null */
             clientId: string | null;
@@ -2783,6 +2807,14 @@ export interface components {
             self: components["schemas"]["LinkResource"];
             configure: components["schemas"]["LinkResource"];
             remove?: components["schemas"]["LinkResource"];
+            configureGmailNotifications?: components["schemas"]["LinkResource"];
+            removeGmailNotifications?: components["schemas"]["LinkResource"];
+        };
+        GmailNotificationsResource: {
+            /** @description The topic, in full: projects/<project>/topics/<topic> */
+            topic: string;
+            /** Format: email */
+            pushAccount: string;
         };
         GoogleClientResource: {
             /** @description The id of the client at Google, none while the account has no client */
@@ -2794,7 +2826,13 @@ export interface components {
              * @description The redirect URI to declare in the client at Google
              */
             redirectUri: string;
+            /**
+             * Format: uri
+             * @description The endpoint the subscription of the account at Google pushes the notifications of Gmail to, its audience the same
+             */
+            gmailNotificationEndpoint: string;
             _links: components["schemas"]["GoogleClientLinksResource"];
+            gmailNotifications?: components["schemas"]["GmailNotificationsResource"];
         };
         SyncResource: {
             /** @enum {string} */
@@ -7308,6 +7346,127 @@ export interface operations {
                 };
             };
             /** @description The secret of the client cannot be kept nor read for now (`secretsUnavailable`), or Google does not answer, fails or limits the requests: the connections stay as last seen (`googleUnreachable`) */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ProblemResource"];
+                };
+            };
+        };
+    };
+    put_api_me_configure_gmail_notifications: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["GmailNotificationsInput"];
+            };
+        };
+        responses: {
+            /** @description The client of Google of my account */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["GoogleClientResource"];
+                };
+            };
+            /** @description Missing or invalid access token */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description The signed-in user is no administrator of the account */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ProblemResource"];
+                };
+            };
+            /** @description My account has no client of Google */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ProblemResource"];
+                };
+            };
+            /** @description A topic not named in full (`invalidTopic`), or an account of service that is no address */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ProblemResource"];
+                };
+            };
+            /** @description The secret of the client cannot be kept nor read for now (`secretsUnavailable`) */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ProblemResource"];
+                };
+            };
+        };
+    };
+    delete_api_me_remove_gmail_notifications: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description The client of Google of my account, without its topic */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["GoogleClientResource"];
+                };
+            };
+            /** @description Missing or invalid access token */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description The signed-in user is no administrator of the account */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ProblemResource"];
+                };
+            };
+            /** @description My account has no client of Google */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ProblemResource"];
+                };
+            };
+            /** @description The secret of the client cannot be kept nor read for now (`secretsUnavailable`) */
             503: {
                 headers: {
                     [name: string]: unknown;

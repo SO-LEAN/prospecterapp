@@ -8,7 +8,8 @@ use Symfony\Component\Serializer\Attribute\SerializedName;
 use Symfony\Component\Serializer\Normalizer\AbstractObjectNormalizer;
 
 /**
- * The client of Google of my account, as its administrator configures it (ADR 0125).
+ * The client of Google of my account, as its administrator configures it (ADR 0125), and the topic of its Google Cloud
+ * the import of the e-mails of Gmail goes through (ADR 0154).
  */
 final readonly class GoogleClientResource
 {
@@ -19,9 +20,14 @@ final readonly class GoogleClientResource
         public bool $secretSet,
         #[OA\Property(description: 'The redirect URI to declare in the client at Google', format: 'uri')]
         public string $redirectUri,
+        #[OA\Property(description: 'The endpoint the subscription of the account at Google pushes the notifications of Gmail to, its audience the same', format: 'uri')]
+        public string $gmailNotificationEndpoint,
         #[SerializedName('_links')]
         #[Context([AbstractObjectNormalizer::SKIP_NULL_VALUES => true])]
         public GoogleClientLinksResource $links,
+        #[OA\Property(description: 'The topic the mailboxes of the members notify Prospecter through, while the account has one', nullable: false)]
+        #[Context([AbstractObjectNormalizer::SKIP_NULL_VALUES => true])]
+        public ?GmailNotificationsResource $gmailNotifications = null,
     ) {
     }
 }

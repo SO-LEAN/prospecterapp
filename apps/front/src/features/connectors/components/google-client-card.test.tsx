@@ -18,11 +18,13 @@ vi.mock('@/shared/auth/session', () => ({
 
 const THE_CLIENT = '/api/me/organization/clients/google'
 const REDIRECT_URI = 'https://prospecter.localhost/settings/connectors/google'
+const NOTIFICATION_ENDPOINT = 'https://api.prospecter.localhost/api/accounts/an-account/gmail-notifications'
 
 const configured = (clientId: string): GoogleClient => ({
   clientId,
   secretSet: true,
   redirectUri: REDIRECT_URI,
+  gmailNotificationEndpoint: NOTIFICATION_ENDPOINT,
   _links: {
     self: { href: THE_CLIENT, method: 'GET' },
     configure: { href: THE_CLIENT, method: 'PATCH' },
@@ -34,6 +36,7 @@ const none: GoogleClient = {
   clientId: null,
   secretSet: false,
   redirectUri: REDIRECT_URI,
+  gmailNotificationEndpoint: NOTIFICATION_ENDPOINT,
   _links: { self: { href: THE_CLIENT, method: 'GET' }, configure: { href: THE_CLIENT, method: 'PATCH' } },
 }
 
