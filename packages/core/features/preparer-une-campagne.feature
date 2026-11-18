@@ -74,6 +74,30 @@ Fonctionnalité: Préparer une campagne
     Quand je lis le message pour "Ada Lovelace"
     Alors son objet vaut "Ada, une question"
 
+  Scénario: La civilité d'une contact est rendue
+    Soit la campagne "Relance ESN" a le message "Bonjour {civilité} {nom},"
+    Et "Grace Hopper" a la civilité "Madame"
+    Quand je lis le message pour "Grace Hopper"
+    Alors il vaut "Bonjour Madame Hopper,"
+
+  Scénario: La civilité d'un contact est rendue
+    Soit le contact "Alan Turing" de "ACME"
+    Et la campagne "Relance ESN" a le message "Bonjour {civilité} {nom},"
+    Et "Alan Turing" a la civilité "Monsieur"
+    Quand je lis le message pour "Alan Turing"
+    Alors il vaut "Bonjour Monsieur Turing,"
+
+  Scénario: Sans civilité, la variable reste vide
+    Soit la campagne "Relance ESN" a le message "Bonjour {civilité} {nom},"
+    Quand je lis le message pour "Grace Hopper"
+    Alors il vaut "Bonjour  Hopper,"
+
+  Scénario: La civilité est rendue dans l'objet d'un e-mail aussi
+    Soit la campagne "Relance ESN" a l'objet "{civilité} {nom}, une question" et le message "Bonjour"
+    Et "Grace Hopper" a la civilité "Madame"
+    Quand je lis le message pour "Grace Hopper"
+    Alors son objet vaut "Madame Hopper, une question"
+
   Scénario: Une campagne a un nom, un canal et au moins un tag choisi
     Quand je prépare la campagne "" sans tag
     Alors c'est refusé : "A campaign has a name"
