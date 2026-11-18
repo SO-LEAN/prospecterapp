@@ -1186,7 +1186,7 @@ final class Application
             new StopMailImportHandler($this->connections, $this->clients, $this->mailboxes, $this->connectingMembers, $this->events),
             new ConnectHandler($this->authorizations, $this->connections, $this->clients, $this->providerAccess, $this->mailboxes, $this->connectingMembers, $this->events),
             new CheckMyConnectionsHandler($this->connections, $this->clients, $this->providerAccess, $this->connectingMembers, $this->events),
-            new DisconnectHandler($this->connections, $this->providerAccess, $this->events),
+            new DisconnectHandler($this->connections, $this->providerAccess, $this->clients, $this->mailboxes, $this->connectingMembers, $this->events),
             new ConfigureClientHandler($this->clients, $this->connectingMembers, $this->events),
             new RemoveClientHandler($this->clients, $this->connectingMembers, $this->events),
             new ConfigureMailboxNotificationsHandler($this->clients, $this->connectingMembers, $this->events),
