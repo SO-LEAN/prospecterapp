@@ -5,7 +5,7 @@ namespace Tests\App\PersonalData;
 use App\PersonalData\Persistence\DynamoPersonRepository;
 use App\PersonalData\Persistence\PersonDocument;
 use App\Shared\Persistence\Table;
-use Prospecter\Core\PersonalData\Domain\Exception\LinkedInProfileAlreadyUsed;
+use Prospecter\Core\PersonalData\Domain\Exception\LinkedInProfileTakenMeanwhile;
 use Prospecter\Core\PersonalData\Domain\Model\LinkedInProfile;
 use Prospecter\Core\PersonalData\Domain\Model\Person;
 use Prospecter\Core\PersonalData\Domain\Model\Purpose;
@@ -67,7 +67,7 @@ class DynamoPersonLinkedInProfilesTest extends ApiTestCase
         $account = new AccountId(self::newIdentity());
         $this->persons()->save($this->contactWithTheProfiles($account, self::ADA));
 
-        $this->expectException(LinkedInProfileAlreadyUsed::class);
+        $this->expectException(LinkedInProfileTakenMeanwhile::class);
 
         $this->persons()->save($this->contactWithTheProfiles($account, self::ADA));
     }

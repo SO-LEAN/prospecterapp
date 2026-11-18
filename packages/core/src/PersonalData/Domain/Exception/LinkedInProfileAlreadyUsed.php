@@ -21,12 +21,4 @@ final class LinkedInProfileAlreadyUsed extends BusinessRuleViolation
 
         return self::because(sprintf('LinkedIn profile already held by %s', $name), 'linkedInProfile', context: ['holder' => $name, 'holderId' => $holder->id()->value]);
     }
-
-    /**
-     * Two requests took the profile at once: the second one does not know who holds it.
-     */
-    public static function byAnother(?\Throwable $detectedBy = null): self
-    {
-        return self::because('LinkedIn profile already held by another contact', 'linkedInProfile', $detectedBy);
-    }
 }
