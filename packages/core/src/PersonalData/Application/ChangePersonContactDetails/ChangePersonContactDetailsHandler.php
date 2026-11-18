@@ -34,10 +34,10 @@ final readonly class ChangePersonContactDetailsHandler implements CommandHandler
     public function __invoke(ChangePersonContactDetails $command): void
     {
         $person = $this->persons->get(new PersonId($command->id));
-        $linkedInProfile = LinkedInProfile::orNone($command->linkedInProfile);
-        $this->linkedInProfiles->ensureAvailableFor($person, $linkedInProfile);
-        $person->changeContactDetails(new ContactDetails(Email::orNone($command->email), PhoneNumber::orNone($command->phoneNumber), $command->language), $linkedInProfile, by: $this->readers->readerFrom(new MemberId($command->readerId)), at: $command->executedAt);
+        $heldBefore = $person->linkedInProfilesHeld();
+        $person->changeContactDetails(new ContactDetails(Email::orNone($command->email), PhoneNumber::orNone($command->phoneNumber), $command->language), LinkedInProfile::orNone($command->linkedInProfile), by: $this->readers->readerFrom(new MemberId($command->readerId)), at: $command->executedAt);
         $this->emails->ensureAvailableFor($person);
+        $this->linkedInProfiles->ensureAvailableFor($person, $heldBefore);
         $this->persons->save($person);
         $this->publishWhatHappenedTo($person);
     }
