@@ -74,3 +74,10 @@ campaigning:
     type: attribute
     host: '%app_api_host%'
     defaults: { _format: json }
+
+# the booking page of each member, its public page read without signing in (ADR 0148, 0151)
+booking:
+    resource: ../src/Booking/Controller/
+    type: attribute
+    host: '%app_api_host%'
+    defaults: { _format: json }

@@ -6910,6 +6910,386 @@
                     }
                 }
             }
+        },
+        "/api/me/booking-page/inactive-periods": {
+            "post": {
+                "tags": [
+                    "Booking"
+                ],
+                "summary": "Add days I may not be booked, whatever my windows, both bounds included",
+                "operationId": "post_api_booking_page_add_inactive_period",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/InactivePeriodInput"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "My booking page",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/BookingPageResource"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Missing or invalid access token"
+                    },
+                    "422": {
+                        "description": "A period ending before it starts, a day not written YYYY-MM-DD",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ProblemResource"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/me/booking-page/link": {
+            "post": {
+                "tags": [
+                    "Booking"
+                ],
+                "summary": "Draw another code for the link of my booking page: the former link leads nowhere",
+                "operationId": "post_api_booking_page_change_link",
+                "responses": {
+                    "200": {
+                        "description": "My booking page",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/BookingPageResource"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Missing or invalid access token"
+                    },
+                    "409": {
+                        "description": "The page has no link yet",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ProblemResource"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/me/booking-page/opening": {
+            "post": {
+                "tags": [
+                    "Booking"
+                ],
+                "summary": "Open my booking page, while my calendar is connected and it offers a channel: its link, drawn at the first opening, offers my slots",
+                "operationId": "post_api_booking_page_open",
+                "responses": {
+                    "200": {
+                        "description": "My booking page",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/BookingPageResource"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Missing or invalid access token"
+                    },
+                    "409": {
+                        "description": "The page is open already",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ProblemResource"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "No calendar connected, no channel offered",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ProblemResource"
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "tags": [
+                    "Booking"
+                ],
+                "summary": "Close my booking page at once: its link offers nothing, my settings and my link kept",
+                "operationId": "delete_api_booking_page_close",
+                "responses": {
+                    "200": {
+                        "description": "My booking page",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/BookingPageResource"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Missing or invalid access token"
+                    },
+                    "409": {
+                        "description": "The page is closed already",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ProblemResource"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/me/booking-page": {
+            "get": {
+                "tags": [
+                    "Booking"
+                ],
+                "summary": "Consult my booking page: my windows, my inactive periods not ended on my clock, my channels, whether it is open and its link, whether my calendar is connected",
+                "operationId": "get_api_booking_page",
+                "parameters": [
+                    {
+                        "name": "timeZone",
+                        "in": "query",
+                        "description": "The time zone of the reader, by its name in the database of the time zones; UTC otherwise",
+                        "required": false,
+                        "schema": {
+                            "description": "The time zone of the reader, by its name in the database of the time zones; UTC otherwise",
+                            "type": "string",
+                            "example": "Europe/Paris",
+                            "nullable": true,
+                            "default": null
+                        },
+                        "example": "Europe/Paris"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "My booking page, closed and empty until I set it",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/BookingPageResource"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Missing or invalid access token"
+                    },
+                    "422": {
+                        "description": "An unknown time zone",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ProblemResource"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/booking-pages/{code}": {
+            "get": {
+                "tags": [
+                    "Booking"
+                ],
+                "summary": "Consult the booking page a public link leads to, without signing in: whether it offers slots, and how its host meets the bookers",
+                "operationId": "get_api_public_booking_page",
+                "parameters": [
+                    {
+                        "name": "code",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "pattern": "[0-9A-Za-z]{22}"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "The booking page",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/PublicBookingPageResource"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "No page at this code: a former link, or one nobody drew",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ProblemResource"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": []
+            }
+        },
+        "/api/me/booking-page/channels": {
+            "patch": {
+                "tags": [
+                    "Booking"
+                ],
+                "summary": "Choose how the bookers meet me, a call, a video call or both; an open page offers one at least",
+                "operationId": "patch_api_booking_page_offer_channels",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/ChannelsInput"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "My booking page",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/BookingPageResource"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Missing or invalid access token"
+                    },
+                    "422": {
+                        "description": "No channel while the page is open, an unknown channel",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ProblemResource"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/me/booking-page/inactive-periods/{id}": {
+            "delete": {
+                "tags": [
+                    "Booking"
+                ],
+                "summary": "Remove an inactive period of mine: its days are offered again, as my windows say",
+                "operationId": "delete_api_booking_page_remove_inactive_period",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "pattern": "[0-9a-f]{8}-[0-9a-f]{4}-[13-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "My booking page",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/BookingPageResource"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Missing or invalid access token"
+                    },
+                    "404": {
+                        "description": "No inactive period of mine of this id",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ProblemResource"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/me/booking-page/windows": {
+            "patch": {
+                "tags": [
+                    "Booking"
+                ],
+                "summary": "Set the windows of my week, one a day at most, on the quarter hour and of 15 minutes at least, in the time zone of my clock, replacing the former ones",
+                "operationId": "patch_api_booking_page_set_windows",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/WindowsInput"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "My booking page",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/BookingPageResource"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Missing or invalid access token"
+                    },
+                    "422": {
+                        "description": "A window too short, off the quarter hour, two on a day, an unknown day or time zone",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ProblemResource"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
         }
     },
     "components": {
@@ -7785,6 +8165,106 @@
                     "subject": {
                         "description": "The subject of an e-mail",
                         "type": "string",
+                        "nullable": true,
+                        "default": null
+                    }
+                },
+                "type": "object"
+            },
+            "InactivePeriodInput": {
+                "properties": {
+                    "firstDay": {
+                        "type": "string",
+                        "format": "date",
+                        "example": "2026-12-21",
+                        "nullable": true,
+                        "default": null
+                    },
+                    "lastDay": {
+                        "type": "string",
+                        "format": "date",
+                        "example": "2027-01-04",
+                        "nullable": true,
+                        "default": null
+                    }
+                },
+                "type": "object"
+            },
+            "MyClockQuery": {
+                "properties": {
+                    "timeZone": {
+                        "description": "The time zone of the reader, by its name in the database of the time zones; UTC otherwise",
+                        "type": "string",
+                        "example": "Europe/Paris",
+                        "nullable": true,
+                        "default": null
+                    }
+                },
+                "type": "object"
+            },
+            "ChannelsInput": {
+                "properties": {
+                    "channels": {
+                        "type": "array",
+                        "items": {
+                            "type": "string",
+                            "enum": [
+                                "call",
+                                "videoCall"
+                            ]
+                        },
+                        "nullable": true,
+                        "default": null
+                    }
+                },
+                "type": "object"
+            },
+            "WindowResource": {
+                "required": [
+                    "weekday",
+                    "from",
+                    "to"
+                ],
+                "properties": {
+                    "weekday": {
+                        "type": "string",
+                        "enum": [
+                            "monday",
+                            "tuesday",
+                            "wednesday",
+                            "thursday",
+                            "friday",
+                            "saturday",
+                            "sunday"
+                        ]
+                    },
+                    "from": {
+                        "description": "HH:MM, on the quarter hour",
+                        "type": "string",
+                        "example": "14:00"
+                    },
+                    "to": {
+                        "description": "HH:MM, on the quarter hour, 15 minutes after the start at least",
+                        "type": "string",
+                        "example": "17:00"
+                    }
+                },
+                "type": "object"
+            },
+            "WindowsInput": {
+                "properties": {
+                    "timeZone": {
+                        "description": "The time zone of my clock, by its name in the database of the time zones",
+                        "type": "string",
+                        "example": "Europe/Paris",
+                        "nullable": true,
+                        "default": null
+                    },
+                    "windows": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/WindowResource"
+                        },
                         "nullable": true,
                         "default": null
                     }
@@ -10534,6 +11014,159 @@
                     }
                 },
                 "type": "object"
+            },
+            "InactivePeriodLinksResource": {
+                "required": [
+                    "remove"
+                ],
+                "properties": {
+                    "remove": {
+                        "$ref": "#/components/schemas/LinkResource"
+                    }
+                },
+                "type": "object"
+            },
+            "InactivePeriodResource": {
+                "required": [
+                    "id",
+                    "firstDay",
+                    "lastDay",
+                    "_links"
+                ],
+                "properties": {
+                    "id": {
+                        "type": "string"
+                    },
+                    "firstDay": {
+                        "type": "string",
+                        "format": "date",
+                        "example": "2026-12-21"
+                    },
+                    "lastDay": {
+                        "type": "string",
+                        "format": "date",
+                        "example": "2027-01-04"
+                    },
+                    "_links": {
+                        "$ref": "#/components/schemas/InactivePeriodLinksResource"
+                    }
+                },
+                "type": "object"
+            },
+            "BookingPageLinksResource": {
+                "required": [
+                    "self",
+                    "setWindows",
+                    "addInactivePeriod",
+                    "offerChannels"
+                ],
+                "properties": {
+                    "self": {
+                        "$ref": "#/components/schemas/LinkResource"
+                    },
+                    "setWindows": {
+                        "$ref": "#/components/schemas/LinkResource"
+                    },
+                    "addInactivePeriod": {
+                        "$ref": "#/components/schemas/LinkResource"
+                    },
+                    "offerChannels": {
+                        "$ref": "#/components/schemas/LinkResource"
+                    },
+                    "open": {
+                        "$ref": "#/components/schemas/LinkResource"
+                    },
+                    "close": {
+                        "$ref": "#/components/schemas/LinkResource"
+                    },
+                    "changeLink": {
+                        "$ref": "#/components/schemas/LinkResource"
+                    }
+                },
+                "type": "object"
+            },
+            "BookingPageResource": {
+                "required": [
+                    "open",
+                    "windows",
+                    "inactivePeriods",
+                    "channels",
+                    "calendarConnected",
+                    "_links"
+                ],
+                "properties": {
+                    "open": {
+                        "description": "Whether its public link offers slots",
+                        "type": "boolean"
+                    },
+                    "windows": {
+                        "description": "One a day at most, Monday first",
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/WindowResource"
+                        }
+                    },
+                    "timeZone": {
+                        "description": "The time zone of the windows, by its name in the database of the time zones; none before they are set",
+                        "type": "string",
+                        "example": "Europe/Paris",
+                        "nullable": true
+                    },
+                    "inactivePeriods": {
+                        "description": "Those not ended before the day of the reading, the soonest first",
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/InactivePeriodResource"
+                        }
+                    },
+                    "channels": {
+                        "type": "array",
+                        "items": {
+                            "type": "string",
+                            "enum": [
+                                "call",
+                                "videoCall"
+                            ]
+                        }
+                    },
+                    "code": {
+                        "description": "The code of its public link, 22 characters of base 62; none before its first opening",
+                        "type": "string",
+                        "example": "AbCdEfGhIjKlMnOpQrStUv",
+                        "nullable": true
+                    },
+                    "calendarConnected": {
+                        "description": "Whether my calendar is connected, which invites the bookers: without it, the page does not open",
+                        "type": "boolean"
+                    },
+                    "_links": {
+                        "$ref": "#/components/schemas/BookingPageLinksResource"
+                    }
+                },
+                "type": "object"
+            },
+            "PublicBookingPageResource": {
+                "required": [
+                    "open",
+                    "channels"
+                ],
+                "properties": {
+                    "open": {
+                        "description": "Whether it offers slots; closed, it offers none",
+                        "type": "boolean"
+                    },
+                    "channels": {
+                        "type": "array",
+                        "items": {
+                            "type": "string",
+                            "enum": [
+                                "call",
+                                "videoCall"
+                            ]
+                        }
+                    }
+                },
+                "type": "object"
             }
         },
         "securitySchemes": {
@@ -10577,6 +11210,9 @@
         },
         {
             "name": "Tags"
+        },
+        {
+            "name": "Booking"
         }
     ]
 }

@@ -3,6 +3,7 @@
 namespace App\Shared\Messaging;
 
 use Prospecter\Core\Accounts\Domain\Event as Accounts;
+use Prospecter\Core\Booking\Domain\Event as Booking;
 use Prospecter\Core\Campaigns\Domain\Event as Campaigns;
 use Prospecter\Core\Connectors\Domain\Event as Connectors;
 use Prospecter\Core\PersonalData\Domain\Event as PersonalData;
@@ -21,6 +22,15 @@ final readonly class DomainEventTypes extends EventTypes
             'AccountRelocated.v1' => Accounts\AccountRelocated::class,
             'MemberRegistered.v1' => Accounts\MemberRegistered::class,
             'RemindersChanged.v1' => Accounts\RemindersChanged::class,
+        ],
+        'prospecter.booking.internal' => [
+            'BookingClosed.v1' => Booking\BookingClosed::class,
+            'BookingLinkChanged.v1' => Booking\BookingLinkChanged::class,
+            'BookingOpened.v1' => Booking\BookingOpened::class,
+            'ChannelsOffered.v1' => Booking\ChannelsOffered::class,
+            'InactivePeriodAdded.v1' => Booking\InactivePeriodAdded::class,
+            'InactivePeriodRemoved.v1' => Booking\InactivePeriodRemoved::class,
+            'WindowsSet.v1' => Booking\WindowsSet::class,
         ],
         'prospecter.campaigns.internal' => [
             'CampaignDiscarded.v1' => Campaigns\CampaignDiscarded::class,

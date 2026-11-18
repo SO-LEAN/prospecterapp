@@ -9,6 +9,7 @@ parameters:
     # subscription are written
     app.context_tables:
         accounts: '%env(DYNAMODB_TABLE_PREFIX)%-accounts'
+        booking: '%env(DYNAMODB_TABLE_PREFIX)%-booking'
         campaigns: '%env(DYNAMODB_TABLE_PREFIX)%-campaigns'
         connectors: '%env(DYNAMODB_TABLE_PREFIX)%-connectors'
         personal-data: '%env(DYNAMODB_TABLE_PREFIX)%-personal-data'
@@ -52,7 +53,7 @@ services:
     # Handlers of the core: commands go through the command bus, queries are called by the controllers, the
     # published services by the anticorruption layers of the other contexts (ADR 0045, 0089)
     Prospecter\Core\:
-        resource: '../vendor/prospecter/core/src/{Accounts,Campaigns,Connectors,PersonalData,Prospecting,Reporting}/Application/*/*Handler.php'
+        resource: '../vendor/prospecter/core/src/{Accounts,Booking,Campaigns,Connectors,PersonalData,Prospecting,Reporting}/Application/*/*Handler.php'
         exclude:
             - '../vendor/prospecter/core/src/Reporting/Application/RebuildFigures/RebuildFiguresHandler.php'
             - '../vendor/prospecter/core/src/Campaigns/Application/RebuildTags/RebuildTagsHandler.php'
@@ -79,6 +80,7 @@ services:
     Prospecter\Core\Campaigns\Application\TagsOfEveryContact: ~
     Prospecter\Core\Campaigns\Application\CampaignTargets: ~
     Prospecter\Core\Prospecting\Application\CampaignsOfTimeline: ~
+    Prospecter\Core\Booking\Application\BookingPages: ~
 
     # DynamoDB (ADR 0048): MiniStack locally (DYNAMODB_ENDPOINT), AWS in production (DYNAMODB_ENDPOINT empty);
     # one table per bounded context, injected by name in its repositories only (Table $prospectingTable)
@@ -107,12 +109,16 @@ services:
     app.table.campaigns:
         class: App\Shared\Persistence\Table
         arguments: { $name: '%env(DYNAMODB_TABLE_PREFIX)%-campaigns' }
+    app.table.booking:
+        class: App\Shared\Persistence\Table
+        arguments: { $name: '%env(DYNAMODB_TABLE_PREFIX)%-booking' }
     App\Shared\Persistence\Table $accountsTable: '@app.table.accounts'
     App\Shared\Persistence\Table $personalDataTable: '@app.table.personal_data'
     App\Shared\Persistence\Table $prospectingTable: '@app.table.prospecting'
     App\Shared\Persistence\Table $reportingTable: '@app.table.reporting'
     App\Shared\Persistence\Table $connectorsTable: '@app.table.connectors'
     App\Shared\Persistence\Table $campaignsTable: '@app.table.campaigns'
+    App\Shared\Persistence\Table $bookingTable: '@app.table.booking'
 
     # The services the contexts offer each other, answered in process by the handlers of their Contracts (ADR 0089)
     Prospecter\Core\Accounts\Contract\Service\ConsultMembers\ConsultMembersService: '@Prospecter\Core\Accounts\Application\ConsultMembers\ConsultMembersHandler'
@@ -128,6 +134,7 @@ services:
     Prospecter\Core\Prospecting\Contract\Service\NameOrganizationsOfContacts\NameOrganizationsOfContactsService: '@Prospecter\Core\Prospecting\Application\NameOrganizationsOfContacts\NameOrganizationsOfContactsHandler'
     Prospecter\Core\Campaigns\Contract\Service\WhichRecipientsArePending\WhichRecipientsArePendingService: '@Prospecter\Core\Campaigns\Application\WhichRecipientsArePending\WhichRecipientsArePendingHandler'
     Prospecter\Core\Campaigns\Contract\Service\NameCampaigns\NameCampaignsService: '@Prospecter\Core\Campaigns\Application\NameCampaigns\NameCampaignsHandler'
+    Prospecter\Core\Connectors\Contract\Service\WhichHaveAConnectedCalendar\WhichHaveAConnectedCalendarService: '@Prospecter\Core\Connectors\Application\WhichHaveAConnectedCalendar\WhichHaveAConnectedCalendarHandler'
 
     # Ports of the core, implemented by the application
     Prospecter\Core\Accounts\Domain\Repository\AccountRepository: '@App\Accounts\Persistence\DynamoAccountRepository'
@@ -209,6 +216,11 @@ services:
     Prospecter\Core\Prospecting\Domain\Port\CampaignRecipients: '@App\Prospecting\AntiCorruption\CampaignsCampaignRecipients'
     Prospecter\Core\Prospecting\Domain\Port\CampaignNames: '@App\Prospecting\AntiCorruption\CampaignsCampaignNames'
     Prospecter\Core\PersonalData\Domain\Port\ProspectedOrganizations: '@App\PersonalData\AntiCorruption\ProspectingOrganizations'
+    Prospecter\Core\Booking\Domain\Repository\BookingPageRepository: '@App\Booking\Persistence\DynamoBookingPageRepository'
+    Prospecter\Core\Booking\Application\Port\MyBookingPageRetriever: '@App\Booking\Persistence\DynamoMyBookingPageRetriever'
+    Prospecter\Core\Booking\Application\Port\PublicBookingPageRetriever: '@App\Booking\Persistence\DynamoPublicBookingPageRetriever'
+    Prospecter\Core\Booking\Domain\Port\Hosts: '@App\Booking\AntiCorruption\AccountsHosts'
+    Prospecter\Core\Booking\Domain\Port\ConnectedCalendars: '@App\Booking\AntiCorruption\ConnectorsConnectedCalendars'
     # a domain event to the translators of its context on the event bus, every event to the reactions of the
     # subscriptions of config/subscriptions.json, delivered the way INTEGRATION_EVENTS_DELIVERY names: sync, within
     # the command, or outbox, written with it and relayed to the bus

@@ -16,12 +16,16 @@ class TablePerContextTest extends TestCase
 
     private const array TABLES = [
         'Accounts' => 'accountsTable',
+        'Booking' => 'bookingTable',
         'Campaigns' => 'campaignsTable',
         'Connectors' => 'connectorsTable',
         'PersonalData' => 'personalDataTable',
         'Prospecting' => 'prospectingTable',
         'Reporting' => 'reportingTable',
     ];
+
+    /** what keeps nothing derived from another context, nothing the check of the consistency compares (ADR 0148) */
+    private const array NOT_CHECKED = ['Booking'];
 
     /** the only code reading the tables of several contexts */
     private const string READING_EVERY_TABLE = 'Consistency/ContextTables.php';
@@ -47,7 +51,7 @@ class TablePerContextTest extends TestCase
 
     public function testTheCheckOfTheConsistencyReadsEveryTableItChecksAndWritesNone(): void
     {
-        $this->assertSame(array_values(self::TABLES), $this->tablesIn('Consistency')[self::READING_EVERY_TABLE]);
+        $this->assertSame(array_values(array_diff_key(self::TABLES, array_flip(self::NOT_CHECKED))), $this->tablesIn('Consistency')[self::READING_EVERY_TABLE]);
         $code = (string) file_get_contents(dirname(__DIR__, 2).'/src/'.self::READING_EVERY_TABLE);
 
         foreach (self::WRITES as $write) {

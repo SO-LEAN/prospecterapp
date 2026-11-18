@@ -18,6 +18,10 @@ security:
         user_pool:
             pattern: ^/api/user-pool$
             security: false
+        # the page a public link of a booking leads to, read by whomever holds the link (ADR 0151)
+        booking_page:
+            pattern: ^/api/booking-pages/[0-9A-Za-z]{22}$
+            security: false
         # resource server: every API call carries an access token of the Cognito user pool (ADR 0052)
         api:
             pattern: ^/api/
