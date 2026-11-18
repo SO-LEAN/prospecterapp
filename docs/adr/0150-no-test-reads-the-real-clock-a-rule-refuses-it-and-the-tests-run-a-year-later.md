@@ -15,7 +15,7 @@ A test of the front set a planned exchange at a fixed moment without fixing its 
 - `make test CLOCK_SHIFT=+365d` runs the tests of the core, the storage and the front on the clock of the system moved by libfaketime (installed in the node image, built from its pinned source in the PHP image, Amazon Linux having no package of it). The API stays on the real clock: its tests sign in on the Cognito of MiniStack.
 
 ## Consequences
-- A test green today stays green tomorrow; the journeys read the clock only to name what they create (`e2e/unique.ts`).
+- A test green today stays green tomorrow; the journeys read the clock only to name what they create (`e2e/unique.ts`: names readable and in the order of the runs, rather than random ones).
 - A test of the front naming a future moment without moving the clock passes, against the moment of the tests: the lint refuses only the reads of the real clock, not a moment named.
 - The API is not run a year later; its guard is the PHPStan rule and its fixed clocks. The moment of the tables of its tests becomes the past in 2100.
 - The image of PHP downloads the source of libfaketime at its build, checked by its digest.
