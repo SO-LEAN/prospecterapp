@@ -417,7 +417,7 @@ export interface paths {
         delete?: never;
         options?: never;
         head?: never;
-        /** Note how one addresses a contact, Madame or Monsieur, or no longer */
+        /** Note how one addresses a contact, Ms or Mr, or no longer */
         patch: operations["patch_api_contacts_change_civility"];
         trace?: never;
     };
@@ -1558,7 +1558,7 @@ export interface components {
              * @default null
              * @enum {string|null}
              */
-            civility: "madame" | "monsieur" | null;
+            civility: "ms" | "mr" | null;
         };
         JobTitleInput: {
             /** @default null */
@@ -1571,7 +1571,7 @@ export interface components {
              * @default null
              * @enum {string|null}
              */
-            civility: "madame" | "monsieur" | null;
+            civility: "ms" | "mr" | null;
             /** @default null */
             jobTitle: string | null;
             contactDetails?: components["schemas"]["PersonContactDetailsInput"];
@@ -1968,7 +1968,7 @@ export interface components {
              * @description How one addresses the contact, read in clear like their name
              * @enum {string|null}
              */
-            civility?: "madame" | "monsieur" | null;
+            civility?: "ms" | "mr" | null;
             jobTitle?: string | null;
             contactDetails: components["schemas"]["PersonContactDetailsResource"];
             masked: boolean;
@@ -2132,7 +2132,7 @@ export interface components {
              * @description How one addresses the contact, read in clear like their name
              * @enum {string|null}
              */
-            civility?: "madame" | "monsieur" | null;
+            civility?: "ms" | "mr" | null;
             jobTitle?: string | null;
             contactDetails: components["schemas"]["PersonContactDetailsResource"];
             /** @description The data are masked, but the name of a contact: the reader has no right to read personal data in clear */
@@ -2151,7 +2151,7 @@ export interface components {
              * @description How one addresses the contact, read in clear like their name
              * @enum {string|null}
              */
-            civility?: "madame" | "monsieur" | null;
+            civility?: "ms" | "mr" | null;
             jobTitle?: string | null;
             contactDetails: components["schemas"]["PersonContactDetailsResource"];
             masked: boolean;
