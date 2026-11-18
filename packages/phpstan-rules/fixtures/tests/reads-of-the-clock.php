@@ -6,6 +6,8 @@ use Symfony\Component\Clock\Clock;
 use Symfony\Component\Clock\MockClock;
 use Symfony\Component\Clock\NativeClock;
 
+use function Symfony\Component\Clock\now;
+
 new DateTimeImmutable();
 new \DateTime();
 new DateTimeImmutable('now');
@@ -19,6 +21,13 @@ mktime();
 new NativeClock();
 new MockClock();
 Clock::get();
+gmdate('Y');
+idate('Y');
+gmmktime();
+date_create();
+date_create_immutable('+1 day');
+now();
+new \DateTime('+1 day');
 
 new DateTimeImmutable('2026-10-15 09:00 UTC');
 new DateTimeImmutable('2026-10-15 09:00 UTC +7 days');
@@ -29,5 +38,9 @@ strtotime('+1 hour', 1760518800);
 mktime(9, 0, 0, 10, 15, 2026);
 new MockClock('2026-10-15 09:00 UTC');
 new DateTimeImmutable($moment ?? '2026-10-15');
+date_create_immutable('2026-10-15');
+strtotime('2026-10-15');
+gmdate('Y', 1760518800);
+time(...);
 // @phpstan-ignore prospecter.realClock (Cognito issues its tokens on the real clock)
 time();
