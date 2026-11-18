@@ -732,8 +732,10 @@ export const fr = {
     run: {
       means: { email: 'E-mail', call: 'Téléphone', sms: 'Téléphone', linkedIn: 'Profil LinkedIn' },
       next: 'Suivant',
+      nextByKey: 'La touche {{key}} passe au destinataire suivant.',
       message: 'Aperçu du message',
       copy: 'Copier',
+      copied: 'Message copié.',
       open: 'Ouvrir',
       note: 'Noter un échange',
       noted: 'Échange noté',
@@ -745,6 +747,7 @@ export const fr = {
       reason: 'Motif de l’écart',
       dismiss: 'Écarter',
       dismissed: 'Écarté',
+      ended: 'Plus personne n’est à traiter : la campagne est terminée.',
     },
     recipients: {
       title: 'Destinataires',
