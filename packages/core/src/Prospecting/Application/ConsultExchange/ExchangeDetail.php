@@ -13,7 +13,7 @@ namespace Prospecter\Core\Prospecting\Application\ConsultExchange;
  * the files joined to it; read without the right to
  * manage personal data, its text flagged and its files hidden, only counted; its contact forgotten, what is to make
  * conform, and who declared it made conform; the campaign it was noted in, named as Campaigns names it now, none once
- * erased (ADR 0145).
+ * erased (ADR 0152).
  */
 final readonly class ExchangeDetail
 {
@@ -62,6 +62,6 @@ final readonly class ExchangeDetail
     #[\NoDiscard]
     public function withCampaignNamed(array $names): self
     {
-        return null === $this->campaignId ? $this : clone ($this, ['campaignName' => $names[$this->campaignId] ?? null]);
+        return clone ($this, ['campaignName' => $names[(string) $this->campaignId] ?? null]);
     }
 }

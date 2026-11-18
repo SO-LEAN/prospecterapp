@@ -162,7 +162,12 @@ class DynamoExchangeDetailRetrieverTest extends ApiTestCase
         $exchange = Exchange::notedInACampaign($this->me->accountId, $this->me->id, new ExchangeId(self::newIdentity()), $recipient, [new OrganizationId(self::newIdentity())], new \DateTimeImmutable('2026-10-10 09:00 UTC'), null, false, new \DateTimeImmutable(self::NOW));
         $this->exchanges()->save($exchange);
 
-        $this->assertSame([$campaign->value, null], [$this->detailOf($exchange, $this->me)->campaignId, $this->detailOf($this->noted(), $this->me)->campaignId]);
+        $this->assertSame($campaign->value, $this->detailOf($exchange, $this->me)->campaignId);
+    }
+
+    public function testAnExchangeOfNoCampaignNamesNone(): void
+    {
+        $this->assertNull($this->detailOf($this->noted(), $this->me)->campaignId);
     }
 
     private function planned(string $at): Exchange

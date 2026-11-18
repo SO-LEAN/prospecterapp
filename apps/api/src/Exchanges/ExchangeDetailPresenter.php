@@ -25,7 +25,8 @@ use Prospecter\Core\Prospecting\Application\ConsultExchange\ExchangeDetail;
  * (ADR 0078), corrects the place of a meeting or the link of a video call (ADR 0114), its holder handles a planned
  * exchange (ADR 0112) and, just moved, moves it back while its former moment is to come (ADR 0135), the rest needs the right to
  * manage personal data. Each link names its intention, its route, and the role its controller requires beyond
- * reaching the exchange. Built for one call with its participants, it keeps the resource (ADR 0085).
+ * reaching the exchange; the campaign it was noted in is linked to those who read the campaigns, while it is kept
+ * (ADR 0152). Built for one call with its participants, it keeps the resource (ADR 0085).
  */
 final class ExchangeDetailPresenter implements ConsultExchangeOutput
 {
