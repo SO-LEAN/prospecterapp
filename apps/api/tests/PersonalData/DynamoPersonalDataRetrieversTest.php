@@ -173,7 +173,7 @@ class DynamoPersonalDataRetrieversTest extends ApiTestCase
 
     private function aContactWithoutAnEmail(string $firstName, string $lastName): Person
     {
-        $contact = Person::collect(new PersonId(self::newIdentity()), $this->account, Purpose::Prospecting, new \DateTimeImmutable(), new PersonName($firstName, $lastName), new ContactDetails(null, null));
+        $contact = Person::collect(new PersonId(self::newIdentity()), $this->account, Purpose::Prospecting, new \DateTimeImmutable(), new PersonName($firstName, $lastName), new ContactDetails());
         $this->persons()->save($contact);
 
         return $contact;

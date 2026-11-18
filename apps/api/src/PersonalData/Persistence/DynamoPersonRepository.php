@@ -5,6 +5,7 @@ namespace App\PersonalData\Persistence;
 use App\Shared\Persistence\Revision;
 use App\Shared\Persistence\SearchIndexes;
 use App\Shared\Persistence\Table;
+use App\Shared\Persistence\Write;
 use Prospecter\Core\PersonalData\Domain\Exception\UnknownPerson;
 use Prospecter\Core\PersonalData\Domain\Model\Person;
 use Prospecter\Core\PersonalData\Domain\Model\Purpose;
@@ -20,6 +21,8 @@ use Prospecter\Core\SharedKernel\Domain\PersonId;
  *   its id);
  * - `EMAIL#<account>#<purpose>#<email>` / `EMAIL`: the email a person holds among the persons an account keeps
  *   for a purpose, the safety net of EmailUniqueness (ADR 0039, 0048).
+ * - `PERSON#<id>` / `FIRST_NAME`: the key of the first name of a person who has one, in the index `NAME` beside
+ *   the key of their last name (ADR 0149), written and removed with the person.
  * The person carries its search keys and its phone number among the persons of the same account and purpose
  * (`SearchIndexes`), and its `revision`, incremented at each save: the revision of its facts (ADR 0099), which
  * the aggregate does not know.
@@ -53,6 +56,7 @@ final readonly class DynamoPersonRepository implements PersonRepository
 
         $this->personalDataTable->transact([
             $this->personalDataTable->deleting(PersonalDataKeys::person($person->id()->value), PersonalDataKeys::PERSON),
+            ...(null === $person->searchKeys()->firstName ? [] : [$this->personalDataTable->deleting(PersonalDataKeys::person($person->id()->value), PersonalDataKeys::FIRST_NAME)]),
             ...(null === $email ? [] : [$this->personalDataTable->deleting(self::emailKey($person->accountId(), $person->purpose(), $email), self::EMAIL)]),
         ]);
     }
@@ -70,7 +74,10 @@ final readonly class DynamoPersonRepository implements PersonRepository
         $stored = $this->personalDataTable->item(PersonalDataKeys::person($person->id()->value), PersonalDataKeys::PERSON);
         $storedEmail = $stored['email'] ?? null;
         $email = $document['contactDetails']['email'];
-        $writes = [$this->personalDataTable->putting($this->itemOf($person, $document, Revision::after($stored)))];
+        $writes = [
+            $this->personalDataTable->putting($this->itemOf($person, $document, Revision::after($stored))),
+            ...$this->firstNameWrites($person, null === $stored ? null : PersonDocument::person($stored['person'])),
+        ];
 
         if ($email !== $storedEmail && null !== $email) {
             $writes[] = $this->personalDataTable->putting(['PK' => self::emailKey($person->accountId(), $person->purpose(), $email), 'SK' => self::EMAIL, 'ownerId' => $document['id']], 'attribute_not_exists(PK) OR ownerId = :owner', [':owner' => $document['id']], EmailAlreadyUsed::byAnother(...));
@@ -84,14 +91,19 @@ final readonly class DynamoPersonRepository implements PersonRepository
     }
 
     /**
-     * Writes again the item of every person, its search keys and its key in its list with it, and forgets the items
+     * Writes again the item of every person, its search keys and its key in its list with it, the item of their first
+     * name beside it, and forgets the items
      * of the search before ADR 0071: what a table written before ADR 0071 needs once.
      */
     public function writeTheKeysAgain(): int
     {
-        $items = $this->personalDataTable->scan(PersonalDataKeys::PERSON.'#');
+        $items = array_values(array_filter($this->personalDataTable->scan(PersonalDataKeys::PERSON.'#'), static fn (array $item): bool => PersonalDataKeys::PERSON === $item['SK']));
+        $persons = array_map(static fn (array $item): Person => PersonDocument::person($item['person']), $items);
         $this->personalDataTable->batch(
-            array_map(fn (array $item): array => $this->itemOf(PersonDocument::person($item['person']), $item['person'], Revision::of($item)), $items),
+            [
+                ...array_map(fn (Person $person, array $item): array => $this->itemOf($person, $item['person'], Revision::of($item)), $persons, $items),
+                ...array_filter(array_map($this->firstNameItemOf(...), $persons)),
+            ],
             array_map(static fn (array $former): array => [$former['PK'], $former['SK']], $this->personalDataTable->scan('TOKEN')),
         );
 
@@ -113,6 +125,36 @@ final readonly class DynamoPersonRepository implements PersonRepository
             'email' => $document['contactDetails']['email'],
             Revision::ATTRIBUTE => $revision,
             'person' => $document,
+        ];
+    }
+
+    /**
+     * The item of the first name put when the person has one, deleted when the person stored had one and no longer
+     * has, nothing otherwise: a deletion is a write of the transaction too.
+     *
+     * @return list<Write>
+     */
+    private function firstNameWrites(Person $person, ?Person $stored): array
+    {
+        $item = $this->firstNameItemOf($person);
+
+        if (null !== $item) {
+            return [$this->personalDataTable->putting($item)];
+        }
+
+        return null === $stored?->searchKeys()->firstName ? [] : [$this->personalDataTable->deleting(PersonalDataKeys::person($person->id()->value), PersonalDataKeys::FIRST_NAME)];
+    }
+
+    /**
+     * @return array<string, string>|null
+     */
+    private function firstNameItemOf(Person $person): ?array
+    {
+        $firstName = $person->searchKeys()->firstName;
+
+        return null === $firstName ? null : SearchIndexes::inTheNames(PersonalDataKeys::scopeOf($person->accountId(), $person->purpose()), $firstName) + [
+            'PK' => PersonalDataKeys::person($person->id()->value),
+            'SK' => PersonalDataKeys::FIRST_NAME,
         ];
     }
 
