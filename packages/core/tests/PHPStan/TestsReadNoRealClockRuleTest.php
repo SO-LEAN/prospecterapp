@@ -24,7 +24,7 @@ final class TestsReadNoRealClockRuleTest extends RuleTestCase
     {
         $this->analyse([__DIR__.'/../../../phpstan-rules/fixtures/tests/reads-of-the-clock.php'], array_map(
             static fn (int $line): array => [self::REFUSAL, $line],
-            range(9, 21),
+            range(11, 30),
         ));
     }
 
