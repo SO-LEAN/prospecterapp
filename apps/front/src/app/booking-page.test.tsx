@@ -20,7 +20,10 @@ const theApiAnswers = (status: number, body: unknown) =>
   theApi.mockImplementation(async (input) => {
     const request = input as Request
     expect(new URL(request.url).pathname).toBe(`/api/booking-pages/${CODE}`)
-    return Response.json(body, { status, headers: status >= 400 ? { 'Content-Type': 'application/problem+json' } : {} })
+    return Response.json(body, {
+      status,
+      headers: status >= 400 ? { 'Content-Type': 'application/problem+json' } : {},
+    })
   })
 
 afterEach(() => {

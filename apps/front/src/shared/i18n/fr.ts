@@ -322,7 +322,7 @@ export const fr = {
     title: 'Configuration',
     subtitle: 'Vos réglages, les mêmes sur chacun de vos appareils.',
     sectionsNavigation: 'Sections de la configuration',
-    sections: { reminders: 'Rappels', connectors: 'Connecteurs' },
+    sections: { reminders: 'Rappels', booking: 'Prise de rendez-vous', connectors: 'Connecteurs' },
     connectors: {
       google: {
         title: 'Google Agenda',
@@ -405,6 +405,82 @@ export const fr = {
         howToAllow:
           'Les rappels s’affichent dans l’application. Pour les recevoir aussi hors de l’onglet, autorisez les notifications de ce site : cliquez sur l’icône à gauche de l’adresse, puis sur Notifications, choisissez Autoriser et rechargez la page.',
       },
+    },
+  },
+  /** My booking page (ADR 0148) and the page its public link leads to. */
+  booking: {
+    title: 'Prise de rendez-vous',
+    description: 'Les heures où l’on peut vous réserver, par le lien que vous donnez à qui vous voulez.',
+    open: 'Lien de prise de rendez-vous actif',
+    closed: 'Lien de prise de rendez-vous coupé',
+    opened: 'Votre lien de prise de rendez-vous est actif.',
+    shut: 'Votre lien de prise de rendez-vous est coupé.',
+    noCalendar: {
+      title: 'Connectez Google pour activer la prise de rendez-vous',
+      description: 'Votre agenda Google invite la personne qui vous réserve.',
+      action: 'Aller aux connecteurs',
+    },
+    windows: {
+      title: 'Plages',
+      description: 'Une plage par jour, au quart d’heure, à l’heure de votre fuseau ({{timeZone}}).',
+      day: '{{day}} : on peut me réserver',
+      fromOf: '{{day}}, de',
+      toOf: '{{day}}, à',
+      copyToWorkingDays: 'Copier sur les jours ouvrés',
+      save: 'Enregistrer les plages',
+      weekdays: {
+        monday: 'Lundi',
+        tuesday: 'Mardi',
+        wednesday: 'Mercredi',
+        thursday: 'Jeudi',
+        friday: 'Vendredi',
+        saturday: 'Samedi',
+        sunday: 'Dimanche',
+      },
+    },
+    periods: {
+      title: 'Périodes inactives',
+      description:
+        'Les jours où l’on ne peut pas vous réserver, vos vacances par exemple, du premier au dernier inclus.',
+      none: 'Aucune période inactive.',
+      period: 'Du {{firstDay}} au {{lastDay}}',
+      firstDay: 'Du',
+      lastDay: 'Au',
+      add: 'Ajouter',
+      remove: 'Supprimer la période du {{firstDay}} au {{lastDay}}',
+    },
+    channels: {
+      title: 'Canaux proposés',
+      description: 'Comment la personne qui vous réserve vous rencontre.',
+      call: 'Appel',
+      videoCall: 'Visio',
+    },
+    link: {
+      title: 'Mon lien',
+      description: 'Donnez-le à qui vous voulez : il mène à votre page de prise de rendez-vous.',
+      none: 'Activez la prise de rendez-vous pour obtenir votre lien.',
+      address: 'Adresse de mon lien',
+      copy: 'Copier',
+      copied: 'Lien copié.',
+      preview: 'Aperçu',
+      qrCode: 'QR code',
+      qrCodeOf: 'QR code de mon lien de prise de rendez-vous',
+      download: 'Télécharger en PNG',
+      change: {
+        action: 'Changer de lien',
+        title: 'Changer de lien ?',
+        description:
+          'L’ancien lien ne fonctionnera plus : ceux à qui vous l’avez donné ne pourront plus vous réserver.',
+        confirm: 'Changer de lien',
+        done: 'Votre lien a changé.',
+      },
+    },
+    public: {
+      title: 'Prendre rendez-vous',
+      offers: 'Rencontre possible par : {{channels}}',
+      noSlot: 'Aucun créneau disponible pour le moment.',
+      notFound: 'Lien introuvable',
+      notFoundDescription: 'Ce lien de prise de rendez-vous n’existe pas, ou plus.',
     },
   },
   account: {
@@ -748,14 +824,14 @@ export const fr = {
   refusals: {
     windowTooShort: 'Une plage dure au moins 15 minutes.',
     windowOffTheQuarterHour:
-      'Une plage commence et finit au quart d’heure : 9 h 00, 9 h 15, 9 h 30 ou 9 h 45.',
+      'Une plage commence et finit au quart d’heure : 9 h 00, 9 h 15, 9 h 30 ou 9 h 45.',
     twoWindowsOnADay: 'Une seule plage par jour.',
-    unknownTimeZone: 'Le fuseau horaire « {{timeZone}} » est inconnu.',
+    unknownTimeZone: 'Le fuseau horaire « {{timeZone}} » est inconnu.',
     periodEndsBeforeItStarts: 'Une période inactive finit le jour où elle commence, ou après.',
     unknownInactivePeriod: 'Cette période inactive n’existe plus.',
     noChannelOffered: 'Proposez au moins l’appel ou la visio.',
     noConnectedCalendar:
-      'Connectez Google pour activer la prise de rendez-vous : c’est votre agenda qui invite la personne.',
+      'Connectez Google pour activer la prise de rendez-vous : c’est votre agenda qui invite la personne.',
     invalidBookingCode: 'Ce lien de prise de rendez-vous n’est pas valide.',
     bookingPageWithoutLink: 'Activez d’abord la prise de rendez-vous pour obtenir un lien.',
     unknownBookingPage: 'Lien introuvable.',

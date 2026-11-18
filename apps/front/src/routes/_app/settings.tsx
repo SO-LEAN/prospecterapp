@@ -3,6 +3,8 @@ import { createFileRoute } from '@tanstack/react-router'
 import { zodValidator } from '@tanstack/zod-adapter'
 import { useTranslation } from 'react-i18next'
 import { z } from 'zod'
+import { BookingSection } from '@/features/booking/components/booking-section'
+import { myBookingPageQuery } from '@/features/booking/queries'
 import { checkMyConnections } from '@/features/connectors/check-my-connections'
 import { ConnectorsSection } from '@/features/connectors/components/connectors-section'
 import { RemindersSection } from '@/features/settings/components/reminders-section'
@@ -27,6 +29,10 @@ export const Route = createFileRoute('/_app/settings')({
     if (section === 'connectors') {
       return { connectionsCheck: preload ? undefined : await checkMyConnections(queryClient) }
     }
+    if (section === 'booking') {
+      await queryClient.ensureQueryData(myBookingPageQuery())
+      return { connectionsCheck: undefined }
+    }
     await queryClient.ensureQueryData(remindersQuery())
     return { connectionsCheck: undefined }
   },
@@ -47,6 +53,7 @@ function SettingsPage() {
         <SettingsNavigation current={section} />
         <div className="max-w-2xl">
           {section === 'reminders' && <MyReminders />}
+          {section === 'booking' && <MyBookingPage />}
           {section === 'connectors' && (
             <ConnectorsSection googleUnreachable={connectionsCheck === 'googleUnreachable'} />
           )}
@@ -60,4 +67,10 @@ function MyReminders() {
   const { data: reminders } = useSuspenseQuery(remindersQuery())
 
   return <RemindersSection reminders={reminders} />
+}
+
+function MyBookingPage() {
+  const { data: page } = useSuspenseQuery(myBookingPageQuery())
+
+  return <BookingSection page={page} />
 }

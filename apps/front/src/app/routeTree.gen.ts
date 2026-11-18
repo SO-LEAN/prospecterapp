@@ -15,6 +15,7 @@ import { Route as AppAccountRouteImport } from './../routes/_app/account'
 import { Route as AppCalendarRouteImport } from './../routes/_app/calendar'
 import { Route as AppSettingsRouteImport } from './../routes/_app/settings'
 import { Route as AuthSignInRouteImport } from './../routes/auth/sign-in'
+import { Route as BookingCodeRouteImport } from './../routes/booking.$code'
 import { Route as AppCampaignsIndexRouteImport } from './../routes/_app/campaigns/index'
 import { Route as AppCampaignsCampaignIdRouteImport } from './../routes/_app/campaigns/$campaignId'
 import { Route as AppCampaignsNewRouteImport } from './../routes/_app/campaigns/new'
@@ -52,6 +53,11 @@ const AppSettingsRoute = AppSettingsRouteImport.update({
 const AuthSignInRoute = AuthSignInRouteImport.update({
   id: '/auth/sign-in',
   path: '/auth/sign-in',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const BookingCodeRoute = BookingCodeRouteImport.update({
+  id: '/booking/$code',
+  path: '/booking/$code',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AppCampaignsIndexRoute = AppCampaignsIndexRouteImport.update({
@@ -109,6 +115,7 @@ export interface FileRoutesByFullPath {
   '/calendar': typeof AppCalendarRoute
   '/settings': typeof AppSettingsRoute
   '/auth/sign-in': typeof AuthSignInRoute
+  '/booking/$code': typeof BookingCodeRoute
   '/campaigns/$campaignId': typeof AppCampaignsCampaignIdRoute
   '/campaigns/new': typeof AppCampaignsNewRoute
   '/organizations/new': typeof AppOrganizationsNewRoute
@@ -124,6 +131,7 @@ export interface FileRoutesByTo {
   '/calendar': typeof AppCalendarRoute
   '/settings': typeof AppSettingsRoute
   '/auth/sign-in': typeof AuthSignInRoute
+  '/booking/$code': typeof BookingCodeRoute
   '/': typeof AppIndexRoute
   '/campaigns/$campaignId': typeof AppCampaignsCampaignIdRoute
   '/campaigns/new': typeof AppCampaignsNewRoute
@@ -142,6 +150,7 @@ export interface FileRoutesById {
   '/_app/calendar': typeof AppCalendarRoute
   '/_app/settings': typeof AppSettingsRoute
   '/auth/sign-in': typeof AuthSignInRoute
+  '/booking/$code': typeof BookingCodeRoute
   '/_app/': typeof AppIndexRoute
   '/_app/campaigns/$campaignId': typeof AppCampaignsCampaignIdRoute
   '/_app/campaigns/new': typeof AppCampaignsNewRoute
@@ -161,6 +170,7 @@ export interface FileRouteTypes {
     | '/calendar'
     | '/settings'
     | '/auth/sign-in'
+    | '/booking/$code'
     | '/campaigns/$campaignId'
     | '/campaigns/new'
     | '/organizations/new'
@@ -176,6 +186,7 @@ export interface FileRouteTypes {
     | '/calendar'
     | '/settings'
     | '/auth/sign-in'
+    | '/booking/$code'
     | '/'
     | '/campaigns/$campaignId'
     | '/campaigns/new'
@@ -193,6 +204,7 @@ export interface FileRouteTypes {
     | '/_app/calendar'
     | '/_app/settings'
     | '/auth/sign-in'
+    | '/booking/$code'
     | '/_app/'
     | '/_app/campaigns/$campaignId'
     | '/_app/campaigns/new'
@@ -208,6 +220,7 @@ export interface FileRouteTypes {
 export interface RootRouteChildren {
   AppRoute: typeof AppRouteWithChildren
   AuthSignInRoute: typeof AuthSignInRoute
+  BookingCodeRoute: typeof BookingCodeRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -252,6 +265,13 @@ declare module '@tanstack/react-router' {
       path: '/auth/sign-in'
       fullPath: '/auth/sign-in'
       preLoaderRoute: typeof AuthSignInRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/booking/$code': {
+      id: '/booking/$code'
+      path: '/booking/$code'
+      fullPath: '/booking/$code'
+      preLoaderRoute: typeof BookingCodeRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/_app/campaigns/': {
@@ -358,6 +378,7 @@ const AppRouteWithChildren = AppRoute._addFileChildren(AppRouteChildren)
 const rootRouteChildren: RootRouteChildren = {
   AppRoute: AppRouteWithChildren,
   AuthSignInRoute: AuthSignInRoute,
+  BookingCodeRoute: BookingCodeRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
