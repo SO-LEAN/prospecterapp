@@ -50,10 +50,12 @@ use Prospecter\Core\Prospecting\Domain\Model\ExchangeIntent;
 use Prospecter\Core\Prospecting\Domain\Model\ExchangeSituation;
 use Prospecter\Core\Prospecting\Domain\Model\ExchangeStatus;
 use Prospecter\Core\Prospecting\Domain\Model\Prospector;
+use Prospecter\Core\Prospecting\Domain\Model\RecipientInCampaign;
 use Prospecter\Core\Prospecting\Domain\Model\VideoCallLink;
 use Prospecter\Core\Prospecting\Domain\Policy\ExchangeConformity;
 use Prospecter\Core\Prospecting\Domain\Policy\ExchangePossibilities;
 use Prospecter\Core\SharedKernel\Domain\AccountId;
+use Prospecter\Core\SharedKernel\Domain\CampaignId;
 use Prospecter\Core\SharedKernel\Domain\Exception\NotPossibleInItsState;
 use Prospecter\Core\SharedKernel\Domain\Exception\PersonalDataManagersOnly;
 use Prospecter\Core\SharedKernel\Domain\MemberId;
@@ -70,6 +72,7 @@ class ExchangeTest extends TestCase
     private const string ACME = '0190a1c0-0000-7000-8000-000000000005';
     private const string GROUP = '0190a1c0-0000-7000-8000-000000000006';
     private const string ATTACHMENT = '0190a1c0-0000-7000-8000-000000000007';
+    private const string CAMPAIGN = '0190a1c0-0000-7000-8000-000000000008';
     private const string FILE = '6f1c2a9e0b7d4c3a8e5f1b2c3d4e5f60';
     private const string NOW = '2026-10-18 19:00';
     private const string MEET = 'https://meet.google.com/abc-defg-hij';
@@ -819,14 +822,24 @@ class ExchangeTest extends TestCase
         $this->assertFalse($exchange->isTextFlaggedFor($this->colleagueWithoutTheRight()));
     }
 
-    public function testErasingRecordsItWithTheFilesLeftToRemove(): void
+    public function testErasingRecordsItWithTheFilesLeftToRemoveAndItsContact(): void
     {
         $exchange = $this->withAnAttachment();
         $exchange->releaseEvents();
 
         $exchange->erase(by: $this->me()->id, at: new \DateTimeImmutable(self::NOW));
 
-        $this->assertEquals([new ExchangeErased(new AccountId(self::MINE), $this->me()->id, new ExchangeId(self::EXCHANGE), [self::FILE], new \DateTimeImmutable(self::NOW))], $exchange->releaseEvents());
+        $this->assertEquals([new ExchangeErased(new AccountId(self::MINE), $this->me()->id, new ExchangeId(self::EXCHANGE), [self::FILE], new \DateTimeImmutable(self::NOW), new PersonId(self::CONTACT))], $exchange->releaseEvents());
+    }
+
+    public function testErasingAnExchangeOfACampaignNamesItsCampaign(): void
+    {
+        $exchange = Exchange::notedInACampaign(new AccountId(self::MINE), $this->me()->id, new ExchangeId(self::EXCHANGE), new RecipientInCampaign(new CampaignId(self::CAMPAIGN), new PersonId(self::CONTACT), Channel::Email, running: true, recipient: true, pending: true), [new OrganizationId(self::ACME)], new \DateTimeImmutable(self::NOW), null, missed: false, at: new \DateTimeImmutable(self::NOW));
+        $exchange->releaseEvents();
+
+        $exchange->erase(by: $this->me()->id, at: new \DateTimeImmutable(self::NOW));
+
+        $this->assertEquals([new ExchangeErased(new AccountId(self::MINE), $this->me()->id, new ExchangeId(self::EXCHANGE), [], new \DateTimeImmutable(self::NOW), new PersonId(self::CONTACT), new CampaignId(self::CAMPAIGN))], $exchange->releaseEvents());
     }
 
     private function withAnAttachment(): Exchange
