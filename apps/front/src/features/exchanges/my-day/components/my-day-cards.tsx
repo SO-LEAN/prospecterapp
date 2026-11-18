@@ -84,7 +84,7 @@ function TodayCard({ items, now, mayPlan, onOpen }: CardProps & { mayPlan: boole
   return (
     <Card>
       <CardHeader>
-        <CardTitle className="text-base">{t('calendar.today')}</CardTitle>
+        <CardTitle className="text-base">{t('myDay.today')}</CardTitle>
       </CardHeader>
       <CardContent>
         {items.length === 0 ? (
@@ -93,7 +93,7 @@ function TodayCard({ items, now, mayPlan, onOpen }: CardProps & { mayPlan: boole
             {mayPlan && (
               <Button variant="outline" size="sm" asChild>
                 <Link to="/calendar" search={{ view: 'day' }}>
-                  <CalendarPlus aria-hidden /> {t('exchanges.plan')}
+                  <CalendarPlus aria-hidden /> {t('myDay.plan')}
                 </Link>
               </Button>
             )}
@@ -126,7 +126,7 @@ function TodayExchange({ item, now, onOpen }: { item: DayExchange; now: Date; on
     >
       <ExchangeSummary item={item} when={formatHour(exchange.occurredAt)} onOpen={() => onOpen(item)}>
         {inProgress && <Badge>{t('myDay.inProgress')}</Badge>}
-        {toHandle && <Badge className="bg-warning text-foreground">{t('toProcess.title')}</Badge>}
+        {toHandle && <Badge className="bg-warning text-foreground">{t('calendar.toHandle')}</Badge>}
         {!inProgress && !toHandle && (
           <span className="text-muted-foreground text-xs">{startsIn(exchange.occurredAt, now)}</span>
         )}
@@ -172,7 +172,7 @@ function UpcomingCard({ items, now, onOpen }: CardProps) {
   return (
     <Card>
       <CardHeader>
-        <CardTitle className="text-base">{t('exchanges.upcoming')}</CardTitle>
+        <CardTitle className="text-base">{t('myDay.upcoming')}</CardTitle>
         <CardAction>
           <Button variant="ghost" size="sm" asChild>
             <Link to="/calendar">

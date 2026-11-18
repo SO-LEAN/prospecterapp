@@ -123,7 +123,7 @@ export function LoginEmailSection() {
 
   return (
     <EditableSection
-      title={t('fields.loginEmail')}
+      title={t('account.sections.loginEmail')}
       editable={Boolean(signIn._links.changeMyLoginEmail)}
       editor={(close) => (
         <SectionForm

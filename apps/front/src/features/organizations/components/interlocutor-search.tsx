@@ -24,7 +24,7 @@ export function InterlocutorSearch({ onChoose }: { onChoose: (interlocutor: Inte
     ...(contacts.data?.items ?? []).map((contact) => ({
       kind: 'person' as const,
       id: contact.id,
-      name: fullNameOf(contact) || t('contacts.unnamed'),
+      name: fullNameOf(contact) || t('organizations.contacts.unnamed'),
     })),
     ...(organizations.data?.items ?? []).map((organization) => ({
       kind: 'organization' as const,

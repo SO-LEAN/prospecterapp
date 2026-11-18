@@ -86,7 +86,7 @@ export function JobTitleSection({ contact }: { contact: Contact }) {
 
   return (
     <EditableSection
-      title={t('fields.jobTitle')}
+      title={t('contacts.sections.jobTitle')}
       editable={Boolean(contact._links.changeJobTitle)}
       editor={(close) => (
         <SectionForm

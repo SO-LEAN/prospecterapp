@@ -186,7 +186,7 @@ function RemoveButton() {
             <Button variant="ghost">{t('common.cancel')}</Button>
           </DialogClose>
           <Button variant="destructive" disabled={remove.isPending} onClick={() => void confirm()}>
-            {t('organizations.contacts.removeConfirm')}
+            {t('settings.connectors.client.remove.confirm')}
           </Button>
         </DialogFooter>
       </DialogContent>
