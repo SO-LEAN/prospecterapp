@@ -62,8 +62,8 @@ function Contacts() {
               type="search"
               value={query}
               onChange={(event) => setQuery(event.target.value)}
-              placeholder={t('organizations.searchPlaceholder')}
-              aria-label={t('organizations.searchPlaceholder')}
+              placeholder={t('contacts.searchPlaceholder')}
+              aria-label={t('contacts.searchPlaceholder')}
               className="pl-9"
             />
           </div>
@@ -150,7 +150,7 @@ function NoContact({ query, tagged }: { query: string; tagged: boolean }) {
     return (
       <EmptyState
         icon={SearchX}
-        title={t('contacts.empty.title')}
+        title={t('contacts.noneTagged.title')}
         description={t('contacts.noneTagged.description')}
       />
     )

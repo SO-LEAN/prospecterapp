@@ -59,7 +59,7 @@ export function CalendarExchangeChip({
   const status = late
     ? t('calendar.late')
     : look === 'toHandle'
-      ? t('toProcess.title')
+      ? t('calendar.toHandle')
       : t(`exchanges.statuses.${exchange.status}`)
   const label = t('calendar.described', {
     hour: formatHour(exchange.occurredAt),

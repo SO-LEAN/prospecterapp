@@ -77,7 +77,7 @@ export function CompleteMyProfileForm({ account, loginEmail, onCompleted }: Prop
         <Input type="email" autoComplete="email" {...form.register('email')} />
       </FormField>
       <Button type="submit" className="w-full" disabled={isSubmitting}>
-        {isSubmitting ? t('common.saving') : t('completeMyProfile.submit')}
+        {isSubmitting ? t('completeMyProfile.submitting') : t('completeMyProfile.submit')}
       </Button>
     </form>
   )

@@ -179,7 +179,7 @@ function DisconnectButton() {
             <Button variant="ghost">{t('common.cancel')}</Button>
           </DialogClose>
           <Button variant="destructive" disabled={disconnect.isPending} onClick={() => void confirm()}>
-            {t('settings.connectors.disconnect.action')}
+            {t('settings.connectors.disconnect.confirm')}
           </Button>
         </DialogFooter>
       </DialogContent>

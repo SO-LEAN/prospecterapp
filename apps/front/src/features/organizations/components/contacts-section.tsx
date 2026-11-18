@@ -53,7 +53,7 @@ export function ContactsSection({ organization }: { organization: Organization }
                   params={{ contactId: contact.id }}
                   className="font-medium text-primary hover:underline"
                 >
-                  {fullNameOf(contact) || t('contacts.unnamed')}
+                  {fullNameOf(contact) || t('organizations.contacts.unnamed')}
                 </Link>
                 <CivilityMark civility={contact.civility} />
               </div>
@@ -133,7 +133,7 @@ function RemoveContact({
   const { t } = useTranslation()
   const remove = useRemoveContact()
   const [open, setOpen] = useState(false)
-  const name = fullNameOf(contact) || t('contacts.unnamed')
+  const name = fullNameOf(contact) || t('organizations.contacts.unnamed')
 
   const confirm = async () => {
     await remove.mutateAsync({ params: { path: { id: organization.id, personId: contact.id } } })
@@ -198,7 +198,9 @@ function ContactPicker({ organization, onDone }: { organization: Organization; o
               disabled={add.isPending}
               onClick={() => void addContact(candidate.id)}
             >
-              <span className="font-medium">{fullNameOf(candidate) || t('contacts.unnamed')}</span>
+              <span className="font-medium">
+                {fullNameOf(candidate) || t('organizations.contacts.unnamed')}
+              </span>
               {candidate.jobTitle && <span className="text-muted-foreground"> · {candidate.jobTitle}</span>}
             </button>
           </li>
