@@ -120,6 +120,12 @@ final class PublishedLanguageContext implements Context
         $this->expectTheMember($name, $account, false);
     }
 
+    #[Then('Accounts répond que :name est membre du compte nommé :account')]
+    public function accountsAnswersTheNameOfTheAccount(string $name, string $account): void
+    {
+        Expect::same($account, ($this->consulted[$this->memberIdOf($name)] ?? null)?->accountName);
+    }
+
     #[Then('Accounts répond que :name administre son compte')]
     public function accountsAnswersAnAdministrator(string $name): void
     {

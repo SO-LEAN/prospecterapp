@@ -21,6 +21,12 @@ Fonctionnalité: Le langage publié des contextes
     Et Accounts répond que "Alan Turing" est membre de "SOLEAN IT" sans le droit aux données personnelles
     Et Accounts ne répond rien de "Personne"
 
+  Scénario: Accounts dit le nom du compte des membres
+    Soit "Grace Hopper" est membre de "SOLEAN IT" avec le droit aux données personnelles
+    Quand un autre contexte demande à Accounts qui sont les membres :
+      | Grace Hopper |
+    Alors Accounts répond que "Grace Hopper" est membre du compte nommé "SOLEAN IT"
+
   Scénario: Accounts dit si un membre administre son compte
     Soit "Ada Byron" est membre de "SOLEAN IT" qui l'administre
     Et "Alan Turing" est membre de "SOLEAN IT" sans le droit aux données personnelles
