@@ -17,7 +17,7 @@ vi.mock('@/shared/auth/session', () => ({
 
 const CAMILLE = '0190a1c0-0000-7000-8000-000000000001'
 
-const camille = (links: Partial<Contact['_links']>, civility: Contact['civility'] = null): Contact => ({
+const camille = (links: Partial<Contact['_links']>, civility: Contact['civility'] = 'x'): Contact => ({
   id: CAMILLE,
   name: { firstName: 'Camille', lastName: 'Martin' },
   civility,
@@ -83,7 +83,7 @@ describe('the name of a contact', () => {
     await user.click(screen.getByRole('button', { name: 'Enregistrer' }))
 
     await vi.waitFor(() =>
-      expect(sent).toContainEqual({ url: `/api/contacts/${CAMILLE}/civility`, body: { civility: null } }),
+      expect(sent).toContainEqual({ url: `/api/contacts/${CAMILLE}/civility`, body: { civility: 'x' } }),
     )
   })
 

@@ -106,7 +106,7 @@ final class PersonalDataContext implements Context
     public function aPersonWithTheCivility(string $name, string $civility): void
     {
         $person = $this->scenario->personNamed($name);
-        $person->changeCivility(Civility::from((string) Vocabulary::civility($civility)), by: $this->scenario->managerOfPersonalDataOf($person->accountId()), at: $this->application->now());
+        $person->changeCivility(Civility::from(Vocabulary::civility($civility)), by: $this->scenario->managerOfPersonalDataOf($person->accountId()), at: $this->application->now());
         $this->application->persons->save($person);
     }
 
@@ -211,7 +211,7 @@ final class PersonalDataContext implements Context
     #[When('je retire la civilité de :name')]
     public function iRemoveTheCivility(string $name): void
     {
-        $this->application->dispatch(new ChangeCivility($this->application->signedIn(), $this->scenario->personIdOf($name), null, $this->application->now()));
+        $this->application->dispatch(new ChangeCivility($this->application->signedIn(), $this->scenario->personIdOf($name), Vocabulary::civility('inconnue'), $this->application->now()));
     }
 
     #[When('j\'efface la fiche de :name')]
@@ -267,7 +267,7 @@ final class PersonalDataContext implements Context
     public function theCivilityIsNotNoted(): void
     {
         Expect::that(null !== $this->consulted, sprintf('The person was expected, got: %s', $this->application->refusal()?->getMessage()));
-        Expect::same(null, $this->consulted->civility);
+        Expect::same(Vocabulary::civility('inconnue'), $this->consulted->civility);
     }
 
     #[Then('je vois les fiches :')]

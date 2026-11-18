@@ -25,7 +25,7 @@ describe('CollectContactForm', () => {
 
     expect(onSubmit).toHaveBeenCalledWith({
       name: { firstName: 'Ada', lastName: 'Lovelace' },
-      civility: null,
+      civility: 'x',
       jobTitle: 'Directrice commerciale',
       contactDetails: { email: null, phoneNumber: null, language: null, linkedInProfile: null },
       organizationIds: ['0190a1c0-0000-7000-8000-000000000001'],

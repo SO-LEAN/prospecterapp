@@ -123,6 +123,7 @@ final class Vocabulary
     private const array CIVILITIES = [
         'Madame' => 'ms',
         'Monsieur' => 'mr',
+        'inconnue' => 'x',
     ];
 
     private const array LABELS = [
@@ -157,14 +158,15 @@ final class Vocabulary
     }
 
     /**
-     * A civility the scenarios do not know is given as it is written, for the use case to refuse it.
+     * Unknown when left out; a civility the scenarios do not know is given as it is written, for the use case to
+     * refuse it.
      */
-    public static function civility(?string $label): ?string
+    public static function civility(?string $label): string
     {
-        return null === $label ? null : self::CIVILITIES[$label] ?? $label;
+        return self::CIVILITIES[$label ?? 'inconnue'] ?? $label;
     }
 
-    public static function describeCivility(?string $civility): string
+    public static function describeCivility(string $civility): string
     {
         return (string) array_search($civility, self::CIVILITIES, true);
     }
