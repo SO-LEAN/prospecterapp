@@ -8396,6 +8396,7 @@
                     "toMakeConform",
                     "organizationIds",
                     "attachmentCount",
+                    "contactToAttach",
                     "_links"
                 ],
                 "properties": {
@@ -8497,6 +8498,10 @@
                                 "$ref": "#/components/schemas/CampaignOfExchangeResource"
                             }
                         ]
+                    },
+                    "contactToAttach": {
+                        "description": "Its contact waits for its holder to attach them to an organization: kept for none until then (ADR 0146)",
+                        "type": "boolean"
                     },
                     "_links": {
                         "$ref": "#/components/schemas/ExchangeLinksResource"
@@ -8713,6 +8718,9 @@
                         "$ref": "#/components/schemas/LinkResource"
                     },
                     "tags": {
+                        "$ref": "#/components/schemas/LinkResource"
+                    },
+                    "proposedOrganization": {
                         "$ref": "#/components/schemas/LinkResource"
                     }
                 },

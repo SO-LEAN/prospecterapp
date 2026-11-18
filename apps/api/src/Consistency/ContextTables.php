@@ -206,20 +206,22 @@ final readonly class ContextTables
     }
 
     /**
-     * @return list<array<string, mixed>> the documents of the exchanges the account keeps
-     */
-    /**
-     * The contacts to attach of every account, as their items keep them (ADR 0146).
+     * The contacts to attach of the account, as their items keep them, read in the partition listing those of every
+     * account by the moment they are erased from (ADR 0146, 0147).
      *
      * @return list<array<string, mixed>>
      */
     public function contactsToAttachOf(string $accountId): array
     {
-        $documents = array_map(static fn (array $item): array => $item['contactToAttach'], $this->prospectingTable->scan(DynamoContactToAttachRepository::CONTACT_TO_ATTACH.'#'));
+        $items = $this->prospectingTable->queryAfter(DynamoContactToAttachRepository::ERASURE, Table::BY_GSI2, '0');
+        $documents = array_map(static fn (array $item): array => $item['contactToAttach'], $items);
 
         return array_values(array_filter($documents, static fn (array $document): bool => $document['accountId'] === $accountId));
     }
 
+    /**
+     * @return list<array<string, mixed>> the documents of the exchanges the account keeps
+     */
     public function exchangesOf(string $accountId): array
     {
         return array_map(static fn (array $item): array => $item['exchange'], $this->prospectingTable->query(ExchangeKeys::ofAccount($accountId), Table::BY_GSI2));

@@ -110,6 +110,7 @@ final readonly class TimelineResourceFactory
             organizationIds: $exchange->organizationIds,
             attachmentCount: $exchange->attachmentCount,
             campaign: null === $exchange->campaignId ? null : new CampaignOfExchangeResource($exchange->campaignId, $exchange->campaignName),
+            contactToAttach: $exchange->withAContactToAttach,
             links: $links,
         );
     }
