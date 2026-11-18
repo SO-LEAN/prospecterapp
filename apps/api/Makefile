@@ -1,5 +1,9 @@
 include ../../make/common.mk ../../make/aws.mk ../../make/composer.mk ../../make/mutation.mk ../../make/php.mk
 
+# the API on the real clock whatever CLOCK_SHIFT: its tests sign in on the Cognito of MiniStack, which issues its
+# tokens on the real clock (ADR 0146); the PHPStan rule and the fixed clock of its tests keep it from the real date
+override CLOCK_SHIFT =
+
 .PHONY: vendor db test mutation lint fix openapi console commands profiler-clear shell
 
 ##@ API
