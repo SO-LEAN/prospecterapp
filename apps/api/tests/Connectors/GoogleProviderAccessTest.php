@@ -152,7 +152,7 @@ class GoogleProviderAccessTest extends TestCase
 
     private function access(MockHttpClient $google): GoogleProviderAccess
     {
-        return new GoogleProviderAccess($google, new GoogleEndpoints('https://front.test/settings/connectors/google', 'https://accounts.google.test/auth', self::TOKEN_URL, 'https://oauth2.google.test/revoke', 'https://www.googleapis.test/calendar/v3'), new NullLogger());
+        return new GoogleProviderAccess($google, new GoogleEndpoints('https://front.test/settings/connectors/google', 'https://accounts.google.test/auth', self::TOKEN_URL, 'https://oauth2.google.test/revoke', 'https://www.googleapis.test/calendar/v3', 'https://gmail.googleapis.test/gmail/v1'), new NullLogger());
     }
 
     private static function client(): ClientCredentials

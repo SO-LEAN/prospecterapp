@@ -210,7 +210,7 @@ class GoogleCalendarTest extends TestCase
 
     private function calendarOn(MockHttpClient $google): GoogleCalendar
     {
-        $endpoints = new GoogleEndpoints('https://front.test/settings/connectors/google', 'https://accounts.google.test/auth', self::TOKEN_URL, 'https://oauth2.google.test/revoke', self::CALENDAR_URL);
+        $endpoints = new GoogleEndpoints('https://front.test/settings/connectors/google', 'https://accounts.google.test/auth', self::TOKEN_URL, 'https://oauth2.google.test/revoke', self::CALENDAR_URL, 'https://gmail.googleapis.test/gmail/v1');
 
         return new GoogleCalendar($google, $endpoints, new GoogleTokens($google, $endpoints), 'https://front.test');
     }

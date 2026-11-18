@@ -192,6 +192,7 @@ services:
     Prospecter\Core\Connectors\Domain\Port\Members: '@App\Connectors\AntiCorruption\AccountsMembers'
     Prospecter\Core\Connectors\Domain\Port\ProviderAccess: '@App\Connectors\Google\GoogleProviderAccess'
     Prospecter\Core\Connectors\Domain\Port\ProviderCalendar: '@App\Connectors\Google\GoogleCalendar'
+    Prospecter\Core\Connectors\Domain\Port\ProviderMailbox: '@App\Connectors\Google\GoogleMailbox'
     Prospecter\Core\Connectors\Domain\Port\HeldExchanges: '@App\Connectors\AntiCorruption\ProspectingHeldExchanges'
     Prospecter\Core\Connectors\Domain\Port\ContactNames: '@App\Connectors\AntiCorruption\PersonalDataContactNames'
     Prospecter\Core\Connectors\Domain\Repository\CalendarEntryRepository: '@App\Connectors\Persistence\DynamoCalendarEntryRepository'
