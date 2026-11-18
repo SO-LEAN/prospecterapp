@@ -6,6 +6,7 @@ namespace Prospecter\Core\Prospecting\Application\ConsultUpcomingExchanges;
 
 use Prospecter\Core\Prospecting\Application\Port\TimelineRetriever;
 use Prospecter\Core\Prospecting\Application\TimelineOutput;
+use Prospecter\Core\Prospecting\Domain\Model\TimelineIntent;
 use Prospecter\Core\Prospecting\Domain\Port\Prospectors;
 use Prospecter\Core\Prospecting\Domain\Service\ContactOrganizations;
 use Prospecter\Core\SharedKernel\Application\QueryHandler;
@@ -27,6 +28,9 @@ final readonly class ConsultUpcomingExchangesHandler implements QueryHandler
         $contact = new PersonId($query->personId);
         $this->contactOrganizations->ensureIsAContactOfTheAccount($contact, $prospector->accountId);
 
-        $output->present($this->timelineRetriever->upcomingWithContact($contact, $prospector, $query->asOf, $query->after, $query->max));
+        $timeline = $this->timelineRetriever->upcomingWithContact($contact, $prospector, $query->asOf, $query->after, $query->max);
+        $offered = array_map(static fn (TimelineIntent $intent): string => $intent->name, $this->contactOrganizations->timelineIntentsOf($contact, $prospector));
+
+        $output->present($timeline->offering($offered));
     }
 }

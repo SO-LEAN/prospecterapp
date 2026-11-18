@@ -4,8 +4,6 @@ declare(strict_types=1);
 
 namespace Prospecter\Core\Prospecting\Application\ConsultTimelineIntents;
 
-use Prospecter\Core\Prospecting\Domain\Model\Prospector;
-use Prospecter\Core\Prospecting\Domain\Model\TimelineIntent;
 use Prospecter\Core\Prospecting\Domain\Port\Prospectors;
 use Prospecter\Core\Prospecting\Domain\Service\ContactOrganizations;
 use Prospecter\Core\SharedKernel\Application\QueryHandler;
@@ -29,18 +27,6 @@ final readonly class ConsultTimelineIntentsHandler implements QueryHandler
         $prospector = $this->prospectors->prospectorFrom(new MemberId($query->prospectorId));
         $contact = new PersonId($query->personId);
 
-        $output->present(TimelineIntentsResponse::of($this->offeredOn($contact, $prospector)));
-    }
-
-    /**
-     * @return list<TimelineIntent>
-     */
-    private function offeredOn(PersonId $contact, Prospector $prospector): array
-    {
-        if (!$this->contactOrganizations->isAContactOfTheAccount($contact, $prospector->accountId)) {
-            return [];
-        }
-
-        return $this->contactOrganizations->isToAttachByAnother($contact, $prospector) ? [TimelineIntent::ConsultTimeline] : TimelineIntent::cases();
+        $output->present(TimelineIntentsResponse::of($this->contactOrganizations->timelineIntentsOf($contact, $prospector)));
     }
 }

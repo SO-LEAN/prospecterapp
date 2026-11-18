@@ -9,6 +9,7 @@ use Prospecter\Core\Prospecting\Domain\Exception\UnknownContact;
 use Prospecter\Core\Prospecting\Domain\Model\ContactToAttach;
 use Prospecter\Core\Prospecting\Domain\Model\Organization;
 use Prospecter\Core\Prospecting\Domain\Model\Prospector;
+use Prospecter\Core\Prospecting\Domain\Model\TimelineIntent;
 use Prospecter\Core\Prospecting\Domain\Repository\ContactToAttachRepository;
 use Prospecter\Core\Prospecting\Domain\Repository\OrganizationRepository;
 use Prospecter\Core\SharedKernel\Domain\AccountId;
@@ -58,10 +59,21 @@ final readonly class ContactOrganizations
     }
 
     /**
-     * A contact waiting for another member to attach them: read by every prospector of the account, met by their
-     * holder only.
+     * What the timeline of a person offers a prospector: nothing for a person who is no contact of the account; only
+     * the reading for a contact waiting for another member to attach them, met by their holder only (ADR 0146).
+     *
+     * @return list<TimelineIntent>
      */
-    public function isToAttachByAnother(PersonId $contact, Prospector $prospector): bool
+    public function timelineIntentsOf(PersonId $contact, Prospector $prospector): array
+    {
+        if (!$this->isAContactOfTheAccount($contact, $prospector->accountId)) {
+            return [];
+        }
+
+        return $this->isToAttachByAnother($contact, $prospector) ? [TimelineIntent::ConsultTimeline] : TimelineIntent::cases();
+    }
+
+    private function isToAttachByAnother(PersonId $contact, Prospector $prospector): bool
     {
         $contactToAttach = $this->toAttach($contact, $prospector->accountId);
 
