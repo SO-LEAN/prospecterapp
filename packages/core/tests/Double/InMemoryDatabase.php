@@ -6,6 +6,7 @@ namespace Tests\Core\Double;
 
 use Prospecter\Core\Accounts\Domain\Model\Account;
 use Prospecter\Core\Accounts\Domain\Model\Member;
+use Prospecter\Core\Booking\Domain\Model\BookingPage;
 use Prospecter\Core\Campaigns\Domain\Model\Campaign;
 use Prospecter\Core\Campaigns\Domain\Model\Fact as CampaignsFact;
 use Prospecter\Core\Campaigns\Domain\Model\Holder;
@@ -65,6 +66,8 @@ final class InMemoryDatabase
     private array $campaignsFacts = [];
     /** @var array<string, Campaign> by the account and its identity */
     private array $campaigns = [];
+    /** @var array<string, BookingPage> by their host */
+    private array $bookingPages = [];
 
     public function isEmpty(): bool
     {
@@ -100,6 +103,29 @@ final class InMemoryDatabase
         $this->taggings = $snapshot->taggings;
         $this->campaignsFacts = $snapshot->campaignsFacts;
         $this->campaigns = $snapshot->campaigns;
+        $this->bookingPages = $snapshot->bookingPages;
+    }
+
+    public function storeBookingPage(BookingPage $page): void
+    {
+        $this->bookingPages[$page->host()->value] = self::withoutItsEvents($page);
+    }
+
+    public function bookingPage(string $host): ?BookingPage
+    {
+        $page = $this->bookingPages[$host] ?? null;
+
+        return null === $page ? null : clone $page;
+    }
+
+    /**
+     * As the table finds a page by the link of its code: only the code a page has now leads to it.
+     */
+    public function bookingPageAt(string $code): ?BookingPage
+    {
+        $page = array_find($this->bookingPages, static fn (BookingPage $page): bool => $page->code()?->value === $code);
+
+        return null === $page ? null : clone $page;
     }
 
     public function campaignsFact(string $account, string $aggregate): ?CampaignsFact

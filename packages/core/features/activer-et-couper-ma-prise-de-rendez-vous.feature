@@ -31,7 +31,8 @@ Fonctionnalité: Activer et couper ma prise de rendez-vous
     Alors c'est refusé : "Booking offers at least one channel"
 
   Scénario: Je coupe mon lien d'un coup
-    Soit ma prise de rendez-vous est active
+    Soit mes plages sont réglées
+    Et ma prise de rendez-vous est active
     Quand je la coupe
     Alors mon lien public ne propose plus aucun créneau
     Et mes réglages sont gardés

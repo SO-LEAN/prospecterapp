@@ -28,6 +28,22 @@ use Prospecter\Core\Accounts\Contract\Service\ConsultMembers\KeptMembers;
 use Prospecter\Core\Accounts\Contract\Service\ConsultMembers\MemberResponse;
 use Prospecter\Core\Accounts\Contract\Service\ListAccounts\KeptAccounts;
 use Prospecter\Core\Accounts\Contract\Service\ListAccounts\ListAccounts;
+use Prospecter\Core\Booking\Application\AddInactivePeriod\AddInactivePeriodHandler;
+use Prospecter\Core\Booking\Application\BookingPages;
+use Prospecter\Core\Booking\Application\ChangeBookingLink\ChangeBookingLinkHandler;
+use Prospecter\Core\Booking\Application\CloseBooking\CloseBookingHandler;
+use Prospecter\Core\Booking\Application\ConsultMyBookingPage\ConsultMyBookingPage;
+use Prospecter\Core\Booking\Application\ConsultMyBookingPage\ConsultMyBookingPageHandler;
+use Prospecter\Core\Booking\Application\ConsultMyBookingPage\KeptMyBookingPage;
+use Prospecter\Core\Booking\Application\ConsultPublicBookingPage\ConsultPublicBookingPage;
+use Prospecter\Core\Booking\Application\ConsultPublicBookingPage\ConsultPublicBookingPageHandler;
+use Prospecter\Core\Booking\Application\ConsultPublicBookingPage\KeptPublicBookingPage;
+use Prospecter\Core\Booking\Application\MyBookingPage;
+use Prospecter\Core\Booking\Application\OfferChannels\OfferChannelsHandler;
+use Prospecter\Core\Booking\Application\OpenBooking\OpenBookingHandler;
+use Prospecter\Core\Booking\Application\PublicBookingPage;
+use Prospecter\Core\Booking\Application\RemoveInactivePeriod\RemoveInactivePeriodHandler;
+use Prospecter\Core\Booking\Application\SetWeeklyWindows\SetWeeklyWindowsHandler;
 use Prospecter\Core\Campaigns\Application\AddRecipient\AddRecipientHandler;
 use Prospecter\Core\Campaigns\Application\AddRecipientsByTags\AddRecipientsByTagsHandler;
 use Prospecter\Core\Campaigns\Application\CampaignSheet;
@@ -107,6 +123,9 @@ use Prospecter\Core\Connectors\Application\RemoveClient\RemoveClientHandler;
 use Prospecter\Core\Connectors\Application\RetryFailedPushes\RetryFailedPushesHandler;
 use Prospecter\Core\Connectors\Application\RetryPush\RetryPushHandler;
 use Prospecter\Core\Connectors\Application\UnnameForgottenContact\UnnameForgottenContactHandler;
+use Prospecter\Core\Connectors\Application\WhichHaveAConnectedCalendar\WhichHaveAConnectedCalendarHandler;
+use Prospecter\Core\Connectors\Contract\Service\WhichHaveAConnectedCalendar\KeptConnectedCalendars;
+use Prospecter\Core\Connectors\Contract\Service\WhichHaveAConnectedCalendar\WhichHaveAConnectedCalendar;
 use Prospecter\Core\PersonalData\Application\ChangeCivility\ChangeCivilityHandler;
 use Prospecter\Core\PersonalData\Application\ChangeJobTitle\ChangeJobTitleHandler;
 use Prospecter\Core\PersonalData\Application\ChangePersonContactDetails\ChangePersonContactDetailsHandler;
@@ -329,6 +348,7 @@ use Prospecter\Core\SharedKernel\Application\TransactionalEventHandler;
 use Prospecter\Core\SharedKernel\Domain\Exception\BusinessException;
 use Prospecter\Core\SharedKernel\Domain\MemberId;
 use Tests\Core\Double\AccountsCampaigners;
+use Tests\Core\Double\AccountsHosts;
 use Tests\Core\Double\AccountsMembers;
 use Tests\Core\Double\AccountsProspectors;
 use Tests\Core\Double\AccountsReaders;
@@ -337,11 +357,13 @@ use Tests\Core\Double\AccountsTaggedAccounts;
 use Tests\Core\Double\AccountsTaggers;
 use Tests\Core\Double\CampaignsCampaignNames;
 use Tests\Core\Double\CampaignsCampaignRecipients;
+use Tests\Core\Double\ConnectorsConnectedCalendars;
 use Tests\Core\Double\InMemoryAccountClientsRetriever;
 use Tests\Core\Double\InMemoryAccountListRetriever;
 use Tests\Core\Double\InMemoryAccountRepository;
 use Tests\Core\Double\InMemoryAgendaRetriever;
 use Tests\Core\Double\InMemoryAuthorizationRepository;
+use Tests\Core\Double\InMemoryBookingPageRepository;
 use Tests\Core\Double\InMemoryCalendarEntryRepository;
 use Tests\Core\Double\InMemoryCalendarRetriever;
 use Tests\Core\Double\InMemoryCampaignRepository;
@@ -365,6 +387,7 @@ use Tests\Core\Double\InMemoryHeldExchangeRetriever;
 use Tests\Core\Double\InMemoryMemberRepository;
 use Tests\Core\Double\InMemoryMemberRetriever;
 use Tests\Core\Double\InMemoryMyAccountRetriever;
+use Tests\Core\Double\InMemoryMyBookingPageRetriever;
 use Tests\Core\Double\InMemoryMyConnectionsRetriever;
 use Tests\Core\Double\InMemoryMyRemindersRetriever;
 use Tests\Core\Double\InMemoryOrganizationFactsRetriever;
@@ -380,6 +403,7 @@ use Tests\Core\Double\InMemoryProposedOrganizationRetriever;
 use Tests\Core\Double\InMemoryProviderAccess;
 use Tests\Core\Double\InMemoryProviderCalendar;
 use Tests\Core\Double\InMemoryProviderClientRepository;
+use Tests\Core\Double\InMemoryPublicBookingPageRetriever;
 use Tests\Core\Double\InMemoryStorage;
 use Tests\Core\Double\InMemoryTaggedContactsRetriever;
 use Tests\Core\Double\InMemoryTaggingRepository;
@@ -413,6 +437,7 @@ use Tests\Core\Double\TimeOrderedUuids;
 final class Application
 {
     private const string FIRST_DAY = '2026-10-15 09:00';
+    private const string BASE62 = '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz';
 
     public readonly InMemoryDatabase $database;
     public readonly InMemoryOrganizationRepository $organizations;
@@ -498,6 +523,13 @@ final class Application
     private readonly PersonalDataAndProspectingAddressees $addressees;
     private readonly TagsOfEveryContact $tagsOfEveryContact;
     private readonly CampaignTargets $campaignTargets;
+    public readonly InMemoryBookingPageRepository $bookingPages;
+    private readonly BookingPages $hostedPages;
+    private readonly WhichHaveAConnectedCalendarHandler $whichHaveAConnectedCalendarService;
+    private readonly ConnectorsConnectedCalendars $connectedCalendars;
+    private readonly InMemoryMyBookingPageRetriever $myBookingPageRetriever;
+    private readonly InMemoryPublicBookingPageRetriever $publicBookingPageRetriever;
+    private ?string $lastBookingCode = null;
     /** @var array<class-string, CommandHandler> */
     private array $handlers = [];
     private ?string $signedIn = null;
@@ -596,6 +628,13 @@ final class Application
         $this->addressees = new PersonalDataAndProspectingAddressees($this->nameContactsService, $this->nameOrganizationsOfContactsService);
         $this->tagsOfEveryContact = new TagsOfEveryContact($this->taggedContactsRetriever);
         $this->campaignTargets = new CampaignTargets($this->tagsOfEveryContact);
+
+        $this->bookingPages = new InMemoryBookingPageRepository($database);
+        $this->hostedPages = new BookingPages($this->bookingPages, new AccountsHosts($this->consultMembersService));
+        $this->whichHaveAConnectedCalendarService = new WhichHaveAConnectedCalendarHandler($this->connections);
+        $this->connectedCalendars = new ConnectorsConnectedCalendars($this->whichHaveAConnectedCalendarService);
+        $this->myBookingPageRetriever = new InMemoryMyBookingPageRetriever($database);
+        $this->publicBookingPageRetriever = new InMemoryPublicBookingPageRetriever($database);
 
         foreach ($this->translators() as $translator) {
             $this->events->translateWith($translator, calledThrough: new RefusalTranslatingEventHandler(new TransactionalEventHandler($translator, $this->unitOfWork)));
@@ -1141,6 +1180,13 @@ final class Application
             new StopCampaignHandler($this->campaigns, $this->campaigners, $this->events),
             new DismissRecipientHandler($this->campaigns, $this->campaigners, $this->events),
             new EraseCampaignHandler($this->campaigns, new AccountsTaggedAccounts($this->listAccountsService)),
+            new SetWeeklyWindowsHandler($this->hostedPages, $this->bookingPages, $this->events),
+            new AddInactivePeriodHandler($this->hostedPages, $this->bookingPages, $this->events),
+            new RemoveInactivePeriodHandler($this->bookingPages, $this->events),
+            new OfferChannelsHandler($this->hostedPages, $this->bookingPages, $this->events),
+            new OpenBookingHandler($this->hostedPages, $this->bookingPages, $this->connectedCalendars, $this->events),
+            new CloseBookingHandler($this->hostedPages, $this->bookingPages, $this->events),
+            new ChangeBookingLinkHandler($this->hostedPages, $this->bookingPages, $this->events),
         ];
     }
 
@@ -1233,6 +1279,46 @@ final class Application
         ($this->nameCampaignsService)($query, $kept);
 
         return $kept->names;
+    }
+
+    /**
+     * @return list<string>
+     */
+    public function whichHaveAConnectedCalendar(WhichHaveAConnectedCalendar $query): array
+    {
+        $kept = new KeptConnectedCalendars();
+        ($this->whichHaveAConnectedCalendarService)($query, $kept);
+
+        return $kept->memberIds;
+    }
+
+    public function consultMyBookingPage(ConsultMyBookingPage $query): ?MyBookingPage
+    {
+        $kept = new KeptMyBookingPage();
+
+        return $this->ask(new ConsultMyBookingPageHandler($this->myBookingPageRetriever, $this->connectedCalendars), $query, $kept) ? $kept->page : null;
+    }
+
+    public function consultPublicBookingPage(ConsultPublicBookingPage $query): ?PublicBookingPage
+    {
+        $kept = new KeptPublicBookingPage();
+
+        return $this->ask(new ConsultPublicBookingPageHandler($this->publicBookingPageRetriever), $query, $kept) ? $kept->page : null;
+    }
+
+    /**
+     * The code of a public link, drawn as the API draws it: 22 random characters of base 62.
+     */
+    public function newBookingCode(): string
+    {
+        $this->lastBookingCode = implode('', array_map(static fn (): string => self::BASE62[random_int(0, 61)], range(1, 22)));
+
+        return $this->lastBookingCode;
+    }
+
+    public function lastBookingCode(): ?string
+    {
+        return $this->lastBookingCode;
     }
 
     public function whichAreProspected(WhichAreProspected $query): array
