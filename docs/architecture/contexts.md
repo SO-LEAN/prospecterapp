@@ -13,7 +13,7 @@ Accounts, PersonalData and Prospecting (ADR 0030, 0031), Reporting downstream of
 | Context | Services (`Contract/Service`, ADR 0089) | Integration events (`Contract/Event`, ADR 0046) |
 |---|---|---|
 | Accounts | `ConsultMembersService`: who the members are, and their reminder; `ListAccountsService`: the identities of the accounts, by slice | `AccountOpened`, `MemberRegistered` |
-| PersonalData | `WhichAreContactsService`: which persons are contacts of an account; `NameContactsService`: the names and the job titles of persons as a member reads them; `ListContactFactsService`: the facts of the contacts of an account, by slice | `ContactCollected`, `ContactForgotten`, `ContactFactsChanged` |
+| PersonalData | `WhichAreContactsService`: which persons are contacts of an account; `NameContactsService`: the names, the civilities and the job titles of persons as a member reads them; `ListContactFactsService`: the facts of the contacts of an account, by slice | `ContactCollected`, `ContactForgotten`, `ContactFactsChanged` |
 | Prospecting | `WhichAreProspectedService`: which organizations an account prospects; `NameOrganizationsOfContactsService`: the names of the organizations of contacts of an account, the first first; `ConsultHeldExchangesService`: exchanges as their holders hold them, and `ConsultPlannedExchangesService`: those a holder still has planned from a moment on; `ListOrganizationFactsService`, `ListExchangeFactsService`: the facts of the organizations and of the exchanges of an account, by slice | `ContactsLeftWithoutOrganization`, `OrganizationFactsChanged`, `ExchangeFactsChanged` |
 | Reporting | nothing | nothing |
 | Connectors | nothing | `VideoCallLinkCreated` (ADR 0137) |
