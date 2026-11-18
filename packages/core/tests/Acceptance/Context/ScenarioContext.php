@@ -252,6 +252,11 @@ final class ScenarioContext implements Context
         $this->memberIds[$name] = $id;
     }
 
+    public function findMemberId(string $name): ?MemberId
+    {
+        return $this->memberIds[$name] ?? null;
+    }
+
     public function memberIdOf(string $name): MemberId
     {
         return $this->memberIds[$name] ?? throw new \LogicException(sprintf('No member "%s" in the scenario', $name));

@@ -15,6 +15,7 @@ use Prospecter\Core\Accounts\Contract\Service\ConsultMembers\MemberResponse;
 use Prospecter\Core\Accounts\Contract\Service\ListAccounts\KeptAccounts;
 use Prospecter\Core\Accounts\Contract\Service\ListAccounts\ListAccounts;
 use Prospecter\Core\Accounts\Domain\Model\Role;
+use Prospecter\Core\Connectors\Contract\Service\WhichHaveAConnectedCalendar\WhichHaveAConnectedCalendar;
 use Prospecter\Core\PersonalData\Contract\Service\ListContactFacts\ContactFactsResponse;
 use Prospecter\Core\PersonalData\Contract\Service\ListContactFacts\KeptContactFacts;
 use Prospecter\Core\PersonalData\Contract\Service\ListContactFacts\ListContactFacts;
@@ -259,8 +260,16 @@ final class PublishedLanguageContext implements Context
         $this->theContextGivesNothingToFollow();
     }
 
+    #[When('un autre contexte demande à Connectors lesquels ont un agenda connecté :')]
+    public function anotherContextAsksConnectors(TableNode $members): void
+    {
+        $this->asked = array_combine(array_map($this->memberIdOf(...), $members->getColumn(0)), $members->getColumn(0));
+        $this->answered = $this->application->whichHaveAConnectedCalendar(new WhichHaveAConnectedCalendar(array_keys($this->asked)));
+    }
+
     #[Then('PersonalData répond :')]
     #[Then('Prospecting répond :')]
+    #[Then('Connectors répond :')]
     public function theContextAnswers(TableNode $names): void
     {
         Expect::same($names->getColumn(0), $this->namesAnswered());
@@ -268,6 +277,7 @@ final class PublishedLanguageContext implements Context
 
     #[Then('PersonalData ne répond aucune')]
     #[Then('Prospecting ne répond aucune')]
+    #[Then('Connectors ne répond aucun')]
     public function theContextAnswersNone(): void
     {
         Expect::same([], $this->namesAnswered());
@@ -452,6 +462,6 @@ final class PublishedLanguageContext implements Context
 
     private function memberIdOf(string $name): string
     {
-        return isset($this->members[$name]) ? $this->members[$name]->value : $this->application->newIdentity();
+        return ($this->members[$name] ?? $this->scenario->findMemberId($name))?->value ?? $this->application->newIdentity();
     }
 }

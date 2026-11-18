@@ -156,6 +156,7 @@ final class ConnectorContext implements Context
 
     #[When('je le déconnecte')]
     #[When('je déconnecte mon compte Google')]
+    #[Given('j\'ai déconnecté mon compte Google')]
     public function iDisconnect(): void
     {
         $this->application->dispatch(new Disconnect($this->application->signedIn(), self::GOOGLE, $this->application->now()));

@@ -244,6 +244,27 @@ Fonctionnalité: Le langage publié des contextes
       | SOLEAN IT |
     Et Accounts ne donne pas de suite
 
+  Scénario: Connectors dit lesquels de plusieurs membres ont un agenda connecté
+    Soit le client Google "client-solean" de secret "secret-solean" sert "SOLEAN IT"
+    Et "Alan Turing" est membre de "SOLEAN IT" sans le droit aux données personnelles
+    Et je suis connecté en tant que prospecteur de "SOLEAN IT"
+    Et mon compte Google est connecté
+    Quand un autre contexte demande à Connectors lesquels ont un agenda connecté :
+      | moi         |
+      | Alan Turing |
+      | Personne    |
+    Alors Connectors répond :
+      | moi |
+
+  Scénario: Un agenda à reconnecter n'est pas un agenda connecté
+    Soit le client Google "client-solean" de secret "secret-solean" sert "SOLEAN IT"
+    Et je suis connecté en tant que prospecteur de "SOLEAN IT"
+    Et mon compte Google est connecté
+    Et Google refuse mon jeton
+    Quand un autre contexte demande à Connectors lesquels ont un agenda connecté :
+      | moi |
+    Alors Connectors ne répond aucun
+
   Scénario: Un compte inconnu n'a aucun fait
     Quand un autre contexte demande à Prospecting 10 faits des organisations d'un compte inconnu
     Alors Prospecting ne répond aucun fait
