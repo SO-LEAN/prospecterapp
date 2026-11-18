@@ -1,6 +1,7 @@
 import { AlertTriangle, Lock } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import { isProblem, messageOf, type Problem } from '@/shared/api/problem'
+import type { fr } from '@/shared/i18n/fr'
 import { Button } from '@/shared/ui/button'
 import { EmptyState } from './empty-state'
 
@@ -9,7 +10,7 @@ type Props = { error: unknown; reset?: () => void }
 const isForbidden = (error: unknown): error is Problem => isProblem(error) && error.status === 403
 
 /** The refusal of the role alone, which the title of the page already tells. */
-const ROLE_NOT_ALLOWED = 'roleNotAllowed'
+const ROLE_NOT_ALLOWED: keyof typeof fr.refusals = 'roleNotAllowed'
 
 const namesTheRightLacked = (problem: Problem) =>
   Boolean(problem.reason) && problem.reason !== ROLE_NOT_ALLOWED
