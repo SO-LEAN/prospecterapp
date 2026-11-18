@@ -51,14 +51,29 @@ class DynamoPersonLinkedInProfilesTest extends ApiTestCase
         $this->assertEquals([new LinkedInProfile(self::ADA)], PersonDocument::person($savedBefore)->linkedInProfilesHeld());
     }
 
-    public function testAFormerProfileStillFindsItsContactButNotForThemself(): void
+    public function testAFormerProfileStillFindsItsContact(): void
     {
         $account = new AccountId(self::newIdentity());
         $ada = $this->contactWithTheProfiles($account, self::ADA, 'https://www.linkedin.com/in/ada-l');
         $this->persons()->save($ada);
 
         $this->assertEquals($ada->id(), $this->persons()->contactHoldingLinkedInProfile($account, new LinkedInProfile(self::ADA), except: new PersonId(self::newIdentity()))?->id());
+    }
+
+    public function testAContactHoldingAProfileIsNoOtherHolderForThemself(): void
+    {
+        $account = new AccountId(self::newIdentity());
+        $ada = $this->contactWithTheProfiles($account, self::ADA);
+        $this->persons()->save($ada);
+
         $this->assertNull($this->persons()->contactHoldingLinkedInProfile($account, new LinkedInProfile(self::ADA), except: $ada->id()));
+    }
+
+    public function testAProfileHeldInAnotherAccountIsHeldByNobodyHere(): void
+    {
+        $ada = $this->contactWithTheProfiles(new AccountId(self::newIdentity()), self::ADA);
+        $this->persons()->save($ada);
+
         $this->assertNull($this->persons()->contactHoldingLinkedInProfile(new AccountId(self::newIdentity()), new LinkedInProfile(self::ADA), except: new PersonId(self::newIdentity())));
     }
 
