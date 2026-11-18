@@ -11,8 +11,8 @@ use Prospecter\Core\SharedKernel\Domain\Exception\BusinessRuleViolation;
  */
 final class InvalidTopic extends BusinessRuleViolation
 {
-    public static function named(string $topic): self
+    public static function inFull(): self
     {
-        return self::because('A topic is named projects/<project>/topics/<topic>', 'topic', context: ['topic' => $topic]);
+        return self::because('A topic is named projects/<project>/topics/<topic>', 'topic');
     }
 }
