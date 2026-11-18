@@ -18,6 +18,7 @@ import {
 import { GoogleLogo } from '@/shared/ui/google-logo'
 import { useConnectGoogle, useDisconnectGoogle, useRetryFailedPushes } from '../mutations'
 import type { Connection } from '../queries'
+import { GmailImport } from './gmail-import'
 
 type Props = {
   connection: Connection | undefined
@@ -52,6 +53,7 @@ export function GoogleCalendarCard({ connection, offered, unchecked = false, goT
           {offered && <ConnectButton connection={connection} goTo={goTo} />}
           {connection && <DisconnectButton />}
         </div>
+        {connection && <GmailImport connection={connection} goTo={goTo} />}
       </CardContent>
     </Card>
   )

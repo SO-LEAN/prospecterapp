@@ -354,6 +354,13 @@ export const fr = {
       banner: {
         text: 'Google n’accorde plus l’accès à votre agenda : vos échanges planifiés n’y sont plus ajoutés.',
       },
+      gmail: {
+        import: 'Importer mes e-mails Gmail',
+        lastNotified: 'Import actif, dernière notification reçue le {{at}}.',
+        neverNotified: 'Import actif, aucune notification reçue pour le moment.',
+        toReconnect: 'Google n’accorde plus la lecture de Gmail : réactivez l’import pour le reconnecter.',
+        stopped: 'L’import de vos e-mails Gmail est coupé.',
+      },
       client: {
         title: 'Client Google du compte',
         description:

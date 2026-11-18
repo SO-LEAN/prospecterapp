@@ -11,6 +11,23 @@ export function useConnectGoogle(
   })
 }
 
+/** The browser leaves for Google, which asks the reading of Gmail with the calendar (ADR 0154). */
+export function useImportGmail(
+  goTo: (address: string) => void = (address) => window.location.assign(address),
+) {
+  return api.useMutation('post', '/api/me/connections/google/gmail-import/authorizations', {
+    onSuccess: ({ address }) => goTo(address),
+  })
+}
+
+export function useStopGmailImport() {
+  const queryClient = useQueryClient()
+
+  return api.useMutation('delete', '/api/me/connections/google/gmail-import', {
+    onSuccess: (connections) => queryClient.setQueryData(connectionsQuery().queryKey, connections),
+  })
+}
+
 /** The code Google brought back, given to the API; the page of the answer says how it went. */
 export function useGiveGoogleItsAnswer() {
   const queryClient = useQueryClient()
