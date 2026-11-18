@@ -40,4 +40,21 @@ class SearchKeyTest extends TestCase
         yield 'the middle of the name' => ['fontaine', false];
         yield 'the middle of the email' => ['fables', false];
     }
+
+    #[DataProvider('searchesOfAPerson')]
+    public function testAPersonIsFoundByTheBeginningOfTheirFirstNameToo(?string $search, bool $found): void
+    {
+        $this->assertSame($found, new SearchKeys('Turing', null, 'Alan Mathison')->areFoundBy(SearchKey::of($search)));
+    }
+
+    /**
+     * @return iterable<string, array{?string, bool}>
+     */
+    public static function searchesOfAPerson(): iterable
+    {
+        yield 'the beginning of the first name' => ['ala', true];
+        yield 'the beginning of the last name' => ['TUR', true];
+        yield 'the middle of the first name' => ['mathison', false];
+        yield 'the first name followed by the last name' => ['alan turing', false];
+    }
 }

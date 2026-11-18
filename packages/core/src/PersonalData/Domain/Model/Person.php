@@ -145,11 +145,11 @@ final class Person implements ReleasesEvents
     }
 
     /**
-     * A person is found by the beginning of their last name or of their email.
+     * A person is found by the beginning of their last name, of their first name or of their email.
      */
     public function searchKeys(): SearchKeys
     {
-        return new SearchKeys($this->name->lastName, $this->contactDetails->email);
+        return new SearchKeys($this->name->lastName, $this->contactDetails->email, $this->name->firstName);
     }
 
     public function rename(PersonName $name, Reader $by, \DateTimeImmutable $at): void
