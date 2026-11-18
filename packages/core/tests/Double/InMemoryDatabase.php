@@ -309,6 +309,14 @@ final class InMemoryDatabase
     /**
      * @return list<Connection>
      */
+    public function connections(): array
+    {
+        return array_values(array_map(static fn (Connection $connection): Connection => clone $connection, $this->connections));
+    }
+
+    /**
+     * @return list<Connection>
+     */
     public function connectionsOf(string $member): array
     {
         return array_values(array_map(

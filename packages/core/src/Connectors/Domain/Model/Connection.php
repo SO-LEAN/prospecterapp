@@ -8,8 +8,10 @@ use Prospecter\Core\Connectors\Domain\Event\CalendarRecreated;
 use Prospecter\Core\Connectors\Domain\Event\Connected;
 use Prospecter\Core\Connectors\Domain\Event\ConnectionLost;
 use Prospecter\Core\Connectors\Domain\Event\Disconnected;
+use Prospecter\Core\Connectors\Domain\Event\MailImportLost;
 use Prospecter\Core\Connectors\Domain\Event\MailImportStarted;
 use Prospecter\Core\Connectors\Domain\Event\MailImportStopped;
+use Prospecter\Core\Connectors\Domain\Event\MailWatchRenewed;
 use Prospecter\Core\Connectors\Domain\Event\VideoCallLinkCreated;
 use Prospecter\Core\Connectors\Domain\Exception\AccessRevoked;
 use Prospecter\Core\Connectors\Domain\Exception\CalendarGone;
@@ -232,6 +234,34 @@ final class Connection implements ReleasesEvents
         $this->watchExpiresAt = $watch->expiresAt;
         $this->modifiedAt = $at;
         $this->recordThat(new MailImportStarted($this->accountId, $this->member, $at));
+    }
+
+    /**
+     * The watch of an import active renewed for another week, through the topic the account has now; a token the
+     * provider refuses, or that no longer grants the mailbox, leaves the import to reconnect; an account without its
+     * topic any more renews nothing, the watch expiring within its week.
+     */
+    public function renewMailWatch(ProviderClient $client, ProviderMailbox $mailbox, \DateTimeImmutable $at): void
+    {
+        $notifications = $client->mailboxNotifications();
+        if (MailImport::Active !== $this->mailImport || null === $notifications) {
+            return;
+        }
+
+        try {
+            $this->watchExpiresAt = $mailbox->watch($client->credentials(), $this->refreshToken, $notifications->topic)->expiresAt;
+            $this->modifiedAt = $at;
+            $this->recordThat(new MailWatchRenewed($this->accountId, $this->member, $at));
+        } catch (AccessRevoked) {
+            $this->loseTheMailImport($at);
+        }
+    }
+
+    private function loseTheMailImport(\DateTimeImmutable $at): void
+    {
+        $this->mailImport = MailImport::ToReconnect;
+        $this->modifiedAt = $at;
+        $this->recordThat(new MailImportLost($this->accountId, $this->member, $at));
     }
 
     /**
