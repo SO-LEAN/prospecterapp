@@ -6,7 +6,9 @@ use App\Shared\Persistence\Revision;
 use App\Shared\Persistence\SearchIndexes;
 use App\Shared\Persistence\Table;
 use App\Shared\Persistence\Write;
+use Prospecter\Core\PersonalData\Domain\Exception\LinkedInProfileAlreadyUsed;
 use Prospecter\Core\PersonalData\Domain\Exception\UnknownPerson;
+use Prospecter\Core\PersonalData\Domain\Model\LinkedInProfile;
 use Prospecter\Core\PersonalData\Domain\Model\Person;
 use Prospecter\Core\PersonalData\Domain\Model\Purpose;
 use Prospecter\Core\PersonalData\Domain\Repository\PersonRepository;
@@ -30,6 +32,7 @@ use Prospecter\Core\SharedKernel\Domain\PersonId;
 final readonly class DynamoPersonRepository implements PersonRepository
 {
     private const string EMAIL = 'EMAIL';
+    private const string LINKEDIN = 'LINKEDIN';
 
     public function __construct(private Table $personalDataTable)
     {
@@ -58,6 +61,7 @@ final readonly class DynamoPersonRepository implements PersonRepository
             $this->personalDataTable->deleting(PersonalDataKeys::person($person->id()->value), PersonalDataKeys::PERSON),
             ...(null === $person->searchKeys()->firstName ? [] : [$this->deletingTheFirstName($person)]),
             ...(null === $email ? [] : [$this->personalDataTable->deleting(self::emailKey($person->accountId(), $person->purpose(), $email), self::EMAIL)]),
+            ...$this->releasing($person, $person->linkedInProfilesHeld()),
         ]);
     }
 
@@ -66,6 +70,13 @@ final readonly class DynamoPersonRepository implements PersonRepository
         $holder = $this->personalDataTable->item(self::emailKey($accountId, $purpose, $email->value), self::EMAIL);
 
         return null !== $holder && $holder['ownerId'] !== $except->value;
+    }
+
+    public function contactHoldingLinkedInProfile(AccountId $accountId, LinkedInProfile $profile, PersonId $except): ?Person
+    {
+        $holder = $this->personalDataTable->item(self::linkedInKey($accountId, $profile->value), self::LINKEDIN)['ownerId'] ?? null;
+
+        return null === $holder || $holder === $except->value ? null : $this->get(new PersonId($holder));
     }
 
     public function save(Person $person): void
@@ -87,7 +98,51 @@ final readonly class DynamoPersonRepository implements PersonRepository
             $writes[] = $this->personalDataTable->deleting(self::emailKey($person->accountId(), $person->purpose(), $storedEmail), self::EMAIL);
         }
 
-        $this->personalDataTable->transact($writes);
+        $this->personalDataTable->transact([...$writes, ...$this->linkedInProfileWrites($person, null === $stored ? null : PersonDocument::person($stored['person']))]);
+    }
+
+    /**
+     * The reservation of each profile a contact holds and did not before, under the condition that no other contact
+     * holds it: the safety net of LinkedInProfileUniqueness; and the release of those it held and no longer does. The
+     * profile of a member is reserved for nobody.
+     *
+     * @return list<Write>
+     */
+    private function linkedInProfileWrites(Person $person, ?Person $stored): array
+    {
+        if (Purpose::Prospecting !== $person->purpose()) {
+            return [];
+        }
+        $taken = array_filter($person->linkedInProfilesHeld(), static fn (LinkedInProfile $profile): bool => !($stored?->holdsLinkedInProfile($profile) ?? false));
+        $dropped = array_filter($stored?->linkedInProfilesHeld() ?? [], static fn (LinkedInProfile $profile): bool => !$person->holdsLinkedInProfile($profile));
+
+        return [...array_values(array_map(fn (LinkedInProfile $profile): Write => $this->reserving($person, $profile), $taken)), ...$this->releasing($person, array_values($dropped))];
+    }
+
+    private function reserving(Person $person, LinkedInProfile $profile): Write
+    {
+        return $this->personalDataTable->putting(
+            ['PK' => self::linkedInKey($person->accountId(), $profile->value), 'SK' => self::LINKEDIN, 'ownerId' => $person->id()->value],
+            'attribute_not_exists(PK) OR ownerId = :owner',
+            [':owner' => $person->id()->value],
+            LinkedInProfileAlreadyUsed::byAnother(...),
+        );
+    }
+
+    /**
+     * The deletes of the reservations of these profiles the person holds, read in the unit before: one another
+     * contact holds, a duplicate noted before the profiles were unique, stays theirs.
+     *
+     * @param list<LinkedInProfile> $profiles
+     *
+     * @return list<Write>
+     */
+    private function releasing(Person $person, array $profiles): array
+    {
+        $reservations = $this->personalDataTable->items(array_map(fn (LinkedInProfile $profile): array => [self::linkedInKey($person->accountId(), $profile->value), self::LINKEDIN], $profiles));
+        $own = array_filter($reservations, static fn (array $reservation): bool => $reservation['ownerId'] === $person->id()->value);
+
+        return array_values(array_map(fn (array $reservation): Write => $this->personalDataTable->deleting($reservation['PK'], self::LINKEDIN, 'ownerId = :owner', [':owner' => $person->id()->value]), $own));
     }
 
     /**
@@ -176,5 +231,10 @@ final readonly class DynamoPersonRepository implements PersonRepository
     private static function emailKey(AccountId $accountId, Purpose $purpose, string $email): string
     {
         return sprintf('%s#%s#%s#%s', self::EMAIL, $accountId->value, $purpose->value, $email);
+    }
+
+    private static function linkedInKey(AccountId $accountId, string $profile): string
+    {
+        return sprintf('%s#%s#%s', self::LINKEDIN, $accountId->value, $profile);
     }
 }

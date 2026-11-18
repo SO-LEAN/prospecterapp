@@ -375,11 +375,13 @@ final readonly class Table
     }
 
     /**
-     * A delete of a transaction.
+     * A delete of a transaction, written only when the condition holds when there is one.
+     *
+     * @param array<string, mixed> $values the values the condition names
      */
-    public function deleting(string $pk, string $sk): Write
+    public function deleting(string $pk, string $sk, ?string $condition = null, array $values = []): Write
     {
-        return new Write($this->name, $pk, $sk, ['Delete' => ['TableName' => $this->name, 'Key' => $this->key($pk, $sk)]]);
+        return new Write($this->name, $pk, $sk, ['Delete' => ['TableName' => $this->name, 'Key' => $this->key($pk, $sk)] + $this->conditionOf($condition, $values)]);
     }
 
     /**
