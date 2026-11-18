@@ -56,7 +56,7 @@ final readonly class DynamoPersonRepository implements PersonRepository
 
         $this->personalDataTable->transact([
             $this->personalDataTable->deleting(PersonalDataKeys::person($person->id()->value), PersonalDataKeys::PERSON),
-            ...(null === $person->searchKeys()->firstName ? [] : [$this->personalDataTable->deleting(PersonalDataKeys::person($person->id()->value), PersonalDataKeys::FIRST_NAME)]),
+            ...(null === $person->searchKeys()->firstName ? [] : [$this->deletingTheFirstName($person)]),
             ...(null === $email ? [] : [$this->personalDataTable->deleting(self::emailKey($person->accountId(), $person->purpose(), $email), self::EMAIL)]),
         ]);
     }
@@ -92,8 +92,8 @@ final readonly class DynamoPersonRepository implements PersonRepository
 
     /**
      * Writes again the item of every person, its search keys and its key in its list with it, the item of their first
-     * name beside it, and forgets the items
-     * of the search before ADR 0071: what a table written before ADR 0071 needs once.
+     * name beside it, and forgets the items of the search before ADR 0071: what a table written before ADR 0071, or
+     * before ADR 0149, needs once.
      */
     public function writeTheKeysAgain(): int
     {
@@ -142,7 +142,12 @@ final readonly class DynamoPersonRepository implements PersonRepository
             return [$this->personalDataTable->putting($item)];
         }
 
-        return null === $stored?->searchKeys()->firstName ? [] : [$this->personalDataTable->deleting(PersonalDataKeys::person($person->id()->value), PersonalDataKeys::FIRST_NAME)];
+        return null === $stored?->searchKeys()->firstName ? [] : [$this->deletingTheFirstName($person)];
+    }
+
+    private function deletingTheFirstName(Person $person): Write
+    {
+        return $this->personalDataTable->deleting(PersonalDataKeys::person($person->id()->value), PersonalDataKeys::FIRST_NAME);
     }
 
     /**
