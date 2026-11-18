@@ -644,7 +644,7 @@ export const fr = {
       note: 'Noter un échange',
       noted: 'Échange noté',
       outbound: { email: 'Envoyé', call: 'Émis', sms: 'Envoyé', linkedIn: 'Envoyé' },
-      missed: 'Manqué : le contact n’a pas répondu ou n’est pas venu',
+      missed: 'Manqué : le contact n’a pas répondu ou n’est pas venu',
       occurredAt: 'Moment',
       text: 'Texte',
       inTheFuture: 'Un échange ne peut pas être dans le futur.',
