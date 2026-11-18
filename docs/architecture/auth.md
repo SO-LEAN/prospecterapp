@@ -37,7 +37,7 @@ An AI reaches the MCP server of the API as the member it signed in on Cognito, w
 
 - a firewall `mcp` (`^/mcp$`, stateless) checks the access tokens of Cognito as the firewall `api` does: `/mcp` takes those of `prospecter-front` and of a second client of the pool, `prospecter-mcp` (confidential, its secret a secret of the API), `/api/` those of `prospecter-front` only; without a valid token, 401 with `WWW-Authenticate: Bearer resource_metadata="<api>/.well-known/oauth-protected-resource/mcp"`;
 - the member signs in on the sign-in page of Cognito (managed login, on a domain of the pool), never on the screen of the SPA; the API is the authorization server the AIs see, a facade over Cognito keeping nothing (`src/SignIn/OAuth`: the metadata of RFC 9728 and RFC 8414, `/oauth/authorize`, `/oauth/callback`, `/oauth/token`, the request sealed in the redirects);
-- a member signing out everywhere revokes the refresh tokens of their AIs, an access token staying valid until it expires, as for the SPA.
+- every sign-out of the SPA being a global sign-out today, it would revoke the refresh tokens of the AIs of the member too: the ticket building the facade has the SPA revoke its own refresh token only (`RevokeToken`), a global sign-out kept for « sign out everywhere »; an access token stays valid until it expires, as for the SPA.
 
 ## SPA side
 

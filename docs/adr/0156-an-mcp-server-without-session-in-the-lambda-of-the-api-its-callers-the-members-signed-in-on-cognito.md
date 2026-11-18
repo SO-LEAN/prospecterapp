@@ -2,8 +2,8 @@
 
 - Date: 2026-11-18
 - Type: architecture
-- Status: Accepted
-- Implemented by: `docs/architecture/mcp.md` (the tickets after the spike #202 build it; its proof, the branch `spike/202-mcp-proof`, never merged)
+- Status: Proposed
+- Implemented by: to come, the tickets after the spike #202 (its proof, the branch `spike/202-mcp-proof`, never merged)
 
 ## Context
 Prospecter wants to be reached by AIs (Claude web first, Claude Code, any client of the Model Context Protocol). The API runs in a Lambda (ADR 0053, 0063): no process lives between two requests, two requests may reach two instances, and nothing in the stack keeps a session. The protocol had a handshake (`initialize`) and a session (`Mcp-Session-Id`) until its revision `2026-07-28`, which removed both; the clients still speak either. The maintainer decided that an AI acts as the member it signed in, with exactly their rights: no access of an AI in the domain, no scope of its own.
@@ -14,7 +14,7 @@ Prospecter wants to be reached by AIs (Claude web first, Claude Code, any client
 - Both libraries are experimental: pinned at an exact version, moved by hand, their changelogs read. `none` came after the last tag of the bundle (`v1.0.0-BETA1`, `mcp/sdk ^0.9`), on its `main` with `mcp/sdk` 0.10.0: the proof pinned that commit (`790442a8`); the first ticket shipping the server takes the first tag carrying it, or pins that commit.
 - A firewall `mcp` checks the access tokens of Cognito as the firewall `api` does, those of the client of the AIs beside those of the SPA, and loads the same member, with their roles: an AI reads the personal data in clear or masked as its member does. Without a valid token, 401 naming the metadata of the protected resource (RFC 9728), the only answer on which Claude starts its sign-in.
 - A tool is an adapter of one intent, `src/<Context>/Mcp/<Intent>Tool.php`, reading the member through `Security` and calling the core as a controller does.
-- The rate of `/mcp` is limited as that of the other public routes of the API: by address by the edge of the installation, and by the throttling of the routes of the HTTP API (`apps/api/infra`), no provider named here.
+- The rate of `/mcp` is limited as that of the other public routes of the API: by address by the edge of the installation, and by the throttling of the HTTP API on a route of its own, which the ticket building the server adds (the stage of `apps/api/infra` throttles nothing today, and throttling its `$default` route would cap the whole API).
 
 ## Consequences
 - Proven in the Lambda on MiniStack: a client of each era called a tool and read the member and their account; the MCP Inspector too.
