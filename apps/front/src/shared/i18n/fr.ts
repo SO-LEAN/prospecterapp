@@ -152,6 +152,8 @@ export const fr = {
     erasedOn: 'Contact à rattacher, effacé le {{date}}',
     attach: 'Rattacher',
     attachTo: 'Rattacher à {{name}}',
+    newOrganization: 'Nouvelle organisation',
+    searchOrganization: 'Rechercher une de mes organisations…',
   },
   fields: {
     civility: 'Civilité',
