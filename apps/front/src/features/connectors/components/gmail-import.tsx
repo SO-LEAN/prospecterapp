@@ -28,14 +28,13 @@ export function GmailImport({ connection, goTo }: Props) {
     return null
   }
 
-  const turn = async (on: boolean) => {
+  const turn = (on: boolean) => {
     if (on) {
       activate.mutate({})
       return
     }
 
-    await stop.mutateAsync({})
-    toast.success(t('settings.connectors.gmail.stopped'))
+    stop.mutate({}, { onSuccess: () => toast.success(t('settings.connectors.gmail.stopped')) })
   }
 
   return (
@@ -49,7 +48,7 @@ export function GmailImport({ connection, goTo }: Props) {
           id={switchId}
           checked={connection.gmailImport === 'active'}
           disabled={activate.isPending || stop.isPending}
-          onCheckedChange={(on) => void turn(on)}
+          onCheckedChange={turn}
         />
       </div>
       <GmailImportState connection={connection} />
