@@ -124,11 +124,12 @@ function ChangeLinkButton() {
   const changeLink = useChangeBookingLink()
   const [open, setOpen] = useState(false)
 
-  const confirm = async () => {
-    await changeLink.mutateAsync({})
+  const changed = () => {
     setOpen(false)
     toast.success(t('booking.link.change.done'))
   }
+
+  const confirm = () => changeLink.mutate({}, { onSuccess: changed })
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
@@ -146,7 +147,7 @@ function ChangeLinkButton() {
           <DialogClose asChild>
             <Button variant="ghost">{t('common.cancel')}</Button>
           </DialogClose>
-          <Button variant="destructive" disabled={changeLink.isPending} onClick={() => void confirm()}>
+          <Button variant="destructive" disabled={changeLink.isPending} onClick={confirm}>
             {t('booking.link.change.confirm')}
           </Button>
         </DialogFooter>
