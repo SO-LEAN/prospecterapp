@@ -96,3 +96,26 @@ Fonctionnalité: Configurer le client Google de mon compte
   Scénario: Je ne retire pas un client absent
     Quand je retire le client Google de mon compte
     Alors c'est refusé : "No client at Google"
+
+  Scénario: Je renseigne le topic par lequel Gmail prévient Prospecter
+    Soit le client Google "client-solean" de secret "secret-solean" sert "SOLEAN IT"
+    Quand je renseigne le topic Pub/Sub "projects/solean/topics/gmail" poussé par "push@solean.iam.gserviceaccount.com"
+    Alors le client Google de mon compte a le topic Pub/Sub "projects/solean/topics/gmail" poussé par "push@solean.iam.gserviceaccount.com"
+
+  Scénario: Un topic a son nom complet
+    Soit le client Google "client-solean" de secret "secret-solean" sert "SOLEAN IT"
+    Quand je renseigne le topic Pub/Sub "gmail" poussé par "push@solean.iam.gserviceaccount.com"
+    Alors c'est refusé : "A topic is named projects/<project>/topics/<topic>"
+    Et le client Google de mon compte n'a pas de topic Pub/Sub
+
+  Scénario: Seul un administrateur renseigne le topic
+    Soit le client Google "client-solean" de secret "secret-solean" sert "SOLEAN IT"
+    Et je suis connecté en tant que prospecteur de "SOLEAN IT"
+    Quand je renseigne le topic Pub/Sub "projects/solean/topics/gmail" poussé par "push@solean.iam.gserviceaccount.com"
+    Alors c'est refusé : "Only an administrator of the account configures its clients"
+
+  Scénario: Je retire le topic Pub/Sub
+    Soit le client Google "client-solean" de secret "secret-solean" sert "SOLEAN IT"
+    Et je renseigne le topic Pub/Sub "projects/solean/topics/gmail" poussé par "push@solean.iam.gserviceaccount.com"
+    Quand je retire le topic Pub/Sub de mon compte
+    Alors le client Google de mon compte n'a pas de topic Pub/Sub
