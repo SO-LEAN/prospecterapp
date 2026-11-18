@@ -7,7 +7,7 @@ namespace Prospecter\Core\PersonalData\Contract\Service\NameContacts;
 /**
  * The published language of the name of a person (ADR 0045, 0127), and of their job title, which a campaign names
  * them by too (ADR 0144): in clear, or masked for a reader without the right to read personal data, as PersonalData
- * shows them; their civility in clear like their name (ADR 0129), ms, mr or none.
+ * shows them; their civility in clear like their name (ADR 0129), ms, mr or x while unknown.
  */
 final readonly class ContactNameResponse
 {
@@ -15,7 +15,7 @@ final readonly class ContactNameResponse
         public string $personId,
         public ?string $firstName,
         public ?string $lastName,
-        public ?string $civility,
+        public string $civility,
         public ?string $jobTitle,
     ) {
     }

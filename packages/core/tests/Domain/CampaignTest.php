@@ -226,7 +226,7 @@ final class CampaignTest extends TestCase
             CampaignIntent::ReviseCampaign => $campaign->revise(CampaignName::of('Relance'), Targeting::by(Channel::Email, ['#ESN']), MessageTemplate::of('Bonjour', null, Channel::Email), $me, $this->now()),
             CampaignIntent::DiscardCampaign => $campaign->discard($me, $this->now()),
             CampaignIntent::FreezeCampaign => $campaign->freeze([self::ADA => $this->reachedByEmail('#ESN')], $me, $this->now()),
-            CampaignIntent::AddRecipients => $campaign->addRecipient(new PersonId(self::ALAN), $this->reachedByEmail(), new Addressee('Alan', 'Turing', null, null, null), $me, $this->now()),
+            CampaignIntent::AddRecipients => $campaign->addRecipient(new PersonId(self::ALAN), $this->reachedByEmail(), new Addressee('Alan', 'Turing', 'x', null, null), $me, $this->now()),
             CampaignIntent::RemoveRecipient => $campaign->removeRecipient(new PersonId(self::ADA), $me, $this->now()),
             CampaignIntent::StartCampaign => $campaign->start($me, $this->now()),
             CampaignIntent::StopCampaign => $campaign->stop($me, $this->now()),
