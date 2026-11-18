@@ -7135,11 +7135,21 @@
                 ],
                 "responses": {
                     "200": {
-                        "description": "The booking page",
+                        "description": "The booking page, kept 30 seconds",
                         "content": {
                             "application/json": {
                                 "schema": {
                                     "$ref": "#/components/schemas/PublicBookingPageResource"
+                                }
+                            }
+                        }
+                    },
+                    "429": {
+                        "description": "This link was opened too often in the last minute: `tooManyRequests`, try again after `Retry-After` seconds",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ProblemResource"
                                 }
                             }
                         }

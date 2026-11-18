@@ -927,6 +927,7 @@ export const fr = {
     secretsUnavailable:
       'Le secret du client ne peut être ni enregistré ni lu pour le moment : réessayez plus tard.',
     googleUnreachable: 'Google ne répond pas pour le moment : réessayez plus tard.',
+    tooManyRequests: 'Ce lien a été ouvert trop souvent : réessayez dans une minute.',
   },
   validation: {
     required: 'Ce champ est obligatoire.',

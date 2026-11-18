@@ -224,6 +224,9 @@ services:
     Prospecter\Core\Booking\Domain\Port\Hosts: '@App\Booking\AntiCorruption\AccountsAndPersonalDataHosts'
     Prospecter\Core\Booking\Domain\Port\ConnectedCalendars: '@App\Booking\AntiCorruption\ConnectorsConnectedCalendars'
     Prospecter\Core\Booking\Domain\Port\HostAgendas: '@App\Booking\AntiCorruption\ProspectingHostAgendas'
+    # the moment the counts of a limiter are forgotten at counted from now, the real one (ADR 0153)
+    App\Booking\Persistence\DynamoRateLimiterStorage:
+        arguments: { $clock: '@app.commit_clock' }
     # a domain event to the translators of its context on the event bus, every event to the reactions of the
     # subscriptions of config/subscriptions.json, delivered the way INTEGRATION_EVENTS_DELIVERY names: sync, within
     # the command, or outbox, written with it and relayed to the bus
