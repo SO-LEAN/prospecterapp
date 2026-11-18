@@ -2,7 +2,7 @@
 
 What is in force; the reasons are in the records it names (`docs/adr`), read only to know why or before changing it (ADR 0090).
 
-`packages/core` (`prospecter/core`) is the hexagon: the domain (aggregates, value objects, policies, repository interfaces) and the application (use cases by business intent, their ports and services) of the bounded contexts Accounts, PersonalData, Prospecting, Reporting, Connectors and Campaigns and their shared kernel, in pure PHP. The bounded contexts and what they publish to each other: `contexts.md`; the language and the rules of each: `docs/domain/`.
+`packages/core` (`prospecter/core`) is the hexagon: the domain (aggregates, value objects, policies, repository interfaces) and the application (use cases by business intent, their ports and services) of the bounded contexts Accounts, PersonalData, Prospecting, Reporting, Connectors, Campaigns and Booking and their shared kernel, in pure PHP. The bounded contexts and what they publish to each other: `contexts.md`; the language and the rules of each: `docs/domain/`.
 
 ## Layout
 
