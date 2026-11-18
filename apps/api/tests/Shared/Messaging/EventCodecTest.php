@@ -79,7 +79,19 @@ class EventCodecTest extends TestCase
     {
         $facts = new ExchangeFactsChanged(self::ID, self::ID, self::REVISION, true, 'planned', new \DateTimeImmutable(self::MOMENT), new \DateTimeImmutable(self::MOMENT));
 
-        $this->assertSame('ExchangeFactsChanged.v3', $this->codec()->encode($facts, new Cause(self::ID, null, 0))->detailType);
+        $this->assertSame('ExchangeFactsChanged.v4', $this->codec()->encode($facts, new Cause(self::ID, null, 0))->detailType);
+    }
+
+    public function testTheFactsOfAnExchangePublishedBeforeTheySaidItWentWithItsOrganizationAreReadAsErasedByAMember(): void
+    {
+        $former = new TransportedEvent('prospecter.prospecting', 'ExchangeFactsChanged.v3', self::ID, self::MOMENT_OF_THE_BUS, self::ID, null, 0, [
+            'accountId' => self::ID, 'exchangeId' => self::ID, 'revision' => 0, 'present' => false, 'status' => null, 'notedAt' => null, 'occurredAt' => self::MOMENT_OF_THE_BUS, 'contactId' => self::ID, 'campaignId' => self::ID,
+        ]);
+
+        $this->assertEquals(
+            new ExchangeFactsChanged(self::ID, self::ID, 0, false, null, null, new \DateTimeImmutable(self::MOMENT_OF_THE_BUS), self::ID, self::ID),
+            $this->codec()->decode($former),
+        );
     }
 
     public function testTheFactsOfAnExchangePublishedBeforeTheyNamedItsContactAndItsCampaignAreReadWithoutThem(): void
@@ -125,11 +137,11 @@ class EventCodecTest extends TestCase
         $this->assertSame('ContactFactsChanged.v2', $this->codec()->encode($contact, new Cause(self::ID, null, 0))->detailType);
     }
 
-    public function testTheErasureOfAnExchangeIsWrittenWithItsContactAndItsCampaign(): void
+    public function testTheErasureOfAnExchangeIsWrittenWithItsContactItsCampaignAndWhetherItWentWithItsOrganization(): void
     {
-        $erased = new ExchangeErased(new AccountId(self::ID), new MemberId(self::ID), new ExchangeId(self::ID), [], new \DateTimeImmutable(self::MOMENT), new PersonId(self::ID), new CampaignId(self::ID));
+        $erased = new ExchangeErased(new AccountId(self::ID), new MemberId(self::ID), new ExchangeId(self::ID), [], new \DateTimeImmutable(self::MOMENT), new PersonId(self::ID), new CampaignId(self::ID), withItsOrganization: true);
 
-        $this->assertSame('ExchangeErased.v2', $this->codec()->encode($erased, new Cause(self::ID, null, 0))->detailType);
+        $this->assertSame('ExchangeErased.v3', $this->codec()->encode($erased, new Cause(self::ID, null, 0))->detailType);
     }
 
     public function testTheErasureOfAnExchangePublishedBeforeItNamedItsContactAndItsCampaignIsReadWithoutThem(): void
@@ -139,6 +151,15 @@ class EventCodecTest extends TestCase
         ]);
 
         $this->assertEquals(new ExchangeErased(new AccountId(self::ID), new MemberId(self::ID), new ExchangeId(self::ID), [], new \DateTimeImmutable(self::MOMENT_OF_THE_BUS)), $this->codec()->decode($former));
+    }
+
+    public function testTheErasureOfAnExchangePublishedBeforeItSaidItWentWithItsOrganizationIsReadAsByAMember(): void
+    {
+        $former = new TransportedEvent('prospecter.prospecting.internal', 'ExchangeErased.v2', self::ID, self::MOMENT_OF_THE_BUS, self::ID, null, 0, [
+            'accountId' => self::ID, 'by' => self::ID, 'exchange' => self::ID, 'files' => [], 'occurredAt' => self::MOMENT_OF_THE_BUS, 'contact' => self::ID, 'campaign' => self::ID,
+        ]);
+
+        $this->assertEquals(new ExchangeErased(new AccountId(self::ID), new MemberId(self::ID), new ExchangeId(self::ID), [], new \DateTimeImmutable(self::MOMENT_OF_THE_BUS), new PersonId(self::ID), new CampaignId(self::ID)), $this->codec()->decode($former));
     }
 
     public function testADomainEventAndAnIntegrationEventOfTheSameNameAreToldApartByTheirSource(): void

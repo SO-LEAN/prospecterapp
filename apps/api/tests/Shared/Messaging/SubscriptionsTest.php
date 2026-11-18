@@ -30,7 +30,7 @@ class SubscriptionsTest extends TestCase
     #[DataProvider('factsOfExchanges')]
     public function testAFactOfAnExchangeReachesThePushOnlyWhenThePushNeedsIt(array $payload, array $reacting): void
     {
-        $this->assertSame($reacting, $this->subscriptionsReactingTo('prospecter.prospecting', 'ExchangeFactsChanged.v3', $payload));
+        $this->assertSame($reacting, $this->subscriptionsReactingTo('prospecter.prospecting', 'ExchangeFactsChanged.v4', $payload));
     }
 
     /**

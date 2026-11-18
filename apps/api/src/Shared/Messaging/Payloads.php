@@ -13,7 +13,7 @@ use Symfony\Component\TypeInfo\TypeResolver\TypeResolverInterface;
 /**
  * An event as plain data, by the parameters of its constructor, each the name of a public property: an identity
  * as its string, a moment in the format of the documents, a list element by element; and back, each value typed
- * by its parameter and its docblock (`list<PersonId>`).
+ * by its parameter and its docblock (`list<PersonId>`), one its former version did not carry by its default.
  */
 final readonly class Payloads
 {
@@ -48,10 +48,24 @@ final readonly class Payloads
         $arguments = [];
 
         foreach ($this->parametersOf($class) as $parameter) {
+            if (self::addedSince($parameter, $payload)) {
+                continue;
+            }
+
             $arguments[$parameter->name] = $this->typed($this->types->resolve($parameter), $payload[$parameter->name] ?? null);
         }
 
         return new $class(...$arguments);
+    }
+
+    /**
+     * A parameter the former version of the event did not carry takes its default, null when it has none.
+     *
+     * @param array<string, mixed> $payload
+     */
+    private static function addedSince(\ReflectionParameter $parameter, array $payload): bool
+    {
+        return !array_key_exists($parameter->name, $payload) && $parameter->isDefaultValueAvailable();
     }
 
     /**
