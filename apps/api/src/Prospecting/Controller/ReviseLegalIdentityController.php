@@ -2,12 +2,12 @@
 
 namespace App\Prospecting\Controller;
 
+use App\Prospecting\Input\ReviseLegalIdentityInput;
 use App\Prospecting\OrganizationReader;
 use App\Prospecting\OrganizationVoter;
 use App\Prospecting\Resource\OrganizationResource;
 use App\Security\User;
 use App\Shared\CommandBus;
-use App\Shared\Input\LegalIdentityInput;
 use App\Shared\Resource\ProblemResource;
 use Nelmio\ApiDocBundle\Attribute\Model;
 use OpenApi\Attributes as OA;
@@ -35,15 +35,15 @@ final class ReviseLegalIdentityController extends AbstractController
 
     #[Route('/api/organizations/{id}/legal-identity', name: 'api_organizations_revise_legal_identity', requirements: ['id' => Requirement::UUID], methods: ['PATCH'])]
     #[IsGranted(OrganizationVoter::ACCESS, subject: 'organization')]
-    #[OA\Patch(summary: 'Revise the legal identity (corporate name, form, type), nothing else changes')]
+    #[OA\Patch(summary: 'Revise the legal identity (corporate name, form, type, SIRET), nothing else changes')]
     #[OA\Response(response: 200, description: 'The organization with its new identity', content: new Model(type: OrganizationResource::class))]
     #[OA\Response(response: 401, description: 'Missing or invalid access token')]
     #[OA\Response(response: 403, description: 'The signed-in user is not a prospector', content: new Model(type: ProblemResource::class))]
     #[OA\Response(response: 404, description: 'Unknown organization, or one that is neither mine nor prospected by mine', content: new Model(type: ProblemResource::class))]
-    #[OA\Response(response: 422, description: 'Invalid identity, or neither corporate name nor email left', content: new Model(type: ProblemResource::class))]
-    public function __invoke(OrganizationSheet $organization, #[MapRequestPayload] LegalIdentityInput $input, #[CurrentUser] User $user): JsonResponse
+    #[OA\Response(response: 422, description: 'Invalid identity or SIRET, a SIRET another organization of the account has, or neither corporate name nor email left', content: new Model(type: ProblemResource::class))]
+    public function __invoke(OrganizationSheet $organization, #[MapRequestPayload] ReviseLegalIdentityInput $input, #[CurrentUser] User $user): JsonResponse
     {
-        $this->commandBus->dispatch(new ReviseLegalIdentity($user->memberId(), $organization->id, $input->corporateName, $input->form, $input->type, $this->clock->now()));
+        $this->commandBus->dispatch(new ReviseLegalIdentity($user->memberId(), $organization->id, $input->corporateName, $input->form, $input->type, $this->clock->now(), $input->siret));
 
         return $this->json($this->organizationReader->read($organization->id));
     }

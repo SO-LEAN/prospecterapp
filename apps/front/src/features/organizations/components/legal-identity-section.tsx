@@ -27,7 +27,10 @@ export function LegalIdentitySection({ organization }: { organization: Organizat
           defaultValues={toLegalIdentityValues(identity)}
           fields={legalIdentityFields}
           save={(values) =>
-            revise.mutateAsync({ params: { path: { id: organization.id } }, body: toLegalIdentity(values) })
+            revise.mutateAsync({
+              params: { path: { id: organization.id } },
+              body: { ...toLegalIdentity(values), siret: identity.siret ?? null },
+            })
           }
           onDone={close}
         >

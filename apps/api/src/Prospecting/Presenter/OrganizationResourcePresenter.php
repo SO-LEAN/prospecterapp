@@ -68,7 +68,7 @@ final class OrganizationResourcePresenter implements ConsultOrganizationOutput
         return new OrganizationResource(
             id: $response->id,
             name: $response->fullName,
-            legalIdentity: new LegalIdentityResource($response->corporateName, $response->form, $response->type),
+            legalIdentity: new LegalIdentityResource($response->corporateName, $response->form, $response->type, $response->siret),
             contactDetails: new ContactDetailsResource($response->email, $response->phoneNumber, $response->language),
             address: AddressResource::orNone($response->street, $response->postalCode, $response->city, $response->country),
             location: LocationResource::orNone($response->latitude, $response->longitude),

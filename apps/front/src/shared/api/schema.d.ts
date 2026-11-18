@@ -329,7 +329,7 @@ export interface paths {
         delete?: never;
         options?: never;
         head?: never;
-        /** Revise the legal identity (corporate name, form, type), nothing else changes */
+        /** Revise the legal identity (corporate name, form, type, SIRET), nothing else changes */
         patch: operations["patch_api_organizations_revise_legal_identity"];
         trace?: never;
     };
@@ -1800,6 +1800,16 @@ export interface components {
              */
             linkRequested: boolean;
         };
+        ReviseLegalIdentityInput: {
+            /** @default null */
+            corporateName: string | null;
+            /** @default null */
+            form: string | null;
+            /** @default null */
+            type: string | null;
+            /** @default null */
+            siret: string | null;
+        };
         OrganizationListQuery: {
             /** @default  */
             q: string;
@@ -2215,6 +2225,7 @@ export interface components {
             corporateName?: string | null;
             form?: string | null;
             type?: string | null;
+            siret?: string | null;
         };
         AddressResource: {
             street?: string | null;
@@ -4483,7 +4494,7 @@ export interface operations {
         };
         requestBody: {
             content: {
-                "application/json": components["schemas"]["LegalIdentityInput"];
+                "application/json": components["schemas"]["ReviseLegalIdentityInput"];
             };
         };
         responses: {
@@ -4521,7 +4532,7 @@ export interface operations {
                     "application/json": components["schemas"]["ProblemResource"];
                 };
             };
-            /** @description Invalid identity, or neither corporate name nor email left */
+            /** @description Invalid identity or SIRET, a SIRET another organization of the account has, or neither corporate name nor email left */
             422: {
                 headers: {
                     [name: string]: unknown;

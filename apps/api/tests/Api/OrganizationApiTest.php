@@ -40,7 +40,7 @@ class OrganizationApiTest extends ApiTestCase
         $this->assertResponseHeaderSame('Location', '/api/organizations/'.$started['id']);
         $this->assertMatchesRegularExpression('/^[0-9a-f-]{36}$/', $started['id']);
         $this->assertSame('ACME SAS', $started['name']);
-        $this->assertSame(self::ACME['legalIdentity'], $started['legalIdentity']);
+        $this->assertSame([...self::ACME['legalIdentity'], 'siret' => null], $started['legalIdentity']);
         $this->assertSame(self::ACME['contactDetails'], $started['contactDetails']);
         $this->assertSame(self::ACME['address'], $started['address']);
         $this->assertSame($started, $this->requestJson('GET', '/api/organizations/'.$started['id']));
@@ -108,6 +108,52 @@ class OrganizationApiTest extends ApiTestCase
 
         $noted = $this->requestJson('PATCH', '/api/organizations/'.$id.'/observations', ['observations' => 'Call back']);
         $this->assertSame('Call back', $noted['observations']);
+    }
+
+    public function testTheSiretIsNotedWithTheLegalIdentity(): void
+    {
+        $id = $this->requestJson('POST', '/api/organizations', self::ACME)['id'];
+
+        $revised = $this->requestJson('PATCH', '/api/organizations/'.$id.'/legal-identity', ['corporateName' => 'ACME', 'form' => 'SAS', 'type' => null, 'siret' => '552 100 554 00013']);
+
+        $this->assertResponseIsSuccessful();
+        $this->assertSame('55210055400013', $revised['legalIdentity']['siret']);
+    }
+
+    public function testEveryProspectorNotesASiretWithOrWithoutTheRight(): void
+    {
+        $id = $this->requestJson('POST', '/api/organizations', self::ACME)['id'];
+
+        foreach (['prospector-without-the-right' => [Role::User, Role::Prospector], 'administrator' => [Role::Prospector, Role::Admin]] as $member => $roles) {
+            $this->login($this->aMemberOfTheFixtures($member, ...$roles));
+            $this->assertArrayHasKey('reviseLegalIdentity', $this->requestJson('GET', '/api/organizations/'.$id)['_links'], $member);
+
+            $this->requestJson('PATCH', '/api/organizations/'.$id.'/legal-identity', ['corporateName' => 'ACME', 'siret' => '55210055400013']);
+
+            $this->assertResponseIsSuccessful($member);
+        }
+    }
+
+    public function testAnInvalidSiretIsRefusedOnItsField(): void
+    {
+        $id = $this->requestJson('POST', '/api/organizations', self::ACME)['id'];
+
+        $problem = $this->requestJson('PATCH', '/api/organizations/'.$id.'/legal-identity', ['corporateName' => 'ACME', 'siret' => '55210055400014']);
+
+        $this->assertResponseStatusCodeSame(422);
+        $this->assertSame([['siret'], 'invalidSiret'], [$this->violatedFields($problem), $problem['reason']]);
+    }
+
+    public function testASiretOfAnotherOrganizationOfTheAccountIsRefusedNamingIt(): void
+    {
+        $globex = $this->requestJson('POST', '/api/organizations', ['legalIdentity' => ['corporateName' => 'Globex']])['id'];
+        $this->requestJson('PATCH', '/api/organizations/'.$globex.'/legal-identity', ['corporateName' => 'Globex', 'siret' => '55210055400013']);
+        $id = $this->requestJson('POST', '/api/organizations', self::ACME)['id'];
+
+        $problem = $this->requestJson('PATCH', '/api/organizations/'.$id.'/legal-identity', ['corporateName' => 'ACME', 'siret' => '55210055400013']);
+
+        $this->assertResponseStatusCodeSame(422);
+        $this->assertSame([['siret'], 'siretAlreadyUsed', ['organization' => 'Globex']], [$this->violatedFields($problem), $problem['reason'], $problem['violations'][0]['context']]);
     }
 
     public function testAttachToAndDetachFromAHolding(): void

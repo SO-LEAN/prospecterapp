@@ -867,6 +867,8 @@ export const fr = {
     unknownBookingPage: 'Lien introuvable.',
     invalidEmail: 'L’adresse « {{email}} » n’est pas une adresse e-mail valide.',
     invalidPhoneNumber: 'Le numéro « {{phoneNumber}} » n’est pas un numéro de téléphone valide.',
+    invalidSiret: 'Ce SIRET n’est pas valide : 14 chiffres, dont le dernier est une clé de contrôle.',
+    siretAlreadyUsed: 'Ce SIRET est déjà celui {{organization, de}}.',
     invalidLinkedInProfile: 'L’adresse « {{linkedInProfile}} » n’est pas celle d’un profil LinkedIn.',
     linkedInProfileAlreadyUsed: 'Ce profil LinkedIn est déjà celui {{holder, de}}.',
     linkedInProfileTakenMeanwhile: 'Ce profil LinkedIn vient d’être noté sur un autre contact.',
@@ -959,6 +961,8 @@ export const fr = {
       'Le secret du client ne peut être ni enregistré ni lu pour le moment : réessayez plus tard.',
     googleUnreachable: 'Google ne répond pas pour le moment : réessayez plus tard.',
     tooManyRequests: 'Ce lien a été ouvert trop souvent : réessayez dans une minute.',
+    directoryUnreachable:
+      'L’annuaire des entreprises ne répond pas pour le moment : réessayez plus tard, ou tapez le SIRET.',
   },
   validation: {
     required: 'Ce champ est obligatoire.',

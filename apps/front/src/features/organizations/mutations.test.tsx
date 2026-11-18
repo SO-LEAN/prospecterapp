@@ -31,7 +31,7 @@ const acme: Organization = {
   _links: { self: { href: `/api/organizations/${ACME}`, method: 'GET' } },
 }
 
-const legalIdentity = { corporateName: 'ACME', form: null, type: null }
+const legalIdentity = { corporateName: 'ACME', form: null, type: null, siret: null }
 
 function withACache({ children }: { children: ReactNode }) {
   return <QueryClientProvider client={new QueryClient()}>{children}</QueryClientProvider>
