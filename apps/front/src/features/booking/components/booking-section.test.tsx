@@ -68,7 +68,10 @@ const open: BookingPage = {
 async function renderTheSection(page: BookingPage) {
   const queryClient = new QueryClient()
   const rootRoute = createRootRoute({ component: () => <BookingSection page={page} /> })
-  const router = createRouter({ routeTree: rootRoute, history: createMemoryHistory({ initialEntries: ['/'] }) })
+  const router = createRouter({
+    routeTree: rootRoute,
+    history: createMemoryHistory({ initialEntries: ['/'] }),
+  })
   await router.load()
   render(
     <QueryClientProvider client={queryClient}>
@@ -145,7 +148,7 @@ describe('BookingSection', () => {
     theApi.mockResolvedValue(Response.json(open))
     const user = await renderTheSection(neverSet)
 
-    await user.click(screen.getByRole('switch', { name: 'Jeudi : on peut me réserver' }))
+    await user.click(screen.getByRole('switch', { name: 'Jeudi\u00a0: on peut me réserver' }))
     await user.click(screen.getByRole('combobox', { name: 'Jeudi, à' }))
     await user.click(await screen.findByRole('option', { name: '11:30' }))
     await user.click(screen.getByRole('button', { name: 'Enregistrer les plages' }))
@@ -205,10 +208,9 @@ describe('BookingSection', () => {
 
     await user.click(screen.getByRole('button', { name: 'QR code' }))
     const dialog = await screen.findByRole('dialog')
-    expect(await within(dialog).findByRole('img', { name: 'QR code de mon lien de prise de rendez-vous' })).toHaveAttribute(
-      'src',
-      `data:image/png;base64,${btoa(address)}`,
-    )
+    expect(
+      await within(dialog).findByRole('img', { name: 'QR code de mon lien de prise de rendez-vous' }),
+    ).toHaveAttribute('src', `data:image/png;base64,${btoa(address)}`)
     expect(within(dialog).getByRole('link', { name: 'Télécharger en PNG' })).toHaveAttribute('download')
   })
 

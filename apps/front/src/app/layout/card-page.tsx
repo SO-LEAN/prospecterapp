@@ -3,9 +3,9 @@ import { useTranslation } from 'react-i18next'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/shared/ui/card'
 import { BrandMark } from './brand'
 
-type Props = { title: string; description: string; children: ReactNode }
+type Props = { title: string; description: string; children?: ReactNode }
 
-/** A page of one card under the brand, outside the shell of the application: signing in, completing a profile. */
+/** A page of one card under the brand, outside the shell of the application: signing in, completing a profile, a booking page. */
 export function CardPage({ title, description, children }: Props) {
   const { t } = useTranslation()
 
@@ -23,7 +23,7 @@ export function CardPage({ title, description, children }: Props) {
             </CardTitle>
             <CardDescription>{description}</CardDescription>
           </CardHeader>
-          <CardContent>{children}</CardContent>
+          {children && <CardContent>{children}</CardContent>}
         </Card>
         <footer className="text-center text-muted-foreground text-xs">
           {t('app.copyright', { year: new Date().getFullYear() })}
