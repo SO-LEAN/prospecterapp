@@ -19,10 +19,24 @@ resource "aws_apigatewayv2_route" "everything" {
   target    = "integrations/${aws_apigatewayv2_integration.api.id}"
 }
 
+# The public booking pages, read without signing in (ADR 0151, 0153): a route of their own, its rate capped by the
+# stage whatever the link and the address
+resource "aws_apigatewayv2_route" "public_booking_page" {
+  api_id    = aws_apigatewayv2_api.api.id
+  route_key = "GET /api/booking-pages/{code}"
+  target    = "integrations/${aws_apigatewayv2_integration.api.id}"
+}
+
 resource "aws_apigatewayv2_stage" "default" {
   api_id      = aws_apigatewayv2_api.api.id
   name        = "$default"
   auto_deploy = true
+
+  route_settings {
+    route_key              = aws_apigatewayv2_route.public_booking_page.route_key
+    throttling_rate_limit  = var.public_booking_rate_limit
+    throttling_burst_limit = var.public_booking_burst_limit
+  }
 }
 
 resource "aws_lambda_permission" "http_api" {

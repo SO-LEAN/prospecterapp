@@ -10,3 +10,6 @@ permissions_boundary = "arn:aws:iam::123456789012:policy/my-boundary"
 # it (#101), AWS keeping a minimum of the executions of the account unreserved (100 by its documentation), an account
 # limited to 10 refusing any reservation
 # worker_concurrency = 10
+# the requests a second and at once the HTTP API lets through to the public booking pages; 10 and 20 when absent
+# public_booking_rate_limit  = 10
+# public_booking_burst_limit = 20
