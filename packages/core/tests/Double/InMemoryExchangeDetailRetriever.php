@@ -69,6 +69,7 @@ final readonly class InMemoryExchangeDetailRetriever implements ExchangeDetailRe
             attachments: array_map(static fn (Attachment $attachment): AttachmentDetail => new AttachmentDetail($attachment->id->value, $attachment->name, $attachment->size, $attachment->mediaType, $attachmentsToMakeConform), $read),
             hiddenAttachments: count($attachments) - count($read),
             possibleIntents: array_map(static fn (ExchangeIntent $intent): string => $intent->name, ExchangePossibilities::given(new ExchangeSituation(count($attachments), ExchangeConformity::awaitsBeingMadeConform($contactForgotten, null !== $madeConform), $state['status'], $facts->occurredAt <= $asOf, $state['createdBy']->equals($reader->id), $facts->channel, null !== $movedFrom && Exchange::isAMomentToCome($movedFrom, $asOf)))),
+            campaignId: $state['campaign']?->value,
         );
     }
 }

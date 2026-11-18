@@ -16,3 +16,7 @@ Fonctionnalité: Le lien entre une campagne et ses échanges
   Scénario: Le destinataire mène à son échange
     Quand je consulte la campagne "Relance"
     Alors "Ada Lovelace" est traitée, avec un lien vers son échange
+
+  Scénario: L'échange mène à sa campagne
+    Quand je consulte l'échange de "Ada Lovelace"
+    Alors il vient de la campagne "Relance", avec un lien vers elle

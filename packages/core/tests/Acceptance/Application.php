@@ -519,6 +519,7 @@ final class Application
     private readonly NameCampaignsHandler $nameCampaignsService;
     private readonly CampaignsCampaignRecipients $campaignRecipients;
     private readonly CampaignsOfTimeline $campaignsOfTimeline;
+    private readonly CampaignsCampaignNames $campaignNames;
     private readonly AccountsCampaigners $campaigners;
     private readonly PersonalDataAndProspectingAddressees $addressees;
     private readonly TagsOfEveryContact $tagsOfEveryContact;
@@ -623,7 +624,8 @@ final class Application
         $this->whichRecipientsArePendingService = new WhichRecipientsArePendingHandler($this->campaignSheetRetriever);
         $this->nameCampaignsService = new NameCampaignsHandler($this->campaignSheetRetriever);
         $this->campaignRecipients = new CampaignsCampaignRecipients($this->whichRecipientsArePendingService);
-        $this->campaignsOfTimeline = new CampaignsOfTimeline(new CampaignsCampaignNames($this->nameCampaignsService));
+        $this->campaignNames = new CampaignsCampaignNames($this->nameCampaignsService);
+        $this->campaignsOfTimeline = new CampaignsOfTimeline($this->campaignNames);
         $this->campaigners = new AccountsCampaigners($this->consultMembersService);
         $this->addressees = new PersonalDataAndProspectingAddressees($this->nameContactsService, $this->nameOrganizationsOfContactsService);
         $this->tagsOfEveryContact = new TagsOfEveryContact($this->taggedContactsRetriever);
@@ -1061,7 +1063,7 @@ final class Application
     {
         $kept = new KeptExchange();
 
-        return $this->ask(new ConsultExchangeHandler($this->exchangeDetailRetriever, $this->prospectors), $query, $kept) ? $kept->exchange : null;
+        return $this->ask(new ConsultExchangeHandler($this->exchangeDetailRetriever, $this->prospectors, $this->campaignNames), $query, $kept) ? $kept->exchange : null;
     }
 
     public function downloadAttachment(DownloadAttachment $query): ?AttachmentDownloadResponse
