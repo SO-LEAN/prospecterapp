@@ -120,6 +120,18 @@ const sent = (method: string) =>
     .filter((request) => request.method === method)
     .map((request) => new URL(request.url).pathname)
 
+/** Grace Hopper, who took a meeting with me, waiting to be attached. */
+function aContactToAttach(): ExchangesToProcess['contactsToAttach'][number] {
+  return {
+    id: ADA,
+    name: { firstName: 'Grace', lastName: 'Hopper' },
+    email: 'grace@acme.fr',
+    lastMeetingAt: NOW.toISOString(),
+    erasableFrom: new Date(2026, 11, 13).toISOString(),
+    _links: { self: { href: `/api/contacts/${ADA}`, method: 'GET' } },
+  }
+}
+
 /** A to-do of mine for Ada Lovelace, to tick off, `daysOverdue` days after its day. */
 function aToDoToProcess(text: string, dueOn: string, daysOverdue: number): ToDoToProcess {
   const id = nextId()
@@ -141,12 +153,16 @@ function aToDoToProcess(text: string, dueOn: string, daysOverdue: number): ToDoT
   }
 }
 
-function aQueryClientWith(items: ExchangeToProcess[], toDos: ToDoToProcess[] = []) {
+function aQueryClientWith(
+  items: ExchangeToProcess[],
+  toDos: ToDoToProcess[] = [],
+  contactsToAttach: ExchangesToProcess['contactsToAttach'] = [],
+) {
   const queryClient = new QueryClient({
     defaultOptions: { queries: { staleTime: Number.POSITIVE_INFINITY, retry: false } },
     mutationCache: new MutationCache(theAppQueryClient.getMutationCache().config),
   })
-  queryClient.setQueryData(exchangesToProcessQuery().queryKey, toProcess(items, toDos))
+  queryClient.setQueryData(exchangesToProcessQuery().queryKey, toProcess(items, toDos, contactsToAttach))
   return queryClient
 }
 
@@ -346,6 +362,24 @@ describe('the count of the exchanges to process in the menu', () => {
       </QueryClientProvider>,
     )
   }
+
+  it('counts the contacts to attach among what is left to process (ADR 0146)', async () => {
+    await renderInARouter(
+      <QueryClientProvider client={aQueryClientWith([], [], [aContactToAttach()])}>
+        <ToProcessCount />
+        <Suspense>
+          <ExchangesToProcessCard
+            contactSummary={() => null}
+            toDoLine={() => null}
+            contactsToAttach={(contacts) => <p>{`${contacts.length} contact à rattacher`}</p>}
+          />
+        </Suspense>
+      </QueryClientProvider>,
+    )
+
+    expect(screen.getByText('1 élément à traiter')).toHaveClass('sr-only')
+    expect(screen.getByText('1 contact à rattacher')).toBeInTheDocument()
+  })
 
   it('tells how many are left to process', async () => {
     await showTheCount([
