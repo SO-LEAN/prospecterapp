@@ -360,6 +360,7 @@ export const fr = {
         neverNotified: 'Import actif, aucune notification reçue pour le moment.',
         toReconnect: 'Google n’accorde plus la lecture de Gmail : réactivez l’import pour le reconnecter.',
         stopped: 'L’import de vos e-mails Gmail est coupé.',
+        stop: 'Couper l’import',
       },
       client: {
         title: 'Client Google du compte',

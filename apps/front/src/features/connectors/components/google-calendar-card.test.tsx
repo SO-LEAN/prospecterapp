@@ -123,6 +123,16 @@ describe('GoogleCalendarCard, the import of my e-mails of Gmail', () => {
     expect(screen.getByText('Import actif, aucune notification reçue pour le moment.')).toBeInTheDocument()
   })
 
+  it('stops an import to reconnect', async () => {
+    theApi.mockResolvedValue(Response.json({ ...noConnection, connections: [importing('off')] }))
+    const { user } = renderTheCard(importing('toReconnect'))
+
+    await user.click(screen.getByRole('button', { name: 'Couper l’import' }))
+
+    expect(sent()).toEqual({ path: GMAIL_IMPORT, method: 'DELETE' })
+    expect(await screen.findByText('L’import de vos e-mails Gmail est coupé.')).toBeInTheDocument()
+  })
+
   it('says the import is to reconnect once Google refused to renew it', () => {
     renderTheCard(importing('toReconnect'))
 
