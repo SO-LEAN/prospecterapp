@@ -1,6 +1,8 @@
+import { useQuery } from '@tanstack/react-query'
 import { Link } from '@tanstack/react-router'
 import { Megaphone } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
+import { accountQuery } from '@/features/account/queries'
 import type { components } from '@/shared/api/schema'
 import { Badge } from '@/shared/ui/badge'
 
@@ -32,4 +34,13 @@ export function CampaignOfTheExchange({ campaign, linked }: { campaign: Campaign
   ) : (
     <Badge variant="secondary">{named}</Badge>
   )
+}
+
+/** The campaign of an exchange of a timeline, leading to it when my account reads the campaigns. */
+export function CampaignOfTheExchangeForMe({ campaign }: { campaign: Campaign | null | undefined }) {
+  const account = useQuery(accountQuery())
+
+  return campaign ? (
+    <CampaignOfTheExchange campaign={campaign} linked={account.data?._links.campaigns !== undefined} />
+  ) : null
 }

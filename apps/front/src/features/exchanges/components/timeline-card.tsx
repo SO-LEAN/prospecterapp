@@ -26,6 +26,8 @@ type Props<Item> = {
   renderItem: (item: Item) => ReactNode
   /** What an exchange to come offers at once beside it, outside the button opening its detail: joining a video call. */
   actionOf?: (item: Item) => ReactNode
+  /** What an exchange, past or to come, shows beside it, outside the button opening its detail: its campaign. */
+  asideOf?: (item: Item) => ReactNode
   /** The quick entry of a new exchange, when the timeline offers it. */
   noteExchange?: ReactNode
   /** The planning of an exchange to come, when the timeline offers it. */
@@ -47,6 +49,7 @@ export function TimelineCard<Item>({
   keyOf,
   renderItem,
   actionOf,
+  asideOf,
   noteExchange,
   planExchange,
   filter,
@@ -84,6 +87,7 @@ export function TimelineCard<Item>({
               keyOf={keyOf}
               renderItem={renderItem}
               actionOf={actionOf}
+              asideOf={asideOf}
               onOpen={setOpened}
             />
             {upcoming?.hasNextPage && (
@@ -109,6 +113,7 @@ export function TimelineCard<Item>({
             items={items}
             keyOf={keyOf}
             renderItem={renderItem}
+            asideOf={asideOf}
             onOpen={setOpened}
           />
         </section>
@@ -126,12 +131,20 @@ export function TimelineCard<Item>({
   )
 }
 
-type ExchangesProps<Item> = Pick<Props<Item>, 'items' | 'keyOf' | 'renderItem' | 'actionOf'> & {
+type ExchangesProps<Item> = Pick<Props<Item>, 'items' | 'keyOf' | 'renderItem' | 'actionOf' | 'asideOf'> & {
   label: string
   onOpen: (exchangeId: string) => void
 }
 
-function Exchanges<Item>({ label, items, keyOf, renderItem, actionOf, onOpen }: ExchangesProps<Item>) {
+function Exchanges<Item>({
+  label,
+  items,
+  keyOf,
+  renderItem,
+  actionOf,
+  asideOf,
+  onOpen,
+}: ExchangesProps<Item>) {
   return (
     <ol className="divide-y" aria-label={label}>
       {items.map((item) => (
@@ -143,6 +156,7 @@ function Exchanges<Item>({ label, items, keyOf, renderItem, actionOf, onOpen }: 
           >
             {renderItem(item)}
           </button>
+          {asideOf?.(item)}
           {actionOf?.(item)}
         </li>
       ))}

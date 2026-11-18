@@ -11,6 +11,7 @@ import {
 } from '../mutations'
 import { exchangesToMakeConformQuery, organizationTimelineQuery, organizationUpcomingQuery } from '../queries'
 import { ITSELF, newExchange } from '../schema'
+import { CampaignOfTheExchangeForMe } from './campaign-of-the-exchange'
 import { ExchangeForm, type Interlocutors } from './exchange-form'
 import { ExchangeLine } from './exchange-line'
 import { NoteThenFollowUp } from './follow-up'
@@ -108,8 +109,11 @@ export function OrganizationExchangesSection({
       upcomingItems={onlyToMakeConform ? [] : upcoming.data?.pages.flatMap((slice) => slice.items)}
       items={slices.flatMap((slice) => slice.items)}
       keyOf={(item) => item.exchange.id}
-      renderItem={(item) => <ExchangeLine exchange={item.exchange} interlocutor={item.interlocutor} />}
+      renderItem={(item) => (
+        <ExchangeLine exchange={item.exchange} interlocutor={item.interlocutor} campaignAside />
+      )}
       actionOf={(item) => <JoinTheVideoCall exchange={item.exchange} />}
+      asideOf={(item) => <CampaignOfTheExchangeForMe campaign={item.exchange.campaign} />}
       planExchange={
         mayPlan && (
           <PlanExchangeDialog name={interlocutors.organization}>
