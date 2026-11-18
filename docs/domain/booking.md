@@ -11,14 +11,14 @@ The booking page of each member: when they may be booked, how, and the public li
 - **Inactive period** (`InactivePeriod`): days the host may not be booked whatever their windows, a first day and a last day included (YYYY-MM-DD), the last on or after the first (`PeriodEndsBeforeItStarts`); no label.
 - **Channel** (`Channel`): how a booker meets the host, a call or a video call; the channels offered (`OfferedChannels`), each once.
 - **Open** or **closed**: whether the public link offers slots.
-- **Code** (`BookingCode`): the code of the public link, 128 random bits in 22 characters of base 62, drawn by the client (`InvalidBookingCode` for anything else), never derived from the host.
+- **Code** (`BookingCode`): the code of the public link, 22 random characters of base 62, 128 bits at least, drawn by the API (`InvalidBookingCode` for anything else), never derived from the host.
 
 ## Rules
 
 - The host sets the windows of their week, in the time zone of their clock, all at once, replacing the former ones (`SetWeeklyWindows`).
 - The host adds an inactive period (`AddInactivePeriod`) and removes one (`RemoveInactivePeriod`, refused for one they do not have: `UnknownInactivePeriod`); they may not be booked on its days, bounds included (`BookingPage::isUnavailableOn()`).
 - The host chooses the channels they offer (`OfferChannels`); an open page offers one at least (`NoChannelOffered`, « Booking offers at least one channel »).
-- The host opens their page (`OpenBooking`) only while their calendar is connected, which will invite the booker (`NoConnectedCalendar`, « Booking needs a connected calendar, which invites the booker »; a connection to reconnect is not connected), and while it offers a channel; without windows it opens, offering no slot. The first opening gives it the code the client drew; opened again, it keeps its link.
+- The host opens their page (`OpenBooking`) only while their calendar is connected, which will invite the booker (`NoConnectedCalendar`, « Booking needs a connected calendar, which invites the booker »; a connection to reconnect is not connected), and while it offers a channel; without windows it opens, offering no slot. The first opening gives it the code the API drew; opened again, it keeps its link.
 - The host closes it at once (`CloseBooking`): the public link offers nothing, the settings are kept. A page opens only while closed and closes only while open (`BookingPagePossibilities`).
 - The host changes the link of a page that has one (`ChangeBookingLink`, refused before the first opening: `BookingPageWithoutLink`): the code drawn replaces it, the former one leading nowhere.
 - The host reads their page on their clock (`ConsultMyBookingPage`): its windows and their time zone, the inactive periods not ended before the day of the reading, the soonest first, its channels, its code, whether it is open, whether their calendar is connected, and what it offers.

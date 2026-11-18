@@ -132,3 +132,12 @@ The table of Campaigns (`<prefix>-campaigns`, ADR 0138) keeps the tags the membe
 | Fact of a contact | `ACCOUNT#<account>` | `FACT#CONTACT#<id>` | `revision`, `present`, `hasEmail`, `hasPhone`, `hasMobile`, `hasLinkedIn`, `expiresAt` once terminal |
 | Campaign | `ACCOUNT#<account>` | `CAMPAIGN#<id>` | `campaign`: its identity, the account, its author (`createdBy`), `name`, `channel`, its tags chosen by their names without their mark, `message`, `subject`, `status`, `recipients` (frozen: each `contactId` and its `status`, `pending`, `processed`, `dismissed` or `erased`, whether the call of one processed was `missed`, the `reason` one was dismissed for, in the order added, 500 at most; none in a draft or for a campaign saved before, `missed` false and no `reason` for a recipient saved before, ADR 0145), `createdAt`, `modifiedAt`, `startedAt`, `stoppedAt` and `endedAt` (none before, nor for a campaign saved before); the tags it targets derived, never kept; deleted when discarded, or erased by the operations |
 | Link of a contact to an organization naming it | `ACCOUNT#<account>` | `FACT#CONTACT#<id>#ORGANIZATION#<organization>` | `organization`; written and deleted with the fact of the organization |
+
+## Booking
+
+The table of Booking (`<prefix>-booking`, ADR 0148, 0151) keeps the booking page of each member and the link of its code to it; nothing in it follows from another context, and the check of the consistency reads none of it. A page saved with a new code puts the link of that code under `attribute_not_exists(PK)` and deletes the link of the former code, in the same transaction; the public page is read by the link of its code, then the page of its host.
+
+| Item | PK | SK | Attributes |
+|---|---|---|---|
+| Booking page | `BOOKING_PAGE#<member>` | `BOOKING_PAGE` | `page`: its host, the account, `windows` (`weekday`, `from`, `to`, HH:MM), `timeZone`, `inactivePeriods` (`id`, `firstDay`, `lastDay`), `channels`, `open`, `code`, `createdAt`, `modifiedAt` |
+| Link of a code | `BOOKING_CODE#<code>` | `BOOKING_CODE` | `host`: the member whose page the code leads to |
