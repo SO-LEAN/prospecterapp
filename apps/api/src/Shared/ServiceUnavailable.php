@@ -10,6 +10,7 @@ final class ServiceUnavailable extends \RuntimeException
 {
     private const string SECRETS = 'secretsUnavailable';
     private const string GOOGLE = 'googleUnreachable';
+    private const string DIRECTORY = 'directoryUnreachable';
 
     private function __construct(string $message, public readonly string $reason, \Throwable $cause)
     {
@@ -24,5 +25,10 @@ final class ServiceUnavailable extends \RuntimeException
     public static function google(\Throwable $cause): self
     {
         return new self('Google does not answer for now', self::GOOGLE, $cause);
+    }
+
+    public static function directory(\Throwable $cause): self
+    {
+        return new self('The directory of the companies does not answer for now', self::DIRECTORY, $cause);
     }
 }
