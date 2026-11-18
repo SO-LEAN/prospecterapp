@@ -7,7 +7,7 @@ namespace App\Consistency;
  * account derive from are recorded again; a reaction missed is given again to the worker from the queue of its
  * failures, or, when no failure keeps it, published again from the outbox of its commit; an item missing from its list
  * gets its keys written again; an exchange its calendar lacks is pushed again by its holder; a contact left unattached
- * past their day is erased.
+ * past their day is erased; two contacts noting the same LinkedIn profile are merged or corrected by the members.
  */
 enum Correction: string
 {
@@ -19,4 +19,5 @@ enum Correction: string
     case WriteTheKeysAgain = 'app:keys:rebuild';
     case EraseTheUnattached = 'app:contacts:erase-unattached';
     case PushTheExchangeAgain = 'its holder pushes it again from Prospecter once failed, reconnects, or changes it';
+    case MergeOrCorrectByHand = 'the members merge them or correct one of them';
 }
