@@ -25,6 +25,7 @@ import {
 import { Input } from '@/shared/ui/input'
 import { useConfigureGoogleClient, useRemoveGoogleClient } from '../mutations'
 import type { GoogleClient } from '../queries'
+import { GmailNotificationsForm } from './gmail-notifications-form'
 
 const required = text(255).min(1, { error: () => i18n.t('validation.required') })
 const clientSchema = z.object({ clientId: required, clientSecret: required })
@@ -56,6 +57,7 @@ export function GoogleClientCard({ client }: Props) {
         <ClientState clientId={client.clientId} />
         <ClientForm key={client.clientId ?? ''} clientId={client.clientId ?? ''} />
         {client._links.remove && <RemoveButton />}
+        <GmailNotificationsForm client={client} />
       </CardContent>
     </Card>
   )

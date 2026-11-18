@@ -32,6 +32,33 @@ const configured = (clientId: string): GoogleClient => ({
   },
 })
 
+const GMAIL_NOTIFICATIONS = '/api/me/organization/clients/google/gmail-notifications'
+const TOPIC = 'projects/solean/topics/gmail'
+const PUSH_ACCOUNT = 'push@solean.iam.gserviceaccount.com'
+
+const notifyingGmail = (): GoogleClient => {
+  const client = configured('client-of-solean')
+
+  return {
+    ...client,
+    gmailNotifications: { topic: TOPIC, pushAccount: PUSH_ACCOUNT },
+    _links: {
+      ...client._links,
+      configureGmailNotifications: { href: GMAIL_NOTIFICATIONS, method: 'PUT' },
+      removeGmailNotifications: { href: GMAIL_NOTIFICATIONS, method: 'DELETE' },
+    },
+  }
+}
+
+const withoutTopic = (): GoogleClient => {
+  const client = configured('client-of-solean')
+
+  return {
+    ...client,
+    _links: { ...client._links, configureGmailNotifications: { href: GMAIL_NOTIFICATIONS, method: 'PUT' } },
+  }
+}
+
 const none: GoogleClient = {
   clientId: null,
   secretSet: false,
@@ -58,7 +85,7 @@ const sent = async () => {
   return {
     path: new URL(request.url).pathname,
     method: request.method,
-    body: request.method === 'PATCH' ? await request.clone().json() : undefined,
+    body: ['PATCH', 'PUT'].includes(request.method) ? await request.clone().json() : undefined,
   }
 }
 
@@ -160,5 +187,59 @@ describe('GoogleClientCard', () => {
     await waitFor(async () => expect(await sent()).toMatchObject({ path: THE_CLIENT, method: 'DELETE' }))
     await waitFor(() => expect(queryClient.getQueryData(googleClientQuery().queryKey)).toEqual(none))
     expect(await screen.findByText('Le client Google du compte est retiré.')).toBeInTheDocument()
+  })
+})
+
+describe('GoogleClientCard, the topic of Gmail', () => {
+  it('is not offered while the account has no client', () => {
+    renderTheCard(none)
+
+    expect(screen.queryByLabelText('Topic Pub/Sub (import Gmail)')).not.toBeInTheDocument()
+  })
+
+  it('gives the address of the notifications to declare in the subscription, and the procedure', () => {
+    renderTheCard(withoutTopic())
+
+    expect(screen.getByText('Adresse des notifications à déclarer dans l’abonnement')).toBeInTheDocument()
+    expect(screen.getByText(NOTIFICATION_ENDPOINT)).toBeInTheDocument()
+    expect(screen.getByRole('link', { name: 'La procédure dans Google Cloud' })).toHaveAttribute(
+      'href',
+      'https://github.com/SO-LEAN/prospecterapp/blob/main/docs/google-client.md#2-the-import-of-gmail',
+    )
+  })
+
+  it('names the topic and the account of service pushing its notifications', async () => {
+    theApi.mockResolvedValue(Response.json(notifyingGmail()))
+    const { user, queryClient } = renderTheCard(withoutTopic())
+
+    await user.type(screen.getByLabelText('Topic Pub/Sub (import Gmail)'), TOPIC)
+    await user.type(screen.getByLabelText('Compte de service des notifications'), PUSH_ACCOUNT)
+    await user.click(screen.getByRole('button', { name: 'Enregistrer le topic' }))
+
+    await waitFor(async () =>
+      expect(await sent()).toEqual({
+        path: GMAIL_NOTIFICATIONS,
+        method: 'PUT',
+        body: { topic: TOPIC, pushAccount: PUSH_ACCOUNT },
+      }),
+    )
+    await waitFor(() =>
+      expect(queryClient.getQueryData(googleClientQuery().queryKey)).toEqual(notifyingGmail()),
+    )
+    expect(await screen.findByText('Le topic de l’import Gmail est enregistré.')).toBeInTheDocument()
+  })
+
+  it('shows the topic named, and removes it', async () => {
+    theApi.mockResolvedValue(Response.json(withoutTopic()))
+    const { user } = renderTheCard(notifyingGmail())
+
+    expect(screen.getByLabelText('Topic Pub/Sub (import Gmail)')).toHaveValue(TOPIC)
+    expect(screen.getByLabelText('Compte de service des notifications')).toHaveValue(PUSH_ACCOUNT)
+    await user.click(screen.getByRole('button', { name: 'Retirer le topic' }))
+
+    await waitFor(async () =>
+      expect(await sent()).toMatchObject({ path: GMAIL_NOTIFICATIONS, method: 'DELETE' }),
+    )
+    expect(await screen.findByText('Le topic de l’import Gmail est retiré.')).toBeInTheDocument()
   })
 })
