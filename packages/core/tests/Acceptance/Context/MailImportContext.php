@@ -12,6 +12,7 @@ use Prospecter\Core\Connectors\Application\AccountClient;
 use Prospecter\Core\Connectors\Application\AskToImportMail\AskToImportMail;
 use Prospecter\Core\Connectors\Application\Connect\Connect;
 use Prospecter\Core\Connectors\Application\MyConnection;
+use Prospecter\Core\Connectors\Application\StopMailImport\StopMailImport;
 use Prospecter\Core\Connectors\Domain\Model\Connection;
 use Prospecter\Core\Connectors\Domain\Model\MailboxNotifications;
 use Prospecter\Core\Connectors\Domain\Model\Provider;
@@ -82,6 +83,12 @@ final class MailImportContext implements Context
 
         $code = $this->application->providerAccess->grant(self::MY_MAILBOX, ...$granted);
         $this->application->dispatch(new Connect($this->application->signedIn(), $state, $code, $this->application->now()));
+    }
+
+    #[When('je coupe l\'import de mes e-mails Gmail')]
+    public function iStopTheImport(): void
+    {
+        $this->application->dispatch(new StopMailImport($this->application->signedIn(), self::GOOGLE, $this->application->now()));
     }
 
     #[Then('l\'import de mes e-mails Gmail est :state')]

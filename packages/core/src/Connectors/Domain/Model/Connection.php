@@ -9,6 +9,7 @@ use Prospecter\Core\Connectors\Domain\Event\Connected;
 use Prospecter\Core\Connectors\Domain\Event\ConnectionLost;
 use Prospecter\Core\Connectors\Domain\Event\Disconnected;
 use Prospecter\Core\Connectors\Domain\Event\MailImportStarted;
+use Prospecter\Core\Connectors\Domain\Event\MailImportStopped;
 use Prospecter\Core\Connectors\Domain\Event\VideoCallLinkCreated;
 use Prospecter\Core\Connectors\Domain\Exception\AccessRevoked;
 use Prospecter\Core\Connectors\Domain\Exception\CalendarGone;
@@ -231,6 +232,26 @@ final class Connection implements ReleasesEvents
         $this->watchExpiresAt = $watch->expiresAt;
         $this->modifiedAt = $at;
         $this->recordThat(new MailImportStarted($this->accountId, $this->member, $at));
+    }
+
+    /**
+     * The mailbox no longer notifies Prospecter: its watch stopped at the provider through the client of the account,
+     * nothing asked of it without one, the watch expiring within its week; nothing to stop while the import is off.
+     */
+    public function stopMailImport(?ClientCredentials $client, ProviderMailbox $mailbox, \DateTimeImmutable $at): void
+    {
+        if (MailImport::Off === $this->mailImport) {
+            return;
+        }
+
+        if (null !== $client) {
+            $mailbox->stop($client, $this->refreshToken);
+        }
+
+        $this->mailImport = MailImport::Off;
+        $this->historyId = $this->watchExpiresAt = null;
+        $this->modifiedAt = $at;
+        $this->recordThat(new MailImportStopped($this->accountId, $this->member, $at));
     }
 
     /**
