@@ -360,6 +360,14 @@ final class PublishedLanguageContext implements Context
         Expect::same($jobTitle, $answered?->jobTitle);
     }
 
+    #[Then('PersonalData répond que :name a la civilité :civility')]
+    public function personalDataAnswersTheCivility(string $name, string $civility): void
+    {
+        $person = $this->scenario->personIdOf($name);
+        $answered = array_find($this->names, static fn (ContactNameResponse $named): bool => $named->personId === $person);
+        Expect::same($civility, $answered?->civility);
+    }
+
     #[When('un autre contexte demande à Prospecting les organisations, pour :account, de :')]
     public function anotherContextAsksTheOrganizationsOfContacts(string $account, TableNode $contacts): void
     {

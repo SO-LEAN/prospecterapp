@@ -67,6 +67,13 @@ Fonctionnalité: Le langage publié des contextes
       | Ada Lovelace |
     Alors PersonalData répond que "Ada Lovelace" est "CTO"
 
+  Scénario: PersonalData dit en clair la civilité des contacts qu'il nomme
+    Soit "Alan Turing" est membre de "SOLEAN IT" sans le droit aux données personnelles
+    Et "Ada Lovelace" a la civilité "Madame"
+    Quand un autre contexte demande à PersonalData les noms, comme "Alan Turing" les lit, de :
+      | Ada Lovelace |
+    Alors PersonalData répond que "Ada Lovelace" a la civilité "ms"
+
   Scénario: PersonalData dit lesquelles de plusieurs personnes sont des contacts d'un compte
     Soit "Grace Hopper" est membre de "SOLEAN IT" avec le droit aux données personnelles
     Quand un autre contexte demande à PersonalData lesquelles sont des contacts de "SOLEAN IT" :
