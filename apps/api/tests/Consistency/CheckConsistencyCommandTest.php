@@ -11,6 +11,7 @@ use Prospecter\Core\Connectors\Domain\Model\Connection;
 use Prospecter\Core\Connectors\Domain\Model\Grant;
 use Prospecter\Core\Connectors\Domain\Model\Provider;
 use Prospecter\Core\Connectors\Domain\Model\RefreshToken;
+use Prospecter\Core\Connectors\Domain\Model\Scope;
 use Prospecter\Core\Connectors\Domain\Repository\ConnectionRepository;
 use Prospecter\Core\PersonalData\Domain\Model\Person;
 use Prospecter\Core\PersonalData\Domain\Model\PersonName;
@@ -343,7 +344,7 @@ class CheckConsistencyCommandTest extends ApiTestCase
 
     private function connectTheProspectorToGoogle(): void
     {
-        $grant = new Grant(new Email('prospector@exemple.fr'), new RefreshToken('a-refresh-token'), true);
+        $grant = new Grant(new Email('prospector@exemple.fr'), new RefreshToken('a-refresh-token'), Scope::Calendar);
         $connection = Connection::establish(new MemberId(DemoData::PROSPECTOR), new AccountId(DemoData::SOLEAN_IT), new ClientCredentials(Provider::Google, 'client-of-the-double', 'secret-of-the-double'), $grant, new \DateTimeImmutable('2026-10-14 09:00 UTC'));
         self::getContainer()->get(ConnectionRepository::class)->save($connection);
     }

@@ -13,6 +13,7 @@ use Prospecter\Core\Connectors\Domain\Model\ClientCredentials;
 use Prospecter\Core\Connectors\Domain\Model\Grant;
 use Prospecter\Core\Connectors\Domain\Model\Provider;
 use Prospecter\Core\Connectors\Domain\Model\RefreshToken;
+use Prospecter\Core\Connectors\Domain\Model\Scope;
 use Prospecter\Core\SharedKernel\Domain\Email;
 use Psr\Log\NullLogger;
 use Symfony\Component\HttpClient\Exception\TransportException;
@@ -41,14 +42,21 @@ class GoogleProviderAccessTest extends TestCase
 
         $grant = $this->access($google)->exchange(self::client(), 'a-code', 'a-verifier');
 
-        $this->assertEquals(new Grant(new Email('michel@exemple.fr'), new RefreshToken('a-token'), true), $grant);
+        $this->assertEquals(new Grant(new Email('michel@exemple.fr'), new RefreshToken('a-token'), Scope::Calendar), $grant);
     }
 
     public function testAGrantWithoutTheCalendarIsIncomplete(): void
     {
         $google = new MockHttpClient(new JsonMockResponse(['refresh_token' => 'a-token', 'scope' => 'openid https://www.googleapis.com/auth/userinfo.email', 'id_token' => self::idToken(['email' => 'michel@exemple.fr'])]));
 
-        $this->assertFalse($this->access($google)->exchange(self::client(), 'a-code', 'a-verifier')->complete);
+        $this->assertSame([], $this->access($google)->exchange(self::client(), 'a-code', 'a-verifier')->scopes);
+    }
+
+    public function testTheReadingOfGmailIsGrantedWithTheCalendar(): void
+    {
+        $google = new MockHttpClient(new JsonMockResponse(['refresh_token' => 'a-token', 'scope' => self::EVERY_SCOPE.' https://www.googleapis.com/auth/gmail.readonly', 'id_token' => self::idToken(['email' => 'michel@exemple.fr'])]));
+
+        $this->assertSame([Scope::Calendar, Scope::Mailbox], $this->access($google)->exchange(self::client(), 'a-code', 'a-verifier')->scopes);
     }
 
     public function testACodeGoogleRefusesGrantsNothing(): void

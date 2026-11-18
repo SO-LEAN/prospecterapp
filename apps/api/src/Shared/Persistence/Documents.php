@@ -30,6 +30,16 @@ final class Documents
         return \DateTimeImmutable::createFromFormat(self::MOMENT, $moment, new \DateTimeZone('UTC')) ?: throw new \UnexpectedValueException(sprintf('"%s" is no stored moment', $moment));
     }
 
+    public static function momentOrNone(?\DateTimeImmutable $moment): ?string
+    {
+        return null === $moment ? null : self::moment($moment);
+    }
+
+    public static function momentOfOrNone(?string $moment): ?\DateTimeImmutable
+    {
+        return null === $moment ? null : self::momentOf($moment);
+    }
+
     /**
      * @return array{corporateName: ?string, form: ?string, type: ?string}
      */

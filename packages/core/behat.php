@@ -21,6 +21,7 @@ use Tests\Core\Acceptance\Context\ExchangeContext;
 use Tests\Core\Acceptance\Context\ExchangeDetailContext;
 use Tests\Core\Acceptance\Context\GeographicTagsContext;
 use Tests\Core\Acceptance\Context\GoogleClientContext;
+use Tests\Core\Acceptance\Context\MailImportContext;
 use Tests\Core\Acceptance\Context\MemberContext;
 use Tests\Core\Acceptance\Context\MyDayContext;
 use Tests\Core\Acceptance\Context\OrganizationContext;
@@ -42,4 +43,4 @@ return new Config()
     ->withProfile(new Profile('default')
         ->withSuite(new Suite('business_rules')
             ->withPaths('%paths.base%/features')
-            ->withContexts(ScenarioContext::class, OrganizationContext::class, AccountContext::class, MemberContext::class, PersonalDataContext::class, PublishedLanguageContext::class, CallerContext::class, ExchangeContext::class, ExchangeDetailContext::class, PlannedExchangeContext::class, ToDoContext::class, AttachmentContext::class, AllOrNothingContext::class, ProspectingFactsContext::class, PersonalDataFactsContext::class, ReportingContext::class, ReminderContext::class, CalendarContext::class, MyDayContext::class, WhatIsToProcessContext::class, ContactToAttachContext::class, ConnectorContext::class, GoogleClientContext::class, CalendarPushContext::class, CalendarSyncContext::class, VideoCallLinkContext::class, TagContext::class, ContactTagsContext::class, CampaignContext::class, GeographicTagsContext::class, BookingContext::class)));
+            ->withContexts(ScenarioContext::class, OrganizationContext::class, AccountContext::class, MemberContext::class, PersonalDataContext::class, PublishedLanguageContext::class, CallerContext::class, ExchangeContext::class, ExchangeDetailContext::class, PlannedExchangeContext::class, ToDoContext::class, AttachmentContext::class, AllOrNothingContext::class, ProspectingFactsContext::class, PersonalDataFactsContext::class, ReportingContext::class, ReminderContext::class, CalendarContext::class, MyDayContext::class, WhatIsToProcessContext::class, ContactToAttachContext::class, ConnectorContext::class, GoogleClientContext::class, MailImportContext::class, CalendarPushContext::class, CalendarSyncContext::class, VideoCallLinkContext::class, TagContext::class, ContactTagsContext::class, CampaignContext::class, GeographicTagsContext::class, BookingContext::class)));

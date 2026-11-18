@@ -103,11 +103,11 @@ use Prospecter\Core\Campaigns\Contract\Service\WhichRecipientsArePending\Pending
 use Prospecter\Core\Campaigns\Contract\Service\WhichRecipientsArePending\WhichRecipientsArePending;
 use Prospecter\Core\Campaigns\Domain\Service\TaggableHolders;
 use Prospecter\Core\Connectors\Application\AskForAuthorization\AskForAuthorizationHandler;
+use Prospecter\Core\Connectors\Application\AskToImportMail\AskToImportMailHandler;
 use Prospecter\Core\Connectors\Application\CalendarPusher;
 use Prospecter\Core\Connectors\Application\CheckMyConnections\CheckMyConnectionsHandler;
 use Prospecter\Core\Connectors\Application\ConfigureClient\ConfigureClientHandler;
 use Prospecter\Core\Connectors\Application\ConfigureMailboxNotifications\ConfigureMailboxNotificationsHandler;
-use Prospecter\Core\Connectors\Application\RemoveMailboxNotifications\RemoveMailboxNotificationsHandler;
 use Prospecter\Core\Connectors\Application\Connect\ConnectHandler;
 use Prospecter\Core\Connectors\Application\ConsultExchangeSync\ConsultExchangeSync;
 use Prospecter\Core\Connectors\Application\ConsultExchangeSync\ConsultExchangeSyncHandler;
@@ -123,6 +123,7 @@ use Prospecter\Core\Connectors\Application\PublishVideoCallLinkCreated\PublishVi
 use Prospecter\Core\Connectors\Application\PushExchange\PushExchangeHandler;
 use Prospecter\Core\Connectors\Application\PushUpcomingExchanges\PushUpcomingExchangesHandler;
 use Prospecter\Core\Connectors\Application\RemoveClient\RemoveClientHandler;
+use Prospecter\Core\Connectors\Application\RemoveMailboxNotifications\RemoveMailboxNotificationsHandler;
 use Prospecter\Core\Connectors\Application\RetryFailedPushes\RetryFailedPushesHandler;
 use Prospecter\Core\Connectors\Application\RetryPush\RetryPushHandler;
 use Prospecter\Core\Connectors\Application\UnnameForgottenContact\UnnameForgottenContactHandler;
@@ -411,6 +412,7 @@ use Tests\Core\Double\InMemoryProposedOrganizationRetriever;
 use Tests\Core\Double\InMemoryProviderAccess;
 use Tests\Core\Double\InMemoryProviderCalendar;
 use Tests\Core\Double\InMemoryProviderClientRepository;
+use Tests\Core\Double\InMemoryProviderMailbox;
 use Tests\Core\Double\InMemoryPublicBookingPageRetriever;
 use Tests\Core\Double\InMemoryStorage;
 use Tests\Core\Double\InMemoryTaggedContactsRetriever;
@@ -504,6 +506,7 @@ final class Application
     private readonly InMemoryAuthorizationRepository $authorizations;
     private readonly InMemoryMyConnectionsRetriever $myConnectionsRetriever;
     public readonly InMemoryProviderAccess $providerAccess;
+    public readonly InMemoryProviderMailbox $mailboxes;
     public readonly InMemoryProviderClientRepository $clients;
     private readonly InMemoryAccountClientsRetriever $accountClientsRetriever;
     private readonly AccountsMembers $connectingMembers;
@@ -614,6 +617,7 @@ final class Application
         $this->accountClientsRetriever = new InMemoryAccountClientsRetriever($database);
         $this->connectingMembers = new AccountsMembers($this->consultMembersService);
         $this->calendars = new InMemoryProviderCalendar($this->providerAccess);
+        $this->mailboxes = new InMemoryProviderMailbox($this->providerAccess, fn (): \DateTimeImmutable => $this->now);
         $heldExchangeRetriever = new InMemoryHeldExchangeRetriever($database);
         $publishedHeldExchanges = new PublishedHeldExchanges($this->organizationSheetRetriever);
         $this->consultHeldExchangesService = new ConsultHeldExchangesHandler($heldExchangeRetriever, $publishedHeldExchanges);
@@ -1177,7 +1181,8 @@ final class Application
             new UntickToDoHandler($this->toDos, $this->events),
             new EraseToDoHandler($this->toDos, $this->events),
             new AskForAuthorizationHandler($this->authorizations, $this->clients, $this->connectingMembers),
-            new ConnectHandler($this->authorizations, $this->connections, $this->clients, $this->providerAccess, $this->connectingMembers, $this->events),
+            new AskToImportMailHandler($this->authorizations, $this->clients, $this->connectingMembers),
+            new ConnectHandler($this->authorizations, $this->connections, $this->clients, $this->providerAccess, $this->mailboxes, $this->connectingMembers, $this->events),
             new CheckMyConnectionsHandler($this->connections, $this->clients, $this->providerAccess, $this->connectingMembers, $this->events),
             new DisconnectHandler($this->connections, $this->providerAccess, $this->events),
             new ConfigureClientHandler($this->clients, $this->connectingMembers, $this->events),

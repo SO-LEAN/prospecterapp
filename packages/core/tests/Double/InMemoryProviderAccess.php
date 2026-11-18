@@ -9,6 +9,7 @@ use Prospecter\Core\Connectors\Domain\Model\ClientCredentials;
 use Prospecter\Core\Connectors\Domain\Model\Grant;
 use Prospecter\Core\Connectors\Domain\Model\Provider;
 use Prospecter\Core\Connectors\Domain\Model\RefreshToken;
+use Prospecter\Core\Connectors\Domain\Model\Scope;
 use Prospecter\Core\Connectors\Domain\Port\ProviderAccess;
 use Prospecter\Core\SharedKernel\Domain\Email;
 
@@ -34,11 +35,11 @@ final class InMemoryProviderAccess implements ProviderAccess
     /**
      * The code the provider gives the browser of the member who grants the access to their account.
      */
-    public function grant(string $account, bool $withTheCalendar = true): string
+    public function grant(string $account, Scope ...$scopes): string
     {
         $code = sprintf('code-%d', ++$this->tokens);
         $token = sprintf('token-%d', $this->tokens);
-        $this->codes[$code] = new Grant(new Email($account), new RefreshToken($token), $withTheCalendar);
+        $this->codes[$code] = new Grant(new Email($account), new RefreshToken($token), ...$scopes);
         $this->accounts[$token] = $account;
 
         return $code;
@@ -47,6 +48,11 @@ final class InMemoryProviderAccess implements ProviderAccess
     public function tokenGrantedFor(string $code): string
     {
         return ($this->codes[$code] ?? throw new \LogicException(sprintf('No code %s given', $code)))->refreshToken->value;
+    }
+
+    public function accountOf(string $token): string
+    {
+        return $this->accounts[$token] ?? throw new \LogicException(sprintf('No token %s given', $token));
     }
 
     public function exchange(ClientCredentials $client, string $code, string $codeVerifier): Grant

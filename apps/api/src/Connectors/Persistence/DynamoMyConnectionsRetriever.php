@@ -6,6 +6,7 @@ use App\Shared\Persistence\Documents;
 use App\Shared\Persistence\Table;
 use Prospecter\Core\Connectors\Application\MyConnection;
 use Prospecter\Core\Connectors\Application\Port\MyConnectionsRetriever;
+use Prospecter\Core\Connectors\Domain\Model\MailImport;
 use Prospecter\Core\Connectors\Domain\Model\SyncState;
 use Prospecter\Core\SharedKernel\Domain\MemberId;
 
@@ -31,6 +32,7 @@ final readonly class DynamoMyConnectionsRetriever implements MyConnectionsRetrie
             Documents::momentOf($item['connection']['connectedAt']),
             self::count($upcoming, $item['connection']['provider'], SyncState::Synced),
             self::count($upcoming, $item['connection']['provider'], SyncState::Failed),
+            $item['connection']['mailImport'] ?? MailImport::Off->value,
         ), $this->connectorsTable->query(ConnectorsKeys::member($me->value)));
     }
 

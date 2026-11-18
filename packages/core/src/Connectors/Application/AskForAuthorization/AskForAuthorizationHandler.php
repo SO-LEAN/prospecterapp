@@ -7,6 +7,7 @@ namespace Prospecter\Core\Connectors\Application\AskForAuthorization;
 use Prospecter\Core\Connectors\Domain\Exception\ProviderUnavailable;
 use Prospecter\Core\Connectors\Domain\Model\PendingAuthorization;
 use Prospecter\Core\Connectors\Domain\Model\Provider;
+use Prospecter\Core\Connectors\Domain\Model\Scope;
 use Prospecter\Core\Connectors\Domain\Port\Members;
 use Prospecter\Core\Connectors\Domain\Repository\AuthorizationRepository;
 use Prospecter\Core\Connectors\Domain\Repository\ProviderClientRepository;
@@ -30,6 +31,6 @@ final readonly class AskForAuthorizationHandler implements CommandHandler
             throw ProviderUnavailable::withoutClient($provider);
         }
 
-        $this->authorizations->keep(PendingAuthorization::askedBy($me, $provider, $command->state, $command->codeVerifier, $command->executedAt));
+        $this->authorizations->keep(PendingAuthorization::askedBy($me, $provider, $command->state, $command->codeVerifier, $command->executedAt, Scope::Calendar));
     }
 }
