@@ -17,6 +17,9 @@ use Symfony\Component\Serializer\Normalizer\NormalizerInterface;
  */
 final readonly class ApiAccessDeniedHandler implements AccessDeniedHandlerInterface
 {
+    /** Named as the refusal of the domain would be, for the SPA to word it (ADR 0073). */
+    public const string ROLE_NOT_ALLOWED = 'roleNotAllowed';
+
     public function __construct(private NormalizerInterface $normalizer)
     {
     }
@@ -25,7 +28,7 @@ final readonly class ApiAccessDeniedHandler implements AccessDeniedHandlerInterf
     {
         $unknown = $this->unknownReasonOf($accessDeniedException);
         $problem = null === $unknown
-            ? new ProblemResource('Forbidden', Response::HTTP_FORBIDDEN, 'Your role does not allow this action.')
+            ? new ProblemResource('Forbidden', Response::HTTP_FORBIDDEN, 'Your role does not allow this action.', reason: self::ROLE_NOT_ALLOWED)
             : new ProblemResource('Not Found', Response::HTTP_NOT_FOUND, 'Unknown resource.', reason: $unknown);
 
         return new JsonResponse($this->normalizer->normalize($problem), $problem->status, ['Content-Type' => 'application/problem+json']);

@@ -182,6 +182,16 @@ class CampaignsApiTest extends ApiTestCase
         }
     }
 
+    public function testPreparingACampaignWithoutTheRightIsRefusedForTheRoleWithAReasonTheSpaWords(): void
+    {
+        $this->login($this->aMemberOfTheFixtures('prospector-without-the-right', Role::User, Role::Prospector));
+
+        $problem = $this->requestJson('POST', '/api/campaigns', $this->aCampaign());
+
+        $this->assertResponseStatusCodeSame(403);
+        $this->assertSame('roleNotAllowed', $problem['reason']);
+    }
+
     public function testACampaignOfAnotherAccountIsNotFoundForEveryIntention(): void
     {
         $id = $this->aCampaignOfAnotherAccount();
