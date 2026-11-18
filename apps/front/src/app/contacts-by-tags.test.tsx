@@ -36,6 +36,7 @@ const me: Account = {
 const inList = (id: string, firstName: string, lastName: string): ContactInList => ({
   id,
   name: { firstName, lastName },
+  civility: 'x',
   jobTitle: null,
   contactDetails: {},
   masked: false,
@@ -60,6 +61,7 @@ const TAGGED: Record<string, ContactInList[]> = { ESN: [grace, ada], 'ESN,EMAIL'
 const theCard: Contact = {
   id: ADA,
   name: { firstName: 'Ada', lastName: 'Lovelace' },
+  civility: 'x',
   contactDetails: { email: 'ada@acme.test', phoneNumber: null, language: null },
   masked: false,
   _links: {

@@ -33,7 +33,7 @@ final class PersonDocument
             'contactDetails' => Documents::contactDetails($state['contactDetails']),
             'linkedInProfile' => $state['linkedInProfile']?->value,
             'jobTitle' => $state['jobTitle'],
-            'civility' => $state['civility']?->value,
+            'civility' => $state['civility']->value,
             'picture' => Documents::file($state['picture']),
             'createdAt' => Documents::moment($state['createdAt']),
             'modifiedAt' => Documents::moment($state['modifiedAt']),
@@ -61,13 +61,13 @@ final class PersonDocument
     }
 
     /**
-     * A person saved before the civilities were noted has none.
+     * A person saved before the civilities were noted has an unknown one.
      *
      * @param array<string, mixed> $document
      */
-    public static function civilityOf(array $document): ?Civility
+    public static function civilityOf(array $document): Civility
     {
-        return Civility::tryFrom($document['civility'] ?? '');
+        return Civility::tryFrom($document['civility'] ?? '') ?? Civility::X;
     }
 
     /**

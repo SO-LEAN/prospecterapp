@@ -35,6 +35,7 @@ const me: Account = {
 const theContact = (contact: Partial<Contact>): Contact => ({
   id: ADA,
   name: { firstName: 'Ada', lastName: 'Lovelace' },
+  civility: 'x',
   contactDetails: { email: 'ada@acme.test', phoneNumber: null, language: null },
   masked: false,
   _links: { self: { href: `/api/contacts/${ADA}`, method: 'GET' } },

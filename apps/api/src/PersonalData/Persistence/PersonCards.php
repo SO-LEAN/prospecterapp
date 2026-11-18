@@ -51,7 +51,7 @@ final class PersonCards
             masked: $masked,
             firstName: $nameMasked ? Masking::name($name['firstName'] ?? null) : $name['firstName'] ?? null,
             lastName: $nameMasked ? Masking::name($name['lastName'] ?? null) : $name['lastName'] ?? null,
-            civility: PersonDocument::civilityOf($document)?->value,
+            civility: PersonDocument::civilityOf($document)->value,
             jobTitle: $masked ? Masking::jobTitle($document['jobTitle']) : $document['jobTitle'],
             email: $masked ? Masking::email($contact->email?->value) : $contact->email?->value,
             phoneNumber: $masked ? Masking::phoneNumber($contact->phoneNumber) : $contact->phoneNumber?->international(),

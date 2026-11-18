@@ -118,7 +118,7 @@ final class PersonalDataContext implements Context
             $this->scenario->managerOfPersonalDataOf($prospect->accountId()),
             new PersonId($this->application->newIdentity()),
             new PersonName($firstName, $lastName),
-            null,
+            Civility::X,
             null,
             $contactDetails,
             null,

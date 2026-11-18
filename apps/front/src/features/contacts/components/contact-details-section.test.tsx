@@ -21,6 +21,7 @@ const NOT_A_PROFILE = 'https://example.test/ada'
 const ada: Contact = {
   id: ADA,
   name: { firstName: 'Ada', lastName: 'Lovelace' },
+  civility: 'x',
   contactDetails: { email: 'ada@acme.test', phoneNumber: null, language: null, linkedInProfile: null },
   masked: false,
   _links: {

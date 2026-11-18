@@ -50,7 +50,7 @@ final readonly class CollectContactHandler implements CommandHandler
             by: $collector,
             id: new PersonId($command->id),
             name: new PersonName($command->firstName, $command->lastName),
-            civility: Civility::orNone($command->civility),
+            civility: Civility::of($command->civility),
             jobTitle: $command->jobTitle,
             contactDetails: new ContactDetails(Email::orNone($command->email), PhoneNumber::orNone($command->phoneNumber), $command->language),
             linkedInProfile: LinkedInProfile::orNone($command->linkedInProfile),

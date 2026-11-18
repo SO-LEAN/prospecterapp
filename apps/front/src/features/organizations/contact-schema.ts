@@ -1,5 +1,5 @@
 import { z } from 'zod'
-import { civilitySchema } from '@/shared/forms/civility'
+import { civilitySchema, UNKNOWN_CIVILITY } from '@/shared/forms/civility'
 import { personContactDetailsSchema, toPersonContactDetails } from '@/shared/forms/person-contact-details'
 import { personNameSchema, toPersonName } from '@/shared/forms/person-name'
 import { orNull, text } from '@/shared/forms/text'
@@ -29,7 +29,7 @@ export const collectContactFields = [
 
 export const emptyCollectContact = (): CollectContactValues => ({
   name: { firstName: '', lastName: '' },
-  civility: null,
+  civility: UNKNOWN_CIVILITY,
   jobTitle: '',
   contactDetails: { email: '', phoneNumber: '', language: null, linkedInProfile: '' },
 })

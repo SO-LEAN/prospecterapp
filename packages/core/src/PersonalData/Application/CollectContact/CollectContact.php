@@ -18,7 +18,7 @@ final readonly class CollectContact
         public string $id,
         public ?string $firstName,
         public ?string $lastName,
-        public ?string $civility,
+        public string $civility,
         public ?string $jobTitle,
         public ?string $email,
         public ?string $phoneNumber,

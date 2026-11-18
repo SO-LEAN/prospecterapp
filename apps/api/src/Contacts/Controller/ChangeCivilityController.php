@@ -32,7 +32,7 @@ final class ChangeCivilityController extends AbstractController
     }
 
     #[Route('/api/contacts/{id}/civility', name: 'api_contacts_change_civility', requirements: ['id' => Requirement::UUID], methods: ['PATCH'])]
-    #[OA\Patch(summary: 'Note how one addresses a contact, Ms or Mr, or no longer')]
+    #[OA\Patch(summary: 'Note how one addresses a contact, Ms or Mr, or that it is unknown (x)')]
     #[OA\Response(response: 200, description: 'The contact', content: new Model(type: ContactResource::class))]
     #[OA\Response(response: 401, description: 'Missing or invalid access token')]
     #[OA\Response(response: 403, description: 'Not a prospector, or no right to manage personal data', content: new Model(type: ProblemResource::class))]

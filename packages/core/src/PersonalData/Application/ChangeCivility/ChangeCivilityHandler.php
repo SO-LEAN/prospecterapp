@@ -24,7 +24,7 @@ final readonly class ChangeCivilityHandler implements CommandHandler
     public function __invoke(ChangeCivility $command): void
     {
         $person = $this->persons->get(new PersonId($command->id));
-        $person->changeCivility(Civility::orNone($command->civility), by: $this->readers->readerFrom(new MemberId($command->readerId)), at: $command->executedAt);
+        $person->changeCivility(Civility::of($command->civility), by: $this->readers->readerFrom(new MemberId($command->readerId)), at: $command->executedAt);
         $this->persons->save($person);
         $this->publishWhatHappenedTo($person);
     }

@@ -7,7 +7,7 @@ namespace Prospecter\Core\PersonalData\Domain\Exception;
 use Prospecter\Core\SharedKernel\Domain\Exception\BusinessRuleViolation;
 
 /**
- * The civility given is neither Ms nor Mr.
+ * The civility given is none of Ms, Mr and x (unknown).
  */
 final class InvalidCivility extends BusinessRuleViolation
 {

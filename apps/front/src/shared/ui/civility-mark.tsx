@@ -3,15 +3,15 @@ import { useTranslation } from 'react-i18next'
 import type { components } from '@/shared/api/schema'
 import { Tooltip, TooltipContent, TooltipTrigger } from './tooltip'
 
-type Civility = NonNullable<components['schemas']['ContactResource']['civility']>
+type Civility = components['schemas']['ContactResource']['civility']
 
 const MARKS = { ms: Venus, mr: Mars } as const
 
-/** A discreet mark beside the name of a contact, saying Madame or Monsieur on hover and to a reader; nothing when not noted. */
-export function CivilityMark({ civility }: { civility: Civility | null | undefined }) {
+/** A discreet mark beside the name of a contact, saying Madame or Monsieur on hover and to a reader; nothing when unknown. */
+export function CivilityMark({ civility }: { civility: Civility }) {
   const { t } = useTranslation()
 
-  if (!civility) return null
+  if (civility === 'x') return null
 
   const Mark = MARKS[civility]
   const label = t(`civilities.${civility}`)
