@@ -138,7 +138,7 @@ class DynamoPersonalDataRetrieversTest extends ApiTestCase
     public function testARenamedContactIsFoundByTheirNewFirstNameOnly(): void
     {
         $alan = $this->aContactWithoutAnEmail('Alan', 'Turing');
-        $alan->rename(new PersonName('Alonzo', 'Turing'), $this->readerWithTheRight(), new \DateTimeImmutable());
+        $alan->rename(new PersonName('Alonzo', 'Turing'), $this->readerWithTheRight(), new \DateTimeImmutable(self::THE_MOMENT_OF_THE_TESTS));
         $this->persons()->save($alan);
 
         $this->assertSame([], $this->foundBy('ala', $this->readerWithTheRight()));
@@ -148,7 +148,7 @@ class DynamoPersonalDataRetrieversTest extends ApiTestCase
     public function testAContactWhoseFirstNameIsRemovedIsNoLongerFoundByIt(): void
     {
         $alan = $this->aContactWithoutAnEmail('Alan', 'Turing');
-        $alan->rename(new PersonName(null, 'Turing'), $this->readerWithTheRight(), new \DateTimeImmutable());
+        $alan->rename(new PersonName(null, 'Turing'), $this->readerWithTheRight(), new \DateTimeImmutable(self::THE_MOMENT_OF_THE_TESTS));
         $this->persons()->save($alan);
 
         $this->assertSame([], $this->foundBy('ala', $this->readerWithTheRight()));
@@ -173,7 +173,7 @@ class DynamoPersonalDataRetrieversTest extends ApiTestCase
 
     private function aContactWithoutAnEmail(string $firstName, string $lastName): Person
     {
-        $contact = Person::collect(new PersonId(self::newIdentity()), $this->account, Purpose::Prospecting, new \DateTimeImmutable(), new PersonName($firstName, $lastName), new ContactDetails());
+        $contact = Person::collect(new PersonId(self::newIdentity()), $this->account, Purpose::Prospecting, new \DateTimeImmutable(self::THE_MOMENT_OF_THE_TESTS), new PersonName($firstName, $lastName), new ContactDetails());
         $this->persons()->save($contact);
 
         return $contact;
