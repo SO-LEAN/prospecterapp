@@ -1,10 +1,9 @@
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useQuery, useSuspenseQuery } from '@tanstack/react-query'
-import { Copy, ExternalLink } from 'lucide-react'
+import { Check, Copy, ExternalLink } from 'lucide-react'
 import { useEffect, useState } from 'react'
 import { useForm, useFormState } from 'react-hook-form'
 import { useTranslation } from 'react-i18next'
-import { toast } from 'sonner'
 import { z } from 'zod'
 import { fullNameOf } from '@/features/contacts/queries'
 import { directionWordsOf, isAgreedUpon } from '@/features/exchanges/queries'
@@ -29,6 +28,7 @@ import {
   type Recipient,
 } from '../queries'
 import { meansOf, openingOf } from '../reach'
+import { CampaignSummary } from './campaign-summary'
 
 type Contact = NonNullable<Recipient['contact']>
 type Handled = 'processed' | 'dismissed'
@@ -49,7 +49,7 @@ const MAX_REASON = 500
 /**
  * A started campaign led as a list of tasks (ADR 0145): at the left its recipients, those to handle first; at the
  * right the one chosen, how to reach them, the message rendered for them, and the exchange to note or their
- * dismissal. Campaigns processes a recipient a moment after their exchange is noted: the page holds them handled at
+ * dismissal, its summary once nobody is left to handle. Campaigns processes a recipient a moment after their exchange is noted: the page holds them handled at
  * once and moves to the next one to handle, the campaign read again behind.
  */
 export function CampaignRun({ campaign }: { campaign: Campaign }) {
@@ -129,7 +129,7 @@ export function CampaignRun({ campaign }: { campaign: Campaign }) {
           onNext={toHandle.length > 1 ? () => nextAfter(current.id) : undefined}
         />
       ) : (
-        <p className="text-muted-foreground text-sm">{t('campaigns.run.nobodyLeft')}</p>
+        <CampaignSummary campaign={campaign} />
       )}
     </div>
   )
@@ -261,9 +261,10 @@ function RenderedMessage({
 }) {
   const { t } = useTranslation()
   const opening = openingOf(campaign.channel, contact.contactDetails, message)
+  const [copied, setCopied] = useState(false)
   const copy = async () => {
     await navigator.clipboard.writeText(message.text)
-    toast.success(t('campaigns.run.copied'))
+    setCopied(true)
   }
 
   return (
@@ -274,7 +275,7 @@ function RenderedMessage({
       <p className="whitespace-pre-wrap">{message.text}</p>
       <div className="flex flex-wrap gap-2">
         <Button type="button" variant="outline" size="sm" onClick={copy}>
-          <Copy aria-hidden />
+          {copied ? <Check aria-hidden /> : <Copy aria-hidden />}
           {t('campaigns.run.copy')}
         </Button>
         {opening && (

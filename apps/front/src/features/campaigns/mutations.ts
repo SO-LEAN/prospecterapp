@@ -170,7 +170,7 @@ export function useDismissRecipient(campaignId: string) {
         queryClient.invalidateQueries({ queryKey: campaignKeys.recipients }),
         queryClient.invalidateQueries({ queryKey: campaignKeys.list }),
       ])
-      toast.success(t('campaigns.run.dismissed'))
+      toast.success(t('campaigns.recipients.status.dismissed'))
     },
   })
 }
