@@ -18,6 +18,7 @@ use Prospecter\Core\Connectors\Application\Disconnect\Disconnect;
 use Prospecter\Core\Connectors\Application\MyConnection;
 use Prospecter\Core\Connectors\Domain\Model\ClientCredentials;
 use Prospecter\Core\Connectors\Domain\Model\Provider;
+use Prospecter\Core\Connectors\Domain\Model\Scope;
 use Prospecter\Core\SharedKernel\Domain\MemberId;
 use Tests\Core\Acceptance\Expect;
 use Tests\Core\Acceptance\Vocabulary;
@@ -107,7 +108,7 @@ final class ConnectorContext implements Context
 
     private function askToConnect(string $member, string $account, bool $withTheCalendar): void
     {
-        $this->pending = ['state' => $this->askForAnAuthorization($member), 'code' => $this->application->providerAccess->grant($account, $withTheCalendar)];
+        $this->pending = ['state' => $this->askForAnAuthorization($member), 'code' => $this->application->providerAccess->grant($account, ...$withTheCalendar ? [Scope::Calendar] : [])];
     }
 
     private function askForAnAuthorization(string $member): string

@@ -3,11 +3,16 @@
 namespace Tests\App\Connectors;
 
 use App\Shared\Persistence\ConditionFailed;
+use App\Shared\Persistence\Hydrator;
 use Prospecter\Core\Connectors\Domain\Model\ClientCredentials;
 use Prospecter\Core\Connectors\Domain\Model\Connection;
 use Prospecter\Core\Connectors\Domain\Model\Grant;
+use Prospecter\Core\Connectors\Domain\Model\MailboxNotifications;
+use Prospecter\Core\Connectors\Domain\Model\MailboxWatch;
 use Prospecter\Core\Connectors\Domain\Model\Provider;
 use Prospecter\Core\Connectors\Domain\Model\RefreshToken;
+use Prospecter\Core\Connectors\Domain\Model\Scope;
+use Prospecter\Core\Connectors\Domain\Port\ProviderMailbox;
 use Prospecter\Core\Connectors\Domain\Repository\ConnectionRepository;
 use Prospecter\Core\SharedKernel\Domain\AccountId;
 use Prospecter\Core\SharedKernel\Domain\Email;
@@ -60,9 +65,45 @@ class DynamoConnectionRepositoryTest extends ApiTestCase
         }
     }
 
+    public function testAConnectionImportingTheMailIsRestoredAsSaved(): void
+    {
+        $connection = self::aConnection();
+        $connection->importMail(new ClientCredentials(Provider::Google, 'a-client', 'a-secret'), new MailboxNotifications('projects/solean/topics/gmail', new Email('push@solean.iam.gserviceaccount.com')), self::aMailboxStandingAt('1000'), new \DateTimeImmutable('2026-10-15 09:01 UTC'));
+
+        $this->connections()->save($connection);
+
+        $this->assertEquals(self::importOf($connection), self::importOf($this->connections()->get($connection->member(), Provider::Google)));
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
+    private static function importOf(Connection $connection): array
+    {
+        return array_intersect_key(Hydrator::stateOf($connection), array_flip(['mailImport', 'historyId', 'watchExpiresAt', 'modifiedAt']));
+    }
+
+    private static function aMailboxStandingAt(string $historyId): ProviderMailbox
+    {
+        return new readonly class($historyId) implements ProviderMailbox {
+            public function __construct(private string $historyId)
+            {
+            }
+
+            public function watch(ClientCredentials $client, RefreshToken $refreshToken, string $topic): MailboxWatch
+            {
+                return new MailboxWatch($this->historyId, new \DateTimeImmutable('2026-10-22 09:01 UTC'));
+            }
+
+            public function stop(ClientCredentials $client, RefreshToken $refreshToken): void
+            {
+            }
+        };
+    }
+
     private static function aConnection(?MemberId $member = null, RefreshToken $token = new RefreshToken('a-refresh-token'), string $at = '2026-10-15 09:00 UTC'): Connection
     {
-        $grant = new Grant(new Email('michel@exemple.fr'), $token, true);
+        $grant = new Grant(new Email('michel@exemple.fr'), $token, Scope::Calendar, Scope::Mailbox);
 
         return Connection::establish($member ?? new MemberId(self::newIdentity()), new AccountId(self::newIdentity()), new ClientCredentials(Provider::Google, 'a-client', 'a-secret'), $grant, new \DateTimeImmutable($at));
     }

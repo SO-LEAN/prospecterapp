@@ -8,21 +8,25 @@ use PHPUnit\Framework\TestCase;
 use Prospecter\Core\Connectors\Domain\Event\Connected;
 use Prospecter\Core\Connectors\Domain\Event\ConnectionLost;
 use Prospecter\Core\Connectors\Domain\Event\Disconnected;
+use Prospecter\Core\Connectors\Domain\Event\MailImportStarted;
 use Prospecter\Core\Connectors\Domain\Model\CalendarEvent;
 use Prospecter\Core\Connectors\Domain\Model\Channel;
 use Prospecter\Core\Connectors\Domain\Model\ClientCredentials;
 use Prospecter\Core\Connectors\Domain\Model\Connection;
 use Prospecter\Core\Connectors\Domain\Model\ExchangeId;
 use Prospecter\Core\Connectors\Domain\Model\Grant;
+use Prospecter\Core\Connectors\Domain\Model\MailboxNotifications;
 use Prospecter\Core\Connectors\Domain\Model\PendingAuthorization;
 use Prospecter\Core\Connectors\Domain\Model\Provider;
 use Prospecter\Core\Connectors\Domain\Model\RefreshToken;
+use Prospecter\Core\Connectors\Domain\Model\Scope;
 use Prospecter\Core\SharedKernel\Domain\AccountId;
 use Prospecter\Core\SharedKernel\Domain\Email;
 use Prospecter\Core\SharedKernel\Domain\MemberId;
 use Prospecter\Core\SharedKernel\Domain\OrganizationId;
 use Tests\Core\Double\InMemoryProviderAccess;
 use Tests\Core\Double\InMemoryProviderCalendar;
+use Tests\Core\Double\InMemoryProviderMailbox;
 
 /**
  * Each gesture on a connection records what happened; an authorization waits ten minutes, not one more; a push
@@ -77,7 +81,7 @@ final class ConnectionTest extends TestCase
     public function testATokenRefusedRecordsTheConnectionLostOnce(): void
     {
         $google = new InMemoryProviderAccess();
-        $grant = $google->exchange(self::client(), $google->grant('michel@exemple.fr'), 'a-verifier');
+        $grant = $google->exchange(self::client(), $google->grant('michel@exemple.fr', Scope::Calendar), 'a-verifier');
         $connection = Connection::establish(new MemberId(self::MEMBER), new AccountId(self::ACCOUNT), self::client(), $grant, new \DateTimeImmutable(self::AT));
         $connection->releaseEvents();
         $google->refuseEveryToken();
@@ -174,6 +178,18 @@ final class ConnectionTest extends TestCase
         $this->assertFalse($this->establish()->isTheSameAs($another));
     }
 
+    public function testAnImportOfTheMailStartedRecordsIt(): void
+    {
+        $google = new InMemoryProviderAccess();
+        $grant = $google->exchange(self::client(), $google->grant('michel@exemple.fr', Scope::Calendar, Scope::Mailbox), 'a-verifier');
+        $connection = Connection::establish(new MemberId(self::MEMBER), new AccountId(self::ACCOUNT), self::client(), $grant, new \DateTimeImmutable(self::AT));
+        $connection->releaseEvents();
+
+        $connection->importMail(self::client(), self::notifications(), new InMemoryProviderMailbox($google, static fn (): \DateTimeImmutable => new \DateTimeImmutable(self::AT)), new \DateTimeImmutable(self::AT));
+
+        $this->assertEquals([new MailImportStarted(new AccountId(self::ACCOUNT), new MemberId(self::MEMBER), new \DateTimeImmutable(self::AT))], $connection->releaseEvents());
+    }
+
     public function testAnAuthorizationWaitsTenMinutes(): void
     {
         $authorization = PendingAuthorization::askedBy(new MemberId(self::MEMBER), Provider::Google, 'a-state', 'a-verifier', new \DateTimeImmutable(self::AT));
@@ -192,6 +208,11 @@ final class ConnectionTest extends TestCase
         return new ClientCredentials(Provider::Google, 'the-client', 'its-secret');
     }
 
+    private static function notifications(): MailboxNotifications
+    {
+        return new MailboxNotifications('projects/solean/topics/gmail', new Email('push@solean.iam.gserviceaccount.com'));
+    }
+
     private static function event(): CalendarEvent
     {
         $at = new \DateTimeImmutable('2026-11-17 14:00');
@@ -201,6 +222,6 @@ final class ConnectionTest extends TestCase
 
     private static function grant(): Grant
     {
-        return new Grant(new Email('michel@exemple.fr'), new RefreshToken('a-token'), true);
+        return new Grant(new Email('michel@exemple.fr'), new RefreshToken('a-token'), Scope::Calendar);
     }
 }

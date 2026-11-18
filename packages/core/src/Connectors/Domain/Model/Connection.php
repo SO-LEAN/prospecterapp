@@ -8,6 +8,7 @@ use Prospecter\Core\Connectors\Domain\Event\CalendarRecreated;
 use Prospecter\Core\Connectors\Domain\Event\Connected;
 use Prospecter\Core\Connectors\Domain\Event\ConnectionLost;
 use Prospecter\Core\Connectors\Domain\Event\Disconnected;
+use Prospecter\Core\Connectors\Domain\Event\MailImportStarted;
 use Prospecter\Core\Connectors\Domain\Event\VideoCallLinkCreated;
 use Prospecter\Core\Connectors\Domain\Exception\AccessRevoked;
 use Prospecter\Core\Connectors\Domain\Exception\CalendarGone;
@@ -15,6 +16,7 @@ use Prospecter\Core\Connectors\Domain\Exception\CalendarRefusedThePush;
 use Prospecter\Core\Connectors\Domain\Exception\IncompleteGrant;
 use Prospecter\Core\Connectors\Domain\Port\ProviderAccess;
 use Prospecter\Core\Connectors\Domain\Port\ProviderCalendar;
+use Prospecter\Core\Connectors\Domain\Port\ProviderMailbox;
 use Prospecter\Core\SharedKernel\Domain\AccountId;
 use Prospecter\Core\SharedKernel\Domain\Email;
 use Prospecter\Core\SharedKernel\Domain\MemberId;
@@ -32,6 +34,9 @@ final class Connection implements ReleasesEvents
 
     private ConnectionState $state = ConnectionState::Connected;
     private ?string $calendar = null;
+    private MailImport $mailImport = MailImport::Off;
+    private ?string $historyId = null;
+    private ?\DateTimeImmutable $watchExpiresAt = null;
     private \DateTimeImmutable $modifiedAt;
 
     private function __construct(
@@ -60,7 +65,7 @@ final class Connection implements ReleasesEvents
 
     private static function ensureComplete(Grant $grant): void
     {
-        if (!$grant->complete) {
+        if (!$grant->grants(Scope::Calendar)) {
             throw IncompleteGrant::ofTheCalendar();
         }
     }
@@ -210,6 +215,22 @@ final class Connection implements ReleasesEvents
         } catch (AccessRevoked) {
             $this->lose($at);
         }
+    }
+
+    /**
+     * The mailbox of the member watched through the topic of their account, their e-mails imported from where its
+     * history stands at this moment (ADR 0154).
+     *
+     * @throws AccessRevoked
+     */
+    public function importMail(ClientCredentials $client, MailboxNotifications $notifications, ProviderMailbox $mailbox, \DateTimeImmutable $at): void
+    {
+        $watch = $mailbox->watch($client, $this->refreshToken, $notifications->topic);
+        $this->mailImport = MailImport::Active;
+        $this->historyId = $watch->historyId;
+        $this->watchExpiresAt = $watch->expiresAt;
+        $this->modifiedAt = $at;
+        $this->recordThat(new MailImportStarted($this->accountId, $this->member, $at));
     }
 
     /**

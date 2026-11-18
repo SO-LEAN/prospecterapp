@@ -928,6 +928,7 @@ export const fr = {
     noClient: 'Le compte n’a pas de client Google.',
     incompleteClient: 'Un client Google a besoin de son identifiant et de son secret.',
     invalidTopic: 'Un topic se nomme en entier : projects/<projet>/topics/<topic>.',
+    mailImportUnavailable: 'L’import des e-mails n’est pas disponible : le compte n’a pas de topic Pub/Sub.',
     accessRevoked: 'Google n’accorde plus l’accès : connectez votre compte à nouveau.',
     calendarGone: 'L’agenda Prospecter n’est plus dans Google.',
     calendarRefusedThePush: 'Google a refusé l’événement de l’échange.',

@@ -8,6 +8,7 @@ use Prospecter\Core\Connectors\Domain\Model\ClientCredentials;
 use Prospecter\Core\Connectors\Domain\Model\Grant;
 use Prospecter\Core\Connectors\Domain\Model\Provider;
 use Prospecter\Core\Connectors\Domain\Model\RefreshToken;
+use Prospecter\Core\Connectors\Domain\Model\Scope;
 use Prospecter\Core\Connectors\Domain\Port\ProviderAccess;
 use Prospecter\Core\SharedKernel\Domain\Email;
 use Psr\Log\LoggerInterface;
@@ -81,8 +82,18 @@ final readonly class GoogleProviderAccess implements ProviderAccess
         return new Grant(
             new Email(self::emailIn($tokens['id_token'])),
             new RefreshToken($tokens['refresh_token']),
-            in_array(GoogleAuthorization::CALENDAR_SCOPE, explode(' ', $tokens['scope'] ?? ''), true),
+            ...self::scopesIn($tokens['scope'] ?? ''),
         );
+    }
+
+    /**
+     * @return list<Scope> what Prospecter asked among the scopes Google granted
+     */
+    private static function scopesIn(string $granted): array
+    {
+        $scopesOfGoogle = explode(' ', $granted);
+
+        return array_values(array_filter(Scope::cases(), static fn (Scope $scope): bool => in_array(GoogleAuthorization::SCOPES_OF_GOOGLE[$scope->value], $scopesOfGoogle, true)));
     }
 
     /**

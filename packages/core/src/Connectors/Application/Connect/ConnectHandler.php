@@ -12,8 +12,11 @@ use Prospecter\Core\Connectors\Domain\Model\Grant;
 use Prospecter\Core\Connectors\Domain\Model\Member;
 use Prospecter\Core\Connectors\Domain\Model\PendingAuthorization;
 use Prospecter\Core\Connectors\Domain\Model\Provider;
+use Prospecter\Core\Connectors\Domain\Model\ProviderClient;
+use Prospecter\Core\Connectors\Domain\Model\Scope;
 use Prospecter\Core\Connectors\Domain\Port\Members;
 use Prospecter\Core\Connectors\Domain\Port\ProviderAccess;
+use Prospecter\Core\Connectors\Domain\Port\ProviderMailbox;
 use Prospecter\Core\Connectors\Domain\Repository\AuthorizationRepository;
 use Prospecter\Core\Connectors\Domain\Repository\ConnectionRepository;
 use Prospecter\Core\Connectors\Domain\Repository\ProviderClientRepository;
@@ -31,6 +34,7 @@ final readonly class ConnectHandler implements CommandHandler
         private ConnectionRepository $connections,
         private ProviderClientRepository $clients,
         private ProviderAccess $providerAccess,
+        private ProviderMailbox $mailbox,
         private Members $members,
         private Events $events,
     ) {
@@ -42,8 +46,9 @@ final readonly class ConnectHandler implements CommandHandler
         $authorization = $this->awaitedAuthorization($command->state, $me->id, $command->executedAt);
         $this->authorizations->forget($authorization);
         $client = $this->clientOf($me, $authorization->provider);
-        $grant = $this->providerAccess->exchange($client, $command->code, $authorization->codeVerifier);
-        $connection = $this->connectionGranted($me, $client, $grant, $command->executedAt);
+        $grant = $this->providerAccess->exchange($client->credentials(), $command->code, $authorization->codeVerifier);
+        $connection = $this->connectionGranted($me, $client->credentials(), $grant, $command->executedAt);
+        $this->importTheMailWhenGranted($connection, $client, $authorization, $grant, $command->executedAt);
         $this->connections->save($connection);
         $this->publishWhatHappenedTo($connection);
     }
@@ -55,9 +60,9 @@ final readonly class ConnectHandler implements CommandHandler
         return null !== $authorization && $authorization->awaits($me, $at) ? $authorization : throw UnknownAuthorization::forTheAnswer();
     }
 
-    private function clientOf(Member $me, Provider $provider): ClientCredentials
+    private function clientOf(Member $me, Provider $provider): ProviderClient
     {
-        return ($this->clients->find($me->accountId, $provider) ?? throw ProviderUnavailable::withoutClient($provider))->credentials();
+        return $this->clients->find($me->accountId, $provider) ?? throw ProviderUnavailable::withoutClient($provider);
     }
 
     private function connectionGranted(Member $me, ClientCredentials $client, Grant $grant, \DateTimeImmutable $at): Connection
@@ -71,5 +76,18 @@ final readonly class ConnectHandler implements CommandHandler
         $connection->renew($grant, $client, $this->providerAccess, $at);
 
         return $connection;
+    }
+
+    /**
+     * The import of the e-mails starts once the member granted the reading of their mailbox they asked for, while the
+     * account still has its topic; unticked at the consent, nothing is imported, the calendar connected all the same.
+     */
+    private function importTheMailWhenGranted(Connection $connection, ProviderClient $client, PendingAuthorization $authorization, Grant $grant, \DateTimeImmutable $at): void
+    {
+        $notifications = $client->mailboxNotifications();
+
+        if (null !== $notifications && $authorization->asks(Scope::Mailbox) && $grant->grants(Scope::Mailbox)) {
+            $connection->importMail($client->credentials(), $notifications, $this->mailbox, $at);
+        }
     }
 }

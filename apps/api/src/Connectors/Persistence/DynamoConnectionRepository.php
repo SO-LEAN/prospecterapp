@@ -8,6 +8,7 @@ use App\Shared\Persistence\Table;
 use Prospecter\Core\Connectors\Domain\Exception\NoConnection;
 use Prospecter\Core\Connectors\Domain\Model\Connection;
 use Prospecter\Core\Connectors\Domain\Model\ConnectionState;
+use Prospecter\Core\Connectors\Domain\Model\MailImport;
 use Prospecter\Core\Connectors\Domain\Model\Provider;
 use Prospecter\Core\Connectors\Domain\Model\RefreshToken;
 use Prospecter\Core\Connectors\Domain\Repository\ConnectionRepository;
@@ -62,6 +63,9 @@ final readonly class DynamoConnectionRepository implements ConnectionRepository
             'clientId' => $document['clientId'] ?? self::CLIENT_OF_THE_INSTANCE,
             'state' => ConnectionState::from($document['state']),
             'calendar' => $document['calendar'] ?? null,
+            'mailImport' => MailImport::from($document['mailImport'] ?? MailImport::Off->value),
+            'historyId' => $document['historyId'] ?? null,
+            'watchExpiresAt' => Documents::momentOfOrNone($document['watchExpiresAt'] ?? null),
             'connectedAt' => Documents::momentOf($document['connectedAt']),
             'modifiedAt' => Documents::momentOf($document['modifiedAt']),
         ]);
@@ -102,6 +106,9 @@ final readonly class DynamoConnectionRepository implements ConnectionRepository
                 'clientId' => $state['clientId'],
                 'state' => $state['state']->value,
                 'calendar' => $state['calendar'],
+                'mailImport' => $state['mailImport']->value,
+                'historyId' => $state['historyId'],
+                'watchExpiresAt' => Documents::momentOrNone($state['watchExpiresAt']),
                 'connectedAt' => Documents::moment($state['connectedAt']),
                 'modifiedAt' => Documents::moment($state['modifiedAt']),
             ],

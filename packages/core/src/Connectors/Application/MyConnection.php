@@ -6,7 +6,8 @@ namespace Prospecter\Core\Connectors\Application;
 
 /**
  * A connection of mine as I see it: the provider (`google`), its state (`connected`, `toReconnect`), the account
- * connected there and since when, and how many of my exchanges to come are synced there, and failed (ADR 0133).
+ * connected there and since when, how many of my exchanges to come are synced there, and failed (ADR 0133), and
+ * where the import of my e-mails stands (`off`, `active`, `toReconnect`, ADR 0154).
  */
 final readonly class MyConnection
 {
@@ -17,6 +18,7 @@ final readonly class MyConnection
         public \DateTimeImmutable $connectedAt,
         public int $synced,
         public int $failed,
+        public string $mailImport,
     ) {
     }
 }

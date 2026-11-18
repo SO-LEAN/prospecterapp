@@ -78,6 +78,11 @@ final class ProviderClient implements ReleasesEvents
         return $this->credentials;
     }
 
+    public function mailboxNotifications(): ?MailboxNotifications
+    {
+        return $this->mailboxNotifications;
+    }
+
     public function accountId(): AccountId
     {
         return $this->accountId;

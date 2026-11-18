@@ -12,6 +12,9 @@ final readonly class GoogleAuthorization
 {
     public const string SCOPES = 'openid email '.self::CALENDAR_SCOPE;
     public const string CALENDAR_SCOPE = 'https://www.googleapis.com/auth/calendar.app.created';
+    public const string GMAIL_SCOPE = 'https://www.googleapis.com/auth/gmail.readonly';
+    /** the scope of Google of each scope Prospecter asks */
+    public const array SCOPES_OF_GOOGLE = ['calendar' => self::CALENDAR_SCOPE, 'mailbox' => self::GMAIL_SCOPE];
     private const int STATE_BYTES = 16;
     private const int VERIFIER_BYTES = 48;
 

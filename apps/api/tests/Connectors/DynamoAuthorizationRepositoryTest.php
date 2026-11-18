@@ -6,6 +6,7 @@ use App\Connectors\Persistence\ConnectorsKeys;
 use App\Shared\Persistence\Table;
 use Prospecter\Core\Connectors\Domain\Model\PendingAuthorization;
 use Prospecter\Core\Connectors\Domain\Model\Provider;
+use Prospecter\Core\Connectors\Domain\Model\Scope;
 use Prospecter\Core\Connectors\Domain\Repository\AuthorizationRepository;
 use Prospecter\Core\SharedKernel\Domain\MemberId;
 use Tests\App\Base\ApiTestCase;
@@ -28,6 +29,15 @@ class DynamoAuthorizationRepositoryTest extends ApiTestCase
 
         $item = $this->connectorsTable()->item(ConnectorsKeys::authorization(self::STATE), ConnectorsKeys::AUTHORIZATION);
         $this->assertSame(new \DateTimeImmutable('2100-01-01 01:00:00 UTC')->getTimestamp(), $item['expiresAt']);
+        $this->assertEquals($asked, self::getContainer()->get(AuthorizationRepository::class)->find(self::STATE));
+    }
+
+    public function testAnAuthorizationKeepsTheScopesAsked(): void
+    {
+        $asked = PendingAuthorization::askedBy(new MemberId(self::newIdentity()), Provider::Google, self::STATE, 'a-verifier', new \DateTimeImmutable('2026-10-15 09:00:00 UTC'), Scope::Calendar, Scope::Mailbox);
+
+        self::getContainer()->get(AuthorizationRepository::class)->keep($asked);
+
         $this->assertEquals($asked, self::getContainer()->get(AuthorizationRepository::class)->find(self::STATE));
     }
 
