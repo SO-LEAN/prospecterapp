@@ -34,6 +34,8 @@ class DomainBehindTheApplicationTest extends TestCase
         'Campaigns/AntiCorruption/PersonalDataContactsReach.php',
         'Campaigns/AntiCorruption/AccountsCampaigners.php',
         'Campaigns/AntiCorruption/PersonalDataAndProspectingAddressees.php',
+        'Booking/AntiCorruption/AccountsHosts.php',
+        'Booking/AntiCorruption/ConnectorsConnectedCalendars.php',
         'Connectors/Google/GoogleProviderAccess.php',
         'Connectors/Google/GoogleCalendar.php',
         'Connectors/Google/GoogleTokens.php',

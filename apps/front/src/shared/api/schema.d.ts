@@ -1443,6 +1443,143 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/me/booking-page/inactive-periods": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Add days I may not be booked, whatever my windows, both bounds included */
+        post: operations["post_api_booking_page_add_inactive_period"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/me/booking-page/link": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Draw another code for the link of my booking page: the former link leads nowhere */
+        post: operations["post_api_booking_page_change_link"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/me/booking-page/opening": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Open my booking page, while my calendar is connected and it offers a channel: its link, drawn at the first opening, offers my slots */
+        post: operations["post_api_booking_page_open"];
+        /** Close my booking page at once: its link offers nothing, my settings and my link kept */
+        delete: operations["delete_api_booking_page_close"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/me/booking-page": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Consult my booking page: my windows, my inactive periods not ended on my clock, my channels, whether it is open and its link, whether my calendar is connected */
+        get: operations["get_api_booking_page"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/booking-pages/{code}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Consult the booking page a public link leads to, without signing in: whether it offers slots, and how its host meets the bookers */
+        get: operations["get_api_public_booking_page"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/me/booking-page/channels": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        /** Choose how the bookers meet me, a call, a video call or both; an open page offers one at least */
+        patch: operations["patch_api_booking_page_offer_channels"];
+        trace?: never;
+    };
+    "/api/me/booking-page/inactive-periods/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        /** Remove an inactive period of mine: its days are offered again, as my windows say */
+        delete: operations["delete_api_booking_page_remove_inactive_period"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/me/booking-page/windows": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        /** Set the windows of my week, one a day at most, on the quarter hour and of 15 minutes at least, in the time zone of my clock, replacing the former ones */
+        patch: operations["patch_api_booking_page_set_windows"];
+        trace?: never;
+    };
 }
 export type webhooks = Record<string, never>;
 export interface components {
@@ -1917,6 +2054,56 @@ export interface components {
              * @default null
              */
             subject: string | null;
+        };
+        InactivePeriodInput: {
+            /**
+             * Format: date
+             * @default null
+             * @example 2026-12-21
+             */
+            firstDay: string | null;
+            /**
+             * Format: date
+             * @default null
+             * @example 2027-01-04
+             */
+            lastDay: string | null;
+        };
+        MyClockQuery: {
+            /**
+             * @description The time zone of the reader, by its name in the database of the time zones; UTC otherwise
+             * @default null
+             * @example Europe/Paris
+             */
+            timeZone: string | null;
+        };
+        ChannelsInput: {
+            /** @default null */
+            channels: ("call" | "videoCall")[] | null;
+        };
+        WindowResource: {
+            /** @enum {string} */
+            weekday: "monday" | "tuesday" | "wednesday" | "thursday" | "friday" | "saturday" | "sunday";
+            /**
+             * @description HH:MM, on the quarter hour
+             * @example 14:00
+             */
+            from: string;
+            /**
+             * @description HH:MM, on the quarter hour, 15 minutes after the start at least
+             * @example 17:00
+             */
+            to: string;
+        };
+        WindowsInput: {
+            /**
+             * @description The time zone of my clock, by its name in the database of the time zones
+             * @default null
+             * @example Europe/Paris
+             */
+            timeZone: string | null;
+            /** @default null */
+            windows: components["schemas"]["WindowResource"][] | null;
         };
         PersonNameResource: {
             firstName?: string | null;
@@ -2797,6 +2984,59 @@ export interface components {
             /** @description The subject of an e-mail */
             subject?: string | null;
             text: string;
+        };
+        InactivePeriodLinksResource: {
+            remove: components["schemas"]["LinkResource"];
+        };
+        InactivePeriodResource: {
+            id: string;
+            /**
+             * Format: date
+             * @example 2026-12-21
+             */
+            firstDay: string;
+            /**
+             * Format: date
+             * @example 2027-01-04
+             */
+            lastDay: string;
+            _links: components["schemas"]["InactivePeriodLinksResource"];
+        };
+        BookingPageLinksResource: {
+            self: components["schemas"]["LinkResource"];
+            setWindows: components["schemas"]["LinkResource"];
+            addInactivePeriod: components["schemas"]["LinkResource"];
+            offerChannels: components["schemas"]["LinkResource"];
+            open?: components["schemas"]["LinkResource"];
+            close?: components["schemas"]["LinkResource"];
+            changeLink?: components["schemas"]["LinkResource"];
+        };
+        BookingPageResource: {
+            /** @description Whether its public link offers slots */
+            open: boolean;
+            /** @description One a day at most, Monday first */
+            windows: components["schemas"]["WindowResource"][];
+            /**
+             * @description The time zone of the windows, by its name in the database of the time zones; none before they are set
+             * @example Europe/Paris
+             */
+            timeZone?: string | null;
+            /** @description Those not ended before the day of the reading, the soonest first */
+            inactivePeriods: components["schemas"]["InactivePeriodResource"][];
+            channels: ("call" | "videoCall")[];
+            /**
+             * @description The code of its public link, 22 characters of base 62; none before its first opening
+             * @example AbCdEfGhIjKlMnOpQrStUv
+             */
+            code?: string | null;
+            /** @description Whether my calendar is connected, which invites the bookers: without it, the page does not open */
+            calendarConnected: boolean;
+            _links: components["schemas"]["BookingPageLinksResource"];
+        };
+        PublicBookingPageResource: {
+            /** @description Whether it offers slots; closed, it offers none */
+            open: boolean;
+            channels: ("call" | "videoCall")[];
         };
     };
     responses: never;
@@ -8612,6 +8852,354 @@ export interface operations {
             };
             /** @description Not started */
             409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ProblemResource"];
+                };
+            };
+        };
+    };
+    post_api_booking_page_add_inactive_period: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["InactivePeriodInput"];
+            };
+        };
+        responses: {
+            /** @description My booking page */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["BookingPageResource"];
+                };
+            };
+            /** @description Missing or invalid access token */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description A period ending before it starts, a day not written YYYY-MM-DD */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ProblemResource"];
+                };
+            };
+        };
+    };
+    post_api_booking_page_change_link: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description My booking page */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["BookingPageResource"];
+                };
+            };
+            /** @description Missing or invalid access token */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description The page has no link yet */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ProblemResource"];
+                };
+            };
+        };
+    };
+    post_api_booking_page_open: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description My booking page */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["BookingPageResource"];
+                };
+            };
+            /** @description Missing or invalid access token */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description The page is open already */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ProblemResource"];
+                };
+            };
+            /** @description No calendar connected, no channel offered */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ProblemResource"];
+                };
+            };
+        };
+    };
+    delete_api_booking_page_close: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description My booking page */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["BookingPageResource"];
+                };
+            };
+            /** @description Missing or invalid access token */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description The page is closed already */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ProblemResource"];
+                };
+            };
+        };
+    };
+    get_api_booking_page: {
+        parameters: {
+            query?: {
+                /**
+                 * @description The time zone of the reader, by its name in the database of the time zones; UTC otherwise
+                 * @example Europe/Paris
+                 */
+                timeZone?: string | null;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description My booking page, closed and empty until I set it */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["BookingPageResource"];
+                };
+            };
+            /** @description Missing or invalid access token */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description An unknown time zone */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ProblemResource"];
+                };
+            };
+        };
+    };
+    get_api_public_booking_page: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                code: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description The booking page */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PublicBookingPageResource"];
+                };
+            };
+            /** @description No page at this code: a former link, or one nobody drew */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ProblemResource"];
+                };
+            };
+        };
+    };
+    patch_api_booking_page_offer_channels: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ChannelsInput"];
+            };
+        };
+        responses: {
+            /** @description My booking page */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["BookingPageResource"];
+                };
+            };
+            /** @description Missing or invalid access token */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description No channel while the page is open, an unknown channel */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ProblemResource"];
+                };
+            };
+        };
+    };
+    delete_api_booking_page_remove_inactive_period: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description My booking page */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["BookingPageResource"];
+                };
+            };
+            /** @description Missing or invalid access token */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description No inactive period of mine of this id */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ProblemResource"];
+                };
+            };
+        };
+    };
+    patch_api_booking_page_set_windows: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["WindowsInput"];
+            };
+        };
+        responses: {
+            /** @description My booking page */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["BookingPageResource"];
+                };
+            };
+            /** @description Missing or invalid access token */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description A window too short, off the quarter hour, two on a day, an unknown day or time zone */
+            422: {
                 headers: {
                     [name: string]: unknown;
                 };

@@ -4,7 +4,7 @@
 # by the relay of the outbox (messaging.tf, ADR 0098), an item forgotten past its expiresAt. They are named
 # prospecter-<instance>-api-<context>: the API finds them with DYNAMODB_TABLE_PREFIX=prospecter-<instance>-api.
 locals {
-  contexts = toset(["accounts", "campaigns", "connectors", "personal-data", "prospecting", "reporting"])
+  contexts = toset(["accounts", "booking", "campaigns", "connectors", "personal-data", "prospecting", "reporting"])
   indexes = {
     GSI1  = { partition = "GSI1PK", sort = "GSI1SK", projection = "ALL" }
     GSI2  = { partition = "GSI2PK", sort = "GSI2SK", projection = "ALL" }
