@@ -9,9 +9,12 @@ use Prospecter\Core\Prospecting\Domain\Model\OrganizationIntent;
 use Prospecter\Core\Prospecting\Domain\Model\Prospector;
 use Prospecter\Core\Prospecting\Domain\Repository\OrganizationRepository;
 use Prospecter\Core\SharedKernel\Domain\AccountId;
+use Prospecter\Core\SharedKernel\Domain\Address;
 use Prospecter\Core\SharedKernel\Domain\ContactDetails;
 use Prospecter\Core\SharedKernel\Domain\File;
+use Prospecter\Core\SharedKernel\Domain\GeoPoint;
 use Prospecter\Core\SharedKernel\Domain\LegalIdentity;
+use Prospecter\Core\SharedKernel\Domain\Location;
 use Prospecter\Core\SharedKernel\Domain\MemberId;
 use Prospecter\Core\SharedKernel\Domain\OrganizationId;
 use Prospecter\Core\SharedKernel\Domain\PersonId;
@@ -57,6 +60,16 @@ class DynamoOrganizationSheetRetrieverTest extends ApiTestCase
         $this->organizations()->save($acme);
 
         $this->assertSame('55210055400013', $this->sheetOf($acme)->siret);
+    }
+
+    public function testTheSheetCarriesTheMunicipality(): void
+    {
+        $prospector = $this->aProspector();
+        $acme = $this->prospect($prospector, 'ACME');
+        $acme->relocateTo(new Address('17 rue Docteur Bouchut', '69003', 'Lyon'), new Location(new GeoPoint(4.86, 45.76), '69383'), $prospector->id, new \DateTimeImmutable(self::THE_MOMENT_OF_THE_TESTS));
+        $this->organizations()->save($acme);
+
+        $this->assertSame('69383', $this->sheetOf($acme)->municipalityCode);
     }
 
     private function prospect(Prospector $prospector, string $corporateName): Organization
