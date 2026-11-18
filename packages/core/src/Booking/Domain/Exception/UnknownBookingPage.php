@@ -8,15 +8,10 @@ use Prospecter\Core\SharedKernel\Domain\Exception\NotFound;
 use Prospecter\Core\SharedKernel\Domain\MemberId;
 
 /**
- * No booking page has this code, a former link or one nobody drew; or the host never set theirs.
+ * The host never set their booking page. A link no page has offers nothing, without saying why (ADR 0153).
  */
 final class UnknownBookingPage extends NotFound
 {
-    public static function withCode(string $code): self
-    {
-        return new self(sprintf('No booking page at %s', $code));
-    }
-
     public static function of(MemberId $host): self
     {
         return new self(sprintf('No booking page of %s', $host));
