@@ -6,7 +6,7 @@ import { useForm, useFormState } from 'react-hook-form'
 import { useTranslation } from 'react-i18next'
 import { z } from 'zod'
 import { fullNameOf } from '@/features/contacts/queries'
-import { directionWordsOf, isAgreedUpon } from '@/features/exchanges/queries'
+import { isAgreedUpon } from '@/features/exchanges/queries'
 import { localMoment } from '@/features/exchanges/schema'
 import { applyViolations } from '@/shared/api/problem'
 import { FormField } from '@/shared/forms/form-field'
@@ -299,7 +299,7 @@ const recipientSchema = z.object({
   occurredAt: z
     .string()
     .min(1, { error: () => i18n.t('validation.required') })
-    .refine(isPast, { error: () => i18n.t('exchanges.inTheFuture') }),
+    .refine(isPast, { error: () => i18n.t('campaigns.run.inTheFuture') }),
   text: text(MAX_TEXT),
   missed: z.boolean(),
   reason: text(MAX_REASON),
@@ -377,19 +377,18 @@ function RecipientForm({
         </Alert>
       )}
       <p className="text-sm">
-        {t(`exchanges.channels.${campaign.channel}`)} ·{' '}
-        {t(`exchanges.directions.${directionWordsOf(campaign.channel)}.outbound`)}
+        {t(`exchanges.channels.${campaign.channel}`)} · {t(`campaigns.run.outbound.${campaign.channel}`)}
       </p>
       {isAgreedUpon(campaign.channel) && (
         <label className="flex items-center gap-2 text-sm">
           <input type="checkbox" className="size-4 accent-primary" {...form.register('missed')} />
-          {t('exchanges.missedLabel')}
+          {t('campaigns.run.missed')}
         </label>
       )}
-      <FormField form={form} name="occurredAt" label={t('exchanges.occurredAt')}>
+      <FormField form={form} name="occurredAt" label={t('campaigns.run.occurredAt')}>
         <Input type="datetime-local" max={localMoment(new Date())} {...form.register('occurredAt')} />
       </FormField>
-      <FormField form={form} name="text" label={t('exchanges.text')} optional={t('common.optional')}>
+      <FormField form={form} name="text" label={t('campaigns.run.text')} optional={t('common.optional')}>
         <Textarea rows={5} {...form.register('text')} />
       </FormField>
       <FormField form={form} name="reason" label={t('campaigns.run.reason')} optional={t('common.optional')}>
