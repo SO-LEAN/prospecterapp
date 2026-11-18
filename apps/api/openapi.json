@@ -11233,6 +11233,10 @@
                         "description": "The 14 days from tomorrow on the clock of the host, each with the moments its free slots of 15 minutes start at; none when it offers nothing",
                         "type": "array",
                         "items": {
+                            "required": [
+                                "day",
+                                "slots"
+                            ],
                             "properties": {
                                 "day": {
                                     "type": "string",

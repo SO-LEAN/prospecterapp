@@ -1,13 +1,28 @@
 import { useQuery } from '@tanstack/react-query'
+import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { CardPage } from '@/app/layout/card-page'
+import type { components } from '@/shared/api/schema'
+import { initials } from '@/shared/lib/format'
+import { readerTimeZone } from '@/shared/lib/time-zone'
+import { cn } from '@/shared/lib/utils'
+import { Avatar, AvatarFallback, AvatarImage } from '@/shared/ui/avatar'
+import { Button } from '@/shared/ui/button'
 import { ErrorState } from '@/shared/ui/feedback/error-state'
 import { PageSkeleton } from '@/shared/ui/page-skeleton'
 import { publicBookingPageQuery } from '../queries'
+import { cityOf, dayLabel, slotTime } from '../slots'
+
+type PublicPage = components['schemas']['PublicBookingPageResource']
+type Host = NonNullable<PublicPage['host']>
+type Day = PublicPage['days'][number]
 
 type Props = { code: string }
 
-/** The page a public link leads to, read without signing in: open, it says how its host meets the bookers (the slots come next). */
+/**
+ * The page a public link leads to, read without signing in (ADR 0153): whom the booker meets, the channels offered, then
+ * the free slots of the 14 days to come, on the clock of the visitor. A page offering nothing says nothing else.
+ */
 export function PublicBookingPage({ code }: Props) {
   const { t } = useTranslation()
   const page = useQuery({ ...publicBookingPageQuery(code), retry: false })
@@ -18,13 +33,148 @@ export function PublicBookingPage({ code }: Props) {
   if (page.isError) {
     return <ErrorState error={page.error} reset={() => void page.refetch()} />
   }
-
-  const channels = page.data.channels.map((channel) => t(`booking.channels.${channel}`)).join(', ')
+  if (!page.data.open || !page.data.host || !page.data.timeZone) {
+    return <CardPage title={t('booking.public.title')} description={t('booking.public.noSlot')} />
+  }
 
   return (
-    <CardPage
-      title={t('booking.public.title')}
-      description={page.data.open ? t('booking.public.offers', { channels }) : t('booking.public.noSlot')}
+    <OpenPage
+      host={page.data.host}
+      channels={page.data.channels}
+      hostTimeZone={page.data.timeZone}
+      days={page.data.days}
     />
+  )
+}
+
+type OpenPageProps = { host: Host; channels: PublicPage['channels']; hostTimeZone: string; days: Day[] }
+
+function OpenPage({ host, channels, hostTimeZone, days }: OpenPageProps) {
+  const { t } = useTranslation()
+  const [channel, setChannel] = useState(channels.length === 1 ? channels[0] : undefined)
+  const [slot, setSlot] = useState<{ day: string; moment: string }>()
+  const visitorTimeZone = readerTimeZone()
+
+  return (
+    <main className="min-h-dvh bg-background px-4 py-8 sm:px-6">
+      <div className="mx-auto grid w-full max-w-5xl gap-8">
+        <HostHeader host={host} />
+        <fieldset className="grid gap-2">
+          <legend className="mb-2 font-medium text-sm">{t('booking.public.channel')}</legend>
+          <div className="flex flex-wrap gap-2">
+            {channels.map((offered) => (
+              <label
+                key={offered}
+                className="flex items-center gap-2 rounded-lg border px-3 py-2 text-sm has-checked:border-primary"
+              >
+                <input
+                  type="radio"
+                  name="channel"
+                  value={offered}
+                  checked={channel === offered}
+                  onChange={() => setChannel(offered)}
+                />
+                {t(`booking.channels.${offered}`)}
+              </label>
+            ))}
+          </div>
+        </fieldset>
+        <section className="grid gap-4">
+          <p className="text-muted-foreground text-sm">
+            {visitorTimeZone === hostTimeZone
+              ? t('booking.public.hoursOf', { city: cityOf(hostTimeZone) })
+              : t('booking.public.hoursConverted', {
+                  city: cityOf(visitorTimeZone),
+                  hostCity: cityOf(hostTimeZone),
+                })}
+          </p>
+          <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-7">
+            {days.map((day) => (
+              <DayOfSlots
+                key={day.day}
+                day={day}
+                timeZone={visitorTimeZone}
+                choosable={channel !== undefined}
+                chosen={slot?.moment}
+                onChoose={(moment) => setSlot({ day: day.day, moment })}
+              />
+            ))}
+          </div>
+        </section>
+        {channel && slot && (
+          <p role="status" className="font-medium text-sm">
+            {t('booking.public.chosen', {
+              channel: t(`booking.channels.${channel}`),
+              day: dayLabel(slot.day),
+              time: slotTime(slot.moment, visitorTimeZone),
+            })}
+          </p>
+        )}
+      </div>
+    </main>
+  )
+}
+
+function HostHeader({ host }: { host: Host }) {
+  const { t } = useTranslation()
+  const name = [host.firstName, host.lastName].filter(Boolean).join(' ')
+
+  return (
+    <header className="flex items-center gap-4">
+      <Avatar className="size-16">
+        {host.picture && <AvatarImage src={host.picture.mediumUrl} alt="" />}
+        <AvatarFallback className="bg-primary/10 font-medium text-lg text-primary">
+          {initials(name)}
+        </AvatarFallback>
+      </Avatar>
+      <div className="grid gap-1">
+        <h1 className="font-semibold text-2xl tracking-tight">{name}</h1>
+        {host.organization && <p className="text-muted-foreground">{host.organization}</p>}
+        <p className="text-sm">{t('booking.public.duration')}</p>
+      </div>
+    </header>
+  )
+}
+
+type DayProps = {
+  day: Day
+  timeZone: string
+  choosable: boolean
+  chosen?: string
+  onChoose: (moment: string) => void
+}
+
+function DayOfSlots({ day, timeZone, choosable, chosen, onChoose }: DayProps) {
+  const { t } = useTranslation()
+  const label = dayLabel(day.day)
+  const empty = day.slots.length === 0
+
+  return (
+    <fieldset
+      aria-label={label}
+      className={cn(
+        'grid content-start gap-2 rounded-xl border p-3',
+        empty && 'bg-muted text-muted-foreground',
+      )}
+    >
+      <legend className="float-left mb-1 font-medium text-sm">{label}</legend>
+      {empty ? (
+        <span className="text-xs">{t('booking.public.noSlotThatDay')}</span>
+      ) : (
+        day.slots.map((moment) => (
+          <Button
+            key={moment}
+            type="button"
+            size="sm"
+            variant={chosen === moment ? 'default' : 'outline'}
+            aria-pressed={chosen === moment}
+            disabled={!choosable}
+            onClick={() => onChoose(moment)}
+          >
+            {slotTime(moment, timeZone)}
+          </Button>
+        ))
+      )}
+    </fieldset>
   )
 }
