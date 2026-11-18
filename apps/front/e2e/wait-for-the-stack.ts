@@ -7,10 +7,10 @@ const PAUSE_MS = 1_000
 /**
  * A page of the SPA asks several resources at once, each in a function of its own: the card of an organization the
  * most, itself, its contacts, its to-dos, its exchanges and those to come (ADR 0122), beside what the shell reads on
- * every page: the connections for its banner (ADR 0120), my reminders, the count of my exchanges to process in its
- * menu, then my day to remind of it.
+ * every page: the connections for its banner (ADR 0120), my booking page for its (ADR 0153), my reminders, the count
+ * of my exchanges to process in its menu, then my day to remind of it.
  */
-const FUNCTIONS_PER_PAGE = 9
+const FUNCTIONS_PER_PAGE = 10
 /**
  * As many functions are warmed as the journeys running together ask at once: one more would start its container
  * during a journey, longer than the journey waits for its screen.

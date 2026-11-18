@@ -9,6 +9,7 @@ import { MyProfileBeingPrepared } from '@/features/account/components/my-profile
 import { hasAProfileToComplete, isMyProfileBeingPrepared } from '@/features/account/me'
 import type { Account } from '@/features/account/mutations'
 import { accountQuery, myAccountBeingPreparedQuery, signInQuery } from '@/features/account/queries'
+import { BookingSuspendedBanner } from '@/features/booking/components/booking-suspended-banner'
 import { ReconnectBanner } from '@/features/connectors/components/reconnect-banner'
 import { ErasureReminders } from '@/features/contacts-to-attach/components/erasure-reminders'
 import { ExchangeReminders } from '@/features/exchanges/reminders/components/exchange-reminders'
@@ -74,6 +75,7 @@ function SignedIn() {
   return (
     <AppShell>
       <ReconnectBanner />
+      <BookingSuspendedBanner />
       <Outlet />
       <MyReminders />
     </AppShell>
