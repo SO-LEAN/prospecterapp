@@ -609,7 +609,7 @@ export const fr = {
       subject: 'Objet',
       message: 'Message type',
       messageHint:
-        'Variables : {prénom}, {nom}, {organisation}, {fonction}. Une variable sans valeur reste vide.',
+        'Variables : {civilité}, {prénom}, {nom}, {organisation}, {fonction}. Une variable sans valeur reste vide.',
     },
     target: {
       title: 'Contacts ciblés',

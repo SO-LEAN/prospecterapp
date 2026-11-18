@@ -266,6 +266,15 @@ describe('the campaigns of the team', () => {
     expect(await screen.findByRole('heading', { name: 'Relance ESN' })).toBeInTheDocument()
   })
 
+  it('names the variables of the message, the civility first', async () => {
+    theApiAnswers()
+    await renderTheSpaAt('/campaigns/new')
+
+    expect(
+      await screen.findByText(/\{civilité\}, \{prénom\}, \{nom\}, \{organisation\}, \{fonction\}/),
+    ).toBeInTheDocument()
+  })
+
   it('shows the contacts targeted as the tags and the channel of a new campaign are chosen, before preparing it', async () => {
     const calls = theApiAnswers()
     await renderTheSpaAt('/campaigns/new')
