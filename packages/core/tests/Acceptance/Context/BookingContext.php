@@ -220,7 +220,7 @@ final class BookingContext implements Context
     #[Then('j\'ai un lien public, à un code aléatoire')]
     public function iHaveAPublicLink(): void
     {
-        Expect::that(1 === preg_match(self::BASE62_OF_22, $this->myPage()->code ?? ''), sprintf('Not a code of 128 random bits: %s', $this->myPage()->code ?? 'none'));
+        Expect::that(1 === preg_match(self::BASE62_OF_22, $this->myPage()->code ?? ''), sprintf('Not 22 random characters of base 62: %s', $this->myPage()->code ?? 'none'));
         Expect::same($this->application->lastBookingCode(), $this->myPage()->code);
     }
 
