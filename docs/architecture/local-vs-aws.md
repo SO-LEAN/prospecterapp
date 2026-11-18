@@ -55,6 +55,7 @@ flowchart LR
 | Google | a double of nginx (`docker/nginx/conf.d/google-double.conf`, ADR 0120): its authorization page on the host of the API, every code granting the account `agenda@solean-it.io` the scopes asked, its calendar taking every push (ADR 0127); the account of the demonstration served by the client of the double; the addresses of Google in `apps/api/.env.local` and a real client configured by an administrator to reach Google itself | accounts.google.com, oauth2.googleapis.com and www.googleapis.com (the calendar), the client of each account configured by its administrator, its secret in SSM (ADR 0125) |
 | Configuration | `apps/api/.env`, `apps/storage/.env` | Terraform variables and SSM parameters, the values out of the repository (`INFRA_CONFIG`) |
 | Deployment | `make start`, `docker/lambda/deploy.sh` (AWS CLI against MiniStack, never Terraform) | Terraform by the CI: plan on each pull request, apply on `dev` at the merge, on `prod` at the merge on `main` after approval |
+| Schedule | none: MiniStack runs no schedule, the contacts left unattached erased by `make console CMD="app:contacts:erase-unattached"` (ADR 0147) | EventBridge Scheduler calls `prospecter-<instance>-api-erase-unattached` every hour (`infra/schedule.tf`, ADR 0147) |
 | Console | `make console CMD="…"`, the `php` container on MiniStack | `make console INSTANCE=<instance> CMD="…"`: the local code, on the data of the instance, refused while it lags behind it (ADR 0107) |
 
 ## The messaging
