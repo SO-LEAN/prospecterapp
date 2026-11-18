@@ -2,6 +2,7 @@
 
 namespace Tests\App\PersonalData;
 
+use App\PersonalData\Persistence\DynamoPersonRepository;
 use Prospecter\Core\PersonalData\Application\PersonCard;
 use Prospecter\Core\PersonalData\Application\Port\ContactPageRetriever;
 use Prospecter\Core\PersonalData\Application\Port\PersonCardRetriever;
@@ -122,7 +123,60 @@ class DynamoPersonalDataRetrieversTest extends ApiTestCase
         $retriever = self::getContainer()->get(ContactPageRetriever::class);
 
         $this->assertSame([$ada->id()->value], array_map(static fn (PersonCard $card): string => $card->id, $retriever->sliceFor($reader, SearchKey::of('lovel'), null, 20)->contacts));
-        $this->assertSame([], $retriever->sliceFor($reader, SearchKey::of('ada@'), null, 20)->contacts);
+        $this->assertSame([], $retriever->sliceFor($reader, SearchKey::of('ada@love'), null, 20)->contacts);
+    }
+
+    public function testAContactWithoutAnEmailIsFoundByTheBeginningOfTheirFirstNameAsOfTheirLastName(): void
+    {
+        $alan = $this->aContactWithoutAnEmail('Alan', 'Turing');
+
+        $this->assertSame([$alan->id()->value], $this->foundBy('ala', $this->readerWithTheRight()));
+        $this->assertSame([$alan->id()->value], $this->foundBy('tur', $this->readerWithTheRight()));
+        $this->assertSame([$alan->id()->value], $this->foundBy('ala', $this->readerWithoutTheRight()));
+    }
+
+    public function testARenamedContactIsFoundByTheirNewFirstNameOnly(): void
+    {
+        $alan = $this->aContactWithoutAnEmail('Alan', 'Turing');
+        $alan->rename(new PersonName('Alonzo', 'Turing'), $this->readerWithTheRight(), new \DateTimeImmutable());
+        $this->persons()->save($alan);
+
+        $this->assertSame([], $this->foundBy('ala', $this->readerWithTheRight()));
+        $this->assertSame([$alan->id()->value], $this->foundBy('alo', $this->readerWithTheRight()));
+    }
+
+    public function testAContactWhoseFirstNameIsRemovedIsNoLongerFoundByIt(): void
+    {
+        $alan = $this->aContactWithoutAnEmail('Alan', 'Turing');
+        $alan->rename(new PersonName(null, 'Turing'), $this->readerWithTheRight(), new \DateTimeImmutable());
+        $this->persons()->save($alan);
+
+        $this->assertSame([], $this->foundBy('ala', $this->readerWithTheRight()));
+    }
+
+    public function testTheKeysWrittenAgainStillFindAContactByTheirFirstName(): void
+    {
+        $alan = $this->aContactWithoutAnEmail('Alan', 'Turing');
+
+        self::getContainer()->get(DynamoPersonRepository::class)->writeTheKeysAgain();
+
+        $this->assertSame([$alan->id()->value], $this->foundBy('ala', $this->readerWithTheRight()));
+    }
+
+    /**
+     * @return list<string>
+     */
+    private function foundBy(string $search, Reader $reader): array
+    {
+        return array_map(static fn (PersonCard $card): string => $card->id, self::getContainer()->get(ContactPageRetriever::class)->sliceFor($reader, SearchKey::of($search), null, 20)->contacts);
+    }
+
+    private function aContactWithoutAnEmail(string $firstName, string $lastName): Person
+    {
+        $contact = Person::collect(new PersonId(self::newIdentity()), $this->account, Purpose::Prospecting, new \DateTimeImmutable(), new PersonName($firstName, $lastName), new ContactDetails(null, null));
+        $this->persons()->save($contact);
+
+        return $contact;
     }
 
     private function aContact(string $firstName, string $lastName): Person

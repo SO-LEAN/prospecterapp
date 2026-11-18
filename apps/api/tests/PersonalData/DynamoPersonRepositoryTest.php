@@ -3,6 +3,7 @@
 namespace Tests\App\PersonalData;
 
 use App\PersonalData\Persistence\PersonDocument;
+use App\Shared\Persistence\Table;
 use Prospecter\Core\PersonalData\Domain\Model\Civility;
 use Prospecter\Core\PersonalData\Domain\Model\LinkedInProfile;
 use Prospecter\Core\PersonalData\Domain\Model\Person;
@@ -94,6 +95,25 @@ class DynamoPersonRepositoryTest extends ApiTestCase
         $savedBefore = PersonDocument::of($camille);
         unset($savedBefore['civility']);
         $this->assertSame(Civility::X, PersonDocument::person($savedBefore)->civility());
+    }
+
+    public function testAnErasedPersonLeavesNoItemBehind(): void
+    {
+        $persons = self::getContainer()->get(PersonRepository::class);
+        $ada = $this->personWithTheEmail(new AccountId(self::newIdentity()), 'ada@solean-it.io');
+        $persons->save($ada);
+
+        $persons->remove($ada);
+
+        $this->assertSame([], $this->personalDataTable()->query('PERSON#'.$ada->id()->value));
+    }
+
+    private function personalDataTable(): Table
+    {
+        $table = self::getContainer()->get('app.table.personal_data');
+        $this->assertInstanceOf(Table::class, $table);
+
+        return $table;
     }
 
     private function personWithTheEmail(AccountId $account, string $email): Person
