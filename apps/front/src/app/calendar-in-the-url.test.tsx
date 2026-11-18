@@ -38,7 +38,7 @@ function theApiAnswersAnEmptyCalendar() {
       '/api/me': me,
       '/api/me/connections': { connections: [], _links: self },
     }
-    return Response.json(answers[pathname] ?? { items: [], toDos: [], late: [], _links: self })
+    return Response.json(answers[pathname] ?? { items: [], toDos: [], contactsToAttach: [], late: [], _links: self })
   })
 }
 
