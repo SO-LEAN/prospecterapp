@@ -292,4 +292,18 @@ describe('BookingSection', () => {
     expect(await sent()).toEqual({ path: '/api/me/booking-page/link', method: 'POST', body: null })
     await waitFor(() => expect(screen.getByText('Votre lien a changé.')).toBeInTheDocument())
   })
+
+  it('tells a change of my link refused, leaving no rejection unhandled', async () => {
+    theApi.mockResolvedValue(refused('bookingPageWithoutLink'))
+    const user = await renderTheSection(open)
+
+    await user.click(screen.getByRole('button', { name: 'Changer de lien' }))
+    const dialog = await screen.findByRole('dialog')
+    await user.click(within(dialog).getByRole('button', { name: 'Changer de lien' }))
+
+    expect(
+      await screen.findByText('Activez d’abord la prise de rendez-vous pour obtenir un lien.'),
+    ).toBeInTheDocument()
+    expect(await rejectionsLeftUnhandled()).toEqual([])
+  })
 })
