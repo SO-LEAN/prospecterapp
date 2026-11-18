@@ -2,6 +2,7 @@
 
 namespace Tests\App\Api;
 
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Group;
 use Prospecter\Core\Accounts\Domain\Model\Account;
 use Prospecter\Core\Accounts\Domain\Model\Role;
@@ -120,18 +121,28 @@ class OrganizationApiTest extends ApiTestCase
         $this->assertSame('55210055400013', $revised['legalIdentity']['siret']);
     }
 
-    public function testEveryProspectorNotesASiretWithOrWithoutTheRight(): void
+    /**
+     * @param list<Role> $roles
+     */
+    #[DataProvider('everyProspector')]
+    public function testEveryProspectorNotesASiretWithOrWithoutTheRight(string $member, array $roles): void
     {
         $id = $this->requestJson('POST', '/api/organizations', self::ACME)['id'];
+        $this->login($this->aMemberOfTheFixtures($member, ...$roles));
+        $this->assertArrayHasKey('reviseLegalIdentity', $this->requestJson('GET', '/api/organizations/'.$id)['_links']);
 
-        foreach (['prospector-without-the-right' => [Role::User, Role::Prospector], 'administrator' => [Role::Prospector, Role::Admin]] as $member => $roles) {
-            $this->login($this->aMemberOfTheFixtures($member, ...$roles));
-            $this->assertArrayHasKey('reviseLegalIdentity', $this->requestJson('GET', '/api/organizations/'.$id)['_links'], $member);
+        $this->requestJson('PATCH', '/api/organizations/'.$id.'/legal-identity', ['corporateName' => 'ACME', 'siret' => '55210055400013']);
 
-            $this->requestJson('PATCH', '/api/organizations/'.$id.'/legal-identity', ['corporateName' => 'ACME', 'siret' => '55210055400013']);
+        $this->assertResponseIsSuccessful();
+    }
 
-            $this->assertResponseIsSuccessful($member);
-        }
+    /**
+     * @return iterable<string, array{string, list<Role>}>
+     */
+    public static function everyProspector(): iterable
+    {
+        yield 'without the right to manage personal data' => ['prospector-without-the-right', [Role::User, Role::Prospector]];
+        yield 'an administrator' => ['administrator', [Role::Prospector, Role::Admin]];
     }
 
     public function testAnInvalidSiretIsRefusedOnItsField(): void
