@@ -23,6 +23,7 @@ final readonly class OrganizationSheet
         public ?string $form,
         public ?string $type,
         public string $fullName,
+        public ?string $siret,
         public ?string $email,
         public ?string $phoneNumber,
         public ?string $language,

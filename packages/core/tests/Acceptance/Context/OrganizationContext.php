@@ -312,6 +312,7 @@ final class OrganizationContext implements Context
         Expect::describes($table->getRowsHash(), [
             'raison sociale' => (string) $organization->corporateName,
             'forme juridique' => (string) $organization->form,
+            'SIRET' => (string) $organization->siret,
             'e-mail' => (string) $organization->email,
             'ville' => (string) $organization->city,
             'position' => Vocabulary::describePosition($organization->longitude, $organization->latitude),
