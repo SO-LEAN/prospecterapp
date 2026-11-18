@@ -129,10 +129,12 @@ function theApiAnswers({
   me = meAllowedToRunCampaigns,
   refusal,
   campaigns = list,
+  campaignsDenied = false,
 }: {
   me?: Account
   refusal?: unknown
   campaigns?: CampaignList
+  campaignsDenied?: boolean
 } = {}) {
   const calls: Call[] = []
   theApi.mockImplementation(async (input) => {
@@ -142,6 +144,12 @@ function theApiAnswers({
     calls.push({ method: request.method, pathname, search, body: body ? JSON.parse(body) : null })
     if (refusal && request.method === 'POST' && pathname === '/api/campaigns') {
       return Response.json(refusal, { status: 422, headers: { 'Content-Type': 'application/problem+json' } })
+    }
+    if (campaignsDenied && pathname === '/api/campaigns') {
+      return Response.json(
+        { title: 'Forbidden', status: 403, detail: 'Your role does not allow this action.' },
+        { status: 403, headers: { 'Content-Type': 'application/problem+json' } },
+      )
     }
     if (request.method === 'DELETE') {
       return new Response(null, { status: 204 })
@@ -193,6 +201,20 @@ describe('the campaigns of the team', () => {
     const navigation = await screen.findByRole('navigation', { name: 'Navigation principale' })
     await within(navigation).findByRole('link', { name: 'Contacts' })
     expect(within(navigation).queryByRole('link', { name: 'Campagnes' })).not.toBeInTheDocument()
+  })
+
+  it('say my role does not allow opening them when reached by their address, without offering to retry', async () => {
+    theApiAnswers({
+      me: { ...meAllowedToRunCampaigns, _links: { self: meAllowedToRunCampaigns._links.self } },
+      campaignsDenied: true,
+    })
+    await renderTheSpaAt('/campaigns')
+
+    expect(
+      await screen.findByRole('heading', { name: 'Votre rôle ne vous permet pas d’ouvrir cette page.' }),
+    ).toBeInTheDocument()
+    expect(screen.queryByText('Your role does not allow this action.')).not.toBeInTheDocument()
+    expect(screen.queryByRole('button', { name: 'Réessayer' })).not.toBeInTheDocument()
   })
 
   it('are listed with their status, their channel, their author and how far they went', async () => {
