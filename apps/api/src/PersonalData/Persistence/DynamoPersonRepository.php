@@ -6,7 +6,7 @@ use App\Shared\Persistence\Revision;
 use App\Shared\Persistence\SearchIndexes;
 use App\Shared\Persistence\Table;
 use App\Shared\Persistence\Write;
-use Prospecter\Core\PersonalData\Domain\Exception\LinkedInProfileAlreadyUsed;
+use Prospecter\Core\PersonalData\Domain\Exception\LinkedInProfileTakenMeanwhile;
 use Prospecter\Core\PersonalData\Domain\Exception\UnknownPerson;
 use Prospecter\Core\PersonalData\Domain\Model\LinkedInProfile;
 use Prospecter\Core\PersonalData\Domain\Model\Person;
@@ -125,7 +125,7 @@ final readonly class DynamoPersonRepository implements PersonRepository
             ['PK' => self::linkedInKey($person->accountId(), $profile->value), 'SK' => self::LINKEDIN, 'ownerId' => $person->id()->value],
             'attribute_not_exists(PK) OR ownerId = :owner',
             [':owner' => $person->id()->value],
-            LinkedInProfileAlreadyUsed::byAnother(...),
+            LinkedInProfileTakenMeanwhile::byAnother(...),
         );
     }
 

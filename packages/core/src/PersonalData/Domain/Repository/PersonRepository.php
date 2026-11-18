@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Prospecter\Core\PersonalData\Domain\Repository;
 
+use Prospecter\Core\PersonalData\Domain\Exception\LinkedInProfileTakenMeanwhile;
 use Prospecter\Core\PersonalData\Domain\Exception\UnknownPerson;
 use Prospecter\Core\PersonalData\Domain\Model\LinkedInProfile;
 use Prospecter\Core\PersonalData\Domain\Model\Person;
@@ -42,7 +43,8 @@ interface PersonRepository
     public function contactHoldingLinkedInProfile(AccountId $accountId, LinkedInProfile $profile, PersonId $except): ?Person;
 
     /**
-     * @throws EmailAlreadyUsed when another person took the email meanwhile (EmailUniqueness checked it before)
+     * @throws EmailAlreadyUsed              when another person took the email meanwhile (EmailUniqueness checked it before)
+     * @throws LinkedInProfileTakenMeanwhile when another contact took a profile meanwhile (LinkedInProfileUniqueness checked it before)
      */
     public function save(Person $person): void;
 }
