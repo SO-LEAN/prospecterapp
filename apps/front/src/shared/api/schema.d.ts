@@ -333,6 +333,23 @@ export interface paths {
         patch: operations["patch_api_organizations_revise_legal_identity"];
         trace?: never;
     };
+    "/api/organizations/{id}/establishments": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** The establishments of the directory of the companies the organization may be, to note its SIRET: named like it, those of its municipality first */
+        get: operations["get_api_organizations_establishments"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/organizations": {
         parameters: {
             query?: never;
@@ -2343,6 +2360,7 @@ export interface components {
         OrganizationLinksResource: {
             self: components["schemas"]["LinkResource"];
             reviseLegalIdentity?: components["schemas"]["LinkResource"];
+            searchEstablishments?: components["schemas"]["LinkResource"];
             changeContactDetails?: components["schemas"]["LinkResource"];
             relocate?: components["schemas"]["LinkResource"];
             writeObservations?: components["schemas"]["LinkResource"];
@@ -2448,6 +2466,29 @@ export interface components {
         MeetingPlaceResource: {
             /** @description The address of the first organization of the contact having one; none when no organization of theirs has */
             address?: components["schemas"]["AddressResource"] | null;
+        };
+        EstablishmentResource: {
+            /** @example 55210055400013 */
+            siret: string;
+            /**
+             * @description The name of its company
+             * @example ACME
+             */
+            name: string;
+            /**
+             * @description Its address on one line
+             * @example 17 RUE DOCTEUR BOUCHUT 69003 LYON
+             */
+            address: string;
+            /**
+             * @description Its NAF code
+             * @example 62.02A
+             */
+            activity?: string | null;
+            closed: boolean;
+        };
+        EstablishmentsResource: {
+            establishments: components["schemas"]["EstablishmentResource"][];
         };
         OrganizationSummaryResource: {
             id: string;
@@ -4534,6 +4575,62 @@ export interface operations {
             };
             /** @description Invalid identity or SIRET, a SIRET another organization of the account has, or neither corporate name nor email left */
             422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ProblemResource"];
+                };
+            };
+        };
+    };
+    get_api_organizations_establishments: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description The establishments proposed, none for an organization without corporate name */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["EstablishmentsResource"];
+                };
+            };
+            /** @description Missing or invalid access token */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description The signed-in user is not a prospector */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ProblemResource"];
+                };
+            };
+            /** @description Unknown organization, or one that is neither mine nor prospected by mine */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ProblemResource"];
+                };
+            };
+            /** @description The directory of the companies does not answer for now (`directoryUnreachable`) */
+            503: {
                 headers: {
                     [name: string]: unknown;
                 };

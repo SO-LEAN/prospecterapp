@@ -345,7 +345,7 @@ when@test:
     services:
         # no network in tests: the services outside the API answer by this double (config/packages/framework.yaml)
         Tests\App\Double\OutsideServices:
-            arguments: ['%env(APP_GEOCODER_URL)%', '@Tests\App\Double\GoogleDouble']
+            arguments: ['%env(APP_GEOCODER_URL)%', '%env(APP_DIRECTORY_URL)%', '@Tests\App\Double\GoogleDouble']
             public: true
         # Google, its tokens and its revocations, by its double behind OutsideServices
         Tests\App\Double\GoogleDouble:

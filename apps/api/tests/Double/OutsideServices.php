@@ -9,8 +9,8 @@ use Symfony\Contracts\Service\ResetInterface;
 
 /**
  * The services outside the API, as the tests see them (`framework.http_client.mock_response_factory`): no network,
- * every request gets an empty answer (a geocoding finds nothing), unless a test makes the geocoder place an address,
- * but Google, answered by its double.
+ * every request gets an empty answer (a geocoding finds nothing, the directory fails), unless a test makes the
+ * geocoder place an address or the directory list companies, but Google, answered by its double.
  */
 final class OutsideServices implements ResetInterface
 {
@@ -19,11 +19,24 @@ final class OutsideServices implements ResetInterface
 
     /** @var array<string, mixed>|null */
     private ?array $placement = null;
+    /** @var list<array<string, mixed>>|null */
+    private ?array $companies = null;
 
     public function __construct(
         private readonly string $geocoderUrl,
+        private readonly string $directoryUrl,
         private readonly GoogleDouble $google,
     ) {
+    }
+
+    /**
+     * The companies the directory answers every search with, as it lists them.
+     *
+     * @param array<string, mixed> ...$companies
+     */
+    public function directoryLists(array ...$companies): void
+    {
+        $this->companies = array_values($companies);
     }
 
     public function geocoderPlaces(float $longitude, float $latitude, string $municipalityCode = self::STRASBOURG): void
@@ -45,6 +58,7 @@ final class OutsideServices implements ResetInterface
     {
         return match (true) {
             null !== $this->placement && str_starts_with($url, $this->geocoderUrl) => new JsonMockResponse($this->placement),
+            null !== $this->companies && str_starts_with($url, $this->directoryUrl) => new JsonMockResponse(['results' => $this->companies]),
             $this->google->serves($url) => $this->google->answer($method, $url, $options),
             default => new MockResponse(),
         };
@@ -53,5 +67,6 @@ final class OutsideServices implements ResetInterface
     public function reset(): void
     {
         $this->placement = null;
+        $this->companies = null;
     }
 }

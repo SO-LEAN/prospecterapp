@@ -14,6 +14,8 @@ final readonly class OrganizationLinksResource
         public LinkResource $self,
         #[OA\Property(nullable: false)]
         public ?LinkResource $reviseLegalIdentity = null,
+        #[OA\Property(nullable: false, description: 'The establishments of the directory of the companies it may be, to note its SIRET')]
+        public ?LinkResource $searchEstablishments = null,
         #[OA\Property(nullable: false)]
         public ?LinkResource $changeContactDetails = null,
         #[OA\Property(nullable: false)]
