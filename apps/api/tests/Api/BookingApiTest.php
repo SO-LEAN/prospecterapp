@@ -1,0 +1,211 @@
+<?php
+
+namespace Tests\App\Api;
+
+use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\Group;
+use Prospecter\Core\Accounts\Domain\Model\Role;
+use Tests\App\Base\ApiTestCase;
+use Tests\App\Double\GoogleDouble;
+
+/**
+ * My booking page, mine only whatever my role (ADR 0148, 0151): my windows, my inactive periods, my channels, opened
+ * only with Google connected, closed, its link changed; and the page a link leads to, read without signing in. The
+ * clock of the tests says it is 2026-10-15 09:00 UTC.
+ */
+#[Group('api')]
+class BookingApiTest extends ApiTestCase
+{
+    private const string CODE_OF_GOOGLE = 'a-code-of-google';
+    private const string BASE62_OF_22 = '/^[0-9A-Za-z]{22}$/';
+
+    protected function setUp(): void
+    {
+        parent::setUp();
+        $this->client->disableReboot();
+    }
+
+    #[DataProvider('members')]
+    public function testEveryMemberReadsTheirPageNeverSetClosedAndEmpty(string $member, Role ...$roles): void
+    {
+        $this->login([] === $roles ? $member : $this->aMemberOfTheFixtures($member, ...$roles));
+
+        $page = $this->requestJson('GET', '/api/me/booking-page?timeZone=Europe/Paris');
+
+        $this->assertResponseIsSuccessful();
+        $this->assertSame([false, [], null, [], [], null, false], [$page['open'], $page['windows'], $page['timeZone'], $page['inactivePeriods'], $page['channels'], $page['code'], $page['calendarConnected']]);
+        $this->assertSame(['self', 'setWindows', 'addInactivePeriod', 'offerChannels', 'open'], array_keys($page['_links']));
+        $this->assertSame(['href' => '/api/me/booking-page/opening', 'method' => 'POST'], $page['_links']['open']);
+    }
+
+    /**
+     * @return iterable<string, list<mixed>>
+     */
+    public static function members(): iterable
+    {
+        yield 'a prospector with the personal data' => ['prospector-user'];
+        yield 'a prospector without the personal data' => ['assistant-user'];
+        yield 'an administrator' => ['administrator', ...Role::cases()];
+    }
+
+    #[DataProvider('members')]
+    public function testEveryMemberSetsTheirPageAndOpensItWithGoogleConnected(string $member, Role ...$roles): void
+    {
+        $this->login([] === $roles ? $member : $this->aMemberOfTheFixtures($member, ...$roles));
+        $this->connectGoogle();
+
+        $this->requestJson('PATCH', '/api/me/booking-page/windows', ['timeZone' => 'Europe/Paris', 'windows' => [['weekday' => 'monday', 'from' => '14:00', 'to' => '17:00'], ['weekday' => 'thursday', 'from' => '09:00', 'to' => '12:00']]]);
+        $this->assertResponseIsSuccessful();
+        $this->requestJson('PATCH', '/api/me/booking-page/channels', ['channels' => ['call', 'videoCall']]);
+        $this->assertResponseIsSuccessful();
+        $page = $this->requestJson('POST', '/api/me/booking-page/opening');
+
+        $this->assertResponseIsSuccessful();
+        $this->assertTrue($page['open']);
+        $this->assertTrue($page['calendarConnected']);
+        $this->assertSame([['weekday' => 'monday', 'from' => '14:00', 'to' => '17:00'], ['weekday' => 'thursday', 'from' => '09:00', 'to' => '12:00']], $page['windows']);
+        $this->assertSame('Europe/Paris', $page['timeZone']);
+        $this->assertSame(['call', 'videoCall'], $page['channels']);
+        $this->assertMatchesRegularExpression(self::BASE62_OF_22, (string) $page['code']);
+        $this->assertSame(['self', 'setWindows', 'addInactivePeriod', 'offerChannels', 'close', 'changeLink'], array_keys($page['_links']));
+    }
+
+    public function testMyPageIsMineOnly(): void
+    {
+        $this->login();
+        $this->requestJson('PATCH', '/api/me/booking-page/channels', ['channels' => ['call']]);
+
+        $this->login('assistant-user');
+        $theirs = $this->requestJson('GET', '/api/me/booking-page');
+
+        $this->assertSame([], $theirs['channels']);
+    }
+
+    public function testWithoutGoogleConnectedMyPageDoesNotOpen(): void
+    {
+        $this->login();
+        $this->requestJson('PATCH', '/api/me/booking-page/channels', ['channels' => ['call']]);
+
+        $problem = $this->requestJson('POST', '/api/me/booking-page/opening');
+
+        $this->assertResponseStatusCodeSame(422);
+        $this->assertSame('noConnectedCalendar', $problem['reason']);
+    }
+
+    public function testAWindowTooShortIsRefused(): void
+    {
+        $this->login();
+
+        $problem = $this->requestJson('PATCH', '/api/me/booking-page/windows', ['timeZone' => 'Europe/Paris', 'windows' => [['weekday' => 'monday', 'from' => '14:00', 'to' => '14:10']]]);
+
+        $this->assertResponseStatusCodeSame(422);
+        $this->assertSame('windowTooShort', $problem['reason']);
+    }
+
+    public function testIAddAnInactivePeriodThenRemoveIt(): void
+    {
+        $this->login();
+
+        $added = $this->requestJson('POST', '/api/me/booking-page/inactive-periods', ['firstDay' => '2026-12-21', 'lastDay' => '2027-01-04']);
+        $this->assertResponseStatusCodeSame(201);
+        $period = $added['inactivePeriods'][0];
+        $this->assertSame(['2026-12-21', '2027-01-04'], [$period['firstDay'], $period['lastDay']]);
+        $this->assertSame('DELETE', $period['_links']['remove']['method']);
+
+        $removed = $this->requestJson($period['_links']['remove']['method'], $period['_links']['remove']['href']);
+
+        $this->assertResponseIsSuccessful();
+        $this->assertSame([], $removed['inactivePeriods']);
+    }
+
+    public function testAnInactivePeriodIDoNotHaveIsNotFound(): void
+    {
+        $this->login();
+
+        $problem = $this->requestJson('DELETE', '/api/me/booking-page/inactive-periods/'.self::newIdentity());
+
+        $this->assertResponseStatusCodeSame(404);
+        $this->assertSame('unknownInactivePeriod', $problem['reason']);
+    }
+
+    public function testAnInactivePeriodEndingBeforeItStartsIsRefused(): void
+    {
+        $this->login();
+
+        $problem = $this->requestJson('POST', '/api/me/booking-page/inactive-periods', ['firstDay' => '2027-01-04', 'lastDay' => '2026-12-21']);
+
+        $this->assertResponseStatusCodeSame(422);
+        $this->assertSame('periodEndsBeforeItStarts', $problem['reason']);
+    }
+
+    public function testMyOpenPageIsReadWithoutSigningInAndOffersNothingOnceClosed(): void
+    {
+        $code = $this->anOpenPage();
+
+        $this->signOut();
+        $public = $this->requestJson('GET', '/api/booking-pages/'.$code);
+        $this->assertResponseIsSuccessful();
+        $this->assertSame(['open' => true, 'channels' => ['call', 'videoCall']], $public);
+
+        $this->login();
+        $closed = $this->requestJson('DELETE', '/api/me/booking-page/opening');
+        $this->assertResponseIsSuccessful();
+        $this->assertFalse($closed['open']);
+        $this->assertSame($code, $closed['code']);
+
+        $this->signOut();
+        $this->assertSame(['open' => false, 'channels' => ['call', 'videoCall']], $this->requestJson('GET', '/api/booking-pages/'.$code));
+    }
+
+    public function testMyFormerLinkLeadsNowhereOnceChanged(): void
+    {
+        $former = $this->anOpenPage();
+
+        $changed = $this->requestJson('POST', '/api/me/booking-page/link');
+        $this->assertResponseIsSuccessful();
+        $this->assertNotSame($former, $changed['code']);
+
+        $this->signOut();
+        $problem = $this->requestJson('GET', '/api/booking-pages/'.$former);
+        $this->assertResponseStatusCodeSame(404);
+        $this->assertSame('unknownBookingPage', $problem['reason']);
+        $this->requestJson('GET', '/api/booking-pages/'.$changed['code']);
+        $this->assertResponseIsSuccessful();
+    }
+
+    public function testALinkNobodyDrewLeadsNowhere(): void
+    {
+        $this->requestJson('GET', '/api/booking-pages/AbCdEfGhIjKlMnOpQrStUv');
+
+        $this->assertResponseStatusCodeSame(404);
+    }
+
+    public function testMyPageIsNotReadWithoutSigningIn(): void
+    {
+        $this->requestJson('GET', '/api/me/booking-page');
+
+        $this->assertResponseStatusCodeSame(401);
+    }
+
+    private function anOpenPage(): string
+    {
+        $this->login();
+        $this->connectGoogle();
+        $this->requestJson('PATCH', '/api/me/booking-page/channels', ['channels' => ['call', 'videoCall']]);
+
+        return (string) $this->requestJson('POST', '/api/me/booking-page/opening')['code'];
+    }
+
+    private function signOut(): void
+    {
+        $this->client->setServerParameter('HTTP_AUTHORIZATION', '');
+    }
+
+    private function connectGoogle(): void
+    {
+        parse_str((string) parse_url($this->requestJson('POST', '/api/me/connections/google/authorizations')['address'], \PHP_URL_QUERY), $query);
+        self::getContainer()->get(GoogleDouble::class)->grants(self::CODE_OF_GOOGLE, 'michel@exemple.fr', 'a-refresh-token-'.$query['state']);
+        $this->requestJson('POST', '/api/me/connections/google', ['code' => self::CODE_OF_GOOGLE, 'state' => $query['state']]);
+        $this->assertResponseStatusCodeSame(201);
+    }
+}
