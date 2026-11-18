@@ -1,13 +1,19 @@
-# The contacts nobody attached in the 30 days after their last meeting are erased (ADR 0146): a schedule calls every
-# hour a function of the package of the api, whose handler, a service of its container, gives each its erasure as a
-# command (ADR 0147); its commits publish what follows through their outbox, like those of the api.
+# The tasks run without a member at their origin (ADR 0147, 0154): a function of the package of the api, whose handler,
+# a service of its container, runs the task its input names, each called by a schedule of its own; its commits publish
+# what follows through their outbox, like those of the api. The contacts nobody attached in the 30 days after their last
+# meeting are erased every hour (ADR 0146), the watches of the mailboxes of Gmail renewed every day, a watch lasting a
+# week (ADR 0154).
 locals {
-  unattached_eraser = "${local.name}-erase-unattached"
+  scheduled = "${local.name}-scheduled"
+  scheduled_tasks = {
+    erase-unattached    = "rate(1 hour)"
+    renew-gmail-watches = "rate(1 day)"
+  }
 }
 
-resource "aws_iam_role" "unattached_eraser" {
-  name                 = "${local.unattached_eraser}-lambda"
-  description          = "The function erasing the contacts left unattached"
+resource "aws_iam_role" "scheduled" {
+  name                 = "${local.scheduled}-lambda"
+  description          = "The function running the scheduled tasks"
   permissions_boundary = var.permissions_boundary
   assume_role_policy = jsonencode({
     Version = "2012-10-17"
@@ -19,30 +25,30 @@ resource "aws_iam_role" "unattached_eraser" {
   })
 }
 
-resource "aws_iam_role_policy" "unattached_eraser" {
-  name = "erase-the-contacts-left-unattached"
-  role = aws_iam_role.unattached_eraser.id
+resource "aws_iam_role_policy" "scheduled" {
+  name = "run-the-scheduled-tasks"
+  role = aws_iam_role.scheduled.id
   policy = jsonencode({
     Version = "2012-10-17"
     Statement = concat([{
       Sid      = "WriteItsLogs"
       Effect   = "Allow"
       Action   = ["logs:CreateLogStream", "logs:PutLogEvents"]
-      Resource = "${aws_cloudwatch_log_group.unattached_eraser.arn}:*"
+      Resource = "${aws_cloudwatch_log_group.scheduled.arn}:*"
     }], local.data_statements)
   })
 }
 
-resource "aws_cloudwatch_log_group" "unattached_eraser" {
-  name              = "/aws/lambda/${local.unattached_eraser}"
+resource "aws_cloudwatch_log_group" "scheduled" {
+  name              = "/aws/lambda/${local.scheduled}"
   retention_in_days = local.logs_retained
 }
 
-resource "aws_lambda_function" "unattached_eraser" {
-  function_name    = local.unattached_eraser
-  role             = aws_iam_role.unattached_eraser.arn
+resource "aws_lambda_function" "scheduled" {
+  function_name    = local.scheduled
+  role             = aws_iam_role.scheduled.arn
   runtime          = "provided.al2023"
-  handler          = "App\\Prospecting\\EraseContactsLeftUnattachedFunction"
+  handler          = "App\\Shared\\ScheduledTasksFunction"
   layers           = [local.bref_php]
   memory_size      = 1024
   timeout          = 300
@@ -55,12 +61,12 @@ resource "aws_lambda_function" "unattached_eraser" {
     })
   }
 
-  depends_on = [aws_cloudwatch_log_group.unattached_eraser, aws_iam_role_policy.unattached_eraser]
+  depends_on = [aws_cloudwatch_log_group.scheduled, aws_iam_role_policy.scheduled]
 }
 
-resource "aws_iam_role" "unattached_eraser_schedule" {
-  name                 = "${local.unattached_eraser}-schedule"
-  description          = "The schedule calling the function erasing the contacts left unattached"
+resource "aws_iam_role" "scheduled_schedule" {
+  name                 = "${local.scheduled}-schedule"
+  description          = "The schedules calling the function running the scheduled tasks"
   permissions_boundary = var.permissions_boundary
   assume_role_policy = jsonencode({
     Version = "2012-10-17"
@@ -72,33 +78,35 @@ resource "aws_iam_role" "unattached_eraser_schedule" {
   })
 }
 
-resource "aws_iam_role_policy" "unattached_eraser_schedule" {
-  name = "call-the-eraser"
-  role = aws_iam_role.unattached_eraser_schedule.id
+resource "aws_iam_role_policy" "scheduled_schedule" {
+  name = "call-the-scheduled-function"
+  role = aws_iam_role.scheduled_schedule.id
   policy = jsonencode({
     Version = "2012-10-17"
     Statement = [{
-      Sid      = "CallTheEraser"
+      Sid      = "CallTheScheduledFunction"
       Effect   = "Allow"
       Action   = "lambda:InvokeFunction"
-      Resource = aws_lambda_function.unattached_eraser.arn
+      Resource = aws_lambda_function.scheduled.arn
     }]
   })
 }
 
-# every hour: a contact is erased within the hour its day starts, on the clock of their last meeting; a run missed is
-# made up by the next, which finds every contact whose day has passed
-resource "aws_scheduler_schedule" "unattached_eraser" {
-  name                = local.unattached_eraser
-  schedule_expression = "rate(1 hour)"
+# each task on its own schedule, its name in the input of the function; a run missed is made up by the next, which
+# finds every contact whose day has passed, every watch to renew before its week ends
+resource "aws_scheduler_schedule" "scheduled" {
+  for_each            = local.scheduled_tasks
+  name                = "${local.name}-${each.key}"
+  schedule_expression = each.value
 
   flexible_time_window {
     mode = "OFF"
   }
 
   target {
-    arn      = aws_lambda_function.unattached_eraser.arn
-    role_arn = aws_iam_role.unattached_eraser_schedule.arn
+    arn      = aws_lambda_function.scheduled.arn
+    role_arn = aws_iam_role.scheduled_schedule.arn
+    input    = jsonencode({ task = each.key })
 
     retry_policy {
       maximum_retry_attempts = 0

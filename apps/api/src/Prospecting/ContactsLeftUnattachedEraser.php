@@ -3,6 +3,7 @@
 namespace App\Prospecting;
 
 use App\Shared\CommandBus;
+use App\Shared\ScheduledTask;
 use Prospecter\Core\Prospecting\Application\EraseContactLeftUnattached\EraseContactLeftUnattached;
 use Prospecter\Core\Prospecting\Application\Port\ContactsToAttachRetriever;
 use Symfony\Component\Clock\ClockInterface;
@@ -12,13 +13,23 @@ use Symfony\Component\Clock\ClockInterface;
  * schedule of an instance runs, and the console (ADR 0147). Each is a command of its own, erasing it once whoever
  * asks again.
  */
-final readonly class ContactsLeftUnattachedEraser
+final readonly class ContactsLeftUnattachedEraser implements ScheduledTask
 {
     public function __construct(
         private ContactsToAttachRetriever $contactsToAttach,
         private CommandBus $commands,
         private ClockInterface $clock,
     ) {
+    }
+
+    public function name(): string
+    {
+        return 'erase-unattached';
+    }
+
+    public function run(): array
+    {
+        return ['erased' => $this->erase()];
     }
 
     /**

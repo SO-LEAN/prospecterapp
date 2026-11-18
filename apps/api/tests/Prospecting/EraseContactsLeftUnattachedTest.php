@@ -2,7 +2,7 @@
 
 namespace Tests\App\Prospecting;
 
-use App\Prospecting\EraseContactsLeftUnattachedFunction;
+use App\Shared\ScheduledTasksFunction;
 use Bref\Context\Context;
 use Prospecter\Core\PersonalData\Domain\Model\Person;
 use Prospecter\Core\PersonalData\Domain\Model\PersonName;
@@ -30,7 +30,7 @@ use Tests\App\Base\ApiTestCase;
 
 /**
  * The contacts nobody attached in the 30 days after their last meeting are erased with their exchanges (ADR 0146),
- * by `app:contacts:erase-unattached` and by the function the schedule of an instance calls (ADR 0147), as many times
+ * by `app:contacts:erase-unattached` and by the function the schedules of an instance call (ADR 0147, 0154), as many times
  * as asked; the clock of the tests says it is 2026-10-15 09:00 UTC. The contacts to attach are listed by their
  * holder and by the moment they are erased from, in every account.
  */
@@ -54,7 +54,9 @@ class EraseContactsLeftUnattachedTest extends ApiTestCase
     {
         $left = $this->aContactToAttachMetOn('2026-09-14 10:00 Europe/Paris');
 
-        self::getContainer()->get(EraseContactsLeftUnattachedFunction::class)->handle([], new Context('request', 0, 'function', 'trace'));
+        $answer = self::getContainer()->get(ScheduledTasksFunction::class)->handle(['task' => 'erase-unattached'], new Context('request', 0, 'function', 'trace'));
+
+        $this->assertSame(['erased' => 1], $answer);
 
         $this->assertNull(self::getContainer()->get(ContactToAttachRepository::class)->find(new PersonId($left)));
     }
