@@ -1,9 +1,10 @@
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useQuery, useSuspenseQuery } from '@tanstack/react-query'
-import { Check, Copy, ExternalLink } from 'lucide-react'
+import { Copy, ExternalLink } from 'lucide-react'
 import { useEffect, useState } from 'react'
 import { useForm, useFormState } from 'react-hook-form'
 import { useTranslation } from 'react-i18next'
+import { toast } from 'sonner'
 import { z } from 'zod'
 import { fullNameOf } from '@/features/contacts/queries'
 import { isAgreedUpon } from '@/features/exchanges/queries'
@@ -42,9 +43,9 @@ const MAX_REASON = 500
 /**
  * A started campaign led as a list of tasks (ADR 0145): at the left its recipients, those to handle first; at the
  * right the one chosen, how to reach them, the message rendered for them, and the exchange to note or their
- * dismissal; its summary once nobody is left to handle. Campaigns processes a recipient a moment after their
- * exchange is noted: the page holds them handled at once and moves to the next one to handle, the campaign read
- * again behind.
+ * dismissal; once nobody is left to handle, that it is ended, and its summary. Campaigns processes a recipient a
+ * moment after their exchange is noted: the page holds them handled at once and moves to the next one to handle, the
+ * campaign read again behind.
  */
 export function CampaignRun({ campaign }: { campaign: Campaign }) {
   const { t } = useTranslation()
@@ -122,7 +123,12 @@ export function CampaignRun({ campaign }: { campaign: Campaign }) {
           onNext={toHandle.length > 1 ? () => nextAfter(current.id) : undefined}
         />
       ) : (
-        <CampaignSummary campaign={campaign} />
+        <div className="space-y-4">
+          <p role="status" className="rounded-md border p-3 font-medium text-sm">
+            {t('campaigns.run.ended')}
+          </p>
+          <CampaignSummary campaign={campaign} />
+        </div>
       )}
     </div>
   )
@@ -229,15 +235,14 @@ function RecipientPanel({
           )}
         </div>
         {onNext && (
-          <Button variant="ghost" aria-keyshortcuts={NEXT_KEY} onClick={onNext}>
-            {t('campaigns.run.next')}
-            <kbd
-              aria-hidden
-              className="rounded border px-1.5 font-mono text-muted-foreground text-xs uppercase"
-            >
-              {NEXT_KEY}
-            </kbd>
-          </Button>
+          <div className="flex flex-col items-end gap-1">
+            <Button variant="ghost" aria-keyshortcuts={NEXT_KEY} onClick={onNext}>
+              {t('campaigns.run.next')}
+            </Button>
+            <p className="text-muted-foreground text-xs">
+              {t('campaigns.run.nextByKey', { key: NEXT_KEY.toUpperCase() })}
+            </p>
+          </div>
         )}
       </CardHeader>
       <CardContent className="space-y-6">
@@ -261,10 +266,9 @@ function RenderedMessage({
 }) {
   const { t } = useTranslation()
   const opening = openingOf(campaign.channel, contact.contactDetails, message)
-  const [copied, setCopied] = useState(false)
   const copy = async () => {
     await navigator.clipboard.writeText(message.text)
-    setCopied(true)
+    toast.success(t('campaigns.run.copied'))
   }
 
   return (
@@ -275,7 +279,7 @@ function RenderedMessage({
       <p className="whitespace-pre-wrap">{message.text}</p>
       <div className="flex flex-wrap gap-2">
         <Button type="button" variant="outline" size="sm" onClick={copy}>
-          {copied ? <Check aria-hidden /> : <Copy aria-hidden />}
+          <Copy aria-hidden />
           {t('campaigns.run.copy')}
         </Button>
         {opening && (

@@ -1,5 +1,6 @@
-import { screen, waitFor, within } from '@testing-library/react'
+import { act, screen, waitFor, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
+import { toast } from 'sonner'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import type { Account } from '@/features/account/mutations'
 import type { Campaign, Recipient, RecipientList, TargetedContact } from '@/features/campaigns/queries'
@@ -103,7 +104,13 @@ const recipients: RecipientList = {
 
 type Call = { method: string; pathname: string; body: unknown }
 
-function theApiAnswers({ refusing }: { refusing?: string } = {}) {
+function theApiAnswers({
+  refusing,
+  toLead = recipients,
+}: {
+  refusing?: string
+  toLead?: RecipientList
+} = {}) {
   const calls: Call[] = []
   theApi.mockImplementation(async (input) => {
     const request = input as Request
@@ -136,7 +143,7 @@ function theApiAnswers({ refusing }: { refusing?: string } = {}) {
       '/api/me/day': { today: [], next: [], _links: { self: { href: '/api/me/day', method: 'GET' } } },
       '/api/me/exchanges-to-process': { items: [], toDos: [], contactsToAttach: [], _links: {} },
       [`/api/campaigns/${CAMPAIGN}`]: started,
-      [`/api/campaigns/${CAMPAIGN}/recipients`]: recipients,
+      [`/api/campaigns/${CAMPAIGN}/recipients`]: toLead,
       [`/api/campaigns/${CAMPAIGN}/messages/${ADA}`]: { subject: null, text: 'Pitch pour Ada' },
       [`/api/campaigns/${CAMPAIGN}/messages/${ALAN}`]: { subject: null, text: 'Pitch pour Alan' },
     }
@@ -147,6 +154,7 @@ function theApiAnswers({ refusing }: { refusing?: string } = {}) {
 
 describe('a started campaign', () => {
   afterEach(() => {
+    act(() => toast.dismiss())
     vi.useRealTimers()
     theApi.mockReset()
   })
@@ -192,6 +200,16 @@ describe('a started campaign', () => {
     await user.click(await screen.findByRole('button', { name: 'Copier' }))
 
     expect(await navigator.clipboard.readText()).toBe('Pitch pour Ada')
+  })
+
+  it('says the message is copied', async () => {
+    theApiAnswers()
+    const user = userEvent.setup()
+    await renderTheSpaAt(`/campaigns/${CAMPAIGN}`)
+
+    await user.click(await screen.findByRole('button', { name: 'Copier' }))
+
+    expect(await screen.findByText('Message copié.')).toBeInTheDocument()
   })
 
   it('notes the call of the recipient, missed, then moves to the next one to handle', async () => {
@@ -258,6 +276,27 @@ describe('a started campaign', () => {
 
     expect(await screen.findByRole('heading', { name: 'Alan Turing' })).toBeInTheDocument()
     expect(calls.filter((call) => call.method === 'POST')).toEqual([])
+  })
+
+  it('says it is ended once nobody is left to handle', async () => {
+    theApiAnswers({
+      toLead: { ...recipients, items: [pending(ADA, 'Ada', 'Lovelace', '+33 6 12 34 56 78')] },
+    })
+    await renderTheSpaAt(`/campaigns/${CAMPAIGN}`)
+    await screen.findByText('Pitch pour Ada')
+
+    await userEvent.click(screen.getByRole('button', { name: 'Enregistrer' }))
+
+    expect(
+      await screen.findByText('Plus personne n’est à traiter : la campagne est terminée.'),
+    ).toBeInTheDocument()
+  })
+
+  it('says its key moves to the next recipient', async () => {
+    theApiAnswers()
+    await renderTheSpaAt(`/campaigns/${CAMPAIGN}`)
+
+    expect(await screen.findByText('La touche N passe au destinataire suivant.')).toBeInTheDocument()
   })
 
   it('opens a recipient chosen in the list', async () => {
