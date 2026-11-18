@@ -29,6 +29,7 @@ final class OrganizationResourcePresenter implements ConsultOrganizationOutput
      */
     private const array ROUTES = [
         'reviseLegalIdentity' => ['intent' => 'ReviseLegalIdentity', 'route' => 'api_organizations_revise_legal_identity', 'role' => null],
+        'searchEstablishments' => ['intent' => 'ReviseLegalIdentity', 'route' => 'api_organizations_establishments', 'role' => null],
         'changeContactDetails' => ['intent' => 'ChangeContactDetails', 'route' => 'api_organizations_change_contact_details', 'role' => null],
         'relocate' => ['intent' => 'Relocate', 'route' => 'api_organizations_relocate', 'role' => null],
         'writeObservations' => ['intent' => 'WriteObservations', 'route' => 'api_organizations_write_observations', 'role' => null],

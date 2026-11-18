@@ -1629,6 +1629,71 @@
                 }
             }
         },
+        "/api/organizations/{id}/establishments": {
+            "get": {
+                "tags": [
+                    "Organizations"
+                ],
+                "summary": "The establishments of the directory of the companies the organization may be, to note its SIRET: named like it, those of its municipality first",
+                "operationId": "get_api_organizations_establishments",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "pattern": "[0-9a-f]{8}-[0-9a-f]{4}-[13-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "The establishments proposed, none for an organization without corporate name",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/EstablishmentsResource"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Missing or invalid access token"
+                    },
+                    "403": {
+                        "description": "The signed-in user is not a prospector",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ProblemResource"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Unknown organization, or one that is neither mine nor prospected by mine",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ProblemResource"
+                                }
+                            }
+                        }
+                    },
+                    "503": {
+                        "description": "The directory of the companies does not answer for now (`directoryUnreachable`)",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ProblemResource"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
         "/api/organizations": {
             "get": {
                 "tags": [
@@ -9041,6 +9106,9 @@
                     "reviseLegalIdentity": {
                         "$ref": "#/components/schemas/LinkResource"
                     },
+                    "searchEstablishments": {
+                        "$ref": "#/components/schemas/LinkResource"
+                    },
                     "changeContactDetails": {
                         "$ref": "#/components/schemas/LinkResource"
                     },
@@ -9377,6 +9445,54 @@
                                 "$ref": "#/components/schemas/AddressResource"
                             }
                         ]
+                    }
+                },
+                "type": "object"
+            },
+            "EstablishmentResource": {
+                "required": [
+                    "siret",
+                    "name",
+                    "address",
+                    "closed"
+                ],
+                "properties": {
+                    "siret": {
+                        "type": "string",
+                        "example": "55210055400013"
+                    },
+                    "name": {
+                        "description": "The name of its company",
+                        "type": "string",
+                        "example": "ACME"
+                    },
+                    "address": {
+                        "description": "Its address on one line",
+                        "type": "string",
+                        "example": "17 RUE DOCTEUR BOUCHUT 69003 LYON"
+                    },
+                    "activity": {
+                        "description": "Its NAF code",
+                        "type": "string",
+                        "example": "62.02A",
+                        "nullable": true
+                    },
+                    "closed": {
+                        "type": "boolean"
+                    }
+                },
+                "type": "object"
+            },
+            "EstablishmentsResource": {
+                "required": [
+                    "establishments"
+                ],
+                "properties": {
+                    "establishments": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/EstablishmentResource"
+                        }
                     }
                 },
                 "type": "object"
