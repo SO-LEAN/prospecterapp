@@ -1183,6 +1183,23 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/accounts/{account}/gmail-notifications": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** A change of a mailbox Gmail notified through the topic of the account, pushed by its subscription at Pub/Sub with a token Google signed for its account of service, not with a token of a member (ADR 0154): noted and dated, nothing read from Gmail during the request */
+        post: operations["post_api_gmail_notifications"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/me/connections/google/retries": {
         parameters: {
             query?: never;
@@ -2054,6 +2071,14 @@ export interface components {
             code: string | null;
             /** @default null */
             state: string | null;
+        };
+        PubSubPushInput: {
+            /** @default [] */
+            message: {
+                [key: string]: string;
+            };
+            /** @default null */
+            subscription: string | null;
         };
         TagsInput: {
             /**
@@ -7917,6 +7942,44 @@ export interface operations {
                 content: {
                     "application/json": components["schemas"]["ProblemResource"];
                 };
+            };
+        };
+    };
+    post_api_gmail_notifications: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                account: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["PubSubPushInput"];
+            };
+        };
+        responses: {
+            /** @description Noted, or ignored for a mailbox no member of the account imports */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description A message that is no notification of Gmail */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description A token missing, not signed by Google, not issued for this endpoint, not for the account of service of the account, or an account without topic of Gmail */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
             };
         };
     };

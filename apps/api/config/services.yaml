@@ -346,7 +346,7 @@ when@test:
             public: true
         # Google, its tokens and its revocations, by its double behind OutsideServices
         Tests\App\Double\GoogleDouble:
-            arguments: ['%env(GOOGLE_TOKEN_URL)%', '%env(GOOGLE_REVOKE_URL)%', '%env(GOOGLE_CALENDAR_URL)%', '%env(GOOGLE_GMAIL_URL)%']
+            arguments: ['%env(GOOGLE_TOKEN_URL)%', '%env(GOOGLE_REVOKE_URL)%', '%env(GOOGLE_CALENDAR_URL)%', '%env(GOOGLE_GMAIL_URL)%', '%env(GOOGLE_CERTS_URL)%']
             public: true
         # the files stay in memory: the storage app is tested on its own
         Prospecter\Core\SharedKernel\Application\Port\Storage: '@Tests\App\Double\InMemoryStorage'
