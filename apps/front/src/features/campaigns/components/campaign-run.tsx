@@ -33,14 +33,6 @@ import { CampaignSummary } from './campaign-summary'
 type Contact = NonNullable<Recipient['contact']>
 type Handled = 'processed' | 'dismissed'
 
-/** The field of the contact details the channel reaches. */
-const MEANS = {
-  email: 'email',
-  call: 'phoneNumber',
-  sms: 'phoneNumber',
-  linkedIn: 'linkedInProfile',
-} as const
-
 /** The key moving to the next recipient to handle without noting anything. */
 const NEXT_KEY = 'n'
 const MAX_TEXT = 5000
@@ -157,7 +149,7 @@ function RecipientLine({
   const { contact } = recipient
   const statusLabel =
     recipient.missed && status === 'processed'
-      ? t('exchanges.statuses.missed')
+      ? t('campaigns.recipients.missed')
       : t(`campaigns.recipients.status.${status}`)
 
   if (!contact) {
@@ -229,14 +221,14 @@ function RecipientPanel({
           </p>
           {means && (
             <p className="text-sm">
-              <span className="text-muted-foreground">{t(`fields.${MEANS[campaign.channel]}`)} : </span>
+              <span className="text-muted-foreground">{t(`campaigns.run.means.${campaign.channel}`)} : </span>
               {means}
             </p>
           )}
         </div>
         {onNext && (
           <Button variant="ghost" aria-keyshortcuts={NEXT_KEY} onClick={onNext}>
-            {t('calendar.next')}
+            {t('campaigns.run.next')}
             <kbd
               aria-hidden
               className="rounded border px-1.5 font-mono text-muted-foreground text-xs uppercase"
@@ -274,7 +266,7 @@ function RenderedMessage({
   }
 
   return (
-    <section aria-label={t('campaigns.preview.title')} className="space-y-2 rounded-md border p-3 text-sm">
+    <section aria-label={t('campaigns.run.message')} className="space-y-2 rounded-md border p-3 text-sm">
       {message.subject && (
         <p className="font-medium">{t('campaigns.preview.subject', { subject: message.subject })}</p>
       )}
@@ -291,7 +283,7 @@ function RenderedMessage({
               {...(opening.external && { target: '_blank', rel: 'noopener noreferrer' })}
             >
               <ExternalLink aria-hidden />
-              {t('reminders.open')}
+              {t('campaigns.run.open')}
             </a>
           </Button>
         )}
@@ -377,8 +369,8 @@ function RecipientForm({
   }
 
   return (
-    <form onSubmit={save} noValidate aria-label={t('exchanges.note')} className="space-y-4">
-      <h3 className="font-medium text-sm">{t('exchanges.note')}</h3>
+    <form onSubmit={save} noValidate aria-label={t('campaigns.run.note')} className="space-y-4">
+      <h3 className="font-medium text-sm">{t('campaigns.run.note')}</h3>
       {globalErrors.length > 0 && (
         <Alert variant="destructive">
           <AlertDescription>{globalErrors.join(' ')}</AlertDescription>

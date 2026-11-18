@@ -152,7 +152,7 @@ export function useNoteCampaignExchange(campaignId: string) {
       )
       void queryClient.invalidateQueries({ queryKey: timelineKeys.ofContacts })
       void queryClient.invalidateQueries({ queryKey: timelineKeys.ofOrganizations })
-      toast.success(t('exchanges.noted'))
+      toast.success(t('campaigns.run.noted'))
     },
   })
 }
@@ -170,7 +170,7 @@ export function useDismissRecipient(campaignId: string) {
         queryClient.invalidateQueries({ queryKey: campaignKeys.recipients }),
         queryClient.invalidateQueries({ queryKey: campaignKeys.list }),
       ])
-      toast.success(t('campaigns.recipients.status.dismissed'))
+      toast.success(t('campaigns.run.dismissed'))
     },
   })
 }
