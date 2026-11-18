@@ -41,6 +41,7 @@ use Prospecter\Core\SharedKernel\Domain\PersonId;
 use Prospecter\Core\SharedKernel\Domain\RecordsEvents;
 use Prospecter\Core\SharedKernel\Domain\ReleasesEvents;
 use Prospecter\Core\SharedKernel\Domain\SearchKeys;
+use Prospecter\Core\SharedKernel\Domain\Siret;
 
 /**
  * Aggregate root: an organization an account prospects; the whole team of the account shares it.
@@ -96,6 +97,19 @@ final class Organization implements ReleasesEvents
     public function contactDetails(): ContactDetails
     {
         return $this->contactDetails;
+    }
+
+    public function siret(): ?Siret
+    {
+        return $this->legalIdentity->siret;
+    }
+
+    /**
+     * How a member names it: its corporate name and its legal form.
+     */
+    public function fullName(): string
+    {
+        return $this->legalIdentity->fullName();
     }
 
     /**

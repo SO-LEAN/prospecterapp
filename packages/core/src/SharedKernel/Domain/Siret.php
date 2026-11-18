@@ -26,6 +26,11 @@ final readonly class Siret
         $this->value = $value;
     }
 
+    public static function orNone(?string $typed): ?self
+    {
+        return null === $typed || '' === $typed ? null : new self($typed);
+    }
+
     private static function isFourteenDigits(string $value): bool
     {
         return 1 === preg_match('/^\d{14}$/', $value);

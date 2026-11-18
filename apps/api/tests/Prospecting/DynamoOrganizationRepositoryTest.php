@@ -2,6 +2,7 @@
 
 namespace Tests\App\Prospecting;
 
+use Prospecter\Core\Prospecting\Domain\Exception\SiretAlreadyUsed;
 use Prospecter\Core\Prospecting\Domain\Model\Organization;
 use Prospecter\Core\Prospecting\Domain\Model\Prospector;
 use Prospecter\Core\Prospecting\Domain\Repository\OrganizationRepository;
@@ -14,15 +15,19 @@ use Prospecter\Core\SharedKernel\Domain\LegalIdentity;
 use Prospecter\Core\SharedKernel\Domain\MemberId;
 use Prospecter\Core\SharedKernel\Domain\OrganizationId;
 use Prospecter\Core\SharedKernel\Domain\PersonId;
+use Prospecter\Core\SharedKernel\Domain\Siret;
 use Tests\App\Base\ApiTestCase;
 
 /**
- * EmailUniqueness checks the email before saving; when two requests take it at once, the conditional write
- * of its reservation refuses the second one the same way (ADR 0039, 0048). The other questions are answered
+ * EmailUniqueness and SiretUniqueness check the email and the SIRET before saving; when two requests take one at
+ * once, the conditional write of its reservation refuses the second one the same way (ADR 0039, 0048). The other questions are answered
  * by the items the repository keeps next to the organizations.
  */
 class DynamoOrganizationRepositoryTest extends ApiTestCase
 {
+    private const string A_SIRET = '55210055400013';
+    private const string ANOTHER_SIRET = '55210055400021';
+
     public function testTheReservationRefusesAnEmailTakenMeanwhile(): void
     {
         $organizations = self::getContainer()->get(OrganizationRepository::class);
@@ -90,10 +95,75 @@ class DynamoOrganizationRepositoryTest extends ApiTestCase
         $this->assertSame([(string) $subsidiary->id()], array_map(static fn (Organization $organization): string => (string) $organization->id(), $organizations->subsidiariesOf($holding->id())));
     }
 
+    public function testTheOrganizationHoldingASiretIsFoundByIt(): void
+    {
+        $organizations = self::getContainer()->get(OrganizationRepository::class);
+        $prospector = new Prospector(new MemberId(self::newIdentity()), new AccountId(self::newIdentity()));
+        $acme = $this->organizationWithTheSiret($prospector, self::A_SIRET);
+        $organizations->save($acme);
+
+        $this->assertEquals($acme->id(), $organizations->withSiret($prospector->accountId, new Siret(self::A_SIRET), except: new OrganizationId(self::newIdentity()))?->id());
+    }
+
+    public function testAnOrganizationIsNotFoundByItsOwnSiret(): void
+    {
+        $organizations = self::getContainer()->get(OrganizationRepository::class);
+        $acme = $this->organizationWithTheSiret(new Prospector(new MemberId(self::newIdentity()), new AccountId(self::newIdentity())), self::A_SIRET);
+        $organizations->save($acme);
+
+        $this->assertNull($organizations->withSiret($acme->accountId(), new Siret(self::A_SIRET), except: $acme->id()));
+    }
+
+    public function testTheReservationRefusesASiretTakenMeanwhile(): void
+    {
+        $organizations = self::getContainer()->get(OrganizationRepository::class);
+        $prospector = new Prospector(new MemberId(self::newIdentity()), new AccountId(self::newIdentity()));
+        $organizations->save($this->organizationWithTheSiret($prospector, self::A_SIRET));
+
+        $this->expectException(SiretAlreadyUsed::class);
+
+        $organizations->save($this->organizationWithTheSiret($prospector, self::A_SIRET));
+    }
+
+    public function testANewSiretFreesTheFormerOne(): void
+    {
+        $organizations = self::getContainer()->get(OrganizationRepository::class);
+        $prospector = new Prospector(new MemberId(self::newIdentity()), new AccountId(self::newIdentity()));
+        $acme = $this->organizationWithTheSiret($prospector, self::A_SIRET);
+        $organizations->save($acme);
+
+        $acme->reviseLegalIdentity(new LegalIdentity('ACME', siret: new Siret(self::ANOTHER_SIRET)), by: $prospector->id, at: new \DateTimeImmutable(self::THE_MOMENT_OF_THE_TESTS));
+        $organizations->save($acme);
+
+        $this->assertNull($organizations->withSiret($prospector->accountId, new Siret(self::A_SIRET), except: new OrganizationId(self::newIdentity())));
+        $this->assertEquals($acme->id(), $organizations->withSiret($prospector->accountId, new Siret(self::ANOTHER_SIRET), except: new OrganizationId(self::newIdentity()))?->id());
+    }
+
+    public function testAnOrganizationNoLongerProspectedFreesItsSiret(): void
+    {
+        $organizations = self::getContainer()->get(OrganizationRepository::class);
+        $acme = $this->organizationWithTheSiret(new Prospector(new MemberId(self::newIdentity()), new AccountId(self::newIdentity())), self::A_SIRET);
+        $organizations->save($acme);
+
+        $organizations->remove($acme);
+
+        $this->assertNull($organizations->withSiret($acme->accountId(), new Siret(self::A_SIRET), except: new OrganizationId(self::newIdentity())));
+    }
+
     public function testAnOrganizationIsReadBackAsItWasSaved(): void
     {
         $organizations = self::getContainer()->get(OrganizationRepository::class);
         $acme = $this->organizationWithTheEmail(new Prospector(new MemberId(self::newIdentity()), new AccountId(self::newIdentity())), 'contact@acme.test');
+        $acme->releaseEvents();
+        $organizations->save($acme);
+
+        $this->assertEquals($acme, $organizations->get($acme->id()));
+    }
+
+    public function testAnOrganizationIsReadBackWithItsSiret(): void
+    {
+        $organizations = self::getContainer()->get(OrganizationRepository::class);
+        $acme = $this->organizationWithTheSiret(new Prospector(new MemberId(self::newIdentity()), new AccountId(self::newIdentity())), self::A_SIRET);
         $acme->releaseEvents();
         $organizations->save($acme);
 
@@ -109,6 +179,11 @@ class DynamoOrganizationRepositoryTest extends ApiTestCase
         $found = $organizations->ofIds([$acme->id(), new OrganizationId(self::newIdentity())]);
 
         $this->assertEquals([$acme->id()], array_map(static fn (Organization $organization): OrganizationId => $organization->id(), $found));
+    }
+
+    private function organizationWithTheSiret(Prospector $prospector, string $siret): Organization
+    {
+        return Organization::prospectedBy($prospector, new OrganizationId(self::newIdentity()), new LegalIdentity('ACME', siret: new Siret($siret)), new ContactDetails(), new \DateTimeImmutable(self::THE_MOMENT_OF_THE_TESTS));
     }
 
     private function organizationWithTheEmail(Prospector $prospector, string $email): Organization

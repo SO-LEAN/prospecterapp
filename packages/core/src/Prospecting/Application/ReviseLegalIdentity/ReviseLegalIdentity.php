@@ -13,6 +13,7 @@ final readonly class ReviseLegalIdentity
         public ?string $form,
         public ?string $type,
         public \DateTimeImmutable $executedAt,
+        public ?string $siret = null,
     ) {
     }
 }

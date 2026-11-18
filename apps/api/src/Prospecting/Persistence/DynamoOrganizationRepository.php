@@ -6,6 +6,7 @@ use App\Shared\Persistence\Revision;
 use App\Shared\Persistence\SearchIndexes;
 use App\Shared\Persistence\Table;
 use App\Shared\Persistence\Write;
+use Prospecter\Core\Prospecting\Domain\Exception\SiretAlreadyUsed;
 use Prospecter\Core\Prospecting\Domain\Exception\UnknownOrganization;
 use Prospecter\Core\Prospecting\Domain\Model\Organization;
 use Prospecter\Core\Prospecting\Domain\Repository\OrganizationRepository;
@@ -13,6 +14,7 @@ use Prospecter\Core\SharedKernel\Domain\AccountId;
 use Prospecter\Core\SharedKernel\Domain\Email;
 use Prospecter\Core\SharedKernel\Domain\Exception\EmailAlreadyUsed;
 use Prospecter\Core\SharedKernel\Domain\OrganizationId;
+use Prospecter\Core\SharedKernel\Domain\Siret;
 
 /**
  * The organizations in the table of Prospecting (ADR 0048):
@@ -20,6 +22,8 @@ use Prospecter\Core\SharedKernel\Domain\OrganizationId;
  *   and by holding in `GSI2` (`HOLDING#<id>`, its id);
  * - `EMAIL#<account>#<email>` / `EMAIL`: the email an organization holds in its account, the safety net of
  *   EmailUniqueness (ADR 0039, 0048): two organizations taking it at once, the second transaction is cancelled;
+ * - `SIRET#<account>#<siret>` / `SIRET`: the establishment an organization is in its account, the safety net of
+ *   SiretUniqueness, as for the email;
  * - `CONTACT#<person>` / `ORGANIZATION#<id>`: the organizations naming a contact;
  * - `EMAIL_DOMAIN#<account>#<domain>` / `ORGANIZATION#<id>`: the organizations of an account by the domain of their
  *   email, the one to attach a contact of that domain to proposed first (ADR 0146).
@@ -30,6 +34,7 @@ use Prospecter\Core\SharedKernel\Domain\OrganizationId;
 final readonly class DynamoOrganizationRepository implements OrganizationRepository
 {
     private const string EMAIL = 'EMAIL';
+    private const string SIRET = 'SIRET';
 
     public function __construct(private Table $prospectingTable)
     {
@@ -57,6 +62,13 @@ final readonly class DynamoOrganizationRepository implements OrganizationReposit
         return null !== $holder && $holder['ownerId'] !== $except->value;
     }
 
+    public function withSiret(AccountId $accountId, Siret $siret, OrganizationId $except): ?Organization
+    {
+        $holder = $this->prospectingTable->item(self::siretKey($accountId->value, $siret->value), self::SIRET);
+
+        return null === $holder || $holder['ownerId'] === $except->value ? null : $this->get(new OrganizationId($holder['ownerId']));
+    }
+
     public function save(Organization $organization): void
     {
         $document = OrganizationDocument::of($organization);
@@ -73,7 +85,7 @@ final readonly class DynamoOrganizationRepository implements OrganizationReposit
             $writes[] = $this->prospectingTable->deleting(self::emailKey($organization->accountId(), $storedEmail), self::EMAIL);
         }
 
-        $this->prospectingTable->transact([...$writes, ...$this->emailDomainLinkChanged($document['accountId'], $document['id'], $email, $storedEmail), ...$this->contactLinksChanged($document, $stored['organization']['contacts'] ?? [])]);
+        $this->prospectingTable->transact([...$writes, ...$this->siretReservationChanged($document, $stored['organization']['legalIdentity']['siret'] ?? null), ...$this->emailDomainLinkChanged($document['accountId'], $document['id'], $email, $storedEmail), ...$this->contactLinksChanged($document, $stored['organization']['contacts'] ?? [])]);
     }
 
     public function remove(Organization $organization): void
@@ -87,6 +99,7 @@ final readonly class DynamoOrganizationRepository implements OrganizationReposit
                 $this->prospectingTable->deleting(self::emailKey($organization->accountId(), $email), self::EMAIL),
                 $this->prospectingTable->deleting(...self::emailDomainKeys($document['accountId'], $email, $document['id'])),
             ]),
+            ...$this->siretReservationChanged(['legalIdentity' => ['siret' => null]] + $document, $document['legalIdentity']['siret']),
             ...$this->contactLinksChanged(['contacts' => []] + $document, $document['contacts']),
         ]);
     }
@@ -168,6 +181,27 @@ final readonly class DynamoOrganizationRepository implements OrganizationReposit
     }
 
     /**
+     * The reservation of its SIRET taken when it changes, the former one released.
+     *
+     * @param array<string, mixed> $document
+     *
+     * @return list<Write>
+     */
+    private function siretReservationChanged(array $document, ?string $storedSiret): array
+    {
+        $siret = $document['legalIdentity']['siret'];
+
+        if ($siret === $storedSiret) {
+            return [];
+        }
+
+        return [
+            ...(null === $siret ? [] : [$this->prospectingTable->putting(['PK' => self::siretKey($document['accountId'], $siret), 'SK' => self::SIRET, 'ownerId' => $document['id']], 'attribute_not_exists(PK) OR ownerId = :owner', [':owner' => $document['id']], SiretAlreadyUsed::byAnother(...))]),
+            ...(null === $storedSiret ? [] : [$this->prospectingTable->deleting(self::siretKey($document['accountId'], $storedSiret), self::SIRET)]),
+        ];
+    }
+
+    /**
      * @param list<array<string, mixed>> $items
      *
      * @return list<Organization>
@@ -214,6 +248,11 @@ final readonly class DynamoOrganizationRepository implements OrganizationReposit
     private static function emailDomainKeys(string $accountId, string $email, string $organizationId): array
     {
         return [OrganizationKeys::ofEmailDomain($accountId, new Email($email)->domain()), OrganizationKeys::organization($organizationId)];
+    }
+
+    private static function siretKey(string $accountId, string $siret): string
+    {
+        return sprintf('%s#%s#%s', self::SIRET, $accountId, $siret);
     }
 
     private static function emailKey(AccountId $accountId, string $email): string

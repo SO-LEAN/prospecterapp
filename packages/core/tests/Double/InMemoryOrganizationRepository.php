@@ -10,6 +10,7 @@ use Prospecter\Core\Prospecting\Domain\Repository\OrganizationRepository;
 use Prospecter\Core\SharedKernel\Domain\AccountId;
 use Prospecter\Core\SharedKernel\Domain\Email;
 use Prospecter\Core\SharedKernel\Domain\OrganizationId;
+use Prospecter\Core\SharedKernel\Domain\Siret;
 
 final readonly class InMemoryOrganizationRepository implements OrganizationRepository
 {
@@ -33,6 +34,11 @@ final readonly class InMemoryOrganizationRepository implements OrganizationRepos
     public function isEmailUsed(AccountId $accountId, Email $email, OrganizationId $except): bool
     {
         return array_any($this->prospectedBy($accountId), fn (Organization $organization): bool => !$organization->id()->equals($except) && $organization->contactDetails()->email?->value === $email->value);
+    }
+
+    public function withSiret(AccountId $accountId, Siret $siret, OrganizationId $except): ?Organization
+    {
+        return array_find($this->prospectedBy($accountId), fn (Organization $organization): bool => !$organization->id()->equals($except) && $organization->siret()?->value === $siret->value);
     }
 
     public function save(Organization $organization): void
