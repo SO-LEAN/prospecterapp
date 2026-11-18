@@ -29,6 +29,8 @@ use Prospecter\Core\SharedKernel\Domain\PhoneNumber;
  */
 class PersonIntentsTest extends TestCase
 {
+    private const string AT = '2026-10-15 09:00 UTC';
+
     private const string ACCOUNT = '0190a1c0-0000-7000-8000-000000000001';
     private const string OTHER_ACCOUNT = '0190a1c0-0000-7000-8000-000000000002';
     private const string PERSON = '0190a1c0-0000-7000-8000-000000000003';
@@ -37,7 +39,7 @@ class PersonIntentsTest extends TestCase
     #[DataProvider('situations')]
     public function testAnIntentionIsRefusedExactlyWhenItIsNotOffered(PersonIntent $intent, Purpose $purpose, Reader $reader): void
     {
-        $person = Person::collect(new PersonId(self::PERSON), new AccountId(self::ACCOUNT), $purpose, new \DateTimeImmutable());
+        $person = Person::collect(new PersonId(self::PERSON), new AccountId(self::ACCOUNT), $purpose, new \DateTimeImmutable(self::AT));
         $offered = in_array($intent, PersonPossibilities::given($reader, new PersonId(self::PERSON), new AccountId(self::ACCOUNT), $purpose), true);
 
         $accepted = $this->isAccepted($intent, $person, $reader);
@@ -84,12 +86,12 @@ class PersonIntentsTest extends TestCase
     {
         try {
             match ($intent) {
-                PersonIntent::Rename => $person->rename(new PersonName('Ada'), $by, new \DateTimeImmutable()),
-                PersonIntent::ChangeJobTitle => $person->changeJobTitle('Directrice commerciale', $by, new \DateTimeImmutable()),
-                PersonIntent::ChangeCivility => $person->changeCivility(Civility::Ms, $by, new \DateTimeImmutable()),
-                PersonIntent::ChangeContactDetails => $person->changeContactDetails(new ContactDetails(phoneNumber: PhoneNumber::of('03 88 00 00 00')), null, $by, new \DateTimeImmutable()),
-                PersonIntent::ChangePicture => $person->changePicture(new File('https://storage.test/ada.png', 'png', 1024), $by, new \DateTimeImmutable()),
-                PersonIntent::Forget => $person->forget($by, new \DateTimeImmutable()),
+                PersonIntent::Rename => $person->rename(new PersonName('Ada'), $by, new \DateTimeImmutable(self::AT)),
+                PersonIntent::ChangeJobTitle => $person->changeJobTitle('Directrice commerciale', $by, new \DateTimeImmutable(self::AT)),
+                PersonIntent::ChangeCivility => $person->changeCivility(Civility::Ms, $by, new \DateTimeImmutable(self::AT)),
+                PersonIntent::ChangeContactDetails => $person->changeContactDetails(new ContactDetails(phoneNumber: PhoneNumber::of('03 88 00 00 00')), null, $by, new \DateTimeImmutable(self::AT)),
+                PersonIntent::ChangePicture => $person->changePicture(new File('https://storage.test/ada.png', 'png', 1024), $by, new \DateTimeImmutable(self::AT)),
+                PersonIntent::Forget => $person->forget($by, new \DateTimeImmutable(self::AT)),
             };
         } catch (NotFound|BusinessRuleViolation) {
             return false;

@@ -15,6 +15,8 @@ use Tests\App\Base\ApiTestCase;
 #[Group('api')]
 class AccountApiTest extends ApiTestCase
 {
+    private const string AT = '2026-10-15 09:00 UTC';
+
     protected function setUp(): void
     {
         parent::setUp();
@@ -87,6 +89,6 @@ class AccountApiTest extends ApiTestCase
     private function aPersonWithTheEmail(string $email, AccountId $account): void
     {
         $persons = self::getContainer()->get(PersonRepository::class);
-        $persons->save(Person::collect(new PersonId(self::newIdentity()), $account, Purpose::Membership, new \DateTimeImmutable(), contactDetails: new ContactDetails(new Email($email))));
+        $persons->save(Person::collect(new PersonId(self::newIdentity()), $account, Purpose::Membership, new \DateTimeImmutable(self::AT), contactDetails: new ContactDetails(new Email($email))));
     }
 }

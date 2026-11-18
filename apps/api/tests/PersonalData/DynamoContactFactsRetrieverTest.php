@@ -23,6 +23,8 @@ use Tests\App\Base\ApiTestCase;
  */
 class DynamoContactFactsRetrieverTest extends ApiTestCase
 {
+    private const string AT = '2026-10-15 09:00 UTC';
+
     private AccountId $account;
 
     protected function setUp(): void
@@ -56,7 +58,7 @@ class DynamoContactFactsRetrieverTest extends ApiTestCase
 
     public function testTheFactsSayHowTheContactIsReachedNeverItsDetails(): void
     {
-        $contact = Person::collect(new PersonId(self::newIdentity()), $this->account, Purpose::Prospecting, new \DateTimeImmutable(), new PersonName(lastName: 'Lovelace'), new ContactDetails(new Email('ada@acme.test'), PhoneNumber::of('06 12 34 56 78')));
+        $contact = Person::collect(new PersonId(self::newIdentity()), $this->account, Purpose::Prospecting, new \DateTimeImmutable(self::AT), new PersonName(lastName: 'Lovelace'), new ContactDetails(new Email('ada@acme.test'), PhoneNumber::of('06 12 34 56 78')));
         $this->persons()->save($contact);
 
         $this->assertEquals(new ContactFactsResponse($contact->id()->value, 1, true, true, true, true, false), $this->retriever()->of($contact->id()));
@@ -106,7 +108,7 @@ class DynamoContactFactsRetrieverTest extends ApiTestCase
 
     private function kept(Purpose $purpose, string $lastName): Person
     {
-        return Person::collect(new PersonId(self::newIdentity()), $this->account, $purpose, new \DateTimeImmutable(), new PersonName(lastName: $lastName));
+        return Person::collect(new PersonId(self::newIdentity()), $this->account, $purpose, new \DateTimeImmutable(self::AT), new PersonName(lastName: $lastName));
     }
 
     private function persons(): PersonRepository

@@ -56,7 +56,7 @@ class DynamoFactRepositoryTest extends ApiTestCase
         $this->assertSame([], $this->linksOf($ada));
         $item = $this->campaignsTable()->item('ACCOUNT#'.$this->account->value, 'FACT#ORGANIZATION#'.$this->organization->value);
         $this->assertFalse($item['present']);
-        $this->assertEqualsWithDelta(new \DateTimeImmutable('+15 days')->getTimestamp(), $item['expiresAt'], 60);
+        $this->assertSame(new \DateTimeImmutable('2100-01-16 00:00:00 UTC')->getTimestamp(), $item['expiresAt']);
     }
 
     public function testAnOrganizationFactKeepsWhereTheOrganizationIs(): void

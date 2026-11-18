@@ -352,6 +352,7 @@ when@test:
         # another request taking an email meanwhile, when a test asks it to
         Tests\App\Double\EmailTakenMeanwhile:
             autowire: true
+            arguments: { $commitClock: '@app.commit_clock' }
             public: true
             tags: [app.event_handler]
         # what the worker logs, read by its tests
@@ -397,6 +398,13 @@ when@test:
         clock:
             class: Symfony\Component\Clock\MockClock
             arguments: ['2026-10-15 09:00:00 UTC']
+        # the moment the tables count what they forget from (the outbox, the inbox, the terminal facts, the
+        # authorizations): fixed, and long after any run, so that MiniStack, forgetting on the real clock, forgets
+        # nothing a test reads
+        app.commit_clock:
+            class: Symfony\Component\Clock\MockClock
+            arguments: ['2100-01-01 00:00:00 UTC']
+            public: true
         # the tokens come from MiniStack, issued now: checked now, a test may wait for one to expire
         app.token_clock:
             class: Symfony\Component\Clock\MockClock

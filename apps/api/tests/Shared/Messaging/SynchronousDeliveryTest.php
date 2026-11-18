@@ -31,6 +31,8 @@ use Symfony\Component\TypeInfo\TypeResolver\TypeResolver;
  */
 class SynchronousDeliveryTest extends TestCase
 {
+    private const string AT = '2026-10-15 09:00 UTC';
+
     private const string ID = '0199f1d2-6a3b-7c4d-8e5f-0123456789ab';
 
     private Causation $causation;
@@ -112,17 +114,17 @@ class SynchronousDeliveryTest extends TestCase
 
     private function collected(): ContactCollected
     {
-        return new ContactCollected(self::ID, self::ID, self::ID, [self::ID], new \DateTimeImmutable());
+        return new ContactCollected(self::ID, self::ID, self::ID, [self::ID], new \DateTimeImmutable(self::AT));
     }
 
     private function forgotten(): ContactForgotten
     {
-        return new ContactForgotten(self::ID, self::ID, self::ID, new \DateTimeImmutable());
+        return new ContactForgotten(self::ID, self::ID, self::ID, new \DateTimeImmutable(self::AT));
     }
 
     private function leftWithoutOrganization(): ContactsLeftWithoutOrganization
     {
-        return new ContactsLeftWithoutOrganization(self::ID, self::ID, self::ID, [], new \DateTimeImmutable());
+        return new ContactsLeftWithoutOrganization(self::ID, self::ID, self::ID, [], new \DateTimeImmutable(self::AT));
     }
 }
 

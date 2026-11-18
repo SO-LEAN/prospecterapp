@@ -10,6 +10,8 @@ use Prospecter\Core\Accounts\Application\MyAccount;
 #[Group('unit')]
 class UserTest extends TestCase
 {
+    private const string AT = '2026-10-15 09:00 UTC';
+
     public function testTheSignedInUserCarriesTheIdentitiesOfTheMemberAndItsAccount(): void
     {
         $userId = '0190a1c0-0000-7000-8000-000000000001';
@@ -32,8 +34,8 @@ class UserTest extends TestCase
             organizationLongitude: null,
             organizationLatitude: null,
             accountIntents: [],
-            createdAt: new \DateTimeImmutable(),
-            modifiedAt: new \DateTimeImmutable(),
+            createdAt: new \DateTimeImmutable(self::AT),
+            modifiedAt: new \DateTimeImmutable(self::AT),
         ));
 
         $this->assertSame($userId, $signedIn->memberId());

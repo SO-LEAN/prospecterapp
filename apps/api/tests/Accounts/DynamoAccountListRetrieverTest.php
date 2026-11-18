@@ -18,6 +18,8 @@ use Tests\App\Base\ApiTestCase;
  */
 class DynamoAccountListRetrieverTest extends ApiTestCase
 {
+    private const string AT = '2026-10-15 09:00 UTC';
+
     public function testTheAccountsComeBySliceNewestFirst(): void
     {
         $accounts = array_map($this->opened(...), ['ACME', 'Globex', 'Initech']);
@@ -48,7 +50,7 @@ class DynamoAccountListRetrieverTest extends ApiTestCase
 
     private function opened(string $name): Account
     {
-        $account = Account::open(new AccountId(self::newIdentity()), new LegalIdentity($name), new \DateTimeImmutable());
+        $account = Account::open(new AccountId(self::newIdentity()), new LegalIdentity($name), new \DateTimeImmutable(self::AT));
         self::getContainer()->get(AccountRepository::class)->save($account);
 
         return $account;

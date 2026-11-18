@@ -17,7 +17,6 @@ use Prospecter\Core\SharedKernel\Domain\ContactDetails;
 use Prospecter\Core\SharedKernel\Domain\Email;
 use Prospecter\Core\SharedKernel\Domain\Exception\EmailAlreadyUsed;
 use Prospecter\Core\SharedKernel\Domain\PersonId;
-use Symfony\Component\Clock\NativeClock;
 use Tests\App\Base\ApiTestCase;
 
 /**
@@ -25,6 +24,8 @@ use Tests\App\Base\ApiTestCase;
  */
 class DynamoUnitOfWorkTest extends ApiTestCase
 {
+    private const string AT = '2026-10-15 09:00 UTC';
+
     private DynamoUnitOfWork $unitOfWork;
     private Table $table;
 
@@ -281,11 +282,11 @@ class DynamoUnitOfWorkTest extends ApiTestCase
     {
         $client = self::getContainer()->get(DynamoDbClient::class);
 
-        return new Table($client, self::getContainer()->get(Marshaler::class), new DynamoUnitOfWork($client, new CommitOutbox([], self::getContainer()->get(Marshaler::class), new Identities(), new NativeClock())), $table->name);
+        return new Table($client, self::getContainer()->get(Marshaler::class), new DynamoUnitOfWork($client, new CommitOutbox([], self::getContainer()->get(Marshaler::class), new Identities(), self::getContainer()->get('app.commit_clock'))), $table->name);
     }
 
     private function personWithTheEmail(AccountId $account, string $email): Person
     {
-        return Person::collect(new PersonId(self::newIdentity()), $account, Purpose::Prospecting, new \DateTimeImmutable(), contactDetails: new ContactDetails(new Email($email)));
+        return Person::collect(new PersonId(self::newIdentity()), $account, Purpose::Prospecting, new \DateTimeImmutable(self::AT), contactDetails: new ContactDetails(new Email($email)));
     }
 }
