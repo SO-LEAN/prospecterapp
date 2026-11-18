@@ -7,7 +7,7 @@ import { ContactCard } from './contact-card'
 
 const ADA = '0190a1c0-0000-7000-8000-000000000002'
 
-const ada = (tags: string[], civility: ContactInList['civility'] = null): ContactInList => ({
+const ada = (tags: string[], civility: ContactInList['civility'] = 'x'): ContactInList => ({
   id: ADA,
   name: { firstName: 'Ada', lastName: 'Lovelace' },
   civility,
@@ -47,7 +47,7 @@ describe('a contact of the list', () => {
     expect(screen.getByRole('img', { name: 'Madame' })).toBeInTheDocument()
   })
 
-  it('marks nothing when the civility is not noted', async () => {
+  it('marks nothing when the civility is unknown', async () => {
     await renderInARouter(<ContactCard contact={ada([])} />)
 
     expect(screen.queryByRole('img')).not.toBeInTheDocument()

@@ -4,7 +4,7 @@ import { describe, expect, it } from 'vitest'
 import { CivilityMark } from './civility-mark'
 import { TooltipProvider } from './tooltip'
 
-function renderTheMark(civility: 'ms' | 'mr' | null | undefined) {
+function renderTheMark(civility: 'ms' | 'mr' | 'x') {
   render(
     <TooltipProvider>
       <CivilityMark civility={civility} />
@@ -30,8 +30,8 @@ describe('the mark of the civility of a contact', () => {
     expect(await screen.findByRole('tooltip')).toHaveTextContent('Monsieur')
   })
 
-  it('shows nothing when the civility is not noted', () => {
-    renderTheMark(null)
+  it('shows nothing when the civility is unknown', () => {
+    renderTheMark('x')
 
     expect(screen.queryByRole('img')).not.toBeInTheDocument()
   })

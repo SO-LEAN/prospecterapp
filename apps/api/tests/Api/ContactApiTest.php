@@ -70,13 +70,13 @@ class ContactApiTest extends ApiTestCase
     {
         $organization = $this->anOrganization('ACME');
         $id = $this->collect(['name' => ['firstName' => 'Camille', 'lastName' => 'Martin']], $organization)['id'];
-        $this->assertNull($this->requestJson('GET', '/api/contacts/'.$id)['civility']);
+        $this->assertSame('x', $this->requestJson('GET', '/api/contacts/'.$id)['civility'], 'unknown until noted');
 
         $this->assertSame('mr', $this->requestJson('PATCH', '/api/contacts/'.$id.'/civility', ['civility' => 'mr'])['civility']);
         $this->assertSame(['mr'], array_column($this->requestJson('GET', '/api/contacts?q=martin')['items'], 'civility'));
         $this->assertSame(['mr'], array_column($this->requestJson('GET', '/api/organizations/'.$organization.'/contacts')['items'], 'civility'));
 
-        $this->assertNull($this->requestJson('PATCH', '/api/contacts/'.$id.'/civility', ['civility' => null])['civility']);
+        $this->assertSame('x', $this->requestJson('PATCH', '/api/contacts/'.$id.'/civility', ['civility' => 'x'])['civility']);
 
         $problem = $this->requestJson('PATCH', '/api/contacts/'.$id.'/civility', ['civility' => 'docteur']);
         $this->assertResponseStatusCodeSame(422);
