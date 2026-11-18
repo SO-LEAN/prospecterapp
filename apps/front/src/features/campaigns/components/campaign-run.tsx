@@ -49,8 +49,9 @@ const MAX_REASON = 500
 /**
  * A started campaign led as a list of tasks (ADR 0145): at the left its recipients, those to handle first; at the
  * right the one chosen, how to reach them, the message rendered for them, and the exchange to note or their
- * dismissal, its summary once nobody is left to handle. Campaigns processes a recipient a moment after their exchange is noted: the page holds them handled at
- * once and moves to the next one to handle, the campaign read again behind.
+ * dismissal; its summary once nobody is left to handle. Campaigns processes a recipient a moment after their
+ * exchange is noted: the page holds them handled at once and moves to the next one to handle, the campaign read
+ * again behind.
  */
 export function CampaignRun({ campaign }: { campaign: Campaign }) {
   const { t } = useTranslation()
