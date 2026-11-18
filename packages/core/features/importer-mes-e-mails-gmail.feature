@@ -103,6 +103,45 @@ Fonctionnalité: Activer l'import de mes e-mails Gmail
     Alors l'import de mes e-mails Gmail est "coupé"
     Et ma connexion Google est "connectée"
 
+  Scénario: Sans client Google, l'import est refusé
+    Soit aucun client Google ne sert mon compte
+    Quand j'active l'import de mes e-mails Gmail et que Google accorde l'accès à Gmail
+    Alors c'est refusé : "Google is not available"
+
+  Scénario: Un client retiré pendant la demande ne connecte rien
+    Soit le client Google de "SOLEAN IT" a le topic Pub/Sub "projects/solean/topics/gmail"
+    Et j'ai demandé l'import de mes e-mails Gmail
+    Et aucun client Google ne sert mon compte
+    Quand Google me ramène avec l'accès à Gmail accordé
+    Alors c'est refusé : "Google is not available"
+
+  Scénario: Sans client Google, couper l'import le coupe tout de même
+    Soit le client Google de "SOLEAN IT" a le topic Pub/Sub "projects/solean/topics/gmail"
+    Et j'ai activé l'import de mes e-mails Gmail
+    Et aucun client Google ne sert mon compte
+    Quand je coupe l'import de mes e-mails Gmail
+    Alors l'import de mes e-mails Gmail est "coupé"
+
+  Scénario: Sans client Google, se déconnecter coupe l'import tout de même
+    Soit le client Google de "SOLEAN IT" a le topic Pub/Sub "projects/solean/topics/gmail"
+    Et j'ai activé l'import de mes e-mails Gmail
+    Et aucun client Google ne sert mon compte
+    Quand je déconnecte mon compte Google
+    Alors je n'ai pas de connexion Google
+
+  Scénario: Sans client Google, le renouvellement ne renouvelle rien
+    Soit le client Google de "SOLEAN IT" a le topic Pub/Sub "projects/solean/topics/gmail"
+    Et j'ai activé l'import de mes e-mails Gmail
+    Et aucun client Google ne sert mon compte
+    Quand le renouvellement quotidien passe
+    Alors l'import de mes e-mails Gmail est "actif"
+
+  Scénario: Reconnecter le même compte Google garde l'import
+    Soit le client Google de "SOLEAN IT" a le topic Pub/Sub "projects/solean/topics/gmail"
+    Et j'ai activé l'import de mes e-mails Gmail
+    Quand je connecte mon compte Google "michel@exemple.fr" et que Google accorde l'accès
+    Alors l'import de mes e-mails Gmail est "actif"
+
   Scénario: Sans topic du compte, l'import est refusé
     Quand j'active l'import de mes e-mails Gmail et que Google accorde l'accès à Gmail
     Alors c'est refusé : "The import of the e-mails is not available"

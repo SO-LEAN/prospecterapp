@@ -111,6 +111,9 @@ Fonctionnalité: Configurer le client Google de mon compte
     Soit le client Google "client-solean" de secret "secret-solean" sert "SOLEAN IT"
     Alors les notifications de Gmail de "SOLEAN IT" ne sont poussées par personne
 
+  Scénario: Sans client, personne ne pousse les notifications de Gmail d'un compte
+    Alors les notifications de Gmail de "SOLEAN IT" ne sont poussées par personne
+
   Scénario: Un topic a son nom complet
     Soit le client Google "client-solean" de secret "secret-solean" sert "SOLEAN IT"
     Quand je renseigne le topic Pub/Sub "gmail" poussé par "push@solean.iam.gserviceaccount.com"
