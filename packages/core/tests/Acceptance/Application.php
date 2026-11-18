@@ -84,6 +84,7 @@ use Prospecter\Core\Campaigns\Application\RenderCampaignMessage\CampaignMessage;
 use Prospecter\Core\Campaigns\Application\RenderCampaignMessage\KeptCampaignMessage;
 use Prospecter\Core\Campaigns\Application\RenderCampaignMessage\RenderCampaignMessage;
 use Prospecter\Core\Campaigns\Application\RenderCampaignMessage\RenderCampaignMessageHandler;
+use Prospecter\Core\Campaigns\Application\ReopenRecipientOfErasedExchange\ReopenRecipientOfErasedExchangeHandler;
 use Prospecter\Core\Campaigns\Application\ReviseCampaign\ReviseCampaignHandler;
 use Prospecter\Core\Campaigns\Application\SearchContactsByTags\KeptTaggedContactPage;
 use Prospecter\Core\Campaigns\Application\SearchContactsByTags\SearchContactsByTags;
@@ -1426,6 +1427,7 @@ final class Application
             new ForgetTagsOfForgottenContactHandler($this->taggings),
             new ForgetRecipientOfForgottenContactHandler($this->campaigns),
             new ProcessRecipientOfCampaignExchangeHandler($this->campaigns),
+            new ReopenRecipientOfErasedExchangeHandler($this->campaigns),
             new RecordOrganizationFactsInCampaignsHandler($this->campaignsFactRecorder),
             new RecordContactFactsInCampaignsHandler($this->campaignsFactRecorder),
         ];

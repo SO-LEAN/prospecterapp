@@ -14,13 +14,14 @@ use Symfony\Component\DependencyInjection\ServiceLocator;
  * events to the worker: a subscription naming the payloads it listens to (`payload`, a pattern of EventBridge on the
  * payload of the detail) reacts to those only (ADR 0127). The push into Google listens to the facts of the exchanges
  * planned, cancelled or erased; a recipient of a campaign is processed by the facts of an exchange done or missed
- * (ADR 0145).
+ * (ADR 0145), and to handle again by those of an exchange erased (ADR 0152).
  */
 class SubscriptionsTest extends TestCase
 {
     private const string PUSH = 'connectors-push-exchange';
     private const string FIGURES = 'reporting-figures';
     private const string PROCESS = 'campaigns-process-recipient';
+    private const string REOPEN = 'campaigns-reopen-recipient';
 
     /**
      * @param array<string, mixed> $payload
@@ -39,7 +40,7 @@ class SubscriptionsTest extends TestCase
     {
         yield 'planned, or moved' => [self::fact(present: true, status: 'planned'), [self::FIGURES, self::PUSH]];
         yield 'cancelled' => [self::fact(present: true, status: 'cancelled'), [self::FIGURES, self::PUSH]];
-        yield 'erased' => [self::fact(present: false, status: null), [self::FIGURES, self::PUSH]];
+        yield 'erased' => [self::fact(present: false, status: null), [self::FIGURES, self::PUSH, self::REOPEN]];
         yield 'done, or noted once it happened' => [self::fact(present: true, status: 'done'), [self::FIGURES, self::PROCESS]];
         yield 'missed' => [self::fact(present: true, status: 'missed'), [self::FIGURES, self::PROCESS]];
     }
