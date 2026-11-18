@@ -55,6 +55,13 @@ Fonctionnalité: Les contacts à rattacher
     Alors je peux sur la timeline :
       | consulter la timeline |
 
+  Scénario: La timeline d'un contact à rattacher ne propose à un autre prospecteur ni de noter ni de planifier
+    Soit "Ada Lovelace" (ada@acme.fr) a pris une visio avec moi le 20/11/2026 à 14h00
+    Et je suis connecté en tant qu'un autre prospecteur de "SOLEAN IT"
+    Quand je consulte la timeline de "Ada Lovelace"
+    Alors je peux sur la timeline :
+      | consulter la timeline |
+
   Scénario: Un autre prospecteur ne note rien avec un contact à rattacher
     Soit "Ada Lovelace" (ada@acme.fr) a pris une visio avec moi le 20/11/2026 à 14h00
     Et je suis connecté en tant qu'un autre prospecteur de "SOLEAN IT"
