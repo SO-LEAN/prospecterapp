@@ -6,6 +6,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { queryKeys } from '@/shared/api/keys'
 import { Toaster } from '@/shared/ui/sonner'
 import { renderInARouter } from '@/test/render-in-a-router'
+import { theMomentOfTheTest } from '@/test/the-moment-of-the-tests'
 import { startOfDay } from '../../calendar/dates'
 import { type DayExchange, type MyDay, myDayQuery } from '../../my-day/queries'
 import type { ExchangeDetail } from '../../queries'
@@ -145,9 +146,7 @@ const readsOfMyDay = () =>
   theApi.mock.calls.filter(([request]) => new URL((request as Request).url).pathname === '/api/me/day').length
 
 const itIs = (hours: number, minutes: number) =>
-  act(() =>
-    vi.advanceTimersByTimeAsync(at(hours, minutes).getTime() - (vi.getMockedSystemTime()?.getTime() ?? 0)),
-  )
+  act(() => vi.advanceTimersByTimeAsync(at(hours, minutes).getTime() - theMomentOfTheTest().getTime()))
 
 const theTabIs = (state: DocumentVisibilityState) => {
   Object.defineProperty(document, 'visibilityState', { value: state, configurable: true })
