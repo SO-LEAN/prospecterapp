@@ -49,6 +49,6 @@ final class ConfigureGoogleClientController extends AbstractController
             executedAt: $this->clock->now(),
         ));
 
-        return $this->json($this->googleClientReader->read($user->memberId()));
+        return $this->json($this->googleClientReader->read($user));
     }
 }

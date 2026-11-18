@@ -25,6 +25,7 @@ const theClient: GoogleClient = {
   clientId: 'client-of-solean',
   secretSet: true,
   redirectUri: 'https://prospecter.localhost/settings/connectors/google',
+  gmailNotificationEndpoint: 'https://api.prospecter.localhost/api/accounts/an-account/gmail-notifications',
   _links: { self: { href: THE_CLIENT, method: 'GET' }, configure: { href: THE_CLIENT, method: 'PATCH' } },
 }
 

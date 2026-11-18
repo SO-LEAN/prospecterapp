@@ -13,6 +13,10 @@ final readonly class GoogleClientLinksResource
         public LinkResource $configure,
         #[OA\Property(description: 'Remove the client, while the account has one', nullable: false)]
         public ?LinkResource $remove = null,
+        #[OA\Property(description: 'Name the topic of Gmail and the account of service pushing its notifications, while the account has a client', nullable: false)]
+        public ?LinkResource $configureGmailNotifications = null,
+        #[OA\Property(description: 'Remove the topic of Gmail, while the account has one', nullable: false)]
+        public ?LinkResource $removeGmailNotifications = null,
     ) {
     }
 }

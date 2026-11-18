@@ -19,6 +19,9 @@ class GoogleClientApiTest extends ApiTestCase
 {
     private const string THE_CLIENT = '/api/me/organization/clients/google';
     private const string REDIRECT_URI = 'https://front.test.prospecter.io/settings/connectors/google';
+    private const string GMAIL_NOTIFICATIONS = '/api/me/organization/clients/google/gmail-notifications';
+    private const string TOPIC = 'projects/solean/topics/gmail';
+    private const string PUSH_ACCOUNT = 'push@solean.iam.gserviceaccount.com';
 
     protected function setUp(): void
     {
@@ -37,13 +40,58 @@ class GoogleClientApiTest extends ApiTestCase
             'clientId' => 'client-of-the-double',
             'secretSet' => true,
             'redirectUri' => self::REDIRECT_URI,
+            'gmailNotificationEndpoint' => $this->notificationEndpoint(),
             '_links' => [
                 'self' => ['href' => self::THE_CLIENT, 'method' => 'GET'],
                 'configure' => ['href' => self::THE_CLIENT, 'method' => 'PATCH'],
                 'remove' => ['href' => self::THE_CLIENT, 'method' => 'DELETE'],
+                'configureGmailNotifications' => ['href' => self::GMAIL_NOTIFICATIONS, 'method' => 'PUT'],
             ],
         ], $client);
         $this->assertStringNotContainsString('secret-of-the-double', (string) $this->client->getResponse()->getContent());
+    }
+
+    public function testAnAdministratorNamesTheTopicGmailNotifiesThrough(): void
+    {
+        $this->loginAnAdministrator();
+
+        $client = $this->requestJson('PUT', self::GMAIL_NOTIFICATIONS, ['topic' => self::TOPIC, 'pushAccount' => self::PUSH_ACCOUNT]);
+
+        $this->assertResponseIsSuccessful();
+        $this->assertSame(['topic' => self::TOPIC, 'pushAccount' => self::PUSH_ACCOUNT], $client['gmailNotifications']);
+        $this->assertSame(['href' => self::GMAIL_NOTIFICATIONS, 'method' => 'DELETE'], $client['_links']['removeGmailNotifications']);
+        $this->assertSame(self::TOPIC, $this->requestJson('GET', self::THE_CLIENT)['gmailNotifications']['topic']);
+    }
+
+    public function testAnAdministratorRemovesTheTopic(): void
+    {
+        $this->loginAnAdministrator();
+        $this->requestJson('PUT', self::GMAIL_NOTIFICATIONS, ['topic' => self::TOPIC, 'pushAccount' => self::PUSH_ACCOUNT]);
+
+        $client = $this->requestJson('DELETE', self::GMAIL_NOTIFICATIONS);
+
+        $this->assertResponseIsSuccessful();
+        $this->assertArrayNotHasKey('gmailNotifications', $client);
+        $this->assertArrayNotHasKey('removeGmailNotifications', $client['_links']);
+    }
+
+    public function testATopicIsNamedInFull(): void
+    {
+        $this->loginAnAdministrator();
+
+        $problem = $this->requestJson('PUT', self::GMAIL_NOTIFICATIONS, ['topic' => 'gmail', 'pushAccount' => self::PUSH_ACCOUNT]);
+
+        $this->assertResponseStatusCodeSame(422);
+        $this->assertSame('invalidTopic', $problem['reason']);
+    }
+
+    public function testATopicNeedsItsAccountOfService(): void
+    {
+        $this->loginAnAdministrator();
+
+        $this->requestJson('PUT', self::GMAIL_NOTIFICATIONS, ['topic' => self::TOPIC, 'pushAccount' => 'no-address']);
+
+        $this->assertResponseStatusCodeSame(422);
     }
 
     public function testAnAdministratorConfiguresAnotherClient(): void
@@ -116,6 +164,7 @@ class GoogleClientApiTest extends ApiTestCase
             'clientId' => null,
             'secretSet' => false,
             'redirectUri' => self::REDIRECT_URI,
+            'gmailNotificationEndpoint' => $this->notificationEndpoint(),
             '_links' => [
                 'self' => ['href' => self::THE_CLIENT, 'method' => 'GET'],
                 'configure' => ['href' => self::THE_CLIENT, 'method' => 'PATCH'],
@@ -136,11 +185,15 @@ class GoogleClientApiTest extends ApiTestCase
     }
 
     #[DataProvider('gesturesOfAMemberWhoIsNoAdministrator')]
-    public function testAMemberWhoIsNoAdministratorNeitherSeesNorChangesTheClient(string $member, string $method): void
+    public function testAMemberWhoIsNoAdministratorNeitherSeesNorChangesTheClient(string $member, string $method, string $uri = self::THE_CLIENT): void
     {
         $this->login($member);
 
-        $this->requestJson($method, self::THE_CLIENT, 'PATCH' === $method ? ['clientId' => 'client-of-solean', 'clientSecret' => 'secret-of-solean'] : null);
+        $this->requestJson($method, $uri, match ($method) {
+            'PATCH' => ['clientId' => 'client-of-solean', 'clientSecret' => 'secret-of-solean'],
+            'PUT' => ['topic' => self::TOPIC, 'pushAccount' => self::PUSH_ACCOUNT],
+            default => null,
+        });
 
         $this->assertResponseStatusCodeSame(403);
         $this->loginAnAdministrator();
@@ -148,13 +201,16 @@ class GoogleClientApiTest extends ApiTestCase
     }
 
     /**
-     * @return iterable<string, array{string, string}>
+     * @return iterable<string, array{0: string, 1: string, 2?: string}>
      */
     public static function gesturesOfAMemberWhoIsNoAdministrator(): iterable
     {
         foreach (['a prospector with the personal data' => 'prospector-user', 'a prospector without the personal data' => 'assistant-user'] as $who => $member) {
             foreach (['sees' => 'GET', 'configures' => 'PATCH', 'removes' => 'DELETE'] as $gesture => $method) {
                 yield sprintf('%s %s', $who, $gesture) => [$member, $method];
+            }
+            foreach (['names the topic of Gmail' => 'PUT', 'removes the topic of Gmail' => 'DELETE'] as $gesture => $method) {
+                yield sprintf('%s %s', $who, $gesture) => [$member, $method, self::GMAIL_NOTIFICATIONS];
             }
         }
     }
@@ -173,6 +229,14 @@ class GoogleClientApiTest extends ApiTestCase
         $this->requestJson('GET', self::THE_CLIENT);
 
         $this->assertResponseStatusCodeSame(401);
+    }
+
+    /**
+     * Where the subscription of the account at Google pushes the notifications of Gmail (ADR 0154).
+     */
+    private function notificationEndpoint(): string
+    {
+        return sprintf('%s/api/accounts/%s/gmail-notifications', $_SERVER['DEFAULT_URI'], $this->accountOfTheFixtures()->value);
     }
 
     private function loginAnAdministrator(): void
