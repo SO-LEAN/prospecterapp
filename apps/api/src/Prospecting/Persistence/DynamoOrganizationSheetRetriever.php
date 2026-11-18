@@ -73,7 +73,7 @@ final readonly class DynamoOrganizationSheetRetriever implements OrganizationShe
             country: $address?->country,
             longitude: $geoPoint?->longitude,
             latitude: $geoPoint?->latitude,
-            municipalityCode: null,
+            municipalityCode: $document['municipalityCode'] ?? null,
             observations: $document['observations'],
             logo: FileResponse::orNone(Documents::fileOf($document['logo'])),
             holdingId: $document['holdingId'],
