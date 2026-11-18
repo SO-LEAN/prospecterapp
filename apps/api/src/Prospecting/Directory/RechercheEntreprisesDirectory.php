@@ -5,6 +5,7 @@ namespace App\Prospecting\Directory;
 use App\Shared\ServiceUnavailable;
 use Prospecter\Core\Prospecting\Domain\Model\Establishment;
 use Prospecter\Core\Prospecting\Domain\Port\EstablishmentDirectory;
+use Prospecter\Core\SharedKernel\Domain\Exception\InvalidSiret;
 use Prospecter\Core\SharedKernel\Domain\Siret;
 use Symfony\Component\DependencyInjection\Attribute\Autowire;
 use Symfony\Contracts\HttpClient\Exception\DecodingExceptionInterface;
@@ -117,13 +118,25 @@ final readonly class RechercheEntreprisesDirectory implements EstablishmentDirec
      */
     private static function establishmentsOf(array $company): array
     {
-        return array_map(static fn (array $establishment): Establishment => new Establishment(
-            new Siret($establishment['siret']),
-            $company['nom_complet'],
-            $establishment['adresse'],
-            $establishment['activite_principale'],
-            self::CLOSED === $establishment['etat_administratif'],
-            $establishment['commune'],
-        ), $company['matching_etablissements']);
+        return array_values(array_filter(array_map(
+            static fn (array $establishment): ?Establishment => self::establishmentOf($company['nom_complet'], $establishment),
+            $company['matching_etablissements'],
+        )));
+    }
+
+    /**
+     * None for an establishment the directory lists with a SIRET failing its key: it could not be noted.
+     *
+     * @param array<string, mixed> $establishment
+     */
+    private static function establishmentOf(string $name, array $establishment): ?Establishment
+    {
+        try {
+            $siret = new Siret($establishment['siret']);
+        } catch (InvalidSiret) {
+            return null;
+        }
+
+        return new Establishment($siret, $name, $establishment['adresse'], $establishment['activite_principale'], self::CLOSED === $establishment['etat_administratif'], $establishment['commune']);
     }
 }
