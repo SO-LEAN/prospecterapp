@@ -142,7 +142,7 @@ Every event, domain or integration, travels as an EventBridge event:
 | `prospecting-erase-exchange` | `ExchangeLeftWithoutOrganization` (.internal) | yes | the exchange erased |
 | `prospecting-discard-removed-logo` | `LogoRemoved` (.internal) | no | the file leaves the storage |
 | `prospecting-discard-removed-attachment` | `AttachmentRemoved` (.internal) | no | the file leaves the storage |
-| `prospecting-discard-attachments-of-erased-exchange` | `ExchangeErased` (.internal, .v1, .v2) | no | its files leave the storage |
+| `prospecting-discard-attachments-of-erased-exchange` | `ExchangeErased` (.internal, .v1, .v2, .v3) | no | its files leave the storage |
 | `reporting-figures` | `OrganizationFactsChanged`, `ExchangeFactsChanged`, `ContactFactsChanged` | no | the facts and the figures of Reporting, a reaction per detail-type |
 | `connectors-unname-forgotten-contact` | `ContactForgotten` | yes | the events of the exchanges done or missed with the contact put again without their name (ADR 0127) |
 | `connectors-push-upcoming-exchanges` | `Connected`, `CalendarRecreated` (.internal) | yes | the exchanges the member still has planned pushed into their calendar « Prospecter » at Google, the 40 soonest (ADR 0133) |
