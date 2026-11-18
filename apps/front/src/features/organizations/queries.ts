@@ -47,5 +47,16 @@ export const fullNameOf = (contact: Pick<OrganizationContact, 'name'>) =>
 export const contactCandidatesQuery = (q: string) =>
   api.queryOptions('get', '/api/contacts', { params: { query: { q } } })
 
+export type Establishment = components['schemas']['EstablishmentResource']
+
+/** Asked once a member opens the directory; out of reach, it is said at once, without trying again. */
+export const establishmentsQuery = (id: string) =>
+  api.queryOptions(
+    'get',
+    '/api/organizations/{id}/establishments',
+    { params: { path: { id } } },
+    { retry: false },
+  )
+
 export const organizationQuery = (id: string) =>
   api.queryOptions('get', '/api/organizations/{id}', { params: { path: { id } } })
