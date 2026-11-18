@@ -26,6 +26,14 @@ Fonctionnalité: Rechercher l'établissement d'une organisation dans l'annuaire 
     Alors l'organisation "ACME" est enregistrée avec :
       | SIRET | 55210055400021 |
 
+  Scénario: Un établissement de sa ville, trouvé partout aussi, n'est proposé qu'une fois
+    Soit l'organisation "Globex" fait partie de mes organisations avec :
+      | ville | Lyon |
+    Quand je cherche le SIRET de "Globex"
+    Alors l'annuaire me propose :
+      | SIRET          | dénomination | adresse                   | activité | fermé |
+      | 55210055400039 | GLOBEX       | 3 RUE SERVIENT 69003 LYON | 47.64Z   | non   |
+
   Scénario: Sans commune, les établissements de partout, dans l'ordre de l'annuaire
     Soit l'organisation "ACME" fait partie de mes organisations
     Quand je cherche le SIRET de "ACME"
