@@ -2291,6 +2291,7 @@ export interface components {
             markDone?: components["schemas"]["LinkResource"];
             markMissed?: components["schemas"]["LinkResource"];
             cancel?: components["schemas"]["LinkResource"];
+            campaign?: components["schemas"]["LinkResource"];
         };
         ExchangeResource: {
             id: string;
