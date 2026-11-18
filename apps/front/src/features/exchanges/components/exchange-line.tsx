@@ -24,7 +24,7 @@ import { useTranslation } from 'react-i18next'
 import { formatMoment, formatUpcoming } from '@/shared/lib/format'
 import { cn } from '@/shared/lib/utils'
 import { type Channel, directionWordsOf, type Exchange, type Interlocutor } from '../queries'
-import { CampaignOfTheExchangeForMe } from './campaign-of-the-exchange'
+import { CampaignOfTheLine } from './campaign-of-the-exchange'
 import { ExchangeText, PersonalDataWarning } from './exchange-text'
 import { ToAttachBadge } from './to-attach-badge'
 
@@ -87,7 +87,7 @@ export function ExchangeLine({
       {exchange.attachmentCount > 0 && <AttachmentCount count={exchange.attachmentCount} />}
       {!campaignAside && exchange.campaign && (
         <div className="mt-1">
-          <CampaignOfTheExchangeForMe campaign={exchange.campaign} />
+          <CampaignOfTheLine exchange={exchange} />
         </div>
       )}
     </ExchangeSummary>
