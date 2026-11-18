@@ -139,13 +139,11 @@ function RemoveTopicButton() {
   const { t } = useTranslation()
   const remove = useRemoveGmailNotifications()
 
-  const removeIt = async () => {
-    await remove.mutateAsync({})
-    toast.success(t('settings.connectors.client.gmail.removed'))
-  }
+  const removeIt = () =>
+    remove.mutate({}, { onSuccess: () => toast.success(t('settings.connectors.client.gmail.removed')) })
 
   return (
-    <Button variant="ghost" disabled={remove.isPending} onClick={() => void removeIt()}>
+    <Button variant="ghost" disabled={remove.isPending} onClick={removeIt}>
       <Trash2 aria-hidden /> {t('settings.connectors.client.gmail.remove')}
     </Button>
   )
