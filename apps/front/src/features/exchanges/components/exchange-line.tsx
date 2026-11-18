@@ -40,8 +40,9 @@ export const CHANNEL_ICONS: Record<Channel, LucideIcon> = {
 
 type Summarized = Pick<
   Exchange,
-  'channel' | 'direction' | 'occurredAt' | 'status' | 'canceller' | 'durationInMinutes' | 'organizationIds'
->
+  'channel' | 'direction' | 'occurredAt' | 'status' | 'canceller' | 'durationInMinutes'
+> &
+  Partial<Pick<Exchange, 'contactToAttach'>>
 
 const STATUS_ICONS: Partial<Record<Exchange['status'], LucideIcon>> = {
   planned: CalendarClock,
