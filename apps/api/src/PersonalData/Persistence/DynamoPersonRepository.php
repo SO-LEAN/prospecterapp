@@ -110,7 +110,7 @@ final readonly class DynamoPersonRepository implements PersonRepository
      */
     private function linkedInProfileWrites(Person $person, ?Person $stored): array
     {
-        if (Purpose::Prospecting !== $person->purpose()) {
+        if (!self::isAContact($person)) {
             return [];
         }
         $taken = array_filter($person->linkedInProfilesHeld(), static fn (LinkedInProfile $profile): bool => !($stored?->holdsLinkedInProfile($profile) ?? false));
@@ -147,8 +147,9 @@ final readonly class DynamoPersonRepository implements PersonRepository
 
     /**
      * Writes again the item of every person, its search keys and its key in its list with it, the item of their first
-     * name beside it, and forgets the items of the search before ADR 0071: what a table written before ADR 0071, or
-     * before ADR 0149, needs once.
+     * name beside it, the reservation of each LinkedIn profile a contact holds, and forgets the items of the search
+     * before ADR 0071: what a table written before ADR 0071, before ADR 0149, or before the profiles were unique,
+     * needs once.
      */
     public function writeTheKeysAgain(): int
     {
@@ -158,11 +159,36 @@ final readonly class DynamoPersonRepository implements PersonRepository
             [
                 ...array_map(fn (Person $person, array $item): array => $this->itemOf($person, $item['person'], Revision::of($item)), $persons, $items),
                 ...array_filter(array_map($this->firstNameItemOf(...), $persons)),
+                ...$this->linkedInReservationsOf($persons),
             ],
             array_map(static fn (array $former): array => [$former['PK'], $former['SK']], $this->personalDataTable->scan('TOKEN')),
         );
 
         return count($items);
+    }
+
+    /**
+     * The reservation of each profile a contact holds; one two contacts noted before the profiles were unique for the
+     * oldest of them, the first of the identities in their order (UUID v7).
+     *
+     * @param list<Person> $persons
+     *
+     * @return list<array<string, string>>
+     */
+    private function linkedInReservationsOf(array $persons): array
+    {
+        $contacts = array_filter($persons, self::isAContact(...));
+        usort($contacts, static fn (Person $one, Person $other): int => strcmp($one->id()->value, $other->id()->value));
+        $reservations = [];
+
+        foreach ($contacts as $contact) {
+            foreach ($contact->linkedInProfilesHeld() as $profile) {
+                $key = self::linkedInKey($contact->accountId(), $profile->value);
+                $reservations[$key] ??= ['PK' => $key, 'SK' => self::LINKEDIN, 'ownerId' => $contact->id()->value];
+            }
+        }
+
+        return array_values($reservations);
     }
 
     /**
@@ -231,6 +257,11 @@ final readonly class DynamoPersonRepository implements PersonRepository
     private static function emailKey(AccountId $accountId, Purpose $purpose, string $email): string
     {
         return sprintf('%s#%s#%s#%s', self::EMAIL, $accountId->value, $purpose->value, $email);
+    }
+
+    private static function isAContact(Person $person): bool
+    {
+        return $person->isAContactOf($person->accountId());
     }
 
     private static function linkedInKey(AccountId $accountId, string $profile): string

@@ -2,6 +2,7 @@
 
 namespace Tests\App\PersonalData;
 
+use App\PersonalData\Persistence\DynamoPersonRepository;
 use App\PersonalData\Persistence\PersonDocument;
 use App\Shared\Persistence\Table;
 use Prospecter\Core\PersonalData\Domain\Exception\LinkedInProfileAlreadyUsed;
@@ -124,6 +125,47 @@ class DynamoPersonLinkedInProfilesTest extends ApiTestCase
         $this->persons()->save($younger);
 
         $this->assertEquals($oldest->id(), $this->persons()->contactHoldingLinkedInProfile($account, new LinkedInProfile(self::ADA), except: new PersonId(self::newIdentity()))?->id());
+    }
+
+    public function testTheKeysWrittenAgainReserveTheProfilesOfAContactSavedBefore(): void
+    {
+        $account = new AccountId(self::newIdentity());
+        $ada = $this->contactWithTheProfiles($account, self::ADA, 'https://www.linkedin.com/in/ada-l');
+        $this->persons()->save($ada);
+        $this->forgetTheReservationsOf($account, self::ADA, 'https://www.linkedin.com/in/ada-l');
+
+        self::getContainer()->get(DynamoPersonRepository::class)->writeTheKeysAgain();
+
+        $this->assertEquals($ada->id(), $this->persons()->contactHoldingLinkedInProfile($account, new LinkedInProfile(self::ADA), except: new PersonId(self::newIdentity()))?->id());
+        $this->assertEquals($ada->id(), $this->persons()->contactHoldingLinkedInProfile($account, new LinkedInProfile('https://www.linkedin.com/in/ada-l'), except: new PersonId(self::newIdentity()))?->id());
+    }
+
+    public function testTheKeysWrittenAgainReserveAProfileTwoContactsNotedForTheOldest(): void
+    {
+        $account = new AccountId(self::newIdentity());
+        [$oldest, $younger] = $this->duplicatesOf($account, self::ADA);
+        $this->forgetTheReservationsOf($account, self::ADA);
+        $this->persons()->save($younger);
+        $this->forgetTheReservationsOf($account, self::ADA);
+
+        self::getContainer()->get(DynamoPersonRepository::class)->writeTheKeysAgain();
+
+        $this->assertEquals($oldest->id(), $this->persons()->contactHoldingLinkedInProfile($account, new LinkedInProfile(self::ADA), except: new PersonId(self::newIdentity()))?->id());
+    }
+
+    public function testTheKeysWrittenAgainReserveNoProfileOfAMember(): void
+    {
+        $account = new AccountId(self::newIdentity());
+        $this->persons()->save($this->personWithTheProfiles($account, Purpose::Membership, self::ADA));
+
+        self::getContainer()->get(DynamoPersonRepository::class)->writeTheKeysAgain();
+
+        $this->assertNull($this->personalDataTable()->item(sprintf('LINKEDIN#%s#%s', $account->value, self::ADA), 'LINKEDIN'));
+    }
+
+    private function forgetTheReservationsOf(AccountId $account, string ...$profiles): void
+    {
+        $this->personalDataTable()->batch([], array_map(static fn (string $profile): array => [sprintf('LINKEDIN#%s#%s', $account->value, $profile), 'LINKEDIN'], $profiles));
     }
 
     /**
