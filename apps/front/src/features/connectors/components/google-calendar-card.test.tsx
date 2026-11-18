@@ -117,6 +117,33 @@ describe('GoogleCalendarCard, the import of my e-mails of Gmail', () => {
     expect(await screen.findByText('L’import de vos e-mails Gmail est coupé.')).toBeInTheDocument()
   })
 
+  it('says nothing more of an import off', () => {
+    renderTheCard(importing('off'))
+
+    expect(screen.getByRole('switch', { name: 'Importer mes e-mails Gmail' })).not.toBeChecked()
+    expect(screen.queryByText(/^Import actif/)).not.toBeInTheDocument()
+    expect(screen.queryByRole('button', { name: 'Couper l’import' })).not.toBeInTheDocument()
+  })
+
+  it('dates the last notification received', () => {
+    renderTheCard(importing('active', '2026-11-18T08:15:00+00:00'))
+
+    expect(
+      screen.getByText(/^Import actif, dernière notification reçue le 18 nov\. 2026/),
+    ).toBeInTheDocument()
+    expect(screen.queryByRole('button', { name: 'Couper l’import' })).not.toBeInTheDocument()
+  })
+
+  it('keeps the connections the API answers once the import is stopped', async () => {
+    const answered = { ...noConnection, connections: [importing('off')] }
+    theApi.mockResolvedValue(Response.json(answered))
+    const { user, queryClient } = renderTheCard(importing('active'))
+
+    await user.click(screen.getByRole('switch', { name: 'Importer mes e-mails Gmail' }))
+
+    await waitFor(() => expect(queryClient.getQueryData(connectionsQuery().queryKey)).toEqual(answered))
+  })
+
   it('says when no notification was received yet', () => {
     renderTheCard(importing('active'))
 

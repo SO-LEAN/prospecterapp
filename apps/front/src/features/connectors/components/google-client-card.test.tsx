@@ -208,6 +208,57 @@ describe('GoogleClientCard, the topic of Gmail', () => {
     )
   })
 
+  it('titles the import and asks nothing before it is named', () => {
+    renderTheCard(withoutTopic())
+
+    expect(screen.getByText('Import des e-mails Gmail')).toBeInTheDocument()
+    expect(screen.queryByRole('alert')).not.toBeInTheDocument()
+  })
+
+  it('copies the address of the notifications', async () => {
+    const { user } = renderTheCard(withoutTopic())
+
+    await user.click(screen.getAllByRole('button', { name: 'Copier l’adresse' })[1] as HTMLElement)
+
+    expect(await navigator.clipboard.readText()).toBe(NOTIFICATION_ENDPOINT)
+  })
+
+  it('asks the topic and the account of service before sending anything', async () => {
+    const { user } = renderTheCard(withoutTopic())
+
+    await user.click(screen.getByRole('button', { name: 'Enregistrer le topic' }))
+
+    expect(await screen.findAllByText('Ce champ est obligatoire.')).toHaveLength(2)
+    expect(theApi).not.toHaveBeenCalled()
+  })
+
+  it('says why the API refused the topic', async () => {
+    theApi.mockResolvedValue(
+      Response.json(
+        {
+          type: 'about:blank',
+          title: 'Unprocessable Content',
+          status: 422,
+          violations: [
+            {
+              propertyPath: '',
+              title: 'A topic is named projects/<project>/topics/<topic>',
+              reason: 'invalidTopic',
+            },
+          ],
+        },
+        { status: 422, headers: { 'Content-Type': 'application/problem+json' } },
+      ),
+    )
+    const { user } = renderTheCard(withoutTopic())
+
+    await user.type(screen.getByLabelText('Topic Pub/Sub (import Gmail)'), 'gmail')
+    await user.type(screen.getByLabelText('Compte de service des notifications'), PUSH_ACCOUNT)
+    await user.click(screen.getByRole('button', { name: 'Enregistrer le topic' }))
+
+    expect(await screen.findByRole('alert')).toHaveTextContent('Un topic se nomme en entier')
+  })
+
   it('names the topic and the account of service pushing its notifications', async () => {
     theApi.mockResolvedValue(Response.json(notifyingGmail()))
     const { user, queryClient } = renderTheCard(withoutTopic())
@@ -231,7 +282,7 @@ describe('GoogleClientCard, the topic of Gmail', () => {
 
   it('shows the topic named, and removes it', async () => {
     theApi.mockResolvedValue(Response.json(withoutTopic()))
-    const { user } = renderTheCard(notifyingGmail())
+    const { user, queryClient } = renderTheCard(notifyingGmail())
 
     expect(screen.getByLabelText('Topic Pub/Sub (import Gmail)')).toHaveValue(TOPIC)
     expect(screen.getByLabelText('Compte de service des notifications')).toHaveValue(PUSH_ACCOUNT)
@@ -241,5 +292,6 @@ describe('GoogleClientCard, the topic of Gmail', () => {
       expect(await sent()).toMatchObject({ path: GMAIL_NOTIFICATIONS, method: 'DELETE' }),
     )
     expect(await screen.findByText('Le topic de l’import Gmail est retiré.')).toBeInTheDocument()
+    expect(queryClient.getQueryData(googleClientQuery().queryKey)).toEqual(withoutTopic())
   })
 })
