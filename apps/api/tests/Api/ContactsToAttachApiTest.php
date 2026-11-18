@@ -2,6 +2,8 @@
 
 namespace Tests\App\Api;
 
+use App\Demo\DemoData;
+use App\Shared\Persistence\Table;
 use PHPUnit\Framework\Attributes\Group;
 use Prospecter\Core\Accounts\Domain\Model\Role;
 use Prospecter\Core\PersonalData\Domain\Model\Person;
@@ -21,6 +23,8 @@ use Prospecter\Core\SharedKernel\Domain\ContactDetails;
 use Prospecter\Core\SharedKernel\Domain\Email;
 use Prospecter\Core\SharedKernel\Domain\MemberId;
 use Prospecter\Core\SharedKernel\Domain\PersonId;
+use Symfony\Bundle\FrameworkBundle\Console\Application;
+use Symfony\Component\Console\Tester\CommandTester;
 use Tests\App\Base\ApiTestCase;
 
 /**
@@ -64,6 +68,47 @@ class ContactsToAttachApiTest extends ApiTestCase
         ], $toAttach[1]);
     }
 
+    public function testWithoutTheRightTheirHolderGetsNoProposal(): void
+    {
+        $louise = $this->aContactToAttachOf('assistant-user', 'Louise', 'Michel', 'louise@acme.test', '2026-10-20 14:00 Europe/Paris');
+        $this->login('assistant-user');
+
+        $toAttach = $this->requestJson('GET', self::TO_PROCESS)['contactsToAttach'];
+
+        $this->assertSame([$louise], array_column($toAttach, 'id'));
+        $this->assertSame(['self'], array_keys($toAttach[0]['_links']));
+        $this->assertArrayNotHasKey('proposedOrganization', $this->requestJson('GET', '/api/contacts/'.$louise)['_links']);
+    }
+
+    public function testTheirHolderWithoutTheRightPlansWithThemButNotesNothing(): void
+    {
+        $louise = $this->aContactToAttachOf('assistant-user', 'Louise', 'Michel', 'louise@acme.test', '2026-10-20 14:00 Europe/Paris');
+        $this->login('assistant-user');
+
+        $this->requestJson('POST', '/api/contacts/'.$louise.'/upcoming-exchanges', ['channel' => 'call', 'occurredAt' => '2026-10-25T09:00:00+00:00']);
+        $this->assertResponseStatusCodeSame(201);
+        $this->requestJson('POST', '/api/contacts/'.$louise.'/exchanges', ['channel' => 'call', 'direction' => 'outbound', 'occurredAt' => '2026-10-14T09:00:00+00:00']);
+        $this->assertResponseStatusCodeSame(403);
+        $this->requestJson('POST', '/api/contacts/'.$louise.'/to-dos', ['text' => 'Envoyer la proposition', 'dueOn' => '2026-10-16']);
+        $this->assertResponseStatusCodeSame(403);
+    }
+
+    public function testThePageOfAContactToAttachLinksTheProposalToTheirHolderWithTheRightOnly(): void
+    {
+        $this->login();
+        $this->assertSame(['href' => '/api/contacts/'.$this->grace.'/proposed-organization', 'method' => 'GET'], $this->requestJson('GET', '/api/contacts/'.$this->grace)['_links']['proposedOrganization']);
+
+        $this->login($this->aMemberOfTheFixtures('administrator', Role::User, Role::Prospector, Role::PersonalData, Role::Admin));
+        $this->assertArrayNotHasKey('proposedOrganization', $this->requestJson('GET', '/api/contacts/'.$this->grace)['_links']);
+    }
+
+    public function testTheirExchangesSayTheyAreWithAContactToAttach(): void
+    {
+        $this->login();
+
+        $this->assertSame([true], array_column($this->requestJson('GET', '/api/contacts/'.$this->grace.'/upcoming-exchanges')['items'], 'contactToAttach'));
+    }
+
     public function testTheContactsToAttachOfAColleagueAreNotMine(): void
     {
         $this->login($this->aMemberOfTheFixtures('administrator', Role::User, Role::Prospector, Role::PersonalData, Role::Admin));
@@ -88,6 +133,29 @@ class ContactsToAttachApiTest extends ApiTestCase
         $this->requestJson('PATCH', '/api/organizations/'.$acme.'/contact-details', ['email' => 'hello@acme-group.test', 'phoneNumber' => null, 'language' => null]);
 
         $this->assertSame(['organization' => null], $this->requestJson('GET', '/api/contacts/'.$this->grace.'/proposed-organization'));
+    }
+
+    public function testAnOrganizationWhoseEmailChangedWithinItsDomainIsStillProposed(): void
+    {
+        $this->login();
+        $acme = $this->requestJson('POST', '/api/organizations', ['legalIdentity' => ['corporateName' => 'ACME'], 'contactDetails' => ['email' => 'contact@acme.test']])['id'];
+
+        $this->requestJson('PATCH', '/api/organizations/'.$acme.'/contact-details', ['email' => 'hello@acme.test', 'phoneNumber' => null, 'language' => null]);
+
+        $this->assertSame(['organization' => ['id' => $acme, 'name' => 'ACME']], $this->requestJson('GET', '/api/contacts/'.$this->grace.'/proposed-organization'));
+    }
+
+    public function testTheKeysRebuiltWriteTheDomainOfTheEmailOfAnOrganizationAgain(): void
+    {
+        $this->login();
+        $acme = $this->requestJson('POST', '/api/organizations', ['legalIdentity' => ['corporateName' => 'ACME'], 'contactDetails' => ['email' => 'contact@acme.test']])['id'];
+        $table = self::getContainer()->get('app.table.prospecting');
+        $this->assertInstanceOf(Table::class, $table);
+        $table->batch([], [['EMAIL_DOMAIN#'.DemoData::SOLEAN_IT.'#acme.test', 'ORGANIZATION#'.$acme]]);
+
+        new CommandTester(new Application(self::$kernel ?? self::bootKernel())->find('app:keys:rebuild'))->execute([]);
+
+        $this->assertSame(['organization' => ['id' => $acme, 'name' => 'ACME']], $this->requestJson('GET', '/api/contacts/'.$this->grace.'/proposed-organization'));
     }
 
     public function testAPublicMailboxProposesNoOrganization(): void
@@ -127,6 +195,18 @@ class ContactsToAttachApiTest extends ApiTestCase
         $this->assertResponseStatusCodeSame(201);
     }
 
+    public function testAColleagueReadsTheirTimelineButNotesNorPlansNothing(): void
+    {
+        $this->login($this->aMemberOfTheFixtures('administrator', Role::User, Role::Prospector, Role::PersonalData, Role::Admin));
+
+        $links = $this->requestJson('GET', '/api/contacts/'.$this->grace.'/exchanges')['_links'];
+        $this->assertSame([false, false], [isset($links['noteExchange']), isset($links['planExchange'])]);
+        $noted = $this->requestJson('POST', '/api/contacts/'.$this->grace.'/exchanges', ['channel' => 'call', 'direction' => 'outbound', 'occurredAt' => '2026-10-14T09:00:00+00:00']);
+        $this->assertSame([403, 'contactToAttachOfAnother'], [$this->client->getResponse()->getStatusCode(), $noted['reason']]);
+        $toDo = $this->requestJson('POST', '/api/contacts/'.$this->grace.'/to-dos', ['text' => 'Envoyer la proposition', 'dueOn' => '2026-10-16']);
+        $this->assertSame([403, 'contactToAttachOfAnother'], [$this->client->getResponse()->getStatusCode(), $toDo['reason']]);
+    }
+
     public function testAColleagueDoesNotPlanWithThem(): void
     {
         $this->login($this->aMemberOfTheFixtures('administrator', Role::User, Role::Prospector, Role::PersonalData, Role::Admin));
@@ -145,7 +225,8 @@ class ContactsToAttachApiTest extends ApiTestCase
         $this->requestJson('POST', '/api/organizations/'.$acme.'/contacts', ['personId' => $this->grace]);
 
         $this->assertSame([$this->bob], array_column($this->mine($this->requestJson('GET', self::TO_PROCESS)['contactsToAttach']), 'id'));
-        $this->assertSame([[$acme]], array_column($this->requestJson('GET', '/api/contacts/'.$this->grace.'/upcoming-exchanges')['items'], 'organizationIds'));
+        $upcoming = $this->requestJson('GET', '/api/contacts/'.$this->grace.'/upcoming-exchanges')['items'];
+        $this->assertSame([[[$acme], false]], array_map(static fn (array $exchange): array => [$exchange['organizationIds'], $exchange['contactToAttach']], $upcoming));
     }
 
     /**
