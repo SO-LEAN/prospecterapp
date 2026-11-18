@@ -1,3 +1,4 @@
+import type { TFunction } from 'i18next'
 import { BellRing } from 'lucide-react'
 import { useId, useState } from 'react'
 import { useTranslation } from 'react-i18next'
@@ -135,7 +136,7 @@ function TryAReminder({ minutesBefore }: { minutesBefore: Minutes }) {
 const AN_HOUR = 60
 
 /** The example announces the exchange as a real reminder would, `minutesBefore` it. */
-function exampleBodyOf(t: ReturnType<typeof useTranslation>['t'], minutesBefore: Minutes): string {
+function exampleBodyOf(t: TFunction, minutesBefore: Minutes): string {
   if (minutesBefore === 0) {
     return t('settings.reminders.example.body.now')
   }

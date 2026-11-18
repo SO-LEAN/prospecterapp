@@ -1,4 +1,5 @@
 import { Link } from '@tanstack/react-router'
+import type { TFunction } from 'i18next'
 import {
   ArrowDownLeft,
   ArrowUpRight,
@@ -161,7 +162,7 @@ export function ExchangeSummary({
 const MINUTES_IN_AN_HOUR = 60
 
 /** "30 min", "1 h", "1 h 30". */
-export function formatDuration(minutes: number, t: ReturnType<typeof useTranslation>['t']): string {
+export function formatDuration(minutes: number, t: TFunction): string {
   const hours = Math.floor(minutes / MINUTES_IN_AN_HOUR)
   const rest = minutes % MINUTES_IN_AN_HOUR
 

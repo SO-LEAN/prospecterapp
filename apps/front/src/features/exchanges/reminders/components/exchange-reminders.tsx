@@ -1,4 +1,5 @@
 import { useNavigate } from '@tanstack/react-router'
+import type { TFunction } from 'i18next'
 import { useEffect, useEffectEvent, useReducer } from 'react'
 import { useTranslation } from 'react-i18next'
 import { toast } from 'sonner'
@@ -128,7 +129,7 @@ function useRemind(wakeUp: () => void) {
   }
 }
 
-function blinkingOf(t: ReturnType<typeof useTranslation>['t'], channel: string, occurredAt: string): string {
+function blinkingOf(t: TFunction, channel: string, occurredAt: string): string {
   const minutes = Math.ceil((new Date(occurredAt).getTime() - Date.now()) / MINUTE_MS)
   return minutes > 0 ? t('reminders.blinking', { channel, minutes }) : t('reminders.blinkingNow', { channel })
 }
