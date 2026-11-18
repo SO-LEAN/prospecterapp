@@ -1,3 +1,4 @@
+import type { TFunction } from 'i18next'
 import { useId, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Input } from '@/shared/ui/input'
@@ -96,11 +97,7 @@ const proposes = (suggested: SuggestedTags, typed: string) =>
     isTheTag(tag, typed),
   )
 
-function groupsOf(
-  suggested: SuggestedTags,
-  searching: boolean,
-  t: ReturnType<typeof useTranslation>['t'],
-): Group[] {
+function groupsOf(suggested: SuggestedTags, searching: boolean, t: TFunction): Group[] {
   return [
     ...suggested.families.map((family) => ({
       label: t(`tags.families.${family.family}`),
