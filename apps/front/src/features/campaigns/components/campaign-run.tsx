@@ -105,7 +105,6 @@ export function CampaignRun({ campaign }: { campaign: Campaign }) {
           <CardTitle>
             <h2>{t('campaigns.recipients.title')}</h2>
           </CardTitle>
-          <p className="text-muted-foreground text-sm">{t('campaigns.run.nextHint')}</p>
         </CardHeader>
         <CardContent>
           <ul aria-label={t('campaigns.recipients.title')} className="divide-y">
@@ -236,8 +235,14 @@ function RecipientPanel({
           )}
         </div>
         {onNext && (
-          <Button variant="ghost" onClick={onNext}>
+          <Button variant="ghost" aria-keyshortcuts={NEXT_KEY} onClick={onNext}>
             {t('calendar.next')}
+            <kbd
+              aria-hidden
+              className="rounded border px-1.5 font-mono text-muted-foreground text-xs uppercase"
+            >
+              {NEXT_KEY}
+            </kbd>
           </Button>
         )}
       </CardHeader>
@@ -380,7 +385,7 @@ function RecipientForm({
         </Alert>
       )}
       <p className="text-sm">
-        {t(`campaigns.channels.${campaign.channel}`)} ·{' '}
+        {t(`exchanges.channels.${campaign.channel}`)} ·{' '}
         {t(`exchanges.directions.${directionWordsOf(campaign.channel)}.outbound`)}
       </p>
       {isAgreedUpon(campaign.channel) && (
