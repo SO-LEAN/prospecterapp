@@ -4,8 +4,6 @@ declare(strict_types=1);
 
 namespace Prospecter\Core\Booking\Domain\Model;
 
-use Prospecter\Core\Booking\Domain\Policy\FreeSlots;
-
 /**
  * A time the host is already taken, by an exchange they planned: from its start, for its minutes.
  */
@@ -18,12 +16,10 @@ final readonly class BusyPeriod
     }
 
     /**
-     * Both are half open: a period ending when a slot starts leaves it free.
+     * Both are half open: a period ending when another starts leaves it free.
      */
-    public function overlapsSlotAt(\DateTimeImmutable $slot): bool
+    public function overlaps(\DateTimeImmutable $from, \DateTimeImmutable $until): bool
     {
-        $end = $this->start->modify(sprintf('+%d minutes', $this->minutes));
-
-        return $this->start < $slot->modify(sprintf('+%d minutes', FreeSlots::SLOT_MINUTES)) && $slot < $end;
+        return $this->start < $until && $from < $this->start->modify(sprintf('+%d minutes', $this->minutes));
     }
 }

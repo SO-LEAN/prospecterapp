@@ -16,7 +16,7 @@ use Prospecter\Core\Booking\Domain\Model\Window;
  */
 final readonly class FreeSlots
 {
-    public const int SLOT_MINUTES = 15;
+    private const int SLOT_MINUTES = 15;
     private const int HORIZON_DAYS = 14;
 
     /**
@@ -50,9 +50,14 @@ final readonly class FreeSlots
      */
     private static function freeSlotsOf(Window $window, array $busyPeriods, \DateTimeImmutable $day): array
     {
-        $isFree = static fn (\DateTimeImmutable $slot): bool => !array_any($busyPeriods, static fn (BusyPeriod $busy): bool => $busy->overlapsSlotAt($slot));
+        $isFree = static fn (\DateTimeImmutable $slot): bool => !array_any($busyPeriods, static fn (BusyPeriod $busy): bool => $busy->overlaps($slot, self::endOf($slot)));
 
         return array_values(array_filter(self::slotsOf($window, $day), $isFree));
+    }
+
+    private static function endOf(\DateTimeImmutable $slot): \DateTimeImmutable
+    {
+        return $slot->modify(sprintf('+%d minutes', self::SLOT_MINUTES));
     }
 
     /**
