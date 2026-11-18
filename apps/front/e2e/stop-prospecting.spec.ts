@@ -1,6 +1,7 @@
 import { expect, test } from './fixtures'
 import { authorizationOf, signInOnTheSignInScreen } from './sign-in'
 import { API_URL as API } from './stack'
+import { unique } from './unique'
 
 /** More exchanges than one transaction could erase along with the organization, some three writes each. */
 const MANY_EXCHANGES = 36
@@ -12,7 +13,7 @@ test('stopping to prospect an organization of many exchanges erases each in a re
   page,
 }) => {
   test.setTimeout(LONGER_THAN_A_JOURNEY_MS)
-  const organization = `E2E many exchanges ${Date.now()}`
+  const organization = `E2E many exchanges ${unique()}`
   let organizationUrl = ''
   let authorization = ''
   const exchanges: string[] = []

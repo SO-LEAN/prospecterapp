@@ -1,0 +1,8 @@
+language js
+
+or {
+  `Date.now()`,
+  `new Date()`
+} as $read where {
+  register_diagnostic(span=$read, message="A test reads no real clock: setup.ts fixes it, vi.setSystemTime moves it (docs/architecture/tests.md).")
+}

@@ -76,7 +76,9 @@ async function openTheApplication(toDos: ToDoToProcess[]) {
 }
 
 const itIs = (hours: number, minutes: number) =>
-  act(() => vi.advanceTimersByTimeAsync(at(hours, minutes).getTime() - Date.now()))
+  act(() =>
+    vi.advanceTimersByTimeAsync(at(hours, minutes).getTime() - (vi.getMockedSystemTime()?.getTime() ?? 0)),
+  )
 
 beforeEach(() => {
   vi.useFakeTimers({ shouldAdvanceTime: true })

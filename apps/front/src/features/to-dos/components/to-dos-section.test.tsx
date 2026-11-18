@@ -3,6 +3,7 @@ import { screen, waitFor, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import { renderInARouter } from '@/test/render-in-a-router'
+import { THE_MOMENT_OF_THE_TESTS } from '@/test/the-moment-of-the-tests'
 import type { ToDo, ToDoInput, ToDoList } from '../queries'
 import { ToDosCard } from './to-dos-section'
 
@@ -59,7 +60,7 @@ async function renderTheCard(
 }
 
 const inDays = (days: number) => {
-  const day = new Date()
+  const day = new Date(THE_MOMENT_OF_THE_TESTS)
   day.setDate(day.getDate() + days)
   return day
 }

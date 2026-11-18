@@ -2,6 +2,7 @@ import { readFile } from 'node:fs/promises'
 import { request } from '@playwright/test'
 import { expect, test } from './fixtures'
 import { signInOnTheSignInScreen } from './sign-in'
+import { unique } from './unique'
 
 const A_LONG_TEXT =
   'Intéressée par une mission en mars, à recontacter après le salon de novembre pour fixer un rendez-vous'
@@ -17,9 +18,9 @@ test('a file joined to an exchange is downloaded as it was sent, never read sign
   page,
 }) => {
   test.setTimeout(LONGER_THAN_A_JOURNEY_MS)
-  const organization = `E2E pièce jointe ${Date.now()}`
-  const lastName = `Pièce jointe ${Date.now()}`
-  const contents = `Cahier des charges ${Date.now()}`
+  const organization = `E2E pièce jointe ${unique()}`
+  const lastName = `Pièce jointe ${unique()}`
+  const contents = `Cahier des charges ${unique()}`
   const timeline = page.getByRole('list', { name: 'Échanges' }).getByRole('listitem')
   const detail = page.getByRole('dialog', { name: 'Échange' })
   const file = detail.getByRole('link', { name: 'Télécharger cahier-des-charges.txt' })

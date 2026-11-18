@@ -121,7 +121,7 @@ async function openTheApplication(today: DayExchange[], settings: Settings = TEN
     defaultOptions: { queries: { staleTime: Number.POSITIVE_INFINITY, retry: false } },
   })
   myDay = aDayOf(today)
-  queryClient.setQueryData(myDayQuery(startOfDay(new Date())).queryKey, myDay)
+  queryClient.setQueryData(myDayQuery(startOfDay(at(0, 0))).queryKey, myDay)
   await renderInARouter(
     <QueryClientProvider client={queryClient}>
       {TABS.slice(0, tabs).map((tab) => (
@@ -134,7 +134,7 @@ async function openTheApplication(today: DayExchange[], settings: Settings = TEN
     /** My day read again after a gesture on one of its exchanges. */
     readAgain: (changed: DayExchange[]) => {
       myDay = aDayOf(changed)
-      act(() => queryClient.setQueryData(myDayQuery(startOfDay(new Date())).queryKey, myDay))
+      act(() => queryClient.setQueryData(myDayQuery(startOfDay(at(0, 0))).queryKey, myDay))
     },
     /** A gesture on an exchange, reading my day again with the page, as its mutation does. */
     aGestureChangedMyDay: () => act(() => queryClient.invalidateQueries({ queryKey: queryKeys.myDay })),
@@ -145,7 +145,9 @@ const readsOfMyDay = () =>
   theApi.mock.calls.filter(([request]) => new URL((request as Request).url).pathname === '/api/me/day').length
 
 const itIs = (hours: number, minutes: number) =>
-  act(() => vi.advanceTimersByTimeAsync(at(hours, minutes).getTime() - Date.now()))
+  act(() =>
+    vi.advanceTimersByTimeAsync(at(hours, minutes).getTime() - (vi.getMockedSystemTime()?.getTime() ?? 0)),
+  )
 
 const theTabIs = (state: DocumentVisibilityState) => {
   Object.defineProperty(document, 'visibilityState', { value: state, configurable: true })

@@ -38,7 +38,7 @@ const parts = [
  * dev server still transforming the modules of the SPA after a deployment.
  */
 export default async function waitForTheStack(config: FullConfig) {
-  const deadline = Date.now() + PATIENCE_MS
+  const deadline = performance.now() + PATIENCE_MS
   await everyPartAnswers(deadline)
   await theSpaRenders(config, deadline)
 }
@@ -48,7 +48,7 @@ async function everyPartAnswers(deadline: number) {
   try {
     for (const part of parts) {
       while (!(await answersAtOnce(client, part))) {
-        if (Date.now() > deadline) {
+        if (performance.now() > deadline) {
           throw new Error(`${part.name} does not answer at ${part.url}: is the stack running (make start)?`)
         }
         await new Promise((resolve) => setTimeout(resolve, PAUSE_MS))
@@ -79,7 +79,7 @@ async function theSpaRenders(config: FullConfig, deadline: number) {
   const browser = await chromium.launch(config.projects[0]?.use.launchOptions)
   try {
     const page = await browser.newPage({ ignoreHTTPSErrors: true, locale: 'fr-FR' })
-    const patience = () => ({ timeout: Math.max(deadline - Date.now(), PAUSE_MS) })
+    const patience = () => ({ timeout: Math.max(deadline - performance.now(), PAUSE_MS) })
     await page.goto(`${SPA_URL}/`, patience())
     await page.getByRole('button', { name: 'Se connecter' }).waitFor(patience())
   } finally {

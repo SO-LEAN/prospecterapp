@@ -1,6 +1,7 @@
 import type { Page } from '@playwright/test'
 import { expect, test } from './fixtures'
 import { submitTheSignInScreen } from './sign-in'
+import { unique } from './unique'
 
 /**
  * The run of `make e2e`, which opens an account by the console before the journeys: its founder, whose figures no
@@ -44,7 +45,7 @@ test('the founder the console made, their profile written by the reactions, coun
       .getByRole('link', { name: 'Organisations' })
       .click()
     await page.getByRole('link', { name: 'Nouvelle organisation' }).first().click()
-    await page.getByLabel('Raison sociale').fill(`E2E counted ${Date.now()}`)
+    await page.getByLabel('Raison sociale').fill(`E2E counted ${unique()}`)
     await page.getByRole('button', { name: 'Commencer à prospecter' }).click()
     await expect(page.getByText(/^Vous prospectez /)).toBeVisible()
     await page.getByRole('link', { name: 'Tableau de bord' }).first().click()

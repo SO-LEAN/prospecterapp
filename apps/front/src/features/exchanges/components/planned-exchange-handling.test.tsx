@@ -4,6 +4,7 @@ import userEvent from '@testing-library/user-event'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import { Toaster } from '@/shared/ui/sonner'
 import { renderInARouter } from '@/test/render-in-a-router'
+import { THE_MOMENT_OF_THE_TESTS } from '@/test/the-moment-of-the-tests'
 import { UNDO_DELAY_MS } from '../mutations'
 import { dateAndTimeOf, SHORTCUTS } from '../planning'
 import { type ExchangeDetail, exchangeQuery, googleSyncQuery } from '../queries'
@@ -391,7 +392,7 @@ describe('handling a planned exchange', () => {
     await user.click(screen.getByRole('button', { name: 'Déplacer' }))
     expect(screen.queryByRole('alert')).not.toBeInTheDocument()
     await user.click(screen.getByRole('button', { name: 'Dans 1 semaine' }))
-    const aWeekAhead = dateAndTimeOf(SHORTCUTS.inAWeek(new Date()))
+    const aWeekAhead = dateAndTimeOf(SHORTCUTS.inAWeek(THE_MOMENT_OF_THE_TESTS))
     expect(screen.getByLabelText('Date')).toHaveValue(aWeekAhead.date)
     expect(screen.getByLabelText('Heure')).toHaveValue(aWeekAhead.time)
     await user.click(screen.getByRole('button', { name: 'Enregistrer' }))
