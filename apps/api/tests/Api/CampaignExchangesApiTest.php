@@ -98,6 +98,43 @@ class CampaignExchangesApiTest extends ApiTestCase
         $this->assertSame(['started', null, ['processed' => 0, 'dismissed' => 1]], [$read['status'], $read['endedAt'] ?? null, $read['progress']]);
     }
 
+    public function testAnExchangeOfATimelineLinksItsCampaign(): void
+    {
+        $campaign = $this->aStartedCampaign();
+        $this->anExchangeNotedFor($campaign, $this->ada);
+
+        $this->assertSame(['href' => '/api/campaigns/'.$campaign, 'method' => 'GET'], $this->inTheTimelineOf($this->ada)['_links']['campaign']);
+    }
+
+    public function testWithoutTheRightToManagePersonalDataAnExchangeOfATimelineLinksNoCampaign(): void
+    {
+        $campaign = $this->aStartedCampaign();
+        $this->anExchangeNotedFor($campaign, $this->ada);
+        $this->login($this->aMemberOfTheFixtures('prospector-without-the-right', Role::User, Role::Prospector));
+
+        $exchange = $this->inTheTimelineOf($this->ada);
+
+        $this->assertSame(['id' => $campaign, 'name' => 'Relance'], $exchange['campaign']);
+        $this->assertArrayNotHasKey('campaign', $exchange['_links']);
+    }
+
+    public function testAnExchangeOfATimelineLinksNoCampaignOnceErased(): void
+    {
+        $campaign = $this->aStartedCampaign();
+        $this->anExchangeNotedFor($campaign, $this->ada);
+        new CommandTester(new Application(self::$kernel)->find('app:campaign:erase'))->execute(['id' => $campaign]);
+
+        $this->assertArrayNotHasKey('campaign', $this->inTheTimelineOf($this->ada)['_links']);
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
+    private function inTheTimelineOf(string $contact): array
+    {
+        return $this->requestJson('GET', '/api/contacts/'.$contact.'/exchanges')['items'][0];
+    }
+
     /**
      * @return array<string, mixed>
      */

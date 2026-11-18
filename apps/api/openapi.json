@@ -8860,6 +8860,9 @@
                     },
                     "cancel": {
                         "$ref": "#/components/schemas/LinkResource"
+                    },
+                    "campaign": {
+                        "$ref": "#/components/schemas/LinkResource"
                     }
                 },
                 "type": "object"

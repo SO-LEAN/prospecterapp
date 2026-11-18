@@ -17,7 +17,8 @@ use Prospecter\Core\Prospecting\Application\ExchangeInTimeline;
 use Prospecter\Core\Prospecting\Application\Timeline;
 
 /**
- * What the timelines of a contact and of an organization show alike: their exchanges, and their links.
+ * What the timelines of a contact and of an organization show alike: their exchanges, and their links, the campaign
+ * of an exchange among them (ADR 0152).
  */
 final readonly class TimelineResourceFactory
 {
@@ -46,7 +47,7 @@ final readonly class TimelineResourceFactory
 
     public function createExchange(ExchangeInTimeline $exchange): ExchangeResource
     {
-        return $this->exchangeWith($exchange, new ExchangeLinksResource($this->links->to('api_exchanges_show', ['id' => $exchange->id])));
+        return $this->exchangeWith($exchange, new ExchangeLinksResource($this->links->to('api_exchanges_show', ['id' => $exchange->id]), campaign: $this->campaignOf($exchange)));
     }
 
     /**
@@ -56,7 +57,7 @@ final readonly class TimelineResourceFactory
     {
         $move = in_array($exchange->id, $calendar->movable, true) ? $this->links->to('api_exchanges_move', ['id' => $exchange->id]) : null;
 
-        return $this->exchangeWith($exchange, new ExchangeLinksResource($this->links->to('api_exchanges_show', ['id' => $exchange->id]), $move));
+        return $this->exchangeWith($exchange, new ExchangeLinksResource($this->links->to('api_exchanges_show', ['id' => $exchange->id]), $move, campaign: $this->campaignOf($exchange)));
     }
 
     /**
@@ -70,6 +71,7 @@ final readonly class TimelineResourceFactory
             $this->links->to('api_exchanges_show', ['id' => $exchange->id]),
             markDone: $toHandle ? $this->links->to('api_exchanges_mark_done', ['id' => $exchange->id]) : null,
             markMissed: $toHandle ? $this->links->to('api_exchanges_mark_missed', ['id' => $exchange->id]) : null,
+            campaign: $this->campaignOf($exchange),
         ));
     }
 
@@ -88,7 +90,20 @@ final readonly class TimelineResourceFactory
             markDone: $link('MarkExchangeDone', 'api_exchanges_mark_done'),
             markMissed: $link('MarkExchangeMissed', 'api_exchanges_mark_missed'),
             cancel: $link('CancelExchange', 'api_exchanges_cancel'),
+            campaign: $this->campaignOf($exchange),
         ));
+    }
+
+    /**
+     * The campaign it was noted in, while Campaigns still names it, to those who read the campaigns (ADR 0152).
+     */
+    private function campaignOf(ExchangeInTimeline $exchange): ?LinkResource
+    {
+        if (null === $exchange->campaignId || null === $exchange->campaignName || !$this->intents->holds(User::PERSONAL_DATA)) {
+            return null;
+        }
+
+        return $this->links->to('api_campaigns_show', ['id' => $exchange->campaignId]);
     }
 
     private function exchangeWith(ExchangeInTimeline $exchange, ExchangeLinksResource $links): ExchangeResource

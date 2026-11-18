@@ -18,6 +18,8 @@ final readonly class ExchangeLinksResource
         public ?LinkResource $markMissed = null,
         #[OA\Property(nullable: false, description: 'Cancels it; among the exchanges its holder has to process, while it is planned')]
         public ?LinkResource $cancel = null,
+        #[OA\Property(nullable: false, description: 'The campaign it was noted in, while it is kept; with the right to manage personal data only')]
+        public ?LinkResource $campaign = null,
     ) {
     }
 }
