@@ -843,6 +843,7 @@ export const fr = {
     invalidCivility: 'La civilité « {{civility}} » n’est ni Madame ni Monsieur.',
     emailAlreadyUsed: 'Cette adresse e-mail est déjà utilisée.',
     loginEmailTaken: 'Cette adresse e-mail de connexion est déjà utilisée.',
+    roleNotAllowed: 'Votre rôle ne vous permet pas cette action.',
     accountWithoutCorporateName: 'Un compte a besoin de la raison sociale de son organisation.',
     administratorsOnly: 'Seul un administrateur du compte peut inscrire un membre.',
     memberWithoutRole: 'Un membre a au moins un rôle : prospecteur, données personnelles ou administrateur.',
