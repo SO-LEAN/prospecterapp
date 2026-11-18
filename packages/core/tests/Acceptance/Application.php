@@ -124,6 +124,8 @@ use Prospecter\Core\Connectors\Application\PushExchange\PushExchangeHandler;
 use Prospecter\Core\Connectors\Application\PushUpcomingExchanges\PushUpcomingExchangesHandler;
 use Prospecter\Core\Connectors\Application\RemoveClient\RemoveClientHandler;
 use Prospecter\Core\Connectors\Application\RemoveMailboxNotifications\RemoveMailboxNotificationsHandler;
+use Prospecter\Core\Connectors\Application\RenewMailWatch\RenewMailWatch;
+use Prospecter\Core\Connectors\Application\RenewMailWatch\RenewMailWatchHandler;
 use Prospecter\Core\Connectors\Application\RetryFailedPushes\RetryFailedPushesHandler;
 use Prospecter\Core\Connectors\Application\RetryPush\RetryPushHandler;
 use Prospecter\Core\Connectors\Application\StopMailImport\StopMailImportHandler;
@@ -131,6 +133,7 @@ use Prospecter\Core\Connectors\Application\UnnameForgottenContact\UnnameForgotte
 use Prospecter\Core\Connectors\Application\WhichHaveAConnectedCalendar\WhichHaveAConnectedCalendarHandler;
 use Prospecter\Core\Connectors\Contract\Service\WhichHaveAConnectedCalendar\KeptConnectedCalendars;
 use Prospecter\Core\Connectors\Contract\Service\WhichHaveAConnectedCalendar\WhichHaveAConnectedCalendar;
+use Prospecter\Core\Connectors\Domain\Model\Provider;
 use Prospecter\Core\PersonalData\Application\ChangeCivility\ChangeCivilityHandler;
 use Prospecter\Core\PersonalData\Application\ChangeJobTitle\ChangeJobTitleHandler;
 use Prospecter\Core\PersonalData\Application\ChangePersonContactDetails\ChangePersonContactDetailsHandler;
@@ -393,6 +396,7 @@ use Tests\Core\Double\InMemoryFactRepository;
 use Tests\Core\Double\InMemoryFiguresRetriever;
 use Tests\Core\Double\InMemoryFoundOrganizationRetriever;
 use Tests\Core\Double\InMemoryHeldExchangeRetriever;
+use Tests\Core\Double\InMemoryMailImportsRetriever;
 use Tests\Core\Double\InMemoryMemberPresentationRetriever;
 use Tests\Core\Double\InMemoryMemberRepository;
 use Tests\Core\Double\InMemoryMemberRetriever;
@@ -1065,6 +1069,16 @@ final class Application
     /**
      * Gives each contact left unattached its erasure, as the schedule of the platform does.
      */
+    /**
+     * As the daily schedule of the platform does: each import active given the renewal of its watch (ADR 0154).
+     */
+    public function renewMailWatches(): void
+    {
+        foreach (new InMemoryMailImportsRetriever($this->database)->active() as $member) {
+            $this->dispatch(new RenewMailWatch($member, Provider::Google->value, $this->now));
+        }
+    }
+
     public function eraseContactsLeftUnattached(): void
     {
         foreach ($this->contactsToAttachRetriever->leftUnattachedAt($this->now) as $person) {
@@ -1183,6 +1197,7 @@ final class Application
             new EraseToDoHandler($this->toDos, $this->events),
             new AskForAuthorizationHandler($this->authorizations, $this->clients, $this->connectingMembers),
             new AskToImportMailHandler($this->authorizations, $this->clients, $this->connectingMembers),
+            new RenewMailWatchHandler($this->connections, $this->clients, $this->mailboxes, $this->connectingMembers, $this->events),
             new StopMailImportHandler($this->connections, $this->clients, $this->mailboxes, $this->connectingMembers, $this->events),
             new ConnectHandler($this->authorizations, $this->connections, $this->clients, $this->providerAccess, $this->mailboxes, $this->connectingMembers, $this->events),
             new CheckMyConnectionsHandler($this->connections, $this->clients, $this->providerAccess, $this->connectingMembers, $this->events),

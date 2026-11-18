@@ -43,6 +43,20 @@ Fonctionnalité: Activer l'import de mes e-mails Gmail
     Et Gmail ne prévient plus Prospecter des nouveaux e-mails de "michel@exemple.fr"
     Et ma connexion Google est "connectée"
 
+  Scénario: La surveillance de Gmail est renouvelée chaque jour
+    Soit le client Google de "SOLEAN IT" a le topic Pub/Sub "projects/solean/topics/gmail"
+    Et j'ai activé l'import de mes e-mails Gmail
+    Quand le renouvellement quotidien passe
+    Alors Gmail a renouvelé la surveillance de "michel@exemple.fr" par le topic "projects/solean/topics/gmail"
+    Et l'import de mes e-mails Gmail est "actif"
+
+  Scénario: Un accès retiré chez Google rend l'import à reconnecter au renouvellement
+    Soit le client Google de "SOLEAN IT" a le topic Pub/Sub "projects/solean/topics/gmail"
+    Et j'ai activé l'import de mes e-mails Gmail
+    Et je retire l'accès de Prospecter dans mon compte Google
+    Quand le renouvellement quotidien passe
+    Alors l'import de mes e-mails Gmail est "à reconnecter"
+
   Scénario: Se déconnecter de Google coupe l'import
     Soit le client Google de "SOLEAN IT" a le topic Pub/Sub "projects/solean/topics/gmail"
     Et j'ai activé l'import de mes e-mails Gmail

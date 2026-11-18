@@ -91,6 +91,24 @@ final class MailImportContext implements Context
         $this->application->dispatch(new StopMailImport($this->application->signedIn(), self::GOOGLE, $this->application->now()));
     }
 
+    #[Given('je retire l\'accès de Prospecter dans mon compte Google')]
+    public function iRemoveTheAccessAtGoogle(): void
+    {
+        $this->application->providerAccess->refuseEveryToken();
+    }
+
+    #[When('le renouvellement quotidien passe')]
+    public function theDailyRenewalRuns(): void
+    {
+        $this->application->renewMailWatches();
+    }
+
+    #[Then('Gmail a renouvelé la surveillance de :mailbox par le topic :topic')]
+    public function gmailRenewedTheWatch(string $mailbox, string $topic): void
+    {
+        Expect::same([2, $topic], [$this->application->mailboxes->timesWatched($mailbox), $this->application->mailboxes->topicWatchedBy($mailbox)]);
+    }
+
     #[Then('l\'import de mes e-mails Gmail est :state')]
     public function theImportIs(string $state): void
     {

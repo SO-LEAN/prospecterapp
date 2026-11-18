@@ -8,8 +8,10 @@ use PHPUnit\Framework\TestCase;
 use Prospecter\Core\Connectors\Domain\Event\Connected;
 use Prospecter\Core\Connectors\Domain\Event\ConnectionLost;
 use Prospecter\Core\Connectors\Domain\Event\Disconnected;
+use Prospecter\Core\Connectors\Domain\Event\MailImportLost;
 use Prospecter\Core\Connectors\Domain\Event\MailImportStarted;
 use Prospecter\Core\Connectors\Domain\Event\MailImportStopped;
+use Prospecter\Core\Connectors\Domain\Event\MailWatchRenewed;
 use Prospecter\Core\Connectors\Domain\Model\CalendarEvent;
 use Prospecter\Core\Connectors\Domain\Model\Channel;
 use Prospecter\Core\Connectors\Domain\Model\ClientCredentials;
@@ -19,6 +21,7 @@ use Prospecter\Core\Connectors\Domain\Model\Grant;
 use Prospecter\Core\Connectors\Domain\Model\MailboxNotifications;
 use Prospecter\Core\Connectors\Domain\Model\PendingAuthorization;
 use Prospecter\Core\Connectors\Domain\Model\Provider;
+use Prospecter\Core\Connectors\Domain\Model\ProviderClient;
 use Prospecter\Core\Connectors\Domain\Model\RefreshToken;
 use Prospecter\Core\Connectors\Domain\Model\Scope;
 use Prospecter\Core\SharedKernel\Domain\AccountId;
@@ -204,6 +207,49 @@ final class ConnectionTest extends TestCase
         $connection->stopMailImport(self::client(), $mailbox, new \DateTimeImmutable(self::AT));
 
         $this->assertEquals([new MailImportStopped(new AccountId(self::ACCOUNT), new MemberId(self::MEMBER), new \DateTimeImmutable(self::AT))], $connection->releaseEvents());
+    }
+
+    public function testAWatchRenewedRecordsIt(): void
+    {
+        [$connection, $mailbox] = $this->importingTheMail(new InMemoryProviderAccess());
+
+        $connection->renewMailWatch(self::clientNotifyingTheMailboxes(), $mailbox, new \DateTimeImmutable(self::AT));
+
+        $this->assertEquals([new MailWatchRenewed(new AccountId(self::ACCOUNT), new MemberId(self::MEMBER), new \DateTimeImmutable(self::AT))], $connection->releaseEvents());
+    }
+
+    public function testAWatchTheProviderRefusesToRenewRecordsTheImportLost(): void
+    {
+        $google = new InMemoryProviderAccess();
+        [$connection, $mailbox] = $this->importingTheMail($google);
+        $google->refuseEveryToken();
+
+        $connection->renewMailWatch(self::clientNotifyingTheMailboxes(), $mailbox, new \DateTimeImmutable(self::AT));
+        $connection->renewMailWatch(self::clientNotifyingTheMailboxes(), $mailbox, new \DateTimeImmutable(self::AT));
+
+        $this->assertEquals([new MailImportLost(new AccountId(self::ACCOUNT), new MemberId(self::MEMBER), new \DateTimeImmutable(self::AT))], $connection->releaseEvents());
+    }
+
+    /**
+     * @return array{Connection, InMemoryProviderMailbox}
+     */
+    private function importingTheMail(InMemoryProviderAccess $google): array
+    {
+        $mailbox = new InMemoryProviderMailbox($google, static fn (): \DateTimeImmutable => new \DateTimeImmutable(self::AT));
+        $grant = $google->exchange(self::client(), $google->grant('michel@exemple.fr', Scope::Calendar, Scope::Mailbox), 'a-verifier');
+        $connection = Connection::establish(new MemberId(self::MEMBER), new AccountId(self::ACCOUNT), self::client(), $grant, new \DateTimeImmutable(self::AT));
+        $connection->importMail(self::client(), self::notifications(), $mailbox, new \DateTimeImmutable(self::AT));
+        $connection->releaseEvents();
+
+        return [$connection, $mailbox];
+    }
+
+    private static function clientNotifyingTheMailboxes(): ProviderClient
+    {
+        $client = ProviderClient::configure(new AccountId(self::ACCOUNT), self::client(), new MemberId(self::MEMBER), new \DateTimeImmutable(self::AT));
+        $client->notifyMailboxesThrough(self::notifications(), new MemberId(self::MEMBER), new \DateTimeImmutable(self::AT));
+
+        return $client;
     }
 
     public function testAnAuthorizationWaitsTenMinutes(): void

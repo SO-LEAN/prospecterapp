@@ -54,6 +54,8 @@ final readonly class DomainEventTypes extends EventTypes
             'VideoCallLinkCreated.v1' => Connectors\VideoCallLinkCreated::class,
             'MailImportStarted.v1' => Connectors\MailImportStarted::class,
             'MailImportStopped.v1' => Connectors\MailImportStopped::class,
+            'MailImportLost.v1' => Connectors\MailImportLost::class,
+            'MailWatchRenewed.v1' => Connectors\MailWatchRenewed::class,
         ],
         'prospecter.personal-data.internal' => [
             'CivilityChanged.v1' => PersonalData\CivilityChanged::class,
