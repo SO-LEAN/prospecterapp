@@ -99,6 +99,19 @@ class ContactApiTest extends ApiTestCase
         $this->assertSame(['linkedInProfile'], $this->violatedFields($problem), 'the field the core names');
     }
 
+    public function testAProfileAnotherContactHoldsIsRefusedNamingThem(): void
+    {
+        $organization = $this->anOrganization('ACME');
+        $ada = $this->collect(self::ADA, $organization);
+        $grace = $this->collect(['name' => ['firstName' => 'Grace', 'lastName' => 'Hopper']], $organization);
+
+        $problem = $this->requestJson('PATCH', '/api/contacts/'.$grace['id'].'/contact-details', ['linkedInProfile' => 'https://www.linkedin.com/in/countess-of-lovelace']);
+
+        $this->assertResponseStatusCodeSame(422);
+        $this->assertSame('linkedInProfileAlreadyUsed', $problem['reason']);
+        $this->assertSame([['propertyPath' => 'linkedInProfile', 'reason' => 'linkedInProfileAlreadyUsed', 'context' => ['holder' => 'Ada Lovelace', 'holderId' => $ada['id']]]], array_map(static fn (array $violation): array => array_intersect_key($violation, array_flip(['propertyPath', 'reason', 'context'])), $problem['violations']));
+    }
+
     public function testTheListShowsTheOrganizationsOfEachContact(): void
     {
         $organization = $this->anOrganization('Navy');
