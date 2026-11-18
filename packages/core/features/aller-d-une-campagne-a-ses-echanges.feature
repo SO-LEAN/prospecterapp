@@ -43,6 +43,14 @@ Fonctionnalité: Le lien entre une campagne et ses échanges
     Quand je supprime cet autre échange
     Alors "Ada Lovelace" est traitée, avec un lien vers son échange
 
+  Scénario: Arrêter de prospecter la seule organisation du contact l'efface de la campagne
+    Quand j'arrête de prospecter "ACME"
+    Alors "Ada Lovelace" n'est plus à traiter dans la campagne "Relance", « Contact effacé »
+
+  Scénario: Une campagne effacée par l'exploitation laisse ses échanges, sans lien
+    Quand l'exploitation efface la campagne "Relance"
+    Alors l'échange de "Ada Lovelace" reste dans sa timeline, sans campagne
+
   Scénario: Le fait publié d'un échange effacé nomme encore son contact et sa campagne
     Quand je supprime l'échange de "Ada Lovelace"
     Alors le fait publié de cet échange, absent, nomme la campagne "Relance" et le contact "Ada Lovelace"
