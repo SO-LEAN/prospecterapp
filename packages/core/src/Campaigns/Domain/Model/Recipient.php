@@ -7,8 +7,9 @@ namespace Prospecter\Core\Campaigns\Domain\Model;
 use Prospecter\Core\SharedKernel\Domain\PersonId;
 
 /**
- * A contact a frozen campaign keeps to be contacted, by its identity only: its name is PersonalData's. Processed,
- * whether the call noted for them did not go through; dismissed, why, when said.
+ * A contact a frozen campaign keeps to be contacted, by its identity only: its name is PersonalData's. Processed, by
+ * the identity of the exchange of Prospecting noted for them (ADR 0152), whether the call did not go through;
+ * dismissed, why, when said.
  */
 final readonly class Recipient
 {
@@ -17,6 +18,7 @@ final readonly class Recipient
         public RecipientStatus $status,
         public bool $missed = false,
         public ?string $reason = null,
+        public ?string $exchangeId = null,
     ) {
     }
 
@@ -26,9 +28,9 @@ final readonly class Recipient
     }
 
     #[\NoDiscard]
-    public function processed(bool $missed): self
+    public function processed(string $exchangeId, bool $missed): self
     {
-        return new self($this->contact, RecipientStatus::Processed, $missed);
+        return new self($this->contact, RecipientStatus::Processed, $missed, exchangeId: $exchangeId);
     }
 
     #[\NoDiscard]
@@ -53,5 +55,14 @@ final readonly class Recipient
     public function isPending(): bool
     {
         return RecipientStatus::Pending === $this->status;
+    }
+
+    /**
+     * Processed by this exchange, and still: a recipient erased since is no longer.
+     */
+    #[\NoDiscard]
+    public function isProcessedBy(string $exchangeId): bool
+    {
+        return RecipientStatus::Processed === $this->status && $exchangeId === $this->exchangeId;
     }
 }

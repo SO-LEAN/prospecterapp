@@ -29,6 +29,7 @@ class DynamoCampaignRepositoryTest extends ApiTestCase
 {
     private const string ADA = '0190a1c0-0000-7000-8000-000000000a0a';
     private const string ALAN = '0190a1c0-0000-7000-8000-000000000a1a';
+    private const string EXCHANGE = '0190a1c0-0000-7000-8000-000000000e0e';
 
     private AccountId $account;
 
@@ -91,7 +92,7 @@ class DynamoCampaignRepositoryTest extends ApiTestCase
     {
         $campaign = $this->aFrozenCampaign(self::ADA, self::ALAN);
         $campaign->start(new MemberId(self::newIdentity()), new \DateTimeImmutable('2026-11-17 12:00:00'));
-        $campaign->process(new PersonId(self::ADA), missed: true, at: new \DateTimeImmutable('2026-11-17 12:30:00'));
+        $campaign->process(new PersonId(self::ADA), self::EXCHANGE, missed: true, at: new \DateTimeImmutable('2026-11-17 12:30:00'));
         $campaign->dismiss(new PersonId(self::ALAN), 'Parti', new MemberId(self::newIdentity()), new \DateTimeImmutable('2026-11-17 13:00:00'));
         $this->repository()->save($campaign);
         $campaign->releaseEvents();

@@ -168,14 +168,34 @@ final class Campaign implements ReleasesEvents
      * The exchange noted for a recipient in the campaign processes them, as Prospecting tells it: a reaction of the
      * system, recording nothing; a recipient handled already, or a campaign no longer led, stays as it is.
      */
-    public function process(PersonId $contact, bool $missed, \DateTimeImmutable $at): void
+    public function process(PersonId $contact, string $exchangeId, bool $missed, \DateTimeImmutable $at): void
     {
         if (!$this->status->isRunning()) {
             return;
         }
 
-        $this->recipients = $this->recipients->processing($contact, $missed);
+        $this->recipients = $this->recipients->processing($contact, $exchangeId, $missed);
         $this->endOnceNobodyIsPending($at);
+    }
+
+    /**
+     * The exchange that processed a recipient erased, as Prospecting tells it, they are to handle again (ADR 0152):
+     * an ended campaign is led again, a stopped one stays stopped. A reaction of the system, recording nothing; an
+     * exchange that processed nobody changes nothing.
+     */
+    public function reopenAfterErasureOf(string $exchangeId, \DateTimeImmutable $at): void
+    {
+        if (!$this->recipients->processedBy($exchangeId)) {
+            return;
+        }
+
+        $this->recipients = $this->recipients->reopening($exchangeId);
+        $this->modifiedAt = $at;
+
+        if (CampaignStatus::Ended === $this->status) {
+            $this->status = CampaignStatus::Started;
+            $this->endedAt = null;
+        }
     }
 
     /**

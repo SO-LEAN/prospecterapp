@@ -46,6 +46,8 @@ final class CampaignTest extends TestCase
     private const string CAMPAIGN = '0190a1c0-0000-7000-8000-000000000003';
     private const string ADA = '0190a1c0-0000-7000-8000-000000000004';
     private const string ALAN = '0190a1c0-0000-7000-8000-000000000005';
+    private const string EXCHANGE = '0190a1c0-0000-7000-8000-000000000006';
+    private const string OTHER_EXCHANGE = '0190a1c0-0000-7000-8000-000000000007';
     private const string NOW = '2026-11-17 10:00';
 
     public function testPreparingRecordsIt(): void
@@ -101,7 +103,7 @@ final class CampaignTest extends TestCase
     public function testDismissingTheLastRecipientToHandleEndsTheCampaign(): void
     {
         $campaign = $this->in(CampaignStatus::Started);
-        $campaign->process(new PersonId(self::ADA), missed: true, at: $this->now());
+        $campaign->process(new PersonId(self::ADA), self::EXCHANGE, missed: true, at: $this->now());
 
         $campaign->dismiss(new PersonId(self::ALAN), 'Parti', new MemberId(self::ME), $this->later());
 
@@ -113,7 +115,7 @@ final class CampaignTest extends TestCase
         $campaign = $this->in(CampaignStatus::Started);
         $campaign->dismiss(new PersonId(self::ADA), null, new MemberId(self::ME), $this->now());
 
-        $campaign->process(new PersonId(self::ADA), missed: true, at: $this->now());
+        $campaign->process(new PersonId(self::ADA), self::EXCHANGE, missed: true, at: $this->now());
 
         $this->assertEquals([new Recipient(new PersonId(self::ADA), RecipientStatus::Dismissed), Recipient::pending(new PersonId(self::ALAN))], StateOf::the($campaign)['recipients']->recipients);
     }
@@ -122,9 +124,67 @@ final class CampaignTest extends TestCase
     {
         $campaign = $this->in(CampaignStatus::Stopped);
 
-        $campaign->process(new PersonId(self::ADA), missed: false, at: $this->now());
+        $campaign->process(new PersonId(self::ADA), self::EXCHANGE, missed: false, at: $this->now());
 
         $this->assertTrue(StateOf::the($campaign)['recipients']->recipients[0]->isPending());
+    }
+
+    public function testTheErasureOfTheExchangeOfARecipientReopensAnEndedCampaign(): void
+    {
+        $campaign = $this->in(CampaignStatus::Started);
+        $campaign->process(new PersonId(self::ADA), self::EXCHANGE, missed: false, at: $this->now());
+        $campaign->dismiss(new PersonId(self::ALAN), null, new MemberId(self::ME), $this->now());
+
+        $campaign->reopenAfterErasureOf(self::EXCHANGE, $this->later());
+
+        $state = StateOf::the($campaign);
+        $this->assertEquals([CampaignStatus::Started, null, $this->later(), Recipient::pending(new PersonId(self::ADA))], [$state['status'], $state['endedAt'], $state['modifiedAt'], $state['recipients']->recipients[0]]);
+    }
+
+    public function testTheErasureOfAnotherExchangeChangesNothing(): void
+    {
+        $campaign = $this->in(CampaignStatus::Started);
+        $campaign->process(new PersonId(self::ADA), self::EXCHANGE, missed: false, at: $this->now());
+        $campaign->dismiss(new PersonId(self::ALAN), null, new MemberId(self::ME), $this->now());
+
+        $campaign->reopenAfterErasureOf(self::OTHER_EXCHANGE, $this->later());
+
+        $state = StateOf::the($campaign);
+        $this->assertEquals([CampaignStatus::Ended, $this->now(), $this->now()], [$state['status'], $state['endedAt'], $state['modifiedAt']]);
+    }
+
+    public function testARecipientErasedSinceStaysErased(): void
+    {
+        $campaign = $this->in(CampaignStatus::Started);
+        $campaign->process(new PersonId(self::ADA), self::EXCHANGE, missed: false, at: $this->now());
+        $campaign->forget(new PersonId(self::ADA), $this->now());
+
+        $campaign->reopenAfterErasureOf(self::EXCHANGE, $this->later());
+
+        $this->assertEquals(new Recipient(new PersonId(self::ADA), RecipientStatus::Erased), StateOf::the($campaign)['recipients']->recipients[0]);
+    }
+
+    public function testAStoppedCampaignStaysStoppedWhenItsRecipientIsToHandleAgain(): void
+    {
+        $campaign = $this->in(CampaignStatus::Started);
+        $campaign->process(new PersonId(self::ADA), self::EXCHANGE, missed: true, at: $this->now());
+        $campaign->stop(new MemberId(self::ME), $this->now());
+
+        $campaign->reopenAfterErasureOf(self::EXCHANGE, $this->later());
+
+        $state = StateOf::the($campaign);
+        $this->assertEquals([CampaignStatus::Stopped, Recipient::pending(new PersonId(self::ADA))], [$state['status'], $state['recipients']->recipients[0]]);
+    }
+
+    public function testTheReopeningRecordsNoEvent(): void
+    {
+        $campaign = $this->in(CampaignStatus::Started);
+        $campaign->process(new PersonId(self::ADA), self::EXCHANGE, missed: false, at: $this->now());
+        $campaign->releaseEvents();
+
+        $campaign->reopenAfterErasureOf(self::EXCHANGE, $this->later());
+
+        $this->assertSame([], $campaign->releaseEvents());
     }
 
     #[DataProvider('offered')]
