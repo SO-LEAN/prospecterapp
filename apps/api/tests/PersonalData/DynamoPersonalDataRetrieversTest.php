@@ -74,7 +74,7 @@ class DynamoPersonalDataRetrieversTest extends ApiTestCase
         $this->assertSame(self::names([PersonIntent::Rename, PersonIntent::ChangeJobTitle, PersonIntent::ChangeContactDetails, PersonIntent::ChangePicture]), $card->possibleIntents);
     }
 
-    public function testAMemberPresentsTheirNameAndPictureInClearAContactNever(): void
+    public function testAPersonIsReadWithTheirNameAndPictureInClearAndTheirPurpose(): void
     {
         $me = Person::collect(new PersonId(self::newIdentity()), $this->account, Purpose::Membership, new \DateTimeImmutable(self::THE_MOMENT_OF_THE_TESTS), new PersonName('Grace', 'Hopper'));
         $me->changePicture(new File('https://static.test/grace.png', 'png', 1024), new Reader(new MemberId(self::newIdentity()), $this->account, $me->id(), false), new \DateTimeImmutable(self::THE_MOMENT_OF_THE_TESTS));
@@ -83,7 +83,10 @@ class DynamoPersonalDataRetrieversTest extends ApiTestCase
 
         $presented = self::getContainer()->get(MemberPresentationRetriever::class)->ofIds([$me->id(), $ada->id(), new PersonId(self::newIdentity())]);
 
-        $this->assertSame([[$me->id()->value, 'Grace', 'Hopper', 'https://static.test/grace.png']], array_map(static fn (MemberPresentation $member): array => [$member->personId, $member->firstName, $member->lastName, $member->picture?->url], $presented));
+        $this->assertEqualsCanonicalizing([
+            [$me->id()->value, 'Grace', 'Hopper', 'https://static.test/grace.png', 'membership'],
+            [$ada->id()->value, 'Ada', 'Lovelace', 'https://static.test/Lovelace.png', 'prospecting'],
+        ], array_map(static fn (MemberPresentation $person): array => [$person->personId, $person->firstName, $person->lastName, $person->picture?->url, $person->purpose], $presented));
     }
 
     public function testAnotherAccountDoesNotEvenLearnThatThePersonExists(): void

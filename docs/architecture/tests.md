@@ -44,7 +44,7 @@ Aggregates, value objects, handlers, services (`FileStore`, `GeoLocalizer`, `Ema
 | `RecordingsInFlight` (Reporting) | `NoRecordingsInFlight` | none in flight: a scenario records each fact before its gesture returns |
 | `BookingPageRepository`, `MyBookingPageRetriever`, `PublicBookingPageRetriever` (Booking) | `InMemoryBookingPageRepository`, `InMemoryMyBookingPageRetriever`, `InMemoryPublicBookingPageRetriever` over `InMemoryDatabase` | the DynamoDB adapters: the booking page of each host, read without its getters, its inactive periods not ended the soonest first, its intents asked of the domain; a page found by the code it has now only (ADR 0148), read as its schedule; the code drawn by `Application::newBookingCode()` as the API draws it |
 | `Hosts`, `ConnectedCalendars`, `HostAgendas` (Booking) | `AccountsAndPersonalDataHosts`, `ConnectorsConnectedCalendars`, `ProspectingHostAgendas` | the anticorruption adapters of the API, same code: `ConsultMembersService` of Accounts and `PresentMembersService` of PersonalData, `WhichHaveAConnectedCalendarService` of Connectors, `ConsultPlannedExchangesService` of Prospecting, asked about a set of one (ADR 0153) |
-| `MemberPresentationRetriever` (PersonalData) | `InMemoryMemberPresentationRetriever` over `InMemoryDatabase` | the DynamoDB retriever: the persons the repository saved that `MemberPresentationPolicy` presents, read without their getters |
+| `MemberPresentationRetriever` (PersonalData) | `InMemoryMemberPresentationRetriever` over `InMemoryDatabase` | the DynamoDB retriever: the persons the repository saved, read without their getters, with their purpose |
 
 ## Layout
 
