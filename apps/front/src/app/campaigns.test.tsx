@@ -123,6 +123,13 @@ const suggested: SuggestedTags = {
   automatic: ['#EMAIL', '#PHONE', '#SMS', '#LINKEDIN'],
 }
 
+const refusedForMyRole = {
+  title: 'Forbidden',
+  status: 403,
+  detail: 'Your role does not allow this action.',
+  reason: 'roleNotAllowed',
+}
+
 type Call = { method: string; pathname: string; search: string; body: unknown }
 
 function theApiAnswers({
@@ -143,13 +150,16 @@ function theApiAnswers({
     const body = request.method === 'GET' || request.method === 'DELETE' ? null : await request.text()
     calls.push({ method: request.method, pathname, search, body: body ? JSON.parse(body) : null })
     if (refusal && request.method === 'POST' && pathname === '/api/campaigns') {
-      return Response.json(refusal, { status: 422, headers: { 'Content-Type': 'application/problem+json' } })
+      return Response.json(refusal, {
+        status: (refusal as { status: number }).status,
+        headers: { 'Content-Type': 'application/problem+json' },
+      })
     }
     if (campaignsDenied && pathname === '/api/campaigns') {
-      return Response.json(
-        { title: 'Forbidden', status: 403, detail: 'Your role does not allow this action.' },
-        { status: 403, headers: { 'Content-Type': 'application/problem+json' } },
-      )
+      return Response.json(refusedForMyRole, {
+        status: 403,
+        headers: { 'Content-Type': 'application/problem+json' },
+      })
     }
     if (request.method === 'DELETE') {
       return new Response(null, { status: 204 })
@@ -355,6 +365,22 @@ describe('the campaigns of the team', () => {
     await userEvent.click(screen.getByRole('button', { name: 'Préparer la campagne' }))
 
     expect(await screen.findByText('Choisissez de 1 à 5 tags.')).toBeInTheDocument()
+  })
+
+  it('tells in French a draft refused for my role, the page left open after my right was withdrawn', async () => {
+    theApiAnswers({ refusal: refusedForMyRole })
+    await renderTheSpaAt('/campaigns/new')
+
+    await userEvent.type(await screen.findByLabelText('Nom'), 'Relance ESN')
+    await userEvent.click(screen.getByRole('button', { name: 'Filtrer par tag' }))
+    await userEvent.click(await screen.findByRole('option', { name: '#ESN' }))
+    await userEvent.type(screen.getByLabelText(/Objet/), 'Une question')
+    await userEvent.type(screen.getByLabelText('Message type'), 'Bonjour')
+    await userEvent.click(screen.getByRole('button', { name: 'Préparer la campagne' }))
+
+    expect(await screen.findByText('Votre rôle ne vous permet pas cette action.')).toBeInTheDocument()
+    expect(screen.queryByText('Your role does not allow this action.')).not.toBeInTheDocument()
+    expect(screen.queryByRole('button', { name: 'Réessayer' })).not.toBeInTheDocument()
   })
 
   it('shows the contacts the draft targets and the message saved rendered by the api for the contact hovered', async () => {
