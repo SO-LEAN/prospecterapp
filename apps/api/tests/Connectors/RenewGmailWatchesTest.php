@@ -4,6 +4,7 @@ namespace Tests\App\Connectors;
 
 use App\Shared\ScheduledTasksFunction;
 use Bref\Context\Context;
+use Prospecter\Core\Connectors\Application\Port\MailImportsRetriever;
 use Prospecter\Core\Connectors\Domain\Model\ClientCredentials;
 use Prospecter\Core\Connectors\Domain\Model\Connection;
 use Prospecter\Core\Connectors\Domain\Model\Grant;
@@ -37,9 +38,22 @@ class RenewGmailWatchesTest extends ApiTestCase
         $this->aClientNotifyingTheMailboxes();
         $this->aMemberImportingTheMail('prospector-user');
 
-        $this->assertStringContainsString('1 watch(es) of Gmail renewed', $this->renew());
+        $this->assertStringContainsString('1 watch(es) of Gmail renewed, 0 failed', $this->renew());
 
         $this->assertSame([self::TOPIC], self::getContainer()->get(GoogleDouble::class)->watches());
+    }
+
+    public function testAWatchGmailFailsToRenewLeavesTheOthersRenewedAndItsImportActive(): void
+    {
+        $this->aClientNotifyingTheMailboxes();
+        $this->aMemberImportingTheMail('prospector-user');
+        $this->aMemberImportingTheMail('assistant-user');
+        self::getContainer()->get(GoogleDouble::class)->failsTheNextWatch();
+
+        $this->assertStringContainsString('1 watch(es) of Gmail renewed, 1 failed', $this->renew());
+
+        $this->assertSame([self::TOPIC], self::getContainer()->get(GoogleDouble::class)->watches());
+        $this->assertCount(2, self::getContainer()->get(MailImportsRetriever::class)->active(), 'A renewal failing keeps its import active, to renew the next day');
     }
 
     public function testTheFunctionOfTheScheduleRenewsThemToo(): void
@@ -49,7 +63,7 @@ class RenewGmailWatchesTest extends ApiTestCase
 
         $answer = self::getContainer()->get(ScheduledTasksFunction::class)->handle(['task' => 'renew-gmail-watches'], new Context('request', 0, 'function', 'trace'));
 
-        $this->assertSame(['renewed' => 1], $answer);
+        $this->assertSame(['renewed' => 1, 'failed' => 0], $answer);
         $this->assertSame([self::TOPIC], self::getContainer()->get(GoogleDouble::class)->watches());
     }
 
