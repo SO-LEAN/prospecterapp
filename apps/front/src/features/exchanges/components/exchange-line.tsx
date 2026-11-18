@@ -25,6 +25,7 @@ import { formatMoment, formatUpcoming } from '@/shared/lib/format'
 import { cn } from '@/shared/lib/utils'
 import { type Channel, directionWordsOf, type Exchange, type Interlocutor } from '../queries'
 import { ExchangeText, PersonalDataWarning } from './exchange-text'
+import { ToAttachBadge } from './to-attach-badge'
 
 export const CHANNEL_ICONS: Record<Channel, LucideIcon> = {
   call: Phone,
@@ -39,7 +40,7 @@ export const CHANNEL_ICONS: Record<Channel, LucideIcon> = {
 
 type Summarized = Pick<
   Exchange,
-  'channel' | 'direction' | 'occurredAt' | 'status' | 'canceller' | 'durationInMinutes'
+  'channel' | 'direction' | 'occurredAt' | 'status' | 'canceller' | 'durationInMinutes' | 'organizationIds'
 >
 
 const STATUS_ICONS: Partial<Record<Exchange['status'], LucideIcon>> = {
@@ -131,6 +132,7 @@ export function ExchangeSummary({
               exchange.status === 'missed' ? 'size-4 text-destructive' : 'size-4 text-muted-foreground'
             }
           />
+          <ToAttachBadge exchange={exchange} />
         </p>
         {exchange.canceller && (
           <p className="text-muted-foreground text-xs">{t(`exchanges.cancelledBy.${exchange.canceller}`)}</p>

@@ -10,9 +10,16 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/shared/ui/card'
 import { ExchangeDialog } from '../../calendar/components/exchange-dialog'
 import type { StartWith } from '../../components/exchange-detail'
 import { CHANNEL_ICONS } from '../../components/exchange-line'
+import { ToAttachBadge } from '../../components/to-attach-badge'
 import { useCancelExchange, useMarkExchangeMissed, useUndoable } from '../../mutations'
 import { useNow } from '../../use-now'
-import { countOf, type ExchangeToProcess, exchangesToProcessQuery, type ToDoToProcess } from '../queries'
+import {
+  type ContactsToAttach,
+  countOf,
+  type ExchangeToProcess,
+  exchangesToProcessQuery,
+  type ToDoToProcess,
+} from '../queries'
 
 type Opened = { item: ExchangeToProcess; startWith?: StartWith }
 
@@ -23,15 +30,18 @@ type Props = {
   /** Who a contact is, their card in short, in the exchange opened: told by the page composing the contacts. */
   contactSummary: (contactId: string) => ReactNode
   toDoLine: ToDoLineOf
+  /** The contacts I hold to attach, told by the page composing them (ADR 0146). */
+  contactsToAttach?: (contacts: ContactsToAttach) => ReactNode
 }
 
 /**
- * What I planned whose end has passed and I have not handled yet, and my to-dos of the day and late, on the dashboard
+ * What I planned whose end has passed and I have not handled yet, my to-dos of the day and late, and the contacts I
+ * hold to attach, on the dashboard
  * while there is some: each exchange marked done from its report, missed or cancelled at once, taken back by its
  * toast, or moved; each to-do ticked off in place. The dialog of an exchange outlives the card, so that what follows
  * its report is planned once the last one is done.
  */
-export function ExchangesToProcessCard({ contactSummary, toDoLine }: Props) {
+export function ExchangesToProcessCard({ contactSummary, toDoLine, contactsToAttach }: Props) {
   const { t } = useTranslation()
   const { data: toProcess } = useSuspenseQuery(exchangesToProcessQuery())
   const [opened, setOpened] = useState<Opened | null>(null)
@@ -66,6 +76,7 @@ export function ExchangesToProcessCard({ contactSummary, toDoLine }: Props) {
               ))}
             </ul>
             <ToDosToProcess toDos={toProcess.toDos} toDoLine={toDoLine} onTickedOff={processed.started} />
+            {toProcess.contactsToAttach.length > 0 && contactsToAttach?.(toProcess.contactsToAttach)}
           </CardContent>
         </Card>
       )}
@@ -177,7 +188,10 @@ function ExchangeToProcessLine({ item, leaving, onOpen, onLeave }: LineProps) {
           <ChannelIcon aria-hidden className="size-4 shrink-0 text-muted-foreground" />
           <span>{t(`exchanges.channels.${exchange.channel}`)}</span>
         </span>
-        <span className="block truncate font-medium">{interlocutor.name ?? t('calendar.nobody')}</span>
+        <span className="flex min-w-0 items-center gap-1.5">
+          <span className="truncate font-medium">{interlocutor.name ?? t('calendar.nobody')}</span>
+          <ToAttachBadge exchange={exchange} />
+        </span>
         {organization && (
           <span className="block truncate text-muted-foreground text-sm">{organization.name}</span>
         )}

@@ -6,6 +6,7 @@ import { useTranslation } from 'react-i18next'
 import { myFirstName } from '@/features/account/me'
 import { accountQuery } from '@/features/account/queries'
 import { ContactSummary } from '@/features/contacts/components/contact-summary'
+import { ContactsToAttachSection } from '@/features/contacts-to-attach/components/contacts-to-attach-section'
 import { DashboardFigures } from '@/features/dashboard/components/dashboard-figures'
 import { dashboardQuery } from '@/features/dashboard/queries'
 import { startOfDay } from '@/features/exchanges/calendar/dates'
@@ -75,6 +76,7 @@ function Dashboard() {
           toDoLine={(toDo, now, onTickedOff) => (
             <ToDoLine toDo={toDo} now={now} withTheirContact onTickedOff={onTickedOff} />
           )}
+          contactsToAttach={(contacts) => <ContactsToAttachSection contacts={contacts} />}
         />
       </Suspense>
 

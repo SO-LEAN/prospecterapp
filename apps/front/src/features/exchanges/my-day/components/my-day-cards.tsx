@@ -14,6 +14,7 @@ import { isToHandle, startOfDay } from '../../calendar/dates'
 import { CallTheInterlocutor } from '../../components/call-the-interlocutor'
 import { CHANNEL_ICONS } from '../../components/exchange-line'
 import { JoinTheVideoCall } from '../../components/join-the-video-call'
+import { ToAttachBadge } from '../../components/to-attach-badge'
 import { useMarkExchangeMissed, useUndoable } from '../../mutations'
 import { useNow } from '../../use-now'
 import { isInProgress, startsIn, whenToCome } from '../moments'
@@ -221,7 +222,10 @@ function ExchangeSummary({ item, when, onOpen, children }: SummaryProps) {
           <ChannelIcon aria-hidden className="size-4 shrink-0 text-muted-foreground" />
           <span>{t(`exchanges.channels.${exchange.channel}`)}</span>
         </span>
-        <span className="block truncate font-medium">{interlocutor.name ?? t('calendar.nobody')}</span>
+        <span className="flex min-w-0 items-center gap-1.5">
+          <span className="truncate font-medium">{interlocutor.name ?? t('calendar.nobody')}</span>
+          <ToAttachBadge exchange={exchange} />
+        </span>
         {organization && (
           <span className="block truncate text-muted-foreground text-sm">{organization.name}</span>
         )}

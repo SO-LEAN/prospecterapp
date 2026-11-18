@@ -144,6 +144,15 @@ export const fr = {
     overdue_one: 'En retard d’un jour',
     overdue_other: 'En retard de {{count}} jours',
   },
+  toAttach: {
+    title: 'Contacts à rattacher',
+    badge: 'À rattacher',
+    erasedIn_one: 'Effacé dans {{count}} jour',
+    erasedIn_other: 'Effacé dans {{count}} jours',
+    erasedOn: 'Contact à rattacher, effacé le {{date}}',
+    attach: 'Rattacher',
+    attachTo: 'Rattacher à {{name}}',
+  },
   fields: {
     civility: 'Civilité',
     jobTitle: 'Fonction',
