@@ -9,12 +9,16 @@ use App\Shared\Persistence\Table;
 use App\Shared\Persistence\Tables;
 use Aws\Ssm\Exception\SsmException;
 use Aws\Ssm\SsmClient;
+use Prospecter\Core\Connectors\Application\AccountClient;
+use Prospecter\Core\Connectors\Application\Port\AccountClientsRetriever;
 use Prospecter\Core\Connectors\Domain\Model\ClientCredentials;
+use Prospecter\Core\Connectors\Domain\Model\MailboxNotifications;
 use Prospecter\Core\Connectors\Domain\Model\Provider;
 use Prospecter\Core\Connectors\Domain\Model\ProviderClient;
 use Prospecter\Core\Connectors\Domain\Repository\ProviderClientRepository;
 use Prospecter\Core\SharedKernel\Application\Port\UnitOfWork;
 use Prospecter\Core\SharedKernel\Domain\AccountId;
+use Prospecter\Core\SharedKernel\Domain\Email;
 use Prospecter\Core\SharedKernel\Domain\MemberId;
 use Tests\App\Base\ApiTestCase;
 
@@ -96,6 +100,19 @@ class DynamoProviderClientRepositoryTest extends ApiTestCase
         self::getContainer()->get(Tables::class)->recreate();
 
         $this->assertFalse($this->hasItsSecret($account));
+    }
+
+    public function testAClientKeepsTheTopicItsMailboxesNotifyThrough(): void
+    {
+        $account = $this->anAccount();
+        $client = $this->clientOf($account, 'the-client', 'its-secret');
+        $notifications = new MailboxNotifications('projects/solean/topics/gmail', new Email('push@solean.iam.gserviceaccount.com'));
+        $client->notifyMailboxesThrough($notifications, new MemberId(self::newIdentity()), new \DateTimeImmutable(self::AT));
+
+        $this->clients()->save($client);
+
+        $this->assertEquals($notifications, $this->clients()->get($account, Provider::Google)->mailboxNotifications());
+        $this->assertEquals([new AccountClient('google', 'the-client', 'projects/solean/topics/gmail', 'push@solean.iam.gserviceaccount.com')], self::getContainer()->get(AccountClientsRetriever::class)->of($account));
     }
 
     private function anAccount(): AccountId

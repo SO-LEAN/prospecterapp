@@ -21,7 +21,7 @@ final readonly class DynamoAccountClientsRetriever implements AccountClientsRetr
     public function of(AccountId $account): array
     {
         return array_map(
-            static fn (array $item): AccountClient => new AccountClient($item['client']['provider'], $item['client']['clientId']),
+            static fn (array $item): AccountClient => new AccountClient($item['client']['provider'], $item['client']['clientId'], $item['client']['mailboxTopic'] ?? null, $item['client']['mailboxPushAccount'] ?? null),
             $this->connectorsTable->query(ConnectorsKeys::account($account->value)),
         );
     }
