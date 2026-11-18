@@ -9,6 +9,7 @@ Fonctionnalité: Rechercher mes contacts
     Et l'organisation "ACME" appartient à "SOLEAN IT"
     Et le contact "Ada Lovelace" de "ACME" a l'adresse e-mail "ada@acme.test"
     Et le contact "Grace Hopper" de "ACME" a l'adresse e-mail "grace@navy.test"
+    Et le contact "Alan Turing" de "ACME"
     Et l'organisation "Concurrent" qui utilise Prospecter
     Et l'organisation "Initech" appartient à "Concurrent"
     Et le contact "Linus Torvalds" de "Initech" a l'adresse e-mail "linus@kernel.test"
@@ -18,6 +19,7 @@ Fonctionnalité: Rechercher mes contacts
     Quand je liste mes contacts
     Alors la liste des contacts affiche :
       | prénom | nom      | masquée |
+      | Alan   | Turing   | non     |
       | Grace  | Hopper   | non     |
       | Ada    | Lovelace | non     |
     Et je peux sur mes contacts :
@@ -30,6 +32,20 @@ Fonctionnalité: Rechercher mes contacts
       | prénom | nom    |
       | Grace  | Hopper |
 
+  Scénario: Je cherche par le début du prénom, que le contact ait ou non un e-mail
+    Soit je suis connecté en tant que prospecteur de "SOLEAN IT"
+    Quand je cherche "Ala" dans mes contacts
+    Alors la liste des contacts affiche :
+      | prénom | nom    |
+      | Alan   | Turing |
+
+  Scénario: Un contact sans e-mail se retrouve toujours par le début de son nom
+    Soit je suis connecté en tant que prospecteur de "SOLEAN IT"
+    Quand je cherche "Tur" dans mes contacts
+    Alors la liste des contacts affiche :
+      | prénom | nom    |
+      | Alan   | Turing |
+
   Scénario: Je cherche par le début de l'e-mail
     Soit je suis connecté en tant que prospecteur de "SOLEAN IT"
     Quand je cherche "ada@" dans mes contacts
@@ -37,7 +53,7 @@ Fonctionnalité: Rechercher mes contacts
       | prénom | nom      |
       | Ada    | Lovelace |
 
-  Scénario: Le prénom suivi du nom ne trouve pas un contact, seul le début du nom le trouve
+  Scénario: Le prénom suivi du nom ne trouve pas un contact, seul le début du prénom ou du nom le trouve
     Soit je suis connecté en tant que prospecteur de "SOLEAN IT"
     Quand je cherche "grace hop" dans mes contacts
     Alors la liste des contacts affiche :
@@ -48,6 +64,7 @@ Fonctionnalité: Rechercher mes contacts
     Quand je liste mes contacts
     Alors la liste des contacts affiche :
       | prénom | nom      | masquée |
+      | Alan   | Turing   | oui     |
       | Grace  | Hopper   | oui     |
       | Ada    | Lovelace | oui     |
     Et je peux sur mes contacts :
@@ -59,6 +76,13 @@ Fonctionnalité: Rechercher mes contacts
     Alors la liste des contacts affiche :
       | prénom | nom    |
       | Grace  | Hopper |
+
+  Scénario: Sans le droit, je cherche par le début du prénom
+    Soit je suis connecté en tant que prospecteur de "SOLEAN IT" sans le droit aux données personnelles
+    Quand je cherche "ala" dans mes contacts
+    Alors la liste des contacts affiche :
+      | prénom | nom    |
+      | Alan   | Turing |
 
   Scénario: Sans le droit, je ne cherche pas dans les e-mails, qui me sont masqués
     Soit je suis connecté en tant que prospecteur de "SOLEAN IT" sans le droit aux données personnelles
