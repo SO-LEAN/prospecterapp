@@ -47,6 +47,12 @@ Fonctionnalité: Le lien entre une campagne et ses échanges
     Quand j'arrête de prospecter "ACME"
     Alors dans la campagne "Relance", les contacts effacés sont « traité » et « plus à traiter »
 
+  Scénario: Un échange effacé avec son organisation ne remet pas le destinataire à traiter
+    Soit l'organisation "Globex" appartient à "SOLEAN IT"
+    Et je rattache le contact "Ada Lovelace" à "Globex"
+    Quand j'arrête de prospecter "ACME"
+    Alors "Ada Lovelace" est traitée dans la campagne "Relance"
+
   Scénario: Une campagne effacée par l'exploitation laisse ses échanges, sans lien
     Quand l'exploitation efface la campagne "Relance"
     Alors l'échange de "Ada Lovelace" reste dans sa timeline, sans campagne
