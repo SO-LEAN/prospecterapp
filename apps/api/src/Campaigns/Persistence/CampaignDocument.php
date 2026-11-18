@@ -115,7 +115,7 @@ final class CampaignDocument
             dismissed: CampaignProgress::dismissedAmong($statuses),
             recipients: array_combine(
                 array_map(static fn (Recipient $recipient): string => $recipient->contact->value, $recipients),
-                array_map(static fn (Recipient $recipient): RecipientInSheet => new RecipientInSheet($recipient->status->value, $recipient->isPending(), $recipient->missed, $recipient->reason), $recipients),
+                array_map(static fn (Recipient $recipient): RecipientInSheet => new RecipientInSheet($recipient->status->value, $recipient->isPending(), $recipient->missed, $recipient->reason, $recipient->exchangeId), $recipients),
             ),
             authorId: $document['createdBy'],
             possibleIntents: array_map(static fn (CampaignIntent $intent): string => $intent->name, CampaignPossibilities::given($status, [] !== $recipients)),
