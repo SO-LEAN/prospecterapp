@@ -12,6 +12,7 @@ use Prospecter\Core\SharedKernel\Domain\AccountId;
 final class PersonalDataKeys
 {
     public const string PERSON = 'PERSON';
+    public const string FIRST_NAME = 'FIRST_NAME';
 
     public static function person(string $id): string
     {

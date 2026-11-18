@@ -9,7 +9,8 @@ use Prospecter\Core\SharedKernel\Domain\SearchKeys;
 /**
  * What finds an aggregate of a context: its search keys (ADR 0071) and its phone number (ADR 0072), carried
  * within a scope (an account, an account and a purpose) as the keys of the indexes `NAME`, `EMAIL` and
- * `PHONE`, left out when it has none. A search reads the keys of what begins with it in `NAME` and `EMAIL`,
+ * `PHONE`, left out when it has none; a second key of its name, the first name of a person, on an item beside it
+ * (ADR 0149). A search reads the keys of what begins with it in `NAME` and `EMAIL`,
  * a call the keys of the number in `PHONE`, then the aggregates found.
  */
 final class SearchIndexes
@@ -21,9 +22,20 @@ final class SearchIndexes
      */
     public static function of(string $scope, SearchKeys $keys, ?PhoneNumber $phoneNumber): array
     {
-        return (null === $keys->name ? [] : ['NAMEPK' => $scope, 'NAMESK' => (string) $keys->name])
+        return (null === $keys->name ? [] : self::inTheNames($scope, $keys->name))
             + (null === $keys->email ? [] : ['EMAILPK' => $scope, 'EMAILSK' => (string) $keys->email])
             + (null === $phoneNumber ? [] : ['PHONEPK' => $scope, 'PHONESK' => $phoneNumber->value]);
+    }
+
+    /**
+     * The attributes putting an item in the index `NAME` under a key: the name of an aggregate on its item, or the
+     * first name of a person on an item beside it, of the same partition key (ADR 0149).
+     *
+     * @return array<string, string>
+     */
+    public static function inTheNames(string $scope, SearchKey $name): array
+    {
+        return ['NAMEPK' => $scope, 'NAMESK' => (string) $name];
     }
 
     /**
