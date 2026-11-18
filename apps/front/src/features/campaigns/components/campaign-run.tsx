@@ -29,6 +29,7 @@ import {
   type Recipient,
 } from '../queries'
 import { meansOf, openingOf } from '../reach'
+import { CampaignEnded } from './campaign-ended'
 import { CampaignSummary } from './campaign-summary'
 import { OpenTheExchange } from './open-the-exchange'
 
@@ -124,9 +125,7 @@ export function CampaignRun({ campaign }: { campaign: Campaign }) {
         />
       ) : (
         <div className="space-y-4">
-          <p role="status" className="rounded-md border p-3 font-medium text-sm">
-            {t('campaigns.run.ended')}
-          </p>
+          <CampaignEnded />
           <CampaignSummary campaign={campaign} />
         </div>
       )}
