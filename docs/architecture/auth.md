@@ -29,7 +29,7 @@ SPA (prospecter.localhost)                                   API (api.prospecter
 - `GET /api/user-pool` is public (firewall `user_pool`): the SPA asks it before anyone is signed in. So is `GET /api/booking-pages/{code}` (firewall `booking_page`, the code 22 characters of base 62): the page a public link of a booking leads to, read by whomever holds the link, answering nothing of its host but whether it offers slots and its channels (ADR 0151).
 - `GET /api/me/sign-in`, `PATCH /api/me/sign-in/login-email` (422 when another member signs in with it), `PATCH /api/me/sign-in/password` (204): what I sign in with (`SignIn\Credentials`, admin calls of Cognito). The API checks that a login email is free before writing it (`ListUsers`), Cognito refusing a second holder of an alias on AWS as a safety net (`AliasExistsException`); MiniStack does not, the check of the API does.
 - A token stays valid until it expires even after signing out: the price of not calling Cognito on every request.
-- Roles are checked by `#[IsGranted]` (403 problem+json from `Security\ApiAccessDeniedHandler`), the voters whether this member may reach a resource of Prospecting, the aggregate whether its state allows the intention (ADR 0081, 0088). The core knows no password.
+- Roles are checked by `#[IsGranted]` (403 problem+json from `Security\ApiAccessDeniedHandler`, its `reason` `roleNotAllowed`), the voters whether this member may reach a resource of Prospecting, the aggregate whether its state allows the intention (ADR 0081, 0088). The core knows no password.
 
 ## SPA side
 
