@@ -199,6 +199,15 @@ final class Campaign implements ReleasesEvents
     }
 
     /**
+     * The exchange that processed a recipient gone with its organization, no member erasing it, they stay processed,
+     * without the exchange to lead to (ADR 0155). A reaction of the system, recording nothing.
+     */
+    public function forgetExchangeGoneWithItsOrganization(string $exchangeId): void
+    {
+        $this->recipients = $this->recipients->forgettingExchange($exchangeId);
+    }
+
+    /**
      * Without an exchange, for a reason when said.
      *
      * @throws CampaignNotRunning

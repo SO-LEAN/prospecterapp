@@ -51,7 +51,7 @@ Fonctionnalité: Le lien entre une campagne et ses échanges
     Soit l'organisation "Globex" appartient à "SOLEAN IT"
     Et je rattache le contact "Ada Lovelace" à "Globex"
     Quand j'arrête de prospecter "ACME"
-    Alors "Ada Lovelace" est traitée dans la campagne "Relance"
+    Alors "Ada Lovelace" est traitée, sans lien vers son échange
 
   Scénario: Une campagne effacée par l'exploitation laisse ses échanges, sans lien
     Quand l'exploitation efface la campagne "Relance"

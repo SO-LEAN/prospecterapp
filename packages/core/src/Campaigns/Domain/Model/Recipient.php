@@ -51,6 +51,16 @@ final readonly class Recipient
         return new self($this->contact, $this->isPending() ? RecipientStatus::Erased : $this->status, $this->missed, erased: true);
     }
 
+    /**
+     * Its exchange gone with its organization, no member erasing it: what the team did stays, without the exchange to
+     * lead to (ADR 0155).
+     */
+    #[\NoDiscard]
+    public function withoutItsExchange(): self
+    {
+        return new self($this->contact, $this->status, $this->missed, $this->reason, erased: $this->erased);
+    }
+
     #[\NoDiscard]
     public function is(PersonId $contact): bool
     {

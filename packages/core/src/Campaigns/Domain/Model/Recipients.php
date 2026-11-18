@@ -117,6 +117,15 @@ final readonly class Recipients
         return new self(array_map(static fn (Recipient $recipient): Recipient => $recipient->isProcessedBy($exchangeId) ? Recipient::pending($recipient->contact) : $recipient, $this->recipients));
     }
 
+    /**
+     * The recipient the exchange gone with its organization processed stays processed, without it (ADR 0155).
+     */
+    #[\NoDiscard]
+    public function forgettingExchange(string $exchangeId): self
+    {
+        return new self(array_map(static fn (Recipient $recipient): Recipient => $recipient->isProcessedBy($exchangeId) ? $recipient->withoutItsExchange() : $recipient, $this->recipients));
+    }
+
     #[\NoDiscard]
     public function processedBy(string $exchangeId): bool
     {

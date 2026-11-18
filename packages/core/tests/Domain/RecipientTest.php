@@ -44,6 +44,11 @@ final class RecipientTest extends TestCase
         $this->assertFalse(self::ada()->processed(self::EXCHANGE, missed: false)->erased()->isProcessedBy(self::EXCHANGE));
     }
 
+    public function testARecipientWhoseExchangeWentWithItsOrganizationStaysProcessedWithoutIt(): void
+    {
+        $this->assertEquals(new Recipient(new PersonId(self::ADA), RecipientStatus::Processed, missed: true), self::ada()->processed(self::EXCHANGE, missed: true)->withoutItsExchange());
+    }
+
     private static function ada(): Recipient
     {
         return Recipient::pending(new PersonId(self::ADA));

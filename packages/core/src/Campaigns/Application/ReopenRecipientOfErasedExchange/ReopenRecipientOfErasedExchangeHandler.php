@@ -13,7 +13,8 @@ use Prospecter\Core\SharedKernel\Domain\CampaignId;
 /**
  * The exchange that processed a recipient erased in Prospecting by a member, they are to handle again, an ended
  * campaign led again (ADR 0152). Delivered again, or for an exchange of no campaign, a campaign erased, an exchange
- * that processed nobody or one gone with its organization (ADR 0155), nothing changes.
+ * that processed nobody, nothing changes; one gone with its organization leaves its recipient processed, without the
+ * exchange to lead to (ADR 0155).
  */
 final readonly class ReopenRecipientOfErasedExchangeHandler implements EventHandler
 {
@@ -23,15 +24,22 @@ final readonly class ReopenRecipientOfErasedExchangeHandler implements EventHand
 
     public function __invoke(ExchangeFactsChanged $event): void
     {
-        if ($event->present || $event->erasedWithItsOrganization || null === $event->campaignId) {
+        if ($event->present || null === $event->campaignId) {
             return;
         }
 
         $campaign = $this->campaigns->find(new AccountId($event->accountId), new CampaignId($event->campaignId));
 
-        if (null !== $campaign) {
-            $campaign->reopenAfterErasureOf($event->exchangeId, $event->occurredAt);
-            $this->campaigns->save($campaign);
+        if (null === $campaign) {
+            return;
         }
+
+        if ($event->erasedWithItsOrganization) {
+            $campaign->forgetExchangeGoneWithItsOrganization($event->exchangeId);
+        } else {
+            $campaign->reopenAfterErasureOf($event->exchangeId, $event->occurredAt);
+        }
+
+        $this->campaigns->save($campaign);
     }
 }
