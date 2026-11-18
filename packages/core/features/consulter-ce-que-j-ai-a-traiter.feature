@@ -68,3 +68,17 @@ Fonctionnalité: Consulter ce que j'ai à traiter
     Et je lis l'heure de "America/New_York"
     Quand je consulte ce que j'ai à traiter
     Alors je n'ai rien à traiter
+
+  Scénario: Les contacts à rattacher sont à traiter
+    Soit nous sommes le 18/11/2026 à 10h00
+    Et "Grace Hopper" (grace@acme.fr) a pris une visio avec moi le 20/11/2026 à 14h00
+    Et nous sommes le 21/11/2026 à 10h00
+    Quand je consulte ce que j'ai à traiter
+    Alors il y a "Grace Hopper" à rattacher, effacée le 20/12/2026 sans rattachement
+
+  Scénario: Un contact à rattacher n'est à traiter que par le prospecteur qui a le rendez-vous
+    Soit nous sommes le 18/11/2026 à 10h00
+    Et "Grace Hopper" (grace@acme.fr) a pris une visio avec moi le 20/11/2026 à 14h00
+    Et je suis connecté en tant qu'un autre prospecteur de "SOLEAN IT"
+    Quand je consulte ce que j'ai à traiter
+    Alors je n'ai rien à traiter

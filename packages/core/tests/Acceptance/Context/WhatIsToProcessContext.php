@@ -10,6 +10,7 @@ use Behat\Step\Then;
 use Behat\Step\When;
 use Prospecter\Core\Prospecting\Application\ConsultWhatIsToProcess\ConsultWhatIsToProcess;
 use Prospecter\Core\Prospecting\Application\ConsultWhatIsToProcess\WhatIsToProcess;
+use Prospecter\Core\Prospecting\Application\ContactToAttachInList;
 use Prospecter\Core\Prospecting\Application\ExchangeInTimeline;
 use Prospecter\Core\Prospecting\Application\ToDoInList;
 use Prospecter\Core\SharedKernel\Domain\PersonId;
@@ -60,7 +61,16 @@ final class WhatIsToProcessContext implements Context
     #[Then('je n\'ai rien à traiter')]
     public function iHaveNothingToProcess(): void
     {
-        Expect::same([[], []], [$this->toProcess()->exchanges, $this->toProcess()->toDos]);
+        Expect::same([[], [], []], [$this->toProcess()->exchanges, $this->toProcess()->toDos, $this->toProcess()->contactsToAttach]);
+    }
+
+    #[Then('/^il y a "(?<name>[^"]+)" à rattacher, effacée? le (?<day>\S+) sans rattachement$/')]
+    public function thereIsAContactToAttach(string $name, string $day): void
+    {
+        $toAttach = array_find($this->toProcess()->contactsToAttach, fn (ContactToAttachInList $contact): bool => $contact->personId === $this->scenario->personIdOf($name));
+        Expect::that(null !== $toAttach, sprintf('"%s" is not to attach', $name));
+
+        Expect::same($day, $toAttach->erasableFrom->setTimezone($this->application->readerClock())->format('d/m/Y'));
     }
 
     #[Then('ils sont, du plus ancien au plus récent :')]
