@@ -116,7 +116,7 @@ function CancelExchange({ exchangeId }: { exchangeId: string }) {
             <Button variant="ghost">{t('exchanges.handling.keep')}</Button>
           </DialogClose>
           <Button variant="destructive" onClick={confirm}>
-            {t('exchanges.handling.cancelConfirm')}
+            {t('exchanges.handling.cancel')}
           </Button>
         </DialogFooter>
       </DialogContent>

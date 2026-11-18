@@ -82,7 +82,7 @@ function RecipientItems({ campaignId, recipients, previewed, onPreview }: Recipi
           // biome-ignore lint/suspicious/noArrayIndexKey: an erased recipient keeps no identity, its place is its key
           <li key={`erased-${index}`} className="flex items-center gap-2">
             <span className="flex-1 px-2 py-2 text-muted-foreground text-sm italic">
-              {t('campaigns.recipients.erased')}
+              {t('exchanges.unknownPerson')}
             </span>
             <Badge variant="outline">{t(`campaigns.recipients.status.${status}`)}</Badge>
           </li>
