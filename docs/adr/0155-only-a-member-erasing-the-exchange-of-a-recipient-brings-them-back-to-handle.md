@@ -4,7 +4,7 @@
 - Type: architecture
 - Status: Accepted
 - Supersedes: for the exchange erased with its organization, the reopening of [0152](0152-the-erasure-of-the-exchange-of-a-recipient-brings-them-back-to-handle-from-the-last-facts-of-the-exchange.md)
-- Implemented by: `packages/core/src/Prospecting/Domain/Model/Exchange.php` (`eraseWithItsOrganization()`), `packages/core/src/Prospecting/Domain/Event/ExchangeErased.php`, `packages/core/src/Prospecting/Contract/Event/ExchangeFactsChanged.php`, `packages/core/src/Prospecting/Application/EraseExchangeLeftWithoutOrganization`, `packages/core/src/Campaigns/Application/ReopenRecipientOfErasedExchange`, `packages/core/features/aller-d-une-campagne-a-ses-echanges.feature`, `apps/api/src/Shared/Messaging/{IntegrationEventTypes,DomainEventTypes,Payloads}.php`, `apps/api/config/subscriptions.json`
+- Implemented by: `packages/core/src/Prospecting/Domain/Model/Exchange.php` (`eraseWithItsOrganization()`), `packages/core/src/Prospecting/Domain/Event/ExchangeErased.php`, `packages/core/src/Prospecting/Contract/Event/ExchangeFactsChanged.php`, `packages/core/src/Prospecting/Application/EraseExchangeLeftWithoutOrganization`, `packages/core/src/Campaigns/Domain/Model/{Campaign,Recipients,Recipient}.php` (`forgetExchangeGoneWithItsOrganization()`), `packages/core/src/Campaigns/Application/ReopenRecipientOfErasedExchange`, `packages/core/features/aller-d-une-campagne-a-ses-echanges.feature`, `apps/api/src/Shared/Messaging/{IntegrationEventTypes,DomainEventTypes,Payloads}.php`, `apps/api/config/subscriptions.json`
 
 ## Context
 
@@ -12,12 +12,12 @@ A started campaign keeps an erased contact with what the team did with them. Sto
 
 ## Decision
 
-- Only a member erasing the exchange of a recipient brings them back to handle. An exchange erased because no organization keeps it any more (`Exchange::eraseWithItsOrganization()`, by `EraseExchangeLeftWithoutOrganization`) says so: `ExchangeErased.v3` and its terminal fact `ExchangeFactsChanged.v4` carry `withItsOrganization` / `erasedWithItsOrganization`, and `ReopenRecipientOfErasedExchange` ignores such a fact.
+- Only a member erasing the exchange of a recipient brings them back to handle. An exchange erased because no organization keeps it any more (`Exchange::eraseWithItsOrganization()`, by `EraseExchangeLeftWithoutOrganization`) says so: `ExchangeErased.v3` and its terminal fact `ExchangeFactsChanged.v4` carry `withItsOrganization` / `erasedWithItsOrganization`, and `ReopenRecipientOfErasedExchange` then leaves the recipient it processed processed, without the identity of the exchange (`Campaign::forgetExchangeGoneWithItsOrganization()`), so that nothing links an exchange that no longer exists.
 - The former versions (`ExchangeErased.v1`, `.v2`, `ExchangeFactsChanged.v1` to `.v3`) are still read, as an erasure by a member: a parameter a former version did not carry takes the default of its constructor (`Payloads`), null when it has none.
 
 ## Consequences
 
-- Stopping to prospect an organization never brings a recipient back to handle, even when the contact stays attached to another organization: the recipient stays processed, without the exchange to lead to.
+- Stopping to prospect an organization never brings a recipient back to handle, even when the contact stays attached to another organization: the recipient stays processed, without the identity of the exchange to lead to.
 - An exchange erased with its organization from a version published before this record, still in an outbox or a queue of failures, may reopen its recipient once.
 
 ## Alternatives considered
