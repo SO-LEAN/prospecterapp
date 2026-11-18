@@ -380,6 +380,14 @@ final class CampaignContext implements Context
         Expect::same(['traité', $this->notedId()], [self::RECIPIENT_STATUSES[$recipient->status], $recipient->exchangeId]);
     }
 
+    #[Then(':contact est traitée, sans lien vers son échange')]
+    public function theRecipientIsProcessedLinkingNoExchange(string $contact): void
+    {
+        $recipient = $this->recipient($contact);
+
+        Expect::same(['traité', null], [self::RECIPIENT_STATUSES[$recipient->status], $recipient->exchangeId]);
+    }
+
     #[When('je consulte l\'échange de :contact')]
     public function iConsultTheExchangeOf(string $contact): void
     {

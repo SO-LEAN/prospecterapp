@@ -164,6 +164,17 @@ final class CampaignTest extends TestCase
         $this->assertEquals(new Recipient(new PersonId(self::ADA), RecipientStatus::Processed, erased: true), StateOf::the($campaign)['recipients']->recipients[0]);
     }
 
+    public function testAnExchangeGoneWithItsOrganizationLeavesItsRecipientProcessedWithoutIt(): void
+    {
+        $campaign = $this->in(CampaignStatus::Started);
+        $campaign->process(new PersonId(self::ADA), self::EXCHANGE, missed: true, at: $this->now());
+
+        $campaign->forgetExchangeGoneWithItsOrganization(self::EXCHANGE);
+
+        $state = StateOf::the($campaign);
+        $this->assertEquals([CampaignStatus::Started, new Recipient(new PersonId(self::ADA), RecipientStatus::Processed, missed: true)], [$state['status'], $state['recipients']->recipients[0]]);
+    }
+
     public function testAStoppedCampaignStaysStoppedWhenItsRecipientIsToHandleAgain(): void
     {
         $campaign = $this->in(CampaignStatus::Started);
