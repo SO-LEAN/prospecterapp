@@ -65,6 +65,7 @@ final readonly class InMemoryOrganizationSheetRetriever implements OrganizationS
             country: $address?->country,
             longitude: $geoPoint?->longitude,
             latitude: $geoPoint?->latitude,
+            municipalityCode: $state['municipalityCode'],
             observations: $state['observations'],
             logo: FileResponse::orNone($state['logo']),
             holdingId: $state['holdingId']?->value,

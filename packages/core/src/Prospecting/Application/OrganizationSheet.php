@@ -33,6 +33,7 @@ final readonly class OrganizationSheet
         public ?string $country,
         public ?float $longitude,
         public ?float $latitude,
+        public ?string $municipalityCode,
         public ?string $observations,
         public ?FileResponse $logo,
         public ?string $holdingId,
