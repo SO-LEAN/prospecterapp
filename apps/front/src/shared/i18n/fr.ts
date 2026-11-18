@@ -376,6 +376,18 @@ export const fr = {
         save: 'Enregistrer le client',
         saved: 'Le client Google du compte est enregistré.',
         removed: 'Le client Google du compte est retiré.',
+        gmail: {
+          title: 'Import des e-mails Gmail',
+          procedure: 'La procédure dans Google Cloud',
+          endpoint: 'Adresse des notifications à déclarer dans l’abonnement',
+          topic: 'Topic Pub/Sub (import Gmail)',
+          topicExample: 'projects/<projet>/topics/<topic>',
+          pushAccount: 'Compte de service des notifications',
+          save: 'Enregistrer le topic',
+          saved: 'Le topic de l’import Gmail est enregistré.',
+          remove: 'Retirer le topic',
+          removed: 'Le topic de l’import Gmail est retiré.',
+        },
         remove: {
           action: 'Retirer le client',
           title: 'Retirer le client Google du compte ?',

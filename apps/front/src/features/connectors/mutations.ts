@@ -80,3 +80,19 @@ export function useRemoveGoogleClient() {
 
   return api.useMutation('delete', '/api/me/organization/clients/google', { onSuccess: keep })
 }
+
+export function useConfigureGmailNotifications() {
+  const keep = useKeepTheGoogleClient()
+
+  return api.useMutation('put', '/api/me/organization/clients/google/gmail-notifications', {
+    onSuccess: keep,
+  })
+}
+
+export function useRemoveGmailNotifications() {
+  const keep = useKeepTheGoogleClient()
+
+  return api.useMutation('delete', '/api/me/organization/clients/google/gmail-notifications', {
+    onSuccess: keep,
+  })
+}
