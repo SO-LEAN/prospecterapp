@@ -29,7 +29,7 @@ final readonly class IntegrationEventTypes extends EventTypes
             'ContactsLeftWithoutOrganization.v1' => Prospecting\ContactsLeftWithoutOrganization::class,
             'ContactLeftUnattached.v1' => Prospecting\ContactLeftUnattached::class,
             'OrganizationFactsChanged.v3' => Prospecting\OrganizationFactsChanged::class,
-            'ExchangeFactsChanged.v3' => Prospecting\ExchangeFactsChanged::class,
+            'ExchangeFactsChanged.v4' => Prospecting\ExchangeFactsChanged::class,
         ],
     ];
 
@@ -42,6 +42,7 @@ final readonly class IntegrationEventTypes extends EventTypes
             'OrganizationFactsChanged.v2' => Prospecting\OrganizationFactsChanged::class,
             'ExchangeFactsChanged.v1' => Prospecting\ExchangeFactsChanged::class,
             'ExchangeFactsChanged.v2' => Prospecting\ExchangeFactsChanged::class,
+            'ExchangeFactsChanged.v3' => Prospecting\ExchangeFactsChanged::class,
         ],
     ];
 }
