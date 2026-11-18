@@ -11,6 +11,7 @@ A JSON API that exposes the use cases of `packages/core`, a resource server for 
 - No API Platform: plain controllers documented with NelmioApiDocBundle attributes.
 - Services in YAML: the ports and the services of the hexagon are registered in `config/services.yaml`, the core being pure PHP without Symfony attributes.
 - Messenger is synchronous: the command and event buses have no transport, handled within the request (ADR 0029, 0042); the reactions run after the command, in the worker, through the outbox and the bus of EventBridge (ADR 0101, `docs/architecture/contexts.md`).
+- No test reads the real clock (ADR 0150): the controllers read the fixed `clock` of `when@test`, a test names its moment, the tables forget from `app.commit_clock` fixed in 2100 (`docs/architecture/tests.md`).
 - `Request::get()` no longer exists: use `$request->attributes`, `$request->query` or `$request->request`.
 - Symfony 8.1 is newer than what you remember: look it up rather than guess, `make console CMD="debug:container <id>"` (or `debug:router`, `debug:config <bundle>`, `config:dump-reference <bundle>`) and the sources under `vendor/`.
 

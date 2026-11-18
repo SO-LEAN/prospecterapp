@@ -47,7 +47,7 @@ endif
 # the whole repository is mounted in the containers: a project runs in its own directory there
 WORKDIR = /var/www/src$(patsubst $(ROOT)%,%,$(CURDIR))
 # a command prints its own output only, not the creation of its container: what the agents read stays short
-# CLOCK_SHIFT=+365d: the command on the clock of the system moved by it, by the libfaketime of the images (ADR 0146),
+# CLOCK_SHIFT=+365d: the command on the clock of the system moved by it, by the libfaketime of the images (ADR 0150),
 # its monotonic clock left alone (the timeouts of the tests)
 ON_THE_CLOCK = $(if $(CLOCK_SHIFT),-e LD_PRELOAD=/usr/local/lib/faketime/libfaketime.so.1 -e FAKETIME='$(CLOCK_SHIFT)' -e FAKETIME_DONT_FAKE_MONOTONIC=1)
 PHP  = $(DC) --progress quiet run --rm --no-deps $(ON_THE_CLOCK) -w $(WORKDIR) php

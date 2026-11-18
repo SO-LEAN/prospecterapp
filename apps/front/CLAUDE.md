@@ -14,6 +14,7 @@ Before declaring work done: `pnpm typecheck`, `pnpm lint`, `pnpm test`, and `mak
 
 ## Gotchas
 
+- No test reads the real clock (ADR 0150): `src/test/setup.ts` fixes the date of every test at `THE_MOMENT_OF_THE_TESTS`, `vi.setSystemTime` moves it, `vi.getMockedSystemTime()` reads it; Biome refuses `Date.now()` and `new Date()` in a test or a journey (`docs/architecture/tests.md`).
 - The configuration (`shared/config/env.ts`) comes from `window.prospecter`, set by `/config.js` (empty locally, `public/config.js`; on AWS answered by the CloudFront Function of the instance, ADR 0066), else from the `VITE_*` variables of the build: a new setting goes in both.
 
 - TypeScript 7 is the native compiler and has no JavaScript compiler API: tools that need it (openapi-typescript) run with `pnpm dlx` and their own TypeScript 5 (see the `api:types` script). Stryker would rewrite `tsconfig.json` with it in its sandbox: `stryker.config.json` names a `tsconfigFile` that does not exist, so it rewrites none (`make mutation`).
