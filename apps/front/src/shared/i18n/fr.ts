@@ -410,6 +410,7 @@ export const fr = {
   /** My booking page (ADR 0148) and the page its public link leads to. */
   booking: {
     title: 'Prise de rendez-vous',
+    suspended: 'Votre lien de prise de rendez-vous est suspendu : reconnectez Google',
     description: 'Les heures où l’on peut vous réserver, par le lien que vous donnez à qui vous voulez.',
     open: 'Lien de prise de rendez-vous actif',
     closed: 'Lien de prise de rendez-vous coupé',
