@@ -9,7 +9,7 @@ use Symfony\Component\Serializer\Normalizer\AbstractObjectNormalizer;
 
 /**
  * A connection of mine to a provider: connected, or to reconnect once the provider refused its access; how many of my
- * exchanges to come are synced in my calendar there, and failed (ADR 0133).
+ * exchanges to come are synced in my calendar there, and failed (ADR 0133); where the import of my e-mails stands.
  */
 final readonly class ConnectionResource
 {
@@ -25,6 +25,10 @@ final readonly class ConnectionResource
         public int $synced,
         #[OA\Property(description: 'My exchanges to come the provider refused')]
         public int $failed,
+        #[OA\Property(description: 'Where the import of my e-mails of Gmail stands: off, active, or to reconnect once Google refused to renew it (ADR 0154)', enum: ['off', 'active', 'toReconnect'])]
+        public string $gmailImport,
+        #[OA\Property(description: 'When my mailbox last notified Prospecter of a change, none while the import is off')]
+        public ?\DateTimeImmutable $lastGmailNotificationAt,
         #[SerializedName('_links')]
         #[Context([AbstractObjectNormalizer::SKIP_NULL_VALUES => true])]
         public ConnectionLinksResource $links,

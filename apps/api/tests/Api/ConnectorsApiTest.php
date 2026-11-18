@@ -7,6 +7,7 @@ use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Group;
 use Prospecter\Core\Accounts\Domain\Model\Role;
 use Prospecter\Core\Connectors\Application\ConfigureClient\ConfigureClient;
+use Prospecter\Core\Connectors\Application\ConfigureMailboxNotifications\ConfigureMailboxNotifications;
 use Prospecter\Core\Connectors\Application\RemoveClient\RemoveClient;
 use Tests\App\Base\ApiTestCase;
 use Tests\App\Double\GoogleDouble;
@@ -20,6 +21,9 @@ use Tests\App\Double\GoogleDouble;
 class ConnectorsApiTest extends ApiTestCase
 {
     private const string CODE = 'a-code-of-google';
+    private const string TOPIC = 'projects/solean/topics/gmail';
+    private const string GMAIL_IMPORT = '/api/me/connections/google/gmail-import';
+    private const string GMAIL_IMPORT_AUTHORIZATIONS = '/api/me/connections/google/gmail-import/authorizations';
 
     protected function setUp(): void
     {
@@ -338,6 +342,82 @@ class ConnectorsApiTest extends ApiTestCase
         $this->assertResponseIsSuccessful();
     }
 
+    public function testTheImportOfGmailAsksGoogleTheReadingOfTheMailboxWithTheCalendar(): void
+    {
+        $this->withATopicOfGmail();
+        $this->login();
+
+        $authorization = $this->requestJson('POST', self::GMAIL_IMPORT_AUTHORIZATIONS);
+
+        $this->assertResponseStatusCodeSame(201);
+        $query = $this->addressQueryOf($authorization);
+        $this->assertSame(['openid email https://www.googleapis.com/auth/calendar.app.created https://www.googleapis.com/auth/gmail.readonly', 'true'], [$query['scope'], $query['include_granted_scopes']]);
+    }
+
+    public function testAMemberActivatesTheImportOfGmailThenStopsIt(): void
+    {
+        $this->withATopicOfGmail();
+        $this->login();
+
+        $connections = $this->connectImportingGmail('michel@exemple.fr', 'a-refresh-token');
+
+        $this->assertResponseStatusCodeSame(201);
+        $this->assertSame(['active', null], [$connections['connections'][0]['gmailImport'], $connections['connections'][0]['lastGmailNotificationAt']]);
+        $this->assertSame(['href' => self::GMAIL_IMPORT, 'method' => 'DELETE'], $connections['connections'][0]['_links']['stopGmailImport']);
+        $this->assertSame([self::TOPIC], $this->google()->watches());
+        $stopped = $this->requestJson('DELETE', self::GMAIL_IMPORT);
+        $this->assertResponseIsSuccessful();
+        $this->assertSame([['google', 'connected', 'michel@exemple.fr']], $this->seen($stopped));
+        $this->assertSame('off', $stopped['connections'][0]['gmailImport']);
+        $this->assertSame(1, $this->google()->stops());
+    }
+
+    public function testAMemberRefusingGmailAtGoogleKeepsTheImportOffAndTheCalendarConnected(): void
+    {
+        $this->withATopicOfGmail();
+        $this->login();
+        $state = $this->stateOf($this->requestJson('POST', self::GMAIL_IMPORT_AUTHORIZATIONS));
+        $this->google()->grants(self::CODE, 'michel@exemple.fr', 'a-refresh-token');
+
+        $connections = $this->requestJson('POST', '/api/me/connections/google', ['code' => self::CODE, 'state' => $state]);
+
+        $this->assertSame([['google', 'connected', 'michel@exemple.fr']], $this->seen($connections));
+        $this->assertSame('off', $connections['connections'][0]['gmailImport']);
+        $this->assertSame([], $this->google()->watches());
+    }
+
+    public function testTheImportOfGmailIsOfferedToAMemberWithThePersonalDataWhileTheAccountHasATopic(): void
+    {
+        $this->login();
+        $this->connect('michel@exemple.fr', 'a-refresh-token');
+        $this->assertArrayNotHasKey('importGmail', $this->requestJson('GET', '/api/me/connections')['connections'][0]['_links']);
+
+        $this->withATopicOfGmail();
+
+        $this->assertSame(['href' => self::GMAIL_IMPORT_AUTHORIZATIONS, 'method' => 'POST'], $this->requestJson('GET', '/api/me/connections')['connections'][0]['_links']['importGmail']);
+    }
+
+    public function testWithoutATopicTheImportOfGmailIsRefused(): void
+    {
+        $this->login();
+
+        $problem = $this->requestJson('POST', self::GMAIL_IMPORT_AUTHORIZATIONS);
+
+        $this->assertResponseStatusCodeSame(409);
+        $this->assertSame('mailImportUnavailable', $problem['reason']);
+    }
+
+    public function testAMemberWithoutThePersonalDataImportsNoGmail(): void
+    {
+        $this->withATopicOfGmail();
+        $this->login('assistant-user');
+        $this->connect('michel@exemple.fr', 'a-refresh-token');
+
+        $this->assertArrayNotHasKey('importGmail', $this->requestJson('GET', '/api/me/connections')['connections'][0]['_links']);
+        $this->requestJson('POST', self::GMAIL_IMPORT_AUTHORIZATIONS);
+        $this->assertResponseStatusCodeSame(403);
+    }
+
     public function testAnAnonymousVisitorConnectsNothing(): void
     {
         $this->requestJson('POST', '/api/me/connections/google/authorizations');
@@ -385,9 +465,36 @@ class ConnectorsApiTest extends ApiTestCase
 
     private function stateOfANewAuthorization(): string
     {
-        $query = $this->addressQueryOf($this->requestJson('POST', '/api/me/connections/google/authorizations'));
+        return $this->stateOf($this->requestJson('POST', '/api/me/connections/google/authorizations'));
+    }
+
+    /**
+     * @param array<string, mixed> $authorization
+     */
+    private function stateOf(array $authorization): string
+    {
+        $query = $this->addressQueryOf($authorization);
 
         return is_string($query['state'] ?? null) ? $query['state'] : throw new \LogicException('An authorization without state');
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
+    private function connectImportingGmail(string $account, string $refreshToken): array
+    {
+        $state = $this->stateOf($this->requestJson('POST', self::GMAIL_IMPORT_AUTHORIZATIONS));
+        $this->google()->grantsGmail(self::CODE, $account, $refreshToken);
+
+        return $this->requestJson('POST', '/api/me/connections/google', ['code' => self::CODE, 'state' => $state]);
+    }
+
+    /**
+     * The administrator of the account names the topic its mailboxes notify Prospecter through (ADR 0154).
+     */
+    private function withATopicOfGmail(): void
+    {
+        $this->theAdministrator(new ConfigureMailboxNotifications($this->memberIdOf('client-administrator'), 'google', self::TOPIC, 'push@solean.iam.gserviceaccount.com', new \DateTimeImmutable(self::THE_MOMENT_OF_THE_TESTS)));
     }
 
     /**
