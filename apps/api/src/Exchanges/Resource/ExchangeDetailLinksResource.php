@@ -33,6 +33,8 @@ final readonly class ExchangeDetailLinksResource
         public ?LinkResource $moveBack = null,
         #[OA\Property(nullable: false, description: 'Cancels a planned exchange; to its holder only')]
         public ?LinkResource $cancel = null,
+        #[OA\Property(nullable: false, description: 'The campaign it was noted in, while it is kept; with the right to manage personal data only')]
+        public ?LinkResource $campaign = null,
     ) {
     }
 }

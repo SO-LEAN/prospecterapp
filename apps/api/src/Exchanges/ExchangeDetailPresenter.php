@@ -10,6 +10,7 @@ use App\Exchanges\Resource\ExchangeDetailLinksResource;
 use App\Exchanges\Resource\ExchangeDetailResource;
 use App\Exchanges\Resource\StampResource;
 use App\PersonalData\Resource\PersonNameResource;
+use App\Prospecting\Resource\CampaignOfExchangeResource;
 use App\Security\IntentLinks;
 use App\Security\User;
 use App\Shared\Links;
@@ -81,6 +82,7 @@ final class ExchangeDetailPresenter implements ConsultExchangeOutput
             madeConform: null === $exchange->madeConformAt || null === $exchange->madeConformBy ? null : new StampResource($exchange->madeConformAt->format(\DateTimeInterface::ATOM), $authorOf($exchange->madeConformBy)),
             attachments: array_map(fn (AttachmentDetail $attachment): AttachmentResource => $this->presentAttachment($exchange, $attachment), $exchange->attachments),
             hiddenAttachments: $exchange->hiddenAttachments,
+            campaign: null === $exchange->campaignId ? null : new CampaignOfExchangeResource($exchange->campaignId, $exchange->campaignName),
             links: $this->linksOf($exchange),
         );
     }
@@ -107,7 +109,20 @@ final class ExchangeDetailPresenter implements ConsultExchangeOutput
             $this->links->to('api_exchanges_show', $id),
             $this->cardOf($this->participants->interlocutor),
             ...array_map(fn (array $link): LinkResource => $this->links->to($link['route'], $id), $granted),
+            campaign: $this->campaignOf($exchange),
         );
+    }
+
+    /**
+     * The campaign it was noted in, while Campaigns still names it, to those who read the campaigns (ADR 0152).
+     */
+    private function campaignOf(ExchangeDetail $exchange): ?LinkResource
+    {
+        if (null === $exchange->campaignId || null === $exchange->campaignName || !$this->intentLinks->holds(User::PERSONAL_DATA)) {
+            return null;
+        }
+
+        return $this->links->to('api_campaigns_show', ['id' => $exchange->campaignId]);
     }
 
     /**

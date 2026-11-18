@@ -2644,6 +2644,7 @@ export interface components {
             move?: components["schemas"]["LinkResource"];
             moveBack?: components["schemas"]["LinkResource"];
             cancel?: components["schemas"]["LinkResource"];
+            campaign?: components["schemas"]["LinkResource"];
         };
         ExchangeDetailResource: {
             id: string;
@@ -2698,6 +2699,8 @@ export interface components {
             attachments: components["schemas"]["AttachmentResource"][];
             /** @description How many files are joined to it but hidden to a prospector reading it without the right to manage personal data */
             hiddenAttachments: number;
+            /** @description The campaign it was noted in, none for an exchange of no campaign */
+            campaign?: components["schemas"]["CampaignOfExchangeResource"] | null;
             _links: components["schemas"]["ExchangeDetailLinksResource"];
         };
         AttachmentDownloadResource: {
@@ -2896,6 +2899,7 @@ export interface components {
             remove?: components["schemas"]["LinkResource"];
             noteExchange?: components["schemas"]["LinkResource"];
             dismiss?: components["schemas"]["LinkResource"];
+            exchange?: components["schemas"]["LinkResource"];
         };
         RecipientResource: {
             /** @description The contact, none once erased */
