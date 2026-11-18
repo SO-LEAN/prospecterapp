@@ -5,6 +5,7 @@ import { toast } from 'sonner'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { Toaster } from '@/shared/ui/sonner'
 import { renderInARouter } from '@/test/render-in-a-router'
+import { theMomentOfTheTest } from '@/test/the-moment-of-the-tests'
 import {
   type ExchangesToProcess,
   exchangesToProcessQuery,
@@ -76,9 +77,7 @@ async function openTheApplication(toDos: ToDoToProcess[]) {
 }
 
 const itIs = (hours: number, minutes: number) =>
-  act(() =>
-    vi.advanceTimersByTimeAsync(at(hours, minutes).getTime() - (vi.getMockedSystemTime()?.getTime() ?? 0)),
-  )
+  act(() => vi.advanceTimersByTimeAsync(at(hours, minutes).getTime() - theMomentOfTheTest().getTime()))
 
 beforeEach(() => {
   vi.useFakeTimers({ shouldAdvanceTime: true })
