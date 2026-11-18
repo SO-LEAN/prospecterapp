@@ -74,6 +74,13 @@ final class OrganizationContext implements Context
         return $this->scenario->save($name, $organization);
     }
 
+    #[Given('l\'organisation :name d\'e-mail :email appartient à :owner')]
+    public function anOrganizationWithAnEmailProspectedBy(string $name, string $email, string $owner): void
+    {
+        $organization = Organization::prospectedBy($this->scenario->prospectorOf($this->scenario->accountIdOf($owner)), new OrganizationId($this->application->newIdentity()), new LegalIdentity($name), new ContactDetails(new Email($email)), $this->application->now());
+        $this->scenario->save($name, $organization);
+    }
+
     /**
      * The address as written on one line: its street, then its postal code and its city.
      */

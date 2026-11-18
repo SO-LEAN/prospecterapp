@@ -30,3 +30,15 @@ Fonctionnalité: Rattacher un contact existant à une organisation
     Et je suis connecté en tant que prospecteur de "SOLEAN IT"
     Quand je rattache le contact "Linus Torvalds" à "ACME"
     Alors c'est introuvable
+
+  Scénario: Je rattache un contact à rattacher, ses échanges et ses actions à faire la suivent
+    Soit nous sommes le 18/11/2026 à 10h00
+    Et je suis connecté en tant que prospecteur de "SOLEAN IT"
+    Et "Grace Hopper" (grace@acme.test) a pris une visio avec moi le 20/11/2026 à 14h00
+    Et j'ai noté à faire pour "Grace Hopper" "Envoyer la proposition" pour le 25/11/2026
+    Quand je rattache le contact "Grace Hopper" à "ACME"
+    Alors les contacts de "ACME" sont :
+      | Grace Hopper |
+    Et la visio avec "Grace Hopper" est gardée pour "ACME"
+    Et elle est dans les actions à faire de "ACME"
+    Et "Grace Hopper" n'est plus à rattacher
