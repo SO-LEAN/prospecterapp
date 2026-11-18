@@ -37,6 +37,6 @@ final readonly class PersonalDataAndProspectingAddressees implements Addressees
         $organizations = new KeptOrganizationsOfContacts();
         ($this->nameOrganizationsOfContactsService)(new NameOrganizationsOfContacts($accountId->value, [$contact->value]), $organizations);
 
-        return new Addressee($named->firstName, $named->lastName, $organizations->contacts[0]->organizationNames[0] ?? null, $named->jobTitle);
+        return new Addressee($named->firstName, $named->lastName, $named->civility, $organizations->contacts[0]->organizationNames[0] ?? null, $named->jobTitle);
     }
 }
