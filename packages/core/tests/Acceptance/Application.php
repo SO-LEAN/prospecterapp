@@ -1079,9 +1079,6 @@ final class Application
     }
 
     /**
-     * Gives each contact left unattached its erasure, as the schedule of the platform does.
-     */
-    /**
      * As the daily schedule of the platform does: each import active given the renewal of its watch (ADR 0154).
      */
     public function renewMailWatches(): void
@@ -1091,6 +1088,9 @@ final class Application
         }
     }
 
+    /**
+     * Gives each contact left unattached its erasure, as the schedule of the platform does.
+     */
     public function eraseContactsLeftUnattached(): void
     {
         foreach ($this->contactsToAttachRetriever->leftUnattachedAt($this->now) as $person) {
