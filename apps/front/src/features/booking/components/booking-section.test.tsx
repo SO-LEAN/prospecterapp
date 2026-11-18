@@ -3,7 +3,8 @@ import { createMemoryHistory, createRootRoute, createRouter, RouterProvider } fr
 import { render, screen, waitFor, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { Toaster, toast } from 'sonner'
-import { afterEach, describe, expect, it, vi } from 'vitest'
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
+import { mutationsToastingTheirRefusals } from '@/app/query-client'
 import type { BookingPage } from '../mutations'
 import { BookingSection } from './booking-section'
 
@@ -66,7 +67,7 @@ const open: BookingPage = {
 }
 
 async function renderTheSection(page: BookingPage) {
-  const queryClient = new QueryClient()
+  const queryClient = new QueryClient({ mutationCache: mutationsToastingTheirRefusals() })
   const rootRoute = createRootRoute({ component: () => <BookingSection page={page} /> })
   const router = createRouter({
     routeTree: rootRoute,
@@ -90,7 +91,31 @@ const sent = async (call = 0) => {
   return { path: new URL(request.url).pathname, method: request.method, body: body ? JSON.parse(body) : null }
 }
 
+const refused = (reason: string) =>
+  new Response(JSON.stringify({ status: 422, title: 'Unprocessable Content', detail: reason, reason }), {
+    status: 422,
+    headers: { 'Content-Type': 'application/problem+json' },
+  })
+
+const unhandledRejections: unknown[] = []
+const keepTheUnhandled = (reason: unknown) => {
+  unhandledRejections.push(reason)
+}
+
+/** The rejections of the promises are told once the tasks of the moment are done: one task later. */
+const rejectionsLeftUnhandled = async () => {
+  await new Promise((resolve) => setTimeout(resolve, 0))
+
+  return unhandledRejections
+}
+
+beforeEach(() => {
+  unhandledRejections.length = 0
+  process.on('unhandledRejection', keepTheUnhandled)
+})
+
 afterEach(() => {
+  process.off('unhandledRejection', keepTheUnhandled)
   theApi.mockReset()
   toast.dismiss()
 })
@@ -142,6 +167,16 @@ describe('BookingSection', () => {
       })),
     )
     expect(body.timeZone).toBe(Intl.DateTimeFormat().resolvedOptions().timeZone)
+  })
+
+  it('tells a window refused, leaving no rejection unhandled', async () => {
+    theApi.mockResolvedValue(refused('windowTooShort'))
+    const user = await renderTheSection(open)
+
+    await user.click(screen.getByRole('button', { name: 'Enregistrer les plages' }))
+
+    expect(await screen.findByText('Une plage dure au moins 15 minutes.')).toBeInTheDocument()
+    expect(await rejectionsLeftUnhandled()).toEqual([])
   })
 
   it('turns a day on and sets its window', async () => {
