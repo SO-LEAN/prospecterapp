@@ -38,17 +38,18 @@ final readonly class PublishExchangeFactsHandler implements EventHandler
             $event->occurredAt,
             $facts->contactId,
             $facts->campaignId,
+            $facts->erasedWithItsOrganization,
         ));
     }
 
     /**
      * Erased, the exchange is no longer read: its last facts name the contact and the campaign its erasure tells
-     * (ADR 0152).
+     * (ADR 0152), and whether it went with its organization (ADR 0155).
      */
     private function factsOf(ExchangeEvent $event): ExchangeFactsResponse
     {
         return $event instanceof ExchangeErased
-            ? ExchangeFactsResponse::absent((string) $event->exchange, $event->contact?->value, $event->campaign?->value)
+            ? ExchangeFactsResponse::absent((string) $event->exchange, $event->contact?->value, $event->campaign?->value, $event->withItsOrganization)
             : $this->exchangeFactsRetriever->of($event->exchange);
     }
 }

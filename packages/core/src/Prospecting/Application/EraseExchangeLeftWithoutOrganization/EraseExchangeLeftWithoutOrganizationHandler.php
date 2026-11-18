@@ -34,7 +34,7 @@ final readonly class EraseExchangeLeftWithoutOrganizationHandler implements Even
             return;
         }
 
-        $exchange->erase(by: $event->by, at: $event->occurredAt);
+        $exchange->eraseWithItsOrganization(by: $event->by, at: $event->occurredAt);
         $this->exchanges->remove($exchange);
         $this->publishWhatHappenedTo($exchange);
     }
