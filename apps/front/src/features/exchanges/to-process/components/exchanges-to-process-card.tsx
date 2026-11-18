@@ -61,7 +61,7 @@ export function ExchangesToProcessCard({ contactSummary, toDoLine, contactsToAtt
             <CardTitle className="text-base">{t('toProcess.title')}</CardTitle>
           </CardHeader>
           <CardContent>
-            <ul className="space-y-2">
+            <ul className="space-y-2 empty:hidden">
               {toProcess.items.map((item) => (
                 <ExchangeToProcessLine
                   key={item.exchange.id}

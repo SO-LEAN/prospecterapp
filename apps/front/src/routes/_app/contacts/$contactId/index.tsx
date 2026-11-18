@@ -92,7 +92,11 @@ function ContactPage() {
         <ToAttachBanner
           contactId={contact.id}
           toAttach={contact.toAttach}
-          attaching={contact.masked ? undefined : { name, email: contact.contactDetails.email ?? null }}
+          attaching={
+            contact._links.proposedOrganization
+              ? { name, email: contact.contactDetails.email ?? null }
+              : undefined
+          }
         />
       )}
       {contact._links.tags && (
