@@ -32,6 +32,27 @@ const connection = (state: Connection['state'], synced = 0, failed = 0): Connect
   },
 })
 
+const IMPORT_GMAIL = '/api/me/connections/google/gmail-import/authorizations'
+const GMAIL_IMPORT = '/api/me/connections/google/gmail-import'
+
+const importing = (
+  gmailImport: Connection['gmailImport'],
+  lastGmailNotificationAt: string | null = null,
+): Connection => {
+  const shown = connection('connected')
+
+  return {
+    ...shown,
+    gmailImport,
+    lastGmailNotificationAt,
+    _links: {
+      ...shown._links,
+      ...(gmailImport === 'active' ? {} : { importGmail: { href: IMPORT_GMAIL, method: 'POST' } }),
+      ...(gmailImport === 'off' ? {} : { stopGmailImport: { href: GMAIL_IMPORT, method: 'DELETE' } }),
+    },
+  }
+}
+
 const noConnection: Connections = {
   connections: [],
   _links: {
@@ -63,6 +84,53 @@ const sent = () => {
 afterEach(() => {
   theApi.mockReset()
   toast.dismiss()
+})
+
+describe('GoogleCalendarCard, the import of my e-mails of Gmail', () => {
+  it('is not offered without the right to manage the personal data or a topic of the account', () => {
+    renderTheCard(connection('connected'))
+
+    expect(screen.queryByRole('switch', { name: 'Importer mes e-mails Gmail' })).not.toBeInTheDocument()
+  })
+
+  it('activates by sending me to Google, which asks the reading of Gmail', async () => {
+    theApi.mockResolvedValue(
+      Response.json({ address: 'https://accounts.google.test/auth?gmail' }, { status: 201 }),
+    )
+    const { user, goTo } = renderTheCard(importing('off'))
+
+    await user.click(screen.getByRole('switch', { name: 'Importer mes e-mails Gmail' }))
+
+    expect(sent()).toEqual({ path: IMPORT_GMAIL, method: 'POST' })
+    await waitFor(() => expect(goTo).toHaveBeenCalledWith('https://accounts.google.test/auth?gmail'))
+  })
+
+  it('shows the import active with the moment of the last notification, and stops it', async () => {
+    theApi.mockResolvedValue(Response.json({ ...noConnection, connections: [importing('off')] }))
+    const { user } = renderTheCard(importing('active', '2026-11-18T08:15:00+00:00'))
+
+    expect(screen.getByRole('switch', { name: 'Importer mes e-mails Gmail' })).toBeChecked()
+    expect(screen.getByText(/^Import actif, dernière notification reçue le /)).toBeInTheDocument()
+    await user.click(screen.getByRole('switch', { name: 'Importer mes e-mails Gmail' }))
+
+    expect(sent()).toEqual({ path: GMAIL_IMPORT, method: 'DELETE' })
+    expect(await screen.findByText('L’import de vos e-mails Gmail est coupé.')).toBeInTheDocument()
+  })
+
+  it('says when no notification was received yet', () => {
+    renderTheCard(importing('active'))
+
+    expect(screen.getByText('Import actif, aucune notification reçue pour le moment.')).toBeInTheDocument()
+  })
+
+  it('says the import is to reconnect once Google refused to renew it', () => {
+    renderTheCard(importing('toReconnect'))
+
+    expect(screen.getByRole('switch', { name: 'Importer mes e-mails Gmail' })).not.toBeChecked()
+    expect(
+      screen.getByText('Google n’accorde plus la lecture de Gmail : réactivez l’import pour le reconnecter.'),
+    ).toBeInTheDocument()
+  })
 })
 
 describe('GoogleCalendarCard', () => {
