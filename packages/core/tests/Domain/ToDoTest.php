@@ -7,6 +7,7 @@ namespace Tests\Core\Domain;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Prospecter\Core\Prospecting\Domain\Event\ToDoErased;
+use Prospecter\Core\Prospecting\Domain\Event\ToDoKeptFor;
 use Prospecter\Core\Prospecting\Domain\Event\ToDoLeftWithoutOrganization;
 use Prospecter\Core\Prospecting\Domain\Event\ToDoNoLongerKeptFor;
 use Prospecter\Core\Prospecting\Domain\Event\ToDoNoted;
@@ -121,6 +122,17 @@ final class ToDoTest extends TestCase
 
         $this->assertTrue($toDo->isKeptForAnOrganization());
         $this->assertEquals([new ToDoNoLongerKeptFor(new AccountId(self::ACCOUNT), new MemberId(self::ME), new ToDoId(self::TO_DO), new OrganizationId(self::ACME), $this->now())], $toDo->releaseEvents());
+    }
+
+    public function testItsContactToAttachAttachedItIsKeptForTheirOrganization(): void
+    {
+        $toDo = ToDo::forAContact(new AccountId(self::ACCOUNT), new MemberId(self::ME), new ToDoId(self::TO_DO), new PersonId(self::CONTACT), [], 'Envoyer mon CV', new Due('2026-11-20'), $this->now());
+        $toDo->releaseEvents();
+
+        $toDo->keepFor(new OrganizationId(self::ACME), new MemberId(self::ME), $this->now());
+
+        $this->assertTrue($toDo->isKeptForAnOrganization());
+        $this->assertEquals([new ToDoKeptFor(new AccountId(self::ACCOUNT), new MemberId(self::ME), new ToDoId(self::TO_DO), new OrganizationId(self::ACME), $this->now())], $toDo->releaseEvents());
     }
 
     public function testKeptForNoOrganizationItMustNotStay(): void

@@ -121,6 +121,7 @@ use Prospecter\Core\PersonalData\Application\ConsultPersons\ConsultPersons;
 use Prospecter\Core\PersonalData\Application\ConsultPersons\ConsultPersonsHandler;
 use Prospecter\Core\PersonalData\Application\ConsultPersons\KeptPersons;
 use Prospecter\Core\PersonalData\Application\ForgetContact\ForgetContactHandler;
+use Prospecter\Core\PersonalData\Application\ForgetContactLeftUnattached\ForgetContactLeftUnattachedHandler;
 use Prospecter\Core\PersonalData\Application\ForgetContactsLeftWithoutOrganization\ForgetContactsLeftWithoutOrganizationHandler;
 use Prospecter\Core\PersonalData\Application\ListContactFacts\ListContactFactsHandler;
 use Prospecter\Core\PersonalData\Application\NameContacts\NameContactsHandler;
@@ -147,6 +148,7 @@ use Prospecter\Core\PersonalData\Contract\Service\WhichAreContacts\WhichAreConta
 use Prospecter\Core\PersonalData\Domain\Service\EmailUniqueness as PersonalDataEmailUniqueness;
 use Prospecter\Core\Prospecting\Application\AddContact\AddContactHandler;
 use Prospecter\Core\Prospecting\Application\AttachCollectedContact\AttachCollectedContactHandler;
+use Prospecter\Core\Prospecting\Application\AttachContactToAttach\AttachContactToAttachHandler;
 use Prospecter\Core\Prospecting\Application\AttachFile\AttachFileHandler;
 use Prospecter\Core\Prospecting\Application\AttachToHolding\AttachToHoldingHandler;
 use Prospecter\Core\Prospecting\Application\CampaignsOfTimeline;
@@ -157,6 +159,9 @@ use Prospecter\Core\Prospecting\Application\ConsultCalendar\Calendar;
 use Prospecter\Core\Prospecting\Application\ConsultCalendar\ConsultCalendar;
 use Prospecter\Core\Prospecting\Application\ConsultCalendar\ConsultCalendarHandler;
 use Prospecter\Core\Prospecting\Application\ConsultCalendar\KeptCalendar;
+use Prospecter\Core\Prospecting\Application\ConsultContactToAttach\ConsultContactToAttach;
+use Prospecter\Core\Prospecting\Application\ConsultContactToAttach\ConsultContactToAttachHandler;
+use Prospecter\Core\Prospecting\Application\ConsultContactToAttach\KeptContactToAttach;
 use Prospecter\Core\Prospecting\Application\ConsultExchange\ConsultExchange;
 use Prospecter\Core\Prospecting\Application\ConsultExchange\ConsultExchangeHandler;
 use Prospecter\Core\Prospecting\Application\ConsultExchange\ExchangeDetail;
@@ -201,6 +206,7 @@ use Prospecter\Core\Prospecting\Application\ConsultWhatIsToProcess\ConsultWhatIs
 use Prospecter\Core\Prospecting\Application\ConsultWhatIsToProcess\ConsultWhatIsToProcessHandler;
 use Prospecter\Core\Prospecting\Application\ConsultWhatIsToProcess\KeptWhatIsToProcess;
 use Prospecter\Core\Prospecting\Application\ConsultWhatIsToProcess\WhatIsToProcess;
+use Prospecter\Core\Prospecting\Application\ContactToAttachInList;
 use Prospecter\Core\Prospecting\Application\CorrectExchange\CorrectExchangeHandler;
 use Prospecter\Core\Prospecting\Application\CorrectExchangeText\CorrectExchangeTextHandler;
 use Prospecter\Core\Prospecting\Application\CorrectExchangeVenue\CorrectExchangeVenueHandler;
@@ -213,13 +219,18 @@ use Prospecter\Core\Prospecting\Application\DownloadAttachment\AttachmentDownloa
 use Prospecter\Core\Prospecting\Application\DownloadAttachment\DownloadAttachment;
 use Prospecter\Core\Prospecting\Application\DownloadAttachment\DownloadAttachmentHandler;
 use Prospecter\Core\Prospecting\Application\DownloadAttachment\KeptDownload;
+use Prospecter\Core\Prospecting\Application\EraseContactLeftUnattached\EraseContactLeftUnattached;
+use Prospecter\Core\Prospecting\Application\EraseContactLeftUnattached\EraseContactLeftUnattachedHandler;
 use Prospecter\Core\Prospecting\Application\EraseExchange\EraseExchangeHandler;
 use Prospecter\Core\Prospecting\Application\EraseExchangeLeftWithoutOrganization\EraseExchangeLeftWithoutOrganizationHandler;
+use Prospecter\Core\Prospecting\Application\EraseExchangesOfContactLeftUnattached\EraseExchangesOfContactLeftUnattachedHandler;
 use Prospecter\Core\Prospecting\Application\EraseToDo\EraseToDoHandler;
 use Prospecter\Core\Prospecting\Application\EraseToDoLeftWithoutOrganization\EraseToDoLeftWithoutOrganizationHandler;
 use Prospecter\Core\Prospecting\Application\EraseToDosOfForgottenContact\EraseToDosOfForgottenContactHandler;
 use Prospecter\Core\Prospecting\Application\KeepCreatedVideoCallLink\KeepCreatedVideoCallLinkHandler;
+use Prospecter\Core\Prospecting\Application\KeepExchangesOfAttachedContact\KeepExchangesOfAttachedContactHandler;
 use Prospecter\Core\Prospecting\Application\KeepExchangesOfForgottenContact\KeepExchangesOfForgottenContactHandler;
+use Prospecter\Core\Prospecting\Application\KeepToDosOfAttachedContact\KeepToDosOfAttachedContactHandler;
 use Prospecter\Core\Prospecting\Application\KeptTimeline;
 use Prospecter\Core\Prospecting\Application\KeptToDoList;
 use Prospecter\Core\Prospecting\Application\ListExchangeFacts\ListExchangeFactsHandler;
@@ -242,10 +253,16 @@ use Prospecter\Core\Prospecting\Application\ProposeMeetingPlace\KeptMeetingPlace
 use Prospecter\Core\Prospecting\Application\ProposeMeetingPlace\MeetingPlace;
 use Prospecter\Core\Prospecting\Application\ProposeMeetingPlace\ProposeMeetingPlace;
 use Prospecter\Core\Prospecting\Application\ProposeMeetingPlace\ProposeMeetingPlaceHandler;
+use Prospecter\Core\Prospecting\Application\ProposeOrganizationToAttach\KeptProposedOrganization;
+use Prospecter\Core\Prospecting\Application\ProposeOrganizationToAttach\ProposedOrganization;
+use Prospecter\Core\Prospecting\Application\ProposeOrganizationToAttach\ProposeOrganizationToAttach;
+use Prospecter\Core\Prospecting\Application\ProposeOrganizationToAttach\ProposeOrganizationToAttachHandler;
+use Prospecter\Core\Prospecting\Application\PublishContactLeftUnattached\PublishContactLeftUnattachedHandler;
 use Prospecter\Core\Prospecting\Application\PublishContactsLeftWithoutOrganization\PublishContactsLeftWithoutOrganizationHandler;
 use Prospecter\Core\Prospecting\Application\PublishedHeldExchanges;
 use Prospecter\Core\Prospecting\Application\PublishExchangeFacts\PublishExchangeFactsHandler;
 use Prospecter\Core\Prospecting\Application\PublishOrganizationFacts\PublishOrganizationFactsHandler;
+use Prospecter\Core\Prospecting\Application\PushBackErasureOfContactToAttach\PushBackErasureOfContactToAttachHandler;
 use Prospecter\Core\Prospecting\Application\RecognizeCallingOrganization\KeptCallingOrganizations;
 use Prospecter\Core\Prospecting\Application\RecognizeCallingOrganization\RecognizeCallingOrganization;
 use Prospecter\Core\Prospecting\Application\RecognizeCallingOrganization\RecognizeCallingOrganizationHandler;
@@ -333,7 +350,9 @@ use Tests\Core\Double\InMemoryCampaignSheetRetriever;
 use Tests\Core\Double\InMemoryConnectionRepository;
 use Tests\Core\Double\InMemoryContactFactsRetriever;
 use Tests\Core\Double\InMemoryContactPageRetriever;
+use Tests\Core\Double\InMemoryContactsToAttachRetriever;
 use Tests\Core\Double\InMemoryContactTagsRetriever;
+use Tests\Core\Double\InMemoryContactToAttachRepository;
 use Tests\Core\Double\InMemoryDatabase;
 use Tests\Core\Double\InMemoryExchangeDetailRetriever;
 use Tests\Core\Double\InMemoryExchangeFactsRetriever;
@@ -357,6 +376,7 @@ use Tests\Core\Double\InMemoryPersonCardRetriever;
 use Tests\Core\Double\InMemoryPersonRepository;
 use Tests\Core\Double\InMemoryPrivateStorage;
 use Tests\Core\Double\InMemoryProjectionVersions;
+use Tests\Core\Double\InMemoryProposedOrganizationRetriever;
 use Tests\Core\Double\InMemoryProviderAccess;
 use Tests\Core\Double\InMemoryProviderCalendar;
 use Tests\Core\Double\InMemoryProviderClientRepository;
@@ -420,6 +440,8 @@ final class Application
     private readonly ListAccountsHandler $listAccountsService;
     public readonly InMemoryExchangeRepository $exchanges;
     public readonly InMemoryToDoRepository $toDos;
+    public readonly InMemoryContactToAttachRepository $contactsToAttach;
+    private readonly InMemoryContactsToAttachRetriever $contactsToAttachRetriever;
     private readonly InMemoryToDoListRetriever $toDoListRetriever;
     public readonly InMemoryAccountRepository $accounts;
     public readonly InMemoryMemberRepository $members;
@@ -498,6 +520,8 @@ final class Application
         $this->calendarRetriever = new InMemoryCalendarRetriever($database);
         $this->exchanges = new InMemoryExchangeRepository($database);
         $this->toDos = new InMemoryToDoRepository($database);
+        $this->contactsToAttach = new InMemoryContactToAttachRepository($database);
+        $this->contactsToAttachRetriever = new InMemoryContactsToAttachRetriever($database);
         $this->toDoListRetriever = new InMemoryToDoListRetriever($database);
         $this->accounts = new InMemoryAccountRepository($database);
         $this->members = new InMemoryMemberRepository($database);
@@ -532,7 +556,7 @@ final class Application
         $this->personEmails = new PersonalDataEmailUniqueness($this->persons);
         $this->organizationEmails = new ProspectingEmailUniqueness($this->organizations);
         $this->orphans = new OrphanContacts($this->organizations);
-        $this->contactOrganizations = new ContactOrganizations($this->organizations);
+        $this->contactOrganizations = new ContactOrganizations($this->organizations, $this->contactsToAttach);
         $this->projectionVersions = new InMemoryProjectionVersions($database);
         $this->sourceAccounts = new AccountsSourceAccounts($this->listAccountsService, $this->consultMembersService);
         $this->figuresRetriever = new InMemoryFiguresRetriever($database);
@@ -960,7 +984,31 @@ final class Application
     {
         $kept = new KeptWhatIsToProcess();
 
-        return $this->ask(new ConsultWhatIsToProcessHandler($this->agendaRetriever, $this->toDoListRetriever, $this->prospectors), $query, $kept) ? $kept->toProcess : null;
+        return $this->ask(new ConsultWhatIsToProcessHandler($this->agendaRetriever, $this->toDoListRetriever, $this->prospectors, $this->contactsToAttachRetriever), $query, $kept) ? $kept->toProcess : null;
+    }
+
+    public function consultContactToAttach(ConsultContactToAttach $query): ?ContactToAttachInList
+    {
+        $kept = new KeptContactToAttach();
+
+        return $this->ask(new ConsultContactToAttachHandler($this->contactsToAttachRetriever), $query, $kept) ? $kept->contactToAttach : null;
+    }
+
+    public function proposeOrganizationToAttach(ProposeOrganizationToAttach $query): ?ProposedOrganization
+    {
+        $kept = new KeptProposedOrganization();
+
+        return $this->ask(new ProposeOrganizationToAttachHandler(new InMemoryProposedOrganizationRetriever($this->database), $this->prospectors), $query, $kept) ? $kept->organization : null;
+    }
+
+    /**
+     * Gives each contact left unattached its erasure, as the schedule of the platform does.
+     */
+    public function eraseContactsLeftUnattached(): void
+    {
+        foreach ($this->contactsToAttachRetriever->leftUnattachedAt($this->now) as $person) {
+            $this->dispatch(new EraseContactLeftUnattached($person, $this->now));
+        }
     }
 
     public function consultTimelineIntents(ConsultTimelineIntents $query): ?TimelineIntentsResponse
@@ -1024,6 +1072,7 @@ final class Application
     private function commandHandlers(): array
     {
         return [
+            new EraseContactLeftUnattachedHandler($this->contactsToAttach, $this->events),
             new StartProspectingHandler($this->organizations, $this->prospectors, $this->events, $this->geoLocalizer, $this->organizationEmails),
             new ReviseLegalIdentityHandler($this->organizations, $this->events),
             new ChangeContactDetailsHandler($this->organizations, $this->events, $this->organizationEmails),
@@ -1243,6 +1292,7 @@ final class Application
             new PublishContactCollectedHandler($this->events),
             new PublishContactForgottenHandler($this->events),
             new PublishContactsLeftWithoutOrganizationHandler($this->events),
+            new PublishContactLeftUnattachedHandler($this->events),
             new PublishVideoCallLinkCreatedHandler($this->events),
         ];
     }
@@ -1261,6 +1311,12 @@ final class Application
             new KeepExchangesOfForgottenContactHandler($this->exchanges, $this->events),
             new KeepCreatedVideoCallLinkHandler($this->exchanges, $this->events),
             new ForgetContactsLeftWithoutOrganizationHandler($this->persons, $this->readers, $this->events),
+            new ForgetContactLeftUnattachedHandler($this->persons, $this->readers, $this->events),
+            new EraseExchangesOfContactLeftUnattachedHandler($this->exchanges, $this->events),
+            new AttachContactToAttachHandler($this->contactsToAttach, $this->events),
+            new KeepExchangesOfAttachedContactHandler($this->exchanges, $this->events),
+            new KeepToDosOfAttachedContactHandler($this->toDos, $this->events),
+            new PushBackErasureOfContactToAttachHandler($this->exchanges, $this->contactsToAttach, $this->events),
             new RegisterTheFounderHandler($this->members),
             new CollectTheFounderProfileHandler($this->persons),
             new CollectTheMemberProfileHandler($this->persons),

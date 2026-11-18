@@ -68,9 +68,7 @@ final class Person implements ReleasesEvents
      */
     public static function collectAsContact(Reader $by, PersonId $id, PersonName $name, Civility $civility, ?string $jobTitle, ContactDetails $contactDetails, ?LinkedInProfile $linkedInProfile, array $organizations, \DateTimeImmutable $at): self
     {
-        if (!$by->readsPersonalData) {
-            throw PersonalDataManagersOnly::because('Only a member allowed to manage personal data may collect a contact');
-        }
+        self::ensureCollectedByAManager($by);
 
         if ([] === $organizations) {
             throw ContactWithoutOrganization::because('A contact belongs to at least one organization', 'organizationIds');
@@ -83,6 +81,32 @@ final class Person implements ReleasesEvents
         $contact->recordThat(new ContactCollected($by->accountId, $by->id, $id, $organizations, $at));
 
         return $contact;
+    }
+
+    /**
+     * A person who took a meeting with the member before anyone knows for which organization they work: a contact
+     * of the account waiting to be attached (ADR 0146), collected by a member with the right to manage personal
+     * data like any contact.
+     *
+     * @throws PersonalDataManagersOnly
+     */
+    public static function collectToAttach(Reader $by, PersonId $id, PersonName $name, ContactDetails $contactDetails, \DateTimeImmutable $at): self
+    {
+        self::ensureCollectedByAManager($by);
+        $contact = new self($id, $by->accountId, Purpose::Prospecting, $name, $contactDetails, $at);
+        $contact->recordThat(new ContactCollected($by->accountId, $by->id, $id, [], $at));
+
+        return $contact;
+    }
+
+    /**
+     * @throws PersonalDataManagersOnly
+     */
+    private static function ensureCollectedByAManager(Reader $by): void
+    {
+        if (!$by->readsPersonalData) {
+            throw PersonalDataManagersOnly::because('Only a member allowed to manage personal data may collect a contact');
+        }
     }
 
     public function id(): PersonId

@@ -7,6 +7,6 @@ namespace Prospecter\Core\Prospecting\Domain\Event;
 /**
  * A planned exchange was moved to another moment, for a new duration or its own.
  */
-final readonly class ExchangeMoved extends ExchangeEvent
+final readonly class ExchangeMoved extends ExchangeEvent implements SetsTheMomentOfAnExchange
 {
 }

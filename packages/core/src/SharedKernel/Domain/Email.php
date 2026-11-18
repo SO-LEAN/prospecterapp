@@ -26,6 +26,14 @@ final readonly class Email implements \Stringable
         return null === $value || '' === $value ? null : new self($value);
     }
 
+    /**
+     * What follows the @: the domain of the mailbox.
+     */
+    public function domain(): string
+    {
+        return substr($this->value, strrpos($this->value, '@') + 1);
+    }
+
     public function equals(self $other): bool
     {
         return $this->value === $other->value;

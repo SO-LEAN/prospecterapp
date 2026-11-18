@@ -1,0 +1,52 @@
+<?php
+
+declare(strict_types=1);
+
+namespace Tests\Core\Double;
+
+use Prospecter\Core\Prospecting\Application\ContactToAttachInList;
+use Prospecter\Core\Prospecting\Application\Port\ContactsToAttachRetriever;
+use Prospecter\Core\Prospecting\Domain\Model\ContactToAttach;
+use Prospecter\Core\Prospecting\Domain\Policy\UnattachedErasure;
+use Prospecter\Core\SharedKernel\Domain\MemberId;
+use Prospecter\Core\SharedKernel\Domain\PersonId;
+
+/**
+ * The contacts to attach the repository saved, read without their getters, as the DynamoDB retriever reads their
+ * items.
+ */
+final readonly class InMemoryContactsToAttachRetriever implements ContactsToAttachRetriever
+{
+    public function __construct(private InMemoryDatabase $database)
+    {
+    }
+
+    public function heldBy(MemberId $holder): array
+    {
+        $held = array_map(self::inList(...), array_values(array_filter($this->database->contactsToAttach(), static fn (ContactToAttach $contactToAttach): bool => $contactToAttach->isHeldBy($holder))));
+        usort($held, static fn (ContactToAttachInList $one, ContactToAttachInList $other): int => [$one->erasableFrom, $one->personId] <=> [$other->erasableFrom, $other->personId]);
+
+        return $held;
+    }
+
+    public function findHeldBy(MemberId $holder, PersonId $person): ?ContactToAttachInList
+    {
+        $contactToAttach = $this->database->contactToAttach((string) $person);
+
+        return true === $contactToAttach?->isHeldBy($holder) ? self::inList($contactToAttach) : null;
+    }
+
+    public function leftUnattachedAt(\DateTimeImmutable $at): array
+    {
+        $left = array_filter($this->database->contactsToAttach(), static fn (ContactToAttach $contactToAttach): bool => self::inList($contactToAttach)->erasableFrom <= $at);
+
+        return array_values(array_map(static fn (ContactToAttach $contactToAttach): string => (string) $contactToAttach->id(), $left));
+    }
+
+    private static function inList(ContactToAttach $contactToAttach): ContactToAttachInList
+    {
+        $state = StateOf::the($contactToAttach);
+
+        return new ContactToAttachInList((string) $contactToAttach->id(), $state['lastMeetingAt'], UnattachedErasure::from($state['lastMeetingAt'], $state['clock']));
+    }
+}

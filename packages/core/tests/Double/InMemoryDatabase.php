@@ -15,6 +15,7 @@ use Prospecter\Core\Connectors\Domain\Model\Connection;
 use Prospecter\Core\Connectors\Domain\Model\PendingAuthorization;
 use Prospecter\Core\Connectors\Domain\Model\ProviderClient;
 use Prospecter\Core\PersonalData\Domain\Model\Person;
+use Prospecter\Core\Prospecting\Domain\Model\ContactToAttach;
 use Prospecter\Core\Prospecting\Domain\Model\Exchange;
 use Prospecter\Core\Prospecting\Domain\Model\Organization;
 use Prospecter\Core\Prospecting\Domain\Model\ToDo;
@@ -40,6 +41,8 @@ final class InMemoryDatabase
     private array $exchanges = [];
     /** @var array<string, ToDo> */
     private array $toDos = [];
+    /** @var array<string, ContactToAttach> by their person */
+    private array $contactsToAttach = [];
     /** @var array<string, int> the revision of each aggregate stored, by its identity, as the documents keep it */
     private array $revisions = [];
     /** @var array<int, array<string, Fact>> the facts each version of the figures keeps, by the aggregate they are about */
@@ -84,6 +87,7 @@ final class InMemoryDatabase
         $this->organizations = $snapshot->organizations;
         $this->exchanges = $snapshot->exchanges;
         $this->toDos = $snapshot->toDos;
+        $this->contactsToAttach = $snapshot->contactsToAttach;
         $this->facts = $snapshot->facts;
         $this->figures = $snapshot->figures;
         $this->activeVersion = $snapshot->activeVersion;
@@ -352,6 +356,29 @@ final class InMemoryDatabase
     public function toDos(): array
     {
         return array_values(array_map(static fn (ToDo $toDo): ToDo => clone $toDo, $this->toDos));
+    }
+
+    public function storeContactToAttach(ContactToAttach $contactToAttach): void
+    {
+        $this->contactsToAttach[(string) $contactToAttach->id()] = self::withoutItsEvents($contactToAttach);
+    }
+
+    public function forgetContactToAttach(string $person): void
+    {
+        unset($this->contactsToAttach[$person]);
+    }
+
+    public function contactToAttach(string $person): ?ContactToAttach
+    {
+        return isset($this->contactsToAttach[$person]) ? clone $this->contactsToAttach[$person] : null;
+    }
+
+    /**
+     * @return list<ContactToAttach>
+     */
+    public function contactsToAttach(): array
+    {
+        return array_values(array_map(static fn (ContactToAttach $contactToAttach): ContactToAttach => clone $contactToAttach, $this->contactsToAttach));
     }
 
     public function storeAccount(Account $account): void

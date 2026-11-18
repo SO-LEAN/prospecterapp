@@ -7,6 +7,6 @@ namespace Prospecter\Core\Prospecting\Domain\Event;
 /**
  * A prospector corrected the facts of an exchange.
  */
-final readonly class ExchangeCorrected extends ExchangeEvent
+final readonly class ExchangeCorrected extends ExchangeEvent implements SetsTheMomentOfAnExchange
 {
 }

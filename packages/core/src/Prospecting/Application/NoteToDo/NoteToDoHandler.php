@@ -37,7 +37,7 @@ final readonly class NoteToDoHandler implements CommandHandler
             $prospector->id,
             new ToDoId($command->id),
             $contact,
-            $this->contactOrganizations->of($contact, $prospector->accountId),
+            $this->contactOrganizations->keepersOf($contact, $prospector),
             $command->text,
             new Due($command->dueOn, $command->dueAt),
             $command->executedAt,
