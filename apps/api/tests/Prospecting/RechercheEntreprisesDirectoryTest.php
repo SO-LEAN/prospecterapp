@@ -27,6 +27,17 @@ class RechercheEntreprisesDirectoryTest extends TestCase
         $this->assertEquals([new Establishment(new Siret('55210055400021'), 'ACME', '17 RUE DOCTEUR BOUCHUT 69003 LYON', '62.02A', true, '69383')], $directory->named('ACME'));
     }
 
+    public function testAnEstablishmentWhoseSiretFailsItsKeyIsLeftOut(): void
+    {
+        $directory = new RechercheEntreprisesDirectory(new MockHttpClient(new JsonMockResponse(self::companies(self::company(
+            'ACME',
+            self::establishment('55210055400014', '1 RUE DE LA PAIX 75002 PARIS', '75102'),
+            self::establishment('55210055400021', '17 RUE DOCTEUR BOUCHUT 69003 LYON', '69383'),
+        )))), self::SEARCH_URL);
+
+        $this->assertSame(['55210055400021'], array_map(static fn (Establishment $establishment): string => $establishment->siret->value, $directory->named('ACME')));
+    }
+
     public function testTheSearchAsksTenCompaniesWithTenEstablishmentsEach(): void
     {
         $asked = [];
