@@ -27,7 +27,6 @@ export const fr = {
     shortcuts: 'Raccourcis : T aujourd’hui, ← → précédent et suivant, M S J A les vues.',
     more: '+{{count}}',
     moreOn: '{{count}} de plus le {{day}}, voir la journée',
-    toHandle: 'À traiter',
     now: 'Maintenant',
     empty: 'Rien sur cette période.',
     late: 'En retard',
@@ -125,10 +124,7 @@ export const fr = {
     open: 'Ouvrir',
   },
   myDay: {
-    today: 'Aujourd’hui',
     nothingToday: 'Rien de prévu aujourd’hui',
-    plan: 'Planifier',
-    upcoming: 'À venir',
     nothingUpcoming: 'Rien de prévu les jours suivants',
     seeTheCalendar: 'Voir le calendrier',
     inProgress: 'En cours',
@@ -188,7 +184,6 @@ export const fr = {
     preview: { open: 'Voir la fiche' },
     start: {
       title: 'Commencer à prospecter',
-      submit: 'Commencer à prospecter',
       started: 'Vous prospectez {{name}}',
     },
     sections: {
@@ -208,14 +203,12 @@ export const fr = {
     },
     contacts: {
       none: 'Aucun contact rattaché.',
-      unnamed: 'Contact sans nom',
       masked: 'Masqué',
       remove: 'Retirer {{name}} des contacts',
       search: 'Rechercher un de mes contacts…',
       add: 'Ajouter un contact',
       addNew: 'Nouveau contact',
       addExisting: 'Contact existant',
-      identity: 'Identité',
       collectSubmit: 'Enregistrer le contact',
       removeTitle: 'Retirer {{name}} de cette organisation ?',
       removeDescription:
@@ -246,7 +239,6 @@ export const fr = {
   contacts: {
     title: 'Contacts',
     subtitle: 'Les personnes que vous prospectez, les plus récentes d’abord.',
-    searchPlaceholder: 'Rechercher par nom ou e-mail…',
     empty: {
       title: 'Aucun contact',
       description: 'Les contacts s’enregistrent depuis la fiche de l’organisation où ils travaillent.',
@@ -259,12 +251,10 @@ export const fr = {
     found_one: '{{count}} contact trouvé',
     found_other: '{{count}} contacts trouvés',
     noneTagged: {
-      title: 'Aucun contact',
       description: 'Aucun contact ne porte tous les tags choisis.',
     },
     sections: {
       name: 'Nom',
-      jobTitle: 'Fonction',
       contactDetails: 'Coordonnées',
       organizations: 'Organisations',
     },
@@ -308,7 +298,6 @@ export const fr = {
     subtitle: 'Votre nom et votre e-mail, tels que vos collègues les verront.',
     emailHint: 'Votre e-mail de connexion vous est proposé : vous pouvez en donner un autre.',
     submit: 'Continuer',
-    submitting: 'Enregistrement…',
   },
   myProfileBeingPrepared: {
     title: 'Votre profil est en cours de préparation…',
@@ -342,7 +331,6 @@ export const fr = {
         title: 'Déconnecter votre compte Google ?',
         description:
           'Prospecter n’aura plus accès à votre agenda Google. L’agenda « Prospecter » reste dans votre compte : supprimez-le depuis Google Agenda si vous le souhaitez.',
-        confirm: 'Déconnecter',
       },
       answer: {
         connected: 'Votre compte Google est connecté.',
@@ -372,7 +360,6 @@ export const fr = {
           title: 'Retirer le client Google du compte ?',
           description:
             'Google Agenda deviendra indisponible pour les membres du compte ; leurs connexions seront à refaire avec un nouveau client.',
-          confirm: 'Retirer',
         },
       },
     },
@@ -411,7 +398,6 @@ export const fr = {
     sections: {
       picture: 'Photo de profil',
       name: 'Nom',
-      loginEmail: 'E-mail de connexion',
       contactDetails: 'Coordonnées',
       password: 'Mot de passe',
       organizationIdentity: 'Mon organisation',
@@ -506,7 +492,6 @@ export const fr = {
       notSaid: 'Ne pas préciser',
       cancellers: { prospector: 'Moi', contact: 'Le contact' },
       keep: 'Garder l’échange',
-      cancelConfirm: 'Annuler l’échange',
       reportTitle: 'Compte rendu',
       report: 'Ce qui s’est dit',
       moveTitle: 'Déplacer l’échange',
@@ -660,7 +645,6 @@ export const fr = {
       count_one: '{{count}} destinataire',
       count_other: '{{count}} destinataires',
       status: { pending: 'À traiter', processed: 'Traité', dismissed: 'Écarté', erased: 'Plus à traiter' },
-      erased: 'Contact effacé',
       emptied: 'Ses destinataires ont tous été effacés : la campagne ne démarre plus.',
       remove: 'Retirer {{name}}',
       removed: 'Destinataire retiré',

@@ -164,7 +164,7 @@ function RecipientLine({
     return (
       <li className="flex items-center gap-2">
         <span className="flex-1 px-2 py-2 text-muted-foreground text-sm italic">
-          {t('campaigns.recipients.erased')}
+          {t('exchanges.unknownPerson')}
         </span>
         <Badge variant="outline">{statusLabel}</Badge>
       </li>

@@ -81,7 +81,7 @@ export function StartProspectingForm({ onSubmit, onCancel, tags }: Props) {
           {t('common.cancel')}
         </Button>
         <Button type="submit" disabled={isSubmitting || !isDirty}>
-          {isSubmitting ? t('common.saving') : t('organizations.start.submit')}
+          {isSubmitting ? t('common.saving') : t('organizations.start.title')}
         </Button>
       </div>
     </form>
