@@ -3036,6 +3036,8 @@ export interface components {
             code?: string | null;
             /** @description Whether my calendar is connected, which invites the bookers: without it, the page does not open */
             calendarConnected: boolean;
+            /** @description Open, but offering nothing while my calendar is not connected: the members are told so */
+            suspended: boolean;
             _links: components["schemas"]["BookingPageLinksResource"];
         };
         PublicBookingPageResource: {

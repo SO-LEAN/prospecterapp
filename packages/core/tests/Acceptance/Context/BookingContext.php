@@ -242,6 +242,18 @@ final class BookingContext implements Context
         Expect::that(!$this->myPage()->calendarConnected, 'The calendar is connected');
     }
 
+    #[Then('mon lien de prise de rendez-vous est suspendu')]
+    public function myLinkIsSuspended(): void
+    {
+        Expect::that($this->myPage()->suspended, 'My link is not suspended');
+    }
+
+    #[Then('mon lien de prise de rendez-vous n\'est pas suspendu')]
+    public function myLinkIsNotSuspended(): void
+    {
+        Expect::that(!$this->myPage()->suspended, 'My link is suspended');
+    }
+
     #[Then('mes réglages sont gardés')]
     public function mySettingsAreKept(): void
     {

@@ -11100,6 +11100,7 @@
                     "inactivePeriods",
                     "channels",
                     "calendarConnected",
+                    "suspended",
                     "_links"
                 ],
                 "properties": {
@@ -11145,6 +11146,10 @@
                     },
                     "calendarConnected": {
                         "description": "Whether my calendar is connected, which invites the bookers: without it, the page does not open",
+                        "type": "boolean"
+                    },
+                    "suspended": {
+                        "description": "Open, but offering nothing while my calendar is not connected: the members are told so",
                         "type": "boolean"
                     },
                     "_links": {

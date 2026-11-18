@@ -17,6 +17,7 @@ final readonly class MyBookingPage
      * @param ?string                                                    $code              the code of the public link, none before the first opening
      * @param bool                                                       $calendarConnected whether the calendar that invites the bookers is connected
      * @param list<string>                                               $possibleIntents   the names of the intents its state offers (`OpenBooking`, …)
+     * @param bool                                                       $suspended         open, but offering nothing while its calendar is not connected
      */
     public function __construct(
         public bool $open,
@@ -27,6 +28,7 @@ final readonly class MyBookingPage
         public ?string $code,
         public bool $calendarConnected,
         public array $possibleIntents,
+        public bool $suspended,
     ) {
     }
 }

@@ -33,6 +33,7 @@ final class BookingPageResourcePresenter implements ConsultMyBookingPageOutput
             $page->channels,
             $page->code,
             $page->calendarConnected,
+            $page->suspended,
             new BookingPageLinksResource(
                 $this->links->to('api_booking_page'),
                 $this->links->to('api_booking_page_set_windows'),
