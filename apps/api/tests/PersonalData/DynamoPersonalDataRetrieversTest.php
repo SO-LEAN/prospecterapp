@@ -5,7 +5,9 @@ namespace Tests\App\PersonalData;
 use App\PersonalData\Persistence\DynamoPersonRepository;
 use Prospecter\Core\PersonalData\Application\PersonCard;
 use Prospecter\Core\PersonalData\Application\Port\ContactPageRetriever;
+use Prospecter\Core\PersonalData\Application\Port\MemberPresentationRetriever;
 use Prospecter\Core\PersonalData\Application\Port\PersonCardRetriever;
+use Prospecter\Core\PersonalData\Application\PresentMembers\MemberPresentation;
 use Prospecter\Core\PersonalData\Domain\Exception\UnknownPerson;
 use Prospecter\Core\PersonalData\Domain\Model\ContactsIntent;
 use Prospecter\Core\PersonalData\Domain\Model\Person;
@@ -70,6 +72,18 @@ class DynamoPersonalDataRetrieversTest extends ApiTestCase
 
         $this->assertSame([false, 'Hopper'], [$card->masked, $card->lastName]);
         $this->assertSame(self::names([PersonIntent::Rename, PersonIntent::ChangeJobTitle, PersonIntent::ChangeContactDetails, PersonIntent::ChangePicture]), $card->possibleIntents);
+    }
+
+    public function testAMemberPresentsTheirNameAndPictureInClearAContactNever(): void
+    {
+        $me = Person::collect(new PersonId(self::newIdentity()), $this->account, Purpose::Membership, new \DateTimeImmutable(self::THE_MOMENT_OF_THE_TESTS), new PersonName('Grace', 'Hopper'));
+        $me->changePicture(new File('https://static.test/grace.png', 'png', 1024), new Reader(new MemberId(self::newIdentity()), $this->account, $me->id(), false), new \DateTimeImmutable(self::THE_MOMENT_OF_THE_TESTS));
+        $this->persons()->save($me);
+        $ada = $this->aContact('Ada', 'Lovelace');
+
+        $presented = self::getContainer()->get(MemberPresentationRetriever::class)->ofIds([$me->id(), $ada->id(), new PersonId(self::newIdentity())]);
+
+        $this->assertSame([[$me->id()->value, 'Grace', 'Hopper', 'https://static.test/grace.png']], array_map(static fn (MemberPresentation $member): array => [$member->personId, $member->firstName, $member->lastName, $member->picture?->url], $presented));
     }
 
     public function testAnotherAccountDoesNotEvenLearnThatThePersonExists(): void

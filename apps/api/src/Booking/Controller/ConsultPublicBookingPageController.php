@@ -4,6 +4,7 @@ namespace App\Booking\Controller;
 
 use App\Booking\PublicBookingPageResourcePresenter;
 use App\Booking\Resource\PublicBookingPageResource;
+use App\Shared\ImageResourceFactory;
 use Nelmio\ApiDocBundle\Attribute\Model;
 use OpenApi\Attributes as OA;
 use Prospecter\Core\Booking\Application\ConsultPublicBookingPage\ConsultPublicBookingPage;
@@ -22,6 +23,7 @@ final class ConsultPublicBookingPageController extends AbstractController
     public function __construct(
         private readonly QueryHandler $consultPublicBookingPage,
         private readonly ClockInterface $clock,
+        private readonly ImageResourceFactory $imageResourceFactory,
     ) {
     }
 
@@ -30,7 +32,7 @@ final class ConsultPublicBookingPageController extends AbstractController
     #[OA\Response(response: 200, description: 'The booking page', content: new Model(type: PublicBookingPageResource::class))]
     public function __invoke(string $code): JsonResponse
     {
-        $presenter = new PublicBookingPageResourcePresenter();
+        $presenter = new PublicBookingPageResourcePresenter($this->imageResourceFactory);
         ($this->consultPublicBookingPage)(new ConsultPublicBookingPage($code, $this->clock->now()), $presenter);
 
         return $this->json($presenter->resource);

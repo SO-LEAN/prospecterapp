@@ -337,6 +337,19 @@ final class BookingContext implements Context
         Expect::same(get_object_vars(PublicBookingPage::unavailable()), null === $this->opened ? null : get_object_vars($this->opened));
     }
 
+    #[Then('il présente :name de :organization, avec la photo :picture')]
+    public function itPresents(string $name, string $organization, string $picture): void
+    {
+        $host = $this->opened?->host;
+        Expect::same([$name, $organization, $picture], [trim(sprintf('%s %s', $host?->firstName, $host?->lastName)), $host?->organization, $host?->pictureUrl]);
+    }
+
+    #[Then('ses créneaux sont à l\'heure de :timeZone')]
+    public function itsSlotsAreInTimeZone(string $timeZone): void
+    {
+        Expect::same($timeZone, $this->opened?->timeZone);
+    }
+
     #[Then('il propose la visio seulement')]
     public function itOffersTheVideoCallOnly(): void
     {

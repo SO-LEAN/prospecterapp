@@ -21,6 +21,8 @@ use Prospecter\Core\PersonalData\Contract\Service\ListContactFacts\KeptContactFa
 use Prospecter\Core\PersonalData\Contract\Service\ListContactFacts\ListContactFacts;
 use Prospecter\Core\PersonalData\Contract\Service\NameContacts\ContactNameResponse;
 use Prospecter\Core\PersonalData\Contract\Service\NameContacts\NameContacts;
+use Prospecter\Core\PersonalData\Contract\Service\PresentMembers\MemberPresentationResponse;
+use Prospecter\Core\PersonalData\Contract\Service\PresentMembers\PresentMembers;
 use Prospecter\Core\PersonalData\Contract\Service\WhichAreContacts\WhichAreContacts;
 use Prospecter\Core\Prospecting\Contract\Service\ConsultHeldExchanges\ConsultHeldExchanges;
 use Prospecter\Core\Prospecting\Contract\Service\ConsultHeldExchanges\ConsultPlannedExchanges;
@@ -61,6 +63,10 @@ final class PublishedLanguageContext implements Context
      * @var list<string>
      */
     private array $answered = [];
+    /**
+     * @var list<MemberPresentationResponse>
+     */
+    private array $presented = [];
     /**
      * @var array<string, string> the names asked about, by their identity
      */
@@ -118,6 +124,18 @@ final class PublishedLanguageContext implements Context
     public function accountsAnswersAMemberNotManagingPersonalData(string $name, string $account): void
     {
         $this->expectTheMember($name, $account, false);
+    }
+
+    #[When('un autre contexte demande à PersonalData de présenter :')]
+    public function anotherContextAsksPersonalDataToPresent(TableNode $persons): void
+    {
+        $this->presented = $this->application->presentMembers(new PresentMembers(array_map($this->scenario->personIdOf(...), $persons->getColumn(0))));
+    }
+
+    #[Then('PersonalData présente seulement :name, avec la photo :picture')]
+    public function personalDataPresentsOnly(string $name, string $picture): void
+    {
+        Expect::same([[$name, $picture]], array_map(static fn (MemberPresentationResponse $presented): array => [trim(sprintf('%s %s', $presented->firstName, $presented->lastName)), $presented->pictureUrl], $this->presented));
     }
 
     #[Then('Accounts répond que :name est membre du compte nommé :account')]

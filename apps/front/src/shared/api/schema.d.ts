@@ -3040,11 +3040,24 @@ export interface components {
             suspended: boolean;
             _links: components["schemas"]["BookingPageLinksResource"];
         };
+        PublicHostResource: {
+            firstName?: string | null;
+            lastName?: string | null;
+            picture?: components["schemas"]["ImageResource"] | null;
+            organization?: string | null;
+        };
         PublicBookingPageResource: {
-            /** @description Whether it offers slots: closed, changed, unknown or suspended, it offers none */
+            /** @description Whether it offers slots: closed, changed, unknown or suspended, it offers none and says nothing else */
             open: boolean;
+            /** @description Whom the booker meets; none when it offers nothing */
+            host?: components["schemas"]["PublicHostResource"] | null;
             channels: ("call" | "videoCall")[];
-            /** @description The 14 days from tomorrow on the clock of the host, each with the moments its free slots of 15 minutes start at; none when it shows nothing */
+            /**
+             * @description The clock of the host, which the days and the slots are on; none when it offers nothing
+             * @example Europe/Paris
+             */
+            timeZone?: string | null;
+            /** @description The 14 days from tomorrow on the clock of the host, each with the moments its free slots of 15 minutes start at; none when it offers nothing */
             days: {
                 /** Format: date */
                 day?: string;

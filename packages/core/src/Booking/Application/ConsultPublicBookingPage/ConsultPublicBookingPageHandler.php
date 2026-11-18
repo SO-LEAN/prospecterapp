@@ -6,6 +6,7 @@ namespace Prospecter\Core\Booking\Application\ConsultPublicBookingPage;
 
 use Prospecter\Core\Booking\Application\Port\PublicBookingPageRetriever;
 use Prospecter\Core\Booking\Application\PublicBookingPage;
+use Prospecter\Core\Booking\Application\PublicHost;
 use Prospecter\Core\Booking\Domain\Model\Availability;
 use Prospecter\Core\Booking\Domain\Model\BookableDay;
 use Prospecter\Core\Booking\Domain\Model\HostTimeZone;
@@ -18,6 +19,7 @@ use Prospecter\Core\Booking\Domain\Model\Window;
 use Prospecter\Core\Booking\Domain\Policy\FreeSlots;
 use Prospecter\Core\Booking\Domain\Port\ConnectedCalendars;
 use Prospecter\Core\Booking\Domain\Port\HostAgendas;
+use Prospecter\Core\Booking\Domain\Port\Hosts;
 use Prospecter\Core\SharedKernel\Application\QueryHandler;
 use Prospecter\Core\SharedKernel\Domain\AccountId;
 use Prospecter\Core\SharedKernel\Domain\MemberId;
@@ -37,6 +39,7 @@ final readonly class ConsultPublicBookingPageHandler implements QueryHandler
         private PublicBookingPageRetriever $pages,
         private HostAgendas $hostAgendas,
         private ConnectedCalendars $calendars,
+        private Hosts $hosts,
     ) {
     }
 
@@ -49,7 +52,7 @@ final readonly class ConsultPublicBookingPageHandler implements QueryHandler
             return;
         }
 
-        $output->present(new PublicBookingPage(true, $schedule->channels, $this->freeDaysOf($schedule, $query->at)));
+        $output->present(new PublicBookingPage(true, $this->hostOf($schedule), $schedule->channels, $schedule->timeZone, $this->freeDaysOf($schedule, $query->at)));
     }
 
     /**
@@ -58,6 +61,13 @@ final readonly class ConsultPublicBookingPageHandler implements QueryHandler
     private function isBookable(BookingSchedule $schedule): bool
     {
         return $schedule->open && $this->calendars->isConnectedFor(new MemberId($schedule->host));
+    }
+
+    private function hostOf(BookingSchedule $schedule): PublicHost
+    {
+        $identity = $this->hosts->identityOf(new MemberId($schedule->host));
+
+        return new PublicHost($identity->firstName, $identity->lastName, $identity->pictureUrl, $identity->organization);
     }
 
     /**
