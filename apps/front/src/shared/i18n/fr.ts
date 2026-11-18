@@ -528,7 +528,6 @@ export const fr = {
       pendingToReconnect:
         'En attente de synchronisation avec Google : votre compte Google est à reconnecter.',
       failed: 'Google a refusé l’événement le {{at}}.',
-      retry: 'Réessayer',
     },
     detail: {
       title: 'Échange',
