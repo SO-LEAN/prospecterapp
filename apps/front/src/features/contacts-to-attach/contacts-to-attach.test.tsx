@@ -186,6 +186,16 @@ describe('the reminders before the erasure', () => {
     expect(await screen.findByText('Ada Lovelace — Effacé dans 7 jours')).toBeInTheDocument()
   })
 
+  it('opens the attachment from the reminder', async () => {
+    theApiProposes({ id: ACME, name: 'ACME' })
+    await show(<ErasureReminders contacts={[ada(new Date(2026, 10, 25))]} />)
+
+    await userEvent.click(await screen.findByRole('button', { name: 'Rattacher' }))
+
+    expect(await screen.findByRole('dialog', { name: 'Rattacher Ada Lovelace' })).toBeInTheDocument()
+    expect(await screen.findByRole('button', { name: 'Rattacher à ACME' })).toBeInTheDocument()
+  })
+
   it('reminds the day before', async () => {
     await show(<ErasureReminders contacts={[ada(new Date(2026, 10, 19))]} />)
 

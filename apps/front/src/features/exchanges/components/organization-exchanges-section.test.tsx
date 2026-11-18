@@ -30,6 +30,7 @@ const anExchange = (exchange: Partial<Exchange>): Exchange => ({
   toMakeConform: false,
   organizationIds: [ACME],
   attachmentCount: 0,
+  contactToAttach: false,
   _links: { self: { href: '/api/exchanges/0190a1c0-0000-7000-8000-000000000010', method: 'GET' } },
   ...exchange,
 })

@@ -64,6 +64,7 @@ function planned(
       toMakeConform: false,
       organizationIds: [ACME],
       attachmentCount: 0,
+      contactToAttach: false,
       _links: { self: { href: `/api/exchanges/${id}`, method: 'GET' } },
       ...exchange,
     },

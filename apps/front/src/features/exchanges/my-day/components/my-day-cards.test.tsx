@@ -70,6 +70,7 @@ function planned(
       toMakeConform: false,
       organizationIds: [ACME],
       attachmentCount: 0,
+      contactToAttach: false,
       _links: linksOf(id, occurredAt <= NOW),
       ...exchange,
     },
