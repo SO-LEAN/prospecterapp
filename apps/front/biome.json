@@ -60,6 +60,10 @@
     {
       "path": "./lint/translated-texts.grit",
       "includes": ["**/src/**", "!**/*.test.ts", "!**/*.test.tsx"]
+    },
+    {
+      "path": "./lint/real-clock.grit",
+      "includes": ["**/*.test.ts", "**/*.test.tsx", "**/e2e/**"]
     }
   ],
   "assist": {

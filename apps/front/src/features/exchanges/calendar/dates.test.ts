@@ -1,4 +1,5 @@
 import { afterEach, describe, expect, it, vi } from 'vitest'
+import { THE_MOMENT_OF_THE_TESTS } from '@/test/the-moment-of-the-tests'
 import {
   addDays,
   byDay,
@@ -110,7 +111,7 @@ describe('a day written', () => {
   })
 
   it('is today when it is none', () => {
-    expect(dayOf(parseDay('demain'))).toBe(dayOf(new Date()))
+    expect(dayOf(parseDay('demain'))).toBe(dayOf(THE_MOMENT_OF_THE_TESTS))
   })
 
   it('is the same day at any hour of it', () => {

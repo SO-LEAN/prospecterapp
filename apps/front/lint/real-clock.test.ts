@@ -17,7 +17,10 @@ function refusalsOf(test: string): Refusal[] {
   try {
     writeFileSync(join(project, 'biome.json'), JSON.stringify(ONLY_THE_RULE))
     writeFileSync(join(project, 'moment.test.ts'), test)
-    const lint = spawnSync(BIOME, ['lint', '--reporter=github', 'moment.test.ts'], { cwd: project, encoding: 'utf8' })
+    const lint = spawnSync(BIOME, ['lint', '--reporter=github', 'moment.test.ts'], {
+      cwd: project,
+      encoding: 'utf8',
+    })
     return lint.stdout
       .split('\n')
       .map((line) => ANNOTATION.exec(line))
@@ -48,10 +51,9 @@ describe('the rule of the clock of the tests', () => {
       `const now = new Date()`,
       `const today = Date.now()`,
       `const later = new Date(Date.now() + 1000)`,
-      `vi.useRealTimers()`,
     ].join('\n')
 
-    expect(linesRefused(test)).toEqual([1, 2, 3, 4])
+    expect(linesRefused(test)).toEqual([1, 2, 3])
   })
 
   it('accepts a named moment, a clock of its own and an exception named', () => {

@@ -2,6 +2,7 @@ import type { Page } from '@playwright/test'
 import { expect, test } from './fixtures'
 import { SIGN_IN_PAGE, signInOnTheSignInScreen } from './sign-in'
 import { SPA_URL } from './stack'
+import { unique } from './unique'
 
 /** Where the double of the geocoder places Strasbourg, each time; a place it does not know, it places nowhere. */
 const IN_STRASBOURG = '48.5834%2C7.7456'
@@ -24,7 +25,7 @@ test('sign in, start prospecting an organization, change it section by section, 
   page,
 }) => {
   test.setTimeout(LONGER_THAN_A_JOURNEY_MS)
-  const name = `E2E ${Date.now()}`
+  const name = `E2E ${unique()}`
   const organizationPage = page.getByRole('heading', { name })
   let organizationUrl = ''
 
@@ -48,7 +49,7 @@ test('sign in, start prospecting an organization, change it section by section, 
       .click()
     await page.getByRole('link', { name: 'Nouvelle organisation' }).first().click()
     await page.getByLabel('Raison sociale').fill(name)
-    await page.getByLabel('E-mail').fill(`contact+${Date.now()}@e2e.test`)
+    await page.getByLabel('E-mail').fill(`contact+${unique()}@e2e.test`)
     await page.getByLabel('Ville').fill('Strasbourg')
     await page.getByRole('button', { name: 'Commencer à prospecter' }).click()
 
@@ -109,14 +110,14 @@ test('sign in, start prospecting an organization, change it section by section, 
   })
 
   await test.step('a contact is collected from the organization, listed with it, then removed and so erased', async () => {
-    const lastName = `Lovelace ${Date.now()}`
+    const lastName = `Lovelace ${unique()}`
     const contact = `Ada ${lastName}`
     await page.goto(organizationUrl)
     await page.getByRole('button', { name: 'Modifier : Contacts' }).click()
     await page.getByLabel('Prénom').fill('Ada')
     await page.getByLabel('Nom', { exact: true }).fill(lastName)
     await page.getByLabel(/^Fonction/).fill('Directrice commerciale')
-    await page.getByLabel('E-mail').fill(`ada.${Date.now()}@acme.test`)
+    await page.getByLabel('E-mail').fill(`ada.${unique()}@acme.test`)
     await page.getByRole('button', { name: 'Enregistrer le contact' }).click()
     await expect(page.getByRole('link', { name: contact })).toBeVisible()
 
