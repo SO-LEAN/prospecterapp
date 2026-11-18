@@ -462,6 +462,6 @@ final class PublishedLanguageContext implements Context
 
     private function memberIdOf(string $name): string
     {
-        return ($this->members[$name] ?? $this->scenario->findMemberId($name))?->value ?? $this->application->newIdentity();
+        return ($this->members[$name] ?? $this->scenario->findMemberId($name))->value ?? $this->application->newIdentity();
     }
 }

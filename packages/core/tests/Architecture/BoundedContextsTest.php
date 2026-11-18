@@ -24,13 +24,14 @@ class BoundedContextsTest extends TestCase
     private const string IMPORT = '/^use Prospecter\\\\Core\\\\(\w+)\\\\([\w\\\\]+)(?: as \w+)?;/m';
 
     private const array FORBIDDEN = [
-        'Accounts' => ['Campaigns', 'Connectors', 'PersonalData', 'Prospecting', 'Reporting'],
-        'Campaigns' => ['Accounts', 'Connectors', 'PersonalData', 'Prospecting', 'Reporting'],
-        'Connectors' => ['Accounts', 'Campaigns', 'PersonalData', 'Prospecting', 'Reporting'],
-        'PersonalData' => ['Accounts', 'Campaigns', 'Connectors', 'Prospecting', 'Reporting'],
-        'Prospecting' => ['Accounts', 'Campaigns', 'Connectors', 'PersonalData', 'Reporting'],
-        'Reporting' => ['Accounts', 'Campaigns', 'Connectors', 'PersonalData', 'Prospecting'],
-        'SharedKernel' => ['Accounts', 'Campaigns', 'Connectors', 'PersonalData', 'Prospecting', 'Reporting'],
+        'Accounts' => ['Booking', 'Campaigns', 'Connectors', 'PersonalData', 'Prospecting', 'Reporting'],
+        'Booking' => ['Accounts', 'Campaigns', 'Connectors', 'PersonalData', 'Prospecting', 'Reporting'],
+        'Campaigns' => ['Accounts', 'Booking', 'Connectors', 'PersonalData', 'Prospecting', 'Reporting'],
+        'Connectors' => ['Accounts', 'Booking', 'Campaigns', 'PersonalData', 'Prospecting', 'Reporting'],
+        'PersonalData' => ['Accounts', 'Booking', 'Campaigns', 'Connectors', 'Prospecting', 'Reporting'],
+        'Prospecting' => ['Accounts', 'Booking', 'Campaigns', 'Connectors', 'PersonalData', 'Reporting'],
+        'Reporting' => ['Accounts', 'Booking', 'Campaigns', 'Connectors', 'PersonalData', 'Prospecting'],
+        'SharedKernel' => ['Accounts', 'Booking', 'Campaigns', 'Connectors', 'PersonalData', 'Prospecting', 'Reporting'],
     ];
 
     public function testADoubleOfAPortSeesOfTheOtherContextsOnlyWhatTheyPublish(): void
