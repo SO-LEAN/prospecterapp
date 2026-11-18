@@ -2,7 +2,7 @@
 
 - Date: 2026-11-18
 - Type: architecture
-- Status: Proposed
+- Status: Accepted
 - Implemented by: `apps/api/src/Booking`, `apps/api/config/packages/security.yaml`, `apps/api/infra/tables.tf`, `apps/front/src/features/booking`, `apps/front/src/routes/booking.$code.tsx`
 
 ## Context

@@ -2,7 +2,7 @@
 
 - Date: 2026-11-18
 - Type: architecture
-- Status: Proposed
+- Status: Accepted
 - Implemented by: `packages/core/src/Booking`, `packages/core/src/Connectors/Contract/Service/WhichHaveAConnectedCalendar`, `packages/core/features/regler-mes-plages.feature`, `ajouter-une-periode-inactive.feature`, `proposer-des-canaux.feature`, `activer-et-couper-ma-prise-de-rendez-vous.feature`, `changer-de-lien.feature`, `consulter-ma-prise-de-rendez-vous.feature`, `consulter-une-page-de-prise-de-rendez-vous.feature`
 
 ## Context
