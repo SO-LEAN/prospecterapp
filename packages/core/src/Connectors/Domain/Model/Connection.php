@@ -85,6 +85,7 @@ final class Connection implements ReleasesEvents
     public function renew(Grant $grant, ClientCredentials $client, ProviderAccess $access, \DateTimeImmutable $at): void
     {
         self::ensureComplete($grant);
+        $this->forgetTheMailImportOfAnotherAccount($grant->account, $at);
         $this->revokeTheAccessToAnotherAccount($grant->account, $access);
         $this->externalAccount = $grant->account;
         $this->refreshToken = $grant->refreshToken;
@@ -92,6 +93,19 @@ final class Connection implements ReleasesEvents
         $this->state = ConnectionState::Connected;
         $this->connectedAt = $this->modifiedAt = $at;
         $this->recordThat(new Connected($this->accountId, $this->member, $at));
+    }
+
+    /**
+     * The mailbox imported is that of the account connected: another account imports nothing until its member
+     * activates the import again, the watch of the former mailbox expiring within its week, its access revoked.
+     */
+    private function forgetTheMailImportOfAnotherAccount(Email $account, \DateTimeImmutable $at): void
+    {
+        if (MailImport::Off === $this->mailImport || $account->equals($this->externalAccount)) {
+            return;
+        }
+
+        $this->forgetTheMailImport($at);
     }
 
     private function revokeTheAccessToAnotherAccount(Email $account, ProviderAccess $access): void
@@ -304,6 +318,11 @@ final class Connection implements ReleasesEvents
             $mailbox->stop($client, $this->refreshToken);
         }
 
+        $this->forgetTheMailImport($at);
+    }
+
+    private function forgetTheMailImport(\DateTimeImmutable $at): void
+    {
         $this->mailImport = MailImport::Off;
         $this->historyId = $this->notifiedHistoryId = null;
         $this->watchExpiresAt = $this->lastNotifiedAt = null;
