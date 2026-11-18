@@ -9,10 +9,13 @@ const shouldRetry = (failureCount: number, error: unknown) => !isClientError(err
 
 const stillShowsCachedData = (query: Query<unknown, unknown>) => query.state.data !== undefined
 
+/** What a form words itself (`applyViolations`): the validation of its fields, and the refusal of the role. */
+const isWordedByAForm = (error: unknown) => isProblem(error) && (error.status === 422 || error.status === 403)
+
 const isShownByItsForm = (error: unknown, mutation: Mutation<unknown, unknown, unknown, unknown>) => {
   const meta = mutation.options.meta
   return (
-    (meta?.silentValidation === true && isProblem(error) && error.status === 422) ||
+    (meta?.silentValidation === true && isWordedByAForm(error)) ||
     (meta?.silentClientErrors === true && isClientError(error))
   )
 }
