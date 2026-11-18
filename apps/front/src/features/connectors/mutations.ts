@@ -84,7 +84,7 @@ export function useRemoveGoogleClient() {
 export function useConfigureGmailNotifications() {
   const keep = useKeepTheGoogleClient()
 
-  return api.useMutation('put', '/api/me/organization/clients/google/gmail-notifications', {
+  return api.useMutation('patch', '/api/me/organization/clients/google/gmail-notifications', {
     onSuccess: keep,
   })
 }

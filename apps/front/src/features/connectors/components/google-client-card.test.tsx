@@ -44,7 +44,7 @@ const notifyingGmail = (): GoogleClient => {
     gmailNotifications: { topic: TOPIC, pushAccount: PUSH_ACCOUNT },
     _links: {
       ...client._links,
-      configureGmailNotifications: { href: GMAIL_NOTIFICATIONS, method: 'PUT' },
+      configureGmailNotifications: { href: GMAIL_NOTIFICATIONS, method: 'PATCH' },
       removeGmailNotifications: { href: GMAIL_NOTIFICATIONS, method: 'DELETE' },
     },
   }
@@ -55,7 +55,7 @@ const withoutTopic = (): GoogleClient => {
 
   return {
     ...client,
-    _links: { ...client._links, configureGmailNotifications: { href: GMAIL_NOTIFICATIONS, method: 'PUT' } },
+    _links: { ...client._links, configureGmailNotifications: { href: GMAIL_NOTIFICATIONS, method: 'PATCH' } },
   }
 }
 
@@ -85,7 +85,7 @@ const sent = async () => {
   return {
     path: new URL(request.url).pathname,
     method: request.method,
-    body: ['PATCH', 'PUT'].includes(request.method) ? await request.clone().json() : undefined,
+    body: request.method === 'PATCH' ? await request.clone().json() : undefined,
   }
 }
 
@@ -219,7 +219,7 @@ describe('GoogleClientCard, the topic of Gmail', () => {
     await waitFor(async () =>
       expect(await sent()).toEqual({
         path: GMAIL_NOTIFICATIONS,
-        method: 'PUT',
+        method: 'PATCH',
         body: { topic: TOPIC, pushAccount: PUSH_ACCOUNT },
       }),
     )
