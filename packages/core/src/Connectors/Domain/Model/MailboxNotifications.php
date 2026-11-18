@@ -23,7 +23,7 @@ final readonly class MailboxNotifications
         public Email $pushAccount,
     ) {
         if (1 !== preg_match(self::FULL_NAME, $topic)) {
-            throw InvalidTopic::named($topic);
+            throw InvalidTopic::inFull();
         }
     }
 }
