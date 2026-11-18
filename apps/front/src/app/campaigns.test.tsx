@@ -217,6 +217,20 @@ describe('the campaigns of the team', () => {
     expect(screen.queryByRole('button', { name: 'Réessayer' })).not.toBeInTheDocument()
   })
 
+  it('say my role does not allow preparing one when its form is reached by its address, the form not shown', async () => {
+    theApiAnswers({
+      me: { ...meAllowedToRunCampaigns, _links: { self: meAllowedToRunCampaigns._links.self } },
+      campaignsDenied: true,
+    })
+    await renderTheSpaAt('/campaigns/new')
+
+    expect(
+      await screen.findByRole('heading', { name: 'Votre rôle ne vous permet pas d’ouvrir cette page.' }),
+    ).toBeInTheDocument()
+    expect(screen.queryByRole('button', { name: 'Préparer la campagne' })).not.toBeInTheDocument()
+    expect(screen.queryByRole('button', { name: 'Réessayer' })).not.toBeInTheDocument()
+  })
+
   it('are listed with their status, their channel, their author and how far they went', async () => {
     theApiAnswers()
     await renderTheSpaAt('/campaigns')
