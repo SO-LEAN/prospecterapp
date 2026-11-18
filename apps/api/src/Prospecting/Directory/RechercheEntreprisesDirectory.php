@@ -31,6 +31,8 @@ final readonly class RechercheEntreprisesDirectory implements EstablishmentDirec
     private const int SERVER_ERROR = 500;
     /** In seconds, between two bytes as for the whole request: a search makes two. */
     private const float TIMEOUT = 5.0;
+    /** The INSEE code of a city of arrondissements, the code of its first arrondissement and their number. */
+    private const array ARRONDISSEMENTS = ['75056' => [75101, 20], '69123' => [69381, 9], '13055' => [13201, 16]];
 
     public function __construct(
         private HttpClientInterface $httpClient,
@@ -46,7 +48,24 @@ final readonly class RechercheEntreprisesDirectory implements EstablishmentDirec
 
     public function namedIn(string $name, string $municipalityCode): array
     {
-        return $this->search($name, ['code_commune' => $municipalityCode]);
+        return $this->search($name, ['code_commune' => implode(',', self::municipalitiesOf($municipalityCode))]);
+    }
+
+    /**
+     * The directory places an establishment of Paris, Lyon or Marseille in its arrondissement: the city as a whole, as
+     * the geocoder finds a city without its street, is each of them.
+     *
+     * @return list<string>
+     */
+    private static function municipalitiesOf(string $municipalityCode): array
+    {
+        if (!isset(self::ARRONDISSEMENTS[$municipalityCode])) {
+            return [$municipalityCode];
+        }
+
+        [$first, $count] = self::ARRONDISSEMENTS[$municipalityCode];
+
+        return array_map(strval(...), range($first, $first + $count - 1));
     }
 
     /**
