@@ -56,7 +56,7 @@ final class BookingPageDocument
      */
     public static function page(array $document): BookingPage
     {
-        $periods = array_map(static fn (array $period): InactivePeriod => new InactivePeriod(new InactivePeriodId($period['id']), $period['firstDay'], $period['lastDay']), $document['inactivePeriods']);
+        $periods = array_map(self::period(...), $document['inactivePeriods']);
 
         return Hydrator::restore(BookingPage::class, [
             'host' => new MemberId($document['host']),
@@ -80,7 +80,7 @@ final class BookingPageDocument
      */
     public static function myPage(array $document, string $today, bool $calendarConnected): MyBookingPage
     {
-        $periods = array_values(array_filter($document['inactivePeriods'], static fn (array $period): bool => $period['lastDay'] >= $today));
+        $periods = array_values(array_filter($document['inactivePeriods'], static fn (array $period): bool => !self::period($period)->hasEndedBefore($today)));
         usort($periods, static fn (array $one, array $other): int => [$one['firstDay'], $one['id']] <=> [$other['firstDay'], $other['id']]);
 
         return new MyBookingPage(
@@ -116,6 +116,14 @@ final class BookingPageDocument
     private static function intents(bool $open, bool $hasALink): array
     {
         return array_map(static fn (BookingPageIntent $intent): string => $intent->name, BookingPagePossibilities::given($open, $hasALink));
+    }
+
+    /**
+     * @param array{id: string, firstDay: string, lastDay: string} $period
+     */
+    private static function period(array $period): InactivePeriod
+    {
+        return new InactivePeriod(new InactivePeriodId($period['id']), $period['firstDay'], $period['lastDay']);
     }
 
     /**
