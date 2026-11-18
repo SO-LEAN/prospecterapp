@@ -5,7 +5,7 @@ import { Tooltip, TooltipContent, TooltipTrigger } from './tooltip'
 
 type Civility = NonNullable<components['schemas']['ContactResource']['civility']>
 
-const MARKS = { madame: Venus, monsieur: Mars } as const
+const MARKS = { ms: Venus, mr: Mars } as const
 
 /** A discreet mark beside the name of a contact, saying Madame or Monsieur on hover and to a reader; nothing when not noted. */
 export function CivilityMark({ civility }: { civility: Civility | null | undefined }) {

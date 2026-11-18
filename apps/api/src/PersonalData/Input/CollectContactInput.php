@@ -17,7 +17,7 @@ final readonly class CollectContactInput
     public function __construct(
         #[Assert\Valid]
         public PersonNameInput $name = new PersonNameInput(),
-        #[OA\Property(description: 'How one addresses the contact, never required', enum: ['madame', 'monsieur'], nullable: true)]
+        #[OA\Property(description: 'How one addresses the contact, never required', enum: ['ms', 'mr'], nullable: true)]
         public ?string $civility = null,
         #[Assert\Length(max: 100)]
         public ?string $jobTitle = null,

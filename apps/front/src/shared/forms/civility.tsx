@@ -4,7 +4,7 @@ import { z } from 'zod'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/shared/ui/select'
 import { FormField, type FormFieldProps } from './form-field'
 
-export const CIVILITIES = ['madame', 'monsieur'] as const
+export const CIVILITIES = ['ms', 'mr'] as const
 
 export type Civility = (typeof CIVILITIES)[number]
 

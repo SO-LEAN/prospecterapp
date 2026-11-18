@@ -12,8 +12,8 @@ use Prospecter\Core\PersonalData\Domain\Exception\InvalidCivility;
  */
 enum Civility: string
 {
-    case Madame = 'madame';
-    case Monsieur = 'monsieur';
+    case Ms = 'ms';
+    case Mr = 'mr';
 
     /**
      * @throws InvalidCivility

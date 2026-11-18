@@ -1962,7 +1962,7 @@
                 "tags": [
                     "Contacts"
                 ],
-                "summary": "Note how one addresses a contact, Madame or Monsieur, or no longer",
+                "summary": "Note how one addresses a contact, Ms or Mr, or no longer",
                 "operationId": "patch_api_contacts_change_civility",
                 "parameters": [
                     {
@@ -7018,8 +7018,8 @@
                         "nullable": true,
                         "default": null,
                         "enum": [
-                            "madame",
-                            "monsieur"
+                            "ms",
+                            "mr"
                         ]
                     }
                 },
@@ -7047,8 +7047,8 @@
                         "nullable": true,
                         "default": null,
                         "enum": [
-                            "madame",
-                            "monsieur"
+                            "ms",
+                            "mr"
                         ]
                     },
                     "jobTitle": {
@@ -7893,8 +7893,8 @@
                         "type": "string",
                         "nullable": true,
                         "enum": [
-                            "madame",
-                            "monsieur"
+                            "ms",
+                            "mr"
                         ]
                     },
                     "jobTitle": {
@@ -8443,8 +8443,8 @@
                         "type": "string",
                         "nullable": true,
                         "enum": [
-                            "madame",
-                            "monsieur"
+                            "ms",
+                            "mr"
                         ]
                     },
                     "jobTitle": {
@@ -8505,8 +8505,8 @@
                         "type": "string",
                         "nullable": true,
                         "enum": [
-                            "madame",
-                            "monsieur"
+                            "ms",
+                            "mr"
                         ]
                     },
                     "jobTitle": {

@@ -136,7 +136,7 @@ final readonly class DemoData
         $babbage = Organization::prospectedBy($prospector, new OrganizationId($this->identities->next()), new LegalIdentity('Babbage & Co', 'SAS'), new ContactDetails(new Email('contact@babbage.test')), $openedAt);
         $babbage->relocateTo(new Address('2 rue des Clefs', '68000', 'Colmar', 'FR'), new Location(new GeoPoint(7.3585, 48.0794), self::COLMAR), $prospector->id, $openedAt);
         $manager = new Reader($prospector->id, $account->id(), new PersonId($this->identities->next()), true);
-        $ada = Person::collectAsContact($manager, new PersonId($this->identities->next()), new PersonName('Ada', 'Lovelace'), Civility::Madame, 'Directrice commerciale', new ContactDetails(new Email('ada@babbage.test'), PhoneNumber::of('03 88 00 00 42'), 'FR'), new LinkedInProfile('https://www.linkedin.com/in/ada-lovelace'), [$babbage->id()], $openedAt);
+        $ada = Person::collectAsContact($manager, new PersonId($this->identities->next()), new PersonName('Ada', 'Lovelace'), Civility::Ms, 'Directrice commerciale', new ContactDetails(new Email('ada@babbage.test'), PhoneNumber::of('03 88 00 00 42'), 'FR'), new LinkedInProfile('https://www.linkedin.com/in/ada-lovelace'), [$babbage->id()], $openedAt);
         $this->organizations->save($babbage);
         $this->publish($babbage);
         $this->persons->save($ada);
