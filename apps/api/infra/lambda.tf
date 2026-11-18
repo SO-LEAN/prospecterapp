@@ -162,6 +162,7 @@ locals {
     GOOGLE_REVOKE_URL        = "https://oauth2.googleapis.com/revoke"
     GOOGLE_CALENDAR_URL      = "https://www.googleapis.com/calendar/v3"
     GOOGLE_GMAIL_URL         = "https://gmail.googleapis.com/gmail/v1"
+    GOOGLE_CERTS_URL         = "https://www.googleapis.com/oauth2/v3/certs"
     # the SPA the events pushed into Google lead back to (ADR 0127)
     APP_SPA_URL = local.front_url
   }

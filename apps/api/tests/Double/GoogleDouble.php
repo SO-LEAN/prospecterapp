@@ -36,12 +36,15 @@ final class GoogleDouble
     /** @var list<string> the topic of each watch of a mailbox asked, the latest last */
     private array $watches = [];
     private int $stops = 0;
+    /** @var list<array{kid: string, n: string, e: string}> the keys Google publishes, its tokens signed by one of them */
+    private array $keys = [];
 
     public function __construct(
         private readonly string $tokenUrl,
         private readonly string $revokeUrl,
         private readonly string $calendarUrl,
         private readonly string $gmailUrl,
+        private readonly string $certsUrl,
     ) {
     }
 
@@ -126,7 +129,7 @@ final class GoogleDouble
 
     public function serves(string $url): bool
     {
-        return str_starts_with($url, $this->tokenUrl) || str_starts_with($url, $this->revokeUrl) || str_starts_with($url, $this->calendarUrl) || str_starts_with($url, $this->gmailUrl);
+        return str_starts_with($url, $this->tokenUrl) || str_starts_with($url, $this->revokeUrl) || str_starts_with($url, $this->calendarUrl) || str_starts_with($url, $this->gmailUrl) || $url === $this->certsUrl;
     }
 
     /**
@@ -138,10 +141,20 @@ final class GoogleDouble
             !$this->answers => new MockResponse('', ['error' => 'Google does not answer']),
             null !== $this->failure => new MockResponse('', ['http_code' => $this->failure]),
             str_starts_with($url, $this->calendarUrl) => $this->calendar($method, substr($url, strlen($this->calendarUrl)), $options),
+            $url === $this->certsUrl => new JsonMockResponse(['keys' => array_map(static fn (array $key): array => ['kty' => 'RSA', 'alg' => 'RS256', 'use' => 'sig', ...$key], $this->keys)]),
             str_starts_with($url, $this->gmailUrl) => $this->gmail(substr($url, strlen($this->gmailUrl)), $options),
             str_starts_with($url, $this->tokenUrl) => $this->token(self::formOf($options)),
             default => $this->revoke(self::formOf($options)),
         };
+    }
+
+    /**
+     * The public key of a pair a test drew, its modulus and its exponent in base64url, published among the keys of
+     * Google its tokens are checked with (ADR 0154).
+     */
+    public function publishesTheKey(string $kid, string $modulus, string $exponent): void
+    {
+        $this->keys[] = ['kid' => $kid, 'n' => $modulus, 'e' => $exponent];
     }
 
     /**

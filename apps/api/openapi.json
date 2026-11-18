@@ -5650,6 +5650,48 @@
                 }
             }
         },
+        "/api/accounts/{account}/gmail-notifications": {
+            "post": {
+                "tags": [
+                    "Connectors"
+                ],
+                "summary": "A change of a mailbox Gmail notified through the topic of the account, pushed by its subscription at Pub/Sub with a token Google signed for its account of service, not with a token of a member (ADR 0154): noted and dated, nothing read from Gmail during the request",
+                "operationId": "post_api_gmail_notifications",
+                "parameters": [
+                    {
+                        "name": "account",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "pattern": "[0-9a-f]{8}-[0-9a-f]{4}-[13-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/PubSubPushInput"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "204": {
+                        "description": "Noted, or ignored for a mailbox no member of the account imports"
+                    },
+                    "400": {
+                        "description": "A message that is no notification of Gmail"
+                    },
+                    "401": {
+                        "description": "A token missing, not signed by Google, not issued for this endpoint, not for the account of service of the account, or an account without topic of Gmail"
+                    }
+                },
+                "security": []
+            }
+        },
         "/api/me/connections/google/retries": {
             "post": {
                 "tags": [
@@ -8304,6 +8346,23 @@
                         "default": null
                     },
                     "state": {
+                        "type": "string",
+                        "nullable": true,
+                        "default": null
+                    }
+                },
+                "type": "object"
+            },
+            "PubSubPushInput": {
+                "properties": {
+                    "message": {
+                        "type": "object",
+                        "default": [],
+                        "additionalProperties": {
+                            "type": "string"
+                        }
+                    },
+                    "subscription": {
                         "type": "string",
                         "nullable": true,
                         "default": null
