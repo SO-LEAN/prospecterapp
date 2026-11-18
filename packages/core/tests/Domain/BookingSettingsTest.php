@@ -9,6 +9,7 @@ use PHPUnit\Framework\TestCase;
 use Prospecter\Core\Booking\Domain\Exception\InvalidBookingCode;
 use Prospecter\Core\Booking\Domain\Model\BookingCode;
 use Prospecter\Core\Booking\Domain\Model\Channel;
+use Prospecter\Core\Booking\Domain\Model\HostTimeZone;
 use Prospecter\Core\Booking\Domain\Model\InactivePeriod;
 use Prospecter\Core\Booking\Domain\Model\InactivePeriodId;
 use Prospecter\Core\Booking\Domain\Model\OfferedChannels;
@@ -113,6 +114,14 @@ final class BookingSettingsTest extends TestCase
         yield 'French' => ['21/12/2026'];
         yield 'no such day' => ['2026-02-30'];
         yield 'a moment' => ['2026-12-21 10:00'];
+    }
+
+    /**
+     * A browser may still name its zone by a former name of the database of the time zones, which PHP knows.
+     */
+    public function testAFormerNameOfATimeZoneIsKnown(): void
+    {
+        $this->assertSame('Europe/Kiev', new HostTimeZone('Europe/Kiev')->name);
     }
 
     public function testTheChannelsAreOfferedOnceEachInTheirOrder(): void
