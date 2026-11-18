@@ -39,6 +39,6 @@ final readonly class NameContactsHandler implements QueryHandler, NameContactsSe
 
         $cards = $this->personCardRetriever->ofIds(array_map(static fn (string $id): PersonId => new PersonId($id), $query->personIds), $reader);
 
-        $output->present(array_map(static fn (PersonCard $card): ContactNameResponse => new ContactNameResponse($card->id, $card->firstName, $card->lastName, $card->jobTitle), $cards));
+        $output->present(array_map(static fn (PersonCard $card): ContactNameResponse => new ContactNameResponse($card->id, $card->firstName, $card->lastName, $card->civility, $card->jobTitle), $cards));
     }
 }

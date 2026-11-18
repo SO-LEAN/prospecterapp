@@ -15,6 +15,7 @@ use Prospecter\Core\Campaigns\Domain\Exception\SubjectOnlyForAnEmail;
 final readonly class MessageTemplate
 {
     public const int MAX = 5000;
+    private const string CIVILITY = '{civilité}';
     private const string FIRST_NAME = '{prénom}';
     private const string LAST_NAME = '{nom}';
     private const string ORGANIZATION = '{organisation}';
@@ -45,6 +46,7 @@ final readonly class MessageTemplate
     public function renderedFor(Addressee $addressee): RenderedMessage
     {
         $variables = [
+            self::CIVILITY => $addressee->civilityTitle(),
             self::FIRST_NAME => $addressee->firstName ?? '',
             self::LAST_NAME => $addressee->lastName ?? '',
             self::ORGANIZATION => $addressee->organization ?? '',
