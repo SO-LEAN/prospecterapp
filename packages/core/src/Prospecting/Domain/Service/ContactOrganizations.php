@@ -58,6 +58,17 @@ final readonly class ContactOrganizations
     }
 
     /**
+     * A contact waiting for another member to attach them: read by every prospector of the account, met by their
+     * holder only.
+     */
+    public function isToAttachByAnother(PersonId $contact, Prospector $prospector): bool
+    {
+        $contactToAttach = $this->toAttach($contact, $prospector->accountId);
+
+        return null !== $contactToAttach && !$contactToAttach->isHeldBy($prospector->id);
+    }
+
+    /**
      * @throws ContactToAttachOfAnother
      */
     private function ensureHeldBy(ContactToAttach $contactToAttach, Prospector $prospector): void
