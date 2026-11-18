@@ -57,3 +57,15 @@ variable "worker_concurrency" {
     error_message = "The worker runs at least one invocation at once, or reserves nothing (null)."
   }
 }
+
+variable "public_booking_rate_limit" {
+  description = "How many requests a second the HTTP API lets through to the public booking pages, whatever their link and their address (ADR 0153): a cap of the route, the limit by link being the api's, that by address the edge's"
+  type        = number
+  default     = 10
+}
+
+variable "public_booking_burst_limit" {
+  description = "How many requests at once the HTTP API lets through to the public booking pages beyond their rate (ADR 0153)"
+  type        = number
+  default     = 20
+}
