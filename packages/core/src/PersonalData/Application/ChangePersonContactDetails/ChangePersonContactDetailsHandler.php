@@ -8,6 +8,7 @@ use Prospecter\Core\PersonalData\Domain\Model\LinkedInProfile;
 use Prospecter\Core\PersonalData\Domain\Port\Readers;
 use Prospecter\Core\PersonalData\Domain\Repository\PersonRepository;
 use Prospecter\Core\PersonalData\Domain\Service\EmailUniqueness;
+use Prospecter\Core\PersonalData\Domain\Service\LinkedInProfileUniqueness;
 use Prospecter\Core\SharedKernel\Application\CommandHandler;
 use Prospecter\Core\SharedKernel\Application\Port\Events;
 use Prospecter\Core\SharedKernel\Application\PublishesEvents;
@@ -26,13 +27,16 @@ final readonly class ChangePersonContactDetailsHandler implements CommandHandler
         private Readers $readers,
         private Events $events,
         private EmailUniqueness $emails,
+        private LinkedInProfileUniqueness $linkedInProfiles,
     ) {
     }
 
     public function __invoke(ChangePersonContactDetails $command): void
     {
         $person = $this->persons->get(new PersonId($command->id));
-        $person->changeContactDetails(new ContactDetails(Email::orNone($command->email), PhoneNumber::orNone($command->phoneNumber), $command->language), LinkedInProfile::orNone($command->linkedInProfile), by: $this->readers->readerFrom(new MemberId($command->readerId)), at: $command->executedAt);
+        $linkedInProfile = LinkedInProfile::orNone($command->linkedInProfile);
+        $this->linkedInProfiles->ensureAvailableFor($person, $linkedInProfile);
+        $person->changeContactDetails(new ContactDetails(Email::orNone($command->email), PhoneNumber::orNone($command->phoneNumber), $command->language), $linkedInProfile, by: $this->readers->readerFrom(new MemberId($command->readerId)), at: $command->executedAt);
         $this->emails->ensureAvailableFor($person);
         $this->persons->save($person);
         $this->publishWhatHappenedTo($person);

@@ -38,3 +38,74 @@ Fonctionnalité: Noter le profil LinkedIn d'un contact
     Et je suis connecté en tant que prospecteur de "SOLEAN IT" sans le droit aux données personnelles
     Quand je consulte la fiche de "Ada Lovelace"
     Alors son profil LinkedIn est masqué
+
+  Scénario: Un profil déjà celui d'un autre contact est refusé
+    Soit "Ada Lovelace" a le profil LinkedIn "https://www.linkedin.com/in/ada-lovelace"
+    Et le contact "Grace Hopper" de "ACME"
+    Quand je change les coordonnées de "Grace Hopper" :
+      | LinkedIn | linkedin.com/in/Ada-Lovelace/ |
+    Alors c'est refusé : "LinkedIn profile already held by Ada Lovelace"
+
+  Scénario: J'enregistre un contact avec un profil déjà celui d'un autre contact
+    Soit "Ada Lovelace" a le profil LinkedIn "https://www.linkedin.com/in/ada-lovelace"
+    Quand j'enregistre le contact "Grace Hopper" pour "ACME" :
+      | LinkedIn | https://fr.linkedin.com/in/ada-lovelace |
+    Alors c'est refusé : "LinkedIn profile already held by Ada Lovelace"
+
+  Scénario: Un ancien profil reconnaît encore le contact
+    Soit "Ada Lovelace" a le profil LinkedIn "https://www.linkedin.com/in/ada-lovelace"
+    Et le contact "Grace Hopper" de "ACME"
+    Quand je change les coordonnées de "Ada Lovelace" :
+      | LinkedIn | https://www.linkedin.com/in/ada-l |
+    Et je change les coordonnées de "Grace Hopper" :
+      | LinkedIn | https://www.linkedin.com/in/ada-lovelace |
+    Alors c'est refusé : "LinkedIn profile already held by Ada Lovelace"
+
+  Scénario: Un contact reprend son ancien profil
+    Soit "Ada Lovelace" a le profil LinkedIn "https://www.linkedin.com/in/ada-lovelace"
+    Quand je change les coordonnées de "Ada Lovelace" :
+      | LinkedIn | https://www.linkedin.com/in/ada-l |
+    Et je change les coordonnées de "Ada Lovelace" :
+      | LinkedIn | https://www.linkedin.com/in/ada-lovelace |
+    Alors je vois la fiche de "Ada Lovelace" avec :
+      | LinkedIn | https://www.linkedin.com/in/ada-lovelace |
+
+  Scénario: Effacer un contact libère ses profils, actuel et anciens
+    Soit "Ada Lovelace" a le profil LinkedIn "https://www.linkedin.com/in/ada-lovelace"
+    Et "Ada Lovelace" a le profil LinkedIn "https://www.linkedin.com/in/ada-l"
+    Et le contact "Grace Hopper" de "ACME"
+    Et j'efface la fiche de "Ada Lovelace"
+    Quand je change les coordonnées de "Grace Hopper" :
+      | LinkedIn | https://www.linkedin.com/in/ada-lovelace |
+    Alors je vois la fiche de "Grace Hopper" avec :
+      | LinkedIn | https://www.linkedin.com/in/ada-lovelace |
+
+  Scénario: Les doublons d'avant la règle ne bloquent rien
+    Soit "Ada Lovelace" a le profil LinkedIn "https://www.linkedin.com/in/ada-lovelace"
+    Et le contact "Grace Hopper" de "ACME"
+    Et "Grace Hopper" a le profil LinkedIn "https://www.linkedin.com/in/ada-lovelace"
+    Quand je change les coordonnées de "Grace Hopper" :
+      | téléphone | 03 88 00 00 42                           |
+      | LinkedIn  | https://www.linkedin.com/in/ada-lovelace |
+    Alors je vois la fiche de "Grace Hopper" avec :
+      | téléphone | +33 3 88 00 00 42                        |
+      | LinkedIn  | https://www.linkedin.com/in/ada-lovelace |
+
+  Scénario: Le profil LinkedIn d'un membre peut être celui d'un contact ou d'un collègue
+    Soit "Ada Lovelace" a le profil LinkedIn "https://www.linkedin.com/in/ada-lovelace"
+    Et "Grace" est membre de "SOLEAN IT" avec le profil :
+      | LinkedIn | https://www.linkedin.com/in/ada-lovelace |
+    Quand je change mes coordonnées :
+      | LinkedIn | https://www.linkedin.com/in/ada-lovelace |
+    Alors ce n'est pas refusé
+
+  Scénario: Un autre compte peut noter le même profil
+    Soit "Ada Lovelace" a le profil LinkedIn "https://www.linkedin.com/in/ada-lovelace"
+    Et l'organisation "Initech" qui utilise Prospecter
+    Et l'organisation "Globex" appartient à "Initech"
+    Et le contact "Grace Hopper" de "Globex"
+    Et je suis connecté en tant que prospecteur de "Initech"
+    Quand je change les coordonnées de "Grace Hopper" :
+      | LinkedIn | https://www.linkedin.com/in/ada-lovelace |
+    Alors je vois la fiche de "Grace Hopper" avec :
+      | LinkedIn | https://www.linkedin.com/in/ada-lovelace |

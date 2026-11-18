@@ -71,6 +71,7 @@ services:
     Prospecter\Core\Prospecting\Domain\Service\OrphanContacts: ~
     Prospecter\Core\Prospecting\Domain\Service\ContactOrganizations: ~
     Prospecter\Core\PersonalData\Domain\Service\EmailUniqueness: ~
+    Prospecter\Core\PersonalData\Domain\Service\LinkedInProfileUniqueness: ~
     Prospecter\Core\Reporting\Application\FactRecorder: ~
     Prospecter\Core\Reporting\Application\RebuildFigures\SourceFacts: ~
     Prospecter\Core\Connectors\Application\CalendarPusher: ~
