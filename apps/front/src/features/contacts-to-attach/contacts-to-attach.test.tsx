@@ -1,6 +1,7 @@
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { act, screen, waitFor, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
+import { toast } from 'sonner'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { Toaster } from '@/shared/ui/sonner'
 import { renderInARouter } from '@/test/render-in-a-router'
@@ -64,7 +65,8 @@ function theApiProposes(organization: { id: string; name: string } | null) {
     const request = input as Request
     const { pathname } = new URL(request.url)
     if (pathname.endsWith('/proposed-organization')) return Response.json({ organization })
-    if (pathname === '/api/organizations' && request.method === 'GET') return Response.json({ items: [], _links: {} })
+    if (pathname === '/api/organizations' && request.method === 'GET')
+      return Response.json({ items: [], _links: {} })
     if (pathname === '/api/organizations') return Response.json({ id: CREATED }, { status: 201 })
     return Response.json({ id: ACME }, { status: 200 })
   })
@@ -86,6 +88,7 @@ beforeEach(() => {
 })
 
 afterEach(() => {
+  toast.dismiss()
   vi.useRealTimers()
   theApi.mockReset()
 })
@@ -103,7 +106,10 @@ describe('the contacts to attach to process', () => {
     await show(<ContactsToAttachSection contacts={[ada(new Date(2026, 10, 25))]} />)
 
     const line = screen.getByRole('listitem')
-    expect(within(line).getByRole('link', { name: 'Ada Lovelace' })).toHaveAttribute('href', `/contacts/${ADA}`)
+    expect(within(line).getByRole('link', { name: 'Ada Lovelace' })).toHaveAttribute(
+      'href',
+      `/contacts/${ADA}`,
+    )
     expect(within(line).getByText('ada@acme.fr')).toBeInTheDocument()
     expect(within(line).getByText('Effacé dans 7 jours')).toHaveAttribute('data-urgency', 'soon')
   })
@@ -126,19 +132,28 @@ describe('the contacts to attach to process', () => {
     )
   })
 
-  it('creates the organization of their domain, its name deduced from it, then attaches them to it', async () => {
+  it('creates a new organization for their domain, its name deduced from it, then attaches them to it', async () => {
     theApiProposes(null)
     await show(<ContactsToAttachSection contacts={[ada(new Date(2026, 11, 20))]} />)
 
     await userEvent.click(screen.getByRole('button', { name: 'Rattacher' }))
-    await userEvent.click(await screen.findByRole('button', { name: 'Créer l’organisation' }))
+    await userEvent.click(await screen.findByRole('button', { name: 'Nouvelle organisation' }))
     expect(screen.getByRole('textbox', { name: 'Raison sociale' })).toHaveValue('Acme')
     expect(screen.getByRole('textbox', { name: 'E-mail' })).toHaveValue('contact@acme.fr')
     await userEvent.click(screen.getByRole('button', { name: 'Enregistrer' }))
 
     await waitFor(async () =>
       expect(await Promise.all(sent())).toEqual([
-        ['/api/organizations', { legalIdentity: { corporateName: 'Acme' }, contactDetails: { email: 'contact@acme.fr' } }],
+        [
+          '/api/organizations',
+          {
+            legalIdentity: { corporateName: 'Acme', form: null, type: null },
+            contactDetails: { email: 'contact@acme.fr', phoneNumber: null, language: null },
+            address: null,
+            observations: null,
+            holdingId: null,
+          },
+        ],
         [`/api/organizations/${CREATED}/contacts`, { personId: ADA }],
       ]),
     )
@@ -153,7 +168,12 @@ describe('the contacts to attach to process', () => {
 
 describe('the banner of the page of a contact to attach', () => {
   it('says the day they are erased without attachment', async () => {
-    await show(<ToAttachBanner contactId={ADA} toAttach={{ lastMeetingAt: NOW.toISOString(), erasableFrom: new Date(2026, 11, 20).toISOString() }} />)
+    await show(
+      <ToAttachBanner
+        contactId={ADA}
+        toAttach={{ lastMeetingAt: NOW.toISOString(), erasableFrom: new Date(2026, 11, 20).toISOString() }}
+      />,
+    )
 
     expect(screen.getByRole('status')).toHaveTextContent('Contact à rattacher, effacé le 20/12/2026')
   })
@@ -163,19 +183,19 @@ describe('the reminders before the erasure', () => {
   it('reminds a week before the erasure', async () => {
     await show(<ErasureReminders contacts={[ada(new Date(2026, 10, 25))]} />)
 
-    expect(await screen.findByText('Ada Lovelace sera effacé dans 7 jours si vous ne le rattachez pas.')).toBeInTheDocument()
+    expect(await screen.findByText('Ada Lovelace — Effacé dans 7 jours')).toBeInTheDocument()
   })
 
   it('reminds the day before', async () => {
     await show(<ErasureReminders contacts={[ada(new Date(2026, 10, 19))]} />)
 
-    expect(await screen.findByText('Ada Lovelace sera effacé dans 1 jour si vous ne le rattachez pas.')).toBeInTheDocument()
+    expect(await screen.findByText('Ada Lovelace — Effacé dans 1 jour')).toBeInTheDocument()
   })
 
   it('reminds nothing more than a week before', async () => {
     await show(<ErasureReminders contacts={[ada(new Date(2026, 10, 30))]} />)
     await act(async () => vi.advanceTimersByTimeAsync(100))
 
-    expect(screen.queryByText(/sera effacé/)).not.toBeInTheDocument()
+    expect(screen.queryByText(/Ada Lovelace — Effacé dans/)).not.toBeInTheDocument()
   })
 })

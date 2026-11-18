@@ -10,8 +10,10 @@ import { hasAProfileToComplete, isMyProfileBeingPrepared } from '@/features/acco
 import type { Account } from '@/features/account/mutations'
 import { accountQuery, myAccountBeingPreparedQuery, signInQuery } from '@/features/account/queries'
 import { ReconnectBanner } from '@/features/connectors/components/reconnect-banner'
+import { ErasureReminders } from '@/features/contacts-to-attach/components/erasure-reminders'
 import { ExchangeReminders } from '@/features/exchanges/reminders/components/exchange-reminders'
 import { ToDoReminders } from '@/features/exchanges/reminders/components/to-do-reminders'
+import { exchangesToProcessQuery } from '@/features/exchanges/to-process/queries'
 import { remindersQuery } from '@/features/settings/queries'
 import { ensureSharedQueryData } from '@/shared/api/ensure-shared-query-data'
 import { session } from '@/shared/auth/session'
@@ -86,6 +88,7 @@ function MyReminders() {
     <>
       <ExchangeReminders settings={reminders} />
       <ToDoReminders settings={reminders} />
+      <ErasureRemindersOfMyContactsToAttach />
     </>
   ) : null
 }
@@ -104,4 +107,11 @@ function CompleteMyProfile({ account }: { account: Account }) {
       />
     </CardPage>
   )
+}
+
+/** The contacts I hold to attach, read among what I have to process, reminded before their erasure (ADR 0146). */
+function ErasureRemindersOfMyContactsToAttach() {
+  const { data } = useQuery(exchangesToProcessQuery())
+
+  return <ErasureReminders contacts={data?.contactsToAttach ?? []} />
 }

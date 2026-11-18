@@ -5,6 +5,7 @@ import { readerTimeZone } from '@/shared/lib/time-zone'
 export type ExchangesToProcess = components['schemas']['ExchangesToProcessResource']
 export type ExchangeToProcess = ExchangesToProcess['items'][number]
 export type ToDoToProcess = ExchangesToProcess['toDos'][number]
+export type ContactsToAttach = ExchangesToProcess['contactsToAttach']
 
 /** What passed meanwhile, its end reached while the page stays open, is told without a gesture. */
 const READ_AGAIN_EVERY_MS = 5 * 60_000
@@ -21,5 +22,6 @@ export const exchangesToProcessQuery = () =>
     { refetchInterval: READ_AGAIN_EVERY_MS },
   )
 
-/** What is left to process: the exchanges and the to-dos. */
-export const countOf = (toProcess: ExchangesToProcess) => toProcess.items.length + toProcess.toDos.length
+/** What is left to process: the exchanges, the to-dos and the contacts to attach (ADR 0146). */
+export const countOf = (toProcess: ExchangesToProcess) =>
+  toProcess.items.length + toProcess.toDos.length + toProcess.contactsToAttach.length

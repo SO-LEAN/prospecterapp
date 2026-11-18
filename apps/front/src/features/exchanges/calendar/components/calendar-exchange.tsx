@@ -4,6 +4,7 @@ import { useTranslation } from 'react-i18next'
 import { formatHour } from '@/shared/lib/format'
 import { cn } from '@/shared/lib/utils'
 import { CHANNEL_ICONS } from '../../components/exchange-line'
+import { ToAttachBadge } from '../../components/to-attach-badge'
 import { isToHandle } from '../dates'
 import type { CalendarExchange } from '../queries'
 
@@ -86,6 +87,7 @@ export function CalendarExchangeChip({
         <ChannelIcon aria-hidden className="size-3 shrink-0" />
         <span className="shrink-0 tabular-nums">{formatHour(exchange.occurredAt)}</span>
         <span className="truncate font-medium">{name}</span>
+        <ToAttachBadge exchange={exchange} />
         {late && <TriangleAlert aria-hidden className="ms-auto size-3 shrink-0" />}
       </span>
       {children}

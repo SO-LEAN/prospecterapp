@@ -10,6 +10,7 @@ import {
 } from '@/features/contacts/components/contact-sections'
 import { ForgetContact } from '@/features/contacts/components/forget-contact'
 import { contactQuery, fullNameOf, organizationsOfContactQuery } from '@/features/contacts/queries'
+import { ToAttachBanner } from '@/features/contacts-to-attach/components/to-attach-banner'
 import { ExchangeDetailSheet } from '@/features/exchanges/components/exchange-detail'
 import {
   ExchangesSection,
@@ -87,6 +88,13 @@ function ContactPage() {
           )
         }
       />
+      {contact.toAttach && (
+        <ToAttachBanner
+          contactId={contact.id}
+          toAttach={contact.toAttach}
+          attaching={contact.masked ? undefined : { name, email: contact.contactDetails.email ?? null }}
+        />
+      )}
       {contact._links.tags && (
         <ContactTags contactId={contact.id} organizations={organizations.data?.items ?? []} />
       )}
