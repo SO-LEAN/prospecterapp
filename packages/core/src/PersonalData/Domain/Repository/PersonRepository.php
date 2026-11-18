@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Prospecter\Core\PersonalData\Domain\Repository;
 
 use Prospecter\Core\PersonalData\Domain\Exception\UnknownPerson;
+use Prospecter\Core\PersonalData\Domain\Model\LinkedInProfile;
 use Prospecter\Core\PersonalData\Domain\Model\Person;
 use Prospecter\Core\PersonalData\Domain\Model\Purpose;
 use Prospecter\Core\SharedKernel\Domain\AccountId;
@@ -34,6 +35,11 @@ interface PersonRepository
      * Whether another person of the account, kept for this purpose, has this email.
      */
     public function isEmailUsed(AccountId $accountId, Purpose $purpose, Email $email, PersonId $except): bool;
+
+    /**
+     * The other contact of the account holding this profile, as their own or as a former one, if any.
+     */
+    public function contactHoldingLinkedInProfile(AccountId $accountId, LinkedInProfile $profile, PersonId $except): ?Person;
 
     /**
      * @throws EmailAlreadyUsed when another person took the email meanwhile (EmailUniqueness checked it before)

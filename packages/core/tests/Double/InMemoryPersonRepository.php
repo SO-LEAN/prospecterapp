@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Tests\Core\Double;
 
 use Prospecter\Core\PersonalData\Domain\Exception\UnknownPerson;
+use Prospecter\Core\PersonalData\Domain\Model\LinkedInProfile;
 use Prospecter\Core\PersonalData\Domain\Model\Person;
 use Prospecter\Core\PersonalData\Domain\Model\Purpose;
 use Prospecter\Core\PersonalData\Domain\Repository\PersonRepository;
@@ -41,6 +42,11 @@ final readonly class InMemoryPersonRepository implements PersonRepository
     public function isEmailUsed(AccountId $accountId, Purpose $purpose, Email $email, PersonId $except): bool
     {
         return array_any($this->database->persons(), fn (Person $person): bool => !$person->id()->equals($except) && $person->accountId()->equals($accountId) && $person->purpose() === $purpose && $person->contactDetails()->email?->value === $email->value);
+    }
+
+    public function contactHoldingLinkedInProfile(AccountId $accountId, LinkedInProfile $profile, PersonId $except): ?Person
+    {
+        return array_find($this->database->persons(), static fn (Person $person): bool => !$person->id()->equals($except) && $person->isAContactOf($accountId) && $person->holdsLinkedInProfile($profile));
     }
 
     public function save(Person $person): void
