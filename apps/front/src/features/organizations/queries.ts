@@ -6,6 +6,7 @@ import { dataOf, nextSliceOf } from '@/shared/api/slices'
 export type Organization = components['schemas']['OrganizationResource']
 export type OrganizationSummary = components['schemas']['OrganizationSummaryResource']
 export type StartProspectingInput = components['schemas']['StartProspectingInput']
+export type ReviseLegalIdentityInput = components['schemas']['ReviseLegalIdentityInput']
 export type CollectContactInput = components['schemas']['CollectContactInput']
 
 /** The first slice of the organizations found by the search, for a picker or a summary. */
