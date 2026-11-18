@@ -39,6 +39,7 @@ class DomainBehindTheApplicationTest extends TestCase
         'Booking/AntiCorruption/ProspectingHostAgendas.php',
         'Connectors/Google/GoogleProviderAccess.php',
         'Connectors/Google/GoogleCalendar.php',
+        'Connectors/Google/GoogleMailbox.php',
         'Connectors/Google/GoogleTokens.php',
         'Shared/GeoplateformeGeoLocation.php',
         'Shared/PrivateStorageClient.php',
