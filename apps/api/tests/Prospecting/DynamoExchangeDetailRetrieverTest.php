@@ -20,8 +20,10 @@ use Prospecter\Core\Prospecting\Domain\Model\ExchangeId;
 use Prospecter\Core\Prospecting\Domain\Model\ExchangeIntent;
 use Prospecter\Core\Prospecting\Domain\Model\ExchangeStatus;
 use Prospecter\Core\Prospecting\Domain\Model\Prospector;
+use Prospecter\Core\Prospecting\Domain\Model\RecipientInCampaign;
 use Prospecter\Core\Prospecting\Domain\Repository\ExchangeRepository;
 use Prospecter\Core\SharedKernel\Domain\AccountId;
+use Prospecter\Core\SharedKernel\Domain\CampaignId;
 use Prospecter\Core\SharedKernel\Domain\MemberId;
 use Prospecter\Core\SharedKernel\Domain\OrganizationId;
 use Prospecter\Core\SharedKernel\Domain\PersonId;
@@ -30,7 +32,7 @@ use Tests\App\Base\ApiTestCase;
 /**
  * The retriever builds the detail from the item the repository wrote, as its reader may read it, with what is
  * to make conform and what its state offers: the intentions its state forbids are absent, the exchange refusing
- * them (ADR 0078, 0079, 0088).
+ * them (ADR 0078, 0079, 0088); noted in a campaign, the identity of the campaign (ADR 0145).
  */
 class DynamoExchangeDetailRetrieverTest extends ApiTestCase
 {
@@ -151,6 +153,16 @@ class DynamoExchangeDetailRetrieverTest extends ApiTestCase
     {
         yield 'without a status' => [null];
         yield 'done' => ['done'];
+    }
+
+    public function testAnExchangeNotedInACampaignNamesItsCampaign(): void
+    {
+        $campaign = new CampaignId(self::newIdentity());
+        $recipient = new RecipientInCampaign($campaign, new PersonId(self::newIdentity()), Channel::Email, running: true, recipient: true, pending: true);
+        $exchange = Exchange::notedInACampaign($this->me->accountId, $this->me->id, new ExchangeId(self::newIdentity()), $recipient, [new OrganizationId(self::newIdentity())], new \DateTimeImmutable('2026-10-10 09:00 UTC'), null, false, new \DateTimeImmutable(self::NOW));
+        $this->exchanges()->save($exchange);
+
+        $this->assertSame([$campaign->value, null], [$this->detailOf($exchange, $this->me)->campaignId, $this->detailOf($this->noted(), $this->me)->campaignId]);
     }
 
     private function planned(string $at): Exchange
