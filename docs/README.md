@@ -36,6 +36,12 @@ Read the document of your subject before working on it: it says the rule in forc
 
 The business rules themselves are the scenarios of the core (`packages/core/features`), each feature an intent.
 
+## Operations
+
+| Subject | Document |
+|---|---|
+| The Google client of an account: what its administrator sets up in the Google Cloud of their organization | [google-client.md](google-client.md) |
+
 ## History
 
 - The decision records: [adr/README.md](adr/README.md), its index written from their headers by `make adr-index`; adding one: [adr/TEMPLATE.md](adr/TEMPLATE.md).
