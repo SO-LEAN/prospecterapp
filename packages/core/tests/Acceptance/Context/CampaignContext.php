@@ -239,6 +239,16 @@ final class CampaignContext implements Context
         $this->theStartedCampaign($name);
     }
 
+    #[Given('la campagne :name démarrée, canal :channel, avec :one, :two et :three')]
+    public function theCampaignStartedByWithThree(string $name, string $channel, string $one, string $two, string $three): void
+    {
+        $this->application->dispatch(new RebuildTags(null));
+        $this->arrange($name, $channel, self::SOME_TAGS, self::A_MESSAGE);
+        $this->theFrozenCampaign($name);
+        $this->itsRecipientsAreInAnyOrder($one, $two, $three);
+        $this->theStartedCampaign($name);
+    }
+
     #[When('je note pour :contact dans la campagne :name l\'échange :')]
     public function iNoteForTheRecipientTheExchange(string $contact, string $name, TableNode $table): void
     {
@@ -268,9 +278,13 @@ final class CampaignContext implements Context
         $this->expectTheRecipient($contact, $name, ['status' => 'traité', 'missed' => false, 'reason' => null]);
     }
 
-    #[Then(':contact est traitée dans la campagne :name, appel manqué')]
+    #[Given(':contact est traitée dans la campagne :name, appel manqué')]
     public function theRecipientIsProcessedMissed(string $contact, string $name): void
     {
+        if (null === $this->noted) {
+            $this->iNoteForTheRecipientAMissedCall($contact, $name);
+        }
+
         $this->expectTheRecipient($contact, $name, ['status' => 'traité', 'missed' => true, 'reason' => null]);
     }
 
@@ -306,6 +320,13 @@ final class CampaignContext implements Context
         $sheet = $this->sheet();
 
         Expect::same(['ended', Vocabulary::frenchMoment($moment)->getTimestamp()], [$sheet->status, $sheet->endedAt?->getTimestamp()]);
+    }
+
+    #[Then('l\'avancement de la campagne :name est :processed traité sur :recipients, :dismissed écarté')]
+    public function theProgressOfTheCampaignIs(string $name, int $processed, int $recipients, int $dismissed): void
+    {
+        $this->current = $name;
+        $this->itsProgressIs($processed, $recipients, $dismissed);
     }
 
     #[Then('son avancement est :processed traité sur :recipients, :dismissed écarté')]
@@ -425,16 +446,6 @@ final class CampaignContext implements Context
     {
         $this->current = $name;
         Expect::same('stopped', $this->sheet()->status);
-    }
-
-    #[Then(':contact n\'est plus à traiter dans la campagne :name, « Contact effacé »')]
-    public function theRecipientIsAnErasedContact(string $contact, string $name): void
-    {
-        $this->current = $name;
-        $recipient = $this->recipient($contact);
-        $read = $this->application->consultPersons(new ConsultPersons($this->application->signedIn(), [$this->scenario->personIdOf($contact)])) ?? [];
-
-        Expect::same(['plus à traiter', []], [self::RECIPIENT_STATUSES[$recipient->status], $read]);
     }
 
     #[Then('l\'échange de :contact reste dans sa timeline, sans campagne')]
@@ -562,6 +573,41 @@ final class CampaignContext implements Context
         Expect::same([$this->currentName()], array_map(static fn (CampaignSheet $campaign): string => $campaign->name, $this->listed));
     }
 
+    #[Then('dans la campagne :name, un contact effacé n\'est plus à traiter')]
+    public function anErasedContactIsNoLongerToHandle(string $name): void
+    {
+        $this->anErasedContactIs($name, 'plus à traiter');
+    }
+
+    #[Then('/^dans la campagne "(?<name>[^"]+)", un contact effacé est (?<status>.+)$/')]
+    public function anErasedContactIs(string $name, string $status): void
+    {
+        $this->theErasedContactsAre($name, [$status]);
+    }
+
+    #[Then('/^dans la campagne "(?<name>[^"]+)", les contacts effacés sont « (?<one>[^»]+) » et « (?<other>[^»]+) »$/')]
+    public function theErasedContactsAreBoth(string $name, string $one, string $other): void
+    {
+        $this->theErasedContactsAre($name, [$one, $other]);
+    }
+
+    /**
+     * Without their names: PersonalData reads none of them.
+     *
+     * @param list<string> $statuses in any order
+     */
+    private function theErasedContactsAre(string $name, array $statuses): void
+    {
+        $this->current = $name;
+        $erased = array_filter($this->sheet()->recipients, static fn (RecipientInSheet $recipient): bool => $recipient->erased);
+        $read = $this->application->consultPersons(new ConsultPersons($this->application->signedIn(), array_map(strval(...), array_keys($erased)))) ?? [];
+        $described = array_values(array_map(self::described(...), $erased));
+        sort($statuses);
+        sort($described);
+
+        Expect::same([$statuses, []], [$described, $read]);
+    }
+
     #[Then('son destinataire est « Contact effacé », plus à traiter')]
     public function itsRecipientIsAnErasedContact(): void
     {
@@ -645,9 +691,9 @@ final class CampaignContext implements Context
         Expect::same([$this->scenario->personIdOf($one), $this->scenario->personIdOf($other)], array_keys($this->sheet()->recipients));
     }
 
-    private function itsRecipientsAreInAnyOrder(string $one, string $other): void
+    private function itsRecipientsAreInAnyOrder(string ...$contacts): void
     {
-        $expected = [$this->scenario->personIdOf($one), $this->scenario->personIdOf($other)];
+        $expected = array_map($this->scenario->personIdOf(...), $contacts);
         $recipients = array_map(strval(...), array_keys($this->sheet()->recipients));
         sort($expected);
         sort($recipients);
@@ -811,6 +857,11 @@ final class CampaignContext implements Context
         $recipient = $this->recipient($contact);
 
         Expect::same($expected, ['status' => self::RECIPIENT_STATUSES[$recipient->status], 'missed' => $recipient->missed, 'reason' => $recipient->reason]);
+    }
+
+    private static function described(RecipientInSheet $recipient): string
+    {
+        return self::RECIPIENT_STATUSES[$recipient->status].($recipient->missed ? ', appel manqué' : '');
     }
 
     private function recipient(string $contact): RecipientInSheet

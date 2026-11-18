@@ -153,7 +153,7 @@ final class CampaignTest extends TestCase
         $this->assertEquals([CampaignStatus::Ended, $this->now(), $this->now()], [$state['status'], $state['endedAt'], $state['modifiedAt']]);
     }
 
-    public function testARecipientErasedSinceStaysErased(): void
+    public function testARecipientErasedSinceIsNotToHandleAgain(): void
     {
         $campaign = $this->in(CampaignStatus::Started);
         $campaign->process(new PersonId(self::ADA), self::EXCHANGE, missed: false, at: $this->now());
@@ -161,7 +161,7 @@ final class CampaignTest extends TestCase
 
         $campaign->reopenAfterErasureOf(self::EXCHANGE, $this->later());
 
-        $this->assertEquals(new Recipient(new PersonId(self::ADA), RecipientStatus::Erased), StateOf::the($campaign)['recipients']->recipients[0]);
+        $this->assertEquals(new Recipient(new PersonId(self::ADA), RecipientStatus::Processed, erased: true), StateOf::the($campaign)['recipients']->recipients[0]);
     }
 
     public function testAStoppedCampaignStaysStoppedWhenItsRecipientIsToHandleAgain(): void
