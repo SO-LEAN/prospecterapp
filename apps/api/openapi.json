@@ -7120,7 +7120,7 @@
                 "tags": [
                     "Booking"
                 ],
-                "summary": "Consult the booking page a public link leads to, without signing in: whether it offers slots, and how its host meets the bookers",
+                "summary": "Consult the booking page a public link leads to, without signing in: its free slots from tomorrow for 14 days and how its host meets the bookers; a link closed, changed, unknown or whose host has no connected calendar shows nothing, without saying why",
                 "operationId": "get_api_public_booking_page",
                 "parameters": [
                     {
@@ -7140,16 +7140,6 @@
                             "application/json": {
                                 "schema": {
                                     "$ref": "#/components/schemas/PublicBookingPageResource"
-                                }
-                            }
-                        }
-                    },
-                    "404": {
-                        "description": "No page at this code: a former link, or one nobody drew",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/ProblemResource"
                                 }
                             }
                         }
@@ -11166,11 +11156,12 @@
             "PublicBookingPageResource": {
                 "required": [
                     "open",
-                    "channels"
+                    "channels",
+                    "days"
                 ],
                 "properties": {
                     "open": {
-                        "description": "Whether it offers slots; closed, it offers none",
+                        "description": "Whether it offers slots: closed, changed, unknown or suspended, it offers none",
                         "type": "boolean"
                     },
                     "channels": {
@@ -11181,6 +11172,26 @@
                                 "call",
                                 "videoCall"
                             ]
+                        }
+                    },
+                    "days": {
+                        "description": "The 14 days from tomorrow on the clock of the host, each with the moments its free slots of 15 minutes start at; none when it shows nothing",
+                        "type": "array",
+                        "items": {
+                            "properties": {
+                                "day": {
+                                    "type": "string",
+                                    "format": "date"
+                                },
+                                "slots": {
+                                    "type": "array",
+                                    "items": {
+                                        "type": "string",
+                                        "format": "date-time"
+                                    }
+                                }
+                            },
+                            "type": "object"
                         }
                     }
                 },

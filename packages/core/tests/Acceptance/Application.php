@@ -423,6 +423,7 @@ use Tests\Core\Double\PersonalDataKnownContacts;
 use Tests\Core\Double\PersonalDataTaggableContacts;
 use Tests\Core\Double\ProspectingFactsFromProspecting;
 use Tests\Core\Double\ProspectingHeldExchanges;
+use Tests\Core\Double\ProspectingHostAgendas;
 use Tests\Core\Double\ProspectingOrganizations;
 use Tests\Core\Double\ProspectingOrganizationsAndTheirContacts;
 use Tests\Core\Double\ProspectingTaggableOrganizations;
@@ -531,6 +532,7 @@ final class Application
     private readonly ConnectorsConnectedCalendars $connectedCalendars;
     private readonly InMemoryMyBookingPageRetriever $myBookingPageRetriever;
     private readonly InMemoryPublicBookingPageRetriever $publicBookingPageRetriever;
+    private readonly ProspectingHostAgendas $hostAgendas;
     private ?string $lastBookingCode = null;
     /** @var array<class-string, CommandHandler> */
     private array $handlers = [];
@@ -638,6 +640,7 @@ final class Application
         $this->connectedCalendars = new ConnectorsConnectedCalendars($this->whichHaveAConnectedCalendarService);
         $this->myBookingPageRetriever = new InMemoryMyBookingPageRetriever($database);
         $this->publicBookingPageRetriever = new InMemoryPublicBookingPageRetriever($database);
+        $this->hostAgendas = new ProspectingHostAgendas($this->consultPlannedExchangesService);
 
         foreach ($this->translators() as $translator) {
             $this->events->translateWith($translator, calledThrough: new RefusalTranslatingEventHandler(new TransactionalEventHandler($translator, $this->unitOfWork)));
@@ -1306,7 +1309,7 @@ final class Application
     {
         $kept = new KeptPublicBookingPage();
 
-        return $this->ask(new ConsultPublicBookingPageHandler($this->publicBookingPageRetriever), $query, $kept) ? $kept->page : null;
+        return $this->ask(new ConsultPublicBookingPageHandler($this->publicBookingPageRetriever, $this->hostAgendas, $this->connectedCalendars), $query, $kept) ? $kept->page : null;
     }
 
     /**

@@ -221,6 +221,7 @@ services:
     Prospecter\Core\Booking\Application\Port\PublicBookingPageRetriever: '@App\Booking\Persistence\DynamoPublicBookingPageRetriever'
     Prospecter\Core\Booking\Domain\Port\Hosts: '@App\Booking\AntiCorruption\AccountsHosts'
     Prospecter\Core\Booking\Domain\Port\ConnectedCalendars: '@App\Booking\AntiCorruption\ConnectorsConnectedCalendars'
+    Prospecter\Core\Booking\Domain\Port\HostAgendas: '@App\Booking\AntiCorruption\ProspectingHostAgendas'
     # a domain event to the translators of its context on the event bus, every event to the reactions of the
     # subscriptions of config/subscriptions.json, delivered the way INTEGRATION_EVENTS_DELIVERY names: sync, within
     # the command, or outbox, written with it and relayed to the bus

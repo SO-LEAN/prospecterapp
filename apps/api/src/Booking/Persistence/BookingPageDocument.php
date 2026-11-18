@@ -4,8 +4,8 @@ namespace App\Booking\Persistence;
 
 use App\Shared\Persistence\Documents;
 use App\Shared\Persistence\Hydrator;
+use Prospecter\Core\Booking\Application\ConsultPublicBookingPage\BookingSchedule;
 use Prospecter\Core\Booking\Application\MyBookingPage;
-use Prospecter\Core\Booking\Application\PublicBookingPage;
 use Prospecter\Core\Booking\Domain\Model\BookingCode;
 use Prospecter\Core\Booking\Domain\Model\BookingPage;
 use Prospecter\Core\Booking\Domain\Model\BookingPageIntent;
@@ -101,13 +101,13 @@ final class BookingPageDocument
     }
 
     /**
-     * The page as anyone holding its link reads it.
+     * The page as its public link needs it, without restoring it (ADR 0088).
      *
      * @param array<string, mixed> $document
      */
-    public static function publicPage(array $document): PublicBookingPage
+    public static function schedule(array $document): BookingSchedule
     {
-        return new PublicBookingPage($document['open'], $document['channels']);
+        return new BookingSchedule($document['host'], $document['accountId'], $document['open'], $document['channels'], $document['windows'], $document['timeZone'], $document['inactivePeriods']);
     }
 
     /**

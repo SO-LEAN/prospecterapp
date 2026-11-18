@@ -479,8 +479,6 @@ export const fr = {
       title: 'Prendre rendez-vous',
       offers: 'Rencontre possible par : {{channels}}',
       noSlot: 'Aucun créneau disponible pour le moment.',
-      notFound: 'Lien introuvable',
-      notFoundDescription: 'Ce lien de prise de rendez-vous n’existe pas, ou plus.',
     },
   },
   account: {

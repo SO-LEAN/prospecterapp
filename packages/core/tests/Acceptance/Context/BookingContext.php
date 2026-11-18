@@ -260,13 +260,13 @@ final class BookingContext implements Context
     #[When('on ouvre mon lien public')]
     public function someoneOpensMyPublicLink(): void
     {
-        $this->opened = $this->application->consultPublicBookingPage(new ConsultPublicBookingPage($this->myPage()->code ?? ''));
+        $this->opened = $this->application->consultPublicBookingPage(new ConsultPublicBookingPage($this->myPage()->code ?? '', $this->application->now()));
     }
 
     #[When('on ouvre le lien public :code')]
     public function someoneOpensThePublicLink(string $code): void
     {
-        $this->opened = $this->application->consultPublicBookingPage(new ConsultPublicBookingPage($code));
+        $this->opened = $this->application->consultPublicBookingPage(new ConsultPublicBookingPage($code, $this->application->now()));
     }
 
     #[Then('il propose mes créneaux')]
@@ -285,6 +285,46 @@ final class BookingContext implements Context
         Expect::that(false === $this->opened?->open, 'The public link still offers slots');
     }
 
+    #[Then('ses premiers créneaux sont :')]
+    public function itsFirstSlotsAre(TableNode $table): void
+    {
+        $expected = array_map(static fn (array $row): string => $row[0], $table->getRows());
+        Expect::same($expected, array_slice($this->slotsOffered(), 0, count($expected)));
+    }
+
+    #[Then('/^aucun créneau n\'est le '.self::FIRST_DAY.'$/')]
+    public function noSlotIsOn(string $first): void
+    {
+        $onThatDay = array_filter($this->slotsOffered(), static fn (string $slot): bool => str_contains($slot, $first));
+        Expect::same([], array_values($onThatDay));
+    }
+
+    #[Then('/^le dernier créneau est le (?<slot>\w+ \d{2}\/\d{2}\/\d{4} à \d{1,2}h\d{2})$/u')]
+    public function theLastSlotIs(string $slot): void
+    {
+        $offered = $this->slotsOffered();
+        Expect::same(str_replace([' à ', 'h'], [' ', ':'], $slot), end($offered));
+    }
+
+    #[Then('/^le créneau du '.self::FIRST_DAY.' à (?<time>\d{1,2}h\d{2}) n\'est pas libre$/u')]
+    public function theSlotIsNotFree(string $first, string $time): void
+    {
+        $slot = sprintf('%s %s', $first, self::time($time));
+        Expect::same([], array_values(array_filter($this->slotsOffered(), static fn (string $offered): bool => str_ends_with($offered, $slot))));
+    }
+
+    #[When('on ouvre l\'ancien lien')]
+    public function someoneOpensTheFormerLink(): void
+    {
+        $this->someoneOpensThePublicLink($this->formerCode ?? '');
+    }
+
+    #[Then('il ne montre rien, sans dire pourquoi')]
+    public function itShowsNothingWithoutSayingWhy(): void
+    {
+        Expect::same(get_object_vars(PublicBookingPage::unavailable()), null === $this->opened ? null : get_object_vars($this->opened));
+    }
+
     #[Then('il propose la visio seulement')]
     public function itOffersTheVideoCallOnly(): void
     {
@@ -294,8 +334,19 @@ final class BookingContext implements Context
     #[Then('l\'ancien lien ne mène plus à rien')]
     public function theFormerLinkLeadsNowhere(): void
     {
-        $this->someoneOpensThePublicLink($this->formerCode ?? '');
-        $this->scenario->itIsNotFound();
+        $this->someoneOpensTheFormerLink();
+        $this->itShowsNothingWithoutSayingWhy();
+    }
+
+    /**
+     * @return list<string> each slot written as the scenarios do, `mardi 24/11/2026 09:00`, on the clock of the host
+     */
+    private function slotsOffered(): array
+    {
+        $weekdays = array_flip(self::WEEKDAYS);
+        $slots = array_merge(...array_map(static fn (array $day): array => $day['slots'], $this->opened->days ?? []));
+
+        return array_map(static fn (string $slot): string => sprintf('%s %s', $weekdays[strtolower(new \DateTimeImmutable($slot)->format('l'))], new \DateTimeImmutable($slot)->format('d/m/Y H:i')), $slots);
     }
 
     /**
