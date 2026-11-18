@@ -35,10 +35,14 @@ final class Person implements ReleasesEvents
 {
     use RecordsEvents;
 
+    private const int FORMER_LINKEDIN_PROFILES_KEPT = 3;
+
     private ?File $picture = null;
     private ?string $jobTitle = null;
     private Civility $civility = Civility::X;
     private ?LinkedInProfile $linkedInProfile = null;
+    /** @var list<LinkedInProfile> */
+    private array $formerLinkedInProfiles = [];
     private \DateTimeImmutable $modifiedAt;
 
     private function __construct(
@@ -144,6 +148,21 @@ final class Person implements ReleasesEvents
         return $this->linkedInProfile;
     }
 
+    public function holdsLinkedInProfile(LinkedInProfile $profile): bool
+    {
+        return array_any($this->linkedInProfilesHeld(), static fn (LinkedInProfile $held): bool => $held->value === $profile->value);
+    }
+
+    /**
+     * Their profile and the former ones, which still recognize them.
+     *
+     * @return list<LinkedInProfile>
+     */
+    public function linkedInProfilesHeld(): array
+    {
+        return [...(null === $this->linkedInProfile ? [] : [$this->linkedInProfile]), ...$this->formerLinkedInProfiles];
+    }
+
     /**
      * A person is found by the beginning of their last name, of their first name or of their email.
      */
@@ -183,7 +202,7 @@ final class Person implements ReleasesEvents
     {
         $this->ensurePossible(PersonIntent::ChangeContactDetails, $by);
         $this->contactDetails = $contactDetails;
-        $this->linkedInProfile = $linkedInProfile;
+        $this->noteLinkedInProfile($linkedInProfile);
         $this->modifiedAt = $at;
         $this->recordThat(new PersonContactDetailsChanged($this->accountId, $by->id, $this->id, $at));
     }
@@ -206,6 +225,17 @@ final class Person implements ReleasesEvents
     {
         $this->ensurePossible(PersonIntent::Forget, $by);
         $this->recordThat(new ContactForgotten($this->accountId, $by->id, $this->id, $at));
+    }
+
+    /**
+     * The profiles they held but the one noted now, the most recent first, the last ones only: a contact forgotten
+     * costs a write per profile it holds.
+     */
+    private function noteLinkedInProfile(?LinkedInProfile $profile): void
+    {
+        $formers = array_filter($this->linkedInProfilesHeld(), static fn (LinkedInProfile $held): bool => $held->value !== $profile?->value);
+        $this->formerLinkedInProfiles = array_slice(array_values($formers), 0, self::FORMER_LINKEDIN_PROFILES_KEPT);
+        $this->linkedInProfile = $profile;
     }
 
     private function ensureReachableBy(Reader $reader): void
