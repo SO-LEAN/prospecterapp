@@ -133,7 +133,7 @@ function theApiAnswers({ refusing }: { refusing?: string } = {}) {
         _links: { self: { href: '/api/me/reminders', method: 'GET' } },
       },
       '/api/me/day': { today: [], next: [], _links: { self: { href: '/api/me/day', method: 'GET' } } },
-      '/api/me/exchanges-to-process': { items: [], toDos: [], _links: {} },
+      '/api/me/exchanges-to-process': { items: [], toDos: [], contactsToAttach: [], _links: {} },
       [`/api/campaigns/${CAMPAIGN}`]: started,
       [`/api/campaigns/${CAMPAIGN}/recipients`]: recipients,
       [`/api/campaigns/${CAMPAIGN}/messages/${ADA}`]: { subject: null, text: 'Pitch pour Ada' },
