@@ -8,6 +8,7 @@ final readonly class LegalIdentityResource
         public ?string $corporateName,
         public ?string $form,
         public ?string $type,
+        public ?string $siret,
     ) {
     }
 }

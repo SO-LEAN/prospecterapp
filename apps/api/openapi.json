@@ -1559,7 +1559,7 @@
                 "tags": [
                     "Organizations"
                 ],
-                "summary": "Revise the legal identity (corporate name, form, type), nothing else changes",
+                "summary": "Revise the legal identity (corporate name, form, type, SIRET), nothing else changes",
                 "operationId": "patch_api_organizations_revise_legal_identity",
                 "parameters": [
                     {
@@ -1577,7 +1577,7 @@
                     "content": {
                         "application/json": {
                             "schema": {
-                                "$ref": "#/components/schemas/LegalIdentityInput"
+                                "$ref": "#/components/schemas/ReviseLegalIdentityInput"
                             }
                         }
                     }
@@ -1617,7 +1617,7 @@
                         }
                     },
                     "422": {
-                        "description": "Invalid identity, or neither corporate name nor email left",
+                        "description": "Invalid identity or SIRET, a SIRET another organization of the account has, or neither corporate name nor email left",
                         "content": {
                             "application/json": {
                                 "schema": {
@@ -7847,6 +7847,35 @@
                 },
                 "type": "object"
             },
+            "ReviseLegalIdentityInput": {
+                "properties": {
+                    "corporateName": {
+                        "type": "string",
+                        "nullable": true,
+                        "default": null,
+                        "maxLength": 150
+                    },
+                    "form": {
+                        "type": "string",
+                        "nullable": true,
+                        "default": null,
+                        "maxLength": 50
+                    },
+                    "type": {
+                        "type": "string",
+                        "nullable": true,
+                        "default": null,
+                        "maxLength": 50
+                    },
+                    "siret": {
+                        "type": "string",
+                        "nullable": true,
+                        "default": null,
+                        "maxLength": 20
+                    }
+                },
+                "type": "object"
+            },
             "OrganizationListQuery": {
                 "properties": {
                     "q": {
@@ -8640,6 +8669,10 @@
                         "nullable": true
                     },
                     "type": {
+                        "type": "string",
+                        "nullable": true
+                    },
+                    "siret": {
                         "type": "string",
                         "nullable": true
                     }

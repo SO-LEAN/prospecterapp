@@ -66,7 +66,7 @@ final class AccountResourcePresenter implements ConsultPersonOutput
         $account = $this->account;
 
         return new AccountOrganizationResource(
-            new LegalIdentityResource($account->organizationCorporateName, $account->organizationForm, $account->organizationType),
+            new LegalIdentityResource($account->organizationCorporateName, $account->organizationForm, $account->organizationType, null),
             $this->imageResourceFactory->create($account->organizationLogo?->url),
             AddressResource::orNone($account->organizationStreet, $account->organizationPostalCode, $account->organizationCity, $account->organizationCountry),
             LocationResource::orNone($account->organizationLatitude, $account->organizationLongitude),
