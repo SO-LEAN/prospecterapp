@@ -32,6 +32,7 @@ import {
 } from '../mutations'
 import { type ExchangeDetail, exchangeQuery } from '../queries'
 import { correctionOf } from '../schema'
+import { CampaignOfTheExchange } from './campaign-of-the-exchange'
 import { ExchangeAttachments } from './exchange-attachments'
 import { ExchangeForm } from './exchange-form'
 import { ExchangeSummary } from './exchange-line'
@@ -220,6 +221,9 @@ function Exchange({
           </div>
         )}
       </ExchangeSummary>
+      {exchange.campaign && (
+        <CampaignOfTheExchange campaign={exchange.campaign} linked={Boolean(exchange._links.campaign)} />
+      )}
       <Venue exchange={exchange} />
       {exchange.status === 'planned' && <GoogleSync exchangeId={exchange.id} />}
       <div className="space-y-1 text-muted-foreground text-xs">

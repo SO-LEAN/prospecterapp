@@ -541,6 +541,7 @@ export const fr = {
     toMakeConformCount_other: '{{count}} à rendre conformes',
     onlyToMakeConform: 'Afficher seulement les échanges à rendre conformes',
     madeConform: 'Rendu conforme',
+    campaign: { named: 'Campagne : {{name}}', erased: 'Campagne effacée' },
     upcoming: 'À venir',
     past: 'Passés',
     statuses: { planned: 'À venir', done: 'Fait', missed: 'Manqué', cancelled: 'Annulé' },
