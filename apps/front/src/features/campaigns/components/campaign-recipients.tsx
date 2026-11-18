@@ -104,7 +104,7 @@ function RecipientItems({ campaignId, recipients, previewed, onPreview }: Recipi
               </span>
             </button>
             <Badge variant="secondary">
-              {missed ? t('exchanges.statuses.missed') : t(`campaigns.recipients.status.${status}`)}
+              {missed ? t('campaigns.recipients.missed') : t(`campaigns.recipients.status.${status}`)}
             </Badge>
             {_links.remove && (
               <Button
