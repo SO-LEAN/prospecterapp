@@ -24,8 +24,6 @@ use Tests\App\Base\ApiTestCase;
  */
 class DynamoUnitOfWorkTest extends ApiTestCase
 {
-    private const string AT = '2026-10-15 09:00 UTC';
-
     private DynamoUnitOfWork $unitOfWork;
     private Table $table;
 
@@ -287,6 +285,6 @@ class DynamoUnitOfWorkTest extends ApiTestCase
 
     private function personWithTheEmail(AccountId $account, string $email): Person
     {
-        return Person::collect(new PersonId(self::newIdentity()), $account, Purpose::Prospecting, new \DateTimeImmutable(self::AT), contactDetails: new ContactDetails(new Email($email)));
+        return Person::collect(new PersonId(self::newIdentity()), $account, Purpose::Prospecting, new \DateTimeImmutable(self::THE_MOMENT_OF_THE_TESTS), contactDetails: new ContactDetails(new Email($email)));
     }
 }

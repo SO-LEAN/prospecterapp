@@ -22,8 +22,6 @@ class QueuedIntegrationEventConsumerTest extends ApiTestCase
 {
     use InvokesTheWorker;
 
-    private const string AT = '2026-10-15 09:00 UTC';
-
     private const string SUBSCRIPTION = 'prospecting-failing-reaction';
     private const int LAST_RECEIVE = 3;
 
@@ -110,6 +108,6 @@ class QueuedIntegrationEventConsumerTest extends ApiTestCase
 
     private function observationsWritten(): ObservationsWritten
     {
-        return new ObservationsWritten(new AccountId(DemoData::SOLEAN_IT), new MemberId(DemoData::PROSPECTOR), new OrganizationId(self::newIdentity()), new \DateTimeImmutable(self::AT));
+        return new ObservationsWritten(new AccountId(DemoData::SOLEAN_IT), new MemberId(DemoData::PROSPECTOR), new OrganizationId(self::newIdentity()), new \DateTimeImmutable(self::THE_MOMENT_OF_THE_TESTS));
     }
 }

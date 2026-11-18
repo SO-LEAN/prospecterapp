@@ -32,8 +32,6 @@ use Tests\App\Base\ApiTestCase;
 #[Group('api')]
 class ExchangeApiTest extends ApiTestCase
 {
-    private const string AT = '2026-10-15 09:00 UTC';
-
     private const string ATTACHMENT = '0190a1c0-0000-7000-8000-0000000000a1';
 
     protected function setUp(): void
@@ -351,9 +349,9 @@ class ExchangeApiTest extends ApiTestCase
 
     private function anExchangeOfAnotherAccount(): string
     {
-        $competitor = Account::open(new AccountId(self::newIdentity()), new LegalIdentity('Competitor'), new \DateTimeImmutable(self::AT));
+        $competitor = Account::open(new AccountId(self::newIdentity()), new LegalIdentity('Competitor'), new \DateTimeImmutable(self::THE_MOMENT_OF_THE_TESTS));
         self::getContainer()->get(AccountRepository::class)->save($competitor);
-        $theirs = Organization::prospectedBy(new Prospector(new MemberId(self::newIdentity()), $competitor->id()), new OrganizationId(self::newIdentity()), new LegalIdentity('Their prospect'), new ContactDetails(), new \DateTimeImmutable(self::AT));
+        $theirs = Organization::prospectedBy(new Prospector(new MemberId(self::newIdentity()), $competitor->id()), new OrganizationId(self::newIdentity()), new LegalIdentity('Their prospect'), new ContactDetails(), new \DateTimeImmutable(self::THE_MOMENT_OF_THE_TESTS));
         self::getContainer()->get(OrganizationRepository::class)->save($theirs);
         $exchange = Exchange::notedWithTheOrganization($theirs, new MemberId(self::newIdentity()), new ExchangeId(self::newIdentity()), new ExchangeFacts(Channel::Call, Direction::Inbound, new \DateTimeImmutable('2026-10-14')), ExchangeStatus::Done, new \DateTimeImmutable('2026-10-14'));
         $exchange->attach(new Attachment(new AttachmentId(self::ATTACHMENT), 'devis.pdf', 2048, 'application/pdf', 'their-file'), new MemberId(self::newIdentity()), new \DateTimeImmutable('2026-10-14'));

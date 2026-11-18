@@ -24,8 +24,6 @@ use Tests\App\Double\OutsideServices;
 #[Group('api')]
 class TagsApiTest extends ApiTestCase
 {
-    private const string AT = '2026-10-15 09:00 UTC';
-
     private const string ILLKIRCH = '67218';
     private const string NANTES = '44109';
 
@@ -205,7 +203,7 @@ class TagsApiTest extends ApiTestCase
         $this->assertResponseStatusCodeSame(404);
         $this->assertSame('unknownContact', $unknown['reason']);
 
-        $ofAnotherAccount = Person::collect(new PersonId(self::newIdentity()), new AccountId(self::newIdentity()), Purpose::Prospecting, new \DateTimeImmutable(self::AT), new PersonName('Linus', 'Torvalds'));
+        $ofAnotherAccount = Person::collect(new PersonId(self::newIdentity()), new AccountId(self::newIdentity()), Purpose::Prospecting, new \DateTimeImmutable(self::THE_MOMENT_OF_THE_TESTS), new PersonName('Linus', 'Torvalds'));
         self::getContainer()->get(PersonRepository::class)->save($ofAnotherAccount);
         $theirs = $this->requestJson('GET', '/api/contacts/'.$ofAnotherAccount->id()->value.'/tags');
 

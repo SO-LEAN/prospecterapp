@@ -21,8 +21,6 @@ use Tests\App\Base\ApiTestCase;
  */
 class DynamoOrganizationOfContactRetrieverTest extends ApiTestCase
 {
-    private const string AT = '2026-10-15 09:00 UTC';
-
     public function testEachContactComesWithTheOrganizationsOfTheAccountNamingThem(): void
     {
         $prospector = new Prospector(new MemberId(self::newIdentity()), new AccountId(self::newIdentity()));
@@ -43,10 +41,10 @@ class DynamoOrganizationOfContactRetrieverTest extends ApiTestCase
 
     private function prospect(Prospector $prospector, string $corporateName, PersonId ...$contacts): Organization
     {
-        $organization = Organization::prospectedBy($prospector, new OrganizationId(self::newIdentity()), new LegalIdentity($corporateName), new ContactDetails(), new \DateTimeImmutable(self::AT));
+        $organization = Organization::prospectedBy($prospector, new OrganizationId(self::newIdentity()), new LegalIdentity($corporateName), new ContactDetails(), new \DateTimeImmutable(self::THE_MOMENT_OF_THE_TESTS));
 
         foreach ($contacts as $contact) {
-            $organization->addContact($contact, $prospector->id, new \DateTimeImmutable(self::AT));
+            $organization->addContact($contact, $prospector->id, new \DateTimeImmutable(self::THE_MOMENT_OF_THE_TESTS));
         }
 
         self::getContainer()->get(OrganizationRepository::class)->save($organization);

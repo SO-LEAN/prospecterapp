@@ -30,8 +30,6 @@ use Tests\App\Base\ApiTestCase;
  */
 class DynamoPersonalDataRetrieversTest extends ApiTestCase
 {
-    private const string AT = '2026-10-15 09:00 UTC';
-
     private AccountId $account;
 
     protected function setUp(): void
@@ -65,7 +63,7 @@ class DynamoPersonalDataRetrieversTest extends ApiTestCase
 
     public function testThePersonReadsThemselfInClearAndChangesTheirDataButIsNotForgotten(): void
     {
-        $me = Person::collect(new PersonId(self::newIdentity()), $this->account, Purpose::Membership, new \DateTimeImmutable(self::AT), new PersonName('Grace', 'Hopper'));
+        $me = Person::collect(new PersonId(self::newIdentity()), $this->account, Purpose::Membership, new \DateTimeImmutable(self::THE_MOMENT_OF_THE_TESTS), new PersonName('Grace', 'Hopper'));
         $this->persons()->save($me);
 
         $card = $this->cardOf($me, new Reader(new MemberId(self::newIdentity()), $this->account, $me->id(), false));
@@ -184,8 +182,8 @@ class DynamoPersonalDataRetrieversTest extends ApiTestCase
     private function aContact(string $firstName, string $lastName): Person
     {
         $email = new Email(strtolower($firstName).'@'.strtolower($lastName).'.test');
-        $contact = Person::collect(new PersonId(self::newIdentity()), $this->account, Purpose::Prospecting, new \DateTimeImmutable(self::AT), new PersonName($firstName, $lastName), new ContactDetails($email, PhoneNumber::of('03 88 00 00 00')));
-        $contact->changePicture(new File('https://static.test/'.$lastName.'.png', 'png', 1024), $this->readerWithTheRight(), new \DateTimeImmutable(self::AT));
+        $contact = Person::collect(new PersonId(self::newIdentity()), $this->account, Purpose::Prospecting, new \DateTimeImmutable(self::THE_MOMENT_OF_THE_TESTS), new PersonName($firstName, $lastName), new ContactDetails($email, PhoneNumber::of('03 88 00 00 00')));
+        $contact->changePicture(new File('https://static.test/'.$lastName.'.png', 'png', 1024), $this->readerWithTheRight(), new \DateTimeImmutable(self::THE_MOMENT_OF_THE_TESTS));
         $this->persons()->save($contact);
 
         return $contact;

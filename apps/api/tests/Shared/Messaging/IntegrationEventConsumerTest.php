@@ -42,8 +42,6 @@ class IntegrationEventConsumerTest extends ApiTestCase
     use DeliversThroughTheOutbox;
     use InvokesTheWorker;
 
-    private const string AT = '2026-10-15 09:00 UTC';
-
     private string $organization;
     private string $contact;
 
@@ -192,8 +190,8 @@ class IntegrationEventConsumerTest extends ApiTestCase
     {
         $this->rebuildTheFigures();
         $before = $this->figures();
-        $organization = new OrganizationFactsChanged(DemoData::SOLEAN_IT, self::newIdentity(), 1, true, true, [], null, null, new \DateTimeImmutable(self::AT));
-        $contact = new ContactFactsChanged(DemoData::SOLEAN_IT, self::newIdentity(), 1, true, false, false, false, false, new \DateTimeImmutable(self::AT));
+        $organization = new OrganizationFactsChanged(DemoData::SOLEAN_IT, self::newIdentity(), 1, true, true, [], null, null, new \DateTimeImmutable(self::THE_MOMENT_OF_THE_TESTS));
+        $contact = new ContactFactsChanged(DemoData::SOLEAN_IT, self::newIdentity(), 1, true, false, false, false, false, new \DateTimeImmutable(self::THE_MOMENT_OF_THE_TESTS));
 
         $this->consume($this->invocationOf('reporting-figures', $organization));
         $this->consume($this->invocationOf('reporting-figures', $contact));
@@ -270,21 +268,21 @@ class IntegrationEventConsumerTest extends ApiTestCase
     {
         $versions = self::getContainer()->get(ProjectionVersions::class);
 
-        return self::getContainer()->get(FiguresRetriever::class)->of((int) $versions->active(), new AccountId(DemoData::SOLEAN_IT), Month::of(new \DateTimeImmutable(self::AT)));
+        return self::getContainer()->get(FiguresRetriever::class)->of((int) $versions->active(), new AccountId(DemoData::SOLEAN_IT), Month::of(new \DateTimeImmutable(self::THE_MOMENT_OF_THE_TESTS)));
     }
 
     private function prospectingStopped(): ProspectingStopped
     {
-        return new ProspectingStopped(new AccountId(DemoData::SOLEAN_IT), new MemberId(DemoData::PROSPECTOR), new OrganizationId($this->organization), new \DateTimeImmutable(self::AT));
+        return new ProspectingStopped(new AccountId(DemoData::SOLEAN_IT), new MemberId(DemoData::PROSPECTOR), new OrganizationId($this->organization), new \DateTimeImmutable(self::THE_MOMENT_OF_THE_TESTS));
     }
 
     private function observationsWritten(): ObservationsWritten
     {
-        return new ObservationsWritten(new AccountId(DemoData::SOLEAN_IT), new MemberId(DemoData::PROSPECTOR), new OrganizationId($this->organization), new \DateTimeImmutable(self::AT));
+        return new ObservationsWritten(new AccountId(DemoData::SOLEAN_IT), new MemberId(DemoData::PROSPECTOR), new OrganizationId($this->organization), new \DateTimeImmutable(self::THE_MOMENT_OF_THE_TESTS));
     }
 
     private function contactForgotten(): ContactForgotten
     {
-        return new ContactForgotten(DemoData::SOLEAN_IT, DemoData::PROSPECTOR, $this->contact, new \DateTimeImmutable(self::AT));
+        return new ContactForgotten(DemoData::SOLEAN_IT, DemoData::PROSPECTOR, $this->contact, new \DateTimeImmutable(self::THE_MOMENT_OF_THE_TESTS));
     }
 }
