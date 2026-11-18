@@ -5073,6 +5073,60 @@
                 }
             }
         },
+        "/api/me/connections/google/gmail-import/authorizations": {
+            "post": {
+                "tags": [
+                    "Connectors"
+                ],
+                "summary": "Ask Google for the reading of my mailbox with my calendar, to import my e-mails of Gmail (ADR 0154): the browser goes to the address answered, Google brings it back to the SPA with a code to give to POST /api/me/connections/google within ten minutes",
+                "operationId": "post_api_me_connections_google_import_gmail",
+                "responses": {
+                    "201": {
+                        "description": "The authorization asked",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/AuthorizationResource"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Missing or invalid access token"
+                    },
+                    "403": {
+                        "description": "The signed-in user has no right to manage the personal data",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ProblemResource"
+                                }
+                            }
+                        }
+                    },
+                    "409": {
+                        "description": "No client of Prospecter at Google serves the account (`providerUnavailable`), or it has no topic of Gmail (`mailImportUnavailable`): the link `importGmail` is missing",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ProblemResource"
+                                }
+                            }
+                        }
+                    },
+                    "503": {
+                        "description": "The secret of the client cannot be kept nor read for now (`secretsUnavailable`)",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ProblemResource"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
         "/api/me/connections/checks": {
             "post": {
                 "tags": [
@@ -5674,6 +5728,50 @@
                     },
                     "404": {
                         "description": "Unknown exchange, or one of another account",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ProblemResource"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/me/connections/google/gmail-import": {
+            "delete": {
+                "tags": [
+                    "Connectors"
+                ],
+                "summary": "Stop the import of my e-mails of Gmail: my mailbox no longer notifies Prospecter, the exchanges already imported stay, my calendar stays connected (ADR 0154)",
+                "operationId": "delete_api_me_connections_google_stop_gmail_import",
+                "responses": {
+                    "200": {
+                        "description": "My connections, the import of Gmail off",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ConnectionsResource"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Missing or invalid access token"
+                    },
+                    "403": {
+                        "description": "The signed-in user is not a user",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ProblemResource"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "No connection to Google",
                         "content": {
                             "application/json": {
                                 "schema": {
@@ -10480,6 +10578,12 @@
                     },
                     "retryFailed": {
                         "$ref": "#/components/schemas/LinkResource"
+                    },
+                    "importGmail": {
+                        "$ref": "#/components/schemas/LinkResource"
+                    },
+                    "stopGmailImport": {
+                        "$ref": "#/components/schemas/LinkResource"
                     }
                 },
                 "type": "object"
@@ -10492,6 +10596,7 @@
                     "connectedAt",
                     "synced",
                     "failed",
+                    "gmailImport",
                     "_links"
                 ],
                 "properties": {
@@ -10524,6 +10629,21 @@
                     "failed": {
                         "description": "My exchanges to come the provider refused",
                         "type": "integer"
+                    },
+                    "gmailImport": {
+                        "description": "Where the import of my e-mails of Gmail stands: off, active, or to reconnect once Google refused to renew it (ADR 0154)",
+                        "type": "string",
+                        "enum": [
+                            "off",
+                            "active",
+                            "toReconnect"
+                        ]
+                    },
+                    "lastGmailNotificationAt": {
+                        "description": "When my mailbox last notified Prospecter of a change, none while the import is off",
+                        "type": "string",
+                        "format": "date-time",
+                        "nullable": true
                     },
                     "_links": {
                         "$ref": "#/components/schemas/ConnectionLinksResource"

@@ -27,6 +27,8 @@ const connectionsWithGoogle = (state: 'connected' | 'toReconnect'): Connections 
       connectedAt: '2026-11-13T09:00:00+00:00',
       synced: 0,
       failed: 0,
+      gmailImport: 'off',
+      lastGmailNotificationAt: null,
       _links: { disconnect: { href: '/api/me/connections/google', method: 'DELETE' } },
     },
   ],

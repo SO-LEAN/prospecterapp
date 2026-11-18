@@ -17,6 +17,10 @@ final readonly class ConnectionLinksResource
         public ?LinkResource $reconnect = null,
         #[OA\Property(description: 'Push again every exchange to come the provider refused, while there is one', nullable: false)]
         public ?LinkResource $retryFailed = null,
+        #[OA\Property(description: 'Ask Google for the reading of my mailbox, to import my e-mails, while the account has a topic of Gmail, I may manage the personal data and the import is not active', nullable: false)]
+        public ?LinkResource $importGmail = null,
+        #[OA\Property(description: 'Stop the import of my e-mails, while it is not off', nullable: false)]
+        public ?LinkResource $stopGmailImport = null,
     ) {
     }
 }

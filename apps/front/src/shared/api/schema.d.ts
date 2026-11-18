@@ -1060,6 +1060,23 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/me/connections/google/gmail-import/authorizations": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Ask Google for the reading of my mailbox with my calendar, to import my e-mails of Gmail (ADR 0154): the browser goes to the address answered, Google brings it back to the SPA with a code to give to POST /api/me/connections/google within ten minutes */
+        post: operations["post_api_me_connections_google_import_gmail"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/me/connections/checks": {
         parameters: {
             query?: never;
@@ -1195,6 +1212,23 @@ export interface paths {
         /** Push an exchange into my calendar at Google again, as it is now; by its holder */
         post: operations["post_api_exchanges_google_sync_retry"];
         delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/me/connections/google/gmail-import": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        /** Stop the import of my e-mails of Gmail: my mailbox no longer notifies Prospecter, the exchanges already imported stay, my calendar stays connected (ADR 0154) */
+        delete: operations["delete_api_me_connections_google_stop_gmail_import"];
         options?: never;
         head?: never;
         patch?: never;
@@ -2774,6 +2808,8 @@ export interface components {
             disconnect: components["schemas"]["LinkResource"];
             reconnect?: components["schemas"]["LinkResource"];
             retryFailed?: components["schemas"]["LinkResource"];
+            importGmail?: components["schemas"]["LinkResource"];
+            stopGmailImport?: components["schemas"]["LinkResource"];
         };
         ConnectionResource: {
             /** @enum {string} */
@@ -2791,6 +2827,16 @@ export interface components {
             synced: number;
             /** @description My exchanges to come the provider refused */
             failed: number;
+            /**
+             * @description Where the import of my e-mails of Gmail stands: off, active, or to reconnect once Google refused to renew it (ADR 0154)
+             * @enum {string}
+             */
+            gmailImport: "off" | "active" | "toReconnect";
+            /**
+             * Format: date-time
+             * @description When my mailbox last notified Prospecter of a change, none while the import is off
+             */
+            lastGmailNotificationAt?: string | null;
             _links: components["schemas"]["ConnectionLinksResource"];
         };
         ConnectionsLinksResource: {
@@ -7311,6 +7357,60 @@ export interface operations {
             };
         };
     };
+    post_api_me_connections_google_import_gmail: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description The authorization asked */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AuthorizationResource"];
+                };
+            };
+            /** @description Missing or invalid access token */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description The signed-in user has no right to manage the personal data */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ProblemResource"];
+                };
+            };
+            /** @description No client of Prospecter at Google serves the account (`providerUnavailable`), or it has no topic of Gmail (`mailImportUnavailable`): the link `importGmail` is missing */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ProblemResource"];
+                };
+            };
+            /** @description The secret of the client cannot be kept nor read for now (`secretsUnavailable`) */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ProblemResource"];
+                };
+            };
+        };
+    };
     post_api_me_connections_check: {
         parameters: {
             query?: never;
@@ -7893,6 +7993,51 @@ export interface operations {
                 };
             };
             /** @description Unknown exchange, or one of another account */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ProblemResource"];
+                };
+            };
+        };
+    };
+    delete_api_me_connections_google_stop_gmail_import: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description My connections, the import of Gmail off */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ConnectionsResource"];
+                };
+            };
+            /** @description Missing or invalid access token */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description The signed-in user is not a user */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ProblemResource"];
+                };
+            };
+            /** @description No connection to Google */
             404: {
                 headers: {
                     [name: string]: unknown;

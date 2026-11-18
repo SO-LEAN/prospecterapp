@@ -23,6 +23,8 @@ const connection = (state: Connection['state'], synced = 0, failed = 0): Connect
   connectedAt: '2026-11-14T09:30:00+00:00',
   synced,
   failed,
+  gmailImport: 'off',
+  lastGmailNotificationAt: null,
   _links: {
     disconnect: { href: '/api/me/connections/google', method: 'DELETE' },
     reconnect: { href: '/api/me/connections/google/authorizations', method: 'POST' },

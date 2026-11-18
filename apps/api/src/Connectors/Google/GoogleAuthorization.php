@@ -29,11 +29,28 @@ final readonly class GoogleAuthorization
 
     public function addressOf(AuthorizationRequest $request, string $clientId): string
     {
+        return $this->address($request, $clientId, ['scope' => self::SCOPES]);
+    }
+
+    /**
+     * The reading of the mailbox asked with the calendar, by incremental consent: the token answered grants both, the
+     * scopes granted before kept (ADR 0154).
+     */
+    public function addressImportingGmailOf(AuthorizationRequest $request, string $clientId): string
+    {
+        return $this->address($request, $clientId, ['scope' => self::SCOPES.' '.self::GMAIL_SCOPE, 'include_granted_scopes' => 'true']);
+    }
+
+    /**
+     * @param array<string, string> $scopes
+     */
+    private function address(AuthorizationRequest $request, string $clientId, array $scopes): string
+    {
         return $this->endpoints->authorizationUrl.'?'.http_build_query([
             'client_id' => $clientId,
             'redirect_uri' => $this->endpoints->redirectUri,
             'response_type' => 'code',
-            'scope' => self::SCOPES,
+            ...$scopes,
             'access_type' => 'offline',
             'prompt' => 'consent',
             'state' => $request->state,

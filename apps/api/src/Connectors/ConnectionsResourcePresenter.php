@@ -7,6 +7,7 @@ use App\Connectors\Resource\ConnectionResource;
 use App\Connectors\Resource\ConnectionsLinksResource;
 use App\Connectors\Resource\ConnectionsResource;
 use App\Security\IntentLinks;
+use App\Security\User;
 use App\Shared\Links;
 use App\Shared\Resource\LinkResource;
 use Prospecter\Core\Connectors\Application\AccountClient;
@@ -15,13 +16,16 @@ use Prospecter\Core\Connectors\Application\MyConnection;
 
 /**
  * Presents my connections as the API shows them, an object of the call (ADR 0085): Google connected or reconnected
- * only while it is offered.
+ * only while it is offered; the import of my e-mails offered while the account has a topic of Gmail and I may manage
+ * the personal data, the role its controller requires (ADR 0081, 0154).
  */
 final class ConnectionsResourcePresenter implements ConsultMyConnectionsOutput
 {
     private const string GOOGLE = 'google';
     /** the role the controller of the client of the account requires (ADR 0081, 0125) */
     private const string CLIENT_OF_THE_ACCOUNT_ROLE = 'ROLE_ADMIN';
+    private const string ACTIVE = 'active';
+    private const string OFF = 'off';
 
     public private(set) ConnectionsResource $resource;
 
@@ -35,10 +39,12 @@ final class ConnectionsResourcePresenter implements ConsultMyConnectionsOutput
      */
     public function present(array $connections, array $offered): void
     {
-        $authorizeGoogle = array_any($offered, static fn (AccountClient $client): bool => self::GOOGLE === $client->provider) ? $this->links->to('api_me_connections_google_authorize') : null;
+        $google = array_find($offered, static fn (AccountClient $client): bool => self::GOOGLE === $client->provider);
+        $authorizeGoogle = null === $google ? null : $this->links->to('api_me_connections_google_authorize');
+        $importGmail = null !== $google?->mailboxTopic && $this->intentLinks->holds(User::PERSONAL_DATA) ? $this->links->to('api_me_connections_google_import_gmail') : null;
 
         $this->resource = new ConnectionsResource(
-            array_map(fn (MyConnection $connection): ConnectionResource => $this->connection($connection, $authorizeGoogle), $connections),
+            array_map(fn (MyConnection $connection): ConnectionResource => $this->connection($connection, $authorizeGoogle, $importGmail), $connections),
             new ConnectionsLinksResource(
                 $this->links->to('api_me_connections'),
                 $this->links->to('api_me_connections_check'),
@@ -48,7 +54,7 @@ final class ConnectionsResourcePresenter implements ConsultMyConnectionsOutput
         );
     }
 
-    private function connection(MyConnection $connection, ?LinkResource $reconnect): ConnectionResource
+    private function connection(MyConnection $connection, ?LinkResource $reconnect, ?LinkResource $importGmail): ConnectionResource
     {
         return new ConnectionResource(
             $connection->provider,
@@ -57,10 +63,14 @@ final class ConnectionsResourcePresenter implements ConsultMyConnectionsOutput
             $connection->connectedAt,
             $connection->synced,
             $connection->failed,
+            $connection->mailImport,
+            $connection->lastNotifiedAt,
             new ConnectionLinksResource(
                 $this->links->to('api_me_connections_google_disconnect'),
                 $reconnect,
                 $connection->failed > 0 ? $this->links->to('api_me_connections_google_retry_failed') : null,
+                self::ACTIVE === $connection->mailImport ? null : $importGmail,
+                self::OFF === $connection->mailImport ? null : $this->links->to('api_me_connections_google_stop_gmail_import'),
             ),
         );
     }

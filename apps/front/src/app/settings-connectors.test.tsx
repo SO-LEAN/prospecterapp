@@ -103,6 +103,8 @@ const connectedToGoogle: Connections = {
       connectedAt: '2026-11-02T09:30:00+00:00',
       synced: 0,
       failed: 0,
+      gmailImport: 'off',
+      lastGmailNotificationAt: null,
       _links: { disconnect: { href: DISCONNECT, method: 'DELETE' } },
     },
   ],
