@@ -106,6 +106,8 @@ use Prospecter\Core\Connectors\Application\AskForAuthorization\AskForAuthorizati
 use Prospecter\Core\Connectors\Application\CalendarPusher;
 use Prospecter\Core\Connectors\Application\CheckMyConnections\CheckMyConnectionsHandler;
 use Prospecter\Core\Connectors\Application\ConfigureClient\ConfigureClientHandler;
+use Prospecter\Core\Connectors\Application\ConfigureMailboxNotifications\ConfigureMailboxNotificationsHandler;
+use Prospecter\Core\Connectors\Application\RemoveMailboxNotifications\RemoveMailboxNotificationsHandler;
 use Prospecter\Core\Connectors\Application\Connect\ConnectHandler;
 use Prospecter\Core\Connectors\Application\ConsultExchangeSync\ConsultExchangeSync;
 use Prospecter\Core\Connectors\Application\ConsultExchangeSync\ConsultExchangeSyncHandler;
@@ -1180,6 +1182,8 @@ final class Application
             new DisconnectHandler($this->connections, $this->providerAccess, $this->events),
             new ConfigureClientHandler($this->clients, $this->connectingMembers, $this->events),
             new RemoveClientHandler($this->clients, $this->connectingMembers, $this->events),
+            new ConfigureMailboxNotificationsHandler($this->clients, $this->connectingMembers, $this->events),
+            new RemoveMailboxNotificationsHandler($this->clients, $this->connectingMembers, $this->events),
             new RetryPushHandler($this->heldExchanges, $this->calendarEntries, $this->connectingMembers, $this->calendarPusher),
             new RetryFailedPushesHandler($this->calendarEntries, $this->connectingMembers, $this->calendarPusher),
             new PutTagsHandler($this->taggings, $this->taggers, $this->taggableHolders, $this->events),

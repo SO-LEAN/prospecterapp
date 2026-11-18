@@ -19,6 +19,7 @@ final class ProviderClient implements ReleasesEvents
 {
     use RecordsEvents;
 
+    private ?MailboxNotifications $mailboxNotifications = null;
     private \DateTimeImmutable $modifiedAt;
 
     private function __construct(
@@ -43,6 +44,26 @@ final class ProviderClient implements ReleasesEvents
     public function replaceBy(ClientCredentials $credentials, MemberId $by, \DateTimeImmutable $at): void
     {
         $this->credentials = $credentials;
+        $this->modifiedAt = $at;
+        $this->recordThat(new ClientConfigured($this->accountId, $by, $at));
+    }
+
+    /**
+     * The mailboxes of the members notify Prospecter through this topic from now on (ADR 0154).
+     */
+    public function notifyMailboxesThrough(MailboxNotifications $notifications, MemberId $by, \DateTimeImmutable $at): void
+    {
+        $this->mailboxNotifications = $notifications;
+        $this->modifiedAt = $at;
+        $this->recordThat(new ClientConfigured($this->accountId, $by, $at));
+    }
+
+    /**
+     * The mailboxes of the members no longer notify Prospecter: the import of their e-mails is no longer offered.
+     */
+    public function stopMailboxNotificationsBy(MemberId $by, \DateTimeImmutable $at): void
+    {
+        $this->mailboxNotifications = null;
         $this->modifiedAt = $at;
         $this->recordThat(new ClientConfigured($this->accountId, $by, $at));
     }

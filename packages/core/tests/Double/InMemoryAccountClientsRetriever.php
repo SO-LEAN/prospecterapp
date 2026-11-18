@@ -25,8 +25,8 @@ final readonly class InMemoryAccountClientsRetriever implements AccountClientsRe
 
     private static function withoutItsSecret(ProviderClient $client): AccountClient
     {
-        $credentials = StateOf::the($client)['credentials'];
+        $state = StateOf::the($client);
 
-        return new AccountClient($credentials->provider->value, $credentials->id);
+        return new AccountClient($state['credentials']->provider->value, $state['credentials']->id, $state['mailboxNotifications']?->topic, $state['mailboxNotifications']?->pushAccount->value);
     }
 }

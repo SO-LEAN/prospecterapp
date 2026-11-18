@@ -10,7 +10,9 @@ use Behat\Step\Then;
 use Behat\Step\When;
 use Prospecter\Core\Connectors\Application\AccountClient;
 use Prospecter\Core\Connectors\Application\ConfigureClient\ConfigureClient;
+use Prospecter\Core\Connectors\Application\ConfigureMailboxNotifications\ConfigureMailboxNotifications;
 use Prospecter\Core\Connectors\Application\RemoveClient\RemoveClient;
+use Prospecter\Core\Connectors\Application\RemoveMailboxNotifications\RemoveMailboxNotifications;
 use Prospecter\Core\Connectors\Domain\Model\ClientCredentials;
 use Prospecter\Core\Connectors\Domain\Model\Provider;
 use Prospecter\Core\Connectors\Domain\Model\ProviderClient;
@@ -64,7 +66,35 @@ final class GoogleClientContext implements Context
     #[Then('le client Google de mon compte est :id, son secret renseigné')]
     public function myClientIs(string $id): void
     {
-        Expect::same(['provider' => self::GOOGLE, 'clientId' => $id], get_object_vars($this->myGoogleClient() ?? throw new \LogicException('A client of Google was expected')));
+        $client = $this->myGoogleClient() ?? throw new \LogicException('A client of Google was expected');
+
+        Expect::same(['provider' => self::GOOGLE, 'clientId' => $id], ['provider' => $client->provider, 'clientId' => $client->clientId]);
+    }
+
+    #[When('je renseigne le topic Pub\\/Sub :topic poussé par :pushAccount')]
+    public function iConfigureTheMailboxNotifications(string $topic, string $pushAccount): void
+    {
+        $this->application->dispatch(new ConfigureMailboxNotifications($this->application->signedIn(), self::GOOGLE, $topic, $pushAccount, $this->application->now()));
+    }
+
+    #[When('je retire le topic Pub\\/Sub de mon compte')]
+    public function iRemoveTheMailboxNotifications(): void
+    {
+        $this->application->dispatch(new RemoveMailboxNotifications($this->application->signedIn(), self::GOOGLE, $this->application->now()));
+    }
+
+    #[Then('le client Google de mon compte a le topic Pub\\/Sub :topic poussé par :pushAccount')]
+    public function myClientNotifiesThrough(?string $topic, ?string $pushAccount): void
+    {
+        $client = $this->myGoogleClient();
+
+        Expect::same([$topic, $pushAccount], [$client?->mailboxTopic, $client?->mailboxPushAccount]);
+    }
+
+    #[Then('le client Google de mon compte n\'a pas de topic Pub\\/Sub')]
+    public function myClientHasNoTopic(): void
+    {
+        $this->myClientNotifiesThrough(null, null);
     }
 
     private function myGoogleClient(): ?AccountClient

@@ -927,6 +927,7 @@ export const fr = {
     notTheAdministrator: 'Seul un administrateur du compte configure ses connecteurs.',
     noClient: 'Le compte n’a pas de client Google.',
     incompleteClient: 'Un client Google a besoin de son identifiant et de son secret.',
+    invalidTopic: 'Un topic se nomme en entier : projects/<projet>/topics/<topic>.',
     accessRevoked: 'Google n’accorde plus l’accès : connectez votre compte à nouveau.',
     calendarGone: 'L’agenda Prospecter n’est plus dans Google.',
     calendarRefusedThePush: 'Google a refusé l’événement de l’échange.',
