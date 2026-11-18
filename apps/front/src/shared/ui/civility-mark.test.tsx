@@ -4,7 +4,7 @@ import { describe, expect, it } from 'vitest'
 import { CivilityMark } from './civility-mark'
 import { TooltipProvider } from './tooltip'
 
-function renderTheMark(civility: 'madame' | 'monsieur' | null | undefined) {
+function renderTheMark(civility: 'ms' | 'mr' | null | undefined) {
   render(
     <TooltipProvider>
       <CivilityMark civility={civility} />
@@ -15,7 +15,7 @@ function renderTheMark(civility: 'madame' | 'monsieur' | null | undefined) {
 
 describe('the mark of the civility of a contact', () => {
   it('is named Madame, and says so on hover', async () => {
-    const user = renderTheMark('madame')
+    const user = renderTheMark('ms')
 
     await user.hover(screen.getByRole('img', { name: 'Madame' }))
 
@@ -23,7 +23,7 @@ describe('the mark of the civility of a contact', () => {
   })
 
   it('is named Monsieur, and says so on hover', async () => {
-    const user = renderTheMark('monsieur')
+    const user = renderTheMark('mr')
 
     await user.hover(screen.getByRole('img', { name: 'Monsieur' }))
 

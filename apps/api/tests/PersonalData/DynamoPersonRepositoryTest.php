@@ -86,7 +86,7 @@ class DynamoPersonRepositoryTest extends ApiTestCase
     {
         $persons = self::getContainer()->get(PersonRepository::class);
         $camille = $this->personWithTheEmail(new AccountId(self::newIdentity()), 'camille@solean-it.io');
-        $camille->changeCivility(Civility::Monsieur, by: new Reader(new MemberId(self::newIdentity()), $camille->accountId(), new PersonId(self::newIdentity()), readsPersonalData: true), at: new \DateTimeImmutable());
+        $camille->changeCivility(Civility::Mr, by: new Reader(new MemberId(self::newIdentity()), $camille->accountId(), new PersonId(self::newIdentity()), readsPersonalData: true), at: new \DateTimeImmutable());
         $camille->releaseEvents();
         $persons->save($camille);
 

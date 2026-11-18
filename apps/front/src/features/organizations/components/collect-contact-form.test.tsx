@@ -39,7 +39,7 @@ describe('CollectContactForm', () => {
     await user.click(screen.getByRole('option', { name: 'Madame' }))
     await user.click(screen.getByRole('button', { name: 'Enregistrer le contact' }))
 
-    expect(onSubmit).toHaveBeenCalledWith(expect.objectContaining({ civility: 'madame' }))
+    expect(onSubmit).toHaveBeenCalledWith(expect.objectContaining({ civility: 'ms' }))
   })
 
   it('sends the LinkedIn profile as typed, the API keeping it in one form', async () => {

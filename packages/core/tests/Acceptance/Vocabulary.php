@@ -121,8 +121,8 @@ final class Vocabulary
 
     /** The civilities as a table names them, by their value in the requests. */
     private const array CIVILITIES = [
-        'Madame' => 'madame',
-        'Monsieur' => 'monsieur',
+        'Madame' => 'ms',
+        'Monsieur' => 'mr',
     ];
 
     private const array LABELS = [
