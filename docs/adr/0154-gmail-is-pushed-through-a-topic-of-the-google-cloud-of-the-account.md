@@ -34,6 +34,7 @@ What the spike found at Google: `gmail.readonly` is *restricted*, but an interna
 - Changing the client, or its topic, makes nothing reconnect, but the watch follows the topic only at its next renewal, within a day.
 - The quotes are removed as the parser recognizes them: « Envoyé de mon iPhone » and a signature without `-- ` stay, the member correcting the text.
 - Locally and in the journeys, the push itself never runs: no Google reaches the stack.
+- The 1 MB of a put is checked in the region of the instances and on the bus of MiniStack by the ticket implementing the import: where it is still 256 KB, `IntegrationEventBus` groups its puts by size too.
 
 ## Alternatives considered
 
