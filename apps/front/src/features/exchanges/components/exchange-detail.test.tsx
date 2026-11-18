@@ -88,7 +88,7 @@ describe('ExchangeDetailSheet', () => {
       }),
     )
 
-    expect(screen.getByRole('link', { name: 'Campagne : Relance' })).toHaveAttribute(
+    expect(screen.getByRole('link', { name: 'Campagne\u00a0: Relance' })).toHaveAttribute(
       'href',
       `/campaigns/${CAMPAIGN}`,
     )
@@ -98,7 +98,7 @@ describe('ExchangeDetailSheet', () => {
     await renderTheDetail(anExchange({ campaign: { id: CAMPAIGN, name: 'Relance' } }))
 
     expect(screen.getByText('Campagne : Relance')).toBeInTheDocument()
-    expect(screen.queryByRole('link', { name: 'Campagne : Relance' })).not.toBeInTheDocument()
+    expect(screen.queryByRole('link', { name: 'Campagne\u00a0: Relance' })).not.toBeInTheDocument()
   })
 
   it('says the campaign it was noted in was erased', async () => {

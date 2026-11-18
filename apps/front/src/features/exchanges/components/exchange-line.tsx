@@ -11,7 +11,6 @@ import {
   Handshake,
   type LucideIcon,
   Mail,
-  Megaphone,
   MessageCircle,
   MessageSquareText,
   Paperclip,
@@ -25,6 +24,7 @@ import { useTranslation } from 'react-i18next'
 import { formatMoment, formatUpcoming } from '@/shared/lib/format'
 import { cn } from '@/shared/lib/utils'
 import { type Channel, directionWordsOf, type Exchange, type Interlocutor } from '../queries'
+import { CampaignOfTheExchangeForMe } from './campaign-of-the-exchange'
 import { ExchangeText, PersonalDataWarning } from './exchange-text'
 import { ToAttachBadge } from './to-attach-badge'
 
@@ -62,14 +62,16 @@ export const INTERLOCUTOR_ICONS: Record<Interlocutor['kind'], LucideIcon> = {
 /**
  * One exchange of the timeline: who communicated in the timeline of an organization, its summary, the
  * beginning of its text and how many files are joined to it; what is to make conform once its contact was
- * forgotten.
+ * forgotten; the campaign it was noted in, unless shown beside the line, out of the button opening its detail.
  */
 export function ExchangeLine({
   exchange,
   interlocutor,
+  campaignAside = false,
 }: {
   exchange: Exchange
   interlocutor?: Interlocutor
+  campaignAside?: boolean
 }) {
   return (
     <ExchangeSummary exchange={exchange} interlocutor={interlocutor}>
@@ -83,7 +85,11 @@ export function ExchangeLine({
       )}
       {exchange.toMakeConform && !exchange.textToMakeConform && <ToMakeConform />}
       {exchange.attachmentCount > 0 && <AttachmentCount count={exchange.attachmentCount} />}
-      {exchange.campaign?.name && <CampaignOfTheExchange name={exchange.campaign.name} />}
+      {!campaignAside && exchange.campaign && (
+        <div className="mt-1">
+          <CampaignOfTheExchangeForMe campaign={exchange.campaign} />
+        </div>
+      )}
     </ExchangeSummary>
   )
 }
@@ -228,16 +234,6 @@ function ToMakeConform() {
   const { t } = useTranslation()
 
   return <PersonalDataWarning warning={t('exchanges.toMakeConform')} />
-}
-
-/** The campaign it was noted in, as Campaigns names it now (ADR 0145). */
-function CampaignOfTheExchange({ name }: { name: string }) {
-  return (
-    <p className="mt-1 flex items-center gap-1 text-muted-foreground text-xs">
-      <Megaphone aria-hidden className="size-3.5" />
-      {name}
-    </p>
-  )
 }
 
 function AttachmentCount({ count }: { count: number }) {

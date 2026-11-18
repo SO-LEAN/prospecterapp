@@ -2,6 +2,8 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { screen, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { describe, expect, it } from 'vitest'
+import type { Account } from '@/features/account/mutations'
+import { accountQuery } from '@/features/account/queries'
 import { renderInARouter } from '@/test/render-in-a-router'
 import {
   type Exchange,
@@ -18,6 +20,7 @@ const timelineLink = { href: `/api/contacts/${ADA}/exchanges`, method: 'GET' }
 const noteLink = { href: `/api/contacts/${ADA}/exchanges`, method: 'POST' }
 
 const EXCHANGE = '0190a1c0-0000-7000-8000-000000000010'
+const CAMPAIGN = '0190a1c0-0000-7000-8000-00000000ca00'
 
 const anExchange = (exchange: Partial<Exchange>): Exchange => ({
   id: EXCHANGE,
@@ -41,10 +44,23 @@ const anExchange = (exchange: Partial<Exchange>): Exchange => ({
 const upcomingLink = { href: `/api/contacts/${ADA}/upcoming-exchanges`, method: 'GET' }
 const nothingToCome: Timeline = { items: [], _links: { self: upcomingLink } }
 
-async function renderTheSection(timeline: Timeline, detail?: ExchangeDetail, upcoming = nothingToCome) {
+const readingTheCampaigns: Account = {
+  name: { firstName: 'Grace', lastName: 'Hopper' },
+  contactDetails: { email: null, phoneNumber: null, language: null },
+  organization: { legalIdentity: { corporateName: 'Babbage & Co' } },
+  _links: { self: { href: '/api/me', method: 'GET' }, campaigns: { href: '/api/campaigns', method: 'GET' } },
+}
+
+async function renderTheSection(
+  timeline: Timeline,
+  detail?: ExchangeDetail,
+  upcoming = nothingToCome,
+  me: Account = { ...readingTheCampaigns, _links: { self: readingTheCampaigns._links.self } },
+) {
   const queryClient = new QueryClient({
     defaultOptions: { queries: { staleTime: Number.POSITIVE_INFINITY } },
   })
+  queryClient.setQueryData(accountQuery().queryKey, me)
   queryClient.setQueryData(timelineQuery(ADA).queryKey, { pages: [timeline], pageParams: [undefined] })
   queryClient.setQueryData(upcomingQuery(ADA).queryKey, { pages: [upcoming], pageParams: [undefined] })
   if (detail) {
@@ -154,19 +170,46 @@ describe('ExchangesSection', () => {
     expect(screen.getByText('2 pièces jointes')).toBeInTheDocument()
   })
 
-  it('names the campaign an exchange was noted in', async () => {
+  it('leads to the campaign an exchange was noted in, beside its line, when I read the campaigns', async () => {
+    await renderTheSection(
+      {
+        items: [
+          anExchange({
+            channel: 'call',
+            direction: 'outbound',
+            campaign: { id: CAMPAIGN, name: 'Appels ESN' },
+          }),
+        ],
+        _links: { self: timelineLink, noteExchange: noteLink },
+      },
+      undefined,
+      nothingToCome,
+      readingTheCampaigns,
+    )
+
+    const [line] = screen.getAllByRole('listitem')
+    expect(
+      within(line as HTMLElement).getByRole('link', { name: 'Campagne\u00a0: Appels ESN' }),
+    ).toHaveAttribute('href', `/campaigns/${CAMPAIGN}`)
+  })
+
+  it('names the campaign an exchange was noted in without leading to it when I do not read the campaigns', async () => {
     await renderTheSection({
-      items: [
-        anExchange({
-          channel: 'call',
-          direction: 'outbound',
-          campaign: { id: EXCHANGE, name: 'Appels ESN' },
-        }),
-      ],
-      _links: { self: timelineLink, noteExchange: noteLink },
+      items: [anExchange({ campaign: { id: CAMPAIGN, name: 'Appels ESN' } })],
+      _links: { self: timelineLink },
     })
 
-    expect(screen.getByText('Appels ESN')).toBeInTheDocument()
+    expect(screen.getByText('Campagne : Appels ESN')).toBeInTheDocument()
+    expect(screen.queryByRole('link', { name: 'Campagne\u00a0: Appels ESN' })).not.toBeInTheDocument()
+  })
+
+  it('says the campaign an exchange was noted in was erased', async () => {
+    await renderTheSection({
+      items: [anExchange({ campaign: { id: CAMPAIGN, name: null } })],
+      _links: { self: timelineLink },
+    })
+
+    expect(screen.getByText('Campagne effacée')).toBeInTheDocument()
   })
 
   it('flags a text that may hold personal data the reader may not manage, and offers no quick entry', async () => {
