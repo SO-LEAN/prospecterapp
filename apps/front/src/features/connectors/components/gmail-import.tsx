@@ -1,8 +1,9 @@
-import { CircleAlert, Mail } from 'lucide-react'
+import { CircleAlert, Mail, MailX } from 'lucide-react'
 import { useId } from 'react'
 import { useTranslation } from 'react-i18next'
 import { toast } from 'sonner'
 import { formatMoment } from '@/shared/lib/format'
+import { Button } from '@/shared/ui/button'
 import { Label } from '@/shared/ui/label'
 import { Switch } from '@/shared/ui/switch'
 import { useImportGmail, useStopGmailImport } from '../mutations'
@@ -52,6 +53,11 @@ export function GmailImport({ connection, goTo }: Props) {
         />
       </div>
       <GmailImportState connection={connection} />
+      {connection.gmailImport === 'toReconnect' && stopGmailImport && (
+        <Button variant="ghost" size="sm" disabled={stop.isPending} onClick={() => turn(false)}>
+          <MailX aria-hidden /> {t('settings.connectors.gmail.stop')}
+        </Button>
+      )}
     </div>
   )
 }
