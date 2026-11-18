@@ -22,6 +22,18 @@ security:
         booking_page:
             pattern: ^/api/booking-pages/[0-9A-Za-z]{22}$
             security: false
+        # where an AI finds the authorization server of /mcp (RFC 9728)
+        protected_resource:
+            pattern: ^/\.well-known/oauth-protected-resource
+            security: false
+        # the MCP server: the tokens of Cognito, as for the API (spike #202)
+        mcp:
+            pattern: ^/mcp$
+            stateless: true
+            provider: members
+            access_token:
+                token_handler: App\Security\AccessTokenHandler
+            entry_point: App\Security\McpAuthenticationEntryPoint
         # resource server: every API call carries an access token of the Cognito user pool (ADR 0052)
         api:
             pattern: ^/api/
@@ -34,3 +46,4 @@ security:
 
     access_control:
         - { path: ^/api/, roles: ROLE_USER }
+        - { path: ^/mcp$, roles: ROLE_USER }

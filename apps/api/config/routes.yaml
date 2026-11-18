@@ -81,3 +81,9 @@ booking:
     type: attribute
     host: '%app_api_host%'
     defaults: { _format: json }
+
+# the MCP server, without session (spike #202)
+mcp:
+    resource: .
+    type: mcp
+    host: '%app_api_host%'

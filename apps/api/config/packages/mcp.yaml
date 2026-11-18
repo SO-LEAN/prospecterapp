@@ -1,0 +1,12 @@
+# The MCP server of the API, without session (spike #202): both eras of the protocol, /mcp on the host of the API
+mcp:
+    servers:
+        prospecter:
+            name: Prospecter
+            version: '0.1.0'
+            http:
+                path: /mcp
+                allowed_hosts: ['%app_api_host%']
+            session:
+                store: none
+            registry: { tools: ['App\Me\Mcp\'] }
