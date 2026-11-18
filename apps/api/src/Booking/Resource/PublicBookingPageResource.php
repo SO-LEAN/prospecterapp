@@ -10,13 +10,19 @@ use OpenApi\Attributes as OA;
 final readonly class PublicBookingPageResource
 {
     /**
-     * @param list<string> $channels
+     * @param list<string>                                  $channels
+     * @param list<array{day: string, slots: list<string>}> $days
      */
     public function __construct(
-        #[OA\Property(description: 'Whether it offers slots; closed, it offers none')]
+        #[OA\Property(description: 'Whether it offers slots: closed, changed, unknown or suspended, it offers none')]
         public bool $open,
         #[OA\Property(type: 'array', items: new OA\Items(type: 'string', enum: ['call', 'videoCall']))]
         public array $channels,
+        #[OA\Property(description: 'The 14 days from tomorrow on the clock of the host, each with the moments its free slots of 15 minutes start at; none when it shows nothing', type: 'array', items: new OA\Items(properties: [
+            new OA\Property(property: 'day', type: 'string', format: 'date'),
+            new OA\Property(property: 'slots', type: 'array', items: new OA\Items(type: 'string', format: 'date-time')),
+        ], type: 'object'))]
+        public array $days,
     ) {
     }
 }

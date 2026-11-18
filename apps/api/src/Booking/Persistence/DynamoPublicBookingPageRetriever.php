@@ -3,8 +3,8 @@
 namespace App\Booking\Persistence;
 
 use App\Shared\Persistence\Table;
+use Prospecter\Core\Booking\Application\ConsultPublicBookingPage\BookingSchedule;
 use Prospecter\Core\Booking\Application\Port\PublicBookingPageRetriever;
-use Prospecter\Core\Booking\Application\PublicBookingPage;
 
 /**
  * The page a code leads to: the link of the code to its host, then the page of that host (ADR 0151).
@@ -15,11 +15,11 @@ final readonly class DynamoPublicBookingPageRetriever implements PublicBookingPa
     {
     }
 
-    public function byCode(string $code): ?PublicBookingPage
+    public function byCode(string $code): ?BookingSchedule
     {
         $host = $this->bookingTable->item(BookingKeys::code($code), BookingKeys::CODE)['host'] ?? null;
         $document = null === $host ? null : $this->bookingTable->item(BookingKeys::page($host), BookingKeys::PAGE)['page'] ?? null;
 
-        return null === $document ? null : BookingPageDocument::publicPage($document);
+        return null === $document ? null : BookingPageDocument::schedule($document);
     }
 }

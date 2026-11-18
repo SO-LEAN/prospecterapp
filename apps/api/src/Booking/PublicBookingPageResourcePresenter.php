@@ -15,6 +15,6 @@ final class PublicBookingPageResourcePresenter implements ConsultPublicBookingPa
 
     public function present(PublicBookingPage $page): void
     {
-        $this->resource = new PublicBookingPageResource($page->open, $page->channels);
+        $this->resource = new PublicBookingPageResource($page->open, $page->channels, $page->days);
     }
 }

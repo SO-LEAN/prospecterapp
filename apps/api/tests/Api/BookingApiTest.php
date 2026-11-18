@@ -18,6 +18,7 @@ class BookingApiTest extends ApiTestCase
 {
     private const string CODE_OF_GOOGLE = 'a-code-of-google';
     private const string BASE62_OF_22 = '/^[0-9A-Za-z]{22}$/';
+    private const array NOTHING_SHOWN = ['open' => false, 'channels' => [], 'days' => []];
 
     protected function setUp(): void
     {
@@ -130,7 +131,35 @@ class BookingApiTest extends ApiTestCase
 
         $this->signInWith($assistant);
 
-        $this->assertSame(['open' => true, 'channels' => ['call', 'videoCall']], $this->requestJson('GET', '/api/booking-pages/'.$code));
+        $page = $this->requestJson('GET', '/api/booking-pages/'.$code);
+        $this->assertTrue($page['open']);
+        $this->assertSame(['call', 'videoCall'], $page['channels']);
+    }
+
+    public function testAPublicPageOffersTheFreeSlotsOfTomorrowOnTheClockOfItsHost(): void
+    {
+        $code = $this->anOpenPage();
+        $this->requestJson('PATCH', '/api/me/booking-page/windows', ['timeZone' => 'Europe/Paris', 'windows' => [['weekday' => 'friday', 'from' => '09:00', 'to' => '09:30']]]);
+
+        $this->signOut();
+        $page = $this->requestJson('GET', '/api/booking-pages/'.$code);
+
+        $this->assertCount(14, $page['days']);
+        $this->assertSame(['day' => '2026-10-16', 'slots' => ['2026-10-16T09:00:00+02:00', '2026-10-16T09:15:00+02:00']], $page['days'][0]);
+    }
+
+    public function testASlotWhereItsHostPlannedAnExchangeIsNotFree(): void
+    {
+        $code = $this->anOpenPage();
+        $this->requestJson('PATCH', '/api/me/booking-page/windows', ['timeZone' => 'Europe/Paris', 'windows' => [['weekday' => 'friday', 'from' => '09:00', 'to' => '09:30']]]);
+        $organization = $this->requestJson('POST', '/api/organizations', ['legalIdentity' => ['corporateName' => 'ACME']])['id'];
+        $this->requestJson('POST', '/api/organizations/'.$organization.'/upcoming-exchanges', ['exchange' => ['channel' => 'call', 'occurredAt' => '2026-10-16T07:00:00+00:00', 'durationInMinutes' => 15]]);
+        $this->assertResponseIsSuccessful();
+
+        $this->signOut();
+        $page = $this->requestJson('GET', '/api/booking-pages/'.$code);
+
+        $this->assertSame(['2026-10-16T09:15:00+02:00'], $page['days'][0]['slots']);
     }
 
     public function testMyPageIsMineOnly(): void
@@ -210,7 +239,7 @@ class BookingApiTest extends ApiTestCase
         $this->signOut();
         $public = $this->requestJson('GET', '/api/booking-pages/'.$code);
         $this->assertResponseIsSuccessful();
-        $this->assertSame(['open' => true, 'channels' => ['call', 'videoCall']], $public);
+        $this->assertTrue($public['open']);
 
         $this->signInWith($me);
         $closed = $this->requestJson('DELETE', '/api/me/booking-page/opening');
@@ -219,10 +248,10 @@ class BookingApiTest extends ApiTestCase
         $this->assertSame($code, $closed['code']);
 
         $this->signOut();
-        $this->assertSame(['open' => false, 'channels' => ['call', 'videoCall']], $this->requestJson('GET', '/api/booking-pages/'.$code));
+        $this->assertSame(self::NOTHING_SHOWN, $this->requestJson('GET', '/api/booking-pages/'.$code));
     }
 
-    public function testMyFormerLinkLeadsNowhereOnceChanged(): void
+    public function testMyFormerLinkShowsNothingOnceChanged(): void
     {
         $former = $this->anOpenPage();
 
@@ -231,18 +260,28 @@ class BookingApiTest extends ApiTestCase
         $this->assertNotSame($former, $changed['code']);
 
         $this->signOut();
-        $problem = $this->requestJson('GET', '/api/booking-pages/'.$former);
-        $this->assertResponseStatusCodeSame(404);
-        $this->assertSame('unknownBookingPage', $problem['reason']);
+        $this->assertSame(self::NOTHING_SHOWN, $this->requestJson('GET', '/api/booking-pages/'.$former));
+        $this->assertResponseIsSuccessful();
         $this->requestJson('GET', '/api/booking-pages/'.$changed['code']);
         $this->assertResponseIsSuccessful();
     }
 
-    public function testALinkNobodyDrewLeadsNowhere(): void
+    public function testALinkNobodyDrewShowsNothingAsAClosedOne(): void
     {
-        $this->requestJson('GET', '/api/booking-pages/AbCdEfGhIjKlMnOpQrStUv');
+        $page = $this->requestJson('GET', '/api/booking-pages/AbCdEfGhIjKlMnOpQrStUv');
 
-        $this->assertResponseStatusCodeSame(404);
+        $this->assertResponseIsSuccessful();
+        $this->assertSame(self::NOTHING_SHOWN, $page);
+    }
+
+    public function testWithoutGoogleConnectedAPublicPageShowsNothing(): void
+    {
+        $code = $this->anOpenPage();
+        $this->requestJson('DELETE', '/api/me/connections/google');
+
+        $this->signOut();
+
+        $this->assertSame(self::NOTHING_SHOWN, $this->requestJson('GET', '/api/booking-pages/'.$code));
     }
 
     public function testMyPageIsNotReadWithoutSigningIn(): void

@@ -32,7 +32,7 @@ afterEach(() => {
 
 describe('the public page of a booking', () => {
   it('says how its host meets the bookers while it is open', async () => {
-    theApiAnswers(200, { open: true, channels: ['call', 'videoCall'] })
+    theApiAnswers(200, { open: true, channels: ['call', 'videoCall'], days: [] })
 
     await renderTheSpaAt(`/booking/${CODE}`)
 
@@ -40,19 +40,11 @@ describe('the public page of a booking', () => {
     expect(screen.getByText('Rencontre possible par : Appel, Visio')).toBeInTheDocument()
   })
 
-  it('offers no slot once closed', async () => {
-    theApiAnswers(200, { open: false, channels: ['call'] })
+  it('offers no slot when it shows nothing', async () => {
+    theApiAnswers(200, { open: false, channels: [], days: [] })
 
     await renderTheSpaAt(`/booking/${CODE}`)
 
     expect(await screen.findByText('Aucun créneau disponible pour le moment.')).toBeInTheDocument()
-  })
-
-  it('says a former link or one nobody drew leads nowhere', async () => {
-    theApiAnswers(404, { title: 'No booking page', status: 404, reason: 'unknownBookingPage' })
-
-    await renderTheSpaAt(`/booking/${CODE}`)
-
-    expect(await screen.findByRole('heading', { name: 'Lien introuvable' })).toBeInTheDocument()
   })
 })

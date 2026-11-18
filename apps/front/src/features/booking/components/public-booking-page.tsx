@@ -1,7 +1,6 @@
 import { useQuery } from '@tanstack/react-query'
 import { useTranslation } from 'react-i18next'
 import { CardPage } from '@/app/layout/card-page'
-import { isProblem } from '@/shared/api/problem'
 import { ErrorState } from '@/shared/ui/feedback/error-state'
 import { PageSkeleton } from '@/shared/ui/page-skeleton'
 import { publicBookingPageQuery } from '../queries'
@@ -17,11 +16,7 @@ export function PublicBookingPage({ code }: Props) {
     return <PageSkeleton />
   }
   if (page.isError) {
-    return isProblem(page.error) && page.error.status === 404 ? (
-      <CardPage title={t('booking.public.notFound')} description={t('booking.public.notFoundDescription')} />
-    ) : (
-      <ErrorState error={page.error} reset={() => void page.refetch()} />
-    )
+    return <ErrorState error={page.error} reset={() => void page.refetch()} />
   }
 
   const channels = page.data.channels.map((channel) => t(`booking.channels.${channel}`)).join(', ')

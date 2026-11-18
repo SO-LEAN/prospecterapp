@@ -1519,7 +1519,7 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        /** Consult the booking page a public link leads to, without signing in: whether it offers slots, and how its host meets the bookers */
+        /** Consult the booking page a public link leads to, without signing in: its free slots from tomorrow for 14 days and how its host meets the bookers; a link closed, changed, unknown or whose host has no connected calendar shows nothing, without saying why */
         get: operations["get_api_public_booking_page"];
         put?: never;
         post?: never;
@@ -3039,9 +3039,15 @@ export interface components {
             _links: components["schemas"]["BookingPageLinksResource"];
         };
         PublicBookingPageResource: {
-            /** @description Whether it offers slots; closed, it offers none */
+            /** @description Whether it offers slots: closed, changed, unknown or suspended, it offers none */
             open: boolean;
             channels: ("call" | "videoCall")[];
+            /** @description The 14 days from tomorrow on the clock of the host, each with the moments its free slots of 15 minutes start at; none when it shows nothing */
+            days: {
+                /** Format: date */
+                day?: string;
+                slots?: string[];
+            }[];
         };
     };
     responses: never;
@@ -9083,15 +9089,6 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["PublicBookingPageResource"];
-                };
-            };
-            /** @description No page at this code: a former link, or one nobody drew */
-            404: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ProblemResource"];
                 };
             };
         };
