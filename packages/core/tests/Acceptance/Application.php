@@ -308,6 +308,10 @@ use Prospecter\Core\Prospecting\Application\RemoveContact\RemoveContactHandler;
 use Prospecter\Core\Prospecting\Application\RemoveLogo\RemoveLogoHandler;
 use Prospecter\Core\Prospecting\Application\ReviseLegalIdentity\ReviseLegalIdentityHandler;
 use Prospecter\Core\Prospecting\Application\ReviseToDo\ReviseToDoHandler;
+use Prospecter\Core\Prospecting\Application\SearchEstablishments\FoundEstablishment;
+use Prospecter\Core\Prospecting\Application\SearchEstablishments\KeptEstablishments;
+use Prospecter\Core\Prospecting\Application\SearchEstablishments\SearchEstablishments;
+use Prospecter\Core\Prospecting\Application\SearchEstablishments\SearchEstablishmentsHandler;
 use Prospecter\Core\Prospecting\Application\SearchProspectedOrganizations\FoundOrganizationPage;
 use Prospecter\Core\Prospecting\Application\SearchProspectedOrganizations\KeptOrganizationPage;
 use Prospecter\Core\Prospecting\Application\SearchProspectedOrganizations\SearchProspectedOrganizations;
@@ -433,6 +437,7 @@ use Tests\Core\Double\InMemoryTimelineRetriever;
 use Tests\Core\Double\InMemoryToDoListRetriever;
 use Tests\Core\Double\InMemoryToDoRepository;
 use Tests\Core\Double\InMemoryUnitOfWork;
+use Tests\Core\Double\KnownEstablishmentsDirectory;
 use Tests\Core\Double\KnownPlacesGeoLocation;
 use Tests\Core\Double\NoRecordingsInFlight;
 use Tests\Core\Double\PersonalDataAndProspectingAddressees;
@@ -496,6 +501,7 @@ final class Application
     public readonly InMemoryStorage $storage;
     public readonly InMemoryPrivateStorage $privateStorage;
     public readonly KnownPlacesGeoLocation $geoLocation;
+    public readonly KnownEstablishmentsDirectory $directory;
 
     public readonly AccountsProspectors $prospectors;
     public readonly AccountsReaders $readers;
@@ -612,6 +618,7 @@ final class Application
         $this->storage = new InMemoryStorage();
         $this->privateStorage = new InMemoryPrivateStorage();
         $this->geoLocation = new KnownPlacesGeoLocation();
+        $this->directory = new KnownEstablishmentsDirectory();
         $this->files = new FileStore($this->storage);
         $this->geoLocalizer = new GeoLocalizer($this->geoLocation);
         $this->personEmails = new PersonalDataEmailUniqueness($this->persons);
@@ -1030,6 +1037,18 @@ final class Application
         $kept = new KeptTimeline();
 
         return $this->ask(new ConsultOrganizationUpcomingExchangesHandler($this->timelineRetriever, $this->organizationSheetRetriever, $this->prospectors), $query, $kept) ? $kept->timeline : null;
+    }
+
+    /**
+     * None when refused: `refusal()` tells why.
+     *
+     * @return list<FoundEstablishment>|null
+     */
+    public function searchEstablishments(SearchEstablishments $query): ?array
+    {
+        $kept = new KeptEstablishments();
+
+        return $this->ask(new SearchEstablishmentsHandler($this->organizationSheetRetriever, $this->directory), $query, $kept) ? $kept->establishments : null;
     }
 
     /**
