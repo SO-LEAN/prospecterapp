@@ -133,6 +133,11 @@ final class Person implements ReleasesEvents
         return $this->accountId->equals($accountId) && Purpose::Prospecting === $this->purpose;
     }
 
+    public function name(): PersonName
+    {
+        return $this->name;
+    }
+
     public function contactDetails(): ContactDetails
     {
         return $this->contactDetails;

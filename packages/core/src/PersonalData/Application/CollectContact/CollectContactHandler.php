@@ -14,6 +14,7 @@ use Prospecter\Core\PersonalData\Domain\Port\ProspectedOrganizations;
 use Prospecter\Core\PersonalData\Domain\Port\Readers;
 use Prospecter\Core\PersonalData\Domain\Repository\PersonRepository;
 use Prospecter\Core\PersonalData\Domain\Service\EmailUniqueness;
+use Prospecter\Core\PersonalData\Domain\Service\LinkedInProfileUniqueness;
 use Prospecter\Core\SharedKernel\Application\CommandHandler;
 use Prospecter\Core\SharedKernel\Application\Port\Events;
 use Prospecter\Core\SharedKernel\Application\PublishesEvents;
@@ -38,6 +39,7 @@ final readonly class CollectContactHandler implements CommandHandler
         private ProspectedOrganizations $organizations,
         private Events $events,
         private EmailUniqueness $emails,
+        private LinkedInProfileUniqueness $linkedInProfiles,
     ) {
     }
 
@@ -58,6 +60,7 @@ final readonly class CollectContactHandler implements CommandHandler
             at: $command->executedAt,
         );
         $this->emails->ensureAvailableFor($contact);
+        $this->linkedInProfiles->ensureAvailableForANewContact($contact);
         $this->persons->save($contact);
         $this->publishWhatHappenedTo($contact);
     }

@@ -181,6 +181,7 @@ use Prospecter\Core\PersonalData\Contract\Service\PresentMembers\PresentMembers;
 use Prospecter\Core\PersonalData\Contract\Service\WhichAreContacts\KeptContacts;
 use Prospecter\Core\PersonalData\Contract\Service\WhichAreContacts\WhichAreContacts;
 use Prospecter\Core\PersonalData\Domain\Service\EmailUniqueness as PersonalDataEmailUniqueness;
+use Prospecter\Core\PersonalData\Domain\Service\LinkedInProfileUniqueness;
 use Prospecter\Core\Prospecting\Application\AddContact\AddContactHandler;
 use Prospecter\Core\Prospecting\Application\AttachCollectedContact\AttachCollectedContactHandler;
 use Prospecter\Core\Prospecting\Application\AttachContactToAttach\AttachContactToAttachHandler;
@@ -504,6 +505,7 @@ final class Application
     private readonly FileStore $files;
     private readonly GeoLocalizer $geoLocalizer;
     private readonly PersonalDataEmailUniqueness $personEmails;
+    private readonly LinkedInProfileUniqueness $linkedInProfiles;
     private readonly ProspectingEmailUniqueness $organizationEmails;
     private readonly OrphanContacts $orphans;
     private readonly ContactOrganizations $contactOrganizations;
@@ -611,6 +613,7 @@ final class Application
         $this->files = new FileStore($this->storage);
         $this->geoLocalizer = new GeoLocalizer($this->geoLocation);
         $this->personEmails = new PersonalDataEmailUniqueness($this->persons);
+        $this->linkedInProfiles = new LinkedInProfileUniqueness($this->persons);
         $this->organizationEmails = new ProspectingEmailUniqueness($this->organizations);
         $this->orphans = new OrphanContacts($this->organizations);
         $this->contactOrganizations = new ContactOrganizations($this->organizations, $this->contactsToAttach);
@@ -1171,7 +1174,7 @@ final class Application
             new ChangeLogoHandler($this->organizations, $this->events, $this->files),
             new RemoveLogoHandler($this->organizations, $this->events),
             new RenamePersonHandler($this->persons, $this->readers, $this->events),
-            new ChangePersonContactDetailsHandler($this->persons, $this->readers, $this->events, $this->personEmails),
+            new ChangePersonContactDetailsHandler($this->persons, $this->readers, $this->events, $this->personEmails, $this->linkedInProfiles),
             new ChangePersonPictureHandler($this->persons, $this->readers, $this->events, $this->files),
             new ReviseMyOrganizationIdentityHandler($this->accounts, $this->members, $this->events),
             new RelocateMyOrganizationHandler($this->accounts, $this->members, $this->events, $this->geoLocalizer),
@@ -1179,7 +1182,7 @@ final class Application
             new OpenAccountHandler($this->accounts, $this->events),
             new RegisterAMemberHandler($this->members, $this->events),
             new ChangeMyRemindersHandler($this->members, $this->events),
-            new CollectContactHandler($this->persons, $this->readers, $this->prospectedOrganizations, $this->events, $this->personEmails),
+            new CollectContactHandler($this->persons, $this->readers, $this->prospectedOrganizations, $this->events, $this->personEmails, $this->linkedInProfiles),
             new ChangeJobTitleHandler($this->persons, $this->readers, $this->events),
             new ChangeCivilityHandler($this->persons, $this->readers, $this->events),
             new ForgetContactHandler($this->persons, $this->readers, $this->events),

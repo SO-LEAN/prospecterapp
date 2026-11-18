@@ -16,7 +16,7 @@ class ContactApiTest extends ApiTestCase
         'name' => ['firstName' => 'Ada', 'lastName' => 'Lovelace'],
         'civility' => 'ms',
         'jobTitle' => 'Directrice commerciale',
-        'contactDetails' => ['email' => 'ada@analytical-engine.test', 'phoneNumber' => '03 88 00 00 42', 'language' => 'FR', 'linkedInProfile' => 'linkedin.com/in/ada-lovelace?utm_source=share'],
+        'contactDetails' => ['email' => 'ada@analytical-engine.test', 'phoneNumber' => '03 88 00 00 42', 'language' => 'FR', 'linkedInProfile' => 'linkedin.com/in/countess-of-lovelace?utm_source=share'],
     ];
 
     protected function setUp(): void
@@ -87,8 +87,8 @@ class ContactApiTest extends ApiTestCase
     {
         $organization = $this->anOrganization('ACME');
         $collected = $this->collect(self::ADA, $organization);
-        $this->assertSame('https://www.linkedin.com/in/ada-lovelace', $collected['contactDetails']['linkedInProfile']);
-        $this->assertSame(['https://www.linkedin.com/in/ada-lovelace'], array_column(array_column($this->requestJson('GET', '/api/organizations/'.$organization.'/contacts')['items'], 'contactDetails'), 'linkedInProfile'));
+        $this->assertSame('https://www.linkedin.com/in/countess-of-lovelace', $collected['contactDetails']['linkedInProfile']);
+        $this->assertSame(['https://www.linkedin.com/in/countess-of-lovelace'], array_column(array_column($this->requestJson('GET', '/api/organizations/'.$organization.'/contacts')['items'], 'contactDetails'), 'linkedInProfile'));
 
         $changed = $this->requestJson('PATCH', '/api/contacts/'.$collected['id'].'/contact-details', ['email' => 'ada@analytical-engine.test', 'linkedInProfile' => 'https://fr.linkedin.com/in/Augusta-Ada/']);
         $this->assertSame('https://www.linkedin.com/in/augusta-ada', $changed['contactDetails']['linkedInProfile']);

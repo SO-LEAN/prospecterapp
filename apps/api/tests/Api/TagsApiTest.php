@@ -281,7 +281,7 @@ class TagsApiTest extends ApiTestCase
     {
         return $this->requestJson('POST', '/api/contacts', [
             'name' => ['firstName' => 'Ada', 'lastName' => 'Lovelace'],
-            'contactDetails' => ['email' => 'ada@acme.test', 'phoneNumber' => '06 12 34 56 78', 'linkedInProfile' => 'https://www.linkedin.com/in/ada-lovelace'],
+            'contactDetails' => ['email' => 'ada@acme.test', 'phoneNumber' => '06 12 34 56 78', 'linkedInProfile' => 'https://www.linkedin.com/in/countess-of-lovelace'],
             'organizationIds' => [$organization],
         ])['id'];
     }
