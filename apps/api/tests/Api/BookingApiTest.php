@@ -70,6 +70,68 @@ class BookingApiTest extends ApiTestCase
         $this->assertSame(['self', 'setWindows', 'addInactivePeriod', 'offerChannels', 'close', 'changeLink'], array_keys($page['_links']));
     }
 
+    #[DataProvider('members')]
+    public function testEveryMemberAddsAndRemovesAPeriodClosesTheirPageAndChangesItsLink(string $member, Role ...$roles): void
+    {
+        $this->login([] === $roles ? $member : $this->aMemberOfTheFixtures($member, ...$roles));
+        $this->connectGoogle();
+        $this->requestJson('PATCH', '/api/me/booking-page/channels', ['channels' => ['videoCall']]);
+        $former = $this->requestJson('POST', '/api/me/booking-page/opening')['code'];
+
+        $period = $this->requestJson('POST', '/api/me/booking-page/inactive-periods', ['firstDay' => '2026-12-21', 'lastDay' => '2027-01-04'])['inactivePeriods'][0];
+        $this->assertResponseStatusCodeSame(201);
+        $this->assertSame([], $this->requestJson('DELETE', $period['_links']['remove']['href'])['inactivePeriods']);
+        $this->assertResponseIsSuccessful();
+        $this->assertFalse($this->requestJson('DELETE', '/api/me/booking-page/opening')['open']);
+        $this->assertResponseIsSuccessful();
+        $changed = $this->requestJson('POST', '/api/me/booking-page/link');
+
+        $this->assertResponseIsSuccessful();
+        $this->assertNotSame($former, $changed['code']);
+        $this->assertSame(['self', 'setWindows', 'addInactivePeriod', 'offerChannels', 'open', 'changeLink'], array_keys($changed['_links']));
+    }
+
+    #[DataProvider('gesturesOnMyPage')]
+    public function testNoGestureOnMyPageWithoutSigningIn(string $method, string $uri): void
+    {
+        $this->requestJson($method, $uri, 'GET' === $method || 'DELETE' === $method ? null : []);
+
+        $this->assertResponseStatusCodeSame(401);
+    }
+
+    /**
+     * @return iterable<string, array{string, string}>
+     */
+    public static function gesturesOnMyPage(): iterable
+    {
+        yield 'set the windows' => ['PATCH', '/api/me/booking-page/windows'];
+        yield 'add an inactive period' => ['POST', '/api/me/booking-page/inactive-periods'];
+        yield 'remove an inactive period' => ['DELETE', '/api/me/booking-page/inactive-periods/0190a1c0-0000-7000-8000-0000000000e1'];
+        yield 'offer channels' => ['PATCH', '/api/me/booking-page/channels'];
+        yield 'open' => ['POST', '/api/me/booking-page/opening'];
+        yield 'close' => ['DELETE', '/api/me/booking-page/opening'];
+        yield 'change the link' => ['POST', '/api/me/booking-page/link'];
+    }
+
+    public function testAPageWithoutLinkDoesNotChangeIt(): void
+    {
+        $this->login();
+
+        $problem = $this->requestJson('POST', '/api/me/booking-page/link');
+
+        $this->assertResponseStatusCodeSame(409);
+        $this->assertSame('bookingPageWithoutLink', $problem['reason']);
+    }
+
+    public function testASignedInMemberReadsAPublicPageToo(): void
+    {
+        $code = $this->anOpenPage();
+
+        $this->login('assistant-user');
+
+        $this->assertSame(['open' => true, 'channels' => ['call', 'videoCall']], $this->requestJson('GET', '/api/booking-pages/'.$code));
+    }
+
     public function testMyPageIsMineOnly(): void
     {
         $this->login();
