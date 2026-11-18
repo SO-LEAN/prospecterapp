@@ -21,11 +21,13 @@ The personal data of natural persons, and who reads them. Code: `packages/core/s
 - An email is unique among the persons an account keeps for a purpose (`EmailUniqueness`; ADR 0039).
 - Searching the contacts by the beginning of their email, and recognizing a caller by their phone number, need the right to manage personal data: a reader of masked data could guess them by what they cannot read (ADR 0031, 0072); without it, the contacts are searched by the beginning of their name only (`Reader::searchesTheEmails()`; ADR 0129). A contact is found by the beginning of their last name or of their first name, with or without an email, never by the first name followed by the last name (ADR 0071, 0149).
 - Forgetting a contact erases their person; their exchanges stay in Prospecting, to make conform (ADR 0079).
+- A member presents themselves to whom they give a link, their name and their picture in clear, theirs to give: a person the account prospects never is (`MemberPresentationPolicy`, ADR 0153).
 
 ## What it publishes
 
 - The service `WhichAreContactsService` (which persons are contacts of an account), asked by Prospecting (ADR 0089).
 - The service `NameContactsService` (the names and the job titles of persons as a member reads them, in clear or masked, and the civility of a contact, in clear like their name; a forgotten person, or one the member does not reach, absent), asked by Connectors to name the contact of an exchange it pushes (ADR 0127), and by Campaigns to render the message of a campaign for a contact (ADR 0144).
+- The service `PresentMembersService` (the name and the picture of members, in clear, checking no caller; a person prospected, forgotten or unknown absent), asked by Booking to say who the host of a public page is (ADR 0153).
 - The integration events `ContactCollected` and `ContactForgotten` (ADR 0046).
 - The facts of its contacts (present, and how each is reached: an e-mail, a phone, a mobile among them as libphonenumber types the number, a LinkedIn profile, booleans and never the details, ADR 0141), each time one changes (`ContactFactsChanged`), and by slice for an account (`ListContactFactsService`), for a context counting them or deriving from them without reading its tables (ADR 0099). A forgotten contact gives a last fact, absent, reached by no means; the profile of a member, no contact, publishes none.
 

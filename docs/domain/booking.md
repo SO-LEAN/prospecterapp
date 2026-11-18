@@ -1,6 +1,6 @@
 # Booking
 
-The booking page of each member: when they may be booked, how, and the public link they give to whom they want, the only part of Prospecter read without signing in (ADR 0148). Code: `packages/core/src/Booking`.
+The booking page of each member: when they may be booked, how, and the public link they give to whom they want, the only part of Prospecter read without signing in (ADR 0148, 0153). Code: `packages/core/src/Booking`.
 
 ## Language
 
@@ -12,6 +12,9 @@ The booking page of each member: when they may be booked, how, and the public li
 - **Channel** (`Channel`): how a booker meets the host, a call or a video call; the channels offered (`OfferedChannels`), each once.
 - **Open** or **closed**: whether the public link offers slots.
 - **Code** (`BookingCode`): the code of the public link, 22 random characters of base 62, 128 bits at least, drawn by the API (`InvalidBookingCode` for anything else), never derived from the host.
+- **Slot**: 15 minutes the host may be booked, starting on the quarter hour of a window; **free** when no exchange the host still has planned overlaps it (**busy period**, `BusyPeriod`, half open: an exchange ending as a slot starts leaves it free).
+- **Suspended**: an open page whose calendar is not connected; it offers nothing until the calendar is connected again (`BookingSuspension`).
+- **Host identity** (`HostIdentity`): who the host is to the bookers, their name, their picture and the corporate name of their account.
 
 ## Rules
 
@@ -21,12 +24,12 @@ The booking page of each member: when they may be booked, how, and the public li
 - The host opens their page (`OpenBooking`) only while their calendar is connected, which will invite the booker (`NoConnectedCalendar`, « Booking needs a connected calendar, which invites the booker »; a connection to reconnect is not connected), and while it offers a channel; without windows it opens, offering no slot. The first opening gives it the code the API drew; opened again, it keeps its link.
 - The host closes it at once (`CloseBooking`): the public link offers nothing, the settings are kept. A page opens only while closed and closes only while open (`BookingPagePossibilities`).
 - The host changes the link of a page that has one (`ChangeBookingLink`, refused before the first opening: `BookingPageWithoutLink`): the code drawn replaces it, the former one leading nowhere.
-- The host reads their page on their clock (`ConsultMyBookingPage`): its windows and their time zone, the inactive periods not ended before the day of the reading, the soonest first, its channels, its code, whether it is open, whether their calendar is connected, and what it offers.
-- Anyone holding a link reads the page it leads to, without signing in (`ConsultPublicBookingPage`): whether it offers slots, and its channels; nothing else of the host. A code no page has now leads nowhere (`UnknownBookingPage`).
+- The host reads their page on their clock (`ConsultMyBookingPage`): its windows and their time zone, the inactive periods not ended before the day of the reading, the soonest first, its channels, its code, whether it is open, whether their calendar is connected, whether it is suspended, and what it offers.
+- Anyone holding a link reads the page it leads to, without signing in, at a moment (`ConsultPublicBookingPage`): who the host is, their channels, their time zone, and the 14 days from the day after the reading on the clock of the host, each with its free slots (`FreeSlots`): the windows cut by 15 minutes, none on a day of an inactive period, none overlapping an exchange the host still has planned (ADR 0153). A code no page has now, a page closed or suspended answer the same: no slot, nothing of the host, not even why.
 
 ## What it publishes
 
-Nothing. Its domain events (`WindowsSet`, `InactivePeriodAdded`, `InactivePeriodRemoved`, `ChannelsOffered`, `BookingOpened`, `BookingClosed`, `BookingLinkChanged`) stay in the context. It reads the account of a member from Accounts (`Hosts`, `ConsultMembersService`) and whether their calendar is connected from Connectors (`ConnectedCalendars`, `WhichHaveAConnectedCalendarService`).
+Nothing. Its domain events (`WindowsSet`, `InactivePeriodAdded`, `InactivePeriodRemoved`, `ChannelsOffered`, `BookingOpened`, `BookingClosed`, `BookingLinkChanged`) stay in the context. It reads the account of a member and its corporate name from Accounts and how the member presents themselves from PersonalData (`Hosts`, `ConsultMembersService`, `PresentMembersService`), whether their calendar is connected from Connectors (`ConnectedCalendars`, `WhichHaveAConnectedCalendarService`), and the exchanges they still have planned from Prospecting (`HostAgendas`, `ConsultPlannedExchangesService`, asked from 8 hours before the reading, the longest exchange Prospecting plans).
 
 ## Features
 
@@ -34,5 +37,5 @@ Nothing. Its domain events (`WindowsSet`, `InactivePeriodAdded`, `InactivePeriod
 
 ## In the code
 
-- `src/Booking/Domain`: `BookingPage`, `Window`, `WeeklyWindows`, `Weekday`, `WallClockTime`, `HostTimeZone`, `InactivePeriod`, `InactivePeriodId`, `Channel`, `OfferedChannels`, `BookingCode`, `BookingPageIntent`; the policy `BookingPagePossibilities`; the repository `BookingPageRepository`; the ports `Hosts` and `ConnectedCalendars`, implemented by the API.
-- `src/Booking/Application`: `SetWeeklyWindows`, `AddInactivePeriod`, `RemoveInactivePeriod`, `OfferChannels`, `OpenBooking`, `CloseBooking`, `ChangeBookingLink`, through `BookingPages` (the page of a host, set up by their first gesture); `ConsultMyBookingPage` (`MyBookingPage`, the port `MyBookingPageRetriever`), `ConsultPublicBookingPage` (`PublicBookingPage`, the port `PublicBookingPageRetriever`).
+- `src/Booking/Domain`: `BookingPage`, `Window`, `WeeklyWindows`, `Weekday`, `WallClockTime`, `HostTimeZone`, `InactivePeriod`, `InactivePeriodId`, `Channel`, `OfferedChannels`, `BookingCode`, `BookingPageIntent`, `Availability`, `BusyPeriod`, `BookableDay`, `HostIdentity`; the policies `BookingPagePossibilities`, `FreeSlots`, `BookingSuspension`; the repository `BookingPageRepository`; the ports `Hosts`, `ConnectedCalendars` and `HostAgendas`, implemented by the API.
+- `src/Booking/Application`: `SetWeeklyWindows`, `AddInactivePeriod`, `RemoveInactivePeriod`, `OfferChannels`, `OpenBooking`, `CloseBooking`, `ChangeBookingLink`, through `BookingPages` (the page of a host, set up by their first gesture); `ConsultMyBookingPage` (`MyBookingPage`, the port `MyBookingPageRetriever`), `ConsultPublicBookingPage` (`PublicBookingPage`, `PublicHost`, the port `PublicBookingPageRetriever` reading a `BookingSchedule`).
