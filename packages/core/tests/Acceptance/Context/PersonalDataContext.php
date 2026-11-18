@@ -214,6 +214,13 @@ final class PersonalDataContext implements Context
         $this->application->dispatch(new ChangeCivility($this->application->signedIn(), $this->scenario->personIdOf($name), Vocabulary::civility('inconnue'), $this->application->now()));
     }
 
+    #[When('j\'efface les contacts :one et :other')]
+    public function iForgetBoth(string $one, string $other): void
+    {
+        $this->iForget($one);
+        $this->iForget($other);
+    }
+
     #[When('j\'efface la fiche de :name')]
     #[When('j\'efface le contact :name')]
     public function iForget(string $name): void
