@@ -32,8 +32,8 @@ final class ConfigureGmailNotificationsController extends AbstractController
     ) {
     }
 
-    #[Route('/api/me/organization/clients/google/gmail-notifications', name: 'api_me_configure_gmail_notifications', methods: ['PUT'])]
-    #[OA\Put(summary: 'Name the topic of the Google Cloud of my account the mailboxes of its members notify Prospecter through, and the account of service pushing them: the import of the e-mails of Gmail is offered from now on')]
+    #[Route('/api/me/organization/clients/google/gmail-notifications', name: 'api_me_configure_gmail_notifications', methods: ['PATCH'])]
+    #[OA\Patch(summary: 'Name the topic of the Google Cloud of my account the mailboxes of its members notify Prospecter through, and the account of service pushing them: the import of the e-mails of Gmail is offered from now on')]
     #[OA\Response(response: 200, description: 'The client of Google of my account', content: new Model(type: GoogleClientResource::class))]
     #[OA\Response(response: 401, description: 'Missing or invalid access token')]
     #[OA\Response(response: 403, description: 'The signed-in user is no administrator of the account', content: new Model(type: ProblemResource::class))]

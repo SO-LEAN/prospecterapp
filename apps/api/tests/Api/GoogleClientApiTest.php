@@ -45,7 +45,7 @@ class GoogleClientApiTest extends ApiTestCase
                 'self' => ['href' => self::THE_CLIENT, 'method' => 'GET'],
                 'configure' => ['href' => self::THE_CLIENT, 'method' => 'PATCH'],
                 'remove' => ['href' => self::THE_CLIENT, 'method' => 'DELETE'],
-                'configureGmailNotifications' => ['href' => self::GMAIL_NOTIFICATIONS, 'method' => 'PUT'],
+                'configureGmailNotifications' => ['href' => self::GMAIL_NOTIFICATIONS, 'method' => 'PATCH'],
             ],
         ], $client);
         $this->assertStringNotContainsString('secret-of-the-double', (string) $this->client->getResponse()->getContent());
@@ -55,7 +55,7 @@ class GoogleClientApiTest extends ApiTestCase
     {
         $this->loginAnAdministrator();
 
-        $client = $this->requestJson('PUT', self::GMAIL_NOTIFICATIONS, ['topic' => self::TOPIC, 'pushAccount' => self::PUSH_ACCOUNT]);
+        $client = $this->requestJson('PATCH', self::GMAIL_NOTIFICATIONS, ['topic' => self::TOPIC, 'pushAccount' => self::PUSH_ACCOUNT]);
 
         $this->assertResponseIsSuccessful();
         $this->assertSame(['topic' => self::TOPIC, 'pushAccount' => self::PUSH_ACCOUNT], $client['gmailNotifications']);
@@ -66,7 +66,7 @@ class GoogleClientApiTest extends ApiTestCase
     public function testAnAdministratorRemovesTheTopic(): void
     {
         $this->loginAnAdministrator();
-        $this->requestJson('PUT', self::GMAIL_NOTIFICATIONS, ['topic' => self::TOPIC, 'pushAccount' => self::PUSH_ACCOUNT]);
+        $this->requestJson('PATCH', self::GMAIL_NOTIFICATIONS, ['topic' => self::TOPIC, 'pushAccount' => self::PUSH_ACCOUNT]);
 
         $client = $this->requestJson('DELETE', self::GMAIL_NOTIFICATIONS);
 
@@ -79,7 +79,7 @@ class GoogleClientApiTest extends ApiTestCase
     {
         $this->loginAnAdministrator();
 
-        $problem = $this->requestJson('PUT', self::GMAIL_NOTIFICATIONS, ['topic' => 'gmail', 'pushAccount' => self::PUSH_ACCOUNT]);
+        $problem = $this->requestJson('PATCH', self::GMAIL_NOTIFICATIONS, ['topic' => 'gmail', 'pushAccount' => self::PUSH_ACCOUNT]);
 
         $this->assertResponseStatusCodeSame(422);
         $this->assertSame('invalidTopic', $problem['reason']);
@@ -89,7 +89,7 @@ class GoogleClientApiTest extends ApiTestCase
     {
         $this->loginAnAdministrator();
 
-        $this->requestJson('PUT', self::GMAIL_NOTIFICATIONS, ['topic' => self::TOPIC, 'pushAccount' => 'no-address']);
+        $this->requestJson('PATCH', self::GMAIL_NOTIFICATIONS, ['topic' => self::TOPIC, 'pushAccount' => 'no-address']);
 
         $this->assertResponseStatusCodeSame(422);
     }
@@ -189,9 +189,9 @@ class GoogleClientApiTest extends ApiTestCase
     {
         $this->login($member);
 
-        $this->requestJson($method, $uri, match ($method) {
-            'PATCH' => ['clientId' => 'client-of-solean', 'clientSecret' => 'secret-of-solean'],
-            'PUT' => ['topic' => self::TOPIC, 'pushAccount' => self::PUSH_ACCOUNT],
+        $this->requestJson($method, $uri, match (true) {
+            'PATCH' === $method && self::THE_CLIENT === $uri => ['clientId' => 'client-of-solean', 'clientSecret' => 'secret-of-solean'],
+            'PATCH' === $method => ['topic' => self::TOPIC, 'pushAccount' => self::PUSH_ACCOUNT],
             default => null,
         });
 
@@ -209,7 +209,7 @@ class GoogleClientApiTest extends ApiTestCase
             foreach (['sees' => 'GET', 'configures' => 'PATCH', 'removes' => 'DELETE'] as $gesture => $method) {
                 yield sprintf('%s %s', $who, $gesture) => [$member, $method];
             }
-            foreach (['names the topic of Gmail' => 'PUT', 'removes the topic of Gmail' => 'DELETE'] as $gesture => $method) {
+            foreach (['names the topic of Gmail' => 'PATCH', 'removes the topic of Gmail' => 'DELETE'] as $gesture => $method) {
                 yield sprintf('%s %s', $who, $gesture) => [$member, $method, self::GMAIL_NOTIFICATIONS];
             }
         }
