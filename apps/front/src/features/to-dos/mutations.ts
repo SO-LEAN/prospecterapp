@@ -45,12 +45,13 @@ export function useNoteOrganizationToDo() {
   })
 }
 
-export function useReviseToDo() {
+/** Revised from a form, which tells its refusals; from elsewhere (a to-do dropped on another day), a toast does. */
+export function useReviseToDo({ fromAForm = true } = {}) {
   const queryClient = useQueryClient()
   const { t } = useTranslation()
 
   return api.useMutation('patch', '/api/to-dos/{id}', {
-    meta: { silentValidation: true },
+    meta: { silentValidation: fromAForm },
     onSuccess: async () => {
       await readTheListsAgain(queryClient)
       toast.success(t('common.saved'))

@@ -41,7 +41,7 @@ export const Route = createFileRoute('/_app/calendar')({
 function Calendar() {
   const { view, day } = shownBy(Route.useSearch())
   const navigate = useNavigate({ from: Route.fullPath })
-  const revise = useReviseToDo()
+  const revise = useReviseToDo({ fromAForm: false })
 
   return (
     <CalendarPage
