@@ -49,4 +49,4 @@ The signal that should reopen this decision.
 3. Update the documents of its subjects, then `make adr-index` writes its line in the index of `README.md`; again when its status changes. `make lint` and `make ci` fail while the index differs from the headers (`make adr-index-check`).
 4. `make adr-references` checks that no reference names a record entirely replaced.
 
-Two branches adding a record each keep both lines of the index at a rebase (`merge=union` in `.gitattributes`): no conflict to resolve; `make adr-index` puts them in order if needed. Two records of the same number: the branch rebased second takes the next one, its references with it.
+Two branches adding a record each keep both lines of the index at a rebase (`merge=union` in `.gitattributes`): no conflict to resolve. The union replays each version of a line the branch changed after adding it: after the rebase, and before pushing, `make adr-index` writes the index again from the headers, committed when it changed (`docs/architecture/workflow.md`). Two records of the same number: the branch rebased second takes the next one, its references with it.
