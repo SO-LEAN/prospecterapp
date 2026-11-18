@@ -478,8 +478,13 @@ export const fr = {
     },
     public: {
       title: 'Prendre rendez-vous',
-      offers: 'Rencontre possible par : {{channels}}',
-      noSlot: 'Aucun créneau disponible pour le moment.',
+      noSlot: 'Aucun créneau n’est disponible pour le moment.',
+      duration: 'Rendez-vous de 15 minutes',
+      channel: 'Comment souhaitez-vous échanger ?',
+      hoursOf: 'Heures de {{city}}',
+      hoursConverted: 'Heures de {{city}}, converties depuis l’heure de {{hostCity}}',
+      noSlotThatDay: 'Aucun créneau',
+      chosen: '{{channel}} le {{day}} à {{time}}',
     },
   },
   account: {

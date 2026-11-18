@@ -3060,8 +3060,8 @@ export interface components {
             /** @description The 14 days from tomorrow on the clock of the host, each with the moments its free slots of 15 minutes start at; none when it offers nothing */
             days: {
                 /** Format: date */
-                day?: string;
-                slots?: string[];
+                day: string;
+                slots: string[];
             }[];
         };
     };

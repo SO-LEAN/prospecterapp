@@ -26,7 +26,7 @@ final readonly class PublicBookingPageResource
         #[OA\Property(description: 'The 14 days from tomorrow on the clock of the host, each with the moments its free slots of 15 minutes start at; none when it offers nothing', type: 'array', items: new OA\Items(properties: [
             new OA\Property(property: 'day', type: 'string', format: 'date'),
             new OA\Property(property: 'slots', type: 'array', items: new OA\Items(type: 'string', format: 'date-time')),
-        ], type: 'object'))]
+        ], type: 'object', required: ['day', 'slots']))]
         public array $days,
     ) {
     }
