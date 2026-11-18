@@ -8,6 +8,12 @@ type Props = { error: unknown; reset?: () => void }
 
 const isForbidden = (error: unknown): error is Problem => isProblem(error) && error.status === 403
 
+/** The refusal of the role alone, which the title of the page already tells. */
+const ROLE_NOT_ALLOWED = 'roleNotAllowed'
+
+const namesTheRightLacked = (problem: Problem) =>
+  Boolean(problem.reason) && problem.reason !== ROLE_NOT_ALLOWED
+
 /** Error boundary content for routes: problem details from the API or a network failure. */
 export function ErrorState({ error, reset }: Props) {
   return isForbidden(error) ? <Forbidden problem={error} /> : <Failure error={error} reset={reset} />
@@ -21,7 +27,7 @@ function Forbidden({ problem }: { problem: Problem }) {
     <EmptyState
       icon={Lock}
       title={t('errors.forbidden')}
-      description={problem.reason ? messageOf(problem) : undefined}
+      description={namesTheRightLacked(problem) ? messageOf(problem) : undefined}
     />
   )
 }
