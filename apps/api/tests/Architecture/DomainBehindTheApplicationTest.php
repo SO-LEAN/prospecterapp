@@ -41,6 +41,7 @@ class DomainBehindTheApplicationTest extends TestCase
         'Connectors/Google/GoogleCalendar.php',
         'Connectors/Google/GoogleMailbox.php',
         'Connectors/Google/GoogleTokens.php',
+        'Prospecting/Directory/RechercheEntreprisesDirectory.php',
         'Shared/GeoplateformeGeoLocation.php',
         'Shared/PrivateStorageClient.php',
         'Demo/DemoData.php',

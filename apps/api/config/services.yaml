@@ -307,6 +307,7 @@ services:
     # what a command writes, and what its reactions write, in one transaction of DynamoDB, all or nothing
     Prospecter\Core\SharedKernel\Application\Port\UnitOfWork: '@App\Shared\Persistence\DynamoUnitOfWork'
     Prospecter\Core\SharedKernel\Application\Port\GeoLocation: '@App\Shared\GeoplateformeGeoLocation'
+    Prospecter\Core\Prospecting\Domain\Port\EstablishmentDirectory: '@App\Prospecting\Directory\RechercheEntreprisesDirectory'
     Prospecter\Core\SharedKernel\Application\Port\Storage: '@App\Shared\StorageClient'
     # the private files of the storage, sent by the browsers themselves (ADR 0077)
     Prospecter\Core\SharedKernel\Application\Port\PrivateStorage: '@App\Shared\PrivateStorageClient'
