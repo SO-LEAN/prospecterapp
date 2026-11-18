@@ -3,8 +3,10 @@
 namespace App\Booking\Controller;
 
 use App\Booking\PublicBookingPageResourcePresenter;
+use App\Booking\PublicBookingRoutes;
 use App\Booking\Resource\PublicBookingPageResource;
 use App\Shared\ImageResourceFactory;
+use App\Shared\Resource\ProblemResource;
 use Nelmio\ApiDocBundle\Attribute\Model;
 use OpenApi\Attributes as OA;
 use Prospecter\Core\Booking\Application\ConsultPublicBookingPage\ConsultPublicBookingPage;
@@ -20,6 +22,11 @@ use Symfony\Component\Routing\Attribute\Route;
 #[OA\Tag('Booking')]
 final class ConsultPublicBookingPageController extends AbstractController
 {
+    /**
+     * Short: a link closed or a slot taken shows within it (ADR 0153).
+     */
+    private const int KEPT_SECONDS = 30;
+
     public function __construct(
         private readonly QueryHandler $consultPublicBookingPage,
         private readonly ClockInterface $clock,
@@ -27,14 +34,15 @@ final class ConsultPublicBookingPageController extends AbstractController
     ) {
     }
 
-    #[Route('/api/booking-pages/{code}', name: 'api_public_booking_page', requirements: ['code' => '[0-9A-Za-z]{22}'], methods: ['GET'])]
+    #[Route('/api/booking-pages/{code}', name: 'api_public_booking_page', requirements: ['code' => '[0-9A-Za-z]{22}'], defaults: [PublicBookingRoutes::LIMITED_BY_ITS_CODE => true], methods: ['GET'])]
     #[OA\Get(summary: 'Consult the booking page a public link leads to, without signing in: its free slots from tomorrow for 14 days and how its host meets the bookers; a link closed, changed, unknown or whose host has no connected calendar shows nothing, without saying why', security: [])]
-    #[OA\Response(response: 200, description: 'The booking page', content: new Model(type: PublicBookingPageResource::class))]
+    #[OA\Response(response: 200, description: 'The booking page, kept 30 seconds', content: new Model(type: PublicBookingPageResource::class))]
+    #[OA\Response(response: 429, description: 'This link was opened too often in the last minute: `tooManyRequests`, try again after `Retry-After` seconds', content: new Model(type: ProblemResource::class))]
     public function __invoke(string $code): JsonResponse
     {
         $presenter = new PublicBookingPageResourcePresenter($this->imageResourceFactory);
         ($this->consultPublicBookingPage)(new ConsultPublicBookingPage($code, $this->clock->now()), $presenter);
 
-        return $this->json($presenter->resource);
+        return $this->json($presenter->resource)->setPublic()->setMaxAge(self::KEPT_SECONDS);
     }
 }

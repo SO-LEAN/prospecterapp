@@ -1,0 +1,9 @@
+# The limiters of the public routes of Booking, their counts in its table, shared by every function (ADR 0153)
+framework:
+    rate_limiter:
+        public_booking_link:
+            policy: sliding_window
+            limit: 30
+            interval: '1 minute'
+            storage_service: App\Booking\Persistence\DynamoRateLimiterStorage
+            lock_factory: null

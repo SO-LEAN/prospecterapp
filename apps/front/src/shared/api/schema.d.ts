@@ -9097,13 +9097,22 @@ export interface operations {
         };
         requestBody?: never;
         responses: {
-            /** @description The booking page */
+            /** @description The booking page, kept 30 seconds */
             200: {
                 headers: {
                     [name: string]: unknown;
                 };
                 content: {
                     "application/json": components["schemas"]["PublicBookingPageResource"];
+                };
+            };
+            /** @description This link was opened too often in the last minute: `tooManyRequests`, try again after `Retry-After` seconds */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ProblemResource"];
                 };
             };
         };

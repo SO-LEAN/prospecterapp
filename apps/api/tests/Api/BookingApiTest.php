@@ -18,6 +18,9 @@ class BookingApiTest extends ApiTestCase
 {
     private const string CODE_OF_GOOGLE = 'a-code-of-google';
     private const string BASE62_OF_22 = '/^[0-9A-Za-z]{22}$/';
+    private const int OPENINGS_OF_A_LINK_A_MINUTE = 30;
+    private const string A_CODE = 'AbCdEfGhIjKlMnOpQrStUv';
+    private const string ANOTHER_CODE = 'ZyXwVuTsRqPoNmLkJiHgFe';
     private const array NOTHING_SHOWN = ['open' => false, 'host' => null, 'channels' => [], 'timeZone' => null, 'days' => []];
 
     protected function setUp(): void
@@ -304,6 +307,29 @@ class BookingApiTest extends ApiTestCase
         $this->signOut();
 
         $this->assertSame(self::NOTHING_SHOWN, $this->requestJson('GET', '/api/booking-pages/'.$code));
+    }
+
+    public function testALinkOpenedTooOftenIsRefusedForAWhileAnotherLinkNot(): void
+    {
+        foreach (range(1, self::OPENINGS_OF_A_LINK_A_MINUTE) as $opening) {
+            $this->requestJson('GET', '/api/booking-pages/'.self::A_CODE);
+        }
+
+        $problem = $this->requestJson('GET', '/api/booking-pages/'.self::A_CODE);
+
+        $this->assertResponseStatusCodeSame(429);
+        $this->assertSame('tooManyRequests', $problem['reason']);
+        $this->assertResponseHasHeader('Retry-After');
+        $this->assertStringContainsString('no-store', (string) $this->client->getResponse()->headers->get('Cache-Control'));
+        $this->requestJson('GET', '/api/booking-pages/'.self::ANOTHER_CODE);
+        $this->assertResponseIsSuccessful();
+    }
+
+    public function testAPublicPageIsKeptAShortWhile(): void
+    {
+        $this->requestJson('GET', '/api/booking-pages/'.self::A_CODE);
+
+        $this->assertSame('max-age=30, public', $this->client->getResponse()->headers->get('Cache-Control'));
     }
 
     public function testMyPageIsNotReadWithoutSigningIn(): void
