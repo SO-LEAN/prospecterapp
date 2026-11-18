@@ -747,7 +747,7 @@ export const fr = {
       reason: 'Motif de l’écart',
       dismiss: 'Écarter',
       dismissed: 'Écarté',
-      ended: 'Plus personne n’est à traiter : la campagne est terminée.',
+      ended: 'Plus personne n’est à traiter : la campagne est terminée.',
     },
     recipients: {
       title: 'Destinataires',
