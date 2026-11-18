@@ -153,9 +153,19 @@ final readonly class ContextTables
      */
     private static function notErased(array $campaign): array
     {
-        $kept = array_filter($campaign['recipients'] ?? [], static fn (array $recipient): bool => self::ERASED !== $recipient['status']);
+        $kept = array_filter($campaign['recipients'] ?? [], static fn (array $recipient): bool => !self::isErased($recipient));
 
         return array_column($kept, 'contactId');
+    }
+
+    /**
+     * By its status alone when saved before an erased recipient kept what was done with them.
+     *
+     * @param array{status: string, erased?: bool} $recipient
+     */
+    private static function isErased(array $recipient): bool
+    {
+        return $recipient['erased'] ?? self::ERASED === $recipient['status'];
     }
 
     /**

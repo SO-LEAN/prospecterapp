@@ -187,6 +187,13 @@ class CheckConsistencyCommandTest extends ApiTestCase
         $this->assertSame(Command::SUCCESS, $this->tester->execute([]));
     }
 
+    public function testARecipientErasedOnceProcessedIsNoDiscrepancy(): void
+    {
+        $this->campaignsTable()->batch([$this->startedCampaignItem(self::newIdentity(), self::newIdentity(), ['status' => 'processed', 'missed' => true, 'erased' => true])]);
+
+        $this->assertSame(Command::SUCCESS, $this->tester->execute([]));
+    }
+
     public function testTheTagsOfWhatTheAccountKeepsAreNoDiscrepancy(): void
     {
         $this->campaignsTable()->batch([$this->taggingItem('organization', $this->babbage()['organization']['id']), $this->taggingItem('contact', $this->ada())]);
@@ -363,13 +370,15 @@ class CheckConsistencyCommandTest extends ApiTestCase
     }
 
     /**
+     * @param array<string, mixed> $recipient where the team was with them, as a campaign saved before keeping it said
+     *
      * @return array<string, mixed> the item of a started campaign of the account of the demonstration keeping the
-     *                              contact erased, without its name
+     *                              contact erased, without its name, still to handle unless said
      */
-    private function startedCampaignItem(string $id, string $erased): array
+    private function startedCampaignItem(string $id, string $erased, array $recipient = ['status' => 'erased']): array
     {
         $item = $this->frozenCampaignItem($id, $erased);
-        $item['campaign'] = [...$item['campaign'], 'status' => 'started', 'recipients' => [['contactId' => $erased, 'status' => 'erased']], 'startedAt' => '2026-10-15T09:00:00.000000Z'];
+        $item['campaign'] = [...$item['campaign'], 'status' => 'started', 'recipients' => [['contactId' => $erased, ...$recipient]], 'startedAt' => '2026-10-15T09:00:00.000000Z'];
 
         return $item;
     }
