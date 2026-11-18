@@ -8,7 +8,7 @@ import { Badge } from '@/shared/ui/badge'
 import { Button } from '@/shared/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/shared/ui/card'
 import { useRemoveRecipient } from '../mutations'
-import { type Campaign, campaignRecipientsQuery, type RecipientList } from '../queries'
+import { type Campaign, campaignRecipientsQuery, type Recipient, type RecipientList } from '../queries'
 import { AddRecipients } from './add-recipients'
 import { MessagePreview } from './campaign-target'
 import { OpenTheExchange } from './open-the-exchange'
@@ -73,11 +73,13 @@ type RecipientItemsProps = {
 
 /**
  * Each recipient with its status, its cross while it may be taken off, the exchange noted for them once processed;
- * one erased named « Contact effacé ».
+ * one erased named « Contact effacé », with what the team did with them.
  */
 function RecipientItems({ campaignId, recipients, previewed, onPreview }: RecipientItemsProps) {
   const { t } = useTranslation()
   const remove = useRemoveRecipient(campaignId)
+  const statusLabel = (status: Recipient['status'], missed: boolean) =>
+    missed ? t('campaigns.recipients.missed') : t(`campaigns.recipients.status.${status}`)
 
   return (
     <ul aria-label={t('campaigns.recipients.title')} className="divide-y">
@@ -88,7 +90,7 @@ function RecipientItems({ campaignId, recipients, previewed, onPreview }: Recipi
             <span className="flex-1 px-2 py-2 text-muted-foreground text-sm italic">
               {t('campaigns.recipients.erased')}
             </span>
-            <Badge variant="outline">{t(`campaigns.recipients.status.${status}`)}</Badge>
+            <Badge variant="outline">{statusLabel(status, missed)}</Badge>
           </li>
         ) : (
           <li key={contact.id} className="flex items-center gap-2">
@@ -107,9 +109,7 @@ function RecipientItems({ campaignId, recipients, previewed, onPreview }: Recipi
                 {contact.organizations.map((organization) => organization.name).join(', ')}
               </span>
             </button>
-            <Badge variant="secondary">
-              {missed ? t('campaigns.recipients.missed') : t(`campaigns.recipients.status.${status}`)}
-            </Badge>
+            <Badge variant="secondary">{statusLabel(status, missed)}</Badge>
             <OpenTheExchange exchange={_links.exchange} name={fullNameOf(contact)} />
             {_links.remove && (
               <Button

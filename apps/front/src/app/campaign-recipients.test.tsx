@@ -323,6 +323,18 @@ describe('the recipients of a campaign', () => {
     expect(within(list).getByText('Ada Lovelace')).toBeInTheDocument()
   })
 
+  it('tell what was done with a contact erased once processed: a call missed', async () => {
+    theApiAnswers({ ...started, status: 'ended', endedAt: '2026-11-17T10:00:00+00:00' }, twoContacts, {
+      ...recipients,
+      items: [{ contact: null, status: 'processed', missed: true, reason: null, _links: {} }],
+    })
+    await renderTheSpaAt(`/campaigns/${CAMPAIGN}`)
+
+    const list = await screen.findByRole('list', { name: 'Destinataires' })
+    expect(within(list).getByText('Contact effacé')).toBeInTheDocument()
+    expect(within(list).getByText('Manqué')).toBeInTheDocument()
+  })
+
   it('open the exchange noted for a recipient processed', async () => {
     theApiAnswers(
       { ...started, status: 'ended', endedAt: '2026-11-17T10:00:00+00:00' },
