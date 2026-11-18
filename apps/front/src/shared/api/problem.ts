@@ -52,6 +52,7 @@ export function applyViolations<T extends FieldValues>(
       setError(field, {
         type: 'server',
         message: wordingOf(violation.reason, violation.context, violation.title),
+        types: violation.context,
       })
     } else {
       global.push(wordingOf(violation.reason, violation.context, violation.title))
