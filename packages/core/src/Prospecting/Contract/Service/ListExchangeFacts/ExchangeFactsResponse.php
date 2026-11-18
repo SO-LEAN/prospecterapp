@@ -25,10 +25,11 @@ final readonly class ExchangeFactsResponse
     }
 
     /**
-     * An erased exchange: the last of its facts.
+     * An erased exchange: the last of its facts, naming still the contact it was with and the campaign it was noted
+     * in when told (ADR 0152).
      */
-    public static function absent(string $exchangeId): self
+    public static function absent(string $exchangeId, ?string $contactId = null, ?string $campaignId = null): self
     {
-        return new self($exchangeId, self::NO_REVISION, false, null, null);
+        return new self($exchangeId, self::NO_REVISION, false, null, null, $contactId, $campaignId);
     }
 }
