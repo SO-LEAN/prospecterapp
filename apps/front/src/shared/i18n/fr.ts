@@ -480,7 +480,7 @@ export const fr = {
       title: 'Prendre rendez-vous',
       noSlot: 'Aucun créneau n’est disponible pour le moment.',
       duration: 'Rendez-vous de 15 minutes',
-      channel: 'Comment souhaitez-vous échanger ?',
+      channel: 'Comment souhaitez-vous échanger ?',
       hoursOf: 'Heures de {{city}}',
       hoursConverted: 'Heures de {{city}}, converties depuis l’heure de {{hostCity}}',
       noSlotThatDay: 'Aucun créneau',
