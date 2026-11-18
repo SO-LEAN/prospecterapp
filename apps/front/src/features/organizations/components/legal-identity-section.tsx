@@ -14,6 +14,7 @@ import {
   toOrganizationIdentityValues,
 } from '../schema'
 import { establishmentPage, spacedSiret } from '../siret'
+import { EstablishmentSearch } from './establishment-search'
 
 export function LegalIdentitySection({ organization }: { organization: Organization }) {
   const { t } = useTranslation()
@@ -43,6 +44,14 @@ export function LegalIdentitySection({ organization }: { organization: Organizat
               <FormField form={form} name="siret" label={t('fields.siret')} optional={t('common.optional')}>
                 <Input {...form.register('siret')} inputMode="numeric" />
               </FormField>
+              {organization._links.searchEstablishments && (
+                <div className="flex items-end">
+                  <EstablishmentSearch
+                    organizationId={organization.id}
+                    onChoose={(siret) => form.setValue('siret', siret, { shouldDirty: true })}
+                  />
+                </div>
+              )}
             </>
           )}
         </SectionForm>

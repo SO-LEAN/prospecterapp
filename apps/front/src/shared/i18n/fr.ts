@@ -245,6 +245,16 @@ export const fr = {
       search: 'Rechercher une de mes organisations…',
     },
     logo: { change: 'Changer le logo', add: 'Ajouter un logo' },
+    establishments: {
+      search: 'Rechercher dans l’annuaire',
+      title: 'Établissements de l’annuaire',
+      description:
+        'Les établissements de l’annuaire des entreprises dont le nom ressemble, ceux de sa ville d’abord.',
+      closed: 'Fermé',
+      siretAndActivity: '{{siret}} · {{activity}}',
+      searching: 'Recherche dans l’annuaire…',
+      none: 'L’annuaire ne connaît aucun établissement de ce nom.',
+    },
     validation: { nameOrEmail: 'Renseignez au moins une raison sociale ou un e-mail.' },
   },
   contacts: {
