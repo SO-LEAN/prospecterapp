@@ -11,6 +11,7 @@ import { useRemoveRecipient } from '../mutations'
 import { type Campaign, campaignRecipientsQuery, type RecipientList } from '../queries'
 import { AddRecipients } from './add-recipients'
 import { MessagePreview } from './campaign-target'
+import { OpenTheExchange } from './open-the-exchange'
 
 type Props = {
   campaign: Campaign
@@ -70,7 +71,10 @@ type RecipientItemsProps = {
   onPreview: (contactId: string) => void
 }
 
-/** Each recipient with its status, its cross while it may be taken off; one erased named « Contact effacé ». */
+/**
+ * Each recipient with its status, its cross while it may be taken off, the exchange noted for them once processed;
+ * one erased named « Contact effacé ».
+ */
 function RecipientItems({ campaignId, recipients, previewed, onPreview }: RecipientItemsProps) {
   const { t } = useTranslation()
   const remove = useRemoveRecipient(campaignId)
@@ -106,6 +110,7 @@ function RecipientItems({ campaignId, recipients, previewed, onPreview }: Recipi
             <Badge variant="secondary">
               {missed ? t('campaigns.recipients.missed') : t(`campaigns.recipients.status.${status}`)}
             </Badge>
+            <OpenTheExchange exchange={_links.exchange} name={fullNameOf(contact)} />
             {_links.remove && (
               <Button
                 variant="ghost"

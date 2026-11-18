@@ -26,6 +26,7 @@ const CAMPAIGN = '0190a1c0-0000-7000-8000-00000000ca00'
 const ADA = '0190a1c0-0000-7000-8000-000000000001'
 const ALAN = '0190a1c0-0000-7000-8000-000000000003'
 const GRACE = '0190a1c0-0000-7000-8000-000000000002'
+const GRACE_EXCHANGE = '0190a1c0-0000-7000-8000-000000000e02'
 
 const me: Account = {
   name: { firstName: 'Grace', lastName: 'Hopper' },
@@ -92,7 +93,7 @@ const recipients: RecipientList = {
       status: 'processed',
       missed: true,
       reason: null,
-      _links: {},
+      _links: { exchange: { href: `/api/exchanges/${GRACE_EXCHANGE}`, method: 'GET' } },
     },
     pending(ADA, 'Ada', 'Lovelace', '+33 6 12 34 56 78'),
     pending(ALAN, 'Alan', 'Turing', '+33 6 98 76 54 32'),
@@ -168,6 +169,19 @@ describe('a started campaign', () => {
     expect(screen.getByRole('link', { name: 'Ouvrir' })).toHaveAttribute('href', 'tel:+33612345678')
     expect(screen.getByText('Appel · Émis')).toBeInTheDocument()
     expect(screen.getByLabelText(/^Texte/)).toHaveValue('Pitch pour Ada')
+  })
+
+  it('offers the exchange noted for a recipient processed, the others none', async () => {
+    theApiAnswers()
+    await renderTheSpaAt(`/campaigns/${CAMPAIGN}`)
+
+    const list = await screen.findByRole('list', { name: 'Destinataires' })
+    expect(
+      within(list).getByRole('button', { name: 'Ouvrir l’échange avec Grace Hopper' }),
+    ).toBeInTheDocument()
+    expect(
+      within(list).queryByRole('button', { name: 'Ouvrir l’échange avec Ada Lovelace' }),
+    ).not.toBeInTheDocument()
   })
 
   it('copies the message rendered for the recipient', async () => {

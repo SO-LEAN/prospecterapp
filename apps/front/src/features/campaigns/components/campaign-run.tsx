@@ -29,6 +29,7 @@ import {
 } from '../queries'
 import { meansOf, openingOf } from '../reach'
 import { CampaignSummary } from './campaign-summary'
+import { OpenTheExchange } from './open-the-exchange'
 
 type Contact = NonNullable<Recipient['contact']>
 type Handled = 'processed' | 'dismissed'
@@ -190,6 +191,7 @@ function RecipientLine({
         <span className="flex min-w-0 flex-1 flex-col items-start px-2 py-2 text-sm">{who}</span>
       )}
       <Badge variant={status === 'pending' ? 'default' : 'secondary'}>{statusLabel}</Badge>
+      <OpenTheExchange exchange={recipient._links.exchange} name={fullNameOf(contact)} />
     </li>
   )
 }
