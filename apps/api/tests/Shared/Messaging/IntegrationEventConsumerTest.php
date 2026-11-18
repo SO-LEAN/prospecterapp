@@ -39,10 +39,10 @@ use Tests\App\Double\InMemoryLogger;
  */
 class IntegrationEventConsumerTest extends ApiTestCase
 {
-    private const string AT = '2026-10-15 09:00 UTC';
-
     use DeliversThroughTheOutbox;
     use InvokesTheWorker;
+
+    private const string AT = '2026-10-15 09:00 UTC';
 
     private string $organization;
     private string $contact;

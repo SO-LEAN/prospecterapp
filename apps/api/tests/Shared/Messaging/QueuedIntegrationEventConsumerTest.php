@@ -20,9 +20,9 @@ use Tests\App\Base\ApiTestCase;
  */
 class QueuedIntegrationEventConsumerTest extends ApiTestCase
 {
-    private const string AT = '2026-10-15 09:00 UTC';
-
     use InvokesTheWorker;
+
+    private const string AT = '2026-10-15 09:00 UTC';
 
     private const string SUBSCRIPTION = 'prospecting-failing-reaction';
     private const int LAST_RECEIVE = 3;
