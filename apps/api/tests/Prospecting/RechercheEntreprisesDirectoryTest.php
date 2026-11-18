@@ -84,6 +84,7 @@ class RechercheEntreprisesDirectoryTest extends TestCase
         yield 'failing' => [new MockResponse('', ['http_code' => 503])];
         yield 'limiting the requests' => [new MockResponse('', ['http_code' => 429])];
         yield 'not answering' => [new MockResponse('', ['error' => 'The directory does not answer'])];
+        yield 'answering no JSON' => [new MockResponse('<html>Maintenance</html>')];
     }
 
     /**

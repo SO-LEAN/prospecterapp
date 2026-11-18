@@ -7,6 +7,7 @@ use Prospecter\Core\Prospecting\Domain\Model\Establishment;
 use Prospecter\Core\Prospecting\Domain\Port\EstablishmentDirectory;
 use Prospecter\Core\SharedKernel\Domain\Siret;
 use Symfony\Component\DependencyInjection\Attribute\Autowire;
+use Symfony\Contracts\HttpClient\Exception\DecodingExceptionInterface;
 use Symfony\Contracts\HttpClient\Exception\TransportExceptionInterface;
 use Symfony\Contracts\HttpClient\HttpClientInterface;
 use Symfony\Contracts\HttpClient\ResponseInterface;
@@ -66,14 +67,25 @@ final readonly class RechercheEntreprisesDirectory implements EstablishmentDirec
     private function companies(array $query): array
     {
         $response = $this->httpClient->request('GET', $this->searchUrl, ['query' => $query, 'timeout' => self::TIMEOUT]);
-
         $status = self::statusOf($response);
 
         if (self::isOutOfReach($status)) {
             throw ServiceUnavailable::directory(new \RuntimeException(sprintf('The directory answered %d', $status)));
         }
 
-        return self::isRefused($status) ? [] : $response->toArray()['results'];
+        return self::isRefused($status) ? [] : self::resultsOf($response);
+    }
+
+    /**
+     * @return list<array{nom_complet: string, matching_etablissements: list<array<string, mixed>>}>
+     */
+    private static function resultsOf(ResponseInterface $response): array
+    {
+        try {
+            return $response->toArray()['results'];
+        } catch (DecodingExceptionInterface $failure) {
+            throw ServiceUnavailable::directory($failure);
+        }
     }
 
     private static function statusOf(ResponseInterface $response): int
