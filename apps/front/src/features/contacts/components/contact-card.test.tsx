@@ -40,7 +40,7 @@ describe('a contact of the list', () => {
   it('marks the civility beside the name', async () => {
     await renderInARouter(
       <TooltipProvider>
-        <ContactCard contact={ada([], 'madame')} />
+        <ContactCard contact={ada([], 'ms')} />
       </TooltipProvider>,
     )
 

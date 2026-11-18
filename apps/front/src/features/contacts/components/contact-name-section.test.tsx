@@ -44,7 +44,7 @@ afterEach(() => theApi.mockReset())
 
 describe('the name of a contact', () => {
   it('shows the civility noted beside the name', () => {
-    renderTheSection(camille({}, 'monsieur'))
+    renderTheSection(camille({}, 'mr'))
 
     expect(screen.getByText('Civilité').nextSibling).toHaveTextContent('Monsieur')
   })
@@ -54,7 +54,7 @@ describe('the name of a contact', () => {
     theApi.mockImplementation(async (input) => {
       const request = input as Request
       sent.push({ url: new URL(request.url).pathname, body: await request.clone().json() })
-      return Response.json(camille(theRightToChangeIt, 'madame'))
+      return Response.json(camille(theRightToChangeIt, 'ms'))
     })
     const user = renderTheSection(camille(theRightToChangeIt))
 
@@ -64,7 +64,7 @@ describe('the name of a contact', () => {
     await user.click(screen.getByRole('button', { name: 'Enregistrer' }))
 
     await vi.waitFor(() =>
-      expect(sent).toContainEqual({ url: `/api/contacts/${CAMILLE}/civility`, body: { civility: 'madame' } }),
+      expect(sent).toContainEqual({ url: `/api/contacts/${CAMILLE}/civility`, body: { civility: 'ms' } }),
     )
   })
 
@@ -75,7 +75,7 @@ describe('the name of a contact', () => {
       sent.push({ url: new URL(request.url).pathname, body: await request.clone().json() })
       return Response.json(camille(theRightToChangeIt))
     })
-    const user = renderTheSection(camille(theRightToChangeIt, 'monsieur'))
+    const user = renderTheSection(camille(theRightToChangeIt, 'mr'))
 
     await user.click(screen.getByRole('button', { name: /^Modifier\s:\sNom$/ }))
     await user.click(screen.getByRole('combobox', { name: /^Civilité/ }))
@@ -91,9 +91,9 @@ describe('the name of a contact', () => {
     const sent: string[] = []
     theApi.mockImplementation(async (input) => {
       sent.push(new URL((input as Request).url).pathname)
-      return Response.json(camille(theRightToChangeIt, 'madame'))
+      return Response.json(camille(theRightToChangeIt, 'ms'))
     })
-    const user = renderTheSection(camille(theRightToChangeIt, 'madame'))
+    const user = renderTheSection(camille(theRightToChangeIt, 'ms'))
 
     await user.click(screen.getByRole('button', { name: /^Modifier\s:\sNom$/ }))
     await user.type(screen.getByLabelText('Prénom'), 's')
