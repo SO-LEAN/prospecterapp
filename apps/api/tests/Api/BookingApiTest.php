@@ -125,19 +125,21 @@ class BookingApiTest extends ApiTestCase
 
     public function testASignedInMemberReadsAPublicPageToo(): void
     {
+        $assistant = $this->bearerOf('assistant-user');
         $code = $this->anOpenPage();
 
-        $this->login('assistant-user');
+        $this->signInWith($assistant);
 
         $this->assertSame(['open' => true, 'channels' => ['call', 'videoCall']], $this->requestJson('GET', '/api/booking-pages/'.$code));
     }
 
     public function testMyPageIsMineOnly(): void
     {
+        $assistant = $this->bearerOf('assistant-user');
         $this->login();
         $this->requestJson('PATCH', '/api/me/booking-page/channels', ['channels' => ['call']]);
 
-        $this->login('assistant-user');
+        $this->signInWith($assistant);
         $theirs = $this->requestJson('GET', '/api/me/booking-page');
 
         $this->assertSame([], $theirs['channels']);
@@ -203,13 +205,14 @@ class BookingApiTest extends ApiTestCase
     public function testMyOpenPageIsReadWithoutSigningInAndOffersNothingOnceClosed(): void
     {
         $code = $this->anOpenPage();
+        $me = $this->client->getServerParameter('HTTP_AUTHORIZATION');
 
         $this->signOut();
         $public = $this->requestJson('GET', '/api/booking-pages/'.$code);
         $this->assertResponseIsSuccessful();
         $this->assertSame(['open' => true, 'channels' => ['call', 'videoCall']], $public);
 
-        $this->login();
+        $this->signInWith($me);
         $closed = $this->requestJson('DELETE', '/api/me/booking-page/opening');
         $this->assertResponseIsSuccessful();
         $this->assertFalse($closed['open']);
@@ -260,7 +263,27 @@ class BookingApiTest extends ApiTestCase
 
     private function signOut(): void
     {
-        $this->client->setServerParameter('HTTP_AUTHORIZATION', '');
+        $this->signInWith('');
+    }
+
+    /**
+     * The kernel kept between the requests of a test (the double of Google keeps what it granted), the clock checking
+     * the tokens stays at its first request: a member signs in again with a token taken before it, never a new one,
+     * whose moment of issue would come after that clock.
+     */
+    private function signInWith(string $authorization): void
+    {
+        $this->client->setServerParameter('HTTP_AUTHORIZATION', $authorization);
+    }
+
+    /**
+     * The token of a member, taken before the first request of the test.
+     */
+    private function bearerOf(string $reference): string
+    {
+        $this->login($reference);
+
+        return (string) $this->client->getServerParameter('HTTP_AUTHORIZATION');
     }
 
     private function connectGoogle(): void
