@@ -29,7 +29,8 @@ final readonly class RechercheEntreprisesDirectory implements EstablishmentDirec
     private const int CLIENT_ERROR = 400;
     private const int TOO_MANY_REQUESTS = 429;
     private const int SERVER_ERROR = 500;
-    private const int TIMEOUT = 5;
+    /** In seconds, between two bytes as for the whole request: a search makes two. */
+    private const float TIMEOUT = 5.0;
 
     public function __construct(
         private HttpClientInterface $httpClient,
@@ -67,7 +68,7 @@ final readonly class RechercheEntreprisesDirectory implements EstablishmentDirec
      */
     private function companies(array $query): array
     {
-        $response = $this->httpClient->request('GET', $this->searchUrl, ['query' => $query, 'timeout' => self::TIMEOUT]);
+        $response = $this->httpClient->request('GET', $this->searchUrl, ['query' => $query, 'timeout' => self::TIMEOUT, 'max_duration' => self::TIMEOUT]);
         $status = self::statusOf($response);
 
         if (self::isOutOfReach($status)) {
@@ -84,7 +85,7 @@ final readonly class RechercheEntreprisesDirectory implements EstablishmentDirec
     {
         try {
             return $response->toArray()['results'];
-        } catch (DecodingExceptionInterface $failure) {
+        } catch (DecodingExceptionInterface|TransportExceptionInterface $failure) {
             throw ServiceUnavailable::directory($failure);
         }
     }

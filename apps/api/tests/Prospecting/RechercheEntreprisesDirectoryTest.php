@@ -52,6 +52,20 @@ class RechercheEntreprisesDirectoryTest extends TestCase
         $this->assertSame([self::SEARCH_URL.'?q=ACME&per_page=10&limite_matching_etablissements=10'], $asked);
     }
 
+    public function testARequestLastsFiveSecondsAtMost(): void
+    {
+        $durations = [];
+        $directory = new RechercheEntreprisesDirectory(new MockHttpClient(static function (string $method, string $url, array $options) use (&$durations): JsonMockResponse {
+            $durations[] = $options['max_duration'];
+
+            return new JsonMockResponse(self::companies());
+        }), self::SEARCH_URL);
+
+        $directory->named('ACME');
+
+        $this->assertSame([5.0], $durations);
+    }
+
     public function testTheSearchInAMunicipalityFiltersByItsCode(): void
     {
         $asked = [];
@@ -96,6 +110,11 @@ class RechercheEntreprisesDirectoryTest extends TestCase
         yield 'limiting the requests' => [new MockResponse('', ['http_code' => 429])];
         yield 'not answering' => [new MockResponse('', ['error' => 'The directory does not answer'])];
         yield 'answering no JSON' => [new MockResponse('<html>Maintenance</html>')];
+        yield 'breaking off its answer' => [new MockResponse((static function (): \Generator {
+            yield '{"results": [';
+
+            throw new \RuntimeException('The connection broke off');
+        })())];
     }
 
     /**
