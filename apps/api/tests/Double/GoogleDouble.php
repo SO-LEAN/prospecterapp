@@ -17,6 +17,8 @@ use Symfony\Contracts\HttpClient\ResponseInterface;
 final class GoogleDouble
 {
     private const string CALENDAR_OF_PROSPECTER = 'https://www.googleapis.com/auth/calendar.app.created';
+    private const string GMAIL = 'https://www.googleapis.com/auth/gmail.readonly';
+    private const string WATCHED_UNTIL = '2026-10-22 09:00 UTC';
 
     /** @var array{code: string, email: string, scope: string, refreshToken: string}|null */
     private ?array $grant = null;
@@ -31,17 +33,29 @@ final class GoogleDouble
     private ?array $lastClient = null;
     /** @var array<string, array<string, array<string, mixed>>> the events of each calendar, by their id */
     private array $calendars = [];
+    /** @var list<string> the topic of each watch of a mailbox asked, the latest last */
+    private array $watches = [];
+    private int $stops = 0;
 
     public function __construct(
         private readonly string $tokenUrl,
         private readonly string $revokeUrl,
         private readonly string $calendarUrl,
+        private readonly string $gmailUrl,
     ) {
     }
 
     public function grants(string $code, string $email, string $refreshToken, bool $withTheCalendar = true): void
     {
         $this->grant = ['code' => $code, 'email' => $email, 'scope' => 'openid https://www.googleapis.com/auth/userinfo.email'.($withTheCalendar ? ' '.self::CALENDAR_OF_PROSPECTER : ''), 'refreshToken' => $refreshToken];
+    }
+
+    /**
+     * The calendar and the reading of the mailbox granted for the code (ADR 0154).
+     */
+    public function grantsGmail(string $code, string $email, string $refreshToken): void
+    {
+        $this->grant = ['code' => $code, 'email' => $email, 'scope' => 'openid https://www.googleapis.com/auth/userinfo.email '.self::CALENDAR_OF_PROSPECTER.' '.self::GMAIL, 'refreshToken' => $refreshToken];
     }
 
     public function refusesTheTokens(): void
@@ -112,7 +126,7 @@ final class GoogleDouble
 
     public function serves(string $url): bool
     {
-        return str_starts_with($url, $this->tokenUrl) || str_starts_with($url, $this->revokeUrl) || str_starts_with($url, $this->calendarUrl);
+        return str_starts_with($url, $this->tokenUrl) || str_starts_with($url, $this->revokeUrl) || str_starts_with($url, $this->calendarUrl) || str_starts_with($url, $this->gmailUrl);
     }
 
     /**
@@ -124,9 +138,41 @@ final class GoogleDouble
             !$this->answers => new MockResponse('', ['error' => 'Google does not answer']),
             null !== $this->failure => new MockResponse('', ['http_code' => $this->failure]),
             str_starts_with($url, $this->calendarUrl) => $this->calendar($method, substr($url, strlen($this->calendarUrl)), $options),
+            str_starts_with($url, $this->gmailUrl) => $this->gmail(substr($url, strlen($this->gmailUrl)), $options),
             str_starts_with($url, $this->tokenUrl) => $this->token(self::formOf($options)),
             default => $this->revoke(self::formOf($options)),
         };
+    }
+
+    /**
+     * @return list<string> the topic of each watch asked, the latest last
+     */
+    public function watches(): array
+    {
+        return $this->watches;
+    }
+
+    public function stops(): int
+    {
+        return $this->stops;
+    }
+
+    /**
+     * A mailbox watched for a week from the moment of the tests, standing at the history 1000 (ADR 0154).
+     *
+     * @param array<string, mixed> $options
+     */
+    private function gmail(string $path, array $options): ResponseInterface
+    {
+        if ('/users/me/stop' === $path) {
+            ++$this->stops;
+
+            return new MockResponse('', ['http_code' => 204]);
+        }
+
+        $this->watches[] = (string) (json_decode((string) ($options['body'] ?? ''), true)['topicName'] ?? '');
+
+        return new JsonMockResponse(['historyId' => '1000', 'expiration' => (string) (new \DateTimeImmutable(self::WATCHED_UNTIL)->getTimestamp() * 1000)]);
     }
 
     /**

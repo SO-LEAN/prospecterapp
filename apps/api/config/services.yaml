@@ -265,8 +265,9 @@ services:
     # production (empty)
     App\Shared\Messaging\IntegrationEventConsumer:
         public: true
-    # the function the schedule of an instance calls every hour, erasing the contacts left unattached (ADR 0146, 0147)
-    App\Prospecting\EraseContactsLeftUnattachedFunction:
+    # the function the schedules of an instance call, each naming its task: the erasure of the contacts left unattached
+    # every hour (ADR 0146, 0147), the renewal of the watches of Gmail every day (ADR 0154)
+    App\Shared\ScheduledTasksFunction:
         public: true
     # the worker of the local stack, taking the invocations of the rules from a queue (docker/lambda/deploy.sh)
     App\Shared\Messaging\QueuedIntegrationEventConsumer:
@@ -345,7 +346,7 @@ when@test:
             public: true
         # Google, its tokens and its revocations, by its double behind OutsideServices
         Tests\App\Double\GoogleDouble:
-            arguments: ['%env(GOOGLE_TOKEN_URL)%', '%env(GOOGLE_REVOKE_URL)%', '%env(GOOGLE_CALENDAR_URL)%']
+            arguments: ['%env(GOOGLE_TOKEN_URL)%', '%env(GOOGLE_REVOKE_URL)%', '%env(GOOGLE_CALENDAR_URL)%', '%env(GOOGLE_GMAIL_URL)%']
             public: true
         # the files stay in memory: the storage app is tested on its own
         Prospecter\Core\SharedKernel\Application\Port\Storage: '@Tests\App\Double\InMemoryStorage'
