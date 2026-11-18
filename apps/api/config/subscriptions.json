@@ -189,5 +189,47 @@
       "ContactFactsChanged.v2": "Prospecter\\Core\\Campaigns\\Application\\RecordContactFacts\\RecordContactFactsHandler"
     },
     "inbox": false
+  },
+  "personal-data-forget-contact-left-unattached": {
+    "context": "personal-data",
+    "sources": ["prospecter.prospecting"],
+    "events": ["ContactLeftUnattached.v1"],
+    "handler": "Prospecter\\Core\\PersonalData\\Application\\ForgetContactLeftUnattached\\ForgetContactLeftUnattachedHandler",
+    "inbox": true
+  },
+  "prospecting-erase-exchanges-of-contact-left-unattached": {
+    "context": "prospecting",
+    "sources": ["prospecter.prospecting.internal"],
+    "events": ["ContactLeftUnattached.v1"],
+    "handler": "Prospecter\\Core\\Prospecting\\Application\\EraseExchangesOfContactLeftUnattached\\EraseExchangesOfContactLeftUnattachedHandler",
+    "inbox": true
+  },
+  "prospecting-attach-contact-to-attach": {
+    "context": "prospecting",
+    "sources": ["prospecter.prospecting.internal"],
+    "events": ["ContactAdded.v1"],
+    "handler": "Prospecter\\Core\\Prospecting\\Application\\AttachContactToAttach\\AttachContactToAttachHandler",
+    "inbox": true
+  },
+  "prospecting-keep-exchanges-of-attached-contact": {
+    "context": "prospecting",
+    "sources": ["prospecter.prospecting.internal"],
+    "events": ["ContactAdded.v1"],
+    "handler": "Prospecter\\Core\\Prospecting\\Application\\KeepExchangesOfAttachedContact\\KeepExchangesOfAttachedContactHandler",
+    "inbox": true
+  },
+  "prospecting-keep-to-dos-of-attached-contact": {
+    "context": "prospecting",
+    "sources": ["prospecter.prospecting.internal"],
+    "events": ["ContactAdded.v1"],
+    "handler": "Prospecter\\Core\\Prospecting\\Application\\KeepToDosOfAttachedContact\\KeepToDosOfAttachedContactHandler",
+    "inbox": true
+  },
+  "prospecting-push-back-erasure-of-contact-to-attach": {
+    "context": "prospecting",
+    "sources": ["prospecter.prospecting.internal"],
+    "events": ["ExchangePlanned.v1", "ExchangeNoted.v1", "ExchangeMoved.v1", "ExchangeCorrected.v1"],
+    "handler": "Prospecter\\Core\\Prospecting\\Application\\PushBackErasureOfContactToAttach\\PushBackErasureOfContactToAttachHandler",
+    "inbox": true
   }
 }

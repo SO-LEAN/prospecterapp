@@ -27,6 +27,9 @@ final readonly class ContactResource
         #[SerializedName('_links')]
         #[Context([AbstractObjectNormalizer::SKIP_NULL_VALUES => true])]
         public ContactLinksResource $links,
+        #[OA\Property(description: 'Until when the contact waits for the reader, who met them, to attach them to an organization (ADR 0146); absent otherwise', nullable: false)]
+        #[Context([AbstractObjectNormalizer::SKIP_NULL_VALUES => true])]
+        public ?ToAttachResource $toAttach = null,
     ) {
     }
 }

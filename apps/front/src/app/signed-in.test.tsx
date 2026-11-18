@@ -96,7 +96,10 @@ function theApiAnswers(...myAccount: Answer[]) {
       return myDay()
     }
     if (pathname === '/api/me/exchanges-to-process') {
-      return json({ items: [], toDos: [], _links: { self: { href: pathname, method: 'GET' } } }, 200)
+      return json(
+        { items: [], toDos: [], contactsToAttach: [], _links: { self: { href: pathname, method: 'GET' } } },
+        200,
+      )
     }
     return refused(404, 'notFound')
   })

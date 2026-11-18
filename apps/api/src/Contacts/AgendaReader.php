@@ -29,6 +29,7 @@ use Prospecter\Core\Prospecting\Application\ConsultOverlappingExchanges\ConsultO
 use Prospecter\Core\Prospecting\Application\ConsultOverlappingExchanges\KeptOverlappingExchanges;
 use Prospecter\Core\Prospecting\Application\ConsultWhatIsToProcess\ConsultWhatIsToProcess;
 use Prospecter\Core\Prospecting\Application\ConsultWhatIsToProcess\KeptWhatIsToProcess;
+use Prospecter\Core\Prospecting\Application\ContactToAttachInList;
 use Prospecter\Core\Prospecting\Application\ExchangeInTimeline;
 use Prospecter\Core\Prospecting\Application\OrganizationSheet;
 use Prospecter\Core\Prospecting\Application\ToDoInList;
@@ -100,7 +101,8 @@ final readonly class AgendaReader
         ($this->consultWhatIsToProcess)(new ConsultWhatIsToProcess($holder, $at), $toProcess);
         $exchanges = $toProcess->toProcess->exchanges;
         $links = new ExchangesToProcessLinksResource($this->links->to('api_me_exchanges_to_process'));
-        $presenter = new ExchangesToProcessPresenter($this->personsOf($holder, $exchanges), $this->organizationsPlannedWithAlone($exchanges), $this->timelines, $links, $this->organizationsOfContacts->read($holder, self::contactsOf($exchanges)), $this->toDosReadBy($holder, $toProcess->toProcess->toDos));
+        $persons = $this->personsAmong($holder, [...self::contactsOf($exchanges), ...array_map(static fn (ContactToAttachInList $contact): string => $contact->personId, $toProcess->toProcess->contactsToAttach)]);
+        $presenter = new ExchangesToProcessPresenter($persons, $this->organizationsPlannedWithAlone($exchanges), $this->timelines, $links, $this->organizationsOfContacts->read($holder, self::contactsOf($exchanges)), $this->toDosReadBy($holder, $toProcess->toProcess->toDos), $this->links, $this->intentLinks->holds(User::PERSONAL_DATA));
         $presenter->present($toProcess->toProcess);
 
         return $presenter->resource;
@@ -148,8 +150,18 @@ final readonly class AgendaReader
      */
     private function personsOf(string $reader, array $exchanges): array
     {
+        return $this->personsAmong($reader, self::contactsOf($exchanges));
+    }
+
+    /**
+     * @param list<string> $ids
+     *
+     * @return array<string, PersonCard> by id
+     */
+    private function personsAmong(string $reader, array $ids): array
+    {
         $persons = new KeptPersons();
-        ($this->consultPersons)(new ConsultPersons($reader, self::contactsOf($exchanges)), $persons);
+        ($this->consultPersons)(new ConsultPersons($reader, array_values(array_unique($ids))), $persons);
 
         return $persons->persons;
     }

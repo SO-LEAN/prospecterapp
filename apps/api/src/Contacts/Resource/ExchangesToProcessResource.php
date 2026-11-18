@@ -13,13 +13,16 @@ use Symfony\Component\Serializer\Attribute\SerializedName;
 final readonly class ExchangesToProcessResource
 {
     /**
-     * @param list<DayExchangeResource>   $items
-     * @param list<ToDoToProcessResource> $toDos
+     * @param list<DayExchangeResource>     $items
+     * @param list<ToDoToProcessResource>   $toDos
+     * @param list<ContactToAttachResource> $contactsToAttach
      */
     public function __construct(
         public array $items,
         #[OA\Property(description: 'The to-dos still to do of the day of the reading, on the clock of the reader, and of the days before, the most overdue first; none without the right to manage personal data')]
         public array $toDos,
+        #[OA\Property(description: 'The contacts waiting for the member, who met them, to attach them to an organization, the first erased first (ADR 0146)')]
+        public array $contactsToAttach,
         #[SerializedName('_links')]
         public ExchangesToProcessLinksResource $links,
     ) {

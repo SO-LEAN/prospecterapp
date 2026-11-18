@@ -134,7 +134,7 @@ class ContactsToAttachApiTest extends ApiTestCase
         $refused = $this->requestJson('POST', '/api/contacts/'.$this->grace.'/upcoming-exchanges', ['channel' => 'call', 'occurredAt' => '2026-10-25T09:00:00+00:00']);
 
         $this->assertResponseStatusCodeSame(403);
-        $this->assertSame('ContactToAttachOfAnother', $refused['reason']);
+        $this->assertSame('contactToAttachOfAnother', $refused['reason']);
     }
 
     public function testAttachedTheyAreNoLongerToAttachTheirMeetingKeptForTheOrganization(): void
@@ -145,7 +145,7 @@ class ContactsToAttachApiTest extends ApiTestCase
         $this->requestJson('POST', '/api/organizations/'.$acme.'/contacts', ['personId' => $this->grace]);
 
         $this->assertSame([$this->bob], array_column($this->mine($this->requestJson('GET', self::TO_PROCESS)['contactsToAttach']), 'id'));
-        $this->assertSame([[$acme]], array_column(array_column($this->requestJson('GET', '/api/contacts/'.$this->grace.'/upcoming-exchanges')['items'], 'exchange'), 'organizationIds'));
+        $this->assertSame([[$acme]], array_column($this->requestJson('GET', '/api/contacts/'.$this->grace.'/upcoming-exchanges')['items'], 'organizationIds'));
     }
 
     /**

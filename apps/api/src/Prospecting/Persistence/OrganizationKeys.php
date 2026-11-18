@@ -30,4 +30,12 @@ final class OrganizationKeys
     {
         return 'CONTACT#'.$person;
     }
+
+    /**
+     * The links to the organizations of an account whose email has this domain (ADR 0146).
+     */
+    public static function ofEmailDomain(string $accountId, string $domain): string
+    {
+        return sprintf('EMAIL_DOMAIN#%s#%s', $accountId, $domain);
+    }
 }

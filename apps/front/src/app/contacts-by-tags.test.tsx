@@ -107,7 +107,7 @@ function theApiAnswers() {
         _links: { self: { href: '/api/me/reminders', method: 'GET' } },
       },
       '/api/me/day': { today: [], next: [], _links: { self: { href: '/api/me/day', method: 'GET' } } },
-      '/api/me/exchanges-to-process': { items: [], toDos: [], _links: {} },
+      '/api/me/exchanges-to-process': { items: [], toDos: [], contactsToAttach: [], _links: {} },
       '/api/contacts': {
         items: [linus, grace, ada],
         _links: {

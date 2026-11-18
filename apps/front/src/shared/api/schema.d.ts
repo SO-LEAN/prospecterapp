@@ -679,6 +679,23 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/contacts/{id}/proposed-organization": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** The organization proposed to attach a contact to: the one of my account whose email has the domain of theirs, none for a public mailbox (ADR 0146) */
+        get: operations["get_api_contacts_proposed_organization"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/exchanges/{id}/attachments": {
         parameters: {
             query?: never;
@@ -2188,6 +2205,18 @@ export interface components {
             toDos?: components["schemas"]["LinkResource"];
             tags?: components["schemas"]["LinkResource"];
         };
+        ToAttachResource: {
+            /**
+             * Format: date-time
+             * @description Their last meeting with the member, past or to come
+             */
+            lastMeetingAt: string;
+            /**
+             * Format: date-time
+             * @description The moment they are erased from if nobody attaches them
+             */
+            erasableFrom: string;
+        };
         ContactResource: {
             id: string;
             name: components["schemas"]["PersonNameResource"];
@@ -2201,6 +2230,7 @@ export interface components {
             /** @description The data are masked, but the name of a contact: the reader has no right to read personal data in clear */
             masked: boolean;
             _links: components["schemas"]["ContactLinksResource"];
+            toAttach?: components["schemas"]["ToAttachResource"];
         };
         OrganizationOfContactResource: {
             id: string;
@@ -2335,6 +2365,27 @@ export interface components {
             /** @description The days since its day, on the clock of the reader: 0 for a to-do of the day */
             daysOverdue: number;
         };
+        ContactToAttachLinksResource: {
+            self: components["schemas"]["LinkResource"];
+            proposedOrganization?: components["schemas"]["LinkResource"];
+        };
+        ContactToAttachResource: {
+            id: string;
+            name: components["schemas"]["PersonNameResource"];
+            /** @description Their email as the member reads it, masked without the right to manage personal data */
+            email?: string | null;
+            /**
+             * Format: date-time
+             * @description Their last meeting with the member, past or to come
+             */
+            lastMeetingAt: string;
+            /**
+             * Format: date-time
+             * @description The moment they are erased from if nobody attaches them: the start of the 30th day after their last meeting, on the clock of that meeting
+             */
+            erasableFrom: string;
+            _links: components["schemas"]["ContactToAttachLinksResource"];
+        };
         ExchangesToProcessLinksResource: {
             self: components["schemas"]["LinkResource"];
         };
@@ -2342,6 +2393,8 @@ export interface components {
             items: components["schemas"]["DayExchangeResource"][];
             /** @description The to-dos still to do of the day of the reading, on the clock of the reader, and of the days before, the most overdue first; none without the right to manage personal data */
             toDos: components["schemas"]["ToDoToProcessResource"][];
+            /** @description The contacts waiting for the member, who met them, to attach them to an organization, the first erased first (ADR 0146) */
+            contactsToAttach: components["schemas"]["ContactToAttachResource"][];
             _links: components["schemas"]["ExchangesToProcessLinksResource"];
         };
         MyDayLinksResource: {
@@ -2358,6 +2411,14 @@ export interface components {
         };
         PlannedExchangesResource: {
             items: components["schemas"]["OrganizationExchangeResource"][];
+        };
+        OrganizationProposedResource: {
+            id: string;
+            name: string;
+        };
+        ProposedOrganizationResource: {
+            /** @description The organization of the account whose email has the domain of that of the contact; none for a public mailbox, or a domain none has */
+            organization?: components["schemas"]["OrganizationProposedResource"] | null;
         };
         StampResource: {
             /** Format: date-time */
@@ -5429,6 +5490,53 @@ export interface operations {
             };
             /** @description Invalid slot: no start, a duration out of 5 minutes to 8 hours */
             422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ProblemResource"];
+                };
+            };
+        };
+    };
+    get_api_contacts_proposed_organization: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description The organization proposed, or none */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ProposedOrganizationResource"];
+                };
+            };
+            /** @description Missing or invalid access token */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Not a prospector, or no right to manage personal data */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ProblemResource"];
+                };
+            };
+            /** @description Unknown contact, or one of another account */
+            404: {
                 headers: {
                     [name: string]: unknown;
                 };

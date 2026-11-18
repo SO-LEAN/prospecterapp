@@ -2,11 +2,15 @@
 
 namespace App\Consistency;
 
+use App\Prospecting\Persistence\ContactToAttachDocument;
+use Symfony\Component\Clock\ClockInterface;
+
 /**
  * What the reactions between the contexts should have written, read in the tables: each account has a member at
  * least, its founder registered, and each member their profile in PersonalData; each contact collected is attached to
  * organizations, none forgotten still is; no organization no longer prospected still keeps exchanges; neither keeps
- * its tags; no campaign keeps a forgotten contact among its recipients.
+ * its tags; no campaign keeps a forgotten contact among its recipients. A contact to attach is attached to none, their
+ * exchanges kept for none, until the day of their erasure (ADR 0146).
  */
 final readonly class ReactionsBetweenContexts
 {
@@ -17,7 +21,7 @@ final readonly class ReactionsBetweenContexts
         self::CONTACT => 'tags kept for a forgotten contact',
     ];
 
-    public function __construct(private ContextTables $tables)
+    public function __construct(private ContextTables $tables, private ClockInterface $clock)
     {
     }
 
@@ -75,11 +79,14 @@ final readonly class ReactionsBetweenContexts
     {
         $organizations = $this->tables->organizationsOf($accountId);
         $contacts = $this->tables->contactsOf($accountId);
+        $toAttach = $this->tables->contactsToAttachOf($accountId);
+        $contactsToAttach = array_column($toAttach, 'id');
 
         return [
-            ...$this->contactsNotAttached($accountId, $contacts, $organizations),
+            ...$this->contactsNotAttached($accountId, array_values(array_diff($contacts, $contactsToAttach)), $organizations),
             ...$this->forgottenContactsAttached($accountId, $contacts, $organizations),
-            ...$this->exchangesOfOrganizationsGone($accountId, $organizations),
+            ...$this->exchangesOfOrganizationsGone($accountId, $organizations, $contactsToAttach),
+            ...$this->contactsToAttachPastTheirDay($accountId, $toAttach),
             ...$this->tagsOfWhatIsGone($accountId, $contacts, $organizations),
             ...$this->recipientsForgotten($accountId, $contacts),
         ];
@@ -118,11 +125,25 @@ final readonly class ReactionsBetweenContexts
     }
 
     /**
-     * @param list<array<string, mixed>> $organizations
+     * @param list<array<string, mixed>> $toAttach
      *
      * @return list<Discrepancy>
      */
-    private function exchangesOfOrganizationsGone(string $accountId, array $organizations): array
+    private function contactsToAttachPastTheirDay(string $accountId, array $toAttach): array
+    {
+        $now = $this->clock->now();
+        $past = array_filter($toAttach, static fn (array $document): bool => ContactToAttachDocument::erasableFrom($document) <= $now);
+
+        return array_values(array_map(static fn (array $document): Discrepancy => new Discrepancy($accountId, $document['id'], 'contact to attach past the day of their erasure, not erased', Correction::EraseTheUnattached), $past));
+    }
+
+    /**
+     * @param list<array<string, mixed>> $organizations
+     * @param list<string>               $contactsToAttach whose exchanges are kept for none
+     *
+     * @return list<Discrepancy>
+     */
+    private function exchangesOfOrganizationsGone(string $accountId, array $organizations, array $contactsToAttach): array
     {
         $prospected = array_column($organizations, 'id');
         $discrepancies = [];
@@ -132,7 +153,7 @@ final readonly class ReactionsBetweenContexts
                 $discrepancies[] = new Discrepancy($accountId, $exchange['id'], sprintf('exchange kept for %s, no longer prospected', $gone), Correction::GiveTheReactionAgain);
             }
 
-            if ([] === $exchange['keptFor']) {
+            if ([] === $exchange['keptFor'] && !in_array($exchange['contact'], $contactsToAttach, true)) {
                 $discrepancies[] = new Discrepancy($accountId, $exchange['id'], 'exchange kept for no organization, not erased', Correction::GiveTheReactionAgain);
             }
         }

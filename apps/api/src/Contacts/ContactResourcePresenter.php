@@ -4,6 +4,7 @@ namespace App\Contacts;
 
 use App\Contacts\Resource\ContactLinksResource;
 use App\Contacts\Resource\ContactResource;
+use App\Contacts\Resource\ToAttachResource;
 use App\PersonalData\Resource\PersonContactDetailsResource;
 use App\PersonalData\Resource\PersonNameResource;
 use App\Security\IntentLinks;
@@ -13,10 +14,12 @@ use App\Shared\Resource\LinkResource;
 use Prospecter\Core\PersonalData\Application\ConsultPerson\ConsultPersonOutput;
 use Prospecter\Core\PersonalData\Application\PersonCard;
 use Prospecter\Core\Prospecting\Application\ConsultTimelineIntents\TimelineIntentsResponse;
+use Prospecter\Core\Prospecting\Application\ContactToAttachInList;
 
 /**
- * A contact with a link per intention the reader may carry out on it, or on its timeline. Built for one call with
- * what its timeline offers, it presents the person and keeps the resource (ADR 0085).
+ * A contact with a link per intention the reader may carry out on it, or on its timeline, and until when they wait
+ * for the reader to attach them (ADR 0146). Built for one call with what its timeline offers, it presents the person
+ * and keeps the resource (ADR 0085).
  */
 final class ContactResourcePresenter implements ConsultPersonOutput
 {
@@ -34,7 +37,7 @@ final class ContactResourcePresenter implements ConsultPersonOutput
 
     public private(set) ContactResource $resource;
 
-    public function __construct(private readonly TimelineIntentsResponse $timeline, private readonly Links $links, private readonly IntentLinks $intentLinks)
+    public function __construct(private readonly TimelineIntentsResponse $timeline, private readonly ?ContactToAttachInList $toAttach, private readonly Links $links, private readonly IntentLinks $intentLinks)
     {
     }
 
@@ -47,6 +50,7 @@ final class ContactResourcePresenter implements ConsultPersonOutput
             jobTitle: $contact->jobTitle,
             contactDetails: PersonContactDetailsResource::of($contact),
             masked: $contact->masked,
+            toAttach: null === $this->toAttach ? null : new ToAttachResource($this->toAttach->lastMeetingAt, $this->toAttach->erasableFrom),
             links: $this->linksOf($contact),
         );
     }
