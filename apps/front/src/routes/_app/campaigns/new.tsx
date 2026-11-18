@@ -3,13 +3,20 @@ import { useTranslation } from 'react-i18next'
 import { CampaignForm } from '@/features/campaigns/components/campaign-form'
 import { CampaignTarget } from '@/features/campaigns/components/campaign-target'
 import { usePrepareCampaign } from '@/features/campaigns/mutations'
+import { campaignsQuery } from '@/features/campaigns/queries'
 import { newCampaign } from '@/features/campaigns/schema'
 import { useLiveTarget } from '@/features/campaigns/use-live-target'
 import { TagsFilter } from '@/features/tags/components/tags-filter'
 import { useGoBack } from '@/shared/hooks/use-go-back'
+import { ErrorState } from '@/shared/ui/feedback/error-state'
 import { PageHeader } from '@/shared/ui/page-header'
+import { PageSkeleton } from '@/shared/ui/page-skeleton'
 
+/** The form opens only to whom the api lets read the campaigns: the others are told their role does not allow it. */
 export const Route = createFileRoute('/_app/campaigns/new')({
+  loader: ({ context }) => context.queryClient.ensureQueryData(campaignsQuery()),
+  pendingComponent: () => <PageSkeleton rows={4} />,
+  errorComponent: ({ error, reset }) => <ErrorState error={error} reset={reset} />,
   component: NewCampaign,
 })
 
