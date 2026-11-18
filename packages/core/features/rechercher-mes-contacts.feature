@@ -48,10 +48,10 @@ Fonctionnalité: Rechercher mes contacts
 
   Scénario: Je cherche par le début de l'e-mail
     Soit je suis connecté en tant que prospecteur de "SOLEAN IT"
-    Quand je cherche "ada@" dans mes contacts
+    Quand je cherche "grace@navy" dans mes contacts
     Alors la liste des contacts affiche :
-      | prénom | nom      |
-      | Ada    | Lovelace |
+      | prénom | nom    |
+      | Grace  | Hopper |
 
   Scénario: Le prénom suivi du nom ne trouve pas un contact, seul le début du prénom ou du nom le trouve
     Soit je suis connecté en tant que prospecteur de "SOLEAN IT"
@@ -86,6 +86,6 @@ Fonctionnalité: Rechercher mes contacts
 
   Scénario: Sans le droit, je ne cherche pas dans les e-mails, qui me sont masqués
     Soit je suis connecté en tant que prospecteur de "SOLEAN IT" sans le droit aux données personnelles
-    Quand je cherche "ada@" dans mes contacts
+    Quand je cherche "grace@navy" dans mes contacts
     Alors la liste des contacts affiche :
       | prénom | nom |

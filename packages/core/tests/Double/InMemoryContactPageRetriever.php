@@ -36,12 +36,12 @@ final readonly class InMemoryContactPageRetriever implements ContactPageRetrieve
     }
 
     /**
-     * As the adapter reads the index of the names alone for a reader who does not search the emails.
+     * As the adapter reads the index of the names alone (the last and the first names) for a reader who does not search the emails.
      */
     private static function searchKeysOf(Person $person, Reader $reader): SearchKeys
     {
         $keys = $person->searchKeys();
 
-        return $reader->searchesTheEmails() ? $keys : new SearchKeys($keys->name?->value, null);
+        return $reader->searchesTheEmails() ? $keys : new SearchKeys($keys->name?->value, null, $keys->firstName?->value);
     }
 }
