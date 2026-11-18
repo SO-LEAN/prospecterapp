@@ -58,11 +58,11 @@ final readonly class Recipient
     }
 
     /**
-     * Processed by this exchange, and still: a recipient erased since is no longer.
+     * Processed by this exchange, and still: a recipient erased since keeps none.
      */
     #[\NoDiscard]
     public function isProcessedBy(string $exchangeId): bool
     {
-        return RecipientStatus::Processed === $this->status && $exchangeId === $this->exchangeId;
+        return $exchangeId === $this->exchangeId;
     }
 }
