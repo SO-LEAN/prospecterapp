@@ -10,10 +10,12 @@ use Prospecter\Core\Connectors\Domain\Event\ClientRemoved;
 use Prospecter\Core\Connectors\Domain\Exception\IncompleteClient;
 use Prospecter\Core\Connectors\Domain\Exception\NotTheAdministrator;
 use Prospecter\Core\Connectors\Domain\Model\ClientCredentials;
+use Prospecter\Core\Connectors\Domain\Model\MailboxNotifications;
 use Prospecter\Core\Connectors\Domain\Model\Member;
 use Prospecter\Core\Connectors\Domain\Model\Provider;
 use Prospecter\Core\Connectors\Domain\Model\ProviderClient;
 use Prospecter\Core\SharedKernel\Domain\AccountId;
+use Prospecter\Core\SharedKernel\Domain\Email;
 use Prospecter\Core\SharedKernel\Domain\MemberId;
 
 /**
@@ -42,6 +44,26 @@ final class ProviderClientTest extends TestCase
 
         $this->assertEquals([$this->happened(ClientConfigured::class)], $client->releaseEvents());
         $this->assertSame('another-client', $client->credentials()->id);
+    }
+
+    public function testTheTopicOfTheMailboxesNamedRecordsIt(): void
+    {
+        $client = $this->configure();
+        $client->releaseEvents();
+
+        $client->notifyMailboxesThrough(new MailboxNotifications('projects/solean/topics/gmail', new Email('push@solean.iam.gserviceaccount.com')), new MemberId(self::ADMINISTRATOR), new \DateTimeImmutable(self::AT));
+
+        $this->assertEquals([$this->happened(ClientConfigured::class)], $client->releaseEvents());
+    }
+
+    public function testTheTopicOfTheMailboxesRemovedRecordsIt(): void
+    {
+        $client = $this->configure();
+        $client->releaseEvents();
+
+        $client->stopMailboxNotificationsBy(new MemberId(self::ADMINISTRATOR), new \DateTimeImmutable(self::AT));
+
+        $this->assertEquals([$this->happened(ClientConfigured::class)], $client->releaseEvents());
     }
 
     public function testAClientRemovedRecordsIt(): void
