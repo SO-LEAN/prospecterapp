@@ -87,6 +87,7 @@ const started: Campaign = {
 const aContact = (id: string, firstName: string, lastName: string): TargetedContact => ({
   id,
   name: { firstName, lastName },
+  civility: 'x',
   jobTitle: null,
   contactDetails: { email: `${firstName}@acme.test`, phoneNumber: null, language: null },
   masked: false,

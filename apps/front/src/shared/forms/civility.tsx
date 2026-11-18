@@ -4,19 +4,19 @@ import { z } from 'zod'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/shared/ui/select'
 import { FormField, type FormFieldProps } from './form-field'
 
-export const CIVILITIES = ['ms', 'mr'] as const
+/** Unknown (x) first: the choice of a contact whose civility is not noted. */
+export const CIVILITIES = ['x', 'ms', 'mr'] as const
 
 export type Civility = (typeof CIVILITIES)[number]
 
-/** Never required: null when not noted. */
-export const civilitySchema = z.enum(CIVILITIES).nullable()
+export const UNKNOWN_CIVILITY: Civility = 'x'
 
-const NONE = '__none__'
+export const civilitySchema = z.enum(CIVILITIES)
 
 type SelectProps = {
   id?: string
-  value: Civility | null
-  onChange: (civility: Civility | null) => void
+  value: Civility
+  onChange: (civility: Civility) => void
   'aria-invalid'?: boolean
   'aria-describedby'?: string
 }
@@ -25,15 +25,11 @@ function CivilitySelect({ value, onChange, ...trigger }: SelectProps) {
   const { t } = useTranslation()
 
   return (
-    <Select
-      value={value ?? NONE}
-      onValueChange={(next) => onChange(next === NONE ? null : civilitySchema.parse(next))}
-    >
+    <Select value={value} onValueChange={(next) => onChange(civilitySchema.parse(next))}>
       <SelectTrigger className="w-full" {...trigger}>
         <SelectValue />
       </SelectTrigger>
       <SelectContent>
-        <SelectItem value={NONE}>{t('civilities.none')}</SelectItem>
         {CIVILITIES.map((civility) => (
           <SelectItem key={civility} value={civility}>
             {t(`civilities.${civility}`)}

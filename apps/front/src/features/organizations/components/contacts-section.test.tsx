@@ -37,6 +37,7 @@ const qaContacts: Organization = {
 const ada = {
   id: ADA,
   name: { firstName: 'Ada', lastName: 'Lovelace' },
+  civility: 'x',
   jobTitle: null,
   contactDetails: { email: null, phoneNumber: null, language: null },
   masked: false,

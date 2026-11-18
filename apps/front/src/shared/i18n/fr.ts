@@ -268,7 +268,7 @@ export const fr = {
   },
   members: { unnamed: 'Membre sans nom' },
   /** How one addresses a contact, by its value in the API. */
-  civilities: { ms: 'Madame', mr: 'Monsieur', none: 'Non renseignée' },
+  civilities: { ms: 'Madame', mr: 'Monsieur', x: 'Non renseignée' },
   tags: {
     title: 'Tags',
     tag: 'Tag',

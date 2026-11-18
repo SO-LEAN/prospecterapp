@@ -37,7 +37,7 @@ final class Person implements ReleasesEvents
 
     private ?File $picture = null;
     private ?string $jobTitle = null;
-    private ?Civility $civility = null;
+    private Civility $civility = Civility::X;
     private ?LinkedInProfile $linkedInProfile = null;
     private \DateTimeImmutable $modifiedAt;
 
@@ -66,7 +66,7 @@ final class Person implements ReleasesEvents
      * @throws PersonalDataManagersOnly
      * @throws ContactWithoutOrganization
      */
-    public static function collectAsContact(Reader $by, PersonId $id, PersonName $name, ?Civility $civility, ?string $jobTitle, ContactDetails $contactDetails, ?LinkedInProfile $linkedInProfile, array $organizations, \DateTimeImmutable $at): self
+    public static function collectAsContact(Reader $by, PersonId $id, PersonName $name, Civility $civility, ?string $jobTitle, ContactDetails $contactDetails, ?LinkedInProfile $linkedInProfile, array $organizations, \DateTimeImmutable $at): self
     {
         if (!$by->readsPersonalData) {
             throw PersonalDataManagersOnly::because('Only a member allowed to manage personal data may collect a contact');
@@ -110,7 +110,7 @@ final class Person implements ReleasesEvents
         return $this->contactDetails;
     }
 
-    public function civility(): ?Civility
+    public function civility(): Civility
     {
         return $this->civility;
     }
@@ -147,7 +147,7 @@ final class Person implements ReleasesEvents
     /**
      * Only for a contact: the civility of the profile of a member is not noted.
      */
-    public function changeCivility(?Civility $civility, Reader $by, \DateTimeImmutable $at): void
+    public function changeCivility(Civility $civility, Reader $by, \DateTimeImmutable $at): void
     {
         $this->ensurePossible(PersonIntent::ChangeCivility, $by);
         $this->civility = $civility;

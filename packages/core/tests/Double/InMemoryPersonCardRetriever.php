@@ -68,7 +68,7 @@ final readonly class InMemoryPersonCardRetriever implements PersonCardRetriever
             masked: $masked,
             firstName: $nameMasked ? Masking::name($name->firstName) : $name->firstName,
             lastName: $nameMasked ? Masking::name($name->lastName) : $name->lastName,
-            civility: $person->civility()?->value,
+            civility: $person->civility()->value,
             jobTitle: $masked ? Masking::jobTitle($state['jobTitle']) : $state['jobTitle'],
             email: $masked ? Masking::email($contact->email?->value) : $contact->email?->value,
             phoneNumber: $masked ? Masking::phoneNumber($contact->phoneNumber) : $contact->phoneNumber?->international(),

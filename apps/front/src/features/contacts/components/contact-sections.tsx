@@ -1,7 +1,7 @@
 import { useQuery } from '@tanstack/react-query'
 import { Link } from '@tanstack/react-router'
 import { useTranslation } from 'react-i18next'
-import { CivilityField, civilitySchema } from '@/shared/forms/civility'
+import { CivilityField, civilitySchema, UNKNOWN_CIVILITY } from '@/shared/forms/civility'
 import { FormField } from '@/shared/forms/form-field'
 import {
   PersonContactDetailsFields,
@@ -42,7 +42,7 @@ export function NameSection({ contact }: { contact: Contact }) {
   const { t } = useTranslation()
   const rename = useRenameContact()
   const changeCivility = useChangeCivility()
-  const civility = contact.civility ?? null
+  const { civility } = contact
   const path = { path: { id: contact.id } }
 
   return (
@@ -71,7 +71,9 @@ export function NameSection({ contact }: { contact: Contact }) {
         </SectionForm>
       )}
     >
-      <Detail label={t('fields.civility')}>{civility && t(`civilities.${civility}`)}</Detail>
+      <Detail label={t('fields.civility')}>
+        {civility !== UNKNOWN_CIVILITY && t(`civilities.${civility}`)}
+      </Detail>
       <Detail label={t('fields.firstName')}>{contact.name.firstName}</Detail>
       <Detail label={t('fields.lastName')}>{contact.name.lastName}</Detail>
     </EditableSection>
