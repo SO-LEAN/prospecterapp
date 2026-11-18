@@ -6,6 +6,8 @@ namespace Prospecter\Core\Prospecting\Application\PublishExchangeFacts;
 
 use Prospecter\Core\Prospecting\Application\Port\ExchangeFactsRetriever;
 use Prospecter\Core\Prospecting\Contract\Event\ExchangeFactsChanged;
+use Prospecter\Core\Prospecting\Contract\Service\ListExchangeFacts\ExchangeFactsResponse;
+use Prospecter\Core\Prospecting\Domain\Event\ExchangeErased;
 use Prospecter\Core\Prospecting\Domain\Event\ExchangeEvent;
 use Prospecter\Core\SharedKernel\Application\EventHandler;
 use Prospecter\Core\SharedKernel\Application\Port\Events;
@@ -24,7 +26,7 @@ final readonly class PublishExchangeFactsHandler implements EventHandler
 
     public function __invoke(ExchangeEvent $event): void
     {
-        $facts = $this->exchangeFactsRetriever->of($event->exchange);
+        $facts = $this->factsOf($event);
 
         $this->events->publish(new ExchangeFactsChanged(
             (string) $event->accountId,
@@ -37,5 +39,16 @@ final readonly class PublishExchangeFactsHandler implements EventHandler
             $facts->contactId,
             $facts->campaignId,
         ));
+    }
+
+    /**
+     * Erased, the exchange is no longer read: its last facts name the contact and the campaign its erasure tells
+     * (ADR 0152).
+     */
+    private function factsOf(ExchangeEvent $event): ExchangeFactsResponse
+    {
+        return $event instanceof ExchangeErased
+            ? ExchangeFactsResponse::absent((string) $event->exchange, $event->contact?->value, $event->campaign?->value)
+            : $this->exchangeFactsRetriever->of($event->exchange);
     }
 }

@@ -20,3 +20,7 @@ Fonctionnalité: Le lien entre une campagne et ses échanges
   Scénario: L'échange mène à sa campagne
     Quand je consulte l'échange de "Ada Lovelace"
     Alors il vient de la campagne "Relance", avec un lien vers elle
+
+  Scénario: Le fait publié d'un échange effacé nomme encore son contact et sa campagne
+    Quand je supprime l'échange de "Ada Lovelace"
+    Alors le fait publié de cet échange, absent, nomme la campagne "Relance" et le contact "Ada Lovelace"
