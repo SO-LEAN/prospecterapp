@@ -28,6 +28,18 @@ Fonctionnalité: Consulter une page de prise de rendez-vous
       | lundi 30/11/2026 14:30 |
       | lundi 30/11/2026 14:45 |
 
+  Scénario: La page dit qui reçoit, de quelle organisation, et à l'heure de quel fuseau
+    Soit mon profil est :
+      | prénom | Grace                |
+      | nom    | Hopper               |
+      | e-mail | grace@solean-it.test |
+    Et j'ai une image "grace.jpg" de 4096 octets
+    Et je change ma photo avec "grace.jpg"
+    Et ma prise de rendez-vous est active
+    Quand on ouvre mon lien public
+    Alors il présente "Grace Hopper" de "SOLEAN IT", avec la photo "https://storage.test/grace.jpg"
+    Et ses créneaux sont à l'heure de "Europe/Paris"
+
   Scénario: Pas de créneau le jour même
     Soit ma prise de rendez-vous est active
     Quand on ouvre mon lien public

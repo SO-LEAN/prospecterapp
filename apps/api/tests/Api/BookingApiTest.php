@@ -18,7 +18,7 @@ class BookingApiTest extends ApiTestCase
 {
     private const string CODE_OF_GOOGLE = 'a-code-of-google';
     private const string BASE62_OF_22 = '/^[0-9A-Za-z]{22}$/';
-    private const array NOTHING_SHOWN = ['open' => false, 'channels' => [], 'days' => []];
+    private const array NOTHING_SHOWN = ['open' => false, 'host' => null, 'channels' => [], 'timeZone' => null, 'days' => []];
 
     protected function setUp(): void
     {
@@ -146,6 +146,18 @@ class BookingApiTest extends ApiTestCase
 
         $this->assertCount(14, $page['days']);
         $this->assertSame(['day' => '2026-10-16', 'slots' => ['2026-10-16T09:00:00+02:00', '2026-10-16T09:15:00+02:00']], $page['days'][0]);
+    }
+
+    public function testAPublicPageSaysWhoItsHostIsAndOnWhichClock(): void
+    {
+        $code = $this->anOpenPage();
+        $this->requestJson('PATCH', '/api/me/booking-page/windows', ['timeZone' => 'Europe/Paris', 'windows' => [['weekday' => 'friday', 'from' => '09:00', 'to' => '09:30']]]);
+
+        $this->signOut();
+        $page = $this->requestJson('GET', '/api/booking-pages/'.$code);
+
+        $this->assertSame(['firstName' => 'Camille', 'lastName' => 'Martin', 'picture' => null, 'organization' => 'SOLEAN IT'], $page['host']);
+        $this->assertSame('Europe/Paris', $page['timeZone']);
     }
 
     public function testASlotWhereItsHostPlannedAnExchangeIsNotFree(): void

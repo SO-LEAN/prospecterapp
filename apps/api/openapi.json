@@ -11158,6 +11158,31 @@
                 },
                 "type": "object"
             },
+            "PublicHostResource": {
+                "properties": {
+                    "firstName": {
+                        "type": "string",
+                        "nullable": true
+                    },
+                    "lastName": {
+                        "type": "string",
+                        "nullable": true
+                    },
+                    "picture": {
+                        "nullable": true,
+                        "oneOf": [
+                            {
+                                "$ref": "#/components/schemas/ImageResource"
+                            }
+                        ]
+                    },
+                    "organization": {
+                        "type": "string",
+                        "nullable": true
+                    }
+                },
+                "type": "object"
+            },
             "PublicBookingPageResource": {
                 "required": [
                     "open",
@@ -11166,8 +11191,17 @@
                 ],
                 "properties": {
                     "open": {
-                        "description": "Whether it offers slots: closed, changed, unknown or suspended, it offers none",
+                        "description": "Whether it offers slots: closed, changed, unknown or suspended, it offers none and says nothing else",
                         "type": "boolean"
+                    },
+                    "host": {
+                        "description": "Whom the booker meets; none when it offers nothing",
+                        "nullable": true,
+                        "oneOf": [
+                            {
+                                "$ref": "#/components/schemas/PublicHostResource"
+                            }
+                        ]
                     },
                     "channels": {
                         "type": "array",
@@ -11179,8 +11213,14 @@
                             ]
                         }
                     },
+                    "timeZone": {
+                        "description": "The clock of the host, which the days and the slots are on; none when it offers nothing",
+                        "type": "string",
+                        "example": "Europe/Paris",
+                        "nullable": true
+                    },
                     "days": {
-                        "description": "The 14 days from tomorrow on the clock of the host, each with the moments its free slots of 15 minutes start at; none when it shows nothing",
+                        "description": "The 14 days from tomorrow on the clock of the host, each with the moments its free slots of 15 minutes start at; none when it offers nothing",
                         "type": "array",
                         "items": {
                             "properties": {

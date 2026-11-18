@@ -146,6 +146,7 @@ use Prospecter\Core\PersonalData\Application\ForgetContactsLeftWithoutOrganizati
 use Prospecter\Core\PersonalData\Application\ListContactFacts\ListContactFactsHandler;
 use Prospecter\Core\PersonalData\Application\NameContacts\NameContactsHandler;
 use Prospecter\Core\PersonalData\Application\PersonCard;
+use Prospecter\Core\PersonalData\Application\PresentMembers\PresentMembersHandler;
 use Prospecter\Core\PersonalData\Application\PublishContactCollected\PublishContactCollectedHandler;
 use Prospecter\Core\PersonalData\Application\PublishContactFacts\PublishContactFactsHandler;
 use Prospecter\Core\PersonalData\Application\PublishContactForgotten\PublishContactForgottenHandler;
@@ -163,6 +164,9 @@ use Prospecter\Core\PersonalData\Contract\Service\ListContactFacts\ListContactFa
 use Prospecter\Core\PersonalData\Contract\Service\NameContacts\ContactNameResponse;
 use Prospecter\Core\PersonalData\Contract\Service\NameContacts\KeptContactNames;
 use Prospecter\Core\PersonalData\Contract\Service\NameContacts\NameContacts;
+use Prospecter\Core\PersonalData\Contract\Service\PresentMembers\KeptMemberPresentations;
+use Prospecter\Core\PersonalData\Contract\Service\PresentMembers\MemberPresentationResponse;
+use Prospecter\Core\PersonalData\Contract\Service\PresentMembers\PresentMembers;
 use Prospecter\Core\PersonalData\Contract\Service\WhichAreContacts\KeptContacts;
 use Prospecter\Core\PersonalData\Contract\Service\WhichAreContacts\WhichAreContacts;
 use Prospecter\Core\PersonalData\Domain\Service\EmailUniqueness as PersonalDataEmailUniqueness;
@@ -348,8 +352,8 @@ use Prospecter\Core\SharedKernel\Application\TransactionalCommandHandler;
 use Prospecter\Core\SharedKernel\Application\TransactionalEventHandler;
 use Prospecter\Core\SharedKernel\Domain\Exception\BusinessException;
 use Prospecter\Core\SharedKernel\Domain\MemberId;
+use Tests\Core\Double\AccountsAndPersonalDataHosts;
 use Tests\Core\Double\AccountsCampaigners;
-use Tests\Core\Double\AccountsHosts;
 use Tests\Core\Double\AccountsMembers;
 use Tests\Core\Double\AccountsProspectors;
 use Tests\Core\Double\AccountsReaders;
@@ -385,6 +389,7 @@ use Tests\Core\Double\InMemoryFactRepository;
 use Tests\Core\Double\InMemoryFiguresRetriever;
 use Tests\Core\Double\InMemoryFoundOrganizationRetriever;
 use Tests\Core\Double\InMemoryHeldExchangeRetriever;
+use Tests\Core\Double\InMemoryMemberPresentationRetriever;
 use Tests\Core\Double\InMemoryMemberRepository;
 use Tests\Core\Double\InMemoryMemberRetriever;
 use Tests\Core\Double\InMemoryMyAccountRetriever;
@@ -504,6 +509,7 @@ final class Application
     private readonly ConsultHeldExchangesHandler $consultHeldExchangesService;
     private readonly ConsultPlannedExchangesHandler $consultPlannedExchangesService;
     private readonly NameContactsHandler $nameContactsService;
+    private readonly PresentMembersHandler $presentMembersService;
     private readonly ProspectingHeldExchanges $heldExchanges;
     private readonly InMemoryCalendarEntryRepository $calendarEntries;
     private readonly CalendarPusher $calendarPusher;
@@ -533,6 +539,7 @@ final class Application
     private readonly InMemoryMyBookingPageRetriever $myBookingPageRetriever;
     private readonly InMemoryPublicBookingPageRetriever $publicBookingPageRetriever;
     private readonly ProspectingHostAgendas $hostAgendas;
+    private readonly AccountsAndPersonalDataHosts $hosts;
     private ?string $lastBookingCode = null;
     /** @var array<class-string, CommandHandler> */
     private array $handlers = [];
@@ -610,6 +617,7 @@ final class Application
         $this->consultHeldExchangesService = new ConsultHeldExchangesHandler($heldExchangeRetriever, $publishedHeldExchanges);
         $this->consultPlannedExchangesService = new ConsultPlannedExchangesHandler($heldExchangeRetriever, $publishedHeldExchanges);
         $this->nameContactsService = new NameContactsHandler($this->personCardRetriever, $this->readers);
+        $this->presentMembersService = new PresentMembersHandler(new InMemoryMemberPresentationRetriever($database));
         $this->heldExchanges = new ProspectingHeldExchanges($this->consultHeldExchangesService, $this->consultPlannedExchangesService);
         $this->calendarEntries = new InMemoryCalendarEntryRepository($database);
         $this->calendarPusher = new CalendarPusher($this->heldExchanges, $this->calendarEntries, $this->connections, $this->clients, $this->connectingMembers, new PersonalDataContactNames($this->nameContactsService), $this->calendars, $this->events);
@@ -635,7 +643,8 @@ final class Application
         $this->campaignTargets = new CampaignTargets($this->tagsOfEveryContact);
 
         $this->bookingPages = new InMemoryBookingPageRepository($database);
-        $this->hostedPages = new BookingPages($this->bookingPages, new AccountsHosts($this->consultMembersService));
+        $this->hosts = new AccountsAndPersonalDataHosts($this->consultMembersService, $this->presentMembersService);
+        $this->hostedPages = new BookingPages($this->bookingPages, $this->hosts);
         $this->whichHaveAConnectedCalendarService = new WhichHaveAConnectedCalendarHandler($this->connections);
         $this->connectedCalendars = new ConnectorsConnectedCalendars($this->whichHaveAConnectedCalendarService);
         $this->myBookingPageRetriever = new InMemoryMyBookingPageRetriever($database);
@@ -1211,6 +1220,17 @@ final class Application
     }
 
     /**
+     * @return list<MemberPresentationResponse>
+     */
+    public function presentMembers(PresentMembers $query): array
+    {
+        $kept = new KeptMemberPresentations();
+        ($this->presentMembersService)($query, $kept);
+
+        return $kept->members;
+    }
+
+    /**
      * @return list<ContactNameResponse>
      */
     public function nameContacts(NameContacts $query): array
@@ -1309,7 +1329,7 @@ final class Application
     {
         $kept = new KeptPublicBookingPage();
 
-        return $this->ask(new ConsultPublicBookingPageHandler($this->publicBookingPageRetriever, $this->hostAgendas, $this->connectedCalendars), $query, $kept) ? $kept->page : null;
+        return $this->ask(new ConsultPublicBookingPageHandler($this->publicBookingPageRetriever, $this->hostAgendas, $this->connectedCalendars, $this->hosts), $query, $kept) ? $kept->page : null;
     }
 
     /**

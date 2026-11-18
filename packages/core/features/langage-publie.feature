@@ -66,6 +66,19 @@ Fonctionnalité: Le langage publié des contextes
       | Ada Lovelace |
     Alors PersonalData ne répond aucun nom
 
+  Scénario: PersonalData présente des membres, leur nom et leur photo, jamais une personne prospectée
+    Soit je suis connecté en tant que prospecteur de "SOLEAN IT"
+    Et mon profil est :
+      | prénom | Grace                |
+      | nom    | Hopper               |
+      | e-mail | grace@solean-it.test |
+    Et j'ai une image "grace.jpg" de 4096 octets
+    Et je change ma photo avec "grace.jpg"
+    Quand un autre contexte demande à PersonalData de présenter :
+      | moi          |
+      | Ada Lovelace |
+    Alors PersonalData présente seulement "Grace Hopper", avec la photo "https://storage.test/grace.jpg"
+
   Scénario: PersonalData dit la fonction des contacts qu'il nomme
     Soit "Grace Hopper" est membre de "SOLEAN IT" avec le droit aux données personnelles
     Et la fonction de "Ada Lovelace" est "CTO"
