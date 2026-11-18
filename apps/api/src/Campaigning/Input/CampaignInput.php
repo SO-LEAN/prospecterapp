@@ -24,7 +24,7 @@ final readonly class CampaignInput
         #[OA\Property(description: 'The tags chosen, the tag of the channel counting with them in the 5 tags of the target', type: 'array', items: new OA\Items(type: 'string'))]
         public ?array $tags = null,
         #[Assert\NotNull]
-        #[OA\Property(description: 'The message reminded for each contact, its variables {prénom}, {nom}, {organisation} and {fonction}')]
+        #[OA\Property(description: 'The message reminded for each contact, its variables {civilité}, {prénom}, {nom}, {organisation} and {fonction}')]
         public ?string $message = null,
         #[OA\Property(description: 'The subject of an e-mail')]
         public ?string $subject = null,

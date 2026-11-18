@@ -1891,7 +1891,7 @@ export interface components {
              */
             tags: string[] | null;
             /**
-             * @description The message reminded for each contact, its variables {prénom}, {nom}, {organisation} and {fonction}
+             * @description The message reminded for each contact, its variables {civilité}, {prénom}, {nom}, {organisation} and {fonction}
              * @default null
              */
             message: string | null;
@@ -2694,7 +2694,7 @@ export interface components {
             tags: string[];
             /** @description The tags a contact carries to be targeted: those chosen and that of the channel */
             targetedTags: string[];
-            /** @description The message, its variables {prénom}, {nom}, {organisation} and {fonction} not rendered */
+            /** @description The message, its variables {civilité}, {prénom}, {nom}, {organisation} and {fonction} not rendered */
             message: string;
             /** @description The subject of an e-mail */
             subject?: string | null;

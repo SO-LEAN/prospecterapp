@@ -7722,7 +7722,7 @@
                         "default": null
                     },
                     "message": {
-                        "description": "The message reminded for each contact, its variables {pr\u00e9nom}, {nom}, {organisation} and {fonction}",
+                        "description": "The message reminded for each contact, its variables {civilit\u00e9}, {pr\u00e9nom}, {nom}, {organisation} and {fonction}",
                         "type": "string",
                         "nullable": true,
                         "default": null
@@ -10262,7 +10262,7 @@
                         }
                     },
                     "message": {
-                        "description": "The message, its variables {pr\u00e9nom}, {nom}, {organisation} and {fonction} not rendered",
+                        "description": "The message, its variables {civilit\u00e9}, {pr\u00e9nom}, {nom}, {organisation} and {fonction} not rendered",
                         "type": "string"
                     },
                     "subject": {
