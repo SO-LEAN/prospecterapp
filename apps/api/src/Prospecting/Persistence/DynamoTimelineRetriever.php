@@ -9,6 +9,7 @@ use Prospecter\Core\Prospecting\Application\OrganizationSheet;
 use Prospecter\Core\Prospecting\Application\Port\TimelineRetriever;
 use Prospecter\Core\Prospecting\Application\Timeline;
 use Prospecter\Core\Prospecting\Domain\Model\ContactPresence;
+use Prospecter\Core\Prospecting\Domain\Model\Exchange;
 use Prospecter\Core\Prospecting\Domain\Model\Prospector;
 use Prospecter\Core\Prospecting\Domain\Model\TimelineIntent;
 use Prospecter\Core\Prospecting\Domain\Policy\ExchangeConformity;
@@ -148,6 +149,7 @@ final readonly class DynamoTimelineRetriever implements TimelineRetriever
             organizationIds: $document['keptFor'],
             attachmentCount: count($attachments),
             campaignId: $document['campaignId'] ?? null,
+            withAContactToAttach: Exchange::isWithAContactToAttach(null !== $document['contact'], [] !== $document['keptFor']),
         );
     }
 

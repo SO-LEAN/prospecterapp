@@ -67,15 +67,13 @@ final readonly class DynamoOrganizationRepository implements OrganizationReposit
 
         if ($email !== $storedEmail && null !== $email) {
             $writes[] = $this->prospectingTable->putting(['PK' => self::emailKey($organization->accountId(), $email), 'SK' => self::EMAIL, 'ownerId' => $document['id']], 'attribute_not_exists(PK) OR ownerId = :owner', [':owner' => $document['id']], EmailAlreadyUsed::byAnother(...));
-            $writes[] = $this->prospectingTable->putting(self::emailDomainLink($document['accountId'], $email, $document['id']));
         }
 
         if ($email !== $storedEmail && null !== $storedEmail) {
             $writes[] = $this->prospectingTable->deleting(self::emailKey($organization->accountId(), $storedEmail), self::EMAIL);
-            $writes[] = $this->prospectingTable->deleting(...self::emailDomainKeys($document['accountId'], $storedEmail, $document['id']));
         }
 
-        $this->prospectingTable->transact([...$writes, ...$this->contactLinksChanged($document, $stored['organization']['contacts'] ?? [])]);
+        $this->prospectingTable->transact([...$writes, ...$this->emailDomainLinkChanged($document['accountId'], $document['id'], $email, $storedEmail), ...$this->contactLinksChanged($document, $stored['organization']['contacts'] ?? [])]);
     }
 
     public function remove(Organization $organization): void
@@ -177,6 +175,27 @@ final readonly class DynamoOrganizationRepository implements OrganizationReposit
     private function organizationsOf(array $items): array
     {
         return array_map(static fn (array $item): Organization => OrganizationDocument::organization($item['organization']), $items);
+    }
+
+    /**
+     * The link of the domain of its email written when the domain changes, the former one deleted: an email changed
+     * within its domain keeps it.
+     *
+     * @return list<Write>
+     */
+    private function emailDomainLinkChanged(string $accountId, string $organizationId, ?string $email, ?string $storedEmail): array
+    {
+        $domain = null === $email ? null : new Email($email)->domain();
+        $storedDomain = null === $storedEmail ? null : new Email($storedEmail)->domain();
+
+        if ($domain === $storedDomain) {
+            return [];
+        }
+
+        return [
+            ...(null === $domain ? [] : [$this->prospectingTable->putting(self::emailDomainLink($accountId, (string) $email, $organizationId))]),
+            ...(null === $storedDomain ? [] : [$this->prospectingTable->deleting(...self::emailDomainKeys($accountId, (string) $storedEmail, $organizationId))]),
+        ];
     }
 
     /**

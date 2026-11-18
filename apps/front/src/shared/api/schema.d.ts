@@ -2148,6 +2148,8 @@ export interface components {
             attachmentCount: number;
             /** @description The campaign it was noted in, none for an exchange of no campaign */
             campaign?: components["schemas"]["CampaignOfExchangeResource"] | null;
+            /** @description Its contact waits for its holder to attach them to an organization: kept for none until then (ADR 0146) */
+            contactToAttach: boolean;
             _links: components["schemas"]["ExchangeLinksResource"];
         };
         TimelineLinksResource: {
@@ -2204,6 +2206,7 @@ export interface components {
             exchanges?: components["schemas"]["LinkResource"];
             toDos?: components["schemas"]["LinkResource"];
             tags?: components["schemas"]["LinkResource"];
+            proposedOrganization?: components["schemas"]["LinkResource"];
         };
         ToAttachResource: {
             /**

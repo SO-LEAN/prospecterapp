@@ -51,6 +51,8 @@ final readonly class ExchangeResource
         public int $attachmentCount,
         #[OA\Property(description: 'The campaign it was noted in, none for an exchange of no campaign')]
         public ?CampaignOfExchangeResource $campaign,
+        #[OA\Property(description: 'Its contact waits for its holder to attach them to an organization: kept for none until then (ADR 0146)')]
+        public bool $contactToAttach,
         #[SerializedName('_links')]
         #[Context([AbstractObjectNormalizer::SKIP_NULL_VALUES => true])]
         public ExchangeLinksResource $links,

@@ -62,6 +62,7 @@ final class ContactResourcePresenter implements ConsultPersonOutput
             ...$this->possible(self::ROUTES, $contact->possibleIntents, $id),
             ...$this->possible(self::TIMELINE_ROUTES, $this->timeline->possibleIntents, $id),
             ...$this->toDosOf($id),
+            ...$this->proposalOf($id),
             'tags' => $this->links->to('api_contacts_tags', $id),
         ];
 
@@ -78,6 +79,19 @@ final class ContactResourcePresenter implements ConsultPersonOutput
     private function toDosOf(array $id): array
     {
         return $this->intentLinks->shows('ConsultTimeline', $this->timeline->possibleIntents, User::PERSONAL_DATA) ? ['toDos' => $this->links->to('api_contacts_to_dos', $id)] : [];
+    }
+
+    /**
+     * The organization to attach a contact waiting for the reader is proposed with the right to manage personal data,
+     * which attaching needs (ADR 0146).
+     *
+     * @param array<string, string> $id
+     *
+     * @return array<string, LinkResource>
+     */
+    private function proposalOf(array $id): array
+    {
+        return null !== $this->toAttach && $this->intentLinks->holds(User::PERSONAL_DATA) ? ['proposedOrganization' => $this->links->to('api_contacts_proposed_organization', $id)] : [];
     }
 
     /**

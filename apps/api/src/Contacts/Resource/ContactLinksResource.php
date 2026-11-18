@@ -25,6 +25,8 @@ final readonly class ContactLinksResource
         public ?LinkResource $toDos = null,
         #[OA\Property(description: 'The tags put on the contact by hand, kept by Campaigns (ADR 0138)', nullable: false)]
         public ?LinkResource $tags = null,
+        #[OA\Property(description: 'The organization proposed to attach the contact to, while they wait for the reader to attach them, with the right to manage personal data (ADR 0146)', nullable: false)]
+        public ?LinkResource $proposedOrganization = null,
     ) {
     }
 }

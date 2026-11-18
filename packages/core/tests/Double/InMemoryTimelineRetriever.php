@@ -188,6 +188,7 @@ final readonly class InMemoryTimelineRetriever implements TimelineRetriever
             organizationIds: array_map(static fn (OrganizationId $organization): string => $organization->value, $state['keptFor']),
             attachmentCount: count($exchange->attachments()),
             campaignId: $state['campaign']?->value,
+            withAContactToAttach: null !== $exchange->contactToAttach(),
         );
     }
 

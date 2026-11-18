@@ -512,7 +512,15 @@ final class Exchange implements ReleasesEvents
      */
     public function contactToAttach(): ?PersonId
     {
-        return $this->isKeptForAnOrganization() ? null : $this->contact;
+        return self::isWithAContactToAttach(null !== $this->contact, $this->isKeptForAnOrganization()) ? $this->contact : null;
+    }
+
+    /**
+     * With a contact and kept for no organization: its holder keeps it while the contact waits to be attached.
+     */
+    public static function isWithAContactToAttach(bool $withAContact, bool $keptForAnOrganization): bool
+    {
+        return $withAContact && !$keptForAnOrganization;
     }
 
     /**
