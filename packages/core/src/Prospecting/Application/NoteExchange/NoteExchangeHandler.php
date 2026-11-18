@@ -40,7 +40,7 @@ final readonly class NoteExchangeHandler implements CommandHandler
             $prospector->id,
             new ExchangeId($command->id),
             $contact,
-            $this->contactOrganizations->of($contact, $prospector->accountId),
+            $this->contactOrganizations->keepersOf($contact, $prospector),
             new ExchangeFacts(Channel::from($command->channel), Direction::from($command->direction), $command->occurredAt, $command->text),
             ExchangeStatus::outcome($command->missed),
             $command->executedAt,

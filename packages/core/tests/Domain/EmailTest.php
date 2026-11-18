@@ -40,6 +40,11 @@ class EmailTest extends TestCase
         $this->assertFalse(new Email('michel@exemple.fr')->equals(new Email('autre@exemple.fr')));
     }
 
+    public function testItsDomainIsWhatFollowsTheAt(): void
+    {
+        $this->assertSame('acme.fr', new Email('"ada@home"@ACME.fr')->domain());
+    }
+
     public function testNoAddressIsNoEmail(): void
     {
         $this->assertNull(Email::orNone(null));

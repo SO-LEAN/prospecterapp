@@ -27,7 +27,7 @@ final readonly class ProposeMeetingPlaceHandler implements QueryHandler
     public function __invoke(ProposeMeetingPlace $query, ProposeMeetingPlaceOutput $output): void
     {
         $prospector = $this->prospectors->prospectorFrom(new MemberId($query->prospectorId));
-        $organizations = $this->contactOrganizations->of(new PersonId($query->personId), $prospector->accountId);
+        $organizations = $this->contactOrganizations->keepersOf(new PersonId($query->personId), $prospector);
         $located = array_find(array_map($this->organizationSheetRetriever->get(...), $organizations), self::hasAnAddress(...));
 
         $output->present(null === $located ? null : new MeetingPlace($located->id, $located->street, $located->postalCode, $located->city, $located->country));

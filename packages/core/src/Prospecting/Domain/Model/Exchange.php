@@ -9,6 +9,7 @@ use Prospecter\Core\Prospecting\Domain\Event\ExchangeCancelled;
 use Prospecter\Core\Prospecting\Domain\Event\ExchangeContactForgotten;
 use Prospecter\Core\Prospecting\Domain\Event\ExchangeCorrected;
 use Prospecter\Core\Prospecting\Domain\Event\ExchangeErased;
+use Prospecter\Core\Prospecting\Domain\Event\ExchangeKeptFor;
 use Prospecter\Core\Prospecting\Domain\Event\ExchangeLeftWithoutOrganization;
 use Prospecter\Core\Prospecting\Domain\Event\ExchangeMadeConform;
 use Prospecter\Core\Prospecting\Domain\Event\ExchangeMarkedDone;
@@ -504,6 +505,32 @@ final class Exchange implements ReleasesEvents
     public function isKeptForAnOrganization(): bool
     {
         return [] !== $this->keptFor;
+    }
+
+    /**
+     * Its contact waits to be attached: kept for no organization, its holder keeps it until then (ADR 0146).
+     */
+    public function contactToAttach(): ?PersonId
+    {
+        return $this->isKeptForAnOrganization() ? null : $this->contact;
+    }
+
+    /**
+     * The moment it happens, a meeting of its contact to attach.
+     */
+    public function happensAt(): \DateTimeImmutable
+    {
+        return $this->facts->occurredAt;
+    }
+
+    /**
+     * Its contact to attach attached to an organization: the exchange is kept for it from now on (ADR 0146).
+     */
+    public function keepFor(OrganizationId $organization, MemberId $by, \DateTimeImmutable $at): void
+    {
+        $this->keptFor = [$organization];
+        $this->modifiedAt = $at;
+        $this->recordThat(new ExchangeKeptFor($this->accountId, $by, $this->id, $organization, $at));
     }
 
     /**

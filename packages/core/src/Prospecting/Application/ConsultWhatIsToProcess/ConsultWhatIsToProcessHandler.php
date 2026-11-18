@@ -8,6 +8,7 @@ use Prospecter\Core\Prospecting\Application\ExchangeInTimeline;
 use Prospecter\Core\Prospecting\Application\HolderIntents;
 use Prospecter\Core\Prospecting\Application\Overdue;
 use Prospecter\Core\Prospecting\Application\Port\AgendaRetriever;
+use Prospecter\Core\Prospecting\Application\Port\ContactsToAttachRetriever;
 use Prospecter\Core\Prospecting\Application\Port\ToDoListRetriever;
 use Prospecter\Core\Prospecting\Application\ToDoInList;
 use Prospecter\Core\Prospecting\Application\ToDoList;
@@ -22,6 +23,7 @@ final readonly class ConsultWhatIsToProcessHandler implements QueryHandler
         private AgendaRetriever $agendaRetriever,
         private ToDoListRetriever $toDoListRetriever,
         private Prospectors $prospectors,
+        private ContactsToAttachRetriever $contactsToAttachRetriever,
     ) {
     }
 
@@ -37,6 +39,7 @@ final readonly class ConsultWhatIsToProcessHandler implements QueryHandler
             HolderIntents::offeredBy($exchanges, $query->at),
             $toDos,
             self::daysOverdue($toDos, $query->at),
+            $this->contactsToAttachRetriever->heldBy($holder->id),
         ));
     }
 

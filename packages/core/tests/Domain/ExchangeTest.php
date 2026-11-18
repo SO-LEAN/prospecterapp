@@ -16,6 +16,7 @@ use Prospecter\Core\Prospecting\Domain\Event\ExchangeMadeConform;
 use Prospecter\Core\Prospecting\Domain\Event\ExchangeMarkedDone;
 use Prospecter\Core\Prospecting\Domain\Event\ExchangeMarkedMissed;
 use Prospecter\Core\Prospecting\Domain\Event\ExchangeMoved;
+use Prospecter\Core\Prospecting\Domain\Event\ExchangeKeptFor;
 use Prospecter\Core\Prospecting\Domain\Event\ExchangeNoLongerKeptFor;
 use Prospecter\Core\Prospecting\Domain\Event\ExchangeNoted;
 use Prospecter\Core\Prospecting\Domain\Event\ExchangePlanned;
@@ -506,6 +507,18 @@ class ExchangeTest extends TestCase
         $this->assertEquals([new OrganizationId(self::GROUP)], StateOf::the($exchange)['keptFor']);
         $this->assertTrue($exchange->isKeptForAnOrganization());
         $this->assertEquals([new ExchangeNoLongerKeptFor(new AccountId(self::MINE), $this->me()->id, new ExchangeId(self::EXCHANGE), new OrganizationId(self::ACME), new \DateTimeImmutable(self::NOW))], $exchange->releaseEvents());
+    }
+
+    public function testItsContactToAttachAttachedItIsKeptForTheirOrganization(): void
+    {
+        $exchange = Exchange::notedWithAContact(new AccountId(self::MINE), $this->me()->id, new ExchangeId(self::EXCHANGE), new PersonId(self::CONTACT), [], new ExchangeFacts(Channel::Call, Direction::Inbound, new \DateTimeImmutable(self::NOW)), ExchangeStatus::Done, new \DateTimeImmutable(self::NOW));
+        $exchange->releaseEvents();
+        $this->assertEquals(new PersonId(self::CONTACT), $exchange->contactToAttach());
+
+        $exchange->keepFor(new OrganizationId(self::ACME), by: $this->me()->id, at: new \DateTimeImmutable(self::NOW));
+
+        $this->assertNull($exchange->contactToAttach());
+        $this->assertEquals([new ExchangeKeptFor(new AccountId(self::MINE), $this->me()->id, new ExchangeId(self::EXCHANGE), new OrganizationId(self::ACME), new \DateTimeImmutable(self::NOW))], $exchange->releaseEvents());
     }
 
     public function testKeptForNoOrganizationOnceTheLastIsGone(): void

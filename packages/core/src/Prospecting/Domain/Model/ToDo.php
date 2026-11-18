@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Prospecter\Core\Prospecting\Domain\Model;
 
 use Prospecter\Core\Prospecting\Domain\Event\ToDoErased;
+use Prospecter\Core\Prospecting\Domain\Event\ToDoKeptFor;
 use Prospecter\Core\Prospecting\Domain\Event\ToDoLeftWithoutOrganization;
 use Prospecter\Core\Prospecting\Domain\Event\ToDoNoLongerKeptFor;
 use Prospecter\Core\Prospecting\Domain\Event\ToDoNoted;
@@ -104,6 +105,16 @@ final class ToDo implements ReleasesEvents
     public function isKeptForAnOrganization(): bool
     {
         return [] !== $this->keptFor;
+    }
+
+    /**
+     * Its contact to attach attached to an organization: the to-do is kept for it from now on (ADR 0146).
+     */
+    public function keepFor(OrganizationId $organization, MemberId $by, \DateTimeImmutable $at): void
+    {
+        $this->keptFor = [$organization];
+        $this->modifiedAt = $at;
+        $this->recordThat(new ToDoKeptFor($this->accountId, $by, $this->id, $organization, $at));
     }
 
     /**

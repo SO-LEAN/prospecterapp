@@ -7,6 +7,6 @@ namespace Prospecter\Core\Prospecting\Domain\Event;
 /**
  * A prospector noted an exchange with a contact.
  */
-final readonly class ExchangeNoted extends ExchangeEvent
+final readonly class ExchangeNoted extends ExchangeEvent implements SetsTheMomentOfAnExchange
 {
 }
