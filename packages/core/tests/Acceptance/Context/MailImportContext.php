@@ -9,6 +9,7 @@ use Behat\Step\Given;
 use Behat\Step\Then;
 use Behat\Step\When;
 use Prospecter\Core\Connectors\Application\AccountClient;
+use Prospecter\Core\Connectors\Application\AskForAuthorization\AskForAuthorization;
 use Prospecter\Core\Connectors\Application\AskToImportMail\AskToImportMail;
 use Prospecter\Core\Connectors\Application\Connect\Connect;
 use Prospecter\Core\Connectors\Application\MyConnection;
@@ -34,6 +35,9 @@ final class MailImportContext implements Context
     private const string PUSH_ACCOUNT = 'push@solean.iam.gserviceaccount.com';
     private const string MY_MAILBOX = 'michel@exemple.fr';
     private const array STATES = ['coupé' => 'off', 'actif' => 'active', 'à reconnecter' => 'toReconnect'];
+
+    /** the `state` of the authorization asked last */
+    private ?string $pendingState = null;
 
     #[Given('le client Google de :account a le topic Pub\\/Sub :topic')]
     public function theClientHasATopic(string $account, string $topic): void
@@ -76,14 +80,47 @@ final class MailImportContext implements Context
 
     private function activateTheImport(Scope ...$granted): void
     {
-        $state = $this->application->newIdentity();
-        $this->application->dispatch(new AskToImportMail($this->application->signedIn(), self::GOOGLE, $state, 'a-verifier-of-'.$state, $this->application->now()));
+        $this->iAskForTheImport();
         if (null !== $this->application->refusal()) {
             return;
         }
 
+        $this->googleBringsMeBackWith(...$granted);
+    }
+
+    #[Given('j\'ai demandé l\'import de mes e-mails Gmail')]
+    public function iAskForTheImport(): void
+    {
+        $this->pendingState = $this->application->newIdentity();
+        $this->application->dispatch(new AskToImportMail($this->application->signedIn(), self::GOOGLE, $this->pendingState, 'a-verifier-of-'.$this->pendingState, $this->application->now()));
+    }
+
+    #[When('je reconnecte mon compte Google et que Google accorde aussi l\'accès à Gmail')]
+    public function iReconnectAndGoogleGrantsGmailToo(): void
+    {
+        $this->pendingState = $this->application->newIdentity();
+        $this->application->dispatch(new AskForAuthorization($this->application->signedIn(), self::GOOGLE, $this->pendingState, 'a-verifier-of-'.$this->pendingState, $this->application->now()));
+        $this->googleBringsMeBackWith(Scope::Calendar, Scope::Mailbox);
+    }
+
+    #[When('Google me ramène avec l\'accès à Gmail accordé')]
+    public function googleBringsMeBackWithGmail(): void
+    {
+        $this->googleBringsMeBackWith(Scope::Calendar, Scope::Mailbox);
+    }
+
+    private function googleBringsMeBackWith(Scope ...$granted): void
+    {
         $code = $this->application->providerAccess->grant(self::MY_MAILBOX, ...$granted);
-        $this->application->dispatch(new Connect($this->application->signedIn(), $state, $code, $this->application->now()));
+        $this->application->dispatch(new Connect($this->application->signedIn(), $this->pendingState ?? throw new \LogicException('No authorization was asked'), $code, $this->application->now()));
+    }
+
+    #[Given('le client Google de :account n\'a plus de topic Pub\/Sub')]
+    public function theClientHasNoTopicAnyMore(string $account): void
+    {
+        $client = $this->application->clients->get($this->scenario->accountIdOf($account), Provider::Google);
+        $client->stopMailboxNotificationsBy(new MemberId($this->application->newIdentity()), $this->application->now());
+        $this->application->clients->save($client);
     }
 
     #[Given('je coupe l\'import de mes e-mails Gmail')]
