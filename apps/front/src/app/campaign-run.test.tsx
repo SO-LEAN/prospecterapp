@@ -106,9 +106,11 @@ type Call = { method: string; pathname: string; body: unknown }
 
 function theApiAnswers({
   refusing,
+  campaign = started,
   toLead = recipients,
 }: {
   refusing?: string
+  campaign?: Campaign
   toLead?: RecipientList
 } = {}) {
   const calls: Call[] = []
@@ -142,7 +144,7 @@ function theApiAnswers({
       },
       '/api/me/day': { today: [], next: [], _links: { self: { href: '/api/me/day', method: 'GET' } } },
       '/api/me/exchanges-to-process': { items: [], toDos: [], contactsToAttach: [], _links: {} },
-      [`/api/campaigns/${CAMPAIGN}`]: started,
+      [`/api/campaigns/${CAMPAIGN}`]: campaign,
       [`/api/campaigns/${CAMPAIGN}/recipients`]: toLead,
       [`/api/campaigns/${CAMPAIGN}/messages/${ADA}`]: { subject: null, text: 'Pitch pour Ada' },
       [`/api/campaigns/${CAMPAIGN}/messages/${ALAN}`]: { subject: null, text: 'Pitch pour Alan' },
@@ -290,6 +292,28 @@ describe('a started campaign', () => {
     expect(
       await screen.findByText('Plus personne n’est à traiter : la campagne est terminée.'),
     ).toBeInTheDocument()
+  })
+
+  it('says it is ended once Campaigns ended it', async () => {
+    theApiAnswers({
+      campaign: { ...started, status: 'ended', endedAt: '2026-11-17T09:00:00+00:00' },
+      toLead: { ...recipients, items: recipients.items.slice(0, 1) },
+    })
+    await renderTheSpaAt(`/campaigns/${CAMPAIGN}`)
+
+    expect(
+      await screen.findByText('Plus personne n’est à traiter : la campagne est terminée.'),
+    ).toBeInTheDocument()
+  })
+
+  it('does not say a stopped campaign is ended', async () => {
+    theApiAnswers({ campaign: { ...started, status: 'stopped', stoppedAt: '2026-11-17T09:00:00+00:00' } })
+    await renderTheSpaAt(`/campaigns/${CAMPAIGN}`)
+    await screen.findByText('Arrêtée')
+
+    expect(
+      screen.queryByText('Plus personne n’est à traiter : la campagne est terminée.'),
+    ).not.toBeInTheDocument()
   })
 
   it('says its key moves to the next recipient', async () => {

@@ -2,6 +2,7 @@ import { useSuspenseQuery } from '@tanstack/react-query'
 import { createFileRoute, useNavigate } from '@tanstack/react-router'
 import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
+import { CampaignEnded } from '@/features/campaigns/components/campaign-ended'
 import { CampaignForm } from '@/features/campaigns/components/campaign-form'
 import { CampaignMenu } from '@/features/campaigns/components/campaign-menu'
 import { CampaignProgress } from '@/features/campaigns/components/campaign-progress'
@@ -29,7 +30,7 @@ import { PageSkeleton } from '@/shared/ui/page-skeleton'
  * A campaign: its form at the left, revised whole; at the right, while a draft, the contacts it targets as it is
  * typed, until it is frozen; frozen, its recipients changed by hand, its channel and its tags no longer; started,
  * nothing of it changes, led recipient after recipient (ADR 0145), its progress in its header; stopped or ended, read
- * only; and the message saved rendered by the api for the contact hovered (ADR 0144).
+ * only, an ended one saying so; and the message saved rendered by the api for the contact hovered (ADR 0144).
  */
 export const Route = createFileRoute('/_app/campaigns/$campaignId')({
   params: uuidParams('campaignId'),
@@ -147,7 +148,10 @@ function StartedCampaign({ campaign }: { campaign: Campaign }) {
   }
   return (
     <div className="grid gap-6 lg:grid-cols-2">
-      <CampaignSummary campaign={campaign} />
+      <div className="space-y-4">
+        {campaign.status === 'ended' && <CampaignEnded />}
+        <CampaignSummary campaign={campaign} />
+      </div>
       <CampaignRecipients campaign={campaign} changed={false} />
     </div>
   )
