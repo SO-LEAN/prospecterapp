@@ -7967,7 +7967,7 @@ export interface operations {
                 };
                 content?: never;
             };
-            /** @description A message that is no notification of Gmail */
+            /** @description A message whose data is no notification of Gmail */
             400: {
                 headers: {
                     [name: string]: unknown;
@@ -7976,6 +7976,13 @@ export interface operations {
             };
             /** @description A token missing, not signed by Google, not issued for this endpoint, not for the account of service of the account, or an account without topic of Gmail */
             401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description A message without data */
+            422: {
                 headers: {
                     [name: string]: unknown;
                 };
