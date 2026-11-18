@@ -87,6 +87,7 @@ export const fr = {
     notFound: 'Page introuvable',
     notFoundDescription: 'La page demandée n’existe pas ou a été déplacée.',
     backHome: 'Retour au tableau de bord',
+    forbidden: 'Votre rôle ne vous permet pas d’ouvrir cette page.',
     imageInvalid: 'Image invalide : JPEG, PNG ou WebP de 2 Mo maximum.',
   },
   map: {
