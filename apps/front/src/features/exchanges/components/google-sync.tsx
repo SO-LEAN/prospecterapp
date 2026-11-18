@@ -50,7 +50,7 @@ export function GoogleSync({ exchangeId }: { exchangeId: string }) {
           disabled={retry.isPending}
           onClick={() => retry.mutate({ params: { path: { id: exchangeId } } })}
         >
-          <RefreshCw aria-hidden /> {t('exchanges.googleSync.retry')}
+          <RefreshCw aria-hidden /> {t('common.retry')}
         </Button>
       )}
     </div>
