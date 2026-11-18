@@ -10770,7 +10770,7 @@
                 ],
                 "properties": {
                     "contact": {
-                        "description": "The contact, none once erased",
+                        "description": "The contact, none once erased, its status kept",
                         "nullable": true,
                         "oneOf": [
                             {
@@ -10779,7 +10779,7 @@
                         ]
                     },
                     "status": {
-                        "description": "To handle, processed by an exchange, dismissed without one, or no longer once erased",
+                        "description": "To handle, processed by an exchange, dismissed without one, or no longer once erased while to handle",
                         "type": "string",
                         "enum": [
                             "pending",

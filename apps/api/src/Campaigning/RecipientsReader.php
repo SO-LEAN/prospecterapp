@@ -24,13 +24,12 @@ use Prospecter\Core\SharedKernel\Application\QueryHandler;
  * The recipients of a frozen campaign composed of three contexts: Campaigns keeps them by their identities,
  * PersonalData reads them, Prospecting tells the organizations of each and Campaigns the tags each carries, in one
  * batch each, as the search by tags shows its contacts. A recipient PersonalData no longer reads is left out, but one
- * a started campaign keeps erased, shown without its contact. A recipient to handle of a started campaign links the
- * exchange to note for them and their dismissal (ADR 0145); one processed, the exchange noted for them (ADR 0152).
+ * a started campaign keeps erased, shown without its contact, with what the team did with them. A recipient to handle
+ * of a started campaign links the exchange to note for them and their dismissal (ADR 0145); one processed, the
+ * exchange noted for them (ADR 0152).
  */
 final readonly class RecipientsReader
 {
-    private const string ERASED = 'erased';
-
     public function __construct(
         private QueryHandler $consultPersons,
         private OrganizationsOfContacts $organizationsOfContacts,
@@ -50,7 +49,7 @@ final readonly class RecipientsReader
         $tags = $this->tagsOfContacts->read($reader, $read);
         $removable = $this->intentLinks->shows('RemoveRecipient', $campaign->possibleIntents, User::PERSONAL_DATA);
         $running = $this->intentLinks->shows('RunCampaign', $campaign->possibleIntents, User::PERSONAL_DATA);
-        $shown = array_filter($contactIds, static fn (string $id): bool => isset($persons[$id]) || self::ERASED === $campaign->recipients[$id]->status);
+        $shown = array_filter($contactIds, static fn (string $id): bool => isset($persons[$id]) || $campaign->recipients[$id]->erased);
 
         return new RecipientListResource(
             array_values(array_map(fn (string $id): RecipientResource => new RecipientResource(

@@ -2903,10 +2903,10 @@ export interface components {
             exchange?: components["schemas"]["LinkResource"];
         };
         RecipientResource: {
-            /** @description The contact, none once erased */
+            /** @description The contact, none once erased, its status kept */
             contact?: components["schemas"]["ContactInListResource"] | null;
             /**
-             * @description To handle, processed by an exchange, dismissed without one, or no longer once erased
+             * @description To handle, processed by an exchange, dismissed without one, or no longer once erased while to handle
              * @enum {string}
              */
             status: "pending" | "processed" | "dismissed" | "erased";

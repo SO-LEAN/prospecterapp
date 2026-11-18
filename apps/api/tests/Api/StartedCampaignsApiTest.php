@@ -88,6 +88,17 @@ class StartedCampaignsApiTest extends ApiTestCase
         $this->assertSame(1, $this->requestJson('GET', '/api/campaigns/'.$id)['targeted']);
     }
 
+    public function testAContactErasedOnceDismissedStaysDismissedWithoutItsNameNorItsReason(): void
+    {
+        $id = $this->aStartedCampaign();
+        $this->requestJson('POST', '/api/campaigns/'.$id.'/recipients/'.$this->ada.'/dismissal', ['reason' => 'Parti de la société']);
+
+        $this->requestJson('DELETE', '/api/contacts/'.$this->ada);
+
+        $recipients = $this->requestJson('GET', '/api/campaigns/'.$id.'/recipients')['items'];
+        $this->assertSame([[null, 'dismissed', null]], array_map(static fn (array $recipient): array => [$recipient['contact'], $recipient['status'], $recipient['reason']], $recipients));
+    }
+
     public function testAFrozenCampaignItsErasedContactsEmptiedNoLongerStartsAndIsStillDiscarded(): void
     {
         $id = $this->aFrozenCampaign();
