@@ -11,7 +11,7 @@ import {
 } from '../mutations'
 import { exchangesToMakeConformQuery, organizationTimelineQuery, organizationUpcomingQuery } from '../queries'
 import { ITSELF, newExchange } from '../schema'
-import { CampaignOfTheExchangeForMe } from './campaign-of-the-exchange'
+import { CampaignOfTheLine } from './campaign-of-the-exchange'
 import { ExchangeForm, type Interlocutors } from './exchange-form'
 import { ExchangeLine } from './exchange-line'
 import { NoteThenFollowUp } from './follow-up'
@@ -113,7 +113,7 @@ export function OrganizationExchangesSection({
         <ExchangeLine exchange={item.exchange} interlocutor={item.interlocutor} campaignAside />
       )}
       actionOf={(item) => <JoinTheVideoCall exchange={item.exchange} />}
-      asideOf={(item) => <CampaignOfTheExchangeForMe campaign={item.exchange.campaign} />}
+      asideOf={(item) => <CampaignOfTheLine exchange={item.exchange} />}
       planExchange={
         mayPlan && (
           <PlanExchangeDialog name={interlocutors.organization}>

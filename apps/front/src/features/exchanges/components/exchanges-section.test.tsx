@@ -2,8 +2,6 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { screen, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { describe, expect, it } from 'vitest'
-import type { Account } from '@/features/account/mutations'
-import { accountQuery } from '@/features/account/queries'
 import { renderInARouter } from '@/test/render-in-a-router'
 import {
   type Exchange,
@@ -44,23 +42,10 @@ const anExchange = (exchange: Partial<Exchange>): Exchange => ({
 const upcomingLink = { href: `/api/contacts/${ADA}/upcoming-exchanges`, method: 'GET' }
 const nothingToCome: Timeline = { items: [], _links: { self: upcomingLink } }
 
-const readingTheCampaigns: Account = {
-  name: { firstName: 'Grace', lastName: 'Hopper' },
-  contactDetails: { email: null, phoneNumber: null, language: null },
-  organization: { legalIdentity: { corporateName: 'Babbage & Co' } },
-  _links: { self: { href: '/api/me', method: 'GET' }, campaigns: { href: '/api/campaigns', method: 'GET' } },
-}
-
-async function renderTheSection(
-  timeline: Timeline,
-  detail?: ExchangeDetail,
-  upcoming = nothingToCome,
-  me: Account = { ...readingTheCampaigns, _links: { self: readingTheCampaigns._links.self } },
-) {
+async function renderTheSection(timeline: Timeline, detail?: ExchangeDetail, upcoming = nothingToCome) {
   const queryClient = new QueryClient({
     defaultOptions: { queries: { staleTime: Number.POSITIVE_INFINITY } },
   })
-  queryClient.setQueryData(accountQuery().queryKey, me)
   queryClient.setQueryData(timelineQuery(ADA).queryKey, { pages: [timeline], pageParams: [undefined] })
   queryClient.setQueryData(upcomingQuery(ADA).queryKey, { pages: [upcoming], pageParams: [undefined] })
   if (detail) {
@@ -170,22 +155,21 @@ describe('ExchangesSection', () => {
     expect(screen.getByText('2 pièces jointes')).toBeInTheDocument()
   })
 
-  it('leads to the campaign an exchange was noted in, beside its line, when I read the campaigns', async () => {
-    await renderTheSection(
-      {
-        items: [
-          anExchange({
-            channel: 'call',
-            direction: 'outbound',
-            campaign: { id: CAMPAIGN, name: 'Appels ESN' },
-          }),
-        ],
-        _links: { self: timelineLink, noteExchange: noteLink },
-      },
-      undefined,
-      nothingToCome,
-      readingTheCampaigns,
-    )
+  it('leads to the campaign an exchange was noted in, beside its line, when the api links it', async () => {
+    await renderTheSection({
+      items: [
+        anExchange({
+          channel: 'call',
+          direction: 'outbound',
+          campaign: { id: CAMPAIGN, name: 'Appels ESN' },
+          _links: {
+            self: { href: `/api/exchanges/${EXCHANGE}`, method: 'GET' },
+            campaign: { href: `/api/campaigns/${CAMPAIGN}`, method: 'GET' },
+          },
+        }),
+      ],
+      _links: { self: timelineLink, noteExchange: noteLink },
+    })
 
     const [line] = screen.getAllByRole('listitem')
     expect(
@@ -193,7 +177,7 @@ describe('ExchangesSection', () => {
     ).toHaveAttribute('href', `/campaigns/${CAMPAIGN}`)
   })
 
-  it('names the campaign an exchange was noted in without leading to it when I do not read the campaigns', async () => {
+  it('names the campaign an exchange was noted in without leading to it when the api does not link it', async () => {
     await renderTheSection({
       items: [anExchange({ campaign: { id: CAMPAIGN, name: 'Appels ESN' } })],
       _links: { self: timelineLink },

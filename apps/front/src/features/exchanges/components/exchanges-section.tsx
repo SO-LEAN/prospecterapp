@@ -3,7 +3,7 @@ import { placeOf } from '@/shared/lib/address'
 import { attachTheFiles, useAttachFiles, useNoteExchange, usePlanExchange } from '../mutations'
 import type { Slot } from '../planning'
 import { meetingPlaceQuery, type PlannedExchangeInput, timelineQuery, upcomingQuery } from '../queries'
-import { CampaignOfTheExchangeForMe } from './campaign-of-the-exchange'
+import { CampaignOfTheLine } from './campaign-of-the-exchange'
 import { ExchangeForm } from './exchange-form'
 import { ExchangeLine } from './exchange-line'
 import { NoteThenFollowUp } from './follow-up'
@@ -60,7 +60,7 @@ export function ExchangesSection({ contactId, contactName, className }: Props) {
       keyOf={(exchange) => exchange.id}
       renderItem={(exchange) => <ExchangeLine exchange={exchange} campaignAside />}
       actionOf={(exchange) => <JoinTheVideoCall exchange={exchange} />}
-      asideOf={(exchange) => <CampaignOfTheExchangeForMe campaign={exchange.campaign} />}
+      asideOf={(exchange) => <CampaignOfTheLine exchange={exchange} />}
       planExchange={
         mayPlan && (
           <PlanExchangeDialog name={contactName}>
