@@ -31,6 +31,14 @@ SPA (prospecter.localhost)                                   API (api.prospecter
 - A token stays valid until it expires even after signing out: the price of not calling Cognito on every request.
 - Roles are checked by `#[IsGranted]` (403 problem+json from `Security\ApiAccessDeniedHandler`, its `reason` `roleNotAllowed`), the voters whether this member may reach a resource of Prospecting, the aggregate whether its state allows the intention (ADR 0081, 0088). The core knows no password.
 
+## The AIs (decided, to come)
+
+An AI reaches the MCP server of the API as the member it signed in on Cognito, with exactly their rights (ADR 0156, 0157, `mcp.md`):
+
+- a firewall `mcp` (`^/mcp$`, stateless) checks the access tokens of Cognito as the firewall `api` does: `/mcp` takes those of `prospecter-front` and of a second client of the pool, `prospecter-mcp` (confidential, its secret a secret of the API), `/api/` those of `prospecter-front` only; without a valid token, 401 with `WWW-Authenticate: Bearer resource_metadata="<api>/.well-known/oauth-protected-resource/mcp"`;
+- the member signs in on the sign-in page of Cognito (managed login, on a domain of the pool), never on the screen of the SPA; the API is the authorization server the AIs see, a facade over Cognito keeping nothing (`src/SignIn/OAuth`: the metadata of RFC 9728 and RFC 8414, `/oauth/authorize`, `/oauth/callback`, `/oauth/token`, the request sealed in the redirects);
+- a member signing out everywhere revokes the refresh tokens of their AIs, an access token staying valid until it expires, as for the SPA.
+
 ## SPA side
 
 - `src/shared/auth/session.ts` (`aws-amplify` v6, its `auth` category, ADR 0130): `signIn` (SRP, the session of the tab ended first; a refusal of Cognito given as its code, a new password required as `NewPasswordRequired`, another step Cognito asks for, a password to reset or a code, refused by the name of that step, the form saying the sign-in failed), `signOut` (global sign-out, then the tokens of the tab forgotten), `accessToken` (renewed with the refresh token once expired), `renewedAccessToken` (renewal forced). The pool comes from `GET /api/user-pool`: Amplify is configured once with it, its `endpoint` as `userPoolEndpoint` when the API names one (MiniStack), and its tokens kept by `cognitoUserPoolsTokenProvider` in the `sessionStorage` of Amplify.

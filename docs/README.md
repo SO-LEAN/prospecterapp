@@ -12,6 +12,7 @@ Read the document of your subject before working on it: it says the rule in forc
 | Persistence: DynamoDB, documents, keys, retrievers, search, slices | [architecture/persistence.md](architecture/persistence.md) |
 | The API: endpoints, inputs, resources, presenters, links, errors, access, wiring | [architecture/api.md](architecture/api.md) |
 | Authentication: Cognito, tokens, sign-in | [architecture/auth.md](architecture/auth.md) |
+| The MCP server: the AIs reaching Prospecter as their member, their sign-in on Cognito | [architecture/mcp.md](architecture/mcp.md) |
 | The files: the storage app, the buckets, the sizes, the private files | [architecture/storage.md](architecture/storage.md) |
 | The front: stack, folders, data, forms, navigation | [architecture/front.md](architecture/front.md), design rules [architecture/design-system.md](architecture/design-system.md) |
 | The local stack: Docker, MiniStack, the Lambdas, the hosts | [architecture/local-stack.md](architecture/local-stack.md) |
