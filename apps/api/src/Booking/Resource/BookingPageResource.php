@@ -33,6 +33,8 @@ final readonly class BookingPageResource
         public ?string $code,
         #[OA\Property(description: 'Whether my calendar is connected, which invites the bookers: without it, the page does not open')]
         public bool $calendarConnected,
+        #[OA\Property(description: 'Open, but offering nothing while my calendar is not connected: the members are told so')]
+        public bool $suspended,
         #[SerializedName('_links')]
         #[Context([AbstractObjectNormalizer::SKIP_NULL_VALUES => true])]
         public BookingPageLinksResource $links,

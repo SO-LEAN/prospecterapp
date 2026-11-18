@@ -41,6 +41,7 @@ const neverSet: BookingPage = {
   channels: [],
   code: null,
   calendarConnected: true,
+  suspended: false,
   _links: { ...always, open: link('/api/me/booking-page/opening', 'POST') },
 }
 
@@ -59,6 +60,7 @@ const open: BookingPage = {
   channels: ['call'],
   code: CODE,
   calendarConnected: true,
+  suspended: false,
   _links: {
     ...always,
     close: link('/api/me/booking-page/opening', 'DELETE'),

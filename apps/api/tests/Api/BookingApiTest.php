@@ -274,6 +274,16 @@ class BookingApiTest extends ApiTestCase
         $this->assertSame(self::NOTHING_SHOWN, $page);
     }
 
+    public function testMyOpenPageIsSuspendedOnceGoogleIsDisconnected(): void
+    {
+        $this->anOpenPage();
+        $this->assertFalse($this->requestJson('GET', '/api/me/booking-page')['suspended']);
+
+        $this->requestJson('DELETE', '/api/me/connections/google');
+
+        $this->assertTrue($this->requestJson('GET', '/api/me/booking-page')['suspended']);
+    }
+
     public function testWithoutGoogleConnectedAPublicPageShowsNothing(): void
     {
         $code = $this->anOpenPage();

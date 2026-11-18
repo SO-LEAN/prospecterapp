@@ -26,6 +26,17 @@ Fonctionnalité: Consulter ma prise de rendez-vous
     Et Google refuse mon jeton
     Alors mon agenda n'est pas connecté
 
+  Scénario: Mon lien actif est suspendu tant que mon agenda est à reconnecter
+    Soit mon compte Google est connecté
+    Et ma prise de rendez-vous est active
+    Et Google refuse mon jeton
+    Alors mon lien de prise de rendez-vous est suspendu
+
+  Scénario: Mon lien actif avec mon agenda connecté n'est pas suspendu
+    Soit mon compte Google est connecté
+    Et ma prise de rendez-vous est active
+    Alors mon lien de prise de rendez-vous n'est pas suspendu
+
   Scénario: Mes périodes inactives passées disparaissent d'elles-mêmes, au jour de mon fuseau
     Soit nous sommes le 20/11/2026 à 10h00
     Et j'ai ajouté une période inactive du 21/12/2026 au 04/01/2027
