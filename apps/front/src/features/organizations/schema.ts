@@ -5,10 +5,15 @@ import {
   toContactDetails,
   toContactDetailsValues,
 } from '@/shared/forms/contact-details'
-import { legalIdentitySchema, toLegalIdentity, toLegalIdentityValues } from '@/shared/forms/legal-identity'
+import {
+  legalIdentityFields,
+  legalIdentitySchema,
+  toLegalIdentity,
+  toLegalIdentityValues,
+} from '@/shared/forms/legal-identity'
 import { orNull, text } from '@/shared/forms/text'
 import { i18n } from '@/shared/i18n'
-import type { StartProspectingInput } from './queries'
+import type { Organization, ReviseLegalIdentityInput, StartProspectingInput } from './queries'
 
 /** What is known when prospecting starts; the same rule as the API: a corporate name or an email. */
 export const startProspectingSchema = z
@@ -55,4 +60,23 @@ export const toStartProspectingInput = (values: StartProspectingValues): StartPr
   address: toAddress(values.address),
   observations: orNull(values.observations),
   holdingId: null,
+})
+
+/** The identity of a prospected organization: the shared fields and the SIRET of its establishment, checked by the API. */
+export const organizationIdentitySchema = legalIdentitySchema.extend({ siret: text(20) })
+
+export type OrganizationIdentityValues = z.infer<typeof organizationIdentitySchema>
+
+export const organizationIdentityFields = [...legalIdentityFields, 'siret'] as const
+
+export const toOrganizationIdentityValues = (
+  identity: Organization['legalIdentity'],
+): OrganizationIdentityValues => ({
+  ...toLegalIdentityValues(identity),
+  siret: identity.siret ?? '',
+})
+
+export const toOrganizationIdentity = (values: OrganizationIdentityValues): ReviseLegalIdentityInput => ({
+  ...toLegalIdentity(values),
+  siret: orNull(values.siret),
 })

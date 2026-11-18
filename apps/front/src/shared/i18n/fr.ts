@@ -162,6 +162,7 @@ export const fr = {
     form: 'Forme juridique',
     formExample: 'SAS, SARL…',
     type: 'Type',
+    siret: 'SIRET',
     email: 'E-mail',
     phoneNumber: 'Téléphone',
     language: 'Pays de la langue',
