@@ -1,4 +1,4 @@
-import { act, screen, waitFor, within } from '@testing-library/react'
+import { act, cleanup, screen, waitFor, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { toast } from 'sonner'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
@@ -162,8 +162,13 @@ describe('a reminder of an exchange in the application', () => {
     theApiAnswers()
   })
 
+  /**
+   * The SPA is taken down while time is still faked: an answer of the API arriving between the real time restored and
+   * the end of the test would notify its observers on a real timer outliving the document of the file.
+   */
   afterEach(() => {
     act(() => toast.dismiss())
+    cleanup()
     theTabIs('visible')
     vi.useRealTimers()
     vi.unstubAllGlobals()
