@@ -3,7 +3,7 @@
 - Date: 2026-11-18
 - Type: architecture
 - Status: Accepted
-- Implemented by: `packages/core/src/Campaigns/Domain/Model/{Campaign,Recipients,Recipient}.php`, `packages/core/src/Campaigns/Application/ReopenRecipientOfErasedExchange`, `packages/core/src/Prospecting/Domain/Event/ExchangeErased.php`, `packages/core/src/Prospecting/Application/PublishExchangeFacts/PublishExchangeFactsHandler.php`, `packages/core/features/aller-d-une-campagne-a-ses-echanges.feature`, `apps/api/config/subscriptions.json` (`campaigns-reopen-recipient`), `apps/api/src/Shared/Messaging/DomainEventTypes.php` (`ExchangeErased.v2`), `apps/api/src/Campaigns/Persistence/CampaignDocument.php`, `apps/api/src/Campaigning/RecipientsReader.php`, `apps/api/src/Exchanges/ExchangeDetailPresenter.php`
+- Implemented by: `packages/core/src/Campaigns/Domain/Model/{Campaign,Recipients,Recipient}.php`, `packages/core/src/Campaigns/Application/ReopenRecipientOfErasedExchange`, `packages/core/src/Prospecting/Domain/Event/ExchangeErased.php`, `packages/core/src/Prospecting/Application/PublishExchangeFacts/PublishExchangeFactsHandler.php`, `packages/core/features/aller-d-une-campagne-a-ses-echanges.feature`, `apps/api/config/subscriptions.json` (`campaigns-reopen-recipient`), `apps/api/src/Shared/Messaging/DomainEventTypes.php` (`ExchangeErased.v2`), `apps/api/src/Campaigns/Persistence/CampaignDocument.php`, `apps/api/src/Campaigning/RecipientsReader.php`, `apps/api/src/Exchanges/ExchangeDetailPresenter.php`, `apps/front/src/features/exchanges/components/campaign-of-the-exchange.tsx`, `apps/front/src/features/campaigns/components/open-the-exchange.tsx`
 
 ## Context
 

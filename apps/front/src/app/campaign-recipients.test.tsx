@@ -3,7 +3,9 @@ import userEvent from '@testing-library/user-event'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import type { Account } from '@/features/account/mutations'
 import type { Campaign, RecipientList, TargetedContact } from '@/features/campaigns/queries'
+import type { ExchangeDetail } from '@/features/exchanges/queries'
 import type { SuggestedTags } from '@/features/tags/queries'
+import { AFTER_THE_REACTIONS_MS } from '@/shared/api/reactions'
 import { renderTheSpaAt } from '@/test/render-the-spa'
 
 /** The recipients of a campaign (ADR 0144): a draft frozen once confirmed, then its list changed by hand. */
@@ -26,6 +28,7 @@ const CAMPAIGN = '0190a1c0-0000-7000-8000-00000000ca00'
 const ADA = '0190a1c0-0000-7000-8000-000000000001'
 const GRACE = '0190a1c0-0000-7000-8000-000000000002'
 const ALAN = '0190a1c0-0000-7000-8000-000000000003'
+const EXCHANGE = '0190a1c0-0000-7000-8000-000000000e01'
 
 const me: Account = {
   name: { firstName: 'Grace', lastName: 'Hopper' },
@@ -118,6 +121,49 @@ const suggested: SuggestedTags = {
   automatic: ['#EMAIL', '#PHONE', '#SMS', '#LINKEDIN'],
 }
 
+const theExchangeOfAda: ExchangeDetail = {
+  id: EXCHANGE,
+  interlocutor: { kind: 'person', id: ADA, name: 'Ada Lovelace', presence: 'present' },
+  channel: 'email',
+  direction: 'outbound',
+  canceller: null,
+  occurredAt: '2026-11-17T09:00:00+00:00',
+  status: 'done',
+  durationInMinutes: null,
+  text: 'Relancée pour la mission',
+  place: null,
+  link: null,
+  linkAwaited: false,
+  phoneNumber: null,
+  textFlagged: false,
+  textToMakeConform: false,
+  toMakeConform: false,
+  organizationIds: [],
+  noted: { at: '2026-11-17T09:05:00+00:00', by: { name: { firstName: 'Grace', lastName: 'Hopper' } } },
+  corrected: null,
+  madeConform: null,
+  attachments: [],
+  hiddenAttachments: 0,
+  campaign: { id: CAMPAIGN, name: 'Relance ESN' },
+  _links: {
+    self: { href: `/api/exchanges/${EXCHANGE}`, method: 'GET' },
+    eraseExchange: { href: `/api/exchanges/${EXCHANGE}`, method: 'DELETE' },
+  },
+}
+
+const adaProcessed: RecipientList = {
+  items: [
+    {
+      contact: aContact(ADA, 'Ada', 'Lovelace'),
+      status: 'processed',
+      missed: false,
+      reason: null,
+      _links: { exchange: { href: `/api/exchanges/${EXCHANGE}`, method: 'GET' } },
+    },
+  ],
+  _links: { self: { href: `/api/campaigns/${CAMPAIGN}/recipients`, method: 'GET' } },
+}
+
 type Call = { method: string; pathname: string; search: string; body: unknown }
 
 const twoContacts = {
@@ -168,6 +214,7 @@ function theApiAnswers(
       '/api/contacts': { items: [aContact(ALAN, 'Alan', 'Turing')], _links: {} },
       [`/api/campaigns/${CAMPAIGN}/messages/${ADA}`]: { subject: null, text: 'Bonjour Ada' },
       [`/api/campaigns/${CAMPAIGN}/messages/${GRACE}`]: { subject: null, text: 'Bonjour Grace' },
+      [`/api/exchanges/${EXCHANGE}`]: theExchangeOfAda,
     }
     return Response.json(answers[pathname] ?? { items: [], _links: {} })
   })
@@ -274,6 +321,46 @@ describe('the recipients of a campaign', () => {
     expect(within(list).getByText('Contact effacé')).toBeInTheDocument()
     expect(within(list).getByText('Plus à traiter')).toBeInTheDocument()
     expect(within(list).getByText('Ada Lovelace')).toBeInTheDocument()
+  })
+
+  it('open the exchange noted for a recipient processed', async () => {
+    theApiAnswers(
+      { ...started, status: 'ended', endedAt: '2026-11-17T10:00:00+00:00' },
+      twoContacts,
+      adaProcessed,
+    )
+    await renderTheSpaAt(`/campaigns/${CAMPAIGN}`)
+
+    await userEvent.click(await screen.findByRole('button', { name: 'Ouvrir l’échange avec Ada Lovelace' }))
+
+    const sheet = await screen.findByRole('dialog', { name: 'Échange' })
+    expect(await within(sheet).findByText('Relancée pour la mission')).toBeInTheDocument()
+  })
+
+  it('read the campaign again once the reactions to the erasure of the exchange of a recipient ran', async () => {
+    vi.useFakeTimers({ shouldAdvanceTime: true })
+    const calls = theApiAnswers(
+      { ...started, status: 'ended', endedAt: '2026-11-17T10:00:00+00:00' },
+      twoContacts,
+      adaProcessed,
+    )
+    await renderTheSpaAt(`/campaigns/${CAMPAIGN}`)
+    await userEvent.click(await screen.findByRole('button', { name: 'Ouvrir l’échange avec Ada Lovelace' }))
+    await userEvent.click(await screen.findByRole('button', { name: 'Supprimer' }))
+    await userEvent.click(await screen.findByRole('button', { name: 'Supprimer l’échange' }))
+    await waitFor(() =>
+      expect(calls.find((call) => call.method === 'DELETE')).toMatchObject({
+        pathname: `/api/exchanges/${EXCHANGE}`,
+      }),
+    )
+    const readings = () =>
+      calls.filter((call) => call.method === 'GET' && call.pathname === `/api/campaigns/${CAMPAIGN}`).length
+    const before = readings()
+
+    await vi.advanceTimersByTimeAsync(AFTER_THE_REACTIONS_MS)
+
+    await waitFor(() => expect(readings()).toBeGreaterThan(before))
+    vi.useRealTimers()
   })
 
   it('say once the campaign ended which were processed, by a missed call, and which were dismissed', async () => {

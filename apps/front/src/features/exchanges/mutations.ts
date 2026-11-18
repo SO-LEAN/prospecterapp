@@ -150,6 +150,16 @@ function readTheFiguresAgain(queryClient: QueryClient) {
   readAgainAfterTheReactions(queryClient, queryKeys.dashboard)
 }
 
+/** The recipient the erased exchange processed is to handle again, once the reactions ran (ADR 0152). */
+function readTheCampaignsAgain(queryClient: QueryClient) {
+  readAgainAfterTheReactions(
+    queryClient,
+    queryKeys.campaign,
+    queryKeys.campaignRecipients,
+    queryKeys.campaignList,
+  )
+}
+
 /** A corrected or erased exchange may be in several timelines, of contacts and of organizations, past or to come. */
 export function readTheTimelinesAgain(queryClient: QueryClient) {
   void queryClient.invalidateQueries({ queryKey: timelineKeys.ofContacts })
@@ -213,6 +223,7 @@ export function useEraseExchange() {
       queryClient.removeQueries({ queryKey: exchangeQuery(params.path.id).queryKey })
       readTheTimelinesAgain(queryClient)
       readTheFiguresAgain(queryClient)
+      readTheCampaignsAgain(queryClient)
       toast.success(t('exchanges.detail.erased'))
     },
   })
