@@ -27,7 +27,7 @@ describe('applyViolations', () => {
       ['email', 'city'],
     )
 
-    expect(setError).toHaveBeenCalledWith('email', { type: 'server', message: 'Invalid email' })
+    expect(setError).toHaveBeenCalledWith('email', { type: 'server', message: 'Invalid email', types: {} })
     expect(global).toEqual(['Name or email required'])
   })
 
@@ -58,6 +58,7 @@ describe('the reason of a refusal', () => {
     expect(setError).toHaveBeenCalledWith('phoneNumber', {
       type: 'server',
       message: 'Le numéro « 12 » n’est pas un numéro de téléphone valide.',
+      types: { phoneNumber: '12' },
     })
   })
 
