@@ -112,6 +112,30 @@ class ContactApiTest extends ApiTestCase
         $this->assertSame([['propertyPath' => 'linkedInProfile', 'reason' => 'linkedInProfileAlreadyUsed', 'context' => ['holder' => 'Ada Lovelace', 'holderId' => $ada['id']]]], array_map(static fn (array $violation): array => array_intersect_key($violation, array_flip(['propertyPath', 'reason', 'context'])), $problem['violations']));
     }
 
+    public function testWithoutTheRightNoProfileTellsWhichContactHoldsIt(): void
+    {
+        $organization = $this->anOrganization('ACME');
+        $this->collect(self::ADA, $organization);
+        $grace = $this->collect(['name' => ['firstName' => 'Grace', 'lastName' => 'Hopper']], $organization);
+        $this->login($this->aMemberOfTheFixtures('prospector-without-the-right', Role::User, Role::Prospector));
+
+        $problem = $this->requestJson('PATCH', '/api/contacts/'.$grace['id'].'/contact-details', ['linkedInProfile' => 'https://www.linkedin.com/in/countess-of-lovelace']);
+
+        $this->assertResponseStatusCodeSame(403);
+        $this->assertStringNotContainsString('Lovelace', (string) json_encode($problem));
+    }
+
+    public function testAContactCollectedWithAProfileAnotherContactHoldsIsRefusedNamingThem(): void
+    {
+        $organization = $this->anOrganization('ACME');
+        $ada = $this->collect(self::ADA, $organization);
+
+        $problem = $this->collect(['name' => ['firstName' => 'Grace', 'lastName' => 'Hopper'], 'contactDetails' => ['linkedInProfile' => 'https://fr.linkedin.com/in/Countess-Of-Lovelace']], $organization);
+
+        $this->assertResponseStatusCodeSame(422);
+        $this->assertSame([['propertyPath' => 'linkedInProfile', 'reason' => 'linkedInProfileAlreadyUsed', 'context' => ['holder' => 'Ada Lovelace', 'holderId' => $ada['id']]]], array_map(static fn (array $violation): array => array_intersect_key($violation, array_flip(['propertyPath', 'reason', 'context'])), $problem['violations']));
+    }
+
     public function testTheListShowsTheOrganizationsOfEachContact(): void
     {
         $organization = $this->anOrganization('Navy');

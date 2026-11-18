@@ -60,7 +60,7 @@ final readonly class CollectContactHandler implements CommandHandler
             at: $command->executedAt,
         );
         $this->emails->ensureAvailableFor($contact);
-        $this->linkedInProfiles->ensureAvailableForANewContact($contact);
+        $this->linkedInProfiles->ensureAvailableFor($contact);
         $this->persons->save($contact);
         $this->publishWhatHappenedTo($contact);
     }

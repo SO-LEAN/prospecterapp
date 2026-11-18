@@ -22,29 +22,19 @@ final readonly class LinkedInProfileUniqueness
     }
 
     /**
-     * Before the person notes the profile. A profile they hold already is theirs to keep, even when another contact
-     * noted it too before the profiles were unique.
+     * Once the person noted their profile, the access to them checked: a profile they held before is theirs to keep,
+     * even when another contact noted it too before the profiles were unique.
+     *
+     * @param list<LinkedInProfile> $heldBefore
      *
      * @throws LinkedInProfileAlreadyUsed
      */
-    public function ensureAvailableFor(Person $person, ?LinkedInProfile $profile): void
+    public function ensureAvailableFor(Person $person, array $heldBefore = []): void
     {
-        if (null !== $profile && !$person->holdsLinkedInProfile($profile)) {
+        $profile = $person->linkedInProfile();
+
+        if (null !== $profile && !array_any($heldBefore, static fn (LinkedInProfile $held): bool => $held->value === $profile->value)) {
             $this->ensureHeldByNoOther($person, $profile);
-        }
-    }
-
-    /**
-     * A contact just collected, with the profile they hold since.
-     *
-     * @throws LinkedInProfileAlreadyUsed
-     */
-    public function ensureAvailableForANewContact(Person $contact): void
-    {
-        $profile = $contact->linkedInProfile();
-
-        if (null !== $profile) {
-            $this->ensureHeldByNoOther($contact, $profile);
         }
     }
 

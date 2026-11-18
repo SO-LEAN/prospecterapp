@@ -46,6 +46,14 @@ Fonctionnalité: Noter le profil LinkedIn d'un contact
       | LinkedIn | linkedin.com/in/Ada-Lovelace/ |
     Alors c'est refusé : "LinkedIn profile already held by Ada Lovelace"
 
+  Scénario: Sans le droit, je n'apprends pas qui a un profil
+    Soit "Ada Lovelace" a le profil LinkedIn "https://www.linkedin.com/in/ada-lovelace"
+    Et le contact "Grace Hopper" de "ACME"
+    Et je suis connecté en tant que prospecteur de "SOLEAN IT" sans le droit aux données personnelles
+    Quand je change les coordonnées de "Grace Hopper" :
+      | LinkedIn | https://www.linkedin.com/in/ada-lovelace |
+    Alors c'est refusé : "Only the person or a member allowed to manage personal data may change them"
+
   Scénario: J'enregistre un contact avec un profil déjà celui d'un autre contact
     Soit "Ada Lovelace" a le profil LinkedIn "https://www.linkedin.com/in/ada-lovelace"
     Quand j'enregistre le contact "Grace Hopper" pour "ACME" :
