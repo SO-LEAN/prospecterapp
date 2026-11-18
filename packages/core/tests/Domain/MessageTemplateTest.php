@@ -21,7 +21,7 @@ final class MessageTemplateTest extends TestCase
     #[DataProvider('renderings')]
     public function testItIsRenderedForAContact(string $template, string $rendered): void
     {
-        $addressee = new Addressee('Ada', 'Lovelace', null, 'ACME', null);
+        $addressee = new Addressee('Ada', 'Lovelace', 'x', 'ACME', null);
 
         $this->assertSame($rendered, MessageTemplate::of($template, null, Channel::Sms)->renderedFor($addressee)->text);
     }
@@ -40,7 +40,7 @@ final class MessageTemplateTest extends TestCase
     }
 
     #[DataProvider('civilities')]
-    public function testItAddressesAContactByTheirCivility(?string $civility, string $rendered): void
+    public function testItAddressesAContactByTheirCivility(string $civility, string $rendered): void
     {
         $addressee = new Addressee('Grace', 'Hopper', $civility, null, null);
 
@@ -48,18 +48,18 @@ final class MessageTemplateTest extends TestCase
     }
 
     /**
-     * @return iterable<string, array{?string, string}>
+     * @return iterable<string, array{string, string}>
      */
     public static function civilities(): iterable
     {
         yield 'ms' => ['ms', 'Bonjour Madame Hopper,'];
         yield 'mr' => ['mr', 'Bonjour Monsieur Hopper,'];
-        yield 'none noted' => [null, 'Bonjour  Hopper,'];
+        yield 'unknown' => ['x', 'Bonjour  Hopper,'];
     }
 
     public function testAnEmailHasItsSubjectRenderedToo(): void
     {
-        $message = MessageTemplate::of('Bonjour', ' {prénom}, une question ', Channel::Email)->renderedFor(new Addressee('Ada', null, null, null, null));
+        $message = MessageTemplate::of('Bonjour', ' {prénom}, une question ', Channel::Email)->renderedFor(new Addressee('Ada', null, 'x', null, null));
 
         $this->assertSame('Ada, une question', $message->subject);
     }
