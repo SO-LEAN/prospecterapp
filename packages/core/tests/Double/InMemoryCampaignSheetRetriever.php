@@ -105,7 +105,7 @@ final readonly class InMemoryCampaignSheetRetriever implements CampaignSheetRetr
         $read = [];
 
         foreach ($recipients->recipients as $recipient) {
-            $read[$recipient->contact->value] = new RecipientInSheet($recipient->status->value, $recipient->isPending(), $recipient->missed, $recipient->reason);
+            $read[$recipient->contact->value] = new RecipientInSheet($recipient->status->value, $recipient->isPending(), $recipient->missed, $recipient->reason, $recipient->exchangeId);
         }
 
         return $read;
