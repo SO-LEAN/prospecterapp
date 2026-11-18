@@ -59,7 +59,7 @@ export function AttachDialog({ contactId, name, email, open, onClose }: Props) {
             <Search onAttach={(organizationId) => attach.mutate({ contactId, organizationId })} />
             <DialogFooter>
               <Button variant="outline" onClick={() => setCreating(true)}>
-                <Plus aria-hidden /> {t('organizations.new')}
+                <Plus aria-hidden /> {t('toAttach.newOrganization')}
               </Button>
             </DialogFooter>
           </>
@@ -98,8 +98,8 @@ function Search({ onAttach }: { onAttach: (organizationId: string) => void }) {
     <div className="space-y-2">
       <Input
         type="search"
-        aria-label={t('organizations.holding.search')}
-        placeholder={t('organizations.holding.search')}
+        aria-label={t('toAttach.searchOrganization')}
+        placeholder={t('toAttach.searchOrganization')}
         value={q}
         onChange={(event) => setQ(event.target.value)}
       />
