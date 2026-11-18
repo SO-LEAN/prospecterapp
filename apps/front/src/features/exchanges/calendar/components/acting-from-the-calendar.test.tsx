@@ -70,6 +70,7 @@ const aVideoCall = (
     toMakeConform: false,
     organizationIds: [],
     attachmentCount: 0,
+    contactToAttach: false,
     _links: { self, move },
     ...exchange,
   },
