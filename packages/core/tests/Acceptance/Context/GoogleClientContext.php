@@ -97,6 +97,18 @@ final class GoogleClientContext implements Context
         $this->myClientNotifiesThrough(null, null);
     }
 
+    #[Then('les notifications de Gmail de :account sont poussées par :pushAccount')]
+    public function theNotificationsArePushedBy(string $account, string $pushAccount): void
+    {
+        Expect::same($pushAccount, $this->application->consultMailboxPusher($this->scenario->accountIdOf($account)->value)->pushAccount);
+    }
+
+    #[Then('les notifications de Gmail de :account ne sont poussées par personne')]
+    public function theNotificationsArePushedByNobody(string $account): void
+    {
+        Expect::same(null, $this->application->consultMailboxPusher($this->scenario->accountIdOf($account)->value)->pushAccount);
+    }
+
     private function myGoogleClient(): ?AccountClient
     {
         $clients = $this->application->consultMyAccountClients()->clients ?? [];

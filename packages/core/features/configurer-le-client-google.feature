@@ -102,6 +102,15 @@ Fonctionnalité: Configurer le client Google de mon compte
     Quand je renseigne le topic Pub/Sub "projects/solean/topics/gmail" poussé par "push@solean.iam.gserviceaccount.com"
     Alors le client Google de mon compte a le topic Pub/Sub "projects/solean/topics/gmail" poussé par "push@solean.iam.gserviceaccount.com"
 
+  Scénario: Les notifications de Gmail d'un compte sont poussées par le compte de service de son topic
+    Soit le client Google "client-solean" de secret "secret-solean" sert "SOLEAN IT"
+    Et je renseigne le topic Pub/Sub "projects/solean/topics/gmail" poussé par "push@solean.iam.gserviceaccount.com"
+    Alors les notifications de Gmail de "SOLEAN IT" sont poussées par "push@solean.iam.gserviceaccount.com"
+
+  Scénario: Sans topic, personne ne pousse les notifications de Gmail d'un compte
+    Soit le client Google "client-solean" de secret "secret-solean" sert "SOLEAN IT"
+    Alors les notifications de Gmail de "SOLEAN IT" ne sont poussées par personne
+
   Scénario: Un topic a son nom complet
     Soit le client Google "client-solean" de secret "secret-solean" sert "SOLEAN IT"
     Quand je renseigne le topic Pub/Sub "gmail" poussé par "push@solean.iam.gserviceaccount.com"
