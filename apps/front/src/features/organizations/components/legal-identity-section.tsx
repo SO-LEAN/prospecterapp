@@ -41,11 +41,17 @@ export function LegalIdentitySection({ organization }: { organization: Organizat
           {(form) => (
             <>
               <LegalIdentityFields form={form} />
-              <FormField form={form} name="siret" label={t('fields.siret')} optional={t('common.optional')}>
+              <FormField
+                form={form}
+                name="siret"
+                label={t('fields.siret')}
+                optional={t('common.optional')}
+                className="sm:col-span-2"
+              >
                 <Input {...form.register('siret')} inputMode="numeric" />
               </FormField>
               {organization._links.searchEstablishments && (
-                <div className="flex items-end">
+                <div className="-mt-2 sm:col-span-2">
                   <EstablishmentSearch
                     organizationId={organization.id}
                     onChoose={(siret) => form.setValue('siret', siret, { shouldDirty: true })}
