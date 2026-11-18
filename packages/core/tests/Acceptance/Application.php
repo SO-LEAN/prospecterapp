@@ -112,6 +112,9 @@ use Prospecter\Core\Connectors\Application\Connect\ConnectHandler;
 use Prospecter\Core\Connectors\Application\ConsultExchangeSync\ConsultExchangeSync;
 use Prospecter\Core\Connectors\Application\ConsultExchangeSync\ConsultExchangeSyncHandler;
 use Prospecter\Core\Connectors\Application\ConsultExchangeSync\KeptExchangeSync;
+use Prospecter\Core\Connectors\Application\ConsultMailboxPusher\ConsultMailboxPusher;
+use Prospecter\Core\Connectors\Application\ConsultMailboxPusher\ConsultMailboxPusherHandler;
+use Prospecter\Core\Connectors\Application\ConsultMailboxPusher\KeptMailboxPusher;
 use Prospecter\Core\Connectors\Application\ConsultMyAccountClients\ConsultMyAccountClients;
 use Prospecter\Core\Connectors\Application\ConsultMyAccountClients\ConsultMyAccountClientsHandler;
 use Prospecter\Core\Connectors\Application\ConsultMyAccountClients\KeptAccountClients;
@@ -828,6 +831,14 @@ final class Application
         $handler = new ConsultExchangeSyncHandler($this->heldExchanges, new InMemoryExchangeSyncRetriever($this->database), $this->connections, $this->connectingMembers);
 
         return $this->ask($handler, new ConsultExchangeSync($this->signedIn(), $exchange, $this->now), $kept) ? $kept : null;
+    }
+
+    public function consultMailboxPusher(string $account): KeptMailboxPusher
+    {
+        $kept = new KeptMailboxPusher();
+        $this->ask(new ConsultMailboxPusherHandler($this->clients), new ConsultMailboxPusher($account, Provider::Google->value), $kept);
+
+        return $kept;
     }
 
     public function consultMyAccountClients(): ?KeptAccountClients
