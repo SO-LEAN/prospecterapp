@@ -65,7 +65,8 @@ class EraseContactsLeftUnattachedTest extends ApiTestCase
         $sooner = $this->aContactToAttachMetOn('2026-09-14 23:30 Europe/Paris');
         $retriever = self::getContainer()->get(ContactsToAttachRetriever::class);
 
-        $this->assertSame([$sooner, $later], array_column($retriever->heldBy(new MemberId($this->memberIdOf('prospector-user'))), 'personId'));
+        $held = array_column($retriever->heldBy(new MemberId($this->memberIdOf('prospector-user'))), 'personId');
+        $this->assertSame([$sooner, $later], array_values(array_intersect($held, [$sooner, $later])));
         $this->assertEquals(new \DateTimeImmutable('2026-10-13 22:00 UTC'), $retriever->findHeldBy(new MemberId($this->memberIdOf('prospector-user')), new PersonId($sooner))?->erasableFrom);
         $this->assertNull($retriever->findHeldBy(new MemberId($this->memberIdOf('assistant-user')), new PersonId($sooner)));
         $this->assertSame([$sooner], $retriever->leftUnattachedAt(new \DateTimeImmutable('2026-10-13 22:00 UTC')));

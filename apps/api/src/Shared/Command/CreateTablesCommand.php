@@ -25,6 +25,7 @@ final readonly class CreateTablesCommand
 
         if ($demo) {
             $this->demoData->load();
+            $this->demoData->addAContactToAttach();
         }
 
         $io->success(sprintf('Tables %s recreated%s.', implode(', ', $this->tables->names()), $demo ? ' with the data of the demonstration' : ''));

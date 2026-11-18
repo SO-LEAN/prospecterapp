@@ -97,9 +97,11 @@ const theDetail = (item: ExchangeToProcess): ExchangeDetail => ({
 const toProcess = (
   items: ExchangeToProcess[],
   toDos: ExchangesToProcess['toDos'] = [],
+  contactsToAttach: ExchangesToProcess['contactsToAttach'] = [],
 ): ExchangesToProcess => ({
   items,
   toDos,
+  contactsToAttach,
   _links: { self: { href: TO_PROCESS, method: 'GET' } },
 })
 

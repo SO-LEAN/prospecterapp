@@ -60,7 +60,12 @@ async function openTheApplication(toDos: ToDoToProcess[]) {
   const queryClient = new QueryClient({
     defaultOptions: { queries: { staleTime: Number.POSITIVE_INFINITY, retry: false } },
   })
-  const toProcess: ExchangesToProcess = { items: [], toDos, _links: { self: { href: '/', method: 'GET' } } }
+  const toProcess: ExchangesToProcess = {
+    items: [],
+    toDos,
+    contactsToAttach: [],
+    _links: { self: { href: '/', method: 'GET' } },
+  }
   queryClient.setQueryData(exchangesToProcessQuery().queryKey, toProcess)
   await renderInARouter(
     <QueryClientProvider client={queryClient}>

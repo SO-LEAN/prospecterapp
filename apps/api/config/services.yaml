@@ -144,6 +144,9 @@ services:
     Prospecter\Core\Prospecting\Domain\Repository\OrganizationRepository: '@App\Prospecting\Persistence\DynamoOrganizationRepository'
     Prospecter\Core\Prospecting\Domain\Repository\ExchangeRepository: '@App\Prospecting\Persistence\DynamoExchangeRepository'
     Prospecter\Core\Prospecting\Domain\Repository\ToDoRepository: '@App\Prospecting\Persistence\DynamoToDoRepository'
+    Prospecter\Core\Prospecting\Domain\Repository\ContactToAttachRepository: '@App\Prospecting\Persistence\DynamoContactToAttachRepository'
+    Prospecter\Core\Prospecting\Application\Port\ContactsToAttachRetriever: '@App\Prospecting\Persistence\DynamoContactsToAttachRetriever'
+    Prospecter\Core\Prospecting\Application\Port\ProposedOrganizationRetriever: '@App\Prospecting\Persistence\DynamoProposedOrganizationRetriever'
     Prospecter\Core\Prospecting\Application\Port\ToDoListRetriever: '@App\Prospecting\Persistence\DynamoToDoListRetriever'
     Prospecter\Core\Prospecting\Application\Port\FoundOrganizationRetriever: '@App\Prospecting\Persistence\DynamoFoundOrganizationRetriever'
     Prospecter\Core\Prospecting\Application\Port\OrganizationSheetRetriever: '@App\Prospecting\Persistence\DynamoOrganizationSheetRetriever'
@@ -241,6 +244,9 @@ services:
     # app:integration:redrive; SQS and Lambda of MiniStack locally (SQS_ENDPOINT, LAMBDA_ENDPOINT), of AWS in
     # production (empty)
     App\Shared\Messaging\IntegrationEventConsumer:
+        public: true
+    # the function the schedule of an instance calls every hour, erasing the contacts left unattached (ADR 0146, 0147)
+    App\Prospecting\EraseContactsLeftUnattachedFunction:
         public: true
     # the worker of the local stack, taking the invocations of the rules from a queue (docker/lambda/deploy.sh)
     App\Shared\Messaging\QueuedIntegrationEventConsumer:

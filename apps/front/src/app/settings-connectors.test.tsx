@@ -65,7 +65,7 @@ function theApiAnswers(connections: Connections = noConnection) {
       '/api/me/reminders': myReminders,
       '/api/me/connections': connections,
       [CHECKS]: connections,
-      '/api/me/exchanges-to-process': { items: [], toDos: [], _links: {} },
+      '/api/me/exchanges-to-process': { items: [], toDos: [], contactsToAttach: [], _links: {} },
     }
     return Response.json(answers[pathname] ?? { items: [], _links: {} })
   })

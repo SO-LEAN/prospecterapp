@@ -3315,6 +3315,61 @@
                 }
             }
         },
+        "/api/contacts/{id}/proposed-organization": {
+            "get": {
+                "tags": [
+                    "Contacts"
+                ],
+                "summary": "The organization proposed to attach a contact to: the one of my account whose email has the domain of theirs, none for a public mailbox (ADR 0146)",
+                "operationId": "get_api_contacts_proposed_organization",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "pattern": "[0-9a-f]{8}-[0-9a-f]{4}-[13-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "The organization proposed, or none",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ProposedOrganizationResource"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Missing or invalid access token"
+                    },
+                    "403": {
+                        "description": "Not a prospector, or no right to manage personal data",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ProblemResource"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Unknown contact, or one of another account",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ProblemResource"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
         "/api/exchanges/{id}/attachments": {
             "post": {
                 "tags": [
@@ -8663,6 +8718,25 @@
                 },
                 "type": "object"
             },
+            "ToAttachResource": {
+                "required": [
+                    "lastMeetingAt",
+                    "erasableFrom"
+                ],
+                "properties": {
+                    "lastMeetingAt": {
+                        "description": "Their last meeting with the member, past or to come",
+                        "type": "string",
+                        "format": "date-time"
+                    },
+                    "erasableFrom": {
+                        "description": "The moment they are erased from if nobody attaches them",
+                        "type": "string",
+                        "format": "date-time"
+                    }
+                },
+                "type": "object"
+            },
             "ContactResource": {
                 "required": [
                     "id",
@@ -8701,6 +8775,9 @@
                     },
                     "_links": {
                         "$ref": "#/components/schemas/ContactLinksResource"
+                    },
+                    "toAttach": {
+                        "$ref": "#/components/schemas/ToAttachResource"
                     }
                 },
                 "type": "object"
@@ -9144,6 +9221,56 @@
                 },
                 "type": "object"
             },
+            "ContactToAttachLinksResource": {
+                "required": [
+                    "self"
+                ],
+                "properties": {
+                    "self": {
+                        "$ref": "#/components/schemas/LinkResource"
+                    },
+                    "proposedOrganization": {
+                        "$ref": "#/components/schemas/LinkResource"
+                    }
+                },
+                "type": "object"
+            },
+            "ContactToAttachResource": {
+                "required": [
+                    "id",
+                    "name",
+                    "lastMeetingAt",
+                    "erasableFrom",
+                    "_links"
+                ],
+                "properties": {
+                    "id": {
+                        "type": "string"
+                    },
+                    "name": {
+                        "$ref": "#/components/schemas/PersonNameResource"
+                    },
+                    "email": {
+                        "description": "Their email as the member reads it, masked without the right to manage personal data",
+                        "type": "string",
+                        "nullable": true
+                    },
+                    "lastMeetingAt": {
+                        "description": "Their last meeting with the member, past or to come",
+                        "type": "string",
+                        "format": "date-time"
+                    },
+                    "erasableFrom": {
+                        "description": "The moment they are erased from if nobody attaches them: the start of the 30th day after their last meeting, on the clock of that meeting",
+                        "type": "string",
+                        "format": "date-time"
+                    },
+                    "_links": {
+                        "$ref": "#/components/schemas/ContactToAttachLinksResource"
+                    }
+                },
+                "type": "object"
+            },
             "ExchangesToProcessLinksResource": {
                 "required": [
                     "self"
@@ -9159,6 +9286,7 @@
                 "required": [
                     "items",
                     "toDos",
+                    "contactsToAttach",
                     "_links"
                 ],
                 "properties": {
@@ -9173,6 +9301,13 @@
                         "type": "array",
                         "items": {
                             "$ref": "#/components/schemas/ToDoToProcessResource"
+                        }
+                    },
+                    "contactsToAttach": {
+                        "description": "The contacts waiting for the member, who met them, to attach them to an organization, the first erased first (ADR 0146)",
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/ContactToAttachResource"
                         }
                     },
                     "_links": {
@@ -9244,6 +9379,35 @@
                         "items": {
                             "$ref": "#/components/schemas/OrganizationExchangeResource"
                         }
+                    }
+                },
+                "type": "object"
+            },
+            "OrganizationProposedResource": {
+                "required": [
+                    "id",
+                    "name"
+                ],
+                "properties": {
+                    "id": {
+                        "type": "string"
+                    },
+                    "name": {
+                        "type": "string"
+                    }
+                },
+                "type": "object"
+            },
+            "ProposedOrganizationResource": {
+                "properties": {
+                    "organization": {
+                        "description": "The organization of the account whose email has the domain of that of the contact; none for a public mailbox, or a domain none has",
+                        "nullable": true,
+                        "oneOf": [
+                            {
+                                "$ref": "#/components/schemas/OrganizationProposedResource"
+                            }
+                        ]
                     }
                 },
                 "type": "object"

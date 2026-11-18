@@ -18,10 +18,12 @@ use Prospecter\Core\PersonalData\Domain\Model\Reader;
 use Prospecter\Core\PersonalData\Domain\Repository\PersonRepository;
 use Prospecter\Core\Prospecting\Domain\Model\Channel;
 use Prospecter\Core\Prospecting\Domain\Model\ContactToAttach;
+use Prospecter\Core\Prospecting\Domain\Model\Direction;
 use Prospecter\Core\Prospecting\Domain\Model\Duration;
 use Prospecter\Core\Prospecting\Domain\Model\Exchange;
 use Prospecter\Core\Prospecting\Domain\Model\ExchangeFacts;
 use Prospecter\Core\Prospecting\Domain\Model\ExchangeId;
+use Prospecter\Core\Prospecting\Domain\Model\ExchangeStatus;
 use Prospecter\Core\Prospecting\Domain\Model\Prospector;
 use Prospecter\Core\Prospecting\Domain\Repository\ContactToAttachRepository;
 use Prospecter\Core\Prospecting\Domain\Repository\ExchangeRepository;
@@ -101,19 +103,25 @@ class CheckConsistencyCommandTest extends ApiTestCase
     }
 
     /**
-     * The demonstration holds a contact to attach, with their meeting kept for no organization: no discrepancy. One
-     * whose day has passed shows the erasure the schedule missed (ADR 0146, 0147).
+     * A contact to attach is attached to no organization, their meeting kept for none, until their day (ADR 0146).
+     */
+    public function testAContactToAttachWaitingWithTheirMeetingIsNoDiscrepancy(): void
+    {
+        $this->aContactToAttachMetOn('2026-10-14 10:00 Europe/Paris');
+        $this->rebuildTheFigures();
+        $this->rebuildTheTags();
+
+        $this->assertSame(Command::SUCCESS, $this->tester->execute([]), $this->tester->getDisplay());
+    }
+
+    /**
+     * One whose day has passed shows the erasure the schedule missed (ADR 0147).
      */
     public function testAContactToAttachPastTheDayOfTheirErasureIsShown(): void
     {
-        $member = new MemberId(DemoData::PROSPECTOR);
-        $account = new AccountId(DemoData::SOLEAN_IT);
-        $met = new \DateTimeImmutable('2026-09-01 10:00 Europe/Paris');
-        $person = Person::collectToAttach(new Reader($member, $account, new PersonId(self::newIdentity()), true), new PersonId(self::newIdentity()), new PersonName('Grace', 'Hopper'), new ContactDetails(), $met);
-        self::getContainer()->get(PersonRepository::class)->save($person);
-        self::getContainer()->get(ContactToAttachRepository::class)->save(ContactToAttach::metBy(new Prospector($member, $account, managesPersonalData: true), $person->id(), $met, $met));
+        $person = $this->aContactToAttachMetOn('2026-09-01 10:00 Europe/Paris');
 
-        $this->assertDiscrepancy(DemoData::SOLEAN_IT, $person->id()->value, 'contact to attach past the day of their erasure, not erased', 'app:contacts:erase-unattached');
+        $this->assertDiscrepancy(DemoData::SOLEAN_IT, $person, 'contact to attach past the day of their erasure, not erased', 'app:contacts:erase-unattached');
     }
 
     public function testAForgottenContactStillAttachedIsShown(): void
@@ -310,6 +318,20 @@ class CheckConsistencyCommandTest extends ApiTestCase
 
         $display = preg_replace('/\s+/', ' ', $this->tester->getDisplay());
         $this->assertMatchesRegularExpression(sprintf('/%s %s %s .*%s/', preg_quote($account, '/'), preg_quote($concerns, '/'), preg_quote($discrepancy, '/'), preg_quote($correction, '/')), $display);
+    }
+
+    private function aContactToAttachMetOn(string $moment): string
+    {
+        $member = new MemberId(DemoData::PROSPECTOR);
+        $account = new AccountId(DemoData::SOLEAN_IT);
+        $met = new \DateTimeImmutable($moment);
+        $person = Person::collectToAttach(new Reader($member, $account, new PersonId(self::newIdentity()), true), new PersonId(self::newIdentity()), new PersonName('Grace', 'Hopper'), new ContactDetails(), $met);
+        self::getContainer()->get(PersonRepository::class)->save($person);
+        self::getContainer()->get(ContactToAttachRepository::class)->save(ContactToAttach::metBy(new Prospector($member, $account, managesPersonalData: true), $person->id(), $met, $met));
+        $meeting = Exchange::notedWithAContact($account, $member, new ExchangeId(self::newIdentity()), $person->id(), [], new ExchangeFacts(Channel::VideoCall, Direction::Outbound, $met), ExchangeStatus::Done, $met);
+        self::getContainer()->get(ExchangeRepository::class)->save($meeting);
+
+        return $person->id()->value;
     }
 
     private function connectTheProspectorToGoogle(): void

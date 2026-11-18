@@ -20,7 +20,9 @@ use Prospecter\Core\SharedKernel\Domain\OrganizationId;
  *   and by holding in `GSI2` (`HOLDING#<id>`, its id);
  * - `EMAIL#<account>#<email>` / `EMAIL`: the email an organization holds in its account, the safety net of
  *   EmailUniqueness (ADR 0039, 0048): two organizations taking it at once, the second transaction is cancelled;
- * - `CONTACT#<person>` / `ORGANIZATION#<id>`: the organizations naming a contact.
+ * - `CONTACT#<person>` / `ORGANIZATION#<id>`: the organizations naming a contact;
+ * - `EMAIL_DOMAIN#<account>#<domain>` / `ORGANIZATION#<id>`: the organizations of an account by the domain of their
+ *   email, the one to attach a contact of that domain to proposed first (ADR 0146).
  * The organization carries its search keys and its phone number among the organizations of its account
  * (`SearchIndexes`), and its `revision`, incremented at each save: the revision of its facts, which the aggregate
  * does not know.
@@ -65,10 +67,12 @@ final readonly class DynamoOrganizationRepository implements OrganizationReposit
 
         if ($email !== $storedEmail && null !== $email) {
             $writes[] = $this->prospectingTable->putting(['PK' => self::emailKey($organization->accountId(), $email), 'SK' => self::EMAIL, 'ownerId' => $document['id']], 'attribute_not_exists(PK) OR ownerId = :owner', [':owner' => $document['id']], EmailAlreadyUsed::byAnother(...));
+            $writes[] = $this->prospectingTable->putting(self::emailDomainLink($document['accountId'], $email, $document['id']));
         }
 
         if ($email !== $storedEmail && null !== $storedEmail) {
             $writes[] = $this->prospectingTable->deleting(self::emailKey($organization->accountId(), $storedEmail), self::EMAIL);
+            $writes[] = $this->prospectingTable->deleting(...self::emailDomainKeys($document['accountId'], $storedEmail, $document['id']));
         }
 
         $this->prospectingTable->transact([...$writes, ...$this->contactLinksChanged($document, $stored['organization']['contacts'] ?? [])]);
@@ -81,7 +85,10 @@ final readonly class DynamoOrganizationRepository implements OrganizationReposit
 
         $this->prospectingTable->transact([
             $this->prospectingTable->deleting(OrganizationKeys::organization($organization->id()->value), OrganizationKeys::ORGANIZATION),
-            ...(null === $email ? [] : [$this->prospectingTable->deleting(self::emailKey($organization->accountId(), $email), self::EMAIL)]),
+            ...(null === $email ? [] : [
+                $this->prospectingTable->deleting(self::emailKey($organization->accountId(), $email), self::EMAIL),
+                $this->prospectingTable->deleting(...self::emailDomainKeys($document['accountId'], $email, $document['id'])),
+            ]),
             ...$this->contactLinksChanged(['contacts' => []] + $document, $document['contacts']),
         ]);
     }
@@ -107,14 +114,19 @@ final readonly class DynamoOrganizationRepository implements OrganizationReposit
     }
 
     /**
-     * Writes again the item of every organization, its search keys and its keys in its lists with it, and forgets the
-     * items of the search before ADR 0071: what a table written before ADR 0071 needs once.
+     * Writes again the item of every organization, its search keys and its keys in its lists with it, and the link of
+     * the domain of its email (ADR 0146), and forgets the items of the search before ADR 0071: what a table written
+     * before them needs once.
      */
     public function writeTheKeysAgain(): int
     {
         $items = $this->prospectingTable->scan(OrganizationKeys::ORGANIZATION.'#');
+        $withAnEmail = array_values(array_filter($items, static fn (array $item): bool => null !== $item['organization']['contactDetails']['email']));
         $this->prospectingTable->batch(
-            array_map(fn (array $item): array => $this->itemOf(OrganizationDocument::organization($item['organization']), $item['organization'], Revision::of($item)), $items),
+            [
+                ...array_map(fn (array $item): array => $this->itemOf(OrganizationDocument::organization($item['organization']), $item['organization'], Revision::of($item)), $items),
+                ...array_map(static fn (array $item): array => self::emailDomainLink($item['organization']['accountId'], $item['organization']['contactDetails']['email'], $item['organization']['id']), $withAnEmail),
+            ],
             array_map(static fn (array $former): array => [$former['PK'], $former['SK']], $this->prospectingTable->scan('TOKEN')),
         );
 
@@ -165,6 +177,24 @@ final readonly class DynamoOrganizationRepository implements OrganizationReposit
     private function organizationsOf(array $items): array
     {
         return array_map(static fn (array $item): Organization => OrganizationDocument::organization($item['organization']), $items);
+    }
+
+    /**
+     * @return array<string, string>
+     */
+    private static function emailDomainLink(string $accountId, string $email, string $organizationId): array
+    {
+        [$pk, $sk] = self::emailDomainKeys($accountId, $email, $organizationId);
+
+        return ['PK' => $pk, 'SK' => $sk];
+    }
+
+    /**
+     * @return array{string, string}
+     */
+    private static function emailDomainKeys(string $accountId, string $email, string $organizationId): array
+    {
+        return [OrganizationKeys::ofEmailDomain($accountId, new Email($email)->domain()), OrganizationKeys::organization($organizationId)];
     }
 
     private static function emailKey(AccountId $accountId, string $email): string

@@ -7,6 +7,7 @@ use App\Campaigns\Persistence\CampaignsKeys;
 use App\Campaigns\Persistence\OrganizationFactItem;
 use App\Connectors\Persistence\ConnectorsKeys;
 use App\PersonalData\Persistence\PersonalDataKeys;
+use App\Prospecting\Persistence\DynamoContactToAttachRepository;
 use App\Prospecting\Persistence\ExchangeKeys;
 use App\Prospecting\Persistence\OrganizationKeys;
 use App\Reporting\Persistence\ReportingKeys;
@@ -207,6 +208,18 @@ final readonly class ContextTables
     /**
      * @return list<array<string, mixed>> the documents of the exchanges the account keeps
      */
+    /**
+     * The contacts to attach of every account, as their items keep them (ADR 0146).
+     *
+     * @return list<array<string, mixed>>
+     */
+    public function contactsToAttachOf(string $accountId): array
+    {
+        $documents = array_map(static fn (array $item): array => $item['contactToAttach'], $this->prospectingTable->scan(DynamoContactToAttachRepository::CONTACT_TO_ATTACH.'#'));
+
+        return array_values(array_filter($documents, static fn (array $document): bool => $document['accountId'] === $accountId));
+    }
+
     public function exchangesOf(string $accountId): array
     {
         return array_map(static fn (array $item): array => $item['exchange'], $this->prospectingTable->query(ExchangeKeys::ofAccount($accountId), Table::BY_GSI2));

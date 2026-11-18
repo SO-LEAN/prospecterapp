@@ -20,13 +20,16 @@ use Prospecter\Core\PersonalData\Domain\Model\Purpose;
 use Prospecter\Core\PersonalData\Domain\Model\Reader;
 use Prospecter\Core\PersonalData\Domain\Repository\PersonRepository;
 use Prospecter\Core\Prospecting\Domain\Model\Channel;
+use Prospecter\Core\Prospecting\Domain\Model\ContactToAttach;
 use Prospecter\Core\Prospecting\Domain\Model\Direction;
+use Prospecter\Core\Prospecting\Domain\Model\Duration;
 use Prospecter\Core\Prospecting\Domain\Model\Exchange;
 use Prospecter\Core\Prospecting\Domain\Model\ExchangeFacts;
 use Prospecter\Core\Prospecting\Domain\Model\ExchangeId;
 use Prospecter\Core\Prospecting\Domain\Model\ExchangeStatus;
 use Prospecter\Core\Prospecting\Domain\Model\Organization;
 use Prospecter\Core\Prospecting\Domain\Model\Prospector;
+use Prospecter\Core\Prospecting\Domain\Repository\ContactToAttachRepository;
 use Prospecter\Core\Prospecting\Domain\Repository\ExchangeRepository;
 use Prospecter\Core\Prospecting\Domain\Repository\OrganizationRepository;
 use Prospecter\Core\SharedKernel\Application\Port\Events;
@@ -42,6 +45,7 @@ use Prospecter\Core\SharedKernel\Domain\OrganizationId;
 use Prospecter\Core\SharedKernel\Domain\PersonId;
 use Prospecter\Core\SharedKernel\Domain\PhoneNumber;
 use Prospecter\Core\SharedKernel\Domain\ReleasesEvents;
+use Symfony\Component\Clock\ClockInterface;
 
 /**
  * The data of the demonstration and of the API tests, made as the use cases make them (ADR 0048): through
@@ -72,9 +76,11 @@ final readonly class DemoData
         private PersonRepository $persons,
         private OrganizationRepository $organizations,
         private ExchangeRepository $exchanges,
+        private ContactToAttachRepository $contactsToAttach,
         private ProviderClientRepository $clients,
         private Identities $identities,
         private Events $events,
+        private ClockInterface $clock,
     ) {
     }
 
@@ -143,6 +149,29 @@ final readonly class DemoData
         $this->publish($ada);
         $this->anExchange($prospector, $ada, $babbage, new ExchangeFacts(Channel::Call, Direction::Outbound, $openedAt->modify('+1 hour')));
         $this->anExchange($prospector, $ada, $babbage, new ExchangeFacts(Channel::LinkedIn, Direction::Inbound, $openedAt->modify('+1 day'), 'Intéressée par une mission en mars'));
+    }
+
+    /**
+     * A person who took a video call with the prospector two days from now, before anyone knew for whom she works:
+     * a contact to attach, whose meeting the prospector holds (ADR 0146), her email of the domain of Babbage & Co. On
+     * the stack only (`make db`): the tests start from the data of `load()`, which their expectations count.
+     */
+    public function addAContactToAttach(): void
+    {
+        $account = $this->accounts->get(new AccountId(self::SOLEAN_IT));
+        $now = $this->clock->now();
+        $meeting = $now->setTimezone(new \DateTimeZone('Europe/Paris'))->modify('+2 days')->setTime(10, 0);
+        $prospector = new Prospector(new MemberId(self::PROSPECTOR), $account->id(), managesPersonalData: true);
+        $manager = new Reader($prospector->id, $account->id(), new PersonId($this->identities->next()), true);
+        $grace = Person::collectToAttach($manager, new PersonId($this->identities->next()), new PersonName('Grace', 'Hopper'), new ContactDetails(new Email('grace@babbage.test'), language: 'FR'), $now);
+        $this->persons->save($grace);
+        $this->publish($grace);
+        $toAttach = ContactToAttach::metBy($prospector, $grace->id(), $meeting, $now);
+        $this->contactsToAttach->save($toAttach);
+        $this->publish($toAttach);
+        $visio = Exchange::plannedWithAContact($account->id(), $prospector->id, new ExchangeId($this->identities->next()), $grace->id(), [], ExchangeFacts::planned(Channel::VideoCall, $meeting, Duration::inMinutes(null), 'Découverte'), $now);
+        $this->exchanges->save($visio);
+        $this->publish($visio);
     }
 
     private function anExchange(Prospector $prospector, Person $contact, Organization $organization, ExchangeFacts $facts): void

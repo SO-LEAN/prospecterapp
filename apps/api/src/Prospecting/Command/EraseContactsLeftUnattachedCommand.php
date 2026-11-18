@@ -1,0 +1,27 @@
+<?php
+
+namespace App\Prospecting\Command;
+
+use App\Prospecting\ContactsLeftUnattachedEraser;
+use Symfony\Component\Console\Attribute\AsCommand;
+use Symfony\Component\Console\Command\Command;
+use Symfony\Component\Console\Style\SymfonyStyle;
+
+/**
+ * Erases the contacts nobody attached in the 30 days after their last meeting (ADR 0146): by hand on the local stack,
+ * whose MiniStack runs no schedule, or on an instance whose schedule missed some (ADR 0147).
+ */
+#[AsCommand(name: 'app:contacts:erase-unattached', description: 'Erase the contacts to attach nobody attached in the 30 days after their last meeting')]
+final readonly class EraseContactsLeftUnattachedCommand
+{
+    public function __construct(private ContactsLeftUnattachedEraser $eraser)
+    {
+    }
+
+    public function __invoke(SymfonyStyle $io): int
+    {
+        $io->success(sprintf('%d contact(s) left unattached erased.', $this->eraser->erase()));
+
+        return Command::SUCCESS;
+    }
+}
