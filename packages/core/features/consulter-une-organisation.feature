@@ -24,6 +24,14 @@ Fonctionnalité: Consulter une organisation
       | position        | 7.75, 48.58       |
       | logo            | acme.png          |
 
+  Scénario: Je vois le SIRET d'une organisation
+    Soit l'organisation "ACME" fait partie de mes organisations avec :
+      | SIRET | 55210055400013 |
+    Quand je consulte l'organisation "ACME"
+    Alors je vois l'organisation :
+      | raison sociale | ACME           |
+      | SIRET          | 55210055400013 |
+
   Scénario: Mon organisation n'est pas une organisation que je prospecte
     Quand je consulte l'organisation "SOLEAN IT"
     Alors c'est introuvable

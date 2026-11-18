@@ -63,6 +63,7 @@ final readonly class DynamoOrganizationSheetRetriever implements OrganizationShe
             form: $identity->form,
             type: $identity->type,
             fullName: $identity->fullName(),
+            siret: $identity->siret?->value,
             email: $contact->email?->value,
             phoneNumber: $contact->phoneNumber?->international(),
             language: $contact->language,

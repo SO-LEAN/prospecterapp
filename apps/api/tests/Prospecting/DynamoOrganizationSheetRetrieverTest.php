@@ -15,6 +15,7 @@ use Prospecter\Core\SharedKernel\Domain\LegalIdentity;
 use Prospecter\Core\SharedKernel\Domain\MemberId;
 use Prospecter\Core\SharedKernel\Domain\OrganizationId;
 use Prospecter\Core\SharedKernel\Domain\PersonId;
+use Prospecter\Core\SharedKernel\Domain\Siret;
 use Tests\App\Base\ApiTestCase;
 
 /**
@@ -46,6 +47,16 @@ class DynamoOrganizationSheetRetrieverTest extends ApiTestCase
         $this->organizations()->save($acme);
 
         $this->assertSame(self::OFFERED_BY_THE_STATE, array_values(array_intersect(self::OFFERED_BY_THE_STATE, $this->sheetOf($acme)->possibleIntents)));
+    }
+
+    public function testTheSheetCarriesTheSiret(): void
+    {
+        $prospector = $this->aProspector();
+        $acme = $this->prospect($prospector, 'ACME');
+        $acme->reviseLegalIdentity(new LegalIdentity('ACME', siret: new Siret('55210055400013')), $prospector->id, new \DateTimeImmutable(self::THE_MOMENT_OF_THE_TESTS));
+        $this->organizations()->save($acme);
+
+        $this->assertSame('55210055400013', $this->sheetOf($acme)->siret);
     }
 
     private function prospect(Prospector $prospector, string $corporateName): Organization
