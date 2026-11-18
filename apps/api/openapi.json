@@ -10007,6 +10007,9 @@
                     },
                     "cancel": {
                         "$ref": "#/components/schemas/LinkResource"
+                    },
+                    "campaign": {
+                        "$ref": "#/components/schemas/LinkResource"
                     }
                 },
                 "type": "object"
@@ -10159,6 +10162,15 @@
                     "hiddenAttachments": {
                         "description": "How many files are joined to it but hidden to a prospector reading it without the right to manage personal data",
                         "type": "integer"
+                    },
+                    "campaign": {
+                        "description": "The campaign it was noted in, none for an exchange of no campaign",
+                        "nullable": true,
+                        "oneOf": [
+                            {
+                                "$ref": "#/components/schemas/CampaignOfExchangeResource"
+                            }
+                        ]
                     },
                     "_links": {
                         "$ref": "#/components/schemas/ExchangeDetailLinksResource"
@@ -10739,6 +10751,9 @@
                         "$ref": "#/components/schemas/LinkResource"
                     },
                     "dismiss": {
+                        "$ref": "#/components/schemas/LinkResource"
+                    },
+                    "exchange": {
                         "$ref": "#/components/schemas/LinkResource"
                     }
                 },

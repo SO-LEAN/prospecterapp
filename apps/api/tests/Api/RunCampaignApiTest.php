@@ -62,7 +62,7 @@ class RunCampaignApiTest extends ApiTestCase
         $this->assertResponseStatusCodeSame(201);
         $this->assertMatchesRegularExpression('#^/api/exchanges/[0-9a-f-]{36}$#', (string) self::getClient()->getResponse()->headers->get('Location'));
         $recipient = $this->recipient($id, $this->ada);
-        $this->assertSame(['processed', true, null, []], [$recipient['status'], $recipient['missed'], $recipient['reason'], $recipient['_links']]);
+        $this->assertSame(['processed', true, null, ['exchange']], [$recipient['status'], $recipient['missed'], $recipient['reason'], array_keys($recipient['_links'])]);
         $this->assertSame(['processed' => 1, 'dismissed' => 0], $this->requestJson('GET', '/api/campaigns/'.$id)['progress']);
         $exchange = $this->requestJson('GET', '/api/contacts/'.$this->ada.'/exchanges')['items'][0];
         $this->assertSame(['call', 'outbound', 'missed', ['id' => $id, 'name' => 'Appels ESN']], [$exchange['channel'], $exchange['direction'], $exchange['status'], $exchange['campaign']]);

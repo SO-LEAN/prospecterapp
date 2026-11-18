@@ -4,6 +4,7 @@ namespace App\Exchanges\Resource;
 
 use App\Contacts\Resource\InterlocutorResource;
 use App\Prospecting\Input\ExchangeInput;
+use App\Prospecting\Resource\CampaignOfExchangeResource;
 use App\Prospecting\Resource\ExchangeResource;
 use OpenApi\Attributes as OA;
 use Symfony\Component\Serializer\Attribute\Context;
@@ -12,7 +13,7 @@ use Symfony\Component\Serializer\Normalizer\AbstractObjectNormalizer;
 
 /**
  * The whole of an exchange with a contact or with the organization itself: who noted it, who corrected it last, and
- * the files joined to it.
+ * the files joined to it; the campaign it was noted in (ADR 0145).
  */
 final readonly class ExchangeDetailResource
 {
@@ -61,6 +62,8 @@ final readonly class ExchangeDetailResource
         public array $attachments,
         #[OA\Property(description: 'How many files are joined to it but hidden to a prospector reading it without the right to manage personal data')]
         public int $hiddenAttachments,
+        #[OA\Property(description: 'The campaign it was noted in, none for an exchange of no campaign')]
+        public ?CampaignOfExchangeResource $campaign,
         #[SerializedName('_links')]
         #[Context([AbstractObjectNormalizer::SKIP_NULL_VALUES => true])]
         public ExchangeDetailLinksResource $links,

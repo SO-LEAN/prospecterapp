@@ -12,7 +12,9 @@ use App\Contacts\TagsOfContacts;
 use App\Security\IntentLinks;
 use App\Security\User;
 use App\Shared\Links;
+use App\Shared\Resource\LinkResource;
 use Prospecter\Core\Campaigns\Application\CampaignSheet;
+use Prospecter\Core\Campaigns\Application\RecipientInSheet;
 use Prospecter\Core\PersonalData\Application\ConsultPersons\ConsultPersons;
 use Prospecter\Core\PersonalData\Application\ConsultPersons\KeptPersons;
 use Prospecter\Core\PersonalData\Application\PersonCard;
@@ -23,7 +25,7 @@ use Prospecter\Core\SharedKernel\Application\QueryHandler;
  * PersonalData reads them, Prospecting tells the organizations of each and Campaigns the tags each carries, in one
  * batch each, as the search by tags shows its contacts. A recipient PersonalData no longer reads is left out, but one
  * a started campaign keeps erased, shown without its contact. A recipient to handle of a started campaign links the
- * exchange to note for them and their dismissal (ADR 0145).
+ * exchange to note for them and their dismissal (ADR 0145); one processed, the exchange noted for them (ADR 0152).
  */
 final readonly class RecipientsReader
 {
@@ -70,7 +72,13 @@ final readonly class RecipientsReader
             remove: $removable ? $this->links->to('api_campaigns_remove_recipient', $recipient) : null,
             noteExchange: $toHandle ? $this->links->to('api_campaigns_note_exchange', $recipient) : null,
             dismiss: $toHandle ? $this->links->to('api_campaigns_dismiss_recipient', $recipient) : null,
+            exchange: $this->exchangeOf($campaign->recipients[$contactId]),
         );
+    }
+
+    private function exchangeOf(RecipientInSheet $recipient): ?LinkResource
+    {
+        return null === $recipient->exchangeId ? null : $this->links->to('api_exchanges_show', ['id' => $recipient->exchangeId]);
     }
 
     /**
