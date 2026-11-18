@@ -15,6 +15,8 @@ use Tests\Core\Double\InMemoryUnitOfWork;
 
 class TransactionalEventHandlerTest extends TestCase
 {
+    private const string AT = '2026-10-15 09:00 UTC';
+
     private InMemoryDatabase $database;
     private InMemoryUnitOfWork $unitOfWork;
 
@@ -62,7 +64,7 @@ class TransactionalEventHandlerTest extends TestCase
 
     private function anAccountStored(): void
     {
-        $this->database->storeAccount(Account::open(new AccountId('0190e3c8-6c8e-7c5e-9d6a-3a1c1c4f2b10'), new LegalIdentity('SOLEAN IT'), new \DateTimeImmutable()));
+        $this->database->storeAccount(Account::open(new AccountId('0190e3c8-6c8e-7c5e-9d6a-3a1c1c4f2b10'), new LegalIdentity('SOLEAN IT'), new \DateTimeImmutable(self::AT)));
     }
 
     /**

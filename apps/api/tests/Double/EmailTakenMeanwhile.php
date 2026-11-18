@@ -15,7 +15,7 @@ use Prospecter\Core\PersonalData\Domain\Repository\PersonRepository;
 use Prospecter\Core\SharedKernel\Application\EventHandler;
 use Prospecter\Core\SharedKernel\Domain\ContactDetails;
 use Prospecter\Core\SharedKernel\Domain\PersonId;
-use Symfony\Component\Clock\NativeClock;
+use Symfony\Component\Clock\ClockInterface;
 
 /**
  * Once a test asks it to, another request takes the email a person has just been given, before the command that
@@ -31,6 +31,7 @@ final class EmailTakenMeanwhile implements EventHandler
         private readonly Marshaler $marshaler,
         private readonly Table $personalDataTable,
         private readonly Identities $identities,
+        private readonly ClockInterface $commitClock,
     ) {
     }
 
@@ -51,6 +52,6 @@ final class EmailTakenMeanwhile implements EventHandler
 
     private function anotherRequest(): DynamoPersonRepository
     {
-        return new DynamoPersonRepository(new Table($this->client, $this->marshaler, new DynamoUnitOfWork($this->client, new CommitOutbox([], $this->marshaler, $this->identities, new NativeClock())), $this->personalDataTable->name));
+        return new DynamoPersonRepository(new Table($this->client, $this->marshaler, new DynamoUnitOfWork($this->client, new CommitOutbox([], $this->marshaler, $this->identities, $this->commitClock)), $this->personalDataTable->name));
     }
 }

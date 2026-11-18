@@ -12,8 +12,9 @@ use Tests\App\Base\ApiTestCase;
 
 /**
  * The authorizations waiting for their answer in the table of Connectors: the rule of the core refuses one ten minutes
- * after it was asked, the table forgets it an hour after it was kept, by the real clock (that of the tests is in the
- * past: the table would forget the authorization while its answer is on its way).
+ * after it was asked, the table forgets it an hour after it was kept, counted on the clock of what the tables forget
+ * (far after the real one in the tests: that of the controllers is in the past, the table would forget the
+ * authorization while its answer is on its way).
  */
 class DynamoAuthorizationRepositoryTest extends ApiTestCase
 {
@@ -26,7 +27,7 @@ class DynamoAuthorizationRepositoryTest extends ApiTestCase
         self::getContainer()->get(AuthorizationRepository::class)->keep($asked);
 
         $item = $this->connectorsTable()->item(ConnectorsKeys::authorization(self::STATE), ConnectorsKeys::AUTHORIZATION);
-        $this->assertEqualsWithDelta(new \DateTimeImmutable('+1 hour')->getTimestamp(), $item['expiresAt'], 60);
+        $this->assertSame(new \DateTimeImmutable('2100-01-01 01:00:00 UTC')->getTimestamp(), $item['expiresAt']);
         $this->assertEquals($asked, self::getContainer()->get(AuthorizationRepository::class)->find(self::STATE));
     }
 

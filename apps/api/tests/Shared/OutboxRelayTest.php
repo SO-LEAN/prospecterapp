@@ -18,6 +18,8 @@ use Tests\App\Double\InMemoryEventBridge;
  */
 class OutboxRelayTest extends KernelTestCase
 {
+    private const string AT = '2026-10-15 09:00 UTC';
+
     private OutboxRelay $relay;
     private InMemoryEventBridge $bus;
 
@@ -93,7 +95,7 @@ class OutboxRelayTest extends KernelTestCase
             'eventSource' => 'aws:dynamodb',
             'dynamodb' => [
                 'Keys' => ['PK' => ['S' => 'OUTBOX#x'], 'SK' => ['S' => 'OUTBOX']],
-                'NewImage' => $marshaler->marshalItem(new OutboxItem(Uuid::v7()->toRfc4122(), $events, new \DateTimeImmutable())->document()),
+                'NewImage' => $marshaler->marshalItem(new OutboxItem(Uuid::v7()->toRfc4122(), $events, new \DateTimeImmutable(self::AT))->document()),
                 'StreamViewType' => 'NEW_IMAGE',
             ],
         ], $itemsOfEvents);

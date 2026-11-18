@@ -26,6 +26,8 @@ use Tests\App\Base\ApiTestCase;
  */
 class DynamoTaggedContactsRetrieverTest extends ApiTestCase
 {
+    private const string AT = '2026-10-15 09:00 UTC';
+
     private const string ILLKIRCH = '67218';
 
     private AccountId $account;
@@ -74,8 +76,8 @@ class DynamoTaggedContactsRetrieverTest extends ApiTestCase
 
     private function tag(Holder $holder, string $tag): void
     {
-        $tagging = Tagging::of($this->account, $holder, new \DateTimeImmutable());
-        $tagging->tagWith([Tag::written($tag)], by: new MemberId(self::newIdentity()), at: new \DateTimeImmutable());
+        $tagging = Tagging::of($this->account, $holder, new \DateTimeImmutable(self::AT));
+        $tagging->tagWith([Tag::written($tag)], by: new MemberId(self::newIdentity()), at: new \DateTimeImmutable(self::AT));
         $this->taggings()->save($tagging);
     }
 

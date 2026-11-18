@@ -2,6 +2,7 @@
 
 namespace Tests\App\Api;
 
+use App\Shared\Persistence\Documents;
 use PHPUnit\Framework\Attributes\Group;
 use Tests\App\Base\ApiTestCase;
 use Tests\App\Base\DeliversThroughTheOutbox;
@@ -95,6 +96,6 @@ class CommitOutboxApiTest extends ApiTestCase
 
         $item = $this->outboxOf('prospecting')[0];
         $this->assertSame('OUTBOX', $item['SK']);
-        $this->assertEqualsWithDelta(new \DateTimeImmutable('+7 days')->getTimestamp(), $item['expiresAt'], 60);
+        $this->assertSame(Documents::momentOf($item['occurredAt'])->modify('+7 days')->getTimestamp(), $item['expiresAt']);
     }
 }

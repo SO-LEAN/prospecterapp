@@ -31,6 +31,8 @@ use Tests\Core\Double\InMemoryOrganizationRepository;
  */
 class OrganizationIntentsTest extends TestCase
 {
+    private const string AT = '2026-10-15 09:00 UTC';
+
     private const string MINE = '0190a1c0-0000-7000-8000-000000000001';
     private const string PROSPECT = '0190a1c0-0000-7000-8000-000000000003';
     private const string HOLDING = '0190a1c0-0000-7000-8000-000000000004';
@@ -79,28 +81,28 @@ class OrganizationIntentsTest extends TestCase
     private function carryOut(OrganizationIntent $intent, Organization $organization, MemberId $by): void
     {
         match ($intent) {
-            OrganizationIntent::ReviseLegalIdentity => $organization->reviseLegalIdentity(new LegalIdentity('ACME SAS'), $by, new \DateTimeImmutable()),
-            OrganizationIntent::ChangeContactDetails => $organization->changeContactDetails(new ContactDetails(phoneNumber: PhoneNumber::of('03 88 00 00 00')), $by, new \DateTimeImmutable()),
-            OrganizationIntent::Relocate => $organization->relocateTo(new Address(city: 'Colmar'), null, $by, new \DateTimeImmutable()),
-            OrganizationIntent::WriteObservations => $organization->writeObservations('Rappeler lundi', $by, new \DateTimeImmutable()),
-            OrganizationIntent::AttachToHolding => $organization->attachToHolding($this->holding(), $by, new \DateTimeImmutable()),
-            OrganizationIntent::DetachFromHolding => $organization->detachFromHolding($by, new \DateTimeImmutable()),
-            OrganizationIntent::ChangeLogo => $organization->changeLogo($this->logo(), $by, new \DateTimeImmutable()),
-            OrganizationIntent::RemoveLogo => $organization->removeLogo($by, new \DateTimeImmutable()),
-            OrganizationIntent::AddContact => $organization->addContact(new PersonId(self::NEW_CONTACT), $by, new \DateTimeImmutable()),
-            OrganizationIntent::RemoveContact => $organization->removeContact(new PersonId(self::CONTACT), $by, new \DateTimeImmutable(), $this->orphans()),
-            OrganizationIntent::StopProspecting => $organization->stopBeingProspected($by, new \DateTimeImmutable(), $this->orphans()),
+            OrganizationIntent::ReviseLegalIdentity => $organization->reviseLegalIdentity(new LegalIdentity('ACME SAS'), $by, new \DateTimeImmutable(self::AT)),
+            OrganizationIntent::ChangeContactDetails => $organization->changeContactDetails(new ContactDetails(phoneNumber: PhoneNumber::of('03 88 00 00 00')), $by, new \DateTimeImmutable(self::AT)),
+            OrganizationIntent::Relocate => $organization->relocateTo(new Address(city: 'Colmar'), null, $by, new \DateTimeImmutable(self::AT)),
+            OrganizationIntent::WriteObservations => $organization->writeObservations('Rappeler lundi', $by, new \DateTimeImmutable(self::AT)),
+            OrganizationIntent::AttachToHolding => $organization->attachToHolding($this->holding(), $by, new \DateTimeImmutable(self::AT)),
+            OrganizationIntent::DetachFromHolding => $organization->detachFromHolding($by, new \DateTimeImmutable(self::AT)),
+            OrganizationIntent::ChangeLogo => $organization->changeLogo($this->logo(), $by, new \DateTimeImmutable(self::AT)),
+            OrganizationIntent::RemoveLogo => $organization->removeLogo($by, new \DateTimeImmutable(self::AT)),
+            OrganizationIntent::AddContact => $organization->addContact(new PersonId(self::NEW_CONTACT), $by, new \DateTimeImmutable(self::AT)),
+            OrganizationIntent::RemoveContact => $organization->removeContact(new PersonId(self::CONTACT), $by, new \DateTimeImmutable(self::AT), $this->orphans()),
+            OrganizationIntent::StopProspecting => $organization->stopBeingProspected($by, new \DateTimeImmutable(self::AT), $this->orphans()),
         };
     }
 
     private function prospect(string $state): Organization
     {
-        $prospect = Organization::prospectedBy($this->prospector(), new OrganizationId(self::PROSPECT), new LegalIdentity('ACME'), new ContactDetails(), new \DateTimeImmutable());
+        $prospect = Organization::prospectedBy($this->prospector(), new OrganizationId(self::PROSPECT), new LegalIdentity('ACME'), new ContactDetails(), new \DateTimeImmutable(self::AT));
 
         if (self::FULL === $state) {
-            $prospect->changeLogo($this->logo(), $this->prospector()->id, new \DateTimeImmutable());
-            $prospect->attachToHolding($this->holding(), $this->prospector()->id, new \DateTimeImmutable());
-            $prospect->addContact(new PersonId(self::CONTACT), $this->prospector()->id, new \DateTimeImmutable());
+            $prospect->changeLogo($this->logo(), $this->prospector()->id, new \DateTimeImmutable(self::AT));
+            $prospect->attachToHolding($this->holding(), $this->prospector()->id, new \DateTimeImmutable(self::AT));
+            $prospect->addContact(new PersonId(self::CONTACT), $this->prospector()->id, new \DateTimeImmutable(self::AT));
         }
 
         return $prospect;
@@ -116,7 +118,7 @@ class OrganizationIntentsTest extends TestCase
 
     private function holding(): Organization
     {
-        return Organization::prospectedBy($this->prospector(), new OrganizationId(self::HOLDING), new LegalIdentity('Groupe ACME'), new ContactDetails(), new \DateTimeImmutable());
+        return Organization::prospectedBy($this->prospector(), new OrganizationId(self::HOLDING), new LegalIdentity('Groupe ACME'), new ContactDetails(), new \DateTimeImmutable(self::AT));
     }
 
     private function logo(): File

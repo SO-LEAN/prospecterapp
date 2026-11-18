@@ -19,6 +19,8 @@ use Tests\App\Double\GoogleDouble;
 #[Group('api')]
 class ConnectorsApiTest extends ApiTestCase
 {
+    private const string AT = '2026-10-15 09:00 UTC';
+
     private const string CODE = 'a-code-of-google';
 
     protected function setUp(): void
@@ -105,7 +107,7 @@ class ConnectorsApiTest extends ApiTestCase
         $this->connect('michel@exemple.fr', 'a-refresh-token');
         $this->assertSame(['client-of-the-double', 'secret-of-the-double'], $this->google()->clientOfTheLastToken());
 
-        $this->theAdministrator(new ConfigureClient($this->memberIdOf('client-administrator'), 'google', 'client-of-the-double', 'a-new-secret', new \DateTimeImmutable()));
+        $this->theAdministrator(new ConfigureClient($this->memberIdOf('client-administrator'), 'google', 'client-of-the-double', 'a-new-secret', new \DateTimeImmutable(self::AT)));
         $checked = $this->requestJson('POST', '/api/me/connections/checks');
 
         $this->assertSame([['google', 'connected', 'michel@exemple.fr']], $this->seen($checked));
@@ -117,7 +119,7 @@ class ConnectorsApiTest extends ApiTestCase
         $this->login();
         $this->connect('michel@exemple.fr', 'a-refresh-token');
 
-        $this->theAdministrator(new ConfigureClient($this->memberIdOf('client-administrator'), 'google', 'another-client', 'its-secret', new \DateTimeImmutable()));
+        $this->theAdministrator(new ConfigureClient($this->memberIdOf('client-administrator'), 'google', 'another-client', 'its-secret', new \DateTimeImmutable(self::AT)));
         $checked = $this->requestJson('POST', '/api/me/connections/checks');
 
         $this->assertSame([['google', 'toReconnect', 'michel@exemple.fr']], $this->seen($checked));
@@ -350,7 +352,7 @@ class ConnectorsApiTest extends ApiTestCase
      */
     private function withoutAGoogleClient(): void
     {
-        $this->theAdministrator(new RemoveClient($this->memberIdOf('client-administrator'), 'google', new \DateTimeImmutable()));
+        $this->theAdministrator(new RemoveClient($this->memberIdOf('client-administrator'), 'google', new \DateTimeImmutable(self::AT)));
     }
 
     /**

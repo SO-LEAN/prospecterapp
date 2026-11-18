@@ -23,6 +23,8 @@ use Tests\App\Base\ApiTestCase;
  */
 class DynamoOrganizationSheetRetrieverTest extends ApiTestCase
 {
+    private const string AT = '2026-10-15 09:00 UTC';
+
     private const array OFFERED_BY_THE_STATE = [OrganizationIntent::RemoveLogo->name, OrganizationIntent::DetachFromHolding->name, OrganizationIntent::RemoveContact->name];
 
     public function testABareOrganizationOffersNeitherToRemoveALogoNorToDetachFromAHoldingNorToRemoveAContact(): void
@@ -40,9 +42,9 @@ class DynamoOrganizationSheetRetrieverTest extends ApiTestCase
     {
         $prospector = $this->aProspector();
         $acme = $this->prospect($prospector, 'ACME');
-        $acme->changeLogo(new File('https://static.test/acme.png', 'png', 1024), $prospector->id, new \DateTimeImmutable());
-        $acme->attachToHolding($this->prospect($prospector, 'Groupe ACME'), $prospector->id, new \DateTimeImmutable());
-        $acme->addContact(new PersonId(self::newIdentity()), $prospector->id, new \DateTimeImmutable());
+        $acme->changeLogo(new File('https://static.test/acme.png', 'png', 1024), $prospector->id, new \DateTimeImmutable(self::AT));
+        $acme->attachToHolding($this->prospect($prospector, 'Groupe ACME'), $prospector->id, new \DateTimeImmutable(self::AT));
+        $acme->addContact(new PersonId(self::newIdentity()), $prospector->id, new \DateTimeImmutable(self::AT));
         $this->organizations()->save($acme);
 
         $this->assertSame(self::OFFERED_BY_THE_STATE, array_values(array_intersect(self::OFFERED_BY_THE_STATE, $this->sheetOf($acme)->possibleIntents)));
@@ -50,7 +52,7 @@ class DynamoOrganizationSheetRetrieverTest extends ApiTestCase
 
     private function prospect(Prospector $prospector, string $corporateName): Organization
     {
-        $organization = Organization::prospectedBy($prospector, new OrganizationId(self::newIdentity()), new LegalIdentity($corporateName), new ContactDetails(), new \DateTimeImmutable());
+        $organization = Organization::prospectedBy($prospector, new OrganizationId(self::newIdentity()), new LegalIdentity($corporateName), new ContactDetails(), new \DateTimeImmutable(self::AT));
         $this->organizations()->save($organization);
 
         return $organization;

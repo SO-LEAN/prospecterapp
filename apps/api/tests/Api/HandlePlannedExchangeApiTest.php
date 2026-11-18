@@ -255,12 +255,13 @@ class HandlePlannedExchangeApiTest extends ApiTestCase
 
     /**
      * The client never rebooted keeps the clock checking the tokens at the moment it was built: a token issued since
-     * would be in its future.
+     * would be in its future. Cognito of MiniStack issues them on the real clock: the one read of it the tests make.
      */
     private function theTokensAreCheckedNow(): void
     {
         $tokenClock = $this->client->getContainer()->get('app.token_clock');
         $this->assertInstanceOf(MockClock::class, $tokenClock);
+        // @phpstan-ignore prospecter.realClock (Cognito of MiniStack issues the tokens on the real clock)
         $tokenClock->modify(sprintf('@%d', time() + 1));
     }
 

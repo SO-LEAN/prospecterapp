@@ -23,7 +23,6 @@ use Prospecter\Core\Reporting\Domain\Model\OrganizationFact;
 use Prospecter\Core\Reporting\Domain\Repository\FactRepository;
 use Prospecter\Core\SharedKernel\Domain\AccountId;
 use Prospecter\Core\SharedKernel\Domain\OrganizationId;
-use Symfony\Component\Clock\NativeClock;
 use Tests\App\Base\ApiTestCase;
 
 /**
@@ -69,7 +68,7 @@ class DynamoFactRepositoryTest extends ApiTestCase
 
         $item = $this->reportingTable()->item(ReportingKeys::facts(self::VERSION, $this->account->value), 'ORGANIZATION#'.$organization->value);
         $this->assertFalse($item['present']);
-        $this->assertEqualsWithDelta(new \DateTimeImmutable('+15 days')->getTimestamp(), $item['expiresAt'], 60);
+        $this->assertSame(new \DateTimeImmutable('2100-01-16 00:00:00 UTC')->getTimestamp(), $item['expiresAt']);
         $this->assertSame([0, 0], [$this->figures()->activeOrganizations, $this->figures()->locatedOrganizations]);
     }
 
@@ -169,8 +168,8 @@ class DynamoFactRepositoryTest extends ApiTestCase
     {
         $client = self::getContainer()->get(DynamoDbClient::class);
         $marshaler = self::getContainer()->get(Marshaler::class);
-        $unitOfWork = new DynamoUnitOfWork($client, new CommitOutbox([], $marshaler, new Identities(), new NativeClock()));
+        $unitOfWork = new DynamoUnitOfWork($client, new CommitOutbox([], $marshaler, new Identities(), self::getContainer()->get('app.commit_clock')));
 
-        return new DynamoFactRepository(new Table($client, $marshaler, $unitOfWork, $this->reportingTable()->name), new NativeClock());
+        return new DynamoFactRepository(new Table($client, $marshaler, $unitOfWork, $this->reportingTable()->name), self::getContainer()->get('app.commit_clock'));
     }
 }

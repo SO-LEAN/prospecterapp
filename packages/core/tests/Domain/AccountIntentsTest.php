@@ -24,6 +24,8 @@ use Prospecter\Core\SharedKernel\Domain\PersonId;
  */
 class AccountIntentsTest extends TestCase
 {
+    private const string AT = '2026-10-15 09:00 UTC';
+
     private const string MINE = '0190a1c0-0000-7000-8000-000000000001';
     private const string THEIRS = '0190a1c0-0000-7000-8000-000000000002';
 
@@ -31,7 +33,7 @@ class AccountIntentsTest extends TestCase
     public function testAnIntentionIsRefusedExactlyWhenItIsNotOffered(AccountIntent $intent, string $memberAccount): void
     {
         $member = Member::register(new MemberId('0190a1c0-0000-7000-8000-0000000000aa'), new AccountId($memberAccount), new PersonId('0190a1c0-0000-7000-8000-0000000000bb'), Role::User);
-        $account = Account::open(new AccountId(self::MINE), new LegalIdentity('SOLEAN IT'), new \DateTimeImmutable());
+        $account = Account::open(new AccountId(self::MINE), new LegalIdentity('SOLEAN IT'), new \DateTimeImmutable(self::AT));
         $offered = in_array($intent, AccountPossibilities::given(self::MINE === $memberAccount), true);
 
         $accepted = $this->isAccepted($intent, $account, $member);
@@ -56,9 +58,9 @@ class AccountIntentsTest extends TestCase
     {
         try {
             match ($intent) {
-                AccountIntent::ReviseLegalIdentity => $account->reviseLegalIdentity(new LegalIdentity('SO-LEAN'), $by, new \DateTimeImmutable()),
-                AccountIntent::ChangeLogo => $account->changeLogo(new File('https://storage.test/logo.png', 'png', 1024), $by, new \DateTimeImmutable()),
-                AccountIntent::Relocate => $account->relocateTo(new Address(city: 'Strasbourg'), null, $by, new \DateTimeImmutable()),
+                AccountIntent::ReviseLegalIdentity => $account->reviseLegalIdentity(new LegalIdentity('SO-LEAN'), $by, new \DateTimeImmutable(self::AT)),
+                AccountIntent::ChangeLogo => $account->changeLogo(new File('https://storage.test/logo.png', 'png', 1024), $by, new \DateTimeImmutable(self::AT)),
+                AccountIntent::Relocate => $account->relocateTo(new Address(city: 'Strasbourg'), null, $by, new \DateTimeImmutable(self::AT)),
             };
         } catch (NotFound) {
             return false;

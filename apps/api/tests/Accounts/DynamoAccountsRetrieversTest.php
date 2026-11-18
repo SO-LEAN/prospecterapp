@@ -31,6 +31,8 @@ use Tests\App\Base\ApiTestCase;
  */
 class DynamoAccountsRetrieversTest extends ApiTestCase
 {
+    private const string AT = '2026-10-15 09:00 UTC';
+
     public function testMyAccountTellsWhoIAmAndWhatIMayChangeOfMyOrganization(): void
     {
         $account = $this->anAccount();
@@ -79,7 +81,7 @@ class DynamoAccountsRetrieversTest extends ApiTestCase
     public function testTheRemindersOfAMemberAreReadAsTheyWereChanged(): void
     {
         $member = $this->aMemberOf($this->anAccount(), Role::User, Role::Prospector);
-        $member->changeReminders(new Reminders(false, ReminderDelay::HalfAnHour), new \DateTimeImmutable());
+        $member->changeReminders(new Reminders(false, ReminderDelay::HalfAnHour), new \DateTimeImmutable(self::AT));
         self::getContainer()->get(MemberRepository::class)->save($member);
 
         $reminders = self::getContainer()->get(MyRemindersRetriever::class)->of($member->id());
@@ -111,8 +113,8 @@ class DynamoAccountsRetrieversTest extends ApiTestCase
 
     private function anAccount(): Account
     {
-        $account = Account::open(new AccountId(self::newIdentity()), new LegalIdentity('SOLEAN IT'), new \DateTimeImmutable());
-        $account->relocateTo(new Address(city: 'Strasbourg'), null, Member::register(new MemberId(self::newIdentity()), $account->id(), new PersonId(self::newIdentity()), Role::Admin), new \DateTimeImmutable());
+        $account = Account::open(new AccountId(self::newIdentity()), new LegalIdentity('SOLEAN IT'), new \DateTimeImmutable(self::AT));
+        $account->relocateTo(new Address(city: 'Strasbourg'), null, Member::register(new MemberId(self::newIdentity()), $account->id(), new PersonId(self::newIdentity()), Role::Admin), new \DateTimeImmutable(self::AT));
         self::getContainer()->get(AccountRepository::class)->save($account);
 
         return $account;
