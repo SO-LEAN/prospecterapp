@@ -60,10 +60,11 @@ function OpenSwitch({ page }: Props) {
     ? Boolean(page._links.close)
     : Boolean(page._links.open) && page.calendarConnected
 
-  const toggle = async (open: boolean) => {
-    await (open ? openBooking : closeBooking).mutateAsync({})
-    toast.success(t(open ? 'booking.opened' : 'booking.shut'))
-  }
+  const toggle = (open: boolean) =>
+    (open ? openBooking : closeBooking).mutate(
+      {},
+      { onSuccess: () => toast.success(t(open ? 'booking.opened' : 'booking.shut')) },
+    )
 
   return (
     <Card>
@@ -79,7 +80,7 @@ function OpenSwitch({ page }: Props) {
           id={switchId}
           checked={page.open}
           disabled={!switchable || pending}
-          onCheckedChange={(open) => void toggle(open)}
+          onCheckedChange={toggle}
         />
       </CardContent>
     </Card>

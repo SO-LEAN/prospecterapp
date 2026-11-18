@@ -142,6 +142,16 @@ describe('BookingSection', () => {
     expect(await screen.findByText('Votre lien de prise de rendez-vous est actif.')).toBeInTheDocument()
   })
 
+  it('tells an opening refused, leaving no rejection unhandled', async () => {
+    theApi.mockResolvedValue(refused('noChannelOffered'))
+    const user = await renderTheSection(neverSet)
+
+    await user.click(screen.getByRole('switch', { name: 'Lien de prise de rendez-vous coupé' }))
+
+    expect(await screen.findByText('Proposez au moins l’appel ou la visio.')).toBeInTheDocument()
+    expect(await rejectionsLeftUnhandled()).toEqual([])
+  })
+
   it('closes my link at once by its switch', async () => {
     theApi.mockResolvedValue(Response.json({ ...open, open: false }))
     const user = await renderTheSection(open)
