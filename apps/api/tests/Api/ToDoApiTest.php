@@ -26,8 +26,6 @@ use Tests\App\Base\ApiTestCase;
 #[Group('api')]
 class ToDoApiTest extends ApiTestCase
 {
-    private const string AT = '2026-10-15 09:00 UTC';
-
     protected function setUp(): void
     {
         parent::setUp();
@@ -187,9 +185,9 @@ class ToDoApiTest extends ApiTestCase
 
     private function aToDoOfAnotherAccount(): string
     {
-        $competitor = Account::open(new AccountId(self::newIdentity()), new LegalIdentity('Competitor'), new \DateTimeImmutable(self::AT));
+        $competitor = Account::open(new AccountId(self::newIdentity()), new LegalIdentity('Competitor'), new \DateTimeImmutable(self::THE_MOMENT_OF_THE_TESTS));
         self::getContainer()->get(AccountRepository::class)->save($competitor);
-        $theirs = Organization::prospectedBy(new Prospector(new MemberId(self::newIdentity()), $competitor->id()), new OrganizationId(self::newIdentity()), new LegalIdentity('Their prospect'), new ContactDetails(), new \DateTimeImmutable(self::AT));
+        $theirs = Organization::prospectedBy(new Prospector(new MemberId(self::newIdentity()), $competitor->id()), new OrganizationId(self::newIdentity()), new LegalIdentity('Their prospect'), new ContactDetails(), new \DateTimeImmutable(self::THE_MOMENT_OF_THE_TESTS));
         self::getContainer()->get(OrganizationRepository::class)->save($theirs);
         $toDo = ToDo::forTheOrganization($theirs, new MemberId(self::newIdentity()), new ToDoId(self::newIdentity()), 'Leur proposition', new Due('2026-10-16'), new \DateTimeImmutable('2026-10-14'));
         self::getContainer()->get(ToDoRepository::class)->save($toDo);

@@ -26,8 +26,6 @@ use Tests\App\Base\ApiTestCase;
 #[Group('api')]
 class CampaignsApiTest extends ApiTestCase
 {
-    private const string AT = '2026-10-15 09:00 UTC';
-
     private const string TAG = '#CAMPAIGN_151';
 
     private string $ada;
@@ -210,7 +208,7 @@ class CampaignsApiTest extends ApiTestCase
 
     private function aCampaignOfAnotherAccount(): string
     {
-        $competitor = Account::open(new AccountId(self::newIdentity()), new LegalIdentity('Competitor'), new \DateTimeImmutable(self::AT));
+        $competitor = Account::open(new AccountId(self::newIdentity()), new LegalIdentity('Competitor'), new \DateTimeImmutable(self::THE_MOMENT_OF_THE_TESTS));
         self::getContainer()->get(AccountRepository::class)->save($competitor);
         $campaign = Campaign::prepare(
             new CampaignId(self::newIdentity()),
@@ -219,7 +217,7 @@ class CampaignsApiTest extends ApiTestCase
             Targeting::by(Channel::Email, ['#ESN']),
             MessageTemplate::of('Bonjour', null, Channel::Email),
             new MemberId(self::newIdentity()),
-            new \DateTimeImmutable(self::AT),
+            new \DateTimeImmutable(self::THE_MOMENT_OF_THE_TESTS),
         );
         self::getContainer()->get(CampaignRepository::class)->save($campaign);
 

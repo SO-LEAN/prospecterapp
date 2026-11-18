@@ -4,7 +4,6 @@ namespace Tests\App\Shared;
 
 use App\Shared\Messaging\OutboxDelivery;
 use App\Shared\Messaging\TransportedEvent;
-use App\Shared\Persistence\Documents;
 use Symfony\Bundle\FrameworkBundle\Console\Application;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Tester\CommandTester;
@@ -51,12 +50,9 @@ class RepublishOutboxCommandTest extends ApiTestCase
         }
     }
 
-    /**
-     * The outbox is written on the real clock, the table forgetting it a week later: the moments are read in it.
-     */
     private function committedAt(): \DateTimeImmutable
     {
-        return Documents::momentOf((string) self::getContainer()->get('app.table.accounts')->scan('OUTBOX#')[0]['occurredAt']);
+        return self::getContainer()->get('app.commit_clock')->now();
     }
 
     private function republish(\DateTimeImmutable $since): int

@@ -31,7 +31,8 @@ use Symfony\Component\HttpFoundation\File\UploadedFile;
  */
 abstract class ApiTestCase extends WebTestCase
 {
-    private const string AT = '2026-10-15 09:00 UTC';
+    /** The moment of the clock of the controllers (`clock` of `when@test`): that of a test naming no other. */
+    protected const string THE_MOMENT_OF_THE_TESTS = '2026-10-15 09:00 UTC';
 
     protected KernelBrowser $client;
 
@@ -68,7 +69,7 @@ abstract class ApiTestCase extends WebTestCase
     protected function aMemberOfTheFixtures(string $reference, Role ...$roles): string
     {
         $account = $this->accountOfTheFixtures();
-        $profile = Person::collect(new PersonId(self::newIdentity()), $account, Purpose::Membership, new \DateTimeImmutable(self::AT));
+        $profile = Person::collect(new PersonId(self::newIdentity()), $account, Purpose::Membership, new \DateTimeImmutable(self::THE_MOMENT_OF_THE_TESTS));
         self::getContainer()->get(PersonRepository::class)->save($profile);
         $member = Member::register(new MemberId(self::newIdentity()), $account, $profile->id(), ...$roles);
         self::getContainer()->get(MemberRepository::class)->save($member);

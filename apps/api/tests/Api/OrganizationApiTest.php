@@ -20,8 +20,6 @@ use Tests\App\Double\InMemoryStorage;
 #[Group('api')]
 class OrganizationApiTest extends ApiTestCase
 {
-    private const string AT = '2026-10-15 09:00 UTC';
-
     private const array ACME = [
         'legalIdentity' => ['corporateName' => 'ACME', 'form' => 'SAS', 'type' => null],
         'contactDetails' => ['email' => 'contact@acme.test', 'phoneNumber' => null, 'language' => null],
@@ -302,10 +300,10 @@ class OrganizationApiTest extends ApiTestCase
     {
         $accounts = self::getContainer()->get(AccountRepository::class);
         $organizations = self::getContainer()->get(OrganizationRepository::class);
-        $competitor = Account::open(new AccountId(self::newIdentity()), new LegalIdentity('Competitor'), new \DateTimeImmutable(self::AT));
+        $competitor = Account::open(new AccountId(self::newIdentity()), new LegalIdentity('Competitor'), new \DateTimeImmutable(self::THE_MOMENT_OF_THE_TESTS));
         $accounts->save($competitor);
         $theirProspector = new Prospector(new MemberId(self::newIdentity()), $competitor->id());
-        $prospect = Organization::prospectedBy($theirProspector, new OrganizationId(self::newIdentity()), new LegalIdentity('Their prospect'), new ContactDetails(), new \DateTimeImmutable(self::AT));
+        $prospect = Organization::prospectedBy($theirProspector, new OrganizationId(self::newIdentity()), new LegalIdentity('Their prospect'), new ContactDetails(), new \DateTimeImmutable(self::THE_MOMENT_OF_THE_TESTS));
         $organizations->save($prospect);
 
         return $prospect->id()->value;
