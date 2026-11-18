@@ -12,7 +12,8 @@ Run from the repository root (the core has its own `vendor/`, installed by `make
 
 - `make test-core`: the Behat scenarios (`features/`, one per intent or close: a feature may hold a sibling intent, `rattacher-a-une-holding` holds the detachment), then PHPUnit (`tests/Domain`, `tests/Application`, `tests/Architecture`)
 - `make mutation`: the lines the branch adds in `src` mutated, killed by the unit tests and by the scenarios run by PHPUnit (`tests/Mutation`, ADR 0091), the survivors listed
-- `make lint` / `make fix` cover the core too (PHPStan level 5, php-cs-fixer with strict types, Rector)
+- `make lint` / `make fix` cover the core too (PHPStan level 5, php-cs-fixer with strict types, Rector); PHPStan refuses a test reading the real clock (ADR 0150): a test names its moment
+- `make test-core CLOCK_SHIFT=+365d`: the same a year later
 - one command: `docker compose run --rm --no-deps -w /var/www/src/packages/core php vendor/bin/behat features/demenager.feature`
 
 ## History

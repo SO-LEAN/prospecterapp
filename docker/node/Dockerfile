@@ -4,7 +4,7 @@ FROM node:24-alpine
 RUN npm install --global --no-update-notifier --allow-scripts=pnpm pnpm@12.11.2 \
     && mkdir -p /pnpm-store /tmp/home && chmod 777 /pnpm-store /tmp/home
 
-# libfaketime, where the PHP image has it: the tests of the front a year later (make test CLOCK_SHIFT=+365d, ADR 0146)
+# libfaketime, where the PHP image has it: the tests of the front a year later (make test CLOCK_SHIFT=+365d, ADR 0150)
 RUN apk add --no-cache libfaketime \
     && mkdir -p /usr/local/lib/faketime && ln -s /usr/lib/faketime/libfaketime.so.1 /usr/local/lib/faketime/libfaketime.so.1
 

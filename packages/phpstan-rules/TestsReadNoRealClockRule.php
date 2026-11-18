@@ -18,7 +18,7 @@ use PHPStan\Rules\Rule;
 use PHPStan\Rules\RuleErrorBuilder;
 
 /**
- * No test depends on the real date (ADR 0146): a test gives what it tests a fixed moment, so that it passes the
+ * No test depends on the real date (ADR 0150): a test gives what it tests a fixed moment, so that it passes the
  * same today, tomorrow and in a year. The code of the applications reads its clock; a test that cannot do
  * otherwise (the tokens Cognito issues on the real clock) names its exception: `@phpstan-ignore
  * prospecter.realClock (<why>)`.

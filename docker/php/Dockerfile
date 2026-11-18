@@ -7,7 +7,7 @@
 FROM bref/extra-imagick-php-85:3@sha256:b6ea36cf9e6bdd8e9a73b20dcf2b578eee27a914785ddf28da07624fb48c303d AS imagick
 
 # libfaketime, which no package of Amazon Linux holds: the tests of the core and of the storage a year later
-# (make test CLOCK_SHIFT=+365d, ADR 0146)
+# (make test CLOCK_SHIFT=+365d, ADR 0150)
 FROM bref/php-85-dev:3.0.10 AS faketime
 ARG FAKETIME_VERSION=0.9.13
 ARG FAKETIME_SHA256=8e56deeb805682b025107e095f1d94a6ea677472f05824cd475f5c5e6e1a5ddf
