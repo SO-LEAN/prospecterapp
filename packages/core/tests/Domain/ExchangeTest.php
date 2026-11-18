@@ -842,6 +842,16 @@ class ExchangeTest extends TestCase
         $this->assertEquals([new ExchangeErased(new AccountId(self::MINE), $this->me()->id, new ExchangeId(self::EXCHANGE), [], new \DateTimeImmutable(self::NOW), new PersonId(self::CONTACT), new CampaignId(self::CAMPAIGN))], $exchange->releaseEvents());
     }
 
+    public function testErasingAnExchangeWithItsOrganizationSaysSo(): void
+    {
+        $exchange = $this->noted(new ExchangeFacts(Channel::Call, Direction::Inbound, new \DateTimeImmutable(self::NOW)));
+        $exchange->releaseEvents();
+
+        $exchange->eraseWithItsOrganization(by: $this->me()->id, at: new \DateTimeImmutable(self::NOW));
+
+        $this->assertEquals([new ExchangeErased(new AccountId(self::MINE), $this->me()->id, new ExchangeId(self::EXCHANGE), [], new \DateTimeImmutable(self::NOW), new PersonId(self::CONTACT), withItsOrganization: true)], $exchange->releaseEvents());
+    }
+
     private function withAnAttachment(): Exchange
     {
         $exchange = $this->anExchange();

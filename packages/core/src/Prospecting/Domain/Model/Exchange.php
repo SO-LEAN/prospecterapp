@@ -438,9 +438,22 @@ final class Exchange implements ReleasesEvents
      */
     public function erase(MemberId $by, \DateTimeImmutable $at): void
     {
+        $this->erasing($by, $at, withItsOrganization: false);
+    }
+
+    /**
+     * Erased as no organization keeps it any more, the prospecting of the last one stopped: no member erased it.
+     */
+    public function eraseWithItsOrganization(MemberId $by, \DateTimeImmutable $at): void
+    {
+        $this->erasing($by, $at, withItsOrganization: true);
+    }
+
+    private function erasing(MemberId $by, \DateTimeImmutable $at, bool $withItsOrganization): void
+    {
         $this->ensurePossible(ExchangeIntent::EraseExchange, $by, $at);
         $files = array_map(static fn (Attachment $attachment): string => $attachment->file, $this->attachments);
-        $this->recordThat(new ExchangeErased($this->accountId, $by, $this->id, $files, $at, $this->contact, $this->campaign));
+        $this->recordThat(new ExchangeErased($this->accountId, $by, $this->id, $files, $at, $this->contact, $this->campaign, $withItsOrganization));
     }
 
     /**
