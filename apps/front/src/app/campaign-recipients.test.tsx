@@ -226,7 +226,7 @@ describe('the recipients of a campaign', () => {
     const list = await screen.findByRole('list', { name: 'Destinataires' })
     expect(within(list).getByText('Ada Lovelace')).toBeInTheDocument()
     expect(screen.getByText('Démarrée')).toBeInTheDocument()
-    expect(screen.getByText(/^Plus personne à traiter/)).toBeInTheDocument()
+    expect(screen.getByText('Bonjour {prénom}')).toBeInTheDocument()
     expect(screen.queryByRole('button', { name: /^Retirer/ })).not.toBeInTheDocument()
     expect(screen.queryByRole('button', { name: 'Ajouter' })).not.toBeInTheDocument()
     expect(screen.queryByRole('button', { name: 'Enregistrer' })).not.toBeInTheDocument()
