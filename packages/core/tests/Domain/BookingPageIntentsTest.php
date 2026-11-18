@@ -32,7 +32,7 @@ use Prospecter\Core\SharedKernel\Domain\MemberId;
 /**
  * Every intention of a booking page is refused exactly when its state does not offer it, and records its event.
  */
-final class BookingPageTest extends TestCase
+final class BookingPageIntentsTest extends TestCase
 {
     private const string ACCOUNT = '0190a1c0-0000-7000-8000-000000000001';
     private const string HOST = '0190a1c0-0000-7000-8000-000000000002';
