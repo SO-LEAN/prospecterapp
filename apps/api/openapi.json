@@ -5683,7 +5683,10 @@
                         "description": "Noted, or ignored for a mailbox no member of the account imports"
                     },
                     "400": {
-                        "description": "A message that is no notification of Gmail"
+                        "description": "A message whose data is no notification of Gmail"
+                    },
+                    "422": {
+                        "description": "A message without data"
                     },
                     "401": {
                         "description": "A token missing, not signed by Google, not issued for this endpoint, not for the account of service of the account, or an account without topic of Gmail"
