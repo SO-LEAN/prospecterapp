@@ -127,7 +127,7 @@ final class Vocabulary
     ];
 
     private const array LABELS = [
-        'raison sociale', 'forme juridique', 'type', 'e-mail', 'téléphone', 'langue', 'LinkedIn',
+        'raison sociale', 'forme juridique', 'type', 'SIRET', 'e-mail', 'téléphone', 'langue', 'LinkedIn',
         'rue', 'code postal', 'ville', 'pays', 'observations', 'holding', 'prénom', 'nom', 'fonction', 'rôles', 'Civilité',
     ];
 
@@ -240,6 +240,7 @@ final class Vocabulary
             'raison sociale' => (string) $identity->corporateName,
             'forme juridique' => (string) $identity->form,
             'type' => (string) $identity->type,
+            'SIRET' => (string) $identity->siret?->value,
             'e-mail' => (string) $contact->email,
             'téléphone' => (string) $contact->phoneNumber?->international(),
             'langue' => (string) $contact->language,

@@ -34,6 +34,7 @@ use Prospecter\Core\SharedKernel\Domain\Email;
 use Prospecter\Core\SharedKernel\Domain\File;
 use Prospecter\Core\SharedKernel\Domain\LegalIdentity;
 use Prospecter\Core\SharedKernel\Domain\OrganizationId;
+use Prospecter\Core\SharedKernel\Domain\Siret;
 use Tests\Core\Acceptance\Expect;
 use Tests\Core\Acceptance\Vocabulary;
 use Tests\Core\Double\InMemoryStorage;
@@ -153,6 +154,13 @@ final class OrganizationContext implements Context
         $values = Vocabulary::values($table->getRowsHash());
         $this->application->dispatch(new ReviseLegalIdentity($this->me(), $this->scenario->idOf($name), $values['raison sociale'], $values['forme juridique'], $values['type'], $this->application->now()));
         $this->rememberIfAccepted($values['raison sociale'], $this->scenario->idOf($name));
+    }
+
+    #[When('je note le SIRET :siret sur :name')]
+    public function iNoteTheSiret(string $siret, string $name): void
+    {
+        $identity = StateOf::the($this->scenario->organizationNamed($name))['legalIdentity'];
+        $this->application->dispatch(new ReviseLegalIdentity($this->me(), $this->scenario->idOf($name), $identity->corporateName, $identity->form, $identity->type, $this->application->now(), siret: $siret));
     }
 
     #[When('je change les coordonnées de :name :')]
@@ -386,7 +394,7 @@ final class OrganizationContext implements Context
     {
         $values = Vocabulary::values(array_diff_key($details, ['logo' => true]));
         $manager = $this->scenario->managerOf($organization);
-        $organization->reviseLegalIdentity(new LegalIdentity(StateOf::the($organization)['legalIdentity']->corporateName, $values['forme juridique']), by: $manager, at: $this->application->now());
+        $organization->reviseLegalIdentity(new LegalIdentity(StateOf::the($organization)['legalIdentity']->corporateName, $values['forme juridique'], siret: Siret::orNone($values['SIRET'])), by: $manager, at: $this->application->now());
         $organization->changeContactDetails(Vocabulary::contactDetails($values), by: $manager, at: $this->application->now());
         $address = Vocabulary::address($values);
         $organization->relocateTo($address, null === $address ? null : $this->application->geoLocation->find((string) $address), by: $manager, at: $this->application->now());

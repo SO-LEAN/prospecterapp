@@ -5,26 +5,32 @@ declare(strict_types=1);
 namespace Prospecter\Core\Prospecting\Application\ReviseLegalIdentity;
 
 use Prospecter\Core\Prospecting\Domain\Repository\OrganizationRepository;
+use Prospecter\Core\Prospecting\Domain\Service\SiretUniqueness;
 use Prospecter\Core\SharedKernel\Application\CommandHandler;
 use Prospecter\Core\SharedKernel\Application\Port\Events;
 use Prospecter\Core\SharedKernel\Application\PublishesEvents;
 use Prospecter\Core\SharedKernel\Domain\LegalIdentity;
 use Prospecter\Core\SharedKernel\Domain\MemberId;
 use Prospecter\Core\SharedKernel\Domain\OrganizationId;
+use Prospecter\Core\SharedKernel\Domain\Siret;
 
 final readonly class ReviseLegalIdentityHandler implements CommandHandler
 {
     use PublishesEvents;
 
-    public function __construct(private OrganizationRepository $organizations, private Events $events)
-    {
+    public function __construct(
+        private OrganizationRepository $organizations,
+        private Events $events,
+        private SiretUniqueness $sirets,
+    ) {
     }
 
     public function __invoke(ReviseLegalIdentity $command): void
     {
         $author = new MemberId($command->prospectorId);
         $organization = $this->organizations->get(new OrganizationId($command->id));
-        $organization->reviseLegalIdentity(new LegalIdentity($command->corporateName, $command->form, $command->type), by: $author, at: $command->executedAt);
+        $organization->reviseLegalIdentity(new LegalIdentity($command->corporateName, $command->form, $command->type, Siret::orNone($command->siret)), by: $author, at: $command->executedAt);
+        $this->sirets->ensureAvailableFor($organization);
         $this->organizations->save($organization);
         $this->publishWhatHappenedTo($organization);
     }

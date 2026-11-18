@@ -10,6 +10,7 @@ use Prospecter\Core\SharedKernel\Domain\File;
 use Prospecter\Core\SharedKernel\Domain\GeoPoint;
 use Prospecter\Core\SharedKernel\Domain\LegalIdentity;
 use Prospecter\Core\SharedKernel\Domain\PhoneNumber;
+use Prospecter\Core\SharedKernel\Domain\Siret;
 use Prospecter\Core\SharedKernel\Domain\Slice;
 
 /**
@@ -45,7 +46,7 @@ final class Documents
      */
     public static function legalIdentity(LegalIdentity $legalIdentity): array
     {
-        return ['corporateName' => $legalIdentity->corporateName, 'form' => $legalIdentity->form, 'type' => $legalIdentity->type];
+        return ['corporateName' => $legalIdentity->corporateName, 'form' => $legalIdentity->form, 'type' => $legalIdentity->type, 'siret' => $legalIdentity->siret?->value];
     }
 
     /**
@@ -53,7 +54,7 @@ final class Documents
      */
     public static function legalIdentityOf(array $document): LegalIdentity
     {
-        return new LegalIdentity($document['corporateName'] ?? null, $document['form'] ?? null, $document['type'] ?? null);
+        return new LegalIdentity($document['corporateName'] ?? null, $document['form'] ?? null, $document['type'] ?? null, Siret::orNone($document['siret'] ?? null));
     }
 
     /**

@@ -10,6 +10,7 @@ final readonly class LegalIdentity
         public ?string $corporateName = null,
         public ?string $form = null,
         public ?string $type = null,
+        public ?Siret $siret = null,
     ) {
     }
 
