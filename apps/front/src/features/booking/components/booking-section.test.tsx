@@ -216,6 +216,20 @@ describe('BookingSection', () => {
     })
   })
 
+  it('tells an inactive period refused, leaving no rejection unhandled', async () => {
+    theApi.mockResolvedValue(refused('periodEndsBeforeItStarts'))
+    const user = await renderTheSection(neverSet)
+
+    await user.type(screen.getByLabelText('Du'), '2027-01-04')
+    await user.type(screen.getByLabelText('Au'), '2026-12-21')
+    await user.click(screen.getByRole('button', { name: 'Ajouter' }))
+
+    expect(
+      await screen.findByText('Une période inactive finit le jour où elle commence, ou après.'),
+    ).toBeInTheDocument()
+    expect(await rejectionsLeftUnhandled()).toEqual([])
+  })
+
   it('removes an inactive period', async () => {
     theApi.mockResolvedValue(Response.json({ ...open, inactivePeriods: [] }))
     const user = await renderTheSection(open)

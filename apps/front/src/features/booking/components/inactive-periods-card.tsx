@@ -65,15 +65,18 @@ function AddPeriod() {
   const [firstDay, setFirstDay] = useState('')
   const [lastDay, setLastDay] = useState('')
 
-  const submit = async (event: React.FormEvent) => {
-    event.preventDefault()
-    await add.mutateAsync({ body: { firstDay, lastDay } })
+  const emptied = () => {
     setFirstDay('')
     setLastDay('')
   }
 
+  const submit = (event: React.FormEvent) => {
+    event.preventDefault()
+    add.mutate({ body: { firstDay, lastDay } }, { onSuccess: emptied })
+  }
+
   return (
-    <form className="flex flex-wrap items-end gap-3" onSubmit={(event) => void submit(event)}>
+    <form className="flex flex-wrap items-end gap-3" onSubmit={submit}>
       <Field label={t('booking.periods.firstDay')}>
         <Input type="date" required value={firstDay} onChange={(event) => setFirstDay(event.target.value)} />
       </Field>
