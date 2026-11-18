@@ -35,7 +35,9 @@ export function AttachDialog({ contactId, name, email, open, onClose }: Props) {
     <Dialog open={open} onOpenChange={(opened) => !opened && onClose()}>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>{`${t('toAttach.attach')} ${name}`}</DialogTitle>
+          <DialogTitle>
+            {t('toAttach.attach')} {name}
+          </DialogTitle>
         </DialogHeader>
         {creating ? (
           <CreateTheOrganization
