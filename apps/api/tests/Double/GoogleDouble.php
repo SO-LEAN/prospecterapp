@@ -36,6 +36,7 @@ final class GoogleDouble
     /** @var list<string> the topic of each watch of a mailbox asked, the latest last */
     private array $watches = [];
     private int $stops = 0;
+    private bool $failsTheNextWatch = false;
     /** @var list<array{kid: string, n: string, e: string}> the keys Google publishes, its tokens signed by one of them */
     private array $keys = [];
 
@@ -165,6 +166,14 @@ final class GoogleDouble
         return $this->watches;
     }
 
+    /**
+     * The next watch of a mailbox answered by an error of Google, a 500, the others as usual.
+     */
+    public function failsTheNextWatch(): void
+    {
+        $this->failsTheNextWatch = true;
+    }
+
     public function stops(): int
     {
         return $this->stops;
@@ -181,6 +190,12 @@ final class GoogleDouble
             ++$this->stops;
 
             return new MockResponse('', ['http_code' => 204]);
+        }
+
+        if ($this->failsTheNextWatch) {
+            $this->failsTheNextWatch = false;
+
+            return new MockResponse('', ['http_code' => 500]);
         }
 
         $this->watches[] = (string) (json_decode((string) ($options['body'] ?? ''), true)['topicName'] ?? '');

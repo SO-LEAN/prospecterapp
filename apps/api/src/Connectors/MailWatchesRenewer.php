@@ -6,6 +6,7 @@ use App\Shared\CommandBus;
 use App\Shared\ScheduledTask;
 use Prospecter\Core\Connectors\Application\Port\MailImportsRetriever;
 use Prospecter\Core\Connectors\Application\RenewMailWatch\RenewMailWatch;
+use Psr\Log\LoggerInterface;
 use Symfony\Component\Clock\ClockInterface;
 
 /**
@@ -21,6 +22,7 @@ final readonly class MailWatchesRenewer implements ScheduledTask
         private MailImportsRetriever $mailImports,
         private CommandBus $commands,
         private ClockInterface $clock,
+        private LoggerInterface $logger,
     ) {
     }
 
@@ -31,21 +33,34 @@ final readonly class MailWatchesRenewer implements ScheduledTask
 
     public function run(): array
     {
-        return ['renewed' => $this->renew()];
+        return $this->renew();
     }
 
     /**
-     * @return int how many it renewed
+     * A renewal failing, Google failing or the topic of its account refusing Gmail, is logged and the others go on: no
+     * schedule retries, and the failing import stays active, renewed the next day before its week ends.
+     *
+     * @return array{renewed: int, failed: int}
      */
-    public function renew(): int
+    public function renew(): array
     {
         $now = $this->clock->now();
         $active = $this->mailImports->active();
+        $failed = array_filter($active, fn (string $member): bool => !$this->renewed($member, $now));
 
-        foreach ($active as $member) {
-            $this->commands->dispatch(new RenewMailWatch($member, self::GOOGLE, $now));
+        return ['renewed' => count($active) - count($failed), 'failed' => count($failed)];
+    }
+
+    private function renewed(string $member, \DateTimeImmutable $at): bool
+    {
+        try {
+            $this->commands->dispatch(new RenewMailWatch($member, self::GOOGLE, $at));
+
+            return true;
+        } catch (\Exception $failure) {
+            $this->logger->error('The watch of the mailbox of a member could not be renewed', ['member' => $member, 'exception' => $failure]);
+
+            return false;
         }
-
-        return count($active);
     }
 }

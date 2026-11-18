@@ -20,7 +20,8 @@ final readonly class RenewGmailWatchesCommand
 
     public function __invoke(SymfonyStyle $io): int
     {
-        $io->success(sprintf('%d watch(es) of Gmail renewed.', $this->renewer->renew()));
+        $renewal = $this->renewer->renew();
+        $io->success(sprintf('%d watch(es) of Gmail renewed, %d failed.', $renewal['renewed'], $renewal['failed']));
 
         return Command::SUCCESS;
     }
