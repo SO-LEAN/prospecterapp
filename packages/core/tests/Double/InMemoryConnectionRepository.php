@@ -6,8 +6,11 @@ namespace Tests\Core\Double;
 
 use Prospecter\Core\Connectors\Domain\Exception\NoConnection;
 use Prospecter\Core\Connectors\Domain\Model\Connection;
+use Prospecter\Core\Connectors\Domain\Model\MailImport;
 use Prospecter\Core\Connectors\Domain\Model\Provider;
 use Prospecter\Core\Connectors\Domain\Repository\ConnectionRepository;
+use Prospecter\Core\SharedKernel\Domain\AccountId;
+use Prospecter\Core\SharedKernel\Domain\Email;
 use Prospecter\Core\SharedKernel\Domain\MemberId;
 
 /**
@@ -49,6 +52,15 @@ final class InMemoryConnectionRepository implements ConnectionRepository
     public function of(MemberId $member): array
     {
         return $this->database->connectionsOf($member->value);
+    }
+
+    public function importing(AccountId $account, Provider $provider, Email $mailbox): ?Connection
+    {
+        return array_find($this->database->connections(), static function (Connection $connection) use ($account, $provider, $mailbox): bool {
+            $state = StateOf::the($connection);
+
+            return $state['accountId']->equals($account) && $provider === $state['provider'] && $state['externalAccount']->equals($mailbox) && MailImport::Off !== $state['mailImport'];
+        });
     }
 
     public function save(Connection $connection): void

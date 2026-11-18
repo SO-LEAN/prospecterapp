@@ -8,6 +8,7 @@ use Prospecter\Core\Connectors\Domain\Event\CalendarRecreated;
 use Prospecter\Core\Connectors\Domain\Event\Connected;
 use Prospecter\Core\Connectors\Domain\Event\ConnectionLost;
 use Prospecter\Core\Connectors\Domain\Event\Disconnected;
+use Prospecter\Core\Connectors\Domain\Event\MailboxChanged;
 use Prospecter\Core\Connectors\Domain\Event\MailImportLost;
 use Prospecter\Core\Connectors\Domain\Event\MailImportStarted;
 use Prospecter\Core\Connectors\Domain\Event\MailImportStopped;
@@ -40,6 +41,8 @@ final class Connection implements ReleasesEvents
     private MailImport $mailImport = MailImport::Off;
     private ?string $historyId = null;
     private ?\DateTimeImmutable $watchExpiresAt = null;
+    private ?string $notifiedHistoryId = null;
+    private ?\DateTimeImmutable $lastNotifiedAt = null;
     private \DateTimeImmutable $modifiedAt;
 
     private function __construct(
@@ -257,6 +260,29 @@ final class Connection implements ReleasesEvents
         }
     }
 
+    /**
+     * The mailbox notified a change: the furthest point of its history notified kept, whatever the order the
+     * notifications arrive in, and when; an import not active notes nothing (ADR 0154).
+     */
+    public function noteMailboxChange(string $historyId, \DateTimeImmutable $at): void
+    {
+        if (MailImport::Active !== $this->mailImport) {
+            return;
+        }
+
+        $this->notifiedHistoryId = self::furthest($this->notifiedHistoryId, $historyId);
+        $this->lastNotifiedAt = $this->modifiedAt = $at;
+        $this->recordThat(new MailboxChanged($this->accountId, $this->member, $at));
+    }
+
+    /**
+     * The points of the history of a mailbox are numbers growing with its changes, longer than an integer may be.
+     */
+    private static function furthest(?string $known, string $notified): string
+    {
+        return null === $known || strlen($notified) > strlen($known) || (strlen($notified) === strlen($known) && strcmp($notified, $known) > 0) ? $notified : $known;
+    }
+
     private function loseTheMailImport(\DateTimeImmutable $at): void
     {
         $this->mailImport = MailImport::ToReconnect;
@@ -279,7 +305,8 @@ final class Connection implements ReleasesEvents
         }
 
         $this->mailImport = MailImport::Off;
-        $this->historyId = $this->watchExpiresAt = null;
+        $this->historyId = $this->notifiedHistoryId = null;
+        $this->watchExpiresAt = $this->lastNotifiedAt = null;
         $this->modifiedAt = $at;
         $this->recordThat(new MailImportStopped($this->accountId, $this->member, $at));
     }

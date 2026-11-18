@@ -187,6 +187,7 @@ services:
         arguments: { $clock: '@app.commit_clock' }
     Prospecter\Core\Connectors\Application\Port\MyConnectionsRetriever: '@App\Connectors\Persistence\DynamoMyConnectionsRetriever'
     Prospecter\Core\Connectors\Application\Port\ExchangeSyncRetriever: '@App\Connectors\Persistence\DynamoExchangeSyncRetriever'
+    Prospecter\Core\Connectors\Application\Port\MailImportsRetriever: '@App\Connectors\Persistence\DynamoMailImportsRetriever'
     Prospecter\Core\Connectors\Domain\Repository\ProviderClientRepository: '@App\Connectors\Persistence\DynamoProviderClientRepository'
     Prospecter\Core\Connectors\Application\Port\AccountClientsRetriever: '@App\Connectors\Persistence\DynamoAccountClientsRetriever'
     Prospecter\Core\Connectors\Domain\Port\Members: '@App\Connectors\AntiCorruption\AccountsMembers'

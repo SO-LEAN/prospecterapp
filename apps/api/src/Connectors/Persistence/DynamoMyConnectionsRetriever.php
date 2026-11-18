@@ -33,6 +33,7 @@ final readonly class DynamoMyConnectionsRetriever implements MyConnectionsRetrie
             self::count($upcoming, $item['connection']['provider'], SyncState::Synced),
             self::count($upcoming, $item['connection']['provider'], SyncState::Failed),
             $item['connection']['mailImport'] ?? MailImport::Off->value,
+            Documents::momentOfOrNone($item['connection']['lastNotifiedAt'] ?? null),
         ), $this->connectorsTable->query(ConnectorsKeys::member($me->value)));
     }
 

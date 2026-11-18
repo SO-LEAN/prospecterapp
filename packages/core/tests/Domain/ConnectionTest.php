@@ -4,10 +4,12 @@ declare(strict_types=1);
 
 namespace Tests\Core\Domain;
 
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Prospecter\Core\Connectors\Domain\Event\Connected;
 use Prospecter\Core\Connectors\Domain\Event\ConnectionLost;
 use Prospecter\Core\Connectors\Domain\Event\Disconnected;
+use Prospecter\Core\Connectors\Domain\Event\MailboxChanged;
 use Prospecter\Core\Connectors\Domain\Event\MailImportLost;
 use Prospecter\Core\Connectors\Domain\Event\MailImportStarted;
 use Prospecter\Core\Connectors\Domain\Event\MailImportStopped;
@@ -31,6 +33,7 @@ use Prospecter\Core\SharedKernel\Domain\OrganizationId;
 use Tests\Core\Double\InMemoryProviderAccess;
 use Tests\Core\Double\InMemoryProviderCalendar;
 use Tests\Core\Double\InMemoryProviderMailbox;
+use Tests\Core\Double\StateOf;
 
 /**
  * Each gesture on a connection records what happened; an authorization waits ten minutes, not one more; a push
@@ -228,6 +231,41 @@ final class ConnectionTest extends TestCase
         $connection->renewMailWatch(self::clientNotifyingTheMailboxes(), $mailbox, new \DateTimeImmutable(self::AT));
 
         $this->assertEquals([new MailImportLost(new AccountId(self::ACCOUNT), new MemberId(self::MEMBER), new \DateTimeImmutable(self::AT))], $connection->releaseEvents());
+    }
+
+    public function testAChangeOfTheMailboxRecordsIt(): void
+    {
+        [$connection] = $this->importingTheMail(new InMemoryProviderAccess());
+
+        $connection->noteMailboxChange('1010', new \DateTimeImmutable(self::AT));
+
+        $this->assertEquals([new MailboxChanged(new AccountId(self::ACCOUNT), new MemberId(self::MEMBER), new \DateTimeImmutable(self::AT))], $connection->releaseEvents());
+    }
+
+    /**
+     * @param list<string> $notified
+     */
+    #[DataProvider('pointsNotified')]
+    public function testTheFurthestPointOfTheHistoryNotifiedIsKept(array $notified, string $furthest): void
+    {
+        [$connection] = $this->importingTheMail(new InMemoryProviderAccess());
+
+        foreach ($notified as $historyId) {
+            $connection->noteMailboxChange($historyId, new \DateTimeImmutable(self::AT));
+        }
+
+        $this->assertSame($furthest, StateOf::the($connection)['notifiedHistoryId']);
+    }
+
+    /**
+     * @return iterable<string, array{list<string>, string}>
+     */
+    public static function pointsNotified(): iterable
+    {
+        yield 'in order' => [['1010', '1020'], '1020'];
+        yield 'out of order' => [['1020', '1010'], '1020'];
+        yield 'one digit more' => [['999', '1000'], '1000'];
+        yield 'beyond an integer' => [['18446744073709551615', '9223372036854775807'], '18446744073709551615'];
     }
 
     /**

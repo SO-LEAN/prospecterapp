@@ -7,6 +7,8 @@ namespace Prospecter\Core\Connectors\Domain\Repository;
 use Prospecter\Core\Connectors\Domain\Exception\NoConnection;
 use Prospecter\Core\Connectors\Domain\Model\Connection;
 use Prospecter\Core\Connectors\Domain\Model\Provider;
+use Prospecter\Core\SharedKernel\Domain\AccountId;
+use Prospecter\Core\SharedKernel\Domain\Email;
 use Prospecter\Core\SharedKernel\Domain\MemberId;
 
 interface ConnectionRepository
@@ -22,6 +24,12 @@ interface ConnectionRepository
      * @return list<Connection>
      */
     public function of(MemberId $member): array;
+
+    /**
+     * The connection of a member of the account importing the e-mails of this mailbox, active or to reconnect; none
+     * while its import is off (ADR 0154).
+     */
+    public function importing(AccountId $account, Provider $provider, Email $mailbox): ?Connection;
 
     public function save(Connection $connection): void;
 

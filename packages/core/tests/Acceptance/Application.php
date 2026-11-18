@@ -119,6 +119,7 @@ use Prospecter\Core\Connectors\Application\ConsultMyConnections\ConsultMyConnect
 use Prospecter\Core\Connectors\Application\ConsultMyConnections\ConsultMyConnectionsHandler;
 use Prospecter\Core\Connectors\Application\ConsultMyConnections\KeptConnections;
 use Prospecter\Core\Connectors\Application\Disconnect\DisconnectHandler;
+use Prospecter\Core\Connectors\Application\NoteMailboxNotification\NoteMailboxNotificationHandler;
 use Prospecter\Core\Connectors\Application\PublishVideoCallLinkCreated\PublishVideoCallLinkCreatedHandler;
 use Prospecter\Core\Connectors\Application\PushExchange\PushExchangeHandler;
 use Prospecter\Core\Connectors\Application\PushUpcomingExchanges\PushUpcomingExchangesHandler;
@@ -1198,6 +1199,7 @@ final class Application
             new AskForAuthorizationHandler($this->authorizations, $this->clients, $this->connectingMembers),
             new AskToImportMailHandler($this->authorizations, $this->clients, $this->connectingMembers),
             new RenewMailWatchHandler($this->connections, $this->clients, $this->mailboxes, $this->connectingMembers, $this->events),
+            new NoteMailboxNotificationHandler($this->connections, $this->events),
             new StopMailImportHandler($this->connections, $this->clients, $this->mailboxes, $this->connectingMembers, $this->events),
             new ConnectHandler($this->authorizations, $this->connections, $this->clients, $this->providerAccess, $this->mailboxes, $this->connectingMembers, $this->events),
             new CheckMyConnectionsHandler($this->connections, $this->clients, $this->providerAccess, $this->connectingMembers, $this->events),
