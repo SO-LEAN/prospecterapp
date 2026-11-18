@@ -76,6 +76,16 @@ class DynamoAccountsRetrieversTest extends ApiTestCase
         $this->assertSame([$member->id()->value], array_keys($members));
     }
 
+    public function testAMemberIsReadWithTheCorporateNameOfTheirAccount(): void
+    {
+        $account = $this->anAccount();
+        $member = $this->aMemberOf($account, Role::User, Role::Prospector);
+
+        $published = self::getContainer()->get(MemberRetriever::class)->ofIds([$member->id()])[$member->id()->value];
+
+        $this->assertSame('SOLEAN IT', $published->accountName);
+    }
+
     public function testTheRemindersOfAMemberAreReadAsTheyWereChanged(): void
     {
         $member = $this->aMemberOf($this->anAccount(), Role::User, Role::Prospector);
