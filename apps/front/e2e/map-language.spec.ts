@@ -27,12 +27,14 @@ test('the controls of the map are announced in French', async ({ page }) => {
 
 test('scrolling over the map without Ctrl tells, in French, how to zoom', async ({ page }) => {
   await theDashboardWithItsMap(page)
-  await mapOf(page).hover()
-
-  await page.mouse.wheel(0, 200)
-
   const help = page.locator('.maplibregl-cooperative-gesture-screen')
-  await expect(help).toHaveClass(/maplibregl-show/)
+
+  // the sections above the map may still be loading, moving it away from the mouse: the page scrolls instead
+  await expect(async () => {
+    await mapOf(page).hover()
+    await page.mouse.wheel(0, 200)
+    await expect(help).toHaveClass(/maplibregl-show/, { timeout: 1_000 })
+  }).toPass()
   await expect(help.locator('.maplibregl-desktop-message')).toHaveText(
     'Ctrl + molette pour zoomer sur la carte',
   )
