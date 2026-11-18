@@ -88,7 +88,7 @@ class DynamoCampaignRepositoryTest extends ApiTestCase
         );
     }
 
-    public function testACampaignLedToItsEndIsRestoredWithItsRecipientsHandledAndItsProgress(): void
+    public function testACampaignLedToItsEndIsRestoredWithItsRecipientsHandledTheirExchangesAndItsProgress(): void
     {
         $campaign = $this->aFrozenCampaign(self::ADA, self::ALAN);
         $campaign->start(new MemberId(self::newIdentity()), new \DateTimeImmutable('2026-11-17 12:00:00'));
@@ -100,7 +100,7 @@ class DynamoCampaignRepositoryTest extends ApiTestCase
         $this->assertEquals($campaign, $this->repository()->get($this->account, $campaign->id()));
         $sheet = $this->retriever()->get($this->account, $campaign->id());
         $this->assertEquals(
-            ['ended', [self::ADA => new RecipientInSheet('processed', false, true, null), self::ALAN => new RecipientInSheet('dismissed', false, false, 'Parti')], 1, 1, new \DateTimeImmutable('2026-11-17 13:00:00'), false],
+            ['ended', [self::ADA => new RecipientInSheet('processed', false, true, null, self::EXCHANGE), self::ALAN => new RecipientInSheet('dismissed', false, false, 'Parti')], 1, 1, new \DateTimeImmutable('2026-11-17 13:00:00'), false],
             [$sheet->status, $sheet->recipients, $sheet->processed, $sheet->dismissed, $sheet->endedAt, $sheet->running],
         );
     }
