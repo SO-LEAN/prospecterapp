@@ -13,7 +13,7 @@ use Symfony\Component\Serializer\Normalizer\AbstractObjectNormalizer;
 
 /**
  * The whole of an exchange with a contact or with the organization itself: who noted it, who corrected it last, and
- * the files joined to it; the campaign it was noted in (ADR 0145).
+ * the files joined to it; the campaign it was noted in (ADR 0152).
  */
 final readonly class ExchangeDetailResource
 {
