@@ -12,7 +12,8 @@ use Prospecter\Core\SharedKernel\Domain\PersonId;
 
 /**
  * A prospector erased an exchange from every timeline, the files joined to it left to remove from the private
- * storage; the contact it was with and the campaign it was noted in, if any, named by its last facts (ADR 0152).
+ * storage; the contact it was with and the campaign it was noted in, if any, named by its last facts (ADR 0152);
+ * whether it went with its organization, no member erasing it (ADR 0155).
  */
 final readonly class ExchangeErased extends ExchangeEvent
 {
@@ -27,6 +28,7 @@ final readonly class ExchangeErased extends ExchangeEvent
         \DateTimeImmutable $occurredAt,
         public ?PersonId $contact = null,
         public ?CampaignId $campaign = null,
+        public bool $withItsOrganization = false,
     ) {
         parent::__construct($accountId, $by, $exchange, $occurredAt);
     }
