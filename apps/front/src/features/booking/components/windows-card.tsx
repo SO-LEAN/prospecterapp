@@ -30,10 +30,11 @@ export function WindowsCard({ page }: Props) {
   const change = (day: Weekday, window: Partial<DayWindow>) =>
     setWeek((current) => ({ ...current, [day]: { ...current[day], ...window } }))
 
-  const save = async () => {
-    await setWindows.mutateAsync({ body: { timeZone, windows: windowsOf(week) } })
-    toast.success(t('common.saved'))
-  }
+  const save = () =>
+    setWindows.mutate(
+      { body: { timeZone, windows: windowsOf(week) } },
+      { onSuccess: () => toast.success(t('common.saved')) },
+    )
 
   return (
     <Card>
@@ -51,7 +52,7 @@ export function WindowsCard({ page }: Props) {
           <Button variant="outline" onClick={() => setWeek(copiedToWorkingDays)}>
             {t('booking.windows.copyToWorkingDays')}
           </Button>
-          <Button disabled={!page._links.setWindows || setWindows.isPending} onClick={() => void save()}>
+          <Button disabled={!page._links.setWindows || setWindows.isPending} onClick={save}>
             {t('booking.windows.save')}
           </Button>
         </div>
