@@ -34,7 +34,7 @@ final readonly class InMemoryMyConnectionsRetriever implements MyConnectionsRetr
             static fn (CalendarEntry $entry): bool => StateOf::the($entry)['provider'] === $state['provider'] && StateOf::the($entry)['startsAt'] >= $from,
         );
 
-        return new MyConnection($state['provider']->value, $state['state']->value, $state['externalAccount']->value, $state['connectedAt'], self::countIn($upcoming, SyncState::Synced), self::countIn($upcoming, SyncState::Failed), $state['mailImport']->value);
+        return new MyConnection($state['provider']->value, $state['state']->value, $state['externalAccount']->value, $state['connectedAt'], self::countIn($upcoming, SyncState::Synced), self::countIn($upcoming, SyncState::Failed), $state['mailImport']->value, $state['lastNotifiedAt']);
     }
 
     /**

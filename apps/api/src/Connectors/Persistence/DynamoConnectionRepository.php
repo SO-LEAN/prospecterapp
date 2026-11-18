@@ -49,6 +49,13 @@ final readonly class DynamoConnectionRepository implements ConnectionRepository
         return array_map(static fn (array $item): Connection => self::restore($item['connection']), $this->connectorsTable->query(ConnectorsKeys::member($member->value)));
     }
 
+    public function importing(AccountId $account, Provider $provider, Email $mailbox): ?Connection
+    {
+        $item = $this->connectorsTable->query(ConnectorsKeys::mailbox($account->value, $provider->value, $mailbox->value), Table::BY_GSI2)[0] ?? null;
+
+        return null === $item ? null : self::restore($item['connection']);
+    }
+
     /**
      * @param array<string, mixed> $document
      */
@@ -66,6 +73,8 @@ final readonly class DynamoConnectionRepository implements ConnectionRepository
             'mailImport' => MailImport::from($document['mailImport'] ?? MailImport::Off->value),
             'historyId' => $document['historyId'] ?? null,
             'watchExpiresAt' => Documents::momentOfOrNone($document['watchExpiresAt'] ?? null),
+            'notifiedHistoryId' => $document['notifiedHistoryId'] ?? null,
+            'lastNotifiedAt' => Documents::momentOfOrNone($document['lastNotifiedAt'] ?? null),
             'connectedAt' => Documents::momentOf($document['connectedAt']),
             'modifiedAt' => Documents::momentOf($document['modifiedAt']),
         ]);
@@ -84,11 +93,11 @@ final readonly class DynamoConnectionRepository implements ConnectionRepository
     {
         $item = self::itemOf($connection);
 
-        $this->connectorsTable->transact([$this->connectorsTable->replacing($item, self::STILL_THE_SAME, [':connectedAt' => $item['connection']['connectedAt']], ['#connection' => 'connection'])]);
+        $this->connectorsTable->transact([$this->connectorsTable->replacing($item, self::STILL_THE_SAME, [':connectedAt' => Documents::moment(Hydrator::stateOf($connection)['connectedAt'])], ['#connection' => 'connection'])]);
     }
 
     /**
-     * @return array{PK: string, SK: string, connection: array<string, mixed>}
+     * @return array<string, mixed>
      */
     private static function itemOf(Connection $connection): array
     {
@@ -97,6 +106,7 @@ final readonly class DynamoConnectionRepository implements ConnectionRepository
         return [
             'PK' => ConnectorsKeys::member($connection->member()->value),
             'SK' => ConnectorsKeys::connection($connection->provider()->value),
+            ...self::keysOfTheImport($state),
             'connection' => [
                 'member' => (string) $state['member'],
                 'accountId' => (string) $state['accountId'],
@@ -109,9 +119,36 @@ final readonly class DynamoConnectionRepository implements ConnectionRepository
                 'mailImport' => $state['mailImport']->value,
                 'historyId' => $state['historyId'],
                 'watchExpiresAt' => Documents::momentOrNone($state['watchExpiresAt']),
+                'notifiedHistoryId' => $state['notifiedHistoryId'],
+                'lastNotifiedAt' => Documents::momentOrNone($state['lastNotifiedAt']),
                 'connectedAt' => Documents::moment($state['connectedAt']),
                 'modifiedAt' => Documents::moment($state['modifiedAt']),
             ],
+        ];
+    }
+
+    /**
+     * While its import is not off, the connection is found by its mailbox in its account, under `GSI2`, the
+     * notifications of the mailbox naming only its address; while it is active, it is listed for the daily renewal
+     * of its watch, under `GSI1` (ADR 0154).
+     *
+     * @param array<string, mixed> $state
+     *
+     * @return array<string, string>
+     */
+    private static function keysOfTheImport(array $state): array
+    {
+        if (MailImport::Off === $state['mailImport']) {
+            return [];
+        }
+
+        $member = ConnectorsKeys::member((string) $state['member']);
+        $renewed = MailImport::Active === $state['mailImport'] ? ['GSI1PK' => ConnectorsKeys::MAIL_IMPORTS, 'GSI1SK' => $member.'#'.$state['provider']->value] : [];
+
+        return [
+            'GSI2PK' => ConnectorsKeys::mailbox((string) $state['accountId'], $state['provider']->value, (string) $state['externalAccount']),
+            'GSI2SK' => $member,
+            ...$renewed,
         ];
     }
 

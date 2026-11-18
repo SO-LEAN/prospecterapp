@@ -75,12 +75,51 @@ class DynamoConnectionRepositoryTest extends ApiTestCase
         $this->assertEquals(self::importOf($connection), self::importOf($this->connections()->get($connection->member(), Provider::Google)));
     }
 
+    public function testAChangeOfTheMailboxNotedIsRestoredAsSaved(): void
+    {
+        $connection = self::aConnectionImportingTheMail();
+        $connection->noteMailboxChange('1010', new \DateTimeImmutable('2026-10-15 09:03 UTC'));
+
+        $this->connections()->save($connection);
+
+        $this->assertEquals(self::importOf($connection), self::importOf($this->connections()->get($connection->member(), Provider::Google)));
+    }
+
+    public function testAConnectionImportingTheMailIsFoundByItsMailboxInItsAccount(): void
+    {
+        $connection = self::aConnectionImportingTheMail();
+        $this->connections()->save($connection);
+        $account = Hydrator::stateOf($connection)['accountId'];
+
+        $this->assertTrue($connection->isTheSameAs($this->connections()->importing($account, Provider::Google, new Email('michel@exemple.fr')) ?? self::fail('The connection importing the mailbox was expected')));
+        $this->assertNull($this->connections()->importing(new AccountId(self::newIdentity()), Provider::Google, new Email('michel@exemple.fr')), 'Another account imports nothing of the mailbox');
+    }
+
+    public function testAConnectionWhoseImportStoppedIsNoLongerFoundByItsMailbox(): void
+    {
+        $connection = self::aConnectionImportingTheMail();
+        $this->connections()->save($connection);
+        $connection->stopMailImport(null, self::aMailboxStandingAt('1000'), new \DateTimeImmutable('2026-10-15 09:02 UTC'));
+
+        $this->connections()->save($connection);
+
+        $this->assertNull($this->connections()->importing(Hydrator::stateOf($connection)['accountId'], Provider::Google, new Email('michel@exemple.fr')));
+    }
+
+    private static function aConnectionImportingTheMail(): Connection
+    {
+        $connection = self::aConnection();
+        $connection->importMail(new ClientCredentials(Provider::Google, 'a-client', 'a-secret'), new MailboxNotifications('projects/solean/topics/gmail', new Email('push@solean.iam.gserviceaccount.com')), self::aMailboxStandingAt('1000'), new \DateTimeImmutable('2026-10-15 09:01 UTC'));
+
+        return $connection;
+    }
+
     /**
      * @return array<string, mixed>
      */
     private static function importOf(Connection $connection): array
     {
-        return array_intersect_key(Hydrator::stateOf($connection), array_flip(['mailImport', 'historyId', 'watchExpiresAt', 'modifiedAt']));
+        return array_intersect_key(Hydrator::stateOf($connection), array_flip(['mailImport', 'historyId', 'watchExpiresAt', 'notifiedHistoryId', 'lastNotifiedAt', 'modifiedAt']));
     }
 
     private static function aMailboxStandingAt(string $historyId): ProviderMailbox

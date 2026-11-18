@@ -57,6 +57,26 @@ Fonctionnalité: Activer l'import de mes e-mails Gmail
     Quand le renouvellement quotidien passe
     Alors l'import de mes e-mails Gmail est "à reconnecter"
 
+  Scénario: Une notification de ma boîte est datée
+    Soit le client Google de "SOLEAN IT" a le topic Pub/Sub "projects/solean/topics/gmail"
+    Et j'ai activé l'import de mes e-mails Gmail
+    Et nous sommes le "2026-11-20 08:15 UTC"
+    Quand Gmail prévient Prospecter d'un changement de la boîte "michel@exemple.fr" de "SOLEAN IT" à l'historique "1010"
+    Alors la dernière notification de mon import est du "2026-11-20 08:15 UTC"
+
+  Scénario: Une notification d'un import coupé n'est pas notée
+    Soit le client Google de "SOLEAN IT" a le topic Pub/Sub "projects/solean/topics/gmail"
+    Et j'ai activé l'import de mes e-mails Gmail
+    Et je coupe l'import de mes e-mails Gmail
+    Quand Gmail prévient Prospecter d'un changement de la boîte "michel@exemple.fr" de "SOLEAN IT" à l'historique "1010"
+    Alors aucune notification de mon import n'est notée
+
+  Scénario: Une notification d'une boîte qu'aucun membre n'importe n'est rien
+    Soit le client Google de "SOLEAN IT" a le topic Pub/Sub "projects/solean/topics/gmail"
+    Et j'ai activé l'import de mes e-mails Gmail
+    Quand Gmail prévient Prospecter d'un changement de la boîte "inconnu@exemple.fr" de "SOLEAN IT" à l'historique "1010"
+    Alors aucune notification de mon import n'est notée
+
   Scénario: Se déconnecter de Google coupe l'import
     Soit le client Google de "SOLEAN IT" a le topic Pub/Sub "projects/solean/topics/gmail"
     Et j'ai activé l'import de mes e-mails Gmail

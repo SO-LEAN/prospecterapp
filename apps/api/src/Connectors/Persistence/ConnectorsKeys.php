@@ -9,6 +9,8 @@ namespace App\Connectors\Persistence;
 final class ConnectorsKeys
 {
     public const string AUTHORIZATION = 'AUTHORIZATION';
+    /** the imports of the e-mails active in every account, in `GSI1` (ADR 0154) */
+    public const string MAIL_IMPORTS = 'MAIL_IMPORTS';
     private const string MEMBER = 'MEMBER';
     private const string CONNECTION = 'CONNECTION';
     private const string ACCOUNT = 'ACCOUNT';
@@ -17,6 +19,7 @@ final class ConnectorsKeys
     private const string ENTRY = 'ENTRY';
     private const string CONTACT = 'CONTACT';
     private const string ENTRIES = 'ENTRIES';
+    private const string MAILBOX = 'MAILBOX';
 
     public static function member(string $id): string
     {
@@ -59,6 +62,14 @@ final class ConnectorsKeys
     public static function entriesOf(string $member): string
     {
         return self::ENTRIES.'#'.$member;
+    }
+
+    /**
+     * The mailbox a member of an account imports, in `GSI2` (ADR 0154).
+     */
+    public static function mailbox(string $account, string $provider, string $address): string
+    {
+        return self::MAILBOX.'#'.$account.'#'.$provider.'#'.$address;
     }
 
     public static function contact(string $person): string

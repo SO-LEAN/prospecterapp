@@ -12,6 +12,7 @@ use Prospecter\Core\Connectors\Application\AccountClient;
 use Prospecter\Core\Connectors\Application\AskToImportMail\AskToImportMail;
 use Prospecter\Core\Connectors\Application\Connect\Connect;
 use Prospecter\Core\Connectors\Application\MyConnection;
+use Prospecter\Core\Connectors\Application\NoteMailboxNotification\NoteMailboxNotification;
 use Prospecter\Core\Connectors\Application\StopMailImport\StopMailImport;
 use Prospecter\Core\Connectors\Domain\Model\Connection;
 use Prospecter\Core\Connectors\Domain\Model\MailboxNotifications;
@@ -85,7 +86,7 @@ final class MailImportContext implements Context
         $this->application->dispatch(new Connect($this->application->signedIn(), $state, $code, $this->application->now()));
     }
 
-    #[When('je coupe l\'import de mes e-mails Gmail')]
+    #[Given('je coupe l\'import de mes e-mails Gmail')]
     public function iStopTheImport(): void
     {
         $this->application->dispatch(new StopMailImport($this->application->signedIn(), self::GOOGLE, $this->application->now()));
@@ -109,13 +110,35 @@ final class MailImportContext implements Context
         Expect::same([2, $topic], [$this->application->mailboxes->timesWatched($mailbox), $this->application->mailboxes->topicWatchedBy($mailbox)]);
     }
 
+    #[When('Gmail prévient Prospecter d\'un changement de la boîte :mailbox de :account à l\'historique :historyId')]
+    public function gmailNotifies(string $mailbox, string $account, string $historyId): void
+    {
+        $this->application->dispatch(new NoteMailboxNotification($this->scenario->accountIdOf($account)->value, self::GOOGLE, $mailbox, $historyId, $this->application->now()));
+    }
+
+    #[Then('la dernière notification de mon import est du :moment')]
+    public function theLastNotificationIsOf(string $moment): void
+    {
+        Expect::same(new \DateTimeImmutable($moment)->format(\DATE_ATOM), $this->myGoogleConnection()?->lastNotifiedAt?->format(\DATE_ATOM));
+    }
+
+    #[Then('aucune notification de mon import n\'est notée')]
+    public function noNotificationIsNoted(): void
+    {
+        Expect::same(null, $this->myGoogleConnection()?->lastNotifiedAt);
+    }
+
     #[Then('l\'import de mes e-mails Gmail est :state')]
     public function theImportIs(string $state): void
     {
-        $connections = $this->application->consultMyConnections()->connections ?? [];
-        $google = array_find($connections, static fn (MyConnection $connection): bool => self::GOOGLE === $connection->provider);
+        Expect::same(self::STATES[$state], $this->myGoogleConnection()?->mailImport);
+    }
 
-        Expect::same(self::STATES[$state], $google?->mailImport);
+    private function myGoogleConnection(): ?MyConnection
+    {
+        $connections = $this->application->consultMyConnections()->connections ?? [];
+
+        return array_find($connections, static fn (MyConnection $connection): bool => self::GOOGLE === $connection->provider);
     }
 
     #[Then('Gmail prévient Prospecter des nouveaux e-mails de :mailbox par le topic :topic')]

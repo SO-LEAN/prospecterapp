@@ -1,0 +1,82 @@
+<?php
+
+namespace Tests\App\Connectors;
+
+use App\Connectors\Persistence\DynamoMailImportsRetriever;
+use App\Shared\Persistence\Table;
+use Prospecter\Core\Connectors\Application\Port\MailImportsRetriever;
+use Prospecter\Core\Connectors\Domain\Model\ClientCredentials;
+use Prospecter\Core\Connectors\Domain\Model\Connection;
+use Prospecter\Core\Connectors\Domain\Model\Grant;
+use Prospecter\Core\Connectors\Domain\Model\MailboxNotifications;
+use Prospecter\Core\Connectors\Domain\Model\MailboxWatch;
+use Prospecter\Core\Connectors\Domain\Model\Provider;
+use Prospecter\Core\Connectors\Domain\Model\RefreshToken;
+use Prospecter\Core\Connectors\Domain\Model\Scope;
+use Prospecter\Core\Connectors\Domain\Port\ProviderMailbox;
+use Prospecter\Core\Connectors\Domain\Repository\ConnectionRepository;
+use Prospecter\Core\SharedKernel\Domain\AccountId;
+use Prospecter\Core\SharedKernel\Domain\Email;
+use Prospecter\Core\SharedKernel\Domain\MemberId;
+use Tests\App\Base\ApiTestCase;
+
+/**
+ * The imports of the e-mails active in every account, listed under `GSI1` for their daily renewal (ADR 0154).
+ */
+class DynamoMailImportsRetrieverTest extends ApiTestCase
+{
+    private const string AT = '2026-10-15 09:00 UTC';
+
+    public function testTheMembersWhoseImportIsActiveAreListed(): void
+    {
+        $importing = self::aConnection();
+        $importing->importMail(self::client(), self::notifications(), self::aMailbox(), new \DateTimeImmutable(self::AT));
+        $stopped = self::aConnection();
+        $stopped->importMail(self::client(), self::notifications(), self::aMailbox(), new \DateTimeImmutable(self::AT));
+        $stopped->stopMailImport(null, self::aMailbox(), new \DateTimeImmutable(self::AT));
+        foreach ([$importing, $stopped, self::aConnection()] as $connection) {
+            self::getContainer()->get(ConnectionRepository::class)->save($connection);
+        }
+
+        $this->assertSame([$importing->member()->value], $this->retriever()->active());
+    }
+
+    private function retriever(): MailImportsRetriever
+    {
+        $table = self::getContainer()->get('app.table.connectors');
+        $this->assertInstanceOf(Table::class, $table);
+
+        return new DynamoMailImportsRetriever($table);
+    }
+
+    private static function aConnection(): Connection
+    {
+        $grant = new Grant(new Email('michel@exemple.fr'), new RefreshToken('a-refresh-token'), Scope::Calendar, Scope::Mailbox);
+
+        return Connection::establish(new MemberId(self::newIdentity()), new AccountId(self::newIdentity()), self::client(), $grant, new \DateTimeImmutable(self::AT));
+    }
+
+    private static function client(): ClientCredentials
+    {
+        return new ClientCredentials(Provider::Google, 'a-client', 'a-secret');
+    }
+
+    private static function notifications(): MailboxNotifications
+    {
+        return new MailboxNotifications('projects/solean/topics/gmail', new Email('push@solean.iam.gserviceaccount.com'));
+    }
+
+    private static function aMailbox(): ProviderMailbox
+    {
+        return new readonly class implements ProviderMailbox {
+            public function watch(ClientCredentials $client, RefreshToken $refreshToken, string $topic): MailboxWatch
+            {
+                return new MailboxWatch('1000', new \DateTimeImmutable('2026-10-22 09:00 UTC'));
+            }
+
+            public function stop(ClientCredentials $client, RefreshToken $refreshToken): void
+            {
+            }
+        };
+    }
+}
