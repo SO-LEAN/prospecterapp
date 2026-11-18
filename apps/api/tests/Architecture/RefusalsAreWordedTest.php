@@ -2,6 +2,7 @@
 
 namespace Tests\App\Architecture;
 
+use App\Security\ApiAccessDeniedHandler;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Prospecter\Core\SharedKernel\Domain\Exception\BusinessException;
@@ -18,7 +19,7 @@ class RefusalsAreWordedTest extends TestCase
     private const array NEVER_THROWN_AS_THEY_ARE = [BusinessRuleViolation::class, NotAllowed::class];
 
     /** Refused by the API itself, named as the core names its refusals. */
-    private const array REFUSED_BY_THE_API = ['loginEmailTaken'];
+    private const array REFUSED_BY_THE_API = ['loginEmailTaken', ApiAccessDeniedHandler::ROLE_NOT_ALLOWED];
 
     #[DataProvider('reasons')]
     public function testARefusalHasItsFrenchWords(string $reason): void
