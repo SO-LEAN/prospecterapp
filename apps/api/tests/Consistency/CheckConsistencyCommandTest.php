@@ -12,18 +12,27 @@ use Prospecter\Core\Connectors\Domain\Model\Grant;
 use Prospecter\Core\Connectors\Domain\Model\Provider;
 use Prospecter\Core\Connectors\Domain\Model\RefreshToken;
 use Prospecter\Core\Connectors\Domain\Repository\ConnectionRepository;
+use Prospecter\Core\PersonalData\Domain\Model\Person;
+use Prospecter\Core\PersonalData\Domain\Model\PersonName;
+use Prospecter\Core\PersonalData\Domain\Model\Reader;
+use Prospecter\Core\PersonalData\Domain\Repository\PersonRepository;
 use Prospecter\Core\Prospecting\Domain\Model\Channel;
+use Prospecter\Core\Prospecting\Domain\Model\ContactToAttach;
 use Prospecter\Core\Prospecting\Domain\Model\Duration;
 use Prospecter\Core\Prospecting\Domain\Model\Exchange;
 use Prospecter\Core\Prospecting\Domain\Model\ExchangeFacts;
 use Prospecter\Core\Prospecting\Domain\Model\ExchangeId;
+use Prospecter\Core\Prospecting\Domain\Model\Prospector;
+use Prospecter\Core\Prospecting\Domain\Repository\ContactToAttachRepository;
 use Prospecter\Core\Prospecting\Domain\Repository\ExchangeRepository;
 use Prospecter\Core\Prospecting\Domain\Repository\OrganizationRepository;
 use Prospecter\Core\SharedKernel\Domain\AccountId;
+use Prospecter\Core\SharedKernel\Domain\ContactDetails;
 use Prospecter\Core\SharedKernel\Domain\Email;
 use Prospecter\Core\SharedKernel\Domain\LegalIdentity;
 use Prospecter\Core\SharedKernel\Domain\MemberId;
 use Prospecter\Core\SharedKernel\Domain\OrganizationId;
+use Prospecter\Core\SharedKernel\Domain\PersonId;
 use Symfony\Bundle\FrameworkBundle\Console\Application;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Tester\CommandTester;
@@ -89,6 +98,22 @@ class CheckConsistencyCommandTest extends ApiTestCase
         $this->prospectingTable()->batch([['organization' => ['contacts' => []] + $babbage['organization']] + $babbage]);
 
         $this->assertDiscrepancy(DemoData::SOLEAN_IT, $this->ada(), 'contact attached to no organization', 'app:integration:redrive');
+    }
+
+    /**
+     * The demonstration holds a contact to attach, with their meeting kept for no organization: no discrepancy. One
+     * whose day has passed shows the erasure the schedule missed (ADR 0146, 0147).
+     */
+    public function testAContactToAttachPastTheDayOfTheirErasureIsShown(): void
+    {
+        $member = new MemberId(DemoData::PROSPECTOR);
+        $account = new AccountId(DemoData::SOLEAN_IT);
+        $met = new \DateTimeImmutable('2026-09-01 10:00 Europe/Paris');
+        $person = Person::collectToAttach(new Reader($member, $account, new PersonId(self::newIdentity()), true), new PersonId(self::newIdentity()), new PersonName('Grace', 'Hopper'), new ContactDetails(), $met);
+        self::getContainer()->get(PersonRepository::class)->save($person);
+        self::getContainer()->get(ContactToAttachRepository::class)->save(ContactToAttach::metBy(new Prospector($member, $account, managesPersonalData: true), $person->id(), $met, $met));
+
+        $this->assertDiscrepancy(DemoData::SOLEAN_IT, $person->id()->value, 'contact to attach past the day of their erasure, not erased', 'app:contacts:erase-unattached');
     }
 
     public function testAForgottenContactStillAttachedIsShown(): void
