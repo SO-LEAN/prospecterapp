@@ -77,7 +77,7 @@ final readonly class DomainEventTypes extends EventTypes
             'ExchangeCancelled.v1' => Prospecting\ExchangeCancelled::class,
             'ExchangeContactForgotten.v1' => Prospecting\ExchangeContactForgotten::class,
             'ExchangeCorrected.v1' => Prospecting\ExchangeCorrected::class,
-            'ExchangeErased.v1' => Prospecting\ExchangeErased::class,
+            'ExchangeErased.v2' => Prospecting\ExchangeErased::class,
             'ExchangeKeptFor.v1' => Prospecting\ExchangeKeptFor::class,
             'ExchangeLeftWithoutOrganization.v1' => Prospecting\ExchangeLeftWithoutOrganization::class,
             'ExchangeMadeConform.v1' => Prospecting\ExchangeMadeConform::class,
@@ -107,6 +107,12 @@ final readonly class DomainEventTypes extends EventTypes
             'ToDoTickedOff.v1' => Prospecting\ToDoTickedOff::class,
             'ToDoUnticked.v1' => Prospecting\ToDoUnticked::class,
             'VideoCallLinkReceived.v1' => Prospecting\VideoCallLinkReceived::class,
+        ],
+    ];
+
+    protected const array FORMER_TYPES = [
+        'prospecter.prospecting.internal' => [
+            'ExchangeErased.v1' => Prospecting\ExchangeErased::class,
         ],
     ];
 }

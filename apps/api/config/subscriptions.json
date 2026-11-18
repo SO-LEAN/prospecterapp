@@ -107,7 +107,7 @@
   "prospecting-discard-attachments-of-erased-exchange": {
     "context": "prospecting",
     "sources": ["prospecter.prospecting.internal"],
-    "events": ["ExchangeErased.v1"],
+    "events": ["ExchangeErased.v1", "ExchangeErased.v2"],
     "handler": "Prospecter\\Core\\Prospecting\\Application\\DiscardAttachmentsOfErasedExchange\\DiscardAttachmentsOfErasedExchangeHandler",
     "inbox": false
   },
