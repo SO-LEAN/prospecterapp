@@ -19,6 +19,7 @@ vi.mock('@/shared/auth/session', () => ({
 const EXCHANGE = '0190a1c0-0000-7000-8000-000000000010'
 const ADA = '0190a1c0-0000-7000-8000-000000000001'
 const ACME = '0190a1c0-0000-7000-8000-000000000002'
+const CAMPAIGN = '0190a1c0-0000-7000-8000-00000000ca00'
 const self = { href: `/api/exchanges/${EXCHANGE}`, method: 'GET' }
 
 const anExchange = (exchange: Partial<ExchangeDetail>): ExchangeDetail => ({
@@ -77,6 +78,33 @@ describe('ExchangeDetailSheet', () => {
     expect(screen.getByText(/^Noté le 15 oct\. 2026, .* par Michel Maier$/)).toBeInTheDocument()
     expect(screen.queryByText(/^Modifié le/)).not.toBeInTheDocument()
     expect(screen.queryByText('Peut contenir des données personnelles')).not.toBeInTheDocument()
+  })
+
+  it('leads to the campaign it was noted in', async () => {
+    await renderTheDetail(
+      anExchange({
+        campaign: { id: CAMPAIGN, name: 'Relance' },
+        _links: { self, campaign: { href: `/api/campaigns/${CAMPAIGN}`, method: 'GET' } },
+      }),
+    )
+
+    expect(screen.getByRole('link', { name: 'Campagne : Relance' })).toHaveAttribute(
+      'href',
+      `/campaigns/${CAMPAIGN}`,
+    )
+  })
+
+  it('names the campaign it was noted in without leading to it when the reader may not read the campaigns', async () => {
+    await renderTheDetail(anExchange({ campaign: { id: CAMPAIGN, name: 'Relance' } }))
+
+    expect(screen.getByText('Campagne : Relance')).toBeInTheDocument()
+    expect(screen.queryByRole('link', { name: 'Campagne : Relance' })).not.toBeInTheDocument()
+  })
+
+  it('says the campaign it was noted in was erased', async () => {
+    await renderTheDetail(anExchange({ campaign: { id: CAMPAIGN, name: null } }))
+
+    expect(screen.getByText('Campagne effacée')).toBeInTheDocument()
   })
 
   it('flags a text that may hold personal data the reader may not manage', async () => {
