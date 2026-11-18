@@ -20,6 +20,7 @@ The LinkedIn profile (0139) is the surest key to recognize a person come from Li
 
 - A contact forgotten costs seven writes at most: fourteen contacts in the transaction forgetting those an organization leaves alone, down from some thirty-three.
 - An address older than the last three no longer recognizes the contact, and may be noted on another one.
+- The oldest of two duplicates erased, its reservation goes with it and the younger has none: a third contact may take the profile until `app:keys:rebuild` runs again, `app:consistency:check` then listing them.
 - `app:keys:rebuild` runs once on each instance for the contacts stored before.
 - The fusion of two contacts stays to do; until then, the members correct the duplicates by hand.
 
