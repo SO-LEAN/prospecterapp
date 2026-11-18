@@ -2,6 +2,7 @@
 
 namespace Tests\App\Campaigns;
 
+use App\Shared\Persistence\Table;
 use Prospecter\Core\Campaigns\Application\CampaignSheet;
 use Prospecter\Core\Campaigns\Application\Port\CampaignSheetRetriever;
 use Prospecter\Core\Campaigns\Application\RecipientInSheet;
@@ -105,6 +106,35 @@ class DynamoCampaignRepositoryTest extends ApiTestCase
         );
     }
 
+    public function testARecipientErasedOnceHandledIsRestoredWithWhatWasDone(): void
+    {
+        $campaign = $this->aFrozenCampaign(self::ADA, self::ALAN);
+        $campaign->start(new MemberId(self::newIdentity()), new \DateTimeImmutable('2026-11-17 12:00:00'));
+        $campaign->process(new PersonId(self::ADA), self::EXCHANGE, missed: true, at: new \DateTimeImmutable('2026-11-17 12:30:00'));
+        $campaign->forget(new PersonId(self::ADA), new \DateTimeImmutable('2026-11-17 13:00:00'));
+        $this->repository()->save($campaign);
+        $campaign->releaseEvents();
+
+        $this->assertEquals($campaign, $this->repository()->get($this->account, $campaign->id()));
+        $sheet = $this->retriever()->get($this->account, $campaign->id());
+        $this->assertEquals(
+            [new RecipientInSheet('processed', false, true, null, erased: true), 1],
+            [$sheet->recipients[self::ADA], $sheet->processed],
+        );
+    }
+
+    public function testARecipientErasedBeforeKeepingWhatWasDoneIsReadErased(): void
+    {
+        $id = self::newIdentity();
+        $this->campaignsTable()->batch([['PK' => 'ACCOUNT#'.$this->account, 'SK' => 'CAMPAIGN#'.$id, 'campaign' => [
+            'id' => $id, 'accountId' => (string) $this->account, 'createdBy' => self::newIdentity(), 'name' => 'Relance', 'channel' => 'email', 'tags' => ['ESN'],
+            'message' => 'Bonjour', 'subject' => null, 'status' => 'started', 'recipients' => [['contactId' => self::ADA, 'status' => 'erased']],
+            'createdAt' => '2026-10-14T09:00:00.000000Z', 'modifiedAt' => '2026-10-14T09:00:00.000000Z', 'startedAt' => '2026-10-15T09:00:00.000000Z',
+        ]]]);
+
+        $this->assertEquals(new RecipientInSheet('erased', false, false, null, erased: true), $this->retriever()->get($this->account, new CampaignId($id))->recipients[self::ADA]);
+    }
+
     public function testTheCampaignsOfTheAccountAreNamedAndFound(): void
     {
         $campaign = $this->aFrozenCampaign(self::ADA);
@@ -203,5 +233,13 @@ class DynamoCampaignRepositoryTest extends ApiTestCase
     private function retriever(): CampaignSheetRetriever
     {
         return self::getContainer()->get(CampaignSheetRetriever::class);
+    }
+
+    private function campaignsTable(): Table
+    {
+        $table = self::getContainer()->get('app.table.campaigns');
+        $this->assertInstanceOf(Table::class, $table);
+
+        return $table;
     }
 }

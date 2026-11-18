@@ -115,7 +115,7 @@ final class CampaignDocument
             dismissed: CampaignProgress::dismissedAmong($statuses),
             recipients: array_combine(
                 array_map(static fn (Recipient $recipient): string => $recipient->contact->value, $recipients),
-                array_map(static fn (Recipient $recipient): RecipientInSheet => new RecipientInSheet($recipient->status->value, $recipient->isPending(), $recipient->missed, $recipient->reason, $recipient->exchangeId), $recipients),
+                array_map(static fn (Recipient $recipient): RecipientInSheet => new RecipientInSheet($recipient->status->value, $recipient->isPending(), $recipient->missed, $recipient->reason, $recipient->exchangeId, $recipient->erased), $recipients),
             ),
             authorId: $document['createdBy'],
             possibleIntents: array_map(static fn (CampaignIntent $intent): string => $intent->name, CampaignPossibilities::given($status, [] !== $recipients)),
@@ -130,7 +130,7 @@ final class CampaignDocument
     /**
      * @param array<string, mixed> $document
      *
-     * @return list<array{contactId: string, status: string, missed?: bool, reason?: ?string, exchangeId?: ?string}> none for a campaign saved before it could be frozen
+     * @return list<array{contactId: string, status: string, missed?: bool, reason?: ?string, exchangeId?: ?string, erased?: bool}> none for a campaign saved before it could be frozen
      */
     private static function recipientsOf(array $document): array
     {
@@ -138,22 +138,23 @@ final class CampaignDocument
     }
 
     /**
-     * @return array{contactId: string, status: string, missed: bool, reason: ?string, exchangeId: ?string}
+     * @return array{contactId: string, status: string, missed: bool, reason: ?string, exchangeId: ?string, erased: bool}
      */
     private static function recipientDocument(Recipient $recipient): array
     {
-        return ['contactId' => $recipient->contact->value, 'status' => $recipient->status->value, 'missed' => $recipient->missed, 'reason' => $recipient->reason, 'exchangeId' => $recipient->exchangeId];
+        return ['contactId' => $recipient->contact->value, 'status' => $recipient->status->value, 'missed' => $recipient->missed, 'reason' => $recipient->reason, 'exchangeId' => $recipient->exchangeId, 'erased' => $recipient->erased];
     }
 
     /**
      * Without whether it was missed nor why it was dismissed when saved before a campaign was led, without its exchange
-     * when processed before the recipient kept it (ADR 0152).
+     * when processed before the recipient kept it (ADR 0152); erased, by its status alone when saved before an erased
+     * recipient kept what was done with them.
      *
-     * @param array{contactId: string, status: string, missed?: bool, reason?: ?string, exchangeId?: ?string} $document
+     * @param array{contactId: string, status: string, missed?: bool, reason?: ?string, exchangeId?: ?string, erased?: bool} $document
      */
     private static function recipient(array $document): Recipient
     {
-        return new Recipient(new PersonId($document['contactId']), RecipientStatus::from($document['status']), $document['missed'] ?? false, $document['reason'] ?? null, $document['exchangeId'] ?? null);
+        return new Recipient(new PersonId($document['contactId']), RecipientStatus::from($document['status']), $document['missed'] ?? false, $document['reason'] ?? null, $document['exchangeId'] ?? null, $document['erased'] ?? RecipientStatus::Erased->value === $document['status']);
     }
 
     private static function momentOrNone(?\DateTimeImmutable $moment): ?string
