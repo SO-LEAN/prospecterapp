@@ -1,4 +1,5 @@
 import { screen } from '@testing-library/react'
+import userEvent from '@testing-library/user-event'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import type { Account } from '@/features/account/mutations'
 import type { Contact } from '@/features/contacts/queries'
@@ -121,5 +122,68 @@ describe('the card of a contact', () => {
 
     expect(await screen.findByText('***')).toBeInTheDocument()
     expect(screen.queryByRole('link', { name: /linkedin/i })).not.toBeInTheDocument()
+  })
+
+  it('opens the sheet of the contact holding a LinkedIn profile refused, its own contact details closed', async () => {
+    const user = userEvent.setup()
+    const GRACE = '0190a1c0-0000-7000-8000-000000000002'
+    const grace = theContact({
+      id: GRACE,
+      name: { firstName: 'Grace', lastName: 'Hopper' },
+      contactDetails: { email: 'grace@acme.test', phoneNumber: null, language: null },
+      _links: {
+        self: { href: `/api/contacts/${GRACE}`, method: 'GET' },
+        changeContactDetails: { href: `/api/contacts/${GRACE}/contact-details`, method: 'PATCH' },
+      },
+    })
+    const heldByAda = {
+      title: 'Validation Failed',
+      status: 422,
+      violations: [
+        {
+          propertyPath: 'linkedInProfile',
+          title: 'LinkedIn profile already held by Ada Lovelace',
+          reason: 'linkedInProfileAlreadyUsed',
+          context: { holder: 'Ada Lovelace', holderId: ADA },
+        },
+      ],
+    }
+    theApi.mockImplementation(async (input, init) => {
+      const { pathname } = new URL(input instanceof Request ? input.url : String(input))
+      if ((input instanceof Request ? input.method : init?.method) === 'PATCH') {
+        return Response.json(heldByAda, { status: 422 })
+      }
+      const answers: Record<string, unknown> = {
+        '/api/me': me,
+        [`/api/contacts/${ADA}`]: theContact({
+          _links: {
+            self: { href: `/api/contacts/${ADA}`, method: 'GET' },
+            changeContactDetails: { href: `/api/contacts/${ADA}/contact-details`, method: 'PATCH' },
+          },
+        }),
+        [`/api/contacts/${GRACE}`]: grace,
+        '/api/me/exchanges-to-process': { items: [], toDos: [], contactsToAttach: [], _links: {} },
+        '/api/me/connections': {
+          connections: [],
+          _links: { self: { href: '/api/me/connections', method: 'GET' } },
+        },
+        '/api/me/reminders': {
+          enabled: false,
+          minutesBefore: 10,
+          _links: { self: { href: '/api/me/reminders', method: 'GET' } },
+        },
+      }
+      return Response.json(answers[pathname] ?? { items: [], _links: {} })
+    })
+    await renderTheSpaAt(`/contacts/${GRACE}`)
+
+    await user.click(await screen.findByRole('button', { name: /^Modifier\s:\sCoordonnées$/ }))
+    await user.type(await screen.findByLabelText(/^Profil LinkedIn/), ADA_ON_LINKEDIN)
+    await user.click(screen.getByRole('button', { name: 'Enregistrer' }))
+    await user.click(await screen.findByRole('link', { name: 'Voir la fiche d’Ada Lovelace' }))
+
+    expect(await screen.findByRole('heading', { name: 'Ada Lovelace' })).toBeInTheDocument()
+    expect(screen.getByText('ada@acme.test')).toBeInTheDocument()
+    expect(screen.queryByRole('button', { name: 'Enregistrer' })).not.toBeInTheDocument()
   })
 })
