@@ -69,6 +69,8 @@ services:
     Prospecter\Core\SharedKernel\Application\GeoLocalizer: ~
     Prospecter\Core\Prospecting\Domain\Service\EmailUniqueness: ~
     Prospecter\Core\Prospecting\Domain\Service\SiretUniqueness: ~
+    Prospecter\Core\Prospecting\Domain\Service\LinkedInPageUniqueness: ~
+    Prospecter\Core\Prospecting\Domain\Service\WebsiteUniqueness: ~
     Prospecter\Core\Prospecting\Domain\Service\OrphanContacts: ~
     Prospecter\Core\Prospecting\Domain\Service\ContactOrganizations: ~
     Prospecter\Core\PersonalData\Domain\Service\EmailUniqueness: ~

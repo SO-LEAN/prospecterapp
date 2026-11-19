@@ -342,8 +342,10 @@ use Prospecter\Core\Prospecting\Contract\Service\WhichAreProspected\KeptProspect
 use Prospecter\Core\Prospecting\Contract\Service\WhichAreProspected\WhichAreProspected;
 use Prospecter\Core\Prospecting\Domain\Service\ContactOrganizations;
 use Prospecter\Core\Prospecting\Domain\Service\EmailUniqueness as ProspectingEmailUniqueness;
+use Prospecter\Core\Prospecting\Domain\Service\LinkedInPageUniqueness;
 use Prospecter\Core\Prospecting\Domain\Service\OrphanContacts;
 use Prospecter\Core\Prospecting\Domain\Service\SiretUniqueness;
+use Prospecter\Core\Prospecting\Domain\Service\WebsiteUniqueness;
 use Prospecter\Core\Reporting\Application\ConsultFigures\ConsultFigures;
 use Prospecter\Core\Reporting\Application\ConsultFigures\ConsultFiguresHandler;
 use Prospecter\Core\Reporting\Application\ConsultFigures\FiguresResponse;
@@ -515,6 +517,8 @@ final class Application
     private readonly LinkedInProfileUniqueness $linkedInProfiles;
     private readonly ProspectingEmailUniqueness $organizationEmails;
     private readonly SiretUniqueness $organizationSirets;
+    private readonly LinkedInPageUniqueness $organizationLinkedInPages;
+    private readonly WebsiteUniqueness $organizationWebsites;
     private readonly OrphanContacts $orphans;
     private readonly ContactOrganizations $contactOrganizations;
     public readonly InMemoryProjectionVersions $projectionVersions;
@@ -625,6 +629,8 @@ final class Application
         $this->linkedInProfiles = new LinkedInProfileUniqueness($this->persons);
         $this->organizationEmails = new ProspectingEmailUniqueness($this->organizations);
         $this->organizationSirets = new SiretUniqueness($this->organizations);
+        $this->organizationLinkedInPages = new LinkedInPageUniqueness($this->organizations);
+        $this->organizationWebsites = new WebsiteUniqueness($this->organizations);
         $this->orphans = new OrphanContacts($this->organizations);
         $this->contactOrganizations = new ContactOrganizations($this->organizations, $this->contactsToAttach);
         $this->projectionVersions = new InMemoryProjectionVersions($database);
@@ -1187,7 +1193,7 @@ final class Application
             new EraseContactLeftUnattachedHandler($this->contactsToAttach, $this->events),
             new StartProspectingHandler($this->organizations, $this->prospectors, $this->events, $this->geoLocalizer, $this->organizationEmails),
             new ReviseLegalIdentityHandler($this->organizations, $this->events, $this->organizationSirets),
-            new ChangeContactDetailsHandler($this->organizations, $this->events, $this->organizationEmails),
+            new ChangeContactDetailsHandler($this->organizations, $this->events, $this->organizationEmails, $this->organizationLinkedInPages, $this->organizationWebsites),
             new RelocateHandler($this->organizations, $this->events, $this->geoLocalizer),
             new LocateAgainHandler($this->organizations, $this->events, $this->geoLocalizer),
             new WriteObservationsHandler($this->organizations, $this->events),

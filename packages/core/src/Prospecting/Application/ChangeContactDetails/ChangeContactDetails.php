@@ -13,6 +13,8 @@ final readonly class ChangeContactDetails
         public ?string $phoneNumber,
         public ?string $language,
         public \DateTimeImmutable $executedAt,
+        public ?string $linkedInPage = null,
+        public ?string $website = null,
     ) {
     }
 }

@@ -4,7 +4,9 @@ namespace App\Prospecting\Persistence;
 
 use App\Shared\Persistence\Documents;
 use App\Shared\Persistence\Hydrator;
+use Prospecter\Core\Prospecting\Domain\Model\LinkedInPage;
 use Prospecter\Core\Prospecting\Domain\Model\Organization;
+use Prospecter\Core\Prospecting\Domain\Model\Website;
 use Prospecter\Core\SharedKernel\Domain\AccountId;
 use Prospecter\Core\SharedKernel\Domain\MemberId;
 use Prospecter\Core\SharedKernel\Domain\OrganizationId;
@@ -13,7 +15,7 @@ use Prospecter\Core\SharedKernel\Domain\PersonId;
 /**
  * An organization as a plain document of its DynamoDB item, and back (ADR 0048): its value objects as they
  * are, its recorded events never; the code of its municipality is absent from the documents written before it was
- * kept (ADR 0142).
+ * kept (ADR 0142), its LinkedIn page and its website from those written before they were.
  */
 final class OrganizationDocument
 {
@@ -31,6 +33,8 @@ final class OrganizationDocument
             'holdingId' => null === $state['holdingId'] ? null : (string) $state['holdingId'],
             'legalIdentity' => Documents::legalIdentity($state['legalIdentity']),
             'contactDetails' => Documents::contactDetails($state['contactDetails']),
+            'linkedInPage' => $state['linkedInPage']?->value,
+            'website' => $state['website']?->value,
             'address' => Documents::address($state['address']),
             'geoPoint' => Documents::geoPoint($state['geoPoint']),
             'municipalityCode' => $state['municipalityCode'],
@@ -54,6 +58,8 @@ final class OrganizationDocument
             'holdingId' => null === $document['holdingId'] ? null : new OrganizationId($document['holdingId']),
             'legalIdentity' => Documents::legalIdentityOf($document['legalIdentity']),
             'contactDetails' => Documents::contactDetailsOf($document['contactDetails']),
+            'linkedInPage' => LinkedInPage::orNone($document['linkedInPage'] ?? null),
+            'website' => Website::orNone($document['website'] ?? null),
             'address' => Documents::addressOf($document['address']),
             'geoPoint' => Documents::geoPointOf($document['geoPoint']),
             'municipalityCode' => $document['municipalityCode'] ?? null,

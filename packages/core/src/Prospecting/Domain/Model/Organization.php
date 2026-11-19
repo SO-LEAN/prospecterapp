@@ -56,6 +56,8 @@ final class Organization implements ReleasesEvents
     private ?string $municipalityCode = null;
     private ?string $observations = null;
     private ?File $logo = null;
+    private ?LinkedInPage $linkedInPage = null;
+    private ?Website $website = null;
     /** @var list<PersonId> */
     private array $contacts = [];
     private \DateTimeImmutable $modifiedAt;
@@ -99,6 +101,16 @@ final class Organization implements ReleasesEvents
         return $this->contactDetails;
     }
 
+    public function linkedInPage(): ?LinkedInPage
+    {
+        return $this->linkedInPage;
+    }
+
+    public function website(): ?Website
+    {
+        return $this->website;
+    }
+
     public function siret(): ?Siret
     {
         return $this->legalIdentity->siret;
@@ -134,11 +146,13 @@ final class Organization implements ReleasesEvents
         $this->recordThat(new LegalIdentityRevised($this->accountId, $by, $this->id, $at));
     }
 
-    public function changeContactDetails(ContactDetails $contactDetails, MemberId $by, \DateTimeImmutable $at): void
+    public function changeContactDetails(ContactDetails $contactDetails, ?LinkedInPage $linkedInPage, ?Website $website, MemberId $by, \DateTimeImmutable $at): void
     {
         $this->ensurePossible(OrganizationIntent::ChangeContactDetails);
         self::ensureItCanBeNamed($this->legalIdentity, $contactDetails);
         $this->contactDetails = $contactDetails;
+        $this->linkedInPage = $linkedInPage;
+        $this->website = $website;
         $this->modifiedAt = $at;
         $this->recordThat(new ContactDetailsChanged($this->accountId, $by, $this->id, $at));
     }

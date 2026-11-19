@@ -52,3 +52,57 @@ Fonctionnalité: Changer les coordonnées d'une organisation
     Quand je change les coordonnées de "contact@globex.test" :
       | e-mail | |
     Alors c'est refusé : "At least one is mandatory : corporate name or email"
+
+  Scénario: La page LinkedIn est gardée sous une seule forme
+    Quand je change les coordonnées de "ACME" :
+      | page LinkedIn | http://fr.linkedin.com/company/ACME-Corp/about/ |
+    Alors l'organisation "ACME" est enregistrée avec :
+      | page LinkedIn | https://www.linkedin.com/company/acme-corp |
+
+  Scénario: Ce qui n'est pas une page entreprise est refusé
+    Quand je change les coordonnées de "ACME" :
+      | page LinkedIn | https://www.linkedin.com/in/ada-lovelace |
+    Alors c'est refusé : ""https://www.linkedin.com/in/ada-lovelace" is not the LinkedIn page of a company"
+
+  Scénario: Une page LinkedIn ne désigne qu'une organisation du compte
+    Soit l'organisation "ACME Lyon" fait partie de mes organisations avec :
+      | page LinkedIn | https://www.linkedin.com/company/acme-corp |
+    Quand je change les coordonnées de "ACME" :
+      | page LinkedIn | linkedin.com/company/acme-corp/ |
+    Alors c'est refusé : "LinkedIn page already the one of ACME Lyon"
+
+  Scénario: Un domaine ne désigne qu'une organisation du compte
+    Soit l'organisation "ACME Lyon" fait partie de mes organisations avec :
+      | site web | https://www.acme.fr |
+    Quand je change les coordonnées de "ACME" :
+      | site web | https://acme.fr/blog |
+    Alors c'est refusé : "Website already the one of ACME Lyon"
+
+  Scénario: Une organisation garde sa page LinkedIn et son site en changeant ses coordonnées
+    Soit l'organisation "ACME Lyon" fait partie de mes organisations avec :
+      | page LinkedIn | https://www.linkedin.com/company/acme-corp |
+      | site web      | https://www.acme.fr                        |
+    Quand je change les coordonnées de "ACME Lyon" :
+      | téléphone     | 03 88 11 22 33                             |
+      | page LinkedIn | https://www.linkedin.com/company/acme-corp |
+      | site web      | https://acme.fr                            |
+    Alors ce n'est pas refusé
+
+  Scénario: Un autre compte note la même page LinkedIn et le même domaine
+    Soit l'organisation "Globex" qui utilise Prospecter
+    Et l'organisation "ACME Lyon" appartient à "Globex" avec :
+      | page LinkedIn | https://www.linkedin.com/company/acme-corp |
+      | site web      | https://www.acme.fr                        |
+    Quand je change les coordonnées de "ACME" :
+      | page LinkedIn | https://www.linkedin.com/company/acme-corp |
+      | site web      | https://acme.fr                            |
+    Alors l'organisation "ACME" est enregistrée avec :
+      | page LinkedIn | https://www.linkedin.com/company/acme-corp |
+      | site web      | https://acme.fr                            |
+
+  Scénario: Le site web est reconnu par son domaine
+    Quand je change les coordonnées de "ACME" :
+      | site web | HTTPS://www.Acme.fr/contact |
+    Alors l'organisation "ACME" est enregistrée avec :
+      | site web        | https://www.acme.fr |
+      | domaine du site | acme.fr             |
