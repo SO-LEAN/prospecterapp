@@ -2,8 +2,10 @@
 
 namespace Tests\App\Api;
 
+use App\Demo\DemoCredentials;
 use App\SignIn\UserPool;
 use PHPUnit\Framework\Attributes\Group;
+use Symfony\Component\HttpClient\HttpClient;
 use Tests\App\Base\ApiTestCase;
 use Tests\App\Double\ClientsOfTheAIs;
 
@@ -15,6 +17,7 @@ use Tests\App\Double\ClientsOfTheAIs;
 class SignInOfTheAIsApiTest extends ApiTestCase
 {
     private const string CALLBACK = 'https://api.test.prospecter.io/oauth/callback';
+    private const string PROSPECTOR = 'prospector@solean-it.io';
     private const string VERIFIER_OF_THE_AI = 'the-verifier-of-the-ai-long-enough-to-be-a-verifier-of-pkce';
 
     public function testTheAiSendsItsMemberToTheSignInPageOfCognito(): void
@@ -67,6 +70,55 @@ class SignInOfTheAIsApiTest extends ApiTestCase
         $this->authorize(['resource' => 'https://elsewhere.example/mcp']);
 
         $this->assertResponseRedirects(ClientsOfTheAIs::CLAUDE_WEB_CALLBACK.'?'.http_build_query(['error' => 'invalid_target', 'error_description' => 'The resource is the MCP server of Prospecter.', 'state' => 'the state of the AI']));
+    }
+
+    public function testCognitoSendsTheMemberBackToTheAiWithACodeOfTheFacade(): void
+    {
+        $this->authorize();
+        $this->client->request('GET', $this->signInOnCognito());
+
+        $this->assertResponseStatusCodeSame(302);
+        $backToTheAi = (string) $this->client->getResponse()->headers->get('Location');
+        $this->assertStringStartsWith(ClientsOfTheAIs::CLAUDE_WEB_CALLBACK.'?', $backToTheAi);
+        parse_str((string) parse_url($backToTheAi, PHP_URL_QUERY), $query);
+        $this->assertSame('the state of the AI', $query['state']);
+        $this->assertNotEmpty($query['code']);
+    }
+
+    public function testAComingBackTheFacadeDidNotSealIsRefusedWithoutRedirecting(): void
+    {
+        $this->client->request('GET', '/oauth/callback?'.http_build_query(['code' => 'a code', 'state' => 'not sealed by the facade']));
+
+        $this->assertResponseStatusCodeSame(400);
+        $this->assertFalse($this->client->getResponse()->headers->has('Location'));
+    }
+
+    public function testAMemberNotSigningInOnCognitoIsSentBackToTheAiRefused(): void
+    {
+        $this->authorize();
+        parse_str((string) parse_url((string) $this->client->getResponse()->headers->get('Location'), PHP_URL_QUERY), $signInPage);
+
+        $this->client->request('GET', '/oauth/callback?'.http_build_query(['error' => 'access_denied', 'state' => $signInPage['state']]));
+
+        $this->assertResponseRedirects(ClientsOfTheAIs::CLAUDE_WEB_CALLBACK.'?'.http_build_query(['error' => 'access_denied', 'state' => 'the state of the AI']));
+    }
+
+    /**
+     * The member signs in on the sign-in page of Cognito the facade sent them to, as their browser does: where Cognito
+     * sends them back.
+     */
+    private function signInOnCognito(string $email = self::PROSPECTOR): string
+    {
+        parse_str((string) parse_url((string) $this->client->getResponse()->headers->get('Location'), PHP_URL_QUERY), $authorization);
+        $signedIn = HttpClient::create()->request('POST', 'http://ministack-test:4566/login', [
+            'body' => [...$authorization, 'username' => $email, 'password' => DemoCredentials::PASSWORD],
+            'max_redirects' => 0,
+        ]);
+
+        $callback = $signedIn->getHeaders(false)['location'][0] ?? throw new \LogicException('Cognito did not sign the member in: '.$signedIn->getContent(false));
+        $this->assertStringStartsWith(self::CALLBACK.'?', $callback);
+
+        return $callback;
     }
 
     /**

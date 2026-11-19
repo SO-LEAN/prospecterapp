@@ -2,6 +2,7 @@
 
 namespace App\SignIn\Controller;
 
+use App\SignIn\OAuth\BackToTheAi;
 use App\SignIn\OAuth\ClientMetadataDocuments;
 use App\SignIn\OAuth\CognitoSignIn;
 use App\SignIn\OAuth\Pkce;
@@ -70,7 +71,7 @@ final class AuthorizeController extends AbstractController
      */
     private function backToTheAi(InputBag $query, string $error, string $description): RedirectResponse
     {
-        return $this->redirect($query->getString('redirect_uri').'?'.http_build_query([
+        return $this->redirect(BackToTheAi::at($query->getString('redirect_uri'), [
             'error' => $error,
             'error_description' => $description,
             'state' => $query->getString('state'),
