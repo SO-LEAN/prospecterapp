@@ -4,7 +4,6 @@ import { useForm } from 'react-hook-form'
 import { useTranslation } from 'react-i18next'
 import { applyViolations } from '@/shared/api/problem'
 import { AddressFields } from '@/shared/forms/address'
-import { ContactDetailsFields } from '@/shared/forms/contact-details'
 import { FormField } from '@/shared/forms/form-field'
 import { LegalIdentityFields } from '@/shared/forms/legal-identity'
 import { under } from '@/shared/forms/section-form'
@@ -12,6 +11,7 @@ import { Alert, AlertDescription } from '@/shared/ui/alert'
 import { Button } from '@/shared/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/shared/ui/card'
 import { Textarea } from '@/shared/ui/textarea'
+import { OrganizationContactDetailsFields } from '../organization-contact-details'
 import type { StartProspectingInput } from '../queries'
 import {
   emptyStartProspecting,
@@ -58,7 +58,10 @@ export function StartProspectingForm({ onSubmit, onCancel, tags }: Props) {
         <LegalIdentityFields form={form} path={under<StartProspectingValues>('legalIdentity')} />
       </Section>
       <Section title={t('organizations.sections.contactDetails')}>
-        <ContactDetailsFields form={form} path={under<StartProspectingValues>('contactDetails')} />
+        <OrganizationContactDetailsFields
+          form={form}
+          path={under<StartProspectingValues>('contactDetails')}
+        />
       </Section>
       <Section title={t('organizations.sections.address')}>
         <AddressFields form={form} path={under<StartProspectingValues>('address')} />
