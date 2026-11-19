@@ -20,7 +20,7 @@ security:
             security: false
         # the page a public link of a booking leads to, read by whomever holds the link (ADR 0151)
         booking_page:
-            pattern: ^/api/booking-pages/[0-9A-Za-z]{22}$
+            pattern: ^/api/booking-pages/[^/]+$
             security: false
         # the notifications of Gmail Pub/Sub pushes to an account, with a token Google signed for the account of service
         # of its subscription (ADR 0154)
