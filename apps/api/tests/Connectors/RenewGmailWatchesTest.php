@@ -26,7 +26,7 @@ use Tests\App\Double\GoogleDouble;
 
 /**
  * The watch of each mailbox whose import is active renewed through the topic of its account (ADR 0154), by
- * `app:gmail:renew-watches`, what the daily schedule of an instance runs; the clock of the tests says it is
+ * `app:gmail:renew-watches` and by the daily schedule of an instance; the clock of the tests says it is
  * 2026-10-15 09:00 UTC.
  */
 class RenewGmailWatchesTest extends ApiTestCase
@@ -56,22 +56,15 @@ class RenewGmailWatchesTest extends ApiTestCase
         $this->assertCount(2, self::getContainer()->get(MailImportsRetriever::class)->active(), 'A renewal failing keeps its import active, to renew the next day');
     }
 
-    public function testTheFunctionOfTheScheduleRenewsThemToo(): void
+    public function testTheDailyFunctionOfTheScheduleRenewsThemToo(): void
     {
         $this->aClientNotifyingTheMailboxes();
         $this->aMemberImportingTheMail('prospector-user');
 
-        $answer = self::getContainer()->get(ScheduledTasksFunction::class)->handle(['task' => 'renew-gmail-watches'], new Context('request', 0, 'function', 'trace'));
+        $answer = self::getContainer()->get(ScheduledTasksFunction::class)->handle([], new Context('request', 0, 'function', 'trace'));
 
-        $this->assertSame(['renewed' => 1, 'failed' => 0], $answer);
+        $this->assertSame(['renewed' => 1, 'failed' => 0], $answer['ran']['renew-gmail-watches']);
         $this->assertSame([self::TOPIC], self::getContainer()->get(GoogleDouble::class)->watches());
-    }
-
-    public function testATaskTheFunctionDoesNotKnowIsRefused(): void
-    {
-        $this->expectException(\InvalidArgumentException::class);
-
-        self::getContainer()->get(ScheduledTasksFunction::class)->handle(['task' => 'unknown'], new Context('request', 0, 'function', 'trace'));
     }
 
     private function renew(): string
