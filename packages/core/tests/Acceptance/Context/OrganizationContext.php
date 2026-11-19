@@ -317,6 +317,8 @@ final class OrganizationContext implements Context
             'raison sociale' => (string) $organization->corporateName,
             'forme juridique' => (string) $organization->form,
             'SIRET' => (string) $organization->siret,
+            'page LinkedIn' => (string) $organization->linkedInPage,
+            'site web' => (string) $organization->website,
             'e-mail' => (string) $organization->email,
             'ville' => (string) $organization->city,
             'position' => Vocabulary::describePosition($organization->longitude, $organization->latitude),

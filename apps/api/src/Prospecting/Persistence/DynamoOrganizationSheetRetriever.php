@@ -67,6 +67,8 @@ final readonly class DynamoOrganizationSheetRetriever implements OrganizationShe
             email: $contact->email?->value,
             phoneNumber: $contact->phoneNumber?->international(),
             language: $contact->language,
+            linkedInPage: $document['linkedInPage'] ?? null,
+            website: $document['website'] ?? null,
             street: $address?->street,
             postalCode: $address?->postalCode,
             city: $address?->city,

@@ -4,9 +4,11 @@ namespace Tests\App\Prospecting;
 
 use Prospecter\Core\Prospecting\Application\OrganizationSheet;
 use Prospecter\Core\Prospecting\Application\Port\OrganizationSheetRetriever;
+use Prospecter\Core\Prospecting\Domain\Model\LinkedInPage;
 use Prospecter\Core\Prospecting\Domain\Model\Organization;
 use Prospecter\Core\Prospecting\Domain\Model\OrganizationIntent;
 use Prospecter\Core\Prospecting\Domain\Model\Prospector;
+use Prospecter\Core\Prospecting\Domain\Model\Website;
 use Prospecter\Core\Prospecting\Domain\Repository\OrganizationRepository;
 use Prospecter\Core\SharedKernel\Domain\AccountId;
 use Prospecter\Core\SharedKernel\Domain\Address;
@@ -70,6 +72,18 @@ class DynamoOrganizationSheetRetrieverTest extends ApiTestCase
         $this->organizations()->save($acme);
 
         $this->assertSame('69383', $this->sheetOf($acme)->municipalityCode);
+    }
+
+    public function testTheSheetCarriesTheLinkedInPageAndTheWebsite(): void
+    {
+        $prospector = $this->aProspector();
+        $acme = $this->prospect($prospector, 'ACME');
+        $acme->changeContactDetails(new ContactDetails(), new LinkedInPage('linkedin.com/company/acme-corp'), new Website('acme.fr'), $prospector->id, new \DateTimeImmutable(self::THE_MOMENT_OF_THE_TESTS));
+        $this->organizations()->save($acme);
+
+        $sheet = $this->sheetOf($acme);
+
+        $this->assertSame(['https://www.linkedin.com/company/acme-corp', 'https://acme.fr'], [$sheet->linkedInPage, $sheet->website]);
     }
 
     private function prospect(Prospector $prospector, string $corporateName): Organization
