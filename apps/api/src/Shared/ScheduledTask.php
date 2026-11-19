@@ -5,7 +5,7 @@ namespace App\Shared;
 use Symfony\Component\DependencyInjection\Attribute\AutoconfigureTag;
 
 /**
- * A task run without a member at its origin, by a schedule of an instance naming it (ADR 0147, 0154).
+ * A task run without a member at its origin, every day, with the others (`ScheduledTasks`).
  */
 #[AutoconfigureTag(self::TAG)]
 interface ScheduledTask
@@ -13,7 +13,7 @@ interface ScheduledTask
     public const string TAG = 'app.scheduled_task';
 
     /**
-     * The name a schedule gives the task in the input of the function.
+     * The name of the task in what the scheduled tasks answer and log.
      */
     public function name(): string;
 

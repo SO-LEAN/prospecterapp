@@ -10,8 +10,8 @@ use Symfony\Component\Clock\ClockInterface;
 
 /**
  * Gives each contact left unattached at this moment, in every account, the erasure of its own (ADR 0146): what the
- * schedule of an instance runs, and the console (ADR 0147). Each is a command of its own, erasing it once whoever
- * asks again.
+ * daily schedule of an instance runs, and the console. Each is a command of its own, erasing it once whoever asks
+ * again.
  */
 final readonly class ContactsLeftUnattachedEraser implements ScheduledTask
 {

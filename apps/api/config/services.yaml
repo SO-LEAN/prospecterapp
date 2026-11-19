@@ -267,8 +267,8 @@ services:
     # production (empty)
     App\Shared\Messaging\IntegrationEventConsumer:
         public: true
-    # the function the schedules of an instance call, each naming its task: the erasure of the contacts left unattached
-    # every hour (ADR 0146, 0147), the renewal of the watches of Gmail every day (ADR 0154)
+    # the function the daily schedule of an instance calls, running every scheduled task: the erasure of the contacts
+    # left unattached (ADR 0146), the renewal of the watches of Gmail (ADR 0154)
     App\Shared\ScheduledTasksFunction:
         public: true
     # the worker of the local stack, taking the invocations of the rules from a queue (docker/lambda/deploy.sh)
