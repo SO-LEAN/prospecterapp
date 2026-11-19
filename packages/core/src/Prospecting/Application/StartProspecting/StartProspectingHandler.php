@@ -4,10 +4,14 @@ declare(strict_types=1);
 
 namespace Prospecter\Core\Prospecting\Application\StartProspecting;
 
+use Prospecter\Core\Prospecting\Domain\Model\LinkedInPage;
 use Prospecter\Core\Prospecting\Domain\Model\Organization;
+use Prospecter\Core\Prospecting\Domain\Model\Website;
 use Prospecter\Core\Prospecting\Domain\Port\Prospectors;
 use Prospecter\Core\Prospecting\Domain\Repository\OrganizationRepository;
 use Prospecter\Core\Prospecting\Domain\Service\EmailUniqueness;
+use Prospecter\Core\Prospecting\Domain\Service\LinkedInPageUniqueness;
+use Prospecter\Core\Prospecting\Domain\Service\WebsiteUniqueness;
 use Prospecter\Core\SharedKernel\Application\CommandHandler;
 use Prospecter\Core\SharedKernel\Application\GeoLocalizer;
 use Prospecter\Core\SharedKernel\Application\Port\Events;
@@ -30,6 +34,8 @@ final readonly class StartProspectingHandler implements CommandHandler
         private Events $events,
         private GeoLocalizer $geoLocalizer,
         private EmailUniqueness $emails,
+        private LinkedInPageUniqueness $linkedInPages,
+        private WebsiteUniqueness $websites,
     ) {
     }
 
@@ -43,12 +49,29 @@ final readonly class StartProspectingHandler implements CommandHandler
             new ContactDetails(Email::orNone($command->email), PhoneNumber::orNone($command->phoneNumber), $command->language),
             $command->executedAt,
         );
+        $this->placeOnTheWeb($organization, $command, $prospector->id);
         $this->locate($organization, $command, $prospector->id);
         $this->observe($organization, $command, $prospector->id);
         $this->attachToTheHolding($organization, $command, $prospector->id);
         $this->emails->ensureAvailableFor($organization);
+        $this->linkedInPages->ensureAvailableFor($organization);
+        $this->websites->ensureAvailableFor($organization);
         $this->organizations->save($organization);
         $this->publishWhatHappenedTo($organization);
+    }
+
+    /**
+     * Only what is known is told: an organization started without its page nor its website has no contact details
+     * changed.
+     */
+    private function placeOnTheWeb(Organization $organization, StartProspecting $command, MemberId $author): void
+    {
+        $linkedInPage = LinkedInPage::orNone($command->linkedInPage);
+        $website = Website::orNone($command->website);
+
+        if (null !== $linkedInPage || null !== $website) {
+            $organization->changeContactDetails($organization->contactDetails(), $linkedInPage, $website, by: $author, at: $command->executedAt);
+        }
     }
 
     /**
