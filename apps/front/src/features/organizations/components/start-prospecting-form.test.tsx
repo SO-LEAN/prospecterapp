@@ -76,4 +76,25 @@ describe('StartProspectingForm', () => {
     expect(screen.getByLabelText('E-mail')).toHaveAttribute('aria-invalid', 'true')
     expect(screen.getByRole('alert')).toHaveTextContent('Organisation refusée.')
   })
+
+  it('shows a refusal of the LinkedIn page and of the website on their fields', async () => {
+    const { user } = renderForm(
+      vi.fn().mockRejectedValue({
+        title: 'Validation Failed',
+        status: 422,
+        detail: 'Invalid',
+        violations: [
+          { propertyPath: 'contactDetails.linkedInPage', title: 'Pas une page.' },
+          { propertyPath: 'contactDetails.website', title: 'Pas un site.' },
+        ],
+      }),
+    )
+
+    await user.type(screen.getByLabelText('Raison sociale'), 'ACME')
+    await user.click(screen.getByRole('button', { name: 'Commencer à prospecter' }))
+
+    expect(await screen.findByText('Pas une page.')).toBeInTheDocument()
+    expect(screen.getByLabelText(/^Page LinkedIn/)).toHaveAttribute('aria-invalid', 'true')
+    expect(screen.getByLabelText(/^Site web/)).toHaveAttribute('aria-invalid', 'true')
+  })
 })
