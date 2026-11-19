@@ -1,6 +1,6 @@
 import { useQuery } from '@tanstack/react-query'
 import { Link } from '@tanstack/react-router'
-import { LogOut, Monitor, Moon, Settings, Sun, UserRound } from 'lucide-react'
+import { LogOut, Monitor, MonitorOff, Moon, Settings, Sun, UserRound } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import { myName } from '@/features/account/me'
 import { accountQuery } from '@/features/account/queries'
@@ -30,6 +30,7 @@ export function UserMenu() {
   const { t } = useTranslation()
   const { data: account, isPending } = useQuery(accountQuery())
   const signOut = useSignOut()
+  const signOutEverywhere = useSignOut('everywhere')
   const theme = usePreferences((state) => state.theme)
   const setTheme = usePreferences((state) => state.setTheme)
 
@@ -83,6 +84,9 @@ export function UserMenu() {
         <DropdownMenuSeparator />
         <DropdownMenuItem onSelect={() => void signOut()}>
           <LogOut /> {t('nav.signOut')}
+        </DropdownMenuItem>
+        <DropdownMenuItem onSelect={() => void signOutEverywhere()}>
+          <MonitorOff /> {t('nav.signOutEverywhere')}
         </DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>

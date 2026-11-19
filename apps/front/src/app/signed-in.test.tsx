@@ -15,14 +15,14 @@ const theApi = vi.hoisted(() => {
   return fetch
 })
 
-vi.mock('@/shared/auth/session', () => ({
-  session: {
-    accessToken: async () => 'an access token',
-    renewedAccessToken: async () => null,
-    signOut: async () => {},
-    signOutEverywhere: async () => {},
-  },
+const theSession = vi.hoisted(() => ({
+  accessToken: async () => 'an access token',
+  renewedAccessToken: async () => null,
+  signOut: vi.fn(async () => {}),
+  signOutEverywhere: vi.fn(async () => {}),
 }))
+
+vi.mock('@/shared/auth/session', () => ({ session: theSession }))
 
 const link = (href: string) => ({ href, method: 'PATCH' })
 
@@ -118,6 +118,8 @@ const myProfileNamed = () => json(myNamedProfile, 200)
 describe('the layout of a member signed in', () => {
   beforeEach(() => {
     theApi.mockReset()
+    theSession.signOut.mockClear()
+    theSession.signOutEverywhere.mockClear()
     myDay = anEmptyDay
   })
 
@@ -161,6 +163,18 @@ describe('the layout of a member signed in', () => {
       '/settings',
     )
     expect(screen.getByRole('menuitem', { name: 'Se déconnecter' })).toBeInTheDocument()
+  })
+
+  it('signs a member out everywhere from the menu of their name, their AIs included', async () => {
+    theApiAnswers(myProfileNamed)
+    const router = await renderTheSpaAt('/')
+    await userEvent.click(await screen.findByRole('button', { name: 'Ada Lovelace, menu du compte' }))
+
+    await userEvent.click(await screen.findByRole('menuitem', { name: 'Se déconnecter partout' }))
+
+    expect(theSession.signOutEverywhere).toHaveBeenCalledOnce()
+    expect(theSession.signOut).not.toHaveBeenCalled()
+    expect(router.state.location.pathname).toBe('/auth/sign-in')
   })
 
   it('greets a member while their day is still being read', async () => {
