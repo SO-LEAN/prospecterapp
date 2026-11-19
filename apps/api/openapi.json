@@ -741,7 +741,7 @@
                 "tags": [
                     "Organizations"
                 ],
-                "summary": "Change the email, phone number and language, nothing else changes",
+                "summary": "Change the email, phone number, language, LinkedIn page and website, nothing else changes",
                 "operationId": "patch_api_organizations_change_contact_details",
                 "parameters": [
                     {
@@ -759,7 +759,7 @@
                     "content": {
                         "application/json": {
                             "schema": {
-                                "$ref": "#/components/schemas/ContactDetailsInput"
+                                "$ref": "#/components/schemas/OrganizationContactDetailsInput"
                             }
                         }
                     }
@@ -799,7 +799,7 @@
                         }
                     },
                     "422": {
-                        "description": "Invalid contact details, email already used, or neither corporate name nor email left",
+                        "description": "Invalid contact details, email, LinkedIn page or domain of the website already used, or neither corporate name nor email left",
                         "content": {
                             "application/json": {
                                 "schema": {
@@ -1801,7 +1801,7 @@
                         }
                     },
                     "422": {
-                        "description": "Invalid organization, email already used, or neither corporate name nor email",
+                        "description": "Invalid organization, email, LinkedIn page or domain of the website already used, or neither corporate name nor email",
                         "content": {
                             "application/json": {
                                 "schema": {
@@ -7760,7 +7760,7 @@
                 },
                 "type": "object"
             },
-            "ContactDetailsInput": {
+            "OrganizationContactDetailsInput": {
                 "properties": {
                     "email": {
                         "type": "string",
@@ -7780,6 +7780,22 @@
                         "type": "string",
                         "nullable": true,
                         "default": null
+                    },
+                    "linkedInPage": {
+                        "description": "The address of the page of a company on LinkedIn, with or without its scheme, its subdomain or the page under it; kept in one form (https://www.linkedin.com/company/<identifier>), refused when it is no page of a company, or the one of another organization of the account",
+                        "type": "string",
+                        "example": "linkedin.com/company/acme-corp",
+                        "nullable": true,
+                        "default": null,
+                        "maxLength": 255
+                    },
+                    "website": {
+                        "description": "The address of a site on the web, with or without its scheme; kept as its origin (https when typed without), refused when it is no address of a site, or when another organization of the account has a site of the same domain (its host without www)",
+                        "type": "string",
+                        "example": "www.acme.fr",
+                        "nullable": true,
+                        "default": null,
+                        "maxLength": 255
                     }
                 },
                 "type": "object"
@@ -7973,7 +7989,7 @@
                         "$ref": "#/components/schemas/LegalIdentityInput"
                     },
                     "contactDetails": {
-                        "$ref": "#/components/schemas/ContactDetailsInput"
+                        "$ref": "#/components/schemas/OrganizationContactDetailsInput"
                     },
                     "address": {
                         "nullable": true,
@@ -9075,7 +9091,7 @@
                 },
                 "type": "object"
             },
-            "ContactDetailsResource": {
+            "OrganizationContactDetailsResource": {
                 "properties": {
                     "email": {
                         "type": "string",
@@ -9089,6 +9105,18 @@
                     },
                     "language": {
                         "type": "string",
+                        "nullable": true
+                    },
+                    "linkedInPage": {
+                        "description": "In one form, its identifier in lower case",
+                        "type": "string",
+                        "example": "https://www.linkedin.com/company/acme-corp",
+                        "nullable": true
+                    },
+                    "website": {
+                        "description": "Its origin, in lower case",
+                        "type": "string",
+                        "example": "https://www.acme.fr",
                         "nullable": true
                     }
                 },
@@ -9172,7 +9200,7 @@
                         "$ref": "#/components/schemas/LegalIdentityResource"
                     },
                     "contactDetails": {
-                        "$ref": "#/components/schemas/ContactDetailsResource"
+                        "$ref": "#/components/schemas/OrganizationContactDetailsResource"
                     },
                     "address": {
                         "nullable": true,

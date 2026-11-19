@@ -190,7 +190,7 @@ export interface paths {
         delete?: never;
         options?: never;
         head?: never;
-        /** Change the email, phone number and language, nothing else changes */
+        /** Change the email, phone number, language, LinkedIn page and website, nothing else changes */
         patch: operations["patch_api_organizations_change_contact_details"];
         trace?: never;
     };
@@ -1726,7 +1726,7 @@ export interface components {
             /** @default  */
             holdingId: string;
         };
-        ContactDetailsInput: {
+        OrganizationContactDetailsInput: {
             /** @default null */
             email: string | null;
             /**
@@ -1737,6 +1737,18 @@ export interface components {
             phoneNumber: string | null;
             /** @default null */
             language: string | null;
+            /**
+             * @description The address of the page of a company on LinkedIn, with or without its scheme, its subdomain or the page under it; kept in one form (https://www.linkedin.com/company/<identifier>), refused when it is no page of a company, or the one of another organization of the account
+             * @default null
+             * @example linkedin.com/company/acme-corp
+             */
+            linkedInPage: string | null;
+            /**
+             * @description The address of a site on the web, with or without its scheme; kept as its origin (https when typed without), refused when it is no address of a site, or when another organization of the account has a site of the same domain (its host without www)
+             * @default null
+             * @example www.acme.fr
+             */
+            website: string | null;
         };
         CampaignExchangeInput: {
             /**
@@ -1839,7 +1851,7 @@ export interface components {
         };
         StartProspectingInput: {
             legalIdentity?: components["schemas"]["LegalIdentityInput"];
-            contactDetails?: components["schemas"]["ContactDetailsInput"];
+            contactDetails?: components["schemas"]["OrganizationContactDetailsInput"];
             /** @default null */
             address: components["schemas"]["AddressInput"] | null;
             /** @default null */
@@ -2348,7 +2360,7 @@ export interface components {
         OrganizationContactsResource: {
             items: components["schemas"]["OrganizationContactResource"][];
         };
-        ContactDetailsResource: {
+        OrganizationContactDetailsResource: {
             email?: string | null;
             /**
              * @description In the international format
@@ -2356,6 +2368,16 @@ export interface components {
              */
             phoneNumber?: string | null;
             language?: string | null;
+            /**
+             * @description In one form, its identifier in lower case
+             * @example https://www.linkedin.com/company/acme-corp
+             */
+            linkedInPage?: string | null;
+            /**
+             * @description Its origin, in lower case
+             * @example https://www.acme.fr
+             */
+            website?: string | null;
         };
         OrganizationLinksResource: {
             self: components["schemas"]["LinkResource"];
@@ -2379,7 +2401,7 @@ export interface components {
             id: string;
             name: string;
             legalIdentity: components["schemas"]["LegalIdentityResource"];
-            contactDetails: components["schemas"]["ContactDetailsResource"];
+            contactDetails: components["schemas"]["OrganizationContactDetailsResource"];
             address?: components["schemas"]["AddressResource"] | null;
             location?: components["schemas"]["LocationResource"] | null;
             observations?: string | null;
@@ -3898,7 +3920,7 @@ export interface operations {
         };
         requestBody: {
             content: {
-                "application/json": components["schemas"]["ContactDetailsInput"];
+                "application/json": components["schemas"]["OrganizationContactDetailsInput"];
             };
         };
         responses: {
@@ -3936,7 +3958,7 @@ export interface operations {
                     "application/json": components["schemas"]["ProblemResource"];
                 };
             };
-            /** @description Invalid contact details, email already used, or neither corporate name nor email left */
+            /** @description Invalid contact details, email, LinkedIn page or domain of the website already used, or neither corporate name nor email left */
             422: {
                 headers: {
                     [name: string]: unknown;
@@ -4726,7 +4748,7 @@ export interface operations {
                     "application/json": components["schemas"]["ProblemResource"];
                 };
             };
-            /** @description Invalid organization, email already used, or neither corporate name nor email */
+            /** @description Invalid organization, email, LinkedIn page or domain of the website already used, or neither corporate name nor email */
             422: {
                 headers: {
                     [name: string]: unknown;

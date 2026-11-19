@@ -3,7 +3,6 @@
 namespace App\Prospecting\Input;
 
 use App\Shared\Input\AddressInput;
-use App\Shared\Input\ContactDetailsInput;
 use App\Shared\Input\LegalIdentityInput;
 use Symfony\Component\Validator\Constraints as Assert;
 
@@ -16,7 +15,7 @@ final readonly class StartProspectingInput
         #[Assert\Valid]
         public LegalIdentityInput $legalIdentity = new LegalIdentityInput(),
         #[Assert\Valid]
-        public ContactDetailsInput $contactDetails = new ContactDetailsInput(),
+        public OrganizationContactDetailsInput $contactDetails = new OrganizationContactDetailsInput(),
         #[Assert\Valid]
         public ?AddressInput $address = null,
         #[Assert\Length(max: 255)]

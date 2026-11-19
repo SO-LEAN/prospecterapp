@@ -2,6 +2,7 @@
 
 namespace App\Prospecting\Presenter;
 
+use App\Prospecting\Resource\OrganizationContactDetailsResource;
 use App\Prospecting\Resource\OrganizationLinksResource;
 use App\Prospecting\Resource\OrganizationResource;
 use App\Security\IntentLinks;
@@ -9,7 +10,6 @@ use App\Security\User;
 use App\Shared\ImageResourceFactory;
 use App\Shared\Links;
 use App\Shared\Resource\AddressResource;
-use App\Shared\Resource\ContactDetailsResource;
 use App\Shared\Resource\LegalIdentityResource;
 use App\Shared\Resource\LinkResource;
 use App\Shared\Resource\LocationResource;
@@ -70,7 +70,7 @@ final class OrganizationResourcePresenter implements ConsultOrganizationOutput
             id: $response->id,
             name: $response->fullName,
             legalIdentity: new LegalIdentityResource($response->corporateName, $response->form, $response->type, $response->siret),
-            contactDetails: new ContactDetailsResource($response->email, $response->phoneNumber, $response->language),
+            contactDetails: OrganizationContactDetailsResource::of($response),
             address: AddressResource::orNone($response->street, $response->postalCode, $response->city, $response->country),
             location: LocationResource::orNone($response->latitude, $response->longitude),
             observations: $response->observations,

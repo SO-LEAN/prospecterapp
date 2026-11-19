@@ -3,7 +3,6 @@
 namespace App\Prospecting\Resource;
 
 use App\Shared\Resource\AddressResource;
-use App\Shared\Resource\ContactDetailsResource;
 use App\Shared\Resource\ImageResource;
 use App\Shared\Resource\LegalIdentityResource;
 use App\Shared\Resource\LocationResource;
@@ -23,7 +22,7 @@ final readonly class OrganizationResource
         public string $id,
         public string $name,
         public LegalIdentityResource $legalIdentity,
-        public ContactDetailsResource $contactDetails,
+        public OrganizationContactDetailsResource $contactDetails,
         public ?AddressResource $address,
         public ?LocationResource $location,
         public ?string $observations,

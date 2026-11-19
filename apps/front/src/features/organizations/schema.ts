@@ -56,7 +56,7 @@ export const emptyStartProspecting = (): StartProspectingValues => ({
 
 export const toStartProspectingInput = (values: StartProspectingValues): StartProspectingInput => ({
   legalIdentity: toLegalIdentity(values.legalIdentity),
-  contactDetails: toContactDetails(values.contactDetails),
+  contactDetails: { ...toContactDetails(values.contactDetails), linkedInPage: null, website: null },
   address: toAddress(values.address),
   observations: orNull(values.observations),
   holdingId: null,

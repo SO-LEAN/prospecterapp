@@ -8,8 +8,12 @@ import { FormField } from './form-field'
 import { atRoot, type FieldsProps } from './section-form'
 import { optionalEmail, optionalPhoneNumber, orNull } from './text'
 
-type ContactDetailsResource = components['schemas']['ContactDetailsResource']
-type ContactDetailsInput = components['schemas']['ContactDetailsInput']
+/** What a person, an organization and an account share of their contact details. */
+type ContactDetails = Pick<
+  components['schemas']['PersonContactDetailsInput'],
+  'email' | 'phoneNumber' | 'language'
+>
+type ContactDetailsRead = Partial<ContactDetails>
 
 export const contactDetailsSchema = z.object({
   email: optionalEmail,
@@ -21,13 +25,13 @@ export type ContactDetailsValues = z.infer<typeof contactDetailsSchema>
 
 export const contactDetailsFields = ['email', 'phoneNumber', 'language'] as const
 
-export const toContactDetailsValues = (contact: ContactDetailsResource): ContactDetailsValues => ({
+export const toContactDetailsValues = (contact: ContactDetailsRead): ContactDetailsValues => ({
   email: contact.email ?? '',
   phoneNumber: contact.phoneNumber ?? '',
   language: contact.language ?? null,
 })
 
-export const toContactDetails = (values: ContactDetailsValues): ContactDetailsInput => ({
+export const toContactDetails = (values: ContactDetailsValues): ContactDetails => ({
   email: orNull(values.email),
   phoneNumber: orNull(values.phoneNumber),
   language: values.language,

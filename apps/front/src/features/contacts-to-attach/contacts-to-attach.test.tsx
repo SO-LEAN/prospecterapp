@@ -148,7 +148,13 @@ describe('the contacts to attach to process', () => {
           '/api/organizations',
           {
             legalIdentity: { corporateName: 'Acme', form: null, type: null },
-            contactDetails: { email: 'contact@acme.fr', phoneNumber: null, language: null },
+            contactDetails: {
+              email: 'contact@acme.fr',
+              phoneNumber: null,
+              language: null,
+              linkedInPage: null,
+              website: null,
+            },
             address: null,
             observations: null,
             holdingId: null,
