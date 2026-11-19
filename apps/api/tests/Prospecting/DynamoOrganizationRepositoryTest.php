@@ -2,6 +2,8 @@
 
 namespace Tests\App\Prospecting;
 
+use App\Prospecting\Persistence\DynamoOrganizationRepository;
+use App\Shared\Persistence\Table;
 use Prospecter\Core\Prospecting\Domain\Exception\LinkedInPageAlreadyUsed;
 use Prospecter\Core\Prospecting\Domain\Exception\SiretAlreadyUsed;
 use Prospecter\Core\Prospecting\Domain\Model\LinkedInPage;
@@ -241,6 +243,30 @@ class DynamoOrganizationRepositoryTest extends ApiTestCase
         $this->assertNull($organizations->withWebsiteOfDomain($acme->accountId(), new Website(self::A_SITE), except: new OrganizationId(self::newIdentity())));
     }
 
+    public function testTheKeysWrittenAgainReserveTheLinkedInPageOfAnOrganization(): void
+    {
+        $prospector = new Prospector(new MemberId(self::newIdentity()), new AccountId(self::newIdentity()));
+        $acme = $this->organizationOnTheWeb($prospector, self::A_PAGE, null);
+        self::getContainer()->get(OrganizationRepository::class)->save($acme);
+        $this->prospectingTable()->batch([], [[sprintf('LINKEDIN_PAGE#%s#%s', $prospector->accountId->value, self::A_PAGE), 'LINKEDIN_PAGE']]);
+
+        self::getContainer()->get(DynamoOrganizationRepository::class)->writeTheKeysAgain();
+
+        $this->assertEquals($acme->id(), self::getContainer()->get(OrganizationRepository::class)->withLinkedInPage($prospector->accountId, new LinkedInPage(self::A_PAGE), except: new OrganizationId(self::newIdentity()))?->id());
+    }
+
+    public function testTheKeysWrittenAgainReserveTheDomainOfTheWebsiteOfAnOrganization(): void
+    {
+        $prospector = new Prospector(new MemberId(self::newIdentity()), new AccountId(self::newIdentity()));
+        $acme = $this->organizationOnTheWeb($prospector, null, self::A_SITE);
+        self::getContainer()->get(OrganizationRepository::class)->save($acme);
+        $this->prospectingTable()->batch([], [[sprintf('WEBSITE#%s#acme.fr', $prospector->accountId->value), 'WEBSITE']]);
+
+        self::getContainer()->get(DynamoOrganizationRepository::class)->writeTheKeysAgain();
+
+        $this->assertEquals($acme->id(), self::getContainer()->get(OrganizationRepository::class)->withWebsiteOfDomain($prospector->accountId, new Website(self::A_SITE), except: new OrganizationId(self::newIdentity()))?->id());
+    }
+
     public function testAnOrganizationIsReadBackWithItsLinkedInPageAndItsWebsite(): void
     {
         $organizations = self::getContainer()->get(OrganizationRepository::class);
@@ -260,6 +286,14 @@ class DynamoOrganizationRepositoryTest extends ApiTestCase
         $found = $organizations->ofIds([$acme->id(), new OrganizationId(self::newIdentity())]);
 
         $this->assertEquals([$acme->id()], array_map(static fn (Organization $organization): OrganizationId => $organization->id(), $found));
+    }
+
+    private function prospectingTable(): Table
+    {
+        $table = self::getContainer()->get('app.table.prospecting');
+        $this->assertInstanceOf(Table::class, $table);
+
+        return $table;
     }
 
     private function organizationOnTheWeb(Prospector $prospector, ?string $page, ?string $site): Organization

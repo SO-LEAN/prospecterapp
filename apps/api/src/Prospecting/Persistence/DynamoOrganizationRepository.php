@@ -144,8 +144,9 @@ final readonly class DynamoOrganizationRepository implements OrganizationReposit
     }
 
     /**
-     * Writes again the item of every organization, its search keys and its keys in its lists with it, and the link of
-     * the domain of its email (ADR 0146), and forgets the items of the search before ADR 0071: what a table written
+     * Writes again the item of every organization, its search keys and its keys in its lists with it, the link of
+     * the domain of its email (ADR 0146) and the reservations of its LinkedIn page and of the domain of its website,
+     * and forgets the items of the search before ADR 0071: what a table written
      * before them needs once.
      */
     public function writeTheKeysAgain(): int
@@ -156,6 +157,7 @@ final readonly class DynamoOrganizationRepository implements OrganizationReposit
             [
                 ...array_map(fn (array $item): array => $this->itemOf(OrganizationDocument::organization($item['organization']), $item['organization'], Revision::of($item)), $items),
                 ...array_map(static fn (array $item): array => self::emailDomainLink($item['organization']['accountId'], $item['organization']['contactDetails']['email'], $item['organization']['id']), $withAnEmail),
+                ...array_merge(...array_map(self::reservationsOf(...), array_column($items, 'organization'))),
             ],
             array_map(static fn (array $former): array => [$former['PK'], $former['SK']], $this->prospectingTable->scan('TOKEN')),
         );
@@ -245,6 +247,20 @@ final readonly class DynamoOrganizationRepository implements OrganizationReposit
         $holder = $this->prospectingTable->item(self::reservationKey($kind, $accountId, $value), $kind);
 
         return null === $holder || $holder['ownerId'] === $except->value ? null : $this->get(new OrganizationId($holder['ownerId']));
+    }
+
+    /**
+     * The reservations of what designates the organization of the document in its account.
+     *
+     * @param array<string, mixed> $document
+     *
+     * @return list<array<string, string>>
+     */
+    private static function reservationsOf(array $document): array
+    {
+        $reserved = array_filter([self::LINKEDIN_PAGE => $document['linkedInPage'] ?? null, self::WEBSITE => self::domainOf($document['website'] ?? null)]);
+
+        return array_map(static fn (string $kind, string $value): array => ['PK' => self::reservationKey($kind, $document['accountId'], $value), 'SK' => $kind, 'ownerId' => $document['id']], array_keys($reserved), array_values($reserved));
     }
 
     private static function domainOf(?string $website): ?string
