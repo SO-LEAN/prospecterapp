@@ -11,7 +11,7 @@ function OpenedInANewTab({ href, icon, children }: { href: string; icon: ReactNo
       href={href}
       target="_blank"
       rel="noopener noreferrer"
-      className="inline-flex min-w-0 items-center gap-1.5 text-primary hover:underline"
+      className="flex w-fit max-w-full items-center gap-1.5 text-primary hover:underline"
     >
       {icon}
       <span className="truncate">{children}</span>

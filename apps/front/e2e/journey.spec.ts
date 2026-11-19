@@ -84,12 +84,20 @@ test('sign in, start prospecting an organization, change it section by section, 
   await test.step('a section changes alone, the others stay as they were', async () => {
     await page.getByRole('button', { name: 'Modifier : Coordonnées' }).click()
     await page.getByLabel(/^Téléphone/).fill('03 88 00 00 00')
+    await page
+      .getByLabel(/^Page LinkedIn/)
+      .fill(`linkedin.com/company/a-company-whose-identifier-is-long-${unique()}`)
     await page.getByRole('button', { name: 'Enregistrer' }).click()
 
     await expect(page.getByRole('link', { name: '+33 3 88 00 00 00' })).toHaveAttribute(
       'href',
       'tel:+33388000000',
     )
+    const linkedInPage = page.getByRole('link', { name: /^linkedin\.com\/company\// })
+    const cutShort = await linkedInPage
+      .locator('span')
+      .evaluate((address) => address.scrollWidth > address.clientWidth)
+    expect(cutShort, 'a long LinkedIn page is cut short within its card').toBe(true)
     await expect(organizationPage).toBeVisible()
     await expect(page.getByText('Strasbourg', { exact: true })).toBeVisible()
     organizationUrl = page.url()
