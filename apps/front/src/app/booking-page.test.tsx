@@ -14,7 +14,12 @@ const theApi = vi.hoisted(() => {
 const theVisitor = vi.hoisted(() => ({ timeZone: 'Europe/Paris' }))
 
 vi.mock('@/shared/auth/session', () => ({
-  session: { accessToken: async () => null, renewedAccessToken: async () => null, signOut: async () => {}, signOutEverywhere: async () => {} },
+  session: {
+    accessToken: async () => null,
+    renewedAccessToken: async () => null,
+    signOut: async () => {},
+    signOutEverywhere: async () => {},
+  },
 }))
 
 vi.mock('@/shared/lib/time-zone', () => ({ readerTimeZone: () => theVisitor.timeZone }))

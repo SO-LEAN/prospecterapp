@@ -10,6 +10,7 @@ export const fr = {
     account: 'Mon compte',
     settings: 'Configuration',
     signOut: 'Se déconnecter',
+    signOutEverywhere: 'Se déconnecter partout',
     collapse: 'Réduire le menu',
     expand: 'Ouvrir le menu',
     mainNavigation: 'Navigation principale',

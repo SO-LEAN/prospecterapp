@@ -5,13 +5,21 @@ import { useTranslation } from 'react-i18next'
 import { session } from '@/shared/auth/session'
 import { Button } from '@/shared/ui/button'
 
+/** Where a member signs out: of the app alone, their AIs kept signed in, or everywhere, their AIs included. */
+type SignOutScope = 'thisApp' | 'everywhere'
+
+const signOutOf: Record<SignOutScope, () => Promise<void>> = {
+  thisApp: () => session.signOut(),
+  everywhere: () => session.signOutEverywhere(),
+}
+
 /** Signs the member out, forgets what the tab read, and opens the sign-in screen. */
-export function useSignOut() {
+export function useSignOut(scope: SignOutScope = 'thisApp') {
   const navigate = useNavigate()
   const queryClient = useQueryClient()
 
   return async () => {
-    await session.signOut()
+    await signOutOf[scope]()
     queryClient.clear()
     await navigate({ to: '/auth/sign-in', search: { returnTo: '/' } })
   }
