@@ -95,6 +95,14 @@ Fonctionnalité: Activer l'import de mes e-mails Gmail
     Alors l'import de mes e-mails Gmail est "coupé"
     Et Gmail ne prévient pas Prospecter des nouveaux e-mails de "michel@exemple.fr"
 
+  Scénario: Accorder Gmail avec un autre compte Google connecte ce compte et importe sa boîte
+    Soit le client Google de "SOLEAN IT" a le topic Pub/Sub "projects/solean/topics/gmail"
+    Et j'ai demandé l'import de mes e-mails Gmail
+    Quand Google me ramène avec l'accès à Gmail accordé par le compte "autre@exemple.fr"
+    Alors ma connexion Google est "connectée", au compte "autre@exemple.fr"
+    Et l'import de mes e-mails Gmail est "actif"
+    Et Gmail prévient Prospecter des nouveaux e-mails de "autre@exemple.fr" par le topic "projects/solean/topics/gmail"
+
   Scénario: Un topic retiré pendant la demande n'active rien
     Soit le client Google de "SOLEAN IT" a le topic Pub/Sub "projects/solean/topics/gmail"
     Et j'ai demandé l'import de mes e-mails Gmail
