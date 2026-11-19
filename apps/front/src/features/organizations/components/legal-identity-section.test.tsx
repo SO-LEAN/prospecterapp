@@ -58,7 +58,7 @@ function TheIdentityOfTheOrganization() {
 
 function renderTheSection(organization: Organization) {
   const queryClient = new QueryClient({
-    defaultOptions: { queries: { staleTime: Number.POSITIVE_INFINITY, retry: false } },
+    defaultOptions: { queries: { staleTime: Number.POSITIVE_INFINITY } },
   })
   queryClient.setQueryData(organizationQuery(ACME).queryKey, organization)
   render(
@@ -86,6 +86,7 @@ describe('the legal identity of an organization', () => {
   it('shows its SIRET, leading to its establishment in the public directory', () => {
     renderTheSection(anOrganization({ legalIdentity: { corporateName: 'ACME', siret: A_SIRET } }))
 
+    expect(screen.getByText('SIRET')).toBeInTheDocument()
     expect(screen.getByRole('link', { name: '552 100 554 00013' })).toHaveAttribute(
       'href',
       `https://annuaire-entreprises.data.gouv.fr/etablissement/${A_SIRET}`,
@@ -103,7 +104,7 @@ describe('the legal identity of an organization', () => {
     await user.type(screen.getByLabelText(/^SIRET/), '552 100 554 00013')
     await user.click(screen.getByRole('button', { name: 'Enregistrer' }))
 
-    expect(await sentTo('/legal-identity')).toEqual({
+    expect(await sentTo(`/api/organizations/${ACME}/legal-identity`)).toEqual({
       corporateName: 'ACME',
       form: null,
       type: null,
@@ -146,6 +147,12 @@ describe('the legal identity of an organization', () => {
     await openTheIdentity(user)
     await user.click(screen.getByRole('button', { name: 'Rechercher dans l’annuaire' }))
     const proposals = await screen.findByRole('list', { name: 'Établissements de l’annuaire' })
+    expect(screen.getByRole('dialog', { name: 'Établissements de l’annuaire' })).toHaveAccessibleDescription(
+      'Les établissements de l’annuaire des entreprises dont le nom ressemble, ceux de sa ville d’abord.',
+    )
+    expect(theApi.mock.calls.map(([sent]) => new URL((sent as Request).url).pathname)).toEqual([
+      `/api/organizations/${ACME}/establishments`,
+    ])
     expect(
       within(proposals)
         .getAllByRole('listitem')
@@ -180,6 +187,7 @@ describe('the legal identity of an organization', () => {
     expect(await screen.findByRole('alert')).toHaveTextContent(
       /^L’annuaire des entreprises ne répond pas pour le moment\s?: réessayez plus tard, ou tapez le SIRET\.$/,
     )
+    expect(theApi).toHaveBeenCalledTimes(1)
   })
 
   it('says when the directory knows no establishment of its name', async () => {
@@ -212,5 +220,27 @@ describe('the legal identity of an organization', () => {
     await user.click(screen.getByRole('button', { name: 'Rechercher dans l’annuaire' }))
 
     expect(await screen.findByText('Recherche dans l’annuaire…')).toBeInTheDocument()
+  })
+
+  it('opens the identity with its SIRET, optional', async () => {
+    const user = renderTheSection(
+      anOrganization({ legalIdentity: { corporateName: 'ACME', siret: A_SIRET } }),
+    )
+
+    await openTheIdentity(user)
+
+    expect(screen.getByLabelText(/^SIRET\s?\(facultatif\)$/)).toHaveValue(A_SIRET)
+  })
+
+  it('tells the server out of reach when the search cannot reach it', async () => {
+    const user = renderTheSection(anOrganization())
+    theApi.mockRejectedValue(new TypeError('Failed to fetch'))
+
+    await openTheIdentity(user)
+    await user.click(screen.getByRole('button', { name: 'Rechercher dans l’annuaire' }))
+
+    expect(await screen.findByRole('alert')).toHaveTextContent(
+      'Impossible de joindre le serveur. Vérifiez votre connexion.',
+    )
   })
 })
