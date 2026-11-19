@@ -354,6 +354,17 @@ class ConnectorsApiTest extends ApiTestCase
         $this->assertSame(['openid email https://www.googleapis.com/auth/calendar.app.created https://www.googleapis.com/auth/gmail.readonly', 'true'], [$query['scope'], $query['include_granted_scopes']]);
     }
 
+    public function testTheImportOfGmailAsksGoogleForTheAccountConnected(): void
+    {
+        $this->withATopicOfGmail();
+        $this->login();
+        $this->connect('michel@exemple.fr', 'a-refresh-token');
+
+        $authorization = $this->requestJson('POST', self::GMAIL_IMPORT_AUTHORIZATIONS);
+
+        $this->assertSame('michel@exemple.fr', $this->addressQueryOf($authorization)['login_hint'] ?? null);
+    }
+
     public function testAMemberActivatesTheImportOfGmailThenStopsIt(): void
     {
         $this->withATopicOfGmail();

@@ -13,6 +13,7 @@ use Prospecter\Core\Connectors\Application\AccountClient;
 use Prospecter\Core\Connectors\Application\AskToImportMail\AskToImportMail;
 use Prospecter\Core\Connectors\Application\ConsultMyConnections\ConsultMyConnections;
 use Prospecter\Core\Connectors\Application\ConsultMyConnections\KeptConnections;
+use Prospecter\Core\Connectors\Application\MyConnection;
 use Prospecter\Core\SharedKernel\Application\QueryHandler;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\Clock\ClockInterface;
@@ -48,18 +49,35 @@ final class AskToImportGmailController extends AbstractController
         $request = $this->googleAuthorization->newRequest();
         $this->commandBus->dispatch(new AskToImportMail($user->memberId(), self::GOOGLE, $request->state, $request->codeVerifier, $this->clock->now()));
 
-        return $this->json(new AuthorizationResource($this->googleAuthorization->addressImportingGmailOf($request, $this->clientOfMyAccount($user))), Response::HTTP_CREATED);
+        $mine = $this->myConnections($user);
+
+        return $this->json(new AuthorizationResource($this->googleAuthorization->addressImportingGmailOf($request, self::clientOfMyAccount($mine), self::accountConnectedIn($mine))), Response::HTTP_CREATED);
+    }
+
+    private function myConnections(User $user): KeptConnections
+    {
+        $kept = new KeptConnections();
+        ($this->consultMyConnections)(new ConsultMyConnections($user->memberId(), $this->clock->now()), $kept);
+
+        return $kept;
     }
 
     /**
      * The id of the client of Google of my account, read with the providers offered to me (ADR 0125).
      */
-    private function clientOfMyAccount(User $user): string
+    private static function clientOfMyAccount(KeptConnections $mine): string
     {
-        $kept = new KeptConnections();
-        ($this->consultMyConnections)(new ConsultMyConnections($user->memberId(), $this->clock->now()), $kept);
-        $google = array_find($kept->offered, static fn (AccountClient $client): bool => self::GOOGLE === $client->provider);
+        $google = array_find($mine->offered, static fn (AccountClient $client): bool => self::GOOGLE === $client->provider);
 
         return $google->clientId ?? throw new \LogicException('The client of Google of the account was removed while the authorization was asked');
+    }
+
+    /**
+     * The account I connected at Google, so that Google asks it the reading of its mailbox, whatever account the
+     * browser signed in to first.
+     */
+    private static function accountConnectedIn(KeptConnections $mine): ?string
+    {
+        return array_find($mine->connections, static fn (MyConnection $connection): bool => self::GOOGLE === $connection->provider)?->account;
     }
 }
