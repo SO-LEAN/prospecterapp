@@ -19,7 +19,7 @@ describe('StartProspectingForm', () => {
     expect(onSubmit).toHaveBeenCalledWith(
       expect.objectContaining({
         legalIdentity: { corporateName: 'ACME', form: null, type: null },
-        contactDetails: { email: null, phoneNumber: null, language: null },
+        contactDetails: { email: null, phoneNumber: null, language: null, linkedInPage: null, website: null },
         address: expect.objectContaining({ city: 'Paris', street: null }),
         observations: null,
       }),

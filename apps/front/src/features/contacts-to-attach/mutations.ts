@@ -52,7 +52,7 @@ async function created({ corporateName, email }: { corporateName: string; email:
     await fetchClient.POST('/api/organizations', {
       body: {
         legalIdentity: { corporateName, form: null, type: null },
-        contactDetails: { email, phoneNumber: null, language: null },
+        contactDetails: { email, phoneNumber: null, language: null, linkedInPage: null, website: null },
         address: null,
         observations: null,
         holdingId: null,

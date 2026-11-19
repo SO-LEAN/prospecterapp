@@ -29,7 +29,14 @@ export function ContactDetailsSection({ organization }: { organization: Organiza
           defaultValues={toContactDetailsValues(contact)}
           fields={contactDetailsFields}
           save={(values) =>
-            change.mutateAsync({ params: { path: { id: organization.id } }, body: toContactDetails(values) })
+            change.mutateAsync({
+              params: { path: { id: organization.id } },
+              body: {
+                ...toContactDetails(values),
+                linkedInPage: contact.linkedInPage ?? null,
+                website: contact.website ?? null,
+              },
+            })
           }
           onDone={close}
         >
