@@ -69,3 +69,21 @@ variable "public_booking_burst_limit" {
   type        = number
   default     = 20
 }
+
+variable "cognito_domain_prefix" {
+  description = "The prefix of the domain of the sign-in page of the user pool (<prefix>.auth.<region>.amazoncognito.com, ADR 0157), unique in the region among every account of AWS: empty, the name of the api, prospecter-<instance>-api"
+  type        = string
+  default     = ""
+}
+
+variable "oauth_rate_limit" {
+  description = "How many requests a second the HTTP API lets through to each route of the facade signing the AIs in and to the MCP server, whatever the address (ADR 0156, 0157): a cap of the route, the limit by address the edge's"
+  type        = number
+  default     = 10
+}
+
+variable "oauth_burst_limit" {
+  description = "How many requests at once the HTTP API lets through to each route of the facade and to the MCP server beyond their rate (ADR 0156, 0157)"
+  type        = number
+  default     = 20
+}

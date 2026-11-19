@@ -27,6 +27,27 @@ resource "aws_apigatewayv2_route" "public_booking_page" {
   target    = "integrations/${aws_apigatewayv2_integration.api.id}"
 }
 
+# The facade signing the AIs in and the MCP server, public too (ADR 0156, 0157): a route each, its rate capped by the
+# stage whatever the address
+locals {
+  oauth_routes = toset([
+    "GET /.well-known/oauth-protected-resource",
+    "GET /.well-known/oauth-protected-resource/mcp",
+    "GET /.well-known/oauth-authorization-server",
+    "GET /oauth/authorize",
+    "GET /oauth/callback",
+    "POST /oauth/token",
+    "ANY /mcp",
+  ])
+}
+
+resource "aws_apigatewayv2_route" "oauth" {
+  for_each  = local.oauth_routes
+  api_id    = aws_apigatewayv2_api.api.id
+  route_key = each.value
+  target    = "integrations/${aws_apigatewayv2_integration.api.id}"
+}
+
 resource "aws_apigatewayv2_stage" "default" {
   api_id      = aws_apigatewayv2_api.api.id
   name        = "$default"
@@ -36,6 +57,15 @@ resource "aws_apigatewayv2_stage" "default" {
     route_key              = aws_apigatewayv2_route.public_booking_page.route_key
     throttling_rate_limit  = var.public_booking_rate_limit
     throttling_burst_limit = var.public_booking_burst_limit
+  }
+
+  dynamic "route_settings" {
+    for_each = aws_apigatewayv2_route.oauth
+    content {
+      route_key              = route_settings.value.route_key
+      throttling_rate_limit  = var.oauth_rate_limit
+      throttling_burst_limit = var.oauth_burst_limit
+    }
   }
 }
 
