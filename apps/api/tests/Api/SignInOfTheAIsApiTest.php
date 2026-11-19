@@ -229,7 +229,7 @@ class SignInOfTheAIsApiTest extends ApiTestCase
     {
         $this->client->request('POST', '/oauth/token', ['grant_type' => 'refresh_token', 'refresh_token' => $refreshToken, 'client_id' => ClientsOfTheAIs::CLAUDE_WEB]);
 
-        return $this->responseData();
+        return $this->answerOfTheTokenEndpoint();
     }
 
     /**
@@ -259,6 +259,18 @@ class SignInOfTheAIsApiTest extends ApiTestCase
             'code_verifier' => self::VERIFIER_OF_THE_AI,
             ...$changes,
         ]);
+
+        return $this->answerOfTheTokenEndpoint();
+    }
+
+    /**
+     * What the token endpoint answers, in JSON whether it grants or refuses (RFC 6749, 5.1 and 5.2).
+     *
+     * @return array<string, mixed>
+     */
+    private function answerOfTheTokenEndpoint(): array
+    {
+        $this->assertResponseHeaderSame('Content-Type', 'application/json');
 
         return $this->responseData();
     }
