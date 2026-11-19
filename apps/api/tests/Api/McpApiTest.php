@@ -4,6 +4,7 @@ namespace Tests\App\Api;
 
 use App\Demo\DemoData;
 use PHPUnit\Framework\Attributes\Group;
+use Prospecter\Core\Accounts\Domain\Model\Role;
 use Tests\App\Base\ApiTestCase;
 
 /**
@@ -43,6 +44,15 @@ class McpApiTest extends ApiTestCase
         $result = $this->callWithoutHandshake('qui-suis-je');
 
         $this->assertFalse($result['structuredContent']['readsPersonalData']);
+    }
+
+    public function testAnAiOfAnAdministratorReadsThePersonalDataAsTheyDo(): void
+    {
+        $this->login($this->aMemberOfTheFixtures('admin-user', Role::User, Role::Admin));
+
+        $result = $this->callWithoutHandshake('qui-suis-je');
+
+        $this->assertTrue($result['structuredContent']['readsPersonalData']);
     }
 
     public function testAClientOfTheHandshakeIsAnsweredTheSameWithoutSession(): void
@@ -109,6 +119,7 @@ class McpApiTest extends ApiTestCase
                 ],
             ],
         ], JSON_THROW_ON_ERROR));
+        $this->assertResponseNotHasHeader('Mcp-Session-Id');
 
         return $this->resultOfTheCall();
     }
