@@ -1605,7 +1605,7 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        /** Consult the booking page a public link leads to, without signing in: its free slots from tomorrow for 14 days and how its host meets the bookers; a link closed, changed, unknown or whose host has no connected calendar shows nothing, without saying why */
+        /** Consult the booking page a public link leads to, without signing in: its free slots from tomorrow for 14 days and how its host meets the bookers; a link closed, changed, unknown, of a code oversized, or whose host has no connected calendar shows nothing, without saying why */
         get: operations["get_api_public_booking_page"];
         put?: never;
         post?: never;
