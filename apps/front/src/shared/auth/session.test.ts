@@ -174,10 +174,18 @@ describe('session', () => {
     expect(fetchAuthSession).toHaveBeenCalledWith({ forceRefresh: true })
   })
 
-  it('signs out everywhere, the tokens revoked and forgotten by the tab', async () => {
+  it('signs out of the app alone, its own refresh token revoked, the AIs of the member still signed in', async () => {
     const session = await theSession()
 
     await session.signOut()
+
+    expect(signOut).toHaveBeenCalledWith({ global: false })
+  })
+
+  it('signs out everywhere, the AIs of the member included', async () => {
+    const session = await theSession()
+
+    await session.signOutEverywhere()
 
     expect(signOut).toHaveBeenCalledWith({ global: true })
   })
