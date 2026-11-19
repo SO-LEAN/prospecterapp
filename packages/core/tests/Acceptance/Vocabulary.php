@@ -127,7 +127,7 @@ final class Vocabulary
     ];
 
     private const array LABELS = [
-        'raison sociale', 'forme juridique', 'type', 'SIRET', 'e-mail', 'téléphone', 'langue', 'LinkedIn',
+        'raison sociale', 'forme juridique', 'type', 'SIRET', 'e-mail', 'téléphone', 'langue', 'LinkedIn', 'page LinkedIn', 'site web',
         'rue', 'code postal', 'ville', 'pays', 'observations', 'holding', 'prénom', 'nom', 'fonction', 'rôles', 'Civilité',
     ];
 
@@ -244,6 +244,9 @@ final class Vocabulary
             'e-mail' => (string) $contact->email,
             'téléphone' => (string) $contact->phoneNumber?->international(),
             'langue' => (string) $contact->language,
+            'page LinkedIn' => (string) StateOf::the($organization)['linkedInPage'],
+            'site web' => (string) StateOf::the($organization)['website'],
+            'domaine du site' => (string) StateOf::the($organization)['website']?->domain(),
             'rue' => (string) $address?->street,
             'code postal' => (string) $address?->postalCode,
             'ville' => (string) $address?->city,

@@ -4,8 +4,12 @@ declare(strict_types=1);
 
 namespace Prospecter\Core\Prospecting\Application\ChangeContactDetails;
 
+use Prospecter\Core\Prospecting\Domain\Model\LinkedInPage;
+use Prospecter\Core\Prospecting\Domain\Model\Website;
 use Prospecter\Core\Prospecting\Domain\Repository\OrganizationRepository;
 use Prospecter\Core\Prospecting\Domain\Service\EmailUniqueness;
+use Prospecter\Core\Prospecting\Domain\Service\LinkedInPageUniqueness;
+use Prospecter\Core\Prospecting\Domain\Service\WebsiteUniqueness;
 use Prospecter\Core\SharedKernel\Application\CommandHandler;
 use Prospecter\Core\SharedKernel\Application\Port\Events;
 use Prospecter\Core\SharedKernel\Application\PublishesEvents;
@@ -23,6 +27,8 @@ final readonly class ChangeContactDetailsHandler implements CommandHandler
         private OrganizationRepository $organizations,
         private Events $events,
         private EmailUniqueness $emails,
+        private LinkedInPageUniqueness $linkedInPages,
+        private WebsiteUniqueness $websites,
     ) {
     }
 
@@ -30,8 +36,10 @@ final readonly class ChangeContactDetailsHandler implements CommandHandler
     {
         $author = new MemberId($command->prospectorId);
         $organization = $this->organizations->get(new OrganizationId($command->id));
-        $organization->changeContactDetails(new ContactDetails(Email::orNone($command->email), PhoneNumber::orNone($command->phoneNumber), $command->language), by: $author, at: $command->executedAt);
+        $organization->changeContactDetails(new ContactDetails(Email::orNone($command->email), PhoneNumber::orNone($command->phoneNumber), $command->language), LinkedInPage::orNone($command->linkedInPage), Website::orNone($command->website), by: $author, at: $command->executedAt);
         $this->emails->ensureAvailableFor($organization);
+        $this->linkedInPages->ensureAvailableFor($organization);
+        $this->websites->ensureAvailableFor($organization);
         $this->organizations->save($organization);
         $this->publishWhatHappenedTo($organization);
     }

@@ -2,9 +2,12 @@
 
 namespace Tests\App\Prospecting;
 
+use Prospecter\Core\Prospecting\Domain\Exception\LinkedInPageAlreadyUsed;
 use Prospecter\Core\Prospecting\Domain\Exception\SiretAlreadyUsed;
+use Prospecter\Core\Prospecting\Domain\Model\LinkedInPage;
 use Prospecter\Core\Prospecting\Domain\Model\Organization;
 use Prospecter\Core\Prospecting\Domain\Model\Prospector;
+use Prospecter\Core\Prospecting\Domain\Model\Website;
 use Prospecter\Core\Prospecting\Domain\Repository\OrganizationRepository;
 use Prospecter\Core\Prospecting\Domain\Service\OrphanContacts;
 use Prospecter\Core\SharedKernel\Domain\AccountId;
@@ -27,6 +30,8 @@ class DynamoOrganizationRepositoryTest extends ApiTestCase
 {
     private const string A_SIRET = '55210055400013';
     private const string ANOTHER_SIRET = '55210055400021';
+    private const string A_PAGE = 'https://www.linkedin.com/company/acme-corp';
+    private const string A_SITE = 'https://www.acme.fr';
 
     public function testTheReservationRefusesAnEmailTakenMeanwhile(): void
     {
@@ -56,7 +61,7 @@ class DynamoOrganizationRepositoryTest extends ApiTestCase
         $acme = $this->organizationWithTheEmail($prospector, 'contact@acme.test');
         $organizations->save($acme);
 
-        $acme->changeContactDetails(new ContactDetails(new Email('hello@acme.test')), by: $prospector->id, at: new \DateTimeImmutable(self::THE_MOMENT_OF_THE_TESTS));
+        $acme->changeContactDetails(new ContactDetails(new Email('hello@acme.test')), null, null, by: $prospector->id, at: new \DateTimeImmutable(self::THE_MOMENT_OF_THE_TESTS));
         $organizations->save($acme);
 
         $this->assertFalse($organizations->isEmailUsed($prospector->accountId, new Email('contact@acme.test'), except: new OrganizationId(self::newIdentity())));
@@ -170,6 +175,82 @@ class DynamoOrganizationRepositoryTest extends ApiTestCase
         $this->assertEquals($acme, $organizations->get($acme->id()));
     }
 
+    public function testTheOrganizationHoldingALinkedInPageIsFoundByIt(): void
+    {
+        $organizations = self::getContainer()->get(OrganizationRepository::class);
+        $prospector = new Prospector(new MemberId(self::newIdentity()), new AccountId(self::newIdentity()));
+        $acme = $this->organizationOnTheWeb($prospector, self::A_PAGE, null);
+        $organizations->save($acme);
+
+        $this->assertEquals($acme->id(), $organizations->withLinkedInPage($prospector->accountId, new LinkedInPage(self::A_PAGE), except: new OrganizationId(self::newIdentity()))?->id());
+    }
+
+    public function testTheReservationRefusesALinkedInPageTakenMeanwhile(): void
+    {
+        $organizations = self::getContainer()->get(OrganizationRepository::class);
+        $prospector = new Prospector(new MemberId(self::newIdentity()), new AccountId(self::newIdentity()));
+        $organizations->save($this->organizationOnTheWeb($prospector, self::A_PAGE, null));
+
+        $this->expectException(LinkedInPageAlreadyUsed::class);
+
+        $organizations->save($this->organizationOnTheWeb($prospector, self::A_PAGE, null));
+    }
+
+    public function testAnOrganizationNoLongerProspectedFreesItsLinkedInPage(): void
+    {
+        $organizations = self::getContainer()->get(OrganizationRepository::class);
+        $acme = $this->organizationOnTheWeb(new Prospector(new MemberId(self::newIdentity()), new AccountId(self::newIdentity())), self::A_PAGE, null);
+        $organizations->save($acme);
+
+        $organizations->remove($acme);
+
+        $this->assertNull($organizations->withLinkedInPage($acme->accountId(), new LinkedInPage(self::A_PAGE), except: new OrganizationId(self::newIdentity())));
+    }
+
+    public function testTheOrganizationHoldingAWebsiteIsFoundByAnotherAddressOfItsDomain(): void
+    {
+        $organizations = self::getContainer()->get(OrganizationRepository::class);
+        $prospector = new Prospector(new MemberId(self::newIdentity()), new AccountId(self::newIdentity()));
+        $acme = $this->organizationOnTheWeb($prospector, null, self::A_SITE);
+        $organizations->save($acme);
+
+        $this->assertEquals($acme->id(), $organizations->withWebsiteOfDomain($prospector->accountId, new Website('https://acme.fr/blog'), except: new OrganizationId(self::newIdentity()))?->id());
+    }
+
+    public function testANewWebsiteFreesTheDomainOfTheFormerOne(): void
+    {
+        $organizations = self::getContainer()->get(OrganizationRepository::class);
+        $prospector = new Prospector(new MemberId(self::newIdentity()), new AccountId(self::newIdentity()));
+        $acme = $this->organizationOnTheWeb($prospector, null, self::A_SITE);
+        $organizations->save($acme);
+
+        $acme->changeContactDetails(new ContactDetails(), null, new Website('https://acme.com'), by: $prospector->id, at: new \DateTimeImmutable(self::THE_MOMENT_OF_THE_TESTS));
+        $organizations->save($acme);
+
+        $this->assertNull($organizations->withWebsiteOfDomain($prospector->accountId, new Website(self::A_SITE), except: new OrganizationId(self::newIdentity())));
+    }
+
+    public function testAnOrganizationNoLongerProspectedFreesTheDomainOfItsWebsite(): void
+    {
+        $organizations = self::getContainer()->get(OrganizationRepository::class);
+        $acme = $this->organizationOnTheWeb(new Prospector(new MemberId(self::newIdentity()), new AccountId(self::newIdentity())), null, self::A_SITE);
+        $organizations->save($acme);
+
+        $organizations->remove($acme);
+
+        $this->assertNull($organizations->withWebsiteOfDomain($acme->accountId(), new Website(self::A_SITE), except: new OrganizationId(self::newIdentity())));
+    }
+
+    public function testAnOrganizationIsReadBackWithItsLinkedInPageAndItsWebsite(): void
+    {
+        $organizations = self::getContainer()->get(OrganizationRepository::class);
+        $acme = $this->organizationOnTheWeb(new Prospector(new MemberId(self::newIdentity()), new AccountId(self::newIdentity())), self::A_PAGE, self::A_SITE);
+        $acme->releaseEvents();
+        $organizations->save($acme);
+
+        $this->assertEquals($acme, $organizations->get($acme->id()));
+    }
+
     public function testTheOrganizationsThatExistAmongIdsAreReadInOneBatch(): void
     {
         $organizations = self::getContainer()->get(OrganizationRepository::class);
@@ -179,6 +260,14 @@ class DynamoOrganizationRepositoryTest extends ApiTestCase
         $found = $organizations->ofIds([$acme->id(), new OrganizationId(self::newIdentity())]);
 
         $this->assertEquals([$acme->id()], array_map(static fn (Organization $organization): OrganizationId => $organization->id(), $found));
+    }
+
+    private function organizationOnTheWeb(Prospector $prospector, ?string $page, ?string $site): Organization
+    {
+        $organization = Organization::prospectedBy($prospector, new OrganizationId(self::newIdentity()), new LegalIdentity('ACME'), new ContactDetails(), new \DateTimeImmutable(self::THE_MOMENT_OF_THE_TESTS));
+        $organization->changeContactDetails(new ContactDetails(), LinkedInPage::orNone($page), Website::orNone($site), by: $prospector->id, at: new \DateTimeImmutable(self::THE_MOMENT_OF_THE_TESTS));
+
+        return $organization;
     }
 
     private function organizationWithTheSiret(Prospector $prospector, string $siret): Organization

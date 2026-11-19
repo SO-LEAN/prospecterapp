@@ -4,9 +4,13 @@ declare(strict_types=1);
 
 namespace Prospecter\Core\Prospecting\Domain\Repository;
 
+use Prospecter\Core\Prospecting\Domain\Exception\LinkedInPageAlreadyUsed;
 use Prospecter\Core\Prospecting\Domain\Exception\SiretAlreadyUsed;
 use Prospecter\Core\Prospecting\Domain\Exception\UnknownOrganization;
+use Prospecter\Core\Prospecting\Domain\Exception\WebsiteAlreadyUsed;
+use Prospecter\Core\Prospecting\Domain\Model\LinkedInPage;
 use Prospecter\Core\Prospecting\Domain\Model\Organization;
+use Prospecter\Core\Prospecting\Domain\Model\Website;
 use Prospecter\Core\SharedKernel\Domain\AccountId;
 use Prospecter\Core\SharedKernel\Domain\Email;
 use Prospecter\Core\SharedKernel\Domain\Exception\EmailAlreadyUsed;
@@ -41,8 +45,20 @@ interface OrganizationRepository
     public function withSiret(AccountId $accountId, Siret $siret, OrganizationId $except): ?Organization;
 
     /**
-     * @throws EmailAlreadyUsed when another organization took the email meanwhile (EmailUniqueness checked it before)
-     * @throws SiretAlreadyUsed when another organization took the SIRET meanwhile (SiretUniqueness checked it before)
+     * The other organization of the prospecting base of the account having this LinkedIn page, if any.
+     */
+    public function withLinkedInPage(AccountId $accountId, LinkedInPage $page, OrganizationId $except): ?Organization;
+
+    /**
+     * The other organization of the prospecting base of the account whose website has the domain of this one, if any.
+     */
+    public function withWebsiteOfDomain(AccountId $accountId, Website $website, OrganizationId $except): ?Organization;
+
+    /**
+     * @throws EmailAlreadyUsed        when another organization took the email meanwhile (EmailUniqueness checked it before)
+     * @throws SiretAlreadyUsed        when another organization took the SIRET meanwhile (SiretUniqueness checked it before)
+     * @throws LinkedInPageAlreadyUsed when another organization took the LinkedIn page meanwhile (LinkedInPageUniqueness checked it before)
+     * @throws WebsiteAlreadyUsed      when another organization took the domain meanwhile (WebsiteUniqueness checked it before)
      */
     public function save(Organization $organization): void;
 

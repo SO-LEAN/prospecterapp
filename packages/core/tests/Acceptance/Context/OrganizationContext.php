@@ -27,7 +27,9 @@ use Prospecter\Core\Prospecting\Application\SearchProspectedOrganizations\Search
 use Prospecter\Core\Prospecting\Application\StartProspecting\StartProspecting;
 use Prospecter\Core\Prospecting\Application\StopProspecting\StopProspecting;
 use Prospecter\Core\Prospecting\Application\WriteObservations\WriteObservations;
+use Prospecter\Core\Prospecting\Domain\Model\LinkedInPage;
 use Prospecter\Core\Prospecting\Domain\Model\Organization;
+use Prospecter\Core\Prospecting\Domain\Model\Website;
 use Prospecter\Core\SharedKernel\Domain\Address;
 use Prospecter\Core\SharedKernel\Domain\ContactDetails;
 use Prospecter\Core\SharedKernel\Domain\Email;
@@ -168,7 +170,7 @@ final class OrganizationContext implements Context
     {
         $values = Vocabulary::values($table->getRowsHash());
         $this->application->dispatch($this->scenario->isAnOrganization($name)
-            ? new ChangeContactDetails($this->me(), $this->scenario->idOf($name), $values['e-mail'], $values['téléphone'], $values['langue'], $this->application->now())
+            ? new ChangeContactDetails($this->me(), $this->scenario->idOf($name), $values['e-mail'], $values['téléphone'], $values['langue'], $this->application->now(), $values['page LinkedIn'], $values['site web'])
             : new ChangePersonContactDetails($this->me(), $this->scenario->personIdOf($name), $values['e-mail'], $values['téléphone'], $values['langue'], $values['LinkedIn'], $this->application->now()));
     }
 
@@ -396,7 +398,7 @@ final class OrganizationContext implements Context
         $values = Vocabulary::values(array_diff_key($details, ['logo' => true]));
         $manager = $this->scenario->managerOf($organization);
         $organization->reviseLegalIdentity(new LegalIdentity(StateOf::the($organization)['legalIdentity']->corporateName, $values['forme juridique'], siret: Siret::orNone($values['SIRET'])), by: $manager, at: $this->application->now());
-        $organization->changeContactDetails(Vocabulary::contactDetails($values), by: $manager, at: $this->application->now());
+        $organization->changeContactDetails(Vocabulary::contactDetails($values), LinkedInPage::orNone($values['page LinkedIn']), Website::orNone($values['site web']), by: $manager, at: $this->application->now());
         $address = Vocabulary::address($values);
         $organization->relocateTo($address, null === $address ? null : $this->application->geoLocation->find((string) $address), by: $manager, at: $this->application->now());
 
