@@ -1,7 +1,8 @@
 # The API (apps/api) in its Lambda behind its HTTP API on MiniStack (ADR 0055), addressed by path: the host of the
 # request is kept for the routes of the API, the gateway telling the API it was https. And the Cognito of
-# MiniStack for the SPA (ADR 0052): the SPA, served in https, signs in there through this host. MiniStack serves
-# every AWS service on one port: only the calls of Cognito pass.
+# MiniStack for the SPA (ADR 0052): the SPA, served in https, signs in there through this host, and the members of
+# the AIs on its sign-in page (ADR 0157). MiniStack serves every AWS service on one port: only the calls and the
+# sign-in page of Cognito pass.
 map "$request_method $http_x_amz_target" $cognito_call {
     default 0;
     "~^OPTIONS " 1;
@@ -24,6 +25,18 @@ server {
         }
         rewrite ^/cognito/(.*)$ /$1 break;
         proxy_pass http://$ministack;
+    }
+
+    # the sign-in page of the Cognito of MiniStack, where the facade of the API sends the member of an AI (ADR 0157),
+    # and the form it posts to /login of the host serving it
+    location = /cognito/oauth2/authorize {
+        limit_except GET { deny all; }
+        proxy_pass http://$ministack/oauth2/authorize$is_args$args;
+    }
+
+    location = /login {
+        limit_except POST { deny all; }
+        proxy_pass http://$ministack/login;
     }
 
     # the authorization page of the double of Google (conf.d/google-double.conf, ADR 0120): the member grants at

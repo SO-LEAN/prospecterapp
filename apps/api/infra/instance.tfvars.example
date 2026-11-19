@@ -13,3 +13,9 @@ permissions_boundary = "arn:aws:iam::123456789012:policy/my-boundary"
 # the requests a second and at once the HTTP API lets through to the public booking pages; 10 and 20 when absent
 # public_booking_rate_limit  = 10
 # public_booking_burst_limit = 20
+# the prefix of the domain of the sign-in page of the AIs, unique in the region; prospecter-<instance>-api when absent
+# cognito_domain_prefix = "prospecter-dev-api"
+# the requests a second and at once the HTTP API lets through to each route of the facade signing the AIs in and to the
+# MCP server; 10 and 20 when absent
+# oauth_rate_limit  = 10
+# oauth_burst_limit = 20

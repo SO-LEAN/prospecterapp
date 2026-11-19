@@ -56,6 +56,8 @@ locals {
       Action = [
         "cognito-idp:AdminCreateUser", "cognito-idp:AdminGetUser", "cognito-idp:AdminSetUserPassword",
         "cognito-idp:AdminUpdateUserAttributes", "cognito-idp:ListUserPoolClients", "cognito-idp:ListUsers",
+        # the secret of the client of the AIs, for the facade signing them in (ADR 0157)
+        "cognito-idp:DescribeUserPoolClient",
       ]
       Resource = aws_cognito_user_pool.members.arn
     },
@@ -134,20 +136,25 @@ resource "aws_lambda_function" "api" {
 # reactions are put in service (the worker is deployed, the rules invoke it, nothing is published on the bus yet)
 locals {
   environment = {
-    APP_ENV                     = "prod"
-    APP_SECRET                  = "bref-ssm:${aws_ssm_parameter.app_secret.name}"
-    APP_SHARE_DIR               = "/tmp/share"
-    APP_API_HOST                = local.api_host
-    DEFAULT_URI                 = "https://${local.api_host}"
-    TRUSTED_PROXIES             = "REMOTE_ADDR"
-    ORIGIN_SECRET               = local.has_origin_secret ? "bref-ssm:${local.origin_secret_parameter}" : ""
-    CORS_ALLOW_ORIGIN           = local.cors_allow_origin
-    DYNAMODB_ENDPOINT           = ""
-    DYNAMODB_TABLE_PREFIX       = local.name
-    COGNITO_ENDPOINT            = ""
-    COGNITO_USER_POOL_NAME      = aws_cognito_user_pool.members.name
-    COGNITO_KEYS_URL            = "https://cognito-idp.${var.region}.amazonaws.com/%s/.well-known/jwks.json"
-    COGNITO_PUBLIC_ENDPOINT     = ""
+    APP_ENV                 = "prod"
+    APP_SECRET              = "bref-ssm:${aws_ssm_parameter.app_secret.name}"
+    APP_SHARE_DIR           = "/tmp/share"
+    APP_API_HOST            = local.api_host
+    DEFAULT_URI             = "https://${local.api_host}"
+    TRUSTED_PROXIES         = "REMOTE_ADDR"
+    ORIGIN_SECRET           = local.has_origin_secret ? "bref-ssm:${local.origin_secret_parameter}" : ""
+    CORS_ALLOW_ORIGIN       = local.cors_allow_origin
+    DYNAMODB_ENDPOINT       = ""
+    DYNAMODB_TABLE_PREFIX   = local.name
+    COGNITO_ENDPOINT        = ""
+    COGNITO_USER_POOL_NAME  = aws_cognito_user_pool.members.name
+    COGNITO_KEYS_URL        = "https://cognito-idp.${var.region}.amazonaws.com/%s/.well-known/jwks.json"
+    COGNITO_PUBLIC_ENDPOINT = ""
+    # the facade signing the AIs in (ADR 0157): the sign-in page and the token endpoint of the domain of the pool, and
+    # the key of its seals
+    COGNITO_SIGN_IN_URL         = local.cognito_domain_url
+    COGNITO_OAUTH_URL           = local.cognito_domain_url
+    OAUTH_SEAL_KEY              = "bref-ssm:${aws_ssm_parameter.oauth_seal_key.name}"
     STORAGE_PUBLIC_URL          = local.storage_public_url
     STORAGE_INTERNAL_URL        = nonsensitive(lookup(local.storage_parameters, "internal-url", ""))
     STORAGE_TOKEN               = "bref-ssm:${local.storage_ssm_path}/token"
