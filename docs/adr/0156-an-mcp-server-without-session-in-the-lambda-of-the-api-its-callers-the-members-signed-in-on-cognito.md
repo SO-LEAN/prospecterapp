@@ -2,8 +2,8 @@
 
 - Date: 2026-11-18
 - Type: architecture
-- Status: Proposed
-- Implemented by: to come, the tickets after the spike #202 (its proof, the branch `spike/202-mcp-proof`, never merged)
+- Status: Accepted
+- Implemented by: `apps/api/config/packages/mcp.yaml`, `apps/api/config/packages/security.yaml` (firewall `mcp`), `apps/api/src/Security/McpAuthenticationEntryPoint.php`, `apps/api/src/SignIn/OAuth/ProtectedResource.php`, `apps/api/src/SignIn/Controller/ShowProtectedResourceController.php`, `apps/api/src/Me/Mcp/WhoAmITool.php`, `apps/api/tests/Api/McpApiTest.php` (the proof of the spike #202 on the branch `spike/202-mcp-proof`, never merged; the route of `/mcp` throttled with those of the facade, ADR 0157)
 
 ## Context
 Prospecter wants to be reached by AIs (Claude web first, Claude Code, any client of the Model Context Protocol). The API runs in a Lambda (ADR 0053, 0063): no process lives between two requests, two requests may reach two instances, and nothing in the stack keeps a session. The protocol had a handshake (`initialize`) and a session (`Mcp-Session-Id`) until its revision `2026-07-28`, which removed both; the clients still speak either. The maintainer decided that an AI acts as the member it signed in, with exactly their rights: no access of an AI in the domain, no scope of its own.
