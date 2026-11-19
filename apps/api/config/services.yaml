@@ -337,6 +337,13 @@ services:
         factory: [Symfony\Component\HttpClient\HttpClient, create]
     App\SignIn\SigningKeys:
         arguments: { $httpClient: '@app.signing_keys_client' }
+    # the facade signing the AIs in (ADR 0157): the metadata documents of their clients, at an address anyone may give,
+    # never read on a private network
+    app.client_metadata_http:
+        class: Symfony\Component\HttpClient\NoPrivateNetworkHttpClient
+        arguments: ['@http_client']
+    App\SignIn\OAuth\ClientMetadataDocuments:
+        arguments: { $http: '@app.client_metadata_http' }
     # the time the access tokens are checked at: the real one (the controllers use the clock of the tests)
     app.token_clock:
         class: Symfony\Component\Clock\NativeClock
@@ -345,8 +352,14 @@ when@test:
     services:
         # no network in tests: the services outside the API answer by this double (config/packages/framework.yaml)
         Tests\App\Double\OutsideServices:
-            arguments: ['%env(APP_GEOCODER_URL)%', '%env(APP_DIRECTORY_URL)%', '@Tests\App\Double\GoogleDouble']
+            arguments: ['%env(APP_GEOCODER_URL)%', '%env(APP_DIRECTORY_URL)%', '@Tests\App\Double\GoogleDouble', '@Tests\App\Double\ClientsOfTheAIs']
             public: true
+        # the metadata documents of the AIs, their hosts resolved by the double, the private networks still refused
+        Tests\App\Double\ClientsOfTheAIs: ~
+        app.client_metadata_http.resolved_by_the_double:
+            class: Symfony\Component\HttpClient\DnsResolvingHttpClient
+            decorates: app.client_metadata_http
+            arguments: ['@.inner', '@Tests\App\Double\ClientsOfTheAIs']
         # Google, its tokens and its revocations, by its double behind OutsideServices
         Tests\App\Double\GoogleDouble:
             arguments: ['%env(GOOGLE_TOKEN_URL)%', '%env(GOOGLE_REVOKE_URL)%', '%env(GOOGLE_CALENDAR_URL)%', '%env(GOOGLE_GMAIL_URL)%', '%env(GOOGLE_CERTS_URL)%']
