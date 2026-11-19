@@ -32,6 +32,16 @@ Fonctionnalité: Consulter une organisation
       | raison sociale | ACME           |
       | SIRET          | 55210055400013 |
 
+  Scénario: Je vois la page LinkedIn et le site web d'une organisation
+    Soit l'organisation "ACME" fait partie de mes organisations avec :
+      | page LinkedIn | https://www.linkedin.com/company/acme-corp |
+      | site web      | https://www.acme.fr                        |
+    Quand je consulte l'organisation "ACME"
+    Alors je vois l'organisation :
+      | raison sociale | ACME                                       |
+      | page LinkedIn  | https://www.linkedin.com/company/acme-corp |
+      | site web       | https://www.acme.fr                        |
+
   Scénario: Mon organisation n'est pas une organisation que je prospecte
     Quand je consulte l'organisation "SOLEAN IT"
     Alors c'est introuvable

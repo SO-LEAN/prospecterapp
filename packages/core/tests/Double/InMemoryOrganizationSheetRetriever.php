@@ -59,6 +59,8 @@ final readonly class InMemoryOrganizationSheetRetriever implements OrganizationS
             email: $contact->email?->value,
             phoneNumber: $contact->phoneNumber?->international(),
             language: $contact->language,
+            linkedInPage: $state['linkedInPage']?->value,
+            website: $state['website']?->value,
             street: $address?->street,
             postalCode: $address?->postalCode,
             city: $address?->city,

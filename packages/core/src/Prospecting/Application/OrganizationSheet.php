@@ -27,6 +27,8 @@ final readonly class OrganizationSheet
         public ?string $email,
         public ?string $phoneNumber,
         public ?string $language,
+        public ?string $linkedInPage,
+        public ?string $website,
         public ?string $street,
         public ?string $postalCode,
         public ?string $city,
