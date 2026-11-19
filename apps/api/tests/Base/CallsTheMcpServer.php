@@ -46,6 +46,8 @@ trait CallsTheMcpServer
      */
     protected function resultOfTheCall(): array
     {
+        $this->assertResponseIsSuccessful();
+
         return $this->responseData()['result'] ?? throw new \LogicException((string) $this->client->getResponse()->getContent());
     }
 }
