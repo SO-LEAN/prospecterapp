@@ -109,9 +109,20 @@ final class MailImportContext implements Context
         $this->googleBringsMeBackWith(Scope::Calendar, Scope::Mailbox);
     }
 
+    #[When('Google me ramène avec l\'accès à Gmail accordé par le compte :account')]
+    public function googleBringsMeBackWithGmailOf(string $account): void
+    {
+        $this->googleBringsMeBackFrom($account, Scope::Calendar, Scope::Mailbox);
+    }
+
     private function googleBringsMeBackWith(Scope ...$granted): void
     {
-        $code = $this->application->providerAccess->grant(self::MY_MAILBOX, ...$granted);
+        $this->googleBringsMeBackFrom(self::MY_MAILBOX, ...$granted);
+    }
+
+    private function googleBringsMeBackFrom(string $account, Scope ...$granted): void
+    {
+        $code = $this->application->providerAccess->grant($account, ...$granted);
         $this->application->dispatch(new Connect($this->application->signedIn(), $this->pendingState ?? throw new \LogicException('No authorization was asked'), $code, $this->application->now()));
     }
 
