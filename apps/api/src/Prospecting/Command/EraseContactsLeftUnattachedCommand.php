@@ -9,7 +9,7 @@ use Symfony\Component\Console\Style\SymfonyStyle;
 
 /**
  * Erases the contacts nobody attached in the 30 days after their last meeting (ADR 0146): by hand on the local stack,
- * whose MiniStack runs no schedule, or on an instance whose schedule missed some (ADR 0147).
+ * whose MiniStack runs no schedule, or on an instance whose daily schedule missed a day (ADR 0147, 0161).
  */
 #[AsCommand(name: 'app:contacts:erase-unattached', description: 'Erase the contacts to attach nobody attached in the 30 days after their last meeting')]
 final readonly class EraseContactsLeftUnattachedCommand
