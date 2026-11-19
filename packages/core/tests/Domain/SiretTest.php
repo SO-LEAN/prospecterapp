@@ -16,6 +16,32 @@ class SiretTest extends TestCase
         $this->assertSame('55210055400013', new Siret('552 100 554 00013')->value);
     }
 
+    #[DataProvider('establishments')]
+    public function testTheSiretOfAnEstablishmentIsAccepted(string $siret): void
+    {
+        $this->assertSame($siret, new Siret($siret)->value);
+    }
+
+    /**
+     * @return iterable<string, array{string}>
+     */
+    public static function establishments(): iterable
+    {
+        yield 'two of its digits doubled above 9' => ['55210055400013'];
+        yield 'three of its digits doubled above 9' => ['30613890002664'];
+        yield 'one of its digits doubled above 9' => ['44264635200082'];
+    }
+
+    public function testARefusedSiretNamesWhatWasTyped(): void
+    {
+        try {
+            new Siret('552 100 554 00014');
+            $this->fail('The SIRET was expected refused');
+        } catch (InvalidSiret $refusal) {
+            $this->assertSame(['siret' => '552 100 554 00014'], $refusal->context);
+        }
+    }
+
     public function testASiretWhoseKeyIsWrongIsRefused(): void
     {
         $this->expectException(InvalidSiret::class);
@@ -50,6 +76,7 @@ class SiretTest extends TestCase
     {
         yield 'a SIREN, nine digits' => ['552100554'];
         yield 'fifteen digits' => ['552100554000130'];
+        yield 'fifteen digits, a valid key with the zero before them' => ['055210055400013'];
         yield 'letters' => ['ABCDEFGHIJKLMN'];
         yield 'nothing' => ['   '];
     }
