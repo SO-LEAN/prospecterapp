@@ -7454,7 +7454,7 @@
                 "tags": [
                     "Booking"
                 ],
-                "summary": "Consult the booking page a public link leads to, without signing in: its free slots from tomorrow for 14 days and how its host meets the bookers; a link closed, changed, unknown or whose host has no connected calendar shows nothing, without saying why",
+                "summary": "Consult the booking page a public link leads to, without signing in: its free slots from tomorrow for 14 days and how its host meets the bookers; a link closed, changed, unknown, of a code oversized, or whose host has no connected calendar shows nothing, without saying why",
                 "operationId": "get_api_public_booking_page",
                 "parameters": [
                     {

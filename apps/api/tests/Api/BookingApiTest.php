@@ -21,6 +21,11 @@ class BookingApiTest extends ApiTestCase
     private const int OPENINGS_OF_A_LINK_A_MINUTE = 30;
     private const string A_CODE = 'AbCdEfGhIjKlMnOpQrStUv';
     private const string ANOTHER_CODE = 'ZyXwVuTsRqPoNmLkJiHgFe';
+    /**
+     * Beyond the 2 KB a key of the table holds: the table, asked, would refuse it.
+     */
+    private const int LENGTH_OF_AN_OVERSIZED_CODE = 3000;
+    private const int LONGEST_CODE = 64;
     private const array NOTHING_SHOWN = ['open' => false, 'host' => null, 'channels' => [], 'timeZone' => null, 'days' => []];
 
     protected function setUp(): void
@@ -295,6 +300,39 @@ class BookingApiTest extends ApiTestCase
 
         $this->assertResponseIsSuccessful();
         $this->assertSame(self::NOTHING_SHOWN, $page);
+    }
+
+    public function testALinkWhoseCodeIsOversizedShowsNothingAsAClosedOne(): void
+    {
+        $page = $this->requestJson('GET', '/api/booking-pages/'.str_repeat('A', self::LENGTH_OF_AN_OVERSIZED_CODE));
+
+        $this->assertResponseIsSuccessful();
+        $this->assertSame(self::NOTHING_SHOWN, $page);
+    }
+
+    public function testALinkWhoseCodeIsOversizedIsNeverCounted(): void
+    {
+        $justOversized = str_repeat('A', self::LONGEST_CODE + 1);
+        foreach (range(1, self::OPENINGS_OF_A_LINK_A_MINUTE) as $opening) {
+            $this->requestJson('GET', '/api/booking-pages/'.$justOversized);
+        }
+
+        $page = $this->requestJson('GET', '/api/booking-pages/'.$justOversized);
+
+        $this->assertResponseIsSuccessful();
+        $this->assertSame(self::NOTHING_SHOWN, $page);
+    }
+
+    public function testALinkWhoseCodeIsTheLongestIsCounted(): void
+    {
+        $theLongest = str_repeat('A', self::LONGEST_CODE);
+        foreach (range(1, self::OPENINGS_OF_A_LINK_A_MINUTE) as $opening) {
+            $this->requestJson('GET', '/api/booking-pages/'.$theLongest);
+        }
+
+        $this->requestJson('GET', '/api/booking-pages/'.$theLongest);
+
+        $this->assertResponseStatusCodeSame(429);
     }
 
     public function testMyOpenPageIsSuspendedOnceGoogleIsDisconnected(): void
