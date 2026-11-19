@@ -1191,7 +1191,7 @@ final class Application
     {
         return [
             new EraseContactLeftUnattachedHandler($this->contactsToAttach, $this->events),
-            new StartProspectingHandler($this->organizations, $this->prospectors, $this->events, $this->geoLocalizer, $this->organizationEmails),
+            new StartProspectingHandler($this->organizations, $this->prospectors, $this->events, $this->geoLocalizer, $this->organizationEmails, $this->organizationLinkedInPages, $this->organizationWebsites),
             new ReviseLegalIdentityHandler($this->organizations, $this->events, $this->organizationSirets),
             new ChangeContactDetailsHandler($this->organizations, $this->events, $this->organizationEmails, $this->organizationLinkedInPages, $this->organizationWebsites),
             new RelocateHandler($this->organizations, $this->events, $this->geoLocalizer),

@@ -25,6 +25,8 @@ final readonly class StartProspecting
         public ?string $observations,
         public ?string $holdingId,
         public \DateTimeImmutable $executedAt,
+        public ?string $linkedInPage = null,
+        public ?string $website = null,
     ) {
     }
 }

@@ -146,6 +146,8 @@ final class OrganizationContext implements Context
             observations: $values['observations'],
             holdingId: null === $values['holding'] ? null : $this->scenario->idOf($values['holding']),
             executedAt: $this->application->now(),
+            linkedInPage: $values['page LinkedIn'],
+            website: $values['site web'],
         ));
         $this->rememberIfAccepted($values['raison sociale'], $id);
     }
