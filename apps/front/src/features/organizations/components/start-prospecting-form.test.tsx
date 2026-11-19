@@ -26,6 +26,24 @@ describe('StartProspectingForm', () => {
     )
   })
 
+  it('sends the LinkedIn page and the website typed', async () => {
+    const { onSubmit, user } = renderForm()
+
+    await user.type(screen.getByLabelText('Raison sociale'), 'ACME')
+    await user.type(screen.getByLabelText(/^Page LinkedIn/), 'linkedin.com/company/acme-corp')
+    await user.type(screen.getByLabelText(/^Site web/), 'acme.fr')
+    await user.click(screen.getByRole('button', { name: 'Commencer à prospecter' }))
+
+    expect(onSubmit).toHaveBeenCalledWith(
+      expect.objectContaining({
+        contactDetails: expect.objectContaining({
+          linkedInPage: 'linkedin.com/company/acme-corp',
+          website: 'acme.fr',
+        }),
+      }),
+    )
+  })
+
   it('explains the business rule before sending', async () => {
     const { onSubmit, user } = renderForm()
 

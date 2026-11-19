@@ -1,11 +1,6 @@
 import { z } from 'zod'
 import { addressSchema, toAddress, toAddressValues } from '@/shared/forms/address'
 import {
-  contactDetailsSchema,
-  toContactDetails,
-  toContactDetailsValues,
-} from '@/shared/forms/contact-details'
-import {
   legalIdentityFields,
   legalIdentitySchema,
   toLegalIdentity,
@@ -13,13 +8,18 @@ import {
 } from '@/shared/forms/legal-identity'
 import { orNull, text } from '@/shared/forms/text'
 import { i18n } from '@/shared/i18n'
+import {
+  organizationContactDetailsSchema,
+  toOrganizationContactDetails,
+  toOrganizationContactDetailsValues,
+} from './organization-contact-details'
 import type { Organization, ReviseLegalIdentityInput, StartProspectingInput } from './queries'
 
 /** What is known when prospecting starts; the same rule as the API: a corporate name or an email. */
 export const startProspectingSchema = z
   .object({
     legalIdentity: legalIdentitySchema,
-    contactDetails: contactDetailsSchema,
+    contactDetails: organizationContactDetailsSchema,
     address: addressSchema,
     observations: text(255),
   })
@@ -38,6 +38,8 @@ export const startProspectingFields = [
   'contactDetails.email',
   'contactDetails.phoneNumber',
   'contactDetails.language',
+  'contactDetails.linkedInPage',
+  'contactDetails.website',
   'address.street',
   'address.postalCode',
   'address.city',
@@ -49,14 +51,14 @@ export type StartProspectingField = (typeof startProspectingFields)[number]
 
 export const emptyStartProspecting = (): StartProspectingValues => ({
   legalIdentity: toLegalIdentityValues({ corporateName: null, form: null, type: null }),
-  contactDetails: toContactDetailsValues({ email: null, phoneNumber: null, language: null }),
+  contactDetails: toOrganizationContactDetailsValues({}),
   address: toAddressValues(null),
   observations: '',
 })
 
 export const toStartProspectingInput = (values: StartProspectingValues): StartProspectingInput => ({
   legalIdentity: toLegalIdentity(values.legalIdentity),
-  contactDetails: { ...toContactDetails(values.contactDetails), linkedInPage: null, website: null },
+  contactDetails: toOrganizationContactDetails(values.contactDetails),
   address: toAddress(values.address),
   observations: orNull(values.observations),
   holdingId: null,
