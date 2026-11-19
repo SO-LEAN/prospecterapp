@@ -1,18 +1,19 @@
 import { useTranslation } from 'react-i18next'
-import {
-  ContactDetailsFields,
-  contactDetailsFields,
-  contactDetailsSchema,
-  toContactDetails,
-  toContactDetailsValues,
-} from '@/shared/forms/contact-details'
 import { SectionForm } from '@/shared/forms/section-form'
 import { countryName } from '@/shared/lib/countries'
 import { telUrl } from '@/shared/lib/format'
 import { Detail } from '@/shared/ui/detail'
 import { EditableSection } from '@/shared/ui/editable-section'
 import { useChangeContactDetails } from '../mutations'
+import {
+  OrganizationContactDetailsFields,
+  organizationContactDetailsFields,
+  organizationContactDetailsSchema,
+  toOrganizationContactDetails,
+  toOrganizationContactDetailsValues,
+} from '../organization-contact-details'
 import type { Organization } from '../queries'
+import { LinkedInPage, Website } from './organization-on-the-web'
 
 export function ContactDetailsSection({ organization }: { organization: Organization }) {
   const { t } = useTranslation()
@@ -25,22 +26,18 @@ export function ContactDetailsSection({ organization }: { organization: Organiza
       editable={Boolean(organization._links.changeContactDetails)}
       editor={(close) => (
         <SectionForm
-          schema={contactDetailsSchema}
-          defaultValues={toContactDetailsValues(contact)}
-          fields={contactDetailsFields}
+          schema={organizationContactDetailsSchema}
+          defaultValues={toOrganizationContactDetailsValues(contact)}
+          fields={organizationContactDetailsFields}
           save={(values) =>
             change.mutateAsync({
               params: { path: { id: organization.id } },
-              body: {
-                ...toContactDetails(values),
-                linkedInPage: contact.linkedInPage ?? null,
-                website: contact.website ?? null,
-              },
+              body: toOrganizationContactDetails(values),
             })
           }
           onDone={close}
         >
-          {(form) => <ContactDetailsFields form={form} />}
+          {(form) => <OrganizationContactDetailsFields form={form} />}
         </SectionForm>
       )}
     >
@@ -59,6 +56,10 @@ export function ContactDetailsSection({ organization }: { organization: Organiza
         )}
       </Detail>
       <Detail label={t('fields.language')}>{countryName(contact.language)}</Detail>
+      <Detail label={t('fields.linkedInPage')}>
+        {contact.linkedInPage && <LinkedInPage page={contact.linkedInPage} />}
+      </Detail>
+      <Detail label={t('fields.website')}>{contact.website && <Website site={contact.website} />}</Detail>
     </EditableSection>
   )
 }
