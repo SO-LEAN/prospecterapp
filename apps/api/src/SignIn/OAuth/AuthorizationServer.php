@@ -26,4 +26,12 @@ final readonly class AuthorizationServer
     {
         return $this->issuer().'/oauth/token';
     }
+
+    /**
+     * Where Cognito sends the member back once signed in, the only address its client of the AIs declares.
+     */
+    public function callbackEndpoint(): string
+    {
+        return $this->issuer().'/oauth/callback';
+    }
 }

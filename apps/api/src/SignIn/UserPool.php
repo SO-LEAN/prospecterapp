@@ -2,17 +2,20 @@
 
 namespace App\SignIn;
 
+use App\SignIn\OAuth\AuthorizationServer;
 use Aws\CognitoIdentityProvider\CognitoIdentityProviderClient;
 use Symfony\Contracts\Cache\CacheInterface;
 
 /**
- * The Cognito user pool the members sign in with (ADR 0052), and its only client, the SPA. Both are known by
- * name: their ids are made by Cognito when they are created, then cached. A member is a user named by its
+ * The Cognito user pool the members sign in with (ADR 0052), and its clients: the SPA, and the AIs signing their
+ * member in through the facade of the API (ADR 0157), its secret known to the API alone. They are known by name:
+ * their ids and the secret are made by Cognito when they are created, then cached. A member is a user named by its
  * member id, who signs in with the email of its alias.
  */
 final readonly class UserPool
 {
     public const string CLIENT_NAME = 'prospecter-front';
+    public const string MCP_CLIENT_NAME = 'prospecter-mcp';
     public const int PASSWORD_MINIMUM_LENGTH = 8;
     private const int LIST_SIZE = 60;
 
@@ -22,6 +25,7 @@ final readonly class UserPool
         public string $name,
         public string $region,
         private string $keysUrl,
+        private AuthorizationServer $authorizationServer,
     ) {
     }
 
@@ -33,6 +37,11 @@ final readonly class UserPool
     public function clientId(): string
     {
         return $this->cache->get($this->cacheKey('client'), fn (): string => $this->clientNamed(self::CLIENT_NAME, $this->id()));
+    }
+
+    public function mcpClientId(): string
+    {
+        return $this->cache->get($this->cacheKey('mcp-client'), fn (): string => $this->clientNamed(self::MCP_CLIENT_NAME, $this->id()));
     }
 
     /**
@@ -64,6 +73,7 @@ final readonly class UserPool
 
         $this->cache->delete($this->cacheKey('id'));
         $this->cache->delete($this->cacheKey('client'));
+        $this->cache->delete($this->cacheKey('mcp-client'));
         $this->create();
     }
 
@@ -87,6 +97,21 @@ final readonly class UserPool
             'UserPoolId' => $id,
             'ClientName' => self::CLIENT_NAME,
             'ExplicitAuthFlows' => ['ALLOW_USER_SRP_AUTH', 'ALLOW_REFRESH_TOKEN_AUTH', 'ALLOW_ADMIN_USER_PASSWORD_AUTH'],
+            'PreventUserExistenceErrors' => 'ENABLED',
+        ]);
+
+        // the AIs sign in on the sign-in page of Cognito, by the code with PKCE, through the facade of the API
+        $this->cognito->createUserPoolClient([
+            'UserPoolId' => $id,
+            'ClientName' => self::MCP_CLIENT_NAME,
+            'GenerateSecret' => true,
+            'ExplicitAuthFlows' => ['ALLOW_REFRESH_TOKEN_AUTH'],
+            'AllowedOAuthFlowsUserPoolClient' => true,
+            'AllowedOAuthFlows' => ['code'],
+            'AllowedOAuthScopes' => ['openid'],
+            'CallbackURLs' => [$this->authorizationServer->callbackEndpoint()],
+            'SupportedIdentityProviders' => ['COGNITO'],
+            'EnableTokenRevocation' => true,
             'PreventUserExistenceErrors' => 'ENABLED',
         ]);
     }
