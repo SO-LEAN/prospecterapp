@@ -348,6 +348,10 @@ services:
     app.cognito_oauth_http:
         class: Symfony\Contracts\HttpClient\HttpClientInterface
         factory: [Symfony\Component\HttpClient\HttpClient, create]
+    # the MCP server takes the access tokens of the AIs beside those of the SPA, the API those of the SPA only
+    app.mcp_token_handler:
+        class: App\Security\AccessTokenHandler
+        arguments: { $clientNames: !php/const App\SignIn\UserPool::CLIENT_NAMES_OF_THE_MCP_SERVER }
     # the time the access tokens are checked at: the real one (the controllers use the clock of the tests)
     app.token_clock:
         class: Symfony\Component\Clock\NativeClock

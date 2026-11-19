@@ -28,13 +28,14 @@ security:
             pattern: ^/api/accounts/[^/]+/gmail-notifications$
             stateless: true
             custom_authenticators: [App\Connectors\Google\GmailPushAuthenticator]
-        # the MCP server: the access tokens of Cognito, as for the API, its callers the members they name (ADR 0156)
+        # the MCP server: the access tokens of Cognito, as for the API, those of the AIs too, its callers the members
+        # they name (ADR 0156, 0157)
         mcp:
             pattern: ^/mcp$
             stateless: true
             provider: members
             access_token:
-                token_handler: App\Security\AccessTokenHandler
+                token_handler: app.mcp_token_handler
                 failure_handler: App\Security\McpAuthenticationEntryPoint
             entry_point: App\Security\McpAuthenticationEntryPoint
         # resource server: every API call carries an access token of the Cognito user pool (ADR 0052)
