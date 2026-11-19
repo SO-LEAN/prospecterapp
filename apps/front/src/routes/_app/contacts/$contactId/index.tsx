@@ -103,7 +103,7 @@ function ContactPage() {
         <ContactTags contactId={contact.id} organizations={organizations.data?.items ?? []} />
       )}
 
-      <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
+      <div key={contact.id} className="grid grid-cols-1 gap-6 lg:grid-cols-2">
         <NameSection contact={contact} />
         <JobTitleSection contact={contact} />
         <ContactDetailsSection contact={contact} />
