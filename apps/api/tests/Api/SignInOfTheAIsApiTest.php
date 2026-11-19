@@ -3,7 +3,9 @@
 namespace Tests\App\Api;
 
 use App\Demo\DemoCredentials;
+use App\Demo\DemoData;
 use App\SignIn\UserPool;
+use Aws\CognitoIdentityProvider\CognitoIdentityProviderClient;
 use PHPUnit\Framework\Attributes\Group;
 use Symfony\Component\HttpClient\HttpClient;
 use Tests\App\Base\ApiTestCase;
@@ -101,6 +103,141 @@ class SignInOfTheAIsApiTest extends ApiTestCase
         $this->client->request('GET', '/oauth/callback?'.http_build_query(['error' => 'access_denied', 'state' => $signInPage['state']]));
 
         $this->assertResponseRedirects(ClientsOfTheAIs::CLAUDE_WEB_CALLBACK.'?'.http_build_query(['error' => 'access_denied', 'state' => 'the state of the AI']));
+    }
+
+    public function testTheAiExchangesItsCodeForTheTokensOfCognito(): void
+    {
+        $tokens = $this->exchange($this->codeOfTheFacade());
+
+        $this->assertResponseIsSuccessful();
+        $this->assertSame('Bearer', $tokens['token_type']);
+        $this->assertNotEmpty($tokens['access_token']);
+        $this->assertNotEmpty($tokens['refresh_token']);
+    }
+
+    public function testACodeServesOnce(): void
+    {
+        $code = $this->codeOfTheFacade();
+        $this->exchange($code);
+
+        $refusal = $this->exchange($code);
+
+        $this->assertResponseStatusCodeSame(400);
+        $this->assertSame('invalid_grant', $refusal['error']);
+    }
+
+    public function testAVerifierNotAnsweringTheChallengeOfTheAiIsRefused(): void
+    {
+        $refusal = $this->exchange($this->codeOfTheFacade(), ['code_verifier' => 'the-verifier-of-another-request-long-enough-for-pkce']);
+
+        $this->assertResponseStatusCodeSame(400);
+        $this->assertSame('invalid_grant', $refusal['error']);
+    }
+
+    public function testACodeGivenToAnotherClientIsRefused(): void
+    {
+        $refusal = $this->exchange($this->codeOfTheFacade(), ['client_id' => ClientsOfTheAIs::CLAUDE_CODE]);
+
+        $this->assertResponseStatusCodeSame(400);
+        $this->assertSame('invalid_grant', $refusal['error']);
+    }
+
+    public function testACodeGivenForAnotherRedirectIsRefused(): void
+    {
+        $refusal = $this->exchange($this->codeOfTheFacade(), ['redirect_uri' => 'http://localhost/callback']);
+
+        $this->assertResponseStatusCodeSame(400);
+        $this->assertSame('invalid_grant', $refusal['error']);
+    }
+
+    public function testACodeTheFacadeDidNotGiveIsRefused(): void
+    {
+        $refusal = $this->exchange('not a code of the facade');
+
+        $this->assertResponseStatusCodeSame(400);
+        $this->assertSame('invalid_grant', $refusal['error']);
+    }
+
+    public function testAnExpiredTokenIsRenewedWithoutSigningInAgain(): void
+    {
+        $tokens = $this->exchange($this->codeOfTheFacade());
+
+        $renewed = $this->refresh($tokens['refresh_token']);
+
+        $this->assertResponseIsSuccessful();
+        $this->assertNotEmpty($renewed['access_token']);
+    }
+
+    public function testSigningOutOfTheAppLeavesTheAiSignedIn(): void
+    {
+        $tokens = $this->exchange($this->codeOfTheFacade());
+        $pool = self::getContainer()->get(UserPool::class);
+        $ofTheApp = $this->tokensOf(DemoData::PROSPECTOR);
+
+        self::getContainer()->get(CognitoIdentityProviderClient::class)->revokeToken(['ClientId' => $pool->clientId(), 'Token' => $ofTheApp['RefreshToken']]);
+
+        $this->refresh($tokens['refresh_token']);
+        $this->assertResponseIsSuccessful();
+    }
+
+    public function testSigningOutEverywhereSignsTheAiOutToo(): void
+    {
+        $tokens = $this->exchange($this->codeOfTheFacade());
+        // MiniStack revokes the tokens issued before the second of the sign-out, not those issued within it
+        sleep(1);
+
+        self::getContainer()->get(CognitoIdentityProviderClient::class)->globalSignOut(['AccessToken' => $this->tokensOf(DemoData::PROSPECTOR)['AccessToken']]);
+
+        $this->assertSame('invalid_grant', $this->refresh($tokens['refresh_token'])['error']);
+    }
+
+    public function testAGrantTheFacadeDoesNotKnowIsRefused(): void
+    {
+        $this->client->request('POST', '/oauth/token', ['grant_type' => 'client_credentials']);
+
+        $this->assertResponseStatusCodeSame(400);
+        $this->assertSame('unsupported_grant_type', $this->responseData()['error']);
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
+    private function refresh(string $refreshToken): array
+    {
+        $this->client->request('POST', '/oauth/token', ['grant_type' => 'refresh_token', 'refresh_token' => $refreshToken, 'client_id' => ClientsOfTheAIs::CLAUDE_WEB]);
+
+        return $this->responseData();
+    }
+
+    /**
+     * The code the facade gives the AI once its member signed in on Cognito.
+     */
+    private function codeOfTheFacade(): string
+    {
+        $this->authorize();
+        $this->client->request('GET', $this->signInOnCognito());
+        parse_str((string) parse_url((string) $this->client->getResponse()->headers->get('Location'), PHP_URL_QUERY), $backToTheAi);
+
+        return $backToTheAi['code'];
+    }
+
+    /**
+     * @param array<string, string> $changes
+     *
+     * @return array<string, mixed>
+     */
+    private function exchange(string $code, array $changes = []): array
+    {
+        $this->client->request('POST', '/oauth/token', [
+            'grant_type' => 'authorization_code',
+            'code' => $code,
+            'client_id' => ClientsOfTheAIs::CLAUDE_WEB,
+            'redirect_uri' => ClientsOfTheAIs::CLAUDE_WEB_CALLBACK,
+            'code_verifier' => self::VERIFIER_OF_THE_AI,
+            ...$changes,
+        ]);
+
+        return $this->responseData();
     }
 
     /**

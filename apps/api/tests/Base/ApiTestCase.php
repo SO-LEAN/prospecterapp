@@ -91,7 +91,7 @@ abstract class ApiTestCase extends WebTestCase
      * The tokens the user pool gives a member signing in with the password of the demonstration, for its
      * client or another one.
      *
-     * @return array{AccessToken: string, IdToken: string}
+     * @return array{AccessToken: string, IdToken: string, RefreshToken: string}
      */
     protected function tokensOf(string $memberId, ?string $clientId = null): array
     {
