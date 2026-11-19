@@ -1,14 +1,10 @@
-# The tasks run without a member at their origin (ADR 0147, 0154): a function of the package of the api, whose handler,
-# a service of its container, runs the task its input names, each called by a schedule of its own; its commits publish
-# what follows through their outbox, like those of the api. The contacts nobody attached in the 30 days after their last
-# meeting are erased every hour (ADR 0146), the watches of the mailboxes of Gmail renewed every day, a watch lasting a
-# week (ADR 0154).
+# The tasks run without a member at their origin (ADR 0146, 0154): a function of the package of the api, whose
+# handler, a service of its container, runs every task one after the other, a task failing logged and the others run,
+# called once a day by one schedule; its commits publish what follows through their outbox, like those of the api. The
+# contacts nobody attached in the 30 days after their last meeting are erased (ADR 0146), the watches of the mailboxes
+# of Gmail renewed, a watch lasting a week (ADR 0154). A new task is a class of the api, nothing to change here.
 locals {
   scheduled = "${local.name}-scheduled"
-  scheduled_tasks = {
-    erase-unattached    = "rate(1 hour)"
-    renew-gmail-watches = "rate(1 day)"
-  }
 }
 
 resource "aws_iam_role" "scheduled" {
@@ -66,7 +62,7 @@ resource "aws_lambda_function" "scheduled" {
 
 resource "aws_iam_role" "scheduled_schedule" {
   name                 = "${local.scheduled}-schedule"
-  description          = "The schedules calling the function running the scheduled tasks"
+  description          = "The schedule calling the function running the scheduled tasks"
   permissions_boundary = var.permissions_boundary
   assume_role_policy = jsonencode({
     Version = "2012-10-17"
@@ -92,12 +88,11 @@ resource "aws_iam_role_policy" "scheduled_schedule" {
   })
 }
 
-# each task on its own schedule, its name in the input of the function; a run missed is made up by the next, which
-# finds every contact whose day has passed, every watch to renew before its week ends
+# one schedule, every day, running every task; no retry: a run missed is made up by the next, which finds every
+# contact whose day has passed, every watch to renew before its week ends
 resource "aws_scheduler_schedule" "scheduled" {
-  for_each            = local.scheduled_tasks
-  name                = "${local.name}-${each.key}"
-  schedule_expression = each.value
+  name                = local.scheduled
+  schedule_expression = "rate(1 day)"
 
   flexible_time_window {
     mode = "OFF"
@@ -106,7 +101,6 @@ resource "aws_scheduler_schedule" "scheduled" {
   target {
     arn      = aws_lambda_function.scheduled.arn
     role_arn = aws_iam_role.scheduled_schedule.arn
-    input    = jsonencode({ task = each.key })
 
     retry_policy {
       maximum_retry_attempts = 0
