@@ -19,6 +19,7 @@ vi.mock('@/shared/auth/session', () => ({
     accessToken: async () => 'an access token',
     renewedAccessToken: async () => null,
     signOut: async () => {},
+    signOutEverywhere: async () => {},
   },
 }))
 

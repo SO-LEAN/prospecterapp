@@ -13,7 +13,10 @@ import { env } from '@/shared/config/env'
  */
 export interface Session {
   signIn(email: string, password: string): Promise<void>
+  /** Signs out of the app alone: its refresh token revoked, the AIs signed in by the member still signed in. */
   signOut(): Promise<void>
+  /** Signs out everywhere: every refresh token of the member revoked, those of their AIs included. */
+  signOutEverywhere(): Promise<void>
   /** The access token to call the API with, renewed when expired; null when nobody is signed in. */
   accessToken(): Promise<string | null>
   /** A new access token, after the API refused the current one; null when it cannot be renewed. */
@@ -89,6 +92,11 @@ export const session: Session = {
   },
 
   async signOut() {
+    await onTheUserPool()
+    await signOut({ global: false })
+  },
+
+  async signOutEverywhere() {
     await onTheUserPool()
     await signOut({ global: true })
   },
