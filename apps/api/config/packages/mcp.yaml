@@ -1,0 +1,13 @@
+# The MCP server of the API, without session: both eras of the protocol on /mcp of its host, its tools one per intent
+# (ADR 0156, docs/architecture/mcp.md)
+mcp:
+    servers:
+        prospecter:
+            name: Prospecter
+            version: '1.0.0'
+            http:
+                path: /mcp
+                allowed_hosts: ['%app_api_host%']
+            session:
+                store: none
+            registry: { tools: ['App\Me\Mcp\'] }

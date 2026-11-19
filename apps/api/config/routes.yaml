@@ -81,3 +81,9 @@ booking:
     type: attribute
     host: '%app_api_host%'
     defaults: { _format: json }
+
+# the MCP server, its callers the members signed in on Cognito (ADR 0156)
+mcp:
+    resource: .
+    type: mcp
+    host: '%app_api_host%'
