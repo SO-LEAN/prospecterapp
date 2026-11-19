@@ -44,6 +44,11 @@ final readonly class UserPool
         return $this->cache->get($this->cacheKey('mcp-client'), fn (): string => $this->clientNamed(self::MCP_CLIENT_NAME, $this->id()));
     }
 
+    public function mcpClientSecret(): string
+    {
+        return $this->cache->get($this->cacheKey('mcp-secret'), fn (): string => $this->cognito->describeUserPoolClient(['UserPoolId' => $this->id(), 'ClientId' => $this->mcpClientId()])['UserPoolClient']['ClientSecret']);
+    }
+
     /**
      * What the tokens of the pool name as their issuer, the same locally as on AWS.
      */
@@ -74,6 +79,7 @@ final readonly class UserPool
         $this->cache->delete($this->cacheKey('id'));
         $this->cache->delete($this->cacheKey('client'));
         $this->cache->delete($this->cacheKey('mcp-client'));
+        $this->cache->delete($this->cacheKey('mcp-secret'));
         $this->create();
     }
 

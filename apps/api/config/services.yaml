@@ -344,6 +344,10 @@ services:
         arguments: ['@http_client']
     App\SignIn\OAuth\ClientMetadataDocuments:
         arguments: { $http: '@app.client_metadata_http' }
+    # and the token endpoint of Cognito, asked for real, in the tests too (they run on MiniStack)
+    app.cognito_oauth_http:
+        class: Symfony\Contracts\HttpClient\HttpClientInterface
+        factory: [Symfony\Component\HttpClient\HttpClient, create]
     # the time the access tokens are checked at: the real one (the controllers use the clock of the tests)
     app.token_clock:
         class: Symfony\Component\Clock\NativeClock
