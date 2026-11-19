@@ -16,6 +16,7 @@ final readonly class UserPool
 {
     public const string CLIENT_NAME = 'prospecter-front';
     public const string MCP_CLIENT_NAME = 'prospecter-mcp';
+    public const array CLIENT_NAMES_OF_THE_MCP_SERVER = [self::CLIENT_NAME, self::MCP_CLIENT_NAME];
     public const int PASSWORD_MINIMUM_LENGTH = 8;
     private const int LIST_SIZE = 60;
 
@@ -36,12 +37,17 @@ final readonly class UserPool
 
     public function clientId(): string
     {
-        return $this->cache->get($this->cacheKey('client'), fn (): string => $this->clientNamed(self::CLIENT_NAME, $this->id()));
+        return $this->clientIdNamed(self::CLIENT_NAME);
     }
 
     public function mcpClientId(): string
     {
-        return $this->cache->get($this->cacheKey('mcp-client'), fn (): string => $this->clientNamed(self::MCP_CLIENT_NAME, $this->id()));
+        return $this->clientIdNamed(self::MCP_CLIENT_NAME);
+    }
+
+    public function clientIdNamed(string $name): string
+    {
+        return $this->cache->get($this->cacheKey('client.'.$name), fn (): string => $this->clientNamed($name, $this->id()));
     }
 
     public function mcpClientSecret(): string
@@ -77,8 +83,8 @@ final readonly class UserPool
         }
 
         $this->cache->delete($this->cacheKey('id'));
-        $this->cache->delete($this->cacheKey('client'));
-        $this->cache->delete($this->cacheKey('mcp-client'));
+        $this->cache->delete($this->cacheKey('client.'.self::CLIENT_NAME));
+        $this->cache->delete($this->cacheKey('client.'.self::MCP_CLIENT_NAME));
         $this->cache->delete($this->cacheKey('mcp-secret'));
         $this->create();
     }

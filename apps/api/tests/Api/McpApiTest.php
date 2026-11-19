@@ -6,6 +6,7 @@ use App\Demo\DemoData;
 use PHPUnit\Framework\Attributes\Group;
 use Prospecter\Core\Accounts\Domain\Model\Role;
 use Tests\App\Base\ApiTestCase;
+use Tests\App\Base\CallsTheMcpServer;
 
 /**
  * An AI speaks to the MCP server of the API as the member whose access token of Cognito it carries, with their
@@ -14,7 +15,7 @@ use Tests\App\Base\ApiTestCase;
 #[Group('api')]
 class McpApiTest extends ApiTestCase
 {
-    private const string REVISION_WITHOUT_HANDSHAKE = '2026-07-28';
+    use CallsTheMcpServer;
 
     private const string REVISION_OF_THE_HANDSHAKE = '2025-11-25';
 
@@ -93,38 +94,6 @@ class McpApiTest extends ApiTestCase
     }
 
     /**
-     * A tool called in the revision without handshake, its version and the capabilities of the client in its
-     * `_meta`, the headers mirroring its body.
-     *
-     * @return array<string, mixed> the result of the tool
-     */
-    private function callWithoutHandshake(string $tool): array
-    {
-        $this->client->request('POST', '/mcp', server: [
-            'HTTP_ACCEPT' => 'application/json, text/event-stream',
-            'CONTENT_TYPE' => 'application/json',
-            'HTTP_MCP_PROTOCOL_VERSION' => self::REVISION_WITHOUT_HANDSHAKE,
-            'HTTP_MCP_METHOD' => 'tools/call',
-            'HTTP_MCP_NAME' => $tool,
-        ], content: json_encode([
-            'jsonrpc' => '2.0',
-            'id' => 1,
-            'method' => 'tools/call',
-            'params' => [
-                'name' => $tool,
-                'arguments' => new \stdClass(),
-                '_meta' => [
-                    'io.modelcontextprotocol/protocolVersion' => self::REVISION_WITHOUT_HANDSHAKE,
-                    'io.modelcontextprotocol/clientCapabilities' => new \stdClass(),
-                ],
-            ],
-        ], JSON_THROW_ON_ERROR));
-        $this->assertResponseNotHasHeader('Mcp-Session-Id');
-
-        return $this->resultOfTheCall();
-    }
-
-    /**
      * A request of the revision of the handshake, its version in its header once initialized.
      *
      * @param array<string, mixed> $params
@@ -140,13 +109,5 @@ class McpApiTest extends ApiTestCase
         ], content: json_encode(['jsonrpc' => '2.0', 'id' => 1, 'method' => $method, 'params' => $params], JSON_THROW_ON_ERROR));
 
         return $this->resultOfTheCall();
-    }
-
-    /**
-     * @return array<string, mixed>
-     */
-    private function resultOfTheCall(): array
-    {
-        return $this->responseData()['result'] ?? throw new \LogicException((string) $this->client->getResponse()->getContent());
     }
 }

@@ -9,6 +9,7 @@ use Aws\CognitoIdentityProvider\CognitoIdentityProviderClient;
 use PHPUnit\Framework\Attributes\Group;
 use Symfony\Component\HttpClient\HttpClient;
 use Tests\App\Base\ApiTestCase;
+use Tests\App\Base\CallsTheMcpServer;
 use Tests\App\Double\ClientsOfTheAIs;
 
 /**
@@ -18,6 +19,8 @@ use Tests\App\Double\ClientsOfTheAIs;
 #[Group('api')]
 class SignInOfTheAIsApiTest extends ApiTestCase
 {
+    use CallsTheMcpServer;
+
     private const string CALLBACK = 'https://api.test.prospecter.io/oauth/callback';
     private const string PROSPECTOR = 'prospector@solean-it.io';
     private const string VERIFIER_OF_THE_AI = 'the-verifier-of-the-ai-long-enough-to-be-a-verifier-of-pkce';
@@ -113,6 +116,26 @@ class SignInOfTheAIsApiTest extends ApiTestCase
         $this->assertSame('Bearer', $tokens['token_type']);
         $this->assertNotEmpty($tokens['access_token']);
         $this->assertNotEmpty($tokens['refresh_token']);
+    }
+
+    public function testTheAiCallsTheMcpServerOnBehalfOfItsMember(): void
+    {
+        $tokens = $this->exchange($this->codeOfTheFacade());
+        $this->client->setServerParameter('HTTP_AUTHORIZATION', 'Bearer '.$tokens['access_token']);
+
+        $result = $this->callWithoutHandshake('qui-suis-je');
+
+        $this->assertSame('Camille Martin', $result['structuredContent']['member']);
+    }
+
+    public function testTheTokensOfAnAiDoNotOpenTheApiOfTheApp(): void
+    {
+        $tokens = $this->exchange($this->codeOfTheFacade());
+        $this->client->setServerParameter('HTTP_AUTHORIZATION', 'Bearer '.$tokens['access_token']);
+
+        $this->requestJson('GET', '/api/me');
+
+        $this->assertResponseStatusCodeSame(401);
     }
 
     public function testACodeServesOnce(): void
