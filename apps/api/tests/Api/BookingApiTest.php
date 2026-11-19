@@ -289,6 +289,14 @@ class BookingApiTest extends ApiTestCase
         $this->assertSame(self::NOTHING_SHOWN, $page);
     }
 
+    public function testALinkCutShortShowsNothingAsAClosedOne(): void
+    {
+        $page = $this->requestJson('GET', '/api/booking-pages/'.substr(self::A_CODE, 0, -2));
+
+        $this->assertResponseIsSuccessful();
+        $this->assertSame(self::NOTHING_SHOWN, $page);
+    }
+
     public function testMyOpenPageIsSuspendedOnceGoogleIsDisconnected(): void
     {
         $this->anOpenPage();

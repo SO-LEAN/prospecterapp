@@ -7462,8 +7462,7 @@
                         "in": "path",
                         "required": true,
                         "schema": {
-                            "type": "string",
-                            "pattern": "[0-9A-Za-z]{22}"
+                            "type": "string"
                         }
                     }
                 ],
