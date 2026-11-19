@@ -16,10 +16,11 @@ use Symfony\Component\Console\Style\SymfonyStyle;
  * organizations and of the persons (ADR 0071), forgetting the items of the former search, the keys listing the
  * exchanges by account and the keys listing the accounts (ADR 0099), the links of the exchanges and of the to-dos in
  * the calendars of their holders (ADR 0115, 0134), the reservations of the LinkedIn profiles the contacts hold, one
- * two contacts noted before it was unique for the oldest: once on tables written before, then whenever
+ * two contacts noted before it was unique for the oldest, and of the LinkedIn pages and the domains of the websites of
+ * the organizations: once on tables written before, then whenever
  * the keys of an aggregate change of rule. It can run any number of times.
  */
-#[AsCommand(name: 'app:keys:rebuild', description: 'Write again the keys the tables derive from the aggregates: search keys of the organizations and of the persons, keys listing the exchanges by account and the accounts, links of the exchanges and of the to-dos in the calendars, reservations of the LinkedIn profiles of the contacts')]
+#[AsCommand(name: 'app:keys:rebuild', description: 'Write again the keys the tables derive from the aggregates: search keys of the organizations and of the persons, keys listing the exchanges by account and the accounts, links of the exchanges and of the to-dos in the calendars, reservations of the LinkedIn profiles of the contacts, of the LinkedIn pages and of the domains of the websites of the organizations')]
 final readonly class RebuildKeysCommand
 {
     public function __construct(
