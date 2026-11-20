@@ -4,6 +4,7 @@ namespace App\Booking\Persistence;
 
 use App\Shared\Persistence\Table;
 use Prospecter\Core\Booking\Domain\Exception\UnknownBookingPage;
+use Prospecter\Core\Booking\Domain\Model\BookingCode;
 use Prospecter\Core\Booking\Domain\Model\BookingPage;
 use Prospecter\Core\Booking\Domain\Repository\BookingPageRepository;
 use Prospecter\Core\SharedKernel\Domain\MemberId;
@@ -30,6 +31,13 @@ final readonly class DynamoBookingPageRepository implements BookingPageRepositor
         $document = $this->bookingTable->item(BookingKeys::page($host->value), BookingKeys::PAGE)['page'] ?? null;
 
         return null === $document ? null : BookingPageDocument::page($document);
+    }
+
+    public function findByCode(BookingCode $code): ?BookingPage
+    {
+        $host = $this->bookingTable->item(BookingKeys::code($code->value), BookingKeys::CODE)['host'] ?? null;
+
+        return null === $host ? null : $this->find(new MemberId($host));
     }
 
     public function save(BookingPage $page): void

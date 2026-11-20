@@ -30,6 +30,7 @@ final readonly class DomainEventTypes extends EventTypes
             'ChannelsOffered.v1' => Booking\ChannelsOffered::class,
             'InactivePeriodAdded.v1' => Booking\InactivePeriodAdded::class,
             'InactivePeriodRemoved.v1' => Booking\InactivePeriodRemoved::class,
+            'SlotBooked.v1' => Booking\SlotBooked::class,
             'WindowsSet.v1' => Booking\WindowsSet::class,
         ],
         'prospecter.campaigns.internal' => [
@@ -60,6 +61,7 @@ final readonly class DomainEventTypes extends EventTypes
             'MailboxChanged.v1' => Connectors\MailboxChanged::class,
         ],
         'prospecter.personal-data.internal' => [
+            'BookerIdentified.v1' => PersonalData\BookerIdentified::class,
             'CivilityChanged.v1' => PersonalData\CivilityChanged::class,
             'ContactCollected.v1' => PersonalData\ContactCollected::class,
             'ContactForgotten.v1' => PersonalData\ContactForgotten::class,
