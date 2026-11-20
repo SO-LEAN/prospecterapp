@@ -28,7 +28,7 @@ final readonly class RelocateTool
      *
      * @return array<string, mixed>
      */
-    #[McpTool(name: 'demenager-organisation', description: 'Move an organization to an address, located again as on the screen; an address left empty removes it. Answers the organization.', annotations: new ToolAnnotations(readOnlyHint: false, destructiveHint: false, idempotentHint: true))]
+    #[McpTool(name: 'demenager-organisation', description: 'Move an organization to an address, located again as on the screen; an address left empty removes it. Answers the organization.', annotations: new ToolAnnotations(readOnlyHint: false, destructiveHint: false, idempotentHint: true, openWorldHint: false))]
     public function __invoke(string $id, ?string $street = null, ?string $postalCode = null, ?string $city = null, ?string $country = null): array
     {
         return $this->writes->write(

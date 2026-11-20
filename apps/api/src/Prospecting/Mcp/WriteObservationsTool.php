@@ -25,7 +25,7 @@ final readonly class WriteObservationsTool
      *
      * @return array<string, mixed>
      */
-    #[McpTool(name: 'ecrire-observations-organisation', description: 'Write the observations on an organization, in place of those before. Answers the organization.', annotations: new ToolAnnotations(readOnlyHint: false, destructiveHint: false, idempotentHint: true))]
+    #[McpTool(name: 'ecrire-observations-organisation', description: 'Write the observations on an organization, in place of those before. Answers the organization.', annotations: new ToolAnnotations(readOnlyHint: false, destructiveHint: false, idempotentHint: true, openWorldHint: false))]
     public function __invoke(string $id, ?string $observations = null): array
     {
         return $this->writes->write(
