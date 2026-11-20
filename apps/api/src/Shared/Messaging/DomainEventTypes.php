@@ -76,6 +76,7 @@ final readonly class DomainEventTypes extends EventTypes
             'ContactAdded.v1' => Prospecting\ContactAdded::class,
             'ContactLeftUnattached.v1' => Prospecting\ContactLeftUnattached::class,
             'ContactToAttachAttached.v1' => Prospecting\ContactToAttachAttached::class,
+            'ContactToAttachHandedOver.v1' => Prospecting\ContactToAttachHandedOver::class,
             'ContactToAttachMet.v1' => Prospecting\ContactToAttachMet::class,
             'ContactToAttachMetAgain.v1' => Prospecting\ContactToAttachMetAgain::class,
             'ContactDetailsChanged.v1' => Prospecting\ContactDetailsChanged::class,
