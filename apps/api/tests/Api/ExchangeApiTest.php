@@ -140,6 +140,15 @@ class ExchangeApiTest extends ApiTestCase
         $this->assertResponseStatusCodeSame(404);
     }
 
+    public function testOnlyAnEMailIsNotedWithItsMessageId(): void
+    {
+        $problem = $this->note($this->aContactOf($this->anOrganization('ACME')), ['channel' => 'call', 'direction' => 'inbound', 'messageId' => '<abc@acme.fr>']);
+
+        $this->assertResponseStatusCodeSame(422);
+        $this->assertSame(['messageId'], $this->violatedFields($problem));
+        $this->assertSame('referenceNotOfTheChannel', $problem['reason']);
+    }
+
     public function testWithoutTheRightTheTimelineIsReadItsTextsFlaggedButNoExchangeIsNotedOnlyPlanned(): void
     {
         $contact = $this->aContactOf($this->anOrganization('ACME'));

@@ -1265,7 +1265,7 @@
                         }
                     },
                     "422": {
-                        "description": "Invalid exchange: unknown channel or direction, a missed exchange that is no call, meeting or video call, a moment in the future",
+                        "description": "Invalid exchange: unknown channel or direction, a missed exchange that is no call, meeting or video call, a moment in the future, a Message-ID or a conversation of another channel",
                         "content": {
                             "application/json": {
                                 "schema": {
@@ -2687,7 +2687,7 @@
                         }
                     },
                     "422": {
-                        "description": "Invalid exchange: unknown channel or direction, a missed exchange that is no call, meeting or video call, a moment in the future",
+                        "description": "Invalid exchange: unknown channel or direction, a missed exchange that is no call, meeting or video call, a moment in the future, a Message-ID or a conversation of another channel",
                         "content": {
                             "application/json": {
                                 "schema": {
@@ -8006,6 +8006,20 @@
                         "description": "Missed: the contact did not answer or come; a call, a meeting or a video call only, its status then missed",
                         "type": "boolean",
                         "default": false
+                    },
+                    "messageId": {
+                        "description": "The header Message-ID of an e-mail, where it was read: an e-mail of the same Message-ID is noted once in the account; an e-mail only",
+                        "type": "string",
+                        "nullable": true,
+                        "default": null,
+                        "maxLength": 1000
+                    },
+                    "linkedInConversation": {
+                        "description": "The conversation of a LinkedIn message, its identifier or the address of its thread (linkedin.com/messaging/thread/<id>/): a message of the same conversation, minute, direction and text is noted once in the account; a LinkedIn message only",
+                        "type": "string",
+                        "nullable": true,
+                        "default": null,
+                        "maxLength": 1000
                     }
                 },
                 "type": "object"

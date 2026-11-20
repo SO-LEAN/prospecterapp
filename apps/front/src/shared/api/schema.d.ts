@@ -1827,6 +1827,16 @@ export interface components {
              * @default false
              */
             missed: boolean;
+            /**
+             * @description The header Message-ID of an e-mail, where it was read: an e-mail of the same Message-ID is noted once in the account; an e-mail only
+             * @default null
+             */
+            messageId: string | null;
+            /**
+             * @description The conversation of a LinkedIn message, its identifier or the address of its thread (linkedin.com/messaging/thread/<id>/): a message of the same conversation, minute, direction and text is noted once in the account; a LinkedIn message only
+             * @default null
+             */
+            linkedInConversation: string | null;
         };
         PlannedExchangeInput: {
             /**
@@ -4443,7 +4453,7 @@ export interface operations {
                     "application/json": components["schemas"]["ProblemResource"];
                 };
             };
-            /** @description Invalid exchange: unknown channel or direction, a missed exchange that is no call, meeting or video call, a moment in the future */
+            /** @description Invalid exchange: unknown channel or direction, a missed exchange that is no call, meeting or video call, a moment in the future, a Message-ID or a conversation of another channel */
             422: {
                 headers: {
                     [name: string]: unknown;
@@ -5608,7 +5618,7 @@ export interface operations {
                     "application/json": components["schemas"]["ProblemResource"];
                 };
             };
-            /** @description Invalid exchange: unknown channel or direction, a missed exchange that is no call, meeting or video call, a moment in the future */
+            /** @description Invalid exchange: unknown channel or direction, a missed exchange that is no call, meeting or video call, a moment in the future, a Message-ID or a conversation of another channel */
             422: {
                 headers: {
                     [name: string]: unknown;
