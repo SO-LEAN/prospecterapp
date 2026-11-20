@@ -24,4 +24,9 @@ interface AppointmentRepository
      * @throws SlotNotFree when another appointment took its slot meanwhile
      */
     public function save(Appointment $appointment): void;
+
+    /**
+     * The appointment and the slot it holds, forgotten.
+     */
+    public function remove(Appointment $appointment): void;
 }

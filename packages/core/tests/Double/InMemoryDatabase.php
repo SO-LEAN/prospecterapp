@@ -148,6 +148,11 @@ final class InMemoryDatabase
         $this->appointments[$appointment->id()->value] = self::withoutItsEvents($appointment);
     }
 
+    public function forgetAppointment(Appointment $appointment): void
+    {
+        unset($this->appointments[$appointment->id()->value]);
+    }
+
     public function appointment(string $id): ?Appointment
     {
         return $this->appointments[$id] ?? null;

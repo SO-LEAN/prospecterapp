@@ -39,4 +39,9 @@ final readonly class InMemoryAppointmentRepository implements AppointmentReposit
         }
         $this->database->storeAppointment($appointment);
     }
+
+    public function remove(Appointment $appointment): void
+    {
+        $this->database->forgetAppointment($appointment);
+    }
 }

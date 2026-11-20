@@ -71,6 +71,27 @@ class DynamoAppointmentRepositoryTest extends ApiTestCase
         $this->appointments()->save($this->appointmentOf($host, self::SLOT));
     }
 
+    public function testAnAppointmentRemovedIsForgotten(): void
+    {
+        $appointment = $this->appointmentOf(new MemberId(self::newIdentity()), self::SLOT);
+        $this->appointments()->save($appointment);
+
+        $this->appointments()->remove($appointment);
+
+        $this->assertNull($this->appointments()->find($appointment->id()));
+    }
+
+    public function testTheSlotOfAnAppointmentRemovedIsFreeAgain(): void
+    {
+        $host = new MemberId(self::newIdentity());
+        $this->appointments()->save($removed = $this->appointmentOf($host, self::SLOT));
+
+        $this->appointments()->remove($removed);
+        $this->appointments()->save($again = $this->appointmentOf($host, self::SLOT));
+
+        $this->assertSame([$again->id()->value], $this->idsOf($this->appointments()->toComeOf($host, new \DateTimeImmutable('2026-10-16T08:00:00+02:00'))));
+    }
+
     private function appointmentOf(MemberId $host, string $slot, ?string $subject = null): Appointment
     {
         return Appointment::booked(
