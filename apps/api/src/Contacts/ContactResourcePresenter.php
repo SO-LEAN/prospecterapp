@@ -4,6 +4,8 @@ namespace App\Contacts;
 
 use App\Contacts\Resource\ContactLinksResource;
 use App\Contacts\Resource\ContactResource;
+use App\Contacts\Resource\PossibleDuplicateOfContactLinksResource;
+use App\Contacts\Resource\PossibleDuplicateOfContactResource;
 use App\Contacts\Resource\ToAttachResource;
 use App\PersonalData\Resource\PersonContactDetailsResource;
 use App\PersonalData\Resource\PersonNameResource;
@@ -13,6 +15,7 @@ use App\Shared\Links;
 use App\Shared\Resource\LinkResource;
 use Prospecter\Core\PersonalData\Application\ConsultPerson\ConsultPersonOutput;
 use Prospecter\Core\PersonalData\Application\PersonCard;
+use Prospecter\Core\PersonalData\Application\PossibleDuplicate;
 use Prospecter\Core\Prospecting\Application\ConsultTimelineIntents\TimelineIntentsResponse;
 use Prospecter\Core\Prospecting\Application\ContactToAttachInList;
 
@@ -52,6 +55,21 @@ final class ContactResourcePresenter implements ConsultPersonOutput
             masked: $contact->masked,
             toAttach: null === $this->toAttach ? null : new ToAttachResource($this->toAttach->lastMeetingAt, $this->toAttach->erasableFrom),
             links: $this->linksOf($contact),
+            possibleDuplicates: array_map(fn (PossibleDuplicate $duplicate): PossibleDuplicateOfContactResource => $this->possibleDuplicateOf($contact, $duplicate), $contact->possibleDuplicates),
+        );
+    }
+
+    /**
+     * Named with a link to them, and to say, once checked, that the contact is no duplicate of them when the reader may.
+     */
+    private function possibleDuplicateOf(PersonCard $contact, PossibleDuplicate $duplicate): PossibleDuplicateOfContactResource
+    {
+        $dismiss = in_array('DismissPossibleDuplicate', $contact->possibleIntents, true) ? $this->links->to('api_contacts_dismiss_possible_duplicate', ['id' => $contact->id, 'duplicateId' => $duplicate->id]) : null;
+
+        return new PossibleDuplicateOfContactResource(
+            $duplicate->id,
+            new PersonNameResource($duplicate->firstName, $duplicate->lastName),
+            new PossibleDuplicateOfContactLinksResource($this->links->to('api_contacts_show', ['id' => $duplicate->id]), $dismiss),
         );
     }
 

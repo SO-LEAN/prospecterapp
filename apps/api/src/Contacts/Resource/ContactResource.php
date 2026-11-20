@@ -15,6 +15,9 @@ use Symfony\Component\Serializer\Normalizer\AbstractObjectNormalizer;
  */
 final readonly class ContactResource
 {
+    /**
+     * @param list<PossibleDuplicateOfContactResource> $possibleDuplicates the contacts of the same organization they resemble, named to a reader with the right to manage personal data only
+     */
     public function __construct(
         public string $id,
         public PersonNameResource $name,
@@ -27,6 +30,7 @@ final readonly class ContactResource
         #[SerializedName('_links')]
         #[Context([AbstractObjectNormalizer::SKIP_NULL_VALUES => true])]
         public ContactLinksResource $links,
+        public array $possibleDuplicates,
         #[OA\Property(description: 'Until when the contact waits for the reader, who met them, to attach them to an organization (ADR 0146); absent otherwise', nullable: false)]
         #[Context([AbstractObjectNormalizer::SKIP_NULL_VALUES => true])]
         public ?ToAttachResource $toAttach = null,

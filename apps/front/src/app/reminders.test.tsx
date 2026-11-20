@@ -42,6 +42,7 @@ const me: Account = {
 const ada: Contact = {
   id: ADA,
   name: { firstName: 'Ada', lastName: 'Lovelace' },
+  possibleDuplicates: [],
   civility: 'x',
   contactDetails: { email: 'ada@acme.test', phoneNumber: null, language: null, links: [] },
   masked: false,
