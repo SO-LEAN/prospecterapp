@@ -267,10 +267,28 @@ class OrganizationAndContactToolsApiTest extends ApiTestCase
      */
     private function assertTheToolAsksForAConfirmation(string $tool): void
     {
-        $this->login();
-        $listed = array_find($this->callWithHandshake('tools/list', [])['tools'], static fn (array $listed): bool => $tool === $listed['name']);
+        $listed = array_find($this->everyToolListed(), static fn (array $listed): bool => $tool === $listed['name']);
 
         $this->assertSame(['readOnlyHint' => false, 'destructiveHint' => true], array_intersect_key($listed['annotations'] ?? [], ['readOnlyHint' => true, 'destructiveHint' => true]));
+    }
+
+    /**
+     * The tools an AI lists, page after page.
+     *
+     * @return list<array<string, mixed>>
+     */
+    private function everyToolListed(): array
+    {
+        $this->login();
+        $tools = [];
+        $cursor = [];
+        do {
+            $page = $this->callWithHandshake('tools/list', $cursor);
+            $tools = [...$tools, ...$page['tools']];
+            $cursor = isset($page['nextCursor']) ? ['cursor' => $page['nextCursor']] : null;
+        } while (null !== $cursor);
+
+        return $tools;
     }
 
     /**
