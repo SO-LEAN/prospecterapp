@@ -68,6 +68,23 @@ final readonly class DynamoOrganizationRepository implements OrganizationReposit
         return $this->organizationsOf($this->prospectingTable->items(array_map(static fn (OrganizationId $id): array => [OrganizationKeys::organization($id->value), OrganizationKeys::ORGANIZATION], $ids)));
     }
 
+    /**
+     * Found by the reservations of their emails in the account, without reading the organizations.
+     *
+     * @param list<Email> $emails
+     */
+    public function havingEmails(AccountId $accountId, array $emails): array
+    {
+        $emailsByKey = array_combine(array_map(static fn (Email $email): string => self::emailKey($accountId, $email->value), $emails), array_map(static fn (Email $email): string => $email->value, $emails));
+        $reservations = $this->prospectingTable->items(array_map(static fn (string $key): array => [$key, self::EMAIL], array_keys($emailsByKey)));
+        $organizations = [];
+        foreach ($reservations as $reservation) {
+            $organizations[$emailsByKey[$reservation['PK']]] = new OrganizationId($reservation['ownerId']);
+        }
+
+        return $organizations;
+    }
+
     public function isEmailUsed(AccountId $accountId, Email $email, OrganizationId $except): bool
     {
         $holder = $this->prospectingTable->item(self::emailKey($accountId, $email->value), self::EMAIL);

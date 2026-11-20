@@ -37,6 +37,7 @@ use Prospecter\Core\Prospecting\Contract\Service\ListOrganizationFacts\Organizat
 use Prospecter\Core\Prospecting\Contract\Service\NameOrganizationsOfContacts\NameOrganizationsOfContacts;
 use Prospecter\Core\Prospecting\Contract\Service\NameOrganizationsOfContacts\OrganizationsOfContactResponse;
 use Prospecter\Core\Prospecting\Contract\Service\WhichAreProspected\WhichAreProspected;
+use Prospecter\Core\Prospecting\Contract\Service\WhichOrganizationsHaveTheseEmails\WhichOrganizationsHaveTheseEmails;
 use Prospecter\Core\SharedKernel\Domain\AccountId;
 use Prospecter\Core\SharedKernel\Domain\MemberId;
 use Prospecter\Core\SharedKernel\Domain\OrganizationId;
@@ -190,6 +191,18 @@ final class PublishedLanguageContext implements Context
     public function personalDataAnswersNoContactByEmail(): void
     {
         Expect::same([], $this->byEmail);
+    }
+
+    #[When('un autre contexte demande à Prospecting quelles organisations de :account ont les adresses :')]
+    public function anotherContextAsksProspectingByEmail(string $account, TableNode $emails): void
+    {
+        $this->byEmail = $this->application->whichOrganizationsHaveTheseEmails(new WhichOrganizationsHaveTheseEmails($emails->getColumn(0), $this->scenario->accountIdOf($account)->value));
+    }
+
+    #[Then('Prospecting répond les organisations ayant ces adresses :')]
+    public function prospectingAnswersTheOrganizationsByEmail(TableNode $expected): void
+    {
+        Expect::same($expected->getColumnsHash(), $this->describeByEmail('organisation', fn (string $id): string => $this->scenario->nameOf(new OrganizationId($id))));
     }
 
     /**
@@ -456,7 +469,7 @@ final class PublishedLanguageContext implements Context
     #[Then('Prospecting ne répond aucune organisation')]
     public function prospectingAnswersNoOrganization(): void
     {
-        Expect::same([], $this->organizationsOfContacts);
+        Expect::same([[], []], [$this->organizationsOfContacts, $this->byEmail]);
     }
 
     #[Then('PersonalData ne répond aucun nom')]

@@ -333,6 +333,7 @@ use Prospecter\Core\Prospecting\Application\ToDoInList;
 use Prospecter\Core\Prospecting\Application\ToDoList;
 use Prospecter\Core\Prospecting\Application\UntickToDo\UntickToDoHandler;
 use Prospecter\Core\Prospecting\Application\WhichAreProspected\WhichAreProspectedHandler;
+use Prospecter\Core\Prospecting\Application\WhichOrganizationsHaveTheseEmails\WhichOrganizationsHaveTheseEmailsHandler;
 use Prospecter\Core\Prospecting\Application\WriteObservations\WriteObservationsHandler;
 use Prospecter\Core\Prospecting\Contract\Service\ConsultHeldExchanges\ConsultHeldExchanges;
 use Prospecter\Core\Prospecting\Contract\Service\ConsultHeldExchanges\ConsultPlannedExchanges;
@@ -347,6 +348,8 @@ use Prospecter\Core\Prospecting\Contract\Service\NameOrganizationsOfContacts\Nam
 use Prospecter\Core\Prospecting\Contract\Service\NameOrganizationsOfContacts\OrganizationsOfContactResponse;
 use Prospecter\Core\Prospecting\Contract\Service\WhichAreProspected\KeptProspected;
 use Prospecter\Core\Prospecting\Contract\Service\WhichAreProspected\WhichAreProspected;
+use Prospecter\Core\Prospecting\Contract\Service\WhichOrganizationsHaveTheseEmails\KeptOrganizationsByEmail;
+use Prospecter\Core\Prospecting\Contract\Service\WhichOrganizationsHaveTheseEmails\WhichOrganizationsHaveTheseEmails;
 use Prospecter\Core\Prospecting\Domain\Service\ContactOrganizations;
 use Prospecter\Core\Prospecting\Domain\Service\DuplicateSuspicion;
 use Prospecter\Core\Prospecting\Domain\Service\EmailUniqueness as ProspectingEmailUniqueness;
@@ -493,6 +496,7 @@ final class Application
     private readonly WhichAreContactsHandler $whichAreContactsService;
     private readonly WhichContactsHaveTheseEmailsHandler $whichContactsHaveTheseEmailsService;
     private readonly WhichAreProspectedHandler $whichAreProspectedService;
+    private readonly WhichOrganizationsHaveTheseEmailsHandler $whichOrganizationsHaveTheseEmailsService;
     private readonly NameOrganizationsOfContactsHandler $nameOrganizationsOfContactsService;
     private readonly InMemoryOrganizationFactsRetriever $organizationFactsRetriever;
     private readonly InMemoryExchangeFactsRetriever $exchangeFactsRetriever;
@@ -616,6 +620,7 @@ final class Application
         $this->whichAreContactsService = new WhichAreContactsHandler($this->persons);
         $this->whichContactsHaveTheseEmailsService = new WhichContactsHaveTheseEmailsHandler($this->persons);
         $this->whichAreProspectedService = new WhichAreProspectedHandler($this->organizations);
+        $this->whichOrganizationsHaveTheseEmailsService = new WhichOrganizationsHaveTheseEmailsHandler($this->organizations);
         $this->nameOrganizationsOfContactsService = new NameOrganizationsOfContactsHandler(new InMemoryOrganizationOfContactRetriever($database));
         $this->organizationFactsRetriever = new InMemoryOrganizationFactsRetriever($database);
         $this->exchangeFactsRetriever = new InMemoryExchangeFactsRetriever($database);
@@ -1447,6 +1452,17 @@ final class Application
         ($this->whichAreProspectedService)($query, $kept);
 
         return $kept->organizationIds;
+    }
+
+    /**
+     * @return array<string, string>
+     */
+    public function whichOrganizationsHaveTheseEmails(WhichOrganizationsHaveTheseEmails $query): array
+    {
+        $kept = new KeptOrganizationsByEmail();
+        ($this->whichOrganizationsHaveTheseEmailsService)($query, $kept);
+
+        return $kept->organizations;
     }
 
     public function listOrganizationFacts(ListOrganizationFacts $query): KeptOrganizationFacts

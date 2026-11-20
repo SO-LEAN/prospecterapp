@@ -74,6 +74,8 @@ final readonly class DynamoPersonRepository implements PersonRepository
 
     /**
      * Found by the reservations of their emails among the contacts of the account, without reading the persons.
+     *
+     * @param list<Email> $emails
      */
     public function contactsHavingEmails(AccountId $accountId, array $emails): array
     {

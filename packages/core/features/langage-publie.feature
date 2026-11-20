@@ -116,6 +116,18 @@ Fonctionnalité: Le langage publié des contextes
       | ada@acme.test |
     Alors PersonalData ne répond aucun contact
 
+  Scénario: Prospecting dit quelles organisations d'un compte ont des adresses e-mail, sans tenir compte de la casse
+    Soit l'organisation "Globex" d'e-mail "contact@globex.test" appartient à "SOLEAN IT"
+    Quand un autre contexte demande à Prospecting quelles organisations de "SOLEAN IT" ont les adresses :
+      | Contact@GLOBEX.test |
+      | inconnu@acme.test   |
+    Alors Prospecting répond les organisations ayant ces adresses :
+      | adresse             | organisation |
+      | contact@globex.test | Globex       |
+    Quand un autre contexte demande à Prospecting quelles organisations de "Concurrent" ont les adresses :
+      | contact@globex.test |
+    Alors Prospecting ne répond aucune organisation
+
   Scénario: Prospecting dit lesquelles de plusieurs organisations sont prospectées par un compte
     Quand un autre contexte demande à Prospecting lesquelles sont prospectées par "SOLEAN IT" :
       | ACME     |

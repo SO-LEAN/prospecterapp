@@ -71,6 +71,19 @@ class DynamoOrganizationRepositoryTest extends ApiTestCase
         $this->assertTrue($organizations->isEmailUsed($prospector->accountId, new Email('hello@acme.test'), except: new OrganizationId(self::newIdentity())));
     }
 
+    public function testTheOrganizationsHavingEmailsAreFoundByTheirReservations(): void
+    {
+        $organizations = self::getContainer()->get(OrganizationRepository::class);
+        $prospector = new Prospector(new MemberId(self::newIdentity()), new AccountId(self::newIdentity()));
+        $acme = $this->organizationWithTheEmail($prospector, 'contact@acme.test');
+        $organizations->save($acme);
+        $organizations->save($this->organizationWithTheEmail(new Prospector(new MemberId(self::newIdentity()), new AccountId(self::newIdentity())), 'contact@globex.test'));
+
+        $found = $organizations->havingEmails($prospector->accountId, [new Email('contact@acme.test'), new Email('contact@globex.test'), new Email('nobody@acme.test')]);
+
+        $this->assertEquals(['contact@acme.test' => $acme->id()], $found);
+    }
+
     public function testTheOrganizationsNamingAContactAreFoundInItsAccount(): void
     {
         $organizations = self::getContainer()->get(OrganizationRepository::class);
