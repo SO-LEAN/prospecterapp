@@ -3,6 +3,7 @@
 namespace App\PersonalData\Input;
 
 use OpenApi\Attributes as OA;
+use Prospecter\Core\PersonalData\Application\CollectContact\CollectContact;
 use Symfony\Component\Validator\Constraints as Assert;
 
 /**
@@ -26,5 +27,26 @@ final readonly class CollectContactInput
         #[Assert\All([new Assert\Uuid()])]
         public array $organizationIds = [],
     ) {
+    }
+
+    /**
+     * The collecting of this person by a reader, under this id, the same from the screen and from an AI.
+     */
+    public function commandOf(string $readerId, string $id, \DateTimeImmutable $executedAt): CollectContact
+    {
+        return new CollectContact(
+            readerId: $readerId,
+            id: $id,
+            firstName: $this->name->firstName,
+            lastName: $this->name->lastName,
+            civility: $this->civility,
+            jobTitle: $this->jobTitle,
+            email: $this->contactDetails->email,
+            phoneNumber: $this->contactDetails->phoneNumber,
+            language: $this->contactDetails->language,
+            links: $this->contactDetails->links,
+            organizationIds: $this->organizationIds,
+            executedAt: $executedAt,
+        );
     }
 }
