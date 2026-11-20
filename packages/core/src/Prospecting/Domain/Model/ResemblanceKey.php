@@ -12,7 +12,8 @@ use Prospecter\Core\SharedKernel\Domain\SearchKey;
 final readonly class ResemblanceKey implements \Stringable
 {
     /**
-     * The legal forms of the French companies, as a name ends or begins with them, its points aside.
+     * The legal forms of the French companies: a word of the name that is one, its points aside, does not count,
+     * wherever it stands.
      */
     private const array LEGAL_FORMS = ['sa', 'sas', 'sasu', 'sarl', 'sarlu', 'eurl', 'snc', 'sci', 'scop', 'sca', 'scs', 'scp', 'scm', 'selarl', 'selas', 'selasu', 'selafa', 'gie', 'ei', 'eirl', 'sem', 'spl'];
 
