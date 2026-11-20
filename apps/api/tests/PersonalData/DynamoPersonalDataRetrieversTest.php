@@ -51,6 +51,18 @@ class DynamoPersonalDataRetrieversTest extends ApiTestCase
         $this->assertSame(self::names(PersonIntent::cases()), $card->possibleIntents);
     }
 
+    public function testAPossibleDuplicateForgottenMeanwhileIsNoLongerNamed(): void
+    {
+        $ada = $this->aContact('Ada', 'Lovelace');
+        $duplicate = $this->aContactWithoutAnEmail('ada', 'LOVELACE');
+        $duplicate->suspectDuplicateOf($ada->id(), by: new MemberId(self::newIdentity()), at: new \DateTimeImmutable(self::THE_MOMENT_OF_THE_TESTS));
+        $this->persons()->save($duplicate);
+
+        $this->persons()->remove($ada);
+
+        $this->assertSame([], $this->cardOf($duplicate, $this->readerWithTheRight())->possibleDuplicates);
+    }
+
     public function testAMemberWithoutTheRightReadsTheNameOfAContactTheRestMaskedAndMayDoNothing(): void
     {
         $card = $this->cardOf($this->aContact('Ada', 'Lovelace'), $this->readerWithoutTheRight());
