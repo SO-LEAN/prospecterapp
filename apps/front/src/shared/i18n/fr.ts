@@ -60,6 +60,11 @@ export const fr = {
     failed: 'La connexion a échoué, réessayez.',
   },
   common: {
+    possibleDuplicates: {
+      title: 'Doublon possible',
+      dismiss: 'Ce n’est pas un doublon',
+      dismissOf: 'Ce n’est pas un doublon {{name, de}}',
+    },
     retry: 'Réessayer',
     save: 'Enregistrer',
     saving: 'Enregistrement…',
@@ -196,11 +201,8 @@ export const fr = {
     noResult: { title: 'Aucun résultat', description: 'Aucune organisation ne correspond à « {{query}} ».' },
     preview: { open: 'Voir la fiche' },
     possibleDuplicates: {
-      title: 'Doublon possible',
       of: 'Doublon possible de',
       explanation: 'Elle ressemble, par son nom et sa ville, à :',
-      dismiss: 'Ce n’est pas un doublon',
-      dismissOf: 'Ce n’est pas un doublon {{name, de}}',
     },
     start: {
       title: 'Commencer à prospecter',
@@ -274,10 +276,7 @@ export const fr = {
     subtitle: 'Les personnes que vous prospectez, les plus récentes d’abord.',
     searchPlaceholder: 'Rechercher par nom ou e-mail…',
     possibleDuplicates: {
-      title: 'Doublon possible',
       explanation: 'Ce contact ressemble, par son nom, à un autre de son organisation :',
-      dismiss: 'Ce n’est pas un doublon',
-      dismissOf: 'Ce n’est pas un doublon {{name, de}}',
     },
     empty: {
       title: 'Aucun contact',
