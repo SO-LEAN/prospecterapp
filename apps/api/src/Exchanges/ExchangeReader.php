@@ -3,7 +3,9 @@
 namespace App\Exchanges;
 
 use App\Contacts\Resource\InterlocutorResource;
+use App\Exchanges\Resource\AuthorResource;
 use App\Exchanges\Resource\ExchangeDetailResource;
+use App\PersonalData\Resource\PersonNameResource;
 use App\Security\IntentLinks;
 use App\Shared\Links;
 use Prospecter\Core\Accounts\Contract\Service\ConsultMembers\ConsultMembers;
@@ -59,6 +61,19 @@ final readonly class ExchangeReader
         $presenter->present($exchange);
 
         return $presenter->resource;
+    }
+
+    /**
+     * A member of the account who did something to an exchange, named as its authors are.
+     */
+    public function memberNamed(string $prospector, string $member): AuthorResource
+    {
+        $personOfMember = $this->personsOfMembers([$member]);
+        $persons = new KeptPersons();
+        ($this->consultPersons)(new ConsultPersons($prospector, array_values($personOfMember)), $persons);
+        $person = $persons->persons[$personOfMember[$member] ?? ''] ?? null;
+
+        return new AuthorResource(new PersonNameResource($person?->firstName, $person?->lastName), $person?->email);
     }
 
     private function participantsOf(string $prospector, ExchangeDetail $exchange): ExchangeParticipants
