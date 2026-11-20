@@ -5,6 +5,7 @@ namespace App\Prospecting\Mcp;
 use App\Prospecting\Input\TimelineQuery;
 use App\Prospecting\TimelineReader;
 use App\Security\ToolAccess;
+use App\Shared\Mcp\Adapts;
 use App\Shared\Mcp\ToolInputs;
 use App\Shared\Mcp\ToolResults;
 use Mcp\Schema\ToolAnnotations;
@@ -13,6 +14,7 @@ use Mcp\Server\Capability\Attribute\McpTool;
 /**
  * `GET /api/contacts/{id}/upcoming-exchanges`, for an AI (ADR 0163).
  */
+#[Adapts('api_contacts_upcoming_exchanges')]
 final readonly class ShowUpcomingExchangesTool
 {
     public function __construct(

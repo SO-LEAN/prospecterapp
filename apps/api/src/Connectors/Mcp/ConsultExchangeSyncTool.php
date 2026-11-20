@@ -6,6 +6,7 @@ use App\Connectors\ExchangeSyncReader;
 use App\Exchanges\ExchangeResolver;
 use App\Exchanges\ExchangeVoter;
 use App\Security\ToolAccess;
+use App\Shared\Mcp\Adapts;
 use App\Shared\Mcp\ToolResults;
 use Mcp\Schema\ToolAnnotations;
 use Mcp\Server\Capability\Attribute\McpTool;
@@ -13,6 +14,7 @@ use Mcp\Server\Capability\Attribute\McpTool;
 /**
  * `GET /api/exchanges/{id}/google-sync`, for an AI (ADR 0163).
  */
+#[Adapts('api_exchanges_google_sync')]
 final readonly class ConsultExchangeSyncTool
 {
     public function __construct(

@@ -4,6 +4,7 @@ namespace App\ToDos\Mcp;
 
 use App\Security\ToolAccess;
 use App\Security\User;
+use App\Shared\Mcp\Adapts;
 use App\Shared\Mcp\ToolResults;
 use App\ToDos\ToDoReader;
 use App\ToDos\ToDoResolver;
@@ -14,6 +15,7 @@ use Mcp\Server\Capability\Attribute\McpTool;
 /**
  * `GET /api/to-dos/{id}`, for an AI (ADR 0163).
  */
+#[Adapts('api_to_dos_show')]
 final readonly class ShowToDoTool
 {
     public function __construct(

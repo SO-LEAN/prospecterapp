@@ -5,6 +5,7 @@ namespace App\Contacts\Mcp;
 use App\Contacts\Input\TaggedContactsQuery;
 use App\Contacts\TaggedContactsReader;
 use App\Security\ToolAccess;
+use App\Shared\Mcp\Adapts;
 use App\Shared\Mcp\ToolInputs;
 use App\Shared\Mcp\ToolResults;
 use Mcp\Schema\ToolAnnotations;
@@ -13,6 +14,7 @@ use Mcp\Server\Capability\Attribute\McpTool;
 /**
  * `GET /api/tagged-contacts`, for an AI (ADR 0163).
  */
+#[Adapts('api_contacts_search_by_tags')]
 final readonly class SearchContactsByTagsTool
 {
     public function __construct(

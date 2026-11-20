@@ -5,6 +5,7 @@ namespace App\Booking\Mcp;
 use App\Booking\Input\MyClockQuery;
 use App\Booking\MyBookingPageReader;
 use App\Security\ToolAccess;
+use App\Shared\Mcp\Adapts;
 use App\Shared\Mcp\ToolInputs;
 use App\Shared\Mcp\ToolResults;
 use Mcp\Schema\ToolAnnotations;
@@ -13,6 +14,7 @@ use Mcp\Server\Capability\Attribute\McpTool;
 /**
  * `GET /api/me/booking-page`, for an AI (ADR 0163).
  */
+#[Adapts('api_booking_page')]
 final readonly class ConsultMyBookingPageTool
 {
     public function __construct(

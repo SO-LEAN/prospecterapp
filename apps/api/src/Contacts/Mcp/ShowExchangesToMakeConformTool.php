@@ -7,6 +7,7 @@ use App\Prospecting\Input\TimelineQuery;
 use App\Prospecting\OrganizationResolver;
 use App\Prospecting\OrganizationVoter;
 use App\Security\ToolAccess;
+use App\Shared\Mcp\Adapts;
 use App\Shared\Mcp\ToolInputs;
 use App\Shared\Mcp\ToolResults;
 use Mcp\Schema\ToolAnnotations;
@@ -15,6 +16,7 @@ use Mcp\Server\Capability\Attribute\McpTool;
 /**
  * `GET /api/organizations/{id}/exchanges-to-make-conform`, for an AI (ADR 0163).
  */
+#[Adapts('api_organizations_exchanges_to_make_conform')]
 final readonly class ShowExchangesToMakeConformTool
 {
     public function __construct(
