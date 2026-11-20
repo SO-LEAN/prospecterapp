@@ -41,6 +41,16 @@ class OrganizationAndContactToolsApiTest extends ApiTestCase
         $this->assertSame('CTO', $changed['jobTitle']);
     }
 
+    public function testTheAiRenamesAContact(): void
+    {
+        $ada = $this->ada();
+        $name = ['firstName' => 'Augusta Ada', 'lastName' => 'King'];
+
+        $renamed = $this->assertTheToolActsAsItsEndpoint('renommer-contact', ['id' => $ada, ...$name], 'PATCH', '/api/contacts/'.$ada.'/name', $name, self::PERSONAL_DATA_MANAGERS, '/api/contacts/'.$ada);
+
+        $this->assertSame($name, $renamed['name']);
+    }
+
     /**
      * Ada Lovelace, the contact of the demonstration, at Babbage & Co.
      */

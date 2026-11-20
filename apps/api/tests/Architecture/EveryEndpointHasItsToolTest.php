@@ -57,7 +57,6 @@ class EveryEndpointHasItsToolTest extends KernelTestCase
         'api_contacts_collect',
         'api_contacts_note_to_do',
         'api_contacts_plan_exchange',
-        'api_contacts_rename',
         'api_contacts_tag',
         'api_contacts_take_off_tag',
         'api_exchanges_attach_file',
