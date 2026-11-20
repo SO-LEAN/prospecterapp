@@ -73,6 +73,23 @@ class ReadingToolsApiTest extends ApiTestCase
         $this->assertTheToolAnswersAsItsEndpoint('chercher-etablissements', ['id' => $babbage], '/api/organizations/'.$babbage.'/establishments');
     }
 
+    public function testTheAiFollowsTheTimelineOfAContact(): void
+    {
+        $ada = $this->ada();
+
+        $this->assertTheToolAnswersAsItsEndpoint('lire-echanges-contact', ['id' => $ada], '/api/contacts/'.$ada.'/exchanges');
+    }
+
+    /**
+     * Ada Lovelace, the contact of the demonstration, at Babbage & Co.
+     */
+    private function ada(): string
+    {
+        $this->login();
+
+        return $this->requestJson('GET', '/api/contacts?q=Lovelace')['items'][0]['id'];
+    }
+
     /**
      * Babbage & Co, the organization of the demonstration.
      */
