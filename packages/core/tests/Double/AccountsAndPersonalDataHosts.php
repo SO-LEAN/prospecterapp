@@ -44,6 +44,18 @@ final readonly class AccountsAndPersonalDataHosts implements Hosts
         return new HostIdentity($presented?->firstName, $presented?->lastName, $presented?->pictureUrl, $member->accountName);
     }
 
+    /**
+     * Whether the host may hold the contacts their bookers become: a member with the right to manage personal data
+     * (ADR 0146, 0164). An unknown member may not.
+     */
+    public function mayHoldBookers(MemberId $host): bool
+    {
+        $kept = new KeptMembers();
+        ($this->consultMembersService)(new ConsultMembers([$host->value]), $kept);
+
+        return $kept->members[$host->value]->readsPersonalData ?? false;
+    }
+
     private function memberOf(MemberId $host): MemberResponse
     {
         $kept = new KeptMembers();

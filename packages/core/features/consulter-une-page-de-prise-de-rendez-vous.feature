@@ -85,6 +85,16 @@ Fonctionnalité: Consulter une page de prise de rendez-vous
     Quand on ouvre le lien public "AbCdEfGhIjKlMnOpQrStUv"
     Alors il ne montre rien, sans dire pourquoi
 
+  Scénario: Le lien d'un prospecteur sans le droit aux données personnelles ne montre rien, sans dire pourquoi
+    Soit je suis connecté en tant que prospecteur de "SOLEAN IT" sans le droit aux données personnelles
+    Et mon compte Google est connecté
+    Et je règle mes plages :
+      | jour  | de    | à     |
+      | mardi | 09:00 | 09:30 |
+    Et ma prise de rendez-vous est active
+    Quand on ouvre mon lien public
+    Alors il ne montre rien, sans dire pourquoi
+
   Scénario: Sans Google connecté, aucun créneau n'est proposé
     Soit ma prise de rendez-vous est active
     Et Google refuse mon jeton
