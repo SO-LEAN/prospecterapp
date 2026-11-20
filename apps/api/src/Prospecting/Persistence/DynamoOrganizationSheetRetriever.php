@@ -54,6 +54,7 @@ final readonly class DynamoOrganizationSheetRetriever implements OrganizationShe
         $contact = Documents::contactDetailsOf($document['contactDetails']);
         $address = Documents::addressOf($document['address']);
         $geoPoint = Documents::geoPointOf($document['geoPoint']);
+        $possibleDuplicates = PossibleDuplicates::of($this->prospectingTable, [$document])[$document['id']];
 
         return new OrganizationSheet(
             id: $document['id'],
@@ -82,8 +83,8 @@ final readonly class DynamoOrganizationSheetRetriever implements OrganizationShe
             contactIds: $document['contacts'],
             createdAt: Documents::momentOf($document['createdAt']),
             modifiedAt: Documents::momentOf($document['modifiedAt']),
-            possibleIntents: array_map(static fn (OrganizationIntent $intent): string => $intent->name, OrganizationPossibilities::given(hasLogo: null !== $document['logo'], hasHolding: null !== $document['holdingId'], hasContacts: [] !== $document['contacts'])),
-            possibleDuplicates: PossibleDuplicates::of($this->prospectingTable, [$document])[$document['id']],
+            possibleIntents: array_map(static fn (OrganizationIntent $intent): string => $intent->name, OrganizationPossibilities::given(hasLogo: null !== $document['logo'], hasHolding: null !== $document['holdingId'], hasContacts: [] !== $document['contacts'], hasPossibleDuplicates: [] !== $possibleDuplicates)),
+            possibleDuplicates: $possibleDuplicates,
         );
     }
 }

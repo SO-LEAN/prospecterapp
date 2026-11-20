@@ -16,6 +16,7 @@ use Prospecter\Core\Prospecting\Application\ChangeContactDetails\ChangeContactDe
 use Prospecter\Core\Prospecting\Application\ChangeLogo\ChangeLogo;
 use Prospecter\Core\Prospecting\Application\ConsultOrganization\ConsultOrganization;
 use Prospecter\Core\Prospecting\Application\DetachFromHolding\DetachFromHolding;
+use Prospecter\Core\Prospecting\Application\DismissPossibleDuplicate\DismissPossibleDuplicate;
 use Prospecter\Core\Prospecting\Application\OrganizationSheet;
 use Prospecter\Core\Prospecting\Application\PossibleDuplicate;
 use Prospecter\Core\Prospecting\Application\Relocate\Relocate;
@@ -345,6 +346,13 @@ final class OrganizationContext implements Context
     {
         $organization->suspectDuplicateOf($duplicate->id(), by: $this->scenario->managerOf($organization), at: $this->application->now());
         $this->application->organizations->save($organization);
+    }
+
+    #[Given('j\'ai dit que :name n\'est pas un doublon de :other')]
+    #[When('je dis que :name n\'est pas un doublon de :other')]
+    public function iDismissThePossibleDuplicate(string $name, string $other): void
+    {
+        $this->application->dispatch(new DismissPossibleDuplicate($this->me(), $this->scenario->idOf($name), $this->scenario->idOf($other), $this->application->now()));
     }
 
     #[Then(':name est signalée comme doublon possible de :other')]
