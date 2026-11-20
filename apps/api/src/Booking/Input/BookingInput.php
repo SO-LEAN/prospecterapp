@@ -33,9 +33,8 @@ final readonly class BookingInput
         public ?string $subject = null,
         #[OA\Property(description: 'Left empty by a person: the field is hidden')]
         public ?string $website = null,
-        #[Assert\DateTime(format: \DATE_ATOM)]
-        #[OA\Property(description: 'When the page showed the form', example: '2026-11-23T10:05:00+01:00')]
-        public ?string $formShownAt = null,
+        #[OA\Property(description: 'When the page showed the form', example: '2026-11-23T09:05:00.000Z')]
+        public ?\DateTimeImmutable $formShownAt = null,
     ) {
     }
 }

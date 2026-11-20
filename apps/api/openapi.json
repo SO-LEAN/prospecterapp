@@ -8798,7 +8798,8 @@
                     "formShownAt": {
                         "description": "When the page showed the form",
                         "type": "string",
-                        "example": "2026-11-23T10:05:00+01:00",
+                        "format": "date-time",
+                        "example": "2026-11-23T09:05:00.000Z",
                         "nullable": true,
                         "default": null
                     }

@@ -17,8 +17,8 @@ final readonly class Robots
         return '' !== trim($input->website ?? '') || null === $input->formShownAt || self::secondsSince($input->formShownAt, $at) < self::SHORTEST_FILLING_SECONDS;
     }
 
-    private static function secondsSince(string $shownAt, \DateTimeImmutable $at): int
+    private static function secondsSince(\DateTimeImmutable $shownAt, \DateTimeImmutable $at): int
     {
-        return $at->getTimestamp() - new \DateTimeImmutable($shownAt)->getTimestamp();
+        return $at->getTimestamp() - $shownAt->getTimestamp();
     }
 }

@@ -483,6 +483,17 @@ class BookingApiTest extends ApiTestCase
         yield 'filled at once' => [['formShownAt' => '2026-10-15T08:59:59+00:00']];
     }
 
+    public function testTheMomentTheFormWasShownIsReadAsABrowserWritesIt(): void
+    {
+        $code = $this->anOpenPageOnFridayMorning();
+        $this->signOut();
+
+        $this->requestJson('POST', '/api/booking-pages/'.$code.'/appointments', $this->booking(['formShownAt' => '2026-10-15T08:58:00.000Z']));
+
+        $this->assertResponseStatusCodeSame(201);
+        $this->assertSame(['2026-10-16T09:15:00+02:00'], $this->requestJson('GET', '/api/booking-pages/'.$code)['days'][0]['slots']);
+    }
+
     public function testABookingCountsAmongTheRequestsOfItsLink(): void
     {
         foreach (range(1, self::OPENINGS_OF_A_LINK_A_MINUTE) as $opening) {
