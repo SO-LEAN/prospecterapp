@@ -23,7 +23,7 @@ final class TheWeb
     /** @var array<string, string> the address each address redirects to */
     private array $redirects = [];
 
-    /** @var array<string, true> the addresses served to those signed in only */
+    /** @var array<string, int> the status the addresses served to those signed in only answer the others */
     private array $behindASignIn = [];
 
     public function publish(string $url, string $content): void
@@ -37,11 +37,12 @@ final class TheWeb
     }
 
     /**
-     * The address answers 401 to whoever is not signed in, as an e-mail of a mailbox or a private drive does.
+     * The address answers whoever is not signed in with this status, as an e-mail of a mailbox (401) or a private
+     * drive (403) does.
      */
-    public function keepBehindASignIn(string $url): void
+    public function keepBehindASignIn(string $url, int $status = 401): void
     {
-        $this->behindASignIn[$url] = true;
+        $this->behindASignIn[$url] = $status;
     }
 
     public function serves(string $url): bool
@@ -52,7 +53,7 @@ final class TheWeb
     public function answer(string $url): ResponseInterface
     {
         return match (true) {
-            isset($this->behindASignIn[$url]) => new MockResponse('', ['http_code' => 401]),
+            isset($this->behindASignIn[$url]) => new MockResponse('', ['http_code' => $this->behindASignIn[$url]]),
             isset($this->redirects[$url]) => new MockResponse('', ['http_code' => 302, 'redirect_url' => $this->redirects[$url], 'response_headers' => ['Location' => $this->redirects[$url]]]),
             default => new MockResponse($this->files[$url]),
         };

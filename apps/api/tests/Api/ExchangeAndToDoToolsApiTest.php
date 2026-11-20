@@ -203,6 +203,19 @@ class ExchangeAndToDoToolsApiTest extends ApiTestCase
         $this->assertSame([], $this->requestJson('GET', '/api/exchanges/'.$call)['attachments']);
     }
 
+    public function testAFileForbiddenToWhoeverIsNotSignedInIsRefusedSayingItIsBehindASignIn(): void
+    {
+        $call = $this->aCallWithAdaNotedYesterday();
+        $this->keepTheKernel();
+        self::getContainer()->get(TheWeb::class)->keepBehindASignIn(self::QUOTE_ON_THE_WEB, 403);
+        $this->login();
+
+        $refusal = $this->answerOf($this->callWithoutHandshake('joindre-piece-jointe', ['id' => $call, 'url' => self::QUOTE_ON_THE_WEB, 'name' => 'devis.png']));
+
+        $this->assertSame([422, 'url'], [$refusal['status'], $refusal['violations'][0]['propertyPath']]);
+        $this->assertStringContainsString('behind a sign-in', $refusal['violations'][0]['title']);
+    }
+
     /**
      * A private drive sends whoever is not signed in to its sign-in page.
      */
