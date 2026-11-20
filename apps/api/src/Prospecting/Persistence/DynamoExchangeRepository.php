@@ -61,7 +61,6 @@ final readonly class DynamoExchangeRepository implements ExchangeRepository
             ...$this->linksToItsOrganizations($document, $exchange->isToMakeConform(), $stored['exchange']['keptFor'] ?? []),
             ...$this->linkInTheAgendaOfItsHolder($document, $stored['exchange'] ?? null),
             $this->prospectingTable->putting(self::linkInTheCalendarOfItsHolder($document)),
-            ...$this->markOfTheImport($document, $stored),
             ...$this->registrationOfItsFingerprint($exchange, $stored),
         ]);
     }
@@ -76,34 +75,22 @@ final readonly class DynamoExchangeRepository implements ExchangeRepository
      */
     private function registrationOfItsFingerprint(Exchange $exchange, ?array $stored): array
     {
-        $fingerprint = $exchange->fingerprint();
-        if (null === $fingerprint || null !== $stored) {
+        $registration = self::registrationOf($exchange);
+        if (null === $registration || null !== $stored) {
             return [];
         }
 
-        return [$this->prospectingTable->putting(
-            ['PK' => ExchangeKeys::fingerprint($exchange->accountId()->value, $fingerprint->value), 'SK' => ExchangeKeys::FINGERPRINT, 'exchangeId' => $exchange->id()->value],
-            'attribute_not_exists(PK)',
-            refusal: ExchangeNotedMeanwhile::byAnother(...),
-        )];
+        return [$this->prospectingTable->putting($registration, 'attribute_not_exists(PK)', refusal: ExchangeNotedMeanwhile::byAnother(...))];
     }
 
     /**
-     * A new exchange of an imported e-mail marks it imported, under the condition that no other import of the e-mail
-     * did meanwhile: the reaction applied again then finds it imported. The mark outlives the exchange.
-     *
-     * @param array<string, mixed>      $document
-     * @param array<string, mixed>|null $stored
-     *
-     * @return list<Write>
+     * @return array<string, mixed>|null
      */
-    private function markOfTheImport(array $document, ?array $stored): array
+    private static function registrationOf(Exchange $exchange): ?array
     {
-        if (null === $document['importedFrom'] || null !== $stored) {
-            return [];
-        }
+        $fingerprint = $exchange->fingerprint();
 
-        return [$this->prospectingTable->putting(['PK' => ExchangeKeys::importedEmail($document['id']), 'SK' => ExchangeKeys::IMPORTED_EMAIL, 'accountId' => $document['accountId']], 'attribute_not_exists(PK)')];
+        return null === $fingerprint ? null : ['PK' => ExchangeKeys::fingerprint($exchange->accountId()->value, $fingerprint->value), 'SK' => ExchangeKeys::FINGERPRINT, 'exchangeId' => $exchange->id()->value];
     }
 
     public function remove(Exchange $exchange): void
@@ -141,11 +128,6 @@ final readonly class DynamoExchangeRepository implements ExchangeRepository
         )];
     }
 
-    public function wasImported(ExchangeId $id): bool
-    {
-        return null !== $this->prospectingTable->item(ExchangeKeys::importedEmail($id->value), ExchangeKeys::IMPORTED_EMAIL);
-    }
-
     public function fingerprinted(AccountId $accountId, ExchangeFingerprint $fingerprint): ?Fingerprinted
     {
         $item = $this->prospectingTable->item(ExchangeKeys::fingerprint($accountId->value, $fingerprint->value), ExchangeKeys::FINGERPRINT);
@@ -171,8 +153,10 @@ final readonly class DynamoExchangeRepository implements ExchangeRepository
     }
 
     /**
-     * Writes again the item of every exchange, its revision kept, and its link in the calendar of its holder: what a
-     * table written before the exchanges were listed by account, or in the calendars, needs once.
+     * Writes again the item of every exchange, its revision kept, its link in the calendar of its holder, and the
+     * registration of its fingerprint: what a table written before the exchanges were listed by account, in the
+     * calendars, or fingerprinted (ADR 0166), needs once. A stored exchange holds its fingerprint alone: no erasure is
+     * written over.
      */
     public function writeTheKeysAgain(): int
     {
@@ -180,6 +164,7 @@ final readonly class DynamoExchangeRepository implements ExchangeRepository
         $this->prospectingTable->batch([
             ...array_map(fn (array $item): array => $this->itemOf($item['exchange'], Revision::of($item)), $items),
             ...array_map(static fn (array $item): array => self::linkInTheCalendarOfItsHolder($item['exchange']), $items),
+            ...array_values(array_filter(array_map(static fn (array $item): ?array => self::registrationOf(ExchangeDocument::exchange($item['exchange'])), $items))),
         ]);
 
         return count($items);

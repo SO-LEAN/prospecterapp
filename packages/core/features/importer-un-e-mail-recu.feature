@@ -89,6 +89,16 @@ Fonctionnalité: Importer un e-mail reçu d'un contact ou d'une organisation con
     Quand Gmail prévient Prospecter une seconde fois de cet e-mail
     Alors aucun échange n'est importé
 
+  Scénario: Un e-mail noté par une IA n'est pas importé
+    Soit l'IA a noté l'e-mail reçu de "Ada Lovelace" le 18/11/2026 à 9h12 de Message-ID "<abc@acme.fr>"
+    Quand je reçois un e-mail de "ada@acme.fr" de Message-ID "<ABC@acme.fr>"
+    Alors aucun échange n'est importé
+
+  Scénario: Un e-mail importé n'est pas renoté par une IA
+    Soit j'ai reçu un e-mail de "ada@acme.fr" de Message-ID "<abc@acme.fr>"
+    Quand l'IA note l'e-mail reçu de "Ada Lovelace" le 18/11/2026 à 9h12 de Message-ID "<abc@acme.fr>"
+    Alors c'est déjà noté, avec l'échange existant
+
   Scénario: Un e-mail d'un contact oublié n'est plus importé
     Soit j'efface le contact "Ada Lovelace"
     Quand je reçois un e-mail de "ada@acme.fr"

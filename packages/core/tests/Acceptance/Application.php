@@ -1574,7 +1574,7 @@ final class Application
             new SuspectDuplicateInReturnHandler($this->organizations, $this->events),
             new LiftSuspicionInReturnHandler($this->organizations, $this->events),
             new DismissSuspicionInReturnHandler($this->organizations, $this->events),
-            new NoteImportedEmailHandler($this->exchanges, $this->organizations, $this->prospectors, $this->contactOrganizations, $this->events),
+            new NoteImportedEmailHandler($this->exchanges, $this->organizations, $this->prospectors, $this->contactOrganizations, new NotedOnce($this->exchanges), $this->events),
             new ForgetContactsLeftWithoutOrganizationHandler($this->persons, $this->readers, $this->events),
             new ForgetContactLeftUnattachedHandler($this->persons, $this->readers, $this->events),
             new EraseExchangesOfContactLeftUnattachedHandler($this->exchanges, $this->events),

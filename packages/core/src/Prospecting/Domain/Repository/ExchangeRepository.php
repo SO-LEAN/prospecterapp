@@ -25,11 +25,6 @@ interface ExchangeRepository
     public function remove(Exchange $exchange): void;
 
     /**
-     * Whether the exchange of an imported e-mail was ever saved, erased since or not (ADR 0154).
-     */
-    public function wasImported(ExchangeId $id): bool;
-
-    /**
      * The exchange the account noted under this fingerprint, erased since or not (ADR 0166).
      */
     public function fingerprinted(AccountId $accountId, ExchangeFingerprint $fingerprint): ?Fingerprinted;

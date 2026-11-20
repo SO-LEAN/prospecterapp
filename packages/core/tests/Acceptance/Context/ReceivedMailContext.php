@@ -61,6 +61,14 @@ final class ReceivedMailContext implements Context
         $this->receive([self::MY_MAILBOX], $this->mailFrom($sender));
     }
 
+    #[When('je reçois un e-mail de :sender de Message-ID :messageId')]
+    #[Given('j\'ai reçu un e-mail de :sender de Message-ID :messageId')]
+    public function iReceiveAnEMailOfMessageId(string $sender, string $messageId): void
+    {
+        $id = sprintf('message-%d', ++$this->messages);
+        $this->receive([self::MY_MAILBOX], new ReceivedMail($id, $messageId, new Email($sender), [self::INBOX], $this->aMinuteLater(), self::SUBJECT, self::TEXT));
+    }
+
     #[When('je reçois un e-mail de :sender avec :copied en copie')]
     public function iReceiveAnEMailWithACopy(string $sender, string $copied): void
     {

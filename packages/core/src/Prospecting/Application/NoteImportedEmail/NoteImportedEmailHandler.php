@@ -6,6 +6,8 @@ namespace Prospecter\Core\Prospecting\Application\NoteImportedEmail;
 
 use Prospecter\Core\Connectors\Contract\Event\EmailExchanged;
 use Prospecter\Core\Prospecting\Domain\Exception\ContactToAttachOfAnother;
+use Prospecter\Core\Prospecting\Domain\Exception\ExchangeAlreadyNoted;
+use Prospecter\Core\Prospecting\Domain\Exception\ExchangeErasedBefore;
 use Prospecter\Core\Prospecting\Domain\Exception\UnknownContact;
 use Prospecter\Core\Prospecting\Domain\Exception\UnknownOrganization;
 use Prospecter\Core\Prospecting\Domain\Model\Channel;
@@ -19,6 +21,7 @@ use Prospecter\Core\Prospecting\Domain\Port\Prospectors;
 use Prospecter\Core\Prospecting\Domain\Repository\ExchangeRepository;
 use Prospecter\Core\Prospecting\Domain\Repository\OrganizationRepository;
 use Prospecter\Core\Prospecting\Domain\Service\ContactOrganizations;
+use Prospecter\Core\Prospecting\Domain\Service\NotedOnce;
 use Prospecter\Core\SharedKernel\Application\EventHandler;
 use Prospecter\Core\SharedKernel\Application\Port\Events;
 use Prospecter\Core\SharedKernel\Application\PublishesEvents;
@@ -39,6 +42,7 @@ final readonly class NoteImportedEmailHandler implements EventHandler
         private OrganizationRepository $organizations,
         private Prospectors $prospectors,
         private ContactOrganizations $contactOrganizations,
+        private NotedOnce $notedOnce,
         private Events $events,
     ) {
     }
@@ -48,17 +52,27 @@ final readonly class NoteImportedEmailHandler implements EventHandler
         $prospector = $this->prospectors->prospectorFrom(new MemberId($email->memberId));
         $correspondent = null === $email->contactId ? new OrganizationId((string) $email->organizationId) : new PersonId($email->contactId);
         $id = ExchangeId::ofImportedEmail($prospector->accountId, $email->emailId, $correspondent);
-        if ($this->exchanges->wasImported($id)) {
-            return;
-        }
-
         $exchange = $this->exchangeWith($correspondent, $id, $prospector, $email);
-        if (null === $exchange) {
+        if (null === $exchange || $this->wasNotedBefore($exchange)) {
             return;
         }
 
         $this->exchanges->save($exchange);
         $this->publishWhatHappenedTo($exchange);
+    }
+
+    /**
+     * Imported, noted by an AI, or by hand, erased since or not: an e-mail is noted once in its account (ADR 0166).
+     */
+    private function wasNotedBefore(Exchange $exchange): bool
+    {
+        try {
+            $this->notedOnce->ensureFirst($exchange);
+
+            return false;
+        } catch (ExchangeAlreadyNoted|ExchangeErasedBefore) {
+            return true;
+        }
     }
 
     /**

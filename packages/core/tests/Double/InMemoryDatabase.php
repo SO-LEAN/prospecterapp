@@ -45,8 +45,6 @@ final class InMemoryDatabase
     private array $organizations = [];
     /** @var array<string, Exchange> */
     private array $exchanges = [];
-    /** @var array<string, true> the exchanges of the e-mails imported, kept once erased, by their identity */
-    private array $importedEmails = [];
     /** @var array<string, Fingerprinted> the exchanges noted under each fingerprint, kept once erased, by account and fingerprint */
     private array $fingerprints = [];
     /** @var array<string, ToDo> */
@@ -100,7 +98,6 @@ final class InMemoryDatabase
         $this->persons = $snapshot->persons;
         $this->organizations = $snapshot->organizations;
         $this->exchanges = $snapshot->exchanges;
-        $this->importedEmails = $snapshot->importedEmails;
         $this->fingerprints = $snapshot->fingerprints;
         $this->toDos = $snapshot->toDos;
         $this->contactsToAttach = $snapshot->contactsToAttach;
@@ -381,9 +378,6 @@ final class InMemoryDatabase
     {
         $this->registerFingerprintOf($exchange);
         $this->exchanges[(string) $exchange->id()] = self::withoutItsEvents($exchange);
-        if (null !== StateOf::the($exchange)['importedFrom']) {
-            $this->importedEmails[(string) $exchange->id()] = true;
-        }
         $this->revise((string) $exchange->id());
     }
 
@@ -435,11 +429,6 @@ final class InMemoryDatabase
     private static function fingerprintKey(AccountId $accountId, ExchangeFingerprint $fingerprint): string
     {
         return $accountId->value.'#'.$fingerprint->value;
-    }
-
-    public function wasImported(string $id): bool
-    {
-        return isset($this->importedEmails[$id]);
     }
 
     /**
