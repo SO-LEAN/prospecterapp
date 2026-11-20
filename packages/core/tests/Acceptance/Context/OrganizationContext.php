@@ -17,6 +17,7 @@ use Prospecter\Core\Prospecting\Application\ChangeLogo\ChangeLogo;
 use Prospecter\Core\Prospecting\Application\ConsultOrganization\ConsultOrganization;
 use Prospecter\Core\Prospecting\Application\DetachFromHolding\DetachFromHolding;
 use Prospecter\Core\Prospecting\Application\OrganizationSheet;
+use Prospecter\Core\Prospecting\Application\PossibleDuplicate;
 use Prospecter\Core\Prospecting\Application\Relocate\Relocate;
 use Prospecter\Core\Prospecting\Application\RemoveContact\RemoveContact;
 use Prospecter\Core\Prospecting\Application\RemoveLogo\RemoveLogo;
@@ -333,6 +334,42 @@ final class OrganizationContext implements Context
         Expect::same($table->getColumn(0), Vocabulary::describeIntents($this->consulted->possibleIntents));
     }
 
+    #[Given(':name a été signalée comme doublon possible de :other')]
+    public function theOrganizationWasFlaggedAsAPossibleDuplicateOf(string $name, string $other): void
+    {
+        $this->suspectDuplicate($this->scenario->organizationNamed($name), $this->scenario->organizationNamed($other));
+        $this->suspectDuplicate($this->scenario->organizationNamed($other), $this->scenario->organizationNamed($name));
+    }
+
+    private function suspectDuplicate(Organization $organization, Organization $duplicate): void
+    {
+        $organization->suspectDuplicateOf($duplicate->id(), by: $this->scenario->managerOf($organization), at: $this->application->now());
+        $this->application->organizations->save($organization);
+    }
+
+    #[Then(':name est signalée comme doublon possible de :other')]
+    public function theOrganizationIsFlaggedAsAPossibleDuplicateOf(string $name, string $other): void
+    {
+        Expect::same([$other], $this->possibleDuplicatesOf($name));
+    }
+
+    #[Then(':name n\'est pas signalée')]
+    public function theOrganizationIsNotFlagged(string $name): void
+    {
+        Expect::same([], $this->possibleDuplicatesOf($name));
+    }
+
+    /**
+     * @return list<string> the full names of the organizations it may be a duplicate of
+     */
+    private function possibleDuplicatesOf(string $name): array
+    {
+        $sheet = $this->application->consultOrganization(new ConsultOrganization($this->scenario->idOf($name)));
+        Expect::that(null !== $sheet, sprintf('The organization was expected, got: %s', $this->application->refusal()?->getMessage()));
+
+        return array_map(static fn (PossibleDuplicate $duplicate): string => $duplicate->fullName, $sheet->possibleDuplicates);
+    }
+
     #[Then('je trouve :count organisation(s)')]
     public function iFindOrganizations(int $count): void
     {
@@ -360,6 +397,7 @@ final class OrganizationContext implements Context
         $shown = array_map(static fn (FoundOrganization $organization): array => array_intersect_key([
             'nom' => $organization->fullName,
             'ville' => (string) $organization->city,
+            'doublon possible de' => implode(', ', array_map(static fn (PossibleDuplicate $duplicate): string => $duplicate->fullName, $organization->possibleDuplicates)),
         ], $columns), $this->found->organizations);
 
         Expect::same($table->getColumnsHash(), $shown);

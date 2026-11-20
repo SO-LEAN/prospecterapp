@@ -9,6 +9,7 @@ use Prospecter\Core\Prospecting\Domain\Model\Organization;
 use Prospecter\Core\Prospecting\Domain\Model\Website;
 use Prospecter\Core\Prospecting\Domain\Port\Prospectors;
 use Prospecter\Core\Prospecting\Domain\Repository\OrganizationRepository;
+use Prospecter\Core\Prospecting\Domain\Service\DuplicateSuspicion;
 use Prospecter\Core\Prospecting\Domain\Service\EmailUniqueness;
 use Prospecter\Core\Prospecting\Domain\Service\LinkedInPageUniqueness;
 use Prospecter\Core\Prospecting\Domain\Service\WebsiteUniqueness;
@@ -36,6 +37,7 @@ final readonly class StartProspectingHandler implements CommandHandler
         private EmailUniqueness $emails,
         private LinkedInPageUniqueness $linkedInPages,
         private WebsiteUniqueness $websites,
+        private DuplicateSuspicion $duplicateSuspicion,
     ) {
     }
 
@@ -56,6 +58,7 @@ final readonly class StartProspectingHandler implements CommandHandler
         $this->emails->ensureAvailableFor($organization);
         $this->linkedInPages->ensureAvailableFor($organization);
         $this->websites->ensureAvailableFor($organization);
+        $organization->reconsiderDuplicates($this->duplicateSuspicion->resemblingTo($organization), by: $prospector->id, at: $command->executedAt);
         $this->organizations->save($organization);
         $this->publishWhatHappenedTo($organization);
     }

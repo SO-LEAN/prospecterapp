@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Prospecter\Core\Prospecting\Application\ReviseLegalIdentity;
 
 use Prospecter\Core\Prospecting\Domain\Repository\OrganizationRepository;
+use Prospecter\Core\Prospecting\Domain\Service\DuplicateSuspicion;
 use Prospecter\Core\Prospecting\Domain\Service\SiretUniqueness;
 use Prospecter\Core\SharedKernel\Application\CommandHandler;
 use Prospecter\Core\SharedKernel\Application\Port\Events;
@@ -22,6 +23,7 @@ final readonly class ReviseLegalIdentityHandler implements CommandHandler
         private OrganizationRepository $organizations,
         private Events $events,
         private SiretUniqueness $sirets,
+        private DuplicateSuspicion $duplicateSuspicion,
     ) {
     }
 
@@ -31,6 +33,7 @@ final readonly class ReviseLegalIdentityHandler implements CommandHandler
         $organization = $this->organizations->get(new OrganizationId($command->id));
         $organization->reviseLegalIdentity(new LegalIdentity($command->corporateName, $command->form, $command->type, Siret::orNone($command->siret)), by: $author, at: $command->executedAt);
         $this->sirets->ensureAvailableFor($organization);
+        $organization->reconsiderDuplicates($this->duplicateSuspicion->resemblingTo($organization), by: $author, at: $command->executedAt);
         $this->organizations->save($organization);
         $this->publishWhatHappenedTo($organization);
     }

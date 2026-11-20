@@ -13,6 +13,7 @@ use Prospecter\Core\Prospecting\Domain\Exception\UnknownOrganization;
 use Prospecter\Core\Prospecting\Domain\Exception\WebsiteAlreadyUsed;
 use Prospecter\Core\Prospecting\Domain\Model\LinkedInPage;
 use Prospecter\Core\Prospecting\Domain\Model\Organization;
+use Prospecter\Core\Prospecting\Domain\Model\ResemblanceKey;
 use Prospecter\Core\Prospecting\Domain\Model\Website;
 use Prospecter\Core\Prospecting\Domain\Repository\OrganizationRepository;
 use Prospecter\Core\SharedKernel\Domain\AccountId;
@@ -46,6 +47,7 @@ final readonly class DynamoOrganizationRepository implements OrganizationReposit
     private const string SIRET = 'SIRET';
     private const string LINKEDIN_PAGE = 'LINKEDIN_PAGE';
     private const string WEBSITE = 'WEBSITE';
+    private const string RESEMBLANCE_KEY = 'resemblanceKey';
 
     public function __construct(private Table $prospectingTable)
     {
@@ -88,6 +90,14 @@ final readonly class DynamoOrganizationRepository implements OrganizationReposit
         return $this->holderOf(self::WEBSITE, $accountId->value, $website->domain(), $except);
     }
 
+    public function resembling(AccountId $accountId, ResemblanceKey $key, OrganizationId $except): array
+    {
+        $links = $this->prospectingTable->query(OrganizationKeys::ofResemblance($accountId->value, $key->value));
+        $resembling = array_map(static fn (array $link): OrganizationId => new OrganizationId($link['organizationId']), $links);
+
+        return array_values(array_filter($resembling, static fn (OrganizationId $id): bool => !$id->equals($except)));
+    }
+
     public function save(Organization $organization): void
     {
         $document = OrganizationDocument::of($organization);
@@ -104,7 +114,7 @@ final readonly class DynamoOrganizationRepository implements OrganizationReposit
             $writes[] = $this->prospectingTable->deleting(self::emailKey($organization->accountId(), $storedEmail), self::EMAIL);
         }
 
-        $this->prospectingTable->transact([...$writes, ...$this->reservationsChanged($document, $stored['organization'] ?? null), ...$this->emailDomainLinkChanged($document['accountId'], $document['id'], $email, $storedEmail), ...$this->contactLinksChanged($document, $stored['organization']['contacts'] ?? [])]);
+        $this->prospectingTable->transact([...$writes, ...$this->reservationsChanged($document, $stored['organization'] ?? null), ...$this->emailDomainLinkChanged($document['accountId'], $document['id'], $email, $storedEmail), ...$this->resemblanceLinkChanged($document, $organization->resemblanceKey()?->value, $stored[self::RESEMBLANCE_KEY] ?? null), ...$this->contactLinksChanged($document, $stored['organization']['contacts'] ?? [])]);
     }
 
     public function remove(Organization $organization): void
@@ -119,6 +129,7 @@ final readonly class DynamoOrganizationRepository implements OrganizationReposit
                 $this->prospectingTable->deleting(...self::emailDomainKeys($document['accountId'], $email, $document['id'])),
             ]),
             ...$this->reservationsChanged(null, $document),
+            ...$this->resemblanceLinkChanged($document, null, $organization->resemblanceKey()?->value),
             ...$this->contactLinksChanged(['contacts' => []] + $document, $document['contacts']),
         ]);
     }
@@ -145,7 +156,7 @@ final readonly class DynamoOrganizationRepository implements OrganizationReposit
 
     /**
      * Writes again the item of every organization, its search keys and its keys in its lists with it, the link of
-     * the domain of its email (ADR 0146) and the reservations of its LinkedIn page and of the domain of its website,
+     * the domain of its email (ADR 0146), the link of its resemblance key and the reservations of its LinkedIn page and of the domain of its website,
      * and forgets the items of the search before ADR 0071: what a table written
      * before them needs once.
      */
@@ -153,10 +164,13 @@ final readonly class DynamoOrganizationRepository implements OrganizationReposit
     {
         $items = $this->prospectingTable->scan(OrganizationKeys::ORGANIZATION.'#');
         $withAnEmail = array_values(array_filter($items, static fn (array $item): bool => null !== $item['organization']['contactDetails']['email']));
+        $organizations = array_map(static fn (array $item): Organization => OrganizationDocument::organization($item['organization']), $items);
+        $resembling = array_values(array_filter($organizations, static fn (Organization $organization): bool => null !== $organization->resemblanceKey()));
         $this->prospectingTable->batch(
             [
-                ...array_map(fn (array $item): array => $this->itemOf(OrganizationDocument::organization($item['organization']), $item['organization'], Revision::of($item)), $items),
+                ...array_map(fn (Organization $organization, array $item): array => $this->itemOf($organization, $item['organization'], Revision::of($item)), $organizations, $items),
                 ...array_map(static fn (array $item): array => self::emailDomainLink($item['organization']['accountId'], $item['organization']['contactDetails']['email'], $item['organization']['id']), $withAnEmail),
+                ...array_map(static fn (Organization $organization): array => self::resemblanceLink($organization->accountId()->value, (string) $organization->resemblanceKey(), $organization->id()->value), $resembling),
                 ...array_merge(...array_map(self::reservationsOf(...), array_column($items, 'organization'))),
             ],
             array_map(static fn (array $former): array => [$former['PK'], $former['SK']], $this->prospectingTable->scan('TOKEN')),
@@ -178,6 +192,7 @@ final readonly class DynamoOrganizationRepository implements OrganizationReposit
             'GSI1PK' => OrganizationKeys::ofAccount($document['accountId']),
             'GSI1SK' => $document['id'],
             'email' => $document['contactDetails']['email'],
+            self::RESEMBLANCE_KEY => $organization->resemblanceKey()?->value,
             Revision::ATTRIBUTE => $revision,
             'organization' => $document,
         ] + (null === $document['holdingId'] ? [] : ['GSI2PK' => 'HOLDING#'.$document['holdingId'], 'GSI2SK' => $document['id']]);
@@ -302,6 +317,33 @@ final readonly class DynamoOrganizationRepository implements OrganizationReposit
             ...(null === $domain ? [] : [$this->prospectingTable->putting(self::emailDomainLink($accountId, (string) $email, $organizationId))]),
             ...(null === $storedDomain ? [] : [$this->prospectingTable->deleting(...self::emailDomainKeys($accountId, (string) $storedEmail, $organizationId))]),
         ];
+    }
+
+    /**
+     * The link of its resemblance key written when the key changes, the former one deleted.
+     *
+     * @param array<string, mixed> $document
+     *
+     * @return list<Write>
+     */
+    private function resemblanceLinkChanged(array $document, ?string $key, ?string $storedKey): array
+    {
+        if ($key === $storedKey) {
+            return [];
+        }
+
+        return [
+            ...(null === $key ? [] : [$this->prospectingTable->putting(self::resemblanceLink($document['accountId'], $key, $document['id']))]),
+            ...(null === $storedKey ? [] : [$this->prospectingTable->deleting(OrganizationKeys::ofResemblance($document['accountId'], $storedKey), OrganizationKeys::organization($document['id']))]),
+        ];
+    }
+
+    /**
+     * @return array<string, string>
+     */
+    private static function resemblanceLink(string $accountId, string $key, string $organizationId): array
+    {
+        return ['PK' => OrganizationKeys::ofResemblance($accountId, $key), 'SK' => OrganizationKeys::organization($organizationId), 'organizationId' => $organizationId];
     }
 
     /**

@@ -4,6 +4,7 @@ namespace Tests\App\Prospecting;
 
 use Prospecter\Core\Prospecting\Application\OrganizationSheet;
 use Prospecter\Core\Prospecting\Application\Port\OrganizationSheetRetriever;
+use Prospecter\Core\Prospecting\Application\PossibleDuplicate;
 use Prospecter\Core\Prospecting\Domain\Model\LinkedInPage;
 use Prospecter\Core\Prospecting\Domain\Model\Organization;
 use Prospecter\Core\Prospecting\Domain\Model\OrganizationIntent;
@@ -86,9 +87,21 @@ class DynamoOrganizationSheetRetrieverTest extends ApiTestCase
         $this->assertSame(['https://www.linkedin.com/company/acme-corp', 'https://acme.fr'], [$sheet->linkedInPage, $sheet->website]);
     }
 
-    private function prospect(Prospector $prospector, string $corporateName): Organization
+    public function testTheSheetOfAnOrganizationResemblingOthersNamesThoseStillProspected(): void
     {
-        $organization = Organization::prospectedBy($prospector, new OrganizationId(self::newIdentity()), new LegalIdentity($corporateName), new ContactDetails(), new \DateTimeImmutable(self::THE_MOMENT_OF_THE_TESTS));
+        $prospector = $this->aProspector();
+        $acme = $this->prospect($prospector, 'ACME');
+        $duplicate = $this->prospect($prospector, 'Acme', 'SAS');
+        $acme->suspectDuplicateOf($duplicate->id(), $prospector->id, new \DateTimeImmutable(self::THE_MOMENT_OF_THE_TESTS));
+        $acme->suspectDuplicateOf(new OrganizationId(self::newIdentity()), $prospector->id, new \DateTimeImmutable(self::THE_MOMENT_OF_THE_TESTS));
+        $this->organizations()->save($acme);
+
+        $this->assertEquals([new PossibleDuplicate($duplicate->id()->value, 'Acme SAS')], $this->sheetOf($acme)->possibleDuplicates);
+    }
+
+    private function prospect(Prospector $prospector, string $corporateName, ?string $form = null): Organization
+    {
+        $organization = Organization::prospectedBy($prospector, new OrganizationId(self::newIdentity()), new LegalIdentity($corporateName, $form), new ContactDetails(), new \DateTimeImmutable(self::THE_MOMENT_OF_THE_TESTS));
         $this->organizations()->save($organization);
 
         return $organization;
