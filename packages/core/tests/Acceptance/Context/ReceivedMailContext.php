@@ -107,6 +107,12 @@ final class ReceivedMailContext implements Context
         $this->application->mailboxes->forgetTheHistoryOf($mailbox);
     }
 
+    #[Given('Gmail refuse la lecture des messages de :mailbox')]
+    public function gmailRefusesToReadTheMessagesOf(string $mailbox): void
+    {
+        $this->application->mailboxes->refusesTheMessagesOf($mailbox);
+    }
+
     #[When('Gmail prévient Prospecter une seconde fois de cet e-mail')]
     public function gmailNotifiesAgain(): void
     {

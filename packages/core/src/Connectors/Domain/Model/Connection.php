@@ -354,13 +354,20 @@ final class Connection implements ReleasesEvents
     }
 
     /**
-     * A message of the mailbox imported, none once the import is no longer active.
-     *
-     * @throws AccessRevoked
+     * A message of the mailbox imported, none once the import is no longer active, nor once the provider refuses the
+     * access: the next reading of the history makes the import to reconnect.
      */
     public function mailOf(string $messageId, ClientCredentials $client, ProviderMailbox $mailbox): ?ReceivedMail
     {
-        return MailImport::Active === $this->mailImport ? $mailbox->message($client, $this->refreshToken, $messageId) : null;
+        if (MailImport::Active !== $this->mailImport) {
+            return null;
+        }
+
+        try {
+            return $mailbox->message($client, $this->refreshToken, $messageId);
+        } catch (AccessRevoked) {
+            return null;
+        }
     }
 
     /**
