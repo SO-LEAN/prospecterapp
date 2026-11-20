@@ -1,0 +1,33 @@
+<?php
+
+namespace App\Prospecting\Mcp;
+
+use App\Prospecting\OrganizationSearchReader;
+use App\Security\ToolAccess;
+use App\Shared\Mcp\ToolResults;
+use Mcp\Schema\ToolAnnotations;
+use Mcp\Server\Capability\Attribute\McpTool;
+
+/**
+ * `GET /api/organizations`, for an AI (ADR 0163).
+ */
+final readonly class SearchOrganizationsTool
+{
+    public function __construct(private ToolAccess $access, private OrganizationSearchReader $organizations, private ToolResults $results)
+    {
+    }
+
+    /**
+     * @param string  $q     the start of the corporate name, or the email, of the organizations searched; all when empty
+     * @param ?string $after the cursor of the next slice, read in the link `next` of the slice before
+     *
+     * @return array<string, mixed>
+     */
+    #[McpTool(name: 'rechercher-organisations', description: 'Les organisations que prospecte le compte du membre, par le début de leur raison sociale ou leur e-mail, les plus récentes d\'abord, par tranches.', annotations: new ToolAnnotations(readOnlyHint: true))]
+    public function __invoke(string $q = '', ?string $after = null): array
+    {
+        $this->access->denyUnlessGranted('ROLE_PROSPECTOR');
+
+        return $this->results->of($this->organizations->search($this->access->member()->memberId(), $q, $after));
+    }
+}
