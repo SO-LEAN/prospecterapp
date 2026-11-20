@@ -11,7 +11,7 @@ On an instance, the handler of Monolog is `fingers_crossed` at `error`: a line a
 
 ## Decision
 
-Two channels are written at info on an instance, on stderr in JSON, by a handler of their own beside `fingers_crossed`, which keeps them too, so that an error of theirs still writes the lines the other channels kept before it: `mailbox`, the import of the e-mails (each reading of a history, its points and how many messages it listed; each message read, its id at the provider and its labels, or why it is set aside; a sender nobody of the account has; the renewals of the watches), and `messaging`, the relay and the worker (each event published, each event not applied). Every other channel stays as it was. These lines carry no personal data: never an address, a subject, a text or a name, only identities, counts, labels and points of a history.
+Two channels are written at info on an instance, on stderr in JSON, by a handler of their own beside `fingers_crossed`, which keeps them too, so that an error of theirs still writes the lines the other channels kept before it: `mailbox`, the import of the e-mails (each reading of a history, its points and the ids of the messages it listed; each message read, its id at the provider and its labels, or why it is set aside; a sender nobody of the account has; the renewals of the watches), and `messaging`, the relay and the worker (each event published, each event not applied). Every other channel stays as it was. These lines carry no personal data: never an address, a subject, a text or a name, only identities, labels and points of a history.
 
 ## Consequences
 
