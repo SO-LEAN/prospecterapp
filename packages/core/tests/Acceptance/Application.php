@@ -296,6 +296,7 @@ use Prospecter\Core\Prospecting\Application\MarkExchangeDone\MarkExchangeDoneHan
 use Prospecter\Core\Prospecting\Application\MarkExchangeMissed\MarkExchangeMissedHandler;
 use Prospecter\Core\Prospecting\Application\MoveExchange\MoveExchangeHandler;
 use Prospecter\Core\Prospecting\Application\NameOrganizationsOfContacts\NameOrganizationsOfContactsHandler;
+use Prospecter\Core\Prospecting\Application\WhichOrganizationsNameTheseContacts\WhichOrganizationsNameTheseContactsHandler;
 use Prospecter\Core\Prospecting\Application\NoteCampaignExchange\NoteCampaignExchangeHandler;
 use Prospecter\Core\Prospecting\Application\NoteExchange\NoteExchangeHandler;
 use Prospecter\Core\Prospecting\Application\NoteImportedEmail\NoteImportedEmailHandler;
@@ -360,6 +361,9 @@ use Prospecter\Core\Prospecting\Contract\Service\ListOrganizationFacts\KeptOrgan
 use Prospecter\Core\Prospecting\Contract\Service\ListOrganizationFacts\ListOrganizationFacts;
 use Prospecter\Core\Prospecting\Contract\Service\NameOrganizationsOfContacts\KeptOrganizationsOfContacts;
 use Prospecter\Core\Prospecting\Contract\Service\NameOrganizationsOfContacts\NameOrganizationsOfContacts;
+use Prospecter\Core\Prospecting\Contract\Service\WhichOrganizationsNameTheseContacts\KeptOrganizationsNamingContacts;
+use Prospecter\Core\Prospecting\Contract\Service\WhichOrganizationsNameTheseContacts\OrganizationsNamingContactResponse;
+use Prospecter\Core\Prospecting\Contract\Service\WhichOrganizationsNameTheseContacts\WhichOrganizationsNameTheseContacts;
 use Prospecter\Core\Prospecting\Contract\Service\NameOrganizationsOfContacts\OrganizationsOfContactResponse;
 use Prospecter\Core\Prospecting\Contract\Service\WhichAreProspected\KeptProspected;
 use Prospecter\Core\Prospecting\Contract\Service\WhichAreProspected\WhichAreProspected;
@@ -518,6 +522,7 @@ final class Application
     private readonly WhichAreProspectedHandler $whichAreProspectedService;
     private readonly WhichOrganizationsHaveTheseEmailsHandler $whichOrganizationsHaveTheseEmailsService;
     private readonly NameOrganizationsOfContactsHandler $nameOrganizationsOfContactsService;
+    private readonly WhichOrganizationsNameTheseContactsHandler $whichOrganizationsNameTheseContactsService;
     private readonly InMemoryOrganizationFactsRetriever $organizationFactsRetriever;
     private readonly InMemoryExchangeFactsRetriever $exchangeFactsRetriever;
     private readonly ListOrganizationFactsHandler $listOrganizationFactsService;
@@ -645,6 +650,7 @@ final class Application
         $this->whichAreProspectedService = new WhichAreProspectedHandler($this->organizations);
         $this->whichOrganizationsHaveTheseEmailsService = new WhichOrganizationsHaveTheseEmailsHandler($this->organizations);
         $this->nameOrganizationsOfContactsService = new NameOrganizationsOfContactsHandler(new InMemoryOrganizationOfContactRetriever($database));
+        $this->whichOrganizationsNameTheseContactsService = new WhichOrganizationsNameTheseContactsHandler(new InMemoryOrganizationOfContactRetriever($database));
         $this->organizationFactsRetriever = new InMemoryOrganizationFactsRetriever($database);
         $this->exchangeFactsRetriever = new InMemoryExchangeFactsRetriever($database);
         $this->listOrganizationFactsService = new ListOrganizationFactsHandler($this->organizationFactsRetriever);
@@ -1410,6 +1416,17 @@ final class Application
     {
         $kept = new KeptOrganizationsOfContacts();
         ($this->nameOrganizationsOfContactsService)($query, $kept);
+
+        return $kept->contacts;
+    }
+
+    /**
+     * @return list<OrganizationsNamingContactResponse>
+     */
+    public function whichOrganizationsNameTheseContacts(WhichOrganizationsNameTheseContacts $query): array
+    {
+        $kept = new KeptOrganizationsNamingContacts();
+        ($this->whichOrganizationsNameTheseContactsService)($query, $kept);
 
         return $kept->contacts;
     }

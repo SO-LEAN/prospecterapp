@@ -153,6 +153,21 @@ Fonctionnalité: Le langage publié des contextes
       | Ada Lovelace |
     Alors Prospecting ne répond aucune organisation
 
+  Scénario: Prospecting dit quelles organisations nomment des contacts d'un compte
+    Soit l'organisation "Globex" appartient à "SOLEAN IT"
+    Et le contact "Alan Turing" de "ACME" est aussi contact de "Globex"
+    Quand un autre contexte demande à Prospecting quelles organisations, pour "SOLEAN IT", nomment :
+      | Ada Lovelace |
+      | Alan Turing  |
+      | Personne     |
+    Alors Prospecting répond les organisations :
+      | contact      | organisations |
+      | Ada Lovelace | ACME          |
+      | Alan Turing  | ACME, Globex  |
+    Quand un autre contexte demande à Prospecting quelles organisations, pour "Concurrent", nomment :
+      | Ada Lovelace |
+    Alors Prospecting ne répond aucune organisation
+
   Scénario: Prospecting liste les faits des organisations d'un compte, par tranche
     Soit l'organisation "Globex" appartient à "SOLEAN IT"
     Et l'organisation "Initech" appartient à "SOLEAN IT"

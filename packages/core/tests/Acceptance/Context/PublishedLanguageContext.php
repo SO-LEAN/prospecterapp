@@ -36,6 +36,8 @@ use Prospecter\Core\Prospecting\Contract\Service\ListOrganizationFacts\ListOrgan
 use Prospecter\Core\Prospecting\Contract\Service\ListOrganizationFacts\OrganizationFactsResponse;
 use Prospecter\Core\Prospecting\Contract\Service\NameOrganizationsOfContacts\NameOrganizationsOfContacts;
 use Prospecter\Core\Prospecting\Contract\Service\NameOrganizationsOfContacts\OrganizationsOfContactResponse;
+use Prospecter\Core\Prospecting\Contract\Service\WhichOrganizationsNameTheseContacts\OrganizationsNamingContactResponse;
+use Prospecter\Core\Prospecting\Contract\Service\WhichOrganizationsNameTheseContacts\WhichOrganizationsNameTheseContacts;
 use Prospecter\Core\Prospecting\Contract\Service\WhichAreProspected\WhichAreProspected;
 use Prospecter\Core\Prospecting\Contract\Service\WhichOrganizationsHaveTheseEmails\WhichOrganizationsHaveTheseEmails;
 use Prospecter\Core\SharedKernel\Domain\AccountId;
@@ -453,6 +455,20 @@ final class PublishedLanguageContext implements Context
     {
         $this->asked = array_combine(array_map($this->scenario->personIdOf(...), $contacts->getColumn(0)), $contacts->getColumn(0));
         $this->organizationsOfContacts = $this->application->nameOrganizationsOfContacts(new NameOrganizationsOfContacts($this->scenario->accountIdOf($account)->value, array_keys($this->asked)));
+    }
+
+    /**
+     * The identities answered, named as the organizations of the scenario, to read as the names answered.
+     */
+    #[When('un autre contexte demande à Prospecting quelles organisations, pour :account, nomment :')]
+    public function anotherContextAsksWhichOrganizationsNameContacts(string $account, TableNode $contacts): void
+    {
+        $this->asked = array_combine(array_map($this->scenario->personIdOf(...), $contacts->getColumn(0)), $contacts->getColumn(0));
+        $answered = $this->application->whichOrganizationsNameTheseContacts(new WhichOrganizationsNameTheseContacts($this->scenario->accountIdOf($account)->value, array_keys($this->asked)));
+        $this->organizationsOfContacts = array_map(fn (OrganizationsNamingContactResponse $contact): OrganizationsOfContactResponse => new OrganizationsOfContactResponse(
+            $contact->personId,
+            array_map(fn (string $id): string => $this->scenario->nameOf(new OrganizationId($id)), $contact->organizationIds),
+        ), $answered);
     }
 
     #[Then('Prospecting répond les organisations :')]
