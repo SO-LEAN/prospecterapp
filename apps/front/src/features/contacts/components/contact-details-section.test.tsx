@@ -129,6 +129,21 @@ describe('the contact details of a contact', () => {
     ])
   })
 
+  it('list a link pasted twice once', async () => {
+    const user = userEvent.setup()
+    render(
+      <QueryClientProvider client={new QueryClient()}>
+        <ContactDetailsSection contact={grace} />
+      </QueryClientProvider>,
+    )
+
+    await edit(user)
+    await user.type(screen.getByLabelText(/^Ajouter un lien/), `${A_COMPANY_PAGE}{Enter}`)
+    await user.type(screen.getByLabelText(/^Ajouter un lien/), `${A_COMPANY_PAGE}{Enter}`)
+
+    expect(screen.getAllByRole('button', { name: 'Retirer linkedin.com/company/acme' })).toHaveLength(1)
+  })
+
   it('take a link off', async () => {
     const user = userEvent.setup()
     const sent: unknown[] = []
