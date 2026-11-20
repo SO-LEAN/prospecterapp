@@ -80,6 +80,13 @@ class ReadingToolsApiTest extends ApiTestCase
         $this->assertTheToolAnswersAsItsEndpoint('lire-echanges-contact', ['id' => $ada], '/api/contacts/'.$ada.'/exchanges');
     }
 
+    public function testTheAiReadsTheExchangesToComeWithAContact(): void
+    {
+        $ada = $this->ada();
+
+        $this->assertTheToolAnswersAsItsEndpoint('lire-echanges-a-venir-contact', ['id' => $ada], '/api/contacts/'.$ada.'/upcoming-exchanges');
+    }
+
     /**
      * Ada Lovelace, the contact of the demonstration, at Babbage & Co.
      */
