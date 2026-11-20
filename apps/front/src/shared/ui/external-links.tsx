@@ -20,7 +20,7 @@ function Initials({ name, initials, color }: { name: string; initials: string; c
 }
 
 /** The mark of the source of a link: the tool it lives on, or the web for one Prospecter does not know. */
-export function SourceMark({ source }: { source: string }) {
+function SourceMark({ source }: { source: string }) {
   const { t } = useTranslation()
 
   switch (source) {
