@@ -72,6 +72,7 @@ final class Exchange implements ReleasesEvents
     private ?Cancellation $cancellation = null;
     private ?CampaignId $campaign = null;
     private ?ImportedEmail $importedFrom = null;
+    private bool $bookedByLink = false;
     /** @var list<Attachment> */
     private array $attachments = [];
 
@@ -185,6 +186,21 @@ final class Exchange implements ReleasesEvents
     public static function plannedWithAContact(AccountId $accountId, MemberId $by, ExchangeId $id, PersonId $contact, array $organizationsOfTheContact, ExchangeFacts $facts, \DateTimeImmutable $at): self
     {
         return self::planned($accountId, $by, $id, $contact, $organizationsOfTheContact, $facts, $at);
+    }
+
+    /**
+     * Booked by the contact by the public link of its holder, who planned nothing themselves (ADR 0164).
+     *
+     * @param list<OrganizationId> $organizationsOfTheContact
+     *
+     * @throws PlannedExchangeInThePast
+     */
+    public static function bookedByAContact(AccountId $accountId, MemberId $holder, ExchangeId $id, PersonId $contact, array $organizationsOfTheContact, ExchangeFacts $facts, \DateTimeImmutable $at): self
+    {
+        $exchange = self::planned($accountId, $holder, $id, $contact, $organizationsOfTheContact, $facts, $at);
+        $exchange->bookedByLink = true;
+
+        return $exchange;
     }
 
     /**
@@ -545,6 +561,11 @@ final class Exchange implements ReleasesEvents
     private function isToCome(\DateTimeImmutable $at): bool
     {
         return ExchangeStatus::Planned === $this->status && $this->facts->occurredAt > $at;
+    }
+
+    public function isBookedByLink(): bool
+    {
+        return $this->bookedByLink;
     }
 
     public function isKeptForAnOrganization(): bool

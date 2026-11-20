@@ -11,7 +11,8 @@ namespace Prospecter\Core\Prospecting\Application;
  * contact it was with, none when it was with the organization itself, its text flagged when the prospector reads
  * it without the right to manage personal data, what is to make conform once its contact was forgotten, whether its
  * contact waits to be attached, the exchange kept for no organization until then (ADR 0146), and the campaign it was
- * noted in, named as Campaigns names it now, none once erased (ADR 0145).
+ * noted in, named as Campaigns names it now, none once erased (ADR 0145), and whether its contact booked it by the
+ * public link of its holder (ADR 0164).
  */
 final readonly class ExchangeInTimeline
 {
@@ -40,6 +41,7 @@ final readonly class ExchangeInTimeline
         public bool $withAContactToAttach,
         public ?string $campaignId = null,
         public ?string $campaignName = null,
+        public bool $bookedByLink = false,
     ) {
     }
 

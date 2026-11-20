@@ -99,6 +99,15 @@ final class CalendarContext implements Context
         Expect::same('en retard' === $state, in_array($shown->id, $this->calendar()->late, true));
     }
 
+    #[Then('/^il montre (?:l\'appel|le rendez-vous|la visio) du (?<day>\S+) à (?<time>\S+), (?<origin>réservée? par mon lien public|que j\'ai planifiée?)$/')]
+    public function itShowsTheExchangeAndWhoArrangedIt(string $day, string $time, string $origin): void
+    {
+        $shown = array_find($this->calendar()->exchanges, static fn (ExchangeInTimeline $shown): bool => $shown->occurredAt == self::moment($day, $time));
+        Expect::that(null !== $shown, sprintf('The calendar does not show an exchange on %s at %s', $day, $time));
+
+        Expect::same(str_starts_with($origin, 'réservé'), $shown->bookedByLink);
+    }
+
     private function calendar(): Calendar
     {
         Expect::that(null !== $this->calendar, sprintf('A calendar was expected, got: %s', $this->application->refusal()?->getMessage()));
