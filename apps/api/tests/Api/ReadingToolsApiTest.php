@@ -32,6 +32,23 @@ class ReadingToolsApiTest extends ApiTestCase
         $this->assertTheToolAnswersAsItsEndpoint('rechercher-organisations', ['q' => 'Ba'], '/api/organizations?q=Ba');
     }
 
+    public function testTheAiReadsAnOrganization(): void
+    {
+        $babbage = $this->babbage();
+
+        $this->assertTheToolAnswersAsItsEndpoint('lire-organisation', ['id' => $babbage], '/api/organizations/'.$babbage);
+    }
+
+    /**
+     * Babbage & Co, the organization of the demonstration.
+     */
+    private function babbage(): string
+    {
+        $this->login();
+
+        return $this->requestJson('GET', '/api/organizations?q=Babbage')['items'][0]['id'];
+    }
+
     /**
      * @param array<string, mixed> $arguments
      */
