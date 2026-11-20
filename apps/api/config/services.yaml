@@ -128,6 +128,7 @@ services:
     # The services the contexts offer each other, answered in process by the handlers of their Contracts (ADR 0089)
     Prospecter\Core\Accounts\Contract\Service\ConsultMembers\ConsultMembersService: '@Prospecter\Core\Accounts\Application\ConsultMembers\ConsultMembersHandler'
     Prospecter\Core\PersonalData\Contract\Service\WhichAreContacts\WhichAreContactsService: '@Prospecter\Core\PersonalData\Application\WhichAreContacts\WhichAreContactsHandler'
+    Prospecter\Core\PersonalData\Contract\Service\WhichContactsHaveTheseEmails\WhichContactsHaveTheseEmailsService: '@Prospecter\Core\PersonalData\Application\WhichContactsHaveTheseEmails\WhichContactsHaveTheseEmailsHandler'
     Prospecter\Core\Prospecting\Contract\Service\WhichAreProspected\WhichAreProspectedService: '@Prospecter\Core\Prospecting\Application\WhichAreProspected\WhichAreProspectedHandler'
     Prospecter\Core\Prospecting\Contract\Service\ListOrganizationFacts\ListOrganizationFactsService: '@Prospecter\Core\Prospecting\Application\ListOrganizationFacts\ListOrganizationFactsHandler'
     Prospecter\Core\Prospecting\Contract\Service\ListExchangeFacts\ListExchangeFactsService: '@Prospecter\Core\Prospecting\Application\ListExchangeFacts\ListExchangeFactsHandler'
