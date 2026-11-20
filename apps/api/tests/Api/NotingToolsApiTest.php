@@ -119,6 +119,16 @@ class NotingToolsApiTest extends ApiTestCase
         }
     }
 
+    public function testAnAdministratorNotesWithAnOrganizationAsAProspector(): void
+    {
+        $organization = $this->anOrganization('ACME');
+        $this->login($this->aMemberOfTheFixtures('admin-user', Role::User, Role::Admin));
+
+        $noted = $this->callWithoutHandshake('noter-un-echange-organisation', ['id' => $organization, 'channel' => 'call', 'direction' => 'inbound']);
+
+        $this->assertSame('noted', $noted['structuredContent']['status']);
+    }
+
     private function aContactOf(string $organization): string
     {
         return $this->requestJson('POST', '/api/contacts', ['name' => ['firstName' => 'Ada'], 'organizationIds' => [$organization]])['id'];
