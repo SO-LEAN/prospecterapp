@@ -33,9 +33,17 @@ final readonly class CampaignResolver implements ValueResolverInterface
             return [];
         }
 
-        $kept = new KeptCampaign();
-        ($this->consultCampaign)(new ConsultCampaign($member->memberId(), $request->attributes->getString('id')), $kept);
+        return [$this->read($member, $request->attributes->getString('id'))];
+    }
 
-        return null === $kept->campaign ? [] : [$kept->campaign];
+    /**
+     * The campaign of this id in the account of the member; one of another account refused by the core as unknown.
+     */
+    public function read(User $member, string $id): CampaignSheet
+    {
+        $kept = new KeptCampaign();
+        ($this->consultCampaign)(new ConsultCampaign($member->memberId(), $id), $kept);
+
+        return $kept->campaign ?? throw new \LogicException('The campaign was not presented');
     }
 }
