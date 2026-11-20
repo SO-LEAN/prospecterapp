@@ -23,6 +23,9 @@ final class TheWeb
     /** @var array<string, string> the address each address redirects to */
     private array $redirects = [];
 
+    /** @var array<string, true> the addresses served to those signed in only */
+    private array $behindASignIn = [];
+
     public function publish(string $url, string $content): void
     {
         $this->files[$url] = $content;
@@ -33,16 +36,26 @@ final class TheWeb
         $this->redirects[$url] = $to;
     }
 
+    /**
+     * The address answers 401 to whoever is not signed in, as an e-mail of a mailbox or a private drive does.
+     */
+    public function keepBehindASignIn(string $url): void
+    {
+        $this->behindASignIn[$url] = true;
+    }
+
     public function serves(string $url): bool
     {
-        return isset($this->files[$url]) || isset($this->redirects[$url]);
+        return isset($this->files[$url]) || isset($this->redirects[$url]) || isset($this->behindASignIn[$url]);
     }
 
     public function answer(string $url): ResponseInterface
     {
-        return isset($this->redirects[$url])
-            ? new MockResponse('', ['http_code' => 302, 'redirect_url' => $this->redirects[$url], 'response_headers' => ['Location' => $this->redirects[$url]]])
-            : new MockResponse($this->files[$url]);
+        return match (true) {
+            isset($this->behindASignIn[$url]) => new MockResponse('', ['http_code' => 401]),
+            isset($this->redirects[$url]) => new MockResponse('', ['http_code' => 302, 'redirect_url' => $this->redirects[$url], 'response_headers' => ['Location' => $this->redirects[$url]]]),
+            default => new MockResponse($this->files[$url]),
+        };
     }
 
     /**
