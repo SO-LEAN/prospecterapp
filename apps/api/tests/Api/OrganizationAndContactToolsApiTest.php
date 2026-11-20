@@ -175,6 +175,17 @@ class OrganizationAndContactToolsApiTest extends ApiTestCase
         $this->assertContains($charles, $added['contactIds']);
     }
 
+    public function testTheAiRemovesAContactFromAnOrganizationOnceItsMemberConfirmed(): void
+    {
+        $babbage = $this->babbage();
+        $charles = $this->requestJson('POST', '/api/contacts', ['name' => ['firstName' => 'Charles', 'lastName' => 'Babbage'], 'organizationIds' => [$babbage, $this->aHolding()]])['id'];
+
+        $removed = $this->assertTheToolActsAsItsEndpoint('retirer-contact-organisation', ['id' => $babbage, 'personId' => $charles], 'DELETE', '/api/organizations/'.$babbage.'/contacts/'.$charles, null, self::PERSONAL_DATA_MANAGERS);
+
+        $this->assertNotContains($charles, $removed['contactIds']);
+        $this->assertTheToolAsksForAConfirmation('retirer-contact-organisation');
+    }
+
     /**
      * Ada Lovelace, the contact of the demonstration, at Babbage & Co.
      */
