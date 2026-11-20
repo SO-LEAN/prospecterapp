@@ -5,10 +5,10 @@ namespace Tests\App\Double;
 use App\Shared\Resource\UploadResource;
 use App\Shared\UploadForms;
 use App\Shared\UploadSender;
-use Symfony\Component\HttpFoundation\File\File;
 use Prospecter\Core\SharedKernel\Application\Port\PrivateStorage;
 use Prospecter\Core\SharedKernel\Application\Port\Upload;
 use Prospecter\Core\SharedKernel\Domain\Exception\UnknownUpload;
+use Symfony\Component\HttpFoundation\File\File;
 
 /**
  * The private files of the storage app as the API tests see them: a test sends a file as a browser would, then the
