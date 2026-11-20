@@ -10761,6 +10761,7 @@
                     "noted",
                     "attachments",
                     "hiddenAttachments",
+                    "bookedByLink",
                     "_links"
                 ],
                 "properties": {
@@ -10902,6 +10903,10 @@
                                 "$ref": "#/components/schemas/CampaignOfExchangeResource"
                             }
                         ]
+                    },
+                    "bookedByLink": {
+                        "description": "Its contact booked it by the public link of its holder, who planned nothing themselves (ADR 0164)",
+                        "type": "boolean"
                     },
                     "_links": {
                         "$ref": "#/components/schemas/ExchangeDetailLinksResource"

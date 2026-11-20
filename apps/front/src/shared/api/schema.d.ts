@@ -2957,6 +2957,8 @@ export interface components {
             hiddenAttachments: number;
             /** @description The campaign it was noted in, none for an exchange of no campaign */
             campaign?: components["schemas"]["CampaignOfExchangeResource"] | null;
+            /** @description Its contact booked it by the public link of its holder, who planned nothing themselves (ADR 0164) */
+            bookedByLink: boolean;
             _links: components["schemas"]["ExchangeDetailLinksResource"];
         };
         AttachmentDownloadResource: {

@@ -396,6 +396,7 @@ class BookingApiTest extends ApiTestCase
             ['videoCall', '2026-10-16T07:00:00+00:00', 15, 'Mission data en mars', true, true, 'Ada Lovelace'],
             [$exchange['exchange']['channel'], $exchange['exchange']['occurredAt'], $exchange['exchange']['durationInMinutes'], $exchange['exchange']['text'], $exchange['exchange']['contactToAttach'], $exchange['exchange']['bookedByLink'], $exchange['interlocutor']['name']],
         );
+        $this->assertTrue($this->requestJson('GET', '/api/exchanges/'.$exchange['exchange']['id'])['bookedByLink']);
     }
 
     public function testASlotJustTakenIsRefused(): void

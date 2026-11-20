@@ -64,6 +64,8 @@ final readonly class ExchangeDetailResource
         public int $hiddenAttachments,
         #[OA\Property(description: 'The campaign it was noted in, none for an exchange of no campaign')]
         public ?CampaignOfExchangeResource $campaign,
+        #[OA\Property(description: 'Its contact booked it by the public link of its holder, who planned nothing themselves (ADR 0164)')]
+        public bool $bookedByLink,
         #[SerializedName('_links')]
         #[Context([AbstractObjectNormalizer::SKIP_NULL_VALUES => true])]
         public ExchangeDetailLinksResource $links,
