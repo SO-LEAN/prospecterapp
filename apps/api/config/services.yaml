@@ -130,6 +130,7 @@ services:
     Prospecter\Core\PersonalData\Contract\Service\WhichAreContacts\WhichAreContactsService: '@Prospecter\Core\PersonalData\Application\WhichAreContacts\WhichAreContactsHandler'
     Prospecter\Core\PersonalData\Contract\Service\WhichContactsHaveTheseEmails\WhichContactsHaveTheseEmailsService: '@Prospecter\Core\PersonalData\Application\WhichContactsHaveTheseEmails\WhichContactsHaveTheseEmailsHandler'
     Prospecter\Core\Prospecting\Contract\Service\WhichAreProspected\WhichAreProspectedService: '@Prospecter\Core\Prospecting\Application\WhichAreProspected\WhichAreProspectedHandler'
+    Prospecter\Core\Prospecting\Contract\Service\WhichOrganizationsHaveTheseEmails\WhichOrganizationsHaveTheseEmailsService: '@Prospecter\Core\Prospecting\Application\WhichOrganizationsHaveTheseEmails\WhichOrganizationsHaveTheseEmailsHandler'
     Prospecter\Core\Prospecting\Contract\Service\ListOrganizationFacts\ListOrganizationFactsService: '@Prospecter\Core\Prospecting\Application\ListOrganizationFacts\ListOrganizationFactsHandler'
     Prospecter\Core\Prospecting\Contract\Service\ListExchangeFacts\ListExchangeFactsService: '@Prospecter\Core\Prospecting\Application\ListExchangeFacts\ListExchangeFactsHandler'
     Prospecter\Core\PersonalData\Contract\Service\ListContactFacts\ListContactFactsService: '@Prospecter\Core\PersonalData\Application\ListContactFacts\ListContactFactsHandler'

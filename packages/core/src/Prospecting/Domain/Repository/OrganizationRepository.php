@@ -41,6 +41,15 @@ interface OrganizationRepository
     public function isEmailUsed(AccountId $accountId, Email $email, OrganizationId $except): bool;
 
     /**
+     * The organizations of the prospecting base of the account having these emails.
+     *
+     * @param list<Email> $emails
+     *
+     * @return array<string, OrganizationId> the organization having each email, by the email; one none has absent
+     */
+    public function havingEmails(AccountId $accountId, array $emails): array;
+
+    /**
      * The other organization of the prospecting base of the account having this SIRET, if any.
      */
     public function withSiret(AccountId $accountId, Siret $siret, OrganizationId $except): ?Organization;

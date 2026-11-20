@@ -39,6 +39,19 @@ final readonly class InMemoryOrganizationRepository implements OrganizationRepos
         return array_any($this->prospectedBy($accountId), fn (Organization $organization): bool => !$organization->id()->equals($except) && $organization->contactDetails()->email?->value === $email->value);
     }
 
+    public function havingEmails(AccountId $accountId, array $emails): array
+    {
+        $organizations = [];
+        foreach ($this->prospectedBy($accountId) as $organization) {
+            $email = $organization->contactDetails()->email;
+            if (null !== $email && in_array($email, $emails, false)) {
+                $organizations[$email->value] = $organization->id();
+            }
+        }
+
+        return $organizations;
+    }
+
     public function withSiret(AccountId $accountId, Siret $siret, OrganizationId $except): ?Organization
     {
         return array_find($this->prospectedBy($accountId), fn (Organization $organization): bool => !$organization->id()->equals($except) && $organization->siret()?->value === $siret->value);
