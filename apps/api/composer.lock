@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "5d9dd69513fd12620e8f4297d52688a7",
+    "content-hash": "beea775f2da6341fdc57e4c270ad8f3a",
     "packages": [
         {
             "name": "async-aws/core",
@@ -3066,6 +3066,61 @@
                 "source": "https://github.com/Riverline/multipart-parser/tree/2.2.2"
             },
             "time": "2026-01-15T11:08:16+00:00"
+        },
+        {
+            "name": "soundasleep/html2text",
+            "version": "2.1.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/soundasleep/html2text.git",
+                "reference": "83502b6f8f1aaef8e2e238897199d64f284b4af3"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/soundasleep/html2text/zipball/83502b6f8f1aaef8e2e238897199d64f284b4af3",
+                "reference": "83502b6f8f1aaef8e2e238897199d64f284b4af3",
+                "shasum": ""
+            },
+            "require": {
+                "ext-dom": "*",
+                "ext-libxml": "*",
+                "php": "^7.3|^8.0"
+            },
+            "require-dev": {
+                "phpstan/phpstan": "^1.9",
+                "phpunit/phpunit": "^7.0|^8.0|^9.0"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "Soundasleep\\": "src"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Jevon Wright",
+                    "homepage": "https://jevon.org",
+                    "role": "Developer"
+                }
+            ],
+            "description": "A PHP script to convert HTML into a plain text format",
+            "homepage": "https://github.com/soundasleep/html2text",
+            "keywords": [
+                "email",
+                "html",
+                "php",
+                "text"
+            ],
+            "support": {
+                "email": "support@jevon.org",
+                "issues": "https://github.com/soundasleep/html2text/issues",
+                "source": "https://github.com/soundasleep/html2text/tree/2.1.0"
+            },
+            "time": "2023-01-06T09:28:15+00:00"
         },
         {
             "name": "symfony/asset",
@@ -8042,6 +8097,58 @@
                 "source": "https://github.com/webmozarts/assert/tree/2.5.0"
             },
             "time": "2026-10-05T23:14:19+00:00"
+        },
+        {
+            "name": "willdurand/email-reply-parser",
+            "version": "2.10.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/willdurand/EmailReplyParser.git",
+                "reference": "f25f8c6c3cb876112e3857eb3da15e38e44e4725"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/willdurand/EmailReplyParser/zipball/f25f8c6c3cb876112e3857eb3da15e38e44e4725",
+                "reference": "f25f8c6c3cb876112e3857eb3da15e38e44e4725",
+                "shasum": ""
+            },
+            "require": {
+                "php": ">=7.4.0"
+            },
+            "require-dev": {
+                "symfony/phpunit-bridge": "^5.0"
+            },
+            "type": "library",
+            "extra": {
+                "branch-alias": {
+                    "dev-master": "2.8-dev"
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "EmailReplyParser\\": "src/EmailReplyParser"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "William Durand",
+                    "email": "will+git@drnd.me"
+                }
+            ],
+            "description": "Port of the cool GitHub's EmailReplyParser library in PHP",
+            "keywords": [
+                "email",
+                "reply-parser"
+            ],
+            "support": {
+                "issues": "https://github.com/willdurand/EmailReplyParser/issues",
+                "source": "https://github.com/willdurand/EmailReplyParser/tree/2.10.0"
+            },
+            "time": "2022-01-30T20:56:36+00:00"
         },
         {
             "name": "zircote/swagger-php",

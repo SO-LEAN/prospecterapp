@@ -44,3 +44,7 @@ regexes = ['''123456789012''']
 [[allowlists]]
 description = "The public accounts of Bref, which publish the layers of PHP and of its extensions of the Lambdas (apps/*/infra/lambda.tf)"
 regexes = ['''873528684822''', '''403367587399''']
+
+[[allowlists]]
+description = "The public address of the author of willdurand/email-reply-parser, as Packagist publishes it in apps/api/composer.lock"
+regexes = ['''will\+git@drnd\.me''']

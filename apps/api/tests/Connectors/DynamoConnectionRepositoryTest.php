@@ -8,7 +8,6 @@ use Prospecter\Core\Connectors\Domain\Model\ClientCredentials;
 use Prospecter\Core\Connectors\Domain\Model\Connection;
 use Prospecter\Core\Connectors\Domain\Model\Grant;
 use Prospecter\Core\Connectors\Domain\Model\MailboxNotifications;
-use Prospecter\Core\Connectors\Domain\Model\MailboxWatch;
 use Prospecter\Core\Connectors\Domain\Model\Provider;
 use Prospecter\Core\Connectors\Domain\Model\RefreshToken;
 use Prospecter\Core\Connectors\Domain\Model\Scope;
@@ -18,6 +17,7 @@ use Prospecter\Core\SharedKernel\Domain\AccountId;
 use Prospecter\Core\SharedKernel\Domain\Email;
 use Prospecter\Core\SharedKernel\Domain\MemberId;
 use Tests\App\Base\ApiTestCase;
+use Tests\App\Double\EmptyMailbox;
 
 /**
  * The connections in the table of Connectors (ADR 0120): a push puts a connection in place of itself while it is
@@ -119,25 +119,12 @@ class DynamoConnectionRepositoryTest extends ApiTestCase
      */
     private static function importOf(Connection $connection): array
     {
-        return array_intersect_key(Hydrator::stateOf($connection), array_flip(['mailImport', 'historyId', 'watchExpiresAt', 'notifiedHistoryId', 'lastNotifiedAt', 'modifiedAt']));
+        return array_intersect_key(Hydrator::stateOf($connection), array_flip(['mailImport', 'historyId', 'watchExpiresAt', 'notifiedHistoryId', 'lastNotifiedAt', 'historyReadAt', 'modifiedAt']));
     }
 
     private static function aMailboxStandingAt(string $historyId): ProviderMailbox
     {
-        return new readonly class($historyId) implements ProviderMailbox {
-            public function __construct(private string $historyId)
-            {
-            }
-
-            public function watch(ClientCredentials $client, RefreshToken $refreshToken, string $topic): MailboxWatch
-            {
-                return new MailboxWatch($this->historyId, new \DateTimeImmutable('2026-10-22 09:01 UTC'));
-            }
-
-            public function stop(ClientCredentials $client, RefreshToken $refreshToken): void
-            {
-            }
-        };
+        return new EmptyMailbox($historyId);
     }
 
     private static function aConnection(?MemberId $member = null, RefreshToken $token = new RefreshToken('a-refresh-token'), string $at = '2026-10-15 09:00 UTC'): Connection
