@@ -52,13 +52,23 @@ describe('OrganizationCard', () => {
     await renderTheCards(
       aSummary({
         possibleDuplicates: [
-          { id: acme, name: 'Acme SAS', _links: { self: { href: `/api/organizations/${acme}`, method: 'GET' } } },
+          {
+            id: acme,
+            name: 'Acme SAS',
+            _links: { self: { href: `/api/organizations/${acme}`, method: 'GET' } },
+          },
         ],
       }),
     )
 
     expect(screen.getByText('Doublon possible de')).toBeInTheDocument()
     expect(screen.getByRole('link', { name: 'Acme SAS' })).toHaveAttribute('href', `/organizations/${acme}`)
+  })
+
+  it('flags no possible duplicate when the organization resembles none', async () => {
+    await renderTheCards(aSummary({}))
+
+    expect(screen.queryByText('Doublon possible de')).not.toBeInTheDocument()
   })
 
   it('marks nothing without an address', async () => {

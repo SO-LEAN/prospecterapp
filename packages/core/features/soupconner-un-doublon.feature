@@ -82,6 +82,7 @@ Fonctionnalité: Soupçonner un doublon d'organisation
     Et "ACME s.a.s" a été signalée comme doublon possible de "Acme SAS"
     Quand j'arrête de prospecter "Acme SAS"
     Alors "ACME s.a.s" n'est pas signalée
+    Et aucune levée de soupçon n'a échoué
 
   Scénario: Un autre compte n'est pas concerné
     Soit l'organisation "Globex" qui utilise Prospecter
