@@ -2,6 +2,7 @@
 
 namespace App\Campaigning\Controller;
 
+use App\Campaigning\CampaignMessages;
 use App\Campaigning\CampaignVoter;
 use App\Campaigning\Resource\CampaignMessageResource;
 use App\Security\User;
@@ -9,9 +10,6 @@ use App\Shared\Resource\ProblemResource;
 use Nelmio\ApiDocBundle\Attribute\Model;
 use OpenApi\Attributes as OA;
 use Prospecter\Core\Campaigns\Application\CampaignSheet;
-use Prospecter\Core\Campaigns\Application\RenderCampaignMessage\KeptCampaignMessage;
-use Prospecter\Core\Campaigns\Application\RenderCampaignMessage\RenderCampaignMessage;
-use Prospecter\Core\SharedKernel\Application\QueryHandler;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\Routing\Attribute\Route;
@@ -26,7 +24,7 @@ use Symfony\Component\Security\Http\Attribute\IsGranted;
 #[IsGranted('ROLE_PROSPECTOR')]
 final class RenderCampaignMessageController extends AbstractController
 {
-    public function __construct(private readonly QueryHandler $renderCampaignMessage)
+    public function __construct(private readonly CampaignMessages $messages)
     {
     }
 
@@ -40,10 +38,6 @@ final class RenderCampaignMessageController extends AbstractController
     #[OA\Response(response: 404, description: 'Unknown campaign or contact, or one of another account', content: new Model(type: ProblemResource::class))]
     public function __invoke(CampaignSheet $campaign, string $contactId, #[CurrentUser] User $user): JsonResponse
     {
-        $kept = new KeptCampaignMessage();
-        ($this->renderCampaignMessage)(new RenderCampaignMessage($user->memberId(), $campaign->id, $contactId), $kept);
-        $message = $kept->message ?? throw new \LogicException('The message was not presented');
-
-        return $this->json(new CampaignMessageResource($message->subject, $message->text));
+        return $this->json($this->messages->renderedFor($user->memberId(), $campaign->id, $contactId));
     }
 }
