@@ -6,6 +6,7 @@ namespace Tests\Core\Double;
 
 use Prospecter\Core\Accounts\Domain\Model\Account;
 use Prospecter\Core\Accounts\Domain\Model\Member;
+use Prospecter\Core\Booking\Domain\Model\Appointment;
 use Prospecter\Core\Booking\Domain\Model\BookingPage;
 use Prospecter\Core\Campaigns\Domain\Model\Campaign;
 use Prospecter\Core\Campaigns\Domain\Model\Fact as CampaignsFact;
@@ -70,6 +71,8 @@ final class InMemoryDatabase
     private array $campaigns = [];
     /** @var array<string, BookingPage> by their host */
     private array $bookingPages = [];
+    /** @var array<string, Appointment> by their identity */
+    private array $appointments = [];
 
     public function isEmpty(): bool
     {
@@ -107,6 +110,7 @@ final class InMemoryDatabase
         $this->campaignsFacts = $snapshot->campaignsFacts;
         $this->campaigns = $snapshot->campaigns;
         $this->bookingPages = $snapshot->bookingPages;
+        $this->appointments = $snapshot->appointments;
     }
 
     public function storeBookingPage(BookingPage $page): void
@@ -129,6 +133,24 @@ final class InMemoryDatabase
         $page = array_find($this->bookingPages, static fn (BookingPage $page): bool => $page->code()?->value === $code);
 
         return null === $page ? null : clone $page;
+    }
+
+    public function storeAppointment(Appointment $appointment): void
+    {
+        $this->appointments[$appointment->id()->value] = self::withoutItsEvents($appointment);
+    }
+
+    public function appointment(string $id): ?Appointment
+    {
+        return $this->appointments[$id] ?? null;
+    }
+
+    /**
+     * @return list<Appointment>
+     */
+    public function appointments(): array
+    {
+        return array_values($this->appointments);
     }
 
     public function campaignsFact(string $account, string $aggregate): ?CampaignsFact

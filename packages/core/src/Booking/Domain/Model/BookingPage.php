@@ -11,11 +11,15 @@ use Prospecter\Core\Booking\Domain\Event\ChannelsOffered;
 use Prospecter\Core\Booking\Domain\Event\InactivePeriodAdded;
 use Prospecter\Core\Booking\Domain\Event\InactivePeriodRemoved;
 use Prospecter\Core\Booking\Domain\Event\WindowsSet;
+use Prospecter\Core\Booking\Domain\Exception\AlreadyBooked;
 use Prospecter\Core\Booking\Domain\Exception\BookingPageWithoutLink;
+use Prospecter\Core\Booking\Domain\Exception\ChannelNotOffered;
 use Prospecter\Core\Booking\Domain\Exception\NoChannelOffered;
 use Prospecter\Core\Booking\Domain\Exception\NoConnectedCalendar;
+use Prospecter\Core\Booking\Domain\Exception\SlotNotFree;
 use Prospecter\Core\Booking\Domain\Exception\UnknownInactivePeriod;
 use Prospecter\Core\Booking\Domain\Policy\BookingPagePossibilities;
+use Prospecter\Core\Booking\Domain\Policy\FreeSlots;
 use Prospecter\Core\SharedKernel\Domain\AccountId;
 use Prospecter\Core\SharedKernel\Domain\Exception\NotPossibleInItsState;
 use Prospecter\Core\SharedKernel\Domain\MemberId;
@@ -123,6 +127,49 @@ final class BookingPage implements ReleasesEvents
         $this->code = $drawn;
         $this->changedAt($at);
         $this->recordThat(new BookingLinkChanged($this->accountId, $this->host, $at));
+    }
+
+    /**
+     * A booker books one of the free slots its link offers, by a channel it offers, when they have no other
+     * appointment to come with the host.
+     *
+     * @param list<BusyPeriod>  $busyPeriods  when the host is already taken
+     * @param list<Appointment> $appointments those of the host to come
+     *
+     * @throws ChannelNotOffered|AlreadyBooked|SlotNotFree
+     */
+    public function book(AppointmentId $id, \DateTimeImmutable $slot, Channel $channel, Booker $booker, ?string $subject, array $busyPeriods, array $appointments, \DateTimeImmutable $at): Appointment
+    {
+        if (!in_array($channel, $this->channels->channels, true)) {
+            throw ChannelNotOffered::refused();
+        }
+        $bookersAppointment = array_find($appointments, static fn (Appointment $appointment): bool => $appointment->isBookedBy($booker->email));
+        if (null !== $bookersAppointment) {
+            throw AlreadyBooked::at($this->onTheClockOfTheHost($bookersAppointment->slot()));
+        }
+        if (!$this->offers($slot, $busyPeriods, $at)) {
+            throw SlotNotFree::refused();
+        }
+
+        return Appointment::booked($id, $this->accountId, $this->host, $slot, $channel, $booker, $subject, $at);
+    }
+
+    private function onTheClockOfTheHost(\DateTimeImmutable $moment): \DateTimeImmutable
+    {
+        return null === $this->timeZone ? $moment : $moment->setTimezone(new \DateTimeZone($this->timeZone->name));
+    }
+
+    /**
+     * @param list<BusyPeriod> $busyPeriods
+     */
+    private function offers(\DateTimeImmutable $slot, array $busyPeriods, \DateTimeImmutable $at): bool
+    {
+        if (null === $this->timeZone) {
+            return false;
+        }
+        $days = FreeSlots::given(new Availability($this->windows, $this->timeZone, array_values($this->inactivePeriods)), $busyPeriods, $at);
+
+        return array_any($days, static fn (BookableDay $day): bool => array_any($day->slots, static fn (\DateTimeImmutable $free): bool => $free == $slot));
     }
 
     public function host(): MemberId
