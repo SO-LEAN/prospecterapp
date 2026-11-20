@@ -25,7 +25,10 @@ final readonly class NotingResource
         return new self(self::NOTED, $exchange);
     }
 
-    public static function alreadyNoted(ExchangeDetailResource $notedFirst): self
+    /**
+     * Without the exchange noted first when it was noted at the same moment, unknown to the noting refused.
+     */
+    public static function alreadyNoted(?ExchangeDetailResource $notedFirst): self
     {
         return new self(self::ALREADY_NOTED, $notedFirst);
     }
