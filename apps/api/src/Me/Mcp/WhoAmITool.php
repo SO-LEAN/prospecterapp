@@ -4,6 +4,7 @@ namespace App\Me\Mcp;
 
 use App\Me\MyAccountReader;
 use App\Me\Resource\AccountResource;
+use App\Security\ToolAccess;
 use App\Security\User;
 use Mcp\Schema\ToolAnnotations;
 use Mcp\Server\Capability\Attribute\McpTool;
@@ -15,7 +16,7 @@ use Symfony\Bundle\SecurityBundle\Security;
  */
 final readonly class WhoAmITool
 {
-    public function __construct(private Security $security, private MyAccountReader $myAccount)
+    public function __construct(private ToolAccess $access, private Security $security, private MyAccountReader $myAccount)
     {
     }
 
@@ -25,21 +26,13 @@ final readonly class WhoAmITool
     #[McpTool(name: 'qui-suis-je', description: 'Le membre de Prospecter que tu sers, son compte, et s\'il lit les données personnelles en clair (sinon, masquées).', annotations: new ToolAnnotations(readOnlyHint: true))]
     public function __invoke(): array
     {
-        $account = $this->myAccount->read($this->member()->memberId());
+        $account = $this->myAccount->read($this->access->member()->memberId());
 
         return [
             'member' => $this->fullNameIn($account),
             'account' => $account->organization->legalIdentity->corporateName,
             'readsPersonalData' => $this->security->isGranted(User::PERSONAL_DATA),
         ];
-    }
-
-    private function member(): User
-    {
-        $member = $this->security->getUser();
-        \assert($member instanceof User);
-
-        return $member;
     }
 
     private function fullNameIn(AccountResource $account): string
