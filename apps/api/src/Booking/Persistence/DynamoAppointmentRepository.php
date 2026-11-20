@@ -14,7 +14,8 @@ use Symfony\Component\Clock\ClockInterface;
 /**
  * The appointments in the table of Booking (ADR 0164): an appointment by its identity, and the slot it holds in the
  * partition of the slots of its host, put only where none is, so that two bookings of one slot never both pass. Both
- * forgotten by the table some days after the last slot a link offers, who booked it with them.
+ * forgotten by the table some days after the last slot a link offers, who booked it with them, or together once the
+ * exchange it became is erased (ADR 0171).
  */
 final readonly class DynamoAppointmentRepository implements AppointmentRepository
 {
@@ -58,6 +59,14 @@ final readonly class DynamoAppointmentRepository implements AppointmentRepositor
                 self::NO_APPOINTMENT_THERE_YET,
                 refusal: static fn (): SlotNotFree => SlotNotFree::refused(),
             ),
+        ]);
+    }
+
+    public function remove(Appointment $appointment): void
+    {
+        $this->bookingTable->transact([
+            $this->bookingTable->deleting(BookingKeys::appointment($appointment->id()->value), BookingKeys::APPOINTMENT),
+            $this->bookingTable->deleting(BookingKeys::slotsOf($appointment->host()->value), BookingKeys::slot(Documents::moment($appointment->slot()))),
         ]);
     }
 }
