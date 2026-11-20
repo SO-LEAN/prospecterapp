@@ -17,9 +17,9 @@ use Prospecter\Core\Booking\Domain\Model\Weekday;
 use Prospecter\Core\Booking\Domain\Model\WeeklyWindows;
 use Prospecter\Core\Booking\Domain\Model\Window;
 use Prospecter\Core\Booking\Domain\Policy\FreeSlots;
-use Prospecter\Core\Booking\Domain\Port\ConnectedCalendars;
 use Prospecter\Core\Booking\Domain\Port\Hosts;
 use Prospecter\Core\Booking\Domain\Service\BusyPeriods;
+use Prospecter\Core\Booking\Domain\Service\LinkAvailability;
 use Prospecter\Core\SharedKernel\Application\QueryHandler;
 use Prospecter\Core\SharedKernel\Domain\AccountId;
 use Prospecter\Core\SharedKernel\Domain\MemberId;
@@ -34,7 +34,7 @@ final readonly class ConsultPublicBookingPageHandler implements QueryHandler
     public function __construct(
         private PublicBookingPageRetriever $pages,
         private BusyPeriods $busyPeriods,
-        private ConnectedCalendars $calendars,
+        private LinkAvailability $links,
         private Hosts $hosts,
     ) {
     }
@@ -42,24 +42,13 @@ final readonly class ConsultPublicBookingPageHandler implements QueryHandler
     public function __invoke(ConsultPublicBookingPage $query, ConsultPublicBookingPageOutput $output): void
     {
         $schedule = $this->pages->byCode($query->code);
-        if (null === $schedule || !$this->isBookable($schedule)) {
+        if (null === $schedule || !$this->links->offersSlots($schedule->open, new MemberId($schedule->host))) {
             $output->present(PublicBookingPage::unavailable());
 
             return;
         }
 
         $output->present(new PublicBookingPage(true, $this->hostOf($schedule), $schedule->channels, $schedule->timeZone, $this->freeDaysOf($schedule, $query->at)));
-    }
-
-    /**
-     * The calendar of the host invites the booker: without it connected, the page is suspended, offering nothing; nor
-     * does the page of a host who may not hold the contacts their bookers become (ADR 0146, 0164).
-     */
-    private function isBookable(BookingSchedule $schedule): bool
-    {
-        $host = new MemberId($schedule->host);
-
-        return $schedule->open && $this->calendars->isConnectedFor($host) && $this->hosts->mayHoldBookers($host);
     }
 
     private function hostOf(BookingSchedule $schedule): PublicHost

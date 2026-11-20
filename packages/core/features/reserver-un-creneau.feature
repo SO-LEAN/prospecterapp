@@ -87,6 +87,16 @@ Fonctionnalité: Réserver un créneau
     Quand on réserve un appel par mon lien public le 24/11/2026 à 9h00
     Alors c'est refusé : "This channel is not offered"
 
+  Scénario: Le lien d'un prospecteur sans le droit aux données personnelles ne réserve rien
+    Soit je suis connecté en tant que prospecteur de "SOLEAN IT" sans le droit aux données personnelles
+    Et mon compte Google est connecté
+    Et je règle mes plages :
+      | jour  | de    | à     |
+      | mardi | 09:00 | 09:30 |
+    Et ma prise de rendez-vous est active
+    Quand on réserve un appel par mon lien public le 24/11/2026 à 9h00
+    Alors c'est refusé : "This booking link offers no slot"
+
   Scénario: Un lien coupé ne réserve rien
     Soit je l'ai coupée
     Quand on réserve un appel par mon lien public le 24/11/2026 à 9h00
