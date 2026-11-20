@@ -2,8 +2,6 @@
 
 namespace Tests\App\PersonalData;
 
-use App\PersonalData\Persistence\DynamoDesignatedContactRetriever;
-use App\Shared\Persistence\Table;
 use Prospecter\Core\PersonalData\Application\Port\DesignatedContactRetriever;
 use Prospecter\Core\PersonalData\Domain\Model\Person;
 use Prospecter\Core\PersonalData\Domain\Model\PersonName;
@@ -45,6 +43,15 @@ class DynamoDesignatedContactRetrieverTest extends ApiTestCase
         $this->assertSame($ada->id()->value, $this->retriever()->withReference($this->account, self::profile())?->value);
     }
 
+    public function testALinkTheContactNoLongerHasStillDesignatesThem(): void
+    {
+        $ada = $this->aContact('Ada', 'Lovelace', new ContactDetails(), ExternalReferences::designating([self::PROFILE], Designated::Person));
+        $ada->changeContactDetails(new ContactDetails(), ExternalReferences::none(), $this->readerWithTheRight(), new \DateTimeImmutable(self::THE_MOMENT_OF_THE_TESTS));
+        self::getContainer()->get(PersonRepository::class)->save($ada);
+
+        $this->assertSame($ada->id()->value, $this->retriever()->withReference($this->account, self::profile())?->value);
+    }
+
     public function testAnEmailDesignatesTheContactHavingIt(): void
     {
         $ada = $this->aContact('Ada', 'Lovelace', new ContactDetails(new Email('ada@acme.test')));
@@ -81,15 +88,9 @@ class DynamoDesignatedContactRetrieverTest extends ApiTestCase
         $this->assertSame([null, null], [$this->retriever()->withReference($anotherAccount, self::profile()), $this->retriever()->withEmail($anotherAccount, new Email('ada@acme.test'))]);
     }
 
-    /**
-     * Built on the table of PersonalData: no use case asks it yet in the container.
-     */
     private function retriever(): DesignatedContactRetriever
     {
-        $table = self::getContainer()->get('app.table.personal_data');
-        $this->assertInstanceOf(Table::class, $table);
-
-        return new DynamoDesignatedContactRetriever($table);
+        return self::getContainer()->get(DesignatedContactRetriever::class);
     }
 
     private static function profile(): ExternalReference
