@@ -6,6 +6,7 @@ use App\Shared\Persistence\ConditionFailed;
 use App\Shared\Persistence\DynamoUnitOfWork;
 use Bref\Context\Context;
 use Bref\Event\Handler;
+use Monolog\Attribute\WithMonologChannel;
 use Prospecter\Core\SharedKernel\Application\Exception\UseCaseRefused;
 use Prospecter\Core\SharedKernel\Domain\Exception\BusinessException;
 use Psr\Log\LoggerInterface;
@@ -24,6 +25,7 @@ use Symfony\Component\Clock\ClockInterface;
  * subscription it does not know, a loop) goes by the worker to the queue of the failures, without a retry; any other
  * is thrown for Lambda to retry, then to give up into the same queue. In doubt, a failure is retried.
  */
+#[WithMonologChannel('messaging')]
 final readonly class IntegrationEventConsumer implements Handler
 {
     private const int RETRIES_OF_A_CONFLICT = 3;

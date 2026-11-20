@@ -2,6 +2,7 @@
 
 namespace App\Connectors\Google;
 
+use Monolog\Attribute\WithMonologChannel;
 use Prospecter\Core\Connectors\Domain\Exception\AccessRevoked;
 use Prospecter\Core\Connectors\Domain\Exception\HistoryExpired;
 use Prospecter\Core\Connectors\Domain\Model\ClientCredentials;
@@ -20,6 +21,7 @@ use Symfony\Contracts\HttpClient\ResponseInterface;
  *
  * @see https://developers.google.com/workspace/gmail/api/guides/push
  */
+#[WithMonologChannel('mailbox')]
 final readonly class GoogleMailbox implements ProviderMailbox
 {
     /** what is never imported: the spam, the trash and the drafts (ADR 0154) */

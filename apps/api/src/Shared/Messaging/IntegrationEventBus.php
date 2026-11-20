@@ -3,6 +3,7 @@
 namespace App\Shared\Messaging;
 
 use Aws\EventBridge\EventBridgeClient;
+use Monolog\Attribute\WithMonologChannel;
 use Psr\Log\LoggerInterface;
 
 /**
@@ -10,6 +11,7 @@ use Psr\Log\LoggerInterface;
  * its detail in JSON, ten at a time, the most a PutEvents takes, and under 256 KB, the least a PutEvents takes (1 MB
  * on AWS since January 2026, 256 KB before and on some buses): an e-mail imported carries its text (ADR 0154).
  */
+#[WithMonologChannel('messaging')]
 final readonly class IntegrationEventBus
 {
     private const int MOST_ENTRIES_OF_A_PUT = 10;

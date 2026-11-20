@@ -4,6 +4,7 @@ namespace App\Connectors;
 
 use App\Shared\CommandBus;
 use App\Shared\ScheduledTask;
+use Monolog\Attribute\WithMonologChannel;
 use Prospecter\Core\Connectors\Application\Port\MailImportsRetriever;
 use Prospecter\Core\Connectors\Application\RenewMailWatch\RenewMailWatch;
 use Psr\Log\LoggerInterface;
@@ -14,6 +15,7 @@ use Symfony\Component\Clock\ClockInterface;
  * the daily schedule of an instance runs, and the console. Each is a command of its own, a renewal the provider
  * refuses leaving its import to reconnect.
  */
+#[WithMonologChannel('mailbox')]
 final readonly class MailWatchesRenewer implements ScheduledTask
 {
     private const string GOOGLE = 'google';
