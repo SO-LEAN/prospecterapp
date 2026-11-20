@@ -45,6 +45,7 @@ const anExchange = (exchange: Partial<ExchangeDetail>): ExchangeDetail => ({
   madeConform: null,
   attachments: [],
   hiddenAttachments: 0,
+  bookedByLink: false,
   _links: {
     self,
     interlocutor: { href: `/api/contacts/${ADA}`, method: 'GET' },
@@ -383,6 +384,7 @@ describe('ExchangeDetailSheet', () => {
     await renderTheDetail(
       anExchange({
         hiddenAttachments: 2,
+        bookedByLink: false,
         _links: { self, interlocutor: { href: `/api/contacts/${ADA}`, method: 'GET' } },
       }),
     )

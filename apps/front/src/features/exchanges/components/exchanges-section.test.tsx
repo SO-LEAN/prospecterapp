@@ -256,6 +256,7 @@ describe('ExchangesSection', () => {
         madeConform: null,
         attachments: [],
         hiddenAttachments: 0,
+        bookedByLink: false,
         _links: { self: { href: `/api/exchanges/${EXCHANGE}`, method: 'GET' }, interlocutor: timelineLink },
       },
     )

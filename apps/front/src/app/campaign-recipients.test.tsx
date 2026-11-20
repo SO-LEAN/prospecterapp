@@ -145,6 +145,7 @@ const theExchangeOfAda: ExchangeDetail = {
   madeConform: null,
   attachments: [],
   hiddenAttachments: 0,
+  bookedByLink: false,
   campaign: { id: CAMPAIGN, name: 'Relance ESN' },
   _links: {
     self: { href: `/api/exchanges/${EXCHANGE}`, method: 'GET' },

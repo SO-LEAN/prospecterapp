@@ -84,6 +84,7 @@ final class ExchangeDetailPresenter implements ConsultExchangeOutput
             attachments: array_map(fn (AttachmentDetail $attachment): AttachmentResource => $this->presentAttachment($exchange, $attachment), $exchange->attachments),
             hiddenAttachments: $exchange->hiddenAttachments,
             campaign: null === $exchange->campaignId ? null : new CampaignOfExchangeResource($exchange->campaignId, $exchange->campaignName),
+            bookedByLink: $exchange->bookedByLink,
             links: $this->linksOf($exchange),
         );
     }
