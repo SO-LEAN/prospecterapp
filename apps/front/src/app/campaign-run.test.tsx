@@ -32,7 +32,7 @@ const GRACE_EXCHANGE = '0190a1c0-0000-7000-8000-000000000e02'
 
 const me: Account = {
   name: { firstName: 'Grace', lastName: 'Hopper' },
-  contactDetails: { email: null, phoneNumber: null, language: null },
+  contactDetails: { email: null, phoneNumber: null, language: null, links: [] },
   organization: { legalIdentity: { corporateName: 'Babbage & Co' } },
   _links: { self: { href: '/api/me', method: 'GET' }, campaigns: { href: '/api/campaigns', method: 'GET' } },
 }
@@ -64,7 +64,7 @@ const aContact = (id: string, firstName: string, lastName: string, phoneNumber: 
   civility: 'ms',
   name: { firstName, lastName },
   jobTitle: null,
-  contactDetails: { email: null, phoneNumber, language: null },
+  contactDetails: { email: null, phoneNumber, language: null, links: [] },
   masked: false,
   organizations: [
     {

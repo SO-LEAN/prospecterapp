@@ -4,8 +4,11 @@ namespace App\Shared\Persistence;
 
 use Prospecter\Core\SharedKernel\Domain\Address;
 use Prospecter\Core\SharedKernel\Domain\ContactDetails;
+use Prospecter\Core\SharedKernel\Domain\Designated;
 use Prospecter\Core\SharedKernel\Domain\Email;
 use Prospecter\Core\SharedKernel\Domain\Exception\BusinessRuleViolation;
+use Prospecter\Core\SharedKernel\Domain\ExternalReference;
+use Prospecter\Core\SharedKernel\Domain\ExternalReferences;
 use Prospecter\Core\SharedKernel\Domain\File;
 use Prospecter\Core\SharedKernel\Domain\GeoPoint;
 use Prospecter\Core\SharedKernel\Domain\LegalIdentity;
@@ -132,6 +135,27 @@ final class Documents
     public static function fileOf(?array $document): ?File
     {
         return null === $document ? null : new File((string) $document['url'], (string) $document['extension'], (int) $document['size']);
+    }
+
+    /**
+     * The links of a person or an organization: what recognizes each, its source and its identifier, beside the address
+     * that opens it.
+     *
+     * @return list<array{source: string, identifier: string, address: string}>
+     */
+    public static function references(ExternalReferences $references): array
+    {
+        return array_map(static fn (ExternalReference $reference): array => ['source' => $reference->source, 'identifier' => $reference->identifier, 'address' => $reference->address], $references->all());
+    }
+
+    /**
+     * The links recognized again by their addresses: a source known since is recognized.
+     *
+     * @param list<string> $addresses
+     */
+    public static function referencesOf(array $addresses, Designated $designated): ExternalReferences
+    {
+        return ExternalReferences::designating($addresses, $designated);
     }
 
     /**

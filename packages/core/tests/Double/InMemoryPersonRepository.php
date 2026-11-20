@@ -5,12 +5,12 @@ declare(strict_types=1);
 namespace Tests\Core\Double;
 
 use Prospecter\Core\PersonalData\Domain\Exception\UnknownPerson;
-use Prospecter\Core\PersonalData\Domain\Model\LinkedInProfile;
 use Prospecter\Core\PersonalData\Domain\Model\Person;
 use Prospecter\Core\PersonalData\Domain\Model\Purpose;
 use Prospecter\Core\PersonalData\Domain\Repository\PersonRepository;
 use Prospecter\Core\SharedKernel\Domain\AccountId;
 use Prospecter\Core\SharedKernel\Domain\Email;
+use Prospecter\Core\SharedKernel\Domain\ExternalReference;
 use Prospecter\Core\SharedKernel\Domain\PersonId;
 use Prospecter\Core\SharedKernel\Domain\PhoneNumber;
 
@@ -68,9 +68,9 @@ final readonly class InMemoryPersonRepository implements PersonRepository
         return array_find($this->database->persons(), static fn (Person $person): bool => $person->isAContactOf($accountId) && $person->contactDetails()->phoneNumber?->value === $phoneNumber->value);
     }
 
-    public function contactHoldingLinkedInProfile(AccountId $accountId, LinkedInProfile $profile, PersonId $except): ?Person
+    public function contactHoldingReference(AccountId $accountId, ExternalReference $reference, PersonId $except): ?Person
     {
-        return array_find($this->database->persons(), static fn (Person $person): bool => !$person->id()->equals($except) && $person->isAContactOf($accountId) && $person->holdsLinkedInProfile($profile));
+        return array_find($this->database->persons(), static fn (Person $person): bool => !$person->id()->equals($except) && $person->isAContactOf($accountId) && $person->holdsReference($reference));
     }
 
     public function save(Person $person): void

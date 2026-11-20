@@ -5,15 +5,17 @@ namespace Tests\App\Prospecting;
 use Prospecter\Core\Prospecting\Application\OrganizationSheet;
 use Prospecter\Core\Prospecting\Application\Port\OrganizationSheetRetriever;
 use Prospecter\Core\Prospecting\Application\PossibleDuplicate;
-use Prospecter\Core\Prospecting\Domain\Model\LinkedInPage;
 use Prospecter\Core\Prospecting\Domain\Model\Organization;
 use Prospecter\Core\Prospecting\Domain\Model\OrganizationIntent;
 use Prospecter\Core\Prospecting\Domain\Model\Prospector;
 use Prospecter\Core\Prospecting\Domain\Model\Website;
 use Prospecter\Core\Prospecting\Domain\Repository\OrganizationRepository;
+use Prospecter\Core\SharedKernel\Application\ExternalLink;
 use Prospecter\Core\SharedKernel\Domain\AccountId;
 use Prospecter\Core\SharedKernel\Domain\Address;
 use Prospecter\Core\SharedKernel\Domain\ContactDetails;
+use Prospecter\Core\SharedKernel\Domain\Designated;
+use Prospecter\Core\SharedKernel\Domain\ExternalReferences;
 use Prospecter\Core\SharedKernel\Domain\File;
 use Prospecter\Core\SharedKernel\Domain\GeoPoint;
 use Prospecter\Core\SharedKernel\Domain\LegalIdentity;
@@ -75,16 +77,16 @@ class DynamoOrganizationSheetRetrieverTest extends ApiTestCase
         $this->assertSame('69383', $this->sheetOf($acme)->municipalityCode);
     }
 
-    public function testTheSheetCarriesTheLinkedInPageAndTheWebsite(): void
+    public function testTheSheetCarriesTheLinksAndTheWebsite(): void
     {
         $prospector = $this->aProspector();
         $acme = $this->prospect($prospector, 'ACME');
-        $acme->changeContactDetails(new ContactDetails(), new LinkedInPage('linkedin.com/company/acme-corp'), new Website('acme.fr'), $prospector->id, new \DateTimeImmutable(self::THE_MOMENT_OF_THE_TESTS));
+        $acme->changeContactDetails(new ContactDetails(), ExternalReferences::designating(['linkedin.com/company/ACME-Corp'], Designated::Organization), new Website('acme.fr'), $prospector->id, new \DateTimeImmutable(self::THE_MOMENT_OF_THE_TESTS));
         $this->organizations()->save($acme);
 
         $sheet = $this->sheetOf($acme);
 
-        $this->assertSame(['https://www.linkedin.com/company/acme-corp', 'https://acme.fr'], [$sheet->linkedInPage, $sheet->website]);
+        $this->assertEquals([[new ExternalLink('linkedin-company', 'acme-corp', 'https://linkedin.com/company/ACME-Corp')], 'https://acme.fr'], [$sheet->links, $sheet->website]);
     }
 
     public function testTheSheetOfAnOrganizationResemblingOthersNamesThoseStillProspected(): void

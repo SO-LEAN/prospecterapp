@@ -6,14 +6,17 @@ namespace Tests\Core\Acceptance;
 
 use Prospecter\Core\Accounts\Domain\Model\Account;
 use Prospecter\Core\Accounts\Domain\Model\Member;
-use Prospecter\Core\PersonalData\Domain\Model\LinkedInProfile;
 use Prospecter\Core\PersonalData\Domain\Model\Person;
 use Prospecter\Core\PersonalData\Domain\Model\PersonName;
 use Prospecter\Core\Prospecting\Domain\Model\ContactPresence;
 use Prospecter\Core\Prospecting\Domain\Model\Organization;
+use Prospecter\Core\SharedKernel\Application\ExternalLink;
 use Prospecter\Core\SharedKernel\Domain\Address;
 use Prospecter\Core\SharedKernel\Domain\ContactDetails;
+use Prospecter\Core\SharedKernel\Domain\Designated;
 use Prospecter\Core\SharedKernel\Domain\Email;
+use Prospecter\Core\SharedKernel\Domain\ExternalReference;
+use Prospecter\Core\SharedKernel\Domain\ExternalReferences;
 use Prospecter\Core\SharedKernel\Domain\File;
 use Prospecter\Core\SharedKernel\Domain\GeoPoint;
 use Prospecter\Core\SharedKernel\Domain\LegalIdentity;
@@ -93,6 +96,14 @@ final class Vocabulary
         'une visio' => 'videoCall',
     ];
 
+    /** The known sources as a sentence names them, by their value. */
+    private const array SOURCES = [
+        'LinkedIn' => 'linkedin',
+        'LinkedIn entreprise' => 'linkedin-company',
+        'Malt' => 'malt',
+        'Welcome to the Jungle' => 'welcometothejungle',
+    ];
+
     private const array STATUSES = [
         'À venir' => 'planned',
         'Fait' => 'done',
@@ -127,7 +138,7 @@ final class Vocabulary
     ];
 
     private const array LABELS = [
-        'raison sociale', 'forme juridique', 'type', 'SIRET', 'e-mail', 'téléphone', 'langue', 'LinkedIn', 'page LinkedIn', 'site web',
+        'raison sociale', 'forme juridique', 'type', 'SIRET', 'e-mail', 'téléphone', 'langue', 'liens', 'site web',
         'rue', 'code postal', 'ville', 'pays', 'observations', 'holding', 'prénom', 'nom', 'fonction', 'rôles', 'Civilité',
     ];
 
@@ -189,10 +200,38 @@ final class Vocabulary
 
     /**
      * @param array<string, string|null> $values
+     *
+     * @return list<string> the addresses of the links, separated by spaces
      */
-    public static function linkedInProfile(array $values): ?LinkedInProfile
+    public static function links(array $values): array
     {
-        return LinkedInProfile::orNone($values['LinkedIn']);
+        return null === $values['liens'] ? [] : preg_split('/\s+/', $values['liens']);
+    }
+
+    /**
+     * The value of a known source, as a sentence names it.
+     */
+    public static function source(string $label): string
+    {
+        return self::SOURCES[$label] ?? throw new \LogicException(sprintf('Unknown source "%s"', $label));
+    }
+
+    /**
+     * @param array<string, string|null> $values
+     */
+    public static function personReferences(array $values): ExternalReferences
+    {
+        return ExternalReferences::designating(self::links($values), Designated::Person);
+    }
+
+    /**
+     * The addresses of the links, separated by spaces.
+     *
+     * @param list<ExternalLink> $links
+     */
+    public static function describeLinks(array $links): string
+    {
+        return implode(' ', array_map(static fn (ExternalLink $link): string => $link->address, $links));
     }
 
     /**
@@ -244,7 +283,7 @@ final class Vocabulary
             'e-mail' => (string) $contact->email,
             'téléphone' => (string) $contact->phoneNumber?->international(),
             'langue' => (string) $contact->language,
-            'page LinkedIn' => (string) StateOf::the($organization)['linkedInPage'],
+            'liens' => implode(' ', array_map(static fn (ExternalReference $reference): string => $reference->address, StateOf::the($organization)['references']->all())),
             'site web' => (string) StateOf::the($organization)['website'],
             'domaine du site' => (string) StateOf::the($organization)['website']?->domain(),
             'rue' => (string) $address?->street,
@@ -273,7 +312,7 @@ final class Vocabulary
             'e-mail' => (string) $myPerson->contactDetails()->email,
             'téléphone' => (string) $myPerson->contactDetails()->phoneNumber?->international(),
             'langue' => (string) $myPerson->contactDetails()->language,
-            'LinkedIn' => (string) $myPerson->linkedInProfile(),
+            'liens' => self::describeLinks(ExternalLink::allOf($myPerson->references())),
             'photo' => self::describeFile(StateOf::the($myPerson)['picture']),
             'raison sociale de mon organisation' => (string) StateOf::the($account)['legalIdentity']->corporateName,
             'forme juridique de mon organisation' => (string) StateOf::the($account)['legalIdentity']->form,

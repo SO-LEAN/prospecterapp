@@ -152,7 +152,7 @@ describe('the contacts to attach to process', () => {
               email: 'contact@acme.fr',
               phoneNumber: null,
               language: null,
-              linkedInPage: null,
+              links: [],
               website: null,
             },
             address: null,

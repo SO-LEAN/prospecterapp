@@ -10,6 +10,7 @@ use Prospecter\Core\Prospecting\Domain\Exception\UnknownOrganization;
 use Prospecter\Core\Prospecting\Domain\Model\Organization;
 use Prospecter\Core\Prospecting\Domain\Model\OrganizationIntent;
 use Prospecter\Core\Prospecting\Domain\Policy\OrganizationPossibilities;
+use Prospecter\Core\SharedKernel\Application\ExternalLink;
 use Prospecter\Core\SharedKernel\Application\FileResponse;
 use Prospecter\Core\SharedKernel\Domain\AccountId;
 use Prospecter\Core\SharedKernel\Domain\OrganizationId;
@@ -60,7 +61,7 @@ final readonly class InMemoryOrganizationSheetRetriever implements OrganizationS
             email: $contact->email?->value,
             phoneNumber: $contact->phoneNumber?->international(),
             language: $contact->language,
-            linkedInPage: $state['linkedInPage']?->value,
+            links: ExternalLink::allOf($state['references']),
             website: $state['website']?->value,
             street: $address?->street,
             postalCode: $address?->postalCode,

@@ -11,6 +11,7 @@ use Prospecter\Core\PersonalData\Domain\Model\Reading;
 use Prospecter\Core\PersonalData\Domain\Policy\Masking;
 use Prospecter\Core\PersonalData\Domain\Policy\PersonPossibilities;
 use Prospecter\Core\PersonalData\Domain\Policy\PersonReading;
+use Prospecter\Core\SharedKernel\Application\ExternalLink;
 use Prospecter\Core\SharedKernel\Application\FileResponse;
 use Prospecter\Core\SharedKernel\Domain\AccountId;
 use Prospecter\Core\SharedKernel\Domain\PersonId;
@@ -43,7 +44,7 @@ final class PersonCards
         $nameMasked = Reading::Masked === PersonReading::ofTheName($reader, $id, $purpose);
         $name = $document['name'];
         $contact = Documents::contactDetailsOf($document['contactDetails']);
-        $linkedInProfile = PersonDocument::linkedInProfileOf($document);
+        $references = PersonDocument::referencesOf($document);
         $possibleIntents = PersonPossibilities::given($reader, $id, new AccountId($document['accountId']), $purpose);
 
         return new PersonCard(
@@ -56,7 +57,7 @@ final class PersonCards
             email: $masked ? Masking::email($contact->email?->value) : $contact->email?->value,
             phoneNumber: $masked ? Masking::phoneNumber($contact->phoneNumber) : $contact->phoneNumber?->international(),
             language: $contact->language,
-            linkedInProfile: $masked ? Masking::linkedInProfile($linkedInProfile) : $linkedInProfile?->value,
+            links: $masked ? array_map(ExternalLink::masked(...), Masking::references($references)) : ExternalLink::allOf($references),
             picture: $masked ? null : FileResponse::orNone(Documents::fileOf($document['picture'])),
             possibleIntents: array_map(static fn (PersonIntent $intent): string => $intent->name, $possibleIntents),
             createdAt: Documents::momentOf($document['createdAt']),

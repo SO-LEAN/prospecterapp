@@ -6,7 +6,7 @@ const link = (href: string) => ({ href, method: 'PATCH' })
 
 const anAccount = (account: Partial<Account>): Account => ({
   name: { firstName: null, lastName: null },
-  contactDetails: { email: null },
+  contactDetails: { email: null, links: [] },
   organization: { legalIdentity: { corporateName: 'Babbage & Co' } },
   _links: {
     self: { href: '/api/me', method: 'GET' },

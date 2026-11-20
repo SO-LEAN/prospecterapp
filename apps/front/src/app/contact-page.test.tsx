@@ -29,7 +29,7 @@ const TOMORROW_AT_9 = new Date('2026-11-17T09:00:00').toISOString()
 
 const me: Account = {
   name: { firstName: 'Grace', lastName: 'Hopper' },
-  contactDetails: { email: null, phoneNumber: null, language: null },
+  contactDetails: { email: null, phoneNumber: null, language: null, links: [] },
   organization: { legalIdentity: { corporateName: 'Babbage & Co' } },
   _links: { self: { href: '/api/me', method: 'GET' } },
 }
@@ -38,7 +38,7 @@ const theContact = (contact: Partial<Contact>): Contact => ({
   id: ADA,
   name: { firstName: 'Ada', lastName: 'Lovelace' },
   civility: 'x',
-  contactDetails: { email: 'ada@acme.test', phoneNumber: null, language: null },
+  contactDetails: { email: 'ada@acme.test', phoneNumber: null, language: null, links: [] },
   masked: false,
   _links: { self: { href: `/api/contacts/${ADA}`, method: 'GET' } },
   ...contact,
@@ -106,19 +106,32 @@ describe('the card of a contact', () => {
     expect(screen.getByText('Données masquées')).toBeInTheDocument()
   })
 
-  it('opens the LinkedIn profile of the contact in a new tab', async () => {
-    theApiAnswers(theContact({ contactDetails: { linkedInProfile: ADA_ON_LINKEDIN } }), [])
+  it('opens the links of the contact in a new tab', async () => {
+    theApiAnswers(
+      theContact({
+        contactDetails: {
+          links: [{ source: 'linkedin', identifier: 'ada-lovelace', address: ADA_ON_LINKEDIN }],
+        },
+      }),
+      [],
+    )
 
     await renderTheSpaAt(`/contacts/${ADA}`)
 
-    const profile = await screen.findByRole('link', { name: 'linkedin.com/in/ada-lovelace' })
+    const profile = await screen.findByRole('link', { name: /linkedin\.com\/in\/ada-lovelace$/ })
     expect(profile).toHaveAttribute('href', ADA_ON_LINKEDIN)
     expect(profile).toHaveAttribute('target', '_blank')
     expect(profile).toHaveAttribute('rel', 'noopener noreferrer')
   })
 
-  it('shows the LinkedIn profile masked, no link to it, to a reader without the right', async () => {
-    theApiAnswers(theContact({ masked: true, contactDetails: { linkedInProfile: '***' } }), [])
+  it('shows the links masked, no link to follow, to a reader without the right', async () => {
+    theApiAnswers(
+      theContact({
+        masked: true,
+        contactDetails: { links: [{ source: '***', identifier: '***', address: '***' }] },
+      }),
+      [],
+    )
 
     await renderTheSpaAt(`/contacts/${ADA}`)
 
@@ -126,13 +139,13 @@ describe('the card of a contact', () => {
     expect(screen.queryByRole('link', { name: /linkedin/i })).not.toBeInTheDocument()
   })
 
-  it('opens the sheet of the contact holding a LinkedIn profile refused, its own contact details closed', async () => {
+  it('opens the sheet of the contact holding a link refused, its own contact details closed', async () => {
     const user = userEvent.setup()
     const GRACE = '0190a1c0-0000-7000-8000-000000000002'
     const grace = theContact({
       id: GRACE,
       name: { firstName: 'Grace', lastName: 'Hopper' },
-      contactDetails: { email: 'grace@acme.test', phoneNumber: null, language: null },
+      contactDetails: { email: 'grace@acme.test', phoneNumber: null, language: null, links: [] },
       _links: {
         self: { href: `/api/contacts/${GRACE}`, method: 'GET' },
         changeContactDetails: { href: `/api/contacts/${GRACE}/contact-details`, method: 'PATCH' },
@@ -143,9 +156,9 @@ describe('the card of a contact', () => {
       status: 422,
       violations: [
         {
-          propertyPath: 'linkedInProfile',
-          title: 'LinkedIn profile already held by Ada Lovelace',
-          reason: 'linkedInProfileAlreadyUsed',
+          propertyPath: 'links',
+          title: 'Link already held by Ada Lovelace',
+          reason: 'referenceAlreadyUsed',
           context: { holder: 'Ada Lovelace', holderId: ADA },
         },
       ],
@@ -180,7 +193,7 @@ describe('the card of a contact', () => {
     await renderTheSpaAt(`/contacts/${GRACE}`)
 
     await user.click(await screen.findByRole('button', { name: /^Modifier\s:\sCoordonnées$/ }))
-    await user.type(await screen.findByLabelText(/^Profil LinkedIn/), ADA_ON_LINKEDIN)
+    await user.type(await screen.findByLabelText(/^Ajouter un lien/), `${ADA_ON_LINKEDIN}{Enter}`)
     await user.click(screen.getByRole('button', { name: 'Enregistrer' }))
     await user.click(await screen.findByRole('link', { name: 'Voir la fiche d’Ada Lovelace' }))
 

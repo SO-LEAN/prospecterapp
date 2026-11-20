@@ -10,6 +10,7 @@ import {
   toContactDetailsValues,
 } from '@/shared/forms/contact-details'
 import { FormField } from '@/shared/forms/form-field'
+import { LinksField, linksSchema } from '@/shared/forms/links-field'
 import { atRoot, type FieldsProps } from '@/shared/forms/section-form'
 import { orNull, text } from '@/shared/forms/text'
 import { Input } from '@/shared/ui/input'
@@ -17,21 +18,21 @@ import { Input } from '@/shared/ui/input'
 type OrganizationContactDetailsResource = components['schemas']['OrganizationContactDetailsResource']
 type OrganizationContactDetailsInput = components['schemas']['OrganizationContactDetailsInput']
 
-/** The contact details of an organization: those of a person, the page of the company on LinkedIn and its website, checked by the API. */
+/** The contact details of an organization: those of a person, its links to the tools outside and its website, checked by the API. */
 export const organizationContactDetailsSchema = contactDetailsSchema.extend({
-  linkedInPage: text(255),
+  links: linksSchema,
   website: text(255),
 })
 
 export type OrganizationContactDetailsValues = z.infer<typeof organizationContactDetailsSchema>
 
-export const organizationContactDetailsFields = [...contactDetailsFields, 'linkedInPage', 'website'] as const
+export const organizationContactDetailsFields = [...contactDetailsFields, 'links', 'website'] as const
 
 export const toOrganizationContactDetailsValues = (
   contact: Partial<OrganizationContactDetailsResource>,
 ): OrganizationContactDetailsValues => ({
   ...toContactDetailsValues(contact),
-  linkedInPage: contact.linkedInPage ?? '',
+  links: contact.links?.map((link) => link.address) ?? [],
   website: contact.website ?? '',
 })
 
@@ -39,7 +40,7 @@ export const toOrganizationContactDetails = (
   values: OrganizationContactDetailsValues,
 ): OrganizationContactDetailsInput => ({
   ...toContactDetails(values),
-  linkedInPage: orNull(values.linkedInPage),
+  links: values.links,
   website: orNull(values.website),
 })
 
@@ -52,14 +53,7 @@ export function OrganizationContactDetailsFields<Values extends FieldValues>({
   return (
     <>
       <ContactDetailsFields form={form} path={path} />
-      <FormField
-        form={form}
-        name={path('linkedInPage')}
-        label={t('fields.linkedInPage')}
-        optional={t('common.optional')}
-      >
-        <Input inputMode="url" autoComplete="url" {...form.register(path('linkedInPage'))} />
-      </FormField>
+      <LinksField form={form} name={path('links')} />
       <FormField
         form={form}
         name={path('website')}

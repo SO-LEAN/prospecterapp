@@ -1,7 +1,7 @@
 # language: fr
 Fonctionnalité: Changer mes coordonnées
   En tant qu'utilisateur
-  Je veux tenir à jour mon e-mail, mon téléphone, ma langue et mon profil LinkedIn
+  Je veux tenir à jour mon e-mail, mon téléphone, ma langue et mes liens
 
   Contexte:
     Soit l'organisation "SOLEAN IT" qui utilise Prospecter
@@ -23,16 +23,16 @@ Fonctionnalité: Changer mes coordonnées
       | nom                        | Lovelace          |
       | langue de mon organisation |                   |
 
-  Scénario: Je note mon profil LinkedIn, sans qu'il soit exigé
+  Scénario: Je note mes liens, sans qu'ils soient exigés
     Quand je change mes coordonnées :
       | e-mail   | ada@solean-it.test                     |
-      | LinkedIn | linkedin.com/in/ada-lovelace?trk=share |
+      | liens  | linkedin.com/in/ada-lovelace?trk=share |
     Alors mon compte est enregistré avec :
-      | LinkedIn | https://www.linkedin.com/in/ada-lovelace |
+      | liens | https://linkedin.com/in/ada-lovelace?trk=share |
     Quand je change mes coordonnées :
       | e-mail | ada@solean-it.test |
     Alors mon compte est enregistré avec :
-      | LinkedIn | |
+      | liens | |
 
   Scénario: L'e-mail ne peut pas être celui d'un collègue
     Soit "Grace" est membre de "SOLEAN IT" avec le profil :

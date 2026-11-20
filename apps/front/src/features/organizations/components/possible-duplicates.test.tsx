@@ -24,7 +24,7 @@ const aDuplicate = (possibleDuplicates: Organization['possibleDuplicates']): Org
   id: DUPLICATE,
   name: 'ACME s.a.s',
   legalIdentity: { corporateName: 'ACME s.a.s' },
-  contactDetails: {},
+  contactDetails: { links: [] },
   contactIds: [],
   possibleDuplicates,
   createdAt: '2026-11-20T09:00:00+00:00',

@@ -53,7 +53,7 @@ final class CollectContactController extends AbstractController
             email: $input->contactDetails->email,
             phoneNumber: $input->contactDetails->phoneNumber,
             language: $input->contactDetails->language,
-            linkedInProfile: $input->contactDetails->linkedInProfile,
+            links: $input->contactDetails->links,
             organizationIds: $input->organizationIds,
             executedAt: $this->clock->now(),
         ));

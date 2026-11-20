@@ -9,24 +9,3 @@ export function LinkedInLogo({ className }: { className?: string }) {
     </svg>
   )
 }
-
-const SCHEME_AND_WWW = /^https:\/\/www\./
-
-/**
- * The LinkedIn profile of a person, opened in a new tab in a click; read masked, its stars only, no link to follow.
- */
-export function LinkedInProfile({ profile, masked }: { profile: string; masked: boolean }) {
-  if (masked) return profile
-
-  return (
-    <a
-      href={profile}
-      target="_blank"
-      rel="noopener noreferrer"
-      className="inline-flex min-w-0 items-center gap-1.5 text-primary hover:underline"
-    >
-      <LinkedInLogo className="size-4 shrink-0" />
-      <span className="truncate">{profile.replace(SCHEME_AND_WWW, '')}</span>
-    </a>
-  )
-}

@@ -30,7 +30,7 @@ const AUTHORIZATIONS = '/api/me/connections/google/authorizations'
 
 const me: Account = {
   name: { firstName: 'Grace', lastName: 'Hopper' },
-  contactDetails: { email: null, phoneNumber: null, language: null },
+  contactDetails: { email: null, phoneNumber: null, language: null, links: [] },
   organization: { legalIdentity: { corporateName: 'Babbage & Co' } },
   _links: { self: { href: '/api/me', method: 'GET' } },
 }

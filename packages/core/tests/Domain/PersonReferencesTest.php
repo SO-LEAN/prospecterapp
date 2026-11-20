@@ -5,20 +5,22 @@ declare(strict_types=1);
 namespace Tests\Core\Domain;
 
 use PHPUnit\Framework\TestCase;
-use Prospecter\Core\PersonalData\Domain\Model\LinkedInProfile;
 use Prospecter\Core\PersonalData\Domain\Model\Person;
 use Prospecter\Core\PersonalData\Domain\Model\Purpose;
 use Prospecter\Core\PersonalData\Domain\Model\Reader;
 use Prospecter\Core\SharedKernel\Domain\AccountId;
 use Prospecter\Core\SharedKernel\Domain\ContactDetails;
+use Prospecter\Core\SharedKernel\Domain\Designated;
+use Prospecter\Core\SharedKernel\Domain\ExternalReference;
+use Prospecter\Core\SharedKernel\Domain\ExternalReferences;
 use Prospecter\Core\SharedKernel\Domain\MemberId;
 use Prospecter\Core\SharedKernel\Domain\PersonId;
 
 /**
- * A person renames the address of their profile on LinkedIn: the profiles they had still recognize them, the last
- * three of them.
+ * A person renames the address of their profile on a tool, or takes a link off: the references they had still
+ * recognize them, the last three of them, whatever their source.
  */
-class PersonLinkedInProfilesTest extends TestCase
+class PersonReferencesTest extends TestCase
 {
     private const string AT = '2026-11-18 09:00 UTC';
     private const string ACCOUNT = '0190a1c0-0000-7000-8000-000000000001';
@@ -30,14 +32,14 @@ class PersonLinkedInProfilesTest extends TestCase
 
         $this->noteTheProfile($ada, 'ada-l');
 
-        $this->assertTrue($ada->holdsLinkedInProfile(self::profile('ada-lovelace')));
+        $this->assertTrue($ada->holdsReference(self::profile('ada-lovelace')));
     }
 
     public function testAPersonHoldsTheirCurrentProfile(): void
     {
         $ada = $this->personWithTheProfile('ada-lovelace');
 
-        $this->assertTrue($ada->holdsLinkedInProfile(self::profile('ada-lovelace')));
+        $this->assertTrue($ada->holdsReference(self::profile('ada-lovelace')));
     }
 
     public function testAPersonKeepsTheirLastThreeFormerProfilesOnly(): void
@@ -48,7 +50,7 @@ class PersonLinkedInProfilesTest extends TestCase
             $this->noteTheProfile($ada, $identifier);
         }
 
-        $this->assertEquals(array_map(self::profile(...), ['ada-5', 'ada-4', 'ada-3', 'ada-2']), $ada->linkedInProfilesHeld());
+        $this->assertEquals(array_map(self::profile(...), ['ada-5', 'ada-4', 'ada-3', 'ada-2']), $ada->referencesHeld());
     }
 
     public function testTheSameProfileNotedAgainIsNoFormerOne(): void
@@ -57,7 +59,7 @@ class PersonLinkedInProfilesTest extends TestCase
 
         $this->noteTheProfile($ada, 'ada-lovelace');
 
-        $this->assertEquals([self::profile('ada-lovelace')], $ada->linkedInProfilesHeld());
+        $this->assertEquals([self::profile('ada-lovelace')], $ada->referencesHeld());
     }
 
     public function testAFormerProfileNotedBackIsTheCurrentOneAgain(): void
@@ -67,7 +69,19 @@ class PersonLinkedInProfilesTest extends TestCase
 
         $this->noteTheProfile($ada, 'ada-lovelace');
 
-        $this->assertEquals(array_map(self::profile(...), ['ada-lovelace', 'ada-l']), $ada->linkedInProfilesHeld());
+        $this->assertEquals(array_map(self::profile(...), ['ada-lovelace', 'ada-l']), $ada->referencesHeld());
+    }
+
+    public function testTheFormerReferencesOfEverySourceCountTogether(): void
+    {
+        $ada = $this->personWithTheProfile('ada-1');
+
+        foreach (['https://www.malt.fr/profile/ada', 'https://github.com/ada', 'https://www.linkedin.com/in/ada-2'] as $address) {
+            $this->noteTheLink($ada, $address);
+        }
+        $this->noteTheProfile($ada, null);
+
+        $this->assertEquals([self::profile('ada-2'), self::reference('https://github.com/ada'), self::reference('https://www.malt.fr/profile/ada')], $ada->referencesHeld());
     }
 
     public function testAProfileTakenOffStaysAFormerOne(): void
@@ -76,8 +90,8 @@ class PersonLinkedInProfilesTest extends TestCase
 
         $this->noteTheProfile($ada, null);
 
-        $this->assertNull($ada->linkedInProfile());
-        $this->assertTrue($ada->holdsLinkedInProfile(self::profile('ada-lovelace')));
+        $this->assertSame([], $ada->references()->all());
+        $this->assertTrue($ada->holdsReference(self::profile('ada-lovelace')));
     }
 
     private function personWithTheProfile(string $identifier): Person
@@ -90,12 +104,30 @@ class PersonLinkedInProfilesTest extends TestCase
 
     private function noteTheProfile(Person $person, ?string $identifier): void
     {
-        $manager = new Reader(new MemberId('0190a1c0-0000-7000-8000-000000000009'), new AccountId(self::ACCOUNT), new PersonId('0190a1c0-0000-7000-8000-000000000008'), true);
-        $person->changeContactDetails(new ContactDetails(), null === $identifier ? null : self::profile($identifier), by: $manager, at: new \DateTimeImmutable(self::AT));
+        $this->noteTheLinks($person, null === $identifier ? [] : ['https://www.linkedin.com/in/'.$identifier]);
     }
 
-    private static function profile(string $identifier): LinkedInProfile
+    private function noteTheLink(Person $person, string $address): void
     {
-        return new LinkedInProfile('https://www.linkedin.com/in/'.$identifier);
+        $this->noteTheLinks($person, [$address]);
+    }
+
+    /**
+     * @param list<string> $addresses
+     */
+    private function noteTheLinks(Person $person, array $addresses): void
+    {
+        $manager = new Reader(new MemberId('0190a1c0-0000-7000-8000-000000000009'), new AccountId(self::ACCOUNT), new PersonId('0190a1c0-0000-7000-8000-000000000008'), true);
+        $person->changeContactDetails(new ContactDetails(), ExternalReferences::designating($addresses, Designated::Person), by: $manager, at: new \DateTimeImmutable(self::AT));
+    }
+
+    private static function profile(string $identifier): ExternalReference
+    {
+        return self::reference('https://www.linkedin.com/in/'.$identifier);
+    }
+
+    private static function reference(string $address): ExternalReference
+    {
+        return ExternalReference::designating($address, Designated::Person);
     }
 }

@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Prospecter\Core\PersonalData\Domain\Policy;
 
-use Prospecter\Core\PersonalData\Domain\Model\LinkedInProfile;
+use Prospecter\Core\SharedKernel\Domain\ExternalReferences;
 use Prospecter\Core\SharedKernel\Domain\PhoneNumber;
 
 /**
@@ -37,10 +37,15 @@ final class Masking
         return null === $email ? null : mb_substr($email, 0, 1).self::STARS.'@'.self::STARS;
     }
 
+    /**
+     * One link of stars for any number of them, none without: neither their number nor their sources leak.
+     *
+     * @return list<string>
+     */
     #[\NoDiscard]
-    public static function linkedInProfile(?LinkedInProfile $linkedInProfile): ?string
+    public static function references(ExternalReferences $references): array
     {
-        return null === $linkedInProfile ? null : self::STARS;
+        return [] === $references->all() ? [] : [self::STARS];
     }
 
     #[\NoDiscard]

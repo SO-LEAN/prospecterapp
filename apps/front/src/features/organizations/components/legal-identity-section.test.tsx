@@ -38,7 +38,7 @@ const anOrganization = (organization: Partial<Organization> = {}): Organization 
   id: ACME,
   name: 'ACME',
   legalIdentity: { corporateName: 'ACME', siret: null },
-  contactDetails: {},
+  contactDetails: { links: [] },
   contactIds: [],
   possibleDuplicates: [],
   createdAt: '2026-10-15T12:30:00+00:00',

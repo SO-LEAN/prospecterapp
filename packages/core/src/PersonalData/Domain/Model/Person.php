@@ -21,6 +21,8 @@ use Prospecter\Core\SharedKernel\Domain\AccountId;
 use Prospecter\Core\SharedKernel\Domain\ContactDetails;
 use Prospecter\Core\SharedKernel\Domain\Exception\NotAllowed;
 use Prospecter\Core\SharedKernel\Domain\Exception\PersonalDataManagersOnly;
+use Prospecter\Core\SharedKernel\Domain\ExternalReference;
+use Prospecter\Core\SharedKernel\Domain\ExternalReferences;
 use Prospecter\Core\SharedKernel\Domain\File;
 use Prospecter\Core\SharedKernel\Domain\MemberId;
 use Prospecter\Core\SharedKernel\Domain\OrganizationId;
@@ -37,14 +39,14 @@ final class Person implements ReleasesEvents
 {
     use RecordsEvents;
 
-    private const int FORMER_LINKEDIN_PROFILES_KEPT = 3;
+    private const int FORMER_REFERENCES_KEPT = 3;
 
     private ?File $picture = null;
     private ?string $jobTitle = null;
     private Civility $civility = Civility::X;
-    private ?LinkedInProfile $linkedInProfile = null;
-    /** @var list<LinkedInProfile> */
-    private array $formerLinkedInProfiles = [];
+    private ExternalReferences $references;
+    /** @var list<ExternalReference> */
+    private array $formerReferences = [];
     private \DateTimeImmutable $modifiedAt;
 
     private function __construct(
@@ -55,6 +57,7 @@ final class Person implements ReleasesEvents
         private ContactDetails $contactDetails,
         private readonly \DateTimeImmutable $createdAt,
     ) {
+        $this->references = ExternalReferences::none();
         $this->modifiedAt = $createdAt;
     }
 
@@ -72,7 +75,7 @@ final class Person implements ReleasesEvents
      * @throws PersonalDataManagersOnly
      * @throws ContactWithoutOrganization
      */
-    public static function collectAsContact(Reader $by, PersonId $id, PersonName $name, Civility $civility, ?string $jobTitle, ContactDetails $contactDetails, ?LinkedInProfile $linkedInProfile, array $organizations, \DateTimeImmutable $at): self
+    public static function collectAsContact(Reader $by, PersonId $id, PersonName $name, Civility $civility, ?string $jobTitle, ContactDetails $contactDetails, ExternalReferences $references, array $organizations, \DateTimeImmutable $at): self
     {
         self::ensureCollectedByAManager($by);
 
@@ -83,7 +86,7 @@ final class Person implements ReleasesEvents
         $contact = new self($id, $by->accountId, Purpose::Prospecting, $name, $contactDetails, $at);
         $contact->civility = $civility;
         $contact->jobTitle = $jobTitle;
-        $contact->linkedInProfile = $linkedInProfile;
+        $contact->references = $references;
         $contact->recordThat(new ContactCollected($by->accountId, $by->id, $id, $organizations, $at));
 
         return $contact;
@@ -158,24 +161,27 @@ final class Person implements ReleasesEvents
         return $this->civility;
     }
 
-    public function linkedInProfile(): ?LinkedInProfile
+    /**
+     * Their links to the tools outside.
+     */
+    public function references(): ExternalReferences
     {
-        return $this->linkedInProfile;
+        return $this->references;
     }
 
-    public function holdsLinkedInProfile(LinkedInProfile $profile): bool
+    public function holdsReference(ExternalReference $reference): bool
     {
-        return array_any($this->linkedInProfilesHeld(), static fn (LinkedInProfile $held): bool => $held->value === $profile->value);
+        return array_any($this->referencesHeld(), static fn (ExternalReference $held): bool => $held->key() === $reference->key());
     }
 
     /**
-     * Their profile and the former ones, which still recognize them.
+     * Their links and the former ones, which still recognize them.
      *
-     * @return list<LinkedInProfile>
+     * @return list<ExternalReference>
      */
-    public function linkedInProfilesHeld(): array
+    public function referencesHeld(): array
     {
-        return [...(null === $this->linkedInProfile ? [] : [$this->linkedInProfile]), ...$this->formerLinkedInProfiles];
+        return [...$this->references->all(), ...$this->formerReferences];
     }
 
     /**
@@ -213,11 +219,11 @@ final class Person implements ReleasesEvents
         $this->recordThat(new CivilityChanged($this->accountId, $by->id, $this->id, $at));
     }
 
-    public function changeContactDetails(ContactDetails $contactDetails, ?LinkedInProfile $linkedInProfile, Reader $by, \DateTimeImmutable $at): void
+    public function changeContactDetails(ContactDetails $contactDetails, ExternalReferences $references, Reader $by, \DateTimeImmutable $at): void
     {
         $this->ensurePossible(PersonIntent::ChangeContactDetails, $by);
         $this->contactDetails = $contactDetails;
-        $this->noteLinkedInProfile($linkedInProfile);
+        $this->noteReferences($references);
         $this->modifiedAt = $at;
         $this->recordThat(new PersonContactDetailsChanged($this->accountId, $by->id, $this->id, $at));
     }
@@ -243,14 +249,14 @@ final class Person implements ReleasesEvents
     }
 
     /**
-     * The profiles they held but the one noted now, the most recent first, the last ones only: a contact forgotten
-     * costs a write per profile it holds.
+     * The references they held but those noted now, the most recent first, the last ones only, whatever their source:
+     * a contact forgotten costs a write per reference it holds.
      */
-    private function noteLinkedInProfile(?LinkedInProfile $profile): void
+    private function noteReferences(ExternalReferences $references): void
     {
-        $formers = array_filter($this->linkedInProfilesHeld(), static fn (LinkedInProfile $held): bool => $held->value !== $profile?->value);
-        $this->formerLinkedInProfiles = array_slice(array_values($formers), 0, self::FORMER_LINKEDIN_PROFILES_KEPT);
-        $this->linkedInProfile = $profile;
+        $formers = array_filter($this->referencesHeld(), static fn (ExternalReference $held): bool => !$references->holds($held));
+        $this->formerReferences = array_slice(array_values($formers), 0, self::FORMER_REFERENCES_KEPT);
+        $this->references = $references;
     }
 
     private function ensureReachableBy(Reader $reader): void

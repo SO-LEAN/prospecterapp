@@ -25,7 +25,8 @@ final readonly class StartProspecting
         public ?string $observations,
         public ?string $holdingId,
         public \DateTimeImmutable $executedAt,
-        public ?string $linkedInPage = null,
+        /** @var list<string> the addresses of its links */
+        public array $links = [],
         public ?string $website = null,
     ) {
     }

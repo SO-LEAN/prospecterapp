@@ -6,7 +6,6 @@ namespace Prospecter\Core\PersonalData\Application\CollectContact;
 
 use Prospecter\Core\PersonalData\Domain\Exception\UnknownOrganization;
 use Prospecter\Core\PersonalData\Domain\Model\Civility;
-use Prospecter\Core\PersonalData\Domain\Model\LinkedInProfile;
 use Prospecter\Core\PersonalData\Domain\Model\Person;
 use Prospecter\Core\PersonalData\Domain\Model\PersonName;
 use Prospecter\Core\PersonalData\Domain\Model\Reader;
@@ -14,12 +13,14 @@ use Prospecter\Core\PersonalData\Domain\Port\ProspectedOrganizations;
 use Prospecter\Core\PersonalData\Domain\Port\Readers;
 use Prospecter\Core\PersonalData\Domain\Repository\PersonRepository;
 use Prospecter\Core\PersonalData\Domain\Service\EmailUniqueness;
-use Prospecter\Core\PersonalData\Domain\Service\LinkedInProfileUniqueness;
+use Prospecter\Core\PersonalData\Domain\Service\ReferenceUniqueness;
 use Prospecter\Core\SharedKernel\Application\CommandHandler;
 use Prospecter\Core\SharedKernel\Application\Port\Events;
 use Prospecter\Core\SharedKernel\Application\PublishesEvents;
 use Prospecter\Core\SharedKernel\Domain\ContactDetails;
+use Prospecter\Core\SharedKernel\Domain\Designated;
 use Prospecter\Core\SharedKernel\Domain\Email;
+use Prospecter\Core\SharedKernel\Domain\ExternalReferences;
 use Prospecter\Core\SharedKernel\Domain\MemberId;
 use Prospecter\Core\SharedKernel\Domain\OrganizationId;
 use Prospecter\Core\SharedKernel\Domain\PersonId;
@@ -39,7 +40,7 @@ final readonly class CollectContactHandler implements CommandHandler
         private ProspectedOrganizations $organizations,
         private Events $events,
         private EmailUniqueness $emails,
-        private LinkedInProfileUniqueness $linkedInProfiles,
+        private ReferenceUniqueness $references,
     ) {
     }
 
@@ -55,12 +56,12 @@ final readonly class CollectContactHandler implements CommandHandler
             civility: Civility::of($command->civility),
             jobTitle: $command->jobTitle,
             contactDetails: new ContactDetails(Email::orNone($command->email), PhoneNumber::orNone($command->phoneNumber), $command->language),
-            linkedInProfile: LinkedInProfile::orNone($command->linkedInProfile),
+            references: ExternalReferences::designating($command->links, Designated::Person),
             organizations: $organizations,
             at: $command->executedAt,
         );
         $this->emails->ensureAvailableFor($contact);
-        $this->linkedInProfiles->ensureAvailableFor($contact);
+        $this->references->ensureAvailableFor($contact);
         $this->persons->save($contact);
         $this->publishWhatHappenedTo($contact);
     }

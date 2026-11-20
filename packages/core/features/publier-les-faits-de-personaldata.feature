@@ -45,11 +45,11 @@ Fonctionnalité: Publier les faits de PersonalData
     Quand je change les coordonnées de "Ada Lovelace" :
       | e-mail    | <e-mail>    |
       | téléphone | <téléphone> |
-      | LinkedIn  | <LinkedIn>  |
+      | liens     | <liens>     |
     Alors le fait publié du contact "Ada Lovelace" le dit joignable par "<joignable par>"
 
     Exemples:
-      | e-mail        | téléphone      | LinkedIn                                 | joignable par     |
+      | e-mail        | téléphone      | liens                                    | joignable par     |
       | ada@acme.test |                |                                          | e-mail            |
       |               | 03 88 11 22 33 |                                          | téléphone         |
       |               | 06 12 34 56 78 |                                          | téléphone, mobile |

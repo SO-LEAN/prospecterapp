@@ -29,7 +29,7 @@ const LINUS = '0190a1c0-0000-7000-8000-000000000003'
 
 const me: Account = {
   name: { firstName: 'Alan', lastName: 'Turing' },
-  contactDetails: { email: null, phoneNumber: null, language: null },
+  contactDetails: { email: null, phoneNumber: null, language: null, links: [] },
   organization: { legalIdentity: { corporateName: 'Babbage & Co' } },
   _links: { self: { href: '/api/me', method: 'GET' } },
 }
@@ -39,7 +39,7 @@ const inList = (id: string, firstName: string, lastName: string): ContactInList 
   name: { firstName, lastName },
   civility: 'x',
   jobTitle: null,
-  contactDetails: {},
+  contactDetails: { links: [] },
   masked: false,
   organizations: [],
   tags: ['#ESN'],
@@ -63,7 +63,7 @@ const theCard: Contact = {
   id: ADA,
   name: { firstName: 'Ada', lastName: 'Lovelace' },
   civility: 'x',
-  contactDetails: { email: 'ada@acme.test', phoneNumber: null, language: null },
+  contactDetails: { email: 'ada@acme.test', phoneNumber: null, language: null, links: [] },
   masked: false,
   _links: {
     self: { href: `/api/contacts/${ADA}`, method: 'GET' },

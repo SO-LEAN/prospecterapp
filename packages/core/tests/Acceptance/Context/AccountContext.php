@@ -41,7 +41,7 @@ final class AccountContext implements Context
         $values = Vocabulary::values($table->getRowsHash());
         $me = $this->scenario->myPerson();
         $me->rename(Vocabulary::personName($values), by: $this->scenario->meAsReader(), at: $this->application->now());
-        $me->changeContactDetails(Vocabulary::contactDetails($values), Vocabulary::linkedInProfile($values), by: $this->scenario->meAsReader(), at: $this->application->now());
+        $me->changeContactDetails(Vocabulary::contactDetails($values), Vocabulary::personReferences($values), by: $this->scenario->meAsReader(), at: $this->application->now());
         $this->application->persons->save($me);
     }
 
@@ -82,7 +82,7 @@ final class AccountContext implements Context
     public function iChangeMyContactDetails(TableNode $table): void
     {
         $values = Vocabulary::values($table->getRowsHash());
-        $this->application->dispatch(new ChangePersonContactDetails($this->application->signedIn(), $this->scenario->profileOf($this->scenario->me())->value, $values['e-mail'], $values['téléphone'], $values['langue'], $values['LinkedIn'], $this->application->now()));
+        $this->application->dispatch(new ChangePersonContactDetails($this->application->signedIn(), $this->scenario->profileOf($this->scenario->me())->value, $values['e-mail'], $values['téléphone'], $values['langue'], Vocabulary::links($values), $this->application->now()));
     }
 
     #[When('je change ma photo avec :fileName')]

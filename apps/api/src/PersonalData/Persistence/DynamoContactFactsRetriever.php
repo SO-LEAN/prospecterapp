@@ -16,7 +16,7 @@ use Prospecter\Core\SharedKernel\Domain\Slice;
  * Reads the facts of the contacts in the items `PERSON#<id>` / `PERSON` that `DynamoPersonRepository` writes,
  * their revision with them, without restoring them (ADR 0088): by key, as the open unit of work is about to write
  * them, and listed among the persons the account keeps for its prospecting in `GSI1`; how a contact is reached, read
- * from its contact details and its LinkedIn profile, never published themselves.
+ * from its contact details and its LinkedIn profile among its links, never published themselves.
  */
 final readonly class DynamoContactFactsRetriever implements ContactFactsRetriever
 {
@@ -57,7 +57,7 @@ final readonly class DynamoContactFactsRetriever implements ContactFactsRetrieve
             null !== $contactDetails->email,
             null !== $contactDetails->phoneNumber,
             true === $contactDetails->phoneNumber?->isMobile(),
-            null !== PersonDocument::linkedInProfileOf($person),
+            PersonDocument::isOnLinkedIn($person),
         );
     }
 }

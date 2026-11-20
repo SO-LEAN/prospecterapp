@@ -19,25 +19,26 @@ describe('StartProspectingForm', () => {
     expect(onSubmit).toHaveBeenCalledWith(
       expect.objectContaining({
         legalIdentity: { corporateName: 'ACME', form: null, type: null },
-        contactDetails: { email: null, phoneNumber: null, language: null, linkedInPage: null, website: null },
+        contactDetails: { email: null, phoneNumber: null, language: null, links: [], website: null },
         address: expect.objectContaining({ city: 'Paris', street: null }),
         observations: null,
       }),
     )
   })
 
-  it('sends the LinkedIn page and the website typed', async () => {
+  it('sends the links pasted and the website typed', async () => {
     const { onSubmit, user } = renderForm()
 
     await user.type(screen.getByLabelText('Raison sociale'), 'ACME')
-    await user.type(screen.getByLabelText(/^Page LinkedIn/), 'linkedin.com/company/acme-corp')
+    await user.type(screen.getByLabelText(/^Ajouter un lien/), 'linkedin.com/company/acme-corp{Enter}')
+    await user.type(screen.getByLabelText(/^Ajouter un lien/), 'https://annuaire-xyz.com/acme')
     await user.type(screen.getByLabelText(/^Site web/), 'acme.fr')
     await user.click(screen.getByRole('button', { name: 'Commencer à prospecter' }))
 
     expect(onSubmit).toHaveBeenCalledWith(
       expect.objectContaining({
         contactDetails: expect.objectContaining({
-          linkedInPage: 'linkedin.com/company/acme-corp',
+          links: ['linkedin.com/company/acme-corp', 'https://annuaire-xyz.com/acme'],
           website: 'acme.fr',
         }),
       }),
@@ -77,14 +78,14 @@ describe('StartProspectingForm', () => {
     expect(screen.getByRole('alert')).toHaveTextContent('Organisation refusée.')
   })
 
-  it('shows a refusal of the LinkedIn page and of the website on their fields', async () => {
+  it('shows a refusal of the links and of the website on their fields', async () => {
     const { user } = renderForm(
       vi.fn().mockRejectedValue({
         title: 'Validation Failed',
         status: 422,
         detail: 'Invalid',
         violations: [
-          { propertyPath: 'contactDetails.linkedInPage', title: 'Pas une page.' },
+          { propertyPath: 'contactDetails.links', title: 'Pas une page.' },
           { propertyPath: 'contactDetails.website', title: 'Pas un site.' },
         ],
       }),
@@ -94,7 +95,7 @@ describe('StartProspectingForm', () => {
     await user.click(screen.getByRole('button', { name: 'Commencer à prospecter' }))
 
     expect(await screen.findByText('Pas une page.')).toBeInTheDocument()
-    expect(screen.getByLabelText(/^Page LinkedIn/)).toHaveAttribute('aria-invalid', 'true')
+    expect(screen.getByLabelText(/^Ajouter un lien/)).toHaveAttribute('aria-invalid', 'true')
     expect(screen.getByLabelText(/^Site web/)).toHaveAttribute('aria-invalid', 'true')
   })
 })

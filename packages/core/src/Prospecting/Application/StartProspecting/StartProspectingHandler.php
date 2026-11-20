@@ -4,14 +4,13 @@ declare(strict_types=1);
 
 namespace Prospecter\Core\Prospecting\Application\StartProspecting;
 
-use Prospecter\Core\Prospecting\Domain\Model\LinkedInPage;
 use Prospecter\Core\Prospecting\Domain\Model\Organization;
 use Prospecter\Core\Prospecting\Domain\Model\Website;
 use Prospecter\Core\Prospecting\Domain\Port\Prospectors;
 use Prospecter\Core\Prospecting\Domain\Repository\OrganizationRepository;
 use Prospecter\Core\Prospecting\Domain\Service\DuplicateSuspicion;
 use Prospecter\Core\Prospecting\Domain\Service\EmailUniqueness;
-use Prospecter\Core\Prospecting\Domain\Service\LinkedInPageUniqueness;
+use Prospecter\Core\Prospecting\Domain\Service\ReferenceUniqueness;
 use Prospecter\Core\Prospecting\Domain\Service\WebsiteUniqueness;
 use Prospecter\Core\SharedKernel\Application\CommandHandler;
 use Prospecter\Core\SharedKernel\Application\GeoLocalizer;
@@ -19,7 +18,9 @@ use Prospecter\Core\SharedKernel\Application\Port\Events;
 use Prospecter\Core\SharedKernel\Application\PublishesEvents;
 use Prospecter\Core\SharedKernel\Domain\Address;
 use Prospecter\Core\SharedKernel\Domain\ContactDetails;
+use Prospecter\Core\SharedKernel\Domain\Designated;
 use Prospecter\Core\SharedKernel\Domain\Email;
+use Prospecter\Core\SharedKernel\Domain\ExternalReferences;
 use Prospecter\Core\SharedKernel\Domain\LegalIdentity;
 use Prospecter\Core\SharedKernel\Domain\MemberId;
 use Prospecter\Core\SharedKernel\Domain\OrganizationId;
@@ -35,7 +36,7 @@ final readonly class StartProspectingHandler implements CommandHandler
         private Events $events,
         private GeoLocalizer $geoLocalizer,
         private EmailUniqueness $emails,
-        private LinkedInPageUniqueness $linkedInPages,
+        private ReferenceUniqueness $references,
         private WebsiteUniqueness $websites,
         private DuplicateSuspicion $duplicateSuspicion,
     ) {
@@ -56,7 +57,7 @@ final readonly class StartProspectingHandler implements CommandHandler
         $this->observe($organization, $command, $prospector->id);
         $this->attachToTheHolding($organization, $command, $prospector->id);
         $this->emails->ensureAvailableFor($organization);
-        $this->linkedInPages->ensureAvailableFor($organization);
+        $this->references->ensureAvailableFor($organization);
         $this->websites->ensureAvailableFor($organization);
         $organization->reconsiderDuplicates($this->duplicateSuspicion->resemblingTo($organization), by: $prospector->id, at: $command->executedAt);
         $this->organizations->save($organization);
@@ -64,16 +65,15 @@ final readonly class StartProspectingHandler implements CommandHandler
     }
 
     /**
-     * Only what is known is told: an organization started without its page nor its website has no contact details
-     * changed.
+     * Only what is known is told: an organization started without links nor website has no contact details changed.
      */
     private function placeOnTheWeb(Organization $organization, StartProspecting $command, MemberId $author): void
     {
-        $linkedInPage = LinkedInPage::orNone($command->linkedInPage);
+        $references = ExternalReferences::designating($command->links, Designated::Organization);
         $website = Website::orNone($command->website);
 
-        if (null !== $linkedInPage || null !== $website) {
-            $organization->changeContactDetails($organization->contactDetails(), $linkedInPage, $website, by: $author, at: $command->executedAt);
+        if ([] !== $references->all() || null !== $website) {
+            $organization->changeContactDetails($organization->contactDetails(), $references, $website, by: $author, at: $command->executedAt);
         }
     }
 

@@ -17,7 +17,7 @@ export interface paths {
         delete?: never;
         options?: never;
         head?: never;
-        /** Change my email, phone number, language and LinkedIn profile, nothing else changes */
+        /** Change my email, phone number, language and links, nothing else changes */
         patch: operations["patch_api_me_change_contact_details"];
         trace?: never;
     };
@@ -190,7 +190,7 @@ export interface paths {
         delete?: never;
         options?: never;
         head?: never;
-        /** Change the email, phone number, language, LinkedIn page and website, nothing else changes */
+        /** Change the email, phone number, language, links and website, nothing else changes */
         patch: operations["patch_api_organizations_change_contact_details"];
         trace?: never;
     };
@@ -485,7 +485,7 @@ export interface paths {
         delete?: never;
         options?: never;
         head?: never;
-        /** Change the email, phone number, language and LinkedIn profile of a contact */
+        /** Change the email, phone number, language and links of a contact */
         patch: operations["patch_api_contacts_change_contact_details"];
         trace?: never;
     };
@@ -1716,11 +1716,13 @@ export interface components {
             /** @default null */
             language: string | null;
             /**
-             * @description The address of a profile on LinkedIn, with or without its scheme, its subdomain or what follows its identifier; kept in one form (https://www.linkedin.com/in/<identifier>), refused when it is no profile of a person
-             * @default null
-             * @example linkedin.com/in/ada-lovelace
+             * @description The addresses of their pages on the tools outside (a profile on LinkedIn or Malt, any other site), five at most; each recognized by its source and an identifier, refused when it is no address of a web page, a page of a known tool designating an organization or none it recognizes, or one another contact of the account has or had
+             * @default []
+             * @example [
+             *       "linkedin.com/in/ada-lovelace"
+             *     ]
              */
-            linkedInProfile: string | null;
+            links: string[];
         };
         PersonNameInput: {
             /** @default null */
@@ -1772,11 +1774,13 @@ export interface components {
             /** @default null */
             language: string | null;
             /**
-             * @description The address of the page of a company on LinkedIn, with or without its scheme, its subdomain or the page under it; kept in one form (https://www.linkedin.com/company/<identifier>), refused when it is no page of a company, or the one of another organization of the account
-             * @default null
-             * @example linkedin.com/company/acme-corp
+             * @description The addresses of its pages on the tools outside (a company on LinkedIn or Welcome to the Jungle, any other site), five at most; each recognized by its source and an identifier, refused when it is no address of a web page, a page of a known tool designating a person or none it recognizes, or the one of another organization of the account
+             * @default []
+             * @example [
+             *       "https://www.welcometothejungle.com/fr/companies/acme"
+             *     ]
              */
-            linkedInPage: string | null;
+            links: string[];
             /**
              * @description The address of a site on the web, with or without its scheme; kept as its origin (https when typed without), refused when it is no address of a site, or when another organization of the account has a site of the same domain (its host without www)
              * @default null
@@ -2316,6 +2320,23 @@ export interface components {
             firstName?: string | null;
             lastName?: string | null;
         };
+        ExternalLinkResource: {
+            /**
+             * @description A known tool (linkedin, linkedin-company, malt, welcometothejungle), or the host of the address without www
+             * @example welcometothejungle
+             */
+            source: string;
+            /**
+             * @description What the link designates on its source, in lower case: what recognizes it
+             * @example acme
+             */
+            identifier: string;
+            /**
+             * @description The address as it was pasted, https added when typed without its scheme: what opens it
+             * @example https://www.welcometothejungle.com/fr/companies/acme
+             */
+            address: string;
+        };
         PersonContactDetailsResource: {
             email?: string | null;
             /**
@@ -2324,11 +2345,8 @@ export interface components {
              */
             phoneNumber?: string | null;
             language?: string | null;
-            /**
-             * @description In one form, its identifier in lower case; stars when masked
-             * @example https://www.linkedin.com/in/ada-lovelace
-             */
-            linkedInProfile?: string | null;
+            /** one link of stars when masked, whatever their number */
+            links: components["schemas"]["ExternalLinkResource"][];
         };
         ImageResource: {
             url: string;
@@ -2453,11 +2471,7 @@ export interface components {
              */
             phoneNumber?: string | null;
             language?: string | null;
-            /**
-             * @description In one form, its identifier in lower case
-             * @example https://www.linkedin.com/company/acme-corp
-             */
-            linkedInPage?: string | null;
+            links: components["schemas"]["ExternalLinkResource"][];
             /**
              * @description Its origin, in lower case
              * @example https://www.acme.fr
@@ -4069,7 +4083,7 @@ export interface operations {
                     "application/json": components["schemas"]["ProblemResource"];
                 };
             };
-            /** @description Invalid contact details, email, LinkedIn page or domain of the website already used, or neither corporate name nor email left */
+            /** @description Invalid contact details, email, link or domain of the website already used, or neither corporate name nor email left */
             422: {
                 headers: {
                     [name: string]: unknown;
@@ -4916,7 +4930,7 @@ export interface operations {
                     "application/json": components["schemas"]["ProblemResource"];
                 };
             };
-            /** @description Invalid organization, email, LinkedIn page or domain of the website already used, or neither corporate name nor email */
+            /** @description Invalid organization, email, link or domain of the website already used, or neither corporate name nor email */
             422: {
                 headers: {
                     [name: string]: unknown;
@@ -5316,7 +5330,7 @@ export interface operations {
                     "application/json": components["schemas"]["ProblemResource"];
                 };
             };
-            /** @description Invalid contact details, or email already used by another contact */
+            /** @description Invalid contact details, or email or link already used by another contact */
             422: {
                 headers: {
                     [name: string]: unknown;

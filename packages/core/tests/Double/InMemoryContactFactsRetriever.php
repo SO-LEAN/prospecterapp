@@ -9,6 +9,7 @@ use Prospecter\Core\PersonalData\Contract\Service\ListContactFacts\ContactFactsR
 use Prospecter\Core\PersonalData\Domain\Model\Person;
 use Prospecter\Core\PersonalData\Domain\Model\Purpose;
 use Prospecter\Core\SharedKernel\Domain\AccountId;
+use Prospecter\Core\SharedKernel\Domain\KnownSource;
 use Prospecter\Core\SharedKernel\Domain\PersonId;
 use Prospecter\Core\SharedKernel\Domain\SearchKeys;
 use Prospecter\Core\SharedKernel\Domain\Slice;
@@ -54,7 +55,7 @@ final readonly class InMemoryContactFactsRetriever implements ContactFactsRetrie
             null !== $contactDetails->email,
             null !== $contactDetails->phoneNumber,
             true === $contactDetails->phoneNumber?->isMobile(),
-            null !== $state['linkedInProfile'],
+            $state['references']->hasOneOf(KnownSource::LinkedInProfile),
         );
     }
 }

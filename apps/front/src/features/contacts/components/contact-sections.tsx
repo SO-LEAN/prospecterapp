@@ -22,8 +22,8 @@ import { orNull } from '@/shared/forms/text'
 import { countryName } from '@/shared/lib/countries'
 import { Detail } from '@/shared/ui/detail'
 import { EditableSection } from '@/shared/ui/editable-section'
+import { ExternalLinks } from '@/shared/ui/external-links'
 import { Input } from '@/shared/ui/input'
-import { LinkedInProfile } from '@/shared/ui/linkedin-profile'
 import {
   useChangeCivility,
   useChangeContactDetailsOfContact,
@@ -149,10 +149,8 @@ export function ContactDetailsSection({ contact }: { contact: Contact }) {
       </Detail>
       <Detail label={t('fields.phoneNumber')}>{details.phoneNumber}</Detail>
       <Detail label={t('fields.language')}>{countryName(details.language)}</Detail>
-      <Detail label={t('fields.linkedInProfile')}>
-        {details.linkedInProfile && (
-          <LinkedInProfile profile={details.linkedInProfile} masked={contact.masked} />
-        )}
+      <Detail label={t('fields.links')}>
+        {details.links.length > 0 && <ExternalLinks links={details.links} masked={contact.masked} />}
       </Detail>
     </EditableSection>
   )

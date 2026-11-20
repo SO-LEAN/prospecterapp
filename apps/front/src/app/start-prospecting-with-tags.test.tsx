@@ -28,7 +28,7 @@ const THE_PAGE_OF_THE_ORGANIZATION_LOADED = { timeout: 3_000 }
 
 const me: Account = {
   name: { firstName: 'Grace', lastName: 'Hopper' },
-  contactDetails: { email: null, phoneNumber: null, language: null },
+  contactDetails: { email: null, phoneNumber: null, language: null, links: [] },
   organization: { legalIdentity: { corporateName: 'Babbage & Co' } },
   _links: { self: { href: '/api/me', method: 'GET' } },
 }
@@ -37,7 +37,7 @@ const acme: Organization = {
   id: ACME,
   name: 'QA campagnes',
   legalIdentity: { corporateName: 'QA campagnes' },
-  contactDetails: {},
+  contactDetails: { links: [] },
   contactIds: [],
   possibleDuplicates: [],
   createdAt: '2026-11-17T09:00:00+00:00',

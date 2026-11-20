@@ -2,11 +2,12 @@
 
 namespace App\PersonalData\Resource;
 
+use App\Shared\Resource\ExternalLinkResource;
 use OpenApi\Attributes as OA;
 use Prospecter\Core\PersonalData\Application\PersonCard;
 
 /**
- * The contact details of a person: those of an organization, and the profile of the person on LinkedIn.
+ * The contact details of a person: an email, a phone number, a language, and their links to the tools outside.
  */
 final readonly class PersonContactDetailsResource
 {
@@ -15,13 +16,13 @@ final readonly class PersonContactDetailsResource
         #[OA\Property(description: 'In the international format', example: '+33 3 88 11 22 33')]
         public ?string $phoneNumber,
         public ?string $language,
-        #[OA\Property(description: 'In one form, its identifier in lower case; stars when masked', example: 'https://www.linkedin.com/in/ada-lovelace')]
-        public ?string $linkedInProfile,
+        /** @var list<ExternalLinkResource> one link of stars when masked, whatever their number */
+        public array $links,
     ) {
     }
 
     public static function of(PersonCard $person): self
     {
-        return new self($person->email, $person->phoneNumber, $person->language, $person->linkedInProfile);
+        return new self($person->email, $person->phoneNumber, $person->language, ExternalLinkResource::allOf($person->links));
     }
 }

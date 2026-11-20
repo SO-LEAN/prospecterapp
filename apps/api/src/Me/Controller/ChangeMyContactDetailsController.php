@@ -31,14 +31,14 @@ final class ChangeMyContactDetailsController extends AbstractController
     }
 
     #[Route('/api/me/contact-details', name: 'api_me_change_contact_details', methods: ['PATCH'])]
-    #[OA\Patch(summary: 'Change my email, phone number, language and LinkedIn profile, nothing else changes')]
+    #[OA\Patch(summary: 'Change my email, phone number, language and links, nothing else changes')]
     #[OA\Response(response: 200, description: 'My account', content: new Model(type: AccountResource::class))]
     #[OA\Response(response: 401, description: 'Missing or invalid access token')]
     #[OA\Response(response: 403, description: 'The signed-in user is not a user', content: new Model(type: ProblemResource::class))]
     #[OA\Response(response: 422, description: 'Invalid contact details or email already used', content: new Model(type: ProblemResource::class))]
     public function __invoke(#[MapRequestPayload] PersonContactDetailsInput $input, #[CurrentUser] User $user): JsonResponse
     {
-        $this->commandBus->dispatch(new ChangePersonContactDetails($user->memberId(), $user->personId(), $input->email, $input->phoneNumber, $input->language, $input->linkedInProfile, $this->clock->now()));
+        $this->commandBus->dispatch(new ChangePersonContactDetails($user->memberId(), $user->personId(), $input->email, $input->phoneNumber, $input->language, $input->links, $this->clock->now()));
 
         return $this->json($this->myAccountReader->read($user->memberId()));
     }

@@ -35,6 +35,7 @@ use Prospecter\Core\SharedKernel\Domain\AccountId;
 use Prospecter\Core\SharedKernel\Domain\Address;
 use Prospecter\Core\SharedKernel\Domain\ContactDetails;
 use Prospecter\Core\SharedKernel\Domain\Exception\NotPossibleInItsState;
+use Prospecter\Core\SharedKernel\Domain\ExternalReferences;
 use Prospecter\Core\SharedKernel\Domain\File;
 use Prospecter\Core\SharedKernel\Domain\GeoPoint;
 use Prospecter\Core\SharedKernel\Domain\LegalIdentity;
@@ -60,7 +61,7 @@ final class Organization implements ReleasesEvents
     private ?string $municipalityCode = null;
     private ?string $observations = null;
     private ?File $logo = null;
-    private ?LinkedInPage $linkedInPage = null;
+    private ExternalReferences $references;
     private ?Website $website = null;
     /** @var list<PersonId> */
     private array $contacts = [];
@@ -78,6 +79,7 @@ final class Organization implements ReleasesEvents
         private ContactDetails $contactDetails,
         private readonly \DateTimeImmutable $createdAt,
     ) {
+        $this->references = ExternalReferences::none();
         $this->modifiedAt = $createdAt;
     }
 
@@ -109,9 +111,12 @@ final class Organization implements ReleasesEvents
         return $this->contactDetails;
     }
 
-    public function linkedInPage(): ?LinkedInPage
+    /**
+     * Its links to the tools outside, each designating it alone in its account.
+     */
+    public function references(): ExternalReferences
     {
-        return $this->linkedInPage;
+        return $this->references;
     }
 
     public function website(): ?Website
@@ -261,12 +266,12 @@ final class Organization implements ReleasesEvents
         $this->recordThat(new LegalIdentityRevised($this->accountId, $by, $this->id, $at));
     }
 
-    public function changeContactDetails(ContactDetails $contactDetails, ?LinkedInPage $linkedInPage, ?Website $website, MemberId $by, \DateTimeImmutable $at): void
+    public function changeContactDetails(ContactDetails $contactDetails, ExternalReferences $references, ?Website $website, MemberId $by, \DateTimeImmutable $at): void
     {
         $this->ensurePossible(OrganizationIntent::ChangeContactDetails);
         self::ensureItCanBeNamed($this->legalIdentity, $contactDetails);
         $this->contactDetails = $contactDetails;
-        $this->linkedInPage = $linkedInPage;
+        $this->references = $references;
         $this->website = $website;
         $this->modifiedAt = $at;
         $this->recordThat(new ContactDetailsChanged($this->accountId, $by, $this->id, $at));

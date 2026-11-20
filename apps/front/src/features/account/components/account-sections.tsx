@@ -38,9 +38,9 @@ import { initials } from '@/shared/lib/format'
 import { Card, CardContent, CardHeader, CardTitle } from '@/shared/ui/card'
 import { Detail } from '@/shared/ui/detail'
 import { EditableSection } from '@/shared/ui/editable-section'
+import { ExternalLinks } from '@/shared/ui/external-links'
 import { ImageUpload } from '@/shared/ui/form/image-upload'
 import { Input } from '@/shared/ui/input'
-import { LinkedInProfile } from '@/shared/ui/linkedin-profile'
 import { ExplainedUnlocatedBadge } from '@/shared/ui/unlocated-badge'
 import { myName } from '../me'
 import {
@@ -170,8 +170,8 @@ export function ContactDetailsSection({ account }: { account: Account }) {
       <Detail label={t('fields.email')}>{contact.email}</Detail>
       <Detail label={t('fields.phoneNumber')}>{contact.phoneNumber}</Detail>
       <Detail label={t('fields.language')}>{countryName(contact.language)}</Detail>
-      <Detail label={t('fields.linkedInProfile')}>
-        {contact.linkedInProfile && <LinkedInProfile profile={contact.linkedInProfile} masked={false} />}
+      <Detail label={t('fields.links')}>
+        {contact.links.length > 0 && <ExternalLinks links={contact.links} masked={false} />}
       </Detail>
     </EditableSection>
   )

@@ -21,7 +21,7 @@ const camille = (links: Partial<Contact['_links']>, civility: Contact['civility'
   id: CAMILLE,
   name: { firstName: 'Camille', lastName: 'Martin' },
   civility,
-  contactDetails: { email: null, phoneNumber: null, language: null, linkedInProfile: null },
+  contactDetails: { email: null, phoneNumber: null, language: null, links: [] },
   masked: false,
   _links: { self: { href: `/api/contacts/${CAMILLE}`, method: 'GET' }, ...links },
 })

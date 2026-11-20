@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Prospecter\Core\Prospecting\Application;
 
+use Prospecter\Core\SharedKernel\Application\ExternalLink;
 use Prospecter\Core\SharedKernel\Application\FileResponse;
 
 /**
@@ -12,6 +13,7 @@ use Prospecter\Core\SharedKernel\Application\FileResponse;
 final readonly class OrganizationSheet
 {
     /**
+     * @param list<ExternalLink>      $links              its links to the tools outside
      * @param list<string>            $contactIds         the persons prospected in it, to read in PersonalData
      * @param list<string>            $possibleIntents    names of the intentions its state offers now: Relocate, RemoveLogo...
      * @param list<PossibleDuplicate> $possibleDuplicates the organizations of the account it may be a duplicate of
@@ -28,7 +30,7 @@ final readonly class OrganizationSheet
         public ?string $email,
         public ?string $phoneNumber,
         public ?string $language,
-        public ?string $linkedInPage,
+        public array $links,
         public ?string $website,
         public ?string $street,
         public ?string $postalCode,

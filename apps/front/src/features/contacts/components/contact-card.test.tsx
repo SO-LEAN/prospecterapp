@@ -12,7 +12,7 @@ const ada = (tags: string[], civility: ContactInList['civility'] = 'x'): Contact
   name: { firstName: 'Ada', lastName: 'Lovelace' },
   civility,
   jobTitle: null,
-  contactDetails: { email: 'ada@acme.test' },
+  contactDetails: { email: 'ada@acme.test', links: [] },
   masked: false,
   organizations: [],
   tags,

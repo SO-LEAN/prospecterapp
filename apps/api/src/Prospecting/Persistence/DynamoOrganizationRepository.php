@@ -7,11 +7,10 @@ use App\Shared\Persistence\Revision;
 use App\Shared\Persistence\SearchIndexes;
 use App\Shared\Persistence\Table;
 use App\Shared\Persistence\Write;
-use Prospecter\Core\Prospecting\Domain\Exception\LinkedInPageAlreadyUsed;
+use Prospecter\Core\Prospecting\Domain\Exception\ReferenceAlreadyUsed;
 use Prospecter\Core\Prospecting\Domain\Exception\SiretAlreadyUsed;
 use Prospecter\Core\Prospecting\Domain\Exception\UnknownOrganization;
 use Prospecter\Core\Prospecting\Domain\Exception\WebsiteAlreadyUsed;
-use Prospecter\Core\Prospecting\Domain\Model\LinkedInPage;
 use Prospecter\Core\Prospecting\Domain\Model\Organization;
 use Prospecter\Core\Prospecting\Domain\Model\ResemblanceKey;
 use Prospecter\Core\Prospecting\Domain\Model\Website;
@@ -20,6 +19,7 @@ use Prospecter\Core\SharedKernel\Domain\AccountId;
 use Prospecter\Core\SharedKernel\Domain\Email;
 use Prospecter\Core\SharedKernel\Domain\Exception\BusinessException;
 use Prospecter\Core\SharedKernel\Domain\Exception\EmailAlreadyUsed;
+use Prospecter\Core\SharedKernel\Domain\ExternalReference;
 use Prospecter\Core\SharedKernel\Domain\OrganizationId;
 use Prospecter\Core\SharedKernel\Domain\Siret;
 
@@ -31,9 +31,9 @@ use Prospecter\Core\SharedKernel\Domain\Siret;
  *   EmailUniqueness (ADR 0039, 0048): two organizations taking it at once, the second transaction is cancelled;
  * - `SIRET#<account>#<siret>` / `SIRET`: the establishment an organization is in its account, the safety net of
  *   SiretUniqueness, as for the email;
- * - `LINKEDIN_PAGE#<account>#<page>` / `LINKEDIN_PAGE` and `WEBSITE#<account>#<domain>` / `WEBSITE`: the page of a
- *   company on LinkedIn and the domain of the website an organization has in its account, the safety nets of
- *   LinkedInPageUniqueness and WebsiteUniqueness, as for the SIRET;
+ * - `REFERENCE#<account>#<source>#<identifier>` / `REFERENCE` and `WEBSITE#<account>#<domain>` / `WEBSITE`: each
+ *   link and the domain of the website an organization has in its account, the safety nets of ReferenceUniqueness
+ *   and WebsiteUniqueness, as for the SIRET;
  * - `CONTACT#<person>` / `ORGANIZATION#<id>`: the organizations naming a contact;
  * - `EMAIL_DOMAIN#<account>#<domain>` / `ORGANIZATION#<id>`: the organizations of an account by the domain of their
  *   email, the one to attach a contact of that domain to proposed first (ADR 0146).
@@ -45,7 +45,8 @@ final readonly class DynamoOrganizationRepository implements OrganizationReposit
 {
     private const string EMAIL = 'EMAIL';
     private const string SIRET = 'SIRET';
-    private const string LINKEDIN_PAGE = 'LINKEDIN_PAGE';
+    private const string REFERENCE = 'REFERENCE';
+    private const string FORMER_LINKEDIN_PAGE = 'LINKEDIN_PAGE';
     private const string WEBSITE = 'WEBSITE';
     private const string RESEMBLANCE_KEY = 'resemblanceKey';
 
@@ -97,9 +98,9 @@ final readonly class DynamoOrganizationRepository implements OrganizationReposit
         return $this->holderOf(self::SIRET, $accountId->value, $siret->value, $except);
     }
 
-    public function withLinkedInPage(AccountId $accountId, LinkedInPage $page, OrganizationId $except): ?Organization
+    public function withReference(AccountId $accountId, ExternalReference $reference, OrganizationId $except): ?Organization
     {
-        return $this->holderOf(self::LINKEDIN_PAGE, $accountId->value, $page->value, $except);
+        return $this->holderOf(self::REFERENCE, $accountId->value, $reference->key(), $except);
     }
 
     public function withWebsiteOfDomain(AccountId $accountId, Website $website, OrganizationId $except): ?Organization
@@ -173,9 +174,9 @@ final readonly class DynamoOrganizationRepository implements OrganizationReposit
 
     /**
      * Writes again the item of every organization, its search keys and its keys in its lists with it, the link of
-     * the domain of its email (ADR 0146), the link of its resemblance key and the reservations of its LinkedIn page and of the domain of its website,
-     * and forgets the items of the search before ADR 0071: what a table written
-     * before them needs once.
+     * the domain of its email (ADR 0146), the link of its resemblance key and the reservations of its links and of the domain of its website, and forgets
+     * the items of the search before ADR 0071 and the reservations of the LinkedIn pages before the links: what a table
+     * written before them needs once.
      */
     public function writeTheKeysAgain(): int
     {
@@ -190,7 +191,7 @@ final readonly class DynamoOrganizationRepository implements OrganizationReposit
                 ...array_map(static fn (Organization $organization): array => self::resemblanceLink($organization->accountId()->value, (string) $organization->resemblanceKey(), $organization->id()->value), $resembling),
                 ...array_merge(...array_map(self::reservationsOf(...), array_column($items, 'organization'))),
             ],
-            array_map(static fn (array $former): array => [$former['PK'], $former['SK']], $this->prospectingTable->scan('TOKEN')),
+            array_map(static fn (array $former): array => [$former['PK'], $former['SK']], [...$this->prospectingTable->scan('TOKEN'), ...$this->prospectingTable->scan(self::FORMER_LINKEDIN_PAGE.'#')]),
         );
 
         return count($items);
@@ -234,8 +235,8 @@ final readonly class DynamoOrganizationRepository implements OrganizationReposit
     }
 
     /**
-     * The reservations of what designates one organization of its account, its SIRET, its LinkedIn page and the domain
-     * of its website, between the document stored and the one to store: none for an organization no longer prospected.
+     * The reservations of what designates one organization of its account, its SIRET, its links and the domain of its
+     * website, between the document stored and the one to store: none for an organization no longer prospected.
      *
      * @param array<string, mixed>|null $document
      * @param array<string, mixed>|null $stored
@@ -248,7 +249,7 @@ final readonly class DynamoOrganizationRepository implements OrganizationReposit
 
         return [
             ...$this->reservationChanged(self::SIRET, $owner, $document['legalIdentity']['siret'] ?? null, $stored['legalIdentity']['siret'] ?? null, SiretAlreadyUsed::byAnother(...)),
-            ...$this->reservationChanged(self::LINKEDIN_PAGE, $owner, $document['linkedInPage'] ?? null, $stored['linkedInPage'] ?? null, LinkedInPageAlreadyUsed::byAnother(...)),
+            ...$this->referencesChanged($owner, null === $document ? [] : self::referenceKeysOf($document), null === $stored ? [] : self::referenceKeysOf($stored)),
             ...$this->reservationChanged(self::WEBSITE, $owner, self::domainOf($document['website'] ?? null), self::domainOf($stored['website'] ?? null), WebsiteAlreadyUsed::byAnother(...)),
         ];
     }
@@ -274,6 +275,33 @@ final readonly class DynamoOrganizationRepository implements OrganizationReposit
         ];
     }
 
+    /**
+     * The reservations of the links taken, those of the links dropped released.
+     *
+     * @param array<string, mixed> $owner
+     * @param list<string>         $keys
+     * @param list<string>         $storedKeys
+     *
+     * @return list<Write>
+     */
+    private function referencesChanged(array $owner, array $keys, array $storedKeys): array
+    {
+        return [
+            ...array_map(fn (string $key): Write => $this->prospectingTable->putting(['PK' => self::reservationKey(self::REFERENCE, $owner['accountId'], $key), 'SK' => self::REFERENCE, 'ownerId' => $owner['id']], 'attribute_not_exists(PK) OR ownerId = :owner', [':owner' => $owner['id']], ReferenceAlreadyUsed::byAnother(...)), array_values(array_diff($keys, $storedKeys))),
+            ...array_map(fn (string $key): Write => $this->prospectingTable->deleting(self::reservationKey(self::REFERENCE, $owner['accountId'], $key), self::REFERENCE), array_values(array_diff($storedKeys, $keys))),
+        ];
+    }
+
+    /**
+     * @param array<string, mixed> $document
+     *
+     * @return list<string>
+     */
+    private static function referenceKeysOf(array $document): array
+    {
+        return array_map(static fn (ExternalReference $reference): string => $reference->key(), OrganizationDocument::referencesOf($document)->all());
+    }
+
     private function holderOf(string $kind, string $accountId, string $value, OrganizationId $except): ?Organization
     {
         $holder = $this->prospectingTable->item(self::reservationKey($kind, $accountId, $value), $kind);
@@ -290,9 +318,12 @@ final readonly class DynamoOrganizationRepository implements OrganizationReposit
      */
     private static function reservationsOf(array $document): array
     {
-        $reserved = array_filter([self::LINKEDIN_PAGE => $document['linkedInPage'] ?? null, self::WEBSITE => self::domainOf($document['website'] ?? null)]);
+        $reserved = [
+            ...array_map(static fn (string $key): array => [self::REFERENCE, $key], self::referenceKeysOf($document)),
+            ...array_map(static fn (string $domain): array => [self::WEBSITE, $domain], array_filter([self::domainOf($document['website'] ?? null)])),
+        ];
 
-        return array_map(static fn (string $kind, string $value): array => ['PK' => self::reservationKey($kind, $document['accountId'], $value), 'SK' => $kind, 'ownerId' => $document['id']], array_keys($reserved), array_values($reserved));
+        return array_map(static fn (array $reservation): array => ['PK' => self::reservationKey($reservation[0], $document['accountId'], $reservation[1]), 'SK' => $reservation[0], 'ownerId' => $document['id']], $reserved);
     }
 
     private static function domainOf(?string $website): ?string

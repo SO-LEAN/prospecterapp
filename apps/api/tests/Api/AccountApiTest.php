@@ -48,9 +48,9 @@ class AccountApiTest extends ApiTestCase
         $this->assertSame(['firstName' => 'Ada', 'lastName' => 'Lovelace'], $named['name']);
         $this->assertSame('prospector@solean-it.io', $named['contactDetails']['email']);
 
-        $contacted = $this->requestJson('PATCH', '/api/me/contact-details', ['email' => 'ada@solean-it.io', 'phoneNumber' => null, 'language' => 'FR', 'linkedInProfile' => 'linkedin.com/in/ada-lovelace']);
+        $contacted = $this->requestJson('PATCH', '/api/me/contact-details', ['email' => 'ada@solean-it.io', 'phoneNumber' => null, 'language' => 'FR', 'links' => ['linkedin.com/in/ada-lovelace']]);
         $this->assertSame('ada@solean-it.io', $contacted['contactDetails']['email']);
-        $this->assertSame('https://www.linkedin.com/in/ada-lovelace', $contacted['contactDetails']['linkedInProfile']);
+        $this->assertSame([['source' => 'linkedin', 'identifier' => 'ada-lovelace', 'address' => 'https://linkedin.com/in/ada-lovelace']], $contacted['contactDetails']['links']);
         $this->assertSame('Ada', $contacted['name']['firstName']);
 
         $revised = $this->requestJson('PATCH', '/api/me/organization/legal-identity', ['corporateName' => 'SO-LEAN', 'form' => 'SARL', 'type' => null]);

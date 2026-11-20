@@ -6,13 +6,16 @@ namespace Prospecter\Core\PersonalData\Application\ChangePersonContactDetails;
 
 final readonly class ChangePersonContactDetails
 {
+    /**
+     * @param list<string> $links the addresses of their links
+     */
     public function __construct(
         public string $readerId,
         public string $id,
         public ?string $email,
         public ?string $phoneNumber,
         public ?string $language,
-        public ?string $linkedInProfile,
+        public array $links,
         public \DateTimeImmutable $executedAt,
     ) {
     }

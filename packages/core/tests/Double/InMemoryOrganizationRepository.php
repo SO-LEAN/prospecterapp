@@ -5,13 +5,13 @@ declare(strict_types=1);
 namespace Tests\Core\Double;
 
 use Prospecter\Core\Prospecting\Domain\Exception\UnknownOrganization;
-use Prospecter\Core\Prospecting\Domain\Model\LinkedInPage;
 use Prospecter\Core\Prospecting\Domain\Model\Organization;
 use Prospecter\Core\Prospecting\Domain\Model\ResemblanceKey;
 use Prospecter\Core\Prospecting\Domain\Model\Website;
 use Prospecter\Core\Prospecting\Domain\Repository\OrganizationRepository;
 use Prospecter\Core\SharedKernel\Domain\AccountId;
 use Prospecter\Core\SharedKernel\Domain\Email;
+use Prospecter\Core\SharedKernel\Domain\ExternalReference;
 use Prospecter\Core\SharedKernel\Domain\OrganizationId;
 use Prospecter\Core\SharedKernel\Domain\Siret;
 
@@ -57,9 +57,9 @@ final readonly class InMemoryOrganizationRepository implements OrganizationRepos
         return array_find($this->prospectedBy($accountId), fn (Organization $organization): bool => !$organization->id()->equals($except) && $organization->siret()?->value === $siret->value);
     }
 
-    public function withLinkedInPage(AccountId $accountId, LinkedInPage $page, OrganizationId $except): ?Organization
+    public function withReference(AccountId $accountId, ExternalReference $reference, OrganizationId $except): ?Organization
     {
-        return array_find($this->prospectedBy($accountId), fn (Organization $organization): bool => !$organization->id()->equals($except) && $organization->linkedInPage()?->value === $page->value);
+        return array_find($this->prospectedBy($accountId), fn (Organization $organization): bool => !$organization->id()->equals($except) && $organization->references()->holds($reference));
     }
 
     public function withWebsiteOfDomain(AccountId $accountId, Website $website, OrganizationId $except): ?Organization

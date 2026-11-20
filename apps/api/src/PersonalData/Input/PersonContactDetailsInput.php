@@ -6,7 +6,7 @@ use OpenApi\Attributes as OA;
 use Symfony\Component\Validator\Constraints as Assert;
 
 /**
- * The contact details of a person: those of an organization, and the profile of the person on LinkedIn.
+ * The contact details of a person: an email, a phone number, a language, and their links to the tools outside.
  */
 final readonly class PersonContactDetailsInput
 {
@@ -19,9 +19,10 @@ final readonly class PersonContactDetailsInput
         public ?string $phoneNumber = null,
         #[Assert\Country]
         public ?string $language = null,
-        #[Assert\Length(max: 255)]
-        #[OA\Property(description: 'The address of a profile on LinkedIn, with or without its scheme, its subdomain or what follows its identifier; kept in one form (https://www.linkedin.com/in/<identifier>), refused when it is no profile of a person', example: 'linkedin.com/in/ada-lovelace')]
-        public ?string $linkedInProfile = null,
+        /** @var list<string> */
+        #[Assert\All([new Assert\Type('string'), new Assert\Length(max: 255)])]
+        #[OA\Property(description: 'The addresses of their pages on the tools outside (a profile on LinkedIn or Malt, any other site), five at most; each recognized by its source and an identifier, refused when it is no address of a web page, a page of a known tool designating an organization or none it recognizes, or one another contact of the account has or had', items: new OA\Items(type: 'string'), example: ['linkedin.com/in/ada-lovelace'])]
+        public array $links = [],
     ) {
     }
 }

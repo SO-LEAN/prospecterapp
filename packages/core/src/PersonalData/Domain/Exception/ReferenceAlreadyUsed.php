@@ -8,9 +8,9 @@ use Prospecter\Core\PersonalData\Domain\Model\Person;
 use Prospecter\Core\SharedKernel\Domain\Exception\BusinessRuleViolation;
 
 /**
- * The LinkedIn profile is already another contact's of the account, as their own or a former one.
+ * The link is already another contact's of the account, as one of their own or a former one.
  */
-final class LinkedInProfileAlreadyUsed extends BusinessRuleViolation
+final class ReferenceAlreadyUsed extends BusinessRuleViolation
 {
     /**
      * Named to the member noting it, who reads the name of every contact of their account (ADR 0129).
@@ -19,6 +19,6 @@ final class LinkedInProfileAlreadyUsed extends BusinessRuleViolation
     {
         $name = trim(sprintf('%s %s', $holder->name()->firstName, $holder->name()->lastName));
 
-        return self::because(sprintf('LinkedIn profile already held by %s', $name), 'linkedInProfile', context: ['holder' => $name, 'holderId' => $holder->id()->value]);
+        return self::because(sprintf('Link already held by %s', $name), 'links', context: ['holder' => $name, 'holderId' => $holder->id()->value]);
     }
 }

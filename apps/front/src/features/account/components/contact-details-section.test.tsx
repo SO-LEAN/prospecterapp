@@ -26,22 +26,25 @@ function renderTheSection(account: Account) {
 }
 
 describe('my contact details', () => {
-  it('open my LinkedIn profile in a new tab', () => {
+  it('open my links in a new tab', () => {
     renderTheSection(
-      myAccount({ email: 'ada@solean-it.test', linkedInProfile: 'https://www.linkedin.com/in/ada' }),
+      myAccount({
+        email: 'ada@solean-it.test',
+        links: [{ source: 'linkedin', identifier: 'ada', address: 'https://www.linkedin.com/in/ada' }],
+      }),
     )
 
-    const profile = screen.getByRole('link', { name: 'linkedin.com/in/ada' })
+    const profile = screen.getByRole('link', { name: /linkedin\.com\/in\/ada$/ })
     expect(profile).toHaveAttribute('href', 'https://www.linkedin.com/in/ada')
     expect(profile).toHaveAttribute('target', '_blank')
   })
 
-  it('let me note my LinkedIn profile, never required', async () => {
+  it('let me note my links, never required', async () => {
     const user = userEvent.setup()
-    renderTheSection(myAccount({ email: 'ada@solean-it.test', linkedInProfile: null }))
+    renderTheSection(myAccount({ email: 'ada@solean-it.test', links: [] }))
 
     await user.click(screen.getByRole('button', { name: /^Modifier\s:\sCoordonnées$/ }))
 
-    expect(screen.getByLabelText(/^Profil LinkedIn\s?\(facultatif\)$/)).toHaveValue('')
+    expect(screen.getByLabelText(/^Ajouter un lien\s?\(facultatif\)$/)).toHaveValue('')
   })
 })

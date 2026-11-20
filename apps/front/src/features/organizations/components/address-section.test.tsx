@@ -34,7 +34,7 @@ const anOrganization = (organization: Partial<Organization>): Organization => ({
   id: BABBAGE,
   name: 'Babbage & Co',
   legalIdentity: { corporateName: 'Babbage & Co' },
-  contactDetails: {},
+  contactDetails: { links: [] },
   contactIds: [],
   possibleDuplicates: [],
   createdAt: '2026-10-15T12:30:00+00:00',

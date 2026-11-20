@@ -23,7 +23,7 @@ vi.mock('@/shared/auth/session', () => ({
 
 const me: Account = {
   name: { firstName: 'Ada', lastName: 'Lovelace' },
-  contactDetails: { email: null, phoneNumber: null, language: null },
+  contactDetails: { email: null, phoneNumber: null, language: null, links: [] },
   organization: { legalIdentity: { corporateName: 'Babbage & Co' } },
   _links: { self: { href: '/api/me', method: 'GET' } },
 }

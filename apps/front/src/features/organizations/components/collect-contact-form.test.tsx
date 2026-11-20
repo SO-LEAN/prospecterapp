@@ -27,7 +27,7 @@ describe('CollectContactForm', () => {
       name: { firstName: 'Ada', lastName: 'Lovelace' },
       civility: 'x',
       jobTitle: 'Directrice commerciale',
-      contactDetails: { email: null, phoneNumber: null, language: null, linkedInProfile: null },
+      contactDetails: { email: null, phoneNumber: null, language: null, links: [] },
       organizationIds: ['0190a1c0-0000-7000-8000-000000000001'],
     })
   })
@@ -42,10 +42,10 @@ describe('CollectContactForm', () => {
     expect(onSubmit).toHaveBeenCalledWith(expect.objectContaining({ civility: 'ms' }))
   })
 
-  it('sends the LinkedIn profile as typed, the API keeping it in one form', async () => {
+  it('sends the links as pasted, the API recognizing them', async () => {
     const { onSubmit, user } = renderForm()
 
-    await user.type(screen.getByLabelText(/^Profil LinkedIn/), 'linkedin.com/in/ada-lovelace')
+    await user.type(screen.getByLabelText(/^Ajouter un lien/), 'linkedin.com/in/ada-lovelace')
     await user.click(screen.getByRole('button', { name: 'Enregistrer le contact' }))
 
     expect(onSubmit).toHaveBeenCalledWith(
@@ -54,7 +54,7 @@ describe('CollectContactForm', () => {
           email: null,
           phoneNumber: null,
           language: null,
-          linkedInProfile: 'linkedin.com/in/ada-lovelace',
+          links: ['linkedin.com/in/ada-lovelace'],
         },
       }),
     )
