@@ -3,9 +3,11 @@
 namespace App\Shared\Mcp;
 
 use App\Security\AccessProblems;
+use App\Shared\RefusalProblems;
 use Mcp\Server\Capability\Registry\ElementReference;
 use Mcp\Server\Capability\Registry\ReferenceHandlerInterface;
 use Mcp\Server\Exception\ToolCallException;
+use Prospecter\Core\SharedKernel\Application\Exception\UseCaseRefused;
 use Symfony\Component\Security\Core\Exception\AccessDeniedException;
 use Symfony\Component\Serializer\Normalizer\NormalizerInterface;
 
@@ -18,6 +20,7 @@ final readonly class RefusingTools implements ReferenceHandlerInterface
     public function __construct(
         private ReferenceHandlerInterface $tools,
         private AccessProblems $accessProblems,
+        private RefusalProblems $refusalProblems,
         private NormalizerInterface $normalizer,
     ) {
     }
@@ -35,6 +38,7 @@ final readonly class RefusingTools implements ReferenceHandlerInterface
     {
         $problem = match (true) {
             $failure instanceof AccessDeniedException => $this->accessProblems->of($failure),
+            $failure instanceof UseCaseRefused => $this->refusalProblems->of($failure),
             default => null,
         };
 

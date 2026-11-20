@@ -39,6 +39,13 @@ class ReadingToolsApiTest extends ApiTestCase
         $this->assertTheToolAnswersAsItsEndpoint('lire-organisation', ['id' => $babbage], '/api/organizations/'.$babbage);
     }
 
+    public function testAnUnknownResourceIsRefusedAsByItsEndpoint(): void
+    {
+        $unknown = self::newIdentity();
+
+        $this->assertTheToolAnswersAsItsEndpoint('lire-organisation', ['id' => $unknown], '/api/organizations/'.$unknown);
+    }
+
     /**
      * Babbage & Co, the organization of the demonstration.
      */
