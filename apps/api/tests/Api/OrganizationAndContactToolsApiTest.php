@@ -101,6 +101,16 @@ class OrganizationAndContactToolsApiTest extends ApiTestCase
         $this->assertSame('Rappeler en janvier', $written['observations']);
     }
 
+    public function testTheAiRevisesTheLegalIdentityOfAnOrganization(): void
+    {
+        $babbage = $this->babbage();
+        $identity = ['corporateName' => 'Babbage & Sons', 'form' => 'SAS', 'type' => 'Client', 'siret' => '55210055400021'];
+
+        $revised = $this->assertTheToolActsAsItsEndpoint('reviser-identite-organisation', ['id' => $babbage, ...$identity], 'PATCH', '/api/organizations/'.$babbage.'/legal-identity', $identity, self::PROSPECTORS);
+
+        $this->assertSame($identity, $revised['legalIdentity']);
+    }
+
     /**
      * Ada Lovelace, the contact of the demonstration, at Babbage & Co.
      */
