@@ -1,0 +1,44 @@
+<?php
+
+namespace Tests\App\Double;
+
+use Symfony\Component\HttpClient\Response\MockResponse;
+use Symfony\Contracts\HttpClient\ResponseInterface;
+
+/**
+ * The images an AI gives by their address on the web (ADR 0168), as the tests see them, and the names of their host,
+ * resolved without the network: on a public address, an address of a private network for a host a test names so.
+ */
+final class ImagesOnTheWeb
+{
+    public const string HOST = 'https://www.babbage.test';
+    public const string ON_A_PRIVATE_NETWORK = 'https://intranet.example';
+
+    private const array ADDRESSES = ['www.babbage.test' => '93.184.216.34', 'intranet.example' => '10.0.0.8'];
+
+    /** @var array<string, string> the content of each image, by its address */
+    private array $images = [];
+
+    public function publish(string $url, string $content): void
+    {
+        $this->images[$url] = $content;
+    }
+
+    public function serves(string $url): bool
+    {
+        return isset($this->images[$url]);
+    }
+
+    public function answer(string $url): ResponseInterface
+    {
+        return new MockResponse($this->images[$url]);
+    }
+
+    /**
+     * The address a host name resolves to, as `DnsResolvingHttpClient` asks it.
+     */
+    public function __invoke(string $host): ?string
+    {
+        return self::ADDRESSES[$host] ?? null;
+    }
+}
