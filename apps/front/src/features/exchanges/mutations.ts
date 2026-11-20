@@ -13,6 +13,7 @@ import {
   type GoogleSync,
   googleSyncKey,
   googleSyncQuery,
+  NOTED_BY_HAND,
   type OrganizationExchangeInput,
   organizationTimelineQuery,
   organizationUpcomingQuery,
@@ -37,7 +38,7 @@ export function useNoteExchange() {
     mutationFn: async ({ contactId, body }: { contactId: string; body: ExchangeInput }) => {
       const { data, error, response } = await fetchClient.POST('/api/contacts/{id}/exchanges', {
         params: { path: { id: contactId } },
-        body,
+        body: { ...body, ...NOTED_BY_HAND },
       })
       return { timeline: dataOf({ data, error }), noted: notedIn(response) }
     },
@@ -74,7 +75,7 @@ export function useNoteOrganizationExchange() {
     }) => {
       const { data, error, response } = await fetchClient.POST('/api/organizations/{id}/exchanges', {
         params: { path: { id: organizationId } },
-        body,
+        body: { ...body, exchange: { ...body.exchange, ...NOTED_BY_HAND } },
       })
       return { timeline: dataOf({ data, error }), noted: notedIn(response) }
     },
