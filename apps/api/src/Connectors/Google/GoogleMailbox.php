@@ -88,8 +88,9 @@ final readonly class GoogleMailbox implements ProviderMailbox
     }
 
     /**
-     * The history read page after page; a reading stopping at the most it may list keeps the point of the last record
-     * it listed whole, the records after it read again next time.
+     * The history read page after page, the point kept that of the last record it listed whole, never the point the
+     * mailbox reached meanwhile: a message whose record Gmail did not list yet is read next time, not skipped; a
+     * reading stopping at the most it may list leaves the records after it to the next one.
      *
      * @see https://developers.google.com/workspace/gmail/api/reference/rest/v1/users.history/list
      */
@@ -112,7 +113,7 @@ final readonly class GoogleMailbox implements ProviderMailbox
             $pageToken = $page['nextPageToken'] ?? null;
         } while (null !== $pageToken);
 
-        return new MailboxChanges($listed, (string) ($page['historyId'] ?? $reached), true);
+        return new MailboxChanges($listed, $reached, true);
     }
 
     /**
