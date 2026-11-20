@@ -47,6 +47,19 @@ class DynamoPersonRepositoryTest extends ApiTestCase
         $this->assertFalse($persons->isEmailUsed($account, Purpose::Membership, new Email('ada@solean-it.io'), except: new PersonId(self::newIdentity())));
     }
 
+    public function testTheContactsHavingEmailsAreFoundByTheirReservations(): void
+    {
+        $persons = self::getContainer()->get(PersonRepository::class);
+        $account = new AccountId(self::newIdentity());
+        $ada = $this->personWithTheEmail($account, 'ada@solean-it.io');
+        $persons->save($ada);
+        $persons->save($this->personWithTheEmail(new AccountId(self::newIdentity()), 'grace@solean-it.io'));
+
+        $found = $persons->contactsHavingEmails($account, [new Email('ada@solean-it.io'), new Email('grace@solean-it.io'), new Email('nobody@solean-it.io')]);
+
+        $this->assertEquals(['ada@solean-it.io' => $ada->id()], $found);
+    }
+
     public function testAnErasedPersonFreesItsEmail(): void
     {
         $persons = self::getContainer()->get(PersonRepository::class);

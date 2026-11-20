@@ -38,6 +38,15 @@ interface PersonRepository
     public function isEmailUsed(AccountId $accountId, Purpose $purpose, Email $email, PersonId $except): bool;
 
     /**
+     * The contacts of the account having these emails.
+     *
+     * @param list<Email> $emails
+     *
+     * @return array<string, PersonId> the contact having each email, by the email; one none has absent
+     */
+    public function contactsHavingEmails(AccountId $accountId, array $emails): array;
+
+    /**
      * The other contact of the account holding this profile, as their own or as a former one, if any.
      */
     public function contactHoldingLinkedInProfile(AccountId $accountId, LinkedInProfile $profile, PersonId $except): ?Person;

@@ -24,6 +24,7 @@ use Prospecter\Core\PersonalData\Contract\Service\NameContacts\NameContacts;
 use Prospecter\Core\PersonalData\Contract\Service\PresentMembers\MemberPresentationResponse;
 use Prospecter\Core\PersonalData\Contract\Service\PresentMembers\PresentMembers;
 use Prospecter\Core\PersonalData\Contract\Service\WhichAreContacts\WhichAreContacts;
+use Prospecter\Core\PersonalData\Contract\Service\WhichContactsHaveTheseEmails\WhichContactsHaveTheseEmails;
 use Prospecter\Core\Prospecting\Contract\Service\ConsultHeldExchanges\ConsultHeldExchanges;
 use Prospecter\Core\Prospecting\Contract\Service\ConsultHeldExchanges\ConsultPlannedExchanges;
 use Prospecter\Core\Prospecting\Contract\Service\ConsultHeldExchanges\HeldExchangeResponse;
@@ -88,6 +89,10 @@ final class PublishedLanguageContext implements Context
      * @var list<OrganizationsOfContactResponse>
      */
     private array $organizationsOfContacts = [];
+    /**
+     * @var array<string, string> the identity having each address asked, by the address
+     */
+    private array $byEmail = [];
 
     #[Given(':name est membre de :account avec le droit aux données personnelles')]
     public function aMemberManagingPersonalData(string $name, string $account): void
@@ -167,6 +172,34 @@ final class PublishedLanguageContext implements Context
     {
         $this->asked = array_combine(array_map($this->scenario->personIdOf(...), $persons->getColumn(0)), $persons->getColumn(0));
         $this->answered = $this->application->whichAreContacts(new WhichAreContacts(array_keys($this->asked), $this->scenario->accountIdOf($account)->value));
+    }
+
+    #[When('un autre contexte demande à PersonalData quels contacts de :account ont les adresses :')]
+    public function anotherContextAsksPersonalDataByEmail(string $account, TableNode $emails): void
+    {
+        $this->byEmail = $this->application->whichContactsHaveTheseEmails(new WhichContactsHaveTheseEmails($emails->getColumn(0), $this->scenario->accountIdOf($account)->value));
+    }
+
+    #[Then('PersonalData répond les contacts :')]
+    public function personalDataAnswersTheContactsByEmail(TableNode $expected): void
+    {
+        Expect::same($expected->getColumnsHash(), $this->describeByEmail('contact', fn (string $id): string => $this->scenario->nameOfPerson(new PersonId($id))));
+    }
+
+    #[Then('PersonalData ne répond aucun contact')]
+    public function personalDataAnswersNoContactByEmail(): void
+    {
+        Expect::same([], $this->byEmail);
+    }
+
+    /**
+     * @param \Closure(string): string $nameOf
+     *
+     * @return list<array<string, string>>
+     */
+    private function describeByEmail(string $column, \Closure $nameOf): array
+    {
+        return array_map(static fn (string $email, string $id): array => ['adresse' => $email, $column => $nameOf($id)], array_keys($this->byEmail), $this->byEmail);
     }
 
     #[When('un autre contexte demande à Prospecting lesquelles sont prospectées par :account :')]

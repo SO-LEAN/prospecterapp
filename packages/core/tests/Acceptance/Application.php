@@ -170,6 +170,7 @@ use Prospecter\Core\PersonalData\Application\SearchContacts\KeptContactPage;
 use Prospecter\Core\PersonalData\Application\SearchContacts\SearchContacts;
 use Prospecter\Core\PersonalData\Application\SearchContacts\SearchContactsHandler;
 use Prospecter\Core\PersonalData\Application\WhichAreContacts\WhichAreContactsHandler;
+use Prospecter\Core\PersonalData\Application\WhichContactsHaveTheseEmails\WhichContactsHaveTheseEmailsHandler;
 use Prospecter\Core\PersonalData\Contract\Service\ListContactFacts\KeptContactFacts;
 use Prospecter\Core\PersonalData\Contract\Service\ListContactFacts\ListContactFacts;
 use Prospecter\Core\PersonalData\Contract\Service\NameContacts\ContactNameResponse;
@@ -180,6 +181,8 @@ use Prospecter\Core\PersonalData\Contract\Service\PresentMembers\MemberPresentat
 use Prospecter\Core\PersonalData\Contract\Service\PresentMembers\PresentMembers;
 use Prospecter\Core\PersonalData\Contract\Service\WhichAreContacts\KeptContacts;
 use Prospecter\Core\PersonalData\Contract\Service\WhichAreContacts\WhichAreContacts;
+use Prospecter\Core\PersonalData\Contract\Service\WhichContactsHaveTheseEmails\KeptContactsByEmail;
+use Prospecter\Core\PersonalData\Contract\Service\WhichContactsHaveTheseEmails\WhichContactsHaveTheseEmails;
 use Prospecter\Core\PersonalData\Domain\Service\EmailUniqueness as PersonalDataEmailUniqueness;
 use Prospecter\Core\PersonalData\Domain\Service\LinkedInProfileUniqueness;
 use Prospecter\Core\Prospecting\Application\AddContact\AddContactHandler;
@@ -488,6 +491,7 @@ final class Application
     private readonly InMemoryContactPageRetriever $contactPageRetriever;
     private readonly ConsultMembersHandler $consultMembersService;
     private readonly WhichAreContactsHandler $whichAreContactsService;
+    private readonly WhichContactsHaveTheseEmailsHandler $whichContactsHaveTheseEmailsService;
     private readonly WhichAreProspectedHandler $whichAreProspectedService;
     private readonly NameOrganizationsOfContactsHandler $nameOrganizationsOfContactsService;
     private readonly InMemoryOrganizationFactsRetriever $organizationFactsRetriever;
@@ -610,6 +614,7 @@ final class Application
         $this->contactPageRetriever = new InMemoryContactPageRetriever($database);
         $this->consultMembersService = new ConsultMembersHandler($this->memberRetriever);
         $this->whichAreContactsService = new WhichAreContactsHandler($this->persons);
+        $this->whichContactsHaveTheseEmailsService = new WhichContactsHaveTheseEmailsHandler($this->persons);
         $this->whichAreProspectedService = new WhichAreProspectedHandler($this->organizations);
         $this->nameOrganizationsOfContactsService = new NameOrganizationsOfContactsHandler(new InMemoryOrganizationOfContactRetriever($database));
         $this->organizationFactsRetriever = new InMemoryOrganizationFactsRetriever($database);
@@ -1350,6 +1355,17 @@ final class Application
         ($this->whichAreContactsService)($query, $kept);
 
         return $kept->personIds;
+    }
+
+    /**
+     * @return array<string, string>
+     */
+    public function whichContactsHaveTheseEmails(WhichContactsHaveTheseEmails $query): array
+    {
+        $kept = new KeptContactsByEmail();
+        ($this->whichContactsHaveTheseEmailsService)($query, $kept);
+
+        return $kept->contacts;
     }
 
     /**

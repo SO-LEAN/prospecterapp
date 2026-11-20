@@ -44,6 +44,19 @@ final readonly class InMemoryPersonRepository implements PersonRepository
         return array_any($this->database->persons(), fn (Person $person): bool => !$person->id()->equals($except) && $person->accountId()->equals($accountId) && $person->purpose() === $purpose && $person->contactDetails()->email?->value === $email->value);
     }
 
+    public function contactsHavingEmails(AccountId $accountId, array $emails): array
+    {
+        $contacts = [];
+        foreach ($this->database->persons() as $person) {
+            $email = $person->contactDetails()->email;
+            if ($person->isAContactOf($accountId) && null !== $email && in_array($email, $emails, false)) {
+                $contacts[$email->value] = $person->id();
+            }
+        }
+
+        return $contacts;
+    }
+
     public function contactHoldingLinkedInProfile(AccountId $accountId, LinkedInProfile $profile, PersonId $except): ?Person
     {
         return array_find($this->database->persons(), static fn (Person $person): bool => !$person->id()->equals($except) && $person->isAContactOf($accountId) && $person->holdsLinkedInProfile($profile));

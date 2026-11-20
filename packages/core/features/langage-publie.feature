@@ -105,6 +105,17 @@ Fonctionnalité: Le langage publié des contextes
       | Ada Lovelace |
     Alors PersonalData ne répond aucune
 
+  Scénario: PersonalData dit quels contacts d'un compte ont des adresses e-mail, sans tenir compte de la casse
+    Quand un autre contexte demande à PersonalData quels contacts de "SOLEAN IT" ont les adresses :
+      | Ada@ACME.test     |
+      | inconnu@acme.test |
+    Alors PersonalData répond les contacts :
+      | adresse       | contact      |
+      | ada@acme.test | Ada Lovelace |
+    Quand un autre contexte demande à PersonalData quels contacts de "Concurrent" ont les adresses :
+      | ada@acme.test |
+    Alors PersonalData ne répond aucun contact
+
   Scénario: Prospecting dit lesquelles de plusieurs organisations sont prospectées par un compte
     Quand un autre contexte demande à Prospecting lesquelles sont prospectées par "SOLEAN IT" :
       | ACME     |

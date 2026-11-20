@@ -72,6 +72,21 @@ final readonly class DynamoPersonRepository implements PersonRepository
         return null !== $holder && $holder['ownerId'] !== $except->value;
     }
 
+    /**
+     * Found by the reservations of their emails among the contacts of the account, without reading the persons.
+     */
+    public function contactsHavingEmails(AccountId $accountId, array $emails): array
+    {
+        $emailsByKey = array_combine(array_map(static fn (Email $email): string => self::emailKey($accountId, Purpose::Prospecting, $email->value), $emails), array_map(static fn (Email $email): string => $email->value, $emails));
+        $reservations = $this->personalDataTable->items(array_map(static fn (string $key): array => [$key, self::EMAIL], array_keys($emailsByKey)));
+        $contacts = [];
+        foreach ($reservations as $reservation) {
+            $contacts[$emailsByKey[$reservation['PK']]] = new PersonId($reservation['ownerId']);
+        }
+
+        return $contacts;
+    }
+
     public function contactHoldingLinkedInProfile(AccountId $accountId, LinkedInProfile $profile, PersonId $except): ?Person
     {
         $holder = $this->personalDataTable->item(self::linkedInKey($accountId, $profile->value), self::LINKEDIN)['ownerId'] ?? null;
