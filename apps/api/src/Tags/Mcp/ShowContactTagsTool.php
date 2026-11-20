@@ -3,6 +3,7 @@
 namespace App\Tags\Mcp;
 
 use App\Security\ToolAccess;
+use App\Shared\Mcp\Adapts;
 use App\Shared\Mcp\ToolResults;
 use App\Tags\ContactTagsReader;
 use Mcp\Schema\ToolAnnotations;
@@ -11,6 +12,7 @@ use Mcp\Server\Capability\Attribute\McpTool;
 /**
  * `GET /api/contacts/{id}/tags`, for an AI (ADR 0163).
  */
+#[Adapts('api_contacts_tags')]
 final readonly class ShowContactTagsTool
 {
     public function __construct(private ToolAccess $access, private ContactTagsReader $contactTagsReader, private ToolResults $results)

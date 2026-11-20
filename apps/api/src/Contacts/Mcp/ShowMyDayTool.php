@@ -5,6 +5,7 @@ namespace App\Contacts\Mcp;
 use App\Contacts\AgendaReader;
 use App\Contacts\Input\PeriodQuery;
 use App\Security\ToolAccess;
+use App\Shared\Mcp\Adapts;
 use App\Shared\Mcp\ToolInputs;
 use App\Shared\Mcp\ToolResults;
 use Mcp\Schema\ToolAnnotations;
@@ -14,6 +15,7 @@ use Symfony\Component\Clock\ClockInterface;
 /**
  * `GET /api/me/day`, for an AI (ADR 0163).
  */
+#[Adapts('api_me_day')]
 final readonly class ShowMyDayTool
 {
     public function __construct(

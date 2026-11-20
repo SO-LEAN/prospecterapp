@@ -5,6 +5,7 @@ namespace App\Contacts\Mcp;
 use App\Contacts\AgendaReader;
 use App\Contacts\Input\SlotQuery;
 use App\Security\ToolAccess;
+use App\Shared\Mcp\Adapts;
 use App\Shared\Mcp\ToolInputs;
 use App\Shared\Mcp\ToolResults;
 use Mcp\Schema\ToolAnnotations;
@@ -13,6 +14,7 @@ use Mcp\Server\Capability\Attribute\McpTool;
 /**
  * `GET /api/me/planned-exchanges`, for an AI (ADR 0163).
  */
+#[Adapts('api_me_planned_exchanges')]
 final readonly class ShowOverlappingExchangesTool
 {
     public function __construct(

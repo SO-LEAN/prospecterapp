@@ -5,6 +5,7 @@ namespace App\Contacts\Mcp;
 use App\Contacts\ProposedOrganizationReader;
 use App\Security\ToolAccess;
 use App\Security\User;
+use App\Shared\Mcp\Adapts;
 use App\Shared\Mcp\ToolResults;
 use Mcp\Schema\ToolAnnotations;
 use Mcp\Server\Capability\Attribute\McpTool;
@@ -12,6 +13,7 @@ use Mcp\Server\Capability\Attribute\McpTool;
 /**
  * `GET /api/contacts/{id}/proposed-organization`, for an AI (ADR 0163).
  */
+#[Adapts('api_contacts_proposed_organization')]
 final readonly class ShowProposedOrganizationTool
 {
     public function __construct(private ToolAccess $access, private ProposedOrganizationReader $proposedOrganizationReader, private ToolResults $results)

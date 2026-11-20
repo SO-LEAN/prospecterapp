@@ -4,6 +4,7 @@ namespace App\Me\Mcp;
 
 use App\Me\MyAccountReader;
 use App\Security\ToolAccess;
+use App\Shared\Mcp\Adapts;
 use App\Shared\Mcp\ToolResults;
 use Mcp\Schema\ToolAnnotations;
 use Mcp\Server\Capability\Attribute\McpTool;
@@ -11,6 +12,7 @@ use Mcp\Server\Capability\Attribute\McpTool;
 /**
  * `GET /api/me`, for an AI (ADR 0163).
  */
+#[Adapts('api_me_show')]
 final readonly class ShowAccountTool
 {
     public function __construct(private ToolAccess $access, private MyAccountReader $myAccount, private ToolResults $results)

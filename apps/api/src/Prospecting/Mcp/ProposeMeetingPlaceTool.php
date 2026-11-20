@@ -4,6 +4,7 @@ namespace App\Prospecting\Mcp;
 
 use App\Prospecting\Presenter\MeetingPlacePresenter;
 use App\Security\ToolAccess;
+use App\Shared\Mcp\Adapts;
 use App\Shared\Mcp\ToolResults;
 use Mcp\Schema\ToolAnnotations;
 use Mcp\Server\Capability\Attribute\McpTool;
@@ -13,6 +14,7 @@ use Prospecter\Core\SharedKernel\Application\QueryHandler;
 /**
  * `GET /api/contacts/{id}/meeting-place`, for an AI (ADR 0163).
  */
+#[Adapts('api_contacts_meeting_place')]
 final readonly class ProposeMeetingPlaceTool
 {
     public function __construct(private ToolAccess $access, private QueryHandler $proposeMeetingPlace, private ToolResults $results)

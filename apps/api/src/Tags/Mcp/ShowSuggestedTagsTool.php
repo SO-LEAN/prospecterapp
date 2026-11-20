@@ -3,6 +3,7 @@
 namespace App\Tags\Mcp;
 
 use App\Security\ToolAccess;
+use App\Shared\Mcp\Adapts;
 use App\Shared\Mcp\ToolResults;
 use App\Tags\SuggestedTagsPresenter;
 use Mcp\Schema\ToolAnnotations;
@@ -13,6 +14,7 @@ use Prospecter\Core\SharedKernel\Application\QueryHandler;
 /**
  * `GET /api/tags`, for an AI (ADR 0163).
  */
+#[Adapts('api_tags')]
 final readonly class ShowSuggestedTagsTool
 {
     public function __construct(private ToolAccess $access, private QueryHandler $consultSuggestedTags, private ToolResults $results)
