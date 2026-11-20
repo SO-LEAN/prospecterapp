@@ -113,6 +113,11 @@ class ReadingToolsApiTest extends ApiTestCase
         $this->assertNotSame('03 88 00 00 42', $contact['contactDetails']['phoneNumber']);
     }
 
+    public function testTheAiSearchesTheContacts(): void
+    {
+        $this->assertTheToolAnswersAsItsEndpoint('rechercher-contacts', ['q' => 'Love'], '/api/contacts?q=Love');
+    }
+
     /**
      * Ada Lovelace, the contact of the demonstration, at Babbage & Co.
      */
