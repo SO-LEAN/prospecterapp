@@ -27,6 +27,7 @@ const anOrganization = (organization: Partial<Organization> = {}): Organization 
   legalIdentity: { corporateName: 'ACME', siret: null },
   contactDetails: {},
   contactIds: [],
+  possibleDuplicates: [],
   createdAt: '2026-10-15T12:30:00+00:00',
   modifiedAt: '2026-10-15T12:30:00+00:00',
   _links: {

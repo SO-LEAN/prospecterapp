@@ -5,6 +5,8 @@ namespace App\Prospecting\Presenter;
 use App\Prospecting\Resource\OrganizationContactDetailsResource;
 use App\Prospecting\Resource\OrganizationLinksResource;
 use App\Prospecting\Resource\OrganizationResource;
+use App\Prospecting\Resource\PossibleDuplicateLinksResource;
+use App\Prospecting\Resource\PossibleDuplicateResource;
 use App\Security\IntentLinks;
 use App\Security\User;
 use App\Shared\ImageResourceFactory;
@@ -15,11 +17,12 @@ use App\Shared\Resource\LinkResource;
 use App\Shared\Resource\LocationResource;
 use Prospecter\Core\Prospecting\Application\ConsultOrganization\ConsultOrganizationOutput;
 use Prospecter\Core\Prospecting\Application\OrganizationSheet;
+use Prospecter\Core\Prospecting\Application\PossibleDuplicate;
 
 /**
  * An organization with a link per intention its state offers and the signed-in member may carry out
  * (`IntentLinks`, ADR 0081), and to its timeline (ADR 0076); removing a contact concerns one contact, so its link is on
- * each contact of GET /api/organizations/{id}/contacts. Each link names its intention, its route, and the role its
+ * each contact of GET /api/organizations/{id}/contacts, and saying it is no duplicate on each possible duplicate. Each link names its intention, its route, and the role its
  * controller requires beyond reaching the organization. Built for one call, it keeps the resource (ADR 0085).
  */
 final class OrganizationResourcePresenter implements ConsultOrganizationOutput
@@ -80,7 +83,19 @@ final class OrganizationResourcePresenter implements ConsultOrganizationOutput
             createdAt: $response->createdAt,
             modifiedAt: $response->modifiedAt,
             links: $this->linksOf($response),
+            possibleDuplicates: array_map(fn (PossibleDuplicate $duplicate): PossibleDuplicateResource => $this->possibleDuplicateOf($response, $duplicate), $response->possibleDuplicates),
         );
+    }
+
+    /**
+     * Saying it is no duplicate concerns one possible duplicate: its link is on each of them.
+     */
+    private function possibleDuplicateOf(OrganizationSheet $response, PossibleDuplicate $duplicate): PossibleDuplicateResource
+    {
+        return new PossibleDuplicateResource($duplicate->id, $duplicate->fullName, new PossibleDuplicateLinksResource(
+            $this->links->to('api_organizations_show', ['id' => $duplicate->id]),
+            $this->intentLinks->shows('DismissPossibleDuplicate', $response->possibleIntents) ? $this->links->to('api_organizations_dismiss_possible_duplicate', ['id' => $response->id, 'duplicateId' => $duplicate->id]) : null,
+        ));
     }
 
     private function linksOf(OrganizationSheet $response): OrganizationLinksResource

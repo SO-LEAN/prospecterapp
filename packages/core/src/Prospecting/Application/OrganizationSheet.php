@@ -44,7 +44,7 @@ final readonly class OrganizationSheet
         public \DateTimeImmutable $createdAt,
         public \DateTimeImmutable $modifiedAt,
         public array $possibleIntents,
-        public array $possibleDuplicates = [],
+        public array $possibleDuplicates,
     ) {
     }
 }
