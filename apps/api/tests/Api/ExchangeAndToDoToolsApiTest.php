@@ -174,6 +174,17 @@ class ExchangeAndToDoToolsApiTest extends ApiTestCase
         $this->assertSame(['Envoyer le CV', '2026-10-16', $ada], [$noted['text'], $noted['dueOn'], $noted['contact']['id']]);
     }
 
+    public function testTheAiNotesAToDoForAnOrganization(): void
+    {
+        $babbage = $this->babbage();
+
+        $noted = $this->assertTheToolActsAsItsEndpoint('noter-a-faire-organisation', ['id' => $babbage, ...self::FRIDAY], 'POST', '/api/organizations/'.$babbage.'/to-dos', self::FRIDAY, self::PERSONAL_DATA_MANAGERS);
+
+        $this->assertSame(['Envoyer le CV', null], [$noted['text'], $noted['contact']]);
+        $this->login();
+        $this->assertContains($noted['id'], array_column($this->requestJson('GET', '/api/organizations/'.$babbage.'/to-dos')['toDos'], 'id'));
+    }
+
     /**
      * Ada Lovelace, the contact of the demonstration, at Babbage & Co.
      */
