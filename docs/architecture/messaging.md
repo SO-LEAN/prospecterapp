@@ -30,7 +30,7 @@ flowchart TD
     UOW -- "outermost commit:<br/>one TransactWriteItems" --> T["Table of the context<br/>aggregate + OUTBOX#&lt;commit&gt;"]
   end
   subgraph ASYNC["After the command"]
-    T -- "stream NEW_IMAGE<br/>filter: INSERT of OUTBOX#" --> RL["Lambda relay<br/>(OutboxRelay)<br/>PutEvents by 10"]
+    T -- "stream NEW_IMAGE<br/>filter: INSERT of OUTBOX#" --> RL["Lambda relay<br/>(OutboxRelay)<br/>PutEvents by 10, under 256 KB"]
     RL --> BUS["EventBridge bus<br/>…-integration"]
     BUS -- "a rule per subscription<br/>input transformer" --> WK["Lambda worker<br/>(IntegrationEventConsumer)"]
     WK -- "inbox + reaction + its outbox<br/>one TransactWriteItems" --> T2["Table of the context<br/>of the subscription"]
