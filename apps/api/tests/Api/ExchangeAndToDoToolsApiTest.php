@@ -79,6 +79,21 @@ class ExchangeAndToDoToolsApiTest extends ApiTestCase
         $this->assertSame('missed', $missed['status']);
     }
 
+    public function testTheAiMovesAPlannedExchangeOfferingToMoveItBack(): void
+    {
+        $call = $this->aCallWithAdaPlannedNextTuesday();
+        $wednesday = ['occurredAt' => '2026-10-21T09:00:00+00:00', 'durationInMinutes' => 45];
+        $this->assertTheToolIsRefusedAsItsEndpoint('deplacer-echange', ['id' => $call, ...$wednesday], 'PATCH', '/api/exchanges/'.$call.'/moment', $wednesday, ['assistant-user', 'admin-user', 'member-user', 'stranger']);
+        $this->login();
+
+        $moved = $this->answerOf($this->callWithoutHandshake('deplacer-echange', ['id' => $call, ...$wednesday]));
+
+        $this->assertSame(['planned', '2026-10-21T09:00:00+00:00', 45], [$moved['status'], $moved['occurredAt'], $moved['durationInMinutes']]);
+        $this->assertSame(['href' => '/api/exchanges/'.$call.'/moment', 'method' => 'PATCH'], $moved['_links']['moveBack']);
+        unset($moved['_links']['moveBack']);
+        $this->assertSame($this->requestJson('GET', '/api/exchanges/'.$call), $moved);
+    }
+
     public function testTheAiNotesAToDoForAContact(): void
     {
         $ada = $this->ada();
@@ -96,6 +111,16 @@ class ExchangeAndToDoToolsApiTest extends ApiTestCase
         $this->login();
 
         return $this->requestJson('GET', '/api/contacts?q=Lovelace')['items'][0]['id'];
+    }
+
+    /**
+     * A call the prospector planned with Ada Lovelace, next Tuesday.
+     */
+    private function aCallWithAdaPlannedNextTuesday(): string
+    {
+        $ada = $this->ada();
+
+        return $this->requestJson('POST', '/api/contacts/'.$ada.'/upcoming-exchanges', ['channel' => 'call', 'occurredAt' => '2026-10-20T14:00:00+00:00'])['items'][0]['id'];
     }
 
     /**
