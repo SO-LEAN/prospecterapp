@@ -53,7 +53,7 @@ final readonly class NoteOrganizationExchangeTool
     #[McpTool(
         name: 'noter-un-echange-organisation',
         description: 'Note a call, a message or a meeting with an organization itself, or with one of its contacts, as read in a mailbox or a messaging: give the Message-ID of an e-mail, the conversation of a LinkedIn message. Each exchange is noted once in the account: noted again, the answer is its status alreadyNoted with the exchange noted first, or erasedBefore with who erased it, and nothing is noted.',
-        annotations: new ToolAnnotations(readOnlyHint: false, destructiveHint: false, idempotentHint: true),
+        annotations: new ToolAnnotations(readOnlyHint: false, destructiveHint: false, idempotentHint: true, openWorldHint: false),
     )]
     public function __invoke(string $id, string $channel, string $direction, ?string $personId = null, ?string $occurredAt = null, ?string $text = null, bool $missed = false, ?string $messageId = null, ?string $linkedInConversation = null): array
     {
