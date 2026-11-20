@@ -51,6 +51,14 @@ class OrganizationExchangeApiTest extends ApiTestCase
         $this->assertSame([], $this->requestJson('GET', '/api/contacts/'.$contact.'/exchanges')['items']);
     }
 
+    public function testOnlyALinkedInMessageIsNotedWithItsConversation(): void
+    {
+        $problem = $this->note($this->anOrganization('ACME'), ['exchange' => ['channel' => 'email', 'direction' => 'inbound', 'linkedInConversation' => '2-abc']]);
+
+        $this->assertResponseStatusCodeSame(422);
+        $this->assertSame('referenceNotOfTheChannel', $problem['reason']);
+    }
+
     public function testAnExchangeNotedWithAContactFromTheOrganizationIsInTheTimelineOfTheContact(): void
     {
         $organization = $this->anOrganization('ACME');

@@ -41,7 +41,7 @@ final class NoteExchangeController extends AbstractController
     #[OA\Response(response: 401, description: 'Missing or invalid access token')]
     #[OA\Response(response: 403, description: 'Not a prospector, or no right to manage personal data', content: new Model(type: ProblemResource::class))]
     #[OA\Response(response: 404, description: 'Unknown contact, or one of another account', content: new Model(type: ProblemResource::class))]
-    #[OA\Response(response: 422, description: 'Invalid exchange: unknown channel or direction, a missed exchange that is no call, meeting or video call, a moment in the future', content: new Model(type: ProblemResource::class))]
+    #[OA\Response(response: 422, description: 'Invalid exchange: unknown channel or direction, a missed exchange that is no call, meeting or video call, a moment in the future, a Message-ID or a conversation of another channel', content: new Model(type: ProblemResource::class))]
     public function __invoke(string $id, #[MapRequestPayload] ExchangeInput $input, #[CurrentUser] User $user): JsonResponse
     {
         $exchange = $this->identities->next();
@@ -55,6 +55,9 @@ final class NoteExchangeController extends AbstractController
             text: $input->text,
             missed: $input->missed,
             executedAt: $this->clock->now(),
+            messageId: $input->messageId,
+            linkedInConversation: $input->linkedInConversation,
+            noteOnce: false,
         ));
 
         return $this->json($this->timelineReader->read($user->memberId(), $id), Response::HTTP_CREATED, ['Location' => $this->generateUrl('api_exchanges_show', ['id' => $exchange])]);
