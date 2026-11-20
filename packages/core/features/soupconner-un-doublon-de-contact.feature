@@ -24,6 +24,15 @@ Fonctionnalité: Soupçonner un doublon de contact
       | nom    | LOVELACE |
     Alors le contact "Ada LOVELACE" n'est pas signalé
 
+  Scénario: Un contact d'un autre compte au même nom n'est pas soupçonné
+    Soit l'organisation "Concurrent" qui utilise Prospecter
+    Et l'organisation "Initech" appartient à "Concurrent"
+    Et le contact "ADA Lovelace" de "Initech"
+    Quand j'enregistre le contact "ada LOVELACE" pour "Globex" :
+      | prénom | ada      |
+      | nom    | LOVELACE |
+    Alors le contact "ada LOVELACE" n'est pas signalé
+
   Scénario: Le contact auquel il ressemble est soupçonné en retour
     Quand j'enregistre le contact "ada LOVELACE" pour "Acme SAS" :
       | prénom | ada      |
