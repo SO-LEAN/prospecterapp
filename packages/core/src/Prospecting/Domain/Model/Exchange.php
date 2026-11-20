@@ -140,6 +140,7 @@ final class Exchange implements ReleasesEvents
     {
         $exchange = self::noted($accountId, $by, $id, $contact, $organizationsOfTheContact, $facts, ExchangeStatus::Done, $at);
         $exchange->importedFrom = $email;
+        $exchange->fingerprint = ExchangeFingerprint::ofEmail($email->identity, $contact);
 
         return $exchange;
     }
@@ -154,6 +155,7 @@ final class Exchange implements ReleasesEvents
     {
         $exchange = self::notedWithTheOrganization($organization, $by, $id, $facts, ExchangeStatus::Done, $at);
         $exchange->importedFrom = $email;
+        $exchange->fingerprint = ExchangeFingerprint::ofEmail($email->identity, $organization->id());
 
         return $exchange;
     }

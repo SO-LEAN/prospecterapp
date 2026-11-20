@@ -36,11 +36,6 @@ final readonly class InMemoryExchangeRepository implements ExchangeRepository
         $this->database->eraseFingerprintOf($exchange);
     }
 
-    public function wasImported(ExchangeId $id): bool
-    {
-        return $this->database->wasImported((string) $id);
-    }
-
     public function fingerprinted(AccountId $accountId, ExchangeFingerprint $fingerprint): ?Fingerprinted
     {
         return $this->database->fingerprinted($accountId, $fingerprint);

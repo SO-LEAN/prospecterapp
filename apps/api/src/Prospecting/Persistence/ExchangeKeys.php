@@ -12,16 +12,6 @@ final class ExchangeKeys
 {
     public const string EXCHANGE = 'EXCHANGE';
 
-    public const string IMPORTED_EMAIL = 'IMPORTED_EMAIL';
-
-    /**
-     * The exchange of an e-mail imported, kept once it is erased, so that the e-mail is never imported again (ADR 0154).
-     */
-    public static function importedEmail(string $exchange): string
-    {
-        return self::IMPORTED_EMAIL.'#'.$exchange;
-    }
-
     public const string FINGERPRINT = 'FINGERPRINT';
 
     /**

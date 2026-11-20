@@ -31,7 +31,8 @@ use Prospecter\Core\SharedKernel\Domain\PersonId;
  * they are, its recorded events never; an item written before an exchange was planned reads as done, and one
  * written done with the fact `missed` of a call that did not go through, before missed was a status, as missed; one
  * written before an exchange was noted in a campaign, in none (ADR 0145); one written before the e-mails were imported,
- * imported from nowhere (ADR 0154); one written before a booker booked one by a public link, booked by none (ADR 0164).
+ * imported from nowhere (ADR 0154); one written before a booker booked one by a public link, booked by none (ADR 0164);
+ * one written before the exchanges kept their fingerprint, with that of its e-mail when imported, none otherwise (ADR 0166).
  */
 final class ExchangeDocument
 {
@@ -90,7 +91,7 @@ final class ExchangeDocument
             'campaign' => null === ($document['campaignId'] ?? null) ? null : new CampaignId($document['campaignId']),
             'importedFrom' => null === ($document['importedFrom'] ?? null) ? null : new ImportedEmail($document['importedFrom']['provider'], $document['importedFrom']['identity']),
             'bookedByLink' => $document['bookedByLink'] ?? false,
-            'fingerprint' => null === ($document['fingerprint'] ?? null) ? null : Hydrator::restore(ExchangeFingerprint::class, ['value' => $document['fingerprint']]),
+            'fingerprint' => self::fingerprintOf($document),
             'facts' => new ExchangeFacts(Channel::from($facts['channel']), Direction::from($facts['direction']), Documents::momentOf($facts['occurredAt']), $facts['text'], self::duration($facts['durationInMinutes'] ?? null), $facts['place'] ?? null, self::link($facts['link'] ?? null), self::linkRequestedOf($document)),
             'status' => self::statusOf($document),
             'lastCorrection' => self::correction($document['lastCorrection'] ?? null),
@@ -101,6 +102,25 @@ final class ExchangeDocument
             'createdAt' => Documents::momentOf($document['createdAt']),
             'modifiedAt' => Documents::momentOf($document['modifiedAt']),
         ]);
+    }
+
+    /**
+     * Written before the exchanges kept their fingerprint, one imported has that of its e-mail, any other none
+     * (ADR 0166).
+     *
+     * @param array<string, mixed> $document
+     */
+    private static function fingerprintOf(array $document): ?ExchangeFingerprint
+    {
+        if (null !== ($document['fingerprint'] ?? null)) {
+            return Hydrator::restore(ExchangeFingerprint::class, ['value' => $document['fingerprint']]);
+        }
+        $email = $document['importedFrom'] ?? null;
+        if (null === $email) {
+            return null;
+        }
+
+        return ExchangeFingerprint::ofEmail($email['identity'], null === $document['contact'] ? new OrganizationId($document['keptFor'][0]) : new PersonId($document['contact']));
     }
 
     /**
