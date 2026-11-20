@@ -273,6 +273,12 @@ export const fr = {
     title: 'Contacts',
     subtitle: 'Les personnes que vous prospectez, les plus récentes d’abord.',
     searchPlaceholder: 'Rechercher par nom ou e-mail…',
+    possibleDuplicates: {
+      title: 'Doublon possible',
+      explanation: 'Ce contact ressemble, par son nom, à un autre de son organisation :',
+      dismiss: 'Ce n’est pas un doublon',
+      dismissOf: 'Ce n’est pas un doublon {{name, de}}',
+    },
     empty: {
       title: 'Aucun contact',
       description: 'Les contacts s’enregistrent depuis la fiche de l’organisation où ils travaillent.',

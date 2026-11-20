@@ -98,6 +98,27 @@ describe('the card of a contact', () => {
     expect(await screen.findByText('Prochain échange : Visio demain 9h00')).toBeInTheDocument()
   })
 
+  it('flags the contact as a possible duplicate of another of their organization', async () => {
+    const other = '0190a1c0-0000-7000-8000-000000000030'
+    theApiAnswers(
+      theContact({
+        possibleDuplicates: [
+          {
+            id: other,
+            name: { firstName: 'ada', lastName: 'LOVELACE' },
+            _links: { self: { href: `/api/contacts/${other}`, method: 'GET' } },
+          },
+        ],
+      }),
+      [],
+    )
+
+    await renderTheSpaAt(`/contacts/${ADA}`)
+
+    expect(await screen.findByText('Doublon possible')).toBeInTheDocument()
+    expect(screen.getByRole('link', { name: 'ada LOVELACE' })).toHaveAttribute('href', `/contacts/${other}`)
+  })
+
   it('says its data are masked to a reader without the right to manage personal data', async () => {
     theApiAnswers(theContact({ masked: true }), [])
 

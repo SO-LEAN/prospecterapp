@@ -70,6 +70,19 @@ export function useChangeContactDetailsOfContact() {
   })
 }
 
+/** The other contact is no longer flagged once the reaction to the gesture ran: read again after it. */
+export function useDismissPossibleDuplicateOfContact() {
+  const queryClient = useQueryClient()
+  const store = useStoreContact()
+
+  return api.useMutation('delete', '/api/contacts/{id}/possible-duplicates/{duplicateId}', {
+    onSuccess: (contact) => {
+      store(contact)
+      readAgainAfterTheReactions(queryClient, queryKeys.contact)
+    },
+  })
+}
+
 export function useForgetContact() {
   const queryClient = useQueryClient()
 

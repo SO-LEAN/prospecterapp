@@ -9,6 +9,7 @@ import {
   OrganizationsSection,
 } from '@/features/contacts/components/contact-sections'
 import { ForgetContact } from '@/features/contacts/components/forget-contact'
+import { PossibleDuplicatesOfContact } from '@/features/contacts/components/possible-duplicates'
 import { contactQuery, fullNameOf, organizationsOfContactQuery } from '@/features/contacts/queries'
 import { ToAttachBanner } from '@/features/contacts-to-attach/components/to-attach-banner'
 import { ExchangeDetailSheet } from '@/features/exchanges/components/exchange-detail'
@@ -99,6 +100,7 @@ function ContactPage() {
           }
         />
       )}
+      <PossibleDuplicatesOfContact contact={contact} />
       {contact._links.tags && (
         <ContactTags contactId={contact.id} organizations={organizations.data?.items ?? []} />
       )}
