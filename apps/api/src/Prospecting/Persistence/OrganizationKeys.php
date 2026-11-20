@@ -9,6 +9,10 @@ namespace App\Prospecting\Persistence;
 final class OrganizationKeys
 {
     public const string ORGANIZATION = 'ORGANIZATION';
+    public const string EMAIL = 'EMAIL';
+    public const string SIRET = 'SIRET';
+    public const string REFERENCE = 'REFERENCE';
+    public const string WEBSITE = 'WEBSITE';
 
     public static function organization(string $id): string
     {
@@ -45,5 +49,14 @@ final class OrganizationKeys
     public static function ofResemblance(string $accountId, string $key): string
     {
         return sprintf('RESEMBLANCE#%s#%s', $accountId, $key);
+    }
+
+    /**
+     * What an organization holds alone in its account, its SIRET, a link, the domain of its website or its email:
+     * the item of its kind (`EMAIL`, `SIRET`, `REFERENCE`, `WEBSITE`) names its holder, `ownerId`.
+     */
+    public static function reservation(string $kind, string $accountId, string $value): string
+    {
+        return sprintf('%s#%s#%s', $kind, $accountId, $value);
     }
 }
