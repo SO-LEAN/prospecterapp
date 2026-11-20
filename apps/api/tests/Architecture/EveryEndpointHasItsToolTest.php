@@ -18,7 +18,8 @@ class EveryEndpointHasItsToolTest extends KernelTestCase
 {
     /**
      * Kept on the screen: the forgetting of a contact (GDPR), the credentials of the sign-in, the connection of a
-     * connector, its consent given to Google in a browser.
+     * connector, its consent given to Google in a browser; and the form of an upload, the tool joining a file
+     * preparing its own (ADR 0172).
      */
     private const array NEVER = [
         'api_contacts_forget',
@@ -28,6 +29,7 @@ class EveryEndpointHasItsToolTest extends KernelTestCase
         'api_me_connections_google_authorize',
         'api_me_connections_google_connect',
         'api_me_connections_google_import_gmail',
+        'api_uploads_prepare',
     ];
 
     /**
@@ -80,7 +82,6 @@ class EveryEndpointHasItsToolTest extends KernelTestCase
         'api_me_revise_organization_identity',
         'api_organizations_tag',
         'api_organizations_take_off_tag',
-        'api_uploads_prepare',
     ];
 
     public function testEveryEndpointOfAMemberHasItsTool(): void
