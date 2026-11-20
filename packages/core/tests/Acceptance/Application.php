@@ -40,6 +40,7 @@ use Prospecter\Core\Booking\Application\ConsultMyBookingPage\KeptMyBookingPage;
 use Prospecter\Core\Booking\Application\ConsultPublicBookingPage\ConsultPublicBookingPage;
 use Prospecter\Core\Booking\Application\ConsultPublicBookingPage\ConsultPublicBookingPageHandler;
 use Prospecter\Core\Booking\Application\ConsultPublicBookingPage\KeptPublicBookingPage;
+use Prospecter\Core\Booking\Application\ForgetAppointmentOfErasedExchange\ForgetAppointmentOfErasedExchangeHandler;
 use Prospecter\Core\Booking\Application\MyBookingPage;
 use Prospecter\Core\Booking\Application\OfferChannels\OfferChannelsHandler;
 use Prospecter\Core\Booking\Application\OpenBooking\OpenBookingHandler;
@@ -1639,6 +1640,7 @@ final class Application
             new ForgetRecipientOfForgottenContactHandler($this->campaigns),
             new ProcessRecipientOfCampaignExchangeHandler($this->campaigns),
             new ReopenRecipientOfErasedExchangeHandler($this->campaigns),
+            new ForgetAppointmentOfErasedExchangeHandler($this->appointments),
             new RecordOrganizationFactsInCampaignsHandler($this->campaignsFactRecorder),
             new RecordContactFactsInCampaignsHandler($this->campaignsFactRecorder),
         ];

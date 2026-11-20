@@ -15,8 +15,10 @@ use Prospecter\Core\Booking\Contract\Service\ConsultAppointments\AppointmentResp
 use Prospecter\Core\Booking\Contract\Service\ConsultAppointments\ConsultAppointments;
 use Prospecter\Core\PersonalData\Domain\Model\Person;
 use Prospecter\Core\PersonalData\Domain\Model\Purpose;
+use Prospecter\Core\Prospecting\Application\AddContact\AddContact;
 use Prospecter\Core\Prospecting\Application\ConsultExchange\ConsultExchange;
 use Prospecter\Core\Prospecting\Application\ConsultExchange\ExchangeDetail;
+use Prospecter\Core\Prospecting\Application\EraseExchange\EraseExchange;
 use Prospecter\Core\Prospecting\Domain\Model\Exchange;
 use Prospecter\Core\Prospecting\Domain\Model\ExchangeId;
 use Prospecter\Core\SharedKernel\Domain\MemberId;
@@ -37,6 +39,8 @@ final class BookSlotContext implements Context
     private const string SLOT = '(?<day>\d{2}\/\d{2}\/\d{4}) (?:à|de) (?<time>\d{1,2}h\d{2})';
 
     private ?string $appointment = null;
+    /** The identity the booker gets should nobody of the account be them. */
+    private ?string $booker = null;
     private ?ExchangeDetail $detail = null;
     /** @var list<AppointmentResponse> */
     private array $answered = [];
@@ -181,6 +185,18 @@ final class BookSlotContext implements Context
         $this->detail = $this->application->consultExchange(new ConsultExchange($this->application->signedIn(), $this->appointment ?? '', $this->application->now()));
     }
 
+    #[When('je supprime l\'échange de cette réservation')]
+    public function iEraseTheExchangeOfThisBooking(): void
+    {
+        $this->application->dispatch(new EraseExchange($this->application->signedIn(), $this->appointment ?? '', $this->application->now()));
+    }
+
+    #[When('je rattache à :organization qui a réservé')]
+    public function iAttachTheBookerTo(string $organization): void
+    {
+        $this->application->dispatch(new AddContact($this->application->signedIn(), $this->scenario->idOf($organization), $this->booker ?? '', $this->application->now()));
+    }
+
     #[Then('son détail dit qu\'on l\'a réservé par mon lien public')]
     public function itsDetailSaysItWasBookedByMyPublicLink(): void
     {
@@ -190,10 +206,11 @@ final class BookSlotContext implements Context
     private function book(string $channel, string $day, string $time, string $phone = '06 12 34 56 78', string $email = 'ada@acme.fr', string $firstName = 'Ada', string $lastName = 'Lovelace', ?string $subject = null): void
     {
         $this->appointment = $this->application->newIdentity();
+        $this->booker = $this->application->newIdentity();
         $this->application->dispatch(new BookSlot(
             $this->myCode(),
             $this->appointment,
-            $this->application->newIdentity(),
+            $this->booker,
             $channel,
             $this->slot($day, $time),
             $firstName,

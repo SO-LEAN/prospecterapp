@@ -13,8 +13,9 @@ use Prospecter\Core\SharedKernel\Domain\RecordsEvents;
 use Prospecter\Core\SharedKernel\Domain\ReleasesEvents;
 
 /**
- * Aggregate root: a slot of a host a booker booked by their public link (ADR 0164). It holds the slot until it ends,
- * the booker's only appointment to come with the host, and who they are until the contexts that plan it read them.
+ * Aggregate root: a slot of a host a booker booked by their public link (ADR 0164). It holds the slot until it ends or
+ * the exchange it became is erased (ADR 0171), the booker's only appointment to come with the host, and who they are
+ * until the contexts that plan it read them.
  */
 final class Appointment implements ReleasesEvents
 {
