@@ -167,6 +167,11 @@ class ReadingToolsApiTest extends ApiTestCase
         $this->assertTheToolAnswersAsItsEndpoint('lire-echanges-a-mettre-en-conformite', ['id' => $babbage], '/api/organizations/'.$babbage.'/exchanges-to-make-conform');
     }
 
+    public function testTheAiRecognizesWhoCalls(): void
+    {
+        $this->assertTheToolAnswersAsItsEndpoint('reconnaitre-appelant', ['phoneNumber' => '0388000042'], '/api/phone-numbers/0388000042');
+    }
+
     /**
      * Ada Lovelace, the contact of the demonstration, at Babbage & Co.
      */
