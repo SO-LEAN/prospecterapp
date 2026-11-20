@@ -165,6 +165,16 @@ class OrganizationAndContactToolsApiTest extends ApiTestCase
         $this->assertTheToolAsksForAConfirmation('ecarter-doublon-possible');
     }
 
+    public function testTheAiAddsAContactToAnOrganization(): void
+    {
+        $babbage = $this->babbage();
+        $charles = $this->requestJson('POST', '/api/contacts', ['name' => ['firstName' => 'Charles', 'lastName' => 'Babbage'], 'organizationIds' => [$this->aHolding()]])['id'];
+
+        $added = $this->assertTheToolActsAsItsEndpoint('ajouter-contact-organisation', ['id' => $babbage, 'personId' => $charles], 'POST', '/api/organizations/'.$babbage.'/contacts', ['personId' => $charles], self::PERSONAL_DATA_MANAGERS);
+
+        $this->assertContains($charles, $added['contactIds']);
+    }
+
     /**
      * Ada Lovelace, the contact of the demonstration, at Babbage & Co.
      */
