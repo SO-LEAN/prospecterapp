@@ -325,6 +325,13 @@ final class BookingContext implements Context
         Expect::same([], array_values(array_filter($this->slotsOffered(), static fn (string $offered): bool => str_ends_with($offered, $slot))));
     }
 
+    #[Then('/^le créneau du '.self::FIRST_DAY.' à (?<time>\d{1,2}h\d{2}) est libre$/u')]
+    public function theSlotIsFree(string $first, string $time): void
+    {
+        $slot = sprintf('%s %s', $first, self::time($time));
+        Expect::same(1, count(array_filter($this->slotsOffered(), static fn (string $offered): bool => str_ends_with($offered, $slot))));
+    }
+
     #[When('on ouvre l\'ancien lien')]
     public function someoneOpensTheFormerLink(): void
     {

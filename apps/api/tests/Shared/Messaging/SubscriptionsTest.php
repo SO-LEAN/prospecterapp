@@ -22,6 +22,7 @@ class SubscriptionsTest extends TestCase
     private const string FIGURES = 'reporting-figures';
     private const string PROCESS = 'campaigns-process-recipient';
     private const string REOPEN = 'campaigns-reopen-recipient';
+    private const string FORGET_APPOINTMENT = 'booking-forget-appointment-of-erased-exchange';
 
     /**
      * @param array<string, mixed> $payload
@@ -40,7 +41,7 @@ class SubscriptionsTest extends TestCase
     {
         yield 'planned, or moved' => [self::fact(present: true, status: 'planned'), [self::FIGURES, self::PUSH]];
         yield 'cancelled' => [self::fact(present: true, status: 'cancelled'), [self::FIGURES, self::PUSH]];
-        yield 'erased' => [self::fact(present: false, status: null), [self::FIGURES, self::PUSH, self::REOPEN]];
+        yield 'erased' => [self::fact(present: false, status: null), [self::FIGURES, self::PUSH, self::REOPEN, self::FORGET_APPOINTMENT]];
         yield 'done, or noted once it happened' => [self::fact(present: true, status: 'done'), [self::FIGURES, self::PROCESS]];
         yield 'missed' => [self::fact(present: true, status: 'missed'), [self::FIGURES, self::PROCESS]];
     }

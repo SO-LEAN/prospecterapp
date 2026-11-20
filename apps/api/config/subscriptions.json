@@ -272,6 +272,14 @@
     "handler": "Prospecter\\Core\\Campaigns\\Application\\ReopenRecipientOfErasedExchange\\ReopenRecipientOfErasedExchangeHandler",
     "inbox": false
   },
+  "booking-forget-appointment-of-erased-exchange": {
+    "context": "booking",
+    "sources": ["prospecter.prospecting"],
+    "events": ["ExchangeFactsChanged.v4"],
+    "payload": {"present": [false]},
+    "handler": "Prospecter\\Core\\Booking\\Application\\ForgetAppointmentOfErasedExchange\\ForgetAppointmentOfErasedExchangeHandler",
+    "inbox": false
+  },
   "campaigns-record-facts": {
     "context": "campaigns",
     "sources": ["prospecter.prospecting", "prospecter.personal-data"],
