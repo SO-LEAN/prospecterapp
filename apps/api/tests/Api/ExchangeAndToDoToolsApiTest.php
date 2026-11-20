@@ -204,6 +204,16 @@ class ExchangeAndToDoToolsApiTest extends ApiTestCase
         $this->assertNull($unticked['doneAt']);
     }
 
+    public function testTheAiRevisesAToDo(): void
+    {
+        $toDo = $this->aToDoForAdaNotedByTheAi();
+        $monday = ['text' => 'Envoyer le CV et la proposition', 'dueOn' => '2026-10-19'];
+
+        $revised = $this->assertTheToolActsAsItsEndpoint('reviser-a-faire', ['id' => $toDo, ...$monday], 'PATCH', '/api/to-dos/'.$toDo, $monday, self::PERSONAL_DATA_MANAGERS);
+
+        $this->assertSame(['Envoyer le CV et la proposition', '2026-10-19', null], [$revised['text'], $revised['dueOn'], $revised['dueAt']]);
+    }
+
     /**
      * « Envoyer le CV » to Ada Lovelace on Friday, noted by the AI of the prospector.
      */
