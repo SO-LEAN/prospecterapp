@@ -937,7 +937,7 @@ export const fr = {
     unrecognizedPage: 'Cette page de {{host}} ne désigne ni une personne ni une organisation.',
     referenceAlreadyUsed: 'Ce lien est déjà celui {{holder, de}}.',
     exchangeAlreadyNoted: 'Cet échange est déjà noté.',
-    exchangeErasedBefore: 'Cet échange a été supprimé : il n’est pas noté de nouveau.',
+    exchangeErasedBefore: 'Cet échange a été supprimé : il n’est pas noté de nouveau.',
     exchangeNotedMeanwhile: 'Cet échange vient d’être noté.',
     referenceNotOfTheChannel: 'Cette référence ne correspond pas au canal de l’échange.',
     referenceTakenMeanwhile: 'Ce lien vient d’être noté sur une autre fiche.',
