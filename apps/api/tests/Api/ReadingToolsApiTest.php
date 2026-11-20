@@ -331,6 +331,11 @@ class ReadingToolsApiTest extends ApiTestCase
         $this->assertTheToolAnswersAsItsEndpoint('lire-mon-compte', [], '/api/me');
     }
 
+    public function testTheAiReadsTheRemindersOfItsMember(): void
+    {
+        $this->assertTheToolAnswersAsItsEndpoint('lire-mes-rappels', [], '/api/me/reminders');
+    }
+
     /**
      * A campaign by e-mail to the clients, frozen: Ada Lovelace, tagged a client, its recipient.
      */
