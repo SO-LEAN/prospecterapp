@@ -105,18 +105,18 @@ final class ExchangeDocument
     }
 
     /**
-     * Written before the exchanges kept their fingerprint, one imported has that of its e-mail, any other none
-     * (ADR 0166).
+     * Written before the exchanges kept their fingerprint, one imported has that of its e-mail, unless its contact was
+     * forgotten, any other none (ADR 0166).
      *
      * @param array<string, mixed> $document
      */
     private static function fingerprintOf(array $document): ?ExchangeFingerprint
     {
-        if (null !== ($document['fingerprint'] ?? null)) {
-            return Hydrator::restore(ExchangeFingerprint::class, ['value' => $document['fingerprint']]);
+        if (array_key_exists('fingerprint', $document)) {
+            return null === $document['fingerprint'] ? null : Hydrator::restore(ExchangeFingerprint::class, ['value' => $document['fingerprint']]);
         }
         $email = $document['importedFrom'] ?? null;
-        if (null === $email) {
+        if (null === $email || ($document['contactForgotten'] ?? false)) {
             return null;
         }
 

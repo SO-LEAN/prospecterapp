@@ -98,6 +98,12 @@ final class FingerprintContext implements Context
         Expect::same(Vocabulary::frenchMoment(sprintf('%s à %s', $day, $time))->format(\DATE_ATOM), $refusal?->context['erasedAt'] ?? null);
     }
 
+    #[Then('le compte ne garde l\'empreinte d\'aucun échange')]
+    public function theAccountKeepsNoFingerprint(): void
+    {
+        Expect::same(0, $this->application->database->fingerprintCount());
+    }
+
     #[Then(':contact n\'a qu\'un échange')]
     public function hasOneExchange(string $contact): void
     {

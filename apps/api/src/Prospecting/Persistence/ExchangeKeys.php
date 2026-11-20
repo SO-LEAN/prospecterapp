@@ -22,6 +22,14 @@ final class ExchangeKeys
         return sprintf('%s#%s#%s', self::FINGERPRINT, $accountId, $fingerprint);
     }
 
+    /**
+     * The fingerprints of the exchanges of an account with a contact, in `GSI1`.
+     */
+    public static function fingerprintsOf(string $accountId, string $contact): string
+    {
+        return sprintf('FINGERPRINTS#%s#%s', $accountId, $contact);
+    }
+
     public static function exchange(string $id): string
     {
         return self::EXCHANGE.'#'.$id;

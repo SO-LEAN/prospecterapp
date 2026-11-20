@@ -280,6 +280,7 @@ use Prospecter\Core\Prospecting\Application\EraseExchangesOfContactLeftUnattache
 use Prospecter\Core\Prospecting\Application\EraseToDo\EraseToDoHandler;
 use Prospecter\Core\Prospecting\Application\EraseToDoLeftWithoutOrganization\EraseToDoLeftWithoutOrganizationHandler;
 use Prospecter\Core\Prospecting\Application\EraseToDosOfForgottenContact\EraseToDosOfForgottenContactHandler;
+use Prospecter\Core\Prospecting\Application\ForgetFingerprintsOfForgottenContact\ForgetFingerprintsOfForgottenContactHandler;
 use Prospecter\Core\Prospecting\Application\KeepCreatedVideoCallLink\KeepCreatedVideoCallLinkHandler;
 use Prospecter\Core\Prospecting\Application\KeepExchangesOfAttachedContact\KeepExchangesOfAttachedContactHandler;
 use Prospecter\Core\Prospecting\Application\KeepExchangesOfForgottenContact\KeepExchangesOfForgottenContactHandler;
@@ -1570,6 +1571,7 @@ final class Application
             new AttachCollectedContactHandler($this->organizations, $this->events),
             new DetachForgottenContactHandler($this->organizations, $this->events, $this->orphans),
             new KeepExchangesOfForgottenContactHandler($this->exchanges, $this->events),
+            new ForgetFingerprintsOfForgottenContactHandler($this->exchanges),
             new KeepCreatedVideoCallLinkHandler($this->exchanges, $this->events),
             new SuspectDuplicateInReturnHandler($this->organizations, $this->events),
             new LiftSuspicionInReturnHandler($this->organizations, $this->events),

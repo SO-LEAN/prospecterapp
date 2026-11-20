@@ -84,13 +84,20 @@ final readonly class DynamoExchangeRepository implements ExchangeRepository
     }
 
     /**
+     * Listed among the fingerprints of its contact in `GSI1`, to be forgotten with them.
+     *
      * @return array<string, mixed>|null
      */
     private static function registrationOf(Exchange $exchange): ?array
     {
         $fingerprint = $exchange->fingerprint();
+        if (null === $fingerprint) {
+            return null;
+        }
+        $registration = ['PK' => ExchangeKeys::fingerprint($exchange->accountId()->value, $fingerprint->value), 'SK' => ExchangeKeys::FINGERPRINT, 'exchangeId' => $exchange->id()->value];
+        $contact = Hydrator::stateOf($exchange)['contact'];
 
-        return null === $fingerprint ? null : ['PK' => ExchangeKeys::fingerprint($exchange->accountId()->value, $fingerprint->value), 'SK' => ExchangeKeys::FINGERPRINT, 'exchangeId' => $exchange->id()->value];
+        return null === $contact ? $registration : $registration + ['GSI1PK' => ExchangeKeys::fingerprintsOf($exchange->accountId()->value, $contact->value), 'GSI1SK' => $fingerprint->value];
     }
 
     public function remove(Exchange $exchange): void
@@ -115,14 +122,14 @@ final readonly class DynamoExchangeRepository implements ExchangeRepository
      */
     private function erasureOfItsFingerprint(Exchange $exchange): array
     {
-        $fingerprint = $exchange->fingerprint();
+        $registration = self::registrationOf($exchange);
         $erasure = Hydrator::stateOf($exchange)['erasure'];
-        if (null === $fingerprint || !$erasure instanceof Erasure) {
+        if (null === $registration || !$erasure instanceof Erasure) {
             return [];
         }
 
         return [$this->prospectingTable->putting(
-            ['PK' => ExchangeKeys::fingerprint($exchange->accountId()->value, $fingerprint->value), 'SK' => ExchangeKeys::FINGERPRINT, 'exchangeId' => $exchange->id()->value, 'erasedBy' => $erasure->by->value, 'erasedAt' => Documents::moment($erasure->at)],
+            $registration + ['erasedBy' => $erasure->by->value, 'erasedAt' => Documents::moment($erasure->at)],
             'attribute_not_exists(PK) OR exchangeId = :exchange',
             [':exchange' => $exchange->id()->value],
         )];
@@ -138,6 +145,12 @@ final readonly class DynamoExchangeRepository implements ExchangeRepository
         $erasure = isset($item['erasedBy']) ? new Erasure(new MemberId($item['erasedBy']), Documents::momentOf($item['erasedAt'])) : null;
 
         return new Fingerprinted(new ExchangeId($item['exchangeId']), $erasure);
+    }
+
+    public function forgetFingerprintsOf(AccountId $accountId, PersonId $contact): void
+    {
+        $registrations = $this->prospectingTable->query(ExchangeKeys::fingerprintsOf($accountId->value, $contact->value), Table::BY_GSI1);
+        $this->prospectingTable->transact(array_map(fn (array $registration): Write => $this->prospectingTable->deleting($registration['PK'], $registration['SK']), $registrations));
     }
 
     public function keptFor(OrganizationId $organization): array

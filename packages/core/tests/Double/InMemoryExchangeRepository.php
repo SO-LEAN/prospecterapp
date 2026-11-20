@@ -41,6 +41,11 @@ final readonly class InMemoryExchangeRepository implements ExchangeRepository
         return $this->database->fingerprinted($accountId, $fingerprint);
     }
 
+    public function forgetFingerprintsOf(AccountId $accountId, PersonId $contact): void
+    {
+        $this->database->forgetFingerprintsOf($accountId, $contact);
+    }
+
     public function keptFor(OrganizationId $organization): array
     {
         return array_values(array_filter($this->database->exchanges(), static fn (Exchange $exchange): bool => array_any(StateOf::the($exchange)['keptFor'], $organization->equals(...))));

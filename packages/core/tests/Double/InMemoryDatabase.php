@@ -26,6 +26,7 @@ use Prospecter\Core\Prospecting\Domain\Model\Organization;
 use Prospecter\Core\Prospecting\Domain\Model\ToDo;
 use Prospecter\Core\Reporting\Domain\Model\Fact;
 use Prospecter\Core\SharedKernel\Domain\AccountId;
+use Prospecter\Core\SharedKernel\Domain\PersonId;
 use Prospecter\Core\SharedKernel\Domain\ReleasesEvents;
 
 /**
@@ -47,6 +48,8 @@ final class InMemoryDatabase
     private array $exchanges = [];
     /** @var array<string, Fingerprinted> the exchanges noted under each fingerprint, kept once erased, by account and fingerprint */
     private array $fingerprints = [];
+    /** @var array<string, list<string>> the keys of the fingerprints of the exchanges with each contact, by account and contact */
+    private array $fingerprintsOfContacts = [];
     /** @var array<string, ToDo> */
     private array $toDos = [];
     /** @var array<string, ContactToAttach> by their person */
@@ -99,6 +102,7 @@ final class InMemoryDatabase
         $this->organizations = $snapshot->organizations;
         $this->exchanges = $snapshot->exchanges;
         $this->fingerprints = $snapshot->fingerprints;
+        $this->fingerprintsOfContacts = $snapshot->fingerprintsOfContacts;
         $this->toDos = $snapshot->toDos;
         $this->contactsToAttach = $snapshot->contactsToAttach;
         $this->facts = $snapshot->facts;
@@ -413,6 +417,24 @@ final class InMemoryDatabase
             throw ExchangeNotedMeanwhile::byAnother();
         }
         $this->fingerprints[$key] = $registered ?? new Fingerprinted($exchange->id());
+        $contact = StateOf::the($exchange)['contact'];
+        if (null !== $contact) {
+            $this->fingerprintsOfContacts[$exchange->accountId()->value.'#'.$contact->value][] = $key;
+        }
+    }
+
+    public function forgetFingerprintsOf(AccountId $accountId, PersonId $contact): void
+    {
+        $ofTheContact = $accountId->value.'#'.$contact->value;
+        foreach ($this->fingerprintsOfContacts[$ofTheContact] ?? [] as $key) {
+            unset($this->fingerprints[$key]);
+        }
+        unset($this->fingerprintsOfContacts[$ofTheContact]);
+    }
+
+    public function fingerprintCount(): int
+    {
+        return count($this->fingerprints);
     }
 
     /**

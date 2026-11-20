@@ -52,3 +52,10 @@ Fonctionnalité: L'empreinte d'un échange
     Soit l'IA a noté le message Malt reçu de "ACME" elle-même le 18/11/2026 à 9h12 : "Bonjour"
     Quand l'IA note le message Malt reçu de "ACME" elle-même le 18/11/2026 à 9h12 : "bonjour !"
     Alors c'est déjà noté, avec l'échange existant
+
+  Scénario: L'oubli d'un contact efface les empreintes de ses échanges
+    Soit l'IA a noté l'e-mail reçu de "Ada Lovelace" le 18/11/2026 à 9h12 de Message-ID "<abc@acme.fr>"
+    Et j'ai supprimé l'échange noté par l'IA
+    Et l'IA a noté l'e-mail reçu de "Ada Lovelace" le 18/11/2026 à 9h20 de Message-ID "<def@acme.fr>"
+    Quand j'efface le contact "Ada Lovelace"
+    Alors le compte ne garde l'empreinte d'aucun échange
