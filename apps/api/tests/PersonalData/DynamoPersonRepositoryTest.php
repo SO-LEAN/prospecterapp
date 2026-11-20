@@ -226,6 +226,16 @@ class DynamoPersonRepositoryTest extends ApiTestCase
         $this->assertEquals([$ada->id()], $this->persons()->resembling($account, $ada->resemblanceKey(), except: new PersonId(self::newIdentity())));
     }
 
+    public function testAContactIsReadBackWithTheContactsTheyAreNotADuplicateOf(): void
+    {
+        $ada = $this->contactNamed(new AccountId(self::newIdentity()), 'Ada', 'Lovelace');
+        $ada->knowItIsNoDuplicateOf(new PersonId(self::newIdentity()), by: new MemberId(self::newIdentity()), at: new \DateTimeImmutable(self::THE_MOMENT_OF_THE_TESTS));
+        $ada->releaseEvents();
+        $this->persons()->save($ada);
+
+        $this->assertEquals($ada, $this->persons()->get($ada->id()));
+    }
+
     private function contactNamed(AccountId $account, string $firstName, string $lastName): Person
     {
         return Person::collect(new PersonId(self::newIdentity()), $account, Purpose::Prospecting, new \DateTimeImmutable(self::THE_MOMENT_OF_THE_TESTS), new PersonName($firstName, $lastName));

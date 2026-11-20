@@ -964,6 +964,7 @@ export const fr = {
     noHoldingToDetachFrom: 'L’organisation n’est rattachée à aucune holding.',
     noContactToRemove: 'Il n’y a pas de contact à retirer.',
     notASuspectedDuplicate: 'Cette organisation n’est plus signalée comme doublon possible de l’autre.',
+    notASuspectedDuplicateContact: 'Ce contact n’est plus signalé comme doublon possible de l’autre.',
     channelNotMissed: 'Seuls un appel, un rendez-vous ou une visio peuvent être manqués.',
     exchangeInTheFuture: 'Un échange ne peut pas être dans le futur.',
     plannedExchangeInThePast: 'Un échange planifié est dans le futur.',

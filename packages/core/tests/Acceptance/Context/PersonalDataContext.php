@@ -16,6 +16,7 @@ use Prospecter\Core\PersonalData\Application\ChangeJobTitle\ChangeJobTitle;
 use Prospecter\Core\PersonalData\Application\CollectContact\CollectContact;
 use Prospecter\Core\PersonalData\Application\ConsultPerson\ConsultPerson;
 use Prospecter\Core\PersonalData\Application\ConsultPersons\ConsultPersons;
+use Prospecter\Core\PersonalData\Application\DismissPossibleDuplicate\DismissPossibleDuplicate;
 use Prospecter\Core\PersonalData\Application\ForgetContact\ForgetContact;
 use Prospecter\Core\PersonalData\Application\PersonCard;
 use Prospecter\Core\PersonalData\Application\PossibleDuplicate;
@@ -269,6 +270,13 @@ final class PersonalDataContext implements Context
         $duplicate->suspectDuplicateOf($contact->id(), by: $by, at: $this->application->now());
         $this->application->persons->save($contact);
         $this->application->persons->save($duplicate);
+    }
+
+    #[Given('j\'ai dit que le contact :name n\'est pas un doublon de :other')]
+    #[When('je dis que le contact :name n\'est pas un doublon de :other')]
+    public function iDismissTheSuspicion(string $name, string $other): void
+    {
+        $this->application->dispatch(new DismissPossibleDuplicate($this->application->signedIn(), $this->scenario->personIdOf($name), $this->scenario->personIdOf($other), $this->application->now()));
     }
 
     #[Then('aucune levée de soupçon de contact n\'a échoué')]

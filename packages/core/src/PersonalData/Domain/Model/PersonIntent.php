@@ -14,9 +14,11 @@ enum PersonIntent
     case ChangePicture;
     /** Erase a prospected person: never a member, who is no contact. */
     case Forget;
+    /** Say, once checked, that a contact is no duplicate of one they resemble: never a member, who is none. */
+    case DismissPossibleDuplicate;
 
     public function concernsAContactOnly(): bool
     {
-        return in_array($this, [self::ChangeCivility, self::Forget], true);
+        return in_array($this, [self::ChangeCivility, self::Forget, self::DismissPossibleDuplicate], true);
     }
 }

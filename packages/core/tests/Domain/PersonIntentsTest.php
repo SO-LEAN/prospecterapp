@@ -83,6 +83,18 @@ class PersonIntentsTest extends TestCase
         return new MemberId('0190a1c0-0000-7000-8000-0000000000aa');
     }
 
+    /**
+     * Suspected without a member, what it recorded let go: only the dismissal is judged.
+     */
+    private function suspectedDuplicateOf(Person $person): PersonId
+    {
+        $duplicate = new PersonId('0190a1c0-0000-7000-8000-000000000005');
+        $person->suspectDuplicateOf($duplicate, self::member(), new \DateTimeImmutable(self::AT));
+        $person->releaseEvents();
+
+        return $duplicate;
+    }
+
     private function isAccepted(PersonIntent $intent, Person $person, Reader $by): bool
     {
         try {
@@ -93,6 +105,7 @@ class PersonIntentsTest extends TestCase
                 PersonIntent::ChangeContactDetails => $person->changeContactDetails(new ContactDetails(phoneNumber: PhoneNumber::of('03 88 00 00 00')), ExternalReferences::none(), $by, new \DateTimeImmutable(self::AT)),
                 PersonIntent::ChangePicture => $person->changePicture(new File('https://storage.test/ada.png', 'png', 1024), $by, new \DateTimeImmutable(self::AT)),
                 PersonIntent::Forget => $person->forget($by, new \DateTimeImmutable(self::AT)),
+                PersonIntent::DismissPossibleDuplicate => $person->dismissSuspicionOf($this->suspectedDuplicateOf($person), $by, new \DateTimeImmutable(self::AT)),
             };
         } catch (NotFound|BusinessRuleViolation) {
             return false;
