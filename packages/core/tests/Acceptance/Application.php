@@ -161,6 +161,8 @@ use Prospecter\Core\PersonalData\Application\ConsultPerson\KeptPerson;
 use Prospecter\Core\PersonalData\Application\ConsultPersons\ConsultPersons;
 use Prospecter\Core\PersonalData\Application\ConsultPersons\ConsultPersonsHandler;
 use Prospecter\Core\PersonalData\Application\ConsultPersons\KeptPersons;
+use Prospecter\Core\PersonalData\Application\DismissPossibleDuplicate\DismissPossibleDuplicateHandler as DismissPossibleDuplicateOfContactHandler;
+use Prospecter\Core\PersonalData\Application\DismissSuspicionInReturn\DismissSuspicionInReturnHandler as DismissContactSuspicionInReturnHandler;
 use Prospecter\Core\PersonalData\Application\ForgetContact\ForgetContactHandler;
 use Prospecter\Core\PersonalData\Application\ForgetContactLeftUnattached\ForgetContactLeftUnattachedHandler;
 use Prospecter\Core\PersonalData\Application\ForgetContactsLeftWithoutOrganization\ForgetContactsLeftWithoutOrganizationHandler;
@@ -1269,6 +1271,7 @@ final class Application
             new ChangeJobTitleHandler($this->persons, $this->readers, $this->events),
             new ChangeCivilityHandler($this->persons, $this->readers, $this->events),
             new ForgetContactHandler($this->persons, $this->readers, $this->events),
+            new DismissPossibleDuplicateOfContactHandler($this->persons, $this->readers, $this->events),
             new AddContactHandler($this->organizations, $this->knownContacts, $this->events),
             new RemoveContactHandler($this->organizations, $this->events, $this->orphans),
             new StopProspectingHandler($this->organizations, $this->events, $this->orphans),
@@ -1600,6 +1603,7 @@ final class Application
             new LiftSuspicionInReturnHandler($this->organizations, $this->events),
             new SuspectContactDuplicateInReturnHandler($this->persons, $this->events),
             new LiftContactSuspicionInReturnHandler($this->persons, $this->events),
+            new DismissContactSuspicionInReturnHandler($this->persons, $this->events),
             new DismissSuspicionInReturnHandler($this->organizations, $this->events),
             new NoteImportedEmailHandler($this->exchanges, $this->organizations, $this->prospectors, $this->contactOrganizations, new NotedOnce($this->exchanges), $this->events),
             new ForgetContactsLeftWithoutOrganizationHandler($this->persons, $this->readers, $this->events),

@@ -66,6 +66,7 @@ final readonly class DomainEventTypes extends EventTypes
             'ContactCollected.v1' => PersonalData\ContactCollected::class,
             'ContactForgotten.v1' => PersonalData\ContactForgotten::class,
             'DuplicateSuspected.v1' => PersonalData\DuplicateSuspected::class,
+            'DuplicateSuspicionDismissed.v1' => PersonalData\DuplicateSuspicionDismissed::class,
             'DuplicateSuspicionLifted.v1' => PersonalData\DuplicateSuspicionLifted::class,
             'JobTitleChanged.v1' => PersonalData\JobTitleChanged::class,
             'PersonContactDetailsChanged.v1' => PersonalData\PersonContactDetailsChanged::class,

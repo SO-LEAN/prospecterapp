@@ -9,12 +9,14 @@ use Prospecter\Core\PersonalData\Domain\Event\CivilityChanged;
 use Prospecter\Core\PersonalData\Domain\Event\ContactCollected;
 use Prospecter\Core\PersonalData\Domain\Event\ContactForgotten;
 use Prospecter\Core\PersonalData\Domain\Event\DuplicateSuspected;
+use Prospecter\Core\PersonalData\Domain\Event\DuplicateSuspicionDismissed;
 use Prospecter\Core\PersonalData\Domain\Event\DuplicateSuspicionLifted;
 use Prospecter\Core\PersonalData\Domain\Event\JobTitleChanged;
 use Prospecter\Core\PersonalData\Domain\Event\PersonContactDetailsChanged;
 use Prospecter\Core\PersonalData\Domain\Event\PersonPictureChanged;
 use Prospecter\Core\PersonalData\Domain\Event\PersonRenamed;
 use Prospecter\Core\PersonalData\Domain\Exception\ContactWithoutOrganization;
+use Prospecter\Core\PersonalData\Domain\Exception\NotASuspectedDuplicateContact;
 use Prospecter\Core\PersonalData\Domain\Exception\ThePersonOrAPersonalDataManagerOnly;
 use Prospecter\Core\PersonalData\Domain\Exception\UnknownPerson;
 use Prospecter\Core\PersonalData\Domain\Policy\PersonPossibilities;
@@ -51,6 +53,8 @@ final class Person implements ReleasesEvents
     private array $formerReferences = [];
     /** @var list<PersonId> */
     private array $possibleDuplicates = [];
+    /** @var list<PersonId> */
+    private array $notDuplicates = [];
     private \DateTimeImmutable $modifiedAt;
 
     private function __construct(
@@ -224,11 +228,11 @@ final class Person implements ReleasesEvents
     }
 
     /**
-     * Suspected of being a duplicate of this contact, once.
+     * Suspected of being a duplicate of this contact, once, unless a member checked they are not.
      */
     public function suspectDuplicateOf(PersonId $duplicate, MemberId $by, \DateTimeImmutable $at): void
     {
-        if ($this->isSuspectedDuplicateOf($duplicate)) {
+        if ($this->isSuspectedDuplicateOf($duplicate) || $this->isNotADuplicateOf($duplicate)) {
             return;
         }
 
@@ -245,8 +249,52 @@ final class Person implements ReleasesEvents
             return;
         }
 
-        $this->possibleDuplicates = array_values(array_filter($this->possibleDuplicates, static fn (PersonId $suspected): bool => !$suspected->equals($duplicate)));
+        $this->possibleDuplicates = $this->withoutSuspicionOf($duplicate);
         $this->recordThat(new DuplicateSuspicionLifted($this->accountId, $by, $this->id, $duplicate, $at));
+    }
+
+    /**
+     * Checked by a member, they are no duplicate of the contact they are suspected of being.
+     *
+     * @throws NotASuspectedDuplicateContact|UnknownPerson|NotAllowed
+     */
+    public function dismissSuspicionOf(PersonId $duplicate, Reader $by, \DateTimeImmutable $at): void
+    {
+        $this->ensurePossible(PersonIntent::DismissPossibleDuplicate, $by);
+
+        if (!$this->isSuspectedDuplicateOf($duplicate)) {
+            throw NotASuspectedDuplicateContact::because('The contact is not suspected of being a duplicate of this one', 'duplicateId');
+        }
+
+        $this->knowItIsNoDuplicateOf($duplicate, $by->id, $at);
+    }
+
+    /**
+     * Checked by a member, they are no duplicate of this contact, suspected or not; known already, nothing changes.
+     */
+    public function knowItIsNoDuplicateOf(PersonId $duplicate, MemberId $by, \DateTimeImmutable $at): void
+    {
+        if ($this->isNotADuplicateOf($duplicate)) {
+            return;
+        }
+
+        $this->notDuplicates[] = $duplicate;
+        $this->possibleDuplicates = $this->withoutSuspicionOf($duplicate);
+        $this->modifiedAt = $at;
+        $this->recordThat(new DuplicateSuspicionDismissed($this->accountId, $by, $this->id, $duplicate, $at));
+    }
+
+    /**
+     * @return list<PersonId>
+     */
+    private function withoutSuspicionOf(PersonId $duplicate): array
+    {
+        return array_values(array_filter($this->possibleDuplicates, static fn (PersonId $suspected): bool => !$suspected->equals($duplicate)));
+    }
+
+    private function isNotADuplicateOf(PersonId $contact): bool
+    {
+        return array_any($this->notDuplicates, $contact->equals(...));
     }
 
     private function isSuspectedDuplicateOf(PersonId $duplicate): bool
@@ -341,6 +389,7 @@ final class Person implements ReleasesEvents
             throw match ($intent) {
                 PersonIntent::Forget => PersonalDataManagersOnly::because('Only a member allowed to manage personal data may forget a prospected person'),
                 PersonIntent::ChangeCivility => PersonalDataManagersOnly::because('Only a member allowed to manage personal data may change the civility of a contact'),
+                PersonIntent::DismissPossibleDuplicate => PersonalDataManagersOnly::because('Only a member allowed to manage personal data may say a contact is no duplicate'),
                 default => ThePersonOrAPersonalDataManagerOnly::because('Only the person or a member allowed to manage personal data may change them'),
             };
         }
