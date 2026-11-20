@@ -169,6 +169,7 @@ services:
     Prospecter\Core\Prospecting\Domain\Repository\ContactToAttachRepository: '@App\Prospecting\Persistence\DynamoContactToAttachRepository'
     Prospecter\Core\Prospecting\Application\Port\ContactsToAttachRetriever: '@App\Prospecting\Persistence\DynamoContactsToAttachRetriever'
     Prospecter\Core\Prospecting\Application\Port\ProposedOrganizationRetriever: '@App\Prospecting\Persistence\DynamoProposedOrganizationRetriever'
+    Prospecter\Core\Prospecting\Application\Port\DesignatedOrganizationRetriever: '@App\Prospecting\Persistence\DynamoDesignatedOrganizationRetriever'
     Prospecter\Core\Prospecting\Application\Port\ToDoListRetriever: '@App\Prospecting\Persistence\DynamoToDoListRetriever'
     Prospecter\Core\Prospecting\Application\Port\FoundOrganizationRetriever: '@App\Prospecting\Persistence\DynamoFoundOrganizationRetriever'
     Prospecter\Core\Prospecting\Application\Port\OrganizationSheetRetriever: '@App\Prospecting\Persistence\DynamoOrganizationSheetRetriever'
