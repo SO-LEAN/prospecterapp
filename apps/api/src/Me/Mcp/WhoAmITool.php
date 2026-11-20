@@ -23,7 +23,7 @@ final readonly class WhoAmITool
     /**
      * @return array{member: string, account: ?string, readsPersonalData: bool}
      */
-    #[McpTool(name: 'qui-suis-je', description: 'Le membre de Prospecter que tu sers, son compte, et s\'il lit les données personnelles en clair (sinon, masquées).', annotations: new ToolAnnotations(readOnlyHint: true))]
+    #[McpTool(name: 'qui-suis-je', description: 'The member of Prospecter you serve, their account, and whether they read the personal data in clear (masked otherwise).', annotations: new ToolAnnotations(readOnlyHint: true))]
     public function __invoke(): array
     {
         $account = $this->myAccount->read($this->access->member()->memberId());

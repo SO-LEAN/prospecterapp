@@ -32,7 +32,7 @@ final readonly class RenderCampaignMessageTool
      *
      * @return array<string, mixed>
      */
-    #[McpTool(name: 'lire-message-campagne', description: 'Le message d\'une campagne rendu pour un de ses contacts : son objet et son texte ; avec le droit de gérer les données personnelles.', annotations: new ToolAnnotations(readOnlyHint: true))]
+    #[McpTool(name: 'lire-message-campagne', description: 'The message of a campaign rendered for one of its contacts: its subject and its text, with the right to manage the personal data.', annotations: new ToolAnnotations(readOnlyHint: true))]
     public function __invoke(string $id, string $contactId): array
     {
         $member = $this->access->member();

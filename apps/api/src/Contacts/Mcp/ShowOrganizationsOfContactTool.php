@@ -24,7 +24,7 @@ final readonly class ShowOrganizationsOfContactTool
      *
      * @return array<string, mixed>
      */
-    #[McpTool(name: 'lire-organisations-du-contact', description: 'Les organisations auxquelles un contact est rattaché.', annotations: new ToolAnnotations(readOnlyHint: true))]
+    #[McpTool(name: 'lire-organisations-du-contact', description: 'The organizations a contact is attached to.', annotations: new ToolAnnotations(readOnlyHint: true))]
     public function __invoke(string $id): array
     {
         $this->access->denyUnlessGranted('ROLE_PROSPECTOR');

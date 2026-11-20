@@ -30,7 +30,7 @@ final readonly class ShowOrganizationTool
      *
      * @return array<string, mixed>
      */
-    #[McpTool(name: 'lire-organisation', description: 'Une organisation que prospecte le compte du membre : son identité, son adresse, ses coordonnées, ses contacts, ses observations, et les liens vers ce qu\'on lit d\'elle.', annotations: new ToolAnnotations(readOnlyHint: true))]
+    #[McpTool(name: 'lire-organisation', description: 'An organization the account of the member prospects: its identity, address, contact details, contacts, observations, and the links to what is read of it.', annotations: new ToolAnnotations(readOnlyHint: true))]
     public function __invoke(string $id): array
     {
         $organization = $this->organizations->read($id);

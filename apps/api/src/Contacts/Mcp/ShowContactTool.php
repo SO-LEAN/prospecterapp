@@ -24,7 +24,7 @@ final readonly class ShowContactTool
      *
      * @return array<string, mixed>
      */
-    #[McpTool(name: 'lire-contact', description: 'Un contact du compte : son nom, sa civilité, sa fonction, ses coordonnées (en clair avec le droit de gérer les données personnelles, masquées sinon), et les liens vers ses échanges, ses à-faire, ses tags.', annotations: new ToolAnnotations(readOnlyHint: true))]
+    #[McpTool(name: 'lire-contact', description: 'A contact of the account: their name, civility, job title, contact details (in clear with the right to manage the personal data, masked otherwise), and the links to their exchanges, to-dos and tags.', annotations: new ToolAnnotations(readOnlyHint: true))]
     public function __invoke(string $id): array
     {
         $this->access->denyUnlessGranted('ROLE_PROSPECTOR');

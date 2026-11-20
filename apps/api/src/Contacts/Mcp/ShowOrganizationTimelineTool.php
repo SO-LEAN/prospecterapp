@@ -34,7 +34,7 @@ final readonly class ShowOrganizationTimelineTool
      *
      * @return array<string, mixed>
      */
-    #[McpTool(name: 'lire-echanges-organisation', description: 'La timeline d\'une organisation : les échanges avec elle et ses contacts, les plus récents d\'abord, par tranches.', annotations: new ToolAnnotations(readOnlyHint: true))]
+    #[McpTool(name: 'lire-echanges-organisation', description: 'The timeline of an organization: the exchanges with it and its contacts, the most recent first, by slices.', annotations: new ToolAnnotations(readOnlyHint: true))]
     public function __invoke(string $id, ?string $after = null): array
     {
         $organization = $this->organizations->read($id);

@@ -34,7 +34,7 @@ final readonly class ShowCalendarTool
      *
      * @return array<string, mixed>
      */
-    #[McpTool(name: 'lire-agenda', description: 'L\'agenda du membre : les échanges qu\'il tient sur une période de six semaines au plus, quel que soit leur statut, et ceux en retard.', annotations: new ToolAnnotations(readOnlyHint: true))]
+    #[McpTool(name: 'lire-agenda', description: 'The calendar of the member: the exchanges they hold in a period of six weeks at most, whatever their status, and those late.', annotations: new ToolAnnotations(readOnlyHint: true))]
     public function __invoke(string $from, string $to, ?string $timeZone = null): array
     {
         $this->access->denyUnlessGranted('ROLE_PROSPECTOR');
