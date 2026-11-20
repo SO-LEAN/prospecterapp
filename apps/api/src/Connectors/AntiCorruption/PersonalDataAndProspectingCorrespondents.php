@@ -2,6 +2,7 @@
 
 namespace App\Connectors\AntiCorruption;
 
+use Monolog\Attribute\WithMonologChannel;
 use Prospecter\Core\Connectors\Domain\Port\Correspondents;
 use Prospecter\Core\PersonalData\Contract\Service\WhichContactsHaveTheseEmails\KeptContactsByEmail;
 use Prospecter\Core\PersonalData\Contract\Service\WhichContactsHaveTheseEmails\WhichContactsHaveTheseEmails;
@@ -20,6 +21,7 @@ use Psr\Log\LoggerInterface;
  * designates, a contact from PersonalData, an organization from Prospecting, each asked about a set of one (ADR 0154);
  * an address nobody has is logged by the account only, the address never told.
  */
+#[WithMonologChannel('mailbox')]
 final readonly class PersonalDataAndProspectingCorrespondents implements Correspondents
 {
     public function __construct(

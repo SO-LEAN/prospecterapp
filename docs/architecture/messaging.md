@@ -225,7 +225,7 @@ Every command runs locally with `make console CMD="…"`, on an instance with `I
 | A reaction missed, nothing in the failures | `app:outbox:republish --since=<moment of the gesture>` |
 | A message in `relay-failures` | `app:outbox:republish --since=<moment of the batch>` |
 
-The correlation of a gesture is in every log of the relay and the worker (CloudWatch on AWS, `apps/api/var/log/dev.log` locally): it follows a chain from the command to its last reaction.
+The correlation of a gesture is in every log of the relay and the worker (CloudWatch on AWS, their channel `messaging` written at info there, ADR 0167; `apps/api/var/log/dev.log` locally): it follows a chain from the command to its last reaction.
 
 ## Adding an event or a reaction
 
