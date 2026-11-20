@@ -71,6 +71,12 @@ final class FingerprintContext implements Context
         $this->aiNotesWithTheOrganization($organization, Channel::Malt, $direction, $day, $time, $text);
     }
 
+    #[When('/^l\'IA note le SMS (?<direction>reçu|envoyé) (?:de|à) "(?<contact>[^"]+)" le (?<day>\S+) à (?<time>\S+) de Message-ID "(?<messageId>[^"]*)"$/')]
+    public function theAINotesAnSmsWithAMessageId(string $direction, string $contact, string $day, string $time, string $messageId): void
+    {
+        $this->aiNotes($contact, Channel::Sms, $direction, $day, $time, null, $messageId, null);
+    }
+
     #[Then('c\'est déjà noté, avec l\'échange existant')]
     public function itIsAlreadyNoted(): void
     {
