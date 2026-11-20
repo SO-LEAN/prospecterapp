@@ -21,6 +21,19 @@ trait CallsTheMcpServer
      */
     protected function callWithoutHandshake(string $tool, array $arguments = []): array
     {
+        $this->sendWithoutHandshake($tool, $arguments);
+
+        return $this->resultOfTheCall();
+    }
+
+    /**
+     * The request of a tool in the revision without handshake, its answer left to read: a result, or the error of the
+     * protocol for arguments its schema refuses.
+     *
+     * @param array<string, mixed> $arguments
+     */
+    protected function sendWithoutHandshake(string $tool, array $arguments = []): void
+    {
         $this->client->request('POST', '/mcp', server: [
             'HTTP_ACCEPT' => 'application/json, text/event-stream',
             'CONTENT_TYPE' => 'application/json',
@@ -41,8 +54,6 @@ trait CallsTheMcpServer
             ],
         ], JSON_THROW_ON_ERROR));
         $this->assertResponseNotHasHeader('Mcp-Session-Id');
-
-        return $this->resultOfTheCall();
     }
 
     /**
