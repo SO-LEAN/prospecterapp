@@ -87,6 +87,7 @@ services:
     Prospecter\Core\Prospecting\Application\CampaignsOfTimeline: ~
     Prospecter\Core\Booking\Application\BookingPages: ~
     Prospecter\Core\Booking\Domain\Service\BusyPeriods: ~
+    Prospecter\Core\Booking\Domain\Service\LinkAvailability: ~
 
     # DynamoDB (ADR 0048): MiniStack locally (DYNAMODB_ENDPOINT), AWS in production (DYNAMODB_ENDPOINT empty);
     # one table per bounded context, injected by name in its repositories only (Table $prospectingTable)

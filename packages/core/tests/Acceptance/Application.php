@@ -51,6 +51,7 @@ use Prospecter\Core\Booking\Contract\Service\ConsultAppointments\AppointmentResp
 use Prospecter\Core\Booking\Contract\Service\ConsultAppointments\ConsultAppointments;
 use Prospecter\Core\Booking\Contract\Service\ConsultAppointments\KeptAppointments;
 use Prospecter\Core\Booking\Domain\Service\BusyPeriods;
+use Prospecter\Core\Booking\Domain\Service\LinkAvailability;
 use Prospecter\Core\Campaigns\Application\AddRecipient\AddRecipientHandler;
 use Prospecter\Core\Campaigns\Application\AddRecipientsByTags\AddRecipientsByTagsHandler;
 use Prospecter\Core\Campaigns\Application\CampaignSheet;
@@ -1313,7 +1314,7 @@ final class Application
             new OpenBookingHandler($this->hostedPages, $this->bookingPages, $this->connectedCalendars, $this->events),
             new CloseBookingHandler($this->hostedPages, $this->bookingPages, $this->events),
             new ChangeBookingLinkHandler($this->hostedPages, $this->bookingPages, $this->events),
-            new BookSlotHandler($this->bookingPages, $this->appointments, $this->connectedCalendars, $this->busyPeriods, $this->events),
+            new BookSlotHandler($this->bookingPages, $this->appointments, new LinkAvailability($this->connectedCalendars, $this->hosts), $this->busyPeriods, $this->events),
         ];
     }
 
@@ -1463,7 +1464,7 @@ final class Application
     {
         $kept = new KeptPublicBookingPage();
 
-        return $this->ask(new ConsultPublicBookingPageHandler($this->publicBookingPageRetriever, $this->busyPeriods, $this->connectedCalendars, $this->hosts), $query, $kept) ? $kept->page : null;
+        return $this->ask(new ConsultPublicBookingPageHandler($this->publicBookingPageRetriever, $this->busyPeriods, new LinkAvailability($this->connectedCalendars, $this->hosts), $this->hosts), $query, $kept) ? $kept->page : null;
     }
 
     /**

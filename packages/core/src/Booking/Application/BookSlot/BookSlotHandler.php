@@ -10,10 +10,10 @@ use Prospecter\Core\Booking\Domain\Model\Booker;
 use Prospecter\Core\Booking\Domain\Model\BookingCode;
 use Prospecter\Core\Booking\Domain\Model\BookingPage;
 use Prospecter\Core\Booking\Domain\Model\Channel;
-use Prospecter\Core\Booking\Domain\Port\ConnectedCalendars;
 use Prospecter\Core\Booking\Domain\Repository\AppointmentRepository;
 use Prospecter\Core\Booking\Domain\Repository\BookingPageRepository;
 use Prospecter\Core\Booking\Domain\Service\BusyPeriods;
+use Prospecter\Core\Booking\Domain\Service\LinkAvailability;
 use Prospecter\Core\SharedKernel\Application\CommandHandler;
 use Prospecter\Core\SharedKernel\Application\Port\Events;
 use Prospecter\Core\SharedKernel\Application\PublishesEvents;
@@ -26,7 +26,7 @@ final readonly class BookSlotHandler implements CommandHandler
     public function __construct(
         private BookingPageRepository $pages,
         private AppointmentRepository $appointments,
-        private ConnectedCalendars $calendars,
+        private LinkAvailability $links,
         private BusyPeriods $busyPeriods,
         private Events $events,
     ) {
@@ -56,7 +56,7 @@ final readonly class BookSlotHandler implements CommandHandler
     private function bookablePageAt(BookingCode $code): BookingPage
     {
         $page = $this->pages->findByCode($code);
-        if (null === $page || !$page->isOpen() || !$this->calendars->isConnectedFor($page->host())) {
+        if (null === $page || !$this->links->offersSlots($page->isOpen(), $page->host())) {
             throw BookingUnavailable::refused();
         }
 
