@@ -189,6 +189,37 @@ class ExchangeAndToDoToolsApiTest extends ApiTestCase
         $this->assertSame($this->requestJson('GET', '/api/exchanges/'.$call), $joined);
     }
 
+    public function testAFileBehindASignInIsRefusedSayingSo(): void
+    {
+        $call = $this->aCallWithAdaNotedYesterday();
+        $this->keepTheKernel();
+        self::getContainer()->get(TheWeb::class)->keepBehindASignIn(self::QUOTE_ON_THE_WEB);
+        $this->login();
+
+        $refusal = $this->answerOf($this->callWithoutHandshake('joindre-piece-jointe', ['id' => $call, 'url' => self::QUOTE_ON_THE_WEB, 'name' => 'devis.png']));
+
+        $this->assertSame([422, 'url'], [$refusal['status'], $refusal['violations'][0]['propertyPath']]);
+        $this->assertStringContainsString('behind a sign-in', $refusal['violations'][0]['title']);
+        $this->assertSame([], $this->requestJson('GET', '/api/exchanges/'.$call)['attachments']);
+    }
+
+    /**
+     * A private drive sends whoever is not signed in to its sign-in page.
+     */
+    public function testAFileWhoseAddressRedirectsIsRefusedSayingItMayBeBehindASignIn(): void
+    {
+        $call = $this->aCallWithAdaNotedYesterday();
+        $this->keepTheKernel();
+        self::getContainer()->get(TheWeb::class)->redirect(self::QUOTE_ON_THE_WEB, TheWeb::HOST.'/sign-in');
+        $this->login();
+
+        $refusal = $this->answerOf($this->callWithoutHandshake('joindre-piece-jointe', ['id' => $call, 'url' => self::QUOTE_ON_THE_WEB, 'name' => 'devis.png']));
+
+        $this->assertSame([422, 'url'], [$refusal['status'], $refusal['violations'][0]['propertyPath']]);
+        $this->assertStringContainsString('redirects', $refusal['violations'][0]['title']);
+        $this->assertStringContainsString('sign-in', $refusal['violations'][0]['title']);
+    }
+
     public function testTheAiRemovesAFileJoinedToAnExchangeOnceItsMemberConfirmed(): void
     {
         $call = $this->aCallWithAdaNotedYesterday();

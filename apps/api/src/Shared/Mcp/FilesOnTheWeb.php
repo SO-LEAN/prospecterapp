@@ -7,7 +7,9 @@ use Symfony\Component\HttpFoundation\File\File;
 use Symfony\Component\Validator\ConstraintViolation;
 use Symfony\Component\Validator\ConstraintViolationList;
 use Symfony\Component\Validator\Exception\ValidationFailedException;
+use Symfony\Contracts\HttpClient\Exception\ClientExceptionInterface;
 use Symfony\Contracts\HttpClient\Exception\ExceptionInterface;
+use Symfony\Contracts\HttpClient\Exception\RedirectionExceptionInterface;
 use Symfony\Contracts\HttpClient\HttpClientInterface;
 
 /**
@@ -18,6 +20,9 @@ use Symfony\Contracts\HttpClient\HttpClientInterface;
 final readonly class FilesOnTheWeb
 {
     private const float SECONDS = 5.0;
+
+    /** Unauthorized, forbidden: what a file served to those signed in only answers the others */
+    private const array SIGN_IN_REQUIRED = [401, 403];
 
     public function __construct(private HttpClientInterface $http)
     {
@@ -58,8 +63,21 @@ final readonly class FilesOnTheWeb
                 'on_progress' => static fn (int $downloaded, int $size): null => self::stopBeyond($heaviest, max($downloaded, $size)),
             ])->getContent();
         } catch (ExceptionInterface $failure) {
-            throw new ValidationFailedException($address, new ConstraintViolationList([new ConstraintViolation(sprintf('The file could not be downloaded: %s', $failure->getMessage()), null, [], $address, 'url', $address->url)]));
+            throw new ValidationFailedException($address, new ConstraintViolationList([new ConstraintViolation(self::why($failure), null, [], $address, 'url', $address->url)]));
         }
+    }
+
+    /**
+     * Why the file could not be downloaded, a file behind a sign-in said so, or a redirect, which may lead to one: the
+     * AI then knows to give an address served to anyone, Prospecter signing in nowhere for its member.
+     */
+    private static function why(ExceptionInterface $failure): string
+    {
+        return match (true) {
+            $failure instanceof ClientExceptionInterface && in_array($failure->getResponse()->getStatusCode(), self::SIGN_IN_REQUIRED, true) => 'The file could not be downloaded: it is behind a sign-in (an e-mail of a mailbox, a private drive…), which Prospecter does not pass; give the address of a file served to anyone.',
+            $failure instanceof RedirectionExceptionInterface => 'The file could not be downloaded: its address redirects, which Prospecter does not follow, to a sign-in page perhaps (a private drive…); give the address the file itself is served to anyone at.',
+            default => sprintf('The file could not be downloaded: %s', $failure->getMessage()),
+        };
     }
 
     private static function stopBeyond(int $heaviest, int $bytes): null
