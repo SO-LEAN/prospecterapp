@@ -204,6 +204,21 @@ class ReadingToolsApiTest extends ApiTestCase
         );
     }
 
+    public function testTheAiReadsAnExchange(): void
+    {
+        $exchange = $this->anExchangeWithAda();
+
+        $this->assertTheToolAnswersAsItsEndpoint('lire-echange', ['id' => $exchange], '/api/exchanges/'.$exchange);
+    }
+
+    /**
+     * The last exchange with Ada Lovelace.
+     */
+    private function anExchangeWithAda(): string
+    {
+        return $this->requestJson('GET', '/api/contacts/'.$this->ada().'/exchanges')['items'][0]['id'];
+    }
+
     /**
      * Ada Lovelace, the contact of the demonstration, at Babbage & Co.
      */
