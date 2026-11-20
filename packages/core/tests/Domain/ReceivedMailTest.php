@@ -67,6 +67,20 @@ class ReceivedMailTest extends TestCase
         $this->assertSame(str_repeat('a', 9999).'…', $text);
     }
 
+    public function testASubjectIsCutFromItsBeginningCountingCharactersNotBytes(): void
+    {
+        $subject = self::mail(subject: 'Devis'.str_repeat('é', 300))->subject;
+
+        $this->assertSame('Devis'.str_repeat('é', 244).'…', $subject);
+    }
+
+    public function testASubjectOfItsLongestOutOfAsciiIsKeptWhole(): void
+    {
+        $subject = str_repeat('é', 250);
+
+        $this->assertSame($subject, self::mail(subject: $subject)->subject);
+    }
+
     public function testASubjectAndATextOfTheirLongestAreKeptWhole(): void
     {
         $mail = self::mail(subject: str_repeat('s', 250), text: str_repeat('t', 10000));
