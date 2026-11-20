@@ -65,6 +65,7 @@ describe('PossibleDuplicates', () => {
     await renderThePossibleDuplicatesOf(aDuplicate([acme({})]))
 
     expect(screen.getByText('Doublon possible')).toBeInTheDocument()
+    expect(screen.getByText('Elle ressemble, par son nom et sa ville, à :')).toBeInTheDocument()
     expect(screen.getByRole('link', { name: 'Acme SAS' })).toHaveAttribute('href', `/organizations/${ACME}`)
   })
 

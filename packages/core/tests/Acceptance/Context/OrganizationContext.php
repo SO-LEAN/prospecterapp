@@ -29,6 +29,7 @@ use Prospecter\Core\Prospecting\Application\SearchProspectedOrganizations\Search
 use Prospecter\Core\Prospecting\Application\StartProspecting\StartProspecting;
 use Prospecter\Core\Prospecting\Application\StopProspecting\StopProspecting;
 use Prospecter\Core\Prospecting\Application\WriteObservations\WriteObservations;
+use Prospecter\Core\Prospecting\Domain\Event\DuplicateSuspicionLifted;
 use Prospecter\Core\Prospecting\Domain\Model\LinkedInPage;
 use Prospecter\Core\Prospecting\Domain\Model\Organization;
 use Prospecter\Core\Prospecting\Domain\Model\Website;
@@ -359,6 +360,15 @@ final class OrganizationContext implements Context
     public function theOrganizationIsFlaggedAsAPossibleDuplicateOf(string $name, string $other): void
     {
         Expect::same([$other], $this->possibleDuplicatesOf($name));
+    }
+
+    /**
+     * Lifted in return by an organization stopped meanwhile, the reaction has nothing left to do: it fails no event.
+     */
+    #[Then('aucune levée de soupçon n\'a échoué')]
+    public function noLiftingOfASuspicionFailed(): void
+    {
+        Expect::same([], array_map(static fn (\Throwable $failure): string => $failure->getMessage(), $this->application->events->failuresOf(DuplicateSuspicionLifted::class)));
     }
 
     #[Then(':name n\'est pas signalée')]
