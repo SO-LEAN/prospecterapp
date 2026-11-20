@@ -2,8 +2,10 @@
 
 namespace App\Prospecting\Mcp;
 
+use App\Prospecting\Input\OrganizationListQuery;
 use App\Prospecting\OrganizationSearchReader;
 use App\Security\ToolAccess;
+use App\Shared\Mcp\ToolInputs;
 use App\Shared\Mcp\ToolResults;
 use Mcp\Schema\ToolAnnotations;
 use Mcp\Server\Capability\Attribute\McpTool;
@@ -13,8 +15,12 @@ use Mcp\Server\Capability\Attribute\McpTool;
  */
 final readonly class SearchOrganizationsTool
 {
-    public function __construct(private ToolAccess $access, private OrganizationSearchReader $organizations, private ToolResults $results)
-    {
+    public function __construct(
+        private ToolAccess $access,
+        private ToolInputs $inputs,
+        private OrganizationSearchReader $organizations,
+        private ToolResults $results,
+    ) {
     }
 
     /**
@@ -27,7 +33,8 @@ final readonly class SearchOrganizationsTool
     public function __invoke(string $q = '', ?string $after = null): array
     {
         $this->access->denyUnlessGranted('ROLE_PROSPECTOR');
+        $query = $this->inputs->valid(new OrganizationListQuery($q, $after));
 
-        return $this->results->of($this->organizations->search($this->access->member()->memberId(), $q, $after));
+        return $this->results->of($this->organizations->search($this->access->member()->memberId(), $query->q, $query->after));
     }
 }

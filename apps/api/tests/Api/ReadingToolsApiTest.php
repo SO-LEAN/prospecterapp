@@ -46,6 +46,17 @@ class ReadingToolsApiTest extends ApiTestCase
         $this->assertTheToolAnswersAsItsEndpoint('lire-organisation', ['id' => $unknown], '/api/organizations/'.$unknown);
     }
 
+    public function testAnInvalidArgumentIsRefusedWithTheViolationsOfItsEndpoint(): void
+    {
+        $tooLong = str_repeat('a', 101);
+        $this->login();
+        $violations = $this->requestJson('GET', '/api/organizations?q='.$tooLong)['violations'];
+
+        $refusal = $this->answerOf($this->callWithoutHandshake('rechercher-organisations', ['q' => $tooLong]));
+
+        $this->assertSame($violations, $refusal['violations']);
+    }
+
     /**
      * Babbage & Co, the organization of the demonstration.
      */
