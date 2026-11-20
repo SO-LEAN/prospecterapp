@@ -54,7 +54,26 @@ final readonly class DynamoExchangeRepository implements ExchangeRepository
             ...$this->linksToItsOrganizations($document, $exchange->isToMakeConform(), $stored['exchange']['keptFor'] ?? []),
             ...$this->linkInTheAgendaOfItsHolder($document, $stored['exchange'] ?? null),
             $this->prospectingTable->putting(self::linkInTheCalendarOfItsHolder($document)),
+            ...$this->markOfTheImport($document, $stored),
         ]);
+    }
+
+    /**
+     * A new exchange of an imported e-mail marks it imported, under the condition that no other import of the e-mail
+     * did meanwhile: the reaction applied again then finds it imported. The mark outlives the exchange.
+     *
+     * @param array<string, mixed>      $document
+     * @param array<string, mixed>|null $stored
+     *
+     * @return list<Write>
+     */
+    private function markOfTheImport(array $document, ?array $stored): array
+    {
+        if (null === $document['importedFrom'] || null !== $stored) {
+            return [];
+        }
+
+        return [$this->prospectingTable->putting(['PK' => ExchangeKeys::importedEmail($document['id']), 'SK' => ExchangeKeys::IMPORTED_EMAIL, 'accountId' => $document['accountId']], 'attribute_not_exists(PK)')];
     }
 
     public function remove(Exchange $exchange): void
@@ -68,6 +87,11 @@ final readonly class DynamoExchangeRepository implements ExchangeRepository
             ...$this->linkInTheAgendaOfItsHolder(['status' => ExchangeStatus::Done->value] + $document, $stored['exchange'] ?? null),
             $this->prospectingTable->deleting(ExchangeKeys::calendar($document['createdBy']), ExchangeKeys::exchange($document['id'])),
         ]);
+    }
+
+    public function wasImported(ExchangeId $id): bool
+    {
+        return null !== $this->prospectingTable->item(ExchangeKeys::importedEmail($id->value), ExchangeKeys::IMPORTED_EMAIL);
     }
 
     public function keptFor(OrganizationId $organization): array

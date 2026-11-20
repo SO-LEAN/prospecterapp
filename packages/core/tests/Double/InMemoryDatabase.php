@@ -40,6 +40,8 @@ final class InMemoryDatabase
     private array $organizations = [];
     /** @var array<string, Exchange> */
     private array $exchanges = [];
+    /** @var array<string, true> the exchanges of the e-mails imported, kept once erased, by their identity */
+    private array $importedEmails = [];
     /** @var array<string, ToDo> */
     private array $toDos = [];
     /** @var array<string, ContactToAttach> by their person */
@@ -89,6 +91,7 @@ final class InMemoryDatabase
         $this->persons = $snapshot->persons;
         $this->organizations = $snapshot->organizations;
         $this->exchanges = $snapshot->exchanges;
+        $this->importedEmails = $snapshot->importedEmails;
         $this->toDos = $snapshot->toDos;
         $this->contactsToAttach = $snapshot->contactsToAttach;
         $this->facts = $snapshot->facts;
@@ -348,6 +351,9 @@ final class InMemoryDatabase
     public function storeExchange(Exchange $exchange): void
     {
         $this->exchanges[(string) $exchange->id()] = self::withoutItsEvents($exchange);
+        if (null !== StateOf::the($exchange)['importedFrom']) {
+            $this->importedEmails[(string) $exchange->id()] = true;
+        }
         $this->revise((string) $exchange->id());
     }
 
@@ -359,6 +365,11 @@ final class InMemoryDatabase
     public function exchange(string $id): ?Exchange
     {
         return isset($this->exchanges[$id]) ? clone $this->exchanges[$id] : null;
+    }
+
+    public function wasImported(string $id): bool
+    {
+        return isset($this->importedEmails[$id]);
     }
 
     /**

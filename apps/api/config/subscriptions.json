@@ -157,6 +157,27 @@
     "handler": "Prospecter\\Core\\Connectors\\Application\\PushExchange\\PushExchangeHandler",
     "inbox": true
   },
+  "connectors-read-mailbox-history": {
+    "context": "connectors",
+    "sources": ["prospecter.connectors.internal"],
+    "events": ["MailboxChanged.v1", "MailWatchRenewed.v1"],
+    "handler": "Prospecter\\Core\\Connectors\\Application\\ReadMailboxHistory\\ReadMailboxHistoryHandler",
+    "inbox": true
+  },
+  "connectors-import-mail": {
+    "context": "connectors",
+    "sources": ["prospecter.connectors.internal"],
+    "events": ["MailboxMessageAdded.v1"],
+    "handler": "Prospecter\\Core\\Connectors\\Application\\ImportMail\\ImportMailHandler",
+    "inbox": true
+  },
+  "prospecting-note-imported-email": {
+    "context": "prospecting",
+    "sources": ["prospecter.connectors"],
+    "events": ["EmailExchanged.v1"],
+    "handler": "Prospecter\\Core\\Prospecting\\Application\\NoteImportedEmail\\NoteImportedEmailHandler",
+    "inbox": true
+  },
   "connectors-push-upcoming-exchanges": {
     "context": "connectors",
     "sources": ["prospecter.connectors.internal"],

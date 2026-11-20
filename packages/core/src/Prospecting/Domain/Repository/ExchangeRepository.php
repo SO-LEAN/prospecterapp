@@ -23,6 +23,11 @@ interface ExchangeRepository
     public function remove(Exchange $exchange): void;
 
     /**
+     * Whether the exchange of an imported e-mail was ever saved, erased since or not (ADR 0154).
+     */
+    public function wasImported(ExchangeId $id): bool;
+
+    /**
      * The exchanges kept for this organization.
      *
      * @return list<Exchange>

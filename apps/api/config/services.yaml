@@ -203,6 +203,7 @@ services:
     Prospecter\Core\Connectors\Domain\Port\ProviderMailbox: '@App\Connectors\Google\GoogleMailbox'
     Prospecter\Core\Connectors\Domain\Port\HeldExchanges: '@App\Connectors\AntiCorruption\ProspectingHeldExchanges'
     Prospecter\Core\Connectors\Domain\Port\ContactNames: '@App\Connectors\AntiCorruption\PersonalDataContactNames'
+    Prospecter\Core\Connectors\Domain\Port\Correspondents: '@App\Connectors\AntiCorruption\PersonalDataAndProspectingCorrespondents'
     Prospecter\Core\Connectors\Domain\Repository\CalendarEntryRepository: '@App\Connectors\Persistence\DynamoCalendarEntryRepository'
     Prospecter\Core\Campaigns\Domain\Repository\TaggingRepository: '@App\Campaigns\Persistence\DynamoTaggingRepository'
     Prospecter\Core\Campaigns\Application\Port\TagsRetriever: '@App\Campaigns\Persistence\DynamoTagsRetriever'

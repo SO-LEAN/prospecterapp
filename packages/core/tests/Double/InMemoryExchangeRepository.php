@@ -33,6 +33,11 @@ final readonly class InMemoryExchangeRepository implements ExchangeRepository
         $this->database->forgetExchange((string) $exchange->id());
     }
 
+    public function wasImported(ExchangeId $id): bool
+    {
+        return $this->database->wasImported((string) $id);
+    }
+
     public function keptFor(OrganizationId $organization): array
     {
         return array_values(array_filter($this->database->exchanges(), static fn (Exchange $exchange): bool => array_any(StateOf::the($exchange)['keptFor'], $organization->equals(...))));

@@ -19,6 +19,7 @@ final readonly class IntegrationEventTypes extends EventTypes
         ],
         'prospecter.connectors' => [
             'VideoCallLinkCreated.v1' => Connectors\VideoCallLinkCreated::class,
+            'EmailExchanged.v1' => Connectors\EmailExchanged::class,
         ],
         'prospecter.personal-data' => [
             'ContactCollected.v1' => PersonalData\ContactCollected::class,
