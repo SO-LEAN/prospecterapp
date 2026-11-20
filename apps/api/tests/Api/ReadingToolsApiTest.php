@@ -336,6 +336,11 @@ class ReadingToolsApiTest extends ApiTestCase
         $this->assertTheToolAnswersAsItsEndpoint('lire-mes-rappels', [], '/api/me/reminders');
     }
 
+    public function testTheAiReadsTheBookingPageOfItsMember(): void
+    {
+        $this->assertTheToolAnswersAsItsEndpoint('lire-ma-page-de-reservation', ['timeZone' => 'Europe/Paris'], '/api/me/booking-page?timeZone=Europe/Paris');
+    }
+
     /**
      * A campaign by e-mail to the clients, frozen: Ada Lovelace, tagged a client, its recipient.
      */
