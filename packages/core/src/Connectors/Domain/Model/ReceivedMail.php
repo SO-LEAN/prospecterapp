@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Prospecter\Core\Connectors\Domain\Model;
 
 use Prospecter\Core\SharedKernel\Domain\Email;
+use Prospecter\Core\SharedKernel\Domain\MessageId;
 
 /**
  * A message of the mailbox of a member as the provider gives it, its text without the quoted history (ADR 0154).
@@ -42,9 +43,9 @@ final readonly class ReceivedMail
      */
     public function identityIn(Email $mailbox): string
     {
-        $messageId = mb_strtolower(trim((string) $this->messageId, " \t<>"));
+        $messageId = new MessageId((string) $this->messageId);
 
-        return hash(self::HASH, '' === $messageId ? sprintf('%s#%s', $mailbox->value, $this->providerId) : $messageId);
+        return $messageId->isMissing() ? hash(self::HASH, sprintf('%s#%s', $mailbox->value, $this->providerId)) : $messageId->identity();
     }
 
     /**
